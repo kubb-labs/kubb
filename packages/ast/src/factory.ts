@@ -17,12 +17,12 @@ import type {
   OutputNode,
   ParameterGroupNode,
   ParameterNode,
+  ParamsTypeNode,
   PrimitiveSchemaType,
   PropertyNode,
   ResponseNode,
   SchemaNode,
   SourceNode,
-  TypeDeclarationNode,
   TypeNode,
 } from './nodes/index.ts'
 import { combineExports, combineImports, combineSources } from './utils.ts'
@@ -332,7 +332,7 @@ export function createResponse(
  * ```
  */
 export function createFunctionParameter(
-  props: { name: string; type?: Extract<TypeNode, { kind: 'Type' }>; rest?: boolean } & ({ optional: true; default?: never } | { optional?: false; default?: string }),
+  props: { name: string; type?: ParamsTypeNode; rest?: boolean } & ({ optional: true; default?: never } | { optional?: false; default?: string }),
 ): FunctionParameterNode {
   return {
     optional: false,
@@ -366,10 +366,10 @@ export function createFunctionParameter(
 export function createTypeExpression(
   props:
     | { variant: 'reference'; name: string }
-    | { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: Extract<TypeNode, { kind: 'Type' }> }> }
+    | { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: ParamsTypeNode }> }
     | { variant: 'member'; base: string; key: string },
-): Extract<TypeNode, { kind: 'Type' }> {
-  return { ...props, kind: 'Type' } as Extract<TypeNode, { kind: 'Type' }>
+): ParamsTypeNode {
+  return { ...props, kind: 'ParamsType' } as ParamsTypeNode
 }
 
 /**
@@ -596,8 +596,8 @@ export function createConst(props: Omit<ConstNode, 'kind'>): ConstNode {
  * // export type PetStatus = ...
  * ```
  */
-export function createType(props: Omit<TypeDeclarationNode, 'kind'>): TypeDeclarationNode {
-  return { ...props, kind: 'TypeDeclaration' }
+export function createType(props: Omit<TypeNode, 'kind'>): TypeNode {
+  return { ...props, kind: 'Type' }
 }
 
 /**

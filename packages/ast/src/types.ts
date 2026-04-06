@@ -38,6 +38,7 @@ export type {
   OutputNode,
   ParameterGroupNode,
   ParameterLocation,
+  ParamsTypeNode,
   ParameterNode,
   PrimitiveSchemaType,
   PropertyNode,

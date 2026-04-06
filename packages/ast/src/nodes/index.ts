@@ -1,5 +1,5 @@
 import type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
-import type { FunctionParamNode } from './function.ts'
+import type { FunctionParamNode, ParamsTypeNode } from './function.ts'
 import type { OperationNode } from './operation.ts'
 import type { OutputNode } from './output.ts'
 import type { ParameterNode } from './parameter.ts'
@@ -12,7 +12,7 @@ import type { ArrowFunctionNode, ConstNode, FunctionNode, TypeNode } from './cod
 export type { BaseNode, NodeKind } from './base.ts'
 export type { ArrowFunctionNode, CodeNode, ConstNode, FunctionNode, JSDocNode, TypeDeclarationNode, TypeNode } from './code.ts'
 export type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
-export type { FunctionNodeType, FunctionParamNode, FunctionParameterNode, FunctionParametersNode, ParameterGroupNode } from './function.ts'
+export type { FunctionNodeType, FunctionParamNode, FunctionParameterNode, FunctionParametersNode, ParameterGroupNode, ParamsTypeNode } from './function.ts'
 export type { HttpStatusCode, MediaType, StatusCode } from './http.ts'
 export type { HttpMethod, OperationNode } from './operation.ts'
 export type { OutputNode } from './output.ts'
@@ -81,5 +81,6 @@ export type Node =
   | SourceNode
   | ConstNode
   | TypeNode
+  | ParamsTypeNode
   | FunctionNode
   | ArrowFunctionNode

@@ -1,5 +1,76 @@
 import type { BaseNode } from './base.ts'
-import type { TypeNode } from './code.ts'
+
+/**
+ * AST node representing a language-agnostic type expression used as a function parameter
+ * type annotation. Each language printer renders the variant into its own syntax.
+ *
+ * - `struct` — an inline anonymous type grouping named fields.
+ *   TypeScript renders as `{ petId: string; name?: string }`.
+ * - `member` — a single named field accessed from a named group type.
+ *   TypeScript renders as `PathParams['petId']`.
+ *
+ * @example Reference variant
+ * ```ts
+ * createTypeExpression({ variant: 'reference', name: 'QueryParams' })
+ * // QueryParams
+ * ```
+ *
+ * @example Struct variant
+ * ```ts
+ * createTypeExpression({ variant: 'struct', properties: [{ name: 'petId', optional: false, type: createTypeExpression({ variant: 'reference', name: 'string' }) }] })
+ * // { petId: string }
+ * ```
+ *
+ * @example Member variant
+ * ```ts
+ * createTypeExpression({ variant: 'member', base: 'PathParams', key: 'petId' })
+ * // PathParams['petId']
+ * ```
+ */
+export type ParamsTypeNode = BaseNode & {
+  /**
+   * Node kind.
+   */
+  kind: 'ParamsType'
+} & (
+    | {
+        /**
+         * Reference variant — a plain type name or identifier.
+         * TypeScript renders as-is, e.g. `string`, `QueryParams`, `Partial<Config>`.
+         */
+        variant: 'reference'
+        /**
+         * The full type name string, e.g. `'string'`, `'QueryParams'`, `'Partial<Config>'`.
+         */
+        name: string
+      }
+    | {
+        /**
+         * Struct variant — an inline anonymous type grouping named fields.
+         * TypeScript renders as `{ key: Type; other?: OtherType }`.
+         */
+        variant: 'struct'
+        /**
+         * Properties of the struct type.
+         */
+        properties: Array<{ name: string; optional: boolean; type: ParamsTypeNode }>
+      }
+    | {
+        /**
+         * Member variant — a single named field accessed from a group type.
+         * TypeScript renders as `Base['key']`.
+         */
+        variant: 'member'
+        /**
+         * Base type name, e.g. `'DeletePetPathParams'`.
+         */
+        base: string
+        /**
+         * The field name to access, e.g. `'petId'`.
+         */
+        key: string
+      }
+  )
 
 /**
  * AST node for one function parameter.
@@ -26,19 +97,19 @@ export type FunctionParameterNode = BaseNode & {
    */
   name: string
   /**
-   * Type annotation as a structured {@link TypeNode}.
+   * Type annotation as a structured {@link ParamsTypeNode}.
    * Omit for untyped output.
    *
    * @example Reference type node
-   * `{ kind: 'Type', variant: 'reference', name: 'string' }` → `petId: string`
+   * `{ kind: 'ParamsType', variant: 'reference', name: 'string' }` → `petId: string`
    *
    * @example Struct type node
-   * `{ kind: 'Type', variant: 'struct', properties: [...] }` → `{ key: Type; other?: OtherType }`
+   * `{ kind: 'ParamsType', variant: 'struct', properties: [...] }` → `{ key: Type; other?: OtherType }`
    *
    * @example Member type node
-   * `{ kind: 'Type', variant: 'member', base: 'PathParams', key: 'petId' }` → `PathParams['petId']`
+   * `{ kind: 'ParamsType', variant: 'member', base: 'PathParams', key: 'petId' }` → `PathParams['petId']`
    */
-  type?: Extract<TypeNode, { kind: 'Type' }>
+  type?: ParamsTypeNode
   /**
    * When `true` the parameter is emitted as a rest parameter.
    *
@@ -94,7 +165,7 @@ export type ParameterGroupNode = BaseNode & {
    * Optional explicit type annotation for the whole group.
    * When absent, printers auto-compute it from `properties`.
    */
-  type?: Extract<TypeNode, { kind: 'Type' }>
+  type?: ParamsTypeNode
   /**
    * When `true`, `properties` are emitted as individual top-level parameters instead of
    * being wrapped in a single grouped construct.
@@ -140,9 +211,9 @@ export type FunctionParametersNode = BaseNode & {
 /**
  * Union of all function-parameter AST node variants used by the function-parameter printer.
  */
-export type FunctionParamNode = FunctionParameterNode | ParameterGroupNode | FunctionParametersNode | Extract<TypeNode, { kind: 'Type' }>
+export type FunctionParamNode = FunctionParameterNode | ParameterGroupNode | FunctionParametersNode | ParamsTypeNode
 
 /**
  * Handler map keys — one per `FunctionParamNode` kind.
  */
-export type FunctionNodeType = 'functionParameter' | 'parameterGroup' | 'functionParameters' | 'type'
+export type FunctionNodeType = 'functionParameter' | 'parameterGroup' | 'functionParameters' | 'paramsType'

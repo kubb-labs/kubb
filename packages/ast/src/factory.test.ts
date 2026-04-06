@@ -19,7 +19,7 @@ import {
   createTypeExpression,
   createType,
 } from './factory.ts'
-import type { ArrowFunctionNode, ConstNode, FileNode, FunctionNode, ObjectSchemaNode, StringSchemaNode, TypeDeclarationNode } from './nodes/index.ts'
+import type { ArrowFunctionNode, ConstNode, FileNode, FunctionNode, ObjectSchemaNode, ParamsTypeNode, StringSchemaNode, TypeNode } from './nodes/index.ts'
 
 describe('createInput', () => {
   it('creates an InputNode with default empty arrays', () => {
@@ -191,7 +191,7 @@ describe('createFunctionParameter', () => {
 
     expect(node.kind).toBe('FunctionParameter')
     expect(node.name).toBe('petId')
-    expect(node.type).toEqual({ kind: 'Type', variant: 'reference', name: 'string' })
+    expect(node.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'string' })
     expect(node.optional).toBe(false)
   })
 
@@ -475,7 +475,7 @@ describe('createConst', () => {
     const node = createConst({ name: 'pet', nodes: [child] })
 
     expect(node.nodes).toHaveLength(1)
-    expect(node.nodes?.[0]?.kind).toBe('TypeDeclaration')
+    expect(node.nodes?.[0]?.kind).toBe('Type')
   })
 
   it('always sets kind to Const', () => {
@@ -494,7 +494,7 @@ describe('createType', () => {
   it('creates a TypeNode with required name', () => {
     const node = createType({ name: 'Pet' })
 
-    expect(node.kind).toBe('TypeDeclaration')
+    expect(node.kind).toBe('Type')
     expect(node.name).toBe('Pet')
     expect(node.export).toBeUndefined()
     expect(node.JSDoc).toBeUndefined()
@@ -520,15 +520,15 @@ describe('createType', () => {
     expect(node.nodes?.[0]?.kind).toBe('Const')
   })
 
-  it('always sets kind to TypeDeclaration', () => {
-    // @ts-expect-error — kind should be forced to 'TypeDeclaration'
+  it('always sets kind to Type', () => {
+    // @ts-expect-error — kind should be forced to 'Type'
     const node = createType({ name: 'X', kind: 'Import' })
 
-    expect(node.kind).toBe('TypeDeclaration')
+    expect(node.kind).toBe('Type')
   })
 
-  it('narrows the return type to TypeDeclarationNode', () => {
-    expectTypeOf(createType({ name: 'Pet' })).toMatchTypeOf<TypeDeclarationNode>()
+  it('narrows the return type to TypeNode', () => {
+    expectTypeOf(createType({ name: 'Pet' })).toMatchTypeOf<TypeNode>()
   })
 })
 

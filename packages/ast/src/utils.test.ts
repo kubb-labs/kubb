@@ -202,7 +202,7 @@ describe('createOperationParams', () => {
                   "name": "petId",
                   "optional": false,
                   "type": {
-                    "kind": "Type",
+                    "kind": "ParamsType",
                     "name": "GetPetById["petId"]",
                     "variant": "reference",
                   },
@@ -244,7 +244,7 @@ describe('createOperationParams', () => {
                 "name": "petId",
                 "optional": false,
                 "type": {
-                  "kind": "Type",
+                  "kind": "ParamsType",
                   "name": "Types["petId"]",
                   "variant": "reference",
                 },
@@ -256,7 +256,7 @@ describe('createOperationParams', () => {
             "name": "data",
             "optional": false,
             "type": {
-              "kind": "Type",
+              "kind": "ParamsType",
               "name": "CreatePetRequest",
               "variant": "reference",
             },
@@ -266,13 +266,13 @@ describe('createOperationParams', () => {
             "name": "params",
             "optional": true,
             "type": {
-              "kind": "Type",
+              "kind": "ParamsType",
               "properties": [
                 {
                   "name": "filter",
                   "optional": true,
                   "type": {
-                    "kind": "Type",
+                    "kind": "ParamsType",
                     "name": "Types["filter"]",
                     "variant": "reference",
                   },
@@ -286,13 +286,13 @@ describe('createOperationParams', () => {
             "name": "headers",
             "optional": true,
             "type": {
-              "kind": "Type",
+              "kind": "ParamsType",
               "properties": [
                 {
                   "name": "x-api-key",
                   "optional": true,
                   "type": {
-                    "kind": "Type",
+                    "kind": "ParamsType",
                     "name": "Types["x-api-key"]",
                     "variant": "reference",
                   },
@@ -307,7 +307,7 @@ describe('createOperationParams', () => {
             "name": "options",
             "optional": false,
             "type": {
-              "kind": "Type",
+              "kind": "ParamsType",
               "name": "Partial<Cypress.RequestOptions>",
               "variant": "reference",
             },
@@ -341,7 +341,7 @@ describe('createOperationParams', () => {
                   "name": "petId",
                   "optional": true,
                   "type": {
-                    "kind": "Type",
+                    "kind": "ParamsType",
                     "name": "string",
                     "variant": "reference",
                   },
@@ -380,7 +380,7 @@ describe('createOperationParams', () => {
                   "name": "petId",
                   "optional": false,
                   "type": {
-                    "kind": "Type",
+                    "kind": "ParamsType",
                     "name": "string",
                     "variant": "reference",
                   },
@@ -390,7 +390,7 @@ describe('createOperationParams', () => {
                   "name": "storeId",
                   "optional": false,
                   "type": {
-                    "kind": "Type",
+                    "kind": "ParamsType",
                     "name": "string",
                     "variant": "reference",
                   },
@@ -433,7 +433,7 @@ describe('createOperationParams', () => {
                   "name": "petId",
                   "optional": false,
                   "type": {
-                    "kind": "Type",
+                    "kind": "ParamsType",
                     "name": "Types["petId"]",
                     "variant": "reference",
                   },
@@ -443,7 +443,7 @@ describe('createOperationParams', () => {
                   "name": "data",
                   "optional": true,
                   "type": {
-                    "kind": "Type",
+                    "kind": "ParamsType",
                     "name": "UpdatePetBody",
                     "variant": "reference",
                   },
@@ -453,13 +453,13 @@ describe('createOperationParams', () => {
                   "name": "params",
                   "optional": false,
                   "type": {
-                    "kind": "Type",
+                    "kind": "ParamsType",
                     "properties": [
                       {
                         "name": "status",
                         "optional": false,
                         "type": {
-                          "kind": "Type",
+                          "kind": "ParamsType",
                           "name": "Types["status"]",
                           "variant": "reference",
                         },
@@ -476,7 +476,7 @@ describe('createOperationParams', () => {
               "name": "options",
               "optional": false,
               "type": {
-                "kind": "Type",
+                "kind": "ParamsType",
                 "name": "Options",
                 "variant": "reference",
               },
@@ -510,13 +510,13 @@ describe('createOperationParams', () => {
                   "name": "params",
                   "optional": true,
                   "type": {
-                    "kind": "Type",
+                    "kind": "ParamsType",
                     "properties": [
                       {
                         "name": "filter",
                         "optional": true,
                         "type": {
-                          "kind": "Type",
+                          "kind": "ParamsType",
                           "name": "string",
                           "variant": "reference",
                         },
@@ -590,7 +590,7 @@ describe('createOperationParams', () => {
               "name": "options",
               "optional": false,
               "type": {
-                "kind": "Type",
+                "kind": "ParamsType",
                 "name": "Options",
                 "variant": "reference",
               },
@@ -614,7 +614,7 @@ describe('createOperationParams', () => {
 
       const pathGroup = params.params[0]
       if (pathGroup && pathGroup.kind === 'ParameterGroup') {
-        expect(pathGroup.properties[0]?.type).toEqual({ kind: 'Type', variant: 'reference', name: 'string' })
+        expect(pathGroup.properties[0]?.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'string' })
       }
     })
   })
@@ -643,7 +643,7 @@ describe('createOperationParams', () => {
               "name": "data",
               "optional": false,
               "type": {
-                "kind": "Type",
+                "kind": "ParamsType",
                 "name": "CreatePetRequest",
                 "variant": "reference",
               },
@@ -676,7 +676,7 @@ describe('createOperationParams', () => {
               "name": "data",
               "optional": true,
               "type": {
-                "kind": "Type",
+                "kind": "ParamsType",
                 "name": "UpdatePetRequest",
                 "variant": "reference",
               },
@@ -709,7 +709,7 @@ describe('createOperationParams', () => {
           "name": "params",
           "optional": true,
           "type": {
-            "kind": "Type",
+            "kind": "ParamsType",
             "name": "FindPetsQueryParams",
             "variant": "reference",
           },
@@ -740,7 +740,7 @@ describe('createOperationParams', () => {
             "name": "params",
             "optional": false,
             "type": {
-              "kind": "Type",
+              "kind": "ParamsType",
               "name": "FindPetsQueryParams",
               "variant": "reference",
             },
@@ -762,7 +762,7 @@ describe('createOperationParams', () => {
 
       const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
       expect(queryParam?.type).toMatchObject({
-        kind: 'Type',
+        kind: 'ParamsType',
         variant: 'struct',
         properties: expect.arrayContaining([expect.objectContaining({ name: 'filter' })]),
       })
@@ -791,7 +791,7 @@ describe('createOperationParams', () => {
               "name": "headers",
               "optional": false,
               "type": {
-                "kind": "Type",
+                "kind": "ParamsType",
                 "name": "FindPetsHeaderParams",
                 "variant": "reference",
               },
@@ -824,7 +824,7 @@ describe('createOperationParams', () => {
             "name": "headers",
             "optional": true,
             "type": {
-              "kind": "Type",
+              "kind": "ParamsType",
               "name": "HeaderParams",
               "variant": "reference",
             },
@@ -858,7 +858,7 @@ describe('createOperationParams', () => {
               "type": {
                 "base": "DeletePetPathParams",
                 "key": "petId",
-                "kind": "Type",
+                "kind": "ParamsType",
                 "variant": "member",
               },
             },
@@ -869,7 +869,7 @@ describe('createOperationParams', () => {
               "type": {
                 "base": "DeletePetPathParams",
                 "key": "name",
-                "kind": "Type",
+                "kind": "ParamsType",
                 "variant": "member",
               },
             },
@@ -951,7 +951,7 @@ describe('createOperationParams', () => {
                 "name": "petId",
                 "optional": false,
                 "type": {
-                  "kind": "Type",
+                  "kind": "ParamsType",
                   "name": "MaybeRefOrGetter<Types["petId"]>",
                   "variant": "reference",
                 },
@@ -963,7 +963,7 @@ describe('createOperationParams', () => {
             "name": "data",
             "optional": true,
             "type": {
-              "kind": "Type",
+              "kind": "ParamsType",
               "name": "MaybeRefOrGetter<CreatePetRequest>",
               "variant": "reference",
             },
@@ -973,7 +973,7 @@ describe('createOperationParams', () => {
             "name": "params",
             "optional": true,
             "type": {
-              "kind": "Type",
+              "kind": "ParamsType",
               "name": "MaybeRefOrGetter<FindPetsQueryParams>",
               "variant": "reference",
             },
@@ -1007,13 +1007,13 @@ describe('createOperationParams', () => {
               "name": "params",
               "optional": true,
               "type": {
-                "kind": "Type",
+                "kind": "ParamsType",
                 "properties": [
                   {
                     "name": "orderStatus",
                     "optional": true,
                     "type": {
-                      "kind": "Type",
+                      "kind": "ParamsType",
                       "name": "Types["orderStatus"]",
                       "variant": "reference",
                     },
@@ -1022,7 +1022,7 @@ describe('createOperationParams', () => {
                     "name": "petCategory",
                     "optional": true,
                     "type": {
-                      "kind": "Type",
+                      "kind": "ParamsType",
                       "name": "Types["petCategory"]",
                       "variant": "reference",
                     },
@@ -1091,7 +1091,7 @@ describe('createOperationParams', () => {
                   "name": "petId",
                   "optional": false,
                   "type": {
-                    "kind": "Type",
+                    "kind": "ParamsType",
                     "name": "Types["petId"]",
                     "variant": "reference",
                   },
@@ -1103,7 +1103,7 @@ describe('createOperationParams', () => {
               "name": "data",
               "optional": false,
               "type": {
-                "kind": "Type",
+                "kind": "ParamsType",
                 "name": "CreatePetRequest",
                 "variant": "reference",
               },
@@ -1113,7 +1113,7 @@ describe('createOperationParams', () => {
               "name": "params",
               "optional": true,
               "type": {
-                "kind": "Type",
+                "kind": "ParamsType",
                 "name": "GetPetQueryParams",
                 "variant": "reference",
               },
@@ -1123,7 +1123,7 @@ describe('createOperationParams', () => {
               "name": "headers",
               "optional": true,
               "type": {
-                "kind": "Type",
+                "kind": "ParamsType",
                 "name": "GetPetHeaderParams",
                 "variant": "reference",
               },
@@ -1197,7 +1197,7 @@ describe('createOperationParams', () => {
                   "type": {
                     "base": "GetPetByIdPathParams",
                     "key": "petId",
-                    "kind": "Type",
+                    "kind": "ParamsType",
                     "variant": "member",
                   },
                 },
@@ -1208,7 +1208,7 @@ describe('createOperationParams', () => {
               "name": "params",
               "optional": true,
               "type": {
-                "kind": "Type",
+                "kind": "ParamsType",
                 "name": "GetPetByIdQueryParams",
                 "variant": "reference",
               },
@@ -1238,7 +1238,7 @@ describe('createOperationParams', () => {
         expect(pathGroup.properties[0]?.name).toBe('petId')
       }
       const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
-      expect(queryParam?.type).toEqual({ kind: 'Type', variant: 'reference', name: 'ListPetsQueryParams' })
+      expect(queryParam?.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'ListPetsQueryParams' })
     })
   })
 })
@@ -1258,7 +1258,7 @@ describe('typeWrapper option', () => {
 
     const group = params.params[0]
     if (group?.kind === 'ParameterGroup') {
-      expect(group.properties[0]?.type).toEqual({ kind: 'Type', variant: 'reference', name: 'MaybeRefOrGetter<string>' })
+      expect(group.properties[0]?.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'MaybeRefOrGetter<string>' })
     }
   })
 
@@ -1275,7 +1275,7 @@ describe('typeWrapper option', () => {
     })
 
     const bodyParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'data')
-    expect(bodyParam?.type).toEqual({ kind: 'Type', variant: 'reference', name: 'MaybeRefOrGetter<CreatePetRequest>' })
+    expect(bodyParam?.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'MaybeRefOrGetter<CreatePetRequest>' })
   })
 
   it('wraps query group type with the provided function', () => {
@@ -1291,7 +1291,7 @@ describe('typeWrapper option', () => {
     })
 
     const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
-    expect(queryParam?.type).toEqual({ kind: 'Type', variant: 'reference', name: 'MaybeRefOrGetter<ListPetsQueryParams>' })
+    expect(queryParam?.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'MaybeRefOrGetter<ListPetsQueryParams>' })
   })
 
   it('identity when typeWrapper is not provided', () => {
@@ -1307,7 +1307,7 @@ describe('typeWrapper option', () => {
 
     const group = params.params[0]
     if (group?.kind === 'ParameterGroup') {
-      expect(group.properties[0]?.type).toEqual({ kind: 'Type', variant: 'reference', name: 'string' })
+      expect(group.properties[0]?.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'string' })
     }
   })
 })
@@ -1330,7 +1330,7 @@ describe('pathParamsType: inlineSpread', () => {
     if (restParam?.kind === 'FunctionParameter') {
       expect(restParam.rest).toBe(true)
       expect(restParam.name).toBe('pathParams')
-      expect(restParam.type).toEqual({ kind: 'Type', variant: 'reference', name: 'GetPetByIdPathParams' })
+      expect(restParam.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'GetPetByIdPathParams' })
     }
   })
 
@@ -1366,7 +1366,7 @@ describe('pathParamsType: inlineSpread', () => {
 
     const restParam = params.params[0]
     if (restParam?.kind === 'FunctionParameter') {
-      expect(restParam.type).toEqual({ kind: 'Type', variant: 'reference', name: 'MaybeRefOrGetter<GetPetByIdPathParams>' })
+      expect(restParam.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'MaybeRefOrGetter<GetPetByIdPathParams>' })
     }
   })
 

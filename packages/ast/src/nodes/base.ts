@@ -18,12 +18,12 @@ export type NodeKind =
   | 'ParameterGroup'
   | 'FunctionParameters'
   | 'Type'
+  | 'ParamsType'
   | 'File'
   | 'Import'
   | 'Export'
   | 'Source'
   | 'Const'
-  | 'TypeDeclaration'
   | 'FunctionDeclaration'
   | 'ArrowFunctionDeclaration'
 
