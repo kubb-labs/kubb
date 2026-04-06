@@ -1,5 +1,40 @@
 # @kubb/plugin-ts
 
+## 5.0.0-alpha.32
+
+### Patch Changes
+
+- [#2982](https://github.com/kubb-labs/kubb/pull/2982) [`6c6d2b6`](https://github.com/kubb-labs/kubb/commit/6c6d2b6b9f0dcfc7826cf9000ed835f274a6a7af) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Add structured AST nodes mirroring every JSX component from `@kubb/react-fabric`.
+
+  ### `@kubb/ast`
+
+  New node types in `nodes/code.ts`:
+  - `ConstNode` (`kind: 'Const'`) — mirrors the `Const` component
+  - `TypeNode` (`kind: 'Type'`) — mirrors the `Type` component; a plain type alias declaration with `name`, `export`, `JSDoc`, and `nodes` fields
+  - `FunctionNode` (`kind: 'Function'`) — mirrors the `Function` component
+  - `ArrowFunctionNode` (`kind: 'ArrowFunction'`) — mirrors the `Function.Arrow` component
+  - `JSDocNode` — JSDoc prop shape used on the above nodes
+  - `CodeNode` — discriminated union of all four code node types
+
+  New `ParamsTypeNode` (`kind: 'ParamsType'`) in `nodes/function.ts` — language-agnostic type expressions for function parameter annotations, with three variants: `reference`, `struct`, and `member`.
+
+  Updated `SourceNode` in `nodes/file.ts` — added optional `nodes?: Array<CodeNode>` field alongside `value` for carrying structured AST children.
+
+  Updated `NodeKind` — added `'Const'`, `'Type'`, `'ParamsType'`, `'Function'`, `'ArrowFunction'`.
+
+  New factory functions: `createConst`, `createType`, `createParamsType`, `createFunction`, `createArrowFunction`.
+
+  Renamed `FunctionNode` (function-parameter printer variants) to `FunctionParamNode`. The `functionPrinter` handler key `type` was renamed to `paramsType`.
+
+  ### `@kubb/plugin-ts`, `@kubb/plugin-client`, `@kubb/plugin-cypress`
+
+  Updated to use the new `createParamsType` factory and `FunctionParamNode` type.
+
+- Updated dependencies [[`6c6d2b6`](https://github.com/kubb-labs/kubb/commit/6c6d2b6b9f0dcfc7826cf9000ed835f274a6a7af)]:
+  - @kubb/ast@5.0.0-alpha.32
+  - @kubb/core@5.0.0-alpha.32
+  - @kubb/parser-ts@5.0.0-alpha.32
+
 ## 5.0.0-alpha.31
 
 ### Patch Changes
