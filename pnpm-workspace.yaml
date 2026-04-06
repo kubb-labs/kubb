@@ -6,8 +6,8 @@ packages:
 
 catalog:
   "@types/node": ^22.19.17
-  "@kubb/fabric-core": 0.15.1
-  "@kubb/react-fabric": 0.15.1
+  "@kubb/fabric-core": 0.16.0
+  "@kubb/react-fabric": 0.16.0
   "@size-limit/file": ^11.2.0
   "size-limit": ^11.2.0
   "tinyexec": ^1.0.4
