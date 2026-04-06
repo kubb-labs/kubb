@@ -7,8 +7,10 @@ import type { PropertyNode } from './property.ts'
 import type { ResponseNode } from './response.ts'
 import type { InputNode } from './root.ts'
 import type { SchemaNode } from './schema.ts'
+import type { ArrowFunctionDeclarationNode, ConstNode, FunctionDeclarationNode, TypeDeclarationNode } from './code.ts'
 
 export type { BaseNode, NodeKind } from './base.ts'
+export type { ArrowFunctionDeclarationNode, CodeNode, ConstNode, FunctionDeclarationNode, JSDocNode, TypeDeclarationNode } from './code.ts'
 export type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
 export type { FunctionNode, FunctionNodeType, FunctionParameterNode, FunctionParametersNode, ParameterGroupNode, TypeNode } from './function.ts'
 export type { HttpStatusCode, MediaType, StatusCode } from './http.ts'
@@ -77,3 +79,7 @@ export type Node =
   | ImportNode
   | ExportNode
   | SourceNode
+  | ConstNode
+  | TypeDeclarationNode
+  | FunctionDeclarationNode
+  | ArrowFunctionDeclarationNode

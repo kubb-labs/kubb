@@ -3,8 +3,11 @@ import path from 'node:path'
 import { trimExtName } from '@internals/utils'
 import type { InferSchemaNode } from './infer.ts'
 import type {
+  ArrowFunctionDeclarationNode,
+  ConstNode,
   ExportNode,
   FileNode,
+  FunctionDeclarationNode,
   FunctionParameterNode,
   FunctionParametersNode,
   ImportNode,
@@ -19,6 +22,7 @@ import type {
   ResponseNode,
   SchemaNode,
   SourceNode,
+  TypeDeclarationNode,
   TypeNode,
 } from './nodes/index.ts'
 import { combineExports, combineImports, combineSources } from './utils.ts'
@@ -536,4 +540,131 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
     sources: resolvedSources,
     meta: input.meta ?? ({} as TMeta),
   }
+}
+
+/**
+ * Creates a `ConstNode` representing a TypeScript `const` declaration.
+ *
+ * Mirrors the `Const` component from `@kubb/react-fabric`.
+ * The component's `children` are represented as `nodes`.
+ *
+ * @example Simple constant
+ * ```ts
+ * createConst({ name: 'pet' })
+ * // const pet = ...
+ * ```
+ *
+ * @example Exported constant with type and `as const`
+ * ```ts
+ * createConst({ name: 'pets', export: true, type: 'Pet[]', asConst: true })
+ * // export const pets: Pet[] = ... as const
+ * ```
+ *
+ * @example With JSDoc and child nodes
+ * ```ts
+ * createConst({
+ *   name: 'config',
+ *   export: true,
+ *   JSDoc: { comments: ['@description App configuration'] },
+ *   nodes: [],
+ * })
+ * ```
+ */
+export function createConst(props: Omit<ConstNode, 'kind'>): ConstNode {
+  return { ...props, kind: 'Const' }
+}
+
+/**
+ * Creates a `TypeDeclarationNode` representing a TypeScript `type` alias declaration.
+ *
+ * Mirrors the `Type` component from `@kubb/react-fabric`.
+ * The component's `children` are represented as `nodes`.
+ *
+ * @example Simple type alias
+ * ```ts
+ * createTypeDeclaration({ name: 'Pet' })
+ * // type Pet = ...
+ * ```
+ *
+ * @example Exported type with JSDoc
+ * ```ts
+ * createTypeDeclaration({
+ *   name: 'PetStatus',
+ *   export: true,
+ *   JSDoc: { comments: ['@description Status of a pet'] },
+ * })
+ * // export type PetStatus = ...
+ * ```
+ */
+export function createTypeDeclaration(props: Omit<TypeDeclarationNode, 'kind'>): TypeDeclarationNode {
+  return { ...props, kind: 'TypeDeclaration' }
+}
+
+/**
+ * Creates a `FunctionDeclarationNode` representing a TypeScript `function` declaration.
+ *
+ * Mirrors the `Function` component from `@kubb/react-fabric`.
+ * The component's `children` are represented as `nodes`.
+ *
+ * @example Simple function
+ * ```ts
+ * createFunctionDeclaration({ name: 'getPet' })
+ * // function getPet() { ... }
+ * ```
+ *
+ * @example Exported async function with return type
+ * ```ts
+ * createFunctionDeclaration({ name: 'fetchPet', export: true, async: true, returnType: 'Pet' })
+ * // export async function fetchPet(): Promise<Pet> { ... }
+ * ```
+ *
+ * @example Function with generics and params
+ * ```ts
+ * createFunctionDeclaration({
+ *   name: 'identity',
+ *   export: true,
+ *   generics: ['T'],
+ *   params: 'value: T',
+ *   returnType: 'T',
+ * })
+ * // export function identity<T>(value: T): T { ... }
+ * ```
+ */
+export function createFunctionDeclaration(props: Omit<FunctionDeclarationNode, 'kind'>): FunctionDeclarationNode {
+  return { ...props, kind: 'FunctionDeclaration' }
+}
+
+/**
+ * Creates an `ArrowFunctionDeclarationNode` representing a TypeScript arrow function.
+ *
+ * Mirrors the `Function.Arrow` component from `@kubb/react-fabric`.
+ * The component's `children` are represented as `nodes`.
+ *
+ * @example Simple arrow function
+ * ```ts
+ * createArrowFunctionDeclaration({ name: 'getPet' })
+ * // const getPet = () => { ... }
+ * ```
+ *
+ * @example Single-line exported arrow function
+ * ```ts
+ * createArrowFunctionDeclaration({ name: 'double', export: true, params: 'n: number', singleLine: true })
+ * // export const double = (n: number) => ...
+ * ```
+ *
+ * @example Async arrow function with generics
+ * ```ts
+ * createArrowFunctionDeclaration({
+ *   name: 'fetchPet',
+ *   export: true,
+ *   async: true,
+ *   generics: ['T'],
+ *   params: 'id: string',
+ *   returnType: 'T',
+ * })
+ * // export const fetchPet = async <T>(id: string): Promise<T> => { ... }
+ * ```
+ */
+export function createArrowFunctionDeclaration(props: Omit<ArrowFunctionDeclarationNode, 'kind'>): ArrowFunctionDeclarationNode {
+  return { ...props, kind: 'ArrowFunctionDeclaration' }
 }
