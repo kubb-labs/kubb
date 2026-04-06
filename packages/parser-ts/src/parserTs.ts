@@ -186,6 +186,100 @@ export function printJSDoc(jsDoc: JSDocNode): string {
 }
 
 /**
+ * Detaches a parsed TypeScript node from its source file by replacing all
+ * position-dependent literal nodes with freshly-created factory nodes.
+ *
+ * When nodes parsed from one source file are printed in the context of a
+ * different source file (as in {@link print}), the TypeScript printer
+ * looks up literal text by source position and gets an empty string. This
+ * transform prevents that data loss by embedding the literal text directly
+ * into new factory nodes.
+ */
+function detachNode<T extends ts.Node>(node: T): T {
+  const result = ts.transform(node, [
+    (context) =>
+      (root: T): T => {
+        const visit = (n: ts.Node): ts.Node => {
+          if (ts.isStringLiteral(n)) return factory.createStringLiteral(n.text)
+          if (ts.isNumericLiteral(n)) return factory.createNumericLiteral(n.text)
+          if (ts.isBigIntLiteral(n)) return factory.createBigIntLiteral(n.text)
+          if (ts.isNoSubstitutionTemplateLiteral(n)) return factory.createNoSubstitutionTemplateLiteral(n.text, n.rawText)
+          if (ts.isTemplateHead(n)) return factory.createTemplateHead(n.text, n.rawText)
+          if (ts.isTemplateMiddle(n)) return factory.createTemplateMiddle(n.text, n.rawText)
+          if (ts.isTemplateTail(n)) return factory.createTemplateTail(n.text, n.rawText)
+          return ts.visitEachChild(n, visit, context)
+        }
+        return ts.visitNode(root, visit) as T
+      },
+  ])
+  const transformed = result.transformed[0] as T
+  result.dispose()
+  return transformed
+}
+
+/** Parse a TypeScript expression from a source string. */
+function parseExpressionFromString(code: string): ts.Expression | undefined {
+  const trimmed = code.trim()
+  if (!trimmed) return undefined
+  const sf = ts.createSourceFile('tmp.ts', `const _x = ${trimmed}`, ts.ScriptTarget.ES2022, true, ts.ScriptKind.TS)
+  const expr = (sf.statements[0] as ts.VariableStatement | undefined)?.declarationList?.declarations[0]?.initializer
+  return expr ? detachNode(expr) : undefined
+}
+
+/** Parse a TypeScript type annotation from a source string. */
+function parseTypeNodeFromString(typeStr: string): ts.TypeNode | undefined {
+  const trimmed = typeStr.trim()
+  if (!trimmed) return undefined
+  const sf = ts.createSourceFile('tmp.ts', `type _T = ${trimmed}`, ts.ScriptTarget.ES2022, true, ts.ScriptKind.TS)
+  const typeNode = (sf.statements[0] as ts.TypeAliasDeclaration | undefined)?.type
+  return typeNode ? detachNode(typeNode) : undefined
+}
+
+/** Parse TypeScript statements from a source string, wrapped in a function body for correct context. */
+function parseStatementsFromString(code: string): ts.Statement[] {
+  const trimmed = code.trim()
+  if (!trimmed) return []
+  const sf = ts.createSourceFile('tmp.ts', `function _f() { ${trimmed} }`, ts.ScriptTarget.ES2022, true, ts.ScriptKind.TS)
+  const fn = sf.statements[0] as ts.FunctionDeclaration | undefined
+  const stmts = fn?.body?.statements ? [...fn.body.statements] : []
+  return stmts.map((s) => detachNode(s))
+}
+
+/** Parse TypeScript parameter declarations from a source string. */
+function parseParametersFromString(paramsStr: string): ts.ParameterDeclaration[] {
+  const trimmed = paramsStr.trim()
+  if (!trimmed) return []
+  const sf = ts.createSourceFile('tmp.ts', `function _f(${trimmed}) {}`, ts.ScriptTarget.ES2022, true, ts.ScriptKind.TS)
+  const fn = sf.statements[0] as ts.FunctionDeclaration | undefined
+  const params = fn?.parameters ? [...fn.parameters] : []
+  return params.map((p) => detachNode(p))
+}
+
+/** Parse TypeScript type parameter declarations from a string or string array. */
+function parseTypeParametersFromString(generics: string | string[] | undefined): ts.TypeParameterDeclaration[] | undefined {
+  if (!generics) return undefined
+  const genericsStr = Array.isArray(generics) ? generics.join(', ') : generics
+  const trimmed = genericsStr.trim()
+  if (!trimmed) return undefined
+  const sf = ts.createSourceFile('tmp.ts', `function _f<${trimmed}>() {}`, ts.ScriptTarget.ES2022, true, ts.ScriptKind.TS)
+  const fn = sf.statements[0] as ts.FunctionDeclaration | undefined
+  const typeParams = fn?.typeParameters ? [...fn.typeParameters] : undefined
+  return typeParams ? typeParams.map((p) => detachNode(p)) : undefined
+}
+
+/**
+ * Attaches a {@link JSDocNode} to a TypeScript AST node as a synthetic leading comment.
+ * Uses `ts.addSyntheticLeadingComment` so the TypeScript printer emits the comment.
+ */
+function withJSDoc<TNode extends ts.Node>(node: TNode, jsDoc: JSDocNode | undefined): TNode {
+  if (!jsDoc?.comments) return node
+  const filtered = jsDoc.comments.filter((c): c is string => c != null)
+  if (!filtered.length) return node
+  const text = filtered.reduce<string>((acc, comment) => `${acc}\n * ${comment.replaceAll('*/', '*\\/')}`, '*')
+  return ts.addSyntheticLeadingComment(node, ts.SyntaxKind.MultiLineCommentTrivia, `${text}\n`, true)
+}
+
+/**
  * Serialises the body / value content from a `nodes` array.
  *
  * Each element is either a raw string or a structured {@link CodeNode}
@@ -198,175 +292,182 @@ function printNodes(nodes: Array<CodeNode | string> | undefined): string {
 }
 
 /**
- * Indents every non-empty line of `text` by `spaces` spaces.
- */
-function indentLines(text: string, spaces = 2): string {
-  if (!text) return ''
-  const pad = ' '.repeat(spaces)
-  return text
-    .split('\n')
-    .map((line) => (line.trim() ? `${pad}${line}` : ''))
-    .join('\n')
-}
-
-/**
- * Converts a {@link ConstNode} to a TypeScript `const` declaration string.
+ * Converts a {@link ConstNode} to a TypeScript `const` declaration string
+ * using the TypeScript factory API.
  *
  * Mirrors the `Const` component from `@kubb/react-fabric`.
  *
  * @example
  * ```ts
  * printConst(createConst({ name: 'pet', export: true, nodes: ['{}'] }))
- * // 'export const pet = {}'
+ * // 'export const pet = {};'
  * ```
  *
  * @example With type and `as const`
  * ```ts
  * printConst(createConst({ name: 'pets', export: true, type: 'Pet[]', asConst: true, nodes: ['[]'] }))
- * // 'export const pets: Pet[] = [] as const'
+ * // 'export const pets: Pet[] = [] as const;'
  * ```
  */
 export function printConst(node: ConstNode): string {
   const { name, export: canExport, type, JSDoc, asConst, nodes } = node
 
-  const jsDocStr = JSDoc ? printJSDoc(JSDoc) : ''
-  const body = printNodes(nodes)
-
-  const parts: string[] = []
-  if (canExport) parts.push('export ')
-  parts.push('const ')
-  parts.push(name)
-  if (type) {
-    parts.push(`: ${type}`)
+  const body = printNodes(nodes).trim()
+  let initializer: ts.Expression | undefined
+  if (body) {
+    const expr = parseExpressionFromString(body)
+    initializer = asConst && expr ? factory.createAsExpression(expr, factory.createTypeReferenceNode('const')) : expr
   }
-  parts.push(' = ')
-  parts.push(body)
-  if (asConst) parts.push(' as const')
 
-  const declaration = parts.join('')
-  return [jsDocStr, declaration].filter(Boolean).join('\n')
+  const typeAnnotation = type ? parseTypeNodeFromString(type) : undefined
+  const mods: ts.Modifier[] = canExport ? [factory.createModifier(ts.SyntaxKind.ExportKeyword)] : []
+
+  const stmt = factory.createVariableStatement(
+    mods.length ? mods : undefined,
+    factory.createVariableDeclarationList(
+      [factory.createVariableDeclaration(factory.createIdentifier(name), undefined, typeAnnotation, initializer)],
+      ts.NodeFlags.Const,
+    ),
+  )
+
+  return print(withJSDoc(stmt, JSDoc)).trimEnd()
 }
 
 /**
- * Converts a {@link TypeNode} to a TypeScript `type` alias declaration string.
+ * Converts a {@link TypeNode} to a TypeScript `type` alias declaration string
+ * using the TypeScript factory API.
  *
  * Mirrors the `Type` component from `@kubb/react-fabric`.
  *
  * @example
  * ```ts
  * printType(createType({ name: 'Pet', export: true, nodes: ['{ id: number }'] }))
- * // 'export type Pet = { id: number }'
+ * // 'export type Pet = {\n    id: number;\n};'
  * ```
  */
 export function printType(node: TypeNode): string {
   const { name, export: canExport, JSDoc, nodes } = node
 
-  const jsDocStr = JSDoc ? printJSDoc(JSDoc) : ''
-  const body = printNodes(nodes)
+  const body = printNodes(nodes).trim()
+  const typeBody = (body ? parseTypeNodeFromString(body) : undefined) ?? factory.createKeywordTypeNode(ts.SyntaxKind.UnknownKeyword)
 
-  const parts: string[] = []
-  if (canExport) parts.push('export ')
-  parts.push('type ')
-  parts.push(name)
-  parts.push(' = ')
-  parts.push(body)
+  const mods: ts.Modifier[] = canExport ? [factory.createModifier(ts.SyntaxKind.ExportKeyword)] : []
 
-  const declaration = parts.join('')
-  return [jsDocStr, declaration].filter(Boolean).join('\n')
+  const stmt = factory.createTypeAliasDeclaration(mods.length ? mods : undefined, factory.createIdentifier(name), undefined, typeBody)
+
+  return print(withJSDoc(stmt, JSDoc)).trimEnd()
 }
 
 /**
- * Converts a {@link FunctionNode} to a TypeScript `function` declaration string.
+ * Converts a {@link FunctionNode} to a TypeScript `function` declaration string
+ * using the TypeScript factory API.
  *
  * Mirrors the `Function` component from `@kubb/react-fabric`.
  *
  * @example
  * ```ts
  * printFunction(createFunction({ name: 'getPet', export: true, params: 'id: string', returnType: 'Pet', nodes: ['return fetch(id)'] }))
- * // 'export function getPet(id: string): Pet {\n  return fetch(id)\n}'
+ * // 'export function getPet(id: string): Pet {\n    return fetch(id);\n}'
  * ```
  *
  * @example Async with generics
  * ```ts
  * printFunction(createFunction({ name: 'fetchPet', export: true, async: true, generics: ['T'], params: 'id: string', returnType: 'T' }))
- * // 'export async function fetchPet<T>(id: string): Promise<T> {\n}'
+ * // 'export async function fetchPet<T>(id: string): Promise<T> { }'
  * ```
  */
 export function printFunction(node: FunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes } = node
 
-  const jsDocStr = JSDoc ? printJSDoc(JSDoc) : ''
+  const mods: ts.Modifier[] = []
+  if (canExport) mods.push(factory.createModifier(ts.SyntaxKind.ExportKeyword))
+  if (isDefault) mods.push(factory.createModifier(ts.SyntaxKind.DefaultKeyword))
+  if (isAsync) mods.push(factory.createModifier(ts.SyntaxKind.AsyncKeyword))
 
-  const genericsStr = generics ? `<${Array.isArray(generics) ? generics.join(', ') : generics}>` : ''
+  const typeParams = parseTypeParametersFromString(generics)
+  const parameters = parseParametersFromString(params ?? '')
 
-  const returnTypeStr = returnType ? (isAsync ? `: Promise<${returnType}>` : `: ${returnType}`) : ''
-
-  const body = printNodes(nodes)
-  const indented = body ? indentLines(body) : ''
-
-  const parts: string[] = []
-  if (canExport) parts.push('export ')
-  if (isDefault) parts.push('default ')
-  if (isAsync) parts.push('async ')
-  parts.push('function ')
-  parts.push(name)
-  parts.push(genericsStr)
-  parts.push(`(${params ?? ''})`)
-  parts.push(returnTypeStr)
-  parts.push(' {')
-  if (indented) {
-    parts.push(`\n${indented}\n`)
+  let returnTypeNode: ts.TypeNode | undefined
+  if (returnType) {
+    const inner = parseTypeNodeFromString(returnType)
+    returnTypeNode = isAsync && inner ? factory.createTypeReferenceNode('Promise', [inner]) : inner
   }
-  parts.push('}')
 
-  const declaration = parts.join('')
-  return [jsDocStr, declaration].filter(Boolean).join('\n')
+  const bodyCode = printNodes(nodes)
+  const bodyStmts = parseStatementsFromString(bodyCode)
+  const body = factory.createBlock(bodyStmts, bodyStmts.length > 0)
+
+  const stmt = factory.createFunctionDeclaration(
+    mods.length ? mods : undefined,
+    undefined,
+    factory.createIdentifier(name),
+    typeParams,
+    parameters,
+    returnTypeNode,
+    body,
+  )
+
+  return print(withJSDoc(stmt, JSDoc)).trimEnd()
 }
 
 /**
- * Converts an {@link ArrowFunctionNode} to a TypeScript arrow function declaration string.
+ * Converts an {@link ArrowFunctionNode} to a TypeScript arrow function declaration string
+ * using the TypeScript factory API.
  *
  * Mirrors the `Function.Arrow` component from `@kubb/react-fabric`.
  *
  * @example Multi-line arrow function
  * ```ts
  * printArrowFunction(createArrowFunction({ name: 'getPet', export: true, params: 'id: string', nodes: ['return fetch(id)'] }))
- * // 'export const getPet = (id: string) => {\n  return fetch(id)\n}'
+ * // 'export const getPet = (id: string) => {\n    return fetch(id);\n};'
  * ```
  *
  * @example Single-line arrow function
  * ```ts
  * printArrowFunction(createArrowFunction({ name: 'double', params: 'n: number', singleLine: true, nodes: ['n * 2'] }))
- * // 'const double = (n: number) => n * 2'
+ * // 'const double = (n: number) => n * 2;'
  * ```
  */
 export function printArrowFunction(node: ArrowFunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes, singleLine } = node
 
-  const jsDocStr = JSDoc ? printJSDoc(JSDoc) : ''
+  const typeParams = parseTypeParametersFromString(generics)
+  const parameters = parseParametersFromString(params ?? '')
 
-  const genericsStr = generics ? `<${Array.isArray(generics) ? generics.join(', ') : generics}>` : ''
+  let returnTypeNode: ts.TypeNode | undefined
+  if (returnType) {
+    const inner = parseTypeNodeFromString(returnType)
+    returnTypeNode = isAsync && inner ? factory.createTypeReferenceNode('Promise', [inner]) : inner
+  }
 
-  const returnTypeStr = returnType ? (isAsync ? `: Promise<${returnType}>` : `: ${returnType}`) : ''
+  const bodyCode = printNodes(nodes)
+  let arrowBody: ts.ConciseBody
+  if (singleLine && bodyCode.trim()) {
+    arrowBody = parseExpressionFromString(bodyCode) ?? factory.createBlock([], false)
+  } else {
+    const bodyStmts = parseStatementsFromString(bodyCode)
+    arrowBody = factory.createBlock(bodyStmts, bodyStmts.length > 0)
+  }
 
-  const body = printNodes(nodes)
+  const arrowFn = factory.createArrowFunction(
+    isAsync ? [factory.createModifier(ts.SyntaxKind.AsyncKeyword)] : undefined,
+    typeParams,
+    parameters,
+    returnTypeNode,
+    factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
+    arrowBody,
+  )
 
-  const arrowBody = singleLine ? ` => ${body}` : body ? ` => {\n${indentLines(body)}\n}` : ' => {}'
+  const constMods: ts.Modifier[] = []
+  if (canExport) constMods.push(factory.createModifier(ts.SyntaxKind.ExportKeyword))
+  if (isDefault) constMods.push(factory.createModifier(ts.SyntaxKind.DefaultKeyword))
 
-  const parts: string[] = []
-  if (canExport) parts.push('export ')
-  if (isDefault) parts.push('default ')
-  parts.push('const ')
-  parts.push(name)
-  parts.push(' = ')
-  if (isAsync) parts.push('async ')
-  parts.push(genericsStr)
-  parts.push(`(${params ?? ''})`)
-  parts.push(returnTypeStr)
-  parts.push(arrowBody)
+  const stmt = factory.createVariableStatement(
+    constMods.length ? constMods : undefined,
+    factory.createVariableDeclarationList([factory.createVariableDeclaration(factory.createIdentifier(name), undefined, undefined, arrowFn)], ts.NodeFlags.Const),
+  )
 
-  const declaration = parts.join('')
-  return [jsDocStr, declaration].filter(Boolean).join('\n')
+  return print(withJSDoc(stmt, JSDoc)).trimEnd()
 }
 
 /**
