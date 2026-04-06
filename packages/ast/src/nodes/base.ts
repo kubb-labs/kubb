@@ -24,8 +24,8 @@ export type NodeKind =
   | 'Export'
   | 'Source'
   | 'Const'
-  | 'FunctionDeclaration'
-  | 'ArrowFunctionDeclaration'
+  | 'Function'
+  | 'ArrowFunction'
 
 /**
  * Base shape shared by all AST nodes.

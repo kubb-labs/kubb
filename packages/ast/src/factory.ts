@@ -631,7 +631,7 @@ export function createType(props: Omit<TypeNode, 'kind'>): TypeNode {
  * ```
  */
 export function createFunction(props: Omit<FunctionNode, 'kind'>): FunctionNode {
-  return { ...props, kind: 'FunctionDeclaration' }
+  return { ...props, kind: 'Function' }
 }
 
 /**
@@ -666,5 +666,5 @@ export function createFunction(props: Omit<FunctionNode, 'kind'>): FunctionNode 
  * ```
  */
 export function createArrowFunction(props: Omit<ArrowFunctionNode, 'kind'>): ArrowFunctionNode {
-  return { ...props, kind: 'ArrowFunctionDeclaration' }
+  return { ...props, kind: 'ArrowFunction' }
 }

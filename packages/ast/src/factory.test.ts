@@ -536,7 +536,7 @@ describe('createFunction', () => {
   it('creates a FunctionNode with required name', () => {
     const node = createFunction({ name: 'getPet' })
 
-    expect(node.kind).toBe('FunctionDeclaration')
+    expect(node.kind).toBe('Function')
     expect(node.name).toBe('getPet')
     expect(node.export).toBeUndefined()
     expect(node.async).toBeUndefined()
@@ -581,11 +581,11 @@ describe('createFunction', () => {
     expect(node.nodes).toHaveLength(1)
   })
 
-  it('always sets kind to FunctionDeclaration', () => {
-    // @ts-expect-error — kind should be forced to 'FunctionDeclaration'
+  it('always sets kind to Function', () => {
+    // @ts-expect-error — kind should be forced to 'Function'
     const node = createFunction({ name: 'x', kind: 'Import' })
 
-    expect(node.kind).toBe('FunctionDeclaration')
+    expect(node.kind).toBe('Function')
   })
 
   it('narrows the return type to FunctionNode', () => {
@@ -597,7 +597,7 @@ describe('createArrowFunction', () => {
   it('creates an ArrowFunctionNode with required name', () => {
     const node = createArrowFunction({ name: 'getPet' })
 
-    expect(node.kind).toBe('ArrowFunctionDeclaration')
+    expect(node.kind).toBe('ArrowFunction')
     expect(node.name).toBe('getPet')
     expect(node.export).toBeUndefined()
     expect(node.async).toBeUndefined()
@@ -645,11 +645,11 @@ describe('createArrowFunction', () => {
     expect(node.default).toBe(true)
   })
 
-  it('always sets kind to ArrowFunctionDeclaration', () => {
-    // @ts-expect-error — kind should be forced to 'ArrowFunctionDeclaration'
+  it('always sets kind to ArrowFunction', () => {
+    // @ts-expect-error — kind should be forced to 'ArrowFunction'
     const node = createArrowFunction({ name: 'x', kind: 'Import' })
 
-    expect(node.kind).toBe('ArrowFunctionDeclaration')
+    expect(node.kind).toBe('ArrowFunction')
   })
 
   it('narrows the return type to ArrowFunctionNode', () => {

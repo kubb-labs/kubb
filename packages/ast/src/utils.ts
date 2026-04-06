@@ -263,7 +263,7 @@ export type CreateOperationParamsOptions = {
   typeWrapper?: (type: string) => string
 }
 
-function resolveType({ node, param, resolver }: { node: OperationNode; param: ParameterNode; resolver: OperationParamsResolver | undefined }): ParamsTypeNode {
+function resolveParamsType({ node, param, resolver }: { node: OperationNode; param: ParameterNode; resolver: OperationParamsResolver | undefined }): ParamsTypeNode {
   if (!resolver) {
     return createParamsType({ variant: 'reference', name: param.schema.primitive ?? 'unknown' })
   }
@@ -332,7 +332,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
   if (paramsType === 'object') {
     const children: Array<FunctionParameterNode> = [
       ...pathParams.map((p) => {
-        const type = resolveType({ node, param: p, resolver })
+        const type = resolveParamsType({ node, param: p, resolver })
         return createFunctionParameter({ name: p.name, type: wrapTypeNode(type), optional: !p.required })
       }),
       ...(bodyType ? [createFunctionParameter({ name: dataName, type: bodyType, optional: !bodyRequired })] : []),
@@ -350,7 +350,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
         params.push(createFunctionParameter({ name: pathName, type: spreadType ? wrapType(spreadType) : undefined, rest: true }))
       } else {
         const pathChildren = pathParams.map((p) => {
-          const type = resolveType({ node, param: p, resolver })
+          const type = resolveParamsType({ node, param: p, resolver })
           return createFunctionParameter({ name: p.name, type: wrapTypeNode(type), optional: !p.required })
         })
         params.push(
@@ -458,7 +458,7 @@ function toStructType({
 }): ParamsTypeNode {
   return createParamsType({
     variant: 'struct',
-    properties: params.map((p) => ({ name: p.name, optional: !p.required, type: resolveType({ node, param: p, resolver }) })),
+    properties: params.map((p) => ({ name: p.name, optional: !p.required, type: resolveParamsType({ node, param: p, resolver }) })),
   })
 }
 

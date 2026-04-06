@@ -115,7 +115,7 @@ export type FunctionNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'FunctionDeclaration'
+  kind: 'Function'
   /**
    * Name of the function.
    */
@@ -175,7 +175,7 @@ export type ArrowFunctionNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'ArrowFunctionDeclaration'
+  kind: 'ArrowFunction'
   /**
    * Name of the arrow function (used as the `const` variable name).
    */
