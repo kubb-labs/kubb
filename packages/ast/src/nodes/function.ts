@@ -1,58 +1,5 @@
 import type { BaseNode } from './base.ts'
-
-/**
- * AST node representing a language-agnostic type expression produced during parameter resolution.
- * Each language printer renders the variant into its own syntax.
- *
- * - `struct` — an inline anonymous type grouping named fields.
- *   TypeScript renders as `{ petId: string; name?: string }`, Python as a `TypedDict` reference.
- * - `member` — a single named field accessed from a named group type.
- *   TypeScript renders as `PathParams['petId']`, C# as `PathParams.PetId`.
- */
-export type TypeNode = BaseNode & {
-  /**
-   * Node kind.
-   */
-  kind: 'Type'
-} & (
-    | {
-        /**
-         * Reference variant — a plain type name or identifier.
-         * TypeScript renders as-is, e.g. `string`, `QueryParams`, `Partial<Config>`.
-         */
-        variant: 'reference'
-        /**
-         * The full type name string, e.g. `'string'`, `'QueryParams'`, `'Partial<Config>'`.
-         */
-        name: string
-      }
-    | {
-        /**
-         * Struct variant — an inline anonymous type grouping named fields.
-         * TypeScript renders as `{ key: Type; other?: OtherType }`.
-         */
-        variant: 'struct'
-        /**
-         * Properties of the struct type.
-         */
-        properties: Array<{ name: string; optional: boolean; type: TypeNode }>
-      }
-    | {
-        /**
-         * Member variant — a single named field accessed from a group type.
-         * TypeScript renders as `Base['key']`.
-         */
-        variant: 'member'
-        /**
-         * Base type name, e.g. `'DeletePetPathParams'`.
-         */
-        base: string
-        /**
-         * The field name to access, e.g. `'petId'`.
-         */
-        key: string
-      }
-  )
+import type { TypeNode } from './code.ts'
 
 /**
  * AST node for one function parameter.
@@ -91,7 +38,7 @@ export type FunctionParameterNode = BaseNode & {
    * @example Member type node
    * `{ kind: 'Type', variant: 'member', base: 'PathParams', key: 'petId' }` → `PathParams['petId']`
    */
-  type?: TypeNode
+  type?: Extract<TypeNode, { kind: 'Type' }>
   /**
    * When `true` the parameter is emitted as a rest parameter.
    *
@@ -147,7 +94,7 @@ export type ParameterGroupNode = BaseNode & {
    * Optional explicit type annotation for the whole group.
    * When absent, printers auto-compute it from `properties`.
    */
-  type?: TypeNode
+  type?: Extract<TypeNode, { kind: 'Type' }>
   /**
    * When `true`, `properties` are emitted as individual top-level parameters instead of
    * being wrapped in a single grouped construct.
@@ -193,7 +140,7 @@ export type FunctionParametersNode = BaseNode & {
 /**
  * Union of all function-parameter AST node variants used by the function-parameter printer.
  */
-export type FunctionParamNode = FunctionParameterNode | ParameterGroupNode | FunctionParametersNode | TypeNode
+export type FunctionParamNode = FunctionParameterNode | ParameterGroupNode | FunctionParametersNode | Extract<TypeNode, { kind: 'Type' }>
 
 /**
  * Handler map keys — one per `FunctionParamNode` kind.

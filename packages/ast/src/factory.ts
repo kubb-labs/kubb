@@ -2,7 +2,6 @@ import { createHash } from 'node:crypto'
 import path from 'node:path'
 import { trimExtName } from '@internals/utils'
 import type { InferSchemaNode } from './infer.ts'
-import type { TypeNode as TypeExpressionNode } from './nodes/function.ts'
 import type {
   ArrowFunctionNode,
   ConstNode,
@@ -333,7 +332,7 @@ export function createResponse(
  * ```
  */
 export function createFunctionParameter(
-  props: { name: string; type?: TypeExpressionNode; rest?: boolean } & ({ optional: true; default?: never } | { optional?: false; default?: string }),
+  props: { name: string; type?: Extract<TypeNode, { kind: 'Type' }>; rest?: boolean } & ({ optional: true; default?: never } | { optional?: false; default?: string }),
 ): FunctionParameterNode {
   return {
     optional: false,
@@ -367,10 +366,10 @@ export function createFunctionParameter(
 export function createTypeExpression(
   props:
     | { variant: 'reference'; name: string }
-    | { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: TypeExpressionNode }> }
+    | { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: Extract<TypeNode, { kind: 'Type' }> }> }
     | { variant: 'member'; base: string; key: string },
-): TypeExpressionNode {
-  return { ...props, kind: 'Type' } as TypeExpressionNode
+): Extract<TypeNode, { kind: 'Type' }> {
+  return { ...props, kind: 'Type' } as Extract<TypeNode, { kind: 'Type' }>
 }
 
 /**

@@ -3,7 +3,6 @@ import { sortBy, uniqueBy } from 'remeda'
 
 import { createFunctionParameter, createFunctionParameters, createParameterGroup, createProperty, createSchema, createTypeExpression } from './factory.ts'
 import { narrowSchema } from './guards.ts'
-import type { TypeNode } from './nodes/function.ts'
 import type {
   ExportNode,
   FunctionParameterNode,
@@ -14,6 +13,7 @@ import type {
   ParameterNode,
   SchemaNode,
   SourceNode,
+  TypeNode,
 } from './nodes/index.ts'
 import type { SchemaType } from './nodes/schema.ts'
 
@@ -130,7 +130,7 @@ export type ParamGroupType = {
   /**
    * TypeNode for the group type.
    */
-  type: TypeNode
+  type: Extract<TypeNode, { kind: 'Type' }>
   /**
    * Whether the parameter group is optional.
    */
@@ -263,7 +263,7 @@ export type CreateOperationParamsOptions = {
   typeWrapper?: (type: string) => string
 }
 
-function resolveType({ node, param, resolver }: { node: OperationNode; param: ParameterNode; resolver: OperationParamsResolver | undefined }): TypeNode {
+function resolveType({ node, param, resolver }: { node: OperationNode; param: ParameterNode; resolver: OperationParamsResolver | undefined }): Extract<TypeNode, { kind: 'Type' }> {
   if (!resolver) {
     return createTypeExpression({ variant: 'reference', name: param.schema.primitive ?? 'unknown' })
   }
@@ -311,10 +311,10 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
   const headersName = paramNames?.headers ?? 'headers'
   const pathName = paramNames?.path ?? 'pathParams'
 
-  const wrapType = (type: string): TypeNode => createTypeExpression({ variant: 'reference', name: typeWrapper ? typeWrapper(type) : type })
+  const wrapType = (type: string): Extract<TypeNode, { kind: 'Type' }> => createTypeExpression({ variant: 'reference', name: typeWrapper ? typeWrapper(type) : type })
   // Only reference-variant TypeNodes are wrapped — they hold a plain type name string that needs casing applied.
   // Member and struct TypeNodes are pre-resolved structured expressions and are passed through unchanged.
-  const wrapTypeNode = (type: TypeNode): TypeNode => (type.kind === 'Type' && type.variant === 'reference' ? wrapType(type.name) : type)
+  const wrapTypeNode = (type: Extract<TypeNode, { kind: 'Type' }>): Extract<TypeNode, { kind: 'Type' }> => (type.kind === 'Type' && type.variant === 'reference' ? wrapType(type.name) : type)
 
   const casedParams = caseParams(node.parameters, paramsCasing)
   const pathParams = casedParams.filter((p) => p.in === 'path')
@@ -396,7 +396,7 @@ function buildGroupParam({
   params: Array<ParameterNode>
   groupType: ParamGroupType | undefined
   resolver: OperationParamsResolver | undefined
-  wrapType: (type: string) => TypeNode
+  wrapType: (type: string) => Extract<TypeNode, { kind: 'Type' }>
 }): Array<FunctionParameterNode> {
   if (groupType) {
     const type = groupType.type.kind === 'Type' && groupType.type.variant === 'reference' ? wrapType(groupType.type.name) : groupType.type
@@ -455,7 +455,7 @@ function toStructType({
   node: OperationNode
   params: Array<ParameterNode>
   resolver: OperationParamsResolver | undefined
-}): TypeNode {
+}): Extract<TypeNode, { kind: 'Type' }> {
   return createTypeExpression({
     variant: 'struct',
     properties: params.map((p) => ({ name: p.name, optional: !p.required, type: resolveType({ node, param: p, resolver }) })),

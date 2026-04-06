@@ -19,7 +19,7 @@ export type JSDocNode = {
  *
  * @example
  * ```ts
- * createConst({ name: 'pet', export: true, asConst: true, nodes: [createTypeDeclaration({ name: 'Pet', nodes: [] })] })
+ * createConst({ name: 'pet', export: true, asConst: true })
  * // export const pet = ... as const
  * ```
  */
@@ -58,40 +58,111 @@ export type ConstNode = BaseNode & {
 }
 
 /**
- * AST node representing a TypeScript `type` alias declaration.
+ * AST node representing a TypeScript type.
  *
- * Mirrors the props of the `Type` component from `@kubb/react-fabric`.
- * The `children` prop of the component is represented as `nodes`.
+ * Covers two use cases in a single discriminated union:
  *
- * @example
+ * - `kind: 'TypeDeclaration'` — a `type X = ...` alias declaration, mirroring the `Type`
+ *   component from `@kubb/react-fabric`.
+ * - `kind: 'Type'` — a language-agnostic type expression used as a function parameter type
+ *   annotation. Comes in three variants: `reference` (plain name), `struct` (inline object
+ *   type), `member` (indexed-access type). Each language's printer renders the variant into
+ *   its own syntax.
+ *
+ * @example Type alias declaration
  * ```ts
- * createTypeDeclaration({ name: 'Pet', export: true })
+ * createType({ name: 'Pet', export: true })
  * // export type Pet = ...
  * ```
+ *
+ * @example Reference type expression
+ * ```ts
+ * createTypeExpression({ variant: 'reference', name: 'QueryParams' })
+ * // QueryParams
+ * ```
+ *
+ * @example Member type expression (TypeScript indexed access)
+ * ```ts
+ * createTypeExpression({ variant: 'member', base: 'PathParams', key: 'petId' })
+ * // PathParams['petId']
+ * ```
  */
-export type TypeDeclarationNode = BaseNode & {
-  /**
-   * Node kind.
-   */
-  kind: 'TypeDeclaration'
-  /**
-   * Name of the type alias.
-   */
-  name: string
-  /**
-   * Whether the declaration should be exported.
-   * @default false
-   */
-  export?: boolean
-  /**
-   * JSDoc documentation metadata.
-   */
-  JSDoc?: JSDocNode
-  /**
-   * Child nodes representing the type body (children of the `Type` component).
-   */
-  nodes?: Array<CodeNode>
-}
+export type TypeNode = BaseNode &
+  (
+    | {
+        /**
+         * Type alias declaration — mirrors the `Type` component from `@kubb/react-fabric`.
+         */
+        kind: 'TypeDeclaration'
+        /**
+         * Name of the type alias.
+         */
+        name: string
+        /**
+         * Whether the declaration should be exported.
+         * @default false
+         */
+        export?: boolean
+        /**
+         * JSDoc documentation metadata.
+         */
+        JSDoc?: JSDocNode
+        /**
+         * Child nodes representing the type body (children of the `Type` component).
+         */
+        nodes?: Array<CodeNode>
+      }
+    | ({
+        /**
+         * Language-agnostic type expression used in function parameter annotations.
+         */
+        kind: 'Type'
+      } & (
+        | {
+            /**
+             * Reference variant — a plain type name or identifier.
+             * TypeScript renders as-is, e.g. `string`, `QueryParams`, `Partial<Config>`.
+             */
+            variant: 'reference'
+            /**
+             * The full type name string, e.g. `'string'`, `'QueryParams'`, `'Partial<Config>'`.
+             */
+            name: string
+          }
+        | {
+            /**
+             * Struct variant — an inline anonymous type grouping named fields.
+             * TypeScript renders as `{ key: Type; other?: OtherType }`.
+             */
+            variant: 'struct'
+            /**
+             * Properties of the struct type.
+             */
+            properties: Array<{ name: string; optional: boolean; type: Extract<TypeNode, { kind: 'Type' }> }>
+          }
+        | {
+            /**
+             * Member variant — a single named field accessed from a group type.
+             * TypeScript renders as `Base['key']`.
+             */
+            variant: 'member'
+            /**
+             * Base type name, e.g. `'DeletePetPathParams'`.
+             */
+            base: string
+            /**
+             * The field name to access, e.g. `'petId'`.
+             */
+            key: string
+          }
+      ))
+  )
+
+/**
+ * Convenience alias for the declaration variant of {@link TypeNode}.
+ * Equivalent to `Extract<TypeNode, { kind: 'TypeDeclaration' }>`.
+ */
+export type TypeDeclarationNode = Extract<TypeNode, { kind: 'TypeDeclaration' }>
 
 /**
  * AST node representing a TypeScript `function` declaration.
@@ -224,4 +295,4 @@ export type ArrowFunctionNode = BaseNode & {
  * These nodes mirror the JSX components from `@kubb/react-fabric` and are used as
  * structured children in {@link SourceNode.nodes}.
  */
-export type CodeNode = ConstNode | TypeDeclarationNode | FunctionNode | ArrowFunctionNode
+export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode
