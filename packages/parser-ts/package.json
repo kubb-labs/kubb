@@ -50,7 +50,8 @@
     "typescript": "catalog:"
   },
   "devDependencies": {
-    "@internals/utils": "workspace:*"
+    "@internals/utils": "workspace:*",
+    "@kubb/ast": "workspace:*"
   },
   "engines": {
     "node": ">=22"

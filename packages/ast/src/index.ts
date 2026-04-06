@@ -14,12 +14,12 @@ export {
   createOutput,
   createParameter,
   createParameterGroup,
+  createParamsType,
   createProperty,
   createResponse,
   createSchema,
   createSource,
   createType,
-  createParamsType,
   syncOptionality,
 } from './factory.ts'
 export { isInputNode, isOperationNode, isOutputNode, isSchemaNode, narrowSchema } from './guards.ts'

@@ -1,6 +1,6 @@
 import type { PrinterFactoryOptions } from '@kubb/ast'
 import { createPrinterFactory } from '@kubb/ast'
-import type { FunctionNodeType, FunctionParamNode, FunctionParameterNode, FunctionParametersNode, ParameterGroupNode, ParamsTypeNode } from '@kubb/ast/types'
+import type { FunctionNodeType, FunctionParameterNode, FunctionParametersNode, FunctionParamNode, ParameterGroupNode, ParamsTypeNode } from '@kubb/ast/types'
 import { PARAM_RANK } from '../constants.ts'
 
 /**
