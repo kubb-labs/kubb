@@ -69,7 +69,7 @@ export type ConstNode = BaseNode & {
  * // export type Pet = ...
  * ```
  */
-export type TypeNode = BaseNode & {
+export type TypeDeclarationNode = BaseNode & {
   /**
    * Node kind.
    */
@@ -224,4 +224,4 @@ export type ArrowFunctionNode = BaseNode & {
  * These nodes mirror the JSX components from `@kubb/react-fabric` and are used as
  * structured children in {@link SourceNode.nodes}.
  */
-export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode
+export type CodeNode = ConstNode | TypeDeclarationNode | FunctionNode | ArrowFunctionNode

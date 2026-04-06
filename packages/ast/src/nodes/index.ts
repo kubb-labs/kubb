@@ -7,12 +7,13 @@ import type { PropertyNode } from './property.ts'
 import type { ResponseNode } from './response.ts'
 import type { InputNode } from './root.ts'
 import type { SchemaNode } from './schema.ts'
-import type { ArrowFunctionNode, ConstNode, FunctionNode, TypeNode } from './code.ts'
+import type { ArrowFunctionNode, ConstNode, FunctionNode, TypeDeclarationNode } from './code.ts'
+import type { TypeNode as TypeExprNode } from './function.ts'
 
 export type { BaseNode, NodeKind } from './base.ts'
-export type { ArrowFunctionNode, CodeNode, ConstNode, FunctionNode, JSDocNode, TypeNode } from './code.ts'
+export type { ArrowFunctionNode, CodeNode, ConstNode, FunctionNode, JSDocNode, TypeDeclarationNode } from './code.ts'
 export type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
-export type { FunctionNodeType, FunctionParamNode, FunctionParameterNode, FunctionParametersNode, ParameterGroupNode, TypeExpressionNode } from './function.ts'
+export type { FunctionNodeType, FunctionParamNode, FunctionParameterNode, FunctionParametersNode, ParameterGroupNode } from './function.ts'
 export type { HttpStatusCode, MediaType, StatusCode } from './http.ts'
 export type { HttpMethod, OperationNode } from './operation.ts'
 export type { OutputNode } from './output.ts'
@@ -48,6 +49,16 @@ export type {
 } from './schema.ts'
 
 /**
+ * Combined type-related AST node.
+ *
+ * - `kind: 'Type'` — A language-agnostic type expression used in function parameter annotations.
+ *   Comes in three variants: `reference` (plain name), `struct` (inline object type), `member` (indexed access).
+ * - `kind: 'TypeDeclaration'` — A TypeScript `type X = ...` alias declaration node, mirroring the
+ *   `Type` component from `@kubb/react-fabric`.
+ */
+export type TypeNode = TypeExprNode | TypeDeclarationNode
+
+/**
  * Union of all AST node types.
  *
  * This lets TypeScript narrow types in `switch (node.kind)` blocks.
@@ -80,6 +91,7 @@ export type Node =
   | ExportNode
   | SourceNode
   | ConstNode
-  | TypeNode
+  | TypeExprNode
+  | TypeDeclarationNode
   | FunctionNode
   | ArrowFunctionNode

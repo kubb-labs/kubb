@@ -1,5 +1,5 @@
 import { isValidVarName, URLPath } from '@internals/utils'
-import { caseParams, createFunctionParameter, createOperationParams, createTypeExpressionNode } from '@kubb/ast'
+import { caseParams, createFunctionParameter, createOperationParams, createTypeExpression } from '@kubb/ast'
 import type { FunctionParametersNode, OperationNode } from '@kubb/ast/types'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
@@ -53,7 +53,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, node, tsResolver,
       ? [
           createFunctionParameter({
             name: 'config',
-            type: createTypeExpressionNode({
+            type: createTypeExpression({
               variant: 'reference',
               name: requestName ? `Partial<RequestConfig<${requestName}>> & { client?: Client }` : 'Partial<RequestConfig> & { client?: Client }',
             }),

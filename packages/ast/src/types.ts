@@ -53,7 +53,7 @@ export type {
   StatusCode,
   StringSchemaNode,
   TimeSchemaNode,
-  TypeExpressionNode,
+  TypeDeclarationNode,
   TypeNode,
   UnionSchemaNode,
   UrlSchemaNode,
