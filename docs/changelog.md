@@ -6,6 +6,87 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.32
+
+### ✨ Features
+
+#### [`@kubb/ast`](https://github.com/kubb-labs/kubb/tree/main/packages/ast)
+
+-   [#2982](https://github.com/kubb-labs/kubb/pull/2982) [`6c6d2b6`](https://github.com/kubb-labs/kubb/commit/6c6d2b6b9f0dcfc7826cf9000ed835f274a6a7af) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Added structured AST nodes mirroring every JSX component from `@kubb/react-fabric`.
+
+    ::: code-group
+    ```typescript [New Node Types in `nodes/code.ts`]
+    // Example of new node types
+    const exampleConst: ConstNode = { kind: 'Const', ... }
+    const exampleFunction: FunctionNode = { kind: 'Function', ... }
+    ```
+    :::
+
+    Features include:
+
+    -   `ConstNode` (`kind: 'Const'`) — mirrors the `Const` component
+    -   `TypeNode` (`kind: 'Type'`) — mirrors the `Type` component; a plain type alias declaration with `name`, `export`, `JSDoc`, and `nodes` fields
+    -   `FunctionNode` (`kind: 'Function'`) — mirrors the `Function` component
+    -   `ArrowFunctionNode` (`kind: 'ArrowFunction'`) — mirrors the `Function.Arrow` component
+    -   `JSDocNode` — JSDoc prop shape used on the above nodes
+    -   `CodeNode` — discriminated union of all four code node types
+
+    New `ParamsTypeNode` (`kind: 'ParamsType'`) in `nodes/function.ts` provides language-agnostic type expressions for function parameter annotations, with three variants: `reference`, `struct`, and `member`.
+
+    Additionally:
+
+    - Updated `SourceNode` in `nodes/file.ts` — added optional `nodes?: Array<CodeNode>` field alongside `value` for carrying structured AST children.
+    - Extended `NodeKind` with `'Const'`, `'Type'`, `'ParamsType'`, `'Function'`, `'ArrowFunction'`.
+    - Introduced new factory functions: `createConst`, `createType`, `createParamsType`, `createFunction`, `createArrowFunction`.
+    - Renamed `FunctionNode` (function-parameter printer variants) to `FunctionParamNode`. The `functionPrinter` handler key `type` was renamed to `paramsType`.
+
+    This update enhances compatibility with `@kubb/plugin-ts`, `@kubb/plugin-client`, and `@kubb/plugin-cypress`.
+
+#### [`@kubb/plugin-ts`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-ts), [`@kubb/plugin-client`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-client), [`@kubb/plugin-cypress`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-cypress)
+
+-   [#2982](https://github.com/kubb-labs/kubb/pull/2982) [`6c6d2b6`](https://github.com/kubb-labs/kubb/commit/6c6d2b6b9f0dcfc7826cf9000ed835f274a6a7af) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated to leverage the new `createParamsType` factory and the `FunctionParamNode` type introduced within the `@kubb/ast` package. 
+
+---
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-ts)
+
+-   [#2982](https://github.com/kubb-labs/kubb/pull/2982) [`6c6d2b6`](https://github.com/kubb-labs/kubb/commit/6c6d2b6b9f0dcfc7826cf9000ed835f274a6a7af) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Improved the structure of generated TypeScript code by introducing new structured AST node utilities, avoiding potential naming conflicts for function parameters.
+
+    ::: code-group
+    ```typescript [Before]
+    type MyFunction = (arg: string, arg: number) => void;
+    ```
+    ```typescript [After]
+    import { ParamsType } from './types';
+
+    type MyFunction = (params: ParamsType) => void;
+    ```
+    :::
+
+#### [`@kubb/plugin-client`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-client)
+
+-   Incorporated the new structured AST node capabilities from `@kubb/ast`, ensuring enhanced consistency in generated client code.
+
+---
+
+### 🚀 Breaking Changes
+
+#### [`@kubb/ast`](https://github.com/kubb-labs/kubb/tree/main/packages/ast)
+
+-   [#2982](https://github.com/kubb-labs/kubb/pull/2982) [`6c6d2b6`](https://github.com/kubb-labs/kubb/commit/6c6d2b6b9f0dcfc7826cf9000ed835f274a6a7af) - Renamed `FunctionNode` to `FunctionParamNode`, and updated related handlers. Be sure to update your integrations accordingly.
+
+    ::: code-group
+    ```typescript [Before]
+    const fnNode: FunctionNode = { type: 'function', params: [] };
+    ```
+    ```typescript [After]
+    const fnNode: FunctionParamNode = { kind: 'ParamsType', nodes: [] };
+    ```
+    :::
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
