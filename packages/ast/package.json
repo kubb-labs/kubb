@@ -55,9 +55,6 @@
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
-  "dependencies": {
-    "remeda": "catalog:"
-  },
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "@types/node": "catalog:"

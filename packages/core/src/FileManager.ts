@@ -1,6 +1,6 @@
+import { trimExtName } from '@internals/utils'
 import { createFile } from '@kubb/ast'
 import type { FileNode } from '@kubb/ast/types'
-import { sortBy } from 'remeda'
 
 function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNode<TMeta>): FileNode<TMeta> {
   return {
@@ -9,10 +9,6 @@ function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNod
     imports: [...(a.imports || []), ...(b.imports || [])],
     exports: [...(a.exports || []), ...(b.exports || [])],
   }
-}
-
-function trimExtName(text: string): string {
-  return text.replace(/\.[^/.]+$/, '')
 }
 
 /**
@@ -113,11 +109,13 @@ export class FileManager {
       return this.#filesCache
     }
 
-    const keys = sortBy(
-      [...this.#cache.keys()],
-      (v) => v.length,
-      (v) => trimExtName(v).endsWith('index'),
-    )
+    const keys = [...this.#cache.keys()].sort((a, b) => {
+      if (a.length !== b.length) return a.length - b.length
+      const aIsIndex = trimExtName(a).endsWith('index')
+      const bIsIndex = trimExtName(b).endsWith('index')
+      if (aIsIndex !== bIsIndex) return aIsIndex ? 1 : -1
+      return 0
+    })
 
     const files: Array<FileNode> = []
     for (const key of keys) {

@@ -1,5 +1,4 @@
 import { camelCase, isValidVarName } from '@internals/utils'
-import { sortBy, uniqueBy } from 'remeda'
 
 import { createFunctionParameter, createFunctionParameters, createParameterGroup, createProperty, createSchema, createTypeNode } from './factory.ts'
 import { narrowSchema } from './guards.ts'
@@ -462,18 +461,46 @@ function toStructType({
   })
 }
 
+function sourceKey(source: SourceNode): string {
+  return `${source.name ?? source.value ?? ''}:${source.isExportable ?? false}:${source.isTypeOnly ?? false}`
+}
+
+function pathTypeKey(path: string, isTypeOnly: boolean | undefined): string {
+  return `${path}:${isTypeOnly ?? false}`
+}
+
+function exportKey(path: string, name: string | undefined, isTypeOnly: boolean | undefined, asAlias: boolean | undefined): string {
+  return `${path}:${name ?? ''}:${isTypeOnly ?? false}:${asAlias ?? ''}`
+}
+
+function importKey(path: string, name: string | undefined, isTypeOnly: boolean | undefined): string {
+  return `${path}:${name ?? ''}:${isTypeOnly ?? false}`
+}
+
+/**
+ * Computes a multi-level sort key for exports and imports:
+ * non-array names first (wildcards/namespace aliases); type-only before value; alphabetical path; unnamed before named.
+ */
+function sortKey(node: { name?: string | Array<unknown>; isTypeOnly?: boolean; path: string }): string {
+  const isArray = Array.isArray(node.name) ? '1' : '0'
+  const typeOnly = node.isTypeOnly ? '0' : '1'
+  const hasName = node.name != null ? '1' : '0'
+  const name = Array.isArray(node.name) ? [...node.name].sort().join('\0') : (node.name ?? '')
+  return `${isArray}:${typeOnly}:${node.path}:${hasName}:${name}`
+}
+
 /**
  * Deduplicates an array of `SourceNode` objects.
  * Named sources are deduplicated by `name + isExportable + isTypeOnly`.
  * Unnamed sources are deduplicated by `value`.
  */
 export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
-  return uniqueBy(sources, (obj) => {
-    const uniqueId = obj.name ?? obj.value ?? ''
-    const isExportable = obj.isExportable ?? false
-    const isTypeOnly = obj.isTypeOnly ?? false
-    return `${uniqueId}:${isExportable}:${isTypeOnly}`
-  })
+  const seen = new Map<string, SourceNode>()
+  for (const source of sources) {
+    const key = sourceKey(source)
+    if (!seen.has(key)) seen.set(key, source)
+  }
+  return [...seen.values()]
 }
 
 /**
@@ -481,54 +508,38 @@ export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
  * Exports with the same path and `isTypeOnly` flag have their names merged.
  */
 export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
-  const sorted = sortBy(
-    exports,
-    (v) => !!Array.isArray(v.name),
-    (v) => !v.isTypeOnly,
-    (v) => v.path,
-    (v) => !!v.name,
-    (v) => (Array.isArray(v.name) ? [...v.name].sort().join('\0') : (v.name ?? '')),
-  )
+  const result: Array<ExportNode> = []
+  // Accumulates array-named exports keyed by `path:isTypeOnly` for name-merging
+  const namedByPath = new Map<string, ExportNode>()
+  // Deduplicates non-array exports by their exact identity
+  const seen = new Set<string>()
 
-  const prev: Array<ExportNode> = []
-  const pathMap = new Map<string, ExportNode>()
-  const uniqueMap = new Map<string, ExportNode>()
+  for (const curr of [...exports].sort((a, b) => { const ka = sortKey(a); const kb = sortKey(b); return ka < kb ? -1 : ka > kb ? 1 : 0 })) {
+    const { name, path, isTypeOnly, asAlias } = curr
 
-  for (const curr of sorted) {
-    const name = curr.name
-    const pathKey = curr.path
-    const prevByPath = pathMap.get(pathKey)
+    if (Array.isArray(name)) {
+      if (!name.length) continue
 
-    const nameKey = Array.isArray(name) ? JSON.stringify(name) : name || ''
-    const pathNameTypeKey = `${pathKey}:${nameKey}:${curr.isTypeOnly}`
-    const uniqueKey = `${pathNameTypeKey}:${curr.asAlias || ''}`
-    const uniquePrev = uniqueMap.get(uniqueKey)
+      const key = pathTypeKey(path, isTypeOnly)
+      const existing = namedByPath.get(key)
 
-    if (uniquePrev || (Array.isArray(name) && !name.length) || (prevByPath?.asAlias && !curr.asAlias)) {
-      continue
-    }
-
-    if (!prevByPath) {
-      const newItem: ExportNode = {
-        ...curr,
-        name: Array.isArray(name) ? [...new Set(name)] : name,
+      if (existing && Array.isArray(existing.name)) {
+        existing.name = [...new Set([...existing.name, ...name])]
+      } else {
+        const newItem: ExportNode = { ...curr, name: [...new Set(name)] }
+        result.push(newItem)
+        namedByPath.set(key, newItem)
       }
-      prev.push(newItem)
-      pathMap.set(pathKey, newItem)
-      uniqueMap.set(uniqueKey, newItem)
-      continue
+    } else {
+      const key = exportKey(path, name, isTypeOnly, asAlias)
+      if (!seen.has(key)) {
+        result.push(curr)
+        seen.add(key)
+      }
     }
-
-    if (prevByPath && Array.isArray(prevByPath.name) && Array.isArray(curr.name) && prevByPath.isTypeOnly === curr.isTypeOnly) {
-      prevByPath.name = [...new Set([...prevByPath.name, ...curr.name])]
-      continue
-    }
-
-    prev.push(curr)
-    uniqueMap.set(uniqueKey, curr)
   }
 
-  return prev
+  return result
 }
 
 /**
@@ -537,77 +548,46 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
  * Imports with the same path and `isTypeOnly` flag have their names merged.
  */
 export function combineImports(imports: Array<ImportNode>, exports: Array<ExportNode>, source?: string): Array<ImportNode> {
-  const exportedNameLookup = new Set<string>()
-  for (const item of exports) {
-    const { name } = item
-    if (!name) continue
-    if (Array.isArray(name)) {
-      for (const value of name) {
-        if (value) exportedNameLookup.add(value)
-      }
-      continue
-    }
-    exportedNameLookup.add(name)
-  }
+  // Build a lookup of all exported names to retain imports that are re-exported
+  const exportedNames = new Set(exports.flatMap((e) => (Array.isArray(e.name) ? e.name : e.name ? [e.name] : [])))
+  const isUsed = (importName: string): boolean => !source || source.includes(importName) || exportedNames.has(importName)
 
-  const usageCache = new Map<string, boolean>()
-  const hasImportInSource = (importName: string): boolean => {
-    if (!source) return true
-    const cached = usageCache.get(importName)
-    if (cached !== undefined) return cached
-    const isUsed = source.includes(importName) || exportedNameLookup.has(importName)
-    usageCache.set(importName, isUsed)
-    return isUsed
-  }
+  const result: Array<ImportNode> = []
+  // Accumulates array-named imports keyed by `path:isTypeOnly` for name-merging
+  const namedByPath = new Map<string, ImportNode>()
+  // Deduplicates non-array imports by their exact identity
+  const seen = new Set<string>()
 
-  const sorted = sortBy(
-    imports,
-    (v) => Array.isArray(v.name),
-    (v) => !v.isTypeOnly,
-    (v) => v.path,
-    (v) => !!v.name,
-    (v) => (Array.isArray(v.name) ? [...v.name].sort().join('\0') : (v.name ?? '')),
-  )
-
-  const prev: Array<ImportNode> = []
-  const pathTypeMap = new Map<string, ImportNode>()
-  const uniqueMap = new Map<string, ImportNode>()
-
-  for (const curr of sorted) {
-    let name = Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name
-
+  for (const curr of [...imports].sort((a, b) => { const ka = sortKey(a); const kb = sortKey(b); return ka < kb ? -1 : ka > kb ? 1 : 0 })) {
     if (curr.path === curr.root) continue
 
+    const { path, isTypeOnly } = curr
+    let { name } = curr
+
     if (Array.isArray(name)) {
-      name = name.filter((item) => (typeof item === 'string' ? hasImportInSource(item) : hasImportInSource(item.propertyName)))
+      name = [...new Set(name)].filter((item) => (typeof item === 'string' ? isUsed(item) : isUsed(item.propertyName)))
+      if (!name.length) continue
+
+      const key = pathTypeKey(path, isTypeOnly)
+      const existing = namedByPath.get(key)
+
+      if (existing && Array.isArray(existing.name)) {
+        existing.name = [...new Set([...existing.name, ...name])]
+      } else {
+        const newItem: ImportNode = { ...curr, name }
+        result.push(newItem)
+        namedByPath.set(key, newItem)
+      }
+    } else {
+      if (name && !isUsed(name)) continue
+
+      const key = importKey(path, name, isTypeOnly)
+      if (!seen.has(key)) {
+        result.push(curr)
+        seen.add(key)
+      }
     }
-
-    const pathTypeKey = `${curr.path}:${curr.isTypeOnly}`
-    const prevByPath = pathTypeMap.get(pathTypeKey)
-    const nameKey = Array.isArray(name) ? JSON.stringify(name) : name || ''
-    const pathNameTypeKey = `${curr.path}:${nameKey}:${curr.isTypeOnly}`
-    const uniquePrev = uniqueMap.get(pathNameTypeKey)
-
-    if (uniquePrev || (Array.isArray(name) && !name.length)) continue
-
-    if (!prevByPath) {
-      const newItem: ImportNode = { ...curr, name }
-      prev.push(newItem)
-      pathTypeMap.set(pathTypeKey, newItem)
-      uniqueMap.set(pathNameTypeKey, newItem)
-      continue
-    }
-
-    if (prevByPath && Array.isArray(prevByPath.name) && Array.isArray(name) && prevByPath.isTypeOnly === curr.isTypeOnly) {
-      prevByPath.name = [...new Set([...prevByPath.name, ...name])]
-      continue
-    }
-
-    if (!Array.isArray(name) && name && !hasImportInSource(name)) continue
-
-    prev.push(curr)
-    uniqueMap.set(pathNameTypeKey, curr)
   }
 
-  return prev
+  return result
 }

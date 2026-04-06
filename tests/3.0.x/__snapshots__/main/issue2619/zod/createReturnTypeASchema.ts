@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-import * as z from "zod";
 import { resultSchema } from "./resultSchema.ts";
 
 export const createReturnTypeAStatus200Schema = resultSchema

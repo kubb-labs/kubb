@@ -1420,6 +1420,23 @@ describe('combineSources', () => {
     expect(result).toHaveLength(2)
   })
 
+  it('treats sources with the same name but different isTypeOnly as distinct', () => {
+    const a = createSource({ name: 'Pet', value: 'export type Pet = {}', isTypeOnly: true })
+    const b = createSource({ name: 'Pet', value: 'export type Pet = {}', isTypeOnly: false })
+    const result = combineSources([a, b])
+
+    expect(result).toHaveLength(2)
+  })
+
+  it('preserves insertion order for unique sources', () => {
+    const a = createSource({ name: 'Z', value: 'z' })
+    const b = createSource({ name: 'A', value: 'a' })
+    const result = combineSources([a, b])
+
+    expect(result[0]!.name).toBe('Z')
+    expect(result[1]!.name).toBe('A')
+  })
+
   it('returns empty array for empty input', () => {
     expect(combineSources([])).toEqual([])
   })
@@ -1460,6 +1477,50 @@ describe('combineExports', () => {
     expect(result.length).toBeGreaterThanOrEqual(1)
   })
 
+  it('sorts wildcard exports before named array exports', () => {
+    const named = createExport({ name: ['Pet'], path: './Pet' })
+    const wildcard = createExport({ path: './utils' })
+    const result = combineExports([named, wildcard])
+
+    // wildcard (name = undefined, not array) comes before named array
+    const wildcardIndex = result.findIndex((e) => e.name == null)
+    const namedIndex = result.findIndex((e) => Array.isArray(e.name))
+    expect(wildcardIndex).toBeLessThan(namedIndex)
+  })
+
+  it('sorts type-only exports before value exports', () => {
+    const value = createExport({ path: './a' })
+    const typeOnly = createExport({ path: './b', isTypeOnly: true })
+    const result = combineExports([value, typeOnly])
+
+    const typeOnlyIndex = result.findIndex((e) => e.isTypeOnly)
+    const valueIndex = result.findIndex((e) => !e.isTypeOnly)
+    expect(typeOnlyIndex).toBeLessThan(valueIndex)
+  })
+
+  it('sorts exports alphabetically by path', () => {
+    const c = createExport({ path: './c' })
+    const a = createExport({ path: './a' })
+    const b = createExport({ path: './b' })
+    const result = combineExports([c, a, b])
+
+    expect(result.map((e) => e.path)).toEqual(['./a', './b', './c'])
+  })
+
+  it('deduplicates namespace alias exports', () => {
+    const exp = createExport({ name: 'utils', path: './utils', asAlias: true })
+    const result = combineExports([exp, exp])
+
+    expect(result).toHaveLength(1)
+  })
+
+  it('drops empty-array named exports', () => {
+    const exp = createExport({ name: [], path: './empty' })
+    const result = combineExports([exp])
+
+    expect(result).toHaveLength(0)
+  })
+
   it('returns empty array for empty input', () => {
     expect(combineExports([])).toEqual([])
   })
@@ -1479,6 +1540,20 @@ describe('combineImports', () => {
     const result = combineImports([imp], [], 'const x = 1')
 
     expect(result).toHaveLength(0)
+  })
+
+  it('filters out namespace imports when the alias is not used in the source', () => {
+    const imp = createImport({ name: 'z', path: 'zod' })
+    const result = combineImports([imp], [], 'const x = 1')
+
+    expect(result).toHaveLength(0)
+  })
+
+  it('keeps namespace import when the alias appears in the source', () => {
+    const imp = createImport({ name: 'z', path: 'zod' })
+    const result = combineImports([imp], [], 'const schema = z.string()')
+
+    expect(result).toHaveLength(1)
   })
 
   it('retains imports that are re-exported', () => {
@@ -1505,6 +1580,25 @@ describe('combineImports', () => {
     const result = combineImports([value, typeOnly], [], 'Pet')
 
     expect(result).toHaveLength(2)
+  })
+
+  it('sorts namespace imports before named array imports', () => {
+    const named = createImport({ name: ['Pet'], path: './Pet' })
+    const ns = createImport({ name: 'z', path: 'zod' })
+    const result = combineImports([named, ns], [], 'Pet z')
+
+    const nsIndex = result.findIndex((i) => !Array.isArray(i.name))
+    const namedIndex = result.findIndex((i) => Array.isArray(i.name))
+    expect(nsIndex).toBeLessThan(namedIndex)
+  })
+
+  it('sorts imports alphabetically by path', () => {
+    const c = createImport({ name: ['c'], path: './c' })
+    const a = createImport({ name: ['a'], path: './a' })
+    const b = createImport({ name: ['b'], path: './b' })
+    const result = combineImports([c, a, b], [], 'a b c')
+
+    expect(result.map((i) => i.path)).toEqual(['./a', './b', './c'])
   })
 
   it('skips an import when path equals root', () => {
