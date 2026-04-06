@@ -478,6 +478,62 @@ function importKey(path: string, name: string | undefined, isTypeOnly: boolean |
 }
 
 /**
+ * Comparator for multi-level export sorting:
+ * 1. Non-array names first (wildcards + namespace aliases before named arrays)
+ * 2. Type-only before value exports
+ * 3. Alphabetical by path
+ * 4. Unnamed (wildcard) before named within the same path
+ * 5. Alphabetical by name
+ */
+function compareExportNodes(a: ExportNode, b: ExportNode): number {
+  const aIsArray = Array.isArray(a.name) ? 1 : 0
+  const bIsArray = Array.isArray(b.name) ? 1 : 0
+  if (aIsArray !== bIsArray) return aIsArray - bIsArray
+
+  const aTypeOnly = a.isTypeOnly ? 0 : 1
+  const bTypeOnly = b.isTypeOnly ? 0 : 1
+  if (aTypeOnly !== bTypeOnly) return aTypeOnly - bTypeOnly
+
+  if (a.path !== b.path) return a.path < b.path ? -1 : 1
+
+  const aHasName = a.name != null ? 1 : 0
+  const bHasName = b.name != null ? 1 : 0
+  if (aHasName !== bHasName) return aHasName - bHasName
+
+  const aName = Array.isArray(a.name) ? [...a.name].sort().join('\0') : (a.name ?? '')
+  const bName = Array.isArray(b.name) ? [...b.name].sort().join('\0') : (b.name ?? '')
+  return aName < bName ? -1 : aName > bName ? 1 : 0
+}
+
+/**
+ * Comparator for multi-level import sorting:
+ * 1. Non-array names first (namespace imports before named arrays)
+ * 2. Type-only before value imports
+ * 3. Alphabetical by path
+ * 4. Unnamed before named within the same path
+ * 5. Alphabetical by name
+ */
+function compareImportNodes(a: ImportNode, b: ImportNode): number {
+  const aIsArray = Array.isArray(a.name) ? 1 : 0
+  const bIsArray = Array.isArray(b.name) ? 1 : 0
+  if (aIsArray !== bIsArray) return aIsArray - bIsArray
+
+  const aTypeOnly = a.isTypeOnly ? 0 : 1
+  const bTypeOnly = b.isTypeOnly ? 0 : 1
+  if (aTypeOnly !== bTypeOnly) return aTypeOnly - bTypeOnly
+
+  if (a.path !== b.path) return a.path < b.path ? -1 : 1
+
+  const aHasName = a.name != null ? 1 : 0
+  const bHasName = b.name != null ? 1 : 0
+  if (aHasName !== bHasName) return aHasName - bHasName
+
+  const aName = Array.isArray(a.name) ? [...a.name].sort().join('\0') : (a.name ?? '')
+  const bName = Array.isArray(b.name) ? [...b.name].sort().join('\0') : (b.name ?? '')
+  return aName < bName ? -1 : aName > bName ? 1 : 0
+}
+
+/**
  * Deduplicates an array of `SourceNode` objects.
  * Named sources are deduplicated by `name + isExportable + isTypeOnly`.
  * Unnamed sources are deduplicated by `value`.
@@ -499,10 +555,11 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
   const result: Array<ExportNode> = []
   // Accumulates array-named exports keyed by `path:isTypeOnly` for name-merging
   const namedByPath = new Map<string, ExportNode>()
+  const sorted = [...exports].sort(compareExportNodes)
   // Deduplicates non-array exports by their exact identity
   const seen = new Set<string>()
 
-  for (const curr of exports) {
+  for (const curr of sorted) {
     const { name, path, isTypeOnly, asAlias } = curr
 
     if (Array.isArray(name)) {
@@ -554,8 +611,9 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   const namedByPath = new Map<string, ImportNode>()
   // Deduplicates non-array imports by their exact identity
   const seen = new Set<string>()
+  const sorted = [...imports].sort(compareImportNodes)
 
-  for (const curr of imports) {
+  for (const curr of sorted) {
     if (curr.path === curr.root) continue
 
     const { path, isTypeOnly } = curr
