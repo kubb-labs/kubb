@@ -478,27 +478,15 @@ function importKey(path: string, name: string | undefined, isTypeOnly: boolean |
 }
 
 /**
- * Computes a sort key for multi-level export ordering:
- * wildcards/namespace aliases before named arrays; type-only before value; alphabetical path; unnamed before named.
+ * Computes a multi-level sort key for exports and imports:
+ * non-array names first (wildcards/namespace aliases); type-only before value; alphabetical path; unnamed before named.
  */
-function exportSortKey(e: ExportNode): string {
-  const isArray = Array.isArray(e.name) ? '1' : '0'
-  const typeOnly = e.isTypeOnly ? '0' : '1'
-  const hasName = e.name != null ? '1' : '0'
-  const name = Array.isArray(e.name) ? [...e.name].sort().join('\0') : (e.name ?? '')
-  return `${isArray}:${typeOnly}:${e.path}:${hasName}:${name}`
-}
-
-/**
- * Computes a sort key for multi-level import ordering:
- * namespace imports before named arrays; type-only before value; alphabetical path; unnamed before named.
- */
-function importSortKey(i: ImportNode): string {
-  const isArray = Array.isArray(i.name) ? '1' : '0'
-  const typeOnly = i.isTypeOnly ? '0' : '1'
-  const hasName = i.name != null ? '1' : '0'
-  const name = Array.isArray(i.name) ? [...i.name].sort().join('\0') : (i.name ?? '')
-  return `${isArray}:${typeOnly}:${i.path}:${hasName}:${name}`
+function sortKey(node: { name?: string | Array<unknown>; isTypeOnly?: boolean; path: string }): string {
+  const isArray = Array.isArray(node.name) ? '1' : '0'
+  const typeOnly = node.isTypeOnly ? '0' : '1'
+  const hasName = node.name != null ? '1' : '0'
+  const name = Array.isArray(node.name) ? [...node.name].sort().join('\0') : (node.name ?? '')
+  return `${isArray}:${typeOnly}:${node.path}:${hasName}:${name}`
 }
 
 /**
@@ -523,14 +511,10 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
   const result: Array<ExportNode> = []
   // Accumulates array-named exports keyed by `path:isTypeOnly` for name-merging
   const namedByPath = new Map<string, ExportNode>()
-  const sorted = exports
-    .map((e) => [e, exportSortKey(e)] as [ExportNode, string])
-    .sort(([, a], [, b]) => (a < b ? -1 : a > b ? 1 : 0))
-    .map(([e]) => e)
   // Deduplicates non-array exports by their exact identity
   const seen = new Set<string>()
 
-  for (const curr of sorted) {
+  for (const curr of [...exports].sort((a, b) => sortKey(a).localeCompare(sortKey(b)))) {
     const { name, path, isTypeOnly, asAlias } = curr
 
     if (Array.isArray(name)) {
@@ -566,28 +550,15 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
 export function combineImports(imports: Array<ImportNode>, exports: Array<ExportNode>, source?: string): Array<ImportNode> {
   // Build a lookup of all exported names to retain imports that are re-exported
   const exportedNames = new Set(exports.flatMap((e) => (Array.isArray(e.name) ? e.name : e.name ? [e.name] : [])))
-
-  const usageCache = new Map<string, boolean>()
-  const isUsed = (importName: string): boolean => {
-    if (!source) return true
-    const cached = usageCache.get(importName)
-    if (cached !== undefined) return cached
-    const used = source.includes(importName) || exportedNames.has(importName)
-    usageCache.set(importName, used)
-    return used
-  }
+  const isUsed = (importName: string): boolean => !source || source.includes(importName) || exportedNames.has(importName)
 
   const result: Array<ImportNode> = []
   // Accumulates array-named imports keyed by `path:isTypeOnly` for name-merging
   const namedByPath = new Map<string, ImportNode>()
   // Deduplicates non-array imports by their exact identity
   const seen = new Set<string>()
-  const sorted = imports
-    .map((i) => [i, importSortKey(i)] as [ImportNode, string])
-    .sort(([, a], [, b]) => (a < b ? -1 : a > b ? 1 : 0))
-    .map(([i]) => i)
 
-  for (const curr of sorted) {
+  for (const curr of [...imports].sort((a, b) => sortKey(a).localeCompare(sortKey(b)))) {
     if (curr.path === curr.root) continue
 
     const { path, isTypeOnly } = curr
