@@ -639,6 +639,12 @@ describe('createArrowFunctionDeclaration', () => {
     expect(node.nodes).toHaveLength(1)
   })
 
+  it('accepts default export flag', () => {
+    const node = createArrowFunctionDeclaration({ name: 'handler', default: true, export: true })
+
+    expect(node.default).toBe(true)
+  })
+
   it('always sets kind to ArrowFunctionDeclaration', () => {
     // @ts-expect-error — kind should be forced to 'ArrowFunctionDeclaration'
     const node = createArrowFunctionDeclaration({ name: 'x', kind: 'Import' })

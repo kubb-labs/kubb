@@ -75,7 +75,7 @@ export type TypeDeclarationNode = BaseNode & {
    */
   kind: 'TypeDeclaration'
   /**
-   * Name of the type alias. Must start with a capital letter (TypeScript convention).
+   * Name of the type alias.
    */
   name: string
   /**
