@@ -983,6 +983,9 @@ importers:
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.16.0
+      '@kubb/renderer-jsx':
+        specifier: workspace:*
+        version: link:../renderer-jsx
       empathic:
         specifier: ^2.0.0
         version: 2.0.0
@@ -1148,9 +1151,9 @@ importers:
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../plugin-ts
-      '@kubb/react-fabric':
-        specifier: 'catalog:'
-        version: 0.16.0
+      '@kubb/renderer-jsx':
+        specifier: workspace:*
+        version: link:../renderer-jsx
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
