@@ -32,6 +32,7 @@ export async function deletePetHook(
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })
+
   return res.data
 }
 

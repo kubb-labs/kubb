@@ -1,8 +1,9 @@
+import { FunctionParams } from '@kubb/core'
 import { isAllOptional, isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { File, Function } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PluginReactQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
 import { QueryOptions } from './QueryOptions.tsx'
@@ -142,7 +143,7 @@ export function SuspenseQuery({
   typeSchemas,
   operation,
   customOptions,
-}: Props): FabricReactNode {
+}: Props): KubbReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
   const returnType = `UseSuspenseQueryResult<${['TData', TError].join(', ')}> & { queryKey: TQueryKey }`

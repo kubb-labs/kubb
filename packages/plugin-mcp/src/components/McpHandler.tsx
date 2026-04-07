@@ -3,8 +3,8 @@ import { caseParams, createOperationParams } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { ResolverTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
-import { File, Function } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { File, Function } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PluginMcp } from '../types.ts'
 import { getComments, getParamsMapping } from '../utils.ts'
 
@@ -50,7 +50,7 @@ function buildRemappingCode(mapping: Record<string, string>, varName: string, so
 
 const declarationPrinter = functionPrinter({ mode: 'declaration' })
 
-export function McpHandler({ name, node, resolver, baseURL, dataReturnType, paramsCasing }: Props): FabricReactNode {
+export function McpHandler({ name, node, resolver, baseURL, dataReturnType, paramsCasing }: Props): KubbReactNode {
   const urlPath = new URLPath(node.path)
   const contentType = node.requestBody?.contentType
   const isFormData = contentType === 'multipart/form-data'

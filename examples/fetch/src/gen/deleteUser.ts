@@ -9,6 +9,7 @@ import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUs
 
 function getDeleteUserUrl(username: DeleteUserPathParams['username']) {
   const res = { method: 'DELETE', url: `https://petstore3.swagger.io/api/v3/user/${username}` as const }
+
   return res
 }
 
@@ -25,5 +26,6 @@ export async function deleteUser(username: DeleteUserPathParams['username'], con
     url: getDeleteUserUrl(username).url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }

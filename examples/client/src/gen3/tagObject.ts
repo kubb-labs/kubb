@@ -20,6 +20,7 @@ export async function getInventory(config: Partial<RequestConfig> & { client?: C
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/store/inventory', ...requestConfig })
+
   return res
 }
 
@@ -47,6 +48,7 @@ export async function placeOrder(data?: PlaceOrderMutationRequest, config: Parti
     data: requestData,
     ...requestConfig,
   })
+
   return res
 }
 
@@ -77,6 +79,7 @@ export async function placeOrderPatch(
     data: requestData,
     ...requestConfig,
   })
+
   return res
 }
 
@@ -101,6 +104,7 @@ export async function getOrderById({ orderId }: { orderId: GetOrderByIdPathParam
     url: `/store/order/${orderId}`,
     ...requestConfig,
   })
+
   return res
 }
 
@@ -125,6 +129,7 @@ export async function deleteOrder({ orderId }: { orderId: DeleteOrderPathParams[
     url: `/store/order/${orderId}`,
     ...requestConfig,
   })
+
   return res
 }
 

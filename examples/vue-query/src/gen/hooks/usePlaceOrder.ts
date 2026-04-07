@@ -30,6 +30,7 @@ export async function placeOrder(data?: PlaceOrderMutationRequest, config: Parti
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 

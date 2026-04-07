@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createFile, createSource } from '@kubb/ast'
+import { createFile, createSource, createText } from '@kubb/ast'
 import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
@@ -169,7 +169,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
             sources: [
               createSource({
                 name: 'fetch',
-                value: plugin.options.client === 'fetch' ? fetchClientSource : axiosClientSource,
+                nodes: [createText(plugin.options.client === 'fetch' ? fetchClientSource : axiosClientSource)],
                 isExportable: true,
                 isIndexable: true,
               }),
@@ -185,7 +185,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
           sources: [
             createSource({
               name: 'config',
-              value: configSource,
+              nodes: [createText(configSource)],
               isExportable: false,
               isIndexable: false,
             }),

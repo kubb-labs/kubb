@@ -28,6 +28,7 @@ export async function findPetsByTagsSuspenseHook(params?: FindPetsByTagsQueryPar
     params,
     ...requestConfig,
   })
+
   return res
 }
 

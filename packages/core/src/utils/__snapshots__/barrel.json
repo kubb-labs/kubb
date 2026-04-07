@@ -6,7 +6,12 @@
     "sources": [
       {
         "name": "test",
-        "value": "export const test = 2;",
+        "nodes": [
+          {
+            "value": "export const test = 2;",
+            "kind": "Text"
+          }
+        ],
         "isExportable": true,
         "isIndexable": true,
         "kind": "Source"
@@ -41,21 +46,18 @@
     "sources": [
       {
         "name": "test",
-        "value": "",
         "isExportable": false,
         "isIndexable": false,
         "kind": "Source"
       },
       {
         "name": "hello",
-        "value": "",
         "isExportable": false,
         "isIndexable": false,
         "kind": "Source"
       },
       {
         "name": "world",
-        "value": "",
         "isExportable": false,
         "isIndexable": false,
         "kind": "Source"
@@ -73,7 +75,12 @@
     "sources": [
       {
         "name": "hello",
-        "value": "export const hello = 2;",
+        "nodes": [
+          {
+            "value": "export const hello = 2;",
+            "kind": "Text"
+          }
+        ],
         "isExportable": true,
         "isIndexable": true,
         "kind": "Source"
@@ -93,7 +100,12 @@
     "sources": [
       {
         "name": "world",
-        "value": "export const world = 2;",
+        "nodes": [
+          {
+            "value": "export const world = 2;",
+            "kind": "Text"
+          }
+        ],
         "isExportable": true,
         "isIndexable": true,
         "kind": "Source"
@@ -113,12 +125,10 @@
     "sources": [
       {
         "name": "hello",
-        "value": "",
         "kind": "Source"
       },
       {
         "name": "world",
-        "value": "",
         "kind": "Source"
       }
     ],

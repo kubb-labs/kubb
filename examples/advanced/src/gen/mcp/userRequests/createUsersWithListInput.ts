@@ -20,6 +20,7 @@ export async function createUsersWithListInputHandler({ data }: { data?: CreateU
     baseURL: 'https://petstore.swagger.io/v2',
     data: requestData,
   })
+
   return {
     content: [
       {

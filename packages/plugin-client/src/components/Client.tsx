@@ -1,11 +1,12 @@
 import { isValidVarName, URLPath } from '@internals/utils'
 import { caseParams, createFunctionParameter, createOperationParams, createParamsType } from '@kubb/ast'
 import type { FunctionParametersNode, OperationNode } from '@kubb/ast/types'
+import { FunctionParams } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
 import type { PluginZod } from '@kubb/plugin-zod'
-import { File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { File, Function } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PluginClient } from '../types.ts'
 import { buildParamsMapping, getComments } from '../utils.ts'
 import { Url } from './Url.tsx'
@@ -27,7 +28,7 @@ type Props = {
   node: OperationNode
   tsResolver: PluginTs['resolver']
   zodResolver?: PluginZod['resolver']
-  children?: FabricReactNode
+  children?: KubbReactNode
 }
 
 type GetParamsProps = {
@@ -81,7 +82,7 @@ export function Client({
   urlName,
   children,
   isConfigurable = true,
-}: Props): FabricReactNode {
+}: Props): KubbReactNode {
   const path = new URLPath(node.path)
   const contentType = node.requestBody?.contentType ?? 'application/json'
   const isFormData = contentType === 'multipart/form-data'

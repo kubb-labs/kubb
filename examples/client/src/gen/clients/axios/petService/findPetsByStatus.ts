@@ -6,6 +6,7 @@ import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatus
 
 function getFindPetsByStatusUrl() {
   const res = { method: 'GET', url: '/pet/findByStatus' as const }
+
   return res
 }
 
@@ -23,5 +24,6 @@ export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, con
     params,
     ...requestConfig,
   })
+
   return res.data
 }

@@ -14,6 +14,7 @@ export async function loginUserHandler({ params }: { params?: LoginUserQueryPara
     baseURL: 'https://petstore.swagger.io/v2',
     params,
   })
+
   return {
     content: [
       {

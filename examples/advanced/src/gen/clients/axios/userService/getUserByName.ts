@@ -10,6 +10,7 @@ import { getUserByNameQueryResponseSchema } from '../../../zod/userController/ge
 
 export function getGetUserByNameUrl({ username }: { username: GetUserByNamePathParams['username'] }) {
   const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/user/${username}` as const }
+
   return res
 }
 
@@ -28,5 +29,6 @@ export async function getUserByName(
     url: getGetUserByNameUrl({ username }).url.toString(),
     ...requestConfig,
   })
+
   return { ...res, data: getUserByNameQueryResponseSchema.parse(res.data) }
 }

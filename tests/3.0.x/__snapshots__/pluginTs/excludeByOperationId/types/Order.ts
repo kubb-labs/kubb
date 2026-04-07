@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 export const orderStatusEnum = {
     placed: "placed",
     approved: "approved",

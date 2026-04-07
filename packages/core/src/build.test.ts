@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { AsyncEventEmitter, isPromise } from '@internals/utils'
-import { createFile, createSource } from '@kubb/ast'
+import { createFile, createSource, createText } from '@kubb/ast'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createMockedAdapter } from '#mocks'
 import { build, safeBuild } from './build.ts'
@@ -19,7 +19,7 @@ describe('build', () => {
   const file = createFile({
     path: 'hello/world.json',
     baseName: 'world.json',
-    sources: [createSource({ value: `{ "hello": "world" }` })],
+    sources: [createSource({ nodes: [createText(`{ "hello": "world" }`)] })],
     imports: [],
     exports: [],
   })
@@ -186,7 +186,12 @@ describe('build', () => {
           "sources": [
             {
               "kind": "Source",
-              "value": "{ "hello": "world" }",
+              "nodes": [
+                {
+                  "kind": "Text",
+                  "value": "{ "hello": "world" }",
+                },
+              ],
             },
           ],
         },
@@ -320,7 +325,7 @@ describe('build', () => {
         baseName: 'excluded.ts',
         sources: [
           createSource({
-            value: 'export const excluded = "excluded"',
+            nodes: [createText('export const excluded = "excluded"')],
             isIndexable: true,
             name: 'excluded',
           }),

@@ -34,6 +34,7 @@ export async function updateUser(
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 

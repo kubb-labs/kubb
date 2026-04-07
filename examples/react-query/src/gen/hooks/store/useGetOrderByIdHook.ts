@@ -28,6 +28,7 @@ export async function getOrderByIdHook({ orderId }: { orderId: GetOrderByIdPathP
     url: `/store/order/${orderId}`,
     ...requestConfig,
   })
+
   return res.data
 }
 

@@ -28,6 +28,7 @@ export async function findPetsByStatusHook(params?: FindPetsByStatusQueryParams,
     params,
     ...requestConfig,
   })
+
   return res.data
 }
 

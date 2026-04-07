@@ -4,7 +4,7 @@ import { useDriver } from '@kubb/core/hooks'
 import type { Operation } from '@kubb/oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
-import { File, Function } from '@kubb/react-fabric'
+import { File, Function } from '@kubb/renderer-jsx'
 import type { PluginReactQuery } from '../types'
 
 export const customHookOptionsFileGenerator = createReactGenerator<PluginReactQuery>({

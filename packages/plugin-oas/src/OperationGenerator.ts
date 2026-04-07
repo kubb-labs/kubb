@@ -231,6 +231,8 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
           await renderOperation(operation, {
             config: this.context.driver.config,
             driver: this.context.driver,
+            oas: this.context.oas,
+            mode: this.context.mode,
             Component: v1Generator.Operation,
             generator: this,
             plugin: {
@@ -265,6 +267,8 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
           {
             driver: this.context.driver,
             config: this.context.driver.config,
+            oas: this.context.oas,
+            mode: this.context.mode,
             Component: v1Generator.Operations,
             generator: this,
             plugin: this.context.plugin,

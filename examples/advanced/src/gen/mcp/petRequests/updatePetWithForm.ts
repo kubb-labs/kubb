@@ -25,6 +25,7 @@ export async function updatePetWithFormHandler({
     baseURL: 'https://petstore.swagger.io/v2',
     params,
   })
+
   return {
     content: [
       {

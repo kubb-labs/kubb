@@ -63,12 +63,12 @@
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
-    "@kubb/react-fabric": "catalog:",
+    "@kubb/renderer-jsx": "workspace:*",
     "remeda": "catalog:",
     "typescript": "5.9.3"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.16.0"
+    "@kubb/renderer-jsx": "workspace:*"
   },
   "engines": {
     "node": ">=22"

@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 /**
  * @description successful operation
  * @type any

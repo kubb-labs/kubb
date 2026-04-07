@@ -13,6 +13,7 @@ import type { PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatc
 
 function getGetInventoryUrl() {
   const res = { method: 'GET', url: '/store/inventory' as const }
+
   return res
 }
 
@@ -29,11 +30,13 @@ export async function getInventory(config: Partial<RequestConfig> & { client?: C
     url: getGetInventoryUrl().url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }
 
 function getPlaceOrderUrl() {
   const res = { method: 'POST', url: '/store/order' as const }
+
   return res
 }
 
@@ -53,11 +56,13 @@ export async function placeOrder(data?: PlaceOrderMutationRequest, config: Parti
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 
 function getPlaceOrderPatchUrl() {
   const res = { method: 'PATCH', url: '/store/order' as const }
+
   return res
 }
 
@@ -80,11 +85,13 @@ export async function placeOrderPatch(
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 
 function getGetOrderByIdUrl(orderId: GetOrderByIdPathParams['orderId']) {
   const res = { method: 'GET', url: `/store/order/${orderId}` as const }
+
   return res
 }
 
@@ -101,11 +108,13 @@ export async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], c
     url: getGetOrderByIdUrl(orderId).url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }
 
 function getDeleteOrderUrl(orderId: DeleteOrderPathParams['orderId']) {
   const res = { method: 'DELETE', url: `/store/order/${orderId}` as const }
+
   return res
 }
 
@@ -122,6 +131,7 @@ export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], con
     url: getDeleteOrderUrl(orderId).url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }
 

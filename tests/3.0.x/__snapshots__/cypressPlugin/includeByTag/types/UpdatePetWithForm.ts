@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 /**
  * @description ID of pet that needs to be updated
  * @type integer

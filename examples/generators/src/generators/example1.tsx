@@ -1,4 +1,4 @@
-import { createFile, createSource } from '@kubb/ast'
+import { createFile, createSource, createText } from '@kubb/ast'
 import type { PluginOas } from '@kubb/plugin-oas'
 import { createGenerator } from '@kubb/plugin-oas/generators'
 
@@ -31,12 +31,12 @@ export const example1 = createGenerator<PluginOas>({
         meta: client.file.meta,
         sources: [
           createSource({
-            value: `
-          export const ${operation.getOperationId()} = {
-            method: '${operation.method}',
-            url: '${toURL(operation.path)}'
-          }
-        `,
+            nodes: [
+              createText(`export const ${operation.getOperationId()} = {
+  method: '${operation.method}',
+  url: '${toURL(operation.path)}'
+}`),
+            ],
           }),
         ],
       }),

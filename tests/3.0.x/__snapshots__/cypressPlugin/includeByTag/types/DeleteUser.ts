@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 /**
  * @description The name that needs to be deleted
  * @type string

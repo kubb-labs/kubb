@@ -38,6 +38,7 @@ export async function createPetsHandler({
     data: requestData,
     headers: { ...mappedHeaders },
   })
+
   return {
     content: [
       {

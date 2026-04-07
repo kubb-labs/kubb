@@ -31,6 +31,7 @@ export async function getUserByName(
     url: `/user/${username}`,
     ...requestConfig,
   })
+
   return res.data
 }
 

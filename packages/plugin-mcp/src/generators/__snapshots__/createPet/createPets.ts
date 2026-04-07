@@ -10,6 +10,7 @@ export async function createPetsHandler({ data }: { data?: CreatePetsData } = {}
   const requestData = data
 
   const res = await fetch<CreatePetsResponse, ResponseErrorConfig<Error>, CreatePetsData>({ method: 'POST', url: `/pets`, data: requestData })
+
   return {
     content: [
       {

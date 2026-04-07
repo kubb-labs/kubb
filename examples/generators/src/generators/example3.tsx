@@ -1,4 +1,7 @@
 import type { PluginOas } from '@kubb/plugin-oas'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
+import { useOperationManager } from '@kubb/plugin-oas/hooks'
+import { Const, File, Function, Jsx } from '@kubb/renderer-jsx'
 
 const pascalCase = (str: string) =>
   str
@@ -7,10 +10,6 @@ const pascalCase = (str: string) =>
     .join('')
 
 const toURL = (path: string) => path.replaceAll('{', ':').replaceAll('}', '')
-
-import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
-import { Const, File, Function } from '@kubb/react-fabric'
 
 export const example3 = createReactGenerator<PluginOas>({
   name: 'client-operation',
@@ -22,23 +21,21 @@ export const example3 = createReactGenerator<PluginOas>({
       file: getFile(operation, { extname: '.tsx' }),
     }
 
+    const componentName = pascalCase(operation.getOperationId())
+    const href = toURL(operation.path)
+
     return (
       <File baseName={client.file.baseName} path={client.file.path} meta={client.file.meta}>
         <File.Source>
-          <Function name={pascalCase(operation.getOperationId())} export>
-            <Const name={'href'}>"{toURL(operation.path)}"</Const>
+          <Function name={componentName} export>
+            <Const name="href">{`'${href}'`}</Const>
             <br />
             <br />
-            return
-            <div className="test">
-              hello world
-              {`
-              <a href={href}>Open ${operation.method}</a>
-              `}
-              <button type={'button'} onClick={(e) => console.log(e)}>
-                Submit
-              </button>
-            </div>
+            <Jsx>{`return (
+  <>
+    <a href={href}>Open ${operation.method}</a>
+  </>
+)`}</Jsx>
           </Function>
         </File.Source>
       </File>

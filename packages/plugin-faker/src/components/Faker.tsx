@@ -1,8 +1,9 @@
 import { jsStringEscape } from '@internals/utils'
+import { FunctionParams } from '@kubb/core'
 import type { Schema } from '@kubb/plugin-oas'
 import { isKeyword, schemaKeywords } from '@kubb/plugin-oas'
-import { File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { File, Function } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import * as parserFaker from '../parser.ts'
 import type { PluginFaker } from '../types.ts'
 
@@ -18,7 +19,7 @@ type Props = {
   canOverride: boolean
 }
 
-export function Faker({ tree, description, name, typeName, seed, regexGenerator, canOverride, mapper, dateParser }: Props): FabricReactNode {
+export function Faker({ tree, description, name, typeName, seed, regexGenerator, canOverride, mapper, dateParser }: Props): KubbReactNode {
   const fakerText = parserFaker.joinItems(
     tree
       .map((schema, _index, siblings) =>

@@ -3,8 +3,8 @@ import type { OperationNode } from '@kubb/ast/types'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
 import type { PluginZod } from '@kubb/plugin-zod'
-import { File } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { File } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PluginClient } from '../types.ts'
 import { buildClassClientParams, buildFormDataLine, buildGenerics, buildHeaders, buildRequestDataLine, buildReturnStatement, getComments } from '../utils.ts'
 
@@ -28,7 +28,7 @@ type Props = {
   paramsType: PluginClient['resolvedOptions']['pathParamsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
   parser: PluginClient['resolvedOptions']['parser'] | undefined
-  children?: FabricReactNode
+  children?: KubbReactNode
 }
 
 type GenerateMethodProps = {
@@ -103,7 +103,7 @@ export function ClassClient({
   paramsCasing,
   pathParamsType,
   children,
-}: Props): FabricReactNode {
+}: Props): KubbReactNode {
   const methods = operations.map(({ node, name: methodName, tsResolver, zodResolver }) =>
     generateMethod({
       node,

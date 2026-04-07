@@ -12,6 +12,7 @@ import type {
 
 function getUpdatePetUrl() {
   const res = { method: 'PUT', url: '/pet' as const }
+
   return res
 }
 
@@ -31,5 +32,6 @@ export async function updatePet(data: UpdatePetMutationRequest, config: Partial<
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }

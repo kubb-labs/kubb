@@ -5,6 +5,7 @@ import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } f
 
 export function getAddFilesUrl() {
   const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/pet/files' as const }
+
   return res
 }
 
@@ -20,12 +21,15 @@ export async function addFiles(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const formData = buildFormData(requestData)
+
   const res = await request<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, AddFilesMutationRequest>({
     method: 'POST',
     url: getAddFilesUrl().url.toString(),
     data: formData as FormData,
     ...requestConfig,
   })
+
   return res
 }

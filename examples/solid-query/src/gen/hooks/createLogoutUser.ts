@@ -20,6 +20,7 @@ export async function logoutUser(config: Partial<RequestConfig> & { client?: Cli
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...requestConfig })
+
   return res.data
 }
 

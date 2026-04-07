@@ -24,6 +24,7 @@ server.registerTool(
     return showPetByIdHandler({ petId })
   },
 )
+
 export async function startServer() {
   try {
     const transport = new StdioServerTransport()

@@ -30,6 +30,7 @@ export async function updatePetHook(data: UpdatePetMutationRequest, config: Part
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 

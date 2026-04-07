@@ -11,7 +11,7 @@ type CosmiconfigResult = {
 const jiti = createJiti(import.meta.url, {
   jsx: {
     runtime: 'automatic',
-    importSource: '@kubb/react-fabric',
+    importSource: '@kubb/renderer-jsx',
   },
   sourceMaps: true,
   interopDefault: true,

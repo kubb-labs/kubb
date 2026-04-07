@@ -1,11 +1,9 @@
-import { useFabric } from '@kubb/react-fabric'
+import { inject, KubbContext } from '@kubb/renderer-jsx'
 import type { PluginDriver } from '../PluginDriver.ts'
 
 /**
  * @deprecated use `driver` from the generator component props instead
  */
 export function useDriver(): PluginDriver {
-  const { meta } = useFabric<{ driver: PluginDriver }>()
-
-  return meta.driver
+  return inject(KubbContext)!.driver as PluginDriver
 }

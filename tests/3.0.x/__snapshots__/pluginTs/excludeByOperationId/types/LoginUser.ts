@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 /**
  * @description The user name for login
  * @type string | undefined

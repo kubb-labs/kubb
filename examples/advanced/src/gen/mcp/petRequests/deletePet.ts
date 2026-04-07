@@ -23,6 +23,7 @@ export async function deletePetHandler({
     baseURL: 'https://petstore.swagger.io/v2',
     headers: { ...mappedHeaders },
   })
+
   return {
     content: [
       {

@@ -2,6 +2,7 @@ export type { ScalarPrimitive } from './constants.ts'
 export { httpMethods, isScalarPrimitive, mediaTypes, nodeKinds, schemaTypes } from './constants.ts'
 export {
   createArrowFunction,
+  createBreak,
   createConst,
   createExport,
   createFile,
@@ -10,6 +11,7 @@ export {
   createFunctionParameters,
   createImport,
   createInput,
+  createJsx,
   createOperation,
   createOutput,
   createParameter,
@@ -19,6 +21,7 @@ export {
   createResponse,
   createSchema,
   createSource,
+  createText,
   createType,
   syncOptionality,
 } from './factory.ts'
@@ -32,11 +35,9 @@ export { mergeAdjacentObjects, setDiscriminatorEnum, setEnumName, simplifyUnion 
 export type { OperationParamsResolver } from './utils.ts'
 export {
   caseParams,
-  combineExports,
-  combineImports,
-  combineSources,
   createDiscriminantNode,
   createOperationParams,
+  extractStringsFromNodes,
   isStringType,
   syncSchemaRef,
 } from './utils.ts'

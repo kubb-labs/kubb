@@ -30,6 +30,7 @@ export async function createUserHook(data?: CreateUserMutationRequest, config: P
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 

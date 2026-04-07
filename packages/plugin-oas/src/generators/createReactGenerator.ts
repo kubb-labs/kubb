@@ -1,21 +1,21 @@
 import type { PluginFactoryOptions } from '@kubb/core'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { OperationProps, OperationsProps, SchemaProps } from './types.ts'
 
 type UserGenerator<TOptions extends PluginFactoryOptions> = {
   name: string
-  Operations?: (props: OperationsProps<TOptions>) => FabricReactNode
-  Operation?: (props: OperationProps<TOptions>) => FabricReactNode
-  Schema?: (props: SchemaProps<TOptions>) => FabricReactNode
+  Operations?: (props: OperationsProps<TOptions>) => KubbReactNode
+  Operation?: (props: OperationProps<TOptions>) => KubbReactNode
+  Schema?: (props: SchemaProps<TOptions>) => KubbReactNode
 }
 
 export type ReactGenerator<TOptions extends PluginFactoryOptions> = {
   name: string
   type: 'react'
   version: '1'
-  Operations: (props: OperationsProps<TOptions>) => FabricReactNode
-  Operation: (props: OperationProps<TOptions>) => FabricReactNode
-  Schema: (props: SchemaProps<TOptions>) => FabricReactNode
+  Operations: (props: OperationsProps<TOptions>) => KubbReactNode
+  Operation: (props: OperationProps<TOptions>) => KubbReactNode
+  Schema: (props: SchemaProps<TOptions>) => KubbReactNode
 }
 
 /****

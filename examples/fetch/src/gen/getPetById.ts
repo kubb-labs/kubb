@@ -9,6 +9,7 @@ import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQuer
 
 function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
   const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/pet/${petId}` as const }
+
   return res
 }
 
@@ -25,5 +26,6 @@ export async function getPetById(petId: GetPetByIdPathParams['petId'], config: P
     url: getGetPetByIdUrl(petId).url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }

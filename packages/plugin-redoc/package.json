@@ -68,11 +68,7 @@
     "@kubb/adapter-oas": "workspace:*",
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/react-fabric": "catalog:",
     "handlebars": "^4.7.9"
-  },
-  "peerDependencies": {
-    "@kubb/react-fabric": "0.16.0"
   },
   "engines": {
     "node": ">=22"

@@ -38,6 +38,7 @@ export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config:
     params,
     ...requestConfig,
   })
+
   return res
 }
 

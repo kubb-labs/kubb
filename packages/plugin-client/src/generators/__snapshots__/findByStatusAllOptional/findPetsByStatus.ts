@@ -1,10 +1,12 @@
 /* eslint-disable no-alert, no-console */
+
 import type { Client, RequestConfig, ResponseErrorConfig } from './.kubb/fetch'
 import type { FindPetsByStatusQueryStatus, FindPetsByStatusResponse } from './FindPetsByStatus'
 import { fetch } from './.kubb/fetch'
 
 export function getFindPetsByStatusUrl() {
   const res = { method: 'GET', url: `/pet/findByStatus` as const }
+
   return res
 }
 
@@ -23,5 +25,6 @@ export async function findPetsByStatus(
     params,
     ...requestConfig,
   })
+
   return res.data
 }

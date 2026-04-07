@@ -1,7 +1,7 @@
 import { caseParams } from '@kubb/ast'
 import { defineGenerator } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { File } from '@kubb/react-fabric'
+import { File } from '@kubb/renderer-jsx'
 import { Request } from '../components/Request.tsx'
 import type { PluginCypress } from '../types.ts'
 

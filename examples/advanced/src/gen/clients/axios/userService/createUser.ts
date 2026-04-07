@@ -5,6 +5,7 @@ import { createUserMutationRequestSchema, createUserMutationResponseSchema } fro
 
 export function getCreateUserUrl() {
   const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/user' as const }
+
   return res
 }
 
@@ -27,5 +28,6 @@ export async function createUser(
     data: requestData,
     ...requestConfig,
   })
+
   return { ...res, data: createUserMutationResponseSchema.parse(res.data) }
 }

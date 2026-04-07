@@ -14,6 +14,7 @@ export async function getPetByIdHandler({ petId }: { petId: GetPetByIdPathParams
     url: `/pet/${petId}`,
     baseURL: 'https://petstore.swagger.io/v2',
   })
+
   return {
     content: [
       {

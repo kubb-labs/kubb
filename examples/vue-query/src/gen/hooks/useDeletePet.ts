@@ -32,6 +32,7 @@ export async function deletePet(
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })
+
   return res.data
 }
 

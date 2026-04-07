@@ -56,7 +56,6 @@ type SetupResult = {
  *
  * - Validates the input path (when applicable).
  * - Applies config defaults (`root`, `output.*`, `devtools`).
- * - Creates the Fabric instance and wires storage, format, and lint hooks.
  * - Runs the adapter (if configured) to produce the universal `InputNode`.
  *   When no adapter is supplied and `@kubb/adapter-oas` is installed as an
  *

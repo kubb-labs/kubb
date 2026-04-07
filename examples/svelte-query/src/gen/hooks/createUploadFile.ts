@@ -46,6 +46,7 @@ export async function uploadFile(
     ...requestConfig,
     headers: { 'Content-Type': 'application/octet-stream', ...requestConfig.headers },
   })
+
   return res.data
 }
 

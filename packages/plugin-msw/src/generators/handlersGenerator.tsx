@@ -2,7 +2,7 @@ import { useDriver } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
-import { File } from '@kubb/react-fabric'
+import { File } from '@kubb/renderer-jsx'
 import { Handlers } from '../components/Handlers.tsx'
 import type { PluginMsw } from '../types'
 

@@ -3,8 +3,8 @@ import { caseParams, createOperationParams } from '@kubb/ast'
 import type { FunctionParametersNode, OperationNode } from '@kubb/ast/types'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
-import { Const, File, Function } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { Const, File, Function } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PluginClient } from '../types.ts'
 import { buildParamsMapping } from '../utils.ts'
 
@@ -57,7 +57,7 @@ export function Url({
   pathParamsType,
   node,
   tsResolver,
-}: Props): FabricReactNode {
+}: Props): KubbReactNode {
   const path = new URLPath(node.path)
 
   const paramsNode = getParams({

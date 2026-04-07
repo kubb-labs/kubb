@@ -19,11 +19,11 @@
   },
   "dependencies": {
     "@kubb/ast": "workspace:*",
-    "@kubb/fabric-core": "0.16.0",
+    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react-fabric": "0.16.0",
+    "@kubb/renderer-jsx": "workspace:*",
     "axios": "^1.14.0",
     "kubb": "workspace:*"
   },

@@ -1,0 +1,121 @@
+{
+  "name": "@kubb/renderer-jsx",
+  "version": "5.0.0-alpha.32",
+  "description": "React integration for Kubb - JSX runtime and component-based code generation with React reconciler for building type-safe generators",
+  "keywords": [
+    "react",
+    "jsx",
+    "jsx-runtime",
+    "react-reconciler",
+    "component-generation",
+    "codegen",
+    "code-generator",
+    "typescript",
+    "file-generation",
+    "plugin-system",
+    "plugins",
+    "kubb"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
+    "directory": "packages/renderer-jsx"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "sideEffects": [
+    "./dist/globals.js",
+    "./dist/globals.cjs"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./jsx-dev-runtime": {
+      "import": "./dist/jsx-dev-runtime.js",
+      "require": "./dist/jsx-dev-runtime.cjs"
+    },
+    "./jsx-runtime": {
+      "import": "./dist/jsx-runtime.js",
+      "require": "./dist/jsx-runtime.cjs"
+    },
+    "./types": {
+      "import": "./dist/types.js",
+      "require": "./dist/types.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "globals": [
+        "./dist/globals.d.ts"
+      ],
+      "jsx-dev-runtime": [
+        "./dist/jsx-runtime.d.ts"
+      ],
+      "jsx-runtime": [
+        "./dist/jsx-runtime.d.ts"
+      ],
+      "types": [
+        "./dist/types.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "*.d.ts",
+    "*.d.cts",
+    "!*.map",
+    "!/**/**.test.**",
+    "!/**/__tests__/**",
+    "!/**/__snapshots__/**"
+  ],
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
+  "scripts": {
+    "build": "tsdown && size-limit",
+    "clean": "node -e \"require('fs').rmSync('./dist', {recursive:true,force:true})\"",
+    "lint": "pnpm biome lint .",
+    "lint:fix": "pnpm biome lint --fix --unsafe .",
+    "release": "pnpm publish --no-git-check",
+    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check -tag canary",
+    "start": "tsdown --watch ./src",
+    "start:devtools": "npx react-devtools",
+    "test": "vitest --passWithNoTests",
+    "test:devtools": "node ./dist/runner.cjs",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/ast": "workspace:*"
+  },
+  "devDependencies": {
+    "@internals/utils": "workspace:*",
+    "@types/react": "catalog:",
+    "@types/react-reconciler": "catalog:",
+    "react": "catalog:",
+    "react-reconciler": "catalog:"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "inlinedDependencies": {
+    "react": "19.2.3",
+    "react-reconciler": "0.33.0",
+    "scheduler": "0.27.0"
+  }
+}

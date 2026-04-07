@@ -6,7 +6,6 @@ type PrintOptions = {
 
 export type Parser<TMeta extends object = any> = {
   name: string
-  type: 'parser'
   /**
    * File extensions this parser handles.
    * Use `undefined` to create a catch-all fallback parser.
@@ -15,18 +14,9 @@ export type Parser<TMeta extends object = any> = {
    */
   extNames: Array<FileNode['extname']> | undefined
   /**
-   * @deprecated Will be removed once Fabric no longer requires it.
-   * @default () => {}
-   */
-  install(...args: unknown[]): void | Promise<void>
-  /**
    * Convert a resolved file to a string.
    */
   parse(file: FileNode<TMeta>, options?: PrintOptions): Promise<string> | string
-}
-
-export type UserParser<TMeta extends object = any> = Omit<Parser<TMeta>, 'type' | 'install'> & {
-  install?(...args: unknown[]): void | Promise<void>
 }
 
 /**
@@ -43,15 +33,12 @@ export type UserParser<TMeta extends object = any> = Omit<Parser<TMeta>, 'type' 
  *   name: 'json',
  *   extNames: ['.json'],
  *   parse(file) {
- *     return file.sources.map((s) => s.value).join('\n')
+ *     const { extractStringsFromNodes } = await import('@kubb/ast')
+ *     return file.sources.map((s) => extractStringsFromNodes(s.nodes ?? [])).join('\n')
  *   },
  * })
  * ```
  */
-export function defineParser<TMeta extends object = any>(parser: UserParser<TMeta>): Parser<TMeta> {
-  return {
-    install() {},
-    type: 'parser',
-    ...parser,
-  }
+export function defineParser<TMeta extends object = any>(parser: Parser<TMeta>): Parser<TMeta> {
+  return parser
 }

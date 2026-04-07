@@ -1,6 +1,8 @@
 import { camelCase, isValidVarName, URLPath } from '@internals/utils'
-import { Const, File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { FabricReactNode, Params } from '@kubb/react-fabric/types'
+import type { Params } from '@kubb/core'
+import { FunctionParams } from '@kubb/core'
+import { Const, File, Function } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 
 /**
  * Structural type matching OperationSchema from @kubb/plugin-oas.
@@ -148,7 +150,7 @@ type Props = {
   typeSchemas: LegacyOperationSchemas
   zodSchemas: LegacyOperationSchemas | undefined
   operation: LegacyOperation
-  children?: FabricReactNode
+  children?: KubbReactNode
 }
 
 type GetParamsProps = {
@@ -264,7 +266,7 @@ export function ClientLegacy({
   urlName,
   children,
   isConfigurable = true,
-}: Props): FabricReactNode {
+}: Props): KubbReactNode {
   const path = new URLPath(operation.path)
   const contentType = operation.getContentType?.() ?? 'application/json'
   const isFormData = contentType === 'multipart/form-data'
@@ -470,7 +472,7 @@ export function UrlLegacy({
   paramsCasing,
   pathParamsType,
   operation,
-}: UrlProps): FabricReactNode {
+}: UrlProps): KubbReactNode {
   const path = new URLPath(operation.path)
   const params = getUrlParams({
     paramsType,

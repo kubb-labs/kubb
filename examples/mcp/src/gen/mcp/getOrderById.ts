@@ -14,6 +14,7 @@ export async function getOrderByIdHandler({ orderId }: { orderId: GetOrderByIdPa
     url: `/store/order/${orderId}`,
     baseURL: 'https://petstore.swagger.io/v2',
   })
+
   return {
     content: [
       {

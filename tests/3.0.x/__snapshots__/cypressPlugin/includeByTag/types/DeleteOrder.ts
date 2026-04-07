@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 /**
  * @description ID of the order that needs to be deleted
  * @type integer

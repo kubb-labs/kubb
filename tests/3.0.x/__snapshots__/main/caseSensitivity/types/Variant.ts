@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 export const variantTypeEnum = {
     uppercase: "uppercase"
 } as const;

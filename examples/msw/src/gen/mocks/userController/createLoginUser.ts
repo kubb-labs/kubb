@@ -8,6 +8,7 @@ import type { LoginUserQueryParams, LoginUserQueryResponse } from '../../models/
 
 export function createLoginUserQueryParams(data?: Partial<LoginUserQueryParams>): LoginUserQueryParams {
   faker.seed([220])
+
   return {
     ...{ username: faker.string.alpha(), password: faker.string.alpha() },
     ...(data || {}),
@@ -19,6 +20,7 @@ export function createLoginUserQueryParams(data?: Partial<LoginUserQueryParams>)
  */
 export function createLoginUser200() {
   faker.seed([220])
+
   return faker.string.alpha()
 }
 
@@ -27,10 +29,12 @@ export function createLoginUser200() {
  */
 export function createLoginUser400() {
   faker.seed([220])
+
   return undefined
 }
 
 export function createLoginUserQueryResponse(data?: Partial<LoginUserQueryResponse>): LoginUserQueryResponse {
   faker.seed([220])
+
   return data || faker.helpers.arrayElement<any>([createLoginUser200()])
 }

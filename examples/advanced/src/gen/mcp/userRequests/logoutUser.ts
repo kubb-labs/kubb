@@ -13,6 +13,7 @@ export async function logoutUserHandler(): Promise<Promise<CallToolResult>> {
     url: '/user/logout',
     baseURL: 'https://petstore.swagger.io/v2',
   })
+
   return {
     content: [
       {

@@ -8,6 +8,7 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../mod
 
 export function createDeleteUserPathParams(data?: Partial<DeleteUserPathParams>): DeleteUserPathParams {
   faker.seed([220])
+
   return {
     ...{ username: faker.string.alpha() },
     ...(data || {}),
@@ -19,6 +20,7 @@ export function createDeleteUserPathParams(data?: Partial<DeleteUserPathParams>)
  */
 export function createDeleteUser400() {
   faker.seed([220])
+
   return undefined
 }
 
@@ -27,10 +29,12 @@ export function createDeleteUser400() {
  */
 export function createDeleteUser404() {
   faker.seed([220])
+
   return undefined
 }
 
 export function createDeleteUserMutationResponse(_data?: Partial<DeleteUserMutationResponse>): DeleteUserMutationResponse {
   faker.seed([220])
+
   return undefined
 }

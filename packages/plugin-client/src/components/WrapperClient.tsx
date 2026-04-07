@@ -1,6 +1,6 @@
 import { camelCase } from '@internals/utils'
-import { File } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { File } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 
 type Props = {
   name: string
@@ -9,7 +9,7 @@ type Props = {
   isIndexable?: boolean
 }
 
-export function WrapperClient({ name, classNames, isExportable = true, isIndexable = true }: Props): FabricReactNode {
+export function WrapperClient({ name, classNames, isExportable = true, isIndexable = true }: Props): KubbReactNode {
   const properties = classNames.map((className) => `  readonly ${camelCase(className)}: ${className}`).join('\n')
   const assignments = classNames.map((className) => `    this.${camelCase(className)} = new ${className}(config)`).join('\n')
 

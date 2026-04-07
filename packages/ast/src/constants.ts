@@ -30,6 +30,8 @@ export const nodeKinds = {
   import: 'Import',
   export: 'Export',
   source: 'Source',
+  text: 'Text',
+  break: 'Break',
 } as const satisfies Record<string, NodeKind>
 
 /**

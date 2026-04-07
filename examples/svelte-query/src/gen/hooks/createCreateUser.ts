@@ -40,6 +40,7 @@ export async function createUser(data?: CreateUserMutationRequest, config: Parti
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 

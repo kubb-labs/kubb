@@ -8,6 +8,7 @@ import { fetch } from './.kubb/fetch'
  */
 export async function showPetByIdHandler({ petId }: { petId: ShowPetByIdPathPetId }): Promise<Promise<CallToolResult>> {
   const res = await fetch<ShowPetByIdResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/pets/${petId}` })
+
   return {
     content: [
       {

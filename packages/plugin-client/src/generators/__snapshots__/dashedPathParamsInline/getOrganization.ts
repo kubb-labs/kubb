@@ -1,10 +1,12 @@
 /* eslint-disable no-alert, no-console */
+
 import type { Client, RequestConfig, ResponseErrorConfig } from './.kubb/fetch'
 import type { GetOrganizationPathOrganizationId, GetOrganizationResponse } from './GetOrganization'
 import { fetch } from './.kubb/fetch'
 
 export function getGetOrganizationUrl(organizationId: GetOrganizationPathOrganizationId) {
   const res = { method: 'GET', url: `/organizations/${organizationId}` as const }
+
   return res
 }
 
@@ -19,5 +21,6 @@ export async function getOrganization(organizationId: GetOrganizationPathOrganiz
     url: getGetOrganizationUrl(organizationId).url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }

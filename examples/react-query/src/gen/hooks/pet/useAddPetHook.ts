@@ -30,6 +30,7 @@ export async function addPetHook(data: AddPetMutationRequest, config: Partial<Re
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 

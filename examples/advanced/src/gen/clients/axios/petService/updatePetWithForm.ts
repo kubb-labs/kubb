@@ -10,6 +10,7 @@ import { updatePetWithFormMutationResponseSchema } from '../../../zod/petControl
 
 export function getUpdatePetWithFormUrl({ petId }: { petId: UpdatePetWithFormPathParams['petId'] }) {
   const res = { method: 'POST', url: `https://petstore3.swagger.io/api/v3/pet/${petId}:search` as const }
+
   return res
 }
 
@@ -29,5 +30,6 @@ export async function updatePetWithForm(
     params,
     ...requestConfig,
   })
+
   return { ...res, data: updatePetWithFormMutationResponseSchema.parse(res.data) }
 }

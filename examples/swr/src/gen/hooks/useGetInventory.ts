@@ -21,6 +21,7 @@ export async function getInventory(config: Partial<RequestConfig> & { client?: C
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/store/inventory', ...requestConfig })
+
   return res.data
 }
 

@@ -7,6 +7,7 @@
     "sourceMap": true,
     "strictNullChecks": true,
     "jsx": "react-jsx",
+    "jsxImportSource": "@kubb/renderer-jsx",
     "outDir": "es",
     "experimentalDecorators": true,
     "skipLibCheck": true,

@@ -1,9 +1,10 @@
+import { FunctionParams } from '@kubb/core'
 import { getDefaultValue, isOptional } from '@kubb/oas'
 import { ClientLegacy as Client } from '@kubb/plugin-client'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { File, Function } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PluginVueQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
 
@@ -118,16 +119,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
   })
 }
 
-export function QueryOptions({
-  name,
-  clientName,
-  dataReturnType,
-  typeSchemas,
-  paramsCasing,
-  paramsType,
-  pathParamsType,
-  queryKeyName,
-}: Props): FabricReactNode {
+export function QueryOptions({ name, clientName, dataReturnType, typeSchemas, paramsCasing, paramsType, pathParamsType, queryKeyName }: Props): KubbReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 

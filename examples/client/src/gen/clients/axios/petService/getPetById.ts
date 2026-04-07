@@ -6,6 +6,7 @@ import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQuer
 
 function getGetPetByIdUrl({ petId }: { petId: GetPetByIdPathParams['petId'] }) {
   const res = { method: 'GET', url: `/pet/${petId}` as const }
+
   return res
 }
 
@@ -22,5 +23,6 @@ export async function getPetById({ petId }: { petId: GetPetByIdPathParams['petId
     url: getGetPetByIdUrl({ petId }).url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }

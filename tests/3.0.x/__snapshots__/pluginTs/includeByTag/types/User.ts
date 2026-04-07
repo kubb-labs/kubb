@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 /**
  * @type object
 */

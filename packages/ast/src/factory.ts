@@ -4,6 +4,7 @@ import { trimExtName } from '@internals/utils'
 import type { InferSchemaNode } from './infer.ts'
 import type {
   ArrowFunctionNode,
+  BreakNode,
   ConstNode,
   ExportNode,
   FileNode,
@@ -12,6 +13,7 @@ import type {
   FunctionParametersNode,
   ImportNode,
   InputNode,
+  JsxNode,
   ObjectSchemaNode,
   OperationNode,
   OutputNode,
@@ -23,9 +25,10 @@ import type {
   ResponseNode,
   SchemaNode,
   SourceNode,
+  TextNode,
   TypeNode,
 } from './nodes/index.ts'
-import { combineExports, combineImports, combineSources } from './utils.ts'
+import { combineExports, combineImports, combineSources, extractStringsFromNodes } from './utils.ts'
 
 /**
  * Syncs property/parameter schema optionality flags from `required` and `schema.nullable`.
@@ -477,7 +480,7 @@ export function createExport(props: Omit<ExportNode, 'kind'>): ExportNode {
  *
  * @example
  * ```ts
- * createSource({ name: 'Pet', value: 'export type Pet = { id: number }', isExportable: true })
+ * createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], isExportable: true })
  * ```
  */
 export function createSource(props: Omit<SourceNode, 'kind'>): SourceNode {
@@ -507,7 +510,7 @@ type UserFileNode<TMeta extends object = object> = Omit<FileNode<TMeta>, 'kind' 
  * const file = createFile({
  *   baseName: 'petStore.ts',
  *   path: 'src/models/petStore.ts',
- *   sources: [createSource({ name: 'Pet', value: 'export type Pet = { id: number }' })],
+ *   sources: [createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')] })],
  *   imports: [createImport({ name: ['z'], path: 'zod' })],
  *   exports: [createExport({ name: ['Pet'], path: './petStore' })],
  * })
@@ -524,9 +527,13 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
     throw new Error(`No extname found for ${input.baseName}`)
   }
 
-  const source = (input.sources ?? []).map((item) => item.value).join('\n\n')
+  const source = (input.sources ?? [])
+    .flatMap((item) => item.nodes ?? [])
+    .map((node) => extractStringsFromNodes([node]))
+    .filter(Boolean)
+    .join('\n\n')
   const resolvedExports = input.exports?.length ? combineExports(input.exports) : []
-  const resolvedImports = input.imports?.length && source ? combineImports(input.imports, resolvedExports, source) : []
+  const resolvedImports = input.imports?.length ? combineImports(input.imports, resolvedExports, source || undefined) : []
   const resolvedSources = input.sources?.length ? combineSources(input.sources) : []
 
   return {
@@ -545,7 +552,7 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
 /**
  * Creates a `ConstNode` representing a TypeScript `const` declaration.
  *
- * Mirrors the `Const` component from `@kubb/react-fabric`.
+ * Mirrors the `Const` component from `@kubb/renderer-jsx`.
  * The component's `children` are represented as `nodes`.
  *
  * @example Simple constant
@@ -577,7 +584,7 @@ export function createConst(props: Omit<ConstNode, 'kind'>): ConstNode {
 /**
  * Creates a `TypeNode` representing a TypeScript `type` alias declaration.
  *
- * Mirrors the `Type` component from `@kubb/react-fabric`.
+ * Mirrors the `Type` component from `@kubb/renderer-jsx`.
  * The component's `children` are represented as `nodes`.
  *
  * @example Simple type alias
@@ -603,7 +610,7 @@ export function createType(props: Omit<TypeNode, 'kind'>): TypeNode {
 /**
  * Creates a `FunctionNode` representing a TypeScript `function` declaration.
  *
- * Mirrors the `Function` component from `@kubb/react-fabric`.
+ * Mirrors the `Function` component from `@kubb/renderer-jsx`.
  * The component's `children` are represented as `nodes`.
  *
  * @example Simple function
@@ -637,7 +644,7 @@ export function createFunction(props: Omit<FunctionNode, 'kind'>): FunctionNode 
 /**
  * Creates an `ArrowFunctionNode` representing a TypeScript arrow function.
  *
- * Mirrors the `Function.Arrow` component from `@kubb/react-fabric`.
+ * Mirrors the `Function.Arrow` component from `@kubb/renderer-jsx`.
  * The component's `children` are represented as `nodes`.
  *
  * @example Simple arrow function
@@ -667,4 +674,51 @@ export function createFunction(props: Omit<FunctionNode, 'kind'>): FunctionNode 
  */
 export function createArrowFunction(props: Omit<ArrowFunctionNode, 'kind'>): ArrowFunctionNode {
   return { ...props, kind: 'ArrowFunction' }
+}
+
+/**
+ * Creates a {@link TextNode} representing a raw string fragment in the source output.
+ *
+ * Use this instead of bare strings when building `nodes` arrays so that every
+ * entry in the array is a typed {@link CodeNode}.
+ *
+ * @example
+ * ```ts
+ * createText('return fetch(id)')
+ * // { kind: 'Text', value: 'return fetch(id)' }
+ * ```
+ */
+export function createText(value: string): TextNode {
+  return { value, kind: 'Text' }
+}
+
+/**
+ * Creates a {@link BreakNode} representing a line break in the source output.
+ *
+ * Corresponds to `<br/>` in JSX components. Prints as an empty string which,
+ * when joined with `\n` by `printNodes`, produces a blank line.
+ *
+ * @example
+ * ```ts
+ * createBreak()
+ * // { kind: 'Break' }
+ * ```
+ */
+export function createBreak(): BreakNode {
+  return { kind: 'Break' }
+}
+
+/**
+ * Creates a {@link JsxNode} representing a raw JSX fragment in the source output.
+ *
+ * Use this to embed JSX markup (including fragments `<>…</>`) directly in generated code.
+ *
+ * @example
+ * ```ts
+ * createJsx('<>\n  <a href={href}>Open</a>\n</>')
+ * // { kind: 'Jsx', value: '<>\n  <a href={href}>Open</a>\n</>' }
+ * ```
+ */
+export function createJsx(value: string): JsxNode {
+  return { value, kind: 'Jsx' }
 }

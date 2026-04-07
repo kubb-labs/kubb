@@ -86,7 +86,7 @@
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react-fabric": "catalog:"
+    "@kubb/renderer-jsx": "workspace:*"
   },
   "engines": {
     "node": ">=22"
@@ -99,5 +99,8 @@
   "module": "./dist/index.js",
   "devDependencies": {
     "@internals/utils": "workspace:*"
+  },
+  "peerDependencies": {
+    "@kubb/renderer-jsx": "workspace:*"
   }
 }

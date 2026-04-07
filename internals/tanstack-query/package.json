@@ -48,16 +48,15 @@
   },
   "dependencies": {
     "@internals/utils": "workspace:*",
+    "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*"
+    "@kubb/plugin-oas": "workspace:*",
+    "@kubb/renderer-jsx": "workspace:*"
   },
   "peerDependencies": {
-    "@kubb/fabric-core": "0.16.0",
-    "@kubb/react-fabric": "0.16.0"
+    "@kubb/renderer-jsx": "workspace:*"
   },
   "devDependencies": {
-    "@kubb/fabric-core": "catalog:",
-    "@kubb/react-fabric": "catalog:",
     "@types/node": "catalog:"
   },
   "main": "./dist/index.cjs",

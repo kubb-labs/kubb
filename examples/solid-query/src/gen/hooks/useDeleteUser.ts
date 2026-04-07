@@ -26,6 +26,7 @@ export async function deleteUser(username: DeleteUserPathParams['username'], con
     url: `/user/${username}`,
     ...requestConfig,
   })
+
   return res.data
 }
 

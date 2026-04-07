@@ -6,6 +6,7 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
 
 function getUpdateUserUrl({ username }: { username: UpdateUserPathParams['username'] }) {
   const res = { method: 'PUT', url: `/user/${username}` as const }
+
   return res
 }
 
@@ -29,5 +30,6 @@ export async function updateUser(
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }

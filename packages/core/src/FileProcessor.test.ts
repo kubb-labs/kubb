@@ -1,4 +1,4 @@
-import { createFile, createSource } from '@kubb/ast'
+import { createFile, createSource, createText } from '@kubb/ast'
 import { describe, expect, it, vi } from 'vitest'
 import { FileProcessor } from './FileProcessor.ts'
 
@@ -6,7 +6,7 @@ function makeFile(path: string, sources: Array<string> = []) {
   return createFile({
     path,
     baseName: path.split('/').pop() as `${string}.${string}`,
-    sources: sources.map((value) => createSource({ value })),
+    sources: sources.map((value) => createSource({ nodes: [createText(value)] })),
     imports: [],
     exports: [],
   })

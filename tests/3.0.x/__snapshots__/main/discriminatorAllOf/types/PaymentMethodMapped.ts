@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 export const paymentMethodMappedTypeEnum = {
     card: "card",
     bank_transfer: "bank_transfer"

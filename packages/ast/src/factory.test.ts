@@ -17,6 +17,7 @@ import {
   createResponse,
   createSchema,
   createSource,
+  createText,
   createType,
 } from './factory.ts'
 import type { ArrowFunctionNode, ConstNode, FileNode, FunctionNode, ObjectSchemaNode, StringSchemaNode, TypeNode } from './nodes/index.ts'
@@ -321,22 +322,22 @@ describe('createExport', () => {
 })
 
 describe('createSource', () => {
-  it('creates a source node with a value', () => {
-    const node = createSource({ name: 'Pet', value: 'export type Pet = { id: number }' })
+  it('creates a source node with nodes', () => {
+    const node = createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')] })
 
     expect(node.kind).toBe('Source')
     expect(node.name).toBe('Pet')
-    expect(node.value).toBe('export type Pet = { id: number }')
+    expect(node.nodes?.[0]).toEqual({ kind: 'Text', value: 'export type Pet = { id: number }' })
   })
 
   it('supports isExportable flag', () => {
-    const node = createSource({ name: 'Pet', value: 'export type Pet = {}', isExportable: true })
+    const node = createSource({ name: 'Pet', nodes: [createText('export type Pet = {}')], isExportable: true })
 
     expect(node.isExportable).toBe(true)
   })
 
   it('supports isTypeOnly flag', () => {
-    const node = createSource({ value: 'export type X = string', isTypeOnly: true })
+    const node = createSource({ nodes: [createText('export type X = string')], isTypeOnly: true })
 
     expect(node.isTypeOnly).toBe(true)
     expect(node.name).toBeUndefined()
@@ -344,7 +345,7 @@ describe('createSource', () => {
 
   it('always sets kind to Source', () => {
     // @ts-expect-error — kind should be forced to 'Source'
-    const node = createSource({ value: 'x', kind: 'Import' })
+    const node = createSource({ nodes: [createText('x')], kind: 'Import' })
 
     expect(node.kind).toBe('Source')
   })
@@ -380,7 +381,7 @@ describe('createFile', () => {
   })
 
   it('deduplicates sources', () => {
-    const src = createSource({ name: 'Pet', value: 'export type Pet = {}' })
+    const src = createSource({ name: 'Pet', nodes: [createText('export type Pet = {}')] })
     const file = createFile({ baseName: 'pet.ts', path: 'src/pet.ts', sources: [src, src] })
 
     expect(file.sources).toHaveLength(1)
@@ -396,7 +397,7 @@ describe('createFile', () => {
   it('filters unused imports', () => {
     const usedImport = createImport({ name: ['z'], path: 'zod' })
     const unusedImport = createImport({ name: ['unused'], path: 'lodash' })
-    const src = createSource({ value: 'const schema = z.string()' })
+    const src = createSource({ nodes: [createText('const schema = z.string()')] })
     const file = createFile({
       baseName: 'schema.ts',
       path: 'src/schema.ts',
@@ -437,7 +438,7 @@ describe('createSource (nodes field)', () => {
   })
 
   it('omits nodes when not provided', () => {
-    const node = createSource({ name: 'pet', value: 'const pet = {}' })
+    const node = createSource({ name: 'pet', isExportable: true })
 
     expect(node.nodes).toBeUndefined()
   })

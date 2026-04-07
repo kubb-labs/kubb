@@ -1,7 +1,7 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
 import type { FileNode, ImportNode, InputNode, Node, OperationNode, Printer, SchemaNode, Visitor } from '@kubb/ast/types'
 import type { HttpMethod } from '@kubb/oas'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -56,9 +56,9 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
    *
    * A catch-all fallback parser is always appended last for any unhandled extension.
    *
-   * When omitted, `parserTs` from `@kubb/parser-ts` is used automatically as the
+   * When omitted, `parserTsx` from `@kubb/parser-ts` is used automatically as the
    * default (requires `@kubb/parser-ts` to be installed as an optional dependency).
-   * @default [parserTs] — from `@kubb/parser-ts`
+   * @default [parserTsx] — from `@kubb/parser-ts`
    * @example
    * ```ts
    * import { parserTs, tsxParser } from '@kubb/parser-ts'
@@ -525,7 +525,7 @@ export type SchemaHook<TOptions extends PluginFactoryOptions = PluginFactoryOpti
   this: GeneratorContext<TOptions>,
   node: SchemaNode,
   options: TOptions['resolvedOptions'],
-) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
+) => PossiblePromise<KubbReactNode | Array<FileNode> | void>
 
 /**
  * Handler for a single operation node. Used by the `operation` hook on a plugin.
@@ -534,7 +534,7 @@ export type OperationHook<TOptions extends PluginFactoryOptions = PluginFactoryO
   this: GeneratorContext<TOptions>,
   node: OperationNode,
   options: TOptions['resolvedOptions'],
-) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
+) => PossiblePromise<KubbReactNode | Array<FileNode> | void>
 
 /**
  * Handler for all collected operation nodes. Used by the `operations` hook on a plugin.
@@ -543,7 +543,7 @@ export type OperationsHook<TOptions extends PluginFactoryOptions = PluginFactory
   this: GeneratorContext<TOptions>,
   nodes: Array<OperationNode>,
   options: TOptions['resolvedOptions'],
-) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
+) => PossiblePromise<KubbReactNode | Array<FileNode> | void>
 
 export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
@@ -879,7 +879,7 @@ export type LoggerOptions = {
 }
 
 /**
- * Shared context passed to all plugins, parsers, and Fabric internals.
+ * Shared context passed to all plugins, parsers, and other internals.
  */
 export type LoggerContext = AsyncEventEmitter<KubbEvents>
 
@@ -1091,6 +1091,6 @@ export type ResolveBannerContext = {
 }
 
 export type { CLIOptions, ConfigInput } from './defineConfig.ts'
-export type { Parser, UserParser } from './defineParser.ts'
+export type { Parser } from './defineParser.ts'
 export type { FunctionParamsAST } from './utils/FunctionParams.ts'
 export type { FileMetaBase } from './utils/getBarrelFiles.ts'

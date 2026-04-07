@@ -1,4 +1,4 @@
-import { createArrowFunction, createConst, createFile, createFunction, createSource, createType } from '@kubb/ast'
+import { createArrowFunction, createConst, createFile, createFunction, createSource, createText, createType } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { parserTs, printArrowFunction, printCodeNode, printConst, printFunction, printJSDoc, printSource, printType } from './parserTs.ts'
 
@@ -30,44 +30,44 @@ describe('printJSDoc', () => {
 
 describe('printConst', () => {
   it('generates a minimal const declaration', () => {
-    const node = createConst({ name: 'pet', nodes: ['{}'] })
+    const node = createConst({ name: 'pet', nodes: [createText('{}')] })
     expect(printConst(node)).toBe('const pet = {}')
   })
 
   it('generates an exported const', () => {
-    const node = createConst({ name: 'pet', export: true, nodes: ['{}'] })
+    const node = createConst({ name: 'pet', export: true, nodes: [createText('{}')] })
     expect(printConst(node)).toBe('export const pet = {}')
   })
 
   it('generates a typed const', () => {
-    const node = createConst({ name: 'pet', type: 'Pet', nodes: ['{}'] })
+    const node = createConst({ name: 'pet', type: 'Pet', nodes: [createText('{}')] })
     expect(printConst(node)).toBe('const pet: Pet = {}')
   })
 
   it('generates a const with asConst', () => {
-    const node = createConst({ name: 'pets', export: true, type: 'Pet[]', asConst: true, nodes: ['[]'] })
+    const node = createConst({ name: 'pets', export: true, type: 'Pet[]', asConst: true, nodes: [createText('[]')] })
     expect(printConst(node)).toBe('export const pets: Pet[] = [] as const')
   })
 
   it('includes JSDoc when provided', () => {
-    const node = createConst({ name: 'pet', JSDoc: { comments: ['@description A pet'] }, nodes: ['{}'] })
+    const node = createConst({ name: 'pet', JSDoc: { comments: ['@description A pet'] }, nodes: [createText('{}')] })
     expect(printConst(node)).toBe('/**\n * @description A pet\n */\nconst pet = {}')
   })
 })
 
 describe('printType', () => {
   it('generates a minimal type alias', () => {
-    const node = createType({ name: 'Pet', nodes: ['{ id: number }'] })
+    const node = createType({ name: 'Pet', nodes: [createText('{ id: number }')] })
     expect(printType(node)).toBe('type Pet = { id: number }')
   })
 
   it('generates an exported type alias', () => {
-    const node = createType({ name: 'Pet', export: true, nodes: ['{ id: number }'] })
+    const node = createType({ name: 'Pet', export: true, nodes: [createText('{ id: number }')] })
     expect(printType(node)).toBe('export type Pet = { id: number }')
   })
 
   it('includes JSDoc when provided', () => {
-    const node = createType({ name: 'PetStatus', export: true, JSDoc: { comments: ['@description Status of a pet'] }, nodes: ['string'] })
+    const node = createType({ name: 'PetStatus', export: true, JSDoc: { comments: ['@description Status of a pet'] }, nodes: [createText('string')] })
     expect(printType(node)).toBe('/**\n * @description Status of a pet\n */\nexport type PetStatus = string')
   })
 
@@ -119,7 +119,7 @@ describe('printFunction', () => {
   })
 
   it('generates a function with body', () => {
-    const node = createFunction({ name: 'getPet', nodes: ['return fetch("/pets")'] })
+    const node = createFunction({ name: 'getPet', nodes: [createText('return fetch("/pets")')] })
     expect(printFunction(node)).toBe('function getPet() {\n  return fetch("/pets")\n}')
   })
 
@@ -146,17 +146,17 @@ describe('printArrowFunction', () => {
   })
 
   it('generates a single-line arrow function', () => {
-    const node = createArrowFunction({ name: 'double', params: 'n: number', singleLine: true, nodes: ['n * 2'] })
+    const node = createArrowFunction({ name: 'double', params: 'n: number', singleLine: true, nodes: [createText('n * 2')] })
     expect(printArrowFunction(node)).toBe('const double = (n: number) => n * 2')
   })
 
   it('generates an arrow function with body', () => {
-    const node = createArrowFunction({ name: 'getPet', nodes: ['return fetch("/pets")'] })
+    const node = createArrowFunction({ name: 'getPet', nodes: [createText('return fetch("/pets")')] })
     expect(printArrowFunction(node)).toBe('const getPet = () => {\n  return fetch("/pets")\n}')
   })
 
   it('generates an arrow function with generics', () => {
-    const node = createArrowFunction({ name: 'identity', generics: ['T'], params: 'value: T', returnType: 'T', singleLine: true, nodes: ['value'] })
+    const node = createArrowFunction({ name: 'identity', generics: ['T'], params: 'value: T', returnType: 'T', singleLine: true, nodes: [createText('value')] })
     expect(printArrowFunction(node)).toBe('const identity = <T>(value: T): T => value')
   })
 
@@ -173,12 +173,12 @@ describe('printArrowFunction', () => {
 
 describe('printCodeNode', () => {
   it('dispatches Const nodes', () => {
-    const node = createConst({ name: 'x', nodes: ['1'] })
+    const node = createConst({ name: 'x', nodes: [createText('1')] })
     expect(printCodeNode(node)).toBe('const x = 1')
   })
 
   it('dispatches Type nodes', () => {
-    const node = createType({ name: 'Pet', nodes: ['{ id: number }'] })
+    const node = createType({ name: 'Pet', nodes: [createText('{ id: number }')] })
     expect(printCodeNode(node)).toBe('type Pet = { id: number }')
   })
 
@@ -194,31 +194,37 @@ describe('printCodeNode', () => {
 })
 
 describe('printSource', () => {
-  it('returns value when source has value', () => {
-    const node = createSource({ value: 'const x = 1' })
+  it('converts nodes to source string', () => {
+    const node = createSource({ nodes: [createText('const x = 1')] })
     expect(printSource(node)).toBe('const x = 1')
   })
 
-  it('converts nodes when source has no value', () => {
-    const node = createSource({ nodes: [createConst({ name: 'x', nodes: ['1'] })] })
+  it('converts nodes when source has structured nodes', () => {
+    const node = createSource({ nodes: [createConst({ name: 'x', nodes: [createText('1')] })] })
     expect(printSource(node)).toBe('const x = 1')
   })
 
   it('converts multiple nodes joining with newline', () => {
     const node = createSource({
-      nodes: [createConst({ name: 'x', nodes: ['1'] }), createType({ name: 'Pet', nodes: ['{ id: number }'] })],
+      nodes: [createConst({ name: 'x', nodes: [createText('1')] }), createType({ name: 'Pet', nodes: [createText('{ id: number }')] })],
     })
     expect(printSource(node)).toBe('const x = 1\ntype Pet = { id: number }')
   })
 
-  it('returns empty string when source has neither value nor nodes', () => {
-    const node = createSource({})
-    expect(printSource(node)).toBe('')
+  it('preserves DOM order when JSX elements and text nodes are interleaved', () => {
+    const node = createSource({
+      nodes: [
+        createConst({ name: 'server', nodes: [createText('new McpServer()')] }),
+        createText('server.registerTool("foo", {})'),
+        createConst({ name: 'x', nodes: [createText('1')] }),
+      ],
+    })
+    expect(printSource(node)).toBe('const server = new McpServer()\nserver.registerTool("foo", {})\nconst x = 1')
   })
 
-  it('prefers value over nodes when both are present', () => {
-    const node = createSource({ value: 'const x = 1', nodes: [createConst({ name: 'y', nodes: ['2'] })] })
-    expect(printSource(node)).toBe('const x = 1')
+  it('returns empty string when source has no nodes', () => {
+    const node = createSource({})
+    expect(printSource(node)).toBe('')
   })
 })
 
@@ -229,7 +235,7 @@ describe('parserTs', () => {
       path: '/test.ts',
       sources: [
         createSource({
-          nodes: [createConst({ name: 'schema', export: true, nodes: ['z.string()'] })],
+          nodes: [createConst({ name: 'schema', export: true, nodes: [createText('z.string()')] })],
         }),
       ],
       imports: [],
@@ -246,7 +252,10 @@ describe('parserTs', () => {
       path: '/test.ts',
       sources: [
         createSource({
-          nodes: [createType({ name: 'Pet', export: true, nodes: ['{ id: number }'] }), createConst({ name: 'pet', export: true, nodes: ['{}'] })],
+          nodes: [
+            createType({ name: 'Pet', export: true, nodes: [createText('{ id: number }')] }),
+            createConst({ name: 'pet', export: true, nodes: [createText('{}')] }),
+          ],
         }),
       ],
       imports: [],

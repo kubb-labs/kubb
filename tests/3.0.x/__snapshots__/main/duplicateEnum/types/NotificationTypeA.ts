@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 export const notificationTypeAParamsChannelEnum = {
     public: "public",
     collaborators: "collaborators"

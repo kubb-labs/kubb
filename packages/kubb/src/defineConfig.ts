@@ -1,7 +1,7 @@
 import { isPromise, type PossiblePromise } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
 import type { UserConfig } from '@kubb/core'
-import { parserTs } from '@kubb/parser-ts'
+import { parserTs, parserTsx } from '@kubb/parser-ts'
 
 /**
  * CLI options derived from command-line flags.
@@ -35,13 +35,13 @@ export type ConfigInput = PossiblePromise<UserConfig | UserConfig[]> | ((cli: CL
  * Applies default adapter and parsers to a single user config when not set.
  *
  * - `adapter` defaults to `adapterOas()`
- * - `parsers` defaults to `[parserTs]`
+ * - `parsers` defaults to `[parserTs, parserTsx]`
  */
 function applyDefaults(config: UserConfig): UserConfig {
   return {
     ...config,
     adapter: config.adapter ?? adapterOas(),
-    parsers: config.parsers?.length ? config.parsers : [parserTs],
+    parsers: config.parsers?.length ? config.parsers : [parserTs, parserTsx],
   }
 }
 
@@ -49,7 +49,7 @@ function applyDefaults(config: UserConfig): UserConfig {
  * Helper for defining a Kubb configuration with built-in defaults.
  *
  * When no `adapter` is provided, `adapterOas()` is used automatically.
- * When no `parsers` are provided, `[parserTs]` is used automatically.
+ * When no `parsers` are provided, `[parserTsx]` is used automatically.
  *
  * Accepts either:
  * - A config object or array of configs

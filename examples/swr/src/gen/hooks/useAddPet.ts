@@ -29,6 +29,7 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 

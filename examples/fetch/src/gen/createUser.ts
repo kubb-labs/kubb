@@ -9,6 +9,7 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from './mo
 
 function getCreateUserUrl() {
   const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/user' as const }
+
   return res
 }
 
@@ -28,5 +29,6 @@ export async function createUser(data?: CreateUserMutationRequest, config: Parti
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }

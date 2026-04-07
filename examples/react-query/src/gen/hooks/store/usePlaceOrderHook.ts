@@ -30,6 +30,7 @@ export async function placeOrderHook(data?: PlaceOrderMutationRequest, config: P
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 

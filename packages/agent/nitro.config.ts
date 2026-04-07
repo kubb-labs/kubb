@@ -66,7 +66,12 @@ export default defineNitroConfig({
     // TypeScript (~24 MB) is a direct runtime dependency of @kubb/parser-ts and
     // @kubb/plugin-ts. Marking it as external causes Nitro to trace its files
     // and copy them to .output/server/node_modules/ instead of bundling them.
-    external: ['typescript'],
+    //
+    // @kubb/renderer-jsx bundles React DOM (~1 MB) inline. Rolldown's
+    // commonjs--resolver parser fails on certain React 19 code patterns inside
+    // that bundle. Externalizing it causes Nitro to copy the package to the
+    // output node_modules instead of trying to bundle it.
+    external: ['typescript', '@kubb/renderer-jsx'],
   },
   storage: {
     kubb: {
@@ -87,7 +92,9 @@ export default defineNitroConfig({
     // large (~24 MB) CJS package required by @kubb/parser-ts and @kubb/plugin-ts.
     // Bundling it inline exhausts the default Node.js heap. Declaring it as a
     // rollup external ensures it is resolved from node_modules at runtime.
-    external: ['typescript'],
+    //
+    // @kubb/renderer-jsx is also excluded here to match the externals config above.
+    external: ['typescript', '@kubb/renderer-jsx'],
     output: {
       // Polyfill CJS globals for bundled dependencies that reference __filename/__dirname
       // in the ESM output (.mjs). These are not defined in ES module scope by default.

@@ -9,6 +9,7 @@ import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationRespon
 
 function getPlaceOrderUrl() {
   const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/store/order' as const }
+
   return res
 }
 
@@ -28,5 +29,6 @@ export async function placeOrder(data?: PlaceOrderMutationRequest, config: Parti
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }

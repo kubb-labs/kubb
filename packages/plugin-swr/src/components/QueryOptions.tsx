@@ -1,9 +1,10 @@
+import { FunctionParams } from '@kubb/core'
 import { getDefaultValue, isOptional } from '@kubb/oas'
 import { ClientLegacy as Client } from '@kubb/plugin-client'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { File, Function } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PluginSwr } from '../types.ts'
 
 type Props = {
@@ -95,7 +96,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
   })
 }
 
-export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, paramsType, pathParamsType }: Props): FabricReactNode {
+export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, paramsType, pathParamsType }: Props): KubbReactNode {
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
   const clientParams = Client.getParams({
     paramsCasing,

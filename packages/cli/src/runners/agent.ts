@@ -84,8 +84,6 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
       process.exit(1)
     }
 
-    console.log(env)
-
     // Spawns the server as a detached background process so the CLI can exit independently.
     await spawnAsync('node', [serverPath], {
       env,

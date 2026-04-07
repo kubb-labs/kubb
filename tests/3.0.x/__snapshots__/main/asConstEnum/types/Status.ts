@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 export const status = {
     active: "active",
     inactive: "inactive",

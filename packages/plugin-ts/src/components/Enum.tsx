@@ -1,8 +1,8 @@
 import { camelCase, trimQuotes } from '@internals/utils'
 import type { EnumSchemaNode } from '@kubb/ast/types'
 import { safePrint } from '@kubb/parser-ts'
-import { File } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { File } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import { ENUM_TYPES_WITH_KEY_SUFFIX, ENUM_TYPES_WITH_RUNTIME_VALUE, ENUM_TYPES_WITH_TYPE_ONLY } from '../constants.ts'
 import * as factory from '../factory.ts'
 import type { PluginTs, ResolverTs } from '../types.ts'
@@ -54,7 +54,7 @@ export function getEnumNames({
  * The emitted `File.Source` nodes carry the resolved names so that the barrel
  * index picks up the correct export identifiers.
  */
-export function Enum({ node, enumType, enumTypeSuffix, enumKeyCasing, resolver }: Props): FabricReactNode {
+export function Enum({ node, enumType, enumTypeSuffix, enumKeyCasing, resolver }: Props): KubbReactNode {
   const { enumName, typeName } = getEnumNames({ node, enumType, enumTypeSuffix, resolver })
 
   const [nameNode, typeNode] = factory.createEnumDeclaration({

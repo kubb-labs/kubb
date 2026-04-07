@@ -1,11 +1,14 @@
 /* eslint-disable no-alert, no-console */
+
 import type { Client, RequestConfig, ResponseErrorConfig } from './.kubb/fetch'
 import type { GetItemPathItemId, GetItemResponse } from './GetItem'
 import { fetch } from './.kubb/fetch'
 
 export function getGetItemUrl({ itemId }: { itemId: GetItemPathItemId }) {
   const item_id = itemId
+
   const res = { method: 'GET', url: `/v1/items/${item_id}` as const }
+
   return res
 }
 
@@ -20,5 +23,6 @@ export async function getItem({ itemId }: { itemId: GetItemPathItemId }, config:
     url: getGetItemUrl({ itemId }).url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }

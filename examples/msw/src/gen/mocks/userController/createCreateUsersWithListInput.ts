@@ -16,6 +16,7 @@ import { createUser } from '../createUser.ts'
  */
 export function createCreateUsersWithListInput200(data?: Partial<CreateUsersWithListInput200>): CreateUsersWithListInput200 {
   faker.seed([220])
+
   return createUser(data)
 }
 
@@ -24,11 +25,13 @@ export function createCreateUsersWithListInput200(data?: Partial<CreateUsersWith
  */
 export function createCreateUsersWithListInputError() {
   faker.seed([220])
+
   return undefined
 }
 
 export function createCreateUsersWithListInputMutationRequest(data?: CreateUsersWithListInputMutationRequest): CreateUsersWithListInputMutationRequest {
   faker.seed([220])
+
   return [...faker.helpers.multiple(() => createUser()), ...(data || [])]
 }
 
@@ -36,5 +39,6 @@ export function createCreateUsersWithListInputMutationResponse(
   data?: Partial<CreateUsersWithListInputMutationResponse>,
 ): CreateUsersWithListInputMutationResponse {
   faker.seed([220])
+
   return data || faker.helpers.arrayElement<any>([createCreateUsersWithListInput200()])
 }

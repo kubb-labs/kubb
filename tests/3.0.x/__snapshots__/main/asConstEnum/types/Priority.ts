@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 export const priority = {
     low: "low",
     medium: "medium",

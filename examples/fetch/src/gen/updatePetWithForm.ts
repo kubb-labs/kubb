@@ -9,6 +9,7 @@ import type { UpdatePetWithForm405, UpdatePetWithFormMutationResponse, UpdatePet
 
 function getUpdatePetWithFormUrl(petId: UpdatePetWithFormPathParams['petId']) {
   const res = { method: 'POST', url: `https://petstore3.swagger.io/api/v3/pet/${petId}` as const }
+
   return res
 }
 
@@ -29,5 +30,6 @@ export async function updatePetWithForm(
     params,
     ...requestConfig,
   })
+
   return res.data
 }

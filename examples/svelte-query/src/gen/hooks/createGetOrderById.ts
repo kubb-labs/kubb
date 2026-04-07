@@ -37,6 +37,7 @@ export async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], c
     url: `/store/order/${orderId}`,
     ...requestConfig,
   })
+
   return res.data
 }
 

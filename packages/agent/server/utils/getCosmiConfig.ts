@@ -12,13 +12,13 @@ export type CosmiconfigResult = {
 
 /**
  * Load a TypeScript or JavaScript Kubb config file using jiti for on-the-fly transpilation.
- * Supports JSX via `@kubb/react-fabric` and resolves the default export.
+ * Supports JSX via `@kubb/renderer-jsx` and resolves the default export.
  */
 const tsLoader = async (configFile: string) => {
   const jiti = createJiti(import.meta.url, {
     jsx: {
       runtime: 'automatic',
-      importSource: '@kubb/react-fabric',
+      importSource: '@kubb/renderer-jsx',
     },
     sourceMaps: true,
     interopDefault: true,

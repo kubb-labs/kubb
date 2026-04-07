@@ -27,6 +27,7 @@
     "@kubb/core": "4.36.1",
     "kubb": "4.36.1",
     "@kubb/mcp": "4.36.1",
+    "@kubb/renderer-jsx": "4.36.1",
     "@kubb/oas": "4.36.1",
     "@kubb/plugin-client": "4.36.1",
     "@kubb/plugin-cypress": "4.36.1",

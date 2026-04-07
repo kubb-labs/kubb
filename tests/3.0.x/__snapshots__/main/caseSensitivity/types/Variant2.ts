@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 export const variant2CategoryEnum = {
     lowercase: "lowercase"
 } as const;

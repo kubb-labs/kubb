@@ -1,7 +1,9 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "types": ["bun-types", "../../reset.d.ts"]
+    "types": ["bun-types", "../../reset.d.ts"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "@kubb/renderer-jsx"
   },
   "include": ["src/**/*", "./package.json", "./tsdown.config.ts", "./vitest.config.ts"]
 }

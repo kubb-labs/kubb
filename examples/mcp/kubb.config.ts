@@ -3,7 +3,6 @@ import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 import { defineConfig } from 'kubb'
-// import { openDevtools } from '@kubb/react-fabric'
 
 export default defineConfig(() => {
   // openDevtools()

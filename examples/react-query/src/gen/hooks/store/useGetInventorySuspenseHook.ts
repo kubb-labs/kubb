@@ -23,6 +23,7 @@ export async function getInventorySuspenseHook(config: Partial<RequestConfig> & 
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/store/inventory', ...requestConfig })
+
   return res.data
 }
 

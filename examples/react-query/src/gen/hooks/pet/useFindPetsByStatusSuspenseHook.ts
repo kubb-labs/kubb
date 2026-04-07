@@ -29,6 +29,7 @@ export async function findPetsByStatusSuspenseHook(params?: FindPetsByStatusQuer
     params,
     ...requestConfig,
   })
+
   return res.data
 }
 

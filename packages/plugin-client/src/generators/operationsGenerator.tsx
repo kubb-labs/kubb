@@ -1,5 +1,5 @@
 import { defineGenerator } from '@kubb/core'
-import { File } from '@kubb/react-fabric'
+import { File } from '@kubb/renderer-jsx'
 import { Operations } from '../components/Operations'
 import type { PluginClient } from '../types'
 

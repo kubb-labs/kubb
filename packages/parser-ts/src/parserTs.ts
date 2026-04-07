@@ -1,5 +1,5 @@
 import { normalize, relative } from 'node:path'
-import type { ArrowFunctionNode, CodeNode, ConstNode, FileNode, FunctionNode, JSDocNode, SourceNode, TypeNode } from '@kubb/ast/types'
+import type { ArrowFunctionNode, CodeNode, ConstNode, FileNode, FunctionNode, JSDocNode, JsxNode, SourceNode, TextNode, TypeNode } from '@kubb/ast/types'
 import type { Parser } from '@kubb/core'
 import { defineParser } from '@kubb/core'
 import ts from 'typescript'
@@ -186,15 +186,15 @@ export function printJSDoc(jsDoc: JSDocNode): string {
 }
 
 /**
- * Serialises the body / value content from a `nodes` array.
+ * Serializes the body / value content from a `nodes` array.
  *
  * Each element is either a raw string or a structured {@link CodeNode}
  * (recursively converted via {@link printCodeNode}).
  * Elements are joined with `\n`.
  */
-function printNodes(nodes: Array<CodeNode | string> | undefined): string {
+function printNodes(nodes: Array<CodeNode> | undefined): string {
   if (!nodes || nodes.length === 0) return ''
-  return nodes.map((n) => (typeof n === 'string' ? n : printCodeNode(n))).join('\n')
+  return nodes.map(printCodeNode).join('\n')
 }
 
 /**
@@ -212,7 +212,7 @@ function indentLines(text: string, spaces = 2): string {
 /**
  * Converts a {@link ConstNode} to a TypeScript `const` declaration string.
  *
- * Mirrors the `Const` component from `@kubb/react-fabric`.
+ * Mirrors the `Const` component from `@kubb/renderer-jsx`.
  *
  * @example
  * ```ts
@@ -250,7 +250,7 @@ export function printConst(node: ConstNode): string {
 /**
  * Converts a {@link TypeNode} to a TypeScript `type` alias declaration string.
  *
- * Mirrors the `Type` component from `@kubb/react-fabric`.
+ * Mirrors the `Type` component from `@kubb/renderer-jsx`.
  *
  * @example
  * ```ts
@@ -278,7 +278,7 @@ export function printType(node: TypeNode): string {
 /**
  * Converts a {@link FunctionNode} to a TypeScript `function` declaration string.
  *
- * Mirrors the `Function` component from `@kubb/react-fabric`.
+ * Mirrors the `Function` component from `@kubb/renderer-jsx`.
  *
  * @example
  * ```ts
@@ -326,7 +326,7 @@ export function printFunction(node: FunctionNode): string {
 /**
  * Converts an {@link ArrowFunctionNode} to a TypeScript arrow function declaration string.
  *
- * Mirrors the `Function.Arrow` component from `@kubb/react-fabric`.
+ * Mirrors the `Function.Arrow` component from `@kubb/renderer-jsx`.
  *
  * @example Multi-line arrow function
  * ```ts
@@ -382,6 +382,12 @@ export function printArrowFunction(node: ArrowFunctionNode): string {
  */
 export function printCodeNode(node: CodeNode): string {
   switch (node.kind) {
+    case 'Break':
+      return ''
+    case 'Text':
+      return (node as TextNode).value
+    case 'Jsx':
+      return (node as JsxNode).value
     case 'Const':
       return printConst(node)
     case 'Type':
@@ -396,23 +402,16 @@ export function printCodeNode(node: CodeNode): string {
 /**
  * Converts a {@link SourceNode} to its TypeScript string representation.
  *
- * Uses `value` if present; otherwise converts the structured `nodes` array
- * via {@link printCodeNode}.
- *
- * @example From value
- * ```ts
- * printSource({ kind: 'Source', value: 'const x = 1' })
- * // 'const x = 1'
- * ```
+ * Iterates `nodes` in DOM order, rendering each {@link CodeNode} via
+ * {@link printCodeNode}.
  *
  * @example From nodes
  * ```ts
- * printSource({ kind: 'Source', nodes: [createConst({ name: 'x', nodes: ['1'] })] })
- * // 'const x = 1'
+ * printSource({ kind: 'Source', nodes: [createConst({ name: 'x', nodes: [createText('1')] }), createText('x.toString()')] })
+ * // 'const x = 1\nx.toString()'
  * ```
  */
 export function printSource(node: SourceNode): string {
-  if (node.value) return node.value
   if (node.nodes && node.nodes.length > 0) {
     return node.nodes.map(printCodeNode).join('\n')
   }
@@ -433,7 +432,7 @@ export const parserTs: Parser = defineParser({
     for (const item of file.sources) {
       const sourceStr = printSource(item as SourceNode)
       if (sourceStr) {
-        sourceParts.push(sourceStr)
+        sourceParts.push(sourceStr.trimEnd())
       }
     }
     const source = sourceParts.join('\n\n')
@@ -468,7 +467,9 @@ export const parserTs: Parser = defineParser({
       )
     }
 
-    const parts = [file.banner, print(...importNodes, ...exportNodes), source, file.footer].filter((segment): segment is string => segment != null)
-    return parts.join('\n')
+    const parts = [file.banner, print(...importNodes, ...exportNodes), source, file.footer]
+      .filter((segment): segment is string => Boolean(segment))
+      .map((s) => s.trimEnd())
+    return parts.join('\n\n')
   },
 })

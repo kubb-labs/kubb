@@ -32,6 +32,7 @@ export async function createUsersWithListInput(
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 

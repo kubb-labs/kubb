@@ -9,6 +9,7 @@ import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatus
 
 function getFindPetsByStatusUrl() {
   const res = { method: 'GET', url: 'https://petstore3.swagger.io/api/v3/pet/findByStatus' as const }
+
   return res
 }
 
@@ -26,5 +27,6 @@ export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, con
     params,
     ...requestConfig,
   })
+
   return res.data
 }

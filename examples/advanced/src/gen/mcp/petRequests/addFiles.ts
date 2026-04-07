@@ -11,13 +11,16 @@ import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } f
  */
 export async function addFilesHandler({ data }: { data: AddFilesMutationRequest }): Promise<Promise<CallToolResult>> {
   const requestData = data
+
   const formData = buildFormData(requestData)
+
   const res = await fetch<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, AddFilesMutationRequest>({
     method: 'POST',
     url: '/pet/files',
     baseURL: 'https://petstore.swagger.io/v2',
     data: formData as FormData,
   })
+
   return {
     content: [
       {

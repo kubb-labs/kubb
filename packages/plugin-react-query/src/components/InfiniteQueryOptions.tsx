@@ -1,10 +1,11 @@
 import { getNestedAccessor } from '@internals/utils'
+import { FunctionParams } from '@kubb/core'
 import { isAllOptional, isOptional } from '@kubb/oas'
 import { ClientLegacy as Client } from '@kubb/plugin-client'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { File, Function } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { Infinite, PluginReactQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
 
@@ -127,7 +128,7 @@ export function InfiniteQueryOptions({
   pathParamsType,
   queryParam,
   queryKeyName,
-}: Props): FabricReactNode {
+}: Props): KubbReactNode {
   const queryFnDataType = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const errorType = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
   const isInitialPageParamDefined = initialPageParam !== undefined && initialPageParam !== null

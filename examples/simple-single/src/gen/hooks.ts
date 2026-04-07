@@ -101,6 +101,7 @@ export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, con
     params,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -168,6 +169,7 @@ export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config:
     params,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -234,6 +236,7 @@ export async function getPetById(petId: GetPetByIdPathParams['petId'], config: P
     url: `/pet/${petId}`,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -293,6 +296,7 @@ export async function getInventory(config: Partial<RequestConfig> & { client?: C
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/store/inventory', ...requestConfig })
+
   return res.data
 }
 
@@ -352,6 +356,7 @@ export async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], c
     url: `/store/order/${orderId}`,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -410,6 +415,7 @@ export async function loginUser(params?: LoginUserQueryParams, config: Partial<R
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({ method: 'GET', url: '/user/login', params, ...requestConfig })
+
   return res.data
 }
 
@@ -464,6 +470,7 @@ export async function logoutUser(config: Partial<RequestConfig> & { client?: Cli
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...requestConfig })
+
   return res.data
 }
 
@@ -521,6 +528,7 @@ export async function getUserByName(username: GetUserByNamePathParams['username'
     url: `/user/${username}`,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -588,6 +596,7 @@ export async function findPetsByStatusSuspense(params?: FindPetsByStatusQueryPar
     params,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -651,6 +660,7 @@ export async function findPetsByTagsSuspense(params?: FindPetsByTagsQueryParams,
     params,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -711,6 +721,7 @@ export async function getPetByIdSuspense(petId: GetPetByIdPathParams['petId'], c
     url: `/pet/${petId}`,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -770,6 +781,7 @@ export async function getInventorySuspense(config: Partial<RequestConfig> & { cl
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/store/inventory', ...requestConfig })
+
   return res.data
 }
 
@@ -830,6 +842,7 @@ export async function getOrderByIdSuspense(orderId: GetOrderByIdPathParams['orde
     url: `/store/order/${orderId}`,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -888,6 +901,7 @@ export async function loginUserSuspense(params?: LoginUserQueryParams, config: P
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({ method: 'GET', url: '/user/login', params, ...requestConfig })
+
   return res.data
 }
 
@@ -942,6 +956,7 @@ export async function logoutUserSuspense(config: Partial<RequestConfig> & { clie
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...requestConfig })
+
   return res.data
 }
 
@@ -1000,6 +1015,7 @@ export async function getUserByNameSuspense(username: GetUserByNamePathParams['u
     url: `/user/${username}`,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -1065,6 +1081,7 @@ export async function updatePet(data: UpdatePetMutationRequest, config: Partial<
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -1145,6 +1162,7 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -1211,6 +1229,7 @@ export async function updatePetWithForm(
     params,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -1297,6 +1316,7 @@ export async function deletePet(
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })
+
   return res.data
 }
 
@@ -1388,6 +1408,7 @@ export async function uploadFile(
     ...requestConfig,
     headers: { 'Content-Type': 'application/octet-stream', ...requestConfig.headers },
   })
+
   return res.data
 }
 
@@ -1472,6 +1493,7 @@ export async function placeOrder(data?: PlaceOrderMutationRequest, config: Parti
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -1542,6 +1564,7 @@ export async function placeOrderPatch(
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -1609,6 +1632,7 @@ export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], con
     url: `/store/order/${orderId}`,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -1694,6 +1718,7 @@ export async function createUser(data?: CreateUserMutationRequest, config: Parti
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -1764,6 +1789,7 @@ export async function createUsersWithListInput(
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -1840,6 +1866,7 @@ export async function updateUser(
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 
@@ -1922,6 +1949,7 @@ export async function deleteUser(username: DeleteUserPathParams['username'], con
     url: `/user/${username}`,
     ...requestConfig,
   })
+
   return res.data
 }
 

@@ -188,7 +188,7 @@ export interface KubbEvents {
        */
       file: FileNode
       /**
-       * Kubb configuration (not present in Fabric).
+       * Kubb configuration
        * Provides access to the current config during file processing.
        */
       config: Config

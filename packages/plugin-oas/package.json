@@ -95,11 +95,11 @@
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
-    "@kubb/react-fabric": "catalog:",
+    "@kubb/renderer-jsx": "workspace:*",
     "remeda": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.16.0"
+    "@kubb/renderer-jsx": "workspace:*"
   },
   "engines": {
     "node": ">=22"

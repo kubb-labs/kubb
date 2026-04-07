@@ -1,9 +1,11 @@
+import type { Params } from '@kubb/core'
+import { FunctionParams } from '@kubb/core'
 import { isOptional } from '@kubb/oas'
 import { ClientLegacy as Client } from '@kubb/plugin-client'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { FabricReactNode, Params } from '@kubb/react-fabric/types'
+import { File, Function } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PluginReactQuery } from '../types.ts'
 import { MutationKey } from './MutationKey.tsx'
 
@@ -42,7 +44,7 @@ export function MutationOptions({
   paramsType,
   pathParamsType,
   mutationKeyName,
-}: Props): FabricReactNode {
+}: Props): KubbReactNode {
   const params = getParams({ typeSchemas })
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'

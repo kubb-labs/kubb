@@ -16,6 +16,7 @@ export async function findPetsByStatusHandler({ stepId }: { stepId: FindPetsBySt
     url: `/pet/findByStatus/${step_id}`,
     baseURL: 'https://petstore.swagger.io/v2',
   })
+
   return {
     content: [
       {

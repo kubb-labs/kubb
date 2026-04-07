@@ -9,6 +9,7 @@ import type {
 
 function getCreateUsersWithListInputUrl() {
   const res = { method: 'POST', url: '/user/createWithList' as const }
+
   return res
 }
 
@@ -31,5 +32,6 @@ export async function createUsersWithListInput(
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }

@@ -9,6 +9,7 @@ import { createPet } from '../createPet.ts'
 
 export function createGetPetByIdPathParams(data?: Partial<GetPetByIdPathParams>): GetPetByIdPathParams {
   faker.seed([220])
+
   return {
     ...{ petId: faker.number.int() },
     ...(data || {}),
@@ -20,6 +21,7 @@ export function createGetPetByIdPathParams(data?: Partial<GetPetByIdPathParams>)
  */
 export function createGetPetById200(data?: Partial<GetPetById200>): GetPetById200 {
   faker.seed([220])
+
   return createPet(data)
 }
 
@@ -28,6 +30,7 @@ export function createGetPetById200(data?: Partial<GetPetById200>): GetPetById20
  */
 export function createGetPetById400() {
   faker.seed([220])
+
   return undefined
 }
 
@@ -36,10 +39,12 @@ export function createGetPetById400() {
  */
 export function createGetPetById404() {
   faker.seed([220])
+
   return undefined
 }
 
 export function createGetPetByIdQueryResponse(data?: Partial<GetPetByIdQueryResponse>): GetPetByIdQueryResponse {
   faker.seed([220])
+
   return data || faker.helpers.arrayElement<any>([createGetPetById200()])
 }

@@ -14,7 +14,7 @@ export type JSDocNode = {
 /**
  * AST node representing a TypeScript `const` declaration.
  *
- * Mirrors the props of the `Const` component from `@kubb/react-fabric`.
+ * Mirrors the props of the `Const` component from `@kubb/renderer-jsx`.
  * The `children` prop of the component is represented as `nodes`.
  *
  * @example
@@ -53,15 +53,15 @@ export type ConstNode = BaseNode & {
   asConst?: boolean
   /**
    * Child nodes representing the value of the constant (children of the `Const` component).
-   * Each entry is either a structured {@link CodeNode} or a raw string expression.
+   * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
    */
-  nodes?: Array<CodeNode | string>
+  nodes?: Array<CodeNode>
 }
 
 /**
  * AST node representing a TypeScript `type` alias declaration.
  *
- * Mirrors the props of the `Type` component from `@kubb/react-fabric`.
+ * Mirrors the props of the `Type` component from `@kubb/renderer-jsx`.
  * The `children` prop of the component is represented as `nodes`.
  *
  * @example
@@ -90,9 +90,9 @@ export type TypeNode = BaseNode & {
   JSDoc?: JSDocNode
   /**
    * Child nodes representing the type body (children of the `Type` component).
-   * Each entry is either a structured {@link CodeNode} or a raw string expression.
+   * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
    */
-  nodes?: Array<CodeNode | string>
+  nodes?: Array<CodeNode>
 }
 
 /**
@@ -104,7 +104,7 @@ export type TypeDeclarationNode = TypeNode
 /**
  * AST node representing a TypeScript `function` declaration.
  *
- * Mirrors the props of the `Function` component from `@kubb/react-fabric`.
+ * Mirrors the props of the `Function` component from `@kubb/renderer-jsx`.
  * The `children` prop of the component is represented as `nodes`.
  *
  * @example
@@ -157,15 +157,15 @@ export type FunctionNode = BaseNode & {
   JSDoc?: JSDocNode
   /**
    * Child nodes representing the function body (children of the `Function` component).
-   * Each entry is either a structured {@link CodeNode} or a raw string statement.
+   * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
    */
-  nodes?: Array<CodeNode | string>
+  nodes?: Array<CodeNode>
 }
 
 /**
  * AST node representing a TypeScript arrow function (`const name = () => { ... }`).
  *
- * Mirrors the props of the `Function.Arrow` component from `@kubb/react-fabric`.
+ * Mirrors the props of the `Function.Arrow` component from `@kubb/renderer-jsx`.
  * The `children` prop of the component is represented as `nodes`.
  *
  * @example
@@ -223,15 +223,82 @@ export type ArrowFunctionNode = BaseNode & {
   singleLine?: boolean
   /**
    * Child nodes representing the function body (children of the `Function.Arrow` component).
-   * Each entry is either a structured {@link CodeNode} or a raw string statement.
+   * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
    */
-  nodes?: Array<CodeNode | string>
+  nodes?: Array<CodeNode>
+}
+
+/**
+ * AST node representing a raw text/string fragment in the source output.
+ *
+ * Used instead of bare `string` values so that all entries in `nodes` arrays
+ * are typed `CodeNode` objects rather than a mixed `CodeNode | string` union.
+ *
+ * @example
+ * ```ts
+ * createText('return fetch(id)')
+ * // { kind: 'Text', value: 'return fetch(id)' }
+ * ```
+ */
+export type TextNode = BaseNode & {
+  /**
+   * Node kind.
+   */
+  kind: 'Text'
+  /**
+   * The raw string content.
+   */
+  value: string
+}
+
+/**
+ * AST node representing a line break in the source output.
+ *
+ * Corresponds to `<br/>` in JSX components. When printed, produces an empty
+ * string that — joined with `\n` by `printNodes` — creates a blank line
+ * between surrounding code nodes.
+ *
+ * @example
+ * ```ts
+ * createBreak()
+ * // { kind: 'Break' }
+ * // prints as '' → blank line when surrounded by other nodes
+ * ```
+ */
+export type BreakNode = BaseNode & {
+  /**
+   * Node kind.
+   */
+  kind: 'Break'
+}
+
+/**
+ * AST node representing a raw JSX fragment in the source output.
+ *
+ * Mirrors the `Jsx` component from `@kubb/renderer-jsx`. Use this to embed raw
+ * JSX/TSX markup (including fragments `<>…</>`) directly in generated code.
+ *
+ * @example
+ * ```ts
+ * createJsx('<>\n  <a href={href}>Open</a>\n</>')
+ * // { kind: 'Jsx', value: '<>\n  <a href={href}>Open</a>\n</>' }
+ * ```
+ */
+export type JsxNode = BaseNode & {
+  /**
+   * Node kind.
+   */
+  kind: 'Jsx'
+  /**
+   * The raw JSX string content.
+   */
+  value: string
 }
 
 /**
  * Union of all code-generation AST nodes.
  *
- * These nodes mirror the JSX components from `@kubb/react-fabric` and are used as
+ * These nodes mirror the JSX components from `@kubb/renderer-jsx` and are used as
  * structured children in {@link SourceNode.nodes}.
  */
-export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode
+export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode | TextNode | BreakNode | JsxNode
