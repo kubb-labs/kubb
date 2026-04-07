@@ -25,7 +25,7 @@ describe('zodExprFromSchemaNode', () => {
 
   test('enum with string values → z.enum([...])', () => {
     const schema = createSchema({ type: 'enum', enumValues: ['PENDING', 'APPROVED', 'REJECTED'] })
-    expect(zodExprFromSchemaNode(schema)).toBe("z.enum([\"PENDING\", \"APPROVED\", \"REJECTED\"])")
+    expect(zodExprFromSchemaNode(schema)).toBe('z.enum(["PENDING", "APPROVED", "REJECTED"])')
   })
 
   test('enum with namedEnumValues (string) → z.enum([...])', () => {
@@ -36,7 +36,7 @@ describe('zodExprFromSchemaNode', () => {
         { name: 'APPROVED', value: 'APPROVED', format: 'string' },
       ],
     })
-    expect(zodExprFromSchemaNode(schema)).toBe("z.enum([\"PENDING\", \"APPROVED\"])")
+    expect(zodExprFromSchemaNode(schema)).toBe('z.enum(["PENDING", "APPROVED"])')
   })
 
   test('enum with number values → z.union([z.literal(...)])', () => {
