@@ -18,9 +18,21 @@ catalogs:
     '@types/node':
       specifier: ^22.19.17
       version: 22.19.17
+    '@types/react':
+      specifier: ^19.2.14
+      version: 19.2.14
+    '@types/react-reconciler':
+      specifier: 0.32.0
+      version: 0.32.0
     p-limit:
       specifier: ^7.3.0
       version: 7.3.0
+    react:
+      specifier: 19.2.3
+      version: 19.2.3
+    react-reconciler:
+      specifier: 0.33.0
+      version: 0.33.0
     remeda:
       specifier: ^2.33.7
       version: 2.33.7
@@ -1491,6 +1503,28 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
+
+  packages/renderer-jsx:
+    dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
+    devDependencies:
+      '@internals/utils':
+        specifier: workspace:*
+        version: link:../../internals/utils
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.14
+      '@types/react-reconciler':
+        specifier: 'catalog:'
+        version: 0.32.0(@types/react@19.2.14)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.3
+      react-reconciler:
+        specifier: 'catalog:'
+        version: 0.33.0(react@19.2.3)
 
   packages/unplugin-kubb:
     dependencies:
@@ -3719,6 +3753,11 @@ packages:
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
     peerDependencies:
       '@types/react': ^19.2.0
+
+  '@types/react-reconciler@0.32.0':
+    resolution: {integrity: sha512-+WHarFkJevhH1s655qeeSEf/yxFST0dVRsmSqUgxG8mMOKqycgYBv2wVpyubBY7MX8KiX5FQ03rNIwrxfm7Bmw==}
+    peerDependencies:
+      '@types/react': '*'
 
   '@types/react@19.2.14':
     resolution: {integrity: sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==}
@@ -6697,12 +6736,22 @@ packages:
     peerDependencies:
       react: ^19.2.4
 
+  react-reconciler@0.33.0:
+    resolution: {integrity: sha512-KetWRytFv1epdpJc3J4G75I4WrplZE5jOL7Yq0p34+OVOKF4Se7WrdIdVC45XsSSmUTlht2FM/fM1FZb1mfQeA==}
+    engines: {node: '>=0.10.0'}
+    peerDependencies:
+      react: ^19.2.0
+
   react-refresh@0.17.0:
     resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
     engines: {node: '>=0.10.0'}
 
   react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
+    engines: {node: '>=0.10.0'}
+
+  react@19.2.3:
+    resolution: {integrity: sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA==}
     engines: {node: '>=0.10.0'}
 
   react@19.2.4:
@@ -10037,6 +10086,10 @@ snapshots:
   '@types/range-parser@1.2.7': {}
 
   '@types/react-dom@19.2.3(@types/react@19.2.14)':
+    dependencies:
+      '@types/react': 19.2.14
+
+  '@types/react-reconciler@0.32.0(@types/react@19.2.14)':
     dependencies:
       '@types/react': 19.2.14
 
@@ -13546,11 +13599,18 @@ snapshots:
       react: 19.2.4
       scheduler: 0.27.0
 
+  react-reconciler@0.33.0(react@19.2.3):
+    dependencies:
+      react: 19.2.3
+      scheduler: 0.27.0
+
   react-refresh@0.17.0: {}
 
   react@18.3.1:
     dependencies:
       loose-envify: 1.4.0
+
+  react@19.2.3: {}
 
   react@19.2.4: {}
 
