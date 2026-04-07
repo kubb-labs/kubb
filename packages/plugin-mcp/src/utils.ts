@@ -73,6 +73,22 @@ export function getParamsMapping(params: Array<{ name: string }>): Record<string
 export function zodExprFromSchemaNode(schema: SchemaNode): string {
   let expr: string
   switch (schema.type) {
+    case 'enum': {
+      // namedEnumValues takes priority over enumValues
+      const rawValues: Array<string | number | boolean> = schema.namedEnumValues?.length
+        ? schema.namedEnumValues.map((v) => v.value)
+        : (schema.enumValues ?? []).filter((v): v is string | number | boolean => v !== null)
+
+      if (rawValues.length > 0 && rawValues.every((v) => typeof v === 'string')) {
+        expr = `z.enum([${rawValues.map((v) => JSON.stringify(v)).join(', ')}])`
+      } else if (rawValues.length > 0) {
+        const literals = rawValues.map((v) => `z.literal(${JSON.stringify(v)})`)
+        expr = literals.length === 1 ? literals[0]! : `z.union([${literals.join(', ')}])`
+      } else {
+        expr = 'z.string()'
+      }
+      break
+    }
     case 'integer':
       expr = 'z.coerce.number()'
       break
