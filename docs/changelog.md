@@ -6,6 +6,40 @@ outline: deep
 
 # Changelog
 
+```markdown
+## 5.0.0-alpha.33
+
+### ✨ Features
+
+#### [`@kubb/renderer-jsx`](https://github.com/kubb-labs/kubb/tree/main/packages/renderer-jsx)
+
+-   [#2994](https://github.com/kubb-labs/kubb/pull/2994) [`9e6a772`](https://github.com/kubb-labs/kubb/commit/9e6a772c7ca1ee54e931d2dbf0f2448f67707c0e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Introduced `@kubb/renderer-jsx`, a lightweight JSX renderer specifically designed for Kubb plugins.
+
+    -   New package `@kubb/renderer-jsx` with a custom JSX runtime (`jsx-runtime`, `jsx-dev-runtime`).
+    -   Provides `createRenderer` to render JSX trees into `FileNode` arrays without React.
+    -   Built-in components: `File`, `Const`, `Function`, `Type`, `Root`.
+    -   Context helpers: `KubbContext`, `OasContext`.
+    -   Replaces `@kubb/react-fabric` as the rendering layer inside Kubb plugins.
+
+    ::: code-group
+    ```typescript [Before]
+    import { createRenderer } from '@kubb/react-fabric';
+    // Usage with React environment
+    ```
+    ```typescript [After]
+    import { createRenderer } from '@kubb/renderer-jsx';
+    // React-independent rendering of JSX elements
+    ```
+    :::
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core)
+
+-   [#2990](https://github.com/kubb-labs/kubb/pull/2990) [`3ac7d1f`](https://github.com/kubb-labs/kubb/commit/3ac7d1f9b75099bfe793e35152e5c322e65aa6ad) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated `@kubb/react-fabric` and `@kubb/fabric-core` dependencies to v0.16.0 for better compatibility and performance.
+```
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
