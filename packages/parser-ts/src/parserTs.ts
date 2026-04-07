@@ -194,13 +194,7 @@ export function printJSDoc(jsDoc: JSDocNode): string {
  */
 function printNodes(nodes: Array<CodeNode> | undefined): string {
   if (!nodes || nodes.length === 0) return ''
-  return nodes
-    .map((n) => {
-      // Backward-compat: compiled plugins may still pass bare strings at runtime
-      if (typeof n === 'string') return n as string
-      return printCodeNode(n)
-    })
-    .join('\n')
+  return nodes.map(printCodeNode).join('\n')
 }
 
 /**
@@ -423,13 +417,7 @@ export function printCodeNode(node: CodeNode): string {
  */
 export function printSource(node: SourceNode): string {
   if (node.nodes && node.nodes.length > 0) {
-    return node.nodes
-      .map((n) => {
-        // Backward-compat: compiled plugins may still pass bare strings at runtime
-        if (typeof n === 'string') return n as string
-        return printCodeNode(n as CodeNode)
-      })
-      .join('\n')
+    return node.nodes.map(printCodeNode).join('\n')
   }
   if (node.value) return node.value
   return ''
