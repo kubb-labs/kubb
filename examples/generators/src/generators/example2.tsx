@@ -1,7 +1,7 @@
 import type { PluginOas } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
-import { File } from '@kubb/react-fabric'
+import { File } from '@kubb/renderer-jsx'
 
 const toURL = (path: string) => path.replaceAll('{', ':').replaceAll('}', '')
 
@@ -18,12 +18,10 @@ export const example2 = createReactGenerator<PluginOas>({
     return (
       <File baseName={client.file.baseName} path={client.file.path} meta={client.file.meta}>
         <File.Source>
-          {`
-          export const ${operation.getOperationId()} = {
-            method: '${operation.method}',
-            url: '${toURL(operation.path)}'
-          }
-        `}
+          {`export const ${operation.getOperationId()} = {
+  method: '${operation.method}',
+  url: '${toURL(operation.path)}'
+}`}
         </File.Source>
       </File>
     )

@@ -194,12 +194,12 @@ describe('printCodeNode', () => {
 })
 
 describe('printSource', () => {
-  it('returns value when source has value', () => {
-    const node = createSource({ value: 'const x = 1' })
+  it('converts nodes to source string', () => {
+    const node = createSource({ nodes: [createText('const x = 1')] })
     expect(printSource(node)).toBe('const x = 1')
   })
 
-  it('converts nodes when source has no value', () => {
+  it('converts nodes when source has structured nodes', () => {
     const node = createSource({ nodes: [createConst({ name: 'x', nodes: [createText('1')] })] })
     expect(printSource(node)).toBe('const x = 1')
   })
@@ -222,19 +222,9 @@ describe('printSource', () => {
     expect(printSource(node)).toBe('const server = new McpServer()\nserver.registerTool("foo", {})\nconst x = 1')
   })
 
-  it('returns empty string when source has neither value nor nodes', () => {
+  it('returns empty string when source has no nodes', () => {
     const node = createSource({})
     expect(printSource(node)).toBe('')
-  })
-
-  it('prefers nodes over value when both are present (nodes is canonical, value is legacy fallback)', () => {
-    const node = createSource({ value: 'const x = 1', nodes: [createConst({ name: 'y', nodes: [createText('2')] })] })
-    expect(printSource(node)).toBe('const y = 2')
-  })
-
-  it('falls back to value when nodes is empty', () => {
-    const node = createSource({ value: 'const x = 1', nodes: [] })
-    expect(printSource(node)).toBe('const x = 1')
   })
 })
 

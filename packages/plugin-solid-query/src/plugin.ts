@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { createFile, createSource } from '@kubb/ast'
+import { createFile, createSource, createText } from '@kubb/ast'
 import type { FileNode } from '@kubb/ast/types'
 import { createPlugin, getBarrelFiles, type UserGroup } from '@kubb/core'
 import { pluginClientName } from '@kubb/plugin-client'
@@ -157,7 +157,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
             sources: [
               createSource({
                 name: 'fetch',
-                value: this.plugin.options.client.client === 'fetch' ? fetchClientSource : axiosClientSource,
+                nodes: [createText(this.plugin.options.client.client === 'fetch' ? fetchClientSource : axiosClientSource)],
                 isExportable: true,
                 isIndexable: true,
               }),
@@ -174,7 +174,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
             sources: [
               createSource({
                 name: 'config',
-                value: configSource,
+                nodes: [createText(configSource)],
                 isExportable: false,
                 isIndexable: false,
               }),

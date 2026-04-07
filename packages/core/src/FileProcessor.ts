@@ -1,4 +1,5 @@
-import type { FileNode } from '@kubb/ast/types'
+import { extractStringsFromNodes } from '@kubb/ast'
+import type { CodeNode, FileNode } from '@kubb/ast/types'
 import pLimit from 'p-limit'
 import { PARALLEL_CONCURRENCY_LIMIT } from './constants.ts'
 import type { Parser } from './defineParser.ts'
@@ -20,8 +21,8 @@ type RunOptions = ParseOptions & {
 
 function joinSources(file: FileNode): string {
   return file.sources
-    .map((item) => item.value)
-    .filter((value): value is string => value != null)
+    .map((item) => extractStringsFromNodes(item.nodes as Array<CodeNode>))
+    .filter(Boolean)
     .join('\n\n')
 }
 

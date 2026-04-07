@@ -14,7 +14,6 @@
     "file-generation",
     "plugin-system",
     "plugins",
-    "fabric",
     "kubb"
   ],
   "repository": {

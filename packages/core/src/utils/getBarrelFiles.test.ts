@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createFile, createSource } from '@kubb/ast'
+import { createFile, createSource, createText } from '@kubb/ast'
 import type { FileNode } from '@kubb/ast/types'
 import { describe, expect, it, test } from 'vitest'
 import { FileManager } from '../FileManager.ts'
@@ -19,7 +19,7 @@ describe('getBarrelFiles', () => {
         sources: [
           createSource({
             name: 'test',
-            value: 'export const test = 2;',
+            nodes: [createText('export const test = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -33,11 +33,9 @@ describe('getBarrelFiles', () => {
         sources: [
           createSource({
             name: 'hello',
-            value: '',
           }),
           createSource({
             name: 'world',
-            value: '',
           }),
         ],
         imports: [],
@@ -60,7 +58,7 @@ describe('getBarrelFiles', () => {
         sources: [
           createSource({
             name: 'hello',
-            value: 'export const hello = 2;',
+            nodes: [createText('export const hello = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -74,7 +72,7 @@ describe('getBarrelFiles', () => {
         sources: [
           createSource({
             name: 'world',
-            value: 'export const world = 2;',
+            nodes: [createText('export const world = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -109,7 +107,7 @@ describe('getBarrelFiles', () => {
         sources: [
           createSource({
             name: 'test',
-            value: 'export const test = 2;',
+            nodes: [createText('export const test = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -123,7 +121,7 @@ describe('getBarrelFiles', () => {
         sources: [
           createSource({
             name: 'hello',
-            value: 'export const hello = 2;',
+            nodes: [createText('export const hello = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -137,7 +135,7 @@ describe('getBarrelFiles', () => {
         sources: [
           createSource({
             name: 'world',
-            value: 'export const world = 2;',
+            nodes: [createText('export const world = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -163,7 +161,7 @@ describe('getBarrelFiles', () => {
         sources: [
           createSource({
             name: 'test',
-            value: 'export const test = 2;',
+            nodes: [createText('export const test = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -177,7 +175,7 @@ describe('getBarrelFiles', () => {
         sources: [
           createSource({
             name: 'hello',
-            value: 'export const hello = 2;',
+            nodes: [createText('export const hello = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -191,7 +189,7 @@ describe('getBarrelFiles', () => {
         sources: [
           createSource({
             name: 'world',
-            value: 'export const world = 2;',
+            nodes: [createText('export const world = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -205,13 +203,13 @@ describe('getBarrelFiles', () => {
         sources: [
           createSource({
             name: 'world',
-            value: 'export const world = 2;',
+            nodes: [createText('export const world = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
           createSource({
             name: 'hello',
-            value: 'export const hello = 2;',
+            nodes: [createText('export const hello = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -283,7 +281,6 @@ describe('getBarrelFiles', () => {
               "isTypeOnly": undefined,
               "kind": "Source",
               "name": "test",
-              "value": "",
             },
             {
               "isExportable": false,
@@ -291,7 +288,6 @@ describe('getBarrelFiles', () => {
               "isTypeOnly": undefined,
               "kind": "Source",
               "name": "hello",
-              "value": "",
             },
             {
               "isExportable": false,
@@ -299,7 +295,6 @@ describe('getBarrelFiles', () => {
               "isTypeOnly": undefined,
               "kind": "Source",
               "name": "world",
-              "value": "",
             },
             {
               "isExportable": false,
@@ -307,7 +302,6 @@ describe('getBarrelFiles', () => {
               "isTypeOnly": undefined,
               "kind": "Source",
               "name": "world",
-              "value": "",
             },
             {
               "isExportable": false,
@@ -315,7 +309,6 @@ describe('getBarrelFiles', () => {
               "isTypeOnly": undefined,
               "kind": "Source",
               "name": "hello",
-              "value": "",
             },
           ],
         },
@@ -353,7 +346,6 @@ describe('getBarrelFiles', () => {
               "isTypeOnly": undefined,
               "kind": "Source",
               "name": "hello",
-              "value": "",
             },
             {
               "isExportable": false,
@@ -361,7 +353,6 @@ describe('getBarrelFiles', () => {
               "isTypeOnly": undefined,
               "kind": "Source",
               "name": "world",
-              "value": "",
             },
           ],
         },

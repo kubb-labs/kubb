@@ -1,4 +1,4 @@
-import { createFile, createSource } from '@kubb/ast'
+import { createFile, createSource, createText } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { FileManager } from './FileManager.ts'
 
@@ -6,7 +6,7 @@ function makeFile(path: string, sourceValue?: string) {
   return createFile({
     path,
     baseName: path.split('/').pop() as `${string}.${string}`,
-    sources: sourceValue ? [createSource({ value: sourceValue })] : [],
+    sources: sourceValue ? [createSource({ nodes: [createText(sourceValue)] })] : [],
     imports: [],
     exports: [],
   })

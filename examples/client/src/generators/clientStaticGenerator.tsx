@@ -3,7 +3,7 @@ import { defineGenerator } from '@kubb/core'
 import type { PluginClient } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { File } from '@kubb/react-fabric'
+import { File } from '@kubb/renderer-jsx'
 
 const toURL = (path: string) => path.replaceAll('{', ':').replaceAll('}', '')
 
@@ -95,15 +95,13 @@ export const clientStaticGenerator = defineGenerator<PluginClient>({
           zodResolver={undefined}
         />
         <File.Source>
-          {`
-        ${name}.method = "${transformedNode.method}" as const;
-        ${name}.url = "${toURL(transformedNode.path)}" as const;
-        ${name}.operationId = "${name}" as const;
-        ${name}.request = {} as ${requestName || 'never'};
-        ${name}.response = {} as ${responseName || 'never'};
-        ${name}.pathParams = {} as ${pathParamsName || 'never'};
-        ${name}.queryParams = {} as ${queryParamsName || 'never'};
-        `}
+          {`${name}.method = "${transformedNode.method}" as const
+${name}.url = "${toURL(transformedNode.path)}" as const
+${name}.operationId = "${name}" as const
+${name}.request = {} as ${requestName || 'never'}
+${name}.response = {} as ${responseName || 'never'}
+${name}.pathParams = {} as ${pathParamsName || 'never'}
+${name}.queryParams = {} as ${queryParamsName || 'never'}`}
         </File.Source>
       </File>
     )

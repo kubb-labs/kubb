@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createFile, createSource } from '@kubb/ast'
+import { createFile, createSource, createText } from '@kubb/ast'
 import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
@@ -113,7 +113,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
             sources: [
               createSource({
                 name: 'fetch',
-                value: this.plugin.options.client.client === 'fetch' ? fetchClientSource : axiosClientSource,
+                nodes: [createText(this.plugin.options.client.client === 'fetch' ? fetchClientSource : axiosClientSource)],
                 isExportable: true,
                 isIndexable: true,
               }),
@@ -132,7 +132,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
             sources: [
               createSource({
                 name: 'config',
-                value: configSource,
+                nodes: [createText(configSource)],
                 isExportable: false,
                 isIndexable: false,
               }),

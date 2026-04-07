@@ -52,6 +52,14 @@ export async function placeOrder(data?: PlaceOrderMutationRequest, config: Parti
   return res
 }
 
+placeOrder.method = 'POST' as const
+placeOrder.url = '/store/order' as const
+placeOrder.operationId = 'placeOrder' as const
+placeOrder.request = {} as PlaceOrderMutationRequest
+placeOrder.response = {} as PlaceOrderMutationResponse
+placeOrder.pathParams = {} as never
+placeOrder.queryParams = {} as never
+
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
@@ -75,6 +83,14 @@ export async function placeOrderPatch(
   return res
 }
 
+placeOrderPatch.method = 'PATCH' as const
+placeOrderPatch.url = '/store/order' as const
+placeOrderPatch.operationId = 'placeOrderPatch' as const
+placeOrderPatch.request = {} as PlaceOrderPatchMutationRequest
+placeOrderPatch.response = {} as PlaceOrderPatchMutationResponse
+placeOrderPatch.pathParams = {} as never
+placeOrderPatch.queryParams = {} as never
+
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
@@ -92,6 +108,14 @@ export async function getOrderById({ orderId }: { orderId: GetOrderByIdPathParam
   return res
 }
 
+getOrderById.method = 'GET' as const
+getOrderById.url = '/store/order/:orderId' as const
+getOrderById.operationId = 'getOrderById' as const
+getOrderById.request = {} as never
+getOrderById.response = {} as GetOrderByIdQueryResponse
+getOrderById.pathParams = {} as GetOrderByIdPathParams
+getOrderById.queryParams = {} as never
+
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
@@ -108,3 +132,11 @@ export async function deleteOrder({ orderId }: { orderId: DeleteOrderPathParams[
 
   return res
 }
+
+deleteOrder.method = 'DELETE' as const
+deleteOrder.url = '/store/order/:orderId' as const
+deleteOrder.operationId = 'deleteOrder' as const
+deleteOrder.request = {} as never
+deleteOrder.response = {} as DeleteOrderMutationResponse
+deleteOrder.pathParams = {} as DeleteOrderPathParams
+deleteOrder.queryParams = {} as never

@@ -36,6 +36,7 @@ export {
   caseParams,
   createDiscriminantNode,
   createOperationParams,
+  extractStringsFromNodes,
   isStringType,
   syncSchemaRef,
 } from './utils.ts'

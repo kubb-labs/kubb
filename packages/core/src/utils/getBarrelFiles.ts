@@ -80,8 +80,6 @@ function getBarrelFilesByRoot(root: string | undefined, files: Array<FileNode>):
           createSource({
             name: source.name,
             isTypeOnly: source.isTypeOnly,
-            //TODO use parser to generate import
-            value: '',
             isExportable: false,
             isIndexable: false,
           }),

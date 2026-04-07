@@ -879,7 +879,7 @@ export type LoggerOptions = {
 }
 
 /**
- * Shared context passed to all plugins, parsers, and Fabric internals.
+ * Shared context passed to all plugins, parsers, and other internals.
  */
 export type LoggerContext = AsyncEventEmitter<KubbEvents>
 
@@ -1091,6 +1091,6 @@ export type ResolveBannerContext = {
 }
 
 export type { CLIOptions, ConfigInput } from './defineConfig.ts'
-export type { Parser, UserParser } from './defineParser.ts'
+export type { Parser } from './defineParser.ts'
 export type { FunctionParamsAST } from './utils/FunctionParams.ts'
 export type { FileMetaBase } from './utils/getBarrelFiles.ts'

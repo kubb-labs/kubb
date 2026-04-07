@@ -23,12 +23,10 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
-    "@kubb/fabric-core": "0.16.0",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-faker": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react-fabric": "0.16.0",
     "dayjs": "^1.11.20",
     "kubb": "workspace:*",
     "react": "^18.3.1"

@@ -121,12 +121,12 @@ export type ExportNode = BaseNode & {
  *
  * @example Named exportable source
  * ```ts
- * createSource({ name: 'Pet', value: 'export type Pet = { id: number }', isExportable: true, isIndexable: true })
+ * createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], isExportable: true, isIndexable: true })
  * ```
  *
  * @example Inline unnamed code block
  * ```ts
- * createSource({ value: 'const x = 1' })
+ * createSource({ nodes: [createText('const x = 1')] })
  * ```
  */
 export type SourceNode = BaseNode & {
@@ -135,10 +135,6 @@ export type SourceNode = BaseNode & {
    * Optional name identifying this source (used for deduplication and barrel generation).
    */
   name?: string
-  /**
-   * The source code value.
-   */
-  value?: string
   /**
    * Mark this source as a type-only export.
    * @default false
@@ -157,7 +153,6 @@ export type SourceNode = BaseNode & {
   /**
    * Structured child nodes representing the content of this source fragment, in DOM order.
    * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
-   * This mirrors the mixed-children pattern used by {@link CodeNode.nodes}.
    */
   nodes?: Array<CodeNode>
 }
@@ -173,7 +168,7 @@ export type SourceNode = BaseNode & {
  * const file = createFile({
  *   baseName: 'petStore.ts',
  *   path: 'src/models/petStore.ts',
- *   sources: [createSource({ name: 'Pet', value: 'export type Pet = { id: number }', isExportable: true })],
+ *   sources: [createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], isExportable: true })],
  *   imports: [createImport({ name: ['z'], path: 'zod' })],
  *   exports: [createExport({ name: ['Pet'], path: './petStore' })],
  * })

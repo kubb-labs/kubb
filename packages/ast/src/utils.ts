@@ -471,7 +471,8 @@ function toStructType({
 }
 
 function sourceKey(source: SourceNode): string {
-  return `${source.name ?? source.value ?? ''}:${source.isExportable ?? false}:${source.isTypeOnly ?? false}`
+  const nameKey = source.name ?? extractStringsFromNodes(source.nodes)
+  return `${nameKey}:${source.isExportable ?? false}:${source.isTypeOnly ?? false}`
 }
 
 function pathTypeKey(path: string, isTypeOnly: boolean | undefined): string {
@@ -501,7 +502,7 @@ function sortKey(node: { name?: string | Array<unknown>; isTypeOnly?: boolean; p
 /**
  * Deduplicates an array of `SourceNode` objects.
  * Named sources are deduplicated by `name + isExportable + isTypeOnly`.
- * Unnamed sources are deduplicated by `value`.
+ * Unnamed sources are deduplicated by object reference.
  */
 export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
   const seen = new Map<string, SourceNode>()

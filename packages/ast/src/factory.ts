@@ -479,7 +479,7 @@ export function createExport(props: Omit<ExportNode, 'kind'>): ExportNode {
  *
  * @example
  * ```ts
- * createSource({ name: 'Pet', value: 'export type Pet = { id: number }', isExportable: true })
+ * createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], isExportable: true })
  * ```
  */
 export function createSource(props: Omit<SourceNode, 'kind'>): SourceNode {
@@ -509,7 +509,7 @@ type UserFileNode<TMeta extends object = object> = Omit<FileNode<TMeta>, 'kind' 
  * const file = createFile({
  *   baseName: 'petStore.ts',
  *   path: 'src/models/petStore.ts',
- *   sources: [createSource({ name: 'Pet', value: 'export type Pet = { id: number }' })],
+ *   sources: [createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')] })],
  *   imports: [createImport({ name: ['z'], path: 'zod' })],
  *   exports: [createExport({ name: ['Pet'], path: './petStore' })],
  * })
@@ -526,12 +526,11 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
     throw new Error(`No extname found for ${input.baseName}`)
   }
 
-  const sourceFromValues = (input.sources ?? []).map((item) => item.value).filter(Boolean)
-  const sourceFromNodes = (input.sources ?? [])
+  const source = (input.sources ?? [])
     .flatMap((item) => item.nodes ?? [])
     .map((node) => extractStringsFromNodes([node]))
     .filter(Boolean)
-  const source = [...sourceFromValues, ...sourceFromNodes].join('\n\n')
+    .join('\n\n')
   const resolvedExports = input.exports?.length ? combineExports(input.exports) : []
   const resolvedImports = input.imports?.length ? combineImports(input.imports, resolvedExports, source || undefined) : []
   const resolvedSources = input.sources?.length ? combineSources(input.sources) : []

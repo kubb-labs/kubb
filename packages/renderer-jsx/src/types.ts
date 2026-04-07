@@ -104,3 +104,5 @@ export type LineBreakProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLBR
 export type JSDoc = {
   comments: string[]
 }
+
+export type { Context } from '@internals/utils'

@@ -2,7 +2,7 @@ import path from 'node:path'
 import { trimExtName } from '@internals/utils'
 import type { AdapterOas } from '@kubb/adapter-oas'
 import { adapterOasName } from '@kubb/adapter-oas'
-import { createFile, createSource } from '@kubb/ast'
+import { createFile, createSource, createText } from '@kubb/ast'
 import { type Adapter, createPlugin } from '@kubb/core'
 import { version } from '../package.json'
 import { getPageHTML } from './redoc.tsx'
@@ -49,7 +49,7 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
           sources: [
             createSource({
               name: 'docs.html',
-              value: pageHTML,
+              nodes: [createText(pageHTML)],
             }),
           ],
         }),

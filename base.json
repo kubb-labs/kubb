@@ -20,7 +20,7 @@
     "sourceMap": true,
     "strictNullChecks": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@kubb/react-fabric",
+    "jsxImportSource": "@kubb/renderer-jsx",
     "declaration": true,
     "declarationMap": true,
     "noEmit": true,

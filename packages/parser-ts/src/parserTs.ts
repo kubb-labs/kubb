@@ -401,25 +401,18 @@ export function printCodeNode(node: CodeNode): string {
  * Converts a {@link SourceNode} to its TypeScript string representation.
  *
  * Iterates `nodes` in DOM order, rendering each {@link CodeNode} via
- * {@link printCodeNode}. Falls back to `value` for legacy sources.
+ * {@link printCodeNode}.
  *
  * @example From nodes
  * ```ts
  * printSource({ kind: 'Source', nodes: [createConst({ name: 'x', nodes: [createText('1')] }), createText('x.toString()')] })
  * // 'const x = 1\nx.toString()'
  * ```
- *
- * @example Legacy value-only source
- * ```ts
- * printSource({ kind: 'Source', value: 'const x = 1' })
- * // 'const x = 1'
- * ```
  */
 export function printSource(node: SourceNode): string {
   if (node.nodes && node.nodes.length > 0) {
     return node.nodes.map(printCodeNode).join('\n')
   }
-  if (node.value) return node.value
   return ''
 }
 
