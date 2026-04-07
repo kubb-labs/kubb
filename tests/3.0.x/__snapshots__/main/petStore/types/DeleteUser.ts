@@ -15,11 +15,13 @@ export type DeleteUserPathParams = {
     username: string;
 };
 
+
 /**
  * @description Invalid username supplied
  * @type any
 */
 export type DeleteUser400 = any;
+
 
 /**
  * @description User not found
@@ -27,7 +29,9 @@ export type DeleteUser400 = any;
 */
 export type DeleteUser404 = any;
 
+
 export type DeleteUserMutationResponse = any;
+
 
 /**
  * @type object

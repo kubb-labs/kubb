@@ -16,7 +16,6 @@ export async function findPetsByStatus(
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
-
   const res = await request<FindPetsByStatusResponse, ResponseErrorConfig<Error>, unknown>({
     method: 'GET',
     url: getFindPetsByStatusUrl().url.toString(),

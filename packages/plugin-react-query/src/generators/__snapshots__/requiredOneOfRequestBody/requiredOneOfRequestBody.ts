@@ -20,9 +20,7 @@ export async function createOrder(
   config: Partial<RequestConfig<CreateOrderMutationRequest>> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
-
   const requestData = createOrderMutationRequest.parse(data)
-
   const res = await request<CreateOrderMutationResponse, ResponseErrorConfig<Error>, CreateOrderMutationRequest>({
     method: 'POST',
     url: `/orders`,

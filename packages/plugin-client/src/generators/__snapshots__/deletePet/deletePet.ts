@@ -17,7 +17,6 @@ export async function deletePet(
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
-
   const res = await request<DeletePetResponse, ResponseErrorConfig<Error>, unknown>({
     method: 'DELETE',
     url: getDeletePetUrl(petId).url.toString(),

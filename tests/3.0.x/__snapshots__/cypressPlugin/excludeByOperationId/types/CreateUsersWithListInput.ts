@@ -10,15 +10,18 @@ import type { User } from "./User.ts";
 */
 export type CreateUsersWithListInputStatus200 = User;
 
+
 /**
  * @type any
 */
 export type CreateUsersWithListInputStatusDefault = any;
 
+
 /**
  * @type array | undefined
 */
 export type CreateUsersWithListInputData = User[] | undefined;
+
 
 /**
  * @type object
@@ -34,6 +37,7 @@ export type CreateUsersWithListInputRequestConfig = {
     url: "/user/createWithList";
 };
 
+
 /**
  * @type object
 */
@@ -41,6 +45,7 @@ export type CreateUsersWithListInputResponses = {
     "200": CreateUsersWithListInputStatus200;
     default: CreateUsersWithListInputStatusDefault;
 };
+
 
 /**
  * @description Union of all possible responses

@@ -1,8 +1,8 @@
 import { URLPath } from '@internals/utils'
 import type { OperationNode, ParameterNode } from '@kubb/ast/types'
+import { FunctionParams } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import type { PluginZod } from '@kubb/plugin-zod'
-import { FunctionParams } from '@kubb/react-fabric'
 import type { PluginClient } from './types.ts'
 
 export function getComments(node: OperationNode): Array<string> {

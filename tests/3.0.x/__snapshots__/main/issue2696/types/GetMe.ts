@@ -11,7 +11,9 @@ import type { User } from "./User.ts";
 */
 export type GetMe200 = User;
 
+
 export type GetMeQueryResponse = GetMe200;
+
 
 /**
  * @type object

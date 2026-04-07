@@ -16,6 +16,7 @@ export type UploadFilePathParams = {
     petId: number;
 };
 
+
 /**
  * @type object
 */
@@ -27,18 +28,22 @@ export type UploadFileQueryParams = {
     additionalMetadata?: string;
 };
 
+
 /**
  * @description successful operation
  * @type object
 */
 export type UploadFile200 = ApiResponse;
 
+
 /**
  * @type string | undefined
 */
 export type UploadFileMutationRequest = Blob | undefined;
 
+
 export type UploadFileMutationResponse = UploadFile200;
+
 
 /**
  * @type object

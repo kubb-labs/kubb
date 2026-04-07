@@ -156,7 +156,7 @@ export type SourceNode = BaseNode & {
   isIndexable?: boolean
   /**
    * Structured child nodes representing the content of this source fragment.
-   * These correspond to the children of the `File.Source` component from `@kubb/react-fabric`
+   * These correspond to the children of the `File.Source` component from `@kubb/renderer-jsx`
    * (e.g. `ConstNode`, `TypeDeclarationNode`, `FunctionDeclarationNode`, `ArrowFunctionDeclarationNode`).
    */
   nodes?: Array<CodeNode>

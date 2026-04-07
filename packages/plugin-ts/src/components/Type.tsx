@@ -1,8 +1,8 @@
 import type { Printer } from '@kubb/ast'
 import { collect, narrowSchema, schemaTypes } from '@kubb/ast'
 import type { EnumSchemaNode, SchemaNode } from '@kubb/ast/types'
-import { File } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { File } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PrinterTsFactory } from '../printers/printerTs.ts'
 import type { PluginTs } from '../types.ts'
 import { Enum, getEnumNames } from './Enum.tsx'
@@ -21,7 +21,7 @@ type Props = {
   resolver: PluginTs['resolver']
 }
 
-export function Type({ name, node, printer, enumType, enumTypeSuffix, enumKeyCasing, resolver }: Props): FabricReactNode {
+export function Type({ name, node, printer, enumType, enumTypeSuffix, enumKeyCasing, resolver }: Props): KubbReactNode {
   const enumSchemaNodes = collect<EnumSchemaNode>(node, {
     schema(n): EnumSchemaNode | undefined {
       const enumNode = narrowSchema(n, schemaTypes.enum)

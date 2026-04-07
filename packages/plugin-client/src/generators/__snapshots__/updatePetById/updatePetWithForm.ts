@@ -17,9 +17,7 @@ export async function updatePetWithForm(
   config: Partial<RequestConfig<UpdatePetWithFormData>> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
-
   const requestData = data
-
   const res = await request<UpdatePetWithFormResponse, ResponseErrorConfig<Error>, UpdatePetWithFormData>({
     method: 'POST',
     url: getUpdatePetWithFormUrl(petId).url.toString(),

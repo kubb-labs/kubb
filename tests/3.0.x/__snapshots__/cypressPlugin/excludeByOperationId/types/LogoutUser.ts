@@ -9,6 +9,7 @@
 */
 export type LogoutUserStatusDefault = any;
 
+
 /**
  * @type object
 */
@@ -23,12 +24,14 @@ export type LogoutUserRequestConfig = {
     url: "/user/logout";
 };
 
+
 /**
  * @type object
 */
 export type LogoutUserResponses = {
     default: LogoutUserStatusDefault;
 };
+
 
 /**
  * @description Union of all possible responses

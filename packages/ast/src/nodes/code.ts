@@ -14,7 +14,7 @@ export type JSDocNode = {
 /**
  * AST node representing a TypeScript `const` declaration.
  *
- * Mirrors the props of the `Const` component from `@kubb/react-fabric`.
+ * Mirrors the props of the `Const` component from `@kubb/renderer-jsx`.
  * The `children` prop of the component is represented as `nodes`.
  *
  * @example
@@ -61,7 +61,7 @@ export type ConstNode = BaseNode & {
 /**
  * AST node representing a TypeScript `type` alias declaration.
  *
- * Mirrors the props of the `Type` component from `@kubb/react-fabric`.
+ * Mirrors the props of the `Type` component from `@kubb/renderer-jsx`.
  * The `children` prop of the component is represented as `nodes`.
  *
  * @example
@@ -104,7 +104,7 @@ export type TypeDeclarationNode = TypeNode
 /**
  * AST node representing a TypeScript `function` declaration.
  *
- * Mirrors the props of the `Function` component from `@kubb/react-fabric`.
+ * Mirrors the props of the `Function` component from `@kubb/renderer-jsx`.
  * The `children` prop of the component is represented as `nodes`.
  *
  * @example
@@ -165,7 +165,7 @@ export type FunctionNode = BaseNode & {
 /**
  * AST node representing a TypeScript arrow function (`const name = () => { ... }`).
  *
- * Mirrors the props of the `Function.Arrow` component from `@kubb/react-fabric`.
+ * Mirrors the props of the `Function.Arrow` component from `@kubb/renderer-jsx`.
  * The `children` prop of the component is represented as `nodes`.
  *
  * @example
@@ -231,7 +231,7 @@ export type ArrowFunctionNode = BaseNode & {
 /**
  * Union of all code-generation AST nodes.
  *
- * These nodes mirror the JSX components from `@kubb/react-fabric` and are used as
+ * These nodes mirror the JSX components from `@kubb/renderer-jsx` and are used as
  * structured children in {@link SourceNode.nodes}.
  */
 export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode

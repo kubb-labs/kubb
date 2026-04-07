@@ -14,7 +14,6 @@ export function getGetItemUrl({ itemId }: { itemId: GetItemPathItemId }) {
  */
 export async function getItem({ itemId }: { itemId: GetItemPathItemId }, config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
-
   const res = await request<GetItemResponse, ResponseErrorConfig<Error>, unknown>({
     method: 'GET',
     url: getGetItemUrl({ itemId }).url.toString(),

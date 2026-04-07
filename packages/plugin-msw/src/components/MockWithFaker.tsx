@@ -1,7 +1,8 @@
 import { URLPath } from '@internals/utils'
+import { FunctionParams } from '@kubb/core'
 import type { OasTypes, Operation } from '@kubb/oas'
-import { File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { File, Function } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 
 type Props = {
   /**
@@ -14,7 +15,7 @@ type Props = {
   operation: Operation
 }
 
-export function MockWithFaker({ baseURL = '', name, fakerName, typeName, operation }: Props): FabricReactNode {
+export function MockWithFaker({ baseURL = '', name, fakerName, typeName, operation }: Props): KubbReactNode {
   const method = operation.method
   const successStatusCodes = operation.getResponseStatusCodes().filter((code) => code.startsWith('2'))
   const statusCode = successStatusCodes.length > 0 ? Number(successStatusCodes[0]) : 200

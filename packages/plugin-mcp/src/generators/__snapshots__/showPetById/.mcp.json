@@ -1,4 +1,5 @@
-{
+
+          {
             "mcpServers": {
               "server": {
                 "type": "stdio",
@@ -7,3 +8,4 @@
               }
             }
           }
+          

@@ -109,14 +109,14 @@
     "@kubb/core": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@kubb/react-fabric": "catalog:"
+    "@kubb/renderer-jsx": "workspace:*"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "axios": "^1.14.0"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.16.0",
+    "@kubb/renderer-jsx": "workspace:*",
     "axios": "^1.7.2"
   },
   "peerDependenciesMeta": {

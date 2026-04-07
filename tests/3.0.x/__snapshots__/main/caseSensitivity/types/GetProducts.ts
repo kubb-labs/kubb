@@ -22,7 +22,9 @@ export type GetProducts200 = {
     stock?: number;
 };
 
+
 export type GetProductsQueryResponse = GetProducts200;
+
 
 /**
  * @type object

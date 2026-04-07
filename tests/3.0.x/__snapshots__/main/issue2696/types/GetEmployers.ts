@@ -11,7 +11,9 @@ import type { Employer } from "./Employer.ts";
 */
 export type GetEmployers200 = Employer[];
 
+
 export type GetEmployersQueryResponse = GetEmployers200;
+
 
 /**
  * @type object

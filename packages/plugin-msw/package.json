@@ -92,7 +92,7 @@
     "@kubb/plugin-faker": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react-fabric": "catalog:"
+    "@kubb/renderer-jsx": "workspace:*"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*"
@@ -105,5 +105,8 @@
     "registry": "https://registry.npmjs.org/"
   },
   "main": "./dist/index.cjs",
-  "module": "./dist/index.js"
+  "module": "./dist/index.js",
+  "peerDependencies": {
+    "@kubb/renderer-jsx": "workspace:*"
+  }
 }

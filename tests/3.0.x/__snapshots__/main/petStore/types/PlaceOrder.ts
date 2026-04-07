@@ -11,18 +11,22 @@ import type { Order } from "./Order.ts";
 */
 export type PlaceOrder200 = Order;
 
+
 /**
  * @description Invalid input
  * @type any
 */
 export type PlaceOrder405 = any;
 
+
 /**
  * @type object | undefined
 */
 export type PlaceOrderMutationRequest = Order | undefined;
 
+
 export type PlaceOrderMutationResponse = PlaceOrder200;
+
 
 /**
  * @type object

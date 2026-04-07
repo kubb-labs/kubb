@@ -113,6 +113,8 @@ describe('mswGenerator operation', async () => {
     await renderOperation(operation, {
       config: { root: '.', output: { path: 'test' } } as Config,
       driver: mockedPluginDriver,
+      oas,
+      mode: 'split',
       generator,
       Component: mswGenerator.Operation,
       plugin,

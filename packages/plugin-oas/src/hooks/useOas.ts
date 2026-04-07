@@ -1,12 +1,9 @@
 import type { Oas } from '@kubb/oas'
-
-import { useFabric } from '@kubb/react-fabric'
+import { inject, OasContext } from '@kubb/renderer-jsx'
 
 /**
  * @deprecated use schemaNode or operationNode instead
  */
 export function useOas(): Oas {
-  const { meta } = useFabric<{ oas: Oas }>()
-
-  return meta.oas
+  return inject(OasContext) as Oas
 }

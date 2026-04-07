@@ -11,21 +11,25 @@ import type { ApiResponse } from "./ApiResponse.ts";
 */
 export type UploadFilePathPetId = number;
 
+
 /**
  * @description Additional Metadata
  * @type string | undefined
 */
 export type UploadFileQueryAdditionalMetadata = string | undefined;
 
+
 /**
  * @type object
 */
 export type UploadFileStatus200 = ApiResponse;
 
+
 /**
  * @type string | undefined
 */
 export type UploadFileData = Blob | undefined;
+
 
 /**
  * @type object
@@ -51,12 +55,14 @@ export type UploadFileRequestConfig = {
     url: `/pet/${string}/uploadImage`;
 };
 
+
 /**
  * @type object
 */
 export type UploadFileResponses = {
     "200": UploadFileStatus200;
 };
+
 
 /**
  * @description Union of all possible responses

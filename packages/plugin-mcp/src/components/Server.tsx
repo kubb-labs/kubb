@@ -1,8 +1,8 @@
 import { caseParams, createFunctionParameter, createFunctionParameters, createParameterGroup } from '@kubb/ast'
 import type { FileNode, OperationNode } from '@kubb/ast/types'
 import { functionPrinter } from '@kubb/plugin-ts'
-import { Const, File, Function } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { Const, File, Function } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PluginMcp } from '../types.ts'
 import type { ZodParam } from '../utils.ts'
 import { zodExprFromSchemaNode, zodGroupExpr } from '../utils.ts'
@@ -57,7 +57,7 @@ type Props = {
 
 const keysPrinter = functionPrinter({ mode: 'keys' })
 
-export function Server({ name, serverName, serverVersion, paramsCasing, operations }: Props): FabricReactNode {
+export function Server({ name, serverName, serverVersion, paramsCasing, operations }: Props): KubbReactNode {
   return (
     <File.Source name={name} isExportable isIndexable>
       <Const name={'server'} export>

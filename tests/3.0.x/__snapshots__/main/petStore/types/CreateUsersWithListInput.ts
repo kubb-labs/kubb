@@ -11,18 +11,22 @@ import type { User } from "./User.ts";
 */
 export type CreateUsersWithListInput200 = User;
 
+
 /**
  * @description successful operation
  * @type any
 */
 export type CreateUsersWithListInputError = any;
 
+
 /**
  * @type array | undefined
 */
 export type CreateUsersWithListInputMutationRequest = User[] | undefined;
 
+
 export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200;
+
 
 /**
  * @type object

@@ -8,7 +8,9 @@ export const variant2CategoryEnum = {
     lowercase: "lowercase"
 } as const;
 
+
 export type Variant2CategoryEnumKey = (typeof variant2CategoryEnum)[keyof typeof variant2CategoryEnum];
+
 
 /**
  * @type object

@@ -14,7 +14,6 @@ export function getUploadFileUrl(petId: UploadFilePathPetId) {
  */
 export async function uploadFile(petId: UploadFilePathPetId, data?: UploadFileData, config: Partial<RequestConfig<UploadFileData>> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
-
   const requestData = data
   const formData = buildFormData(requestData)
   const res = await request<UploadFileResponse, ResponseErrorConfig<Error>, UploadFileData>({

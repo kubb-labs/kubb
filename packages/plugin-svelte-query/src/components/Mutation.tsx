@@ -1,9 +1,11 @@
+import type { Params } from '@kubb/core'
+import { FunctionParams } from '@kubb/core'
 import { isOptional, type Operation } from '@kubb/oas'
 import { ClientLegacy as Client } from '@kubb/plugin-client'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { FabricReactNode, Params } from '@kubb/react-fabric/types'
+import { File, Function } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PluginSvelteQuery } from '../types.ts'
 import { MutationKey } from './MutationKey.tsx'
 
@@ -81,7 +83,7 @@ export function Mutation({
   typeSchemas,
   operation,
   mutationKeyName,
-}: Props): FabricReactNode {
+}: Props): KubbReactNode {
   const mutationKeyParams = MutationKey.getParams({
     pathParamsType,
     typeSchemas,

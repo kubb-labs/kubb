@@ -1,6 +1,7 @@
+import { FunctionParams } from '@kubb/core'
 import type { OasTypes, Operation } from '@kubb/oas'
-import { File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { File, Function } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 
 type Props = {
   typeName: string
@@ -9,7 +10,7 @@ type Props = {
   statusCode: number
 }
 
-export function Response({ name, typeName, operation, statusCode }: Props): FabricReactNode {
+export function Response({ name, typeName, operation, statusCode }: Props): KubbReactNode {
   const responseObject = operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject
   const contentType = Object.keys(responseObject.content || {})?.[0]
 

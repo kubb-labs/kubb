@@ -10,21 +10,25 @@
 */
 export type LoginUserQueryUsername = string | undefined;
 
+
 /**
  * @description The password for login in clear text
  * @type string | undefined
 */
 export type LoginUserQueryPassword = string | undefined;
 
+
 /**
  * @type string
 */
 export type LoginUserStatus200 = string;
 
+
 /**
  * @type any
 */
 export type LoginUserStatus400 = any;
+
 
 /**
  * @type object
@@ -46,6 +50,7 @@ export type LoginUserRequestConfig = {
     url: "/user/login";
 };
 
+
 /**
  * @type object
 */
@@ -53,6 +58,7 @@ export type LoginUserResponses = {
     "200": LoginUserStatus200;
     "400": LoginUserStatus400;
 };
+
 
 /**
  * @description Union of all possible responses

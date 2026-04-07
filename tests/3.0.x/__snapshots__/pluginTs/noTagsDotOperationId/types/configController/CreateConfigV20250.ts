@@ -11,10 +11,12 @@ import type { ConfigCreate } from "../ConfigCreate.ts";
 */
 export type CreateConfigV20250Status201 = Config;
 
+
 /**
  * @type object
 */
 export type CreateConfigV20250Data = ConfigCreate;
+
 
 /**
  * @type object
@@ -30,12 +32,14 @@ export type CreateConfigV20250RequestConfig = {
     url: "/config";
 };
 
+
 /**
  * @type object
 */
 export type CreateConfigV20250Responses = {
     "201": CreateConfigV20250Status201;
 };
+
 
 /**
  * @description Union of all possible responses

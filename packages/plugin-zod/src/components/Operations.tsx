@@ -1,7 +1,7 @@
 import { stringifyObject } from '@internals/utils'
 import type { OperationNode } from '@kubb/ast/types'
-import { Const, File, Type } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { Const, File, Type } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 
 type SchemaNames = {
   request: string | undefined
@@ -19,7 +19,7 @@ type Props = {
   operations: Array<{ node: OperationNode; data: SchemaNames }>
 }
 
-export function Operations({ name, operations }: Props): FabricReactNode {
+export function Operations({ name, operations }: Props): KubbReactNode {
   const operationsJSON = operations.reduce<Record<string, unknown>>(
     (prev, acc) => {
       prev[`"${acc.node.operationId}"`] = acc.data

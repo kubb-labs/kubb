@@ -1,10 +1,8 @@
-import { useFabric } from '@kubb/react-fabric'
+import { inject, KubbContext } from '@kubb/renderer-jsx'
 
 /**
  * @deprecated use `mode` from the generator component props instead
  */
 export function useMode(): 'single' | 'split' {
-  const { meta } = useFabric<{ mode: 'single' | 'split' }>()
-
-  return meta.mode
+  return inject(KubbContext)!.mode
 }

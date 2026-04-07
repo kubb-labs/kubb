@@ -21,9 +21,7 @@ export async function createUsersWithListInput(
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
-
   const requestData = createUsersWithListInputMutationRequest.parse(data)
-
   const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
     url: `/user/createWithList`,

@@ -10,7 +10,9 @@
 */
 export type LogoutUserError = any;
 
+
 export type LogoutUserQueryResponse = any;
+
 
 /**
  * @type object

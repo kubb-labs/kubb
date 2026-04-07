@@ -11,20 +11,24 @@ import type { User } from "./User.ts";
 */
 export type GetUserByNamePathUsername = string;
 
+
 /**
  * @type object
 */
 export type GetUserByNameStatus200 = User;
+
 
 /**
  * @type any
 */
 export type GetUserByNameStatus400 = any;
 
+
 /**
  * @type any
 */
 export type GetUserByNameStatus404 = any;
+
 
 /**
  * @type object
@@ -45,6 +49,7 @@ export type GetUserByNameRequestConfig = {
     url: `/user/${string}`;
 };
 
+
 /**
  * @type object
 */
@@ -53,6 +58,7 @@ export type GetUserByNameResponses = {
     "400": GetUserByNameStatus400;
     "404": GetUserByNameStatus404;
 };
+
 
 /**
  * @description Union of all possible responses

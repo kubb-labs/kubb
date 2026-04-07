@@ -16,11 +16,13 @@ export type GetUserByNamePathParams = {
     username: string;
 };
 
+
 /**
  * @description successful operation
  * @type object
 */
 export type GetUserByName200 = User;
+
 
 /**
  * @description Invalid username supplied
@@ -28,13 +30,16 @@ export type GetUserByName200 = User;
 */
 export type GetUserByName400 = any;
 
+
 /**
  * @description User not found
  * @type any
 */
 export type GetUserByName404 = any;
 
+
 export type GetUserByNameQueryResponse = GetUserByName200;
+
 
 /**
  * @type object

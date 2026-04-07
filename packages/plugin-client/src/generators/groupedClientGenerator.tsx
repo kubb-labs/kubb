@@ -1,7 +1,7 @@
 import { camelCase } from '@internals/utils'
 import type { FileNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
-import { File, Function } from '@kubb/react-fabric'
+import { File, Function } from '@kubb/renderer-jsx'
 import type { PluginClient } from '../types'
 
 export const groupedClientGenerator = defineGenerator<PluginClient>({

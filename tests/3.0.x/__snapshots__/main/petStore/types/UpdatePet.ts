@@ -11,11 +11,13 @@ import type { Pet } from "./Pet.ts";
 */
 export type UpdatePet200 = Pet;
 
+
 /**
  * @description Invalid ID supplied
  * @type any
 */
 export type UpdatePet400 = any;
+
 
 /**
  * @description Pet not found
@@ -23,11 +25,13 @@ export type UpdatePet400 = any;
 */
 export type UpdatePet404 = any;
 
+
 /**
  * @description Validation exception
  * @type any
 */
 export type UpdatePet405 = any;
+
 
 /**
  * @description Update an existent pet in the store
@@ -35,7 +39,9 @@ export type UpdatePet405 = any;
 */
 export type UpdatePetMutationRequest = Pet;
 
+
 export type UpdatePetMutationResponse = UpdatePet200;
+
 
 /**
  * @type object

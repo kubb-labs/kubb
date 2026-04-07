@@ -212,7 +212,7 @@ function indentLines(text: string, spaces = 2): string {
 /**
  * Converts a {@link ConstNode} to a TypeScript `const` declaration string.
  *
- * Mirrors the `Const` component from `@kubb/react-fabric`.
+ * Mirrors the `Const` component from `@kubb/renderer-jsx`.
  *
  * @example
  * ```ts
@@ -250,7 +250,7 @@ export function printConst(node: ConstNode): string {
 /**
  * Converts a {@link TypeNode} to a TypeScript `type` alias declaration string.
  *
- * Mirrors the `Type` component from `@kubb/react-fabric`.
+ * Mirrors the `Type` component from `@kubb/renderer-jsx`.
  *
  * @example
  * ```ts
@@ -278,7 +278,7 @@ export function printType(node: TypeNode): string {
 /**
  * Converts a {@link FunctionNode} to a TypeScript `function` declaration string.
  *
- * Mirrors the `Function` component from `@kubb/react-fabric`.
+ * Mirrors the `Function` component from `@kubb/renderer-jsx`.
  *
  * @example
  * ```ts
@@ -326,7 +326,7 @@ export function printFunction(node: FunctionNode): string {
 /**
  * Converts an {@link ArrowFunctionNode} to a TypeScript arrow function declaration string.
  *
- * Mirrors the `Function.Arrow` component from `@kubb/react-fabric`.
+ * Mirrors the `Function.Arrow` component from `@kubb/renderer-jsx`.
  *
  * @example Multi-line arrow function
  * ```ts

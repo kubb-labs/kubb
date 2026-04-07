@@ -1,6 +1,4 @@
 import path, { resolve } from 'node:path'
-import { FileProcessor } from '@kubb/react-fabric'
-import { typescriptParser } from '@kubb/react-fabric/parsers'
 import type { Options } from 'prettier'
 import { format as prettierFormat } from 'prettier'
 import pluginTypescript from 'prettier/plugins/typescript'
@@ -21,7 +19,9 @@ import type {
 } from '../packages/core/src'
 import { getMode } from '../packages/core/src'
 import { FileManager } from '../packages/core/src/FileManager.ts'
+import { FileProcessor } from '../packages/core/src/FileProcessor.ts'
 import { applyHookResult } from '../packages/core/src/renderNode'
+import { parserTs } from '../packages/parser-ts/src/index.ts'
 
 const formatOptions: Options = {
   tabWidth: 2,
@@ -153,7 +153,7 @@ export async function matchFiles(files: Array<FileNode> | undefined, pre?: strin
 
   const fileProcessor = new FileProcessor()
   const parsers = new Map<`.${string}`, any>()
-  parsers.set('.ts', typescriptParser)
+  parsers.set('.ts', parserTs)
 
   const processed = new Map<string, string>()
 

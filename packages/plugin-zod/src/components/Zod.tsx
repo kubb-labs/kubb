@@ -1,7 +1,7 @@
 import type { Printer } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
-import { Const, File, Type } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { Const, File, Type } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PrinterZodFactory } from '../printers/printerZod.ts'
 import type { PrinterZodMiniFactory } from '../printers/printerZodMini.ts'
 
@@ -17,7 +17,7 @@ type Props = {
   inferTypeName?: string
 }
 
-export function Zod({ name, node, printer, inferTypeName }: Props): FabricReactNode {
+export function Zod({ name, node, printer, inferTypeName }: Props): KubbReactNode {
   const output = printer.print(node)
 
   if (!output) {

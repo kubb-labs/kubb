@@ -11,7 +11,9 @@ export const findPetsByStatusQueryParamsStatusEnum = {
     sold: "sold"
 } as const;
 
+
 export type FindPetsByStatusQueryParamsStatusEnumKey = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum];
+
 
 /**
  * @type object
@@ -25,11 +27,13 @@ export type FindPetsByStatusQueryParams = {
     status?: FindPetsByStatusQueryParamsStatusEnumKey;
 };
 
+
 /**
  * @description successful operation
  * @type array
 */
 export type FindPetsByStatus200 = Pet[];
+
 
 /**
  * @description Invalid status value
@@ -37,7 +41,9 @@ export type FindPetsByStatus200 = Pet[];
 */
 export type FindPetsByStatus400 = any;
 
+
 export type FindPetsByStatusQueryResponse = FindPetsByStatus200;
+
 
 /**
  * @type object

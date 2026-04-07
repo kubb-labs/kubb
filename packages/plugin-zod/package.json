@@ -65,7 +65,7 @@
   "dependencies": {
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/react-fabric": "catalog:",
+    "@kubb/renderer-jsx": "workspace:*",
     "remeda": "catalog:"
   },
   "devDependencies": {
@@ -79,5 +79,8 @@
     "registry": "https://registry.npmjs.org/"
   },
   "main": "./dist/index.cjs",
-  "module": "./dist/index.js"
+  "module": "./dist/index.js",
+  "peerDependencies": {
+    "@kubb/renderer-jsx": "workspace:*"
+  }
 }

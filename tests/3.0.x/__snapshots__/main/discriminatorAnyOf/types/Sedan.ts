@@ -9,7 +9,9 @@ export const typeEnum = {
     Sedan: "Sedan"
 } as const;
 
+
 export type TypeEnumKey = (typeof typeEnum)[keyof typeof typeEnum];
+
 
 export type Sedan = (Vehicle & {
     /**

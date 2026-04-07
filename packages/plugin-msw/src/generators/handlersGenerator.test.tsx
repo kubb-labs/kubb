@@ -65,6 +65,8 @@ describe('handlersGenerator operations', async () => {
       {
         config: { root: '.', output: { path: 'test' } } as Config,
         driver: mockedPluginDriver,
+        oas,
+        mode: 'split',
         generator,
         Component: handlersGenerator.Operations,
         plugin,

@@ -3,7 +3,7 @@ import type { Operation } from '@kubb/oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
-import { File, Type } from '@kubb/react-fabric'
+import { File, Type } from '@kubb/renderer-jsx'
 import { difference } from 'remeda'
 import type { PluginReactQuery } from '../types'
 

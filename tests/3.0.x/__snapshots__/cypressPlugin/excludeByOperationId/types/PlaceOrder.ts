@@ -10,15 +10,18 @@ import type { Order } from "./Order.ts";
 */
 export type PlaceOrderStatus200 = Order;
 
+
 /**
  * @type any
 */
 export type PlaceOrderStatus405 = any;
 
+
 /**
  * @type object | undefined
 */
 export type PlaceOrderData = Order | undefined;
+
 
 /**
  * @type object
@@ -34,6 +37,7 @@ export type PlaceOrderRequestConfig = {
     url: "/store/order";
 };
 
+
 /**
  * @type object
 */
@@ -41,6 +45,7 @@ export type PlaceOrderResponses = {
     "200": PlaceOrderStatus200;
     "405": PlaceOrderStatus405;
 };
+
 
 /**
  * @description Union of all possible responses

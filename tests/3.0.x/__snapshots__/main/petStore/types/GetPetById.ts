@@ -16,11 +16,13 @@ export type GetPetByIdPathParams = {
     petId: number;
 };
 
+
 /**
  * @description successful operation
  * @type object
 */
 export type GetPetById200 = Pet;
+
 
 /**
  * @description Invalid ID supplied
@@ -28,13 +30,16 @@ export type GetPetById200 = Pet;
 */
 export type GetPetById400 = any;
 
+
 /**
  * @description Pet not found
  * @type any
 */
 export type GetPetById404 = any;
 
+
 export type GetPetByIdQueryResponse = GetPetById200;
+
 
 /**
  * @type object

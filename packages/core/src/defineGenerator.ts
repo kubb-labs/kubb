@@ -1,6 +1,6 @@
 import type { PossiblePromise } from '@internals/utils'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast/types'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import { applyHookResult } from './renderNode.tsx'
 import type { GeneratorContext, PluginFactoryOptions } from './types.ts'
 
@@ -38,11 +38,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    * `this` is the parent plugin's context with `adapter` and `inputNode` guaranteed present.
    * `options` contains the per-node resolved options (after exclude/include/override).
    */
-  schema?: (
-    this: GeneratorContext<TOptions>,
-    node: SchemaNode,
-    options: TOptions['resolvedOptions'],
-  ) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
+  schema?: (this: GeneratorContext<TOptions>, node: SchemaNode, options: TOptions['resolvedOptions']) => PossiblePromise<KubbReactNode | Array<FileNode> | void>
   /**
    * Called for each operation node in the AST walk.
    * `this` is the parent plugin's context with `adapter` and `inputNode` guaranteed present.
@@ -51,7 +47,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
     this: GeneratorContext<TOptions>,
     node: OperationNode,
     options: TOptions['resolvedOptions'],
-  ) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
+  ) => PossiblePromise<KubbReactNode | Array<FileNode> | void>
   /**
    * Called once after all operations have been walked.
    * `this` is the parent plugin's context with `adapter` and `inputNode` guaranteed present.
@@ -60,7 +56,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
     this: GeneratorContext<TOptions>,
     nodes: Array<OperationNode>,
     options: TOptions['resolvedOptions'],
-  ) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
+  ) => PossiblePromise<KubbReactNode | Array<FileNode> | void>
 }
 
 /**

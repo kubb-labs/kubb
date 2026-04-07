@@ -1381,6 +1381,8 @@ export class SchemaGenerator<
             {
               config: this.context.driver.config,
               driver: this.context.driver,
+              oas: this.context.oas,
+              mode: this.context.mode,
               Component: v1Generator.Schema,
               generator: this,
               plugin: {

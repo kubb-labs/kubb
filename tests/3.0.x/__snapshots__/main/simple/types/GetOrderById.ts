@@ -16,11 +16,13 @@ export type GetOrderByIdPathParams = {
     orderId: number;
 };
 
+
 /**
  * @description successful operation
  * @type object
 */
 export type GetOrderById200 = Order;
+
 
 /**
  * @description Invalid ID supplied
@@ -28,13 +30,16 @@ export type GetOrderById200 = Order;
 */
 export type GetOrderById400 = any;
 
+
 /**
  * @description Order not found
  * @type any
 */
 export type GetOrderById404 = any;
 
+
 export type GetOrderByIdQueryResponse = GetOrderById200;
+
 
 /**
  * @type object

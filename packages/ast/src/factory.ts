@@ -4,6 +4,7 @@ import { trimExtName } from '@internals/utils'
 import type { InferSchemaNode } from './infer.ts'
 import type {
   ArrowFunctionNode,
+  CodeNode,
   ConstNode,
   ExportNode,
   FileNode,
@@ -516,6 +517,30 @@ type UserFileNode<TMeta extends object = object> = Omit<FileNode<TMeta>, 'kind' 
  * // file.extname = '.ts'
  * ```
  */
+/**
+ * Recursively extract all string content embedded in a CodeNode tree.
+ * Includes template-literal bodies in `nodes` as well as string attribute
+ * fields (`params`, `generics`, `returnType`, `type`) that may reference
+ * identifiers needing imports.
+ */
+function extractStringsFromNodes(nodes: Array<CodeNode | string> | undefined): string {
+  if (!nodes?.length) return ''
+  return nodes
+    .map((node) => {
+      if (typeof node === 'string') return node
+      const parts: string[] = []
+      if (node.params) parts.push(node.params)
+      if (node.generics) parts.push(Array.isArray(node.generics) ? node.generics.join(', ') : node.generics)
+      if (node.returnType) parts.push(node.returnType)
+      if ('type' in node && typeof node.type === 'string') parts.push(node.type)
+      const nested = extractStringsFromNodes((node as CodeNode).nodes)
+      if (nested) parts.push(nested)
+      return parts.join('\n')
+    })
+    .filter(Boolean)
+    .join('\n')
+}
+
 export function createFile<TMeta extends object = object>(input: UserFileNode<TMeta>): FileNode<TMeta> {
   const rawExtname = path.extname(input.baseName)
   // Handle dotfile basename like '.ts' where path.extname returns ''
@@ -524,7 +549,12 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
     throw new Error(`No extname found for ${input.baseName}`)
   }
 
-  const source = (input.sources ?? []).map((item) => item.value).join('\n\n')
+  const sourceFromValues = (input.sources ?? []).map((item) => item.value).filter(Boolean)
+  const sourceFromNodes = (input.sources ?? [])
+    .flatMap((item) => item.nodes ?? [])
+    .map((node) => extractStringsFromNodes([node]))
+    .filter(Boolean)
+  const source = [...sourceFromValues, ...sourceFromNodes].join('\n\n')
   const resolvedExports = input.exports?.length ? combineExports(input.exports) : []
   const resolvedImports = input.imports?.length ? combineImports(input.imports, resolvedExports, source || undefined) : []
   const resolvedSources = input.sources?.length ? combineSources(input.sources) : []
@@ -545,7 +575,7 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
 /**
  * Creates a `ConstNode` representing a TypeScript `const` declaration.
  *
- * Mirrors the `Const` component from `@kubb/react-fabric`.
+ * Mirrors the `Const` component from `@kubb/renderer-jsx`.
  * The component's `children` are represented as `nodes`.
  *
  * @example Simple constant
@@ -577,7 +607,7 @@ export function createConst(props: Omit<ConstNode, 'kind'>): ConstNode {
 /**
  * Creates a `TypeNode` representing a TypeScript `type` alias declaration.
  *
- * Mirrors the `Type` component from `@kubb/react-fabric`.
+ * Mirrors the `Type` component from `@kubb/renderer-jsx`.
  * The component's `children` are represented as `nodes`.
  *
  * @example Simple type alias
@@ -603,7 +633,7 @@ export function createType(props: Omit<TypeNode, 'kind'>): TypeNode {
 /**
  * Creates a `FunctionNode` representing a TypeScript `function` declaration.
  *
- * Mirrors the `Function` component from `@kubb/react-fabric`.
+ * Mirrors the `Function` component from `@kubb/renderer-jsx`.
  * The component's `children` are represented as `nodes`.
  *
  * @example Simple function
@@ -637,7 +667,7 @@ export function createFunction(props: Omit<FunctionNode, 'kind'>): FunctionNode 
 /**
  * Creates an `ArrowFunctionNode` representing a TypeScript arrow function.
  *
- * Mirrors the `Function.Arrow` component from `@kubb/react-fabric`.
+ * Mirrors the `Function.Arrow` component from `@kubb/renderer-jsx`.
  * The component's `children` are represented as `nodes`.
  *
  * @example Simple arrow function

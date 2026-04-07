@@ -11,11 +11,13 @@ import type { Item } from "./Item.ts";
 */
 export type GetItemPathId = number;
 
+
 /**
  * @example test
  * @type object
 */
 export type GetItemStatus200 = Item;
+
 
 /**
  * @type object
@@ -36,12 +38,14 @@ export type GetItemRequestConfig = {
     url: `/items/${string}`;
 };
 
+
 /**
  * @type object
 */
 export type GetItemResponses = {
     "200": GetItemStatus200;
 };
+
 
 /**
  * @description Union of all possible responses

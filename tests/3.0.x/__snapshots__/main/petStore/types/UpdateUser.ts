@@ -16,11 +16,13 @@ export type UpdateUserPathParams = {
     username: string;
 };
 
+
 /**
  * @description successful operation
  * @type any
 */
 export type UpdateUserError = any;
+
 
 /**
  * @description Update an existent user in the store
@@ -28,7 +30,9 @@ export type UpdateUserError = any;
 */
 export type UpdateUserMutationRequest = User | undefined;
 
+
 export type UpdateUserMutationResponse = any;
+
 
 /**
  * @type object
