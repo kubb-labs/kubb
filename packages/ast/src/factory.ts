@@ -526,7 +526,7 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
 
   const source = (input.sources ?? []).map((item) => item.value).join('\n\n')
   const resolvedExports = input.exports?.length ? combineExports(input.exports) : []
-  const resolvedImports = input.imports?.length && source ? combineImports(input.imports, resolvedExports, source) : []
+  const resolvedImports = input.imports?.length ? combineImports(input.imports, resolvedExports, source || undefined) : []
   const resolvedSources = input.sources?.length ? combineSources(input.sources) : []
 
   return {

@@ -1,7 +1,68 @@
 import { createConst, createFunction, createSource, createType } from '@kubb/ast'
 import type { CodeNode, SourceNode } from '@kubb/ast/types'
 import { nodeNames } from '../dom.ts'
-import type { DOMElement, ElementNames } from '../types.ts'
+import type { DOMElement, DOMNode, ElementNames } from '../types.ts'
+
+/**
+ * Collect the text and nested AST-node children of a single kubb-* element.
+ * `#text` children become raw strings; nested kubb-function/const/type children
+ * become their respective {@link CodeNode}s. Other DOM elements are skipped.
+ */
+function collectChildNodes(element: DOMElement): Array<CodeNode | string> {
+  const result: Array<CodeNode | string> = []
+
+  for (const child of element.childNodes) {
+    if (!child) {
+      continue
+    }
+
+    if (child.nodeName === '#text') {
+      const text = (child as DOMNode<{ nodeName: '#text' }>).nodeValue
+      if (text && text.trim().length > 0) {
+        result.push(text)
+      }
+      continue
+    }
+
+    if (child.nodeName === 'kubb-function') {
+      const attrs = child.attributes
+      result.push(
+        createFunction({
+          name: attrs.get('name') as string,
+          params: attrs.get('params') as string | undefined,
+          export: attrs.get('export') as boolean | undefined,
+          default: attrs.get('default') as boolean | undefined,
+          async: attrs.get('async') as boolean | undefined,
+          generics: attrs.get('generics') as string | undefined,
+          returnType: attrs.get('returnType') as string | undefined,
+          nodes: collectChildNodes(child),
+        }),
+      )
+    } else if (child.nodeName === 'kubb-const') {
+      const attrs = child.attributes
+      result.push(
+        createConst({
+          name: attrs.get('name') as string,
+          type: attrs.get('type') as string | undefined,
+          export: attrs.get('export') as boolean | undefined,
+          asConst: attrs.get('asConst') as boolean | undefined,
+          nodes: collectChildNodes(child),
+        }),
+      )
+    } else if (child.nodeName === 'kubb-type') {
+      const attrs = child.attributes
+      result.push(
+        createType({
+          name: attrs.get('name') as string,
+          export: attrs.get('export') as boolean | undefined,
+          nodes: collectChildNodes(child),
+        }),
+      )
+    }
+  }
+
+  return result
+}
 
 /**
  * Walk a source DOM subtree and collect AST nodes from kubb-function, kubb-const,
@@ -28,6 +89,7 @@ function collectAstNodes(node: DOMElement): NonNullable<Array<CodeNode>> {
             async: attrs.get('async') as boolean | undefined,
             generics: attrs.get('generics') as string | undefined,
             returnType: attrs.get('returnType') as string | undefined,
+            nodes: collectChildNodes(child),
           }),
         )
       } else if (child.nodeName === 'kubb-const') {
@@ -38,6 +100,7 @@ function collectAstNodes(node: DOMElement): NonNullable<Array<CodeNode>> {
             type: attrs.get('type') as string | undefined,
             export: attrs.get('export') as boolean | undefined,
             asConst: attrs.get('asConst') as boolean | undefined,
+            nodes: collectChildNodes(child),
           }),
         )
       } else if (child.nodeName === 'kubb-type') {
@@ -46,6 +109,7 @@ function collectAstNodes(node: DOMElement): NonNullable<Array<CodeNode>> {
           createType({
             name: attrs.get('name') as string,
             export: attrs.get('export') as boolean | undefined,
+            nodes: collectChildNodes(child),
           }),
         )
       } else {
@@ -80,11 +144,8 @@ export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>
           isTypeOnly: (child.attributes.get('isTypeOnly') ?? false) as boolean,
           isExportable: (child.attributes.get('isExportable') ?? false) as boolean,
           isIndexable: (child.attributes.get('isIndexable') ?? false) as boolean,
+          nodes: astNodes,
         })
-
-        if (astNodes.length > 0) {
-          source.nodes = astNodes
-        }
 
         sources.add(source)
         continue

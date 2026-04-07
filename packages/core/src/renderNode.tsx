@@ -1,6 +1,7 @@
 import type { FileNode } from '@kubb/ast/types'
-import { createReactFabric, Fabric } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { createRenderer } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PluginDriver } from './PluginDriver.ts'
 
 /**
@@ -18,9 +19,18 @@ export async function applyHookResult(result: FabricReactNode | Array<FileNode> 
     return
   }
 
-  // Non-array truthy result is treated as a React element (FabricReactNode)
-  const fabricChild = createReactFabric()
-  await fabricChild.render(<Fabric>{result as FabricReactNode}</Fabric>)
-  driver.fileManager.upsert(...(fabricChild.files as unknown as Array<FileNode>))
-  fabricChild.unmount()
+  // // Non-array truthy result is treated as a React element (FabricReactNode)
+  // const fabricChild = createReactFabric()
+  // await fabricChild.render(<Fabric>{result as FabricReactNode}</Fabric>)
+  // driver.fileManager.upsert(...(fabricChild.files as unknown as Array<FileNode>))
+  // fabricChild.unmount()
+
+  const renderer = createRenderer()
+
+  // biome-ignore lint/complexity/noUselessFragments: not needed
+  await renderer.render(<>{result as KubbReactNode}</>)
+
+  console.log(JSON.stringify(renderer.files, null, 2))
+  driver.fileManager.upsert(...renderer.files)
+  renderer.unmount()
 }
