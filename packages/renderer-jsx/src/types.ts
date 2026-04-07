@@ -1,4 +1,4 @@
-import type { ConstNode, ExportNode, FileNode, FunctionNode, ImportNode, SourceNode, TypeNode } from '@kubb/ast/types'
+import type { ArrowFunctionNode, ConstNode, ExportNode, FileNode, FunctionNode, ImportNode, SourceNode, TypeNode } from '@kubb/ast/types'
 import type React from 'react'
 import type { JSX, ReactNode } from 'react'
 
@@ -84,6 +84,10 @@ export type KubbImportProps = Omit<ImportNode, 'kind'> & {}
 export type KubbExportProps = Omit<ExportNode, 'kind'> & {}
 
 export type KubbFunctionProps = Omit<FunctionNode, 'kind'> & {
+  children?: KubbReactNode
+}
+
+export type KubbArrowFunctionProps = Omit<ArrowFunctionNode, 'kind'> & {
   children?: KubbReactNode
 }
 

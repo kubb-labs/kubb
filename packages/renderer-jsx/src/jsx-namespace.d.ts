@@ -1,6 +1,7 @@
 import type React from 'react'
 
 import type {
+  KubbArrowFunctionProps,
   KubbConstProps,
   KubbExportProps,
   KubbFileProps,
@@ -36,6 +37,7 @@ export namespace JSX {
     'kubb-import': KubbImportProps
     'kubb-export': KubbExportProps
     'kubb-function': KubbFunctionProps
+    'kubb-arrow-function': KubbArrowFunctionProps
     'kubb-const': KubbConstProps
     'kubb-type': KubbTypeProps
     br: LineBreakProps
