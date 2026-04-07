@@ -11,24 +11,20 @@ import type { Pet } from "./Pet.ts";
 */
 export type GetPetByIdPathPetId = number;
 
-
 /**
  * @type object
 */
 export type GetPetByIdStatus200 = Pet;
-
 
 /**
  * @type any
 */
 export type GetPetByIdStatus400 = any;
 
-
 /**
  * @type any
 */
 export type GetPetByIdStatus404 = any;
-
 
 /**
  * @type object
@@ -49,7 +45,6 @@ export type GetPetByIdRequestConfig = {
     url: `/pet/${string}`;
 };
 
-
 /**
  * @type object
 */
@@ -58,7 +53,6 @@ export type GetPetByIdResponses = {
     "400": GetPetByIdStatus400;
     "404": GetPetByIdStatus404;
 };
-
 
 /**
  * @description Union of all possible responses

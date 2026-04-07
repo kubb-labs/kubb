@@ -11,9 +11,7 @@ import type { Order } from "./Order.ts";
 */
 export type CreateOrder201 = Order;
 
-
 export type CreateOrderMutationResponse = CreateOrder201;
-
 
 /**
  * @type object

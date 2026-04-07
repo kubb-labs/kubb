@@ -12,9 +12,7 @@ export const addPetRequestStatusEnum = {
     sold: "sold"
 } as const;
 
-
 export type AddPetRequestStatusEnumKey = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum];
-
 
 /**
  * @type object

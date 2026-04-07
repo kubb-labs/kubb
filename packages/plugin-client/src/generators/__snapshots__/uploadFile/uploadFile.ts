@@ -1,4 +1,5 @@
 /* eslint-disable no-alert, no-console */
+
 import type { Client, RequestConfig, ResponseErrorConfig } from './.kubb/fetch'
 import type { UploadFilePathPetId, UploadFileData, UploadFileResponse } from './UploadFile'
 import { buildFormData } from './.kubb/config'

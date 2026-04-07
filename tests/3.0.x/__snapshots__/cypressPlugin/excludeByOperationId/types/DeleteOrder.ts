@@ -3,25 +3,21 @@
 * Do not edit manually.
 */
 
-
 /**
  * @description ID of the order that needs to be deleted
  * @type integer
 */
 export type DeleteOrderPathOrderId = number;
 
-
 /**
  * @type any
 */
 export type DeleteOrderStatus400 = any;
 
-
 /**
  * @type any
 */
 export type DeleteOrderStatus404 = any;
-
 
 /**
  * @type object
@@ -42,7 +38,6 @@ export type DeleteOrderRequestConfig = {
     url: `/store/order/${string}`;
 };
 
-
 /**
  * @type object
 */
@@ -50,7 +45,6 @@ export type DeleteOrderResponses = {
     "400": DeleteOrderStatus400;
     "404": DeleteOrderStatus404;
 };
-
 
 /**
  * @description Union of all possible responses

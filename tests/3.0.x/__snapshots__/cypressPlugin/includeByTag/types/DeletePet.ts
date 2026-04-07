@@ -3,12 +3,10 @@
 * Do not edit manually.
 */
 
-
 /**
  * @type string | undefined
 */
 export type DeletePetHeaderApiKey = string | undefined;
-
 
 /**
  * @description Pet id to delete
@@ -16,12 +14,10 @@ export type DeletePetHeaderApiKey = string | undefined;
 */
 export type DeletePetPathPetId = number;
 
-
 /**
  * @type any
 */
 export type DeletePetStatus400 = any;
-
 
 /**
  * @type object
@@ -47,14 +43,12 @@ export type DeletePetRequestConfig = {
     url: `/pet/${string}`;
 };
 
-
 /**
  * @type object
 */
 export type DeletePetResponses = {
     "400": DeletePetStatus400;
 };
-
 
 /**
  * @description Union of all possible responses

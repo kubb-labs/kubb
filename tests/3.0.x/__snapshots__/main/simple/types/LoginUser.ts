@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 /**
  * @type object
 */
@@ -20,13 +19,11 @@ export type LoginUserQueryParams = {
     password?: string;
 };
 
-
 /**
  * @description successful operation
  * @type string
 */
 export type LoginUser200 = string;
-
 
 /**
  * @description Invalid username/password supplied
@@ -34,9 +31,7 @@ export type LoginUser200 = string;
 */
 export type LoginUser400 = any;
 
-
 export type LoginUserQueryResponse = LoginUser200;
-
 
 /**
  * @type object

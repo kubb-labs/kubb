@@ -430,7 +430,7 @@ export const parserTs: Parser = defineParser({
     for (const item of file.sources) {
       const sourceStr = printSource(item as SourceNode)
       if (sourceStr) {
-        sourceParts.push(sourceStr)
+        sourceParts.push(sourceStr.trimEnd())
       }
     }
     const source = sourceParts.join('\n\n')
@@ -465,7 +465,9 @@ export const parserTs: Parser = defineParser({
       )
     }
 
-    const parts = [file.banner, print(...importNodes, ...exportNodes), source, file.footer].filter((segment): segment is string => segment != null)
-    return parts.join('\n')
+    const parts = [file.banner, print(...importNodes, ...exportNodes), source, file.footer]
+      .filter((segment): segment is string => Boolean(segment))
+      .map((s) => s.trimEnd())
+    return parts.join('\n\n')
   },
 })

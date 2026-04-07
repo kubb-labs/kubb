@@ -11,19 +11,16 @@ import type { User } from "./User.ts";
 */
 export type UpdateUserPathUsername = string;
 
-
 /**
  * @type any
 */
 export type UpdateUserStatusDefault = any;
-
 
 /**
  * @description Update an existent user in the store
  * @type object | undefined
 */
 export type UpdateUserData = User | undefined;
-
 
 /**
  * @type object
@@ -44,14 +41,12 @@ export type UpdateUserRequestConfig = {
     url: `/user/${string}`;
 };
 
-
 /**
  * @type object
 */
 export type UpdateUserResponses = {
     default: UpdateUserStatusDefault;
 };
-
 
 /**
  * @description Union of all possible responses

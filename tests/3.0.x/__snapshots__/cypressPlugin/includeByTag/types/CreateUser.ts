@@ -10,13 +10,11 @@ import type { User } from "./User.ts";
 */
 export type CreateUserStatusDefault = User;
 
-
 /**
  * @description Created user object
  * @type object | undefined
 */
 export type CreateUserData = User | undefined;
-
 
 /**
  * @type object
@@ -32,14 +30,12 @@ export type CreateUserRequestConfig = {
     url: "/user";
 };
 
-
 /**
  * @type object
 */
 export type CreateUserResponses = {
     default: CreateUserStatusDefault;
 };
-
 
 /**
  * @description Union of all possible responses

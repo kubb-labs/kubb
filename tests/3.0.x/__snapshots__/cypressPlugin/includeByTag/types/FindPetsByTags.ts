@@ -11,18 +11,15 @@ import type { Pet } from "./Pet.ts";
 */
 export type FindPetsByTagsQueryTags = string[] | undefined;
 
-
 /**
  * @type array
 */
 export type FindPetsByTagsStatus200 = Pet[];
 
-
 /**
  * @type any
 */
 export type FindPetsByTagsStatus400 = any;
-
 
 /**
  * @type object
@@ -43,7 +40,6 @@ export type FindPetsByTagsRequestConfig = {
     url: "/pet/findByTags";
 };
 
-
 /**
  * @type object
 */
@@ -51,7 +47,6 @@ export type FindPetsByTagsResponses = {
     "200": FindPetsByTagsStatus200;
     "400": FindPetsByTagsStatus400;
 };
-
 
 /**
  * @description Union of all possible responses

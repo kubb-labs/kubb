@@ -3,25 +3,21 @@
 * Do not edit manually.
 */
 
-
 /**
  * @description The name that needs to be deleted
  * @type string
 */
 export type DeleteUserPathUsername = string;
 
-
 /**
  * @type any
 */
 export type DeleteUserStatus400 = any;
 
-
 /**
  * @type any
 */
 export type DeleteUserStatus404 = any;
-
 
 /**
  * @type object
@@ -42,7 +38,6 @@ export type DeleteUserRequestConfig = {
     url: `/user/${string}`;
 };
 
-
 /**
  * @type object
 */
@@ -50,7 +45,6 @@ export type DeleteUserResponses = {
     "400": DeleteUserStatus400;
     "404": DeleteUserStatus404;
 };
-
 
 /**
  * @description Union of all possible responses

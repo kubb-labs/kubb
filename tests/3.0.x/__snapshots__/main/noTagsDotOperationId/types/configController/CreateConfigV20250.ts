@@ -12,15 +12,12 @@ import type { ConfigCreate } from "../ConfigCreate.ts";
 */
 export type CreateConfigV20250201 = Config;
 
-
 /**
  * @type object
 */
 export type CreateConfigV20250MutationRequest = ConfigCreate;
 
-
 export type CreateConfigV20250MutationResponse = CreateConfigV20250201;
-
 
 /**
  * @type object

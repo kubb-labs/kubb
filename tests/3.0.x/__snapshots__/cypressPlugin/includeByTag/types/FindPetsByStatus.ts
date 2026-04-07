@@ -12,18 +12,15 @@ import type { Pet } from "./Pet.ts";
 */
 export type FindPetsByStatusQueryStatus = ("available" | "pending" | "sold") | undefined;
 
-
 /**
  * @type array
 */
 export type FindPetsByStatusStatus200 = Pet[];
 
-
 /**
  * @type any
 */
 export type FindPetsByStatusStatus400 = any;
-
 
 /**
  * @type object
@@ -44,7 +41,6 @@ export type FindPetsByStatusRequestConfig = {
     url: "/pet/findByStatus";
 };
 
-
 /**
  * @type object
 */
@@ -52,7 +48,6 @@ export type FindPetsByStatusResponses = {
     "200": FindPetsByStatusStatus200;
     "400": FindPetsByStatusStatus400;
 };
-
 
 /**
  * @description Union of all possible responses

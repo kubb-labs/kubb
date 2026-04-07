@@ -3,13 +3,11 @@
 * Do not edit manually.
 */
 
-
 /**
  * @description ID of pet that needs to be updated
  * @type integer
 */
 export type UpdatePetWithFormPathPetId = number;
-
 
 /**
  * @description Name of pet that needs to be updated
@@ -17,19 +15,16 @@ export type UpdatePetWithFormPathPetId = number;
 */
 export type UpdatePetWithFormQueryName = string | undefined;
 
-
 /**
  * @description Status of pet that needs to be updated
  * @type string | undefined
 */
 export type UpdatePetWithFormQueryStatus = string | undefined;
 
-
 /**
  * @type any
 */
 export type UpdatePetWithFormStatus405 = any;
-
 
 /**
  * @type object
@@ -56,14 +51,12 @@ export type UpdatePetWithFormRequestConfig = {
     url: `/pet/${string}`;
 };
 
-
 /**
  * @type object
 */
 export type UpdatePetWithFormResponses = {
     "405": UpdatePetWithFormStatus405;
 };
-
 
 /**
  * @description Union of all possible responses

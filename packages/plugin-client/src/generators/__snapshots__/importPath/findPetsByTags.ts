@@ -1,4 +1,5 @@
 /* eslint-disable no-alert, no-console */
+
 import fetch from 'axios'
 import type { FindPetsByTagsQueryTags, FindPetsByTagsQueryStatus, FindPetsByTagsResponse } from './FindPetsByTags'
 import type { Client, RequestConfig, ResponseErrorConfig } from 'axios'

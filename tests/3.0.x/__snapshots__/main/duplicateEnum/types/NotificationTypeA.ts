@@ -3,15 +3,12 @@
 * Do not edit manually.
 */
 
-
 export const notificationTypeAParamsChannelEnum = {
     public: "public",
     collaborators: "collaborators"
 } as const;
 
-
 export type NotificationTypeAParamsChannelEnumKey = (typeof notificationTypeAParamsChannelEnum)[keyof typeof notificationTypeAParamsChannelEnum];
-
 
 /**
  * @type object

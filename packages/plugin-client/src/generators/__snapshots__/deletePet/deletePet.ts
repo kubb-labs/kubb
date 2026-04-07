@@ -1,4 +1,5 @@
 /* eslint-disable no-alert, no-console */
+
 import type { Client, RequestConfig, ResponseErrorConfig } from './.kubb/fetch'
 import type { DeletePetPathPetId, DeletePetHeaderApiKey, DeletePetResponse } from './DeletePet'
 import { fetch } from './.kubb/fetch'

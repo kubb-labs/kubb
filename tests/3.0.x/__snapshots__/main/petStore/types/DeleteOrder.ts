@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 /**
  * @type object
 */
@@ -15,13 +14,11 @@ export type DeleteOrderPathParams = {
     orderId: number;
 };
 
-
 /**
  * @description Invalid ID supplied
  * @type any
 */
 export type DeleteOrder400 = any;
-
 
 /**
  * @description Order not found
@@ -29,9 +26,7 @@ export type DeleteOrder400 = any;
 */
 export type DeleteOrder404 = any;
 
-
 export type DeleteOrderMutationResponse = any;
-
 
 /**
  * @type object

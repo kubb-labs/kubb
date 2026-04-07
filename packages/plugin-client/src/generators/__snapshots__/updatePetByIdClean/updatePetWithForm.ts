@@ -1,4 +1,5 @@
 /* eslint-disable no-alert, no-console */
+
 import type { Client, RequestConfig, ResponseErrorConfig } from './.kubb/fetch'
 import type { UpdatePetWithFormPathPetId, UpdatePetWithFormData, UpdatePetWithFormResponse } from './UpdatePetWithForm'
 import { fetch } from './.kubb/fetch'

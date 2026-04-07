@@ -3,14 +3,12 @@
 * Do not edit manually.
 */
 
-
 /**
  * @type object
 */
 export type GetInventoryStatus200 = {
     [key: string]: number;
 };
-
 
 /**
  * @type object
@@ -26,14 +24,12 @@ export type GetInventoryRequestConfig = {
     url: "/store/inventory";
 };
 
-
 /**
  * @type object
 */
 export type GetInventoryResponses = {
     "200": GetInventoryStatus200;
 };
-
 
 /**
  * @description Union of all possible responses

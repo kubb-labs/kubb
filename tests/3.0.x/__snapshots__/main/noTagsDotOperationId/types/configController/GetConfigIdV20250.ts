@@ -15,16 +15,13 @@ export type GetConfigIdV20250PathParams = {
     config_id: string;
 };
 
-
 /**
  * @description Configuration response
  * @type object
 */
 export type GetConfigIdV20250200 = Config;
 
-
 export type GetConfigIdV20250QueryResponse = GetConfigIdV20250200;
-
 
 /**
  * @type object

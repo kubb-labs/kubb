@@ -3,16 +3,13 @@
 * Do not edit manually.
 */
 
-
 /**
  * @description successful operation
  * @type any
 */
 export type LogoutUserError = any;
 
-
 export type LogoutUserQueryResponse = any;
-
 
 /**
  * @type object

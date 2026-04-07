@@ -11,19 +11,16 @@ import type { Pet } from "./Pet.ts";
 */
 export type AddPetStatus200 = Pet;
 
-
 /**
  * @type any
 */
 export type AddPetStatus405 = any;
-
 
 /**
  * @description Create a new pet in the store
  * @type object
 */
 export type AddPetData = AddPetRequest;
-
 
 /**
  * @type object
@@ -39,7 +36,6 @@ export type AddPetRequestConfig = {
     url: "/pet";
 };
 
-
 /**
  * @type object
 */
@@ -47,7 +43,6 @@ export type AddPetResponses = {
     "200": AddPetStatus200;
     "405": AddPetStatus405;
 };
-
 
 /**
  * @description Union of all possible responses

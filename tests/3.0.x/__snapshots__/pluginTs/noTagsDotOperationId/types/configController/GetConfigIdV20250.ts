@@ -10,12 +10,10 @@ import type { Config } from "../Config.ts";
 */
 export type GetConfigIdV20250PathConfigId = string;
 
-
 /**
  * @type object
 */
 export type GetConfigIdV20250Status200 = Config;
-
 
 /**
  * @type object
@@ -36,14 +34,12 @@ export type GetConfigIdV20250RequestConfig = {
     url: `/config/${string}`;
 };
 
-
 /**
  * @type object
 */
 export type GetConfigIdV20250Responses = {
     "200": GetConfigIdV20250Status200;
 };
-
 
 /**
  * @description Union of all possible responses

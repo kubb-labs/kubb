@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 /**
  * @type object
 */
@@ -14,7 +13,6 @@ export type UpdatePetWithFormPathParams = {
     */
     petId: number;
 };
-
 
 /**
  * @type object
@@ -32,16 +30,13 @@ export type UpdatePetWithFormQueryParams = {
     status?: string;
 };
 
-
 /**
  * @description Invalid input
  * @type any
 */
 export type UpdatePetWithForm405 = any;
 
-
 export type UpdatePetWithFormMutationResponse = any;
-
 
 /**
  * @type object

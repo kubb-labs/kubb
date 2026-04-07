@@ -12,13 +12,11 @@ import type { Pet } from "./Pet.ts";
 */
 export type AddPet200 = Pet;
 
-
 /**
  * @description Invalid input
  * @type any
 */
 export type AddPet405 = any;
-
 
 /**
  * @description Create a new pet in the store
@@ -26,9 +24,7 @@ export type AddPet405 = any;
 */
 export type AddPetMutationRequest = AddPetRequest;
 
-
 export type AddPetMutationResponse = AddPet200;
-
 
 /**
  * @type object

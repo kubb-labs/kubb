@@ -3,7 +3,6 @@
 * Do not edit manually.
 */
 
-
 /**
  * @type object
 */
@@ -15,7 +14,6 @@ export type DeletePetPathParams = {
     petId: number;
 };
 
-
 /**
  * @type object
 */
@@ -26,16 +24,13 @@ export type DeletePetHeaderParams = {
     api_key?: string;
 };
 
-
 /**
  * @description Invalid pet value
  * @type any
 */
 export type DeletePet400 = any;
 
-
 export type DeletePetMutationResponse = any;
-
 
 /**
  * @type object

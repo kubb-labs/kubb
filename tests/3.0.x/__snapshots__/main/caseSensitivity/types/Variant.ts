@@ -3,14 +3,11 @@
 * Do not edit manually.
 */
 
-
 export const variantTypeEnum = {
     uppercase: "uppercase"
 } as const;
 
-
 export type VariantTypeEnumKey = (typeof variantTypeEnum)[keyof typeof variantTypeEnum];
-
 
 /**
  * @type object
