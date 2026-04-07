@@ -32,8 +32,8 @@ describe('zodExprFromSchemaNode', () => {
     const schema = createSchema({
       type: 'enum',
       namedEnumValues: [
-        { name: 'PENDING', value: 'PENDING', format: 'string' },
-        { name: 'APPROVED', value: 'APPROVED', format: 'string' },
+        { name: 'PENDING', value: 'PENDING', primitive: 'string' },
+        { name: 'APPROVED', value: 'APPROVED', primitive: 'string' },
       ],
     })
     expect(zodExprFromSchemaNode(schema)).toBe('z.enum(["PENDING", "APPROVED"])')
@@ -42,10 +42,9 @@ describe('zodExprFromSchemaNode', () => {
   test('enum with number values → z.union([z.literal(...)])', () => {
     const schema = createSchema({
       type: 'enum',
-      enumType: 'number',
       namedEnumValues: [
-        { name: '1', value: 1, format: 'number' },
-        { name: '2', value: 2, format: 'number' },
+        { name: '1', value: 1, primitive: 'number' },
+        { name: '2', value: 2, primitive: 'number' },
       ],
     })
     expect(zodExprFromSchemaNode(schema)).toBe('z.union([z.literal(1), z.literal(2)])')
@@ -54,10 +53,9 @@ describe('zodExprFromSchemaNode', () => {
   test('enum with boolean values → z.union([z.literal(...)])', () => {
     const schema = createSchema({
       type: 'enum',
-      enumType: 'boolean',
       namedEnumValues: [
-        { name: 'true', value: true, format: 'boolean' },
-        { name: 'false', value: false, format: 'boolean' },
+        { name: 'true', value: true, primitive: 'boolean' },
+        { name: 'false', value: false, primitive: 'boolean' },
       ],
     })
     expect(zodExprFromSchemaNode(schema)).toBe('z.union([z.literal(true), z.literal(false)])')
