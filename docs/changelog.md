@@ -6,6 +6,29 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.34
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-mcp`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-mcp)
+
+-   [#2998](https://github.com/kubb-labs/kubb/pull/2998) [`f5099b8`](https://github.com/kubb-labs/kubb/commit/f5099b87f8cf603e70bc15568af2c80f2883661b) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fixed issue where enum path parameters were incorrectly generating `z.string()` instead of `z.enum([...])` in `inputSchema`.
+
+    When an OpenAPI path parameter had an `enum` constraint, the `zodExprFromSchemaNode` function defaulted to `z.string()`. This has been corrected to generate `z.enum(["VALUE1", "VALUE2"])` for string enums. Numeric and boolean enums now generate `z.union([z.literal(...)])`. 
+
+::: code-group
+```typescript [Before]
+// Incorrectly generated
+z.string()
+```
+
+```typescript [After]
+// Correctly generates a Zod enum
+z.enum(["VALUE1", "VALUE2"])
+```
+:::
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
