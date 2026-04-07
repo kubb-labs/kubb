@@ -30,7 +30,17 @@ export const example3 = createReactGenerator<PluginOas>({
           <Function name={componentName} export>
             <Const name="href">{`'${href}'`}</Const>
             <br />
-            {`return <a href={href}>Open ${operation.method}</a>`}
+            <br />
+            return
+            <div className="test">
+              hello world
+              {`
+              <a href={href}>Open ${operation.method}</a>
+              `}
+              <button type={'button'} onClick={(e) => console.log(e)}>
+                Submit
+              </button>
+            </div>
           </Function>
         </File.Source>
       </File>
