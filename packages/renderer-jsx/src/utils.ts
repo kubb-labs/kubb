@@ -5,8 +5,10 @@ import type { DOMElement, DOMNode, ElementNames } from './types.ts'
 
 /**
  * Collect the text and nested AST-node children of a single kubb-* element.
- * `#text` children become raw strings; nested kubb-function/const/type children
- * become their respective {@link CodeNode}s. Other DOM elements are skipped.
+ *
+ * `#text` children become raw {@link TextNode}s; nested `kubb-function`, `kubb-const`,
+ * `kubb-type`, and similar elements are converted into their respective {@link CodeNode}s.
+ * Any unrecognised DOM elements are silently skipped.
  */
 function collectChildNodes(element: DOMElement): Array<CodeNode> {
   const result: Array<CodeNode> = []
@@ -94,6 +96,17 @@ function collectChildNodes(element: DOMElement): Array<CodeNode> {
   return result
 }
 
+/**
+ * Traverse `node` and collect all `<kubb-source>` elements into a `Set<SourceNode>`.
+ *
+ * Elements whose `nodeName` is in `ignores` are skipped entirely (including their subtrees).
+ * This is used to collect source blocks from a file node while excluding import/export subtrees.
+ *
+ * @example Collect sources while ignoring export and import elements
+ * ```ts
+ * const sources = squashSourceNodes(fileElement, ['kubb-export', 'kubb-import'])
+ * ```
+ */
 export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>): Set<SourceNode> {
   const ignoreSet = new Set(ignores)
   const sources = new Set<SourceNode>()
@@ -206,6 +219,9 @@ export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>
   return sources
 }
 
+/**
+ * Traverse `node` and collect all `<kubb-export>` elements into a `Set<ExportNode>`.
+ */
 export function squashExportNodes(node: DOMElement): Set<ExportNode> {
   const exports = new Set<ExportNode>()
 
@@ -234,6 +250,9 @@ export function squashExportNodes(node: DOMElement): Set<ExportNode> {
   return exports
 }
 
+/**
+ * Traverse `node` and collect all `<kubb-import>` elements into a `Set<ImportNode>`.
+ */
 export function squashImportNodes(node: DOMElement): Set<ImportNode> {
   const imports = new Set<ImportNode>()
 
@@ -263,6 +282,13 @@ export function squashImportNodes(node: DOMElement): Set<ImportNode> {
   return imports
 }
 
+/**
+ * Walk the virtual DOM tree rooted at `node` and convert every `<kubb-file>` element
+ * into a {@link FileNode}, collecting its source blocks, imports, and exports.
+ *
+ * Returns the list of file nodes in document order. Nested files are supported —
+ * the walker descends into non-file elements and recurses through them.
+ */
 export async function processFiles(node: DOMElement): Promise<Array<FileNode>> {
   const collected: Array<FileNode> = []
 
