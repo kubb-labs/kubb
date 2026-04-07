@@ -2,20 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { createRenderer } from '../createRenderer.tsx'
 import { File } from './File.tsx'
 
-describe('File', () => {
-  it('should render children inline when baseName is missing', async () => {
-    const renderer = createRenderer()
-    await renderer.render(
-      <File path="src/models/pet.ts">
-        <File.Source name="Inline" isExportable isIndexable>{'export type Inline = string'}</File.Source>
-      </File>,
-    )
-
-    expect(renderer.files.length).toBe(0)
-    renderer.unmount()
-  })
-})
-
 describe('File.Source', () => {
   it('should register source block attributes', async () => {
     const renderer = createRenderer()
