@@ -10,6 +10,7 @@ import { error } from '../createPetSeed'
  */
 export function createPets201() {
   faker.seed([222])
+
   return undefined
 }
 
@@ -18,11 +19,13 @@ export function createPets201() {
  */
 export function createPetsError(data?: Partial<CreatePetsError>): CreatePetsError {
   faker.seed([222])
+
   return error(data)
 }
 
 export function createPetsMutationRequest(data?: Partial<CreatePetsMutationRequest>): CreatePetsMutationRequest {
   faker.seed([222])
+
   return {
     ...{ name: faker.string.alpha(), tag: faker.string.alpha() },
     ...(data || {}),
@@ -31,5 +34,6 @@ export function createPetsMutationRequest(data?: Partial<CreatePetsMutationReque
 
 export function createPetsMutationResponse(data?: Partial<CreatePetsMutationResponse>): CreatePetsMutationResponse {
   faker.seed([222])
+
   return data || faker.helpers.arrayElement<any>([createPets201()])
 }

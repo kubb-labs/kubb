@@ -8,6 +8,11 @@ import { showPetByIdPathPetIdSchema, showPetByIdStatus200Schema } from './showPe
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
 
+export const server = new McpServer({
+  name: 'server',
+  version: '0.0.0',
+})
+
 server.registerTool(
   'showPetById',
   {
@@ -19,3 +24,13 @@ server.registerTool(
     return showPetByIdHandler({ petId })
   },
 )
+
+export async function startServer() {
+  try {
+    const transport = new StdioServerTransport()
+    await server.connect(transport)
+  } catch (error) {
+    console.error('Failed to start server:', error)
+    process.exit(1)
+  }
+}

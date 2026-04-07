@@ -23,6 +23,7 @@ export async function findPetsByTagsInfinite(
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
+
   const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
     url: `/pet/findByTags`,
@@ -30,6 +31,7 @@ export async function findPetsByTagsInfinite(
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })
+
   return findPetsByTagsQueryResponse.parse(res.data)
 }
 

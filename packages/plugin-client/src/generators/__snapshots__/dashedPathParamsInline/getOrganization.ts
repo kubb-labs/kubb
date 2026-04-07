@@ -5,6 +5,7 @@ import { fetch } from './.kubb/fetch'
 
 export function getGetOrganizationUrl(organizationId: GetOrganizationPathOrganizationId) {
   const res = { method: 'GET', url: `/organizations/${organizationId}` as const }
+
   return res
 }
 
@@ -13,10 +14,12 @@ export function getGetOrganizationUrl(organizationId: GetOrganizationPathOrganiz
  */
 export async function getOrganization(organizationId: GetOrganizationPathOrganizationId, config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
+
   const res = await request<GetOrganizationResponse, ResponseErrorConfig<Error>, unknown>({
     method: 'GET',
     url: getGetOrganizationUrl(organizationId).url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }

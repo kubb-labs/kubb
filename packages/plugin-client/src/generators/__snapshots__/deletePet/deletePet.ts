@@ -5,6 +5,7 @@ import { fetch } from './.kubb/fetch'
 
 export function getDeletePetUrl(petId: DeletePetPathPetId) {
   const res = { method: 'DELETE', url: `/pet/${petId}` as const }
+
   return res
 }
 
@@ -17,11 +18,13 @@ export async function deletePet(
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
+
   const res = await request<DeletePetResponse, ResponseErrorConfig<Error>, unknown>({
     method: 'DELETE',
     url: getDeletePetUrl(petId).url.toString(),
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })
+
   return res.data
 }

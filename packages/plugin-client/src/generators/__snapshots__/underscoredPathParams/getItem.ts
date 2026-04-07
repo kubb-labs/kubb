@@ -5,7 +5,9 @@ import { fetch } from './.kubb/fetch'
 
 export function getGetItemUrl({ itemId }: { itemId: GetItemPathItemId }) {
   const item_id = itemId
+
   const res = { method: 'GET', url: `/v1/items/${item_id}` as const }
+
   return res
 }
 
@@ -14,10 +16,12 @@ export function getGetItemUrl({ itemId }: { itemId: GetItemPathItemId }) {
  */
 export async function getItem({ itemId }: { itemId: GetItemPathItemId }, config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
+
   const res = await request<GetItemResponse, ResponseErrorConfig<Error>, unknown>({
     method: 'GET',
     url: getGetItemUrl({ itemId }).url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }

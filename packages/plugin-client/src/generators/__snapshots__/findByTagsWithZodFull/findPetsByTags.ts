@@ -6,6 +6,7 @@ import { FindPetsByTagsResponse } from './FindPetsByTags'
 
 export function getFindPetsByTagsUrl() {
   const res = { method: 'GET', url: `/pet/findByTags` as const }
+
   return res
 }
 
@@ -17,11 +18,13 @@ export async function findPetsByTags(
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
+
   const res = await request<FindPetsByTagsResponse, ResponseErrorConfig<Error>, unknown>({
     method: 'GET',
     url: getFindPetsByTagsUrl().url.toString(),
     params,
     ...requestConfig,
   })
+
   return { ...res, data: FindPetsByTagsResponse.parse(res.data) }
 }

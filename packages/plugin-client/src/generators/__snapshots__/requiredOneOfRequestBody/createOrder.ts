@@ -5,6 +5,7 @@ import { fetch } from './.kubb/fetch'
 
 export function getCreateOrderUrl() {
   const res = { method: 'POST', url: `/orders` as const }
+
   return res
 }
 
@@ -13,12 +14,15 @@ export function getCreateOrderUrl() {
  */
 export async function createOrder(data: CreateOrderData, config: Partial<RequestConfig<CreateOrderData>> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
+
   const requestData = data
+
   const res = await request<CreateOrderResponse, ResponseErrorConfig<Error>, CreateOrderData>({
     method: 'POST',
     url: getCreateOrderUrl().url.toString(),
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }

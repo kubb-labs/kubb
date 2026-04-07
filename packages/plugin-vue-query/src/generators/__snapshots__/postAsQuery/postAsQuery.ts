@@ -28,7 +28,9 @@ export async function updatePetWithForm(
   config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
+
   const requestData = updatePetWithFormMutationRequest.parse(data)
+
   const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}`,
@@ -36,6 +38,7 @@ export async function updatePetWithForm(
     data: requestData,
     ...requestConfig,
   })
+
   return updatePetWithFormMutationResponse.parse(res.data)
 }
 
