@@ -9,7 +9,9 @@ describe('Type', () => {
     await renderer.render(
       <File baseName="types.ts" path="src/types.ts">
         <File.Source name="PetId" isExportable>
-          <Type export name="PetId">{'string | number'}</Type>
+          <Type export name="PetId">
+            {'string | number'}
+          </Type>
         </File.Source>
       </File>,
     )
@@ -23,7 +25,9 @@ describe('Type', () => {
     const renderPromise = renderer.render(
       <File baseName="types.ts" path="src/types.ts">
         <File.Source name="petId" isExportable>
-          <Type export name="petId">{'string'}</Type>
+          <Type export name="petId">
+            {'string'}
+          </Type>
         </File.Source>
       </File>,
     )

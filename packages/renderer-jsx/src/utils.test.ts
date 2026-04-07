@@ -212,4 +212,3 @@ describe('processFiles', () => {
     expect(result[0]?.baseName).toBe('nested.ts')
   })
 })
-
