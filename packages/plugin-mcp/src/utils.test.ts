@@ -71,6 +71,22 @@ describe('zodExprFromSchemaNode', () => {
     expect(zodExprFromSchemaNode(createSchema({ type: 'string', nullable: true }))).toBe('z.string().nullable()')
   })
 
+  test('nullable integer → z.coerce.number().nullable()', () => {
+    expect(zodExprFromSchemaNode(createSchema({ type: 'integer', nullable: true }))).toBe('z.coerce.number().nullable()')
+  })
+
+  test('nullable number → z.number().nullable()', () => {
+    expect(zodExprFromSchemaNode(createSchema({ type: 'number', nullable: true }))).toBe('z.number().nullable()')
+  })
+
+  test('nullable boolean → z.boolean().nullable()', () => {
+    expect(zodExprFromSchemaNode(createSchema({ type: 'boolean', nullable: true }))).toBe('z.boolean().nullable()')
+  })
+
+  test('nullable array → z.array(z.unknown()).nullable()', () => {
+    expect(zodExprFromSchemaNode(createSchema({ type: 'array', nullable: true }))).toBe('z.array(z.unknown()).nullable()')
+  })
+
   test('nullable enum → z.enum([...]).nullable()', () => {
     const schema = createSchema({ type: 'enum', enumValues: ['A', 'B'], nullable: true })
     expect(zodExprFromSchemaNode(schema)).toBe('z.enum(["A", "B"]).nullable()')
