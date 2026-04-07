@@ -9,6 +9,7 @@ export type ElementNames =
   | 'div'
   | 'indent'
   | 'dedent'
+  | 'kubb-jsx'
   | 'kubb-text'
   | 'kubb-file'
   | 'kubb-source'
@@ -62,6 +63,10 @@ type NodeNames = ElementNames | TextName
 
 export type KubbReactNode = ReactNode
 export type KubbReactElement = JSX.Element
+
+export type KubbJsxProps = {
+  children?: string
+}
 
 export type KubbTextProps = {
   children?: KubbReactNode

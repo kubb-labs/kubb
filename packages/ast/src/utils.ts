@@ -625,6 +625,7 @@ export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): str
       if (typeof node === 'string') return node as string
       if (node.kind === 'Text') return node.value
       if (node.kind === 'Break') return ''
+      if (node.kind === 'Jsx') return node.value
       const parts: string[] = []
       if ('params' in node && node.params) parts.push(node.params)
       if ('generics' in node && node.generics) parts.push(Array.isArray(node.generics) ? node.generics.join(', ') : node.generics)

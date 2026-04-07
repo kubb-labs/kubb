@@ -8,6 +8,7 @@ import type {
   KubbFileProps,
   KubbFunctionProps,
   KubbImportProps,
+  KubbJsxProps,
   KubbReactElement,
   KubbReactNode,
   KubbSourceProps,
@@ -32,6 +33,7 @@ export namespace JSX {
   }
 
   interface IntrinsicElements extends React.JSX.IntrinsicElements {
+    'kubb-jsx': KubbJsxProps
     'kubb-text': KubbTextProps
     'kubb-file': KubbFileProps
     'kubb-source': KubbSourceProps

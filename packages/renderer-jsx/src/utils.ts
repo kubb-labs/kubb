@@ -1,4 +1,4 @@
-import { createArrowFunction, createBreak, createConst, createFunction, createSource, createText, createType } from '@kubb/ast'
+import { createArrowFunction, createBreak, createConst, createFunction, createJsx, createSource, createText, createType } from '@kubb/ast'
 import type { ArrowFunctionNode, CodeNode, ExportNode, FileNode, ImportNode, JSDocNode, SourceNode } from '@kubb/ast/types'
 import { nodeNames } from './dom.ts'
 import type { DOMElement, DOMNode, ElementNames } from './types.ts'
@@ -82,6 +82,12 @@ function collectChildNodes(element: DOMElement): Array<CodeNode> {
           nodes: collectChildNodes(child),
         }),
       )
+    } else if (child.nodeName === 'kubb-jsx') {
+      const textChild = child.childNodes[0]
+      const value = textChild?.nodeName === '#text' ? (textChild as DOMNode<{ nodeName: '#text' }>).nodeValue : ''
+      if (value) {
+        result.push(createJsx(value))
+      }
     }
   }
 
@@ -168,6 +174,12 @@ export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>
                 nodes: collectChildNodes(c),
               }),
             )
+          } else if (c.nodeName === 'kubb-jsx') {
+            const textChild = c.childNodes[0]
+            const value = textChild?.nodeName === '#text' ? (textChild as DOMNode<{ nodeName: '#text' }>).nodeValue : ''
+            if (value) {
+              orderedNodes.push(createJsx(value))
+            }
           }
         }
 

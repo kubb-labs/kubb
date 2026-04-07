@@ -81,6 +81,7 @@ export const nodeNames = new Set<ElementNames>([
   'kubb-arrow-function',
   'kubb-const',
   'kubb-type',
+  'kubb-jsx',
   'kubb-text',
   'kubb-root',
   'kubb-app',

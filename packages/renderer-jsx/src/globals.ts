@@ -3,6 +3,7 @@ import type {
   KubbExportProps,
   KubbFileProps,
   KubbImportProps,
+  KubbJsxProps,
   KubbReactElement,
   KubbReactNode,
   KubbSourceProps,
@@ -19,6 +20,7 @@ declare global {
     }
 
     interface IntrinsicElements {
+      'kubb-jsx': KubbJsxProps
       'kubb-text': KubbTextProps
       'kubb-file': KubbFileProps
       'kubb-source': KubbSourceProps

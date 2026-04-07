@@ -1,5 +1,5 @@
 import { normalize, relative } from 'node:path'
-import type { ArrowFunctionNode, CodeNode, ConstNode, FileNode, FunctionNode, JSDocNode, SourceNode, TextNode, TypeNode } from '@kubb/ast/types'
+import type { ArrowFunctionNode, CodeNode, ConstNode, FileNode, FunctionNode, JSDocNode, JsxNode, SourceNode, TextNode, TypeNode } from '@kubb/ast/types'
 import type { Parser } from '@kubb/core'
 import { defineParser } from '@kubb/core'
 import ts from 'typescript'
@@ -386,6 +386,8 @@ export function printCodeNode(node: CodeNode): string {
       return ''
     case 'Text':
       return (node as TextNode).value
+    case 'Jsx':
+      return (node as JsxNode).value
     case 'Const':
       return printConst(node)
     case 'Type':

@@ -273,9 +273,32 @@ export type BreakNode = BaseNode & {
 }
 
 /**
+ * AST node representing a raw JSX fragment in the source output.
+ *
+ * Mirrors the `Jsx` component from `@kubb/renderer-jsx`. Use this to embed raw
+ * JSX/TSX markup (including fragments `<>…</>`) directly in generated code.
+ *
+ * @example
+ * ```ts
+ * createJsx('<>\n  <a href={href}>Open</a>\n</>')
+ * // { kind: 'Jsx', value: '<>\n  <a href={href}>Open</a>\n</>' }
+ * ```
+ */
+export type JsxNode = BaseNode & {
+  /**
+   * Node kind.
+   */
+  kind: 'Jsx'
+  /**
+   * The raw JSX string content.
+   */
+  value: string
+}
+
+/**
  * Union of all code-generation AST nodes.
  *
  * These nodes mirror the JSX components from `@kubb/renderer-jsx` and are used as
  * structured children in {@link SourceNode.nodes}.
  */
-export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode | TextNode | BreakNode
+export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode | TextNode | BreakNode | JsxNode

@@ -1,7 +1,7 @@
 import type { PluginOas } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
-import { Const, File, Function } from '@kubb/renderer-jsx'
+import { Const, File, Function, Jsx } from '@kubb/renderer-jsx'
 
 const pascalCase = (str: string) =>
   str
@@ -31,16 +31,11 @@ export const example3 = createReactGenerator<PluginOas>({
             <Const name="href">{`'${href}'`}</Const>
             <br />
             <br />
-            return
-            <div className="test">
-              hello world
-              {`
-              <a href={href}>Open ${operation.method}</a>
-              `}
-              <button type={'button'} onClick={(e) => console.log(e)}>
-                Submit
-              </button>
-            </div>
+            <Jsx>{`return (
+  <>
+    <a href={href}>Open ${operation.method}</a>
+  </>
+)`}</Jsx>
           </Function>
         </File.Source>
       </File>

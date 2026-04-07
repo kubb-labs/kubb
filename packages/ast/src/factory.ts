@@ -13,6 +13,7 @@ import type {
   FunctionParametersNode,
   ImportNode,
   InputNode,
+  JsxNode,
   ObjectSchemaNode,
   OperationNode,
   OutputNode,
@@ -705,4 +706,19 @@ export function createText(value: string): TextNode {
  */
 export function createBreak(): BreakNode {
   return { kind: 'Break' }
+}
+
+/**
+ * Creates a {@link JsxNode} representing a raw JSX fragment in the source output.
+ *
+ * Use this to embed JSX markup (including fragments `<>…</>`) directly in generated code.
+ *
+ * @example
+ * ```ts
+ * createJsx('<>\n  <a href={href}>Open</a>\n</>')
+ * // { kind: 'Jsx', value: '<>\n  <a href={href}>Open</a>\n</>' }
+ * ```
+ */
+export function createJsx(value: string): JsxNode {
+  return { value, kind: 'Jsx' }
 }

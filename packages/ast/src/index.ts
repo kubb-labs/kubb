@@ -11,6 +11,7 @@ export {
   createFunctionParameters,
   createImport,
   createInput,
+  createJsx,
   createOperation,
   createOutput,
   createParameter,

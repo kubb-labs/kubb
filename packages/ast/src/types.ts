@@ -30,6 +30,7 @@ export type {
   Ipv4SchemaNode,
   Ipv6SchemaNode,
   JSDocNode,
+  JsxNode,
   MediaType,
   Node,
   NodeKind,
