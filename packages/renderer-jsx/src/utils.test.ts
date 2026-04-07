@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 import { appendChildNode, createNode, createTextNode, setAttribute } from './dom.ts'
 import { processFiles, squashExportNodes, squashImportNodes, squashSourceNodes } from './utils.ts'
 
@@ -23,6 +23,7 @@ describe('squashSourceNodes', () => {
     appendChildNode(file, source)
 
     const [node] = [...squashSourceNodes(file, [])]
+    assert(node)
     expect(node.name).toBe('MyType')
     expect(node.isExportable).toBe(true)
     expect(node.isIndexable).toBe(true)
@@ -44,6 +45,8 @@ describe('squashSourceNodes', () => {
     }
 
     const [node] = [...squashSourceNodes(file, [])]
+    assert(node)
+    assert(node.nodes)
     expect(node.nodes.map((n) => n.kind)).toEqual(children.map(([, kind]) => kind))
   })
 
@@ -53,6 +56,8 @@ describe('squashSourceNodes', () => {
     appendChildNode(source, createNode('br'))
 
     const [node] = [...squashSourceNodes(file, [])]
+    assert(node)
+    assert(node.nodes)
     expect(node.nodes[0]?.kind).toBe('Break')
   })
 
@@ -64,6 +69,8 @@ describe('squashSourceNodes', () => {
     appendChildNode(source, jsx)
 
     const [node] = [...squashSourceNodes(file, [])]
+    assert(node)
+    assert(node.nodes)
     expect(node.nodes[0]?.kind).toBe('Jsx')
   })
 
@@ -73,6 +80,8 @@ describe('squashSourceNodes', () => {
     appendChildNode(source, createNode('kubb-jsx'))
 
     const [node] = [...squashSourceNodes(file, [])]
+    assert(node)
+    assert(node.nodes)
     expect(node.nodes.length).toBe(0)
   })
 
@@ -82,6 +91,8 @@ describe('squashSourceNodes', () => {
     appendChildNode(source, createTextNode('   '))
 
     const [node] = [...squashSourceNodes(file, [])]
+    assert(node)
+    assert(node.nodes)
     expect(node.nodes.length).toBe(0)
   })
 
@@ -107,6 +118,7 @@ describe('squashExportNodes', () => {
     appendChildNode(file, exportNode)
 
     const [node] = [...squashExportNodes(file)]
+    assert(node)
     expect(node.path).toBe('./models/pet')
     expect(node.isTypeOnly).toBe(false)
   })
@@ -123,6 +135,7 @@ describe('squashImportNodes', () => {
     appendChildNode(file, importNode)
 
     const [node] = [...squashImportNodes(file)]
+    assert(node)
     expect(node.path).toBe('react')
     expect(node.isTypeOnly).toBe(false)
     expect(node.isNameSpace).toBe(false)

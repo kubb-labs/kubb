@@ -39,7 +39,7 @@ type Node = {
  * Allowed attribute value types stored on a {@link DOMElement}.
  * Corresponds to the range of prop values JSX components may pass to intrinsic elements.
  */
-export type DOMNodeAttribute = boolean | string | number | Record<string, unknown>
+export type DOMNodeAttribute = boolean | string | number | Record<string, unknown> | Array<unknown>
 
 type TextName = '#text'
 

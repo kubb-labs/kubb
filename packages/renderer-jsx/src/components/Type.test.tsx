@@ -14,7 +14,7 @@ describe('Type', () => {
       </File>,
     )
 
-    expect(renderer.files[0]?.sources[0]?.nodes[0]?.kind).toBe('Type')
+    expect(renderer.files[0]?.sources[0]?.nodes?.[0]?.kind).toBe('Type')
     renderer.unmount()
   })
 

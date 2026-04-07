@@ -14,7 +14,7 @@ describe('Function', () => {
       </File>,
     )
 
-    expect(renderer.files[0]?.sources[0]?.nodes[0]?.kind).toBe('Function')
+    expect(renderer.files[0]?.sources[0]?.nodes?.[0]?.kind).toBe('Function')
     renderer.unmount()
   })
 })
@@ -30,7 +30,7 @@ describe('Function.Arrow', () => {
       </File>,
     )
 
-    expect(renderer.files[0]?.sources[0]?.nodes[0]?.kind).toBe('ArrowFunction')
+    expect(renderer.files[0]?.sources[0]?.nodes?.[0]?.kind).toBe('ArrowFunction')
     renderer.unmount()
   })
 })

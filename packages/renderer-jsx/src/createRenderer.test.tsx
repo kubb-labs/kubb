@@ -33,11 +33,11 @@ describe('createRenderer', () => {
     const models = renderer.files.find((f) => f.baseName === 'models.ts')
     expect(models?.imports[0]?.path).toBe('zod')
     expect(models?.exports[0]?.isTypeOnly).toBe(true)
-    expect(models?.sources[0]?.nodes[0]?.kind).toBe('Type')
+    expect(models?.sources[0]?.nodes?.[0]?.kind).toBe('Type')
 
     const client = renderer.files.find((f) => f.baseName === 'client.ts')
-    expect(client?.sources[0]?.nodes[0]?.kind).toBe('Const')
-    expect(client?.sources[1]?.nodes[0]?.kind).toBe('Function')
+    expect(client?.sources[0]?.nodes?.[0]?.kind).toBe('Const')
+    expect(client?.sources[1]?.nodes?.[0]?.kind).toBe('Function')
 
     renderer.unmount()
   })

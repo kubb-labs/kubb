@@ -14,7 +14,7 @@ describe('Const', () => {
       </File>,
     )
 
-    expect(renderer.files[0]?.sources[0]?.nodes[0]?.kind).toBe('Const')
+    expect(renderer.files[0]?.sources[0]?.nodes?.[0]?.kind).toBe('Const')
     renderer.unmount()
   })
 })
