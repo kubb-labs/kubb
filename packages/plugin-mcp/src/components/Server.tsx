@@ -43,6 +43,16 @@ function zodExprFromOasSchema(schema: SchemaObject): string {
   const isNullableType = types.includes('null')
 
   let expr: string
+
+  if (Array.isArray(schema.enum) && schema.enum.length > 0) {
+    const values = schema.enum.map((v: unknown) => JSON.stringify(v)).join(', ')
+    expr = `z.enum([${values}])`
+    if (isNullableType) {
+      expr = `${expr}.nullable()`
+    }
+    return expr
+  }
+
   switch (baseType) {
     case 'integer':
       expr = 'z.coerce.number()'
