@@ -1,5 +1,19 @@
 # @kubb/plugin-mcp
 
+## 4.37.2
+
+### Patch Changes
+
+- [#2996](https://github.com/kubb-labs/kubb/pull/2996) [`8aeecf3`](https://github.com/kubb-labs/kubb/commit/8aeecf34adea9ebdbbfee3f27ba3b593ce96a37f) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix `inputSchema` generating `z.string()` instead of `z.enum([...])` for path parameters with an `enum` constraint in the OpenAPI spec.
+
+- Updated dependencies []:
+  - @kubb/core@4.37.2
+  - @kubb/oas@4.37.2
+  - @kubb/plugin-client@4.37.2
+  - @kubb/plugin-oas@4.37.2
+  - @kubb/plugin-ts@4.37.2
+  - @kubb/plugin-zod@4.37.2
+
 ## 4.37.1
 
 ### Patch Changes
