@@ -1,5 +1,5 @@
-import { createConst, createFunction, createSource, createType } from '@kubb/ast'
-import type { CodeNode, JSDocNode, SourceNode } from '@kubb/ast/types'
+import { createArrowFunction, createConst, createFunction, createSource, createType } from '@kubb/ast'
+import type { ArrowFunctionNode, CodeNode, JSDocNode, SourceNode } from '@kubb/ast/types'
 import { nodeNames } from '../dom.ts'
 import type { DOMElement, DOMNode, ElementNames } from '../types.ts'
 
@@ -39,6 +39,22 @@ function collectChildNodes(element: DOMElement): Array<CodeNode | string> {
           nodes: collectChildNodes(child),
         }),
       )
+    } else if (child.nodeName === 'kubb-arrow-function') {
+      const attrs = child.attributes
+      result.push(
+        createArrowFunction({
+          name: attrs.get('name') as string,
+          params: attrs.get('params') as string | undefined,
+          export: attrs.get('export') as boolean | undefined,
+          default: attrs.get('default') as boolean | undefined,
+          async: attrs.get('async') as boolean | undefined,
+          generics: attrs.get('generics') as string | undefined,
+          returnType: attrs.get('returnType') as string | undefined,
+          singleLine: attrs.get('singleLine') as boolean | undefined,
+          JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
+          nodes: collectChildNodes(child),
+        } as Omit<ArrowFunctionNode, 'kind'>),
+      )
     } else if (child.nodeName === 'kubb-const') {
       const attrs = child.attributes
       result.push(
@@ -67,67 +83,6 @@ function collectChildNodes(element: DOMElement): Array<CodeNode | string> {
   return result
 }
 
-/**
- * Walk a source DOM subtree and collect AST nodes from kubb-function, kubb-const,
- * and kubb-type elements. This is the same pattern as squashImportNodes/squashExportNodes
- * but for top-level declarations inside a source block.
- */
-function collectAstNodes(node: DOMElement): NonNullable<Array<CodeNode>> {
-  const nodes: NonNullable<Array<CodeNode>> = []
-
-  const walk = (current: DOMElement): void => {
-    for (const child of current.childNodes) {
-      if (!child || child.nodeName === '#text') {
-        continue
-      }
-
-      if (child.nodeName === 'kubb-function') {
-        const attrs = child.attributes
-        nodes.push(
-          createFunction({
-            name: attrs.get('name') as string,
-            params: attrs.get('params') as string | undefined,
-            export: attrs.get('export') as boolean | undefined,
-            default: attrs.get('default') as boolean | undefined,
-            async: attrs.get('async') as boolean | undefined,
-            generics: attrs.get('generics') as string | undefined,
-            returnType: attrs.get('returnType') as string | undefined,
-            JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
-            nodes: collectChildNodes(child),
-          }),
-        )
-      } else if (child.nodeName === 'kubb-const') {
-        const attrs = child.attributes
-        nodes.push(
-          createConst({
-            name: attrs.get('name') as string,
-            type: attrs.get('type') as string | undefined,
-            export: attrs.get('export') as boolean | undefined,
-            asConst: attrs.get('asConst') as boolean | undefined,
-            JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
-            nodes: collectChildNodes(child),
-          }),
-        )
-      } else if (child.nodeName === 'kubb-type') {
-        const attrs = child.attributes
-        nodes.push(
-          createType({
-            name: attrs.get('name') as string,
-            export: attrs.get('export') as boolean | undefined,
-            JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
-            nodes: collectChildNodes(child),
-          }),
-        )
-      } else {
-        walk(child)
-      }
-    }
-  }
-
-  walk(node)
-  return nodes
-}
-
 export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>): Set<SourceNode> {
   const ignoreSet = new Set(ignores)
   const sources = new Set<SourceNode>()
@@ -143,27 +98,79 @@ export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>
       }
 
       if (child.nodeName === 'kubb-source') {
-        const astNodes = collectAstNodes(child)
-
-        // Collect raw text children as `value` (for printer-based output like plugin-ts)
-        const textParts: string[] = []
+        // Collect children in DOM order: text strings and kubb-* elements interleaved
+        const orderedNodes: Array<CodeNode | string> = []
         for (const c of child.childNodes) {
-          if (c && c.nodeName === '#text') {
+          if (!c) continue
+
+          if (c.nodeName === '#text') {
             const text = (c as DOMNode<{ nodeName: '#text' }>).nodeValue
             if (text && text.trim().length > 0) {
-              textParts.push(text)
+              orderedNodes.push(text)
             }
+          } else if (c.nodeName === 'kubb-function') {
+            const attrs = c.attributes
+            orderedNodes.push(
+              createFunction({
+                name: attrs.get('name') as string,
+                params: attrs.get('params') as string | undefined,
+                export: attrs.get('export') as boolean | undefined,
+                default: attrs.get('default') as boolean | undefined,
+                async: attrs.get('async') as boolean | undefined,
+                generics: attrs.get('generics') as string | undefined,
+                returnType: attrs.get('returnType') as string | undefined,
+                JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
+                nodes: collectChildNodes(c),
+              }),
+            )
+          } else if (c.nodeName === 'kubb-arrow-function') {
+            const attrs = c.attributes
+            orderedNodes.push(
+              createArrowFunction({
+                name: attrs.get('name') as string,
+                params: attrs.get('params') as string | undefined,
+                export: attrs.get('export') as boolean | undefined,
+                default: attrs.get('default') as boolean | undefined,
+                async: attrs.get('async') as boolean | undefined,
+                generics: attrs.get('generics') as string | undefined,
+                returnType: attrs.get('returnType') as string | undefined,
+                singleLine: attrs.get('singleLine') as boolean | undefined,
+                JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
+                nodes: collectChildNodes(c),
+              } as Omit<ArrowFunctionNode, 'kind'>),
+            )
+          } else if (c.nodeName === 'kubb-const') {
+            const attrs = c.attributes
+            orderedNodes.push(
+              createConst({
+                name: attrs.get('name') as string,
+                type: attrs.get('type') as string | undefined,
+                export: attrs.get('export') as boolean | undefined,
+                asConst: attrs.get('asConst') as boolean | undefined,
+                JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
+                nodes: collectChildNodes(c),
+              }),
+            )
+          } else if (c.nodeName === 'kubb-type') {
+            const attrs = c.attributes
+            orderedNodes.push(
+              createType({
+                name: attrs.get('name') as string,
+                export: attrs.get('export') as boolean | undefined,
+                JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
+                nodes: collectChildNodes(c),
+              }),
+            )
           }
         }
-        const value = textParts.length > 0 ? textParts.join('') : undefined
 
         const source = createSource({
           name: child.attributes.get('name')?.toString(),
           isTypeOnly: (child.attributes.get('isTypeOnly') ?? false) as boolean,
           isExportable: (child.attributes.get('isExportable') ?? false) as boolean,
           isIndexable: (child.attributes.get('isIndexable') ?? false) as boolean,
-          nodes: astNodes,
-          value,
+          nodes: orderedNodes,
+          // value is no longer set separately — all content is in nodes
         })
 
         sources.add(source)

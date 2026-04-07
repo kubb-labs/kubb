@@ -15,6 +15,7 @@ export type ElementNames =
   | 'kubb-import'
   | 'kubb-export'
   | 'kubb-function'
+  | 'kubb-arrow-function'
   | 'kubb-const'
   | 'kubb-type'
   | 'kubb-root'

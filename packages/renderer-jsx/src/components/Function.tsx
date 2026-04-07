@@ -1,4 +1,3 @@
-import { buildJSDoc } from '@internals/utils'
 import type { JSDoc, Key, KubbReactElement, KubbReactNode } from '../types.ts'
 
 type Props = {
@@ -85,54 +84,22 @@ type ArrowFunctionProps = Props & {
 function ArrowFunction({ children, ...props }: ArrowFunctionProps) {
   const { name, default: isDefault, export: canExport, async, generics, params, returnType, JSDoc, singleLine } = props
 
+  const genericsString = Array.isArray(generics) ? generics.join(', ').trim() : generics
+
   return (
-    <>
-      {JSDoc?.comments && (
-        <>
-          {buildJSDoc(JSDoc?.comments)}
-          <br />
-        </>
-      )}
-      {canExport && <>export </>}
-      {isDefault && <>default </>}
-      const {name} = {async && <>async </>}
-      {generics && (
-        <>
-          {'<'}
-          {Array.isArray(generics) ? generics.join(', ').trim() : generics}
-          {'>'}
-        </>
-      )}
-      ({params}){returnType && !async && <>: {returnType}</>}
-      {returnType && async && (
-        <>
-          : Promise{'<'}
-          {returnType}
-          {'>'}
-        </>
-      )}
-      {singleLine && (
-        <>
-          {' => '}
-          {children}
-          <br />
-        </>
-      )}
-      {!singleLine && (
-        <>
-          {' => {'}
-          <br />
-          <indent />
-          {/* Indent component to handle indentation*/}
-          {children}
-          <br />
-          <dedent />
-          {/* Indent component to handle indentation*/}
-          {'}'}
-          <br />
-        </>
-      )}
-    </>
+    <kubb-arrow-function
+      name={name}
+      params={params}
+      export={canExport}
+      default={isDefault}
+      async={async}
+      generics={genericsString}
+      returnType={returnType}
+      singleLine={singleLine}
+      JSDoc={JSDoc}
+    >
+      {children}
+    </kubb-arrow-function>
   )
 }
 
