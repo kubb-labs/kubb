@@ -1,5 +1,14 @@
 # @kubb/core
 
+## 5.0.0-alpha.33
+
+### Patch Changes
+
+- [#2990](https://github.com/kubb-labs/kubb/pull/2990) [`3ac7d1f`](https://github.com/kubb-labs/kubb/commit/3ac7d1f9b75099bfe793e35152e5c322e65aa6ad) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Update `@kubb/react-fabric` and `@kubb/fabric-core` to v0.16.0
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.33
+
 ## 5.0.0-alpha.32
 
 ### Patch Changes

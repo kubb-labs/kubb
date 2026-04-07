@@ -85,6 +85,7 @@
     "plugin-zod-v5-rewrite",
     "pretty-schools-fly",
     "printer-node-override",
+    "react-fabric-v0-16-0",
     "remove-mapper-plugin-ts",
     "remove-object-json-plugins-validation",
     "remove-plugin-key",
