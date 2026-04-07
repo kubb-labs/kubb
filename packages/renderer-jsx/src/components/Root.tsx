@@ -33,21 +33,27 @@ class ErrorBoundary extends Component<{
 
 export type RootProps = {
   /**
-   * Exit (unmount) the whole app.
+   * Callback invoked to unmount the entire renderer tree.
+   * Called with an `Error` when the exit is caused by a render error,
+   * or with `undefined` for a clean shutdown.
    */
   onExit: (error?: Error) => void
   /**
-   * Error hook receiving runtime exceptions.
+   * Callback invoked whenever a render error is caught by the error boundary.
+   * Use this to propagate errors up to the caller of {@link createRenderer}.
    */
   onError: (error: Error) => void
   /**
-   * Children nodes.
+   * Child nodes rendered inside the error boundary.
    */
   children?: KubbReactNode
 }
 
 /**
- * This component provides the root behavior for the Kubb runtime.
+ * Root component for the Kubb renderer tree.
+ *
+ * Wraps all children in an `ErrorBoundary` so that render errors are caught
+ * and forwarded to `onError` rather than crashing the process.
  */
 export function Root({ onError, children }: RootProps): KubbReactElement {
   return (
