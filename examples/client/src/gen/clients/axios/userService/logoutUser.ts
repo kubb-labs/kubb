@@ -6,6 +6,7 @@ import type { LogoutUserQueryResponse } from '../../../models/ts/userController/
 
 function getLogoutUserUrl() {
   const res = { method: 'GET', url: '/user/logout' as const }
+
   return res
 }
 
@@ -21,5 +22,6 @@ export async function logoutUser(config: Partial<RequestConfig> & { client?: Cli
     url: getLogoutUserUrl().url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }

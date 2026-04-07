@@ -8,6 +8,7 @@ import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from '../../m
 
 export function createDeleteOrderPathParams(data?: Partial<DeleteOrderPathParams>): DeleteOrderPathParams {
   faker.seed([220])
+
   return {
     ...{ orderId: faker.number.int() },
     ...(data || {}),
@@ -19,6 +20,7 @@ export function createDeleteOrderPathParams(data?: Partial<DeleteOrderPathParams
  */
 export function createDeleteOrder400() {
   faker.seed([220])
+
   return undefined
 }
 
@@ -27,10 +29,12 @@ export function createDeleteOrder400() {
  */
 export function createDeleteOrder404() {
   faker.seed([220])
+
   return undefined
 }
 
 export function createDeleteOrderMutationResponse(_data?: Partial<DeleteOrderMutationResponse>): DeleteOrderMutationResponse {
   faker.seed([220])
+
   return undefined
 }

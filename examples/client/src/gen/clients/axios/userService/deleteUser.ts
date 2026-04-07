@@ -6,6 +6,7 @@ import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUs
 
 function getDeleteUserUrl({ username }: { username: DeleteUserPathParams['username'] }) {
   const res = { method: 'DELETE', url: `/user/${username}` as const }
+
   return res
 }
 
@@ -22,5 +23,6 @@ export async function deleteUser({ username }: { username: DeleteUserPathParams[
     url: getDeleteUserUrl({ username }).url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }

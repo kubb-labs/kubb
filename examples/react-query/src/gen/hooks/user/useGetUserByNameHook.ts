@@ -30,6 +30,7 @@ export async function getUserByNameHook(
     url: `/user/${username}`,
     ...requestConfig,
   })
+
   return res.data
 }
 

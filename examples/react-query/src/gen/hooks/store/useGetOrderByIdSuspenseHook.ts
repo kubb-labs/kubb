@@ -31,6 +31,7 @@ export async function getOrderByIdSuspenseHook(
     url: `/store/order/${orderId}`,
     ...requestConfig,
   })
+
   return res.data
 }
 

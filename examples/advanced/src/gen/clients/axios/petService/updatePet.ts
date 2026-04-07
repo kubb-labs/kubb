@@ -11,6 +11,7 @@ import { updatePetMutationRequestSchema, updatePetMutationResponseSchema } from 
 
 export function getUpdatePetUrl() {
   const res = { method: 'PUT', url: 'https://petstore3.swagger.io/api/v3/pet' as const }
+
   return res
 }
 
@@ -33,5 +34,6 @@ export async function updatePet(
     data: requestData,
     ...requestConfig,
   })
+
   return { ...res, data: updatePetMutationResponseSchema.parse(res.data) }
 }

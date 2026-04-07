@@ -8,6 +8,7 @@ import type { Order } from '../models/Order.ts'
 
 export function createOrder(data?: Partial<Order>): Order {
   faker.seed([220])
+
   return {
     ...{
       id: faker.number.int(),

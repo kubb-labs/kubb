@@ -9,6 +9,7 @@ import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '.
 
 function getAddPetUrl() {
   const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/pet' as const }
+
   return res
 }
 
@@ -28,5 +29,6 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }

@@ -6,6 +6,7 @@ import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, De
 
 function getDeletePetUrl({ petId }: { petId: DeletePetPathParams['petId'] }) {
   const res = { method: 'DELETE', url: `/pet/${petId}` as const }
+
   return res
 }
 
@@ -27,5 +28,6 @@ export async function deletePet(
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })
+
   return res.data
 }

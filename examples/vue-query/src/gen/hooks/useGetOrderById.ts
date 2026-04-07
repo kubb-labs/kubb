@@ -29,6 +29,7 @@ export async function getOrderById({ orderId }: { orderId: GetOrderByIdPathParam
     url: `/store/order/${orderId}`,
     ...requestConfig,
   })
+
   return res.data
 }
 

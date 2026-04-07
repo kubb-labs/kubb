@@ -12,6 +12,7 @@ import { createOrder } from '../createOrder.ts'
  */
 export function createPlaceOrderPatch200(data?: Partial<PlaceOrderPatch200>): PlaceOrderPatch200 {
   faker.seed([220])
+
   return createOrder(data)
 }
 
@@ -20,15 +21,18 @@ export function createPlaceOrderPatch200(data?: Partial<PlaceOrderPatch200>): Pl
  */
 export function createPlaceOrderPatch405() {
   faker.seed([220])
+
   return undefined
 }
 
 export function createPlaceOrderPatchMutationRequest(data?: Partial<PlaceOrderPatchMutationRequest>): PlaceOrderPatchMutationRequest {
   faker.seed([220])
+
   return createOrder(data)
 }
 
 export function createPlaceOrderPatchMutationResponse(data?: Partial<PlaceOrderPatchMutationResponse>): PlaceOrderPatchMutationResponse {
   faker.seed([220])
+
   return data || faker.helpers.arrayElement<any>([createPlaceOrderPatch200()])
 }

@@ -27,6 +27,7 @@ export async function deleteOrder({ orderId }: { orderId: DeleteOrderPathParams[
     url: `/store/order/${orderId}`,
     ...requestConfig,
   })
+
   return res.data
 }
 

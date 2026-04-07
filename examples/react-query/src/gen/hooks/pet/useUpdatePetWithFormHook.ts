@@ -37,6 +37,7 @@ export async function updatePetWithFormHook(
     params,
     ...requestConfig,
   })
+
   return res.data
 }
 

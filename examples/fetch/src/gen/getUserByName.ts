@@ -9,6 +9,7 @@ import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUs
 
 function getGetUserByNameUrl(username: GetUserByNamePathParams['username']) {
   const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/user/${username}` as const }
+
   return res
 }
 
@@ -24,5 +25,6 @@ export async function getUserByName(username: GetUserByNamePathParams['username'
     url: getGetUserByNameUrl(username).url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }

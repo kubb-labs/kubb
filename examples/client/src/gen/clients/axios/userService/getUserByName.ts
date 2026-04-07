@@ -11,6 +11,7 @@ import type {
 
 function getGetUserByNameUrl({ username }: { username: GetUserByNamePathParams['username'] }) {
   const res = { method: 'GET', url: `/user/${username}` as const }
+
   return res
 }
 
@@ -29,5 +30,6 @@ export async function getUserByName(
     url: getGetUserByNameUrl({ username }).url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }

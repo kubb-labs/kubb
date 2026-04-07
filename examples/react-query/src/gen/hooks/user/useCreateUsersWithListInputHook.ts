@@ -33,6 +33,7 @@ export async function createUsersWithListInputHook(
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 

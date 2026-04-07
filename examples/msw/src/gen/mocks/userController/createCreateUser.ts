@@ -12,6 +12,7 @@ import { createUser } from '../createUser.ts'
  */
 export function createCreateUserError(data?: Partial<CreateUserError>): CreateUserError {
   faker.seed([220])
+
   return createUser(data)
 }
 
@@ -20,10 +21,12 @@ export function createCreateUserError(data?: Partial<CreateUserError>): CreateUs
  */
 export function createCreateUserMutationRequest(data?: Partial<CreateUserMutationRequest>): CreateUserMutationRequest {
   faker.seed([220])
+
   return createUser(data)
 }
 
 export function createCreateUserMutationResponse(_data?: Partial<CreateUserMutationResponse>): CreateUserMutationResponse {
   faker.seed([220])
+
   return undefined
 }

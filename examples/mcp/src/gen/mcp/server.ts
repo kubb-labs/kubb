@@ -329,6 +329,7 @@ server.registerTool(
     return deleteUserHandler({ username })
   },
 )
+
 export async function startServer() {
   try {
     const transport = new StdioServerTransport()

@@ -27,6 +27,7 @@ export async function deleteOrderHook({ orderId }: { orderId: DeleteOrderPathPar
     url: `/store/order/${orderId}`,
     ...requestConfig,
   })
+
   return res.data
 }
 

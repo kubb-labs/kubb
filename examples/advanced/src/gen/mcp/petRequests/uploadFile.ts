@@ -31,6 +31,7 @@ export async function uploadFileHandler({
     data: requestData,
     headers: { 'Content-Type': 'application/octet-stream' },
   })
+
   return {
     content: [
       {

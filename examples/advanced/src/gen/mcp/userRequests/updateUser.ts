@@ -23,6 +23,7 @@ export async function updateUserHandler({
     baseURL: 'https://petstore.swagger.io/v2',
     data: requestData,
   })
+
   return {
     content: [
       {

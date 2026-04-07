@@ -29,6 +29,7 @@ export async function findPetsByTagsHandler({
     params,
     headers: { ...mappedHeaders },
   })
+
   return {
     content: [
       {

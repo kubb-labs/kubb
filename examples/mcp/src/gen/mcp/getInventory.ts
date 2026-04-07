@@ -14,6 +14,7 @@ export async function getInventoryHandler(): Promise<Promise<CallToolResult>> {
     url: '/store/inventory',
     baseURL: 'https://petstore.swagger.io/v2',
   })
+
   return {
     content: [
       {

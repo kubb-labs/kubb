@@ -14,6 +14,7 @@ export async function deleteOrderHandler({ orderId }: { orderId: DeleteOrderPath
     url: `/store/order/${orderId}`,
     baseURL: 'https://petstore.swagger.io/v2',
   })
+
   return {
     content: [
       {

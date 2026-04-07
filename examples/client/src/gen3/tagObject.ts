@@ -20,6 +20,7 @@ export async function getInventory(config: Partial<RequestConfig> & { client?: C
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/store/inventory', ...requestConfig })
+
   return res
 }
 
@@ -47,16 +48,9 @@ export async function placeOrder(data?: PlaceOrderMutationRequest, config: Parti
     data: requestData,
     ...requestConfig,
   })
+
   return res
 }
-
-placeOrder.method = 'POST' as const
-placeOrder.url = '/store/order' as const
-placeOrder.operationId = 'placeOrder' as const
-placeOrder.request = {} as PlaceOrderMutationRequest
-placeOrder.response = {} as PlaceOrderMutationResponse
-placeOrder.pathParams = {} as never
-placeOrder.queryParams = {} as never
 
 /**
  * @description Place a new order in the store with patch
@@ -77,16 +71,9 @@ export async function placeOrderPatch(
     data: requestData,
     ...requestConfig,
   })
+
   return res
 }
-
-placeOrderPatch.method = 'PATCH' as const
-placeOrderPatch.url = '/store/order' as const
-placeOrderPatch.operationId = 'placeOrderPatch' as const
-placeOrderPatch.request = {} as PlaceOrderPatchMutationRequest
-placeOrderPatch.response = {} as PlaceOrderPatchMutationResponse
-placeOrderPatch.pathParams = {} as never
-placeOrderPatch.queryParams = {} as never
 
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
@@ -101,16 +88,9 @@ export async function getOrderById({ orderId }: { orderId: GetOrderByIdPathParam
     url: `/store/order/${orderId}`,
     ...requestConfig,
   })
+
   return res
 }
-
-getOrderById.method = 'GET' as const
-getOrderById.url = '/store/order/:orderId' as const
-getOrderById.operationId = 'getOrderById' as const
-getOrderById.request = {} as never
-getOrderById.response = {} as GetOrderByIdQueryResponse
-getOrderById.pathParams = {} as GetOrderByIdPathParams
-getOrderById.queryParams = {} as never
 
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
@@ -125,13 +105,6 @@ export async function deleteOrder({ orderId }: { orderId: DeleteOrderPathParams[
     url: `/store/order/${orderId}`,
     ...requestConfig,
   })
+
   return res
 }
-
-deleteOrder.method = 'DELETE' as const
-deleteOrder.url = '/store/order/:orderId' as const
-deleteOrder.operationId = 'deleteOrder' as const
-deleteOrder.request = {} as never
-deleteOrder.response = {} as DeleteOrderMutationResponse
-deleteOrder.pathParams = {} as DeleteOrderPathParams
-deleteOrder.queryParams = {} as never

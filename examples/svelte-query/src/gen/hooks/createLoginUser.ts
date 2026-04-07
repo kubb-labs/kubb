@@ -32,6 +32,7 @@ export async function loginUser(params?: LoginUserQueryParams, config: Partial<R
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({ method: 'GET', url: '/user/login', params, ...requestConfig })
+
   return res.data
 }
 

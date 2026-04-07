@@ -28,6 +28,7 @@ export async function findPetsByTagsInfiniteHook(params?: FindPetsByTagsQueryPar
     params,
     ...requestConfig,
   })
+
   return res
 }
 

@@ -5,6 +5,7 @@ import { logoutUserQueryResponseSchema } from '../../../zod/userController/logou
 
 export function getLogoutUserUrl() {
   const res = { method: 'GET', url: 'https://petstore3.swagger.io/api/v3/user/logout' as const }
+
   return res
 }
 
@@ -20,5 +21,6 @@ export async function logoutUser(config: Partial<RequestConfig> & { client?: Cli
     url: getLogoutUserUrl().url.toString(),
     ...requestConfig,
   })
+
   return { ...res, data: logoutUserQueryResponseSchema.parse(res.data) }
 }

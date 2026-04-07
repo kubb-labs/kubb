@@ -12,6 +12,7 @@ import { createPet } from '../createPet.ts'
  */
 export function createUpdatePet200(data?: Partial<UpdatePet200>): UpdatePet200 {
   faker.seed([220])
+
   return createPet(data)
 }
 
@@ -20,6 +21,7 @@ export function createUpdatePet200(data?: Partial<UpdatePet200>): UpdatePet200 {
  */
 export function createUpdatePet400() {
   faker.seed([220])
+
   return undefined
 }
 
@@ -28,6 +30,7 @@ export function createUpdatePet400() {
  */
 export function createUpdatePet404() {
   faker.seed([220])
+
   return undefined
 }
 
@@ -36,6 +39,7 @@ export function createUpdatePet404() {
  */
 export function createUpdatePet405() {
   faker.seed([220])
+
   return undefined
 }
 
@@ -44,10 +48,12 @@ export function createUpdatePet405() {
  */
 export function createUpdatePetMutationRequest(data?: Partial<UpdatePetMutationRequest>): UpdatePetMutationRequest {
   faker.seed([220])
+
   return createPet(data)
 }
 
 export function createUpdatePetMutationResponse(data?: Partial<UpdatePetMutationResponse>): UpdatePetMutationResponse {
   faker.seed([220])
+
   return data || faker.helpers.arrayElement<any>([createUpdatePet200()])
 }

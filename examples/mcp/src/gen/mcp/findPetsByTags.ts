@@ -22,6 +22,7 @@ export async function findPetsByTagsHandler({
     params,
     headers: { ...headers },
   })
+
   return {
     content: [
       {

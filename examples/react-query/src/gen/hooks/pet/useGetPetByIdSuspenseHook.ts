@@ -31,6 +31,7 @@ export async function getPetByIdSuspenseHook(
     url: `/pet/${pet_id}`,
     ...requestConfig,
   })
+
   return res.data
 }
 

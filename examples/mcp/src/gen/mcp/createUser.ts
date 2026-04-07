@@ -17,6 +17,7 @@ export async function createUserHandler({ data }: { data?: CreateUserMutationReq
     baseURL: 'https://petstore.swagger.io/v2',
     data: requestData,
   })
+
   return {
     content: [
       {

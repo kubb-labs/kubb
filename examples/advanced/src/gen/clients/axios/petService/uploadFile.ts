@@ -10,6 +10,7 @@ import { uploadFileMutationRequestSchema, uploadFileMutationResponseSchema } fro
 
 export function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
   const res = { method: 'POST', url: `https://petstore3.swagger.io/api/v3/pet/${petId}/uploadImage` as const }
+
   return res
 }
 
@@ -33,5 +34,6 @@ export async function uploadFile(
     ...requestConfig,
     headers: { 'Content-Type': 'application/octet-stream', ...requestConfig.headers },
   })
+
   return { ...res, data: uploadFileMutationResponseSchema.parse(res.data) }
 }

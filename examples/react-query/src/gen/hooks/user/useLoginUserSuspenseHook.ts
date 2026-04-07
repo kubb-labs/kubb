@@ -22,6 +22,7 @@ export async function loginUserSuspenseHook(params?: LoginUserQueryParams, confi
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({ method: 'GET', url: '/user/login', params, ...requestConfig })
+
   return res.data
 }
 

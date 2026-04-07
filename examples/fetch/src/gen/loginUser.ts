@@ -9,6 +9,7 @@ import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from 
 
 function getLoginUserUrl() {
   const res = { method: 'GET', url: 'https://petstore3.swagger.io/api/v3/user/login' as const }
+
   return res
 }
 
@@ -25,5 +26,6 @@ export async function loginUser(params?: LoginUserQueryParams, config: Partial<R
     params,
     ...requestConfig,
   })
+
   return res.data
 }

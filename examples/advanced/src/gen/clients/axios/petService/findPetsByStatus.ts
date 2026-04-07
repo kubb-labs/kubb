@@ -5,7 +5,9 @@ import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/
 
 export function getFindPetsByStatusUrl({ stepId }: { stepId: FindPetsByStatusPathParams['stepId'] }) {
   const step_id = stepId
+
   const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/pet/findByStatus/${step_id}` as const }
+
   return res
 }
 
@@ -25,5 +27,6 @@ export async function findPetsByStatus(
     url: getFindPetsByStatusUrl({ stepId }).url.toString(),
     ...requestConfig,
   })
+
   return { ...res, data: findPetsByStatusQueryResponseSchema.parse(res.data) }
 }

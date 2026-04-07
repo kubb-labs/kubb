@@ -39,6 +39,7 @@ export async function getPetById(petId: GetPetByIdPathParams['petId'], config: P
     url: `/pet/${pet_id}`,
     ...requestConfig,
   })
+
   return res.data
 }
 

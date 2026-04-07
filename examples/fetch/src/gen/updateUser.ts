@@ -9,6 +9,7 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
 
 function getUpdateUserUrl(username: UpdateUserPathParams['username']) {
   const res = { method: 'PUT', url: `https://petstore3.swagger.io/api/v3/user/${username}` as const }
+
   return res
 }
 
@@ -32,5 +33,6 @@ export async function updateUser(
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }

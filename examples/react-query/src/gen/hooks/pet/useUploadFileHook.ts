@@ -36,6 +36,7 @@ export async function uploadFileHook(
     ...requestConfig,
     headers: { 'Content-Type': 'application/octet-stream', ...requestConfig.headers },
   })
+
   return res.data
 }
 

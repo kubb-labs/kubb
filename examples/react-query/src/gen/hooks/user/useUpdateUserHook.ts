@@ -34,6 +34,7 @@ export async function updateUserHook(
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 

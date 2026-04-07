@@ -6,6 +6,7 @@ import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryR
 
 function getFindPetsByTagsUrl() {
   const res = { method: 'GET', url: '/pet/findByTags' as const }
+
   return res
 }
 
@@ -23,5 +24,6 @@ export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config:
     params,
     ...requestConfig,
   })
+
   return res.data
 }

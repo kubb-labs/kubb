@@ -8,6 +8,7 @@ import type { DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathPar
 
 export function createDeletePetPathParams(data?: Partial<DeletePetPathParams>): DeletePetPathParams {
   faker.seed([220])
+
   return {
     ...{ petId: faker.number.int() },
     ...(data || {}),
@@ -16,6 +17,7 @@ export function createDeletePetPathParams(data?: Partial<DeletePetPathParams>): 
 
 export function createDeletePetHeaderParams(data?: Partial<DeletePetHeaderParams>): DeletePetHeaderParams {
   faker.seed([220])
+
   return {
     ...{ api_key: faker.string.alpha() },
     ...(data || {}),
@@ -27,10 +29,12 @@ export function createDeletePetHeaderParams(data?: Partial<DeletePetHeaderParams
  */
 export function createDeletePet400() {
   faker.seed([220])
+
   return undefined
 }
 
 export function createDeletePetMutationResponse(_data?: Partial<DeletePetMutationResponse>): DeletePetMutationResponse {
   faker.seed([220])
+
   return undefined
 }

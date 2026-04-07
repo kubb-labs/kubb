@@ -27,6 +27,7 @@ export async function deleteUserHook({ username }: { username: DeleteUserPathPar
     url: `/user/${username}`,
     ...requestConfig,
   })
+
   return res.data
 }
 

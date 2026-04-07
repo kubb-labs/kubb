@@ -30,6 +30,7 @@ export async function getUserByNameSuspenseHook(
     url: `/user/${username}`,
     ...requestConfig,
   })
+
   return res.data
 }
 

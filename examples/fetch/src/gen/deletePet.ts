@@ -9,6 +9,7 @@ import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, De
 
 function getDeletePetUrl(petId: DeletePetPathParams['petId']) {
   const res = { method: 'DELETE', url: `https://petstore3.swagger.io/api/v3/pet/${petId}` as const }
+
   return res
 }
 
@@ -30,5 +31,6 @@ export async function deletePet(
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })
+
   return res.data
 }

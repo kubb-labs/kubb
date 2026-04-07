@@ -6,6 +6,7 @@ import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from 
 
 function getLoginUserUrl() {
   const res = { method: 'GET', url: '/user/login' as const }
+
   return res
 }
 
@@ -22,5 +23,6 @@ export async function loginUser(params?: LoginUserQueryParams, config: Partial<R
     params,
     ...requestConfig,
   })
+
   return res.data
 }

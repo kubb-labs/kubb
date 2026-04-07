@@ -9,6 +9,7 @@ import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest
 
 function getUpdatePetUrl() {
   const res = { method: 'PUT', url: 'https://petstore3.swagger.io/api/v3/pet' as const }
+
   return res
 }
 
@@ -28,5 +29,6 @@ export async function updatePet(data: UpdatePetMutationRequest, config: Partial<
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }

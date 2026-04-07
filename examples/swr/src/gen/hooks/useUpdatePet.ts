@@ -29,6 +29,7 @@ export async function updatePet(data: UpdatePetMutationRequest, config: Partial<
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }
 

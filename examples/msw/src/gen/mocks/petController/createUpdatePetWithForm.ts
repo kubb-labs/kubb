@@ -8,6 +8,7 @@ import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, Up
 
 export function createUpdatePetWithFormPathParams(data?: Partial<UpdatePetWithFormPathParams>): UpdatePetWithFormPathParams {
   faker.seed([220])
+
   return {
     ...{ petId: faker.number.int() },
     ...(data || {}),
@@ -16,6 +17,7 @@ export function createUpdatePetWithFormPathParams(data?: Partial<UpdatePetWithFo
 
 export function createUpdatePetWithFormQueryParams(data?: Partial<UpdatePetWithFormQueryParams>): UpdatePetWithFormQueryParams {
   faker.seed([220])
+
   return {
     ...{ name: faker.string.alpha(), status: faker.string.alpha() },
     ...(data || {}),
@@ -27,10 +29,12 @@ export function createUpdatePetWithFormQueryParams(data?: Partial<UpdatePetWithF
  */
 export function createUpdatePetWithForm405() {
   faker.seed([220])
+
   return undefined
 }
 
 export function createUpdatePetWithFormMutationResponse(_data?: Partial<UpdatePetWithFormMutationResponse>): UpdatePetWithFormMutationResponse {
   faker.seed([220])
+
   return undefined
 }

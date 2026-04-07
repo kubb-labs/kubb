@@ -5,6 +5,7 @@ import { deletePetMutationResponseSchema } from '../../../zod/petController/dele
 
 export function getDeletePetUrl({ petId }: { petId: DeletePetPathParams['petId'] }) {
   const res = { method: 'DELETE', url: `https://petstore3.swagger.io/api/v3/pet/${petId}:search` as const }
+
   return res
 }
 
@@ -27,5 +28,6 @@ export async function deletePet(
     ...requestConfig,
     headers: { ...mappedHeaders, ...requestConfig.headers },
   })
+
   return { ...res, data: deletePetMutationResponseSchema.parse(res.data) }
 }

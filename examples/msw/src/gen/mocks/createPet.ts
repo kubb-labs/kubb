@@ -10,6 +10,7 @@ import { createTag } from './createTag.ts'
 
 export function createPet(data?: Partial<Pet>): Pet {
   faker.seed([220])
+
   return {
     ...{
       id: faker.number.int(),

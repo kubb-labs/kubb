@@ -36,6 +36,7 @@ export async function getUserByName(username: GetUserByNamePathParams['username'
     url: `/user/${username}`,
     ...requestConfig,
   })
+
   return res.data
 }
 

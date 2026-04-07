@@ -14,6 +14,7 @@ export async function deleteUserHandler({ username }: { username: DeleteUserPath
     url: `/user/${username}`,
     baseURL: 'https://petstore.swagger.io/v2',
   })
+
   return {
     content: [
       {

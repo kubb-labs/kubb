@@ -10,6 +10,7 @@ import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/fi
 
 export function getFindPetsByTagsUrl() {
   const res = { method: 'GET', url: 'https://petstore3.swagger.io/api/v3/pet/findByTags' as const }
+
   return res
 }
 
@@ -33,5 +34,6 @@ export async function findPetsByTags(
     ...requestConfig,
     headers: { ...mappedHeaders, ...requestConfig.headers },
   })
+
   return { ...res, data: findPetsByTagsQueryResponseSchema.parse(res.data) }
 }

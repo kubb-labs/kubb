@@ -9,6 +9,7 @@ import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrder
 
 function getGetOrderByIdUrl(orderId: GetOrderByIdPathParams['orderId']) {
   const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/store/order/${orderId}` as const }
+
   return res
 }
 
@@ -25,5 +26,6 @@ export async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], c
     url: getGetOrderByIdUrl(orderId).url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }

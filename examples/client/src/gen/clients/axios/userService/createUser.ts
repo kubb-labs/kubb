@@ -6,6 +6,7 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
 
 function getCreateUserUrl() {
   const res = { method: 'POST', url: '/user' as const }
+
   return res
 }
 
@@ -25,5 +26,6 @@ export async function createUser(data?: CreateUserMutationRequest, config: Parti
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }

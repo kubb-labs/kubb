@@ -11,6 +11,7 @@ import { createPetsMutationRequestSchema, createPetsMutationResponseSchema } fro
 
 export function getCreatePetsUrl({ uuid }: { uuid: CreatePetsPathParams['uuid'] }) {
   const res = { method: 'POST', url: `https://petstore3.swagger.io/api/v3/pets/${uuid}` as const }
+
   return res
 }
 
@@ -43,5 +44,6 @@ export async function createPets(
     ...requestConfig,
     headers: { ...mappedHeaders, ...requestConfig.headers },
   })
+
   return { ...res, data: createPetsMutationResponseSchema.parse(res.data) }
 }

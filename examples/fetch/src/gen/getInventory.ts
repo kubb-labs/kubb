@@ -9,6 +9,7 @@ import type { GetInventoryQueryResponse } from './models.ts'
 
 function getGetInventoryUrl() {
   const res = { method: 'GET', url: 'https://petstore3.swagger.io/api/v3/store/inventory' as const }
+
   return res
 }
 
@@ -25,5 +26,6 @@ export async function getInventory(config: Partial<RequestConfig> & { client?: C
     url: getGetInventoryUrl().url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }

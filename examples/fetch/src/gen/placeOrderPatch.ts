@@ -9,6 +9,7 @@ import type { PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatc
 
 function getPlaceOrderPatchUrl() {
   const res = { method: 'PATCH', url: 'https://petstore3.swagger.io/api/v3/store/order' as const }
+
   return res
 }
 
@@ -31,5 +32,6 @@ export async function placeOrderPatch(
     data: requestData,
     ...requestConfig,
   })
+
   return res.data
 }

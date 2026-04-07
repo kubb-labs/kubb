@@ -29,6 +29,7 @@ export async function findPetsByTagsSuspenseInfiniteHook(params?: FindPetsByTags
     params,
     ...requestConfig,
   })
+
   return res
 }
 

@@ -13,6 +13,7 @@ export async function getUserByNameHandler({ username }: { username: GetUserByNa
     url: `/user/${username}`,
     baseURL: 'https://petstore.swagger.io/v2',
   })
+
   return {
     content: [
       {

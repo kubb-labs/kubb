@@ -5,6 +5,7 @@ import { loginUserQueryResponseSchema } from '../../../zod/userController/loginU
 
 export function getLoginUserUrl() {
   const res = { method: 'GET', url: 'https://petstore3.swagger.io/api/v3/user/login' as const }
+
   return res
 }
 
@@ -21,5 +22,6 @@ export async function loginUser({ params }: { params?: LoginUserQueryParams } = 
     params,
     ...requestConfig,
   })
+
   return { ...res, data: loginUserQueryResponseSchema.parse(res.data) }
 }

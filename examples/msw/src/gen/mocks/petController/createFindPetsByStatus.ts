@@ -9,6 +9,7 @@ import { createPet } from '../createPet.ts'
 
 export function createFindPetsByStatusQueryParams(data?: Partial<FindPetsByStatusQueryParams>): FindPetsByStatusQueryParams {
   faker.seed([220])
+
   return {
     ...{ status: faker.helpers.arrayElement<NonNullable<FindPetsByStatusQueryParams>['status']>(['available', 'pending', 'sold']) },
     ...(data || {}),
@@ -20,6 +21,7 @@ export function createFindPetsByStatusQueryParams(data?: Partial<FindPetsByStatu
  */
 export function createFindPetsByStatus200(data?: FindPetsByStatus200): FindPetsByStatus200 {
   faker.seed([220])
+
   return [...faker.helpers.multiple(() => createPet()), ...(data || [])]
 }
 
@@ -28,10 +30,12 @@ export function createFindPetsByStatus200(data?: FindPetsByStatus200): FindPetsB
  */
 export function createFindPetsByStatus400() {
   faker.seed([220])
+
   return undefined
 }
 
 export function createFindPetsByStatusQueryResponse(data?: Partial<FindPetsByStatusQueryResponse>): FindPetsByStatusQueryResponse {
   faker.seed([220])
+
   return data || faker.helpers.arrayElement<any>([createFindPetsByStatus200()])
 }

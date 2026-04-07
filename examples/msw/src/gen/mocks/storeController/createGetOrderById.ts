@@ -9,6 +9,7 @@ import { createOrder } from '../createOrder.ts'
 
 export function createGetOrderByIdPathParams(data?: Partial<GetOrderByIdPathParams>): GetOrderByIdPathParams {
   faker.seed([220])
+
   return {
     ...{ orderId: faker.number.int() },
     ...(data || {}),
@@ -20,6 +21,7 @@ export function createGetOrderByIdPathParams(data?: Partial<GetOrderByIdPathPara
  */
 export function createGetOrderById200(data?: Partial<GetOrderById200>): GetOrderById200 {
   faker.seed([220])
+
   return createOrder(data)
 }
 
@@ -28,6 +30,7 @@ export function createGetOrderById200(data?: Partial<GetOrderById200>): GetOrder
  */
 export function createGetOrderById400() {
   faker.seed([220])
+
   return undefined
 }
 
@@ -36,10 +39,12 @@ export function createGetOrderById400() {
  */
 export function createGetOrderById404() {
   faker.seed([220])
+
   return undefined
 }
 
 export function createGetOrderByIdQueryResponse(data?: Partial<GetOrderByIdQueryResponse>): GetOrderByIdQueryResponse {
   faker.seed([220])
+
   return data || faker.helpers.arrayElement<any>([createGetOrderById200()])
 }

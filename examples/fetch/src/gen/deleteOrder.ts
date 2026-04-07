@@ -9,6 +9,7 @@ import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, Delet
 
 function getDeleteOrderUrl(orderId: DeleteOrderPathParams['orderId']) {
   const res = { method: 'DELETE', url: `https://petstore3.swagger.io/api/v3/store/order/${orderId}` as const }
+
   return res
 }
 
@@ -25,5 +26,6 @@ export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], con
     url: getDeleteOrderUrl(orderId).url.toString(),
     ...requestConfig,
   })
+
   return res.data
 }

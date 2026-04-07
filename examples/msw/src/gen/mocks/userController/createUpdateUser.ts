@@ -9,6 +9,7 @@ import { createUser } from '../createUser.ts'
 
 export function createUpdateUserPathParams(data?: Partial<UpdateUserPathParams>): UpdateUserPathParams {
   faker.seed([220])
+
   return {
     ...{ username: faker.string.alpha() },
     ...(data || {}),
@@ -20,6 +21,7 @@ export function createUpdateUserPathParams(data?: Partial<UpdateUserPathParams>)
  */
 export function createUpdateUserError() {
   faker.seed([220])
+
   return undefined
 }
 
@@ -28,10 +30,12 @@ export function createUpdateUserError() {
  */
 export function createUpdateUserMutationRequest(data?: Partial<UpdateUserMutationRequest>): UpdateUserMutationRequest {
   faker.seed([220])
+
   return createUser(data)
 }
 
 export function createUpdateUserMutationResponse(_data?: Partial<UpdateUserMutationResponse>): UpdateUserMutationResponse {
   faker.seed([220])
+
   return undefined
 }
