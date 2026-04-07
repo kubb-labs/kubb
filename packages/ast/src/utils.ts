@@ -3,6 +3,7 @@ import { camelCase, isValidVarName } from '@internals/utils'
 import { createFunctionParameter, createFunctionParameters, createParameterGroup, createParamsType, createProperty, createSchema } from './factory.ts'
 import { narrowSchema } from './guards.ts'
 import type {
+  CodeNode,
   ExportNode,
   FunctionParameterNode,
   FunctionParametersNode,
@@ -606,4 +607,32 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   }
 
   return result
+}
+
+/**
+ * Recursively extracts all string content embedded in a {@link CodeNode} tree.
+ *
+ * Includes text node values, and string attribute fields (`params`, `generics`,
+ * `returnType`, `type`) that may reference identifiers needing imports.
+ * Used by `createFile` to build the full source string for import filtering.
+ */
+export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): string {
+  if (!nodes?.length) return ''
+  return nodes
+    .map((node) => {
+      // Backward-compat: compiled plugins may still pass bare strings at runtime
+      if (typeof node === 'string') return node as string
+      if (node.kind === 'Text') return node.value
+      if (node.kind === 'Break') return ''
+      const parts: string[] = []
+      if ('params' in node && node.params) parts.push(node.params)
+      if ('generics' in node && node.generics) parts.push(Array.isArray(node.generics) ? node.generics.join(', ') : node.generics)
+      if ('returnType' in node && node.returnType) parts.push(node.returnType)
+      if ('type' in node && typeof node.type === 'string') parts.push(node.type)
+      const nested = extractStringsFromNodes(node.nodes)
+      if (nested) parts.push(nested)
+      return parts.join('\n')
+    })
+    .filter(Boolean)
+    .join('\n')
 }

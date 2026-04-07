@@ -769,19 +769,19 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../utils
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@kubb/oas':
         specifier: workspace:*
         version: link:../../packages/oas
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../../packages/plugin-oas
+      '@kubb/renderer-jsx':
+        specifier: workspace:*
+        version: link:../../packages/renderer-jsx
     devDependencies:
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.16.0
-      '@kubb/react-fabric':
-        specifier: 'catalog:'
-        version: 0.16.0
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.17

@@ -1,4 +1,4 @@
-import { createArrowFunction, createConst, createFunction, createSource, createType } from '@kubb/ast'
+import { createArrowFunction, createBreak, createConst, createFunction, createSource, createText, createType } from '@kubb/ast'
 import type { ArrowFunctionNode, CodeNode, JSDocNode, SourceNode } from '@kubb/ast/types'
 import { nodeNames } from '../dom.ts'
 import type { DOMElement, DOMNode, ElementNames } from '../types.ts'
@@ -8,8 +8,8 @@ import type { DOMElement, DOMNode, ElementNames } from '../types.ts'
  * `#text` children become raw strings; nested kubb-function/const/type children
  * become their respective {@link CodeNode}s. Other DOM elements are skipped.
  */
-function collectChildNodes(element: DOMElement): Array<CodeNode | string> {
-  const result: Array<CodeNode | string> = []
+function collectChildNodes(element: DOMElement): Array<CodeNode> {
+  const result: Array<CodeNode> = []
 
   for (const child of element.childNodes) {
     if (!child) {
@@ -19,8 +19,13 @@ function collectChildNodes(element: DOMElement): Array<CodeNode | string> {
     if (child.nodeName === '#text') {
       const text = (child as DOMNode<{ nodeName: '#text' }>).nodeValue
       if (text && text.trim().length > 0) {
-        result.push(text)
+        result.push(createText(text))
       }
+      continue
+    }
+
+    if (child.nodeName === 'br') {
+      result.push(createBreak())
       continue
     }
 
@@ -99,15 +104,17 @@ export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>
 
       if (child.nodeName === 'kubb-source') {
         // Collect children in DOM order: text strings and kubb-* elements interleaved
-        const orderedNodes: Array<CodeNode | string> = []
+        const orderedNodes: Array<CodeNode> = []
         for (const c of child.childNodes) {
           if (!c) continue
 
           if (c.nodeName === '#text') {
             const text = (c as DOMNode<{ nodeName: '#text' }>).nodeValue
             if (text && text.trim().length > 0) {
-              orderedNodes.push(text)
+              orderedNodes.push(createText(text))
             }
+          } else if (c.nodeName === 'br') {
+            orderedNodes.push(createBreak())
           } else if (c.nodeName === 'kubb-function') {
             const attrs = c.attributes
             orderedNodes.push(

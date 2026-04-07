@@ -34,12 +34,8 @@ export { mergeAdjacentObjects, setDiscriminatorEnum, setEnumName, simplifyUnion 
 export type { OperationParamsResolver } from './utils.ts'
 export {
   caseParams,
-  combineExports,
-  combineImports,
-  combineSources,
   createDiscriminantNode,
   createOperationParams,
-  extractStringsFromNodes,
   isStringType,
   syncSchemaRef,
 } from './utils.ts'

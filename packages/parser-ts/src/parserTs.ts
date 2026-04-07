@@ -1,5 +1,5 @@
 import { normalize, relative } from 'node:path'
-import type { ArrowFunctionNode, CodeNode, ConstNode, FileNode, FunctionNode, JSDocNode, SourceNode, TypeNode } from '@kubb/ast/types'
+import type { ArrowFunctionNode, CodeNode, ConstNode, FileNode, FunctionNode, JSDocNode, SourceNode, TextNode, TypeNode } from '@kubb/ast/types'
 import type { Parser } from '@kubb/core'
 import { defineParser } from '@kubb/core'
 import ts from 'typescript'
@@ -192,9 +192,15 @@ export function printJSDoc(jsDoc: JSDocNode): string {
  * (recursively converted via {@link printCodeNode}).
  * Elements are joined with `\n`.
  */
-function printNodes(nodes: Array<CodeNode | string> | undefined): string {
+function printNodes(nodes: Array<CodeNode> | undefined): string {
   if (!nodes || nodes.length === 0) return ''
-  return nodes.map((n) => (typeof n === 'string' ? n : printCodeNode(n))).join('\n')
+  return nodes
+    .map((n) => {
+      // Backward-compat: compiled plugins may still pass bare strings at runtime
+      if (typeof n === 'string') return n as string
+      return printCodeNode(n)
+    })
+    .join('\n')
 }
 
 /**
@@ -382,6 +388,10 @@ export function printArrowFunction(node: ArrowFunctionNode): string {
  */
 export function printCodeNode(node: CodeNode): string {
   switch (node.kind) {
+    case 'Break':
+      return ''
+    case 'Text':
+      return (node as TextNode).value
     case 'Const':
       return printConst(node)
     case 'Type':
@@ -396,26 +406,32 @@ export function printCodeNode(node: CodeNode): string {
 /**
  * Converts a {@link SourceNode} to its TypeScript string representation.
  *
- * Uses `value` if present; otherwise converts the structured `nodes` array
- * via {@link printCodeNode}.
+ * Iterates `nodes` in DOM order, rendering each {@link CodeNode} via
+ * {@link printCodeNode}. Falls back to `value` for legacy sources.
  *
- * @example From value
+ * @example From nodes
+ * ```ts
+ * printSource({ kind: 'Source', nodes: [createConst({ name: 'x', nodes: [createText('1')] }), createText('x.toString()')] })
+ * // 'const x = 1\nx.toString()'
+ * ```
+ *
+ * @example Legacy value-only source
  * ```ts
  * printSource({ kind: 'Source', value: 'const x = 1' })
  * // 'const x = 1'
  * ```
- *
- * @example From nodes
- * ```ts
- * printSource({ kind: 'Source', nodes: [createConst({ name: 'x', nodes: ['1'] })] })
- * // 'const x = 1'
- * ```
  */
 export function printSource(node: SourceNode): string {
-  if (node.value) return node.value
   if (node.nodes && node.nodes.length > 0) {
-    return node.nodes.map(printCodeNode).join('\n')
+    return node.nodes
+      .map((n) => {
+        // Backward-compat: compiled plugins may still pass bare strings at runtime
+        if (typeof n === 'string') return n as string
+        return printCodeNode(n as CodeNode)
+      })
+      .join('\n')
   }
+  if (node.value) return node.value
   return ''
 }
 
