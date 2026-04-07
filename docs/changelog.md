@@ -6,7 +6,34 @@ outline: deep
 
 # Changelog
 
-## 4.36.3
+## 4.37.2
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-mcp`](/plugins/plugin-mcp)
+
+- [#2996](https://github.com/kubb-labs/kubb/pull/2996) [`8aeecf3`](https://github.com/kubb-labs/kubb/commit/8aeecf34adea9ebdbbfee3f27ba3b593ce96a37f) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fixed an issue where `inputSchema` was generating `z.string()` instead of `z.enum([...])` for path parameters with an `enum` constraint in the OpenAPI specification.
+
+  **Before:**
+  ::: code-group
+  ```typescript
+  const inputSchema = z.object({
+    status: z.string(), // Incorrect
+  });
+  ```
+  :::
+
+  **After:**
+  ::: code-group
+  ```typescript
+  const inputSchema = z.object({
+    status: z.enum(['active', 'inactive']), // Correct
+  });
+  ```
+  :::
+
+
+## 4.37.1
 
 ### 🐛 Bug Fixes
 
