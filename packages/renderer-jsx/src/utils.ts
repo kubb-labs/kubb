@@ -8,7 +8,7 @@ import type { DOMElement, DOMNode, ElementNames } from './types.ts'
  *
  * `#text` children become raw {@link TextNode}s; nested `kubb-function`, `kubb-const`,
  * `kubb-type`, and similar elements are converted into their respective {@link CodeNode}s.
- * Any unrecognised DOM elements are silently skipped.
+ * Any unrecognized DOM elements are silently skipped.
  */
 function collectChildNodes(element: DOMElement): Array<CodeNode> {
   const result: Array<CodeNode> = []

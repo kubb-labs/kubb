@@ -104,8 +104,8 @@ export const setTextNodeValue = (node: TextNode, text: string): void => {
 }
 
 /**
- * Set of all element names recognised by the Kubb renderer.
- * Used to distinguish Kubb-owned elements from unrecognised or text nodes during tree traversal.
+ * Set of all element names recognized by the Kubb renderer.
+ * Used to distinguish Kubb-owned elements from unrecognized or text nodes during tree traversal.
  */
 export const nodeNames = new Set<ElementNames>([
   'kubb-export',

@@ -9,7 +9,7 @@ import type { JSX, ReactNode } from 'react'
 export type Key = string | number | bigint
 
 /**
- * All custom element names recognised by the Kubb JSX renderer.
+ * All custom element names recognized by the Kubb JSX renderer.
  * Each name maps to a corresponding AST node type emitted during code generation.
  */
 export type ElementNames =
