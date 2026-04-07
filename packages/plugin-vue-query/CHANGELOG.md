@@ -1,5 +1,19 @@
 # @kubb/plugin-vue-query
 
+## 5.0.0-alpha.34
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.34
+  - @kubb/core@5.0.0-alpha.34
+  - @kubb/oas@5.0.0-alpha.34
+  - @kubb/plugin-client@5.0.0-alpha.34
+  - @kubb/plugin-oas@5.0.0-alpha.34
+  - @kubb/plugin-ts@5.0.0-alpha.34
+  - @kubb/plugin-zod@5.0.0-alpha.34
+  - @kubb/renderer-jsx@5.0.0-alpha.34
+
 ## 5.0.0-alpha.33
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @kubb/cli
 
+## 5.0.0-alpha.34
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.34
+
 ## 5.0.0-alpha.33
 
 ### Patch Changes

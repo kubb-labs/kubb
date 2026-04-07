@@ -1,5 +1,17 @@
 # kubb
 
+## 5.0.0-alpha.34
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/agent@5.0.0-alpha.34
+  - @kubb/cli@5.0.0-alpha.34
+  - @kubb/adapter-oas@5.0.0-alpha.34
+  - @kubb/core@5.0.0-alpha.34
+  - @kubb/mcp@5.0.0-alpha.34
+  - @kubb/parser-ts@5.0.0-alpha.34
+
 ## 5.0.0-alpha.33
 
 ### Patch Changes

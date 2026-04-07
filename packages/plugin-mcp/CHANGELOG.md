@@ -1,5 +1,21 @@
 # @kubb/plugin-mcp
 
+## 5.0.0-alpha.34
+
+### Patch Changes
+
+- [#2998](https://github.com/kubb-labs/kubb/pull/2998) [`f5099b8`](https://github.com/kubb-labs/kubb/commit/f5099b87f8cf603e70bc15568af2c80f2883661b) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix enum path parameters generating `z.string()` instead of `z.enum([...])` in `inputSchema`.
+
+  When an OpenAPI path parameter had an `enum` constraint, `zodExprFromSchemaNode` fell through to `z.string()`. String enums now generate `z.enum(["VALUE1", "VALUE2"])` and number/boolean enums generate `z.union([z.literal(...)])`.
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.34
+  - @kubb/core@5.0.0-alpha.34
+  - @kubb/plugin-client@5.0.0-alpha.34
+  - @kubb/plugin-ts@5.0.0-alpha.34
+  - @kubb/plugin-zod@5.0.0-alpha.34
+  - @kubb/renderer-jsx@5.0.0-alpha.34
+
 ## 5.0.0-alpha.33
 
 ### Patch Changes
