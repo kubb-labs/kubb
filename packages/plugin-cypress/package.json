@@ -67,7 +67,7 @@
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react-fabric": "catalog:"
+    "@kubb/renderer-jsx": "workspace:*"
   },
   "engines": {
     "node": ">=22"

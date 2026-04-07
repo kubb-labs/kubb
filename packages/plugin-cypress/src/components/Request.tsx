@@ -3,8 +3,8 @@ import { caseParams, createFunctionParameter, createOperationParams, createParam
 import type { OperationNode } from '@kubb/ast/types'
 import type { ResolverTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
-import { File, Function } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { File, Function } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PluginCypress } from '../types.ts'
 
 type Props = {
@@ -29,7 +29,7 @@ type Props = {
 
 const declarationPrinter = functionPrinter({ mode: 'declaration' })
 
-export function Request({ baseURL = '', name, dataReturnType, resolver, node, paramsType, pathParamsType, paramsCasing }: Props): FabricReactNode {
+export function Request({ baseURL = '', name, dataReturnType, resolver, node, paramsType, pathParamsType, paramsCasing }: Props): KubbReactNode {
   const paramsNode = createOperationParams(node, {
     paramsType,
     pathParamsType,
