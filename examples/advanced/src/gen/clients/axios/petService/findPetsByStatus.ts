@@ -20,8 +20,6 @@ export async function findPetsByStatus(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const _step_id = stepId
-
   const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
     method: 'GET',
     url: getFindPetsByStatusUrl({ stepId }).url.toString(),
