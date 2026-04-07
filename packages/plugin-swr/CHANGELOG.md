@@ -1,5 +1,17 @@
 # @kubb/plugin-swr
 
+## 4.37.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.37.2
+  - @kubb/oas@4.37.2
+  - @kubb/plugin-client@4.37.2
+  - @kubb/plugin-oas@4.37.2
+  - @kubb/plugin-ts@4.37.2
+  - @kubb/plugin-zod@4.37.2
+
 ## 4.37.1
 
 ### Patch Changes
