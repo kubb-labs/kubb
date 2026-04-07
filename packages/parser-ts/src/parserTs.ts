@@ -186,7 +186,7 @@ export function printJSDoc(jsDoc: JSDocNode): string {
 }
 
 /**
- * Serialises the body / value content from a `nodes` array.
+ * Serializes the body / value content from a `nodes` array.
  *
  * Each element is either a raw string or a structured {@link CodeNode}
  * (recursively converted via {@link printCodeNode}).

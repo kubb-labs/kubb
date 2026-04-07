@@ -54,7 +54,7 @@ export function inject<T>(key: symbol | Context<T>, defaultValue?: T): T {
 }
 
 /**
- * Unprovides a value (for cleanup)
+ * Removes a provided value from the context stack (for cleanup)
  * @internal
  */
 export function unprovide<T>(key: symbol | Context<T>): void {
