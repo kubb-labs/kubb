@@ -1,5 +1,5 @@
 import { createConst, createFunction, createSource, createType } from '@kubb/ast'
-import type { CodeNode, SourceNode } from '@kubb/ast/types'
+import type { CodeNode, JSDocNode, SourceNode } from '@kubb/ast/types'
 import { nodeNames } from '../dom.ts'
 import type { DOMElement, DOMNode, ElementNames } from '../types.ts'
 
@@ -35,6 +35,7 @@ function collectChildNodes(element: DOMElement): Array<CodeNode | string> {
           async: attrs.get('async') as boolean | undefined,
           generics: attrs.get('generics') as string | undefined,
           returnType: attrs.get('returnType') as string | undefined,
+          JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
           nodes: collectChildNodes(child),
         }),
       )
@@ -46,6 +47,7 @@ function collectChildNodes(element: DOMElement): Array<CodeNode | string> {
           type: attrs.get('type') as string | undefined,
           export: attrs.get('export') as boolean | undefined,
           asConst: attrs.get('asConst') as boolean | undefined,
+          JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
           nodes: collectChildNodes(child),
         }),
       )
@@ -55,6 +57,7 @@ function collectChildNodes(element: DOMElement): Array<CodeNode | string> {
         createType({
           name: attrs.get('name') as string,
           export: attrs.get('export') as boolean | undefined,
+          JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
           nodes: collectChildNodes(child),
         }),
       )
@@ -89,6 +92,7 @@ function collectAstNodes(node: DOMElement): NonNullable<Array<CodeNode>> {
             async: attrs.get('async') as boolean | undefined,
             generics: attrs.get('generics') as string | undefined,
             returnType: attrs.get('returnType') as string | undefined,
+            JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
             nodes: collectChildNodes(child),
           }),
         )
@@ -100,6 +104,7 @@ function collectAstNodes(node: DOMElement): NonNullable<Array<CodeNode>> {
             type: attrs.get('type') as string | undefined,
             export: attrs.get('export') as boolean | undefined,
             asConst: attrs.get('asConst') as boolean | undefined,
+            JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
             nodes: collectChildNodes(child),
           }),
         )
@@ -109,6 +114,7 @@ function collectAstNodes(node: DOMElement): NonNullable<Array<CodeNode>> {
           createType({
             name: attrs.get('name') as string,
             export: attrs.get('export') as boolean | undefined,
+            JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
             nodes: collectChildNodes(child),
           }),
         )

@@ -52,17 +52,18 @@ export function Function({ children, ...props }: Props): KubbReactElement {
   const genericsString = Array.isArray(generics) ? generics.join(', ').trim() : generics
 
   return (
-    <>
-      {JSDoc?.comments && (
-        <>
-          {buildJSDoc(JSDoc?.comments)}
-          <br />
-        </>
-      )}
-      <kubb-function name={name} params={params} export={canExport} default={isDefault} async={isAsync} generics={genericsString} returnType={returnType}>
-        {children}
-      </kubb-function>
-    </>
+    <kubb-function
+      name={name}
+      params={params}
+      export={canExport}
+      default={isDefault}
+      async={isAsync}
+      generics={genericsString}
+      returnType={returnType}
+      JSDoc={JSDoc}
+    >
+      {children}
+    </kubb-function>
   )
 }
 

@@ -25,7 +25,7 @@ type Node = {
   internal_static?: boolean
 }
 
-export type DOMNodeAttribute = boolean | string | number
+export type DOMNodeAttribute = boolean | string | number | Record<string, unknown>
 
 type TextName = '#text'
 export type TextNode = {

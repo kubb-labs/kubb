@@ -1,4 +1,3 @@
-import { buildJSDoc } from '@internals/utils'
 import type { JSDoc, Key, KubbReactElement, KubbReactNode } from '../types.ts'
 
 export type ConstProps = {
@@ -36,17 +35,9 @@ export function Const({ children, ...props }: ConstProps): KubbReactElement {
   const { name, export: canExport, type, JSDoc, asConst } = props
 
   return (
-    <>
-      {JSDoc?.comments && (
-        <>
-          {buildJSDoc(JSDoc?.comments)}
-          <br />
-        </>
-      )}
-      <kubb-const name={name} type={type} export={canExport} asConst={asConst}>
-        {children}
-      </kubb-const>
-    </>
+    <kubb-const name={name} type={type} export={canExport} asConst={asConst} JSDoc={JSDoc}>
+      {children}
+    </kubb-const>
   )
 }
 
