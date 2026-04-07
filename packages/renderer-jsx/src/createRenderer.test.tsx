@@ -14,15 +14,21 @@ describe('createRenderer', () => {
           <File.Import name={['z']} path="zod" />
           <File.Export name={['Pet']} path="./models" isTypeOnly />
           <File.Source name="Pet" isExportable isIndexable isTypeOnly>
-            <Type export name="Pet">{'{ id: number; name: string }'}</Type>
+            <Type export name="Pet">
+              {'{ id: number; name: string }'}
+            </Type>
           </File.Source>
         </File>
         <File baseName="client.ts" path="src/client.ts">
           <File.Source name="BASE_URL" isExportable>
-            <Const export name="BASE_URL">{'"https://api.example.com"'}</Const>
+            <Const export name="BASE_URL">
+              {'"https://api.example.com"'}
+            </Const>
           </File.Source>
           <File.Source name="getPet" isExportable>
-            <Function export name="getPet" params="id: number" returnType="string">{'return String(id)'}</Function>
+            <Function export name="getPet" params="id: number" returnType="string">
+              {'return String(id)'}
+            </Function>
           </File.Source>
         </File>
       </>,

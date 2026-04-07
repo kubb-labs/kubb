@@ -7,7 +7,9 @@ describe('File.Source', () => {
     const renderer = createRenderer()
     await renderer.render(
       <File baseName="models.ts" path="src/models.ts">
-        <File.Source name="Pet" isExportable isIndexable isTypeOnly>{'export type Pet = { id: number }'}</File.Source>
+        <File.Source name="Pet" isExportable isIndexable isTypeOnly>
+          {'export type Pet = { id: number }'}
+        </File.Source>
       </File>,
     )
 

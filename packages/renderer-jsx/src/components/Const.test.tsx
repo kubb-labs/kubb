@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createRenderer } from '../createRenderer.tsx'
-import { File } from './File.tsx'
 import { Const } from './Const.tsx'
+import { File } from './File.tsx'
 
 describe('Const', () => {
   it('should emit a Const node', async () => {
@@ -9,7 +9,9 @@ describe('Const', () => {
     await renderer.render(
       <File baseName="config.ts" path="src/config.ts">
         <File.Source name="BASE_URL" isExportable>
-          <Const export name="BASE_URL">{'"https://api.example.com"'}</Const>
+          <Const export name="BASE_URL">
+            {'"https://api.example.com"'}
+          </Const>
         </File.Source>
       </File>,
     )

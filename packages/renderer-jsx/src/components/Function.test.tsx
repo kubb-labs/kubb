@@ -9,7 +9,9 @@ describe('Function', () => {
     await renderer.render(
       <File baseName="api.ts" path="src/api.ts">
         <File.Source name="getPet" isExportable>
-          <Function export name="getPet" params="petId: string" returnType="string">{'return petId'}</Function>
+          <Function export name="getPet" params="petId: string" returnType="string">
+            {'return petId'}
+          </Function>
         </File.Source>
       </File>,
     )
@@ -25,7 +27,9 @@ describe('Function.Arrow', () => {
     await renderer.render(
       <File baseName="utils.ts" path="src/utils.ts">
         <File.Source name="double" isExportable>
-          <Function.Arrow export name="double" params="n: number" returnType="number" singleLine>{'n * 2'}</Function.Arrow>
+          <Function.Arrow export name="double" params="n: number" returnType="number" singleLine>
+            {'n * 2'}
+          </Function.Arrow>
         </File.Source>
       </File>,
     )
