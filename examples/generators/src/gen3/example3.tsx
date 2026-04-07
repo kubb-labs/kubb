@@ -1,17 +1,11 @@
 export function ListPets() {
-  const href = '/pets'
+  const _href = '/pets'
 
-  return <a href={href}>Open get</a>
-}
-
-export function CreatePets() {
-  const href = '/pets'
-
-  return <a href={href}>Open post</a>
+  return
 }
 
 export function ShowPetById() {
-  const href = '/pets/:petId'
+  const _href = '/pets/:petId'
 
-  return <a href={href}>Open get</a>
+  return
 }
