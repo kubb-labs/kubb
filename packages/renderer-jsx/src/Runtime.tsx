@@ -6,7 +6,7 @@ import { createNode } from './dom.ts'
 import type { FiberRoot } from './Renderer.ts'
 import { Renderer } from './Renderer.ts'
 import type { DOMElement, KubbReactElement } from './types.ts'
-import { processFiles } from './utils/processFiles.ts'
+import { processFiles } from './utils.ts'
 
 type Options = {
   /**

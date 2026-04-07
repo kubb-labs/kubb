@@ -1,7 +1,7 @@
 import { createArrowFunction, createBreak, createConst, createFunction, createSource, createText, createType } from '@kubb/ast'
-import type { ArrowFunctionNode, CodeNode, JSDocNode, SourceNode } from '@kubb/ast/types'
-import { nodeNames } from '../dom.ts'
-import type { DOMElement, DOMNode, ElementNames } from '../types.ts'
+import type { ArrowFunctionNode, CodeNode, ExportNode, FileNode, ImportNode, JSDocNode, SourceNode } from '@kubb/ast/types'
+import { nodeNames } from './dom.ts'
+import type { DOMElement, DOMNode, ElementNames } from './types.ts'
 
 /**
  * Collect the text and nested AST-node children of a single kubb-* element.
@@ -192,4 +192,98 @@ export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>
 
   walk(node)
   return sources
+}
+
+export function squashExportNodes(node: DOMElement): Set<ExportNode> {
+  const exports = new Set<ExportNode>()
+
+  const walk = (current: DOMElement): void => {
+    for (const child of current.childNodes) {
+      if (!child) {
+        continue
+      }
+
+      if (child.nodeName !== '#text' && nodeNames.has(child.nodeName)) {
+        walk(child)
+      }
+
+      if (child.nodeName === 'kubb-export') {
+        exports.add({
+          name: child.attributes.get('name'),
+          path: child.attributes.get('path'),
+          isTypeOnly: child.attributes.get('isTypeOnly') ?? false,
+          asAlias: child.attributes.get('asAlias') ?? false,
+        } as ExportNode)
+      }
+    }
+  }
+
+  walk(node)
+  return exports
+}
+
+export function squashImportNodes(node: DOMElement): Set<ImportNode> {
+  const imports = new Set<ImportNode>()
+
+  const walk = (current: DOMElement): void => {
+    for (const child of current.childNodes) {
+      if (!child) {
+        continue
+      }
+
+      if (child.nodeName !== '#text' && nodeNames.has(child.nodeName)) {
+        walk(child)
+      }
+
+      if (child.nodeName === 'kubb-import') {
+        imports.add({
+          name: child.attributes.get('name'),
+          path: child.attributes.get('path'),
+          root: child.attributes.get('root'),
+          isTypeOnly: child.attributes.get('isTypeOnly') ?? false,
+          isNameSpace: child.attributes.get('isNameSpace') ?? false,
+        } as ImportNode)
+      }
+    }
+  }
+
+  walk(node)
+  return imports
+}
+
+export async function processFiles(node: DOMElement): Promise<Array<FileNode>> {
+  const collected: Array<FileNode> = []
+
+  async function walk(current: DOMElement) {
+    for (const child of current.childNodes) {
+      if (!child) {
+        continue
+      }
+
+      if (child.nodeName !== '#text' && child.nodeName !== 'kubb-file' && nodeNames.has(child.nodeName)) {
+        await walk(child)
+      }
+
+      if (child.nodeName === 'kubb-file') {
+        if (child.attributes.has('baseName') && child.attributes.has('path')) {
+          const sources = squashSourceNodes(child, ['kubb-export', 'kubb-import'])
+
+          collected.push({
+            baseName: child.attributes.get('baseName'),
+            path: child.attributes.get('path'),
+            meta: child.attributes.get('meta') || {},
+            footer: child.attributes.get('footer'),
+            banner: child.attributes.get('banner'),
+            sources: [...sources],
+            exports: [...squashExportNodes(child)],
+            imports: [...squashImportNodes(child)],
+          } as FileNode)
+        }
+      }
+    }
+  }
+
+  await walk(node)
+
+  return collected
 }
