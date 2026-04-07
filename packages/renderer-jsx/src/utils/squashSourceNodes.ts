@@ -145,12 +145,25 @@ export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>
       if (child.nodeName === 'kubb-source') {
         const astNodes = collectAstNodes(child)
 
+        // Collect raw text children as `value` (for printer-based output like plugin-ts)
+        const textParts: string[] = []
+        for (const c of child.childNodes) {
+          if (c && c.nodeName === '#text') {
+            const text = (c as DOMNode<{ nodeName: '#text' }>).nodeValue
+            if (text && text.trim().length > 0) {
+              textParts.push(text)
+            }
+          }
+        }
+        const value = textParts.length > 0 ? textParts.join('') : undefined
+
         const source = createSource({
           name: child.attributes.get('name')?.toString(),
           isTypeOnly: (child.attributes.get('isTypeOnly') ?? false) as boolean,
           isExportable: (child.attributes.get('isExportable') ?? false) as boolean,
           isIndexable: (child.attributes.get('isIndexable') ?? false) as boolean,
           nodes: astNodes,
+          value,
         })
 
         sources.add(source)
