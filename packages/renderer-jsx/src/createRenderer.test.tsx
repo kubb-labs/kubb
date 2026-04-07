@@ -354,7 +354,9 @@ describe('Function component', () => {
     await renderer.render(
       <File baseName="main.ts" path="src/main.ts">
         <File.Source name="main" isExportable>
-          <Function export default name="main">{'// main'}</Function>
+          <Function export default name="main">
+            {'// main'}
+          </Function>
         </File.Source>
       </File>,
     )
