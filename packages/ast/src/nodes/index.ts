@@ -10,7 +10,7 @@ import type { InputNode } from './root.ts'
 import type { SchemaNode } from './schema.ts'
 
 export type { BaseNode, NodeKind } from './base.ts'
-export type { ArrowFunctionNode, CodeNode, ConstNode, FunctionNode, JSDocNode, TypeDeclarationNode, TypeNode } from './code.ts'
+export type { ArrowFunctionNode, BreakNode, CodeNode, ConstNode, FunctionNode, JSDocNode, TextNode, TypeDeclarationNode, TypeNode } from './code.ts'
 export type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
 export type { FunctionNodeType, FunctionParameterNode, FunctionParametersNode, FunctionParamNode, ParameterGroupNode, ParamsTypeNode } from './function.ts'
 export type { HttpStatusCode, MediaType, StatusCode } from './http.ts'

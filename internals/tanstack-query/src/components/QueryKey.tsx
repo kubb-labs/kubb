@@ -1,9 +1,10 @@
 import { URLPath } from '@internals/utils'
+import { FunctionParams } from '@kubb/core'
 import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams, Type } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { File, Function, Type } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { ParamsCasing, PathParamsType, Transformer } from '../types.ts'
 
 type Props = {
@@ -59,7 +60,7 @@ const getTransformer: Transformer = ({ operation, schemas, casing }) => {
   return keys
 }
 
-export function QueryKey({ name, typeSchemas, paramsCasing, pathParamsType, operation, typeName, transformer = getTransformer }: Props): FabricReactNode {
+export function QueryKey({ name, typeSchemas, paramsCasing, pathParamsType, operation, typeName, transformer = getTransformer }: Props): KubbReactNode {
   const params = getParams({ pathParamsType, typeSchemas, paramsCasing })
   const keys = transformer({
     operation,

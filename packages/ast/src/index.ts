@@ -2,6 +2,7 @@ export type { ScalarPrimitive } from './constants.ts'
 export { httpMethods, isScalarPrimitive, mediaTypes, nodeKinds, schemaTypes } from './constants.ts'
 export {
   createArrowFunction,
+  createBreak,
   createConst,
   createExport,
   createFile,
@@ -19,6 +20,7 @@ export {
   createResponse,
   createSchema,
   createSource,
+  createText,
   createType,
   syncOptionality,
 } from './factory.ts'
@@ -37,6 +39,7 @@ export {
   combineSources,
   createDiscriminantNode,
   createOperationParams,
+  extractStringsFromNodes,
   isStringType,
   syncSchemaRef,
 } from './utils.ts'

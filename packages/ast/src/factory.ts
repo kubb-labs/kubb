@@ -4,7 +4,7 @@ import { trimExtName } from '@internals/utils'
 import type { InferSchemaNode } from './infer.ts'
 import type {
   ArrowFunctionNode,
-  CodeNode,
+  BreakNode,
   ConstNode,
   ExportNode,
   FileNode,
@@ -24,9 +24,10 @@ import type {
   ResponseNode,
   SchemaNode,
   SourceNode,
+  TextNode,
   TypeNode,
 } from './nodes/index.ts'
-import { combineExports, combineImports, combineSources } from './utils.ts'
+import { combineExports, combineImports, combineSources, extractStringsFromNodes } from './utils.ts'
 
 /**
  * Syncs property/parameter schema optionality flags from `required` and `schema.nullable`.
@@ -517,30 +518,6 @@ type UserFileNode<TMeta extends object = object> = Omit<FileNode<TMeta>, 'kind' 
  * // file.extname = '.ts'
  * ```
  */
-/**
- * Recursively extract all string content embedded in a CodeNode tree.
- * Includes template-literal bodies in `nodes` as well as string attribute
- * fields (`params`, `generics`, `returnType`, `type`) that may reference
- * identifiers needing imports.
- */
-function extractStringsFromNodes(nodes: Array<CodeNode | string> | undefined): string {
-  if (!nodes?.length) return ''
-  return nodes
-    .map((node) => {
-      if (typeof node === 'string') return node
-      const parts: string[] = []
-      if (node.params) parts.push(node.params)
-      if (node.generics) parts.push(Array.isArray(node.generics) ? node.generics.join(', ') : node.generics)
-      if (node.returnType) parts.push(node.returnType)
-      if ('type' in node && typeof node.type === 'string') parts.push(node.type)
-      const nested = extractStringsFromNodes((node as CodeNode).nodes)
-      if (nested) parts.push(nested)
-      return parts.join('\n')
-    })
-    .filter(Boolean)
-    .join('\n')
-}
-
 export function createFile<TMeta extends object = object>(input: UserFileNode<TMeta>): FileNode<TMeta> {
   const rawExtname = path.extname(input.baseName)
   // Handle dotfile basename like '.ts' where path.extname returns ''
@@ -697,4 +674,36 @@ export function createFunction(props: Omit<FunctionNode, 'kind'>): FunctionNode 
  */
 export function createArrowFunction(props: Omit<ArrowFunctionNode, 'kind'>): ArrowFunctionNode {
   return { ...props, kind: 'ArrowFunction' }
+}
+
+/**
+ * Creates a {@link TextNode} representing a raw string fragment in the source output.
+ *
+ * Use this instead of bare strings when building `nodes` arrays so that every
+ * entry in the array is a typed {@link CodeNode}.
+ *
+ * @example
+ * ```ts
+ * createText('return fetch(id)')
+ * // { kind: 'Text', value: 'return fetch(id)' }
+ * ```
+ */
+export function createText(value: string): TextNode {
+  return { value, kind: 'Text' }
+}
+
+/**
+ * Creates a {@link BreakNode} representing a line break in the source output.
+ *
+ * Corresponds to `<br/>` in JSX components. Prints as an empty string which,
+ * when joined with `\n` by `printNodes`, produces a blank line.
+ *
+ * @example
+ * ```ts
+ * createBreak()
+ * // { kind: 'Break' }
+ * ```
+ */
+export function createBreak(): BreakNode {
+  return { kind: 'Break' }
 }

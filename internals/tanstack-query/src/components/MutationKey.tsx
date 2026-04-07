@@ -1,8 +1,9 @@
 import { URLPath } from '@internals/utils'
+import { FunctionParams } from '@kubb/core'
 import type { Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import { File, Function, FunctionParams, Type } from '@kubb/react-fabric'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { File, Function, Type } from '@kubb/renderer-jsx'
+import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { ParamsCasing, PathParamsType, Transformer } from '../types.ts'
 
 type Props = {
@@ -30,7 +31,7 @@ const getTransformer: Transformer = ({ operation, casing }) => {
   return [`{ url: '${path.toURLPath()}' }`]
 }
 
-export function MutationKey({ name, typeSchemas, pathParamsType, paramsCasing, operation, typeName, transformer = getTransformer }: Props): FabricReactNode {
+export function MutationKey({ name, typeSchemas, pathParamsType, paramsCasing, operation, typeName, transformer = getTransformer }: Props): KubbReactNode {
   const params = getParams({ pathParamsType, typeSchemas })
   const keys = transformer({ operation, schemas: typeSchemas, casing: paramsCasing })
 

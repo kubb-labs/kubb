@@ -53,9 +53,9 @@ export type ConstNode = BaseNode & {
   asConst?: boolean
   /**
    * Child nodes representing the value of the constant (children of the `Const` component).
-   * Each entry is either a structured {@link CodeNode} or a raw string expression.
+   * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
    */
-  nodes?: Array<CodeNode | string>
+  nodes?: Array<CodeNode>
 }
 
 /**
@@ -90,9 +90,9 @@ export type TypeNode = BaseNode & {
   JSDoc?: JSDocNode
   /**
    * Child nodes representing the type body (children of the `Type` component).
-   * Each entry is either a structured {@link CodeNode} or a raw string expression.
+   * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
    */
-  nodes?: Array<CodeNode | string>
+  nodes?: Array<CodeNode>
 }
 
 /**
@@ -157,9 +157,9 @@ export type FunctionNode = BaseNode & {
   JSDoc?: JSDocNode
   /**
    * Child nodes representing the function body (children of the `Function` component).
-   * Each entry is either a structured {@link CodeNode} or a raw string statement.
+   * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
    */
-  nodes?: Array<CodeNode | string>
+  nodes?: Array<CodeNode>
 }
 
 /**
@@ -223,9 +223,53 @@ export type ArrowFunctionNode = BaseNode & {
   singleLine?: boolean
   /**
    * Child nodes representing the function body (children of the `Function.Arrow` component).
-   * Each entry is either a structured {@link CodeNode} or a raw string statement.
+   * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
    */
-  nodes?: Array<CodeNode | string>
+  nodes?: Array<CodeNode>
+}
+
+/**
+ * AST node representing a raw text/string fragment in the source output.
+ *
+ * Used instead of bare `string` values so that all entries in `nodes` arrays
+ * are typed `CodeNode` objects rather than a mixed `CodeNode | string` union.
+ *
+ * @example
+ * ```ts
+ * createText('return fetch(id)')
+ * // { kind: 'Text', value: 'return fetch(id)' }
+ * ```
+ */
+export type TextNode = BaseNode & {
+  /**
+   * Node kind.
+   */
+  kind: 'Text'
+  /**
+   * The raw string content.
+   */
+  value: string
+}
+
+/**
+ * AST node representing a line break in the source output.
+ *
+ * Corresponds to `<br/>` in JSX components. When printed, produces an empty
+ * string that — joined with `\n` by `printNodes` — creates a blank line
+ * between surrounding code nodes.
+ *
+ * @example
+ * ```ts
+ * createBreak()
+ * // { kind: 'Break' }
+ * // prints as '' → blank line when surrounded by other nodes
+ * ```
+ */
+export type BreakNode = BaseNode & {
+  /**
+   * Node kind.
+   */
+  kind: 'Break'
 }
 
 /**
@@ -234,4 +278,4 @@ export type ArrowFunctionNode = BaseNode & {
  * These nodes mirror the JSX components from `@kubb/renderer-jsx` and are used as
  * structured children in {@link SourceNode.nodes}.
  */
-export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode
+export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode | TextNode | BreakNode

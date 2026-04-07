@@ -26,6 +26,8 @@ export type NodeKind =
   | 'Const'
   | 'Function'
   | 'ArrowFunction'
+  | 'Text'
+  | 'Break'
 
 /**
  * Base shape shared by all AST nodes.
