@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@kubb/ast": "workspace:*",
+    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",

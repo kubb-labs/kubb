@@ -1,7 +1,7 @@
 import type { PluginOas } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
-import { File } from '@kubb/renderer-jsx'
+import { Const, File, Function } from '@kubb/renderer-jsx'
 
 const pascalCase = (str: string) =>
   str
@@ -21,19 +21,17 @@ export const example3 = createReactGenerator<PluginOas>({
       file: getFile(operation, { extname: '.tsx' }),
     }
 
-    const href = toURL(operation.path)
     const componentName = pascalCase(operation.getOperationId())
+    const href = toURL(operation.path)
 
     return (
       <File baseName={client.file.baseName} path={client.file.path} meta={client.file.meta}>
         <File.Source>
-          {`export function ${componentName}() {
-  const href = '${href}'
-
-  return (
-    <a href={href}>Open ${operation.method}</a>
-  )
-}`}
+          <Function name={componentName} export>
+            <Const name="href">{`'${href}'`}</Const>
+            <br />
+            {`return <a href={href}>Open ${operation.method}</a>`}
+          </Function>
         </File.Source>
       </File>
     )

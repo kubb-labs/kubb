@@ -56,9 +56,9 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
    *
    * A catch-all fallback parser is always appended last for any unhandled extension.
    *
-   * When omitted, `parserTs` from `@kubb/parser-ts` is used automatically as the
+   * When omitted, `parserTsx` from `@kubb/parser-ts` is used automatically as the
    * default (requires `@kubb/parser-ts` to be installed as an optional dependency).
-   * @default [parserTs] — from `@kubb/parser-ts`
+   * @default [parserTsx] — from `@kubb/parser-ts`
    * @example
    * ```ts
    * import { parserTs, tsxParser } from '@kubb/parser-ts'

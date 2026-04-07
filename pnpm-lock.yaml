@@ -325,6 +325,9 @@ importers:
       '@kubb/ast':
         specifier: workspace:*
         version: link:../../packages/ast
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
