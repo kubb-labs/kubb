@@ -1,25 +1,23 @@
-import { rest, setupWorker } from 'msw'
+import { http, HttpResponse } from 'msw'
+import { setupWorker } from 'msw/browser'
 
 export const worker = setupWorker(
-  rest.get('/pet/findByStatus', (req, res, ctx) => {
-    if (req.url.searchParams.get('status') === 'pending') {
-      return res(
-        ctx.json([
-          {
-            id: '1234',
-            name: 'Lily(pending)',
-          },
-        ]),
-      )
-    }
-
-    return res(
-      ctx.json([
+  http.get('/pet/findByStatus', ({ request }) => {
+    const url = new URL(request.url)
+    if (url.searchParams.get('status') === 'pending') {
+      return HttpResponse.json([
         {
           id: '1234',
-          name: 'Lily',
+          name: 'Lily(pending)',
         },
-      ]),
-    )
+      ])
+    }
+
+    return HttpResponse.json([
+      {
+        id: '1234',
+        name: 'Lily',
+      },
+    ])
   }),
 )
