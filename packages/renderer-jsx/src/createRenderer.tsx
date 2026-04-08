@@ -68,3 +68,26 @@ export function createRenderer(options: Options = {}): RendererInstance {
     },
   }
 }
+
+/**
+ * A renderer factory for generators that produce JSX output.
+ *
+ * Pass this as the `renderer` property of a `defineGenerator` call so that
+ * core can render the JSX element tree returned by your generator methods
+ * without a hard dependency on `@kubb/renderer-jsx`.
+ *
+ * @example
+ * ```ts
+ * import { jsxRenderer } from '@kubb/renderer-jsx'
+ * import { defineGenerator } from '@kubb/core'
+ *
+ * export const myGenerator = defineGenerator<PluginTs>({
+ *   name: 'my-generator',
+ *   renderer: jsxRenderer,
+ *   schema(node, options) {
+ *     return <File baseName="output.ts" path="src/output.ts">...</File>
+ *   },
+ * })
+ * ```
+ */
+export const jsxRenderer: () => RendererInstance = () => createRenderer()

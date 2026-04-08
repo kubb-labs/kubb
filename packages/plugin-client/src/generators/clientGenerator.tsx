@@ -3,13 +3,14 @@ import { caseParams } from '@kubb/ast'
 import { defineGenerator } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { File } from '@kubb/renderer-jsx'
+import { File , jsxRenderer } from '@kubb/renderer-jsx'
 import { Client } from '../components/Client'
 import { Url } from '../components/Url.tsx'
 import type { PluginClient } from '../types'
 
 export const clientGenerator = defineGenerator<PluginClient>({
   name: 'client',
+  renderer: jsxRenderer,
   operation(node, options) {
     const { adapter, config, driver, resolver, root } = this
     const { output, urlType, dataReturnType, paramsCasing, paramsType, pathParamsType, parser, importPath, group } = options

@@ -1,11 +1,12 @@
 import { camelCase } from '@internals/utils'
 import type { FileNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
-import { File, Function } from '@kubb/renderer-jsx'
+import { File, Function , jsxRenderer } from '@kubb/renderer-jsx'
 import type { PluginClient } from '../types'
 
 export const groupedClientGenerator = defineGenerator<PluginClient>({
   name: 'groupedClient',
+  renderer: jsxRenderer,
   operations(nodes, options) {
     const { config, resolver, adapter, root } = this
     const { output, group } = options

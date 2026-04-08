@@ -1,7 +1,7 @@
 import { caseParams } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
-import { File } from '@kubb/renderer-jsx'
+import { File , jsxRenderer } from '@kubb/renderer-jsx'
 import { Operations } from '../components/Operations.tsx'
 import { Zod } from '../components/Zod.tsx'
 import { ZOD_NAMESPACE_IMPORTS } from '../constants.ts'
@@ -12,6 +12,7 @@ import { buildSchemaNames } from '../utils.ts'
 
 export const zodGenerator = defineGenerator<PluginZod>({
   name: 'zod',
+  renderer: jsxRenderer,
   schema(node, options) {
     const { adapter, config, resolver, root } = this
     const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, printer } = options

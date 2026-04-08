@@ -1,10 +1,11 @@
 import { defineGenerator } from '@kubb/core'
-import { File } from '@kubb/renderer-jsx'
+import { File , jsxRenderer } from '@kubb/renderer-jsx'
 import { Operations } from '../components/Operations'
 import type { PluginClient } from '../types'
 
 export const operationsGenerator = defineGenerator<PluginClient>({
   name: 'client',
+  renderer: jsxRenderer,
   operations(nodes, options) {
     const { config, resolver, adapter, root } = this
     const { output, group } = options

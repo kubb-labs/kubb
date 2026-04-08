@@ -6,7 +6,7 @@ import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION
 import type { Parser } from './defineParser.ts'
 import { FileProcessor } from './FileProcessor.ts'
 import { PluginDriver } from './PluginDriver.ts'
-import { applyHookResult } from './renderNode.tsx'
+import { applyHookResult } from './renderNode.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { AdapterSource, Config, KubbEvents, Plugin, PluginContext, Storage, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'

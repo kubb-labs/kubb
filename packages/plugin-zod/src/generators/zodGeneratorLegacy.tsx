@@ -1,7 +1,7 @@
 import { caseParams, createProperty, createSchema } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
-import { File } from '@kubb/renderer-jsx'
+import { File , jsxRenderer } from '@kubb/renderer-jsx'
 import { Operations } from '../components/Operations.tsx'
 import { Zod } from '../components/Zod.tsx'
 import { ZOD_NAMESPACE_IMPORTS } from '../constants.ts'
@@ -166,6 +166,7 @@ function buildLegacySchemaNames(node: OperationNode, params: Array<ParameterNode
 
 export const zodGeneratorLegacy = defineGenerator<PluginZod>({
   name: 'zod-legacy',
+  renderer: jsxRenderer,
   schema(node, options) {
     const { adapter, config, resolver, root } = this
     const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, printer } = options

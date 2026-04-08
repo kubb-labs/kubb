@@ -1,12 +1,13 @@
 import { caseParams } from '@kubb/ast'
 import { defineGenerator } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { File } from '@kubb/renderer-jsx'
+import { File , jsxRenderer } from '@kubb/renderer-jsx'
 import { Request } from '../components/Request.tsx'
 import type { PluginCypress } from '../types.ts'
 
 export const cypressGenerator = defineGenerator<PluginCypress>({
   name: 'cypress',
+  renderer: jsxRenderer,
   operation(node, options) {
     const { adapter, config, resolver, driver, root } = this
     const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group } = options
