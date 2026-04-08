@@ -12,7 +12,7 @@ import type { PluginDriver } from './PluginDriver.ts'
  * Pass a `rendererFactory` (e.g. `jsxRenderer` from `@kubb/renderer-jsx`) when the result
  * may be a renderer element. Generators that only return `Array<FileNode>` do not need one.
  */
-export async function applyHookResult(result: unknown | Array<FileNode> | void, driver: PluginDriver, rendererFactory?: RendererFactory): Promise<void> {
+export async function applyHookResult<TElement = unknown>(result: TElement | Array<FileNode> | void, driver: PluginDriver, rendererFactory?: RendererFactory<TElement>): Promise<void> {
   if (!result) return
 
   if (Array.isArray(result)) {
@@ -37,7 +37,6 @@ export async function applyHookResult(result: unknown | Array<FileNode> | void, 
   }
 
   const renderer = rendererFactory()
-  // @ts-ignore – result is a renderer element produced by the matching factory
   await renderer.render(result)
   driver.fileManager.upsert(...renderer.files)
   renderer.unmount()

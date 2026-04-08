@@ -36,7 +36,7 @@ export type { GeneratorContext } from './types.ts'
  * })
  * ```
  */
-export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
+export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptions, TElement = unknown> = {
   /** Used in diagnostic messages and debug output. */
   name: string
   /**
@@ -56,13 +56,13 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    * })
    * ```
    */
-  renderer?: RendererFactory
+  renderer?: RendererFactory<TElement>
   /**
    * Called for each schema node in the AST walk.
    * `this` is the parent plugin's context with `adapter` and `inputNode` guaranteed present.
    * `options` contains the per-node resolved options (after exclude/include/override).
    */
-  schema?: (this: GeneratorContext<TOptions>, node: SchemaNode, options: TOptions['resolvedOptions']) => PossiblePromise<unknown | Array<FileNode> | void>
+  schema?: (this: GeneratorContext<TOptions>, node: SchemaNode, options: TOptions['resolvedOptions']) => PossiblePromise<TElement | Array<FileNode> | void>
   /**
    * Called for each operation node in the AST walk.
    * `this` is the parent plugin's context with `adapter` and `inputNode` guaranteed present.
@@ -71,7 +71,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
     this: GeneratorContext<TOptions>,
     node: OperationNode,
     options: TOptions['resolvedOptions'],
-  ) => PossiblePromise<unknown | Array<FileNode> | void>
+  ) => PossiblePromise<TElement | Array<FileNode> | void>
   /**
    * Called once after all operations have been walked.
    * `this` is the parent plugin's context with `adapter` and `inputNode` guaranteed present.
@@ -80,7 +80,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
     this: GeneratorContext<TOptions>,
     nodes: Array<OperationNode>,
     options: TOptions['resolvedOptions'],
-  ) => PossiblePromise<unknown | Array<FileNode> | void>
+  ) => PossiblePromise<TElement | Array<FileNode> | void>
 }
 
 /**
@@ -88,7 +88,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
  * `applyHookResult` handles renderer elements and `File[]` uniformly using
  * the generator's declared `renderer` factory.
  */
-export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(generator: Generator<TOptions>): Generator<TOptions> {
+export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFactoryOptions, TElement = unknown>(generator: Generator<TOptions, TElement>): Generator<TOptions, TElement> {
   return generator
 }
 
@@ -114,7 +114,7 @@ export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFa
  * }
  * ```
  */
-export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(generators: Array<Generator<TOptions>>): Generator<TOptions> {
+export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(generators: Array<Generator<TOptions, any>>): Generator<TOptions> {
   return {
     name: generators.length > 0 ? generators.map((g) => g.name).join('+') : 'merged',
     async schema(node, options) {

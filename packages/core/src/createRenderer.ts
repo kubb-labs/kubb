@@ -3,11 +3,16 @@ import type { FileNode } from '@kubb/ast/types'
 /**
  * Minimal interface any Kubb renderer must satisfy.
  *
+ * The generic `TElement` is the type of the element the renderer accepts —
+ * e.g. `KubbReactElement` for `@kubb/renderer-jsx`, or a custom type for
+ * your own renderer.  Defaults to `unknown` so that generators which do not
+ * care about the element type continue to work without specifying it.
+ *
  * This allows core to drive rendering without a hard dependency on
  * `@kubb/renderer-jsx` or any specific renderer implementation.
  */
-export type Renderer = {
-  render(element: unknown): Promise<void>
+export type Renderer<TElement = unknown> = {
+  render(element: TElement): Promise<void>
   unmount(error?: Error | number | null): void
   readonly files: Array<FileNode>
 }
@@ -17,7 +22,7 @@ export type Renderer = {
  *
  * Generators use this to declare which renderer handles their output.
  */
-export type RendererFactory = () => Renderer
+export type RendererFactory<TElement = unknown> = () => Renderer<TElement>
 
 /**
  * Creates a renderer factory for use in generator definitions.
@@ -47,6 +52,6 @@ export type RendererFactory = () => Renderer
  * })
  * ```
  */
-export function createRenderer(factory: RendererFactory): RendererFactory {
+export function createRenderer<TElement = unknown>(factory: RendererFactory<TElement>): RendererFactory<TElement> {
   return factory
 }
