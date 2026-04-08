@@ -1,6 +1,6 @@
 import type { JSDoc, Key, KubbReactElement, KubbReactNode } from '../types.ts'
 
-export type ConstProps = {
+type ConstProps = {
   key?: Key
   /**
    * Identifier of the generated constant declaration.

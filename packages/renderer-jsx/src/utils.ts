@@ -1,6 +1,6 @@
-import { createArrowFunction, createBreak, createConst, createFunction, createJsx, createSource, createText, createType } from '@kubb/ast'
+import { createArrowFunction, createBreak, createConst, createExport, createFunction, createImport, createJsx, createSource, createText, createType } from '@kubb/ast'
 import type { ArrowFunctionNode, CodeNode, ExportNode, FileNode, ImportNode, JSDocNode, SourceNode } from '@kubb/ast/types'
-import { nodeNames, TEXT_NODE_NAME } from './dom.ts'
+import { nodeNames, TEXT_NODE_NAME } from './constants.ts'
 import type { DOMElement, DOMNode, ElementNames } from './types.ts'
 
 /**
@@ -107,7 +107,7 @@ function collectChildNodes(element: DOMElement): Array<CodeNode> {
  * const sources = squashSourceNodes(fileElement, ['kubb-export', 'kubb-import'])
  * ```
  */
-export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>): Set<SourceNode> {
+function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>): Set<SourceNode> {
   const ignoreSet = new Set(ignores)
   const sources = new Set<SourceNode>()
 
@@ -147,7 +147,7 @@ export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>
 /**
  * Traverse `node` and collect all `<kubb-export>` elements into a `Set<ExportNode>`.
  */
-export function squashExportNodes(node: DOMElement): Set<ExportNode> {
+function squashExportNodes(node: DOMElement): Set<ExportNode> {
   const exports = new Set<ExportNode>()
 
   const walk = (current: DOMElement): void => {
@@ -161,12 +161,14 @@ export function squashExportNodes(node: DOMElement): Set<ExportNode> {
       }
 
       if (child.nodeName === 'kubb-export') {
-        exports.add({
-          name: child.attributes.get('name'),
-          path: child.attributes.get('path'),
-          isTypeOnly: child.attributes.get('isTypeOnly') ?? false,
-          asAlias: child.attributes.get('asAlias') ?? false,
-        } as ExportNode)
+        exports.add(
+          createExport({
+            name: child.attributes.get('name') as ExportNode['name'],
+            path: child.attributes.get('path') as string,
+            isTypeOnly: (child.attributes.get('isTypeOnly') ?? false) as boolean,
+            asAlias: (child.attributes.get('asAlias') ?? false) as boolean,
+          }),
+        )
       }
     }
   }
@@ -178,7 +180,7 @@ export function squashExportNodes(node: DOMElement): Set<ExportNode> {
 /**
  * Traverse `node` and collect all `<kubb-import>` elements into a `Set<ImportNode>`.
  */
-export function squashImportNodes(node: DOMElement): Set<ImportNode> {
+function squashImportNodes(node: DOMElement): Set<ImportNode> {
   const imports = new Set<ImportNode>()
 
   const walk = (current: DOMElement): void => {
@@ -192,13 +194,15 @@ export function squashImportNodes(node: DOMElement): Set<ImportNode> {
       }
 
       if (child.nodeName === 'kubb-import') {
-        imports.add({
-          name: child.attributes.get('name'),
-          path: child.attributes.get('path'),
-          root: child.attributes.get('root'),
-          isTypeOnly: child.attributes.get('isTypeOnly') ?? false,
-          isNameSpace: child.attributes.get('isNameSpace') ?? false,
-        } as ImportNode)
+        imports.add(
+          createImport({
+            name: child.attributes.get('name') as ImportNode['name'],
+            path: child.attributes.get('path') as string,
+            root: child.attributes.get('root') as string | undefined,
+            isTypeOnly: (child.attributes.get('isTypeOnly') ?? false) as boolean,
+            isNameSpace: (child.attributes.get('isNameSpace') ?? false) as boolean,
+          }),
+        )
       }
     }
   }

@@ -31,7 +31,7 @@ class ErrorBoundary extends Component<{
   }
 }
 
-export type RootProps = {
+type RootProps = {
   /**
    * Callback invoked to unmount the entire renderer tree.
    * Called with an `Error` when the exit is caused by a render error,

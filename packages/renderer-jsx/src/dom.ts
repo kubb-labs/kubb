@@ -1,10 +1,5 @@
-import type { DOMElement, DOMNode, DOMNodeAttribute, ElementNames, TextNode } from './types.ts'
-
-/**
- * Constant for the text-node name used by the virtual DOM.
- * Centralises the magic string so that comparisons across modules stay consistent.
- */
-export const TEXT_NODE_NAME = '#text' as const
+import { TEXT_NODE_NAME } from './constants.ts'
+import type { DOMElement, DOMNode, DOMNodeAttribute, TextNode } from './types.ts'
 
 /**
  * Create a new, empty {@link DOMElement} with the given node name.
@@ -108,25 +103,3 @@ export const setTextNodeValue = (node: TextNode, text: string): void => {
 
   node.nodeValue = text
 }
-
-/**
- * Set of all element names recognized by the Kubb renderer.
- * Used to distinguish Kubb-owned elements from unrecognized or text nodes during tree traversal.
- */
-export const nodeNames = new Set<ElementNames>([
-  'kubb-export',
-  'kubb-file',
-  'kubb-source',
-  'kubb-import',
-  'kubb-function',
-  'kubb-arrow-function',
-  'kubb-const',
-  'kubb-type',
-  'kubb-jsx',
-  'kubb-text',
-  'kubb-root',
-  'kubb-app',
-  'br',
-  'indent',
-  'dedent',
-])

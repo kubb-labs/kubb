@@ -1,6 +1,6 @@
 import type { JSDoc, Key, KubbReactElement, KubbReactNode } from '../types.ts'
 
-export type TypeProps = {
+type TypeProps = {
   key?: Key
   /**
    * Identifier of the generated type alias.

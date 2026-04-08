@@ -121,7 +121,7 @@ function FileSource({ children, ...props }: FileSourceProps): KubbReactElement {
 
 FileSource.displayName = 'FileSource'
 
-export type FileExportProps = Omit<ExportNode, 'kind'> & { key?: Key }
+type FileExportProps = Omit<ExportNode, 'kind'> & { key?: Key }
 
 /**
  * Declares an export entry for the enclosing {@link File}.
@@ -148,7 +148,7 @@ function FileExport(props: FileExportProps): KubbReactElement {
 
 FileExport.displayName = 'FileExport'
 
-export type FileImportProps = Omit<ImportNode, 'kind'> & { key?: Key }
+type FileImportProps = Omit<ImportNode, 'kind'> & { key?: Key }
 
 /**
  * Declares an import entry for the enclosing {@link File}.

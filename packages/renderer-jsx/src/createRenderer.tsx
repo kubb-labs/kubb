@@ -13,11 +13,8 @@ type Options = {
 
 /**
  * The renderer instance returned by {@link createRenderer}.
- *
- * Use `render` to process a JSX element tree and `files` to retrieve
- * the generated {@link FileNode} entries after rendering completes.
  */
-export type Renderer = {
+type RendererInstance = {
   /**
    * Render a JSX element tree and collect the resulting {@link FileNode} entries.
    * Resolves once all synchronous render work (including React's flush) is done.
@@ -56,7 +53,7 @@ export type Renderer = {
  * renderer.unmount()
  * ```
  */
-export function createRenderer(options: Options = {}): Renderer {
+export function createRenderer(options: Options = {}): RendererInstance {
   const runtime = new Runtime(options)
 
   return {

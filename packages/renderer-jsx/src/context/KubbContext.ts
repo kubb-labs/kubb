@@ -1,6 +1,6 @@
 import { createContext } from '@internals/utils'
 
-export type KubbContextValue = {
+type KubbContextValue = {
   driver: unknown
   plugin: unknown
   mode: 'single' | 'split'
