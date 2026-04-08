@@ -26,7 +26,7 @@ export async function applyHookResult(result: unknown | Array<FileNode> | void, 
     try {
       const { createRenderer } = await import('@kubb/renderer-jsx')
       const renderer = createRenderer()
-      // @ts-ignore – result is a renderer element; shape verified at runtime
+      // @ts-expect-error – result is a renderer element; shape verified at runtime
       await renderer.render(result)
       driver.fileManager.upsert(...renderer.files)
       renderer.unmount()
@@ -37,7 +37,7 @@ export async function applyHookResult(result: unknown | Array<FileNode> | void, 
   }
 
   const renderer = rendererFactory()
-  // @ts-ignore – result is a renderer element produced by the matching factory
+  // @ts-expect-error – result is a renderer element produced by the matching factory
   await renderer.render(result)
   driver.fileManager.upsert(...renderer.files)
   renderer.unmount()

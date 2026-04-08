@@ -1,7 +1,7 @@
 import { caseParams, createProperty, createSchema } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
-import { File , jsxRenderer } from '@kubb/renderer-jsx'
+import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Operations } from '../components/Operations.tsx'
 import { Zod } from '../components/Zod.tsx'
 import { ZOD_NAMESPACE_IMPORTS } from '../constants.ts'

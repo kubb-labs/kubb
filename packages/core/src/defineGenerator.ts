@@ -67,11 +67,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    * Called for each operation node in the AST walk.
    * `this` is the parent plugin's context with `adapter` and `inputNode` guaranteed present.
    */
-  operation?: (
-    this: GeneratorContext<TOptions>,
-    node: OperationNode,
-    options: TOptions['resolvedOptions'],
-  ) => PossiblePromise<unknown | Array<FileNode> | void>
+  operation?: (this: GeneratorContext<TOptions>, node: OperationNode, options: TOptions['resolvedOptions']) => PossiblePromise<unknown | Array<FileNode> | void>
   /**
    * Called once after all operations have been walked.
    * `this` is the parent plugin's context with `adapter` and `inputNode` guaranteed present.
