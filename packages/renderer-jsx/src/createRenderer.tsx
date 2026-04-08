@@ -14,7 +14,7 @@ type Options = {
 /**
  * The renderer instance returned by {@link createRenderer}.
  */
-type RendererInstance = {
+type Renderer = {
   /**
    * Render a JSX element tree and collect the resulting {@link FileNode} entries.
    * Resolves once all synchronous render work (including React's flush) is done.
@@ -53,7 +53,7 @@ type RendererInstance = {
  * renderer.unmount()
  * ```
  */
-export function createRenderer(options: Options = {}): RendererInstance {
+export function createRenderer(options: Options = {}): Renderer {
   const runtime = new Runtime(options)
 
   return {
@@ -90,4 +90,4 @@ export function createRenderer(options: Options = {}): RendererInstance {
  * })
  * ```
  */
-export const jsxRenderer: () => RendererInstance = () => createRenderer()
+export const jsxRenderer: () => Renderer = () => createRenderer()

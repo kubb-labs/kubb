@@ -40,7 +40,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
   /** Used in diagnostic messages and debug output. */
   name: string
   /**
-   * Optional renderer factory that produces a {@link RendererInstance} for each render cycle.
+   * Optional renderer factory that produces a {@link Renderer} for each render cycle.
    *
    * Generators that return renderer elements (e.g. JSX via `@kubb/renderer-jsx`) must set this
    * to the matching renderer factory (e.g. `jsxRenderer` from `@kubb/renderer-jsx`).

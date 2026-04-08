@@ -6,18 +6,18 @@ import type { FileNode } from '@kubb/ast/types'
  * This allows core to drive rendering without a hard dependency on
  * `@kubb/renderer-jsx` or any specific renderer implementation.
  */
-export type RendererInstance = {
+export type Renderer = {
   render(element: unknown): Promise<void>
   unmount(error?: Error | number | null): void
   readonly files: Array<FileNode>
 }
 
 /**
- * A factory function that produces a fresh {@link RendererInstance} per render.
+ * A factory function that produces a fresh {@link Renderer} per render.
  *
  * Generators use this to declare which renderer handles their output.
  */
-export type RendererFactory = () => RendererInstance
+export type RendererFactory = () => Renderer
 
 /**
  * Creates a renderer factory for use in generator definitions.
