@@ -66,7 +66,6 @@ export class Runtime {
     )
 
     // Unmount when process exits
-    // Unmount when process exits
     this.unsubscribeExit = onProcessExit((code) => {
       this.unmount(code)
     })
@@ -82,12 +81,12 @@ export class Runtime {
 
     const task = previous
       .catch(() => {})
-      .then(async () => {
+      .then(() => {
         if (this.#isUnmounted) {
           return
         }
 
-        const files = await processFiles(this.#rootNode)
+        const files = processFiles(this.#rootNode)
 
         this.nodes.push(...files)
 

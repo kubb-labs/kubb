@@ -213,5 +213,3 @@ export type JSDoc = {
    */
   comments: Array<string>
 }
-
-export type { Context } from '@internals/utils'

@@ -1,4 +1,5 @@
-import type { DOMElement, DOMNode, DOMNodeAttribute, ElementNames, TextNode } from './types.ts'
+import { TEXT_NODE_NAME } from './constants.ts'
+import type { DOMElement, DOMNode, DOMNodeAttribute, TextNode } from './types.ts'
 
 /**
  * Create a new, empty {@link DOMElement} with the given node name.
@@ -27,7 +28,7 @@ export const appendChildNode = (node: DOMNode, childNode: DOMElement | DOMNode):
     removeChildNode(childNode.parentNode, childNode)
   }
 
-  if (node.nodeName !== '#text') {
+  if (node.nodeName !== TEXT_NODE_NAME) {
     childNode.parentNode = node
     node.childNodes.push(childNode)
   }
@@ -81,7 +82,7 @@ export const setAttribute = (node: DOMElement, key: string, value: DOMNodeAttrib
  */
 export const createTextNode = (text: string): TextNode => {
   const node: TextNode = {
-    nodeName: '#text',
+    nodeName: TEXT_NODE_NAME,
     nodeValue: text,
     parentNode: undefined,
   }
@@ -102,25 +103,3 @@ export const setTextNodeValue = (node: TextNode, text: string): void => {
 
   node.nodeValue = text
 }
-
-/**
- * Set of all element names recognized by the Kubb renderer.
- * Used to distinguish Kubb-owned elements from unrecognized or text nodes during tree traversal.
- */
-export const nodeNames = new Set<ElementNames>([
-  'kubb-export',
-  'kubb-file',
-  'kubb-source',
-  'kubb-import',
-  'kubb-function',
-  'kubb-arrow-function',
-  'kubb-const',
-  'kubb-type',
-  'kubb-jsx',
-  'kubb-text',
-  'kubb-root',
-  'kubb-app',
-  'br',
-  'indent',
-  'dedent',
-])
