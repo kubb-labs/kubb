@@ -1,6 +1,12 @@
 import type { DOMElement, DOMNode, DOMNodeAttribute, ElementNames, TextNode } from './types.ts'
 
 /**
+ * Constant for the text-node name used by the virtual DOM.
+ * Centralises the magic string so that comparisons across modules stay consistent.
+ */
+export const TEXT_NODE_NAME = '#text' as const
+
+/**
  * Create a new, empty {@link DOMElement} with the given node name.
  * The element has no attributes, no children, and no parent.
  */
@@ -27,7 +33,7 @@ export const appendChildNode = (node: DOMNode, childNode: DOMElement | DOMNode):
     removeChildNode(childNode.parentNode, childNode)
   }
 
-  if (node.nodeName !== '#text') {
+  if (node.nodeName !== TEXT_NODE_NAME) {
     childNode.parentNode = node
     node.childNodes.push(childNode)
   }
@@ -81,7 +87,7 @@ export const setAttribute = (node: DOMElement, key: string, value: DOMNodeAttrib
  */
 export const createTextNode = (text: string): TextNode => {
   const node: TextNode = {
-    nodeName: '#text',
+    nodeName: TEXT_NODE_NAME,
     nodeValue: text,
     parentNode: undefined,
   }

@@ -1,6 +1,6 @@
 import { createArrowFunction, createBreak, createConst, createFunction, createJsx, createSource, createText, createType } from '@kubb/ast'
 import type { ArrowFunctionNode, CodeNode, ExportNode, FileNode, ImportNode, JSDocNode, SourceNode } from '@kubb/ast/types'
-import { nodeNames } from './dom.ts'
+import { nodeNames, TEXT_NODE_NAME } from './dom.ts'
 import type { DOMElement, DOMNode, ElementNames } from './types.ts'
 
 /**
@@ -18,7 +18,7 @@ function collectChildNodes(element: DOMElement): Array<CodeNode> {
       continue
     }
 
-    if (child.nodeName === '#text') {
+    if (child.nodeName === TEXT_NODE_NAME) {
       const text = (child as DOMNode<{ nodeName: '#text' }>).nodeValue
       if (text && text.trim().length > 0) {
         result.push(createText(text))
@@ -86,7 +86,7 @@ function collectChildNodes(element: DOMElement): Array<CodeNode> {
       )
     } else if (child.nodeName === 'kubb-jsx') {
       const textChild = child.childNodes[0]
-      const value = textChild?.nodeName === '#text' ? (textChild as DOMNode<{ nodeName: '#text' }>).nodeValue : ''
+      const value = textChild?.nodeName === TEXT_NODE_NAME ? (textChild as DOMNode<{ nodeName: '#text' }>).nodeValue : ''
       if (value) {
         result.push(createJsx(value))
       }
@@ -117,99 +117,24 @@ export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>
         continue
       }
 
-      if (child.nodeName !== '#text' && ignoreSet.has(child.nodeName)) {
+      if (child.nodeName !== TEXT_NODE_NAME && ignoreSet.has(child.nodeName)) {
         continue
       }
 
       if (child.nodeName === 'kubb-source') {
-        // Collect children in DOM order: text strings and kubb-* elements interleaved
-        const orderedNodes: Array<CodeNode> = []
-        for (const c of child.childNodes) {
-          if (!c) continue
-
-          if (c.nodeName === '#text') {
-            const text = (c as DOMNode<{ nodeName: '#text' }>).nodeValue
-            if (text && text.trim().length > 0) {
-              orderedNodes.push(createText(text))
-            }
-          } else if (c.nodeName === 'br') {
-            orderedNodes.push(createBreak())
-          } else if (c.nodeName === 'kubb-function') {
-            const attrs = c.attributes
-            orderedNodes.push(
-              createFunction({
-                name: attrs.get('name') as string,
-                params: attrs.get('params') as string | undefined,
-                export: attrs.get('export') as boolean | undefined,
-                default: attrs.get('default') as boolean | undefined,
-                async: attrs.get('async') as boolean | undefined,
-                generics: attrs.get('generics') as string | undefined,
-                returnType: attrs.get('returnType') as string | undefined,
-                JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
-                nodes: collectChildNodes(c),
-              }),
-            )
-          } else if (c.nodeName === 'kubb-arrow-function') {
-            const attrs = c.attributes
-            orderedNodes.push(
-              createArrowFunction({
-                name: attrs.get('name') as string,
-                params: attrs.get('params') as string | undefined,
-                export: attrs.get('export') as boolean | undefined,
-                default: attrs.get('default') as boolean | undefined,
-                async: attrs.get('async') as boolean | undefined,
-                generics: attrs.get('generics') as string | undefined,
-                returnType: attrs.get('returnType') as string | undefined,
-                singleLine: attrs.get('singleLine') as boolean | undefined,
-                JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
-                nodes: collectChildNodes(c),
-              } as Omit<ArrowFunctionNode, 'kind'>),
-            )
-          } else if (c.nodeName === 'kubb-const') {
-            const attrs = c.attributes
-            orderedNodes.push(
-              createConst({
-                name: attrs.get('name') as string,
-                type: attrs.get('type') as string | undefined,
-                export: attrs.get('export') as boolean | undefined,
-                asConst: attrs.get('asConst') as boolean | undefined,
-                JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
-                nodes: collectChildNodes(c),
-              }),
-            )
-          } else if (c.nodeName === 'kubb-type') {
-            const attrs = c.attributes
-            orderedNodes.push(
-              createType({
-                name: attrs.get('name') as string,
-                export: attrs.get('export') as boolean | undefined,
-                JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
-                nodes: collectChildNodes(c),
-              }),
-            )
-          } else if (c.nodeName === 'kubb-jsx') {
-            const textChild = c.childNodes[0]
-            const value = textChild?.nodeName === '#text' ? (textChild as DOMNode<{ nodeName: '#text' }>).nodeValue : ''
-            if (value) {
-              orderedNodes.push(createJsx(value))
-            }
-          }
-        }
-
         const source = createSource({
           name: child.attributes.get('name')?.toString(),
           isTypeOnly: (child.attributes.get('isTypeOnly') ?? false) as boolean,
           isExportable: (child.attributes.get('isExportable') ?? false) as boolean,
           isIndexable: (child.attributes.get('isIndexable') ?? false) as boolean,
-          nodes: orderedNodes,
-          // value is no longer set separately — all content is in nodes
+          nodes: collectChildNodes(child),
         })
 
         sources.add(source)
         continue
       }
 
-      if (child.nodeName !== '#text' && nodeNames.has(child.nodeName)) {
+      if (child.nodeName !== TEXT_NODE_NAME && nodeNames.has(child.nodeName)) {
         walk(child)
       }
     }
@@ -231,7 +156,7 @@ export function squashExportNodes(node: DOMElement): Set<ExportNode> {
         continue
       }
 
-      if (child.nodeName !== '#text' && nodeNames.has(child.nodeName)) {
+      if (child.nodeName !== TEXT_NODE_NAME && nodeNames.has(child.nodeName)) {
         walk(child)
       }
 
@@ -262,7 +187,7 @@ export function squashImportNodes(node: DOMElement): Set<ImportNode> {
         continue
       }
 
-      if (child.nodeName !== '#text' && nodeNames.has(child.nodeName)) {
+      if (child.nodeName !== TEXT_NODE_NAME && nodeNames.has(child.nodeName)) {
         walk(child)
       }
 
@@ -289,17 +214,17 @@ export function squashImportNodes(node: DOMElement): Set<ImportNode> {
  * Returns the list of file nodes in document order. Nested files are supported —
  * the walker descends into non-file elements and recurses through them.
  */
-export async function processFiles(node: DOMElement): Promise<Array<FileNode>> {
+export function processFiles(node: DOMElement): Array<FileNode> {
   const collected: Array<FileNode> = []
 
-  async function walk(current: DOMElement) {
+  function walk(current: DOMElement) {
     for (const child of current.childNodes) {
       if (!child) {
         continue
       }
 
-      if (child.nodeName !== '#text' && child.nodeName !== 'kubb-file' && nodeNames.has(child.nodeName)) {
-        await walk(child)
+      if (child.nodeName !== TEXT_NODE_NAME && child.nodeName !== 'kubb-file' && nodeNames.has(child.nodeName)) {
+        walk(child)
       }
 
       if (child.nodeName === 'kubb-file') {
@@ -321,7 +246,7 @@ export async function processFiles(node: DOMElement): Promise<Array<FileNode>> {
     }
   }
 
-  await walk(node)
+  walk(node)
 
   return collected
 }

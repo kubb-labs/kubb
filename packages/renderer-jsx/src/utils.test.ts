@@ -143,7 +143,7 @@ describe('squashImportNodes', () => {
 })
 
 describe('processFiles', () => {
-  it('should collect a file node with its sources, imports, exports, and metadata', async () => {
+  it('should collect a file node with its sources, imports, exports, and metadata', () => {
     const root = createNode('kubb-root')
     const file = createNode('kubb-file')
     setAttribute(file, 'baseName', 'pet.ts')
@@ -174,7 +174,7 @@ describe('processFiles', () => {
 
     appendChildNode(root, file)
 
-    const [result] = await processFiles(root)
+    const [result] = processFiles(root)
     expect(result?.baseName).toBe('pet.ts')
     expect(result?.path).toBe('src/models/pet.ts')
     expect(result?.meta).toEqual({ tag: 'pet' })
@@ -185,7 +185,7 @@ describe('processFiles', () => {
     expect(result?.exports[0]?.path).toBe('./models/pet')
   })
 
-  it('should skip file nodes missing baseName or path', async () => {
+  it('should skip file nodes missing baseName or path', () => {
     const root = createNode('kubb-root')
     const noBaseName = createNode('kubb-file')
     setAttribute(noBaseName, 'path', 'src/a.ts')
@@ -194,10 +194,10 @@ describe('processFiles', () => {
     setAttribute(noPath, 'baseName', 'b.ts')
     appendChildNode(root, noPath)
 
-    expect(await processFiles(root)).toEqual([])
+    expect(processFiles(root)).toEqual([])
   })
 
-  it('should traverse nested non-file elements to find files', async () => {
+  it('should traverse nested non-file elements to find files', () => {
     const root = createNode('kubb-root')
     const app = createNode('kubb-app')
     const file = createNode('kubb-file')
@@ -207,7 +207,7 @@ describe('processFiles', () => {
     appendChildNode(app, file)
     appendChildNode(root, app)
 
-    const result = await processFiles(root)
+    const result = processFiles(root)
     expect(result.length).toBe(1)
     expect(result[0]?.baseName).toBe('nested.ts')
   })
