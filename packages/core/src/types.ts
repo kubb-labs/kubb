@@ -9,6 +9,7 @@ import type { KubbEvents } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
 export type { Printer, PrinterFactoryOptions, PrinterPartial } from '@kubb/ast/types'
+export type { Renderer, RendererFactory } from './createRenderer.ts'
 
 declare global {
   namespace Kubb {

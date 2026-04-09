@@ -25,18 +25,6 @@ export async function applyHookResult<TElement = unknown>(
   }
 
   if (!rendererFactory) {
-    // Fallback: attempt to use @kubb/renderer-jsx if available (backwards compatibility).
-    // Generators that return renderer elements should declare `renderer` explicitly.
-    try {
-      const { createRenderer } = await import('@kubb/renderer-jsx')
-      const renderer = createRenderer()
-      // @ts-expect-error – result is a renderer element; shape verified at runtime
-      await renderer.render(result)
-      driver.fileManager.upsert(...renderer.files)
-      renderer.unmount()
-    } catch {
-      // renderer-jsx not available and no rendererFactory provided — skip silently
-    }
     return
   }
 
