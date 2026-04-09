@@ -2,7 +2,7 @@ import { pascalCase } from '@internals/utils'
 import { caseParams, createProperty, createSchema, narrowSchema, schemaTypes, transform } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
-import { File } from '@kubb/renderer-jsx'
+import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
 import { printerTs } from '../printers/printerTs.ts'
@@ -157,6 +157,7 @@ function nameUnnamedEnums(node: SchemaNode, parentName: string): SchemaNode {
 
 export const typeGeneratorLegacy = defineGenerator<PluginTs>({
   name: 'typescript-legacy',
+  renderer: jsxRenderer,
   schema(node, options) {
     const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group } = options
     const { adapter, config, resolver, root } = this

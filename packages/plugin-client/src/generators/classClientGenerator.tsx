@@ -6,7 +6,7 @@ import type { PluginTs } from '@kubb/plugin-ts'
 import { pluginTsName } from '@kubb/plugin-ts'
 import type { PluginZod } from '@kubb/plugin-zod'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { File } from '@kubb/renderer-jsx'
+import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { ClassClient } from '../components/ClassClient'
 import { WrapperClient } from '../components/WrapperClient'
 import type { PluginClient } from '../types'
@@ -45,6 +45,7 @@ function resolveZodImportNames(node: OperationNode, zodResolver: PluginZod['reso
 
 export const classClientGenerator = defineGenerator<PluginClient>({
   name: 'classClient',
+  renderer: jsxRenderer,
   operations(nodes, options) {
     const { adapter, config, driver, resolver, root } = this
     const { output, group, dataReturnType, paramsCasing, paramsType, pathParamsType, parser, importPath, wrapper } = options

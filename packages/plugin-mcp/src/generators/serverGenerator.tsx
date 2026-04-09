@@ -2,7 +2,7 @@ import path from 'node:path'
 import { caseParams } from '@kubb/ast'
 import { defineGenerator } from '@kubb/core'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { File } from '@kubb/renderer-jsx'
+import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Server } from '../components/Server.tsx'
 import type { PluginMcp } from '../types.ts'
 import { findSuccessStatusCode } from '../utils.ts'
@@ -16,6 +16,7 @@ import { findSuccessStatusCode } from '../utils.ts'
  */
 export const serverGenerator = defineGenerator<PluginMcp>({
   name: 'operations',
+  renderer: jsxRenderer,
   operations(nodes, options) {
     const { adapter, config, resolver, plugin, driver, root } = this
     const { output, paramsCasing, group } = options

@@ -225,7 +225,7 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
   const result = await generator.schema.call(context, transformedNode, opts.options)
-  await applyHookResult(result, opts.driver)
+  await applyHookResult(result, opts.driver, generator.renderer)
 }
 
 /**
@@ -246,7 +246,7 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
   const result = await generator.operation.call(context, transformedNode, opts.options)
-  await applyHookResult(result, opts.driver)
+  await applyHookResult(result, opts.driver, generator.renderer)
 }
 
 /**
@@ -267,5 +267,5 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
   const context = createMockedPluginContext(opts)
   const transformedNodes = opts.plugin.transformer ? nodes.map((n) => transform(n, opts.plugin.transformer!)) : nodes
   const result = await generator.operations.call(context, transformedNodes, opts.options)
-  await applyHookResult(result, opts.driver)
+  await applyHookResult(result, opts.driver, generator.renderer)
 }

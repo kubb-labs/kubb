@@ -1,7 +1,6 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
 import type { FileNode, ImportNode, InputNode, Node, OperationNode, Printer, SchemaNode, Visitor } from '@kubb/ast/types'
 import type { HttpMethod } from '@kubb/oas'
-import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -10,6 +9,7 @@ import type { KubbEvents } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
 export type { Printer, PrinterFactoryOptions, PrinterPartial } from '@kubb/ast/types'
+export type { Renderer, RendererFactory } from './createRenderer.ts'
 
 declare global {
   namespace Kubb {
@@ -525,7 +525,7 @@ export type SchemaHook<TOptions extends PluginFactoryOptions = PluginFactoryOpti
   this: GeneratorContext<TOptions>,
   node: SchemaNode,
   options: TOptions['resolvedOptions'],
-) => PossiblePromise<KubbReactNode | Array<FileNode> | void>
+) => PossiblePromise<unknown | Array<FileNode> | void>
 
 /**
  * Handler for a single operation node. Used by the `operation` hook on a plugin.
@@ -534,7 +534,7 @@ export type OperationHook<TOptions extends PluginFactoryOptions = PluginFactoryO
   this: GeneratorContext<TOptions>,
   node: OperationNode,
   options: TOptions['resolvedOptions'],
-) => PossiblePromise<KubbReactNode | Array<FileNode> | void>
+) => PossiblePromise<unknown | Array<FileNode> | void>
 
 /**
  * Handler for all collected operation nodes. Used by the `operations` hook on a plugin.
@@ -543,7 +543,7 @@ export type OperationsHook<TOptions extends PluginFactoryOptions = PluginFactory
   this: GeneratorContext<TOptions>,
   nodes: Array<OperationNode>,
   options: TOptions['resolvedOptions'],
-) => PossiblePromise<KubbReactNode | Array<FileNode> | void>
+) => PossiblePromise<unknown | Array<FileNode> | void>
 
 export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
