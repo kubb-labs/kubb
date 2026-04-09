@@ -101,7 +101,6 @@
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
-    "@kubb/core": "workspace:*",
     "@types/react": "catalog:",
     "@types/react-reconciler": "catalog:",
     "react": "catalog:",
