@@ -1,292 +1,256 @@
-# Kubb as a Meta-Framework — Plugin-First Design
+# Kubb as a Meta-Framework — Modeled After Astro
 
 ## Status
 
-Draft — proposal for discussion
+Draft — proposal for discussion (breaking changes accepted)
 
 ## Core Thesis
 
-Kubb is already a **plugin orchestration platform** — not "a generator with plugins." The plugin is the primary interface. Every other concept (adapters, generators, resolvers, renderers, transformers, presets) exists to serve the plugin.
+Astro is the closest meta-framework analogy to Kubb. Both are **build-time code transformation frameworks** that:
 
-This is the same architectural insight behind every successful meta-framework:
+- Take an input source (Astro: `.astro`/`.md` files, Kubb: OpenAPI/AsyncAPI specs)
+- Process it through a pipeline of integrations/plugins
+- Output generated files (Astro: HTML/JS, Kubb: TypeScript/Zod/clients)
+- Support multiple renderers for the same content (Astro: React/Vue/Svelte, Kubb: JSX/templates/strings)
 
-| Meta-framework | Primary extension point | Everything else serves it |
-|---|---|---|
-| **Vite** | Plugin (with hooks: `resolveId`, `transform`, `load`) | Dev server, bundler, HMR |
-| **Astro** | Integration (with hooks: `astro:config:setup`, `astro:build:*`) | Renderers, islands, routing |
-| **Nuxt** | Module (with hooks: `modules:done`, `build:before`) | Auto-imports, composables, layers |
-| **Kubb** | **Plugin** (with hooks: `buildStart`, `schema`, `operation`, `operations`, `buildEnd`) | Adapters, AST, generators, resolvers, renderers |
-
-The difference: Vite, Astro, and Nuxt make their plugin the **only** thing you need to learn. In Kubb today, you need to learn six separate concepts (`createPlugin`, `defineResolver`, `defineGenerator`, `definePresets`, `mergeGenerators`, `createRenderer`) before writing a single line of generation logic.
-
-**The goal is to make the Kubb plugin the single entry point — just as a Vite plugin is a single object with hooks.**
+This document proposes restructuring Kubb's plugin API to match Astro's integration architecture. **Breaking changes in concepts are acceptable** — the goal is the right architecture, not backward compatibility.
 
 ---
 
-## How Kubb Plugins Already Work
+## Astro's Architecture (Reference)
 
-Before proposing changes, let's be precise about the current architecture — because the plugin is already the center.
+### The Integration is Everything
 
-### The Plugin is the Orchestrator
-
-Every Kubb plugin is a single object returned by `createPlugin`. It has lifecycle hooks and AST hooks:
+In Astro, an integration is a single object with **namespaced lifecycle hooks**. Each hook receives a context object with utility functions — the integration doesn't return capabilities, it **calls** them:
 
 ```ts
-// packages/plugin-ts/src/plugin.ts (simplified)
-export const pluginTs = createPlugin<PluginTs>((options) => {
-  const preset = getPreset({ preset: options.compatibilityPreset, presets, ... })
-  const mergedGenerator = mergeGenerators(preset.generators)
-
+// @astrojs/react — a complete Astro integration
+export default function react(): AstroIntegration {
   return {
-    name: 'plugin-ts',
-    get resolver() { return preset.resolver },
-    get transformer() { return preset.transformer },
-    get options() { return { output, enumType, ... } },
+    name: '@astrojs/react',
+    hooks: {
+      'astro:config:setup'({ addRenderer, updateConfig, injectScript }) {
+        // Register the React renderer (server + client entrypoints)
+        addRenderer({
+          name: '@astrojs/react',
+          serverEntrypoint: '@astrojs/react/server.js',
+          clientEntrypoint: '@astrojs/react/client.js',
+        })
 
-    // Lifecycle hooks
-    async buildStart() { await this.openInStudio({ ast: true }) },
+        // Inject the Vite plugin for JSX
+        updateConfig({
+          vite: { plugins: [vitePluginReact()] },
+        })
+      },
 
-    // AST hooks — these ARE the generation logic
-    async schema(node, options) { return mergedGenerator.schema?.call(this, node, options) },
-    async operation(node, options) { return mergedGenerator.operation?.call(this, node, options) },
-    async operations(nodes, options) { return mergedGenerator.operations?.call(this, nodes, options) },
+      'astro:build:done'({ dir, logger }) {
+        logger.info(`React components built to ${dir}`)
+      },
+    },
   }
+}
+```
+
+### Astro's Key Design Decisions
+
+| Decision | How Astro does it |
+|---|---|
+| **Extension point** | Integration object with `hooks` |
+| **Lifecycle** | Namespaced hooks: `astro:config:setup`, `astro:config:done`, `astro:build:start`, `astro:build:done` |
+| **Capabilities** | Injected via hook context: `addRenderer()`, `updateConfig()`, `injectScript()`, `injectRoute()` |
+| **Renderers** | Separate concept, registered BY integrations via `addRenderer()` |
+| **Data sources** | Content Layer / Content Collections — framework-level, not integration-level |
+| **Ordering** | Integrations run in config order; no explicit `pre`/`post` |
+| **Cross-integration** | Integrations communicate through config mutations and shared hooks |
+
+### Astro's Hook Lifecycle
+
+```
+1. astro:config:setup     — Integrations register renderers, inject scripts, modify config
+2. astro:config:done      — Config finalized, read-only access
+3. astro:server:setup     — Dev server starting (dev only)
+4. astro:build:start      — Build starting
+5. astro:build:setup      — Configure Vite for build
+6. astro:build:generated  — Static files generated
+7. astro:build:done       — Build complete, files on disk
+```
+
+Each hook receives a typed context with exactly the utilities that make sense for that phase.
+
+---
+
+## Concept Mapping: Astro → Kubb
+
+| Astro Concept | Kubb Equivalent | Current Kubb | Proposed Kubb |
+|---|---|---|---|
+| **Integration** | **Plugin** | `createPlugin` returns object with hooks | `definePlugin` returns object with namespaced hooks |
+| **Renderer** | **Generator** | `defineGenerator` with `schema()`/`operation()` + `renderer` | Generators registered via `addGenerator()` inside `kubb:setup` |
+| **Content Layer** | **Adapter** | `createAdapter` parses input → `InputNode` | Unchanged — adapters remain project-level config |
+| **Content Collection** | **InputNode** | `InputNode { schemas, operations, meta }` | Unchanged — the universal AST |
+| **Page/Route** | **FileNode** | `FileNode { path, sources, imports }` | Unchanged — the output unit |
+| **`astro.config.mjs`** | **`kubb.config.ts`** | `defineConfig({ adapter, plugins })` | `defineConfig({ adapter, integrations })` |
+| **`addRenderer()`** | **`addGenerator()`** | N/A — generators are wired externally | Hooks receive `addGenerator()` utility |
+| **`updateConfig()`** | **`updateConfig()`** | N/A | Hooks receive `updateConfig()` utility |
+| **`injectScript()`** | **`injectFile()`** | `this.upsertFile()` in plugin context | Hooks receive `injectFile()` utility |
+| **`injectRoute()`** | **`injectBarrel()`** | Auto-generated from `output.barrelType` | Hooks receive `injectBarrel()` for custom barrel files |
+
+---
+
+## Proposed Architecture
+
+### The Plugin Uses Namespaced Hooks
+
+Replace the current flat hook model (`buildStart`, `schema`, `operation`) with Astro-style namespaced hooks that receive typed context objects:
+
+```ts
+import { definePlugin } from '@kubb/core'
+
+export default definePlugin({
+  name: '@kubb/typescript',
+
+  hooks: {
+    // Phase 1: Setup — register generators, configure resolver, inject files
+    'kubb:setup'({ addGenerator, setResolver, setTransformer, updateConfig, logger }) {
+      setResolver({
+        name(name, type) {
+          return type === 'type' ? pascalCase(name) : camelCase(name)
+        },
+      })
+
+      addGenerator({
+        name: 'types',
+        schema(node, ctx) {
+          const name = ctx.resolver.name(node.name, 'type')
+          const file = ctx.resolver.file({ name, extname: '.ts' })
+          return (
+            <File baseName={file.baseName} path={file.path}>
+              <Type node={node} enumType={ctx.options.enumType} />
+            </File>
+          )
+        },
+      })
+    },
+
+    // Phase 2: Build start — initialization
+    'kubb:build:start'({ config, logger }) {
+      logger.info('TypeScript generation starting')
+    },
+
+    // Phase 3: Build done — post-processing
+    'kubb:build:done'({ files, logger }) {
+      logger.info(`Generated ${files.length} TypeScript files`)
+    },
+  },
 })
 ```
 
-### The Build Pipeline Drives Plugins
+### How This Differs from Astro
 
-The build pipeline in `build.ts` treats plugins as the unit of execution:
+Kubb's hooks need to handle **per-node generation** (schema/operation), which Astro doesn't have. In Astro, renderers handle individual component rendering. In Kubb, generators handle individual node generation. The generator IS the renderer equivalent:
+
+| Astro | Kubb |
+|---|---|
+| Integration registers renderers via `addRenderer()` | Plugin registers generators via `addGenerator()` |
+| Astro core calls renderer for each component | Kubb core calls generator for each schema/operation |
+| Renderer has `serverEntrypoint` + `clientEntrypoint` | Generator has `schema()` + `operation()` + `operations()` |
+
+### The Full Hook Lifecycle
 
 ```
-For each plugin in config.plugins:
-  1. plugin.buildStart()
-  2. Walk InputNode (AST):
-     - For each schema:  plugin.schema(node, resolvedOptions)
-     - For each operation: plugin.operation(node, resolvedOptions)
-     - After all operations: plugin.operations(allNodes, options)
-  3. Generate barrel files
-  4. plugin.buildEnd()
+1. kubb:setup              — Register generators, resolver, transformer, inject config
+2. kubb:config:done        — Config finalized, read-only access
+3. kubb:build:start        — Build starting, adapter has parsed input
+4. kubb:generate:schema    — (Generator hook) Called per schema node
+5. kubb:generate:operation — (Generator hook) Called per operation node
+6. kubb:generate:done      — (Generator hook) Called after all nodes processed
+7. kubb:build:done         — All plugins done, files on disk
 ```
 
-### Plugin Context: Everything a Plugin Needs
-
-Inside any hook, `this` gives the plugin access to everything:
-
-```ts
-// this = PluginContext inside hooks
-this.config        // Full kubb.config.ts
-this.root          // Output root directory
-this.adapter       // The adapter (e.g., adapterOas)
-this.inputNode     // The parsed AST
-this.plugin        // The plugin instance itself
-this.resolver      // Naming + path resolution
-this.driver        // Access all other plugins
-this.getPlugin()   // Cross-plugin communication
-this.upsertFile()  // Write files
-this.warn()        // Diagnostic logging
-```
-
-### What Sits Below Plugins Today
-
-| Concept | Purpose | How plugin uses it |
-|---|---|---|
-| **Generator** | Defines `schema()` / `operation()` / `operations()` handlers | Merged into plugin's hooks via `mergeGenerators` |
-| **Resolver** | Naming conventions, path resolution, include/exclude | Exposed as `this.resolver` in plugin context |
-| **Transformer** | AST visitor that transforms nodes before generators see them | Applied automatically during AST walk |
-| **Preset** | Bundles resolver + generators + transformer | Selected in plugin factory, provides defaults |
-| **Renderer** | Converts generator output (JSX) into `FileNode[]` | Set per-generator, called by `applyHookResult` |
-
-**The problem:** These are all internal to the plugin, but they are defined *externally* and wired together manually.
+Hooks 4–6 are **not** on the integration itself — they're on the generators that the integration registered. This matches Astro where the rendering happens inside the renderer, not the integration.
 
 ---
 
-## The Meta-Framework Analogy
+## What This Looks Like in Practice
 
-### How Vite Does It
+### Simple Plugin (Before vs After)
 
-A Vite plugin is **one object with hooks**. Everything is inline:
-
-```ts
-// A complete Vite plugin — one object, no external wiring
-export default function myVitePlugin(options) {
-  return {
-    name: 'my-plugin',
-    enforce: 'pre',                          // Ordering (like Kubb's `pre`)
-
-    resolveId(id) { /* resolve module */ },   // Like Kubb's resolver
-    load(id) { /* load module content */ },   // Like Kubb's adapter
-    transform(code, id) { /* transform */ },  // Like Kubb's generator
-
-    configResolved(config) { /* lifecycle */ }, // Like Kubb's buildStart
-    buildEnd() { /* cleanup */ },              // Like Kubb's buildEnd
-  }
-}
-```
-
-Notice: there's no `defineTransformer`, no `defineLoader`, no `createResolver`. It's all in one place. Advanced users can extract logic into helpers, but the **plugin contract is a single flat object**.
-
-### How Astro Does It
-
-Astro integrations are plugin objects with lifecycle hooks:
+**Before — Current API (6 files, 6 concepts):**
 
 ```ts
-// A complete Astro integration
-export default function myAstroIntegration(options) {
-  return {
-    name: 'my-integration',
-    hooks: {
-      'astro:config:setup'({ addRenderer, updateConfig }) {
-        addRenderer({ name: 'react', ... })   // Register a renderer
-        updateConfig({ vite: { ... } })        // Modify config
-      },
-      'astro:build:start'({ buildConfig }) { /* ... */ },
-      'astro:build:done'({ dir, routes }) { /* ... */ },
-    }
-  }
-}
-```
+// resolvers/resolverHello.ts
+export const resolverHello = defineResolver<PluginHello>(() => ({
+  name: 'default',
+  pluginName: 'plugin-hello',
+}))
 
-The key insight: Astro's `addRenderer` is **called from within the plugin**, not defined separately. The plugin is the composition root.
+// generators/helloGenerator.tsx
+export const helloGenerator = defineGenerator<PluginHello>({
+  name: 'hello',
+  renderer: jsxRenderer,
+  schema(node, options) {
+    return <File ...><Hello node={node} /></File>
+  },
+})
 
-### The Kubb Equivalent
+// presets.ts
+export const presets = definePresets<ResolverHello>({
+  default: { name: 'default', resolver: resolverHello, generators: [helloGenerator] },
+})
 
-What if Kubb plugins worked the same way — where generators, resolvers, and renderers are defined **inside the plugin** rather than wired together externally?
+// types.ts
+export type PluginHello = PluginFactoryOptions<'plugin-hello', Options, ResolvedOptions, ...>
 
----
-
-## Proposal: Plugin-First Architecture
-
-### Design Principle
-
-> **The plugin is the only API surface a developer needs to learn.** Generators, resolvers, transformers, and renderers are implementation details that live inside the plugin — not separate top-level concepts.
-
-### Approach 1: Inline Everything in the Plugin
-
-The most direct approach. The plugin object contains all generation logic directly, just like a Vite plugin contains `resolveId`, `load`, and `transform` inline.
-
-```ts
-import { createPlugin } from '@kubb/core'
-import { jsxRenderer, File } from '@kubb/renderer-jsx'
-
-export const pluginHello = createPlugin((options = {}) => {
-  const { output = { path: 'hello', barrelType: 'named' } } = options
-
+// plugin.ts
+export const pluginHello = createPlugin<PluginHello>((options) => {
+  const preset = getPreset({ preset: 'default', presets })
+  const mergedGenerator = mergeGenerators(preset.generators)
   return {
     name: 'plugin-hello',
-    renderer: jsxRenderer,
-    options: { output },
-
-    schema(node, options) {
-      const name = this.resolver.default(node.name, 'type')
-      const file = this.resolver.resolveFile(
-        { name, extname: '.ts' },
-        { root: this.root, output: options.output },
-      )
-      return (
-        <File baseName={file.baseName} path={file.path}>
-          <File.Source name={name} isExportable isIndexable>
-            {`export type ${name} = { id: string }`}
-          </File.Source>
-        </File>
-      )
-    },
-
-    operation(node, options) {
-      const name = this.resolver.default(node.operationId, 'function')
-      const file = this.resolver.resolveFile(
-        { name, extname: '.ts', tag: node.tags[0] },
-        { root: this.root, output: options.output },
-      )
-      return (
-        <File baseName={file.baseName} path={file.path}>
-          <File.Source name={name} isExportable isIndexable>
-            {`export function ${name}() { /* ${node.method} ${node.path} */ }`}
-          </File.Source>
-        </File>
-      )
-    },
+    get resolver() { return preset.resolver },
+    async schema(node, options) { return mergedGenerator.schema?.call(this, node, options) },
+    async buildStart() { await this.openInStudio({ ast: true }) },
   }
 })
 ```
 
-**What's different from today:**
+**After — Astro-style API (1 file, 1 concept):**
 
-1. **No separate `defineGenerator`** — `schema()` and `operation()` are directly on the plugin.
-2. **No separate `defineResolver`** — the default resolver is auto-injected. Custom resolvers are specified as `resolve: { ... }` on the plugin object.
-3. **No `definePresets` or `mergeGenerators`** — for simple plugins, there's nothing to merge.
-4. **Renderer is on the plugin** — not on each generator separately.
+```tsx
+// plugin.ts
+import { definePlugin } from '@kubb/core'
 
-**This is what plugins already almost do.** Look at the current `plugin-ts`:
+export const pluginHello = definePlugin((options = {}) => ({
+  name: 'plugin-hello',
 
-```ts
-// Current: plugin delegates to merged generators
-async schema(node, options) {
-  return mergedGenerator.schema?.call(this, node, options)
-}
+  hooks: {
+    'kubb:setup'({ addGenerator, logger }) {
+      addGenerator({
+        name: 'hello',
+        schema(node, ctx) {
+          const name = ctx.resolver.name(node.name, 'type')
+          const file = ctx.resolver.file({ name, extname: '.ts' })
+          return (
+            <File baseName={file.baseName} path={file.path}>
+              <File.Source name={name} isExportable>
+                {`export type ${name} = { greeting: '${options.greeting ?? 'Hello'}' }`}
+              </File.Source>
+            </File>
+          )
+        },
+      })
+    },
+  },
+}))
 ```
 
-The proposal removes the indirection — the plugin's `schema()` IS the generator.
+### Medium Plugin — `plugin-ts` Rewritten
 
-### Approach 2: Plugin with Composable Generators
+```tsx
+import { definePlugin } from '@kubb/core'
+import { jsxRenderer } from '@kubb/renderer-jsx'
+import { Type } from './components/Type.tsx'
 
-For plugins that need multiple generators (e.g., `plugin-client` generates both function-style and class-style clients), the plugin accepts a `generators` array — but it's still all inside the plugin:
-
-```ts
-import { createPlugin, defineGenerator } from '@kubb/core'
-import { jsxRenderer, File } from '@kubb/renderer-jsx'
-
-// Generators are still definable — but they're consumed BY the plugin
-const functionClientGenerator = defineGenerator({
-  name: 'function-client',
-  renderer: jsxRenderer,
-  operation(node, options) {
-    return <File ...><FunctionClient node={node} /></File>
-  },
-})
-
-const classClientGenerator = defineGenerator({
-  name: 'class-client',
-  renderer: jsxRenderer,
-  operation(node, options) {
-    return <File ...><ClassClient node={node} /></File>
-  },
-})
-
-export const pluginClient = createPlugin((options = {}) => {
-  const { clientType = 'function', output = { path: 'clients' } } = options
-
-  return {
-    name: 'plugin-client',
-    pre: ['plugin-ts'],
-    options: { output, clientType },
-
-    // Pick generators based on options — composition happens HERE, inside the plugin
-    generators: [
-      clientType === 'function' ? functionClientGenerator : classClientGenerator,
-    ],
-  }
-})
-```
-
-**What's different:**
-
-- Generators still exist as a concept, but they're an **implementation detail** of the plugin.
-- The plugin is the composition root — it decides which generators to use.
-- `mergeGenerators` becomes an internal detail of the build pipeline, not something the plugin author calls.
-- No preset wiring needed — the plugin directly declares its generators.
-
-**This matches how Astro integrations work:** the integration hook calls `addRenderer(reactRenderer)` directly, rather than having renderers defined externally and wired through a preset.
-
-### Approach 3: Plugin as the Complete Unit (Recommended)
-
-Combine approaches 1 and 2 into a unified model where the plugin is the complete unit of code generation:
-
-```ts
-import { createPlugin, defineGenerator } from '@kubb/core'
-import { jsxRenderer, File } from '@kubb/renderer-jsx'
-
-export const pluginTs = createPlugin((options = {}) => {
+export const pluginTs = definePlugin((options = {}) => {
   const {
     output = { path: 'types', barrelType: 'named' },
     enumType = 'asConst',
@@ -295,479 +259,718 @@ export const pluginTs = createPlugin((options = {}) => {
 
   return {
     name: 'plugin-ts',
-    options: { output, enumType, syntaxType },
 
-    // Renderer: project-wide default from config, or override per-plugin
-    renderer: jsxRenderer,
+    hooks: {
+      'kubb:setup'({ addGenerator, setResolver, setTransformer, updateConfig, setRenderer }) {
+        // Set JSX as the output renderer for this plugin
+        setRenderer(jsxRenderer)
 
-    // Resolver: inline overrides for naming (defaults auto-injected)
-    resolve: {
-      name(name, type) {
-        // PascalCase for types, camelCase for everything else
-        return type === 'type' ? pascalCase(name) : camelCase(name)
+        // Naming conventions
+        setResolver({
+          name(name, type) {
+            return type === 'type' ? pascalCase(name) : pascalCase(name, { isFile: type === 'file' })
+          },
+          // path, file, options, banner, footer — all have defaults, override only what you need
+        })
+
+        // Register the type generator
+        addGenerator({
+          name: 'typescript-types',
+          schema(node, ctx) {
+            if (!node.name) return
+
+            const { resolver, adapter, root, options } = ctx
+            const file = resolver.file({ name: node.name, extname: '.ts' })
+            const imports = adapter.getImports(node, (schemaName) => ({
+              name: resolver.name(schemaName, 'type'),
+              path: resolver.file({ name: schemaName, extname: '.ts' }).path,
+            }))
+
+            return (
+              <File
+                baseName={file.baseName}
+                path={file.path}
+                banner={resolver.banner(adapter.inputNode)}
+                footer={resolver.footer(adapter.inputNode)}
+              >
+                {imports.map((imp) => (
+                  <File.Import key={imp.name} path={imp.path} name={imp.name} isTypeOnly />
+                ))}
+                <Type node={node} enumType={enumType} syntaxType={syntaxType} resolver={resolver} />
+              </File>
+            )
+          },
+        })
       },
-    },
 
-    // Transformer: optional AST visitor applied before generation
-    transformer: {
-      schema(node) {
-        // Example: skip deprecated schemas
-        if (node.deprecated) return null
-        return undefined // default behavior
+      'kubb:build:start'({ logger, openInStudio }) {
+        openInStudio({ ast: true })
       },
-    },
 
-    // --- Generation logic (inline for simple plugins) ---
-
-    schema(node, options) {
-      const name = this.resolver.default(node.name, 'type')
-      const file = this.resolver.resolveFile(
-        { name, extname: '.ts' },
-        { root: this.root, output: options.output },
-      )
-      return (
-        <File baseName={file.baseName} path={file.path}>
-          <File.Source name={name} isExportable isIndexable>
-            <Type node={node} enumType={options.enumType} />
-          </File.Source>
-        </File>
-      )
-    },
-
-    // --- OR: composable generators (for complex plugins) ---
-
-    // generators: [typeGenerator, enumGenerator, declarationGenerator],
-
-    // --- Lifecycle ---
-
-    async buildStart() {
-      await this.openInStudio({ ast: true })
+      'kubb:build:done'({ files, logger }) {
+        logger.info(`Generated ${files.length} TypeScript type files`)
+      },
     },
   }
 })
 ```
 
-**The key design decisions:**
+### Complex Plugin — `plugin-client` Rewritten
 
-1. **`schema()`, `operation()`, `operations()`** can be defined inline on the plugin (simple path) OR delegated to a `generators` array (advanced path). Both use the same hook signatures.
+```tsx
+import { definePlugin } from '@kubb/core'
+import { jsxRenderer } from '@kubb/renderer-jsx'
+import { FunctionClient } from './components/FunctionClient.tsx'
+import { ClassClient } from './components/ClassClient.tsx'
 
-2. **`resolve`** is an inline object for name/path overrides. Defaults (`camelCase` for files, `PascalCase` for types, standard path resolution) are auto-injected. No need for `defineResolver` unless you want a fully custom resolver.
+export const pluginClient = definePlugin((options = {}) => {
+  const {
+    output = { path: 'clients', barrelType: 'named' },
+    clientType = 'function',
+    client = 'axios',
+  } = options
 
-3. **`transformer`** is an inline visitor object. No need for `composeTransformers` unless combining multiple visitors.
+  return {
+    name: 'plugin-client',
 
-4. **`renderer`** is declared on the plugin. Falls back to the project-wide renderer in `kubb.config.ts`. Falls back to `jsxRenderer` if neither is set.
+    // Dependencies — like Astro integration ordering but explicit
+    dependencies: ['plugin-ts'],
 
-5. **`generators`** is the escape hatch for multi-generator plugins. When present, `schema()`/`operation()`/`operations()` on the plugin are ignored — the generators take over.
+    hooks: {
+      'kubb:setup'({ addGenerator, setResolver, setRenderer, injectFile, logger }) {
+        setRenderer(jsxRenderer)
 
----
+        setResolver({
+          name(name, type) {
+            return type === 'type' ? pascalCase(name) : camelCase(name, { isFile: type === 'file' })
+          },
+        })
 
-## How This Maps to Meta-Framework Patterns
+        // Conditionally register generators based on options
+        if (clientType === 'function') {
+          addGenerator({
+            name: 'function-client',
+            operation(node, ctx) {
+              return <File ...><FunctionClient node={node} options={ctx.options} /></File>
+            },
+          })
+        } else if (clientType === 'class') {
+          addGenerator({
+            name: 'class-client',
+            operation(node, ctx) {
+              return <File ...><ClassClient node={node} options={ctx.options} /></File>
+            },
+          })
+        }
 
-### Pattern 1: Plugin Hooks = Vite Plugin Hooks
+        // Inject bundled client file (like Astro's injectScript)
+        if (client === 'fetch') {
+          injectFile({
+            baseName: 'fetch.ts',
+            path: '.kubb/fetch.ts',
+            content: fetchClientSource,
+          })
+        }
+      },
 
-Just as Vite plugins have `resolveId`, `transform`, and `load`, Kubb plugins have `schema`, `operation`, and `operations`. These are **the generation logic**. Everything else is configuration.
+      'kubb:build:start'({ getPlugin, logger }) {
+        const tsPlugin = getPlugin('plugin-ts')
+        if (!tsPlugin) {
+          logger.warn('plugin-client requires plugin-ts to be installed')
+        }
+      },
+    },
+  }
+})
+```
 
-| Vite Plugin Hook | Kubb Plugin Hook | Purpose |
-|---|---|---|
-| `resolveId(id)` | `resolve.name(name, type)` | Resolve identifiers |
-| `load(id)` | (adapter) | Load input data |
-| `transform(code, id)` | `schema(node, opts)` / `operation(node, opts)` | Transform input → output |
-| `configResolved(config)` | `buildStart()` | Lifecycle: init |
-| `buildEnd()` | `buildEnd()` | Lifecycle: cleanup |
+### How `@astrojs/react` Maps to `@kubb/plugin-ts`
 
-### Pattern 2: Plugin Composition = Astro Integrations
-
-Astro integrations call `addRenderer(reactRenderer)` from inside the plugin. Similarly, Kubb plugins should compose their generators internally:
+Side-by-side comparison of the exact same pattern:
 
 ```ts
-// Astro pattern:
-export default function astroReact() {
+// @astrojs/react — Astro integration
+export default function react(): AstroIntegration {
   return {
     name: '@astrojs/react',
     hooks: {
-      'astro:config:setup'({ addRenderer }) {
-        addRenderer(reactRenderer)  // Composition inside the plugin
-      }
-    }
+      'astro:config:setup'({ addRenderer, updateConfig }) {
+        addRenderer({
+          name: '@astrojs/react',
+          serverEntrypoint: '@astrojs/react/server.js',
+          clientEntrypoint: '@astrojs/react/client.js',
+        })
+        updateConfig({ vite: { plugins: [vitePluginReact()] } })
+      },
+    },
   }
 }
 
-// Kubb equivalent:
-export const pluginClient = createPlugin((options) => ({
-  name: 'plugin-client',
-  generators: [                    // Composition inside the plugin
-    functionClientGenerator,
-    operationsGenerator,
-  ],
-}))
-```
-
-### Pattern 3: Cross-Plugin Communication = Nuxt Module Hooks
-
-Nuxt modules communicate through hooks and auto-imports. Kubb plugins communicate through `inject()` and `getPlugin()`:
-
-```ts
-// Nuxt pattern:
-export default defineNuxtModule({
-  setup(options, nuxt) {
-    nuxt.hook('components:dirs', (dirs) => {
-      dirs.push({ path: resolve('./components') })
-    })
+// @kubb/plugin-ts — Kubb integration (proposed)
+export default function typescript(): KubbIntegration {
+  return {
+    name: '@kubb/typescript',
+    hooks: {
+      'kubb:setup'({ addGenerator, setResolver, setRenderer }) {
+        setRenderer(jsxRenderer)
+        setResolver({ name: (n, t) => t === 'type' ? pascalCase(n) : camelCase(n) })
+        addGenerator({
+          name: 'types',
+          schema(node, ctx) { /* generate TypeScript type for this schema */ },
+        })
+      },
+    },
   }
-})
-
-// Kubb equivalent:
-export const pluginTs = createPlugin((options) => ({
-  name: 'plugin-ts',
-  inject() {
-    return {
-      getTypeName: (name) => this.resolver.default(name, 'type'),
-    }
-  },
-}))
-
-// Another plugin consumes the injected context:
-export const pluginClient = createPlugin((options) => ({
-  name: 'plugin-client',
-  pre: ['plugin-ts'],
-  operation(node, options) {
-    const typeName = this.getTypeName(node.operationId)  // From plugin-ts
-    // ...
-  },
-}))
-```
-
-### Pattern 4: Adapter = Data Source Layer
-
-In Next.js, `getServerSideProps` fetches data. In Kubb, the adapter parses the spec. Both are **data source layers** that feed into the rendering/generation layer:
-
-```ts
-// Next.js pattern:
-export async function getServerSideProps(context) {
-  const data = await fetchAPI('/products')
-  return { props: { products: data } }
 }
-
-// Kubb equivalent:
-// kubb.config.ts
-export default defineConfig({
-  adapter: adapterOas({ dateType: 'date' }),   // Data source
-  input: { path: './openapi.yaml' },           // Data location
-  plugins: [pluginTs()],                        // Rendering/generation
-})
 ```
 
-The adapter is **not a plugin concern** — it's a project-level configuration, just like data fetching is not a component concern in Next.js.
+The structural parallel is 1:1:
+- `addRenderer()` → `addGenerator()` — register processing logic
+- `updateConfig()` → `setResolver()` / `setRenderer()` — configure processing options
+- `astro:config:setup` → `kubb:setup` — setup phase before build
+- `astro:build:done` → `kubb:build:done` — cleanup after build
 
 ---
 
-## What Changes in Practice
+## Breaking Changes Required
 
-### For Simple Plugin Authors (New Developers)
+### 1. `createPlugin` → `definePlugin`
 
-**Before (6 concepts):**
+**Breaking:** Rename and restructure the plugin factory.
 
 ```ts
-// resolver.ts
-import { defineResolver } from '@kubb/core'
-export const resolver = defineResolver<MyPlugin>(() => ({
-  name: 'default', pluginName: 'my-plugin',
-  resolveName(node) { return this.default(node.name, 'type') },
+// Before
+export const pluginTs = createPlugin<PluginTs>((options) => ({
+  name: 'plugin-ts',
+  get resolver() { return preset.resolver },
+  async schema(node, options) { return mergedGenerator.schema?.call(this, node, options) },
+  async buildStart() { /* ... */ },
 }))
 
-// generator.tsx
-import { defineGenerator } from '@kubb/core'
-import { jsxRenderer } from '@kubb/renderer-jsx'
-export const generator = defineGenerator<MyPlugin>({
-  name: 'my-gen', renderer: jsxRenderer,
-  schema(node, options) { return <File ...>...</File> },
+// After
+export const pluginTs = definePlugin((options = {}) => ({
+  name: 'plugin-ts',
+  hooks: {
+    'kubb:setup'({ addGenerator, setResolver }) { /* ... */ },
+    'kubb:build:start'({ logger }) { /* ... */ },
+    'kubb:build:done'({ files }) { /* ... */ },
+  },
+}))
+```
+
+**What changes:**
+- `schema()`, `operation()`, `operations()` move from the plugin object into generators registered via `addGenerator()`
+- `resolver` / `transformer` properties become `setResolver()` / `setTransformer()` calls inside `kubb:setup`
+- `buildStart` / `buildEnd` become `kubb:build:start` / `kubb:build:done` hooks
+- The `this` context is replaced by the hook context parameter (no more binding issues)
+
+### 2. Generators Are Registered, Not Wired
+
+**Breaking:** Generators are no longer merged externally and passed to the plugin. They're registered from within the `kubb:setup` hook.
+
+```ts
+// Before
+const preset = getPreset({ preset: compatibilityPreset, presets, ... })
+const mergedGenerator = mergeGenerators(preset.generators)
+return {
+  async schema(node, opts) { return mergedGenerator.schema?.call(this, node, opts) },
+}
+
+// After
+'kubb:setup'({ addGenerator }) {
+  addGenerator(typeGenerator)
+  addGenerator(enumGenerator)
+  // Merging happens inside the framework, not the plugin
+}
+```
+
+**What changes in core:**
+- `PluginDriver` stores generators per-plugin
+- `build.ts` calls generators in registration order for each node
+- `mergeGenerators` becomes an internal implementation detail
+- `defineGenerator` still exists — generators are still typed objects — but they're consumed via `addGenerator()`
+
+### 3. Resolver as a Setup Call
+
+**Breaking:** The resolver is set during setup, not returned as a property.
+
+```ts
+// Before
+get resolver() { return preset.resolver }
+
+// After
+'kubb:setup'({ setResolver }) {
+  setResolver({
+    name(name, type) { /* custom naming */ },
+    // Everything else uses defaults
+  })
+}
+```
+
+**What changes in core:**
+- `defineResolver` still exists for creating resolver objects
+- `setResolver()` in the hook context merges user overrides with defaults (like `getPreset`'s `withFallback`)
+- If `setResolver()` is never called, the default resolver is used automatically
+
+### 4. `pre`/`post` → `dependencies`
+
+**Breaking:** Replace `pre`/`post` arrays with a single `dependencies` array for clearer semantics.
+
+```ts
+// Before
+pre: ['plugin-ts', 'plugin-zod'],
+post: ['plugin-barrel'],
+
+// After
+dependencies: ['plugin-ts', 'plugin-zod'],
+// "run after" semantics (like npm dependencies — I depend on these)
+```
+
+**Why:** Astro doesn't have explicit ordering — integrations run in config array order. But Kubb needs ordering for cross-plugin dependencies (e.g., `plugin-client` needs `plugin-ts` types). A single `dependencies` array is clearer than separate `pre`/`post`.
+
+### 5. `this` Context → Hook Parameters
+
+**Breaking:** Replace `this`-based context with parameter-based context (like Astro hooks receive `{ config, logger }`).
+
+```ts
+// Before (this-based)
+async buildStart() {
+  await this.openInStudio({ ast: true })
+  this.warn('Something happened')
+  const tsPlugin = this.getPlugin('plugin-ts')
+}
+
+// After (parameter-based)
+'kubb:build:start'({ openInStudio, logger, getPlugin }) {
+  openInStudio({ ast: true })
+  logger.warn('Something happened')
+  const tsPlugin = getPlugin('plugin-ts')
+}
+```
+
+**Why:** Parameter-based context is:
+- More explicit — you see what's available in the function signature
+- No binding issues — no need for `.call(this, ...)` when delegating
+- Better tree-shaking — unused utilities are never bound
+- Matches Astro's pattern exactly
+
+### 6. Config: `plugins` → `integrations`
+
+**Optional:** Rename `plugins` to `integrations` in `kubb.config.ts` to match Astro terminology.
+
+```ts
+// Before
+export default defineConfig({
+  plugins: [pluginTs(), pluginZod()],
 })
 
-// presets.ts
-import { definePresets } from '@kubb/core'
-export const presets = definePresets({
-  default: { name: 'default', resolver, generators: [generator] },
+// After
+export default defineConfig({
+  integrations: [typescript(), zod(), client()],
+})
+```
+
+This is cosmetic but signals the architectural shift. Could also keep `plugins` as an alias during migration.
+
+---
+
+## The New Hook Context API
+
+### `kubb:setup` Context
+
+The most important hook — where integrations configure everything:
+
+```ts
+type KubbSetupContext = {
+  // Register a generator (like Astro's addRenderer)
+  addGenerator(generator: Generator): void
+
+  // Set the resolver for this plugin (naming + paths)
+  setResolver(resolver: Partial<Resolver>): void
+
+  // Set the AST transformer for this plugin
+  setTransformer(visitor: Visitor): void
+
+  // Set the output renderer for this plugin (JSX, templates, etc.)
+  setRenderer(renderer: RendererFactory): void
+
+  // Inject a file into the output (like Astro's injectScript)
+  injectFile(file: { baseName: string; path: string; content: string }): void
+
+  // Inject a barrel/index file
+  injectBarrel(options: { type: 'named' | 'default'; path: string }): void
+
+  // Modify the build config
+  updateConfig(config: Partial<Config>): void
+
+  // Read-only access to current config
+  config: Config
+
+  // Plugin options (from user)
+  options: ResolvedOptions
+
+  // Logger
+  logger: Logger
+}
+```
+
+### `kubb:build:start` Context
+
+```ts
+type KubbBuildStartContext = {
+  config: Config
+  adapter: Adapter
+  inputNode: InputNode
+  logger: Logger
+  openInStudio(options?: DevtoolsOptions): Promise<void>
+  getPlugin(name: string): Plugin | undefined
+}
+```
+
+### `kubb:build:done` Context
+
+```ts
+type KubbBuildDoneContext = {
+  files: FileNode[]
+  config: Config
+  logger: Logger
+  outputDir: string
+}
+```
+
+### Generator Context (passed to `schema()`/`operation()`)
+
+```ts
+type GeneratorContext = {
+  // The resolved resolver for this plugin
+  resolver: {
+    name(name: string, type?: string): string
+    file(params: { name: string; extname: string }): FileNode
+    path(params: ResolverPathParams): string
+    banner(inputNode: InputNode | null): string | undefined
+    footer(inputNode: InputNode | null): string | undefined
+  }
+
+  // The adapter
+  adapter: Adapter
+
+  // Plugin options
+  options: ResolvedOptions
+
+  // Output root
+  root: string
+
+  // File utilities
+  emitFile(...files: FileNode[]): Promise<void>
+
+  // Cross-plugin access
+  getPlugin(name: string): Plugin | undefined
+
+  // Logger
+  logger: Logger
+}
+```
+
+---
+
+## The Build Pipeline (Updated)
+
+```
+1. Parse config
+   └── Resolve integrations (topological sort by `dependencies`)
+
+2. Run adapter
+   └── adapter.parse(input) → InputNode
+
+3. For each integration:
+   └── Call 'kubb:setup' hook
+       ├── addGenerator() → register generators
+       ├── setResolver() → configure naming
+       ├── setTransformer() → configure AST transforms
+       ├── setRenderer() → configure output format
+       └── injectFile() → add static files
+
+4. Finalize config
+   └── Call 'kubb:config:done' hook (read-only)
+
+5. Build
+   └── Call 'kubb:build:start' hook
+   └── For each integration:
+       └── For each registered generator:
+           ├── Walk AST with transformer applied
+           ├── For each schema → generator.schema(node, ctx)
+           ├── For each operation → generator.operation(node, ctx)
+           └── After all ops → generator.operations(nodes, ctx)
+       └── Apply renderer to generator output → FileNode[]
+       └── Generate barrel files
+
+6. Post-process
+   └── FileProcessor: parse → format → lint → write
+   └── Call 'kubb:build:done' hook
+```
+
+### Architecture Diagram
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                        kubb.config.ts                          │
+│  adapter: adapterOas()                                         │
+│  input:   { path: './openapi.yaml' }                          │
+│  integrations: [ typescript(), zod(), client() ]               │
+└──────────────┬─────────────────────────────────────────────────┘
+               │
+               ▼
+┌────────────────────────────────────────────────────────────────┐
+│                     Adapter Layer                               │
+│  (= Astro Content Layer)                                       │
+│  adapterOas / adapterAsyncApi / adapterDrizzle                 │
+│  Input Source → parse() → InputNode (AST)                      │
+└──────────────┬─────────────────────────────────────────────────┘
+               │
+               ▼
+┌────────────────────────────────────────────────────────────────┐
+│                  Integration Layer                              │
+│  (= Astro Integration)                                         │
+│                                                                │
+│  typescript()                                                  │
+│    └── kubb:setup → addGenerator('types')                      │
+│                   → setResolver(pascalCase)                     │
+│                   → setRenderer(jsxRenderer)                    │
+│                                                                │
+│  zod()                                                         │
+│    └── kubb:setup → addGenerator('zod-schemas')                │
+│                   → setResolver(camelCase + 'Schema' suffix)   │
+│                   → setRenderer(jsxRenderer)                    │
+│                                                                │
+│  client()                                                      │
+│    └── kubb:setup → addGenerator('function-client')            │
+│                   → injectFile('fetch.ts')                     │
+│    dependencies: ['plugin-ts']                                 │
+│                                                                │
+└──────────────┬─────────────────────────────────────────────────┘
+               │
+               ▼
+┌────────────────────────────────────────────────────────────────┐
+│                   Generator Layer                               │
+│  (= Astro Renderer)                                            │
+│                                                                │
+│  For each node in InputNode:                                   │
+│    transformer.visit(node) → transformed node                  │
+│    resolver.resolveOptions(node) → include/exclude check       │
+│    generator.schema(node, ctx) → JSX element                   │
+│    renderer.render(element) → FileNode[]                       │
+│                                                                │
+└──────────────┬─────────────────────────────────────────────────┘
+               │
+               ▼
+┌────────────────────────────────────────────────────────────────┐
+│                    Output Layer                                 │
+│  FileProcessor → Parser → Formatter → Linter → Storage         │
+└────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Migration Path
+
+### Phase 1: Introduce `definePlugin` with Hooks
+
+Add the new `definePlugin` function alongside existing `createPlugin`. Both work during a transition period.
+
+```ts
+// New API
+export const pluginTs = definePlugin((options) => ({
+  name: 'plugin-ts',
+  hooks: {
+    'kubb:setup'({ addGenerator, setResolver }) { /* ... */ },
+  },
+}))
+
+// Old API still works
+export const pluginTsLegacy = createPlugin<PluginTs>((options) => ({
+  name: 'plugin-ts',
+  get resolver() { return preset.resolver },
+  async schema(node, opts) { return merged.schema?.call(this, node, opts) },
+}))
+```
+
+**Core changes:**
+- Add `definePlugin` function that creates plugins in the new format
+- `PluginDriver` detects hook-style vs legacy-style plugins
+- Both formats produce the same internal `Plugin` object
+
+### Phase 2: Migrate Built-in Plugins
+
+Rewrite Kubb's built-in plugins to use the new API:
+
+| Plugin | Status | Key changes |
+|---|---|---|
+| `plugin-ts` | Migrate | `resolverTs` + `typeGenerator` → `kubb:setup` with `setResolver()` + `addGenerator()` |
+| `plugin-zod` | Migrate | `resolverZod` + `zodGenerator` → `kubb:setup` with `setResolver()` + `addGenerator()` |
+| `plugin-client` | Migrate | Dynamic generator selection in `kubb:setup` based on `clientType` option |
+| `plugin-react-query` | Migrate | Multiple generators: query, mutation, infinite, suspense |
+| `plugin-faker` | Migrate | Single generator, simple migration |
+| `plugin-msw` | Migrate | Single generator, simple migration |
+
+### Phase 3: Deprecate Old API
+
+- `createPlugin` → deprecated, points to `definePlugin`
+- `definePresets` → internal (no longer exported from `@kubb/core`)
+- `mergeGenerators` → internal (no longer exported from `@kubb/core`)
+- `getPreset` → internal (no longer exported from `@kubb/core`)
+- `defineResolver` → still public (for creating resolver objects, used with `setResolver()`)
+- `defineGenerator` → still public (for creating generator objects, used with `addGenerator()`)
+
+### Phase 4: Remove Legacy Support
+
+Remove `createPlugin` and the flat hook model. All plugins use the Astro-style hooks API.
+
+---
+
+## What About Presets?
+
+Presets (`definePresets`, `getPreset`) currently bundle resolver + generators + transformer into named configurations. In the Astro model, this responsibility shifts to the integration itself:
+
+```ts
+// Before: presets are a separate public concept
+export const presets = definePresets<ResolverTs>({
+  default: { resolver: resolverTs, generators: [typeGenerator], printer: printerTs },
+  kubbV4: { resolver: resolverTsLegacy, generators: [typeGeneratorLegacy], printer: printerTs },
 })
 
-// plugin.ts
-import { createPlugin, getPreset, mergeGenerators } from '@kubb/core'
-export const myPlugin = createPlugin<MyPlugin>((options) => {
-  const preset = getPreset({ preset: 'default', presets })
-  const merged = mergeGenerators(preset.generators)
+// After: presets are internal to the plugin
+export const pluginTs = definePlugin((options = {}) => {
+  const { compatibilityPreset = 'default' } = options
+
   return {
-    name: 'my-plugin',
-    get resolver() { return preset.resolver },
-    async schema(node, opts) { return merged.schema?.call(this, node, opts) },
+    name: 'plugin-ts',
+    hooks: {
+      'kubb:setup'(ctx) {
+        if (compatibilityPreset === 'kubbV4') {
+          ctx.setResolver(resolverTsLegacy)
+          ctx.addGenerator(typeGeneratorLegacy)
+        } else {
+          ctx.setResolver(resolverTs)
+          ctx.addGenerator(typeGenerator)
+        }
+      },
+    },
   }
 })
 ```
 
-**After (1 concept):**
+The preset logic becomes a simple `if/else` inside the setup hook. No separate `definePresets`, `getPreset`, or `withFallback` needed.
+
+---
+
+## What About Renderers?
+
+Renderers (`createRenderer`, `jsxRenderer`) remain a separate concept — just like Astro separates integrations from renderers. But they're set from within the plugin:
 
 ```ts
-// plugin.ts — that's it, one file
-import { createPlugin } from '@kubb/core'
-import { jsxRenderer, File } from '@kubb/renderer-jsx'
+// Astro: integration registers renderer
+'astro:config:setup'({ addRenderer }) {
+  addRenderer({ serverEntrypoint: 'react/server.js' })
+}
 
-export const myPlugin = createPlugin((options = {}) => ({
-  name: 'my-plugin',
-  renderer: jsxRenderer,
-  options: { output: { path: 'gen', ...options.output } },
-
-  schema(node, options) {
-    const name = this.resolver.default(node.name, 'type')
-    const file = this.resolver.resolveFile({ name, extname: '.ts' }, { root: this.root, output: options.output })
-    return (
-      <File baseName={file.baseName} path={file.path}>
-        <File.Source name={name} isExportable>
-          {`export type ${name} = { id: string }`}
-        </File.Source>
-      </File>
-    )
-  },
-}))
+// Kubb: integration sets renderer
+'kubb:setup'({ setRenderer }) {
+  setRenderer(jsxRenderer)
+}
 ```
 
-### For Advanced Plugin Authors (Existing Kubb Plugins)
-
-The existing API (`defineGenerator`, `defineResolver`, `definePresets`, `mergeGenerators`) remains available. Existing plugins don't need to change. The `generators` array on the plugin object is the bridge:
-
-```ts
-// Existing generators continue to work
-import { typeGenerator } from './generators/typeGenerator.tsx'
-import { enumGenerator } from './generators/enumGenerator.tsx'
-
-export const pluginTs = createPlugin((options) => ({
-  name: 'plugin-ts',
-  // Advanced: use the generators array
-  generators: [typeGenerator, enumGenerator],
-  // Resolver and transformer from presets (unchanged)
-  get resolver() { return preset.resolver },
-  get transformer() { return preset.transformer },
-}))
-```
-
-### For Custom Adapter Authors
-
-Adapters remain a separate concern — they're project-level, not plugin-level:
-
-```ts
-import { createAdapter } from '@kubb/core'
-import { createInput, createSchema, createOperation } from '@kubb/ast'
-
-export const adapterAsyncApi = createAdapter((options = {}) => ({
-  name: 'asyncapi',
-  options,
-
-  async parse(source) {
-    const doc = await loadAsyncApiSpec(source)
-    return createInput({
-      schemas: parseSchemas(doc),
-      operations: parseChannels(doc),
-      meta: { title: doc.info.title, version: doc.info.version },
-    })
-  },
-
-  getImports(node, resolve) {
-    return collectImports({ node, resolve })
-  },
-}))
-
-// kubb.config.ts
-export default defineConfig({
-  adapter: adapterAsyncApi({ validate: true }),
-  input: { path: './asyncapi.yaml' },
-  plugins: [pluginTs()],  // Plugins that only use InputNode work with any adapter
-                          // Plugins using adapter-specific APIs (e.g., this.adapter.document) require a compatible adapter
-})
-```
-
-### For Custom Renderer Authors
-
-Renderers remain a separate concern — declared on the plugin or in `kubb.config.ts`:
+Custom renderers are still created with `createRenderer`:
 
 ```ts
 import { createRenderer } from '@kubb/core'
 
-export const templateRenderer = createRenderer(() => {
-  const files = []
-  return {
-    async render(element) {
-      // element is whatever the generator returns
-      const { template, data, file } = element
-      const content = renderTemplate(template, data)
-      files.push({ ...file, sources: [{ value: content }] })
+export const handlebarsRenderer = createRenderer(() => ({
+  async render(element) { /* ... */ },
+  get files() { return collectedFiles },
+  unmount() { /* ... */ },
+}))
+
+// Used in a plugin:
+'kubb:setup'({ setRenderer, addGenerator }) {
+  setRenderer(handlebarsRenderer)
+  addGenerator({
+    name: 'templates',
+    schema(node, ctx) {
+      return { template: '...', data: { ... }, file: { ... } }
     },
-    get files() { return files },
-    unmount() { files.length = 0 },
-  }
-})
-
-// Plugin uses the custom renderer
-export const pluginCustom = createPlugin((options) => ({
-  name: 'plugin-custom',
-  renderer: templateRenderer,
-  schema(node, options) {
-    return {
-      template: '{{#each properties}}  {{name}}: {{type}};\n{{/each}}',
-      data: { properties: node.properties },
-      file: this.resolver.resolveFile({ name: node.name, extname: '.ts' }, { root: this.root, output: options.output }),
-    }
-  },
-}))
+  })
+}
 ```
 
 ---
 
-## Architectural Layers
+## Summary: What Changes
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                        kubb.config.ts                            │
-│  adapter: adapterOas()                                           │
-│  input:   { path: './openapi.yaml' }                            │
-│  plugins: [ pluginTs(), pluginZod(), pluginClient() ]           │
-│  renderer: jsxRenderer  (optional project-wide default)          │
-└──────────────┬───────────────────────────────────────────────────┘
-               │
-               ▼
-┌──────────────────────────────────────────────────────────────────┐
-│                     Adapter Layer                                 │
-│  adapterOas / adapterAsyncApi / adapterDrizzle / custom          │
-│  Input Source → parse() → InputNode (AST)                        │
-└──────────────┬───────────────────────────────────────────────────┘
-               │  InputNode { schemas, operations, meta }
-               ▼
-┌──────────────────────────────────────────────────────────────────┐
-│                     Plugin Layer (THE CENTER)                     │
-│                                                                  │
-│  For each plugin:                                                │
-│    1. buildStart()                                               │
-│    2. transformer → transform AST nodes                          │
-│    3. resolver.resolveOptions() → include/exclude/override       │
-│    4. schema(node, opts) → JSX | FileNode[] | void               │
-│       operation(node, opts) → JSX | FileNode[] | void            │
-│       operations(nodes, opts) → JSX | FileNode[] | void          │
-│    5. Barrel file generation                                     │
-│    6. buildEnd()                                                 │
-│                                                                  │
-│  Plugin internals (auto-managed or user-configured):             │
-│    ├── resolve: { name(), path(), file(), options() }            │
-│    ├── transformer: { schema(), operation(), property() }        │
-│    ├── renderer: jsxRenderer | templateRenderer | custom         │
-│    └── generators: [...] (optional, for multi-generator plugins) │
-└──────────────┬───────────────────────────────────────────────────┘
-               │  FileNode[]
-               ▼
-┌──────────────────────────────────────────────────────────────────┐
-│                     Output Layer                                  │
-│  FileProcessor → Parser → Formatter → Linter → Storage           │
-└──────────────────────────────────────────────────────────────────┘
-```
+### Public API Changes
 
----
-
-## Implementation Plan
-
-### Phase 1: Plugin Accepts Inline Hooks
-
-Modify `createPlugin` so that when `schema()`, `operation()`, or `operations()` are defined directly on the plugin (without a separate `generators` array), they work as inline generators. This is purely additive — no breaking changes.
-
-**What changes in core:**
-- `build.ts` checks for `plugin.renderer` when calling `applyHookResult`.
-- If the plugin has no `generators` array, its `schema()`/`operation()`/`operations()` hooks are used directly.
-- The default resolver is auto-injected when no `resolver` or `resolve` is set.
-
-### Phase 2: `resolve` Shorthand
-
-Add an optional `resolve` object to the plugin that inlines resolver overrides:
-
-```ts
-createPlugin((options) => ({
-  name: 'my-plugin',
-  resolve: {
-    name(name, type) { return customNaming(name, type) },
-  },
-  // Auto-injected: this.resolver with default + overrides
-}))
-```
-
-**What changes in core:**
-- `createPlugin` detects `resolve` and calls `defineResolver` internally.
-- Falls back to the default resolver when `resolve` is omitted.
-
-### Phase 3: `renderer` on Plugin
-
-Add `renderer` field to the plugin object. Generators inherit it unless they declare their own:
-
-```ts
-createPlugin((options) => ({
-  name: 'my-plugin',
-  renderer: jsxRenderer,  // All generators inherit this
-  generators: [
-    { name: 'types', schema(node) { return <File ...>...</File> } },
-    { name: 'raw', renderer: null, schema(node) { return [createFile(...)] } },  // Override: no renderer
-  ],
-}))
-```
-
-**What changes in core:**
-- `mergeGenerators` and `applyHookResult` check `generator.renderer ?? plugin.renderer`.
-- Falls back to `config.renderer` if neither is set.
-
-### Phase 4: Project-Wide Renderer in Config
-
-Add optional `renderer` field to `defineConfig`:
-
-```ts
-defineConfig({
-  renderer: jsxRenderer,  // All plugins use this unless they override
-  plugins: [pluginTs(), pluginZod()],
-})
-```
-
-**What changes in core:**
-- The renderer resolution chain becomes: generator.renderer → plugin.renderer → config.renderer → undefined (raw FileNode[] mode).
-
----
-
-## Backward Compatibility
-
-**Nothing breaks.** Every change is additive:
-
-| What exists today | What's added | Migration |
+| Current API | New API | Status |
 |---|---|---|
-| `createPlugin` with `schema()` delegating to `mergeGenerators` | `schema()` can be defined inline (no generators needed) | Optional — existing plugins work unchanged |
-| `defineResolver` for custom naming | `resolve: { ... }` shorthand on plugin | Optional — `defineResolver` still works |
-| `renderer` on each generator | `renderer` on plugin, with generator override | Optional — per-generator renderers still work |
-| No project-wide renderer | `renderer` in `defineConfig` | Optional — defaults to no renderer (raw mode) |
+| `createPlugin()` | `definePlugin()` | **Breaking** — new function signature with hooks |
+| `defineResolver()` | `defineResolver()` | **Unchanged** — still creates resolver objects |
+| `defineGenerator()` | `defineGenerator()` | **Unchanged** — still creates generator objects |
+| `definePresets()` | (removed from public API) | **Breaking** — becomes internal |
+| `mergeGenerators()` | (removed from public API) | **Breaking** — becomes internal |
+| `getPreset()` | (removed from public API) | **Breaking** — becomes internal |
+| `createRenderer()` | `createRenderer()` | **Unchanged** |
+| `createAdapter()` | `createAdapter()` | **Unchanged** |
+| `defineConfig()` | `defineConfig()` | **Changed** — `plugins` → `integrations` (alias kept) |
+
+### Concept Changes
+
+| Current Concept | New Concept | What happened |
+|---|---|---|
+| Plugin with flat hooks | Integration with namespaced hooks | Restructured |
+| 6 separate primitives | 1 primary primitive (`definePlugin`) | Simplified |
+| `this`-based context | Parameter-based context | Replaced |
+| External generator wiring | `addGenerator()` in setup hook | Astro-style registration |
+| External resolver wiring | `setResolver()` in setup hook | Astro-style configuration |
+| Preset bundles | Internal plugin logic | Absorbed into plugin |
+| `pre`/`post` ordering | `dependencies` array | Simplified |
+
+### File Structure Changes (per plugin)
+
+```
+# Before (6 files)
+plugin-ts/
+├── resolvers/resolverTs.ts       # defineResolver
+├── generators/typeGenerator.tsx   # defineGenerator
+├── presets.ts                     # definePresets
+├── types.ts                       # PluginFactoryOptions
+├── plugin.ts                      # createPlugin + getPreset + mergeGenerators
+└── components/Type.tsx            # React component
+
+# After (3 files)
+plugin-ts/
+├── plugin.ts                      # definePlugin (hooks: setup + build)
+├── generators/typeGenerator.tsx   # defineGenerator (reusable, but registered in setup)
+└── components/Type.tsx            # React component (unchanged)
+```
 
 ---
 
 ## Open Questions
 
-1. **Should `resolve` support the full `Resolver` interface or just common overrides (`name`, `path`, `file`)?** The full interface includes `resolveOptions`, `resolveBanner`, `resolveFooter` — most plugins never customize these.
+1. **Should `kubb:setup` context include access to the adapter?** The adapter is parsed before plugins run. Generators receive it via `ctx.adapter`, but should the setup hook also have it for conditional generator registration?
 
-2. **When `generators` and inline `schema()` both exist on a plugin, which wins?** Proposed: `generators` takes priority, inline hooks are ignored. A warning should be emitted during plugin initialization when both are present, to prevent accidental misconfiguration.
+2. **How do multiple generators from the same plugin interact?** When a plugin registers 3 generators that all handle `schema`, should they run in registration order (like Astro's renderer priority) or in parallel?
 
-3. **Should the plugin declare its adapter compatibility?** For example, a plugin that uses `this.adapter.document` (OAS-specific) could declare `adapter: 'oas'` to fail fast if used with a different adapter.
+3. **Should generators be typed per-plugin?** Currently `defineGenerator<PluginTs>` ties a generator to a plugin's options type. In the new model, the generator context is provided by the framework. Should generators be generic or plugin-specific?
 
-4. **How do presets fit in the plugin-first model?** Presets could become named configurations that the plugin user selects, rather than a separate abstraction the plugin author defines:
+4. **What happens to `inject()`?** Currently plugins can inject context that other plugins consume via `this.getInjected()`. In the Astro model, cross-integration communication happens through config mutations. Should Kubb keep `inject()` or move to a shared config/registry pattern?
 
-```ts
-pluginTs({
-  compatibilityPreset: 'kubbV4',  // Changes resolver + generators internally
-})
-```
+5. **Should barrel file generation be explicit?** Currently barrel files are auto-generated from `output.barrelType`. In the Astro model, this could become an explicit `injectBarrel()` call in `kubb:build:done`, giving integrations full control over index files.
 
-This is already how it works today — the question is whether `definePresets` should still be a public API or become an internal implementation detail.
-
-5. **Should `createPlugin` accept both the factory pattern `(options) => plugin` and the direct pattern `plugin`?** For plugins with no options, the factory is unnecessary boilerplate:
+6. **Should the factory pattern be optional?** For simple plugins with no options:
 
 ```ts
-// Current: factory pattern (needed for options)
-const myPlugin = createPlugin((options) => ({ name: 'my-plugin', ... }))
+// With factory (options)
+export const pluginHello = definePlugin((options) => ({ name: 'plugin-hello', hooks: { ... } }))
 
-// Proposed: direct pattern (for plugins with no options)
-const myPlugin = createPlugin({ name: 'my-plugin', ... })
+// Without factory (no options)
+export const pluginHello = definePlugin({ name: 'plugin-hello', hooks: { ... } })
 ```
