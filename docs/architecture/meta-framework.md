@@ -227,7 +227,7 @@ export default createCodegenPlugin({
   // Presets for compatibility
   presets: {
     default: { /* ... */ },
-    legacy: { /* ... */ },
+    kubbV4: { /* ... */ },
   },
 })
 ```
@@ -447,7 +447,7 @@ kubb-project/
 // kubb/plugins/typescript/schema.tsx — just the generation function
 import { File } from '@kubb/renderer-jsx'
 
-// Default export = the schema handler
+// Default export = the schema handler (PascalCase: required by JSX/React conventions)
 export default function TypeSchema({ node, options, resolver }) {
   const name = resolver.default(node.name, 'type')
   return (
