@@ -3,6 +3,7 @@ import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelat
 import { createExport, createFile, transform, walk } from '@kubb/ast'
 import type { ExportNode, FileNode, OperationNode } from '@kubb/ast/types'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
+import { mergeGenerators } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import { FileProcessor } from './FileProcessor.ts'
 import { PluginDriver } from './PluginDriver.ts'
@@ -238,36 +239,48 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
     throw new Error(`[${plugin.name}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`)
   }
 
+  // If the plugin declares `generators` directly, merge them into the effective hooks.
+  // Each generator's `renderer` takes precedence; `undefined` falls back to `plugin.renderer`
+  // (handled inside `mergeGenerators`). `null` on a generator opts out of rendering.
+  let { schema: schemaHook, operation: operationHook, operations: operationsHook } = plugin
+
+  if (plugin.generators && plugin.generators.length > 0) {
+    const merged = mergeGenerators(plugin.generators)
+    schemaHook = merged.schema
+    operationHook = merged.operation
+    operationsHook = merged.operations
+  }
+
   const collectedOperations: Array<OperationNode> = []
 
   await walk(inputNode, {
     depth: 'shallow',
     async schema(node) {
-      if (!plugin.schema) return
+      if (!schemaHook) return
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
       const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
       if (options === null) return
-      const result = await plugin.schema.call(context, transformedNode, options)
+      const result = await schemaHook.call(context, transformedNode, options)
 
-      await applyHookResult(result, driver)
+      await applyHookResult(result, driver, plugin.renderer)
     },
     async operation(node) {
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
       const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
       if (options !== null) {
         collectedOperations.push(transformedNode)
-        if (plugin.operation) {
-          const result = await plugin.operation.call(context, transformedNode, options)
-          await applyHookResult(result, driver)
+        if (operationHook) {
+          const result = await operationHook.call(context, transformedNode, options)
+          await applyHookResult(result, driver, plugin.renderer)
         }
       }
     },
   })
 
-  if (plugin.operations && collectedOperations.length > 0) {
-    const result = await plugin.operations.call(context, collectedOperations, plugin.options)
+  if (operationsHook && collectedOperations.length > 0) {
+    const result = await operationsHook.call(context, collectedOperations, plugin.options)
 
-    await applyHookResult(result, driver)
+    await applyHookResult(result, driver, plugin.renderer)
   }
 }
 
@@ -311,7 +324,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         await plugin.buildStart.call(context)
 
         // Dispatch schema/operation/operations hooks (direct hooks or composed via composeGenerators)
-        if (plugin.schema || plugin.operation || plugin.operations) {
+        if (plugin.schema || plugin.operation || plugin.operations || plugin.generators?.length) {
           await runPluginAstHooks(plugin, context)
         }
 

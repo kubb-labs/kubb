@@ -2,6 +2,7 @@ import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
 import type { FileNode, ImportNode, InputNode, Node, OperationNode, Printer, SchemaNode, Visitor } from '@kubb/ast/types'
 import type { HttpMethod } from '@kubb/oas'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
+import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
@@ -479,6 +480,30 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    */
   transformer?: Visitor
   /**
+   * Plugin-level renderer factory. All generators that do not declare their own `renderer`
+   * inherit this value. A generator can explicitly opt out by setting `renderer: null`.
+   *
+   * @example
+   * ```ts
+   * import { jsxRenderer } from '@kubb/renderer-jsx'
+   * createPlugin((options) => ({
+   *   name: 'my-plugin',
+   *   renderer: jsxRenderer,
+   *   generators: [
+   *     { name: 'types', schema(node) { return <File>...</File> } },   // inherits jsxRenderer
+   *     { name: 'raw', renderer: null, schema(node) { return [...] } }, // explicit opt-out
+   *   ],
+   * }))
+   * ```
+   */
+  renderer?: RendererFactory
+  /**
+   * Generators declared directly on the plugin. Each generator's `renderer` takes precedence
+   * over `plugin.renderer`; set `renderer: null` on a generator to opt out of rendering even
+   * when the plugin declares a renderer.
+   */
+  generators?: Array<Generator<any>>
+  /**
    * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin is executed after these plugins.
    * Can be used to validate dependent plugins.
    */
@@ -591,6 +616,17 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    * Used in diagnostic messages and version-conflict detection.
    */
   version?: string
+  /**
+   * Plugin-level renderer factory. All generators that do not declare their own `renderer`
+   * inherit this value. A generator can explicitly opt out by setting `renderer: null`.
+   */
+  renderer?: RendererFactory
+  /**
+   * Generators declared directly on the plugin. Each generator's `renderer` takes precedence
+   * over `plugin.renderer`; set `renderer: null` on a generator to opt out of rendering even
+   * when the plugin declares a renderer.
+   */
+  generators?: Array<Generator<any>>
 
   buildStart: (this: PluginContext<TOptions>) => PossiblePromise<void>
   /**

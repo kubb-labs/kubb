@@ -47,6 +47,9 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    *
    * Generators that only return `Array<FileNode>` or `void` do not need to set this.
    *
+   * Set `renderer: null` to explicitly opt out of rendering even when the parent plugin
+   * declares a `renderer` (overrides the plugin-level fallback).
+   *
    * @example
    * ```ts
    * import { jsxRenderer } from '@kubb/renderer-jsx'
@@ -56,7 +59,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    * })
    * ```
    */
-  renderer?: RendererFactory<TElement>
+  renderer?: RendererFactory<TElement> | null
   /**
    * Called for each schema node in the AST walk.
    * `this` is the parent plugin's context with `adapter` and `inputNode` guaranteed present.
@@ -125,24 +128,24 @@ export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFa
       for (const gen of generators) {
         if (!gen.schema) continue
         const result = await gen.schema.call(this, node, options)
-
-        await applyHookResult(result, this.driver, gen.renderer)
+        const renderer = gen.renderer === null ? undefined : (gen.renderer ?? this.plugin.renderer)
+        await applyHookResult(result, this.driver, renderer)
       }
     },
     async operation(node, options) {
       for (const gen of generators) {
         if (!gen.operation) continue
         const result = await gen.operation.call(this, node, options)
-
-        await applyHookResult(result, this.driver, gen.renderer)
+        const renderer = gen.renderer === null ? undefined : (gen.renderer ?? this.plugin.renderer)
+        await applyHookResult(result, this.driver, renderer)
       }
     },
     async operations(nodes, options) {
       for (const gen of generators) {
         if (!gen.operations) continue
         const result = await gen.operations.call(this, nodes, options)
-
-        await applyHookResult(result, this.driver, gen.renderer)
+        const renderer = gen.renderer === null ? undefined : (gen.renderer ?? this.plugin.renderer)
+        await applyHookResult(result, this.driver, renderer)
       }
     },
   }
