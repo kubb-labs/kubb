@@ -560,11 +560,114 @@ async buildStart() {
 }
 ```
 
-**Why:** Parameter-based context is:
-- More explicit — you see what's available in the function signature
-- No binding issues — no need for `.call(this, ...)` when delegating
-- Better tree-shaking — unused utilities are never bound
-- Matches Astro's pattern exactly
+**Why remove `this` and use hooks/parameters instead?**
+
+The `this`-based pattern creates several concrete problems in the current codebase:
+
+**1. `.call(this, ...)` is required everywhere — and it's error-prone**
+
+Today, every plugin hook uses TypeScript's `this` parameter typing (`this: PluginContext<T>`), which means the framework must `.call(this, ...)` every time it invokes a hook. Look at what this looks like in practice:
+
+```ts
+// packages/plugin-ts/src/plugin.ts — current code
+async schema(node, options) {
+  return mergedGenerator.schema?.call(this, node, options)  // must forward `this`
+},
+async operation(node, options) {
+  return mergedGenerator.operation?.call(this, node, options)  // must forward `this`
+},
+```
+
+```ts
+// packages/core/src/defineGenerator.ts — current code
+const result = await gen.schema.call(this, node, options)   // must bind `this`
+const result = await gen.operation.call(this, node, options) // must bind `this`
+```
+
+Every layer that delegates to another function must manually forward the `this` context. If you forget `.call(this, ...)` and write `mergedGenerator.schema(node, options)` instead, `this` becomes `undefined` at runtime — a silent bug that TypeScript cannot catch at compile time because `.call()` is a runtime binding.
+
+In the Astro model, context flows as a regular parameter — no binding required:
+
+```ts
+// After: just pass ctx forward, or destructure what you need
+schema(node, ctx) {
+  return delegateToHelper(node, ctx)  // no .call() needed, just a normal argument
+}
+```
+
+**2. `this` makes function extraction and composition harder**
+
+With `this`-based context, you can't easily extract a hook handler to a separate function:
+
+```ts
+// This BREAKS — `this` is lost when extracting to a standalone function
+const handleSchema = (node, options) => {
+  this.resolver.default(node.name, 'type')  // ❌ `this` is undefined
+}
+
+// You'd need this verbose workaround:
+const handleSchema = function(this: PluginContext, node, options) {
+  this.resolver.default(node.name, 'type')
+}
+// And then: schema: handleSchema  (only works because .call() is done by the framework)
+```
+
+With parameter-based context, any function shape works:
+
+```ts
+// Extract freely — ctx is just data
+const handleSchema = (node, ctx) => {
+  ctx.resolver.name(node.name, 'type')  // ✅ works
+}
+
+// Compose naturally
+const withLogging = (handler) => (node, ctx) => {
+  ctx.logger.info(`Processing ${node.name}`)
+  return handler(node, ctx)
+}
+```
+
+**3. `this` typing requires the global `Kubb.PluginContext` namespace hack**
+
+Kubb currently uses `declare global { namespace Kubb { interface PluginContext {} } }` so that `inject()` can augment the `this` type across plugins. This is a fragile pattern — it's a global mutation of types that makes it hard to reason about what `this` actually contains at any given point.
+
+In the Astro model, cross-plugin capabilities are explicit:
+
+```ts
+'kubb:build:start'({ getPlugin }) {
+  const tsPlugin = getPlugin('plugin-ts')  // Explicit, typed, no global namespace
+}
+```
+
+**4. Astro solved this already — their hooks receive exactly what's available at each lifecycle stage**
+
+Astro's `astro:config:setup` receives `{ addRenderer, updateConfig, injectScript }` — you can see exactly what you can do at that point. Astro's `astro:build:done` receives `{ dir, logger }` — different context for a different phase.
+
+With `this`-based context, every hook sees the same monolithic `PluginContext<T>` type, even though some properties (like `adapter`, `inputNode`) are only available after the adapter has run. This is why `PluginContext` currently has a union type:
+
+```ts
+// Current: PluginContext is a union — adapter may or may not exist
+type PluginContext = {
+  config: Config
+  root: string
+  // ...
+} & (
+  | { inputNode: InputNode; adapter: Adapter }     // after adapter runs
+  | { inputNode?: never; adapter?: never }          // before adapter runs
+)
+```
+
+With namespaced hooks, each hook's context type only includes what's actually available:
+
+```ts
+// kubb:setup — no adapter yet, but you can register generators
+type KubbSetupContext = { addGenerator, setResolver, setRenderer, config, logger }
+
+// kubb:generate:schema — adapter has run, everything is available
+type GeneratorContext = { resolver, adapter, inputNode, options, root, logger }
+```
+
+**Summary:** The move from `this` to hook parameters is not cosmetic — it eliminates `.call()` bugs, enables natural function composition, removes global type namespace hacks, and lets each hook expose exactly the right context for its lifecycle phase. This is the same conclusion Astro reached when designing their integration API.
 
 ### 6. Config: `plugins` → `integrations`
 
