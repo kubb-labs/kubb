@@ -122,30 +122,37 @@ export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFa
 export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(
   generators: Array<Generator<TOptions, any>>,
 ): Generator<TOptions> {
+  /**
+   * Resolves the effective renderer for a generator:
+   * - `null` → explicitly no renderer (ignores the plugin-level fallback)
+   * - `undefined` → inherit from `plugin.renderer`
+   * - `RendererFactory` → use the generator's own renderer
+   */
+  function resolveRenderer(this: GeneratorContext<TOptions>, gen: Generator<TOptions, any>): RendererFactory | undefined {
+    return gen.renderer === null ? undefined : (gen.renderer ?? this.plugin.renderer)
+  }
+
   return {
     name: generators.length > 0 ? generators.map((g) => g.name).join('+') : 'merged',
     async schema(node, options) {
       for (const gen of generators) {
         if (!gen.schema) continue
         const result = await gen.schema.call(this, node, options)
-        const renderer = gen.renderer === null ? undefined : (gen.renderer ?? this.plugin.renderer)
-        await applyHookResult(result, this.driver, renderer)
+        await applyHookResult(result, this.driver, resolveRenderer.call(this, gen))
       }
     },
     async operation(node, options) {
       for (const gen of generators) {
         if (!gen.operation) continue
         const result = await gen.operation.call(this, node, options)
-        const renderer = gen.renderer === null ? undefined : (gen.renderer ?? this.plugin.renderer)
-        await applyHookResult(result, this.driver, renderer)
+        await applyHookResult(result, this.driver, resolveRenderer.call(this, gen))
       }
     },
     async operations(nodes, options) {
       for (const gen of generators) {
         if (!gen.operations) continue
         const result = await gen.operations.call(this, nodes, options)
-        const renderer = gen.renderer === null ? undefined : (gen.renderer ?? this.plugin.renderer)
-        await applyHookResult(result, this.driver, renderer)
+        await applyHookResult(result, this.driver, resolveRenderer.call(this, gen))
       }
     },
   }
