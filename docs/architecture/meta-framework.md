@@ -577,7 +577,8 @@ export const adapterAsyncApi = createAdapter((options = {}) => ({
 export default defineConfig({
   adapter: adapterAsyncApi({ validate: true }),
   input: { path: './asyncapi.yaml' },
-  plugins: [pluginTs()],  // Same plugins work with any adapter
+  plugins: [pluginTs()],  // Plugins that only use InputNode work with any adapter
+                          // Plugins using adapter-specific APIs (e.g., this.adapter.document) require a compatible adapter
 })
 ```
 
@@ -747,7 +748,7 @@ defineConfig({
 
 1. **Should `resolve` support the full `Resolver` interface or just common overrides (`name`, `path`, `file`)?** The full interface includes `resolveOptions`, `resolveBanner`, `resolveFooter` — most plugins never customize these.
 
-2. **When `generators` and inline `schema()` both exist on a plugin, which wins?** Proposed: `generators` takes priority, inline hooks are ignored. This prevents ambiguity.
+2. **When `generators` and inline `schema()` both exist on a plugin, which wins?** Proposed: `generators` takes priority, inline hooks are ignored. A warning should be emitted during plugin initialization when both are present, to prevent accidental misconfiguration.
 
 3. **Should the plugin declare its adapter compatibility?** For example, a plugin that uses `this.adapter.document` (OAS-specific) could declare `adapter: 'oas'` to fail fast if used with a different adapter.
 
