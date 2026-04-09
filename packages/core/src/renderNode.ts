@@ -6,7 +6,7 @@ import type { PluginDriver } from './PluginDriver.ts'
  * Handles the return value of a plugin AST hook or generator method.
  *
  * - Renderer output → rendered via the provided `rendererFactory` (e.g. JSX), files stored in `driver.fileManager`
- * - `Array<FileNode>` → upserted directly into `driver.fileManager`
+ * - `Array<FileNode>` → added directly into `driver.fileManager`
  * - `void` / `null` / `undefined` → no-op (plugin handled it via `this.upsertFile`)
  *
  * Pass a `rendererFactory` (e.g. `jsxRenderer` from `@kubb/renderer-jsx`) when the result

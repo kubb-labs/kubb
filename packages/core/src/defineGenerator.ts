@@ -13,8 +13,8 @@ export type { GeneratorContext } from './types.ts'
  * `this.driver`, etc.
  *
  * Generators that return renderer elements (e.g. JSX) must declare a `renderer`
- * factory so that core knows how to process the output without hardwiring a
- * dependency on any specific renderer package.
+ * factory so that core knows how to process the output without coupling core
+ * to any specific renderer package.
  *
  * Return a renderer element, an array of `FileNode`, or `void` to handle file
  * writing manually via `this.upsertFile`.
