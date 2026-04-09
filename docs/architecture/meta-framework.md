@@ -569,11 +569,11 @@ The `this`-based pattern creates several concrete problems in the current codeba
 Today, every plugin hook uses TypeScript's `this` parameter typing (`this: PluginContext<T>`), which means the framework must `.call(this, ...)` every time it invokes a hook. Look at what this looks like in practice:
 
 ```ts
-// packages/plugin-ts/src/plugin.ts — current code
-async schema(node, options) {
+// packages/plugin-ts/src/plugin.ts — current code (simplified)
+async schema(this: GeneratorContext<PluginTs>, node: SchemaNode, options: ResolvedOptions) {
   return mergedGenerator.schema?.call(this, node, options)  // must forward `this`
 },
-async operation(node, options) {
+async operation(this: GeneratorContext<PluginTs>, node: OperationNode, options: ResolvedOptions) {
   return mergedGenerator.operation?.call(this, node, options)  // must forward `this`
 },
 ```
@@ -602,12 +602,12 @@ With `this`-based context, you can't easily extract a hook handler to a separate
 ```ts
 // This BREAKS — `this` is lost when extracting to a standalone function
 const handleSchema = (node, options) => {
-  this.resolver.default(node.name, 'type')  // ❌ `this` is undefined
+  this.resolver.default(node.name, 'type')  // ❌ `this` is undefined (arrow fn has no own `this`)
 }
 
 // You'd need this verbose workaround:
-const handleSchema = function(this: PluginContext, node, options) {
-  this.resolver.default(node.name, 'type')
+const handleSchema = function(this: GeneratorContext<PluginTs>, node, options) {
+  this.resolver.default(node.name, 'type')  // current API: resolver.default() is the naming method
 }
 // And then: schema: handleSchema  (only works because .call() is done by the framework)
 ```
