@@ -123,13 +123,14 @@ export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFa
   generators: Array<Generator<TOptions, any>>,
 ): Generator<TOptions> {
   /**
-   * Resolves the effective renderer for a generator:
-   * - `null` → explicitly no renderer (ignores the plugin-level fallback)
-   * - `undefined` → inherit from `plugin.renderer`
+   * Resolves the effective renderer for a generator following the precedence chain:
+   * `generator.renderer` → `plugin.renderer` → `config.renderer` → `undefined` (raw FileNode[] mode).
+   * - `null` → explicitly no renderer (ignores all fallbacks)
+   * - `undefined` → fall through to plugin, then config renderer
    * - `RendererFactory` → use the generator's own renderer
    */
   function resolveRenderer(this: GeneratorContext<TOptions>, gen: Generator<TOptions, any>): RendererFactory | undefined {
-    return gen.renderer === null ? undefined : (gen.renderer ?? this.plugin.renderer)
+    return gen.renderer === null ? undefined : (gen.renderer ?? this.plugin.renderer ?? this.config.renderer)
   }
 
   return {

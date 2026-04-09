@@ -241,7 +241,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
 
   // If the plugin declares `generators` directly, merge them into the effective hooks.
   // Each generator's `renderer` takes precedence; `undefined` falls back to `plugin.renderer`
-  // (handled inside `mergeGenerators`). `null` on a generator opts out of rendering.
+  // then `config.renderer` (handled inside `mergeGenerators`). `null` on a generator opts out.
   let { schema: schemaHook, operation: operationHook, operations: operationsHook } = plugin
 
   if (plugin.generators && plugin.generators.length > 0) {
@@ -250,6 +250,9 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
     operationHook = merged.operation
     operationsHook = merged.operations
   }
+
+  // Renderer for direct plugin hooks: plugin.renderer → config.renderer → undefined
+  const pluginRenderer = plugin.renderer ?? context.config.renderer
 
   const collectedOperations: Array<OperationNode> = []
 
@@ -262,7 +265,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       if (options === null) return
       const result = await schemaHook.call(context, transformedNode, options)
 
-      await applyHookResult(result, driver, plugin.renderer)
+      await applyHookResult(result, driver, pluginRenderer)
     },
     async operation(node) {
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
@@ -271,7 +274,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
         collectedOperations.push(transformedNode)
         if (operationHook) {
           const result = await operationHook.call(context, transformedNode, options)
-          await applyHookResult(result, driver, plugin.renderer)
+          await applyHookResult(result, driver, pluginRenderer)
         }
       }
     },
@@ -280,7 +283,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
   if (operationsHook && collectedOperations.length > 0) {
     const result = await operationsHook.call(context, collectedOperations, plugin.options)
 
-    await applyHookResult(result, driver, plugin.renderer)
+    await applyHookResult(result, driver, pluginRenderer)
   }
 }
 

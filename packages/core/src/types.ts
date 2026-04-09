@@ -324,6 +324,22 @@ export type Config<TInput = Input> = {
    */
   plugins: Array<Plugin>
   /**
+   * Project-wide renderer factory. All plugins and generators that do not declare their own
+   * `renderer` ultimately fall back to this value.
+   *
+   * The resolution chain is: `generator.renderer` → `plugin.renderer` → `config.renderer` → `undefined` (raw `FileNode[]` mode).
+   *
+   * @example
+   * ```ts
+   * import { jsxRenderer } from '@kubb/renderer-jsx'
+   * export default defineConfig({
+   *   renderer: jsxRenderer,
+   *   plugins: [pluginTs(), pluginZod()],
+   * })
+   * ```
+   */
+  renderer?: RendererFactory
+  /**
    * Devtools configuration for Kubb Studio integration.
    */
   devtools?:
