@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { createFile, createSource, createText } from '@kubb/ast'
-import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
+import { createPlugin, type Group, getPreset } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { version } from '../package.json'
@@ -82,7 +82,6 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
   })
 
   const generators = preset.generators ?? []
-  const mergedGenerator = mergeGenerators(generators)
 
   let resolveNameWarning = false
   let resolvePathWarning = false
@@ -150,12 +149,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
 
       return this.plugin.resolver.default(name, type)
     },
-    async operation(node, options) {
-      return mergedGenerator.operation?.call(this, node, options)
-    },
-    async operations(nodes, options) {
-      return mergedGenerator.operations?.call(this, nodes, options)
-    },
+    generators,
     async buildStart() {
       const { plugin } = this
       const root = this.root

@@ -1,5 +1,5 @@
 import { camelCase } from '@internals/utils'
-import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
+import { createPlugin, type Group, getPreset } from '@kubb/core'
 import { version } from '../package.json'
 import { presets } from './presets.ts'
 import type { PluginTs } from './types.ts'
@@ -55,7 +55,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
   })
 
   const generators = preset.generators ?? []
-  const mergedGenerator = mergeGenerators(generators)
 
   let resolveNameWarning = false
   let resolvePathWarning = false
@@ -115,15 +114,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
       return this.plugin.resolver.default(name, type)
     },
-    async schema(node, options) {
-      return mergedGenerator.schema?.call(this, node, options)
-    },
-    async operation(node, options) {
-      return mergedGenerator.operation?.call(this, node, options)
-    },
-    async operations(nodes, options) {
-      return mergedGenerator.operations?.call(this, nodes, options)
-    },
+    generators,
     async buildStart() {
       await this.openInStudio({ ast: true })
     },
