@@ -351,14 +351,26 @@ export const pluginClient = definePlugin((options = {}) => {
           addGenerator({
             name: 'function-client',
             operation(node, ctx) {
-              return <File ...><FunctionClient node={node} options={ctx.options} /></File>
+              const name = ctx.resolver.name(node.operationId, 'function')
+              const file = ctx.resolver.file({ name, extname: '.ts' })
+              return (
+                <File baseName={file.baseName} path={file.path}>
+                  <FunctionClient node={node} options={ctx.options} />
+                </File>
+              )
             },
           })
         } else if (clientType === 'class') {
           addGenerator({
             name: 'class-client',
             operation(node, ctx) {
-              return <File ...><ClassClient node={node} options={ctx.options} /></File>
+              const name = ctx.resolver.name(node.operationId, 'function')
+              const file = ctx.resolver.file({ name, extname: '.ts' })
+              return (
+                <File baseName={file.baseName} path={file.path}>
+                  <ClassClient node={node} options={ctx.options} />
+                </File>
+              )
             },
           })
         }
@@ -896,7 +908,12 @@ export const handlebarsRenderer = createRenderer(() => ({
   addGenerator({
     name: 'templates',
     schema(node, ctx) {
-      return { template: '...', data: { ... }, file: { ... } }
+      const file = ctx.resolver.file({ name: node.name, extname: '.ts' })
+      return {
+        template: '{{#each properties}}  {{name}}: {{type}};\n{{/each}}',
+        data: { properties: node.properties },
+        file: { baseName: file.baseName, path: file.path },
+      }
     },
   })
 }
