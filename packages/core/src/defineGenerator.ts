@@ -88,7 +88,9 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
  * `applyHookResult` handles renderer elements and `File[]` uniformly using
  * the generator's declared `renderer` factory.
  */
-export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFactoryOptions, TElement = unknown>(generator: Generator<TOptions, TElement>): Generator<TOptions, TElement> {
+export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFactoryOptions, TElement = unknown>(
+  generator: Generator<TOptions, TElement>,
+): Generator<TOptions, TElement> {
   return generator
 }
 
@@ -114,7 +116,9 @@ export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFa
  * }
  * ```
  */
-export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(generators: Array<Generator<TOptions, any>>): Generator<TOptions> {
+export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(
+  generators: Array<Generator<TOptions, any>>,
+): Generator<TOptions> {
   return {
     name: generators.length > 0 ? generators.map((g) => g.name).join('+') : 'merged',
     async schema(node, options) {

@@ -1,7 +1,7 @@
 import { caseParams, narrowSchema, schemaTypes } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
-import { File , jsxRenderer } from '@kubb/renderer-jsx'
+import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
 import { printerTs } from '../printers/printerTs.ts'

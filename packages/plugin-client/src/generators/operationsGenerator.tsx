@@ -1,5 +1,5 @@
 import { defineGenerator } from '@kubb/core'
-import { File , jsxRenderer } from '@kubb/renderer-jsx'
+import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Operations } from '../components/Operations'
 import type { PluginClient } from '../types'
 

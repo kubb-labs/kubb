@@ -6,7 +6,7 @@ import type { PluginTs } from '@kubb/plugin-ts'
 import { pluginTsName } from '@kubb/plugin-ts'
 import type { PluginZod } from '@kubb/plugin-zod'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { File , jsxRenderer } from '@kubb/renderer-jsx'
+import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { StaticClassClient } from '../components/StaticClassClient'
 import type { PluginClient } from '../types'
 
