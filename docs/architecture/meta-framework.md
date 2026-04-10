@@ -1,4 +1,4 @@
-# Kubb as a Meta-Framework — Modeled After Astro
+# Kubb as a Meta-Framework — Plugin Architecture Research
 
 ## Status
 
@@ -1093,4 +1093,218 @@ export const pluginHello = definePlugin((options) => ({ name: 'plugin-hello', ho
 
 // Without factory (no options)
 export const pluginHello = definePlugin({ name: 'plugin-hello', hooks: { ... } })
+```
+
+---
+
+## Ideas from Other Frameworks
+
+Beyond Astro, three server-side frameworks — **Hono**, **Elysia**, and **Express.js** — each tackle extensibility with distinct philosophies. This section pulls the most relevant ideas for Kubb's plugin system.
+
+### Express.js — The Original Middleware Chain
+
+Express established the `(req, res, next)` middleware pattern: functions that receive context, can transform it, and call `next()` to continue the chain.
+
+```ts
+// Express middleware
+app.use((req, res, next) => {
+  req.startTime = Date.now()  // enrich context
+  next()                       // pass to next middleware
+})
+
+app.use((req, res, next) => {
+  // downstream middleware sees req.startTime
+  res.on('finish', () => console.log(`${Date.now() - req.startTime}ms`))
+  next()
+})
+```
+
+**Key ideas for Kubb:**
+
+| Express Pattern | Kubb Equivalent | Relevance |
+|---|---|---|
+| `app.use(middleware)` — sequential chain | Plugins run in config array order | ✅ Already proposed: plugins execute in declaration order |
+| `next()` — explicit pass to next handler | Not needed — Kubb hooks are parallel, not serial pipelines | ❌ Not applicable: Kubb plugins don't intercept each other's output |
+| `req` object accumulates state across middleware | Hook context accumulates registered generators | ✅ Matches: `kubb:setup` context collects `addGenerator()` calls |
+| Error middleware `(err, req, res, next)` | Plugin error hooks | 🔶 Idea: add `kubb:error` hook for plugin-level error handling |
+
+**What to take:** Express's simplicity of "just a function that receives context" reinforces the hooks-with-parameters model. Express's sequential `next()` chain doesn't fit Kubb's parallel plugin model, but the concept of **enriching a shared context object** is exactly what `kubb:setup` does.
+
+**What to skip:** Express's mutable `req`/`res` objects are a known pain point for typing. Kubb should keep context objects **typed per-hook-phase** (as proposed) rather than a single mutable bag.
+
+### Hono — Typed Context & Factory Pattern
+
+Hono modernizes Express's middleware with TypeScript-first typed context and the `createFactory` / `createMiddleware` pattern:
+
+```ts
+// Hono: Typed middleware factory
+import { createFactory } from 'hono/factory'
+
+type Env = {
+  Variables: {
+    resolver: { name: (n: string) => string }
+    generator: GeneratorConfig
+  }
+}
+
+const factory = createFactory<Env>()
+
+// Plugin as a middleware factory — returns typed middleware
+function typescriptPlugin(options: TsOptions) {
+  return factory.createMiddleware(async (c, next) => {
+    c.set('resolver', createResolver(options))
+    c.set('generator', createGenerator(options))
+    await next()
+  })
+}
+
+// Downstream handlers see typed variables
+app.use(typescriptPlugin({ enumType: 'enum' }))
+app.get('/', (c) => {
+  const resolver = c.var.resolver  // fully typed
+})
+```
+
+**Key ideas for Kubb:**
+
+| Hono Pattern | Kubb Equivalent | Relevance |
+|---|---|---|
+| `createFactory<Env>()` — typed factory with environment | `definePlugin<Options>()` — typed plugin factory | ✅ Direct parallel: both create type-safe plugin constructors |
+| `c.set('key', value)` — enrich context with typed variables | `addGenerator()`, `setResolver()` — register capabilities in setup | ✅ Same concept: plugins enrich a shared typed context |
+| `c.var.key` — access typed variables downstream | `ctx.resolver`, `ctx.options` — access in generator hooks | ✅ Same concept: downstream hooks receive typed context |
+| Onion model (`before next()` / `after next()`) | `kubb:build:start` / `kubb:build:done` hooks | ✅ Structural match: setup → process → teardown lifecycle |
+| `createMiddleware(handler)` — factory returns typed function | `definePlugin(factory)` — factory returns typed plugin | ✅ Same ergonomics: function-returning-function for options |
+
+**What to take:** Hono's `createFactory<Env>()` pattern is the strongest validation of our `definePlugin` factory approach. The idea that a **factory creates a typed scope**, and variables set within that scope are available downstream with full type inference, maps perfectly to how Kubb plugins register generators in `kubb:setup` and those generators receive typed context.
+
+**What to consider:** Hono's onion model (code runs before AND after `next()`) could inspire a wrapper concept:
+
+```ts
+// Hypothetical: a plugin that wraps the entire generation phase
+definePlugin((options) => ({
+  name: 'plugin-metrics',
+  hooks: {
+    async 'kubb:build:start'({ logger }) {
+      const start = Date.now()
+      logger.info('Build starting')
+      // kubb:build:start runs before generation
+    },
+    async 'kubb:build:done'({ files, logger }) {
+      // kubb:build:done runs after generation
+      logger.info(`Generated ${files.length} files in ${Date.now() - start}ms`)
+    },
+  },
+}))
+```
+
+This already works with our proposed lifecycle hooks — `kubb:build:start` IS the "before" phase and `kubb:build:done` IS the "after" phase, achieving the same wrap-around effect as Hono's onion model without the `next()` complexity.
+
+### Elysia — Plugin-as-Instance & Decorator Pattern
+
+Elysia takes the most radical approach: every Elysia instance IS a plugin. Plugins compose via `.use()` with automatic type merging:
+
+```ts
+// Elysia: Plugin-as-instance with .use() composition
+import { Elysia } from 'elysia'
+
+const authPlugin = new Elysia({ name: 'auth' })
+  .decorate('currentUser', null as User | null)
+  .onBeforeHandle(({ currentUser }) => {
+    if (!currentUser) throw new Error('Unauthorized')
+  })
+
+const dbPlugin = new Elysia({ name: 'db' })
+  .decorate('db', createDatabase())
+
+const app = new Elysia()
+  .use(authPlugin)     // Types from auth merged into app
+  .use(dbPlugin)       // Types from db merged into app
+  .get('/', ({ currentUser, db }) => {
+    // Both `currentUser` and `db` are fully typed here
+    return db.users.find(currentUser.id)
+  })
+```
+
+**Key ideas for Kubb:**
+
+| Elysia Pattern | Kubb Equivalent | Relevance |
+|---|---|---|
+| `.decorate('key', value)` — add typed properties to context | `addGenerator()`, `setResolver()` — register typed capabilities | ✅ Same concept: plugins contribute typed pieces to a shared context |
+| `.use(plugin)` — compose plugins with automatic type merging | `integrations: [pluginTs(), pluginZod()]` — config-level composition | ✅ Same concept but declarative vs chained |
+| Lifecycle hooks: `onBeforeHandle` / `onAfterHandle` | `kubb:build:start` / `kubb:build:done` | ✅ Same lifecycle phases, different naming convention |
+| Plugin scoping: `global` / `scoped` / `local` | Not currently proposed | 🔶 Idea: plugin scope could control which downstream plugins see registered generators |
+| Plugin deduplication via `name` + `seed` | Plugin deduplication via `name` | ✅ Already proposed: plugins identified by unique name |
+| End-to-end type inference across `.use()` chain | Type inference across plugin dependencies | 🔶 Idea: `getPlugin('plugin-ts')` could return fully typed plugin interface |
+
+**What to take:** Elysia's `.decorate()` pattern — where a plugin adds typed properties that downstream code can access — is conceptually identical to what `addGenerator()` and `setResolver()` do in `kubb:setup`. The key insight is that **the act of registering a capability should automatically make it available and typed for consumers**.
+
+Elysia's **plugin scoping** (global/scoped/local) is worth considering. In Kubb, if `plugin-client` registers a generator, should `plugin-zod` be able to see it? Currently no — generators are plugin-scoped. Elysia's explicit scoping model could be useful if we ever need cross-plugin generator sharing.
+
+**What to skip:** Elysia's `.use()` chaining pattern is elegant for request handlers but doesn't fit Kubb's declarative config model. `kubb.config.ts` with an `integrations` array (Astro's approach) is cleaner for a build-time tool.
+
+### Comparison: Four Approaches to Plugin Context
+
+| Dimension | Express | Hono | Elysia | Astro (proposed for Kubb) |
+|---|---|---|---|---|
+| **How plugins receive context** | `(req, res, next)` args | `(c, next)` typed context | `.decorate()` + hook args | Hook params: `({ addGenerator, logger })` |
+| **How plugins contribute state** | Mutate `req` object | `c.set('key', value)` | `.decorate('key', value)` | `addGenerator()`, `setResolver()` |
+| **Type safety** | Weak (retrofitted) | Strong (factory-based) | Strongest (end-to-end inference) | Strong (per-hook typed context) |
+| **Execution model** | Sequential chain + `next()` | Onion model + `next()` | Lifecycle hooks (before/after) | Lifecycle hooks (namespaced phases) |
+| **Plugin composition** | `app.use(fn)` | `app.use(fn)` | `.use(instance)` with type merge | `integrations: [plugin()]` in config |
+| **Error handling** | Error middleware `(err, req, res, next)` | `.onError` hook | `onError` lifecycle hook | Could add `kubb:error` hook |
+
+### Synthesis: What Kubb Should Take from Each
+
+**From Express:**
+- ✅ Simplicity of "hooks receive context as parameters" (not `this`)
+- ✅ Plugins run in declaration order (already in our proposal)
+- 🔶 Consider a `kubb:error` hook for plugin-level error handling
+
+**From Hono:**
+- ✅ `createFactory<Env>()` validates our `definePlugin<Options>()` factory pattern
+- ✅ Typed variables set in middleware are available downstream — matches `addGenerator()` → `ctx.resolver` flow
+- ✅ The onion model (before/after) maps directly to `kubb:build:start` / `kubb:build:done`
+
+**From Elysia:**
+- ✅ `.decorate()` pattern validates `addGenerator()` / `setResolver()` as typed context enrichment
+- ✅ Plugin deduplication by name (already proposed)
+- 🔶 Plugin scoping (global/scoped/local) could be valuable for cross-plugin generator visibility
+- 🔶 End-to-end type inference across plugin chain (advanced TypeScript, similar to what `getPlugin()` needs)
+
+**From Astro (primary model):**
+- ✅ Namespaced lifecycle hooks with phase-specific typed context
+- ✅ `addRenderer()` / `addGenerator()` pattern for capability registration
+- ✅ Config-level declarative composition (`integrations` array)
+- ✅ No `this` binding — pure parameter injection
+
+### Event-Based vs Hook-Based: The Key Question
+
+Express and Hono use a **sequential pipeline** — each middleware calls `next()` to continue. Elysia uses **lifecycle hooks** — `onBeforeHandle`, `onAfterHandle`. Astro uses **namespaced hooks** — `astro:config:setup`, `astro:build:done`.
+
+For Kubb, the **hook-based model** (Astro/Elysia) is the right choice over a pipeline model (Express/Hono):
+
+1. **No sequential dependency:** Kubb plugins don't intercept each other's output. `plugin-ts` and `plugin-zod` both read the same `InputNode` and produce independent files. There's no "pass to next handler" concept.
+
+2. **Parallel by nature:** Multiple generators can process the same schema node independently. A pipeline forces serial execution; hooks allow parallel execution.
+
+3. **Phase-specific context:** Each hook phase has different available data. `kubb:setup` has `addGenerator()` but no `inputNode`. `kubb:generate:schema` has `inputNode` and `resolver` but no `addGenerator()`. Namespaced hooks make this explicit.
+
+4. **Matches the mental model:** Kubb users think "when a schema is processed, generate a TypeScript type" — that's an event subscription (`kubb:generate:schema`), not a middleware pipeline.
+
+The hooks should be **synchronous-first with async support**, matching Astro's pattern — most hooks don't need to be async, but `kubb:build:done` might need to write additional files:
+
+```ts
+hooks: {
+  // Sync hook — most common
+  'kubb:setup'({ addGenerator, setResolver }) {
+    setResolver({ name: pascalCase })
+    addGenerator({ name: 'types', schema(node, ctx) { ... } })
+  },
+
+  // Async hook — when needed
+  async 'kubb:build:done'({ files, logger }) {
+    await writeCustomManifest(files)
+    logger.info('Manifest written')
+  },
+}
 ```
