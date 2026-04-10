@@ -130,4 +130,3 @@ export type {
   UpdateUserMutationResponse,
   UpdateUserPathParams,
 } from './models/ts/userController/UpdateUser.ts'
-export { deleteOrder, getInventory, getOrderById, placeOrder, placeOrderPatch } from './tagObject.ts'
