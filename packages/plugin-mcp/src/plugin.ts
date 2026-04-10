@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { createFile, createSource, createText } from '@kubb/ast'
-import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
+import { createPlugin, type Group, getPreset } from '@kubb/core'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
@@ -41,7 +41,6 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
   })
 
   const generators = preset.generators ?? []
-  const mergedGenerator = mergeGenerators(generators)
 
   return {
     name: pluginMcpName,
@@ -85,15 +84,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
       }
     },
     pre: [pluginTsName, pluginZodName].filter(Boolean),
-    async schema(node, options) {
-      return mergedGenerator.schema?.call(this, node, options)
-    },
-    async operation(node, options) {
-      return mergedGenerator.operation?.call(this, node, options)
-    },
-    async operations(nodes, options) {
-      return mergedGenerator.operations?.call(this, nodes, options)
-    },
+    generators,
     async buildStart() {
       const { adapter, driver } = this
       const root = this.root
