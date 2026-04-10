@@ -3,8 +3,9 @@ import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelat
 import { createExport, createFile, transform, walk } from '@kubb/ast'
 import type { ExportNode, FileNode, OperationNode } from '@kubb/ast/types'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
-import { mergeGenerators } from './defineGenerator.ts'
+import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
+import type { RendererFactory } from './createRenderer.ts'
 import { FileProcessor } from './FileProcessor.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.ts'
@@ -239,51 +240,52 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
     throw new Error(`[${plugin.name}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`)
   }
 
-  // If the plugin declares `generators` directly, merge them into the effective hooks.
-  // Each generator's `renderer` takes precedence; `undefined` falls back to `plugin.renderer`
-  // then `config.renderer` (handled inside `mergeGenerators`). `null` on a generator opts out.
-  let { schema: schemaHook, operation: operationHook, operations: operationsHook } = plugin
-
-  if (plugin.generators && plugin.generators.length > 0) {
-    const merged = mergeGenerators(plugin.generators)
-    schemaHook = merged.schema
-    operationHook = merged.operation
-    operationsHook = merged.operations
+  /**
+   * Resolves the effective renderer for a generator following the precedence chain:
+   * `generator.renderer` → `plugin.renderer` → `config.renderer` → `undefined` (raw FileNode[] mode).
+   * - `null`  → explicitly no renderer (ignores all fallbacks)
+   * - `undefined` → fall through to plugin, then config renderer
+   */
+  function resolveRenderer(gen: Generator<any>): RendererFactory | undefined {
+    return gen.renderer === null ? undefined : (gen.renderer ?? plugin.renderer ?? context.config.renderer)
   }
 
-  // Renderer for direct plugin hooks: plugin.renderer → config.renderer → undefined
-  const pluginRenderer = plugin.renderer ?? context.config.renderer
-
+  const generators = plugin.generators ?? []
   const collectedOperations: Array<OperationNode> = []
 
   await walk(inputNode, {
     depth: 'shallow',
     async schema(node) {
-      if (!schemaHook) return
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
       const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
       if (options === null) return
-      const result = await schemaHook.call(context, transformedNode, options)
 
-      await applyHookResult(result, driver, pluginRenderer)
+      for (const gen of generators) {
+        if (!gen.schema) continue
+        const result = await gen.schema.call(context, transformedNode, options)
+        await applyHookResult(result, driver, resolveRenderer(gen))
+      }
     },
     async operation(node) {
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
       const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
       if (options !== null) {
         collectedOperations.push(transformedNode)
-        if (operationHook) {
-          const result = await operationHook.call(context, transformedNode, options)
-          await applyHookResult(result, driver, pluginRenderer)
+        for (const gen of generators) {
+          if (!gen.operation) continue
+          const result = await gen.operation.call(context, transformedNode, options)
+          await applyHookResult(result, driver, resolveRenderer(gen))
         }
       }
     },
   })
 
-  if (operationsHook && collectedOperations.length > 0) {
-    const result = await operationsHook.call(context, collectedOperations, plugin.options)
-
-    await applyHookResult(result, driver, pluginRenderer)
+  if (collectedOperations.length > 0) {
+    for (const gen of generators) {
+      if (!gen.operations) continue
+      const result = await gen.operations.call(context, collectedOperations, plugin.options)
+      await applyHookResult(result, driver, resolveRenderer(gen))
+    }
   }
 }
 
@@ -326,8 +328,8 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         // Call buildStart() for any custom plugin logic
         await plugin.buildStart.call(context)
 
-        // Dispatch schema/operation/operations hooks (direct hooks or composed via composeGenerators)
-        if (plugin.schema || plugin.operation || plugin.operations || plugin.generators?.length) {
+        // Dispatch AST hooks via plugin.generators
+        if (plugin.generators?.length) {
           await runPluginAstHooks(plugin, context)
         }
 

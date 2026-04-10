@@ -1,7 +1,6 @@
 import type { PossiblePromise } from '@internals/utils'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast/types'
 import type { RendererFactory } from './createRenderer.ts'
-import { applyHookResult } from './renderNode.ts'
 import type { GeneratorContext, PluginFactoryOptions } from './types.ts'
 
 export type { GeneratorContext } from './types.ts'
@@ -95,66 +94,4 @@ export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFa
   generator: Generator<TOptions, TElement>,
 ): Generator<TOptions, TElement> {
   return generator
-}
-
-/**
- * Merges an array of generators into a single generator.
- *
- * The merged generator's `schema`, `operation`, and `operations` methods run
- * the corresponding method from each input generator in sequence, applying each
- * result via `applyHookResult` with the generator's declared `renderer`. This
- * eliminates the need to write the loop manually in each plugin.
- *
- * @param generators - Array of generators to merge into a single generator.
- *
- * @example
- * ```ts
- * const merged = mergeGenerators(generators)
- *
- * return {
- *   name: pluginName,
- *   schema: merged.schema,
- *   operation: merged.operation,
- *   operations: merged.operations,
- * }
- * ```
- */
-export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(
-  generators: Array<Generator<TOptions, any>>,
-): Generator<TOptions> {
-  /**
-   * Resolves the effective renderer for a generator following the precedence chain:
-   * `generator.renderer` → `plugin.renderer` → `config.renderer` → `undefined` (raw FileNode[] mode).
-   * - `null` → explicitly no renderer (ignores all fallbacks)
-   * - `undefined` → fall through to plugin, then config renderer
-   * - `RendererFactory` → use the generator's own renderer
-   */
-  function resolveRenderer(this: GeneratorContext<TOptions>, gen: Generator<TOptions, any>): RendererFactory | undefined {
-    return gen.renderer === null ? undefined : (gen.renderer ?? this.plugin.renderer ?? this.config.renderer)
-  }
-
-  return {
-    name: generators.length > 0 ? generators.map((g) => g.name).join('+') : 'merged',
-    async schema(node, options) {
-      for (const gen of generators) {
-        if (!gen.schema) continue
-        const result = await gen.schema.call(this, node, options)
-        await applyHookResult(result, this.driver, resolveRenderer.call(this, gen))
-      }
-    },
-    async operation(node, options) {
-      for (const gen of generators) {
-        if (!gen.operation) continue
-        const result = await gen.operation.call(this, node, options)
-        await applyHookResult(result, this.driver, resolveRenderer.call(this, gen))
-      }
-    },
-    async operations(nodes, options) {
-      for (const gen of generators) {
-        if (!gen.operations) continue
-        const result = await gen.operations.call(this, nodes, options)
-        await applyHookResult(result, this.driver, resolveRenderer.call(this, gen))
-      }
-    },
-  }
 }
