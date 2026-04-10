@@ -1,5 +1,7 @@
 # Kubb as a Meta-Framework — Plugin Architecture Research
 
+> Primary model: Astro's integration architecture, with additional ideas from Hono, Elysia, and Express.js
+
 ## Status
 
 Draft — proposal for discussion (breaking changes accepted)
@@ -1181,20 +1183,23 @@ app.get('/', (c) => {
 
 ```ts
 // Hypothetical: a plugin that wraps the entire generation phase
-definePlugin((options) => ({
-  name: 'plugin-metrics',
-  hooks: {
-    async 'kubb:build:start'({ logger }) {
-      const start = Date.now()
-      logger.info('Build starting')
-      // kubb:build:start runs before generation
+definePlugin((options) => {
+  let start: number
+  return {
+    name: 'plugin-metrics',
+    hooks: {
+      'kubb:build:start'({ logger }) {
+        start = Date.now()
+        logger.info('Build starting')
+        // kubb:build:start runs before generation
+      },
+      'kubb:build:done'({ files, logger }) {
+        // kubb:build:done runs after generation — `start` is in closure scope
+        logger.info(`Generated ${files.length} files in ${Date.now() - start}ms`)
+      },
     },
-    async 'kubb:build:done'({ files, logger }) {
-      // kubb:build:done runs after generation
-      logger.info(`Generated ${files.length} files in ${Date.now() - start}ms`)
-    },
-  },
-}))
+  }
+})
 ```
 
 This already works with our proposed lifecycle hooks — `kubb:build:start` IS the "before" phase and `kubb:build:done` IS the "after" phase, achieving the same wrap-around effect as Hono's onion model without the `next()` complexity.
