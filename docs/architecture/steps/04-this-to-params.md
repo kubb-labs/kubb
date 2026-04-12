@@ -1,14 +1,14 @@
-# Step 4: `this` Context → Hook Parameters
+# Step 4: `this` Context → Event Parameters
 
 ## Goal
 
-Replace `this`-based context in generator hooks with **parameter-based context**. Generator `schema()`, `operation()`, and `operations()` methods receive context as a second argument instead of relying on `this` binding.
+Replace `this`-based context in generator methods with **parameter-based context**. Generator `schema()`, `operation()`, and `operations()` methods receive context as a second argument instead of relying on `this` binding.
 
-This is the most impactful change — it eliminates `.call(this, ...)` bugs, enables arrow function extraction, removes the global `Kubb.PluginContext` namespace hack, and gives each hook phase-specific typed context.
+This is the most impactful change — it eliminates `.call(this, ...)` bugs, enables arrow function extraction, removes the global `Kubb.PluginContext` namespace hack, and gives each event phase-specific typed context.
 
 ## Depends On
 
-- Step 1 (`definePlugin` with hooks)
+- Step 1 (`definePlugin` with `KubbEvents`)
 - Step 2 (generator registration)
 - Step 3 (resolver as setup call)
 

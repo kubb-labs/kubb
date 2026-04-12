@@ -2,11 +2,11 @@
 
 ## Goal
 
-Move resolver configuration from a property getter on the plugin object (`get resolver()`) to a `setResolver()` call inside the `kubb:setup` hook. The framework provides a default resolver and merges user overrides.
+Move resolver configuration from a property getter on the plugin object (`get resolver()`) to a `setResolver()` call inside the `kubb:setup` event. The framework provides a default resolver and merges user overrides.
 
 ## Depends On
 
-- Step 1 (`definePlugin` with hooks)
+- Step 1 (`definePlugin` with `KubbEvents`)
 - Step 2 (generator registration) — generators receive the resolved resolver via context
 
 ## Scope
@@ -69,7 +69,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => ({
 // After (new API)
 export const pluginTs = definePlugin((options = {}) => ({
   name: 'plugin-ts',
-  hooks: {
+  events: {
     'kubb:setup'({ setResolver }) {
       setResolver({
         name(name, type) {

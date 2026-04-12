@@ -1,13 +1,13 @@
-# Step 1: `createPlugin` → `definePlugin` with Namespaced Hooks
+# Step 1: `createPlugin` → `definePlugin` with `KubbEvents`
 
 ## Goal
 
-Introduce `definePlugin` as a new plugin factory that uses **namespaced lifecycle hooks** instead of flat methods. `createPlugin` continues to work unchanged during the transition.
+Introduce `definePlugin` as a new plugin factory that uses **`KubbEvents` (namespaced lifecycle events)** instead of flat methods. `createPlugin` continues to work unchanged during the transition.
 
 ## Scope
 
 - `packages/core/src/definePlugin.ts` — new file
-- `packages/core/src/types.ts` — new hook types
+- `packages/core/src/types.ts` — new `KubbEvents` type and event context types
 - `packages/core/src/PluginDriver.ts` — detect and dispatch both formats
 - `packages/core/src/index.ts` — export `definePlugin`
 
@@ -19,25 +19,27 @@ Introduce `definePlugin` as a new plugin factory that uses **namespaced lifecycl
 // packages/core/src/definePlugin.ts
 import type { PluginFactoryOptions } from './types.ts'
 
-type HookStyle<TOptions> = {
+type KubbEvents<TOptions> = {
+  'kubb:setup'?(ctx: KubbSetupContext<TOptions>): void
+  'kubb:config:done'?(ctx: KubbConfigDoneContext): void
+  'kubb:build:start'?(ctx: KubbBuildStartContext): void
+  'kubb:build:done'?(ctx: KubbBuildDoneContext): void
+}
+
+type EventStylePlugin<TOptions> = {
   name: string
   dependencies?: string[]
-  hooks: {
-    'kubb:setup'?(ctx: KubbSetupContext<TOptions>): void
-    'kubb:config:done'?(ctx: KubbConfigDoneContext): void
-    'kubb:build:start'?(ctx: KubbBuildStartContext): void
-    'kubb:build:done'?(ctx: KubbBuildDoneContext): void
-  }
+  events: KubbEvents<TOptions>
 }
 
 export function definePlugin<TOptions = object>(
-  factory: (options: TOptions) => HookStyle<TOptions>,
-): (options?: TOptions) => HookStyle<TOptions> {
+  factory: (options: TOptions) => EventStylePlugin<TOptions>,
+): (options?: TOptions) => EventStylePlugin<TOptions> {
   return factory
 }
 ```
 
-### New hook context types
+### New event context types
 
 ```ts
 // Added to packages/core/src/types.ts
@@ -79,20 +81,20 @@ type KubbBuildDoneContext = {
 
 ### PluginDriver changes
 
-`PluginDriver` needs to detect whether a plugin uses the new `hooks` format or the legacy flat format:
+`PluginDriver` needs to detect whether a plugin uses the new `events` format or the legacy flat format:
 
 ```ts
 // packages/core/src/PluginDriver.ts
 
-function isHookStylePlugin(plugin: unknown): plugin is HookStylePlugin {
-  return typeof plugin === 'object' && plugin !== null && 'hooks' in plugin
+function isEventStylePlugin(plugin: unknown): plugin is EventStylePlugin {
+  return typeof plugin === 'object' && plugin !== null && 'events' in plugin
 }
 
 // When dispatching lifecycle events:
 async function runSetup(plugin: Plugin) {
-  if (isHookStylePlugin(plugin)) {
+  if (isEventStylePlugin(plugin)) {
     // New style: call kubb:setup with context
-    plugin.hooks['kubb:setup']?.({
+    plugin.events['kubb:setup']?.({
       addGenerator: (gen) => this.registerGenerator(plugin.name, gen),
       setResolver: (res) => this.setPluginResolver(plugin.name, res),
       setTransformer: (vis) => this.setPluginTransformer(plugin.name, vis),
@@ -126,13 +128,13 @@ async function runSetup(plugin: Plugin) {
 - [ ] A plugin created with `definePlugin` can set a resolver via `setResolver()` in `kubb:setup`
 - [ ] A plugin created with `createPlugin` (legacy) continues to work identically
 - [ ] Both styles can coexist in the same `kubb.config.ts`
-- [ ] Hook context types are exported from `@kubb/core`
+- [ ] Hook context types are exported from `@kubb/core` (as `KubbEvents`, `KubbSetupContext`, etc.)
 - [ ] Existing tests pass unchanged
 
 ## Test Plan
 
 1. Add unit test: `definePlugin` creates a valid plugin object
-2. Add unit test: `kubb:setup` hook receives correct context
+2. Add unit test: `kubb:setup` event receives correct context
 3. Add unit test: `addGenerator()` registers generators on the plugin
 4. Add integration test: mixed `definePlugin` + `createPlugin` in same config
 5. All existing tests remain green

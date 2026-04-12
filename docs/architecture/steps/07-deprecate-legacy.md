@@ -78,7 +78,7 @@ Create a migration guide at `docs/migration/define-plugin.md`:
 3. **Replace** `get resolver()` with `setResolver()` in `kubb:setup`
 4. **Replace** `pre`/`post` with `dependencies`
 5. **Update** generator signatures: `schema(this, node, opts)` → `schema(node, ctx)`
-6. **Remove** preset files — logic moves inline to setup hook
+6. **Remove** preset files — logic moves inline to setup event
 
 Include before/after code examples for each plugin type (simple, medium, complex).
 

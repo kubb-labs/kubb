@@ -2,11 +2,11 @@
 
 ## Goal
 
-Rewrite all of Kubb's built-in plugins to use the new `definePlugin` API with namespaced hooks. This is the main migration step — each plugin moves from `createPlugin` + external preset/generator wiring to `definePlugin` + `addGenerator()`/`setResolver()` in `kubb:setup`.
+Rewrite all of Kubb's built-in plugins to use the new `definePlugin` API with `KubbEvents`. This is the main migration step — each plugin moves from `createPlugin` + external preset/generator wiring to `definePlugin` + `addGenerator()`/`setResolver()` in `kubb:setup`.
 
 ## Depends On
 
-- Step 1 (`definePlugin` with hooks)
+- Step 1 (`definePlugin` with `KubbEvents`)
 - Step 2 (generator registration via `addGenerator()`)
 - Step 3 (resolver as setup call)
 - Step 4 (`this` → parameter context)
@@ -34,7 +34,7 @@ plugin-ts/src/
 **After migration:**
 ```
 plugin-ts/src/
-├── plugin.ts          — definePlugin with kubb:setup hook
+├── plugin.ts          — definePlugin with kubb:setup event
 ├── generators/        — typeGenerator.tsx (defineGenerator — same object, new signature)
 ├── types.ts           — simplified options type
 └── components/        — JSX components (unchanged)
@@ -57,7 +57,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 // After
 export const pluginTs = definePlugin((options = {}) => ({
   name: 'plugin-ts',
-  hooks: {
+  events: {
     'kubb:setup'({ addGenerator, setResolver, setRenderer }) {
       setRenderer(jsxRenderer)
       setResolver({
@@ -156,14 +156,14 @@ Small plugins, straightforward migration.
 
 1. Create new `plugin.ts` with `definePlugin`
 2. Update generator signatures: `schema(this, node, opts)` → `schema(node, ctx)`
-3. Remove `presets.ts` and `resolvers/` directory (logic moves inline to setup hook)
+3. Remove `presets.ts` and `resolvers/` directory (logic moves inline to setup event)
 4. Update imports
 5. Update tests
 6. Verify generated output matches exactly (snapshot tests)
 
 ## Acceptance Criteria (per sub-PR)
 
-- [ ] Plugin uses `definePlugin` with `kubb:setup` hook
+- [ ] Plugin uses `definePlugin` with `kubb:setup` event
 - [ ] Generators registered via `addGenerator()`
 - [ ] Resolver set via `setResolver()`
 - [ ] No `.call(this, ...)` in plugin code

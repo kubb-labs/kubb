@@ -6,7 +6,7 @@ This directory contains one markdown file per migration step. Each step is scope
 
 | Step | File | Description | Depends On |
 |------|------|-------------|------------|
-| 1 | [01-define-plugin.md](./01-define-plugin.md) | Introduce `definePlugin` with namespaced hooks | — |
+| 1 | [01-define-plugin.md](./01-define-plugin.md) | Introduce `definePlugin` with `KubbEvents` | — |
 | 2 | [02-generator-registration.md](./02-generator-registration.md) | Generators registered via `addGenerator()` in setup | Step 1 |
 | 3 | [03-resolver-as-setup-call.md](./03-resolver-as-setup-call.md) | Resolver configured via `setResolver()` in setup | Steps 1, 2 |
 | 4 | [04-this-to-params.md](./04-this-to-params.md) | Replace `this` context with parameter context | Steps 1, 2, 3 |

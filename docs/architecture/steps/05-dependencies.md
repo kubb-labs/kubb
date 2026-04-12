@@ -6,7 +6,7 @@ Replace the separate `pre` and `post` arrays with a single `dependencies` array 
 
 ## Depends On
 
-- Step 1 (`definePlugin` with hooks) — `dependencies` is a property on the new plugin format
+- Step 1 (`definePlugin` with `KubbEvents`) — `dependencies` is a property on the new plugin format
 
 ## Scope
 
@@ -20,10 +20,10 @@ Replace the separate `pre` and `post` arrays with a single `dependencies` array 
 
 ```ts
 // New plugin format (definePlugin)
-type HookStylePlugin = {
+type EventStylePlugin = {
   name: string
   dependencies?: string[]  // NEW: plugins that must run before this one
-  hooks: { ... }
+  events: { ... }
 }
 ```
 

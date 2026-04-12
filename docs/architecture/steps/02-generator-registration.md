@@ -1,12 +1,12 @@
-# Step 2: Generators Registered via `addGenerator()` in Setup Hook
+# Step 2: Generators Registered via `addGenerator()` in Setup Event
 
 ## Goal
 
-Move generator registration from external wiring (`getPreset` / `mergeGenerators` in the plugin body) to the `kubb:setup` hook via `addGenerator()`. The framework manages generator execution order and merging.
+Move generator registration from external wiring (`getPreset` / `mergeGenerators` in the plugin body) to the `kubb:setup` event via `addGenerator()`. The framework manages generator execution order and merging.
 
 ## Depends On
 
-- Step 1 (`definePlugin` with hooks)
+- Step 1 (`definePlugin` with `KubbEvents`)
 
 ## Scope
 
@@ -74,7 +74,7 @@ The current public `mergeGenerators` function is no longer needed for the new AP
 // What a migrated plugin-ts would look like (not changed in this step)
 export const pluginTs = definePlugin((options = {}) => ({
   name: 'plugin-ts',
-  hooks: {
+  events: {
     'kubb:setup'({ addGenerator }) {
       addGenerator(typeGenerator)     // existing defineGenerator object
       addGenerator(enumGenerator)     // existing defineGenerator object
