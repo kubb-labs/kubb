@@ -234,7 +234,7 @@ describe('PluginDriver', () => {
     })
 
     const errorSpy = vi.fn()
-    errorPluginDriver.events.on('error', errorSpy)
+    errorPluginDriver.events.on('kubb:error', errorSpy)
 
     const result = await errorPluginDriver.hookFirst({
       hookName: 'buildStart',

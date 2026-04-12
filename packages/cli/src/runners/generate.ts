@@ -74,10 +74,10 @@ async function runToolPass({
   if (resolvedTool === 'auto') {
     const detected = await detect()
     if (!detected) {
-      await events.emit('warn', noToolMessage)
+      await events.emit('kubb:warn', noToolMessage)
     } else {
       resolvedTool = detected
-      await events.emit('info', `Auto-detected ${toolLabel}: ${styleText('dim', resolvedTool)}`)
+      await events.emit('kubb:info', `Auto-detected ${toolLabel}: ${styleText('dim', resolvedTool)}`)
     }
   }
 
@@ -90,18 +90,18 @@ async function runToolPass({
       const hookId = createHash('sha256').update([configName, resolvedTool].filter(Boolean).join('-')).digest('hex')
 
       // Wire up the hook:end listener BEFORE emitting hook:start to avoid the race condition
-      // where hook:end fires synchronously inside emit('hook:start') before the listener is registered.
+      // where hook:end fires synchronously inside emit('kubb:hook:start') before the listener is registered.
       const hookEndPromise = new Promise<void>((resolve, reject) => {
         const handler = ({ id, success, error }: { id?: string; command: string; args?: readonly string[]; success: boolean; error: Error | null }) => {
           if (id !== hookId) return
-          events.off('hook:end', handler)
+          events.off('kubb:hook:end', handler)
           if (!success) {
             reject(error ?? new Error(`${toolConfig.errorMessage}`))
             return
           }
           events
             .emit(
-              'success',
+              'kubb:success',
               [
                 `${successPrefix} with ${styleText('dim', resolvedTool)}`,
                 logLevel >= logLevelMap.info ? `on ${styleText('dim', outputPath)}` : undefined,
@@ -113,10 +113,10 @@ async function runToolPass({
             .then(resolve)
             .catch(reject)
         }
-        events.on('hook:end', handler)
+        events.on('kubb:hook:end', handler)
       })
 
-      await events.emit('hook:start', {
+      await events.emit('kubb:hook:start', {
         id: hookId,
         command: toolConfig.command,
         args: toolConfig.args(outputPath),
@@ -126,7 +126,7 @@ async function runToolPass({
     } catch (caughtError) {
       const err = new Error(toolConfig.errorMessage)
       err.cause = caughtError
-      await events.emit('error', err)
+      await events.emit('kubb:error', err)
       toolError = err
     }
   }
@@ -162,11 +162,11 @@ async function generate(options: GenerateProps): Promise<void> {
 
   const { sources, config, driver } = setupResult
 
-  await events.emit('generation:start', config)
+  await events.emit('kubb:generation:start', config)
 
-  await events.emit('info', config.name ? `Setup generation ${styleText('bold', config.name)}` : 'Setup generation', inputPath)
+  await events.emit('kubb:info', config.name ? `Setup generation ${styleText('bold', config.name)}` : 'Setup generation', inputPath)
 
-  await events.emit('info', config.name ? `Build generation ${styleText('bold', config.name)}` : 'Build generation', inputPath)
+  await events.emit('kubb:info', config.name ? `Build generation ${styleText('bold', config.name)}` : 'Build generation', inputPath)
 
   const { files, failedPlugins, pluginTimings, error } = await safeBuild(
     {
@@ -176,7 +176,7 @@ async function generate(options: GenerateProps): Promise<void> {
     setupResult,
   )
 
-  await events.emit('info', 'Load summary')
+  await events.emit('kubb:info', 'Load summary')
 
   // Handle build failures (either from failed plugins or general errors)
 
@@ -191,12 +191,12 @@ async function generate(options: GenerateProps): Promise<void> {
     ].filter(Boolean)
 
     for (const err of allErrors) {
-      await events.emit('error', err)
+      await events.emit('kubb:error', err)
     }
 
-    await events.emit('generation:end', config, files, sources)
+    await events.emit('kubb:generation:end', config, files, sources)
 
-    await events.emit('generation:summary', config, {
+    await events.emit('kubb:generation:summary', config, {
       failedPlugins,
       filesCreated: files.length,
       status: 'failed',
@@ -218,8 +218,8 @@ async function generate(options: GenerateProps): Promise<void> {
     process.exit(1)
   }
 
-  await events.emit('success', 'Generation successfully', inputPath)
-  await events.emit('generation:end', config, files, sources)
+  await events.emit('kubb:success', 'Generation successfully', inputPath)
+  await events.emit('kubb:generation:end', config, files, sources)
 
   const outputPath = path.resolve(config.root, config.output.path)
 
@@ -235,8 +235,8 @@ async function generate(options: GenerateProps): Promise<void> {
       outputPath,
       logLevel,
       events,
-      onStart: () => events.emit('format:start'),
-      onEnd: () => events.emit('format:end'),
+      onStart: () => events.emit('kubb:format:start'),
+      onEnd: () => events.emit('kubb:format:end'),
     })
   }
 
@@ -252,20 +252,20 @@ async function generate(options: GenerateProps): Promise<void> {
       outputPath,
       logLevel,
       events,
-      onStart: () => events.emit('lint:start'),
-      onEnd: () => events.emit('lint:end'),
+      onStart: () => events.emit('kubb:lint:start'),
+      onEnd: () => events.emit('kubb:lint:end'),
     })
   }
 
   if (config.hooks) {
-    await events.emit('hooks:start')
+    await events.emit('kubb:hooks:start')
     await executeHooks({ hooks: config.hooks, events })
 
-    await events.emit('hooks:end')
+    await events.emit('kubb:hooks:end')
   }
 
   // Only reached when there are no failures (process.exit(1) is called above otherwise)
-  await events.emit('generation:summary', config, {
+  await events.emit('kubb:generation:summary', config, {
     failedPlugins,
     filesCreated: files.length,
     status: 'success',
@@ -305,7 +305,7 @@ export async function runGenerateCommand({ input, configPath, logLevel: logLevel
       const latestVersion = data.version
 
       if (latestVersion && version < latestVersion) {
-        await events.emit('version:new', version, latestVersion)
+        await events.emit('kubb:version:new', version, latestVersion)
       }
     } catch {
       // Ignore network errors for version check
@@ -316,12 +316,12 @@ export async function runGenerateCommand({ input, configPath, logLevel: logLevel
     const result = await getCosmiConfig('kubb', configPath)
     const configs = await getConfigs(result.config, { input } as CLIOptions)
 
-    await events.emit('config:start')
-    await events.emit('info', 'Config loaded', path.relative(process.cwd(), result.filepath))
-    await events.emit('success', 'Config loaded successfully', path.relative(process.cwd(), result.filepath))
-    await events.emit('config:end', configs)
+    await events.emit('kubb:config:start')
+    await events.emit('kubb:info', 'Config loaded', path.relative(process.cwd(), result.filepath))
+    await events.emit('kubb:success', 'Config loaded successfully', path.relative(process.cwd(), result.filepath))
+    await events.emit('kubb:config:end', configs)
 
-    await events.emit('lifecycle:start', version)
+    await events.emit('kubb:lifecycle:start', version)
 
     for (const config of configs) {
       if (isInputPath(config) && watch) {
@@ -338,9 +338,9 @@ export async function runGenerateCommand({ input, configPath, logLevel: logLevel
       }
     }
 
-    await events.emit('lifecycle:end')
+    await events.emit('kubb:lifecycle:end')
   } catch (error) {
-    await events.emit('error', toError(error))
+    await events.emit('kubb:error', toError(error))
     process.exit(1)
   }
 }

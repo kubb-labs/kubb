@@ -35,43 +35,43 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       parsers: options.config.parsers?.length ? options.config.parsers : [parserTs],
     }
 
-    events.on('lifecycle:start', (version) => {
+    events.on('kubb:lifecycle:start', (version) => {
       console.log(`Kubb Unplugin ${version} 🧩`)
     })
 
-    events.on('error', (error) => {
+    events.on('kubb:error', (error) => {
       console.error(`✗ ${error?.message || 'failed'}`)
     })
 
-    events.on('warn', (message) => {
+    events.on('kubb:warn', (message) => {
       console.warn(`⚠ ${message}`)
     })
 
-    events.on('info', (message) => {
+    events.on('kubb:info', (message) => {
       console.info(`ℹ ${message}`)
     })
 
-    events.on('success', (message) => {
+    events.on('kubb:success', (message) => {
       console.log(`✓ ${message}`)
     })
 
-    events.on('plugin:end', (plugin, { duration }) => {
+    events.on('kubb:plugin:end', (plugin, { duration }) => {
       const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
 
       console.log(`✓ ${plugin.name} completed in ${durationStr}`)
     })
 
-    events.on('files:processing:end', () => {
+    events.on('kubb:files:processing:end', () => {
       const text = '✓ Files written successfully'
 
       console.log(text)
     })
 
-    events.on('generation:end', (config) => {
+    events.on('kubb:generation:end', (config) => {
       console.log(config.name ? `✓ Generation completed for ${config.name}` : '✓ Generation completed')
     })
 
-    events.on('generation:summary', (config, { status, failedPlugins }) => {
+    events.on('kubb:generation:summary', (config, { status, failedPlugins }) => {
       const pluginsCount = config.plugins.length
       const successCount = pluginsCount - failedPlugins.size
 
@@ -82,11 +82,11 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       )
     })
 
-    await events.emit('lifecycle:start', unpluginVersion)
+    await events.emit('kubb:lifecycle:start', unpluginVersion)
 
     const { root: _root, ...userConfig } = config as Config
 
-    await events.emit('generation:start', config as Config)
+    await events.emit('kubb:generation:start', config as Config)
 
     const { error, failedPlugins, pluginTimings, files, sources } = await safeBuild({
       config: {
@@ -111,12 +111,12 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       ].filter(Boolean)
 
       allErrors.forEach((err) => {
-        events.emit('error', err)
+        events.emit('kubb:error', err)
       })
     }
 
-    await events.emit('generation:end', config as Config, files, sources)
-    await events.emit('generation:summary', config as Config, {
+    await events.emit('kubb:generation:end', config as Config, files, sources)
+    await events.emit('kubb:generation:summary', config as Config, {
       failedPlugins,
       filesCreated: files.length,
       status: failedPlugins.size > 0 || error ? 'failed' : 'success',
@@ -124,7 +124,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       pluginTimings,
     })
 
-    await events.emit('lifecycle:end')
+    await events.emit('kubb:lifecycle:end')
   }
 
   return {

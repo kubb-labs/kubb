@@ -23,7 +23,7 @@ describe('setupHookListener', () => {
   it('skips execution when hook:start fires without an id', async () => {
     setupHookListener(events, '/root')
 
-    await events.emit('hook:start', { id: undefined as any, command: 'echo', args: [] })
+    await events.emit('kubb:hook:start', { id: undefined as any, command: 'echo', args: [] })
 
     expect(x).not.toHaveBeenCalled()
   })
@@ -34,9 +34,9 @@ describe('setupHookListener', () => {
     setupHookListener(events, '/root')
 
     const hookEndSpy = vi.fn()
-    events.on('hook:end', hookEndSpy)
+    events.on('kubb:hook:end', hookEndSpy)
 
-    await events.emit('hook:start', { id: 'test-id', command: 'echo', args: ['hello'] })
+    await events.emit('kubb:hook:start', { id: 'test-id', command: 'echo', args: ['hello'] })
 
     expect(hookEndSpy).toHaveBeenCalledWith(expect.objectContaining({ id: 'test-id', command: 'echo', args: ['hello'], success: true, error: null }))
   })
@@ -48,10 +48,10 @@ describe('setupHookListener', () => {
 
     const hookEndSpy = vi.fn()
     const errorSpy = vi.fn()
-    events.on('hook:end', hookEndSpy)
-    events.on('error', errorSpy)
+    events.on('kubb:hook:end', hookEndSpy)
+    events.on('kubb:error', errorSpy)
 
-    await events.emit('hook:start', { id: 'fail-id', command: 'nonexistent', args: [] })
+    await events.emit('kubb:hook:start', { id: 'fail-id', command: 'nonexistent', args: [] })
 
     expect(hookEndSpy).toHaveBeenCalledWith(expect.objectContaining({ id: 'fail-id', success: false, error: expect.any(Error) }))
     expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ message: 'Hook execute failed: nonexistent' }))
@@ -63,9 +63,9 @@ describe('setupHookListener', () => {
     setupHookListener(events, '/root')
 
     const errorSpy = vi.fn()
-    events.on('error', errorSpy)
+    events.on('kubb:error', errorSpy)
 
-    await events.emit('hook:start', { id: 'id-1', command: 'npm', args: ['run', 'build'] })
+    await events.emit('kubb:hook:start', { id: 'id-1', command: 'npm', args: ['run', 'build'] })
 
     expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ message: 'Hook execute failed: npm run build' }))
   })
@@ -75,7 +75,7 @@ describe('setupHookListener', () => {
 
     setupHookListener(events, '/my/project/root')
 
-    await events.emit('hook:start', { id: 'id-2', command: 'npm', args: ['run', 'lint'] })
+    await events.emit('kubb:hook:start', { id: 'id-2', command: 'npm', args: ['run', 'lint'] })
 
     expect(x).toHaveBeenCalledWith('npm', ['run', 'lint'], expect.objectContaining({ nodeOptions: expect.objectContaining({ cwd: '/my/project/root' }) }))
   })
@@ -86,7 +86,7 @@ describe('setupHookListener', () => {
 
     setupHookListener(events, '/root')
 
-    await events.emit('hook:start', { id: 'id-3', command: 'npm', args: ['run', 'build'] })
+    await events.emit('kubb:hook:start', { id: 'id-3', command: 'npm', args: ['run', 'build'] })
 
     expect(consoleSpy).toHaveBeenCalledWith('build success')
 

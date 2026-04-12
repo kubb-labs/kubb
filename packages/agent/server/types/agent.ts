@@ -28,10 +28,10 @@ export type JSONKubbConfig = {
  * Follows the same tuple structure as {@link KubbEvents}.
  */
 export type KubbEvents = {
-  'plugin:start': [plugin: { name: string }]
-  'plugin:end': [plugin: { name: string }, meta: { duration: number; success: boolean }]
-  'files:processing:start': [meta: { total: number }]
-  'file:processing:update': [
+  'kubb:plugin:start': [plugin: { name: string }]
+  'kubb:plugin:end': [plugin: { name: string }, meta: { duration: number; success: boolean }]
+  'kubb:files:processing:start': [meta: { total: number }]
+  'kubb:file:processing:update': [
     meta: {
       file: string
       processed: number
@@ -39,14 +39,14 @@ export type KubbEvents = {
       percentage: number
     },
   ]
-  'files:processing:end': [meta: { total: number }]
-  info: [message: string, info?: string]
-  success: [message: string, info?: string]
-  warn: [message: string, info?: string]
-  error: [error: { message: string; stack?: string }]
-  'generation:start': [config: { name?: string; plugins: number }]
-  'generation:end': [Config: Config, files: Array<FileNode>, sources: Record<string, string>]
-  'lifecycle:end': []
+  'kubb:files:processing:end': [meta: { total: number }]
+  'kubb:info': [message: string, info?: string]
+  'kubb:success': [message: string, info?: string]
+  'kubb:warn': [message: string, info?: string]
+  'kubb:error': [error: { message: string; stack?: string }]
+  'kubb:generation:start': [config: { name?: string; plugins: number }]
+  'kubb:generation:end': [Config: Config, files: Array<FileNode>, sources: Record<string, string>]
+  'kubb:lifecycle:end': []
 }
 
 export type KubbEvent = keyof KubbEvents
@@ -106,7 +106,7 @@ export type ConnectedMessage = {
  * Error message for communicating failures
  */
 export type ErrorMessage = {
-  type: 'error'
+  type: 'kubb:error'
   message: string
 }
 
@@ -181,7 +181,7 @@ export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
 /**
  * Type guard to narrow SseEvent to a specific event type
  * @example
- * if (isDataMessage(msg, 'plugin:start')) {
+ * if (isDataMessage(msg, 'kubb:plugin:start')) {
  *   // msg.event.data is now typed as [plugin: { name: string }]
  *   const pluginName = msg.event.data[0].name
  * }
@@ -195,7 +195,7 @@ export function isConnectedMessage(msg: AgentMessage): msg is ConnectedMessage {
 }
 
 export function isErrorMessage(msg: AgentMessage): msg is ErrorMessage {
-  return msg.type === 'error'
+  return msg.type === 'kubb:error'
 }
 
 export function isPingMessage(msg: AgentMessage): msg is PingMessage {

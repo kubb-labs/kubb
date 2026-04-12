@@ -809,17 +809,17 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
 
   /**
    * Emit a warning via the build event system.
-   * Shorthand for `this.events.emit('warn', message)`.
+   * Shorthand for `this.events.emit('kubb:warn', message)`.
    */
   warn: (message: string) => void
   /**
    * Emit an error via the build event system.
-   * Shorthand for `this.events.emit('error', error)`.
+   * Shorthand for `this.events.emit('kubb:error', error)`.
    */
   error: (error: string | Error) => void
   /**
    * Emit an info message via the build event system.
-   * Shorthand for `this.events.emit('info', message)`.
+   * Shorthand for `this.events.emit('kubb:info', message)`.
    */
   info: (message: string) => void
   /**

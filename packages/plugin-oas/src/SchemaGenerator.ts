@@ -1305,7 +1305,7 @@ export class SchemaGenerator<
       ) as OpenAPIV3.NonArraySchemaObjectType
 
       if (!['boolean', 'object', 'number', 'string', 'integer', 'null'].includes(type)) {
-        this.context.events?.emit('warn', `Schema type '${schemaObject.type}' is not valid for schema ${parentName}.${name}`)
+        this.context.events?.emit('kubb:warn', `Schema type '${schemaObject.type}' is not valid for schema ${parentName}.${name}`)
         // Removed duplicate debug log - warning already provides the information needed
       }
 
@@ -1340,7 +1340,7 @@ export class SchemaGenerator<
       this.#nameMappingInitialized = true
       const schemaEntries = Object.entries(schemas)
 
-      this.context.events?.emit('debug', {
+      this.context.events?.emit('kubb:debug', {
         date: new Date(),
         logs: [`Building ${schemaEntries.length} schemas`, `  • Content Type: ${contentType || 'application/json'}`, `  • Generators: ${generators.length}`],
       })

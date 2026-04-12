@@ -19,7 +19,7 @@ export const plainLogger = defineLogger({
       return formatMessage(message, logLevel)
     }
 
-    context.on('info', (message, info) => {
+    context.on('kubb:info', (message, info) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -29,7 +29,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('success', (message, info = '') => {
+    context.on('kubb:success', (message, info = '') => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -39,7 +39,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('warn', (message, info) => {
+    context.on('kubb:warn', (message, info) => {
       if (logLevel < logLevelMap.warn) {
         return
       }
@@ -49,7 +49,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('error', (error) => {
+    context.on('kubb:error', (error) => {
       const caused = toCause(error)
 
       const text = getMessage(['✗', error.message].join(' '))
@@ -74,11 +74,11 @@ export const plainLogger = defineLogger({
       }
     })
 
-    context.on('lifecycle:start', () => {
+    context.on('kubb:lifecycle:start', () => {
       console.log('Kubb CLI 🧩')
     })
 
-    context.on('config:start', () => {
+    context.on('kubb:config:start', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -88,7 +88,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('config:end', () => {
+    context.on('kubb:config:end', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -98,13 +98,13 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('generation:start', () => {
+    context.on('kubb:generation:start', () => {
       const text = getMessage('Generation started')
 
       console.log(text)
     })
 
-    context.on('plugin:start', (plugin) => {
+    context.on('kubb:plugin:start', (plugin) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -113,7 +113,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('plugin:end', (plugin, { duration, success }) => {
+    context.on('kubb:plugin:end', (plugin, { duration, success }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -124,7 +124,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('files:processing:start', (files) => {
+    context.on('kubb:files:processing:start', (files) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -134,7 +134,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('file:processing:update', ({ file, config }) => {
+    context.on('kubb:file:processing:update', ({ file, config }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -144,7 +144,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('files:processing:end', () => {
+    context.on('kubb:files:processing:end', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -154,13 +154,13 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('generation:end', (config) => {
+    context.on('kubb:generation:end', (config) => {
       const text = getMessage(config.name ? `Generation completed for ${config.name}` : 'Generation completed')
 
       console.log(text)
     })
 
-    context.on('format:start', () => {
+    context.on('kubb:format:start', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -170,7 +170,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('format:end', () => {
+    context.on('kubb:format:end', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -180,7 +180,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('lint:start', () => {
+    context.on('kubb:lint:start', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -190,7 +190,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('lint:end', () => {
+    context.on('kubb:lint:end', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -200,7 +200,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('hook:start', async ({ id, command, args }) => {
+    context.on('kubb:hook:start', async ({ id, command, args }) => {
       const commandWithArgs = formatCommandWithArgs(command, args)
       const text = getMessage(`Hook ${commandWithArgs} started`)
 
@@ -226,7 +226,7 @@ export const plainLogger = defineLogger({
       })
     })
 
-    context.on('hook:end', ({ command, args }) => {
+    context.on('kubb:hook:end', ({ command, args }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -237,7 +237,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('generation:summary', (config, { pluginTimings, status, hrStart, failedPlugins, filesCreated }) => {
+    context.on('kubb:generation:summary', (config, { pluginTimings, status, hrStart, failedPlugins, filesCreated }) => {
       const summary = getSummary({
         failedPlugins,
         filesCreated,

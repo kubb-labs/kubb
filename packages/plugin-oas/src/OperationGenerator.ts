@@ -207,7 +207,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<FileNode<TFileMeta>>> {
     const operations = await this.getOperations()
 
-    this.context.events?.emit('debug', {
+    this.context.events?.emit('kubb:debug', {
       date: new Date(),
       logs: [`Building ${operations.length} operations`, `  • Generators: ${generators.length}`],
     })

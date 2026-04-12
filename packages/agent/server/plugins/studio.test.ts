@@ -19,7 +19,7 @@ describe('Studio Plugin - Message Handling', () => {
       const message: AgentMessage = {
         type: 'data',
         payload: {
-          type: 'info',
+          type: 'kubb:info',
           data: ['message'],
           timestamp: Date.now(),
         },
@@ -28,8 +28,8 @@ describe('Studio Plugin - Message Handling', () => {
       expect(isDataMessage(message)).toBe(true)
       expect(isCommandMessage(message)).toBe(false)
 
-      const event = isDataMessage(message, 'info') ? message : undefined
-      expect(event.payload.type).toEqual('info')
+      const event = isDataMessage(message, 'kubb:info') ? message : undefined
+      expect(event.payload.type).toEqual('kubb:info')
     })
 
     it('should identify disconnect message with reason "expired"', () => {
@@ -94,7 +94,7 @@ describe('Studio Plugin - Message Handling', () => {
       const message: AgentMessage = {
         type: 'data',
         payload: {
-          type: 'plugin:start',
+          type: 'kubb:plugin:start',
           data: [{ name: 'test-plugin' }],
           timestamp: 1234567890,
         },
@@ -102,7 +102,7 @@ describe('Studio Plugin - Message Handling', () => {
 
       const serialized = JSON.stringify(message)
       expect(serialized).toContain('"type":"data"')
-      expect(serialized).toContain('"plugin:start"')
+      expect(serialized).toContain('"kubb:plugin:start"')
     })
   })
 

@@ -7,8 +7,8 @@ import type { Logger, LoggerOptions, UserLogger } from './types.ts'
  * export const myLogger = defineLogger({
  *   name: 'my-logger',
  *   install(context, options) {
- *     context.on('info', (message) => console.log('ℹ', message))
- *     context.on('error', (error) => console.error('✗', error.message))
+ *     context.on('kubb:info', (message) => console.log('ℹ', message))
+ *     context.on('kubb:error', (error) => console.error('✗', error.message))
  *   },
  * })
  */

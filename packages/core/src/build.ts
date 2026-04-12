@@ -71,10 +71,10 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   const diagnosticInfo = getDiagnosticInfo()
 
   if (Array.isArray(userConfig.input)) {
-    await events.emit('warn', 'This feature is still under development — use with caution')
+    await events.emit('kubb:warn', 'This feature is still under development — use with caution')
   }
 
-  await events.emit('debug', {
+  await events.emit('kubb:debug', {
     date: new Date(),
     logs: [
       'Configuration:',
@@ -97,7 +97,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     if (isInputPath(userConfig) && !new URLPath(userConfig.input.path).isURL) {
       await exists(userConfig.input.path)
 
-      await events.emit('debug', {
+      await events.emit('kubb:debug', {
         date: new Date(),
         logs: [`✓ Input file validated: ${userConfig.input.path}`],
       })
@@ -147,7 +147,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   const storage: Storage | null = config.output.write === false ? null : (config.output.storage ?? fsStorage())
 
   if (config.output.clean) {
-    await events.emit('debug', {
+    await events.emit('kubb:debug', {
       date: new Date(),
       logs: ['Cleaning output directories', `  • Output: ${config.output.path}`],
     })
@@ -167,7 +167,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   }
   const source = inputToAdapterSource(config)
 
-  await events.emit('debug', {
+  await events.emit('kubb:debug', {
     date: new Date(),
     logs: [`Running adapter: ${adapter.name}`],
   })
@@ -175,7 +175,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   driver.adapter = adapter
   driver.inputNode = await adapter.parse(source)
 
-  await events.emit('debug', {
+  await events.emit('kubb:debug', {
     date: new Date(),
     logs: [
       `✓ Adapter '${adapter.name}' resolved InputNode`,
@@ -318,9 +318,9 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       try {
         const timestamp = new Date()
 
-        await events.emit('plugin:start', plugin)
+        await events.emit('kubb:plugin:start', plugin)
 
-        await events.emit('debug', {
+        await events.emit('kubb:debug', {
           date: timestamp,
           logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`],
         })
@@ -346,9 +346,9 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         const duration = getElapsedMs(hrStart)
         pluginTimings.set(plugin.name, duration)
 
-        await events.emit('plugin:end', plugin, { duration, success: true })
+        await events.emit('kubb:plugin:end', plugin, { duration, success: true })
 
-        await events.emit('debug', {
+        await events.emit('kubb:debug', {
           date: new Date(),
           logs: [`✓ Plugin started successfully (${formatMs(duration)})`],
         })
@@ -357,13 +357,13 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         const errorTimestamp = new Date()
         const duration = getElapsedMs(hrStart)
 
-        await events.emit('plugin:end', plugin, {
+        await events.emit('kubb:plugin:end', plugin, {
           duration,
           success: false,
           error,
         })
 
-        await events.emit('debug', {
+        await events.emit('kubb:debug', {
           date: errorTimestamp,
           logs: [
             '✗ Plugin start failed',
@@ -383,7 +383,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       const rootPath = resolve(root, config.output.path, BARREL_FILENAME)
       const rootDir = dirname(rootPath)
 
-      await events.emit('debug', {
+      await events.emit('kubb:debug', {
         date: new Date(),
         logs: ['Generating barrel file', `  • Type: ${config.output.barrelType}`, `  • Path: ${rootPath}`],
       })
@@ -392,7 +392,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         return file.sources.some((source) => source.isIndexable)
       })
 
-      await events.emit('debug', {
+      await events.emit('kubb:debug', {
         date: new Date(),
         logs: [`Found ${barrelFiles.length} indexable files for barrel export`],
       })
@@ -413,7 +413,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
       driver.fileManager.upsert(rootFile)
 
-      await events.emit('debug', {
+      await events.emit('kubb:debug', {
         date: new Date(),
         logs: [`✓ Generated barrel file (${rootFile.exports?.length || 0} exports)`],
       })
@@ -433,7 +433,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
     const fileProcessor = new FileProcessor()
 
-    await events.emit('debug', {
+    await events.emit('kubb:debug', {
       date: new Date(),
       logs: [`Writing ${files.length} files...`],
     })
@@ -442,10 +442,10 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       parsers: parsersMap,
       extension: config.output.extension,
       onStart: async (processingFiles) => {
-        await events.emit('files:processing:start', processingFiles)
+        await events.emit('kubb:files:processing:start', processingFiles)
       },
       onUpdate: async ({ file, source, processed, total, percentage }) => {
-        await events.emit('file:processing:update', {
+        await events.emit('kubb:file:processing:update', {
           file,
           source,
           processed,
@@ -461,8 +461,8 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         }
       },
       onEnd: async (processedFiles) => {
-        await events.emit('files:processing:end', processedFiles)
-        await events.emit('debug', {
+        await events.emit('kubb:files:processing:end', processedFiles)
+        await events.emit('kubb:debug', {
           date: new Date(),
           logs: [`✓ File write process completed for ${processedFiles.length} files`],
         })
