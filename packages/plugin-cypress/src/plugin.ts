@@ -1,5 +1,5 @@
 import { camelCase } from '@internals/utils'
-import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
+import { createPlugin, type Group, getPreset } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { version } from '../package.json'
 import { presets } from './presets.ts'
@@ -54,7 +54,6 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
   })
 
   const generators = preset.generators ?? []
-  const mergedGenerator = mergeGenerators(generators)
 
   return {
     name: pluginCypressName,
@@ -92,16 +91,8 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
         resolver: preset.resolver,
       }
     },
-    pre: [pluginTsName].filter(Boolean),
-    async schema(node, options) {
-      return mergedGenerator.schema?.call(this, node, options)
-    },
-    async operation(node, options) {
-      return mergedGenerator.operation?.call(this, node, options)
-    },
-    async operations(nodes, options) {
-      return mergedGenerator.operations?.call(this, nodes, options)
-    },
+    dependencies: [pluginTsName].filter(Boolean),
+    generators,
     async buildStart() {
       await this.openInStudio({ ast: true })
     },

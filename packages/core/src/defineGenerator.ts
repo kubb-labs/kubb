@@ -1,7 +1,6 @@
 import type { PossiblePromise } from '@internals/utils'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast/types'
 import type { RendererFactory } from './createRenderer.ts'
-import { applyHookResult } from './renderNode.ts'
 import type { GeneratorContext, PluginFactoryOptions } from './types.ts'
 
 export type { GeneratorContext } from './types.ts'
@@ -13,8 +12,8 @@ export type { GeneratorContext } from './types.ts'
  * `this.driver`, etc.
  *
  * Generators that return renderer elements (e.g. JSX) must declare a `renderer`
- * factory so that core knows how to process the output without hardwiring a
- * dependency on any specific renderer package.
+ * factory so that core knows how to process the output without coupling core
+ * to any specific renderer package.
  *
  * Return a renderer element, an array of `FileNode`, or `void` to handle file
  * writing manually via `this.upsertFile`.
@@ -47,6 +46,9 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    *
    * Generators that only return `Array<FileNode>` or `void` do not need to set this.
    *
+   * Set `renderer: null` to explicitly opt out of rendering even when the parent plugin
+   * declares a `renderer` (overrides the plugin-level fallback).
+   *
    * @example
    * ```ts
    * import { jsxRenderer } from '@kubb/renderer-jsx'
@@ -56,7 +58,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    * })
    * ```
    */
-  renderer?: RendererFactory<TElement>
+  renderer?: RendererFactory<TElement> | null
   /**
    * Called for each schema node in the AST walk.
    * `this` is the parent plugin's context with `adapter` and `inputNode` guaranteed present.
@@ -92,58 +94,4 @@ export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFa
   generator: Generator<TOptions, TElement>,
 ): Generator<TOptions, TElement> {
   return generator
-}
-
-/**
- * Merges an array of generators into a single generator.
- *
- * The merged generator's `schema`, `operation`, and `operations` methods run
- * the corresponding method from each input generator in sequence, applying each
- * result via `applyHookResult` with the generator's declared `renderer`. This
- * eliminates the need to write the loop manually in each plugin.
- *
- * @param generators - Array of generators to merge into a single generator.
- *
- * @example
- * ```ts
- * const merged = mergeGenerators(generators)
- *
- * return {
- *   name: pluginName,
- *   schema: merged.schema,
- *   operation: merged.operation,
- *   operations: merged.operations,
- * }
- * ```
- */
-export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(
-  generators: Array<Generator<TOptions, any>>,
-): Generator<TOptions> {
-  return {
-    name: generators.length > 0 ? generators.map((g) => g.name).join('+') : 'merged',
-    async schema(node, options) {
-      for (const gen of generators) {
-        if (!gen.schema) continue
-        const result = await gen.schema.call(this, node, options)
-
-        await applyHookResult(result, this.driver, gen.renderer)
-      }
-    },
-    async operation(node, options) {
-      for (const gen of generators) {
-        if (!gen.operation) continue
-        const result = await gen.operation.call(this, node, options)
-
-        await applyHookResult(result, this.driver, gen.renderer)
-      }
-    },
-    async operations(nodes, options) {
-      for (const gen of generators) {
-        if (!gen.operations) continue
-        const result = await gen.operations.call(this, nodes, options)
-
-        await applyHookResult(result, this.driver, gen.renderer)
-      }
-    },
-  }
 }

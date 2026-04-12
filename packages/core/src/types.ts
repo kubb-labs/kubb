@@ -2,6 +2,7 @@ import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
 import type { FileNode, ImportNode, InputNode, Node, OperationNode, Printer, SchemaNode, Visitor } from '@kubb/ast/types'
 import type { HttpMethod } from '@kubb/oas'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
+import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
@@ -82,7 +83,7 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
    */
   adapter?: Adapter
   /**
-   * An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Refer to “pre” for more details.
+   * An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Use `dependencies` on the plugin to declare which plugins must run first.
    */
   // inject needs to be omitted because else we have a clash with the PluginDriver instance
   plugins?: Array<Omit<UnknownUserPlugin, 'inject'>>
@@ -319,9 +320,25 @@ export type Config<TInput = Input> = {
   /**
    * An array of Kubb plugins that used in the generation.
    * Each plugin may include additional configurable options(defined in the plugin itself).
-   * If a plugin depends on another plugin, an error is returned if the required dependency is missing. See pre for more details.
+   * If a plugin depends on another plugin, an error is returned if the required dependency is missing. Use `dependencies` on the plugin to declare which plugins must run first.
    */
   plugins: Array<Plugin>
+  /**
+   * Project-wide renderer factory. All plugins and generators that do not declare their own
+   * `renderer` ultimately fall back to this value.
+   *
+   * The resolution chain is: `generator.renderer` → `plugin.renderer` → `config.renderer` → `undefined` (raw `FileNode[]` mode).
+   *
+   * @example
+   * ```ts
+   * import { jsxRenderer } from '@kubb/renderer-jsx'
+   * export default defineConfig({
+   *   renderer: jsxRenderer,
+   *   plugins: [pluginTs(), pluginZod()],
+   * })
+   * ```
+   */
+  renderer?: RendererFactory
   /**
    * Devtools configuration for Kubb Studio integration.
    */
@@ -479,14 +496,34 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    */
   transformer?: Visitor
   /**
-   * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin is executed after these plugins.
-   * Can be used to validate dependent plugins.
+   * Plugin-level renderer factory. All generators that do not declare their own `renderer`
+   * inherit this value. A generator can explicitly opt out by setting `renderer: null`.
+   *
+   * @example
+   * ```ts
+   * import { jsxRenderer } from '@kubb/renderer-jsx'
+   * createPlugin((options) => ({
+   *   name: 'my-plugin',
+   *   renderer: jsxRenderer,
+   *   generators: [
+   *     { name: 'types', schema(node) { return <File>...</File> } },   // inherits jsxRenderer
+   *     { name: 'raw', renderer: null, schema(node) { return [...] } }, // explicit opt-out
+   *   ],
+   * }))
+   * ```
    */
-  pre?: Array<string>
+  renderer?: RendererFactory
   /**
-   * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin is executed before these plugins.
+   * Generators declared directly on the plugin. Each generator's `renderer` takes precedence
+   * over `plugin.renderer`; set `renderer: null` on a generator to opt out of rendering even
+   * when the plugin declares a renderer.
    */
-  post?: Array<string>
+  generators?: Array<Generator<any>>
+  /**
+   * Specifies the plugins that the current plugin depends on. The current plugin is executed after all listed plugins.
+   * An error is returned if any required dependency plugin is missing.
+   */
+  dependencies?: Array<string>
   /**
    * When `apply` is defined, the plugin is only activated when `apply(config)` returns `true`.
    * Inspired by Vite's `apply` option.
@@ -552,14 +589,10 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    */
   name: TOptions['name']
   /**
-   * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin is executed after these plugins.
-   * Can be used to validate dependent plugins.
+   * Specifies the plugins that the current plugin depends on. The current plugin is executed after all listed plugins.
+   * An error is returned if any required dependency plugin is missing.
    */
-  pre?: Array<string>
-  /**
-   * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin is executed before these plugins.
-   */
-  post?: Array<string>
+  dependencies?: Array<string>
   /**
    * Options set for a specific plugin(see kubb.config.js), passthrough of options.
    */
@@ -591,6 +624,17 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    * Used in diagnostic messages and version-conflict detection.
    */
   version?: string
+  /**
+   * Plugin-level renderer factory. All generators that do not declare their own `renderer`
+   * inherit this value. A generator can explicitly opt out by setting `renderer: null`.
+   */
+  renderer?: RendererFactory
+  /**
+   * Generators declared directly on the plugin. Each generator's `renderer` takes precedence
+   * over `plugin.renderer`; set `renderer: null` on a generator to opt out of rendering even
+   * when the plugin declares a renderer.
+   */
+  generators?: Array<Generator<any>>
 
   buildStart: (this: PluginContext<TOptions>) => PossiblePromise<void>
   /**

@@ -133,16 +133,14 @@ export function createMockedPlugin<TOptions extends PluginFactoryOptions = Plugi
   options: TOptions['resolvedOptions']
   resolver?: TOptions['resolver']
   transformer?: Visitor
-  pre?: Array<string>
-  post?: Array<string>
+  dependencies?: Array<string>
 }): Plugin<TOptions> {
   return {
     name: params.name,
     options: params.options,
     resolver: params.resolver,
     transformer: params.transformer,
-    pre: params.pre,
-    post: params.post,
+    dependencies: params.dependencies,
     install: () => {},
     inject: () => undefined as TOptions['context'],
   } as unknown as Plugin<TOptions>
@@ -225,7 +223,7 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
   const result = await generator.schema.call(context, transformedNode, opts.options)
-  await applyHookResult(result, opts.driver)
+  await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
 }
 
 /**
@@ -246,7 +244,7 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
   const result = await generator.operation.call(context, transformedNode, opts.options)
-  await applyHookResult(result, opts.driver)
+  await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
 }
 
 /**
@@ -267,5 +265,5 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
   const context = createMockedPluginContext(opts)
   const transformedNodes = opts.plugin.transformer ? nodes.map((n) => transform(n, opts.plugin.transformer!)) : nodes
   const result = await generator.operations.call(context, transformedNodes, opts.options)
-  await applyHookResult(result, opts.driver)
+  await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
 }
