@@ -191,6 +191,52 @@
               "text": "Meta-Framework",
               "link": "/architecture/meta-framework",
               "activeMatch": "^/architecture/meta-framework/?$"
+            },
+            {
+              "text": "Implementation Steps",
+              "collapsed": true,
+              "items": [
+                {
+                  "text": "Overview",
+                  "link": "/architecture/steps/README",
+                  "activeMatch": "^/architecture/steps/README/?$"
+                },
+                {
+                  "text": "1. definePlugin",
+                  "link": "/architecture/steps/01-define-plugin",
+                  "activeMatch": "^/architecture/steps/01-define-plugin/?$"
+                },
+                {
+                  "text": "2. Generator Registration",
+                  "link": "/architecture/steps/02-generator-registration",
+                  "activeMatch": "^/architecture/steps/02-generator-registration/?$"
+                },
+                {
+                  "text": "3. Resolver Setup Call",
+                  "link": "/architecture/steps/03-resolver-as-setup-call",
+                  "activeMatch": "^/architecture/steps/03-resolver-as-setup-call/?$"
+                },
+                {
+                  "text": "4. this → Parameters",
+                  "link": "/architecture/steps/04-this-to-params",
+                  "activeMatch": "^/architecture/steps/04-this-to-params/?$"
+                },
+                {
+                  "text": "5. Dependencies",
+                  "link": "/architecture/steps/05-dependencies",
+                  "activeMatch": "^/architecture/steps/05-dependencies/?$"
+                },
+                {
+                  "text": "6. Migrate Plugins",
+                  "link": "/architecture/steps/06-migrate-plugins",
+                  "activeMatch": "^/architecture/steps/06-migrate-plugins/?$"
+                },
+                {
+                  "text": "7. Deprecate Legacy",
+                  "link": "/architecture/steps/07-deprecate-legacy",
+                  "activeMatch": "^/architecture/steps/07-deprecate-legacy/?$"
+                }
+              ]
             }
           ]
         },
