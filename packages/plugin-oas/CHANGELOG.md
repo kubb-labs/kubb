@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 5.0.0-alpha.35
+
+### Patch Changes
+
+- Updated dependencies [[`964067f`](https://github.com/kubb-labs/kubb/commit/964067ff1a21713af2b2c86795ff2ec59a12d0d6)]:
+  - @kubb/core@5.0.0-alpha.35
+  - @kubb/oas@5.0.0-alpha.35
+  - @kubb/ast@5.0.0-alpha.35
+  - @kubb/renderer-jsx@5.0.0-alpha.35
+
 ## 5.0.0-alpha.34
 
 ### Patch Changes

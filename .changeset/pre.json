@@ -72,6 +72,7 @@
     "plugin-client-params-casing-unused-var",
     "plugin-client-v5-migration",
     "plugin-cypress-v5-upgrade",
+    "plugin-dependencies-field",
     "plugin-mcp-enum-path-params",
     "plugin-mcp-v5-migration",
     "plugin-oas-operation-manager",

@@ -1,5 +1,41 @@
 # @kubb/plugin-vue-query
 
+## 5.0.0-alpha.35
+
+### Patch Changes
+
+- [#3025](https://github.com/kubb-labs/kubb/pull/3025) [`964067f`](https://github.com/kubb-labs/kubb/commit/964067ff1a21713af2b2c86795ff2ec59a12d0d6) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - ## Replace `pre`/`post` with `dependencies` on plugins
+
+  The `pre` and `post` ordering fields on plugins have been replaced by a single `dependencies` array.
+
+  `dependencies` declares which plugins the current plugin depends on (i.e. must run before it), which is equivalent to the old `pre` field but with a clearer name.
+
+  ### Migration
+
+  ```ts
+  // Before
+  pluginClient({
+    pre: ["@kubb/plugin-ts", "@kubb/plugin-zod"],
+  });
+
+  // After
+  pluginClient({
+    dependencies: ["@kubb/plugin-ts", "@kubb/plugin-zod"],
+  });
+  ```
+
+  All built-in plugins have been updated automatically. If you were setting `pre` or `post` directly on a custom plugin, update them to use `dependencies` instead.
+
+- Updated dependencies [[`964067f`](https://github.com/kubb-labs/kubb/commit/964067ff1a21713af2b2c86795ff2ec59a12d0d6)]:
+  - @kubb/core@5.0.0-alpha.35
+  - @kubb/plugin-client@5.0.0-alpha.35
+  - @kubb/oas@5.0.0-alpha.35
+  - @kubb/plugin-oas@5.0.0-alpha.35
+  - @kubb/plugin-ts@5.0.0-alpha.35
+  - @kubb/plugin-zod@5.0.0-alpha.35
+  - @kubb/ast@5.0.0-alpha.35
+  - @kubb/renderer-jsx@5.0.0-alpha.35
+
 ## 5.0.0-alpha.34
 
 ### Patch Changes
