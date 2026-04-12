@@ -101,7 +101,7 @@ async function runToolPass({
           }
           events
             .emit(
-              'success',
+              'kubb:success',
               [
                 `${successPrefix} with ${styleText('dim', resolvedTool)}`,
                 logLevel >= logLevelMap.info ? `on ${styleText('dim', outputPath)}` : undefined,

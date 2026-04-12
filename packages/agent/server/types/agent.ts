@@ -195,7 +195,7 @@ export function isConnectedMessage(msg: AgentMessage): msg is ConnectedMessage {
 }
 
 export function isErrorMessage(msg: AgentMessage): msg is ErrorMessage {
-  return msg.type === 'error'
+  return msg.type === 'kubb:error'
 }
 
 export function isPingMessage(msg: AgentMessage): msg is PingMessage {
