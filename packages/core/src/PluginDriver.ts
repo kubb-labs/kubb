@@ -164,13 +164,13 @@ export class PluginDriver {
         return plugin.transformer
       },
       warn(message: string) {
-        driver.events.emit('warn', message)
+        driver.events.emit('kubb:warn', message)
       },
       error(error: string | Error) {
-        driver.events.emit('error', typeof error === 'string' ? new Error(error) : error)
+        driver.events.emit('kubb:error', typeof error === 'string' ? new Error(error) : error)
       },
       info(message: string) {
-        driver.events.emit('info', message)
+        driver.events.emit('kubb:info', message)
       },
       openInStudio(options?: DevtoolsOptions) {
         if (!driver.config.devtools || driver.#studioIsOpen) {
@@ -302,7 +302,7 @@ export class PluginDriver {
       return [null]
     }
 
-    this.events.emit('plugins:hook:progress:start', {
+    this.events.emit('kubb:plugins:hook:progress:start', {
       hookName,
       plugins: [plugin],
     })
@@ -314,7 +314,7 @@ export class PluginDriver {
       plugin,
     })
 
-    this.events.emit('plugins:hook:progress:end', { hookName })
+    this.events.emit('kubb:plugins:hook:progress:end', { hookName })
 
     return [result]
   }
@@ -364,7 +364,7 @@ export class PluginDriver {
       if (hookName in plugin && (skipped ? !skipped.has(plugin) : true)) plugins.push(plugin)
     }
 
-    this.events.emit('plugins:hook:progress:start', { hookName, plugins })
+    this.events.emit('kubb:plugins:hook:progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return async () => {
@@ -384,7 +384,7 @@ export class PluginDriver {
 
     const result = await hookFirst(promises, hookFirstNullCheck)
 
-    this.events.emit('plugins:hook:progress:end', { hookName })
+    this.events.emit('kubb:plugins:hook:progress:end', { hookName })
 
     return result
   }
@@ -437,7 +437,7 @@ export class PluginDriver {
     for (const plugin of this.plugins.values()) {
       if (hookName in plugin) plugins.push(plugin)
     }
-    this.events.emit('plugins:hook:progress:start', { hookName, plugins })
+    this.events.emit('kubb:plugins:hook:progress:start', { hookName, plugins })
 
     const pluginStartTimes = new Map<Plugin, number>()
 
@@ -461,7 +461,7 @@ export class PluginDriver {
 
         if (plugin) {
           const startTime = pluginStartTimes.get(plugin) ?? performance.now()
-          this.events.emit('error', result.reason, {
+          this.events.emit('kubb:error', result.reason, {
             plugin,
             hookName,
             strategy: 'hookParallel',
@@ -472,7 +472,7 @@ export class PluginDriver {
       }
     })
 
-    this.events.emit('plugins:hook:progress:end', { hookName })
+    this.events.emit('kubb:plugins:hook:progress:end', { hookName })
 
     return results.reduce((acc, result) => {
       if (result.status === 'fulfilled') {
@@ -490,7 +490,7 @@ export class PluginDriver {
     for (const plugin of this.plugins.values()) {
       if (hookName in plugin) plugins.push(plugin)
     }
-    this.events.emit('plugins:hook:progress:start', { hookName, plugins })
+    this.events.emit('kubb:plugins:hook:progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return () =>
@@ -504,7 +504,7 @@ export class PluginDriver {
 
     await hookSeq(promises)
 
-    this.events.emit('plugins:hook:progress:end', { hookName })
+    this.events.emit('kubb:plugins:hook:progress:end', { hookName })
   }
 
   getPlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
@@ -547,7 +547,7 @@ export class PluginDriver {
     plugin: PluginWithLifeCycle
     parameters: unknown[] | undefined
   }): void {
-    this.events.emit('plugins:hook:processing:end', {
+    this.events.emit('kubb:plugins:hook:processing:end', {
       duration: Math.round(performance.now() - startTime),
       parameters,
       output,
@@ -575,7 +575,7 @@ export class PluginDriver {
       return null
     }
 
-    this.events.emit('plugins:hook:processing:start', {
+    this.events.emit('kubb:plugins:hook:processing:start', {
       strategy,
       hookName,
       parameters,
@@ -593,7 +593,7 @@ export class PluginDriver {
 
         return output as ReturnType<ParseResult<H>>
       } catch (error) {
-        this.events.emit('error', error as Error, {
+        this.events.emit('kubb:error', error as Error, {
           plugin,
           hookName,
           strategy,
@@ -630,7 +630,7 @@ export class PluginDriver {
       return null
     }
 
-    this.events.emit('plugins:hook:processing:start', {
+    this.events.emit('kubb:plugins:hook:processing:start', {
       strategy,
       hookName,
       parameters,
@@ -649,7 +649,7 @@ export class PluginDriver {
 
       return output
     } catch (error) {
-      this.events.emit('error', error as Error, {
+      this.events.emit('kubb:error', error as Error, {
         plugin,
         hookName,
         strategy,

@@ -41,11 +41,11 @@ type HookResult<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
  *
  * const events: AsyncEventEmitter<KubbEvents> = new AsyncEventEmitter()
  *
- * events.on('lifecycle:start', () => {
+ * events.on('kubb:lifecycle:start', () => {
  *   console.log('Starting Kubb generation')
  * })
  *
- * events.on('plugin:end', (plugin, { duration }) => {
+ * events.on('kubb:plugin:end', (plugin, { duration }) => {
  *   console.log(`Plugin ${plugin.name} completed in ${duration}ms`)
  * })
  * ```
@@ -54,34 +54,34 @@ export interface KubbEvents {
   /**
    * Emitted at the beginning of the Kubb lifecycle, before any code generation starts.
    */
-  'lifecycle:start': [version: string]
+  'kubb:lifecycle:start': [version: string]
   /**
    * Emitted at the end of the Kubb lifecycle, after all code generation is complete.
    */
-  'lifecycle:end': []
+  'kubb:lifecycle:end': []
 
   /**
    * Emitted when configuration loading starts.
    */
-  'config:start': []
+  'kubb:config:start': []
   /**
    * Emitted when configuration loading is complete.
    */
-  'config:end': [configs: Array<Config>]
+  'kubb:config:end': [configs: Array<Config>]
 
   /**
    * Emitted when code generation phase starts.
    */
-  'generation:start': [config: Config]
+  'kubb:generation:start': [config: Config]
   /**
    * Emitted when code generation phase completes.
    */
-  'generation:end': [config: Config, files: Array<FileNode>, sources: Map<string, string>]
+  'kubb:generation:end': [config: Config, files: Array<FileNode>, sources: Map<string, string>]
   /**
    * Emitted with a summary of the generation results.
    * Contains summary lines, title, and success status.
    */
-  'generation:summary': [
+  'kubb:generation:summary': [
     config: Config,
     {
       failedPlugins: Set<{ plugin: Plugin; error: Error }>
@@ -95,77 +95,77 @@ export interface KubbEvents {
   /**
    * Emitted when code formatting starts (e.g., running Biome or Prettier).
    */
-  'format:start': []
+  'kubb:format:start': []
   /**
    * Emitted when code formatting completes.
    */
-  'format:end': []
+  'kubb:format:end': []
 
   /**
    * Emitted when linting starts.
    */
-  'lint:start': []
+  'kubb:lint:start': []
   /**
    * Emitted when linting completes.
    */
-  'lint:end': []
+  'kubb:lint:end': []
 
   /**
    * Emitted when plugin hooks execution starts.
    */
-  'hooks:start': []
+  'kubb:hooks:start': []
   /**
    * Emitted when plugin hooks execution completes.
    */
-  'hooks:end': []
+  'kubb:hooks:end': []
 
   /**
    * Emitted when a single hook execution starts (e.g., format or lint).
    * The callback should be invoked when the command completes.
    */
-  'hook:start': [{ id?: string; command: string; args?: readonly string[] }]
+  'kubb:hook:start': [{ id?: string; command: string; args?: readonly string[] }]
   /**
    * Emitted when a single hook execution completes.
    */
-  'hook:end': [{ id?: string; command: string; args?: readonly string[]; success: boolean; error: Error | null }]
+  'kubb:hook:end': [{ id?: string; command: string; args?: readonly string[]; success: boolean; error: Error | null }]
 
   /**
    * Emitted when a new version of Kubb is available.
    */
-  'version:new': [currentVersion: string, latestVersion: string]
+  'kubb:version:new': [currentVersion: string, latestVersion: string]
 
   /**
    * Informational message event.
    */
-  info: [message: string, info?: string]
+  'kubb:info': [message: string, info?: string]
   /**
    * Error event. Emitted when an error occurs during code generation.
    */
-  error: [error: Error, meta?: Record<string, unknown>]
+  'kubb:error': [error: Error, meta?: Record<string, unknown>]
   /**
    * Success message event.
    */
-  success: [message: string, info?: string]
+  'kubb:success': [message: string, info?: string]
   /**
    * Warning message event.
    */
-  warn: [message: string, info?: string]
+  'kubb:warn': [message: string, info?: string]
   /**
    * Debug event for detailed logging.
    * Contains timestamp, log messages, and optional filename.
    */
-  debug: [info: DebugInfo]
+  'kubb:debug': [info: DebugInfo]
 
   /**
    * Emitted when file processing starts.
    * Contains the list of files to be processed.
    */
-  'files:processing:start': [files: Array<FileNode>]
+  'kubb:files:processing:start': [files: Array<FileNode>]
   /**
    * Emitted for each file being processed, providing progress updates.
    * Contains processed count, total count, percentage, and file details.
    */
-  'file:processing:update': [
+  'kubb:file:processing:update': [
     {
       /**
        * Number of files processed so far.
@@ -198,37 +198,37 @@ export interface KubbEvents {
    * Emitted when file processing completes.
    * Contains the list of processed files.
    */
-  'files:processing:end': [files: Array<FileNode>]
+  'kubb:files:processing:end': [files: Array<FileNode>]
 
   /**
    * Emitted when a plugin starts executing.
    */
-  'plugin:start': [plugin: Plugin]
+  'kubb:plugin:start': [plugin: Plugin]
   /**
    * Emitted when a plugin completes execution.
    * Duration in ms.
    */
-  'plugin:end': [plugin: Plugin, result: { duration: number; success: boolean; error?: Error }]
+  'kubb:plugin:end': [plugin: Plugin, result: { duration: number; success: boolean; error?: Error }]
 
   /**
    * Emitted when plugin hook progress tracking starts.
    * Contains the hook name and list of plugins to execute.
    */
-  'plugins:hook:progress:start': [progress: HookProgress]
+  'kubb:plugins:hook:progress:start': [progress: HookProgress]
   /**
    * Emitted when plugin hook progress tracking ends.
    * Contains the hook name that completed.
    */
-  'plugins:hook:progress:end': [{ hookName: PluginLifecycleHooks }]
+  'kubb:plugins:hook:progress:end': [{ hookName: PluginLifecycleHooks }]
 
   /**
    * Emitted when a plugin hook starts processing.
    * Contains strategy, hook name, plugin, parameters, and output.
    */
-  'plugins:hook:processing:start': [execution: HookExecution]
+  'kubb:plugins:hook:processing:start': [execution: HookExecution]
   /**
    * Emitted when a plugin hook completes processing.
    * Contains duration, strategy, hook name, plugin, parameters, and output.
    */
-  'plugins:hook:processing:end': [result: HookResult]
+  'kubb:plugins:hook:processing:end': [result: HookResult]
 }

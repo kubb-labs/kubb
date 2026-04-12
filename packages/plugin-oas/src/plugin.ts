@@ -49,8 +49,8 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
         cause: caughtError,
       })
 
-      events.emit('info', caughtError.message)
-      events.emit('debug', {
+      events.emit('kubb:info', caughtError.message)
+      events.emit('kubb:debug', {
         date: errorTimestamp,
         logs: [`✗ ${error.message}`, caughtError.message],
       })

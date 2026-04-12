@@ -43,23 +43,23 @@ export async function runHook({ id, command, args, commandWithArgs, context, str
 
     const result = await proc
 
-    await context.emit('debug', {
+    await context.emit('kubb:debug', {
       date: new Date(),
       logs: [result.stdout.trimEnd()],
     })
 
-    await context.emit('hook:end', { command, args, id, success: true, error: null })
+    await context.emit('kubb:hook:end', { command, args, id, success: true, error: null })
   } catch (err) {
     if (!(err instanceof NonZeroExitError)) {
-      await context.emit('hook:end', { command, args, id, success: false, error: toError(err) })
-      await context.emit('error', toError(err))
+      await context.emit('kubb:hook:end', { command, args, id, success: false, error: toError(err) })
+      await context.emit('kubb:error', toError(err))
       return
     }
 
     const stderr = err.output?.stderr ?? ''
     const stdout = err.output?.stdout ?? ''
 
-    await context.emit('debug', {
+    await context.emit('kubb:debug', {
       date: new Date(),
       logs: [stdout, stderr].filter(Boolean),
     })
@@ -69,7 +69,7 @@ export async function runHook({ id, command, args, commandWithArgs, context, str
 
     const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
 
-    await context.emit('hook:end', { command, args, id, success: false, error: errorMessage })
-    await context.emit('error', errorMessage)
+    await context.emit('kubb:hook:end', { command, args, id, success: false, error: errorMessage })
+    await context.emit('kubb:error', errorMessage)
   }
 }

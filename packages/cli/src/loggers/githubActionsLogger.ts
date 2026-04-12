@@ -55,7 +55,7 @@ export const githubActionsLogger = defineLogger({
       console.log('::endgroup::')
     }
 
-    context.on('info', (message, info = '') => {
+    context.on('kubb:info', (message, info = '') => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -65,7 +65,7 @@ export const githubActionsLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('success', (message, info = '') => {
+    context.on('kubb:success', (message, info = '') => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -75,7 +75,7 @@ export const githubActionsLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('warn', (message, info = '') => {
+    context.on('kubb:warn', (message, info = '') => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -85,7 +85,7 @@ export const githubActionsLogger = defineLogger({
       console.warn(`::warning::${text}`)
     })
 
-    context.on('error', (error) => {
+    context.on('kubb:error', (error) => {
       const caused = toCause(error)
 
       if (logLevel <= logLevelMap.silent) {
@@ -112,12 +112,12 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('lifecycle:start', (version) => {
+    context.on('kubb:lifecycle:start', (version) => {
       console.log(styleText('yellow', `Kubb ${version} 🧩`))
       reset()
     })
 
-    context.on('config:start', () => {
+    context.on('kubb:config:start', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -129,7 +129,7 @@ export const githubActionsLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('config:end', (configs) => {
+    context.on('kubb:config:end', (configs) => {
       state.currentConfigs = configs
 
       if (logLevel <= logLevelMap.silent) {
@@ -143,7 +143,7 @@ export const githubActionsLogger = defineLogger({
       closeGroup('Configuration')
     })
 
-    context.on('generation:start', (config) => {
+    context.on('kubb:generation:start', (config) => {
       reset()
 
       // Initialize progress tracking for this generation
@@ -160,7 +160,7 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('plugin:start', (plugin) => {
+    context.on('kubb:plugin:start', (plugin) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -173,7 +173,7 @@ export const githubActionsLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('plugin:end', (plugin, { duration, success }) => {
+    context.on('kubb:plugin:end', (plugin, { duration, success }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -204,7 +204,7 @@ export const githubActionsLogger = defineLogger({
       showProgressStep()
     })
 
-    context.on('files:processing:start', (files) => {
+    context.on('kubb:files:processing:start', (files) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -220,7 +220,7 @@ export const githubActionsLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('files:processing:end', () => {
+    context.on('kubb:files:processing:end', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -236,7 +236,7 @@ export const githubActionsLogger = defineLogger({
       showProgressStep()
     })
 
-    context.on('file:processing:update', () => {
+    context.on('kubb:file:processing:update', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -244,7 +244,7 @@ export const githubActionsLogger = defineLogger({
       state.processedFiles++
     })
 
-    context.on('generation:end', (config) => {
+    context.on('kubb:generation:end', (config) => {
       const text = getMessage(
         config.name ? `${styleText('blue', '✓')} Generation completed for ${styleText('dim', config.name)}` : `${styleText('blue', '✓')} Generation completed`,
       )
@@ -252,7 +252,7 @@ export const githubActionsLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('format:start', () => {
+    context.on('kubb:format:start', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -266,7 +266,7 @@ export const githubActionsLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('format:end', () => {
+    context.on('kubb:format:end', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -280,7 +280,7 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('lint:start', () => {
+    context.on('kubb:lint:start', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -294,7 +294,7 @@ export const githubActionsLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('lint:end', () => {
+    context.on('kubb:lint:end', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -308,7 +308,7 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('hook:start', async ({ id, command, args }) => {
+    context.on('kubb:hook:start', async ({ id, command, args }) => {
       const commandWithArgs = formatCommandWithArgs(command, args)
       const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} started`)
 
@@ -338,7 +338,7 @@ export const githubActionsLogger = defineLogger({
       })
     })
 
-    context.on('hook:end', ({ command, args }) => {
+    context.on('kubb:hook:end', ({ command, args }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -353,7 +353,7 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('generation:summary', (config, { status, hrStart, failedPlugins }) => {
+    context.on('kubb:generation:summary', (config, { status, hrStart, failedPlugins }) => {
       const pluginsCount = config.plugins?.length ?? 0
       const successCount = pluginsCount - failedPlugins.size
       const duration = formatHrtime(hrStart)
@@ -373,7 +373,7 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('lifecycle:end', () => {
+    context.on('kubb:lifecycle:end', () => {
       reset()
     })
   },

@@ -50,33 +50,33 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   }
 
-  events.on('plugin:start', (plugin) => {
+  events.on('kubb:plugin:start', (plugin) => {
     sendDataMessage({
-      type: 'plugin:start',
+      type: 'kubb:plugin:start',
       data: [plugin],
       timestamp: Date.now(),
     })
   })
 
-  events.on('plugin:end', (plugin, meta) => {
+  events.on('kubb:plugin:end', (plugin, meta) => {
     sendDataMessage({
-      type: 'plugin:end',
+      type: 'kubb:plugin:end',
       data: [plugin, meta],
       timestamp: Date.now(),
     })
   })
 
-  events.on('files:processing:start', (files) => {
+  events.on('kubb:files:processing:start', (files) => {
     sendDataMessage({
-      type: 'files:processing:start',
+      type: 'kubb:files:processing:start',
       data: [{ total: files.length }],
       timestamp: Date.now(),
     })
   })
 
-  events.on('file:processing:update', (meta) => {
+  events.on('kubb:file:processing:update', (meta) => {
     sendDataMessage({
-      type: 'file:processing:update',
+      type: 'kubb:file:processing:update',
       data: [
         {
           file: meta.file.path,
@@ -89,41 +89,41 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('files:processing:end', (files) => {
+  events.on('kubb:files:processing:end', (files) => {
     sendDataMessage({
-      type: 'files:processing:end',
+      type: 'kubb:files:processing:end',
       data: [{ total: files.length }],
       timestamp: Date.now(),
     })
   })
 
-  events.on('info', (message, info) => {
+  events.on('kubb:info', (message, info) => {
     sendDataMessage({
-      type: 'info',
+      type: 'kubb:info',
       data: [message, info],
       timestamp: Date.now(),
     })
   })
 
-  events.on('success', (message, info) => {
+  events.on('kubb:success', (message, info) => {
     sendDataMessage({
-      type: 'success',
+      type: 'kubb:success',
       data: [message, info],
       timestamp: Date.now(),
     })
   })
 
-  events.on('warn', (message, info) => {
+  events.on('kubb:warn', (message, info) => {
     sendDataMessage({
-      type: 'warn',
+      type: 'kubb:warn',
       data: [message, info],
       timestamp: Date.now(),
     })
   })
 
-  events.on('generation:start', (config) => {
+  events.on('kubb:generation:start', (config) => {
     sendDataMessage({
-      type: 'generation:start',
+      type: 'kubb:generation:start',
       data: [
         {
           name: config.name,
@@ -134,22 +134,22 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('generation:end', (config, files, sources) => {
+  events.on('kubb:generation:end', (config, files, sources) => {
     const sourcesRecord: Record<string, string> = {}
 
     sources.forEach((value, key) => {
       sourcesRecord[key] = value
     })
     sendDataMessage({
-      type: 'generation:end',
+      type: 'kubb:generation:end',
       data: [config, files as unknown as FileNode[], sourcesRecord],
       timestamp: Date.now(),
     })
   })
 
-  events.on('error', (error) => {
+  events.on('kubb:error', (error) => {
     sendDataMessage({
-      type: 'error',
+      type: 'kubb:error',
       data: [
         {
           message: error.message,
