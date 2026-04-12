@@ -83,7 +83,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
         resolver: preset.resolver,
       }
     },
-    pre: [pluginTsName, pluginZodName].filter(Boolean),
+    dependencies: [pluginTsName, pluginZodName].filter(Boolean),
     generators,
     async buildStart() {
       const { adapter, driver } = this

@@ -83,7 +83,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
       include,
       override,
     },
-    pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
+    dependencies: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = this.root
       const mode = pathMode ?? this.getMode(output)

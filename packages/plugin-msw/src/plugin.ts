@@ -38,7 +38,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
       include,
       override,
     },
-    pre: [pluginOasName, pluginTsName, parser === 'faker' ? pluginFakerName : undefined].filter(Boolean),
+    dependencies: [pluginOasName, pluginTsName, parser === 'faker' ? pluginFakerName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? this.getMode(output)

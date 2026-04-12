@@ -91,7 +91,7 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
         resolver: preset.resolver,
       }
     },
-    pre: [pluginTsName].filter(Boolean),
+    dependencies: [pluginTsName].filter(Boolean),
     generators,
     async buildStart() {
       await this.openInStudio({ ast: true })

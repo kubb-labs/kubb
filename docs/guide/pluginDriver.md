@@ -98,7 +98,7 @@ First non-null result stops and will return its value.
 
 ### driver.hookParallel
 
-Run all plugins in parallel. Order is based on `this.plugin` and whether `pre` or `post` is set.
+Run all plugins in parallel. Order is based on `this.plugin` and `dependencies`.
 
 ### driver.hookReduceArg0
 
@@ -106,4 +106,4 @@ Chain all plugins using `reduce` to handle every returned value. The return valu
 
 ### driver.hookSequential
 
-Run all plugins sequentially. Order is based on `this.plugin` and whether `pre` or `post` is set.
+Run all plugins sequentially. Order is based on `this.plugin` and `dependencies`.
