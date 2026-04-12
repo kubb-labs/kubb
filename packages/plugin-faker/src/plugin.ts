@@ -55,7 +55,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       group,
       usedEnumNames,
     },
-    pre: [pluginOasName, pluginTsName],
+    dependencies: [pluginOasName, pluginTsName],
     resolvePath(baseName, pathMode, options) {
       const root = this.root
       const mode = pathMode ?? this.getMode(output)

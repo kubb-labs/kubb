@@ -133,16 +133,14 @@ export function createMockedPlugin<TOptions extends PluginFactoryOptions = Plugi
   options: TOptions['resolvedOptions']
   resolver?: TOptions['resolver']
   transformer?: Visitor
-  pre?: Array<string>
-  post?: Array<string>
+  dependencies?: Array<string>
 }): Plugin<TOptions> {
   return {
     name: params.name,
     options: params.options,
     resolver: params.resolver,
     transformer: params.transformer,
-    pre: params.pre,
-    post: params.post,
+    dependencies: params.dependencies,
     install: () => {},
     inject: () => undefined as TOptions['context'],
   } as unknown as Plugin<TOptions>

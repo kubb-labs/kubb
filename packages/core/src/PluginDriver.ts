@@ -116,8 +116,8 @@ export class PluginDriver {
         return true
       })
       .sort((a, b) => {
-        if (b.pre?.includes(a.name)) return 1
-        if (b.post?.includes(a.name)) return -1
+        if (b.dependencies?.includes(a.name)) return -1
+        if (a.dependencies?.includes(b.name)) return 1
         return 0
       })
       .forEach((plugin) => {
@@ -424,7 +424,7 @@ export class PluginDriver {
   }
 
   /**
-   * Runs all plugins in parallel based on `this.plugin` order and `pre`/`post` settings.
+   * Runs all plugins in parallel based on `this.plugin` order and `dependencies` settings.
    */
   async hookParallel<H extends PluginLifecycleHooks, TOutput = void>({
     hookName,

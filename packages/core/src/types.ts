@@ -83,7 +83,7 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
    */
   adapter?: Adapter
   /**
-   * An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Refer to “pre” for more details.
+   * An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Use `dependencies` on the plugin to declare which plugins must run first.
    */
   // inject needs to be omitted because else we have a clash with the PluginDriver instance
   plugins?: Array<Omit<UnknownUserPlugin, 'inject'>>
@@ -320,7 +320,7 @@ export type Config<TInput = Input> = {
   /**
    * An array of Kubb plugins that used in the generation.
    * Each plugin may include additional configurable options(defined in the plugin itself).
-   * If a plugin depends on another plugin, an error is returned if the required dependency is missing. See pre for more details.
+   * If a plugin depends on another plugin, an error is returned if the required dependency is missing. Use `dependencies` on the plugin to declare which plugins must run first.
    */
   plugins: Array<Plugin>
   /**
@@ -520,14 +520,10 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    */
   generators?: Array<Generator<any>>
   /**
-   * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin is executed after these plugins.
-   * Can be used to validate dependent plugins.
+   * Specifies the plugins that the current plugin depends on. The current plugin is executed after all listed plugins.
+   * An error is returned if any required dependency plugin is missing.
    */
-  pre?: Array<string>
-  /**
-   * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin is executed before these plugins.
-   */
-  post?: Array<string>
+  dependencies?: Array<string>
   /**
    * When `apply` is defined, the plugin is only activated when `apply(config)` returns `true`.
    * Inspired by Vite's `apply` option.
@@ -593,14 +589,10 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    */
   name: TOptions['name']
   /**
-   * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin is executed after these plugins.
-   * Can be used to validate dependent plugins.
+   * Specifies the plugins that the current plugin depends on. The current plugin is executed after all listed plugins.
+   * An error is returned if any required dependency plugin is missing.
    */
-  pre?: Array<string>
-  /**
-   * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin is executed before these plugins.
-   */
-  post?: Array<string>
+  dependencies?: Array<string>
   /**
    * Options set for a specific plugin(see kubb.config.js), passthrough of options.
    */

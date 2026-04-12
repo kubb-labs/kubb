@@ -129,7 +129,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         resolver: preset.resolver,
       }
     },
-    pre: [pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
+    dependencies: [pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       if (!resolvePathWarning) {
         this.warn('Do not use resolvePath for pluginClient, use resolverClient.resolvePath instead')
