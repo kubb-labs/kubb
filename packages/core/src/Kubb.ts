@@ -1,6 +1,6 @@
 import type { FileNode } from '@kubb/ast/types'
 import type { Strategy } from './PluginDriver.ts'
-import type { Config, Plugin, PluginLifecycleHooks } from './types'
+import type { Config, KubbBuildDoneContext, KubbBuildStartContext, KubbConfigDoneContext, KubbSetupContext, Plugin, PluginLifecycleHooks } from './types'
 
 type DebugInfo = {
   date: Date
@@ -231,4 +231,28 @@ export interface KubbEvents {
    * Contains duration, strategy, hook name, plugin, parameters, and output.
    */
   'kubb:plugins:hook:processing:end': [result: HookResult]
+
+  // ─── Hook-style plugin lifecycle events (definePlugin API) ──────────────────
+
+  /**
+   * Fired once — before any plugin's `buildStart` runs — so that hook-style plugins
+   * can register generators, configure resolvers/transformers/renderers, or inject
+   * extra files.  All `kubb:setup` handlers registered via `definePlugin` receive
+   * a plugin-specific context (with the correct `addGenerator` closure).
+   * External tooling can observe this event via `events.on('kubb:setup', …)`.
+   */
+  'kubb:setup': [ctx: KubbSetupContext]
+  /**
+   * Fired after the full configuration has been resolved and frozen.
+   */
+  'kubb:config:done': [ctx: KubbConfigDoneContext]
+  /**
+   * Fired immediately before the plugin execution loop begins.
+   * The adapter has already parsed the source and `inputNode` is available.
+   */
+  'kubb:build:start': [ctx: KubbBuildStartContext]
+  /**
+   * Fired after all files have been written to disk.
+   */
+  'kubb:build:done': [ctx: KubbBuildDoneContext]
 }

@@ -10,6 +10,7 @@ export { defineConfig } from './defineConfig.ts'
 export { defineGenerator } from './defineGenerator.ts'
 export { defineLogger } from './defineLogger.ts'
 export { defineParser } from './defineParser.ts'
+export { definePlugin } from './definePlugin.ts'
 export { definePresets } from './definePresets.ts'
 export {
   buildDefaultBanner,

@@ -137,7 +137,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
           ...(typeof userConfig.devtools === 'boolean' ? {} : userConfig.devtools),
         }
       : undefined,
-    plugins: userConfig.plugins as Config['plugins'],
+    plugins: userConfig.plugins as unknown as Config['plugins'],
   }
 
   // write: false is the explicit dry-run opt-out; otherwise use the provided
@@ -183,6 +183,8 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
       `  • Operations: ${driver.inputNode.operations.length}`,
     ],
   })
+
+  await events.emit('kubb:config:done', { config })
 
   return {
     config,
@@ -309,6 +311,31 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
   const config = driver.config
 
   try {
+    // Emit kubb:setup once so that all hook-style plugins (definePlugin) can register
+    // generators, configure resolvers/transformers/renderers, etc. before buildStart runs.
+    // Each plugin's listener (registered in PluginDriver.registerPluginHooks) wraps the
+    // context with plugin-specific implementations (e.g. addGenerator adds to that plugin's
+    // generators array). External listeners receive the global base context.
+    await events.emit('kubb:setup', {
+      config,
+      addGenerator: () => {},
+      setResolver: () => {},
+      setTransformer: () => {},
+      setRenderer: () => {},
+      injectFile: () => {},
+      updateConfig: () => {},
+      options: {},
+    })
+
+    if (driver.adapter && driver.inputNode) {
+      await events.emit('kubb:build:start', {
+        config,
+        adapter: driver.adapter,
+        inputNode: driver.inputNode,
+        getPlugin: (name) => driver.getPlugin(name),
+      })
+    }
+
     for (const plugin of driver.plugins.values()) {
       const context = driver.getContext(plugin)
       const hrStart = process.hrtime()
@@ -476,6 +503,12 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         await plugin.buildEnd.call(context)
       }
     }
+
+    await events.emit('kubb:build:done', {
+      files,
+      config,
+      outputDir: resolve(config.root, config.output.path),
+    })
 
     return {
       failedPlugins,

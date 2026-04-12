@@ -7,12 +7,14 @@ import type { FileNode, InputNode } from '@kubb/ast/types'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
+import { type HookStylePlugin, isHookStylePlugin } from './definePlugin.ts'
 
 import type {
   Adapter,
   Config,
   DevtoolsOptions,
   KubbEvents,
+  KubbSetupContext,
   Plugin,
   PluginContext,
   PluginFactoryOptions,
@@ -108,7 +110,12 @@ export class PluginDriver {
     this.config = config
     this.options = options
     config.plugins
-      .map((plugin) => Object.assign({ buildStart() {}, buildEnd() {} }, plugin) as unknown as Plugin)
+      .map((rawPlugin) => {
+        if (isHookStylePlugin(rawPlugin)) {
+          return this.#normalizeHookStylePlugin(rawPlugin as HookStylePlugin)
+        }
+        return Object.assign({ buildStart() {}, buildEnd() {} }, rawPlugin) as unknown as Plugin
+      })
       .filter((plugin) => {
         if (typeof plugin.apply === 'function') {
           return plugin.apply(config)
@@ -127,6 +134,90 @@ export class PluginDriver {
 
   get events() {
     return this.options.events
+  }
+
+  /**
+   * Creates a `Plugin`-compatible object from a hook-style plugin and registers
+   * its lifecycle handlers on the `AsyncEventEmitter`.
+   *
+   * The normalized plugin has an empty `buildStart` — generators registered via
+   * `addGenerator()` in `kubb:setup` are stored on `normalizedPlugin.generators`
+   * and used by `runPluginAstHooks` during the build.
+   */
+  #normalizeHookStylePlugin(hookPlugin: HookStylePlugin): Plugin {
+    const generators: Plugin['generators'] = []
+    const normalizedPlugin: Plugin = {
+      name: hookPlugin.name,
+      dependencies: hookPlugin.dependencies,
+      options: { output: { path: '.' }, exclude: [], override: [] },
+      generators,
+      buildStart() {},
+      buildEnd() {},
+    }
+    this.registerPluginHooks(hookPlugin, normalizedPlugin)
+    return normalizedPlugin
+  }
+
+  /**
+   * Registers a hook-style plugin's lifecycle handlers on the shared `AsyncEventEmitter`.
+   *
+   * For `kubb:setup`, the registered listener wraps the globally emitted context with a
+   * plugin-specific one so that `addGenerator`, `setResolver`, `setTransformer`, and
+   * `setRenderer` all target the correct `normalizedPlugin` entry in the plugins map.
+   *
+   * All other hooks (`kubb:config:done`, `kubb:build:start`, `kubb:build:done`) are
+   * registered directly as pass-through listeners.
+   *
+   * External tooling can subscribe to any of these events via `events.on(...)` to observe
+   * the plugin lifecycle without modifying plugin behaviour.
+   */
+  registerPluginHooks(hookPlugin: HookStylePlugin, normalizedPlugin: Plugin): void {
+    const { hooks } = hookPlugin
+
+    if (hooks['kubb:setup']) {
+      this.events.on('kubb:setup', (globalCtx: KubbSetupContext) => {
+        const pluginCtx: KubbSetupContext & { options: typeof hookPlugin.options } = {
+          ...globalCtx,
+          options: hookPlugin.options ?? {},
+          addGenerator: (gen) => {
+            normalizedPlugin.generators = normalizedPlugin.generators ?? []
+            normalizedPlugin.generators.push(gen)
+          },
+          setResolver: (resolver) => {
+            normalizedPlugin.resolver = resolver as Plugin['resolver']
+          },
+          setTransformer: (visitor) => {
+            normalizedPlugin.transformer = visitor
+          },
+          setRenderer: (renderer) => {
+            normalizedPlugin.renderer = renderer
+          },
+          injectFile: (file) => {
+            const fileNode = createFile({
+              baseName: file.baseName,
+              path: file.path,
+              sources: file.sources ?? [],
+              imports: [],
+              exports: [],
+            })
+            this.fileManager.add(fileNode)
+          },
+        }
+        return hooks['kubb:setup']!(pluginCtx)
+      })
+    }
+
+    if (hooks['kubb:config:done']) {
+      this.events.on('kubb:config:done', hooks['kubb:config:done'])
+    }
+
+    if (hooks['kubb:build:start']) {
+      this.events.on('kubb:build:start', hooks['kubb:build:start'])
+    }
+
+    if (hooks['kubb:build:done']) {
+      this.events.on('kubb:build:done', hooks['kubb:build:done'])
+    }
   }
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, unknown> {
