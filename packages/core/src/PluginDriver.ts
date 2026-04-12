@@ -146,6 +146,9 @@ export class PluginDriver {
    */
   #normalizeHookStylePlugin(hookPlugin: HookStylePlugin): Plugin {
     const generators: Plugin['generators'] = []
+    // The options shape is the minimal struct required by Plugin. Hook-style plugins
+    // don't participate in the legacy resolvePath/resolveName lifecycle; they use
+    // generators registered via addGenerator() and resolvers set via setResolver() instead.
     const normalizedPlugin: Plugin = {
       name: hookPlugin.name,
       dependencies: hookPlugin.dependencies,

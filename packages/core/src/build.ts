@@ -315,7 +315,9 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
     // generators, configure resolvers/transformers/renderers, etc. before buildStart runs.
     // Each plugin's listener (registered in PluginDriver.registerPluginHooks) wraps the
     // context with plugin-specific implementations (e.g. addGenerator adds to that plugin's
-    // generators array). External listeners receive the global base context.
+    // generators array). External listeners receive the global base context — the no-op
+    // implementations below are intentional: they are overridden per-plugin inside each
+    // hook-style plugin's registered listener and are not meant for external use.
     await events.emit('kubb:setup', {
       config,
       addGenerator: () => {},

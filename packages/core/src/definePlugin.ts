@@ -101,5 +101,8 @@ export function isHookStylePlugin(plugin: unknown): plugin is HookStylePlugin {
 export function definePlugin<TOptions = object>(
   factory: (options: TOptions) => HookStylePlugin<TOptions>,
 ): (options?: TOptions) => HookStylePlugin<TOptions> {
+  // `{} as TOptions` follows the same convention as `createPlugin` — when no options
+  // are provided the factory receives an empty object. Factories should treat all option
+  // fields as optional (or supply defaults) to make the call-site ergonomic.
   return (options) => factory(options ?? ({} as TOptions))
 }
