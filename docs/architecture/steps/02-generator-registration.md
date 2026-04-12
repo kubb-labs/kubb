@@ -74,7 +74,7 @@ The current public `mergeGenerators` function is no longer needed for the new AP
 // What a migrated plugin-ts would look like (not changed in this step)
 export const pluginTs = definePlugin((options = {}) => ({
   name: 'plugin-ts',
-  events: {
+  hooks: {
     'kubb:setup'({ addGenerator }) {
       addGenerator(typeGenerator)     // existing defineGenerator object
       addGenerator(enumGenerator)     // existing defineGenerator object

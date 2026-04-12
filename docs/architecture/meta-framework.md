@@ -110,7 +110,7 @@ import { definePlugin } from '@kubb/core'
 export default definePlugin({
   name: '@kubb/typescript',
 
-  events: {
+  hooks: {
     // Phase 1: Setup — register generators, configure resolver, inject files
     'kubb:setup'({ addGenerator, setResolver, setTransformer, updateConfig, logger }) {
       setResolver({
@@ -224,7 +224,7 @@ import { definePlugin } from '@kubb/core'
 export const pluginHello = definePlugin((options = {}) => ({
   name: 'plugin-hello',
 
-  events: {
+  hooks: {
     'kubb:setup'({ addGenerator, logger }) {
       addGenerator({
         name: 'hello',
@@ -262,7 +262,7 @@ export const pluginTs = definePlugin((options = {}) => {
   return {
     name: 'plugin-ts',
 
-    events: {
+    hooks: {
       'kubb:setup'({ addGenerator, setResolver, setTransformer, updateConfig, setRenderer }) {
         // Set JSX as the output renderer for this plugin
         setRenderer(jsxRenderer)
@@ -338,7 +338,7 @@ export const pluginClient = definePlugin((options = {}) => {
     // Dependencies — like Astro integration ordering but explicit
     dependencies: ['plugin-ts'],
 
-    events: {
+    hooks: {
       'kubb:setup'({ addGenerator, setResolver, setRenderer, injectFile, logger }) {
         setRenderer(jsxRenderer)
 
@@ -424,7 +424,7 @@ export default function react(): AstroIntegration {
 export default function typescript(): KubbIntegration {
   return {
     name: '@kubb/typescript',
-    events: {
+    hooks: {
       'kubb:setup'({ addGenerator, setResolver, setRenderer }) {
         setRenderer(jsxRenderer)
         setResolver({ name: (n, t) => t === 'type' ? pascalCase(n) : camelCase(n) })
@@ -464,7 +464,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => ({
 // After
 export const pluginTs = definePlugin((options = {}) => ({
   name: 'plugin-ts',
-  events: {
+  hooks: {
     'kubb:setup'({ addGenerator, setResolver }) { /* ... */ },
     'kubb:build:start'({ logger }) { /* ... */ },
     'kubb:build:done'({ files }) { /* ... */ },
@@ -898,7 +898,7 @@ Add the new `definePlugin` function alongside existing `createPlugin`. Both work
 // New API
 export const pluginTs = definePlugin((options) => ({
   name: 'plugin-ts',
-  events: {
+  hooks: {
     'kubb:setup'({ addGenerator, setResolver }) { /* ... */ },
   },
 }))
@@ -913,7 +913,7 @@ export const pluginTsLegacy = createPlugin<PluginTs>((options) => ({
 
 **Core changes:**
 - Add `definePlugin` function that creates plugins in the new format
-- `PluginDriver` detects event-style vs legacy-style plugins
+- `PluginDriver` detects hook-style vs legacy-style plugins
 - Both formats produce the same internal `Plugin` object
 
 ### Phase 2: Migrate Built-in Plugins
@@ -961,7 +961,7 @@ export const pluginTs = definePlugin((options = {}) => {
 
   return {
     name: 'plugin-ts',
-    events: {
+    hooks: {
       'kubb:setup'(ctx) {
         if (compatibilityPreset === 'kubbV4') {
           ctx.setResolver(resolverTsLegacy)
@@ -1068,7 +1068,7 @@ plugin-ts/
 
 # After (3 files)
 plugin-ts/
-├── plugin.ts                      # definePlugin (events: setup + build)
+├── plugin.ts                      # definePlugin (hooks: setup + build)
 ├── generators/typeGenerator.tsx   # defineGenerator (reusable, but registered in setup)
 └── components/Type.tsx            # React component (unchanged)
 ```
@@ -1091,10 +1091,10 @@ plugin-ts/
 
 ```ts
 // With factory (options)
-export const pluginHello = definePlugin((options) => ({ name: 'plugin-hello', events: { ... } }))
+export const pluginHello = definePlugin((options) => ({ name: 'plugin-hello', hooks: { ... } }))
 
 // Without factory (no options)
-export const pluginHello = definePlugin({ name: 'plugin-hello', events: { ... } })
+export const pluginHello = definePlugin({ name: 'plugin-hello', hooks: { ... } })
 ```
 
 ---
@@ -1187,7 +1187,7 @@ definePlugin((options) => {
   let start: number
   return {
     name: 'plugin-metrics',
-    events: {
+    hooks: {
       'kubb:build:start'({ logger }) {
         start = Date.now()
         logger.info('Build starting')
@@ -1299,7 +1299,7 @@ For Kubb, the **event-based model** (`KubbEvents`, Astro/Elysia style) is the ri
 The events should be **synchronous-first with async support**, matching Astro's pattern — most events don't need to be async, but `kubb:build:done` might need to write additional files:
 
 ```ts
-events: {
+hooks: {
   // Sync event — most common
   'kubb:setup'({ addGenerator, setResolver }) {
     setResolver({ name: pascalCase })

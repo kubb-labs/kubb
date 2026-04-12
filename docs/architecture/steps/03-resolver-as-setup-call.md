@@ -69,7 +69,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => ({
 // After (new API)
 export const pluginTs = definePlugin((options = {}) => ({
   name: 'plugin-ts',
-  events: {
+  hooks: {
     'kubb:setup'({ setResolver }) {
       setResolver({
         name(name, type) {

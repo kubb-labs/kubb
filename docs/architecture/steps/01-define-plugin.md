@@ -26,15 +26,15 @@ type KubbEvents<TOptions> = {
   'kubb:build:done'?(ctx: KubbBuildDoneContext): void
 }
 
-type EventStylePlugin<TOptions> = {
+type HookStylePlugin<TOptions> = {
   name: string
   dependencies?: string[]
-  events: KubbEvents<TOptions>
+  hooks: KubbEvents<TOptions>
 }
 
 export function definePlugin<TOptions = object>(
-  factory: (options: TOptions) => EventStylePlugin<TOptions>,
-): (options?: TOptions) => EventStylePlugin<TOptions> {
+  factory: (options: TOptions) => HookStylePlugin<TOptions>,
+): (options?: TOptions) => HookStylePlugin<TOptions> {
   return factory
 }
 ```
@@ -81,20 +81,20 @@ type KubbBuildDoneContext = {
 
 ### PluginDriver changes
 
-`PluginDriver` needs to detect whether a plugin uses the new `events` format or the legacy flat format:
+`PluginDriver` needs to detect whether a plugin uses the new `hooks` format or the legacy flat format:
 
 ```ts
 // packages/core/src/PluginDriver.ts
 
-function isEventStylePlugin(plugin: unknown): plugin is EventStylePlugin {
-  return typeof plugin === 'object' && plugin !== null && 'events' in plugin
+function isHookStylePlugin(plugin: unknown): plugin is HookStylePlugin {
+  return typeof plugin === 'object' && plugin !== null && 'hooks' in plugin
 }
 
 // When dispatching lifecycle events:
 async function runSetup(plugin: Plugin) {
-  if (isEventStylePlugin(plugin)) {
+  if (isHookStylePlugin(plugin)) {
     // New style: call kubb:setup with context
-    plugin.events['kubb:setup']?.({
+    plugin.hooks['kubb:setup']?.({
       addGenerator: (gen) => this.registerGenerator(plugin.name, gen),
       setResolver: (res) => this.setPluginResolver(plugin.name, res),
       setTransformer: (vis) => this.setPluginTransformer(plugin.name, vis),

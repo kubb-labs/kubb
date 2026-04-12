@@ -57,7 +57,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 // After
 export const pluginTs = definePlugin((options = {}) => ({
   name: 'plugin-ts',
-  events: {
+  hooks: {
     'kubb:setup'({ addGenerator, setResolver, setRenderer }) {
       setRenderer(jsxRenderer)
       setResolver({

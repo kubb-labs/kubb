@@ -20,10 +20,10 @@ Replace the separate `pre` and `post` arrays with a single `dependencies` array 
 
 ```ts
 // New plugin format (definePlugin)
-type EventStylePlugin = {
+type HookStylePlugin = {
   name: string
   dependencies?: string[]  // NEW: plugins that must run before this one
-  events: { ... }
+  hooks: { ... }
 }
 ```
 
