@@ -128,7 +128,7 @@ async function runSetup(plugin: Plugin) {
 - [ ] A plugin created with `definePlugin` can set a resolver via `setResolver()` in `kubb:setup`
 - [ ] A plugin created with `createPlugin` (legacy) continues to work identically
 - [ ] Both styles can coexist in the same `kubb.config.ts`
-- [ ] Hook context types are exported from `@kubb/core` (as `KubbEvents`, `KubbSetupContext`, etc.)
+- [ ] Event context types are exported from `@kubb/core` (as `KubbEvents`, `KubbSetupContext`, etc.)
 - [ ] Existing tests pass unchanged
 
 ## Test Plan
