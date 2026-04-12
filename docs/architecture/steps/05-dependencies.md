@@ -6,7 +6,7 @@ Replace the separate `pre` and `post` arrays with a single `dependencies` array 
 
 ## Depends On
 
-- Step 1 (`definePlugin` with `KubbEvents`) — `dependencies` is a property on the new plugin format
+- Step 1 (`definePlugin` with `KubbEvents` + `events.emit` dispatch) — `dependencies` is a property on the new plugin format
 
 ## Scope
 

@@ -6,7 +6,7 @@ Move resolver configuration from a property getter on the plugin object (`get re
 
 ## Depends On
 
-- Step 1 (`definePlugin` with `KubbEvents`)
+- Step 1 (`definePlugin` with `KubbEvents` + `events.emit` dispatch)
 - Step 2 (generator registration) — generators receive the resolved resolver via context
 
 ## Scope

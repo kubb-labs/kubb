@@ -170,6 +170,27 @@ Kubb's events need to handle **per-node generation** (schema/operation), which A
 
 Events 4–6 are **not** on the integration itself — they're on the generators that the integration registered. This matches Astro where the rendering happens inside the renderer, not the integration.
 
+**All lifecycle events are dispatched via `events.emit()`** — the same `AsyncEventEmitter<KubbEvents>` that already powers Kubb's existing event system (`plugin:start`, `plugin:end`, `error`, `debug`, etc.). Plugins declare handlers via `hooks:` and the PluginDriver registers them on the emitter:
+
+```ts
+// PluginDriver already has: events: AsyncEventEmitter<KubbEvents>
+
+// During plugin init, hooks are registered on the emitter:
+this.events.on('kubb:setup', (ctx) => plugin.hooks['kubb:setup']!(ctx))
+
+// During the build lifecycle, events are dispatched:
+await this.events.emit('kubb:setup', setupContext)
+await this.events.emit('kubb:build:start', buildStartContext)
+// ... AST walk emits kubb:generate:schema / kubb:generate:operation ...
+await this.events.emit('kubb:build:done', buildDoneContext)
+```
+
+This means external tooling (CLI, devtools, custom integrations) can also listen:
+```ts
+events.on('kubb:setup', (ctx) => console.log('Plugin is setting up...'))
+events.on('kubb:build:done', (ctx) => console.log(`Generated ${ctx.files.length} files`))
+```
+
 ---
 
 ## What This Looks Like in Practice
@@ -693,6 +714,10 @@ This is cosmetic but signals the architectural shift. Could also keep `plugins` 
 
 ## The New Event Context API (`KubbEvents`)
 
+`KubbEvents` serves a dual role:
+1. **As a type** — it defines the lifecycle event signatures in the existing `KubbEvents` interface in `Kubb.ts` (alongside `plugin:start`, `error`, `debug`, etc.)
+2. **As hooks on plugin objects** — plugins declare handlers via `hooks:` which the PluginDriver registers on the `AsyncEventEmitter` and dispatches via `events.emit()`
+
 ### `kubb:setup` Context
 
 The most important event — where integrations configure everything:
@@ -848,6 +873,8 @@ type GeneratorContext = {
 ┌────────────────────────────────────────────────────────────────┐
 │                  Integration Layer                              │
 │  (= Astro Integration)                                         │
+│  Hooks registered on AsyncEventEmitter, dispatched via          │
+│  events.emit('kubb:setup', ctx) / events.emit('kubb:build:*')  │
 │                                                                │
 │  typescript()                                                  │
 │    └── kubb:setup → addGenerator('types')                      │
@@ -871,7 +898,8 @@ type GeneratorContext = {
 │                   Generator Layer                               │
 │  (= Astro Renderer)                                            │
 │                                                                │
-│  For each node in InputNode:                                   │
+│  For each node in InputNode (dispatched via events.emit):       │
+│    events.emit('kubb:generate:schema', node, ctx)              │
 │    transformer.visit(node) → transformed node                  │
 │    resolver.resolveOptions(node) → include/exclude check       │
 │    generator.schema(node, ctx) → JSX element                   │
@@ -913,8 +941,10 @@ export const pluginTsLegacy = createPlugin<PluginTs>((options) => ({
 
 **Core changes:**
 - Add `definePlugin` function that creates plugins in the new format
-- `PluginDriver` detects hook-style vs legacy-style plugins
+- Extend `KubbEvents` interface in `Kubb.ts` with new lifecycle events (`kubb:setup`, `kubb:build:start`, etc.)
+- `PluginDriver` detects hook-style plugins, registers their handlers on the `AsyncEventEmitter`, and dispatches via `events.emit()`
 - Both formats produce the same internal `Plugin` object
+- External tooling can subscribe to lifecycle events via `events.on('kubb:setup', ...)`
 
 ### Phase 2: Migrate Built-in Plugins
 
@@ -1046,7 +1076,7 @@ export const handlebarsRenderer = createRenderer(() => ({
 
 | Current Concept | New Concept | What happened |
 |---|---|---|
-| Plugin with flat hooks | Integration with `KubbEvents` (namespaced events) | Restructured |
+| Plugin with flat hooks | Integration with `KubbEvents` (namespaced events dispatched via `events.emit`) | Restructured |
 | 6 separate primitives | 1 primary primitive (`definePlugin`) | Simplified |
 | `this`-based context | Parameter-based context | Replaced |
 | External generator wiring | `addGenerator()` in setup event | Astro-style registration |
@@ -1286,7 +1316,7 @@ Elysia's **plugin scoping** (global/scoped/local) is worth considering. In Kubb,
 
 Express and Hono use a **sequential pipeline** — each middleware calls `next()` to continue. Elysia uses **lifecycle hooks** — `onBeforeHandle`, `onAfterHandle`. Astro uses **namespaced hooks** — `astro:config:setup`, `astro:build:done`.
 
-For Kubb, the **event-based model** (`KubbEvents`, Astro/Elysia style) is the right choice over a pipeline model (Express/Hono):
+For Kubb, the **event-based model** (`KubbEvents` dispatched via `events.emit()`, Astro/Elysia style) is the right choice over a pipeline model (Express/Hono):
 
 1. **No sequential dependency:** Kubb plugins don't intercept each other's output. `plugin-ts` and `plugin-zod` both read the same `InputNode` and produce independent files. There's no "pass to next handler" concept.
 
@@ -1296,7 +1326,9 @@ For Kubb, the **event-based model** (`KubbEvents`, Astro/Elysia style) is the ri
 
 4. **Matches the mental model:** Kubb users think "when a schema is processed, generate a TypeScript type" — that's an event subscription (`kubb:generate:schema`), not a middleware pipeline.
 
-The events should be **synchronous-first with async support**, matching Astro's pattern — most events don't need to be async, but `kubb:build:done` might need to write additional files:
+5. **Unified with existing infrastructure:** Kubb's `AsyncEventEmitter<KubbEvents>` already powers `plugin:start`, `plugin:end`, `error`, `debug`, and all other lifecycle events. Adding `kubb:setup`, `kubb:build:start`, `kubb:build:done` to the same emitter is a natural extension — one dispatch mechanism for everything.
+
+The events should be **synchronous-first with async support**, matching both Astro's pattern and Kubb's existing `AsyncEventEmitter` — most events don't need to be async, but `kubb:build:done` might need to write additional files. The existing `await events.emit(...)` pattern handles this naturally:
 
 ```ts
 hooks: {

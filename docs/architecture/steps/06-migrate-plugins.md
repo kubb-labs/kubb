@@ -2,7 +2,7 @@
 
 ## Goal
 
-Rewrite all of Kubb's built-in plugins to use the new `definePlugin` API with `KubbEvents`. This is the main migration step — each plugin moves from `createPlugin` + external preset/generator wiring to `definePlugin` + `addGenerator()`/`setResolver()` in `kubb:setup`.
+Rewrite all of Kubb's built-in plugins to use the new `definePlugin` API with `KubbEvents`. This is the main migration step — each plugin moves from `createPlugin` + external preset/generator wiring to `definePlugin` + `addGenerator()`/`setResolver()` in `kubb:setup`. Hooks are registered on the `AsyncEventEmitter` and dispatched via `events.emit`.
 
 ## Depends On
 
