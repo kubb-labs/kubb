@@ -226,7 +226,7 @@ describe('PluginDriver — mixed createPlugin + definePlugin', () => {
       output: { path: './src/gen' },
       parsers: [],
       adapter: createMockedAdapter(),
-      plugins: [legacyPlugin, hookPlugin as unknown as Plugin],
+      plugins: [legacyPlugin, hookPlugin as unknown as Plugin] as Array<Plugin>,
     }
 
     const driver = new PluginDriver(config, {

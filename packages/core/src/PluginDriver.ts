@@ -149,14 +149,17 @@ export class PluginDriver {
     // The options shape is the minimal struct required by Plugin. Hook-style plugins
     // don't participate in the legacy resolvePath/resolveName lifecycle; they use
     // generators registered via addGenerator() and resolvers set via setResolver() instead.
-    const normalizedPlugin: Plugin = {
+    // `inject` and `resolver` are required by the Plugin type but are irrelevant for hook-style
+    // plugins: inject is a no-op and resolver is set dynamically via setResolver() in kubb:plugin:setup.
+    const normalizedPlugin = {
       name: hookPlugin.name,
       dependencies: hookPlugin.dependencies,
       options: { output: { path: '.' }, exclude: [], override: [] },
       generators,
+      inject: () => undefined,
       buildStart() {},
       buildEnd() {},
-    }
+    } as unknown as Plugin
     this.registerPluginHooks(hookPlugin, normalizedPlugin)
     return normalizedPlugin
   }
@@ -172,7 +175,7 @@ export class PluginDriver {
    * Any event key present in the global `KubbEvents` interface can be subscribed to.
    *
    * External tooling can subscribe to any of these events via `events.on(...)` to observe
-   * the plugin lifecycle without modifying plugin behaviour.
+   * the plugin lifecycle without modifying plugin behavior.
    */
   registerPluginHooks(hookPlugin: HookStylePlugin, normalizedPlugin: Plugin): void {
     const { hooks } = hookPlugin
