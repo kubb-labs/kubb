@@ -253,7 +253,9 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
   const generators = plugin.generators ?? []
   const collectedOperations: Array<OperationNode> = []
 
-  // Cast to GeneratorContext — safe here because we've already verified adapter and inputNode are defined above.
+  // Cast to GeneratorContext is safe: adapter and inputNode are verified to be defined on lines 239-241 above.
+  // GeneratorContext is Omit<PluginContext, 'adapter' | 'inputNode'> & { adapter: Adapter; inputNode: InputNode }
+  // so narrowing PluginContext → GeneratorContext is valid once both are confirmed non-null.
   const generatorContext = context as GeneratorContext
 
   await walk(inputNode, {
