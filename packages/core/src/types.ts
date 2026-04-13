@@ -5,8 +5,8 @@ import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
-import type { HookStylePlugin } from './definePlugin.ts'
 import type { Parser } from './defineParser.ts'
+import type { HookStylePlugin } from './definePlugin.ts'
 import type { KubbEvents } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
@@ -944,8 +944,8 @@ export type CompatibilityPreset = 'default' | 'kubbV4'
 
 export type { Storage } from './createStorage.ts'
 export type { Generator } from './defineGenerator.ts'
-export type { KubbEvents } from './Kubb.ts'
 export type { HookStylePlugin, PluginKubbEvents } from './definePlugin.ts'
+export type { KubbEvents } from './Kubb.ts'
 
 /**
  * Context passed to a hook-style plugin's `kubb:setup` handler.

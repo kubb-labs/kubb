@@ -5,9 +5,9 @@ import { isPromiseRejectedResult, transformReservedWord } from '@internals/utils
 import { createFile } from '@kubb/ast'
 import type { FileNode, InputNode } from '@kubb/ast/types'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
+import { type HookStylePlugin, isHookStylePlugin } from './definePlugin.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
-import { type HookStylePlugin, isHookStylePlugin } from './definePlugin.ts'
 
 import type {
   Adapter,

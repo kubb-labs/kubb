@@ -32,7 +32,7 @@ describe('definePlugin', () => {
   })
 
   it('isHookStylePlugin returns true for definePlugin output', () => {
-    const plugin = definePlugin((options) => ({
+    const plugin = definePlugin((_options) => ({
       name: 'test',
       hooks: {},
     }))()
