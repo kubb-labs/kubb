@@ -2,11 +2,11 @@
 
 ## Goal
 
-Rewrite all of Kubb's built-in plugins to use the new `definePlugin` API with `KubbEvents`. This is the main migration step — each plugin moves from `createPlugin` + external preset/generator wiring to `definePlugin` + `addGenerator()`/`setResolver()` in `kubb:setup`. Hooks are registered on the `AsyncEventEmitter` and dispatched via `events.emit`.
+Rewrite all of Kubb's built-in plugins to use the new `definePlugin` API with `KubbEvents`. This is the main migration step — each plugin moves from `createPlugin` + external preset/generator wiring to `definePlugin` + `addGenerator()`/`setResolver()` in `kubb:plugin:setup`. Hooks are registered on the `AsyncEventEmitter` and dispatched via `events.emit`.
 
 ## Depends On
 
-- Step 1 (`definePlugin` with `KubbEvents`)
+- Step 1 (`definePlugin` with `KubbEvents`) — ✅ implemented
 - Step 2 (generator registration via `addGenerator()`)
 - Step 3 (resolver as setup call)
 - Step 4 (`this` → parameter context)
@@ -34,7 +34,7 @@ plugin-ts/src/
 **After migration:**
 ```
 plugin-ts/src/
-├── plugin.ts          — definePlugin with kubb:setup event
+├── plugin.ts          — definePlugin with kubb:plugin:setup event
 ├── generators/        — typeGenerator.tsx (defineGenerator — same object, new signature)
 ├── types.ts           — simplified options type
 └── components/        — JSX components (unchanged)
@@ -58,7 +58,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 export const pluginTs = definePlugin((options = {}) => ({
   name: 'plugin-ts',
   hooks: {
-    'kubb:setup'({ addGenerator, setResolver, setRenderer }) {
+    'kubb:plugin:setup'({ addGenerator, setResolver, setRenderer }) {
       setRenderer(jsxRenderer)
       setResolver({
         name(name, type) {
@@ -112,7 +112,7 @@ const generatorMap = {
 }
 
 // After: conditional addGenerator in setup
-'kubb:setup'({ addGenerator, setResolver, setRenderer }) {
+'kubb:plugin:setup'({ addGenerator, setResolver, setRenderer }) {
   setRenderer(jsxRenderer)
   setResolver(resolverClient)
   
@@ -136,7 +136,7 @@ const generatorMap = {
 Multiple generators per plugin (query, mutation, infinite, suspense). Each generator is already a separate `defineGenerator` — they just move to `addGenerator()` registration.
 
 ```ts
-'kubb:setup'({ addGenerator }) {
+'kubb:plugin:setup'({ addGenerator }) {
   addGenerator(queryGenerator)
   addGenerator(mutationGenerator)
   if (options.infinite) addGenerator(infiniteGenerator)
@@ -163,7 +163,7 @@ Small plugins, straightforward migration.
 
 ## Acceptance Criteria (per sub-PR)
 
-- [ ] Plugin uses `definePlugin` with `kubb:setup` event
+- [ ] Plugin uses `definePlugin` with `kubb:plugin:setup` event
 - [ ] Generators registered via `addGenerator()`
 - [ ] Resolver set via `setResolver()`
 - [ ] No `.call(this, ...)` in plugin code

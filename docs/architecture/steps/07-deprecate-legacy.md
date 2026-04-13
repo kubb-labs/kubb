@@ -75,7 +75,7 @@ Create a migration guide at `docs/migration/define-plugin.md`:
 
 1. **Rename** `createPlugin` → `definePlugin`
 2. **Move** `schema()`/`operation()` into generators registered via `addGenerator()`
-3. **Replace** `get resolver()` with `setResolver()` in `kubb:setup`
+3. **Replace** `get resolver()` with `setResolver()` in `kubb:plugin:setup`
 4. **Replace** `pre`/`post` with `dependencies`
 5. **Update** generator signatures: `schema(this, node, opts)` → `schema(node, ctx)`
 6. **Remove** preset files — logic moves inline to setup event

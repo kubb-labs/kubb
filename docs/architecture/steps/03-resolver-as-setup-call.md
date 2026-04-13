@@ -2,17 +2,17 @@
 
 ## Goal
 
-Move resolver configuration from a property getter on the plugin object (`get resolver()`) to a `setResolver()` call inside the `kubb:setup` event. The framework provides a default resolver and merges user overrides.
+Move resolver configuration from a property getter on the plugin object (`get resolver()`) to a `setResolver()` call inside the `kubb:plugin:setup` event. The framework provides a default resolver and merges user overrides.
 
 ## Depends On
 
-- Step 1 (`definePlugin` with `KubbEvents` + `events.emit` dispatch)
+- Step 1 (`definePlugin` with `KubbEvents` + `events.emit` dispatch) — ✅ implemented
 - Step 2 (generator registration) — generators receive the resolved resolver via context
 
 ## Scope
 
 - `packages/core/src/PluginDriver.ts` — resolver storage per plugin, default merging
-- `packages/core/src/types.ts` — `setResolver()` type in `KubbSetupContext`
+- `packages/core/src/types.ts` — `setResolver()` type in `KubbPluginSetupContext`
 - `packages/core/src/build.ts` — pass resolver into generator context
 
 ## What Changes
@@ -70,7 +70,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => ({
 export const pluginTs = definePlugin((options = {}) => ({
   name: 'plugin-ts',
   hooks: {
-    'kubb:setup'({ setResolver }) {
+    'kubb:plugin:setup'({ setResolver }) {
       setResolver({
         name(name, type) {
           return type === 'type' ? pascalCase(name) : camelCase(name)
@@ -99,7 +99,7 @@ This matches the current behavior where `getPreset` falls back to defaults.
 
 ## Acceptance Criteria
 
-- [ ] `setResolver()` available in `kubb:setup` context
+- [ ] `setResolver()` available in `kubb:plugin:setup` context
 - [ ] Partial resolver merges with defaults (user only overrides what they need)
 - [ ] Default resolver used when `setResolver()` is never called
 - [ ] Generators receive the resolved resolver via `ctx.resolver`

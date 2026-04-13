@@ -8,7 +8,7 @@ This is the most impactful change — it eliminates `.call(this, ...)` bugs, ena
 
 ## Depends On
 
-- Step 1 (`definePlugin` with `KubbEvents` + `events.emit` dispatch)
+- Step 1 (`definePlugin` with `KubbEvents` + `events.emit` dispatch) — ✅ implemented
 - Step 2 (generator registration)
 - Step 3 (resolver as setup call)
 
@@ -58,7 +58,7 @@ const ctx: GeneratorContext = {
   emitFile: (...files) => driver.fileManager.upsertFile(...files),
   getPlugin: (name) => driver.getPlugin(name),
 }
-// Dispatched via the event emitter — generators registered in kubb:setup respond
+// Dispatched via the event emitter — generators registered in kubb:plugin:setup respond
 await events.emit('kubb:generate:schema', node, ctx)
 ```
 

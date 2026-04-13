@@ -2,11 +2,13 @@
 
 ## Goal
 
-Move generator registration from external wiring (`getPreset` / `mergeGenerators` in the plugin body) to the `kubb:setup` event via `addGenerator()`. The framework manages generator execution, renderer resolution, and result handling. Generators are invoked during the build loop via `events.emit('kubb:generate:schema', ...)`, `events.emit('kubb:generate:operation', ...)`, and `events.emit('kubb:generate:done', ...)`.
+Move generator registration from external wiring (`getPreset` / `mergeGenerators` in the plugin body) to the `kubb:plugin:setup` event via `addGenerator()`. The framework manages generator execution, renderer resolution, and result handling. Generators are invoked during the build loop via `events.emit('kubb:generate:schema', ...)`, `events.emit('kubb:generate:operation', ...)`, and `events.emit('kubb:generate:done', ...)`.
+
+> **Note:** Step 1 is ✅ implemented. `addGenerator()` already works — generators registered via `addGenerator()` in `kubb:plugin:setup` are stored on `normalizedPlugin.generators` and used by the existing `runPluginAstHooks` during the build. This step extends that with event-based generator invocation.
 
 ## Depends On
 
-- Step 1 (`definePlugin` with `KubbEvents` + `events.emit` dispatch)
+- Step 1 (`definePlugin` with `KubbEvents` + `events.emit` dispatch) — ✅ implemented
 
 ## Scope
 
@@ -61,8 +63,8 @@ In the new event model, this context is built by the framework and passed as a p
 ```ts
 // packages/core/src/Kubb.ts — additions
 export interface KubbEvents {
-  // ... existing events (lifecycle:start, plugin:start, etc.) ...
-  // ... lifecycle events from Step 1 (kubb:setup, kubb:build:start, kubb:build:done) ...
+  // ... existing events (kubb:lifecycle:start, kubb:plugin:start, etc.) ...
+  // ... lifecycle events from Step 1 (kubb:plugin:setup, kubb:build:start, kubb:build:end) ...
 
   // Generator events (emitted during AST walk)
   'kubb:generate:schema': [node: SchemaNode, ctx: GeneratorContext, options: ResolvedOptions]
@@ -82,7 +84,7 @@ class PluginDriver {
 
   /**
    * Register a generator for a plugin. Called by `addGenerator()` in the
-   * `kubb:setup` event context. Each generator's handlers are registered
+   * `kubb:plugin:setup` event context. Each generator's handlers are registered
    * as listeners on the event emitter for the corresponding event.
    */
   registerGenerator(pluginName: string, plugin: Plugin, generator: Generator) {
@@ -214,12 +216,12 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
 
 ### The `addGenerator()` context utility
 
-In the `kubb:setup` event, `addGenerator()` is provided as a context utility. It delegates to `PluginDriver.registerGenerator()`:
+In the `kubb:plugin:setup` event, `addGenerator()` is provided as a context utility. It delegates to `PluginDriver.registerGenerator()`:
 
 ```ts
-// packages/core/src/PluginDriver.ts — inside kubb:setup context factory
+// packages/core/src/PluginDriver.ts — inside kubb:plugin:setup context factory
 
-function createSetupContext(plugin: HookStylePlugin, driver: PluginDriver): KubbSetupContext {
+function createSetupContext(plugin: HookStylePlugin, driver: PluginDriver): KubbPluginSetupContext {
   return {
     addGenerator(generator: Generator) {
       driver.registerGenerator(plugin.name, plugin, generator)
@@ -264,7 +266,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
 export const pluginTs = definePlugin<PluginTs>((options = {}) => ({
   name: 'plugin-ts',
   hooks: {
-    'kubb:setup'({ addGenerator, setResolver, setRenderer }) {
+    'kubb:plugin:setup'({ addGenerator, setResolver, setRenderer }) {
       setRenderer(jsxRenderer)
       setResolver({
         name: (name, type) => type === 'type' ? pascalCase(name) : camelCase(name),
@@ -280,7 +282,7 @@ export const pluginTs = definePlugin<PluginTs>((options = {}) => ({
         addGenerator(inferredTypeGenerator)
       }
     },
-    'kubb:build:done'({ files, logger }) {
+    'kubb:build:end'({ files, logger }) {
       logger.info(`Generated ${files.length} TypeScript files`)
     },
   },
@@ -295,7 +297,7 @@ For simple plugins, generators can be defined inline:
 export const pluginHello = definePlugin((options = {}) => ({
   name: 'plugin-hello',
   hooks: {
-    'kubb:setup'({ addGenerator }) {
+    'kubb:plugin:setup'({ addGenerator }) {
       addGenerator({
         name: 'hello',
         schema(node, options) {
@@ -313,7 +315,7 @@ export const pluginHello = definePlugin((options = {}) => ({
 Generators can override the plugin-level renderer:
 
 ```ts
-'kubb:setup'({ addGenerator, setRenderer }) {
+'kubb:plugin:setup'({ addGenerator, setRenderer }) {
   setRenderer(jsxRenderer)  // default for all generators
 
   addGenerator({
@@ -349,7 +351,7 @@ Generators can override the plugin-level renderer:
 ## Acceptance Criteria
 
 - [ ] `PluginDriver.registerGenerator()` stores generators per plugin and registers handlers on event emitter
-- [ ] `addGenerator()` in `kubb:setup` delegates to `registerGenerator()`
+- [ ] `addGenerator()` in `kubb:plugin:setup` delegates to `registerGenerator()`
 - [ ] Build loop emits `kubb:generate:schema` / `kubb:generate:operation` / `kubb:generate:done` events via `events.emit()`
 - [ ] Registered generator `schema()`, `operation()`, `operations()` handlers respond to emitted events
 - [ ] Renderer resolution chain works: `generator.renderer → plugin.renderer → config.renderer`

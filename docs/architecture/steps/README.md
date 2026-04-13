@@ -4,15 +4,15 @@ This directory contains one markdown file per migration step. Each step is scope
 
 ## Steps
 
-| Step | File | Description | Depends On |
-|------|------|-------------|------------|
-| 1 | [01-define-plugin.md](./01-define-plugin.md) | Introduce `definePlugin` with `KubbEvents` | — |
-| 2 | [02-generator-registration.md](./02-generator-registration.md) | Generators registered via `addGenerator()` in setup | Step 1 |
-| 3 | [03-resolver-as-setup-call.md](./03-resolver-as-setup-call.md) | Resolver configured via `setResolver()` in setup | Steps 1, 2 |
-| 4 | [04-this-to-params.md](./04-this-to-params.md) | Replace `this` context with parameter context | Steps 1, 2, 3 |
-| 5 | [05-dependencies.md](./05-dependencies.md) | Replace `pre`/`post` with `dependencies` | Step 1 |
-| 6 | [06-migrate-plugins.md](./06-migrate-plugins.md) | Migrate all built-in plugins to `definePlugin` | Steps 1–5 |
-| 7 | [07-deprecate-legacy.md](./07-deprecate-legacy.md) | Deprecate `createPlugin` and internalize presets | Step 6 |
+| Step | File | Description | Status |
+|------|------|-------------|--------|
+| 1 | [01-define-plugin.md](./01-define-plugin.md) | Introduce `definePlugin` with `KubbEvents` | ✅ Done |
+| 2 | [02-generator-registration.md](./02-generator-registration.md) | Generators registered via `addGenerator()` in setup | Pending |
+| 3 | [03-resolver-as-setup-call.md](./03-resolver-as-setup-call.md) | Resolver configured via `setResolver()` in setup | Pending |
+| 4 | [04-this-to-params.md](./04-this-to-params.md) | Replace `this` context with parameter context | Pending |
+| 5 | [05-dependencies.md](./05-dependencies.md) | Replace `pre`/`post` with `dependencies` | Pending |
+| 6 | [06-migrate-plugins.md](./06-migrate-plugins.md) | Migrate all built-in plugins to `definePlugin` | Pending |
+| 7 | [07-deprecate-legacy.md](./07-deprecate-legacy.md) | Deprecate `createPlugin` and internalize presets | Pending |
 
 ## Dependency Graph
 

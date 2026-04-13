@@ -4,7 +4,9 @@
 
 ## Status
 
-Draft — proposal for discussion (breaking changes accepted)
+**Step 1 (definePlugin with KubbEvents) — ✅ Implemented.** The `definePlugin`, `PluginHooks<T>`, `HookStylePlugin<T>`, `isHookStylePlugin()`, `KubbPluginSetupContext`, `KubbBuildStartContext`, `KubbBuildEndContext` types, and `AsyncEventEmitter`-based dispatch are merged into `main`. See `packages/core/src/definePlugin.ts`, `Kubb.ts`, `PluginDriver.ts`, `types.ts`.
+
+Steps 2–7 remain as proposals for discussion (breaking changes accepted).
 
 ## Core Thesis
 
@@ -86,7 +88,7 @@ Each hook receives a typed context with exactly the utilities that make sense fo
 | Astro Concept | Kubb Equivalent | Current Kubb | Proposed Kubb |
 |---|---|---|---|
 | **Integration** | **Plugin** | `createPlugin` returns object with hooks | `definePlugin` returns object with `KubbEvents` |
-| **Renderer** | **Generator** | `defineGenerator` with `schema()`/`operation()` + `renderer` | Generators registered via `addGenerator()` inside `kubb:setup` |
+| **Renderer** | **Generator** | `defineGenerator` with `schema()`/`operation()` + `renderer` | Generators registered via `addGenerator()` inside `kubb:plugin:setup` |
 | **Content Layer** | **Adapter** | `createAdapter` parses input → `InputNode` | Unchanged — adapters remain project-level config |
 | **Content Collection** | **InputNode** | `InputNode { schemas, operations, meta }` | Unchanged — the universal AST |
 | **Page/Route** | **FileNode** | `FileNode { path, sources, imports }` | Unchanged — the output unit |
@@ -112,7 +114,7 @@ export default definePlugin({
 
   hooks: {
     // Phase 1: Setup — register generators, configure resolver, inject files
-    'kubb:setup'({ addGenerator, setResolver, setTransformer, updateConfig, logger }) {
+    'kubb:plugin:setup'({ addGenerator, setResolver, setTransformer, updateConfig, logger }) {
       setResolver({
         name(name, type) {
           return type === 'type' ? pascalCase(name) : camelCase(name)
@@ -139,7 +141,7 @@ export default definePlugin({
     },
 
     // Phase 3: Build done — post-processing
-    'kubb:build:done'({ files, logger }) {
+    'kubb:build:end'({ files, logger }) {
       logger.info(`Generated ${files.length} TypeScript files`)
     },
   },
@@ -159,36 +161,36 @@ Kubb's events need to handle **per-node generation** (schema/operation), which A
 ### The Full Event Lifecycle (`KubbEvents`)
 
 ```
-1. kubb:setup              — Register generators, resolver, transformer, inject config
-2. kubb:config:done        — Config finalized, read-only access
-3. kubb:build:start        — Build starting, adapter has parsed input
-4. kubb:generate:schema    — (Generator event) Called per schema node
-5. kubb:generate:operation — (Generator event) Called per operation node
-6. kubb:generate:done      — (Generator event) Called after all nodes processed
-7. kubb:build:done         — All plugins done, files on disk
+1. kubb:plugin:setup       — Register generators, resolver, transformer, inject config
+2. kubb:config:end          — Config finalized, read-only access
+3. kubb:build:start         — Build starting, adapter has parsed input
+4. kubb:generate:schema     — (Generator event) Called per schema node
+5. kubb:generate:operation  — (Generator event) Called per operation node
+6. kubb:generate:done       — (Generator event) Called after all nodes processed
+7. kubb:build:end           — All plugins done, files on disk
 ```
 
 Events 4–6 are **not** on the integration itself — they're on the generators that the integration registered. This matches Astro where the rendering happens inside the renderer, not the integration.
 
-**All lifecycle events are dispatched via `events.emit()`** — the same `AsyncEventEmitter<KubbEvents>` that already powers Kubb's existing event system (`plugin:start`, `plugin:end`, `error`, `debug`, etc.). Plugins declare handlers via `hooks:` and the PluginDriver registers them on the emitter:
+**All lifecycle events are dispatched via `events.emit()`** — the same `AsyncEventEmitter<KubbEvents>` that already powers Kubb's existing event system (`kubb:plugin:start`, `kubb:plugin:end`, `kubb:error`, `kubb:debug`, etc.). Plugins declare handlers via `hooks:` and the PluginDriver registers them on the emitter:
 
 ```ts
 // PluginDriver already has: events: AsyncEventEmitter<KubbEvents>
 
 // During plugin init, hooks are registered on the emitter:
-this.events.on('kubb:setup', (ctx) => plugin.hooks['kubb:setup']!(ctx))
+this.events.on('kubb:plugin:setup', (ctx) => plugin.hooks['kubb:plugin:setup']!(ctx))
 
 // During the build lifecycle, events are dispatched:
-await this.events.emit('kubb:setup', setupContext)
+await this.events.emit('kubb:plugin:setup', setupContext)
 await this.events.emit('kubb:build:start', buildStartContext)
 // ... AST walk emits kubb:generate:schema / kubb:generate:operation ...
-await this.events.emit('kubb:build:done', buildDoneContext)
+await this.events.emit('kubb:build:end', buildDoneContext)
 ```
 
 This means external tooling (CLI, devtools, custom integrations) can also listen:
 ```ts
-events.on('kubb:setup', (ctx) => console.log('Plugin is setting up...'))
-events.on('kubb:build:done', (ctx) => console.log(`Generated ${ctx.files.length} files`))
+events.on('kubb:plugin:setup', (ctx) => console.log('Plugin is setting up...'))
+events.on('kubb:build:end', (ctx) => console.log(`Generated ${ctx.files.length} files`))
 ```
 
 ---
@@ -246,7 +248,7 @@ export const pluginHello = definePlugin((options = {}) => ({
   name: 'plugin-hello',
 
   hooks: {
-    'kubb:setup'({ addGenerator, logger }) {
+    'kubb:plugin:setup'({ addGenerator, logger }) {
       addGenerator({
         name: 'hello',
         schema(node, ctx) {
@@ -284,7 +286,7 @@ export const pluginTs = definePlugin((options = {}) => {
     name: 'plugin-ts',
 
     hooks: {
-      'kubb:setup'({ addGenerator, setResolver, setTransformer, updateConfig, setRenderer }) {
+      'kubb:plugin:setup'({ addGenerator, setResolver, setTransformer, updateConfig, setRenderer }) {
         // Set JSX as the output renderer for this plugin
         setRenderer(jsxRenderer)
 
@@ -330,7 +332,7 @@ export const pluginTs = definePlugin((options = {}) => {
         openInStudio({ ast: true })
       },
 
-      'kubb:build:done'({ files, logger }) {
+      'kubb:build:end'({ files, logger }) {
         logger.info(`Generated ${files.length} TypeScript type files`)
       },
     },
@@ -360,7 +362,7 @@ export const pluginClient = definePlugin((options = {}) => {
     dependencies: ['plugin-ts'],
 
     hooks: {
-      'kubb:setup'({ addGenerator, setResolver, setRenderer, injectFile, logger }) {
+      'kubb:plugin:setup'({ addGenerator, setResolver, setRenderer, injectFile, logger }) {
         setRenderer(jsxRenderer)
 
         setResolver({
@@ -446,7 +448,7 @@ export default function typescript(): KubbIntegration {
   return {
     name: '@kubb/typescript',
     hooks: {
-      'kubb:setup'({ addGenerator, setResolver, setRenderer }) {
+      'kubb:plugin:setup'({ addGenerator, setResolver, setRenderer }) {
         setRenderer(jsxRenderer)
         setResolver({ name: (n, t) => t === 'type' ? pascalCase(n) : camelCase(n) })
         addGenerator({
@@ -462,8 +464,8 @@ export default function typescript(): KubbIntegration {
 The structural parallel is 1:1:
 - `addRenderer()` → `addGenerator()` — register processing logic
 - `updateConfig()` → `setResolver()` / `setRenderer()` — configure processing options
-- `astro:config:setup` → `kubb:setup` — setup phase before build
-- `astro:build:done` → `kubb:build:done` — cleanup after build
+- `astro:config:setup` → `kubb:plugin:setup` — setup phase before build
+- `astro:build:done` → `kubb:build:end` — cleanup after build
 
 ---
 
@@ -486,22 +488,22 @@ export const pluginTs = createPlugin<PluginTs>((options) => ({
 export const pluginTs = definePlugin((options = {}) => ({
   name: 'plugin-ts',
   hooks: {
-    'kubb:setup'({ addGenerator, setResolver }) { /* ... */ },
+    'kubb:plugin:setup'({ addGenerator, setResolver }) { /* ... */ },
     'kubb:build:start'({ logger }) { /* ... */ },
-    'kubb:build:done'({ files }) { /* ... */ },
+    'kubb:build:end'({ files }) { /* ... */ },
   },
 }))
 ```
 
 **What changes:**
 - `schema()`, `operation()`, `operations()` move from the plugin object into generators registered via `addGenerator()`
-- `resolver` / `transformer` properties become `setResolver()` / `setTransformer()` calls inside `kubb:setup`
-- `buildStart` / `buildEnd` become `kubb:build:start` / `kubb:build:done` events
+- `resolver` / `transformer` properties become `setResolver()` / `setTransformer()` calls inside `kubb:plugin:setup`
+- `buildStart` / `buildEnd` become `kubb:build:start` / `kubb:build:end` events
 - The `this` context is replaced by the event context parameter (no more binding issues)
 
 ### 2. Generators Are Registered, Not Wired
 
-**Breaking:** Generators are no longer merged externally and passed to the plugin. They're registered from within the `kubb:setup` event.
+**Breaking:** Generators are no longer merged externally and passed to the plugin. They're registered from within the `kubb:plugin:setup` event.
 
 ```ts
 // Before
@@ -512,7 +514,7 @@ return {
 }
 
 // After
-'kubb:setup'({ addGenerator }) {
+'kubb:plugin:setup'({ addGenerator }) {
   addGenerator(typeGenerator)
   addGenerator(enumGenerator)
   // Merging happens inside the framework, not the plugin
@@ -534,7 +536,7 @@ return {
 get resolver() { return preset.resolver }
 
 // After
-'kubb:setup'({ setResolver }) {
+'kubb:plugin:setup'({ setResolver }) {
   setResolver({
     name(name, type) { /* custom naming */ },
     // Everything else uses defaults
@@ -683,8 +685,8 @@ type PluginContext = {
 With namespaced events, each event's context type only includes what's actually available:
 
 ```ts
-// kubb:setup — no adapter yet, but you can register generators
-type KubbSetupContext = { addGenerator, setResolver, setRenderer, config, logger }
+// kubb:plugin:setup — no adapter yet, but you can register generators
+type KubbPluginSetupContext = { addGenerator, setResolver, setRenderer, config }
 
 // kubb:generate:schema — adapter has run, everything is available
 type GeneratorContext = { resolver, adapter, inputNode, options, root, logger }
@@ -715,15 +717,15 @@ This is cosmetic but signals the architectural shift. Could also keep `plugins` 
 ## The New Event Context API (`KubbEvents`)
 
 `KubbEvents` serves a dual role:
-1. **As a type** — it defines the lifecycle event signatures in the existing `KubbEvents` interface in `Kubb.ts` (alongside `plugin:start`, `error`, `debug`, etc.)
-2. **As hooks on plugin objects** — plugins declare handlers via `hooks:` which the PluginDriver registers on the `AsyncEventEmitter` and dispatches via `events.emit()`
+1. **As a type** — it defines all lifecycle event signatures in the `KubbEvents` interface in `Kubb.ts` (alongside `kubb:plugin:start`, `kubb:error`, `kubb:debug`, etc.)
+2. **As hooks on plugin objects** — `PluginHooks<TOptions>` is a mapped type derived from `KubbEvents` that converts every event into an optional callback. Plugins declare handlers via `hooks:` which the PluginDriver registers on the `AsyncEventEmitter` and dispatches via `events.emit()`
 
-### `kubb:setup` Context
+### `kubb:plugin:setup` Context
 
-The most important event — where integrations configure everything:
+The most important event — where integrations configure everything. This is ✅ implemented:
 
 ```ts
-type KubbSetupContext = {
+type KubbPluginSetupContext = {
   // Register a generator (like Astro's addRenderer)
   addGenerator(generator: Generator): void
 
@@ -737,10 +739,7 @@ type KubbSetupContext = {
   setRenderer(renderer: RendererFactory): void
 
   // Inject a file into the output (like Astro's injectScript)
-  injectFile(file: { baseName: string; path: string; content: string }): void
-
-  // Inject a barrel/index file
-  injectBarrel(options: { type: 'named' | 'default'; path: string }): void
+  injectFile(file: Pick<FileNode, 'baseName' | 'path'> & { sources?: FileNode['sources'] }): void
 
   // Modify the build config
   updateConfig(config: Partial<Config>): void
@@ -748,34 +747,32 @@ type KubbSetupContext = {
   // Read-only access to current config
   config: Config
 
-  // Plugin options (from user)
-  options: ResolvedOptions
-
-  // Logger
-  logger: Logger
+  // Plugin options (from user) — strongly typed via PluginHooks<TOptions>
+  options: object
 }
 ```
 
 ### `kubb:build:start` Context
+
+✅ Implemented:
 
 ```ts
 type KubbBuildStartContext = {
   config: Config
   adapter: Adapter
   inputNode: InputNode
-  logger: Logger
-  openInStudio(options?: DevtoolsOptions): Promise<void>
   getPlugin(name: string): Plugin | undefined
 }
 ```
 
-### `kubb:build:done` Context
+### `kubb:build:end` Context
+
+✅ Implemented:
 
 ```ts
-type KubbBuildDoneContext = {
-  files: FileNode[]
+type KubbBuildEndContext = {
+  files: Array<FileNode>
   config: Config
-  logger: Logger
   outputDir: string
 }
 ```
@@ -825,7 +822,7 @@ type GeneratorContext = {
    └── adapter.parse(input) → InputNode
 
 3. For each integration:
-   └── Call 'kubb:setup' event
+   └── Call 'kubb:plugin:setup' event
        ├── addGenerator() → register generators
        ├── setResolver() → configure naming
        ├── setTransformer() → configure AST transforms
@@ -833,7 +830,7 @@ type GeneratorContext = {
        └── injectFile() → add static files
 
 4. Finalize config
-   └── Call 'kubb:config:done' event (read-only)
+   └── Call 'kubb:config:end' event (read-only)
 
 5. Build
    └── Call 'kubb:build:start' event
@@ -848,7 +845,7 @@ type GeneratorContext = {
 
 6. Post-process
    └── FileProcessor: parse → format → lint → write
-   └── Call 'kubb:build:done' event
+   └── Call 'kubb:build:end' event
 ```
 
 ### Architecture Diagram
@@ -874,20 +871,20 @@ type GeneratorContext = {
 │                  Integration Layer                              │
 │  (= Astro Integration)                                         │
 │  Hooks registered on AsyncEventEmitter, dispatched via          │
-│  events.emit('kubb:setup', ctx) / events.emit('kubb:build:*')  │
+│  events.emit('kubb:plugin:setup', ctx) / events.emit('kubb:build:*')  │
 │                                                                │
 │  typescript()                                                  │
-│    └── kubb:setup → addGenerator('types')                      │
+│    └── kubb:plugin:setup → addGenerator('types')                      │
 │                   → setResolver(pascalCase)                     │
 │                   → setRenderer(jsxRenderer)                    │
 │                                                                │
 │  zod()                                                         │
-│    └── kubb:setup → addGenerator('zod-schemas')                │
+│    └── kubb:plugin:setup → addGenerator('zod-schemas')                │
 │                   → setResolver(camelCase + 'Schema' suffix)   │
 │                   → setRenderer(jsxRenderer)                    │
 │                                                                │
 │  client()                                                      │
-│    └── kubb:setup → addGenerator('function-client')            │
+│    └── kubb:plugin:setup → addGenerator('function-client')            │
 │                   → injectFile('fetch.ts')                     │
 │    dependencies: ['plugin-ts']                                 │
 │                                                                │
@@ -927,7 +924,7 @@ Add the new `definePlugin` function alongside existing `createPlugin`. Both work
 export const pluginTs = definePlugin((options) => ({
   name: 'plugin-ts',
   hooks: {
-    'kubb:setup'({ addGenerator, setResolver }) { /* ... */ },
+    'kubb:plugin:setup'({ addGenerator, setResolver }) { /* ... */ },
   },
 }))
 
@@ -941,10 +938,10 @@ export const pluginTsLegacy = createPlugin<PluginTs>((options) => ({
 
 **Core changes:**
 - Add `definePlugin` function that creates plugins in the new format
-- Extend `KubbEvents` interface in `Kubb.ts` with new lifecycle events (`kubb:setup`, `kubb:build:start`, etc.)
+- Extend `KubbEvents` interface in `Kubb.ts` with new lifecycle events (`kubb:plugin:setup`, `kubb:build:start`, etc.)
 - `PluginDriver` detects hook-style plugins, registers their handlers on the `AsyncEventEmitter`, and dispatches via `events.emit()`
 - Both formats produce the same internal `Plugin` object
-- External tooling can subscribe to lifecycle events via `events.on('kubb:setup', ...)`
+- External tooling can subscribe to lifecycle events via `events.on('kubb:plugin:setup', ...)`
 
 ### Phase 2: Migrate Built-in Plugins
 
@@ -952,9 +949,9 @@ Rewrite Kubb's built-in plugins to use the new API:
 
 | Plugin | Status | Key changes |
 |---|---|---|
-| `plugin-ts` | Migrate | `resolverTs` + `typeGenerator` → `kubb:setup` with `setResolver()` + `addGenerator()` |
-| `plugin-zod` | Migrate | `resolverZod` + `zodGenerator` → `kubb:setup` with `setResolver()` + `addGenerator()` |
-| `plugin-client` | Migrate | Dynamic generator selection in `kubb:setup` based on `clientType` option |
+| `plugin-ts` | Migrate | `resolverTs` + `typeGenerator` → `kubb:plugin:setup` with `setResolver()` + `addGenerator()` |
+| `plugin-zod` | Migrate | `resolverZod` + `zodGenerator` → `kubb:plugin:setup` with `setResolver()` + `addGenerator()` |
+| `plugin-client` | Migrate | Dynamic generator selection in `kubb:plugin:setup` based on `clientType` option |
 | `plugin-react-query` | Migrate | Multiple generators: query, mutation, infinite, suspense |
 | `plugin-faker` | Migrate | Single generator, simple migration |
 | `plugin-msw` | Migrate | Single generator, simple migration |
@@ -992,7 +989,7 @@ export const pluginTs = definePlugin((options = {}) => {
   return {
     name: 'plugin-ts',
     hooks: {
-      'kubb:setup'(ctx) {
+      'kubb:plugin:setup'(ctx) {
         if (compatibilityPreset === 'kubbV4') {
           ctx.setResolver(resolverTsLegacy)
           ctx.addGenerator(typeGeneratorLegacy)
@@ -1021,7 +1018,7 @@ Renderers (`createRenderer`, `jsxRenderer`) remain a separate concept — just l
 }
 
 // Kubb: integration sets renderer
-'kubb:setup'({ setRenderer }) {
+'kubb:plugin:setup'({ setRenderer }) {
   setRenderer(jsxRenderer)
 }
 ```
@@ -1038,7 +1035,7 @@ export const handlebarsRenderer = createRenderer(() => ({
 }))
 
 // Used in a plugin:
-'kubb:setup'({ setRenderer, addGenerator }) {
+'kubb:plugin:setup'({ setRenderer, addGenerator }) {
   setRenderer(handlebarsRenderer)
   addGenerator({
     name: 'templates',
@@ -1107,7 +1104,7 @@ plugin-ts/
 
 ## Open Questions
 
-1. **Should `kubb:setup` context include access to the adapter?** The adapter is parsed before plugins run. Generators receive it via `ctx.adapter`, but should the setup event also have it for conditional generator registration?
+1. **Should `kubb:plugin:setup` context include access to the adapter?** The adapter is parsed before plugins run. Generators receive it via `ctx.adapter`, but should the setup event also have it for conditional generator registration?
 
 2. **How do multiple generators from the same plugin interact?** When a plugin registers 3 generators that all handle `schema`, should they run in registration order (like Astro's renderer priority) or in parallel?
 
@@ -1115,7 +1112,7 @@ plugin-ts/
 
 4. **What happens to `inject()`?** Currently plugins can inject context that other plugins consume via `this.getInjected()`. In the Astro model, cross-integration communication happens through config mutations. Should Kubb keep `inject()` or move to a shared config/registry pattern?
 
-5. **Should barrel file generation be explicit?** Currently barrel files are auto-generated from `output.barrelType`. In the Astro model, this could become an explicit `injectBarrel()` call in `kubb:build:done`, giving integrations full control over index files.
+5. **Should barrel file generation be explicit?** Currently barrel files are auto-generated from `output.barrelType`. In the Astro model, this could become an explicit `injectBarrel()` call in `kubb:build:end`, giving integrations full control over index files.
 
 6. **Should the factory pattern be optional?** For simple plugins with no options:
 
@@ -1157,10 +1154,10 @@ app.use((req, res, next) => {
 |---|---|---|
 | `app.use(middleware)` — sequential chain | Plugins run in config array order | ✅ Already proposed: plugins execute in declaration order |
 | `next()` — explicit pass to next handler | Not needed — Kubb events are parallel, not serial pipelines | ❌ Not applicable: Kubb plugins don't intercept each other's output |
-| `req` object accumulates state across middleware | Event context accumulates registered generators | ✅ Already proposed: `kubb:setup` context collects `addGenerator()` calls |
+| `req` object accumulates state across middleware | Event context accumulates registered generators | ✅ Already proposed: `kubb:plugin:setup` context collects `addGenerator()` calls |
 | Error middleware `(err, req, res, next)` | Plugin error events | 🔶 Idea: add `kubb:error` event for plugin-level error handling |
 
-**What to take:** Express's simplicity of "just a function that receives context" reinforces the events-with-parameters model. Express's sequential `next()` chain doesn't fit Kubb's parallel plugin model, but the concept of **enriching a shared context object** is exactly what `kubb:setup` does.
+**What to take:** Express's simplicity of "just a function that receives context" reinforces the events-with-parameters model. Express's sequential `next()` chain doesn't fit Kubb's parallel plugin model, but the concept of **enriching a shared context object** is exactly what `kubb:plugin:setup` does.
 
 **What to skip:** Express's mutable `req`/`res` objects are a known pain point for typing. Kubb should keep context objects **typed per-event-phase** (as proposed) rather than a single mutable bag.
 
@@ -1204,10 +1201,10 @@ app.get('/', (c) => {
 | `createFactory<Env>()` — typed factory with environment | `definePlugin<Options>()` — typed plugin factory | ✅ Direct parallel: both create type-safe plugin constructors |
 | `c.set('key', value)` — enrich context with typed variables | `addGenerator()`, `setResolver()` — register capabilities in setup | ✅ Same concept: plugins enrich a shared typed context |
 | `c.var.key` — access typed variables downstream | `ctx.resolver`, `ctx.options` — access in generator events | ✅ Same concept: downstream events receive typed context |
-| Onion model (`before next()` / `after next()`) | `kubb:build:start` / `kubb:build:done` events | ✅ Structural match: setup → process → teardown lifecycle |
+| Onion model (`before next()` / `after next()`) | `kubb:build:start` / `kubb:build:end` events | ✅ Structural match: setup → process → teardown lifecycle |
 | `createMiddleware(handler)` — factory returns typed function | `definePlugin(factory)` — factory returns typed plugin | ✅ Same ergonomics: function-returning-function for options |
 
-**What to take:** Hono's `createFactory<Env>()` pattern is the strongest validation of our `definePlugin` factory approach. The idea that a **factory creates a typed scope**, and variables set within that scope are available downstream with full type inference, maps perfectly to how Kubb plugins register generators in `kubb:setup` and those generators receive typed context.
+**What to take:** Hono's `createFactory<Env>()` pattern is the strongest validation of our `definePlugin` factory approach. The idea that a **factory creates a typed scope**, and variables set within that scope are available downstream with full type inference, maps perfectly to how Kubb plugins register generators in `kubb:plugin:setup` and those generators receive typed context.
 
 **What to consider:** Hono's onion model (code runs before AND after `next()`) could inspire a wrapper concept:
 
@@ -1223,8 +1220,8 @@ definePlugin((options) => {
         logger.info('Build starting')
         // kubb:build:start runs before generation
       },
-      'kubb:build:done'({ files, logger }) {
-        // kubb:build:done runs after generation — `start` is in closure scope
+      'kubb:build:end'({ files, logger }) {
+        // kubb:build:end runs after generation — `start` is in closure scope
         logger.info(`Generated ${files.length} files in ${Date.now() - start}ms`)
       },
     },
@@ -1232,7 +1229,7 @@ definePlugin((options) => {
 })
 ```
 
-This already works with our proposed `KubbEvents` — `kubb:build:start` IS the "before" phase and `kubb:build:done` IS the "after" phase, achieving the same wrap-around effect as Hono's onion model without the `next()` complexity.
+This already works with our proposed `KubbEvents` — `kubb:build:start` IS the "before" phase and `kubb:build:end` IS the "after" phase, achieving the same wrap-around effect as Hono's onion model without the `next()` complexity.
 
 ### Elysia — Plugin-as-Instance & Decorator Pattern
 
@@ -1266,12 +1263,12 @@ const app = new Elysia()
 |---|---|---|
 | `.decorate('key', value)` — add typed properties to context | `addGenerator()`, `setResolver()` — register typed capabilities | ✅ Same concept: plugins contribute typed pieces to a shared context |
 | `.use(plugin)` — compose plugins with automatic type merging | `integrations: [pluginTs(), pluginZod()]` — config-level composition | ✅ Same concept but declarative vs chained |
-| Lifecycle hooks: `onBeforeHandle` / `onAfterHandle` | `kubb:build:start` / `kubb:build:done` events | ✅ Same lifecycle phases, different naming convention |
+| Lifecycle hooks: `onBeforeHandle` / `onAfterHandle` | `kubb:build:start` / `kubb:build:end` events | ✅ Same lifecycle phases, different naming convention |
 | Plugin scoping: `global` / `scoped` / `local` | Not currently proposed | 🔶 Idea: plugin scope could control which downstream plugins see registered generators |
 | Plugin deduplication via `name` + `seed` | Plugin deduplication via `name` | ✅ Already proposed: plugins identified by unique name |
 | End-to-end type inference across `.use()` chain | Type inference across plugin dependencies | 🔶 Idea: `getPlugin('plugin-ts')` could return fully typed plugin interface |
 
-**What to take:** Elysia's `.decorate()` pattern — where a plugin adds typed properties that downstream code can access — is conceptually identical to what `addGenerator()` and `setResolver()` do in `kubb:setup`. The key insight is that **the act of registering a capability should automatically make it available and typed for consumers**.
+**What to take:** Elysia's `.decorate()` pattern — where a plugin adds typed properties that downstream code can access — is conceptually identical to what `addGenerator()` and `setResolver()` do in `kubb:plugin:setup`. The key insight is that **the act of registering a capability should automatically make it available and typed for consumers**.
 
 Elysia's **plugin scoping** (global/scoped/local) is worth considering. In Kubb, if `plugin-client` registers a generator, should `plugin-zod` be able to see it? Currently no — generators are plugin-scoped. Elysia's explicit scoping model could be useful if we ever need cross-plugin generator sharing.
 
@@ -1298,7 +1295,7 @@ Elysia's **plugin scoping** (global/scoped/local) is worth considering. In Kubb,
 **From Hono:**
 - ✅ `createFactory<Env>()` validates our `definePlugin<Options>()` factory pattern
 - ✅ Typed variables set in middleware are available downstream — matches `addGenerator()` → `ctx.resolver` flow
-- ✅ The onion model (before/after) maps directly to `kubb:build:start` / `kubb:build:done`
+- ✅ The onion model (before/after) maps directly to `kubb:build:start` / `kubb:build:end`
 
 **From Elysia:**
 - ✅ `.decorate()` pattern validates `addGenerator()` / `setResolver()` as typed context enrichment
@@ -1322,24 +1319,24 @@ For Kubb, the **event-based model** (`KubbEvents` dispatched via `events.emit()`
 
 2. **Parallel by nature:** Multiple generators can process the same schema node independently. A pipeline forces serial execution; events allow parallel execution.
 
-3. **Phase-specific context:** Each event phase has different available data. `kubb:setup` has `addGenerator()` but no `inputNode`. `kubb:generate:schema` has `inputNode` and `resolver` but no `addGenerator()`. Namespaced events make this explicit.
+3. **Phase-specific context:** Each event phase has different available data. `kubb:plugin:setup` has `addGenerator()` but no `inputNode`. `kubb:generate:schema` has `inputNode` and `resolver` but no `addGenerator()`. Namespaced events make this explicit.
 
 4. **Matches the mental model:** Kubb users think "when a schema is processed, generate a TypeScript type" — that's an event subscription (`kubb:generate:schema`), not a middleware pipeline.
 
-5. **Unified with existing infrastructure:** Kubb's `AsyncEventEmitter<KubbEvents>` already powers `plugin:start`, `plugin:end`, `error`, `debug`, and all other lifecycle events. Adding `kubb:setup`, `kubb:build:start`, `kubb:build:done` to the same emitter is a natural extension — one dispatch mechanism for everything.
+5. **Unified with existing infrastructure:** Kubb's `AsyncEventEmitter<KubbEvents>` already powers `plugin:start`, `plugin:end`, `error`, `debug`, and all other lifecycle events. Adding `kubb:plugin:setup`, `kubb:build:start`, `kubb:build:end` to the same emitter is a natural extension — one dispatch mechanism for everything.
 
-The events should be **synchronous-first with async support**, matching both Astro's pattern and Kubb's existing `AsyncEventEmitter` — most events don't need to be async, but `kubb:build:done` might need to write additional files. The existing `await events.emit(...)` pattern handles this naturally:
+The events should be **synchronous-first with async support**, matching both Astro's pattern and Kubb's existing `AsyncEventEmitter` — most events don't need to be async, but `kubb:build:end` might need to write additional files. The existing `await events.emit(...)` pattern handles this naturally:
 
 ```ts
 hooks: {
   // Sync event — most common
-  'kubb:setup'({ addGenerator, setResolver }) {
+  'kubb:plugin:setup'({ addGenerator, setResolver }) {
     setResolver({ name: pascalCase })
     addGenerator({ name: 'types', schema(node, ctx) { ... } })
   },
 
   // Async event — when needed
-  async 'kubb:build:done'({ files, logger }) {
+  async 'kubb:build:end'({ files, logger }) {
     await writeCustomManifest(files)
     logger.info('Manifest written')
   },
