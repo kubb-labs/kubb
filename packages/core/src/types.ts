@@ -992,14 +992,6 @@ export type KubbSetupContext = {
 }
 
 /**
- * Context passed to a hook-style plugin's `kubb:config:done` handler.
- * Fires after the full configuration has been resolved and frozen.
- */
-export type KubbConfigDoneContext = {
-  config: Readonly<Config>
-}
-
-/**
  * Context passed to a hook-style plugin's `kubb:build:start` handler.
  * Fires immediately before the plugin execution loop begins.
  */

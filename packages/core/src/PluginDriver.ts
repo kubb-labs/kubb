@@ -168,7 +168,7 @@ export class PluginDriver {
    * plugin-specific one so that `addGenerator`, `setResolver`, `setTransformer`, and
    * `setRenderer` all target the correct `normalizedPlugin` entry in the plugins map.
    *
-   * All other hooks (`kubb:config:done`, `kubb:build:start`, `kubb:build:done`) are
+   * All other hooks (`kubb:config:end`, `kubb:build:start`, `kubb:build:done`) are
    * registered directly as pass-through listeners.
    *
    * External tooling can subscribe to any of these events via `events.on(...)` to observe
@@ -210,8 +210,8 @@ export class PluginDriver {
       })
     }
 
-    if (hooks['kubb:config:done']) {
-      this.events.on('kubb:config:done', hooks['kubb:config:done'])
+    if (hooks['kubb:config:end']) {
+      this.events.on('kubb:config:end', hooks['kubb:config:end'])
     }
 
     if (hooks['kubb:build:start']) {

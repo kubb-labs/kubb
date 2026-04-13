@@ -184,8 +184,6 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     ],
   })
 
-  await events.emit('kubb:config:done', { config })
-
   return {
     config,
     events,

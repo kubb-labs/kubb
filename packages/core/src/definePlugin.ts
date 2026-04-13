@@ -1,4 +1,5 @@
-import type { KubbBuildDoneContext, KubbBuildStartContext, KubbConfigDoneContext, KubbSetupContext } from './types.ts'
+import type { Config } from './types.ts'
+import type { KubbBuildDoneContext, KubbBuildStartContext, KubbSetupContext } from './types.ts'
 
 /**
  * Lifecycle event handlers that a hook-style plugin may declare.
@@ -18,9 +19,10 @@ export type PluginKubbEvents<TOptions = object> = {
    */
   'kubb:setup'?(ctx: KubbSetupContext & { options: TOptions }): void | Promise<void>
   /**
-   * Fired after the full configuration has been resolved and frozen.
+   * Fired when configuration loading is complete (reuses the existing `kubb:config:end` event).
+   * Receives the full array of resolved configs.
    */
-  'kubb:config:done'?(ctx: KubbConfigDoneContext): void | Promise<void>
+  'kubb:config:end'?(configs: Array<Config>): void | Promise<void>
   /**
    * Fired immediately before the plugin execution loop begins.
    * The adapter has already parsed the source and `inputNode` is available.
