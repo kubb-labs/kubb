@@ -137,7 +137,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
           ...(typeof userConfig.devtools === 'boolean' ? {} : userConfig.devtools),
         }
       : undefined,
-    plugins: userConfig.plugins as Config['plugins'],
+    plugins: userConfig.plugins as unknown as Config['plugins'],
   }
 
   // write: false is the explicit dry-run opt-out; otherwise use the provided
@@ -309,6 +309,17 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
   const config = driver.config
 
   try {
+    await driver.emitSetupHooks()
+
+    if (driver.adapter && driver.inputNode) {
+      await events.emit('kubb:build:start', {
+        config,
+        adapter: driver.adapter,
+        inputNode: driver.inputNode,
+        getPlugin: (name) => driver.getPlugin(name),
+      })
+    }
+
     for (const plugin of driver.plugins.values()) {
       const context = driver.getContext(plugin)
       const hrStart = process.hrtime()
@@ -476,6 +487,12 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         await plugin.buildEnd.call(context)
       }
     }
+
+    await events.emit('kubb:build:end', {
+      files,
+      config,
+      outputDir: resolve(config.root, config.output.path),
+    })
 
     return {
       failedPlugins,
