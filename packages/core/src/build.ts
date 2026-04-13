@@ -10,7 +10,7 @@ import { FileProcessor } from './FileProcessor.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.ts'
 import { fsStorage } from './storages/fsStorage.ts'
-import type { AdapterSource, Config, KubbEvents, Plugin, PluginContext, Storage, UserConfig } from './types.ts'
+import type { AdapterSource, Config, GeneratorContext, KubbEvents, Plugin, PluginContext, Storage, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { getBarrelFiles } from './utils/getBarrelFiles.ts'
@@ -253,6 +253,9 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
   const generators = plugin.generators ?? []
   const collectedOperations: Array<OperationNode> = []
 
+  // Cast to GeneratorContext — safe here because we've already verified adapter and inputNode are defined above.
+  const generatorContext = context as GeneratorContext
+
   await walk(inputNode, {
     depth: 'shallow',
     async schema(node) {
@@ -260,32 +263,45 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
       if (options === null) return
 
+      // Legacy path: direct generator calls for plugins with static generators array.
       for (const gen of generators) {
         if (!gen.schema) continue
-        const result = await gen.schema.call(context, transformedNode, options)
+        const result = await gen.schema.call(context as GeneratorContext, transformedNode, options)
         await applyHookResult(result, driver, resolveRenderer(gen))
       }
+
+      // Event-based path: emit for generators registered via addGenerator() in kubb:plugin:setup.
+      await driver.events.emit('kubb:generate:schema', transformedNode, generatorContext, options)
     },
     async operation(node) {
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
       const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
       if (options !== null) {
         collectedOperations.push(transformedNode)
+
+        // Legacy path: direct generator calls.
         for (const gen of generators) {
           if (!gen.operation) continue
-          const result = await gen.operation.call(context, transformedNode, options)
+          const result = await gen.operation.call(context as GeneratorContext, transformedNode, options)
           await applyHookResult(result, driver, resolveRenderer(gen))
         }
+
+        // Event-based path: emit for generators registered via addGenerator().
+        await driver.events.emit('kubb:generate:operation', transformedNode, generatorContext, options)
       }
     },
   })
 
   if (collectedOperations.length > 0) {
+    // Legacy path: direct operations batch call.
     for (const gen of generators) {
       if (!gen.operations) continue
-      const result = await gen.operations.call(context, collectedOperations, plugin.options)
+      const result = await gen.operations.call(context as GeneratorContext, collectedOperations, plugin.options)
       await applyHookResult(result, driver, resolveRenderer(gen))
     }
+
+    // Event-based path: emit done event for generators registered via addGenerator().
+    await driver.events.emit('kubb:generate:done', collectedOperations, generatorContext, plugin.options)
   }
 }
 
@@ -339,8 +355,8 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         // Call buildStart() for any custom plugin logic
         await plugin.buildStart.call(context)
 
-        // Dispatch AST hooks via plugin.generators
-        if (plugin.generators?.length) {
+        // Dispatch AST hooks via plugin.generators (legacy path) or event-based generators (hook-style path).
+        if (plugin.generators?.length || driver.hasRegisteredGenerators(plugin.name)) {
           await runPluginAstHooks(plugin, context)
         }
 

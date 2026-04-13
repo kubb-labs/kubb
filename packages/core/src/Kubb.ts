@@ -1,6 +1,6 @@
-import type { FileNode } from '@kubb/ast/types'
+import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast/types'
 import type { Strategy } from './PluginDriver.ts'
-import type { Config, KubbBuildEndContext, KubbBuildStartContext, KubbPluginSetupContext, Plugin, PluginLifecycleHooks } from './types'
+import type { Config, GeneratorContext, KubbBuildEndContext, KubbBuildStartContext, KubbPluginSetupContext, Plugin, PluginLifecycleHooks } from './types'
 
 type DebugInfo = {
   date: Date
@@ -249,4 +249,23 @@ export interface KubbEvents {
    * Fired after all files have been written to disk.
    */
   'kubb:build:end': [ctx: KubbBuildEndContext]
+
+  /**
+   * Emitted for each schema node during the AST walk.
+   * Generator listeners registered via `addGenerator()` in `kubb:plugin:setup` respond to this event.
+   * The `ctx.plugin.name` identifies which plugin is driving the current walk.
+   */
+  'kubb:generate:schema': [node: SchemaNode, ctx: GeneratorContext, options: object]
+  /**
+   * Emitted for each operation node during the AST walk.
+   * Generator listeners registered via `addGenerator()` in `kubb:plugin:setup` respond to this event.
+   * The `ctx.plugin.name` identifies which plugin is driving the current walk.
+   */
+  'kubb:generate:operation': [node: OperationNode, ctx: GeneratorContext, options: object]
+  /**
+   * Emitted once after all operations have been walked, with the full collected array.
+   * Generator listeners with an `operations()` method respond to this event.
+   * The `ctx.plugin.name` identifies which plugin is driving the current walk.
+   */
+  'kubb:generate:done': [nodes: Array<OperationNode>, ctx: GeneratorContext, options: object]
 }

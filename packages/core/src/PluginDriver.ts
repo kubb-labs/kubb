@@ -5,14 +5,17 @@ import { isPromiseRejectedResult, transformReservedWord } from '@internals/utils
 import { createFile } from '@kubb/ast'
 import type { FileNode, InputNode } from '@kubb/ast/types'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
+import type { Generator } from './defineGenerator.ts'
 import { type HookStylePlugin, isHookStylePlugin } from './definePlugin.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
+import { applyHookResult } from './renderNode.ts'
 
 import type {
   Adapter,
   Config,
   DevtoolsOptions,
+  GeneratorContext,
   KubbEvents,
   KubbPluginSetupContext,
   Plugin,
@@ -106,6 +109,12 @@ export class PluginDriver {
 
   readonly plugins = new Map<string, Plugin>()
 
+  /**
+   * Tracks which plugins have generators registered via `addGenerator()` (event-based path).
+   * Used by the build loop to decide whether to emit generator events for a given plugin.
+   */
+  readonly #pluginsWithEventGenerators = new Set<string>()
+
   constructor(config: Config, options: Options) {
     this.config = config
     this.options = options
@@ -189,8 +198,7 @@ export class PluginDriver {
           ...globalCtx,
           options: hookPlugin.options ?? {},
           addGenerator: (gen) => {
-            normalizedPlugin.generators = normalizedPlugin.generators ?? []
-            normalizedPlugin.generators.push(gen)
+            this.registerGenerator(normalizedPlugin.name, gen)
           },
           setResolver: (resolver) => {
             normalizedPlugin.resolver = resolver as Plugin['resolver']
@@ -240,6 +248,66 @@ export class PluginDriver {
       updateConfig: () => {},
       options: {},
     })
+  }
+
+  /**
+   * Registers a generator for the given plugin on the shared event emitter.
+   *
+   * The generator's `schema`, `operation`, and `operations` methods are registered as
+   * listeners on `kubb:generate:schema`, `kubb:generate:operation`, and `kubb:generate:done`
+   * respectively. Each listener is scoped to the owning plugin via a `ctx.plugin.name` check
+   * so that generators from different plugins do not cross-fire.
+   *
+   * The renderer resolution chain is: `generator.renderer → plugin.renderer → config.renderer`.
+   * Set `generator.renderer = null` to explicitly opt out of rendering even when the plugin
+   * declares a renderer.
+   *
+   * Call this method inside `addGenerator()` (in `kubb:plugin:setup`) to wire up a generator.
+   */
+  registerGenerator(pluginName: string, gen: Generator<any>): void {
+    const driver = this
+
+    const resolveRenderer = () => {
+      const plugin = driver.plugins.get(pluginName)
+      return gen.renderer === null ? undefined : (gen.renderer ?? plugin?.renderer ?? driver.config.renderer)
+    }
+
+    if (gen.schema) {
+      this.events.on('kubb:generate:schema', async (node, ctx, options) => {
+        if (ctx.plugin.name !== pluginName) return
+        const result = await gen.schema!.call(ctx as GeneratorContext, node, options as any)
+        await applyHookResult(result, driver, resolveRenderer())
+      })
+    }
+
+    if (gen.operation) {
+      this.events.on('kubb:generate:operation', async (node, ctx, options) => {
+        if (ctx.plugin.name !== pluginName) return
+        const result = await gen.operation!.call(ctx as GeneratorContext, node, options as any)
+        await applyHookResult(result, driver, resolveRenderer())
+      })
+    }
+
+    if (gen.operations) {
+      this.events.on('kubb:generate:done', async (nodes, ctx, options) => {
+        if (ctx.plugin.name !== pluginName) return
+        const result = await gen.operations!.call(ctx as GeneratorContext, nodes, options as any)
+        await applyHookResult(result, driver, resolveRenderer())
+      })
+    }
+
+    this.#pluginsWithEventGenerators.add(pluginName)
+  }
+
+  /**
+   * Returns `true` when at least one generator was registered for the given plugin
+   * via `addGenerator()` in `kubb:plugin:setup` (event-based path).
+   *
+   * Used by the build loop to decide whether to walk the AST and emit generator events
+   * for a plugin that has no static `plugin.generators`.
+   */
+  hasRegisteredGenerators(pluginName: string): boolean {
+    return this.#pluginsWithEventGenerators.has(pluginName)
   }
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, unknown> {
