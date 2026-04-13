@@ -265,11 +265,9 @@ export class PluginDriver {
    * Call this method inside `addGenerator()` (in `kubb:plugin:setup`) to wire up a generator.
    */
   registerGenerator(pluginName: string, gen: Generator<any>): void {
-    const driver = this
-
     const resolveRenderer = () => {
-      const plugin = driver.plugins.get(pluginName)
-      return gen.renderer === null ? undefined : (gen.renderer ?? plugin?.renderer ?? driver.config.renderer)
+      const plugin = this.plugins.get(pluginName)
+      return gen.renderer === null ? undefined : (gen.renderer ?? plugin?.renderer ?? this.config.renderer)
     }
 
     // `options` arrives as `object` from the event tuple (KubbEvents uses the widened base type so
@@ -281,7 +279,7 @@ export class PluginDriver {
         if (ctx.plugin.name !== pluginName) return
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const result = await gen.schema!.call(ctx as GeneratorContext, node, options as any)
-        await applyHookResult(result, driver, resolveRenderer())
+        await applyHookResult(result, this, resolveRenderer())
       })
     }
 
@@ -290,7 +288,7 @@ export class PluginDriver {
         if (ctx.plugin.name !== pluginName) return
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const result = await gen.operation!.call(ctx as GeneratorContext, node, options as any)
-        await applyHookResult(result, driver, resolveRenderer())
+        await applyHookResult(result, this, resolveRenderer())
       })
     }
 
@@ -299,7 +297,7 @@ export class PluginDriver {
         if (ctx.plugin.name !== pluginName) return
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const result = await gen.operations!.call(ctx as GeneratorContext, nodes, options as any)
-        await applyHookResult(result, driver, resolveRenderer())
+        await applyHookResult(result, this, resolveRenderer())
       })
     }
 
