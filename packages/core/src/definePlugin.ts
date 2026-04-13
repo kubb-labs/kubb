@@ -1,4 +1,4 @@
-import type { KubbSetupContext } from './types.ts'
+import type { KubbPluginSetupContext } from './types.ts'
 import type { KubbEvents } from './Kubb.ts'
 
 /**
@@ -6,14 +6,14 @@ import type { KubbEvents } from './Kubb.ts'
  * callback-style handlers for use on a `HookStylePlugin`.
  *
  * Every key from the shared `KubbEvents` interface is available as an optional hook.
- * The `kubb:setup` event is widened with the plugin's own `options` type so that
+ * The `kubb:plugin:setup` event is widened with the plugin's own `options` type so that
  * `ctx.options` is strongly typed inside the handler.
  *
- * @template TOptions - The plugin's own options type; tightens `ctx.options` in `kubb:setup`.
+ * @template TOptions - The plugin's own options type; tightens `ctx.options` in `kubb:plugin:setup`.
  */
 export type PluginHooks<TOptions = object> = {
-  [K in keyof KubbEvents]?: K extends 'kubb:setup'
-    ? (ctx: KubbSetupContext & { options: TOptions }) => void | Promise<void>
+  [K in keyof KubbEvents]?: K extends 'kubb:plugin:setup'
+    ? (ctx: KubbPluginSetupContext & { options: TOptions }) => void | Promise<void>
     : (...args: KubbEvents[K]) => void | Promise<void>
 }
 
@@ -72,7 +72,7 @@ export function isHookStylePlugin(plugin: unknown): plugin is HookStylePlugin {
  * export const myPlugin = definePlugin<{ tag: string }>((options) => ({
  *   name: 'my-plugin',
  *   hooks: {
- *     'kubb:setup'(ctx) {
+ *     'kubb:plugin:setup'(ctx) {
  *       ctx.addGenerator(myGenerator)
  *     },
  *   },

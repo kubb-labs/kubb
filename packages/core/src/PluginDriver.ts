@@ -14,7 +14,7 @@ import type {
   Config,
   DevtoolsOptions,
   KubbEvents,
-  KubbSetupContext,
+  KubbPluginSetupContext,
   Plugin,
   PluginContext,
   PluginFactoryOptions,
@@ -141,7 +141,7 @@ export class PluginDriver {
    * its lifecycle handlers on the `AsyncEventEmitter`.
    *
    * The normalized plugin has an empty `buildStart` — generators registered via
-   * `addGenerator()` in `kubb:setup` are stored on `normalizedPlugin.generators`
+   * `addGenerator()` in `kubb:plugin:setup` are stored on `normalizedPlugin.generators`
    * and used by `runPluginAstHooks` during the build.
    */
   #normalizeHookStylePlugin(hookPlugin: HookStylePlugin): Plugin {
@@ -164,7 +164,7 @@ export class PluginDriver {
   /**
    * Registers a hook-style plugin's lifecycle handlers on the shared `AsyncEventEmitter`.
    *
-   * For `kubb:setup`, the registered listener wraps the globally emitted context with a
+   * For `kubb:plugin:setup`, the registered listener wraps the globally emitted context with a
    * plugin-specific one so that `addGenerator`, `setResolver`, `setTransformer`, and
    * `setRenderer` all target the correct `normalizedPlugin` entry in the plugins map.
    *
@@ -177,12 +177,12 @@ export class PluginDriver {
   registerPluginHooks(hookPlugin: HookStylePlugin, normalizedPlugin: Plugin): void {
     const { hooks } = hookPlugin
 
-    // kubb:setup gets special treatment: the globally emitted context is wrapped with
+    // kubb:plugin:setup gets special treatment: the globally emitted context is wrapped with
     // plugin-specific implementations so that addGenerator / setResolver / etc. target
     // this plugin's normalizedPlugin entry rather than being no-ops.
-    if (hooks['kubb:setup']) {
-      this.events.on('kubb:setup', (globalCtx: KubbSetupContext) => {
-        const pluginCtx: KubbSetupContext & { options: typeof hookPlugin.options } = {
+    if (hooks['kubb:plugin:setup']) {
+      this.events.on('kubb:plugin:setup', (globalCtx: KubbPluginSetupContext) => {
+        const pluginCtx: KubbPluginSetupContext & { options: typeof hookPlugin.options } = {
           ...globalCtx,
           options: hookPlugin.options ?? {},
           addGenerator: (gen) => {
@@ -209,25 +209,25 @@ export class PluginDriver {
             this.fileManager.add(fileNode)
           },
         }
-        return hooks['kubb:setup']!(pluginCtx)
+        return hooks['kubb:plugin:setup']!(pluginCtx)
       })
     }
 
     // All other hooks are registered as direct pass-through listeners on the shared emitter.
     for (const [event, handler] of Object.entries(hooks) as Array<[keyof KubbEvents, ((...args: never[]) => void | Promise<void>) | undefined]>) {
-      if (event === 'kubb:setup' || !handler) continue
+      if (event === 'kubb:plugin:setup' || !handler) continue
       this.events.on(event, handler as never)
     }
   }
 
   /**
-   * Emits the `kubb:setup` event so that all registered hook-style plugin listeners
+   * Emits the `kubb:plugin:setup` event so that all registered hook-style plugin listeners
    * can configure generators, resolvers, transformers and renderers before `buildStart` runs.
    *
    * Call this once from `safeBuild` before the plugin execution loop begins.
    */
   async emitSetupHooks(): Promise<void> {
-    await this.events.emit('kubb:setup', {
+    await this.events.emit('kubb:plugin:setup', {
       config: this.config,
       addGenerator: () => {},
       setResolver: () => {},

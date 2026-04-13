@@ -12,13 +12,13 @@ describe('definePlugin', () => {
       name: 'my-hook-plugin',
       options,
       hooks: {
-        'kubb:setup'(_ctx) {},
+        'kubb:plugin:setup'(_ctx) {},
       },
     }))({ tag: 'pets' })
 
     expect(plugin.name).toBe('my-hook-plugin')
     expect(plugin.options).toEqual({ tag: 'pets' })
-    expect(typeof plugin.hooks['kubb:setup']).toBe('function')
+    expect(typeof plugin.hooks['kubb:plugin:setup']).toBe('function')
   })
 
   it('uses empty object as default options when none are provided', () => {
@@ -75,34 +75,34 @@ describe('PluginDriver — hook-style plugin registration', () => {
     expect(driver.plugins.has('hook-plugin')).toBe(true)
   })
 
-  it('registers kubb:setup handler on the event emitter', () => {
+  it('registers kubb:plugin:setup handler on the event emitter', () => {
     const setupHandler = vi.fn()
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
       hooks: {
-        'kubb:setup': setupHandler,
+        'kubb:plugin:setup': setupHandler,
       },
     }))()
 
     const events = new AsyncEventEmitter<KubbEvents>()
     new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
 
-    expect(events.listenerCount('kubb:setup')).toBeGreaterThan(0)
+    expect(events.listenerCount('kubb:plugin:setup')).toBeGreaterThan(0)
   })
 
-  it('calls kubb:setup handler when event is emitted', async () => {
+  it('calls kubb:plugin:setup handler when event is emitted', async () => {
     const setupHandler = vi.fn()
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
       hooks: {
-        'kubb:setup': setupHandler,
+        'kubb:plugin:setup': setupHandler,
       },
     }))()
 
     const events = new AsyncEventEmitter<KubbEvents>()
     new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
 
-    await events.emit('kubb:setup', {
+    await events.emit('kubb:plugin:setup', {
       config: makeConfig([]),
       addGenerator: () => {},
       setResolver: () => {},
@@ -121,7 +121,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
       hooks: {
-        'kubb:setup'(ctx) {
+        'kubb:plugin:setup'(ctx) {
           ctx.addGenerator(generator)
         },
       },
@@ -133,7 +133,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     // Before emit — no generators yet
     expect(driver.plugins.get('hook-plugin')?.generators ?? []).toHaveLength(0)
 
-    await events.emit('kubb:setup', {
+    await events.emit('kubb:plugin:setup', {
       config: makeConfig([]),
       addGenerator: () => {},
       setResolver: () => {},
@@ -155,7 +155,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
       name: 'hook-plugin',
       options,
       hooks: {
-        'kubb:setup'(ctx) {
+        'kubb:plugin:setup'(ctx) {
           capturedOptions.push(ctx.options)
         },
       },
@@ -164,7 +164,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     const events = new AsyncEventEmitter<KubbEvents>()
     new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
 
-    await events.emit('kubb:setup', {
+    await events.emit('kubb:plugin:setup', {
       config: makeConfig([]),
       addGenerator: () => {},
       setResolver: () => {},
@@ -178,17 +178,17 @@ describe('PluginDriver — hook-style plugin registration', () => {
     expect(capturedOptions[0]).toEqual({ tag: 'pets' })
   })
 
-  it('external listeners receive kubb:setup context', async () => {
+  it('external listeners receive kubb:plugin:setup context', async () => {
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
-      hooks: { 'kubb:setup'() {} },
+      hooks: { 'kubb:plugin:setup'() {} },
     }))()
 
     const events = new AsyncEventEmitter<KubbEvents>()
     new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
 
     const externalListener = vi.fn()
-    events.on('kubb:setup', externalListener)
+    events.on('kubb:plugin:setup', externalListener)
 
     const ctx = {
       config: makeConfig([]),
@@ -200,7 +200,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
       updateConfig: () => {},
       options: {},
     }
-    await events.emit('kubb:setup', ctx)
+    await events.emit('kubb:plugin:setup', ctx)
 
     expect(externalListener).toHaveBeenCalledWith(ctx)
   })

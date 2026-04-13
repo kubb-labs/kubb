@@ -948,11 +948,11 @@ export type { HookStylePlugin, PluginHooks } from './definePlugin.ts'
 export type { KubbEvents } from './Kubb.ts'
 
 /**
- * Context passed to a hook-style plugin's `kubb:setup` handler.
+ * Context passed to a hook-style plugin's `kubb:plugin:setup` handler.
  * Provides methods to register generators, configure the resolver, transformer,
  * and renderer, as well as access to the current build configuration.
  */
-export type KubbSetupContext = {
+export type KubbPluginSetupContext = {
   /**
    * Register a generator on this plugin. Generators are invoked during the AST walk
    * (schema/operation/operations) exactly like generators declared statically on `createPlugin`.
