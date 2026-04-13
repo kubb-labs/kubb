@@ -6,6 +6,7 @@ import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
+import type { HookStylePlugin } from './definePlugin.ts'
 import type { KubbEvents } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
@@ -86,7 +87,7 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
    * An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Use `dependencies` on the plugin to declare which plugins must run first.
    */
   // inject needs to be omitted because else we have a clash with the PluginDriver instance
-  plugins?: Array<Omit<UnknownUserPlugin, 'inject'>>
+  plugins?: Array<Omit<UnknownUserPlugin, 'inject'> | HookStylePlugin>
 }
 
 export type InputPath = {
@@ -809,17 +810,17 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
 
   /**
    * Emit a warning via the build event system.
-   * Shorthand for `this.events.emit('warn', message)`.
+   * Shorthand for `this.events.emit('kubb:warn', message)`.
    */
   warn: (message: string) => void
   /**
    * Emit an error via the build event system.
-   * Shorthand for `this.events.emit('error', error)`.
+   * Shorthand for `this.events.emit('kubb:error', error)`.
    */
   error: (error: string | Error) => void
   /**
    * Emit an info message via the build event system.
-   * Shorthand for `this.events.emit('info', message)`.
+   * Shorthand for `this.events.emit('kubb:info', message)`.
    */
   info: (message: string) => void
   /**
@@ -943,7 +944,73 @@ export type CompatibilityPreset = 'default' | 'kubbV4'
 
 export type { Storage } from './createStorage.ts'
 export type { Generator } from './defineGenerator.ts'
+export type { HookStylePlugin, PluginHooks } from './definePlugin.ts'
 export type { KubbEvents } from './Kubb.ts'
+
+/**
+ * Context passed to a hook-style plugin's `kubb:plugin:setup` handler.
+ * Provides methods to register generators, configure the resolver, transformer,
+ * and renderer, as well as access to the current build configuration.
+ */
+export type KubbPluginSetupContext = {
+  /**
+   * Register a generator on this plugin. Generators are invoked during the AST walk
+   * (schema/operation/operations) exactly like generators declared statically on `createPlugin`.
+   */
+  addGenerator(generator: Generator): void
+  /**
+   * Set or partially override the resolver for this plugin.
+   * The resolver controls file naming and path resolution for generated files.
+   */
+  setResolver(resolver: Partial<Resolver>): void
+  /**
+   * Set the AST transformer (visitor) for this plugin.
+   * The transformer pre-processes nodes before they reach the generators.
+   */
+  setTransformer(visitor: Visitor): void
+  /**
+   * Set the renderer factory for this plugin.
+   * Used to process JSX elements returned by generators.
+   */
+  setRenderer(renderer: RendererFactory): void
+  /**
+   * Inject a raw file into the build output, bypassing the normal generation pipeline.
+   */
+  injectFile(file: Pick<FileNode, 'baseName' | 'path'> & { sources?: FileNode['sources'] }): void
+  /**
+   * Merge a partial config update into the current build configuration.
+   */
+  updateConfig(config: Partial<Config>): void
+  /**
+   * The resolved build configuration at the time of setup.
+   */
+  config: Config
+  /**
+   * The plugin's own options as passed by the user.
+   */
+  options: object
+}
+
+/**
+ * Context passed to a hook-style plugin's `kubb:build:start` handler.
+ * Fires immediately before the plugin execution loop begins.
+ */
+export type KubbBuildStartContext = {
+  config: Config
+  adapter: Adapter
+  inputNode: InputNode
+  getPlugin(name: string): Plugin | undefined
+}
+
+/**
+ * Context passed to a hook-style plugin's `kubb:build:end` handler.
+ * Fires after all files have been written to disk.
+ */
+export type KubbBuildEndContext = {
+  files: Array<FileNode>
+  config: Config
+  outputDir: string
+}
 
 /**
  * A preset bundles a name, a resolver, optional AST transformers,

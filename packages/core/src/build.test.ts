@@ -232,7 +232,7 @@ describe('build', () => {
   it('should emit debug events during build process', async () => {
     const events = new AsyncEventEmitter<KubbEvents>()
     const debugSpy = vi.fn()
-    events.on('debug', debugSpy)
+    events.on('kubb:debug', debugSpy)
 
     await build({
       config,
@@ -245,7 +245,7 @@ describe('build', () => {
   it('should handle array input with warning', async () => {
     const events = new AsyncEventEmitter<KubbEvents>()
     const warnSpy = vi.fn()
-    events.on('warn', warnSpy)
+    events.on('kubb:warn', warnSpy)
 
     const arrayConfig = {
       ...config,
@@ -304,8 +304,8 @@ describe('build', () => {
     const startSpy = vi.fn()
     const endSpy = vi.fn()
 
-    events.on('plugin:start', startSpy)
-    events.on('plugin:end', endSpy)
+    events.on('kubb:plugin:start', startSpy)
+    events.on('kubb:plugin:end', endSpy)
 
     await build({
       config,

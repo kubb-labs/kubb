@@ -100,6 +100,19 @@ export class AsyncEventEmitter<TEvents extends { [K in keyof TEvents]: unknown[]
   }
 
   /**
+   * Returns the number of listeners registered for `eventName`.
+   *
+   * @example
+   * ```ts
+   * emitter.on('build', handler)
+   * emitter.listenerCount('build') // 1
+   * ```
+   */
+  listenerCount<TEventName extends keyof TEvents & string>(eventName: TEventName): number {
+    return this.#emitter.listenerCount(eventName)
+  }
+
+  /**
    * Removes all listeners from every event channel.
    *
    * @example

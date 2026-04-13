@@ -24,14 +24,14 @@ export async function executeHooks({ hooks, events }: ExecutingHooksProps): Prom
     }
 
     const hookId = createHash('sha256').update(command).digest('hex')
-    await events.emit('hook:start', { id: hookId, command: cmd, args })
+    await events.emit('kubb:hook:start', { id: hookId, command: cmd, args })
 
-    await events.onOnce('hook:end', async ({ success, error }) => {
+    await events.onOnce('kubb:hook:end', async ({ success, error }) => {
       if (!success) {
         throw error
       }
 
-      await events.emit('success', `${command} successfully executed`)
+      await events.emit('kubb:success', `${command} successfully executed`)
     })
   }
 }

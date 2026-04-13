@@ -5,6 +5,7 @@ import { isPromiseRejectedResult, transformReservedWord } from '@internals/utils
 import { createFile } from '@kubb/ast'
 import type { FileNode, InputNode } from '@kubb/ast/types'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
+import { type HookStylePlugin, isHookStylePlugin } from './definePlugin.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
 
@@ -13,6 +14,7 @@ import type {
   Config,
   DevtoolsOptions,
   KubbEvents,
+  KubbPluginSetupContext,
   Plugin,
   PluginContext,
   PluginFactoryOptions,
@@ -108,7 +110,12 @@ export class PluginDriver {
     this.config = config
     this.options = options
     config.plugins
-      .map((plugin) => Object.assign({ buildStart() {}, buildEnd() {} }, plugin) as unknown as Plugin)
+      .map((rawPlugin) => {
+        if (isHookStylePlugin(rawPlugin)) {
+          return this.#normalizeHookStylePlugin(rawPlugin as HookStylePlugin)
+        }
+        return Object.assign({ buildStart() {}, buildEnd() {} }, rawPlugin) as unknown as Plugin
+      })
       .filter((plugin) => {
         if (typeof plugin.apply === 'function') {
           return plugin.apply(config)
@@ -127,6 +134,112 @@ export class PluginDriver {
 
   get events() {
     return this.options.events
+  }
+
+  /**
+   * Creates a `Plugin`-compatible object from a hook-style plugin and registers
+   * its lifecycle handlers on the `AsyncEventEmitter`.
+   *
+   * The normalized plugin has an empty `buildStart` — generators registered via
+   * `addGenerator()` in `kubb:plugin:setup` are stored on `normalizedPlugin.generators`
+   * and used by `runPluginAstHooks` during the build.
+   */
+  #normalizeHookStylePlugin(hookPlugin: HookStylePlugin): Plugin {
+    const generators: Plugin['generators'] = []
+    // The options shape is the minimal struct required by Plugin. Hook-style plugins
+    // don't participate in the legacy resolvePath/resolveName lifecycle; they use
+    // generators registered via addGenerator() and resolvers set via setResolver() instead.
+    // `inject` and `resolver` are required by the Plugin type but are irrelevant for hook-style
+    // plugins: inject is a no-op and resolver is set dynamically via setResolver() in kubb:plugin:setup.
+    const normalizedPlugin = {
+      name: hookPlugin.name,
+      dependencies: hookPlugin.dependencies,
+      options: { output: { path: '.' }, exclude: [], override: [] },
+      generators,
+      inject: () => undefined,
+      buildStart() {},
+      buildEnd() {},
+    } as unknown as Plugin
+    this.registerPluginHooks(hookPlugin, normalizedPlugin)
+    return normalizedPlugin
+  }
+
+  /**
+   * Registers a hook-style plugin's lifecycle handlers on the shared `AsyncEventEmitter`.
+   *
+   * For `kubb:plugin:setup`, the registered listener wraps the globally emitted context with a
+   * plugin-specific one so that `addGenerator`, `setResolver`, `setTransformer`, and
+   * `setRenderer` all target the correct `normalizedPlugin` entry in the plugins map.
+   *
+   * All other hooks are iterated and registered directly as pass-through listeners.
+   * Any event key present in the global `KubbEvents` interface can be subscribed to.
+   *
+   * External tooling can subscribe to any of these events via `events.on(...)` to observe
+   * the plugin lifecycle without modifying plugin behavior.
+   */
+  registerPluginHooks(hookPlugin: HookStylePlugin, normalizedPlugin: Plugin): void {
+    const { hooks } = hookPlugin
+
+    // kubb:plugin:setup gets special treatment: the globally emitted context is wrapped with
+    // plugin-specific implementations so that addGenerator / setResolver / etc. target
+    // this plugin's normalizedPlugin entry rather than being no-ops.
+    if (hooks['kubb:plugin:setup']) {
+      this.events.on('kubb:plugin:setup', (globalCtx: KubbPluginSetupContext) => {
+        const pluginCtx: KubbPluginSetupContext & { options: typeof hookPlugin.options } = {
+          ...globalCtx,
+          options: hookPlugin.options ?? {},
+          addGenerator: (gen) => {
+            normalizedPlugin.generators = normalizedPlugin.generators ?? []
+            normalizedPlugin.generators.push(gen)
+          },
+          setResolver: (resolver) => {
+            normalizedPlugin.resolver = resolver as Plugin['resolver']
+          },
+          setTransformer: (visitor) => {
+            normalizedPlugin.transformer = visitor
+          },
+          setRenderer: (renderer) => {
+            normalizedPlugin.renderer = renderer
+          },
+          injectFile: (file) => {
+            const fileNode = createFile({
+              baseName: file.baseName,
+              path: file.path,
+              sources: file.sources ?? [],
+              imports: [],
+              exports: [],
+            })
+            this.fileManager.add(fileNode)
+          },
+        }
+        return hooks['kubb:plugin:setup']!(pluginCtx)
+      })
+    }
+
+    // All other hooks are registered as direct pass-through listeners on the shared emitter.
+    for (const [event, handler] of Object.entries(hooks) as Array<[keyof KubbEvents, ((...args: never[]) => void | Promise<void>) | undefined]>) {
+      if (event === 'kubb:plugin:setup' || !handler) continue
+      this.events.on(event, handler as never)
+    }
+  }
+
+  /**
+   * Emits the `kubb:plugin:setup` event so that all registered hook-style plugin listeners
+   * can configure generators, resolvers, transformers and renderers before `buildStart` runs.
+   *
+   * Call this once from `safeBuild` before the plugin execution loop begins.
+   */
+  async emitSetupHooks(): Promise<void> {
+    await this.events.emit('kubb:plugin:setup', {
+      config: this.config,
+      addGenerator: () => {},
+      setResolver: () => {},
+      setTransformer: () => {},
+      setRenderer: () => {},
+      injectFile: () => {},
+      updateConfig: () => {},
+      options: {},
+    })
   }
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, unknown> {
@@ -164,13 +277,13 @@ export class PluginDriver {
         return plugin.transformer
       },
       warn(message: string) {
-        driver.events.emit('warn', message)
+        driver.events.emit('kubb:warn', message)
       },
       error(error: string | Error) {
-        driver.events.emit('error', typeof error === 'string' ? new Error(error) : error)
+        driver.events.emit('kubb:error', typeof error === 'string' ? new Error(error) : error)
       },
       info(message: string) {
-        driver.events.emit('info', message)
+        driver.events.emit('kubb:info', message)
       },
       openInStudio(options?: DevtoolsOptions) {
         if (!driver.config.devtools || driver.#studioIsOpen) {
@@ -302,7 +415,7 @@ export class PluginDriver {
       return [null]
     }
 
-    this.events.emit('plugins:hook:progress:start', {
+    this.events.emit('kubb:plugins:hook:progress:start', {
       hookName,
       plugins: [plugin],
     })
@@ -314,7 +427,7 @@ export class PluginDriver {
       plugin,
     })
 
-    this.events.emit('plugins:hook:progress:end', { hookName })
+    this.events.emit('kubb:plugins:hook:progress:end', { hookName })
 
     return [result]
   }
@@ -364,7 +477,7 @@ export class PluginDriver {
       if (hookName in plugin && (skipped ? !skipped.has(plugin) : true)) plugins.push(plugin)
     }
 
-    this.events.emit('plugins:hook:progress:start', { hookName, plugins })
+    this.events.emit('kubb:plugins:hook:progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return async () => {
@@ -384,7 +497,7 @@ export class PluginDriver {
 
     const result = await hookFirst(promises, hookFirstNullCheck)
 
-    this.events.emit('plugins:hook:progress:end', { hookName })
+    this.events.emit('kubb:plugins:hook:progress:end', { hookName })
 
     return result
   }
@@ -437,7 +550,7 @@ export class PluginDriver {
     for (const plugin of this.plugins.values()) {
       if (hookName in plugin) plugins.push(plugin)
     }
-    this.events.emit('plugins:hook:progress:start', { hookName, plugins })
+    this.events.emit('kubb:plugins:hook:progress:start', { hookName, plugins })
 
     const pluginStartTimes = new Map<Plugin, number>()
 
@@ -461,7 +574,7 @@ export class PluginDriver {
 
         if (plugin) {
           const startTime = pluginStartTimes.get(plugin) ?? performance.now()
-          this.events.emit('error', result.reason, {
+          this.events.emit('kubb:error', result.reason, {
             plugin,
             hookName,
             strategy: 'hookParallel',
@@ -472,7 +585,7 @@ export class PluginDriver {
       }
     })
 
-    this.events.emit('plugins:hook:progress:end', { hookName })
+    this.events.emit('kubb:plugins:hook:progress:end', { hookName })
 
     return results.reduce((acc, result) => {
       if (result.status === 'fulfilled') {
@@ -490,7 +603,7 @@ export class PluginDriver {
     for (const plugin of this.plugins.values()) {
       if (hookName in plugin) plugins.push(plugin)
     }
-    this.events.emit('plugins:hook:progress:start', { hookName, plugins })
+    this.events.emit('kubb:plugins:hook:progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return () =>
@@ -504,7 +617,7 @@ export class PluginDriver {
 
     await hookSeq(promises)
 
-    this.events.emit('plugins:hook:progress:end', { hookName })
+    this.events.emit('kubb:plugins:hook:progress:end', { hookName })
   }
 
   getPlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
@@ -547,7 +660,7 @@ export class PluginDriver {
     plugin: PluginWithLifeCycle
     parameters: unknown[] | undefined
   }): void {
-    this.events.emit('plugins:hook:processing:end', {
+    this.events.emit('kubb:plugins:hook:processing:end', {
       duration: Math.round(performance.now() - startTime),
       parameters,
       output,
@@ -575,7 +688,7 @@ export class PluginDriver {
       return null
     }
 
-    this.events.emit('plugins:hook:processing:start', {
+    this.events.emit('kubb:plugins:hook:processing:start', {
       strategy,
       hookName,
       parameters,
@@ -593,7 +706,7 @@ export class PluginDriver {
 
         return output as ReturnType<ParseResult<H>>
       } catch (error) {
-        this.events.emit('error', error as Error, {
+        this.events.emit('kubb:error', error as Error, {
           plugin,
           hookName,
           strategy,
@@ -630,7 +743,7 @@ export class PluginDriver {
       return null
     }
 
-    this.events.emit('plugins:hook:processing:start', {
+    this.events.emit('kubb:plugins:hook:processing:start', {
       strategy,
       hookName,
       parameters,
@@ -649,7 +762,7 @@ export class PluginDriver {
 
       return output
     } catch (error) {
-      this.events.emit('error', error as Error, {
+      this.events.emit('kubb:error', error as Error, {
         plugin,
         hookName,
         strategy,

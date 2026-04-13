@@ -29,7 +29,7 @@ export async function publish({ command, outputPath, root, events }: PublishProp
 
   const commandWithArgs = args.length ? `${cmd} ${args.join(' ')}` : cmd
 
-  await events.emit('info', `[publish] Running "${commandWithArgs}" in "${resolvedOutputPath}"`)
+  await events.emit('kubb:info', `[publish] Running "${commandWithArgs}" in "${resolvedOutputPath}"`)
 
   const startTime = Date.now()
 
@@ -43,7 +43,7 @@ export async function publish({ command, outputPath, root, events }: PublishProp
     // Stream output line-by-line (stdout + stderr interleaved) in real time
     for await (const line of proc) {
       if (line.trim()) {
-        await events.emit('info', line.trim())
+        await events.emit('kubb:info', line.trim())
       }
     }
 
@@ -55,16 +55,16 @@ export async function publish({ command, outputPath, root, events }: PublishProp
     const error = new Error(`[publish] Failed to run "${commandWithArgs}": ${message}`)
     error.cause = err
 
-    await events.emit('error', error)
+    await events.emit('kubb:error', error)
     throw error
   }
 
   if (exitCode !== 0) {
     const error = new Error(`[publish] "${commandWithArgs}" exited with code ${exitCode}`)
-    await events.emit('error', error)
+    await events.emit('kubb:error', error)
     throw error
   }
 
   const duration = Date.now() - startTime
-  await events.emit('success', `[publish] Published successfully in ${duration}ms`)
+  await events.emit('kubb:success', `[publish] Published successfully in ${duration}ms`)
 }
