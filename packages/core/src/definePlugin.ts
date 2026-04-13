@@ -1,36 +1,20 @@
-import type { Config, KubbBuildEndContext, KubbBuildStartContext, KubbSetupContext } from './types.ts'
+import type { KubbSetupContext } from './types.ts'
+import type { KubbEvents } from './Kubb.ts'
 
 /**
- * Lifecycle event handlers that a hook-style plugin may declare.
+ * Converts the global `KubbEvents` tuple-style event signatures into optional
+ * callback-style handlers for use on a `HookStylePlugin`.
  *
- * Modelled after Astro's integration API — lifecycle events are fired by the
- * `PluginDriver` via the shared `AsyncEventEmitter<KubbEvents>` so that both
- * the plugin's own handler and any external listeners (CLI, devtools, …) receive
- * each event through a single unified event system.
+ * Every key from the shared `KubbEvents` interface is available as an optional hook.
+ * The `kubb:setup` event is widened with the plugin's own `options` type so that
+ * `ctx.options` is strongly typed inside the handler.
  *
  * @template TOptions - The plugin's own options type; tightens `ctx.options` in `kubb:setup`.
  */
-export type KubbEvents<TOptions = object> = {
-  /**
-   * Fired once before any plugin's `buildStart` runs.
-   * Use this hook to register generators, configure the resolver/transformer/renderer,
-   * or inject extra files into the build output.
-   */
-  'kubb:setup'?(ctx: KubbSetupContext & { options: TOptions }): void | Promise<void>
-  /**
-   * Fired when configuration loading is complete (reuses the existing `kubb:config:end` event).
-   * Receives the full array of resolved configs.
-   */
-  'kubb:config:end'?(configs: Array<Config>): void | Promise<void>
-  /**
-   * Fired immediately before the plugin execution loop begins.
-   * The adapter has already parsed the source and `inputNode` is available.
-   */
-  'kubb:build:start'?(ctx: KubbBuildStartContext): void | Promise<void>
-  /**
-   * Fired after all files have been written to disk.
-   */
-  'kubb:build:end'?(ctx: KubbBuildEndContext): void | Promise<void>
+export type PluginHooks<TOptions = object> = {
+  [K in keyof KubbEvents]?: K extends 'kubb:setup'
+    ? (ctx: KubbSetupContext & { options: TOptions }) => void | Promise<void>
+    : (...args: KubbEvents[K]) => void | Promise<void>
 }
 
 /**
@@ -56,8 +40,9 @@ export type HookStylePlugin<TOptions = object> = {
   options?: TOptions
   /**
    * Lifecycle event handlers for this plugin.
+   * Any event from the global `KubbEvents` map can be subscribed to here.
    */
-  hooks: KubbEvents<TOptions>
+  hooks: PluginHooks<TOptions>
 }
 
 /**

@@ -168,8 +168,8 @@ export class PluginDriver {
    * plugin-specific one so that `addGenerator`, `setResolver`, `setTransformer`, and
    * `setRenderer` all target the correct `normalizedPlugin` entry in the plugins map.
    *
-   * All other hooks (`kubb:config:end`, `kubb:build:start`, `kubb:build:end`) are
-   * registered directly as pass-through listeners.
+   * All other hooks are iterated and registered directly as pass-through listeners.
+   * Any event key present in the global `KubbEvents` interface can be subscribed to.
    *
    * External tooling can subscribe to any of these events via `events.on(...)` to observe
    * the plugin lifecycle without modifying plugin behaviour.
@@ -177,6 +177,9 @@ export class PluginDriver {
   registerPluginHooks(hookPlugin: HookStylePlugin, normalizedPlugin: Plugin): void {
     const { hooks } = hookPlugin
 
+    // kubb:setup gets special treatment: the globally emitted context is wrapped with
+    // plugin-specific implementations so that addGenerator / setResolver / etc. target
+    // this plugin's normalizedPlugin entry rather than being no-ops.
     if (hooks['kubb:setup']) {
       this.events.on('kubb:setup', (globalCtx: KubbSetupContext) => {
         const pluginCtx: KubbSetupContext & { options: typeof hookPlugin.options } = {
@@ -210,16 +213,10 @@ export class PluginDriver {
       })
     }
 
-    if (hooks['kubb:config:end']) {
-      this.events.on('kubb:config:end', hooks['kubb:config:end'])
-    }
-
-    if (hooks['kubb:build:start']) {
-      this.events.on('kubb:build:start', hooks['kubb:build:start'])
-    }
-
-    if (hooks['kubb:build:end']) {
-      this.events.on('kubb:build:end', hooks['kubb:build:end'])
+    // All other hooks are registered as direct pass-through listeners on the shared emitter.
+    for (const [event, handler] of Object.entries(hooks) as Array<[keyof KubbEvents, ((...args: never[]) => void | Promise<void>) | undefined]>) {
+      if (event === 'kubb:setup' || !handler) continue
+      this.events.on(event, handler as never)
     }
   }
 
