@@ -168,7 +168,7 @@ export class PluginDriver {
    * plugin-specific one so that `addGenerator`, `setResolver`, `setTransformer`, and
    * `setRenderer` all target the correct `normalizedPlugin` entry in the plugins map.
    *
-   * All other hooks (`kubb:config:end`, `kubb:build:start`, `kubb:build:done`) are
+   * All other hooks (`kubb:config:end`, `kubb:build:start`, `kubb:build:end`) are
    * registered directly as pass-through listeners.
    *
    * External tooling can subscribe to any of these events via `events.on(...)` to observe
@@ -218,9 +218,28 @@ export class PluginDriver {
       this.events.on('kubb:build:start', hooks['kubb:build:start'])
     }
 
-    if (hooks['kubb:build:done']) {
-      this.events.on('kubb:build:done', hooks['kubb:build:done'])
+    if (hooks['kubb:build:end']) {
+      this.events.on('kubb:build:end', hooks['kubb:build:end'])
     }
+  }
+
+  /**
+   * Emits the `kubb:setup` event so that all registered hook-style plugin listeners
+   * can configure generators, resolvers, transformers and renderers before `buildStart` runs.
+   *
+   * Call this once from `safeBuild` before the plugin execution loop begins.
+   */
+  async emitSetupHooks(): Promise<void> {
+    await this.events.emit('kubb:setup', {
+      config: this.config,
+      addGenerator: () => {},
+      setResolver: () => {},
+      setTransformer: () => {},
+      setRenderer: () => {},
+      injectFile: () => {},
+      updateConfig: () => {},
+      options: {},
+    })
   }
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, unknown> {

@@ -1,4 +1,4 @@
-import type { Config, KubbBuildDoneContext, KubbBuildStartContext, KubbSetupContext } from './types.ts'
+import type { Config, KubbBuildEndContext, KubbBuildStartContext, KubbSetupContext } from './types.ts'
 
 /**
  * Lifecycle event handlers that a hook-style plugin may declare.
@@ -10,7 +10,7 @@ import type { Config, KubbBuildDoneContext, KubbBuildStartContext, KubbSetupCont
  *
  * @template TOptions - The plugin's own options type; tightens `ctx.options` in `kubb:setup`.
  */
-export type PluginKubbEvents<TOptions = object> = {
+export type KubbEvents<TOptions = object> = {
   /**
    * Fired once before any plugin's `buildStart` runs.
    * Use this hook to register generators, configure the resolver/transformer/renderer,
@@ -30,7 +30,7 @@ export type PluginKubbEvents<TOptions = object> = {
   /**
    * Fired after all files have been written to disk.
    */
-  'kubb:build:done'?(ctx: KubbBuildDoneContext): void | Promise<void>
+  'kubb:build:end'?(ctx: KubbBuildEndContext): void | Promise<void>
 }
 
 /**
@@ -57,7 +57,7 @@ export type HookStylePlugin<TOptions = object> = {
   /**
    * Lifecycle event handlers for this plugin.
    */
-  hooks: PluginKubbEvents<TOptions>
+  hooks: KubbEvents<TOptions>
 }
 
 /**

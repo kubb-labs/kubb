@@ -1,6 +1,6 @@
 import type { FileNode } from '@kubb/ast/types'
 import type { Strategy } from './PluginDriver.ts'
-import type { Config, KubbBuildDoneContext, KubbBuildStartContext, KubbSetupContext, Plugin, PluginLifecycleHooks } from './types'
+import type { Config, KubbBuildEndContext, KubbBuildStartContext, KubbSetupContext, Plugin, PluginLifecycleHooks } from './types'
 
 type DebugInfo = {
   date: Date
@@ -248,5 +248,5 @@ export interface KubbEvents {
   /**
    * Fired after all files have been written to disk.
    */
-  'kubb:build:done': [ctx: KubbBuildDoneContext]
+  'kubb:build:end': [ctx: KubbBuildEndContext]
 }

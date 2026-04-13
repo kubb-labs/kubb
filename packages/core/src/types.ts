@@ -944,7 +944,7 @@ export type CompatibilityPreset = 'default' | 'kubbV4'
 
 export type { Storage } from './createStorage.ts'
 export type { Generator } from './defineGenerator.ts'
-export type { HookStylePlugin, PluginKubbEvents } from './definePlugin.ts'
+export type { HookStylePlugin } from './definePlugin.ts'
 export type { KubbEvents } from './Kubb.ts'
 
 /**
@@ -1003,10 +1003,10 @@ export type KubbBuildStartContext = {
 }
 
 /**
- * Context passed to a hook-style plugin's `kubb:build:done` handler.
+ * Context passed to a hook-style plugin's `kubb:build:end` handler.
  * Fires after all files have been written to disk.
  */
-export type KubbBuildDoneContext = {
+export type KubbBuildEndContext = {
   files: Array<FileNode>
   config: Config
   outputDir: string

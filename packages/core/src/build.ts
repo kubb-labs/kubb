@@ -309,23 +309,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
   const config = driver.config
 
   try {
-    // Emit kubb:setup once so that all hook-style plugins (definePlugin) can register
-    // generators, configure resolvers/transformers/renderers, etc. before buildStart runs.
-    // Each plugin's listener (registered in PluginDriver.registerPluginHooks) wraps the
-    // context with plugin-specific implementations (e.g. addGenerator adds to that plugin's
-    // generators array). External listeners receive the global base context — the no-op
-    // implementations below are intentional: they are overridden per-plugin inside each
-    // hook-style plugin's registered listener and are not meant for external use.
-    await events.emit('kubb:setup', {
-      config,
-      addGenerator: () => {},
-      setResolver: () => {},
-      setTransformer: () => {},
-      setRenderer: () => {},
-      injectFile: () => {},
-      updateConfig: () => {},
-      options: {},
-    })
+    await driver.emitSetupHooks()
 
     if (driver.adapter && driver.inputNode) {
       await events.emit('kubb:build:start', {
@@ -504,7 +488,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       }
     }
 
-    await events.emit('kubb:build:done', {
+    await events.emit('kubb:build:end', {
       files,
       config,
       outputDir: resolve(config.root, config.output.path),
