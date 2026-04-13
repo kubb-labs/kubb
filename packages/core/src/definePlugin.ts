@@ -1,5 +1,4 @@
-import type { Config } from './types.ts'
-import type { KubbBuildDoneContext, KubbBuildStartContext, KubbSetupContext } from './types.ts'
+import type { Config, KubbBuildDoneContext, KubbBuildStartContext, KubbSetupContext } from './types.ts'
 
 /**
  * Lifecycle event handlers that a hook-style plugin may declare.
