@@ -119,7 +119,7 @@
     "esbuild": "*",
     "rolldown": "~1.0.0-rc.10",
     "rollup": "^4.59.0",
-    "vite": "^7.3.1",
+    "vite": "^7.3.2",
     "webpack": "^5.105.4"
   },
   "peerDependencies": {
