@@ -250,12 +250,21 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
     return gen.renderer === null ? undefined : (gen.renderer ?? plugin.renderer ?? context.config.renderer)
   }
 
+  function callLegacyGenerator<TArgs extends Array<unknown>>(
+    handler: unknown,
+    generatorContext: GeneratorContext,
+    ...args: TArgs
+  ): unknown {
+    return (handler as (this: GeneratorContext, ...args: TArgs) => unknown).call(generatorContext, ...args)
+  }
+
   const generators = plugin.generators ?? []
   const collectedOperations: Array<OperationNode> = []
+  type GeneratorContextBase = Omit<GeneratorContext, 'adapter' | 'inputNode' | 'resolver' | 'options' | 'emitFile'>
 
   // Adapter and inputNode are verified to be defined on lines 239-241 above.
   // Generator listeners should always receive the currently resolved resolver for this plugin.
-  const baseGeneratorContext = context as Omit<GeneratorContext, 'adapter' | 'inputNode' | 'resolver' | 'options' | 'emitFile'>
+  const baseGeneratorContext = context as GeneratorContextBase
   const createGeneratorContext = (options: Plugin['options']): GeneratorContext => ({
     ...baseGeneratorContext,
     adapter,
@@ -276,9 +285,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       // Legacy path: direct generator calls for plugins with static generators array.
       for (const gen of generators) {
         if (!gen.schema) continue
-        const result = await (
-          gen.schema as unknown as (this: GeneratorContext, node: SchemaNode, options: Plugin['options']) => ReturnType<NonNullable<Generator['schema']>>
-        ).call(generatorContext, transformedNode, options)
+        const result = await callLegacyGenerator<[SchemaNode, Plugin['options']]>(gen.schema, generatorContext, transformedNode, options)
         await applyHookResult(result, driver, resolveRenderer(gen))
       }
 
@@ -295,13 +302,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
         // Legacy path: direct generator calls.
         for (const gen of generators) {
           if (!gen.operation) continue
-          const result = await (
-            gen.operation as unknown as (
-              this: GeneratorContext,
-              node: OperationNode,
-              options: Plugin['options'],
-            ) => ReturnType<NonNullable<Generator['operation']>>
-          ).call(generatorContext, transformedNode, options)
+          const result = await callLegacyGenerator<[OperationNode, Plugin['options']]>(gen.operation, generatorContext, transformedNode, options)
           await applyHookResult(result, driver, resolveRenderer(gen))
         }
 
@@ -317,13 +318,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
     // Legacy path: direct operations batch call.
     for (const gen of generators) {
       if (!gen.operations) continue
-      const result = await (
-        gen.operations as unknown as (
-          this: GeneratorContext,
-          nodes: Array<OperationNode>,
-          options: Plugin['options'],
-        ) => ReturnType<NonNullable<Generator['operations']>>
-      ).call(generatorContext, collectedOperations, plugin.options)
+      const result = await callLegacyGenerator<[Array<OperationNode>, Plugin['options']]>(gen.operations, generatorContext, collectedOperations, plugin.options)
       await applyHookResult(result, driver, resolveRenderer(gen))
     }
 

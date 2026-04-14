@@ -207,6 +207,13 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
   } as unknown as GeneratorContext<TOptions>
 }
 
+function callLegacyGenerator<
+  TOptions extends PluginFactoryOptions,
+  TArgs extends Array<unknown>,
+>(handler: unknown, context: GeneratorContext<TOptions>, ...args: TArgs): unknown {
+  return (handler as (this: GeneratorContext<TOptions>, ...args: TArgs) => unknown).call(context, ...args)
+}
+
 /**
  * Renders a generator's `schema` method in a test context.
  *
@@ -224,11 +231,7 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
   if (!generator.schema) return
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
-  const result = await (generator.schema as unknown as (this: GeneratorContext<TOptions>, node: SchemaNode, options: TOptions['resolvedOptions']) => ReturnType<NonNullable<Generator<TOptions>['schema']>>).call(
-    context,
-    transformedNode,
-    opts.options,
-  )
+  const result = await callLegacyGenerator<TOptions, [SchemaNode, TOptions['resolvedOptions']]>(generator.schema, context, transformedNode, opts.options)
   await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
 }
 
@@ -249,13 +252,12 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
   if (!generator.operation) return
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
-  const result = await (
-    generator.operation as unknown as (
-      this: GeneratorContext<TOptions>,
-      node: OperationNode,
-      options: TOptions['resolvedOptions'],
-    ) => ReturnType<NonNullable<Generator<TOptions>['operation']>>
-  ).call(context, transformedNode, opts.options)
+  const result = await callLegacyGenerator<TOptions, [OperationNode, TOptions['resolvedOptions']]>(
+    generator.operation,
+    context,
+    transformedNode,
+    opts.options,
+  )
   await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
 }
 
@@ -276,12 +278,11 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
   if (!generator.operations) return
   const context = createMockedPluginContext(opts)
   const transformedNodes = opts.plugin.transformer ? nodes.map((n) => transform(n, opts.plugin.transformer!)) : nodes
-  const result = await (
-    generator.operations as unknown as (
-      this: GeneratorContext<TOptions>,
-      nodes: Array<OperationNode>,
-      options: TOptions['resolvedOptions'],
-    ) => ReturnType<NonNullable<Generator<TOptions>['operations']>>
-  ).call(context, transformedNodes, opts.options)
+  const result = await callLegacyGenerator<TOptions, [Array<OperationNode>, TOptions['resolvedOptions']]>(
+    generator.operations,
+    context,
+    transformedNodes,
+    opts.options,
+  )
   await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
 }
