@@ -1,7 +1,7 @@
 import { pascalCase } from '@internals/utils'
 import { caseParams, createProperty, createSchema, narrowSchema, schemaTypes, transform } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
-import { defineGenerator, type GeneratorContext } from '@kubb/core'
+import { defineGenerator } from '@kubb/core'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
@@ -159,16 +159,14 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
   name: 'typescript-legacy',
   renderer: jsxRenderer,
   schema(node, ctx) {
-    const generatorContext = ('adapter' in ctx ? ctx : this) as GeneratorContext<PluginTs>
-    const options = ('options' in ctx ? ctx.options : ctx) as PluginTs['resolvedOptions']
-    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group } = options
-    const { adapter, config, resolver, root } = generatorContext
+    const { adapter, config, resolver, root } = ctx
+    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group } = ctx.options
 
     if (!node.name) {
       return
     }
 
-    const mode = generatorContext.getMode(output)
+    const mode = ctx.getMode(output)
 
     const imports = adapter.getImports(node, (schemaName) => ({
       name: resolver.resolveTypeName(schemaName),
@@ -218,12 +216,10 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
     )
   },
   operation(node, ctx) {
-    const generatorContext = ('adapter' in ctx ? ctx : this) as GeneratorContext<PluginTs>
-    const options = ('options' in ctx ? ctx.options : ctx) as PluginTs['resolvedOptions']
-    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output } = options
-    const { adapter, config, resolver, root } = generatorContext
+    const { adapter, config, resolver, root } = ctx
+    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output } = ctx.options
 
-    const mode = generatorContext.getMode(output)
+    const mode = ctx.getMode(output)
     const params = caseParams(node.parameters, paramsCasing)
 
     const meta = {

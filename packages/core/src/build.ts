@@ -256,7 +256,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
 
   const generators = plugin.generators ?? []
   const collectedOperations: Array<OperationNode> = []
-  type GeneratorContextBase = Omit<GeneratorContext, 'adapter' | 'inputNode' | 'resolver' | 'options' | 'emitFile'>
+  type GeneratorContextBase = Omit<GeneratorContext, 'adapter' | 'inputNode' | 'resolver' | 'options'>
 
   // Adapter and inputNode are verified to be defined on lines 239-241 above.
   // Generator listeners should always receive the currently resolved resolver for this plugin.
@@ -267,7 +267,6 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
     inputNode,
     resolver: driver.getResolver(plugin.name),
     options,
-    emitFile: context.upsertFile,
   })
 
   await walk(inputNode, {

@@ -1,6 +1,6 @@
 import { caseParams, createProperty, createSchema } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
-import { defineGenerator, type GeneratorContext } from '@kubb/core'
+import { defineGenerator } from '@kubb/core'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Operations } from '../components/Operations.tsx'
 import { Zod } from '../components/Zod.tsx'
@@ -168,16 +168,14 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
   name: 'zod-legacy',
   renderer: jsxRenderer,
   schema(node, ctx) {
-    const generatorContext = ('adapter' in ctx ? ctx : this) as GeneratorContext<PluginZod>
-    const options = ('options' in ctx ? ctx.options : ctx) as PluginZod['resolvedOptions']
-    const { adapter, config, resolver, root } = generatorContext
-    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, printer } = options
+    const { adapter, config, resolver, root } = ctx
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, printer } = ctx.options
 
     if (!node.name) {
       return
     }
 
-    const mode = generatorContext.getMode(output)
+    const mode = ctx.getMode(output)
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
     const imports = adapter.getImports(node, (schemaName) => ({
@@ -212,12 +210,10 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     )
   },
   operation(node, ctx) {
-    const generatorContext = ('adapter' in ctx ? ctx : this) as GeneratorContext<PluginZod>
-    const options = ('options' in ctx ? ctx.options : ctx) as PluginZod['resolvedOptions']
-    const { adapter, config, resolver, root } = generatorContext
-    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing, printer } = options
+    const { adapter, config, resolver, root } = ctx
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing, printer } = ctx.options
 
-    const mode = generatorContext.getMode(output)
+    const mode = ctx.getMode(output)
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
     const params = caseParams(node.parameters, paramsCasing)
@@ -325,10 +321,8 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     )
   },
   operations(nodes, ctx) {
-    const generatorContext = ('adapter' in ctx ? ctx : this) as GeneratorContext<PluginZod>
-    const options = ('options' in ctx ? ctx.options : ctx) as PluginZod['resolvedOptions']
-    const { adapter, config, resolver, root } = generatorContext
-    const { output, importPath, group, operations, paramsCasing } = options
+    const { adapter, config, resolver, root } = ctx
+    const { output, importPath, group, operations, paramsCasing } = ctx.options
 
     if (!operations) {
       return

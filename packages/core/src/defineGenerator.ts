@@ -14,7 +14,7 @@ export type { GeneratorContext } from './types.ts'
  * to any specific renderer package.
  *
  * Return a renderer element, an array of `FileNode`, or `void` to handle file
- * writing manually via `ctx.emitFile`.
+ * writing manually via `ctx.upsertFile`.
  *
  * @example
  * ```ts
