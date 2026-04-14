@@ -254,7 +254,7 @@ export class PluginDriver {
    * Registers a generator for the given plugin on the shared event emitter.
    *
    * The generator's `schema`, `operation`, and `operations` methods are registered as
-   * listeners on `kubb:generate:schema`, `kubb:generate:operation`, and `kubb:generate:done`
+   * listeners on `kubb:generate:schema`, `kubb:generate:operation`, and `kubb:generate:operations`
    * respectively. Each listener is scoped to the owning plugin via a `ctx.plugin.name` check
    * so that generators from different plugins do not cross-fire.
    *
@@ -293,10 +293,10 @@ export class PluginDriver {
     }
 
     if (gen.operations) {
-      this.events.on('kubb:generate:done', async (nodes, ctx, options) => {
+      this.events.on('kubb:generate:operations', async (nodes, ctx) => {
         if (ctx.plugin.name !== pluginName) return
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const result = await gen.operations!.call(ctx as GeneratorContext, nodes, options as any)
+        const result = await gen.operations!.call(ctx as GeneratorContext, nodes, ctx.options as any)
         await applyHookResult(result, this, resolveRenderer())
       })
     }

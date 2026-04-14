@@ -332,7 +332,7 @@ describe('PluginDriver — generator event dispatch', () => {
     expect(operationMock).toHaveBeenCalledOnce()
   })
 
-  it('registerGenerator() registers kubb:generate:done listener', async () => {
+  it('registerGenerator() registers kubb:generate:operations listener', async () => {
     const operationsMock = vi.fn().mockResolvedValue(undefined)
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
@@ -348,10 +348,10 @@ describe('PluginDriver — generator event dispatch', () => {
     await driver.emitSetupHooks()
 
     const fakePlugin = driver.plugins.get('hook-plugin')!
-    const fakeCtx = { plugin: fakePlugin, adapter: {}, inputNode: {} } as any
+    const fakeCtx = { plugin: fakePlugin, adapter: {}, inputNode: {}, options: {} } as any
     const fakeNodes = [{ kind: 'Operation', operationId: 'getPet' }] as any
 
-    await events.emit('kubb:generate:done', fakeNodes, fakeCtx, {})
+    await events.emit('kubb:generate:operations', fakeNodes, fakeCtx)
     expect(operationsMock).toHaveBeenCalledOnce()
   })
 })

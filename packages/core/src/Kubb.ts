@@ -266,6 +266,7 @@ export interface KubbEvents {
    * Emitted once after all operations have been walked, with the full collected array.
    * Generator listeners with an `operations()` method respond to this event.
    * The `ctx.plugin.name` identifies which plugin is driving the current walk.
+   * `ctx.options` carries the plugin-level resolved options for the batch call.
    */
-  'kubb:generate:done': [nodes: Array<OperationNode>, ctx: GeneratorContext, options: object]
+  'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext & { options: object }]
 }

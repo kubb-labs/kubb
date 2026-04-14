@@ -302,8 +302,9 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       await applyHookResult(result, driver, resolveRenderer(gen))
     }
 
-    // Event-based path: emit done event for generators registered via addGenerator().
-    await driver.events.emit('kubb:generate:done', collectedOperations, generatorContext, plugin.options)
+    // Event-based path: emit operations event for generators registered via addGenerator().
+    // options is folded into the context so listeners receive a single ctx object.
+    await driver.events.emit('kubb:generate:operations', collectedOperations, { ...generatorContext, options: plugin.options })
   }
 }
 
