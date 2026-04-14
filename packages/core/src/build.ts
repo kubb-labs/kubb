@@ -262,6 +262,8 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       const options = normalizedArgs[LEGACY_OPTIONS_ARG_INDEX] as object
       normalizedArgs[LEGACY_OPTIONS_ARG_INDEX] = {
         ...generatorContext,
+        // Legacy generators read resolved options directly from arg[1].
+        // Keep options after context so option keys win for backward compatibility.
         ...options,
         options,
       }

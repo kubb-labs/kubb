@@ -223,6 +223,8 @@ function callLegacyGenerator<TOptions extends PluginFactoryOptions, TArgs extend
     const options = normalizedArgs[LEGACY_OPTIONS_ARG_INDEX] as object
     normalizedArgs[LEGACY_OPTIONS_ARG_INDEX] = {
       ...context,
+      // Legacy generators read resolved options directly from arg[1].
+      // Keep options after context so option keys win for backward compatibility.
       ...options,
       options,
     }
