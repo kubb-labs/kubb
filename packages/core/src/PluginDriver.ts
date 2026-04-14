@@ -270,24 +270,18 @@ export class PluginDriver {
       return gen.renderer === null ? undefined : (gen.renderer ?? plugin?.renderer ?? this.config.renderer)
     }
 
-    // `options` arrives as `object` from the event tuple (KubbEvents uses the widened base type so
-    // the emitter stays independent of each plugin's concrete TOptions). Casting to `any` is the
-    // narrowest escape hatch available at this level — the type safety is enforced at the call site
-    // in build.ts where `resolver.resolveOptions()` returns the plugin's actual resolved options.
     if (gen.schema) {
-      this.events.on('kubb:generate:schema', async (node, ctx, options) => {
+      this.events.on('kubb:generate:schema', async (node, ctx) => {
         if (ctx.plugin.name !== pluginName) return
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const result = await gen.schema!.call(ctx as GeneratorContext, node, options as any)
+        const result = await gen.schema!.call(ctx, node, ctx.options)
         await applyHookResult(result, this, resolveRenderer())
       })
     }
 
     if (gen.operation) {
-      this.events.on('kubb:generate:operation', async (node, ctx, options) => {
+      this.events.on('kubb:generate:operation', async (node, ctx) => {
         if (ctx.plugin.name !== pluginName) return
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const result = await gen.operation!.call(ctx as GeneratorContext, node, options as any)
+        const result = await gen.operation!.call(ctx, node, ctx.options)
         await applyHookResult(result, this, resolveRenderer())
       })
     }
@@ -295,8 +289,7 @@ export class PluginDriver {
     if (gen.operations) {
       this.events.on('kubb:generate:operations', async (nodes, ctx) => {
         if (ctx.plugin.name !== pluginName) return
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const result = await gen.operations!.call(ctx as GeneratorContext, nodes, ctx.options as any)
+        const result = await gen.operations!.call(ctx, nodes, ctx.options)
         await applyHookResult(result, this, resolveRenderer())
       })
     }

@@ -273,7 +273,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       }
 
       // Event-based path: emit for generators registered via addGenerator() in kubb:plugin:setup.
-      await driver.events.emit('kubb:generate:schema', transformedNode, generatorContext, options)
+      await driver.events.emit('kubb:generate:schema', transformedNode, { ...generatorContext, options })
     },
     async operation(node) {
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
@@ -289,7 +289,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
         }
 
         // Event-based path: emit for generators registered via addGenerator().
-        await driver.events.emit('kubb:generate:operation', transformedNode, generatorContext, options)
+        await driver.events.emit('kubb:generate:operation', transformedNode, { ...generatorContext, options })
       }
     },
   })

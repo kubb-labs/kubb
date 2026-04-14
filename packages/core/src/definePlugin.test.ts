@@ -263,7 +263,7 @@ describe('PluginDriver — generator event dispatch', () => {
     const fakeCtx = { plugin: fakePlugin, adapter: {}, inputNode: {} } as any
     const fakeNode = { kind: 'Schema', name: 'Pet' } as any
 
-    await events.emit('kubb:generate:schema', fakeNode, fakeCtx, {})
+    await events.emit('kubb:generate:schema', fakeNode, { ...fakeCtx, options: {} })
     expect(schemaMock).toHaveBeenCalledOnce()
   })
 
@@ -287,7 +287,7 @@ describe('PluginDriver — generator event dispatch', () => {
     const fakeCtx = { plugin: otherPlugin, adapter: {}, inputNode: {} } as any
     const fakeNode = { kind: 'Schema', name: 'Pet' } as any
 
-    await events.emit('kubb:generate:schema', fakeNode, fakeCtx, {})
+    await events.emit('kubb:generate:schema', fakeNode, { ...fakeCtx, options: {} })
     expect(schemaMock).not.toHaveBeenCalled()
   })
 
@@ -328,7 +328,7 @@ describe('PluginDriver — generator event dispatch', () => {
     const fakeCtx = { plugin: fakePlugin, adapter: {}, inputNode: {} } as any
     const fakeNode = { kind: 'Operation', operationId: 'getPet' } as any
 
-    await events.emit('kubb:generate:operation', fakeNode, fakeCtx, {})
+    await events.emit('kubb:generate:operation', fakeNode, { ...fakeCtx, options: {} })
     expect(operationMock).toHaveBeenCalledOnce()
   })
 
