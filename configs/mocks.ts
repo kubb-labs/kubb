@@ -187,6 +187,7 @@ type RenderGeneratorOptions<TOptions extends PluginFactoryOptions> = {
 
 function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: RenderGeneratorOptions<TOptions>): GeneratorContext<TOptions> {
   const root = resolve(opts.config.root, opts.config.output.path)
+  const upsertFile = async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files)
 
   return {
     config: opts.config,
@@ -197,8 +198,8 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     plugin: opts.plugin,
     driver: opts.driver,
     inputNode: { kind: 'Input', schemas: [], operations: [] },
-    upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
-    emitFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
+    upsertFile,
+    emitFile: upsertFile,
     options: opts.options,
     warn: (msg: string) => console.warn(msg),
     error: (msg: string) => console.error(msg),
