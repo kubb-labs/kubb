@@ -403,9 +403,9 @@ describe('PluginDriver — generator event dispatch', () => {
   })
 
   it('registerGenerator() receives the resolved resolver on ctx.resolver', async () => {
-    const resolverNameMock = vi.fn()
+    const capturedResolverResult = vi.fn()
     const schemaMock = vi.fn(function (this: any) {
-      resolverNameMock(this.resolver.default('pet schema', 'type'))
+      capturedResolverResult(this.resolver.default('pet schema', 'type'))
       return undefined
     })
 
@@ -438,6 +438,6 @@ describe('PluginDriver — generator event dispatch', () => {
     await events.emit('kubb:generate:schema', fakeNode, { ...fakeCtx, options: {} })
 
     expect(schemaMock).toHaveBeenCalledOnce()
-    expect(resolverNameMock).toHaveBeenCalledWith('ResolvedFromSetup')
+    expect(capturedResolverResult).toHaveBeenCalledWith('ResolvedFromSetup')
   })
 })
