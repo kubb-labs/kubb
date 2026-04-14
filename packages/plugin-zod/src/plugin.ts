@@ -1,6 +1,9 @@
 import { camelCase } from '@internals/utils'
-import { createPlugin, type Group, getPreset } from '@kubb/core'
+import { definePlugin, type Group, getPreset } from '@kubb/core'
+import { jsxRenderer } from '@kubb/renderer-jsx'
 import { version } from '../package.json'
+import { zodGenerator } from './generators/zodGenerator.tsx'
+import { zodGeneratorLegacy } from './generators/zodGeneratorLegacy.tsx'
 import { presets } from './presets.ts'
 import type { PluginZod } from './types.ts'
 
@@ -25,7 +28,7 @@ export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
  * })
  * ```
  */
-export const pluginZod = createPlugin<PluginZod>((options) => {
+export const pluginZod = definePlugin<PluginZod['options']>((options = {}) => {
   const {
     output = { path: 'zod', barrelType: 'named' },
     group,
@@ -57,72 +60,49 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     generators: userGenerators,
   })
 
-  const generators = preset.generators ?? []
-
-  let resolveNameWarning = false
-  let resolvePathWarning = false
+  const generators =
+    preset.generators ??
+    [compatibilityPreset === 'kubbV4' ? zodGeneratorLegacy : zodGenerator].filter(Boolean)
 
   return {
     name: pluginZodName,
-    version,
-    get resolver() {
-      return preset.resolver
+    options: {
+      output,
+      exclude,
+      include,
+      override,
+      group: group
+        ? ({
+            ...group,
+            name: (ctx) => {
+              if (group.type === 'path') {
+                return `${ctx.group.split('/')[1]}`
+              }
+              return `${camelCase(ctx.group)}Controller`
+            },
+          } satisfies Group)
+        : undefined,
+      dateType,
+      typed,
+      importPath,
+      coercion,
+      operations,
+      inferred,
+      guidType,
+      mini,
+      wrapOutput,
+      paramsCasing,
+      printer,
     },
-    get transformer() {
-      return preset.transformer
-    },
-    get options() {
-      return {
-        output,
-        exclude,
-        include,
-        override,
-        group: group
-          ? ({
-              ...group,
-              name: (ctx) => {
-                if (group.type === 'path') {
-                  return `${ctx.group.split('/')[1]}`
-                }
-                return `${camelCase(ctx.group)}Controller`
-              },
-            } satisfies Group)
-          : undefined,
-        dateType,
-        typed,
-        importPath,
-        coercion,
-        operations,
-        inferred,
-        guidType,
-        mini,
-        wrapOutput,
-        paramsCasing,
-        printer,
-      }
-    },
-    resolvePath(baseName, pathMode, options) {
-      if (!resolvePathWarning) {
-        this.warn('Do not use resolvePath for pluginZod, use resolverZod.resolvePath instead')
-        resolvePathWarning = true
-      }
-
-      return this.plugin.resolver.resolvePath(
-        { baseName, pathMode, tag: options?.group?.tag, path: options?.group?.path },
-        { root: this.root, output, group: this.plugin.options.group },
-      )
-    },
-    resolveName(name, type) {
-      if (!resolveNameWarning) {
-        this.warn('Do not use resolveName for pluginZod, use resolverZod.default instead')
-        resolveNameWarning = true
-      }
-
-      return this.plugin.resolver.default(name, type)
-    },
-    generators,
-    async buildStart() {
-      await this.openInStudio({ ast: true })
+    hooks: {
+      'kubb:plugin:setup'({ addGenerator, setResolver, setRenderer, setTransformer }) {
+        setRenderer(jsxRenderer)
+        setResolver(preset.resolver)
+        if (preset.transformer) {
+          setTransformer(preset.transformer)
+        }
+        generators.forEach((generator) => addGenerator(generator))
+      },
     },
   }
 })

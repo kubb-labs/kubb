@@ -1,6 +1,9 @@
 import { camelCase } from '@internals/utils'
-import { createPlugin, type Group, getPreset } from '@kubb/core'
+import { definePlugin, type Group, getPreset } from '@kubb/core'
+import { jsxRenderer } from '@kubb/renderer-jsx'
 import { version } from '../package.json'
+import { typeGenerator } from './generators/typeGenerator.tsx'
+import { typeGeneratorLegacy } from './generators/typeGeneratorLegacy.tsx'
 import { presets } from './presets.ts'
 import type { PluginTs } from './types.ts'
 
@@ -25,7 +28,7 @@ export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
  * })
  * ```
  */
-export const pluginTs = createPlugin<PluginTs>((options) => {
+export const pluginTs = definePlugin<PluginTs['options']>((options = {}) => {
   const {
     output = { path: 'types', barrelType: 'named' },
     group,
@@ -54,69 +57,46 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     generators: userGenerators,
   })
 
-  const generators = preset.generators ?? []
-
-  let resolveNameWarning = false
-  let resolvePathWarning = false
+  const generators =
+    preset.generators ??
+    [compatibilityPreset === 'kubbV4' ? typeGeneratorLegacy : typeGenerator].filter(Boolean)
 
   return {
     name: pluginTsName,
-    version,
-    get resolver() {
-      return preset.resolver
+    options: {
+      output,
+      exclude,
+      include,
+      override,
+      optionalType,
+      group: group
+        ? ({
+            ...group,
+            name: (ctx) => {
+              if (group.type === 'path') {
+                return `${ctx.group.split('/')[1]}`
+              }
+              return `${camelCase(ctx.group)}Controller`
+            },
+          } satisfies Group)
+        : undefined,
+      arrayType,
+      enumType,
+      enumTypeSuffix,
+      enumKeyCasing,
+      syntaxType,
+      paramsCasing,
+      printer,
     },
-    get transformer() {
-      return preset.transformer
-    },
-    get options() {
-      return {
-        output,
-        exclude,
-        include,
-        override,
-        optionalType,
-        group: group
-          ? ({
-              ...group,
-              name: (ctx) => {
-                if (group.type === 'path') {
-                  return `${ctx.group.split('/')[1]}`
-                }
-                return `${camelCase(ctx.group)}Controller`
-              },
-            } satisfies Group)
-          : undefined,
-        arrayType,
-        enumType,
-        enumTypeSuffix,
-        enumKeyCasing,
-        syntaxType,
-        paramsCasing,
-        printer,
-      }
-    },
-    resolvePath(baseName, pathMode, options) {
-      if (!resolvePathWarning) {
-        this.warn('Do not use resolvePath for pluginTs, use resolverTs.resolvePath instead')
-        resolvePathWarning = true
-      }
-
-      return this.plugin.resolver.resolvePath(
-        { baseName, pathMode, tag: options?.group?.tag, path: options?.group?.path },
-        { root: this.root, output, group: this.plugin.options.group },
-      )
-    },
-    resolveName(name, type) {
-      if (!resolveNameWarning) {
-        this.warn('Do not use resolveName for pluginTs, use resolverTs.default instead')
-        resolveNameWarning = true
-      }
-
-      return this.plugin.resolver.default(name, type)
-    },
-    generators,
-    async buildStart() {
-      await this.openInStudio({ ast: true })
+    hooks: {
+      'kubb:plugin:setup'({ addGenerator, setResolver, setRenderer, setTransformer }) {
+        setRenderer(jsxRenderer)
+        setResolver(preset.resolver)
+        if (preset.transformer) {
+          setTransformer(preset.transformer)
+        }
+        generators.forEach((generator) => addGenerator(generator))
+      },
     },
   }
 })

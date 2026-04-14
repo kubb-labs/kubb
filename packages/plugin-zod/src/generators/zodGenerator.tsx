@@ -13,15 +13,15 @@ import { buildSchemaNames } from '../utils.ts'
 export const zodGenerator = defineGenerator<PluginZod>({
   name: 'zod',
   renderer: jsxRenderer,
-  schema(node, options) {
-    const { adapter, config, resolver, root } = this
-    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, printer } = options
+  schema(node, ctx) {
+    const { adapter, config, resolver, root } = ctx
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, printer } = ctx.options
 
     if (!node.name) {
       return
     }
 
-    const mode = this.getMode(output)
+    const mode = ctx.getMode(output)
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
     const imports = adapter.getImports(node, (schemaName) => ({
@@ -55,11 +55,11 @@ export const zodGenerator = defineGenerator<PluginZod>({
       </File>
     )
   },
-  operation(node, options) {
-    const { adapter, config, resolver, root } = this
-    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing, printer } = options
+  operation(node, ctx) {
+    const { adapter, config, resolver, root } = ctx
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing, printer } = ctx.options
 
-    const mode = this.getMode(output)
+    const mode = ctx.getMode(output)
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
     const params = caseParams(node.parameters, paramsCasing)
@@ -127,9 +127,9 @@ export const zodGenerator = defineGenerator<PluginZod>({
       </File>
     )
   },
-  operations(nodes, options) {
-    const { adapter, config, resolver, root } = this
-    const { output, importPath, group, operations, paramsCasing } = options
+  operations(nodes, ctx) {
+    const { adapter, config, resolver, root } = ctx
+    const { output, importPath, group, operations, paramsCasing } = ctx.options
 
     if (!operations) {
       return
