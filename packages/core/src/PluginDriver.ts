@@ -24,10 +24,10 @@ import type {
   PluginLifecycle,
   PluginLifecycleHooks,
   PluginParameter,
-  Resolver,
   PluginWithLifeCycle,
   ResolveNameParams,
   ResolvePathParams,
+  Resolver,
 } from './types.ts'
 import { hookFirst, hookParallel, hookSeq } from './utils/executeStrategies.ts'
 
