@@ -51,12 +51,12 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    * @example
    * ```ts
    * import { jsxRenderer } from '@kubb/renderer-jsx'
- * export const myGenerator = defineGenerator<PluginTs>({
- *   renderer: jsxRenderer,
- *   schema(node, ctx) { return <File ...>...</File> },
- * })
- * ```
-  */
+   * export const myGenerator = defineGenerator<PluginTs>({
+   *   renderer: jsxRenderer,
+   *   schema(node, ctx) { return <File ...>...</File> },
+   * })
+   * ```
+   */
   renderer?: RendererFactory<TElement> | null
   /**
    * Called for each schema node in the AST walk.

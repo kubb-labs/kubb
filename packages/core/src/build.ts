@@ -250,11 +250,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
     return gen.renderer === null ? undefined : (gen.renderer ?? plugin.renderer ?? context.config.renderer)
   }
 
-  function callLegacyGenerator<TArgs extends Array<unknown>>(
-    handler: unknown,
-    generatorContext: GeneratorContext,
-    ...args: TArgs
-  ): unknown {
+  function callLegacyGenerator<TArgs extends Array<unknown>>(handler: unknown, generatorContext: GeneratorContext, ...args: TArgs): unknown {
     return (handler as (this: GeneratorContext, ...args: TArgs) => unknown).call(generatorContext, ...args)
   }
 

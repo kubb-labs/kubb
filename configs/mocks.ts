@@ -207,10 +207,11 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
   } as unknown as GeneratorContext<TOptions>
 }
 
-function callLegacyGenerator<
-  TOptions extends PluginFactoryOptions,
-  TArgs extends Array<unknown>,
->(handler: unknown, context: GeneratorContext<TOptions>, ...args: TArgs): unknown {
+function callLegacyGenerator<TOptions extends PluginFactoryOptions, TArgs extends Array<unknown>>(
+  handler: unknown,
+  context: GeneratorContext<TOptions>,
+  ...args: TArgs
+): unknown {
   return (handler as (this: GeneratorContext<TOptions>, ...args: TArgs) => unknown).call(context, ...args)
 }
 
@@ -252,12 +253,7 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
   if (!generator.operation) return
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
-  const result = await callLegacyGenerator<TOptions, [OperationNode, TOptions['resolvedOptions']]>(
-    generator.operation,
-    context,
-    transformedNode,
-    opts.options,
-  )
+  const result = await callLegacyGenerator<TOptions, [OperationNode, TOptions['resolvedOptions']]>(generator.operation, context, transformedNode, opts.options)
   await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
 }
 
