@@ -3,8 +3,8 @@ import { tokenize } from '@internals/utils'
 import type { AsyncEventEmitter, Config, KubbHooks } from '@kubb/core'
 
 type ExecutingHooksProps = {
-  hooks: NonNullable<Config['hooks']>
-  events: AsyncEventEmitter<KubbHooks>
+  configHooks: NonNullable<Config['hooks']>
+  hooks: AsyncEventEmitter<KubbHooks>
 }
 
 /**
@@ -13,8 +13,8 @@ type ExecutingHooksProps = {
  * for actually spawning the process and emitting `hook:end`.
  *
  */
-export async function executeHooks({ hooks, events }: ExecutingHooksProps): Promise<void> {
-  const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done].filter(Boolean)
+export async function executeHooks({ configHooks, hooks }: ExecutingHooksProps): Promise<void> {
+  const commands = Array.isArray(configHooks.done) ? configHooks.done : [configHooks.done].filter(Boolean)
 
   for (const command of commands) {
     const [cmd, ...args] = tokenize(command)
@@ -24,14 +24,14 @@ export async function executeHooks({ hooks, events }: ExecutingHooksProps): Prom
     }
 
     const hookId = createHash('sha256').update(command).digest('hex')
-    await events.emit('kubb:hook:start', { id: hookId, command: cmd, args })
+    await hooks.emit('kubb:hook:start', { id: hookId, command: cmd, args })
 
-    await events.onOnce('kubb:hook:end', async ({ success, error }) => {
+    await hooks.onOnce('kubb:hook:end', async ({ success, error }) => {
       if (!success) {
         throw error
       }
 
-      await events.emit('kubb:success', `${command} successfully executed`)
+      await hooks.emit('kubb:success', `${command} successfully executed`)
     })
   }
 }

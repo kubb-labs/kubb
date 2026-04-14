@@ -19,7 +19,7 @@ type PublishProps = {
  * Emits `info` / `success` / `error` events on the provided event emitter so they
  * are forwarded to Studio in real time via the WebSocket data stream.
  */
-export async function publish({ command, outputPath, root, events }: PublishProps): Promise<void> {
+export async function publish({ command, outputPath, root, hooks }: PublishProps): Promise<void> {
   const resolvedOutputPath = path.isAbsolute(outputPath) ? outputPath : path.resolve(root, outputPath)
   const [cmd, ...args] = tokenize(command)
 
@@ -29,7 +29,7 @@ export async function publish({ command, outputPath, root, events }: PublishProp
 
   const commandWithArgs = args.length ? `${cmd} ${args.join(' ')}` : cmd
 
-  await events.emit('kubb:info', `[publish] Running "${commandWithArgs}" in "${resolvedOutputPath}"`)
+  await hooks.emit('kubb:info', `[publish] Running "${commandWithArgs}" in "${resolvedOutputPath}"`)
 
   const startTime = Date.now()
 
@@ -43,7 +43,7 @@ export async function publish({ command, outputPath, root, events }: PublishProp
     // Stream output line-by-line (stdout + stderr interleaved) in real time
     for await (const line of proc) {
       if (line.trim()) {
-        await events.emit('kubb:info', line.trim())
+        await hooks.emit('kubb:info', line.trim())
       }
     }
 
@@ -55,16 +55,16 @@ export async function publish({ command, outputPath, root, events }: PublishProp
     const error = new Error(`[publish] Failed to run "${commandWithArgs}": ${message}`)
     error.cause = err
 
-    await events.emit('kubb:error', error)
+    await hooks.emit('kubb:error', error)
     throw error
   }
 
   if (exitCode !== 0) {
     const error = new Error(`[publish] "${commandWithArgs}" exited with code ${exitCode}`)
-    await events.emit('kubb:error', error)
+    await hooks.emit('kubb:error', error)
     throw error
   }
 
   const duration = Date.now() - startTime
-  await events.emit('kubb:success', `[publish] Published successfully in ${duration}ms`)
+  await hooks.emit('kubb:success', `[publish] Published successfully in ${duration}ms`)
 }

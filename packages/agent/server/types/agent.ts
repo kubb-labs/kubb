@@ -49,7 +49,7 @@ export type KubbHooks = {
   'kubb:lifecycle:end': []
 }
 
-export type KubbEvent = keyof KubbHooks
+export type KubbHook = keyof KubbHooks
 
 /**
  * Payload for the publish command, sent from Studio to the Agent.
@@ -146,7 +146,7 @@ export type StatusMessage = {
   }>
 }
 
-export type DataMessagePayload<T extends KubbEvent = KubbEvent> = {
+export type DataMessagePayload<T extends KubbHook = KubbHook> = {
   type: T
   data: KubbHooks[T]
   timestamp: number
@@ -157,7 +157,7 @@ export type DataMessagePayload<T extends KubbEvent = KubbEvent> = {
  * Data message containing code generation events
  * Wraps Kubb SSE events for real-time generation progress
  */
-export type DataMessage<T extends KubbEvent = KubbEvent> = {
+export type DataMessage<T extends KubbHook = KubbHook> = {
   type: 'data'
   payload: DataMessagePayload<T>
 }
@@ -186,7 +186,7 @@ export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
  *   const pluginName = msg.event.data[0].name
  * }
  */
-export function isDataMessage<T extends KubbEvent>(msg: AgentMessage, type?: T): msg is DataMessage<T> {
+export function isDataMessage<T extends KubbHook>(msg: AgentMessage, type?: T): msg is DataMessage<T> {
   return msg.type === 'data' && (type ? msg.payload.type === type : true)
 }
 
