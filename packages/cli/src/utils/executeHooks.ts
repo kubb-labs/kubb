@@ -6,7 +6,7 @@ import type { Config, KubbHooks } from '@kubb/core'
 
 type ExecutingHooksProps = {
   hooks: NonNullable<Config['hooks']>
-  hooks: AsyncEventEmitter<KubbHooks>
+  events: AsyncEventEmitter<KubbHooks>
 }
 
 export async function executeHooks({ hooks, events }: ExecutingHooksProps): Promise<void> {
