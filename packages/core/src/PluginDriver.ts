@@ -116,6 +116,7 @@ export class PluginDriver {
    */
   readonly #pluginsWithEventGenerators = new Set<string>()
   readonly #resolvers = new Map<string, Resolver>()
+  readonly #defaultResolvers = new Map<string, Resolver>()
 
   constructor(config: Config, options: Options) {
     this.config = config
@@ -311,10 +312,17 @@ export class PluginDriver {
   }
 
   #createDefaultResolver(pluginName: string): Resolver {
-    return defineResolver<PluginFactoryOptions>(() => ({
+    const existingResolver = this.#defaultResolvers.get(pluginName)
+    if (existingResolver) {
+      return existingResolver
+    }
+
+    const resolver = defineResolver<PluginFactoryOptions>(() => ({
       name: 'default',
       pluginName,
     }))
+    this.#defaultResolvers.set(pluginName, resolver)
+    return resolver
   }
 
   setPluginResolver(pluginName: string, partial: Partial<Resolver>): void {

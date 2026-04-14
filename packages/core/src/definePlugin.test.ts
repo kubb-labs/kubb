@@ -205,14 +205,11 @@ describe('PluginDriver — hook-style plugin registration', () => {
   it('uses default resolver when setResolver() is never called', async () => {
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
-      hooks: {
-        'kubb:plugin:setup'() {},
-      },
+      hooks: {},
     }))()
 
     const events = new AsyncEventEmitter<KubbEvents>()
     const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
-    await driver.emitSetupHooks()
 
     const resolver = driver.getResolver('hook-plugin')
     expect(resolver.default('my custom type', 'type')).toBe('MyCustomType')

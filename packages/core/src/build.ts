@@ -255,10 +255,11 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
 
   // Adapter and inputNode are verified to be defined on lines 239-241 above.
   // Generator listeners should always receive the currently resolved resolver for this plugin.
+  const baseGeneratorContext = context as GeneratorContext
   const generatorContext = {
-    ...(context as GeneratorContext),
+    ...baseGeneratorContext,
     resolver: driver.getResolver(plugin.name),
-  } as GeneratorContext
+  }
 
   await walk(inputNode, {
     depth: 'shallow',
