@@ -41,11 +41,11 @@ type HookResult<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
  *
  * const hooks: AsyncEventEmitter<KubbHooks> = new AsyncEventEmitter()
  *
- * events.on('kubb:lifecycle:start', () => {
+ * hooks.on('kubb:lifecycle:start', () => {
  *   console.log('Starting Kubb generation')
  * })
  *
- * events.on('kubb:plugin:end', (plugin, { duration }) => {
+ * hooks.on('kubb:plugin:end', (plugin, { duration }) => {
  *   console.log(`Plugin ${plugin.name} completed in ${duration}ms`)
  * })
  * ```
