@@ -199,7 +199,6 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     driver: opts.driver,
     inputNode: { kind: 'Input', schemas: [], operations: [] },
     upsertFile,
-    emitFile: upsertFile,
     options: opts.options,
     warn: (msg: string) => console.warn(msg),
     error: (msg: string) => console.error(msg),

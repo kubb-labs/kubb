@@ -294,7 +294,6 @@ describe('PluginDriver — generator event dispatch', () => {
       inputNode,
       options: {},
       upsertFile,
-      emitFile: upsertFile,
     }
   }
 
@@ -479,7 +478,7 @@ describe('PluginDriver — generator event dispatch', () => {
     expect(schemaMock.mock.calls[0]?.[1]).toEqual(expect.objectContaining({ options: {} }))
   })
 
-  it('registerGenerator() exposes ctx.emitFile that writes via fileManager', async () => {
+  it('registerGenerator() exposes ctx.upsertFile that writes via fileManager', async () => {
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
       hooks: {
@@ -492,7 +491,7 @@ describe('PluginDriver — generator event dispatch', () => {
                 extname: '.ts',
                 pluginName: generatorCtx.plugin.name,
               })
-              await generatorCtx.emitFile(file)
+              await generatorCtx.upsertFile(file)
             },
           })
         },

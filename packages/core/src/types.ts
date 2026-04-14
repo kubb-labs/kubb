@@ -865,11 +865,6 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    * - `operations`: plugin-level resolved options
    */
   options: TOptions['resolvedOptions']
-  /**
-   * Preferred file emission helper for generator handlers.
-   * Alias of `upsertFile` in runtime context.
-   */
-  emitFile: (...file: Array<FileNode>) => Promise<void>
 }
 /**
  * Specify the export location for the files and define the behavior of the output
