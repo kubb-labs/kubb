@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto'
 import { tokenize } from '@internals/utils'
-import type { AsyncEventEmitter, Config, KubbEvents } from '@kubb/core'
+import type { AsyncEventEmitter, Config, KubbHooks } from '@kubb/core'
 
 type ExecutingHooksProps = {
   hooks: NonNullable<Config['hooks']>
-  events: AsyncEventEmitter<KubbEvents>
+  hooks: AsyncEventEmitter<KubbHooks>
 }
 
 /**

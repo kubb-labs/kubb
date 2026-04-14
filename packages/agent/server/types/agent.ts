@@ -25,9 +25,9 @@ export type JSONKubbConfig = {
 
 /**
  * Typed events sent by the Kubb agent.
- * Follows the same tuple structure as {@link KubbEvents}.
+ * Follows the same tuple structure as {@link KubbHooks}.
  */
-export type KubbEvents = {
+export type KubbHooks = {
   'kubb:plugin:start': [plugin: { name: string }]
   'kubb:plugin:end': [plugin: { name: string }, meta: { duration: number; success: boolean }]
   'kubb:files:processing:start': [meta: { total: number }]
@@ -49,7 +49,7 @@ export type KubbEvents = {
   'kubb:lifecycle:end': []
 }
 
-export type KubbEvent = keyof KubbEvents
+export type KubbEvent = keyof KubbHooks
 
 /**
  * Payload for the publish command, sent from Studio to the Agent.
@@ -148,7 +148,7 @@ export type StatusMessage = {
 
 export type DataMessagePayload<T extends KubbEvent = KubbEvent> = {
   type: T
-  data: KubbEvents[T]
+  data: KubbHooks[T]
   timestamp: number
   source?: 'generate' | 'publish'
 }

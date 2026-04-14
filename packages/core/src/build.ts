@@ -10,7 +10,7 @@ import { FileProcessor } from './FileProcessor.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.ts'
 import { fsStorage } from './storages/fsStorage.ts'
-import type { AdapterSource, Config, GeneratorContext, KubbEvents, Plugin, PluginContext, Storage, UserConfig } from './types.ts'
+import type { AdapterSource, Config, GeneratorContext, KubbHooks, Plugin, PluginContext, Storage, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { getBarrelFiles } from './utils/getBarrelFiles.ts'
@@ -18,7 +18,11 @@ import { isInputPath } from './utils/isInputPath.ts'
 
 type BuildOptions = {
   config: UserConfig
-  events?: AsyncEventEmitter<KubbEvents>
+  hooks?: AsyncEventEmitter<KubbHooks>
+  /**
+   * @deprecated use `hooks`
+   */
+  events?: AsyncEventEmitter<KubbHooks>
 }
 
 /**
@@ -46,7 +50,7 @@ type BuildOutput = {
  * Intermediate result returned by {@link setup} and accepted by {@link safeBuild}.
  */
 type SetupResult = {
-  events: AsyncEventEmitter<KubbEvents>
+  hooks: AsyncEventEmitter<KubbHooks>
   driver: PluginDriver
   sources: Map<string, string>
   config: Config
@@ -65,16 +69,17 @@ type SetupResult = {
  * via the `overrides` argument to reuse the same infrastructure across multiple runs.
  */
 export async function setup(options: BuildOptions): Promise<SetupResult> {
-  const { config: userConfig, events = new AsyncEventEmitter<KubbEvents>() } = options
+  const { config: userConfig } = options
+  const hooks = options.hooks ?? options.events ?? new AsyncEventEmitter<KubbHooks>()
 
   const sources: Map<string, string> = new Map<string, string>()
   const diagnosticInfo = getDiagnosticInfo()
 
   if (Array.isArray(userConfig.input)) {
-    await events.emit('kubb:warn', 'This feature is still under development — use with caution')
+    await hooks.emit('kubb:warn', 'This feature is still under development — use with caution')
   }
 
-  await events.emit('kubb:debug', {
+  await hooks.emit('kubb:debug', {
     date: new Date(),
     logs: [
       'Configuration:',
@@ -97,7 +102,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     if (isInputPath(userConfig) && !new URLPath(userConfig.input.path).isURL) {
       await exists(userConfig.input.path)
 
-      await events.emit('kubb:debug', {
+      await hooks.emit('kubb:debug', {
         date: new Date(),
         logs: [`✓ Input file validated: ${userConfig.input.path}`],
       })
@@ -147,7 +152,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   const storage: Storage | null = config.output.write === false ? null : (config.output.storage ?? fsStorage())
 
   if (config.output.clean) {
-    await events.emit('kubb:debug', {
+    await hooks.emit('kubb:debug', {
       date: new Date(),
       logs: ['Cleaning output directories', `  • Output: ${config.output.path}`],
     })
@@ -155,7 +160,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   }
 
   const driver = new PluginDriver(config, {
-    events,
+    hooks,
     concurrency: DEFAULT_CONCURRENCY,
   })
 
@@ -167,7 +172,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   }
   const source = inputToAdapterSource(config)
 
-  await events.emit('kubb:debug', {
+  await hooks.emit('kubb:debug', {
     date: new Date(),
     logs: [`Running adapter: ${adapter.name}`],
   })
@@ -175,7 +180,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   driver.adapter = adapter
   driver.inputNode = await adapter.parse(source)
 
-  await events.emit('kubb:debug', {
+  await hooks.emit('kubb:debug', {
     date: new Date(),
     logs: [
       `✓ Adapter '${adapter.name}' resolved InputNode`,
@@ -186,7 +191,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 
   return {
     config,
-    events,
+    hooks,
     driver,
     sources,
     storage,
@@ -276,7 +281,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       }
 
       // Event-based path: emit for generators registered via addGenerator() in kubb:plugin:setup.
-      await driver.events.emit('kubb:generate:schema', transformedNode, { ...generatorContext, options })
+      await driver.hooks.emit('kubb:generate:schema', transformedNode, { ...generatorContext, options })
     },
     async operation(node) {
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
@@ -292,7 +297,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
         }
 
         // Event-based path: emit for generators registered via addGenerator().
-        await driver.events.emit('kubb:generate:operation', transformedNode, { ...generatorContext, options })
+        await driver.hooks.emit('kubb:generate:operation', transformedNode, { ...generatorContext, options })
       }
     },
   })
@@ -307,7 +312,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
 
     // Event-based path: emit operations event for generators registered via addGenerator().
     // options is folded into the context so listeners receive a single ctx object.
-    await driver.events.emit('kubb:generate:operations', collectedOperations, { ...generatorContext, options: plugin.options })
+    await driver.hooks.emit('kubb:generate:operations', collectedOperations, { ...generatorContext, options: plugin.options })
   }
 }
 
@@ -323,7 +328,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
  */
 export async function safeBuild(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
   const setupResult = overrides ? overrides : await setup(options)
-  const { driver, events, sources, storage } = setupResult
+  const { driver, hooks, sources, storage } = setupResult
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   // in ms
@@ -334,7 +339,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
     await driver.emitSetupHooks()
 
     if (driver.adapter && driver.inputNode) {
-      await events.emit('kubb:build:start', {
+      await hooks.emit('kubb:build:start', {
         config,
         adapter: driver.adapter,
         inputNode: driver.inputNode,
@@ -351,9 +356,9 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       try {
         const timestamp = new Date()
 
-        await events.emit('kubb:plugin:start', plugin)
+        await hooks.emit('kubb:plugin:start', plugin)
 
-        await events.emit('kubb:debug', {
+        await hooks.emit('kubb:debug', {
           date: timestamp,
           logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`],
         })
@@ -379,9 +384,9 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         const duration = getElapsedMs(hrStart)
         pluginTimings.set(plugin.name, duration)
 
-        await events.emit('kubb:plugin:end', plugin, { duration, success: true })
+        await hooks.emit('kubb:plugin:end', plugin, { duration, success: true })
 
-        await events.emit('kubb:debug', {
+        await hooks.emit('kubb:debug', {
           date: new Date(),
           logs: [`✓ Plugin started successfully (${formatMs(duration)})`],
         })
@@ -390,13 +395,13 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         const errorTimestamp = new Date()
         const duration = getElapsedMs(hrStart)
 
-        await events.emit('kubb:plugin:end', plugin, {
+        await hooks.emit('kubb:plugin:end', plugin, {
           duration,
           success: false,
           error,
         })
 
-        await events.emit('kubb:debug', {
+        await hooks.emit('kubb:debug', {
           date: errorTimestamp,
           logs: [
             '✗ Plugin start failed',
@@ -416,7 +421,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       const rootPath = resolve(root, config.output.path, BARREL_FILENAME)
       const rootDir = dirname(rootPath)
 
-      await events.emit('kubb:debug', {
+      await hooks.emit('kubb:debug', {
         date: new Date(),
         logs: ['Generating barrel file', `  • Type: ${config.output.barrelType}`, `  • Path: ${rootPath}`],
       })
@@ -425,7 +430,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         return file.sources.some((source) => source.isIndexable)
       })
 
-      await events.emit('kubb:debug', {
+      await hooks.emit('kubb:debug', {
         date: new Date(),
         logs: [`Found ${barrelFiles.length} indexable files for barrel export`],
       })
@@ -446,7 +451,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
       driver.fileManager.upsert(rootFile)
 
-      await events.emit('kubb:debug', {
+      await hooks.emit('kubb:debug', {
         date: new Date(),
         logs: [`✓ Generated barrel file (${rootFile.exports?.length || 0} exports)`],
       })
@@ -466,7 +471,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
     const fileProcessor = new FileProcessor()
 
-    await events.emit('kubb:debug', {
+    await hooks.emit('kubb:debug', {
       date: new Date(),
       logs: [`Writing ${files.length} files...`],
     })
@@ -475,10 +480,10 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       parsers: parsersMap,
       extension: config.output.extension,
       onStart: async (processingFiles) => {
-        await events.emit('kubb:files:processing:start', processingFiles)
+        await hooks.emit('kubb:files:processing:start', processingFiles)
       },
       onUpdate: async ({ file, source, processed, total, percentage }) => {
-        await events.emit('kubb:file:processing:update', {
+        await hooks.emit('kubb:file:processing:update', {
           file,
           source,
           processed,
@@ -494,8 +499,8 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         }
       },
       onEnd: async (processedFiles) => {
-        await events.emit('kubb:files:processing:end', processedFiles)
-        await events.emit('kubb:debug', {
+        await hooks.emit('kubb:files:processing:end', processedFiles)
+        await hooks.emit('kubb:debug', {
           date: new Date(),
           logs: [`✓ File write process completed for ${processedFiles.length} files`],
         })
@@ -510,7 +515,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       }
     }
 
-    await events.emit('kubb:build:end', {
+    await hooks.emit('kubb:build:end', {
       files,
       config,
       outputDir: resolve(config.root, config.output.path),

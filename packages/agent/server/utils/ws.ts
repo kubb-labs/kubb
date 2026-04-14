@@ -1,5 +1,5 @@
 import type { FileNode } from '@kubb/ast/types'
-import type { AsyncEventEmitter, KubbEvents } from '@kubb/core'
+import type { AsyncEventEmitter, KubbHooks } from '@kubb/core'
 import WebSocket from 'ws'
 import type { AgentMessage, DataMessagePayload } from '~/types/agent.ts'
 
@@ -40,9 +40,9 @@ export function sendAgentMessage(ws: WebSocket, message: AgentMessage): void {
 }
 
 /**
- * Set up event listeners on the KubbEvents emitter to forward events to Kubb Studio via WebSocket
+ * Set up event listeners on the KubbHooks emitter to forward events to Kubb Studio via WebSocket
  */
-export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbEvents>, getSource?: () => 'generate' | 'publish' | undefined): void {
+export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHooks>, getSource?: () => 'generate' | 'publish' | undefined): void {
   function sendDataMessage(payload: DataMessagePayload) {
     sendAgentMessage(ws, {
       type: 'data',
@@ -50,7 +50,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   }
 
-  events.on('kubb:plugin:start', (plugin) => {
+  hooks.on('kubb:plugin:start', (plugin) => {
     sendDataMessage({
       type: 'kubb:plugin:start',
       data: [plugin],
@@ -58,7 +58,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('kubb:plugin:end', (plugin, meta) => {
+  hooks.on('kubb:plugin:end', (plugin, meta) => {
     sendDataMessage({
       type: 'kubb:plugin:end',
       data: [plugin, meta],
@@ -66,7 +66,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('kubb:files:processing:start', (files) => {
+  hooks.on('kubb:files:processing:start', (files) => {
     sendDataMessage({
       type: 'kubb:files:processing:start',
       data: [{ total: files.length }],
@@ -74,7 +74,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('kubb:file:processing:update', (meta) => {
+  hooks.on('kubb:file:processing:update', (meta) => {
     sendDataMessage({
       type: 'kubb:file:processing:update',
       data: [
@@ -89,7 +89,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('kubb:files:processing:end', (files) => {
+  hooks.on('kubb:files:processing:end', (files) => {
     sendDataMessage({
       type: 'kubb:files:processing:end',
       data: [{ total: files.length }],
@@ -97,7 +97,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('kubb:info', (message, info) => {
+  hooks.on('kubb:info', (message, info) => {
     sendDataMessage({
       type: 'kubb:info',
       data: [message, info],
@@ -105,7 +105,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('kubb:success', (message, info) => {
+  hooks.on('kubb:success', (message, info) => {
     sendDataMessage({
       type: 'kubb:success',
       data: [message, info],
@@ -113,7 +113,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('kubb:warn', (message, info) => {
+  hooks.on('kubb:warn', (message, info) => {
     sendDataMessage({
       type: 'kubb:warn',
       data: [message, info],
@@ -121,7 +121,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('kubb:generation:start', (config) => {
+  hooks.on('kubb:generation:start', (config) => {
     sendDataMessage({
       type: 'kubb:generation:start',
       data: [
@@ -134,7 +134,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('kubb:generation:end', (config, files, sources) => {
+  hooks.on('kubb:generation:end', (config, files, sources) => {
     const sourcesRecord: Record<string, string> = {}
 
     sources.forEach((value, key) => {
@@ -147,7 +147,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('kubb:error', (error) => {
+  hooks.on('kubb:error', (error) => {
     sendDataMessage({
       type: 'kubb:error',
       data: [

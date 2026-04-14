@@ -13,7 +13,7 @@ import {
   formatters,
   getConfigs,
   isInputPath,
-  type KubbEvents,
+  type KubbHooks,
   linters,
   logLevel as logLevelMap,
   safeBuild,
@@ -31,7 +31,7 @@ import { startWatcher } from '../utils/watcher.ts'
 type GenerateProps = {
   input?: string
   config: Config
-  events: AsyncEventEmitter<KubbEvents>
+  hooks: AsyncEventEmitter<KubbHooks>
   logLevel: number
 }
 
@@ -49,7 +49,7 @@ type RunToolPassOptions = {
   configName: string | undefined
   outputPath: string
   logLevel: number
-  events: AsyncEventEmitter<KubbEvents>
+  hooks: AsyncEventEmitter<KubbHooks>
   onStart: () => Promise<void>
   onEnd: () => Promise<void>
 }
@@ -294,7 +294,7 @@ type GenerateCommandOptions = {
 
 export async function runGenerateCommand({ input, configPath, logLevel: logLevelKey, watch }: GenerateCommandOptions): Promise<void> {
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
-  const events = new AsyncEventEmitterClass<KubbEvents>()
+  const events = new AsyncEventEmitterClass<KubbHooks>()
 
   await setupLogger(events, { logLevel })
 

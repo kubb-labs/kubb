@@ -1,12 +1,12 @@
-import type { AsyncEventEmitter, KubbEvents } from '@kubb/core'
+import type { AsyncEventEmitter, KubbHooks } from '@kubb/core'
 import { x } from 'tinyexec'
 
 /**
  * Register a `hook:start` listener on the event emitter that spawns the requested
  * command via tinyexec and emits `hook:end` with the result.
  */
-export function setupHookListener(events: AsyncEventEmitter<KubbEvents>, root: string): void {
-  events.on('kubb:hook:start', async ({ id, command, args }) => {
+export function setupHookListener(hooks: AsyncEventEmitter<KubbHooks>, root: string): void {
+  hooks.on('kubb:hook:start', async ({ id, command, args }) => {
     // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
     if (!id) {
       return
@@ -22,12 +22,12 @@ export function setupHookListener(events: AsyncEventEmitter<KubbEvents>, root: s
 
       console.log(result.stdout.trimEnd())
 
-      await events.emit('kubb:hook:end', { command, args, id, success: true, error: null })
+      await hooks.emit('kubb:hook:end', { command, args, id, success: true, error: null })
     } catch (_err) {
       const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
 
-      await events.emit('kubb:hook:end', { command, args, id, success: false, error: errorMessage })
-      await events.emit('kubb:error', errorMessage)
+      await hooks.emit('kubb:hook:end', { command, args, id, success: false, error: errorMessage })
+      await hooks.emit('kubb:error', errorMessage)
     }
   })
 }

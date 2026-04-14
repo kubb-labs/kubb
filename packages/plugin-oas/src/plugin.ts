@@ -1,7 +1,7 @@
 import path from 'node:path'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { camelCase } from '@internals/utils'
-import { type Config, createPlugin, type KubbEvents, type UserGroup } from '@kubb/core'
+import { type Config, createPlugin, type KubbHooks, type UserGroup } from '@kubb/core'
 import type { Oas } from '@kubb/oas'
 import { parseFromConfig, resolveServerUrl } from '@kubb/oas'
 import { version } from '../package.json'
@@ -28,7 +28,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
     collisionDetection = false,
   } = options
 
-  const getOas = async ({ validate, config, events }: { validate: boolean; config: Config; events: AsyncEventEmitter<KubbEvents> }): Promise<Oas> => {
+  const getOas = async ({ validate, config, hooks }: { validate: boolean; config: Config; hooks: AsyncEventEmitter<KubbHooks> }): Promise<Oas> => {
     // needs to be in a different variable or the catch here will not work(return of a promise instead)
     const oas = await parseFromConfig(config, oasClass)
 
@@ -49,8 +49,8 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
         cause: caughtError,
       })
 
-      events.emit('kubb:info', caughtError.message)
-      events.emit('kubb:debug', {
+      hooks.emit('kubb:info', caughtError.message)
+      hooks.emit('kubb:debug', {
         date: errorTimestamp,
         logs: [`✗ ${error.message}`, caughtError.message],
       })
@@ -72,20 +72,20 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
     },
     inject() {
       const config = this.config
-      const events = this.events
+      const hooks = this.hooks
 
       let oas: Oas
 
       return {
         async getOas({ validate = false } = {}) {
           if (!oas) {
-            oas = await getOas({ config, events, validate })
+            oas = await getOas({ config, hooks, validate })
           }
 
           return oas
         },
         async getBaseURL() {
-          const oas = await getOas({ config, events, validate: false })
+          const oas = await getOas({ config, hooks, validate: false })
           if (serverIndex === undefined) {
             return undefined
           }
@@ -156,7 +156,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
         {
           oas,
           driver: this.driver,
-          events: this.events,
+          hooks: this.hooks,
           plugin: this.plugin,
           contentType,
           include: undefined,
@@ -172,7 +172,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         oas,
         driver: this.driver,
-        events: this.events,
+        hooks: this.hooks,
         plugin: this.plugin,
         contentType,
         exclude: undefined,

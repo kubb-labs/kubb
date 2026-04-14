@@ -1,7 +1,7 @@
 import type { AsyncEventEmitter } from '@internals/utils'
 import { getUniqueName, pascalCase, stringify } from '@internals/utils'
 import type { FileNode } from '@kubb/ast/types'
-import type { FileMetaBase, KubbEvents, Plugin, PluginDriver, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { FileMetaBase, KubbHooks, Plugin, PluginDriver, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference, KUBB_INLINE_REF_PREFIX } from '@kubb/oas'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
@@ -20,7 +20,7 @@ export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<FileNod
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   oas: Oas
   driver: PluginDriver
-  events?: AsyncEventEmitter<KubbEvents>
+  hooks?: AsyncEventEmitter<KubbHooks>
   /**
    * Current plugin
    */
@@ -1305,7 +1305,7 @@ export class SchemaGenerator<
       ) as OpenAPIV3.NonArraySchemaObjectType
 
       if (!['boolean', 'object', 'number', 'string', 'integer', 'null'].includes(type)) {
-        this.context.events?.emit('kubb:warn', `Schema type '${schemaObject.type}' is not valid for schema ${parentName}.${name}`)
+        this.context.hooks?.emit('kubb:warn', `Schema type '${schemaObject.type}' is not valid for schema ${parentName}.${name}`)
         // Removed duplicate debug log - warning already provides the information needed
       }
 
@@ -1340,7 +1340,7 @@ export class SchemaGenerator<
       this.#nameMappingInitialized = true
       const schemaEntries = Object.entries(schemas)
 
-      this.context.events?.emit('kubb:debug', {
+      this.context.hooks?.emit('kubb:debug', {
         date: new Date(),
         logs: [`Building ${schemaEntries.length} schemas`, `  • Content Type: ${contentType || 'application/json'}`, `  • Generators: ${generators.length}`],
       })

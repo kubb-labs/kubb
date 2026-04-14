@@ -2,11 +2,11 @@ import { createHash } from 'node:crypto'
 import { styleText } from 'node:util'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { tokenize } from '@internals/utils'
-import type { Config, KubbEvents } from '@kubb/core'
+import type { Config, KubbHooks } from '@kubb/core'
 
 type ExecutingHooksProps = {
   hooks: NonNullable<Config['hooks']>
-  events: AsyncEventEmitter<KubbEvents>
+  hooks: AsyncEventEmitter<KubbHooks>
 }
 
 export async function executeHooks({ hooks, events }: ExecutingHooksProps): Promise<void> {

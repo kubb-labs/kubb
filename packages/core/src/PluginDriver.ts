@@ -16,7 +16,7 @@ import type {
   Adapter,
   Config,
   DevtoolsOptions,
-  KubbEvents,
+  KubbHooks,
   KubbPluginSetupContext,
   Plugin,
   PluginContext,
@@ -53,7 +53,11 @@ type SafeParseResult<H extends PluginLifecycleHooks, Result = ReturnType<ParseRe
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
 type Options = {
-  events: AsyncEventEmitter<KubbEvents>
+  hooks?: AsyncEventEmitter<KubbHooks>
+  /**
+   * @deprecated use `hooks`
+   */
+  events?: AsyncEventEmitter<KubbHooks>
   /**
    * @default Number.POSITIVE_INFINITY
    */
@@ -120,7 +124,10 @@ export class PluginDriver {
 
   constructor(config: Config, options: Options) {
     this.config = config
-    this.options = options
+    this.options = {
+      ...options,
+      hooks: options.hooks ?? options.events,
+    }
     config.plugins
       .map((rawPlugin) => {
         if (isHookStylePlugin(rawPlugin)) {
@@ -144,8 +151,18 @@ export class PluginDriver {
       })
   }
 
+  get hooks() {
+    if (!this.options.hooks) {
+      throw new Error('hooks are not defined')
+    }
+    return this.options.hooks
+  }
+
+  /**
+   * @deprecated use `hooks` instead
+   */
   get events() {
-    return this.options.events
+    return this.hooks
   }
 
   /**
@@ -184,7 +201,7 @@ export class PluginDriver {
    * `setRenderer` all target the correct `normalizedPlugin` entry in the plugins map.
    *
    * All other hooks are iterated and registered directly as pass-through listeners.
-   * Any event key present in the global `KubbEvents` interface can be subscribed to.
+   * Any event key present in the global `KubbHooks` interface can be subscribed to.
    *
    * External tooling can subscribe to any of these events via `events.on(...)` to observe
    * the plugin lifecycle without modifying plugin behavior.
@@ -196,7 +213,7 @@ export class PluginDriver {
     // plugin-specific implementations so that addGenerator / setResolver / etc. target
     // this plugin's normalizedPlugin entry rather than being no-ops.
     if (hooks['kubb:plugin:setup']) {
-      this.events.on('kubb:plugin:setup', (globalCtx: KubbPluginSetupContext) => {
+      this.hooks.on('kubb:plugin:setup', (globalCtx: KubbPluginSetupContext) => {
         const pluginCtx: KubbPluginSetupContext & { options: typeof hookPlugin.options } = {
           ...globalCtx,
           options: hookPlugin.options ?? {},
@@ -228,9 +245,9 @@ export class PluginDriver {
     }
 
     // All other hooks are registered as direct pass-through listeners on the shared emitter.
-    for (const [event, handler] of Object.entries(hooks) as Array<[keyof KubbEvents, ((...args: never[]) => void | Promise<void>) | undefined]>) {
+    for (const [event, handler] of Object.entries(hooks) as Array<[keyof KubbHooks, ((...args: never[]) => void | Promise<void>) | undefined]>) {
       if (event === 'kubb:plugin:setup' || !handler) continue
-      this.events.on(event, handler as never)
+      this.hooks.on(event, handler as never)
     }
   }
 
@@ -241,7 +258,7 @@ export class PluginDriver {
    * Call this once from `safeBuild` before the plugin execution loop begins.
    */
   async emitSetupHooks(): Promise<void> {
-    await this.events.emit('kubb:plugin:setup', {
+    await this.hooks.emit('kubb:plugin:setup', {
       config: this.config,
       addGenerator: () => {},
       setResolver: () => {},
@@ -274,7 +291,7 @@ export class PluginDriver {
     }
 
     if (gen.schema) {
-      this.events.on('kubb:generate:schema', async (node, ctx) => {
+      this.hooks.on('kubb:generate:schema', async (node, ctx) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.schema!.call(ctx, node, ctx.options)
         await applyHookResult(result, this, resolveRenderer())
@@ -282,7 +299,7 @@ export class PluginDriver {
     }
 
     if (gen.operation) {
-      this.events.on('kubb:generate:operation', async (node, ctx) => {
+      this.hooks.on('kubb:generate:operation', async (node, ctx) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operation!.call(ctx, node, ctx.options)
         await applyHookResult(result, this, resolveRenderer())
@@ -290,7 +307,7 @@ export class PluginDriver {
     }
 
     if (gen.operations) {
-      this.events.on('kubb:generate:operations', async (nodes, ctx) => {
+      this.hooks.on('kubb:generate:operations', async (nodes, ctx) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operations!.call(ctx, nodes, ctx.options)
         await applyHookResult(result, this, resolveRenderer())
@@ -355,7 +372,8 @@ export class PluginDriver {
       getMode(output: { path: string }): 'single' | 'split' {
         return getMode(resolve(driver.config.root, driver.config.output.path, output.path))
       },
-      events: driver.options.events,
+      hooks: driver.hooks,
+      events: driver.hooks,
       plugin,
       getPlugin: driver.getPlugin.bind(driver),
       requirePlugin: driver.requirePlugin.bind(driver),
@@ -379,13 +397,13 @@ export class PluginDriver {
         return plugin.transformer
       },
       warn(message: string) {
-        driver.events.emit('kubb:warn', message)
+        driver.hooks.emit('kubb:warn', message)
       },
       error(error: string | Error) {
-        driver.events.emit('kubb:error', typeof error === 'string' ? new Error(error) : error)
+        driver.hooks.emit('kubb:error', typeof error === 'string' ? new Error(error) : error)
       },
       info(message: string) {
-        driver.events.emit('kubb:info', message)
+        driver.hooks.emit('kubb:info', message)
       },
       openInStudio(options?: DevtoolsOptions) {
         if (!driver.config.devtools || driver.#studioIsOpen) {
@@ -517,7 +535,7 @@ export class PluginDriver {
       return [null]
     }
 
-    this.events.emit('kubb:plugins:hook:progress:start', {
+    this.hooks.emit('kubb:plugins:hook:progress:start', {
       hookName,
       plugins: [plugin],
     })
@@ -529,7 +547,7 @@ export class PluginDriver {
       plugin,
     })
 
-    this.events.emit('kubb:plugins:hook:progress:end', { hookName })
+    this.hooks.emit('kubb:plugins:hook:progress:end', { hookName })
 
     return [result]
   }
@@ -579,7 +597,7 @@ export class PluginDriver {
       if (hookName in plugin && (skipped ? !skipped.has(plugin) : true)) plugins.push(plugin)
     }
 
-    this.events.emit('kubb:plugins:hook:progress:start', { hookName, plugins })
+    this.hooks.emit('kubb:plugins:hook:progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return async () => {
@@ -599,7 +617,7 @@ export class PluginDriver {
 
     const result = await hookFirst(promises, hookFirstNullCheck)
 
-    this.events.emit('kubb:plugins:hook:progress:end', { hookName })
+    this.hooks.emit('kubb:plugins:hook:progress:end', { hookName })
 
     return result
   }
@@ -652,7 +670,7 @@ export class PluginDriver {
     for (const plugin of this.plugins.values()) {
       if (hookName in plugin) plugins.push(plugin)
     }
-    this.events.emit('kubb:plugins:hook:progress:start', { hookName, plugins })
+    this.hooks.emit('kubb:plugins:hook:progress:start', { hookName, plugins })
 
     const pluginStartTimes = new Map<Plugin, number>()
 
@@ -676,7 +694,7 @@ export class PluginDriver {
 
         if (plugin) {
           const startTime = pluginStartTimes.get(plugin) ?? performance.now()
-          this.events.emit('kubb:error', result.reason, {
+          this.hooks.emit('kubb:error', result.reason, {
             plugin,
             hookName,
             strategy: 'hookParallel',
@@ -687,7 +705,7 @@ export class PluginDriver {
       }
     })
 
-    this.events.emit('kubb:plugins:hook:progress:end', { hookName })
+    this.hooks.emit('kubb:plugins:hook:progress:end', { hookName })
 
     return results.reduce((acc, result) => {
       if (result.status === 'fulfilled') {
@@ -705,7 +723,7 @@ export class PluginDriver {
     for (const plugin of this.plugins.values()) {
       if (hookName in plugin) plugins.push(plugin)
     }
-    this.events.emit('kubb:plugins:hook:progress:start', { hookName, plugins })
+    this.hooks.emit('kubb:plugins:hook:progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return () =>
@@ -719,7 +737,7 @@ export class PluginDriver {
 
     await hookSeq(promises)
 
-    this.events.emit('kubb:plugins:hook:progress:end', { hookName })
+    this.hooks.emit('kubb:plugins:hook:progress:end', { hookName })
   }
 
   getPlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
@@ -762,7 +780,7 @@ export class PluginDriver {
     plugin: PluginWithLifeCycle
     parameters: unknown[] | undefined
   }): void {
-    this.events.emit('kubb:plugins:hook:processing:end', {
+    this.hooks.emit('kubb:plugins:hook:processing:end', {
       duration: Math.round(performance.now() - startTime),
       parameters,
       output,
@@ -790,7 +808,7 @@ export class PluginDriver {
       return null
     }
 
-    this.events.emit('kubb:plugins:hook:processing:start', {
+    this.hooks.emit('kubb:plugins:hook:processing:start', {
       strategy,
       hookName,
       parameters,
@@ -808,7 +826,7 @@ export class PluginDriver {
 
         return output as ReturnType<ParseResult<H>>
       } catch (error) {
-        this.events.emit('kubb:error', error as Error, {
+        this.hooks.emit('kubb:error', error as Error, {
           plugin,
           hookName,
           strategy,
@@ -845,7 +863,7 @@ export class PluginDriver {
       return null
     }
 
-    this.events.emit('kubb:plugins:hook:processing:start', {
+    this.hooks.emit('kubb:plugins:hook:processing:start', {
       strategy,
       hookName,
       parameters,
@@ -864,7 +882,7 @@ export class PluginDriver {
 
       return output
     } catch (error) {
-      this.events.emit('kubb:error', error as Error, {
+      this.hooks.emit('kubb:error', error as Error, {
         plugin,
         hookName,
         strategy,

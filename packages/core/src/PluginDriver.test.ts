@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createMockedAdapter } from '#mocks'
 import { createPlugin } from './createPlugin.ts'
 import { PluginDriver } from './PluginDriver.ts'
-import type { Config, KubbEvents, Plugin } from './types.ts'
+import type { Config, KubbHooks, Plugin } from './types.ts'
 
 describe('PluginDriver', () => {
   const pluginAMocks = {
@@ -83,7 +83,7 @@ describe('PluginDriver', () => {
     plugins: [pluginA({}), pluginB({}), pluginC({})] as Array<Plugin>,
   } satisfies Config
   const pluginDriver = new PluginDriver(config, {
-    events: new AsyncEventEmitter<KubbEvents>(),
+    hooks: new AsyncEventEmitter<KubbHooks>(),
   })
 
   afterEach(() => {
@@ -200,7 +200,7 @@ describe('PluginDriver', () => {
     } satisfies Config
 
     const staticPluginDriver = new PluginDriver(staticConfig, {
-      events: new AsyncEventEmitter<KubbEvents>(),
+      hooks: new AsyncEventEmitter<KubbHooks>(),
     })
 
     const paths = staticPluginDriver.hookForPluginSync({
@@ -230,7 +230,7 @@ describe('PluginDriver', () => {
     } satisfies Config
 
     const errorPluginDriver = new PluginDriver(errorConfig, {
-      events: new AsyncEventEmitter<KubbEvents>(),
+      hooks: new AsyncEventEmitter<KubbHooks>(),
     })
 
     const errorSpy = vi.fn()
@@ -260,7 +260,7 @@ describe('PluginDriver', () => {
     } satisfies Config
 
     const noResolvePluginDriver = new PluginDriver(noResolveConfig, {
-      events: new AsyncEventEmitter<KubbEvents>(),
+      hooks: new AsyncEventEmitter<KubbHooks>(),
     })
 
     const path = noResolvePluginDriver.resolvePath({
@@ -279,7 +279,7 @@ describe('PluginDriver', () => {
         return `pluginA/gen/${baseName}`
       },
     }))
-    const localPluginDriver = new PluginDriver({ ...config, plugins: [pluginWithPath({})] as Array<Plugin> }, { events: new AsyncEventEmitter<KubbEvents>() })
+    const localPluginDriver = new PluginDriver({ ...config, plugins: [pluginWithPath({})] as Array<Plugin> }, { hooks: new AsyncEventEmitter<KubbHooks>() })
 
     const file = localPluginDriver.getFile({
       name: 'testFile',
@@ -301,7 +301,7 @@ describe('PluginDriver', () => {
         return `pluginA/gen/${baseName || 'index.ts'}`
       },
     }))
-    const localPluginDriver = new PluginDriver({ ...config, plugins: [pluginWithPath({})] as Array<Plugin> }, { events: new AsyncEventEmitter<KubbEvents>() })
+    const localPluginDriver = new PluginDriver({ ...config, plugins: [pluginWithPath({})] as Array<Plugin> }, { hooks: new AsyncEventEmitter<KubbHooks>() })
 
     const file = localPluginDriver.getFile({
       name: 'testFile',

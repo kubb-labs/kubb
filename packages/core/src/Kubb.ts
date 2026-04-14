@@ -37,9 +37,9 @@ type HookResult<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
  * @example
  * ```typescript
  * import type { AsyncEventEmitter } from '@internals/utils'
- * import type { KubbEvents } from '@kubb/core'
+ * import type { KubbHooks } from '@kubb/core'
  *
- * const events: AsyncEventEmitter<KubbEvents> = new AsyncEventEmitter()
+ * const hooks: AsyncEventEmitter<KubbHooks> = new AsyncEventEmitter()
  *
  * events.on('kubb:lifecycle:start', () => {
  *   console.log('Starting Kubb generation')
@@ -50,7 +50,7 @@ type HookResult<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
  * })
  * ```
  */
-export interface KubbEvents {
+export interface KubbHooks {
   /**
    * Emitted at the beginning of the Kubb lifecycle, before any code generation starts.
    */

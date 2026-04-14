@@ -4,7 +4,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { AsyncEventEmitter, getRelativePath } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type KubbEvents, safeBuild, type UserConfig } from '@kubb/core'
+import { type KubbHooks, safeBuild, type UserConfig } from '@kubb/core'
 import { parserTs } from '@kubb/parser-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 import { describe, expect, test } from 'vitest'
@@ -166,7 +166,7 @@ describe(`plugin-zod options ${version}`, () => {
           path: output,
         },
       },
-      events: new AsyncEventEmitter<KubbEvents>(),
+      hooks: new AsyncEventEmitter<KubbHooks>(),
     })
 
     expect(files.length).toBeGreaterThan(0)

@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { AsyncEventEmitter } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, type KubbEvents, safeBuild } from '@kubb/core'
+import { type Config, type KubbHooks, safeBuild } from '@kubb/core'
 import { parserTs } from '@kubb/parser-ts'
 import type { UnpluginFactory } from 'unplugin'
 import { version as unpluginVersion } from '../package.json'
@@ -15,7 +15,7 @@ type RollupContext = {
 
 export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, meta) => {
   const name = 'unplugin-kubb' as const
-  const events = new AsyncEventEmitter<KubbEvents>()
+  const events = new AsyncEventEmitter<KubbHooks>()
   const isVite = meta.framework === 'vite'
   const hrStart = process.hrtime()
 

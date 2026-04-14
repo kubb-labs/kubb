@@ -1,6 +1,6 @@
 import type { AsyncEventEmitter } from '@internals/utils'
 import { toError } from '@internals/utils'
-import type { KubbEvents } from '@kubb/core'
+import type { KubbHooks } from '@kubb/core'
 import { NonZeroExitError, x } from 'tinyexec'
 
 type HookOutputSink = {
@@ -17,7 +17,7 @@ type RunHookOptions = {
   command: string
   args?: readonly string[]
   commandWithArgs: string
-  context: AsyncEventEmitter<KubbEvents>
+  context: AsyncEventEmitter<KubbHooks>
   /** When true the process output is streamed line-by-line via onLine. */
   stream?: boolean
   sink?: HookOutputSink

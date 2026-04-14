@@ -1,5 +1,5 @@
 import { AsyncEventEmitter } from '@internals/utils'
-import { type Config, type KubbEvents, safeBuild, setup } from '@kubb/core'
+import { type Config, type KubbHooks, safeBuild, setup } from '@kubb/core'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.d.ts'
 import type { z } from 'zod'
 import type { generateSchema } from '../schemas/generateSchema.ts'
@@ -20,7 +20,7 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
   const { config: configPath, input, output, logLevel } = schema
 
   try {
-    const events = new AsyncEventEmitter<KubbEvents>()
+    const events = new AsyncEventEmitter<KubbHooks>()
     const messages: string[] = []
 
     // Helper to send notifications

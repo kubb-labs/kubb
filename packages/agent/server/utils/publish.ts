@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { tokenize } from '@internals/utils'
-import type { AsyncEventEmitter, KubbEvents } from '@kubb/core'
+import type { AsyncEventEmitter, KubbHooks } from '@kubb/core'
 import { x } from 'tinyexec'
 
 type PublishProps = {
@@ -10,7 +10,7 @@ type PublishProps = {
   outputPath: string
   /** Project root — used as the working directory when outputPath is relative */
   root: string
-  events: AsyncEventEmitter<KubbEvents>
+  hooks: AsyncEventEmitter<KubbHooks>
 }
 
 /**

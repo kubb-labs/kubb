@@ -1,5 +1,5 @@
 import { formatMs, maskString, serializePluginOptions } from '@internals/utils'
-import { AsyncEventEmitter, fsStorage, type KubbEvents, memoryStorage } from '@kubb/core'
+import { AsyncEventEmitter, fsStorage, type KubbHooks, memoryStorage } from '@kubb/core'
 import type { NitroApp } from 'nitropack/types'
 import { version } from '~~/package.json'
 import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage, isPublishCommandMessage } from '../types/agent.ts'
@@ -51,7 +51,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
   // Each connection gets its own isolated event emitter so generation events
   // from one session do not bleed into another session's WebSocket stream.
-  const events = new AsyncEventEmitter<KubbEvents>()
+  const events = new AsyncEventEmitter<KubbHooks>()
   let currentSource: 'generate' | 'publish' | undefined
 
   async function reconnect() {

@@ -4,7 +4,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { AsyncEventEmitter, getRelativePath } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type KubbEvents, safeBuild, type UserConfig } from '@kubb/core'
+import { type KubbHooks, safeBuild, type UserConfig } from '@kubb/core'
 import { parserTs } from '@kubb/parser-ts'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -401,7 +401,7 @@ describe(`Main OpenAPI ${version}`, () => {
           path: output,
         },
       },
-      events: new AsyncEventEmitter<KubbEvents>(),
+      hooks: new AsyncEventEmitter<KubbHooks>(),
     })
 
     expect(files.length).toBeGreaterThan(1)
