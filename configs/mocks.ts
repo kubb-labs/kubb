@@ -212,7 +212,17 @@ function callLegacyGenerator<TOptions extends PluginFactoryOptions, TArgs extend
   context: GeneratorContext<TOptions>,
   ...args: TArgs
 ): unknown {
-  return (handler as (this: GeneratorContext<TOptions>, ...args: TArgs) => unknown).call(context, ...args)
+  const normalizedArgs = [...args] as Array<unknown>
+  if (normalizedArgs.length > 1 && typeof normalizedArgs[1] === 'object' && normalizedArgs[1] !== null) {
+    const options = normalizedArgs[1] as object
+    normalizedArgs[1] = {
+      ...context,
+      ...options,
+      options,
+    }
+  }
+
+  return (handler as (this: GeneratorContext<TOptions>, ...args: TArgs) => unknown).call(context, ...(normalizedArgs as TArgs))
 }
 
 /**

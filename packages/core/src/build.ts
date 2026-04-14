@@ -251,7 +251,16 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
   }
 
   function callLegacyGenerator<TArgs extends Array<unknown>>(handler: unknown, generatorContext: GeneratorContext, ...args: TArgs): unknown {
-    return (handler as (this: GeneratorContext, ...args: TArgs) => unknown).call(generatorContext, ...args)
+    const normalizedArgs = [...args] as Array<unknown>
+    if (normalizedArgs.length > 1 && typeof normalizedArgs[1] === 'object' && normalizedArgs[1] !== null) {
+      const options = normalizedArgs[1] as object
+      normalizedArgs[1] = {
+        ...generatorContext,
+        ...options,
+        options,
+      }
+    }
+    return (handler as (this: GeneratorContext, ...args: TArgs) => unknown).call(generatorContext, ...(normalizedArgs as TArgs))
   }
 
   const generators = plugin.generators ?? []
