@@ -214,7 +214,12 @@ function callLegacyGenerator<TOptions extends PluginFactoryOptions, TArgs extend
 ): unknown {
   const LEGACY_OPTIONS_ARG_INDEX = 1
   const normalizedArgs = [...args] as Array<unknown>
-  if (normalizedArgs.length > LEGACY_OPTIONS_ARG_INDEX && typeof normalizedArgs[LEGACY_OPTIONS_ARG_INDEX] === 'object' && normalizedArgs[LEGACY_OPTIONS_ARG_INDEX] !== null) {
+  if (
+    normalizedArgs.length > LEGACY_OPTIONS_ARG_INDEX &&
+    typeof normalizedArgs[LEGACY_OPTIONS_ARG_INDEX] === 'object' &&
+    normalizedArgs[LEGACY_OPTIONS_ARG_INDEX] !== null &&
+    !Array.isArray(normalizedArgs[LEGACY_OPTIONS_ARG_INDEX])
+  ) {
     const options = normalizedArgs[LEGACY_OPTIONS_ARG_INDEX] as object
     normalizedArgs[LEGACY_OPTIONS_ARG_INDEX] = {
       ...context,
