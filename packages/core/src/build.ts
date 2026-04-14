@@ -253,10 +253,12 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
   const generators = plugin.generators ?? []
   const collectedOperations: Array<OperationNode> = []
 
-  // Cast to GeneratorContext is safe: adapter and inputNode are verified to be defined on lines 239-241 above.
-  // GeneratorContext is Omit<PluginContext, 'adapter' | 'inputNode'> & { adapter: Adapter; inputNode: InputNode }
-  // so narrowing PluginContext → GeneratorContext is valid once both are confirmed non-null.
-  const generatorContext = context as GeneratorContext
+  // Adapter and inputNode are verified to be defined on lines 239-241 above.
+  // Generator listeners should always receive the currently resolved resolver for this plugin.
+  const generatorContext = {
+    ...(context as GeneratorContext),
+    resolver: driver.getResolver(plugin.name),
+  } as GeneratorContext
 
   await walk(inputNode, {
     depth: 'shallow',
@@ -268,7 +270,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       // Legacy path: direct generator calls for plugins with static generators array.
       for (const gen of generators) {
         if (!gen.schema) continue
-        const result = await gen.schema.call(context as GeneratorContext, transformedNode, options)
+        const result = await gen.schema.call(generatorContext, transformedNode, options)
         await applyHookResult(result, driver, resolveRenderer(gen))
       }
 
@@ -284,7 +286,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
         // Legacy path: direct generator calls.
         for (const gen of generators) {
           if (!gen.operation) continue
-          const result = await gen.operation.call(context as GeneratorContext, transformedNode, options)
+          const result = await gen.operation.call(generatorContext, transformedNode, options)
           await applyHookResult(result, driver, resolveRenderer(gen))
         }
 
@@ -298,7 +300,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
     // Legacy path: direct operations batch call.
     for (const gen of generators) {
       if (!gen.operations) continue
-      const result = await gen.operations.call(context as GeneratorContext, collectedOperations, plugin.options)
+      const result = await gen.operations.call(generatorContext, collectedOperations, plugin.options)
       await applyHookResult(result, driver, resolveRenderer(gen))
     }
 

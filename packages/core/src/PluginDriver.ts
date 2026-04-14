@@ -7,6 +7,7 @@ import type { FileNode, InputNode } from '@kubb/ast/types'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
 import { type HookStylePlugin, isHookStylePlugin } from './definePlugin.ts'
+import { defineResolver } from './defineResolver.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
 import { applyHookResult } from './renderNode.ts'
@@ -23,6 +24,7 @@ import type {
   PluginLifecycle,
   PluginLifecycleHooks,
   PluginParameter,
+  Resolver,
   PluginWithLifeCycle,
   ResolveNameParams,
   ResolvePathParams,
@@ -113,6 +115,7 @@ export class PluginDriver {
    * Used by the build loop to decide whether to emit generator events for a given plugin.
    */
   readonly #pluginsWithEventGenerators = new Set<string>()
+  readonly #resolvers = new Map<string, Resolver>()
 
   constructor(config: Config, options: Options) {
     this.config = config
@@ -200,7 +203,7 @@ export class PluginDriver {
             this.registerGenerator(normalizedPlugin.name, gen)
           },
           setResolver: (resolver) => {
-            normalizedPlugin.resolver = resolver as Plugin['resolver']
+            this.setPluginResolver(normalizedPlugin.name, resolver)
           },
           setTransformer: (visitor) => {
             normalizedPlugin.transformer = visitor
@@ -307,6 +310,32 @@ export class PluginDriver {
     return this.#pluginsWithEventGenerators.has(pluginName)
   }
 
+  #createDefaultResolver(pluginName: string): Resolver {
+    return defineResolver<PluginFactoryOptions>(() => ({
+      name: 'default',
+      pluginName,
+    }))
+  }
+
+  setPluginResolver(pluginName: string, partial: Partial<Resolver>): void {
+    const defaultResolver = this.#createDefaultResolver(pluginName)
+    this.#resolvers.set(pluginName, { ...defaultResolver, ...partial })
+  }
+
+  getResolver(pluginName: string): Resolver {
+    const dynamicResolver = this.#resolvers.get(pluginName)
+    if (dynamicResolver) {
+      return dynamicResolver
+    }
+
+    const pluginResolver = this.plugins.get(pluginName)?.resolver
+    if (pluginResolver) {
+      return pluginResolver
+    }
+
+    return this.#createDefaultResolver(pluginName)
+  }
+
   getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, unknown> {
     const driver = this
 
@@ -336,7 +365,7 @@ export class PluginDriver {
         return driver.adapter
       },
       get resolver() {
-        return plugin.resolver
+        return driver.getResolver(plugin.name)
       },
       get transformer() {
         return plugin.transformer

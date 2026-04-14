@@ -171,6 +171,53 @@ describe('PluginDriver — hook-style plugin registration', () => {
     expect(capturedOptions[0]).toEqual({ tag: 'pets' })
   })
 
+  it('setResolver() merges partial resolver overrides with framework defaults', async () => {
+    const hookPlugin = definePlugin(() => ({
+      name: 'hook-plugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.setResolver({
+            default() {
+              return 'CustomTypeName'
+            },
+          })
+        },
+      },
+    }))()
+
+    const events = new AsyncEventEmitter<KubbEvents>()
+    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    await driver.emitSetupHooks()
+
+    const resolver = driver.getResolver('hook-plugin')
+    expect(resolver.default('any value', 'type')).toBe('CustomTypeName')
+    expect(
+      resolver.resolvePath(
+        { baseName: 'pets.ts' },
+        {
+          root: '/tmp/root',
+          output: { path: 'gen' },
+        },
+      ),
+    ).toBe('/tmp/root/gen/pets.ts')
+  })
+
+  it('uses default resolver when setResolver() is never called', async () => {
+    const hookPlugin = definePlugin(() => ({
+      name: 'hook-plugin',
+      hooks: {
+        'kubb:plugin:setup'() {},
+      },
+    }))()
+
+    const events = new AsyncEventEmitter<KubbEvents>()
+    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    await driver.emitSetupHooks()
+
+    const resolver = driver.getResolver('hook-plugin')
+    expect(resolver.default('my custom type', 'type')).toBe('MyCustomType')
+  })
+
   it('external listeners receive kubb:plugin:setup context', async () => {
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
@@ -353,5 +400,44 @@ describe('PluginDriver — generator event dispatch', () => {
 
     await events.emit('kubb:generate:operations', fakeNodes, fakeCtx)
     expect(operationsMock).toHaveBeenCalledOnce()
+  })
+
+  it('registerGenerator() receives the resolved resolver on ctx.resolver', async () => {
+    const resolverNameMock = vi.fn()
+    const schemaMock = vi.fn(function (this: any) {
+      resolverNameMock(this.resolver.default('pet schema', 'type'))
+      return undefined
+    })
+
+    const hookPlugin = definePlugin(() => ({
+      name: 'hook-plugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.setResolver({
+            default() {
+              return 'ResolvedFromSetup'
+            },
+          })
+          ctx.addGenerator({ name: 'test-gen', schema: schemaMock })
+        },
+      },
+    }))()
+
+    const events = new AsyncEventEmitter<KubbEvents>()
+    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    await driver.emitSetupHooks()
+
+    const fakePlugin = driver.plugins.get('hook-plugin')!
+    const fakeCtx = {
+      ...(driver.getContext(fakePlugin) as any),
+      adapter: {},
+      inputNode: {},
+    }
+    const fakeNode = { kind: 'Schema', name: 'Pet' } as any
+
+    await events.emit('kubb:generate:schema', fakeNode, { ...fakeCtx, options: {} })
+
+    expect(schemaMock).toHaveBeenCalledOnce()
+    expect(resolverNameMock).toHaveBeenCalledWith('ResolvedFromSetup')
   })
 })
