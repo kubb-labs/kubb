@@ -1,7 +1,6 @@
 import { camelCase } from '@internals/utils'
 import { definePlugin, type Group, getPreset } from '@kubb/core'
 import { jsxRenderer } from '@kubb/renderer-jsx'
-import { version } from '../package.json'
 import { typeGenerator } from './generators/typeGenerator.tsx'
 import { typeGeneratorLegacy } from './generators/typeGeneratorLegacy.tsx'
 import { presets } from './presets.ts'
@@ -61,33 +60,35 @@ export const pluginTs = definePlugin<PluginTs['options']>((options = {}) => {
     preset.generators ??
     [compatibilityPreset === 'kubbV4' ? typeGeneratorLegacy : typeGenerator].filter(Boolean)
 
+  const pluginOptions = {
+    output,
+    exclude,
+    include,
+    override,
+    optionalType,
+    group: group
+      ? ({
+          ...group,
+          name: (ctx) => {
+            if (group.type === 'path') {
+              return `${ctx.group.split('/')[1]}`
+            }
+            return `${camelCase(ctx.group)}Controller`
+          },
+        } satisfies Group)
+      : undefined,
+    arrayType,
+    enumType,
+    enumTypeSuffix,
+    enumKeyCasing,
+    syntaxType,
+    paramsCasing,
+    printer,
+  } as PluginTs['options']
+
   return {
     name: pluginTsName,
-    options: {
-      output,
-      exclude,
-      include,
-      override,
-      optionalType,
-      group: group
-        ? ({
-            ...group,
-            name: (ctx) => {
-              if (group.type === 'path') {
-                return `${ctx.group.split('/')[1]}`
-              }
-              return `${camelCase(ctx.group)}Controller`
-            },
-          } satisfies Group)
-        : undefined,
-      arrayType,
-      enumType,
-      enumTypeSuffix,
-      enumKeyCasing,
-      syntaxType,
-      paramsCasing,
-      printer,
-    },
+    options: pluginOptions,
     hooks: {
       'kubb:plugin:setup'({ addGenerator, setResolver, setRenderer, setTransformer }) {
         setRenderer(jsxRenderer)
@@ -95,7 +96,9 @@ export const pluginTs = definePlugin<PluginTs['options']>((options = {}) => {
         if (preset.transformer) {
           setTransformer(preset.transformer)
         }
-        generators.forEach((generator) => addGenerator(generator))
+        generators.forEach((generator) => {
+          addGenerator(generator)
+        })
       },
     },
   }

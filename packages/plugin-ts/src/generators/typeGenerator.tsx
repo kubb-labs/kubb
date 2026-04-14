@@ -1,6 +1,6 @@
 import { caseParams, narrowSchema, schemaTypes } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
-import { defineGenerator } from '@kubb/core'
+import { defineGenerator, type GeneratorContext } from '@kubb/core'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
@@ -12,13 +12,15 @@ export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   renderer: jsxRenderer,
   schema(node, ctx) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, printer } = ctx.options
-    const { adapter, config, resolver, root } = ctx
+    const generatorContext = ('adapter' in ctx ? ctx : this) as GeneratorContext<PluginTs>
+    const options = ('options' in ctx ? ctx.options : ctx) as PluginTs['resolvedOptions']
+    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, printer } = options
+    const { adapter, config, resolver, root } = generatorContext
 
     if (!node.name) {
       return
     }
-    const mode = ctx.getMode(output)
+    const mode = generatorContext.getMode(output)
     // Build a set of schema names that are enums so the ref handler and getImports
     // callback can use the suffixed type name (e.g. `StatusKey`) for those refs.
     const enumSchemaNames = new Set((adapter.inputNode?.schemas ?? []).filter((s) => narrowSchema(s, schemaTypes.enum) && s.name).map((s) => s.name!))
@@ -80,10 +82,12 @@ export const typeGenerator = defineGenerator<PluginTs>({
     )
   },
   operation(node, ctx) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, printer } = ctx.options
-    const { adapter, config, resolver, root } = ctx
+    const generatorContext = ('adapter' in ctx ? ctx : this) as GeneratorContext<PluginTs>
+    const options = ('options' in ctx ? ctx.options : ctx) as PluginTs['resolvedOptions']
+    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, printer } = options
+    const { adapter, config, resolver, root } = generatorContext
 
-    const mode = ctx.getMode(output)
+    const mode = generatorContext.getMode(output)
 
     const params = caseParams(node.parameters, paramsCasing)
 

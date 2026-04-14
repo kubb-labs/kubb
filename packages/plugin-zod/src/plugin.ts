@@ -1,7 +1,6 @@
 import { camelCase } from '@internals/utils'
 import { definePlugin, type Group, getPreset } from '@kubb/core'
 import { jsxRenderer } from '@kubb/renderer-jsx'
-import { version } from '../package.json'
 import { zodGenerator } from './generators/zodGenerator.tsx'
 import { zodGeneratorLegacy } from './generators/zodGeneratorLegacy.tsx'
 import { presets } from './presets.ts'
@@ -64,36 +63,38 @@ export const pluginZod = definePlugin<PluginZod['options']>((options = {}) => {
     preset.generators ??
     [compatibilityPreset === 'kubbV4' ? zodGeneratorLegacy : zodGenerator].filter(Boolean)
 
+  const pluginOptions = {
+    output,
+    exclude,
+    include,
+    override,
+    group: group
+      ? ({
+          ...group,
+          name: (ctx) => {
+            if (group.type === 'path') {
+              return `${ctx.group.split('/')[1]}`
+            }
+            return `${camelCase(ctx.group)}Controller`
+          },
+        } satisfies Group)
+      : undefined,
+    dateType,
+    typed,
+    importPath,
+    coercion,
+    operations,
+    inferred,
+    guidType,
+    mini,
+    wrapOutput,
+    paramsCasing,
+    printer,
+  } as PluginZod['options']
+
   return {
     name: pluginZodName,
-    options: {
-      output,
-      exclude,
-      include,
-      override,
-      group: group
-        ? ({
-            ...group,
-            name: (ctx) => {
-              if (group.type === 'path') {
-                return `${ctx.group.split('/')[1]}`
-              }
-              return `${camelCase(ctx.group)}Controller`
-            },
-          } satisfies Group)
-        : undefined,
-      dateType,
-      typed,
-      importPath,
-      coercion,
-      operations,
-      inferred,
-      guidType,
-      mini,
-      wrapOutput,
-      paramsCasing,
-      printer,
-    },
+    options: pluginOptions,
     hooks: {
       'kubb:plugin:setup'({ addGenerator, setResolver, setRenderer, setTransformer }) {
         setRenderer(jsxRenderer)
@@ -101,7 +102,9 @@ export const pluginZod = definePlugin<PluginZod['options']>((options = {}) => {
         if (preset.transformer) {
           setTransformer(preset.transformer)
         }
-        generators.forEach((generator) => addGenerator(generator))
+        generators.forEach((generator) => {
+          addGenerator(generator)
+        })
       },
     },
   }
