@@ -1,5 +1,5 @@
-import type { KubbPluginSetupContext } from './types.ts'
 import type { KubbEvents } from './Kubb.ts'
+import type { KubbPluginSetupContext } from './types.ts'
 
 /**
  * Converts the global `KubbEvents` tuple-style event signatures into optional
