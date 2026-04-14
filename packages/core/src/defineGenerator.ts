@@ -7,16 +7,14 @@ export type { GeneratorContext } from './types.ts'
 
 /**
  * A generator is a named object with optional `schema`, `operation`, and `operations`
- * methods. Each method is called with `this = PluginContext` of the parent plugin,
- * giving full access to `this.config`, `this.resolver`, `this.adapter`,
- * `this.driver`, etc.
+ * methods. Each method receives a parameter-based context (`ctx`) as the second argument.
  *
  * Generators that return renderer elements (e.g. JSX) must declare a `renderer`
  * factory so that core knows how to process the output without coupling core
  * to any specific renderer package.
  *
  * Return a renderer element, an array of `FileNode`, or `void` to handle file
- * writing manually via `this.upsertFile`.
+ * writing manually via `ctx.emitFile`.
  *
  * @example
  * ```ts
@@ -25,11 +23,12 @@ export type { GeneratorContext } from './types.ts'
  * export const typeGenerator = defineGenerator<PluginTs>({
  *   name: 'typescript',
  *   renderer: jsxRenderer,
- *   schema(node, options) {
- *     const { adapter, resolver, root } = this
+ *   schema(node, ctx) {
+ *     const { adapter, resolver, root, options } = ctx
  *     return <File ...><Type node={node} resolver={resolver} /></File>
  *   },
- *   operation(node, options) {
+ *   operation(node, ctx) {
+ *     const { options } = ctx
  *     return <File ...><OperationType node={node} /></File>
  *   },
  * })
@@ -52,37 +51,28 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    * @example
    * ```ts
    * import { jsxRenderer } from '@kubb/renderer-jsx'
-   * export const myGenerator = defineGenerator<PluginTs>({
-   *   renderer: jsxRenderer,
-   *   schema(node, options) { return <File ...>...</File> },
-   * })
-   * ```
-   */
+ * export const myGenerator = defineGenerator<PluginTs>({
+ *   renderer: jsxRenderer,
+ *   schema(node, ctx) { return <File ...>...</File> },
+ * })
+ * ```
+  */
   renderer?: RendererFactory<TElement> | null
   /**
    * Called for each schema node in the AST walk.
-   * `this` is the parent plugin's context with `adapter` and `inputNode` guaranteed present.
-   * `options` contains the per-node resolved options (after exclude/include/override).
+   * `ctx` always includes `adapter`, `inputNode`, and the per-node resolved `options`.
    */
-  schema?: (this: GeneratorContext<TOptions>, node: SchemaNode, options: TOptions['resolvedOptions']) => PossiblePromise<TElement | Array<FileNode> | void>
+  schema?: (node: SchemaNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
   /**
    * Called for each operation node in the AST walk.
-   * `this` is the parent plugin's context with `adapter` and `inputNode` guaranteed present.
+   * `ctx` always includes `adapter`, `inputNode`, and the per-node resolved `options`.
    */
-  operation?: (
-    this: GeneratorContext<TOptions>,
-    node: OperationNode,
-    options: TOptions['resolvedOptions'],
-  ) => PossiblePromise<TElement | Array<FileNode> | void>
+  operation?: (node: OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
   /**
    * Called once after all operations have been walked.
-   * `this` is the parent plugin's context with `adapter` and `inputNode` guaranteed present.
+   * `ctx` includes `adapter`, `inputNode`, and plugin-level resolved `options`.
    */
-  operations?: (
-    this: GeneratorContext<TOptions>,
-    nodes: Array<OperationNode>,
-    options: TOptions['resolvedOptions'],
-  ) => PossiblePromise<TElement | Array<FileNode> | void>
+  operations?: (nodes: Array<OperationNode>, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
 }
 
 /**

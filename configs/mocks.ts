@@ -198,6 +198,8 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     driver: opts.driver,
     inputNode: { kind: 'Input', schemas: [], operations: [] },
     upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
+    emitFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
+    options: opts.options,
     warn: (msg: string) => console.warn(msg),
     error: (msg: string) => console.error(msg),
     info: (msg: string) => console.info(msg),
@@ -222,7 +224,11 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
   if (!generator.schema) return
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
-  const result = await generator.schema.call(context, transformedNode, opts.options)
+  const result = await (generator.schema as unknown as (this: GeneratorContext<TOptions>, node: SchemaNode, options: TOptions['resolvedOptions']) => ReturnType<NonNullable<Generator<TOptions>['schema']>>).call(
+    context,
+    transformedNode,
+    opts.options,
+  )
   await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
 }
 
@@ -243,7 +249,13 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
   if (!generator.operation) return
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
-  const result = await generator.operation.call(context, transformedNode, opts.options)
+  const result = await (
+    generator.operation as unknown as (
+      this: GeneratorContext<TOptions>,
+      node: OperationNode,
+      options: TOptions['resolvedOptions'],
+    ) => ReturnType<NonNullable<Generator<TOptions>['operation']>>
+  ).call(context, transformedNode, opts.options)
   await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
 }
 
@@ -264,6 +276,12 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
   if (!generator.operations) return
   const context = createMockedPluginContext(opts)
   const transformedNodes = opts.plugin.transformer ? nodes.map((n) => transform(n, opts.plugin.transformer!)) : nodes
-  const result = await generator.operations.call(context, transformedNodes, opts.options)
+  const result = await (
+    generator.operations as unknown as (
+      this: GeneratorContext<TOptions>,
+      nodes: Array<OperationNode>,
+      options: TOptions['resolvedOptions'],
+    ) => ReturnType<NonNullable<Generator<TOptions>['operations']>>
+  ).call(context, transformedNodes, opts.options)
   await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
 }

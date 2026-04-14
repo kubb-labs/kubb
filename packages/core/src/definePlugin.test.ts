@@ -1,4 +1,5 @@
 import { AsyncEventEmitter } from '@internals/utils'
+import { createFile } from '@kubb/ast'
 import { describe, expect, it, vi } from 'vitest'
 import { createMockedAdapter } from '#mocks'
 import { createPlugin } from './createPlugin.ts'
@@ -304,11 +305,19 @@ describe('PluginDriver — generator event dispatch', () => {
     await driver.emitSetupHooks()
 
     const fakePlugin = driver.plugins.get('hook-plugin')!
-    const fakeCtx = { plugin: fakePlugin, adapter: {}, inputNode: {} } as any
+    const fakeCtx = {
+      ...(driver.getContext(fakePlugin) as any),
+      plugin: fakePlugin,
+      adapter: {},
+      inputNode: {},
+      options: {},
+      emitFile: vi.fn(),
+    } as const
     const fakeNode = { kind: 'Schema', name: 'Pet' } as any
 
-    await events.emit('kubb:generate:schema', fakeNode, { ...fakeCtx, options: {} })
+    await events.emit('kubb:generate:schema', fakeNode, fakeCtx as any)
     expect(schemaMock).toHaveBeenCalledOnce()
+    expect(schemaMock).toHaveBeenCalledWith(fakeNode, expect.objectContaining({ options: {}, plugin: fakePlugin }))
   })
 
   it('registerGenerator() does NOT fire for a different plugin context', async () => {
@@ -328,10 +337,10 @@ describe('PluginDriver — generator event dispatch', () => {
 
     // Emit with a DIFFERENT plugin name in the context — should NOT trigger the listener
     const otherPlugin = { name: 'other-plugin' } as any
-    const fakeCtx = { plugin: otherPlugin, adapter: {}, inputNode: {} } as any
+    const fakeCtx = { plugin: otherPlugin, adapter: {}, inputNode: {}, options: {}, emitFile: vi.fn() } as any
     const fakeNode = { kind: 'Schema', name: 'Pet' } as any
 
-    await events.emit('kubb:generate:schema', fakeNode, { ...fakeCtx, options: {} })
+    await events.emit('kubb:generate:schema', fakeNode, fakeCtx)
     expect(schemaMock).not.toHaveBeenCalled()
   })
 
@@ -369,10 +378,10 @@ describe('PluginDriver — generator event dispatch', () => {
     await driver.emitSetupHooks()
 
     const fakePlugin = driver.plugins.get('hook-plugin')!
-    const fakeCtx = { plugin: fakePlugin, adapter: {}, inputNode: {} } as any
+    const fakeCtx = { ...(driver.getContext(fakePlugin) as any), plugin: fakePlugin, adapter: {}, inputNode: {}, options: {}, emitFile: vi.fn() } as any
     const fakeNode = { kind: 'Operation', operationId: 'getPet' } as any
 
-    await events.emit('kubb:generate:operation', fakeNode, { ...fakeCtx, options: {} })
+    await events.emit('kubb:generate:operation', fakeNode, fakeCtx)
     expect(operationMock).toHaveBeenCalledOnce()
   })
 
@@ -392,7 +401,7 @@ describe('PluginDriver — generator event dispatch', () => {
     await driver.emitSetupHooks()
 
     const fakePlugin = driver.plugins.get('hook-plugin')!
-    const fakeCtx = { plugin: fakePlugin, adapter: {}, inputNode: {}, options: {} } as any
+    const fakeCtx = { ...(driver.getContext(fakePlugin) as any), plugin: fakePlugin, adapter: {}, inputNode: {}, options: {}, emitFile: vi.fn() } as any
     const fakeNodes = [{ kind: 'Operation', operationId: 'getPet' }] as any
 
     await events.emit('kubb:generate:operations', fakeNodes, fakeCtx)
@@ -401,8 +410,8 @@ describe('PluginDriver — generator event dispatch', () => {
 
   it('registerGenerator() receives the resolved resolver on ctx.resolver', async () => {
     const capturedResolverResult = vi.fn()
-    const schemaMock = vi.fn(function (this: any) {
-      capturedResolverResult(this.resolver.default('pet schema', 'type'))
+    const schemaMock = vi.fn((_node, ctx) => {
+      capturedResolverResult(ctx.resolver.default('pet schema', 'type'))
       return undefined
     })
 
@@ -429,12 +438,82 @@ describe('PluginDriver — generator event dispatch', () => {
       ...(driver.getContext(fakePlugin) as any),
       adapter: {},
       inputNode: {},
+      options: {},
+      emitFile: vi.fn(),
     }
     const fakeNode = { kind: 'Schema', name: 'Pet' } as any
 
-    await events.emit('kubb:generate:schema', fakeNode, { ...fakeCtx, options: {} })
+    await events.emit('kubb:generate:schema', fakeNode, fakeCtx)
 
     expect(schemaMock).toHaveBeenCalledOnce()
     expect(capturedResolverResult).toHaveBeenCalledWith('ResolvedFromSetup')
+  })
+
+  it('registerGenerator() supports arrow function generators with ctx parameter', async () => {
+    const schemaMock = vi.fn((_node, ctx) => ctx.resolver.default('pet schema', 'type'))
+    const hookPlugin = definePlugin(() => ({
+      name: 'hook-plugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.addGenerator({ name: 'test-gen', schema: schemaMock })
+        },
+      },
+    }))()
+
+    const events = new AsyncEventEmitter<KubbEvents>()
+    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    await driver.emitSetupHooks()
+
+    const fakePlugin = driver.plugins.get('hook-plugin')!
+    const fakeCtx = { ...(driver.getContext(fakePlugin) as any), plugin: fakePlugin, adapter: {}, inputNode: {}, options: {}, emitFile: vi.fn() } as any
+    const fakeNode = { kind: 'Schema', name: 'Pet' } as any
+
+    await events.emit('kubb:generate:schema', fakeNode, fakeCtx)
+
+    expect(schemaMock).toHaveBeenCalledOnce()
+    expect(schemaMock.mock.calls[0]?.[1]).toEqual(expect.objectContaining({ options: {} }))
+  })
+
+  it('registerGenerator() exposes ctx.emitFile that writes via fileManager', async () => {
+    const hookPlugin = definePlugin(() => ({
+      name: 'hook-plugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.addGenerator({
+            name: 'test-gen',
+            async schema(_node, generatorCtx) {
+              await generatorCtx.emitFile(
+                createFile({
+                  path: 'src/gen/pet.ts',
+                  baseName: 'pet.ts',
+                  sources: [],
+                  imports: [],
+                  exports: [],
+                }),
+              )
+            },
+          })
+        },
+      },
+    }))()
+
+    const events = new AsyncEventEmitter<KubbEvents>()
+    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    await driver.emitSetupHooks()
+
+    const fakePlugin = driver.plugins.get('hook-plugin')!
+    const fakeCtx = {
+      ...(driver.getContext(fakePlugin) as any),
+      plugin: fakePlugin,
+      adapter: {},
+      inputNode: {},
+      options: {},
+      emitFile: (...files: Array<any>) => driver.fileManager.upsert(...files),
+    }
+    const fakeNode = { kind: 'Schema', name: 'Pet' } as any
+
+    await events.emit('kubb:generate:schema', fakeNode, fakeCtx as any)
+
+    expect(driver.fileManager.files.some((f) => f.baseName === 'pet.ts')).toBe(true)
   })
 })
