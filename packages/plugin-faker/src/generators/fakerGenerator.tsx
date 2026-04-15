@@ -27,7 +27,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     const schemaGenerator = new SchemaGenerator(options, {
       oas,
       plugin,
-      events: generator.context.events,
+      hooks: generator.context.hooks,
       driver,
       mode,
       override: options.override,
