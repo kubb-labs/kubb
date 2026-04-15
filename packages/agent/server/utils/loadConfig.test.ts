@@ -1,16 +1,15 @@
 import { describe, expect, it, vi } from 'vitest'
-import { loadConfig } from './loadConfig.ts'
+import { getConfigs, loadConfig } from './loadConfig.ts'
 
 vi.mock('./getCosmiConfig.ts', () => ({
   getCosmiConfig: vi.fn(),
 }))
 
-vi.mock('@kubb/core', async (importOriginal) => ({
+vi.mock('./loadConfig/.ts', async (importOriginal) => ({
   ...(await importOriginal()),
   getConfigs: vi.fn(),
 }))
 
-import { getConfigs } from '@kubb/core'
 import { getCosmiConfig } from './getCosmiConfig.ts'
 
 describe('loadConfig', () => {

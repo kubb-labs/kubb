@@ -12,7 +12,6 @@ import {
   detectFormatter,
   detectLinter,
   formatters,
-  getConfigs,
   isInputPath,
   type KubbHooks,
   linters,
@@ -22,6 +21,7 @@ import { version } from '../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../constants.ts'
 import { setupLogger } from '../loggers/utils.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
+import { getConfigs } from '../utils/getConfig.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 import { startWatcher } from '../utils/watcher.ts'
