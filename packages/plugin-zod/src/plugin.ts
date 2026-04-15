@@ -1,7 +1,9 @@
 import { camelCase } from '@internals/utils'
-import { createPlugin, type Group, getPreset } from '@kubb/core'
-import { version } from '../package.json'
-import { presets } from './presets.ts'
+import { definePlugin, type Group } from '@kubb/core'
+import { zodGenerator } from './generators/zodGenerator.tsx'
+import { zodGeneratorLegacy } from './generators/zodGeneratorLegacy.tsx'
+import { resolverZod } from './resolvers/resolverZod.ts'
+import { resolverZodLegacy } from './resolvers/resolverZodLegacy.ts'
 import type { PluginZod } from './types.ts'
 
 /**
@@ -25,7 +27,7 @@ export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
  * })
  * ```
  */
-export const pluginZod = createPlugin<PluginZod>((options) => {
+export const pluginZod = definePlugin<PluginZod>((options) => {
   const {
     output = { path: 'zod', barrelType: 'named' },
     group,
@@ -43,86 +45,59 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     wrapOutput = undefined,
     paramsCasing,
     printer,
-    compatibilityPreset = 'default',
     resolver: userResolver,
     transformer: userTransformer,
     generators: userGenerators = [],
+    compatibilityPreset = 'default',
   } = options
 
-  const preset = getPreset({
-    preset: compatibilityPreset,
-    presets: presets,
-    resolver: userResolver,
-    transformer: userTransformer,
-    generators: userGenerators,
-  })
+  const defaultResolver = compatibilityPreset === 'kubbV4' ? resolverZodLegacy : resolverZod
+  const defaultGenerator = compatibilityPreset === 'kubbV4' ? zodGeneratorLegacy : zodGenerator
 
-  const generators = preset.generators ?? []
-
-  let resolveNameWarning = false
-  let resolvePathWarning = false
+  const groupConfig = group
+    ? ({
+        ...group,
+        name: (ctx) => {
+          if (group.type === 'path') {
+            return `${ctx.group.split('/')[1]}`
+          }
+          return `${camelCase(ctx.group)}Controller`
+        },
+      } satisfies Group)
+    : undefined
 
   return {
     name: pluginZodName,
-    version,
-    get resolver() {
-      return preset.resolver
-    },
-    get transformer() {
-      return preset.transformer
-    },
-    get options() {
-      return {
-        output,
-        exclude,
-        include,
-        override,
-        group: group
-          ? ({
-              ...group,
-              name: (ctx) => {
-                if (group.type === 'path') {
-                  return `${ctx.group.split('/')[1]}`
-                }
-                return `${camelCase(ctx.group)}Controller`
-              },
-            } satisfies Group)
-          : undefined,
-        dateType,
-        typed,
-        importPath,
-        coercion,
-        operations,
-        inferred,
-        guidType,
-        mini,
-        wrapOutput,
-        paramsCasing,
-        printer,
-      }
-    },
-    resolvePath(baseName, pathMode, options) {
-      if (!resolvePathWarning) {
-        this.warn('Do not use resolvePath for pluginZod, use resolverZod.resolvePath instead')
-        resolvePathWarning = true
-      }
-
-      return this.plugin.resolver.resolvePath(
-        { baseName, pathMode, tag: options?.group?.tag, path: options?.group?.path },
-        { root: this.root, output, group: this.plugin.options.group },
-      )
-    },
-    resolveName(name, type) {
-      if (!resolveNameWarning) {
-        this.warn('Do not use resolveName for pluginZod, use resolverZod.default instead')
-        resolveNameWarning = true
-      }
-
-      return this.plugin.resolver.default(name, type)
-    },
-    generators,
-    async buildStart() {
-      await this.openInStudio({ ast: true })
+    options,
+    hooks: {
+      'kubb:plugin:setup'(ctx) {
+        ctx.setOptions({
+          output,
+          exclude,
+          include,
+          override,
+          group: groupConfig,
+          dateType,
+          typed,
+          importPath,
+          coercion,
+          operations,
+          inferred,
+          guidType,
+          mini,
+          wrapOutput,
+          paramsCasing,
+          printer,
+        })
+        ctx.setResolver(userResolver ? { ...defaultResolver, ...userResolver } : defaultResolver)
+        if (userTransformer) {
+          ctx.setTransformer(userTransformer)
+        }
+        ctx.addGenerator(defaultGenerator)
+        for (const gen of userGenerators) {
+          ctx.addGenerator(gen)
+        }
+      },
     },
   }
 })

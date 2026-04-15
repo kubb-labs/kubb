@@ -10,7 +10,6 @@ export { defineGenerator } from './defineGenerator.ts'
 export { defineLogger } from './defineLogger.ts'
 export { defineParser } from './defineParser.ts'
 export { definePlugin } from './definePlugin.ts'
-export { definePresets } from './definePresets.ts'
 export {
   buildDefaultBanner,
   defaultResolveBanner,
@@ -30,7 +29,6 @@ export { getBarrelFiles } from './utils/getBarrelFiles.ts'
 export { getConfigs } from './utils/getConfigs.ts'
 export type { Param, Params } from './utils/getFunctionParams.ts'
 export { createFunctionParams, FunctionParams, getFunctionParams } from './utils/getFunctionParams.ts'
-export { getPreset } from './utils/getPreset.ts'
 export { isInputPath } from './utils/isInputPath.ts'
 export { detectLinter } from './utils/linters.ts'
 export { satisfiesDependency } from './utils/packageJSON.ts'

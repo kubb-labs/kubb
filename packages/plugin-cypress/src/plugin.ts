@@ -1,8 +1,8 @@
 import { camelCase } from '@internals/utils'
-import { createPlugin, type Group, getPreset } from '@kubb/core'
+import { definePlugin, type Group } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { version } from '../package.json'
-import { presets } from './presets.ts'
+import { cypressGenerator } from './generators/cypressGenerator.tsx'
+import { resolverCypress } from './resolvers/resolverCypress.ts'
 import type { PluginCypress } from './types.ts'
 
 /**
@@ -27,7 +27,7 @@ export const pluginCypressName = 'plugin-cypress' satisfies PluginCypress['name'
  * })
  * ```
  */
-export const pluginCypress = createPlugin<PluginCypress>((options) => {
+export const pluginCypress = definePlugin<PluginCypress>((options) => {
   const {
     output = { path: 'cypress', barrelType: 'named' },
     group,
@@ -39,62 +39,55 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
     paramsCasing,
     paramsType = 'inline',
     pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
-    compatibilityPreset = 'default',
     resolver: userResolver,
     transformer: userTransformer,
     generators: userGenerators = [],
   } = options
 
-  const preset = getPreset({
-    preset: compatibilityPreset,
-    presets,
-    resolver: userResolver,
-    transformer: userTransformer,
-    generators: userGenerators,
-  })
-
-  const generators = preset.generators ?? []
+  const groupConfig = group
+    ? ({
+        ...group,
+        name: group.name
+          ? group.name
+          : (ctx: { group: string }) => {
+              if (group.type === 'path') {
+                return `${ctx.group.split('/')[1]}`
+              }
+              return `${camelCase(ctx.group)}Requests`
+            },
+      } satisfies Group)
+    : undefined
 
   return {
     name: pluginCypressName,
-    version,
-    get resolver() {
-      return preset.resolver
-    },
-    get transformer() {
-      return preset.transformer
-    },
-    get options() {
-      return {
-        output,
-        exclude,
-        include,
-        override,
-        dataReturnType,
-        group: group
-          ? ({
-              ...group,
-              name: group.name
-                ? group.name
-                : (ctx: { group: string }) => {
-                    if (group.type === 'path') {
-                      return `${ctx.group.split('/')[1]}`
-                    }
-                    return `${camelCase(ctx.group)}Requests`
-                  },
-            } satisfies Group)
-          : undefined,
-        baseURL,
-        paramsCasing,
-        paramsType,
-        pathParamsType,
-        resolver: preset.resolver,
-      }
-    },
-    dependencies: [pluginTsName].filter(Boolean),
-    generators,
-    async buildStart() {
-      await this.openInStudio({ ast: true })
+    options,
+    dependencies: [pluginTsName],
+    hooks: {
+      'kubb:plugin:setup'(ctx) {
+        const resolver = userResolver ? { ...resolverCypress, ...userResolver } : resolverCypress
+
+        ctx.setOptions({
+          output,
+          exclude,
+          include,
+          override,
+          dataReturnType,
+          group: groupConfig,
+          baseURL,
+          paramsCasing,
+          paramsType,
+          pathParamsType,
+          resolver,
+        })
+        ctx.setResolver(resolver)
+        if (userTransformer) {
+          ctx.setTransformer(userTransformer)
+        }
+        ctx.addGenerator(cypressGenerator)
+        for (const gen of userGenerators) {
+          ctx.addGenerator(gen)
+        }
+      },
     },
   }
 })

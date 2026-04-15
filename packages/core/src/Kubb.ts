@@ -33,6 +33,47 @@ type HookResult<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
 }
 
 /**
+ * The instance returned by {@link createKubb}.
+ */
+export type Kubb = {
+  /**
+   * The shared event emitter. Attach listeners here before calling `setup()` or `build()`.
+   */
+  readonly hooks: AsyncEventEmitter<KubbHooks>
+  /**
+   * Raw generated source, keyed by absolute file path.
+   * Populated after a successful `build()` or `safeBuild()` call.
+   */
+  readonly sources: Map<string, string>
+  /**
+   * The plugin driver. Available after `setup()` has been called.
+   */
+  readonly driver: PluginDriver | undefined
+  /**
+   * The resolved config with applied defaults. Available after `setup()` has been called.
+   */
+  readonly config: Config | undefined
+  /**
+   * Initializes all Kubb infrastructure: validates input, applies config defaults,
+   * runs the adapter, and creates the PluginDriver.
+   *
+   * Calling `build()` or `safeBuild()` without calling `setup()` first will
+   * automatically invoke `setup()` before proceeding.
+   */
+  setup(): Promise<void>
+  /**
+   * Runs a full Kubb build and throws on any error or plugin failure.
+   * Automatically calls `setup()` if it has not been called yet.
+   */
+  build(): Promise<BuildOutput>
+  /**
+   * Runs a full Kubb build and captures errors instead of throwing.
+   * Automatically calls `setup()` if it has not been called yet.
+   */
+  safeBuild(): Promise<BuildOutput>
+}
+
+/**
  * Events emitted during the Kubb code generation lifecycle.
  * These events can be listened to for logging, progress tracking, and custom integrations.
  *
@@ -275,43 +316,26 @@ export interface KubbHooks {
   'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext]
 }
 
-/**
- * The instance returned by {@link createKubb}.
- */
-export type Kubb = {
-  /**
-   * The shared event emitter. Attach listeners here before calling `setup()` or `build()`.
-   */
-  readonly hooks: AsyncEventEmitter<KubbHooks>
-  /**
-   * Raw generated source, keyed by absolute file path.
-   * Populated after a successful `build()` or `safeBuild()` call.
-   */
-  readonly sources: Map<string, string>
-  /**
-   * The plugin driver. Available after `setup()` has been called.
-   */
-  readonly driver: PluginDriver | undefined
-  /**
-   * The resolved config with applied defaults. Available after `setup()` has been called.
-   */
-  readonly config: Config | undefined
-  /**
-   * Initializes all Kubb infrastructure: validates input, applies config defaults,
-   * runs the adapter, and creates the PluginDriver.
-   *
-   * Calling `build()` or `safeBuild()` without calling `setup()` first will
-   * automatically invoke `setup()` before proceeding.
-   */
-  setup(): Promise<void>
-  /**
-   * Runs a full Kubb build and throws on any error or plugin failure.
-   * Automatically calls `setup()` if it has not been called yet.
-   */
-  build(): Promise<BuildOutput>
-  /**
-   * Runs a full Kubb build and captures errors instead of throwing.
-   * Automatically calls `setup()` if it has not been called yet.
-   */
-  safeBuild(): Promise<BuildOutput>
+declare global {
+  namespace Kubb {
+    interface PluginContext {}
+    /**
+     * Registry that maps plugin names to their `PluginFactoryOptions`.
+     * Augment this interface in each plugin's `types.ts` to enable automatic
+     * typing for `getPlugin` and `requirePlugin`.
+     *
+     * @example
+     * ```ts
+     * // packages/plugin-ts/src/types.ts
+     * declare global {
+     *   namespace Kubb {
+     *     interface PluginRegistry {
+     *       'plugin-ts': PluginTs
+     *     }
+     *   }
+     * }
+     * ```
+     */
+    interface PluginRegistry {}
+  }
 }

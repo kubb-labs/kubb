@@ -291,7 +291,7 @@ jobs:
       - name: Run E2E tests
         working-directory: ./tests/e2e
         env:
-          NODE_OPTIONS: "--max_old_space_size=3000"
+          NODE_OPTIONS: "--max_old_space_size=4096"
           KUBB_DISABLE_TELEMETRY: "1"
           KUBB_SCHEMA: "train-travel,discriminator,atlassian.com,optionalParameters,allOf,anyOf,petStoreContent,twitter,jokesOne,readme.io,worldtime,zalando,requestBody,box,enums,dataset_api,petStoreV3,Figma,spotify,vercel"
         run: |

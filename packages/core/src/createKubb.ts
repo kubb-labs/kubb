@@ -452,6 +452,8 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       error: error as Error,
       sources,
     }
+  } finally {
+    driver.dispose()
   }
 }
 

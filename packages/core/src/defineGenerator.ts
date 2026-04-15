@@ -37,7 +37,9 @@ export type { GeneratorContext } from './types.ts'
  * ```
  */
 export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptions, TElement = unknown> = {
-  /** Used in diagnostic messages and debug output. */
+  /**
+   * Used in diagnostic messages and debug output.
+   */
   name: string
   /**
    * Optional renderer factory that produces a {@link Renderer} for each render cycle.
