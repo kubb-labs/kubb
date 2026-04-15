@@ -1142,8 +1142,9 @@ export type CLIOptions = {
 /**
  * All accepted forms of a Kubb configuration.
  *
- * - `PossibleConfig` accepts object/array/promise or a no-arg config factory.
- * - `PossibleConfig<TCliOptions>` accepts object/array/promise or a config factory receiving `TCliOptions`.
+ * Config is always `@kubb/core` {@link Config}.
+ * - `PossibleConfig` accepts `Config`/`Config[]`/promise or a no-arg config factory.
+ * - `PossibleConfig<TCliOptions>` accepts the same config forms or a config factory receiving `TCliOptions`.
  */
 export type PossibleConfig<TCliOptions = undefined> =
   | PossiblePromise<Config | Config[]>
