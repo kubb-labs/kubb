@@ -64,6 +64,8 @@ export const pluginCypress = definePlugin<PluginCypress>((options) => {
     dependencies: [pluginTsName],
     hooks: {
       'kubb:plugin:setup'(ctx) {
+        const resolver = userResolver ? { ...resolverCypress, ...userResolver } : resolverCypress
+
         ctx.setOptions({
           output,
           exclude,
@@ -75,8 +77,9 @@ export const pluginCypress = definePlugin<PluginCypress>((options) => {
           paramsCasing,
           paramsType,
           pathParamsType,
+          resolver,
         })
-        ctx.setResolver(userResolver ? { ...resolverCypress, ...userResolver } : resolverCypress)
+        ctx.setResolver(resolver)
         if (userTransformer) {
           ctx.setTransformer(userTransformer)
         }

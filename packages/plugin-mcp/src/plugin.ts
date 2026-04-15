@@ -56,6 +56,8 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
     dependencies: [pluginTsName, pluginZodName],
     hooks: {
       'kubb:plugin:setup'(ctx) {
+        const resolver = userResolver ? { ...resolverMcp, ...userResolver } : resolverMcp
+
         ctx.setOptions({
           output,
           exclude,
@@ -72,8 +74,9 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
             baseURL: client?.baseURL,
             paramsCasing: client?.paramsCasing,
           },
+          resolver,
         })
-        ctx.setResolver(userResolver ? { ...resolverMcp, ...userResolver } : resolverMcp)
+        ctx.setResolver(resolver)
         if (userTransformer) {
           ctx.setTransformer(userTransformer)
         }
