@@ -13,11 +13,11 @@ export type FileMetaBase = {
 type AddIndexesProps = {
   type: BarrelType | false | undefined
   /**
-   * Root based on root and output.path specified in the config
+   * Absolute output root derived from config `root` and `output.path`.
    */
   root: string
   /**
-   * Output for plugin
+   * Output settings for the plugin.
    */
   output: {
     path: string

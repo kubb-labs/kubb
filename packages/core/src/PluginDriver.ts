@@ -767,7 +767,7 @@ export class PluginDriver {
   }
 
   /**
-   * Chains plugins
+   * Execute a lifecycle hook sequentially for all plugins that implement it.
    */
   async hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
     const plugins: Array<Plugin> = []
@@ -811,10 +811,7 @@ export class PluginDriver {
   }
 
   /**
-   * Run an async plugin hook and return the result.
-   * @param hookName Name of the plugin hook. Must be either in `PluginHooks` or `OutputPluginValueHooks`.
-   * @param args Arguments passed to the plugin hook.
-   * @param plugin The actual pluginObject to run.
+   * Emit hook-processing completion metadata after a plugin hook resolves.
    */
   #emitProcessingEnd<H extends PluginLifecycleHooks>({
     startTime,
@@ -892,10 +889,7 @@ export class PluginDriver {
   }
 
   /**
-   * Run a sync plugin hook and return the result.
-   * @param hookName Name of the plugin hook. Must be in `PluginHooks`.
-   * @param args Arguments passed to the plugin hook.
-   * @param plugin The actual plugin
+   * Execute a plugin lifecycle hook synchronously and return its output.
    */
   #executeSync<H extends PluginLifecycleHooks>({
     strategy,
