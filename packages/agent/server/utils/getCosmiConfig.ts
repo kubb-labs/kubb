@@ -1,13 +1,13 @@
 import path from 'node:path'
 import process from 'node:process'
-import type { Config, ConfigInput } from '@kubb/core'
+import type { Config, PossibleConfig } from '@kubb/core'
 import { createJiti } from 'jiti'
 import { logger } from '~/utils/logger.ts'
 
 export type CosmiconfigResult = {
   filepath: string
   isEmpty?: boolean
-  config: ConfigInput | Config
+  config: PossibleConfig<Config> | Config
 }
 
 /**

@@ -1,7 +1,6 @@
-import type { PossiblePromise } from '@internals/utils'
-import type { CLIOptions, Config } from '@kubb/core'
+import type { CLIOptions, Config, PossibleConfig } from '@kubb/core'
 
-type ConfigInput = PossiblePromise<Config | Config[]> | ((cli: CLIOptions) => PossiblePromise<Config | Config[]>)
+type ConfigInput = PossibleConfig<Config, CLIOptions>
 
 export async function getConfigs(config: ConfigInput, args: CLIOptions): Promise<Array<Config>> {
   const resolved = await (typeof config === 'function' ? config(args as CLIOptions) : config)

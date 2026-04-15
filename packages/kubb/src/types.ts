@@ -1,5 +1,15 @@
-import type { PossiblePromise } from '@internals/utils'
-import type { Adapter, CLIOptions, Config, HookStylePlugin, InputData, InputPath, Parser, PluginFactoryOptions, UserPlugin } from '@kubb/core'
+import type {
+  Adapter,
+  CLIOptions,
+  Config,
+  HookStylePlugin,
+  InputData,
+  InputPath,
+  Parser,
+  PluginFactoryOptions,
+  PossibleConfig,
+  UserPlugin,
+} from '@kubb/core'
 
 type Input = InputPath | InputData
 type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<string, object, object, unknown, object>>
@@ -49,4 +59,4 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
 /**
  * All accepted forms of a Kubb configuration.
  */
-export type ConfigInput = PossiblePromise<UserConfig | UserConfig[]> | ((cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>)
+export type ConfigInput = PossibleConfig<UserConfig, CLIOptions>

@@ -1,11 +1,10 @@
-import type { PossiblePromise } from '@internals/utils'
-import type { CLIOptions, Config } from '@kubb/core'
+import type { Config, PossibleConfig } from '@kubb/core'
 import { getCosmiConfig } from './getCosmiConfig.ts'
 
-type ConfigInput = PossiblePromise<Config | Config[]> | ((cli: CLIOptions) => PossiblePromise<Config | Config[]>)
+type ConfigInput = PossibleConfig<Config>
 
-export async function getConfigs(config: ConfigInput, args: CLIOptions): Promise<Array<Config>> {
-  const resolved = await (typeof config === 'function' ? config(args as CLIOptions) : config)
+export async function getConfigs(config: ConfigInput): Promise<Array<Config>> {
+  const resolved = await (typeof config === 'function' ? config() : config)
   const userConfigs = Array.isArray(resolved) ? resolved : [resolved]
 
   return userConfigs.map((item) => ({ ...item, plugins: item.plugins ?? [] }) as Config)
@@ -16,7 +15,7 @@ export async function getConfigs(config: ConfigInput, args: CLIOptions): Promise
  */
 export async function loadConfig(resolvedConfigPath: string) {
   const result = await getCosmiConfig(resolvedConfigPath)
-  const configs = await getConfigs(result.config, {})
+  const configs = await getConfigs(result.config)
 
   if (configs.length === 0) {
     throw new Error('No configs found')

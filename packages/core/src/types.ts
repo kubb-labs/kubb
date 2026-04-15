@@ -1141,10 +1141,17 @@ export type CLIOptions = {
 
 /**
  * All accepted forms of a Kubb configuration.
+ */
+export type PossibleConfig<TConfig, TCliOptions = undefined> =
+  | PossiblePromise<TConfig | TConfig[]>
+  | ((...args: [TCliOptions] extends [undefined] ? [] : [TCliOptions]) => PossiblePromise<TConfig | TConfig[]>)
+
+/**
+ * All accepted forms of a Kubb configuration.
  * @deprecated
  * TODO: can we remove this?
  */
-export type ConfigInput = PossiblePromise<Config | Config[]> | ((cli: CLIOptions) => PossiblePromise<Config | Config[]>)
+export type ConfigInput = PossibleConfig<Config, CLIOptions>
 
 export type { BuildOutput } from './createKubb.ts'
 export type { Parser } from './defineParser.ts'
