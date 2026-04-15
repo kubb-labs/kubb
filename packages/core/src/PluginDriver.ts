@@ -119,6 +119,7 @@ export class PluginDriver {
   readonly #pluginsWithEventGenerators = new Set<string>()
   readonly #resolvers = new Map<string, Resolver>()
   readonly #defaultResolvers = new Map<string, Resolver>()
+  #registeredListeners: Array<{ event: keyof KubbHooks; handler: (...args: never[]) => void | Promise<void> }> = []
 
   constructor(config: Config, options: Options) {
     this.config = config
@@ -221,7 +222,7 @@ export class PluginDriver {
     // plugin-specific implementations so that addGenerator / setResolver / etc. target
     // this plugin's normalizedPlugin entry rather than being no-ops.
     if (hooks['kubb:plugin:setup']) {
-      this.hooks.on('kubb:plugin:setup', (globalCtx: KubbPluginSetupContext) => {
+      const setupHandler = (globalCtx: KubbPluginSetupContext) => {
         const pluginCtx: KubbPluginSetupContext = {
           ...globalCtx,
           options: hookPlugin.options ?? {},
@@ -252,13 +253,17 @@ export class PluginDriver {
           },
         }
         return hooks['kubb:plugin:setup']!(pluginCtx)
-      })
+      }
+
+      this.hooks.on('kubb:plugin:setup', setupHandler)
+      this.#registeredListeners.push({ event: 'kubb:plugin:setup', handler: setupHandler as (...args: never[]) => void | Promise<void> })
     }
 
     // All other hooks are registered as direct pass-through listeners on the shared emitter.
     for (const [event, handler] of Object.entries(hooks) as Array<[keyof KubbHooks, ((...args: never[]) => void | Promise<void>) | undefined]>) {
       if (event === 'kubb:plugin:setup' || !handler) continue
       this.hooks.on(event, handler as never)
+      this.#registeredListeners.push({ event, handler: handler as (...args: never[]) => void | Promise<void> })
     }
   }
 
@@ -303,27 +308,39 @@ export class PluginDriver {
     }
 
     if (gen.schema) {
-      this.hooks.on('kubb:generate:schema', async (node, ctx) => {
+      const schemaHandler = async (node: Parameters<NonNullable<typeof gen.schema>>[0], ctx: Parameters<NonNullable<typeof gen.schema>>[1]) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.schema!(node, ctx)
         await applyHookResult(result, this, resolveRenderer())
-      })
+      }
+
+      this.hooks.on('kubb:generate:schema', schemaHandler)
+      this.#registeredListeners.push({ event: 'kubb:generate:schema', handler: schemaHandler as (...args: never[]) => void | Promise<void> })
     }
 
     if (gen.operation) {
-      this.hooks.on('kubb:generate:operation', async (node, ctx) => {
+      const operationHandler = async (node: Parameters<NonNullable<typeof gen.operation>>[0], ctx: Parameters<NonNullable<typeof gen.operation>>[1]) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operation!(node, ctx)
         await applyHookResult(result, this, resolveRenderer())
-      })
+      }
+
+      this.hooks.on('kubb:generate:operation', operationHandler)
+      this.#registeredListeners.push({ event: 'kubb:generate:operation', handler: operationHandler as (...args: never[]) => void | Promise<void> })
     }
 
     if (gen.operations) {
-      this.hooks.on('kubb:generate:operations', async (nodes, ctx) => {
+      const operationsHandler = async (
+        nodes: Parameters<NonNullable<typeof gen.operations>>[0],
+        ctx: Parameters<NonNullable<typeof gen.operations>>[1],
+      ) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operations!(nodes, ctx)
         await applyHookResult(result, this, resolveRenderer())
-      })
+      }
+
+      this.hooks.on('kubb:generate:operations', operationsHandler)
+      this.#registeredListeners.push({ event: 'kubb:generate:operations', handler: operationsHandler as (...args: never[]) => void | Promise<void> })
     }
 
     this.#pluginsWithEventGenerators.add(pluginName)
@@ -338,6 +355,14 @@ export class PluginDriver {
    */
   hasRegisteredGenerators(pluginName: string): boolean {
     return this.#pluginsWithEventGenerators.has(pluginName)
+  }
+
+  dispose(): void {
+    for (const { event, handler } of this.#registeredListeners) {
+      this.hooks.off(event, handler as never)
+    }
+    this.#registeredListeners = []
+    this.#pluginsWithEventGenerators.clear()
   }
 
   #createDefaultResolver(pluginName: string): Resolver {
