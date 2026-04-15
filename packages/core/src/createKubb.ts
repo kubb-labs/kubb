@@ -7,6 +7,7 @@ import type { RendererFactory } from './createRenderer.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import { FileProcessor } from './FileProcessor.ts'
+import type { Kubb } from './Kubb.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -24,7 +25,7 @@ type BuildOptions = {
 /**
  * Full output produced by a successful or failed build.
  */
-type BuildOutput = {
+export type BuildOutput = {
   /**
    * Plugins that threw during installation, paired with the caught error.
    */
@@ -42,9 +43,6 @@ type BuildOutput = {
   sources: Map<string, string>
 }
 
-/**
- * Intermediate result returned by {@link setup} and accepted by {@link safeBuild}.
- */
 type SetupResult = {
   hooks: AsyncEventEmitter<KubbHooks>
   driver: PluginDriver
@@ -53,18 +51,7 @@ type SetupResult = {
   storage: Storage | null
 }
 
-/**
- * Initializes all Kubb infrastructure for a build without executing any plugins.
- *
- * - Validates the input path (when applicable).
- * - Applies config defaults (`root`, `output.*`, `devtools`).
- * - Runs the adapter (if configured) to produce the universal `InputNode`.
- *   When no adapter is supplied and `@kubb/adapter-oas` is installed as an
- *
- * Pass the returned {@link SetupResult} directly to {@link safeBuild} or {@link build}
- * via the `overrides` argument to reuse the same infrastructure across multiple runs.
- */
-export async function setup(options: BuildOptions): Promise<SetupResult> {
+async function setup(options: BuildOptions): Promise<SetupResult> {
   const { config: userConfig } = options
   const hooks = options.hooks ?? new AsyncEventEmitter<KubbHooks>()
 
@@ -141,10 +128,6 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     plugins: userConfig.plugins as unknown as Config['plugins'],
   }
 
-  // write: false is the explicit dry-run opt-out; otherwise use the provided
-  // storage or fall back to fsStorage (backwards-compatible default).
-  // Storage keys are the absolute file.path values so fsStorage() resolves
-  // them correctly regardless of the current working directory.
   const storage: Storage | null = config.output.write === false ? null : (config.output.storage ?? fsStorage())
 
   if (config.output.clean) {
@@ -159,8 +142,6 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     hooks,
     concurrency: DEFAULT_CONCURRENCY,
   })
-
-  // Run the adapter to produce the universal InputNode.
 
   const adapter = config.adapter
   if (!adapter) {
@@ -195,43 +176,8 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 }
 
 /**
- * Runs a full Kubb build and throws on any error or plugin failure.
- *
- * Internally delegates to {@link safeBuild} and rethrows collected errors.
- * Pass an existing {@link SetupResult} via `overrides` to skip the setup phase.
- */
-export async function build(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { files, driver, failedPlugins, pluginTimings, error, sources } = await safeBuild(options, overrides)
-
-  if (error) {
-    throw error
-  }
-
-  if (failedPlugins.size > 0) {
-    const errors = [...failedPlugins].map(({ error }) => error)
-
-    throw new BuildError(`Build Error with ${failedPlugins.size} failed plugins`, { errors })
-  }
-
-  return {
-    failedPlugins,
-    files,
-    driver,
-    pluginTimings,
-    error: undefined,
-    sources,
-  }
-}
-
-/**
  * Walks the AST and dispatches nodes to a plugin's direct AST hooks
  * (`schema`, `operation`, `operations`).
- *
- * - Each hook accepts a single handler **or an array** — all entries are called in sequence.
- * - Nodes that are excluded by `exclude`/`include` plugin options are skipped automatically.
- * - Return values are handled via `applyHookResult`: React elements are rendered,
- *   `FileNode[]` are written via upsert, and `void` is a no-op (manual handling).
- * - Barrel files are generated automatically when `output.barrelType` is set.
  */
 async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promise<void> {
   const { adapter, inputNode, resolver, driver } = context
@@ -241,12 +187,6 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
     throw new Error(`[${plugin.name}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`)
   }
 
-  /**
-   * Resolves the effective renderer for a generator following the precedence chain:
-   * `generator.renderer` → `plugin.renderer` → `config.renderer` → `undefined` (raw FileNode[] mode).
-   * - `null`  → explicitly no renderer (ignores all fallbacks)
-   * - `undefined` → fall through to plugin, then config renderer
-   */
   function resolveRenderer(gen: Generator<any>): RendererFactory | undefined {
     return gen.renderer === null ? undefined : (gen.renderer ?? plugin.renderer ?? context.config.renderer)
   }
@@ -254,8 +194,6 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
   const generators = plugin.generators ?? []
   const collectedOperations: Array<OperationNode> = []
 
-  // Adapter and inputNode are verified to be defined on lines 239-241 above.
-  // Generator listeners should always receive the currently resolved resolver for this plugin.
   const baseGeneratorContext = context as GeneratorContext
   const generatorContext = {
     ...baseGeneratorContext,
@@ -271,14 +209,12 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
 
       const ctx = { ...generatorContext, options }
 
-      // Static generators array path.
       for (const gen of generators) {
         if (!gen.schema) continue
         const result = await gen.schema(transformedNode, ctx)
         await applyHookResult(result, driver, resolveRenderer(gen))
       }
 
-      // Event-based path: emit for generators registered via addGenerator() in kubb:plugin:setup.
       await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
     },
     async operation(node) {
@@ -289,14 +225,12 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
 
         const ctx = { ...generatorContext, options }
 
-        // Static generators array path.
         for (const gen of generators) {
           if (!gen.operation) continue
           const result = await gen.operation(transformedNode, ctx)
           await applyHookResult(result, driver, resolveRenderer(gen))
         }
 
-        // Event-based path: emit for generators registered via addGenerator().
         await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
       }
     },
@@ -305,34 +239,20 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
   if (collectedOperations.length > 0) {
     const ctx = { ...generatorContext, options: plugin.options }
 
-    // Static generators array path.
     for (const gen of generators) {
       if (!gen.operations) continue
       const result = await gen.operations(collectedOperations, ctx)
       await applyHookResult(result, driver, resolveRenderer(gen))
     }
 
-    // Event-based path: emit operations event for generators registered via addGenerator().
     await driver.hooks.emit('kubb:generate:operations', collectedOperations, ctx)
   }
 }
 
-/**
- * Runs a full Kubb build and captures errors instead of throwing.
- *
- * - Installs each plugin in order, recording failures in `failedPlugins`.
- * - Generates the root barrel file when `output.barrelType` is set.
- * - Writes all files through the driver's FileManager and FileProcessor.
- *
- * Returns a {@link BuildOutput} even on failure — inspect `error` and
- * `failedPlugins` to determine whether the build succeeded.
- */
-export async function safeBuild(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const setupResult = overrides ? overrides : await setup(options)
+async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   const { driver, hooks, sources, storage } = setupResult
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
-  // in ms
   const pluginTimings = new Map<string, number>()
   const config = driver.config
 
@@ -364,10 +284,8 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`],
         })
 
-        // Call buildStart() for any custom plugin logic
         await plugin.buildStart.call(context)
 
-        // Dispatch AST hooks via plugin.generators (legacy path) or event-based generators (hook-style path).
         if (plugin.generators?.length || driver.hasRegisteredGenerators(plugin.name)) {
           await runPluginAstHooks(plugin, context)
         }
@@ -460,7 +378,6 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
     const files = driver.fileManager.files
 
-    // Build a parsers map from config.parsers
     const parsersMap = new Map<FileNode['extname'], Parser>()
     for (const parser of config.parsers) {
       if (parser.extNames) {
@@ -493,8 +410,6 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           config,
         })
         if (source) {
-          // Use the absolute file.path as the storage key so fsStorage resolves
-          // it correctly regardless of the current working directory.
           await storage?.setItem(file.path, source)
           sources.set(file.path, source)
         }
@@ -508,7 +423,6 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       },
     })
 
-    // Call buildEnd() on each plugin after all files are written
     for (const plugin of driver.plugins.values()) {
       if (plugin.buildEnd) {
         const context = driver.getContext(plugin)
@@ -538,6 +452,29 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       error: error as Error,
       sources,
     }
+  }
+}
+
+async function build(setupResult: SetupResult): Promise<BuildOutput> {
+  const { files, driver, failedPlugins, pluginTimings, error, sources } = await safeBuild(setupResult)
+
+  if (error) {
+    throw error
+  }
+
+  if (failedPlugins.size > 0) {
+    const errors = [...failedPlugins].map(({ error }) => error)
+
+    throw new BuildError(`Build Error with ${failedPlugins.size} failed plugins`, { errors })
+  }
+
+  return {
+    failedPlugins,
+    files,
+    driver,
+    pluginTimings,
+    error: undefined,
+    sources,
   }
 }
 
@@ -587,10 +524,6 @@ function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, dri
   })
 }
 
-/**
- * Maps the resolved `Config['input']` shape into an `AdapterSource` that
- * the adapter's `parse()` can consume.
- */
 function inputToAdapterSource(config: Config): AdapterSource {
   if (Array.isArray(config.input)) {
     return {
@@ -609,4 +542,64 @@ function inputToAdapterSource(config: Config): AdapterSource {
 
   const resolved = resolve(config.root, config.input.path)
   return { type: 'path', path: resolved }
+}
+
+type KubbOptions = {
+  config: UserConfig
+  hooks?: AsyncEventEmitter<KubbHooks>
+}
+
+/**
+ * Creates a Kubb instance bound to a single config entry.
+ *
+ * The instance holds shared state (`hooks`, `sources`, `driver`, `config`) across the
+ * `setup → build` lifecycle. Attach event listeners to `kubb.hooks` before
+ * calling `setup()` or `build()`.
+ *
+ * @example
+ * ```ts
+ * const kubb = createKubb({ config })
+ *
+ * kubb.hooks.on('kubb:plugin:end', (plugin, { duration }) => {
+ *   console.log(`${plugin.name} completed in ${duration}ms`)
+ * })
+ *
+ * const { files, failedPlugins } = await kubb.safeBuild()
+ * ```
+ */
+export function createKubb(options: KubbOptions): Kubb {
+  const hooks = options.hooks ?? new AsyncEventEmitter<KubbHooks>()
+  let setupResult: SetupResult | undefined
+
+  const instance: Kubb = {
+    get hooks() {
+      return hooks
+    },
+    get sources() {
+      return setupResult?.sources ?? new Map()
+    },
+    get driver() {
+      return setupResult?.driver
+    },
+    get config() {
+      return setupResult?.config
+    },
+    async setup() {
+      setupResult = await setup({ config: options.config, hooks })
+    },
+    async build() {
+      if (!setupResult) {
+        await instance.setup()
+      }
+      return build(setupResult!)
+    },
+    async safeBuild() {
+      if (!setupResult) {
+        await instance.setup()
+      }
+      return safeBuild(setupResult!)
+    },
+  }
+
+  return instance
 }

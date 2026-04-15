@@ -4,7 +4,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { AsyncEventEmitter, getRelativePath } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type KubbHooks, safeBuild, type UserConfig } from '@kubb/core'
+import { createKubb, type KubbHooks, type UserConfig } from '@kubb/core'
 import { parserTs } from '@kubb/parser-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 import { describe, expect, test } from 'vitest'
@@ -158,7 +158,7 @@ describe(`plugin-zod options ${version}`, () => {
   test.each(configs)('config testing with config as $name', async ({ name, config }) => {
     const tmpDir = path.join(os.tmpdir(), `kubb-test-${name}-${Date.now()}`)
     const output = path.join(tmpDir, name)
-    const { files, failedPlugins, error } = await safeBuild({
+    const { files, failedPlugins, error } = await createKubb({
       config: {
         ...config,
         output: {
@@ -167,7 +167,7 @@ describe(`plugin-zod options ${version}`, () => {
         },
       },
       hooks: new AsyncEventEmitter<KubbHooks>(),
-    })
+    }).safeBuild()
 
     expect(files.length).toBeGreaterThan(0)
     expect(failedPlugins.size).toBe(0)

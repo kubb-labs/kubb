@@ -123,7 +123,7 @@ function generateConfigFile(selectedPlugins: PluginOption[], inputPath: string, 
     })
     .join('\n')
 
-  return `import { defineConfig } from '@kubb/core'
+  return `import { defineConfig } from 'kubb'
 ${imports}
 
 export default defineConfig({

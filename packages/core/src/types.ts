@@ -946,7 +946,7 @@ export type CompatibilityPreset = 'default' | 'kubbV4'
 export type { Storage } from './createStorage.ts'
 export type { Generator } from './defineGenerator.ts'
 export type { HookStylePlugin, PluginHooks } from './definePlugin.ts'
-export type { KubbHooks } from './Kubb.ts'
+export type { Kubb, KubbHooks } from './Kubb.ts'
 
 /**
  * Context passed to a hook-style plugin's `kubb:plugin:setup` handler.
@@ -1202,7 +1202,29 @@ export type ResolveBannerContext = {
   config: Config
 }
 
-export type { CLIOptions, ConfigInput } from './defineConfig.ts'
+/**
+ * CLI options derived from command-line flags.
+ */
+export type CLIOptions = {
+  /** Path to `kubb.config.js`. */
+  config?: string
+  /** Enable watch mode for input files. */
+  watch?: boolean
+  /**
+   * Logging verbosity for CLI usage.
+   * @default 'silent'
+   */
+  logLevel?: 'silent' | 'info' | 'debug'
+}
+
+/**
+ * All accepted forms of a Kubb configuration.
+ * @deprecated
+ * TODO: can we remove this?
+ */
+export type ConfigInput = PossiblePromise<UserConfig | UserConfig[]> | ((cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>)
+
+export type { BuildOutput } from './createKubb.ts'
 export type { Parser } from './defineParser.ts'
 export type { FunctionParamsAST } from './utils/FunctionParams.ts'
 export type { FileMetaBase } from './utils/getBarrelFiles.ts'

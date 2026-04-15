@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { AsyncEventEmitter } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, type KubbHooks, safeBuild } from '@kubb/core'
+import { type Config, createKubb, type KubbHooks } from '@kubb/core'
 import { parserTs } from '@kubb/parser-ts'
 import type { UnpluginFactory } from 'unplugin'
 import { version as unpluginVersion } from '../package.json'
@@ -88,7 +88,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
     await hooks.emit('kubb:generation:start', config as Config)
 
-    const { error, failedPlugins, pluginTimings, files, sources } = await safeBuild({
+    const { error, failedPlugins, pluginTimings, files, sources } = await createKubb({
       config: {
         root: process.cwd(),
         ...userConfig,
@@ -98,7 +98,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
         },
       },
       hooks,
-    })
+    }).safeBuild()
 
     const hasFailures = failedPlugins.size > 0 || error
     if (hasFailures) {

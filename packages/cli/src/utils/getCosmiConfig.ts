@@ -1,11 +1,11 @@
-import type { defineConfig, UserConfig } from '@kubb/core'
+import type { ConfigInput, UserConfig } from '@kubb/core'
 import { cosmiconfig } from 'cosmiconfig'
 import { createJiti } from 'jiti'
 
 type CosmiconfigResult = {
   filepath: string
   isEmpty?: boolean
-  config: ReturnType<typeof defineConfig> | UserConfig
+  config: ConfigInput | UserConfig
 }
 
 const jiti = createJiti(import.meta.url, {

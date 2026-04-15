@@ -1,10 +1,10 @@
 import { adapterOas } from '@kubb/adapter-oas'
-import { build } from '@kubb/core'
+import { createKubb } from '@kubb/core'
 import { parserTs } from '@kubb/parser-ts'
 import { pluginOas } from '@kubb/plugin-oas'
 
 async function run() {
-  await build({
+  const kubb = createKubb({
     config: {
       input: {
         path: './petStore.yaml',
@@ -18,6 +18,7 @@ async function run() {
       plugins: [pluginOas()],
     },
   })
+  await kubb.build()
 }
 
 run()

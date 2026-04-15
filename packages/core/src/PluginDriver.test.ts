@@ -1,6 +1,6 @@
 import { AsyncEventEmitter } from '@internals/utils'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
-import { createMockedAdapter } from '#mocks'
+import { createMockedAdapter, createMockedPlugin } from '#mocks'
 import { createPlugin } from './createPlugin.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import type { Config, KubbHooks, Plugin } from './types.ts'
@@ -246,17 +246,11 @@ describe('PluginDriver', () => {
   })
 
   test('resolvePath should return default path when no plugins have resolvePath', () => {
-    const noResolvePlugin = createPlugin(() => {
-      return {
-        name: 'noResolvePlugin',
-        options: undefined as any,
-        context: undefined as never,
-      }
-    })
+    const noResolvePlugin = createMockedPlugin({ name: 'noResolvePlugin', options: undefined as any })
 
     const noResolveConfig = {
       ...config,
-      plugins: [noResolvePlugin({})] as Array<Plugin>,
+      plugins: [noResolvePlugin] as Array<Plugin>,
     } satisfies Config
 
     const noResolvePluginDriver = new PluginDriver(noResolveConfig, {
