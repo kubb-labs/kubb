@@ -1,6 +1,6 @@
 import useSWR from 'swr'
-import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
-import type { LogoutUserQueryResponse, LogoutUserError } from '../../../models/ts/userController/LogoutUser.ts'
+import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { LogoutUserError, LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
 import { logoutUser } from '../../axios/userService/logoutUser.ts'
 
 export const logoutUserQueryKeySWR = () => [{ url: '/user/logout' }] as const

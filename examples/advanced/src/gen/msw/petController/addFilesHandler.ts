@@ -1,5 +1,5 @@
-import type { AddFilesMutationResponse, AddFiles405 } from '../../models/ts/petController/AddFiles.ts'
 import { http } from 'msw'
+import type { AddFiles405, AddFilesMutationResponse } from '../../models/ts/petController/AddFiles.ts'
 
 export function addFilesHandlerResponse200(data: AddFilesMutationResponse) {
   return new Response(JSON.stringify(data), {
