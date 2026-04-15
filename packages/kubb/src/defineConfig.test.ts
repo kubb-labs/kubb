@@ -1,8 +1,8 @@
 import { isPromise } from '@internals/utils'
-import type { Plugin, UserConfig } from '@kubb/core'
+import type { Plugin } from '@kubb/core'
 import { describe, expect, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin } from '#mocks'
-import { defineConfig } from './defineConfig.ts'
+import { defineConfig, type UserConfig } from './defineConfig.ts'
 
 describe('defineConfig', () => {
   const plugin = createMockedPlugin({ name: 'plugin', options: undefined as any })

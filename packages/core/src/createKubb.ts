@@ -11,14 +11,14 @@ import type { Kubb } from './Kubb.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.ts'
 import { fsStorage } from './storages/fsStorage.ts'
-import type { AdapterSource, Config, GeneratorContext, KubbHooks, Plugin, PluginContext, Storage, UserConfig } from './types.ts'
+import type { AdapterSource, Config, GeneratorContext, KubbHooks, Plugin, PluginContext, Storage } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { getBarrelFiles } from './utils/getBarrelFiles.ts'
 import { isInputPath } from './utils/isInputPath.ts'
 
 type BuildOptions = {
-  config: UserConfig
+  config: Config
   hooks?: AsyncEventEmitter<KubbHooks>
 }
 
@@ -108,8 +108,8 @@ async function setup(options: BuildOptions): Promise<SetupResult> {
   }
 
   const config: Config = {
-    root: userConfig.root || process.cwd(),
     ...userConfig,
+    root: userConfig.root || process.cwd(),
     parsers: userConfig.parsers ?? [],
     adapter: userConfig.adapter,
     output: {
@@ -547,7 +547,7 @@ function inputToAdapterSource(config: Config): AdapterSource {
 }
 
 type KubbOptions = {
-  config: UserConfig
+  config: Config
   hooks?: AsyncEventEmitter<KubbHooks>
 }
 

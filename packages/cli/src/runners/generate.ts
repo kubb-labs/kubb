@@ -17,7 +17,6 @@ import {
   type KubbHooks,
   linters,
   logLevel as logLevelMap,
-  type UserConfig,
 } from '@kubb/core'
 import { version } from '../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../constants.ts'
@@ -143,7 +142,7 @@ async function generate(options: GenerateProps): Promise<void> {
   const hrStart = process.hrtime()
   const inputPath = input ?? ('path' in options.config.input ? options.config.input.path : undefined)
 
-  const userConfig: UserConfig = {
+  const config: Config = {
     ...options.config,
     input: inputPath
       ? {
@@ -152,12 +151,10 @@ async function generate(options: GenerateProps): Promise<void> {
         }
       : options.config.input,
     ...options.config.output,
-  } satisfies UserConfig
+  } satisfies Config
 
-  const kubb = createKubb({ config: userConfig, hooks })
+  const kubb = createKubb({ config, hooks })
   await kubb.setup()
-
-  const config = kubb.config!
 
   await hooks.emit('kubb:generation:start', config)
 
