@@ -1,13 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
-import { getConfigs, loadConfig } from './loadConfig.ts'
+import { loadConfig } from './loadConfig.ts'
 
 vi.mock('./getCosmiConfig.ts', () => ({
   getCosmiConfig: vi.fn(),
-}))
-
-vi.mock('./loadConfig/.ts', async (importOriginal) => ({
-  ...(await importOriginal()),
-  getConfigs: vi.fn(),
 }))
 
 import { getCosmiConfig } from './getCosmiConfig.ts'
@@ -17,15 +12,13 @@ describe('loadConfig', () => {
     const first = { name: 'first', input: { path: 'spec.yaml' }, output: { path: './gen' }, plugins: [] }
     const second = { name: 'second', input: { path: 'spec.yaml' }, output: { path: './gen' }, plugins: [] }
 
-    vi.mocked(getCosmiConfig).mockResolvedValue({ config: {} } as any)
-    vi.mocked(getConfigs).mockResolvedValue([first, second] as any)
+    vi.mocked(getCosmiConfig).mockResolvedValue({ config: [first, second] } as any)
 
-    expect(await loadConfig('/project/kubb.config.ts')).toBe(first)
+    await expect(loadConfig('/project/kubb.config.ts')).resolves.toMatchObject({ ...first, plugins: [] })
   })
 
   it('throws when no configs are found', async () => {
-    vi.mocked(getCosmiConfig).mockResolvedValue({ config: {} } as any)
-    vi.mocked(getConfigs).mockResolvedValue([])
+    vi.mocked(getCosmiConfig).mockResolvedValue({ config: [] } as any)
 
     await expect(loadConfig('/project/kubb.config.ts')).rejects.toThrow('No configs found')
   })
@@ -33,22 +26,18 @@ describe('loadConfig', () => {
   it('passes the resolved config path to getCosmiConfig', async () => {
     const configPath = '/absolute/project/kubb.config.ts'
 
-    vi.mocked(getCosmiConfig).mockResolvedValue({ config: {} } as any)
-    vi.mocked(getConfigs).mockResolvedValue([{ name: 'test' }] as any)
+    vi.mocked(getCosmiConfig).mockResolvedValue({ config: [{ name: 'test', input: { path: '' }, output: { path: '' } }] } as any)
 
     await loadConfig(configPath)
 
     expect(getCosmiConfig).toHaveBeenCalledWith(configPath)
   })
 
-  it('passes the cosmiconfig result to getConfigs', async () => {
-    const cosmiResult = { config: { input: { path: 'api.yaml' } } }
+  it('normalizes plugins when missing', async () => {
+    vi.mocked(getCosmiConfig).mockResolvedValue({
+      config: { name: 'test', input: { path: 'api.yaml' }, output: { path: './gen' } },
+    } as any)
 
-    vi.mocked(getCosmiConfig).mockResolvedValue(cosmiResult as any)
-    vi.mocked(getConfigs).mockResolvedValue([{ name: 'test' }] as any)
-
-    await loadConfig('/project/kubb.config.ts')
-
-    expect(getConfigs).toHaveBeenCalledWith(cosmiResult.config, {})
+    await expect(loadConfig('/project/kubb.config.ts')).resolves.toMatchObject({ plugins: [] })
   })
 })
