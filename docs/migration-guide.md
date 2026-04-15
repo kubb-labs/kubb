@@ -16,29 +16,151 @@ Kubb v5 requires **Node.js 22** or later.
 
 ### Factory functions renamed: `define*` → `create*`
 
-`defineConfig` is unchanged. All other factory functions now use the `create*` prefix.
+`defineConfig` is unchanged. The legacy plugin and adapter factory functions now use the `create*` prefix.
 
 ::: code-group
 ```typescript [Before]
-import { definePlugin, defineAdapter, defineLogger, defineGenerator, defineStorage } from '@kubb/core'
+import { definePlugin, defineAdapter, defineStorage } from '@kubb/core'
 
 export const myPlugin = definePlugin((options) => ({ /* ... */ }))
 export const myAdapter = defineAdapter((options) => ({ /* ... */ }))
-export const myLogger = defineLogger({ name: 'my-logger', install() { /* ... */ } })
-export const myGenerator = defineGenerator({ /* ... */ })
 export const myStorage = defineStorage((options) => ({ /* ... */ }))
 ```
 
 ```typescript [After]
-import { createPlugin, createAdapter, createLogger, createGenerator, createStorage } from '@kubb/core'
+import { createPlugin, createAdapter, createStorage } from '@kubb/core'
 
 export const myPlugin = createPlugin((options) => ({ /* ... */ }))
 export const myAdapter = createAdapter((options) => ({ /* ... */ }))
-export const myLogger = createLogger({ name: 'my-logger', install() { /* ... */ } })
-export const myGenerator = createGenerator({ /* ... */ })
 export const myStorage = createStorage((options) => ({ /* ... */ }))
 ```
 :::
+
+> [!NOTE]
+> `definePlugin` is **re-introduced in v5** as a new API for hook-style plugin authoring. It is not the same as the v4 `definePlugin` that was renamed to `createPlugin`. See the [Hook-style plugin authoring](#hook-style-plugin-authoring-with-defineplugin) section below.
+
+### Hook-style plugin authoring with `definePlugin`
+
+Kubb v5 introduces a new `definePlugin` export for creating plugins using the hook-style API. Unlike `createPlugin`, this API groups all lifecycle handlers under a `hooks:` property. Hook-style plugins coexist with `createPlugin` plugins in the same config.
+
+```typescript
+import { definePlugin } from '@kubb/core'
+import type { PluginFactoryOptions } from '@kubb/core'
+
+type MyPluginOptions = PluginFactoryOptions<'my-plugin', { tag: string }>
+
+export const myPlugin = definePlugin<MyPluginOptions>((options) => ({
+  name: 'my-plugin',
+  options,
+  hooks: {
+    'kubb:plugin:setup'(ctx) {
+      ctx.setOptions({ /* resolved options passed to generators */ })
+      ctx.setResolver(myResolver)
+      ctx.addGenerator(myGenerator)
+    },
+  },
+}))
+```
+
+Call the factory in your `kubb.config.ts` just like any other plugin:
+
+```typescript
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig({
+  plugins: [myPlugin({ tag: 'pets' })],
+})
+```
+
+#### `kubb:plugin:setup` context
+
+The `kubb:plugin:setup` hook receives a `KubbPluginSetupContext` object with methods to configure the plugin before code generation begins.
+
+| Method | Description |
+|---|---|
+| `addGenerator(generator)` | Register a generator that responds to `kubb:generate:schema`, `kubb:generate:operation`, and `kubb:generate:operations` events. |
+| `setResolver(resolver)` | Set or partially override the resolver that controls file naming and path resolution. |
+| `setTransformer(visitor)` | Set the AST transformer (visitor) applied to nodes before generators run. |
+| `setRenderer(renderer)` | Set the renderer factory for processing JSX elements returned by generators. |
+| `setOptions(options)` | Merge resolved options into the plugin. Generators receive these via `ctx.options`. |
+| `injectFile(file)` | Inject a raw file into the build output, bypassing the normal generation pipeline. |
+| `updateConfig(config)` | Merge a partial config update into the current build configuration. |
+
+Hook-style plugins can also subscribe to any other `KubbHooks` event in their `hooks:` object:
+
+```typescript
+export const myPlugin = definePlugin((options) => ({
+  name: 'my-plugin',
+  hooks: {
+    'kubb:plugin:setup'(ctx) {
+      ctx.addGenerator(myGenerator)
+    },
+    'kubb:plugin:start'(plugin) {
+      console.log(`Starting plugin: ${plugin.name}`)
+    },
+    'kubb:plugin:end'(plugin, { duration }) {
+      console.log(`Plugin ${plugin.name} completed in ${duration}ms`)
+    },
+  },
+}))
+```
+
+### `KubbHooks` — lifecycle event reference
+
+`KubbHooks` is the TypeScript interface for all events emitted during Kubb's code generation lifecycle. Subscribe to events on the `kubb.hooks` emitter returned by `createKubb()`, or inside a `definePlugin` `hooks:` object.
+
+```typescript
+import { createKubb } from '@kubb/core'
+
+const kubb = createKubb({ config })
+
+kubb.hooks.on('kubb:lifecycle:start', (version) => {
+  console.log(`Kubb ${version} starting`)
+})
+
+kubb.hooks.on('kubb:plugin:end', (plugin, { duration }) => {
+  console.log(`Plugin ${plugin.name} completed in ${duration}ms`)
+})
+
+await kubb.build()
+```
+
+#### Available events
+
+| Event | Parameters | Description |
+|---|---|---|
+| `kubb:lifecycle:start` | `version: string` | Emitted before any code generation starts. |
+| `kubb:lifecycle:end` | — | Emitted after all code generation is complete. |
+| `kubb:config:start` | — | Emitted when configuration loading starts. |
+| `kubb:config:end` | `configs: Array<Config>` | Emitted when configuration loading is complete. |
+| `kubb:generation:start` | `config: Config` | Emitted when the code generation phase starts. |
+| `kubb:generation:end` | `config, files, sources` | Emitted when the code generation phase completes. |
+| `kubb:generation:summary` | `config, summary` | Emitted with a summary of the generation results (file count, plugin timings, status). |
+| `kubb:format:start` | — | Emitted when code formatting starts. |
+| `kubb:format:end` | — | Emitted when code formatting completes. |
+| `kubb:lint:start` | — | Emitted when linting starts. |
+| `kubb:lint:end` | — | Emitted when linting completes. |
+| `kubb:hooks:start` | — | Emitted when plugin hooks execution starts. |
+| `kubb:hooks:end` | — | Emitted when plugin hooks execution completes. |
+| `kubb:hook:start` | `{ id?, command, args? }` | Emitted when a single post-generation hook (format or lint command) starts. |
+| `kubb:hook:end` | `{ id?, command, args?, success, error }` | Emitted when a single hook completes. |
+| `kubb:version:new` | `currentVersion, latestVersion` | Emitted when a new version of Kubb is available. |
+| `kubb:info` | `message, info?` | Informational message. |
+| `kubb:error` | `error, meta?` | Emitted when an error occurs during code generation. |
+| `kubb:success` | `message, info?` | Success message. |
+| `kubb:warn` | `message, info?` | Warning message. |
+| `kubb:debug` | `info: DebugInfo` | Debug log with timestamp and messages. |
+| `kubb:files:processing:start` | `files: Array<FileNode>` | Emitted when file processing starts. |
+| `kubb:file:processing:update` | `{ processed, total, percentage, file, config, source? }` | Emitted for each file being processed with progress details. |
+| `kubb:files:processing:end` | `files: Array<FileNode>` | Emitted when file processing completes. |
+| `kubb:plugin:start` | `plugin: Plugin` | Emitted when a plugin starts executing. |
+| `kubb:plugin:end` | `plugin: Plugin, { duration, success, error? }` | Emitted when a plugin completes execution. |
+| `kubb:plugin:setup` | `ctx: KubbPluginSetupContext` | Fired before any plugin's `buildStart` runs. Hook-style plugins use this to register generators and configure resolvers. |
+| `kubb:build:start` | `ctx: KubbBuildStartContext` | Fired immediately before the plugin execution loop begins. |
+| `kubb:build:end` | `ctx: KubbBuildEndContext` | Fired after all files have been written to disk. |
+| `kubb:generate:schema` | `node: SchemaNode, ctx: GeneratorContext` | Emitted for each schema node during the AST walk. |
+| `kubb:generate:operation` | `node: OperationNode, ctx: GeneratorContext` | Emitted for each operation node during the AST walk. |
+| `kubb:generate:operations` | `nodes: Array<OperationNode>, ctx: GeneratorContext` | Emitted once after all operations have been walked. |
 
 ### Each plugin can only be used once
 
