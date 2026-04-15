@@ -975,6 +975,14 @@ export type KubbPluginSetupContext = {
    */
   setRenderer(renderer: RendererFactory): void
   /**
+   * Set the resolved options for the build loop. These options are merged into the
+   * normalized plugin's `options` object (which includes `output`, `exclude`, `override`).
+   *
+   * Call this in `kubb:plugin:setup` to provide the resolved options that generators
+   * and the build loop need (e.g., `enumType`, `optionalType`, `group`).
+   */
+  setOptions(options: Record<string, unknown>): void
+  /**
    * Inject a raw file into the build output, bypassing the normal generation pipeline.
    */
   injectFile(file: Pick<FileNode, 'baseName' | 'path'> & { sources?: FileNode['sources'] }): void

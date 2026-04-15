@@ -22,6 +22,7 @@ type PluginBuilder<T extends PluginFactoryOptions = PluginFactoryOptions> = (opt
  * // instantiate
  * const plugin = myPlugin({ output: { path: 'src/gen' } })
  * ```
+ * @deprecated use definePlugin instead
  */
 export function createPlugin<T extends PluginFactoryOptions = PluginFactoryOptions>(
   build: PluginBuilder<T>,

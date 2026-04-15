@@ -108,11 +108,11 @@ describe('PluginDriver — hook-style plugin registration', () => {
       setResolver: () => {},
       setTransformer: () => {},
       setRenderer: () => {},
+      setOptions: () => {},
       injectFile: () => {},
       updateConfig: () => {},
       options: {},
     })
-
     expect(setupHandler).toHaveBeenCalledOnce()
   })
 
@@ -163,6 +163,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
       setResolver: () => {},
       setTransformer: () => {},
       setRenderer: () => {},
+      setOptions: () => {},
       injectFile: () => {},
       updateConfig: () => {},
       options: {},
@@ -202,6 +203,29 @@ describe('PluginDriver — hook-style plugin registration', () => {
     ).toBe('/tmp/root/gen/pets.ts')
   })
 
+  it('setResolver() mirrors resolver onto plugin.resolver for getPlugin() consumers', async () => {
+    const hookPlugin = definePlugin(() => ({
+      name: 'hook-plugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.setResolver({
+            default() {
+              return 'FromPlugin'
+            },
+          })
+        },
+      },
+    }))()
+
+    const events = new AsyncEventEmitter<KubbHooks>()
+    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
+    await driver.emitSetupHooks()
+
+    const plugin = driver.plugins.get('hook-plugin')!
+    expect(plugin.resolver).toBeDefined()
+    expect(plugin.resolver!.default('test', 'type')).toBe('FromPlugin')
+  })
+
   it('uses default resolver when setResolver() is never called', async () => {
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
@@ -213,6 +237,31 @@ describe('PluginDriver — hook-style plugin registration', () => {
 
     const resolver = driver.getResolver('hook-plugin')
     expect(resolver.default('my custom type', 'type')).toBe('MyCustomType')
+  })
+
+  it('setOptions() merges resolved options into the normalized plugin', async () => {
+    const hookPlugin = definePlugin(() => ({
+      name: 'hook-plugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.setOptions({
+            output: { path: 'types', barrelType: 'named' },
+            enumType: 'asConst',
+            syntaxType: 'type',
+          })
+        },
+      },
+    }))()
+
+    const events = new AsyncEventEmitter<KubbHooks>()
+    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
+    await driver.emitSetupHooks()
+
+    const plugin = driver.plugins.get('hook-plugin')!
+    const opts = plugin.options as Record<string, unknown>
+    expect(opts.enumType).toBe('asConst')
+    expect(opts.syntaxType).toBe('type')
+    expect(opts.output).toEqual({ path: 'types', barrelType: 'named' })
   })
 
   it('external listeners receive kubb:plugin:setup context', async () => {
@@ -233,6 +282,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
       setResolver: () => {},
       setTransformer: () => {},
       setRenderer: () => {},
+      setOptions: () => {},
       injectFile: () => {},
       updateConfig: () => {},
       options: {},
