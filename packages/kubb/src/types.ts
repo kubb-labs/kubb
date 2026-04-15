@@ -1,15 +1,5 @@
 import type { PossiblePromise } from '@internals/utils'
-import type {
-  Adapter,
-  CLIOptions,
-  Config,
-  HookStylePlugin,
-  InputData,
-  InputPath,
-  Parser,
-  PluginFactoryOptions,
-  UserPlugin,
-} from '@kubb/core'
+import type { Adapter, CLIOptions, Config, HookStylePlugin, InputData, InputPath, Parser, PluginFactoryOptions, UserPlugin } from '@kubb/core'
 
 type Input = InputPath | InputData
 type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<string, object, object, unknown, object>>
