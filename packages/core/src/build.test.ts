@@ -230,22 +230,22 @@ describe('build', () => {
   })
 
   it('should emit debug events during build process', async () => {
-    const events = new AsyncEventEmitter<KubbHooks>()
+    const hooks = new AsyncEventEmitter<KubbHooks>()
     const debugSpy = vi.fn()
-    events.on('kubb:debug', debugSpy)
+    hooks.on('kubb:debug', debugSpy)
 
     await build({
       config,
-      events,
+      hooks,
     })
 
     expect(debugSpy).toHaveBeenCalled()
   })
 
   it('should handle array input with warning', async () => {
-    const events = new AsyncEventEmitter<KubbHooks>()
+    const hooks = new AsyncEventEmitter<KubbHooks>()
     const warnSpy = vi.fn()
-    events.on('kubb:warn', warnSpy)
+    hooks.on('kubb:warn', warnSpy)
 
     const arrayConfig = {
       ...config,
@@ -254,7 +254,7 @@ describe('build', () => {
 
     await build({
       config: arrayConfig,
-      events,
+      hooks,
     })
 
     expect(warnSpy).toHaveBeenCalledWith('This feature is still under development — use with caution')
@@ -300,16 +300,16 @@ describe('build', () => {
   })
 
   it('should emit plugin lifecycle events', async () => {
-    const events = new AsyncEventEmitter<KubbHooks>()
+    const hooks = new AsyncEventEmitter<KubbHooks>()
     const startSpy = vi.fn()
     const endSpy = vi.fn()
 
-    events.on('kubb:plugin:start', startSpy)
-    events.on('kubb:plugin:end', endSpy)
+    hooks.on('kubb:plugin:start', startSpy)
+    hooks.on('kubb:plugin:end', endSpy)
 
     await build({
       config,
-      events,
+      hooks,
     })
 
     expect(startSpy).toHaveBeenCalled()

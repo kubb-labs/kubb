@@ -237,7 +237,7 @@ export interface KubbHooks {
    * can register generators, configure resolvers/transformers/renderers, or inject
    * extra files.  All `kubb:plugin:setup` handlers registered via `definePlugin` receive
    * a plugin-specific context (with the correct `addGenerator` closure).
-   * External tooling can observe this event via `events.on('kubb:plugin:setup', …)`.
+   * External tooling can observe this event via `hooks.on('kubb:plugin:setup', …)`.
    */
   'kubb:plugin:setup': [ctx: KubbPluginSetupContext]
   /**

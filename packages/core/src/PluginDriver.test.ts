@@ -88,7 +88,7 @@ describe('PluginDriver', () => {
 
   afterEach(() => {
     pluginBMocks.resolvePath.mockReset()
-    pluginDriver.events.removeAll()
+    pluginDriver.hooks.removeAll()
   })
 
   test('if pluginDriver can be created', () => {
@@ -234,7 +234,7 @@ describe('PluginDriver', () => {
     })
 
     const errorSpy = vi.fn()
-    errorPluginDriver.events.on('kubb:error', errorSpy)
+    errorPluginDriver.hooks.on('kubb:error', errorSpy)
 
     const result = await errorPluginDriver.hookFirst({
       hookName: 'buildStart',

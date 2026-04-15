@@ -19,10 +19,6 @@ import { isInputPath } from './utils/isInputPath.ts'
 type BuildOptions = {
   config: UserConfig
   hooks?: AsyncEventEmitter<KubbHooks>
-  /**
-   * @deprecated use `hooks`
-   */
-  events?: AsyncEventEmitter<KubbHooks>
 }
 
 /**
@@ -70,7 +66,7 @@ type SetupResult = {
  */
 export async function setup(options: BuildOptions): Promise<SetupResult> {
   const { config: userConfig } = options
-  const hooks = options.hooks ?? options.events ?? new AsyncEventEmitter<KubbHooks>()
+  const hooks = options.hooks ?? new AsyncEventEmitter<KubbHooks>()
 
   const sources: Map<string, string> = new Map<string, string>()
   const diagnosticInfo = getDiagnosticInfo()

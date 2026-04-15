@@ -55,10 +55,6 @@ type SafeParseResult<H extends PluginLifecycleHooks, Result = ReturnType<ParseRe
 type Options = {
   hooks?: AsyncEventEmitter<KubbHooks>
   /**
-   * @deprecated use `hooks`
-   */
-  events?: AsyncEventEmitter<KubbHooks>
-  /**
    * @default Number.POSITIVE_INFINITY
    */
   concurrency?: number
@@ -126,7 +122,7 @@ export class PluginDriver {
     this.config = config
     this.options = {
       ...options,
-      hooks: options.hooks ?? options.events,
+      hooks: options.hooks,
     }
     config.plugins
       .map((rawPlugin) => {
@@ -156,13 +152,6 @@ export class PluginDriver {
       throw new Error('hooks are not defined')
     }
     return this.options.hooks
-  }
-
-  /**
-   * @deprecated use `hooks` instead
-   */
-  get events() {
-    return this.hooks
   }
 
   /**
@@ -203,7 +192,7 @@ export class PluginDriver {
    * All other hooks are iterated and registered directly as pass-through listeners.
    * Any event key present in the global `KubbHooks` interface can be subscribed to.
    *
-   * External tooling can subscribe to any of these events via `events.on(...)` to observe
+   * External tooling can subscribe to any of these events via `hooks.on(...)` to observe
    * the plugin lifecycle without modifying plugin behavior.
    */
   registerPluginHooks(hookPlugin: HookStylePlugin, normalizedPlugin: Plugin): void {
