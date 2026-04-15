@@ -11,14 +11,14 @@ import { buildData, buildResponses, buildResponseUnion } from '../utils.ts'
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   renderer: jsxRenderer,
-  schema(node, options) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, printer } = options
-    const { adapter, config, resolver, root } = this
+  schema(node, ctx) {
+    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, printer } = ctx.options
+    const { adapter, config, resolver, root } = ctx
 
     if (!node.name) {
       return
     }
-    const mode = this.getMode(output)
+    const mode = ctx.getMode(output)
     // Build a set of schema names that are enums so the ref handler and getImports
     // callback can use the suffixed type name (e.g. `StatusKey`) for those refs.
     const enumSchemaNames = new Set((adapter.inputNode?.schemas ?? []).filter((s) => narrowSchema(s, schemaTypes.enum) && s.name).map((s) => s.name!))
@@ -79,11 +79,11 @@ export const typeGenerator = defineGenerator<PluginTs>({
       </File>
     )
   },
-  operation(node, options) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, printer } = options
-    const { adapter, config, resolver, root } = this
+  operation(node, ctx) {
+    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, printer } = ctx.options
+    const { adapter, config, resolver, root } = ctx
 
-    const mode = this.getMode(output)
+    const mode = ctx.getMode(output)
 
     const params = caseParams(node.parameters, paramsCasing)
 

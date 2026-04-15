@@ -10,9 +10,9 @@ const toURL = (path: string) => path.replaceAll('{', ':').replaceAll('}', '')
 export const clientStaticGenerator = defineGenerator<PluginClient>({
   name: 'client',
   renderer: jsxRenderer,
-  operation(node, options) {
-    const { config, plugin, driver, resolver, adapter } = this
-    const { output, importPath, dataReturnType, pathParamsType, paramsType, paramsCasing, parser } = options
+  operation(node, ctx) {
+    const { config, plugin, driver, resolver, adapter } = ctx
+    const { output, importPath, dataReturnType, pathParamsType, paramsType, paramsCasing, parser } = ctx.options
     const baseURL = adapter.inputNode?.meta?.baseURL
 
     const pluginTs = driver.getPlugin(pluginTsName)
@@ -26,7 +26,7 @@ export const clientStaticGenerator = defineGenerator<PluginClient>({
 
     const clientFile = resolver.resolveFile(
       { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
-      { root, output, group: options.group },
+      { root, output, group: ctx.options.group },
     )
 
     const typeFile = tsResolver.resolveFile(

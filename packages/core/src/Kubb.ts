@@ -256,19 +256,19 @@ export interface KubbHooks {
    * The `ctx.plugin.name` identifies which plugin is driving the current walk.
    * `ctx.options` carries the per-node resolved options (after exclude/include/override).
    */
-  'kubb:generate:schema': [node: SchemaNode, ctx: GeneratorContext & { options: object }]
+  'kubb:generate:schema': [node: SchemaNode, ctx: GeneratorContext]
   /**
    * Emitted for each operation node during the AST walk.
    * Generator listeners registered via `addGenerator()` in `kubb:plugin:setup` respond to this event.
    * The `ctx.plugin.name` identifies which plugin is driving the current walk.
    * `ctx.options` carries the per-node resolved options (after exclude/include/override).
    */
-  'kubb:generate:operation': [node: OperationNode, ctx: GeneratorContext & { options: object }]
+  'kubb:generate:operation': [node: OperationNode, ctx: GeneratorContext]
   /**
    * Emitted once after all operations have been walked, with the full collected array.
    * Generator listeners with an `operations()` method respond to this event.
    * The `ctx.plugin.name` identifies which plugin is driving the current walk.
    * `ctx.options` carries the plugin-level resolved options for the batch call.
    */
-  'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext & { options: object }]
+  'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext]
 }

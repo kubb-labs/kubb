@@ -282,7 +282,7 @@ export class PluginDriver {
     if (gen.schema) {
       this.hooks.on('kubb:generate:schema', async (node, ctx) => {
         if (ctx.plugin.name !== pluginName) return
-        const result = await gen.schema!.call(ctx, node, ctx.options)
+        const result = await gen.schema!(node, ctx)
         await applyHookResult(result, this, resolveRenderer())
       })
     }
@@ -290,7 +290,7 @@ export class PluginDriver {
     if (gen.operation) {
       this.hooks.on('kubb:generate:operation', async (node, ctx) => {
         if (ctx.plugin.name !== pluginName) return
-        const result = await gen.operation!.call(ctx, node, ctx.options)
+        const result = await gen.operation!(node, ctx)
         await applyHookResult(result, this, resolveRenderer())
       })
     }
@@ -298,7 +298,7 @@ export class PluginDriver {
     if (gen.operations) {
       this.hooks.on('kubb:generate:operations', async (nodes, ctx) => {
         if (ctx.plugin.name !== pluginName) return
-        const result = await gen.operations!.call(ctx, nodes, ctx.options)
+        const result = await gen.operations!(nodes, ctx)
         await applyHookResult(result, this, resolveRenderer())
       })
     }

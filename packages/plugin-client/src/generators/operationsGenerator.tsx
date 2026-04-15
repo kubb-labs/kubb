@@ -6,9 +6,9 @@ import type { PluginClient } from '../types'
 export const operationsGenerator = defineGenerator<PluginClient>({
   name: 'client',
   renderer: jsxRenderer,
-  operations(nodes, options) {
-    const { config, resolver, adapter, root } = this
-    const { output, group } = options
+  operations(nodes, ctx) {
+    const { config, resolver, adapter, root } = ctx
+    const { output, group } = ctx.options
 
     const name = 'operations'
     const file = resolver.resolveFile({ name, extname: '.ts' }, { root, output, group })
