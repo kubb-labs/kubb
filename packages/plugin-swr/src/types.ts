@@ -170,6 +170,7 @@ type ResolvedOptions = {
   paramsCasing: Options['paramsCasing']
   paramsType: NonNullable<Options['paramsType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
+  transformers: NonNullable<Options['transformers']>
   group: Group | undefined
   exclude: NonNullable<Options['exclude']>
   include: Options['include']

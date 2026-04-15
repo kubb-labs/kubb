@@ -1,6 +1,16 @@
 import { caseParams, createFunctionParameter, createFunctionParameters, createParamsType } from '@kubb/ast'
 import type { FunctionParameterNode, FunctionParametersNode, OperationNode, ParameterGroupNode, ParameterNode, ParamsTypeNode } from '@kubb/ast/types'
 import type { PluginTs } from '@kubb/plugin-ts'
+import type { PluginSwr } from './types.ts'
+
+/**
+ * Apply the user-provided `transformers.name` function (if any) to a resolved name.
+ * Mirrors the old `createPlugin` `resolveName` lifecycle that applied transformers
+ * after resolving the full name (base + suffix).
+ */
+export function transformName(name: string, type: string, transformers?: PluginSwr['resolvedOptions']['transformers']): string {
+  return transformers?.name?.(name, type) || name
+}
 
 /**
  * Build JSDoc comment lines from an OperationNode.

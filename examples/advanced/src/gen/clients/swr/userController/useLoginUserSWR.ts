@@ -3,11 +3,11 @@ import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from 
 import type { LoginUserQueryParams, LoginUserQueryResponse, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
 import { loginUser } from '../../axios/userService/loginUser.ts'
 
-export const loginUserSWRQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+export const loginUserQueryKeySWR = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 
-export type LoginUserSWRQueryKey = ReturnType<typeof loginUserSWRQueryKey>
+export type LoginUserQueryKeySWR = ReturnType<typeof loginUserQueryKeySWR>
 
-export function loginUserSWRQueryOptions({ params }: { params?: LoginUserQueryParams } = {}, config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function loginUserQueryOptionsSWR({ params }: { params?: LoginUserQueryParams } = {}, config: Partial<RequestConfig> & { client?: Client } = {}) {
   return {
     fetcher: async () => {
       return loginUser({ params }, config)
@@ -30,10 +30,10 @@ export function useLoginUserSWR(
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
-  const queryKey = loginUserSWRQueryKey(params)
+  const queryKey = loginUserQueryKeySWR(params)
 
-  return useSWR<ResponseConfig<LoginUserQueryResponse>, ResponseErrorConfig<LoginUser400>, LoginUserSWRQueryKey | null>(shouldFetch ? queryKey : null, {
-    ...loginUserSWRQueryOptions({ params }, config),
+  return useSWR<ResponseConfig<LoginUserQueryResponse>, ResponseErrorConfig<LoginUser400>, LoginUserQueryKeySWR | null>(shouldFetch ? queryKey : null, {
+    ...loginUserQueryOptionsSWR({ params }, config),
     ...(immutable
       ? {
           revalidateIfStale: false,

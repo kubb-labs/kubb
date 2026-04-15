@@ -8,9 +8,9 @@ import type {
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import { createUsersWithListInput } from '../../axios/userService/createUsersWithListInput.ts'
 
-export const createUsersWithListInputSWRMutationKey = () => [{ url: '/user/createWithList' }] as const
+export const createUsersWithListInputMutationKeySWR = () => [{ url: '/user/createWithList' }] as const
 
-export type CreateUsersWithListInputSWRMutationKey = ReturnType<typeof createUsersWithListInputSWRMutationKey>
+export type CreateUsersWithListInputMutationKeySWR = ReturnType<typeof createUsersWithListInputMutationKeySWR>
 
 /**
  * @description Creates list of users with given input array
@@ -22,7 +22,7 @@ export function useCreateUsersWithListInputSWR(
     mutation?: SWRMutationConfiguration<
       ResponseConfig<CreateUsersWithListInputMutationResponse>,
       ResponseErrorConfig<CreateUsersWithListInputError>,
-      CreateUsersWithListInputSWRMutationKey | null,
+      CreateUsersWithListInputMutationKeySWR | null,
       CreateUsersWithListInputMutationRequest
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: Client }
@@ -30,12 +30,12 @@ export function useCreateUsersWithListInputSWR(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = createUsersWithListInputSWRMutationKey()
+  const mutationKey = createUsersWithListInputMutationKeySWR()
 
   return useSWRMutation<
     ResponseConfig<CreateUsersWithListInputMutationResponse>,
     ResponseErrorConfig<CreateUsersWithListInputError>,
-    CreateUsersWithListInputSWRMutationKey | null,
+    CreateUsersWithListInputMutationKeySWR | null,
     CreateUsersWithListInputMutationRequest
   >(
     shouldFetch ? mutationKey : null,

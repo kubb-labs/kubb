@@ -8,13 +8,14 @@ import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { difference } from 'remeda'
 import { Mutation, MutationKey } from '../components'
 import type { PluginSwr } from '../types'
+import { transformName } from '../utils.ts'
 
 export const mutationGenerator = defineGenerator<PluginSwr>({
   name: 'swr-mutation',
   renderer: jsxRenderer,
   operation(node, ctx) {
     const { adapter, config, driver, resolver, root } = ctx
-    const { output, query, mutation, paramsCasing, paramsType, pathParamsType, parser, client: clientOptions, group } = ctx.options
+    const { output, query, mutation, paramsCasing, paramsType, pathParamsType, parser, client: clientOptions, group, transformers } = ctx.options
 
     const pluginTs = driver.getPlugin(pluginTsName)
     if (!pluginTs?.resolver) return null
@@ -31,17 +32,18 @@ export const mutationGenerator = defineGenerator<PluginSwr>({
 
     const importPath = mutation ? mutation.importPath : 'swr/mutation'
 
-    // Resolve names
+    // Resolve names — apply transformers.name to each constructed name to match the old
+    // createPlugin resolveName lifecycle (e.g. `addPetMutationKey` → `addPetMutationKeySWR`)
     const baseName = resolver.resolveName(node.operationId)
-    const mutationHookName = `use${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}`
-    const mutationTypeName = `${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}`
-    const mutationKeyName = `${baseName}MutationKey`
-    const mutationKeyTypeName = `${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}MutationKey`
+    const mutationHookName = transformName(`use${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}`, 'function', transformers)
+    const mutationTypeName = transformName(`${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}`, 'type', transformers)
+    const mutationKeyName = transformName(`${baseName}MutationKey`, 'const', transformers)
+    const mutationKeyTypeName = transformName(`${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}MutationKey`, 'type', transformers)
     const clientName = baseName
 
     const meta = {
       file: resolver.resolveFile(
-        { name: `use${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}`, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+        { name: mutationHookName, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
         { root, output, group },
       ),
       fileTs: tsResolver.resolveFile(

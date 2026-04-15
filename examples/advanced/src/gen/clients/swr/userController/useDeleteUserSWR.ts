@@ -4,9 +4,9 @@ import type { DeleteUserPathParams, DeleteUserMutationResponse, DeleteUser400, D
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import { deleteUser } from '../../axios/userService/deleteUser.ts'
 
-export const deleteUserSWRMutationKey = () => [{ url: '/user/:username' }] as const
+export const deleteUserMutationKeySWR = () => [{ url: '/user/:username' }] as const
 
-export type DeleteUserSWRMutationKey = ReturnType<typeof deleteUserSWRMutationKey>
+export type DeleteUserMutationKeySWR = ReturnType<typeof deleteUserMutationKeySWR>
 
 /**
  * @description This can only be done by the logged in user.
@@ -19,7 +19,7 @@ export function useDeleteUserSWR(
     mutation?: SWRMutationConfiguration<
       ResponseConfig<DeleteUserMutationResponse>,
       ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
-      DeleteUserSWRMutationKey | null,
+      DeleteUserMutationKeySWR | null,
       never
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig> & { client?: Client }
@@ -27,9 +27,9 @@ export function useDeleteUserSWR(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = deleteUserSWRMutationKey()
+  const mutationKey = deleteUserMutationKeySWR()
 
-  return useSWRMutation<ResponseConfig<DeleteUserMutationResponse>, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, DeleteUserSWRMutationKey | null>(
+  return useSWRMutation<ResponseConfig<DeleteUserMutationResponse>, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, DeleteUserMutationKeySWR | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
       return deleteUser({ username }, config)

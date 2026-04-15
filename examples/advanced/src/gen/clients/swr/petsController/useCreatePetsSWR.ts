@@ -11,9 +11,9 @@ import type {
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import { createPets } from '../../axios/petsService/createPets.ts'
 
-export const createPetsSWRMutationKey = () => [{ url: '/pets/:uuid' }] as const
+export const createPetsMutationKeySWR = () => [{ url: '/pets/:uuid' }] as const
 
-export type CreatePetsSWRMutationKey = ReturnType<typeof createPetsSWRMutationKey>
+export type CreatePetsMutationKeySWR = ReturnType<typeof createPetsMutationKeySWR>
 
 /**
  * @summary Create a pet
@@ -27,7 +27,7 @@ export function useCreatePetsSWR(
     mutation?: SWRMutationConfiguration<
       ResponseConfig<CreatePetsMutationResponse>,
       ResponseErrorConfig<CreatePetsError>,
-      CreatePetsSWRMutationKey | null,
+      CreatePetsMutationKeySWR | null,
       CreatePetsMutationRequest
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: Client }
@@ -35,12 +35,12 @@ export function useCreatePetsSWR(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = createPetsSWRMutationKey()
+  const mutationKey = createPetsMutationKeySWR()
 
   return useSWRMutation<
     ResponseConfig<CreatePetsMutationResponse>,
     ResponseErrorConfig<CreatePetsError>,
-    CreatePetsSWRMutationKey | null,
+    CreatePetsMutationKeySWR | null,
     CreatePetsMutationRequest
   >(
     shouldFetch ? mutationKey : null,

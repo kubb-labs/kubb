@@ -4,9 +4,9 @@ import type { AddFilesMutationRequest, AddFilesMutationResponse, AddFiles405 } f
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import { addFiles } from '../../axios/petService/addFiles.ts'
 
-export const addFilesSWRMutationKey = () => [{ url: '/pet/files' }] as const
+export const addFilesMutationKeySWR = () => [{ url: '/pet/files' }] as const
 
-export type AddFilesSWRMutationKey = ReturnType<typeof addFilesSWRMutationKey>
+export type AddFilesMutationKeySWR = ReturnType<typeof addFilesMutationKeySWR>
 
 /**
  * @description Place a new file in the store
@@ -18,7 +18,7 @@ export function useAddFilesSWR(
     mutation?: SWRMutationConfiguration<
       ResponseConfig<AddFilesMutationResponse>,
       ResponseErrorConfig<AddFiles405>,
-      AddFilesSWRMutationKey | null,
+      AddFilesMutationKeySWR | null,
       AddFilesMutationRequest
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: Client }
@@ -26,9 +26,9 @@ export function useAddFilesSWR(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = addFilesSWRMutationKey()
+  const mutationKey = addFilesMutationKeySWR()
 
-  return useSWRMutation<ResponseConfig<AddFilesMutationResponse>, ResponseErrorConfig<AddFiles405>, AddFilesSWRMutationKey | null, AddFilesMutationRequest>(
+  return useSWRMutation<ResponseConfig<AddFilesMutationResponse>, ResponseErrorConfig<AddFiles405>, AddFilesMutationKeySWR | null, AddFilesMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return addFiles({ data }, config)

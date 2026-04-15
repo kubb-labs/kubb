@@ -9,9 +9,9 @@ import type {
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import { updateUser } from '../../axios/userService/updateUser.ts'
 
-export const updateUserSWRMutationKey = () => [{ url: '/user/:username' }] as const
+export const updateUserMutationKeySWR = () => [{ url: '/user/:username' }] as const
 
-export type UpdateUserSWRMutationKey = ReturnType<typeof updateUserSWRMutationKey>
+export type UpdateUserMutationKeySWR = ReturnType<typeof updateUserMutationKeySWR>
 
 /**
  * @description This can only be done by the logged in user.
@@ -24,7 +24,7 @@ export function useUpdateUserSWR(
     mutation?: SWRMutationConfiguration<
       ResponseConfig<UpdateUserMutationResponse>,
       ResponseErrorConfig<UpdateUserError>,
-      UpdateUserSWRMutationKey | null,
+      UpdateUserMutationKeySWR | null,
       UpdateUserMutationRequest
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: Client }
@@ -32,12 +32,12 @@ export function useUpdateUserSWR(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = updateUserSWRMutationKey()
+  const mutationKey = updateUserMutationKeySWR()
 
   return useSWRMutation<
     ResponseConfig<UpdateUserMutationResponse>,
     ResponseErrorConfig<UpdateUserError>,
-    UpdateUserSWRMutationKey | null,
+    UpdateUserMutationKeySWR | null,
     UpdateUserMutationRequest
   >(
     shouldFetch ? mutationKey : null,

@@ -4,9 +4,9 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse, CreateUserE
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import { createUser } from '../../axios/userService/createUser.ts'
 
-export const createUserSWRMutationKey = () => [{ url: '/user' }] as const
+export const createUserMutationKeySWR = () => [{ url: '/user' }] as const
 
-export type CreateUserSWRMutationKey = ReturnType<typeof createUserSWRMutationKey>
+export type CreateUserMutationKeySWR = ReturnType<typeof createUserMutationKeySWR>
 
 /**
  * @description This can only be done by the logged in user.
@@ -18,7 +18,7 @@ export function useCreateUserSWR(
     mutation?: SWRMutationConfiguration<
       ResponseConfig<CreateUserMutationResponse>,
       ResponseErrorConfig<CreateUserError>,
-      CreateUserSWRMutationKey | null,
+      CreateUserMutationKeySWR | null,
       CreateUserMutationRequest
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: Client }
@@ -26,12 +26,12 @@ export function useCreateUserSWR(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = createUserSWRMutationKey()
+  const mutationKey = createUserMutationKeySWR()
 
   return useSWRMutation<
     ResponseConfig<CreateUserMutationResponse>,
     ResponseErrorConfig<CreateUserError>,
-    CreateUserSWRMutationKey | null,
+    CreateUserMutationKeySWR | null,
     CreateUserMutationRequest
   >(
     shouldFetch ? mutationKey : null,

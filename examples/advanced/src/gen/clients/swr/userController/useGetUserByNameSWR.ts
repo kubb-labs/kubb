@@ -8,12 +8,12 @@ import type {
 } from '../../../models/ts/userController/GetUserByName.ts'
 import { getUserByName } from '../../axios/userService/getUserByName.ts'
 
-export const getUserByNameSWRQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] }) =>
+export const getUserByNameQueryKeySWR = ({ username }: { username: GetUserByNamePathParams['username'] }) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 
-export type GetUserByNameSWRQueryKey = ReturnType<typeof getUserByNameSWRQueryKey>
+export type GetUserByNameQueryKeySWR = ReturnType<typeof getUserByNameQueryKeySWR>
 
-export function getUserByNameSWRQueryOptions(
+export function getUserByNameQueryOptionsSWR(
   { username }: { username: GetUserByNamePathParams['username'] },
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
@@ -39,12 +39,12 @@ export function useGetUserByNameSWR(
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
-  const queryKey = getUserByNameSWRQueryKey({ username })
+  const queryKey = getUserByNameQueryKeySWR({ username })
 
-  return useSWR<ResponseConfig<GetUserByNameQueryResponse>, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameSWRQueryKey | null>(
+  return useSWR<ResponseConfig<GetUserByNameQueryResponse>, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryKeySWR | null>(
     shouldFetch ? queryKey : null,
     {
-      ...getUserByNameSWRQueryOptions({ username }, config),
+      ...getUserByNameQueryOptionsSWR({ username }, config),
       ...(immutable
         ? {
             revalidateIfStale: false,

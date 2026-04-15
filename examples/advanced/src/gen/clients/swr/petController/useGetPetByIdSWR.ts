@@ -3,11 +3,11 @@ import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from 
 import type { GetPetByIdPathParams, GetPetByIdQueryResponse, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
 import { getPetById } from '../../axios/petService/getPetById.ts'
 
-export const getPetByIdSWRQueryKey = ({ petId }: { petId: GetPetByIdPathParams['petId'] }) => [{ url: '/pet/:petId:search', params: { petId: petId } }] as const
+export const getPetByIdQueryKeySWR = ({ petId }: { petId: GetPetByIdPathParams['petId'] }) => [{ url: '/pet/:petId:search', params: { petId: petId } }] as const
 
-export type GetPetByIdSWRQueryKey = ReturnType<typeof getPetByIdSWRQueryKey>
+export type GetPetByIdQueryKeySWR = ReturnType<typeof getPetByIdQueryKeySWR>
 
-export function getPetByIdSWRQueryOptions({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function getPetByIdQueryOptionsSWR({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> & { client?: Client } = {}) {
   return {
     fetcher: async () => {
       return getPetById({ petId }, config)
@@ -31,12 +31,12 @@ export function useGetPetByIdSWR(
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
-  const queryKey = getPetByIdSWRQueryKey({ petId })
+  const queryKey = getPetByIdQueryKeySWR({ petId })
 
-  return useSWR<ResponseConfig<GetPetByIdQueryResponse>, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdSWRQueryKey | null>(
+  return useSWR<ResponseConfig<GetPetByIdQueryResponse>, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryKeySWR | null>(
     shouldFetch ? queryKey : null,
     {
-      ...getPetByIdSWRQueryOptions({ petId }, config),
+      ...getPetByIdQueryOptionsSWR({ petId }, config),
       ...(immutable
         ? {
             revalidateIfStale: false,

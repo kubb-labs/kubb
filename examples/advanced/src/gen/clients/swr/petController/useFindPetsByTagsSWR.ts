@@ -8,11 +8,11 @@ import type {
 } from '../../../models/ts/petController/FindPetsByTags.ts'
 import { findPetsByTags } from '../../axios/petService/findPetsByTags.ts'
 
-export const findPetsByTagsSWRQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsQueryKeySWR = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
-export type FindPetsByTagsSWRQueryKey = ReturnType<typeof findPetsByTagsSWRQueryKey>
+export type FindPetsByTagsQueryKeySWR = ReturnType<typeof findPetsByTagsQueryKeySWR>
 
-export function findPetsByTagsSWRQueryOptions(
+export function findPetsByTagsQueryOptionsSWR(
   { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
@@ -39,12 +39,12 @@ export function useFindPetsByTagsSWR(
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
-  const queryKey = findPetsByTagsSWRQueryKey(params)
+  const queryKey = findPetsByTagsQueryKeySWR(params)
 
-  return useSWR<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsSWRQueryKey | null>(
+  return useSWR<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryKeySWR | null>(
     shouldFetch ? queryKey : null,
     {
-      ...findPetsByTagsSWRQueryOptions({ headers, params }, config),
+      ...findPetsByTagsQueryOptionsSWR({ headers, params }, config),
       ...(immutable
         ? {
             revalidateIfStale: false,

@@ -10,9 +10,9 @@ import type {
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import { updatePet } from '../../axios/petService/updatePet.ts'
 
-export const updatePetSWRMutationKey = () => [{ url: '/pet' }] as const
+export const updatePetMutationKeySWR = () => [{ url: '/pet' }] as const
 
-export type UpdatePetSWRMutationKey = ReturnType<typeof updatePetSWRMutationKey>
+export type UpdatePetMutationKeySWR = ReturnType<typeof updatePetMutationKeySWR>
 
 /**
  * @description Update an existing pet by Id
@@ -24,7 +24,7 @@ export function useUpdatePetSWR(
     mutation?: SWRMutationConfiguration<
       ResponseConfig<UpdatePetMutationResponse>,
       ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
-      UpdatePetSWRMutationKey | null,
+      UpdatePetMutationKeySWR | null,
       UpdatePetMutationRequest
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: Client }
@@ -32,12 +32,12 @@ export function useUpdatePetSWR(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = updatePetSWRMutationKey()
+  const mutationKey = updatePetMutationKeySWR()
 
   return useSWRMutation<
     ResponseConfig<UpdatePetMutationResponse>,
     ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
-    UpdatePetSWRMutationKey | null,
+    UpdatePetMutationKeySWR | null,
     UpdatePetMutationRequest
   >(
     shouldFetch ? mutationKey : null,

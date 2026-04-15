@@ -9,9 +9,9 @@ import type {
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import { updatePetWithForm } from '../../axios/petService/updatePetWithForm.ts'
 
-export const updatePetWithFormSWRMutationKey = () => [{ url: '/pet/:petId:search' }] as const
+export const updatePetWithFormMutationKeySWR = () => [{ url: '/pet/:petId:search' }] as const
 
-export type UpdatePetWithFormSWRMutationKey = ReturnType<typeof updatePetWithFormSWRMutationKey>
+export type UpdatePetWithFormMutationKeySWR = ReturnType<typeof updatePetWithFormMutationKeySWR>
 
 /**
  * @summary Updates a pet in the store with form data
@@ -24,7 +24,7 @@ export function useUpdatePetWithFormSWR(
     mutation?: SWRMutationConfiguration<
       ResponseConfig<UpdatePetWithFormMutationResponse>,
       ResponseErrorConfig<UpdatePetWithForm405>,
-      UpdatePetWithFormSWRMutationKey | null,
+      UpdatePetWithFormMutationKeySWR | null,
       never
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig> & { client?: Client }
@@ -32,9 +32,9 @@ export function useUpdatePetWithFormSWR(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = updatePetWithFormSWRMutationKey()
+  const mutationKey = updatePetWithFormMutationKeySWR()
 
-  return useSWRMutation<ResponseConfig<UpdatePetWithFormMutationResponse>, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormSWRMutationKey | null>(
+  return useSWRMutation<ResponseConfig<UpdatePetWithFormMutationResponse>, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationKeySWR | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
       return updatePetWithForm({ petId, params }, config)

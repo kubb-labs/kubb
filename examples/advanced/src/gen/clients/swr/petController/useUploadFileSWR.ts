@@ -9,9 +9,9 @@ import type {
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import { uploadFile } from '../../axios/petService/uploadFile.ts'
 
-export const uploadFileSWRMutationKey = () => [{ url: '/pet/:petId/uploadImage' }] as const
+export const uploadFileMutationKeySWR = () => [{ url: '/pet/:petId/uploadImage' }] as const
 
-export type UploadFileSWRMutationKey = ReturnType<typeof uploadFileSWRMutationKey>
+export type UploadFileMutationKeySWR = ReturnType<typeof uploadFileMutationKeySWR>
 
 /**
  * @summary uploads an image
@@ -24,7 +24,7 @@ export function useUploadFileSWR(
     mutation?: SWRMutationConfiguration<
       ResponseConfig<UploadFileMutationResponse>,
       ResponseErrorConfig<Error>,
-      UploadFileSWRMutationKey | null,
+      UploadFileMutationKeySWR | null,
       UploadFileMutationRequest
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: Client }
@@ -32,9 +32,9 @@ export function useUploadFileSWR(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = uploadFileSWRMutationKey()
+  const mutationKey = uploadFileMutationKeySWR()
 
-  return useSWRMutation<ResponseConfig<UploadFileMutationResponse>, ResponseErrorConfig<Error>, UploadFileSWRMutationKey | null, UploadFileMutationRequest>(
+  return useSWRMutation<ResponseConfig<UploadFileMutationResponse>, ResponseErrorConfig<Error>, UploadFileMutationKeySWR | null, UploadFileMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return uploadFile({ petId, data, params }, config)

@@ -7,13 +7,14 @@ import { pluginZodName } from '@kubb/plugin-zod'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Query, QueryKey, QueryOptions } from '../components'
 import type { PluginSwr } from '../types'
+import { transformName } from '../utils.ts'
 
 export const queryGenerator = defineGenerator<PluginSwr>({
   name: 'swr-query',
   renderer: jsxRenderer,
   operation(node, ctx) {
     const { adapter, config, driver, resolver, root } = ctx
-    const { output, query, paramsCasing, paramsType, pathParamsType, parser, client: clientOptions, group } = ctx.options
+    const { output, query, paramsCasing, paramsType, pathParamsType, parser, client: clientOptions, group, transformers } = ctx.options
 
     const pluginTs = driver.getPlugin(pluginTsName)
     if (!pluginTs?.resolver) return null
@@ -26,17 +27,18 @@ export const queryGenerator = defineGenerator<PluginSwr>({
 
     const importPath = query ? query.importPath : 'swr'
 
-    // Resolve names
+    // Resolve names — apply transformers.name to each constructed name to match the old
+    // createPlugin resolveName lifecycle (e.g. `findPetsByTagsQueryKey` → `findPetsByTagsQueryKeySWR`)
     const baseName = resolver.resolveName(node.operationId)
-    const queryName = `use${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}`
-    const queryOptionsName = `${baseName}QueryOptions`
-    const queryKeyName = `${baseName}QueryKey`
-    const queryKeyTypeName = `${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}QueryKey`
+    const queryName = transformName(`use${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}`, 'function', transformers)
+    const queryOptionsName = transformName(`${baseName}QueryOptions`, 'function', transformers)
+    const queryKeyName = transformName(`${baseName}QueryKey`, 'const', transformers)
+    const queryKeyTypeName = transformName(`${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}QueryKey`, 'type', transformers)
     const clientName = baseName
 
     const meta = {
       file: resolver.resolveFile(
-        { name: `use${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}`, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+        { name: queryName, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
         { root, output, group },
       ),
       fileTs: tsResolver.resolveFile(
