@@ -1,184 +1,179 @@
-import { FunctionParams } from '@kubb/core'
-import { getDefaultValue, isOptional, type Operation } from '@kubb/oas'
-import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
+import { caseParams, createFunctionParameter, createFunctionParameters, createOperationParams, createParamsType } from '@kubb/ast'
+import type { FunctionParameterNode, FunctionParametersNode, OperationNode, ParameterGroupNode } from '@kubb/ast/types'
+import type { PluginTs } from '@kubb/plugin-ts'
+import { functionPrinter } from '@kubb/plugin-ts'
 import { File, Function } from '@kubb/renderer-jsx'
 import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PluginSwr } from '../types.ts'
+import { buildGroupParam, getComments, resolveErrorNames, resolvePathParamType, resolveQueryGroupType } from '../utils.ts'
 import { QueryKey } from './QueryKey.tsx'
 import { QueryOptions } from './QueryOptions.tsx'
 
 type Props = {
-  /**
-   * Name of the function
-   */
   name: string
   queryOptionsName: string
   queryKeyName: string
   queryKeyTypeName: string
-  typeSchemas: OperationSchemas
+  node: OperationNode
+  tsResolver: PluginTs['resolver']
   paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   paramsType: PluginSwr['resolvedOptions']['paramsType']
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
-  operation: Operation
 }
 
-type GetParamsProps = {
-  paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
-  paramsType: PluginSwr['resolvedOptions']['paramsType']
-  pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
-  dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
-  typeSchemas: OperationSchemas
-}
+const declarationPrinter = functionPrinter({ mode: 'declaration' })
+const callPrinter = functionPrinter({ mode: 'call' })
 
-function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
-  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+function getParams(
+  node: OperationNode,
+  options: {
+    paramsType: PluginSwr['resolvedOptions']['paramsType']
+    paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
+    pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
+    dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
+    resolver: PluginTs['resolver']
+  },
+): FunctionParametersNode {
+  const { paramsType, paramsCasing, pathParamsType, dataReturnType, resolver } = options
 
-  if (paramsType === 'object') {
-    const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
+  const responseName = resolver.resolveResponseName(node)
+  const requestName = node.requestBody?.schema ? resolver.resolveDataName(node) : undefined
+  const errorNames = resolveErrorNames(node, resolver)
 
-    const children = {
-      ...pathParams,
-      data: typeSchemas.request?.name
-        ? {
-            type: typeSchemas.request?.name,
-            optional: isOptional(typeSchemas.request?.schema),
-          }
-        : undefined,
-      params: typeSchemas.queryParams?.name
-        ? {
-            type: typeSchemas.queryParams?.name,
-            optional: isOptional(typeSchemas.queryParams?.schema),
-          }
-        : undefined,
-      headers: typeSchemas.headerParams?.name
-        ? {
-            type: typeSchemas.headerParams?.name,
-            optional: isOptional(typeSchemas.headerParams?.schema),
-          }
-        : undefined,
-    }
+  const TData = dataReturnType === 'data' ? responseName : `ResponseConfig<${responseName}>`
+  const TError = `ResponseErrorConfig<${errorNames.length > 0 ? errorNames.join(' | ') : 'Error'}>`
 
-    // Check if all children are optional or undefined
-    const allChildrenAreOptional = Object.values(children).every((child) => !child || child.optional)
-
-    return FunctionParams.factory({
-      data: {
-        mode: 'object',
-        children,
-        default: allChildrenAreOptional ? '{}' : undefined,
-      },
-      options: {
-        type: `
-{
-  query?: Parameters<typeof useSWR<${[TData, TError].join(', ')}>>[2],
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: Client }` : 'Partial<RequestConfig> & { client?: Client }'},
+  const optionsParam = createFunctionParameter({
+    name: 'options',
+    type: createParamsType({
+      variant: 'reference',
+      name: `{
+  query?: Parameters<typeof useSWR<${TData}, ${TError}>>[2],
+  client?: ${requestName ? `Partial<RequestConfig<${requestName}>> & { client?: Client }` : 'Partial<RequestConfig> & { client?: Client }'},
   shouldFetch?: boolean,
   immutable?: boolean
-}
-`,
-        default: '{}',
-      },
+}`,
+    }),
+    default: '{}',
+  })
+
+  if (paramsType === 'object') {
+    // Use createOperationParams for the grouped params (path + body + query + headers),
+    // but replace the config param with SWR's options param
+    const baseParams = createOperationParams(node, {
+      paramsType: 'object',
+      pathParamsType: 'object',
+      paramsCasing,
+      resolver,
+      extraParams: [],
+    })
+
+    return createFunctionParameters({
+      params: [...baseParams.params, optionsParam],
     })
   }
 
-  return FunctionParams.factory({
-    pathParams: typeSchemas.pathParams?.name
-      ? {
-          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
-          default: getDefaultValue(typeSchemas.pathParams?.schema),
+  // Inline params: build path + body + query (NO headers for query hooks) + options
+  const casedParams = caseParams(node.parameters, paramsCasing)
+  const pathParams = casedParams.filter((p) => p.in === 'path')
+  const queryParams = casedParams.filter((p) => p.in === 'query')
+  const headerParams = casedParams.filter((p) => p.in === 'header')
+
+  const queryGroupType = resolveQueryGroupType(node, queryParams, resolver)
+
+  const bodyType = node.requestBody?.schema ? createParamsType({ variant: 'reference', name: resolver.resolveDataName(node) }) : undefined
+  const bodyRequired = node.requestBody?.required ?? false
+
+  const params: Array<FunctionParameterNode | ParameterGroupNode> = []
+
+  // Path params
+  if (pathParams.length) {
+    const pathChildren = pathParams.map((p) => createFunctionParameter({ name: p.name, type: resolvePathParamType(node, p, resolver), optional: !p.required }))
+    params.push({
+      kind: 'ParameterGroup',
+      properties: pathChildren,
+      inline: pathParamsType === 'inline',
+      default: pathChildren.every((c) => c.optional) ? '{}' : undefined,
+    })
+  }
+
+  // Body
+  if (bodyType) {
+    params.push(createFunctionParameter({ name: 'data', type: bodyType, optional: !bodyRequired }))
+  }
+
+  // Query params
+  params.push(...buildGroupParam('params', node, queryParams, queryGroupType, resolver))
+
+  // Header params (included for the query hook params, consistent with old behavior)
+  const headerGroupType = node.parameters.some((p) => p.in === 'header')
+    ? (() => {
+        const hParams = casedParams.filter((p) => p.in === 'header')
+        const firstParam = hParams[0]!
+        const groupName = resolver.resolveHeaderParamsName(node, firstParam)
+        const individualName = resolver.resolveParamName(node, firstParam)
+        if (groupName !== individualName) {
+          return { type: createParamsType({ variant: 'reference', name: groupName }), optional: hParams.every((p) => !p.required) }
         }
-      : undefined,
-    data: typeSchemas.request?.name
-      ? {
-          type: typeSchemas.request?.name,
-          optional: isOptional(typeSchemas.request?.schema),
-        }
-      : undefined,
-    params: typeSchemas.queryParams?.name
-      ? {
-          type: typeSchemas.queryParams?.name,
-          optional: isOptional(typeSchemas.queryParams?.schema),
-        }
-      : undefined,
-    headers: typeSchemas.headerParams?.name
-      ? {
-          type: typeSchemas.headerParams?.name,
-          optional: isOptional(typeSchemas.headerParams?.schema),
-        }
-      : undefined,
-    options: {
-      type: `
-{
-  query?: Parameters<typeof useSWR<${[TData, TError].join(', ')}>>[2],
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: Client }` : 'Partial<RequestConfig> & { client?: Client }'},
-  shouldFetch?: boolean,
-  immutable?: boolean
-}
-`,
-      default: '{}',
-    },
-  })
+        return undefined
+      })()
+    : undefined
+  params.push(...buildGroupParam('headers', node, headerParams, headerGroupType, resolver))
+
+  // SWR options
+  params.push(optionsParam)
+
+  return createFunctionParameters({ params })
 }
 
 export function Query({
   name,
-  typeSchemas,
+  node,
+  tsResolver,
   queryKeyName,
   queryKeyTypeName,
   queryOptionsName,
-  operation,
   dataReturnType,
   paramsType,
   paramsCasing,
   pathParamsType,
 }: Props): KubbReactNode {
-  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const responseName = tsResolver.resolveResponseName(node)
+  const errorNames = resolveErrorNames(node, tsResolver)
+
+  const TData = dataReturnType === 'data' ? responseName : `ResponseConfig<${responseName}>`
+  const TError = `ResponseErrorConfig<${errorNames.length > 0 ? errorNames.join(' | ') : 'Error'}>`
   const generics = [TData, TError, `${queryKeyTypeName} | null`]
 
-  const queryKeyParams = QueryKey.getParams({
-    pathParamsType,
-    typeSchemas,
-    paramsCasing,
-  })
-  const params = getParams({
-    paramsCasing,
-    paramsType,
-    pathParamsType,
-    dataReturnType,
-    typeSchemas,
-  })
+  const queryKeyParamsNode = QueryKey.getParams(node, { pathParamsType, paramsCasing, resolver: tsResolver })
+  const queryKeyParamsCall = callPrinter.print(queryKeyParamsNode) ?? ''
 
-  const queryOptionsParams = QueryOptions.getParams({
-    paramsCasing,
-    paramsType,
-    pathParamsType,
-    typeSchemas,
-  })
+  const paramsNode = getParams(node, { paramsType, paramsCasing, pathParamsType, dataReturnType, resolver: tsResolver })
+  const paramsSignature = declarationPrinter.print(paramsNode) ?? ''
+
+  const queryOptionsParamsNode = QueryOptions.getParams(node, { paramsType, paramsCasing, pathParamsType, resolver: tsResolver })
+  const queryOptionsParamsCall = callPrinter.print(queryOptionsParamsNode) ?? ''
 
   return (
     <File.Source name={name} isExportable isIndexable>
       <Function
         name={name}
         export
-        params={params.toConstructor()}
+        params={paramsSignature}
         JSDoc={{
-          comments: getComments(operation),
+          comments: getComments(node),
         }}
       >
         {`
        const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
-       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
+       const queryKey = ${queryKeyName}(${queryKeyParamsCall})
 
        return useSWR<${generics.join(', ')}>(
         shouldFetch ? queryKey : null,
         {
-          ...${queryOptionsName}(${queryOptionsParams.toCall()}),
+          ...${queryOptionsName}(${queryOptionsParamsCall}),
           ...(immutable ? {
               revalidateIfStale: false,
               revalidateOnFocus: false,

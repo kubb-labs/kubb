@@ -1,8 +1,7 @@
-import { FunctionParams } from '@kubb/core'
-import { getDefaultValue, isOptional } from '@kubb/oas'
-import { ClientLegacy as Client } from '@kubb/plugin-client'
-import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getPathParams } from '@kubb/plugin-oas/utils'
+import { createFunctionParameter, createOperationParams, createParamsType } from '@kubb/ast'
+import type { FunctionParametersNode, OperationNode } from '@kubb/ast/types'
+import type { PluginTs } from '@kubb/plugin-ts'
+import { functionPrinter } from '@kubb/plugin-ts'
 import { File, Function } from '@kubb/renderer-jsx'
 import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PluginSwr } from '../types.ts'
@@ -10,109 +9,58 @@ import type { PluginSwr } from '../types.ts'
 type Props = {
   name: string
   clientName: string
-  typeSchemas: OperationSchemas
+  node: OperationNode
+  tsResolver: PluginTs['resolver']
   paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   paramsType: PluginSwr['resolvedOptions']['paramsType']
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
 }
 
-type GetParamsProps = {
-  paramsType: PluginSwr['resolvedOptions']['paramsType']
-  paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
-  pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
-  typeSchemas: OperationSchemas
-}
+const declarationPrinter = functionPrinter({ mode: 'declaration' })
+const callPrinter = functionPrinter({ mode: 'call' })
 
-function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
-  if (paramsType === 'object') {
-    const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
+function getParams(
+  node: OperationNode,
+  options: {
+    paramsType: PluginSwr['resolvedOptions']['paramsType']
+    paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
+    pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
+    resolver: PluginTs['resolver']
+  },
+): FunctionParametersNode {
+  const { paramsType, paramsCasing, pathParamsType, resolver } = options
+  const requestName = node.requestBody?.schema ? resolver.resolveDataName(node) : undefined
 
-    return FunctionParams.factory({
-      data: {
-        mode: 'object',
-        children: {
-          ...pathParams,
-          data: typeSchemas.request?.name
-            ? {
-                type: typeSchemas.request?.name,
-                optional: isOptional(typeSchemas.request?.schema),
-              }
-            : undefined,
-          params: typeSchemas.queryParams?.name
-            ? {
-                type: typeSchemas.queryParams?.name,
-                optional: isOptional(typeSchemas.queryParams?.schema),
-              }
-            : undefined,
-          headers: typeSchemas.headerParams?.name
-            ? {
-                type: typeSchemas.headerParams?.name,
-                optional: isOptional(typeSchemas.headerParams?.schema),
-              }
-            : undefined,
-        },
-      },
-      config: {
-        type: typeSchemas.request?.name
-          ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: Client }`
-          : 'Partial<RequestConfig> & { client?: Client }',
-        default: '{}',
-      },
-    })
-  }
-
-  return FunctionParams.factory({
-    pathParams: typeSchemas.pathParams?.name
-      ? {
-          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
-          default: getDefaultValue(typeSchemas.pathParams?.schema),
-        }
-      : undefined,
-    data: typeSchemas.request?.name
-      ? {
-          type: typeSchemas.request?.name,
-          optional: isOptional(typeSchemas.request?.schema),
-        }
-      : undefined,
-    params: typeSchemas.queryParams?.name
-      ? {
-          type: typeSchemas.queryParams?.name,
-          optional: isOptional(typeSchemas.queryParams?.schema),
-        }
-      : undefined,
-    headers: typeSchemas.headerParams?.name
-      ? {
-          type: typeSchemas.headerParams?.name,
-          optional: isOptional(typeSchemas.headerParams?.schema),
-        }
-      : undefined,
-    config: {
-      type: typeSchemas.request?.name
-        ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: Client }`
-        : 'Partial<RequestConfig> & { client?: Client }',
-      default: '{}',
-    },
-  })
-}
-
-export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, paramsType, pathParamsType }: Props): KubbReactNode {
-  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
-  const clientParams = Client.getParams({
-    paramsCasing,
+  return createOperationParams(node, {
     paramsType,
-    typeSchemas,
-    pathParamsType,
-    isConfigurable: true,
+    pathParamsType: paramsType === 'object' ? 'object' : pathParamsType === 'object' ? 'object' : 'inline',
+    paramsCasing,
+    resolver,
+    extraParams: [
+      createFunctionParameter({
+        name: 'config',
+        type: createParamsType({
+          variant: 'reference',
+          name: requestName ? `Partial<RequestConfig<${requestName}>> & { client?: Client }` : 'Partial<RequestConfig> & { client?: Client }',
+        }),
+        default: '{}',
+      }),
+    ],
   })
+}
+
+export function QueryOptions({ name, clientName, node, tsResolver, paramsCasing, paramsType, pathParamsType }: Props): KubbReactNode {
+  const paramsNode = getParams(node, { paramsType, paramsCasing, pathParamsType, resolver: tsResolver })
+  const paramsSignature = declarationPrinter.print(paramsNode) ?? ''
+  const paramsCall = callPrinter.print(paramsNode) ?? ''
 
   return (
     <File.Source name={name} isExportable isIndexable>
-      <Function name={name} export params={params.toConstructor()}>
+      <Function name={name} export params={paramsSignature}>
         {`
       return {
         fetcher: async () => {
-          return ${clientName}(${clientParams.toCall()})
+          return ${clientName}(${paramsCall})
         },
       }
       `}
@@ -122,3 +70,5 @@ export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, para
 }
 
 QueryOptions.getParams = getParams
+QueryOptions.callPrinter = callPrinter
+QueryOptions.declarationPrinter = declarationPrinter
