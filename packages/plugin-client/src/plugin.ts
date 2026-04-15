@@ -1,7 +1,7 @@
-import { resolve } from 'node:path'
+import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { createSource, createText } from '@kubb/ast'
-import { definePlugin, type Group, getPreset } from '@kubb/core'
+import { definePlugin, type Group } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { classClientGenerator } from './generators/classClientGenerator.tsx'
@@ -9,7 +9,8 @@ import { clientGenerator } from './generators/clientGenerator.tsx'
 import { groupedClientGenerator } from './generators/groupedClientGenerator.tsx'
 import { operationsGenerator } from './generators/operationsGenerator.tsx'
 import { staticClassClientGenerator } from './generators/staticClassClientGenerator.tsx'
-import { presets } from './presets.ts'
+import { resolverClient } from './resolvers/resolverClient.ts'
+import { resolverClientLegacy } from './resolvers/resolverClientLegacy.ts'
 import { source as axiosClientSource } from './templates/clients/axios.source.ts'
 import { source as fetchClientSource } from './templates/clients/fetch.source.ts'
 import { source as configSource } from './templates/config.source.ts'
@@ -37,7 +38,7 @@ export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
  * })
  * ```
  */
-export const pluginClient = definePlugin<PluginClient['options']>((options) => {
+export const pluginClient = definePlugin<PluginClient>((options) => {
   const {
     output = { path: 'clients', barrelType: 'named' },
     group,
@@ -57,10 +58,12 @@ export const pluginClient = definePlugin<PluginClient['options']>((options) => {
     bundle = false,
     wrapper,
     baseURL,
-    compatibilityPreset = 'default',
     resolver: userResolver,
     transformer: userTransformer,
+    compatibilityPreset = 'default',
   } = options
+
+  const defaultResolver = compatibilityPreset === 'kubbV4' ? resolverClientLegacy : resolverClient
 
   const resolvedImportPath = importPath ?? (!bundle ? `@kubb/plugin-client/clients/${client}` : undefined)
 
@@ -72,67 +75,62 @@ export const pluginClient = definePlugin<PluginClient['options']>((options) => {
       operations ? operationsGenerator : undefined,
     ].filter((x): x is NonNullable<typeof x> => Boolean(x))
 
-  const preset = getPreset({
-    preset: compatibilityPreset,
-    presets,
-    resolver: userResolver,
-    transformer: userTransformer,
-    generators: selectedGenerators,
-  })
+  const groupConfig = group
+    ? ({
+        ...group,
+        name: group.name
+          ? group.name
+          : (ctx: { group: string }) => {
+              if (group.type === 'path') {
+                return `${ctx.group.split('/')[1]}`
+              }
+              return `${camelCase(ctx.group)}Controller`
+            },
+      } satisfies Group)
+    : undefined
 
   return {
     name: pluginClientName,
+    options,
     dependencies: [pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
-    options: {
-      client,
-      clientType,
-      bundle,
-      output,
-      exclude,
-      include,
-      override,
-      group: group
-        ? ({
-            ...group,
-            name: group.name
-              ? group.name
-              : (ctx: { group: string }) => {
-                  if (group.type === 'path') {
-                    return `${ctx.group.split('/')[1]}`
-                  }
-                  return `${camelCase(ctx.group)}Controller`
-                },
-          } satisfies Group)
-        : undefined,
-      parser,
-      dataReturnType,
-      importPath: resolvedImportPath,
-      baseURL,
-      paramsType,
-      paramsCasing,
-      pathParamsType,
-      urlType,
-      wrapper,
-      resolver: preset.resolver,
-    },
     hooks: {
       'kubb:plugin:setup'(ctx) {
-        if (preset.resolver) {
-          ctx.setResolver(preset.resolver)
+        const resolver = userResolver ? { ...defaultResolver, ...userResolver } : defaultResolver
+
+        ctx.setOptions({
+          client,
+          clientType,
+          bundle,
+          output,
+          exclude,
+          include,
+          override,
+          group: groupConfig,
+          parser,
+          dataReturnType,
+          importPath: resolvedImportPath,
+          baseURL,
+          paramsType,
+          paramsCasing,
+          pathParamsType,
+          urlType,
+          wrapper,
+          resolver,
+        })
+        ctx.setResolver(resolver)
+        if (userTransformer) {
+          ctx.setTransformer(userTransformer)
         }
-        if (preset.transformer) {
-          ctx.setTransformer(preset.transformer)
-        }
-        for (const gen of preset.generators ?? []) {
+        for (const gen of selectedGenerators) {
           ctx.addGenerator(gen)
         }
 
-        const root = resolve(ctx.config.root, ctx.config.output.path)
+        const root = path.resolve(ctx.config.root, ctx.config.output.path)
 
         if (bundle && !resolvedImportPath) {
           ctx.injectFile({
             baseName: 'fetch.ts',
-            path: resolve(root, '.kubb/fetch.ts'),
+            path: path.resolve(root, '.kubb/fetch.ts'),
             sources: [
               createSource({
                 name: 'fetch',
@@ -146,7 +144,7 @@ export const pluginClient = definePlugin<PluginClient['options']>((options) => {
 
         ctx.injectFile({
           baseName: 'config.ts',
-          path: resolve(root, '.kubb/config.ts'),
+          path: path.resolve(root, '.kubb/config.ts'),
           sources: [
             createSource({
               name: 'config',

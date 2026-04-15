@@ -6,6 +6,7 @@ import { createFile, createSource, createText } from '@kubb/ast'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createMockedAdapter } from '#mocks'
 import { createKubb } from './createKubb.ts'
+import { definePlugin } from './definePlugin.ts'
 import { createPlugin } from './createPlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
 
@@ -273,5 +274,29 @@ describe('createKubb', () => {
     } finally {
       rmSync(tmpDir, { recursive: true, force: true })
     }
+  })
+
+  it('cleans up hook-style plugin listeners between builds on shared hooks', async () => {
+    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const hookPlugin = definePlugin(() => ({
+      name: 'hook-plugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.addGenerator({
+            name: 'hook-gen',
+            operations: vi.fn(),
+          })
+        },
+      },
+    }))()
+    const hookConfig = { ...config, plugins: [hookPlugin as unknown as Plugin] } satisfies Config
+
+    await createKubb({ config: hookConfig, hooks }).build()
+    await createKubb({ config: hookConfig, hooks }).build()
+
+    expect(hooks.listenerCount('kubb:plugin:setup')).toBe(0)
+    expect(hooks.listenerCount('kubb:generate:schema')).toBe(0)
+    expect(hooks.listenerCount('kubb:generate:operation')).toBe(0)
+    expect(hooks.listenerCount('kubb:generate:operations')).toBe(0)
   })
 })

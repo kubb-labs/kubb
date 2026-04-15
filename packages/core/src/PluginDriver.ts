@@ -16,8 +16,10 @@ import type {
   Adapter,
   Config,
   DevtoolsOptions,
+  Group,
   KubbHooks,
   KubbPluginSetupContext,
+  Output,
   Plugin,
   PluginContext,
   PluginFactoryOptions,
@@ -117,6 +119,7 @@ export class PluginDriver {
   readonly #pluginsWithEventGenerators = new Set<string>()
   readonly #resolvers = new Map<string, Resolver>()
   readonly #defaultResolvers = new Map<string, Resolver>()
+  readonly #hookListeners = new Map<keyof KubbHooks, Set<(...args: never[]) => void | Promise<void>>>()
 
   constructor(config: Config, options: Options) {
     this.config = config
@@ -129,7 +132,7 @@ export class PluginDriver {
         if (isHookStylePlugin(rawPlugin)) {
           return this.#normalizeHookStylePlugin(rawPlugin as HookStylePlugin)
         }
-        return Object.assign({ buildStart() {}, buildEnd() {} }, rawPlugin) as unknown as Plugin
+        return { ...rawPlugin, buildStart: rawPlugin.buildStart ?? (() => {}), buildEnd: rawPlugin.buildEnd ?? (() => {}) } as unknown as Plugin
       })
       .filter((plugin) => {
         if (typeof plugin.apply === 'function') {
@@ -164,17 +167,34 @@ export class PluginDriver {
    */
   #normalizeHookStylePlugin(hookPlugin: HookStylePlugin): Plugin {
     const generators: Plugin['generators'] = []
+    const driver = this
     // The options shape is the minimal struct required by Plugin. Hook-style plugins
-    // don't participate in the legacy resolvePath/resolveName lifecycle; they use
-    // generators registered via addGenerator() and resolvers set via setResolver() instead.
+    // use generators registered via addGenerator() and resolvers set via setResolver().
     // `inject` and `resolver` are required by the Plugin type but are irrelevant for hook-style
     // plugins: inject is a no-op and resolver is set dynamically via setResolver() in kubb:plugin:setup.
+    //
+    // `resolveName` and `resolvePath` bridge the legacy PluginDriver.resolveName/resolvePath
+    // lifecycle so that other plugins calling `driver.resolveName({ pluginName })` or
+    // `driver.getFile({ pluginName })` still get correct results from hook-style plugins.
     const normalizedPlugin = {
       name: hookPlugin.name,
       dependencies: hookPlugin.dependencies,
-      options: { output: { path: '.' }, exclude: [], override: [], ...(hookPlugin.options as Record<string, unknown>) },
+      options: { output: { path: '.' }, exclude: [], override: [] },
       generators,
       inject: () => undefined,
+      resolveName(name: string, type?: ResolveNameParams['type']) {
+        const resolver = driver.getResolver(hookPlugin.name)
+        return resolver.default(name, type)
+      },
+      resolvePath(baseName: FileNode['baseName'], pathMode?: 'single' | 'split', resolveOptions?: Record<string, unknown>) {
+        const resolver = driver.getResolver(hookPlugin.name)
+        const opts = normalizedPlugin.options as Record<string, unknown>
+        const group = resolveOptions?.group as Record<string, string> | undefined
+        return resolver.resolvePath(
+          { baseName, pathMode, tag: group?.tag, path: group?.path },
+          { root: resolve(driver.config.root, driver.config.output.path), output: opts.output as Output, group: opts.group as Group | undefined },
+        )
+      },
       buildStart() {},
       buildEnd() {},
     } as unknown as Plugin
@@ -202,8 +222,8 @@ export class PluginDriver {
     // plugin-specific implementations so that addGenerator / setResolver / etc. target
     // this plugin's normalizedPlugin entry rather than being no-ops.
     if (hooks['kubb:plugin:setup']) {
-      this.hooks.on('kubb:plugin:setup', (globalCtx: KubbPluginSetupContext) => {
-        const pluginCtx: KubbPluginSetupContext & { options: typeof hookPlugin.options } = {
+      const setupHandler = (globalCtx: KubbPluginSetupContext) => {
+        const pluginCtx: KubbPluginSetupContext = {
           ...globalCtx,
           options: hookPlugin.options ?? {},
           addGenerator: (gen) => {
@@ -218,6 +238,9 @@ export class PluginDriver {
           setRenderer: (renderer) => {
             normalizedPlugin.renderer = renderer
           },
+          setOptions: (opts) => {
+            normalizedPlugin.options = { ...normalizedPlugin.options, ...opts }
+          },
           injectFile: (file) => {
             const fileNode = createFile({
               baseName: file.baseName,
@@ -230,13 +253,17 @@ export class PluginDriver {
           },
         }
         return hooks['kubb:plugin:setup']!(pluginCtx)
-      })
+      }
+
+      this.hooks.on('kubb:plugin:setup', setupHandler)
+      this.#trackHookListener('kubb:plugin:setup', setupHandler as (...args: never[]) => void | Promise<void>)
     }
 
     // All other hooks are registered as direct pass-through listeners on the shared emitter.
     for (const [event, handler] of Object.entries(hooks) as Array<[keyof KubbHooks, ((...args: never[]) => void | Promise<void>) | undefined]>) {
       if (event === 'kubb:plugin:setup' || !handler) continue
       this.hooks.on(event, handler as never)
+      this.#trackHookListener(event, handler as (...args: never[]) => void | Promise<void>)
     }
   }
 
@@ -253,6 +280,7 @@ export class PluginDriver {
       setResolver: () => {},
       setTransformer: () => {},
       setRenderer: () => {},
+      setOptions: () => {},
       injectFile: () => {},
       updateConfig: () => {},
       options: {},
@@ -280,27 +308,39 @@ export class PluginDriver {
     }
 
     if (gen.schema) {
-      this.hooks.on('kubb:generate:schema', async (node, ctx) => {
+      const schemaHandler = async (node: Parameters<NonNullable<typeof gen.schema>>[0], ctx: Parameters<NonNullable<typeof gen.schema>>[1]) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.schema!(node, ctx)
         await applyHookResult(result, this, resolveRenderer())
-      })
+      }
+
+      this.hooks.on('kubb:generate:schema', schemaHandler)
+      this.#trackHookListener('kubb:generate:schema', schemaHandler as (...args: never[]) => void | Promise<void>)
     }
 
     if (gen.operation) {
-      this.hooks.on('kubb:generate:operation', async (node, ctx) => {
+      const operationHandler = async (node: Parameters<NonNullable<typeof gen.operation>>[0], ctx: Parameters<NonNullable<typeof gen.operation>>[1]) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operation!(node, ctx)
         await applyHookResult(result, this, resolveRenderer())
-      })
+      }
+
+      this.hooks.on('kubb:generate:operation', operationHandler)
+      this.#trackHookListener('kubb:generate:operation', operationHandler as (...args: never[]) => void | Promise<void>)
     }
 
     if (gen.operations) {
-      this.hooks.on('kubb:generate:operations', async (nodes, ctx) => {
+      const operationsHandler = async (
+        nodes: Parameters<NonNullable<typeof gen.operations>>[0],
+        ctx: Parameters<NonNullable<typeof gen.operations>>[1],
+      ) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operations!(nodes, ctx)
         await applyHookResult(result, this, resolveRenderer())
-      })
+      }
+
+      this.hooks.on('kubb:generate:operations', operationsHandler)
+      this.#trackHookListener('kubb:generate:operations', operationsHandler as (...args: never[]) => void | Promise<void>)
     }
 
     this.#pluginsWithEventGenerators.add(pluginName)
@@ -315,6 +355,25 @@ export class PluginDriver {
    */
   hasRegisteredGenerators(pluginName: string): boolean {
     return this.#pluginsWithEventGenerators.has(pluginName)
+  }
+
+  dispose(): void {
+    for (const [event, handlers] of this.#hookListeners) {
+      for (const handler of handlers) {
+        this.hooks.off(event, handler as never)
+      }
+    }
+    this.#hookListeners.clear()
+    this.#pluginsWithEventGenerators.clear()
+  }
+
+  #trackHookListener(event: keyof KubbHooks, handler: (...args: never[]) => void | Promise<void>): void {
+    let handlers = this.#hookListeners.get(event)
+    if (!handlers) {
+      handlers = new Set()
+      this.#hookListeners.set(event, handlers)
+    }
+    handlers.add(handler)
   }
 
   #createDefaultResolver(pluginName: string): Resolver {
@@ -333,7 +392,14 @@ export class PluginDriver {
 
   setPluginResolver(pluginName: string, partial: Partial<Resolver>): void {
     const defaultResolver = this.#createDefaultResolver(pluginName)
-    this.#resolvers.set(pluginName, { ...defaultResolver, ...partial })
+    const merged = { ...defaultResolver, ...partial }
+    this.#resolvers.set(pluginName, merged)
+    // Mirror the resolved resolver onto the plugin so that consumers using
+    // `getPlugin(name).resolver` get the correct resolver without going through getResolver().
+    const plugin = this.plugins.get(pluginName)
+    if (plugin) {
+      plugin.resolver = merged
+    }
   }
 
   getResolver(pluginName: string): Resolver {
@@ -414,13 +480,13 @@ export class PluginDriver {
       },
     } as unknown as PluginContext<TOptions>
 
-    const mergedExtras: Record<string, unknown> = {}
+    let mergedExtras: Record<string, unknown> = {}
 
     for (const p of this.plugins.values()) {
       if (typeof p.inject === 'function') {
         const result = (p.inject as (this: PluginContext) => unknown).call(baseContext as unknown as PluginContext)
         if (result !== null && typeof result === 'object') {
-          Object.assign(mergedExtras, result)
+          mergedExtras = { ...mergedExtras, ...(result as Record<string, unknown>) }
         }
       }
     }

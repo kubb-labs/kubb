@@ -1,6 +1,9 @@
 import { camelCase } from '@internals/utils'
-import { definePlugin, type Group, getPreset } from '@kubb/core'
-import { presets } from './presets.ts'
+import { definePlugin, type Group } from '@kubb/core'
+import { typeGenerator } from './generators/typeGenerator.tsx'
+import { typeGeneratorLegacy } from './generators/typeGeneratorLegacy.tsx'
+import { resolverTs } from './resolvers/resolverTs.ts'
+import { resolverTsLegacy } from './resolvers/resolverTsLegacy.ts'
 import type { PluginTs } from './types.ts'
 
 /**
@@ -24,7 +27,7 @@ export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
  * })
  * ```
  */
-export const pluginTs = definePlugin<PluginTs['options']>((options) => {
+export const pluginTs = definePlugin<PluginTs>((options) => {
   const {
     output = { path: 'types', barrelType: 'named' },
     group,
@@ -39,56 +42,53 @@ export const pluginTs = definePlugin<PluginTs['options']>((options) => {
     syntaxType = 'type',
     paramsCasing,
     printer,
-    compatibilityPreset = 'default',
     resolver: userResolver,
     transformer: userTransformer,
     generators: userGenerators = [],
+    compatibilityPreset = 'default',
   } = options
 
-  const preset = getPreset({
-    preset: compatibilityPreset,
-    presets: presets,
-    resolver: userResolver,
-    transformer: userTransformer,
-    generators: userGenerators,
-  })
+  const defaultResolver = compatibilityPreset === 'kubbV4' ? resolverTsLegacy : resolverTs
+  const defaultGenerator = compatibilityPreset === 'kubbV4' ? typeGeneratorLegacy : typeGenerator
+
+  const groupConfig = group
+    ? ({
+        ...group,
+        name: (ctx) => {
+          if (group.type === 'path') {
+            return `${ctx.group.split('/')[1]}`
+          }
+          return `${camelCase(ctx.group)}Controller`
+        },
+      } satisfies Group)
+    : undefined
 
   return {
     name: pluginTsName,
-    options: {
-      output,
-      exclude,
-      include,
-      override,
-      optionalType,
-      group: group
-        ? ({
-            ...group,
-            name: (ctx) => {
-              if (group.type === 'path') {
-                return `${ctx.group.split('/')[1]}`
-              }
-              return `${camelCase(ctx.group)}Controller`
-            },
-          } satisfies Group)
-        : undefined,
-      arrayType,
-      enumType,
-      enumTypeSuffix,
-      enumKeyCasing,
-      syntaxType,
-      paramsCasing,
-      printer,
-    },
+    options,
     hooks: {
       'kubb:plugin:setup'(ctx) {
-        if (preset.resolver) {
-          ctx.setResolver(preset.resolver)
+        ctx.setOptions({
+          output,
+          exclude,
+          include,
+          override,
+          optionalType,
+          group: groupConfig,
+          arrayType,
+          enumType,
+          enumTypeSuffix,
+          enumKeyCasing,
+          syntaxType,
+          paramsCasing,
+          printer,
+        })
+        ctx.setResolver(userResolver ? { ...defaultResolver, ...userResolver } : defaultResolver)
+        if (userTransformer) {
+          ctx.setTransformer(userTransformer)
         }
-        if (preset.transformer) {
-          ctx.setTransformer(preset.transformer)
-        }
-        for (const gen of preset.generators ?? []) {
+        ctx.addGenerator(defaultGenerator)
+        for (const gen of userGenerators) {
           ctx.addGenerator(gen)
         }
       },

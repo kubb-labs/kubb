@@ -1,6 +1,9 @@
 import { camelCase } from '@internals/utils'
-import { definePlugin, type Group, getPreset } from '@kubb/core'
-import { presets } from './presets.ts'
+import { definePlugin, type Group } from '@kubb/core'
+import { zodGenerator } from './generators/zodGenerator.tsx'
+import { zodGeneratorLegacy } from './generators/zodGeneratorLegacy.tsx'
+import { resolverZod } from './resolvers/resolverZod.ts'
+import { resolverZodLegacy } from './resolvers/resolverZodLegacy.ts'
 import type { PluginZod } from './types.ts'
 
 /**
@@ -24,7 +27,7 @@ export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
  * })
  * ```
  */
-export const pluginZod = definePlugin<PluginZod['options']>((options) => {
+export const pluginZod = definePlugin<PluginZod>((options) => {
   const {
     output = { path: 'zod', barrelType: 'named' },
     group,
@@ -42,59 +45,56 @@ export const pluginZod = definePlugin<PluginZod['options']>((options) => {
     wrapOutput = undefined,
     paramsCasing,
     printer,
-    compatibilityPreset = 'default',
     resolver: userResolver,
     transformer: userTransformer,
     generators: userGenerators = [],
+    compatibilityPreset = 'default',
   } = options
 
-  const preset = getPreset({
-    preset: compatibilityPreset,
-    presets: presets,
-    resolver: userResolver,
-    transformer: userTransformer,
-    generators: userGenerators,
-  })
+  const defaultResolver = compatibilityPreset === 'kubbV4' ? resolverZodLegacy : resolverZod
+  const defaultGenerator = compatibilityPreset === 'kubbV4' ? zodGeneratorLegacy : zodGenerator
+
+  const groupConfig = group
+    ? ({
+        ...group,
+        name: (ctx) => {
+          if (group.type === 'path') {
+            return `${ctx.group.split('/')[1]}`
+          }
+          return `${camelCase(ctx.group)}Controller`
+        },
+      } satisfies Group)
+    : undefined
 
   return {
     name: pluginZodName,
-    options: {
-      output,
-      exclude,
-      include,
-      override,
-      group: group
-        ? ({
-            ...group,
-            name: (ctx) => {
-              if (group.type === 'path') {
-                return `${ctx.group.split('/')[1]}`
-              }
-              return `${camelCase(ctx.group)}Controller`
-            },
-          } satisfies Group)
-        : undefined,
-      dateType,
-      typed,
-      importPath,
-      coercion,
-      operations,
-      inferred,
-      guidType,
-      mini,
-      wrapOutput,
-      paramsCasing,
-      printer,
-    },
+    options,
     hooks: {
       'kubb:plugin:setup'(ctx) {
-        if (preset.resolver) {
-          ctx.setResolver(preset.resolver)
+        ctx.setOptions({
+          output,
+          exclude,
+          include,
+          override,
+          group: groupConfig,
+          dateType,
+          typed,
+          importPath,
+          coercion,
+          operations,
+          inferred,
+          guidType,
+          mini,
+          wrapOutput,
+          paramsCasing,
+          printer,
+        })
+        ctx.setResolver(userResolver ? { ...defaultResolver, ...userResolver } : defaultResolver)
+        if (userTransformer) {
+          ctx.setTransformer(userTransformer)
         }
-        if (preset.transformer) {
-          ctx.setTransformer(preset.transformer)
-        }
-        for (const gen of preset.generators ?? []) {
+        ctx.addGenerator(defaultGenerator)
+        for (const gen of userGenerators) {
           ctx.addGenerator(gen)
         }
       },
