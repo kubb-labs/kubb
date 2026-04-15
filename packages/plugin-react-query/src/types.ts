@@ -1,11 +1,36 @@
 import type { Transformer } from '@internals/tanstack-query'
-import type { Output, PluginFactoryOptions, ResolveNameParams, UserGroup } from '@kubb/core'
+import type { OperationNode, Visitor } from '@kubb/ast/types'
+import type {
+  CompatibilityPreset,
+  Exclude,
+  Generator,
+  Group,
+  Include,
+  Output,
+  Override,
+  PluginFactoryOptions,
+  ResolveNameParams,
+  ResolvePathOptions,
+  Resolver,
+  UserGroup,
+} from '@kubb/core'
 import type { contentType, HttpMethod, Oas } from '@kubb/oas'
 import type { ClientImportPath, PluginClient } from '@kubb/plugin-client'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
-import type { Generator } from '@kubb/plugin-oas/generators'
 
 export type { Transformer } from '@internals/tanstack-query'
+
+/**
+ * The concrete resolver type for `@kubb/plugin-react-query`.
+ * Extends the base `Resolver` with a `resolveName` helper for hook function names.
+ */
+export type ResolverReactQuery = Resolver & {
+  /**
+   * Resolves the hook function name for a given raw operation name.
+   * @example
+   * resolver.resolveName('show pet by id') // -> 'showPetById'
+   */
+  resolveName(this: ResolverReactQuery, name: string): string
+}
 
 type Suspense = object
 
@@ -177,6 +202,21 @@ export type Options = {
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
   /**
+   * Apply a compatibility naming preset.
+   * @default 'default'
+   */
+  compatibilityPreset?: CompatibilityPreset
+  /**
+   * Override individual resolver methods. Any method you omit falls back to the
+   * preset resolver's implementation. Use `this.default(...)` to call it.
+   */
+  resolver?: Partial<ResolverReactQuery> & ThisType<ResolverReactQuery>
+  /**
+   * Single AST visitor applied to each node before printing.
+   * Return `null` or `undefined` from a method to leave the node unchanged.
+   */
+  transformer?: Visitor
+  /**
    * Define some generators next to the react-query generators
    */
   generators?: Array<Generator<PluginReactQuery>>
@@ -184,7 +224,7 @@ export type Options = {
 
 type ResolvedOptions = {
   output: Output<Oas>
-  group: Options['group']
+  group: Group | undefined
   exclude: NonNullable<Options['exclude']>
   include: Options['include']
   override: NonNullable<Options['override']>
@@ -193,6 +233,7 @@ type ResolvedOptions = {
   pathParamsType: NonNullable<Options['pathParamsType']>
   paramsCasing: Options['paramsCasing']
   paramsType: NonNullable<Options['paramsType']>
+  transformers: NonNullable<Options['transformers']>
   /**
    * Only used of infinite
    */
@@ -203,9 +244,10 @@ type ResolvedOptions = {
   mutationKey: MutationKey | undefined
   mutation: NonNullable<Required<Mutation>> | false
   customOptions: NonNullable<Required<CustomOptions>> | undefined
+  resolver: ResolverReactQuery
 }
 
-export type PluginReactQuery = PluginFactoryOptions<'plugin-react-query', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginReactQuery = PluginFactoryOptions<'plugin-react-query', Options, ResolvedOptions, never, ResolvePathOptions, ResolverReactQuery>
 
 declare global {
   namespace Kubb {

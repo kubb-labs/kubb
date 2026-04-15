@@ -1,175 +1,174 @@
-import { useDriver } from '@kubb/core/hooks'
-import type { Operation } from '@kubb/oas'
-import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
-import { File, Type } from '@kubb/renderer-jsx'
+import { defineGenerator } from '@kubb/core'
+import type { OperationNode } from '@kubb/ast/types'
+import { File, Type, jsxRenderer } from '@kubb/renderer-jsx'
 import { difference } from 'remeda'
 import type { PluginReactQuery } from '../types'
+import { transformName } from '../utils.ts'
 
-export const hookOptionsGenerator = createReactGenerator<PluginReactQuery>({
+export const hookOptionsGenerator = defineGenerator<PluginReactQuery>({
   name: 'react-query-hook-options',
-  Operations({ operations, plugin, generator }) {
-    const {
-      options,
-      options: { output },
-      name: pluginName,
-    } = plugin
-    const driver = useDriver()
+  renderer: jsxRenderer,
+  operations(nodes, ctx) {
+    const { config, driver, resolver, root } = ctx
+    const { output, query, mutation, suspense, infinite, transformers, customOptions } = ctx.options
 
-    const oas = useOas()
-    const { getName, getFile } = useOperationManager(generator)
-
-    if (!options.customOptions) {
+    if (!customOptions) {
       return null
     }
 
     const name = 'HookOptions'
-    const file = driver.getFile({ name, extname: '.ts', pluginName })
+    const file = driver.getFile({ name, extname: '.ts', pluginName: 'plugin-react-query' })
 
-    const getOperationOptions = (operation: Operation) => {
-      const operationOptions = generator.getOptions(operation, operation.method)
-      return { ...options, ...operationOptions }
+    const isQuery = (node: OperationNode) => {
+      return typeof query === 'boolean' ? true : !!query && query.methods.some((method) => node.method.toLowerCase() === method.toLowerCase())
     }
 
-    const isQuery = (operation: Operation) => {
-      const operationOptions = getOperationOptions(operation)
-      return typeof operationOptions.query === 'boolean' ? true : operationOptions.query?.methods.some((method) => operation.method === method)
-    }
-
-    const isMutation = (operation: Operation) => {
-      const operationOptions = getOperationOptions(operation)
+    const isMutation = (node: OperationNode) => {
       return (
-        operationOptions.mutation !== false &&
-        !isQuery(operation) &&
-        difference(operationOptions.mutation ? operationOptions.mutation.methods : [], operationOptions.query ? operationOptions.query.methods : []).some(
-          (method) => operation.method === method,
-        )
+        mutation !== false &&
+        !isQuery(node) &&
+        difference(mutation ? mutation.methods : [], query ? query.methods : []).some((method) => node.method.toLowerCase() === method.toLowerCase())
       )
     }
 
-    const isSuspense = (operation: Operation) => {
-      const operationOptions = getOperationOptions(operation)
-      return !!operationOptions.suspense
+    const isSuspenseEnabled = !!suspense
+    const isInfiniteEnabled = !!infinite && typeof infinite === 'object'
+
+    const getHookName = (node: OperationNode) => {
+      const baseName = resolver.resolveName(node.operationId)
+      return transformName(`use${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}`, 'function', transformers)
     }
 
-    const isInfinite = (operation: Operation) => {
-      const operationOptions = getOperationOptions(operation)
-      const infiniteOptions = operationOptions.infinite && typeof operationOptions.infinite === 'object' ? operationOptions.infinite : undefined
-      return !!infiniteOptions
-    }
-
-    // Query/mutation hooks
-    const getHookName = (operation: Operation) => {
-      return getName(operation, { type: 'function', prefix: 'use' })
-    }
-
-    const getHookFile = (operation: Operation) => {
-      return getFile(operation, { prefix: 'use' })
+    const getHookFile = (node: OperationNode) => {
+      const hookName = getHookName(node)
+      return resolver.resolveFile(
+        { name: hookName, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+        { root, output, group: ctx.options.group },
+      )
     }
 
     // Query hooks
-    const getQueryHookOptions = (operation: Operation) => {
-      return getName(operation, { type: 'function', suffix: 'QueryOptions' })
+    const getQueryHookOptions = (node: OperationNode) => {
+      const baseName = resolver.resolveName(node.operationId)
+      return transformName(`${baseName}QueryOptions`, 'function', transformers)
     }
 
-    const getQueryHookOptionsImport = (operation: Operation) => {
-      return <File.Import name={[getQueryHookOptions(operation)]} root={file.path} path={getHookFile(operation).path} />
+    const getQueryHookOptionsImport = (node: OperationNode) => {
+      return <File.Import name={[getQueryHookOptions(node)]} root={file.path} path={getHookFile(node).path} />
     }
 
     // Mutation hooks
-    const getMutationHookOptions = (operation: Operation) => {
-      return getName(operation, { type: 'function', suffix: 'MutationOptions' })
+    const getMutationHookOptions = (node: OperationNode) => {
+      const baseName = resolver.resolveName(node.operationId)
+      return transformName(`${baseName}MutationOptions`, 'function', transformers)
     }
 
-    const getMutationHookOptionsImport = (operation: Operation) => {
-      return <File.Import name={[getMutationHookOptions(operation)]} root={file.path} path={getHookFile(operation).path} />
+    const getMutationHookOptionsImport = (node: OperationNode) => {
+      return <File.Import name={[getMutationHookOptions(node)]} root={file.path} path={getHookFile(node).path} />
     }
 
     // Suspense hooks
-    const getSuspenseHookName = (operation: Operation) => {
-      return getName(operation, { type: 'function', prefix: 'use', suffix: 'suspense' })
+    const getSuspenseHookName = (node: OperationNode) => {
+      const baseName = resolver.resolveName(node.operationId)
+      return transformName(`use${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}Suspense`, 'function', transformers)
     }
 
-    const getSuspenseHookFile = (operation: Operation) => {
-      return getFile(operation, { prefix: 'use', suffix: 'suspense' })
+    const getSuspenseHookFile = (node: OperationNode) => {
+      const hookName = getSuspenseHookName(node)
+      return resolver.resolveFile(
+        { name: hookName, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+        { root, output, group: ctx.options.group },
+      )
     }
 
-    const getSuspenseHookOptions = (operation: Operation) => {
-      return getName(operation, { type: 'function', suffix: 'SuspenseQueryOptions' })
+    const getSuspenseHookOptions = (node: OperationNode) => {
+      const baseName = resolver.resolveName(node.operationId)
+      return transformName(`${baseName}SuspenseQueryOptions`, 'function', transformers)
     }
 
-    const getSuspenseHookOptionsImport = (operation: Operation) => {
-      return <File.Import name={[getSuspenseHookOptions(operation)]} root={file.path} path={getSuspenseHookFile(operation).path} />
+    const getSuspenseHookOptionsImport = (node: OperationNode) => {
+      return <File.Import name={[getSuspenseHookOptions(node)]} root={file.path} path={getSuspenseHookFile(node).path} />
     }
 
     // Infinite hooks
-    const getInfiniteHookName = (operation: Operation) => {
-      return getName(operation, { type: 'function', prefix: 'use', suffix: 'infinite' })
+    const getInfiniteHookName = (node: OperationNode) => {
+      const baseName = resolver.resolveName(node.operationId)
+      return transformName(`use${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}Infinite`, 'function', transformers)
     }
 
-    const getInfiniteHookFile = (operation: Operation) => {
-      return getFile(operation, { prefix: 'use', suffix: 'infinite' })
+    const getInfiniteHookFile = (node: OperationNode) => {
+      const hookName = getInfiniteHookName(node)
+      return resolver.resolveFile(
+        { name: hookName, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+        { root, output, group: ctx.options.group },
+      )
     }
 
-    const getInfiniteHookOptions = (operation: Operation) => {
-      return getName(operation, { type: 'function', suffix: 'InfiniteQueryOptions' })
+    const getInfiniteHookOptions = (node: OperationNode) => {
+      const baseName = resolver.resolveName(node.operationId)
+      return transformName(`${baseName}InfiniteQueryOptions`, 'function', transformers)
     }
 
-    const getInfiniteHookOptionsImport = (operation: Operation) => {
-      return <File.Import name={[getInfiniteHookOptions(operation)]} root={file.path} path={getInfiniteHookFile(operation).path} />
+    const getInfiniteHookOptionsImport = (node: OperationNode) => {
+      return <File.Import name={[getInfiniteHookOptions(node)]} root={file.path} path={getInfiniteHookFile(node).path} />
     }
 
     // Suspense infinite hooks
-    const getSuspenseInfiniteHookName = (operation: Operation) => {
-      return getName(operation, { type: 'function', prefix: 'use', suffix: 'suspenseInfinite' })
+    const getSuspenseInfiniteHookName = (node: OperationNode) => {
+      const baseName = resolver.resolveName(node.operationId)
+      return transformName(`use${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}SuspenseInfinite`, 'function', transformers)
     }
 
-    const getSuspenseInfiniteHookFile = (operation: Operation) => {
-      return getFile(operation, { prefix: 'use', suffix: 'suspenseInfinite' })
+    const getSuspenseInfiniteHookFile = (node: OperationNode) => {
+      const hookName = getSuspenseInfiniteHookName(node)
+      return resolver.resolveFile(
+        { name: hookName, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+        { root, output, group: ctx.options.group },
+      )
     }
 
-    const getSuspenseInfiniteHookOptions = (operation: Operation) => {
-      return getName(operation, { type: 'function', suffix: 'SuspenseInfiniteQueryOptions' })
+    const getSuspenseInfiniteHookOptions = (node: OperationNode) => {
+      const baseName = resolver.resolveName(node.operationId)
+      return transformName(`${baseName}SuspenseInfiniteQueryOptions`, 'function', transformers)
     }
 
-    const getSuspenseInfiniteHookOptionsImport = (operation: Operation) => {
-      return <File.Import name={[getSuspenseInfiniteHookOptions(operation)]} root={file.path} path={getSuspenseInfiniteHookFile(operation).path} />
+    const getSuspenseInfiniteHookOptionsImport = (node: OperationNode) => {
+      return <File.Import name={[getSuspenseInfiniteHookOptions(node)]} root={file.path} path={getSuspenseInfiniteHookFile(node).path} />
     }
 
-    const imports = operations
-      .flatMap((operation) => {
-        if (isQuery(operation)) {
+    const imports = nodes
+      .flatMap((node) => {
+        if (isQuery(node)) {
           return [
-            getQueryHookOptionsImport(operation),
-            isSuspense(operation) ? getSuspenseHookOptionsImport(operation) : undefined,
-            isInfinite(operation) ? getInfiniteHookOptionsImport(operation) : undefined,
-            isSuspense(operation) && isInfinite(operation) ? getSuspenseInfiniteHookOptionsImport(operation) : undefined,
+            getQueryHookOptionsImport(node),
+            isSuspenseEnabled ? getSuspenseHookOptionsImport(node) : undefined,
+            isInfiniteEnabled ? getInfiniteHookOptionsImport(node) : undefined,
+            isSuspenseEnabled && isInfiniteEnabled ? getSuspenseInfiniteHookOptionsImport(node) : undefined,
           ].filter(Boolean)
         }
-        if (isMutation(operation)) {
-          return [getMutationHookOptionsImport(operation)]
+        if (isMutation(node)) {
+          return [getMutationHookOptionsImport(node)]
         }
         return []
       })
       .filter(Boolean)
 
-    const hookOptions = operations.reduce(
-      (acc, operation) => {
-        if (isQuery(operation)) {
-          acc[getHookName(operation)] = `Partial<ReturnType<typeof ${getQueryHookOptions(operation)}>>`
-          if (isSuspense(operation)) {
-            acc[getSuspenseHookName(operation)] = `Partial<ReturnType<typeof ${getSuspenseHookOptions(operation)}>>`
+    const hookOptions = nodes.reduce(
+      (acc, node) => {
+        if (isQuery(node)) {
+          acc[getHookName(node)] = `Partial<ReturnType<typeof ${getQueryHookOptions(node)}>>`
+          if (isSuspenseEnabled) {
+            acc[getSuspenseHookName(node)] = `Partial<ReturnType<typeof ${getSuspenseHookOptions(node)}>>`
           }
-          if (isInfinite(operation)) {
-            acc[getInfiniteHookName(operation)] = `Partial<ReturnType<typeof ${getInfiniteHookOptions(operation)}>>`
+          if (isInfiniteEnabled) {
+            acc[getInfiniteHookName(node)] = `Partial<ReturnType<typeof ${getInfiniteHookOptions(node)}>>`
           }
-          if (isSuspense(operation) && isInfinite(operation)) {
-            acc[getSuspenseInfiniteHookName(operation)] = `Partial<ReturnType<typeof ${getSuspenseInfiniteHookOptions(operation)}>>`
+          if (isSuspenseEnabled && isInfiniteEnabled) {
+            acc[getSuspenseInfiniteHookName(node)] = `Partial<ReturnType<typeof ${getSuspenseInfiniteHookOptions(node)}>>`
           }
         }
-        if (isMutation(operation)) {
-          acc[getHookName(operation)] = `Partial<ReturnType<typeof ${getMutationHookOptions(operation)}>>`
+        if (isMutation(node)) {
+          acc[getHookName(node)] = `Partial<ReturnType<typeof ${getMutationHookOptions(node)}>>`
         }
         return acc
       },
@@ -181,8 +180,8 @@ export const hookOptionsGenerator = createReactGenerator<PluginReactQuery>({
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output, config: driver.config })}
-        footer={getFooter({ oas, output })}
+        banner={resolver.resolveBanner(ctx.adapter.inputNode, { output, config })}
+        footer={resolver.resolveFooter(ctx.adapter.inputNode, { output, config })}
       >
         {imports}
         <File.Source name={name} isExportable isIndexable isTypeOnly>

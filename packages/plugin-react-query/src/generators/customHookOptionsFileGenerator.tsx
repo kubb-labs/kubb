@@ -1,43 +1,36 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { useDriver } from '@kubb/core/hooks'
-import type { Operation } from '@kubb/oas'
-import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
-import { File, Function } from '@kubb/renderer-jsx'
+import { defineGenerator } from '@kubb/core'
+import { File, Function, jsxRenderer } from '@kubb/renderer-jsx'
 import type { PluginReactQuery } from '../types'
 
-export const customHookOptionsFileGenerator = createReactGenerator<PluginReactQuery>({
+export const customHookOptionsFileGenerator = defineGenerator<PluginReactQuery>({
   name: 'react-query-custom-hook-options-file',
-  Operations({ operations, generator, plugin, config }) {
-    const {
-      options,
-      options: { output },
-      name: pluginName,
-    } = plugin
-    const driver = useDriver()
+  renderer: jsxRenderer,
+  operations(nodes, ctx) {
+    const { config, driver, resolver, root } = ctx
+    const { output, query, customOptions } = ctx.options
 
-    const { getFile } = useOperationManager(generator)
-
-    if (!options.customOptions) {
+    if (!customOptions) {
       return null
     }
 
     const override = output.override ?? config.output.override ?? false
-    const { importPath, name } = options.customOptions
+    const { importPath, name } = customOptions
 
-    const root = path.resolve(config.root, config.output.path)
+    const reactQueryImportPath = query ? query.importPath : '@tanstack/react-query'
 
-    const reactQueryImportPath = options.query ? options.query.importPath : '@tanstack/react-query'
-
-    const getHookFilePath = (operations: Operation[]) => {
-      const firstOperation = operations[0]
-      if (firstOperation != null) {
-        // Get the file of the first generated hook
-        return getFile(firstOperation, { prefix: 'use' }).path
+    const getHookFilePath = () => {
+      const firstNode = nodes[0]
+      if (firstNode != null) {
+        const hookName = resolver.resolveName(firstNode.operationId)
+        const hookFile = resolver.resolveFile(
+          { name: `use${hookName.charAt(0).toUpperCase()}${hookName.slice(1)}`, extname: '.ts', tag: firstNode.tags[0] ?? 'default', path: firstNode.path },
+          { root, output, group: ctx.options.group },
+        )
+        return hookFile.path
       }
-      // Get the index file of the hooks directory
-      return driver.getFile({ name: 'index', extname: '.ts', pluginName }).path
+      return driver.getFile({ name: 'index', extname: '.ts', pluginName: 'plugin-react-query' }).path
     }
 
     const ensureExtension = (filePath: string, extname: string) => {
@@ -56,7 +49,7 @@ export const customHookOptionsFileGenerator = createReactGenerator<PluginReactQu
       }
     }
 
-    const basePath = path.dirname(getHookFilePath(operations))
+    const basePath = path.dirname(getHookFilePath())
     const file = getExternalFile(importPath, basePath)
 
     if (fs.existsSync(file.path) && !override) {

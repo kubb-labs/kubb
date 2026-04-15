@@ -1,182 +1,180 @@
 import path from 'node:path'
-import { useDriver } from '@kubb/core/hooks'
+import { defineGenerator } from '@kubb/core'
 import { ClientLegacy as Client, pluginClientName } from '@kubb/plugin-client'
-import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { File } from '@kubb/renderer-jsx'
+import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { difference } from 'remeda'
 import { Mutation, MutationKey } from '../components'
 import { MutationOptions } from '../components/MutationOptions.tsx'
 import type { PluginReactQuery } from '../types'
+import { buildLegacyOperation, buildLegacyTypeSchemas, resolveImportedTypeNames, transformName } from '../utils.ts'
 
-export const mutationGenerator = createReactGenerator<PluginReactQuery>({
+export const mutationGenerator = defineGenerator<PluginReactQuery>({
   name: 'react-query',
-  Operation({ config, plugin, operation, generator }) {
-    const {
-      options,
-      options: { output },
-    } = plugin
-    const driver = useDriver()
-    const root = path.resolve(config.root, config.output.path)
+  renderer: jsxRenderer,
+  operation(node, ctx) {
+    const { adapter, config, driver, resolver, root } = ctx
+    const { output, query, mutation, paramsCasing, paramsType, pathParamsType, parser, client: clientOptions, group, transformers, customOptions } = ctx.options
 
-    const oas = useOas()
-    const { getSchemas, getName, getFile } = useOperationManager(generator)
+    const pluginTs = driver.getPlugin(pluginTsName)
+    if (!pluginTs?.resolver) return null
+    const tsResolver = pluginTs.resolver
 
-    const isQuery = !!options.query && options.query?.methods.some((method) => operation.method === method)
+    const isQuery = !!query && query.methods.some((method) => node.method.toLowerCase() === method.toLowerCase())
     const isMutation =
-      options.mutation !== false &&
+      mutation !== false &&
       !isQuery &&
-      difference(options.mutation ? options.mutation.methods : [], options.query ? options.query.methods : []).some((method) => operation.method === method)
-
-    const importPath = options.mutation ? options.mutation.importPath : '@tanstack/react-query'
-
-    const mutation = {
-      name: getName(operation, { type: 'function', prefix: 'use' }),
-      typeName: getName(operation, { type: 'type' }),
-      file: getFile(operation, { prefix: 'use' }),
-    }
-
-    const type = {
-      file: getFile(operation, { pluginName: pluginTsName }),
-      //todo remove type?
-      schemas: getSchemas(operation, { pluginName: pluginTsName, type: 'type' }),
-    }
-
-    const zod = {
-      file: getFile(operation, { pluginName: pluginZodName }),
-      schemas: getSchemas(operation, { pluginName: pluginZodName, type: 'function' }),
-    }
-
-    const hasClientPlugin = !!driver.getPlugin(pluginClientName)
-    // Class-based clients are not compatible with query hooks, so we generate inline clients
-    const shouldUseClientPlugin = hasClientPlugin && options.client.clientType !== 'class'
-    const client = {
-      name: shouldUseClientPlugin
-        ? getName(operation, {
-            type: 'function',
-            pluginName: pluginClientName,
-          })
-        : getName(operation, {
-            type: 'function',
-          }),
-      file: getFile(operation, { pluginName: pluginClientName }),
-    }
-
-    const mutationOptions = {
-      name: getName(operation, { type: 'function', suffix: 'MutationOptions' }),
-    }
-
-    const mutationKey = {
-      name: getName(operation, { type: 'const', suffix: 'MutationKey' }),
-      typeName: getName(operation, { type: 'type', suffix: 'MutationKey' }),
-    }
+      difference(mutation ? mutation.methods : [], query ? query.methods : []).some((method) => node.method.toLowerCase() === method.toLowerCase())
 
     if (!isMutation) {
       return null
     }
 
+    const importPath = mutation ? mutation.importPath : '@tanstack/react-query'
+
+    const baseName = resolver.resolveName(node.operationId)
+    const mutationHookName = transformName(`use${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}`, 'function', transformers)
+    const mutationTypeName = transformName(`${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}`, 'type', transformers)
+    const mutationOptionsResolvedName = transformName(`${baseName}MutationOptions`, 'function', transformers)
+    const mutationKeyName = transformName(`${baseName}MutationKey`, 'const', transformers)
+    const mutationKeyTypeName = transformName(`${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}MutationKey`, 'type', transformers)
+    const clientName = baseName
+
+    const meta = {
+      file: resolver.resolveFile({ name: mutationHookName, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group }),
+      fileTs: tsResolver.resolveFile(
+        { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+        { root, output: pluginTs.options?.output ?? output, group: pluginTs.options?.group },
+      ),
+    }
+
+    const importedTypeNames = resolveImportedTypeNames(node, tsResolver)
+
+    const pluginZodRaw = parser === 'zod' ? driver.getPlugin(pluginZodName) : undefined
+    const pluginZod = pluginZodRaw?.name === pluginZodName ? pluginZodRaw : undefined
+    const zodResolver = pluginZod?.resolver
+    const fileZod = zodResolver
+      ? zodResolver.resolveFile(
+          { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+          { root, output: pluginZod?.options?.output ?? output, group: pluginZod?.options?.group },
+        )
+      : undefined
+    const zodSchemaNames =
+      zodResolver && parser === 'zod'
+        ? [zodResolver.resolveResponseName?.(node), node.requestBody?.schema ? zodResolver.resolveDataName?.(node) : undefined].filter(Boolean)
+        : []
+
+    const clientPlugin = driver.getPlugin(pluginClientName)
+    const hasClientPlugin = clientPlugin?.name === pluginClientName
+    const shouldUseClientPlugin = hasClientPlugin && clientOptions.clientType !== 'class'
+
+    const clientFile = shouldUseClientPlugin
+      ? clientPlugin?.resolver?.resolveFile(
+          { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+          {
+            root,
+            output: clientPlugin?.options?.output ?? output,
+            group: clientPlugin?.options?.group,
+          },
+        )
+      : undefined
+
+    const resolvedClientName = shouldUseClientPlugin ? (clientPlugin?.resolver?.resolveName(node.operationId) ?? clientName) : clientName
+
+    const operation = buildLegacyOperation(node)
+    const typeSchemas = buildLegacyTypeSchemas(node, tsResolver)
+    const zodSchemas = zodResolver ? buildLegacyTypeSchemas(node, zodResolver) : undefined
+
     return (
       <File
-        baseName={mutation.file.baseName}
-        path={mutation.file.path}
-        meta={mutation.file.meta}
-        banner={getBanner({ oas, output, config: driver.config })}
-        footer={getFooter({ oas, output })}
+        baseName={meta.file.baseName}
+        path={meta.file.path}
+        meta={meta.file.meta}
+        banner={resolver.resolveBanner(adapter.inputNode, { output, config })}
+        footer={resolver.resolveFooter(adapter.inputNode, { output, config })}
       >
-        {options.parser === 'zod' && (
-          <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={mutation.file.path} path={zod.file.path} />
+        {parser === 'zod' && fileZod && zodSchemaNames.length > 0 && (
+          <File.Import name={zodSchemaNames as string[]} root={meta.file.path} path={fileZod.path} />
         )}
-        {options.client.importPath ? (
+        {clientOptions.importPath ? (
           <>
-            {!shouldUseClientPlugin && <File.Import name={'fetch'} path={options.client.importPath} />}
-            <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
-            {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
+            {!shouldUseClientPlugin && <File.Import name={'fetch'} path={clientOptions.importPath} />}
+            <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} path={clientOptions.importPath} isTypeOnly />
+            {clientOptions.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={clientOptions.importPath} isTypeOnly />}
           </>
         ) : (
           <>
-            {!shouldUseClientPlugin && <File.Import name={['fetch']} root={mutation.file.path} path={path.resolve(root, '.kubb/fetch.ts')} />}
+            {!shouldUseClientPlugin && <File.Import name={['fetch']} root={meta.file.path} path={path.resolve(root, '.kubb/fetch.ts')} />}
             <File.Import
               name={['Client', 'RequestConfig', 'ResponseErrorConfig']}
-              root={mutation.file.path}
+              root={meta.file.path}
               path={path.resolve(root, '.kubb/fetch.ts')}
               isTypeOnly
             />
-            {options.client.dataReturnType === 'full' && (
-              <File.Import name={['ResponseConfig']} root={mutation.file.path} path={path.resolve(root, '.kubb/fetch.ts')} isTypeOnly />
+            {clientOptions.dataReturnType === 'full' && (
+              <File.Import name={['ResponseConfig']} root={meta.file.path} path={path.resolve(root, '.kubb/fetch.ts')} isTypeOnly />
             )}
           </>
         )}
-        {shouldUseClientPlugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
-        {!shouldUseClientPlugin && <File.Import name={['buildFormData']} root={mutation.file.path} path={path.resolve(root, '.kubb/config.ts')} />}
-        {options.customOptions && <File.Import name={[options.customOptions.name]} path={options.customOptions.importPath} />}
-        <File.Import
-          name={[
-            type.schemas.request?.name,
-            type.schemas.response.name,
-            type.schemas.pathParams?.name,
-            type.schemas.queryParams?.name,
-            type.schemas.headerParams?.name,
-            ...(type.schemas.statusCodes?.map((item) => item.name) || []),
-          ].filter(Boolean)}
-          root={mutation.file.path}
-          path={type.file.path}
-          isTypeOnly
-        />
+        {shouldUseClientPlugin && clientFile && <File.Import name={[resolvedClientName]} root={meta.file.path} path={clientFile.path} />}
+        {!shouldUseClientPlugin && <File.Import name={['buildFormData']} root={meta.file.path} path={path.resolve(root, '.kubb/config.ts')} />}
+        {customOptions && <File.Import name={[customOptions.name]} path={customOptions.importPath} />}
+        {meta.fileTs && importedTypeNames.length > 0 && (
+          <File.Import name={Array.from(new Set(importedTypeNames))} root={meta.file.path} path={meta.fileTs.path} isTypeOnly />
+        )}
 
         <MutationKey
-          name={mutationKey.name}
-          typeName={mutationKey.typeName}
+          name={mutationKeyName}
+          typeName={mutationKeyTypeName}
           operation={operation}
-          pathParamsType={options.pathParamsType}
-          typeSchemas={type.schemas}
-          paramsCasing={options.paramsCasing}
-          transformer={options.mutationKey}
+          pathParamsType={pathParamsType}
+          typeSchemas={typeSchemas}
+          paramsCasing={paramsCasing}
+          transformer={ctx.options.mutationKey}
         />
 
         {!shouldUseClientPlugin && (
           <Client
-            name={client.name}
-            baseURL={options.client.baseURL}
+            name={resolvedClientName}
+            baseURL={clientOptions.baseURL}
             operation={operation}
-            typeSchemas={type.schemas}
-            zodSchemas={zod.schemas}
-            dataReturnType={options.client.dataReturnType || 'data'}
-            paramsCasing={options.client?.paramsCasing || options.paramsCasing}
-            paramsType={options.paramsType}
-            pathParamsType={options.pathParamsType}
-            parser={options.parser}
+            typeSchemas={typeSchemas}
+            zodSchemas={zodSchemas}
+            dataReturnType={clientOptions.dataReturnType || 'data'}
+            paramsCasing={clientOptions.paramsCasing || paramsCasing}
+            paramsType={paramsType}
+            pathParamsType={pathParamsType}
+            parser={parser}
           />
         )}
         <File.Import name={['mutationOptions']} path={importPath} />
 
         <MutationOptions
-          name={mutationOptions.name}
-          clientName={client.name}
-          mutationKeyName={mutationKey.name}
-          typeSchemas={type.schemas}
-          paramsCasing={options.paramsCasing}
-          paramsType={options.paramsType}
-          pathParamsType={options.pathParamsType}
-          dataReturnType={options.client.dataReturnType || 'data'}
+          name={mutationOptionsResolvedName}
+          clientName={resolvedClientName}
+          mutationKeyName={mutationKeyName}
+          typeSchemas={typeSchemas}
+          paramsCasing={paramsCasing}
+          paramsType={paramsType}
+          pathParamsType={pathParamsType}
+          dataReturnType={clientOptions.dataReturnType || 'data'}
         />
-        {options.mutation && (
+        {mutation && (
           <>
             <File.Import name={['useMutation']} path={importPath} />
             <File.Import name={['UseMutationOptions', 'UseMutationResult', 'QueryClient']} path={importPath} isTypeOnly />
             <Mutation
-              name={mutation.name}
-              mutationOptionsName={mutationOptions.name}
-              typeName={mutation.typeName}
-              typeSchemas={type.schemas}
+              name={mutationHookName}
+              mutationOptionsName={mutationOptionsResolvedName}
+              typeName={mutationTypeName}
+              typeSchemas={typeSchemas}
               operation={operation}
-              dataReturnType={options.client.dataReturnType || 'data'}
-              paramsCasing={options.paramsCasing}
-              pathParamsType={options.pathParamsType}
-              mutationKeyName={mutationKey.name}
-              customOptions={options.customOptions}
+              dataReturnType={clientOptions.dataReturnType || 'data'}
+              paramsCasing={paramsCasing}
+              pathParamsType={pathParamsType}
+              mutationKeyName={mutationKeyName}
+              customOptions={customOptions}
             />
           </>
         )}
