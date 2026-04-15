@@ -269,15 +269,17 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
       if (options === null) return
 
-      // Legacy path: direct generator calls for plugins with static generators array.
+      const ctx = { ...generatorContext, options }
+
+      // Static generators array path.
       for (const gen of generators) {
         if (!gen.schema) continue
-        const result = await gen.schema.call(generatorContext, transformedNode, options)
+        const result = await gen.schema(transformedNode, ctx)
         await applyHookResult(result, driver, resolveRenderer(gen))
       }
 
       // Event-based path: emit for generators registered via addGenerator() in kubb:plugin:setup.
-      await driver.hooks.emit('kubb:generate:schema', transformedNode, { ...generatorContext, options })
+      await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
     },
     async operation(node) {
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
@@ -285,30 +287,33 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       if (options !== null) {
         collectedOperations.push(transformedNode)
 
-        // Legacy path: direct generator calls.
+        const ctx = { ...generatorContext, options }
+
+        // Static generators array path.
         for (const gen of generators) {
           if (!gen.operation) continue
-          const result = await gen.operation.call(generatorContext, transformedNode, options)
+          const result = await gen.operation(transformedNode, ctx)
           await applyHookResult(result, driver, resolveRenderer(gen))
         }
 
         // Event-based path: emit for generators registered via addGenerator().
-        await driver.hooks.emit('kubb:generate:operation', transformedNode, { ...generatorContext, options })
+        await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
       }
     },
   })
 
   if (collectedOperations.length > 0) {
-    // Legacy path: direct operations batch call.
+    const ctx = { ...generatorContext, options: plugin.options }
+
+    // Static generators array path.
     for (const gen of generators) {
       if (!gen.operations) continue
-      const result = await gen.operations.call(generatorContext, collectedOperations, plugin.options)
+      const result = await gen.operations(collectedOperations, ctx)
       await applyHookResult(result, driver, resolveRenderer(gen))
     }
 
     // Event-based path: emit operations event for generators registered via addGenerator().
-    // options is folded into the context so listeners receive a single ctx object.
-    await driver.hooks.emit('kubb:generate:operations', collectedOperations, { ...generatorContext, options: plugin.options })
+    await driver.hooks.emit('kubb:generate:operations', collectedOperations, ctx)
   }
 }
 

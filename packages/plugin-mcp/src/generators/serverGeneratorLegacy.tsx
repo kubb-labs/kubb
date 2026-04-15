@@ -16,9 +16,9 @@ import type { PluginMcp } from '../types.ts'
 export const serverGeneratorLegacy = defineGenerator<PluginMcp>({
   name: 'operations',
   renderer: jsxRenderer,
-  operations(nodes, options) {
-    const { adapter, config, resolver, plugin, driver, root } = this
-    const { output, paramsCasing, group } = options
+  operations(nodes, ctx) {
+    const { adapter, config, resolver, plugin, driver, root } = ctx
+    const { output, paramsCasing, group } = ctx.options
 
     const pluginZod = driver.getPlugin(pluginZodName)
 

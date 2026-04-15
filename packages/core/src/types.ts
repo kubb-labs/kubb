@@ -846,16 +846,20 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   Kubb.PluginContext
 
 /**
- * Narrowed `PluginContext` used as the `this` type inside generator and plugin AST hook methods.
+ * Context object passed as the second argument to generator `schema`, `operation`, and
+ * `operations` methods.
  *
- * Generators and the `schema`/`operation`/`operations` plugin hooks are only invoked from
- * `runPluginAstHooks`, which already guards against a missing adapter. This type reflects
- * that guarantee — `this.adapter` and `this.inputNode` are always defined, so no runtime
- * checks or casts are needed inside the method bodies.
+ * Generators are only invoked from `runPluginAstHooks`, which already guards against a
+ * missing adapter. This type reflects that guarantee — `ctx.adapter` and `ctx.inputNode`
+ * are always defined, so no runtime checks or casts are needed inside generator bodies.
+ *
+ * `ctx.options` carries the per-node resolved options for `schema`/`operation` calls
+ * (after exclude/include/override filtering) and the plugin-level options for `operations`.
  */
 export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = Omit<PluginContext<TOptions>, 'adapter' | 'inputNode'> & {
   adapter: Adapter
   inputNode: InputNode
+  options: TOptions['resolvedOptions']
 }
 /**
  * Specify the export location for the files and define the behavior of the output

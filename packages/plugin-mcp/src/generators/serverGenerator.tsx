@@ -17,9 +17,9 @@ import { findSuccessStatusCode } from '../utils.ts'
 export const serverGenerator = defineGenerator<PluginMcp>({
   name: 'operations',
   renderer: jsxRenderer,
-  operations(nodes, options) {
-    const { adapter, config, resolver, plugin, driver, root } = this
-    const { output, paramsCasing, group } = options
+  operations(nodes, ctx) {
+    const { adapter, config, resolver, plugin, driver, root } = ctx
+    const { output, paramsCasing, group } = ctx.options
 
     const pluginZod = driver.getPlugin(pluginZodName)
 

@@ -158,15 +158,15 @@ function nameUnnamedEnums(node: SchemaNode, parentName: string): SchemaNode {
 export const typeGeneratorLegacy = defineGenerator<PluginTs>({
   name: 'typescript-legacy',
   renderer: jsxRenderer,
-  schema(node, options) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group } = options
-    const { adapter, config, resolver, root } = this
+  schema(node, ctx) {
+    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group } = ctx.options
+    const { adapter, config, resolver, root } = ctx
 
     if (!node.name) {
       return
     }
 
-    const mode = this.getMode(output)
+    const mode = ctx.getMode(output)
 
     const imports = adapter.getImports(node, (schemaName) => ({
       name: resolver.resolveTypeName(schemaName),
@@ -215,11 +215,11 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
       </File>
     )
   },
-  operation(node, options) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output } = options
-    const { adapter, config, resolver, root } = this
+  operation(node, ctx) {
+    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output } = ctx.options
+    const { adapter, config, resolver, root } = ctx
 
-    const mode = this.getMode(output)
+    const mode = ctx.getMode(output)
     const params = caseParams(node.parameters, paramsCasing)
 
     const meta = {

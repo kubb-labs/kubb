@@ -401,8 +401,8 @@ describe('PluginDriver — generator event dispatch', () => {
 
   it('registerGenerator() receives the resolved resolver on ctx.resolver', async () => {
     const capturedResolverResult = vi.fn()
-    const schemaMock = vi.fn(function (this: any) {
-      capturedResolverResult(this.resolver.default('pet schema', 'type'))
+    const schemaMock = vi.fn(function (_node: any, ctx: any) {
+      capturedResolverResult(ctx.resolver.default('pet schema', 'type'))
       return undefined
     })
 

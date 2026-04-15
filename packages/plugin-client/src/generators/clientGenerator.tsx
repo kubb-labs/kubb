@@ -11,10 +11,10 @@ import type { PluginClient } from '../types'
 export const clientGenerator = defineGenerator<PluginClient>({
   name: 'client',
   renderer: jsxRenderer,
-  operation(node, options) {
-    const { adapter, config, driver, resolver, root } = this
-    const { output, urlType, dataReturnType, paramsCasing, paramsType, pathParamsType, parser, importPath, group } = options
-    const baseURL = options.baseURL ?? adapter.inputNode?.meta?.baseURL
+  operation(node, ctx) {
+    const { adapter, config, driver, resolver, root } = ctx
+    const { output, urlType, dataReturnType, paramsCasing, paramsType, pathParamsType, parser, importPath, group } = ctx.options
+    const baseURL = ctx.options.baseURL ?? adapter.inputNode?.meta?.baseURL
 
     const pluginTs = driver.getPlugin(pluginTsName)
 

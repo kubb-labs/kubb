@@ -7,9 +7,9 @@ import type { PluginClient } from '../types'
 export const groupedClientGenerator = defineGenerator<PluginClient>({
   name: 'groupedClient',
   renderer: jsxRenderer,
-  operations(nodes, options) {
-    const { config, resolver, adapter, root } = this
-    const { output, group } = options
+  operations(nodes, ctx) {
+    const { config, resolver, adapter, root } = ctx
+    const { output, group } = ctx.options
 
     const controllers = nodes.reduce(
       (acc, operationNode) => {

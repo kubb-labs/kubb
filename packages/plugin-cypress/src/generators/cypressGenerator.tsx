@@ -8,9 +8,9 @@ import type { PluginCypress } from '../types.ts'
 export const cypressGenerator = defineGenerator<PluginCypress>({
   name: 'cypress',
   renderer: jsxRenderer,
-  operation(node, options) {
-    const { adapter, config, resolver, driver, root } = this
-    const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group } = options
+  operation(node, ctx) {
+    const { adapter, config, resolver, driver, root } = ctx
+    const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group } = ctx.options
 
     const pluginTs = driver.getPlugin(pluginTsName)
 
