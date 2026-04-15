@@ -4,11 +4,14 @@ import { createMockedAdapter } from '#mocks'
 import { createPlugin } from './createPlugin.ts'
 import { definePlugin, isHookStylePlugin } from './definePlugin.ts'
 import { PluginDriver } from './PluginDriver.ts'
-import type { Config, KubbHooks, Plugin } from './types.ts'
+import type { Config, KubbHooks, Plugin, PluginFactoryOptions } from './types.ts'
+
+type TestPluginOptions = PluginFactoryOptions<string, { tag: string }>
+type TestPluginOptionalOptions = PluginFactoryOptions<string, { tag?: string }>
 
 describe('definePlugin', () => {
   it('creates a valid hook-style plugin with `hooks:` property', () => {
-    const plugin = definePlugin<{ tag: string }>((options) => ({
+    const plugin = definePlugin<TestPluginOptions>((options) => ({
       name: 'my-hook-plugin',
       options,
       hooks: {
@@ -22,7 +25,7 @@ describe('definePlugin', () => {
   })
 
   it('uses empty object as default options when none are provided', () => {
-    const factory = definePlugin<{ tag?: string }>((options) => ({
+    const factory = definePlugin<TestPluginOptionalOptions>((options) => ({
       name: 'my-plugin',
       options,
       hooks: {},
@@ -144,7 +147,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
 
   it('options passed to definePlugin are forwarded via ctx.options', async () => {
     const capturedOptions: unknown[] = []
-    const hookPlugin = definePlugin<{ tag: string }>((options) => ({
+    const hookPlugin = definePlugin<TestPluginOptions>((options) => ({
       name: 'hook-plugin',
       options,
       hooks: {

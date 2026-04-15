@@ -1,5 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { FileNode, ImportNode, InputNode, Node, OperationNode, Printer, SchemaNode, Visitor } from '@kubb/ast/types'
+import type { FileNode, ImportNode, InputNode, Node, OperationNode, SchemaNode, Visitor } from '@kubb/ast/types'
 import type { HttpMethod } from '@kubb/oas'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { RendererFactory } from './createRenderer.ts'
@@ -487,13 +487,12 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
   }
   /**
    * The resolver for this plugin.
-   * Composed by `getPreset` from the preset resolver and the user's `resolver` partial override.
+   * Set via `setResolver()` in `kubb:plugin:setup` or passed as a user option.
    */
   resolver?: TOptions['resolver']
   /**
    * The composed transformer for this plugin.
-   * Composed by `getPreset` from the preset's transformers and the user's `transformer` visitor.
-   * When a visitor method returns `null`/`undefined`, the preset transformer's result is used instead.
+   * Set via `setTransformer()` in `kubb:plugin:setup` or passed as a user option.
    */
   transformer?: Visitor
   /**
@@ -605,13 +604,12 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
   }
   /**
    * The resolver for this plugin.
-   * Composed by `getPreset` from the preset resolver and the user's `resolver` partial override.
+   * Set via `setResolver()` in `kubb:plugin:setup` or passed as a user option.
    */
   resolver: TOptions['resolver']
   /**
-   * The composed transformer for this plugin. Accessible via `context.transformer`.
-   * Composed by `getPreset` from the preset's transformers and the user's `transformer` visitor.
-   * When a visitor method returns `null`/`undefined`, the preset transformer's result is used instead.
+   * The composed transformer for this plugin.
+   * Set via `setTransformer()` in `kubb:plugin:setup` or passed as a user option.
    */
   transformer?: Visitor
 
@@ -953,17 +951,20 @@ export type { Kubb, KubbHooks } from './Kubb.ts'
  * Provides methods to register generators, configure the resolver, transformer,
  * and renderer, as well as access to the current build configuration.
  */
-export type KubbPluginSetupContext = {
+export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
    * Register a generator on this plugin. Generators are invoked during the AST walk
    * (schema/operation/operations) exactly like generators declared statically on `createPlugin`.
    */
-  addGenerator(generator: Generator): void
+  addGenerator<TElement = unknown>(generator: Generator<TFactory, TElement>): void
   /**
    * Set or partially override the resolver for this plugin.
    * The resolver controls file naming and path resolution for generated files.
+   *
+   * When `TFactory` is a concrete `PluginFactoryOptions` (e.g. `PluginClient`),
+   * the resolver parameter is typed to the plugin's own resolver type (e.g. `ResolverClient`).
    */
-  setResolver(resolver: Partial<Resolver>): void
+  setResolver(resolver: Partial<TFactory['resolver']>): void
   /**
    * Set the AST transformer (visitor) for this plugin.
    * The transformer pre-processes nodes before they reach the generators.
@@ -981,7 +982,7 @@ export type KubbPluginSetupContext = {
    * Call this in `kubb:plugin:setup` to provide the resolved options that generators
    * and the build loop need (e.g., `enumType`, `optionalType`, `group`).
    */
-  setOptions(options: Record<string, unknown>): void
+  setOptions(options: Partial<TFactory['resolvedOptions']>): void
   /**
    * Inject a raw file into the build output, bypassing the normal generation pipeline.
    */
@@ -997,7 +998,7 @@ export type KubbPluginSetupContext = {
   /**
    * The plugin's own options as passed by the user.
    */
-  options: object
+  options: TFactory['options']
 }
 
 /**
@@ -1020,45 +1021,6 @@ export type KubbBuildEndContext = {
   config: Config
   outputDir: string
 }
-
-/**
- * A preset bundles a name, a resolver, optional AST transformers,
- * and optional generators into a single reusable configuration object.
- *
- * @template TResolver - The concrete resolver type for this preset.
- */
-export type Preset<TResolver extends Resolver = Resolver> = {
-  /**
-   * Unique identifier for this preset.
-   */
-  name: string
-  /**
-   * The resolver used by this preset.
-   */
-  resolver: TResolver
-  /**
-   * Optional AST visitors / transformers applied after resolving.
-   */
-  transformers?: Array<Visitor>
-  /**
-   * Optional generators used by this preset. Plugin implementations cast this
-   * to their concrete generator type.
-   */
-  generators?: Array<Generator<any>>
-  /**
-   * Optional printer factory used by this preset.
-   * The generator calls this function at render-time to produce a configured printer instance.
-   */
-  printer?: (options: any) => Printer
-}
-
-/**
- * A named registry of presets, keyed by preset name.
- *
- * @template TResolver - The concrete resolver type shared by all presets in this registry.
- * @template TName - The union of valid preset name keys.
- */
-export type Presets<TResolver extends Resolver = Resolver> = Record<CompatibilityPreset, Preset<TResolver>>
 
 type ByTag = {
   type: 'tag'

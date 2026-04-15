@@ -1,20 +1,22 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createFile, createSource, createText } from '@kubb/ast'
-import { createPlugin, type Group, getPreset } from '@kubb/core'
+import { createSource, createText } from '@kubb/ast'
+import { definePlugin, type Group } from '@kubb/core'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
 import { source as configSource } from '@kubb/plugin-client/templates/config.source'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { version } from '../package.json'
-import { presets } from './presets.ts'
+import { mcpGenerator } from './generators/mcpGenerator.tsx'
+import { serverGenerator } from './generators/serverGenerator.tsx'
+import { serverGeneratorLegacy } from './generators/serverGeneratorLegacy.tsx'
+import { resolverMcp } from './resolvers/resolverMcp.ts'
 import type { PluginMcp } from './types.ts'
 
 export const pluginMcpName = 'plugin-mcp' satisfies PluginMcp['name']
 
-export const pluginMcp = createPlugin<PluginMcp>((options) => {
+export const pluginMcp = definePlugin<PluginMcp>((options) => {
   const {
     output = { path: 'mcp', barrelType: 'named' },
     group,
@@ -23,101 +25,84 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
     override = [],
     paramsCasing,
     client,
-    compatibilityPreset = 'default',
     resolver: userResolver,
     transformer: userTransformer,
     generators: userGenerators = [],
+    compatibilityPreset = 'default',
   } = options
+
+  const defaultServerGenerator = compatibilityPreset === 'kubbV4' ? serverGeneratorLegacy : serverGenerator
 
   const clientName = client?.client ?? 'axios'
   const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientName}` : undefined)
 
-  const preset = getPreset({
-    preset: compatibilityPreset,
-    presets,
-    resolver: userResolver,
-    transformer: userTransformer,
-    generators: userGenerators,
-  })
-
-  const generators = preset.generators ?? []
+  const groupConfig = group
+    ? ({
+        ...group,
+        name: group.name
+          ? group.name
+          : (ctx: { group: string }) => {
+              if (group.type === 'path') {
+                return `${ctx.group.split('/')[1]}`
+              }
+              return `${camelCase(ctx.group)}Requests`
+            },
+      } satisfies Group)
+    : undefined
 
   return {
     name: pluginMcpName,
-    version,
-    get resolver() {
-      return preset.resolver
-    },
-    get transformer() {
-      return preset.transformer
-    },
-    get options() {
-      return {
-        output,
-        exclude,
-        include,
-        override,
-        group: group
-          ? ({
-              ...group,
-              name: group.name
-                ? group.name
-                : (ctx: { group: string }) => {
-                    if (group.type === 'path') {
-                      return `${ctx.group.split('/')[1]}`
-                    }
-                    return `${camelCase(ctx.group)}Requests`
-                  },
-            } satisfies Group)
-          : undefined,
-        paramsCasing,
-        client: {
-          client: clientName,
-          clientType: client?.clientType ?? 'function',
-          importPath: clientImportPath,
-          dataReturnType: client?.dataReturnType ?? 'data',
-          bundle: client?.bundle,
-          baseURL: client?.baseURL,
-          paramsCasing: client?.paramsCasing,
-        },
-        resolver: preset.resolver,
-      }
-    },
-    dependencies: [pluginTsName, pluginZodName].filter(Boolean),
-    generators,
-    async buildStart() {
-      const { adapter, driver } = this
-      const root = this.root
+    options,
+    dependencies: [pluginTsName, pluginZodName],
+    hooks: {
+      'kubb:plugin:setup'(ctx) {
+        ctx.setOptions({
+          output,
+          exclude,
+          include,
+          override,
+          group: groupConfig,
+          paramsCasing,
+          client: {
+            client: clientName,
+            clientType: client?.clientType ?? 'function',
+            importPath: clientImportPath,
+            dataReturnType: client?.dataReturnType ?? 'data',
+            bundle: client?.bundle,
+            baseURL: client?.baseURL,
+            paramsCasing: client?.paramsCasing,
+          },
+        })
+        ctx.setResolver(userResolver ? { ...resolverMcp, ...userResolver } : resolverMcp)
+        if (userTransformer) {
+          ctx.setTransformer(userTransformer)
+        }
+        ctx.addGenerator(mcpGenerator)
+        ctx.addGenerator(defaultServerGenerator)
+        for (const gen of userGenerators) {
+          ctx.addGenerator(gen)
+        }
 
-      const baseURL = adapter?.inputNode?.meta?.baseURL
-      if (baseURL) {
-        this.plugin.options.client.baseURL = this.plugin.options.client.baseURL || baseURL
-      }
+        const root = path.resolve(ctx.config.root, ctx.config.output.path)
+        const hasClientPlugin = ctx.config.plugins?.some((p) => p.name === pluginClientName)
 
-      const hasClientPlugin = !!driver.getPlugin(pluginClientName)
-
-      if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
-        await this.addFile(
-          createFile({
+        if (client?.bundle && !hasClientPlugin && !clientImportPath) {
+          ctx.injectFile({
             baseName: 'fetch.ts',
             path: path.resolve(root, '.kubb/fetch.ts'),
             sources: [
               createSource({
                 name: 'fetch',
-                nodes: [createText(this.plugin.options.client.client === 'fetch' ? fetchClientSource : axiosClientSource)],
+                nodes: [createText(clientName === 'fetch' ? fetchClientSource : axiosClientSource)],
                 isExportable: true,
                 isIndexable: true,
               }),
             ],
-            imports: [],
-            exports: [],
-          }),
-        )
-      }
+          })
+        }
 
-      if (!hasClientPlugin) {
-        await this.addFile(
-          createFile({
+        if (!hasClientPlugin) {
+          ctx.injectFile({
             baseName: 'config.ts',
             path: path.resolve(root, '.kubb/config.ts'),
             sources: [
@@ -128,13 +113,9 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
                 isIndexable: false,
               }),
             ],
-            imports: [],
-            exports: [],
-          }),
-        )
-      }
-
-      await this.openInStudio({ ast: true })
+          })
+        }
+      },
     },
   }
 })
