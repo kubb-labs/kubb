@@ -119,7 +119,7 @@ export class PluginDriver {
   readonly #pluginsWithEventGenerators = new Set<string>()
   readonly #resolvers = new Map<string, Resolver>()
   readonly #defaultResolvers = new Map<string, Resolver>()
-  #hookListeners: Array<{ event: keyof KubbHooks; handler: (...args: never[]) => void | Promise<void> }> = []
+  readonly #hookListeners = new Map<keyof KubbHooks, Set<(...args: never[]) => void | Promise<void>>>()
 
   constructor(config: Config, options: Options) {
     this.config = config
@@ -256,14 +256,14 @@ export class PluginDriver {
       }
 
       this.hooks.on('kubb:plugin:setup', setupHandler)
-      this.#hookListeners.push({ event: 'kubb:plugin:setup', handler: setupHandler as (...args: never[]) => void | Promise<void> })
+      this.#trackHookListener('kubb:plugin:setup', setupHandler as (...args: never[]) => void | Promise<void>)
     }
 
     // All other hooks are registered as direct pass-through listeners on the shared emitter.
     for (const [event, handler] of Object.entries(hooks) as Array<[keyof KubbHooks, ((...args: never[]) => void | Promise<void>) | undefined]>) {
       if (event === 'kubb:plugin:setup' || !handler) continue
       this.hooks.on(event, handler as never)
-      this.#hookListeners.push({ event, handler: handler as (...args: never[]) => void | Promise<void> })
+      this.#trackHookListener(event, handler as (...args: never[]) => void | Promise<void>)
     }
   }
 
@@ -315,7 +315,7 @@ export class PluginDriver {
       }
 
       this.hooks.on('kubb:generate:schema', schemaHandler)
-      this.#hookListeners.push({ event: 'kubb:generate:schema', handler: schemaHandler as (...args: never[]) => void | Promise<void> })
+      this.#trackHookListener('kubb:generate:schema', schemaHandler as (...args: never[]) => void | Promise<void>)
     }
 
     if (gen.operation) {
@@ -326,7 +326,7 @@ export class PluginDriver {
       }
 
       this.hooks.on('kubb:generate:operation', operationHandler)
-      this.#hookListeners.push({ event: 'kubb:generate:operation', handler: operationHandler as (...args: never[]) => void | Promise<void> })
+      this.#trackHookListener('kubb:generate:operation', operationHandler as (...args: never[]) => void | Promise<void>)
     }
 
     if (gen.operations) {
@@ -340,7 +340,7 @@ export class PluginDriver {
       }
 
       this.hooks.on('kubb:generate:operations', operationsHandler)
-      this.#hookListeners.push({ event: 'kubb:generate:operations', handler: operationsHandler as (...args: never[]) => void | Promise<void> })
+      this.#trackHookListener('kubb:generate:operations', operationsHandler as (...args: never[]) => void | Promise<void>)
     }
 
     this.#pluginsWithEventGenerators.add(pluginName)
@@ -358,11 +358,22 @@ export class PluginDriver {
   }
 
   dispose(): void {
-    for (const { event, handler } of this.#hookListeners) {
-      this.hooks.off(event, handler as never)
+    for (const [event, handlers] of this.#hookListeners) {
+      for (const handler of handlers) {
+        this.hooks.off(event, handler as never)
+      }
     }
-    this.#hookListeners.length = 0
+    this.#hookListeners.clear()
     this.#pluginsWithEventGenerators.clear()
+  }
+
+  #trackHookListener(event: keyof KubbHooks, handler: (...args: never[]) => void | Promise<void>): void {
+    let handlers = this.#hookListeners.get(event)
+    if (!handlers) {
+      handlers = new Set()
+      this.#hookListeners.set(event, handlers)
+    }
+    handlers.add(handler)
   }
 
   #createDefaultResolver(pluginName: string): Resolver {
