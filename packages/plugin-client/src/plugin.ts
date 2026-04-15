@@ -95,6 +95,8 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
     dependencies: [pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     hooks: {
       'kubb:plugin:setup'(ctx) {
+        const resolver = userResolver ? { ...defaultResolver, ...userResolver } : defaultResolver
+
         ctx.setOptions({
           client,
           clientType,
@@ -113,8 +115,9 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
           pathParamsType,
           urlType,
           wrapper,
+          resolver,
         })
-        ctx.setResolver(userResolver ? { ...defaultResolver, ...userResolver } : defaultResolver)
+        ctx.setResolver(resolver)
         if (userTransformer) {
           ctx.setTransformer(userTransformer)
         }
