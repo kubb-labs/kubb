@@ -867,6 +867,9 @@ importers:
       jiti:
         specifier: 2.5.1
         version: 2.5.1
+      kubb:
+        specifier: workspace:*
+        version: link:../kubb
       remeda:
         specifier: 'catalog:'
         version: 2.33.7

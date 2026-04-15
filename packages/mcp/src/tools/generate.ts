@@ -1,5 +1,5 @@
 import { AsyncEventEmitter } from '@internals/utils'
-import { type Config, type KubbHooks, safeBuild, setup } from '@kubb/core'
+import { type Config, createKubb, type KubbHooks } from '@kubb/core'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.d.ts'
 import type { z } from 'zod'
 import type { generateSchema } from '../schemas/generateSchema.ts'
@@ -138,20 +138,12 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
     // Setup and build
     await notify(NotifyTypes.SETUP_START, 'Setting up Kubb')
 
-    const setupResult = await setup({
-      config,
-      hooks,
-    })
+    const kubb = createKubb({ config, hooks })
+    await kubb.setup()
     await notify(NotifyTypes.SETUP_END, 'Kubb setup complete')
 
     await notify(NotifyTypes.BUILD_START, 'Starting build')
-    const { files, failedPlugins, error } = await safeBuild(
-      {
-        config,
-        hooks,
-      },
-      setupResult,
-    )
+    const { files, failedPlugins, error } = await kubb.safeBuild()
     await notify(NotifyTypes.BUILD_END, `Build complete - Generated ${files.length} files`)
 
     if (error || failedPlugins.size > 0) {

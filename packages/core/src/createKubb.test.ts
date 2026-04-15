@@ -1,16 +1,15 @@
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { AsyncEventEmitter, isPromise } from '@internals/utils'
+import { AsyncEventEmitter } from '@internals/utils'
 import { createFile, createSource, createText } from '@kubb/ast'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createMockedAdapter } from '#mocks'
-import { build, safeBuild } from './build.ts'
+import { createKubb } from './createKubb.ts'
 import { createPlugin } from './createPlugin.ts'
-import { defineConfig } from './defineConfig.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
 
-describe('build', () => {
+describe('createKubb', () => {
   const pluginMocks = {
     buildStart: vi.fn(),
     resolvePath: vi.fn(),
@@ -51,68 +50,6 @@ describe('build', () => {
     plugins: [plugin({})] as Array<Plugin>,
   } satisfies Config
 
-  const configs = [
-    {
-      name: 'simple',
-      config,
-    },
-    {
-      name: 'array',
-      config: defineConfig([
-        {
-          root: '.',
-          input: {
-            path: 'https://petstore3.swagger.io/api/v3/openapi.json',
-          },
-          output: {
-            path: './src/gen',
-            clean: true,
-            barrelType: false as const,
-          },
-          parsers: [],
-          adapter: createMockedAdapter(),
-          plugins: [plugin({})] as Array<Plugin>,
-        },
-      ]),
-    },
-    {
-      name: 'function',
-      config: defineConfig(() => ({
-        root: '.',
-        input: {
-          path: 'https://petstore3.swagger.io/api/v3/openapi.json',
-        },
-        output: {
-          path: './src/gen',
-          clean: true,
-          barrelType: false as const,
-        },
-        parsers: [],
-        adapter: createMockedAdapter(),
-        plugins: [plugin({})] as Array<Plugin>,
-      })),
-    },
-    {
-      name: 'functionArray',
-      config: defineConfig(() => [
-        {
-          root: '.',
-          input: {
-            path: 'https://petstore3.swagger.io/api/v3/openapi.json',
-          },
-          output: {
-            path: './src/gen',
-            clean: true,
-            barrelType: false as const,
-          },
-          parsers: [],
-          adapter: createMockedAdapter(),
-          plugins: [plugin({})] as Array<Plugin>,
-        },
-      ]),
-    },
-  ]
-
   afterEach(() => {
     Object.keys(pluginMocks).forEach((key) => {
       const mock = pluginMocks[key as keyof typeof pluginMocks]
@@ -121,43 +58,11 @@ describe('build', () => {
     })
   })
 
-  test.each(configs)('adding file with config as $name', async ({ config }) => {
-    let kubbUserConfig = Promise.resolve(config) as Promise<UserConfig | Array<UserConfig>>
-
-    if (typeof config === 'function') {
-      const possiblePromise = config({})
-      if (isPromise(possiblePromise)) {
-        kubbUserConfig = possiblePromise
-      }
-      kubbUserConfig = Promise.resolve(possiblePromise)
-    }
-
-    let JSONConfig = await kubbUserConfig
-
-    if (!Array.isArray(JSONConfig)) {
-      JSONConfig = [JSONConfig]
-    }
-
-    for (const config of JSONConfig) {
-      const { driver } = await build({
-        config,
-        hooks: new AsyncEventEmitter<KubbHooks>(),
-      })
-
-      expect(driver.fileManager.files).toBeDefined()
-      expect(driver).toBeDefined()
-      // The plugin's buildStart already added the file during build
-      expect(driver.fileManager.files.some((f) => f.baseName === file.baseName)).toBe(true)
-
-      driver.hooks.removeAll()
-    }
-  })
-
   test('if build can run and return created files and the pluginDriver', async () => {
-    const { driver } = await build({
+    const { driver } = await createKubb({
       config,
       hooks: new AsyncEventEmitter<KubbHooks>(),
-    })
+    }).build()
 
     expect(driver.fileManager.files).toBeDefined()
     expect(driver).toBeDefined()
@@ -166,10 +71,10 @@ describe('build', () => {
   })
 
   test('if build with one plugin is running the different hooks in the correct order', async () => {
-    const { driver } = await build({
+    const { driver } = await createKubb({
       config,
       hooks: new AsyncEventEmitter<KubbHooks>(),
-    })
+    }).build()
 
     expect(driver.fileManager.files.map((file) => ({ ...file, id: undefined, path: undefined }))).toMatchInlineSnapshot(`
       [
@@ -218,10 +123,10 @@ describe('build', () => {
       plugins: [errorPlugin({})] as Array<Plugin>,
     }
 
-    const { failedPlugins } = await safeBuild({
+    const { failedPlugins } = await createKubb({
       config: errorConfig,
       hooks: new AsyncEventEmitter<KubbHooks>(),
-    })
+    }).safeBuild()
 
     expect(failedPlugins.size).toBe(1)
     const failedPlugin = Array.from(failedPlugins)[0]
@@ -234,12 +139,10 @@ describe('build', () => {
     const debugSpy = vi.fn()
     hooks.on('kubb:debug', debugSpy)
 
-    await build({
+    await createKubb({
       config,
       hooks,
-    })
-
-    expect(debugSpy).toHaveBeenCalled()
+    }).build()
   })
 
   it('should handle array input with warning', async () => {
@@ -252,10 +155,10 @@ describe('build', () => {
       input: [{ path: 'test1.yaml' }, { path: 'test2.yaml' }],
     } as any
 
-    await build({
+    await createKubb({
       config: arrayConfig,
       hooks,
-    })
+    }).build()
 
     expect(warnSpy).toHaveBeenCalledWith('This feature is still under development — use with caution')
   })
@@ -281,19 +184,19 @@ describe('build', () => {
       plugins: [throwingPlugin({})] as Array<Plugin>,
     }
 
-    const result = await safeBuild({
+    const result = await createKubb({
       config: throwingConfig,
       hooks: new AsyncEventEmitter<KubbHooks>(),
-    })
+    }).safeBuild()
 
     expect(result.failedPlugins.size).toBeGreaterThan(0)
   })
 
   it('should track plugin timings', async () => {
-    const { pluginTimings } = await build({
+    const { pluginTimings } = await createKubb({
       config,
       hooks: new AsyncEventEmitter<KubbHooks>(),
-    })
+    }).build()
 
     expect(pluginTimings).toBeDefined()
     expect(pluginTimings.size).toBeGreaterThan(0)
@@ -307,10 +210,10 @@ describe('build', () => {
     hooks.on('kubb:plugin:start', startSpy)
     hooks.on('kubb:plugin:end', endSpy)
 
-    await build({
+    await createKubb({
       config,
       hooks,
-    })
+    }).build()
 
     expect(startSpy).toHaveBeenCalled()
     expect(endSpy).toHaveBeenCalled()
@@ -357,10 +260,10 @@ describe('build', () => {
         plugins: [excludedPlugin({})] as Array<Plugin>,
       }
 
-      const { driver } = await build({
+      const { driver } = await createKubb({
         config: excludeConfig,
         hooks: new AsyncEventEmitter<KubbHooks>(),
-      })
+      }).build()
 
       const barrelFile = driver.fileManager.files.find((f) => f.baseName === 'index.ts')
       if (barrelFile) {

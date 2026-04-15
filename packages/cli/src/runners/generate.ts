@@ -8,6 +8,7 @@ import { AsyncEventEmitter as AsyncEventEmitterClass, executeIfOnline, toError }
 import {
   type CLIOptions,
   type Config,
+  createKubb,
   detectFormatter,
   detectLinter,
   formatters,
@@ -16,8 +17,6 @@ import {
   type KubbHooks,
   linters,
   logLevel as logLevelMap,
-  safeBuild,
-  setup,
   type UserConfig,
 } from '@kubb/core'
 import { version } from '../../package.json'
@@ -155,12 +154,10 @@ async function generate(options: GenerateProps): Promise<void> {
     ...options.config.output,
   } satisfies UserConfig
 
-  const setupResult = await setup({
-    config: userConfig,
-    hooks,
-  })
+  const kubb = createKubb({ config: userConfig, hooks })
+  await kubb.setup()
 
-  const { sources, config, driver } = setupResult
+  const config = kubb.config!
 
   await hooks.emit('kubb:generation:start', config)
 
@@ -168,13 +165,7 @@ async function generate(options: GenerateProps): Promise<void> {
 
   await hooks.emit('kubb:info', config.name ? `Build generation ${styleText('bold', config.name)}` : 'Build generation', inputPath)
 
-  const { files, failedPlugins, pluginTimings, error } = await safeBuild(
-    {
-      config,
-      hooks,
-    },
-    setupResult,
-  )
+  const { files, failedPlugins, pluginTimings, error, driver } = await kubb.safeBuild()
 
   await hooks.emit('kubb:info', 'Load summary')
 
@@ -194,7 +185,7 @@ async function generate(options: GenerateProps): Promise<void> {
       await hooks.emit('kubb:error', err)
     }
 
-    await hooks.emit('kubb:generation:end', config, files, sources)
+    await hooks.emit('kubb:generation:end', config, files, kubb.sources)
 
     await hooks.emit('kubb:generation:summary', config, {
       failedPlugins,
@@ -219,7 +210,7 @@ async function generate(options: GenerateProps): Promise<void> {
   }
 
   await hooks.emit('kubb:success', 'Generation successfully', inputPath)
-  await hooks.emit('kubb:generation:end', config, files, sources)
+  await hooks.emit('kubb:generation:end', config, files, kubb.sources)
 
   const outputPath = path.resolve(config.root, config.output.path)
 

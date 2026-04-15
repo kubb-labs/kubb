@@ -1,5 +1,4 @@
-import type { CLIOptions, ConfigInput } from '../defineConfig.ts'
-import type { Config, UserConfig } from '../types.ts'
+import type { CLIOptions, ConfigInput, Config, UserConfig } from '../types.ts'
 
 /**
  * Resolves a {@link ConfigInput} into a normalized array of {@link Config} objects.

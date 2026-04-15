@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import path from 'node:path'
 import { styleText } from 'node:util'
-import { type AsyncEventEmitter, type Config, detectFormatter, detectLinter, formatters, type KubbHooks, linters, safeBuild, setup } from '@kubb/core'
+import { type AsyncEventEmitter, type Config, createKubb, detectFormatter, detectLinter, formatters, type KubbHooks, linters } from '@kubb/core'
 import { executeHooks } from './executeHooks.ts'
 
 type GenerateProps = {
@@ -23,22 +23,12 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
 
   await hooks.emit('kubb:info', config.name ? `Setup generation ${config.name}` : 'Setup generation')
 
-  const setupResult = await setup({
-    config,
-    hooks,
-  })
-
-  const { sources } = setupResult
+  const kubb = createKubb({ config, hooks })
+  await kubb.setup()
 
   await hooks.emit('kubb:info', config.name ? `Build generation ${config.name}` : 'Build generation')
 
-  const { files, failedPlugins, error } = await safeBuild(
-    {
-      config,
-      hooks,
-    },
-    setupResult,
-  )
+  const { files, failedPlugins, error } = await kubb.safeBuild()
 
   await hooks.emit('kubb:info', 'Load summary')
 
@@ -57,13 +47,13 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
       hooks.emit('kubb:error', err)
     })
 
-    await hooks.emit('kubb:generation:end', config, files, sources)
+    await hooks.emit('kubb:generation:end', config, files, kubb.sources)
 
     throw new Error('Generation failed')
   }
 
   await hooks.emit('kubb:success', 'Generation successfully')
-  await hooks.emit('kubb:generation:end', config, files, sources)
+  await hooks.emit('kubb:generation:end', config, files, kubb.sources)
 
   // formatting
   if (config.output.format) {
