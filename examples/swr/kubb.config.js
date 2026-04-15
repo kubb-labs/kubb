@@ -32,6 +32,7 @@ export default defineConfig([
         mutation: {
           paramsToTrigger: true,
         },
+        compatibilityPreset: 'kubbV4',
       }),
     ],
   },
@@ -65,6 +66,7 @@ export default defineConfig([
           },
         ],
         query: false,
+        compatibilityPreset: 'kubbV4',
       }),
     ],
   },

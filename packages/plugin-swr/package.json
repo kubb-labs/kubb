@@ -87,9 +87,7 @@
   "dependencies": {
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/oas": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/renderer-jsx": "workspace:*",
@@ -108,7 +106,6 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "devDependencies": {
-    "@internals/tanstack-query": "workspace:*",
     "@internals/utils": "workspace:*"
   }
 }

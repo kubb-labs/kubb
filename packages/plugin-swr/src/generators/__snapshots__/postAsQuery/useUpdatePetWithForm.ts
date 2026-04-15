@@ -4,8 +4,9 @@
  */
 
 import useSWR from 'custom-swr'
-import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
-import { fetch } from '../test/.kubb/fetch'
+import type { Client, RequestConfig, ResponseErrorConfig } from './.kubb/fetch'
+import type { UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams, UpdatePetWithFormMutationResponse, UpdatePetWithForm405 } from './UpdatePetWithForm'
+import { fetch } from './.kubb/fetch'
 
 export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) =>
   [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : [])] as const

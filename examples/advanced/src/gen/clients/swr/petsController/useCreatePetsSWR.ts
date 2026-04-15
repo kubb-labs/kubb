@@ -2,6 +2,7 @@ import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
+  CreatePetsError,
   CreatePetsHeaderParams,
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
@@ -25,7 +26,7 @@ export function useCreatePetsSWR(
   options: {
     mutation?: SWRMutationConfiguration<
       ResponseConfig<CreatePetsMutationResponse>,
-      ResponseErrorConfig<Error>,
+      ResponseErrorConfig<CreatePetsError>,
       CreatePetsMutationKeySWR | null,
       CreatePetsMutationRequest
     > & { throwOnError?: boolean }
@@ -36,7 +37,12 @@ export function useCreatePetsSWR(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = createPetsMutationKeySWR()
 
-  return useSWRMutation<ResponseConfig<CreatePetsMutationResponse>, ResponseErrorConfig<Error>, CreatePetsMutationKeySWR | null, CreatePetsMutationRequest>(
+  return useSWRMutation<
+    ResponseConfig<CreatePetsMutationResponse>,
+    ResponseErrorConfig<CreatePetsError>,
+    CreatePetsMutationKeySWR | null,
+    CreatePetsMutationRequest
+  >(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return createPets({ uuid, data, headers, params }, config)

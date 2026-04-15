@@ -5,6 +5,7 @@
 
 import fetch from 'axios'
 import useSWRMutation from 'swr/mutation'
+import type { UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams, UpdatePetWithFormMutationResponse, UpdatePetWithForm405 } from './UpdatePetWithForm'
 import type { Client, RequestConfig, ResponseErrorConfig } from 'axios'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 

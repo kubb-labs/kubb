@@ -1,182 +1,248 @@
 import path from 'node:path'
-import { useDriver } from '@kubb/core/hooks'
-import { ClientLegacy as Client, pluginClientName } from '@kubb/plugin-client'
-import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
+import { caseParams } from '@kubb/ast'
+import { defineGenerator } from '@kubb/core'
+import { ClientLegacy as ClientLegacyComponent, pluginClientName } from '@kubb/plugin-client'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { File } from '@kubb/renderer-jsx'
-import { difference } from 'remeda'
+import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Query, QueryKey, QueryOptions } from '../components'
 import type { PluginSwr } from '../types'
+import { transformName } from '../utils.ts'
 
-export const queryGenerator = createReactGenerator<PluginSwr>({
+export const queryGenerator = defineGenerator<PluginSwr>({
   name: 'swr-query',
-  Operation({ config, operation, generator, plugin }) {
-    const {
-      options,
-      options: { output },
-    } = plugin
-    const driver = useDriver()
-    const root = path.resolve(config.root, config.output.path)
+  renderer: jsxRenderer,
+  operation(node, ctx) {
+    const { adapter, config, driver, resolver, root } = ctx
+    const { output, query, paramsCasing, paramsType, pathParamsType, parser, client: clientOptions, group, transformers } = ctx.options
 
-    const oas = useOas()
-    const { getSchemas, getName, getFile } = useOperationManager(generator)
+    const pluginTs = driver.getPlugin(pluginTsName)
+    if (!pluginTs?.resolver) return null
+    const tsResolver = pluginTs.resolver
 
-    const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
-    const isMutation = difference(options.mutation ? options.mutation.methods : [], options.query ? options.query.methods : []).some(
-      (method) => operation.method === method,
-    )
-    const importPath = options.query ? options.query.importPath : 'swr/mutation'
+    // Determine if this operation is a query
+    const isQuery = !!query && query.methods.some((method) => node.method.toLowerCase() === method.toLowerCase())
 
-    const query = {
-      name: getName(operation, { type: 'function', prefix: 'use' }),
-      typeName: getName(operation, { type: 'type' }),
-      file: getFile(operation, { prefix: 'use' }),
+    if (!isQuery) return null
+
+    const importPath = query ? query.importPath : 'swr'
+
+    // Resolve names — apply transformers.name to each constructed name to match the old
+    // createPlugin resolveName lifecycle (e.g. `findPetsByTagsQueryKey` → `findPetsByTagsQueryKeySWR`)
+    const baseName = resolver.resolveName(node.operationId)
+    const queryName = transformName(`use${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}`, 'function', transformers)
+    const queryOptionsName = transformName(`${baseName}QueryOptions`, 'function', transformers)
+    const queryKeyName = transformName(`${baseName}QueryKey`, 'const', transformers)
+    const queryKeyTypeName = transformName(`${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}QueryKey`, 'type', transformers)
+    const clientName = baseName
+
+    const meta = {
+      file: resolver.resolveFile({ name: queryName, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group }),
+      fileTs: tsResolver.resolveFile(
+        { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+        { root, output: pluginTs.options?.output ?? output, group: pluginTs.options?.group },
+      ),
     }
 
-    const hasClientPlugin = !!driver.getPlugin(pluginClientName)
-    // Class-based clients are not compatible with query hooks, so we generate inline clients
-    const shouldUseClientPlugin = hasClientPlugin && options.client.clientType !== 'class'
-    const client = {
-      name: shouldUseClientPlugin
-        ? getName(operation, {
-            type: 'function',
-            pluginName: pluginClientName,
-          })
-        : getName(operation, {
-            type: 'function',
-          }),
-      file: getFile(operation, { pluginName: pluginClientName }),
-    }
+    const casedParams = caseParams(node.parameters, paramsCasing)
+    const pathParams = casedParams.filter((p) => p.in === 'path')
+    const queryParams = casedParams.filter((p) => p.in === 'query')
+    const headerParams = casedParams.filter((p) => p.in === 'header')
 
-    const queryOptions = {
-      name: getName(operation, { type: 'function', suffix: 'QueryOptions' }),
-    }
-    const queryKey = {
-      name: getName(operation, { type: 'const', suffix: 'QueryKey' }),
-      typeName: getName(operation, { type: 'type', suffix: 'QueryKey' }),
-    }
+    const importedTypeNames = [
+      ...pathParams.map((p) => tsResolver.resolvePathParamsName(node, p)),
+      ...queryParams.map((p) => tsResolver.resolveQueryParamsName(node, p)),
+      ...headerParams.map((p) => tsResolver.resolveHeaderParamsName(node, p)),
+      node.requestBody?.schema ? tsResolver.resolveDataName(node) : undefined,
+      tsResolver.resolveResponseName(node),
+      ...node.responses.map((res) => tsResolver.resolveResponseStatusName(node, res.statusCode)),
+    ].filter(Boolean)
 
-    const type = {
-      file: getFile(operation, { pluginName: pluginTsName }),
-      //todo remove type?
-      schemas: getSchemas(operation, {
-        pluginName: pluginTsName,
-        type: 'type',
-      }),
-    }
+    const pluginZodRaw = parser === 'zod' ? driver.getPlugin(pluginZodName) : undefined
+    const pluginZod = pluginZodRaw?.name === pluginZodName ? pluginZodRaw : undefined
+    const zodResolver = pluginZod?.resolver
+    const fileZod = zodResolver
+      ? zodResolver.resolveFile(
+          { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+          { root, output: pluginZod?.options?.output ?? output, group: pluginZod?.options?.group },
+        )
+      : undefined
+    const zodSchemaNames =
+      zodResolver && parser === 'zod'
+        ? [zodResolver.resolveResponseName?.(node), node.requestBody?.schema ? zodResolver.resolveDataName?.(node) : undefined].filter(Boolean)
+        : []
 
-    const zod = {
-      file: getFile(operation, { pluginName: pluginZodName }),
-      schemas: getSchemas(operation, {
-        pluginName: pluginZodName,
-        type: 'function',
-      }),
-    }
+    const clientPlugin = driver.getPlugin(pluginClientName)
+    const hasClientPlugin = clientPlugin?.name === pluginClientName
+    const shouldUseClientPlugin = hasClientPlugin && clientOptions.clientType !== 'class'
 
-    if (!isQuery || isMutation) {
-      return null
-    }
+    const clientFile = shouldUseClientPlugin
+      ? clientPlugin?.resolver?.resolveFile(
+          { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+          {
+            root,
+            output: clientPlugin?.options?.output ?? output,
+            group: clientPlugin?.options?.group,
+          },
+        )
+      : undefined
+
+    const resolvedClientName = shouldUseClientPlugin ? (clientPlugin?.resolver?.resolveName(node.operationId) ?? clientName) : clientName
 
     return (
       <File
-        baseName={query.file.baseName}
-        path={query.file.path}
-        meta={query.file.meta}
-        banner={getBanner({ oas, output, config: driver.config })}
-        footer={getFooter({ oas, output })}
+        baseName={meta.file.baseName}
+        path={meta.file.path}
+        meta={meta.file.meta}
+        banner={resolver.resolveBanner(adapter.inputNode, { output, config })}
+        footer={resolver.resolveFooter(adapter.inputNode, { output, config })}
       >
-        {options.parser === 'zod' && (
-          <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={query.file.path} path={zod.file.path} />
+        {parser === 'zod' && fileZod && zodSchemaNames.length > 0 && (
+          <File.Import name={zodSchemaNames as string[]} root={meta.file.path} path={fileZod.path} />
         )}
-        {options.client.importPath ? (
+        {clientOptions.importPath ? (
           <>
-            {!shouldUseClientPlugin && <File.Import name={'fetch'} path={options.client.importPath} />}
-            <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
-            {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
+            {!shouldUseClientPlugin && <File.Import name={'fetch'} path={clientOptions.importPath} />}
+            <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} path={clientOptions.importPath} isTypeOnly />
+            {clientOptions.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={clientOptions.importPath} isTypeOnly />}
           </>
         ) : (
           <>
-            {!shouldUseClientPlugin && <File.Import name={['fetch']} root={query.file.path} path={path.resolve(root, '.kubb/fetch.ts')} />}
+            {!shouldUseClientPlugin && <File.Import name={['fetch']} root={meta.file.path} path={path.resolve(root, '.kubb/fetch.ts')} />}
             <File.Import
               name={['Client', 'RequestConfig', 'ResponseErrorConfig']}
-              root={query.file.path}
+              root={meta.file.path}
               path={path.resolve(root, '.kubb/fetch.ts')}
               isTypeOnly
             />
-            {options.client.dataReturnType === 'full' && (
-              <File.Import name={['ResponseConfig']} root={query.file.path} path={path.resolve(root, '.kubb/fetch.ts')} isTypeOnly />
+            {clientOptions.dataReturnType === 'full' && (
+              <File.Import name={['ResponseConfig']} root={meta.file.path} path={path.resolve(root, '.kubb/fetch.ts')} isTypeOnly />
             )}
           </>
         )}
-        {shouldUseClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
-        {!shouldUseClientPlugin && <File.Import name={['buildFormData']} root={query.file.path} path={path.resolve(root, '.kubb/config.ts')} />}
+        <File.Import name="useSWR" path={importPath} />
+        {shouldUseClientPlugin && clientFile && <File.Import name={[resolvedClientName]} root={meta.file.path} path={clientFile.path} />}
+        {!shouldUseClientPlugin && <File.Import name={['buildFormData']} root={meta.file.path} path={path.resolve(root, '.kubb/config.ts')} />}
+        {meta.fileTs && importedTypeNames.length > 0 && (
+          <File.Import name={Array.from(new Set(importedTypeNames))} root={meta.file.path} path={meta.fileTs.path} isTypeOnly />
+        )}
 
-        <File.Import
-          name={[
-            type.schemas.request?.name,
-            type.schemas.response.name,
-            type.schemas.pathParams?.name,
-            type.schemas.queryParams?.name,
-            type.schemas.headerParams?.name,
-            ...(type.schemas.statusCodes?.map((item) => item.name) || []),
-          ].filter(Boolean)}
-          root={query.file.path}
-          path={type.file.path}
-          isTypeOnly
-        />
         <QueryKey
-          name={queryKey.name}
-          typeName={queryKey.typeName}
-          operation={operation}
-          pathParamsType={options.pathParamsType}
-          typeSchemas={type.schemas}
-          paramsCasing={options.paramsCasing}
-          transformer={options.queryKey}
+          name={queryKeyName}
+          typeName={queryKeyTypeName}
+          node={node}
+          tsResolver={tsResolver}
+          pathParamsType={pathParamsType}
+          paramsCasing={paramsCasing}
+          transformer={ctx.options.queryKey}
         />
+
         {!shouldUseClientPlugin && (
-          <Client
-            name={client.name}
-            baseURL={options.client.baseURL}
-            operation={operation}
-            typeSchemas={type.schemas}
-            zodSchemas={zod.schemas}
-            dataReturnType={options.client.dataReturnType || 'data'}
-            paramsCasing={options.client.paramsCasing || options.paramsCasing}
-            paramsType={options.paramsType}
-            pathParamsType={options.pathParamsType}
-            parser={options.parser}
+          <ClientLegacyComponent
+            name={resolvedClientName}
+            baseURL={clientOptions.baseURL}
+            operation={{
+              path: node.path,
+              method: node.method,
+              getDescription: () => node.description,
+              getSummary: () => node.summary,
+              isDeprecated: () => node.deprecated ?? false,
+              getContentType: () => node.requestBody?.contentType ?? 'application/json',
+            }}
+            typeSchemas={buildLegacyTypeSchemas(node, tsResolver)}
+            zodSchemas={zodResolver ? buildLegacyTypeSchemas(node, zodResolver) : undefined}
+            dataReturnType={clientOptions.dataReturnType || 'data'}
+            paramsCasing={clientOptions.paramsCasing || paramsCasing}
+            paramsType={paramsType}
+            pathParamsType={pathParamsType}
+            parser={parser}
           />
         )}
+
         <QueryOptions
-          name={queryOptions.name}
-          clientName={client.name}
-          typeSchemas={type.schemas}
-          paramsType={options.paramsType}
-          paramsCasing={options.paramsCasing}
-          pathParamsType={options.pathParamsType}
+          name={queryOptionsName}
+          clientName={resolvedClientName}
+          node={node}
+          tsResolver={tsResolver}
+          paramsCasing={paramsCasing}
+          paramsType={paramsType}
+          pathParamsType={pathParamsType}
         />
-        {options.query && (
-          <>
-            <File.Import name="useSWR" path={importPath} />
-            <File.Import name={['SWRResponse']} path={importPath} isTypeOnly />
-            <Query
-              name={query.name}
-              queryOptionsName={queryOptions.name}
-              typeSchemas={type.schemas}
-              paramsType={options.paramsType}
-              pathParamsType={options.pathParamsType}
-              operation={operation}
-              dataReturnType={options.client.dataReturnType || 'data'}
-              queryKeyName={queryKey.name}
-              paramsCasing={options.paramsCasing}
-              queryKeyTypeName={queryKey.typeName}
-            />
-          </>
+
+        {query && (
+          <Query
+            name={queryName}
+            queryOptionsName={queryOptionsName}
+            queryKeyName={queryKeyName}
+            queryKeyTypeName={queryKeyTypeName}
+            node={node}
+            tsResolver={tsResolver}
+            dataReturnType={clientOptions.dataReturnType || 'data'}
+            paramsType={paramsType}
+            paramsCasing={paramsCasing}
+            pathParamsType={pathParamsType}
+          />
         )}
       </File>
     )
   },
 })
+
+/**
+ * Builds a legacy-compatible OperationSchemas object from OperationNode + resolver.
+ * Used for the ClientLegacy component which still expects the old format.
+ */
+// biome-ignore lint/suspicious/noExplicitAny: bridge between v5 resolver types and legacy OperationSchemas format
+function buildLegacyTypeSchemas(node: import('@kubb/ast/types').OperationNode, resolver: any) {
+  const pathParams = node.parameters.filter((p) => p.in === 'path')
+  const queryParams = node.parameters.filter((p) => p.in === 'query')
+  const headerParams = node.parameters.filter((p) => p.in === 'header')
+
+  const buildSchemaProps = (params: typeof pathParams) => {
+    const properties: Record<string, { type: string }> = {}
+    const required: string[] = []
+    for (const p of params) {
+      properties[p.name] = { type: p.schema?.primitive ?? 'unknown' }
+      if (p.required) required.push(p.name)
+    }
+    return { properties, required }
+  }
+
+  return {
+    response: { name: resolver.resolveResponseName(node) },
+    request: node.requestBody?.schema
+      ? {
+          name: resolver.resolveDataName(node),
+          schema: { required: node.requestBody.required ? ['body'] : [] },
+        }
+      : undefined,
+    pathParams:
+      pathParams.length > 0 && resolver.resolvePathParamsName
+        ? {
+            name: resolver.resolvePathParamsName(node, pathParams[0]!),
+            schema: buildSchemaProps(pathParams),
+          }
+        : undefined,
+    queryParams:
+      queryParams.length > 0 && resolver.resolveQueryParamsName
+        ? {
+            name: resolver.resolveQueryParamsName(node, queryParams[0]!),
+            schema: buildSchemaProps(queryParams),
+          }
+        : undefined,
+    headerParams:
+      headerParams.length > 0 && resolver.resolveHeaderParamsName
+        ? {
+            name: resolver.resolveHeaderParamsName(node, headerParams[0]!),
+            schema: buildSchemaProps(headerParams),
+          }
+        : undefined,
+    errors: node.responses
+      .filter((r) => {
+        const code = Number.parseInt(r.statusCode, 10)
+        return code >= 400 || r.statusCode === 'default'
+      })
+      .map((r) => ({ name: resolver.resolveResponseStatusName(node, r.statusCode) })),
+    statusCodes: node.responses.map((r) => ({ name: resolver.resolveResponseStatusName(node, r.statusCode) })),
+  }
+}

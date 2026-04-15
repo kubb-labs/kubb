@@ -3,11 +3,12 @@
  * Do not edit manually.
  */
 
-import fetch from 'axios'
 import useSWR from 'swr'
-import type { Client, RequestConfig, ResponseErrorConfig } from 'axios'
+import type { Client, RequestConfig, ResponseErrorConfig } from './.kubb/fetch'
+import type { FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse, FindPetsByTags400 } from './FindPetsByTags'
+import { fetch } from './.kubb/fetch'
 
-export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsQueryKey = (params: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 
@@ -16,7 +17,7 @@ export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export async function findPetsByTags({ params }: { params?: FindPetsByTagsQueryParams } = {}, config: Partial<RequestConfig> & { client?: Client } = {}) {
+export async function findPetsByTags({ params }: { params: FindPetsByTagsQueryParams }, config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
@@ -29,7 +30,7 @@ export async function findPetsByTags({ params }: { params?: FindPetsByTagsQueryP
   return res.data
 }
 
-export function findPetsByTagsQueryOptions({ params }: { params?: FindPetsByTagsQueryParams }, config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function findPetsByTagsQueryOptions({ params }: { params: FindPetsByTagsQueryParams }, config: Partial<RequestConfig> & { client?: Client } = {}) {
   return {
     fetcher: async () => {
       return findPetsByTags({ params }, config)
@@ -43,7 +44,7 @@ export function findPetsByTagsQueryOptions({ params }: { params?: FindPetsByTags
  * {@link /pet/findByTags}
  */
 export function useFindPetsByTags(
-  { params }: { params?: FindPetsByTagsQueryParams } = {},
+  { params }: { params: FindPetsByTagsQueryParams },
   options: {
     query?: Parameters<typeof useSWR<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>>>[2]
     client?: Partial<RequestConfig> & { client?: Client }

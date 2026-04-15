@@ -4,9 +4,10 @@
  */
 
 import useSWRMutation from 'swr/mutation'
-import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
+import type { Client, RequestConfig, ResponseErrorConfig } from './.kubb/fetch'
+import type { UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams, UpdatePetWithFormMutationResponse, UpdatePetWithForm405 } from './UpdatePetWithForm'
 import type { SWRMutationConfiguration } from 'swr/mutation'
-import { fetch } from '../test/.kubb/fetch'
+import { fetch } from './.kubb/fetch'
 
 export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId' }] as const
 

@@ -1,156 +1,208 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+/** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
+import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
+import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import type { HttpMethod } from '@kubb/oas'
-import { parse } from '@kubb/oas'
-import { OperationGenerator, renderOperation } from '@kubb/plugin-oas'
+import type { PluginTs } from '@kubb/plugin-ts'
+import { resolverTsLegacy } from '@kubb/plugin-ts'
 import { describe, test } from 'vitest'
-import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
-import { MutationKey, QueryKey } from '../components'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation } from '#mocks'
+import { QueryKey } from '../components'
+import { MutationKey } from '../components/MutationKey.tsx'
+import { resolverSwr } from '../resolvers/resolverSwr.ts'
 import type { PluginSwr } from '../types.ts'
 import { mutationGenerator } from './mutationGenerator.tsx'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'test' }, plugins: [], parsers: [], adapter: createMockedAdapter() }
+
+const defaultOptions: PluginSwr['resolvedOptions'] = {
+  client: {
+    dataReturnType: 'data',
+    client: 'axios',
+    importPath: undefined,
+    bundle: false,
+  },
+  paramsCasing: undefined,
+  queryKey: QueryKey.getTransformer,
+  mutationKey: MutationKey.getTransformer,
+  query: {
+    importPath: 'swr',
+    methods: ['get'],
+  },
+  mutation: {
+    importPath: 'swr/mutation',
+    methods: ['post'],
+  },
+  paramsType: 'inline',
+  pathParamsType: 'inline',
+  parser: 'client',
+  output: {
+    path: '.',
+  },
+  group: undefined,
+  exclude: [],
+  include: undefined,
+  override: [],
+  resolver: resolverSwr,
+  transformers: {},
+}
+
+const mockedTsPlugin = createMockedPlugin<PluginTs>({
+  name: 'plugin-ts',
+  options: { output: { path: '.' }, group: undefined } as PluginTs['resolvedOptions'],
+  resolver: resolverTsLegacy,
+})
+
+// Shared operation nodes — match petStore.yaml operations
+
+const findByTagsNode = createOperation({
+  operationId: 'findPetsByTags',
+  method: 'GET',
+  path: '/pet/findByTags',
+  tags: ['pet'],
+  description: 'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
+  summary: 'Finds Pets by tags',
+  parameters: [
+    createParameter({ name: 'tags', in: 'query', schema: createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }), required: true }),
+    createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) }),
+  ],
+  responses: [
+    createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' }),
+    createResponse({ statusCode: '400', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid tag value' }),
+  ],
+})
+
+const updatePetByIdNode = createOperation({
+  operationId: 'updatePetWithForm',
+  method: 'POST',
+  path: '/pet/{petId}',
+  tags: ['pet'],
+  summary: 'Updates a pet in the store with form data',
+  parameters: [
+    createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true }),
+    createParameter({ name: 'name', in: 'query', schema: createSchema({ type: 'string' }) }),
+    createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) }),
+  ],
+  responses: [
+    createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' }),
+    createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+  ],
+})
+
+const deletePetNode = createOperation({
+  operationId: 'deletePet',
+  method: 'DELETE',
+  path: '/pet/{petId}',
+  tags: ['pet'],
+  summary: 'Deletes a pet',
+  description: 'delete a pet',
+  parameters: [
+    createParameter({ name: 'api_key', in: 'header', schema: createSchema({ type: 'string' }) }),
+    createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true }),
+  ],
+  responses: [createResponse({ statusCode: '400', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid pet value' })],
+})
+
+const getPetByIdNode = createOperation({
+  operationId: 'getPetById',
+  method: 'GET',
+  path: '/pet/{petId}',
+  tags: ['pet'],
+  summary: 'Find pet by ID',
+  description: 'Returns a single pet',
+  parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
+  responses: [
+    createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' }),
+    createResponse({ statusCode: '400', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid ID supplied' }),
+    createResponse({ statusCode: '404', schema: createSchema({ type: 'object', properties: [] }), description: 'Pet not found' }),
+  ],
+})
 
 describe('mutationGenerator operation', async () => {
   const testData = [
     {
       name: 'getAsMutation',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
+      node: findByTagsNode,
       options: {
         mutation: {
           importPath: 'custom-swr/mutation',
-          methods: ['get'],
+          methods: ['get'] as string[],
         },
       },
     },
     {
       name: 'clientPostImportPath',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
-      method: 'post',
+      node: updatePetByIdNode,
       options: {
         client: {
-          dataReturnType: 'data',
+          dataReturnType: 'data' as const,
           importPath: 'axios',
         },
       },
     },
     {
       name: 'updatePetById',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
-      method: 'post',
+      node: updatePetByIdNode,
       options: {},
     },
     {
       name: 'updatePetByIdPathParamsObject',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
-      method: 'post',
+      node: updatePetByIdNode,
       options: {
-        pathParamsType: 'object',
+        pathParamsType: 'object' as const,
       },
     },
     {
       name: 'deletePet',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
-      method: 'delete',
-      options: {},
+      node: deletePetNode,
+      options: {
+        mutation: {
+          importPath: 'swr/mutation',
+          methods: ['delete'] as string[],
+        },
+      },
     },
     {
       name: 'deletePetObject',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
-      method: 'get',
+      node: getPetByIdNode,
       options: {
-        paramsType: 'object',
-        pathParamsType: 'object',
+        paramsType: 'object' as const,
+        pathParamsType: 'object' as const,
       },
     },
     {
       name: 'updatePetByIdParamsToTrigger',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
-      method: 'post',
+      node: updatePetByIdNode,
       options: {
         mutation: {
           importPath: 'swr/mutation',
-          methods: ['post'],
+          methods: ['post'] as string[],
           paramsToTrigger: true,
         },
       },
     },
-  ] as const satisfies Array<{
-    input: string
-    name: string
-    path: string
-    method: HttpMethod
-    options: Partial<PluginSwr['resolvedOptions']>
-  }>
+  ] as const satisfies Array<{ name: string; node: OperationNode; options: Partial<PluginSwr['resolvedOptions']> }>
 
   test.each(testData)('$name', async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input))
-
     const options: PluginSwr['resolvedOptions'] = {
-      client: {
-        dataReturnType: 'data',
-        client: 'axios',
-        importPath: undefined,
-        bundle: false,
-      },
-      paramsCasing: undefined,
-      parser: 'client',
-      queryKey: QueryKey.getTransformer,
-      mutationKey: MutationKey.getTransformer,
-      query: {
-        importPath: 'swr',
-        methods: ['get'],
-      },
-      mutation: {
-        importPath: 'swr/mutation',
-        methods: ['post'],
-      },
-      paramsType: 'inline',
-      pathParamsType: 'inline',
-      output: {
-        path: '.',
-      },
-      group: undefined,
-      exclude: [],
-      include: undefined,
-      override: [],
+      ...defaultOptions,
       ...props.options,
+      client: {
+        ...defaultOptions.client,
+        ...('client' in props.options ? props.options.client : {}),
+      },
     }
-    const plugin = createMockedPlugin<PluginSwr>({ name: 'plugin-swr', options })
-    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
-    const generator = new OperationGenerator(options, {
-      oas,
-      include: undefined,
-      driver: mockedPluginDriver,
+    const plugin = createMockedPlugin<PluginSwr>({ name: 'plugin-swr', options, resolver: resolverSwr })
+    const driver = createMockedPluginDriver({ name: props.name, plugin: mockedTsPlugin })
 
+    await renderGeneratorOperation(mutationGenerator, props.node, {
+      config: testConfig,
+      adapter: createMockedAdapter(),
+      driver,
       plugin,
-      contentType: undefined,
-      override: undefined,
-      mode: 'split',
-      exclude: [],
+      options,
+      resolver: resolverSwr,
     })
 
-    const operation = oas.operation(props.path, props.method)
-    await renderOperation(operation, {
-      config: { root: '.', output: { path: 'test' } } as Config,
-      driver: mockedPluginDriver,
-      oas,
-      mode: 'split',
-      generator,
-      Component: mutationGenerator.Operation,
-      plugin,
-    })
-
-    await matchFiles(mockedPluginDriver.fileManager.files, props.name)
+    await matchFiles(driver.fileManager.files, props.name)
   })
 })

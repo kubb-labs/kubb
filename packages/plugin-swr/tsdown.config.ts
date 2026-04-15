@@ -1,4 +1,3 @@
-import path from 'node:path'
 import { defineConfig, type UserConfig } from 'tsdown'
 
 const entry = {
@@ -12,9 +11,7 @@ const shared: Partial<UserConfig> = {
   sourcemap: true,
   shims: true,
   exports: true,
-  alias: {
-    '@internals/tanstack-query': path.resolve('../../internals/tanstack-query/src/index.ts'),
-  },
+  alias: {},
   deps: {
     neverBundle: [/^@kubb\//, '@types/react'],
     alwaysBundle: [/@internals/],

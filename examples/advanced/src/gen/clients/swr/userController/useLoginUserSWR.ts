@@ -7,7 +7,7 @@ export const loginUserQueryKeySWR = (params?: LoginUserQueryParams) => [{ url: '
 
 export type LoginUserQueryKeySWR = ReturnType<typeof loginUserQueryKeySWR>
 
-export function loginUserQueryOptionsSWR({ params }: { params?: LoginUserQueryParams }, config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function loginUserQueryOptionsSWR({ params }: { params?: LoginUserQueryParams } = {}, config: Partial<RequestConfig> & { client?: Client } = {}) {
   return {
     fetcher: async () => {
       return loginUser({ params }, config)

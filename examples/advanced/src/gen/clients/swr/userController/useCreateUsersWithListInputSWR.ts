@@ -2,6 +2,7 @@ import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
+  CreateUsersWithListInputError,
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
@@ -20,7 +21,7 @@ export function useCreateUsersWithListInputSWR(
   options: {
     mutation?: SWRMutationConfiguration<
       ResponseConfig<CreateUsersWithListInputMutationResponse>,
-      ResponseErrorConfig<Error>,
+      ResponseErrorConfig<CreateUsersWithListInputError>,
       CreateUsersWithListInputMutationKeySWR | null,
       CreateUsersWithListInputMutationRequest
     > & { throwOnError?: boolean }
@@ -33,7 +34,7 @@ export function useCreateUsersWithListInputSWR(
 
   return useSWRMutation<
     ResponseConfig<CreateUsersWithListInputMutationResponse>,
-    ResponseErrorConfig<Error>,
+    ResponseErrorConfig<CreateUsersWithListInputError>,
     CreateUsersWithListInputMutationKeySWR | null,
     CreateUsersWithListInputMutationRequest
   >(

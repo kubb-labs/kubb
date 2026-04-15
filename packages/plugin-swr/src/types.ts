@@ -1,11 +1,36 @@
-import type { Transformer } from '@internals/tanstack-query'
-import type { Output, PluginFactoryOptions, ResolveNameParams, UserGroup } from '@kubb/core'
-import type { contentType, HttpMethod, Oas } from '@kubb/oas'
+import type { OperationNode, Visitor } from '@kubb/ast/types'
+import type {
+  CompatibilityPreset,
+  Exclude,
+  Generator,
+  Group,
+  Include,
+  Output,
+  Override,
+  PluginFactoryOptions,
+  ResolvePathOptions,
+  Resolver,
+  UserGroup,
+} from '@kubb/core'
 import type { ClientImportPath, PluginClient } from '@kubb/plugin-client'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
-import type { Generator } from '@kubb/plugin-oas/generators'
 
-export type { Transformer } from '@internals/tanstack-query'
+/**
+ * Customizes how queryKey or mutationKey arrays are built.
+ */
+export type Transformer = (props: { node: OperationNode; casing: 'camelcase' | undefined }) => unknown[]
+
+/**
+ * The concrete resolver type for `@kubb/plugin-swr`.
+ * Extends the base `Resolver` with a `resolveName` helper for hook function names.
+ */
+export type ResolverSwr = Resolver & {
+  /**
+   * Resolves the hook function name for a given raw operation name.
+   * @example
+   * resolver.resolveName('show pet by id') // -> 'showPetById'
+   */
+  resolveName(this: ResolverSwr, name: string): string
+}
 
 /**
  * Customize the queryKey
@@ -22,7 +47,7 @@ type Query = {
    * Define which HttpMethods can be used for queries
    * @default ['get']
    */
-  methods?: Array<HttpMethod>
+  methods?: Array<string>
   /**
    * Path to the useQuery hook for useQuery functionality.
    * Used as `import { useQuery } from '${importPath}'`.
@@ -38,7 +63,7 @@ type Mutation = {
    * Define which HttpMethods can be used for queries
    * @default ['post', 'put', 'delete', 'patch']
    */
-  methods?: Array<HttpMethod>
+  methods?: Array<string>
   /**
    * Path to the useQuery hook for useQuery functionality.
    * Used as `import { useQuery } from '${importPath}'`.
@@ -61,12 +86,7 @@ export type Options = {
    * Specify the export location for the files and define the behavior of the output
    * @default { path: 'hooks', barrelType: 'named' }
    */
-  output?: Output<Oas>
-  /**
-   * Define which contentType should be used.
-   * By default, the first JSON valid mediaType is used
-   */
-  contentType?: contentType
+  output?: Output
   /**
    * Group the SWR hooks based on the provided name.
    */
@@ -116,8 +136,23 @@ export type Options = {
     /**
      * Customize the names based on the type that is provided by the plugin.
      */
-    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
+    name?: (name: string, type?: string) => string
   }
+  /**
+   * Apply a compatibility naming preset.
+   * @default 'default'
+   */
+  compatibilityPreset?: CompatibilityPreset
+  /**
+   * Override individual resolver methods. Any method you omit falls back to the
+   * preset resolver's implementation. Use `this.default(...)` to call it.
+   */
+  resolver?: Partial<ResolverSwr> & ThisType<ResolverSwr>
+  /**
+   * Single AST visitor applied to each node before printing.
+   * Return `null` or `undefined` from a method to leave the node unchanged.
+   */
+  transformer?: Visitor
   /**
    * Define some generators next to the swr generators
    */
@@ -125,7 +160,7 @@ export type Options = {
 }
 
 type ResolvedOptions = {
-  output: Output<Oas>
+  output: Output
   client: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle' | 'paramsCasing'>
   parser: Required<NonNullable<Options['parser']>>
   queryKey: QueryKey | undefined
@@ -135,13 +170,15 @@ type ResolvedOptions = {
   paramsCasing: Options['paramsCasing']
   paramsType: NonNullable<Options['paramsType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
-  group: Options['group']
+  transformers: NonNullable<Options['transformers']>
+  group: Group | undefined
   exclude: NonNullable<Options['exclude']>
   include: Options['include']
   override: NonNullable<Options['override']>
+  resolver: ResolverSwr
 }
 
-export type PluginSwr = PluginFactoryOptions<'plugin-swr', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginSwr = PluginFactoryOptions<'plugin-swr', Options, ResolvedOptions, never, ResolvePathOptions, ResolverSwr>
 
 declare global {
   namespace Kubb {
