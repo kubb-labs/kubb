@@ -6,6 +6,12 @@ import type { GeneratorContext, PluginFactoryOptions } from './types.ts'
 export type { GeneratorContext } from './types.ts'
 
 type GeneratorMethodContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = GeneratorContext<TOptions> & GeneratorContext<TOptions>['options']
+/**
+ * Compatibility parameter shape for generator handlers.
+ * Merges runtime generator context fields (`adapter`, `resolver`, `plugin`, etc.)
+ * with resolved plugin option fields so both legacy `options.*` and new `ctx.options.*`
+ * access patterns can coexist during migration.
+ */
 
 /**
  * A generator is a named object with optional `schema`, `operation`, and `operations`
