@@ -172,7 +172,7 @@ export class PluginDriver {
     const normalizedPlugin = {
       name: hookPlugin.name,
       dependencies: hookPlugin.dependencies,
-      options: { output: { path: '.' }, exclude: [], override: [] },
+      options: { output: { path: '.' }, exclude: [], override: [], ...(hookPlugin.options as Record<string, unknown>) },
       generators,
       inject: () => undefined,
       buildStart() {},

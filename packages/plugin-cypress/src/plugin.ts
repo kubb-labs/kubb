@@ -1,7 +1,6 @@
 import { camelCase } from '@internals/utils'
-import { createPlugin, type Group, getPreset } from '@kubb/core'
+import { definePlugin, type Group, getPreset } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { version } from '../package.json'
 import { presets } from './presets.ts'
 import type { PluginCypress } from './types.ts'
 
@@ -27,7 +26,7 @@ export const pluginCypressName = 'plugin-cypress' satisfies PluginCypress['name'
  * })
  * ```
  */
-export const pluginCypress = createPlugin<PluginCypress>((options) => {
+export const pluginCypress = definePlugin<PluginCypress['options']>((options) => {
   const {
     output = { path: 'cypress', barrelType: 'named' },
     group,
@@ -53,48 +52,46 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
     generators: userGenerators,
   })
 
-  const generators = preset.generators ?? []
-
   return {
     name: pluginCypressName,
-    version,
-    get resolver() {
-      return preset.resolver
+    dependencies: [pluginTsName],
+    options: {
+      output,
+      exclude,
+      include,
+      override,
+      dataReturnType,
+      group: group
+        ? ({
+            ...group,
+            name: group.name
+              ? group.name
+              : (ctx: { group: string }) => {
+                  if (group.type === 'path') {
+                    return `${ctx.group.split('/')[1]}`
+                  }
+                  return `${camelCase(ctx.group)}Requests`
+                },
+          } satisfies Group)
+        : undefined,
+      baseURL,
+      paramsCasing,
+      paramsType,
+      pathParamsType,
+      resolver: preset.resolver,
     },
-    get transformer() {
-      return preset.transformer
-    },
-    get options() {
-      return {
-        output,
-        exclude,
-        include,
-        override,
-        dataReturnType,
-        group: group
-          ? ({
-              ...group,
-              name: group.name
-                ? group.name
-                : (ctx: { group: string }) => {
-                    if (group.type === 'path') {
-                      return `${ctx.group.split('/')[1]}`
-                    }
-                    return `${camelCase(ctx.group)}Requests`
-                  },
-            } satisfies Group)
-          : undefined,
-        baseURL,
-        paramsCasing,
-        paramsType,
-        pathParamsType,
-        resolver: preset.resolver,
-      }
-    },
-    dependencies: [pluginTsName].filter(Boolean),
-    generators,
-    async buildStart() {
-      await this.openInStudio({ ast: true })
+    hooks: {
+      'kubb:plugin:setup'(ctx) {
+        if (preset.resolver) {
+          ctx.setResolver(preset.resolver)
+        }
+        if (preset.transformer) {
+          ctx.setTransformer(preset.transformer)
+        }
+        for (const gen of preset.generators ?? []) {
+          ctx.addGenerator(gen)
+        }
+      },
     },
   }
 })
