@@ -1358,15 +1358,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/oas':
-        specifier: workspace:*
-        version: link:../oas
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../plugin-client
-      '@kubb/plugin-oas':
-        specifier: workspace:*
-        version: link:../plugin-oas
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../plugin-ts
@@ -1380,9 +1374,6 @@ importers:
         specifier: 'catalog:'
         version: 2.33.7
     devDependencies:
-      '@internals/tanstack-query':
-        specifier: workspace:*
-        version: link:../../internals/tanstack-query
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils

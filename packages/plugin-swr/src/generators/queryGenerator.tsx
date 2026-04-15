@@ -6,7 +6,6 @@ import { ClientLegacy as ClientLegacyComponent } from '@kubb/plugin-client'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
-import { difference } from 'remeda'
 import { Query, QueryKey, QueryOptions } from '../components'
 import type { PluginSwr } from '../types'
 
@@ -15,18 +14,14 @@ export const queryGenerator = defineGenerator<PluginSwr>({
   renderer: jsxRenderer,
   operation(node, ctx) {
     const { adapter, config, driver, resolver, root } = ctx
-    const { output, query, mutation, paramsCasing, paramsType, pathParamsType, parser, client: clientOptions, group } = ctx.options
+    const { output, query, paramsCasing, paramsType, pathParamsType, parser, client: clientOptions, group } = ctx.options
 
     const pluginTs = driver.getPlugin(pluginTsName)
     if (!pluginTs?.resolver) return null
     const tsResolver = pluginTs.resolver
 
-    // Determine if this operation is a query or mutation
+    // Determine if this operation is a query
     const isQuery = !!query && query.methods.some((method) => node.method === method)
-    const isMutation =
-      mutation !== false &&
-      !isQuery &&
-      difference(mutation ? mutation.methods : [], query ? query.methods : []).some((method) => node.method === method)
 
     if (!isQuery) return null
 
@@ -41,7 +36,7 @@ export const queryGenerator = defineGenerator<PluginSwr>({
     const clientName = baseName
 
     const meta = {
-      file: resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path, prefix: 'use' }, { root, output, group }),
+      file: resolver.resolveFile({ name: `use${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}`, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group }),
       fileTs: tsResolver.resolveFile(
         { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
         { root, output: pluginTs.options?.output ?? output, group: pluginTs.options?.group },
@@ -191,10 +186,8 @@ export const queryGenerator = defineGenerator<PluginSwr>({
  * Builds a legacy-compatible OperationSchemas object from OperationNode + resolver.
  * Used for the ClientLegacy component which still expects the old format.
  */
-function buildLegacyTypeSchemas(
-  node: import('@kubb/ast/types').OperationNode,
-  resolver: { resolveResponseName: (node: any) => string; resolveResponseStatusName: (node: any, statusCode: string) => string; resolveDataName: (node: any) => string; resolveQueryParamsName?: (node: any, param: any) => string; resolveHeaderParamsName?: (node: any, param: any) => string; resolvePathParamsName?: (node: any, param: any) => string },
-) {
+// biome-ignore lint/suspicious/noExplicitAny: bridge between v5 resolver types and legacy OperationSchemas format
+function buildLegacyTypeSchemas(node: import('@kubb/ast/types').OperationNode, resolver: any) {
   const pathParams = node.parameters.filter((p) => p.in === 'path')
   const queryParams = node.parameters.filter((p) => p.in === 'query')
   const headerParams = node.parameters.filter((p) => p.in === 'header')

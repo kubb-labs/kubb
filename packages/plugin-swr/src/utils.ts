@@ -92,7 +92,7 @@ export function buildGroupParam(
   if (params.length) {
     const structProps = params.map((p) => ({
       name: p.name,
-      type: resolver.resolveParamName(node, p),
+      type: createParamsType({ variant: 'reference', name: resolver.resolveParamName(node, p) }),
       optional: !p.required,
     }))
     return [

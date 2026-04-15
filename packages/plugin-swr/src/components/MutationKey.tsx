@@ -26,7 +26,7 @@ const getTransformer: Transformer = ({ node, casing }) => {
   return [`{ url: '${path.toURLPath()}' }`]
 }
 
-export function MutationKey({ name, pathParamsType, paramsCasing, node, typeName, transformer = getTransformer }: Props): KubbReactNode {
+export function MutationKey({ name, paramsCasing, node, typeName, transformer = getTransformer }: Props): KubbReactNode {
   const paramsNode = getParams()
   const paramsSignature = declarationPrinter.print(paramsNode) ?? ''
   const keys = transformer({ node, casing: paramsCasing })

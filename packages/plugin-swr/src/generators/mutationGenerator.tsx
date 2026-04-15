@@ -183,10 +183,8 @@ export const mutationGenerator = defineGenerator<PluginSwr>({
  * Builds a legacy-compatible OperationSchemas object from OperationNode + resolver.
  * Used for the ClientLegacy component which still expects the old format.
  */
-function buildLegacyTypeSchemas(
-  node: import('@kubb/ast/types').OperationNode,
-  resolver: { resolveResponseName: (node: any) => string; resolveResponseStatusName: (node: any, statusCode: string) => string; resolveDataName: (node: any) => string; resolveQueryParamsName?: (node: any, param: any) => string; resolveHeaderParamsName?: (node: any, param: any) => string; resolvePathParamsName?: (node: any, param: any) => string },
-) {
+// biome-ignore lint/suspicious/noExplicitAny: bridge between v5 resolver types and legacy OperationSchemas format
+function buildLegacyTypeSchemas(node: import('@kubb/ast/types').OperationNode, resolver: any) {
   const pathParams = node.parameters.filter((p) => p.in === 'path')
   const queryParams = node.parameters.filter((p) => p.in === 'query')
   const headerParams = node.parameters.filter((p) => p.in === 'header')
