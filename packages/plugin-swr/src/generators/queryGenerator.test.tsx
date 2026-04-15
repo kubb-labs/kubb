@@ -43,6 +43,7 @@ const defaultOptions: PluginSwr['resolvedOptions'] = {
   include: undefined,
   override: [],
   resolver: resolverSwr,
+  transformers: {},
 }
 
 const mockedTsPlugin = createMockedPlugin<PluginTs>({
