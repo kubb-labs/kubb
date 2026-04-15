@@ -139,6 +139,7 @@ export default defineConfig({
           return `${name}SWR`
         },
       },
+      compatibilityPreset: 'kubbV4',
     }),
     pluginClient({
       output: {

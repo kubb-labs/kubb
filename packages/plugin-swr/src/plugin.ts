@@ -11,6 +11,7 @@ import { pluginZodName } from '@kubb/plugin-zod'
 import { MutationKey, QueryKey } from './components'
 import { mutationGenerator, queryGenerator } from './generators'
 import { resolverSwr } from './resolvers/resolverSwr.ts'
+import { resolverSwrLegacy } from './resolvers/resolverSwrLegacy.ts'
 import type { PluginSwr } from './types.ts'
 
 /**
@@ -55,7 +56,10 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
     resolver: userResolver,
     transformer: userTransformer,
     generators: userGenerators = [],
+    compatibilityPreset = 'default',
   } = options
+
+  const defaultResolver = compatibilityPreset === 'kubbV4' ? resolverSwrLegacy : resolverSwr
 
   const clientName = client?.client ?? 'axios'
   const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientName}` : undefined)
@@ -82,7 +86,7 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
     dependencies: [pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     hooks: {
       'kubb:plugin:setup'(ctx) {
-        const resolver = userResolver ? { ...resolverSwr, ...userResolver } : resolverSwr
+        const resolver = userResolver ? { ...defaultResolver, ...userResolver } : defaultResolver
 
         ctx.setOptions({
           output,
