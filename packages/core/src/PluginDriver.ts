@@ -812,6 +812,7 @@ export class PluginDriver {
 
   /**
    * Emit hook-processing completion metadata after a plugin hook resolves.
+   * Includes duration, hook name, execution strategy, plugin reference, input parameters, and produced output.
    */
   #emitProcessingEnd<H extends PluginLifecycleHooks>({
     startTime,
@@ -889,7 +890,7 @@ export class PluginDriver {
   }
 
   /**
-   * Run a sync plugin hook and return the result.
+   * Execute a plugin lifecycle hook synchronously with the provided strategy and return its output.
    */
   #executeSync<H extends PluginLifecycleHooks>({
     strategy,
