@@ -72,30 +72,21 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    * `this` is set to `GeneratorContext` and the second argument includes
    * both context fields and resolved option fields for compatibility.
    */
-  schema?: (
-    node: SchemaNode,
-    ctx: GeneratorMethodContext<TOptions>,
-  ) => PossiblePromise<TElement | Array<FileNode> | void>
+  schema?: (node: SchemaNode, ctx: GeneratorMethodContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
   /**
    * Called for each operation node in the AST walk.
    * Supports both `operation(node, ctx)` and legacy `operation(node, options)` usage.
    * `this` is set to `GeneratorContext` and the second argument includes
    * both context fields and resolved option fields for compatibility.
    */
-  operation?: (
-    node: OperationNode,
-    ctx: GeneratorMethodContext<TOptions>,
-  ) => PossiblePromise<TElement | Array<FileNode> | void>
+  operation?: (node: OperationNode, ctx: GeneratorMethodContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
   /**
    * Called once after all operations have been walked.
    * Supports both `operations(nodes, ctx)` and legacy `operations(nodes, options)` usage.
    * `this` is set to `GeneratorContext` and the second argument includes
    * both context fields and resolved option fields for compatibility.
    */
-  operations?: (
-    nodes: Array<OperationNode>,
-    ctx: GeneratorMethodContext<TOptions>,
-  ) => PossiblePromise<TElement | Array<FileNode> | void>
+  operations?: (nodes: Array<OperationNode>, ctx: GeneratorMethodContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
 } & ThisType<GeneratorContext<TOptions>>
 
 /**

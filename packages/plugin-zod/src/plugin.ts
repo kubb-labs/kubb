@@ -59,9 +59,7 @@ export const pluginZod = definePlugin<PluginZod['options']>((options = {}) => {
     generators: userGenerators,
   })
 
-  const generators =
-    preset.generators ??
-    [compatibilityPreset === 'kubbV4' ? zodGeneratorLegacy : zodGenerator].filter(Boolean)
+  const generators = preset.generators ?? [compatibilityPreset === 'kubbV4' ? zodGeneratorLegacy : zodGenerator].filter(Boolean)
 
   const pluginOptions = {
     output,

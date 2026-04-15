@@ -56,9 +56,7 @@ export const pluginTs = definePlugin<PluginTs['options']>((options = {}) => {
     generators: userGenerators,
   })
 
-  const generators =
-    preset.generators ??
-    [compatibilityPreset === 'kubbV4' ? typeGeneratorLegacy : typeGenerator].filter(Boolean)
+  const generators = preset.generators ?? [compatibilityPreset === 'kubbV4' ? typeGeneratorLegacy : typeGenerator].filter(Boolean)
 
   const pluginOptions = {
     output,

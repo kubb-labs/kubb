@@ -281,7 +281,12 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       // Legacy path: direct generator calls for plugins with static generators array.
       for (const gen of generators) {
         if (!gen.schema) continue
-        const result = await callLegacyGenerator<[SchemaNode, typeof legacyGeneratorContext]>(gen.schema, generatorContext, transformedNode, legacyGeneratorContext)
+        const result = await callLegacyGenerator<[SchemaNode, typeof legacyGeneratorContext]>(
+          gen.schema,
+          generatorContext,
+          transformedNode,
+          legacyGeneratorContext,
+        )
         await applyHookResult(result, driver, resolveRenderer(gen))
       }
 
