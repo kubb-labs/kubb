@@ -60,7 +60,10 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
    */
   adapter?: Adapter
   /**
-   * An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Use `dependencies` on the plugin to declare which plugins must run first.
+   * An array of Kubb plugins used for code generation.
+   * Each plugin may declare additional configurable options.
+   * If a plugin depends on another, an error is thrown when the dependency is missing.
+   * Use `dependencies` on the plugin to declare execution order.
    */
   // inject needs to be omitted because else we have a clash with the PluginDriver instance
   plugins?: Array<Omit<UnknownUserPlugin, 'inject'> | HookStylePlugin>
@@ -156,6 +159,12 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
   getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string }) => Array<ImportNode>
 }
 
+/**
+ * Controls how `index.ts` barrel files are generated.
+ * - `'all'` — exports every generated symbol from every file.
+ * - `'named'` — exports only explicitly named exports.
+ * - `'propagate'` — propagates re-exports from nested barrel files upward.
+ */
 export type BarrelType = 'all' | 'named' | 'propagate'
 
 export type DevtoolsOptions = {
@@ -216,13 +225,14 @@ export type Config<TInput = Input> = {
    */
   adapter: Adapter
   /**
-   * You can use either `input.path` or `input.data`, depending on your specific needs.
+   * Source file or data to generate code from.
+   * Use `input.path` for a file on disk or `input.data` for an inline string or object.
    */
   input: TInput
   output: {
     /**
-     * The path where all generated files receives exported.
-     * This can be an absolute path or a path relative to the specified root option.
+     * Output directory for generated files.
+     * Accepts an absolute path or a path relative to `root`.
      */
     path: string
     /**
@@ -295,9 +305,10 @@ export type Config<TInput = Input> = {
     override?: boolean
   }
   /**
-   * An array of Kubb plugins that used in the generation.
-   * Each plugin may include additional configurable options(defined in the plugin itself).
-   * If a plugin depends on another plugin, an error is returned if the required dependency is missing. Use `dependencies` on the plugin to declare which plugins must run first.
+   * An array of Kubb plugins used for code generation.
+   * Each plugin may declare additional configurable options.
+   * If a plugin depends on another, an error is thrown when the dependency is missing.
+   * Use `dependencies` on the plugin to declare execution order.
    */
   plugins: Array<Plugin>
   /**
@@ -434,13 +445,15 @@ export type PluginFactoryOptions<
  */
 export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
-   * Unique name used for the plugin
-   * The name of the plugin follows the format scope:foo-bar or foo-bar, adding scope: can avoid naming conflicts with other plugins.
-   * @example @kubb/typescript
+   * Unique name used for the plugin.
+   * The name follows the format `scope:foo-bar` or `foo-bar` — adding a scope avoids conflicts with other plugins.
+   *
+   * @example Plugin name
+   * `'@kubb/typescript'`
    */
   name: TOptions['name']
   /**
-   * Options set for a specific plugin(see kubb.config.js), passthrough of options.
+   * Resolved options merged with output/include/exclude/override defaults for the current plugin.
    */
   options: TOptions['resolvedOptions'] & {
     output: Output
@@ -552,8 +565,10 @@ export type OperationsHook<TOptions extends PluginFactoryOptions = PluginFactory
  */
 export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
-   * Unique name used for the plugin
-   * @example @kubb/typescript
+   * Unique name used for the plugin.
+   *
+   * @example Plugin name
+   * `'@kubb/typescript'`
    */
   name: TOptions['name']
   /**
@@ -647,13 +662,11 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
   /**
    * Called once per plugin at the start of its processing phase, before schema/operation/operations hooks run.
    * Use this to set up shared state, fetch remote data, or perform any async initialization.
-   * @type hookParallel
    */
   buildStart?: (this: PluginContext<TOptions>) => PossiblePromise<void>
   /**
    * Called once per plugin after all files have been written to disk.
    * Use this for post-processing, copying assets, or generating summary reports.
-   * @type hookParallel
    */
   buildEnd?: (this: PluginContext<TOptions>) => PossiblePromise<void>
   /**
@@ -681,19 +694,23 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    */
   operations?: OperationsHook<TOptions>
   /**
-   * Resolve to a Path based on a baseName(example: `./Pet.ts`) and directory(example: `./models`).
-   * Options can als be included.
-   * @type hookFirst
-   * @example ('./Pet.ts', './src/gen/') => '/src/gen/Pet.ts'
-   * @deprecated this will be replaced by resolvers
+   * Resolves a path from a baseName and directory.
+   * Options can also be included.
+   *
+   * @example
+   * `('./Pet.ts', './src/gen/') => '/src/gen/Pet.ts'`
+   *
+   * @deprecated Use resolvers instead.
    */
   resolvePath?: (this: PluginContext<TOptions>, baseName: FileNode['baseName'], mode?: 'single' | 'split', options?: TOptions['resolvePathOptions']) => string
   /**
-   * Resolve to a name based on a string.
+   * Resolves a display name from a raw string.
    * Useful when converting to PascalCase or camelCase.
-   * @type hookFirst
-   * @example ('pet') => 'Pet'
-   * @deprecated this will be replaced by resolvers
+   *
+   * @example
+   * `('pet') => 'Pet'`
+   *
+   * @deprecated Use resolvers instead.
    */
   resolveName?: (this: PluginContext<TOptions>, name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
 }
@@ -720,11 +737,10 @@ export type ResolveNameParams = {
   pluginName?: string
   /**
    * Specifies the type of entity being named.
-   * - 'file' customizes the name of the created file (uses camelCase).
-   * - 'function' customizes the exported function names (uses camelCase).
-   * - 'type' customizes TypeScript types (uses PascalCase).
-   * - 'const' customizes variable names (uses camelCase).
-   * @default undefined
+   * - `'file'` — customizes the name of the created file (camelCase).
+   * - `'function'` — customizes the exported function names (camelCase).
+   * - `'type'` — customizes TypeScript type names (PascalCase).
+   * - `'const'` — customizes variable names (camelCase).
    */
   type?: 'file' | 'function' | 'type' | 'const'
 }
@@ -850,11 +866,13 @@ export type Output<_TOptions = unknown> = {
    */
   barrelType?: BarrelType | false
   /**
-   * Add a banner text in the beginning of every file
+   * Text or function appended at the start of every generated file.
+   * When a function, receives the current `InputNode` and must return a string.
    */
   banner?: string | ((node?: InputNode) => string)
   /**
-   * Add a footer text in the beginning of every file
+   * Text or function appended at the end of every generated file.
+   * When a function, receives the current `InputNode` and must return a string.
    */
   footer?: string | ((node?: InputNode) => string)
   /**
@@ -866,28 +884,27 @@ export type Output<_TOptions = unknown> = {
 
 export type UserGroup = {
   /**
-   * Defines the type where to group the files.
-   * - 'tag' groups files by OpenAPI tags.
-   * - 'path' groups files by OpenAPI paths.
-   * @default undefined
+   * Determines how files are grouped into subdirectories.
+   * - `'tag'` groups files by OpenAPI tags.
+   * - `'path'` groups files by OpenAPI paths.
    */
   type: 'tag' | 'path'
   /**
-   * Return the name of a group based on the group name, this is used for the file and name generation.
+   * Returns the subdirectory name for a given group value.
+   * Defaults to `${camelCase(group)}Controller` for tags and the first path segment for paths.
    */
   name?: (context: { group: string }) => string
 }
 
 export type Group = {
   /**
-   * Defines the type where to group the files.
-   * - 'tag' groups files by OpenAPI tags.
-   * - 'path' groups files by OpenAPI paths.
-   * @default undefined
+   * Determines how files are grouped into subdirectories.
+   * - `'tag'` groups files by OpenAPI tags.
+   * - `'path'` groups files by OpenAPI paths.
    */
   type: 'tag' | 'path'
   /**
-   * Return the name of a group based on the group name, this is used for the file and name generation.
+   * Returns the subdirectory name for a given group value.
    */
   name: (context: { group: string }) => string
 }
@@ -959,7 +976,7 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
    * Call this in `kubb:plugin:setup` to provide the resolved options that generators
    * and the build loop need (e.g., `enumType`, `optionalType`, `group`).
    */
-  setOptions(options: Partial<TFactory['resolvedOptions']>): void
+  setOptions(options: TFactory['resolvedOptions']): void
   /**
    * Inject a raw file into the build output, bypassing the normal generation pipeline.
    */
@@ -1034,9 +1051,22 @@ type ByContentType = {
   pattern: string | RegExp
 }
 
+/**
+ * A pattern filter that prevents matching nodes from being generated.
+ * Match by `tag`, `operationId`, `path`, `method`, `contentType`, or `schemaName`.
+ */
 export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName
+
+/**
+ * A pattern filter that restricts generation to only matching nodes.
+ * Match by `tag`, `operationId`, `path`, `method`, `contentType`, or `schemaName`.
+ */
 export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName
 
+/**
+ * A pattern filter paired with partial option overrides applied when the pattern matches.
+ * Match by `tag`, `operationId`, `path`, `method`, `schemaName`, or `contentType`.
+ */
 export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName | ByContentType) & {
   //TODO should be options: Omit<Partial<TOptions>, 'override'>
   options: Partial<TOptions>
@@ -1153,9 +1183,13 @@ export type ResolveBannerContext = {
  * CLI options derived from command-line flags.
  */
 export type CLIOptions = {
-  /** Path to `kubb.config.js`. */
+  /**
+   * Path to `kubb.config.js`.
+   */
   config?: string
-  /** Enable watch mode for input files. */
+  /**
+   * Enable watch mode for input files.
+   */
   watch?: boolean
   /**
    * Logging verbosity for CLI usage.

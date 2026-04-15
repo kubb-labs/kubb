@@ -10,7 +10,8 @@ export type Parser<TMeta extends object = any> = {
    * File extensions this parser handles.
    * Use `undefined` to create a catch-all fallback parser.
    *
-   * @example ['.ts', '.js']
+   * @example Handled extensions
+   * `['.ts', '.js']`
    */
   extNames: Array<FileNode['extname']> | undefined
   /**

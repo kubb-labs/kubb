@@ -2,22 +2,29 @@ import { sortBy } from 'remeda'
 
 export type Param = {
   /**
-   * `object` will return the pathParams as an object.
+   * Controls how path parameters are emitted in the function signature.
+   * - `'object'` groups them as a single destructured parameter.
+   * - `'inline'` spreads them as individual comma-separated parameters.
+   * - `'inlineSpread'` emits a single rest parameter.
    *
-   * `inline` will return the pathParams as comma separated params.
-   * @default `'inline'`
-   * @private
+   * @default 'inline'
+   * @internal
    */
   mode?: 'object' | 'inline' | 'inlineSpread'
   type?: 'string' | 'number' | (string & {})
   optional?: boolean
   /**
-   * @example test = "default"
+   * Default value expression for the parameter.
+   *
+   * @example Assignment syntax
+   * `test = "default"`
    */
   default?: string
   /**
-   * Used for no TypeScript(with mode object)
-   * @example test: "default"
+   * Used for no TypeScript (with mode object).
+   *
+   * @example Value syntax
+   * `test: "default"`
    */
   value?: string
   children?: Params
