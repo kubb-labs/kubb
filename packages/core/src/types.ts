@@ -1219,6 +1219,8 @@ export type CLIOptions = {
 
 /**
  * All accepted forms of a Kubb configuration.
+ * @deprecated
+ * TODO: can we remove this?
  */
 export type ConfigInput = PossiblePromise<UserConfig | UserConfig[]> | ((cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>)
 
