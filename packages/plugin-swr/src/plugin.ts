@@ -59,8 +59,7 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
   const clientName = client?.client ?? 'axios'
   const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientName}` : undefined)
 
-  const selectedGenerators =
-    options.generators ?? [queryGenerator, mutationGenerator].filter(Boolean)
+  const selectedGenerators = options.generators ?? [queryGenerator, mutationGenerator].filter(Boolean)
 
   const groupConfig = group
     ? ({

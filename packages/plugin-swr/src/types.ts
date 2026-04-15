@@ -1,5 +1,4 @@
-import type { OperationNode } from '@kubb/ast/types'
-import type { Visitor } from '@kubb/ast/types'
+import type { OperationNode, Visitor } from '@kubb/ast/types'
 import type {
   CompatibilityPreset,
   Exclude,

@@ -8,7 +8,12 @@ import type { PluginTs } from '@kubb/plugin-ts'
  * Replaces `getComments(operation)` from `@kubb/plugin-oas/utils`.
  */
 export function getComments(node: OperationNode): string[] {
-  return [node.description && `@description ${node.description}`, node.summary && `@summary ${node.summary}`, node.path && `{@link ${new URLPath(node.path).URL}}`, node.deprecated && '@deprecated']
+  return [
+    node.description && `@description ${node.description}`,
+    node.summary && `@summary ${node.summary}`,
+    node.path && `{@link ${new URLPath(node.path).URL}}`,
+    node.deprecated && '@deprecated',
+  ]
     .filter((x): x is string => Boolean(x))
     .flatMap((text) => text.split(/\r?\n/).map((line) => line.trim()))
     .filter((x): x is string => Boolean(x))

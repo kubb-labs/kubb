@@ -20,7 +20,10 @@ type Props = {
 const declarationPrinter = functionPrinter({ mode: 'declaration' })
 const callPrinter = functionPrinter({ mode: 'call' })
 
-function getParams(node: OperationNode, options: { pathParamsType: 'object' | 'inline'; paramsCasing: 'camelcase' | undefined; resolver: PluginTs['resolver'] }): FunctionParametersNode {
+function getParams(
+  node: OperationNode,
+  options: { pathParamsType: 'object' | 'inline'; paramsCasing: 'camelcase' | undefined; resolver: PluginTs['resolver'] },
+): FunctionParametersNode {
   return buildQueryKeyParams(node, options)
 }
 

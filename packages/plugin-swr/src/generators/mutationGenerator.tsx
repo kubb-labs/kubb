@@ -1,8 +1,7 @@
 import path from 'node:path'
 import { caseParams } from '@kubb/ast'
 import { defineGenerator } from '@kubb/core'
-import { pluginClientName } from '@kubb/plugin-client'
-import { ClientLegacy as ClientLegacyComponent } from '@kubb/plugin-client'
+import { ClientLegacy as ClientLegacyComponent, pluginClientName } from '@kubb/plugin-client'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
@@ -24,9 +23,7 @@ export const mutationGenerator = defineGenerator<PluginSwr>({
     // Check if this operation is a mutation
     const isQuery = !!query && query.methods.some((method) => node.method === method)
     const isMutation =
-      mutation !== false &&
-      !isQuery &&
-      difference(mutation ? mutation.methods : [], query ? query.methods : []).some((method) => node.method === method)
+      mutation !== false && !isQuery && difference(mutation ? mutation.methods : [], query ? query.methods : []).some((method) => node.method === method)
 
     if (!isMutation) return null
 
@@ -41,7 +38,10 @@ export const mutationGenerator = defineGenerator<PluginSwr>({
     const clientName = baseName
 
     const meta = {
-      file: resolver.resolveFile({ name: `use${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}`, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group }),
+      file: resolver.resolveFile(
+        { name: `use${baseName.charAt(0).toUpperCase()}${baseName.slice(1)}`, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+        { root, output, group },
+      ),
       fileTs: tsResolver.resolveFile(
         { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
         { root, output: pluginTs.options?.output ?? output, group: pluginTs.options?.group },
@@ -71,27 +71,25 @@ export const mutationGenerator = defineGenerator<PluginSwr>({
         )
       : undefined
     const zodSchemaNames =
-      zodResolver && parser === 'zod' ? [zodResolver.resolveResponseName?.(node), node.requestBody?.schema ? zodResolver.resolveDataName?.(node) : undefined].filter(Boolean) : []
+      zodResolver && parser === 'zod'
+        ? [zodResolver.resolveResponseName?.(node), node.requestBody?.schema ? zodResolver.resolveDataName?.(node) : undefined].filter(Boolean)
+        : []
 
     const hasClientPlugin = !!driver.getPlugin(pluginClientName)
     const shouldUseClientPlugin = hasClientPlugin && clientOptions.clientType !== 'class'
 
     const clientFile = shouldUseClientPlugin
-      ? driver
-          .getPlugin(pluginClientName)
-          ?.resolver?.resolveFile(
-            { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
-            {
-              root,
-              output: driver.getPlugin(pluginClientName)?.options?.output ?? output,
-              group: driver.getPlugin(pluginClientName)?.options?.group,
-            },
-          )
+      ? driver.getPlugin(pluginClientName)?.resolver?.resolveFile(
+          { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+          {
+            root,
+            output: driver.getPlugin(pluginClientName)?.options?.output ?? output,
+            group: driver.getPlugin(pluginClientName)?.options?.group,
+          },
+        )
       : undefined
 
-    const resolvedClientName = shouldUseClientPlugin
-      ? (driver.getPlugin(pluginClientName)?.resolver?.resolveName(node.operationId) ?? clientName)
-      : clientName
+    const resolvedClientName = shouldUseClientPlugin ? (driver.getPlugin(pluginClientName)?.resolver?.resolveName(node.operationId) ?? clientName) : clientName
 
     return (
       <File
@@ -113,7 +111,12 @@ export const mutationGenerator = defineGenerator<PluginSwr>({
         ) : (
           <>
             {!shouldUseClientPlugin && <File.Import name={['fetch']} root={meta.file.path} path={path.resolve(root, '.kubb/fetch.ts')} />}
-            <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} root={meta.file.path} path={path.resolve(root, '.kubb/fetch.ts')} isTypeOnly />
+            <File.Import
+              name={['Client', 'RequestConfig', 'ResponseErrorConfig']}
+              root={meta.file.path}
+              path={path.resolve(root, '.kubb/fetch.ts')}
+              isTypeOnly
+            />
             {clientOptions.dataReturnType === 'full' && (
               <File.Import name={['ResponseConfig']} root={meta.file.path} path={path.resolve(root, '.kubb/fetch.ts')} isTypeOnly />
             )}

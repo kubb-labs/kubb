@@ -5,7 +5,15 @@ import { functionPrinter } from '@kubb/plugin-ts'
 import { File, Function, Type } from '@kubb/renderer-jsx'
 import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PluginSwr } from '../types.ts'
-import { buildGroupParam, buildMutationArgParams, getComments, resolveErrorNames, resolveHeaderGroupType, resolvePathParamType, resolveQueryGroupType } from '../utils.ts'
+import {
+  buildGroupParam,
+  buildMutationArgParams,
+  getComments,
+  resolveErrorNames,
+  resolveHeaderGroupType,
+  resolvePathParamType,
+  resolveQueryGroupType,
+} from '../utils.ts'
 
 type Props = {
   name: string
@@ -186,10 +194,10 @@ export function Mutation({
     const hasMutationParams = mutationArgParamsNode.params.length > 0
 
     // Declaration for the type alias
-    const mutationArgDeclaration = hasMutationParams ? declarationPrinter.print(mutationArgParamsNode) ?? '' : ''
+    const mutationArgDeclaration = hasMutationParams ? (declarationPrinter.print(mutationArgParamsNode) ?? '') : ''
 
     // Destructured keys for the arg in the callback
-    const argKeysStr = hasMutationParams ? keysPrinter.print(mutationArgParamsNode) ?? '' : ''
+    const argKeysStr = hasMutationParams ? (keysPrinter.print(mutationArgParamsNode) ?? '') : ''
 
     const paramsNode = getTriggerParams(node, { dataReturnType, resolver: tsResolver, mutationKeyTypeName, mutationArgTypeName })
     const paramsSignature = declarationPrinter.print(paramsNode) ?? ''
