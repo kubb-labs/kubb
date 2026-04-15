@@ -13,30 +13,6 @@ import type { PluginDriver } from './PluginDriver.ts'
 export type { Printer, PrinterFactoryOptions, PrinterPartial } from '@kubb/ast/types'
 export type { Renderer, RendererFactory } from './createRenderer.ts'
 
-declare global {
-  namespace Kubb {
-    interface PluginContext {}
-    /**
-     * Registry that maps plugin names to their `PluginFactoryOptions`.
-     * Augment this interface in each plugin's `types.ts` to enable automatic
-     * typing for `getPlugin` and `requirePlugin`.
-     *
-     * @example
-     * ```ts
-     * // packages/plugin-ts/src/types.ts
-     * declare global {
-     *   namespace Kubb {
-     *     interface PluginRegistry {
-     *       'plugin-ts': PluginTs
-     *     }
-     *   }
-     * }
-     * ```
-     */
-    interface PluginRegistry {}
-  }
-}
-
 /**
  * Config used in `kubb.config.ts`
  *
@@ -418,22 +394,6 @@ export type Resolver = {
   resolveFooter(node: InputNode | null, context: ResolveBannerContext): string | undefined
 }
 
-/**
- * The user-facing subset of a `Resolver` — everything except the four methods injected by
- * `defineResolver` (`default`, `resolveOptions`, `resolvePath`, and `resolveFile`).
- *
- * All four injected methods can still be overridden by providing them explicitly in the builder.
- *
- * @example
- * ```ts
- * export const resolver = defineResolver<PluginTs>(() => ({
- *   name: 'default',
- *   resolveName(node) { return this.default(node.name, 'function') },
- * }))
- * ```
- */
-export type UserResolver = Omit<Resolver, 'default' | 'resolveOptions' | 'resolvePath' | 'resolveFile' | 'resolveBanner' | 'resolveFooter'>
-
 export type PluginFactoryOptions<
   /**
    * Name to be used for the plugin.
@@ -469,6 +429,9 @@ export type PluginFactoryOptions<
   resolver: TResolver
 }
 
+/**
+ * @deprecated
+ */
 export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
    * Unique name used for the plugin
@@ -551,6 +514,9 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
   inject?: (this: PluginContext<TOptions>) => TOptions['context']
 }
 
+/**
+ * @deprecated
+ */
 export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
 
 type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<string, object, object, unknown, object>>
@@ -581,7 +547,9 @@ export type OperationsHook<TOptions extends PluginFactoryOptions = PluginFactory
   nodes: Array<OperationNode>,
   options: TOptions['resolvedOptions'],
 ) => PossiblePromise<unknown | Array<FileNode> | void>
-
+/**
+ * @deprecated will be replaced with HookStylePlugin
+ */
 export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
    * Unique name used for the plugin
@@ -668,9 +636,13 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    */
   inject: (this: PluginContext<TOptions>) => TOptions['context']
 }
-
+/**
+ * @deprecated
+ */
 export type PluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = Plugin<TOptions> & PluginLifecycle<TOptions>
-
+/**
+ * @deprecated
+ */
 export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
    * Called once per plugin at the start of its processing phase, before schema/operation/operations hooks run.
@@ -726,6 +698,9 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
   resolveName?: (this: PluginContext<TOptions>, name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
 }
 
+/**
+ * @deprecated
+ */
 export type PluginLifecycleHooks = keyof PluginLifecycle
 
 export type PluginParameter<H extends PluginLifecycleHooks> = Parameters<Required<PluginLifecycle>[H]>
@@ -753,7 +728,9 @@ export type ResolveNameParams = {
    */
   type?: 'file' | 'function' | 'type' | 'const'
 }
-
+/**
+ * @deprecated
+ */
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   config: Config
   /**
