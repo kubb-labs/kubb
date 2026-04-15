@@ -26,7 +26,7 @@ export async function executeHooks({ configHooks, hooks }: ExecutingHooksProps):
     const hookEndPromise = new Promise<void>((resolve, reject) => {
       const handler = ({ id, success, error }: { id?: string; command: string; args?: readonly string[]; success: boolean; error: Error | null }) => {
         if (id !== hookId) return
-          hooks.off('kubb:hook:end', handler)
+        hooks.off('kubb:hook:end', handler)
         if (!success) {
           reject(error ?? new Error(`Hook failed: ${command}`))
           return
