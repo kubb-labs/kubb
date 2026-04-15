@@ -1,46 +1,46 @@
 import { createHash } from 'node:crypto'
 import path from 'node:path'
 import { styleText } from 'node:util'
-import { type AsyncEventEmitter, type Config, detectFormatter, detectLinter, formatters, type KubbEvents, linters, safeBuild, setup } from '@kubb/core'
+import { type AsyncEventEmitter, type Config, detectFormatter, detectLinter, formatters, type KubbHooks, linters, safeBuild, setup } from '@kubb/core'
 import { executeHooks } from './executeHooks.ts'
 
 type GenerateProps = {
   config: Config
-  events: AsyncEventEmitter<KubbEvents>
+  hooks: AsyncEventEmitter<KubbHooks>
 }
 
 /**
  * Run a full Kubb code-generation cycle for the given config.
  *
- * Emits lifecycle events on the provided `events` emitter so callers (e.g. the WebSocket stream)
+ * Emits lifecycle events on the provided `hooks` emitter so callers (e.g. the WebSocket stream)
  * can forward progress to connected clients.
  * After a successful build, auto-formatting and linting are applied when configured,
  * followed by any user-defined `hooks.done` commands.
  *
  */
-export async function generate({ config, events }: GenerateProps): Promise<void> {
-  await events.emit('kubb:generation:start', config)
+export async function generate({ config, hooks }: GenerateProps): Promise<void> {
+  await hooks.emit('kubb:generation:start', config)
 
-  await events.emit('kubb:info', config.name ? `Setup generation ${config.name}` : 'Setup generation')
+  await hooks.emit('kubb:info', config.name ? `Setup generation ${config.name}` : 'Setup generation')
 
   const setupResult = await setup({
     config,
-    events,
+    hooks,
   })
 
   const { sources } = setupResult
 
-  await events.emit('kubb:info', config.name ? `Build generation ${config.name}` : 'Build generation')
+  await hooks.emit('kubb:info', config.name ? `Build generation ${config.name}` : 'Build generation')
 
   const { files, failedPlugins, error } = await safeBuild(
     {
       config,
-      events,
+      hooks,
     },
     setupResult,
   )
 
-  await events.emit('kubb:info', 'Load summary')
+  await hooks.emit('kubb:info', 'Load summary')
 
   // Handle build failures (either from failed plugins or general errors)
   const hasFailures = failedPlugins.size > 0 || error
@@ -54,29 +54,29 @@ export async function generate({ config, events }: GenerateProps): Promise<void>
     ].filter(Boolean)
 
     allErrors.forEach((err) => {
-      events.emit('kubb:error', err)
+      hooks.emit('kubb:error', err)
     })
 
-    await events.emit('kubb:generation:end', config, files, sources)
+    await hooks.emit('kubb:generation:end', config, files, sources)
 
     throw new Error('Generation failed')
   }
 
-  await events.emit('kubb:success', 'Generation successfully')
-  await events.emit('kubb:generation:end', config, files, sources)
+  await hooks.emit('kubb:success', 'Generation successfully')
+  await hooks.emit('kubb:generation:end', config, files, sources)
 
   // formatting
   if (config.output.format) {
-    await events.emit('kubb:format:start')
+    await hooks.emit('kubb:format:start')
 
     let formatter = config.output.format
     if (formatter === 'auto') {
       const detectedFormatter = await detectFormatter()
       if (!detectedFormatter) {
-        await events.emit('kubb:warn', 'No formatter found (biome, prettier, or oxfmt). Skipping formatting.')
+        await hooks.emit('kubb:warn', 'No formatter found (biome, prettier, or oxfmt). Skipping formatting.')
       } else {
         formatter = detectedFormatter
-        await events.emit('kubb:info', `Auto-detected formatter: ${formatter}`)
+        await hooks.emit('kubb:info', `Auto-detected formatter: ${formatter}`)
       }
     }
 
@@ -87,40 +87,40 @@ export async function generate({ config, events }: GenerateProps): Promise<void>
 
       try {
         const hookId = createHash('sha256').update([config.name, formatter].filter(Boolean).join('-')).digest('hex')
-        await events.emit('kubb:hook:start', {
+        await hooks.emit('kubb:hook:start', {
           id: hookId,
           command: formatterConfig.command,
           args: formatterConfig.args(outputPath),
         })
 
-        await events.onOnce('kubb:hook:end', async ({ success, error }) => {
+        await hooks.onOnce('kubb:hook:end', async ({ success, error }) => {
           if (!success) throw error
 
-          await events.emit('kubb:success', `Formatting with ${formatter} successfully`)
+          await hooks.emit('kubb:success', `Formatting with ${formatter} successfully`)
         })
       } catch (caughtError) {
         const error = new Error(formatterConfig.errorMessage)
         error.cause = caughtError
-        await events.emit('kubb:error', error)
+        await hooks.emit('kubb:error', error)
       }
     }
 
-    await events.emit('kubb:format:end')
+    await hooks.emit('kubb:format:end')
   }
 
   // linting
   if (config.output.lint) {
-    await events.emit('kubb:lint:start')
+    await hooks.emit('kubb:lint:start')
 
     // Detect linter if set to 'auto'
     let linter = config.output.lint
     if (linter === 'auto') {
       const detectedLinter = await detectLinter()
       if (!detectedLinter) {
-        await events.emit('kubb:warn', 'No linter found (biome, oxlint, or eslint). Skipping linting.')
+        await hooks.emit('kubb:warn', 'No linter found (biome, oxlint, or eslint). Skipping linting.')
       } else {
         linter = detectedLinter
-        await events.emit('kubb:info', `Auto-detected linter: ${styleText('dim', linter)}`)
+        await hooks.emit('kubb:info', `Auto-detected linter: ${styleText('dim', linter)}`)
       }
     }
 
@@ -132,29 +132,29 @@ export async function generate({ config, events }: GenerateProps): Promise<void>
 
       try {
         const hookId = createHash('sha256').update([config.name, linter].filter(Boolean).join('-')).digest('hex')
-        await events.emit('kubb:hook:start', {
+        await hooks.emit('kubb:hook:start', {
           id: hookId,
           command: linterConfig.command,
           args: linterConfig.args(outputPath),
         })
 
-        await events.onOnce('kubb:hook:end', async ({ success, error }) => {
+        await hooks.onOnce('kubb:hook:end', async ({ success, error }) => {
           if (!success) throw error
         })
       } catch (caughtError) {
         const error = new Error(linterConfig.errorMessage)
         error.cause = caughtError
-        await events.emit('kubb:error', error)
+        await hooks.emit('kubb:error', error)
       }
     }
 
-    await events.emit('kubb:lint:end')
+    await hooks.emit('kubb:lint:end')
   }
 
   if (config.hooks) {
-    await events.emit('kubb:hooks:start')
-    await executeHooks({ hooks: config.hooks, events })
+    await hooks.emit('kubb:hooks:start')
+    await executeHooks({ configHooks: config.hooks, hooks })
 
-    await events.emit('kubb:hooks:end')
+    await hooks.emit('kubb:hooks:end')
   }
 }

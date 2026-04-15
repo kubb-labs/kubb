@@ -37,20 +37,20 @@ type HookResult<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
  * @example
  * ```typescript
  * import type { AsyncEventEmitter } from '@internals/utils'
- * import type { KubbEvents } from '@kubb/core'
+ * import type { KubbHooks } from '@kubb/core'
  *
- * const events: AsyncEventEmitter<KubbEvents> = new AsyncEventEmitter()
+ * const hooks: AsyncEventEmitter<KubbHooks> = new AsyncEventEmitter()
  *
- * events.on('kubb:lifecycle:start', () => {
+ * hooks.on('kubb:lifecycle:start', () => {
  *   console.log('Starting Kubb generation')
  * })
  *
- * events.on('kubb:plugin:end', (plugin, { duration }) => {
+ * hooks.on('kubb:plugin:end', (plugin, { duration }) => {
  *   console.log(`Plugin ${plugin.name} completed in ${duration}ms`)
  * })
  * ```
  */
-export interface KubbEvents {
+export interface KubbHooks {
   /**
    * Emitted at the beginning of the Kubb lifecycle, before any code generation starts.
    */
@@ -237,7 +237,7 @@ export interface KubbEvents {
    * can register generators, configure resolvers/transformers/renderers, or inject
    * extra files.  All `kubb:plugin:setup` handlers registered via `definePlugin` receive
    * a plugin-specific context (with the correct `addGenerator` closure).
-   * External tooling can observe this event via `events.on('kubb:plugin:setup', …)`.
+   * External tooling can observe this event via `hooks.on('kubb:plugin:setup', …)`.
    */
   'kubb:plugin:setup': [ctx: KubbPluginSetupContext]
   /**

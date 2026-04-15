@@ -8,7 +8,7 @@ import { createMockedAdapter } from '#mocks'
 import { build, safeBuild } from './build.ts'
 import { createPlugin } from './createPlugin.ts'
 import { defineConfig } from './defineConfig.ts'
-import type { Config, KubbEvents, Plugin, UserConfig } from './types.ts'
+import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
 
 describe('build', () => {
   const pluginMocks = {
@@ -141,7 +141,7 @@ describe('build', () => {
     for (const config of JSONConfig) {
       const { driver } = await build({
         config,
-        events: new AsyncEventEmitter<KubbEvents>(),
+        hooks: new AsyncEventEmitter<KubbHooks>(),
       })
 
       expect(driver.fileManager.files).toBeDefined()
@@ -149,14 +149,14 @@ describe('build', () => {
       // The plugin's buildStart already added the file during build
       expect(driver.fileManager.files.some((f) => f.baseName === file.baseName)).toBe(true)
 
-      driver.events.removeAll()
+      driver.hooks.removeAll()
     }
   })
 
   test('if build can run and return created files and the pluginDriver', async () => {
     const { driver } = await build({
       config,
-      events: new AsyncEventEmitter<KubbEvents>(),
+      hooks: new AsyncEventEmitter<KubbHooks>(),
     })
 
     expect(driver.fileManager.files).toBeDefined()
@@ -168,7 +168,7 @@ describe('build', () => {
   test('if build with one plugin is running the different hooks in the correct order', async () => {
     const { driver } = await build({
       config,
-      events: new AsyncEventEmitter<KubbEvents>(),
+      hooks: new AsyncEventEmitter<KubbHooks>(),
     })
 
     expect(driver.fileManager.files.map((file) => ({ ...file, id: undefined, path: undefined }))).toMatchInlineSnapshot(`
@@ -220,7 +220,7 @@ describe('build', () => {
 
     const { failedPlugins } = await safeBuild({
       config: errorConfig,
-      events: new AsyncEventEmitter<KubbEvents>(),
+      hooks: new AsyncEventEmitter<KubbHooks>(),
     })
 
     expect(failedPlugins.size).toBe(1)
@@ -230,22 +230,22 @@ describe('build', () => {
   })
 
   it('should emit debug events during build process', async () => {
-    const events = new AsyncEventEmitter<KubbEvents>()
+    const hooks = new AsyncEventEmitter<KubbHooks>()
     const debugSpy = vi.fn()
-    events.on('kubb:debug', debugSpy)
+    hooks.on('kubb:debug', debugSpy)
 
     await build({
       config,
-      events,
+      hooks,
     })
 
     expect(debugSpy).toHaveBeenCalled()
   })
 
   it('should handle array input with warning', async () => {
-    const events = new AsyncEventEmitter<KubbEvents>()
+    const hooks = new AsyncEventEmitter<KubbHooks>()
     const warnSpy = vi.fn()
-    events.on('kubb:warn', warnSpy)
+    hooks.on('kubb:warn', warnSpy)
 
     const arrayConfig = {
       ...config,
@@ -254,7 +254,7 @@ describe('build', () => {
 
     await build({
       config: arrayConfig,
-      events,
+      hooks,
     })
 
     expect(warnSpy).toHaveBeenCalledWith('This feature is still under development — use with caution')
@@ -283,7 +283,7 @@ describe('build', () => {
 
     const result = await safeBuild({
       config: throwingConfig,
-      events: new AsyncEventEmitter<KubbEvents>(),
+      hooks: new AsyncEventEmitter<KubbHooks>(),
     })
 
     expect(result.failedPlugins.size).toBeGreaterThan(0)
@@ -292,7 +292,7 @@ describe('build', () => {
   it('should track plugin timings', async () => {
     const { pluginTimings } = await build({
       config,
-      events: new AsyncEventEmitter<KubbEvents>(),
+      hooks: new AsyncEventEmitter<KubbHooks>(),
     })
 
     expect(pluginTimings).toBeDefined()
@@ -300,16 +300,16 @@ describe('build', () => {
   })
 
   it('should emit plugin lifecycle events', async () => {
-    const events = new AsyncEventEmitter<KubbEvents>()
+    const hooks = new AsyncEventEmitter<KubbHooks>()
     const startSpy = vi.fn()
     const endSpy = vi.fn()
 
-    events.on('kubb:plugin:start', startSpy)
-    events.on('kubb:plugin:end', endSpy)
+    hooks.on('kubb:plugin:start', startSpy)
+    hooks.on('kubb:plugin:end', endSpy)
 
     await build({
       config,
-      events,
+      hooks,
     })
 
     expect(startSpy).toHaveBeenCalled()
@@ -359,7 +359,7 @@ describe('build', () => {
 
       const { driver } = await build({
         config: excludeConfig,
-        events: new AsyncEventEmitter<KubbEvents>(),
+        hooks: new AsyncEventEmitter<KubbHooks>(),
       })
 
       const barrelFile = driver.fileManager.files.find((f) => f.baseName === 'index.ts')

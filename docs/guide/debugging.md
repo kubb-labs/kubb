@@ -104,7 +104,7 @@ The system selects the logger automatically based on the environment, or use the
 
 ### Custom logger implementation
 
-Create custom loggers by listening to `KubbEvents`:
+Create custom loggers by listening to `KubbHooks`:
 
 ```typescript [kubb.logger.ts]
 import { createLogger, LogLevel } from '@kubb/core'
@@ -133,7 +133,7 @@ export const customLogger = createLogger({
 })
 ```
 
-See the [KubbEvents](/api/core/events) API documentation for a complete list of available events.
+See the [KubbHooks](/api/core/events) API documentation for a complete list of available events.
 
 ## See Also
 

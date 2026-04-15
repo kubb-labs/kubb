@@ -1,5 +1,5 @@
 import { formatMs, maskString, serializePluginOptions } from '@internals/utils'
-import { AsyncEventEmitter, fsStorage, type KubbEvents, memoryStorage } from '@kubb/core'
+import { AsyncEventEmitter, fsStorage, type KubbHooks, memoryStorage } from '@kubb/core'
 import type { NitroApp } from 'nitropack/types'
 import { version } from '~~/package.json'
 import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage, isPublishCommandMessage } from '../types/agent.ts'
@@ -51,7 +51,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
   // Each connection gets its own isolated event emitter so generation events
   // from one session do not bleed into another session's WebSocket stream.
-  const events = new AsyncEventEmitter<KubbEvents>()
+  const hooks = new AsyncEventEmitter<KubbHooks>()
   let currentSource: 'generate' | 'publish' | undefined
 
   async function reconnect() {
@@ -62,7 +62,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
   }
 
   try {
-    setupHookListener(events, root)
+    setupHookListener(hooks, root)
 
     const { sessionId, wsUrl, isSandbox } = initialSession ?? (await createAgentSession({ token, studioUrl }))
     const ws = createWebsocket(wsUrl, { headers: { Authorization: `Bearer ${token}` } })
@@ -83,7 +83,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
         clearInterval(heartbeatTimer)
         heartbeatTimer = undefined
 
-        events.removeAll()
+        hooks.removeAll()
 
         ws.close(1000, reason)
         ws.removeEventListener('open', onOpen)
@@ -136,7 +136,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     heartbeatTimer = setInterval(() => sendAgentMessage(ws, { type: 'ping' }), heartbeatInterval)
 
-    setupEventsStream(ws, events, () => currentSource)
+    setupEventsStream(ws, hooks, () => currentSource)
 
     ws.addEventListener('message', async (message) => {
       try {
@@ -205,7 +205,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 output: { ...config.output, storage: effectiveWrite ? fsStorage() : memoryStorage() },
                 plugins,
               },
-              events,
+              hooks,
             })
 
             logger.success(`[${maskedSessionId}] Completed "${data.type}" from Studio`)
@@ -253,7 +253,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               command: resolvedCommand,
               outputPath: config.output.path,
               root,
-              events,
+              hooks,
             })
 
             logger.success(`[${maskedSessionId}] Completed "${data.command}" from Studio`)

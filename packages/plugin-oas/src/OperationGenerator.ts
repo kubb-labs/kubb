@@ -1,7 +1,7 @@
 import type { AsyncEventEmitter } from '@internals/utils'
 import { pascalCase } from '@internals/utils'
 import type { FileNode } from '@kubb/ast/types'
-import type { FileMetaBase, KubbEvents, Plugin, PluginDriver, PluginFactoryOptions } from '@kubb/core'
+import type { FileMetaBase, KubbHooks, Plugin, PluginDriver, PluginFactoryOptions } from '@kubb/core'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
 import type { CoreGenerator } from './generators/createGenerator.ts'
 import type { ReactGenerator } from './generators/createReactGenerator.ts'
@@ -19,7 +19,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   override: Array<Override<TOptions>> | undefined
   contentType: contentType | undefined
   driver: PluginDriver
-  events?: AsyncEventEmitter<KubbEvents>
+  hooks?: AsyncEventEmitter<KubbHooks>
   /**
    * Current plugin
    */
@@ -207,7 +207,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<FileNode<TFileMeta>>> {
     const operations = await this.getOperations()
 
-    this.context.events?.emit('kubb:debug', {
+    this.context.hooks?.emit('kubb:debug', {
       date: new Date(),
       logs: [`Building ${operations.length} operations`, `  • Generators: ${generators.length}`],
     })

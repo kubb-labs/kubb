@@ -119,10 +119,10 @@
     "@nuxt/kit": "^4.4.2",
     "@nuxt/schema": "^4.4.2",
     "esbuild": "*",
-    "rolldown": "~1.0.0-rc.13",
+    "rolldown": "~1.0.0-rc.15",
     "rollup": "^4.60.1",
     "vite": "^7.3.2",
-    "webpack": "^5.105.4"
+    "webpack": "^5.106.1"
   },
   "peerDependencies": {
     "@farmfe/core": "^1.7.0",

@@ -1,20 +1,20 @@
-import type { KubbEvents } from './Kubb.ts'
+import type { KubbHooks } from './Kubb.ts'
 import type { KubbPluginSetupContext } from './types.ts'
 
 /**
- * Converts the global `KubbEvents` tuple-style event signatures into optional
+ * Converts the global `KubbHooks` tuple-style event signatures into optional
  * callback-style handlers for use on a `HookStylePlugin`.
  *
- * Every key from the shared `KubbEvents` interface is available as an optional hook.
+ * Every key from the shared `KubbHooks` interface is available as an optional hook.
  * The `kubb:plugin:setup` event is widened with the plugin's own `options` type so that
  * `ctx.options` is strongly typed inside the handler.
  *
  * @template TOptions - The plugin's own options type; tightens `ctx.options` in `kubb:plugin:setup`.
  */
 export type PluginHooks<TOptions = object> = {
-  [K in keyof KubbEvents]?: K extends 'kubb:plugin:setup'
+  [K in keyof KubbHooks]?: K extends 'kubb:plugin:setup'
     ? (ctx: KubbPluginSetupContext & { options: TOptions }) => void | Promise<void>
-    : (...args: KubbEvents[K]) => void | Promise<void>
+    : (...args: KubbHooks[K]) => void | Promise<void>
 }
 
 /**
@@ -40,7 +40,7 @@ export type HookStylePlugin<TOptions = object> = {
   options?: TOptions
   /**
    * Lifecycle event handlers for this plugin.
-   * Any event from the global `KubbEvents` map can be subscribed to here.
+   * Any event from the global `KubbHooks` map can be subscribed to here.
    */
   hooks: PluginHooks<TOptions>
 }

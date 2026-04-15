@@ -7,7 +7,7 @@ import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { HookStylePlugin } from './definePlugin.ts'
-import type { KubbEvents } from './Kubb.ts'
+import type { KubbHooks } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
 export type { Printer, PrinterFactoryOptions, PrinterPartial } from '@kubb/ast/types'
@@ -790,10 +790,7 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    * merging multiple sources into the same output file
    */
   upsertFile: (...file: Array<FileNode>) => Promise<void>
-  /**
-   * @deprecated use this.warn, this.error, this.info instead
-   */
-  events: AsyncEventEmitter<KubbEvents>
+  hooks: AsyncEventEmitter<KubbHooks>
   /**
    * Current plugin
    */
@@ -810,17 +807,17 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
 
   /**
    * Emit a warning via the build event system.
-   * Shorthand for `this.events.emit('kubb:warn', message)`.
+   * Shorthand for `this.hooks.emit('kubb:warn', message)`.
    */
   warn: (message: string) => void
   /**
    * Emit an error via the build event system.
-   * Shorthand for `this.events.emit('kubb:error', error)`.
+   * Shorthand for `this.hooks.emit('kubb:error', error)`.
    */
   error: (error: string | Error) => void
   /**
    * Emit an info message via the build event system.
-   * Shorthand for `this.events.emit('kubb:info', message)`.
+   * Shorthand for `this.hooks.emit('kubb:info', message)`.
    */
   info: (message: string) => void
   /**
@@ -926,7 +923,7 @@ export type LoggerOptions = {
 /**
  * Shared context passed to all plugins, parsers, and other internals.
  */
-export type LoggerContext = AsyncEventEmitter<KubbEvents>
+export type LoggerContext = AsyncEventEmitter<KubbHooks>
 
 export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
   name: string
@@ -945,7 +942,7 @@ export type CompatibilityPreset = 'default' | 'kubbV4'
 export type { Storage } from './createStorage.ts'
 export type { Generator } from './defineGenerator.ts'
 export type { HookStylePlugin, PluginHooks } from './definePlugin.ts'
-export type { KubbEvents } from './Kubb.ts'
+export type { KubbHooks } from './Kubb.ts'
 
 /**
  * Context passed to a hook-style plugin's `kubb:plugin:setup` handler.

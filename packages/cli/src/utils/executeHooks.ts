@@ -2,15 +2,15 @@ import { createHash } from 'node:crypto'
 import { styleText } from 'node:util'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { tokenize } from '@internals/utils'
-import type { Config, KubbEvents } from '@kubb/core'
+import type { Config, KubbHooks } from '@kubb/core'
 
 type ExecutingHooksProps = {
-  hooks: NonNullable<Config['hooks']>
-  events: AsyncEventEmitter<KubbEvents>
+  configHooks: NonNullable<Config['hooks']>
+  hooks: AsyncEventEmitter<KubbHooks>
 }
 
-export async function executeHooks({ hooks, events }: ExecutingHooksProps): Promise<void> {
-  const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done].filter(Boolean)
+export async function executeHooks({ configHooks, hooks }: ExecutingHooksProps): Promise<void> {
+  const commands = Array.isArray(configHooks.done) ? configHooks.done : [configHooks.done].filter(Boolean)
 
   for (const command of commands) {
     const [cmd, ...args] = tokenize(command)
@@ -26,20 +26,20 @@ export async function executeHooks({ hooks, events }: ExecutingHooksProps): Prom
     const hookEndPromise = new Promise<void>((resolve, reject) => {
       const handler = ({ id, success, error }: { id?: string; command: string; args?: readonly string[]; success: boolean; error: Error | null }) => {
         if (id !== hookId) return
-        events.off('kubb:hook:end', handler)
+        hooks.off('kubb:hook:end', handler)
         if (!success) {
           reject(error ?? new Error(`Hook failed: ${command}`))
           return
         }
-        events
+        hooks
           .emit('kubb:success', `${styleText('dim', command)} successfully executed`)
           .then(resolve)
           .catch(reject)
       }
-      events.on('kubb:hook:end', handler)
+      hooks.on('kubb:hook:end', handler)
     })
 
-    await events.emit('kubb:hook:start', { id: hookId, command: cmd, args })
+    await hooks.emit('kubb:hook:start', { id: hookId, command: cmd, args })
     await hookEndPromise
   }
 }

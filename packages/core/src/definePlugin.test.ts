@@ -4,7 +4,7 @@ import { createMockedAdapter } from '#mocks'
 import { createPlugin } from './createPlugin.ts'
 import { definePlugin, isHookStylePlugin } from './definePlugin.ts'
 import { PluginDriver } from './PluginDriver.ts'
-import type { Config, KubbEvents, Plugin } from './types.ts'
+import type { Config, KubbHooks, Plugin } from './types.ts'
 
 describe('definePlugin', () => {
   it('creates a valid hook-style plugin with `hooks:` property', () => {
@@ -69,7 +69,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     }))()
 
     const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), {
-      events: new AsyncEventEmitter<KubbEvents>(),
+      hooks: new AsyncEventEmitter<KubbHooks>(),
     })
 
     expect(driver.plugins.has('hook-plugin')).toBe(true)
@@ -84,8 +84,8 @@ describe('PluginDriver — hook-style plugin registration', () => {
       },
     }))()
 
-    const events = new AsyncEventEmitter<KubbEvents>()
-    new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    const events = new AsyncEventEmitter<KubbHooks>()
+    new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
 
     expect(events.listenerCount('kubb:plugin:setup')).toBeGreaterThan(0)
   })
@@ -99,10 +99,10 @@ describe('PluginDriver — hook-style plugin registration', () => {
       },
     }))()
 
-    const events = new AsyncEventEmitter<KubbEvents>()
-    new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    const hooks = new AsyncEventEmitter<KubbHooks>()
+    new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks })
 
-    await events.emit('kubb:plugin:setup', {
+    await hooks.emit('kubb:plugin:setup', {
       config: makeConfig([]),
       addGenerator: () => {},
       setResolver: () => {},
@@ -127,8 +127,8 @@ describe('PluginDriver — hook-style plugin registration', () => {
       },
     }))()
 
-    const events = new AsyncEventEmitter<KubbEvents>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks })
 
     // Before emit — no generators yet
     expect(driver.hasRegisteredGenerators('hook-plugin')).toBe(false)
@@ -154,8 +154,8 @@ describe('PluginDriver — hook-style plugin registration', () => {
       },
     }))({ tag: 'pets' })
 
-    const events = new AsyncEventEmitter<KubbEvents>()
-    new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    const events = new AsyncEventEmitter<KubbHooks>()
+    new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
 
     await events.emit('kubb:plugin:setup', {
       config: makeConfig([]),
@@ -185,8 +185,8 @@ describe('PluginDriver — hook-style plugin registration', () => {
       },
     }))()
 
-    const events = new AsyncEventEmitter<KubbEvents>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    const events = new AsyncEventEmitter<KubbHooks>()
+    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
     await driver.emitSetupHooks()
 
     const resolver = driver.getResolver('hook-plugin')
@@ -208,8 +208,8 @@ describe('PluginDriver — hook-style plugin registration', () => {
       hooks: {},
     }))()
 
-    const events = new AsyncEventEmitter<KubbEvents>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    const events = new AsyncEventEmitter<KubbHooks>()
+    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
 
     const resolver = driver.getResolver('hook-plugin')
     expect(resolver.default('my custom type', 'type')).toBe('MyCustomType')
@@ -221,8 +221,8 @@ describe('PluginDriver — hook-style plugin registration', () => {
       hooks: { 'kubb:plugin:setup'() {} },
     }))()
 
-    const events = new AsyncEventEmitter<KubbEvents>()
-    new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    const events = new AsyncEventEmitter<KubbHooks>()
+    new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
 
     const externalListener = vi.fn()
     events.on('kubb:plugin:setup', externalListener)
@@ -267,7 +267,7 @@ describe('PluginDriver — mixed createPlugin + definePlugin', () => {
     }
 
     const driver = new PluginDriver(config, {
-      events: new AsyncEventEmitter<KubbEvents>(),
+      hooks: new AsyncEventEmitter<KubbHooks>(),
     })
 
     expect(driver.plugins.has('legacy-plugin')).toBe(true)
@@ -299,8 +299,8 @@ describe('PluginDriver — generator event dispatch', () => {
       },
     }))()
 
-    const events = new AsyncEventEmitter<KubbEvents>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    const events = new AsyncEventEmitter<KubbHooks>()
+    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
     await driver.emitSetupHooks()
 
     const fakePlugin = driver.plugins.get('hook-plugin')!
@@ -322,8 +322,8 @@ describe('PluginDriver — generator event dispatch', () => {
       },
     }))()
 
-    const events = new AsyncEventEmitter<KubbEvents>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    const events = new AsyncEventEmitter<KubbHooks>()
+    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
     await driver.emitSetupHooks()
 
     // Emit with a DIFFERENT plugin name in the context — should NOT trigger the listener
@@ -345,8 +345,8 @@ describe('PluginDriver — generator event dispatch', () => {
       },
     }))()
 
-    const events = new AsyncEventEmitter<KubbEvents>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    const events = new AsyncEventEmitter<KubbHooks>()
+    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
 
     expect(driver.hasRegisteredGenerators('hook-plugin')).toBe(false)
     await driver.emitSetupHooks()
@@ -364,8 +364,8 @@ describe('PluginDriver — generator event dispatch', () => {
       },
     }))()
 
-    const events = new AsyncEventEmitter<KubbEvents>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    const events = new AsyncEventEmitter<KubbHooks>()
+    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
     await driver.emitSetupHooks()
 
     const fakePlugin = driver.plugins.get('hook-plugin')!
@@ -387,8 +387,8 @@ describe('PluginDriver — generator event dispatch', () => {
       },
     }))()
 
-    const events = new AsyncEventEmitter<KubbEvents>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    const events = new AsyncEventEmitter<KubbHooks>()
+    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
     await driver.emitSetupHooks()
 
     const fakePlugin = driver.plugins.get('hook-plugin')!
@@ -420,8 +420,8 @@ describe('PluginDriver — generator event dispatch', () => {
       },
     }))()
 
-    const events = new AsyncEventEmitter<KubbEvents>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { events })
+    const events = new AsyncEventEmitter<KubbHooks>()
+    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
     await driver.emitSetupHooks()
 
     const fakePlugin = driver.plugins.get('hook-plugin')!

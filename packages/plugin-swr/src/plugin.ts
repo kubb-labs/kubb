@@ -186,7 +186,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         oas,
         driver: this.driver,
-        events: this.events,
+        hooks: this.hooks,
         plugin: this.plugin,
         contentType,
         exclude,

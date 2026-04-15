@@ -1,5 +1,5 @@
 import { AsyncEventEmitter } from '@internals/utils'
-import { type Config, type KubbEvents, safeBuild, setup } from '@kubb/core'
+import { type Config, type KubbHooks, safeBuild, setup } from '@kubb/core'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.d.ts'
 import type { z } from 'zod'
 import type { generateSchema } from '../schemas/generateSchema.ts'
@@ -20,7 +20,7 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
   const { config: configPath, input, output, logLevel } = schema
 
   try {
-    const events = new AsyncEventEmitter<KubbEvents>()
+    const hooks = new AsyncEventEmitter<KubbHooks>()
     const messages: string[] = []
 
     // Helper to send notifications
@@ -36,50 +36,50 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
     }
 
     // Capture events for output and send notifications
-    events.on('kubb:info', async (message: string) => {
+    hooks.on('kubb:info', async (message: string) => {
       await notify(NotifyTypes.INFO, message)
     })
 
-    events.on('kubb:success', async (message: string) => {
+    hooks.on('kubb:success', async (message: string) => {
       await notify(NotifyTypes.SUCCESS, message)
     })
 
-    events.on('kubb:error', async (error: Error) => {
+    hooks.on('kubb:error', async (error: Error) => {
       await notify(NotifyTypes.ERROR, error.message, { stack: error.stack })
     })
 
-    events.on('kubb:warn', async (message: string) => {
+    hooks.on('kubb:warn', async (message: string) => {
       await notify(NotifyTypes.WARN, message)
     })
 
     // Plugin lifecycle events
-    events.on('kubb:plugin:start', async ({ name }: { name: string }) => {
+    hooks.on('kubb:plugin:start', async ({ name }: { name: string }) => {
       await notify(NotifyTypes.PLUGIN_START, `Plugin starting: ${name}`)
     })
 
-    events.on('kubb:plugin:end', async ({ name, duration }: { name: string; duration?: number }) => {
+    hooks.on('kubb:plugin:end', async ({ name, duration }: { name: string; duration?: number }) => {
       await notify(NotifyTypes.PLUGIN_END, `Plugin finished: ${name}`, { duration })
     })
 
     // File processing events
-    events.on('kubb:files:processing:start', async () => {
+    hooks.on('kubb:files:processing:start', async () => {
       await notify(NotifyTypes.FILES_START, 'Starting file processing')
     })
 
-    events.on('kubb:file:processing:update', async ({ file }: { file: { name: string } }) => {
+    hooks.on('kubb:file:processing:update', async ({ file }: { file: { name: string } }) => {
       await notify(NotifyTypes.FILE_UPDATE, `Processing file: ${file.name}`)
     })
 
-    events.on('kubb:files:processing:end', async () => {
+    hooks.on('kubb:files:processing:end', async () => {
       await notify(NotifyTypes.FILES_END, 'File processing complete')
     })
 
     // Generation events
-    events.on('kubb:generation:start', async () => {
+    hooks.on('kubb:generation:start', async () => {
       await notify(NotifyTypes.GENERATION_START, 'Generation started')
     })
 
-    events.on('kubb:generation:end', async () => {
+    hooks.on('kubb:generation:end', async () => {
       await notify(NotifyTypes.GENERATION_END, 'Generation ended')
     })
 
@@ -140,7 +140,7 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
 
     const setupResult = await setup({
       config,
-      events,
+      hooks,
     })
     await notify(NotifyTypes.SETUP_END, 'Kubb setup complete')
 
@@ -148,7 +148,7 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
     const { files, failedPlugins, error } = await safeBuild(
       {
         config,
-        events,
+        hooks,
       },
       setupResult,
     )

@@ -110,7 +110,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
         oas,
         driver: this.driver,
-        events: this.events,
+        hooks: this.hooks,
         plugin: this.plugin,
         contentType,
         include: undefined,
@@ -125,7 +125,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         oas,
         driver: this.driver,
-        events: this.events,
+        hooks: this.hooks,
         plugin: this.plugin,
         contentType,
         exclude,
