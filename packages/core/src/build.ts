@@ -276,11 +276,12 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
       if (options === null) return
       const generatorContext = createGeneratorContext(options)
+      const legacyGeneratorContext = { ...generatorContext, ...options }
 
       // Legacy path: direct generator calls for plugins with static generators array.
       for (const gen of generators) {
         if (!gen.schema) continue
-        const result = await callLegacyGenerator<[SchemaNode, Plugin['options']]>(gen.schema, generatorContext, transformedNode, options)
+        const result = await callLegacyGenerator<[SchemaNode, typeof legacyGeneratorContext]>(gen.schema, generatorContext, transformedNode, legacyGeneratorContext)
         await applyHookResult(result, driver, resolveRenderer(gen))
       }
 
@@ -292,12 +293,18 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
       if (options !== null) {
         const generatorContext = createGeneratorContext(options)
+        const legacyGeneratorContext = { ...generatorContext, ...options }
         collectedOperations.push(transformedNode)
 
         // Legacy path: direct generator calls.
         for (const gen of generators) {
           if (!gen.operation) continue
-          const result = await callLegacyGenerator<[OperationNode, Plugin['options']]>(gen.operation, generatorContext, transformedNode, options)
+          const result = await callLegacyGenerator<[OperationNode, typeof legacyGeneratorContext]>(
+            gen.operation,
+            generatorContext,
+            transformedNode,
+            legacyGeneratorContext,
+          )
           await applyHookResult(result, driver, resolveRenderer(gen))
         }
 
@@ -309,11 +316,17 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
 
   if (collectedOperations.length > 0) {
     const generatorContext = createGeneratorContext(plugin.options)
+    const legacyGeneratorContext = { ...generatorContext, ...plugin.options }
 
     // Legacy path: direct operations batch call.
     for (const gen of generators) {
       if (!gen.operations) continue
-      const result = await callLegacyGenerator<[Array<OperationNode>, Plugin['options']]>(gen.operations, generatorContext, collectedOperations, plugin.options)
+      const result = await callLegacyGenerator<[Array<OperationNode>, typeof legacyGeneratorContext]>(
+        gen.operations,
+        generatorContext,
+        collectedOperations,
+        legacyGeneratorContext,
+      )
       await applyHookResult(result, driver, resolveRenderer(gen))
     }
 

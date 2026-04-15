@@ -232,7 +232,8 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
   if (!generator.schema) return
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
-  const result = await callLegacyGenerator<TOptions, [SchemaNode, TOptions['resolvedOptions']]>(generator.schema, context, transformedNode, opts.options)
+  const generatorContext = { ...context, ...opts.options }
+  const result = await callLegacyGenerator<TOptions, [SchemaNode, typeof generatorContext]>(generator.schema, context, transformedNode, generatorContext)
   await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
 }
 
@@ -253,7 +254,8 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
   if (!generator.operation) return
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
-  const result = await callLegacyGenerator<TOptions, [OperationNode, TOptions['resolvedOptions']]>(generator.operation, context, transformedNode, opts.options)
+  const generatorContext = { ...context, ...opts.options }
+  const result = await callLegacyGenerator<TOptions, [OperationNode, typeof generatorContext]>(generator.operation, context, transformedNode, generatorContext)
   await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
 }
 
@@ -274,11 +276,12 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
   if (!generator.operations) return
   const context = createMockedPluginContext(opts)
   const transformedNodes = opts.plugin.transformer ? nodes.map((n) => transform(n, opts.plugin.transformer!)) : nodes
-  const result = await callLegacyGenerator<TOptions, [Array<OperationNode>, TOptions['resolvedOptions']]>(
+  const generatorContext = { ...context, ...opts.options }
+  const result = await callLegacyGenerator<TOptions, [Array<OperationNode>, typeof generatorContext]>(
     generator.operations,
     context,
     transformedNodes,
-    opts.options,
+    generatorContext,
   )
   await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
 }

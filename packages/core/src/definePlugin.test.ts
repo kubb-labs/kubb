@@ -485,7 +485,7 @@ describe('PluginDriver — generator event dispatch', () => {
         'kubb:plugin:setup'(ctx) {
           ctx.addGenerator({
             name: 'test-gen',
-            async schema(_node, generatorCtx) {
+            async schema(_node: SchemaNode, generatorCtx: GeneratorContext) {
               const file = generatorCtx.driver.getFile({
                 name: 'pet',
                 extname: '.ts',

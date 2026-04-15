@@ -3,7 +3,7 @@ import { performance } from 'node:perf_hooks'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { isPromiseRejectedResult, transformReservedWord } from '@internals/utils'
 import { createFile } from '@kubb/ast'
-import type { FileNode, InputNode } from '@kubb/ast/types'
+import type { FileNode, InputNode, OperationNode, SchemaNode } from '@kubb/ast/types'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
 import { type HookStylePlugin, isHookStylePlugin } from './definePlugin.ts'
@@ -16,6 +16,7 @@ import type {
   Adapter,
   Config,
   DevtoolsOptions,
+  GeneratorContext,
   KubbEvents,
   KubbPluginSetupContext,
   Plugin,
@@ -158,6 +159,7 @@ export class PluginDriver {
    */
   #normalizeHookStylePlugin(hookPlugin: HookStylePlugin): Plugin {
     const generators: Plugin['generators'] = []
+    const hookOptions = hookPlugin.options && typeof hookPlugin.options === 'object' ? hookPlugin.options : {}
     // The options shape is the minimal struct required by Plugin. Hook-style plugins
     // don't participate in the legacy resolvePath/resolveName lifecycle; they use
     // generators registered via addGenerator() and resolvers set via setResolver() instead.
@@ -166,7 +168,12 @@ export class PluginDriver {
     const normalizedPlugin = {
       name: hookPlugin.name,
       dependencies: hookPlugin.dependencies,
-      options: { output: { path: '.' }, exclude: [], override: [] },
+      options: {
+        output: { path: '.' },
+        exclude: [],
+        override: [],
+        ...hookOptions,
+      },
       generators,
       inject: () => undefined,
       buildStart() {},
@@ -276,7 +283,12 @@ export class PluginDriver {
     if (gen.schema) {
       this.events.on('kubb:generate:schema', async (node, ctx) => {
         if (ctx.plugin.name !== pluginName) return
-        const result = await gen.schema!(node, ctx)
+        const generatorContext = { ...ctx, ...ctx.options }
+        const result = await (gen.schema as (this: GeneratorContext, node: SchemaNode, context: typeof generatorContext) => unknown).call(
+          ctx,
+          node,
+          generatorContext,
+        )
         await applyHookResult(result, this, resolveRenderer())
       })
     }
@@ -284,7 +296,12 @@ export class PluginDriver {
     if (gen.operation) {
       this.events.on('kubb:generate:operation', async (node, ctx) => {
         if (ctx.plugin.name !== pluginName) return
-        const result = await gen.operation!(node, ctx)
+        const generatorContext = { ...ctx, ...ctx.options }
+        const result = await (gen.operation as (this: GeneratorContext, node: OperationNode, context: typeof generatorContext) => unknown).call(
+          ctx,
+          node,
+          generatorContext,
+        )
         await applyHookResult(result, this, resolveRenderer())
       })
     }
@@ -292,7 +309,12 @@ export class PluginDriver {
     if (gen.operations) {
       this.events.on('kubb:generate:operations', async (nodes, ctx) => {
         if (ctx.plugin.name !== pluginName) return
-        const result = await gen.operations!(nodes, ctx)
+        const generatorContext = { ...ctx, ...ctx.options }
+        const result = await (gen.operations as (this: GeneratorContext, nodes: Array<OperationNode>, context: typeof generatorContext) => unknown).call(
+          ctx,
+          nodes,
+          generatorContext,
+        )
         await applyHookResult(result, this, resolveRenderer())
       })
     }
@@ -327,7 +349,13 @@ export class PluginDriver {
 
   setPluginResolver(pluginName: string, partial: Partial<Resolver>): void {
     const defaultResolver = this.#createDefaultResolver(pluginName)
-    this.#resolvers.set(pluginName, { ...defaultResolver, ...partial })
+    const resolver = { ...defaultResolver, ...partial }
+    this.#resolvers.set(pluginName, resolver)
+
+    const plugin = this.plugins.get(pluginName)
+    if (plugin) {
+      plugin.resolver = resolver
+    }
   }
 
   getResolver(pluginName: string): Resolver {
@@ -467,7 +495,26 @@ export class PluginDriver {
         parameters: [params.baseName, params.mode, params.options as object],
       })
 
-      return paths?.at(0) || defaultPath
+      const hookedPath = paths?.at(0)
+      if (hookedPath) {
+        return hookedPath
+      }
+
+      const plugin = this.plugins.get(params.pluginName)
+      const resolver = this.getResolver(params.pluginName)
+      const output = plugin?.options?.output ?? { path: '.' }
+      const group = (plugin?.options as { group?: { name?: unknown; type?: 'path' | 'tag' } } | undefined)?.group
+      const options = params.options as { group?: { tag?: string; path?: string } } | undefined
+
+      return resolver.resolvePath(
+        {
+          baseName: params.baseName,
+          pathMode: params.mode,
+          tag: options?.group?.tag,
+          path: options?.group?.path,
+        },
+        { root, output, group: group as any },
+      )
     }
 
     const firstResult = this.hookFirstSync({
@@ -488,7 +535,13 @@ export class PluginDriver {
         parameters: [params.name.trim(), params.type],
       })
 
-      return transformReservedWord(names?.at(0) ?? params.name)
+      const hookedName = names?.at(0)
+      if (hookedName) {
+        return transformReservedWord(hookedName)
+      }
+
+      const resolver = this.getResolver(params.pluginName)
+      return transformReservedWord(resolver.default(params.name.trim(), params.type))
     }
 
     const name = this.hookFirstSync({

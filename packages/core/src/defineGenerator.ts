@@ -5,6 +5,8 @@ import type { GeneratorContext, PluginFactoryOptions } from './types.ts'
 
 export type { GeneratorContext } from './types.ts'
 
+type GeneratorMethodContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = GeneratorContext<TOptions> & GeneratorContext<TOptions>['options']
+
 /**
  * A generator is a named object with optional `schema`, `operation`, and `operations`
  * methods. Each method receives a parameter-based context (`ctx`) as the second argument.
@@ -60,20 +62,35 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
   renderer?: RendererFactory<TElement> | null
   /**
    * Called for each schema node in the AST walk.
-   * `ctx` always includes `adapter`, `inputNode`, and the per-node resolved `options`.
+   * Supports both `schema(node, ctx)` and legacy `schema(node, options)` usage.
+   * `this` is set to `GeneratorContext` and the second argument includes
+   * both context fields and resolved option fields for compatibility.
    */
-  schema?: (node: SchemaNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
+  schema?: (
+    node: SchemaNode,
+    ctx: GeneratorMethodContext<TOptions>,
+  ) => PossiblePromise<TElement | Array<FileNode> | void>
   /**
    * Called for each operation node in the AST walk.
-   * `ctx` always includes `adapter`, `inputNode`, and the per-node resolved `options`.
+   * Supports both `operation(node, ctx)` and legacy `operation(node, options)` usage.
+   * `this` is set to `GeneratorContext` and the second argument includes
+   * both context fields and resolved option fields for compatibility.
    */
-  operation?: (node: OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
+  operation?: (
+    node: OperationNode,
+    ctx: GeneratorMethodContext<TOptions>,
+  ) => PossiblePromise<TElement | Array<FileNode> | void>
   /**
    * Called once after all operations have been walked.
-   * `ctx` includes `adapter`, `inputNode`, and plugin-level resolved `options`.
+   * Supports both `operations(nodes, ctx)` and legacy `operations(nodes, options)` usage.
+   * `this` is set to `GeneratorContext` and the second argument includes
+   * both context fields and resolved option fields for compatibility.
    */
-  operations?: (nodes: Array<OperationNode>, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
-}
+  operations?: (
+    nodes: Array<OperationNode>,
+    ctx: GeneratorMethodContext<TOptions>,
+  ) => PossiblePromise<TElement | Array<FileNode> | void>
+} & ThisType<GeneratorContext<TOptions>>
 
 /**
  * Defines a generator. Returns the object as-is with correct `this` typings.
