@@ -1,18 +1,18 @@
 import useSWR from 'swr'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type {
-  FindPetsByTags400,
-  FindPetsByTagsHeaderParams,
   FindPetsByTagsQueryParams,
+  FindPetsByTagsHeaderParams,
   FindPetsByTagsQueryResponse,
+  FindPetsByTags400,
 } from '../../../models/ts/petController/FindPetsByTags.ts'
 import { findPetsByTags } from '../../axios/petService/findPetsByTags.ts'
 
-export const findPetsByTagsQueryKeySWR = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsSWRQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
-export type FindPetsByTagsQueryKeySWR = ReturnType<typeof findPetsByTagsQueryKeySWR>
+export type FindPetsByTagsSWRQueryKey = ReturnType<typeof findPetsByTagsSWRQueryKey>
 
-export function findPetsByTagsQueryOptionsSWR(
+export function findPetsByTagsSWRQueryOptions(
   { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
@@ -39,12 +39,12 @@ export function useFindPetsByTagsSWR(
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
-  const queryKey = findPetsByTagsQueryKeySWR(params)
+  const queryKey = findPetsByTagsSWRQueryKey(params)
 
-  return useSWR<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryKeySWR | null>(
+  return useSWR<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsSWRQueryKey | null>(
     shouldFetch ? queryKey : null,
     {
-      ...findPetsByTagsQueryOptionsSWR({ headers, params }, config),
+      ...findPetsByTagsSWRQueryOptions({ headers, params }, config),
       ...(immutable
         ? {
             revalidateIfStale: false,

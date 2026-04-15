@@ -3,10 +3,10 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
-import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
+import type { LogoutUserQueryResponse, LogoutUserError } from '../models/LogoutUser.ts'
+import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 
@@ -19,7 +19,7 @@ export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
 export async function logoutUser(config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...requestConfig })
+  const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<LogoutUserError>, unknown>({ method: 'GET', url: '/user/logout', ...requestConfig })
 
   return res.data
 }
@@ -38,7 +38,7 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client
  */
 export function useLogoutUser(
   options: {
-    query?: Parameters<typeof useSWR<LogoutUserQueryResponse, ResponseErrorConfig<Error>>>[2]
+    query?: Parameters<typeof useSWR<LogoutUserQueryResponse, ResponseErrorConfig<LogoutUserError>>>[2]
     client?: Partial<RequestConfig> & { client?: Client }
     shouldFetch?: boolean
     immutable?: boolean
@@ -48,7 +48,7 @@ export function useLogoutUser(
 
   const queryKey = logoutUserQueryKey()
 
-  return useSWR<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryKey | null>(shouldFetch ? queryKey : null, {
+  return useSWR<LogoutUserQueryResponse, ResponseErrorConfig<LogoutUserError>, LogoutUserQueryKey | null>(shouldFetch ? queryKey : null, {
     ...logoutUserQueryOptions(config),
     ...(immutable
       ? {

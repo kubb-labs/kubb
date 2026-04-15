@@ -1,14 +1,14 @@
 import useSWR from 'swr'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { FindPetsByStatus400, FindPetsByStatusPathParams, FindPetsByStatusQueryResponse } from '../../../models/ts/petController/FindPetsByStatus.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type { FindPetsByStatusPathParams, FindPetsByStatusQueryResponse, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
 import { findPetsByStatus } from '../../axios/petService/findPetsByStatus.ts'
 
-export const findPetsByStatusQueryKeySWR = ({ stepId }: { stepId: FindPetsByStatusPathParams['stepId'] }) =>
+export const findPetsByStatusSWRQueryKey = ({ stepId }: { stepId: FindPetsByStatusPathParams['stepId'] }) =>
   [{ url: '/pet/findByStatus/:step_id', params: { stepId: stepId } }] as const
 
-export type FindPetsByStatusQueryKeySWR = ReturnType<typeof findPetsByStatusQueryKeySWR>
+export type FindPetsByStatusSWRQueryKey = ReturnType<typeof findPetsByStatusSWRQueryKey>
 
-export function findPetsByStatusQueryOptionsSWR(
+export function findPetsByStatusSWRQueryOptions(
   { stepId }: { stepId: FindPetsByStatusPathParams['stepId'] },
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
@@ -35,12 +35,12 @@ export function useFindPetsByStatusSWR(
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
-  const queryKey = findPetsByStatusQueryKeySWR({ stepId })
+  const queryKey = findPetsByStatusSWRQueryKey({ stepId })
 
-  return useSWR<ResponseConfig<FindPetsByStatusQueryResponse>, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryKeySWR | null>(
+  return useSWR<ResponseConfig<FindPetsByStatusQueryResponse>, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusSWRQueryKey | null>(
     shouldFetch ? queryKey : null,
     {
-      ...findPetsByStatusQueryOptionsSWR({ stepId }, config),
+      ...findPetsByStatusSWRQueryOptions({ stepId }, config),
       ...(immutable
         ? {
             revalidateIfStale: false,

@@ -17,7 +17,6 @@ export type {
   FindPetsByTagsQueryParams,
   FindPetsByTagsQueryResponse,
 } from './FindPetsByTags.ts'
-export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './FindPetsByTags.ts'
 export type { GetPetById200, GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQuery, GetPetByIdQueryResponse } from './GetPetById.ts'
 export type {
   UpdatePet200,
@@ -44,3 +43,4 @@ export type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from './UploadFile.ts'
+export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './FindPetsByTags.ts'

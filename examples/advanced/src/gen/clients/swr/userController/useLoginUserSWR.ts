@@ -1,13 +1,13 @@
 import useSWR from 'swr'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../../models/ts/userController/LoginUser.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type { LoginUserQueryParams, LoginUserQueryResponse, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
 import { loginUser } from '../../axios/userService/loginUser.ts'
 
-export const loginUserQueryKeySWR = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+export const loginUserSWRQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 
-export type LoginUserQueryKeySWR = ReturnType<typeof loginUserQueryKeySWR>
+export type LoginUserSWRQueryKey = ReturnType<typeof loginUserSWRQueryKey>
 
-export function loginUserQueryOptionsSWR({ params }: { params?: LoginUserQueryParams }, config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function loginUserSWRQueryOptions({ params }: { params?: LoginUserQueryParams } = {}, config: Partial<RequestConfig> & { client?: Client } = {}) {
   return {
     fetcher: async () => {
       return loginUser({ params }, config)
@@ -30,10 +30,10 @@ export function useLoginUserSWR(
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
-  const queryKey = loginUserQueryKeySWR(params)
+  const queryKey = loginUserSWRQueryKey(params)
 
-  return useSWR<ResponseConfig<LoginUserQueryResponse>, ResponseErrorConfig<LoginUser400>, LoginUserQueryKeySWR | null>(shouldFetch ? queryKey : null, {
-    ...loginUserQueryOptionsSWR({ params }, config),
+  return useSWR<ResponseConfig<LoginUserQueryResponse>, ResponseErrorConfig<LoginUser400>, LoginUserSWRQueryKey | null>(shouldFetch ? queryKey : null, {
+    ...loginUserSWRQueryOptions({ params }, config),
     ...(immutable
       ? {
           revalidateIfStale: false,

@@ -1,17 +1,17 @@
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type {
-  UpdatePetWithForm405,
-  UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithFormMutationResponse,
+  UpdatePetWithForm405,
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import { updatePetWithForm } from '../../axios/petService/updatePetWithForm.ts'
 
-export const updatePetWithFormMutationKeySWR = () => [{ url: '/pet/:petId:search' }] as const
+export const updatePetWithFormSWRMutationKey = () => [{ url: '/pet/:petId:search' }] as const
 
-export type UpdatePetWithFormMutationKeySWR = ReturnType<typeof updatePetWithFormMutationKeySWR>
+export type UpdatePetWithFormSWRMutationKey = ReturnType<typeof updatePetWithFormSWRMutationKey>
 
 /**
  * @summary Updates a pet in the store with form data
@@ -24,7 +24,7 @@ export function useUpdatePetWithFormSWR(
     mutation?: SWRMutationConfiguration<
       ResponseConfig<UpdatePetWithFormMutationResponse>,
       ResponseErrorConfig<UpdatePetWithForm405>,
-      UpdatePetWithFormMutationKeySWR | null,
+      UpdatePetWithFormSWRMutationKey | null,
       never
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig> & { client?: Client }
@@ -32,9 +32,9 @@ export function useUpdatePetWithFormSWR(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = updatePetWithFormMutationKeySWR()
+  const mutationKey = updatePetWithFormSWRMutationKey()
 
-  return useSWRMutation<ResponseConfig<UpdatePetWithFormMutationResponse>, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationKeySWR | null>(
+  return useSWRMutation<ResponseConfig<UpdatePetWithFormMutationResponse>, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormSWRMutationKey | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
       return updatePetWithForm({ petId, params }, config)

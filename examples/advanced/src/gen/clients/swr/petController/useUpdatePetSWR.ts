@@ -1,18 +1,18 @@
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type {
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
   UpdatePet400,
   UpdatePet404,
   UpdatePet405,
-  UpdatePetMutationRequest,
-  UpdatePetMutationResponse,
 } from '../../../models/ts/petController/UpdatePet.ts'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import { updatePet } from '../../axios/petService/updatePet.ts'
 
-export const updatePetMutationKeySWR = () => [{ url: '/pet' }] as const
+export const updatePetSWRMutationKey = () => [{ url: '/pet' }] as const
 
-export type UpdatePetMutationKeySWR = ReturnType<typeof updatePetMutationKeySWR>
+export type UpdatePetSWRMutationKey = ReturnType<typeof updatePetSWRMutationKey>
 
 /**
  * @description Update an existing pet by Id
@@ -24,7 +24,7 @@ export function useUpdatePetSWR(
     mutation?: SWRMutationConfiguration<
       ResponseConfig<UpdatePetMutationResponse>,
       ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
-      UpdatePetMutationKeySWR | null,
+      UpdatePetSWRMutationKey | null,
       UpdatePetMutationRequest
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: Client }
@@ -32,12 +32,12 @@ export function useUpdatePetSWR(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = updatePetMutationKeySWR()
+  const mutationKey = updatePetSWRMutationKey()
 
   return useSWRMutation<
     ResponseConfig<UpdatePetMutationResponse>,
     ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
-    UpdatePetMutationKeySWR | null,
+    UpdatePetSWRMutationKey | null,
     UpdatePetMutationRequest
   >(
     shouldFetch ? mutationKey : null,

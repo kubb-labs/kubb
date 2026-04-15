@@ -1,18 +1,19 @@
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type {
+  CreatePetsPathParams,
+  CreatePetsQueryParams,
   CreatePetsHeaderParams,
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
-  CreatePetsPathParams,
-  CreatePetsQueryParams,
+  CreatePetsError,
 } from '../../../models/ts/petsController/CreatePets.ts'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import { createPets } from '../../axios/petsService/createPets.ts'
 
-export const createPetsMutationKeySWR = () => [{ url: '/pets/:uuid' }] as const
+export const createPetsSWRMutationKey = () => [{ url: '/pets/:uuid' }] as const
 
-export type CreatePetsMutationKeySWR = ReturnType<typeof createPetsMutationKeySWR>
+export type CreatePetsSWRMutationKey = ReturnType<typeof createPetsSWRMutationKey>
 
 /**
  * @summary Create a pet
@@ -25,8 +26,8 @@ export function useCreatePetsSWR(
   options: {
     mutation?: SWRMutationConfiguration<
       ResponseConfig<CreatePetsMutationResponse>,
-      ResponseErrorConfig<Error>,
-      CreatePetsMutationKeySWR | null,
+      ResponseErrorConfig<CreatePetsError>,
+      CreatePetsSWRMutationKey | null,
       CreatePetsMutationRequest
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: Client }
@@ -34,9 +35,14 @@ export function useCreatePetsSWR(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = createPetsMutationKeySWR()
+  const mutationKey = createPetsSWRMutationKey()
 
-  return useSWRMutation<ResponseConfig<CreatePetsMutationResponse>, ResponseErrorConfig<Error>, CreatePetsMutationKeySWR | null, CreatePetsMutationRequest>(
+  return useSWRMutation<
+    ResponseConfig<CreatePetsMutationResponse>,
+    ResponseErrorConfig<CreatePetsError>,
+    CreatePetsSWRMutationKey | null,
+    CreatePetsMutationRequest
+  >(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return createPets({ uuid, data, headers, params }, config)

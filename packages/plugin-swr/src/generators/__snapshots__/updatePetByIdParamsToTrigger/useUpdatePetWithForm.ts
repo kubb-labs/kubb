@@ -62,7 +62,7 @@ export function useUpdatePetWithForm(
     UpdatePetWithFormMutationArg
   >(
     shouldFetch ? mutationKey : null,
-    async (_url, { arg: petId, params }) => {
+    async (_url, { arg: { petId, params } }) => {
       return updatePetWithForm(petId, params, config)
     },
     mutationOptions,

@@ -1,19 +1,19 @@
 import useSWR from 'swr'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type {
-  GetUserByName400,
-  GetUserByName404,
   GetUserByNamePathParams,
   GetUserByNameQueryResponse,
+  GetUserByName400,
+  GetUserByName404,
 } from '../../../models/ts/userController/GetUserByName.ts'
 import { getUserByName } from '../../axios/userService/getUserByName.ts'
 
-export const getUserByNameQueryKeySWR = ({ username }: { username: GetUserByNamePathParams['username'] }) =>
+export const getUserByNameSWRQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] }) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 
-export type GetUserByNameQueryKeySWR = ReturnType<typeof getUserByNameQueryKeySWR>
+export type GetUserByNameSWRQueryKey = ReturnType<typeof getUserByNameSWRQueryKey>
 
-export function getUserByNameQueryOptionsSWR(
+export function getUserByNameSWRQueryOptions(
   { username }: { username: GetUserByNamePathParams['username'] },
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
@@ -39,12 +39,12 @@ export function useGetUserByNameSWR(
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
-  const queryKey = getUserByNameQueryKeySWR({ username })
+  const queryKey = getUserByNameSWRQueryKey({ username })
 
-  return useSWR<ResponseConfig<GetUserByNameQueryResponse>, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryKeySWR | null>(
+  return useSWR<ResponseConfig<GetUserByNameQueryResponse>, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameSWRQueryKey | null>(
     shouldFetch ? queryKey : null,
     {
-      ...getUserByNameQueryOptionsSWR({ username }, config),
+      ...getUserByNameSWRQueryOptions({ username }, config),
       ...(immutable
         ? {
             revalidateIfStale: false,

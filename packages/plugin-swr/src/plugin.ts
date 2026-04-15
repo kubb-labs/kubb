@@ -43,6 +43,7 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
     include,
     override = [],
     parser = 'client',
+    transformers = {},
     query,
     mutation,
     client,
@@ -81,7 +82,24 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
     dependencies: [pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     hooks: {
       'kubb:plugin:setup'(ctx) {
-        const resolver = userResolver ? { ...resolverSwr, ...userResolver } : resolverSwr
+        const baseResolver = userResolver ? { ...resolverSwr, ...userResolver } : resolverSwr
+
+        // Wrap the resolver to apply `transformers.name` during name resolution
+        // (like the old createPlugin `resolveName` lifecycle).
+        // Applied in `default` for non-file types to avoid double-suffixing when
+        // composite names are passed through `resolveFile` with type `'file'`.
+        const resolver = transformers.name
+          ? {
+              ...baseResolver,
+              default(name: string, type?: string) {
+                const resolvedName = baseResolver.default(name, type)
+                if (type && type !== 'file') {
+                  return transformers.name!(resolvedName, type) || resolvedName
+                }
+                return resolvedName
+              },
+            }
+          : baseResolver
 
         ctx.setOptions({
           output,

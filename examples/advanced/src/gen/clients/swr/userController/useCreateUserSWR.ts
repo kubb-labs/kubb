@@ -1,12 +1,12 @@
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type { CreateUserMutationRequest, CreateUserMutationResponse, CreateUserError } from '../../../models/ts/userController/CreateUser.ts'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import { createUser } from '../../axios/userService/createUser.ts'
 
-export const createUserMutationKeySWR = () => [{ url: '/user' }] as const
+export const createUserSWRMutationKey = () => [{ url: '/user' }] as const
 
-export type CreateUserMutationKeySWR = ReturnType<typeof createUserMutationKeySWR>
+export type CreateUserSWRMutationKey = ReturnType<typeof createUserSWRMutationKey>
 
 /**
  * @description This can only be done by the logged in user.
@@ -17,8 +17,8 @@ export function useCreateUserSWR(
   options: {
     mutation?: SWRMutationConfiguration<
       ResponseConfig<CreateUserMutationResponse>,
-      ResponseErrorConfig<Error>,
-      CreateUserMutationKeySWR | null,
+      ResponseErrorConfig<CreateUserError>,
+      CreateUserSWRMutationKey | null,
       CreateUserMutationRequest
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: Client }
@@ -26,9 +26,14 @@ export function useCreateUserSWR(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = createUserMutationKeySWR()
+  const mutationKey = createUserSWRMutationKey()
 
-  return useSWRMutation<ResponseConfig<CreateUserMutationResponse>, ResponseErrorConfig<Error>, CreateUserMutationKeySWR | null, CreateUserMutationRequest>(
+  return useSWRMutation<
+    ResponseConfig<CreateUserMutationResponse>,
+    ResponseErrorConfig<CreateUserError>,
+    CreateUserSWRMutationKey | null,
+    CreateUserMutationRequest
+  >(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return createUser({ data }, config)

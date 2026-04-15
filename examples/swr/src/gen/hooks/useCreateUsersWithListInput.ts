@@ -3,11 +3,15 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput.ts'
+import type {
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
+  CreateUsersWithListInputError,
+} from '../models/CreateUsersWithListInput.ts'
+import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 
 export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const
 
@@ -26,12 +30,11 @@ export async function createUsersWithListInput(
 
   const requestData = data
 
-  const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
-    method: 'POST',
-    url: '/user/createWithList',
-    data: requestData,
-    ...requestConfig,
-  })
+  const res = await request<
+    CreateUsersWithListInputMutationResponse,
+    ResponseErrorConfig<CreateUsersWithListInputError>,
+    CreateUsersWithListInputMutationRequest
+  >({ method: 'POST', url: '/user/createWithList', data: requestData, ...requestConfig })
 
   return res.data
 }
@@ -47,7 +50,7 @@ export function useCreateUsersWithListInput(
   options: {
     mutation?: SWRMutationConfiguration<
       CreateUsersWithListInputMutationResponse,
-      ResponseErrorConfig<Error>,
+      ResponseErrorConfig<CreateUsersWithListInputError>,
       CreateUsersWithListInputMutationKey | null,
       CreateUsersWithListInputMutationArg
     > & { throwOnError?: boolean }
@@ -60,7 +63,7 @@ export function useCreateUsersWithListInput(
 
   return useSWRMutation<
     CreateUsersWithListInputMutationResponse,
-    ResponseErrorConfig<Error>,
+    ResponseErrorConfig<CreateUsersWithListInputError>,
     CreateUsersWithListInputMutationKey | null,
     CreateUsersWithListInputMutationArg
   >(

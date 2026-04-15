@@ -1,12 +1,17 @@
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type {
+  UpdateUserPathParams,
+  UpdateUserMutationRequest,
+  UpdateUserMutationResponse,
+  UpdateUserError,
+} from '../../../models/ts/userController/UpdateUser.ts'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import { updateUser } from '../../axios/userService/updateUser.ts'
 
-export const updateUserMutationKeySWR = () => [{ url: '/user/:username' }] as const
+export const updateUserSWRMutationKey = () => [{ url: '/user/:username' }] as const
 
-export type UpdateUserMutationKeySWR = ReturnType<typeof updateUserMutationKeySWR>
+export type UpdateUserSWRMutationKey = ReturnType<typeof updateUserSWRMutationKey>
 
 /**
  * @description This can only be done by the logged in user.
@@ -18,8 +23,8 @@ export function useUpdateUserSWR(
   options: {
     mutation?: SWRMutationConfiguration<
       ResponseConfig<UpdateUserMutationResponse>,
-      ResponseErrorConfig<Error>,
-      UpdateUserMutationKeySWR | null,
+      ResponseErrorConfig<UpdateUserError>,
+      UpdateUserSWRMutationKey | null,
       UpdateUserMutationRequest
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: Client }
@@ -27,9 +32,14 @@ export function useUpdateUserSWR(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = updateUserMutationKeySWR()
+  const mutationKey = updateUserSWRMutationKey()
 
-  return useSWRMutation<ResponseConfig<UpdateUserMutationResponse>, ResponseErrorConfig<Error>, UpdateUserMutationKeySWR | null, UpdateUserMutationRequest>(
+  return useSWRMutation<
+    ResponseConfig<UpdateUserMutationResponse>,
+    ResponseErrorConfig<UpdateUserError>,
+    UpdateUserSWRMutationKey | null,
+    UpdateUserMutationRequest
+  >(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return updateUser({ username, data }, config)

@@ -1,13 +1,13 @@
 import useSWR from 'swr'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../models/ts/petController/GetPetById.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type { GetPetByIdPathParams, GetPetByIdQueryResponse, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
 import { getPetById } from '../../axios/petService/getPetById.ts'
 
-export const getPetByIdQueryKeySWR = ({ petId }: { petId: GetPetByIdPathParams['petId'] }) => [{ url: '/pet/:petId:search', params: { petId: petId } }] as const
+export const getPetByIdSWRQueryKey = ({ petId }: { petId: GetPetByIdPathParams['petId'] }) => [{ url: '/pet/:petId:search', params: { petId: petId } }] as const
 
-export type GetPetByIdQueryKeySWR = ReturnType<typeof getPetByIdQueryKeySWR>
+export type GetPetByIdSWRQueryKey = ReturnType<typeof getPetByIdSWRQueryKey>
 
-export function getPetByIdQueryOptionsSWR({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function getPetByIdSWRQueryOptions({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> & { client?: Client } = {}) {
   return {
     fetcher: async () => {
       return getPetById({ petId }, config)
@@ -31,12 +31,12 @@ export function useGetPetByIdSWR(
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
-  const queryKey = getPetByIdQueryKeySWR({ petId })
+  const queryKey = getPetByIdSWRQueryKey({ petId })
 
-  return useSWR<ResponseConfig<GetPetByIdQueryResponse>, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryKeySWR | null>(
+  return useSWR<ResponseConfig<GetPetByIdQueryResponse>, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdSWRQueryKey | null>(
     shouldFetch ? queryKey : null,
     {
-      ...getPetByIdQueryOptionsSWR({ petId }, config),
+      ...getPetByIdSWRQueryOptions({ petId }, config),
       ...(immutable
         ? {
             revalidateIfStale: false,

@@ -1,8 +1,8 @@
 import type {
-  UploadFileMutationRequest,
-  UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
+  UploadFileMutationRequest,
+  UploadFileMutationResponse,
 } from '../../models/ts/petController/UploadFile.ts'
 
 export function uploadFile(

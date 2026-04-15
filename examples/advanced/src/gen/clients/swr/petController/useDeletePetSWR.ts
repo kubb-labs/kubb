@@ -1,12 +1,12 @@
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../../models/ts/petController/DeletePet.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type { DeletePetPathParams, DeletePetHeaderParams, DeletePetMutationResponse, DeletePet400 } from '../../../models/ts/petController/DeletePet.ts'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import { deletePet } from '../../axios/petService/deletePet.ts'
 
-export const deletePetMutationKeySWR = () => [{ url: '/pet/:petId:search' }] as const
+export const deletePetSWRMutationKey = () => [{ url: '/pet/:petId:search' }] as const
 
-export type DeletePetMutationKeySWR = ReturnType<typeof deletePetMutationKeySWR>
+export type DeletePetSWRMutationKey = ReturnType<typeof deletePetSWRMutationKey>
 
 /**
  * @description delete a pet
@@ -17,7 +17,7 @@ export function useDeletePetSWR(
   { petId }: { petId: DeletePetPathParams['petId'] },
   headers?: DeletePetHeaderParams,
   options: {
-    mutation?: SWRMutationConfiguration<ResponseConfig<DeletePetMutationResponse>, ResponseErrorConfig<DeletePet400>, DeletePetMutationKeySWR | null, never> & {
+    mutation?: SWRMutationConfiguration<ResponseConfig<DeletePetMutationResponse>, ResponseErrorConfig<DeletePet400>, DeletePetSWRMutationKey | null, never> & {
       throwOnError?: boolean
     }
     client?: Partial<RequestConfig> & { client?: Client }
@@ -25,9 +25,9 @@ export function useDeletePetSWR(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = deletePetMutationKeySWR()
+  const mutationKey = deletePetSWRMutationKey()
 
-  return useSWRMutation<ResponseConfig<DeletePetMutationResponse>, ResponseErrorConfig<DeletePet400>, DeletePetMutationKeySWR | null>(
+  return useSWRMutation<ResponseConfig<DeletePetMutationResponse>, ResponseErrorConfig<DeletePet400>, DeletePetSWRMutationKey | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
       return deletePet({ petId, headers }, config)

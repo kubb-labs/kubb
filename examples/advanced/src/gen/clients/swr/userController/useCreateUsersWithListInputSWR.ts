@@ -1,15 +1,16 @@
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
+  CreateUsersWithListInputError,
 } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import { createUsersWithListInput } from '../../axios/userService/createUsersWithListInput.ts'
 
-export const createUsersWithListInputMutationKeySWR = () => [{ url: '/user/createWithList' }] as const
+export const createUsersWithListInputSWRMutationKey = () => [{ url: '/user/createWithList' }] as const
 
-export type CreateUsersWithListInputMutationKeySWR = ReturnType<typeof createUsersWithListInputMutationKeySWR>
+export type CreateUsersWithListInputSWRMutationKey = ReturnType<typeof createUsersWithListInputSWRMutationKey>
 
 /**
  * @description Creates list of users with given input array
@@ -20,8 +21,8 @@ export function useCreateUsersWithListInputSWR(
   options: {
     mutation?: SWRMutationConfiguration<
       ResponseConfig<CreateUsersWithListInputMutationResponse>,
-      ResponseErrorConfig<Error>,
-      CreateUsersWithListInputMutationKeySWR | null,
+      ResponseErrorConfig<CreateUsersWithListInputError>,
+      CreateUsersWithListInputSWRMutationKey | null,
       CreateUsersWithListInputMutationRequest
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: Client }
@@ -29,12 +30,12 @@ export function useCreateUsersWithListInputSWR(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = createUsersWithListInputMutationKeySWR()
+  const mutationKey = createUsersWithListInputSWRMutationKey()
 
   return useSWRMutation<
     ResponseConfig<CreateUsersWithListInputMutationResponse>,
-    ResponseErrorConfig<Error>,
-    CreateUsersWithListInputMutationKeySWR | null,
+    ResponseErrorConfig<CreateUsersWithListInputError>,
+    CreateUsersWithListInputSWRMutationKey | null,
     CreateUsersWithListInputMutationRequest
   >(
     shouldFetch ? mutationKey : null,

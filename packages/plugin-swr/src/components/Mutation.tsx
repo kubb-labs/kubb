@@ -226,7 +226,7 @@ export function Mutation({
 
         return useSWRMutation<${generics.join(', ')}>(
           shouldFetch ? mutationKey : null,
-          async (_url${hasMutationParams ? `, { arg: ${argKeysStr} }` : ''}) => {
+          async (_url${hasMutationParams ? `, { arg: { ${argKeysStr} } }` : ''}) => {
             return ${clientName}(${clientCallStr})
           },
           mutationOptions
