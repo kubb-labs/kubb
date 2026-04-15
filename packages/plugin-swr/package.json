@@ -46,14 +46,6 @@
       "import": "./dist/generators.js",
       "require": "./dist/generators.cjs"
     },
-    "./resolvers/resolverSwr": {
-      "import": "./dist/resolvers/resolverSwr.js",
-      "require": "./dist/resolvers/resolverSwr.cjs"
-    },
-    "./resolvers/resolverSwrLegacy": {
-      "import": "./dist/resolvers/resolverSwrLegacy.js",
-      "require": "./dist/resolvers/resolverSwrLegacy.cjs"
-    },
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",

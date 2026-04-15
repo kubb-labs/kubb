@@ -7,7 +7,7 @@ import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PluginSwr } from '../types.ts'
 import { buildGroupParam, getComments, resolveErrorNames, resolvePathParamType, resolveQueryGroupType } from '../utils.ts'
 import { QueryKey } from './QueryKey.tsx'
-import { QueryOptions } from './QueryOptions.tsx'
+import { getQueryOptionsParams } from './QueryOptions.tsx'
 
 type Props = {
   name: string
@@ -152,7 +152,7 @@ export function Query({
   const paramsNode = getParams(node, { paramsType, paramsCasing, pathParamsType, dataReturnType, resolver: tsResolver })
   const paramsSignature = declarationPrinter.print(paramsNode) ?? ''
 
-  const queryOptionsParamsNode = QueryOptions.getParams(node, { paramsType, paramsCasing, pathParamsType, resolver: tsResolver })
+  const queryOptionsParamsNode = getQueryOptionsParams(node, { paramsType, paramsCasing, pathParamsType, resolver: tsResolver })
   const queryOptionsParamsCall = callPrinter.print(queryOptionsParamsNode) ?? ''
 
   return (

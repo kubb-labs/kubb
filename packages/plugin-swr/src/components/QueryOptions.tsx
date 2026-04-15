@@ -19,7 +19,7 @@ type Props = {
 const declarationPrinter = functionPrinter({ mode: 'declaration' })
 const callPrinter = functionPrinter({ mode: 'call' })
 
-function getParams(
+export function getQueryOptionsParams(
   node: OperationNode,
   options: {
     paramsType: PluginSwr['resolvedOptions']['paramsType']
@@ -50,7 +50,7 @@ function getParams(
 }
 
 export function QueryOptions({ name, clientName, node, tsResolver, paramsCasing, paramsType, pathParamsType }: Props): KubbReactNode {
-  const paramsNode = getParams(node, { paramsType, paramsCasing, pathParamsType, resolver: tsResolver })
+  const paramsNode = getQueryOptionsParams(node, { paramsType, paramsCasing, pathParamsType, resolver: tsResolver })
   const paramsSignature = declarationPrinter.print(paramsNode) ?? ''
   const paramsCall = callPrinter.print(paramsNode) ?? ''
 
@@ -68,7 +68,3 @@ export function QueryOptions({ name, clientName, node, tsResolver, paramsCasing,
     </File.Source>
   )
 }
-
-QueryOptions.getParams = getParams
-QueryOptions.callPrinter = callPrinter
-QueryOptions.declarationPrinter = declarationPrinter

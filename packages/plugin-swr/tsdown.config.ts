@@ -4,8 +4,6 @@ const entry = {
   index: 'src/index.ts',
   components: 'src/components/index.ts',
   generators: 'src/generators/index.ts',
-  'resolvers/resolverSwr': 'src/resolvers/resolverSwr.ts',
-  'resolvers/resolverSwrLegacy': 'src/resolvers/resolverSwrLegacy.ts',
 }
 
 const shared: Partial<UserConfig> = {
