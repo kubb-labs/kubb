@@ -1,5 +1,5 @@
 import type { Transformer } from '@internals/tanstack-query'
-import type { OperationNode, Visitor } from '@kubb/ast/types'
+import type { Visitor } from '@kubb/ast/types'
 import type {
   CompatibilityPreset,
   Exclude,

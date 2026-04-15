@@ -1,7 +1,7 @@
 import type { OperationNode, ParameterNode } from '@kubb/ast/types'
 import type { Operation } from '@kubb/oas'
 import type { OperationSchema, OperationSchemas } from '@kubb/plugin-oas'
-import type { PluginTs } from '@kubb/plugin-ts'
+import type { ResolveNameParams } from '@kubb/core'
 import type { PluginReactQuery } from './types.ts'
 
 /**
@@ -9,7 +9,11 @@ import type { PluginReactQuery } from './types.ts'
  * Mirrors the old `createPlugin` `resolveName` lifecycle that applied transformers
  * after resolving the full name (base + suffix).
  */
-export function transformName(name: string, type: string, transformers?: PluginReactQuery['resolvedOptions']['transformers']): string {
+export function transformName(
+  name: string,
+  type: ResolveNameParams['type'],
+  transformers?: PluginReactQuery['resolvedOptions']['transformers'],
+): string {
   return transformers?.name?.(name, type) || name
 }
 
@@ -63,7 +67,8 @@ export function buildLegacyTypeSchemas(node: OperationNode, resolver: any): Oper
             name: resolver.resolvePathParamsName(node, pathParams[0]!),
             schema: buildSchemaProps(pathParams),
             keys: pathParams.map((p) => (p.required ? p.name : `${p.name}?`)),
-          } as OperationSchema)
+            keysToOmit: undefined,
+          } as OperationSchema & { keysToOmit?: undefined })
         : undefined,
     queryParams:
       queryParams.length > 0 && resolver.resolveQueryParamsName
@@ -71,7 +76,8 @@ export function buildLegacyTypeSchemas(node: OperationNode, resolver: any): Oper
             name: resolver.resolveQueryParamsName(node, queryParams[0]!),
             schema: buildSchemaProps(queryParams),
             keys: queryParams.map((p) => (p.required ? p.name : `${p.name}?`)),
-          } as OperationSchema)
+            keysToOmit: undefined,
+          } as OperationSchema & { keysToOmit?: undefined })
         : undefined,
     headerParams:
       headerParams.length > 0 && resolver.resolveHeaderParamsName
@@ -79,7 +85,8 @@ export function buildLegacyTypeSchemas(node: OperationNode, resolver: any): Oper
             name: resolver.resolveHeaderParamsName(node, headerParams[0]!),
             schema: buildSchemaProps(headerParams),
             keys: headerParams.map((p) => (p.required ? p.name : `${p.name}?`)),
-          } as OperationSchema)
+            keysToOmit: undefined,
+          } as OperationSchema & { keysToOmit?: undefined })
         : undefined,
     errors: node.responses
       .filter((r) => {
@@ -92,7 +99,9 @@ export function buildLegacyTypeSchemas(node: OperationNode, resolver: any): Oper
       (r) =>
         ({
           name: resolver.resolveResponseStatusName(node, r.statusCode),
-          keys: r.schema?.properties?.map((p: { name: string; required?: boolean }) => (p.required ? p.name : `${p.name}?`)) ?? [],
+          keys: ('properties' in r.schema && Array.isArray(r.schema.properties))
+            ? r.schema.properties.map((p: { name: string; required?: boolean }) => (p.required ? p.name : `${p.name}?`))
+            : [],
         }) as OperationSchema,
     ),
   }
@@ -101,7 +110,8 @@ export function buildLegacyTypeSchemas(node: OperationNode, resolver: any): Oper
 /**
  * Collect type import names from OperationNode + tsResolver.
  */
-export function resolveImportedTypeNames(node: OperationNode, tsResolver: PluginTs['resolver']): string[] {
+// biome-ignore lint/suspicious/noExplicitAny: bridge between v5 resolver types from different plugins
+export function resolveImportedTypeNames(node: OperationNode, tsResolver: any): string[] {
   const pathParams = node.parameters.filter((p) => p.in === 'path')
   const queryParams = node.parameters.filter((p) => p.in === 'query')
   const headerParams = node.parameters.filter((p) => p.in === 'header')

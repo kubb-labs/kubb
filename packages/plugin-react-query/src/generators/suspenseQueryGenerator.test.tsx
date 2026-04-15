@@ -1,34 +1,103 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+/** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
+import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
+import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import type { HttpMethod } from '@kubb/oas'
-import { parse } from '@kubb/oas'
-import { OperationGenerator, renderOperation } from '@kubb/plugin-oas'
+import type { PluginTs } from '@kubb/plugin-ts'
+import { resolverTsLegacy } from '@kubb/plugin-ts'
 import { describe, test } from 'vitest'
-import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation } from '#mocks'
 import { MutationKey, QueryKey } from '../components'
+import { resolverReactQuery } from '../resolvers/resolverReactQuery.ts'
 import type { PluginReactQuery } from '../types.ts'
 import { suspenseQueryGenerator } from './suspenseQueryGenerator.tsx'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'test' }, plugins: [], parsers: [], adapter: createMockedAdapter() }
+
+const defaultOptions: PluginReactQuery['resolvedOptions'] = {
+  client: {
+    dataReturnType: 'data',
+    client: 'axios',
+    bundle: false,
+  },
+  parser: 'zod',
+  paramsCasing: undefined,
+  paramsType: 'inline',
+  pathParamsType: 'inline',
+  queryKey: QueryKey.getTransformer,
+  mutationKey: MutationKey.getTransformer,
+  query: {
+    importPath: '@tanstack/react-query',
+    methods: ['get'],
+  },
+  mutation: {
+    methods: ['post'],
+    importPath: '@tanstack/react-query',
+  },
+  infinite: false,
+  customOptions: undefined,
+  exclude: [],
+  include: undefined,
+  override: [],
+  output: {
+    path: '.',
+  },
+  group: undefined,
+  resolver: resolverReactQuery,
+  transformers: {},
+}
+
+const mockedTsPlugin = createMockedPlugin<PluginTs>({
+  name: 'plugin-ts',
+  options: { output: { path: '.' }, group: undefined } as PluginTs['resolvedOptions'],
+  resolver: resolverTsLegacy,
+})
+
+// Shared operation nodes
+const findByTagsNode = createOperation({
+  operationId: 'findPetsByTags',
+  method: 'GET',
+  path: '/pet/findByTags',
+  tags: ['pet'],
+  description: 'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
+  summary: 'Finds Pets by tags',
+  parameters: [
+    createParameter({ name: 'tags', in: 'query', schema: createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }), required: true }),
+    createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) }),
+  ],
+  responses: [
+    createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' }),
+    createResponse({ statusCode: '400', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid tag value' }),
+  ],
+})
+
+const findByStatusNode = createOperation({
+  operationId: 'findPetsByStatus',
+  method: 'GET',
+  path: '/pet/findByStatus',
+  tags: ['pet'],
+  summary: 'Finds Pets by status',
+  description: 'Multiple status values can be provided with comma separated strings',
+  parameters: [
+    createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) }),
+  ],
+  responses: [
+    createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' }),
+    createResponse({ statusCode: '400', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid status value' }),
+  ],
+})
 
 describe('suspenseQueryGenerator operation', async () => {
   const testData = [
     {
       name: 'findSuspenseByTags',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
+      node: findByTagsNode,
       options: {
         suspense: {},
       },
     },
     {
       name: 'findSuspenseByTagsWithCustomOptions',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
+      node: findByTagsNode,
       options: {
         suspense: {},
         customOptions: {
@@ -39,83 +108,35 @@ describe('suspenseQueryGenerator operation', async () => {
     },
     {
       name: 'findSuspenseByStatusAllOptional',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByStatus',
-      method: 'get',
+      node: findByStatusNode,
       options: {
-        paramsType: 'object',
+        paramsType: 'object' as const,
         suspense: {},
       },
     },
-  ] as const satisfies Array<{
-    input: string
-    name: string
-    path: string
-    method: HttpMethod
-    options: Partial<PluginReactQuery['resolvedOptions']>
-  }>
+  ] as const satisfies Array<{ name: string; node: OperationNode; options: Partial<PluginReactQuery['resolvedOptions']> }>
 
   test.each(testData)('$name', async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input))
-
     const options: PluginReactQuery['resolvedOptions'] = {
-      client: {
-        dataReturnType: 'data',
-        client: 'axios',
-        bundle: false,
-      },
-      parser: 'zod',
-      paramsCasing: undefined,
-      paramsType: 'inline',
-      pathParamsType: 'inline',
-      queryKey: QueryKey.getTransformer,
-      mutationKey: MutationKey.getTransformer,
-      query: {
-        importPath: '@tanstack/react-query',
-        methods: ['get'],
-      },
-      mutation: {
-        methods: ['post'],
-        importPath: '@tanstack/react-query',
-      },
-      infinite: false,
-      customOptions: undefined,
-      exclude: [],
-      include: undefined,
-      override: [],
-      output: {
-        path: '.',
-      },
-      group: undefined,
+      ...defaultOptions,
       ...props.options,
+      client: {
+        ...defaultOptions.client,
+        ...('client' in props.options ? props.options.client : {}),
+      },
     }
-    const plugin = createMockedPlugin<PluginReactQuery>({ name: 'plugin-react-query', options })
+    const plugin = createMockedPlugin<PluginReactQuery>({ name: 'plugin-react-query', options, resolver: resolverReactQuery })
+    const driver = createMockedPluginDriver({ name: props.name, plugin: mockedTsPlugin })
 
-    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
-    const generator = new OperationGenerator(options, {
-      oas,
-      include: undefined,
-      driver: mockedPluginDriver,
-
+    await renderGeneratorOperation(suspenseQueryGenerator, props.node, {
+      config: testConfig,
+      adapter: createMockedAdapter(),
+      driver,
       plugin,
-      contentType: undefined,
-      override: undefined,
-      mode: 'split',
-      exclude: [],
+      options,
+      resolver: resolverReactQuery,
     })
 
-    const operation = oas.operation(props.path, props.method)
-
-    await renderOperation(operation, {
-      config: { root: '.', output: { path: 'test' } } as Config,
-      driver: mockedPluginDriver,
-      oas,
-      mode: 'split',
-      generator,
-      Component: suspenseQueryGenerator.Operation,
-      plugin,
-    })
-
-    await matchFiles(mockedPluginDriver.fileManager.files, props.name)
+    await matchFiles(driver.fileManager.files, props.name)
   })
 })
