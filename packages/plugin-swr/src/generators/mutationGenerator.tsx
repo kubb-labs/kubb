@@ -42,10 +42,7 @@ export const mutationGenerator = defineGenerator<PluginSwr>({
     const clientName = baseName
 
     const meta = {
-      file: resolver.resolveFile(
-        { name: mutationHookName, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
-        { root, output, group },
-      ),
+      file: resolver.resolveFile({ name: mutationHookName, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group }),
       fileTs: tsResolver.resolveFile(
         { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
         { root, output: pluginTs.options?.output ?? output, group: pluginTs.options?.group },
