@@ -1,22 +1,17 @@
-import { URLPath } from '@internals/utils'
 import { caseParams, createFunctionParameter, createFunctionParameters, createParamsType } from '@kubb/ast'
 import type { FunctionParameterNode, FunctionParametersNode, OperationNode, ParameterGroupNode, ParameterNode, ParamsTypeNode } from '@kubb/ast/types'
 import type { PluginTs } from '@kubb/plugin-ts'
 
 /**
- * Build JSDoc comments from an `OperationNode`.
- * Replaces `getComments(operation)` from `@kubb/plugin-oas/utils`.
+ * Build JSDoc comment lines from an OperationNode.
  */
-export function getComments(node: OperationNode): string[] {
+export function getComments(node: OperationNode): Array<string> {
   return [
     node.description && `@description ${node.description}`,
     node.summary && `@summary ${node.summary}`,
-    node.path && `{@link ${new URLPath(node.path).URL}}`,
     node.deprecated && '@deprecated',
-  ]
-    .filter((x): x is string => Boolean(x))
-    .flatMap((text) => text.split(/\r?\n/).map((line) => line.trim()))
-    .filter((x): x is string => Boolean(x))
+    `{@link ${node.path.replaceAll('{', ':').replaceAll('}', '')}}`,
+  ].filter((x): x is string => Boolean(x))
 }
 
 /**

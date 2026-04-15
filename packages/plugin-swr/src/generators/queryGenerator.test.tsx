@@ -57,6 +57,8 @@ const findByTagsNode = createOperation({
   method: 'GET',
   path: '/pet/findByTags',
   tags: ['pet'],
+  description: 'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
+  summary: 'Finds Pets by tags',
   parameters: [
     createParameter({ name: 'tags', in: 'query', schema: createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }), required: true }),
     createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) }),
@@ -72,6 +74,7 @@ const postAsQueryNode = createOperation({
   method: 'POST',
   path: '/pet/{petId}',
   tags: ['pet'],
+  summary: 'Updates a pet in the store with form data',
   parameters: [
     createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true }),
     createParameter({ name: 'name', in: 'query', schema: createSchema({ type: 'string' }) }),
@@ -91,10 +94,26 @@ describe('queryGenerator operation', async () => {
       options: {},
     },
     {
+      name: 'findByTagsTemplateString',
+      node: findByTagsNode,
+      options: {
+        client: {
+          baseURL: '${123456}',
+        },
+      },
+    },
+    {
       name: 'findByTagsPathParamsObject',
       node: findByTagsNode,
       options: {
         pathParamsType: 'object' as const,
+      },
+    },
+    {
+      name: 'findByTagsWithZod',
+      node: findByTagsNode,
+      options: {
+        parser: 'zod' as const,
       },
     },
     {

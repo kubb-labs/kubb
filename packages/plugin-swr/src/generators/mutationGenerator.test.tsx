@@ -51,18 +51,22 @@ const mockedTsPlugin = createMockedPlugin<PluginTs>({
   resolver: resolverTsLegacy,
 })
 
-// Shared operation nodes
-const addPetNode = createOperation({
-  operationId: 'addPet',
-  method: 'POST',
-  path: '/pet',
+// Shared operation nodes — match petStore.yaml operations
+
+const findByTagsNode = createOperation({
+  operationId: 'findPetsByTags',
+  method: 'GET',
+  path: '/pet/findByTags',
   tags: ['pet'],
-  description: 'Add a new pet to the store',
-  summary: 'Add a new pet to the store',
-  requestBody: { schema: createSchema({ type: 'object', properties: [] }), required: true },
+  description: 'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
+  summary: 'Finds Pets by tags',
+  parameters: [
+    createParameter({ name: 'tags', in: 'query', schema: createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }), required: true }),
+    createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) }),
+  ],
   responses: [
-    createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
-    createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+    createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' }),
+    createResponse({ statusCode: '400', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid tag value' }),
   ],
 })
 
@@ -83,16 +87,40 @@ const updatePetByIdNode = createOperation({
   ],
 })
 
+const deletePetNode = createOperation({
+  operationId: 'deletePet',
+  method: 'DELETE',
+  path: '/pet/{petId}',
+  tags: ['pet'],
+  summary: 'Deletes a pet',
+  description: 'delete a pet',
+  parameters: [
+    createParameter({ name: 'api_key', in: 'header', schema: createSchema({ type: 'string' }) }),
+    createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true }),
+  ],
+  responses: [createResponse({ statusCode: '400', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid pet value' })],
+})
+
+const getPetByIdNode = createOperation({
+  operationId: 'getPetById',
+  method: 'GET',
+  path: '/pet/{petId}',
+  tags: ['pet'],
+  summary: 'Find pet by ID',
+  description: 'Returns a single pet',
+  parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
+  responses: [
+    createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' }),
+    createResponse({ statusCode: '400', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid ID supplied' }),
+    createResponse({ statusCode: '404', schema: createSchema({ type: 'object', properties: [] }), description: 'Pet not found' }),
+  ],
+})
+
 describe('mutationGenerator operation', async () => {
   const testData = [
     {
-      name: 'addPet',
-      node: addPetNode,
-      options: {},
-    },
-    {
-      name: 'mutationImportPath',
-      node: addPetNode,
+      name: 'getAsMutation',
+      node: findByTagsNode,
       options: {
         mutation: {
           importPath: 'custom-swr/mutation',
@@ -101,8 +129,8 @@ describe('mutationGenerator operation', async () => {
       },
     },
     {
-      name: 'clientGetImportPath',
-      node: addPetNode,
+      name: 'clientPostImportPath',
+      node: updatePetByIdNode,
       options: {
         client: {
           dataReturnType: 'data' as const,
@@ -123,16 +151,26 @@ describe('mutationGenerator operation', async () => {
       },
     },
     {
-      name: 'addPetObject',
-      node: addPetNode,
+      name: 'deletePet',
+      node: deletePetNode,
+      options: {
+        mutation: {
+          importPath: 'swr/mutation',
+          methods: ['delete'] as string[],
+        },
+      },
+    },
+    {
+      name: 'deletePetObject',
+      node: getPetByIdNode,
       options: {
         paramsType: 'object' as const,
         pathParamsType: 'object' as const,
       },
     },
     {
-      name: 'addPetWithParamsToTrigger',
-      node: addPetNode,
+      name: 'updatePetByIdParamsToTrigger',
+      node: updatePetByIdNode,
       options: {
         mutation: {
           importPath: 'swr/mutation',

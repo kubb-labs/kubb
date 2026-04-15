@@ -21,9 +21,11 @@ export const mutationGenerator = defineGenerator<PluginSwr>({
     const tsResolver = pluginTs.resolver
 
     // Check if this operation is a mutation
-    const isQuery = !!query && query.methods.some((method) => node.method === method)
+    const isQuery = !!query && query.methods.some((method) => node.method.toLowerCase() === method.toLowerCase())
     const isMutation =
-      mutation !== false && !isQuery && difference(mutation ? mutation.methods : [], query ? query.methods : []).some((method) => node.method === method)
+      mutation !== false &&
+      !isQuery &&
+      difference(mutation ? mutation.methods : [], query ? query.methods : []).some((method) => node.method.toLowerCase() === method.toLowerCase())
 
     if (!isMutation) return null
 
@@ -62,7 +64,8 @@ export const mutationGenerator = defineGenerator<PluginSwr>({
       ...node.responses.map((res) => tsResolver.resolveResponseStatusName(node, res.statusCode)),
     ].filter(Boolean)
 
-    const pluginZod = parser === 'zod' ? driver.getPlugin(pluginZodName) : undefined
+    const pluginZodRaw = parser === 'zod' ? driver.getPlugin(pluginZodName) : undefined
+    const pluginZod = pluginZodRaw?.name === pluginZodName ? pluginZodRaw : undefined
     const zodResolver = pluginZod?.resolver
     const fileZod = zodResolver
       ? zodResolver.resolveFile(
@@ -75,21 +78,22 @@ export const mutationGenerator = defineGenerator<PluginSwr>({
         ? [zodResolver.resolveResponseName?.(node), node.requestBody?.schema ? zodResolver.resolveDataName?.(node) : undefined].filter(Boolean)
         : []
 
-    const hasClientPlugin = !!driver.getPlugin(pluginClientName)
+    const clientPlugin = driver.getPlugin(pluginClientName)
+    const hasClientPlugin = clientPlugin?.name === pluginClientName
     const shouldUseClientPlugin = hasClientPlugin && clientOptions.clientType !== 'class'
 
     const clientFile = shouldUseClientPlugin
-      ? driver.getPlugin(pluginClientName)?.resolver?.resolveFile(
+      ? clientPlugin?.resolver?.resolveFile(
           { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
           {
             root,
-            output: driver.getPlugin(pluginClientName)?.options?.output ?? output,
-            group: driver.getPlugin(pluginClientName)?.options?.group,
+            output: clientPlugin?.options?.output ?? output,
+            group: clientPlugin?.options?.group,
           },
         )
       : undefined
 
-    const resolvedClientName = shouldUseClientPlugin ? (driver.getPlugin(pluginClientName)?.resolver?.resolveName(node.operationId) ?? clientName) : clientName
+    const resolvedClientName = shouldUseClientPlugin ? (clientPlugin?.resolver?.resolveName(node.operationId) ?? clientName) : clientName
 
     return (
       <File
