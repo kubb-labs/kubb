@@ -767,7 +767,7 @@ export class PluginDriver {
   }
 
   /**
-   * Chains plugins
+   * Execute a lifecycle hook sequentially for all plugins that implement it.
    */
   async hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
     const plugins: Array<Plugin> = []

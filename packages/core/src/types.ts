@@ -668,7 +668,7 @@ export type ResolvePathParams<TOptions = object> = {
   baseName: FileNode['baseName']
   mode?: 'single' | 'split'
   /**
-   * Options to be passed to 'resolvePath' 3th parameter
+   * Options passed as the third argument to `resolvePath`.
    */
   options?: TOptions
 }
@@ -715,16 +715,16 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   requirePlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]>
   requirePlugin(name: string): Plugin
   /**
-   * Only add when the file does not exist yet
+   * Add files only when they do not exist yet.
    */
   addFile: (...file: Array<FileNode>) => Promise<void>
   /**
-   * merging multiple sources into the same output file
+   * Merge multiple sources into the same output file.
    */
   upsertFile: (...file: Array<FileNode>) => Promise<void>
   hooks: AsyncEventEmitter<KubbHooks>
   /**
-   * Current plugin
+   * The current plugin.
    */
   plugin: Plugin<TOptions>
   /**
@@ -766,7 +766,7 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
        */
       inputNode: InputNode
       /**
-       * Return the adapter from `@kubb/ast`
+       * The adapter from `@kubb/ast`.
        */
       adapter: Adapter
     }
@@ -794,11 +794,11 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
   options: TOptions['resolvedOptions']
 }
 /**
- * Specify the export location for the files and define the behavior of the output
+ * Configure generated file output location and behavior.
  */
 export type Output<_TOptions = unknown> = {
   /**
-   * Path to the output folder or file that will contain the generated code
+   * Path to the output folder or file that will contain generated code.
    */
   path: string
   /**
@@ -1153,7 +1153,7 @@ export type PossibleConfig<TCliOptions = undefined> =
 /**
  * All accepted forms of a Kubb configuration.
  * @deprecated
- * TODO: can we remove this?
+ * Kept for backward compatibility. Prefer `PossibleConfig<CLIOptions>` in new code.
  */
 export type ConfigInput = PossibleConfig<CLIOptions>
 
