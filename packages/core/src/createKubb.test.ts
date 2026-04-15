@@ -6,8 +6,8 @@ import { createFile, createSource, createText } from '@kubb/ast'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createMockedAdapter } from '#mocks'
 import { createKubb } from './createKubb.ts'
-import { definePlugin } from './definePlugin.ts'
 import { createPlugin } from './createPlugin.ts'
+import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
 
 describe('createKubb', () => {
