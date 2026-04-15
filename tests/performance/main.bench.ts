@@ -1,13 +1,13 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { AsyncEventEmitter } from '@internals/utils'
-import { createKubb, type Config } from '@kubb/core'
-import { defineConfig } from 'kubb'
+import { type Config, createKubb } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
+import { defineConfig } from 'kubb'
 import { bench, describe } from 'vitest'
 
 /**

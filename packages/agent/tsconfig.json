@@ -3,5 +3,6 @@
   "compilerOptions": {
     "types": ["bun-types", "../../reset.d.ts", "../../env.d.ts"],
     "allowImportingTsExtensions": true
-  }
+  },
+  "exclude": ["./data/kubb.config.ts"]
 }

@@ -1,8 +1,8 @@
 import { adapterOas } from '@kubb/adapter-oas'
-import { defineConfig } from 'kubb'
 import { parserTs } from '@kubb/parser-ts'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
+import { defineConfig } from 'kubb'
 
 export default defineConfig({
   root: '.',

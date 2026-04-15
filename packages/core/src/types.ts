@@ -1222,8 +1222,7 @@ export type CLIOptions = {
  */
 export type ConfigInput = PossiblePromise<UserConfig | UserConfig[]> | ((cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>)
 
+export type { BuildOutput } from './createKubb.ts'
 export type { Parser } from './defineParser.ts'
 export type { FunctionParamsAST } from './utils/FunctionParams.ts'
 export type { FileMetaBase } from './utils/getBarrelFiles.ts'
-
-export type { BuildOutput } from './createKubb.ts'

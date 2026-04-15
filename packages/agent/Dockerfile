@@ -3,7 +3,7 @@ ARG NODE_VERSION=20
 # Stage 1: install kubb peer dependencies using a shell-capable image
 FROM node:${NODE_VERSION}-alpine AS installer
 WORKDIR /tmp
-RUN npm install @kubb/core @kubb/cli @kubb/oas @kubb/plugin-client @kubb/plugin-cypress @kubb/plugin-faker \
+RUN npm install kubb @kubb/core @kubb/cli @kubb/oas @kubb/plugin-client @kubb/plugin-cypress @kubb/plugin-faker \
                          @kubb/plugin-mcp @kubb/plugin-msw @kubb/plugin-oas @kubb/plugin-react-query @kubb/plugin-redoc \
                          @kubb/plugin-solid-query @kubb/plugin-svelte-query @kubb/plugin-swr @kubb/plugin-ts @kubb/plugin-vue-query \
                          @kubb/plugin-zod kubb unplugin-kubb

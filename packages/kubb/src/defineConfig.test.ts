@@ -1,5 +1,5 @@
 import { isPromise } from '@internals/utils'
-import { type Plugin, type UserConfig } from '@kubb/core'
+import type { Plugin, UserConfig } from '@kubb/core'
 import { describe, expect, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin } from '#mocks'
 import { defineConfig } from './defineConfig.ts'
