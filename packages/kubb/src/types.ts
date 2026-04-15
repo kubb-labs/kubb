@@ -1,3 +1,4 @@
+import type { PossiblePromise } from '@internals/utils'
 import type {
   Adapter,
   CLIOptions,
@@ -7,7 +8,6 @@ import type {
   InputPath,
   Parser,
   PluginFactoryOptions,
-  PossibleConfig,
   UserPlugin,
 } from '@kubb/core'
 
@@ -59,4 +59,4 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
 /**
  * All accepted forms of a Kubb configuration.
  */
-export type ConfigInput = PossibleConfig<UserConfig, CLIOptions>
+export type ConfigInput = PossiblePromise<UserConfig | UserConfig[]> | ((cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>)

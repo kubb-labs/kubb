@@ -1,6 +1,6 @@
 import type { CLIOptions, Config, PossibleConfig } from '@kubb/core'
 
-type ConfigInput = PossibleConfig<Config, CLIOptions>
+type ConfigInput = PossibleConfig<CLIOptions>
 
 export async function getConfigs(config: ConfigInput, args: CLIOptions): Promise<Array<Config>> {
   const resolved = await (typeof config === 'function' ? config(args as CLIOptions) : config)

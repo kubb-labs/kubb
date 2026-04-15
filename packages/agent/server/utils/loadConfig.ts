@@ -1,7 +1,7 @@
 import type { Config, PossibleConfig } from '@kubb/core'
 import { getCosmiConfig } from './getCosmiConfig.ts'
 
-export async function getConfigs(config: PossibleConfig<Config>): Promise<Array<Config>> {
+export async function getConfigs(config: PossibleConfig): Promise<Array<Config>> {
   const resolved = await (typeof config === 'function' ? config() : config)
   const userConfigs = Array.isArray(resolved) ? resolved : [resolved]
 
