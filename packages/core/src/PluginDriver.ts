@@ -811,10 +811,7 @@ export class PluginDriver {
   }
 
   /**
-   * Run an async plugin hook and return the result.
-   * @param hookName Name of the plugin hook. Must be either in `PluginHooks` or `OutputPluginValueHooks`.
-   * @param args Arguments passed to the plugin hook.
-   * @param plugin The actual pluginObject to run.
+   * Emit hook-processing completion metadata after a plugin hook resolves.
    */
   #emitProcessingEnd<H extends PluginLifecycleHooks>({
     startTime,
@@ -893,9 +890,6 @@ export class PluginDriver {
 
   /**
    * Run a sync plugin hook and return the result.
-   * @param hookName Name of the plugin hook. Must be in `PluginHooks`.
-   * @param args Arguments passed to the plugin hook.
-   * @param plugin The actual plugin
    */
   #executeSync<H extends PluginLifecycleHooks>({
     strategy,
