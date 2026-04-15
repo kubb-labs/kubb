@@ -373,7 +373,6 @@ export class PluginDriver {
         return getMode(resolve(driver.config.root, driver.config.output.path, output.path))
       },
       hooks: driver.hooks,
-      events: driver.hooks,
       plugin,
       getPlugin: driver.getPlugin.bind(driver),
       requirePlugin: driver.requirePlugin.bind(driver),

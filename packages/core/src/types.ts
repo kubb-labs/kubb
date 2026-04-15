@@ -792,10 +792,6 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   upsertFile: (...file: Array<FileNode>) => Promise<void>
   hooks: AsyncEventEmitter<KubbHooks>
   /**
-   * @deprecated use this.hooks instead
-   */
-  events: AsyncEventEmitter<KubbHooks>
-  /**
    * Current plugin
    */
   plugin: Plugin<TOptions>
