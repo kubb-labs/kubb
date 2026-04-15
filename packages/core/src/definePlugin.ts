@@ -18,7 +18,7 @@ type PluginHooksBase = {
  * `kubb:plugin:setup` is typed with the plugin's own `PluginFactoryOptions` so
  * `ctx.setResolver`, `ctx.setOptions`, `ctx.options` etc. use the correct types.
  *
- * Uses interface + method shorthand for `kubb:plugin:setup` to ensure bivariant
+ * Uses interface + method shorthand for `kubb:plugin:setup`
  * checking, allowing `PluginHooks<PluginTs>` to be assignable to `PluginHooks`.
  *
  * @template TFactory - The plugin's `PluginFactoryOptions` type.
