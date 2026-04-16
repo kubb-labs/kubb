@@ -80,12 +80,10 @@
     "empathic": "^2.0.0",
     "fflate": "^0.8.2",
     "remeda": "catalog:",
-    "semver": "^7.7.4",
     "tinyexec": "catalog:"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
-    "@types/semver": "^7.7.1",
     "p-limit": "catalog:"
   },
   "peerDependencies": {

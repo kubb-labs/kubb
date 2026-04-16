@@ -1,6 +1,5 @@
 import { readSync } from '@internals/utils'
 import * as pkg from 'empathic/package'
-import { coerce, satisfies } from 'semver'
 
 type PackageJSON = {
   dependencies?: Record<string, string>
@@ -34,6 +33,68 @@ function match(packageJSON: PackageJSON, dependency: DependencyName | RegExp): s
   return matched ? (dependencies[matched] ?? null) : null
 }
 
+/**
+ * Extracts the first `X[.Y[.Z]]` version tuple from a version string (e.g. `^18.0.0` → `[18, 0, 0]`).
+ * Returns `null` when no numeric version can be found.
+ */
+function coerceSemver(str: string): [number, number, number] | null {
+  const m = str.match(/(\d+)(?:\.(\d+))?(?:\.(\d+))?/)
+  if (!m) {
+    return null
+  }
+  return [parseInt(m[1]!, 10), parseInt(m[2] ?? '0', 10), parseInt(m[3] ?? '0', 10)]
+}
+
+/**
+ * Returns `true` when `pkgVersion` satisfies `range`.
+ * Supports operators: `>=`, `>`, `<=`, `<`, `=`, `^`, `~`.
+ */
+function satisfiesSemver(pkgVersion: string, range: string): boolean {
+  const rm = range.trim().match(/^([><=~^]*)(\d[\d.]*)$/)
+  if (!rm) {
+    return false
+  }
+  const operator = rm[1] || '>='
+  const rangeVer = coerceSemver(rm[2]!)
+  const pkgVer = coerceSemver(pkgVersion)
+  if (!rangeVer || !pkgVer) {
+    return false
+  }
+  let cmp = 0
+  for (let i = 0; i < 3; i++) {
+    if (pkgVer[i]! > rangeVer[i]!) {
+      cmp = 1
+      break
+    }
+    if (pkgVer[i]! < rangeVer[i]!) {
+      cmp = -1
+      break
+    }
+  }
+  if (operator === '>=' || operator === '') {
+    return cmp >= 0
+  }
+  if (operator === '>') {
+    return cmp > 0
+  }
+  if (operator === '<=') {
+    return cmp <= 0
+  }
+  if (operator === '<') {
+    return cmp < 0
+  }
+  if (operator === '=' || operator === '==') {
+    return cmp === 0
+  }
+  if (operator === '^') {
+    return cmp >= 0 && pkgVer[0] === rangeVer[0]
+  }
+  if (operator === '~') {
+    return cmp >= 0 && pkgVer[0] === rangeVer[0] && pkgVer[1] === rangeVer[1]
+  }
+  return false
+}
+
 function getVersionSync(dependency: DependencyName | RegExp, cwd?: string): DependencyVersion | null {
   const packageJSON = getPackageJSONSync(cwd)
 
@@ -46,8 +107,7 @@ function getVersionSync(dependency: DependencyName | RegExp, cwd?: string): Depe
  *
  * - Searches both `dependencies` and `devDependencies`.
  * - Accepts a string package name or a `RegExp` to match scoped/pattern packages.
- * - Uses `semver.satisfies` for range comparison; returns `false` when the
- *   version string cannot be coerced into a valid semver.
+ * - Returns `false` when the version string cannot be parsed as a semver.
  *
  * @example
  * ```ts
@@ -66,11 +126,5 @@ export function satisfiesDependency(dependency: DependencyName | RegExp, version
     return true
   }
 
-  const semVer = coerce(packageVersion)
-
-  if (!semVer) {
-    return false
-  }
-
-  return satisfies(semVer, version)
+  return satisfiesSemver(packageVersion, version)
 }
