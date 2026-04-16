@@ -71,7 +71,7 @@ function satisfiesSemver(pkgVersion: string, range: string): boolean {
       break
     }
   }
-  if (operator === '>=' || operator === '') {
+  if (operator === '>=') {
     return cmp >= 0
   }
   if (operator === '>') {
