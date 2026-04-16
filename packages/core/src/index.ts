@@ -1,5 +1,6 @@
 export { AsyncEventEmitter, URLPath } from '@internals/utils'
 export { composeTransformers, definePrinter } from '@kubb/ast'
+export { ast } from './ast.ts'
 export { formatters, linters, logLevel } from './constants.ts'
 export { createAdapter } from './createAdapter.ts'
 export { createKubb } from './createKubb.ts'
