@@ -45,7 +45,8 @@
     "@kubb/plugin-zod": "4.36.1",
     "unplugin-kubb": "5.0.7",
     "e2e": "0.0.0",
-    "@kubb/parser-ts": "5.0.0-alpha.30"
+    "@kubb/parser-ts": "5.0.0-alpha.30",
+    "performance": "0.0.0"
   },
   "changesets": [
     "adapter-oas-boolean-const-inline",
@@ -66,12 +67,14 @@
     "feat-resolve-options",
     "fix-generation-summary-tty-columns",
     "generator-api-v5",
+    "kubb-events-prefix",
     "legacy-extra-enum-alias",
     "long-memes-lose",
     "missing-mutation-queryparams",
     "plugin-client-params-casing-unused-var",
     "plugin-client-v5-migration",
     "plugin-cypress-v5-upgrade",
+    "plugin-dependencies-field",
     "plugin-mcp-enum-path-params",
     "plugin-mcp-v5-migration",
     "plugin-oas-operation-manager",
@@ -92,6 +95,7 @@
     "remove-object-json-plugins-validation",
     "remove-plugin-key",
     "rename-define-to-create-factory-functions",
+    "rename-kubbhooks-api",
     "rename-plugin-manager-to-plugin-driver",
     "renderer-jsx-new-package",
     "run-generator-helpers",
