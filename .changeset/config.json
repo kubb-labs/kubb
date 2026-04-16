@@ -16,5 +16,5 @@
     "onlyUpdatePeerDependentsWhenOutOfRange": true
   },
   "useCalculatedVersion": true,
-  "ignore": ["e2e", "*-pet-store", "@internals/*"]
+  "ignore": ["@internals/*"]
 }
