@@ -1,3 +1,4 @@
+// TODO can we have KubbHooksEventEmitter type?
 export { AsyncEventEmitter, URLPath } from '@internals/utils'
 export * as ast from '@kubb/ast'
 export { formatters, linters, logLevel } from './constants.ts'
