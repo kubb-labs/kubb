@@ -36,7 +36,7 @@ type GetParamsProps = {
 
 function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, pageParamGeneric }: GetParamsProps) {
   if (paramsType === 'object') {
-    const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
+    const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing, override: (item) => ({ ...item, type: `${item.type} | undefined` }) })
 
     const children = {
       ...pathParams,
@@ -88,6 +88,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, page
           children: getPathParams(typeSchemas.pathParams, {
             typed: true,
             casing: paramsCasing,
+            override: (item) => ({ ...item, type: `${item.type} | undefined` }),
           }),
           default: isAllOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
         }

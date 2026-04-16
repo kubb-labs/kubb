@@ -40,7 +40,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
         override(item) {
           return {
             ...item,
-            type: `MaybeRefOrGetter<${item.type}>`,
+            type: `MaybeRefOrGetter<${item.type} | undefined>`,
           }
         },
       }),
@@ -91,7 +91,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
         override(item) {
           return {
             ...item,
-            type: `MaybeRefOrGetter<${item.type}>`,
+            type: `MaybeRefOrGetter<${item.type} | undefined>`,
           }
         },
       }),
@@ -207,14 +207,15 @@ export function InfiniteQueryOptions({
           params['${queryParam}'] = pageParam as unknown as ${typeSchemas.queryParams?.name}['${queryParam}']`
       : ''
 
-  const enabled = Object.entries(queryKeyParams.flatParams)
-    .map(([key, item]) => {
+  const enabledPathParams = getPathParams(typeSchemas.pathParams, { casing: paramsCasing })
+  const enabledParamNames = new Set(
+    Object.entries(enabledPathParams)
       // Only include if the parameter exists and is NOT optional
       // This ensures we only check required parameters
-      return item && !item.optional && !item.default ? key : undefined
-    })
-    .filter(Boolean)
-    .join('&& ')
+      .filter(([, item]) => item && !item.optional && !item.default)
+      .map(([key]) => key),
+  )
+  const enabled = [...enabledParamNames].join(' && ')
 
   const enabledText = enabled ? `enabled: !!(${enabled}),` : ''
 
@@ -234,7 +235,7 @@ export function InfiniteQueryOptions({
                 return '{ ...config, signal: config.signal ?? signal }'
               }
 
-              return `toValue(${name})`
+              return `toValue(${name})${enabledParamNames.has(name) ? '!' : ''}`
             },
           })})
        },

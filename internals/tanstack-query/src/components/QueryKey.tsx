@@ -27,7 +27,7 @@ function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing, override: (item) => ({ ...item, type: `${item.type} | undefined` }) }),
         }
       : undefined,
     data: typeSchemas.request?.name
