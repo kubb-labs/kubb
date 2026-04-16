@@ -1,6 +1,6 @@
 import { AsyncEventEmitter } from '@internals/utils'
 import { describe, expect, it, vi } from 'vitest'
-import { createMockedAdapter } from '#mocks'
+import { createMockedAdapter } from '@kubb/core/mocks'
 import { createPlugin } from './createPlugin.ts'
 import { definePlugin, isHookStylePlugin } from './definePlugin.ts'
 import { PluginDriver } from './PluginDriver.ts'

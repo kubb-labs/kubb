@@ -32,3 +32,5 @@ export { createFunctionParams, FunctionParams, getFunctionParams } from './utils
 export { isInputPath } from './utils/isInputPath.ts'
 export { detectLinter } from './utils/linters.ts'
 export { satisfiesDependency } from './utils/packageJSON.ts'
+export { FileProcessor } from "./FileProcessor.ts"
+export { FileManager } from "./FileManager.ts"

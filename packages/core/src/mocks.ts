@@ -1,50 +1,60 @@
-import path, { resolve } from 'node:path'
-import type { Options } from 'prettier'
-import { format as prettierFormat } from 'prettier'
-import pluginTypescript from 'prettier/plugins/typescript'
-import { expect } from 'vitest'
-import { camelCase, pascalCase } from '../internals/utils/src/index.ts'
-import { transform } from '../packages/ast/src/index.ts'
-import type { FileNode, OperationNode, SchemaNode, Visitor } from '../packages/ast/src/types.ts'
+import { resolve } from 'node:path'
+import { transform } from '@kubb/ast'
+import type { FileNode, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
+import { FileManager } from './FileManager.ts'
+import { getMode, PluginDriver } from './PluginDriver.ts'
+import { applyHookResult } from './renderNode.ts'
 import type {
   Adapter,
   AdapterFactoryOptions,
+  Config,
   Generator,
   GeneratorContext,
   Plugin,
-  PluginDriver,
   PluginFactoryOptions,
   ResolveNameParams,
   ResolvePathParams,
-} from '../packages/core/src'
-import { getMode } from '../packages/core/src'
-import { FileManager } from '../packages/core/src/FileManager.ts'
-import { FileProcessor } from '../packages/core/src/FileProcessor.ts'
-import { applyHookResult } from '../packages/core/src/renderNode'
-import { parserTs } from '../packages/parser-ts/src/index.ts'
+} from './types.ts'
 
-const formatOptions: Options = {
-  tabWidth: 2,
-  printWidth: 160,
-  parser: 'typescript',
-  singleQuote: true,
-  semi: false,
-  bracketSameLine: false,
-  endOfLine: 'auto',
-  plugins: [pluginTypescript],
+function toCamelOrPascal(text: string, pascal: boolean): string {
+  const normalized = text
+    .trim()
+    .replace(/([a-z\d])([A-Z])/g, '$1 $2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+    .replace(/(\d)([a-z])/g, '$1 $2')
+
+  const words = normalized.split(/[\s\-_./\\:]+/).filter(Boolean)
+
+  return words
+    .map((word, i) => {
+      const allUpper = word.length > 1 && word === word.toUpperCase()
+      if (allUpper) return word
+      if (i === 0 && !pascal) return word.charAt(0).toLowerCase() + word.slice(1)
+      return word.charAt(0).toUpperCase() + word.slice(1)
+    })
+    .join('')
+    .replace(/[^a-zA-Z0-9]/g, '')
 }
 
-export async function format(source?: string): Promise<string> {
-  if (!source) return ''
-  try {
-    return prettierFormat(source, formatOptions)
-  } catch {
-    return source
-  }
+function camelCase(text: string): string {
+  return toCamelOrPascal(text, false)
 }
 
-export const createMockedPluginDriver = (options: { name?: string; plugin?: Plugin<any>; config?: PluginDriver['config'] } = {}) =>
-  ({
+function pascalCase(text: string): string {
+  return toCamelOrPascal(text, true)
+}
+
+/**
+ * Creates a minimal `PluginDriver` mock suitable for unit tests.
+ */
+export function createMockedPluginDriver(
+  options: {
+    name?: string
+    plugin?: Plugin<any>
+    config?: Config
+  } = {},
+): PluginDriver {
+  return {
     resolveName: (result: ResolveNameParams) => {
       if (result.type === 'file') {
         return camelCase(options?.name || result.name)
@@ -71,7 +81,7 @@ export const createMockedPluginDriver = (options: { name?: string; plugin?: Plug
       name,
       extname,
       pluginName,
-      options,
+      options: fileOptions,
     }: {
       name: string
       extname: `.${string}`
@@ -79,9 +89,7 @@ export const createMockedPluginDriver = (options: { name?: string; plugin?: Plug
       options?: { group?: { tag?: string; path?: string } }
     }) => {
       const baseName = `${name}${extname}`
-      // Mirror plugin-ts resolvePath: for tag groups use the tag directly; for path groups
-      // take the first non-empty segment (strips leading '/') to avoid absolute-looking paths.
-      const groupDir = options?.group?.tag ?? options?.group?.path?.split('/').filter(Boolean)[0]
+      const groupDir = fileOptions?.group?.tag ?? fileOptions?.group?.path?.split('/').filter(Boolean)[0]
       const filePath = groupDir ? `${groupDir}/${baseName}` : baseName
 
       return {
@@ -94,9 +102,8 @@ export const createMockedPluginDriver = (options: { name?: string; plugin?: Plug
       return options?.plugin
     },
     fileManager: new FileManager(),
-  }) as unknown as PluginDriver
-
-export const mockedPluginDriver = createMockedPluginDriver()
+  } as unknown as PluginDriver
+}
 
 /**
  * Creates a minimal `Adapter` mock suitable for unit tests.
@@ -146,38 +153,8 @@ export function createMockedPlugin<TOptions extends PluginFactoryOptions = Plugi
   } as unknown as Plugin<TOptions>
 }
 
-export async function matchFiles(files: Array<FileNode> | undefined, pre?: string) {
-  if (!files?.length) return
-
-  const fileProcessor = new FileProcessor()
-  const parsers = new Map<`.${string}`, any>()
-  parsers.set('.ts', parserTs)
-
-  const processed = new Map<string, string>()
-
-  for (const file of files) {
-    if (!file?.path) {
-      continue
-    }
-
-    if (processed.has(file.path)) {
-      continue
-    }
-
-    const parsed = await fileProcessor.parse(file as any, { parsers })
-    const code = file.baseName.endsWith('.json') ? parsed : await format(parsed)
-
-    processed.set(file.path, code)
-
-    const snapshotPath = path.join('__snapshots__', ...(pre ? [camelCase(pre)] : []), file.baseName)
-    await expect(code).toMatchFileSnapshot(snapshotPath)
-  }
-
-  return processed
-}
-
 type RenderGeneratorOptions<TOptions extends PluginFactoryOptions> = {
-  config: PluginDriver['config']
+  config: Config
   adapter: Adapter
   driver: PluginDriver
   plugin: Plugin<TOptions>
@@ -208,8 +185,6 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
 /**
  * Renders a generator's `schema` method in a test context.
  *
- * Replaces the old `renderSchema(node, { ..., Component: generator.Schema })` API.
- *
  * @example
  * await renderGeneratorSchema(typeGenerator, node, { config, adapter, driver, plugin, options, resolver })
  * await matchFiles(driver.fileManager.files)
@@ -229,8 +204,6 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
 /**
  * Renders a generator's `operation` method in a test context.
  *
- * Replaces the old `renderOperation(node, { ..., Component: generator.Operation })` API.
- *
  * @example
  * await renderGeneratorOperation(typeGenerator, node, { config, adapter, driver, plugin, options, resolver })
  * await matchFiles(driver.fileManager.files)
@@ -249,8 +222,6 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
 
 /**
  * Renders a generator's `operations` method in a test context.
- *
- * Replaces the old `renderOperations(nodes, { ..., Component: generator.Operations })` API.
  *
  * @example
  * await renderGeneratorOperations(classClientGenerator, nodes, { config, adapter, driver, plugin, options, resolver })

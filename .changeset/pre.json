@@ -18,6 +18,7 @@
     "add-adapter-document-field",
     "add-code-ast-nodes",
     "add-collision-detection-option",
+    "add-core-mocks-subpath",
     "add-create-operation-params",
     "add-default-adapter-and-parsers",
     "add-express-style-paths",
