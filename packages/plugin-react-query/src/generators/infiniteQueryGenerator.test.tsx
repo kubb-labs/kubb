@@ -86,9 +86,7 @@ const findByStatusNode = createOperation({
   tags: ['pet'],
   summary: 'Finds Pets by status',
   description: 'Multiple status values can be provided with comma separated strings',
-  parameters: [
-    createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) }),
-  ],
+  parameters: [createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) })],
   responses: [
     createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' }),
     createResponse({ statusCode: '400', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid status value' }),

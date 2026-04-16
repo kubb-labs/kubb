@@ -1,6 +1,6 @@
-import { defineGenerator } from '@kubb/core'
 import type { OperationNode } from '@kubb/ast/types'
-import { File, Type, jsxRenderer } from '@kubb/renderer-jsx'
+import { defineGenerator } from '@kubb/core'
+import { File, jsxRenderer, Type } from '@kubb/renderer-jsx'
 import { difference } from 'remeda'
 import type { PluginReactQuery } from '../types'
 import { transformName } from '../utils.ts'

@@ -96,9 +96,7 @@ const getPetIdNode = createOperation({
   tags: ['pet'],
   summary: 'Find pet by ID',
   description: 'Returns a single pet',
-  parameters: [
-    createParameter({ name: 'pet_id', in: 'path', schema: createSchema({ type: 'integer' }), required: true }),
-  ],
+  parameters: [createParameter({ name: 'pet_id', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
   responses: [
     createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' }),
     createResponse({ statusCode: '400', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid ID supplied' }),
@@ -112,9 +110,7 @@ const findByStatusNode = createOperation({
   tags: ['pet'],
   summary: 'Finds Pets by status',
   description: 'Multiple status values can be provided with comma separated strings',
-  parameters: [
-    createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) }),
-  ],
+  parameters: [createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) })],
   responses: [
     createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' }),
     createResponse({ statusCode: '400', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid status value' }),
@@ -131,9 +127,7 @@ const createUsersWithListNode = createOperation({
     required: true,
     schema: createSchema({ type: 'array', items: [createSchema({ type: 'object', properties: [] })] }),
   },
-  responses: [
-    createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
-  ],
+  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' })],
 })
 
 describe('queryGenerator operation', async () => {

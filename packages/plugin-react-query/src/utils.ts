@@ -1,7 +1,7 @@
 import type { OperationNode, ParameterNode } from '@kubb/ast/types'
+import type { ResolveNameParams } from '@kubb/core'
 import type { Operation } from '@kubb/oas'
 import type { OperationSchema, OperationSchemas } from '@kubb/plugin-oas'
-import type { ResolveNameParams } from '@kubb/core'
 import type { PluginReactQuery } from './types.ts'
 
 /**
@@ -9,11 +9,7 @@ import type { PluginReactQuery } from './types.ts'
  * Mirrors the old `createPlugin` `resolveName` lifecycle that applied transformers
  * after resolving the full name (base + suffix).
  */
-export function transformName(
-  name: string,
-  type: ResolveNameParams['type'],
-  transformers?: PluginReactQuery['resolvedOptions']['transformers'],
-): string {
+export function transformName(name: string, type: ResolveNameParams['type'], transformers?: PluginReactQuery['resolvedOptions']['transformers']): string {
   return transformers?.name?.(name, type) || name
 }
 
@@ -99,9 +95,10 @@ export function buildLegacyTypeSchemas(node: OperationNode, resolver: any): Oper
       (r) =>
         ({
           name: resolver.resolveResponseStatusName(node, r.statusCode),
-          keys: ('properties' in r.schema && Array.isArray(r.schema.properties))
-            ? r.schema.properties.map((p: { name: string; required?: boolean }) => (p.required ? p.name : `${p.name}?`))
-            : [],
+          keys:
+            'properties' in r.schema && Array.isArray(r.schema.properties)
+              ? r.schema.properties.map((p: { name: string; required?: boolean }) => (p.required ? p.name : `${p.name}?`))
+              : [],
         }) as OperationSchema,
     ),
   }
@@ -125,4 +122,3 @@ export function resolveImportedTypeNames(node: OperationNode, tsResolver: any): 
     ...node.responses.map((res) => tsResolver.resolveResponseStatusName(node, res.statusCode)),
   ].filter(Boolean) as string[]
 }
-

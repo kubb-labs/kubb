@@ -95,9 +95,7 @@ const getPetIdNode = createOperation({
   tags: ['pet'],
   summary: 'Find pet by ID',
   description: 'Returns a single pet',
-  parameters: [
-    createParameter({ name: 'pet_id', in: 'path', schema: createSchema({ type: 'integer' }), required: true }),
-  ],
+  parameters: [createParameter({ name: 'pet_id', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
   responses: [
     createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' }),
     createResponse({ statusCode: '400', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid ID supplied' }),
@@ -111,12 +109,8 @@ const deletePetIdNode = createOperation({
   tags: ['pet'],
   summary: 'Deletes a pet',
   description: 'delete a pet',
-  parameters: [
-    createParameter({ name: 'pet_id', in: 'path', schema: createSchema({ type: 'integer' }), required: true }),
-  ],
-  responses: [
-    createResponse({ statusCode: '400', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid pet value' }),
-  ],
+  parameters: [createParameter({ name: 'pet_id', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
+  responses: [createResponse({ statusCode: '400', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid pet value' })],
 })
 
 const createUsersWithListNode = createOperation({
@@ -129,25 +123,19 @@ const createUsersWithListNode = createOperation({
     required: true,
     schema: createSchema({ type: 'array', items: [createSchema({ type: 'object', properties: [] })] }),
   },
-  responses: [
-    createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
-  ],
+  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' })],
 })
 
 const ordersNode = createOperation({
   operationId: 'createOrder',
   method: 'POST',
   path: '/orders',
-  parameters: [
-    createParameter({ name: 'X-Trace-Id', in: 'header', schema: createSchema({ type: 'string' }) }),
-  ],
+  parameters: [createParameter({ name: 'X-Trace-Id', in: 'header', schema: createSchema({ type: 'string' }) })],
   requestBody: {
     required: true,
     schema: createSchema({ type: 'object', properties: [] }),
   },
-  responses: [
-    createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'ok' }),
-  ],
+  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'ok' })],
 })
 
 describe('mutationGenerator operation', async () => {

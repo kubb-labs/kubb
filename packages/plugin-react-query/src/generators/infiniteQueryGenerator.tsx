@@ -14,8 +14,20 @@ export const infiniteQueryGenerator = defineGenerator<PluginReactQuery>({
   renderer: jsxRenderer,
   operation(node, ctx) {
     const { adapter, config, driver, resolver, root } = ctx
-    const { output, query, mutation, paramsCasing, paramsType, pathParamsType, parser, client: clientOptions, group, transformers, customOptions, infinite } =
-      ctx.options
+    const {
+      output,
+      query,
+      mutation,
+      paramsCasing,
+      paramsType,
+      pathParamsType,
+      parser,
+      client: clientOptions,
+      group,
+      transformers,
+      customOptions,
+      infinite,
+    } = ctx.options
 
     const pluginTs = driver.getPlugin(pluginTsName)
     if (!pluginTs?.resolver) return null

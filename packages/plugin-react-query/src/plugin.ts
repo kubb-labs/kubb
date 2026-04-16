@@ -77,9 +77,15 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
 
   const selectedGenerators =
     options.generators ??
-    [queryGenerator, suspenseQueryGenerator, infiniteQueryGenerator, suspenseInfiniteQueryGenerator, mutationGenerator, hookOptionsGenerator, customHookOptionsFileGenerator].filter(
-      Boolean,
-    )
+    [
+      queryGenerator,
+      suspenseQueryGenerator,
+      infiniteQueryGenerator,
+      suspenseInfiniteQueryGenerator,
+      mutationGenerator,
+      hookOptionsGenerator,
+      customHookOptionsFileGenerator,
+    ].filter(Boolean)
 
   const groupConfig = group
     ? ({
