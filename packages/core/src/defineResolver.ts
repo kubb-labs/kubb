@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { createFile, isOperationNode, isSchemaNode } from '@kubb/ast'
 import type { FileNode, InputNode, Node, OperationNode, SchemaNode } from '@kubb/ast'
+import { createFile, isOperationNode, isSchemaNode } from '@kubb/ast'
 import { getMode } from './PluginDriver.ts'
 import type {
   Config,

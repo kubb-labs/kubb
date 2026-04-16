@@ -1,6 +1,6 @@
 import path from 'node:path'
-import { createFile } from '@kubb/ast'
 import type { FileNode } from '@kubb/ast'
+import { createFile } from '@kubb/ast'
 import { describe, expect, test } from 'vitest'
 import { TreeNode } from './TreeNode.ts'
 
