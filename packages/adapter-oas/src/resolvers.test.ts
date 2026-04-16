@@ -1,4 +1,4 @@
-import { toSnapshot } from '@internals/utils'
+import { toSnapshot } from '#mocks'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import {

@@ -1,4 +1,4 @@
-import { toSnapshot } from '@internals/utils'
+import { toSnapshot } from '#mocks'
 import { ast } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { applyDiscriminatorInheritance } from './discriminator.ts'

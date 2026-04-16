@@ -1,12 +1,3 @@
-/** Thrown when a plugin's configuration or input fails validation.
- *
- * @example
- * ```ts
- * throw new ValidationPluginError('Invalid config: "output.path" is required')
- * ```
- */
-export class ValidationPluginError extends Error {}
-
 /**
  * Thrown when one or more errors occur during a Kubb build.
  * Carries the full list of underlying errors on `errors`.

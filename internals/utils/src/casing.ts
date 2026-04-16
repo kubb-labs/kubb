@@ -85,31 +85,3 @@ export function pascalCase(text: string, { isFile, prefix = '', suffix = '' }: O
   return toCamelOrPascal(`${prefix} ${text} ${suffix}`, true)
 }
 
-/**
- * Converts `text` to snake_case.
- *
- * @example
- * snakeCase('helloWorld')  // 'hello_world'
- * snakeCase('Hello-World') // 'hello_world'
- */
-export function snakeCase(text: string, { prefix = '', suffix = '' }: Omit<Options, 'isFile'> = {}): string {
-  const processed = `${prefix} ${text} ${suffix}`.trim()
-  return processed
-    .replace(/([a-z])([A-Z])/g, '$1_$2')
-    .replace(/[\s\-.]+/g, '_')
-    .replace(/[^a-zA-Z0-9_]/g, '')
-    .toLowerCase()
-    .split('_')
-    .filter(Boolean)
-    .join('_')
-}
-
-/**
- * Converts `text` to SCREAMING_SNAKE_CASE.
- *
- * @example
- * screamingSnakeCase('helloWorld') // 'HELLO_WORLD'
- */
-export function screamingSnakeCase(text: string, { prefix = '', suffix = '' }: Omit<Options, 'isFile'> = {}): string {
-  return snakeCase(text, { prefix, suffix }).toUpperCase()
-}

@@ -28,7 +28,6 @@ export interface PackageManagerInfo {
    */
   installCommand: ReadonlyArray<string>
 }
-
 /**
  * Metadata for each supported package manager, keyed by its short name.
  *
@@ -38,7 +37,7 @@ export interface PackageManagerInfo {
  * packageManagers.npm.lockFile        // 'package-lock.json'
  * ```
  */
-export const packageManagers: Record<PackageManagerName, PackageManagerInfo> = {
+const packageManagers: Record<PackageManagerName, PackageManagerInfo> = {
   pnpm: {
     name: 'pnpm',
     lockFile: 'pnpm-lock.yaml',
