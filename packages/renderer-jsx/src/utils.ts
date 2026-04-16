@@ -10,7 +10,7 @@ import {
   createText,
   createType,
 } from '@kubb/ast'
-import type { ArrowFunctionNode, CodeNode, ExportNode, FileNode, ImportNode, JSDocNode, SourceNode } from '@kubb/ast/types'
+import type { ArrowFunctionNode, CodeNode, ExportNode, FileNode, ImportNode, JSDocNode, SourceNode } from '@kubb/ast'
 import { nodeNames, TEXT_NODE_NAME } from './constants.ts'
 import type { DOMElement, DOMNode, ElementNames } from './types.ts'
 

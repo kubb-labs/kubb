@@ -8,7 +8,7 @@
  * - Bidirectional: ErrorMessage, StatusMessage
  */
 
-import type { FileNode } from '@kubb/ast/types'
+import type { FileNode } from '@kubb/ast'
 import type { Config } from '@kubb/core'
 
 export type JSONKubbConfig = {

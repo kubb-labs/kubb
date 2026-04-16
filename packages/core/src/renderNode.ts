@@ -1,4 +1,4 @@
-import type { FileNode } from '@kubb/ast/types'
+import type { FileNode } from '@kubb/ast'
 import type { RendererFactory } from './createRenderer.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 

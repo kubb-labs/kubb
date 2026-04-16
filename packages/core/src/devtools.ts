@@ -1,4 +1,4 @@
-import type { InputNode } from '@kubb/ast/types'
+import type { InputNode } from '@kubb/ast'
 import { deflateSync, inflateSync } from 'fflate'
 import { x } from 'tinyexec'
 import type { DevtoolsOptions } from './types.ts'

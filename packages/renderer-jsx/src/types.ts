@@ -1,4 +1,4 @@
-import type { ArrowFunctionNode, ConstNode, ExportNode, FileNode, FunctionNode, ImportNode, SourceNode, TypeNode } from '@kubb/ast/types'
+import type { ArrowFunctionNode, ConstNode, ExportNode, FileNode, FunctionNode, ImportNode, SourceNode, TypeNode } from '@kubb/ast'
 import type React from 'react'
 import type { JSX, ReactNode } from 'react'
 

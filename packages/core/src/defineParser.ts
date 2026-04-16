@@ -1,4 +1,4 @@
-import type { FileNode } from '@kubb/ast/types'
+import type { FileNode } from '@kubb/ast'
 
 type PrintOptions = {
   extname?: FileNode['extname']

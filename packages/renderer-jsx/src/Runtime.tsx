@@ -1,5 +1,5 @@
 import { onProcessExit } from '@internals/utils'
-import type { FileNode } from '@kubb/ast/types'
+import type { FileNode } from '@kubb/ast'
 import { ConcurrentRoot } from 'react-reconciler/constants.js'
 import { Root } from './components/Root.tsx'
 import { createNode } from './dom.ts'

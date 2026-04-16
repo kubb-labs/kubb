@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createFile, createSource, createText } from '@kubb/ast'
-import type { FileNode } from '@kubb/ast/types'
+import type { FileNode } from '@kubb/ast'
 import { describe, expect, it, test } from 'vitest'
 import { FileManager } from '../FileManager.ts'
 import { getBarrelFiles } from './getBarrelFiles.ts'

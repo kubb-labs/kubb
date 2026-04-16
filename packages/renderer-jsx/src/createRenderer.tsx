@@ -1,4 +1,4 @@
-import type { FileNode } from '@kubb/ast/types'
+import type { FileNode } from '@kubb/ast'
 import { Runtime } from './Runtime.tsx'
 import type { KubbReactElement } from './types.ts'
 

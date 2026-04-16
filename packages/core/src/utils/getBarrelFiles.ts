@@ -2,7 +2,7 @@
 import { join } from 'node:path'
 import { getRelativePath } from '@internals/utils'
 import { createExport, createFile, createSource } from '@kubb/ast'
-import type { FileNode } from '@kubb/ast/types'
+import type { FileNode } from '@kubb/ast'
 import type { BarrelType } from '../types.ts'
 import { TreeNode } from './TreeNode.ts'
 
