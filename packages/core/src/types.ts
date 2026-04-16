@@ -1,6 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
 import type { FileNode, ImportNode, InputNode, Node, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
-import type { HttpMethod } from '@kubb/oas'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
@@ -970,6 +969,8 @@ type ByPath = {
   type: 'path'
   pattern: string | RegExp
 }
+
+type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'head' | 'options' | 'trace'
 
 type ByMethod = {
   type: 'method'
