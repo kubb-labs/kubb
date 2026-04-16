@@ -1,5 +1,4 @@
 import { stringify, toRegExpString } from '@internals/utils'
-import type { Ast } from '@kubb/core'
 import { ast } from '@kubb/core'
 import type { PluginZod, ResolverZod } from './types.ts'
 
@@ -17,7 +16,7 @@ export function shouldCoerce(coercion: PluginZod['resolvedOptions']['coercion'] 
  * Collects all resolved schema names for an operation's parameters and responses
  * into a single lookup object, useful for building imports and type references.
  */
-export function buildSchemaNames(node: Ast.OperationNode, { params, resolver }: { params: Array<Ast.ParameterNode>; resolver: ResolverZod }) {
+export function buildSchemaNames(node: ast.OperationNode, { params, resolver }: { params: Array<ast.ParameterNode>; resolver: ResolverZod }) {
   const pathParam = params.find((p) => p.in === 'path')
   const queryParam = params.find((p) => p.in === 'query')
   const headerParam = params.find((p) => p.in === 'header')
@@ -196,8 +195,8 @@ export function applyMiniModifiers({ value, nullable, optional, nullish, default
  * A `visited` set prevents infinite recursion on circular schema graphs.
  */
 export function containsSelfRef(
-  node: Ast.SchemaNode,
-  { schemaName, resolver, visited = new Set() }: { schemaName: string; resolver: ResolverZod | undefined; visited?: Set<Ast.SchemaNode> },
+  node: ast.SchemaNode,
+  { schemaName, resolver, visited = new Set() }: { schemaName: string; resolver: ResolverZod | undefined; visited?: Set<ast.SchemaNode> },
 ): boolean {
   if (visited.has(node)) return false
   visited.add(node)
@@ -224,7 +223,7 @@ export function containsSelfRef(
 }
 
 type BuildGroupedParamsSchemaOptions = {
-  params: Array<Ast.ParameterNode>
+  params: Array<ast.ParameterNode>
   optional?: boolean
 }
 
@@ -232,7 +231,7 @@ type BuildGroupedParamsSchemaOptions = {
  * Builds an `object` schema node grouping the given parameter nodes.
  * The `primitive: 'object'` marker ensures the Zod printer emits `z.object(…)` rather than a record.
  */
-export function buildGroupedParamsSchema({ params, optional }: BuildGroupedParamsSchemaOptions): Ast.SchemaNode {
+export function buildGroupedParamsSchema({ params, optional }: BuildGroupedParamsSchemaOptions): ast.SchemaNode {
   return ast.createSchema({
     type: 'object',
     optional,

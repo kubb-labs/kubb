@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 
-import type { Ast, Config, Group } from '@kubb/core'
+import type { Config, Group } from '@kubb/core'
 import { ast } from '@kubb/core'
 import { describe, expect, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation, renderGeneratorSchema } from '#mocks'
@@ -128,7 +128,7 @@ const additionalPropertiesObjectSchema = ast.createSchema({
   additionalProperties: ast.createSchema({ type: 'string' }),
 })
 
-const operationWithSnakeCaseParams: Ast.OperationNode = ast.createOperation({
+const operationWithSnakeCaseParams: ast.OperationNode = ast.createOperation({
   operationId: 'updatePet',
   method: 'POST',
   path: '/pets/{pet_id}',
@@ -150,7 +150,7 @@ const operationWithSnakeCaseParams: Ast.OperationNode = ast.createOperation({
 })
 
 describe('zodGenerator — Schema', () => {
-  const schemas: Array<{ name: string; node: Ast.SchemaNode; options?: Partial<PluginZod['resolvedOptions']> }> = [
+  const schemas: Array<{ name: string; node: ast.SchemaNode; options?: Partial<PluginZod['resolvedOptions']> }> = [
     { name: 'string', node: stringSchema },
     { name: 'number', node: numberSchema },
     { name: 'integer', node: integerSchema },
@@ -242,7 +242,7 @@ describe('zodGenerator — Schema', () => {
 })
 
 describe('zodGenerator — Operation', () => {
-  const operations: Array<{ name: string; node: Ast.OperationNode; options?: Partial<PluginZod['resolvedOptions']> }> = [
+  const operations: Array<{ name: string; node: ast.OperationNode; options?: Partial<PluginZod['resolvedOptions']> }> = [
     {
       name: 'listPets — GET with query params',
       node: ast.createOperation({
@@ -570,7 +570,7 @@ describe('zodGenerator — paramsCasing', () => {
 
 describe('zodGenerator — transformers', () => {
   test('schema transformer — removes optional properties from object', async () => {
-    const removeOptionalProperties: Ast.Visitor = {
+    const removeOptionalProperties: ast.Visitor = {
       schema(node) {
         if ('properties' in node) {
           return { ...node, properties: node.properties.filter((p) => p.required) }
@@ -594,7 +594,7 @@ describe('zodGenerator — transformers', () => {
   })
 
   test('schema transformer — maps integer type to string', async () => {
-    const integerToString: Ast.Visitor = {
+    const integerToString: ast.Visitor = {
       schema(node) {
         if (node.type === 'integer') return { ...node, type: 'string' }
         return node

@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
 
-import type { Ast, Config } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTsLegacy } from '@kubb/plugin-ts'
@@ -185,7 +185,7 @@ describe('mutationGenerator operation', async () => {
         },
       },
     },
-  ] as const satisfies Array<{ name: string; node: Ast.OperationNode; options: Partial<PluginSwr['resolvedOptions']> }>
+  ] as const satisfies Array<{ name: string; node: ast.OperationNode; options: Partial<PluginSwr['resolvedOptions']> }>
 
   test.each(testData)('$name', async (props) => {
     const options: PluginSwr['resolvedOptions'] = {

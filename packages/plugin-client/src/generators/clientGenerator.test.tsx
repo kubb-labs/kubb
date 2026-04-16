@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
 
-import type { Ast, Config } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
@@ -157,7 +157,7 @@ describe('clientGenerator operation', () => {
       node: underscoredPathParamsNode,
       options: { paramsCasing: 'camelcase' as const, pathParamsType: 'inline' as const },
     },
-  ] as const satisfies Array<{ name: string; node: Ast.OperationNode; options: Partial<PluginClient['resolvedOptions']>; baseURL?: string }>
+  ] as const satisfies Array<{ name: string; node: ast.OperationNode; options: Partial<PluginClient['resolvedOptions']>; baseURL?: string }>
 
   test.each(testData)('$name', async (props) => {
     const options: PluginClient['resolvedOptions'] = {

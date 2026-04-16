@@ -1,4 +1,4 @@
-import type { Ast, Config } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
@@ -39,7 +39,7 @@ const mockedTsPlugin = createMockedPlugin<PluginTs>({
   resolver: resolverTs,
 })
 
-const operationNodes: Array<Ast.OperationNode> = [
+const operationNodes: Array<ast.OperationNode> = [
   ast.createOperation({
     operationId: 'findPetsByTags',
     method: 'GET',

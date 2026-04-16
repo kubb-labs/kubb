@@ -1,4 +1,3 @@
-import type { Ast } from '@kubb/core'
 import { ast, defineGenerator } from '@kubb/core'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Operations } from '../components/Operations.tsx'
@@ -9,10 +8,10 @@ import { printerZodMini } from '../printers/printerZodMini.ts'
 import type { PluginZod, ResolverZod } from '../types'
 
 type BuildGroupedParamsSchemaOptions = {
-  params: Array<Ast.ParameterNode>
+  params: Array<ast.ParameterNode>
 }
 
-function buildGroupedParamsSchema({ params, optional }: BuildGroupedParamsSchemaOptions & { optional?: boolean }): Ast.SchemaNode {
+function buildGroupedParamsSchema({ params, optional }: BuildGroupedParamsSchemaOptions & { optional?: boolean }): ast.SchemaNode {
   return ast.createSchema({
     type: 'object',
     optional,
@@ -31,7 +30,7 @@ type BuildOperationSchemaOptions = {
   resolver: ResolverZod
 }
 
-function buildLegacyResponsesSchemaNode(node: Ast.OperationNode, { resolver }: BuildOperationSchemaOptions): Ast.SchemaNode | null {
+function buildLegacyResponsesSchemaNode(node: ast.OperationNode, { resolver }: BuildOperationSchemaOptions): ast.SchemaNode | null {
   const isGet = node.method.toLowerCase() === 'get'
   const successResponses = node.responses.filter((res) => {
     const code = Number(res.statusCode)
@@ -109,7 +108,7 @@ function buildLegacyResponsesSchemaNode(node: Ast.OperationNode, { resolver }: B
   return ast.createSchema({ type: 'object', primitive: 'object', properties })
 }
 
-function buildLegacyResponseUnionSchemaNode(node: Ast.OperationNode, { resolver }: BuildOperationSchemaOptions): Ast.SchemaNode {
+function buildLegacyResponseUnionSchemaNode(node: ast.OperationNode, { resolver }: BuildOperationSchemaOptions): ast.SchemaNode {
   const successResponses = node.responses.filter((res) => {
     const code = Number(res.statusCode)
     return !Number.isNaN(code) && code >= 200 && code < 300
@@ -129,7 +128,7 @@ function buildLegacyResponseUnionSchemaNode(node: Ast.OperationNode, { resolver 
   })
 }
 
-function buildLegacySchemaNames(node: Ast.OperationNode, params: Array<Ast.ParameterNode>, resolver: ResolverZod) {
+function buildLegacySchemaNames(node: ast.OperationNode, params: Array<ast.ParameterNode>, resolver: ResolverZod) {
   const pathParam = params.find((p) => p.in === 'path')
   const queryParam = params.find((p) => p.in === 'query')
   const headerParam = params.find((p) => p.in === 'header')
@@ -221,7 +220,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
       file: resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group }),
     } as const
 
-    function renderSchemaEntry({ schema, name, keysToOmit }: { schema: Ast.SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
+    function renderSchemaEntry({ schema, name, keysToOmit }: { schema: ast.SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
       if (!schema) return null
 
       const inferTypeName = inferred ? resolver.resolveTypeName(name) : undefined

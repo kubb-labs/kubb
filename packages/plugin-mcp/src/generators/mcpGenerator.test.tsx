@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
 
-import type { Ast, Config } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
@@ -99,7 +99,7 @@ describe('mcpGenerator — Operation', () => {
         responses: [ast.createResponse({ statusCode: '204', description: 'No content', schema: ast.createSchema({ type: 'void' }) })],
       }),
     },
-  ] as const satisfies Array<{ name: string; node: Ast.OperationNode; options?: Partial<PluginMcp['resolvedOptions']> }>
+  ] as const satisfies Array<{ name: string; node: ast.OperationNode; options?: Partial<PluginMcp['resolvedOptions']> }>
 
   test.each(operations)('$name', async (props) => {
     const options: PluginMcp['resolvedOptions'] = {

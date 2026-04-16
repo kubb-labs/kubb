@@ -1,4 +1,4 @@
-import type { Ast, Config } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import { ast } from '@kubb/core'
 import { describe, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation, renderGeneratorSchema } from '#mocks'
@@ -92,7 +92,7 @@ describe('typeGeneratorLegacy — Operation', () => {
         responses: [ast.createResponse({ statusCode: '201', schema: ast.createSchema({ type: 'void' }), description: 'Null response' })],
       }),
     },
-  ] as const satisfies Array<{ name: string; node: Ast.OperationNode }>
+  ] as const satisfies Array<{ name: string; node: ast.OperationNode }>
 
   test.each(operations)('$name', async (props) => {
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options: defaultOptions, resolver: resolverTsLegacy })

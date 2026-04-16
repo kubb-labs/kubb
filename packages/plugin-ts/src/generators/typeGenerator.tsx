@@ -1,4 +1,3 @@
-import type { Ast } from '@kubb/core'
 import { ast, defineGenerator } from '@kubb/core'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Type } from '../components/Type.tsx'
@@ -101,7 +100,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
       return resolver.resolveTypeName(schemaName)
     }
 
-    function renderSchemaType({ schema, name, keysToOmit }: { schema: Ast.SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
+    function renderSchemaType({ schema, name, keysToOmit }: { schema: ast.SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
       if (!schema) return null
 
       const imports = adapter.getImports(schema, (schemaName) => ({

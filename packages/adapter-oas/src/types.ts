@@ -1,6 +1,6 @@
 // external packages
 
-import type { AdapterFactoryOptions, Ast } from '@kubb/core'
+import type { AdapterFactoryOptions } from '@kubb/core'
 import { ast } from '@kubb/core'
 import type { Operation as OASOperation } from 'oas/operation'
 import type {
@@ -83,14 +83,14 @@ export type SchemaObject = OASSchemaObject & {
  * ```
  */
 export const HttpMethods = Object.fromEntries(Object.entries(ast.httpMethods).map(([lower, upper]) => [upper, lower])) as Record<
-  Uppercase<Ast.HttpMethod>,
-  Lowercase<Ast.HttpMethod>
+  Uppercase<ast.HttpMethod>,
+  Lowercase<ast.HttpMethod>
 >
 
 /**
  * Lowercase HTTP method string as used by the `oas` package (`'get' | 'post' | ...`).
  */
-export type HttpMethod = Lowercase<Ast.HttpMethod>
+export type HttpMethod = Lowercase<ast.HttpMethod>
 
 /**
  * Normalized OpenAPI document type used throughout the adapter.
@@ -173,7 +173,7 @@ export type AdapterOasOptions = {
    * @default 'strict'
    */
   discriminator?: 'strict' | 'inherit'
-} & Partial<Ast.ParserOptions>
+} & Partial<ast.ParserOptions>
 
 /**
  * Resolved adapter options available at runtime after defaults have been applied.

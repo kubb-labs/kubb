@@ -1,5 +1,4 @@
 import { URLPath } from '@internals/utils'
-import type { Ast } from '@kubb/core'
 import { ast } from '@kubb/core'
 import { functionPrinter } from '@kubb/plugin-ts'
 import { File, Function, Type } from '@kubb/renderer-jsx'
@@ -9,7 +8,7 @@ import type { Transformer } from '../types.ts'
 type Props = {
   name: string
   typeName: string
-  node: Ast.OperationNode
+  node: ast.OperationNode
   paramsCasing: 'camelcase' | undefined
   pathParamsType: 'object' | 'inline'
   transformer: Transformer | undefined
@@ -17,7 +16,7 @@ type Props = {
 
 const declarationPrinter = functionPrinter({ mode: 'declaration' })
 
-function getParams(): Ast.FunctionParametersNode {
+function getParams(): ast.FunctionParametersNode {
   return ast.createFunctionParameters({ params: [] })
 }
 

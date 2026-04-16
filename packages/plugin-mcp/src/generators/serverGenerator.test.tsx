@@ -1,4 +1,4 @@
-import type { Ast, Config } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
@@ -40,7 +40,7 @@ const mockedZodPlugin = createMockedPlugin<PluginZod>({
 })
 
 describe('serverGenerator — Operations', () => {
-  const nodes: Array<Ast.OperationNode> = [
+  const nodes: Array<ast.OperationNode> = [
     ast.createOperation({
       operationId: 'showPetById',
       method: 'GET',

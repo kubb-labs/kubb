@@ -1,5 +1,4 @@
 import { pascalCase } from '@internals/utils'
-import type { Ast } from '@kubb/core'
 import { ast, defineGenerator } from '@kubb/core'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Type } from '../components/Type.tsx'
@@ -9,11 +8,11 @@ import { resolverTsLegacy } from '../resolvers/resolverTsLegacy.ts'
 import type { PluginTs, ResolverTs } from '../types'
 
 type BuildGroupedParamsSchemaOptions = {
-  params: Array<Ast.ParameterNode>
+  params: Array<ast.ParameterNode>
   parentName?: string
 }
 
-function buildGroupedParamsSchema({ params, parentName }: BuildGroupedParamsSchemaOptions): Ast.SchemaNode {
+function buildGroupedParamsSchema({ params, parentName }: BuildGroupedParamsSchemaOptions): ast.SchemaNode {
   return ast.createSchema({
     type: 'object',
     properties: params.map((param) => {
@@ -34,7 +33,7 @@ type BuildOperationSchemaOptions = {
   resolver: ResolverTs
 }
 
-function buildLegacyResponsesSchemaNode(node: Ast.OperationNode, { resolver }: BuildOperationSchemaOptions): Ast.SchemaNode | null {
+function buildLegacyResponsesSchemaNode(node: ast.OperationNode, { resolver }: BuildOperationSchemaOptions): ast.SchemaNode | null {
   const isGet = node.method.toLowerCase() === 'get'
   const successResponses = node.responses.filter((res) => {
     const code = Number(res.statusCode)
@@ -112,7 +111,7 @@ function buildLegacyResponsesSchemaNode(node: Ast.OperationNode, { resolver }: B
   return ast.createSchema({ type: 'object', properties })
 }
 
-function buildLegacyResponseUnionSchemaNode(node: Ast.OperationNode, { resolver }: BuildOperationSchemaOptions): Ast.SchemaNode {
+function buildLegacyResponseUnionSchemaNode(node: ast.OperationNode, { resolver }: BuildOperationSchemaOptions): ast.SchemaNode {
   const successResponses = node.responses.filter((res) => {
     const code = Number(res.statusCode)
     return !Number.isNaN(code) && code >= 200 && code < 300
@@ -132,7 +131,7 @@ function buildLegacyResponseUnionSchemaNode(node: Ast.OperationNode, { resolver 
   })
 }
 
-function nameUnnamedEnums(node: Ast.SchemaNode, parentName: string): Ast.SchemaNode {
+function nameUnnamedEnums(node: ast.SchemaNode, parentName: string): ast.SchemaNode {
   return ast.transform(node, {
     schema(n) {
       const enumNode = ast.narrowSchema(n, 'enum')
@@ -231,7 +230,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
       description,
       keysToOmit,
     }: {
-      schema: Ast.SchemaNode | null
+      schema: ast.SchemaNode | null
       name: string
       description?: string
       keysToOmit?: Array<string>

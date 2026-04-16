@@ -1,5 +1,4 @@
 import { pascalCase } from '@internals/utils'
-import type { Ast } from '@kubb/core'
 import { ast } from '@kubb/core'
 import type { ParameterObject, ServerObject } from 'oas/types'
 import { isRef } from 'oas/types'
@@ -51,7 +50,7 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
  * Returns `undefined` for formats not in `formatMap` (e.g. `int64`, `date-time`),
  * which are handled separately because their output depends on parser options.
  */
-export function getSchemaType(format: string): Ast.SchemaType | null {
+export function getSchemaType(format: string): ast.SchemaType | null {
   return formatMap[format as keyof typeof formatMap] ?? null
 }
 
@@ -60,7 +59,7 @@ export function getSchemaType(format: string): Ast.SchemaType | null {
  * Numeric types (`number`, `integer`, `bigint`) are returned unchanged;
  * `boolean` maps to `'boolean'`; everything else defaults to `'string'`.
  */
-export function getPrimitiveType(type: string | undefined): Ast.PrimitiveSchemaType {
+export function getPrimitiveType(type: string | undefined): ast.PrimitiveSchemaType {
   if (type === 'number' || type === 'integer' || type === 'bigint') return type
   if (type === 'boolean') return 'boolean'
 
@@ -71,8 +70,8 @@ export function getPrimitiveType(type: string | undefined): Ast.PrimitiveSchemaT
  * Narrows a raw content-type string to the `MediaType` union recognized by Kubb.
  * Returns `undefined` for content types not present in `KNOWN_MEDIA_TYPES`.
  */
-export function getMediaType(contentType: string): Ast.MediaType | null {
-  return Object.values(ast.mediaTypes).includes(contentType as Ast.MediaType) ? (contentType as Ast.MediaType) : null
+export function getMediaType(contentType: string): ast.MediaType | null {
+  return Object.values(ast.mediaTypes).includes(contentType as ast.MediaType) ? (contentType as ast.MediaType) : null
 }
 
 export type OperationsOptions = {
@@ -444,7 +443,7 @@ export function getSchemas(document: Document, { contentType }: GetSchemasOption
  * Returns `null` when `dateType: false`, signalling the format should fall through to `string`.
  */
 export function getDateType(
-  options: Ast.ParserOptions,
+  options: ast.ParserOptions,
   format: 'date-time' | 'date' | 'time',
 ): { type: 'datetime'; offset?: boolean; local?: boolean } | { type: 'date' | 'time'; representation: 'date' | 'string' } | null {
   if (!options.dateType) {

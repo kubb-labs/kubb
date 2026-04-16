@@ -1,4 +1,3 @@
-import type { Ast } from '@kubb/core'
 import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
@@ -21,7 +20,7 @@ type Props = {
   clientName: string
   mutationKeyName: string
   mutationKeyTypeName: string
-  node: Ast.OperationNode
+  node: ast.OperationNode
   tsResolver: PluginTs['resolver']
   paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   paramsType: PluginSwr['resolvedOptions']['paramsType']
@@ -43,7 +42,7 @@ const keysPrinter = functionPrinter({ mode: 'keys' })
  * pathParams + queryParams + headers + options (NO data — it comes via useSWRMutation arg)
  */
 function getParams(
-  node: Ast.OperationNode,
+  node: ast.OperationNode,
   options: {
     paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
     pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
@@ -51,7 +50,7 @@ function getParams(
     resolver: PluginTs['resolver']
     mutationKeyTypeName: string
   },
-): Ast.FunctionParametersNode {
+): ast.FunctionParametersNode {
   const { paramsCasing, pathParamsType, dataReturnType, resolver, mutationKeyTypeName } = options
 
   const responseName = resolver.resolveResponseName(node)
@@ -70,7 +69,7 @@ function getParams(
   const queryGroupType = resolveQueryGroupType(node, queryParams, resolver)
   const headerGroupType = resolveHeaderGroupType(node, headerParams, resolver)
 
-  const params: Array<Ast.FunctionParameterNode | Ast.ParameterGroupNode> = []
+  const params: Array<ast.FunctionParameterNode | ast.ParameterGroupNode> = []
 
   // Path params
   if (pathParams.length) {
@@ -114,14 +113,14 @@ function getParams(
  * Trigger-mode params (paramsToTrigger=true): just `options`
  */
 function getTriggerParams(
-  node: Ast.OperationNode,
+  node: ast.OperationNode,
   options: {
     dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
     resolver: PluginTs['resolver']
     mutationKeyTypeName: string
     mutationArgTypeName: string
   },
-): Ast.FunctionParametersNode {
+): ast.FunctionParametersNode {
   const { dataReturnType, resolver, mutationKeyTypeName, mutationArgTypeName } = options
 
   const responseName = resolver.resolveResponseName(node)

@@ -1,6 +1,5 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import type { Ast } from '@kubb/core'
 import { ast, createPlugin, getBarrelFiles, type UserGroup } from '@kubb/core'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
@@ -208,7 +207,7 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
       const files = await operationGenerator.build(...generators)
       await this.upsertFile(...files)
 
-      const barrelFiles = await getBarrelFiles(this.driver.fileManager.files as unknown as Ast.FileNode[], {
+      const barrelFiles = await getBarrelFiles(this.driver.fileManager.files as unknown as ast.FileNode[], {
         type: output.barrelType ?? 'named',
         root,
         output,

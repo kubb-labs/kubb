@@ -1,5 +1,5 @@
 import type {
-  Ast,
+  ast,
   CompatibilityPreset,
   Exclude,
   Generator,
@@ -19,7 +19,7 @@ import type { PrinterTsNodes } from './printers/printerTs.ts'
  * plugin-specific naming helpers for operations, parameters, responses, and schemas.
  */
 export type ResolverTs = Resolver &
-  Ast.OperationParamsResolver & {
+  ast.OperationParamsResolver & {
     /**
      * Resolves the name for a given raw name (equivalent to `default(name, 'function')`).
      * Since TypeScript only emits types, this is the canonical naming method.
@@ -38,7 +38,7 @@ export type ResolverTs = Resolver &
     /**
      * Resolves the request body type name for an operation (required on ResolverTs).
      */
-    resolveDataName(node: Ast.OperationNode): string
+    resolveDataName(node: ast.OperationNode): string
 
     /**
      * Resolves the name for an operation response by status code.
@@ -47,28 +47,28 @@ export type ResolverTs = Resolver &
      * @example
      * resolver.resolveResponseStatusName(node, 200) // → 'ListPetsStatus200'
      */
-    resolveResponseStatusName(node: Ast.OperationNode, statusCode: Ast.StatusCode): string
+    resolveResponseStatusName(node: ast.OperationNode, statusCode: ast.StatusCode): string
     /**
      * Resolves the name for an operation's request config (`RequestConfig`).
      *
      * @example
      * resolver.resolveRequestConfigName(node) // → 'ListPetsRequestConfig'
      */
-    resolveRequestConfigName(node: Ast.OperationNode): string
+    resolveRequestConfigName(node: ast.OperationNode): string
     /**
      * Resolves the name for the collection of all operation responses (`Responses`).
      *
      * @example
      * resolver.resolveResponsesName(node) // → 'ListPetsResponses'
      */
-    resolveResponsesName(node: Ast.OperationNode): string
+    resolveResponsesName(node: ast.OperationNode): string
     /**
      * Resolves the name for the union of all operation responses (`Response`).
      *
      * @example
      * resolver.resolveResponseName(node) // → 'ListPetsResponse'
      */
-    resolveResponseName(node: Ast.OperationNode): string
+    resolveResponseName(node: ast.OperationNode): string
     /**
      * Resolves the TypeScript type alias name for an enum schema's key variant.
      * Appends `enumTypeSuffix` (default `'Key'`) after applying the default naming convention.
@@ -85,21 +85,21 @@ export type ResolverTs = Resolver &
      * @example
      * resolver.resolvePathParamsName(node, param) // → 'GetPetByIdPathParams'
      */
-    resolvePathParamsName(node: Ast.OperationNode, param: Ast.ParameterNode): string
+    resolvePathParamsName(node: ast.OperationNode, param: ast.ParameterNode): string
     /**
      * Resolves the name for an operation's grouped query parameters type.
      *
      * @example
      * resolver.resolveQueryParamsName(node, param) // → 'FindPetsByStatusQueryParams'
      */
-    resolveQueryParamsName(node: Ast.OperationNode, param: Ast.ParameterNode): string
+    resolveQueryParamsName(node: ast.OperationNode, param: ast.ParameterNode): string
     /**
      * Resolves the name for an operation's grouped header parameters type.
      *
      * @example
      * resolver.resolveHeaderParamsName(node, param) // → 'DeletePetHeaderParams'
      */
-    resolveHeaderParamsName(node: Ast.OperationNode, param: Ast.ParameterNode): string
+    resolveHeaderParamsName(node: ast.OperationNode, param: ast.ParameterNode): string
   }
 
 type EnumKeyCasing = 'screamingSnakeCase' | 'snakeCase' | 'pascalCase' | 'camelCase' | 'none'
@@ -273,7 +273,7 @@ export type Options = {
    * }
    * ```
    */
-  transformer?: Ast.Visitor
+  transformer?: ast.Visitor
   /**
    * Override individual printer node handlers to customize rendering of specific schema types.
    *

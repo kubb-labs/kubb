@@ -1,5 +1,4 @@
 import { URLPath } from '@internals/utils'
-import type { Ast } from '@kubb/core'
 import { ast } from '@kubb/core'
 import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, typeOptionMap } from './constants.ts'
@@ -43,8 +42,8 @@ type SchemaContext = {
    * Normalized single type string (first element when OAS 3.1 multi-type array).
    */
   type: string | undefined
-  rawOptions: Partial<Ast.ParserOptions> | undefined
-  options: Ast.ParserOptions
+  rawOptions: Partial<ast.ParserOptions> | undefined
+  options: ast.ParserOptions
 }
 
 /**
@@ -85,8 +84,8 @@ function createSchemaParser(ctx: OasParserContext) {
    * Use `syncSchemaRef(node)` in printers to get a merged view of both.
    * Circular refs are detected via `resolvingRefs` and leave `schema` as `undefined`.
    */
-  function convertRef({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): Ast.SchemaNode {
-    let resolvedSchema: Ast.SchemaNode | undefined
+  function convertRef({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): ast.SchemaNode {
+    let resolvedSchema: ast.SchemaNode | undefined
     const refPath = schema.$ref
     if (refPath && !resolvingRefs.has(refPath)) {
       try {
@@ -113,7 +112,7 @@ function createSchemaParser(ctx: OasParserContext) {
   /**
    * Converts an `allOf` schema into a flattened node or an `IntersectionSchemaNode`.
    */
-  function convertAllOf({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): Ast.SchemaNode {
+  function convertAllOf({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): ast.SchemaNode {
     if (
       schema.allOf!.length === 1 &&
       !schema.properties &&
@@ -138,11 +137,11 @@ function createSchemaParser(ctx: OasParserContext) {
         default: mergedDefault,
         example: schema.example ?? memberNode.example,
         pattern: schema.pattern ?? ('pattern' in memberNode ? memberNode.pattern : undefined),
-      } as Ast.DistributiveOmit<Ast.SchemaNode, 'kind'>)
+      } as ast.DistributiveOmit<ast.SchemaNode, 'kind'>)
     }
 
     const filteredDiscriminantValues: Array<{ propertyName: string; value: string }> = []
-    const allOfMembers: Array<Ast.SchemaNode> = (schema.allOf as Array<SchemaObject | ReferenceObject>)
+    const allOfMembers: Array<ast.SchemaNode> = (schema.allOf as Array<SchemaObject | ReferenceObject>)
       .filter((item) => {
         if (!isReference(item) || !name) return true
         const deref = resolveRef<SchemaObject>(document, item.$ref)
@@ -206,8 +205,8 @@ function createSchemaParser(ctx: OasParserContext) {
   /**
    * Converts a `oneOf` / `anyOf` schema into a `UnionSchemaNode`.
    */
-  function convertUnion({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): Ast.SchemaNode {
-    function pickDiscriminatorPropertyNode(node: Ast.SchemaNode, propertyName: string): Ast.SchemaNode | null {
+  function convertUnion({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): ast.SchemaNode {
+    function pickDiscriminatorPropertyNode(node: ast.SchemaNode, propertyName: string): ast.SchemaNode | null {
       const objectNode = ast.narrowSchema(node, 'object')
       const discriminatorProperty = objectNode?.properties?.find((property) => property.name === propertyName)
 
@@ -295,7 +294,7 @@ function createSchemaParser(ctx: OasParserContext) {
   /**
    * Converts an OAS 3.1 `const` schema into a null scalar or a single-value `EnumSchemaNode`.
    */
-  function convertConst({ schema, name, nullable, defaultValue }: SchemaContext): Ast.SchemaNode {
+  function convertConst({ schema, name, nullable, defaultValue }: SchemaContext): ast.SchemaNode {
     const constValue = schema.const
 
     if (constValue === null) {
@@ -322,7 +321,7 @@ function createSchemaParser(ctx: OasParserContext) {
    * Converts a format-annotated schema into a special-type `SchemaNode`.
    * Returns `null` when the format should fall through to string handling (`dateType: false`).
    */
-  function convertFormat({ schema, name, nullable, defaultValue, options }: SchemaContext): Ast.SchemaNode | null {
+  function convertFormat({ schema, name, nullable, defaultValue, options }: SchemaContext): ast.SchemaNode | null {
     const base = buildSchemaNode(schema, name, nullable, defaultValue)
 
     if (schema.format === 'int64') {
@@ -350,7 +349,7 @@ function createSchemaParser(ctx: OasParserContext) {
     const specialType = getSchemaType(schema.format!)
     if (!specialType) return null
 
-    const specialPrimitive: Ast.PrimitiveSchemaType = specialType === 'number' || specialType === 'integer' || specialType === 'bigint' ? specialType : 'string'
+    const specialPrimitive: ast.PrimitiveSchemaType = specialType === 'number' || specialType === 'integer' || specialType === 'bigint' ? specialType : 'string'
 
     if (specialType === 'number' || specialType === 'integer' || specialType === 'bigint') {
       return ast.createSchema({ ...base, primitive: specialPrimitive, type: specialType })
@@ -368,13 +367,13 @@ function createSchemaParser(ctx: OasParserContext) {
       return ast.createSchema({ ...base, primitive: 'string' as const, type: specialType, min: schema.minLength, max: schema.maxLength })
     }
 
-    return ast.createSchema({ ...base, primitive: specialPrimitive, type: specialType as Ast.ScalarSchemaType })
+    return ast.createSchema({ ...base, primitive: specialPrimitive, type: specialType as ast.ScalarSchemaType })
   }
 
   /**
    * Converts an `enum` schema into an `EnumSchemaNode`.
    */
-  function convertEnum({ schema, name, nullable, type, rawOptions }: SchemaContext): Ast.SchemaNode {
+  function convertEnum({ schema, name, nullable, type, rawOptions }: SchemaContext): ast.SchemaNode {
     if (type === 'array') {
       return parseSchema({ schema: normalizeArrayEnum(schema), name }, rawOptions)
     }
@@ -429,8 +428,8 @@ function createSchemaParser(ctx: OasParserContext) {
   /**
    * Converts an object-like schema into an `ObjectSchemaNode`.
    */
-  function convertObject({ schema, name, nullable, defaultValue, rawOptions, options }: SchemaContext): Ast.SchemaNode {
-    const properties: Array<Ast.PropertyNode> = schema.properties
+  function convertObject({ schema, name, nullable, defaultValue, rawOptions, options }: SchemaContext): ast.SchemaNode {
+    const properties: Array<ast.PropertyNode> = schema.properties
       ? Object.entries(schema.properties).map(([propName, propSchema]) => {
           const required = Array.isArray(schema.required) ? schema.required.includes(propName) : !!schema.required
           const resolvedPropSchema = propSchema as SchemaObject
@@ -460,7 +459,7 @@ function createSchemaParser(ctx: OasParserContext) {
       : []
 
     const additionalProperties = schema.additionalProperties
-    let additionalPropertiesNode: Ast.SchemaNode | boolean | undefined
+    let additionalPropertiesNode: ast.SchemaNode | boolean | undefined
     if (additionalProperties === true) {
       additionalPropertiesNode = true
     } else if (additionalProperties && Object.keys(additionalProperties).length > 0) {
@@ -484,7 +483,7 @@ function createSchemaParser(ctx: OasParserContext) {
         )
       : undefined
 
-    const objectNode: Ast.SchemaNode = ast.createSchema({
+    const objectNode: ast.SchemaNode = ast.createSchema({
       type: 'object',
       primitive: 'object',
       properties,
@@ -508,7 +507,7 @@ function createSchemaParser(ctx: OasParserContext) {
   /**
    * Converts an OAS 3.1 `prefixItems` tuple into a `TupleSchemaNode`.
    */
-  function convertTuple({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): Ast.SchemaNode {
+  function convertTuple({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): ast.SchemaNode {
     const tupleItems = (schema.prefixItems ?? []).map((item) => parseSchema({ schema: item as SchemaObject }, rawOptions))
     const rest = schema.items ? parseSchema({ schema: schema.items as SchemaObject }, rawOptions) : ast.createSchema({ type: 'any' })
 
@@ -526,7 +525,7 @@ function createSchemaParser(ctx: OasParserContext) {
   /**
    * Converts a `type: 'array'` schema into an `ArraySchemaNode`.
    */
-  function convertArray({ schema, name, nullable, defaultValue, rawOptions, options }: SchemaContext): Ast.SchemaNode {
+  function convertArray({ schema, name, nullable, defaultValue, rawOptions, options }: SchemaContext): ast.SchemaNode {
     const rawItems = schema.items as SchemaObject | undefined
     const itemName = rawItems?.enum?.length && name ? ast.enumPropName(undefined, name, options.enumSuffix) : undefined
     const items = rawItems ? [parseSchema({ schema: rawItems, name: itemName }, rawOptions)] : []
@@ -545,7 +544,7 @@ function createSchemaParser(ctx: OasParserContext) {
   /**
    * Converts a `type: 'string'` schema into a `StringSchemaNode`.
    */
-  function convertString({ schema, name, nullable, defaultValue }: SchemaContext): Ast.SchemaNode {
+  function convertString({ schema, name, nullable, defaultValue }: SchemaContext): ast.SchemaNode {
     return ast.createSchema({
       type: 'string',
       primitive: 'string',
@@ -559,7 +558,7 @@ function createSchemaParser(ctx: OasParserContext) {
   /**
    * Converts a `type: 'number'` or `type: 'integer'` schema.
    */
-  function convertNumeric({ schema, name, nullable, defaultValue }: SchemaContext, type: 'number' | 'integer'): Ast.SchemaNode {
+  function convertNumeric({ schema, name, nullable, defaultValue }: SchemaContext, type: 'number' | 'integer'): ast.SchemaNode {
     return ast.createSchema({
       type,
       primitive: type,
@@ -575,7 +574,7 @@ function createSchemaParser(ctx: OasParserContext) {
   /**
    * Converts a `type: 'boolean'` schema.
    */
-  function convertBoolean({ schema, name, nullable, defaultValue }: SchemaContext): Ast.SchemaNode {
+  function convertBoolean({ schema, name, nullable, defaultValue }: SchemaContext): ast.SchemaNode {
     return ast.createSchema({
       type: 'boolean',
       primitive: 'boolean',
@@ -586,7 +585,7 @@ function createSchemaParser(ctx: OasParserContext) {
   /**
    * Converts an explicit `type: 'null'` schema.
    */
-  function convertNull({ schema, name, nullable }: SchemaContext): Ast.SchemaNode {
+  function convertNull({ schema, name, nullable }: SchemaContext): ast.SchemaNode {
     return ast.createSchema({
       type: 'null',
       primitive: 'null',
@@ -605,8 +604,8 @@ function createSchemaParser(ctx: OasParserContext) {
    * → octet-stream blob → multi-type array → constraint-inferred type → `enum` → object/array/tuple/scalar
    * → empty-schema fallback (`emptySchemaType` option).
    */
-  function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }, rawOptions?: Partial<Ast.ParserOptions>): Ast.SchemaNode {
-    const options: Ast.ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...rawOptions }
+  function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }, rawOptions?: Partial<ast.ParserOptions>): ast.SchemaNode {
+    const options: ast.ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...rawOptions }
     const flattenedSchema = flattenSchema(schema)
     if (flattenedSchema && flattenedSchema !== schema) {
       return parseSchema({ schema: flattenedSchema, name }, rawOptions)
@@ -668,22 +667,22 @@ function createSchemaParser(ctx: OasParserContext) {
     if (type === 'null') return convertNull(ctx)
 
     const emptyType = typeOptionMap.get(options.emptySchemaType)!
-    return ast.createSchema({ type: emptyType as Ast.ScalarSchemaType, name, title: schema.title, description: schema.description })
+    return ast.createSchema({ type: emptyType as ast.ScalarSchemaType, name, title: schema.title, description: schema.description })
   }
 
   /**
    * Converts a dereferenced OAS parameter object into a `ParameterNode`.
    */
-  function parseParameter(options: Ast.ParserOptions, param: Record<string, unknown>): Ast.ParameterNode {
+  function parseParameter(options: ast.ParserOptions, param: Record<string, unknown>): ast.ParameterNode {
     const required = (param['required'] as boolean | undefined) ?? false
 
-    const schema: Ast.SchemaNode = param['schema']
+    const schema: ast.SchemaNode = param['schema']
       ? parseSchema({ schema: param['schema'] as SchemaObject }, options)
       : ast.createSchema({ type: typeOptionMap.get(options.unknownType)! })
 
     return ast.createParameter({
       name: param['name'] as string,
-      in: param['in'] as Ast.ParameterLocation,
+      in: param['in'] as ast.ParameterLocation,
       schema: {
         ...schema,
         description: (param['description'] as string | undefined) ?? schema.description,
@@ -695,8 +694,8 @@ function createSchemaParser(ctx: OasParserContext) {
   /**
    * Converts an OAS `Operation` into an `OperationNode`.
    */
-  function parseOperation(options: Ast.ParserOptions, operation: Operation): Ast.OperationNode {
-    const parameters: Array<Ast.ParameterNode> = getParameters(document, operation).map((param) =>
+  function parseOperation(options: ast.ParserOptions, operation: Operation): ast.OperationNode {
+    const parameters: Array<ast.ParameterNode> = getParameters(document, operation).map((param) =>
       parseParameter(options, param as unknown as Record<string, unknown>),
     )
 
@@ -737,7 +736,7 @@ function createSchemaParser(ctx: OasParserContext) {
         }
       : undefined
 
-    const responses: Array<Ast.ResponseNode> = operation.getResponseStatusCodes().map((statusCode) => {
+    const responses: Array<ast.ResponseNode> = operation.getResponseStatusCodes().map((statusCode) => {
       const responseObj = operation.getResponseByStatusCode(statusCode)
       const responseSchema = getResponseSchema(document, operation, statusCode, { contentType: ctx.contentType })
 
@@ -762,7 +761,7 @@ function createSchemaParser(ctx: OasParserContext) {
         : undefined
 
       return ast.createResponse({
-        statusCode: statusCode as Ast.StatusCode,
+        statusCode: statusCode as ast.StatusCode,
         description,
         schema,
         mediaType,
@@ -774,7 +773,7 @@ function createSchemaParser(ctx: OasParserContext) {
 
     return ast.createOperation({
       operationId: operation.getOperationId(),
-      method: operation.method.toUpperCase() as Ast.HttpMethod,
+      method: operation.method.toUpperCase() as ast.HttpMethod,
       path: urlPath.path,
       tags: operation.getTags().map((tag) => tag.name),
       summary: operation.getSummary() || undefined,
@@ -801,8 +800,8 @@ function createSchemaParser(ctx: OasParserContext) {
 export function parseSchema(
   ctx: OasParserContext,
   { schema, name }: { schema: SchemaObject; name?: string },
-  options?: Partial<Ast.ParserOptions>,
-): Ast.SchemaNode {
+  options?: Partial<ast.ParserOptions>,
+): ast.SchemaNode {
   return createSchemaParser(ctx).parseSchema({ schema, name }, options)
 }
 
@@ -821,23 +820,23 @@ export function parseSchema(
  */
 export function parseOas(
   document: Document,
-  options: Partial<Ast.ParserOptions> & { contentType?: ContentType } = {},
-): { root: Ast.InputNode; nameMapping: Map<string, string> } {
+  options: Partial<ast.ParserOptions> & { contentType?: ContentType } = {},
+): { root: ast.InputNode; nameMapping: Map<string, string> } {
   const { contentType, ...parserOptions } = options
-  const mergedOptions: Ast.ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...parserOptions }
+  const mergedOptions: ast.ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...parserOptions }
 
   const { schemas: schemaObjects, nameMapping } = getSchemas(document, { contentType })
   const { parseSchema: _parseSchema, parseOperation: _parseOperation } = createSchemaParser({ document, contentType })
 
-  const schemas: Array<Ast.SchemaNode> = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, mergedOptions))
+  const schemas: Array<ast.SchemaNode> = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, mergedOptions))
 
   const baseOas = new BaseOas(document)
   const paths = baseOas.getPaths()
 
-  const operations: Array<Ast.OperationNode> = Object.entries(paths).flatMap(([_path, methods]) =>
+  const operations: Array<ast.OperationNode> = Object.entries(paths).flatMap(([_path, methods]) =>
     Object.entries(methods)
       .map(([, operation]) => (operation ? _parseOperation(mergedOptions, operation) : null))
-      .filter((op): op is Ast.OperationNode => op !== null),
+      .filter((op): op is ast.OperationNode => op !== null),
   )
 
   const root = ast.createInput({ schemas, operations })

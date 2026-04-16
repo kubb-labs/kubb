@@ -1,5 +1,5 @@
 import { buildJSDoc, URLPath } from '@internals/utils'
-import type { Ast } from '@kubb/core'
+import type { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
 import type { PluginZod } from '@kubb/plugin-zod'
@@ -10,7 +10,7 @@ import { buildClassClientParams, buildFormDataLine, buildGenerics, buildHeaders,
 import { Client } from './Client.tsx'
 
 type OperationData = {
-  node: Ast.OperationNode
+  node: ast.OperationNode
   name: string
   tsResolver: PluginTs['resolver']
   zodResolver?: PluginZod['resolver']
@@ -31,7 +31,7 @@ type Props = {
 }
 
 type GenerateMethodProps = {
-  node: Ast.OperationNode
+  node: ast.OperationNode
   name: string
   tsResolver: PluginTs['resolver']
   zodResolver?: PluginZod['resolver']

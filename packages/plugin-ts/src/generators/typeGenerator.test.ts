@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 
-import type { Ast, Config, Group } from '@kubb/core'
+import type { Config, Group } from '@kubb/core'
 import { ast } from '@kubb/core'
 import { describe, expect, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation, renderGeneratorSchema } from '#mocks'
@@ -52,7 +52,7 @@ const objectSchema = ast.createSchema({
   ],
 })
 
-const operationWithSnakeCaseParams: Ast.OperationNode = ast.createOperation({
+const operationWithSnakeCaseParams: ast.OperationNode = ast.createOperation({
   operationId: 'updatePet',
   method: 'POST',
   path: '/pets/{pet_id}',
@@ -204,7 +204,7 @@ describe('typeGenerator — Operation', () => {
         responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Enterprise config' })],
       }),
     },
-  ] as const satisfies Array<{ name: string; node: Ast.OperationNode }>
+  ] as const satisfies Array<{ name: string; node: ast.OperationNode }>
 
   test.each(operations)('$name', async (props) => {
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options: defaultOptions, resolver: resolverTs })
@@ -552,7 +552,7 @@ describe('typeGenerator — arrayType', () => {
 
 describe('typeGenerator — transformers', () => {
   test('schema transformer — removes optional properties from object', async () => {
-    const removeOptionalProperties: Ast.Visitor = {
+    const removeOptionalProperties: ast.Visitor = {
       schema(node) {
         if ('properties' in node) {
           return { ...node, properties: node.properties.filter((p) => p.required) }
@@ -576,7 +576,7 @@ describe('typeGenerator — transformers', () => {
   })
 
   test('schema transformer — maps integer type to string', async () => {
-    const integerToString: Ast.Visitor = {
+    const integerToString: ast.Visitor = {
       schema(node) {
         if (node.type === 'integer') return { ...node, type: 'string' }
         return node

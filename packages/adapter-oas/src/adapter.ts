@@ -1,4 +1,3 @@
-import type { Ast } from '@kubb/core'
 import { ast, createAdapter } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { applyDiscriminatorInheritance } from './discriminator.ts'
@@ -48,7 +47,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   // Let-binding so parse() can replace it with a simple reassignment (no clear+loop).
   let nameMapping = new Map<string, string>()
   let parsedDocument: Document | null
-  let inputNode: Ast.InputNode | null
+  let inputNode: ast.InputNode | null
 
   return {
     name: adapterOasName,

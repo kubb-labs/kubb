@@ -1,11 +1,11 @@
 import { URLPath } from '@internals/utils'
-import type { Ast } from '@kubb/core'
+import type { ast } from '@kubb/core'
 import { Const, File } from '@kubb/renderer-jsx'
 import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 
 type OperationsProps = {
   name: string
-  nodes: Array<Ast.OperationNode>
+  nodes: Array<ast.OperationNode>
 }
 
 export function Operations({ name, nodes }: OperationsProps): KubbReactNode {

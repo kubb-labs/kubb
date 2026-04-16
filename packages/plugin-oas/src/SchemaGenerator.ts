@@ -1,7 +1,7 @@
 import type { AsyncEventEmitter } from '@internals/utils'
 import { getUniqueName, pascalCase, stringify } from '@internals/utils'
 
-import type { Ast, FileMetaBase, KubbHooks, Plugin, PluginDriver, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { ast, FileMetaBase, KubbHooks, Plugin, PluginDriver, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference, KUBB_INLINE_REF_PREFIX } from '@kubb/oas'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
@@ -15,7 +15,7 @@ import { renderSchema } from './utils.tsx'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
-export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<Ast.FileNode<TFileMeta> | Array<Ast.FileNode<TFileMeta>> | null>
+export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<ast.FileNode<TFileMeta> | Array<ast.FileNode<TFileMeta>> | null>
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   oas: Oas
@@ -1330,7 +1330,7 @@ export class SchemaGenerator<
     return [{ keyword: emptyType }, ...baseItems]
   }
 
-  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<Ast.FileNode<TFileMeta>>> {
+  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<ast.FileNode<TFileMeta>>> {
     const { oas, contentType, include } = this.context
 
     // Initialize the name mapping if not already done
@@ -1353,10 +1353,10 @@ export class SchemaGenerator<
     return this.#doBuild(schemas, generators)
   }
 
-  async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<Ast.FileNode<TFileMeta>>> {
+  async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<ast.FileNode<TFileMeta>>> {
     const schemaEntries = Object.entries(schemas)
 
-    const results: Array<Ast.FileNode<TFileMeta>> = []
+    const results: Array<ast.FileNode<TFileMeta>> = []
 
     for (const generator of generators) {
       if (!('type' in generator)) {
@@ -1412,7 +1412,7 @@ export class SchemaGenerator<
             },
           })
 
-          results.push(...([result ?? []].flat() as Array<Ast.FileNode<TFileMeta>>))
+          results.push(...([result ?? []].flat() as Array<ast.FileNode<TFileMeta>>))
         }
       }
     }

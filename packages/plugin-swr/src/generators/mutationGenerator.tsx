@@ -190,7 +190,7 @@ export const mutationGenerator = defineGenerator<PluginSwr>({
  * Used for the ClientLegacy component which still expects the old format.
  */
 // biome-ignore lint/suspicious/noExplicitAny: bridge between v5 resolver types and legacy OperationSchemas format
-function buildLegacyTypeSchemas(node: import('@kubb/ast/types').OperationNode, resolver: any) {
+function buildLegacyTypeSchemas(node: ast.OperationNode, resolver: any) {
   const pathParams = node.parameters.filter((p) => p.in === 'path')
   const queryParams = node.parameters.filter((p) => p.in === 'query')
   const headerParams = node.parameters.filter((p) => p.in === 'header')

@@ -1,4 +1,3 @@
-import type { Ast } from '@kubb/core'
 import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import type { PluginSwr } from './types.ts'
@@ -15,7 +14,7 @@ export function transformName(name: string, type: string, transformers?: PluginS
 /**
  * Build JSDoc comment lines from an OperationNode.
  */
-export function getComments(node: Ast.OperationNode): Array<string> {
+export function getComments(node: ast.OperationNode): Array<string> {
   return [
     node.description && `@description ${node.description}`,
     node.summary && `@summary ${node.summary}`,
@@ -27,7 +26,7 @@ export function getComments(node: Ast.OperationNode): Array<string> {
 /**
  * Resolve error type names from operation responses.
  */
-export function resolveErrorNames(node: Ast.OperationNode, tsResolver: PluginTs['resolver']): string[] {
+export function resolveErrorNames(node: ast.OperationNode, tsResolver: PluginTs['resolver']): string[] {
   return node.responses
     .filter((r) => {
       const code = Number.parseInt(r.statusCode, 10)
@@ -39,7 +38,7 @@ export function resolveErrorNames(node: Ast.OperationNode, tsResolver: PluginTs[
 /**
  * Resolve all status code type names from operation responses (for imports).
  */
-export function resolveStatusCodeNames(node: Ast.OperationNode, tsResolver: PluginTs['resolver']): string[] {
+export function resolveStatusCodeNames(node: ast.OperationNode, tsResolver: PluginTs['resolver']): string[] {
   return node.responses.map((r) => tsResolver.resolveResponseStatusName(node, r.statusCode))
 }
 
@@ -50,7 +49,7 @@ export function resolveStatusCodeNames(node: Ast.OperationNode, tsResolver: Plug
  *   (e.g. kubbV4) → `GroupName['paramName']` (member access).
  * - When they match (v5 default) → `TypeName` (direct reference).
  */
-export function resolvePathParamType(node: Ast.OperationNode, param: Ast.ParameterNode, resolver: PluginTs['resolver']): Ast.ParamsTypeNode {
+export function resolvePathParamType(node: ast.OperationNode, param: ast.ParameterNode, resolver: PluginTs['resolver']): ast.ParamsTypeNode {
   const individualName = resolver.resolveParamName(node, param)
   const groupName = resolver.resolvePathParamsName(node, param)
 
@@ -60,14 +59,14 @@ export function resolvePathParamType(node: Ast.OperationNode, param: Ast.Paramet
   return ast.createParamsType({ variant: 'reference', name: individualName })
 }
 
-type QueryGroupResult = { type: Ast.ParamsTypeNode; optional: boolean } | undefined
+type QueryGroupResult = { type: ast.ParamsTypeNode; optional: boolean } | undefined
 
 /**
  * Derive a query-params group type from the resolver.
  * Returns `undefined` when no query params exist or when the group name
  * equals the individual param name (no real group).
  */
-export function resolveQueryGroupType(node: Ast.OperationNode, params: Ast.ParameterNode[], resolver: PluginTs['resolver']): QueryGroupResult {
+export function resolveQueryGroupType(node: ast.OperationNode, params: ast.ParameterNode[], resolver: PluginTs['resolver']): QueryGroupResult {
   if (!params.length) return undefined
   const firstParam = params[0]!
   const groupName = resolver.resolveQueryParamsName(node, firstParam)
@@ -78,7 +77,7 @@ export function resolveQueryGroupType(node: Ast.OperationNode, params: Ast.Param
 /**
  * Derive a header-params group type from the resolver.
  */
-export function resolveHeaderGroupType(node: Ast.OperationNode, params: Ast.ParameterNode[], resolver: PluginTs['resolver']): QueryGroupResult {
+export function resolveHeaderGroupType(node: ast.OperationNode, params: ast.ParameterNode[], resolver: PluginTs['resolver']): QueryGroupResult {
   if (!params.length) return undefined
   const firstParam = params[0]!
   const groupName = resolver.resolveHeaderParamsName(node, firstParam)
@@ -91,11 +90,11 @@ export function resolveHeaderGroupType(node: Ast.OperationNode, params: Ast.Para
  */
 export function buildGroupParam(
   name: string,
-  node: Ast.OperationNode,
-  params: Ast.ParameterNode[],
+  node: ast.OperationNode,
+  params: ast.ParameterNode[],
   groupType: QueryGroupResult,
   resolver: PluginTs['resolver'],
-): Ast.FunctionParameterNode[] {
+): ast.FunctionParameterNode[] {
   if (groupType) {
     return [ast.createFunctionParameter({ name, type: groupType.type, optional: groupType.optional })]
   }
@@ -120,13 +119,13 @@ export function buildGroupParam(
  * Build QueryKey params: pathParams + data + queryParams (NO headers, NO config).
  */
 export function buildQueryKeyParams(
-  node: Ast.OperationNode,
+  node: ast.OperationNode,
   options: {
     pathParamsType: 'object' | 'inline'
     paramsCasing: 'camelcase' | undefined
     resolver: PluginTs['resolver']
   },
-): Ast.FunctionParametersNode {
+): ast.FunctionParametersNode {
   const { pathParamsType, paramsCasing, resolver } = options
 
   const casedParams = ast.caseParams(node.parameters, paramsCasing)
@@ -138,7 +137,7 @@ export function buildQueryKeyParams(
   const bodyType = node.requestBody?.schema ? ast.createParamsType({ variant: 'reference', name: resolver.resolveDataName(node) }) : undefined
   const bodyRequired = node.requestBody?.required ?? false
 
-  const params: Array<Ast.FunctionParameterNode | Ast.ParameterGroupNode> = []
+  const params: Array<ast.FunctionParameterNode | ast.ParameterGroupNode> = []
 
   // Path params
   if (pathParams.length) {
@@ -169,12 +168,12 @@ export function buildQueryKeyParams(
  * Contains pathParams + data + queryParams + headers (all flattened, for type alias).
  */
 export function buildMutationArgParams(
-  node: Ast.OperationNode,
+  node: ast.OperationNode,
   options: {
     paramsCasing: 'camelcase' | undefined
     resolver: PluginTs['resolver']
   },
-): Ast.FunctionParametersNode {
+): ast.FunctionParametersNode {
   const { paramsCasing, resolver } = options
 
   const casedParams = ast.caseParams(node.parameters, paramsCasing)
@@ -188,7 +187,7 @@ export function buildMutationArgParams(
   const bodyType = node.requestBody?.schema ? ast.createParamsType({ variant: 'reference', name: resolver.resolveDataName(node) }) : undefined
   const bodyRequired = node.requestBody?.required ?? false
 
-  const params: Array<Ast.FunctionParameterNode | Ast.ParameterGroupNode> = []
+  const params: Array<ast.FunctionParameterNode | ast.ParameterGroupNode> = []
 
   // Path params (individual entries)
   for (const p of pathParams) {

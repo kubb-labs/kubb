@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import type { Ast } from '@kubb/core'
+import type { ast } from '@kubb/core'
 import { createPlugin, getBarrelFiles, type UserGroup } from '@kubb/core'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -137,7 +137,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       const operationFiles = await operationGenerator.build(...generators)
       await this.upsertFile(...operationFiles)
 
-      const barrelFiles = await getBarrelFiles(this.driver.fileManager.files as unknown as Ast.FileNode[], {
+      const barrelFiles = await getBarrelFiles(this.driver.fileManager.files as unknown as ast.FileNode[], {
         type: output.barrelType ?? 'named',
         root,
         output,

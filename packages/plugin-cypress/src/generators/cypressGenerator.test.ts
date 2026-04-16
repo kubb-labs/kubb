@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
 
-import type { Ast, Config } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
@@ -92,7 +92,7 @@ describe('cypressGenerator — Operation', () => {
         responses: [ast.createResponse({ statusCode: '204', description: 'No content', schema: ast.createSchema({ type: 'void' }) })],
       }),
     },
-  ] as const satisfies Array<{ name: string; node: Ast.OperationNode }>
+  ] as const satisfies Array<{ name: string; node: ast.OperationNode }>
 
   test.each(operations)('$name', async (props) => {
     const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options: defaultOptions, resolver: resolverCypress })
@@ -365,7 +365,7 @@ describe('cypressGenerator — baseURL', () => {
 
 describe('cypressGenerator — transformers', () => {
   test('schema visitor — filters to required properties only', async () => {
-    const transformer: Ast.Visitor = {
+    const transformer: ast.Visitor = {
       schema(node) {
         if ('properties' in node) {
           return { ...node, properties: node.properties.filter((p) => p.required) }

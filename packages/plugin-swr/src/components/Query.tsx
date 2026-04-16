@@ -1,4 +1,3 @@
-import type { Ast } from '@kubb/core'
 import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
@@ -14,7 +13,7 @@ type Props = {
   queryOptionsName: string
   queryKeyName: string
   queryKeyTypeName: string
-  node: Ast.OperationNode
+  node: ast.OperationNode
   tsResolver: PluginTs['resolver']
   paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   paramsType: PluginSwr['resolvedOptions']['paramsType']
@@ -26,7 +25,7 @@ const declarationPrinter = functionPrinter({ mode: 'declaration' })
 const callPrinter = functionPrinter({ mode: 'call' })
 
 function getParams(
-  node: Ast.OperationNode,
+  node: ast.OperationNode,
   options: {
     paramsType: PluginSwr['resolvedOptions']['paramsType']
     paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
@@ -34,7 +33,7 @@ function getParams(
     dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
     resolver: PluginTs['resolver']
   },
-): Ast.FunctionParametersNode {
+): ast.FunctionParametersNode {
   const { paramsType, paramsCasing, pathParamsType, dataReturnType, resolver } = options
 
   const responseName = resolver.resolveResponseName(node)
@@ -85,7 +84,7 @@ function getParams(
   const bodyType = node.requestBody?.schema ? ast.createParamsType({ variant: 'reference', name: resolver.resolveDataName(node) }) : undefined
   const bodyRequired = node.requestBody?.required ?? false
 
-  const params: Array<Ast.FunctionParameterNode | Ast.ParameterGroupNode> = []
+  const params: Array<ast.FunctionParameterNode | ast.ParameterGroupNode> = []
 
   // Path params
   if (pathParams.length) {

@@ -1,4 +1,3 @@
-import type { Ast } from '@kubb/core'
 import { ast } from '@kubb/core'
 
 type DiscriminatorTarget = { propertyName: string; enumValues: Array<string | number | boolean> }
@@ -18,7 +17,7 @@ type DiscriminatorTarget = { propertyName: string; enumValues: Array<string | nu
  * const next = applyDiscriminatorInheritance(root)
  * ```
  */
-export function applyDiscriminatorInheritance(root: Ast.InputNode): Ast.InputNode {
+export function applyDiscriminatorInheritance(root: ast.InputNode): ast.InputNode {
   const childMap = new Map<string, DiscriminatorTarget>()
 
   for (const schema of root.schemas) {

@@ -1,4 +1,3 @@
-import type { Ast } from '@kubb/core'
 import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
@@ -9,7 +8,7 @@ import type { PluginSwr } from '../types.ts'
 type Props = {
   name: string
   clientName: string
-  node: Ast.OperationNode
+  node: ast.OperationNode
   tsResolver: PluginTs['resolver']
   paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   paramsType: PluginSwr['resolvedOptions']['paramsType']
@@ -20,14 +19,14 @@ const declarationPrinter = functionPrinter({ mode: 'declaration' })
 const callPrinter = functionPrinter({ mode: 'call' })
 
 export function getQueryOptionsParams(
-  node: Ast.OperationNode,
+  node: ast.OperationNode,
   options: {
     paramsType: PluginSwr['resolvedOptions']['paramsType']
     paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
     pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
     resolver: PluginTs['resolver']
   },
-): Ast.FunctionParametersNode {
+): ast.FunctionParametersNode {
   const { paramsType, paramsCasing, pathParamsType, resolver } = options
   const requestName = node.requestBody?.schema ? resolver.resolveDataName(node) : undefined
 

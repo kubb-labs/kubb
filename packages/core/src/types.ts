@@ -9,7 +9,6 @@ import type { Parser } from './defineParser.ts'
 import type { KubbHooks } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
-export type * as Ast from '@kubb/ast'
 export type { Renderer, RendererFactory } from './createRenderer.ts'
 
 export type InputPath = {

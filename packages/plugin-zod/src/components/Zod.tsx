@@ -1,4 +1,4 @@
-import type { Ast } from '@kubb/core'
+import type { ast } from '@kubb/core'
 import { Const, File, Type } from '@kubb/renderer-jsx'
 import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 import type { PrinterZodFactory } from '../printers/printerZod.ts'
@@ -6,13 +6,13 @@ import type { PrinterZodMiniFactory } from '../printers/printerZodMini.ts'
 
 type Props = {
   name: string
-  node: Ast.SchemaNode
+  node: ast.SchemaNode
   /**
    * Pre-configured printer instance created by the generator.
    * The generator selects `printerZod` or `printerZodMini` based on the `mini` option,
    * then merges in any user-supplied `printer.nodes` overrides.
    */
-  printer: Ast.Printer<PrinterZodFactory> | Ast.Printer<PrinterZodMiniFactory>
+  printer: ast.Printer<PrinterZodFactory> | ast.Printer<PrinterZodMiniFactory>
   inferTypeName?: string
 }
 

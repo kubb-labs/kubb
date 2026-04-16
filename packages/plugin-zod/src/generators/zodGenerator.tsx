@@ -1,4 +1,3 @@
-import type { Ast } from '@kubb/core'
 import { ast, defineGenerator } from '@kubb/core'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Operations } from '../components/Operations.tsx'
@@ -67,7 +66,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
       file: resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group }),
     } as const
 
-    function renderSchemaEntry({ schema, name, keysToOmit }: { schema: Ast.SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
+    function renderSchemaEntry({ schema, name, keysToOmit }: { schema: ast.SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
       if (!schema) return null
 
       const inferTypeName = inferred ? resolver.resolveTypeName(name) : undefined

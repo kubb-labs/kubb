@@ -1,5 +1,4 @@
 import { jsStringEscape, stringify } from '@internals/utils'
-import type { Ast } from '@kubb/core'
 import { ast } from '@kubb/core'
 import type { ResolverTs } from './types.ts'
 
@@ -10,7 +9,7 @@ import type { ResolverTs } from './types.ts'
  * Constraint metadata (min/max length, pattern, multipleOf, min/maxProperties) is emitted as plain-text lines.
 
  */
-export function buildPropertyJSDocComments(schema: Ast.SchemaNode): Array<string | undefined> {
+export function buildPropertyJSDocComments(schema: ast.SchemaNode): Array<string | undefined> {
   const meta = ast.syncSchemaRef(schema)
 
   const isArray = meta?.primitive === 'array'
@@ -33,7 +32,7 @@ export function buildPropertyJSDocComments(schema: Ast.SchemaNode): Array<string
 }
 
 type BuildParamsSchemaOptions = {
-  params: Array<Ast.ParameterNode>
+  params: Array<ast.ParameterNode>
   resolver: ResolverTs
 }
 
@@ -41,7 +40,7 @@ type BuildOperationSchemaOptions = {
   resolver: ResolverTs
 }
 
-export function buildParams(node: Ast.OperationNode, { params, resolver }: BuildParamsSchemaOptions): Ast.SchemaNode {
+export function buildParams(node: ast.OperationNode, { params, resolver }: BuildParamsSchemaOptions): ast.SchemaNode {
   return ast.createSchema({
     type: 'object',
     properties: params.map((param) =>
@@ -57,7 +56,7 @@ export function buildParams(node: Ast.OperationNode, { params, resolver }: Build
   })
 }
 
-export function buildData(node: Ast.OperationNode, { resolver }: BuildOperationSchemaOptions): Ast.SchemaNode {
+export function buildData(node: ast.OperationNode, { resolver }: BuildOperationSchemaOptions): ast.SchemaNode {
   const pathParams = node.parameters.filter((p) => p.in === 'path')
   const queryParams = node.parameters.filter((p) => p.in === 'query')
   const headerParams = node.parameters.filter((p) => p.in === 'header')
@@ -100,7 +99,7 @@ export function buildData(node: Ast.OperationNode, { resolver }: BuildOperationS
   })
 }
 
-export function buildResponses(node: Ast.OperationNode, { resolver }: BuildOperationSchemaOptions): Ast.SchemaNode | null {
+export function buildResponses(node: ast.OperationNode, { resolver }: BuildOperationSchemaOptions): ast.SchemaNode | null {
   if (node.responses.length === 0) {
     return null
   }
@@ -117,7 +116,7 @@ export function buildResponses(node: Ast.OperationNode, { resolver }: BuildOpera
   })
 }
 
-export function buildResponseUnion(node: Ast.OperationNode, { resolver }: BuildOperationSchemaOptions): Ast.SchemaNode | null {
+export function buildResponseUnion(node: ast.OperationNode, { resolver }: BuildOperationSchemaOptions): ast.SchemaNode | null {
   const responsesWithSchema = node.responses.filter((res) => res.schema)
 
   if (responsesWithSchema.length === 0) {

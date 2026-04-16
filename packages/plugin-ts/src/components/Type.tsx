@@ -1,4 +1,3 @@
-import type { Ast } from '@kubb/core'
 import { ast } from '@kubb/core'
 import { File } from '@kubb/renderer-jsx'
 import type { KubbReactNode } from '@kubb/renderer-jsx/types'
@@ -8,12 +7,12 @@ import { Enum, getEnumNames } from './Enum.tsx'
 
 type Props = {
   name: string
-  node: Ast.SchemaNode
+  node: ast.SchemaNode
   /**
    * Pre-configured printer instance created by the generator.
    * Created with `printerTs({ ..., nodes: options.printer?.nodes })`.
    */
-  printer: Ast.Printer<PrinterTsFactory>
+  printer: ast.Printer<PrinterTsFactory>
   enumType: PluginTs['resolvedOptions']['enumType']
   enumTypeSuffix: PluginTs['resolvedOptions']['enumTypeSuffix']
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
@@ -21,8 +20,8 @@ type Props = {
 }
 
 export function Type({ name, node, printer, enumType, enumTypeSuffix, enumKeyCasing, resolver }: Props): KubbReactNode {
-  const enumSchemaNodes = ast.collect<Ast.EnumSchemaNode>(node, {
-    schema(n): Ast.EnumSchemaNode | undefined {
+  const enumSchemaNodes = ast.collect<ast.EnumSchemaNode>(node, {
+    schema(n): ast.EnumSchemaNode | undefined {
       const enumNode = ast.narrowSchema(n, ast.schemaTypes.enum)
       if (enumNode?.name) return enumNode
     },

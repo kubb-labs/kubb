@@ -1,5 +1,4 @@
 import { isValidVarName, URLPath } from '@internals/utils'
-import type { Ast } from '@kubb/core'
 import { ast } from '@kubb/core'
 import type { ResolverTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
@@ -16,7 +15,7 @@ type Props = {
   /**
    * AST operation node.
    */
-  node: Ast.OperationNode
+  node: ast.OperationNode
   /**
    * TypeScript resolver for resolving param/data/response type names.
    */

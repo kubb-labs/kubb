@@ -1,5 +1,5 @@
 import type {
-  Ast,
+  ast,
   CompatibilityPreset,
   Exclude,
   Generator,
@@ -195,7 +195,7 @@ export type Options = {
    * Single AST visitor applied to each node before printing.
    * Return `null` or `undefined` from a method to leave the node unchanged.
    */
-  transformer?: Ast.Visitor
+  transformer?: ast.Visitor
   /**
    * Define some generators next to the client generators.
    */

@@ -1,5 +1,5 @@
 import { camelCase } from '@internals/utils'
-import type { Ast } from '@kubb/core'
+import type { ast } from '@kubb/core'
 import { defineGenerator } from '@kubb/core'
 import { File, Function, jsxRenderer } from '@kubb/renderer-jsx'
 import type { PluginClient } from '../types'
@@ -43,7 +43,7 @@ export const groupedClientGenerator = defineGenerator<PluginClient>({
 
         return acc
       },
-      [] as Array<{ name: string; file: Ast.FileNode; clients: Array<{ name: string; file: Ast.FileNode }> }>,
+      [] as Array<{ name: string; file: ast.FileNode; clients: Array<{ name: string; file: ast.FileNode }> }>,
     )
 
     return (

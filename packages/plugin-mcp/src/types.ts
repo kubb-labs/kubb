@@ -1,5 +1,5 @@
 import type {
-  Ast,
+  ast,
   CompatibilityPreset,
   Exclude,
   Generator,
@@ -74,7 +74,7 @@ export type Options = {
    * A single AST visitor applied before printing.
    * When a visitor method returns `null` or `undefined`, the preset transformer's result is used instead.
    */
-  transformer?: Ast.Visitor
+  transformer?: ast.Visitor
   /**
    * Define some generators next to the default MCP generators.
    */

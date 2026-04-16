@@ -1,5 +1,4 @@
 import { isValidVarName, URLPath } from '@internals/utils'
-import type { Ast } from '@kubb/core'
 import { ast, FunctionParams } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
@@ -24,7 +23,7 @@ type Props = {
   paramsType: PluginClient['resolvedOptions']['pathParamsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
   parser: PluginClient['resolvedOptions']['parser'] | undefined
-  node: Ast.OperationNode
+  node: ast.OperationNode
   tsResolver: PluginTs['resolver']
   zodResolver?: PluginZod['resolver']
   children?: KubbReactNode
@@ -34,14 +33,14 @@ type GetParamsProps = {
   paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
   paramsType: PluginClient['resolvedOptions']['paramsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
-  node: Ast.OperationNode
+  node: ast.OperationNode
   tsResolver: PluginTs['resolver']
   isConfigurable: boolean
 }
 
 const declarationPrinter = functionPrinter({ mode: 'declaration' })
 
-function getParams({ paramsType, paramsCasing, pathParamsType, node, tsResolver, isConfigurable }: GetParamsProps): Ast.FunctionParametersNode {
+function getParams({ paramsType, paramsCasing, pathParamsType, node, tsResolver, isConfigurable }: GetParamsProps): ast.FunctionParametersNode {
   const requestName = node.requestBody?.schema ? tsResolver.resolveDataName(node) : undefined
 
   return ast.createOperationParams(node, {

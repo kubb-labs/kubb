@@ -1,5 +1,4 @@
 import { isValidVarName, URLPath } from '@internals/utils'
-import type { Ast } from '@kubb/core'
 import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
@@ -17,7 +16,7 @@ type Props = {
   paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
   paramsType: PluginClient['resolvedOptions']['pathParamsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
-  node: Ast.OperationNode
+  node: ast.OperationNode
   tsResolver: PluginTs['resolver']
 }
 
@@ -25,15 +24,15 @@ type GetParamsProps = {
   paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
   paramsType: PluginClient['resolvedOptions']['paramsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
-  node: Ast.OperationNode
+  node: ast.OperationNode
   tsResolver: PluginTs['resolver']
 }
 
 const declarationPrinter = functionPrinter({ mode: 'declaration' })
 
-function getParams({ paramsType, paramsCasing, pathParamsType, node, tsResolver }: GetParamsProps): Ast.FunctionParametersNode {
+function getParams({ paramsType, paramsCasing, pathParamsType, node, tsResolver }: GetParamsProps): ast.FunctionParametersNode {
   // Build a URL-only node with only path params (no body, query, header)
-  const urlNode: Ast.OperationNode = {
+  const urlNode: ast.OperationNode = {
     ...node,
     parameters: node.parameters.filter((p) => p.in === 'path'),
     requestBody: undefined,

@@ -1,4 +1,3 @@
-import type { Ast } from '@kubb/core'
 import { ast } from '@kubb/core'
 import { functionPrinter } from '@kubb/plugin-ts'
 import { Const, File, Function } from '@kubb/renderer-jsx'
@@ -36,7 +35,7 @@ type Props = {
     }
     mcp: {
       name: string
-      file: Ast.FileNode
+      file: ast.FileNode
     }
     zod: {
       pathParams: Array<ZodParam>
@@ -51,7 +50,7 @@ type Props = {
       requestName?: string
       responseName?: string
     }
-    node: Ast.OperationNode
+    node: ast.OperationNode
   }>
 }
 
