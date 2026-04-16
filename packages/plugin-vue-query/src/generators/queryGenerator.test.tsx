@@ -112,6 +112,20 @@ describe('queryGenerator operation', async () => {
       },
     },
     {
+      name: 'postAsQueryObjectParams',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}',
+      method: 'post',
+      options: {
+        paramsType: 'object',
+        pathParamsType: 'object',
+        query: {
+          importPath: 'custom-query',
+          methods: ['post'],
+        },
+      },
+    },
+    {
       name: 'findByTagsObject',
       input: '../../mocks/petStore.yaml',
       path: '/pet/findByTags',
