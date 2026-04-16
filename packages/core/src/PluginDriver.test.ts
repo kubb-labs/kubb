@@ -1,6 +1,6 @@
 import { AsyncEventEmitter } from '@internals/utils'
-import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
+import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createPlugin } from './createPlugin.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import type { Config, KubbHooks, Plugin } from './types.ts'

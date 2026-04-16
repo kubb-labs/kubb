@@ -45,10 +45,10 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/adapter-oas": "latest",
-    "@kubb/ast": "latest",
-    "@kubb/core": "latest",
-    "@kubb/parser-ts": "latest",
+    "@kubb/adapter-oas": "5.0.0-alpha.35",
+    "@kubb/ast": "5.0.0-alpha.35",
+    "@kubb/core": "5.0.0-alpha.35",
+    "@kubb/parser-ts": "5.0.0-alpha.35",
     "@kubb/plugin-client": "latest",
     "@kubb/plugin-cypress": "latest",
     "@kubb/plugin-faker": "latest",

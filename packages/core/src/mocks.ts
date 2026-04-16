@@ -1,8 +1,8 @@
 import { resolve } from 'node:path'
-import { transform } from '@kubb/ast'
 import type { FileNode, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
+import { transform } from '@kubb/ast'
 import { FileManager } from './FileManager.ts'
-import { getMode, PluginDriver } from './PluginDriver.ts'
+import { getMode, type PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.ts'
 import type {
   Adapter,
@@ -47,13 +47,7 @@ function pascalCase(text: string): string {
 /**
  * Creates a minimal `PluginDriver` mock suitable for unit tests.
  */
-export function createMockedPluginDriver(
-  options: {
-    name?: string
-    plugin?: Plugin<any>
-    config?: Config
-  } = {},
-): PluginDriver {
+export function createMockedPluginDriver(options: { name?: string; plugin?: Plugin<any>; config?: Config } = {}): PluginDriver {
   return {
     resolveName: (result: ResolveNameParams) => {
       if (result.type === 'file') {

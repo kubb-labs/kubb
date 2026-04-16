@@ -20,6 +20,8 @@ export {
   defaultResolvePath,
   defineResolver,
 } from './defineResolver.ts'
+export { FileManager } from './FileManager.ts'
+export { FileProcessor } from './FileProcessor.ts'
 export { getMode, PluginDriver } from './PluginDriver.ts'
 export { fsStorage } from './storages/fsStorage.ts'
 export { memoryStorage } from './storages/memoryStorage.ts'
@@ -32,5 +34,3 @@ export { createFunctionParams, FunctionParams, getFunctionParams } from './utils
 export { isInputPath } from './utils/isInputPath.ts'
 export { detectLinter } from './utils/linters.ts'
 export { satisfiesDependency } from './utils/packageJSON.ts'
-export { FileProcessor } from "./FileProcessor.ts"
-export { FileManager } from "./FileManager.ts"
