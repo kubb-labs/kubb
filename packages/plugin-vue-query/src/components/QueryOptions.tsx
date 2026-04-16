@@ -35,6 +35,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
         override(item) {
           return {
             ...item,
+            required: false,
             type: `MaybeRefOrGetter<${item.type}>`,
           }
         },
@@ -86,6 +87,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
         override(item) {
           return {
             ...item,
+            required: false,
             type: `MaybeRefOrGetter<${item.type}>`,
           }
         },
@@ -137,14 +139,13 @@ export function QueryOptions({ name, clientName, dataReturnType, typeSchemas, pa
     paramsCasing,
   })
 
-  const enabled = Object.entries(queryKeyParams.flatParams)
-    .map(([key, item]) => {
-      // Only include if the parameter exists and is NOT optional
-      // This ensures we only check required parameters
-      return item && !item.optional && !item.default ? key : undefined
-    })
-    .filter(Boolean)
-    .join('&& ')
+  const enabledPathParams = getPathParams(typeSchemas.pathParams, { casing: paramsCasing })
+  const enabledParamNames = new Set(
+    Object.entries(enabledPathParams)
+      .filter(([, item]) => item && !item.optional && !item.default)
+      .map(([key]) => key),
+  )
+  const enabled = [...enabledParamNames].join(' && ')
 
   const enabledText = enabled ? `enabled: !!(${enabled}),` : ''
 
@@ -163,7 +164,7 @@ export function QueryOptions({ name, clientName, dataReturnType, typeSchemas, pa
                 return '{ ...config, signal: config.signal ?? signal }'
               }
 
-              return `toValue(${name})`
+              return `toValue(${name}${enabledParamNames.has(name) ? '!' : ''})`
             },
           })})
        },

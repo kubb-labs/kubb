@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
 import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const createOrderMutationKey = () => [{ url: '/orders' }] as const

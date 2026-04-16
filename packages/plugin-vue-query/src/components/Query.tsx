@@ -43,6 +43,7 @@ function getParams({ paramsCasing, paramsType, pathParamsType, dataReturnType, t
       override(item) {
         return {
           ...item,
+          required: false,
           type: `MaybeRefOrGetter<${item.type}>`,
         }
       },
@@ -100,6 +101,7 @@ function getParams({ paramsCasing, paramsType, pathParamsType, dataReturnType, t
             override(item) {
               return {
                 ...item,
+                required: false,
                 type: `MaybeRefOrGetter<${item.type}>`,
               }
             },

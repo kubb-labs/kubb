@@ -3,10 +3,10 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
 import type { QueryKey, QueryClient, UseBaseQueryOptions, UseQueryResult } from '@tanstack/svelte-query'
-import { fetch } from '../test/.kubb/fetch'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
 import { queryOptions, useQuery } from '@tanstack/svelte-query'
+import { fetch } from '../test/.kubb/fetch'
 
 export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 

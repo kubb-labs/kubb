@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
 import type { MaybeRefOrGetter } from 'vue'
-import { fetch } from '../test/.kubb/fetch'
 import { useMutation } from '@tanstack/vue-query'
+import { fetch } from '../test/.kubb/fetch'
 
 export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId' }] as const
 

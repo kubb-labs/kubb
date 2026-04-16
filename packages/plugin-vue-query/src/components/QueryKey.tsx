@@ -33,6 +33,7 @@ function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps
         override(item) {
           return {
             ...item,
+            required: false,
             type: `MaybeRefOrGetter<${item.type}>`,
           }
         },

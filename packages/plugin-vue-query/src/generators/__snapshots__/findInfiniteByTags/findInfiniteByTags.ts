@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
 import type { InfiniteData, QueryKey, QueryClient, UseInfiniteQueryOptions, UseInfiniteQueryReturnType } from '@tanstack/react-query'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
 import type { MaybeRefOrGetter } from 'vue'
-import { fetch } from '../test/.kubb/fetch'
 import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
+import { fetch } from '../test/.kubb/fetch'
 import { toValue } from 'vue'
 
 export const findPetsByTagsInfiniteQueryKey = (params?: MaybeRefOrGetter<FindPetsByTagsQueryParams>) =>

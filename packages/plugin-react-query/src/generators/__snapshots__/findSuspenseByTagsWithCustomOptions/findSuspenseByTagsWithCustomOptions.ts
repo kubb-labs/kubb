@@ -3,10 +3,10 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
 import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
-import { fetch } from '../test/.kubb/fetch'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import { fetch } from '../test/.kubb/fetch'
 import { useCustomHookOptions } from 'useCustomHookOptions.ts'
 
 export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const

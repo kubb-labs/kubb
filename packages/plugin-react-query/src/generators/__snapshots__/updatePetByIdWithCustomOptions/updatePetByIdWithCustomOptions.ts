@@ -3,10 +3,10 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
 import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
-import { fetch } from '../test/.kubb/fetch'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
+import { fetch } from '../test/.kubb/fetch'
 import { useCustomHookOptions } from 'useCustomHookOptions.ts'
 
 export const updatePetWithFormMutationKey = () => [{ url: '/pet/:pet_id' }] as const

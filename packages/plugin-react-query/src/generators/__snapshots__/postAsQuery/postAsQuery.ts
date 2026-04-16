@@ -9,7 +9,7 @@ import { fetch } from '../test/.kubb/fetch'
 import { queryOptions, useQuery } from 'custom-query'
 
 export const updatePetWithFormQueryKey = (
-  petId: UpdatePetWithFormPathParams['petId'],
+  petId?: UpdatePetWithFormPathParams['petId'],
   data?: UpdatePetWithFormMutationRequest,
   params?: UpdatePetWithFormQueryParams,
 ) => [{ url: '/pet/:pet_id', params: { pet_id: pet_id } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const
@@ -42,7 +42,7 @@ export async function updatePetWithForm(
 }
 
 export function updatePetWithFormQueryOptions(
-  petId: UpdatePetWithFormPathParams['petId'],
+  petId?: UpdatePetWithFormPathParams['petId'],
   data?: UpdatePetWithFormMutationRequest,
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: Client } = {},
@@ -52,7 +52,7 @@ export function updatePetWithFormQueryOptions(
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
-      return updatePetWithForm(petId, data, params, { ...config, signal: config.signal ?? signal })
+      return updatePetWithForm(petId!, data, params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -66,7 +66,7 @@ export function useUpdatePetWithForm<
   TQueryData = UpdatePetWithFormMutationResponse,
   TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
 >(
-  petId: UpdatePetWithFormPathParams['petId'],
+  petId?: UpdatePetWithFormPathParams['petId'],
   data?: UpdatePetWithFormMutationRequest,
   params?: UpdatePetWithFormQueryParams,
   options: {

@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../test/.kubb/fetch'
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from '@tanstack/react-query'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../test/.kubb/fetch'
 import type { MaybeRefOrGetter } from 'vue'
-import { fetch } from '../test/.kubb/fetch'
 import { queryOptions, useQuery } from '@tanstack/react-query'
+import { fetch } from '../test/.kubb/fetch'
 import { toValue } from 'vue'
 
 export const findPetsByTagsQueryKey = (params?: MaybeRefOrGetter<FindPetsByTagsQueryParams>) =>

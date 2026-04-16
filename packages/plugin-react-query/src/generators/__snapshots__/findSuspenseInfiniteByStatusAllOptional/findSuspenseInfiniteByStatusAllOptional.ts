@@ -3,10 +3,10 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
 import type { InfiniteData, QueryKey, QueryClient, UseSuspenseInfiniteQueryOptions, UseSuspenseInfiniteQueryResult } from '@tanstack/react-query'
-import { fetch } from '../test/.kubb/fetch'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
 import { infiniteQueryOptions, useSuspenseInfiniteQuery } from '@tanstack/react-query'
+import { fetch } from '../test/.kubb/fetch'
 
 export const findPetsByStatusSuspenseInfiniteQueryKey = (params?: FindPetsByStatusQueryParams) =>
   [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
