@@ -1,8 +1,7 @@
 // external packages
 
-import { httpMethods } from '@kubb/ast'
-import type { HttpMethod as AstHttpMethod, ParserOptions } from '@kubb/ast/types'
 import type { AdapterFactoryOptions } from '@kubb/core'
+import { ast } from '@kubb/core'
 import type { Operation as OASOperation } from 'oas/operation'
 import type {
   DiscriminatorObject as OASDiscriminatorObject,
@@ -83,15 +82,15 @@ export type SchemaObject = OASSchemaObject & {
  * HttpMethods['POST'] // 'post'
  * ```
  */
-export const HttpMethods = Object.fromEntries(Object.entries(httpMethods).map(([lower, upper]) => [upper, lower])) as Record<
-  Uppercase<AstHttpMethod>,
-  Lowercase<AstHttpMethod>
+export const HttpMethods = Object.fromEntries(Object.entries(ast.httpMethods).map(([lower, upper]) => [upper, lower])) as Record<
+  Uppercase<ast.HttpMethod>,
+  Lowercase<ast.HttpMethod>
 >
 
 /**
  * Lowercase HTTP method string as used by the `oas` package (`'get' | 'post' | ...`).
  */
-export type HttpMethod = Lowercase<AstHttpMethod>
+export type HttpMethod = Lowercase<ast.HttpMethod>
 
 /**
  * Normalized OpenAPI document type used throughout the adapter.
@@ -174,7 +173,7 @@ export type AdapterOasOptions = {
    * @default 'strict'
    */
   discriminator?: 'strict' | 'inherit'
-} & Partial<ParserOptions>
+} & Partial<ast.ParserOptions>
 
 /**
  * Resolved adapter options available at runtime after defaults have been applied.

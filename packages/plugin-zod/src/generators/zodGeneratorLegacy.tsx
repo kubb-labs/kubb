@@ -1,6 +1,4 @@
-import { caseParams, createProperty, createSchema } from '@kubb/ast'
-import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
-import { defineGenerator } from '@kubb/core'
+import { ast, defineGenerator } from '@kubb/core'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Operations } from '../components/Operations.tsx'
 import { Zod } from '../components/Zod.tsx'
@@ -10,16 +8,16 @@ import { printerZodMini } from '../printers/printerZodMini.ts'
 import type { PluginZod, ResolverZod } from '../types'
 
 type BuildGroupedParamsSchemaOptions = {
-  params: Array<ParameterNode>
+  params: Array<ast.ParameterNode>
 }
 
-function buildGroupedParamsSchema({ params, optional }: BuildGroupedParamsSchemaOptions & { optional?: boolean }): SchemaNode {
-  return createSchema({
+function buildGroupedParamsSchema({ params, optional }: BuildGroupedParamsSchemaOptions & { optional?: boolean }): ast.SchemaNode {
+  return ast.createSchema({
     type: 'object',
     optional,
     primitive: 'object',
     properties: params.map((param) => {
-      return createProperty({
+      return ast.createProperty({
         name: param.name,
         required: param.required,
         schema: param.schema,
@@ -32,7 +30,7 @@ type BuildOperationSchemaOptions = {
   resolver: ResolverZod
 }
 
-function buildLegacyResponsesSchemaNode(node: OperationNode, { resolver }: BuildOperationSchemaOptions): SchemaNode | null {
+function buildLegacyResponsesSchemaNode(node: ast.OperationNode, { resolver }: BuildOperationSchemaOptions): ast.SchemaNode | null {
   const isGet = node.method.toLowerCase() === 'get'
   const successResponses = node.responses.filter((res) => {
     const code = Number(res.statusCode)
@@ -43,31 +41,31 @@ function buildLegacyResponsesSchemaNode(node: OperationNode, { resolver }: Build
   const responseSchema =
     successResponses.length > 0
       ? successResponses.length === 1
-        ? createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, successResponses[0]!.statusCode) })
-        : createSchema({
+        ? ast.createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, successResponses[0]!.statusCode) })
+        : ast.createSchema({
             type: 'union',
-            members: successResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
+            members: successResponses.map((res) => ast.createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
           })
-      : createSchema({ type: 'any' })
+      : ast.createSchema({ type: 'any' })
 
   const errorsSchema =
     errorResponses.length > 0
       ? errorResponses.length === 1
-        ? createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, errorResponses[0]!.statusCode) })
-        : createSchema({
+        ? ast.createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, errorResponses[0]!.statusCode) })
+        : ast.createSchema({
             type: 'union',
-            members: errorResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
+            members: errorResponses.map((res) => ast.createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
           })
-      : createSchema({ type: 'any' })
+      : ast.createSchema({ type: 'any' })
 
-  const properties = [createProperty({ name: 'Response', required: true, schema: responseSchema })]
+  const properties = [ast.createProperty({ name: 'Response', required: true, schema: responseSchema })]
 
   if (!isGet && node.requestBody?.schema) {
     properties.push(
-      createProperty({
+      ast.createProperty({
         name: 'Request',
         required: true,
-        schema: createSchema({ type: 'ref', name: resolver.resolveDataName(node) }),
+        schema: ast.createSchema({ type: 'ref', name: resolver.resolveDataName(node) }),
       }),
     )
   }
@@ -75,10 +73,10 @@ function buildLegacyResponsesSchemaNode(node: OperationNode, { resolver }: Build
   const queryParam = node.parameters.find((p) => p.in === 'query')
   if (queryParam) {
     properties.push(
-      createProperty({
+      ast.createProperty({
         name: 'QueryParams',
         required: true,
-        schema: createSchema({ type: 'ref', name: resolver.resolveQueryParamsName(node, queryParam) }),
+        schema: ast.createSchema({ type: 'ref', name: resolver.resolveQueryParamsName(node, queryParam) }),
       }),
     )
   }
@@ -86,10 +84,10 @@ function buildLegacyResponsesSchemaNode(node: OperationNode, { resolver }: Build
   const pathParam = node.parameters.find((p) => p.in === 'path')
   if (pathParam) {
     properties.push(
-      createProperty({
+      ast.createProperty({
         name: 'PathParams',
         required: true,
-        schema: createSchema({ type: 'ref', name: resolver.resolvePathParamsName(node, pathParam) }),
+        schema: ast.createSchema({ type: 'ref', name: resolver.resolvePathParamsName(node, pathParam) }),
       }),
     )
   }
@@ -97,40 +95,40 @@ function buildLegacyResponsesSchemaNode(node: OperationNode, { resolver }: Build
   const headerParam = node.parameters.find((p) => p.in === 'header')
   if (headerParam) {
     properties.push(
-      createProperty({
+      ast.createProperty({
         name: 'HeaderParams',
         required: true,
-        schema: createSchema({ type: 'ref', name: resolver.resolveHeaderParamsName(node, headerParam) }),
+        schema: ast.createSchema({ type: 'ref', name: resolver.resolveHeaderParamsName(node, headerParam) }),
       }),
     )
   }
 
-  properties.push(createProperty({ name: 'Errors', required: true, schema: errorsSchema }))
+  properties.push(ast.createProperty({ name: 'Errors', required: true, schema: errorsSchema }))
 
-  return createSchema({ type: 'object', primitive: 'object', properties })
+  return ast.createSchema({ type: 'object', primitive: 'object', properties })
 }
 
-function buildLegacyResponseUnionSchemaNode(node: OperationNode, { resolver }: BuildOperationSchemaOptions): SchemaNode {
+function buildLegacyResponseUnionSchemaNode(node: ast.OperationNode, { resolver }: BuildOperationSchemaOptions): ast.SchemaNode {
   const successResponses = node.responses.filter((res) => {
     const code = Number(res.statusCode)
     return !Number.isNaN(code) && code >= 200 && code < 300
   })
 
   if (successResponses.length === 0) {
-    return createSchema({ type: 'any' })
+    return ast.createSchema({ type: 'any' })
   }
 
   if (successResponses.length === 1) {
-    return createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, successResponses[0]!.statusCode) })
+    return ast.createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, successResponses[0]!.statusCode) })
   }
 
-  return createSchema({
+  return ast.createSchema({
     type: 'union',
-    members: successResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
+    members: successResponses.map((res) => ast.createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
   })
 }
 
-function buildLegacySchemaNames(node: OperationNode, params: Array<ParameterNode>, resolver: ResolverZod) {
+function buildLegacySchemaNames(node: ast.OperationNode, params: Array<ast.ParameterNode>, resolver: ResolverZod) {
   const pathParam = params.find((p) => p.in === 'path')
   const queryParam = params.find((p) => p.in === 'query')
   const headerParam = params.find((p) => p.in === 'header')
@@ -216,13 +214,13 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     const mode = ctx.getMode(output)
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
-    const params = caseParams(node.parameters, paramsCasing)
+    const params = ast.caseParams(node.parameters, paramsCasing)
 
     const meta = {
       file: resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group }),
     } as const
 
-    function renderSchemaEntry({ schema, name, keysToOmit }: { schema: SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
+    function renderSchemaEntry({ schema, name, keysToOmit }: { schema: ast.SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
       if (!schema) return null
 
       const inferTypeName = inferred ? resolver.resolveTypeName(name) : undefined
@@ -334,7 +332,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     } as const
 
     const transformedOperations = nodes.map((node) => {
-      const params = caseParams(node.parameters, paramsCasing)
+      const params = ast.caseParams(node.parameters, paramsCasing)
 
       return {
         node,

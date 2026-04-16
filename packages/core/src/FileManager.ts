@@ -1,6 +1,6 @@
 import { trimExtName } from '@internals/utils'
+import type { FileNode } from '@kubb/ast'
 import { createFile } from '@kubb/ast'
-import type { FileNode } from '@kubb/ast/types'
 
 function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNode<TMeta>): FileNode<TMeta> {
   return {

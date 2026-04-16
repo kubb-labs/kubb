@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { FileNode } from '@kubb/ast/types'
+import type { FileNode } from '@kubb/ast'
 import { getMode } from '../PluginDriver.ts'
 
 type BarrelData = {

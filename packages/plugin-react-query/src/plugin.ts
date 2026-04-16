@@ -1,8 +1,6 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { createFile, createSource, createText } from '@kubb/ast'
-import type { FileNode } from '@kubb/ast/types'
-import { createPlugin, getBarrelFiles, type UserGroup } from '@kubb/core'
+import { ast, createPlugin, getBarrelFiles, type UserGroup } from '@kubb/core'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
@@ -183,13 +181,13 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
       if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
         // pre add bundled fetch
         await this.upsertFile(
-          createFile({
+          ast.createFile({
             baseName: 'fetch.ts',
             path: path.resolve(root, '.kubb/fetch.ts'),
             sources: [
-              createSource({
+              ast.createSource({
                 name: 'fetch',
-                nodes: [createText(this.plugin.options.client.client === 'fetch' ? fetchClientSource : axiosClientSource)],
+                nodes: [ast.createText(this.plugin.options.client.client === 'fetch' ? fetchClientSource : axiosClientSource)],
                 isExportable: true,
                 isIndexable: true,
               }),
@@ -200,13 +198,13 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
 
       if (!hasClientPlugin) {
         await this.upsertFile(
-          createFile({
+          ast.createFile({
             baseName: 'config.ts',
             path: path.resolve(root, '.kubb/config.ts'),
             sources: [
-              createSource({
+              ast.createSource({
                 name: 'config',
-                nodes: [createText(configSource)],
+                nodes: [ast.createText(configSource)],
                 isExportable: false,
                 isIndexable: false,
               }),
@@ -230,7 +228,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
       const files = await operationGenerator.build(...generators)
       await this.upsertFile(...files)
 
-      const barrelFiles = await getBarrelFiles(this.driver.fileManager.files as unknown as FileNode[], {
+      const barrelFiles = await getBarrelFiles(this.driver.fileManager.files as unknown as ast.FileNode[], {
         type: output.barrelType ?? 'named',
         root,
         output,

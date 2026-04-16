@@ -1,8 +1,8 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createOperation, createParameter, createProperty, createResponse, createSchema } from '@kubb/ast'
-import type { OperationNode, Visitor } from '@kubb/ast/types'
+
 import type { Config, Group } from '@kubb/core'
+import { ast } from '@kubb/core'
 import { describe, expect, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation, renderGeneratorSchema } from '#mocks'
 import { resolverTs } from '../resolvers/resolverTs.ts'
@@ -27,179 +27,184 @@ const defaultOptions: PluginTs['resolvedOptions'] = {
   printer: undefined,
 }
 
-const enumSchema = createSchema({
+const enumSchema = ast.createSchema({
   type: 'enum',
   name: 'petStatus',
   primitive: 'string',
   enumValues: ['available', 'pending', 'sold'],
 })
 
-const multiWordEnumSchema = createSchema({
+const multiWordEnumSchema = ast.createSchema({
   type: 'enum',
   name: 'orderStatus',
   primitive: 'string',
   enumValues: ['in_progress', 'awaiting_payment', 'fully_shipped'],
 })
 
-const objectSchema = createSchema({
+const objectSchema = ast.createSchema({
   type: 'object',
   name: 'Pet',
   properties: [
-    createProperty({ name: 'id', required: true, schema: createSchema({ type: 'string' }) }),
-    createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
-    createProperty({ name: 'description', schema: createSchema({ type: 'string', optional: true }) }),
-    createProperty({ name: 'tags', schema: createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }) }),
+    ast.createProperty({ name: 'id', required: true, schema: ast.createSchema({ type: 'string' }) }),
+    ast.createProperty({ name: 'name', required: true, schema: ast.createSchema({ type: 'string' }) }),
+    ast.createProperty({ name: 'description', schema: ast.createSchema({ type: 'string', optional: true }) }),
+    ast.createProperty({ name: 'tags', schema: ast.createSchema({ type: 'array', items: [ast.createSchema({ type: 'string' })] }) }),
   ],
 })
 
-const operationWithSnakeCaseParams: OperationNode = createOperation({
+const operationWithSnakeCaseParams: ast.OperationNode = ast.createOperation({
   operationId: 'updatePet',
   method: 'POST',
   path: '/pets/{pet_id}',
   tags: ['pets'],
   parameters: [
-    createParameter({ name: 'pet_id', in: 'path', schema: createSchema({ type: 'string' }), required: true }),
-    createParameter({ name: 'include_deleted', in: 'query', schema: createSchema({ type: 'boolean' }) }),
-    createParameter({ name: 'request_source', in: 'query', schema: createSchema({ type: 'string' }) }),
+    ast.createParameter({ name: 'pet_id', in: 'path', schema: ast.createSchema({ type: 'string' }), required: true }),
+    ast.createParameter({ name: 'include_deleted', in: 'query', schema: ast.createSchema({ type: 'boolean' }) }),
+    ast.createParameter({ name: 'request_source', in: 'query', schema: ast.createSchema({ type: 'string' }) }),
   ],
   requestBody: {
-    schema: createSchema({ type: 'object', properties: [createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) })] }),
+    schema: ast.createSchema({
+      type: 'object',
+      properties: [ast.createProperty({ name: 'name', required: true, schema: ast.createSchema({ type: 'string' }) })],
+    }),
   },
-  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Success' })],
+  responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Success' })],
 })
 
 describe('typeGenerator — Operation', () => {
   const operations = [
     {
       name: 'listPets — GET with query params',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'listPets',
         method: 'GET',
         path: '/pets',
         tags: ['pets'],
-        parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
+        parameters: [ast.createParameter({ name: 'limit', in: 'query', schema: ast.createSchema({ type: 'integer' }) })],
         responses: [
-          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
-          createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+          ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
+          ast.createResponse({ statusCode: 'default', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
         ],
       }),
     },
     {
       name: 'showPetById — GET with path param',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'showPetById',
         method: 'GET',
         path: '/pets/{petId}',
         tags: ['pets'],
-        parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
+        parameters: [ast.createParameter({ name: 'petId', in: 'path', schema: ast.createSchema({ type: 'string' }), required: true })],
         responses: [
-          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Expected response' }),
-          createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+          ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Expected response' }),
+          ast.createResponse({ statusCode: 'default', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
         ],
       }),
     },
     {
       name: 'findPetsByStatus — GET with query param enum',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'findPetsByStatus',
         method: 'GET',
         path: '/pet/findByStatus',
         tags: ['pet'],
         parameters: [
-          createParameter({
+          ast.createParameter({
             name: 'status',
             in: 'query',
-            schema: createSchema({ type: 'enum', primitive: 'string', enumValues: ['available', 'pending', 'sold'] }),
+            schema: ast.createSchema({ type: 'enum', primitive: 'string', enumValues: ['available', 'pending', 'sold'] }),
           }),
         ],
-        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' })],
+        responses: [
+          ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
+        ],
       }),
     },
     {
       name: 'addPet — POST with request body',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'addPet',
         method: 'POST',
         path: '/pet',
         tags: ['pet'],
-        requestBody: { schema: createSchema({ type: 'object', properties: [] }) },
+        requestBody: { schema: ast.createSchema({ type: 'object', properties: [] }) },
         responses: [
-          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
-          createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+          ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
+          ast.createResponse({ statusCode: '405', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
         ],
       }),
     },
     {
       name: 'updatePetWithForm — POST with path and query params',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'updatePetWithForm',
         method: 'POST',
         path: '/pet/{petId}',
         tags: ['pet'],
         parameters: [
-          createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true }),
-          createParameter({ name: 'name', in: 'query', schema: createSchema({ type: 'string' }) }),
-          createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) }),
+          ast.createParameter({ name: 'petId', in: 'path', schema: ast.createSchema({ type: 'integer' }), required: true }),
+          ast.createParameter({ name: 'name', in: 'query', schema: ast.createSchema({ type: 'string' }) }),
+          ast.createParameter({ name: 'status', in: 'query', schema: ast.createSchema({ type: 'string' }) }),
         ],
         responses: [
-          createResponse({ statusCode: '200', schema: createSchema({ type: 'void' }), description: 'Success' }),
-          createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+          ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'void' }), description: 'Success' }),
+          ast.createResponse({ statusCode: '405', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
         ],
       }),
     },
     {
       name: 'placeOrderPatch — PATCH with path params + request body + multiple status codes',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'placeOrderPatch',
         method: 'PATCH',
         path: '/store/order/:orderId',
         tags: ['store'],
-        parameters: [createParameter({ name: 'orderId', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
-        requestBody: { schema: createSchema({ type: 'object', properties: [], description: 'Order payload' }) },
+        parameters: [ast.createParameter({ name: 'orderId', in: 'path', schema: ast.createSchema({ type: 'integer' }), required: true })],
+        requestBody: { schema: ast.createSchema({ type: 'object', properties: [], description: 'Order payload' }) },
         responses: [
-          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
-          createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+          ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
+          ast.createResponse({ statusCode: '405', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
         ],
       }),
     },
     {
       name: 'deletePet — DELETE with no response body',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'deletePet',
         method: 'DELETE',
         path: '/pets/{petId}',
         tags: ['pets'],
-        parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
-        responses: [createResponse({ statusCode: '204', description: 'No content', schema: createSchema({ type: 'void' }) })],
+        parameters: [ast.createParameter({ name: 'petId', in: 'path', schema: ast.createSchema({ type: 'string' }), required: true })],
+        responses: [ast.createResponse({ statusCode: '204', description: 'No content', schema: ast.createSchema({ type: 'void' }) })],
       }),
     },
     {
       name: 'findArtifacts — GET with multiple query params',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'findArtifacts',
         method: 'GET',
         path: '/artifacts',
         tags: ['artifacts'],
         parameters: [
-          createParameter({ name: 'page', in: 'query', schema: createSchema({ type: 'integer' }) }),
-          createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) }),
-          createParameter({ name: 'sort', in: 'query', schema: createSchema({ type: 'string' }) }),
+          ast.createParameter({ name: 'page', in: 'query', schema: ast.createSchema({ type: 'integer' }) }),
+          ast.createParameter({ name: 'limit', in: 'query', schema: ast.createSchema({ type: 'integer' }) }),
+          ast.createParameter({ name: 'sort', in: 'query', schema: ast.createSchema({ type: 'string' }) }),
         ],
-        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Results' })],
+        responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Results' })],
       }),
     },
     {
       name: 'noTagsOperation — GET with no tags',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'get_enterprise_configurations_id_v2025.0',
         method: 'GET',
         path: '/enterprise_configurations/:enterprise_id',
         tags: [],
-        parameters: [createParameter({ name: 'enterprise_id', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
-        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Enterprise config' })],
+        parameters: [ast.createParameter({ name: 'enterprise_id', in: 'path', schema: ast.createSchema({ type: 'string' }), required: true })],
+        responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Enterprise config' })],
       }),
     },
-  ] as const satisfies Array<{ name: string; node: OperationNode }>
+  ] as const satisfies Array<{ name: string; node: ast.OperationNode }>
 
   test.each(operations)('$name', async (props) => {
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options: defaultOptions, resolver: resolverTs })
@@ -219,15 +224,15 @@ describe('typeGenerator — Operation', () => {
 })
 
 describe('typeGenerator — Operation — group', () => {
-  const node = createOperation({
+  const node = ast.createOperation({
     operationId: 'listPets',
     method: 'GET',
     path: '/pets',
     tags: ['pets'],
-    parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
+    parameters: [ast.createParameter({ name: 'limit', in: 'query', schema: ast.createSchema({ type: 'integer' }) })],
     responses: [
-      createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
-      createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+      ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
+      ast.createResponse({ statusCode: 'default', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
     ],
   })
 
@@ -267,12 +272,12 @@ describe('typeGenerator — Operation — group', () => {
   })
 
   test('group=tag with empty tags falls back to default', async () => {
-    const noTagNode = createOperation({
+    const noTagNode = ast.createOperation({
       operationId: 'getConfig',
       method: 'GET',
       path: '/config',
       tags: [],
-      responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Config' })],
+      responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Config' })],
     })
     const options: PluginTs['resolvedOptions'] = {
       ...defaultOptions,
@@ -360,7 +365,7 @@ describe('typeGenerator — enumType', () => {
 })
 
 describe('typeGenerator — enumType — dotted name', () => {
-  const dottedEnumSchema = createSchema({
+  const dottedEnumSchema = ast.createSchema({
     type: 'enum',
     name: 'enumNames.Type',
     primitive: 'string',
@@ -547,7 +552,7 @@ describe('typeGenerator — arrayType', () => {
 
 describe('typeGenerator — transformers', () => {
   test('schema transformer — removes optional properties from object', async () => {
-    const removeOptionalProperties: Visitor = {
+    const removeOptionalProperties: ast.Visitor = {
       schema(node) {
         if ('properties' in node) {
           return { ...node, properties: node.properties.filter((p) => p.required) }
@@ -571,7 +576,7 @@ describe('typeGenerator — transformers', () => {
   })
 
   test('schema transformer — maps integer type to string', async () => {
-    const integerToString: Visitor = {
+    const integerToString: ast.Visitor = {
       schema(node) {
         if (node.type === 'integer') return { ...node, type: 'string' }
         return node
@@ -580,13 +585,13 @@ describe('typeGenerator — transformers', () => {
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options: defaultOptions, resolver: resolverTs, transformer: integerToString })
     const driver = createMockedPluginDriver({ name: 'transformers integerToString' })
 
-    const schemaWithInteger = createSchema({
+    const schemaWithInteger = ast.createSchema({
       type: 'object',
       name: 'Order',
       properties: [
-        createProperty({ name: 'id', required: true, schema: createSchema({ type: 'integer' }) }),
-        createProperty({ name: 'quantity', schema: createSchema({ type: 'integer', optional: true }) }),
-        createProperty({ name: 'status', required: true, schema: createSchema({ type: 'string' }) }),
+        ast.createProperty({ name: 'id', required: true, schema: ast.createSchema({ type: 'integer' }) }),
+        ast.createProperty({ name: 'quantity', schema: ast.createSchema({ type: 'integer', optional: true }) }),
+        ast.createProperty({ name: 'status', required: true, schema: ast.createSchema({ type: 'string' }) }),
       ],
     })
 

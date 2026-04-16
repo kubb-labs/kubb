@@ -1,5 +1,4 @@
-import { caseParams, createFunctionParameter, createFunctionParameters, createParameterGroup } from '@kubb/ast'
-import type { FileNode, OperationNode } from '@kubb/ast/types'
+import { ast } from '@kubb/core'
 import { functionPrinter } from '@kubb/plugin-ts'
 import { Const, File, Function } from '@kubb/renderer-jsx'
 import type { KubbReactNode } from '@kubb/renderer-jsx/types'
@@ -36,7 +35,7 @@ type Props = {
     }
     mcp: {
       name: string
-      file: FileNode
+      file: ast.FileNode
     }
     zod: {
       pathParams: Array<ZodParam>
@@ -51,7 +50,7 @@ type Props = {
       requestName?: string
       responseName?: string
     }
-    node: OperationNode
+    node: ast.OperationNode
   }>
 }
 
@@ -71,7 +70,7 @@ export function Server({ name, serverName, serverVersion, paramsCasing, operatio
 
       {operations
         .map(({ tool, mcp, zod, node }) => {
-          const casedParams = caseParams(node.parameters, paramsCasing)
+          const casedParams = ast.caseParams(node.parameters, paramsCasing)
           const pathParams = casedParams.filter((p) => p.in === 'path')
 
           const pathEntries: Array<{ key: string; value: string }> = []
@@ -98,10 +97,10 @@ export function Server({ name, serverName, serverVersion, paramsCasing, operatio
           const entries = [...pathEntries, ...otherEntries]
 
           const paramsNode = entries.length
-            ? createFunctionParameters({
+            ? ast.createFunctionParameters({
                 params: [
-                  createParameterGroup({
-                    properties: entries.map((e) => createFunctionParameter({ name: e.key, optional: false })),
+                  ast.createParameterGroup({
+                    properties: entries.map((e) => ast.createFunctionParameter({ name: e.key, optional: false })),
                   }),
                 ],
               })

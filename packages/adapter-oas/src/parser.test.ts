@@ -1,4 +1,4 @@
-import { narrowSchema, syncSchemaRef } from '@kubb/ast'
+import { ast } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
 import { parseDocument } from './factory.ts'
@@ -29,7 +29,7 @@ describe('buildAst', () => {
     it('converts object schema with properties', async () => {
       const oas = await buildMinimalOas()
       const root = parseOas(oas).root
-      const pet = narrowSchema(
+      const pet = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'Pet'),
         'object',
       )
@@ -41,7 +41,7 @@ describe('buildAst', () => {
     it('marks required properties', async () => {
       const oas = await buildMinimalOas()
       const root = parseOas(oas).root
-      const pet = narrowSchema(
+      const pet = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'Pet'),
         'object',
       )
@@ -55,7 +55,7 @@ describe('buildAst', () => {
     it('converts array schema', async () => {
       const oas = await buildMinimalOas()
       const root = parseOas(oas).root
-      const list = narrowSchema(
+      const list = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'PetList'),
         'array',
       )
@@ -68,7 +68,7 @@ describe('buildAst', () => {
     it('converts enum schema', async () => {
       const oas = await buildMinimalOas()
       const root = parseOas(oas).root
-      const status = narrowSchema(
+      const status = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'Status'),
         'enum',
       )
@@ -80,7 +80,7 @@ describe('buildAst', () => {
     it('converts oneOf to union', async () => {
       const oas = await buildMinimalOas()
       const root = parseOas(oas).root
-      const petOrError = narrowSchema(
+      const petOrError = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'PetOrError'),
         'union',
       )
@@ -92,7 +92,7 @@ describe('buildAst', () => {
     it('converts allOf to intersection', async () => {
       const oas = await buildMinimalOas()
       const root = parseOas(oas).root
-      const fullPet = narrowSchema(
+      const fullPet = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'FullPet'),
         'intersection',
       )
@@ -116,7 +116,7 @@ describe('buildAst', () => {
     it('flattens single-member allOf for nullable $ref', async () => {
       const oas = await buildMinimalOas()
       const root = parseOas(oas).root
-      const nullableRef = narrowSchema(
+      const nullableRef = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'NullableRef'),
         'ref',
       )
@@ -131,12 +131,12 @@ describe('buildAst', () => {
     it('maps format date-time to datetime SchemaType', async () => {
       const oas = await buildMinimalOas()
       const root = parseOas(oas).root
-      const fullPet = narrowSchema(
+      const fullPet = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'FullPet'),
         'intersection',
       )
       // second member is an inline object with createdAt (datetime) and email
-      const objectMember = narrowSchema(
+      const objectMember = ast.narrowSchema(
         fullPet?.members?.find((m) => m.type === 'object'),
         'object',
       )
@@ -148,11 +148,11 @@ describe('buildAst', () => {
     it('maps format email to email SchemaType', async () => {
       const oas = await buildMinimalOas()
       const root = parseOas(oas).root
-      const fullPet = narrowSchema(
+      const fullPet = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'FullPet'),
         'intersection',
       )
-      const objectMember = narrowSchema(
+      const objectMember = ast.narrowSchema(
         fullPet?.members?.find((m) => m.type === 'object'),
         'object',
       )
@@ -491,7 +491,7 @@ describe('parseSchema allOf', () => {
     })
 
     expect(node.type).toBe('intersection')
-    const narrowed462 = narrowSchema(node, 'intersection')
+    const narrowed462 = ast.narrowSchema(node, 'intersection')
     expect(narrowed462?.members).toHaveLength(2)
   })
 
@@ -504,7 +504,7 @@ describe('parseSchema allOf', () => {
     })
 
     // first member: the $ref, last member: the sibling properties object
-    const narrowed474 = narrowSchema(node, 'intersection')
+    const narrowed474 = ast.narrowSchema(node, 'intersection')
     expect(narrowed474?.members?.[0]?.type).toBe('ref')
     expect(narrowed474?.members?.[narrowed474.members.length - 1]?.type).toBe('object')
   })
@@ -521,14 +521,14 @@ describe('parseSchema allOf', () => {
     })
 
     // The 2 anonymous allOf members are merged into 1; the injected required-key member is a separate synthetic member
-    const narrowed490 = narrowSchema(node, 'intersection')
+    const narrowed490 = ast.narrowSchema(node, 'intersection')
     expect(narrowed490?.members).toHaveLength(2)
     // the merged allOf object contains both id and name
-    const mergedAllOf = narrowSchema(narrowed490?.members?.[0], 'object')
+    const mergedAllOf = ast.narrowSchema(narrowed490?.members?.[0], 'object')
     expect(mergedAllOf?.properties?.map((p) => p.name)).toContain('id')
     expect(mergedAllOf?.properties?.map((p) => p.name)).toContain('name')
     // the injected member is an object with `id` marked required
-    const injected = narrowSchema(narrowed490?.members?.[1], 'object')
+    const injected = ast.narrowSchema(narrowed490?.members?.[1], 'object')
     expect(injected?.properties?.find((p) => p.name === 'id')?.required).toBe(true)
   })
 
@@ -542,7 +542,7 @@ describe('parseSchema allOf', () => {
     })
 
     // only the allOf member + the sibling properties object; no extra injection
-    const narrowed510 = narrowSchema(node, 'intersection')
+    const narrowed510 = ast.narrowSchema(node, 'intersection')
     const objectMembers = narrowed510?.members?.filter((m) => m.type === 'object')
     expect(objectMembers).toHaveLength(2)
   })
@@ -621,9 +621,9 @@ describe('parseSchema allOf', () => {
     })
 
     // Both anonymous allOf members should be merged into one object
-    const narrowed588 = narrowSchema(node, 'intersection')
+    const narrowed588 = ast.narrowSchema(node, 'intersection')
     expect(narrowed588?.members).toHaveLength(1)
-    const merged = narrowSchema(narrowed588?.members?.[0], 'object')
+    const merged = ast.narrowSchema(narrowed588?.members?.[0], 'object')
     const propNames = merged?.properties?.map((p) => p.name)
     expect(propNames).toContain('foo')
     expect(propNames).toContain('bar')
@@ -651,9 +651,9 @@ describe('parseSchema allOf', () => {
     })
 
     // allOf member (not merged — single element) + one merged synthetic object (streetNumber + streetName)
-    const narrowed617 = narrowSchema(node, 'intersection')
+    const narrowed617 = ast.narrowSchema(node, 'intersection')
     expect(narrowed617?.members).toHaveLength(2)
-    const merged617 = narrowSchema(narrowed617?.members?.[1], 'object')
+    const merged617 = ast.narrowSchema(narrowed617?.members?.[1], 'object')
     const propNames617 = merged617?.properties?.map((p) => p.name)
     expect(propNames617).toContain('streetNumber')
     expect(propNames617).toContain('streetName')
@@ -684,7 +684,7 @@ describe('parseSchema oneOf / anyOf', () => {
     })
 
     expect(node.type).toBe('union')
-    const narrowed655 = narrowSchema(node, 'union')
+    const narrowed655 = ast.narrowSchema(node, 'union')
     expect(narrowed655?.members).toHaveLength(3)
   })
 
@@ -695,7 +695,7 @@ describe('parseSchema oneOf / anyOf', () => {
       },
     })
 
-    const members = narrowSchema(node, 'union')?.members ?? []
+    const members = ast.narrowSchema(node, 'union')?.members ?? []
     expect(members[0]?.type).toBe('string')
     expect(members[1]?.type).toBe('ref')
   })
@@ -727,13 +727,13 @@ describe('parseSchema oneOf / anyOf', () => {
       },
     })
 
-    expect(narrowSchema(node, 'union')?.discriminatorPropertyName).toBe('petType')
+    expect(ast.narrowSchema(node, 'union')?.discriminatorPropertyName).toBe('petType')
   })
 
   it('does not set discriminatorPropertyName when discriminator is absent', () => {
     const node = parseSchema(ctx, { schema: { oneOf: [{ type: 'string' }] } })
 
-    expect(narrowSchema(node, 'union')?.discriminatorPropertyName).toBeUndefined()
+    expect(ast.narrowSchema(node, 'union')?.discriminatorPropertyName).toBeUndefined()
   })
 
   it('intersects each member with sibling properties when properties are present', () => {
@@ -745,9 +745,9 @@ describe('parseSchema oneOf / anyOf', () => {
     })
 
     expect(node.type).toBe('intersection')
-    const topIntersection = narrowSchema(node, 'intersection')!
-    const unionNode = narrowSchema(topIntersection.members?.[0], 'union')
-    const sharedNode = narrowSchema(topIntersection.members?.[1], 'object')
+    const topIntersection = ast.narrowSchema(node, 'intersection')!
+    const unionNode = ast.narrowSchema(topIntersection.members?.[0], 'union')
+    const sharedNode = ast.narrowSchema(topIntersection.members?.[1], 'object')
 
     expect(unionNode?.members).toHaveLength(2)
     expect(unionNode?.members?.every((m) => m.type === 'ref')).toBe(true)
@@ -762,8 +762,8 @@ describe('parseSchema oneOf / anyOf', () => {
       },
     })
 
-    const topIntersection = narrowSchema(node, 'intersection')
-    const unionNode = narrowSchema(topIntersection?.members?.[0], 'union')
+    const topIntersection = ast.narrowSchema(node, 'intersection')
+    const unionNode = ast.narrowSchema(topIntersection?.members?.[0], 'union')
     const [refMember] = unionNode?.members ?? []
     const [, propsMember] = topIntersection?.members ?? []
     expect(refMember?.type).toBe('ref')
@@ -778,21 +778,21 @@ describe('parseSchema const (OAS 3.1)', () => {
     const node = parseSchema(ctx, { schema: { const: 'active' } })
 
     expect(node.type).toBe('enum')
-    expect(narrowSchema(node, 'enum')?.enumValues).toEqual(['active'])
+    expect(ast.narrowSchema(node, 'enum')?.enumValues).toEqual(['active'])
   })
 
   it('maps const number to a single-value enum', () => {
     const node = parseSchema(ctx, { schema: { const: 42 } })
 
     expect(node.type).toBe('enum')
-    expect(narrowSchema(node, 'enum')?.enumValues).toEqual([42])
+    expect(ast.narrowSchema(node, 'enum')?.enumValues).toEqual([42])
   })
 
   it('maps const boolean to a single-value enum', () => {
     const node = parseSchema(ctx, { schema: { const: true } })
 
     expect(node.type).toBe('enum')
-    expect(narrowSchema(node, 'enum')?.enumValues).toEqual([true])
+    expect(ast.narrowSchema(node, 'enum')?.enumValues).toEqual([true])
   })
 
   it('maps const: null to a null scalar', () => {
@@ -819,7 +819,7 @@ describe('parseSchema const (OAS 3.1)', () => {
       name: 'MyObject',
     })
 
-    const objectNode = narrowSchema(node, 'object')
+    const objectNode = ast.narrowSchema(node, 'object')
     const statusProp = objectNode?.properties.find((p) => p.name === 'status')
 
     expect(statusProp?.schema.type).toBe('null')
@@ -843,9 +843,9 @@ describe('parseSchema const (OAS 3.1)', () => {
       name: 'Pet',
     })
 
-    const objectNode = narrowSchema(node, 'object')
+    const objectNode = ast.narrowSchema(node, 'object')
     const isHappyProp = objectNode?.properties.find((p) => p.name === 'isHappy')
-    const isHappyEnum = narrowSchema(isHappyProp?.schema, 'enum')
+    const isHappyEnum = ast.narrowSchema(isHappyProp?.schema, 'enum')
 
     expect(isHappyEnum?.name).toBeUndefined()
     expect(isHappyEnum?.enumValues).toEqual([false])
@@ -895,7 +895,7 @@ describe('parseSchema readOnly / writeOnly', () => {
   it('populates node.schema with the resolved ref schema when the document contains the definition', async () => {
     const oas = await buildMinimalOas()
     const root = parseOas(oas).root
-    const petList = narrowSchema(
+    const petList = ast.narrowSchema(
       root.schemas.find((s) => s.name === 'PetList'),
       'array',
     )
@@ -910,14 +910,14 @@ describe('parseSchema readOnly / writeOnly', () => {
   it('syncSchemaRef merges usage-site sibling fields over the resolved schema', async () => {
     const oas = await buildMinimalOas()
     const { root } = parseOas(oas)
-    const petList = narrowSchema(
+    const petList = ast.narrowSchema(
       root.schemas.find((s) => s.name === 'PetList'),
       'array',
     )
     const petRef = petList?.items?.find((item) => item.type === 'ref')
     if (!petRef) return
 
-    const merged = syncSchemaRef(petRef)
+    const merged = ast.syncSchemaRef(petRef)
     // Merged result has the resolved schema's type (object)
     expect(merged?.type).toBe('object')
   })
@@ -931,7 +931,7 @@ describe('parseSchema readOnly / writeOnly', () => {
   it('drops pattern on ref sibling when type is not string', () => {
     const node = parseSchema(ctx, { schema: { $ref: '#/components/schemas/Pet', pattern: '^[a-z]+$' } })
 
-    expect(narrowSchema(node, 'ref')?.pattern).toBeUndefined()
+    expect(ast.narrowSchema(node, 'ref')?.pattern).toBeUndefined()
   })
 })
 
@@ -1032,7 +1032,7 @@ describe('parseSchema object properties', () => {
         properties: { id: { type: 'integer' } },
       },
     })
-    const prop = narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'id')
+    const prop = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'id')
 
     expect(prop?.required).toBe(true)
     expect(prop?.schema.optional).toBeUndefined()
@@ -1047,7 +1047,7 @@ describe('parseSchema object properties', () => {
         properties: { tag: { type: 'string' } },
       },
     })
-    const prop = narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'tag')
+    const prop = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'tag')
 
     expect(prop?.required).toBe(false)
     expect(prop?.schema.optional).toBe(true)
@@ -1062,7 +1062,7 @@ describe('parseSchema object properties', () => {
         properties: { tag: { type: 'string', nullable: true } },
       },
     })
-    const prop = narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'tag')
+    const prop = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'tag')
 
     expect(prop?.required).toBe(false)
     expect(prop?.schema.nullish).toBe(true)
@@ -1078,7 +1078,7 @@ describe('parseSchema object properties', () => {
         properties: { tag: { type: 'string', nullable: true } },
       },
     })
-    const prop = narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'tag')
+    const prop = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'tag')
 
     expect(prop?.required).toBe(true)
     expect(prop?.schema.nullable).toBe(true)
@@ -1096,7 +1096,7 @@ describe('parseSchema object properties', () => {
         properties: { id: { type: 'integer' }, tag: { type: 'string' } },
       },
     })
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     const id = narrowed?.properties?.find((p) => p.name === 'id')
     const tag = narrowed?.properties?.find((p) => p.name === 'tag')
@@ -1113,7 +1113,7 @@ describe('parseSchema object additionalProperties', () => {
 
   it('additionalProperties: true → additionalProperties is true', () => {
     const node = parseSchema(ctx, { schema: { type: 'object', additionalProperties: true } })
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     expect(node.type).toBe('object')
     expect(narrowed?.additionalProperties).toBe(true)
@@ -1126,7 +1126,7 @@ describe('parseSchema object additionalProperties', () => {
         additionalProperties: { type: 'string' },
       },
     })
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     expect(node.type).toBe('object')
     expect(narrowed?.additionalProperties).toMatchObject({ type: 'string' })
@@ -1139,7 +1139,7 @@ describe('parseSchema object additionalProperties', () => {
         additionalProperties: { type: 'integer' },
       },
     })
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     expect(narrowed?.additionalProperties).toMatchObject({ type: 'integer' })
   })
@@ -1151,21 +1151,21 @@ describe('parseSchema object additionalProperties', () => {
         additionalProperties: false,
       },
     })
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     expect(narrowed?.additionalProperties).toBeFalsy()
   })
 
   it('no additionalProperties → additionalProperties is undefined', () => {
     const node = parseSchema(ctx, { schema: { type: 'object', properties: { id: { type: 'integer' } } } })
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     expect(narrowed?.additionalProperties).toBeUndefined()
   })
 
   it('additionalProperties: true triggers object even without type or properties', () => {
     const node = parseSchema(ctx, { schema: { additionalProperties: true } })
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     expect(node.type).toBe('object')
     expect(narrowed?.additionalProperties).toBe(true)
@@ -1178,7 +1178,7 @@ describe('parseSchema object additionalProperties', () => {
         additionalProperties: {},
       },
     })
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     expect(node.type).toBe('object')
     expect(narrowed?.additionalProperties).toMatchObject({ type: 'any' })
@@ -1196,7 +1196,7 @@ describe('parseSchema object additionalProperties', () => {
       },
       { unknownType: 'any' },
     )
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     expect(narrowed?.additionalProperties).toMatchObject({ type: 'any' })
   })
@@ -1210,7 +1210,7 @@ describe('parseSchema object additionalProperties', () => {
         additionalProperties: { type: 'string' },
       },
     })
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     expect(narrowed?.properties).toHaveLength(1)
     expect(narrowed?.properties?.[0]?.name).toBe('id')
@@ -1231,7 +1231,7 @@ describe('parseSchema object patternProperties', () => {
         },
       },
     })
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     expect(node.type).toBe('object')
     expect(narrowed?.patternProperties?.['I_']).toBeUndefined()
@@ -1248,7 +1248,7 @@ describe('parseSchema object patternProperties', () => {
         patternProperties: { '^x-': {} },
       },
     })
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     expect(narrowed?.patternProperties?.['^x-']).toMatchObject({ type: 'any' })
   })
@@ -1262,7 +1262,7 @@ describe('parseSchema object patternProperties', () => {
         patternProperties: { '^x-': true as unknown as SchemaObject },
       },
     })
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     expect(narrowed?.patternProperties?.['^x-']).toMatchObject({ type: 'any' })
   })
@@ -1285,7 +1285,7 @@ describe('parseSchema object patternProperties', () => {
         patternProperties: { '^meta_': { type: 'string' } },
       },
     })
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     expect(narrowed?.properties).toHaveLength(1)
     expect(narrowed?.patternProperties?.['^meta_']).toMatchObject({ type: 'string' })
@@ -1310,10 +1310,10 @@ describe('parseSchema object discriminator', () => {
         },
       },
     })
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     const petTypeProp = narrowed?.properties?.find((p) => p.name === 'petType')
-    const petTypeSchema = narrowSchema(petTypeProp?.schema, 'enum')
+    const petTypeSchema = ast.narrowSchema(petTypeProp?.schema, 'enum')
     expect(petTypeSchema?.type).toBe('enum')
     expect(petTypeSchema?.enumValues).toEqual(['Cat', 'Dog'])
   })
@@ -1333,7 +1333,7 @@ describe('parseSchema object discriminator', () => {
         },
       },
     })
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     const nameProp = narrowed?.properties?.find((p) => p.name === 'name')
     expect(nameProp?.schema.type).toBe('string')
@@ -1348,7 +1348,7 @@ describe('parseSchema object discriminator', () => {
         discriminator: { propertyName: 'type' },
       },
     })
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     const typeProp = narrowed?.properties?.find((p) => p.name === 'type')
     expect(typeProp?.schema.type).toBe('string')
@@ -1376,10 +1376,10 @@ describe('parseSchema object inline enum naming', () => {
       },
       { enumSuffix: 'enum' },
     )
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     const paramsProp = narrowed?.properties?.find((p) => p.name === 'params')
-    const paramsSchema = narrowSchema(paramsProp?.schema, 'object')
+    const paramsSchema = ast.narrowSchema(paramsProp?.schema, 'object')
     const statusProp = paramsSchema?.properties?.find((p) => p.name === 'status')
     expect(statusProp?.schema.name).toBe('OrderParamsStatusEnum')
   })
@@ -1400,7 +1400,7 @@ describe('parseSchema prefixItems (tuple)', () => {
         prefixItems: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
       },
     })
-    const narrowed = narrowSchema(node, 'tuple')
+    const narrowed = ast.narrowSchema(node, 'tuple')
 
     expect(narrowed?.items).toHaveLength(3)
     expect(narrowed?.items?.[0]?.type).toBe('string')
@@ -1415,14 +1415,14 @@ describe('parseSchema prefixItems (tuple)', () => {
         items: { type: 'number' },
       },
     })
-    const narrowed = narrowSchema(node, 'tuple')
+    const narrowed = ast.narrowSchema(node, 'tuple')
 
     expect(narrowed?.rest?.type).toBe('number')
   })
 
   it('defaults rest to any when items is absent', () => {
     const node = parseSchema(ctx, { schema: { prefixItems: [{ type: 'string' }] } })
-    const narrowed = narrowSchema(node, 'tuple')
+    const narrowed = ast.narrowSchema(node, 'tuple')
 
     expect(narrowed?.rest?.type).toBe('any')
   })
@@ -1433,7 +1433,7 @@ describe('parseSchema prefixItems (tuple)', () => {
         prefixItems: [{ $ref: '#/components/schemas/Pet' }],
       },
     })
-    const narrowed = narrowSchema(node, 'tuple')
+    const narrowed = ast.narrowSchema(node, 'tuple')
 
     expect(narrowed?.items?.[0]?.type).toBe('ref')
   })
@@ -1444,7 +1444,7 @@ describe('parseSchema prefixItems (tuple)', () => {
         prefixItems: [{ type: 'object', properties: { id: { type: 'integer' } } }],
       },
     })
-    const narrowed = narrowSchema(node, 'tuple')
+    const narrowed = ast.narrowSchema(node, 'tuple')
 
     expect(narrowed?.items?.[0]?.type).toBe('object')
   })
@@ -1456,28 +1456,28 @@ describe('parseSchema prefixItems (tuple)', () => {
         items: { $ref: '#/components/schemas/Extra' },
       },
     })
-    const narrowed = narrowSchema(node, 'tuple')
+    const narrowed = ast.narrowSchema(node, 'tuple')
 
     expect(narrowed?.rest?.type).toBe('ref')
   })
 
   it('maps minItems to min', () => {
     const node = parseSchema(ctx, { schema: { prefixItems: [{ type: 'string' }], minItems: 1 } })
-    const narrowed = narrowSchema(node, 'tuple')
+    const narrowed = ast.narrowSchema(node, 'tuple')
 
     expect(narrowed?.min).toBe(1)
   })
 
   it('maps maxItems to max', () => {
     const node = parseSchema(ctx, { schema: { prefixItems: [{ type: 'string' }], maxItems: 4 } })
-    const narrowed = narrowSchema(node, 'tuple')
+    const narrowed = ast.narrowSchema(node, 'tuple')
 
     expect(narrowed?.max).toBe(4)
   })
 
   it('leaves min and max undefined when minItems and maxItems are absent', () => {
     const node = parseSchema(ctx, { schema: { prefixItems: [{ type: 'string' }] } })
-    const narrowed = narrowSchema(node, 'tuple')
+    const narrowed = ast.narrowSchema(node, 'tuple')
 
     expect(narrowed?.min).toBeUndefined()
     expect(narrowed?.max).toBeUndefined()
@@ -1485,7 +1485,7 @@ describe('parseSchema prefixItems (tuple)', () => {
 
   it('produces an empty items array for an empty prefixItems', () => {
     const node = parseSchema(ctx, { schema: { prefixItems: [] } })
-    const narrowed = narrowSchema(node, 'tuple')
+    const narrowed = ast.narrowSchema(node, 'tuple')
 
     expect(narrowed?.items).toHaveLength(0)
   })
@@ -1516,10 +1516,10 @@ describe('parseSchema tuple enum naming', () => {
       },
       { enumSuffix: 'enum' },
     )
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     const identifierProp = narrowed?.properties?.find((p) => p.name === 'identifier')
-    const tupleNode = narrowSchema(identifierProp?.schema, 'tuple')
+    const tupleNode = ast.narrowSchema(identifierProp?.schema, 'tuple')
     expect(tupleNode?.items?.[2]?.type).toBe('enum')
     expect(tupleNode?.items?.[2]?.name).toBe('AddressIdentifierEnum')
   })
@@ -1542,10 +1542,10 @@ describe('parseSchema tuple enum naming', () => {
       },
       { enumSuffix: 'enum' },
     )
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     const identifierProp = narrowed?.properties?.find((p) => p.name === 'identifier')
-    const tupleNode = narrowSchema(identifierProp?.schema, 'tuple')
+    const tupleNode = ast.narrowSchema(identifierProp?.schema, 'tuple')
     expect(tupleNode?.items?.[1]?.type).toBe('enum')
     expect(tupleNode?.items?.[1]?.name).toBe('AddressIdentifierEnum')
   })
@@ -1568,10 +1568,10 @@ describe('parseSchema tuple enum naming', () => {
       },
       { enumSuffix: 'enum' },
     )
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     const coordsProp = narrowed?.properties?.find((p) => p.name === 'coords')
-    const tupleNode = narrowSchema(coordsProp?.schema, 'tuple')
+    const tupleNode = ast.narrowSchema(coordsProp?.schema, 'tuple')
     expect(tupleNode?.items?.[0]?.name).toBeUndefined()
     expect(tupleNode?.items?.[1]?.name).toBeUndefined()
   })
@@ -1606,7 +1606,7 @@ describe('parseSchema nullable', () => {
 
   it('strips null from enum values when nullable via null in enum', () => {
     const node = parseSchema(ctx, { schema: { enum: ['a', 'b', null] } })
-    const narrowed = narrowSchema(node, 'enum')
+    const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(narrowed?.enumValues).toEqual(['a', 'b'])
   })
@@ -1654,14 +1654,14 @@ describe('parseSchema string', () => {
 
   it('maps minLength to min', () => {
     const node = parseSchema(ctx, { schema: { type: 'string', minLength: 1 } })
-    const narrowed = narrowSchema(node, 'string')
+    const narrowed = ast.narrowSchema(node, 'string')
 
     expect(narrowed?.min).toBe(1)
   })
 
   it('maps maxLength to max', () => {
     const node = parseSchema(ctx, { schema: { type: 'string', maxLength: 100 } })
-    const narrowed = narrowSchema(node, 'string')
+    const narrowed = ast.narrowSchema(node, 'string')
 
     expect(narrowed?.max).toBe(100)
   })
@@ -1701,21 +1701,21 @@ describe('parseSchema enum', () => {
 
   it('stores string values in enumValues', () => {
     const node = parseSchema(ctx, { schema: { enum: ['foo', 'bar', 'baz'] } })
-    const narrowed = narrowSchema(node, 'enum')
+    const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(narrowed?.enumValues).toEqual(['foo', 'bar', 'baz'])
   })
 
   it('deduplicates enum values', () => {
     const node = parseSchema(ctx, { schema: { enum: ['a', 'a', 'b'] } })
-    const narrowed = narrowSchema(node, 'enum')
+    const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(narrowed?.enumValues).toEqual(['a', 'b'])
   })
 
   it('strips null from enumValues and sets nullable', () => {
     const node = parseSchema(ctx, { schema: { enum: ['a', null, 'b'] } })
-    const narrowed = narrowSchema(node, 'enum')
+    const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(node.nullable).toBe(true)
     expect(narrowed?.enumValues).toEqual(['a', 'b'])
@@ -1729,7 +1729,7 @@ describe('parseSchema enum', () => {
 
   it('sets enumNullable from schema nullable combined with null in enum', () => {
     const node = parseSchema(ctx, { schema: { enum: ['a', null], nullable: true } })
-    const narrowed = narrowSchema(node, 'enum')
+    const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(node.nullable).toBe(true)
     expect(narrowed?.enumValues).toEqual(['a'])
@@ -1750,7 +1750,7 @@ describe('parseSchema enum', () => {
   // Number enum
   it('produces namedEnumValues with primitive number for integer enum', () => {
     const node = parseSchema(ctx, { schema: { type: 'integer', enum: [1, 2, 3] } })
-    const narrowed = narrowSchema(node, 'enum')
+    const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(node.type).toBe('enum')
     expect(node.primitive).toBe('number')
@@ -1761,7 +1761,7 @@ describe('parseSchema enum', () => {
 
   it('produces namedEnumValues with primitive number for number enum', () => {
     const node = parseSchema(ctx, { schema: { type: 'number', enum: [0.5, 1.5] } })
-    const narrowed = narrowSchema(node, 'enum')
+    const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(node.primitive).toBe('number')
     expect(narrowed?.namedEnumValues?.map((v) => v.value)).toEqual([0.5, 1.5])
@@ -1769,14 +1769,14 @@ describe('parseSchema enum', () => {
 
   it('uses stringified value as name for numeric enum values', () => {
     const node = parseSchema(ctx, { schema: { type: 'integer', enum: [42] } })
-    const narrowed = narrowSchema(node, 'enum')
+    const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(narrowed?.namedEnumValues?.[0]?.name).toBe('42')
   })
 
   it('deduplicates numeric enum values', () => {
     const node = parseSchema(ctx, { schema: { type: 'integer', enum: [1, 1, 2] } })
-    const narrowed = narrowSchema(node, 'enum')
+    const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(narrowed?.namedEnumValues?.map((v) => v.value)).toEqual([1, 2])
   })
@@ -1784,7 +1784,7 @@ describe('parseSchema enum', () => {
   // Boolean enum
   it('produces namedEnumValues with primitive boolean for boolean enum', () => {
     const node = parseSchema(ctx, { schema: { type: 'boolean', enum: [true, false] } })
-    const narrowed = narrowSchema(node, 'enum')
+    const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(node.primitive).toBe('boolean')
     const values = narrowed?.namedEnumValues
@@ -1801,7 +1801,7 @@ describe('parseSchema enum', () => {
         'x-enumNames': ['One', 'Two', 'Three'],
       },
     })
-    const narrowed = narrowSchema(node, 'enum')
+    const narrowed = ast.narrowSchema(node, 'enum')
 
     const values = narrowed?.namedEnumValues
     expect(values?.map((v) => v.name)).toEqual(['One', 'Two', 'Three'])
@@ -1815,7 +1815,7 @@ describe('parseSchema enum', () => {
         'x-enum-varnames': ['Active', 'Inactive'],
       },
     })
-    const narrowed = narrowSchema(node, 'enum')
+    const narrowed = ast.narrowSchema(node, 'enum')
 
     const values = narrowed?.namedEnumValues
     expect(values?.map((v) => v.name)).toEqual(['Active', 'Inactive'])
@@ -1829,7 +1829,7 @@ describe('parseSchema enum', () => {
         'x-enumNames': ['A', 'A', 'B'],
       },
     })
-    const narrowed = narrowSchema(node, 'enum')
+    const narrowed = ast.narrowSchema(node, 'enum')
 
     const values = narrowed?.namedEnumValues
     expect(values?.map((v) => v.name)).toEqual(['A', 'B'])
@@ -1861,20 +1861,20 @@ describe('parseSchema enum', () => {
   // Array + enum normalization
   it('normalizes array+enum by moving enum into items and returning array node', () => {
     const node = parseSchema(ctx, { schema: { type: 'array', enum: ['x', 'y'] } })
-    const narrowed = narrowSchema(node, 'array')
+    const narrowed = ast.narrowSchema(node, 'array')
 
     expect(node.type).toBe('array')
-    const itemNode = narrowSchema(narrowed?.items?.[0], 'enum')
+    const itemNode = ast.narrowSchema(narrowed?.items?.[0], 'enum')
     expect(itemNode?.type).toBe('enum')
     expect(itemNode?.enumValues).toEqual(['x', 'y'])
   })
 
   it('merges existing items schema when normalizing array+enum', () => {
     const node = parseSchema(ctx, { schema: { type: 'array', items: { type: 'string' }, enum: ['x', 'y'] } })
-    const narrowed = narrowSchema(node, 'array')
+    const narrowed = ast.narrowSchema(node, 'array')
 
     expect(node.type).toBe('array')
-    const itemNode = narrowSchema(narrowed?.items?.[0], 'enum')
+    const itemNode = ast.narrowSchema(narrowed?.items?.[0], 'enum')
     expect(itemNode?.type).toBe('enum')
     expect(itemNode?.enumValues).toEqual(['x', 'y'])
   })
@@ -1906,7 +1906,7 @@ describe('parseSchema null', () => {
       name: 'Wrapper',
     })
 
-    const objectNode = narrowSchema(node, 'object')
+    const objectNode = ast.narrowSchema(node, 'object')
     const fieldProp = objectNode?.properties.find((p) => p.name === 'field')
 
     expect(fieldProp?.schema.type).toBe('null')
@@ -1919,7 +1919,7 @@ describe('parseSchema OAS 3.1 type array', () => {
 
   it('produces a union node for two non-null types', () => {
     const node = parseSchema(ctx, { schema: { type: ['string', 'integer'] } })
-    const narrowed = narrowSchema(node, 'union')
+    const narrowed = ast.narrowSchema(node, 'union')
 
     expect(node.type).toBe('union')
     expect(narrowed?.members).toHaveLength(2)
@@ -1929,7 +1929,7 @@ describe('parseSchema OAS 3.1 type array', () => {
 
   it('produces a union node for three non-null types', () => {
     const node = parseSchema(ctx, { schema: { type: ['string', 'integer', 'boolean'] } })
-    const narrowed = narrowSchema(node, 'union')
+    const narrowed = ast.narrowSchema(node, 'union')
 
     expect(node.type).toBe('union')
     expect(narrowed?.members).toHaveLength(3)
@@ -1937,7 +1937,7 @@ describe('parseSchema OAS 3.1 type array', () => {
 
   it('sets nullable when null is among multiple types', () => {
     const node = parseSchema(ctx, { schema: { type: ['string', 'integer', 'null'] } })
-    const narrowed = narrowSchema(node, 'union')
+    const narrowed = ast.narrowSchema(node, 'union')
 
     expect(node.type).toBe('union')
     expect(node.nullable).toBe(true)
@@ -1973,7 +1973,7 @@ describe('parseSchema OAS 3.1 type array', () => {
 
   it('each union member schema carries the shared schema properties', () => {
     const node = parseSchema(ctx, { schema: { type: ['string', 'integer'], readOnly: true } })
-    const narrowed = narrowSchema(node, 'union')
+    const narrowed = ast.narrowSchema(node, 'union')
 
     const members = narrowed?.members ?? []
     expect(members.every((m) => m.readOnly === true)).toBe(true)
@@ -2055,7 +2055,7 @@ describe('parseSchema pattern', () => {
 
   it('maps pattern on a string type to a string node with pattern', () => {
     const node = parseSchema(ctx, { schema: { type: 'string', pattern: '^[a-z]+$' } })
-    const narrowed = narrowSchema(node, 'string')
+    const narrowed = ast.narrowSchema(node, 'string')
 
     expect(node.type).toBe('string')
     expect(narrowed?.pattern).toBe('^[a-z]+$')
@@ -2063,7 +2063,7 @@ describe('parseSchema pattern', () => {
 
   it('infers string type from pattern alone (no explicit type)', () => {
     const node = parseSchema(ctx, { schema: { pattern: '^[0-9]+$' } })
-    const narrowed = narrowSchema(node, 'string')
+    const narrowed = ast.narrowSchema(node, 'string')
 
     expect(node.type).toBe('string')
     expect(narrowed?.pattern).toBe('^[0-9]+$')
@@ -2073,12 +2073,12 @@ describe('parseSchema pattern', () => {
     const node = parseSchema(ctx, { schema: { type: 'number', pattern: '^[0-9]+$' } })
 
     expect(node.type).toBe('number')
-    expect(narrowSchema(node, 'string')?.pattern).toBeUndefined()
+    expect(ast.narrowSchema(node, 'string')?.pattern).toBeUndefined()
   })
 
   it('preserves nullable on a pattern string', () => {
     const node = parseSchema(ctx, { schema: { type: 'string', pattern: '^[a-z]+$', nullable: true } })
-    const narrowed = narrowSchema(node, 'string')
+    const narrowed = ast.narrowSchema(node, 'string')
 
     expect(node.type).toBe('string')
     expect(narrowed?.pattern).toBe('^[a-z]+$')
@@ -2087,7 +2087,7 @@ describe('parseSchema pattern', () => {
 
   it('preserves minLength and maxLength alongside pattern', () => {
     const node = parseSchema(ctx, { schema: { type: 'string', pattern: '^[a-z]+$', minLength: 2, maxLength: 10 } })
-    const narrowed = narrowSchema(node, 'string')
+    const narrowed = ast.narrowSchema(node, 'string')
 
     expect(node.type).toBe('string')
     expect(narrowed?.pattern).toBe('^[a-z]+$')
@@ -2113,7 +2113,7 @@ describe('parseSchema array', () => {
 
   it('converts items to a single-element items array', () => {
     const node = parseSchema(ctx, { schema: { type: 'array', items: { type: 'string' } } })
-    const narrowed = narrowSchema(node, 'array')
+    const narrowed = ast.narrowSchema(node, 'array')
 
     expect(narrowed?.items).toHaveLength(1)
     expect(narrowed?.items?.[0]?.type).toBe('string')
@@ -2121,42 +2121,42 @@ describe('parseSchema array', () => {
 
   it('produces an empty items array when items is absent', () => {
     const node = parseSchema(ctx, { schema: { type: 'array' } })
-    const narrowed = narrowSchema(node, 'array')
+    const narrowed = ast.narrowSchema(node, 'array')
 
     expect(narrowed?.items).toHaveLength(0)
   })
 
   it('maps minItems to min', () => {
     const node = parseSchema(ctx, { schema: { type: 'array', minItems: 1 } })
-    const narrowed = narrowSchema(node, 'array')
+    const narrowed = ast.narrowSchema(node, 'array')
 
     expect(narrowed?.min).toBe(1)
   })
 
   it('maps maxItems to max', () => {
     const node = parseSchema(ctx, { schema: { type: 'array', maxItems: 5 } })
-    const narrowed = narrowSchema(node, 'array')
+    const narrowed = ast.narrowSchema(node, 'array')
 
     expect(narrowed?.max).toBe(5)
   })
 
   it('maps uniqueItems: true to unique: true', () => {
     const node = parseSchema(ctx, { schema: { type: 'array', uniqueItems: true } })
-    const narrowed = narrowSchema(node, 'array')
+    const narrowed = ast.narrowSchema(node, 'array')
 
     expect(narrowed?.unique).toBe(true)
   })
 
   it('maps uniqueItems: false to unique: false', () => {
     const node = parseSchema(ctx, { schema: { type: 'array', uniqueItems: false } })
-    const narrowed = narrowSchema(node, 'array')
+    const narrowed = ast.narrowSchema(node, 'array')
 
     expect(narrowed?.unique).toBe(false)
   })
 
   it('leaves unique undefined when uniqueItems is not set', () => {
     const node = parseSchema(ctx, { schema: { type: 'array' } })
-    const narrowed = narrowSchema(node, 'array')
+    const narrowed = ast.narrowSchema(node, 'array')
 
     expect(narrowed?.unique).toBeUndefined()
   })
@@ -2170,8 +2170,8 @@ describe('parseSchema array', () => {
 
   it('converts nested array items recursively', () => {
     const node = parseSchema(ctx, { schema: { type: 'array', items: { type: 'array', items: { type: 'number' } } } })
-    const narrowed = narrowSchema(node, 'array')
-    const outerItem = narrowSchema(narrowed?.items?.[0], 'array')
+    const narrowed = ast.narrowSchema(node, 'array')
+    const outerItem = ast.narrowSchema(narrowed?.items?.[0], 'array')
     const innerItem = outerItem?.items?.[0]
 
     expect(node.type).toBe('array')
@@ -2181,7 +2181,7 @@ describe('parseSchema array', () => {
 
   it('converts ref items', () => {
     const node = parseSchema(ctx, { schema: { type: 'array', items: { $ref: '#/components/schemas/Pet' } } })
-    const narrowed = narrowSchema(node, 'array')
+    const narrowed = ast.narrowSchema(node, 'array')
 
     expect(node.type).toBe('array')
     expect(narrowed?.items?.[0]?.type).toBe('ref')
@@ -2193,7 +2193,7 @@ describe('parseSchema type inference (no explicit type)', () => {
 
   it('infers string from minLength alone', () => {
     const node = parseSchema(ctx, { schema: { minLength: 1 } })
-    const narrowed = narrowSchema(node, 'string')
+    const narrowed = ast.narrowSchema(node, 'string')
 
     expect(node.type).toBe('string')
     expect(narrowed?.min).toBe(1)
@@ -2201,7 +2201,7 @@ describe('parseSchema type inference (no explicit type)', () => {
 
   it('infers string from maxLength alone', () => {
     const node = parseSchema(ctx, { schema: { maxLength: 100 } })
-    const narrowed = narrowSchema(node, 'string')
+    const narrowed = ast.narrowSchema(node, 'string')
 
     expect(node.type).toBe('string')
     expect(narrowed?.max).toBe(100)
@@ -2209,7 +2209,7 @@ describe('parseSchema type inference (no explicit type)', () => {
 
   it('infers string from both minLength and maxLength', () => {
     const node = parseSchema(ctx, { schema: { minLength: 2, maxLength: 50 } })
-    const narrowed = narrowSchema(node, 'string')
+    const narrowed = ast.narrowSchema(node, 'string')
 
     expect(node.type).toBe('string')
     expect(narrowed?.min).toBe(2)
@@ -2218,7 +2218,7 @@ describe('parseSchema type inference (no explicit type)', () => {
 
   it('infers number from minimum alone', () => {
     const node = parseSchema(ctx, { schema: { minimum: 0 } })
-    const narrowed = narrowSchema(node, 'number')
+    const narrowed = ast.narrowSchema(node, 'number')
 
     expect(node.type).toBe('number')
     expect(narrowed?.min).toBe(0)
@@ -2226,7 +2226,7 @@ describe('parseSchema type inference (no explicit type)', () => {
 
   it('infers number from maximum alone', () => {
     const node = parseSchema(ctx, { schema: { maximum: 999 } })
-    const narrowed = narrowSchema(node, 'number')
+    const narrowed = ast.narrowSchema(node, 'number')
 
     expect(node.type).toBe('number')
     expect(narrowed?.max).toBe(999)
@@ -2234,7 +2234,7 @@ describe('parseSchema type inference (no explicit type)', () => {
 
   it('infers number from both minimum and maximum', () => {
     const node = parseSchema(ctx, { schema: { minimum: 1, maximum: 100 } })
-    const narrowed = narrowSchema(node, 'number')
+    const narrowed = ast.narrowSchema(node, 'number')
 
     expect(node.type).toBe('number')
     expect(narrowed?.min).toBe(1)
@@ -2254,21 +2254,21 @@ describe('parseSchema constraints', () => {
   describe('array: minItems / maxItems', () => {
     it('maps minItems to min', () => {
       const node = parseSchema(ctx, { schema: { type: 'array', minItems: 2 } })
-      const narrowed = narrowSchema(node, 'array')
+      const narrowed = ast.narrowSchema(node, 'array')
 
       expect(narrowed?.min).toBe(2)
     })
 
     it('maps maxItems to max', () => {
       const node = parseSchema(ctx, { schema: { type: 'array', maxItems: 10 } })
-      const narrowed = narrowSchema(node, 'array')
+      const narrowed = ast.narrowSchema(node, 'array')
 
       expect(narrowed?.max).toBe(10)
     })
 
     it('maps both minItems and maxItems', () => {
       const node = parseSchema(ctx, { schema: { type: 'array', minItems: 1, maxItems: 5 } })
-      const narrowed = narrowSchema(node, 'array')
+      const narrowed = ast.narrowSchema(node, 'array')
 
       expect(narrowed?.min).toBe(1)
       expect(narrowed?.max).toBe(5)
@@ -2276,7 +2276,7 @@ describe('parseSchema constraints', () => {
 
     it('leaves min/max undefined when not set', () => {
       const node = parseSchema(ctx, { schema: { type: 'array' } })
-      const narrowed = narrowSchema(node, 'array')
+      const narrowed = ast.narrowSchema(node, 'array')
 
       expect(narrowed?.min).toBeUndefined()
       expect(narrowed?.max).toBeUndefined()
@@ -2286,21 +2286,21 @@ describe('parseSchema constraints', () => {
   describe('string: minLength / maxLength', () => {
     it('maps minLength to min', () => {
       const node = parseSchema(ctx, { schema: { type: 'string', minLength: 3 } })
-      const narrowed = narrowSchema(node, 'string')
+      const narrowed = ast.narrowSchema(node, 'string')
 
       expect(narrowed?.min).toBe(3)
     })
 
     it('maps maxLength to max', () => {
       const node = parseSchema(ctx, { schema: { type: 'string', maxLength: 255 } })
-      const narrowed = narrowSchema(node, 'string')
+      const narrowed = ast.narrowSchema(node, 'string')
 
       expect(narrowed?.max).toBe(255)
     })
 
     it('maps both minLength and maxLength', () => {
       const node = parseSchema(ctx, { schema: { type: 'string', minLength: 1, maxLength: 100 } })
-      const narrowed = narrowSchema(node, 'string')
+      const narrowed = ast.narrowSchema(node, 'string')
 
       expect(narrowed?.min).toBe(1)
       expect(narrowed?.max).toBe(100)
@@ -2308,7 +2308,7 @@ describe('parseSchema constraints', () => {
 
     it('leaves min/max undefined when not set', () => {
       const node = parseSchema(ctx, { schema: { type: 'string' } })
-      const narrowed = narrowSchema(node, 'string')
+      const narrowed = ast.narrowSchema(node, 'string')
 
       expect(narrowed?.min).toBeUndefined()
       expect(narrowed?.max).toBeUndefined()
@@ -2318,20 +2318,20 @@ describe('parseSchema constraints', () => {
   describe('number: minimum / maximum', () => {
     it('maps minimum to min', () => {
       const node = parseSchema(ctx, { schema: { type: 'number', minimum: 0 } })
-      const narrowed = narrowSchema(node, 'number')
+      const narrowed = ast.narrowSchema(node, 'number')
 
       expect(narrowed?.min).toBe(0)
     })
 
     it('maps maximum to max', () => {
       const node = parseSchema(ctx, { schema: { type: 'number', maximum: 999 } })
-      const narrowed = narrowSchema(node, 'number')
+      const narrowed = ast.narrowSchema(node, 'number')
       expect(narrowed?.max).toBe(999)
     })
 
     it('maps both minimum and maximum', () => {
       const node = parseSchema(ctx, { schema: { type: 'number', minimum: 1, maximum: 100 } })
-      const narrowed = narrowSchema(node, 'number')
+      const narrowed = ast.narrowSchema(node, 'number')
 
       expect(narrowed?.min).toBe(1)
       expect(narrowed?.max).toBe(100)
@@ -2339,28 +2339,28 @@ describe('parseSchema constraints', () => {
 
     it('maps numeric exclusiveMinimum', () => {
       const node = parseSchema(ctx, { schema: { type: 'number', exclusiveMinimum: 0 } })
-      const narrowed = narrowSchema(node, 'number')
+      const narrowed = ast.narrowSchema(node, 'number')
 
       expect(narrowed?.exclusiveMinimum).toBe(0)
     })
 
     it('maps numeric exclusiveMaximum', () => {
       const node = parseSchema(ctx, { schema: { type: 'number', exclusiveMaximum: 100 } })
-      const narrowed = narrowSchema(node, 'number')
+      const narrowed = ast.narrowSchema(node, 'number')
 
       expect(narrowed?.exclusiveMaximum).toBe(100)
     })
 
     it('ignores boolean exclusiveMinimum (OAS 3.0 style)', () => {
       const node = parseSchema(ctx, { schema: { type: 'number', exclusiveMinimum: true } })
-      const narrowed = narrowSchema(node, 'number')
+      const narrowed = ast.narrowSchema(node, 'number')
 
       expect(narrowed?.exclusiveMinimum).toBeUndefined()
     })
 
     it('leaves min/max undefined when not set', () => {
       const node = parseSchema(ctx, { schema: { type: 'number' } })
-      const narrowed = narrowSchema(node, 'number')
+      const narrowed = ast.narrowSchema(node, 'number')
 
       expect(narrowed?.min).toBeUndefined()
       expect(narrowed?.max).toBeUndefined()
@@ -2370,21 +2370,21 @@ describe('parseSchema constraints', () => {
   describe('integer: minimum / maximum', () => {
     it('maps minimum to min', () => {
       const node = parseSchema(ctx, { schema: { type: 'integer', minimum: 1 } })
-      const narrowed = narrowSchema(node, 'integer')
+      const narrowed = ast.narrowSchema(node, 'integer')
 
       expect(narrowed?.min).toBe(1)
     })
 
     it('maps maximum to max', () => {
       const node = parseSchema(ctx, { schema: { type: 'integer', maximum: 100 } })
-      const narrowed = narrowSchema(node, 'integer')
+      const narrowed = ast.narrowSchema(node, 'integer')
 
       expect(narrowed?.max).toBe(100)
     })
 
     it('maps both minimum and maximum', () => {
       const node = parseSchema(ctx, { schema: { type: 'integer', minimum: 1, maximum: 100 } })
-      const narrowed = narrowSchema(node, 'integer')
+      const narrowed = ast.narrowSchema(node, 'integer')
 
       expect(narrowed?.min).toBe(1)
       expect(narrowed?.max).toBe(100)
@@ -2392,28 +2392,28 @@ describe('parseSchema constraints', () => {
 
     it('maps numeric exclusiveMinimum', () => {
       const node = parseSchema(ctx, { schema: { type: 'integer', exclusiveMinimum: 0 } })
-      const narrowed = narrowSchema(node, 'integer')
+      const narrowed = ast.narrowSchema(node, 'integer')
 
       expect(narrowed?.exclusiveMinimum).toBe(0)
     })
 
     it('maps numeric exclusiveMaximum', () => {
       const node = parseSchema(ctx, { schema: { type: 'integer', exclusiveMaximum: 100 } })
-      const narrowed = narrowSchema(node, 'integer')
+      const narrowed = ast.narrowSchema(node, 'integer')
 
       expect(narrowed?.exclusiveMaximum).toBe(100)
     })
 
     it('ignores boolean exclusiveMinimum (OAS 3.0 style)', () => {
       const node = parseSchema(ctx, { schema: { type: 'integer', exclusiveMinimum: true } })
-      const narrowed = narrowSchema(node, 'integer')
+      const narrowed = ast.narrowSchema(node, 'integer')
 
       expect(narrowed?.exclusiveMinimum).toBeUndefined()
     })
 
     it('leaves min/max undefined when not set', () => {
       const node = parseSchema(ctx, { schema: { type: 'integer' } })
-      const narrowed = narrowSchema(node, 'integer')
+      const narrowed = ast.narrowSchema(node, 'integer')
 
       expect(narrowed?.min).toBeUndefined()
       expect(narrowed?.max).toBeUndefined()
@@ -2501,7 +2501,7 @@ describe('parser options', () => {
       it('defaults to datetime', () => {
         const ctx = { document: emptyDocument }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } })
-        const narrowed = narrowSchema(node, 'datetime')
+        const narrowed = ast.narrowSchema(node, 'datetime')
 
         expect(node.type).toBe('datetime')
         expect(narrowed?.offset).toBe(false)
@@ -2510,7 +2510,7 @@ describe('parser options', () => {
       it('dateType: string returns datetime with offset: false', () => {
         const ctx = { document: emptyDocument }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: 'string' })
-        const narrowed = narrowSchema(node, 'datetime')
+        const narrowed = ast.narrowSchema(node, 'datetime')
 
         expect(node.type).toBe('datetime')
         expect(narrowed?.offset).toBe(false)
@@ -2519,7 +2519,7 @@ describe('parser options', () => {
       it('dateType: stringOffset returns datetime with offset: true', () => {
         const ctx = { document: emptyDocument }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: 'stringOffset' })
-        const narrowed = narrowSchema(node, 'datetime')
+        const narrowed = ast.narrowSchema(node, 'datetime')
 
         expect(node.type).toBe('datetime')
         expect(narrowed?.offset).toBe(true)
@@ -2528,7 +2528,7 @@ describe('parser options', () => {
       it('dateType: stringLocal returns datetime with local: true', () => {
         const ctx = { document: emptyDocument }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: 'stringLocal' })
-        const narrowed = narrowSchema(node, 'datetime')
+        const narrowed = ast.narrowSchema(node, 'datetime')
 
         expect(node.type).toBe('datetime')
         expect(narrowed?.local).toBe(true)
@@ -2537,7 +2537,7 @@ describe('parser options', () => {
       it('dateType: date returns date with representation: date', () => {
         const ctx = { document: emptyDocument }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: 'date' })
-        const narrowed = narrowSchema(node, 'date')
+        const narrowed = ast.narrowSchema(node, 'date')
 
         expect(node.type).toBe('date')
         expect(narrowed?.representation).toBe('date')
@@ -2555,7 +2555,7 @@ describe('parser options', () => {
       it('defaults to date with representation: string', () => {
         const ctx = { document: emptyDocument }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'date' } })
-        const narrowed = narrowSchema(node, 'date')
+        const narrowed = ast.narrowSchema(node, 'date')
 
         expect(node.type).toBe('date')
         expect(narrowed?.representation).toBe('string')
@@ -2564,7 +2564,7 @@ describe('parser options', () => {
       it('dateType: date returns date with representation: date', () => {
         const ctx = { document: emptyDocument }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'date' } }, { dateType: 'date' })
-        const narrowed = narrowSchema(node, 'date')
+        const narrowed = ast.narrowSchema(node, 'date')
 
         expect(node.type).toBe('date')
         expect(narrowed?.representation).toBe('date')
@@ -2573,7 +2573,7 @@ describe('parser options', () => {
       it('dateType: string returns date with representation: string', () => {
         const ctx = { document: emptyDocument }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'date' } }, { dateType: 'string' })
-        const narrowed = narrowSchema(node, 'date')
+        const narrowed = ast.narrowSchema(node, 'date')
 
         expect(node.type).toBe('date')
         expect(narrowed?.representation).toBe('string')
@@ -2591,7 +2591,7 @@ describe('parser options', () => {
       it('defaults to time with representation: string', () => {
         const ctx = { document: emptyDocument }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'time' } })
-        const narrowed = narrowSchema(node, 'time')
+        const narrowed = ast.narrowSchema(node, 'time')
 
         expect(node.type).toBe('time')
         expect(narrowed?.representation).toBe('string')
@@ -2600,7 +2600,7 @@ describe('parser options', () => {
       it('dateType: date returns time with representation: date', () => {
         const ctx = { document: emptyDocument }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'time' } }, { dateType: 'date' })
-        const narrowed = narrowSchema(node, 'time')
+        const narrowed = ast.narrowSchema(node, 'time')
 
         expect(node.type).toBe('time')
         expect(narrowed?.representation).toBe('date')
@@ -2609,7 +2609,7 @@ describe('parser options', () => {
       it('dateType: string returns time with representation: string', () => {
         const ctx = { document: emptyDocument }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'time' } }, { dateType: 'string' })
-        const narrowed = narrowSchema(node, 'time')
+        const narrowed = ast.narrowSchema(node, 'time')
 
         expect(node.type).toBe('time')
         expect(narrowed?.representation).toBe('string')
@@ -2655,7 +2655,7 @@ describe('parseSchema discriminator on union (oneOf/anyOf)', () => {
         discriminator: { propertyName: 'petType' },
       },
     })
-    const narrowed = narrowSchema(node, 'union')
+    const narrowed = ast.narrowSchema(node, 'union')
 
     expect(node.type).toBe('union')
     expect(narrowed?.discriminatorPropertyName).toBe('petType')
@@ -2668,7 +2668,7 @@ describe('parseSchema discriminator on union (oneOf/anyOf)', () => {
         discriminator: { propertyName: 'kind' },
       },
     })
-    const narrowed = narrowSchema(node, 'union')
+    const narrowed = ast.narrowSchema(node, 'union')
 
     expect(node.type).toBe('union')
     expect(narrowed?.discriminatorPropertyName).toBe('kind')
@@ -2680,7 +2680,7 @@ describe('parseSchema discriminator on union (oneOf/anyOf)', () => {
         oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
       },
     })
-    const narrowed = narrowSchema(node, 'union')
+    const narrowed = ast.narrowSchema(node, 'union')
 
     expect(node.type).toBe('union')
     expect(narrowed?.discriminatorPropertyName).toBeUndefined()
@@ -2706,28 +2706,28 @@ describe('parseSchema discriminator on union (oneOf/anyOf)', () => {
     })
 
     expect(node.type).toBe('intersection')
-    const topIntersection = narrowSchema(node, 'intersection')!
-    const unionNode = narrowSchema(topIntersection.members?.[0], 'union')!
-    const sharedPropertiesNode = narrowSchema(topIntersection.members?.[1], 'object')
+    const topIntersection = ast.narrowSchema(node, 'intersection')!
+    const unionNode = ast.narrowSchema(topIntersection.members?.[0], 'union')!
+    const sharedPropertiesNode = ast.narrowSchema(topIntersection.members?.[1], 'object')
     const sharedTypeProp = sharedPropertiesNode?.properties?.find((p) => p.name === 'type')
 
-    expect(narrowSchema(sharedTypeProp?.schema, 'enum')?.enumValues).toEqual(['dog', 'cat'])
+    expect(ast.narrowSchema(sharedTypeProp?.schema, 'enum')?.enumValues).toEqual(['dog', 'cat'])
 
     const { members } = unionNode
 
     // Dog member: intersection of Dog ref + synthetic discriminant object { type: 'dog' }
-    const dogIntersection = narrowSchema(members![0], 'intersection')
-    const dogDiscNode = narrowSchema(dogIntersection!.members![1], 'object')
+    const dogIntersection = ast.narrowSchema(members![0], 'intersection')
+    const dogDiscNode = ast.narrowSchema(dogIntersection!.members![1], 'object')
     const dogTypeProp = dogDiscNode?.properties?.find((p) => p.name === 'type')
     expect(dogTypeProp?.schema.readOnly).toBe(true)
-    expect(narrowSchema(dogTypeProp?.schema, 'enum')?.enumValues).toEqual(['dog'])
+    expect(ast.narrowSchema(dogTypeProp?.schema, 'enum')?.enumValues).toEqual(['dog'])
 
     // Cat member: intersection of Cat ref + synthetic discriminant object { type: 'cat' }
-    const catIntersection = narrowSchema(members![1], 'intersection')
-    const catDiscNode = narrowSchema(catIntersection!.members![1], 'object')
+    const catIntersection = ast.narrowSchema(members![1], 'intersection')
+    const catDiscNode = ast.narrowSchema(catIntersection!.members![1], 'object')
     const catTypeProp = catDiscNode?.properties?.find((p) => p.name === 'type')
     expect(catTypeProp?.schema.readOnly).toBe(true)
-    expect(narrowSchema(catTypeProp?.schema, 'enum')?.enumValues).toEqual(['cat'])
+    expect(ast.narrowSchema(catTypeProp?.schema, 'enum')?.enumValues).toEqual(['cat'])
   })
 
   it('gives enum sibling properties a name derived from the union schema name', () => {
@@ -2751,8 +2751,8 @@ describe('parseSchema discriminator on union (oneOf/anyOf)', () => {
     })
 
     expect(node.type).toBe('intersection')
-    const topIntersection = narrowSchema(node, 'intersection')!
-    const sharedPropertiesNode = narrowSchema(topIntersection.members?.[1], 'object')
+    const topIntersection = ast.narrowSchema(node, 'intersection')!
+    const sharedPropertiesNode = ast.narrowSchema(topIntersection.members?.[1], 'object')
     const statusProp = sharedPropertiesNode?.properties?.find((p) => p.name === 'status')
     // The enum schema should carry a name derived from the parent union name
     expect(statusProp?.schema.name).toBe('PetStatusEnum')
@@ -2777,21 +2777,21 @@ describe('parseSchema discriminator on union without sibling properties', () => 
     })
 
     expect(node.type).toBe('union')
-    const { members } = narrowSchema(node, 'union')!
+    const { members } = ast.narrowSchema(node, 'union')!
 
     // Dog member: intersection of Dog ref + { type: 'dog' }
-    const dogIntersection = narrowSchema(members![0], 'intersection')
+    const dogIntersection = ast.narrowSchema(members![0], 'intersection')
     expect(dogIntersection).toBeDefined()
-    const dogDiscNode = narrowSchema(dogIntersection!.members![1], 'object')
+    const dogDiscNode = ast.narrowSchema(dogIntersection!.members![1], 'object')
     const dogTypeProp = dogDiscNode?.properties?.find((p) => p.name === 'type')
-    expect(narrowSchema(dogTypeProp?.schema, 'enum')?.enumValues).toEqual(['dog'])
+    expect(ast.narrowSchema(dogTypeProp?.schema, 'enum')?.enumValues).toEqual(['dog'])
 
     // Cat member: intersection of Cat ref + { type: 'cat' }
-    const catIntersection = narrowSchema(members![1], 'intersection')
+    const catIntersection = ast.narrowSchema(members![1], 'intersection')
     expect(catIntersection).toBeDefined()
-    const catDiscNode = narrowSchema(catIntersection!.members![1], 'object')
+    const catDiscNode = ast.narrowSchema(catIntersection!.members![1], 'object')
     const catTypeProp = catDiscNode?.properties?.find((p) => p.name === 'type')
-    expect(narrowSchema(catTypeProp?.schema, 'enum')?.enumValues).toEqual(['cat'])
+    expect(ast.narrowSchema(catTypeProp?.schema, 'enum')?.enumValues).toEqual(['cat'])
   })
 
   it('leaves members without a mapping entry as plain refs', () => {
@@ -2807,7 +2807,7 @@ describe('parseSchema discriminator on union without sibling properties', () => 
       },
     })
 
-    const { members } = narrowSchema(node, 'union')!
+    const { members } = ast.narrowSchema(node, 'union')!
     // Dog is in the mapping → wrapped in an intersection
     expect(members![0]?.type).toBe('intersection')
     // String literal has no mapping entry → left as-is
@@ -2823,7 +2823,7 @@ describe('parseSchema discriminator on union without sibling properties', () => 
     })
 
     expect(node.type).toBe('union')
-    const { members } = narrowSchema(node, 'union')!
+    const { members } = ast.narrowSchema(node, 'union')!
     // No mapping → no intersection wrapping
     expect(members!.every((m) => m.type !== 'intersection')).toBe(true)
   })
@@ -2859,7 +2859,7 @@ describe('parseSchema circular allOf discriminator detection', () => {
     expect(cat).toBeDefined()
     expect(cat!.type).toBe('intersection')
     // The intersection should contain only the concrete Cat properties — Animal is filtered out.
-    const members = narrowSchema(cat, 'intersection')?.members ?? []
+    const members = ast.narrowSchema(cat, 'intersection')?.members ?? []
     expect(members.length).toBeGreaterThan(0)
     expect(members.some((m) => m.type === 'ref' && m.name === 'Animal')).toBe(false)
   })
@@ -2897,20 +2897,20 @@ describe('parseSchema circular allOf discriminator detection', () => {
 
     const cat = root.schemas.find((s) => s.name === 'Cat')
     expect(cat?.type).toBe('intersection')
-    const catMembers = narrowSchema(cat, 'intersection')?.members ?? []
+    const catMembers = ast.narrowSchema(cat, 'intersection')?.members ?? []
     // A synthetic { type: 'cat' } object must be present in Cat's intersection members.
     const catDiscNode = catMembers.find((m) => {
-      const obj = narrowSchema(m, 'object')
-      return obj?.properties?.some((p) => p.name === 'type' && narrowSchema(p.schema, 'enum')?.enumValues?.[0] === 'cat')
+      const obj = ast.narrowSchema(m, 'object')
+      return obj?.properties?.some((p) => p.name === 'type' && ast.narrowSchema(p.schema, 'enum')?.enumValues?.[0] === 'cat')
     })
     expect(catDiscNode).toBeDefined()
 
     const dog = root.schemas.find((s) => s.name === 'Dog')
     expect(dog?.type).toBe('intersection')
-    const dogMembers = narrowSchema(dog, 'intersection')?.members ?? []
+    const dogMembers = ast.narrowSchema(dog, 'intersection')?.members ?? []
     const dogDiscNode = dogMembers.find((m) => {
-      const obj = narrowSchema(m, 'object')
-      return obj?.properties?.some((p) => p.name === 'type' && narrowSchema(p.schema, 'enum')?.enumValues?.[0] === 'dog')
+      const obj = ast.narrowSchema(m, 'object')
+      return obj?.properties?.some((p) => p.name === 'type' && ast.narrowSchema(p.schema, 'enum')?.enumValues?.[0] === 'dog')
     })
     expect(dogDiscNode).toBeDefined()
   })
@@ -2958,7 +2958,7 @@ describe('buildAst', async () => {
       const schema = root.schemas.find((s) => s.name === 'Pet')
       expect(schema).toBeDefined()
       expect(schema!.type).toBe('object')
-      const props = narrowSchema(schema, 'object')?.properties ?? []
+      const props = ast.narrowSchema(schema, 'object')?.properties ?? []
       expect(props.find((p) => p.name === 'id')?.required).toBe(true)
       expect(props.find((p) => p.name === 'name')?.required).toBe(true)
     })
@@ -2980,7 +2980,7 @@ describe('buildAst', async () => {
       const schema = root.schemas.find((s) => s.name === 'PetOrError')
       expect(schema).toBeDefined()
       expect(schema!.type).toBe('union')
-      const members = narrowSchema(schema, 'union')?.members ?? []
+      const members = ast.narrowSchema(schema, 'union')?.members ?? []
       expect(members.length).toBe(2)
     })
 
@@ -3162,13 +3162,16 @@ describe('unknownType / emptySchemaType → SchemaNode type', () => {
   })
 
   it('unannotated additionalProperties produce type: any by default', () => {
-    const node = narrowSchema(parseSchema(ctx, { schema: { type: 'object', additionalProperties: {} } as SchemaObject }), 'object')
+    const node = ast.narrowSchema(parseSchema(ctx, { schema: { type: 'object', additionalProperties: {} } as SchemaObject }), 'object')
 
     expect(node?.additionalProperties).toMatchObject({ type: 'any' })
   })
 
   it('unannotated additionalProperties produce type: unknown when unknownType is unknown', () => {
-    const node = narrowSchema(parseSchema(ctx, { schema: { type: 'object', additionalProperties: {} } as SchemaObject }, { unknownType: 'unknown' }), 'object')
+    const node = ast.narrowSchema(
+      parseSchema(ctx, { schema: { type: 'object', additionalProperties: {} } as SchemaObject }, { unknownType: 'unknown' }),
+      'object',
+    )
 
     expect(node?.additionalProperties).toMatchObject({ type: 'unknown' })
   })
@@ -3199,7 +3202,7 @@ describe('parameter enum naming', () => {
     const root = parseOas(oas).root
     const op = root.operations.find((o) => o.operationId === 'listPets')
     const statusParam = op?.parameters.find((p) => p.name === 'status')
-    const enumNode = narrowSchema(statusParam?.schema, 'enum')
+    const enumNode = ast.narrowSchema(statusParam?.schema, 'enum')
 
     // Parser does not assign names to parameter enums — that's the plugin's job
     expect(enumNode?.name).toBeUndefined()
@@ -3249,16 +3252,16 @@ describe('enum naming', () => {
       { enumSuffix: 'enum' },
     )
 
-    const orderEnum = narrowSchema(
-      narrowSchema(narrowSchema(orderNode, 'object')?.properties?.find((p) => p.name === 'params')?.schema, 'object')?.properties?.find(
-        (p) => p.name === 'status',
-      )?.schema,
+    const orderEnum = ast.narrowSchema(
+      ast
+        .narrowSchema(ast.narrowSchema(orderNode, 'object')?.properties?.find((p) => p.name === 'params')?.schema, 'object')
+        ?.properties?.find((p) => p.name === 'status')?.schema,
       'enum',
     )
-    const customerEnum = narrowSchema(
-      narrowSchema(narrowSchema(customerNode, 'object')?.properties?.find((p) => p.name === 'params')?.schema, 'object')?.properties?.find(
-        (p) => p.name === 'status',
-      )?.schema,
+    const customerEnum = ast.narrowSchema(
+      ast
+        .narrowSchema(ast.narrowSchema(customerNode, 'object')?.properties?.find((p) => p.name === 'params')?.schema, 'object')
+        ?.properties?.find((p) => p.name === 'status')?.schema,
       'enum',
     )
 
@@ -3287,10 +3290,10 @@ describe('enum naming', () => {
       { enumSuffix: 'enum' },
     )
 
-    const topIntersection = narrowSchema(node, 'intersection')
-    const sharedObj = topIntersection?.members?.find((m) => narrowSchema(m, 'object')?.properties?.some((p) => p.name === 'status'))
-    const statusProp = narrowSchema(sharedObj, 'object')?.properties?.find((p) => p.name === 'status')
-    const enumNode = narrowSchema(statusProp?.schema, 'enum')
+    const topIntersection = ast.narrowSchema(node, 'intersection')
+    const sharedObj = topIntersection?.members?.find((m) => ast.narrowSchema(m, 'object')?.properties?.some((p) => p.name === 'status'))
+    const statusProp = ast.narrowSchema(sharedObj, 'object')?.properties?.find((p) => p.name === 'status')
+    const enumNode = ast.narrowSchema(statusProp?.schema, 'enum')
 
     // Non-legacy: name includes schema name
     expect(enumNode?.name).toBe('PetStatusEnum')
@@ -3315,11 +3318,11 @@ describe('enum naming', () => {
       },
       { enumSuffix: 'enum' },
     )
-    const narrowed = narrowSchema(node, 'object')
+    const narrowed = ast.narrowSchema(node, 'object')
 
     const tagsProp = narrowed?.properties?.find((p) => p.name === 'tags')
-    const arrayNode = narrowSchema(tagsProp?.schema, 'array')
-    const enumNode = narrowSchema(arrayNode?.items?.[0], 'enum')
+    const arrayNode = ast.narrowSchema(tagsProp?.schema, 'array')
+    const enumNode = ast.narrowSchema(arrayNode?.items?.[0], 'enum')
 
     expect(enumNode?.name).toBe('ItemTagsEnum')
   })

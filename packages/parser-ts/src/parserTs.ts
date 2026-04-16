@@ -1,5 +1,5 @@
 import { normalize, relative } from 'node:path'
-import type { ArrowFunctionNode, CodeNode, ConstNode, FileNode, FunctionNode, JSDocNode, JsxNode, SourceNode, TextNode, TypeNode } from '@kubb/ast/types'
+import type { ArrowFunctionNode, CodeNode, ConstNode, FileNode, FunctionNode, JSDocNode, JsxNode, SourceNode, TextNode, TypeNode } from '@kubb/ast'
 import type { Parser } from '@kubb/core'
 import { defineParser } from '@kubb/core'
 import ts from 'typescript'

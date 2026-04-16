@@ -1,6 +1,5 @@
-import { extractRefName, isStringType, narrowSchema, schemaTypes, syncSchemaRef } from '@kubb/ast'
 import type { PrinterFactoryOptions, PrinterPartial } from '@kubb/core'
-import { definePrinter } from '@kubb/core'
+import { ast, definePrinter } from '@kubb/core'
 import { safePrint } from '@kubb/parser-ts'
 import type ts from 'typescript'
 import { ENUM_TYPES_WITH_KEY_SUFFIX, OPTIONAL_ADDS_QUESTION_TOKEN, OPTIONAL_ADDS_UNDEFINED } from '../constants.ts'
@@ -154,7 +153,7 @@ export const printerTs = definePrinter<PrinterTs>((options) => {
         // Use the canonical name from the $ref path — node.name may have been overridden
         // (e.g. by single-member allOf flatten using the property-derived child name).
         // Inline refs (without $ref) from utils already carry resolved type names.
-        const refName = node.ref ? (extractRefName(node.ref) ?? node.name) : node.name
+        const refName = node.ref ? (ast.extractRefName(node.ref) ?? node.name) : node.name
 
         // When a Key suffix is configured, enum refs must use the suffixed name (e.g. `StatusKey`)
         // so the reference matches what the enum file actually exports.
@@ -192,15 +191,15 @@ export const printerTs = definePrinter<PrinterTs>((options) => {
         const members = node.members ?? []
 
         const hasStringLiteral = members.some((m) => {
-          const enumNode = narrowSchema(m, schemaTypes.enum)
+          const enumNode = ast.narrowSchema(m, ast.schemaTypes.enum)
           return enumNode?.primitive === 'string'
         })
-        const hasPlainString = members.some((m) => isStringType(m))
+        const hasPlainString = members.some((m) => ast.isStringType(m))
 
         if (hasStringLiteral && hasPlainString) {
           const memberNodes = members
             .map((m) => {
-              if (isStringType(m)) {
+              if (ast.isStringType(m)) {
                 return factory.createIntersectionDeclaration({
                   nodes: [factory.keywordTypeNodes.string, factory.createTypeLiteralNode([])],
                   withParentheses: true,
@@ -235,7 +234,7 @@ export const printerTs = definePrinter<PrinterTs>((options) => {
         const propertyNodes: Array<ts.TypeElement> = node.properties.map((prop) => {
           const baseType = transform(prop.schema) ?? factory.keywordTypeNodes.unknown
           const type = factory.buildPropertyType(prop.schema, baseType, options.optionalType)
-          const propMeta = syncSchemaRef(prop.schema)
+          const propMeta = ast.syncSchemaRef(prop.schema)
 
           const propertyNode = factory.createPropertySignature({
             questionToken: prop.schema.optional || prop.schema.nullish ? addsQuestionToken : false,
@@ -264,7 +263,7 @@ export const printerTs = definePrinter<PrinterTs>((options) => {
       if (!base) return null
 
       // For ref nodes, structural metadata lives on node.schema rather than the ref node itself.
-      const meta = syncSchemaRef(node)
+      const meta = ast.syncSchemaRef(node)
 
       // Without name, apply modifiers inline and return.
       if (!name) {

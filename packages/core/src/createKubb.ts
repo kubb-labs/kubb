@@ -1,7 +1,7 @@
 import { dirname, resolve } from 'node:path'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
+import type { ExportNode, FileNode, OperationNode } from '@kubb/ast'
 import { createExport, createFile, transform, walk } from '@kubb/ast'
-import type { ExportNode, FileNode, OperationNode } from '@kubb/ast/types'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Generator } from './defineGenerator.ts'

@@ -32,6 +32,7 @@ export { createPrinterFactory, definePrinter } from './printer.ts'
 export { extractRefName } from './refs.ts'
 export { childName, collectImports, enumPropName, findDiscriminator } from './resolvers.ts'
 export { mergeAdjacentObjects, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
+export type * from './types.ts'
 export type { OperationParamsResolver } from './utils.ts'
 export {
   caseParams,

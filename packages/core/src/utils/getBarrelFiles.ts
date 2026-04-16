@@ -1,8 +1,8 @@
 /** biome-ignore-all lint/suspicious/useIterableCallbackReturn: not needed */
 import { join } from 'node:path'
 import { getRelativePath } from '@internals/utils'
+import type { FileNode } from '@kubb/ast'
 import { createExport, createFile, createSource } from '@kubb/ast'
-import type { FileNode } from '@kubb/ast/types'
 import type { BarrelType } from '../types.ts'
 import { TreeNode } from './TreeNode.ts'
 

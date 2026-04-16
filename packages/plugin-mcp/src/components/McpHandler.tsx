@@ -1,6 +1,5 @@
 import { isValidVarName, URLPath } from '@internals/utils'
-import { caseParams, createOperationParams } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
+import { ast } from '@kubb/core'
 import type { ResolverTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
 import { File, Function } from '@kubb/renderer-jsx'
@@ -16,7 +15,7 @@ type Props = {
   /**
    * AST operation node.
    */
-  node: OperationNode
+  node: ast.OperationNode
   /**
    * TypeScript resolver for resolving param/data/response type names.
    */
@@ -55,7 +54,7 @@ export function McpHandler({ name, node, resolver, baseURL, dataReturnType, para
   const contentType = node.requestBody?.contentType
   const isFormData = contentType === 'multipart/form-data'
 
-  const casedParams = caseParams(node.parameters, paramsCasing)
+  const casedParams = ast.caseParams(node.parameters, paramsCasing)
   const queryParams = casedParams.filter((p) => p.in === 'query')
   const headerParams = casedParams.filter((p) => p.in === 'header')
 
@@ -73,7 +72,7 @@ export function McpHandler({ name, node, resolver, baseURL, dataReturnType, para
   const TError = `ResponseErrorConfig<${errorType}>`
   const generics = [responseName, TError, requestName || 'unknown'].filter(Boolean)
 
-  const paramsNode = createOperationParams(node, {
+  const paramsNode = ast.createOperationParams(node, {
     paramsType: 'object',
     pathParamsType: 'inline',
     resolver,

@@ -1,6 +1,5 @@
-import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
+import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
 import type { PluginZod } from '@kubb/plugin-zod'
@@ -41,14 +40,14 @@ const mockedZodPlugin = createMockedPlugin<PluginZod>({
 })
 
 describe('serverGenerator — Operations', () => {
-  const nodes: Array<OperationNode> = [
-    createOperation({
+  const nodes: Array<ast.OperationNode> = [
+    ast.createOperation({
       operationId: 'showPetById',
       method: 'GET',
       path: '/pets/{petId}',
       tags: ['pets'],
-      parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
-      responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Expected response' })],
+      parameters: [ast.createParameter({ name: 'petId', in: 'path', schema: ast.createSchema({ type: 'string' }), required: true })],
+      responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Expected response' })],
     }),
   ]
 

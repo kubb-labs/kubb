@@ -1,5 +1,5 @@
-import type { Visitor } from '@kubb/ast/types'
 import type {
+  ast,
   CompatibilityPreset,
   Exclude,
   Generator,
@@ -118,7 +118,7 @@ export type Options = {
    * A single AST visitor applied before printing.
    * When a visitor method returns `null` or `undefined`, the preset transformer's result is used instead.
    */
-  transformer?: Visitor
+  transformer?: ast.Visitor
   /**
    * Define some generators next to the default generators.
    */

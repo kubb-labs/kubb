@@ -1,14 +1,14 @@
 import { camelCase } from '@internals/utils'
-import type { OperationNode, SchemaNode, StatusCode } from '@kubb/ast/types'
+import type { ast } from '@kubb/core'
 
 /**
  * Find the first 2xx response status code from an operation's responses.
  */
-export function findSuccessStatusCode(responses: Array<{ statusCode: number | string }>): StatusCode | undefined {
+export function findSuccessStatusCode(responses: Array<{ statusCode: number | string }>): ast.StatusCode | undefined {
   for (const res of responses) {
     const code = Number(res.statusCode)
     if (code >= 200 && code < 300) {
-      return res.statusCode as StatusCode
+      return res.statusCode as ast.StatusCode
     }
   }
   return undefined
@@ -34,7 +34,7 @@ export function zodGroupExpr(entry: string | Array<ZodParam>): string {
 /**
  * Build JSDoc comment lines from an OperationNode.
  */
-export function getComments(node: OperationNode): Array<string> {
+export function getComments(node: ast.OperationNode): Array<string> {
   return [
     node.description && `@description ${node.description}`,
     node.summary && `@summary ${node.summary}`,
@@ -70,7 +70,7 @@ export function getParamsMapping(params: Array<{ name: string }>): Record<string
  * Convert a SchemaNode type to an inline Zod expression string.
  * Used as fallback when no named zod schema is available for a path parameter.
  */
-export function zodExprFromSchemaNode(schema: SchemaNode): string {
+export function zodExprFromSchemaNode(schema: ast.SchemaNode): string {
   let expr: string
   switch (schema.type) {
     case 'enum': {

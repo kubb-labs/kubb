@@ -1,5 +1,5 @@
 import type { PossiblePromise } from '@internals/utils'
-import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast/types'
+import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import type { RendererFactory } from './createRenderer.ts'
 import type { GeneratorContext, PluginFactoryOptions } from './types.ts'
 

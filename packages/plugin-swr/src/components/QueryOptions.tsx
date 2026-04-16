@@ -1,5 +1,4 @@
-import { createFunctionParameter, createOperationParams, createParamsType } from '@kubb/ast'
-import type { FunctionParametersNode, OperationNode } from '@kubb/ast/types'
+import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
 import { File, Function } from '@kubb/renderer-jsx'
@@ -9,7 +8,7 @@ import type { PluginSwr } from '../types.ts'
 type Props = {
   name: string
   clientName: string
-  node: OperationNode
+  node: ast.OperationNode
   tsResolver: PluginTs['resolver']
   paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   paramsType: PluginSwr['resolvedOptions']['paramsType']
@@ -20,26 +19,26 @@ const declarationPrinter = functionPrinter({ mode: 'declaration' })
 const callPrinter = functionPrinter({ mode: 'call' })
 
 export function getQueryOptionsParams(
-  node: OperationNode,
+  node: ast.OperationNode,
   options: {
     paramsType: PluginSwr['resolvedOptions']['paramsType']
     paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
     pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
     resolver: PluginTs['resolver']
   },
-): FunctionParametersNode {
+): ast.FunctionParametersNode {
   const { paramsType, paramsCasing, pathParamsType, resolver } = options
   const requestName = node.requestBody?.schema ? resolver.resolveDataName(node) : undefined
 
-  return createOperationParams(node, {
+  return ast.createOperationParams(node, {
     paramsType,
     pathParamsType: paramsType === 'object' ? 'object' : pathParamsType === 'object' ? 'object' : 'inline',
     paramsCasing,
     resolver,
     extraParams: [
-      createFunctionParameter({
+      ast.createFunctionParameter({
         name: 'config',
-        type: createParamsType({
+        type: ast.createParamsType({
           variant: 'reference',
           name: requestName ? `Partial<RequestConfig<${requestName}>> & { client?: Client }` : 'Partial<RequestConfig> & { client?: Client }',
         }),

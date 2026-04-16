@@ -1,6 +1,6 @@
 import path from 'node:path'
-import { caseParams } from '@kubb/ast'
-import { defineGenerator } from '@kubb/core'
+
+import { ast, defineGenerator } from '@kubb/core'
 import { ClientLegacy as ClientLegacyComponent, pluginClientName } from '@kubb/plugin-client'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
@@ -44,7 +44,7 @@ export const queryGenerator = defineGenerator<PluginSwr>({
       ),
     }
 
-    const casedParams = caseParams(node.parameters, paramsCasing)
+    const casedParams = ast.caseParams(node.parameters, paramsCasing)
     const pathParams = casedParams.filter((p) => p.in === 'path')
     const queryParams = casedParams.filter((p) => p.in === 'query')
     const headerParams = casedParams.filter((p) => p.in === 'header')
@@ -193,7 +193,7 @@ export const queryGenerator = defineGenerator<PluginSwr>({
  * Used for the ClientLegacy component which still expects the old format.
  */
 // biome-ignore lint/suspicious/noExplicitAny: bridge between v5 resolver types and legacy OperationSchemas format
-function buildLegacyTypeSchemas(node: import('@kubb/ast/types').OperationNode, resolver: any) {
+function buildLegacyTypeSchemas(node: ast.OperationNode, resolver: any) {
   const pathParams = node.parameters.filter((p) => p.in === 'path')
   const queryParams = node.parameters.filter((p) => p.in === 'query')
   const headerParams = node.parameters.filter((p) => p.in === 'header')

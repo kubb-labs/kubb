@@ -1,5 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { FileNode, ImportNode, InputNode, Node, OperationNode, SchemaNode, Visitor } from '@kubb/ast/types'
+import type { FileNode, ImportNode, InputNode, Node, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
 import type { HttpMethod } from '@kubb/oas'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { RendererFactory } from './createRenderer.ts'
@@ -9,7 +9,6 @@ import type { Parser } from './defineParser.ts'
 import type { KubbHooks } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
-export type { Printer, PrinterFactoryOptions, PrinterPartial } from '@kubb/ast/types'
 export type { Renderer, RendererFactory } from './createRenderer.ts'
 
 export type InputPath = {

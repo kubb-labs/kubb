@@ -1,4 +1,4 @@
-import type { FileNode } from '@kubb/ast/types'
+import type { FileNode } from '@kubb/ast'
 
 /**
  * Minimal interface any Kubb renderer must satisfy.

@@ -1,5 +1,5 @@
+import type { CodeNode, FileNode } from '@kubb/ast'
 import { extractStringsFromNodes } from '@kubb/ast'
-import type { CodeNode, FileNode } from '@kubb/ast/types'
 import pLimit from 'p-limit'
 import { PARALLEL_CONCURRENCY_LIMIT } from './constants.ts'
 import type { Parser } from './defineParser.ts'

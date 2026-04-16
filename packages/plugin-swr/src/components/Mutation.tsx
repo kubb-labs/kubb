@@ -1,5 +1,4 @@
-import { caseParams, createFunctionParameter, createFunctionParameters, createOperationParams, createParamsType } from '@kubb/ast'
-import type { FunctionParameterNode, FunctionParametersNode, OperationNode, ParameterGroupNode } from '@kubb/ast/types'
+import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
 import { File, Function, Type } from '@kubb/renderer-jsx'
@@ -21,7 +20,7 @@ type Props = {
   clientName: string
   mutationKeyName: string
   mutationKeyTypeName: string
-  node: OperationNode
+  node: ast.OperationNode
   tsResolver: PluginTs['resolver']
   paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   paramsType: PluginSwr['resolvedOptions']['paramsType']
@@ -43,7 +42,7 @@ const keysPrinter = functionPrinter({ mode: 'keys' })
  * pathParams + queryParams + headers + options (NO data — it comes via useSWRMutation arg)
  */
 function getParams(
-  node: OperationNode,
+  node: ast.OperationNode,
   options: {
     paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
     pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
@@ -51,7 +50,7 @@ function getParams(
     resolver: PluginTs['resolver']
     mutationKeyTypeName: string
   },
-): FunctionParametersNode {
+): ast.FunctionParametersNode {
   const { paramsCasing, pathParamsType, dataReturnType, resolver, mutationKeyTypeName } = options
 
   const responseName = resolver.resolveResponseName(node)
@@ -62,7 +61,7 @@ function getParams(
   const TError = `ResponseErrorConfig<${errorNames.length > 0 ? errorNames.join(' | ') : 'Error'}>`
   const TExtraArg = requestName || 'never'
 
-  const casedParams = caseParams(node.parameters, paramsCasing)
+  const casedParams = ast.caseParams(node.parameters, paramsCasing)
   const pathParams = casedParams.filter((p) => p.in === 'path')
   const queryParams = casedParams.filter((p) => p.in === 'query')
   const headerParams = casedParams.filter((p) => p.in === 'header')
@@ -70,11 +69,13 @@ function getParams(
   const queryGroupType = resolveQueryGroupType(node, queryParams, resolver)
   const headerGroupType = resolveHeaderGroupType(node, headerParams, resolver)
 
-  const params: Array<FunctionParameterNode | ParameterGroupNode> = []
+  const params: Array<ast.FunctionParameterNode | ast.ParameterGroupNode> = []
 
   // Path params
   if (pathParams.length) {
-    const pathChildren = pathParams.map((p) => createFunctionParameter({ name: p.name, type: resolvePathParamType(node, p, resolver), optional: !p.required }))
+    const pathChildren = pathParams.map((p) =>
+      ast.createFunctionParameter({ name: p.name, type: resolvePathParamType(node, p, resolver), optional: !p.required }),
+    )
     params.push({
       kind: 'ParameterGroup',
       properties: pathChildren,
@@ -91,9 +92,9 @@ function getParams(
 
   // Options
   params.push(
-    createFunctionParameter({
+    ast.createFunctionParameter({
       name: 'options',
-      type: createParamsType({
+      type: ast.createParamsType({
         variant: 'reference',
         name: `{
   mutation?: SWRMutationConfiguration<${TData}, ${TError}, ${mutationKeyTypeName} | null, ${TExtraArg}> & { throwOnError?: boolean },
@@ -105,21 +106,21 @@ function getParams(
     }),
   )
 
-  return createFunctionParameters({ params })
+  return ast.createFunctionParameters({ params })
 }
 
 /**
  * Trigger-mode params (paramsToTrigger=true): just `options`
  */
 function getTriggerParams(
-  node: OperationNode,
+  node: ast.OperationNode,
   options: {
     dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
     resolver: PluginTs['resolver']
     mutationKeyTypeName: string
     mutationArgTypeName: string
   },
-): FunctionParametersNode {
+): ast.FunctionParametersNode {
   const { dataReturnType, resolver, mutationKeyTypeName, mutationArgTypeName } = options
 
   const responseName = resolver.resolveResponseName(node)
@@ -129,11 +130,11 @@ function getTriggerParams(
   const TData = dataReturnType === 'data' ? responseName : `ResponseConfig<${responseName}>`
   const TError = `ResponseErrorConfig<${errorNames.length > 0 ? errorNames.join(' | ') : 'Error'}>`
 
-  return createFunctionParameters({
+  return ast.createFunctionParameters({
     params: [
-      createFunctionParameter({
+      ast.createFunctionParameter({
         name: 'options',
-        type: createParamsType({
+        type: ast.createParamsType({
           variant: 'reference',
           name: `{
   mutation?: SWRMutationConfiguration<${TData}, ${TError}, ${mutationKeyTypeName} | null, ${mutationArgTypeName}> & { throwOnError?: boolean },
@@ -168,15 +169,15 @@ export function Mutation({
   const TError = `ResponseErrorConfig<${errorNames.length > 0 ? errorNames.join(' | ') : 'Error'}>`
 
   // Client call params (path + body + query + headers + config)
-  const clientCallParamsNode = createOperationParams(node, {
+  const clientCallParamsNode = ast.createOperationParams(node, {
     paramsType,
     pathParamsType: paramsType === 'object' ? 'object' : pathParamsType === 'object' ? 'object' : 'inline',
     paramsCasing,
     resolver: tsResolver,
     extraParams: [
-      createFunctionParameter({
+      ast.createFunctionParameter({
         name: 'config',
-        type: createParamsType({
+        type: ast.createParamsType({
           variant: 'reference',
           name: requestName ? `Partial<RequestConfig<${requestName}>> & { client?: Client }` : 'Partial<RequestConfig> & { client?: Client }',
         }),

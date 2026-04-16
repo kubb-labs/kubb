@@ -1,6 +1,5 @@
-import type { OperationParamsResolver } from '@kubb/ast'
-import type { OperationNode, ParameterNode, SchemaNode, StatusCode, Visitor } from '@kubb/ast/types'
 import type {
+  ast,
   CompatibilityPreset,
   Exclude,
   Generator,
@@ -21,7 +20,7 @@ import type { PrinterZodMiniNodes } from './printers/printerZodMini.ts'
  * Extends the base `Resolver` with zod-specific naming helpers.
  */
 export type ResolverZod = Resolver &
-  OperationParamsResolver & {
+  ast.OperationParamsResolver & {
     /**
      * Resolves a camelCase schema function name with a `Schema` suffix.
      */
@@ -56,42 +55,42 @@ export type ResolverZod = Resolver &
      * @example
      * resolver.resolveResponseStatusName(node, 200) // → 'listPetsStatus200Schema'
      */
-    resolveResponseStatusName(this: ResolverZod, node: OperationNode, statusCode: StatusCode): string
+    resolveResponseStatusName(this: ResolverZod, node: ast.OperationNode, statusCode: ast.StatusCode): string
     /**
      * Resolves the name for the collection of all operation responses.
      *
      * @example
      * resolver.resolveResponsesName(node) // → 'listPetsResponsesSchema'
      */
-    resolveResponsesName(this: ResolverZod, node: OperationNode): string
+    resolveResponsesName(this: ResolverZod, node: ast.OperationNode): string
     /**
      * Resolves the name for the union of all operation responses.
      *
      * @example
      * resolver.resolveResponseName(node) // → 'listPetsResponseSchema'
      */
-    resolveResponseName(this: ResolverZod, node: OperationNode): string
+    resolveResponseName(this: ResolverZod, node: ast.OperationNode): string
     /**
      * Resolves the name for an operation's grouped path parameters type.
      *
      * @example
      * resolver.resolvePathParamsName(node, param) // → 'deletePetPathPetIdSchema'
      */
-    resolvePathParamsName(this: ResolverZod, node: OperationNode, param: ParameterNode): string
+    resolvePathParamsName(this: ResolverZod, node: ast.OperationNode, param: ast.ParameterNode): string
     /**
      * Resolves the name for an operation's grouped query parameters type.
      *
      * @example
      * resolver.resolveQueryParamsName(node, param) // → 'findPetsByStatusQueryStatusSchema'
      */
-    resolveQueryParamsName(this: ResolverZod, node: OperationNode, param: ParameterNode): string
+    resolveQueryParamsName(this: ResolverZod, node: ast.OperationNode, param: ast.ParameterNode): string
     /**
      * Resolves the name for an operation's grouped header parameters type.
      *
      * @example
      * resolver.resolveHeaderParamsName(node, param) // → 'deletePetHeaderApiKeySchema'
      */
-    resolveHeaderParamsName(this: ResolverZod, node: OperationNode, param: ParameterNode): string
+    resolveHeaderParamsName(this: ResolverZod, node: ast.OperationNode, param: ast.ParameterNode): string
   }
 
 export type Options = {
@@ -171,7 +170,7 @@ export type Options = {
    * Useful for edge cases like adding `.openapi()` metadata or wrapping
    * schemas with extension helpers (openapi -> zod -> openapi round-trips).
    */
-  wrapOutput?: (arg: { output: string; schema: SchemaNode }) => string | undefined
+  wrapOutput?: (arg: { output: string; schema: ast.SchemaNode }) => string | undefined
   /**
    * How to style your params, by default no casing is applied
    * - 'camelcase' uses camelCase for pathParams, queryParams and headerParams property names
@@ -218,7 +217,7 @@ export type Options = {
    * A single AST visitor applied to each SchemaNode/OperationNode before printing.
    * When a visitor method returns `null` or `undefined`, the preset transformer's result is used instead.
    */
-  transformer?: Visitor
+  transformer?: ast.Visitor
 }
 
 type ResolvedOptions = {

@@ -1,4 +1,4 @@
-import type { MediaType, SchemaType } from '@kubb/ast/types'
+import type { MediaType, SchemaType } from '@kubb/ast'
 import type { HttpMethods as OASHttpMethods } from 'oas/types'
 
 /**

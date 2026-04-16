@@ -1,5 +1,4 @@
-import { createImport } from '@kubb/ast'
-import type { ImportNode } from '@kubb/ast/types'
+import { ast } from '@kubb/core'
 import { SchemaGenerator } from '../SchemaGenerator.ts'
 import type { Schema } from '../SchemaMapper'
 import { schemaKeywords } from '../SchemaMapper'
@@ -7,7 +6,7 @@ import { schemaKeywords } from '../SchemaMapper'
 /**
  * Get imports from a schema tree by extracting all ref schemas that are importable
  */
-export function getImports(tree: Array<Schema>): Array<ImportNode> {
+export function getImports(tree: Array<Schema>): Array<ast.ImportNode> {
   const refs = SchemaGenerator.deepSearch(tree, schemaKeywords.ref)
 
   if (!refs) return []
@@ -18,7 +17,7 @@ export function getImports(tree: Array<Schema>): Array<ImportNode> {
         return undefined
       }
 
-      return createImport({
+      return ast.createImport({
         name: [item.args.name],
         path: item.args.path,
       })

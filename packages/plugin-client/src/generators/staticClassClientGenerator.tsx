@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import type { FileNode, OperationNode } from '@kubb/ast/types'
+import type { ast } from '@kubb/core'
 import { defineGenerator } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -11,21 +11,21 @@ import { StaticClassClient } from '../components/StaticClassClient'
 import type { PluginClient } from '../types'
 
 type OperationData = {
-  node: OperationNode
+  node: ast.OperationNode
   name: string
   tsResolver: PluginTs['resolver']
   zodResolver: PluginZod['resolver'] | undefined
-  typeFile: FileNode
-  zodFile: FileNode | undefined
+  typeFile: ast.FileNode
+  zodFile: ast.FileNode | undefined
 }
 
 type Controller = {
   name: string
-  file: FileNode
+  file: ast.FileNode
   operations: Array<OperationData>
 }
 
-function resolveTypeImportNames(node: OperationNode, tsResolver: PluginTs['resolver']): Array<string> {
+function resolveTypeImportNames(node: ast.OperationNode, tsResolver: PluginTs['resolver']): Array<string> {
   const names: Array<string | undefined> = [
     node.requestBody?.schema ? tsResolver.resolveDataName(node) : undefined,
     tsResolver.resolveResponseName(node),
@@ -37,7 +37,7 @@ function resolveTypeImportNames(node: OperationNode, tsResolver: PluginTs['resol
   return names.filter((n): n is string => Boolean(n))
 }
 
-function resolveZodImportNames(node: OperationNode, zodResolver: PluginZod['resolver']): Array<string> {
+function resolveZodImportNames(node: ast.OperationNode, zodResolver: PluginZod['resolver']): Array<string> {
   const names: Array<string | undefined> = [zodResolver.resolveResponseName?.(node), node.requestBody?.schema ? zodResolver.resolveDataName?.(node) : undefined]
   return names.filter((n): n is string => Boolean(n))
 }
@@ -58,7 +58,7 @@ export const staticClassClientGenerator = defineGenerator<PluginClient>({
     const pluginZod = parser === 'zod' ? driver.getPlugin(pluginZodName) : undefined
     const zodResolver = pluginZod?.resolver
 
-    function buildOperationData(node: OperationNode): OperationData {
+    function buildOperationData(node: ast.OperationNode): OperationData {
       const typeFile = tsResolver.resolveFile(
         { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
         { root, output: tsPluginOptions?.output ?? output, group: tsPluginOptions?.group },
@@ -117,7 +117,7 @@ export const staticClassClientGenerator = defineGenerator<PluginClient>({
 
     function collectTypeImports(ops: Array<OperationData>) {
       const typeImportsByFile = new Map<string, Set<string>>()
-      const typeFilesByPath = new Map<string, FileNode>()
+      const typeFilesByPath = new Map<string, ast.FileNode>()
 
       ops.forEach((op) => {
         const names = resolveTypeImportNames(op.node, tsResolver)
@@ -136,7 +136,7 @@ export const staticClassClientGenerator = defineGenerator<PluginClient>({
 
     function collectZodImports(ops: Array<OperationData>) {
       const zodImportsByFile = new Map<string, Set<string>>()
-      const zodFilesByPath = new Map<string, FileNode>()
+      const zodFilesByPath = new Map<string, ast.FileNode>()
 
       ops.forEach((op) => {
         if (!op.zodFile || !zodResolver) return
@@ -159,7 +159,7 @@ export const staticClassClientGenerator = defineGenerator<PluginClient>({
         {controllers.map(({ name, file, operations: ops }) => {
           const { typeImportsByFile, typeFilesByPath } = collectTypeImports(ops)
           const { zodImportsByFile, zodFilesByPath } =
-            parser === 'zod' ? collectZodImports(ops) : { zodImportsByFile: new Map<string, Set<string>>(), zodFilesByPath: new Map<string, FileNode>() }
+            parser === 'zod' ? collectZodImports(ops) : { zodImportsByFile: new Map<string, Set<string>>(), zodFilesByPath: new Map<string, ast.FileNode>() }
           const hasFormData = ops.some((op) => op.node.requestBody?.contentType === 'multipart/form-data')
 
           return (

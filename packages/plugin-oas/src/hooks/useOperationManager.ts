@@ -1,5 +1,4 @@
-import type { FileNode } from '@kubb/ast/types'
-import type { FileMetaBase, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { ast, FileMetaBase, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import { useDriver, usePlugin } from '@kubb/core/hooks'
 import type { Operation, Operation as OperationType } from '@kubb/oas'
 import type { OperationGenerator } from '../OperationGenerator.ts'
@@ -41,13 +40,13 @@ type UseOperationManagerResult = {
       prefix?: string
       suffix?: string
       pluginName?: string
-      extname?: FileNode['extname']
+      extname?: ast.FileNode['extname']
       group?: {
         tag?: string
         path?: string
       }
     },
-  ) => FileNode<FileMeta>
+  ) => ast.FileNode<FileMeta>
   groupSchemasByName: (
     operation: OperationType,
     params: {
@@ -118,7 +117,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
         pluginName,
         group,
       },
-    } as FileNode<FileMeta>
+    } as ast.FileNode<FileMeta>
   }
 
   const groupSchemasByName: UseOperationManagerResult['groupSchemasByName'] = (operation, { pluginName = defaultPluginName, type }) => {

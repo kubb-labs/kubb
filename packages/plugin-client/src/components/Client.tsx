@@ -1,7 +1,5 @@
 import { isValidVarName, URLPath } from '@internals/utils'
-import { caseParams, createFunctionParameter, createOperationParams, createParamsType } from '@kubb/ast'
-import type { FunctionParametersNode, OperationNode } from '@kubb/ast/types'
-import { FunctionParams } from '@kubb/core'
+import { ast, FunctionParams } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
 import type { PluginZod } from '@kubb/plugin-zod'
@@ -25,7 +23,7 @@ type Props = {
   paramsType: PluginClient['resolvedOptions']['pathParamsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
   parser: PluginClient['resolvedOptions']['parser'] | undefined
-  node: OperationNode
+  node: ast.OperationNode
   tsResolver: PluginTs['resolver']
   zodResolver?: PluginZod['resolver']
   children?: KubbReactNode
@@ -35,26 +33,26 @@ type GetParamsProps = {
   paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
   paramsType: PluginClient['resolvedOptions']['paramsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
-  node: OperationNode
+  node: ast.OperationNode
   tsResolver: PluginTs['resolver']
   isConfigurable: boolean
 }
 
 const declarationPrinter = functionPrinter({ mode: 'declaration' })
 
-function getParams({ paramsType, paramsCasing, pathParamsType, node, tsResolver, isConfigurable }: GetParamsProps): FunctionParametersNode {
+function getParams({ paramsType, paramsCasing, pathParamsType, node, tsResolver, isConfigurable }: GetParamsProps): ast.FunctionParametersNode {
   const requestName = node.requestBody?.schema ? tsResolver.resolveDataName(node) : undefined
 
-  return createOperationParams(node, {
+  return ast.createOperationParams(node, {
     paramsType,
     pathParamsType: paramsType === 'object' ? 'object' : pathParamsType === 'object' ? 'object' : 'inline',
     paramsCasing,
     resolver: tsResolver,
     extraParams: isConfigurable
       ? [
-          createFunctionParameter({
+          ast.createFunctionParameter({
             name: 'config',
-            type: createParamsType({
+            type: ast.createParamsType({
               variant: 'reference',
               name: requestName ? `Partial<RequestConfig<${requestName}>> & { client?: Client }` : 'Partial<RequestConfig> & { client?: Client }',
             }),
@@ -88,11 +86,11 @@ export function Client({
   const isFormData = contentType === 'multipart/form-data'
 
   const originalPathParams = node.parameters.filter((p) => p.in === 'path')
-  const casedPathParams = caseParams(originalPathParams, paramsCasing)
+  const casedPathParams = ast.caseParams(originalPathParams, paramsCasing)
   const originalQueryParams = node.parameters.filter((p) => p.in === 'query')
-  const casedQueryParams = caseParams(originalQueryParams, paramsCasing)
+  const casedQueryParams = ast.caseParams(originalQueryParams, paramsCasing)
   const originalHeaderParams = node.parameters.filter((p) => p.in === 'header')
-  const casedHeaderParams = caseParams(originalHeaderParams, paramsCasing)
+  const casedHeaderParams = ast.caseParams(originalHeaderParams, paramsCasing)
 
   const pathParamsMapping = paramsCasing && !urlName ? buildParamsMapping(originalPathParams, casedPathParams) : undefined
   const queryParamsMapping = paramsCasing ? buildParamsMapping(originalQueryParams, casedQueryParams) : undefined

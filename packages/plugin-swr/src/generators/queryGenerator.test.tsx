@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
-import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
+
 import type { Config } from '@kubb/core'
+import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTsLegacy } from '@kubb/plugin-ts'
 import { describe, test } from 'vitest'
@@ -53,7 +53,7 @@ const mockedTsPlugin = createMockedPlugin<PluginTs>({
 })
 
 // Shared operation nodes
-const findByTagsNode = createOperation({
+const findByTagsNode = ast.createOperation({
   operationId: 'findPetsByTags',
   method: 'GET',
   path: '/pet/findByTags',
@@ -61,29 +61,34 @@ const findByTagsNode = createOperation({
   description: 'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
   summary: 'Finds Pets by tags',
   parameters: [
-    createParameter({ name: 'tags', in: 'query', schema: createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }), required: true }),
-    createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) }),
+    ast.createParameter({
+      name: 'tags',
+      in: 'query',
+      schema: ast.createSchema({ type: 'array', items: [ast.createSchema({ type: 'string' })] }),
+      required: true,
+    }),
+    ast.createParameter({ name: 'status', in: 'query', schema: ast.createSchema({ type: 'string' }) }),
   ],
   responses: [
-    createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' }),
-    createResponse({ statusCode: '400', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid tag value' }),
+    ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'successful operation' }),
+    ast.createResponse({ statusCode: '400', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Invalid tag value' }),
   ],
 })
 
-const postAsQueryNode = createOperation({
+const postAsQueryNode = ast.createOperation({
   operationId: 'updatePetWithForm',
   method: 'POST',
   path: '/pet/{petId}',
   tags: ['pet'],
   summary: 'Updates a pet in the store with form data',
   parameters: [
-    createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true }),
-    createParameter({ name: 'name', in: 'query', schema: createSchema({ type: 'string' }) }),
-    createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) }),
+    ast.createParameter({ name: 'petId', in: 'path', schema: ast.createSchema({ type: 'string' }), required: true }),
+    ast.createParameter({ name: 'name', in: 'query', schema: ast.createSchema({ type: 'string' }) }),
+    ast.createParameter({ name: 'status', in: 'query', schema: ast.createSchema({ type: 'string' }) }),
   ],
   responses: [
-    createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' }),
-    createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+    ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'successful operation' }),
+    ast.createResponse({ statusCode: '405', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
   ],
 })
 
@@ -155,7 +160,7 @@ describe('queryGenerator operation', async () => {
         pathParamsType: 'object' as const,
       },
     },
-  ] as const satisfies Array<{ name: string; node: OperationNode; options: Partial<PluginSwr['resolvedOptions']> }>
+  ] as const satisfies Array<{ name: string; node: ast.OperationNode; options: Partial<PluginSwr['resolvedOptions']> }>
 
   test.each(testData)('$name', async (props) => {
     const options: PluginSwr['resolvedOptions'] = {
