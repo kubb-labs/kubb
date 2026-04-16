@@ -1,6 +1,4 @@
-import { existsSync } from 'node:fs'
-import { dirname, join, resolve } from 'node:path'
-import { readSync } from '@internals/utils'
+import { findPackageJSON, readSync } from '@internals/utils'
 import { coerce, satisfies } from 'semver'
 
 type PackageJSON = {
@@ -10,17 +8,6 @@ type PackageJSON = {
 
 type DependencyName = string
 type DependencyVersion = string
-
-function findPackageJSON(cwd?: string): string | null {
-  let dir = cwd ? resolve(cwd) : process.cwd()
-  while (true) {
-    const pkgPath = join(dir, 'package.json')
-    if (existsSync(pkgPath)) return pkgPath
-    const parent = dirname(dir)
-    if (parent === dir) return null
-    dir = parent
-  }
-}
 
 function getPackageJSONSync(cwd?: string): PackageJSON | null {
   const pkgPath = findPackageJSON(cwd)

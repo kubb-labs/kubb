@@ -1,6 +1,27 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
-import { dirname, posix, resolve } from 'node:path'
+import { dirname, join, posix, resolve } from 'node:path'
+
+/**
+ * Walks up the directory tree from `cwd` (defaults to `process.cwd()`) and
+ * returns the absolute path of the nearest `package.json`, or `null` when none
+ * is found before reaching the filesystem root.
+ *
+ * @example
+ * ```ts
+ * const pkgPath = findPackageJSON('/home/user/project/src') // '/home/user/project/package.json'
+ * ```
+ */
+export function findPackageJSON(cwd?: string): string | null {
+  let dir = cwd ? resolve(cwd) : process.cwd()
+  while (true) {
+    const pkgPath = join(dir, 'package.json')
+    if (existsSync(pkgPath)) return pkgPath
+    const parent = dirname(dir)
+    if (parent === dir) return null
+    dir = parent
+  }
+}
 
 /**
  * Converts all backslashes to forward slashes.
