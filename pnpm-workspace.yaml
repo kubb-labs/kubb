@@ -1,8 +1,6 @@
 packages:
   - packages/*
   - internals/*
-  - examples/*
-  - tests/**
 
 catalog:
   "@types/node": ^22.19.17

@@ -13,20 +13,15 @@
   "workspaces": {
     "packages": [
       "packages/*",
-      "internals/*",
-      "examples/*",
-      "tests/*"
+      "internals/*"
     ]
   },
   "scripts": {
     "build": "turbo run build --filter=./packages/*",
-    "build:examples": "turbo run build --filter=./examples/*",
     "test:bench": "vitest bench --config ./configs/vitest.bench.config.ts",
     "changeset": "changeset",
     "clean": "turbo run clean",
     "format": "biome format --write ./ && biome check --fix --unsafe",
-    "generate": "KUBB_DISABLE_TELEMETRY=1 turbo run generate --filter=./examples/* --continue --concurrency=5",
-    "postgenerate": "pnpm run lint:fix && pnpm run format",
     "graph": "npx nx graph ",
     "lint": "biome lint ./packages",
     "lint:fix": "biome lint --write --unsafe ./packages && manypkg fix",
@@ -37,7 +32,6 @@
     "test": "vitest run --config ./configs/vitest.config.ts --coverage",
     "test:watch": "vitest --config ./configs/vitest.config.ts",
     "typecheck": "turbo run typecheck --continue --filter='./packages/*'",
-    "typecheck:examples": "turbo run typecheck --continue --filter='./examples/*'",
     "upgrade": "npx taze -r -w --exclude pnpm",
     "version": "changeset version",
     "version:canary": "changeset version --snapshot canary"

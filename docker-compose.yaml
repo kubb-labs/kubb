@@ -40,7 +40,7 @@ services:
       KUBB_AGENT_RETRY_TIMEOUT: "30000"
       KUBB_STUDIO_URL: http://kubb-studio:3000
     volumes:
-      - ./examples/react-query:/kubb/agent/data
+      - ./data:/kubb/agent/data
     depends_on:
       studio:
         condition: service_started

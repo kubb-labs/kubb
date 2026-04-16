@@ -1,4 +1,4 @@
-ARG NODE_VERSION=20
+ARG NODE_VERSION=22
 
 # Stage 1: install kubb peer dependencies using a shell-capable image
 FROM node:${NODE_VERSION}-alpine AS installer

@@ -22,8 +22,6 @@ export default defineConfig({
         '**/packages/cli/**',
         '**/packages/config-biome/**',
         '**/packages/kubb/**',
-        '**/packages/plugin-ts/src/oas/**',
-        '**/packages/plugin-client/client.ts',
         '**/tests/**',
         '**/coverage/**',
         '**/__snapshots__/**',
