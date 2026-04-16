@@ -49,7 +49,7 @@
   "dependencies": {
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@redocly/openapi-core": "^2.27.1",
+    "@redocly/openapi-core": "^2.28.0",
     "@stoplight/yaml": "^4.3.0",
     "fflate": "^0.8.2",
     "jsonpointer": "^5.0.1",

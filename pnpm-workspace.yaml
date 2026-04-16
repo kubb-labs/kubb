@@ -15,5 +15,5 @@ catalog:
   react-reconciler: 0.33.0
   p-limit: ^7.3.0
   remeda: ^2.33.7
-  tsdown: ^0.21.8
+  tsdown: ^0.21.9
   typescript: ^6.0.2
