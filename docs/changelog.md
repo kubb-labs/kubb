@@ -6,6 +6,23 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.36
+
+### 🚀 Breaking Changes
+
+#### [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core)
+
+-   [#3078](https://github.com/kubb-labs/kubb/pull/3078) [`e2910e9`](https://github.com/kubb-labs/kubb/commit/e2910e96ac7647f3c5bbc5253a2e6ef82161592b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removed the dependency on `@kubb/oas` from `@kubb/core`. `HttpMethod` is now imported from `@kubb/ast`.  
+    Plugins have been moved to their own repository. This change ensures cleaner modularity by no longer bundling individual plugin packages as direct dependencies.
+
+---
+
+#### [`@kubb/agent`](https://github.com/kubb-labs/kubb/tree/main/packages/agent)
+
+-   [#3078](https://github.com/kubb-labs/kubb/pull/3078) [`e2910e9`](https://github.com/kubb-labs/kubb/commit/e2910e96ac7647f3c5bbc5253a2e6ef82161592b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Synced changes with `@kubb/core`. This removes the dependency on `@kubb/oas` and adopts `@kubb/ast` for importing `HttpMethod`.  
+    `@kubb/agent` no longer bundles individual plugin packages as direct dependencies, preparing for better modularity.
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
