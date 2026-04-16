@@ -485,47 +485,6 @@ export function transform(node: Node, options: TransformOptions): Node {
       return node
   }
 }
-
-/**
- * Composes multiple visitors into one visitor, applied left to right.
- *
- * For each node kind, output from one visitor is input to the next.
- * If a visitor returns `undefined`, the previous node value is kept.
- *
- * @example
- * ```ts
- * const visitor = composeTransformers(
- *   { operation: (node) => ({ ...node, operationId: `a_${node.operationId}` }) },
- *   { operation: (node) => ({ ...node, operationId: `b_${node.operationId}` }) },
- * )
- * ```
- */
-export function composeTransformers(...visitors: Array<Visitor>): Visitor {
-  return {
-    input(node, context) {
-      return visitors.reduce<InputNode>((acc, v) => v.input?.(acc, context) ?? acc, node)
-    },
-    output(node, context) {
-      return visitors.reduce<OutputNode>((acc, v) => v.output?.(acc, context) ?? acc, node)
-    },
-    operation(node, context) {
-      return visitors.reduce<OperationNode>((acc, v) => v.operation?.(acc, context) ?? acc, node)
-    },
-    schema(node, context) {
-      return visitors.reduce<SchemaNode>((acc, v) => v.schema?.(acc, context) ?? acc, node)
-    },
-    property(node, context) {
-      return visitors.reduce<PropertyNode>((acc, v) => v.property?.(acc, context) ?? acc, node)
-    },
-    parameter(node, context) {
-      return visitors.reduce<ParameterNode>((acc, v) => v.parameter?.(acc, context) ?? acc, node)
-    },
-    response(node, context) {
-      return visitors.reduce<ResponseNode>((acc, v) => v.response?.(acc, context) ?? acc, node)
-    },
-  }
-}
-
 /**
  * Runs a depth-first synchronous collection pass.
  *

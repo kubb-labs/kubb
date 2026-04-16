@@ -42,4 +42,4 @@ export {
   isStringType,
   syncSchemaRef,
 } from './utils.ts'
-export { collect, composeTransformers, transform, walk } from './visitor.ts'
+export { collect, transform, walk } from './visitor.ts'
