@@ -761,9 +761,6 @@ importers:
 
   packages/adapter-oas:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -1081,9 +1078,6 @@ importers:
 
   packages/plugin-client:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -1106,9 +1100,6 @@ importers:
 
   packages/plugin-cypress:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -1147,9 +1138,6 @@ importers:
 
   packages/plugin-mcp:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -1197,9 +1185,6 @@ importers:
 
   packages/plugin-oas:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -1222,9 +1207,6 @@ importers:
 
   packages/plugin-react-query:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -1262,9 +1244,6 @@ importers:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../adapter-oas
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -1278,9 +1257,6 @@ importers:
 
   packages/plugin-solid-query:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -1315,9 +1291,6 @@ importers:
 
   packages/plugin-svelte-query:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -1352,9 +1325,6 @@ importers:
 
   packages/plugin-swr:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -1380,9 +1350,6 @@ importers:
 
   packages/plugin-ts:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -1405,9 +1372,6 @@ importers:
 
   packages/plugin-vue-query:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -1442,9 +1406,6 @@ importers:
 
   packages/plugin-zod:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core

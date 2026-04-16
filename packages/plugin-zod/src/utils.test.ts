@@ -1,4 +1,4 @@
-import { createOperation, createParameter, createProperty, createResponse, createSchema, narrowSchema } from '@kubb/ast'
+import { ast } from '@kubb/core'
 import { describe, expect, test } from 'vitest'
 import { resolverZod } from './resolvers/resolverZod.ts'
 import {
@@ -268,65 +268,65 @@ describe('containsSelfRef', () => {
   const resolver = undefined
 
   test('returns false for non-ref node', () => {
-    const node = createSchema({ type: 'string' })
+    const node = ast.createSchema({ type: 'string' })
 
     expect(containsSelfRef(node, { schemaName: 'mySchema', resolver })).toBe(false)
   })
 
   test('returns true when ref name matches schema name', () => {
-    const node = createSchema({ type: 'ref', ref: '#/components/schemas/Node', name: 'Node' })
+    const node = ast.createSchema({ type: 'ref', ref: '#/components/schemas/Node', name: 'Node' })
 
     expect(containsSelfRef(node, { schemaName: 'Node', resolver })).toBe(true)
   })
 
   test('returns false when ref name does not match', () => {
-    const node = createSchema({ type: 'ref', ref: '#/components/schemas/Other', name: 'Other' })
+    const node = ast.createSchema({ type: 'ref', ref: '#/components/schemas/Other', name: 'Other' })
 
     expect(containsSelfRef(node, { schemaName: 'Node', resolver })).toBe(false)
   })
 
   test('finds self-ref inside object property', () => {
-    const refNode = createSchema({ type: 'ref', ref: '#/components/schemas/Tree', name: 'Tree' })
-    const node = createSchema({
+    const refNode = ast.createSchema({ type: 'ref', ref: '#/components/schemas/Tree', name: 'Tree' })
+    const node = ast.createSchema({
       type: 'object',
-      properties: [createProperty({ name: 'child', required: false, schema: refNode })],
+      properties: [ast.createProperty({ name: 'child', required: false, schema: refNode })],
     })
 
     expect(containsSelfRef(node, { schemaName: 'Tree', resolver })).toBe(true)
   })
 
   test('returns false when object has no self-ref', () => {
-    const node = createSchema({
+    const node = ast.createSchema({
       type: 'object',
-      properties: [createProperty({ name: 'label', required: true, schema: createSchema({ type: 'string' }) })],
+      properties: [ast.createProperty({ name: 'label', required: true, schema: ast.createSchema({ type: 'string' }) })],
     })
 
     expect(containsSelfRef(node, { schemaName: 'Tree', resolver })).toBe(false)
   })
 
   test('finds self-ref inside array items', () => {
-    const refNode = createSchema({ type: 'ref', ref: '#/components/schemas/List', name: 'List' })
-    const node = createSchema({ type: 'array', items: [refNode] })
+    const refNode = ast.createSchema({ type: 'ref', ref: '#/components/schemas/List', name: 'List' })
+    const node = ast.createSchema({ type: 'array', items: [refNode] })
 
     expect(containsSelfRef(node, { schemaName: 'List', resolver })).toBe(true)
   })
 
   test('finds self-ref inside union member', () => {
-    const refNode = createSchema({ type: 'ref', ref: '#/components/schemas/Value', name: 'Value' })
-    const node = createSchema({ type: 'union', members: [createSchema({ type: 'string' }), refNode] })
+    const refNode = ast.createSchema({ type: 'ref', ref: '#/components/schemas/Value', name: 'Value' })
+    const node = ast.createSchema({ type: 'union', members: [ast.createSchema({ type: 'string' }), refNode] })
 
     expect(containsSelfRef(node, { schemaName: 'Value', resolver })).toBe(true)
   })
 
   test('finds self-ref inside intersection member', () => {
-    const refNode = createSchema({ type: 'ref', ref: '#/components/schemas/Base', name: 'Base' })
-    const node = createSchema({ type: 'intersection', members: [createSchema({ type: 'object' }), refNode] })
+    const refNode = ast.createSchema({ type: 'ref', ref: '#/components/schemas/Base', name: 'Base' })
+    const node = ast.createSchema({ type: 'intersection', members: [ast.createSchema({ type: 'object' }), refNode] })
 
     expect(containsSelfRef(node, { schemaName: 'Base', resolver })).toBe(true)
   })
 
   test('does not infinitely recurse on circular graph', () => {
-    const node = createSchema({ type: 'object', name: 'Circular' })
+    const node = ast.createSchema({ type: 'object', name: 'Circular' })
     const visited = new Set([node])
 
     expect(containsSelfRef(node, { schemaName: 'Circular', resolver, visited })).toBe(false)
@@ -356,13 +356,13 @@ describe('shouldCoerce', () => {
 })
 
 describe('buildSchemaNames', () => {
-  const node = createOperation({
+  const node = ast.createOperation({
     operationId: 'listPets',
     method: 'GET',
     path: '/pets',
     responses: [
-      createResponse({ statusCode: '200', description: 'OK', schema: createSchema({ type: 'object' }) }),
-      createResponse({ statusCode: '400', description: 'Bad Request', schema: createSchema({ type: 'object' }) }),
+      ast.createResponse({ statusCode: '200', description: 'OK', schema: ast.createSchema({ type: 'object' }) }),
+      ast.createResponse({ statusCode: '400', description: 'Bad Request', schema: ast.createSchema({ type: 'object' }) }),
     ],
   })
 
@@ -381,11 +381,11 @@ describe('buildSchemaNames', () => {
   })
 
   test('resolves request name when request body exists', () => {
-    const nodeWithBody = createOperation({
+    const nodeWithBody = ast.createOperation({
       operationId: 'createPet',
       method: 'POST',
       path: '/pets',
-      requestBody: { schema: createSchema({ type: 'object' }) },
+      requestBody: { schema: ast.createSchema({ type: 'object' }) },
     })
     const result = buildSchemaNames(nodeWithBody, { params: [], resolver: resolverZod })
 
@@ -394,8 +394,8 @@ describe('buildSchemaNames', () => {
 
   test('resolves path and query parameter names', () => {
     const params = [
-      createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true }),
-      createParameter({ name: 'limit', schema: createSchema({ type: 'integer' }), in: 'query', required: false }),
+      ast.createParameter({ name: 'petId', schema: ast.createSchema({ type: 'string' }), in: 'path', required: true }),
+      ast.createParameter({ name: 'limit', schema: ast.createSchema({ type: 'integer' }), in: 'query', required: false }),
     ]
     const result = buildSchemaNames(node, { params, resolver: resolverZod })
 
@@ -407,7 +407,7 @@ describe('buildSchemaNames', () => {
 
 describe('buildGroupedParamsSchema', () => {
   test('creates an object schema with primitive: object', () => {
-    const params = [createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true })]
+    const params = [ast.createParameter({ name: 'petId', schema: ast.createSchema({ type: 'string' }), in: 'path', required: true })]
     const result = buildGroupedParamsSchema({ params })
 
     expect(result.type).toBe('object')
@@ -416,7 +416,7 @@ describe('buildGroupedParamsSchema', () => {
   })
 
   test('propagates optional flag', () => {
-    const params = [createParameter({ name: 'limit', schema: createSchema({ type: 'integer' }), in: 'query', required: false })]
+    const params = [ast.createParameter({ name: 'limit', schema: ast.createSchema({ type: 'integer' }), in: 'query', required: false })]
     const result = buildGroupedParamsSchema({ params, optional: true })
 
     expect(result.optional).toBe(true)
@@ -424,11 +424,11 @@ describe('buildGroupedParamsSchema', () => {
 
   test('maps each parameter to a property with matching name and required', () => {
     const params = [
-      createParameter({ name: 'id', schema: createSchema({ type: 'string' }), in: 'path', required: true }),
-      createParameter({ name: 'q', schema: createSchema({ type: 'string' }), in: 'query', required: false }),
+      ast.createParameter({ name: 'id', schema: ast.createSchema({ type: 'string' }), in: 'path', required: true }),
+      ast.createParameter({ name: 'q', schema: ast.createSchema({ type: 'string' }), in: 'query', required: false }),
     ]
     const result = buildGroupedParamsSchema({ params })
-    const obj = narrowSchema(result, 'object')!
+    const obj = ast.narrowSchema(result, 'object')!
 
     expect(obj.properties).toHaveLength(2)
     expect(obj.properties![0]!.name).toBe('id')

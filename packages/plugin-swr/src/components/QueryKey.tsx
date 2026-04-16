@@ -1,5 +1,5 @@
 import { URLPath } from '@internals/utils'
-import type { FunctionParametersNode, OperationNode } from '@kubb/ast/types'
+import type { Ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
 import { File, Function, Type } from '@kubb/renderer-jsx'
@@ -10,7 +10,7 @@ import { buildQueryKeyParams } from '../utils.ts'
 type Props = {
   name: string
   typeName: string
-  node: OperationNode
+  node: Ast.OperationNode
   tsResolver: PluginTs['resolver']
   paramsCasing: 'camelcase' | undefined
   pathParamsType: 'object' | 'inline'
@@ -21,9 +21,9 @@ const declarationPrinter = functionPrinter({ mode: 'declaration' })
 const callPrinter = functionPrinter({ mode: 'call' })
 
 function getParams(
-  node: OperationNode,
+  node: Ast.OperationNode,
   options: { pathParamsType: 'object' | 'inline'; paramsCasing: 'camelcase' | undefined; resolver: PluginTs['resolver'] },
-): FunctionParametersNode {
+): Ast.FunctionParametersNode {
   return buildQueryKeyParams(node, options)
 }
 

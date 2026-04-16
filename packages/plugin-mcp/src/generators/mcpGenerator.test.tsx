@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
-import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
-import type { Config } from '@kubb/core'
+
+import type { Ast, Config } from '@kubb/core'
+import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
 import { describe, test } from 'vitest'
@@ -37,35 +37,39 @@ describe('mcpGenerator — Operation', () => {
   const operations = [
     {
       name: 'showPetById',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'showPetById',
         method: 'GET',
         path: '/pets/{petId}',
         tags: ['pets'],
-        parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
-        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Expected response' })],
+        parameters: [ast.createParameter({ name: 'petId', in: 'path', schema: ast.createSchema({ type: 'string' }), required: true })],
+        responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Expected response' })],
       }),
     },
     {
       name: 'getPets',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'getPets',
         method: 'GET',
         path: '/pets',
         tags: ['pets'],
-        parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
-        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' })],
+        parameters: [ast.createParameter({ name: 'limit', in: 'query', schema: ast.createSchema({ type: 'integer' }) })],
+        responses: [
+          ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
+        ],
       }),
     },
     {
       name: 'getPetsTemplateString',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'getPets',
         method: 'GET',
         path: '/pets',
         tags: ['pets'],
-        parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
-        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' })],
+        parameters: [ast.createParameter({ name: 'limit', in: 'query', schema: ast.createSchema({ type: 'integer' }) })],
+        responses: [
+          ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
+        ],
       }),
       options: {
         client: {
@@ -75,27 +79,27 @@ describe('mcpGenerator — Operation', () => {
     },
     {
       name: 'createPet',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'createPets',
         method: 'POST',
         path: '/pets',
         tags: ['pets'],
-        requestBody: { description: 'Pet to add', schema: createSchema({ type: 'object', properties: [] }) },
-        responses: [createResponse({ statusCode: '201', schema: createSchema({ type: 'object', properties: [] }), description: 'Null response' })],
+        requestBody: { description: 'Pet to add', schema: ast.createSchema({ type: 'object', properties: [] }) },
+        responses: [ast.createResponse({ statusCode: '201', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Null response' })],
       }),
     },
     {
       name: 'deletePet',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'deletePet',
         method: 'DELETE',
         path: '/pets/{petId}',
         tags: ['pets'],
-        parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
-        responses: [createResponse({ statusCode: '204', description: 'No content', schema: createSchema({ type: 'void' }) })],
+        parameters: [ast.createParameter({ name: 'petId', in: 'path', schema: ast.createSchema({ type: 'string' }), required: true })],
+        responses: [ast.createResponse({ statusCode: '204', description: 'No content', schema: ast.createSchema({ type: 'void' }) })],
       }),
     },
-  ] as const satisfies Array<{ name: string; node: OperationNode; options?: Partial<PluginMcp['resolvedOptions']> }>
+  ] as const satisfies Array<{ name: string; node: Ast.OperationNode; options?: Partial<PluginMcp['resolvedOptions']> }>
 
   test.each(operations)('$name', async (props) => {
     const options: PluginMcp['resolvedOptions'] = {

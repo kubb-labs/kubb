@@ -1,5 +1,5 @@
-import type { OperationNode, Visitor } from '@kubb/ast/types'
 import type {
+  Ast,
   CompatibilityPreset,
   Exclude,
   Generator,
@@ -17,7 +17,7 @@ import type { ClientImportPath, PluginClient } from '@kubb/plugin-client'
 /**
  * Customizes how queryKey or mutationKey arrays are built.
  */
-export type Transformer = (props: { node: OperationNode; casing: 'camelcase' | undefined }) => unknown[]
+export type Transformer = (props: { node: Ast.OperationNode; casing: 'camelcase' | undefined }) => unknown[]
 
 /**
  * The concrete resolver type for `@kubb/plugin-swr`.
@@ -152,7 +152,7 @@ export type Options = {
    * Single AST visitor applied to each node before printing.
    * Return `null` or `undefined` from a method to leave the node unchanged.
    */
-  transformer?: Visitor
+  transformer?: Ast.Visitor
   /**
    * Define some generators next to the swr generators
    */

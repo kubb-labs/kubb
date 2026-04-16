@@ -63,7 +63,6 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/renderer-jsx": "workspace:*",
     "remeda": "catalog:"

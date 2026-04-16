@@ -1,6 +1,5 @@
-import { collectImports, createImport, createInput } from '@kubb/ast'
-import type { InputNode } from '@kubb/ast/types'
-import { createAdapter } from '@kubb/core'
+import type { Ast } from '@kubb/core'
+import { ast, createAdapter } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { applyDiscriminatorInheritance } from './discriminator.ts'
 import { parseFromConfig, validateDocument } from './factory.ts'
@@ -49,7 +48,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   // Let-binding so parse() can replace it with a simple reassignment (no clear+loop).
   let nameMapping = new Map<string, string>()
   let parsedDocument: Document | null
-  let inputNode: InputNode | null
+  let inputNode: Ast.InputNode | null
 
   return {
     name: adapterOasName,
@@ -75,14 +74,14 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       return inputNode
     },
     getImports(node, resolve) {
-      return collectImports({
+      return ast.collectImports({
         node,
         nameMapping,
         resolve: (schemaName) => {
           const result = resolve(schemaName)
           if (!result) return
 
-          return createImport({ name: [result.name], path: result.path })
+          return ast.createImport({ name: [result.name], path: result.path })
         },
       })
     },
@@ -112,7 +111,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       // Expose the raw document so consumers (e.g. plugin-redoc) can access it.
       parsedDocument = document
 
-      inputNode = createInput({
+      inputNode = ast.createInput({
         ...node,
         meta: {
           title: document.info?.title,

@@ -1,5 +1,4 @@
-import { caseParams } from '@kubb/ast'
-import { defineGenerator } from '@kubb/core'
+import { ast, defineGenerator } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Request } from '../components/Request.tsx'
@@ -18,7 +17,7 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
       return null
     }
 
-    const casedParams = caseParams(node.parameters, paramsCasing)
+    const casedParams = ast.caseParams(node.parameters, paramsCasing)
 
     const pathParams = casedParams.filter((p) => p.in === 'path')
     const queryParams = casedParams.filter((p) => p.in === 'query')

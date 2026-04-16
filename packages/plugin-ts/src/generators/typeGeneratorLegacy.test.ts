@@ -1,6 +1,5 @@
-import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
-import type { Config } from '@kubb/core'
+import type { Ast, Config } from '@kubb/core'
+import { ast } from '@kubb/core'
 import { describe, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation, renderGeneratorSchema } from '#mocks'
 import { resolverTsLegacy } from '../resolvers/resolverTsLegacy.ts'
@@ -29,44 +28,47 @@ describe('typeGeneratorLegacy — Operation', () => {
   const operations = [
     {
       name: 'legacy — listPets — GET with query param',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'listPets',
         method: 'GET',
         path: '/pets',
         tags: ['pets'],
-        parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
+        parameters: [ast.createParameter({ name: 'limit', in: 'query', schema: ast.createSchema({ type: 'integer' }) })],
         responses: [
-          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
-          createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+          ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
+          ast.createResponse({ statusCode: 'default', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
         ],
       }),
     },
     {
       name: 'legacy — addPet — POST with request body',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'addPet',
         method: 'POST',
         path: '/pet',
         tags: ['pet'],
-        requestBody: { schema: createSchema({ type: 'object', properties: [] }) },
+        requestBody: { schema: ast.createSchema({ type: 'object', properties: [] }) },
         responses: [
-          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
-          createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+          ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
+          ast.createResponse({ statusCode: '405', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
         ],
       }),
     },
     {
       name: 'legacy — deletePet — DELETE with response enum array',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'deletePet',
         method: 'DELETE',
         path: '/pet/{petId}',
         tags: ['pet'],
-        parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
+        parameters: [ast.createParameter({ name: 'petId', in: 'path', schema: ast.createSchema({ type: 'string' }), required: true })],
         responses: [
-          createResponse({
+          ast.createResponse({
             statusCode: '200',
-            schema: createSchema({ type: 'array', items: [createSchema({ type: 'enum', primitive: 'string', enumValues: ['TYPE1', 'TYPE2', 'TYPE3'] })] }),
+            schema: ast.createSchema({
+              type: 'array',
+              items: [ast.createSchema({ type: 'enum', primitive: 'string', enumValues: ['TYPE1', 'TYPE2', 'TYPE3'] })],
+            }),
             description: 'Successful deletion',
           }),
         ],
@@ -74,23 +76,23 @@ describe('typeGeneratorLegacy — Operation', () => {
     },
     {
       name: 'legacy — createPets — POST with header param enum',
-      node: createOperation({
+      node: ast.createOperation({
         operationId: 'createPets',
         method: 'POST',
         path: '/pets',
         tags: ['pets'],
         parameters: [
-          createParameter({
+          ast.createParameter({
             name: 'X-EXAMPLE',
             in: 'header',
             required: true,
-            schema: createSchema({ type: 'enum', primitive: 'string', enumValues: ['ONE', 'TWO', 'THREE'] }),
+            schema: ast.createSchema({ type: 'enum', primitive: 'string', enumValues: ['ONE', 'TWO', 'THREE'] }),
           }),
         ],
-        responses: [createResponse({ statusCode: '201', schema: createSchema({ type: 'void' }), description: 'Null response' })],
+        responses: [ast.createResponse({ statusCode: '201', schema: ast.createSchema({ type: 'void' }), description: 'Null response' })],
       }),
     },
-  ] as const satisfies Array<{ name: string; node: OperationNode }>
+  ] as const satisfies Array<{ name: string; node: Ast.OperationNode }>
 
   test.each(operations)('$name', async (props) => {
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options: defaultOptions, resolver: resolverTsLegacy })
@@ -118,15 +120,15 @@ describe('typeGeneratorLegacy — Operation', () => {
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options: defaultOptions, resolver: wrappedResolver })
     const driver = createMockedPluginDriver({ name: 'legacy — addPet — name transformer' })
 
-    const node = createOperation({
+    const node = ast.createOperation({
       operationId: 'addPet',
       method: 'POST',
       path: '/pet',
       tags: ['pet'],
-      requestBody: { schema: createSchema({ type: 'object', properties: [] }) },
+      requestBody: { schema: ast.createSchema({ type: 'object', properties: [] }) },
       responses: [
-        createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
-        createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+        ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
+        ast.createResponse({ statusCode: '405', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
       ],
     })
 
@@ -144,7 +146,7 @@ describe('typeGeneratorLegacy — Operation', () => {
 })
 
 describe('typeGeneratorLegacy — enumTypeSuffix', () => {
-  const enumSchema = createSchema({
+  const enumSchema = ast.createSchema({
     type: 'enum',
     name: 'petStatus',
     primitive: 'string',

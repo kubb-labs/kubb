@@ -1,6 +1,6 @@
 import { jsStringEscape, stringify } from '@internals/utils'
-import { createProperty, createSchema, syncSchemaRef } from '@kubb/ast'
-import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
+import type { Ast } from '@kubb/core'
+import { ast } from '@kubb/core'
 import type { ResolverTs } from './types.ts'
 
 /**
@@ -10,8 +10,8 @@ import type { ResolverTs } from './types.ts'
  * Constraint metadata (min/max length, pattern, multipleOf, min/maxProperties) is emitted as plain-text lines.
 
  */
-export function buildPropertyJSDocComments(schema: SchemaNode): Array<string | undefined> {
-  const meta = syncSchemaRef(schema)
+export function buildPropertyJSDocComments(schema: Ast.SchemaNode): Array<string | undefined> {
+  const meta = ast.syncSchemaRef(schema)
 
   const isArray = meta?.primitive === 'array'
 
@@ -33,7 +33,7 @@ export function buildPropertyJSDocComments(schema: SchemaNode): Array<string | u
 }
 
 type BuildParamsSchemaOptions = {
-  params: Array<ParameterNode>
+  params: Array<Ast.ParameterNode>
   resolver: ResolverTs
 }
 
@@ -41,14 +41,14 @@ type BuildOperationSchemaOptions = {
   resolver: ResolverTs
 }
 
-export function buildParams(node: OperationNode, { params, resolver }: BuildParamsSchemaOptions): SchemaNode {
-  return createSchema({
+export function buildParams(node: Ast.OperationNode, { params, resolver }: BuildParamsSchemaOptions): Ast.SchemaNode {
+  return ast.createSchema({
     type: 'object',
     properties: params.map((param) =>
-      createProperty({
+      ast.createProperty({
         name: param.name,
         required: param.required,
-        schema: createSchema({
+        schema: ast.createSchema({
           type: 'ref',
           name: resolver.resolveParamName(node, param),
         }),
@@ -57,75 +57,75 @@ export function buildParams(node: OperationNode, { params, resolver }: BuildPara
   })
 }
 
-export function buildData(node: OperationNode, { resolver }: BuildOperationSchemaOptions): SchemaNode {
+export function buildData(node: Ast.OperationNode, { resolver }: BuildOperationSchemaOptions): Ast.SchemaNode {
   const pathParams = node.parameters.filter((p) => p.in === 'path')
   const queryParams = node.parameters.filter((p) => p.in === 'query')
   const headerParams = node.parameters.filter((p) => p.in === 'header')
 
-  return createSchema({
+  return ast.createSchema({
     type: 'object',
     deprecated: node.deprecated,
     properties: [
-      createProperty({
+      ast.createProperty({
         name: 'data',
         schema: node.requestBody?.schema
-          ? createSchema({ type: 'ref', name: resolver.resolveDataName(node), optional: true })
-          : createSchema({ type: 'never', primitive: undefined, optional: true }),
+          ? ast.createSchema({ type: 'ref', name: resolver.resolveDataName(node), optional: true })
+          : ast.createSchema({ type: 'never', primitive: undefined, optional: true }),
       }),
-      createProperty({
+      ast.createProperty({
         name: 'pathParams',
         required: pathParams.length > 0,
-        schema: pathParams.length > 0 ? buildParams(node, { params: pathParams, resolver }) : createSchema({ type: 'never', primitive: undefined }),
+        schema: pathParams.length > 0 ? buildParams(node, { params: pathParams, resolver }) : ast.createSchema({ type: 'never', primitive: undefined }),
       }),
-      createProperty({
+      ast.createProperty({
         name: 'queryParams',
         schema:
           queryParams.length > 0
-            ? createSchema({ ...buildParams(node, { params: queryParams, resolver }), optional: true })
-            : createSchema({ type: 'never', primitive: undefined, optional: true }),
+            ? ast.createSchema({ ...buildParams(node, { params: queryParams, resolver }), optional: true })
+            : ast.createSchema({ type: 'never', primitive: undefined, optional: true }),
       }),
-      createProperty({
+      ast.createProperty({
         name: 'headerParams',
         schema:
           headerParams.length > 0
-            ? createSchema({ ...buildParams(node, { params: headerParams, resolver }), optional: true })
-            : createSchema({ type: 'never', primitive: undefined, optional: true }),
+            ? ast.createSchema({ ...buildParams(node, { params: headerParams, resolver }), optional: true })
+            : ast.createSchema({ type: 'never', primitive: undefined, optional: true }),
       }),
-      createProperty({
+      ast.createProperty({
         name: 'url',
         required: true,
-        schema: createSchema({ type: 'url', path: node.path }),
+        schema: ast.createSchema({ type: 'url', path: node.path }),
       }),
     ],
   })
 }
 
-export function buildResponses(node: OperationNode, { resolver }: BuildOperationSchemaOptions): SchemaNode | null {
+export function buildResponses(node: Ast.OperationNode, { resolver }: BuildOperationSchemaOptions): Ast.SchemaNode | null {
   if (node.responses.length === 0) {
     return null
   }
 
-  return createSchema({
+  return ast.createSchema({
     type: 'object',
     properties: node.responses.map((res) =>
-      createProperty({
+      ast.createProperty({
         name: String(res.statusCode),
         required: true,
-        schema: createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) }),
+        schema: ast.createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) }),
       }),
     ),
   })
 }
 
-export function buildResponseUnion(node: OperationNode, { resolver }: BuildOperationSchemaOptions): SchemaNode | null {
+export function buildResponseUnion(node: Ast.OperationNode, { resolver }: BuildOperationSchemaOptions): Ast.SchemaNode | null {
   const responsesWithSchema = node.responses.filter((res) => res.schema)
 
   if (responsesWithSchema.length === 0) {
     return null
   }
 
-  return createSchema({
+  return ast.createSchema({
     type: 'union',
-    members: responsesWithSchema.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
+    members: responsesWithSchema.map((res) => ast.createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
   })
 }

@@ -1,5 +1,5 @@
-import { schemaTypes } from '@kubb/ast'
-import type { ParserOptions, ScalarSchemaType, SchemaType } from '@kubb/ast/types'
+import type { Ast } from '@kubb/core'
+import { ast } from '@kubb/core'
 
 /**
  * Default parser options applied when no explicit options are provided.
@@ -18,7 +18,7 @@ export const DEFAULT_PARSER_OPTIONS = {
   unknownType: 'any',
   emptySchemaType: 'any',
   enumSuffix: 'enum',
-} as const satisfies ParserOptions
+} as const satisfies Ast.ParserOptions
 
 /**
  * OpenAPI version string written into the stub document created during multi-spec merges.
@@ -86,7 +86,7 @@ export const formatMap = {
   int32: 'integer',
   float: 'number',
   double: 'number',
-} as const satisfies Record<string, SchemaType>
+} as const satisfies Record<string, Ast.SchemaType>
 
 /**
  * Vendor extension keys that attach human-readable labels to enum values, checked in priority order.
@@ -104,8 +104,8 @@ export const enumExtensionKeys = ['x-enumNames', 'x-enum-varnames'] as const
  * Maps `'any' | 'unknown' | 'void'` option strings to their `ScalarSchemaType` constant.
  * Replaces a plain object lookup with a `Map` for explicit key membership testing via `.has()`.
  */
-export const typeOptionMap = new Map<'any' | 'unknown' | 'void', ScalarSchemaType>([
-  ['any', schemaTypes.any],
-  ['unknown', schemaTypes.unknown],
-  ['void', schemaTypes.void],
+export const typeOptionMap = new Map<'any' | 'unknown' | 'void', Ast.ScalarSchemaType>([
+  ['any', ast.schemaTypes.any],
+  ['unknown', ast.schemaTypes.unknown],
+  ['void', ast.schemaTypes.void],
 ])

@@ -1,7 +1,7 @@
 import { stringify } from '@internals/utils'
-import { createSchema, extractRefName, narrowSchema, syncSchemaRef } from '@kubb/ast'
+
 import type { PrinterFactoryOptions, PrinterPartial } from '@kubb/core'
-import { definePrinter } from '@kubb/core'
+import { ast, definePrinter } from '@kubb/core'
 import type { PluginZod, ResolverZod } from '../types.ts'
 import { applyMiniModifiers, containsSelfRef, formatLiteral, lengthChecksMini, numberChecksMini } from '../utils.ts'
 
@@ -130,7 +130,7 @@ export const printerZodMini = definePrinter<PrinterZodMiniFactory>((options) => 
 
       ref(node) {
         if (!node.name) return undefined
-        const refName = node.ref ? (extractRefName(node.ref) ?? node.name) : node.name
+        const refName = node.ref ? (ast.extractRefName(node.ref) ?? node.name) : node.name
         const resolvedName = node.ref ? (this.options.resolver?.default(refName, 'function') ?? refName) : node.name
         const isSelfRef = node.ref && this.options.schemaName != null && resolvedName === this.options.schemaName
 
@@ -145,7 +145,7 @@ export const printerZodMini = definePrinter<PrinterZodMiniFactory>((options) => 
           .map((prop) => {
             const { name: propName, schema } = prop
 
-            const meta = syncSchemaRef(schema)
+            const meta = ast.syncSchemaRef(schema)
 
             const isNullable = meta.nullable
             const isOptional = schema.optional
@@ -153,7 +153,7 @@ export const printerZodMini = definePrinter<PrinterZodMiniFactory>((options) => 
 
             const hasSelfRef =
               this.options.schemaName != null && containsSelfRef(schema, { schemaName: this.options.schemaName, resolver: this.options.resolver })
-            const baseOutput = this.transform(schema) ?? this.transform(createSchema({ type: 'unknown' }))!
+            const baseOutput = this.transform(schema) ?? this.transform(ast.createSchema({ type: 'unknown' }))!
             // Strip z.lazy() wrappers inside object getters — the getter itself provides deferred evaluation
             const resolvedOutput = hasSelfRef ? baseOutput.replaceAll(`z.lazy(() => ${this.options.schemaName})`, this.options.schemaName!) : baseOutput
 
@@ -178,7 +178,7 @@ export const printerZodMini = definePrinter<PrinterZodMiniFactory>((options) => 
       },
       array(node) {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
-        const inner = items.join(', ') || this.transform(createSchema({ type: 'unknown' }))!
+        const inner = items.join(', ') || this.transform(ast.createSchema({ type: 'unknown' }))!
         let result = `z.array(${inner})${lengthChecksMini(node)}`
 
         if (node.unique) {
@@ -217,21 +217,21 @@ export const printerZodMini = definePrinter<PrinterZodMiniFactory>((options) => 
 
         for (const member of rest) {
           if (member.primitive === 'string') {
-            const s = narrowSchema(member, 'string')
+            const s = ast.narrowSchema(member, 'string')
             const c = lengthChecksMini(s ?? {})
             if (c) {
               base += c
               continue
             }
           } else if (member.primitive === 'number' || member.primitive === 'integer') {
-            const n = narrowSchema(member, 'number') ?? narrowSchema(member, 'integer')
+            const n = ast.narrowSchema(member, 'number') ?? ast.narrowSchema(member, 'integer')
             const c = numberChecksMini(n ?? {})
             if (c) {
               base += c
               continue
             }
           } else if (member.primitive === 'array') {
-            const a = narrowSchema(member, 'array')
+            const a = ast.narrowSchema(member, 'array')
             const c = lengthChecksMini(a ?? {})
             if (c) {
               base += c
@@ -252,7 +252,7 @@ export const printerZodMini = definePrinter<PrinterZodMiniFactory>((options) => 
       let base = this.transform(node)
       if (!base) return null
 
-      const meta = syncSchemaRef(node)
+      const meta = ast.syncSchemaRef(node)
 
       if (keysToOmit?.length && meta.primitive === 'object' && !(meta.type === 'union' && meta.discriminatorPropertyName)) {
         // Mirror printerTs `nonNullable: true`: when omitting keys, the resulting

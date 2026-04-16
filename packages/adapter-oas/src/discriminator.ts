@@ -1,5 +1,5 @@
-import { createProperty, createSchema, narrowSchema, transform } from '@kubb/ast'
-import type { InputNode } from '@kubb/ast/types'
+import type { Ast } from '@kubb/core'
+import { ast } from '@kubb/core'
 
 type DiscriminatorTarget = { propertyName: string; enumValues: Array<string | number | boolean> }
 
@@ -18,19 +18,19 @@ type DiscriminatorTarget = { propertyName: string; enumValues: Array<string | nu
  * const next = applyDiscriminatorInheritance(root)
  * ```
  */
-export function applyDiscriminatorInheritance(root: InputNode): InputNode {
+export function applyDiscriminatorInheritance(root: Ast.InputNode): Ast.InputNode {
   const childMap = new Map<string, DiscriminatorTarget>()
 
   for (const schema of root.schemas) {
     // Case 1: top-level schema is a union (oneOf/anyOf with discriminator)
     // Case 2: top-level schema is an intersection wrapping a union (oneOf/anyOf + shared properties)
-    let unionNode = narrowSchema(schema, 'union')
+    let unionNode = ast.narrowSchema(schema, 'union')
 
     if (!unionNode) {
-      const intersectionMembers = narrowSchema(schema, 'intersection')?.members
+      const intersectionMembers = ast.narrowSchema(schema, 'intersection')?.members
       if (intersectionMembers) {
         for (const m of intersectionMembers) {
-          const u = narrowSchema(m, 'union')
+          const u = ast.narrowSchema(m, 'union')
           if (u) {
             unionNode = u
             break
@@ -45,21 +45,21 @@ export function applyDiscriminatorInheritance(root: InputNode): InputNode {
 
     for (const member of members) {
       // Members with a discriminant value are intersections: [RefSchemaNode, ObjectSchemaNode]
-      const intersectionNode = narrowSchema(member, 'intersection')
+      const intersectionNode = ast.narrowSchema(member, 'intersection')
       if (!intersectionNode?.members) continue
 
-      let refNode: ReturnType<typeof narrowSchema<'ref'>> | undefined
-      let objNode: ReturnType<typeof narrowSchema<'object'>> | undefined
+      let refNode: ReturnType<typeof ast.narrowSchema<'ref'>> | undefined
+      let objNode: ReturnType<typeof ast.narrowSchema<'object'>> | undefined
 
       for (const m of intersectionNode.members) {
-        refNode ??= narrowSchema(m, 'ref')
-        objNode ??= narrowSchema(m, 'object')
+        refNode ??= ast.narrowSchema(m, 'ref')
+        objNode ??= ast.narrowSchema(m, 'object')
       }
 
       if (!refNode?.name || !objNode) continue
 
       const prop = objNode.properties.find((p) => p.name === discriminatorPropertyName)
-      const enumNode = prop ? narrowSchema(prop.schema, 'enum') : undefined
+      const enumNode = prop ? ast.narrowSchema(prop.schema, 'enum') : undefined
       if (!enumNode?.enumValues?.length) continue
 
       const enumValues = enumNode.enumValues.filter((v): v is string | number | boolean => v !== null)
@@ -76,19 +76,19 @@ export function applyDiscriminatorInheritance(root: InputNode): InputNode {
 
   if (childMap.size === 0) return root
 
-  return transform(root, {
+  return ast.transform(root, {
     schema(node, { parent }) {
       if (parent?.kind !== 'Input' || !node.name) return
 
       const entry = childMap.get(node.name)
       if (!entry) return
 
-      const objectNode = narrowSchema(node, 'object')
+      const objectNode = ast.narrowSchema(node, 'object')
       if (!objectNode) return
 
       const { propertyName, enumValues } = entry
-      const enumSchema = createSchema({ type: 'enum', enumValues })
-      const newProp = createProperty({ name: propertyName, required: true, schema: enumSchema })
+      const enumSchema = ast.createSchema({ type: 'enum', enumValues })
+      const newProp = ast.createProperty({ name: propertyName, required: true, schema: enumSchema })
 
       const existingIdx = objectNode.properties.findIndex((p) => p.name === propertyName)
       const newProperties = existingIdx >= 0 ? objectNode.properties.map((p, i) => (i === existingIdx ? newProp : p)) : [...objectNode.properties, newProp]

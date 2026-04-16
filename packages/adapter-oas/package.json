@@ -47,7 +47,6 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
     "@redocly/openapi-core": "^2.27.1",
     "@stoplight/yaml": "^4.3.0",

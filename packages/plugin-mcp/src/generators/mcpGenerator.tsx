@@ -1,6 +1,6 @@
 import path from 'node:path'
-import { caseParams } from '@kubb/ast'
-import { defineGenerator } from '@kubb/core'
+
+import { ast, defineGenerator } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { McpHandler } from '../components/McpHandler.tsx'
@@ -19,7 +19,7 @@ export const mcpGenerator = defineGenerator<PluginMcp>({
       return null
     }
 
-    const casedParams = caseParams(node.parameters, paramsCasing)
+    const casedParams = ast.caseParams(node.parameters, paramsCasing)
 
     const pathParams = casedParams.filter((p) => p.in === 'path')
     const queryParams = casedParams.filter((p) => p.in === 'query')

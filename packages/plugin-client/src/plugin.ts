@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createSource, createText } from '@kubb/ast'
-import { definePlugin, type Group } from '@kubb/core'
+
+import { ast, definePlugin, type Group } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { classClientGenerator } from './generators/classClientGenerator.tsx'
@@ -132,9 +132,9 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
             baseName: 'fetch.ts',
             path: path.resolve(root, '.kubb/fetch.ts'),
             sources: [
-              createSource({
+              ast.createSource({
                 name: 'fetch',
-                nodes: [createText(client === 'fetch' ? fetchClientSource : axiosClientSource)],
+                nodes: [ast.createText(client === 'fetch' ? fetchClientSource : axiosClientSource)],
                 isExportable: true,
                 isIndexable: true,
               }),
@@ -146,9 +146,9 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
           baseName: 'config.ts',
           path: path.resolve(root, '.kubb/config.ts'),
           sources: [
-            createSource({
+            ast.createSource({
               name: 'config',
-              nodes: [createText(configSource)],
+              nodes: [ast.createText(configSource)],
               isExportable: false,
               isIndexable: false,
             }),

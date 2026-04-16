@@ -1,6 +1,6 @@
 import { camelCase, pascalCase, screamingSnakeCase, snakeCase } from '@internals/utils'
-import { syncSchemaRef } from '@kubb/ast'
-import type { ArraySchemaNode, SchemaNode } from '@kubb/ast/types'
+import type { Ast } from '@kubb/core'
+import { ast } from '@kubb/core'
 import { isNumber, sortBy } from 'remeda'
 import ts from 'typescript'
 import { OPTIONAL_ADDS_UNDEFINED } from './constants.ts'
@@ -725,7 +725,10 @@ export function dateOrStringNode(node: { representation?: string }): ts.TypeNode
 /**
  * Maps an array of `SchemaNode`s through the printer, filtering out `null` and `undefined` results.
  */
-export function buildMemberNodes(members: Array<SchemaNode> | undefined, print: (node: SchemaNode) => ts.TypeNode | null | undefined): Array<ts.TypeNode> {
+export function buildMemberNodes(
+  members: Array<Ast.SchemaNode> | undefined,
+  print: (node: Ast.SchemaNode) => ts.TypeNode | null | undefined,
+): Array<ts.TypeNode> {
   return (members ?? []).map(print).filter(Boolean)
 }
 
@@ -733,7 +736,7 @@ export function buildMemberNodes(members: Array<SchemaNode> | undefined, print: 
  * Builds a TypeScript tuple type node from an array schema's `items`,
  * applying min/max slice and optional/rest element rules.
  */
-export function buildTupleNode(node: ArraySchemaNode, print: (node: SchemaNode) => ts.TypeNode | null | undefined): ts.TypeNode | undefined {
+export function buildTupleNode(node: Ast.ArraySchemaNode, print: (node: Ast.SchemaNode) => ts.TypeNode | null | undefined): ts.TypeNode | undefined {
   let items = (node.items ?? []).map(print).filter(Boolean)
 
   const restNode = node.rest ? (print(node.rest) ?? undefined) : undefined
@@ -761,12 +764,12 @@ export function buildTupleNode(node: ArraySchemaNode, print: (node: SchemaNode) 
  * Applies `nullable` and optional/nullish `| undefined` union modifiers to a property's resolved base type.
  */
 export function buildPropertyType(
-  schema: SchemaNode,
+  schema: Ast.SchemaNode,
   baseType: ts.TypeNode,
   optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined',
 ): ts.TypeNode {
   const addsUndefined = OPTIONAL_ADDS_UNDEFINED.has(optionalType)
-  const meta = syncSchemaRef(schema)
+  const meta = ast.syncSchemaRef(schema)
 
   let type = baseType
 
@@ -785,9 +788,9 @@ export function buildPropertyType(
  * Creates TypeScript index signatures for `additionalProperties` and `patternProperties` on an object schema node.
  */
 export function buildIndexSignatures(
-  node: { additionalProperties?: SchemaNode | boolean; patternProperties?: Record<string, SchemaNode> },
+  node: { additionalProperties?: Ast.SchemaNode | boolean; patternProperties?: Record<string, Ast.SchemaNode> },
   propertyCount: number,
-  print: (node: SchemaNode) => ts.TypeNode | null | undefined,
+  print: (node: Ast.SchemaNode) => ts.TypeNode | null | undefined,
 ): Array<ts.TypeElement> {
   const elements: Array<ts.TypeElement> = []
 

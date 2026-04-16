@@ -1,4 +1,4 @@
-import { createFunctionParameter, createFunctionParameters, createParameterGroup, createParamsType } from '@kubb/ast'
+import { ast } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { defineFunctionPrinter, functionPrinter } from './functionPrinter.ts'
 
@@ -6,25 +6,30 @@ describe('functionPrinter in declaration mode', () => {
   const printer = functionPrinter({ mode: 'declaration' })
 
   it('prints required typed parameters as `name: type`', () => {
-    const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'petId', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false })],
+    const sig = ast.createFunctionParameters({
+      params: [ast.createFunctionParameter({ name: 'petId', type: ast.createParamsType({ variant: 'reference', name: 'string' }), optional: false })],
     })
 
     expect(printer.print(sig)).toBe('petId: string')
   })
 
   it('prints optional typed parameters as `name?: type`', () => {
-    const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'params', type: createParamsType({ variant: 'reference', name: 'QueryParams' }), optional: true })],
+    const sig = ast.createFunctionParameters({
+      params: [ast.createFunctionParameter({ name: 'params', type: ast.createParamsType({ variant: 'reference', name: 'QueryParams' }), optional: true })],
     })
 
     expect(printer.print(sig)).toBe('params?: QueryParams')
   })
 
   it('prints defaulted typed parameters as `name: type = default`', () => {
-    const sig = createFunctionParameters({
+    const sig = ast.createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'config', type: createParamsType({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
+        ast.createFunctionParameter({
+          name: 'config',
+          type: ast.createParamsType({ variant: 'reference', name: 'RequestConfig' }),
+          optional: false,
+          default: '{}',
+        }),
       ],
     })
 
@@ -32,19 +37,21 @@ describe('functionPrinter in declaration mode', () => {
   })
 
   it('prints rest parameters with spread syntax', () => {
-    const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'args', type: createParamsType({ variant: 'reference', name: 'string[]' }), optional: false, rest: true })],
+    const sig = ast.createFunctionParameters({
+      params: [
+        ast.createFunctionParameter({ name: 'args', type: ast.createParamsType({ variant: 'reference', name: 'string[]' }), optional: false, rest: true }),
+      ],
     })
 
     expect(printer.print(sig)).toBe('...args: string[]')
   })
 
   it('orders parameters as required, optional, then defaulted', () => {
-    const sig = createFunctionParameters({
+    const sig = ast.createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'config', type: createParamsType({ variant: 'reference', name: 'Config' }), optional: false, default: '{}' }),
-        createFunctionParameter({ name: 'params', type: createParamsType({ variant: 'reference', name: 'Params' }), optional: true }),
-        createFunctionParameter({ name: 'petId', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
+        ast.createFunctionParameter({ name: 'config', type: ast.createParamsType({ variant: 'reference', name: 'Config' }), optional: false, default: '{}' }),
+        ast.createFunctionParameter({ name: 'params', type: ast.createParamsType({ variant: 'reference', name: 'Params' }), optional: true }),
+        ast.createFunctionParameter({ name: 'petId', type: ast.createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
       ],
     })
 
@@ -52,10 +59,10 @@ describe('functionPrinter in declaration mode', () => {
   })
 
   it('always places rest parameters last', () => {
-    const sig = createFunctionParameters({
+    const sig = ast.createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'args', type: createParamsType({ variant: 'reference', name: 'string[]' }), rest: true }),
-        createFunctionParameter({ name: 'petId', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
+        ast.createFunctionParameter({ name: 'args', type: ast.createParamsType({ variant: 'reference', name: 'string[]' }), rest: true }),
+        ast.createFunctionParameter({ name: 'petId', type: ast.createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
       ],
     })
 
@@ -63,12 +70,12 @@ describe('functionPrinter in declaration mode', () => {
   })
 
   it('prints object binding parameters with inferred inline object types', () => {
-    const sig = createFunctionParameters({
+    const sig = ast.createFunctionParameters({
       params: [
-        createParameterGroup({
+        ast.createParameterGroup({
           properties: [
-            createFunctionParameter({ name: 'id', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
-            createFunctionParameter({ name: 'name', type: createParamsType({ variant: 'reference', name: 'string' }), optional: true }),
+            ast.createFunctionParameter({ name: 'id', type: ast.createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
+            ast.createFunctionParameter({ name: 'name', type: ast.createParamsType({ variant: 'reference', name: 'string' }), optional: true }),
           ],
           default: '{}',
         }),
@@ -79,11 +86,11 @@ describe('functionPrinter in declaration mode', () => {
   })
 
   it('prints object binding parameters with explicit type overrides', () => {
-    const sig = createFunctionParameters({
+    const sig = ast.createFunctionParameters({
       params: [
-        createParameterGroup({
-          properties: [createFunctionParameter({ name: 'data', optional: false })],
-          type: createParamsType({ variant: 'reference', name: 'PetData' }),
+        ast.createParameterGroup({
+          properties: [ast.createFunctionParameter({ name: 'data', optional: false })],
+          type: ast.createParamsType({ variant: 'reference', name: 'PetData' }),
           default: '{}',
         }),
       ],
@@ -93,12 +100,12 @@ describe('functionPrinter in declaration mode', () => {
   })
 
   it('prints inline object binding parameters as top-level parameters', () => {
-    const sig = createFunctionParameters({
+    const sig = ast.createFunctionParameters({
       params: [
-        createParameterGroup({
+        ast.createParameterGroup({
           properties: [
-            createFunctionParameter({ name: 'petId', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
-            createFunctionParameter({ name: 'ownerId', type: createParamsType({ variant: 'reference', name: 'number' }), optional: false }),
+            ast.createFunctionParameter({ name: 'petId', type: ast.createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
+            ast.createFunctionParameter({ name: 'ownerId', type: ast.createParamsType({ variant: 'reference', name: 'number' }), optional: false }),
           ],
           inline: true,
         }),
@@ -109,16 +116,21 @@ describe('functionPrinter in declaration mode', () => {
   })
 
   it('prints mixed object and simple parameters in stable order', () => {
-    const sig = createFunctionParameters({
+    const sig = ast.createFunctionParameters({
       params: [
-        createParameterGroup({
+        ast.createParameterGroup({
           properties: [
-            createFunctionParameter({ name: 'id', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
-            createFunctionParameter({ name: 'name', type: createParamsType({ variant: 'reference', name: 'string' }), optional: true }),
+            ast.createFunctionParameter({ name: 'id', type: ast.createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
+            ast.createFunctionParameter({ name: 'name', type: ast.createParamsType({ variant: 'reference', name: 'string' }), optional: true }),
           ],
           default: '{}',
         }),
-        createFunctionParameter({ name: 'config', type: createParamsType({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
+        ast.createFunctionParameter({
+          name: 'config',
+          type: ast.createParamsType({ variant: 'reference', name: 'RequestConfig' }),
+          optional: false,
+          default: '{}',
+        }),
       ],
     })
 
@@ -126,16 +138,16 @@ describe('functionPrinter in declaration mode', () => {
   })
 
   it('prints default-only parameters without a type annotation', () => {
-    const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'config', default: '{}' })],
+    const sig = ast.createFunctionParameters({
+      params: [ast.createFunctionParameter({ name: 'config', default: '{}' })],
     })
 
     expect(printer.print(sig)).toBe('config = {}')
   })
 
   it('omits empty object binding parameters from the final signature', () => {
-    const sig = createFunctionParameters({
-      params: [createParameterGroup({ properties: [] })],
+    const sig = ast.createFunctionParameters({
+      params: [ast.createParameterGroup({ properties: [] })],
     })
 
     expect(printer.print(sig)).toBe('')
@@ -146,10 +158,15 @@ describe('functionPrinter() in call mode', () => {
   const printer = functionPrinter({ mode: 'call' })
 
   it('prints simple parameter names only', () => {
-    const sig = createFunctionParameters({
+    const sig = ast.createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'petId', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
-        createFunctionParameter({ name: 'config', type: createParamsType({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
+        ast.createFunctionParameter({ name: 'petId', type: ast.createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
+        ast.createFunctionParameter({
+          name: 'config',
+          type: ast.createParamsType({ variant: 'reference', name: 'RequestConfig' }),
+          optional: false,
+          default: '{}',
+        }),
       ],
     })
 
@@ -157,10 +174,10 @@ describe('functionPrinter() in call mode', () => {
   })
 
   it('prints object binding parameters as `{ key1, key2 }`', () => {
-    const sig = createFunctionParameters({
+    const sig = ast.createFunctionParameters({
       params: [
-        createParameterGroup({
-          properties: [createFunctionParameter({ name: 'method', optional: false }), createFunctionParameter({ name: 'url', optional: false })],
+        ast.createParameterGroup({
+          properties: [ast.createFunctionParameter({ name: 'method', optional: false }), ast.createFunctionParameter({ name: 'url', optional: false })],
         }),
       ],
     })
@@ -169,10 +186,10 @@ describe('functionPrinter() in call mode', () => {
   })
 
   it('prints inline object binding parameters as individual arguments', () => {
-    const sig = createFunctionParameters({
+    const sig = ast.createFunctionParameters({
       params: [
-        createParameterGroup({
-          properties: [createFunctionParameter({ name: 'petId', optional: false })],
+        ast.createParameterGroup({
+          properties: [ast.createFunctionParameter({ name: 'petId', optional: false })],
           inline: true,
         }),
       ],
@@ -182,8 +199,8 @@ describe('functionPrinter() in call mode', () => {
   })
 
   it('keeps spread syntax for rest parameters', () => {
-    const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'args', rest: true })],
+    const sig = ast.createFunctionParameters({
+      params: [ast.createFunctionParameter({ name: 'args', rest: true })],
     })
 
     expect(printer.print(sig)).toBe('...args')
@@ -194,10 +211,10 @@ describe('functionPrinter() in keys mode', () => {
   const printer = functionPrinter({ mode: 'keys' })
 
   it('prints comma-separated parameter names', () => {
-    const sig = createFunctionParameters({
+    const sig = ast.createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'petId', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
-        createFunctionParameter({ name: 'config', type: createParamsType({ variant: 'reference', name: 'Config' }), optional: false }),
+        ast.createFunctionParameter({ name: 'petId', type: ast.createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
+        ast.createFunctionParameter({ name: 'config', type: ast.createParamsType({ variant: 'reference', name: 'Config' }), optional: false }),
       ],
     })
 
@@ -205,10 +222,10 @@ describe('functionPrinter() in keys mode', () => {
   })
 
   it('wraps object binding parameter keys in braces', () => {
-    const sig = createFunctionParameters({
+    const sig = ast.createFunctionParameters({
       params: [
-        createParameterGroup({
-          properties: [createFunctionParameter({ name: 'id', optional: false }), createFunctionParameter({ name: 'name', optional: false })],
+        ast.createParameterGroup({
+          properties: [ast.createFunctionParameter({ name: 'id', optional: false }), ast.createFunctionParameter({ name: 'name', optional: false })],
         }),
       ],
     })
@@ -221,18 +238,18 @@ describe('functionPrinter() in values mode', () => {
   const printer = functionPrinter({ mode: 'values' })
 
   it('prints names for simple parameters', () => {
-    const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'petId', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false })],
+    const sig = ast.createFunctionParameters({
+      params: [ast.createFunctionParameter({ name: 'petId', type: ast.createParamsType({ variant: 'reference', name: 'string' }), optional: false })],
     })
 
     expect(printer.print(sig)).toBe('petId')
   })
 
   it('prints object binding parameters in braces', () => {
-    const sig = createFunctionParameters({
+    const sig = ast.createFunctionParameters({
       params: [
-        createParameterGroup({
-          properties: [createFunctionParameter({ name: 'id', optional: false }), createFunctionParameter({ name: 'name', optional: false })],
+        ast.createParameterGroup({
+          properties: [ast.createFunctionParameter({ name: 'id', optional: false }), ast.createFunctionParameter({ name: 'name', optional: false })],
         }),
       ],
     })
@@ -246,18 +263,18 @@ describe('functionPrinter() transform options', () => {
     {
       label: 'transformName',
       options: { mode: 'declaration' as const, transformName: (n: string) => n.toUpperCase() },
-      param: createFunctionParameter({ name: 'petId', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
+      param: ast.createFunctionParameter({ name: 'petId', type: ast.createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
       expected: 'PETID: string',
     },
     {
       label: 'transformType',
       options: { mode: 'declaration' as const, transformType: (t: string) => `Partial<${t}>` },
-      param: createFunctionParameter({ name: 'config', type: createParamsType({ variant: 'reference', name: 'Config' }), optional: false }),
+      param: ast.createFunctionParameter({ name: 'config', type: ast.createParamsType({ variant: 'reference', name: 'Config' }), optional: false }),
       expected: 'config: Partial<Config>',
     },
   ])('applies $label in declaration mode', ({ options, param, expected }) => {
     const printer = functionPrinter(options)
-    const sig = createFunctionParameters({
+    const sig = ast.createFunctionParameters({
       params: [param],
     })
 
@@ -288,10 +305,10 @@ describe('defineFunctionPrinter()', () => {
       },
     }))
 
-    const sig = createFunctionParameters({
+    const sig = ast.createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'petId', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
-        createFunctionParameter({ name: 'config', type: createParamsType({ variant: 'reference', name: 'Config' }), optional: false }),
+        ast.createFunctionParameter({ name: 'petId', type: ast.createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
+        ast.createFunctionParameter({ name: 'config', type: ast.createParamsType({ variant: 'reference', name: 'Config' }), optional: false }),
       ],
     })
 
@@ -323,11 +340,11 @@ describe('defineFunctionPrinter()', () => {
       },
     }))
 
-    const sig = createFunctionParameters({
+    const sig = ast.createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'a', optional: false }),
-        createParameterGroup({
-          properties: [createFunctionParameter({ name: 'b', optional: false }), createFunctionParameter({ name: 'c', optional: false })],
+        ast.createFunctionParameter({ name: 'a', optional: false }),
+        ast.createParameterGroup({
+          properties: [ast.createFunctionParameter({ name: 'b', optional: false }), ast.createFunctionParameter({ name: 'c', optional: false })],
         }),
       ],
     })

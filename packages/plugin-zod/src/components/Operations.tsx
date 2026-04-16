@@ -1,5 +1,5 @@
 import { stringifyObject } from '@internals/utils'
-import type { OperationNode } from '@kubb/ast/types'
+import type { Ast } from '@kubb/core'
 import { Const, File, Type } from '@kubb/renderer-jsx'
 import type { KubbReactNode } from '@kubb/renderer-jsx/types'
 
@@ -16,7 +16,7 @@ type SchemaNames = {
 
 type Props = {
   name: string
-  operations: Array<{ node: OperationNode; data: SchemaNames }>
+  operations: Array<{ node: Ast.OperationNode; data: SchemaNames }>
 }
 
 export function Operations({ name, operations }: Props): KubbReactNode {

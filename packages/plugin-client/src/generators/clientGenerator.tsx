@@ -1,6 +1,6 @@
 import path from 'node:path'
-import { caseParams } from '@kubb/ast'
-import { defineGenerator } from '@kubb/core'
+
+import { ast, defineGenerator } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
@@ -27,7 +27,7 @@ export const clientGenerator = defineGenerator<PluginClient>({
     const pluginZod = parser === 'zod' ? driver.getPlugin(pluginZodName) : undefined
     const zodResolver = pluginZod?.resolver
 
-    const casedParams = caseParams(node.parameters, paramsCasing)
+    const casedParams = ast.caseParams(node.parameters, paramsCasing)
     const pathParams = casedParams.filter((p) => p.in === 'path')
     const queryParams = casedParams.filter((p) => p.in === 'query')
     const headerParams = casedParams.filter((p) => p.in === 'header')

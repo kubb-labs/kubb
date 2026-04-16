@@ -1,6 +1,6 @@
 import path from 'node:path'
-import { caseParams } from '@kubb/ast'
-import { defineGenerator } from '@kubb/core'
+
+import { ast, defineGenerator } from '@kubb/core'
 import { ClientLegacy as ClientLegacyComponent, pluginClientName } from '@kubb/plugin-client'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
@@ -49,7 +49,7 @@ export const mutationGenerator = defineGenerator<PluginSwr>({
       ),
     }
 
-    const casedParams = caseParams(node.parameters, paramsCasing)
+    const casedParams = ast.caseParams(node.parameters, paramsCasing)
     const pathParams = casedParams.filter((p) => p.in === 'path')
     const queryParams = casedParams.filter((p) => p.in === 'query')
     const headerParams = casedParams.filter((p) => p.in === 'header')

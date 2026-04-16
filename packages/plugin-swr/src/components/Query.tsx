@@ -1,5 +1,5 @@
-import { caseParams, createFunctionParameter, createFunctionParameters, createOperationParams, createParamsType } from '@kubb/ast'
-import type { FunctionParameterNode, FunctionParametersNode, OperationNode, ParameterGroupNode } from '@kubb/ast/types'
+import type { Ast } from '@kubb/core'
+import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
 import { File, Function } from '@kubb/renderer-jsx'
@@ -14,7 +14,7 @@ type Props = {
   queryOptionsName: string
   queryKeyName: string
   queryKeyTypeName: string
-  node: OperationNode
+  node: Ast.OperationNode
   tsResolver: PluginTs['resolver']
   paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   paramsType: PluginSwr['resolvedOptions']['paramsType']
@@ -26,7 +26,7 @@ const declarationPrinter = functionPrinter({ mode: 'declaration' })
 const callPrinter = functionPrinter({ mode: 'call' })
 
 function getParams(
-  node: OperationNode,
+  node: Ast.OperationNode,
   options: {
     paramsType: PluginSwr['resolvedOptions']['paramsType']
     paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
@@ -34,7 +34,7 @@ function getParams(
     dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
     resolver: PluginTs['resolver']
   },
-): FunctionParametersNode {
+): Ast.FunctionParametersNode {
   const { paramsType, paramsCasing, pathParamsType, dataReturnType, resolver } = options
 
   const responseName = resolver.resolveResponseName(node)
@@ -44,9 +44,9 @@ function getParams(
   const TData = dataReturnType === 'data' ? responseName : `ResponseConfig<${responseName}>`
   const TError = `ResponseErrorConfig<${errorNames.length > 0 ? errorNames.join(' | ') : 'Error'}>`
 
-  const optionsParam = createFunctionParameter({
+  const optionsParam = ast.createFunctionParameter({
     name: 'options',
-    type: createParamsType({
+    type: ast.createParamsType({
       variant: 'reference',
       name: `{
   query?: Parameters<typeof useSWR<${TData}, ${TError}>>[2],
@@ -61,7 +61,7 @@ function getParams(
   if (paramsType === 'object') {
     // Use createOperationParams for the grouped params (path + body + query + headers),
     // but replace the config param with SWR's options param
-    const baseParams = createOperationParams(node, {
+    const baseParams = ast.createOperationParams(node, {
       paramsType: 'object',
       pathParamsType: 'object',
       paramsCasing,
@@ -69,27 +69,29 @@ function getParams(
       extraParams: [],
     })
 
-    return createFunctionParameters({
+    return ast.createFunctionParameters({
       params: [...baseParams.params, optionsParam],
     })
   }
 
   // Inline params: build path + body + query (NO headers for query hooks) + options
-  const casedParams = caseParams(node.parameters, paramsCasing)
+  const casedParams = ast.caseParams(node.parameters, paramsCasing)
   const pathParams = casedParams.filter((p) => p.in === 'path')
   const queryParams = casedParams.filter((p) => p.in === 'query')
   const headerParams = casedParams.filter((p) => p.in === 'header')
 
   const queryGroupType = resolveQueryGroupType(node, queryParams, resolver)
 
-  const bodyType = node.requestBody?.schema ? createParamsType({ variant: 'reference', name: resolver.resolveDataName(node) }) : undefined
+  const bodyType = node.requestBody?.schema ? ast.createParamsType({ variant: 'reference', name: resolver.resolveDataName(node) }) : undefined
   const bodyRequired = node.requestBody?.required ?? false
 
-  const params: Array<FunctionParameterNode | ParameterGroupNode> = []
+  const params: Array<Ast.FunctionParameterNode | Ast.ParameterGroupNode> = []
 
   // Path params
   if (pathParams.length) {
-    const pathChildren = pathParams.map((p) => createFunctionParameter({ name: p.name, type: resolvePathParamType(node, p, resolver), optional: !p.required }))
+    const pathChildren = pathParams.map((p) =>
+      ast.createFunctionParameter({ name: p.name, type: resolvePathParamType(node, p, resolver), optional: !p.required }),
+    )
     params.push({
       kind: 'ParameterGroup',
       properties: pathChildren,
@@ -100,7 +102,7 @@ function getParams(
 
   // Body
   if (bodyType) {
-    params.push(createFunctionParameter({ name: 'data', type: bodyType, optional: !bodyRequired }))
+    params.push(ast.createFunctionParameter({ name: 'data', type: bodyType, optional: !bodyRequired }))
   }
 
   // Query params
@@ -114,7 +116,7 @@ function getParams(
         const groupName = resolver.resolveHeaderParamsName(node, firstParam)
         const individualName = resolver.resolveParamName(node, firstParam)
         if (groupName !== individualName) {
-          return { type: createParamsType({ variant: 'reference', name: groupName }), optional: hParams.every((p) => !p.required) }
+          return { type: ast.createParamsType({ variant: 'reference', name: groupName }), optional: hParams.every((p) => !p.required) }
         }
         return undefined
       })()
@@ -124,7 +126,7 @@ function getParams(
   // SWR options
   params.push(optionsParam)
 
-  return createFunctionParameters({ params })
+  return ast.createFunctionParameters({ params })
 }
 
 export function Query({

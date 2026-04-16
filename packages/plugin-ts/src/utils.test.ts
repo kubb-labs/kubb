@@ -1,4 +1,4 @@
-import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
+import { ast } from '@kubb/core'
 import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 import { printerTs } from './printers/printerTs.ts'
@@ -19,8 +19,8 @@ function printSchema(schema: ReturnType<typeof buildParams>): string {
 
 describe('buildParams', () => {
   it('builds required params as non-optional properties', () => {
-    const params = [createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true })]
-    const node = createOperation({ operationId: 'showPetById', method: 'GET', path: '/pets/{petId}' })
+    const params = [ast.createParameter({ name: 'petId', schema: ast.createSchema({ type: 'string' }), in: 'path', required: true })]
+    const node = ast.createOperation({ operationId: 'showPetById', method: 'GET', path: '/pets/{petId}' })
 
     expect(printSchema(buildParams(node, { params, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
@@ -30,8 +30,8 @@ describe('buildParams', () => {
   })
 
   it('marks optional params with ?', () => {
-    const params = [createParameter({ name: 'limit', schema: createSchema({ type: 'integer' }), in: 'query', required: false })]
-    const node = createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
+    const params = [ast.createParameter({ name: 'limit', schema: ast.createSchema({ type: 'integer' }), in: 'query', required: false })]
+    const node = ast.createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
 
     expect(printSchema(buildParams(node, { params, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
@@ -42,10 +42,10 @@ describe('buildParams', () => {
 })
 
 describe('buildData', () => {
-  const baseNode = createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
+  const baseNode = ast.createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
 
   it('emits data?: never when no request body', () => {
-    const node = createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
+    const node = ast.createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
 
     expect(printSchema(buildData(node, { resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
@@ -62,7 +62,7 @@ describe('buildData', () => {
   })
 
   it('emits data? referencing the Data type when body exists', () => {
-    const node = createOperation({ operationId: 'createPet', method: 'POST', path: '/pets', requestBody: { schema: createSchema({ type: 'object' }) } })
+    const node = ast.createOperation({ operationId: 'createPet', method: 'POST', path: '/pets', requestBody: { schema: ast.createSchema({ type: 'object' }) } })
 
     expect(printSchema(buildData(node, { resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
@@ -79,11 +79,11 @@ describe('buildData', () => {
   })
 
   it('emits required pathParams when path parameters exist', () => {
-    const node = createOperation({
+    const node = ast.createOperation({
       operationId: 'showPetById',
       method: 'GET',
       path: '/pets/{petId}',
-      parameters: [createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true })],
+      parameters: [ast.createParameter({ name: 'petId', schema: ast.createSchema({ type: 'string' }), in: 'path', required: true })],
     })
 
     expect(printSchema(buildData(node, { resolver: resolverTs }))).toMatchInlineSnapshot(`
@@ -106,10 +106,10 @@ describe('buildData', () => {
   })
 
   it('emits optional queryParams when query parameters exist', () => {
-    const node = createOperation({
+    const node = ast.createOperation({
       ...baseNode,
       operationId: 'listPets',
-      parameters: [createParameter({ name: 'limit', schema: createSchema({ type: 'integer' }), in: 'query', required: false })],
+      parameters: [ast.createParameter({ name: 'limit', schema: ast.createSchema({ type: 'integer' }), in: 'query', required: false })],
     })
 
     expect(printSchema(buildData(node, { resolver: resolverTs }))).toMatchInlineSnapshot(`
@@ -132,11 +132,16 @@ describe('buildData', () => {
   })
 
   it('emits JSDoc on queryParams properties when parameters have descriptions', () => {
-    const node = createOperation({
+    const node = ast.createOperation({
       ...baseNode,
       operationId: 'listPets',
       parameters: [
-        createParameter({ name: 'limit', schema: createSchema({ type: 'integer', description: 'Maximum number of results' }), in: 'query', required: false }),
+        ast.createParameter({
+          name: 'limit',
+          schema: ast.createSchema({ type: 'integer', description: 'Maximum number of results' }),
+          in: 'query',
+          required: false,
+        }),
       ],
     })
 
@@ -162,13 +167,13 @@ describe('buildData', () => {
 
 describe('buildResponses', () => {
   it('emits a keyed object type for responses with schemas', () => {
-    const node = createOperation({
+    const node = ast.createOperation({
       operationId: 'listPets',
       method: 'GET',
       path: '/pets',
       responses: [
-        createResponse({ statusCode: '200', description: 'OK', schema: createSchema({ type: 'object' }) }),
-        createResponse({ statusCode: 'default', description: 'Error', schema: createSchema({ type: 'object' }) }),
+        ast.createResponse({ statusCode: '200', description: 'OK', schema: ast.createSchema({ type: 'object' }) }),
+        ast.createResponse({ statusCode: 'default', description: 'Error', schema: ast.createSchema({ type: 'object' }) }),
       ],
     })
 
@@ -183,13 +188,13 @@ describe('buildResponses', () => {
 
 describe('buildResponseUnion', () => {
   it('emits a union of all response types', () => {
-    const node = createOperation({
+    const node = ast.createOperation({
       operationId: 'listPets',
       method: 'GET',
       path: '/pets',
       responses: [
-        createResponse({ statusCode: '200', description: 'OK', schema: createSchema({ type: 'object' }) }),
-        createResponse({ statusCode: '405', description: 'Error', schema: createSchema({ type: 'object' }) }),
+        ast.createResponse({ statusCode: '200', description: 'OK', schema: ast.createSchema({ type: 'object' }) }),
+        ast.createResponse({ statusCode: '405', description: 'Error', schema: ast.createSchema({ type: 'object' }) }),
       ],
     })
 
@@ -199,7 +204,7 @@ describe('buildResponseUnion', () => {
 
 describe('buildPropertyJSDocComments', () => {
   it('emits @description, @deprecated and @default for a richly annotated schema', () => {
-    const schema = createSchema({ type: 'string', description: 'A pet name', deprecated: true, default: 'Fluffy' })
+    const schema = ast.createSchema({ type: 'string', description: 'A pet name', deprecated: true, default: 'Fluffy' })
     const comments = buildPropertyJSDocComments(schema)
 
     expect(comments).toContain('@description A pet name')
@@ -208,7 +213,7 @@ describe('buildPropertyJSDocComments', () => {
   })
 
   it('does not emit @minLength/@maxLength for array schemas', () => {
-    const schema = createSchema({ type: 'array', primitive: 'array', min: 1, max: 10 })
+    const schema = ast.createSchema({ type: 'array', primitive: 'array', min: 1, max: 10 })
     const comments = buildPropertyJSDocComments(schema)
 
     expect(comments).not.toContain('@minLength 1')

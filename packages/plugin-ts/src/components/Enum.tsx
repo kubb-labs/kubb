@@ -1,5 +1,5 @@
 import { camelCase, trimQuotes } from '@internals/utils'
-import type { EnumSchemaNode } from '@kubb/ast/types'
+import type { Ast } from '@kubb/core'
 import { safePrint } from '@kubb/parser-ts'
 import { File } from '@kubb/renderer-jsx'
 import type { KubbReactNode } from '@kubb/renderer-jsx/types'
@@ -8,7 +8,7 @@ import * as factory from '../factory.ts'
 import type { PluginTs, ResolverTs } from '../types.ts'
 
 type Props = {
-  node: EnumSchemaNode
+  node: Ast.EnumSchemaNode
   enumType: PluginTs['resolvedOptions']['enumType']
   enumTypeSuffix: PluginTs['resolvedOptions']['enumTypeSuffix']
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
@@ -28,7 +28,7 @@ export function getEnumNames({
   enumTypeSuffix,
   resolver,
 }: {
-  node: EnumSchemaNode
+  node: Ast.EnumSchemaNode
   enumType: PluginTs['resolvedOptions']['enumType']
   enumTypeSuffix: PluginTs['resolvedOptions']['enumTypeSuffix']
   resolver: ResolverTs

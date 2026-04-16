@@ -1,6 +1,5 @@
-import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
-import type { Config } from '@kubb/core'
+import type { Ast, Config } from '@kubb/core'
+import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
 import { describe, test } from 'vitest'
@@ -40,37 +39,42 @@ const mockedTsPlugin = createMockedPlugin<PluginTs>({
   resolver: resolverTs,
 })
 
-const operationNodes: Array<OperationNode> = [
-  createOperation({
+const operationNodes: Array<Ast.OperationNode> = [
+  ast.createOperation({
     operationId: 'findPetsByTags',
     method: 'GET',
     path: '/pet/findByTags',
     tags: ['pet'],
     parameters: [
-      createParameter({ name: 'tags', in: 'query', schema: createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }), required: true }),
-      createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) }),
+      ast.createParameter({
+        name: 'tags',
+        in: 'query',
+        schema: ast.createSchema({ type: 'array', items: [ast.createSchema({ type: 'string' })] }),
+        required: true,
+      }),
+      ast.createParameter({ name: 'status', in: 'query', schema: ast.createSchema({ type: 'string' }) }),
     ],
-    responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+    responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
   }),
-  createOperation({
+  ast.createOperation({
     operationId: 'updatePetWithForm',
     method: 'POST',
     path: '/pet/{petId}',
     tags: ['pet'],
-    parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
-    requestBody: { schema: createSchema({ type: 'object', properties: [] }) },
-    responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+    parameters: [ast.createParameter({ name: 'petId', in: 'path', schema: ast.createSchema({ type: 'string' }), required: true })],
+    requestBody: { schema: ast.createSchema({ type: 'object', properties: [] }) },
+    responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
   }),
-  createOperation({
+  ast.createOperation({
     operationId: 'deletePet',
     method: 'DELETE',
     path: '/pet/{petId}',
     tags: ['pet'],
     parameters: [
-      createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true }),
-      createParameter({ name: 'api_key', in: 'header', schema: createSchema({ type: 'string' }) }),
+      ast.createParameter({ name: 'petId', in: 'path', schema: ast.createSchema({ type: 'string' }), required: true }),
+      ast.createParameter({ name: 'api_key', in: 'header', schema: ast.createSchema({ type: 'string' }) }),
     ],
-    responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'void' }), description: 'successful operation' })],
+    responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'void' }), description: 'successful operation' })],
   }),
 ]
 

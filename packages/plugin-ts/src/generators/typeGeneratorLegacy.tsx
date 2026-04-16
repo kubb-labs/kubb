@@ -1,7 +1,6 @@
 import { pascalCase } from '@internals/utils'
-import { caseParams, createProperty, createSchema, narrowSchema, schemaTypes, transform } from '@kubb/ast'
-import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
-import { defineGenerator } from '@kubb/core'
+import type { Ast } from '@kubb/core'
+import { ast, defineGenerator } from '@kubb/core'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
@@ -10,19 +9,19 @@ import { resolverTsLegacy } from '../resolvers/resolverTsLegacy.ts'
 import type { PluginTs, ResolverTs } from '../types'
 
 type BuildGroupedParamsSchemaOptions = {
-  params: Array<ParameterNode>
+  params: Array<Ast.ParameterNode>
   parentName?: string
 }
 
-function buildGroupedParamsSchema({ params, parentName }: BuildGroupedParamsSchemaOptions): SchemaNode {
-  return createSchema({
+function buildGroupedParamsSchema({ params, parentName }: BuildGroupedParamsSchemaOptions): Ast.SchemaNode {
+  return ast.createSchema({
     type: 'object',
     properties: params.map((param) => {
       let schema = param.schema
-      if (narrowSchema(schema, 'enum') && !schema.name && parentName) {
+      if (ast.narrowSchema(schema, 'enum') && !schema.name && parentName) {
         schema = { ...schema, name: pascalCase([parentName, param.name, 'enum'].join(' ')) }
       }
-      return createProperty({
+      return ast.createProperty({
         name: param.name,
         required: param.required,
         schema,
@@ -35,7 +34,7 @@ type BuildOperationSchemaOptions = {
   resolver: ResolverTs
 }
 
-function buildLegacyResponsesSchemaNode(node: OperationNode, { resolver }: BuildOperationSchemaOptions): SchemaNode | null {
+function buildLegacyResponsesSchemaNode(node: Ast.OperationNode, { resolver }: BuildOperationSchemaOptions): Ast.SchemaNode | null {
   const isGet = node.method.toLowerCase() === 'get'
   const successResponses = node.responses.filter((res) => {
     const code = Number(res.statusCode)
@@ -46,31 +45,31 @@ function buildLegacyResponsesSchemaNode(node: OperationNode, { resolver }: Build
   const responseSchema =
     successResponses.length > 0
       ? successResponses.length === 1
-        ? createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, successResponses[0]!.statusCode) })
-        : createSchema({
+        ? ast.createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, successResponses[0]!.statusCode) })
+        : ast.createSchema({
             type: 'union',
-            members: successResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
+            members: successResponses.map((res) => ast.createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
           })
-      : createSchema({ type: 'any', primitive: undefined })
+      : ast.createSchema({ type: 'any', primitive: undefined })
 
   const errorsSchema =
     errorResponses.length > 0
       ? errorResponses.length === 1
-        ? createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, errorResponses[0]!.statusCode) })
-        : createSchema({
+        ? ast.createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, errorResponses[0]!.statusCode) })
+        : ast.createSchema({
             type: 'union',
-            members: errorResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
+            members: errorResponses.map((res) => ast.createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
           })
-      : createSchema({ type: 'any', primitive: undefined })
+      : ast.createSchema({ type: 'any', primitive: undefined })
 
-  const properties = [createProperty({ name: 'Response', required: true, schema: responseSchema })]
+  const properties = [ast.createProperty({ name: 'Response', required: true, schema: responseSchema })]
 
   if (!isGet && node.requestBody?.schema) {
     properties.push(
-      createProperty({
+      ast.createProperty({
         name: 'Request',
         required: true,
-        schema: createSchema({ type: 'ref', name: resolver.resolveDataName(node) }),
+        schema: ast.createSchema({ type: 'ref', name: resolver.resolveDataName(node) }),
       }),
     )
   }
@@ -78,10 +77,10 @@ function buildLegacyResponsesSchemaNode(node: OperationNode, { resolver }: Build
   const queryParam = node.parameters.find((p) => p.in === 'query')
   if (queryParam) {
     properties.push(
-      createProperty({
+      ast.createProperty({
         name: 'QueryParams',
         required: true,
-        schema: createSchema({ type: 'ref', name: resolver.resolveQueryParamsName(node, queryParam) }),
+        schema: ast.createSchema({ type: 'ref', name: resolver.resolveQueryParamsName(node, queryParam) }),
       }),
     )
   }
@@ -89,10 +88,10 @@ function buildLegacyResponsesSchemaNode(node: OperationNode, { resolver }: Build
   const pathParam = node.parameters.find((p) => p.in === 'path')
   if (pathParam) {
     properties.push(
-      createProperty({
+      ast.createProperty({
         name: 'PathParams',
         required: true,
-        schema: createSchema({ type: 'ref', name: resolver.resolvePathParamsName(node, pathParam) }),
+        schema: ast.createSchema({ type: 'ref', name: resolver.resolvePathParamsName(node, pathParam) }),
       }),
     )
   }
@@ -100,50 +99,50 @@ function buildLegacyResponsesSchemaNode(node: OperationNode, { resolver }: Build
   const headerParam = node.parameters.find((p) => p.in === 'header')
   if (headerParam) {
     properties.push(
-      createProperty({
+      ast.createProperty({
         name: 'HeaderParams',
         required: true,
-        schema: createSchema({ type: 'ref', name: resolver.resolveHeaderParamsName(node, headerParam) }),
+        schema: ast.createSchema({ type: 'ref', name: resolver.resolveHeaderParamsName(node, headerParam) }),
       }),
     )
   }
 
-  properties.push(createProperty({ name: 'Errors', required: true, schema: errorsSchema }))
+  properties.push(ast.createProperty({ name: 'Errors', required: true, schema: errorsSchema }))
 
-  return createSchema({ type: 'object', properties })
+  return ast.createSchema({ type: 'object', properties })
 }
 
-function buildLegacyResponseUnionSchemaNode(node: OperationNode, { resolver }: BuildOperationSchemaOptions): SchemaNode {
+function buildLegacyResponseUnionSchemaNode(node: Ast.OperationNode, { resolver }: BuildOperationSchemaOptions): Ast.SchemaNode {
   const successResponses = node.responses.filter((res) => {
     const code = Number(res.statusCode)
     return !Number.isNaN(code) && code >= 200 && code < 300
   })
 
   if (successResponses.length === 0) {
-    return createSchema({ type: 'any', primitive: undefined })
+    return ast.createSchema({ type: 'any', primitive: undefined })
   }
 
   if (successResponses.length === 1) {
-    return createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, successResponses[0]!.statusCode) })
+    return ast.createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, successResponses[0]!.statusCode) })
   }
 
-  return createSchema({
+  return ast.createSchema({
     type: 'union',
-    members: successResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
+    members: successResponses.map((res) => ast.createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
   })
 }
 
-function nameUnnamedEnums(node: SchemaNode, parentName: string): SchemaNode {
-  return transform(node, {
+function nameUnnamedEnums(node: Ast.SchemaNode, parentName: string): Ast.SchemaNode {
+  return ast.transform(node, {
     schema(n) {
-      const enumNode = narrowSchema(n, 'enum')
+      const enumNode = ast.narrowSchema(n, 'enum')
       if (enumNode && !enumNode.name) {
         return { ...enumNode, name: pascalCase([parentName, 'enum'].join(' ')) }
       }
       return undefined
     },
     property(p) {
-      const enumNode = narrowSchema(p.schema, 'enum')
+      const enumNode = ast.narrowSchema(p.schema, 'enum')
       if (enumNode && !enumNode.name) {
         return {
           ...p,
@@ -173,7 +172,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
       path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
     }))
 
-    const isEnumSchema = !!narrowSchema(node, schemaTypes.enum)
+    const isEnumSchema = !!ast.narrowSchema(node, ast.schemaTypes.enum)
 
     const meta = {
       name: ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyName(node, enumTypeSuffix) : resolver.resolveTypeName(node.name),
@@ -220,7 +219,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
     const { adapter, config, resolver, root } = ctx
 
     const mode = ctx.getMode(output)
-    const params = caseParams(node.parameters, paramsCasing)
+    const params = ast.caseParams(node.parameters, paramsCasing)
 
     const meta = {
       file: resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group }),
@@ -232,7 +231,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
       description,
       keysToOmit,
     }: {
-      schema: SchemaNode | null
+      schema: Ast.SchemaNode | null
       name: string
       description?: string
       keysToOmit?: Array<string>

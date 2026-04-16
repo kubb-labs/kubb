@@ -1,6 +1,5 @@
-import { caseParams } from '@kubb/ast'
-import type { SchemaNode } from '@kubb/ast/types'
-import { defineGenerator } from '@kubb/core'
+import type { Ast } from '@kubb/core'
+import { ast, defineGenerator } from '@kubb/core'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Operations } from '../components/Operations.tsx'
 import { Zod } from '../components/Zod.tsx'
@@ -62,13 +61,13 @@ export const zodGenerator = defineGenerator<PluginZod>({
     const mode = ctx.getMode(output)
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
-    const params = caseParams(node.parameters, paramsCasing)
+    const params = ast.caseParams(node.parameters, paramsCasing)
 
     const meta = {
       file: resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group }),
     } as const
 
-    function renderSchemaEntry({ schema, name, keysToOmit }: { schema: SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
+    function renderSchemaEntry({ schema, name, keysToOmit }: { schema: Ast.SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
       if (!schema) return null
 
       const inferTypeName = inferred ? resolver.resolveTypeName(name) : undefined
@@ -141,7 +140,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
     } as const
 
     const transformedOperations = nodes.map((node) => {
-      const params = caseParams(node.parameters, paramsCasing)
+      const params = ast.caseParams(node.parameters, paramsCasing)
 
       return {
         node,

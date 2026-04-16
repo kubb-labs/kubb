@@ -1,4 +1,4 @@
-import { createSchema } from '@kubb/ast'
+import { ast } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { adapterOas } from './adapter.ts'
 
@@ -25,7 +25,7 @@ describe('adapterOas.getImports', () => {
       },
     })
 
-    const imports = adapter.getImports(createSchema({ type: 'ref', ref: '#/components/schemas/Pet', name: 'Pet' }), () => ({
+    const imports = adapter.getImports(ast.createSchema({ type: 'ref', ref: '#/components/schemas/Pet', name: 'Pet' }), () => ({
       name: 'PetType',
       path: './pet.ts',
     }))

@@ -1,6 +1,6 @@
 import { URLPath } from '@internals/utils'
-import { createFunctionParameters } from '@kubb/ast'
-import type { FunctionParametersNode, OperationNode } from '@kubb/ast/types'
+import type { Ast } from '@kubb/core'
+import { ast } from '@kubb/core'
 import { functionPrinter } from '@kubb/plugin-ts'
 import { File, Function, Type } from '@kubb/renderer-jsx'
 import type { KubbReactNode } from '@kubb/renderer-jsx/types'
@@ -9,7 +9,7 @@ import type { Transformer } from '../types.ts'
 type Props = {
   name: string
   typeName: string
-  node: OperationNode
+  node: Ast.OperationNode
   paramsCasing: 'camelcase' | undefined
   pathParamsType: 'object' | 'inline'
   transformer: Transformer | undefined
@@ -17,8 +17,8 @@ type Props = {
 
 const declarationPrinter = functionPrinter({ mode: 'declaration' })
 
-function getParams(): FunctionParametersNode {
-  return createFunctionParameters({ params: [] })
+function getParams(): Ast.FunctionParametersNode {
+  return ast.createFunctionParameters({ params: [] })
 }
 
 const getTransformer: Transformer = ({ node, casing }) => {

@@ -1,6 +1,6 @@
 import { isValidVarName, URLPath } from '@internals/utils'
-import { caseParams, createOperationParams } from '@kubb/ast'
-import type { FunctionParametersNode, OperationNode } from '@kubb/ast/types'
+import type { Ast } from '@kubb/core'
+import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
 import { Const, File, Function } from '@kubb/renderer-jsx'
@@ -17,7 +17,7 @@ type Props = {
   paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
   paramsType: PluginClient['resolvedOptions']['pathParamsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
-  node: OperationNode
+  node: Ast.OperationNode
   tsResolver: PluginTs['resolver']
 }
 
@@ -25,21 +25,21 @@ type GetParamsProps = {
   paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
   paramsType: PluginClient['resolvedOptions']['paramsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
-  node: OperationNode
+  node: Ast.OperationNode
   tsResolver: PluginTs['resolver']
 }
 
 const declarationPrinter = functionPrinter({ mode: 'declaration' })
 
-function getParams({ paramsType, paramsCasing, pathParamsType, node, tsResolver }: GetParamsProps): FunctionParametersNode {
+function getParams({ paramsType, paramsCasing, pathParamsType, node, tsResolver }: GetParamsProps): Ast.FunctionParametersNode {
   // Build a URL-only node with only path params (no body, query, header)
-  const urlNode: OperationNode = {
+  const urlNode: Ast.OperationNode = {
     ...node,
     parameters: node.parameters.filter((p) => p.in === 'path'),
     requestBody: undefined,
   }
 
-  return createOperationParams(urlNode, {
+  return ast.createOperationParams(urlNode, {
     paramsType: paramsType === 'object' ? 'object' : 'inline',
     pathParamsType: paramsType === 'object' ? 'object' : pathParamsType === 'object' ? 'object' : 'inline',
     paramsCasing,
@@ -70,7 +70,7 @@ export function Url({
   const paramsSignature = declarationPrinter.print(paramsNode) ?? ''
 
   const originalPathParams = node.parameters.filter((p) => p.in === 'path')
-  const casedPathParams = caseParams(originalPathParams, paramsCasing)
+  const casedPathParams = ast.caseParams(originalPathParams, paramsCasing)
   const pathParamsMapping = paramsCasing ? buildParamsMapping(originalPathParams, casedPathParams) : undefined
 
   return (

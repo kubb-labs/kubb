@@ -1,16 +1,15 @@
-import type { PrinterFactoryOptions } from '@kubb/ast'
-import { createPrinterFactory } from '@kubb/ast'
-import type { FunctionNodeType, FunctionParameterNode, FunctionParametersNode, FunctionParamNode, ParameterGroupNode, ParamsTypeNode } from '@kubb/ast/types'
+import type { Ast } from '@kubb/core'
+import { ast } from '@kubb/core'
 import { PARAM_RANK } from '../constants.ts'
 
 /**
  * Maps each function-printer handler key to its concrete node type.
  */
 export type FunctionNodeByType = {
-  functionParameter: FunctionParameterNode
-  parameterGroup: ParameterGroupNode
-  functionParameters: FunctionParametersNode
-  paramsType: ParamsTypeNode
+  functionParameter: Ast.FunctionParameterNode
+  parameterGroup: Ast.ParameterGroupNode
+  functionParameters: Ast.FunctionParametersNode
+  paramsType: Ast.ParamsTypeNode
 }
 
 const kindToHandlerKey = {
@@ -18,7 +17,7 @@ const kindToHandlerKey = {
   ParameterGroup: 'parameterGroup',
   FunctionParameters: 'functionParameters',
   ParamsType: 'paramsType',
-} satisfies Record<string, FunctionNodeType>
+} satisfies Record<string, Ast.FunctionNodeType>
 
 /**
  * Creates a function-parameter printer factory.
@@ -26,7 +25,9 @@ const kindToHandlerKey = {
  * Uses `createPrinterFactory` and dispatches handlers by `node.kind`
  * (for function nodes) rather than by `node.type` (for schema nodes).
  */
-export const defineFunctionPrinter = createPrinterFactory<FunctionParamNode, FunctionNodeType, FunctionNodeByType>((node) => kindToHandlerKey[node.kind])
+export const defineFunctionPrinter = ast.createPrinterFactory<Ast.FunctionParamNode, Ast.FunctionNodeType, FunctionNodeByType>(
+  (node) => kindToHandlerKey[node.kind],
+)
 
 export type FunctionPrinterOptions = {
   /**
@@ -50,9 +51,9 @@ export type FunctionPrinterOptions = {
   transformType?: (type: string) => string
 }
 
-type DefaultPrinter = PrinterFactoryOptions<'functionParameters', FunctionPrinterOptions, string>
+type DefaultPrinter = Ast.PrinterFactoryOptions<'functionParameters', FunctionPrinterOptions, string>
 
-function rank(param: FunctionParameterNode | ParameterGroupNode): number {
+function rank(param: Ast.FunctionParameterNode | Ast.ParameterGroupNode): number {
   if (param.kind === 'ParameterGroup') {
     if (param.default) return PARAM_RANK.withDefault
     const isOptional = param.optional ?? param.properties.every((p) => p.optional || p.default !== undefined)
@@ -63,11 +64,11 @@ function rank(param: FunctionParameterNode | ParameterGroupNode): number {
   return param.optional ? PARAM_RANK.optional : PARAM_RANK.required
 }
 
-function sortParams(params: ReadonlyArray<FunctionParameterNode | ParameterGroupNode>): Array<FunctionParameterNode | ParameterGroupNode> {
+function sortParams(params: ReadonlyArray<Ast.FunctionParameterNode | Ast.ParameterGroupNode>): Array<Ast.FunctionParameterNode | Ast.ParameterGroupNode> {
   return [...params].sort((a, b) => rank(a) - rank(b))
 }
 
-function sortChildParams(params: Array<FunctionParameterNode>): Array<FunctionParameterNode> {
+function sortChildParams(params: Array<Ast.FunctionParameterNode>): Array<Ast.FunctionParameterNode> {
   return [...params].sort((a, b) => rank(a) - rank(b))
 }
 

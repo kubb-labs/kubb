@@ -1,11 +1,11 @@
 import { URLPath } from '@internals/utils'
-import type { OperationNode, ParameterNode } from '@kubb/ast/types'
+import type { Ast } from '@kubb/core'
 import { FunctionParams } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import type { PluginZod } from '@kubb/plugin-zod'
 import type { PluginClient } from './types.ts'
 
-export function getComments(node: OperationNode): Array<string> {
+export function getComments(node: Ast.OperationNode): Array<string> {
   return [
     node.description && `@description ${node.description}`,
     node.summary && `@summary ${node.summary}`,
@@ -17,7 +17,7 @@ export function getComments(node: OperationNode): Array<string> {
     .filter((x): x is string => Boolean(x))
 }
 
-export function buildParamsMapping(originalParams: Array<ParameterNode>, casedParams: Array<ParameterNode>): Record<string, string> | undefined {
+export function buildParamsMapping(originalParams: Array<Ast.ParameterNode>, casedParams: Array<Ast.ParameterNode>): Record<string, string> | undefined {
   const mapping: Record<string, string> = {}
   let hasChanged = false
   originalParams.forEach((param, i) => {
@@ -37,7 +37,7 @@ export function buildHeaders(contentType: string, hasHeaderParams: boolean): Arr
   ].filter(Boolean) as Array<string>
 }
 
-export function buildGenerics(node: OperationNode, tsResolver: PluginTs['resolver']): Array<string> {
+export function buildGenerics(node: Ast.OperationNode, tsResolver: PluginTs['resolver']): Array<string> {
   const responseName = tsResolver.resolveResponseName(node)
   const requestName = node.requestBody?.schema ? tsResolver.resolveDataName(node) : undefined
   const errorNames = node.responses.filter((r) => Number.parseInt(r.statusCode, 10) >= 400).map((r) => tsResolver.resolveResponseStatusName(node, r.statusCode))
@@ -53,7 +53,7 @@ export function buildClassClientParams({
   isFormData,
   headers,
 }: {
-  node: OperationNode
+  node: Ast.OperationNode
   path: URLPath
   baseURL: string | undefined
   tsResolver: PluginTs['resolver']
@@ -106,7 +106,7 @@ export function buildRequestDataLine({
   zodResolver,
 }: {
   parser: PluginClient['resolvedOptions']['parser'] | undefined
-  node: OperationNode
+  node: Ast.OperationNode
   zodResolver?: PluginZod['resolver']
 }): string {
   const zodRequestName = zodResolver && parser === 'zod' && node.requestBody?.schema ? zodResolver.resolveDataName?.(node) : undefined
@@ -131,7 +131,7 @@ export function buildReturnStatement({
 }: {
   dataReturnType: PluginClient['resolvedOptions']['dataReturnType']
   parser: PluginClient['resolvedOptions']['parser'] | undefined
-  node: OperationNode
+  node: Ast.OperationNode
   zodResolver?: PluginZod['resolver']
 }): string {
   const zodResponseName = zodResolver && parser === 'zod' ? zodResolver.resolveResponseName?.(node) : undefined

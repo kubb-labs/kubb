@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
-import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
-import type { Config } from '@kubb/core'
+
+import type { Ast, Config } from '@kubb/core'
+import { ast } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
 import { describe, test } from 'vitest'
@@ -43,87 +43,92 @@ const mockedTsPlugin = createMockedPlugin<PluginTs>({
 })
 
 // Shared operation nodes
-const findByTagsNode = createOperation({
+const findByTagsNode = ast.createOperation({
   operationId: 'findPetsByTags',
   method: 'GET',
   path: '/pet/findByTags',
   tags: ['pet'],
   parameters: [
-    createParameter({ name: 'tags', in: 'query', schema: createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }), required: true }),
-    createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) }),
+    ast.createParameter({
+      name: 'tags',
+      in: 'query',
+      schema: ast.createSchema({ type: 'array', items: [ast.createSchema({ type: 'string' })] }),
+      required: true,
+    }),
+    ast.createParameter({ name: 'status', in: 'query', schema: ast.createSchema({ type: 'string' }) }),
   ],
-  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+  responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
 })
 
-const updatePetByIdNode = createOperation({
+const updatePetByIdNode = ast.createOperation({
   operationId: 'updatePetWithForm',
   method: 'POST',
   path: '/pet/{petId}',
   tags: ['pet'],
-  parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
-  requestBody: { schema: createSchema({ type: 'object', properties: [] }) },
-  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+  parameters: [ast.createParameter({ name: 'petId', in: 'path', schema: ast.createSchema({ type: 'string' }), required: true })],
+  requestBody: { schema: ast.createSchema({ type: 'object', properties: [] }) },
+  responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
 })
 
-const deletePetNode = createOperation({
+const deletePetNode = ast.createOperation({
   operationId: 'deletePet',
   method: 'DELETE',
   path: '/pet/{petId}',
   tags: ['pet'],
   parameters: [
-    createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true }),
-    createParameter({ name: 'api_key', in: 'header', schema: createSchema({ type: 'string' }) }),
+    ast.createParameter({ name: 'petId', in: 'path', schema: ast.createSchema({ type: 'string' }), required: true }),
+    ast.createParameter({ name: 'api_key', in: 'header', schema: ast.createSchema({ type: 'string' }) }),
   ],
-  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'void' }), description: 'successful operation' })],
+  responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'void' }), description: 'successful operation' })],
 })
 
-const uploadFileNode = createOperation({
+const uploadFileNode = ast.createOperation({
   operationId: 'uploadFile',
   method: 'POST',
   path: '/pet/{petId}/uploadImage',
   tags: ['pet'],
-  parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
-  requestBody: { contentType: 'multipart/form-data', schema: createSchema({ type: 'object', properties: [] }) },
-  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+  parameters: [ast.createParameter({ name: 'petId', in: 'path', schema: ast.createSchema({ type: 'string' }), required: true })],
+  requestBody: { contentType: 'multipart/form-data', schema: ast.createSchema({ type: 'object', properties: [] }) },
+  responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
 })
 
-const findByStatusNode = createOperation({
+const findByStatusNode = ast.createOperation({
   operationId: 'findPetsByStatus',
   method: 'GET',
   path: '/pet/findByStatus',
   tags: ['pet'],
-  parameters: [createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) })],
-  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+  parameters: [ast.createParameter({ name: 'status', in: 'query', schema: ast.createSchema({ type: 'string' }) })],
+  responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
 })
 
-const requiredOneOfRequestBodyNode = createOperation({
+const requiredOneOfRequestBodyNode = ast.createOperation({
   operationId: 'createOrder',
   method: 'POST',
   path: '/orders',
   tags: ['store'],
   requestBody: {
     required: true,
-    schema: createSchema({ type: 'union', schemas: [createSchema({ type: 'object', properties: [] }), createSchema({ type: 'string' })] }),
+    schema: ast.createSchema({ type: 'union', schemas: [ast.createSchema({ type: 'object', properties: [] }), ast.createSchema({ type: 'string' })] }),
   },
-  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+  responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
 })
 
-const dashedPathParamsNode = createOperation({
+const dashedPathParamsNode = ast.createOperation({
   operationId: 'getOrganization',
   method: 'GET',
   path: '/organizations/{organization-id}',
   tags: ['organizations'],
-  parameters: [createParameter({ name: 'organization-id', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
-  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+  parameters: [ast.createParameter({ name: 'organization-id', in: 'path', schema: ast.createSchema({ type: 'string' }), required: true })],
+  responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
 })
 
-const underscoredPathParamsNode = createOperation({
+const underscoredPathParamsNode = ast.createOperation({
   operationId: 'getItem',
   method: 'GET',
   path: '/v1/items/{item_id}',
   tags: ['items'],
-  parameters: [createParameter({ name: 'item_id', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
-  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+  parameters: [ast.createParameter({ name: 'item_id', in: 'path', schema: ast.createSchema({ type: 'string' }), required: true })],
+  responses: [ast.createResponse({ statusCode: '200', schema: ast.createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
 })
 
 describe('clientGenerator operation', () => {
@@ -152,7 +157,7 @@ describe('clientGenerator operation', () => {
       node: underscoredPathParamsNode,
       options: { paramsCasing: 'camelcase' as const, pathParamsType: 'inline' as const },
     },
-  ] as const satisfies Array<{ name: string; node: OperationNode; options: Partial<PluginClient['resolvedOptions']>; baseURL?: string }>
+  ] as const satisfies Array<{ name: string; node: Ast.OperationNode; options: Partial<PluginClient['resolvedOptions']>; baseURL?: string }>
 
   test.each(testData)('$name', async (props) => {
     const options: PluginClient['resolvedOptions'] = {

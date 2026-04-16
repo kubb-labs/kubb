@@ -1,6 +1,6 @@
 import { camelCase, URLPath } from '@internals/utils'
-import { caseParams, createFunctionParameter, createOperationParams, createParamsType } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
+import type { Ast } from '@kubb/core'
+import { ast } from '@kubb/core'
 import type { ResolverTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
 import { File, Function } from '@kubb/renderer-jsx'
@@ -15,7 +15,7 @@ type Props = {
   /**
    * AST operation node
    */
-  node: OperationNode
+  node: Ast.OperationNode
   /**
    * TypeScript resolver for resolving param/data/response type names
    */
@@ -30,13 +30,17 @@ type Props = {
 const declarationPrinter = functionPrinter({ mode: 'declaration' })
 
 export function Request({ baseURL = '', name, dataReturnType, resolver, node, paramsType, pathParamsType, paramsCasing }: Props): KubbReactNode {
-  const paramsNode = createOperationParams(node, {
+  const paramsNode = ast.createOperationParams(node, {
     paramsType,
     pathParamsType,
     paramsCasing,
     resolver,
     extraParams: [
-      createFunctionParameter({ name: 'options', type: createParamsType({ variant: 'reference', name: 'Partial<Cypress.RequestOptions>' }), default: '{}' }),
+      ast.createFunctionParameter({
+        name: 'options',
+        type: ast.createParamsType({ variant: 'reference', name: 'Partial<Cypress.RequestOptions>' }),
+        default: '{}',
+      }),
     ],
   })
   const paramsSignature = declarationPrinter.print(paramsNode) ?? ''
@@ -44,7 +48,7 @@ export function Request({ baseURL = '', name, dataReturnType, resolver, node, pa
   const responseType = resolver.resolveResponseName(node)
   const returnType = dataReturnType === 'data' ? `Cypress.Chainable<${responseType}>` : `Cypress.Chainable<Cypress.Response<${responseType}>>`
 
-  const casedPathParams = caseParams(
+  const casedPathParams = ast.caseParams(
     node.parameters.filter((p) => p.in === 'path'),
     paramsCasing,
   )
@@ -63,7 +67,7 @@ export function Request({ baseURL = '', name, dataReturnType, resolver, node, pa
 
   const queryParams = node.parameters.filter((p) => p.in === 'query')
   if (queryParams.length > 0) {
-    const casedQueryParams = caseParams(queryParams, paramsCasing)
+    const casedQueryParams = ast.caseParams(queryParams, paramsCasing)
     // When paramsCasing renames query params (e.g. page_size → pageSize), we must remap
     // the camelCase keys back to the original API names before passing them to `qs`.
     const needsQsTransform = casedQueryParams.some((p, i) => p.name !== queryParams[i]!.name)
@@ -77,7 +81,7 @@ export function Request({ baseURL = '', name, dataReturnType, resolver, node, pa
 
   const headerParams = node.parameters.filter((p) => p.in === 'header')
   if (headerParams.length > 0) {
-    const casedHeaderParams = caseParams(headerParams, paramsCasing)
+    const casedHeaderParams = ast.caseParams(headerParams, paramsCasing)
     // When paramsCasing renames header params (e.g. x-api-key → xApiKey), we must remap
     // the camelCase keys back to the original API names before passing them to `headers`.
     const needsHeaderTransform = casedHeaderParams.some((p, i) => p.name !== headerParams[i]!.name)

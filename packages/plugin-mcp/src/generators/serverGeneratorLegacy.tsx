@@ -1,6 +1,6 @@
 import path from 'node:path'
-import { caseParams } from '@kubb/ast'
-import { defineGenerator } from '@kubb/core'
+
+import { ast, defineGenerator } from '@kubb/core'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
 import { Server } from '../components/Server.tsx'
@@ -42,7 +42,7 @@ export const serverGeneratorLegacy = defineGenerator<PluginMcp>({
     }
 
     const operationsMapped = nodes.map((node) => {
-      const casedParams = caseParams(node.parameters, paramsCasing)
+      const casedParams = ast.caseParams(node.parameters, paramsCasing)
       const queryParams = casedParams.filter((p) => p.in === 'query')
       const headerParams = casedParams.filter((p) => p.in === 'header')
 
