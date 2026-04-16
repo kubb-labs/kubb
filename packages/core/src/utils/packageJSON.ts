@@ -1,5 +1,4 @@
-import { readSync } from '@internals/utils'
-import * as pkg from 'empathic/package'
+import { findPackageJSON, readSync } from '@internals/utils'
 import { coerce, satisfies } from 'semver'
 
 type PackageJSON = {
@@ -11,7 +10,7 @@ type DependencyName = string
 type DependencyVersion = string
 
 function getPackageJSONSync(cwd?: string): PackageJSON | null {
-  const pkgPath = pkg.up({ cwd })
+  const pkgPath = findPackageJSON(cwd)
   if (!pkgPath) {
     return null
   }
