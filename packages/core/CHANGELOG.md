@@ -1,5 +1,17 @@
 # @kubb/core
 
+## 5.0.0-alpha.36
+
+### Patch Changes
+
+- [#3078](https://github.com/kubb-labs/kubb/pull/3078) [`e2910e9`](https://github.com/kubb-labs/kubb/commit/e2910e96ac7647f3c5bbc5253a2e6ef82161592b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Remove dependency on `@kubb/oas` from `@kubb/core`. `HttpMethod` is now imported from `@kubb/ast`.
+
+  Plugins have been moved to their own repository. `@kubb/agent` no longer bundles individual plugin packages as direct dependencies.
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.36
+  - @kubb/renderer-jsx@5.0.0-alpha.36
+
 ## 5.0.0-alpha.35
 
 ### Minor Changes

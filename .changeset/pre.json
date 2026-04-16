@@ -12,7 +12,8 @@
     "@kubb/renderer-jsx": "4.36.1",
     "@kubb/oas": "4.36.1",
     "unplugin-kubb": "5.0.7",
-    "@kubb/parser-ts": "5.0.0-alpha.30"
+    "@kubb/parser-ts": "5.0.0-alpha.30",
+    "@internals/utils": "0.0.0"
   },
   "changesets": [
     "add-adapter-document-field",
@@ -45,6 +46,7 @@
     "fix-requestbody-description",
     "fix-tuple-enum-declarations",
     "fix-url-input-resolution",
+    "move-plugins-to-own-repo",
     "node-22-minimum",
     "remove-deprecated-plugin-checks",
     "rename-define-to-create",
