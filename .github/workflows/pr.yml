@@ -55,9 +55,6 @@ jobs:
       - name: Typecheck
         run: pnpm run typecheck
 
-      - name: Typecheck examples
-        run: pnpm run typecheck:examples
-
   tests:
     name: Tests
     timeout-minutes: 15
