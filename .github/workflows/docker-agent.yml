@@ -92,7 +92,7 @@ jobs:
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
           build-args: |
-            NODE_VERSION=20
+            NODE_VERSION=22
 
       - name: Generate artifact attestation
         if: github.event_name != 'pull_request'
