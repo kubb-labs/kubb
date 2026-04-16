@@ -134,29 +134,6 @@ jobs:
          suggestions: 'true'
          config: 'cspell.json'
 
-  benchmarks:
-    name: Performance benchmarks (Vitest)
-    timeout-minutes: 15
-    runs-on: ubuntu-latest
-    if: github.actor != 'github-actions[bot]'
-    needs: build
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 2
-
-      - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@main
-        with:
-          node-version: '22'
-
-      - name: Build
-        run: pnpm run build
-
-      - name: Run Vitest benchmarks
-        run: pnpm run test:bench
-
   prerelease:
     name: Prerelease
     timeout-minutes: 15
