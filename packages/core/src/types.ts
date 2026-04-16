@@ -9,7 +9,7 @@ import type { Parser } from './defineParser.ts'
 import type { KubbHooks } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
-export type { Printer, PrinterFactoryOptions, PrinterPartial } from '@kubb/ast/types'
+export type { OperationParamsResolver, ScalarPrimitive } from '@kubb/ast'
 export type {
   ArraySchemaNode,
   ArrowFunctionNode,
@@ -59,6 +59,9 @@ export type {
   ParentOf,
   ParserOptions,
   PrimitiveSchemaType,
+  Printer,
+  PrinterFactoryOptions,
+  PrinterPartial,
   PropertyNode,
   RefMap,
   RefSchemaNode,
@@ -84,7 +87,6 @@ export type {
   VisitorDepth,
   WalkOptions,
 } from '@kubb/ast/types'
-export type { OperationParamsResolver, ScalarPrimitive } from '@kubb/ast'
 export type { Renderer, RendererFactory } from './createRenderer.ts'
 
 export type InputPath = {
