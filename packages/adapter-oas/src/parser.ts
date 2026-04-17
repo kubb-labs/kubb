@@ -404,18 +404,26 @@ function createSchemaParser(ctx: OasParserContext) {
         | 'number'
         | 'boolean'
         | 'string'
-      const sourceValues = extensionKey
-        ? [...new Set((schema as Record<string, unknown>)[extensionKey] as Array<string | number>)]
-        : [...new Set(filteredValues)]
+      const rawEnumNames = extensionKey
+        ? ((schema as Record<string, unknown>)[extensionKey] as Array<string | number>)
+        : undefined
+      const uniqueValues = [...new Set(filteredValues)]
+      const seenNames = new Set<string>()
 
       return ast.createSchema({
         ...enumBase,
         primitive: enumPrimitiveType,
-        namedEnumValues: sourceValues.map((label, index) => ({
-          name: String(label),
-          value: extensionKey ? (filteredValues[index] ?? label) : label,
-          primitive: enumPrimitiveType,
-        })),
+        namedEnumValues: uniqueValues
+          .map((value, index) => ({
+            name: String(rawEnumNames?.[index] ?? value),
+            value,
+            primitive: enumPrimitiveType,
+          }))
+          .filter((entry) => {
+            if (seenNames.has(entry.name)) return false
+            seenNames.add(entry.name)
+            return true
+          }),
       })
     }
 
