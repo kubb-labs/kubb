@@ -6,6 +6,15 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.41
+
+### ✨ Features
+
+#### [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core)
+
+-   [#64](https://github.com/tigawanna/kubb/pull/64) [`d3d2d81`](https://github.com/kubb-labs/kubb/commit/d3d2d816dc93c0b328eb2f43827d7513fe4d988b) - Updated `createKubb` to take `userConfig` directly as its first argument. This change aligns the public API with the internal setup flow, making it clear that the first parameter is the user-facing `UserConfig` shape resolved during `setup()`.
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
