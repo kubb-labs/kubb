@@ -175,7 +175,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             // Message payload takes priority over previously saved studio config
             const storedConfig = data.payload ? null : await getLatestStudioConfigFromStorage({ sessionId }).catch(() => null)
             const patch = data.payload ?? storedConfig ?? undefined
-            const plugins = mergePlugins(config.plugins, patch?.plugins)
+            const plugins = await mergePlugins(config.plugins, patch?.plugins)
 
             // In sandbox mode the caller may supply raw OpenAPI / Swagger spec
             // content inline (YAML or JSON string) via `payload.input`.

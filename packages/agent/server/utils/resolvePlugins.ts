@@ -1,56 +1,84 @@
 import type { Plugin } from '@kubb/core'
-import { pluginClient } from '@kubb/plugin-client'
-import { pluginCypress } from '@kubb/plugin-cypress'
-import { pluginFaker } from '@kubb/plugin-faker'
-import { pluginMcp } from '@kubb/plugin-mcp'
-import { pluginMsw } from '@kubb/plugin-msw'
-import { pluginOas } from '@kubb/plugin-oas'
-import { pluginReactQuery } from '@kubb/plugin-react-query'
-import { pluginRedoc } from '@kubb/plugin-redoc'
-import { pluginSolidQuery } from '@kubb/plugin-solid-query'
-import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'
-import { pluginSwr } from '@kubb/plugin-swr'
-import { pluginTs } from '@kubb/plugin-ts'
-import { pluginVueQuery } from '@kubb/plugin-vue-query'
-import { pluginZod } from '@kubb/plugin-zod'
 import type { JSONKubbConfig } from '~/types/agent.ts'
 
 type PluginFactory = (options: unknown) => Plugin
 
-const pluginRegistry = new Map<string, PluginFactory>([
-  ['@kubb/plugin-client', pluginClient as unknown as PluginFactory],
-  ['@kubb/plugin-cypress', pluginCypress as unknown as PluginFactory],
-  ['@kubb/plugin-faker', pluginFaker as unknown as PluginFactory],
-  ['@kubb/plugin-mcp', pluginMcp as unknown as PluginFactory],
-  ['@kubb/plugin-msw', pluginMsw as unknown as PluginFactory],
-  ['@kubb/plugin-oas', pluginOas as unknown as PluginFactory],
-  ['@kubb/plugin-react-query', pluginReactQuery as unknown as PluginFactory],
-  ['@kubb/plugin-redoc', pluginRedoc as unknown as PluginFactory],
-  ['@kubb/plugin-solid-query', pluginSolidQuery as unknown as PluginFactory],
-  ['@kubb/plugin-svelte-query', pluginSvelteQuery as unknown as PluginFactory],
-  ['@kubb/plugin-swr', pluginSwr as unknown as PluginFactory],
-  ['@kubb/plugin-ts', pluginTs as unknown as PluginFactory],
-  ['@kubb/plugin-vue-query', pluginVueQuery as unknown as PluginFactory],
-  ['@kubb/plugin-zod', pluginZod as unknown as PluginFactory],
-])
-
 /**
- * Resolves each plugin entry by looking up the factory in the static plugin
- * registry and calling it with the provided options.
+ * Derives the conventional named export for a plugin package from its package name.
+ * Works for any scoped or unscoped package, not just `@kubb/*`.
  *
  * @example
- * // JSONKubbConfig plugin entry
- * { name: '@kubb/plugin-react-query', options: { output: { path: './hooks' } } }
- * // is resolved by calling `pluginReactQuery({ output: { path: './hooks' } })`
+ * toExportName('@kubb/plugin-react-query') // 'pluginReactQuery'
+ * toExportName('@kubb/plugin-ts')          // 'pluginTs'
+ * toExportName('@my-org/my-plugin')        // 'myPlugin'
+ * toExportName('my-custom-plugin')         // 'myCustomPlugin'
  */
-export function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugins']>): Array<Plugin> {
-  return plugins.map(({ name, options }) => {
-    const factory = pluginRegistry.get(name)
+function toExportName(packageName: string): string {
+  // Strip scope and any leading path segments, e.g. '@kubb/plugin-ts' → 'plugin-ts'
+  const base = packageName.split('/').pop() ?? packageName
+  // camelCase: 'plugin-react-query' → 'pluginReactQuery'
+  return base.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase())
+}
 
-    if (typeof factory !== 'function') {
-      throw new Error(`Plugin "${name}" is not supported. Supported plugins: ${Object.keys(pluginRegistry).join(', ')}`)
-    }
+/**
+ * Dynamically imports a plugin package and returns its factory function.
+ *
+ * Resolution order (first callable wins):
+ * 1. Named export matching the camelCase of the package base name (e.g. `pluginTs`)
+ * 2. `default` export
+ * 3. First function found among the module's exports (for single-export packages)
+ *
+ * This makes the loader work with any plugin regardless of scope or naming convention.
+ *
+ * @throws if the package cannot be imported or no callable factory is found.
+ */
+async function loadPluginFactory(packageName: string): Promise<PluginFactory> {
+  let mod: Record<string, unknown>
+  try {
+    mod = await import(packageName)
+  } catch {
+    throw new Error(`Plugin "${packageName}" could not be loaded. Make sure it is installed: \`npm install ${packageName}\``)
+  }
 
-    return factory(options ?? {})
-  })
+  const exportName = toExportName(packageName)
+
+  // 1. camelCase named export (e.g. pluginTs, pluginReactQuery, myPlugin)
+  if (typeof mod[exportName] === 'function') return mod[exportName] as PluginFactory
+
+  // 2. default export
+  if (typeof mod['default'] === 'function') return mod['default'] as PluginFactory
+
+  // 3. first exported function (handles single-export CJS/ESM packages)
+  const firstFn = Object.values(mod).find((v) => typeof v === 'function') as PluginFactory | undefined
+  if (firstFn) return firstFn
+
+  throw new Error(
+    `Plugin "${packageName}" does not export a callable factory. ` +
+      `Tried: named export "${exportName}", "default", and any exported function.`,
+  )
+}
+
+/**
+ * Resolves each plugin entry by dynamically importing the plugin package and
+ * calling its factory with the provided options.
+ *
+ * Plugin packages are not bundled with the agent — they are resolved from the
+ * runtime environment. Install the plugins you need before starting the agent.
+ *
+ * Works with any plugin package, not just `@kubb/*`:
+ * - `@kubb/plugin-ts` → calls `pluginTs(options)`
+ * - `@my-org/my-plugin` → calls `myPlugin(options)` (or `default`, or first export)
+ * - `my-custom-plugin` → calls `myCustomPlugin(options)` (or `default`, or first export)
+ *
+ * @example
+ * { name: '@kubb/plugin-react-query', options: { output: { path: './hooks' } } }
+ * { name: 'my-custom-plugin', options: { output: { path: './custom' } } }
+ */
+export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugins']>): Promise<Array<Plugin>> {
+  return Promise.all(
+    plugins.map(async ({ name, options }) => {
+      const factory = await loadPluginFactory(name)
+      return factory(options ?? {})
+    }),
+  )
 }

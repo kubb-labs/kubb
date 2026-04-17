@@ -11,12 +11,12 @@ import { resolvePlugins } from './resolvePlugins.ts'
  * For plugins present in both configs, the plugin is re-instantiated with merged options
  * so that all internal closures correctly reference the merged values.
  */
-export function mergePlugins(diskPlugins: Array<Plugin> | undefined, studioPlugins: JSONKubbConfig['plugins'] | undefined): Array<Plugin> | undefined {
+export async function mergePlugins(diskPlugins: Array<Plugin> | undefined, studioPlugins: JSONKubbConfig['plugins'] | undefined): Promise<Array<Plugin> | undefined> {
   if (!diskPlugins && !studioPlugins) return undefined
   if (!studioPlugins) return diskPlugins
 
   // Resolve studio JSON entries into Plugin objects so names are consistent (e.g. 'plugin-oas')
-  const resolvedStudio = resolvePlugins(studioPlugins)
+  const resolvedStudio = await resolvePlugins(studioPlugins)
 
   if (!diskPlugins) return resolvedStudio
 
@@ -31,15 +31,18 @@ export function mergePlugins(diskPlugins: Array<Plugin> | undefined, studioPlugi
 
   const diskNames = new Set(diskPlugins.map((p) => p.name))
 
-  const mergedDisk = diskPlugins.map((diskPlugin) => {
-    const studioEntry = studioEntryByResolvedName.get(diskPlugin.name)
-    if (!studioEntry) return diskPlugin
+  const mergedDisk = await Promise.all(
+    diskPlugins.map(async (diskPlugin) => {
+      const studioEntry = studioEntryByResolvedName.get(diskPlugin.name)
+      if (!studioEntry) return diskPlugin
 
-    // Merge options (disk as base, studio overrides), then re-instantiate the plugin
-    // so that all internal closures reference the correctly merged options.
-    const mergedOptions = mergeDeep(diskPlugin.options as Record<string, unknown>, studioEntry.options as Record<string, unknown>)
-    return resolvePlugins([{ name: studioEntry.name, options: mergedOptions }])[0] ?? diskPlugin
-  })
+      // Merge options (disk as base, studio overrides), then re-instantiate the plugin
+      // so that all internal closures reference the correctly merged options.
+      const mergedOptions = mergeDeep(diskPlugin.options as Record<string, unknown>, studioEntry.options as Record<string, unknown>)
+      const resolved = await resolvePlugins([{ name: studioEntry.name, options: mergedOptions }])
+      return resolved[0] ?? diskPlugin
+    }),
+  )
 
   const studioOnly = resolvedStudio.filter((p) => !diskNames.has(p.name))
 
