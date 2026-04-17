@@ -1,8 +1,0 @@
-{
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "jsxImportSource": "@kubb/renderer-jsx",
-    "types": ["bun-types", "../../reset.d.ts"]
-  },
-  "include": ["src/**/*", "./package.json", "./tsdown.config.ts", "./vitest.config.ts", "../../typings.d.ts"]
-}

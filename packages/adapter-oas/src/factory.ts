@@ -15,6 +15,10 @@ export type ParseOptions = {
   enablePaths?: boolean
 }
 
+export type ValidateDocumentOptions = {
+  throwOnError?: boolean
+}
+
 /**
  * Loads and dereferences an OpenAPI document, returning the raw `Document`.
  *
@@ -134,7 +138,7 @@ export function parseFromConfig(source: AdapterSource): Promise<Document> {
  * await validateDocument(document)
  * ```
  */
-export async function validateDocument(document: Document): Promise<void> {
+export async function validateDocument(document: Document, { throwOnError = false }: ValidateDocumentOptions = {}): Promise<void> {
   try {
     const oasNormalize = new OASNormalize(document, {
       enablePaths: true,
@@ -148,7 +152,11 @@ export async function validateDocument(document: Document): Promise<void> {
         },
       },
     })
-  } catch (_err) {
+  } catch (error) {
+    if (throwOnError) {
+      throw error
+    }
+
     // Validation failures are non-fatal — mirror plugin-oas behavior
   }
 }

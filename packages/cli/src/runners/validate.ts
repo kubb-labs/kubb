@@ -1,7 +1,6 @@
 import process from 'node:process'
 import { getErrorMessage } from '@internals/utils'
-import type * as OasModule from '@kubb/oas'
-import { jiti } from '../utils/jiti.ts'
+import { parseDocument, validateDocument } from '@kubb/adapter-oas'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 
 type ValidateOptions = {
@@ -10,19 +9,10 @@ type ValidateOptions = {
 }
 
 export async function runValidate({ input, version }: ValidateOptions): Promise<void> {
-  let mod: typeof OasModule
-  try {
-    mod = (await jiti.import('@kubb/oas', { default: true })) as typeof OasModule
-  } catch (_e) {
-    console.error(`Import of '@kubb/oas' is required to do validation`)
-    process.exit(1)
-  }
-
-  const { parse } = mod
   const hrStart = process.hrtime()
   try {
-    const oas = await parse(input)
-    await oas.validate()
+    const document = await parseDocument(input)
+    await validateDocument(document, { throwOnError: true })
 
     await sendTelemetry(buildTelemetryEvent({ command: 'validate', kubbVersion: version, hrStart, status: 'success' }))
     console.log('✅ Validation success')

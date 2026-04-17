@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mergeDocuments, parseDocument, parseFromConfig } from './factory.ts'
+import { mergeDocuments, parseDocument, parseFromConfig, validateDocument } from './factory.ts'
 import type { Document } from './types.ts'
 
 const petSchema: Document = {
@@ -91,5 +91,29 @@ components:
 
     expect(doc.components?.schemas?.['Pet']).toBeDefined()
     expect(doc.components?.schemas?.['Order']).toBeDefined()
+  })
+})
+
+describe('validateDocument', () => {
+  const invalidSchema: Document = {
+    openapi: '3.0.3',
+    info: { title: 'Invalid API', version: '1.0.0' },
+    paths: {
+      '/pets': {
+        get: {
+          responses: {
+            '200': {},
+          },
+        },
+      },
+    },
+  } as Document
+
+  it('does not throw by default', async () => {
+    await expect(validateDocument(invalidSchema)).resolves.toBeUndefined()
+  })
+
+  it('throws when throwOnError is enabled', async () => {
+    await expect(validateDocument(invalidSchema, { throwOnError: true })).rejects.toThrow()
   })
 })

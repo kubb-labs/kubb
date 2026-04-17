@@ -6,7 +6,7 @@ Accepted — implemented in v4.33.3
 
 ## Context
 
-Kubb generates client code (TypeScript types, Zod schemas, React Query hooks, MSW handlers, etc.) from OpenAPI specifications. Each plugin independently parses the raw OAS document using `@kubb/oas` and transforms it into a plugin-specific keyword representation defined in `plugin-oas`'s `SchemaMapper.ts`.
+Kubb generates client code (TypeScript types, Zod schemas, React Query hooks, MSW handlers, etc.) from OpenAPI specifications. Each plugin independently parsed the raw OAS document through the old OAS layer and transformed it into a plugin-specific keyword representation defined in `plugin-oas`'s `SchemaMapper.ts`.
 
 This keyword system works, but it creates several problems as the codebase grows:
 

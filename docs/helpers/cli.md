@@ -392,12 +392,8 @@ Check syntax and structural errors in Swagger/OpenAPI files. The command provide
 
 Use in CI pipelines, pre-commit hooks, and development for early error detection.
 
-> [!IMPORTANT]
-> `@kubb/oas` should be installed
-
-
 > [!TIP]
-> The validation uses `oas-normalize` to validate Swagger/OpenAPI files.
+> The validation uses `@kubb/adapter-oas` with `oas-normalize` to validate Swagger/OpenAPI files.
 
 ```mdx
 USAGE kubb validate [OPTIONS]

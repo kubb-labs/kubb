@@ -407,6 +407,22 @@ export default defineConfig({
 ```
 :::
 
+### `@kubb/oas` removed
+
+The standalone `@kubb/oas` package is removed in v5. Use `@kubb/adapter-oas` for OpenAPI parsing, validation, and shared OAS helper types instead.
+
+The `kubb validate` command now uses `@kubb/adapter-oas` directly, so you no longer need to install a separate package for validation.
+
+::: code-group
+```typescript [Before]
+import { HttpMethods, parse, validate, type SchemaObject } from '@kubb/oas'
+```
+
+```typescript [After]
+import { HttpMethods, parseDocument, validateDocument, type SchemaObject } from '@kubb/adapter-oas'
+```
+:::
+
 ### Enum naming changed (`collisionDetection` removed)
 
 In v5, `@kubb/adapter-oas` always uses collision-safe enum naming. The `collisionDetection` option is no longer supported.
@@ -695,12 +711,12 @@ The following options have been removed from `@kubb/plugin-zod`:
 
 ### `@kubb/plugin-zod` — `wrapOutput` signature changed
 
-The `schema` argument in the `wrapOutput` callback is now a `SchemaNode` from `@kubb/ast/types` instead of the raw `SchemaObject` from `@kubb/oas`.
+The `schema` argument in the `wrapOutput` callback is now a `SchemaNode` from `@kubb/ast/types` instead of the raw `SchemaObject` from the OpenAPI adapter layer.
 
 ::: code-group
 ```typescript [Before (v4)]
 import { pluginZod } from '@kubb/plugin-zod'
-import type { SchemaObject } from '@kubb/oas'
+import type { SchemaObject } from '@kubb/adapter-oas'
 
 pluginZod({
   wrapOutput: ({ output, schema }: { output: string; schema: SchemaObject }) => {

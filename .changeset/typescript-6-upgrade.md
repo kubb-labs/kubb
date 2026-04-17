@@ -6,7 +6,6 @@
 "@kubb/ast": minor
 "@kubb/cli": minor
 "@kubb/mcp": minor
-"@kubb/oas": minor
 "unplugin-kubb": minor
 "@kubb/parser-ts": minor
 "@kubb/renderer-jsx": minor

@@ -49,10 +49,6 @@ component_management:
       name: '@kubb/mcp'
       paths:
         - packages/mcp/**
-    - component_id: oas
-      name: '@kubb/oas'
-      paths:
-        - packages/oas/**
     - component_id: plugin-client
       name: '@kubb/plugin-client'
       paths:

@@ -17,9 +17,6 @@
 '@kubb/mcp':
   - any: ['packages/mcp/**', '!packages/mcp/package.json']
 
-'@kubb/oas':
-  - any: ['packages/oas/**', '!packages/oas/package.json']
-
 'unplugin-kubb':
   - any: ['packages/unplugin-kubb/**', '!packages/unplugin-kubb/package.json']
 

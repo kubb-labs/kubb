@@ -336,7 +336,7 @@ If you have "params.channel" enum in both "NotificationTypeA" and "NotificationT
 <!--@include: ./core/contentType.md-->
 
 ### oasClass <img src="../public/icons/experimental.svg"/>
-Override some behavior of the Oas class instance, see `@kubb/oas`.
+Override some behavior of the OAS parser instance from `@kubb/adapter-oas`.
 
 |           |                                |
 | --------: | :-------- |

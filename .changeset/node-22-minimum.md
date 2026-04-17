@@ -7,7 +7,6 @@
 "@kubb/ast": major
 "@kubb/cli": major
 "@kubb/mcp": major
-"@kubb/oas": major
 "@kubb/parser-ts": major
 "@kubb/renderer-jsx": major
 ---

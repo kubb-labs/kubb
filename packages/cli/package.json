@@ -65,6 +65,7 @@
   },
   "dependencies": {
     "@clack/prompts": "^1.2.0",
+    "@kubb/adapter-oas": "workspace:*",
     "@kubb/core": "workspace:*",
     "chokidar": "^5.0.0",
     "cosmiconfig": "^9.0.1",
@@ -74,8 +75,7 @@
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "@kubb/agent": "workspace:*",
-    "@kubb/mcp": "workspace:*",
-    "@kubb/oas": "workspace:*"
+    "@kubb/mcp": "workspace:*"
   },
   "engines": {
     "node": ">=22"
