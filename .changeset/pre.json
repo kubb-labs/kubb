@@ -37,6 +37,7 @@
     "always-use-collision-safe-naming",
     "ast-helper-reorganization",
     "auto-infer-primitive-field",
+    "cli-esm-bin-multi-runtime",
     "core-getmode-static-cleanup",
     "export-ast-namespace-from-core",
     "fix-additional-properties-traversal",
