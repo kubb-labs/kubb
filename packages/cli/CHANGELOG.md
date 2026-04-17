@@ -1,5 +1,17 @@
 # @kubb/cli
 
+## 5.0.0-alpha.42
+
+### Patch Changes
+
+- [#64](https://github.com/tigawanna/kubb/pull/64) [`84b4ba5`](https://github.com/kubb-labs/kubb/commit/84b4ba543597dd8fc2ca74914143865976741153) Thanks [@pull](https://github.com/apps/pull)! - Improve `defineConfig` usage in v5.
+  - Fix `defineConfig` typing in the `kubb` package so object configs keep the expected inferred shape.
+  - Update `kubb init` to install `kubb`, which matches the generated `import { defineConfig } from 'kubb'` config file.
+
+- Updated dependencies []:
+  - @kubb/adapter-oas@5.0.0-alpha.42
+  - @kubb/core@5.0.0-alpha.42
+
 ## 5.0.0-alpha.41
 
 ### Patch Changes

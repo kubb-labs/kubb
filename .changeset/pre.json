@@ -43,6 +43,7 @@
     "fix-additional-properties-traversal",
     "fix-boolean-const-enums",
     "fix-cli-tty-column-error",
+    "fix-defineconfig-entrypoint",
     "fix-discriminator-union-types",
     "fix-null-const-duplication",
     "fix-path-param-ref-types",

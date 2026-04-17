@@ -1,5 +1,15 @@
 # @kubb/agent
 
+## 5.0.0-alpha.42
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/adapter-oas@5.0.0-alpha.42
+  - @kubb/ast@5.0.0-alpha.42
+  - @kubb/core@5.0.0-alpha.42
+  - @kubb/parser-ts@5.0.0-alpha.42
+
 ## 5.0.0-alpha.41
 
 ### Patch Changes
