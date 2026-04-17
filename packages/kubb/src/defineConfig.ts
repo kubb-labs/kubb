@@ -1,8 +1,14 @@
 import { isPromise, type PossiblePromise } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
-import type { CLIOptions } from '@kubb/core'
+import type { CLIOptions, UserConfig } from '@kubb/core'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
-import type { ConfigInput, UserConfig } from './types.ts'
+
+type ConfigValue<TInput> = UserConfig<TInput>
+type ConfigArray<TInput> = Array<ConfigValue<TInput>>
+type ConfigResult<TInput> = ConfigValue<TInput> | ConfigArray<TInput>
+type ConfigPromise<TInput> = Promise<ConfigResult<TInput>>
+type ConfigFactory<TInput> = (cli: CLIOptions) => PossiblePromise<ConfigResult<TInput>>
+type DefinedConfig<TInput> = ConfigResult<TInput> | ConfigPromise<TInput> | ((cli: CLIOptions) => Promise<ConfigResult<TInput>>)
 
 /**
  * Applies default adapter and parsers to a single user config when not set.
@@ -10,12 +16,20 @@ import type { ConfigInput, UserConfig } from './types.ts'
  * - `adapter` defaults to `adapterOas()`
  * - `parsers` defaults to `[parserTs, parserTsx]`
  */
-function applyDefaults(config: UserConfig): UserConfig {
+function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
   return {
     ...config,
     adapter: config.adapter ?? adapterOas(),
     parsers: config.parsers?.length ? config.parsers : [parserTs, parserTsx],
   }
+}
+
+function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<TInput>>): UserConfig<TInput> | Array<UserConfig<TInput>> {
+  if (Array.isArray(config)) {
+    return config.map(applyDefaults)
+  }
+
+  return applyDefaults(config)
 }
 
 /**
@@ -35,31 +49,25 @@ function applyDefaults(config: UserConfig): UserConfig {
  *   plugins: [myPlugin()],
  * }))
  */
-export function defineConfig(config: (cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>): (cli: CLIOptions) => Promise<UserConfig | UserConfig[]>
-export function defineConfig(config: Promise<UserConfig | UserConfig[]>): Promise<UserConfig | UserConfig[]>
-export function defineConfig(config: UserConfig | UserConfig[]): UserConfig | UserConfig[]
-export function defineConfig(config: ConfigInput): ConfigInput {
+export function defineConfig<TInput>(config: (cli: CLIOptions) => PossiblePromise<UserConfig<TInput>>): (cli: CLIOptions) => Promise<UserConfig<TInput>>
+export function defineConfig<TInput>(
+  config: (cli: CLIOptions) => PossiblePromise<Array<UserConfig<TInput>>>,
+): (cli: CLIOptions) => Promise<Array<UserConfig<TInput>>>
+export function defineConfig<TInput>(config: Promise<UserConfig<TInput>>): Promise<UserConfig<TInput>>
+export function defineConfig<TInput>(config: Promise<Array<UserConfig<TInput>>>): Promise<Array<UserConfig<TInput>>>
+export function defineConfig<TInput>(config: UserConfig<TInput>): UserConfig<TInput>
+export function defineConfig<TInput>(config: Array<UserConfig<TInput>>): Array<UserConfig<TInput>>
+export function defineConfig<TInput>(config: ConfigFactory<TInput>): (cli: CLIOptions) => Promise<ConfigResult<TInput>>
+export function defineConfig<TInput>(config: ConfigResult<TInput> | ConfigPromise<TInput> | ConfigFactory<TInput>): DefinedConfig<TInput> {
   if (typeof config === 'function') {
     return async (cli: CLIOptions) => {
-      const resolved = await config(cli)
-      const configs = Array.isArray(resolved) ? resolved : [resolved]
-      const result = configs.map(applyDefaults)
-
-      return result.length === 1 ? result[0]! : result
+      return normalizeConfig(await config(cli))
     }
   }
 
   if (isPromise(config)) {
-    return config.then((resolved) => {
-      const configs = Array.isArray(resolved) ? resolved : [resolved]
-      const result = configs.map(applyDefaults)
-
-      return result.length === 1 ? result[0]! : result
-    })
+    return config.then((resolved) => normalizeConfig(resolved))
   }
 
-  const configs = Array.isArray(config) ? config : [config]
-  const result = configs.map(applyDefaults)
-
-  return result.length === 1 ? result[0]! : result
+  return normalizeConfig(config)
 }

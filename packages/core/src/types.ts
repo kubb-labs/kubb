@@ -5,6 +5,7 @@ import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
+import type { HookStylePlugin } from './definePlugin.ts'
 import type { KubbHooks } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
@@ -472,6 +473,34 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
  * @deprecated
  */
 export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
+
+/**
+ * Partial version of {@link Config} intended for user-facing config entry points.
+ *
+ * Fields that have sensible defaults (`root`, `plugins`, `parsers`, `adapter`) are optional.
+ */
+export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins' | 'parsers' | 'adapter'> & {
+  /**
+   * The project root directory, which can be either an absolute path or a path relative to the location of your `kubb.config.ts` file.
+   * @default process.cwd()
+   */
+  root?: string
+  /**
+   * An array of parsers used to convert generated files to strings.
+   * Each parser handles specific file extensions (e.g. `.ts`, `.tsx`).
+   *
+   * A catch-all fallback parser is always appended last for any unhandled extension.
+   */
+  parsers?: Array<Parser>
+  /**
+   * Adapter that converts the input file into a `@kubb/ast` `InputNode`.
+   */
+  adapter?: Adapter
+  /**
+   * User-facing plugins can be either legacy createPlugin instances or hook-style plugins.
+   */
+  plugins?: Array<Omit<UserPlugin, 'inject'> | HookStylePlugin>
+}
 
 /**
  * Handler for a single schema node. Used by the `schema` hook on a plugin.

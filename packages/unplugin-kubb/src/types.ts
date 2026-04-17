@@ -1,8 +1,8 @@
-import type { Config } from '@kubb/core'
+import type { UserConfig } from '@kubb/core'
 
 export type Options = {
   /**
-   * Kubb config without the Hooks.
+   * Kubb config passed to the unplugin entry point.
    */
-  config?: Omit<Config, 'hooks'>
+  config?: UserConfig
 }

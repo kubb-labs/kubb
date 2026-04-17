@@ -1,9 +1,7 @@
-import { isPromise } from '@internals/utils'
-import type { Plugin } from '@kubb/core'
+import type { CLIOptions, Plugin, UserConfig } from '@kubb/core'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, expectTypeOf, test } from 'vitest'
 import { defineConfig } from './defineConfig.ts'
-import type { UserConfig } from './types.ts'
 
 describe('defineConfig', () => {
   const plugin = createMockedPlugin({ name: 'plugin', options: undefined as any })
@@ -65,6 +63,7 @@ describe('defineConfig', () => {
     const fn = defineConfig(() => ({ ...baseConfig }))
 
     expect(typeof fn).toBe('function')
+    expectTypeOf<typeof fn>().toEqualTypeOf<(cli: CLIOptions) => Promise<UserConfig>>()
     const result = await fn({})
 
     expect(result).toBeDefined()
@@ -73,9 +72,83 @@ describe('defineConfig', () => {
   test('handles async function config', async () => {
     const fn = defineConfig(async () => ({ ...baseConfig }))
 
+    expectTypeOf<typeof fn>().toEqualTypeOf<(cli: CLIOptions) => Promise<UserConfig>>()
     const result = await fn({})
 
     expect(result).toBeDefined()
+  })
+
+  test('handles function array config', async () => {
+    const fn = defineConfig(() => [{ ...baseConfig }])
+
+    expectTypeOf<typeof fn>().toEqualTypeOf<(cli: CLIOptions) => Promise<UserConfig[]>>()
+    const result = await fn({})
+
+    expect(result).toHaveLength(1)
+  })
+
+  test('handles async function array config', async () => {
+    const fn = defineConfig(async () => [{ ...baseConfig }])
+
+    expectTypeOf<typeof fn>().toEqualTypeOf<(cli: CLIOptions) => Promise<UserConfig[]>>()
+    const result = await fn({})
+
+    expect(result).toHaveLength(1)
+  })
+
+  test('handles promise config', async () => {
+    const config = defineConfig(
+      Promise.resolve({
+        input: { path: 'spec.yaml' },
+        output: { path: './gen' },
+      }),
+    )
+
+    const result = await config
+
+    expect(result).toBeDefined()
+    expectTypeOf<typeof config>().toEqualTypeOf<Promise<UserConfig<{ path: string }>>>()
+  })
+
+  test('handles promise array config', async () => {
+    const config = defineConfig(
+      Promise.resolve([
+        {
+          input: { path: 'spec.yaml' },
+          output: { path: './gen' },
+        },
+      ]),
+    )
+
+    const result = await config
+
+    expect(result).toHaveLength(1)
+    expectTypeOf<typeof config>().toEqualTypeOf<Promise<Array<UserConfig<{ path: string }>>>>()
+  })
+
+  test('preserves inferred input types', () => {
+    const pathConfig = defineConfig({
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+    })
+    const dataConfig = defineConfig({
+      input: { data: { openapi: '3.1.0' } },
+      output: { path: './gen' },
+    })
+
+    expectTypeOf<typeof pathConfig>().toEqualTypeOf<UserConfig<{ path: string }>>()
+    expectTypeOf<typeof dataConfig>().toEqualTypeOf<UserConfig<{ data: { openapi: string } }>>()
+  })
+
+  test('preserves inferred input types for array results', () => {
+    const arrayConfig = defineConfig([
+      {
+        input: { path: 'spec.yaml' },
+        output: { path: './gen' },
+      },
+    ])
+
+    expectTypeOf<typeof arrayConfig>().toEqualTypeOf<Array<UserConfig<{ path: string }>>>()
   })
 
   const configs = [
@@ -95,18 +168,21 @@ describe('defineConfig', () => {
       name: 'functionArray',
       config: defineConfig(() => [{ ...baseConfig }]),
     },
+    {
+      name: 'asyncFunctionArray',
+      config: defineConfig(async () => [{ ...baseConfig }]),
+    },
+    {
+      name: 'promiseArray',
+      config: defineConfig(Promise.resolve([{ ...baseConfig }])),
+    },
   ]
 
   test.each(configs)('resolves config as $name', async ({ config }) => {
     let kubbUserConfig = Promise.resolve(config) as Promise<UserConfig | Array<UserConfig>>
 
     if (typeof config === 'function') {
-      const possiblePromise = config({})
-      if (isPromise(possiblePromise)) {
-        kubbUserConfig = possiblePromise
-      } else {
-        kubbUserConfig = Promise.resolve(possiblePromise)
-      }
+      kubbUserConfig = Promise.resolve(config({}))
     }
 
     let JSONConfig = await kubbUserConfig
