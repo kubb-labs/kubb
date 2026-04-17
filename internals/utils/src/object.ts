@@ -19,4 +19,3 @@ export function serializePluginOptions<TOptions extends object>(options: TOption
   }
   return serialized as TOptions
 }
-

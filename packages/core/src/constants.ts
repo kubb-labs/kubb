@@ -48,5 +48,3 @@ export const logLevel = {
   verbose: 4,
   debug: 5,
 } as const
-
-

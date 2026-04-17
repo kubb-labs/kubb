@@ -103,9 +103,7 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
     }
 
     if (!(await isPortAvailable(numericPort, resolvedEnv.host))) {
-      clack.log.error(
-        styleText('red', `Port ${resolvedEnv.port} is already in use. Stop the existing process or choose a different port with --port.`),
-      )
+      clack.log.error(styleText('red', `Port ${resolvedEnv.port} is already in use. Stop the existing process or choose a different port with --port.`))
       process.exit(1)
     }
 

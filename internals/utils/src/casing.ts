@@ -84,4 +84,3 @@ export function pascalCase(text: string, { isFile, prefix = '', suffix = '' }: O
 
   return toCamelOrPascal(`${prefix} ${text} ${suffix}`, true)
 }
-

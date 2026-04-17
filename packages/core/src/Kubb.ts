@@ -2,7 +2,15 @@ import type { AsyncEventEmitter } from '@internals/utils'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import type { BuildOutput } from './createKubb.ts'
 import type { PluginDriver, Strategy } from './PluginDriver.ts'
-import type { Config, GeneratorContext, KubbBuildEndContext, KubbBuildStartContext, KubbPluginSetupContext, NormalizedPlugin, PluginLifecycleHooks } from './types'
+import type {
+  Config,
+  GeneratorContext,
+  KubbBuildEndContext,
+  KubbBuildStartContext,
+  KubbPluginSetupContext,
+  NormalizedPlugin,
+  PluginLifecycleHooks,
+} from './types'
 
 type DebugInfo = {
   date: Date

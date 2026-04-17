@@ -404,9 +404,7 @@ function createSchemaParser(ctx: OasParserContext) {
         | 'number'
         | 'boolean'
         | 'string'
-      const rawEnumNames = extensionKey
-        ? ((schema as Record<string, unknown>)[extensionKey] as Array<string | number>)
-        : undefined
+      const rawEnumNames = extensionKey ? ((schema as Record<string, unknown>)[extensionKey] as Array<string | number>) : undefined
       const uniqueValues = [...new Set(filteredValues)]
       const seenNames = new Set<string>()
 

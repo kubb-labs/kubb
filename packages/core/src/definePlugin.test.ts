@@ -1,5 +1,5 @@
-import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { AsyncEventEmitter } from '@internals/utils'
+import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { createPlugin } from './createPlugin.ts'
@@ -480,7 +480,7 @@ describe('PluginDriver — generator event dispatch', () => {
 
     const fakePlugin = driver.plugins.get('hook-plugin')!
     const fakeCtx = {
-      ...(driver.getContext(fakePlugin)),
+      ...driver.getContext(fakePlugin),
       adapter: {},
       inputNode: {},
     } as unknown as GeneratorContext

@@ -265,7 +265,7 @@ describe('defaultResolveFooter', () => {
     const node = { title: 'Petstore' }
     const result = defaultResolveFooter(node as unknown as InputNode, {
       config: mockConfig,
-      output: { footer: (n?: InputNode) => `// footer for ${(n as InputNode & { title?: string } | undefined)?.title}` },
+      output: { footer: (n?: InputNode) => `// footer for ${(n as (InputNode & { title?: string }) | undefined)?.title}` },
     })
     expect(result).toBe('// footer for Petstore')
   })

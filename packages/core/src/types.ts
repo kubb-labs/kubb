@@ -901,7 +901,7 @@ export type CompatibilityPreset = 'default' | 'kubbV4'
 
 export type { Storage } from './createStorage.ts'
 export type { Generator } from './defineGenerator.ts'
-export type { Plugin, HookStylePlugin, PluginHooks } from './definePlugin.ts'
+export type { HookStylePlugin, Plugin, PluginHooks } from './definePlugin.ts'
 export type { Kubb, KubbHooks } from './Kubb.ts'
 
 /**

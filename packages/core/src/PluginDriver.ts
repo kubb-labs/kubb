@@ -74,7 +74,6 @@ export type GetFileOptions<TOptions = object> = {
   options?: TOptions
 }
 
-
 const hookFirstNullCheck = (state: unknown) => !!(state as SafeParseResult<'resolveName'> | null)?.result
 
 export class PluginDriver {
@@ -95,7 +94,7 @@ export class PluginDriver {
       return 'split'
     }
     return extname(fileOrFolder) ? 'single' : 'split'
-}
+  }
 
   /**
    * The universal `@kubb/ast` `InputNode` produced by the adapter, set by
@@ -135,7 +134,11 @@ export class PluginDriver {
           return this.#normalizeHookStylePlugin(rawPlugin as HookStylePlugin)
         }
         const legacyPlugin = rawPlugin as UserPluginWithLifeCycle
-        return { ...legacyPlugin, buildStart: legacyPlugin.buildStart ?? (() => {}), buildEnd: legacyPlugin.buildEnd ?? (() => {}) } as unknown as NormalizedPlugin
+        return {
+          ...legacyPlugin,
+          buildStart: legacyPlugin.buildStart ?? (() => {}),
+          buildEnd: legacyPlugin.buildEnd ?? (() => {}),
+        } as unknown as NormalizedPlugin
       })
       .filter((plugin) => {
         if (typeof plugin.apply === 'function') {
