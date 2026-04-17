@@ -245,9 +245,6 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      source-map-support:
-        specifier: ^0.5.21
-        version: 0.5.21
 
   packages/core:
     dependencies:

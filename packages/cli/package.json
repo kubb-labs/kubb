@@ -35,7 +35,7 @@
   },
   "types": "./dist/index.d.ts",
   "bin": {
-    "kubb": "bin/kubb.cjs"
+    "kubb": "bin/kubb.js"
   },
   "files": [
     "src",
@@ -75,8 +75,7 @@
     "@internals/utils": "workspace:*",
     "@kubb/agent": "workspace:*",
     "@kubb/mcp": "workspace:*",
-    "@kubb/oas": "workspace:*",
-    "source-map-support": "^0.5.21"
+    "@kubb/oas": "workspace:*"
   },
   "engines": {
     "node": ">=22"
