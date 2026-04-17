@@ -9,7 +9,8 @@ import { createStorage } from '../createStorage.ts'
  *
  * @example
  * ```ts
- * import { defineConfig, memoryStorage } from '@kubb/core'
+ * import { memoryStorage } from '@kubb/core'
+ * import { defineConfig } from 'kubb'
  *
  * export default defineConfig({
  *   input:  { path: './petStore.yaml' },

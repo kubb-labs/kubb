@@ -3,12 +3,18 @@ import { adapterOas } from '@kubb/adapter-oas'
 import type { CLIOptions, UserConfig } from '@kubb/core'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 
-type ConfigValue<TInput> = UserConfig<TInput>
-type ConfigArray<TInput> = Array<ConfigValue<TInput>>
-type ConfigResult<TInput> = ConfigValue<TInput> | ConfigArray<TInput>
-type ConfigPromise<TInput> = Promise<ConfigResult<TInput>>
-type ConfigFactory<TInput> = (cli: CLIOptions) => PossiblePromise<ConfigResult<TInput>>
-type DefinedConfig<TInput> = ConfigResult<TInput> | ConfigPromise<TInput> | ((cli: CLIOptions) => Promise<ConfigResult<TInput>>)
+type AnyConfigResult = UserConfig<any> | Array<UserConfig<any>>
+type ConfigInput = AnyConfigResult | Promise<AnyConfigResult> | ((cli: CLIOptions) => PossiblePromise<AnyConfigResult>)
+type NormalizeConfig<TConfig> = TConfig extends Array<UserConfig<infer TInput>>
+  ? Array<UserConfig<TInput>>
+  : TConfig extends UserConfig<infer TInput>
+    ? UserConfig<TInput>
+    : never
+type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptions) => PossiblePromise<infer TResult>
+  ? (cli: CLIOptions) => Promise<NormalizeConfig<TResult>>
+  : TConfig extends Promise<infer TResult>
+    ? Promise<NormalizeConfig<TResult>>
+    : NormalizeConfig<TConfig>
 
 /**
  * Applies default adapter and parsers to a single user config when not set.
@@ -49,25 +55,16 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  *   plugins: [myPlugin()],
  * }))
  */
-export function defineConfig<TInput>(config: (cli: CLIOptions) => PossiblePromise<UserConfig<TInput>>): (cli: CLIOptions) => Promise<UserConfig<TInput>>
-export function defineConfig<TInput>(
-  config: (cli: CLIOptions) => PossiblePromise<Array<UserConfig<TInput>>>,
-): (cli: CLIOptions) => Promise<Array<UserConfig<TInput>>>
-export function defineConfig<TInput>(config: Promise<UserConfig<TInput>>): Promise<UserConfig<TInput>>
-export function defineConfig<TInput>(config: Promise<Array<UserConfig<TInput>>>): Promise<Array<UserConfig<TInput>>>
-export function defineConfig<TInput>(config: UserConfig<TInput>): UserConfig<TInput>
-export function defineConfig<TInput>(config: Array<UserConfig<TInput>>): Array<UserConfig<TInput>>
-export function defineConfig<TInput>(config: ConfigFactory<TInput>): (cli: CLIOptions) => Promise<ConfigResult<TInput>>
-export function defineConfig<TInput>(config: ConfigResult<TInput> | ConfigPromise<TInput> | ConfigFactory<TInput>): DefinedConfig<TInput> {
+export function defineConfig<TConfig extends ConfigInput>(config: TConfig): DefinedConfig<TConfig> {
   if (typeof config === 'function') {
-    return async (cli: CLIOptions) => {
+    return (async (cli: CLIOptions) => {
       return normalizeConfig(await config(cli))
-    }
+    }) as DefinedConfig<TConfig>
   }
 
   if (isPromise(config)) {
-    return config.then((resolved) => normalizeConfig(resolved))
+    return config.then((resolved) => normalizeConfig(resolved)) as DefinedConfig<TConfig>
   }
 
-  return normalizeConfig(config)
+  return normalizeConfig(config) as DefinedConfig<TConfig>
 }

@@ -19,7 +19,7 @@ export const adapterOasName = 'oas' satisfies AdapterOas['name']
  *
  * @example
  * ```ts
- * import { defineConfig } from '@kubb/core'
+ * import { defineConfig } from 'kubb'
  * import { adapterOas } from '@kubb/adapter-oas'
  * import { pluginTs } from '@kubb/plugin-ts'
  *

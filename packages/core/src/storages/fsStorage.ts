@@ -26,7 +26,8 @@ function isMissingPathError(error: unknown): error is NodeJS.ErrnoException {
  *
  * @example
  * ```ts
- * import { defineConfig, fsStorage } from '@kubb/core'
+ * import { fsStorage } from '@kubb/core'
+ * import { defineConfig } from 'kubb'
  *
  * export default defineConfig({
  *   input:  { path: './petStore.yaml' },

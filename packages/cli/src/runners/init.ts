@@ -257,7 +257,7 @@ export async function runInit({ yes, version }: InitOptions): Promise<void> {
     }
 
     // Install packages
-    const packagesToInstall = ['@kubb/core', '@kubb/cli', '@kubb/agent', ...selectedPlugins.map((p) => p.packageName)]
+    const packagesToInstall = ['kubb', ...selectedPlugins.map((p) => p.packageName)]
 
     const spinner = clack.spinner()
     spinner.start(`Installing ${packagesToInstall.length} packages with ${packageManager.name}`)

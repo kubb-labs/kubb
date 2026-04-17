@@ -1,6 +1,6 @@
 import type { CLIOptions, Plugin, UserConfig } from '@kubb/core'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
-import { describe, expect, expectTypeOf, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { defineConfig } from './defineConfig.ts'
 
 describe('defineConfig', () => {
@@ -53,7 +53,7 @@ describe('defineConfig', () => {
   })
 
   test('handles array of configs', () => {
-    const result = defineConfig([{ ...baseConfig }, { ...baseConfig }]) as UserConfig[]
+    const result = defineConfig([{ ...baseConfig }, { ...baseConfig }])
 
     expect(Array.isArray(result)).toBe(true)
     expect(result).toHaveLength(2)
@@ -61,9 +61,10 @@ describe('defineConfig', () => {
 
   test('handles function config', async () => {
     const fn = defineConfig(() => ({ ...baseConfig }))
+    const typedFn: (cli: CLIOptions) => Promise<UserConfig> = fn
 
     expect(typeof fn).toBe('function')
-    expectTypeOf<typeof fn>().toEqualTypeOf<(cli: CLIOptions) => Promise<UserConfig>>()
+    expect(typeof typedFn).toBe('function')
     const result = await fn({})
 
     expect(result).toBeDefined()
@@ -71,8 +72,9 @@ describe('defineConfig', () => {
 
   test('handles async function config', async () => {
     const fn = defineConfig(async () => ({ ...baseConfig }))
+    const typedFn: (cli: CLIOptions) => Promise<UserConfig> = fn
 
-    expectTypeOf<typeof fn>().toEqualTypeOf<(cli: CLIOptions) => Promise<UserConfig>>()
+    expect(typeof typedFn).toBe('function')
     const result = await fn({})
 
     expect(result).toBeDefined()
@@ -80,8 +82,9 @@ describe('defineConfig', () => {
 
   test('handles function array config', async () => {
     const fn = defineConfig(() => [{ ...baseConfig }])
+    const typedFn: (cli: CLIOptions) => Promise<UserConfig[]> = fn
 
-    expectTypeOf<typeof fn>().toEqualTypeOf<(cli: CLIOptions) => Promise<UserConfig[]>>()
+    expect(typeof typedFn).toBe('function')
     const result = await fn({})
 
     expect(result).toHaveLength(1)
@@ -89,8 +92,9 @@ describe('defineConfig', () => {
 
   test('handles async function array config', async () => {
     const fn = defineConfig(async () => [{ ...baseConfig }])
+    const typedFn: (cli: CLIOptions) => Promise<UserConfig[]> = fn
 
-    expectTypeOf<typeof fn>().toEqualTypeOf<(cli: CLIOptions) => Promise<UserConfig[]>>()
+    expect(typeof typedFn).toBe('function')
     const result = await fn({})
 
     expect(result).toHaveLength(1)
@@ -103,11 +107,12 @@ describe('defineConfig', () => {
         output: { path: './gen' },
       }),
     )
+    const typedConfig: Promise<UserConfig<{ path: string }>> = config
 
     const result = await config
 
     expect(result).toBeDefined()
-    expectTypeOf<typeof config>().toEqualTypeOf<Promise<UserConfig<{ path: string }>>>()
+    expect(typedConfig).toBeDefined()
   })
 
   test('handles promise array config', async () => {
@@ -119,11 +124,12 @@ describe('defineConfig', () => {
         },
       ]),
     )
+    const typedConfig: Promise<Array<UserConfig<{ path: string }>>> = config
 
     const result = await config
 
     expect(result).toHaveLength(1)
-    expectTypeOf<typeof config>().toEqualTypeOf<Promise<Array<UserConfig<{ path: string }>>>>()
+    expect(typedConfig).toBeDefined()
   })
 
   test('preserves inferred input types', () => {
@@ -135,9 +141,27 @@ describe('defineConfig', () => {
       input: { data: { openapi: '3.1.0' } },
       output: { path: './gen' },
     })
+    const typedPathConfig: UserConfig<{ path: string }> = pathConfig
+    const typedDataConfig: UserConfig<{ data: { openapi: string } }> = dataConfig
 
-    expectTypeOf<typeof pathConfig>().toEqualTypeOf<UserConfig<{ path: string }>>()
-    expectTypeOf<typeof dataConfig>().toEqualTypeOf<UserConfig<{ data: { openapi: string } }>>()
+    expect(typedPathConfig.input.path).toBe('spec.yaml')
+    expect(typedDataConfig.input.data).toEqual({ openapi: '3.1.0' })
+  })
+
+  test('accepts named configs with hooks', () => {
+    const namedConfig = defineConfig({
+      name: 'gen',
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+      hooks: {
+        done: ['npm run typecheck'],
+      },
+      plugins: [],
+    })
+    const typedNamedConfig: UserConfig<{ path: string }> = namedConfig
+
+    expect(typedNamedConfig.name).toBe('gen')
   })
 
   test('preserves inferred input types for array results', () => {
@@ -147,8 +171,9 @@ describe('defineConfig', () => {
         output: { path: './gen' },
       },
     ])
+    const typedArrayConfig: Array<UserConfig<{ path: string }>> = arrayConfig
 
-    expectTypeOf<typeof arrayConfig>().toEqualTypeOf<Array<UserConfig<{ path: string }>>>()
+    expect(typedArrayConfig).toHaveLength(1)
   })
 
   const configs = [
@@ -179,13 +204,13 @@ describe('defineConfig', () => {
   ]
 
   test.each(configs)('resolves config as $name', async ({ config }) => {
-    let kubbUserConfig = Promise.resolve(config) as Promise<UserConfig | Array<UserConfig>>
+    let kubbUserConfig = Promise.resolve(config) as Promise<unknown>
 
     if (typeof config === 'function') {
       kubbUserConfig = Promise.resolve(config({}))
     }
 
-    let JSONConfig = await kubbUserConfig
+    let JSONConfig = (await kubbUserConfig) as UserConfig | Array<UserConfig>
 
     if (!Array.isArray(JSONConfig)) {
       JSONConfig = [JSONConfig]

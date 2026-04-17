@@ -296,7 +296,7 @@ The `input` value is treated as `InputData` (i.e. `{ data: "<content>" }`) and o
 ### 1. Create a Kubb configuration file (`kubb.config.ts`):
 
 ```typescript
-import { defineConfig } from '@kubb/core'
+import { defineConfig } from 'kubb'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
