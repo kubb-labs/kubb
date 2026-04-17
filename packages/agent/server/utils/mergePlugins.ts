@@ -1,7 +1,6 @@
-import type { Plugin } from '@kubb/core'
+import type { Plugin, PluginRegistry } from '@kubb/core'
 import { mergeDeep } from 'remeda'
 import type { JSONKubbConfig } from '~/types/agent.ts'
-import { resolvePlugins } from './resolvePlugins.ts'
 
 /**
  * Merges studio plugin options with disk config plugins.
@@ -11,12 +10,12 @@ import { resolvePlugins } from './resolvePlugins.ts'
  * For plugins present in both configs, the plugin is re-instantiated with merged options
  * so that all internal closures correctly reference the merged values.
  */
-export async function mergePlugins(diskPlugins: Array<Plugin> | undefined, studioPlugins: JSONKubbConfig['plugins'] | undefined): Promise<Array<Plugin> | undefined> {
+export async function mergePlugins(registry: PluginRegistry, diskPlugins: Array<Plugin> | undefined, studioPlugins: JSONKubbConfig['plugins'] | undefined): Promise<Array<Plugin> | undefined> {
   if (!diskPlugins && !studioPlugins) return undefined
   if (!studioPlugins) return diskPlugins
 
   // Resolve studio JSON entries into Plugin objects so names are consistent (e.g. 'plugin-oas')
-  const resolvedStudio = await resolvePlugins(studioPlugins)
+  const resolvedStudio = await registry.resolvePlugins(studioPlugins)
 
   if (!diskPlugins) return resolvedStudio
 
@@ -39,7 +38,7 @@ export async function mergePlugins(diskPlugins: Array<Plugin> | undefined, studi
       // Merge options (disk as base, studio overrides), then re-instantiate the plugin
       // so that all internal closures reference the correctly merged options.
       const mergedOptions = mergeDeep(diskPlugin.options as Record<string, unknown>, studioEntry.options as Record<string, unknown>)
-      const resolved = await resolvePlugins([{ name: studioEntry.name, options: mergedOptions }])
+      const resolved = await registry.resolvePlugins([{ name: studioEntry.name, options: mergedOptions }])
       return resolved[0] ?? diskPlugin
     }),
   )

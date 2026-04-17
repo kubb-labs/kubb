@@ -21,8 +21,24 @@ vi.mock('./setupHookListener.ts', () => ({
   setupHookListener: vi.fn(),
 }))
 
-vi.mock('./resolvePlugins.ts', () => ({
-  resolvePlugins: vi.fn().mockReturnValue([]),
+vi.mock('@kubb/core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@kubb/core')>()
+  return {
+    ...actual,
+    createRegistry: vi.fn(() => ({
+      registerPlugin: vi.fn(),
+      registerAdapter: vi.fn(),
+      registerParser: vi.fn(),
+      resolvePlugin: vi.fn(),
+      resolvePlugins: vi.fn().mockResolvedValue([]),
+      resolveAdapter: vi.fn(),
+      resolveParser: vi.fn(),
+    })),
+  }
+})
+
+vi.mock('./mergePlugins.ts', () => ({
+  mergePlugins: vi.fn().mockResolvedValue(undefined),
 }))
 
 vi.mock('./agentCache.ts', () => ({
@@ -47,7 +63,7 @@ import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
 import { loadConfig } from './loadConfig.ts'
 import { logger } from './logger.ts'
-import { resolvePlugins } from './resolvePlugins.ts'
+import { mergePlugins } from './mergePlugins.ts'
 import { createWebsocket, sendAgentMessage } from './ws.ts'
 
 // Shared test helpers
@@ -152,14 +168,14 @@ describe('connectToStudio', () => {
     expect(generate).toHaveBeenCalledWith(expect.objectContaining({ config: expect.objectContaining({ name: 'test' }) }))
   })
 
-  it('calls resolvePlugins with payload plugins when the generate command includes a payload', async () => {
+  it('calls mergePlugins with payload plugins when the generate command includes a payload', async () => {
     const payload = { plugins: [{ name: '@kubb/plugin-ts', options: {} }] }
 
     await connectToStudio(options)
 
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'generate', payload }) })
 
-    expect(resolvePlugins).toHaveBeenCalledWith(payload.plugins)
+    expect(mergePlugins).toHaveBeenCalledWith(expect.anything(), expect.anything(), payload.plugins)
   })
 
   it('disables write in sandbox mode even when allowWrite is true', async () => {
@@ -182,7 +198,7 @@ describe('connectToStudio', () => {
     const sandboxWs = new MockWebSocket()
     vi.mocked(createWebsocket).mockReturnValue(sandboxWs as any)
 
-    const payload = { input: 'openapi: "3.0.0"', plugins: [] }
+    const payload = { input: { data: 'openapi: "3.0.0"' }, plugins: [] }
 
     await connectToStudio(options)
 
@@ -196,7 +212,7 @@ describe('connectToStudio', () => {
   })
 
   it('ignores inline input from payload when not in sandbox mode', async () => {
-    const payload = { input: 'openapi: "3.0.0"', plugins: [] }
+    const payload = { input: { data: 'openapi: "3.0.0"' }, plugins: [] }
 
     await connectToStudio(options)
 
@@ -247,7 +263,7 @@ describe('connectToStudio', () => {
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'generate' }) })
 
     expect(getLatestStudioConfigFromStorage).toHaveBeenCalledWith({ sessionId: 'session-abc' })
-    expect(resolvePlugins).toHaveBeenCalledWith(storedConfig.plugins)
+    expect(mergePlugins).toHaveBeenCalledWith(expect.anything(), expect.anything(), storedConfig.plugins)
   })
 
   it('uses the payload plugins over the stored studio config when both are present', async () => {
@@ -260,8 +276,8 @@ describe('connectToStudio', () => {
 
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'generate', payload }) })
 
-    // resolvePlugins is called with the payload plugins (not the stored ones)
-    expect(resolvePlugins).toHaveBeenCalledWith(payload.plugins)
+    // mergePlugins is called with the payload plugins (not the stored ones)
+    expect(mergePlugins).toHaveBeenCalledWith(expect.anything(), expect.anything(), payload.plugins)
   })
 
   // connect command

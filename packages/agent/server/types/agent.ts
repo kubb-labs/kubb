@@ -9,19 +9,13 @@
  */
 
 import type { FileNode } from '@kubb/ast'
-import type { Config } from '@kubb/core'
+import type { Config, JSONConfig } from '@kubb/core'
 
-export type JSONKubbConfig = {
-  plugins?: Array<{
-    name: string
-    options: object
-  }>
-  /**
-   * Raw OpenAPI / Swagger spec content (YAML or JSON string).
-   * Only possible to set when agent type is 'sandbox'
-   */
-  input?: string
-}
+/**
+ * Partial JSON config sent over the wire between Studio and Agent.
+ * Reuses the JSON-serializable types from `@kubb/core`.
+ */
+export type JSONKubbConfig = Partial<JSONConfig>
 
 /**
  * Typed events sent by the Kubb agent.

@@ -7,8 +7,11 @@ import type { RendererFactory } from './createRenderer.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import { FileProcessor } from './FileProcessor.ts'
+import type { JSONConfig } from './types.ts'
 import type { Kubb } from './Kubb.ts'
 import { PluginDriver } from './PluginDriver.ts'
+import { createRegistry } from './registry.ts'
+import { resolveJSONConfig } from './resolveJSONConfig.ts'
 import { applyHookResult } from './renderNode.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { AdapterSource, Config, GeneratorContext, KubbHooks, Plugin, PluginContext, Storage } from './types.ts'
@@ -546,8 +549,16 @@ function inputToAdapterSource(config: Config): AdapterSource {
   return { type: 'path', path: resolved }
 }
 
+/**
+ * Detects whether the given config is a JSON-serializable config.
+ * JSON configs have no `adapter` object — only a string adapter name or undefined.
+ */
+function isJSONConfig(config: Config | JSONConfig): config is JSONConfig {
+  return !config.adapter || typeof config.adapter === 'string'
+}
+
 type KubbOptions = {
-  config: Config
+  config: Config | JSONConfig
   hooks?: AsyncEventEmitter<KubbHooks>
 }
 
@@ -571,6 +582,7 @@ type KubbOptions = {
  */
 export function createKubb(options: KubbOptions): Kubb {
   const hooks = options.hooks ?? new AsyncEventEmitter<KubbHooks>()
+  const registry = createRegistry()
   let setupResult: SetupResult | undefined
 
   const instance: Kubb = {
@@ -586,8 +598,12 @@ export function createKubb(options: KubbOptions): Kubb {
     get config() {
       return setupResult?.config
     },
+    get registry() {
+      return registry
+    },
     async setup() {
-      setupResult = await setup({ config: options.config, hooks })
+      const resolvedConfig = isJSONConfig(options.config) ? await resolveJSONConfig(registry, options.config) : options.config
+      setupResult = await setup({ config: resolvedConfig, hooks })
     },
     async build() {
       if (!setupResult) {

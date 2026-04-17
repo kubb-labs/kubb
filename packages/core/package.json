@@ -66,6 +66,7 @@
   "scripts": {
     "build": "tsdown && size-limit",
     "clean": "npx rimraf ./dist",
+    "generate:schema": "node scripts/generateSchema.mjs",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --fix --unsafe .",
     "release": "pnpm publish --no-git-check",
@@ -85,7 +86,8 @@
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "@types/semver": "^7.7.1",
-    "p-limit": "catalog:"
+    "p-limit": "catalog:",
+    "ts-json-schema-generator": "^2.9.0"
   },
   "peerDependencies": {
     "@kubb/renderer-jsx": "workspace:*"

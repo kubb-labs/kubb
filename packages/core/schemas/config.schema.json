@@ -1,0 +1,234 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/JSONConfig",
+  "definitions": {
+    "JSONConfig": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Display name shown in CLI output."
+        },
+        "root": {
+          "type": "string",
+          "description": "Project root directory.",
+          "default": "."
+        },
+        "input": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "data"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "Source file or inline data to generate code from."
+        },
+        "output": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Output directory for generated files."
+            },
+            "clean": {
+              "type": "boolean",
+              "description": "Clean the output directory before each build."
+            },
+            "write": {
+              "type": "boolean",
+              "description": "Save files to the file system.",
+              "default": true
+            },
+            "format": {
+              "type": [
+                "string",
+                "boolean"
+              ],
+              "enum": [
+                "auto",
+                "prettier",
+                "biome",
+                "oxfmt",
+                false
+              ],
+              "description": "Formatting tool.",
+              "default": "prettier"
+            },
+            "lint": {
+              "type": [
+                "string",
+                "boolean"
+              ],
+              "enum": [
+                "auto",
+                "eslint",
+                "biome",
+                "oxlint",
+                false
+              ],
+              "description": "Linting tool.",
+              "default": "auto"
+            },
+            "extension": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Override file extension mapping for imports and exports."
+            },
+            "barrelType": {
+              "type": [
+                "string",
+                "boolean"
+              ],
+              "enum": [
+                "all",
+                "named",
+                false
+              ],
+              "description": "Barrel file generation strategy.",
+              "default": "named"
+            },
+            "defaultBanner": {
+              "type": [
+                "string",
+                "boolean"
+              ],
+              "enum": [
+                "simple",
+                "full",
+                false
+              ],
+              "description": "Default banner added to every generated file.",
+              "default": "simple"
+            },
+            "banner": {
+              "type": "string",
+              "description": "Text prepended to every generated file. String only — function variant is not supported in JSON config."
+            },
+            "footer": {
+              "type": "string",
+              "description": "Text appended to every generated file. String only — function variant is not supported in JSON config."
+            },
+            "override": {
+              "type": "boolean",
+              "description": "Whether to override existing files.",
+              "default": false
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "additionalProperties": false,
+          "description": "Output configuration for generated files."
+        },
+        "adapter": {
+          "type": "string",
+          "description": "Adapter name used to parse the input.",
+          "default": "oas"
+        },
+        "parsers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Parser names for converting generated files to strings.",
+          "default": [
+            "ts",
+            "tsx"
+          ]
+        },
+        "plugins": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JSONPlugin"
+          },
+          "description": "Plugins to use for code generation, referenced by package name."
+        },
+        "hooks": {
+          "type": "object",
+          "properties": {
+            "done": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ],
+              "description": "Command(s) to run after generation completes."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Post-build hooks."
+        },
+        "devtools": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "studioUrl": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          ],
+          "description": "Kubb Studio devtools configuration."
+        }
+      },
+      "required": [
+        "input",
+        "output"
+      ],
+      "additionalProperties": false,
+      "description": "JSON-serializable Kubb configuration.\n\nThis is the format accepted by browser-based editors, APIs, and JSON config files. All fields are JSON-safe — no functions, RegExp, or class instances."
+    },
+    "JSONPlugin": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Package name or short name of the plugin. Accepts full package names (`@kubb/plugin-ts`) or short names (`plugin-ts`)."
+        },
+        "options": {
+          "type": "object",
+          "description": "Plugin-specific options. Must be JSON-serializable."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false,
+      "description": "A plugin reference in JSON config. The `name` is used to dynamically import and instantiate the plugin."
+    }
+  },
+  "$id": "https://kubb.dev/schemas/config.schema.json"
+}

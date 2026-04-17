@@ -1,5 +1,5 @@
 import { formatMs, maskString, serializePluginOptions } from '@internals/utils'
-import { AsyncEventEmitter, fsStorage, type KubbHooks, memoryStorage } from '@kubb/core'
+import { AsyncEventEmitter, createRegistry, fsStorage, type KubbHooks, memoryStorage } from '@kubb/core'
 import type { NitroApp } from 'nitropack/types'
 import { version } from '~~/package.json'
 import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage, isPublishCommandMessage } from '../types/agent.ts'
@@ -52,6 +52,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
   // Each connection gets its own isolated event emitter so generation events
   // from one session do not bleed into another session's WebSocket stream.
   const hooks = new AsyncEventEmitter<KubbHooks>()
+  const registry = createRegistry()
   let currentSource: 'generate' | 'publish' | undefined
 
   async function reconnect() {
@@ -175,13 +176,12 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             // Message payload takes priority over previously saved studio config
             const storedConfig = data.payload ? null : await getLatestStudioConfigFromStorage({ sessionId }).catch(() => null)
             const patch = data.payload ?? storedConfig ?? undefined
-            const plugins = await mergePlugins(config.plugins, patch?.plugins)
+            const plugins = await mergePlugins(registry, config.plugins, patch?.plugins)
 
-            // In sandbox mode the caller may supply raw OpenAPI / Swagger spec
-            // content inline (YAML or JSON string) via `payload.input`.
+            // In sandbox mode the caller may supply input inline via `payload.input`.
             // Outside of sandbox mode the input is always taken from the config
             // file on disk — ignoring any payload-supplied input for security.
-            const inputOverride = isSandbox ? { data: patch?.input ?? '' } : undefined
+            const inputOverride = isSandbox ? patch?.input : undefined
 
             if (allowWrite && isSandbox) {
               logger.warn(`[${maskedSessionId}] Agent is running in a sandbox environment, write will be disabled`)
