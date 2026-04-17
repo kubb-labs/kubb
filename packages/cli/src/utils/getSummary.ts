@@ -1,11 +1,11 @@
 import path from 'node:path'
 import { styleText } from 'node:util'
 import { formatHrtime, randomCliColor } from '@internals/utils'
-import type { Config, Plugin } from '@kubb/core'
+import type { Config, NormalizedPlugin } from '@kubb/core'
 import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
 
 type SummaryProps = {
-  failedPlugins: Set<{ plugin: Plugin; error: Error }>
+  failedPlugins: Set<{ plugin: NormalizedPlugin; error: Error }>
   status: 'success' | 'failed'
   hrStart: [number, number]
   filesCreated: number

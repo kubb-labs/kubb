@@ -1,7 +1,7 @@
-import type { Plugin } from '@kubb/core'
+import type { Plugin, UserPlugin } from '@kubb/core'
 import type { JSONKubbConfig } from '~/types/agent.ts'
 
-type PluginFactory = (options: unknown) => Plugin
+type PluginFactory = (options: unknown) => Plugin | UserPlugin
 
 /**
  * Derives the conventional named export for a plugin package from its package name.
@@ -74,7 +74,7 @@ async function loadPluginFactory(packageName: string): Promise<PluginFactory> {
  * { name: '@kubb/plugin-react-query', options: { output: { path: './hooks' } } }
  * { name: 'my-custom-plugin', options: { output: { path: './custom' } } }
  */
-export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugins']>): Promise<Array<Plugin>> {
+export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugins']>): Promise<Array<Plugin | UserPlugin>> {
   return Promise.all(
     plugins.map(async ({ name, options }) => {
       const factory = await loadPluginFactory(name)

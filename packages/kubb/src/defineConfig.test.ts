@@ -1,4 +1,4 @@
-import type { CLIOptions, Plugin, UserConfig } from '@kubb/core'
+import type { CLIOptions, NormalizedPlugin, UserConfig } from '@kubb/core'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
 import { describe, expect, test } from 'vitest'
 import { defineConfig } from './defineConfig.ts'
@@ -18,7 +18,7 @@ describe('defineConfig', () => {
     },
     parsers: [],
     adapter: createMockedAdapter(),
-    plugins: [plugin] as Array<Plugin>,
+    plugins: [plugin] as Array<NormalizedPlugin>,
   }
 
   test('applies default adapter when not set', () => {

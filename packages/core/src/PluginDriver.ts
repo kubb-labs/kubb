@@ -6,7 +6,7 @@ import type { FileNode, InputNode } from '@kubb/ast'
 import { createFile } from '@kubb/ast'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
-import { type HookStylePlugin, isHookStylePlugin } from './definePlugin.ts'
+import { type Plugin as HookStylePlugin, isPlugin } from './definePlugin.ts'
 import { defineResolver } from './defineResolver.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
@@ -19,8 +19,8 @@ import type {
   Group,
   KubbHooks,
   KubbPluginSetupContext,
+  NormalizedPlugin,
   Output,
-  Plugin,
   PluginContext,
   PluginFactoryOptions,
   PluginLifecycle,
@@ -30,6 +30,7 @@ import type {
   ResolveNameParams,
   ResolvePathParams,
   Resolver,
+  UserPluginWithLifeCycle,
 } from './types.ts'
 import { hookFirst, hookParallel, hookSeq } from './utils/executeStrategies.ts'
 
@@ -49,7 +50,7 @@ type ParseResult<H extends PluginLifecycleHooks> = RequiredPluginLifecycle[H]
 
 type SafeParseResult<H extends PluginLifecycleHooks, Result = ReturnType<ParseResult<H>>> = {
   result: Result
-  plugin: Plugin
+  plugin: NormalizedPlugin
 }
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
@@ -111,7 +112,7 @@ export class PluginDriver {
    */
   readonly fileManager = new FileManager()
 
-  readonly plugins = new Map<string, Plugin>()
+  readonly plugins = new Map<string, NormalizedPlugin>()
 
   /**
    * Tracks which plugins have generators registered via `addGenerator()` (event-based path).
@@ -130,10 +131,11 @@ export class PluginDriver {
     }
     config.plugins
       .map((rawPlugin) => {
-        if (isHookStylePlugin(rawPlugin)) {
+        if (isPlugin(rawPlugin)) {
           return this.#normalizeHookStylePlugin(rawPlugin as HookStylePlugin)
         }
-        return { ...rawPlugin, buildStart: rawPlugin.buildStart ?? (() => {}), buildEnd: rawPlugin.buildEnd ?? (() => {}) } as unknown as Plugin
+        const legacyPlugin = rawPlugin as UserPluginWithLifeCycle
+        return { ...legacyPlugin, buildStart: legacyPlugin.buildStart ?? (() => {}), buildEnd: legacyPlugin.buildEnd ?? (() => {}) } as unknown as NormalizedPlugin
       })
       .filter((plugin) => {
         if (typeof plugin.apply === 'function') {
@@ -159,19 +161,19 @@ export class PluginDriver {
   }
 
   /**
-   * Creates a `Plugin`-compatible object from a hook-style plugin and registers
+   * Creates a `NormalizedPlugin`-compatible object from a hook-style plugin and registers
    * its lifecycle handlers on the `AsyncEventEmitter`.
    *
    * The normalized plugin has an empty `buildStart` — generators registered via
    * `addGenerator()` in `kubb:plugin:setup` are stored on `normalizedPlugin.generators`
    * and used by `runPluginAstHooks` during the build.
    */
-  #normalizeHookStylePlugin(hookPlugin: HookStylePlugin): Plugin {
-    const generators: Plugin['generators'] = []
+  #normalizeHookStylePlugin(hookPlugin: HookStylePlugin): NormalizedPlugin {
+    const generators: NormalizedPlugin['generators'] = []
     const driver = this
-    // The options shape is the minimal struct required by Plugin. Hook-style plugins
+    // The options shape is the minimal struct required by NormalizedPlugin. Hook-style plugins
     // use generators registered via addGenerator() and resolvers set via setResolver().
-    // `inject` and `resolver` are required by the Plugin type but are irrelevant for hook-style
+    // `inject` and `resolver` are required by the NormalizedPlugin type but are irrelevant for hook-style
     // plugins: inject is a no-op and resolver is set dynamically via setResolver() in kubb:plugin:setup.
     //
     // `resolveName` and `resolvePath` bridge the legacy PluginDriver.resolveName/resolvePath
@@ -198,7 +200,7 @@ export class PluginDriver {
       },
       buildStart() {},
       buildEnd() {},
-    } as unknown as Plugin
+    } as unknown as NormalizedPlugin
     this.registerPluginHooks(hookPlugin, normalizedPlugin)
     return normalizedPlugin
   }
@@ -216,7 +218,7 @@ export class PluginDriver {
    * External tooling can subscribe to any of these events via `hooks.on(...)` to observe
    * the plugin lifecycle without modifying plugin behavior.
    */
-  registerPluginHooks(hookPlugin: HookStylePlugin, normalizedPlugin: Plugin): void {
+  registerPluginHooks(hookPlugin: HookStylePlugin, normalizedPlugin: NormalizedPlugin): void {
     const { hooks } = hookPlugin
 
     // kubb:plugin:setup gets special treatment: the globally emitted context is wrapped with
@@ -414,7 +416,7 @@ export class PluginDriver {
     return this.#createDefaultResolver(pluginName)
   }
 
-  getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, unknown> {
+  getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): PluginContext<TOptions> & Record<string, unknown> {
     const driver = this
 
     const baseContext = {
@@ -642,9 +644,9 @@ export class PluginDriver {
   }: {
     hookName: H
     parameters: PluginParameter<H>
-    skipped?: ReadonlySet<Plugin> | null
+    skipped?: ReadonlySet<NormalizedPlugin> | null
   }): Promise<SafeParseResult<H>> {
-    const plugins: Array<Plugin> = []
+    const plugins: Array<NormalizedPlugin> = []
     for (const plugin of this.plugins.values()) {
       if (hookName in plugin && (skipped ? !skipped.has(plugin) : true)) plugins.push(plugin)
     }
@@ -684,7 +686,7 @@ export class PluginDriver {
   }: {
     hookName: H
     parameters: PluginParameter<H>
-    skipped?: ReadonlySet<Plugin> | null
+    skipped?: ReadonlySet<NormalizedPlugin> | null
   }): SafeParseResult<H> | null {
     let parseResult: SafeParseResult<H> | null = null
 
@@ -718,13 +720,13 @@ export class PluginDriver {
     hookName: H
     parameters?: Parameters<RequiredPluginLifecycle[H]> | undefined
   }): Promise<Awaited<TOutput>[]> {
-    const plugins: Array<Plugin> = []
+    const plugins: Array<NormalizedPlugin> = []
     for (const plugin of this.plugins.values()) {
       if (hookName in plugin) plugins.push(plugin)
     }
     this.hooks.emit('kubb:plugins:hook:progress:start', { hookName, plugins })
 
-    const pluginStartTimes = new Map<Plugin, number>()
+    const pluginStartTimes = new Map<NormalizedPlugin, number>()
 
     const promises = plugins.map((plugin) => {
       return () => {
@@ -771,7 +773,7 @@ export class PluginDriver {
    * Execute a lifecycle hook sequentially for all plugins that implement it.
    */
   async hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
-    const plugins: Array<Plugin> = []
+    const plugins: Array<NormalizedPlugin> = []
     for (const plugin of this.plugins.values()) {
       if (hookName in plugin) plugins.push(plugin)
     }
@@ -792,18 +794,18 @@ export class PluginDriver {
     this.hooks.emit('kubb:plugins:hook:progress:end', { hookName })
   }
 
-  getPlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
-  getPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string): Plugin<TOptions> | undefined
-  getPlugin(pluginName: string): Plugin | undefined {
-    return this.plugins.get(pluginName) as Plugin | undefined
+  getPlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): NormalizedPlugin<Kubb.PluginRegistry[TName]> | undefined
+  getPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string): NormalizedPlugin<TOptions> | undefined
+  getPlugin(pluginName: string): NormalizedPlugin | undefined {
+    return this.plugins.get(pluginName) as NormalizedPlugin | undefined
   }
 
   /**
    * Like `getPlugin` but throws a descriptive error when the plugin is not found.
    */
-  requirePlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Plugin<Kubb.PluginRegistry[TName]>
-  requirePlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string): Plugin<TOptions>
-  requirePlugin(pluginName: string): Plugin {
+  requirePlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): NormalizedPlugin<Kubb.PluginRegistry[TName]>
+  requirePlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string): NormalizedPlugin<TOptions>
+  requirePlugin(pluginName: string): NormalizedPlugin {
     const plugin = this.plugins.get(pluginName)
     if (!plugin) {
       throw new Error(`[kubb] Plugin "${pluginName}" is required but not found. Make sure it is included in your Kubb config.`)

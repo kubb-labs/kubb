@@ -28,13 +28,13 @@ export interface PluginHooks<TFactory extends PluginFactoryOptions = PluginFacto
 }
 
 /**
- * A hook-style plugin object produced by `definePlugin`.
+ * A plugin object produced by `definePlugin`.
  * Instead of flat lifecycle methods, it groups all handlers under a `hooks:` property
  * (matching Astro's integration naming convention).
  *
  * @template TFactory - The plugin's `PluginFactoryOptions` type.
  */
-export type HookStylePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
+export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
    * Unique name for the plugin, following the same naming convention as `createPlugin`.
    */
@@ -56,19 +56,31 @@ export type HookStylePlugin<TFactory extends PluginFactoryOptions = PluginFactor
 }
 
 /**
+ * @deprecated Use `Plugin` instead.
+ */
+export type HookStylePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = Plugin<TFactory>
+
+/**
  * Returns `true` when `plugin` is a hook-style plugin created with `definePlugin`.
  *
  * Used by `PluginDriver` to distinguish hook-style plugins from legacy `createPlugin` plugins
  * so it can normalize them and register their handlers on the `AsyncEventEmitter`.
  */
-export function isHookStylePlugin(plugin: unknown): plugin is HookStylePlugin {
+export function isPlugin(plugin: unknown): plugin is Plugin {
   return typeof plugin === 'object' && plugin !== null && 'hooks' in plugin
 }
 
 /**
- * Creates a plugin factory using the new hook-style (`hooks:`) API.
+ * @deprecated Use `isPlugin` instead.
+ */
+export function isHookStylePlugin(plugin: unknown): plugin is Plugin {
+  return isPlugin(plugin)
+}
+
+/**
+ * Creates a plugin factory using the hook-style (`hooks:`) API.
  *
- * The returned factory is called with optional options and produces a `HookStylePlugin`
+ * The returned factory is called with optional options and produces a `Plugin`
  * that coexists with plugins created via the legacy `createPlugin` API in the same
  * `kubb.config.ts`.
  *
@@ -89,7 +101,7 @@ export function isHookStylePlugin(plugin: unknown): plugin is HookStylePlugin {
  * ```
  */
 export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(
-  factory: (options: TFactory['options']) => HookStylePlugin<TFactory>,
-): (options?: TFactory['options']) => HookStylePlugin<TFactory> {
+  factory: (options: TFactory['options']) => Plugin<TFactory>,
+): (options?: TFactory['options']) => Plugin<TFactory> {
   return (options) => factory(options ?? ({} as TFactory['options']))
 }

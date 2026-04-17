@@ -7,7 +7,7 @@ import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { definePlugin } from './definePlugin.ts'
-import type { Config, KubbHooks, Plugin, PluginContext, PluginFactoryOptions, UserConfig } from './types.ts'
+import type { Config, KubbHooks, NormalizedPlugin, Plugin, PluginContext, PluginFactoryOptions, UserConfig } from './types.ts'
 
 describe('createKubb', () => {
   const pluginMocks = {
@@ -24,7 +24,7 @@ describe('createKubb', () => {
   })
   const plugin = {
     name: 'plugin',
-    options: undefined as unknown as Plugin['options'],
+    options: undefined as unknown as NormalizedPlugin['options'],
     async buildStart(this: PluginContext<PluginFactoryOptions>) {
       pluginMocks.buildStart()
 

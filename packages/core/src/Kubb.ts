@@ -2,7 +2,7 @@ import type { AsyncEventEmitter } from '@internals/utils'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import type { BuildOutput } from './createKubb.ts'
 import type { PluginDriver, Strategy } from './PluginDriver.ts'
-import type { Config, GeneratorContext, KubbBuildEndContext, KubbBuildStartContext, KubbPluginSetupContext, Plugin, PluginLifecycleHooks } from './types'
+import type { Config, GeneratorContext, KubbBuildEndContext, KubbBuildStartContext, KubbPluginSetupContext, NormalizedPlugin, PluginLifecycleHooks } from './types'
 
 type DebugInfo = {
   date: Date
@@ -12,13 +12,13 @@ type DebugInfo = {
 
 type HookProgress<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
   hookName: H
-  plugins: Array<Plugin>
+  plugins: Array<NormalizedPlugin>
 }
 
 type HookExecution<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
   strategy: Strategy
   hookName: H
-  plugin: Plugin
+  plugin: NormalizedPlugin
   parameters?: Array<unknown>
   output?: unknown
 }
@@ -27,7 +27,7 @@ type HookResult<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
   duration: number
   strategy: Strategy
   hookName: H
-  plugin: Plugin
+  plugin: NormalizedPlugin
   parameters?: Array<unknown>
   output?: unknown
 }
@@ -127,11 +127,11 @@ export interface KubbHooks {
   'kubb:generation:summary': [
     config: Config,
     {
-      failedPlugins: Set<{ plugin: Plugin; error: Error }>
+      failedPlugins: Set<{ plugin: NormalizedPlugin; error: Error }>
       status: 'success' | 'failed'
       hrStart: [number, number]
       filesCreated: number
-      pluginTimings?: Map<Plugin['name'], number>
+      pluginTimings?: Map<NormalizedPlugin['name'], number>
     },
   ]
 
@@ -246,12 +246,12 @@ export interface KubbHooks {
   /**
    * Emitted when a plugin starts executing.
    */
-  'kubb:plugin:start': [plugin: Plugin]
+  'kubb:plugin:start': [plugin: NormalizedPlugin]
   /**
    * Emitted when a plugin completes execution.
    * Duration in ms.
    */
-  'kubb:plugin:end': [plugin: Plugin, result: { duration: number; success: boolean; error?: Error }]
+  'kubb:plugin:end': [plugin: NormalizedPlugin, result: { duration: number; success: boolean; error?: Error }]
 
   /**
    * Emitted when plugin hook progress tracking starts.

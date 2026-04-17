@@ -5,7 +5,7 @@ import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
-import type { HookStylePlugin } from './definePlugin.ts'
+import type { Plugin } from './definePlugin.ts'
 import type { KubbHooks } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
@@ -252,7 +252,7 @@ export type Config<TInput = Input> = {
    * If a plugin depends on another, an error is thrown when the dependency is missing.
    * Use `dependencies` on the plugin to declare execution order.
    */
-  plugins: Array<Plugin>
+  plugins: Array<Plugin | UserPlugin>
   /**
    * Project-wide renderer factory. All plugins and generators that do not declare their own
    * `renderer` ultimately fall back to this value.
@@ -382,9 +382,6 @@ export type PluginFactoryOptions<
   resolver: TResolver
 }
 
-/**
- * @deprecated
- */
 export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
    * Unique name used for the plugin.
@@ -469,9 +466,6 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
   inject?: (this: PluginContext<TOptions>) => TOptions['context']
 }
 
-/**
- * @deprecated
- */
 export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
 
 /**
@@ -497,9 +491,11 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
    */
   adapter?: Adapter
   /**
-   * User-facing plugins can be either legacy createPlugin instances or hook-style plugins.
+   * An array of Kubb plugins used for code generation.
+   * Each entry can be a hook-style plugin created with `definePlugin` (`Plugin`) or a
+   * legacy `createPlugin` instance (`UserPlugin`).
    */
-  plugins?: Array<Omit<UserPlugin<any>, 'inject'> | HookStylePlugin<any>>
+  plugins?: Array<Plugin | UserPlugin>
 }
 
 /**
@@ -529,9 +525,9 @@ export type OperationsHook<TOptions extends PluginFactoryOptions = PluginFactory
   options: TOptions['resolvedOptions'],
 ) => PossiblePromise<unknown | Array<FileNode> | void>
 /**
- * @deprecated will be replaced with HookStylePlugin
+ * @deprecated use `NormalizedPlugin` internally — the public `Plugin` type is now the hook-style plugin from `definePlugin`.
  */
-export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
+export type NormalizedPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
    * Unique name used for the plugin.
    *
@@ -622,7 +618,7 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
 /**
  * @deprecated
  */
-export type PluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = Plugin<TOptions> & PluginLifecycle<TOptions>
+export type PluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = NormalizedPlugin<TOptions> & PluginLifecycle<TOptions>
 /**
  * @deprecated
  */
@@ -731,16 +727,16 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   driver: PluginDriver
   /**
    * Get a plugin by name. Returns the plugin typed via `Kubb.PluginRegistry` when
-   * the name is a registered key, otherwise returns the generic `Plugin`.
+   * the name is a registered key, otherwise returns the generic `NormalizedPlugin`.
    */
-  getPlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
-  getPlugin(name: string): Plugin | undefined
+  getPlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): NormalizedPlugin<Kubb.PluginRegistry[TName]> | undefined
+  getPlugin(name: string): NormalizedPlugin | undefined
   /**
    * Like `getPlugin` but throws a descriptive error when the plugin is not found.
    * Useful for enforcing dependencies inside `buildStart()`.
    */
-  requirePlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]>
-  requirePlugin(name: string): Plugin
+  requirePlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): NormalizedPlugin<Kubb.PluginRegistry[TName]>
+  requirePlugin(name: string): NormalizedPlugin
   /**
    * Add files only when they do not exist yet.
    */
@@ -753,7 +749,7 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   /**
    * The current plugin.
    */
-  plugin: Plugin<TOptions>
+  plugin: NormalizedPlugin<TOptions>
   /**
    * Resolver for the current plugin. Shorthand for `plugin.resolver`.
    */
@@ -905,7 +901,7 @@ export type CompatibilityPreset = 'default' | 'kubbV4'
 
 export type { Storage } from './createStorage.ts'
 export type { Generator } from './defineGenerator.ts'
-export type { HookStylePlugin, PluginHooks } from './definePlugin.ts'
+export type { Plugin, HookStylePlugin, PluginHooks } from './definePlugin.ts'
 export type { Kubb, KubbHooks } from './Kubb.ts'
 
 /**
@@ -971,7 +967,7 @@ export type KubbBuildStartContext = {
   config: Config
   adapter: Adapter
   inputNode: InputNode
-  getPlugin(name: string): Plugin | undefined
+  getPlugin(name: string): NormalizedPlugin | undefined
 }
 
 /**

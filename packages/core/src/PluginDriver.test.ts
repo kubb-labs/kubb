@@ -2,7 +2,7 @@ import { AsyncEventEmitter } from '@internals/utils'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { PluginDriver } from './PluginDriver.ts'
-import type { Config, KubbHooks, Plugin, PluginParameter } from './types.ts'
+import type { Config, KubbHooks, NormalizedPlugin, PluginParameter } from './types.ts'
 
 describe('PluginDriver', () => {
   const pluginAMocks = {
@@ -15,7 +15,7 @@ describe('PluginDriver', () => {
   } as const
   const pluginA = {
     name: 'pluginA',
-    options: undefined as unknown as Plugin["options"],
+    options: undefined as unknown as NormalizedPlugin["options"],
     buildStart() {
       pluginAMocks.buildStart()
     },
@@ -28,7 +28,7 @@ describe('PluginDriver', () => {
 
   const pluginB = {
     name: 'pluginB',
-    options: undefined as unknown as Plugin["options"],
+    options: undefined as unknown as NormalizedPlugin["options"],
     buildStart() {
       pluginBMocks.buildStart()
     },
@@ -44,7 +44,7 @@ describe('PluginDriver', () => {
 
   const pluginC = {
     name: 'pluginC',
-    options: undefined as unknown as Plugin["options"],
+    options: undefined as unknown as NormalizedPlugin["options"],
     buildStart() {
       pluginBMocks.buildStart()
     },
@@ -69,7 +69,7 @@ describe('PluginDriver', () => {
     },
     parsers: [],
     adapter: createMockedAdapter(),
-    plugins: [pluginA, pluginB, pluginC] as unknown as Array<Plugin>,
+    plugins: [pluginA, pluginB, pluginC] as unknown as Array<NormalizedPlugin>,
   } satisfies Config
   const pluginDriver = new PluginDriver(config, {
     hooks: new AsyncEventEmitter<KubbHooks>(),
@@ -176,13 +176,13 @@ describe('PluginDriver', () => {
   test('hookForPluginSync should work with non-function hooks', () => {
     const staticPlugin = {
       name: 'staticPlugin',
-      options: undefined as unknown as Plugin["options"],
+      options: undefined as unknown as NormalizedPlugin["options"],
       resolvePath: 'static/path' as unknown as NonNullable<PluginParameter<'resolvePath'>>[0],
     }
 
     const staticConfig = {
       ...config,
-      plugins: [staticPlugin] as unknown as Array<Plugin>,
+      plugins: [staticPlugin] as unknown as Array<NormalizedPlugin>,
     } satisfies Config
 
     const staticPluginDriver = new PluginDriver(staticConfig, {
@@ -201,7 +201,7 @@ describe('PluginDriver', () => {
   it('should handle plugin hook errors gracefully', async () => {
     const errorPlugin = {
       name: 'errorPlugin',
-      options: undefined as unknown as Plugin["options"],
+      options: undefined as unknown as NormalizedPlugin["options"],
       buildStart() {
         throw new Error('Install failed')
       },
@@ -209,7 +209,7 @@ describe('PluginDriver', () => {
 
     const errorConfig = {
       ...config,
-      plugins: [errorPlugin] as unknown as Array<Plugin>,
+      plugins: [errorPlugin] as unknown as Array<NormalizedPlugin>,
     } satisfies Config
 
     const errorPluginDriver = new PluginDriver(errorConfig, {
@@ -229,11 +229,11 @@ describe('PluginDriver', () => {
   })
 
   test('resolvePath should return default path when no plugins have resolvePath', () => {
-    const noResolvePlugin = createMockedPlugin({ name: 'noResolvePlugin', options: undefined as unknown as Plugin['options'] })
+    const noResolvePlugin = createMockedPlugin({ name: 'noResolvePlugin', options: undefined as unknown as NormalizedPlugin['options'] })
 
     const noResolveConfig = {
       ...config,
-      plugins: [noResolvePlugin] as unknown as Array<Plugin>,
+      plugins: [noResolvePlugin] as unknown as Array<NormalizedPlugin>,
     } satisfies Config
 
     const noResolvePluginDriver = new PluginDriver(noResolveConfig, {
@@ -250,12 +250,12 @@ describe('PluginDriver', () => {
   test('getFile should create file with correct properties', () => {
     const pluginWithPath = {
       name: 'pluginA',
-      options: undefined as unknown as Plugin["options"],
+      options: undefined as unknown as NormalizedPlugin["options"],
       resolvePath(baseName: string) {
         return `pluginA/gen/${baseName}`
       },
     }
-    const localPluginDriver = new PluginDriver({ ...config, plugins: [pluginWithPath] as unknown as Array<Plugin> }, { hooks: new AsyncEventEmitter<KubbHooks>() })
+    const localPluginDriver = new PluginDriver({ ...config, plugins: [pluginWithPath] as unknown as Array<NormalizedPlugin> }, { hooks: new AsyncEventEmitter<KubbHooks>() })
 
     const file = localPluginDriver.getFile({
       name: 'testFile',
@@ -271,12 +271,12 @@ describe('PluginDriver', () => {
   test('getFile should work with custom mode', () => {
     const pluginWithPath = {
       name: 'pluginA',
-      options: undefined as unknown as Plugin["options"],
+      options: undefined as unknown as NormalizedPlugin["options"],
       resolvePath(baseName: string) {
         return `pluginA/gen/${baseName || 'index.ts'}`
       },
     }
-    const localPluginDriver = new PluginDriver({ ...config, plugins: [pluginWithPath] as unknown as Array<Plugin> }, { hooks: new AsyncEventEmitter<KubbHooks>() })
+    const localPluginDriver = new PluginDriver({ ...config, plugins: [pluginWithPath] as unknown as Array<NormalizedPlugin> }, { hooks: new AsyncEventEmitter<KubbHooks>() })
 
     const file = localPluginDriver.getFile({
       name: 'testFile',
