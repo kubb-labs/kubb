@@ -1,5 +1,4 @@
-import type { Adapter, Parser, Plugin } from './types.ts'
-import type { JSONPlugin } from './types.ts'
+import type { Adapter, JSONPlugin, Parser, Plugin } from './types.ts'
 
 type PluginFactory = (options?: object) => Plugin
 type AdapterFactory = (options?: object) => Adapter

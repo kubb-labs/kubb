@@ -30,6 +30,6 @@ const outputDir = resolve(rootDir, 'schemas')
 mkdirSync(outputDir, { recursive: true })
 
 const outputPath = resolve(outputDir, 'config.schema.json')
-writeFileSync(outputPath, JSON.stringify(schema, null, 2) + '\n')
+writeFileSync(outputPath, `${JSON.stringify(schema, null, 2)}\n`)
 
 console.log(`JSON Schema written to ${outputPath}`)

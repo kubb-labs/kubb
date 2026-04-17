@@ -14,9 +14,7 @@ describe('registry.resolvePlugins', () => {
   it('throws when the plugin package cannot be imported', async () => {
     const registry = createRegistry()
 
-    await expect(registry.resolvePlugins([{ name: '@kubb/plugin-missing', options: {} }])).rejects.toThrow(
-      'Package "@kubb/plugin-missing" could not be loaded',
-    )
+    await expect(registry.resolvePlugins([{ name: '@kubb/plugin-missing', options: {} }])).rejects.toThrow('Package "@kubb/plugin-missing" could not be loaded')
   })
 
   it('resolves a @kubb plugin by its default export', async () => {

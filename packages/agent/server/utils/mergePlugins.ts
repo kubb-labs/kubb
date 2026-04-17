@@ -10,7 +10,11 @@ import type { JSONKubbConfig } from '~/types/agent.ts'
  * For plugins present in both configs, the plugin is re-instantiated with merged options
  * so that all internal closures correctly reference the merged values.
  */
-export async function mergePlugins(registry: PluginRegistry, diskPlugins: Array<Plugin> | undefined, studioPlugins: JSONKubbConfig['plugins'] | undefined): Promise<Array<Plugin> | undefined> {
+export async function mergePlugins(
+  registry: PluginRegistry,
+  diskPlugins: Array<Plugin> | undefined,
+  studioPlugins: JSONKubbConfig['plugins'] | undefined,
+): Promise<Array<Plugin> | undefined> {
   if (!diskPlugins && !studioPlugins) return undefined
   if (!studioPlugins) return diskPlugins
 

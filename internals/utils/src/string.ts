@@ -1,4 +1,3 @@
-
 /**
  * Returns a masked version of a string, showing only the first and last few characters.
  * Useful for logging sensitive values (tokens, keys) without exposing the full value.
