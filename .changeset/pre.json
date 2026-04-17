@@ -38,6 +38,7 @@
     "auto-infer-primitive-field",
     "cli-esm-bin-multi-runtime",
     "core-getmode-static-cleanup",
+    "create-kubb-user-config-signature",
     "export-ast-namespace-from-core",
     "fix-additional-properties-traversal",
     "fix-boolean-const-enums",
