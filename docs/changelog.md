@@ -6,6 +6,28 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.40
+
+### ✨ Features
+
+#### [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core)
+
+-   [#64](https://github.com/tigawanna/kubb/pull/64) [`ce8322c`](https://github.com/kubb-labs/kubb/commit/ce8322c37dfeb078a2408c5c80e3cf26f0aa0d75) - Improved `defineConfig` typing to provide enhanced type safety and better development experience.
+
+::: code-group
+```typescript [Before]
+// Previous typing
+type DefineConfig = (options: unknown) => void;
+```
+
+```typescript [After]
+// New improved typing
+type DefineConfig = (options: ConfigOptions) => void;
+// Where ConfigOptions provides stronger type guarantees
+```
+:::
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
