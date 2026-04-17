@@ -66,7 +66,7 @@ export function useUpdatePetWithForm<
   TQueryData = UpdatePetWithFormMutationResponse,
   TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
 >(
-  petId?: MaybeRefOrGetter<UpdatePetWithFormPathParams['petId']>,
+  petId: MaybeRefOrGetter<UpdatePetWithFormPathParams['petId'] | undefined>,
   data?: MaybeRefOrGetter<UpdatePetWithFormMutationRequest>,
   params?: MaybeRefOrGetter<UpdatePetWithFormQueryParams>,
   options: {
