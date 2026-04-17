@@ -1150,4 +1150,161 @@ export type PossibleConfig<TCliOptions = undefined> =
 
 export type { BuildOutput } from './createKubb.ts'
 export type { Parser } from './defineParser.ts'
+/**
+ * JSON-serializable Kubb configuration types.
+ *
+ * These types mirror the runtime `Config` but replace all non-serializable
+ * fields (functions, class instances, RegExp) with string references.
+ * Use `resolveJSONConfig` to convert a `JSONConfig` into a runtime `Config`.
+ */
+
+/**
+ * A plugin reference in JSON config.
+ * The `name` is used to dynamically import and instantiate the plugin.
+ *
+ * @example
+ * ```json
+ * { "name": "@kubb/plugin-ts", "options": { "output": { "path": "models" } } }
+ * ```
+ */
+export type JSONPlugin = {
+  /**
+   * Package name or short name of the plugin.
+   * Accepts full package names (`@kubb/plugin-ts`) or short names (`plugin-ts`).
+   */
+  name: string
+  /**
+   * Plugin-specific options. Must be JSON-serializable.
+   */
+  options?: object
+}
+
+/**
+ * A pattern filter in JSON config.
+ * Uses string patterns instead of RegExp for JSON compatibility.
+ */
+export type JSONPatternFilter = {
+  type: 'tag' | 'operationId' | 'path' | 'method' | 'schemaName' | 'contentType'
+  pattern: string
+}
+
+/**
+ * JSON-serializable group configuration.
+ * Replaces the function-valued `name` with an optional string template.
+ */
+export type JSONGroup = {
+  type: 'tag' | 'path'
+  /**
+   * Optional name template. When omitted, the default naming strategy is used.
+   */
+  name?: string
+}
+
+/**
+ * JSON-serializable Kubb configuration.
+ *
+ * This is the format accepted by browser-based editors, APIs, and JSON config files.
+ * All fields are JSON-safe — no functions, RegExp, or class instances.
+ */
+export type JSONConfig = {
+  /**
+   * Display name shown in CLI output.
+   */
+  name?: string
+  /**
+   * Project root directory.
+   * @default '.'
+   */
+  root?: string
+  /**
+   * Source file or inline data to generate code from.
+   */
+  input: { path: string } | { data: string }
+  /**
+   * Output configuration for generated files.
+   */
+  output: {
+    /**
+     * Output directory for generated files.
+     */
+    path: string
+    /**
+     * Clean the output directory before each build.
+     */
+    clean?: boolean
+    /**
+     * Save files to the file system.
+     * @default true
+     */
+    write?: boolean
+    /**
+     * Formatting tool.
+     * @default 'prettier'
+     */
+    format?: 'auto' | 'prettier' | 'biome' | 'oxfmt' | false
+    /**
+     * Linting tool.
+     * @default 'auto'
+     */
+    lint?: 'auto' | 'eslint' | 'biome' | 'oxlint' | false
+    /**
+     * Override file extension mapping for imports and exports.
+     */
+    extension?: Record<string, string>
+    /**
+     * Barrel file generation strategy.
+     * @default 'named'
+     */
+    barrelType?: 'all' | 'named' | false
+    /**
+     * Default banner added to every generated file.
+     * @default 'simple'
+     */
+    defaultBanner?: 'simple' | 'full' | false
+    /**
+     * Text prepended to every generated file. String only — function variant is not supported in JSON config.
+     */
+    banner?: string
+    /**
+     * Text appended to every generated file. String only — function variant is not supported in JSON config.
+     */
+    footer?: string
+    /**
+     * Whether to override existing files.
+     * @default false
+     */
+    override?: boolean
+  }
+  /**
+   * Adapter name used to parse the input.
+   * @default 'oas'
+   */
+  adapter?: string
+  /**
+   * Parser names for converting generated files to strings.
+   * @default ['ts', 'tsx']
+   */
+  parsers?: Array<string>
+  /**
+   * Plugins to use for code generation, referenced by package name.
+   */
+  plugins?: Array<JSONPlugin>
+  /**
+   * Post-build hooks.
+   */
+  hooks?: {
+    /**
+     * Command(s) to run after generation completes.
+     */
+    done?: string | Array<string>
+  }
+  /**
+   * Kubb Studio devtools configuration.
+   */
+  devtools?:
+    | boolean
+    | {
+        studioUrl?: string
+      }
+}
 export type { FileMetaBase } from './utils/getBarrelFiles.ts'

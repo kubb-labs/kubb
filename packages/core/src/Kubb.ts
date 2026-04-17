@@ -2,6 +2,7 @@ import type { AsyncEventEmitter } from '@internals/utils'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import type { BuildOutput } from './createKubb.ts'
 import type { PluginDriver, Strategy } from './PluginDriver.ts'
+import type { PluginRegistry } from './registry.ts'
 import type { Config, GeneratorContext, KubbBuildEndContext, KubbBuildStartContext, KubbPluginSetupContext, Plugin, PluginLifecycleHooks } from './types'
 
 type DebugInfo = {
@@ -53,6 +54,14 @@ export type Kubb = {
    * The resolved config with applied defaults. Available after `setup()` has been called.
    */
   readonly config: Config | undefined
+  /**
+   * Per-instance registry for plugins, adapters, and parsers.
+   *
+   * In Node.js, registration is optional — unregistered names fall back to
+   * dynamic import. In browser environments, pre-register all dependencies
+   * before calling `build()`.
+   */
+  readonly registry: PluginRegistry
   /**
    * Initializes all Kubb infrastructure: validates input, applies config defaults,
    * runs the adapter, and creates the PluginDriver.

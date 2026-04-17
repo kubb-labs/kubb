@@ -1,6 +1,6 @@
-import { toSnapshot } from '#mocks'
 import { ast } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
+import { toSnapshot } from '#mocks'
 import { applyDiscriminatorInheritance } from './discriminator.ts'
 import { parseDocument } from './factory.ts'
 import { parseOas } from './parser.ts'
