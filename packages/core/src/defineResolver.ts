@@ -2,7 +2,7 @@ import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
 import type { FileNode, InputNode, Node, OperationNode, SchemaNode } from '@kubb/ast'
 import { createFile, isOperationNode, isSchemaNode } from '@kubb/ast'
-import { getMode } from './PluginDriver.ts'
+import { PluginDriver } from './PluginDriver.ts'
 import type {
   Config,
   PluginFactoryOptions,
@@ -195,7 +195,7 @@ export function defaultResolveOptions<TOptions>(
  * ```
  */
 export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }: ResolverPathParams, { root, output, group }: ResolverContext): string {
-  const mode = pathMode ?? getMode(path.resolve(root, output.path))
+  const mode = pathMode ?? PluginDriver.getMode(path.resolve(root, output.path))
 
   if (mode === 'single') {
     return path.resolve(root, output.path)
@@ -236,7 +236,7 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
  * ```
  */
 export function defaultResolveFile(this: Resolver, { name, extname, tag, path: groupPath }: ResolverFileParams, context: ResolverContext): FileNode {
-  const pathMode = getMode(path.resolve(context.root, context.output.path))
+  const pathMode = PluginDriver.getMode(path.resolve(context.root, context.output.path))
   const resolvedName = pathMode === 'single' ? '' : this.default(name, 'file')
   const baseName = `${resolvedName}${extname}` as FileNode['baseName']
   const filePath = this.resolvePath({ baseName, pathMode, tag, path: groupPath }, context)

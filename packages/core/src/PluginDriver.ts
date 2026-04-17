@@ -73,27 +73,28 @@ export type GetFileOptions<TOptions = object> = {
   options?: TOptions
 }
 
-/**
- * Returns `'single'` when `fileOrFolder` has a file extension, `'split'` otherwise.
- *
- * @example
- * ```ts
- * getMode('src/gen/types.ts')  // 'single'
- * getMode('src/gen/types')     // 'split'
- * ```
- */
-export function getMode(fileOrFolder: string | undefined | null): 'single' | 'split' {
-  if (!fileOrFolder) {
-    return 'split'
-  }
-  return extname(fileOrFolder) ? 'single' : 'split'
-}
 
 const hookFirstNullCheck = (state: unknown) => !!(state as SafeParseResult<'resolveName'> | null)?.result
 
 export class PluginDriver {
   readonly config: Config
   readonly options: Options
+
+  /**
+   * Returns `'single'` when `fileOrFolder` has a file extension, `'split'` otherwise.
+   *
+   * @example
+   * ```ts
+   * PluginDriver.getMode('src/gen/types.ts')  // 'single'
+   * PluginDriver.getMode('src/gen/types')     // 'split'
+   * ```
+   */
+  static getMode(fileOrFolder: string | undefined | null): 'single' | 'split' {
+    if (!fileOrFolder) {
+      return 'split'
+    }
+    return extname(fileOrFolder) ? 'single' : 'split'
+}
 
   /**
    * The universal `@kubb/ast` `InputNode` produced by the adapter, set by
@@ -422,7 +423,7 @@ export class PluginDriver {
         return resolve(driver.config.root, driver.config.output.path)
       },
       getMode(output: { path: string }): 'single' | 'split' {
-        return getMode(resolve(driver.config.root, driver.config.output.path, output.path))
+        return PluginDriver.getMode(resolve(driver.config.root, driver.config.output.path, output.path))
       },
       hooks: driver.hooks,
       plugin,

@@ -1,4 +1,6 @@
 export { AsyncEventEmitter } from './asyncEventEmitter.ts'
+export { detectFormatter, formatters } from './formatters.ts'
+export { detectLinter, linters } from './linters.ts'
 export { camelCase, pascalCase } from './casing.ts'
 export { defineCommand } from './cli/define.ts'
 export { createCLI } from './cli/parse.ts'

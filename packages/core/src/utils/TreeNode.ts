@@ -1,6 +1,6 @@
 import path from 'node:path'
 import type { FileNode } from '@kubb/ast'
-import { getMode } from '../PluginDriver.ts'
+import { PluginDriver } from '../PluginDriver.ts'
 
 type BarrelData = {
   file?: FileNode
@@ -155,7 +155,7 @@ export class TreeNode {
         name: filteredTree.name,
         path: filteredTree.path,
         file: filteredTree.file,
-        type: getMode(filteredTree.path),
+        type: PluginDriver.getMode(filteredTree.path),
       })
 
       const recurse = (node: typeof treeNode, item: DirectoryTree) => {
@@ -163,7 +163,7 @@ export class TreeNode {
           name: item.name,
           path: item.path,
           file: item.file,
-          type: getMode(item.path),
+          type: PluginDriver.getMode(item.path),
         })
 
         if (item.children?.length) {

@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import type { FileNode, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
 import { transform } from '@kubb/ast'
 import { FileManager } from './FileManager.ts'
-import { getMode, type PluginDriver } from './PluginDriver.ts'
+import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.ts'
 import type {
   Adapter,
@@ -162,7 +162,7 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
   return {
     config: opts.config,
     root,
-    getMode: (output: { path: string }) => getMode(resolve(root, output.path)),
+    getMode: (output: { path: string }) => PluginDriver.getMode(resolve(root, output.path)),
     adapter: opts.adapter,
     resolver: opts.resolver,
     plugin: opts.plugin,

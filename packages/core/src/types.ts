@@ -696,7 +696,7 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   /**
    * Returns the output mode for the given output config.
    * Returns `'single'` when `output.path` has a file extension, `'split'` otherwise.
-   * Shorthand for `getMode(path.resolve(this.root, output.path))`.
+   * Shorthand for `PluginDriver.getMode(path.resolve(this.root, output.path))`.
    */
   getMode: (output: { path: string }) => 'single' | 'split'
   driver: PluginDriver
@@ -1157,5 +1157,4 @@ export type ConfigInput = PossibleConfig<CLIOptions>
 
 export type { BuildOutput } from './createKubb.ts'
 export type { Parser } from './defineParser.ts'
-export type { FunctionParamsAST } from './utils/FunctionParams.ts'
 export type { FileMetaBase } from './utils/getBarrelFiles.ts'
