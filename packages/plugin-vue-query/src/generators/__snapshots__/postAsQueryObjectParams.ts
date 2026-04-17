@@ -10,7 +10,7 @@ import { queryOptions, useQuery } from 'custom-query'
 import { toValue } from 'vue'
 
 export const updatePetWithFormQueryKey = (
-  petId: MaybeRefOrGetter<UpdatePetWithFormPathParams['petId'] | undefined>,
+  { petId }: { petId: MaybeRefOrGetter<UpdatePetWithFormPathParams['petId'] | undefined> },
   data?: MaybeRefOrGetter<UpdatePetWithFormMutationRequest>,
   params?: MaybeRefOrGetter<UpdatePetWithFormQueryParams>,
 ) => [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const
@@ -22,9 +22,7 @@ export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQuery
  * {@link /pet/:petId}
  */
 export async function updatePetWithForm(
-  petId: UpdatePetWithFormPathParams['petId'],
-  data?: UpdatePetWithFormMutationRequest,
-  params?: UpdatePetWithFormQueryParams,
+  { petId, data, params }: { petId: UpdatePetWithFormPathParams['petId']; data?: UpdatePetWithFormMutationRequest; params?: UpdatePetWithFormQueryParams },
   config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -42,17 +40,26 @@ export async function updatePetWithForm(
 }
 
 export function updatePetWithFormQueryOptions(
-  petId: MaybeRefOrGetter<UpdatePetWithFormPathParams['petId'] | undefined>,
-  data?: MaybeRefOrGetter<UpdatePetWithFormMutationRequest>,
-  params?: MaybeRefOrGetter<UpdatePetWithFormQueryParams>,
+  {
+    petId,
+    data,
+    params,
+  }: {
+    petId: MaybeRefOrGetter<UpdatePetWithFormPathParams['petId'] | undefined>
+    data?: MaybeRefOrGetter<UpdatePetWithFormMutationRequest>
+    params?: MaybeRefOrGetter<UpdatePetWithFormQueryParams>
+  },
   config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: Client } = {},
 ) {
-  const queryKey = updatePetWithFormQueryKey(petId, data, params)
+  const queryKey = updatePetWithFormQueryKey({ petId }, data, params)
   return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
-      return updatePetWithForm(toValue(petId)!, toValue(data), toValue(params), { ...config, signal: config.signal ?? signal })
+      return updatePetWithForm(toValue({ petId: toValue(petId)!, data: toValue(data), params: toValue(params) }), {
+        ...config,
+        signal: config.signal ?? signal,
+      })
     },
   })
 }
@@ -66,9 +73,15 @@ export function useUpdatePetWithForm<
   TQueryData = UpdatePetWithFormMutationResponse,
   TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
 >(
-  petId?: MaybeRefOrGetter<UpdatePetWithFormPathParams['petId']>,
-  data?: MaybeRefOrGetter<UpdatePetWithFormMutationRequest>,
-  params?: MaybeRefOrGetter<UpdatePetWithFormQueryParams>,
+  {
+    petId,
+    data,
+    params,
+  }: {
+    petId: MaybeRefOrGetter<UpdatePetWithFormPathParams['petId'] | undefined>
+    data?: MaybeRefOrGetter<UpdatePetWithFormMutationRequest>
+    params?: MaybeRefOrGetter<UpdatePetWithFormQueryParams>
+  },
   options: {
     query?: Partial<UseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
@@ -79,11 +92,11 @@ export function useUpdatePetWithForm<
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...resolvedOptions } = queryConfig
   const queryKey =
-    (resolvedOptions && 'queryKey' in resolvedOptions ? toValue(resolvedOptions.queryKey) : undefined) ?? updatePetWithFormQueryKey(petId, data, params)
+    (resolvedOptions && 'queryKey' in resolvedOptions ? toValue(resolvedOptions.queryKey) : undefined) ?? updatePetWithFormQueryKey({ petId }, data, params)
 
   const query = useQuery(
     {
-      ...updatePetWithFormQueryOptions(petId, data, params, config),
+      ...updatePetWithFormQueryOptions({ petId, data, params }, config),
       ...resolvedOptions,
       queryKey,
     } as unknown as UseQueryOptions<
