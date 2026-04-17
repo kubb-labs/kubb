@@ -1,5 +1,33 @@
 # @kubb/agent
 
+## 5.0.0-alpha.37
+
+### Minor Changes
+
+- [#64](https://github.com/tigawanna/kubb/pull/64) [`f7d19bb`](https://github.com/kubb-labs/kubb/commit/f7d19bb69177fbd1b54c855423b3b55c399678b0) Thanks [@pull](https://github.com/apps/pull)! - Decouple `@kubb/agent` from static plugin knowledge.
+
+  Plugins are now resolved at runtime via dynamic `import()` instead of being hard-coded as dependencies. This means:
+  - `@kubb/agent` no longer bundles or lists any `@kubb/plugin-*` packages as dependencies.
+  - Any Kubb plugin (or third-party plugin) is supported — install whichever plugins you need alongside the agent.
+  - Plugin factory resolution tries three strategies in order: camelCase named export (`pluginReactQuery`), `default` export, or first exported function.
+
+  ```ts
+  // Before: agent required @kubb/plugin-ts to be a bundled dependency
+  // After: install it separately — the agent loads it on demand
+  ```
+
+  If a plugin cannot be resolved, a clear error is thrown:
+
+  > Plugin '@kubb/plugin-ts' could not be loaded. Make sure it is installed.
+
+### Patch Changes
+
+- Updated dependencies [[`f7d19bb`](https://github.com/kubb-labs/kubb/commit/f7d19bb69177fbd1b54c855423b3b55c399678b0)]:
+  - @kubb/core@5.0.0-alpha.37
+  - @kubb/adapter-oas@5.0.0-alpha.37
+  - @kubb/parser-ts@5.0.0-alpha.37
+  - @kubb/ast@5.0.0-alpha.37
+
 ## 5.0.0-alpha.36
 
 ### Patch Changes
