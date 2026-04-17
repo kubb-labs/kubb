@@ -1,5 +1,19 @@
 # @kubb/core
 
+## 5.0.0-alpha.41
+
+### Minor Changes
+
+- [#64](https://github.com/tigawanna/kubb/pull/64) [`d3d2d81`](https://github.com/kubb-labs/kubb/commit/d3d2d816dc93c0b328eb2f43827d7513fe4d988b) Thanks [@pull](https://github.com/apps/pull)! - Update `createKubb` to take `userConfig` directly as its first argument.
+
+  This makes the public API align with the internal setup flow and clarifies that the first parameter is the user-facing `UserConfig` shape that gets resolved during `setup()`.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.41
+  - @kubb/renderer-jsx@5.0.0-alpha.41
+
 ## 5.0.0-alpha.40
 
 ### Patch Changes
