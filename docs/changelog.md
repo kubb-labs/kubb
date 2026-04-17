@@ -6,6 +6,23 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.39
+
+### ✨ Features
+
+#### [`@kubb/adapter-oas`](https://github.com/kubb-labs/kubb/tree/main/packages/adapter-oas)
+
+-   [#64](https://github.com/tigawanna/kubb/pull/64) [`dc613d0`](https://github.com/kubb-labs/kubb/commit/dc613d0c1d43de437c2a39c53143d57712d0bbc8) Thanks [@pull](https://github.com/apps/pull)! - Removed the standalone `@kubb/oas` package from the monorepo.
+
+    Developers should now use the `@kubb/adapter-oas` package for OpenAPI parsing, validation, and shared OAS helper types. Additionally, the `kubb validate` command has been updated to utilize `@kubb/adapter-oas` directly, eliminating the need to separately install `@kubb/oas`.
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/cli`](https://github.com/kubb-labs/kubb/tree/main/packages/cli)
+
+-   [#64](https://github.com/tigawanna/kubb/pull/64) [`dc613d0`](https://github.com/kubb-labs/kubb/commit/dc613d0c1d43de437c2a39c53143d57712d0bbc8) Thanks [@pull](https://github.com/apps/pull)! - Adjusted CLI workflows to account for the removal of the `@kubb/oas` package. Commands such as `kubb validate` now directly depend on `@kubb/adapter-oas` for OpenAPI features, ensuring smoother validations without extra installations.
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
