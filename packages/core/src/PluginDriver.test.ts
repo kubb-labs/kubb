@@ -1,9 +1,8 @@
 import { AsyncEventEmitter } from '@internals/utils'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
-import { createPlugin } from './createPlugin.ts'
 import { PluginDriver } from './PluginDriver.ts'
-import type { Config, KubbHooks, Plugin } from './types.ts'
+import type { Config, KubbHooks, Plugin, PluginParameter } from './types.ts'
 
 describe('PluginDriver', () => {
   const pluginAMocks = {
@@ -14,60 +13,50 @@ describe('PluginDriver', () => {
     buildStart: vi.fn(),
     resolvePath: vi.fn(),
   } as const
-  const pluginA = createPlugin(() => {
-    return {
-      name: 'pluginA',
-      options: undefined as any,
-      context: undefined as never,
+  const pluginA = {
+    name: 'pluginA',
+    options: undefined as unknown as Plugin["options"],
+    buildStart() {
+      pluginAMocks.buildStart()
+    },
+    resolvePath() {
+      pluginAMocks.resolvePath()
 
-      buildStart() {
-        pluginAMocks.buildStart()
-      },
-      resolvePath() {
-        pluginAMocks.resolvePath()
+      return 'pluginA/gen'
+    },
+  }
 
-        return 'pluginA/gen'
-      },
-    }
-  })
+  const pluginB = {
+    name: 'pluginB',
+    options: undefined as unknown as Plugin["options"],
+    buildStart() {
+      pluginBMocks.buildStart()
+    },
+    resolvePath() {
+      pluginBMocks.resolvePath()
 
-  const pluginB = createPlugin(() => {
-    return {
-      name: 'pluginB',
-      options: undefined as any,
-      context: undefined as never,
-      buildStart() {
-        pluginBMocks.buildStart()
-      },
-      resolvePath() {
-        pluginBMocks.resolvePath()
+      return 'pluginB/gen'
+    },
+    resolveName() {
+      return 'pluginBName'
+    },
+  }
 
-        return 'pluginB/gen'
-      },
-      resolveName() {
-        return 'pluginBName'
-      },
-    }
-  })
+  const pluginC = {
+    name: 'pluginC',
+    options: undefined as unknown as Plugin["options"],
+    buildStart() {
+      pluginBMocks.buildStart()
+    },
+    resolvePath() {
+      pluginBMocks.resolvePath()
 
-  const pluginC = createPlugin(() => {
-    return {
-      name: 'pluginC',
-      options: undefined as any,
-      context: undefined as never,
-      buildStart() {
-        pluginBMocks.buildStart()
-      },
-      resolvePath() {
-        pluginBMocks.resolvePath()
-
-        return 'pluginC/gen'
-      },
-      resolveName() {
-        return 'pluginCName'
-      },
-    }
-  })
+      return 'pluginC/gen'
+    },
+    resolveName() {
+      return 'pluginCName'
+    },
+  }
 
   const config = {
     root: '.',
@@ -80,7 +69,7 @@ describe('PluginDriver', () => {
     },
     parsers: [],
     adapter: createMockedAdapter(),
-    plugins: [pluginA({}), pluginB({}), pluginC({})] as Array<Plugin>,
+    plugins: [pluginA, pluginB, pluginC] as unknown as Array<Plugin>,
   } satisfies Config
   const pluginDriver = new PluginDriver(config, {
     hooks: new AsyncEventEmitter<KubbHooks>(),
@@ -160,8 +149,8 @@ describe('PluginDriver', () => {
     const hooksFirstSyncMock = vi.fn(pluginDriver.hookFirstSync)
     const hookForPluginSyncMock = vi.fn(pluginDriver.hookForPluginSync)
 
-    pluginDriver.hookFirstSync = hooksFirstSyncMock as any
-    pluginDriver.hookForPluginSync = hookForPluginSyncMock as any
+    pluginDriver.hookFirstSync = hooksFirstSyncMock as unknown as typeof pluginDriver.hookFirstSync
+    pluginDriver.hookForPluginSync = hookForPluginSyncMock as unknown as typeof pluginDriver.hookForPluginSync
 
     const name = pluginDriver.resolveName({
       name: 'nameB',
@@ -185,18 +174,15 @@ describe('PluginDriver', () => {
   })
 
   test('hookForPluginSync should work with non-function hooks', () => {
-    const staticPlugin = createPlugin(() => {
-      return {
-        name: 'staticPlugin',
-        options: undefined as any,
-        context: undefined as never,
-        resolvePath: 'static/path' as any,
-      }
-    })
+    const staticPlugin = {
+      name: 'staticPlugin',
+      options: undefined as unknown as Plugin["options"],
+      resolvePath: 'static/path' as unknown as NonNullable<PluginParameter<'resolvePath'>>[0],
+    }
 
     const staticConfig = {
       ...config,
-      plugins: [staticPlugin({})] as Array<Plugin>,
+      plugins: [staticPlugin] as unknown as Array<Plugin>,
     } satisfies Config
 
     const staticPluginDriver = new PluginDriver(staticConfig, {
@@ -213,20 +199,17 @@ describe('PluginDriver', () => {
   })
 
   it('should handle plugin hook errors gracefully', async () => {
-    const errorPlugin = createPlugin(() => {
-      return {
-        name: 'errorPlugin',
-        options: undefined as any,
-        context: undefined as never,
-        buildStart() {
-          throw new Error('Install failed')
-        },
-      }
-    })
+    const errorPlugin = {
+      name: 'errorPlugin',
+      options: undefined as unknown as Plugin["options"],
+      buildStart() {
+        throw new Error('Install failed')
+      },
+    }
 
     const errorConfig = {
       ...config,
-      plugins: [errorPlugin({})] as Array<Plugin>,
+      plugins: [errorPlugin] as unknown as Array<Plugin>,
     } satisfies Config
 
     const errorPluginDriver = new PluginDriver(errorConfig, {
@@ -238,7 +221,7 @@ describe('PluginDriver', () => {
 
     const result = await errorPluginDriver.hookFirst({
       hookName: 'buildStart',
-      parameters: [] as any,
+      parameters: [] as unknown as PluginParameter<'buildStart'>,
     })
 
     expect(result.result).toBeNull()
@@ -246,11 +229,11 @@ describe('PluginDriver', () => {
   })
 
   test('resolvePath should return default path when no plugins have resolvePath', () => {
-    const noResolvePlugin = createMockedPlugin({ name: 'noResolvePlugin', options: undefined as any })
+    const noResolvePlugin = createMockedPlugin({ name: 'noResolvePlugin', options: undefined as unknown as Plugin['options'] })
 
     const noResolveConfig = {
       ...config,
-      plugins: [noResolvePlugin] as Array<Plugin>,
+      plugins: [noResolvePlugin] as unknown as Array<Plugin>,
     } satisfies Config
 
     const noResolvePluginDriver = new PluginDriver(noResolveConfig, {
@@ -265,15 +248,14 @@ describe('PluginDriver', () => {
   })
 
   test('getFile should create file with correct properties', () => {
-    const pluginWithPath = createPlugin(() => ({
+    const pluginWithPath = {
       name: 'pluginA',
-      options: undefined as any,
-      context: undefined as never,
+      options: undefined as unknown as Plugin["options"],
       resolvePath(baseName: string) {
         return `pluginA/gen/${baseName}`
       },
-    }))
-    const localPluginDriver = new PluginDriver({ ...config, plugins: [pluginWithPath({})] as Array<Plugin> }, { hooks: new AsyncEventEmitter<KubbHooks>() })
+    }
+    const localPluginDriver = new PluginDriver({ ...config, plugins: [pluginWithPath] as unknown as Array<Plugin> }, { hooks: new AsyncEventEmitter<KubbHooks>() })
 
     const file = localPluginDriver.getFile({
       name: 'testFile',
@@ -287,15 +269,14 @@ describe('PluginDriver', () => {
   })
 
   test('getFile should work with custom mode', () => {
-    const pluginWithPath = createPlugin(() => ({
+    const pluginWithPath = {
       name: 'pluginA',
-      options: undefined as any,
-      context: undefined as never,
+      options: undefined as unknown as Plugin["options"],
       resolvePath(baseName: string) {
         return `pluginA/gen/${baseName || 'index.ts'}`
       },
-    }))
-    const localPluginDriver = new PluginDriver({ ...config, plugins: [pluginWithPath({})] as Array<Plugin> }, { hooks: new AsyncEventEmitter<KubbHooks>() })
+    }
+    const localPluginDriver = new PluginDriver({ ...config, plugins: [pluginWithPath] as unknown as Array<Plugin> }, { hooks: new AsyncEventEmitter<KubbHooks>() })
 
     const file = localPluginDriver.getFile({
       name: 'testFile',

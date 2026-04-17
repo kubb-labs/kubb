@@ -435,7 +435,7 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    * over `plugin.renderer`; set `renderer: null` on a generator to opt out of rendering even
    * when the plugin declares a renderer.
    */
-  generators?: Array<Generator<any>>
+  generators?: Array<Generator>
   /**
    * Specifies the plugins that the current plugin depends on. The current plugin is executed after all listed plugins.
    * An error is returned if any required dependency plugin is missing.
@@ -555,7 +555,7 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    * over `plugin.renderer`; set `renderer: null` on a generator to opt out of rendering even
    * when the plugin declares a renderer.
    */
-  generators?: Array<Generator<any>>
+  generators?: Array<Generator>
 
   buildStart: (this: PluginContext<TOptions>) => PossiblePromise<void>
   /**
@@ -1147,13 +1147,6 @@ export type CLIOptions = {
 export type PossibleConfig<TCliOptions = undefined> =
   | PossiblePromise<Config | Config[]>
   | ((...args: [TCliOptions] extends [undefined] ? [] : [TCliOptions]) => PossiblePromise<Config | Config[]>)
-
-/**
- * All accepted forms of a Kubb configuration.
- * @deprecated
- * Kept for backward compatibility. Prefer `PossibleConfig<CLIOptions>` in new code.
- */
-export type ConfigInput = PossibleConfig<CLIOptions>
 
 export type { BuildOutput } from './createKubb.ts'
 export type { Parser } from './defineParser.ts'

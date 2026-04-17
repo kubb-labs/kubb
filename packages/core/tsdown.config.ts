@@ -2,7 +2,6 @@ import { defineConfig, type UserConfig } from 'tsdown'
 
 const entry = {
   index: 'src/index.ts',
-  hooks: 'src/hooks/index.ts',
   mocks: 'src/mocks.ts',
 }
 

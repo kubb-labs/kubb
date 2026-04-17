@@ -31,10 +31,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./hooks": {
-      "import": "./dist/hooks.js",
-      "require": "./dist/hooks.cjs"
-    },
     "./mocks": {
       "import": "./dist/mocks.js",
       "require": "./dist/mocks.cjs"
@@ -44,9 +40,6 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "hooks": [
-        "./dist/hooks.d.ts"
-      ],
       "mocks": [
         "./dist/mocks.d.ts"
       ]

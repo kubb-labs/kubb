@@ -302,7 +302,7 @@ export class PluginDriver {
    *
    * Call this method inside `addGenerator()` (in `kubb:plugin:setup`) to wire up a generator.
    */
-  registerGenerator(pluginName: string, gen: Generator<any>): void {
+  registerGenerator(pluginName: string, gen: Generator): void {
     const resolveRenderer = () => {
       const plugin = this.plugins.get(pluginName)
       return gen.renderer === null ? undefined : (gen.renderer ?? plugin?.renderer ?? this.config.renderer)

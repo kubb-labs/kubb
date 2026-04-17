@@ -187,7 +187,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
     throw new Error(`[${plugin.name}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`)
   }
 
-  function resolveRenderer(gen: Generator<any>): RendererFactory | undefined {
+  function resolveRenderer(gen: Generator): RendererFactory | undefined {
     return gen.renderer === null ? undefined : (gen.renderer ?? plugin.renderer ?? context.config.renderer)
   }
 

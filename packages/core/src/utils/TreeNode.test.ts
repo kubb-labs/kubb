@@ -289,23 +289,23 @@ describe('TreeNode', () => {
   })
 
   test('if forEach throws error with non-function', () => {
-    expect(() => tree?.forEach(null as any)).toThrow('forEach() callback must be a function')
+    expect(() => tree?.forEach(null as unknown as Parameters<NonNullable<typeof tree>["forEach"]>[0])).toThrow('forEach() callback must be a function')
   })
 
   test('if findDeep throws error with non-function', () => {
-    expect(() => tree?.findDeep(null as any)).toThrow('find() predicate must be a function')
+    expect(() => tree?.findDeep(null as unknown as Parameters<NonNullable<typeof tree>["findDeep"]>[0])).toThrow('find() predicate must be a function')
   })
 
   test('if forEachDeep throws error with non-function', () => {
-    expect(() => tree?.forEachDeep(null as any)).toThrow('forEach() callback must be a function')
+    expect(() => tree?.forEachDeep(null as unknown as Parameters<NonNullable<typeof tree>["forEachDeep"]>[0])).toThrow('forEach() callback must be a function')
   })
 
   test('if filterDeep throws error with non-function', () => {
-    expect(() => tree?.filterDeep(null as any)).toThrow('filter() callback must be a function')
+    expect(() => tree?.filterDeep(null as unknown as Parameters<NonNullable<typeof tree>["filterDeep"]>[0])).toThrow('filter() callback must be a function')
   })
 
   test('if mapDeep throws error with non-function', () => {
-    expect(() => tree?.mapDeep(null as any)).toThrow('map() callback must be a function')
+    expect(() => tree?.mapDeep(null as unknown as Parameters<NonNullable<typeof tree>["mapDeep"]>[0])).toThrow('map() callback must be a function')
   })
 
   test('if build handles empty file list', () => {

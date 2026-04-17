@@ -82,19 +82,3 @@ export function hookParallel<TInput extends Array<PromiseFunc<TValue, null>>, TV
 
   return Promise.allSettled(tasks) as TOutput
 }
-
-/**
- * Execution strategy used when dispatching plugin hook calls.
- *  @deprecated
- */
-export type Strategy = 'seq' | 'first' | 'parallel'
-
-type StrategyOutputMap<TInput extends Array<PromiseFunc<TValue, null>>, TValue> = {
-  first: HookFirstOutput<TInput, TValue>
-  seq: SeqOutput<TInput, TValue>
-  parallel: HookParallelOutput<TInput, TValue>
-}
-/**
- *  @deprecated
- */
-export type StrategySwitch<TStrategy extends Strategy, TInput extends Array<PromiseFunc<TValue, null>>, TValue> = StrategyOutputMap<TInput, TValue>[TStrategy]

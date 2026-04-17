@@ -1,4 +1,5 @@
 import { camelCase } from '@internals/utils'
+import type { InputNode } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { defaultResolveBanner, defaultResolveFile, defaultResolveFooter, defaultResolvePath, defineResolver } from './defineResolver.ts'
 import type { Config, Resolver, ResolverContext } from './types.ts'
@@ -230,16 +231,16 @@ describe('defaultResolveBanner', () => {
 
   it('user function banner overrides the Kubb default when node is provided', () => {
     const node = { meta: { title: 'Petstore', description: 'Test API', version: '1.0.0' } }
-    const result = defaultResolveBanner(node as any, {
+    const result = defaultResolveBanner(node as unknown as InputNode, {
       config: mockConfig,
-      output: { banner: (n: any) => `// title: ${n.meta?.title}` },
+      output: { banner: (n?: InputNode) => `// title: ${n?.meta?.title}` },
     })
     expect(result).toBe('// title: Petstore')
   })
 
   it('includes node title and version (but not description) in the Kubb banner when node is provided', () => {
     const node = { meta: { title: 'Pet API', description: 'A very long description', version: '2.0.0' } }
-    const result = defaultResolveBanner(node as any, { config: mockConfig })
+    const result = defaultResolveBanner(node as unknown as InputNode, { config: mockConfig })
     expect(result).toContain('Pet API')
     expect(result).toContain('2.0.0')
     expect(result).not.toContain('A very long description')
@@ -262,9 +263,9 @@ describe('defaultResolveFooter', () => {
 
   it('calls output.footer function with node when node is provided', () => {
     const node = { title: 'Petstore' }
-    const result = defaultResolveFooter(node as any, {
+    const result = defaultResolveFooter(node as unknown as InputNode, {
       config: mockConfig,
-      output: { footer: (n: any) => `// footer for ${n.title}` },
+      output: { footer: (n?: InputNode) => `// footer for ${(n as InputNode & { title?: string } | undefined)?.title}` },
     })
     expect(result).toBe('// footer for Petstore')
   })
@@ -272,7 +273,7 @@ describe('defaultResolveFooter', () => {
   it('returns undefined when output.footer is a function but node is undefined', () => {
     const result = defaultResolveFooter(undefined, {
       config: mockConfig,
-      output: { footer: (_n: any) => '// called' },
+      output: { footer: (_n?: InputNode) => '// called' },
     })
     expect(result).toBeUndefined()
   })

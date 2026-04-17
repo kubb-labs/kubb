@@ -47,7 +47,7 @@ function pascalCase(text: string): string {
 /**
  * Creates a minimal `PluginDriver` mock suitable for unit tests.
  */
-export function createMockedPluginDriver(options: { name?: string; plugin?: Plugin<any>; config?: Config } = {}): PluginDriver {
+export function createMockedPluginDriver(options: { name?: string; plugin?: Plugin; config?: Config } = {}): PluginDriver {
   return {
     resolveName: (result: ResolveNameParams) => {
       if (result.type === 'file') {

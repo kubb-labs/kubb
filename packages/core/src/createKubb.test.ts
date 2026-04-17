@@ -6,9 +6,8 @@ import { createFile, createSource, createText } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
-import { createPlugin } from './createPlugin.ts'
 import { definePlugin } from './definePlugin.ts'
-import type { Config, KubbHooks, Plugin } from './types.ts'
+import type { Config, KubbHooks, Plugin, PluginContext, PluginFactoryOptions } from './types.ts'
 
 describe('createKubb', () => {
   const pluginMocks = {
@@ -23,18 +22,15 @@ describe('createKubb', () => {
     imports: [],
     exports: [],
   })
-  const plugin = createPlugin(() => {
-    return {
-      name: 'plugin',
-      options: undefined as any,
-      context: undefined as never,
-      async buildStart(...params) {
-        pluginMocks.buildStart(...params)
+  const plugin = {
+    name: 'plugin',
+    options: undefined as unknown as Plugin['options'],
+    async buildStart(this: PluginContext<PluginFactoryOptions>) {
+      pluginMocks.buildStart()
 
-        await this.addFile(file)
-      },
-    }
-  })
+      await this.addFile(file)
+    },
+  }
 
   const config = {
     root: '.',
@@ -48,7 +44,7 @@ describe('createKubb', () => {
     },
     parsers: [],
     adapter: createMockedAdapter(),
-    plugins: [plugin({})] as Array<Plugin>,
+    plugins: [plugin] as unknown as Array<Plugin>,
   } satisfies Config
 
   afterEach(() => {
@@ -108,20 +104,17 @@ describe('createKubb', () => {
   })
 
   it('should handle plugin installation errors', async () => {
-    const errorPlugin = createPlugin(() => {
-      return {
-        name: 'errorPlugin',
-        options: undefined as any,
-        context: undefined as never,
-        async buildStart() {
-          throw new Error('Installation failed')
-        },
-      }
-    })
+    const errorPlugin = {
+      name: 'errorPlugin',
+      options: undefined as unknown as Plugin["options"],
+      async buildStart() {
+        throw new Error('Installation failed')
+      },
+    }
 
     const errorConfig = {
       ...config,
-      plugins: [errorPlugin({})] as Array<Plugin>,
+      plugins: [errorPlugin] as unknown as Array<Plugin>,
     }
 
     const { failedPlugins } = await createKubb({
@@ -154,7 +147,7 @@ describe('createKubb', () => {
     const arrayConfig = {
       ...config,
       input: [{ path: 'test1.yaml' }, { path: 'test2.yaml' }],
-    } as any
+    } as unknown as Config
 
     await createKubb({
       config: arrayConfig,
@@ -169,20 +162,17 @@ describe('createKubb', () => {
   it.todo('should handle "all" barrel type')
 
   test('safeBuild should return error instead of throwing', async () => {
-    const throwingPlugin = createPlugin(() => {
-      return {
-        name: 'throwingPlugin',
-        options: undefined as any,
-        context: undefined as never,
-        async buildStart() {
-          throw new Error('Critical error')
-        },
-      }
-    })
+    const throwingPlugin = {
+      name: 'throwingPlugin',
+      options: undefined as unknown as Plugin["options"],
+      async buildStart() {
+        throw new Error('Critical error')
+      },
+    }
 
     const throwingConfig = {
       ...config,
-      plugins: [throwingPlugin({})] as Array<Plugin>,
+      plugins: [throwingPlugin] as unknown as Array<Plugin>,
     }
 
     const result = await createKubb({
@@ -239,16 +229,13 @@ describe('createKubb', () => {
         meta: { pluginName: 'excludedPlugin' },
       })
 
-      const excludedPlugin = createPlugin(() => {
-        return {
-          name: 'excludedPlugin',
-          options: { output: { barrelType: false } } as any,
-          context: undefined as never,
-          async buildStart() {
-            await this.addFile(indexableFile)
-          },
-        }
-      })
+      const excludedPlugin = {
+        name: 'excludedPlugin',
+        options: { output: { barrelType: false } } as unknown as Plugin['options'],
+        async buildStart(this: PluginContext<PluginFactoryOptions>) {
+          await this.addFile(indexableFile)
+        },
+      }
 
       const excludeConfig: Config = {
         ...config,
@@ -258,7 +245,7 @@ describe('createKubb', () => {
           barrelType: 'named' as const,
           write: false,
         },
-        plugins: [excludedPlugin({})] as Array<Plugin>,
+        plugins: [excludedPlugin] as unknown as Array<Plugin>,
       }
 
       const { driver } = await createKubb({
