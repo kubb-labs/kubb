@@ -6,6 +6,17 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.42
+
+### ✨ Features
+
+#### [`kubb`](https://github.com/kubb-labs/kubb/tree/main/packages/kubb)
+
+-   [`84b4ba5`](https://github.com/kubb-labs/kubb/commit/84b4ba543597dd8fc2ca74914143865976741153) - Improved `defineConfig` usage in v5:
+    -   Fixed `defineConfig` typing in the `kubb` package, ensuring that object configs retain their expected inferred shape.
+    -   Updated `kubb init` to install the `kubb` package, aligning it with the generated `import { defineConfig } from 'kubb'` configuration file.
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
