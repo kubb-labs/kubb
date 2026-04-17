@@ -55,6 +55,7 @@
     "rename-define-to-create",
     "rename-events-to-hooks",
     "rename-printer-type-exports",
+    "some-dodos-search",
     "typescript-6-upgrade",
     "update-react-fabric-dependency"
   ]
