@@ -1858,6 +1858,51 @@ describe('parseSchema enum', () => {
     expect(node.primitive).toBe('string')
   })
 
+  it('x-enumNames deduplicates by value first, mapping names by deduped index', () => {
+    const node = parseSchema(ctx, {
+      schema: {
+        type: 'integer',
+        enum: [1, 1, 2],
+        'x-enumNames': ['First', 'Duplicate', 'Second'],
+      },
+    })
+    const narrowed = ast.narrowSchema(node, 'enum')
+
+    const values = narrowed?.namedEnumValues
+    // After deduping values to [1, 2], names are looked up by position in the deduped array
+    expect(values?.map((v) => v.name)).toEqual(['First', 'Duplicate'])
+    expect(values?.map((v) => v.value)).toEqual([1, 2])
+  })
+
+  it('x-enumNames falls back to stringified value when fewer names than values', () => {
+    const node = parseSchema(ctx, {
+      schema: {
+        type: 'integer',
+        enum: [10, 20, 30],
+        'x-enumNames': ['Ten'],
+      },
+    })
+    const narrowed = ast.narrowSchema(node, 'enum')
+
+    const values = narrowed?.namedEnumValues
+    expect(values?.map((v) => v.name)).toEqual(['Ten', '20', '30'])
+    expect(values?.map((v) => v.value)).toEqual([10, 20, 30])
+  })
+
+  it('deduplicates numeric enum values and names without extension key', () => {
+    const node = parseSchema(ctx, {
+      schema: {
+        type: 'integer',
+        enum: [5, 5, 10],
+      },
+    })
+    const narrowed = ast.narrowSchema(node, 'enum')
+
+    const values = narrowed?.namedEnumValues
+    expect(values?.map((v) => v.name)).toEqual(['5', '10'])
+    expect(values?.map((v) => v.value)).toEqual([5, 10])
+  })
+
   // Array + enum normalization
   it('normalizes array+enum by moving enum into items and returning array node', () => {
     const node = parseSchema(ctx, { schema: { type: 'array', enum: ['x', 'y'] } })

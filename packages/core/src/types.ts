@@ -499,7 +499,7 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
   /**
    * User-facing plugins can be either legacy createPlugin instances or hook-style plugins.
    */
-  plugins?: Array<Omit<UserPlugin, 'inject'> | HookStylePlugin>
+  plugins?: Array<Omit<UserPlugin<any>, 'inject'> | HookStylePlugin<any>>
 }
 
 /**
