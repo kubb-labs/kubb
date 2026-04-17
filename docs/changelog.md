@@ -6,6 +6,28 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.38
+
+### ✨ Features
+
+#### [`@kubb/cli`](https://github.com/kubb-labs/kubb/tree/main/packages/cli)
+
+-   [#64](https://github.com/tigawanna/kubb/pull/64) [`a1998a8`](https://github.com/kubb-labs/kubb/commit/a1998a85416c8ac9567e3904bfa107a7c705e952) - Replaced `bin/kubb.cjs` with `bin/kubb.js` to adopt ESM module format. Introduced `process.setSourceMapsEnabled?.(true)` with optional chaining for enhanced compatibility with Bun and Deno runtime environments.
+
+::: code-group
+```javascript [Before]
+require('./bin/kubb.cjs');
+```
+
+```javascript [After]
+import('./bin/kubb.js');
+
+// Enables source maps for improved debugging in supported environments
+process.setSourceMapsEnabled?.(true);
+```
+:::
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
