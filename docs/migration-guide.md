@@ -112,7 +112,7 @@ export const myPlugin = definePlugin((options) => ({
 ```typescript
 import { createKubb } from '@kubb/core'
 
-const kubb = createKubb({ config })
+const kubb = createKubb(userConfig)
 
 kubb.hooks.on('kubb:lifecycle:start', (version) => {
   console.log(`Kubb ${version} starting`)

@@ -24,7 +24,7 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
 
   await hooks.emit('kubb:info', config.name ? `Setup generation ${config.name}` : 'Setup generation')
 
-  const kubb = createKubb({ config, hooks })
+  const kubb = createKubb(config, { hooks })
   await kubb.setup()
 
   await hooks.emit('kubb:info', config.name ? `Build generation ${config.name}` : 'Build generation')

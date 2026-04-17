@@ -11,14 +11,13 @@ import type { Kubb } from './Kubb.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.ts'
 import { fsStorage } from './storages/fsStorage.ts'
-import type { AdapterSource, Config, GeneratorContext, KubbHooks, Plugin, PluginContext, Storage } from './types.ts'
+import type { AdapterSource, Config, GeneratorContext, KubbHooks, Plugin, PluginContext, Storage, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { getBarrelFiles } from './utils/getBarrelFiles.ts'
 import { isInputPath } from './utils/isInputPath.ts'
 
-type BuildOptions = {
-  config: Config
+type SetupOptions = {
   hooks?: AsyncEventEmitter<KubbHooks>
 }
 
@@ -51,8 +50,7 @@ type SetupResult = {
   storage: Storage | null
 }
 
-async function setup(options: BuildOptions): Promise<SetupResult> {
-  const { config: userConfig } = options
+async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promise<SetupResult> {
   const hooks = options.hooks ?? new AsyncEventEmitter<KubbHooks>()
 
   const sources: Map<string, string> = new Map<string, string>()
@@ -546,21 +544,21 @@ function inputToAdapterSource(config: Config): AdapterSource {
   return { type: 'path', path: resolved }
 }
 
-type KubbOptions = {
-  config: Config
+type CreateKubbOptions = {
   hooks?: AsyncEventEmitter<KubbHooks>
 }
 
 /**
  * Creates a Kubb instance bound to a single config entry.
  *
- * The instance holds shared state (`hooks`, `sources`, `driver`, `config`) across the
- * `setup → build` lifecycle. Attach event listeners to `kubb.hooks` before
+ * Accepts a user-facing config shape and resolves it to a full {@link Config} during
+ * `setup()`. The instance then holds shared state (`hooks`, `sources`, `driver`, `config`)
+ * across the `setup → build` lifecycle. Attach event listeners to `kubb.hooks` before
  * calling `setup()` or `build()`.
  *
  * @example
  * ```ts
- * const kubb = createKubb({ config })
+ * const kubb = createKubb(userConfig)
  *
  * kubb.hooks.on('kubb:plugin:end', (plugin, { duration }) => {
  *   console.log(`${plugin.name} completed in ${duration}ms`)
@@ -569,7 +567,7 @@ type KubbOptions = {
  * const { files, failedPlugins } = await kubb.safeBuild()
  * ```
  */
-export function createKubb(options: KubbOptions): Kubb {
+export function createKubb(userConfig: UserConfig, options: CreateKubbOptions = {}): Kubb {
   const hooks = options.hooks ?? new AsyncEventEmitter<KubbHooks>()
   let setupResult: SetupResult | undefined
 
@@ -587,7 +585,7 @@ export function createKubb(options: KubbOptions): Kubb {
       return setupResult?.config
     },
     async setup() {
-      setupResult = await setup({ config: options.config, hooks })
+      setupResult = await setup(userConfig, { hooks })
     },
     async build() {
       if (!setupResult) {

@@ -88,8 +88,8 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
     await hooks.emit('kubb:generation:start', config as Config)
 
-    const { error, failedPlugins, pluginTimings, files, sources } = await createKubb({
-      config: {
+    const { error, failedPlugins, pluginTimings, files, sources } = await createKubb(
+      {
         root: process.cwd(),
         ...userConfig,
         output: {
@@ -97,8 +97,8 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
           ...userConfig.output,
         },
       },
-      hooks,
-    }).safeBuild()
+      { hooks },
+    ).safeBuild()
 
     const hasFailures = failedPlugins.size > 0 || error
     if (hasFailures) {

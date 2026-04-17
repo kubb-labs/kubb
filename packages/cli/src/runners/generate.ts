@@ -149,7 +149,7 @@ async function generate(options: GenerateProps): Promise<void> {
     ...options.config.output,
   } satisfies Config
 
-  const kubb = createKubb({ config, hooks })
+  const kubb = createKubb(config, { hooks })
   await kubb.setup()
 
   await hooks.emit('kubb:generation:start', config)

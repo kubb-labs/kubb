@@ -138,7 +138,7 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
     // Setup and build
     await notify(NotifyTypes.SETUP_START, 'Setting up Kubb')
 
-    const kubb = createKubb({ config, hooks })
+    const kubb = createKubb(config, { hooks })
     await kubb.setup()
     await notify(NotifyTypes.SETUP_END, 'Kubb setup complete')
 
