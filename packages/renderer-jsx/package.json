@@ -1,6 +1,6 @@
 {
   "name": "@kubb/renderer-jsx",
-  "version": "5.0.0-alpha.37",
+  "version": "5.0.0-alpha.38",
   "description": "React integration for Kubb - JSX runtime and component-based code generation with React reconciler for building type-safe generators",
   "keywords": [
     "react",

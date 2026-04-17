@@ -1,5 +1,14 @@
 # @kubb/cli
 
+## 5.0.0-alpha.38
+
+### Patch Changes
+
+- [#64](https://github.com/tigawanna/kubb/pull/64) [`a1998a8`](https://github.com/kubb-labs/kubb/commit/a1998a85416c8ac9567e3904bfa107a7c705e952) Thanks [@pull](https://github.com/apps/pull)! - Replace `bin/kubb.cjs` with `bin/kubb.js` (ESM). Use `process.setSourceMapsEnabled?.(true)` with optional chaining for Bun/Deno compatibility.
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.38
+
 ## 5.0.0-alpha.37
 
 ### Patch Changes

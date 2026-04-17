@@ -1,5 +1,17 @@
 # kubb
 
+## 5.0.0-alpha.38
+
+### Patch Changes
+
+- Updated dependencies [[`a1998a8`](https://github.com/kubb-labs/kubb/commit/a1998a85416c8ac9567e3904bfa107a7c705e952)]:
+  - @kubb/cli@5.0.0-alpha.38
+  - @kubb/adapter-oas@5.0.0-alpha.38
+  - @kubb/agent@5.0.0-alpha.38
+  - @kubb/core@5.0.0-alpha.38
+  - @kubb/mcp@5.0.0-alpha.38
+  - @kubb/parser-ts@5.0.0-alpha.38
+
 ## 5.0.0-alpha.37
 
 ### Patch Changes
