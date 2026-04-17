@@ -1,5 +1,16 @@
 # unplugin-kubb
 
+## 5.0.0-alpha.40
+
+### Patch Changes
+
+- [#64](https://github.com/tigawanna/kubb/pull/64) [`ce8322c`](https://github.com/kubb-labs/kubb/commit/ce8322c37dfeb078a2408c5c80e3cf26f0aa0d75) Thanks [@pull](https://github.com/apps/pull)! - Improve defineConfig typing
+
+- Updated dependencies [[`ce8322c`](https://github.com/kubb-labs/kubb/commit/ce8322c37dfeb078a2408c5c80e3cf26f0aa0d75)]:
+  - @kubb/core@5.0.0-alpha.40
+  - @kubb/adapter-oas@5.0.0-alpha.40
+  - @kubb/parser-ts@5.0.0-alpha.40
+
 ## 5.0.0-alpha.39
 
 ### Patch Changes
