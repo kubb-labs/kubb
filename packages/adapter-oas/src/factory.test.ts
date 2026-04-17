@@ -107,7 +107,7 @@ describe('validateDocument', () => {
         },
       },
     },
-  } as Document
+  } as unknown as Document
 
   it('does not throw by default', async () => {
     await expect(validateDocument(invalidSchema)).resolves.toBeUndefined()
