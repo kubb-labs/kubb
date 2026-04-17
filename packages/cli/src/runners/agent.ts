@@ -17,6 +17,47 @@ type AgentStartOptions = {
   version: string
 }
 
+type ResolvedAgentStartEnvironment = {
+  port: string
+  host: string
+  allowWrite: boolean
+  allowAll: boolean
+  agentConfigPath: string
+  env: NodeJS.ProcessEnv
+}
+
+/**
+ * Resolves the environment passed to the detached agent process using CLI values first, then environment values, then CLI defaults.
+ */
+function resolveAgentStartEnvironment({ port, host, configPath, allowWrite, allowAll }: Omit<AgentStartOptions, 'version'>): ResolvedAgentStartEnvironment {
+  const resolvedPort = port ?? process.env.PORT ?? agentDefaults.port
+  const resolvedHost = host !== agentDefaults.host ? host : (process.env.HOST ?? agentDefaults.host)
+  const resolvedAllowAll = allowAll || process.env.KUBB_AGENT_ALLOW_ALL === 'true'
+  const resolvedAllowWrite = resolvedAllowAll || allowWrite || process.env.KUBB_AGENT_ALLOW_WRITE === 'true'
+  const agentRoot = process.env.KUBB_AGENT_ROOT ?? process.cwd()
+  const agentConfigPath = path.resolve(process.cwd(), configPath || process.env.KUBB_AGENT_CONFIG || agentDefaults.configFile)
+
+  return {
+    port: resolvedPort,
+    host: resolvedHost,
+    allowWrite: resolvedAllowWrite,
+    allowAll: resolvedAllowAll,
+    agentConfigPath,
+    env: {
+      ...process.env,
+      PORT: resolvedPort,
+      HOST: resolvedHost,
+      KUBB_AGENT_ROOT: agentRoot,
+      KUBB_AGENT_CONFIG: agentConfigPath,
+      KUBB_AGENT_ALLOW_WRITE: String(resolvedAllowWrite),
+      KUBB_AGENT_ALLOW_ALL: String(resolvedAllowAll),
+      KUBB_AGENT_TOKEN: process.env.KUBB_AGENT_TOKEN,
+      KUBB_AGENT_RETRY_TIMEOUT: process.env.KUBB_AGENT_RETRY_TIMEOUT ?? agentDefaults.retryTimeout,
+      KUBB_STUDIO_URL: process.env.KUBB_STUDIO_URL ?? agentDefaults.studioUrl,
+    },
+  }
+}
+
 function isPortAvailable(port: number, host: string): Promise<boolean> {
   return new Promise((resolve) => {
     const server = net.createServer()
@@ -46,47 +87,31 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
     const agentDir = path.dirname(agentPkgPath)
     const serverPath = path.join(agentDir, agentDefaults.serverEntryPath)
 
-    // CLI params take priority over process.env; process.env fills in what the CLI didn't specify;
-    // agentDefaults are the last resort. Build env as: defaults ← process.env ← CLI.
-    const PORT = port !== undefined ? port : (process.env.PORT ?? agentDefaults.port)
-    const HOST = host !== agentDefaults.host ? host : (process.env.HOST ?? agentDefaults.host)
-    const KUBB_AGENT_ROOT = process.env.KUBB_AGENT_ROOT ?? process.cwd()
-    const KUBB_AGENT_CONFIG = path.resolve(process.cwd(), configPath || process.env.KUBB_AGENT_CONFIG || agentDefaults.configFile)
-    const KUBB_AGENT_ALLOW_WRITE = allowAll || allowWrite ? 'true' : (process.env.KUBB_AGENT_ALLOW_WRITE ?? 'false')
-    const KUBB_AGENT_ALLOW_ALL = allowAll ? 'true' : (process.env.KUBB_AGENT_ALLOW_ALL ?? 'false')
-    const KUBB_AGENT_TOKEN = process.env.KUBB_AGENT_TOKEN
-    const KUBB_AGENT_RETRY_TIMEOUT = process.env.KUBB_AGENT_RETRY_TIMEOUT ?? agentDefaults.retryTimeout
-    const KUBB_STUDIO_URL = process.env.KUBB_STUDIO_URL ?? agentDefaults.studioUrl
+    const resolvedEnv = resolveAgentStartEnvironment({ port, host, configPath, allowWrite, allowAll })
+    const numericPort = Number(resolvedEnv.port)
 
-    const env = {
-      ...process.env,
-      PORT,
-      HOST,
-      KUBB_AGENT_ROOT,
-      KUBB_AGENT_CONFIG,
-      KUBB_AGENT_ALLOW_WRITE,
-      KUBB_AGENT_ALLOW_ALL,
-      KUBB_AGENT_TOKEN,
-      KUBB_AGENT_RETRY_TIMEOUT,
-      KUBB_STUDIO_URL,
+    if (!Number.isInteger(numericPort) || numericPort <= 0) {
+      throw new Error(`Invalid port "${resolvedEnv.port}". Provide a positive integer with --port or PORT.`)
     }
 
     clack.log.step(styleText('cyan', 'Starting agent server...'))
-    clack.log.info(styleText('dim', `Config: ${KUBB_AGENT_CONFIG}`))
-    clack.log.info(styleText('dim', `Host: ${HOST}`))
-    clack.log.info(styleText('dim', `Port: ${PORT}`))
-    if (!KUBB_AGENT_ALLOW_WRITE && !KUBB_AGENT_ALLOW_ALL) {
+    clack.log.info(styleText('dim', `Config: ${resolvedEnv.agentConfigPath}`))
+    clack.log.info(styleText('dim', `Host: ${resolvedEnv.host}`))
+    clack.log.info(styleText('dim', `Port: ${resolvedEnv.port}`))
+    if (!resolvedEnv.allowWrite && !resolvedEnv.allowAll) {
       clack.log.warn(styleText('yellow', 'Filesystem writes disabled. Use --allow-write or --allow-all to enable.'))
     }
 
-    if (!(await isPortAvailable(Number(PORT), HOST))) {
-      clack.log.error(styleText('red', `Port ${PORT} is already in use. Stop the existing process or choose a different port with --port.`))
+    if (!(await isPortAvailable(numericPort, resolvedEnv.host))) {
+      clack.log.error(
+        styleText('red', `Port ${resolvedEnv.port} is already in use. Stop the existing process or choose a different port with --port.`),
+      )
       process.exit(1)
     }
 
     // Spawns the server as a detached background process so the CLI can exit independently.
     await spawnAsync('node', [serverPath], {
-      env,
+      env: resolvedEnv.env,
       cwd: process.cwd(),
     })
 

@@ -27,7 +27,7 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
     pluginsFailed: status === 'failed' ? [...failedPlugins].map(({ plugin }) => randomCliColor(plugin.name)).join(', ') : undefined,
     filesCreated,
     time: styleText('green', duration),
-    output: path.isAbsolute(config.root) ? path.resolve(config.root, config.output.path) : config.root,
+    output: path.resolve(config.root, config.output.path),
   } as const
 
   const labels = {

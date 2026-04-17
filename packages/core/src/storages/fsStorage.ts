@@ -5,6 +5,13 @@ import { clean, write } from '@internals/utils'
 import { createStorage } from '../createStorage.ts'
 
 /**
+ * Detects the filesystem error used to indicate that a path does not exist.
+ */
+function isMissingPathError(error: unknown): error is NodeJS.ErrnoException {
+  return typeof error === 'object' && error !== null && 'code' in error && (error as NodeJS.ErrnoException).code === 'ENOENT'
+}
+
+/**
  * Built-in filesystem storage driver.
  *
  * This is the default storage when no `storage` option is configured in `output`.
@@ -33,15 +40,23 @@ export const fsStorage = createStorage(() => ({
     try {
       await access(resolve(key))
       return true
-    } catch {
-      return false
+    } catch (error) {
+      if (isMissingPathError(error)) {
+        return false
+      }
+
+      throw new Error(`Failed to access storage item "${key}"`, { cause: error as Error })
     }
   },
   async getItem(key: string) {
     try {
       return await readFile(resolve(key), 'utf8')
-    } catch {
-      return null
+    } catch (error) {
+      if (isMissingPathError(error)) {
+        return null
+      }
+
+      throw new Error(`Failed to read storage item "${key}"`, { cause: error as Error })
     }
   },
   async setItem(key: string, value: string) {
@@ -52,13 +67,18 @@ export const fsStorage = createStorage(() => ({
   },
   async getKeys(base?: string) {
     const keys: Array<string> = []
+    const resolvedBase = resolve(base ?? process.cwd())
 
     async function walk(dir: string, prefix: string): Promise<void> {
       let entries: Array<Dirent>
       try {
         entries = (await readdir(dir, { withFileTypes: true })) as Array<Dirent>
-      } catch {
-        return
+      } catch (error) {
+        if (isMissingPathError(error)) {
+          return
+        }
+
+        throw new Error(`Failed to list storage keys under "${resolvedBase}"`, { cause: error as Error })
       }
       for (const entry of entries) {
         const rel = prefix ? `${prefix}/${entry.name}` : entry.name
@@ -70,7 +90,7 @@ export const fsStorage = createStorage(() => ({
       }
     }
 
-    await walk(resolve(base ?? process.cwd()), '')
+    await walk(resolvedBase, '')
 
     return keys
   },

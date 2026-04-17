@@ -1,10 +1,17 @@
-import path from 'node:path'
 import process from 'node:process'
 import { maskString } from '@internals/utils'
 import type { AgentConnectResponse } from '~/types/agent.ts'
 import { createAgentSession, registerAgent } from '~/utils/api.ts'
 import { connectToStudio } from '~/utils/connectStudio.ts'
 import { logger } from '~/utils/logger.ts'
+import { resolveStudioRuntimeConfig } from '~/utils/runtimeConfig.ts'
+
+/**
+ * Normalizes unknown thrown values into a logger-friendly message string.
+ */
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
+}
 
 /**
  * Nitro plugin that connects the agent to Kubb Studio on server startup.
@@ -21,16 +28,8 @@ import { logger } from '~/utils/logger.ts'
  * so each Studio user gets their own isolated WebSocket session.
  */
 export default defineNitroPlugin(async (nitro) => {
-  const studioUrl = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
-  const token = process.env.KUBB_AGENT_TOKEN
-  const configPath = process.env.KUBB_AGENT_CONFIG || 'kubb.config.ts'
-  const retryInterval = process.env.KUBB_AGENT_RETRY_TIMEOUT ? Number.parseInt(process.env.KUBB_AGENT_RETRY_TIMEOUT, 10) : 30000
-  const heartbeatInterval = process.env.KUBB_AGENT_HEARTBEAT_INTERVAL ? Number.parseInt(process.env.KUBB_AGENT_HEARTBEAT_INTERVAL, 10) : 30_000
-  const root = process.env.KUBB_AGENT_ROOT || process.cwd()
-  const allowAll = process.env.KUBB_AGENT_ALLOW_ALL === 'true'
-  const allowWrite = allowAll || process.env.KUBB_AGENT_ALLOW_WRITE === 'true'
-  const allowPublish = allowAll || process.env.KUBB_AGENT_ALLOW_PUBLISH === 'true'
-  const poolSize = process.env.KUBB_AGENT_POOL_SIZE ? Number.parseInt(process.env.KUBB_AGENT_POOL_SIZE, 10) : 1
+  const { studioUrl, token, configPath, resolvedConfigPath, retryInterval, heartbeatInterval, root, allowAll, allowWrite, allowPublish, poolSize, hasSecret } =
+    resolveStudioRuntimeConfig(process.env)
 
   if (!token) {
     logger.warn('KUBB_AGENT_TOKEN not set', 'cannot authenticate with studio')
@@ -38,17 +37,10 @@ export default defineNitroPlugin(async (nitro) => {
     return null
   }
 
-  if (!studioUrl) {
-    logger.warn('KUBB_STUDIO_URL not set', 'skipping studio connection')
-
-    return null
-  }
-
-  if (!process.env.KUBB_AGENT_SECRET) {
+  if (!hasSecret) {
     logger.warn('KUBB_AGENT_SECRET not set', 'secret should be set')
   }
 
-  const resolvedConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(root, configPath)
   const maskedToken = maskString(token)
 
   try {
@@ -72,8 +64,8 @@ export default defineNitroPlugin(async (nitro) => {
 
     const sessions = new Map<number, AgentConnectResponse | null>()
     for (const index of Array.from({ length: poolSize }, (_, i) => i)) {
-      const session = await createAgentSession({ token, studioUrl }).catch((err) => {
-        logger.warn(`[${maskedToken}] Failed to pre-create pool session ${index}:`, err?.message)
+      const session = await createAgentSession({ token, studioUrl }).catch((error: unknown) => {
+        logger.warn(`[${maskedToken}] Failed to pre-create pool session ${index}:`, getErrorMessage(error))
         return null
       })
       sessions.set(index, session)
@@ -86,11 +78,11 @@ export default defineNitroPlugin(async (nitro) => {
       const maskedSessionId = maskString(session.sessionId)
 
       logger.info(`[${maskedSessionId}] Connecting session ${index + 1}/${sessions.size}`)
-      await connectToStudio({ ...baseOptions, initialSession: session }).catch((err: any) => {
-        logger.warn(`[${maskedSessionId}] Session ${index + 1} failed to connect:`, err?.message)
+      await connectToStudio({ ...baseOptions, initialSession: session }).catch((error: unknown) => {
+        logger.warn(`[${maskedSessionId}] Session ${index + 1} failed to connect:`, getErrorMessage(error))
       })
     }
-  } catch (error: any) {
-    logger.error('Failed to connect to Kubb Studio\n', (error as Error)?.message)
+  } catch (error: unknown) {
+    logger.error('Failed to connect to Kubb Studio\n', getErrorMessage(error))
   }
 })

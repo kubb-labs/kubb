@@ -2,34 +2,31 @@ import type { FileNode } from '@kubb/ast'
 import type { AsyncEventEmitter, KubbHooks } from '@kubb/core'
 import WebSocket from 'ws'
 import type { AgentMessage, DataMessagePayload } from '~/types/agent.ts'
+import { websocketDefaults } from '../constants.ts'
 
-const WEBSOCKET_READY = 1
-const WEBSOCKET_CONNECTING = 0
+type WebSocketOptions = WebSocket.ClientOptions
 
 /**
- * Open a WebSocket connection to the given URL and resolve once the connection is established.
- * Rejects on error or resolves with `null` when the connection cannot be established within 5 seconds.
- *
+ * Opens a Studio WebSocket connection and closes it when the initial handshake exceeds the configured timeout.
  */
-export function createWebsocket(url: string, options: Record<string, any>): WebSocket {
+export function createWebsocket(url: string, options: WebSocketOptions, timeoutMs = websocketDefaults.connectTimeoutMs): WebSocket {
   const ws = new WebSocket(url, options)
 
-  // Timeout after 5 seconds
   setTimeout(() => {
-    if (ws.readyState === WEBSOCKET_CONNECTING) {
-      ws.close(3008, 'Connection timeout')
+    if (ws.readyState === WebSocket.CONNECTING) {
+      ws.close(websocketDefaults.closeCode.timeout, websocketDefaults.closeReason.timeout)
     }
-  }, 5000)
+  }, timeoutMs)
 
   return ws
 }
 
 /**
- * Send a message to Kubb Studio via WebSocket
+ * Sends a serialized agent message when the Studio socket is ready to accept frames.
  */
 export function sendAgentMessage(ws: WebSocket, message: AgentMessage): void {
   try {
-    if (ws.readyState !== WEBSOCKET_READY) {
+    if (ws.readyState !== WebSocket.OPEN) {
       return
     }
 
@@ -40,7 +37,7 @@ export function sendAgentMessage(ws: WebSocket, message: AgentMessage): void {
 }
 
 /**
- * Set up event listeners on the KubbHooks emitter to forward events to Kubb Studio via WebSocket
+ * Forwards selected Kubb lifecycle events to Studio as data messages for the active session.
  */
 export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHooks>, getSource?: () => 'generate' | 'publish' | undefined): void {
   function sendDataMessage(payload: DataMessagePayload) {

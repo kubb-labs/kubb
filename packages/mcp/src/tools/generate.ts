@@ -53,12 +53,12 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
     })
 
     // Plugin lifecycle events
-    hooks.on('kubb:plugin:start', async ({ name }: { name: string }) => {
-      await notify(NotifyTypes.PLUGIN_START, `Plugin starting: ${name}`)
+    hooks.on('kubb:plugin:start', async (plugin) => {
+      await notify(NotifyTypes.PLUGIN_START, `Plugin starting: ${plugin.name}`)
     })
 
-    hooks.on('kubb:plugin:end', async ({ name, duration }: { name: string; duration?: number }) => {
-      await notify(NotifyTypes.PLUGIN_END, `Plugin finished: ${name}`, { duration })
+    hooks.on('kubb:plugin:end', async (plugin, result) => {
+      await notify(NotifyTypes.PLUGIN_END, `Plugin finished: ${plugin.name}`, { duration: result.duration })
     })
 
     // File processing events
