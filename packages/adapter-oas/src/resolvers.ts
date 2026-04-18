@@ -252,20 +252,30 @@ export type GetSchemasResult = {
  * // returned unchanged — contains a $ref
  * ```
  */
+/**
+ * Returns `true` when `fragment` carries any JSON Schema keyword that makes it
+ * structurally significant on its own (see `structuralKeys`).
+ *
+ * A fragment with a structural keyword can't be safely merged into a parent schema.
+ */
+function hasStructuralKeywords(fragment: SchemaObject): boolean {
+  for (const key in fragment) {
+    if (structuralKeys.has(key as 'properties')) return true
+  }
+  return false
+}
+
 export function flattenSchema(schema: SchemaObject | null): SchemaObject | null {
   if (!schema?.allOf || schema.allOf.length === 0) return schema ?? null
-  if (schema.allOf.some((item) => isRef(item))) return schema
 
-  for (const item of schema.allOf as SchemaObject[]) {
-    for (const key in item) {
-      if (structuralKeys.has(key as 'properties')) return schema
-    }
-  }
+  const allOfFragments = schema.allOf as SchemaObject[]
+  if (allOfFragments.some((item) => isRef(item))) return schema
+  if (allOfFragments.some(hasStructuralKeywords)) return schema
 
   const merged: SchemaObject = { ...schema }
   delete merged.allOf
 
-  for (const fragment of schema.allOf as SchemaObject[]) {
+  for (const fragment of allOfFragments) {
     for (const [key, value] of Object.entries(fragment)) {
       if (merged[key as keyof typeof merged] === undefined) {
         merged[key as keyof typeof merged] = value

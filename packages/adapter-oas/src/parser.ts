@@ -698,6 +698,49 @@ function createSchemaParser(ctx: OasParserContext) {
   }
 
   /**
+   * Reads the inline `requestBody` metadata (description / required / contentType) that OAS exposes
+   * outside the schema itself. Returns an empty object when the request body is missing or a `$ref`.
+   */
+  function getRequestBodyMeta(operation: Operation): { description?: string; required: boolean; contentType?: string } {
+    const body = operation.schema.requestBody
+    if (!body || isReference(body)) return { required: false }
+
+    const inline = body as { description?: string; required?: boolean; content?: Record<string, unknown> }
+    return {
+      description: inline.description,
+      required: inline.required === true,
+      contentType: inline.content ? Object.keys(inline.content)[0] : undefined,
+    }
+  }
+
+  /**
+   * Reads the inline response object (not a `$ref`) and returns its description plus its `content` map.
+   */
+  function getResponseMeta(responseObj: unknown): { description?: string; content?: Record<string, unknown> } {
+    if (typeof responseObj !== 'object' || responseObj === null || Array.isArray(responseObj)) return {}
+
+    const inline = responseObj as { description?: string; content?: Record<string, unknown> }
+    return { description: inline.description, content: inline.content }
+  }
+
+  /**
+   * Collects property names whose schema has a truthy boolean flag (`readOnly` or `writeOnly`).
+   * `$ref` entries are skipped since their flags live on the dereferenced target.
+   */
+  function collectPropertyKeysByFlag(schema: SchemaObject | null, flag: 'readOnly' | 'writeOnly'): string[] | undefined {
+    if (!schema?.properties) return undefined
+
+    const keys: string[] = []
+    for (const key in schema.properties) {
+      const prop = schema.properties[key]
+      if (prop && !isReference(prop) && (prop as Record<string, unknown>)[flag]) {
+        keys.push(key)
+      }
+    }
+    return keys.length ? keys : undefined
+  }
+
+  /**
    * Converts an OAS `Operation` into an `OperationNode`.
    */
   function parseOperation(options: ast.ParserOptions, operation: Operation): ast.OperationNode {
@@ -707,43 +750,15 @@ function createSchemaParser(ctx: OasParserContext) {
 
     const requestBodySchema = getRequestSchema(document, operation, { contentType: ctx.contentType })
     const requestBodySchemaNode = requestBodySchema ? parseSchema({ schema: requestBodySchema }, options) : undefined
-
-    const requestBodyDescription =
-      operation.schema.requestBody && !isReference(operation.schema.requestBody)
-        ? (operation.schema.requestBody as { description?: string }).description
-        : undefined
-
-    let requestBodyKeysToOmit: string[] | undefined
-    if (requestBodySchema?.properties) {
-      requestBodyKeysToOmit = []
-      for (const key in requestBodySchema.properties) {
-        const prop = requestBodySchema.properties[key]
-        if (prop && !isReference(prop) && (prop as { readOnly?: boolean }).readOnly) {
-          requestBodyKeysToOmit.push(key)
-        }
-      }
-    }
-
-    const requestBodyRequired =
-      operation.schema.requestBody && !isReference(operation.schema.requestBody)
-        ? (operation.schema.requestBody as { required?: boolean }).required === true
-        : false
-
-    const requestBodyContentType = (() => {
-      if (!operation.schema.requestBody || isReference(operation.schema.requestBody)) {
-        return undefined
-      }
-      const content = (operation.schema.requestBody as { content?: Record<string, unknown> }).content
-      return content ? Object.keys(content)[0] : undefined
-    })()
+    const requestBodyMeta = getRequestBodyMeta(operation)
 
     const requestBody = requestBodySchemaNode
       ? {
-          description: requestBodyDescription,
-          schema: ast.syncOptionality(requestBodySchemaNode, requestBodyRequired),
-          keysToOmit: requestBodyKeysToOmit?.length ? requestBodyKeysToOmit : undefined,
-          required: requestBodyRequired || undefined,
-          contentType: requestBodyContentType,
+          description: requestBodyMeta.description,
+          schema: ast.syncOptionality(requestBodySchemaNode, requestBodyMeta.required),
+          keysToOmit: collectPropertyKeysByFlag(requestBodySchema, 'readOnly'),
+          required: requestBodyMeta.required || undefined,
+          contentType: requestBodyMeta.contentType,
         }
       : undefined
 
@@ -756,32 +771,15 @@ function createSchemaParser(ctx: OasParserContext) {
           ? parseSchema({ schema: responseSchema }, options)
           : ast.createSchema({ type: typeOptionMap.get(options.emptySchemaType)! })
 
-      const description = typeof responseObj === 'object' && responseObj !== null && !Array.isArray(responseObj) ? responseObj.description : undefined
-
-      const rawContent =
-        typeof responseObj === 'object' && responseObj !== null && !Array.isArray(responseObj)
-          ? (responseObj as { content?: Record<string, unknown> }).content
-          : undefined
-
-      const mediaType = rawContent ? getMediaType(Object.keys(rawContent)[0] ?? '') : getMediaType(operation.contentType ?? '')
-
-      let keysToOmit: string[] | undefined
-      if (responseSchema?.properties) {
-        keysToOmit = []
-        for (const key in responseSchema.properties) {
-          const prop = responseSchema.properties[key]
-          if (prop && !isReference(prop) && (prop as { writeOnly?: boolean }).writeOnly) {
-            keysToOmit.push(key)
-          }
-        }
-      }
+      const { description, content } = getResponseMeta(responseObj)
+      const mediaType = content ? getMediaType(Object.keys(content)[0] ?? '') : getMediaType(operation.contentType ?? '')
 
       return ast.createResponse({
         statusCode: statusCode as ast.StatusCode,
         description,
         schema,
         mediaType,
-        keysToOmit: keysToOmit?.length ? keysToOmit : undefined,
+        keysToOmit: collectPropertyKeysByFlag(responseSchema, 'writeOnly'),
       })
     })
 
