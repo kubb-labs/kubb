@@ -1,10 +1,8 @@
 import path from 'node:path'
-import { URLPath } from '@internals/utils'
+import { mergeDeep, URLPath } from '@internals/utils'
 import type { AdapterSource } from '@kubb/core'
 import { bundle, loadConfig } from '@redocly/openapi-core'
-import yaml from '@stoplight/yaml'
 import OASNormalize from 'oas-normalize'
-import { mergeDeep } from 'remeda'
 import swagger2openapi from 'swagger2openapi'
 import { MERGE_DEFAULT_TITLE, MERGE_DEFAULT_VERSION, MERGE_OPENAPI_VERSION } from './constants.ts'
 import { isOpenApiV2Document } from './guards.ts'
@@ -60,7 +58,7 @@ export async function parseDocument(pathOrApi: string | Document, { canBundle = 
 /**
  * Deep-merges multiple OpenAPI documents into a single `Document`.
  *
- * Each document is parsed independently then recursively merged with `remeda`'s `mergeDeep`.
+ * Each document is parsed independently then recursively merged via `mergeDeep` from `@internals/utils`.
  * Throws when the input array is empty.
  *
  * @example
@@ -85,9 +83,12 @@ export async function mergeDocuments(pathOrApi: Array<string | Document>): Promi
     components: { schemas: {} },
   } as Document
 
-  const merged = documents.reduce((acc, current) => mergeDeep(acc, current as Document), seed)
+  const merged = documents.reduce(
+    (acc, current) => mergeDeep(acc as Record<string, unknown>, current as Record<string, unknown>),
+    seed as Record<string, unknown>,
+  )
 
-  return parseDocument(merged)
+  return parseDocument(merged as Document)
 }
 
 /**
@@ -110,12 +111,7 @@ export function parseFromConfig(source: AdapterSource): Promise<Document> {
       return parseDocument(structuredClone(source.data) as Document)
     }
 
-    try {
-      const api: string = yaml.parse(source.data as string)
-      return parseDocument(api)
-    } catch {
-      return parseDocument(source.data as string)
-    }
+    return parseDocument(source.data as string, { canBundle: false })
   }
 
   if (source.type === 'paths') {

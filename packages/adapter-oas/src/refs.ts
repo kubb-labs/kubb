@@ -1,4 +1,3 @@
-import jsonpointer from 'jsonpointer'
 import { isReference } from './guards.ts'
 import type { Document } from './types.ts'
 
@@ -24,7 +23,10 @@ export function resolveRef<T = unknown>(document: Document, $ref: string): T | n
   } else {
     return null
   }
-  const current = jsonpointer.get(document, $ref)
+  const current = $ref
+    .split('/')
+    .filter(Boolean)
+    .reduce((obj: unknown, key: string) => (obj as Record<string, unknown>)?.[key], document as unknown)
 
   if (!current) {
     throw new Error(`Could not find a definition for ${origRef}.`)
