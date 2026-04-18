@@ -54,6 +54,7 @@
     "move-plugins-to-own-repo",
     "node-22-minimum",
     "remove-deprecated-plugin-checks",
+    "remove-legacy-plugin-types",
     "remove-oas-package",
     "rename-define-to-create",
     "rename-events-to-hooks",
