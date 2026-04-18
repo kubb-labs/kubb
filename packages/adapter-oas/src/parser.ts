@@ -1,7 +1,7 @@
 import { URLPath } from '@internals/utils'
 import { ast } from '@kubb/core'
 import BaseOas from 'oas'
-import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, typeOptionMap } from './constants.ts'
+import { DEFAULT_PARSER_OPTIONS, SCHEMA_REF_PREFIX, enumExtensionKeys, typeOptionMap } from './constants.ts'
 import { isDiscriminator, isNullable, isReference } from './guards.ts'
 import { resolveRef } from './refs.ts'
 import {
@@ -148,7 +148,7 @@ function createSchemaParser(ctx: OasParserContext) {
         if (!deref || !isDiscriminator(deref)) return true
         const parentUnion = deref.oneOf ?? deref.anyOf
         if (!parentUnion) return true
-        const childRef = `#/components/schemas/${name}`
+        const childRef = `${SCHEMA_REF_PREFIX}${name}`
         const inOneOf = parentUnion.some((oneOfItem) => isReference(oneOfItem) && oneOfItem.$ref === childRef)
         const inMapping = Object.values(deref.discriminator.mapping ?? {}).some((v) => v === childRef)
         if (inOneOf || inMapping) {

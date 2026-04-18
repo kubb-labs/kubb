@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { getRelativePath } from '@internals/utils'
 import type { FileNode } from '@kubb/ast'
 import { createExport, createFile, createSource } from '@kubb/ast'
+import { BARREL_BASENAME, BARREL_FILENAME } from '../constants.ts'
 import type { BarrelType } from '../types.ts'
 import { TreeNode } from './TreeNode.ts'
 
@@ -38,10 +39,10 @@ function getBarrelFilesByRoot(root: string | undefined, files: Array<FileNode>):
       return
     }
 
-    const barrelFilePath = join(treeNode.parent?.data.path, 'index.ts')
+    const barrelFilePath = join(treeNode.parent?.data.path, BARREL_FILENAME)
     const barrelFile = createFile({
       path: barrelFilePath,
-      baseName: 'index.ts',
+      baseName: BARREL_FILENAME,
       exports: [],
       imports: [],
       sources: [],
@@ -123,7 +124,7 @@ export async function getBarrelFiles(files: Array<FileNode>, { type, meta = {}, 
 
   const pathToBuildFrom = join(root, output.path)
 
-  if (trimExtName(pathToBuildFrom).endsWith('index')) {
+  if (trimExtName(pathToBuildFrom).endsWith(BARREL_BASENAME)) {
     return []
   }
 

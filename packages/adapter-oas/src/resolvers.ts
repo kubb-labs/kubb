@@ -3,7 +3,7 @@ import { ast } from '@kubb/core'
 import type { ParameterObject, ServerObject } from 'oas/types'
 import { isRef } from 'oas/types'
 import { matchesMimeType } from 'oas/utils'
-import { formatMap, structuralKeys } from './constants.ts'
+import { SCHEMA_REF_PREFIX, formatMap, structuralKeys } from './constants.ts'
 import { isReference } from './guards.ts'
 import { dereferenceWithRef, resolveRef } from './refs.ts'
 import type { ContentType, Document, MediaTypeObject, Operation, ResponseObject, SchemaObject } from './types.ts'
@@ -299,8 +299,6 @@ export function extractSchemaFromContent(content: Record<string, unknown> | unde
   if (schema && '$ref' in schema) return null
   return schema ?? null
 }
-
-const SCHEMA_REF_PREFIX = '#/components/schemas/'
 
 /**
  * Walks a schema tree and collects the names of all `#/components/schemas/<name>` `$ref`s.

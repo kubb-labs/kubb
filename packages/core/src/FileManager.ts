@@ -1,6 +1,7 @@
 import { trimExtName } from '@internals/utils'
 import type { FileNode } from '@kubb/ast'
 import { createFile } from '@kubb/ast'
+import { BARREL_BASENAME } from './constants.ts'
 
 function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNode<TMeta>): FileNode<TMeta> {
   return {
@@ -105,7 +106,7 @@ export class FileManager {
     const keys = [...this.#cache.keys()]
     const meta = new Map<string, { length: number; isIndex: boolean }>()
     for (const key of keys) {
-      meta.set(key, { length: key.length, isIndex: trimExtName(key).endsWith('index') })
+      meta.set(key, { length: key.length, isIndex: trimExtName(key).endsWith(BARREL_BASENAME) })
     }
     keys.sort((a, b) => {
       const ma = meta.get(a)!
