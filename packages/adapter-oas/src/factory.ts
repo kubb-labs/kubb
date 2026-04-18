@@ -2,13 +2,24 @@ import path from 'node:path'
 import { URLPath } from '@internals/utils'
 import type { AdapterSource } from '@kubb/core'
 import { bundle, loadConfig } from '@redocly/openapi-core'
-import yaml from '@stoplight/yaml'
 import OASNormalize from 'oas-normalize'
-import { mergeDeep } from 'remeda'
 import swagger2openapi from 'swagger2openapi'
 import { MERGE_DEFAULT_TITLE, MERGE_DEFAULT_VERSION, MERGE_OPENAPI_VERSION } from './constants.ts'
 import { isOpenApiV2Document } from './guards.ts'
 import type { Document } from './types.ts'
+
+function mergeDeep(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...target }
+  for (const key of Object.keys(source)) {
+    const sv = source[key]
+    const tv = result[key]
+    result[key] =
+      sv !== null && typeof sv === 'object' && !Array.isArray(sv) && tv !== null && typeof tv === 'object' && !Array.isArray(tv)
+        ? mergeDeep(tv as Record<string, unknown>, sv as Record<string, unknown>)
+        : sv
+  }
+  return result
+}
 
 export type ParseOptions = {
   canBundle?: boolean
@@ -85,9 +96,12 @@ export async function mergeDocuments(pathOrApi: Array<string | Document>): Promi
     components: { schemas: {} },
   } as Document
 
-  const merged = documents.reduce((acc, current) => mergeDeep(acc, current as Document), seed)
+  const merged = documents.reduce(
+    (acc, current) => mergeDeep(acc as Record<string, unknown>, current as Record<string, unknown>),
+    seed as Record<string, unknown>,
+  )
 
-  return parseDocument(merged)
+  return parseDocument(merged as Document)
 }
 
 /**
@@ -110,12 +124,7 @@ export function parseFromConfig(source: AdapterSource): Promise<Document> {
       return parseDocument(structuredClone(source.data) as Document)
     }
 
-    try {
-      const api: string = yaml.parse(source.data as string)
-      return parseDocument(api)
-    } catch {
-      return parseDocument(source.data as string)
-    }
+    return parseDocument(source.data as string)
   }
 
   if (source.type === 'paths') {
