@@ -1,5 +1,15 @@
 # @kubb/cli
 
+## 5.0.0-alpha.43
+
+### Patch Changes
+
+- [#3096](https://github.com/kubb-labs/kubb/pull/3096) [`8c7f0bd`](https://github.com/kubb-labs/kubb/commit/8c7f0bd19201f842bb418fe42ae3bda17951ce66) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update packages
+
+- Updated dependencies [[`8c7f0bd`](https://github.com/kubb-labs/kubb/commit/8c7f0bd19201f842bb418fe42ae3bda17951ce66)]:
+  - @kubb/adapter-oas@5.0.0-alpha.43
+  - @kubb/core@5.0.0-alpha.43
+
 ## 5.0.0-alpha.42
 
 ### Patch Changes

@@ -5,7 +5,7 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { PackageManagerInfo } from '@internals/utils'
 import { detectPackageManager } from '@internals/utils'
-import { initDefaults, pluginDefaultConfigs } from '../constants.ts'
+import { initDefaults, KUBB_CONFIG_FILENAME, pluginDefaultConfigs } from '../constants.ts'
 import { hasPackageJson, initPackageJson, installPackages } from '../utils/packageManager.ts'
 
 type PluginOption = {
@@ -272,17 +272,17 @@ export async function runInit({ yes, version }: InitOptions): Promise<void> {
 
     // Generate config file
     const configSpinner = clack.spinner()
-    configSpinner.start('Creating kubb.config.ts')
+    configSpinner.start(`Creating ${KUBB_CONFIG_FILENAME}`)
 
     const configContent = generateConfigFile(selectedPlugins, inputPath, outputPath)
-    const configPath = path.join(cwd, 'kubb.config.ts')
+    const configPath = path.join(cwd, KUBB_CONFIG_FILENAME)
 
     if (fs.existsSync(configPath)) {
-      configSpinner.stop('kubb.config.ts already exists')
+      configSpinner.stop(`${KUBB_CONFIG_FILENAME} already exists`)
 
       if (!yes) {
         const shouldOverwrite = await clack.confirm({
-          message: 'kubb.config.ts already exists. Overwrite?',
+          message: `${KUBB_CONFIG_FILENAME} already exists. Overwrite?`,
           initialValue: false,
         })
 
@@ -291,12 +291,12 @@ export async function runInit({ yes, version }: InitOptions): Promise<void> {
         }
       }
 
-      configSpinner.start('Overwriting kubb.config.ts')
+      configSpinner.start(`Overwriting ${KUBB_CONFIG_FILENAME}`)
     }
 
     fs.writeFileSync(configPath, configContent, 'utf-8')
 
-    configSpinner.stop('Created kubb.config.ts')
+    configSpinner.stop(`Created ${KUBB_CONFIG_FILENAME}`)
 
     clack.outro(
       styleText('green', '✓ All set!') +

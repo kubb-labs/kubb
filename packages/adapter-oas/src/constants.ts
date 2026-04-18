@@ -20,6 +20,18 @@ export const DEFAULT_PARSER_OPTIONS = {
 } as const satisfies ast.ParserOptions
 
 /**
+ * JSON-Pointer prefix for schemas declared under `components.schemas` in an OpenAPI document.
+ *
+ * Used when building or parsing `$ref` strings.
+ *
+ * @example
+ * ```ts
+ * `${SCHEMA_REF_PREFIX}Pet` // '#/components/schemas/Pet'
+ * ```
+ */
+export const SCHEMA_REF_PREFIX = '#/components/schemas/' as const
+
+/**
  * OpenAPI version string written into the stub document created during multi-spec merges.
  */
 export const MERGE_OPENAPI_VERSION = '3.0.0' as const

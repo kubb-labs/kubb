@@ -1,5 +1,4 @@
 import { findPackageJSON, readSync } from '@internals/utils'
-import { coerce, satisfies } from 'semver'
 
 type PackageJSON = {
   dependencies?: Record<string, string>
@@ -54,6 +53,31 @@ function getVersionSync(dependency: DependencyName | RegExp, cwd?: string): Depe
  * satisfiesDependency(/^@tanstack\//, '>=5')    // true when any @tanstack/* >=5 is found
  * ```
  */
+function coerceSemver(version: string): [number, number, number] | null {
+  const m = version.match(/(\d+)(?:\.(\d+))?(?:\.(\d+))?/)
+  return m ? [Number(m[1]), Number(m[2] ?? 0), Number(m[3] ?? 0)] : null
+}
+
+function satisfiesSemver(v: [number, number, number], range: string): boolean {
+  return range
+    .trim()
+    .split(/\s+/)
+    .every((cond) => {
+      const m = cond.match(/^(>=|<=|>|<|=|\^|~)?(\d+)(?:\.(\d+))?(?:\.(\d+))?$/)
+      if (!m) return false
+      const op = m[1] ?? '='
+      const r: [number, number, number] = [Number(m[2]), Number(m[3] ?? 0), Number(m[4] ?? 0)]
+      const cmp = v[0] !== r[0] ? v[0] - r[0] : v[1] !== r[1] ? v[1] - r[1] : v[2] - r[2]
+      if (op === '>=') return cmp >= 0
+      if (op === '<=') return cmp <= 0
+      if (op === '>') return cmp > 0
+      if (op === '<') return cmp < 0
+      if (op === '^') return v[0] === r[0] && cmp >= 0
+      if (op === '~') return v[0] === r[0] && v[1] === r[1] && cmp >= 0
+      return cmp === 0
+    })
+}
+
 export function satisfiesDependency(dependency: DependencyName | RegExp, version: DependencyVersion, cwd?: string): boolean {
   const packageVersion = getVersionSync(dependency, cwd)
 
@@ -65,11 +89,11 @@ export function satisfiesDependency(dependency: DependencyName | RegExp, version
     return true
   }
 
-  const semVer = coerce(packageVersion)
+  const semVer = coerceSemver(packageVersion)
 
   if (!semVer) {
     return false
   }
 
-  return satisfies(semVer, version)
+  return satisfiesSemver(semVer, version)
 }

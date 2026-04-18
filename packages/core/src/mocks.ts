@@ -16,33 +16,34 @@ import type {
   ResolvePathParams,
 } from './types.ts'
 
-function toCamelOrPascal(text: string, pascal: boolean): string {
+type CaseStyle = 'camel' | 'pascal'
+
+function splitWords(text: string): string[] {
   const normalized = text
     .trim()
     .replace(/([a-z\d])([A-Z])/g, '$1 $2')
     .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
     .replace(/(\d)([a-z])/g, '$1 $2')
 
-  const words = normalized.split(/[\s\-_./\\:]+/).filter(Boolean)
+  return normalized.split(/[\s\-_./\\:]+/).filter(Boolean)
+}
 
-  return words
+function toCaseStyle(text: string, style: CaseStyle): string {
+  return splitWords(text)
     .map((word, i) => {
-      const allUpper = word.length > 1 && word === word.toUpperCase()
-      if (allUpper) return word
-      if (i === 0 && !pascal) return word.charAt(0).toLowerCase() + word.slice(1)
-      return word.charAt(0).toUpperCase() + word.slice(1)
+      const isAcronym = word.length > 1 && word === word.toUpperCase()
+      if (isAcronym) return word
+
+      const shouldLowerFirst = i === 0 && style === 'camel'
+      const head = shouldLowerFirst ? word.charAt(0).toLowerCase() : word.charAt(0).toUpperCase()
+      return head + word.slice(1)
     })
     .join('')
     .replace(/[^a-zA-Z0-9]/g, '')
 }
 
-function camelCase(text: string): string {
-  return toCamelOrPascal(text, false)
-}
-
-function pascalCase(text: string): string {
-  return toCamelOrPascal(text, true)
-}
+const camelCase = (text: string): string => toCaseStyle(text, 'camel')
+const pascalCase = (text: string): string => toCaseStyle(text, 'pascal')
 
 /**
  * Creates a minimal `PluginDriver` mock suitable for unit tests.
@@ -50,19 +51,10 @@ function pascalCase(text: string): string {
 export function createMockedPluginDriver(options: { name?: string; plugin?: NormalizedPlugin; config?: Config } = {}): PluginDriver {
   return {
     resolveName: (result: ResolveNameParams) => {
-      if (result.type === 'file') {
-        return camelCase(options?.name || result.name)
-      }
-
-      if (result.type === 'type') {
-        return pascalCase(result.name)
-      }
-
-      if (result.type === 'function') {
-        return camelCase(result.name)
-      }
-
-      return camelCase(result.name)
+      if (result.type === 'type') return pascalCase(result.name)
+      // `file` lets callers override the source name; all other types reuse the provided one.
+      const source = result.type === 'file' ? options?.name || result.name : result.name
+      return camelCase(source)
     },
     config: options?.config ?? {
       root: '.',

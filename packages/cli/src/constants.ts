@@ -1,4 +1,11 @@
 /**
+ * Default filename for the Kubb configuration file.
+ *
+ * Used by the `init` command when scaffolding new projects and by the `agent` default config.
+ */
+export const KUBB_CONFIG_FILENAME = 'kubb.config.ts' as const
+
+/**
  * NPM registry endpoint used to check for @kubb/cli updates.
  */
 export const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
@@ -61,7 +68,7 @@ export const ARGS = new Set([...QUITE_FLAGS, ...GENERATE_FLAGS, ...VALIDATE_FLAG
 export const agentDefaults = {
   port: '3000',
   host: 'localhost',
-  configFile: 'kubb.config.ts',
+  configFile: KUBB_CONFIG_FILENAME,
   retryTimeout: '30000',
   studioUrl: 'https://studio.kubb.dev',
   /**
