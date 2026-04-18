@@ -69,7 +69,7 @@
     "@kubb/core": "workspace:*",
     "chokidar": "^5.0.0",
     "cosmiconfig": "^9.0.1",
-    "jiti": "^2.5.1",
+    "jiti": "^2.6.1",
     "tinyexec": "catalog:"
   },
   "devDependencies": {
