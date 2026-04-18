@@ -1,5 +1,41 @@
 # @kubb/core
 
+## 5.0.0-alpha.46
+
+### Minor Changes
+
+- [#3106](https://github.com/kubb-labs/kubb/pull/3106) [`7705bc8`](https://github.com/kubb-labs/kubb/commit/7705bc8cc5c99242afe99aab61d8c1bcb9766be9) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - `getResolver` is now typed based on `pluginName` via `Kubb.PluginRegistry`.
+
+  ### `PluginDriver.getResolver` overloads
+
+  Calling `getResolver` with a registered plugin name returns the plugin-specific resolver type instead of the generic `Resolver`:
+
+  ```ts
+  // before – always returned the base Resolver type
+  const resolver = driver.getResolver("@kubb/plugin-ts"); // Resolver
+
+  // after – returns the plugin's typed resolver
+  const resolver = driver.getResolver("@kubb/plugin-ts"); // PluginTs['resolver']
+  ```
+
+  ### `GeneratorContext.getResolver`
+
+  The same typed overloads are now available inside generators via `ctx.getResolver`:
+
+  ```ts
+  export const myGenerator = defineGenerator<PluginMyPlugin>({
+    async schema(node, ctx) {
+      const tsResolver = ctx.getResolver("@kubb/plugin-ts"); // PluginTs['resolver']
+    },
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.46
+  - @kubb/renderer-jsx@5.0.0-alpha.46
+
 ## 5.0.0-alpha.45
 
 ### Patch Changes

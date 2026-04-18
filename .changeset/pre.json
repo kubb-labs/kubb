@@ -52,6 +52,7 @@
     "fix-tuple-enum-declarations",
     "fix-url-input-resolution",
     "fix-workspace-renderer-jsx-deps",
+    "get-resolver-typed-by-plugin-name",
     "move-plugins-to-own-repo",
     "node-22-minimum",
     "remove-deprecated-plugin-checks",

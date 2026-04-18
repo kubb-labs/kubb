@@ -1,5 +1,13 @@
 # @kubb/cli
 
+## 5.0.0-alpha.46
+
+### Patch Changes
+
+- Updated dependencies [[`7705bc8`](https://github.com/kubb-labs/kubb/commit/7705bc8cc5c99242afe99aab61d8c1bcb9766be9)]:
+  - @kubb/core@5.0.0-alpha.46
+  - @kubb/adapter-oas@5.0.0-alpha.46
+
 ## 5.0.0-alpha.45
 
 ### Patch Changes
