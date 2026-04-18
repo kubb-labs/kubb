@@ -1,5 +1,13 @@
 # @kubb/mcp
 
+## 5.0.0-alpha.44
+
+### Patch Changes
+
+- Updated dependencies [[`96ac140`](https://github.com/kubb-labs/kubb/commit/96ac140638e1c10bbdf91840f0c8271c91124c03)]:
+  - @kubb/core@5.0.0-alpha.44
+  - @kubb/renderer-jsx@5.0.0-alpha.44
+
 ## 5.0.0-alpha.43
 
 ### Patch Changes
