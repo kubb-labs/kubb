@@ -76,7 +76,6 @@
   },
   "dependencies": {
     "@kubb/ast": "workspace:*",
-    "@kubb/renderer-jsx": "workspace:*",
     "fflate": "^0.8.2",
     "tinyexec": "catalog:"
   },

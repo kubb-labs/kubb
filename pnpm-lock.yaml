@@ -141,18 +141,12 @@ importers:
 
   packages/agent:
     dependencies:
-      '@kubb/adapter-oas':
-        specifier: workspace:*
-        version: link:../adapter-oas
       '@kubb/ast':
         specifier: workspace:*
         version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../parser-ts
       '@logtail/node':
         specifier: ^0.5.8
         version: 0.5.8
@@ -178,6 +172,12 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../adapter-oas
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
       '@types/ws':
         specifier: ^8.18.1
         version: 8.18.1
@@ -208,9 +208,15 @@ importers:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../adapter-oas
+      '@kubb/agent':
+        specifier: workspace:*
+        version: link:../agent
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/mcp':
+        specifier: workspace:*
+        version: link:../mcp
       chokidar:
         specifier: ^5.0.0
         version: 5.0.0
@@ -227,12 +233,6 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
-      '@kubb/agent':
-        specifier: workspace:*
-        version: link:../agent
-      '@kubb/mcp':
-        specifier: workspace:*
-        version: link:../mcp
 
   packages/core:
     dependencies:
@@ -347,8 +347,8 @@ importers:
         specifier: workspace:*
         version: link:../adapter-oas
       '@kubb/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: ^5.0.0-alpha.0
+        version: 5.0.0-alpha.44(@kubb/renderer-jsx@5.0.0-alpha.44)
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts
@@ -1317,6 +1317,20 @@ packages:
   '@koa/cors@5.0.0':
     resolution: {integrity: sha512-x/iUDjcS90W69PryLDIMgFyV21YLTnG9zOpPXS7Bkt2b8AsY3zZsIpOLBkYr9fBcF3HbkKaER5hOBZLfpLgYNw==}
     engines: {node: '>= 14.0.0'}
+
+  '@kubb/ast@5.0.0-alpha.44':
+    resolution: {integrity: sha512-RpPLmV+5XsQpSgjKT/RrdNXN4v7dF8WBjZ03ohXyBCgzHnscrap5+xVb8e0Ag0M1iAqU1uEOpOGp3tjS5T3pwA==}
+    engines: {node: '>=22'}
+
+  '@kubb/core@5.0.0-alpha.44':
+    resolution: {integrity: sha512-U5hEw8+VKN/gFEaSmjko+uAmI8ahp64EYur2cdRqmEgxeUYLNK65uqwVQc/toSoKFvHE4II4dAk/qqJokIz/1g==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      '@kubb/renderer-jsx': 5.0.0-alpha.44
+
+  '@kubb/renderer-jsx@5.0.0-alpha.44':
+    resolution: {integrity: sha512-D3Oo12+3LryET4jj5EUiKolvywTJVJnRCHqFIM6pGxbaQryhtwDdwyOMSTiF1OnYqyInYDFEJTRYZe/CNb8AdQ==}
+    engines: {node: '>=22'}
 
   '@logtail/core@0.5.8':
     resolution: {integrity: sha512-1LxjI46LCXeVRyENwjO4s0a1CWSIqHjYH6w2YVNhQLc5b7mVN0jhzxvmg9mps54aEuCSuK2SVCNmgvuNTDtAug==}
@@ -6393,6 +6407,19 @@ snapshots:
   '@koa/cors@5.0.0':
     dependencies:
       vary: 1.1.2
+
+  '@kubb/ast@5.0.0-alpha.44': {}
+
+  '@kubb/core@5.0.0-alpha.44(@kubb/renderer-jsx@5.0.0-alpha.44)':
+    dependencies:
+      '@kubb/ast': 5.0.0-alpha.44
+      '@kubb/renderer-jsx': 5.0.0-alpha.44
+      fflate: 0.8.2
+      tinyexec: 1.1.1
+
+  '@kubb/renderer-jsx@5.0.0-alpha.44':
+    dependencies:
+      '@kubb/ast': 5.0.0-alpha.44
 
   '@logtail/core@0.5.8':
     dependencies:
