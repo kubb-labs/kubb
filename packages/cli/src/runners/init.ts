@@ -5,7 +5,7 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { PackageManagerInfo } from '@internals/utils'
 import { detectPackageManager } from '@internals/utils'
-import { KUBB_CONFIG_FILENAME, initDefaults, pluginDefaultConfigs } from '../constants.ts'
+import { initDefaults, KUBB_CONFIG_FILENAME, pluginDefaultConfigs } from '../constants.ts'
 import { hasPackageJson, initPackageJson, installPackages } from '../utils/packageManager.ts'
 
 type PluginOption = {

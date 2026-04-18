@@ -1,7 +1,7 @@
 import { URLPath } from '@internals/utils'
 import { ast } from '@kubb/core'
 import BaseOas from 'oas'
-import { DEFAULT_PARSER_OPTIONS, SCHEMA_REF_PREFIX, enumExtensionKeys, typeOptionMap } from './constants.ts'
+import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, SCHEMA_REF_PREFIX, typeOptionMap } from './constants.ts'
 import { isDiscriminator, isNullable, isReference } from './guards.ts'
 import { resolveRef } from './refs.ts'
 import {
