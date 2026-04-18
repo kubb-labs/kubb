@@ -120,7 +120,7 @@ describe('createKubb', () => {
   it('should handle plugin installation errors', async () => {
     const errorPlugin = {
       name: 'errorPlugin',
-      options: undefined as unknown as Plugin["options"],
+      options: undefined as unknown as Plugin['options'],
       async buildStart() {
         throw new Error('Installation failed')
       },
@@ -169,7 +169,7 @@ describe('createKubb', () => {
   test('safeBuild should return error instead of throwing', async () => {
     const throwingPlugin = {
       name: 'throwingPlugin',
-      options: undefined as unknown as Plugin["options"],
+      options: undefined as unknown as Plugin['options'],
       async buildStart() {
         throw new Error('Critical error')
       },
