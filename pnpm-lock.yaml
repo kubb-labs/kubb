@@ -208,15 +208,9 @@ importers:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../adapter-oas
-      '@kubb/agent':
-        specifier: workspace:*
-        version: link:../agent
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/mcp':
-        specifier: workspace:*
-        version: link:../mcp
       chokidar:
         specifier: ^5.0.0
         version: 5.0.0
@@ -233,6 +227,12 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
+      '@kubb/agent':
+        specifier: workspace:*
+        version: link:../agent
+      '@kubb/mcp':
+        specifier: workspace:*
+        version: link:../mcp
 
   packages/core:
     dependencies:
