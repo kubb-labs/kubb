@@ -73,9 +73,9 @@
     "tinyexec": "catalog:"
   },
   "devDependencies": {
-    "@kubb/mcp": "workspace:*",
+    "@internals/utils": "workspace:*",
     "@kubb/agent": "workspace:*",
-    "@internals/utils": "workspace:*"
+    "@kubb/mcp": "workspace:*"
   },
   "engines": {
     "node": ">=22"

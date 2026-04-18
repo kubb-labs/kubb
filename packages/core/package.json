@@ -81,6 +81,7 @@
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
+    "@kubb/renderer-jsx": "*",
     "p-limit": "catalog:"
   },
   "peerDependencies": {
