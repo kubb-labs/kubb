@@ -1,5 +1,15 @@
 # @kubb/mcp
 
+## 5.0.0-alpha.45
+
+### Patch Changes
+
+- [#3103](https://github.com/kubb-labs/kubb/pull/3103) [`c5f4e9b`](https://github.com/kubb-labs/kubb/commit/c5f4e9b23c98d901d1c1aba1e398d895a1f04e77) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix @kubb/renderer-jsx dependency specification to use workspace:\* instead of wildcard to properly reference the local workspace package
+
+- Updated dependencies [[`c5f4e9b`](https://github.com/kubb-labs/kubb/commit/c5f4e9b23c98d901d1c1aba1e398d895a1f04e77)]:
+  - @kubb/core@5.0.0-alpha.45
+  - @kubb/renderer-jsx@5.0.0-alpha.45
+
 ## 5.0.0-alpha.44
 
 ### Patch Changes
