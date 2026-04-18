@@ -6,10 +6,10 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - .github/workflows/copilot-setup-steps.yml
+      - .github/copilot-setup-steps.yml
   pull_request:
     paths:
-      - .github/workflows/copilot-setup-steps.yml
+      - .github/copilot-setup-steps.yml
 
 jobs:
   # The job MUST be called `copilot-setup-steps` or it will not be picked up by Copilot.
@@ -28,8 +28,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@main
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Enable pnpm via corepack
+        run: corepack enable pnpm
+
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Build
         run: pnpm run build

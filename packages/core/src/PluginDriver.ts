@@ -323,6 +323,8 @@ export class PluginDriver {
    * Resolution order: dynamic resolver set via `setPluginResolver` → static resolver on the
    * plugin → lazily created default resolver (identity name, no path transforms).
    */
+  getResolver<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Kubb.PluginRegistry[TName]['resolver']
+  getResolver<TResolver extends Resolver = Resolver>(pluginName: string): TResolver
   getResolver(pluginName: string): Resolver {
     return this.#resolvers.get(pluginName) ?? this.plugins.get(pluginName)?.resolver ?? this.#createDefaultResolver(pluginName)
   }
@@ -342,6 +344,7 @@ export class PluginDriver {
       plugin,
       getPlugin: driver.getPlugin.bind(driver),
       requirePlugin: driver.requirePlugin.bind(driver),
+      getResolver: driver.getResolver.bind(driver),
       driver,
       addFile: async (...files: Array<FileNode>) => {
         driver.fileManager.add(...files)

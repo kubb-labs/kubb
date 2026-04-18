@@ -485,6 +485,12 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
   requirePlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]>
   requirePlugin(name: string): Plugin
   /**
+   * Get a resolver by plugin name. Returns the resolver typed via `Kubb.PluginRegistry` when
+   * the name is a registered key, otherwise returns the generic `Resolver`.
+   */
+  getResolver<TName extends keyof Kubb.PluginRegistry>(name: TName): Kubb.PluginRegistry[TName]['resolver']
+  getResolver(name: string): Resolver
+  /**
    * Add files only when they do not exist yet.
    */
   addFile: (...file: Array<FileNode>) => Promise<void>
