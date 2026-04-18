@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { URLPath, mergeDeep } from '@internals/utils'
+import { mergeDeep, URLPath } from '@internals/utils'
 import type { AdapterSource } from '@kubb/core'
 import { bundle, loadConfig } from '@redocly/openapi-core'
 import OASNormalize from 'oas-normalize'

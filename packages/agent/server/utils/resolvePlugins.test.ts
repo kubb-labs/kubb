@@ -12,9 +12,7 @@ beforeEach(() => {
 
 describe('resolvePlugins', () => {
   it('throws when the plugin package cannot be imported', async () => {
-    await expect(resolvePlugins([{ name: '@kubb/plugin-missing', options: {} }])).rejects.toThrow(
-      'Plugin "@kubb/plugin-missing" could not be loaded',
-    )
+    await expect(resolvePlugins([{ name: '@kubb/plugin-missing', options: {} }])).rejects.toThrow('Plugin "@kubb/plugin-missing" could not be loaded')
   })
 
   it('resolves a @kubb plugin by its camelCase named export', async () => {

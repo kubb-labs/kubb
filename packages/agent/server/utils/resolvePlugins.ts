@@ -52,10 +52,7 @@ async function loadPluginFactory(packageName: string): Promise<PluginFactory> {
   const firstFn = Object.values(mod).find((v) => typeof v === 'function') as PluginFactory | undefined
   if (firstFn) return firstFn
 
-  throw new Error(
-    `Plugin "${packageName}" does not export a callable factory. ` +
-      `Tried: named export "${exportName}", "default", and any exported function.`,
-  )
+  throw new Error(`Plugin "${packageName}" does not export a callable factory. ` + `Tried: named export "${exportName}", "default", and any exported function.`)
 }
 
 /**

@@ -5,11 +5,8 @@ import { parserTs, parserTsx } from '@kubb/parser-ts'
 
 type AnyConfigResult = UserConfig<any> | Array<UserConfig<any>>
 type ConfigInput = AnyConfigResult | Promise<AnyConfigResult> | ((cli: CLIOptions) => PossiblePromise<AnyConfigResult>)
-type NormalizeConfig<TConfig> = TConfig extends Array<UserConfig<infer TInput>>
-  ? Array<UserConfig<TInput>>
-  : TConfig extends UserConfig<infer TInput>
-    ? UserConfig<TInput>
-    : never
+type NormalizeConfig<TConfig> =
+  TConfig extends Array<UserConfig<infer TInput>> ? Array<UserConfig<TInput>> : TConfig extends UserConfig<infer TInput> ? UserConfig<TInput> : never
 type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptions) => PossiblePromise<infer TResult>
   ? (cli: CLIOptions) => Promise<NormalizeConfig<TResult>>
   : TConfig extends Promise<infer TResult>

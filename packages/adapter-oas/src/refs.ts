@@ -23,7 +23,10 @@ export function resolveRef<T = unknown>(document: Document, $ref: string): T | n
   } else {
     return null
   }
-  const current = $ref.split('/').filter(Boolean).reduce((obj: unknown, key: string) => (obj as Record<string, unknown>)?.[key], document as unknown)
+  const current = $ref
+    .split('/')
+    .filter(Boolean)
+    .reduce((obj: unknown, key: string) => (obj as Record<string, unknown>)?.[key], document as unknown)
 
   if (!current) {
     throw new Error(`Could not find a definition for ${origRef}.`)

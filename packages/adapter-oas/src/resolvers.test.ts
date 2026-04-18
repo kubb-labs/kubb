@@ -1,5 +1,5 @@
-import { toSnapshot } from '#mocks'
 import { describe, expect, expectTypeOf, it } from 'vitest'
+import { toSnapshot } from '#mocks'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import {
   buildSchemaNode,
