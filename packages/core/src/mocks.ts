@@ -20,6 +20,7 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
     getPlugin(_pluginName: string): NormalizedPlugin | undefined {
       return options?.plugin
     },
+    getResolver: (_pluginName: string) => options?.plugin?.resolver,
     fileManager: new FileManager(),
   } as unknown as PluginDriver
 }
