@@ -1,9 +1,6 @@
+import { isPlainObject } from '@internals/utils'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import type { DiscriminatorObject, SchemaObject } from './types.ts'
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && Object.getPrototypeOf(value) === Object.prototype
-}
 
 /**
  * Returns `true` when `doc` is a Swagger 2.0 document (no `openapi` key).
