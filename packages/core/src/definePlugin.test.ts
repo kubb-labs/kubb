@@ -2,8 +2,7 @@ import { AsyncEventEmitter } from '@internals/utils'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
-import { createPlugin } from './createPlugin.ts'
-import { definePlugin, isHookStylePlugin } from './definePlugin.ts'
+import { definePlugin, isPlugin } from './definePlugin.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import type { Config, GeneratorContext, KubbHooks, Plugin, PluginFactoryOptions } from './types.ts'
 
@@ -35,27 +34,17 @@ describe('definePlugin', () => {
     expect(plugin.options).toEqual({})
   })
 
-  it('isHookStylePlugin returns true for definePlugin output', () => {
+  it('isPlugin returns true for definePlugin output', () => {
     const plugin = definePlugin((_options) => ({
       name: 'test',
       hooks: {},
     }))()
-    expect(isHookStylePlugin(plugin)).toBe(true)
-  })
-
-  it('isHookStylePlugin returns false for createPlugin output', () => {
-    const plugin = createPlugin(() => ({
-      name: 'legacy',
-      options: undefined as unknown as Plugin['options'],
-      context: undefined as never,
-      buildStart() {},
-    }))()
-    expect(isHookStylePlugin(plugin)).toBe(false)
+    expect(isPlugin(plugin)).toBe(true)
   })
 })
 
 describe('PluginDriver — hook-style plugin registration', () => {
-  function makeConfig(plugins: Array<Plugin>): Config {
+  function makeConfig(plugins: Config['plugins']): Config {
     return {
       root: '.',
       input: { path: './petStore.yaml' },
@@ -72,7 +61,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
       hooks: {},
     }))()
 
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), {
+    const driver = new PluginDriver(makeConfig([hookPlugin]), {
       hooks: new AsyncEventEmitter<KubbHooks>(),
     })
 
@@ -89,7 +78,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     }))()
 
     const events = new AsyncEventEmitter<KubbHooks>()
-    new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
+    new PluginDriver(makeConfig([hookPlugin]), { hooks: events })
 
     expect(events.listenerCount('kubb:plugin:setup')).toBeGreaterThan(0)
   })
@@ -104,7 +93,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     }))()
 
     const hooks = new AsyncEventEmitter<KubbHooks>()
-    new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks })
+    new PluginDriver(makeConfig([hookPlugin]), { hooks })
 
     await hooks.emit('kubb:plugin:setup', {
       config: makeConfig([]),
@@ -132,7 +121,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     }))()
 
     const hooks = new AsyncEventEmitter<KubbHooks>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks })
+    const driver = new PluginDriver(makeConfig([hookPlugin]), { hooks })
 
     // Before emit — no generators yet
     expect(driver.hasRegisteredGenerators('hook-plugin')).toBe(false)
@@ -191,7 +180,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     }))()
 
     const events = new AsyncEventEmitter<KubbHooks>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
+    const driver = new PluginDriver(makeConfig([hookPlugin]), { hooks: events })
     await driver.emitSetupHooks()
 
     const resolver = driver.getResolver('hook-plugin')
@@ -222,7 +211,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     }))()
 
     const events = new AsyncEventEmitter<KubbHooks>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
+    const driver = new PluginDriver(makeConfig([hookPlugin]), { hooks: events })
     await driver.emitSetupHooks()
 
     const plugin = driver.plugins.get('hook-plugin')!
@@ -237,7 +226,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     }))()
 
     const events = new AsyncEventEmitter<KubbHooks>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
+    const driver = new PluginDriver(makeConfig([hookPlugin]), { hooks: events })
 
     const resolver = driver.getResolver('hook-plugin')
     expect(resolver.default('my custom type', 'type')).toBe('MyCustomType')
@@ -258,7 +247,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     }))()
 
     const events = new AsyncEventEmitter<KubbHooks>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
+    const driver = new PluginDriver(makeConfig([hookPlugin]), { hooks: events })
     await driver.emitSetupHooks()
 
     const plugin = driver.plugins.get('hook-plugin')!
@@ -275,7 +264,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     }))()
 
     const events = new AsyncEventEmitter<KubbHooks>()
-    new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
+    new PluginDriver(makeConfig([hookPlugin]), { hooks: events })
 
     const externalListener = vi.fn()
     events.on('kubb:plugin:setup', externalListener)
@@ -297,41 +286,8 @@ describe('PluginDriver — hook-style plugin registration', () => {
   })
 })
 
-describe('PluginDriver — mixed createPlugin + definePlugin', () => {
-  it('both legacy and hook-style plugins coexist in the same config', () => {
-    const legacyPlugin = createPlugin(() => ({
-      name: 'legacy-plugin',
-      options: undefined as unknown as Plugin['options'],
-      context: undefined as never,
-      buildStart() {},
-    }))()
-
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {},
-    }))()
-
-    const config: Config = {
-      root: '.',
-      input: { path: './petStore.yaml' },
-      output: { path: './src/gen' },
-      parsers: [],
-      adapter: createMockedAdapter(),
-      plugins: [legacyPlugin, hookPlugin as unknown as Plugin] as Array<Plugin>,
-    }
-
-    const driver = new PluginDriver(config, {
-      hooks: new AsyncEventEmitter<KubbHooks>(),
-    })
-
-    expect(driver.plugins.has('legacy-plugin')).toBe(true)
-    expect(driver.plugins.has('hook-plugin')).toBe(true)
-    expect(driver.plugins.size).toBe(2)
-  })
-})
-
 describe('PluginDriver — generator event dispatch', () => {
-  function makeConfig(plugins: Array<Plugin>): Config {
+  function makeConfig(plugins: Config['plugins']): Config {
     return {
       root: '.',
       input: { path: './petStore.yaml' },
@@ -354,7 +310,7 @@ describe('PluginDriver — generator event dispatch', () => {
     }))()
 
     const events = new AsyncEventEmitter<KubbHooks>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
+    const driver = new PluginDriver(makeConfig([hookPlugin]), { hooks: events })
     await driver.emitSetupHooks()
 
     const fakePlugin = driver.plugins.get('hook-plugin')!
@@ -377,7 +333,7 @@ describe('PluginDriver — generator event dispatch', () => {
     }))()
 
     const events = new AsyncEventEmitter<KubbHooks>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
+    const driver = new PluginDriver(makeConfig([hookPlugin]), { hooks: events })
     await driver.emitSetupHooks()
 
     // Emit with a DIFFERENT plugin name in the context — should NOT trigger the listener
@@ -400,7 +356,7 @@ describe('PluginDriver — generator event dispatch', () => {
     }))()
 
     const events = new AsyncEventEmitter<KubbHooks>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
+    const driver = new PluginDriver(makeConfig([hookPlugin]), { hooks: events })
 
     expect(driver.hasRegisteredGenerators('hook-plugin')).toBe(false)
     await driver.emitSetupHooks()
@@ -419,7 +375,7 @@ describe('PluginDriver — generator event dispatch', () => {
     }))()
 
     const events = new AsyncEventEmitter<KubbHooks>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
+    const driver = new PluginDriver(makeConfig([hookPlugin]), { hooks: events })
     await driver.emitSetupHooks()
 
     const fakePlugin = driver.plugins.get('hook-plugin')!
@@ -442,7 +398,7 @@ describe('PluginDriver — generator event dispatch', () => {
     }))()
 
     const events = new AsyncEventEmitter<KubbHooks>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
+    const driver = new PluginDriver(makeConfig([hookPlugin]), { hooks: events })
     await driver.emitSetupHooks()
 
     const fakePlugin = driver.plugins.get('hook-plugin')!
@@ -475,7 +431,7 @@ describe('PluginDriver — generator event dispatch', () => {
     }))()
 
     const events = new AsyncEventEmitter<KubbHooks>()
-    const driver = new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
+    const driver = new PluginDriver(makeConfig([hookPlugin]), { hooks: events })
     await driver.emitSetupHooks()
 
     const fakePlugin = driver.plugins.get('hook-plugin')!

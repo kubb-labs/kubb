@@ -7,7 +7,6 @@ import type {
   Config,
   PluginFactoryOptions,
   ResolveBannerContext,
-  ResolveNameParams,
   ResolveOptionsContext,
   Resolver,
   ResolverContext,
@@ -87,7 +86,7 @@ function matchesSchemaPattern(node: SchemaNode, type: string, pattern: string | 
  * - `PascalCase` for `type`.
  * - `camelCase` for everything else.
  */
-function defaultResolver(name: ResolveNameParams['name'], type: ResolveNameParams['type']): string {
+function defaultResolver(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
   let resolvedName = camelCase(name)
 
   if (type === 'file' || type === 'function') {

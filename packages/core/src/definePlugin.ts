@@ -2,39 +2,13 @@ import type { KubbHooks } from './Kubb.ts'
 import type { KubbPluginSetupContext, PluginFactoryOptions } from './types.ts'
 
 /**
- * Base hook handlers for all events except `kubb:plugin:setup`.
- * These handlers have identical signatures regardless of the plugin's
- * `PluginFactoryOptions` generic — they are split out so that the
- * interface below only needs to override the one event that depends on
- * the plugin type.
- */
-type PluginHooksBase = {
-  [K in Exclude<keyof KubbHooks, 'kubb:plugin:setup'>]?: (...args: KubbHooks[K]) => void | Promise<void>
-}
-
-/**
- * Plugin hook handlers.
- *
- * `kubb:plugin:setup` is typed with the plugin's own `PluginFactoryOptions` so
- * `ctx.setResolver`, `ctx.setOptions`, `ctx.options` etc. use the correct types.
- *
- * Uses interface + method shorthand for `kubb:plugin:setup`
- * checking, allowing `PluginHooks<PluginTs>` to be assignable to `PluginHooks`.
- *
- * @template TFactory - The plugin's `PluginFactoryOptions` type.
- */
-export interface PluginHooks<TFactory extends PluginFactoryOptions = PluginFactoryOptions> extends PluginHooksBase {
-  'kubb:plugin:setup'?(ctx: KubbPluginSetupContext<TFactory>): void | Promise<void>
-}
-
-/**
- * A hook-style plugin object produced by `definePlugin`.
+ * A plugin object produced by `definePlugin`.
  * Instead of flat lifecycle methods, it groups all handlers under a `hooks:` property
  * (matching Astro's integration naming convention).
  *
  * @template TFactory - The plugin's `PluginFactoryOptions` type.
  */
-export type HookStylePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
+export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
    * Unique name for the plugin, following the same naming convention as `createPlugin`.
    */
@@ -52,7 +26,11 @@ export type HookStylePlugin<TFactory extends PluginFactoryOptions = PluginFactor
    * Lifecycle event handlers for this plugin.
    * Any event from the global `KubbHooks` map can be subscribed to here.
    */
-  hooks: PluginHooks<TFactory>
+  hooks: {
+    [K in Exclude<keyof KubbHooks, 'kubb:plugin:setup'>]?: (...args: KubbHooks[K]) => void | Promise<void>
+  } & {
+    'kubb:plugin:setup'?(ctx: KubbPluginSetupContext<TFactory>): void | Promise<void>
+  }
 }
 
 /**
@@ -61,14 +39,14 @@ export type HookStylePlugin<TFactory extends PluginFactoryOptions = PluginFactor
  * Used by `PluginDriver` to distinguish hook-style plugins from legacy `createPlugin` plugins
  * so it can normalize them and register their handlers on the `AsyncEventEmitter`.
  */
-export function isHookStylePlugin(plugin: unknown): plugin is HookStylePlugin {
+export function isPlugin(plugin: unknown): plugin is Plugin {
   return typeof plugin === 'object' && plugin !== null && 'hooks' in plugin
 }
 
 /**
- * Creates a plugin factory using the new hook-style (`hooks:`) API.
+ * Creates a plugin factory using the hook-style (`hooks:`) API.
  *
- * The returned factory is called with optional options and produces a `HookStylePlugin`
+ * The returned factory is called with optional options and produces a `Plugin`
  * that coexists with plugins created via the legacy `createPlugin` API in the same
  * `kubb.config.ts`.
  *
@@ -89,7 +67,7 @@ export function isHookStylePlugin(plugin: unknown): plugin is HookStylePlugin {
  * ```
  */
 export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(
-  factory: (options: TFactory['options']) => HookStylePlugin<TFactory>,
-): (options?: TFactory['options']) => HookStylePlugin<TFactory> {
+  factory: (options: TFactory['options']) => Plugin<TFactory>,
+): (options?: TFactory['options']) => Plugin<TFactory> {
   return (options) => factory(options ?? ({} as TFactory['options']))
 }

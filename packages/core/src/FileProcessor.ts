@@ -29,6 +29,8 @@ function joinSources(file: FileNode): string {
 /**
  * Converts a single file to a string using the registered parsers.
  * Falls back to joining source values when no matching parser is found.
+ *
+ * @internal
  */
 export class FileProcessor {
   readonly #limit = pLimit(PARALLEL_CONCURRENCY_LIMIT)
