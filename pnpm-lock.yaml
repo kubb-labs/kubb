@@ -239,9 +239,6 @@ importers:
       '@kubb/ast':
         specifier: workspace:*
         version: link:../ast
-      '@kubb/renderer-jsx':
-        specifier: workspace:*
-        version: link:../renderer-jsx
       fflate:
         specifier: ^0.8.2
         version: 0.8.2
@@ -252,6 +249,9 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
+      '@kubb/renderer-jsx':
+        specifier: '*'
+        version: 5.0.0-alpha.44
       p-limit:
         specifier: 'catalog:'
         version: 7.3.0
@@ -286,9 +286,6 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/renderer-jsx':
-        specifier: workspace:*
-        version: link:../renderer-jsx
       '@modelcontextprotocol/sdk':
         specifier: ^1.29.0
         version: 1.29.0(zod@4.3.6)
@@ -302,6 +299,9 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
+      '@kubb/renderer-jsx':
+        specifier: '*'
+        version: 5.0.0-alpha.44
 
   packages/parser-ts:
     dependencies:
@@ -1317,6 +1317,14 @@ packages:
   '@koa/cors@5.0.0':
     resolution: {integrity: sha512-x/iUDjcS90W69PryLDIMgFyV21YLTnG9zOpPXS7Bkt2b8AsY3zZsIpOLBkYr9fBcF3HbkKaER5hOBZLfpLgYNw==}
     engines: {node: '>= 14.0.0'}
+
+  '@kubb/ast@5.0.0-alpha.44':
+    resolution: {integrity: sha512-RpPLmV+5XsQpSgjKT/RrdNXN4v7dF8WBjZ03ohXyBCgzHnscrap5+xVb8e0Ag0M1iAqU1uEOpOGp3tjS5T3pwA==}
+    engines: {node: '>=22'}
+
+  '@kubb/renderer-jsx@5.0.0-alpha.44':
+    resolution: {integrity: sha512-D3Oo12+3LryET4jj5EUiKolvywTJVJnRCHqFIM6pGxbaQryhtwDdwyOMSTiF1OnYqyInYDFEJTRYZe/CNb8AdQ==}
+    engines: {node: '>=22'}
 
   '@logtail/core@0.5.8':
     resolution: {integrity: sha512-1LxjI46LCXeVRyENwjO4s0a1CWSIqHjYH6w2YVNhQLc5b7mVN0jhzxvmg9mps54aEuCSuK2SVCNmgvuNTDtAug==}
@@ -6509,6 +6517,12 @@ snapshots:
   '@koa/cors@5.0.0':
     dependencies:
       vary: 1.1.2
+
+  '@kubb/ast@5.0.0-alpha.44': {}
+
+  '@kubb/renderer-jsx@5.0.0-alpha.44':
+    dependencies:
+      '@kubb/ast': 5.0.0-alpha.44
 
   '@logtail/core@0.5.8':
     dependencies:
