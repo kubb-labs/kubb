@@ -6,6 +6,15 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.45
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core)
+
+-   [`c5f4e9b`](https://github.com/kubb-labs/kubb/commit/c5f4e9b23c98d901d1c1aba1e398d895a1f04e77) - Fixed `@kubb/renderer-jsx` dependency specification to use `workspace:*` instead of a wildcard, ensuring proper reference to the local workspace package.
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
