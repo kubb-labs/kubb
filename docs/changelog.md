@@ -6,6 +6,27 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.43
+
+### ✨ Features
+
+#### [`@kubb/adapter-oas`](https://github.com/kubb-labs/kubb/tree/main/packages/adapter-oas)
+
+-   [`8c7f0bd`](https://github.com/kubb-labs/kubb/commit/8c7f0bd19201f842bb418fe42ae3bda17951ce66) - Enhanced internal package updates for improved compatibility across all related dependencies.
+
+#### [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core)
+
+-   [`8c7f0bd`](https://github.com/kubb-labs/kubb/commit/8c7f0bd19201f842bb418fe42ae3bda17951ce66) - Applied framework-wide enhancements ensuring seamless functionality with downstream plugins.
+
+#### [`@kubb/mcp`](https://github.com/kubb-labs/kubb/tree/main/packages/mcp)
+
+-   [`8c7f0bd`](https://github.com/kubb-labs/kubb/commit/8c7f0bd19201f842bb418fe42ae3bda17951ce66) - Improved infrastructure to better coordinate tasks and manage multiple configurations effectively.
+
+#### [`@kubb/cli`](https://github.com/kubb-labs/kubb/tree/main/packages/cli)
+
+-   [`8c7f0bd`](https://github.com/kubb-labs/kubb/commit/8c7f0bd19201f842bb418fe42ae3bda17951ce66) - Refined CLI workflows for enhanced developer experience and streamlined commands.
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
