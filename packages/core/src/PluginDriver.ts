@@ -1,6 +1,6 @@
 import { extname, resolve } from 'node:path'
 import type { AsyncEventEmitter } from '@internals/utils'
-import type { FileNode, InputNode } from '@kubb/ast'
+import type { FileNode, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { createFile } from '@kubb/ast'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -25,7 +25,7 @@ import type {
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
 type Options = {
-  hooks?: AsyncEventEmitter<KubbHooks>
+  hooks: AsyncEventEmitter<KubbHooks>
 }
 
 export class PluginDriver {
@@ -76,10 +76,7 @@ export class PluginDriver {
 
   constructor(config: Config, options: Options) {
     this.config = config
-    this.options = {
-      ...options,
-      hooks: options.hooks,
-    }
+    this.options = options
     config.plugins
       .map((rawPlugin) => this.#normalizePlugin(rawPlugin as Plugin))
       .filter((plugin) => {
@@ -99,9 +96,6 @@ export class PluginDriver {
   }
 
   get hooks() {
-    if (!this.options.hooks) {
-      throw new Error('hooks are not defined')
-    }
     return this.options.hooks
   }
 
@@ -161,15 +155,8 @@ export class PluginDriver {
           setOptions: (opts) => {
             normalizedPlugin.options = { ...normalizedPlugin.options, ...opts }
           },
-          injectFile: (file) => {
-            const fileNode = createFile({
-              baseName: file.baseName,
-              path: file.path,
-              sources: file.sources ?? [],
-              imports: [],
-              exports: [],
-            })
-            this.fileManager.add(fileNode)
+          injectFile: ({ sources = [], ...rest }) => {
+            this.fileManager.add(createFile({ imports: [], exports: [], sources, ...rest }))
           },
         }
         return hooks['kubb:plugin:setup']!(pluginCtx)
@@ -195,16 +182,17 @@ export class PluginDriver {
    * Call this once from `safeBuild` before the plugin execution loop begins.
    */
   async emitSetupHooks(): Promise<void> {
+    const noop = () => {}
     await this.hooks.emit('kubb:plugin:setup', {
       config: this.config,
-      addGenerator: () => {},
-      setResolver: () => {},
-      setTransformer: () => {},
-      setRenderer: () => {},
-      setOptions: () => {},
-      injectFile: () => {},
-      updateConfig: () => {},
       options: {},
+      addGenerator: noop,
+      setResolver: noop,
+      setTransformer: noop,
+      setRenderer: noop,
+      setOptions: noop,
+      injectFile: noop,
+      updateConfig: noop,
     })
   }
 
@@ -229,7 +217,7 @@ export class PluginDriver {
     }
 
     if (gen.schema) {
-      const schemaHandler = async (node: Parameters<NonNullable<typeof gen.schema>>[0], ctx: Parameters<NonNullable<typeof gen.schema>>[1]) => {
+      const schemaHandler = async (node: SchemaNode, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.schema!(node, ctx)
         await applyHookResult(result, this, resolveRenderer())
@@ -240,7 +228,7 @@ export class PluginDriver {
     }
 
     if (gen.operation) {
-      const operationHandler = async (node: Parameters<NonNullable<typeof gen.operation>>[0], ctx: Parameters<NonNullable<typeof gen.operation>>[1]) => {
+      const operationHandler = async (node: OperationNode, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operation!(node, ctx)
         await applyHookResult(result, this, resolveRenderer())
@@ -251,7 +239,7 @@ export class PluginDriver {
     }
 
     if (gen.operations) {
-      const operationsHandler = async (nodes: Parameters<NonNullable<typeof gen.operations>>[0], ctx: Parameters<NonNullable<typeof gen.operations>>[1]) => {
+      const operationsHandler = async (nodes: Array<OperationNode>, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operations!(nodes, ctx)
         await applyHookResult(result, this, resolveRenderer())
@@ -314,30 +302,33 @@ export class PluginDriver {
     return resolver
   }
 
+  /**
+   * Merges `partial` with the plugin's default resolver and stores the result.
+   * Also mirrors it onto `plugin.resolver` so callers using `getPlugin(name).resolver`
+   * get the up-to-date resolver without going through `getResolver()`.
+   */
   setPluginResolver(pluginName: string, partial: Partial<Resolver>): void {
     const defaultResolver = this.#createDefaultResolver(pluginName)
     const merged = { ...defaultResolver, ...partial }
     this.#resolvers.set(pluginName, merged)
-    // Mirror the resolved resolver onto the plugin so that consumers using
-    // `getPlugin(name).resolver` get the correct resolver without going through getResolver().
     const plugin = this.plugins.get(pluginName)
     if (plugin) {
       plugin.resolver = merged
     }
   }
 
+  /**
+   * Returns the resolver for the given plugin.
+   *
+   * Resolution order: dynamic resolver set via `setPluginResolver` → static resolver on the
+   * plugin → lazily created default resolver (identity name, no path transforms).
+   */
   getResolver(pluginName: string): Resolver {
-    const dynamicResolver = this.#resolvers.get(pluginName)
-    if (dynamicResolver) {
-      return dynamicResolver
-    }
-
-    const pluginResolver = this.plugins.get(pluginName)?.resolver
-    if (pluginResolver) {
-      return pluginResolver
-    }
-
-    return this.#createDefaultResolver(pluginName)
+    return (
+      this.#resolvers.get(pluginName) ??
+      this.plugins.get(pluginName)?.resolver ??
+      this.#createDefaultResolver(pluginName)
+    )
   }
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): GeneratorContext<TOptions> & Record<string, unknown> {
@@ -355,7 +346,7 @@ export class PluginDriver {
       plugin,
       getPlugin: driver.getPlugin.bind(driver),
       requirePlugin: driver.requirePlugin.bind(driver),
-      driver: driver,
+      driver,
       addFile: async (...files: Array<FileNode>) => {
         driver.fileManager.add(...files)
       },
