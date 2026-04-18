@@ -261,7 +261,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         config,
         adapter: driver.adapter,
         inputNode: driver.inputNode,
-        getPlugin: (name) => driver.getPlugin(name),
+        getPlugin: driver.getPlugin.bind(driver),
       })
     }
 

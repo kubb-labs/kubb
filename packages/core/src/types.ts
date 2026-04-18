@@ -684,6 +684,11 @@ export type KubbBuildStartContext = {
   config: Config
   adapter: Adapter
   inputNode: InputNode
+  /**
+   * Get a plugin by name. Returns the plugin typed via `Kubb.PluginRegistry` when
+   * the name is a registered key, otherwise returns the generic `Plugin`.
+   */
+  getPlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
   getPlugin(name: string): Plugin | undefined
 }
 
