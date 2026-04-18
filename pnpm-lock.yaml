@@ -250,8 +250,8 @@ importers:
         specifier: workspace:*
         version: link:../../internals/utils
       '@kubb/renderer-jsx':
-        specifier: '*'
-        version: 5.0.0-alpha.44
+        specifier: workspace:*
+        version: link:../renderer-jsx
       p-limit:
         specifier: 'catalog:'
         version: 7.3.0
