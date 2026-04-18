@@ -111,7 +111,7 @@ export function parseFromConfig(source: AdapterSource): Promise<Document> {
       return parseDocument(structuredClone(source.data) as Document)
     }
 
-    return parseDocument(source.data as string)
+    return parseDocument(source.data as string, { canBundle: false })
   }
 
   if (source.type === 'paths') {
