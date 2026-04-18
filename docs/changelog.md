@@ -6,6 +6,46 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.44
+
+### 🚀 Breaking Changes
+
+#### [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core)
+
+-   [`96ac140`](https://github.com/kubb-labs/kubb/commit/96ac140638e1c10bbdf91840f0c8271c91124c03) - Removed legacy plugin infrastructure, transitioning all plugins to use `definePlugin`.
+
+    #### Removed Types
+    - `NormalizedPlugin` — Internal plugin state is no longer part of the public API. Use `Plugin` for external references.
+    - `PluginContext` — Replaced by the standalone `GeneratorContext` type.
+    - `SchemaHook`, `OperationHook`, `OperationsHook` — Unused hook type aliases removed.
+
+    #### Renamed Types
+    - Internal `InternalPlugin` type (previously not public) is now named `NormalizedPlugin` for clarity but is marked `@internal` and remains inaccessible to plugin authors.
+
+    #### Improved Types
+    - `ResolveOptionsContext` — Marked `@internal`.
+    - `FileMetaBase` — Marked `@internal`.
+    - `FileProcessor` — Marked `@internal`.
+    - `PluginDriver.registerPluginHooks` — Marked `@internal`.
+    - `PluginDriver.dispose` — Marked `@internal`.
+    - `PluginDriver` constructor now requires `hooks` (previously optional but threw errors when absent).
+    - `InternalPlugin` (now `NormalizedPlugin`) moved from `PluginDriver.ts` to `types.ts` for proper root-level imports.
+
+    #### Migration
+
+    If you were using `NormalizedPlugin` or `PluginContext` from `@kubb/core`, switch to `Plugin` and `GeneratorContext` respectively:
+
+    ::: code-group
+    ```ts [Before]
+    import type { NormalizedPlugin, PluginContext } from "@kubb/core";
+    ```
+
+    ```ts [After]
+    import type { Plugin, GeneratorContext } from "@kubb/core";
+    ```
+    :::
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
