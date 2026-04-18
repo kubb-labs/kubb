@@ -892,16 +892,9 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
 
 export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Logger<TOptions>
 
-/**
- * Compatibility preset for code generation tools.
- * - `'default'` – no compatibility adjustments (default behavior).
- * - `'kubbV4'` – align generated names and structures with Kubb v4 output.
- */
-export type CompatibilityPreset = 'default' | 'kubbV4'
-
 export type { Storage } from './createStorage.ts'
 export type { Generator } from './defineGenerator.ts'
-export type { HookStylePlugin, Plugin, PluginHooks } from './definePlugin.ts'
+export type { Plugin } from './definePlugin.ts'
 export type { Kubb, KubbHooks } from './Kubb.ts'
 
 /**

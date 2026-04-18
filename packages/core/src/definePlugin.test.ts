@@ -3,7 +3,7 @@ import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { createPlugin } from './createPlugin.ts'
-import { definePlugin, isHookStylePlugin } from './definePlugin.ts'
+import { definePlugin, isPlugin } from './definePlugin.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import type { Config, GeneratorContext, KubbHooks, NormalizedPlugin, Plugin, PluginFactoryOptions } from './types.ts'
 
@@ -35,22 +35,22 @@ describe('definePlugin', () => {
     expect(plugin.options).toEqual({})
   })
 
-  it('isHookStylePlugin returns true for definePlugin output', () => {
+  it('isPlugin returns true for definePlugin output', () => {
     const plugin = definePlugin((_options) => ({
       name: 'test',
       hooks: {},
     }))()
-    expect(isHookStylePlugin(plugin)).toBe(true)
+    expect(isPlugin(plugin)).toBe(true)
   })
 
-  it('isHookStylePlugin returns false for createPlugin output', () => {
+  it('isPlugin returns false for createPlugin output', () => {
     const plugin = createPlugin(() => ({
       name: 'legacy',
       options: undefined as unknown as NormalizedPlugin['options'],
       context: undefined as never,
       buildStart() {},
     }))()
-    expect(isHookStylePlugin(plugin)).toBe(false)
+    expect(isPlugin(plugin)).toBe(false)
   })
 })
 

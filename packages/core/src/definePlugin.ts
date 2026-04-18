@@ -2,32 +2,6 @@ import type { KubbHooks } from './Kubb.ts'
 import type { KubbPluginSetupContext, PluginFactoryOptions } from './types.ts'
 
 /**
- * Base hook handlers for all events except `kubb:plugin:setup`.
- * These handlers have identical signatures regardless of the plugin's
- * `PluginFactoryOptions` generic — they are split out so that the
- * interface below only needs to override the one event that depends on
- * the plugin type.
- */
-type PluginHooksBase = {
-  [K in Exclude<keyof KubbHooks, 'kubb:plugin:setup'>]?: (...args: KubbHooks[K]) => void | Promise<void>
-}
-
-/**
- * Plugin hook handlers.
- *
- * `kubb:plugin:setup` is typed with the plugin's own `PluginFactoryOptions` so
- * `ctx.setResolver`, `ctx.setOptions`, `ctx.options` etc. use the correct types.
- *
- * Uses interface + method shorthand for `kubb:plugin:setup`
- * checking, allowing `PluginHooks<PluginTs>` to be assignable to `PluginHooks`.
- *
- * @template TFactory - The plugin's `PluginFactoryOptions` type.
- */
-export interface PluginHooks<TFactory extends PluginFactoryOptions = PluginFactoryOptions> extends PluginHooksBase {
-  'kubb:plugin:setup'?(ctx: KubbPluginSetupContext<TFactory>): void | Promise<void>
-}
-
-/**
  * A plugin object produced by `definePlugin`.
  * Instead of flat lifecycle methods, it groups all handlers under a `hooks:` property
  * (matching Astro's integration naming convention).
@@ -52,13 +26,12 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
    * Lifecycle event handlers for this plugin.
    * Any event from the global `KubbHooks` map can be subscribed to here.
    */
-  hooks: PluginHooks<TFactory>
+  hooks: {
+    [K in Exclude<keyof KubbHooks, 'kubb:plugin:setup'>]?: (...args: KubbHooks[K]) => void | Promise<void>
+  } & {
+    'kubb:plugin:setup'?(ctx: KubbPluginSetupContext<TFactory>): void | Promise<void>
+  }
 }
-
-/**
- * @deprecated Use `Plugin` instead.
- */
-export type HookStylePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = Plugin<TFactory>
 
 /**
  * Returns `true` when `plugin` is a hook-style plugin created with `definePlugin`.
@@ -68,13 +41,6 @@ export type HookStylePlugin<TFactory extends PluginFactoryOptions = PluginFactor
  */
 export function isPlugin(plugin: unknown): plugin is Plugin {
   return typeof plugin === 'object' && plugin !== null && 'hooks' in plugin
-}
-
-/**
- * @deprecated Use `isPlugin` instead.
- */
-export function isHookStylePlugin(plugin: unknown): plugin is Plugin {
-  return isPlugin(plugin)
 }
 
 /**

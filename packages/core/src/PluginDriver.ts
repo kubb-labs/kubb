@@ -6,7 +6,7 @@ import type { FileNode, InputNode } from '@kubb/ast'
 import { createFile } from '@kubb/ast'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
-import { type Plugin as HookStylePlugin, isPlugin } from './definePlugin.ts'
+import { isPlugin, type Plugin } from './definePlugin.ts'
 import { defineResolver } from './defineResolver.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
@@ -131,7 +131,7 @@ export class PluginDriver {
     config.plugins
       .map((rawPlugin) => {
         if (isPlugin(rawPlugin)) {
-          return this.#normalizeHookStylePlugin(rawPlugin as HookStylePlugin)
+          return this.#normalizePlugin(rawPlugin as Plugin)
         }
         const legacyPlugin = rawPlugin as UserPluginWithLifeCycle
         return {
@@ -171,7 +171,7 @@ export class PluginDriver {
    * `addGenerator()` in `kubb:plugin:setup` are stored on `normalizedPlugin.generators`
    * and used by `runPluginAstHooks` during the build.
    */
-  #normalizeHookStylePlugin(hookPlugin: HookStylePlugin): NormalizedPlugin {
+  #normalizePlugin(hookPlugin: Plugin): NormalizedPlugin {
     const generators: NormalizedPlugin['generators'] = []
     const driver = this
     // The options shape is the minimal struct required by NormalizedPlugin. Hook-style plugins
@@ -221,7 +221,7 @@ export class PluginDriver {
    * External tooling can subscribe to any of these events via `hooks.on(...)` to observe
    * the plugin lifecycle without modifying plugin behavior.
    */
-  registerPluginHooks(hookPlugin: HookStylePlugin, normalizedPlugin: NormalizedPlugin): void {
+  registerPluginHooks(hookPlugin: Plugin, normalizedPlugin: NormalizedPlugin): void {
     const { hooks } = hookPlugin
 
     // kubb:plugin:setup gets special treatment: the globally emitted context is wrapped with
