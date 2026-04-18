@@ -38,21 +38,17 @@ export class FileManager {
     const resolvedFiles: Array<FileNode> = []
     const mergedFiles = new Map<string, FileNode>()
 
-    files.forEach((file) => {
+    for (const file of files) {
       const existing = mergedFiles.get(file.path)
-      if (existing) {
-        mergedFiles.set(file.path, mergeFile(existing, file))
-      } else {
-        mergedFiles.set(file.path, file)
-      }
-    })
+      mergedFiles.set(file.path, existing ? mergeFile(existing, file) : file)
+    }
 
     for (const file of mergedFiles.values()) {
       const resolvedFile = createFile(file)
       this.#cache.set(resolvedFile.path, resolvedFile)
-      this.#filesCache = null
       resolvedFiles.push(resolvedFile)
     }
+    this.#filesCache = null
 
     return resolvedFiles
   }
@@ -65,23 +61,19 @@ export class FileManager {
     const resolvedFiles: Array<FileNode> = []
     const mergedFiles = new Map<string, FileNode>()
 
-    files.forEach((file) => {
+    for (const file of files) {
       const existing = mergedFiles.get(file.path)
-      if (existing) {
-        mergedFiles.set(file.path, mergeFile(existing, file))
-      } else {
-        mergedFiles.set(file.path, file)
-      }
-    })
+      mergedFiles.set(file.path, existing ? mergeFile(existing, file) : file)
+    }
 
     for (const file of mergedFiles.values()) {
       const existing = this.#cache.get(file.path)
       const merged = existing ? mergeFile(existing, file) : file
       const resolvedFile = createFile(merged)
       this.#cache.set(resolvedFile.path, resolvedFile)
-      this.#filesCache = null
       resolvedFiles.push(resolvedFile)
     }
+    this.#filesCache = null
 
     return resolvedFiles
   }
@@ -109,11 +101,17 @@ export class FileManager {
       return this.#filesCache
     }
 
-    const keys = [...this.#cache.keys()].sort((a, b) => {
-      if (a.length !== b.length) return a.length - b.length
-      const aIsIndex = trimExtName(a).endsWith('index')
-      const bIsIndex = trimExtName(b).endsWith('index')
-      if (aIsIndex !== bIsIndex) return aIsIndex ? 1 : -1
+    // Precompute the barrel-file flag per key so the comparator avoids repeated string work.
+    const keys = [...this.#cache.keys()]
+    const meta = new Map<string, { length: number; isIndex: boolean }>()
+    for (const key of keys) {
+      meta.set(key, { length: key.length, isIndex: trimExtName(key).endsWith('index') })
+    }
+    keys.sort((a, b) => {
+      const ma = meta.get(a)!
+      const mb = meta.get(b)!
+      if (ma.length !== mb.length) return ma.length - mb.length
+      if (ma.isIndex !== mb.isIndex) return ma.isIndex ? 1 : -1
       return 0
     })
 

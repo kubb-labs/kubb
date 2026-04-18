@@ -713,11 +713,16 @@ function createSchemaParser(ctx: OasParserContext) {
         ? (operation.schema.requestBody as { description?: string }).description
         : undefined
 
-    const requestBodyKeysToOmit = requestBodySchema?.properties
-      ? Object.entries(requestBodySchema.properties)
-          .filter(([, prop]) => !isReference(prop) && (prop as { readOnly?: boolean }).readOnly)
-          .map(([key]) => key)
-      : undefined
+    let requestBodyKeysToOmit: string[] | undefined
+    if (requestBodySchema?.properties) {
+      requestBodyKeysToOmit = []
+      for (const key in requestBodySchema.properties) {
+        const prop = requestBodySchema.properties[key]
+        if (prop && !isReference(prop) && (prop as { readOnly?: boolean }).readOnly) {
+          requestBodyKeysToOmit.push(key)
+        }
+      }
+    }
 
     const requestBodyRequired =
       operation.schema.requestBody && !isReference(operation.schema.requestBody)
@@ -760,11 +765,16 @@ function createSchemaParser(ctx: OasParserContext) {
 
       const mediaType = rawContent ? getMediaType(Object.keys(rawContent)[0] ?? '') : getMediaType(operation.contentType ?? '')
 
-      const keysToOmit = responseSchema?.properties
-        ? Object.entries(responseSchema.properties)
-            .filter(([, prop]) => !isReference(prop) && (prop as { writeOnly?: boolean }).writeOnly)
-            .map(([key]) => key)
-        : undefined
+      let keysToOmit: string[] | undefined
+      if (responseSchema?.properties) {
+        keysToOmit = []
+        for (const key in responseSchema.properties) {
+          const prop = responseSchema.properties[key]
+          if (prop && !isReference(prop) && (prop as { writeOnly?: boolean }).writeOnly) {
+            keysToOmit.push(key)
+          }
+        }
+      }
 
       return ast.createResponse({
         statusCode: statusCode as ast.StatusCode,

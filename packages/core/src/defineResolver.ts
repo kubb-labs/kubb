@@ -30,21 +30,37 @@ type ResolverBuilder<T extends PluginFactoryOptions> = () => Omit<
     pluginName: T['name']
   } & ThisType<T['resolver']>
 
+// String patterns are compiled lazily and cached — the same filter is reused for every node.
+const stringPatternCache = new Map<string, RegExp>()
+
+function testPattern(value: string, pattern: string | RegExp): boolean {
+  if (typeof pattern === 'string') {
+    let regex = stringPatternCache.get(pattern)
+    if (!regex) {
+      regex = new RegExp(pattern)
+      stringPatternCache.set(pattern, regex)
+    }
+    return regex.test(value)
+  }
+  // Use .match() for user-supplied RegExp to preserve semantics regardless of `g`/`y` flags.
+  return value.match(pattern) !== null
+}
+
 /**
  * Checks if an operation matches a pattern for a given filter type (`tag`, `operationId`, `path`, `method`).
  */
 function matchesOperationPattern(node: OperationNode, type: string, pattern: string | RegExp): boolean {
   switch (type) {
     case 'tag':
-      return node.tags.some((tag) => !!tag.match(pattern))
+      return node.tags.some((tag) => testPattern(tag, pattern))
     case 'operationId':
-      return !!node.operationId.match(pattern)
+      return testPattern(node.operationId, pattern)
     case 'path':
-      return !!node.path.match(pattern)
+      return testPattern(node.path, pattern)
     case 'method':
-      return !!(node.method.toLowerCase() as string).match(pattern)
+      return testPattern(node.method.toLowerCase(), pattern)
     case 'contentType':
-      return !!node.requestBody?.contentType?.match(pattern)
+      return node.requestBody?.contentType ? testPattern(node.requestBody.contentType, pattern) : false
     default:
       return false
   }
@@ -58,7 +74,7 @@ function matchesOperationPattern(node: OperationNode, type: string, pattern: str
 function matchesSchemaPattern(node: SchemaNode, type: string, pattern: string | RegExp): boolean | null {
   switch (type) {
     case 'schemaName':
-      return node.name ? !!node.name.match(pattern) : false
+      return node.name ? testPattern(node.name, pattern) : false
     default:
       return null
   }
