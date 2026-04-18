@@ -7,7 +7,7 @@ import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { definePlugin } from './definePlugin.ts'
-import type { Config, KubbHooks, NormalizedPlugin, Plugin, PluginContext, PluginFactoryOptions, UserConfig } from './types.ts'
+import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
 
 describe('createKubb', () => {
   const pluginMocks = {
@@ -22,15 +22,15 @@ describe('createKubb', () => {
     imports: [],
     exports: [],
   })
-  const plugin = {
+  const plugin = definePlugin(() => ({
     name: 'plugin',
-    options: undefined as unknown as NormalizedPlugin['options'],
-    async buildStart(this: PluginContext<PluginFactoryOptions>) {
-      pluginMocks.buildStart()
-
-      await this.addFile(file)
+    hooks: {
+      'kubb:plugin:setup'(ctx) {
+        pluginMocks.buildStart()
+        ctx.injectFile(file)
+      },
     },
-  }
+  }))()
 
   const config = {
     root: '.',
@@ -118,13 +118,14 @@ describe('createKubb', () => {
   })
 
   it('should handle plugin installation errors', async () => {
-    const errorPlugin = {
+    const errorPlugin = definePlugin(() => ({
       name: 'errorPlugin',
-      options: undefined as unknown as Plugin['options'],
-      async buildStart() {
-        throw new Error('Installation failed')
+      hooks: {
+        'kubb:plugin:start'() {
+          throw new Error('Installation failed')
+        },
       },
-    }
+    }))()
 
     const errorConfig = {
       ...config,
@@ -136,7 +137,9 @@ describe('createKubb', () => {
     expect(failedPlugins.size).toBe(1)
     const failedPlugin = Array.from(failedPlugins)[0]
     expect(failedPlugin?.plugin.name).toBe('errorPlugin')
-    expect(failedPlugin?.error.message).toBe('Installation failed')
+    // AsyncEventEmitter wraps the error; the original is accessible via cause
+    const originalError = (failedPlugin?.error.cause ?? failedPlugin?.error) as Error | undefined
+    expect(originalError?.message).toContain('Installation failed')
   })
 
   it('should emit debug events during build process', async () => {
@@ -167,13 +170,14 @@ describe('createKubb', () => {
   it.todo('should handle "all" barrel type')
 
   test('safeBuild should return error instead of throwing', async () => {
-    const throwingPlugin = {
+    const throwingPlugin = definePlugin(() => ({
       name: 'throwingPlugin',
-      options: undefined as unknown as Plugin['options'],
-      async buildStart() {
-        throw new Error('Critical error')
+      hooks: {
+        'kubb:plugin:start'() {
+          throw new Error('Critical error')
+        },
       },
-    }
+    }))()
 
     const throwingConfig = {
       ...config,
@@ -225,13 +229,15 @@ describe('createKubb', () => {
         meta: { pluginName: 'excludedPlugin' },
       })
 
-      const excludedPlugin = {
+      const excludedPlugin = definePlugin(() => ({
         name: 'excludedPlugin',
-        options: { output: { barrelType: false } } as unknown as Plugin['options'],
-        async buildStart(this: PluginContext<PluginFactoryOptions>) {
-          await this.addFile(indexableFile)
+        hooks: {
+          'kubb:plugin:setup'(ctx) {
+            ctx.setOptions({ output: { barrelType: false } } as never)
+            ctx.injectFile(indexableFile)
+          },
         },
-      }
+      }))()
 
       const excludeConfig: Config = {
         ...config,

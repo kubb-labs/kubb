@@ -7,6 +7,11 @@ import { BARREL_BASENAME, BARREL_FILENAME } from '../constants.ts'
 import type { BarrelType } from '../types.ts'
 import { TreeNode } from './TreeNode.ts'
 
+/**
+ * Minimal file metadata attached to every generated file for barrel-file bookkeeping.
+ *
+ * @internal
+ */
 export type FileMetaBase = {
   pluginName?: string
 }

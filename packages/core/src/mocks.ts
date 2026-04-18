@@ -12,79 +12,20 @@ import type {
   GeneratorContext,
   NormalizedPlugin,
   PluginFactoryOptions,
-  ResolveNameParams,
-  ResolvePathParams,
 } from './types.ts'
-
-type CaseStyle = 'camel' | 'pascal'
-
-function splitWords(text: string): string[] {
-  const normalized = text
-    .trim()
-    .replace(/([a-z\d])([A-Z])/g, '$1 $2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
-    .replace(/(\d)([a-z])/g, '$1 $2')
-
-  return normalized.split(/[\s\-_./\\:]+/).filter(Boolean)
-}
-
-function toCaseStyle(text: string, style: CaseStyle): string {
-  return splitWords(text)
-    .map((word, i) => {
-      const isAcronym = word.length > 1 && word === word.toUpperCase()
-      if (isAcronym) return word
-
-      const shouldLowerFirst = i === 0 && style === 'camel'
-      const head = shouldLowerFirst ? word.charAt(0).toLowerCase() : word.charAt(0).toUpperCase()
-      return head + word.slice(1)
-    })
-    .join('')
-    .replace(/[^a-zA-Z0-9]/g, '')
-}
-
-const camelCase = (text: string): string => toCaseStyle(text, 'camel')
-const pascalCase = (text: string): string => toCaseStyle(text, 'pascal')
 
 /**
  * Creates a minimal `PluginDriver` mock suitable for unit tests.
  */
 export function createMockedPluginDriver(options: { name?: string; plugin?: NormalizedPlugin; config?: Config } = {}): PluginDriver {
   return {
-    resolveName: (result: ResolveNameParams) => {
-      if (result.type === 'type') return pascalCase(result.name)
-      // `file` lets callers override the source name; all other types reuse the provided one.
-      const source = result.type === 'file' ? options?.name || result.name : result.name
-      return camelCase(source)
-    },
     config: options?.config ?? {
       root: '.',
       output: {
         path: './path',
       },
     },
-    resolvePath: ({ baseName }: ResolvePathParams) => baseName,
-    getFile: ({
-      name,
-      extname,
-      pluginName,
-      options: fileOptions,
-    }: {
-      name: string
-      extname: `.${string}`
-      pluginName: string
-      options?: { group?: { tag?: string; path?: string } }
-    }) => {
-      const baseName = `${name}${extname}`
-      const groupDir = fileOptions?.group?.tag ?? fileOptions?.group?.path?.split('/').filter(Boolean)[0]
-      const filePath = groupDir ? `${groupDir}/${baseName}` : baseName
-
-      return {
-        path: filePath,
-        baseName,
-        meta: { pluginName },
-      }
-    },
-    getPlugin(_pluginName: NormalizedPlugin['name']): NormalizedPlugin | undefined {
+    getPlugin(_pluginName: string): NormalizedPlugin | undefined {
       return options?.plugin
     },
     fileManager: new FileManager(),
@@ -116,7 +57,7 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
 }
 
 /**
- * Creates a minimal `NormalizedPlugin` mock suitable for unit tests.
+ * Creates a minimal plugin mock suitable for unit tests.
  *
  * @example
  * const plugin = createMockedPlugin<PluginTs>({ name: '@kubb/plugin-ts', options })
@@ -134,8 +75,7 @@ export function createMockedPlugin<TOptions extends PluginFactoryOptions = Plugi
     resolver: params.resolver,
     transformer: params.transformer,
     dependencies: params.dependencies,
-    install: () => {},
-    inject: () => undefined as TOptions['context'],
+    hooks: {},
   } as unknown as NormalizedPlugin<TOptions>
 }
 
@@ -160,7 +100,9 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     plugin: opts.plugin,
     driver: opts.driver,
     inputNode: { kind: 'Input', schemas: [], operations: [] },
+    addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),
     upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
+    hooks: opts.driver.hooks ?? ({} as never),
     warn: (msg: string) => console.warn(msg),
     error: (msg: string) => console.error(msg),
     info: (msg: string) => console.info(msg),

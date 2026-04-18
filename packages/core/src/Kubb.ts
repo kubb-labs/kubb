@@ -1,43 +1,14 @@
 import type { AsyncEventEmitter } from '@internals/utils'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import type { BuildOutput } from './createKubb.ts'
-import type { PluginDriver, Strategy } from './PluginDriver.ts'
-import type {
-  Config,
-  GeneratorContext,
-  KubbBuildEndContext,
-  KubbBuildStartContext,
-  KubbPluginSetupContext,
-  NormalizedPlugin,
-  PluginLifecycleHooks,
-} from './types'
+import type { Plugin } from './definePlugin.ts'
+import type { PluginDriver } from './PluginDriver.ts'
+import type { Config, GeneratorContext, KubbBuildEndContext, KubbBuildStartContext, KubbPluginSetupContext } from './types'
 
 type DebugInfo = {
   date: Date
   logs: Array<string>
   fileName?: string
-}
-
-type HookProgress<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
-  hookName: H
-  plugins: Array<NormalizedPlugin>
-}
-
-type HookExecution<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
-  strategy: Strategy
-  hookName: H
-  plugin: NormalizedPlugin
-  parameters?: Array<unknown>
-  output?: unknown
-}
-
-type HookResult<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
-  duration: number
-  strategy: Strategy
-  hookName: H
-  plugin: NormalizedPlugin
-  parameters?: Array<unknown>
-  output?: unknown
 }
 
 /**
@@ -135,11 +106,11 @@ export interface KubbHooks {
   'kubb:generation:summary': [
     config: Config,
     {
-      failedPlugins: Set<{ plugin: NormalizedPlugin; error: Error }>
+      failedPlugins: Set<{ plugin: Plugin; error: Error }>
       status: 'success' | 'failed'
       hrStart: [number, number]
       filesCreated: number
-      pluginTimings?: Map<NormalizedPlugin['name'], number>
+      pluginTimings?: Map<Plugin['name'], number>
     },
   ]
 
@@ -254,34 +225,12 @@ export interface KubbHooks {
   /**
    * Emitted when a plugin starts executing.
    */
-  'kubb:plugin:start': [plugin: NormalizedPlugin]
+  'kubb:plugin:start': [plugin: Plugin]
   /**
    * Emitted when a plugin completes execution.
    * Duration in ms.
    */
-  'kubb:plugin:end': [plugin: NormalizedPlugin, result: { duration: number; success: boolean; error?: Error }]
-
-  /**
-   * Emitted when plugin hook progress tracking starts.
-   * Contains the hook name and list of plugins to execute.
-   */
-  'kubb:plugins:hook:progress:start': [progress: HookProgress]
-  /**
-   * Emitted when plugin hook progress tracking ends.
-   * Contains the hook name that completed.
-   */
-  'kubb:plugins:hook:progress:end': [{ hookName: PluginLifecycleHooks }]
-
-  /**
-   * Emitted when a plugin hook starts processing.
-   * Contains strategy, hook name, plugin, parameters, and output.
-   */
-  'kubb:plugins:hook:processing:start': [execution: HookExecution]
-  /**
-   * Emitted when a plugin hook completes processing.
-   * Contains duration, strategy, hook name, plugin, parameters, and output.
-   */
-  'kubb:plugins:hook:processing:end': [result: HookResult]
+  'kubb:plugin:end': [plugin: Plugin, result: { duration: number; success: boolean; error?: Error }]
 
   /**
    * Fired once — before any plugin's `buildStart` runs — so that hook-style plugins
@@ -326,7 +275,6 @@ export interface KubbHooks {
 
 declare global {
   namespace Kubb {
-    interface PluginContext {}
     /**
      * Registry that maps plugin names to their `PluginFactoryOptions`.
      * Augment this interface in each plugin's `types.ts` to enable automatic

@@ -1,4 +1,4 @@
-import type { Plugin, UserPlugin } from '@kubb/core'
+import type { Plugin } from '@kubb/core'
 import { mergeDeep } from 'remeda'
 import type { JSONKubbConfig } from '~/types/agent.ts'
 import { resolvePlugins } from './resolvePlugins.ts'
@@ -12,9 +12,9 @@ import { resolvePlugins } from './resolvePlugins.ts'
  * so that all internal closures correctly reference the merged values.
  */
 export async function mergePlugins(
-  diskPlugins: Array<Plugin | UserPlugin> | undefined,
+  diskPlugins: Array<Plugin> | undefined,
   studioPlugins: JSONKubbConfig['plugins'] | undefined,
-): Promise<Array<Plugin | UserPlugin> | undefined> {
+): Promise<Array<Plugin> | undefined> {
   if (!diskPlugins && !studioPlugins) return undefined
   if (!studioPlugins) return diskPlugins
 

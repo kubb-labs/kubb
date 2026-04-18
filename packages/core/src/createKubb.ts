@@ -2,16 +2,17 @@ import { dirname, resolve } from 'node:path'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
 import type { ExportNode, FileNode, OperationNode } from '@kubb/ast'
 import { createExport, createFile, transform, walk } from '@kubb/ast'
-import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
+import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
+import type { Plugin } from './definePlugin.ts'
 import { FileProcessor } from './FileProcessor.ts'
 import type { Kubb } from './Kubb.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.ts'
 import { fsStorage } from './storages/fsStorage.ts'
-import type { AdapterSource, Config, GeneratorContext, KubbHooks, NormalizedPlugin, PluginContext, Storage, UserConfig } from './types.ts'
+import type { AdapterSource, Config, GeneratorContext, NormalizedPlugin, KubbHooks, Storage, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { getBarrelFiles } from './utils/getBarrelFiles.ts'
@@ -28,7 +29,7 @@ export type BuildOutput = {
   /**
    * Plugins that threw during installation, paired with the caught error.
    */
-  failedPlugins: Set<{ plugin: NormalizedPlugin; error: Error }>
+  failedPlugins: Set<{ plugin: Plugin; error: Error }>
   files: Array<FileNode>
   driver: PluginDriver
   /**
@@ -138,7 +139,6 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
 
   const driver = new PluginDriver(config, {
     hooks,
-    concurrency: DEFAULT_CONCURRENCY,
   })
 
   const adapter = config.adapter
@@ -177,7 +177,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
  * Walks the AST and dispatches nodes to a plugin's direct AST hooks
  * (`schema`, `operation`, `operations`).
  */
-async function runPluginAstHooks(plugin: NormalizedPlugin, context: PluginContext): Promise<void> {
+async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorContext): Promise<void> {
   const { adapter, inputNode, resolver, driver } = context
   const { exclude, include, override } = plugin.options
 
@@ -192,9 +192,8 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: PluginContex
   const generators = plugin.generators ?? []
   const collectedOperations: Array<OperationNode> = []
 
-  const baseGeneratorContext = context as GeneratorContext
   const generatorContext = {
-    ...baseGeneratorContext,
+    ...context,
     resolver: driver.getResolver(plugin.name),
   }
 
@@ -250,7 +249,7 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: PluginContex
 async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   const { driver, hooks, sources, storage } = setupResult
 
-  const failedPlugins = new Set<{ plugin: NormalizedPlugin; error: Error }>()
+  const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   const pluginTimings = new Map<string, number>()
   const config = driver.config
 
@@ -281,8 +280,6 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           date: timestamp,
           logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`],
         })
-
-        await plugin.buildStart.call(context)
 
         if (plugin.generators?.length || driver.hasRegisteredGenerators(plugin.name)) {
           await runPluginAstHooks(plugin, context)
@@ -420,13 +417,6 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         })
       },
     })
-
-    for (const plugin of driver.plugins.values()) {
-      if (plugin.buildEnd) {
-        const context = driver.getContext(plugin)
-        await plugin.buildEnd.call(context)
-      }
-    }
 
     await hooks.emit('kubb:build:end', {
       files,
