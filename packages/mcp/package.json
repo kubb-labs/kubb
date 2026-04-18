@@ -82,6 +82,6 @@
   "module": "./dist/index.js",
   "devDependencies": {
     "@internals/utils": "workspace:*",
-    "@kubb/renderer-jsx": "*"
+    "@kubb/renderer-jsx": "workspace:*"
   }
 }

@@ -300,8 +300,8 @@ importers:
         specifier: workspace:*
         version: link:../../internals/utils
       '@kubb/renderer-jsx':
-        specifier: '*'
-        version: 5.0.0-alpha.44
+        specifier: workspace:*
+        version: link:../renderer-jsx
 
   packages/parser-ts:
     dependencies:
@@ -1317,14 +1317,6 @@ packages:
   '@koa/cors@5.0.0':
     resolution: {integrity: sha512-x/iUDjcS90W69PryLDIMgFyV21YLTnG9zOpPXS7Bkt2b8AsY3zZsIpOLBkYr9fBcF3HbkKaER5hOBZLfpLgYNw==}
     engines: {node: '>= 14.0.0'}
-
-  '@kubb/ast@5.0.0-alpha.44':
-    resolution: {integrity: sha512-RpPLmV+5XsQpSgjKT/RrdNXN4v7dF8WBjZ03ohXyBCgzHnscrap5+xVb8e0Ag0M1iAqU1uEOpOGp3tjS5T3pwA==}
-    engines: {node: '>=22'}
-
-  '@kubb/renderer-jsx@5.0.0-alpha.44':
-    resolution: {integrity: sha512-D3Oo12+3LryET4jj5EUiKolvywTJVJnRCHqFIM6pGxbaQryhtwDdwyOMSTiF1OnYqyInYDFEJTRYZe/CNb8AdQ==}
-    engines: {node: '>=22'}
 
   '@logtail/core@0.5.8':
     resolution: {integrity: sha512-1LxjI46LCXeVRyENwjO4s0a1CWSIqHjYH6w2YVNhQLc5b7mVN0jhzxvmg9mps54aEuCSuK2SVCNmgvuNTDtAug==}
@@ -6517,12 +6509,6 @@ snapshots:
   '@koa/cors@5.0.0':
     dependencies:
       vary: 1.1.2
-
-  '@kubb/ast@5.0.0-alpha.44': {}
-
-  '@kubb/renderer-jsx@5.0.0-alpha.44':
-    dependencies:
-      '@kubb/ast': 5.0.0-alpha.44
 
   '@logtail/core@0.5.8':
     dependencies:
