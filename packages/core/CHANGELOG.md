@@ -1,5 +1,17 @@
 # @kubb/core
 
+## 5.0.0-alpha.47
+
+### Minor Changes
+
+- [#3110](https://github.com/kubb-labs/kubb/pull/3110) [`0917caf`](https://github.com/kubb-labs/kubb/commit/0917caf89b1e94268a890c5320c2db43cc6b9dde) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - `KubbBuildStartContext.getPlugin` now returns a typed `Plugin<Kubb.PluginRegistry[TName]>` when the name is a registered key in `Kubb.PluginRegistry`, making plugin access type-safe without manual casting.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.47
+  - @kubb/renderer-jsx@5.0.0-alpha.47
+
 ## 5.0.0-alpha.46
 
 ### Minor Changes

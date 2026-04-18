@@ -1,6 +1,6 @@
 {
   "name": "@kubb/parser-ts",
-  "version": "5.0.0-alpha.46",
+  "version": "5.0.0-alpha.47",
   "description": "TypeScript and TSX file parser for Kubb, converting generated files to strings using the TypeScript compiler.",
   "keywords": [
     "typescript",
