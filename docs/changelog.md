@@ -6,6 +6,15 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.47
+
+### ✨ Features
+
+#### [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core)
+
+-   [#3110](https://github.com/kubb-labs/kubb/pull/3110) [`0917caf`](https://github.com/kubb-labs/kubb/commit/0917caf89b1e94268a890c5320c2db43cc6b9dde) - `KubbBuildStartContext.getPlugin` now returns a typed `Plugin<Kubb.PluginRegistry[TName]>` when the name is a registered key in `Kubb.PluginRegistry`, making plugin access type-safe without manual casting.
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
