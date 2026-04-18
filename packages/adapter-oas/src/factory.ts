@@ -58,7 +58,7 @@ export async function parseDocument(pathOrApi: string | Document, { canBundle = 
 /**
  * Deep-merges multiple OpenAPI documents into a single `Document`.
  *
- * Each document is parsed independently then recursively merged.
+ * Each document is parsed independently then recursively merged via `mergeDeep` from `@internals/utils`.
  * Throws when the input array is empty.
  *
  * @example
