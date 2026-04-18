@@ -5,7 +5,7 @@ import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
-import type { Plugin } from './definePlugin.ts'
+import type { HookStylePlugin } from './definePlugin.ts'
 import type { KubbHooks } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
@@ -252,7 +252,7 @@ export type Config<TInput = Input> = {
    * If a plugin depends on another, an error is thrown when the dependency is missing.
    * Use `dependencies` on the plugin to declare execution order.
    */
-  plugins: Array<Plugin | UserPlugin>
+  plugins: Array<HookStylePlugin>
   /**
    * Project-wide renderer factory. All plugins and generators that do not declare their own
    * `renderer` ultimately fall back to this value.
@@ -382,92 +382,6 @@ export type PluginFactoryOptions<
   resolver: TResolver
 }
 
-export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
-  /**
-   * Unique name used for the plugin.
-   * The name follows the format `scope:foo-bar` or `foo-bar` — adding a scope avoids conflicts with other plugins.
-   *
-   * @example Plugin name
-   * `'@kubb/typescript'`
-   */
-  name: TOptions['name']
-  /**
-   * Resolved options merged with output/include/exclude/override defaults for the current plugin.
-   */
-  options: TOptions['resolvedOptions'] & {
-    output: Output
-    include?: Array<Include>
-    exclude: Array<Exclude>
-    override: Array<Override<TOptions['resolvedOptions']>>
-  }
-  /**
-   * The resolver for this plugin.
-   * Set via `setResolver()` in `kubb:plugin:setup` or passed as a user option.
-   */
-  resolver?: TOptions['resolver']
-  /**
-   * The composed transformer for this plugin.
-   * Set via `setTransformer()` in `kubb:plugin:setup` or passed as a user option.
-   */
-  transformer?: Visitor
-  /**
-   * Plugin-level renderer factory. All generators that do not declare their own `renderer`
-   * inherit this value. A generator can explicitly opt out by setting `renderer: null`.
-   *
-   * @example
-   * ```ts
-   * import { jsxRenderer } from '@kubb/renderer-jsx'
-   * createPlugin((options) => ({
-   *   name: 'my-plugin',
-   *   renderer: jsxRenderer,
-   *   generators: [
-   *     { name: 'types', schema(node) { return <File>...</File> } },   // inherits jsxRenderer
-   *     { name: 'raw', renderer: null, schema(node) { return [...] } }, // explicit opt-out
-   *   ],
-   * }))
-   * ```
-   */
-  renderer?: RendererFactory
-  /**
-   * Generators declared directly on the plugin. Each generator's `renderer` takes precedence
-   * over `plugin.renderer`; set `renderer: null` on a generator to opt out of rendering even
-   * when the plugin declares a renderer.
-   */
-  generators?: Array<Generator>
-  /**
-   * Specifies the plugins that the current plugin depends on. The current plugin is executed after all listed plugins.
-   * An error is returned if any required dependency plugin is missing.
-   */
-  dependencies?: Array<string>
-  /**
-   * When `apply` is defined, the plugin is only activated when `apply(config)` returns `true`.
-   * Inspired by Vite's `apply` option.
-   *
-   * @example
-   * ```ts
-   * apply: (config) => config.output.path !== 'disabled'
-   * ```
-   */
-  apply?: (config: Config) => boolean
-  /**
-   * Expose shared helpers or data to all other plugins via `PluginContext`.
-   * The object returned is merged into the context that every plugin receives.
-   * Use the `declare global { namespace Kubb { interface PluginContext { … } } }` pattern
-   * to make the injected properties type-safe.
-   *
-   * @example
-   * ```ts
-   * inject() {
-   *   return { getOas: () => parseSpec(this.config) }
-   * }
-   * // Other plugins can then call `this.getOas()` inside buildStart()
-   * ```
-   */
-  inject?: (this: PluginContext<TOptions>) => TOptions['context']
-}
-
-export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
-
 /**
  * Partial version of {@link Config} intended for user-facing config entry points.
  *
@@ -492,10 +406,9 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
   adapter?: Adapter
   /**
    * An array of Kubb plugins used for code generation.
-   * Each entry can be a hook-style plugin created with `definePlugin` (`Plugin`) or a
-   * legacy `createPlugin` instance (`UserPlugin`).
+   * Each entry is a hook-style plugin created with `definePlugin`.
    */
-  plugins?: Array<Plugin | UserPlugin>
+  plugins?: Array<HookStylePlugin>
 }
 
 /**
@@ -525,9 +438,10 @@ export type OperationsHook<TOptions extends PluginFactoryOptions = PluginFactory
   options: TOptions['resolvedOptions'],
 ) => PossiblePromise<unknown | Array<FileNode> | void>
 /**
- * @deprecated use `NormalizedPlugin` internally — the public `Plugin` type is now the hook-style plugin from `definePlugin`.
+ * Runtime representation of a plugin after normalization.
+ * Produced by `PluginDriver` from a `HookStylePlugin` created via `definePlugin`.
  */
-export type NormalizedPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
+export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
    * Unique name used for the plugin.
    *
@@ -541,7 +455,7 @@ export type NormalizedPlugin<TOptions extends PluginFactoryOptions = PluginFacto
    */
   dependencies?: Array<string>
   /**
-   * Options set for a specific plugin(see kubb.config.js), passthrough of options.
+   * Resolved options for this plugin, including output, include/exclude filters, and overrides.
    */
   options: TOptions['resolvedOptions'] & {
     output: Output
@@ -551,140 +465,31 @@ export type NormalizedPlugin<TOptions extends PluginFactoryOptions = PluginFacto
   }
   /**
    * The resolver for this plugin.
-   * Set via `setResolver()` in `kubb:plugin:setup` or passed as a user option.
+   * Set via `setResolver()` in `kubb:plugin:setup`.
    */
   resolver: TOptions['resolver']
   /**
    * The composed transformer for this plugin.
-   * Set via `setTransformer()` in `kubb:plugin:setup` or passed as a user option.
+   * Set via `setTransformer()` in `kubb:plugin:setup`.
    */
   transformer?: Visitor
-
   /**
    * When `apply` is defined, the plugin is only activated when `apply(config)` returns `true`.
-   * Inspired by Vite's `apply` option.
    */
   apply?: (config: Config) => boolean
   /**
    * Optional semver version string for this plugin, e.g. `"1.2.3"`.
-   * Used in diagnostic messages and version-conflict detection.
    */
   version?: string
   /**
-   * Plugin-level renderer factory. All generators that do not declare their own `renderer`
-   * inherit this value. A generator can explicitly opt out by setting `renderer: null`.
+   * Plugin-level renderer factory.
    */
   renderer?: RendererFactory
   /**
-   * Generators declared directly on the plugin. Each generator's `renderer` takes precedence
-   * over `plugin.renderer`; set `renderer: null` on a generator to opt out of rendering even
-   * when the plugin declares a renderer.
+   * Generators declared directly on the plugin.
    */
   generators?: Array<Generator>
-
-  buildStart: (this: PluginContext<TOptions>) => PossiblePromise<void>
-  /**
-   * Called once per plugin after all files have been written to disk.
-   * Use this for post-processing, copying assets, or generating summary reports.
-   */
-  buildEnd: (this: PluginContext<TOptions>) => PossiblePromise<void>
-  /**
-   * Called for each schema node during the AST walk.
-   * Return a React element, an array of `FileNode`, or `void` for manual handling.
-   * Nodes matching `exclude`/`include` filters are skipped automatically.
-   *
-   * For multiple generators, use `composeGenerators` inside the plugin factory.
-   */
-  schema?: SchemaHook<TOptions>
-  /**
-   * Called for each operation node during the AST walk.
-   * Return a React element, an array of `FileNode`, or `void` for manual handling.
-   *
-   * For multiple generators, use `composeGenerators` inside the plugin factory.
-   */
-  operation?: OperationHook<TOptions>
-  /**
-   * Called once after all operations have been walked, with the full collected set.
-   *
-   * For multiple generators, use `composeGenerators` inside the plugin factory.
-   */
-  operations?: OperationsHook<TOptions>
-  /**
-   * Expose shared helpers or data to all other plugins via `PluginContext`.
-   * The returned object is merged into the context received by every plugin.
-   */
-  inject: (this: PluginContext<TOptions>) => TOptions['context']
 }
-/**
- * @deprecated
- */
-export type PluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = NormalizedPlugin<TOptions> & PluginLifecycle<TOptions>
-/**
- * @deprecated
- */
-export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
-  /**
-   * Called once per plugin at the start of its processing phase, before schema/operation/operations hooks run.
-   * Use this to set up shared state, fetch remote data, or perform any async initialization.
-   */
-  buildStart?: (this: PluginContext<TOptions>) => PossiblePromise<void>
-  /**
-   * Called once per plugin after all files have been written to disk.
-   * Use this for post-processing, copying assets, or generating summary reports.
-   */
-  buildEnd?: (this: PluginContext<TOptions>) => PossiblePromise<void>
-  /**
-   * Called for each schema node during the AST walk.
-   * Return a React element (`<File>...</File>`), an array of `FileNode` objects,
-   * or `void` to handle file writing manually via `this.upsertFile`.
-   * Nodes matching `exclude` / `include` filters are skipped automatically.
-   *
-   * For multiple generators, use `composeGenerators` inside the plugin factory.
-   */
-  schema?: SchemaHook<TOptions>
-  /**
-   * Called for each operation node during the AST walk.
-   * Return a React element (`<File>...</File>`), an array of `FileNode` objects,
-   * or `void` to handle file writing manually via `this.upsertFile`.
-   *
-   * For multiple generators, use `composeGenerators` inside the plugin factory.
-   */
-  operation?: OperationHook<TOptions>
-  /**
-   * Called once after all operation nodes have been walked, with the full collection.
-   * Useful for generating index/barrel files per group or aggregate operation handlers.
-   *
-   * For multiple generators, use `composeGenerators` inside the plugin factory.
-   */
-  operations?: OperationsHook<TOptions>
-  /**
-   * Resolves a path from a baseName and directory.
-   * Options can also be included.
-   *
-   * @example
-   * `('./Pet.ts', './src/gen/') => '/src/gen/Pet.ts'`
-   *
-   * @deprecated Use resolvers instead.
-   */
-  resolvePath?: (this: PluginContext<TOptions>, baseName: FileNode['baseName'], mode?: 'single' | 'split', options?: TOptions['resolvePathOptions']) => string
-  /**
-   * Resolves a display name from a raw string.
-   * Useful when converting to PascalCase or camelCase.
-   *
-   * @example
-   * `('pet') => 'Pet'`
-   *
-   * @deprecated Use resolvers instead.
-   */
-  resolveName?: (this: PluginContext<TOptions>, name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
-}
-
-/**
- * @deprecated
- */
-export type PluginLifecycleHooks = keyof PluginLifecycle
-
-export type PluginParameter<H extends PluginLifecycleHooks> = Parameters<Required<PluginLifecycle>[H]>
 
 export type ResolvePathParams<TOptions = object> = {
   pluginName?: string
@@ -708,9 +513,6 @@ export type ResolveNameParams = {
    */
   type?: 'file' | 'function' | 'type' | 'const'
 }
-/**
- * @deprecated
- */
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   config: Config
   /**
@@ -727,16 +529,15 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   driver: PluginDriver
   /**
    * Get a plugin by name. Returns the plugin typed via `Kubb.PluginRegistry` when
-   * the name is a registered key, otherwise returns the generic `NormalizedPlugin`.
+   * the name is a registered key, otherwise returns the generic `Plugin`.
    */
-  getPlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): NormalizedPlugin<Kubb.PluginRegistry[TName]> | undefined
-  getPlugin(name: string): NormalizedPlugin | undefined
+  getPlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
+  getPlugin(name: string): Plugin | undefined
   /**
    * Like `getPlugin` but throws a descriptive error when the plugin is not found.
-   * Useful for enforcing dependencies inside `buildStart()`.
    */
-  requirePlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): NormalizedPlugin<Kubb.PluginRegistry[TName]>
-  requirePlugin(name: string): NormalizedPlugin
+  requirePlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]>
+  requirePlugin(name: string): Plugin
   /**
    * Add files only when they do not exist yet.
    */
@@ -749,7 +550,7 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   /**
    * The current plugin.
    */
-  plugin: NormalizedPlugin<TOptions>
+  plugin: Plugin<TOptions>
   /**
    * Resolver for the current plugin. Shorthand for `plugin.resolver`.
    */
@@ -901,7 +702,7 @@ export type CompatibilityPreset = 'default' | 'kubbV4'
 
 export type { Storage } from './createStorage.ts'
 export type { Generator } from './defineGenerator.ts'
-export type { HookStylePlugin, Plugin, PluginHooks } from './definePlugin.ts'
+export type { HookStylePlugin, PluginHooks } from './definePlugin.ts'
 export type { Kubb, KubbHooks } from './Kubb.ts'
 
 /**
@@ -912,7 +713,7 @@ export type { Kubb, KubbHooks } from './Kubb.ts'
 export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
    * Register a generator on this plugin. Generators are invoked during the AST walk
-   * (schema/operation/operations) exactly like generators declared statically on `createPlugin`.
+   * (schema/operation/operations).
    */
   addGenerator<TElement = unknown>(generator: Generator<TFactory, TElement>): void
   /**
@@ -935,7 +736,7 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
   setRenderer(renderer: RendererFactory): void
   /**
    * Set the resolved options for the build loop. These options are merged into the
-   * normalized plugin's `options` object (which includes `output`, `exclude`, `override`).
+   * plugin's `options` object (which includes `output`, `exclude`, `override`).
    *
    * Call this in `kubb:plugin:setup` to provide the resolved options that generators
    * and the build loop need (e.g., `enumType`, `optionalType`, `group`).
@@ -967,7 +768,7 @@ export type KubbBuildStartContext = {
   config: Config
   adapter: Adapter
   inputNode: InputNode
-  getPlugin(name: string): NormalizedPlugin | undefined
+  getPlugin(name: string): Plugin | undefined
 }
 
 /**

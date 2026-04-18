@@ -10,7 +10,7 @@ import type {
   Config,
   Generator,
   GeneratorContext,
-  NormalizedPlugin,
+  Plugin,
   PluginFactoryOptions,
   ResolveNameParams,
   ResolvePathParams,
@@ -47,7 +47,7 @@ function pascalCase(text: string): string {
 /**
  * Creates a minimal `PluginDriver` mock suitable for unit tests.
  */
-export function createMockedPluginDriver(options: { name?: string; plugin?: NormalizedPlugin; config?: Config } = {}): PluginDriver {
+export function createMockedPluginDriver(options: { name?: string; plugin?: Plugin; config?: Config } = {}): PluginDriver {
   return {
     resolveName: (result: ResolveNameParams) => {
       if (result.type === 'file') {
@@ -92,7 +92,7 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
         meta: { pluginName },
       }
     },
-    getPlugin(_pluginName: NormalizedPlugin['name']): NormalizedPlugin | undefined {
+    getPlugin(_pluginName: Plugin['name']): Plugin | undefined {
       return options?.plugin
     },
     fileManager: new FileManager(),
@@ -124,7 +124,7 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
 }
 
 /**
- * Creates a minimal `NormalizedPlugin` mock suitable for unit tests.
+ * Creates a minimal `Plugin` mock suitable for unit tests.
  *
  * @example
  * const plugin = createMockedPlugin<PluginTs>({ name: '@kubb/plugin-ts', options })
@@ -135,23 +135,21 @@ export function createMockedPlugin<TOptions extends PluginFactoryOptions = Plugi
   resolver?: TOptions['resolver']
   transformer?: Visitor
   dependencies?: Array<string>
-}): NormalizedPlugin<TOptions> {
+}): Plugin<TOptions> {
   return {
     name: params.name,
     options: params.options,
     resolver: params.resolver,
     transformer: params.transformer,
     dependencies: params.dependencies,
-    install: () => {},
-    inject: () => undefined as TOptions['context'],
-  } as unknown as NormalizedPlugin<TOptions>
+  } as unknown as Plugin<TOptions>
 }
 
 type RenderGeneratorOptions<TOptions extends PluginFactoryOptions> = {
   config: Config
   adapter: Adapter
   driver: PluginDriver
-  plugin: NormalizedPlugin<TOptions>
+  plugin: Plugin<TOptions>
   options: TOptions['resolvedOptions']
   resolver: TOptions['resolver']
 }

@@ -1,10 +1,11 @@
-import type { CLIOptions, NormalizedPlugin, UserConfig } from '@kubb/core'
-import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
+import type { CLIOptions, HookStylePlugin, UserConfig } from '@kubb/core'
+import { createMockedAdapter } from '@kubb/core/mocks'
+import { definePlugin } from '@kubb/core'
 import { describe, expect, test } from 'vitest'
 import { defineConfig } from './defineConfig.ts'
 
 describe('defineConfig', () => {
-  const plugin = createMockedPlugin({ name: 'plugin', options: undefined as any })
+  const plugin = definePlugin(() => ({ name: 'plugin', hooks: {} }))()
 
   const baseConfig: UserConfig = {
     root: '.',
@@ -18,7 +19,7 @@ describe('defineConfig', () => {
     },
     parsers: [],
     adapter: createMockedAdapter(),
-    plugins: [plugin] as Array<NormalizedPlugin>,
+    plugins: [plugin] as Array<HookStylePlugin>,
   }
 
   test('applies default adapter when not set', () => {

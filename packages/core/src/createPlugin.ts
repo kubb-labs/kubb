@@ -1,31 +1,10 @@
-import type { PluginFactoryOptions, UserPluginWithLifeCycle } from './types.ts'
+import type { HookStylePlugin, PluginFactoryOptions } from './types.ts'
 
 /**
- * Builder type for a {@link UserPluginWithLifeCycle} — takes options and returns the plugin instance.
- */
-type PluginBuilder<T extends PluginFactoryOptions = PluginFactoryOptions> = (options: T['options']) => UserPluginWithLifeCycle<T>
-
-/**
- * Creates a plugin factory. Call the returned function with optional options to get the plugin instance.
- *
- * @example
- * ```ts
- * export const myPlugin = createPlugin<MyPlugin>((options) => {
- *   return {
- *     name: 'my-plugin',
- *     get options() { return options },
- *     resolvePath(baseName) { ... },
- *     resolveName(name, type) { ... },
- *   }
- * })
- *
- * // instantiate
- * const plugin = myPlugin({ output: { path: 'src/gen' } })
- * ```
- * @deprecated use definePlugin instead
+ * @deprecated Use `definePlugin` instead.
  */
 export function createPlugin<T extends PluginFactoryOptions = PluginFactoryOptions>(
-  build: PluginBuilder<T>,
-): (options?: T['options']) => UserPluginWithLifeCycle<T> {
+  build: (options: T['options']) => HookStylePlugin<T>,
+): (options?: T['options']) => HookStylePlugin<T> {
   return (options) => build(options ?? ({} as T['options']))
 }

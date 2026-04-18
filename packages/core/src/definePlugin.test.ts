@@ -2,10 +2,9 @@ import { AsyncEventEmitter } from '@internals/utils'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
-import { createPlugin } from './createPlugin.ts'
-import { definePlugin, isHookStylePlugin } from './definePlugin.ts'
+import { definePlugin, isPlugin } from './definePlugin.ts'
 import { PluginDriver } from './PluginDriver.ts'
-import type { Config, GeneratorContext, KubbHooks, NormalizedPlugin, Plugin, PluginFactoryOptions } from './types.ts'
+import type { Config, GeneratorContext, HookStylePlugin, KubbHooks, Plugin, PluginFactoryOptions } from './types.ts'
 
 type TestPluginOptions = PluginFactoryOptions<string, { tag: string }>
 type TestPluginOptionalOptions = PluginFactoryOptions<string, { tag?: string }>
@@ -35,22 +34,18 @@ describe('definePlugin', () => {
     expect(plugin.options).toEqual({})
   })
 
-  it('isHookStylePlugin returns true for definePlugin output', () => {
+  it('isPlugin returns true for definePlugin output', () => {
     const plugin = definePlugin((_options) => ({
       name: 'test',
       hooks: {},
     }))()
-    expect(isHookStylePlugin(plugin)).toBe(true)
+    expect(isPlugin(plugin)).toBe(true)
   })
 
-  it('isHookStylePlugin returns false for createPlugin output', () => {
-    const plugin = createPlugin(() => ({
-      name: 'legacy',
-      options: undefined as unknown as NormalizedPlugin['options'],
-      context: undefined as never,
-      buildStart() {},
-    }))()
-    expect(isHookStylePlugin(plugin)).toBe(false)
+  it('isPlugin returns false for plain objects without hooks', () => {
+    expect(isPlugin({ name: 'no-hooks' })).toBe(false)
+    expect(isPlugin(null)).toBe(false)
+    expect(isPlugin('string')).toBe(false)
   })
 })
 
@@ -159,7 +154,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     }))({ tag: 'pets' })
 
     const events = new AsyncEventEmitter<KubbHooks>()
-    new PluginDriver(makeConfig([hookPlugin as unknown as Plugin]), { hooks: events })
+    new PluginDriver(makeConfig([hookPlugin as unknown as HookStylePlugin]), { hooks: events })
 
     await events.emit('kubb:plugin:setup', {
       config: makeConfig([]),
@@ -297,39 +292,6 @@ describe('PluginDriver — hook-style plugin registration', () => {
   })
 })
 
-describe('PluginDriver — mixed createPlugin + definePlugin', () => {
-  it('both legacy and hook-style plugins coexist in the same config', () => {
-    const legacyPlugin = createPlugin(() => ({
-      name: 'legacy-plugin',
-      options: undefined as unknown as NormalizedPlugin['options'],
-      context: undefined as never,
-      buildStart() {},
-    }))()
-
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {},
-    }))()
-
-    const config: Config = {
-      root: '.',
-      input: { path: './petStore.yaml' },
-      output: { path: './src/gen' },
-      parsers: [],
-      adapter: createMockedAdapter(),
-      plugins: [legacyPlugin, hookPlugin],
-    }
-
-    const driver = new PluginDriver(config, {
-      hooks: new AsyncEventEmitter<KubbHooks>(),
-    })
-
-    expect(driver.plugins.has('legacy-plugin')).toBe(true)
-    expect(driver.plugins.has('hook-plugin')).toBe(true)
-    expect(driver.plugins.size).toBe(2)
-  })
-})
-
 describe('PluginDriver — generator event dispatch', () => {
   function makeConfig(plugins: Config['plugins']): Config {
     return {
@@ -381,7 +343,7 @@ describe('PluginDriver — generator event dispatch', () => {
     await driver.emitSetupHooks()
 
     // Emit with a DIFFERENT plugin name in the context — should NOT trigger the listener
-    const otherPlugin = { name: 'other-plugin' } as unknown as NormalizedPlugin
+    const otherPlugin = { name: 'other-plugin' } as unknown as Plugin
     const fakeCtx = { plugin: otherPlugin, adapter: {}, inputNode: {} } as unknown as GeneratorContext
     const fakeNode = { kind: 'Schema', name: 'Pet' } as unknown as SchemaNode
 
