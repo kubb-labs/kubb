@@ -324,11 +324,7 @@ export class PluginDriver {
    * plugin → lazily created default resolver (identity name, no path transforms).
    */
   getResolver(pluginName: string): Resolver {
-    return (
-      this.#resolvers.get(pluginName) ??
-      this.plugins.get(pluginName)?.resolver ??
-      this.#createDefaultResolver(pluginName)
-    )
+    return this.#resolvers.get(pluginName) ?? this.plugins.get(pluginName)?.resolver ?? this.#createDefaultResolver(pluginName)
   }
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): GeneratorContext<TOptions> & Record<string, unknown> {
