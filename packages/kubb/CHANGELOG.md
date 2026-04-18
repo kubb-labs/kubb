@@ -1,5 +1,17 @@
 # kubb
 
+## 5.0.0-alpha.43
+
+### Patch Changes
+
+- Updated dependencies [[`8c7f0bd`](https://github.com/kubb-labs/kubb/commit/8c7f0bd19201f842bb418fe42ae3bda17951ce66)]:
+  - @kubb/adapter-oas@5.0.0-alpha.43
+  - @kubb/agent@5.0.0-alpha.43
+  - @kubb/core@5.0.0-alpha.43
+  - @kubb/cli@5.0.0-alpha.43
+  - @kubb/mcp@5.0.0-alpha.43
+  - @kubb/parser-ts@5.0.0-alpha.43
+
 ## 5.0.0-alpha.42
 
 ### Patch Changes
