@@ -3,7 +3,7 @@ import { ast } from '@kubb/core'
 import type { ParameterObject, ServerObject } from 'oas/types'
 import { isRef } from 'oas/types'
 import { matchesMimeType } from 'oas/utils'
-import { formatMap, structuralKeys } from './constants.ts'
+import { formatMap, SCHEMA_REF_PREFIX, structuralKeys } from './constants.ts'
 import { isReference } from './guards.ts'
 import { dereferenceWithRef, resolveRef } from './refs.ts'
 import type { ContentType, Document, MediaTypeObject, Operation, ResponseObject, SchemaObject } from './types.ts'
@@ -128,16 +128,15 @@ function getResponseBody(responseBody: boolean | ResponseObject, contentType?: s
 
   let availableContentType: string | undefined
   const contentTypes = Object.keys(body.content)
-  contentTypes.forEach((mt: string) => {
-    if (!availableContentType && matchesMimeType.json(mt)) {
+  for (const mt of contentTypes) {
+    if (matchesMimeType.json(mt)) {
       availableContentType = mt
+      break
     }
-  })
+  }
 
   if (!availableContentType) {
-    contentTypes.forEach((mt: string) => {
-      if (!availableContentType) availableContentType = mt
-    })
+    availableContentType = contentTypes[0]
   }
 
   if (availableContentType) {
@@ -160,14 +159,13 @@ function getResponseBody(responseBody: boolean | ResponseObject, contentType?: s
  */
 export function getResponseSchema(document: Document, operation: Operation, statusCode: string | number, options: OperationsOptions = {}): SchemaObject {
   if (operation.schema.responses) {
-    Object.keys(operation.schema.responses).forEach((key) => {
-      const schema = operation.schema.responses![key]
-      const $ref = isReference(schema) ? schema.$ref : undefined
-
-      if (schema && $ref) {
-        operation.schema.responses![key] = resolveRef<any>(document, $ref)
+    const responses = operation.schema.responses
+    for (const key in responses) {
+      const schema = responses[key]
+      if (schema && isReference(schema)) {
+        responses[key] = resolveRef<any>(document, schema.$ref)
       }
-    })
+    }
   }
 
   const responseBody = getResponseBody(operation.getResponseByStatusCode(statusCode), options.contentType)
@@ -254,19 +252,30 @@ export type GetSchemasResult = {
  * // returned unchanged — contains a $ref
  * ```
  */
+/**
+ * Returns `true` when `fragment` carries any JSON Schema keyword that makes it
+ * structurally significant on its own (see `structuralKeys`).
+ *
+ * A fragment with a structural keyword can't be safely merged into a parent schema.
+ */
+function hasStructuralKeywords(fragment: SchemaObject): boolean {
+  for (const key in fragment) {
+    if (structuralKeys.has(key as 'properties')) return true
+  }
+  return false
+}
+
 export function flattenSchema(schema: SchemaObject | null): SchemaObject | null {
   if (!schema?.allOf || schema.allOf.length === 0) return schema ?? null
-  if (schema.allOf.some((item) => isRef(item))) return schema
 
-  const isPlainFragment = (item: SchemaObject) => !Object.keys(item).some((key) => structuralKeys.has(key as 'properties'))
-  if (!schema.allOf.every((item) => isPlainFragment(item as SchemaObject))) {
-    return schema
-  }
+  const allOfFragments = schema.allOf as SchemaObject[]
+  if (allOfFragments.some((item) => isRef(item))) return schema
+  if (allOfFragments.some(hasStructuralKeywords)) return schema
 
   const merged: SchemaObject = { ...schema }
   delete merged.allOf
 
-  for (const fragment of schema.allOf as SchemaObject[]) {
+  for (const fragment of allOfFragments) {
     for (const [key, value] of Object.entries(fragment)) {
       if (merged[key as keyof typeof merged] === undefined) {
         merged[key as keyof typeof merged] = value
@@ -311,10 +320,13 @@ function collectRefs(schema: unknown, refs = new Set<string>()): Set<string> {
   }
 
   if (schema && typeof schema === 'object') {
-    for (const [key, value] of Object.entries(schema)) {
+    for (const key in schema) {
+      const value = (schema as Record<string, unknown>)[key]
       if (key === '$ref' && typeof value === 'string') {
-        const match = value.match(/^#\/components\/schemas\/(.+)$/)
-        if (match) refs.add(match[1]!)
+        if (value.startsWith(SCHEMA_REF_PREFIX)) {
+          const name = value.slice(SCHEMA_REF_PREFIX.length)
+          if (name) refs.add(name)
+        }
       } else {
         collectRefs(value, refs)
       }
@@ -424,11 +436,22 @@ export function getSchemas(document: Document, { contentType }: GetSchemasOption
 
   const schemas: Record<string, SchemaObject> = {}
   const nameMapping = new Map<string, string>()
-  const multipleSources = (items: SchemaWithMetadata[]) => new Set(items.map((i) => i.source)).size > 1
 
   for (const [, items] of normalizedNames) {
+    const isSingle = items.length === 1
+    let hasMultipleSources = false
+    if (!isSingle) {
+      const firstSource = items[0]!.source
+      for (let i = 1; i < items.length; i++) {
+        if (items[i]!.source !== firstSource) {
+          hasMultipleSources = true
+          break
+        }
+      }
+    }
+
     items.forEach((item, index) => {
-      const suffix = items.length === 1 ? '' : multipleSources(items) ? getSemanticSuffix(item.source) : index === 0 ? '' : String(index + 1)
+      const suffix = isSingle ? '' : hasMultipleSources ? getSemanticSuffix(item.source) : index === 0 ? '' : String(index + 1)
       const uniqueName = item.originalName + suffix
       schemas[uniqueName] = item.schema
       nameMapping.set(`#/components/${item.source}/${item.originalName}`, uniqueName)

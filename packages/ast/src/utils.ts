@@ -524,11 +524,11 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
   // Deduplicates non-array exports by their exact identity
   const seen = new Set<string>()
 
-  for (const curr of [...exports].sort((a, b) => {
-    const ka = sortKey(a)
-    const kb = sortKey(b)
-    return ka < kb ? -1 : ka > kb ? 1 : 0
-  })) {
+  // Precompute sort keys once — avoids recomputing per comparison.
+  const keyed = exports.map((node) => ({ node, key: sortKey(node) }))
+  keyed.sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
+
+  for (const { node: curr } of keyed) {
     const { name, path, isTypeOnly, asAlias } = curr
 
     if (Array.isArray(name)) {
@@ -538,7 +538,9 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
       const existing = namedByPath.get(key)
 
       if (existing && Array.isArray(existing.name)) {
-        existing.name = [...new Set([...existing.name, ...name])]
+        const merged = new Set(existing.name)
+        for (const n of name) merged.add(n)
+        existing.name = [...merged]
       } else {
         const newItem: ExportNode = { ...curr, name: [...new Set(name)] }
         result.push(newItem)
@@ -572,11 +574,11 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   // Deduplicates non-array imports by their exact identity
   const seen = new Set<string>()
 
-  for (const curr of [...imports].sort((a, b) => {
-    const ka = sortKey(a)
-    const kb = sortKey(b)
-    return ka < kb ? -1 : ka > kb ? 1 : 0
-  })) {
+  // Precompute sort keys once — avoids recomputing per comparison.
+  const keyed = imports.map((node) => ({ node, key: sortKey(node) }))
+  keyed.sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
+
+  for (const { node: curr } of keyed) {
     if (curr.path === curr.root) continue
 
     const { path, isTypeOnly } = curr
@@ -590,7 +592,9 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
       const existing = namedByPath.get(key)
 
       if (existing && Array.isArray(existing.name)) {
-        existing.name = [...new Set([...existing.name, ...name])]
+        const merged = new Set(existing.name)
+        for (const n of name) merged.add(n)
+        existing.name = [...merged]
       } else {
         const newItem: ImportNode = { ...curr, name }
         result.push(newItem)
