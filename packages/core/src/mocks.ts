@@ -4,15 +4,7 @@ import { transform } from '@kubb/ast'
 import { FileManager } from './FileManager.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.ts'
-import type {
-  Adapter,
-  AdapterFactoryOptions,
-  Config,
-  Generator,
-  GeneratorContext,
-  NormalizedPlugin,
-  PluginFactoryOptions,
-} from './types.ts'
+import type { Adapter, AdapterFactoryOptions, Config, Generator, GeneratorContext, NormalizedPlugin, PluginFactoryOptions } from './types.ts'
 
 /**
  * Creates a minimal `PluginDriver` mock suitable for unit tests.
