@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "5.0.0-alpha.42",
+  "version": "5.0.0-alpha.43",
   "description": "Core functionality for Kubb's plugin-based code generation system, providing the foundation for transforming OpenAPI specifications.",
   "keywords": [
     "typescript",
@@ -78,13 +78,10 @@
     "@kubb/ast": "workspace:*",
     "@kubb/renderer-jsx": "workspace:*",
     "fflate": "^0.8.2",
-    "remeda": "catalog:",
-    "semver": "^7.7.4",
     "tinyexec": "catalog:"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
-    "@types/semver": "^7.7.1",
     "p-limit": "catalog:"
   },
   "peerDependencies": {

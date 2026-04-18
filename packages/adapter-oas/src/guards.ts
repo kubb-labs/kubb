@@ -1,5 +1,5 @@
+import { isPlainObject } from '@internals/utils'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
-import { isPlainObject } from 'remeda'
 import type { DiscriminatorObject, SchemaObject } from './types.ts'
 
 /**

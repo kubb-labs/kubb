@@ -7,7 +7,7 @@ const cwd = dirname(fileURLToPath(import.meta.url))
 
 describe('satisfiesDependency', () => {
   test('returns true when dependency satisfies the version range', () => {
-    expect(satisfiesDependency('semver', '>=7', cwd)).toBeTruthy()
+    expect(satisfiesDependency('fflate', '>=0.8', cwd)).toBeTruthy()
   })
 
   test('returns false for an unknown dependency', () => {
