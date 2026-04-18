@@ -91,6 +91,7 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     resolver: opts.resolver,
     plugin: opts.plugin,
     driver: opts.driver,
+    getResolver: (name: string) => opts.driver.getResolver(name),
     inputNode: { kind: 'Input', schemas: [], operations: [] },
     addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),
     upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
