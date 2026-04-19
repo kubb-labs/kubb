@@ -1,6 +1,5 @@
 ---
 "@kubb/cli": patch
-"@internals/utils": patch
 ---
 
 Fix oxlint failing on gitignored output directories.
