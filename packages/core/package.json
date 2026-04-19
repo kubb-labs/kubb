@@ -44,6 +44,9 @@
     "*": {
       "mocks": [
         "./dist/mocks.d.ts"
+      ],
+      "virtual-modules": [
+        "./dist/virtual-modules.d.ts"
       ]
     }
   },
@@ -55,6 +58,15 @@
     "./mocks": {
       "import": "./dist/mocks.js",
       "require": "./dist/mocks.cjs"
+    },
+    "./register": {
+      "import": "./dist/register.js"
+    },
+    "./loader": {
+      "import": "./dist/loader.js"
+    },
+    "./virtual-modules": {
+      "types": "./dist/virtual-modules.d.ts"
     },
     "./package.json": "./package.json"
   },

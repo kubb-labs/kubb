@@ -1,4 +1,5 @@
 import { dirname, resolve } from 'node:path'
+import { generatorContextStorage } from './generatorContext.ts'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
 import type { ExportNode, FileNode, OperationNode } from '@kubb/ast'
 import { createExport, createFile, transform, walk } from '@kubb/ast'
@@ -211,13 +212,15 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
 
       const ctx = { ...generatorContext, options }
 
-      for (const gen of generators) {
-        if (!gen.schema) continue
-        const result = await gen.schema(transformedNode, ctx)
-        await applyHookResult(result, driver, resolveRenderer(gen))
-      }
+      await generatorContextStorage.run(ctx, async () => {
+        for (const gen of generators) {
+          if (!gen.schema) continue
+          const result = await gen.schema(transformedNode, ctx)
+          await applyHookResult(result, driver, resolveRenderer(gen))
+        }
 
-      await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
+        await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
+      })
     },
     async operation(node) {
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
@@ -232,13 +235,15 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
 
         const ctx = { ...generatorContext, options }
 
-        for (const gen of generators) {
-          if (!gen.operation) continue
-          const result = await gen.operation(transformedNode, ctx)
-          await applyHookResult(result, driver, resolveRenderer(gen))
-        }
+        await generatorContextStorage.run(ctx, async () => {
+          for (const gen of generators) {
+            if (!gen.operation) continue
+            const result = await gen.operation(transformedNode, ctx)
+            await applyHookResult(result, driver, resolveRenderer(gen))
+          }
 
-        await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
+          await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
+        })
       }
     },
   })
@@ -246,13 +251,15 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
   if (collectedOperations.length > 0) {
     const ctx = { ...generatorContext, options: plugin.options }
 
-    for (const gen of generators) {
-      if (!gen.operations) continue
-      const result = await gen.operations(collectedOperations, ctx)
-      await applyHookResult(result, driver, resolveRenderer(gen))
-    }
+    await generatorContextStorage.run(ctx, async () => {
+      for (const gen of generators) {
+        if (!gen.operations) continue
+        const result = await gen.operations(collectedOperations, ctx)
+        await applyHookResult(result, driver, resolveRenderer(gen))
+      }
 
-    await driver.hooks.emit('kubb:generate:operations', collectedOperations, ctx)
+      await driver.hooks.emit('kubb:generate:operations', collectedOperations, ctx)
+    })
   }
 }
 
