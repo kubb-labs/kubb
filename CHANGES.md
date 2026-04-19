@@ -56,9 +56,9 @@ Uses oxlint 1.60.0 which supports TypeScript config files and exports `defineCon
 | `style.noUselessElse` | `no-else-return` | ✅ mapped |
 | `style.useDefaultParameterLast` | `default-param-last` | ✅ mapped |
 | `style.useExponentiationOperator` | `prefer-exponentiation-operator` | ✅ mapped |
-| `style.useImportType` | `@typescript-eslint/consistent-type-imports` | ✅ mapped |
-| `style.noInferrableTypes` | `@typescript-eslint/no-inferrable-types` | ✅ mapped |
-| `style.useShorthandFunctionType` | `@typescript-eslint/prefer-function-type` | ✅ mapped |
+| `style.useImportType` | `typescript/consistent-type-imports` | ✅ mapped |
+| `style.noInferrableTypes` | `typescript/no-inferrable-types` | ✅ mapped |
+| `style.useShorthandFunctionType` | `typescript/prefer-function-type` | ✅ mapped |
 | `suspicious.noArrayIndexKey` | `react/no-array-index-key` | ✅ mapped |
 | `style.useSelfClosingElements` | `react/self-closing-comp` | ✅ mapped |
 | `suspicious.noShadowRestrictedNames` | `no-shadow-restricted-names` | ✅ mapped (off) |
@@ -196,13 +196,13 @@ Steps to follow:
        'no-unused-private-class-members': 'off',
        'no-constructor-return': 'off',
        'no-unused-vars': ['warn', { varsIgnorePattern: '^_', argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
-       '@typescript-eslint/no-this-alias': 'off',
+       'typescript/no-this-alias': 'off',
        'no-else-return': 'error',
        'default-param-last': 'error',
        'prefer-exponentiation-operator': 'error',
-       '@typescript-eslint/consistent-type-imports': ['error', { disallowTypeAnnotations: false }],
-       '@typescript-eslint/no-inferrable-types': 'error',
-       '@typescript-eslint/prefer-function-type': 'error',
+       'typescript/consistent-type-imports': ['error', { disallowTypeAnnotations: false }],
+       'typescript/no-inferrable-types': 'error',
+       'typescript/prefer-function-type': 'error',
        'react/self-closing-comp': 'error',
        'react/no-array-index-key': 'warn',
      },
