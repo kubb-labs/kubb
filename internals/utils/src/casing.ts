@@ -47,10 +47,14 @@ function toCamelOrPascal(text: string, pascal: boolean): string {
  *
  * Only splits on dots followed by a letter so that version numbers
  * embedded in operationIds (e.g. `v2025.0`) are kept intact.
+ *
+ * Empty segments (produced when the name starts with a non-alphanumeric prefix
+ * like `..Schema`) are filtered out before joining to prevent leading `/` characters
+ * that would resolve to absolute paths outside the output directory.
  */
 function applyToFileParts(text: string, transformPart: (part: string, isLast: boolean) => string): string {
   const parts = text.split(/\.(?=[a-zA-Z])/)
-  return parts.map((part, i) => transformPart(part, i === parts.length - 1)).join('/')
+  return parts.map((part, i) => transformPart(part, i === parts.length - 1)).filter(Boolean).join('/')
 }
 
 /**

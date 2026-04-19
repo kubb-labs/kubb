@@ -216,17 +216,36 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
     return path.resolve(root, output.path)
   }
 
+  let result: string
+
   if (group && (groupPath || tag)) {
     const groupValue = group.type === 'path' ? groupPath! : tag!
     const defaultName =
       group.type === 'tag'
         ? ({ group: g }: { group: string }) => `${camelCase(g)}Controller`
-        : ({ group: g }: { group: string }) => g.split('/').filter(Boolean)[0] ?? g
+        : ({ group: g }: { group: string }) => {
+            // Strip traversal components before taking the first meaningful segment
+            const segment = g.split('/').filter((s) => s !== '' && s !== '.' && s !== '..')[0]
+            return segment ? camelCase(segment) : ''
+          }
     const resolveName = group.name ?? defaultName
-    return path.resolve(root, output.path, resolveName({ group: groupValue }), baseName)
+    result = path.resolve(root, output.path, resolveName({ group: groupValue }), baseName)
+  } else {
+    result = path.resolve(root, output.path, baseName)
   }
 
-  return path.resolve(root, output.path, baseName)
+  // Ensure the resolved path stays within the configured output directory.
+  // This prevents path traversal from malicious OpenAPI specs or custom group.name functions.
+  const outputDir = path.resolve(root, output.path)
+  const outputDirWithSep = outputDir.endsWith(path.sep) ? outputDir : `${outputDir}${path.sep}`
+  if (result !== outputDir && !result.startsWith(outputDirWithSep)) {
+    throw new Error(
+      `[Kubb] Resolved path "${result}" is outside the output directory "${outputDir}". ` +
+        'This may indicate a path traversal attempt in the OpenAPI specification or a misconfigured group.name function.',
+    )
+  }
+
+  return result
 }
 
 /**
