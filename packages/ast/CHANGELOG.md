@@ -1,5 +1,7 @@
 # @kubb/ast
 
+## 5.0.0-alpha.48
+
 ## 5.0.0-alpha.47
 
 ## 5.0.0-alpha.46

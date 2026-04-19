@@ -1,5 +1,21 @@
 # @kubb/core
 
+## 5.0.0-alpha.48
+
+### Minor Changes
+
+- [#3113](https://github.com/kubb-labs/kubb/pull/3113) [`14312ef`](https://github.com/kubb-labs/kubb/commit/14312efe209087fc3da44c4a5c2286242f721308) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Remove `UserGroup` type and make `Group.name` optional.
+
+  `UserGroup` and `Group` were structurally identical after making `name` optional on `Group`, so `UserGroup` has been removed. Use `Group` everywhere.
+
+  `defaultResolvePath` now supplies built-in defaults when `name` is omitted: `${camelCase(tag)}Controller` for tag groups and the first path segment for path groups.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.48
+  - @kubb/renderer-jsx@5.0.0-alpha.48
+
 ## 5.0.0-alpha.47
 
 ### Minor Changes

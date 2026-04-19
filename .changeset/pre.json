@@ -59,6 +59,7 @@
     "remove-deprecated-plugin-checks",
     "remove-legacy-plugin-types",
     "remove-oas-package",
+    "remove-user-group-type",
     "rename-define-to-create",
     "rename-events-to-hooks",
     "rename-printer-type-exports",
