@@ -1,7 +1,7 @@
 import { defineConfig } from 'oxlint'
 
 export default defineConfig({
-  plugins: ['typescript', 'unicorn', 'react', 'jsx-a11y'],
+  plugins: ['typescript', 'react'],
   ignorePatterns: [
     '**/node_modules/**',
     '**/__snapshots__/**',
@@ -21,16 +21,12 @@ export default defineConfig({
     'no-empty-pattern': 'off',
     'no-unsafe-optional-chaining': 'off',
     'no-unused-private-class-members': 'off',
-    'jsx-a11y/html-has-lang': 'off',
     'no-unused-vars': ['warn', { varsIgnorePattern: '^_', argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
     '@typescript-eslint/no-this-alias': 'off',
-    'unicorn/no-useless-fallback-in-spread': 'off',
     'no-else-return': 'error',
     'no-constructor-return': 'error',
     'default-param-last': 'error',
     'prefer-exponentiation-operator': 'error',
-    'unicorn/prefer-node-protocol': 'error',
-    'unicorn/prefer-number-properties': 'error',
     '@typescript-eslint/consistent-type-imports': ['error', { disallowTypeAnnotations: false }],
     '@typescript-eslint/no-inferrable-types': 'error',
     '@typescript-eslint/prefer-function-type': 'error',
