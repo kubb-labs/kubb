@@ -1,5 +1,19 @@
 # @kubb/cli
 
+## 5.0.0-alpha.49
+
+### Patch Changes
+
+- [`be24c30`](https://github.com/kubb-labs/kubb/commit/be24c30f3684a24a10111a4309c21b77b76aeaf5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix oxlint failing on gitignored output directories.
+
+  When `output.lint` is set to `'auto'` or `'oxlint'`, oxlint respects `.gitignore` during directory traversal and skips any files matched by it — causing "No files found to lint" for generated output directories that are gitignored. The CLI now collects files explicitly via Node's `readdirSync` and passes them as individual path arguments to oxlint, bypassing gitignore-based filtering entirely.
+
+  Also fixes a misleading `"Oxlint not found"` error message that was always shown on any linting failure, even when oxlint was found and simply exited with a non-zero code. The actual failure reason (e.g. `"Hook execute failed: oxlint --fix …"`) is now surfaced correctly.
+
+- Updated dependencies []:
+  - @kubb/adapter-oas@5.0.0-alpha.49
+  - @kubb/core@5.0.0-alpha.49
+
 ## 5.0.0-alpha.48
 
 ### Patch Changes
@@ -55,6 +69,7 @@
 ### Patch Changes
 
 - [#64](https://github.com/tigawanna/kubb/pull/64) [`84b4ba5`](https://github.com/kubb-labs/kubb/commit/84b4ba543597dd8fc2ca74914143865976741153) Thanks [@pull](https://github.com/apps/pull)! - Improve `defineConfig` usage in v5.
+
   - Fix `defineConfig` typing in the `kubb` package so object configs keep the expected inferred shape.
   - Update `kubb init` to install `kubb`, which matches the generated `import { defineConfig } from 'kubb'` config file.
 
@@ -177,6 +192,7 @@
   | `plugins:hook:processing:end`   | `kubb:plugins:hook:processing:end`   |
 
 - [#3043](https://github.com/kubb-labs/kubb/pull/3043) [`e877926`](https://github.com/kubb-labs/kubb/commit/e877926222b4e3d56c7ccf07caaf7cdaba71bcd6) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Rename `KubbEvents` to `KubbHooks` and adopt `hooks` as the preferred emitter field.
+
   - `KubbEvents` is now `KubbHooks` in `@kubb/core`.
   - `driver.hooks` is now the primary emitter API.
   - Build/setup options now prefer `hooks` (`events` is kept as a deprecated alias for compatibility).
@@ -509,6 +525,7 @@
 - [#2689](https://github.com/kubb-labs/kubb/pull/2689) [`856fa78`](https://github.com/kubb-labs/kubb/commit/856fa78e5cc281ef3cd1b66a38e2deeca69f1b6e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Extract node-native and pure-TypeScript utilities into `@internals/utils`.
 
   The following utilities have been moved from `@kubb/core`, `@kubb/cli`, and `@kubb/plugin-oas` into the private `@internals/utils` package and are now bundled into each consumer at build time:
+
   - **`@kubb/core`** → `@internals/utils`: `clean`, `exists`/`existsSync`, `read`/`readSync`, `write`, `getRelativePath` (fs utilities), `formatHrtime`/`formatMs`/`getElapsedMs`, `spawnAsync`, `executeIfOnline`/`isOnline`, `canUseTTY`/`isCIEnvironment`/`isGitHubActions`, `serializePluginOptions`
   - **`@kubb/cli`** → `@internals/utils`: `randomCliColor`/`randomColors`, `formatMsWithColor`, `toError`/`getErrorMessage`/`toCause`
   - **`@kubb/plugin-oas`** → `@kubb/oas`: `resolveServerUrl` (moved to `@kubb/oas` as it depends on OAS types)
@@ -616,6 +633,7 @@
 - [#2607](https://github.com/kubb-labs/kubb/pull/2607) [`e244177`](https://github.com/kubb-labs/kubb/commit/e244177168a2e32a2818626a5efde990d1f1806f) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Add anonymous telemetry to the Kubb CLI to track usage data (command, plugins, version, duration, platform, Node.js version, and file count). No OpenAPI specs, file paths, plugin options, or secrets are ever collected.
 
   Telemetry can be disabled at any time by setting:
+
   - `DO_NOT_TRACK=1` – standard opt-out flag recognised by many developer tools ([consoledonottrack.com](https://consoledonottrack.com))
   - `KUBB_DISABLE_TELEMETRY=1` – Kubb-specific opt-out flag
 
@@ -749,6 +767,7 @@
   Add bidirectional WebSocket communication between Kubb Agent and Kubb Studio. The agent now automatically connects to Studio on startup when `KUBB_STUDIO_URL` and `KUBB_AGENT_TOKEN` environment variables are set.
 
   Features:
+
   - Persistent WebSocket connection with automatic reconnection
   - Real-time streaming of generation events to Studio
   - Command handling for `generate` and `connect` commands from Studio
@@ -884,6 +903,7 @@
 - [#2396](https://github.com/kubb-labs/kubb/pull/2396) [`b5c4fd9`](https://github.com/kubb-labs/kubb/commit/b5c4fd94711b1657cdffe9a629229cd0f708a4b1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add new `init` command for interactive project setup
 
   The CLI now includes a new `kubb init` command that provides an interactive setup wizard to quickly scaffold a Kubb project:
+
   - **Interactive prompts**: Uses `@clack/prompts` for a beautiful CLI experience
   - **Package manager detection**: Automatically detects `npm`, `pnpm`, `yarn`, or `bun`
   - **Plugin selection**: Multi-select from all 13 available Kubb plugins
@@ -898,6 +918,7 @@
   ```
 
   The command will guide you through:
+
   1. Creating a `package.json` (if needed)
   2. Selecting your OpenAPI specification path
   3. Choosing which plugins to install
@@ -1073,13 +1094,13 @@
   ```typescript
   // kubb.config.ts
   export default defineConfig({
-    input: { path: './petStore.yaml' },
+    input: { path: "./petStore.yaml" },
     output: {
-      path: './src/gen',
-      format: 'auto', // Detects biome or prettier
-      lint: 'auto', // Detects biome, oxlint, or eslint
+      path: "./src/gen",
+      format: "auto", // Detects biome or prettier
+      lint: "auto", // Detects biome, oxlint, or eslint
     },
-  })
+  });
   ```
 
 ### Patch Changes

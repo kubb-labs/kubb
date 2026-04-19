@@ -47,6 +47,7 @@
     "fix-defineconfig-entrypoint",
     "fix-discriminator-union-types",
     "fix-null-const-duplication",
+    "fix-oxlint-gitignore-lint-failure",
     "fix-path-param-ref-types",
     "fix-requestbody-description",
     "fix-tuple-enum-declarations",
