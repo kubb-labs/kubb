@@ -1,6 +1,0 @@
-.all-contributorsrc
-codecov.yml
-**/dist/**
-**/node_modules/**
-**/__snapshots__/**
-**/coverage/**

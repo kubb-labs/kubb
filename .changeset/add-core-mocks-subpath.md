@@ -1,11 +1,10 @@
 ---
-'@kubb/core': minor
+"@kubb/core": minor
 ---
 
 Add `@kubb/core/mocks` subpath export for testing utilities.
 
 New exports:
-
 - `createMockedPluginDriver(options)` — create a minimal PluginDriver mock
 - `createMockedAdapter(options)` — create a minimal Adapter mock
 - `createMockedPlugin(params)` — create a minimal Plugin mock
@@ -14,5 +13,10 @@ New exports:
 - `renderGeneratorOperations(generator, nodes, opts)` — render a generator's operations method
 
 ```ts
-import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, renderGeneratorSchema } from '@kubb/core/mocks'
+import {
+  createMockedAdapter,
+  createMockedPlugin,
+  createMockedPluginDriver,
+  renderGeneratorSchema,
+} from '@kubb/core/mocks'
 ```

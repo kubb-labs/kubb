@@ -1,6 +1,6 @@
 ---
-'@kubb/ast': patch
-'@kubb/adapter-oas': patch
+"@kubb/ast": patch
+"@kubb/adapter-oas": patch
 ---
 
 Fix missing `@description` on request body type aliases.

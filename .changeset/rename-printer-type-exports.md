@@ -1,6 +1,6 @@
 ---
-'@kubb/ast': minor
-'@kubb/core': minor
+"@kubb/ast": minor
+"@kubb/core": minor
 ---
 
 Rename printer type exports and simplify resolver/transformer APIs.
@@ -8,7 +8,6 @@ Rename printer type exports and simplify resolver/transformer APIs.
 ### `@kubb/ast`
 
 Printer type exports now follow `Printer{Suffix}` convention:
-
 - `TsPrinterFactory` → `PrinterTsFactory`
 - `TsPrinterNodes` → `PrinterTsNodes`
 - `ZodPrinterFactory` → `PrinterZodFactory`

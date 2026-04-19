@@ -1,6 +1,6 @@
 ---
-'@kubb/adapter-oas': minor
-'@kubb/cli': patch
+"@kubb/adapter-oas": minor
+"@kubb/cli": patch
 ---
 
 Remove the standalone `@kubb/oas` package from the monorepo.

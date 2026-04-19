@@ -1,5 +1,5 @@
 ---
-'@kubb/adapter-oas': major
+"@kubb/adapter-oas": major
 ---
 
 Always use collision-safe schema and enum naming.

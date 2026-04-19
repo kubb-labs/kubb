@@ -1,5 +1,5 @@
 ---
-'@kubb/core': minor
+"@kubb/core": minor
 ---
 
 Remove `UserGroup` type and make `Group.name` optional.

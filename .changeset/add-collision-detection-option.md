@@ -1,5 +1,5 @@
 ---
-'@kubb/adapter-oas': minor
+"@kubb/adapter-oas": minor
 ---
 
 Expose `collisionDetection` option in the public API.

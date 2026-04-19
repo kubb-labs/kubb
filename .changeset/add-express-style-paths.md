@@ -1,6 +1,6 @@
 ---
-'@kubb/ast': minor
-'@kubb/adapter-oas': minor
+"@kubb/ast": minor
+"@kubb/adapter-oas": minor
 ---
 
 Add Express-style operation paths and improve type handling.

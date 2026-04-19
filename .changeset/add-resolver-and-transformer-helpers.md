@@ -1,6 +1,6 @@
 ---
-'@kubb/ast': minor
-'@kubb/core': minor
+"@kubb/ast": minor
+"@kubb/core": minor
 ---
 
 Add resolver and transformer composition helpers.

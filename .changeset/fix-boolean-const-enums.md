@@ -1,5 +1,5 @@
 ---
-'@kubb/adapter-oas': patch
+"@kubb/adapter-oas": patch
 ---
 
 Fix boolean `const` values and parameter enums.

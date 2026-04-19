@@ -1,5 +1,5 @@
 ---
-'@kubb/core': minor
+"@kubb/core": minor
 ---
 
 Update `createKubb` to take `userConfig` directly as its first argument.

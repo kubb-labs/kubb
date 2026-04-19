@@ -1,11 +1,10 @@
 ---
-'@kubb/ast': minor
+"@kubb/ast": minor
 ---
 
 Add structured AST nodes for code generation.
 
 New node types:
-
 - `ConstNode` — variable declarations with `as const`
 - `TypeNode` — type alias declarations
 - `FunctionNode` — function declarations

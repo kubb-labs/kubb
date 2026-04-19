@@ -1,12 +1,11 @@
 ---
-'@kubb/renderer-jsx': minor
-'@kubb/core': patch
+"@kubb/renderer-jsx": minor
+"@kubb/core": patch
 ---
 
 Add `@kubb/renderer-jsx` package.
 
 A lightweight JSX renderer for Kubb plugins:
-
 - Custom JSX runtime (`jsx-runtime`, `jsx-dev-runtime`)
 - `createRenderer` to render JSX trees into `FileNode` arrays
 - Built-in components: `File`, `Const`, `Function`, `Type`, `Root`

@@ -1,5 +1,5 @@
 ---
-'@kubb/adapter-oas': patch
+"@kubb/adapter-oas": patch
 ---
 
 Fix `null | null` duplication for `const: null` schemas.

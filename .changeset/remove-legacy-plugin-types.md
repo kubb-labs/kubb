@@ -1,5 +1,5 @@
 ---
-'@kubb/core': minor
+"@kubb/core": minor
 ---
 
 Remove legacy plugin infrastructure now that all plugins use `definePlugin`.

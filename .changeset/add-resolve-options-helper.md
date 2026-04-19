@@ -1,5 +1,5 @@
 ---
-'@kubb/ast': minor
+"@kubb/ast": minor
 ---
 
 Add `resolveOptions(node, context)` helper.

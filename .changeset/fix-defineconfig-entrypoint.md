@@ -1,6 +1,6 @@
 ---
-'@kubb/cli': patch
-'kubb': patch
+"@kubb/cli": patch
+"kubb": patch
 ---
 
 Improve `defineConfig` usage in v5.
