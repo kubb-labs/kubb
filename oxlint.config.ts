@@ -1,6 +1,7 @@
 import { defineConfig } from 'oxlint'
 
 export default defineConfig({
+  plugins: ['typescript', 'unicorn', 'react', 'jsx-a11y'],
   ignorePatterns: [
     '**/node_modules/**',
     '**/__snapshots__/**',
