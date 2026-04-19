@@ -71,10 +71,12 @@
     "jiti": "^2.6.1",
     "tinyexec": "catalog:"
   },
-  "devDependencies": {
-    "@internals/utils": "workspace:*",
+  "optionalDependencies": {
     "@kubb/agent": "workspace:*",
     "@kubb/mcp": "workspace:*"
+  },
+  "devDependencies": {
+    "@internals/utils": "workspace:*"
   },
   "size-limit": [
     {

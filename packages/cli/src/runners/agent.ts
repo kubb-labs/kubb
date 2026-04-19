@@ -82,7 +82,13 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
     }
 
     // Resolve the @kubb/agent package path
-    const agentPkgUrl = import.meta.resolve('@kubb/agent/package.json')
+    let agentPkgUrl: string
+    try {
+      agentPkgUrl = import.meta.resolve('@kubb/agent/package.json')
+    } catch (_e) {
+      console.error(`Import of '@kubb/agent' is required to start the Agent server`)
+      process.exit(1)
+    }
     const agentPkgPath = fileURLToPath(agentPkgUrl)
     const agentDir = path.dirname(agentPkgPath)
     const serverPath = path.join(agentDir, agentDefaults.serverEntryPath)
