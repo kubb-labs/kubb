@@ -111,8 +111,11 @@ async function runToolPass({
 
       await hookEndPromise
     } catch (caughtError) {
-      const err = new Error(toolConfig.errorMessage)
-      err.cause = caughtError
+      // Use the actual error from the hook. toolConfig.errorMessage (e.g. "Oxlint not found")
+      // is misleading when the binary was found and ran but exited with a non-zero code.
+      // runHook already emitted kubb:error for binary-not-found cases; here we surface the
+      // real reason (e.g. "Hook execute failed: oxlint --fix …") for non-zero exits.
+      const err = toError(caughtError)
       await hooks.emit('kubb:error', err)
       toolError = err
     }
