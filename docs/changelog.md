@@ -6,6 +6,42 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.48
+
+### 🚀 Breaking Changes
+
+#### [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core)
+
+-   [`14312ef`](https://github.com/kubb-labs/kubb/commit/14312efe209087fc3da44c4a5c2286242f721308) - Removed `UserGroup` type and made `Group.name` optional.
+
+    The `UserGroup` and `Group` types were previously structurally identical after making `name` optional on `Group`. With this change, `UserGroup` has been removed. Developers should now use `Group` in all instances where `UserGroup` was previously utilized.
+
+    Additionally, `defaultResolvePath` now provides built-in defaults when `name` is omitted:
+    - For tag groups, the default is `${camelCase(tag)}Controller`.
+    - For path groups, the first path segment is used as the default.
+
+    ::: code-group
+    ```typescript [Old]
+    type UserGroup = {
+      id: string
+      name: string
+    }
+
+    type Group = {
+      id: string
+      name: string
+    }
+    ```
+
+    ```typescript [New]
+    type Group = {
+      id: string
+      name?: string
+    }
+    ```
+    :::
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
