@@ -804,7 +804,7 @@ export type ResolverPathParams = {
 export type ResolverContext = {
   root: string
   output: Output
-  group?: Group
+  group?: UserGroup
   /**
    * Plugin name used to populate `meta.pluginName` on the resolved file.
    */
