@@ -48,9 +48,11 @@ function toCamelOrPascal(text: string, pascal: boolean): string {
  * Only splits on dots followed by a letter so that version numbers
  * embedded in operationIds (e.g. `v2025.0`) are kept intact.
  *
- * Empty segments (produced when the name starts with a non-alphanumeric prefix
- * like `..Schema`) are filtered out before joining to prevent leading `/` characters
- * that would resolve to absolute paths outside the output directory.
+ * Empty segments are filtered before joining. They arise when the text starts with
+ * a dot followed immediately by a letter (e.g. `..Schema` splits into `['..', 'Schema']`
+ * and `'..'` transforms to an empty string). Without this filter the join would produce
+ * a leading `/`, which `path.resolve` would interpret as an absolute path, allowing
+ * generated files to escape the configured output directory.
  */
 function applyToFileParts(text: string, transformPart: (part: string, isLast: boolean) => string): string {
   const parts = text.split(/\.(?=[a-zA-Z])/)

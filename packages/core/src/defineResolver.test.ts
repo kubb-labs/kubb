@@ -154,8 +154,11 @@ describe('defaultResolvePath', () => {
       },
     )
 
-    // The traversal components are stripped; the file lands in the output directory
+    // Traversal components (..) are stripped; first valid segment ('etc') is used as the directory
     expect(result).toBe('/root/types/etc/petTypes.ts')
+    // Verify traversal did not escape the output directory
+    expect(result).toContain('/root/types/')
+    expect(result).not.toContain('..')
   })
 
   it('throws when a custom group.name returns a path outside the output directory', () => {

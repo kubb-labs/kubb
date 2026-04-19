@@ -224,7 +224,9 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
       group.type === 'tag'
         ? ({ group: g }: { group: string }) => `${camelCase(g)}Controller`
         : ({ group: g }: { group: string }) => {
-            // Strip traversal components before taking the first meaningful segment
+            // Strip traversal components (empty, '.', '..') before taking the first meaningful segment.
+            // When every segment is a traversal component (e.g. '../../') we fall back to '' so the
+            // file is placed directly in the output root — the boundary check below ensures safety.
             const segment = g.split('/').filter((s) => s !== '' && s !== '.' && s !== '..')[0]
             return segment ? camelCase(segment) : ''
           }
@@ -236,6 +238,8 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
 
   // Ensure the resolved path stays within the configured output directory.
   // This prevents path traversal from malicious OpenAPI specs or custom group.name functions.
+  // `result === outputDir` is intentionally permitted: it matches single-file mode paths and
+  // edge cases where baseName resolves to the output directory itself.
   const outputDir = path.resolve(root, output.path)
   const outputDirWithSep = outputDir.endsWith(path.sep) ? outputDir : `${outputDir}${path.sep}`
   if (result !== outputDir && !result.startsWith(outputDirWithSep)) {
