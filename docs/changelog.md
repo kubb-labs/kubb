@@ -6,6 +6,19 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.49
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/cli`](https://github.com/kubb-labs/kubb/tree/main/packages/cli)
+
+- [`be24c30`](https://github.com/kubb-labs/kubb/commit/be24c30f3684a24a10111a4309c21b77b76aeaf5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fixed issues with `oxlint` failing on gitignored output directories.
+
+When `output.lint` is set to `'auto'` or `'oxlint'`, `oxlint` now properly handles `.gitignore` during directory traversal, ensuring it no longer skips valid files due to gitignore specifications. Previously, this caused "No files found to lint" errors for generated output files that were gitignored. This update ensures files are explicitly collected using Node’s `readdirSync` and passed as individual path arguments, bypassing issues with `gitignore` filtering.
+
+Additionally, resolved a misleading `"Oxlint not found"` error message that appeared during any linting failure. The actual reason for failure (e.g., `"Hook execute failed: oxlint --fix …"`) is now displayed.
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
