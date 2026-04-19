@@ -3,50 +3,41 @@
   "version": "5.0.0-alpha.48",
   "description": "React integration for Kubb - JSX runtime and component-based code generation with React reconciler for building type-safe generators",
   "keywords": [
-    "react",
+    "code-generator",
+    "codegen",
+    "component-generation",
+    "file-generation",
     "jsx",
     "jsx-runtime",
-    "react-reconciler",
-    "component-generation",
-    "codegen",
-    "code-generator",
-    "typescript",
-    "file-generation",
+    "kubb",
     "plugin-system",
     "plugins",
-    "kubb"
+    "react",
+    "react-reconciler",
+    "typescript"
   ],
+  "license": "MIT",
+  "author": "stijnvanhulle",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/renderer-jsx"
   },
-  "license": "MIT",
-  "author": "stijnvanhulle",
+  "files": [
+    "src",
+    "dist",
+    "*.d.ts",
+    "*.d.cts",
+    "!*.map",
+    "!/**/**.test.**",
+    "!/**/__tests__/**",
+    "!/**/__snapshots__/**"
+  ],
+  "type": "module",
   "sideEffects": [
     "./dist/globals.js",
     "./dist/globals.cjs"
   ],
-  "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./jsx-dev-runtime": {
-      "import": "./dist/jsx-dev-runtime.js",
-      "require": "./dist/jsx-dev-runtime.cjs"
-    },
-    "./jsx-runtime": {
-      "import": "./dist/jsx-runtime.js",
-      "require": "./dist/jsx-runtime.cjs"
-    },
-    "./types": {
-      "import": "./dist/types.js",
-      "require": "./dist/types.cjs"
-    },
-    "./package.json": "./package.json"
-  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -66,23 +57,29 @@
       ]
     }
   },
-  "files": [
-    "src",
-    "dist",
-    "*.d.ts",
-    "*.d.cts",
-    "!*.map",
-    "!/**/**.test.**",
-    "!/**/__tests__/**",
-    "!/**/__snapshots__/**"
-  ],
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
-    }
-  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./jsx-dev-runtime": {
+      "import": "./dist/jsx-dev-runtime.js",
+      "require": "./dist/jsx-dev-runtime.cjs"
+    },
+    "./jsx-runtime": {
+      "import": "./dist/jsx-runtime.js",
+      "require": "./dist/jsx-runtime.cjs"
+    },
+    "./types": {
+      "import": "./dist/types.js",
+      "require": "./dist/types.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "tsdown && size-limit",
     "clean": "node -e \"require('fs').rmSync('./dist', {recursive:true,force:true})\"",
@@ -106,12 +103,15 @@
     "react": "catalog:",
     "react-reconciler": "catalog:"
   },
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
   "engines": {
     "node": ">=22"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
   },
   "inlinedDependencies": {
     "react": "19.2.5",

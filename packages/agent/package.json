@@ -4,26 +4,21 @@
   "description": "Agent server for Kubb, enabling HTTP-based access to code generation capabilities.",
   "keywords": [
     "agent",
-    "server",
+    "code-generation",
+    "codegen",
     "http",
     "kubb",
-    "code-generation",
     "openapi",
+    "server",
     "swagger",
-    "typescript",
-    "codegen"
+    "typescript"
   ],
+  "license": "AGPL-3.0-or-later",
+  "author": "stijnvanhulle",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/agent"
-  },
-  "license": "AGPL-3.0-or-later",
-  "author": "stijnvanhulle",
-  "sideEffects": false,
-  "type": "module",
-  "exports": {
-    "./package.json": "./package.json"
   },
   "files": [
     ".output",
@@ -31,6 +26,15 @@
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
   ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "nitro build",
     "clean": "npx rimraf ./dist .output",
@@ -66,9 +70,5 @@
   },
   "engines": {
     "node": ">=22"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
   }
 }

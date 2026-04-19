@@ -3,34 +3,24 @@
   "version": "5.0.0-alpha.48",
   "description": "Model Context Protocol (MCP) server for Kubb, enabling AI assistants to generate code from OpenAPI specifications.",
   "keywords": [
+    "ai",
+    "code-generation",
+    "codegen",
+    "kubb",
+    "llm",
     "mcp",
     "model-context-protocol",
-    "ai",
-    "llm",
-    "code-generation",
     "openapi",
     "swagger",
-    "typescript",
-    "codegen",
-    "kubb"
+    "typescript"
   ],
+  "license": "MIT",
+  "author": "stijnvanhulle",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/mcp"
   },
-  "license": "MIT",
-  "author": "stijnvanhulle",
-  "sideEffects": false,
-  "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./package.json": "./package.json"
-  },
-  "types": "./dist/index.d.ts",
   "bin": {
     "kubb-mcp": "bin/kubb-mcp.cjs"
   },
@@ -42,13 +32,22 @@
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
   ],
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
-    }
-  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "tsdown && size-limit",
     "start:mcp": "bun --watch ./src/server.ts",
@@ -68,20 +67,21 @@
     "jiti": "^2.6.1",
     "zod": "^4.3.6"
   },
-  "peerDependencies": {
-    "@kubb/renderer-jsx": "workspace:*"
-  },
-  "engines": {
-    "node": ">=22"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "@kubb/renderer-jsx": "workspace:*"
+  },
+  "peerDependencies": {
+    "@kubb/renderer-jsx": "workspace:*"
+  },
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
+  "engines": {
+    "node": ">=22"
   }
 }

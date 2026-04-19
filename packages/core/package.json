@@ -3,47 +3,26 @@
   "version": "5.0.0-alpha.48",
   "description": "Core functionality for Kubb's plugin-based code generation system, providing the foundation for transforming OpenAPI specifications.",
   "keywords": [
-    "typescript",
-    "plugins",
-    "plugin-system",
-    "plugin-framework",
+    "ast",
     "code-generator",
     "codegen",
-    "ast",
-    "file-system",
-    "openapi",
-    "swagger",
-    "oas",
     "core-library",
-    "kubb"
+    "file-system",
+    "kubb",
+    "oas",
+    "openapi",
+    "plugin-framework",
+    "plugin-system",
+    "plugins",
+    "swagger",
+    "typescript"
   ],
+  "license": "MIT",
+  "author": "stijnvanhulle",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/core"
-  },
-  "license": "MIT",
-  "author": "stijnvanhulle",
-  "sideEffects": false,
-  "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./mocks": {
-      "import": "./dist/mocks.js",
-      "require": "./dist/mocks.cjs"
-    },
-    "./package.json": "./package.json"
-  },
-  "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "mocks": [
-        "./dist/mocks.d.ts"
-      ]
-    }
   },
   "files": [
     "src",
@@ -56,13 +35,33 @@
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
   ],
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "mocks": [
+        "./dist/mocks.d.ts"
+      ]
     }
-  ],
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./mocks": {
+      "import": "./dist/mocks.js",
+      "require": "./dist/mocks.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "tsdown && size-limit",
     "clean": "npx rimraf ./dist",
@@ -87,15 +86,16 @@
   "peerDependencies": {
     "@kubb/renderer-jsx": "workspace:*"
   },
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
   "engines": {
     "node": ">=22"
   },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
   "inlinedDependencies": {
     "p-limit": "7.3.0",
     "yocto-queue": "1.2.2"

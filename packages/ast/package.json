@@ -3,29 +3,19 @@
   "version": "5.0.0-alpha.48",
   "description": "Spec-agnostic AST layer for Kubb. Defines nodes, visitor pattern, and factory functions used across codegen plugins.",
   "keywords": [
-    "kubb",
     "ast",
-    "typescript",
     "codegen",
-    "openapi"
+    "kubb",
+    "openapi",
+    "typescript"
   ],
+  "license": "MIT",
+  "author": "stijnvanhulle",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/ast"
   },
-  "license": "MIT",
-  "author": "stijnvanhulle",
-  "sideEffects": false,
-  "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./package.json": "./package.json"
-  },
-  "types": "./dist/index.d.ts",
   "files": [
     "src",
     "dist",
@@ -33,6 +23,22 @@
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
   ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "tsdown",
     "clean": "npx rimraf ./dist",
@@ -48,13 +54,7 @@
     "@internals/utils": "workspace:*",
     "@types/node": "catalog:"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
   "engines": {
     "node": ">=22"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
   }
 }

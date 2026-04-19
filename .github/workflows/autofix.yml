@@ -27,6 +27,9 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Fix formatting
+        run: pnpm run format
+
       - name: Fix linting
         run: pnpm run lint:fix
 

@@ -4,36 +4,26 @@
   "description": "Command-line interface for Kubb, enabling easy generation of TypeScript, React-Query, Zod, and other code from OpenAPI specifications.",
   "keywords": [
     "cli",
-    "command-line",
-    "command-line-tool",
-    "terminal",
-    "typescript",
-    "openapi",
-    "swagger",
-    "oas",
     "code-generator",
     "codegen",
-    "sdk-generator",
+    "command-line",
+    "command-line-tool",
+    "kubb",
+    "oas",
+    "openapi",
     "plugins",
-    "kubb"
+    "sdk-generator",
+    "swagger",
+    "terminal",
+    "typescript"
   ],
+  "license": "MIT",
+  "author": "stijnvanhulle",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/cli"
   },
-  "license": "MIT",
-  "author": "stijnvanhulle",
-  "sideEffects": false,
-  "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./package.json": "./package.json"
-  },
-  "types": "./dist/index.d.ts",
   "bin": {
     "kubb": "bin/kubb.js"
   },
@@ -45,13 +35,22 @@
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
   ],
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
-    }
-  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "tsdown && size-limit",
     "clean": "npx rimraf ./dist",
@@ -77,14 +76,15 @@
     "@kubb/agent": "workspace:*",
     "@kubb/mcp": "workspace:*"
   },
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
+  "preferGlobal": true,
   "engines": {
     "node": ">=22"
-  },
-  "preferGlobal": true,
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js"
+  }
 }

@@ -3,35 +3,32 @@
   "version": "5.0.0-alpha.48",
   "description": "Transform OpenAPI specifications into TypeScript, React-Query, Zod, Faker.js, MSW and more with a plugin-based code generation tool.",
   "keywords": [
-    "typescript",
-    "openapi",
-    "swagger",
-    "oas",
+    "api-client",
+    "cli",
     "code-generator",
     "codegen",
-    "sdk-generator",
-    "api-client",
-    "plugins",
-    "plugin-system",
-    "react-query",
-    "tanstack-query",
-    "zod",
-    "msw",
     "faker",
+    "kubb",
+    "msw",
+    "oas",
+    "openapi",
+    "plugin-system",
+    "plugins",
+    "react-query",
+    "sdk-generator",
+    "swagger",
+    "tanstack-query",
     "type-safe",
-    "cli",
-    "kubb"
+    "typescript",
+    "zod"
   ],
+  "license": "MIT",
+  "author": "stijnvanhulle",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/kubb"
   },
-  "license": "MIT",
-  "author": "stijnvanhulle",
-  "sideEffects": false,
-  "type": "module",
-  "types": "./dist/index.d.ts",
   "bin": {
     "kubb": "bin/kubb.js"
   },
@@ -43,13 +40,22 @@
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
   ],
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
-    }
-  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "tsdown",
     "clean": "npx rimraf ./dist",
@@ -72,21 +78,15 @@
   "devDependencies": {
     "@internals/utils": "workspace:*"
   },
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
+  "preferGlobal": true,
   "engines": {
     "node": ">=22"
-  },
-  "preferGlobal": true,
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./package.json": "./package.json"
-  },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js"
+  }
 }
