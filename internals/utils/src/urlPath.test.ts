@@ -1,5 +1,3 @@
-/** biome-ignore-all lint/suspicious/noTemplateCurlyInString: test case */
-
 import { describe, expect, test } from 'vitest'
 import { URLPath } from './urlPath.ts'
 

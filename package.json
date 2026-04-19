@@ -20,10 +20,10 @@
     "build": "turbo run build --filter=./packages/*",
     "changeset": "changeset",
     "clean": "turbo run clean",
-    "format": "biome format --write ./ && biome check --fix --unsafe",
+    "format": "oxfmt ./",
     "graph": "npx nx graph ",
-    "lint": "biome lint ./packages",
-    "lint:fix": "biome lint --write --unsafe ./packages && manypkg fix",
+    "lint": "oxlint ./packages",
+    "lint:fix": "oxlint --fix ./packages && manypkg fix",
     "lint:spell": "cspell \"**/*.{ts,md}\" --config ./cspell.json --no-progress",
     "release": "changeset publish",
     "release:canary": "changeset publish --no-git-tag",
@@ -41,7 +41,7 @@
     ]
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.12",
+    "oxlint": "^0.16.0",
     "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.31.0",
     "@manypkg/cli": "^0.25.1",

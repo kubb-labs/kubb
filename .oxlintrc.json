@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/__snapshots__/**",
+    "**/schemas/**",
+    "**/tests/e2e/schemas/**",
+    "**/coverage/**",
+    "**/assets/**",
+    "**/public/**",
+    "**/dist/**",
+    "**/artifacts/**",
+    "**/.next/**",
+    "**/.output/**",
+    "**/.nitro/**"
+  ],
+  "rules": {
+    "prefer-const": "error",
+    "prefer-template": "error",
+    "default-param-last": "error",
+    "no-else-return": "error",
+    "prefer-exponentiation-operator": "error",
+    "react/no-array-index-key": "warn",
+    "unicorn/prefer-node-protocol": "error",
+    "@typescript-eslint/consistent-type-imports": "error",
+    "@typescript-eslint/consistent-type-exports": "error",
+    "@typescript-eslint/no-inferrable-types": "error",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-non-null-assertion": "off"
+  }
+}

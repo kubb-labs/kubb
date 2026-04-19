@@ -36,8 +36,8 @@
   "scripts": {
     "build": "tsdown",
     "clean": "npx rimraf ./dist",
-    "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint --fix --unsafe .",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
     "start": "tsdown --watch",

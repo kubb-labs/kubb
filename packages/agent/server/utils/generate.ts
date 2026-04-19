@@ -64,7 +64,7 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
     if (formatter === 'auto') {
       const detectedFormatter = await detectFormatter()
       if (!detectedFormatter) {
-        await hooks.emit('kubb:warn', 'No formatter found (biome, prettier, or oxfmt). Skipping formatting.')
+        await hooks.emit('kubb:warn', 'No formatter found (oxfmt or prettier). Skipping formatting.')
       } else {
         formatter = detectedFormatter
         await hooks.emit('kubb:info', `Auto-detected formatter: ${formatter}`)
@@ -108,7 +108,7 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
     if (linter === 'auto') {
       const detectedLinter = await detectLinter()
       if (!detectedLinter) {
-        await hooks.emit('kubb:warn', 'No linter found (biome, oxlint, or eslint). Skipping linting.')
+        await hooks.emit('kubb:warn', 'No linter found (oxlint or eslint). Skipping linting.')
       } else {
         linter = detectedLinter
         await hooks.emit('kubb:info', `Auto-detected linter: ${styleText('dim', linter)}`)

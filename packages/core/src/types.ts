@@ -202,24 +202,22 @@ export type Config<TInput = Input> = {
     storage?: Storage
     /**
      * Specifies the formatting tool to be used.
-     * - 'auto' automatically detects and uses biome or prettier (in that order of preference).
+     * - 'auto' automatically detects and uses oxfmt or prettier (in that order of preference).
      * - 'prettier' uses Prettier for code formatting.
-     * - 'biome' uses Biome for code formatting.
      * - 'oxfmt' uses Oxfmt for code formatting.
      * - false disables code formatting.
      * @default 'prettier'
      */
-    format?: 'auto' | 'prettier' | 'biome' | 'oxfmt' | false
+    format?: 'auto' | 'prettier' | 'oxfmt' | false
     /**
      * Specifies the linter that should be used to analyze the code.
-     * - 'auto' automatically detects and uses biome, oxlint, or eslint (in that order of preference).
+     * - 'auto' automatically detects and uses oxlint or eslint (in that order of preference).
      * - 'eslint' uses ESLint for linting.
-     * - 'biome' uses Biome for linting.
      * - 'oxlint' uses Oxlint for linting.
      * - false disables linting.
      * @default 'auto'
      */
-    lint?: 'auto' | 'eslint' | 'biome' | 'oxlint' | false
+    lint?: 'auto' | 'eslint' | 'oxlint' | false
     /**
      * Overrides the extension for generated imports and exports. By default, each plugin adds an extension.
      * @default { '.ts': '.ts'}

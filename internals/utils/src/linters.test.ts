@@ -23,16 +23,7 @@ describe('detectLinter', () => {
     vi.clearAllMocks()
   })
 
-  it('should detect biome when available', async () => {
-    vi.mocked(spawn).mockImplementation((command: string) => {
-      return makeChild(command === 'biome' ? 0 : 1)
-    })
-
-    const result = await detectLinter()
-    expect(result).toBe('biome')
-  })
-
-  it('should detect oxlint when biome is not available', async () => {
+  it('should detect oxlint when available', async () => {
     vi.mocked(spawn).mockImplementation((command: string) => {
       return makeChild(command === 'oxlint' ? 0 : 1)
     })
@@ -41,7 +32,7 @@ describe('detectLinter', () => {
     expect(result).toBe('oxlint')
   })
 
-  it('should detect eslint when biome and oxlint are not available', async () => {
+  it('should detect eslint when oxlint is not available', async () => {
     vi.mocked(spawn).mockImplementation((command: string) => {
       return makeChild(command === 'eslint' ? 0 : 1)
     })

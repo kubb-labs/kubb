@@ -86,8 +86,8 @@
   "scripts": {
     "build": "tsdown && size-limit",
     "clean": "node -e \"require('fs').rmSync('./dist', {recursive:true,force:true})\"",
-    "lint": "pnpm biome lint .",
-    "lint:fix": "pnpm biome lint --fix --unsafe .",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check -tag canary",
     "start": "tsdown --watch ./src",

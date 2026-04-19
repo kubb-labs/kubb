@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnusedVariables: JSX namespace declarations are consumed by TypeScript's JSX type system, not by user code
 import type React from 'react'
 
 import type {

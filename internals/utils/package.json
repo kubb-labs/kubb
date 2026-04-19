@@ -40,8 +40,8 @@
   "scripts": {
     "build": "tsdown",
     "clean": "npx rimraf ./dist",
-    "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint --fix --unsafe .",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
     "start": "tsdown --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"

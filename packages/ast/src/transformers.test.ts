@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/style/noUnusedTemplateLiteral: not needed */
 import { describe, expect, it } from 'vitest'
 import { createProperty, createSchema } from './factory.ts'
 import type { SchemaNode } from './nodes/schema.ts'
