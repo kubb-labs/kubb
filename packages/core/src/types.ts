@@ -593,8 +593,9 @@ export type Group = {
   type: 'tag' | 'path'
   /**
    * Returns the subdirectory name for a given group value.
+   * Defaults to `${camelCase(group)}Controller` for tags and the first path segment for paths.
    */
-  name: (context: { group: string }) => string
+  name?: (context: { group: string }) => string
 }
 
 export type LoggerOptions = {
@@ -804,7 +805,7 @@ export type ResolverPathParams = {
 export type ResolverContext = {
   root: string
   output: Output
-  group?: UserGroup
+  group?: Group
   /**
    * Plugin name used to populate `meta.pluginName` on the resolved file.
    */
