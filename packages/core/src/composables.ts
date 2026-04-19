@@ -62,13 +62,7 @@ export function queryOutputs(filter: Partial<Pick<OutputEntry, 'nodeId' | 'nodeK
  *
  * Returns an `ImportNode` ready to add to a `FileNode`, or `null` if no match.
  */
-export function resolveImport(query: {
-  schema?: string
-  operation?: string
-  plugin: string
-  kind?: string
-  from: string
-}): ImportNode | null {
+export function resolveImport(query: { schema?: string; operation?: string; plugin: string; kind?: string; from: string }): ImportNode | null {
   const registry = getContextStore().ctx.driver.outputRegistry
   const nodeId = query.schema ?? query.operation ?? ''
   const nodeKind: 'schema' | 'operation' = query.schema ? 'schema' : 'operation'

@@ -59,11 +59,5 @@ declare module 'kubb:outputs' {
    * const imp = resolveImport({ schema: 'Pet', plugin: 'plugin-ts', kind: 'type', from: myFilePath })
    * // imp → { name: ['Pet'], path: '../types/pet.ts', isTypeOnly: true }
    */
-  export function resolveImport(query: {
-    schema?: string
-    operation?: string
-    plugin: string
-    kind?: string
-    from: string
-  }): ImportNode | null
+  export function resolveImport(query: { schema?: string; operation?: string; plugin: string; kind?: string; from: string }): ImportNode | null
 }

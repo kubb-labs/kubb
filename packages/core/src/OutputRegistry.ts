@@ -50,11 +50,7 @@ export class OutputRegistry {
    */
   resolve(query: { nodeId: string; nodeKind: 'schema' | 'operation'; plugin: string; kind?: string }): OutputEntry | undefined {
     return this.#entries.find(
-      (e) =>
-        e.nodeId === query.nodeId &&
-        e.nodeKind === query.nodeKind &&
-        e.plugin === query.plugin &&
-        (query.kind === undefined || e.kind === query.kind),
+      (e) => e.nodeId === query.nodeId && e.nodeKind === query.nodeKind && e.plugin === query.plugin && (query.kind === undefined || e.kind === query.kind),
     )
   }
 
