@@ -144,12 +144,16 @@
       },
       {
         "kind": "Export",
-        "name": ["hello"],
+        "name": [
+          "hello"
+        ],
         "path": "./sub/hello.ts"
       },
       {
         "kind": "Export",
-        "name": ["world"],
+        "name": [
+          "world"
+        ],
         "path": "./sub/world.ts"
       }
     ],
