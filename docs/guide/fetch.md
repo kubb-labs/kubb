@@ -7,14 +7,17 @@ outline: deep
 ---
 
 # Use of Fetch <a href="/plugins/plugin-client"><Badge type="info" text="@kubb/plugin-client" /></a>
+
 By default, `@kubb/plugin-client` uses the Axios client from `@kubb/plugin-client/templates/axios`, which is based on the Axios instance interface.
 
 In some cases, you may want a custom client. For example, use [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch) or [Ky](https://github.com/sindresorhus/ky).
 
 ## Create `kubb.config.ts`
+
 Set `importPath` to a relative path, import alias, or library (default: `@kubb/plugin-client/templates/axios`).
 
 See [plugins/plugin-client](/plugins/plugin-client/#client).
+
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
@@ -48,10 +51,10 @@ export default defineConfig(() => {
     ],
   }
 })
-
 ```
 
 ## Add `client.ts`
+
 Every POST, PUT, GET, PATCH, and DELETE request uses the **importPath** and invokes the default export with a configuration shaped by `RequestConfig`, modeled after the AxiosRequest interface/config.
 
 > [!IMPORTANT]
@@ -95,6 +98,7 @@ export const client = async <TData, TError = unknown, TVariables = unknown>(conf
 ```
 
 ## View generated code
+
 ```typescript [src/gen/models.ts]
 import client from '../client.ts'
 import type { ResponseConfig } from '../client.ts'
@@ -109,14 +113,17 @@ export async function getPetById(
   petId: GetPetByIdPathParams['petId'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<GetPetByIdQueryResponse>['data']> {
-  const res = await client<GetPetByIdQueryResponse>({ method: 'get', url: `/pet/${petId}`, ...options })
+  const res = await client<GetPetByIdQueryResponse>({
+    method: 'get',
+    url: `/pet/${petId}`,
+    ...options,
+  })
   return res.data
 }
-
 ```
 
-
 ## Example
+
 <iframe
 src="https://codesandbox.io/embed/github/kubb-labs/kubb/tree/main/examples/fetch?fontsize=14&module=%2Fsrc%2Fgen%2Fmodels%2FPerson.ts&theme=dark&view=editor"
 :style="{

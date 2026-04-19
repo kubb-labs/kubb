@@ -48,10 +48,10 @@ type Adapter<TOptions> = {
 
 `AdapterSource` is a discriminated union that covers the three ways a user can supply an input:
 
-| Variant | When to use |
-|---|---|
-| `{ type: 'path'; path: string }` | Local file or URL |
-| `{ type: 'data'; data: object }` | Pre-parsed JS object |
+| Variant                              | When to use                             |
+| ------------------------------------ | --------------------------------------- |
+| `{ type: 'path'; path: string }`     | Local file or URL                       |
+| `{ type: 'data'; data: object }`     | Pre-parsed JS object                    |
 | `{ type: 'paths'; paths: string[] }` | Multiple spec files merged at load time |
 
 `RootNode` is defined by `@kubb/ast` and is the universal intermediate representation consumed by all plugins.
@@ -93,16 +93,16 @@ import { adapterOas } from '@kubb/adapter-oas'
 export default defineConfig({
   adapter: adapterOas({
     validate: true,
-    dateType: 'date',           // ← was repeated in every plugin before
-    integerType: 'number',      // ← same
-    discriminator: 'strict',   // ← same
-    collisionDetection: false,  // ← same
+    dateType: 'date', // ← was repeated in every plugin before
+    integerType: 'number', // ← same
+    discriminator: 'strict', // ← same
+    collisionDetection: false, // ← same
     contentType: 'application/json',
     serverIndex: 0,
   }),
   input: { path: './openapi.yaml' },
   plugins: [
-    pluginTs(),    // ← no longer need dateType, integerType, etc.
+    pluginTs(), // ← no longer need dateType, integerType, etc.
     pluginZod(),
   ],
 })
@@ -119,7 +119,9 @@ import { createAdapter } from '@kubb/core'
 
 export const adapterOas = createAdapter<OasAdapter>((options) => ({
   name: 'oas',
-  options: { /* resolved options with defaults */ },
+  options: {
+    /* resolved options with defaults */
+  },
   async parse(source) {
     const oas = await loadOas(source)
     const parser = createOasParser(oas, options)

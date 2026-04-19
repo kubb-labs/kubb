@@ -1,6 +1,9 @@
 import { ast } from '@kubb/core'
 
-type DiscriminatorTarget = { propertyName: string; enumValues: Array<string | number | boolean> }
+type DiscriminatorTarget = {
+  propertyName: string
+  enumValues: Array<string | number | boolean>
+}
 
 /**
  * Injects discriminator enum values into child schemas so they know which value identifies them.
@@ -68,7 +71,10 @@ export function applyDiscriminatorInheritance(root: ast.InputNode): ast.InputNod
       if (existing) {
         existing.enumValues.push(...enumValues)
       } else {
-        childMap.set(refNode.name, { propertyName: discriminatorPropertyName, enumValues: [...enumValues] })
+        childMap.set(refNode.name, {
+          propertyName: discriminatorPropertyName,
+          enumValues: [...enumValues],
+        })
       }
     }
   }
@@ -87,7 +93,11 @@ export function applyDiscriminatorInheritance(root: ast.InputNode): ast.InputNod
 
       const { propertyName, enumValues } = entry
       const enumSchema = ast.createSchema({ type: 'enum', enumValues })
-      const newProp = ast.createProperty({ name: propertyName, required: true, schema: enumSchema })
+      const newProp = ast.createProperty({
+        name: propertyName,
+        required: true,
+        schema: enumSchema,
+      })
 
       const existingIdx = objectNode.properties.findIndex((p) => p.name === propertyName)
       const newProperties = existingIdx >= 0 ? objectNode.properties.map((p, i) => (i === existingIdx ? newProp : p)) : [...objectNode.properties, newProp]

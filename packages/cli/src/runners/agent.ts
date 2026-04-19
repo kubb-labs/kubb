@@ -87,7 +87,13 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
     const agentDir = path.dirname(agentPkgPath)
     const serverPath = path.join(agentDir, agentDefaults.serverEntryPath)
 
-    const resolvedEnv = resolveAgentStartEnvironment({ port, host, configPath, allowWrite, allowAll })
+    const resolvedEnv = resolveAgentStartEnvironment({
+      port,
+      host,
+      configPath,
+      allowWrite,
+      allowAll,
+    })
     const numericPort = Number(resolvedEnv.port)
 
     if (!Number.isInteger(numericPort) || numericPort <= 0) {
@@ -113,9 +119,23 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
       cwd: process.cwd(),
     })
 
-    await sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status: 'success' }))
+    await sendTelemetry(
+      buildTelemetryEvent({
+        command: 'agent',
+        kubbVersion: version,
+        hrStart,
+        status: 'success',
+      }),
+    )
   } catch (error) {
-    await sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status: 'failed' }))
+    await sendTelemetry(
+      buildTelemetryEvent({
+        command: 'agent',
+        kubbVersion: version,
+        hrStart,
+        status: 'failed',
+      }),
+    )
     clack.log.error(styleText('red', 'Failed to start agent server'))
     console.error(error)
     process.exit(1)

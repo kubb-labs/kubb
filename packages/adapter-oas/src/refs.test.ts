@@ -9,7 +9,10 @@ const document: Document = {
   components: {
     schemas: {
       Pet: { type: 'object', properties: { name: { type: 'string' } } },
-      Order: { type: 'object', properties: { pet: { $ref: '#/components/schemas/Pet' } } },
+      Order: {
+        type: 'object',
+        properties: { pet: { $ref: '#/components/schemas/Pet' } },
+      },
     },
   },
 } as Document
@@ -18,7 +21,10 @@ describe('resolveRef', () => {
   it('resolves a local $ref to its schema', () => {
     const result = resolveRef<SchemaObject>(document, '#/components/schemas/Pet')
 
-    expect(result).toEqual({ type: 'object', properties: { name: { type: 'string' } } })
+    expect(result).toEqual({
+      type: 'object',
+      properties: { name: { type: 'string' } },
+    })
   })
 
   it('returns null for an empty ref', () => {
@@ -51,7 +57,9 @@ describe('resolveRef', () => {
 
 describe('dereferenceWithRef', () => {
   it('resolves a $ref object and preserves the $ref field', () => {
-    const result = dereferenceWithRef<SchemaObject>(document, { $ref: '#/components/schemas/Pet' })
+    const result = dereferenceWithRef<SchemaObject>(document, {
+      $ref: '#/components/schemas/Pet',
+    })
 
     expect(result).toMatchObject({
       $ref: '#/components/schemas/Pet',

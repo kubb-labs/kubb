@@ -261,11 +261,7 @@ export default defineConfig({
   output: {
     path: './src/gen',
   },
-  plugins: [
-    pluginOas(),
-    pluginTs(),
-    pluginClient(),
-  ],
+  plugins: [pluginOas(), pluginTs(), pluginClient()],
 })
 ```
 

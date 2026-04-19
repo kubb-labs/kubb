@@ -35,16 +35,17 @@ yarn add -D @kubb/plugin-msw
 ## Options
 
 ### output
+
 Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
 <!--@include: ./core/outputPath.md-->
 
-|           |           |
-| --------: | :-------- |
-|     Type: | `string`  |
-| Required: | `true`    |
+|           |              |
+| --------: | :----------- |
+|     Type: | `string`     |
+| Required: | `true`       |
 |  Default: | `'handlers'` |
 
 #### output.barrelType
@@ -60,6 +61,7 @@ Specify the export location for the files and define the behavior of the output.
 <!--@include: ./core/outputFooter.md-->
 
 ### handlers
+
 Create `handlers.ts` file with all handlers grouped by methods.
 
 |           |           |
@@ -73,12 +75,15 @@ Create `handlers.ts` file with all handlers grouped by methods.
 <!--@include: ./core/outputOverride.md-->
 
 ### contentType
+
 <!--@include: ./core/contentType.md-->
 
 ### baseURL
+
 <!--@include: ./plugin-client/baseURL.md-->
 
 ### group
+
 <!--@include: ./core/group.md-->
 
 #### group.type
@@ -96,10 +101,11 @@ Return the name of a group based on the group name, this will be used for the fi
 |  Default: | `(ctx) => '${ctx.group}Controller'` |
 
 ### parser
+
 Which parser should be used before returning the data to the `Response` of MSW.
 
 |           |                     |
-| --------: | :-------- |
+| --------: | :------------------ |
 |     Type: | `'data' \| 'faker'` |
 | Required: | `false`             |
 |  Default: | `'data'`            |
@@ -108,33 +114,38 @@ Which parser should be used before returning the data to the `Response` of MSW.
 - `'data'` will use your custom data to generate the data for the response.
 
 ### include
+
 <!--@include: ./core/include.md-->
 
 ### exclude
+
 <!--@include: ./core/exclude.md-->
 
 ### override
+
 <!--@include: ./core/override.md-->
 
 ### generators <img src="../public/icons/experimental.svg"/>
+
 <!--@include: ./core/generators.md-->
 
 |           |                               |
-| --------: | :-------- |
+| --------: | :---------------------------- |
 |     Type: | `Array<Generator<PluginMsw>>` |
 | Required: | `false`                       |
 
-
 ### transformers
+
 <!--@include: ./core/transformers.md-->
 
 #### transformers.name
+
 Customize the names based on the type that is provided by the plugin.
 
-|           |                                                                               |
-| --------: | :-------- |
+|           |                                                |
+| --------: | :--------------------------------------------- |
 |     Type: | `(name: string, type?: ResolveType) => string` |
-| Required: | `false`                                                                       |
+| Required: | `false`                                        |
 
 ```typescript
 type ResolveType = 'file' | 'function' | 'type' | 'const'
@@ -145,7 +156,7 @@ type ResolveType = 'file' | 'function' | 'type' | 'const'
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginMsw} from '@kubb/plugin-msw'
+import { pluginMsw } from '@kubb/plugin-msw'
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
@@ -163,17 +174,18 @@ export default defineConfig({
         path: './mocks',
         barrelType: 'named',
         banner: '/* eslint-disable no-alert, no-console */',
-        footer: ''
+        footer: '',
       },
       group: {
         type: 'tag',
         name: ({ group }) => `${group}Service`,
       },
-      handlers: true
+      handlers: true,
     }),
   ],
 })
 ```
+
 ## See Also
 
 - [MSW](https://mswjs.io/)

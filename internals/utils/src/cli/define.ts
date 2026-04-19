@@ -52,6 +52,10 @@ export function defineCommand<O extends Record<string, OptionDefinition>>(def: {
   if (!run) return rest
   return {
     ...rest,
-    run: (args) => run({ values: args.values as InferValues<O>, positionals: args.positionals }),
+    run: (args) =>
+      run({
+        values: args.values as InferValues<O>,
+        positionals: args.positionals,
+      }),
   }
 }

@@ -185,7 +185,10 @@ async function generate(options: GenerateProps): Promise<void> {
       buildTelemetryEvent({
         command: 'generate',
         kubbVersion: version,
-        plugins: Array.from(driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
+        plugins: Array.from(driver.plugins.values(), (p) => ({
+          name: p.name,
+          options: p.options as Record<string, unknown>,
+        })),
         hrStart,
         filesCreated: files.length,
         status: 'failed',
@@ -207,7 +210,7 @@ async function generate(options: GenerateProps): Promise<void> {
       toolMap: formatters,
       toolLabel: 'formatter',
       successPrefix: 'Formatting',
-      noToolMessage: 'No formatter found (biome, prettier, or oxfmt). Skipping formatting.',
+      noToolMessage: 'No formatter found (oxfmt, biome, or prettier). Skipping formatting.',
       configName: config.name,
       outputPath,
       logLevel,
@@ -224,7 +227,7 @@ async function generate(options: GenerateProps): Promise<void> {
       toolMap: linters,
       toolLabel: 'linter',
       successPrefix: 'Linting',
-      noToolMessage: 'No linter found (biome, oxlint, or eslint). Skipping linting.',
+      noToolMessage: 'No linter found (oxlint, biome, or eslint). Skipping linting.',
       configName: config.name,
       outputPath,
       logLevel,
@@ -253,7 +256,10 @@ async function generate(options: GenerateProps): Promise<void> {
   const telemetryEvent = buildTelemetryEvent({
     command: 'generate',
     kubbVersion: version,
-    plugins: Array.from(driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
+    plugins: Array.from(driver.plugins.values(), (p) => ({
+      name: p.name,
+      options: p.options as Record<string, unknown>,
+    })),
     hrStart,
     filesCreated: files.length,
     status: 'success',

@@ -49,6 +49,7 @@ This starts an MCP server that communicates via stdio (standard input/output), m
 Add to your MCP client configuration (e.g., [Claude Desktop](https://claude.ai/download)'s `claude_desktop_config.json`):
 
 **Option 1: Using Kubb CLI (recommended):**
+
 ```json
 {
   "mcpServers": {
@@ -61,6 +62,7 @@ Add to your MCP client configuration (e.g., [Claude Desktop](https://claude.ai/d
 ```
 
 **Option 2: Using standalone bin:**
+
 ```json
 {
   "mcpServers": {
@@ -93,6 +95,7 @@ For project-specific configurations, you can specify the working directory:
 Generate code from OpenAPI/Swagger specifications using Kubb configuration.
 
 **Parameters:**
+
 - `config` (string, optional): Path to kubb.config.ts file. If not provided, looks for kubb.config.ts in current directory
 - `input` (string, optional): Path to OpenAPI/Swagger spec file (overrides config file setting)
 - `output` (string, optional): Output directory path (overrides config file setting)
@@ -101,6 +104,7 @@ Generate code from OpenAPI/Swagger specifications using Kubb configuration.
 **Examples:**
 
 Using default config file:
+
 ```json
 {
   "config": "./kubb.config.ts"
@@ -108,6 +112,7 @@ Using default config file:
 ```
 
 Overriding input and output:
+
 ```json
 {
   "config": "./kubb.config.ts",
@@ -117,6 +122,7 @@ Overriding input and output:
 ```
 
 With verbose logging:
+
 ```json
 {
   "config": "./kubb.config.ts",
@@ -143,10 +149,6 @@ export default defineConfig({
   output: {
     path: './src/generated',
   },
-  plugins: [
-    pluginOas(),
-    pluginTs(),
-    pluginClient(),
-  ],
+  plugins: [pluginOas(), pluginTs(), pluginClient()],
 })
 ```

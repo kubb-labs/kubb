@@ -201,7 +201,12 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
     depth: 'shallow',
     async schema(node) {
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-      const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
+      const options = resolver.resolveOptions(transformedNode, {
+        options: plugin.options,
+        exclude,
+        include,
+        override,
+      })
       if (options === null) return
 
       const ctx = { ...generatorContext, options }
@@ -216,7 +221,12 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
     },
     async operation(node) {
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-      const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
+      const options = resolver.resolveOptions(transformedNode, {
+        options: plugin.options,
+        exclude,
+        include,
+        override,
+      })
       if (options !== null) {
         collectedOperations.push(transformedNode)
 
@@ -298,7 +308,10 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         const duration = getElapsedMs(hrStart)
         pluginTimings.set(plugin.name, duration)
 
-        await hooks.emit('kubb:plugin:end', plugin, { duration, success: true })
+        await hooks.emit('kubb:plugin:end', plugin, {
+          duration,
+          success: true,
+        })
 
         await hooks.emit('kubb:debug', {
           date: new Date(),
@@ -357,7 +370,13 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       const rootFile = createFile<object>({
         path: rootPath,
         baseName: BARREL_FILENAME,
-        exports: buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }).map((e) => createExport(e)),
+        exports: buildBarrelExports({
+          barrelFiles,
+          rootDir,
+          existingExports,
+          config,
+          driver,
+        }).map((e) => createExport(e)),
         sources: [],
         imports: [],
         meta: {},

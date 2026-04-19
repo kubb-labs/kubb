@@ -145,11 +145,11 @@ How the discriminator field is interpreted when processing `oneOf`/`anyOf` schem
 
 See [Discriminators](/guide/oas#discriminators) in the knowledge base for detailed examples and supported patterns.
 
-|           |                           |
-| --------: | :------------------------ |
-|     Type: | `'strict' \| 'inherit'`   |
-| Required: | `false`                   |
-|  Default: | `'strict'`                |
+|           |                         |
+| --------: | :---------------------- |
+|     Type: | `'strict' \| 'inherit'` |
+| Required: | `false`                 |
+|  Default: | `'strict'`              |
 
 - `'strict'` — uses `oneOf` schemas as written in the spec. The discriminator is used for type narrowing but child schemas are not modified.
 - `'inherit'` — propagates the discriminator property with appropriate enum values into each child schema, ensuring type safety and enabling better code generation.
@@ -164,13 +164,13 @@ components:
       required: [type]
       type: object
       oneOf:
-        - $ref: "#/components/schemas/Cat"
-        - $ref: "#/components/schemas/Dog"
+        - $ref: '#/components/schemas/Cat'
+        - $ref: '#/components/schemas/Dog'
       discriminator:
         propertyName: type
         mapping:
-          cat: "#/components/schemas/Cat"
-          dog: "#/components/schemas/Dog"
+          cat: '#/components/schemas/Cat'
+          dog: '#/components/schemas/Dog'
     Cat:
       type: object
       properties:
@@ -221,11 +221,11 @@ export type Animal = Cat | Dog
 
 How `format: 'date-time'` schemas are represented in the generated AST and downstream output.
 
-|           |                                                                   |
-| --------: | :---------------------------------------------------------------- |
+|           |                                                                  |
+| --------: | :--------------------------------------------------------------- |
 |     Type: | `false \| 'string' \| 'stringOffset' \| 'stringLocal' \| 'date'` |
-| Required: | `false`                                                           |
-|  Default: | `'string'`                                                        |
+| Required: | `false`                                                          |
+|  Default: | `'string'`                                                       |
 
 - `false` — falls through to a plain `string` type.
 - `'string'` — emits a datetime string node (e.g. `z.string().datetime()`).
@@ -398,9 +398,7 @@ export default defineConfig({
     emptySchemaType: 'unknown',
     enumSuffix: 'enum',
   }),
-  plugins: [
-    pluginTs(),
-  ],
+  plugins: [pluginTs()],
 })
 ```
 

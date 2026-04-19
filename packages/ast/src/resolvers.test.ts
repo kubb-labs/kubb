@@ -14,9 +14,21 @@ describe('findDiscriminator', () => {
   })
 
   it.each([
-    { label: 'mapping is missing', mapping: undefined, ref: '#/components/schemas/Dog' as string | undefined },
-    { label: 'ref is missing', mapping: { cat: '#/components/schemas/Cat' }, ref: undefined },
-    { label: 'ref does not match any mapping entry', mapping: { cat: '#/components/schemas/Cat' }, ref: '#/components/schemas/Dog' },
+    {
+      label: 'mapping is missing',
+      mapping: undefined,
+      ref: '#/components/schemas/Dog' as string | undefined,
+    },
+    {
+      label: 'ref is missing',
+      mapping: { cat: '#/components/schemas/Cat' },
+      ref: undefined,
+    },
+    {
+      label: 'ref does not match any mapping entry',
+      mapping: { cat: '#/components/schemas/Cat' },
+      ref: '#/components/schemas/Dog',
+    },
   ])('returns undefined when $label', ({ mapping, ref }) => {
     expect(findDiscriminator(mapping, ref)).toBeNull()
   })
@@ -105,7 +117,16 @@ describe('collectImports()', () => {
   it('collects nested ref imports', () => {
     const node = createSchema({
       type: 'object',
-      properties: [createProperty({ name: 'pet', schema: createSchema({ type: 'ref', ref: '#/components/schemas/Pet', name: 'Pet' }) })],
+      properties: [
+        createProperty({
+          name: 'pet',
+          schema: createSchema({
+            type: 'ref',
+            ref: '#/components/schemas/Pet',
+            name: 'Pet',
+          }),
+        }),
+      ],
     }) as SchemaNode
 
     const result = collectImports({

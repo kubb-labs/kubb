@@ -118,14 +118,14 @@ enum PetType {
 const petType = {
   Dog: 'dog',
   Cat: 'cat',
-} as const;
+} as const
 ```
 
 ```typescript ['asPascalConst']
 const PetType = {
   Dog: 'dog',
   Cat: 'cat',
-} as const;
+} as const
 ```
 
 ```typescript ['constEnum']
@@ -136,13 +136,13 @@ const enum PetType {
 ```
 
 ```typescript ['literal']
-type PetType = 'dog' | 'cat';
+type PetType = 'dog' | 'cat'
 ```
 
 ```typescript ['inlineLiteral']
 // Enum values are inlined directly into the type
 export interface Pet {
-  status?: 'available' | 'pending' | 'sold';
+  status?: 'available' | 'pending' | 'sold'
 }
 ```
 
@@ -171,9 +171,9 @@ Only the type alias is affected — the const object name stays unchanged.
 const petType = {
   Dog: 'dog',
   Cat: 'cat',
-} as const;
+} as const
 
-export type PetTypeKey = (typeof petType)[keyof typeof petType];
+export type PetTypeKey = (typeof petType)[keyof typeof petType]
 ```
 
 ```typescript ['Value']
@@ -181,9 +181,9 @@ export type PetTypeKey = (typeof petType)[keyof typeof petType];
 const petType = {
   Dog: 'dog',
   Cat: 'cat',
-} as const;
+} as const
 
-export type PetTypeValue = (typeof petType)[keyof typeof petType];
+export type PetTypeValue = (typeof petType)[keyof typeof petType]
 ```
 
 ```typescript ['' (no suffix)]
@@ -191,9 +191,9 @@ export type PetTypeValue = (typeof petType)[keyof typeof petType];
 const petType = {
   Dog: 'dog',
   Cat: 'cat',
-} as const;
+} as const
 
-export type PetType = (typeof petType)[keyof typeof petType];
+export type PetType = (typeof petType)[keyof typeof petType]
 ```
 
 :::
@@ -239,13 +239,13 @@ See [Type vs Interface: Which Should You Use](https://www.totaltypescript.com/ty
 
 ```typescript ['type']
 type Pet = {
-  name: string;
-};
+  name: string
+}
 ```
 
 ```typescript ['interface']
 interface Pet {
-  name: string;
+  name: string
 }
 ```
 
@@ -275,20 +275,20 @@ Control how optional properties are represented in generated TypeScript types.
 
 ```typescript ['questionToken']
 type Pet = {
-  type?: string;
-};
+  type?: string
+}
 ```
 
 ```typescript ['undefined']
 type Pet = {
-  type: string | undefined;
-};
+  type: string | undefined
+}
 ```
 
 ```typescript ['questionTokenAndUndefined']
 type Pet = {
-  type?: string | undefined;
-};
+  type?: string | undefined
+}
 ```
 
 :::
@@ -307,14 +307,14 @@ Choose between `Array<Type>` or `Type[]` syntax for array types.
 
 ```typescript ['array']
 type Pet = {
-  tags: string[];
-};
+  tags: string[]
+}
 ```
 
 ```typescript ['generic']
 type Pet = {
-  tags: Array<string>;
-};
+  tags: Array<string>
+}
 ```
 
 :::
@@ -328,11 +328,11 @@ Transform parameter names to a specific casing format for path, query, and heade
 >
 > All plugins that reference parameters (like `@kubb/plugin-client`, `@kubb/plugin-react-query`, `@kubb/plugin-swr`, `@kubb/plugin-faker`, `@kubb/plugin-mcp`) should use the same `paramsCasing` setting to ensure type compatibility.
 
-|           |              |
-| --------: | :----------- |
+|           |               |
+| --------: | :------------ |
 |     Type: | `'camelcase'` |
-| Required: | `false`      |
-|  Default: | `undefined`  |
+| Required: | `false`       |
+|  Default: | `undefined`   |
 
 ::: code-group
 
@@ -341,32 +341,32 @@ Transform parameter names to a specific casing format for path, query, and heade
 
 // Without paramsCasing
 type FindPetsByStatusPathParams = {
-  step_id: string;
-};
+  step_id: string
+}
 
 type FindPetsByStatusQueryParams = {
-  bool_param?: boolean;
-};
+  bool_param?: boolean
+}
 
 type FindPetsByStatusHeaderParams = {
-  'X-Custom-Header'?: string;
-};
+  'X-Custom-Header'?: string
+}
 ```
 
 ```typescript [With paramsCasing: 'camelcase']
 // Properties are transformed to camelCase
 
 type FindPetsByStatusPathParams = {
-  stepId: string;  // ✓ camelCase
-};
+  stepId: string // ✓ camelCase
+}
 
 type FindPetsByStatusQueryParams = {
-  boolParam?: boolean;  // ✓ camelCase
-};
+  boolParam?: boolean // ✓ camelCase
+}
 
 type FindPetsByStatusHeaderParams = {
-  xCustomHeader?: string;  // ✓ camelCase
-};
+  xCustomHeader?: string // ✓ camelCase
+}
 ```
 
 :::
@@ -380,13 +380,13 @@ type FindPetsByStatusHeaderParams = {
 ```typescript [Default]
 pluginTs({
   compatibilityPreset: 'default',
-});
+})
 ```
 
 ```typescript [Kubb v4 compatibility]
 pluginTs({
   compatibilityPreset: 'kubbV4',
-});
+})
 ```
 
 :::
@@ -401,10 +401,10 @@ Resolver precedence for `@kubb/plugin-ts`:
 2. Apply `compatibilityPreset` to select the active preset.
 3. Apply explicit `resolver` overrides on top (method-level, with `null`/`undefined` fallback).
 
-|           |                                                          |
-| --------: | :------------------------------------------------------- |
-|     Type: | `Partial<ResolverTs> & ThisType<ResolverTs>`             |
-| Required: | `false`                                                  |
+|           |                                              |
+| --------: | :------------------------------------------- |
+|     Type: | `Partial<ResolverTs> & ThisType<ResolverTs>` |
+| Required: | `false`                                      |
 
 ::: code-group
 
@@ -464,10 +464,10 @@ Override individual printer node handlers to customize how specific schema types
 
 Each key is a `SchemaType` (e.g. `'integer'`, `'date'`). The function you provide replaces the built-in handler for that type. Use `this.transform` to recurse into nested schema nodes and `this.options` to read printer options.
 
-|           |                   |
-| --------: | :---------------- |
+|           |                              |
+| --------: | :--------------------------- |
 |     Type: | `{ nodes?: PrinterTsNodes }` |
-| Required: | `false`           |
+| Required: | `false`                      |
 
 ::: code-group
 
@@ -506,9 +506,9 @@ pluginTs({
 ## Example
 
 ```typescript twoslash
-import { adapterOas } from '@kubb/adapter-oas';
-import { defineConfig } from '@kubb/core';
-import { pluginTs } from '@kubb/plugin-ts';
+import { adapterOas } from '@kubb/adapter-oas'
+import { defineConfig } from '@kubb/core'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: {
@@ -538,7 +538,7 @@ export default defineConfig({
       paramsCasing: 'camelcase',
     }),
   ],
-});
+})
 ```
 
 ## See Also

@@ -173,7 +173,10 @@ describe('buildOtlpPayload', () => {
     const payload = buildOtlpPayload(event)
     expect(payload).toHaveProperty('resourceSpans')
     const [resourceSpan] = payload.resourceSpans
-    expect(resourceSpan!.resource.attributes).toContainEqual({ key: 'service.name', value: { stringValue: 'kubb-cli' } })
+    expect(resourceSpan!.resource.attributes).toContainEqual({
+      key: 'service.name',
+      value: { stringValue: 'kubb-cli' },
+    })
     const [scopeSpan] = resourceSpan!.scopeSpans
     const [span] = scopeSpan!.spans
     expect(span!.name).toBe('generate')

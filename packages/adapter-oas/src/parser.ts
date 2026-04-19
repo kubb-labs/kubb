@@ -53,7 +53,10 @@ type SchemaContext = {
  */
 function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
   const isItemsObject = typeof schema.items === 'object' && !Array.isArray(schema.items)
-  const normalizedItems: SchemaObject = { ...(isItemsObject ? (schema.items as SchemaObject) : {}), enum: schema.enum }
+  const normalizedItems: SchemaObject = {
+    ...(isItemsObject ? (schema.items as SchemaObject) : {}),
+    enum: schema.enum,
+  }
   const { enum: _enum, ...schemaWithoutEnum } = schema
 
   return { ...schemaWithoutEnum, items: normalizedItems } as SchemaObject
@@ -140,7 +143,10 @@ function createSchemaParser(ctx: OasParserContext) {
       } as ast.DistributiveOmit<ast.SchemaNode, 'kind'>)
     }
 
-    const filteredDiscriminantValues: Array<{ propertyName: string; value: string }> = []
+    const filteredDiscriminantValues: Array<{
+      propertyName: string
+      value: string
+    }> = []
     const allOfMembers: Array<ast.SchemaNode> = (schema.allOf as Array<SchemaObject | ReferenceObject>)
       .filter((item) => {
         if (!isReference(item) || !name) return true
@@ -154,7 +160,10 @@ function createSchemaParser(ctx: OasParserContext) {
         if (inOneOf || inMapping) {
           const discriminatorValue = ast.findDiscriminator(deref.discriminator.mapping, childRef)
           if (discriminatorValue) {
-            filteredDiscriminantValues.push({ propertyName: deref.discriminator.propertyName, value: discriminatorValue })
+            filteredDiscriminantValues.push({
+              propertyName: deref.discriminator.propertyName,
+              value: discriminatorValue,
+            })
           }
           return false
         }
@@ -178,7 +187,17 @@ function createSchemaParser(ctx: OasParserContext) {
         for (const key of missingRequired) {
           for (const resolved of resolvedMembers) {
             if (resolved.properties?.[key]) {
-              allOfMembers.push(parseSchema({ schema: { properties: { [key]: resolved.properties[key] }, required: [key] } as SchemaObject }, rawOptions))
+              allOfMembers.push(
+                parseSchema(
+                  {
+                    schema: {
+                      properties: { [key]: resolved.properties[key] },
+                      required: [key],
+                    } as SchemaObject,
+                  },
+                  rawOptions,
+                ),
+              )
               break
             }
           }
@@ -262,7 +281,11 @@ function createSchemaParser(ctx: OasParserContext) {
           type: 'intersection',
           members: [
             memberNode,
-            narrowedDiscriminatorNode ?? ast.createDiscriminantNode({ propertyName: discriminator.propertyName, value: discriminatorValue }),
+            narrowedDiscriminatorNode ??
+              ast.createDiscriminantNode({
+                propertyName: discriminator.propertyName,
+                value: discriminatorValue,
+              }),
           ],
         })
       })
@@ -341,9 +364,20 @@ function createSchemaParser(ctx: OasParserContext) {
       if (!dateType) return null
 
       if (dateType.type === 'datetime') {
-        return ast.createSchema({ ...base, primitive: 'string' as const, type: 'datetime', offset: dateType.offset, local: dateType.local })
+        return ast.createSchema({
+          ...base,
+          primitive: 'string' as const,
+          type: 'datetime',
+          offset: dateType.offset,
+          local: dateType.local,
+        })
       }
-      return ast.createSchema({ ...base, primitive: 'string' as const, type: dateType.type, representation: dateType.representation })
+      return ast.createSchema({
+        ...base,
+        primitive: 'string' as const,
+        type: dateType.type,
+        representation: dateType.representation,
+      })
     }
 
     const specialType = getSchemaType(schema.format!)
@@ -352,22 +386,50 @@ function createSchemaParser(ctx: OasParserContext) {
     const specialPrimitive: ast.PrimitiveSchemaType = specialType === 'number' || specialType === 'integer' || specialType === 'bigint' ? specialType : 'string'
 
     if (specialType === 'number' || specialType === 'integer' || specialType === 'bigint') {
-      return ast.createSchema({ ...base, primitive: specialPrimitive, type: specialType })
+      return ast.createSchema({
+        ...base,
+        primitive: specialPrimitive,
+        type: specialType,
+      })
     }
     if (specialType === 'url') {
-      return ast.createSchema({ ...base, primitive: 'string' as const, type: 'url', min: schema.minLength, max: schema.maxLength })
+      return ast.createSchema({
+        ...base,
+        primitive: 'string' as const,
+        type: 'url',
+        min: schema.minLength,
+        max: schema.maxLength,
+      })
     }
     if (specialType === 'ipv4') {
-      return ast.createSchema({ ...base, primitive: 'string' as const, type: 'ipv4' })
+      return ast.createSchema({
+        ...base,
+        primitive: 'string' as const,
+        type: 'ipv4',
+      })
     }
     if (specialType === 'ipv6') {
-      return ast.createSchema({ ...base, primitive: 'string' as const, type: 'ipv6' })
+      return ast.createSchema({
+        ...base,
+        primitive: 'string' as const,
+        type: 'ipv6',
+      })
     }
     if (specialType === 'uuid' || specialType === 'email') {
-      return ast.createSchema({ ...base, primitive: 'string' as const, type: specialType, min: schema.minLength, max: schema.maxLength })
+      return ast.createSchema({
+        ...base,
+        primitive: 'string' as const,
+        type: specialType,
+        min: schema.minLength,
+        max: schema.maxLength,
+      })
     }
 
-    return ast.createSchema({ ...base, primitive: specialPrimitive, type: specialType as ast.ScalarSchemaType })
+    return ast.createSchema({
+      ...base,
+      primitive: specialPrimitive,
+      type: specialType as ast.ScalarSchemaType,
+    })
   }
 
   /**
@@ -473,7 +535,9 @@ function createSchemaParser(ctx: OasParserContext) {
     } else if (additionalProperties === false) {
       additionalPropertiesNode = false
     } else if (additionalProperties) {
-      additionalPropertiesNode = ast.createSchema({ type: typeOptionMap.get(options.unknownType)! })
+      additionalPropertiesNode = ast.createSchema({
+        type: typeOptionMap.get(options.unknownType)!,
+      })
     }
 
     const rawPatternProperties = 'patternProperties' in schema ? schema.patternProperties : undefined
@@ -483,7 +547,9 @@ function createSchemaParser(ctx: OasParserContext) {
           Object.entries(rawPatternProperties).map(([pattern, patternSchema]) => [
             pattern,
             patternSchema === true || (typeof patternSchema === 'object' && Object.keys(patternSchema).length === 0)
-              ? ast.createSchema({ type: typeOptionMap.get(options.unknownType)! })
+              ? ast.createSchema({
+                  type: typeOptionMap.get(options.unknownType)!,
+                })
               : parseSchema({ schema: patternSchema as SchemaObject }, rawOptions),
           ]),
         )
@@ -504,7 +570,12 @@ function createSchemaParser(ctx: OasParserContext) {
       const discPropName = schema.discriminator.propertyName
       const values = Object.keys(schema.discriminator.mapping)
       const enumName = name ? ast.enumPropName(name, discPropName, options.enumSuffix) : undefined
-      return ast.setDiscriminatorEnum({ node: objectNode, propertyName: discPropName, values, enumName })
+      return ast.setDiscriminatorEnum({
+        node: objectNode,
+        propertyName: discPropName,
+        values,
+        enumName,
+      })
     }
 
     return objectNode
@@ -611,7 +682,10 @@ function createSchemaParser(ctx: OasParserContext) {
    * → empty-schema fallback (`emptySchemaType` option).
    */
   function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }, rawOptions?: Partial<ast.ParserOptions>): ast.SchemaNode {
-    const options: ast.ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...rawOptions }
+    const options: ast.ParserOptions = {
+      ...DEFAULT_PARSER_OPTIONS,
+      ...rawOptions,
+    }
     const flattenedSchema = flattenSchema(schema)
     if (flattenedSchema && flattenedSchema !== schema) {
       return parseSchema({ schema: flattenedSchema, name }, rawOptions)
@@ -621,7 +695,15 @@ function createSchemaParser(ctx: OasParserContext) {
     const defaultValue = schema.default === null && nullable ? undefined : schema.default
     const type = Array.isArray(schema.type) ? schema.type[0] : schema.type
 
-    const ctx: SchemaContext = { schema, name, nullable, defaultValue, type, rawOptions, options }
+    const ctx: SchemaContext = {
+      schema,
+      name,
+      nullable,
+      defaultValue,
+      type,
+      rawOptions,
+      options,
+    }
 
     if (isReference(schema)) return convertRef(ctx)
 
@@ -637,7 +719,11 @@ function createSchemaParser(ctx: OasParserContext) {
     }
 
     if (schema.type === 'string' && schema.contentMediaType === 'application/octet-stream') {
-      return ast.createSchema({ type: 'blob', primitive: 'string', ...buildSchemaNode(schema, name, nullable, defaultValue) })
+      return ast.createSchema({
+        type: 'blob',
+        primitive: 'string',
+        ...buildSchemaNode(schema, name, nullable, defaultValue),
+      })
     }
 
     if (Array.isArray(schema.type) && schema.type.length > 1) {
@@ -673,7 +759,12 @@ function createSchemaParser(ctx: OasParserContext) {
     if (type === 'null') return convertNull(ctx)
 
     const emptyType = typeOptionMap.get(options.emptySchemaType)!
-    return ast.createSchema({ type: emptyType as ast.ScalarSchemaType, name, title: schema.title, description: schema.description })
+    return ast.createSchema({
+      type: emptyType as ast.ScalarSchemaType,
+      name,
+      title: schema.title,
+      description: schema.description,
+    })
   }
 
   /**
@@ -701,11 +792,19 @@ function createSchemaParser(ctx: OasParserContext) {
    * Reads the inline `requestBody` metadata (description / required / contentType) that OAS exposes
    * outside the schema itself. Returns an empty object when the request body is missing or a `$ref`.
    */
-  function getRequestBodyMeta(operation: Operation): { description?: string; required: boolean; contentType?: string } {
+  function getRequestBodyMeta(operation: Operation): {
+    description?: string
+    required: boolean
+    contentType?: string
+  } {
     const body = operation.schema.requestBody
     if (!body || isReference(body)) return { required: false }
 
-    const inline = body as { description?: string; required?: boolean; content?: Record<string, unknown> }
+    const inline = body as {
+      description?: string
+      required?: boolean
+      content?: Record<string, unknown>
+    }
     return {
       description: inline.description,
       required: inline.required === true,
@@ -716,10 +815,16 @@ function createSchemaParser(ctx: OasParserContext) {
   /**
    * Reads the inline response object (not a `$ref`) and returns its description plus its `content` map.
    */
-  function getResponseMeta(responseObj: unknown): { description?: string; content?: Record<string, unknown> } {
+  function getResponseMeta(responseObj: unknown): {
+    description?: string
+    content?: Record<string, unknown>
+  } {
     if (typeof responseObj !== 'object' || responseObj === null || Array.isArray(responseObj)) return {}
 
-    const inline = responseObj as { description?: string; content?: Record<string, unknown> }
+    const inline = responseObj as {
+      description?: string
+      content?: Record<string, unknown>
+    }
     return { description: inline.description, content: inline.content }
   }
 
@@ -748,7 +853,9 @@ function createSchemaParser(ctx: OasParserContext) {
       parseParameter(options, param as unknown as Record<string, unknown>),
     )
 
-    const requestBodySchema = getRequestSchema(document, operation, { contentType: ctx.contentType })
+    const requestBodySchema = getRequestSchema(document, operation, {
+      contentType: ctx.contentType,
+    })
     const requestBodySchemaNode = requestBodySchema ? parseSchema({ schema: requestBodySchema }, options) : undefined
     const requestBodyMeta = getRequestBodyMeta(operation)
 
@@ -769,7 +876,9 @@ function createSchemaParser(ctx: OasParserContext) {
       const schema =
         responseSchema && Object.keys(responseSchema).length > 0
           ? parseSchema({ schema: responseSchema }, options)
-          : ast.createSchema({ type: typeOptionMap.get(options.emptySchemaType)! })
+          : ast.createSchema({
+              type: typeOptionMap.get(options.emptySchemaType)!,
+            })
 
       const { description, content } = getResponseMeta(responseObj)
       const mediaType = content ? getMediaType(Object.keys(content)[0] ?? '') : getMediaType(operation.contentType ?? '')
@@ -837,9 +946,14 @@ export function parseOas(
   options: Partial<ast.ParserOptions> & { contentType?: ContentType } = {},
 ): { root: ast.InputNode; nameMapping: Map<string, string> } {
   const { contentType, ...parserOptions } = options
-  const mergedOptions: ast.ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...parserOptions }
+  const mergedOptions: ast.ParserOptions = {
+    ...DEFAULT_PARSER_OPTIONS,
+    ...parserOptions,
+  }
 
-  const { schemas: schemaObjects, nameMapping } = getSchemas(document, { contentType })
+  const { schemas: schemaObjects, nameMapping } = getSchemas(document, {
+    contentType,
+  })
   const { parseSchema: _parseSchema, parseOperation: _parseOperation } = createSchemaParser({ document, contentType })
 
   const schemas: Array<ast.SchemaNode> = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, mergedOptions))

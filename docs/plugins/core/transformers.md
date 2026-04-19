@@ -2,10 +2,10 @@ A single AST visitor applied to every node before code is printed. Each method y
 
 Visitor methods receive the node and a context object. Return a modified node to replace it, or return `undefined`/`void` to leave it unchanged.
 
-|           |            |
-| --------: | :--------- |
-|     Type: | `Visitor`  |
-| Required: | `false`    |
+|           |           |
+| --------: | :-------- |
+|     Type: | `Visitor` |
+| Required: | `false`   |
 
 ```typescript [Strip descriptions before printing]
 import { pluginTs } from '@kubb/plugin-ts'

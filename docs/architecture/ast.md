@@ -40,10 +40,10 @@ Each node carries `kind: NodeKind` as a discriminant. The top-level `Node` type 
 
 ### API surface
 
-| Import path | Contents |
-|---|---|
-| `@kubb/ast` | Runtime: factory functions, guards, visitor functions, ref helpers, constants |
-| `@kubb/ast/types` | Types only: all node interfaces and type aliases |
+| Import path       | Contents                                                                      |
+| ----------------- | ----------------------------------------------------------------------------- |
+| `@kubb/ast`       | Runtime: factory functions, guards, visitor functions, ref helpers, constants |
+| `@kubb/ast/types` | Types only: all node interfaces and type aliases                              |
 
 **Factory** — creates nodes with correct defaults, types every return to the specific variant:
 
@@ -57,16 +57,16 @@ createSchema({ type: 'union', members: [...] })       // returns UnionSchemaNode
 **Visitor** — depth-first traversal with three modes:
 
 ```ts
-walk(root, visitor)           // async, side effects only
-transform(root, visitor)      // sync, returns new tree (immutable)
-collect<T>(root, visitor)     // sync, returns T[]
+walk(root, visitor) // async, side effects only
+transform(root, visitor) // sync, returns new tree (immutable)
+collect<T>(root, visitor) // sync, returns T[]
 ```
 
 **Guards** — type-narrowing predicates:
 
 ```ts
-isSchemaNode(node)            // node is SchemaNode
-narrowSchema(node, 'object')  // ObjectSchemaNode | undefined
+isSchemaNode(node) // node is SchemaNode
+narrowSchema(node, 'object') // ObjectSchemaNode | undefined
 ```
 
 **Refs** — fast named-schema lookup:

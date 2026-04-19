@@ -64,8 +64,14 @@ describe('Studio Plugin - Message Handling', () => {
       const expired: AgentMessage = { type: 'disconnect', reason: 'expired' }
       const revoked: AgentMessage = { type: 'disconnect', reason: 'revoked' }
 
-      expect(JSON.parse(JSON.stringify(expired))).toEqual({ type: 'disconnect', reason: 'expired' })
-      expect(JSON.parse(JSON.stringify(revoked))).toEqual({ type: 'disconnect', reason: 'revoked' })
+      expect(JSON.parse(JSON.stringify(expired))).toEqual({
+        type: 'disconnect',
+        reason: 'expired',
+      })
+      expect(JSON.parse(JSON.stringify(revoked))).toEqual({
+        type: 'disconnect',
+        reason: 'revoked',
+      })
     })
 
     it('should serialize connected message with info response', () => {

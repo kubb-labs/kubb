@@ -61,7 +61,9 @@ export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omi
 
 type CreateSchemaObjectInput = Omit<ObjectSchemaNode, 'kind' | 'properties' | 'primitive'> & { properties?: Array<PropertyNode>; primitive?: 'object' }
 type CreateSchemaInput = CreateSchemaObjectInput | DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>
-type CreateSchemaOutput<T extends CreateSchemaInput> = InferSchemaNode<T> & { kind: 'Schema' }
+type CreateSchemaOutput<T extends CreateSchemaInput> = InferSchemaNode<T> & {
+  kind: 'Schema'
+}
 
 /**
  * Creates an `InputNode` with stable defaults for `schemas` and `operations`.
@@ -208,10 +210,19 @@ export function createSchema(props: CreateSchemaInput): SchemaNode {
   const inferredPrimitive = TYPE_TO_PRIMITIVE[props.type as keyof typeof TYPE_TO_PRIMITIVE]
 
   if (props['type'] === 'object') {
-    return { properties: [], primitive: 'object', ...props, kind: 'Schema' } as CreateSchemaOutput<typeof props>
+    return {
+      properties: [],
+      primitive: 'object',
+      ...props,
+      kind: 'Schema',
+    } as CreateSchemaOutput<typeof props>
   }
 
-  return { primitive: inferredPrimitive, ...props, kind: 'Schema' } as CreateSchemaOutput<typeof props>
+  return {
+    primitive: inferredPrimitive,
+    ...props,
+    kind: 'Schema',
+  } as CreateSchemaOutput<typeof props>
 }
 
 type UserPropertyNode = Pick<PropertyNode, 'name' | 'schema'> & Partial<Omit<PropertyNode, 'kind' | 'name' | 'schema'>>
@@ -369,7 +380,14 @@ export function createFunctionParameter(
 export function createParamsType(
   props:
     | { variant: 'reference'; name: string }
-    | { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: ParamsTypeNode }> }
+    | {
+        variant: 'struct'
+        properties: Array<{
+          name: string
+          optional: boolean
+          type: ParamsTypeNode
+        }>
+      }
     | { variant: 'member'; base: string; key: string },
 ): ParamsTypeNode {
   return { ...props, kind: 'ParamsType' } as ParamsTypeNode

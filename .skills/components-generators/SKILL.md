@@ -41,6 +41,6 @@ export function Query({ name }: Props): FabricReactNode {
 
 ## Related Skills
 
-| Skill                                                      | Use For                                       |
-|------------------------------------------------------------|-----------------------------------------------|
+| Skill                                                                  | Use For                                       |
+| ---------------------------------------------------------------------- | --------------------------------------------- |
 | **[../plugin-architecture/SKILL.md](../plugin-architecture/SKILL.md)** | For lifecycle and plugin registration details |

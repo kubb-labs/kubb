@@ -47,10 +47,30 @@ describe('packageManager', () => {
 
   describe('initPackageJson', () => {
     it.each<{ pm: PackageManagerInfo; expectedArgs: string[] }>([
-      { pm: { name: 'npm', lockFile: 'package-lock.json', installCommand: ['install'] }, expectedArgs: ['init', '-y'] },
-      { pm: { name: 'pnpm', lockFile: 'pnpm-lock.yaml', installCommand: ['install'] }, expectedArgs: ['init'] },
-      { pm: { name: 'yarn', lockFile: 'yarn.lock', installCommand: ['add'] }, expectedArgs: ['init', '-y'] },
-      { pm: { name: 'bun', lockFile: 'bun.lockb', installCommand: ['add'] }, expectedArgs: ['init', '-y'] },
+      {
+        pm: {
+          name: 'npm',
+          lockFile: 'package-lock.json',
+          installCommand: ['install'],
+        },
+        expectedArgs: ['init', '-y'],
+      },
+      {
+        pm: {
+          name: 'pnpm',
+          lockFile: 'pnpm-lock.yaml',
+          installCommand: ['install'],
+        },
+        expectedArgs: ['init'],
+      },
+      {
+        pm: { name: 'yarn', lockFile: 'yarn.lock', installCommand: ['add'] },
+        expectedArgs: ['init', '-y'],
+      },
+      {
+        pm: { name: 'bun', lockFile: 'bun.lockb', installCommand: ['add'] },
+        expectedArgs: ['init', '-y'],
+      },
     ])('runs $pm.name $expectedArgs', async ({ pm, expectedArgs }) => {
       vi.mocked(spawn).mockReturnValue(makeChildProcess(0) as ReturnType<typeof spawn>)
       await initPackageJson('/tmp/project', pm)
@@ -59,13 +79,21 @@ describe('packageManager', () => {
 
     it('rejects when the process exits with non-zero code', async () => {
       vi.mocked(spawn).mockReturnValue(makeChildProcess(1) as ReturnType<typeof spawn>)
-      const pm: PackageManagerInfo = { name: 'npm', lockFile: 'package-lock.json', installCommand: ['install'] }
+      const pm: PackageManagerInfo = {
+        name: 'npm',
+        lockFile: 'package-lock.json',
+        installCommand: ['install'],
+      }
       await expect(initPackageJson('/tmp/project', pm)).rejects.toThrow('"npm init -y" was terminated by signal undefined')
     })
 
     it('rejects when spawn emits an error', async () => {
       vi.mocked(spawn).mockReturnValue(makeErrorChildProcess(new Error('spawn ENOENT')) as ReturnType<typeof spawn>)
-      const pm: PackageManagerInfo = { name: 'npm', lockFile: 'package-lock.json', installCommand: ['install'] }
+      const pm: PackageManagerInfo = {
+        name: 'npm',
+        lockFile: 'package-lock.json',
+        installCommand: ['install'],
+      }
       await expect(initPackageJson('/tmp/project', pm)).rejects.toThrow('spawn ENOENT')
     })
   })
@@ -73,21 +101,33 @@ describe('packageManager', () => {
   describe('installPackages', () => {
     it('runs the install command with package names', async () => {
       vi.mocked(spawn).mockReturnValue(makeChildProcess(0) as ReturnType<typeof spawn>)
-      const pm: PackageManagerInfo = { name: 'pnpm', lockFile: 'pnpm-lock.yaml', installCommand: ['add'] }
+      const pm: PackageManagerInfo = {
+        name: 'pnpm',
+        lockFile: 'pnpm-lock.yaml',
+        installCommand: ['add'],
+      }
       await installPackages(['kubb', '@kubb/plugin-ts'], pm, '/tmp/project')
       expect(spawn).toHaveBeenCalledWith('pnpm', ['add', 'kubb', '@kubb/plugin-ts'], expect.objectContaining({ cwd: '/tmp/project' }))
     })
 
     it('uses process.cwd() as default cwd', async () => {
       vi.mocked(spawn).mockReturnValue(makeChildProcess(0) as ReturnType<typeof spawn>)
-      const pm: PackageManagerInfo = { name: 'npm', lockFile: 'package-lock.json', installCommand: ['install'] }
+      const pm: PackageManagerInfo = {
+        name: 'npm',
+        lockFile: 'package-lock.json',
+        installCommand: ['install'],
+      }
       await installPackages(['kubb'], pm)
       expect(spawn).toHaveBeenCalledWith('npm', ['install', 'kubb'], expect.objectContaining({ cwd: process.cwd() }))
     })
 
     it('rejects when the process exits with non-zero code', async () => {
       vi.mocked(spawn).mockReturnValue(makeChildProcess(2) as ReturnType<typeof spawn>)
-      const pm: PackageManagerInfo = { name: 'pnpm', lockFile: 'pnpm-lock.yaml', installCommand: ['add'] }
+      const pm: PackageManagerInfo = {
+        name: 'pnpm',
+        lockFile: 'pnpm-lock.yaml',
+        installCommand: ['add'],
+      }
       await expect(installPackages(['kubb'], pm)).rejects.toThrow('"pnpm add kubb" was terminated by signal undefined')
     })
   })

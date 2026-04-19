@@ -58,7 +58,9 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
     })
 
     hooks.on('kubb:plugin:end', async (plugin, result) => {
-      await notify(NotifyTypes.PLUGIN_END, `Plugin finished: ${plugin.name}`, { duration: result.duration })
+      await notify(NotifyTypes.PLUGIN_END, `Plugin finished: ${plugin.name}`, {
+        duration: result.duration,
+      })
     })
 
     // File processing events
@@ -96,7 +98,10 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
         throw new Error('Array type in kubb.config.ts is not supported in this tool. Please provide a single configuration object.')
       }
 
-      userConfig = await resolveUserConfig(userConfig, { configPath, logLevel })
+      userConfig = await resolveUserConfig(userConfig, {
+        configPath,
+        logLevel,
+      })
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
       await notify(NotifyTypes.CONFIG_ERROR, errorMessage)

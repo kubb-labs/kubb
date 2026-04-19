@@ -65,7 +65,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     setupHookListener(hooks, root)
 
     const { sessionId, wsUrl, isSandbox } = initialSession ?? (await createAgentSession({ token, studioUrl }))
-    const ws = createWebsocket(wsUrl, { headers: { Authorization: `Bearer ${token}` } })
+    const ws = createWebsocket(wsUrl, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
     const maskedWsUrl = maskString(wsUrl)
     const maskedSessionId = maskString(sessionId)
 
@@ -192,7 +194,10 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             }
 
             if (data.payload && effectiveWrite) {
-              await saveStudioConfigToStorage({ sessionId, config: data.payload }).catch((err) => {
+              await saveStudioConfigToStorage({
+                sessionId,
+                config: data.payload,
+              }).catch((err) => {
                 logger.warn(`[${maskedSessionId}] Failed to save studio config: ${err?.message}`)
               })
             }
@@ -202,7 +207,10 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 ...config,
                 root,
                 input: inputOverride ?? config.input,
-                output: { ...config.output, storage: effectiveWrite ? fsStorage() : memoryStorage() },
+                output: {
+                  ...config.output,
+                  storage: effectiveWrite ? fsStorage() : memoryStorage(),
+                },
                 plugins,
               },
               hooks,
@@ -222,7 +230,11 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               payload: {
                 version,
                 configPath,
-                permissions: { allowAll: effectiveAllowAll, allowWrite: effectiveWrite, allowPublish: effectivePublish },
+                permissions: {
+                  allowAll: effectiveAllowAll,
+                  allowWrite: effectiveWrite,
+                  allowPublish: effectivePublish,
+                },
                 config: {
                   plugins: config.plugins.map((plugin) => ({
                     name: `@kubb/${plugin.name}`,
@@ -269,6 +281,8 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       }
     })
   } catch (error: any) {
-    throw new Error(`[unhandledRejection] ${error?.message ?? error}`, { cause: error })
+    throw new Error(`[unhandledRejection] ${error?.message ?? error}`, {
+      cause: error,
+    })
   }
 }

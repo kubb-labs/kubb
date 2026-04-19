@@ -4,12 +4,12 @@
     <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
   </a>
 
-
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![Coverage][coverage-src]][coverage-href]
 [![License][license-src]][license-href]
 [![Sponsors][sponsors-src]][sponsors-href]
+
 <h4>
     <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/main//examples/typescript" target="_blank">View Demo</a>
     <span> · </span>
@@ -38,11 +38,13 @@ npx kubb init -y
 ```
 
 Defaults when using `-y`:
+
 - Input path: `./openapi.yaml`
 - Output path: `./src/gen`
 - Plugins: OpenAPI Parser + TypeScript
 
 This command will:
+
 1. Detect or create a `package.json` if it doesn't exist
 2. Prompt you for your OpenAPI specification path (default: `./openapi.yaml`)
 3. Ask for the output directory for generated files (default: `./src/gen`)
@@ -59,6 +61,7 @@ npx kubb generate
 ```
 
 Options:
+
 - `-c, --config <path>` - Path to the Kubb config file
 - `-l, --logLevel <level>` - Set log level (silent, info, verbose, debug)
 - `-w, --watch` - Watch mode based on the input file
@@ -93,7 +96,6 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
     <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
   </a>
 </p>
-
 
 <!-- Badges -->
 

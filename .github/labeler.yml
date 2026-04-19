@@ -1,9 +1,5 @@
 'docs':
-  - any:
-      [
-        'docs/**',
-        '!docs/**/package.json',
-      ]
+  - any: ['docs/**', '!docs/**/package.json']
 
 '@kubb/cli':
   - any: ['packages/cli/**', '!packages/cli/package.json']
@@ -24,4 +20,4 @@ feature:
   - head-branch: ['^feat', 'feat']
 
 bug:
-  - head-branch: [ '^bug', 'bug', '^fix', 'fix', ]
+  - head-branch: ['^bug', 'bug', '^fix', 'fix']

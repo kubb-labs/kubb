@@ -33,9 +33,16 @@ export type ValidateDocumentOptions = {
 export async function parseDocument(pathOrApi: string | Document, { canBundle = true, enablePaths = true }: ParseOptions = {}): Promise<Document> {
   if (typeof pathOrApi === 'string' && canBundle) {
     const config = await loadConfig()
-    const bundleResults = await bundle({ ref: pathOrApi, config, base: pathOrApi })
+    const bundleResults = await bundle({
+      ref: pathOrApi,
+      config,
+      base: pathOrApi,
+    })
 
-    return parseDocument(bundleResults.bundle.parsed as string, { canBundle, enablePaths })
+    return parseDocument(bundleResults.bundle.parsed as string, {
+      canBundle,
+      enablePaths,
+    })
   }
 
   const oasNormalize = new OASNormalize(pathOrApi, {

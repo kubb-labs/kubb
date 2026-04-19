@@ -149,7 +149,10 @@ export function setEnumName(propNode: SchemaNode, parentName: string | null | un
   }
 
   if (enumNode) {
-    return { ...propNode, name: enumPropName(parentName, propName, enumSuffix) }
+    return {
+      ...propNode,
+      name: enumPropName(parentName, propName, enumSuffix),
+    }
   }
 
   return propNode

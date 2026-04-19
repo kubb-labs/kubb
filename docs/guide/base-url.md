@@ -11,9 +11,11 @@ outline: deep
 In Kubb, there are multiple ways to specify a baseURL. Set it with a custom client, using the serverIndex of your Swagger/OpenAPI spec file, or using the `baseURL` config.
 
 ## Use custom client
+
 When [defining your own client](/guide/fetch), set a baseURL that applies to every HTTP call.
 
 ::: code-group
+
 ```typescript [client.ts]
 import axios from 'axios'
 
@@ -45,7 +47,7 @@ export type ResponseConfig<TData = unknown> = {
 }
 
 export const axiosInstance = axios.create({
-  baseURL: 'https://localhost:8080/api/v1' // [!code ++]
+  baseURL: 'https://localhost:8080/api/v1', // [!code ++]
 })
 
 export type Client = <TData, _TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>) => Promise<ResponseConfig<TData>>
@@ -57,8 +59,8 @@ export const client = async <TData, TError = unknown, TVariables = unknown>(conf
 
   return promise
 }
-
 ```
+
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
@@ -76,17 +78,20 @@ export default defineConfig({
     pluginOas(),
     pluginTs(),
     pluginClient({
-      importPath: '../../client.ts' // [!code ++]
+      importPath: '../../client.ts', // [!code ++]
     }),
   ],
 })
 ```
+
 :::
 
 ## Use serverIndex
+
 Reuse the server URL from your Swagger/OpenAPI spec file by defining [which index](/plugins/plugin-oas/#serverindex) to use.
 
 :::code-group
+
 ```yaml [OpenAPI]
 openapi: 3.0.3
 info:
@@ -97,9 +102,10 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: 1.0.0
 servers:
-- url: http://petstore.swagger.io/api
-- url: http://localhost:3000
+  - url: http://petstore.swagger.io/api
+  - url: http://localhost:3000
 ```
+
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
@@ -120,12 +126,15 @@ export default defineConfig({
   ],
 })
 ```
+
 :::
 
 ## Use baseURL
+
 Set the baseURL in your config.
 
 :::code-group
+
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
@@ -142,14 +151,15 @@ export default defineConfig({
   plugins: [
     pluginOas(),
     pluginClient({
-      baseURL: 'https://localhost:8080/api/v1' // [!code ++]
+      baseURL: 'https://localhost:8080/api/v1', // [!code ++]
     }),
     pluginReactQuery({
       client: {
-        baseURL: 'https://localhost:8080/api/v1' // [!code ++]
-      }
+        baseURL: 'https://localhost:8080/api/v1', // [!code ++]
+      },
     }),
   ],
 })
 ```
+
 :::

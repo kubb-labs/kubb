@@ -161,7 +161,15 @@ export function buildOtlpPayload(event: TelemetryEvent): OtlpExportTraceServiceR
               kvlistValue: {
                 values: [
                   { key: 'name', value: { stringValue: p.name } },
-                  { key: 'options', value: { stringValue: JSON.stringify({ ...p.options, usedEnumNames: undefined }) } },
+                  {
+                    key: 'options',
+                    value: {
+                      stringValue: JSON.stringify({
+                        ...p.options,
+                        usedEnumNames: undefined,
+                      }),
+                    },
+                  },
                 ],
               },
             }),
@@ -177,7 +185,10 @@ export function buildOtlpPayload(event: TelemetryEvent): OtlpExportTraceServiceR
         resource: {
           attributes: [
             { key: 'service.name', value: { stringValue: 'kubb-cli' } },
-            { key: 'service.version', value: { stringValue: event.kubbVersion } },
+            {
+              key: 'service.version',
+              value: { stringValue: event.kubbVersion },
+            },
             { key: 'telemetry.sdk.language', value: { stringValue: 'nodejs' } },
           ],
         },
@@ -193,7 +204,9 @@ export function buildOtlpPayload(event: TelemetryEvent): OtlpExportTraceServiceR
                 startTimeUnixNano: String(startTimeNs),
                 endTimeUnixNano: String(endTimeNs),
                 attributes,
-                status: { code: (event.status === 'success' ? 1 : 2) satisfies OtlpStatusCode },
+                status: {
+                  code: (event.status === 'success' ? 1 : 2) satisfies OtlpStatusCode,
+                },
               },
             ],
           },

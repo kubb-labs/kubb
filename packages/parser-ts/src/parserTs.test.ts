@@ -13,7 +13,9 @@ describe('printJSDoc', () => {
   })
 
   it('renders multiple comments', () => {
-    const result = printJSDoc({ comments: ['@description A pet', '@deprecated'] })
+    const result = printJSDoc({
+      comments: ['@description A pet', '@deprecated'],
+    })
     expect(result).toBe('/**\n * @description A pet\n * @deprecated\n */')
   })
 
@@ -35,39 +37,69 @@ describe('printConst', () => {
   })
 
   it('generates an exported const', () => {
-    const node = createConst({ name: 'pet', export: true, nodes: [createText('{}')] })
+    const node = createConst({
+      name: 'pet',
+      export: true,
+      nodes: [createText('{}')],
+    })
     expect(printConst(node)).toBe('export const pet = {}')
   })
 
   it('generates a typed const', () => {
-    const node = createConst({ name: 'pet', type: 'Pet', nodes: [createText('{}')] })
+    const node = createConst({
+      name: 'pet',
+      type: 'Pet',
+      nodes: [createText('{}')],
+    })
     expect(printConst(node)).toBe('const pet: Pet = {}')
   })
 
   it('generates a const with asConst', () => {
-    const node = createConst({ name: 'pets', export: true, type: 'Pet[]', asConst: true, nodes: [createText('[]')] })
+    const node = createConst({
+      name: 'pets',
+      export: true,
+      type: 'Pet[]',
+      asConst: true,
+      nodes: [createText('[]')],
+    })
     expect(printConst(node)).toBe('export const pets: Pet[] = [] as const')
   })
 
   it('includes JSDoc when provided', () => {
-    const node = createConst({ name: 'pet', JSDoc: { comments: ['@description A pet'] }, nodes: [createText('{}')] })
+    const node = createConst({
+      name: 'pet',
+      JSDoc: { comments: ['@description A pet'] },
+      nodes: [createText('{}')],
+    })
     expect(printConst(node)).toBe('/**\n * @description A pet\n */\nconst pet = {}')
   })
 })
 
 describe('printType', () => {
   it('generates a minimal type alias', () => {
-    const node = createType({ name: 'Pet', nodes: [createText('{ id: number }')] })
+    const node = createType({
+      name: 'Pet',
+      nodes: [createText('{ id: number }')],
+    })
     expect(printType(node)).toBe('type Pet = { id: number }')
   })
 
   it('generates an exported type alias', () => {
-    const node = createType({ name: 'Pet', export: true, nodes: [createText('{ id: number }')] })
+    const node = createType({
+      name: 'Pet',
+      export: true,
+      nodes: [createText('{ id: number }')],
+    })
     expect(printType(node)).toBe('export type Pet = { id: number }')
   })
 
   it('includes JSDoc when provided', () => {
-    const node = createType({ name: 'PetStatus', export: true, JSDoc: { comments: ['@description Status of a pet'] }, nodes: [createText('string')] })
+    const node = createType({
+      name: 'PetStatus',
+      export: true,
+      JSDoc: { comments: ['@description Status of a pet'] },
+      nodes: [createText('string')],
+    })
     expect(printType(node)).toBe('/**\n * @description Status of a pet\n */\nexport type PetStatus = string')
   })
 
@@ -89,7 +121,12 @@ describe('printFunction', () => {
   })
 
   it('generates an async function with Promise return type', () => {
-    const node = createFunction({ name: 'fetchPet', export: true, async: true, returnType: 'Pet' })
+    const node = createFunction({
+      name: 'fetchPet',
+      export: true,
+      async: true,
+      returnType: 'Pet',
+    })
     expect(printFunction(node)).toBe('export async function fetchPet(): Promise<Pet> {}')
   })
 
@@ -104,27 +141,47 @@ describe('printFunction', () => {
   })
 
   it('generates a function with generics as array', () => {
-    const node = createFunction({ name: 'identity', generics: ['T'], params: 'value: T', returnType: 'T' })
+    const node = createFunction({
+      name: 'identity',
+      generics: ['T'],
+      params: 'value: T',
+      returnType: 'T',
+    })
     expect(printFunction(node)).toBe('function identity<T>(value: T): T {}')
   })
 
   it('generates a function with generics as string', () => {
-    const node = createFunction({ name: 'identity', generics: 'T extends string', params: 'value: T', returnType: 'T' })
+    const node = createFunction({
+      name: 'identity',
+      generics: 'T extends string',
+      params: 'value: T',
+      returnType: 'T',
+    })
     expect(printFunction(node)).toBe('function identity<T extends string>(value: T): T {}')
   })
 
   it('generates a default export function', () => {
-    const node = createFunction({ name: 'handler', default: true, export: true })
+    const node = createFunction({
+      name: 'handler',
+      default: true,
+      export: true,
+    })
     expect(printFunction(node)).toBe('export default function handler() {}')
   })
 
   it('generates a function with body', () => {
-    const node = createFunction({ name: 'getPet', nodes: [createText('return fetch("/pets")')] })
+    const node = createFunction({
+      name: 'getPet',
+      nodes: [createText('return fetch("/pets")')],
+    })
     expect(printFunction(node)).toBe('function getPet() {\n  return fetch("/pets")\n}')
   })
 
   it('includes JSDoc when provided', () => {
-    const node = createFunction({ name: 'getPet', JSDoc: { comments: ['@description Fetch a pet'] } })
+    const node = createFunction({
+      name: 'getPet',
+      JSDoc: { comments: ['@description Fetch a pet'] },
+    })
     expect(printFunction(node)).toBe('/**\n * @description Fetch a pet\n */\nfunction getPet() {}')
   })
 })
@@ -141,32 +198,61 @@ describe('printArrowFunction', () => {
   })
 
   it('generates an async arrow function with Promise return type', () => {
-    const node = createArrowFunction({ name: 'fetchPet', export: true, async: true, returnType: 'Pet' })
+    const node = createArrowFunction({
+      name: 'fetchPet',
+      export: true,
+      async: true,
+      returnType: 'Pet',
+    })
     expect(printArrowFunction(node)).toBe('export const fetchPet = async (): Promise<Pet> => {}')
   })
 
   it('generates a single-line arrow function', () => {
-    const node = createArrowFunction({ name: 'double', params: 'n: number', singleLine: true, nodes: [createText('n * 2')] })
+    const node = createArrowFunction({
+      name: 'double',
+      params: 'n: number',
+      singleLine: true,
+      nodes: [createText('n * 2')],
+    })
     expect(printArrowFunction(node)).toBe('const double = (n: number) => n * 2')
   })
 
   it('generates an arrow function with body', () => {
-    const node = createArrowFunction({ name: 'getPet', nodes: [createText('return fetch("/pets")')] })
+    const node = createArrowFunction({
+      name: 'getPet',
+      nodes: [createText('return fetch("/pets")')],
+    })
     expect(printArrowFunction(node)).toBe('const getPet = () => {\n  return fetch("/pets")\n}')
   })
 
   it('generates an arrow function with generics', () => {
-    const node = createArrowFunction({ name: 'identity', generics: ['T'], params: 'value: T', returnType: 'T', singleLine: true, nodes: [createText('value')] })
+    const node = createArrowFunction({
+      name: 'identity',
+      generics: ['T'],
+      params: 'value: T',
+      returnType: 'T',
+      singleLine: true,
+      nodes: [createText('value')],
+    })
     expect(printArrowFunction(node)).toBe('const identity = <T>(value: T): T => value')
   })
 
   it('generates an async arrow function with generics', () => {
-    const node = createArrowFunction({ name: 'fetchPet', async: true, generics: ['T'], params: 'id: string', returnType: 'T' })
+    const node = createArrowFunction({
+      name: 'fetchPet',
+      async: true,
+      generics: ['T'],
+      params: 'id: string',
+      returnType: 'T',
+    })
     expect(printArrowFunction(node)).toBe('const fetchPet = async <T>(id: string): Promise<T> => {}')
   })
 
   it('includes JSDoc when provided', () => {
-    const node = createArrowFunction({ name: 'getPet', JSDoc: { comments: ['@description Fetch a pet'] } })
+    const node = createArrowFunction({
+      name: 'getPet',
+      JSDoc: { comments: ['@description Fetch a pet'] },
+    })
     expect(printArrowFunction(node)).toBe('/**\n * @description Fetch a pet\n */\nconst getPet = () => {}')
   })
 })
@@ -178,7 +264,10 @@ describe('printCodeNode', () => {
   })
 
   it('dispatches Type nodes', () => {
-    const node = createType({ name: 'Pet', nodes: [createText('{ id: number }')] })
+    const node = createType({
+      name: 'Pet',
+      nodes: [createText('{ id: number }')],
+    })
     expect(printCodeNode(node)).toBe('type Pet = { id: number }')
   })
 
@@ -200,7 +289,9 @@ describe('printSource', () => {
   })
 
   it('converts nodes when source has structured nodes', () => {
-    const node = createSource({ nodes: [createConst({ name: 'x', nodes: [createText('1')] })] })
+    const node = createSource({
+      nodes: [createConst({ name: 'x', nodes: [createText('1')] })],
+    })
     expect(printSource(node)).toBe('const x = 1')
   })
 
@@ -235,7 +326,13 @@ describe('parserTs', () => {
       path: '/test.ts',
       sources: [
         createSource({
-          nodes: [createConst({ name: 'schema', export: true, nodes: [createText('z.string()')] })],
+          nodes: [
+            createConst({
+              name: 'schema',
+              export: true,
+              nodes: [createText('z.string()')],
+            }),
+          ],
         }),
       ],
       imports: [],
@@ -253,8 +350,16 @@ describe('parserTs', () => {
       sources: [
         createSource({
           nodes: [
-            createType({ name: 'Pet', export: true, nodes: [createText('{ id: number }')] }),
-            createConst({ name: 'pet', export: true, nodes: [createText('{}')] }),
+            createType({
+              name: 'Pet',
+              export: true,
+              nodes: [createText('{ id: number }')],
+            }),
+            createConst({
+              name: 'pet',
+              export: true,
+              nodes: [createText('{}')],
+            }),
           ],
         }),
       ],

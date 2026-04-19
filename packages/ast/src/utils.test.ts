@@ -87,7 +87,12 @@ describe('isStringType', () => {
 describe('syncSchemaRef', () => {
   it('returns a merged schema for a ref node that has a resolved schema', () => {
     const resolved = createSchema({ type: 'object' })
-    const ref = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet', schema: resolved })
+    const ref = createSchema({
+      type: 'ref',
+      name: 'Pet',
+      ref: '#/components/schemas/Pet',
+      schema: resolved,
+    })
 
     const merged = syncSchemaRef(ref)
     expect(merged).not.toBeNull()
@@ -96,7 +101,14 @@ describe('syncSchemaRef', () => {
 
   it('returns a merged schema with sibling overrides applied over the resolved schema', () => {
     const resolved = createSchema({ type: 'object', description: 'Original' })
-    const ref = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet', schema: resolved, description: 'Override', readOnly: true })
+    const ref = createSchema({
+      type: 'ref',
+      name: 'Pet',
+      ref: '#/components/schemas/Pet',
+      schema: resolved,
+      description: 'Override',
+      readOnly: true,
+    })
 
     const merged = syncSchemaRef(ref)
     expect(merged?.description).toBe('Override')
@@ -185,7 +197,9 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        resolver: makeResolver({ resolveParamName: (_node, param) => `GetPetById["${param.name}"]` }),
+        resolver: makeResolver({
+          resolveParamName: (_node, param) => `GetPetById["${param.name}"]`,
+        }),
       })
 
       expect(params).toMatchInlineSnapshot(`
@@ -226,11 +240,17 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        resolver: makeResolver({ resolveParamName: (_node, param) => `Types["${param.name}"]`, resolveDataName: () => 'CreatePetRequest' }),
+        resolver: makeResolver({
+          resolveParamName: (_node, param) => `Types["${param.name}"]`,
+          resolveDataName: () => 'CreatePetRequest',
+        }),
         extraParams: [
           createFunctionParameter({
             name: 'options',
-            type: createParamsType({ variant: 'reference', name: 'Partial<Cypress.RequestOptions>' }),
+            type: createParamsType({
+              variant: 'reference',
+              name: 'Partial<Cypress.RequestOptions>',
+            }),
             default: '{}',
           }),
         ],
@@ -420,8 +440,17 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'object',
         pathParamsType: 'inline',
-        resolver: makeResolver({ resolveParamName: (_node, param) => `Types["${param.name}"]`, resolveDataName: () => 'UpdatePetBody' }),
-        extraParams: [createFunctionParameter({ name: 'options', type: createParamsType({ variant: 'reference', name: 'Options' }), default: '{}' })],
+        resolver: makeResolver({
+          resolveParamName: (_node, param) => `Types["${param.name}"]`,
+          resolveDataName: () => 'UpdatePetBody',
+        }),
+        extraParams: [
+          createFunctionParameter({
+            name: 'options',
+            type: createParamsType({ variant: 'reference', name: 'Options' }),
+            default: '{}',
+          }),
+        ],
       })
 
       expect(params).toMatchInlineSnapshot(`
@@ -581,7 +610,13 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        extraParams: [createFunctionParameter({ name: 'options', type: createParamsType({ variant: 'reference', name: 'Options' }), default: '{}' })],
+        extraParams: [
+          createFunctionParameter({
+            name: 'options',
+            type: createParamsType({ variant: 'reference', name: 'Options' }),
+            default: '{}',
+          }),
+        ],
       })
 
       expect(params).toMatchInlineSnapshot(`
@@ -618,7 +653,11 @@ describe('createOperationParams', () => {
 
       const pathGroup = params.params[0]
       if (pathGroup && pathGroup.kind === 'ParameterGroup') {
-        expect(pathGroup.properties[0]?.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'string' })
+        expect(pathGroup.properties[0]?.type).toEqual({
+          kind: 'ParamsType',
+          variant: 'reference',
+          name: 'string',
+        })
       }
     })
   })
@@ -635,7 +674,10 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        resolver: makeResolver({ resolveParamName: () => 'unknown', resolveDataName: () => 'CreatePetRequest' }),
+        resolver: makeResolver({
+          resolveParamName: () => 'unknown',
+          resolveDataName: () => 'CreatePetRequest',
+        }),
       })
 
       expect(params).toMatchInlineSnapshot(`
@@ -668,7 +710,10 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        resolver: makeResolver({ resolveParamName: () => 'unknown', resolveDataName: () => 'UpdatePetRequest' }),
+        resolver: makeResolver({
+          resolveParamName: () => 'unknown',
+          resolveDataName: () => 'UpdatePetRequest',
+        }),
       })
 
       expect(params).toMatchInlineSnapshot(`
@@ -761,7 +806,9 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        resolver: makeResolver({ resolveParamName: (_node, param) => `Types["${param.name}"]` }),
+        resolver: makeResolver({
+          resolveParamName: (_node, param) => `Types["${param.name}"]`,
+        }),
       })
 
       const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
@@ -1242,7 +1289,11 @@ describe('createOperationParams', () => {
         expect(pathGroup.properties[0]?.name).toBe('petId')
       }
       const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
-      expect(queryParam?.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'ListPetsQueryParams' })
+      expect(queryParam?.type).toEqual({
+        kind: 'ParamsType',
+        variant: 'reference',
+        name: 'ListPetsQueryParams',
+      })
     })
   })
 })
@@ -1262,7 +1313,11 @@ describe('typeWrapper option', () => {
 
     const group = params.params[0]
     if (group?.kind === 'ParameterGroup') {
-      expect(group.properties[0]?.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'MaybeRefOrGetter<string>' })
+      expect(group.properties[0]?.type).toEqual({
+        kind: 'ParamsType',
+        variant: 'reference',
+        name: 'MaybeRefOrGetter<string>',
+      })
     }
   })
 
@@ -1279,7 +1334,11 @@ describe('typeWrapper option', () => {
     })
 
     const bodyParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'data')
-    expect(bodyParam?.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'MaybeRefOrGetter<CreatePetRequest>' })
+    expect(bodyParam?.type).toEqual({
+      kind: 'ParamsType',
+      variant: 'reference',
+      name: 'MaybeRefOrGetter<CreatePetRequest>',
+    })
   })
 
   it('wraps query group type with the provided function', () => {
@@ -1290,12 +1349,18 @@ describe('typeWrapper option', () => {
     const params = createOperationParams(node, {
       paramsType: 'inline',
       pathParamsType: 'inline',
-      resolver: makeResolver({ resolveQueryParamsName: () => 'ListPetsQueryParams' }),
+      resolver: makeResolver({
+        resolveQueryParamsName: () => 'ListPetsQueryParams',
+      }),
       typeWrapper: (t) => `MaybeRefOrGetter<${t}>`,
     })
 
     const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
-    expect(queryParam?.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'MaybeRefOrGetter<ListPetsQueryParams>' })
+    expect(queryParam?.type).toEqual({
+      kind: 'ParamsType',
+      variant: 'reference',
+      name: 'MaybeRefOrGetter<ListPetsQueryParams>',
+    })
   })
 
   it('identity when typeWrapper is not provided', () => {
@@ -1311,7 +1376,11 @@ describe('typeWrapper option', () => {
 
     const group = params.params[0]
     if (group?.kind === 'ParameterGroup') {
-      expect(group.properties[0]?.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'string' })
+      expect(group.properties[0]?.type).toEqual({
+        kind: 'ParamsType',
+        variant: 'reference',
+        name: 'string',
+      })
     }
   })
 })
@@ -1325,7 +1394,9 @@ describe('pathParamsType: inlineSpread', () => {
     const params = createOperationParams(node, {
       paramsType: 'inline',
       pathParamsType: 'inlineSpread',
-      resolver: makeResolver({ resolvePathParamsName: () => 'GetPetByIdPathParams' }),
+      resolver: makeResolver({
+        resolvePathParamsName: () => 'GetPetByIdPathParams',
+      }),
     })
 
     expect(params.params).toHaveLength(1)
@@ -1334,7 +1405,11 @@ describe('pathParamsType: inlineSpread', () => {
     if (restParam?.kind === 'FunctionParameter') {
       expect(restParam.rest).toBe(true)
       expect(restParam.name).toBe('pathParams')
-      expect(restParam.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'GetPetByIdPathParams' })
+      expect(restParam.type).toEqual({
+        kind: 'ParamsType',
+        variant: 'reference',
+        name: 'GetPetByIdPathParams',
+      })
     }
   })
 
@@ -1347,7 +1422,9 @@ describe('pathParamsType: inlineSpread', () => {
       paramsType: 'inline',
       pathParamsType: 'inlineSpread',
       paramNames: { path: 'args' },
-      resolver: makeResolver({ resolvePathParamsName: () => 'GetPetByIdPathParams' }),
+      resolver: makeResolver({
+        resolvePathParamsName: () => 'GetPetByIdPathParams',
+      }),
     })
 
     const restParam = params.params[0]
@@ -1364,13 +1441,19 @@ describe('pathParamsType: inlineSpread', () => {
     const params = createOperationParams(node, {
       paramsType: 'inline',
       pathParamsType: 'inlineSpread',
-      resolver: makeResolver({ resolvePathParamsName: () => 'GetPetByIdPathParams' }),
+      resolver: makeResolver({
+        resolvePathParamsName: () => 'GetPetByIdPathParams',
+      }),
       typeWrapper: (t) => `MaybeRefOrGetter<${t}>`,
     })
 
     const restParam = params.params[0]
     if (restParam?.kind === 'FunctionParameter') {
-      expect(restParam.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'MaybeRefOrGetter<GetPetByIdPathParams>' })
+      expect(restParam.type).toEqual({
+        kind: 'ParamsType',
+        variant: 'reference',
+        name: 'MaybeRefOrGetter<GetPetByIdPathParams>',
+      })
     }
   })
 
@@ -1395,15 +1478,24 @@ import { combineExports, combineImports, combineSources } from './utils.ts'
 
 describe('combineSources', () => {
   it('deduplicates sources with the same name', () => {
-    const src = createSource({ name: 'Pet', nodes: [createText('export type Pet = {}')] })
+    const src = createSource({
+      name: 'Pet',
+      nodes: [createText('export type Pet = {}')],
+    })
     const result = combineSources([src, src])
 
     expect(result).toHaveLength(1)
   })
 
   it('keeps sources with different names', () => {
-    const a = createSource({ name: 'Pet', nodes: [createText('export type Pet = {}')] })
-    const b = createSource({ name: 'Order', nodes: [createText('export type Order = {}')] })
+    const a = createSource({
+      name: 'Pet',
+      nodes: [createText('export type Pet = {}')],
+    })
+    const b = createSource({
+      name: 'Order',
+      nodes: [createText('export type Order = {}')],
+    })
     const result = combineSources([a, b])
 
     expect(result).toHaveLength(2)
@@ -1417,16 +1509,32 @@ describe('combineSources', () => {
   })
 
   it('treats sources with the same name but different isExportable as distinct', () => {
-    const a = createSource({ name: 'Pet', nodes: [createText('export type Pet = {}')], isExportable: true })
-    const b = createSource({ name: 'Pet', nodes: [createText('export type Pet = {}')], isExportable: false })
+    const a = createSource({
+      name: 'Pet',
+      nodes: [createText('export type Pet = {}')],
+      isExportable: true,
+    })
+    const b = createSource({
+      name: 'Pet',
+      nodes: [createText('export type Pet = {}')],
+      isExportable: false,
+    })
     const result = combineSources([a, b])
 
     expect(result).toHaveLength(2)
   })
 
   it('treats sources with the same name but different isTypeOnly as distinct', () => {
-    const a = createSource({ name: 'Pet', nodes: [createText('export type Pet = {}')], isTypeOnly: true })
-    const b = createSource({ name: 'Pet', nodes: [createText('export type Pet = {}')], isTypeOnly: false })
+    const a = createSource({
+      name: 'Pet',
+      nodes: [createText('export type Pet = {}')],
+      isTypeOnly: true,
+    })
+    const b = createSource({
+      name: 'Pet',
+      nodes: [createText('export type Pet = {}')],
+      isTypeOnly: false,
+    })
     const result = combineSources([a, b])
 
     expect(result).toHaveLength(2)
@@ -1466,8 +1574,16 @@ describe('combineExports', () => {
   })
 
   it('keeps type-only and value exports from the same path separate', () => {
-    const value = createExport({ name: ['Pet'], path: './Pet', isTypeOnly: false })
-    const typeOnly = createExport({ name: ['Pet'], path: './Pet', isTypeOnly: true })
+    const value = createExport({
+      name: ['Pet'],
+      path: './Pet',
+      isTypeOnly: false,
+    })
+    const typeOnly = createExport({
+      name: ['Pet'],
+      path: './Pet',
+      isTypeOnly: true,
+    })
     const result = combineExports([value, typeOnly])
 
     expect(result).toHaveLength(2)
@@ -1579,8 +1695,16 @@ describe('combineImports', () => {
   })
 
   it('keeps value and type-only imports from the same path separate', () => {
-    const value = createImport({ name: ['Pet'], path: './models', isTypeOnly: false })
-    const typeOnly = createImport({ name: ['Pet'], path: './models', isTypeOnly: true })
+    const value = createImport({
+      name: ['Pet'],
+      path: './models',
+      isTypeOnly: false,
+    })
+    const typeOnly = createImport({
+      name: ['Pet'],
+      path: './models',
+      isTypeOnly: true,
+    })
     const result = combineImports([value, typeOnly], [], 'Pet')
 
     expect(result).toHaveLength(2)
@@ -1606,7 +1730,11 @@ describe('combineImports', () => {
   })
 
   it('skips an import when path equals root', () => {
-    const imp = createImport({ name: ['self'], path: 'src/pet.ts', root: 'src/pet.ts' })
+    const imp = createImport({
+      name: ['self'],
+      path: 'src/pet.ts',
+      root: 'src/pet.ts',
+    })
     const result = combineImports([imp], [], 'self')
 
     expect(result).toHaveLength(0)

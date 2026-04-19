@@ -19,21 +19,35 @@ Kubb v5 requires **Node.js 22** or later.
 `defineConfig` is unchanged. The legacy plugin and adapter factory functions now use the `create*` prefix.
 
 ::: code-group
+
 ```typescript [Before]
 import { definePlugin, defineAdapter, defineStorage } from '@kubb/core'
 
-export const myPlugin = definePlugin((options) => ({ /* ... */ }))
-export const myAdapter = defineAdapter((options) => ({ /* ... */ }))
-export const myStorage = defineStorage((options) => ({ /* ... */ }))
+export const myPlugin = definePlugin((options) => ({
+  /* ... */
+}))
+export const myAdapter = defineAdapter((options) => ({
+  /* ... */
+}))
+export const myStorage = defineStorage((options) => ({
+  /* ... */
+}))
 ```
 
 ```typescript [After]
 import { createPlugin, createAdapter, createStorage } from '@kubb/core'
 
-export const myPlugin = createPlugin((options) => ({ /* ... */ }))
-export const myAdapter = createAdapter((options) => ({ /* ... */ }))
-export const myStorage = createStorage((options) => ({ /* ... */ }))
+export const myPlugin = createPlugin((options) => ({
+  /* ... */
+}))
+export const myAdapter = createAdapter((options) => ({
+  /* ... */
+}))
+export const myStorage = createStorage((options) => ({
+  /* ... */
+}))
 ```
+
 :::
 
 > [!NOTE]
@@ -54,7 +68,9 @@ export const myPlugin = definePlugin<MyPluginOptions>((options) => ({
   options,
   hooks: {
     'kubb:plugin:setup'(ctx) {
-      ctx.setOptions({ /* resolved options passed to generators */ })
+      ctx.setOptions({
+        /* resolved options passed to generators */
+      })
       ctx.setResolver(myResolver)
       ctx.addGenerator(myGenerator)
     },
@@ -76,15 +92,15 @@ export default defineConfig({
 
 The `kubb:plugin:setup` hook receives a `KubbPluginSetupContext` object with methods to configure the plugin before code generation begins.
 
-| Method | Description |
-|---|---|
+| Method                    | Description                                                                                                                     |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | `addGenerator(generator)` | Register a generator that responds to `kubb:generate:schema`, `kubb:generate:operation`, and `kubb:generate:operations` events. |
-| `setResolver(resolver)` | Set or partially override the resolver that controls file naming and path resolution. |
-| `setTransformer(visitor)` | Set the AST transformer (visitor) applied to nodes before generators run. |
-| `setRenderer(renderer)` | Set the renderer factory for processing JSX elements returned by generators. |
-| `setOptions(options)` | Merge resolved options into the plugin. Generators receive these via `ctx.options`. |
-| `injectFile(file)` | Inject a raw file into the build output, bypassing the normal generation pipeline. |
-| `updateConfig(config)` | Merge a partial config update into the current build configuration. |
+| `setResolver(resolver)`   | Set or partially override the resolver that controls file naming and path resolution.                                           |
+| `setTransformer(visitor)` | Set the AST transformer (visitor) applied to nodes before generators run.                                                       |
+| `setRenderer(renderer)`   | Set the renderer factory for processing JSX elements returned by generators.                                                    |
+| `setOptions(options)`     | Merge resolved options into the plugin. Generators receive these via `ctx.options`.                                             |
+| `injectFile(file)`        | Inject a raw file into the build output, bypassing the normal generation pipeline.                                              |
+| `updateConfig(config)`    | Merge a partial config update into the current build configuration.                                                             |
 
 Hook-style plugins can also subscribe to any other `KubbHooks` event in their `hooks:` object:
 
@@ -127,40 +143,40 @@ await kubb.build()
 
 #### Available events
 
-| Event | Parameters | Description |
-|---|---|---|
-| `kubb:lifecycle:start` | `version: string` | Emitted before any code generation starts. |
-| `kubb:lifecycle:end` | — | Emitted after all code generation is complete. |
-| `kubb:config:start` | — | Emitted when configuration loading starts. |
-| `kubb:config:end` | `configs: Array<Config>` | Emitted when configuration loading is complete. |
-| `kubb:generation:start` | `config: Config` | Emitted when the code generation phase starts. |
-| `kubb:generation:end` | `config, files, sources` | Emitted when the code generation phase completes. |
-| `kubb:generation:summary` | `config, summary` | Emitted with a summary of the generation results (file count, plugin timings, status). |
-| `kubb:format:start` | — | Emitted when code formatting starts. |
-| `kubb:format:end` | — | Emitted when code formatting completes. |
-| `kubb:lint:start` | — | Emitted when linting starts. |
-| `kubb:lint:end` | — | Emitted when linting completes. |
-| `kubb:hooks:start` | — | Emitted when plugin hooks execution starts. |
-| `kubb:hooks:end` | — | Emitted when plugin hooks execution completes. |
-| `kubb:hook:start` | `{ id?, command, args? }` | Emitted when a single post-generation hook (format or lint command) starts. |
-| `kubb:hook:end` | `{ id?, command, args?, success, error }` | Emitted when a single hook completes. |
-| `kubb:version:new` | `currentVersion, latestVersion` | Emitted when a new version of Kubb is available. |
-| `kubb:info` | `message, info?` | Informational message. |
-| `kubb:error` | `error, meta?` | Emitted when an error occurs during code generation. |
-| `kubb:success` | `message, info?` | Success message. |
-| `kubb:warn` | `message, info?` | Warning message. |
-| `kubb:debug` | `info: DebugInfo` | Debug log with timestamp and messages. |
-| `kubb:files:processing:start` | `files: Array<FileNode>` | Emitted when file processing starts. |
-| `kubb:file:processing:update` | `{ processed, total, percentage, file, config, source? }` | Emitted for each file being processed with progress details. |
-| `kubb:files:processing:end` | `files: Array<FileNode>` | Emitted when file processing completes. |
-| `kubb:plugin:start` | `plugin: Plugin` | Emitted when a plugin starts executing. |
-| `kubb:plugin:end` | `plugin: Plugin, { duration, success, error? }` | Emitted when a plugin completes execution. |
-| `kubb:plugin:setup` | `ctx: KubbPluginSetupContext` | Fired before any plugin's `buildStart` runs. Hook-style plugins use this to register generators and configure resolvers. |
-| `kubb:build:start` | `ctx: KubbBuildStartContext` | Fired immediately before the plugin execution loop begins. |
-| `kubb:build:end` | `ctx: KubbBuildEndContext` | Fired after all files have been written to disk. |
-| `kubb:generate:schema` | `node: SchemaNode, ctx: GeneratorContext` | Emitted for each schema node during the AST walk. |
-| `kubb:generate:operation` | `node: OperationNode, ctx: GeneratorContext` | Emitted for each operation node during the AST walk. |
-| `kubb:generate:operations` | `nodes: Array<OperationNode>, ctx: GeneratorContext` | Emitted once after all operations have been walked. |
+| Event                         | Parameters                                                | Description                                                                                                              |
+| ----------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `kubb:lifecycle:start`        | `version: string`                                         | Emitted before any code generation starts.                                                                               |
+| `kubb:lifecycle:end`          | —                                                         | Emitted after all code generation is complete.                                                                           |
+| `kubb:config:start`           | —                                                         | Emitted when configuration loading starts.                                                                               |
+| `kubb:config:end`             | `configs: Array<Config>`                                  | Emitted when configuration loading is complete.                                                                          |
+| `kubb:generation:start`       | `config: Config`                                          | Emitted when the code generation phase starts.                                                                           |
+| `kubb:generation:end`         | `config, files, sources`                                  | Emitted when the code generation phase completes.                                                                        |
+| `kubb:generation:summary`     | `config, summary`                                         | Emitted with a summary of the generation results (file count, plugin timings, status).                                   |
+| `kubb:format:start`           | —                                                         | Emitted when code formatting starts.                                                                                     |
+| `kubb:format:end`             | —                                                         | Emitted when code formatting completes.                                                                                  |
+| `kubb:lint:start`             | —                                                         | Emitted when linting starts.                                                                                             |
+| `kubb:lint:end`               | —                                                         | Emitted when linting completes.                                                                                          |
+| `kubb:hooks:start`            | —                                                         | Emitted when plugin hooks execution starts.                                                                              |
+| `kubb:hooks:end`              | —                                                         | Emitted when plugin hooks execution completes.                                                                           |
+| `kubb:hook:start`             | `{ id?, command, args? }`                                 | Emitted when a single post-generation hook (format or lint command) starts.                                              |
+| `kubb:hook:end`               | `{ id?, command, args?, success, error }`                 | Emitted when a single hook completes.                                                                                    |
+| `kubb:version:new`            | `currentVersion, latestVersion`                           | Emitted when a new version of Kubb is available.                                                                         |
+| `kubb:info`                   | `message, info?`                                          | Informational message.                                                                                                   |
+| `kubb:error`                  | `error, meta?`                                            | Emitted when an error occurs during code generation.                                                                     |
+| `kubb:success`                | `message, info?`                                          | Success message.                                                                                                         |
+| `kubb:warn`                   | `message, info?`                                          | Warning message.                                                                                                         |
+| `kubb:debug`                  | `info: DebugInfo`                                         | Debug log with timestamp and messages.                                                                                   |
+| `kubb:files:processing:start` | `files: Array<FileNode>`                                  | Emitted when file processing starts.                                                                                     |
+| `kubb:file:processing:update` | `{ processed, total, percentage, file, config, source? }` | Emitted for each file being processed with progress details.                                                             |
+| `kubb:files:processing:end`   | `files: Array<FileNode>`                                  | Emitted when file processing completes.                                                                                  |
+| `kubb:plugin:start`           | `plugin: Plugin`                                          | Emitted when a plugin starts executing.                                                                                  |
+| `kubb:plugin:end`             | `plugin: Plugin, { duration, success, error? }`           | Emitted when a plugin completes execution.                                                                               |
+| `kubb:plugin:setup`           | `ctx: KubbPluginSetupContext`                             | Fired before any plugin's `buildStart` runs. Hook-style plugins use this to register generators and configure resolvers. |
+| `kubb:build:start`            | `ctx: KubbBuildStartContext`                              | Fired immediately before the plugin execution loop begins.                                                               |
+| `kubb:build:end`              | `ctx: KubbBuildEndContext`                                | Fired after all files have been written to disk.                                                                         |
+| `kubb:generate:schema`        | `node: SchemaNode, ctx: GeneratorContext`                 | Emitted for each schema node during the AST walk.                                                                        |
+| `kubb:generate:operation`     | `node: OperationNode, ctx: GeneratorContext`              | Emitted for each operation node during the AST walk.                                                                     |
+| `kubb:generate:operations`    | `nodes: Array<OperationNode>, ctx: GeneratorContext`      | Emitted once after all operations have been walked.                                                                      |
 
 ### Each plugin can only be used once
 
@@ -183,6 +199,7 @@ export default defineConfig({
 Affects custom plugin and generator authors.
 
 ::: code-group
+
 ```typescript [Before]
 import { PluginManager } from '@kubb/core'
 import { usePluginManager } from '@kubb/core/hooks'
@@ -198,6 +215,7 @@ import { usePluginDriver } from '@kubb/core/hooks'
 // In a generator or plugin context:
 meta.driver
 ```
+
 :::
 
 ### Object and JSON plugin formats removed
@@ -205,6 +223,7 @@ meta.driver
 Only the array-of-plugin-instances format is supported.
 
 ::: code-group
+
 ```typescript [Before (object style)]
 export default defineConfig({
   plugins: { '@kubb/plugin-ts': {} },
@@ -224,6 +243,7 @@ export default defineConfig({
   plugins: [pluginTs({})],
 })
 ```
+
 :::
 
 ### `mapper` replaced by `transformers` in `@kubb/plugin-ts`
@@ -231,6 +251,7 @@ export default defineConfig({
 The `mapper` option (`Record<string, ts.PropertySignature>`) has been removed. Use the new `transformers` array to modify AST nodes before they are printed to TypeScript. Transformers are more powerful — they can modify, replace, or remove any schema or property node, not just override individual property signatures.
 
 ::: code-group
+
 ```typescript [Before (v4) — mapper]
 import { defineConfig } from '@kubb/core'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -280,6 +301,7 @@ export default defineConfig({
   ],
 })
 ```
+
 :::
 
 Transformers operate on `@kubb/ast` nodes (`SchemaNode`, `PropertyNode`, `OperationNode`, etc.) instead of raw TypeScript AST nodes. This removes the `typescript` peer dependency and makes transformations portable across output formats.
@@ -293,7 +315,10 @@ pluginTs({
       // Remove a property entirely (return undefined to skip it)
       property(node) {
         if (node.name === 'internalId') {
-          return { ...node, schema: { ...node.schema, kind: 'Schema', type: 'never' } }
+          return {
+            ...node,
+            schema: { ...node.schema, kind: 'Schema', type: 'never' },
+          }
         }
       },
     },
@@ -323,14 +348,14 @@ Every transformer callback receives a second argument — a `context` object wit
 
 The `parent` type is automatically narrowed based on the visitor callback:
 
-| Callback      | `context.parent` type                                                              |
-| ------------- | ---------------------------------------------------------------------------------- |
-| `root()`      | `undefined` (root has no parent)                                                   |
-| `operation()` | `RootNode`                                                                         |
+| Callback      | `context.parent` type                                                                      |
+| ------------- | ------------------------------------------------------------------------------------------ |
+| `root()`      | `undefined` (root has no parent)                                                           |
+| `operation()` | `RootNode`                                                                                 |
 | `schema()`    | `RootNode \| OperationNode \| SchemaNode \| PropertyNode \| ParameterNode \| ResponseNode` |
-| `property()`  | `SchemaNode`                                                                       |
-| `parameter()` | `OperationNode`                                                                    |
-| `response()`  | `OperationNode`                                                                    |
+| `property()`  | `SchemaNode`                                                                               |
+| `parameter()` | `OperationNode`                                                                            |
+| `response()`  | `OperationNode`                                                                            |
 
 ```typescript
 pluginTs({
@@ -347,7 +372,10 @@ pluginTs({
       // Remove writeOnly properties, but only inside response schemas
       property(node, { parent }) {
         if (parent?.kind === 'Schema' && node.schema.writeOnly) {
-          return { ...node, schema: { ...node.schema, kind: 'Schema', type: 'never' } }
+          return {
+            ...node,
+            schema: { ...node.schema, kind: 'Schema', type: 'never' },
+          }
         }
       },
     },
@@ -370,6 +398,7 @@ Use `composeTransformers` from `@kubb/ast` to combine multiple visitors into one
 These options no longer exist on `pluginTs(...)` — pass them to `adapterOas(...)` instead.
 
 ::: code-group
+
 ```typescript [Before]
 import { defineConfig } from '@kubb/core'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -405,6 +434,7 @@ export default defineConfig({
   ],
 })
 ```
+
 :::
 
 ### `@kubb/oas` removed
@@ -414,6 +444,7 @@ The standalone `@kubb/oas` package is removed in v5. Use `@kubb/adapter-oas` for
 The `kubb validate` command now uses `@kubb/adapter-oas` directly, so you no longer need to install a separate package for validation.
 
 ::: code-group
+
 ```typescript [Before]
 import { HttpMethods, parse, validate, type SchemaObject } from '@kubb/oas'
 ```
@@ -421,6 +452,7 @@ import { HttpMethods, parse, validate, type SchemaObject } from '@kubb/oas'
 ```typescript [After]
 import { HttpMethods, parseDocument, validateDocument, type SchemaObject } from '@kubb/adapter-oas'
 ```
+
 :::
 
 ### Enum naming changed (`collisionDetection` removed)
@@ -429,8 +461,8 @@ In v5, `@kubb/adapter-oas` always uses collision-safe enum naming. The `collisio
 
 Nested enums now always include their parent path context:
 
-| v5 behavior | Example |
-|---|---|
+| v5 behavior                     | Example                 |
+| ------------------------------- | ----------------------- |
 | Collision-safe full-path naming | `OrderParamsStatusEnum` |
 
 The old v4-style short naming (e.g. `ParamsStatusEnum`) is not available in v5.
@@ -444,25 +476,24 @@ import { defineConfig } from '@kubb/core'
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
-  plugins: [
-    pluginTs({ compatibilityPreset: 'kubbV4' }),
-  ],
+  plugins: [pluginTs({ compatibilityPreset: 'kubbV4' })],
 })
 ```
 
-| Type | v5 default | `compatibilityPreset: 'kubbV4'` |
-|---|---|---|
-| Request body | `<OperationId>Data` | `<OperationId>MutationRequest` / `QueryRequest` |
-| Response union | `<OperationId>Response` | `<OperationId>MutationResponse` / `QueryResponse` |
-| All responses | `<OperationId>Responses` | `<OperationId>Mutation` / `Query` |
-| Response status | `<OperationId>Status201` | `<OperationId>201` |
-| Default/error | `<OperationId>StatusDefault` | `<OperationId>Error` |
+| Type            | v5 default                   | `compatibilityPreset: 'kubbV4'`                   |
+| --------------- | ---------------------------- | ------------------------------------------------- |
+| Request body    | `<OperationId>Data`          | `<OperationId>MutationRequest` / `QueryRequest`   |
+| Response union  | `<OperationId>Response`      | `<OperationId>MutationResponse` / `QueryResponse` |
+| All responses   | `<OperationId>Responses`     | `<OperationId>Mutation` / `Query`                 |
+| Response status | `<OperationId>Status201`     | `<OperationId>201`                                |
+| Default/error   | `<OperationId>StatusDefault` | `<OperationId>Error`                              |
 
 ### `transformers.name` removed from `@kubb/plugin-ts`
 
 The `transformers: { name }` callback has been removed. Use the `resolver` option instead.
 
 ::: code-group
+
 ```typescript [Before (v4)]
 import { defineConfig } from '@kubb/core'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -471,7 +502,7 @@ export default defineConfig({
   plugins: [
     pluginTs({
       transformers: {
-        name: (name, type) => type === 'type' ? `${name}Type` : name,
+        name: (name, type) => (type === 'type' ? `${name}Type` : name),
       },
     }),
   ],
@@ -495,6 +526,7 @@ export default defineConfig({
   ],
 })
 ```
+
 :::
 
 ### Resolver option for `@kubb/plugin-ts`
@@ -578,11 +610,14 @@ pluginTs({
 Plugin resolvers created with `defineResolver` must include a `name` property in the returned object. This identifies the resolver in the `resolvers` array.
 
 ::: code-group
+
 ```typescript [Before (v4)]
 import { defineResolver } from '@kubb/core'
 
 export const myResolver = defineResolver(() => ({
-  resolveName(name) { return name },
+  resolveName(name) {
+    return name
+  },
 }))
 ```
 
@@ -591,9 +626,12 @@ import { defineResolver } from '@kubb/core'
 
 export const myResolver = defineResolver(() => ({
   name: 'my-resolver',
-  resolveName(name) { return name },
+  resolveName(name) {
+    return name
+  },
 }))
 ```
+
 :::
 
 ### Path parameters with `$ref` schemas now resolve to their named type
@@ -601,6 +639,7 @@ export const myResolver = defineResolver(() => ({
 In v4, a path parameter whose `schema` was a `$ref` was incorrectly typed as `any`. In v5 the referenced type name is used instead.
 
 ::: code-group
+
 ```typescript [Before (v4 — typed as any)]
 // OpenAPI spec
 // parameters:
@@ -622,6 +661,7 @@ export type GetPetByIdPathParams = {
   petId: PetId
 }
 ```
+
 :::
 
 This is a correctness fix. If you were relying on the `any` type for path parameters that reference a `$ref` schema, update your code to use the referenced type.
@@ -631,6 +671,7 @@ This is a correctness fix. If you were relying on the `any` type for path parame
 Kubb v5 only supports **Zod v4** and **Zod v4 Mini**. If you are using Zod v3, upgrade to Zod v4 before migrating to Kubb v5.
 
 ::: code-group
+
 ```typescript [Before (v4 — Zod v3)]
 import { pluginZod } from '@kubb/plugin-zod'
 
@@ -647,9 +688,11 @@ pluginZod({
   importPath: 'zod',
 })
 ```
+
 :::
 
 Key changes:
+
 - The `version` option has been removed. Kubb v5 always generates Zod v4 code.
 - The `typed` option no longer generates `ToZod<T>` helper types. For typed schemas, use `z.ZodType<T>` directly (Zod v4's built-in type assertion).
 - The default `importPath` is `'zod'` (for Zod v4) or `'zod/mini'` (when `mini: true`).
@@ -660,12 +703,13 @@ Key changes:
 The `transformers: { name, schema }` callbacks have been replaced with a single AST `Visitor` `transformer` option, matching the `@kubb/plugin-ts` pattern.
 
 ::: code-group
+
 ```typescript [Before (v4)]
 import { pluginZod } from '@kubb/plugin-zod'
 
 pluginZod({
   transformers: {
-    name: (name, type) => type === 'function' ? `${name}Validator` : name,
+    name: (name, type) => (type === 'function' ? `${name}Validator` : name),
   },
 })
 ```
@@ -692,28 +736,30 @@ pluginZod({
   },
 })
 ```
+
 :::
 
 ### `@kubb/plugin-zod` — removed options
 
 The following options have been removed from `@kubb/plugin-zod`:
 
-| Removed option | Replacement |
-|---|---|
-| `version` | Always Zod v4 (removed) |
-| `contentType` | Moved to `adapterOas(...)` |
-| `mapper` | Use `resolver` for name overrides |
-| `transformers.name` | Use `resolver` for name customization |
+| Removed option        | Replacement                                        |
+| --------------------- | -------------------------------------------------- |
+| `version`             | Always Zod v4 (removed)                            |
+| `contentType`         | Moved to `adapterOas(...)`                         |
+| `mapper`              | Use `resolver` for name overrides                  |
+| `transformers.name`   | Use `resolver` for name customization              |
 | `transformers.schema` | Use `transformer: Visitor` for AST transformations |
-| `integerType` | Moved to `adapterOas({ integerType })` |
-| `emptySchemaType` | Moved to `adapterOas({ emptySchemaType })` |
-| `unknownType` | Moved to `adapterOas({ unknownType })` |
+| `integerType`         | Moved to `adapterOas({ integerType })`             |
+| `emptySchemaType`     | Moved to `adapterOas({ emptySchemaType })`         |
+| `unknownType`         | Moved to `adapterOas({ unknownType })`             |
 
 ### `@kubb/plugin-zod` — `wrapOutput` signature changed
 
 The `schema` argument in the `wrapOutput` callback is now a `SchemaNode` from `@kubb/ast/types` instead of the raw `SchemaObject` from the OpenAPI adapter layer.
 
 ::: code-group
+
 ```typescript [Before (v4)]
 import { pluginZod } from '@kubb/plugin-zod'
 import type { SchemaObject } from '@kubb/adapter-oas'
@@ -735,6 +781,7 @@ pluginZod({
   },
 })
 ```
+
 :::
 
 ### `@kubb/plugin-zod` — `coercion` accepts granular object
@@ -757,6 +804,7 @@ The default preset now uses `<operationId>Status<code>Schema` for per-status res
 To keep the Kubb v4 naming conventions, set `compatibilityPreset: 'kubbV4'`:
 
 ::: code-group
+
 ```typescript [Before (v4 names)]
 import { pluginZod } from '@kubb/plugin-zod'
 
@@ -781,18 +829,19 @@ pluginZod({
   // keeps: listPets200Schema, createPetsMutationRequestSchema
 })
 ```
+
 :::
 
 ### `@kubb/plugin-zod` — new options in v5
 
-| New option | Type | Default | Description |
-|---|---|---|---|
-| `paramsCasing` | `'camelcase'` | `undefined` | Apply camelCase to path/query/header param names |
-| `compatibilityPreset` | `'default' \| 'kubbV4'` | `'default'` | Naming convention preset |
-| `resolver` | `Partial<ResolverZod> & ThisType<ResolverZod>` | — | Override individual resolver methods (with `this.default` fallback) |
-| `transformer` | `Visitor` | — | Single AST visitor applied before printing |
-| `printer.nodes` | `PrinterZodNodes \| PrinterZodMiniNodes` | — | Override per-type code generation handlers |
-| `inferred` | `boolean` | `false` | Export `z.infer<typeof ...>` type aliases |
+| New option            | Type                                           | Default     | Description                                                         |
+| --------------------- | ---------------------------------------------- | ----------- | ------------------------------------------------------------------- |
+| `paramsCasing`        | `'camelcase'`                                  | `undefined` | Apply camelCase to path/query/header param names                    |
+| `compatibilityPreset` | `'default' \| 'kubbV4'`                        | `'default'` | Naming convention preset                                            |
+| `resolver`            | `Partial<ResolverZod> & ThisType<ResolverZod>` | —           | Override individual resolver methods (with `this.default` fallback) |
+| `transformer`         | `Visitor`                                      | —           | Single AST visitor applied before printing                          |
+| `printer.nodes`       | `PrinterZodNodes \| PrinterZodMiniNodes`       | —           | Override per-type code generation handlers                          |
+| `inferred`            | `boolean`                                      | `false`     | Export `z.infer<typeof ...>` type aliases                           |
 
 ### `@kubb/plugin-mcp` — v5 migration
 
@@ -803,6 +852,7 @@ The MCP plugin has been updated to use the v5 architecture. The following change
 In v5, `@kubb/plugin-mcp` no longer depends on `@kubb/plugin-oas`. Use `adapterOas()` in the `adapter` field instead. `pluginOas()` is still available for validation but is no longer a prerequisite.
 
 ::: code-group
+
 ```typescript [Before (v4)]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
@@ -846,6 +896,7 @@ export default defineConfig({
   ],
 })
 ```
+
 :::
 
 #### `contentType` moved to adapter
@@ -853,6 +904,7 @@ export default defineConfig({
 The `contentType` option has been removed from `@kubb/plugin-mcp`. Content type filtering is now handled by `adapterOas(...)`.
 
 ::: code-group
+
 ```typescript [Before (v4)]
 pluginMcp({
   contentType: 'application/json',
@@ -864,6 +916,7 @@ adapterOas({
   contentType: 'application/json',
 })
 ```
+
 :::
 
 #### `transformers.name` replaced by `resolver`
@@ -871,10 +924,11 @@ adapterOas({
 The `transformers: { name }` callback has been removed. Use the `resolver` option instead.
 
 ::: code-group
+
 ```typescript [Before (v4)]
 pluginMcp({
   transformers: {
-    name: (name, type) => type === 'function' ? `${name}Fn` : name,
+    name: (name, type) => (type === 'function' ? `${name}Fn` : name),
   },
 })
 ```
@@ -888,6 +942,7 @@ pluginMcp({
   },
 })
 ```
+
 :::
 
 #### `transformers` replaced by `transformer`
@@ -916,12 +971,12 @@ pluginMcp({
 
 ### `@kubb/plugin-mcp` — new options in v5
 
-| New option | Type | Default | Description |
-|---|---|---|---|
-| `compatibilityPreset` | `'default' \| 'kubbV4'` | `'default'` | Naming convention preset |
-| `resolver` | `Partial<ResolverMcp> & ThisType<ResolverMcp>` | — | Override individual resolver methods |
-| `transformer` | `Visitor` | — | Single AST visitor applied before printing |
-| `paramsCasing` | `'camelcase'` | `undefined` | Apply camelCase to parameter names |
+| New option            | Type                                           | Default     | Description                                |
+| --------------------- | ---------------------------------------------- | ----------- | ------------------------------------------ |
+| `compatibilityPreset` | `'default' \| 'kubbV4'`                        | `'default'` | Naming convention preset                   |
+| `resolver`            | `Partial<ResolverMcp> & ThisType<ResolverMcp>` | —           | Override individual resolver methods       |
+| `transformer`         | `Visitor`                                      | —           | Single AST visitor applied before printing |
+| `paramsCasing`        | `'camelcase'`                                  | `undefined` | Apply camelCase to parameter names         |
 
 ### `@kubb/plugin-client` — v5 migration
 
@@ -932,10 +987,11 @@ pluginMcp({
 The `transformers: { name }` callback has been removed. Use the `resolver` option instead.
 
 ::: code-group
+
 ```typescript [Before (v4)]
 pluginClient({
   transformers: {
-    name: (name, type) => type === 'function' ? `${name}Client` : name,
+    name: (name, type) => (type === 'function' ? `${name}Client` : name),
   },
 })
 ```
@@ -951,6 +1007,7 @@ pluginClient({
   },
 })
 ```
+
 :::
 
 #### New `compatibilityPreset` option
@@ -989,8 +1046,8 @@ The `{ type: 'contentType', pattern: '...' }` override form now correctly filter
 
 ### `@kubb/plugin-client` — new options in v5
 
-| New option | Type | Default | Description |
-|---|---|---|---|
-| `compatibilityPreset` | `'default' \| 'kubbV4'` | `'default'` | Naming convention preset |
-| `resolver` | `Partial<ResolverClient> & ThisType<ResolverClient>` | — | Override individual resolver methods |
-| `transformer` | `Visitor` | — | Single AST visitor applied before printing |
+| New option            | Type                                                 | Default     | Description                                |
+| --------------------- | ---------------------------------------------------- | ----------- | ------------------------------------------ |
+| `compatibilityPreset` | `'default' \| 'kubbV4'`                              | `'default'` | Naming convention preset                   |
+| `resolver`            | `Partial<ResolverClient> & ThisType<ResolverClient>` | —           | Override individual resolver methods       |
+| `transformer`         | `Visitor`                                            | —           | Single AST visitor applied before printing |

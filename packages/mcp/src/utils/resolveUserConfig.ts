@@ -13,7 +13,10 @@ export async function resolveUserConfig(config: Config, options: ResolveUserConf
   let kubbUserConfig = Promise.resolve(config) as Promise<Config>
 
   if (typeof config === 'function') {
-    const possiblePromise = (config as any)({ logLevel: options.logLevel, config: options.configPath } as CLIOptions)
+    const possiblePromise = (config as any)({
+      logLevel: options.logLevel,
+      config: options.configPath,
+    } as CLIOptions)
     if (isPromise(possiblePromise)) {
       kubbUserConfig = possiblePromise
     } else {

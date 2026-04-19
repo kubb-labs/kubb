@@ -14,10 +14,24 @@ export async function runValidate({ input, version }: ValidateOptions): Promise<
     const document = await parseDocument(input)
     await validateDocument(document, { throwOnError: true })
 
-    await sendTelemetry(buildTelemetryEvent({ command: 'validate', kubbVersion: version, hrStart, status: 'success' }))
+    await sendTelemetry(
+      buildTelemetryEvent({
+        command: 'validate',
+        kubbVersion: version,
+        hrStart,
+        status: 'success',
+      }),
+    )
     console.log('✅ Validation success')
   } catch (error) {
-    await sendTelemetry(buildTelemetryEvent({ command: 'validate', kubbVersion: version, hrStart, status: 'failed' }))
+    await sendTelemetry(
+      buildTelemetryEvent({
+        command: 'validate',
+        kubbVersion: version,
+        hrStart,
+        status: 'failed',
+      }),
+    )
     console.error('❌ Validation failed')
     console.error(getErrorMessage(error))
     process.exit(1)

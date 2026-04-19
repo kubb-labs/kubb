@@ -91,6 +91,9 @@
     "bunq",
     "Discriminable",
     "unprovide",
-    "jsxs"
+    "jsxs",
+    "oxfmtrc",
+    "oxlintrc",
+    "manypkg"
   ]
 }

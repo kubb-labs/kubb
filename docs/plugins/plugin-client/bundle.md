@@ -1,7 +1,7 @@
 Controls whether the HTTP client runtime is copied into the generated `.kubb` directory.
 
 |           |           |
-|----------:|:----------|
+| --------: | :-------- |
 |     Type: | `boolean` |
 | Required: | `false`   |
 |  Default: | `false`   |

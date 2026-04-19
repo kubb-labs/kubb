@@ -4,10 +4,17 @@ import { nodeAdapter } from './nodeAdapter.ts'
 
 vi.mock('node:util', async (importOriginal) => {
   const original = await importOriginal<typeof import('node:util')>()
-  return { ...original, parseArgs: vi.fn().mockImplementation(original.parseArgs) }
+  return {
+    ...original,
+    parseArgs: vi.fn().mockImplementation(original.parseArgs),
+  }
 })
 
-const opts: RunOptions = { programName: 'kubb', defaultCommandName: 'generate', version: '2.0.0' }
+const opts: RunOptions = {
+  programName: 'kubb',
+  defaultCommandName: 'generate',
+  version: '2.0.0',
+}
 
 function makeCmd(name: string, run?: (args: { values: Record<string, unknown>; positionals: string[] }) => Promise<void>): CommandDefinition {
   return {
@@ -95,7 +102,11 @@ describe('nodeAdapter', () => {
     it('passes flags as values to the command', async () => {
       const runFn = vi.fn().mockResolvedValue(undefined)
       await nodeAdapter.run([makeCmd('generate', runFn)], ['generate', '--config', 'my.config.ts'], opts)
-      expect(runFn).toHaveBeenCalledWith(expect.objectContaining({ values: expect.objectContaining({ config: 'my.config.ts' }) }))
+      expect(runFn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          values: expect.objectContaining({ config: 'my.config.ts' }),
+        }),
+      )
     })
 
     it('shows command help on --help flag', async () => {
@@ -143,8 +154,16 @@ describe('nodeAdapter', () => {
 
   describe('run error handling', () => {
     it.each([
-      { label: 'Error instance', thrown: new Error('generation failed'), contains: 'generation failed' },
-      { label: 'non-Error value', thrown: 'fatal string error', contains: 'fatal string error' },
+      {
+        label: 'Error instance',
+        thrown: new Error('generation failed'),
+        contains: 'generation failed',
+      },
+      {
+        label: 'non-Error value',
+        thrown: 'fatal string error',
+        contains: 'fatal string error',
+      },
     ])('prints message and exits 1 when command throws $label', async ({ thrown, contains }) => {
       const cmd: CommandDefinition = {
         name: 'generate',
@@ -168,7 +187,11 @@ describe('nodeAdapter', () => {
         run: runFn,
       }
       await nodeAdapter.run([cmd], ['generate', '--output', 'dist'], opts)
-      expect(runFn).toHaveBeenCalledWith(expect.objectContaining({ values: expect.objectContaining({ output: 'dist' }) }))
+      expect(runFn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          values: expect.objectContaining({ output: 'dist' }),
+        }),
+      )
     })
 
     it('forwards option default values to parseArgs', async () => {
@@ -176,11 +199,17 @@ describe('nodeAdapter', () => {
       const cmd: CommandDefinition = {
         name: 'generate',
         description: 'Generate',
-        options: { watch: { type: 'boolean', description: 'Watch', default: false } },
+        options: {
+          watch: { type: 'boolean', description: 'Watch', default: false },
+        },
         run: runFn,
       }
       await nodeAdapter.run([cmd], ['generate'], opts)
-      expect(runFn).toHaveBeenCalledWith(expect.objectContaining({ values: expect.objectContaining({ watch: false }) }))
+      expect(runFn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          values: expect.objectContaining({ watch: false }),
+        }),
+      )
     })
   })
 
@@ -189,7 +218,9 @@ describe('nodeAdapter', () => {
       const cmd: CommandDefinition = {
         name: 'generate',
         description: 'Generate code from OpenAPI',
-        options: { config: { type: 'string', short: 'c', description: 'Config path' } },
+        options: {
+          config: { type: 'string', short: 'c', description: 'Config path' },
+        },
       }
       nodeAdapter.renderHelp(cmd, 'kubb')
       expect(logOutput()).toContain('kubb generate')

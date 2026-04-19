@@ -1,7 +1,7 @@
 Array containing include parameters to include tags, operations, methods, paths, or content types.
 
 |           |                  |
-|----------:|:-----------------|
+| --------: | :--------------- |
 |     Type: | `Array<Include>` |
 | Required: | `false`          |
 
@@ -11,5 +11,3 @@ export type Include = {
   pattern: string | RegExp
 }
 ```
-
-

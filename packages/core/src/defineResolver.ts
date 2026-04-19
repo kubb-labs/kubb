@@ -382,7 +382,11 @@ export function defaultResolveBanner(node: InputNode | undefined, { output, conf
     return undefined
   }
 
-  return buildDefaultBanner({ title: node?.meta?.title, version: node?.meta?.version, config })
+  return buildDefaultBanner({
+    title: node?.meta?.title,
+    version: node?.meta?.version,
+    config,
+  })
 }
 
 /**

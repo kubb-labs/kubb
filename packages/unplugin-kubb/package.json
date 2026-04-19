@@ -3,32 +3,50 @@
   "version": "5.0.0-alpha.48",
   "description": "Universal build plugin for Kubb, integrating OpenAPI code generation into Vite, Webpack, Rollup, esbuild, Rspack, Nuxt, and Astro build processes.",
   "keywords": [
-    "unplugin",
-    "vite",
-    "webpack",
-    "rollup",
-    "esbuild",
-    "rspack",
-    "nuxt",
     "astro",
     "build-tool",
     "bundler",
-    "transform",
-    "openapi",
-    "swagger",
     "code-generator",
+    "esbuild",
+    "kubb",
+    "nuxt",
+    "openapi",
+    "rollup",
+    "rspack",
+    "swagger",
+    "transform",
     "typescript",
-    "kubb"
+    "unplugin",
+    "vite",
+    "webpack"
   ],
+  "license": "MIT",
+  "author": "stijnvanhulle",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/unplugin"
   },
-  "license": "MIT",
-  "author": "stijnvanhulle",
-  "sideEffects": false,
+  "files": [
+    "src",
+    "dist",
+    "!/**/**.test.**",
+    "!/**/__tests__/**",
+    "!/**/__snapshots__/**"
+  ],
   "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*",
+        "./*"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -80,27 +98,15 @@
     },
     "./package.json": "./package.json"
   },
-  "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./dist/*",
-        "./*"
-      ]
-    }
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
-  "files": [
-    "src",
-    "dist",
-    "!/**/**.test.**",
-    "!/**/__tests__/**",
-    "!/**/__snapshots__/**"
-  ],
   "scripts": {
     "build": "tsdown",
     "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
-    "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint --fix --unsafe .",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
     "start": "tsdown --watch",
@@ -118,8 +124,8 @@
     "@internals/utils": "workspace:*",
     "@nuxt/kit": "^4.4.2",
     "@nuxt/schema": "^4.4.2",
-    "esbuild": "*",
-    "rolldown": "~1.0.0-rc.16",
+    "esbuild": "^0.28.0",
+    "rolldown": "1.0.0-rc.16",
     "rollup": "^4.60.2",
     "vite": "^8.0.8",
     "webpack": "^5.106.2"
@@ -163,11 +169,5 @@
   },
   "engines": {
     "node": ">=22"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js"
+  }
 }

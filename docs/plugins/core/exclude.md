@@ -1,7 +1,7 @@
 Array containing exclude parameters to exclude or skip tags, operations, methods, paths, or content types.
 
 |           |                  |
-|----------:|:-----------------|
+| --------: | :--------------- |
 |     Type: | `Array<Exclude>` |
 | Required: | `false`          |
 
@@ -11,4 +11,3 @@ export type Exclude = {
   pattern: string | RegExp
 }
 ```
-

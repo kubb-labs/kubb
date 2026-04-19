@@ -22,11 +22,23 @@ export function setupHookListener(hooks: AsyncEventEmitter<KubbHooks>, root: str
 
       console.log(result.stdout.trimEnd())
 
-      await hooks.emit('kubb:hook:end', { command, args, id, success: true, error: null })
+      await hooks.emit('kubb:hook:end', {
+        command,
+        args,
+        id,
+        success: true,
+        error: null,
+      })
     } catch (_err) {
       const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
 
-      await hooks.emit('kubb:hook:end', { command, args, id, success: false, error: errorMessage })
+      await hooks.emit('kubb:hook:end', {
+        command,
+        args,
+        id,
+        success: false,
+        error: errorMessage,
+      })
       await hooks.emit('kubb:error', errorMessage)
     }
   })

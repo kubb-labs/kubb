@@ -57,7 +57,6 @@ Array of all executed plugins.
 
 - **Type:** `Array<Executer>` <br/>
 
-
 ### driver.resolvePath
 
 Every plugin can set `resolvePath`. When you call `driver.resolvePath`, it finds the first resolvePath based on the plugins array and uses that return value as the path.

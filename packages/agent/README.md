@@ -88,7 +88,7 @@ services:
       - agent_kv:/kubb/agent/.kubb/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
+      test: ['CMD', 'node', '-e', "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
       interval: 15s
       timeout: 10s
       start_period: 60s
@@ -106,18 +106,18 @@ The `agent_kv` named volume persists the KV store (session cache, machine token)
 
 ### Environment Variables
 
-| Variable                     | Default | Description |
-|------------------------------|---|---|
-| `KUBB_AGENT_CONFIG`          | `kubb.config.ts` | Path to your Kubb config file. Relative paths are resolved against `KUBB_AGENT_ROOT`. |
-| `KUBB_AGENT_ROOT`            | `/kubb/agent` (Docker) / `cwd` | Root directory for resolving relative paths. |
-| `PORT`                       | `3000` | Server port. |
-| `HOST`                       | `0.0.0.0` | Server host. |
-| `KUBB_STUDIO_URL`            | `https://studio.kubb.dev` | Kubb Studio WebSocket URL. |
-| `KUBB_AGENT_TOKEN`           | _(empty)_ | Authentication token for Studio. Required to connect. |
-| `KUBB_AGENT_ALLOW_WRITE`     | `false` | Set to `true` to allow writing generated files to disk. |
-| `KUBB_AGENT_ALLOW_ALL`       | `false` | Set to `true` to grant all permissions (implies `KUBB_AGENT_ALLOW_WRITE=true`). |
-| `KUBB_AGENT_RETRY_TIMEOUT`             | `30000` | Milliseconds to wait before retrying a failed Studio connection. |
-| `KUBB_AGENT_HEARTBEAT_URL`             | _(empty)_ | URL to call every 5 minutes to signal the agent is alive (e.g. a Healthchecks.io ping URL). Leave empty to disable. |
+| Variable                   | Default                        | Description                                                                                                         |
+| -------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `KUBB_AGENT_CONFIG`        | `kubb.config.ts`               | Path to your Kubb config file. Relative paths are resolved against `KUBB_AGENT_ROOT`.                               |
+| `KUBB_AGENT_ROOT`          | `/kubb/agent` (Docker) / `cwd` | Root directory for resolving relative paths.                                                                        |
+| `PORT`                     | `3000`                         | Server port.                                                                                                        |
+| `HOST`                     | `0.0.0.0`                      | Server host.                                                                                                        |
+| `KUBB_STUDIO_URL`          | `https://studio.kubb.dev`      | Kubb Studio WebSocket URL.                                                                                          |
+| `KUBB_AGENT_TOKEN`         | _(empty)_                      | Authentication token for Studio. Required to connect.                                                               |
+| `KUBB_AGENT_ALLOW_WRITE`   | `false`                        | Set to `true` to allow writing generated files to disk.                                                             |
+| `KUBB_AGENT_ALLOW_ALL`     | `false`                        | Set to `true` to grant all permissions (implies `KUBB_AGENT_ALLOW_WRITE=true`).                                     |
+| `KUBB_AGENT_RETRY_TIMEOUT` | `30000`                        | Milliseconds to wait before retrying a failed Studio connection.                                                    |
+| `KUBB_AGENT_HEARTBEAT_URL` | _(empty)_                      | URL to call every 5 minutes to signal the agent is alive (e.g. a Healthchecks.io ping URL). Leave empty to disable. |
 
 ### Automatic .env Loading
 
@@ -126,6 +126,7 @@ The agent automatically loads a `.env` file from the current working directory i
 ## Quick Start
 
 1. **Create `.env` file:**
+
 ```env
 PORT=3000
 KUBB_AGENT_ROOT=/path/to/your/project
@@ -135,11 +136,13 @@ KUBB_STUDIO_URL=https://studio.kubb.dev
 ```
 
 2. **Run the agent:**
+
 ```bash
 npx kubb agent start
 ```
 
 3. **Agent is now available at:**
+
 ```
 http://localhost:3000
 ```
@@ -167,6 +170,7 @@ On startup the agent performs these steps before opening a WebSocket:
 ### Session Caching
 
 Sessions are cached in `./.kubb/data` (relative to the working directory, or `agent_kv` volume in Docker) for faster reconnects:
+
 - Tokens are hashed (non-reversible) for security
 - Sessions auto-expire after 24 hours
 - Use `--no-cache` flag to disable caching
@@ -177,6 +181,7 @@ Sessions are cached in `./.kubb/data` (relative to the working directory, or `ag
 ### Messages Sent by Agent
 
 **Connected** — sent in response to a `connect` command
+
 ```json
 {
   "type": "connected",
@@ -188,15 +193,14 @@ Sessions are cached in `./.kubb/data` (relative to the working directory, or `ag
       "allowWrite": false
     },
     "config": {
-      "plugins": [
-        { "name": "@kubb/plugin-ts", "options": {} }
-      ]
+      "plugins": [{ "name": "@kubb/plugin-ts", "options": {} }]
     }
   }
 }
 ```
 
 **Data Events** — streamed during code generation
+
 ```json
 {
   "type": "data",
@@ -211,6 +215,7 @@ Sessions are cached in `./.kubb/data` (relative to the working directory, or `ag
 Available `payload.type` values: `plugin:start`, `plugin:end`, `files:processing:start`, `file:processing:update`, `files:processing:end`, `generation:start`, `generation:end`, `info`, `success`, `warn`, `error`.
 
 **Ping** — sent every 30 seconds to keep the connection alive
+
 ```json
 { "type": "ping" }
 ```
@@ -218,6 +223,7 @@ Available `payload.type` values: `plugin:start`, `plugin:end`, `files:processing
 ### Messages Received from Studio
 
 **Generate Command** — triggers code generation
+
 ```json
 {
   "type": "command",
@@ -225,11 +231,13 @@ Available `payload.type` values: `plugin:start`, `plugin:end`, `files:processing
   "payload": { "plugins": [] }
 }
 ```
+
 `payload` is optional. When omitted, the agent falls back to `kubb.config.studio.json` (a temporal config file next to `kubb.config.ts`), and then to the config loaded from disk.
 
 The `payload` may also include an `input` field containing a raw OpenAPI / Swagger spec (YAML or JSON string). **This field is only honoured in sandbox mode** — outside of sandbox it is silently ignored for security reasons. See [Sandbox Mode](#sandbox-mode) below.
 
 **Connect Command** — requests agent info
+
 ```json
 {
   "type": "command",
@@ -242,19 +250,19 @@ The `payload` may also include an `input` field containing a raw OpenAPI / Swagg
 ```
 
 **Pong** — sent by Studio in response to an agent ping
+
 ```json
 { "type": "pong" }
 ```
 
 **Status** — sent by Studio with information about connected agents
+
 ```json
 {
   "type": "status",
   "message": "...",
   "connectedAgents": 1,
-  "agents": [
-    { "name": "...", "connectedAt": "..." }
-  ]
+  "agents": [{ "name": "...", "connectedAt": "..." }]
 }
 ```
 
@@ -262,11 +270,11 @@ The `payload` may also include an `input` field containing a raw OpenAPI / Swagg
 
 When Kubb Studio provisions a session for the **Sandbox Agent** (the shared agent hosted by Studio itself), it sets `isSandbox: true` in the session response. In sandbox mode the agent behaves differently from a user-owned agent:
 
-| behavior | Normal agent | Sandbox agent |
-|---|---|---|
-| Write generated files to disk | ✅ (when `KUBB_AGENT_ALLOW_WRITE=true`) | ❌ Never |
-| Read `input.path` from disk | ✅ | ✅ (falls back when no inline input supplied) |
-| Accept inline `input` in generate payload | ❌ Ignored | ✅ |
+| behavior                                  | Normal agent                            | Sandbox agent                                 |
+| ----------------------------------------- | --------------------------------------- | --------------------------------------------- |
+| Write generated files to disk             | ✅ (when `KUBB_AGENT_ALLOW_WRITE=true`) | ❌ Never                                      |
+| Read `input.path` from disk               | ✅                                      | ✅ (falls back when no inline input supplied) |
+| Accept inline `input` in generate payload | ❌ Ignored                              | ✅                                            |
 
 ### Why no filesystem writes?
 
@@ -282,14 +290,12 @@ Because the sandbox agent cannot read arbitrary files from disk, callers must su
   "command": "generate",
   "payload": {
     "input": "openapi: 3.0.0\ninfo:\n  title: Pet Store\n  version: 1.0.0\n...",
-    "plugins": [
-      { "name": "@kubb/plugin-ts", "options": {} }
-    ]
+    "plugins": [{ "name": "@kubb/plugin-ts", "options": {} }]
   }
 }
 ```
 
-The `input` value is treated as `InputData` (i.e. `{ data: "<content>" }`) and overrides the `input` from the loaded config for that generation cycle.  **Outside of sandbox mode this field is ignored.**
+The `input` value is treated as `InputData` (i.e. `{ data: "<content>" }`) and overrides the `input` from the loaded config for that generation cycle. **Outside of sandbox mode this field is ignored.**
 
 ## Configuration Example
 
@@ -307,10 +313,7 @@ export default defineConfig({
   output: {
     path: './src/generated',
   },
-  plugins: [
-    pluginOas(),
-    pluginTs(),
-  ],
+  plugins: [pluginOas(), pluginTs()],
 })
 ```
 

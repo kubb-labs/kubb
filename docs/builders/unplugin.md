@@ -13,7 +13,6 @@ Kubb plugin for Vite, webpack, esbuild, Rollup, Nuxt, Astro and Rspack.
 > [!TIP]
 > The `hook` option will not work with Unplugin. If you need to run Prettier or ESLint after the generation, use Kubb CLI instead.
 
-
 ## Installation
 
 ::: code-group
@@ -42,8 +41,8 @@ yarn add -D unplugin-kubb @kubb/core
 
 Define the options for Kubb.
 
-
 ::: code-group
+
 ```typescript [Options]
 import type { UserConfig } from '@kubb/core'
 
@@ -87,11 +86,10 @@ export default defineViteConfig({
   ],
 })
 ```
+
 :::
 
 ## Examples
-
-
 
 ::: code-group
 
@@ -101,7 +99,9 @@ import kubb from 'unplugin-kubb/vite'
 
 export default defineConfig({
   plugins: [
-    kubb({/* options */}),
+    kubb({
+      /* options */
+    }),
   ],
 })
 ```
@@ -112,7 +112,9 @@ import kubb from 'unplugin-kubb/rollup'
 
 export default {
   plugins: [
-    kubb({/* options */}),
+    kubb({
+      /* options */
+    }),
   ],
 }
 ```
@@ -122,7 +124,9 @@ export default {
 module.exports = {
   /* ... */
   plugins: [
-    require('unplugin-kubb/webpack')({/* options */}),
+    require('unplugin-kubb/webpack')({
+      /* options */
+    }),
   ],
 }
 ```
@@ -132,8 +136,10 @@ module.exports = {
 module.exports = {
   /* ... */
   plugins: [
-    require('unplugin-kubb/rspack')({ /* options */ })
-  ]
+    require('unplugin-kubb/rspack')({
+      /* options */
+    }),
+  ],
 }
 ```
 
@@ -144,7 +150,9 @@ import kubb from 'unplugin-kubb/esbuild'
 
 build({
   plugins: [
-    kubb({/* options */}),
+    kubb({
+      /* options */
+    }),
   ],
 })
 ```
@@ -154,7 +162,9 @@ build({
 module.exports = {
   configureWebpack: {
     plugins: [
-      require('unplugin-kubb/webpack')({/* options */}),
+      require('unplugin-kubb/webpack')({
+        /* options */
+      }),
     ],
   },
 }
@@ -164,10 +174,16 @@ module.exports = {
 // nuxt.config.js
 export default defineNuxtConfig({
   modules: [
-    ['unplugin-kubb/nuxt', {/* options */}],
+    [
+      'unplugin-kubb/nuxt',
+      {
+        /* options */
+      },
+    ],
   ],
 })
 ```
+
 ```typescript [Astro]
 // astro.config.mjs
 import { defineConfig } from 'astro/config'
@@ -176,12 +192,14 @@ import Kubb from 'unplugin-kubb/astro'
 // https://astro.build/config
 export default defineConfig({
   integrations: [
-    Kubb({/* options */})
-  ]
+    Kubb({
+      /* options */
+    }),
+  ],
 })
 ```
-:::
 
+:::
 
 ## See Also
 

@@ -26,9 +26,15 @@ export const pluginExample = createPlugin<PluginOptions>((options) => ({
   options,
   pre: [],
   post: [],
-  resolvePath(baseName, mode, options) { /* ... */ },
-  resolveName(name, type) { /* ... */ },
-  async install() { /* ... */ },
+  resolvePath(baseName, mode, options) {
+    /* ... */
+  },
+  resolveName(name, type) {
+    /* ... */
+  },
+  async install() {
+    /* ... */
+  },
 }))
 ```
 
@@ -40,6 +46,6 @@ export const pluginExample = createPlugin<PluginOptions>((options) => ({
 
 ## Related Skills
 
-| Skill                                                              | Use For                                       |
-|--------------------------------------------------------------------|-----------------------------------------------|
+| Skill                                                                      | Use For                                                             |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | **[../components-generators/SKILL.md](../components-generators/SKILL.md)** | Guidance for writing `@kubb/react-fabric` components and generators |

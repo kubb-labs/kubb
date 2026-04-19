@@ -273,7 +273,10 @@ function resolveParamsType({
   resolver: OperationParamsResolver | undefined
 }): ParamsTypeNode {
   if (!resolver) {
-    return createParamsType({ variant: 'reference', name: param.schema.primitive ?? 'unknown' })
+    return createParamsType({
+      variant: 'reference',
+      name: param.schema.primitive ?? 'unknown',
+    })
   }
 
   const individualName = resolver.resolveParamName(node, param)
@@ -289,7 +292,11 @@ function resolveParamsType({
   const groupName = groupLocation ? groupResolvers[groupLocation].call(resolver, node, param) : undefined
 
   if (groupName && groupName !== individualName) {
-    return createParamsType({ variant: 'member', base: groupName, key: param.name })
+    return createParamsType({
+      variant: 'member',
+      base: groupName,
+      key: param.name,
+    })
   }
 
   return createParamsType({ variant: 'reference', name: individualName })
@@ -319,7 +326,11 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
   const headersName = paramNames?.headers ?? 'headers'
   const pathName = paramNames?.path ?? 'pathParams'
 
-  const wrapType = (type: string): ParamsTypeNode => createParamsType({ variant: 'reference', name: typeWrapper ? typeWrapper(type) : type })
+  const wrapType = (type: string): ParamsTypeNode =>
+    createParamsType({
+      variant: 'reference',
+      name: typeWrapper ? typeWrapper(type) : type,
+    })
   // Only reference-variant TypeNodes are wrapped — they hold a plain type name string that needs casing applied.
   // Member and struct TypeNodes are pre-resolved structured expressions and are passed through unchanged.
   const wrapTypeNode = (type: ParamsTypeNode): ParamsTypeNode => (type.kind === 'ParamsType' && type.variant === 'reference' ? wrapType(type.name) : type)
@@ -332,8 +343,22 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
   const bodyType = node.requestBody?.schema ? wrapType(resolver?.resolveDataName(node) ?? 'unknown') : undefined
   const bodyRequired = node.requestBody?.required ?? false
 
-  const queryGroupType = resolver ? resolveGroupType({ node, params: queryParams, groupMethod: resolver.resolveQueryParamsName, resolver }) : undefined
-  const headerGroupType = resolver ? resolveGroupType({ node, params: headerParams, groupMethod: resolver.resolveHeaderParamsName, resolver }) : undefined
+  const queryGroupType = resolver
+    ? resolveGroupType({
+        node,
+        params: queryParams,
+        groupMethod: resolver.resolveQueryParamsName,
+        resolver,
+      })
+    : undefined
+  const headerGroupType = resolver
+    ? resolveGroupType({
+        node,
+        params: headerParams,
+        groupMethod: resolver.resolveHeaderParamsName,
+        resolver,
+      })
+    : undefined
 
   const params: Array<FunctionParameterNode | ParameterGroupNode> = []
 
@@ -341,25 +366,66 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
     const children: Array<FunctionParameterNode> = [
       ...pathParams.map((p) => {
         const type = resolveParamsType({ node, param: p, resolver })
-        return createFunctionParameter({ name: p.name, type: wrapTypeNode(type), optional: !p.required })
+        return createFunctionParameter({
+          name: p.name,
+          type: wrapTypeNode(type),
+          optional: !p.required,
+        })
       }),
-      ...(bodyType ? [createFunctionParameter({ name: dataName, type: bodyType, optional: !bodyRequired })] : []),
-      ...buildGroupParam({ name: paramsName, node, params: queryParams, groupType: queryGroupType, resolver, wrapType }),
-      ...buildGroupParam({ name: headersName, node, params: headerParams, groupType: headerGroupType, resolver, wrapType }),
+      ...(bodyType
+        ? [
+            createFunctionParameter({
+              name: dataName,
+              type: bodyType,
+              optional: !bodyRequired,
+            }),
+          ]
+        : []),
+      ...buildGroupParam({
+        name: paramsName,
+        node,
+        params: queryParams,
+        groupType: queryGroupType,
+        resolver,
+        wrapType,
+      }),
+      ...buildGroupParam({
+        name: headersName,
+        node,
+        params: headerParams,
+        groupType: headerGroupType,
+        resolver,
+        wrapType,
+      }),
     ]
 
     if (children.length) {
-      params.push(createParameterGroup({ properties: children, default: children.every((c) => c.optional) ? '{}' : undefined }))
+      params.push(
+        createParameterGroup({
+          properties: children,
+          default: children.every((c) => c.optional) ? '{}' : undefined,
+        }),
+      )
     }
   } else {
     if (pathParams.length) {
       if (pathParamsType === 'inlineSpread') {
         const spreadType = resolver?.resolvePathParamsName(node, pathParams[0]!) ?? undefined
-        params.push(createFunctionParameter({ name: pathName, type: spreadType ? wrapType(spreadType) : undefined, rest: true }))
+        params.push(
+          createFunctionParameter({
+            name: pathName,
+            type: spreadType ? wrapType(spreadType) : undefined,
+            rest: true,
+          }),
+        )
       } else {
         const pathChildren = pathParams.map((p) => {
           const type = resolveParamsType({ node, param: p, resolver })
-          return createFunctionParameter({ name: p.name, type: wrapTypeNode(type), optional: !p.required })
+          return createFunctionParameter({
+            name: p.name,
+            type: wrapTypeNode(type),
+            optional: !p.required,
+          })
         })
         params.push(
           createParameterGroup({
@@ -372,11 +438,35 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
     }
 
     if (bodyType) {
-      params.push(createFunctionParameter({ name: dataName, type: bodyType, optional: !bodyRequired }))
+      params.push(
+        createFunctionParameter({
+          name: dataName,
+          type: bodyType,
+          optional: !bodyRequired,
+        }),
+      )
     }
 
-    params.push(...buildGroupParam({ name: paramsName, node, params: queryParams, groupType: queryGroupType, resolver, wrapType }))
-    params.push(...buildGroupParam({ name: headersName, node, params: headerParams, groupType: headerGroupType, resolver, wrapType }))
+    params.push(
+      ...buildGroupParam({
+        name: paramsName,
+        node,
+        params: queryParams,
+        groupType: queryGroupType,
+        resolver,
+        wrapType,
+      }),
+    )
+    params.push(
+      ...buildGroupParam({
+        name: headersName,
+        node,
+        params: headerParams,
+        groupType: headerGroupType,
+        resolver,
+        wrapType,
+      }),
+    )
   }
 
   params.push(...extraParams)
@@ -446,7 +536,10 @@ function resolveGroupType({
     return undefined
   }
   const allOptional = params.every((p) => !p.required)
-  return { type: createParamsType({ variant: 'reference', name: groupName }), optional: allOptional }
+  return {
+    type: createParamsType({ variant: 'reference', name: groupName }),
+    optional: allOptional,
+  }
 }
 
 /**
@@ -466,7 +559,11 @@ function toStructType({
 }): ParamsTypeNode {
   return createParamsType({
     variant: 'struct',
-    properties: params.map((p) => ({ name: p.name, optional: !p.required, type: resolveParamsType({ node, param: p, resolver }) })),
+    properties: params.map((p) => ({
+      name: p.name,
+      optional: !p.required,
+      type: resolveParamsType({ node, param: p, resolver }),
+    })),
   })
 }
 

@@ -33,7 +33,10 @@ describe('Agent cache', () => {
       const second = { plugins: [{ name: '@kubb/plugin-ts', options: {} }] }
       mockStorage.getItem.mockResolvedValueOnce([{ config: first, storedAt: '2025-01-01T00:00:00.000Z' }])
 
-      await saveStudioConfigToStorage({ sessionId: 'session-123', config: second })
+      await saveStudioConfigToStorage({
+        sessionId: 'session-123',
+        config: second,
+      })
 
       const [, written] = mockStorage.setItem.mock.calls[0]
       expect(written).toHaveLength(2)
@@ -46,7 +49,9 @@ describe('Agent cache', () => {
     it('returns null when no config is stored', async () => {
       mockStorage.getItem.mockResolvedValueOnce(null)
 
-      const result = await getLatestStudioConfigFromStorage({ sessionId: 'session-123' })
+      const result = await getLatestStudioConfigFromStorage({
+        sessionId: 'session-123',
+      })
 
       expect(result).toBeNull()
     })
@@ -54,7 +59,9 @@ describe('Agent cache', () => {
     it('returns null when the stored list is empty', async () => {
       mockStorage.getItem.mockResolvedValueOnce([])
 
-      const result = await getLatestStudioConfigFromStorage({ sessionId: 'session-123' })
+      const result = await getLatestStudioConfigFromStorage({
+        sessionId: 'session-123',
+      })
 
       expect(result).toBeNull()
     })
@@ -67,7 +74,9 @@ describe('Agent cache', () => {
         { config: second, storedAt: '2025-01-02T00:00:00.000Z' },
       ])
 
-      const result = await getLatestStudioConfigFromStorage({ sessionId: 'session-123' })
+      const result = await getLatestStudioConfigFromStorage({
+        sessionId: 'session-123',
+      })
 
       expect(result).toEqual(second)
     })

@@ -44,6 +44,7 @@ This project includes several code quality tools to help maintain code standards
 This project uses [CSpell](https://cspell.org/) to catch spelling errors in code and documentation. The configuration is in `cspell.json` and uses American English.
 
 If you encounter a spelling error:
+
 - For typos: Fix the spelling in your code
 - For technical terms, library names, or contributor names: Add them to the `words` array in `cspell.json`
 
@@ -54,6 +55,7 @@ Common technical terms, framework names, and contributor names are already in th
 Performance benchmarks are located in `tests/performance/` and test the code generation speed of various plugin combinations. These benchmarks help ensure performance doesn't regress over time.
 
 To run benchmarks:
+
 ```bash
 pnpm run test:bench
 ```

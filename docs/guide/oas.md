@@ -21,8 +21,8 @@ The [OpenAPI Specification](https://www.openapis.org/) (OAS) is a standard, lang
 
 Kubb supports the following OpenAPI/Swagger versions:
 
-| Version | Status |
-|---------|--------|
+| Version     | Status       |
+| ----------- | ------------ |
 | Swagger 2.0 | ✅ Supported |
 | OpenAPI 3.0 | ✅ Supported |
 | OpenAPI 3.1 | ✅ Supported |
@@ -309,6 +309,7 @@ Kubb provides comprehensive support for OpenAPI discriminators, which are used t
 Kubb supports all discriminator patterns from **OpenAPI 3.0** and **OpenAPI 3.1** specifications:
 
 **OpenAPI 3.0 Patterns:**
+
 - ✅ With explicit mapping
 - ✅ Without mapping (inferred from schema names)
 - ✅ With `oneOf`
@@ -316,10 +317,12 @@ Kubb supports all discriminator patterns from **OpenAPI 3.0** and **OpenAPI 3.1*
 - ✅ Strict vs Inherit modes
 
 **OpenAPI 3.1 Patterns:**
+
 - ✅ With `$ref` in `oneOf`/`anyOf`
 - ✅ Enhanced polymorphism support
 
 **Edge Cases:**
+
 - ✅ Inline schemas (not just `$ref`)
 - ✅ Extension properties (e.g., `x-custom-name`)
 - ✅ Const values
@@ -384,6 +387,7 @@ components:
 ```
 
 Kubb automatically creates mapping:
+
 ```
 {
   Cat: '#/components/schemas/Cat',
@@ -431,7 +435,7 @@ components:
   schemas:
     Data:
       discriminator:
-        propertyName: x-custom-type  # Extension property
+        propertyName: x-custom-type # Extension property
       oneOf:
         - type: object
           x-custom-type: TypeA
@@ -452,6 +456,7 @@ Extension properties are treated as metadata and don't generate runtime validati
 Kubb supports two modes for discriminator handling:
 
 **Strict Mode (default):**
+
 ```typescript
 import { pluginOas } from '@kubb/plugin-oas'
 
@@ -463,6 +468,7 @@ pluginOas({
 In strict mode, the discriminator property is not automatically added to child schemas.
 
 **Inherit Mode:**
+
 ```typescript
 import { pluginOas } from '@kubb/plugin-oas'
 
@@ -485,7 +491,7 @@ In inherit mode, Kubb automatically adds the discriminator property with appropr
 Cat:
   properties:
     petType:
-      const: cat  # Preferred for discriminator values
+      const: cat # Preferred for discriminator values
 ```
 
 4. **Ensure all oneOf/anyOf members share the same base type** when possible (all objects or all arrays, not mixed)

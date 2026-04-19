@@ -29,23 +29,24 @@ npm install --save-dev @kubb/plugin-redoc
 ```shell [yarn]
 yarn add -D @kubb/plugin-redoc
 ```
+
 :::
 
 ## Options
 
 ### output
+
 #### output.path
 
 The output location for the generated documentation.
 
 This plugin uses [Redocly](https://redocly.com/) for HTML generation.
 
-|           |                |
-| --------: | :-------- |
-|     Type: | `string`       |
-| Required: | `false`        |
-|  Default: | `'docs.html'`  |
-
+|           |               |
+| --------: | :------------ |
+|     Type: | `string`      |
+| Required: | `false`       |
+|  Default: | `'docs.html'` |
 
 ## Example
 

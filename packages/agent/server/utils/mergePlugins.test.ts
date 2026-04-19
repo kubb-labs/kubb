@@ -9,7 +9,7 @@ const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin
 vi.mock('./resolvePlugins.ts', () => ({
   resolvePlugins: vi.fn(async (entries: Array<{ name: string; options: unknown }>) =>
     entries.map(({ name, options }) => {
-      // Simulate the real behaviour: strip '@kubb/' prefix and camelCase → short name used by plugins
+      // Simulate the real behavior: strip '@kubb/' prefix and camelCase → short name used by plugins
       const shortName = name.replace('@kubb/', '')
       return makePlugin(shortName, options as Record<string, unknown>)
     }),

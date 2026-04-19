@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/suspicious/useIterableCallbackReturn: not needed */
 import { join } from 'node:path'
 import { getRelativePath } from '@internals/utils'
 import type { FileNode } from '@kubb/ast'

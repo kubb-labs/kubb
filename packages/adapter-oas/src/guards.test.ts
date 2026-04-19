@@ -14,7 +14,13 @@ describe('isOpenApiV2Document', () => {
   })
 
   it('returns false for an OpenAPI 3 document', () => {
-    expect(isOpenApiV2Document({ openapi: '3.0.0', info: { title: '', version: '' }, paths: {} })).toBe(false)
+    expect(
+      isOpenApiV2Document({
+        openapi: '3.0.0',
+        info: { title: '', version: '' },
+        paths: {},
+      }),
+    ).toBe(false)
   })
 
   it('returns false for null / non-objects', () => {
@@ -71,7 +77,12 @@ describe('isReference', () => {
 
 describe('isDiscriminator', () => {
   it('returns true for a schema with a discriminator object', () => {
-    const schema = { discriminator: { propertyName: 'type', mapping: { Cat: '#/components/schemas/Cat' } } }
+    const schema = {
+      discriminator: {
+        propertyName: 'type',
+        mapping: { Cat: '#/components/schemas/Cat' },
+      },
+    }
     expect(isDiscriminator(schema)).toBe(true)
 
     if (isDiscriminator(schema)) {

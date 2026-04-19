@@ -31,6 +31,6 @@ const pet = await Pet.getPetById({ petId: 1 })
 // Add a new pet
 const newPet = await Pet.addPet({
   name: 'Fluffy',
-  status: 'available'
+  status: 'available',
 })
 ```

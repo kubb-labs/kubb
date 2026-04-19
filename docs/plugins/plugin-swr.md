@@ -35,6 +35,7 @@ yarn add -D @kubb/plugin-swr
 ## Options
 
 ### output
+
 Specify the export location for the files and define the behavior of the output.
 
 #### output.path
@@ -64,9 +65,11 @@ Specify the export location for the files and define the behavior of the output.
 <!--@include: ./core/outputOverride.md-->
 
 ### contentType
+
 <!--@include: ./core/contentType.md-->
 
 ### group
+
 <!--@include: ./core/group.md-->
 
 #### group.type
@@ -106,15 +109,19 @@ Return the name of a group based on the group name, this will be used for the fi
 <!--@include: ./plugin-client/bundle.md-->
 
 ### paramsType
+
 <!--@include: ./plugin-client/paramsType.md-->
 
 ### paramsCasing
+
 <!--@include: ./plugin-client/paramsCasing.md-->
 
 ### pathParamsType
+
 <!--@include: ./plugin-client/pathParamsType.md-->
 
 ### parser
+
 <!--@include: ./plugin-client/parser.md-->
 
 #### queryKey
@@ -126,22 +133,23 @@ When using a string you need to use `JSON.stringify`.
 :::
 
 |           |                                                                             |
-| --------: | :-------- |
+| --------: | :-------------------------------------------------------------------------- |
 |     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
 | Required: | `false`                                                                     |
 
 ### query
+
 #### query.methods
 
 <!--@include: ./core/queryMethods.md-->
 
 #### query.importPath
+
 |           |          |
-| --------: | :-------- |
+| --------: | :------- |
 |     Type: | `string` |
 | Required: | `false`  |
 |  Default: | `'swr'`  |
-
 
 ### mutation
 
@@ -150,12 +158,12 @@ When using a string you need to use `JSON.stringify`.
 <!--@include: ./core/mutationMethods.md-->
 
 #### mutation.importPath
-|           |                           |
-| --------: | :-------- |
-|     Type: | `string`                  |
-| Required: | `false`                   |
-|  Default: | `'swr/mutation'` |
 
+|           |                  |
+| --------: | :--------------- |
+|     Type: | `string`         |
+| Required: | `false`          |
+|  Default: | `'swr/mutation'` |
 
 #### mutation.paramsToTrigger
 
@@ -171,6 +179,7 @@ When `true`, mutation parameters (path params, query params, headers, request bo
 |  Default: | `false`   |
 
 **Example with `paramsToTrigger: false` (default):**
+
 ```typescript
 // Parameters required when calling the hook
 const { trigger } = useDeletePet(petId, params, headers)
@@ -178,12 +187,12 @@ trigger()
 ```
 
 **Example with `paramsToTrigger: true`:**
+
 ```typescript
 // Parameters passed when triggering
 const { trigger } = useDeletePet()
 trigger({ petId, data, params, headers })
 ```
-
 
 #### mutationKey
 
@@ -194,39 +203,43 @@ When using a string you need to use `JSON.stringify`.
 :::
 
 |           |                                                                             |
-| --------: | :-------- |
+| --------: | :-------------------------------------------------------------------------- |
 |     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
 | Required: | `false`                                                                     |
 
-
 ### include
+
 <!--@include: ./core/include.md-->
 
 ### exclude
+
 <!--@include: ./core/exclude.md-->
 
 ### override
+
 <!--@include: ./core/override.md-->
 
 ### generators <img src="../public/icons/experimental.svg"/>
+
 <!--@include: ./core/generators.md-->
 
 |           |                               |
-| --------: | :-------- |
+| --------: | :---------------------------- |
 |     Type: | `Array<Generator<PluginSwr>>` |
 | Required: | `false`                       |
 
-
 ### transformers
+
 <!--@include: ./core/transformers.md-->
 
 #### transformers.name
+
 Customize the names based on the type that is provided by the plugin.
 
-|           |                                                                               |
-| --------: | :-------- |
+|           |                                                |
+| --------: | :--------------------------------------------- |
 |     Type: | `(name: string, type?: ResolveType) => string` |
-| Required: | `false`                                                                       |
+| Required: | `false`                                        |
 
 ```typescript
 type ResolveType = 'file' | 'function' | 'type' | 'const'

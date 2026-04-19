@@ -23,22 +23,42 @@ describe('setupHookListener', () => {
   it('skips execution when hook:start fires without an id', async () => {
     setupHookListener(hooks, '/root')
 
-    await hooks.emit('kubb:hook:start', { id: undefined as any, command: 'echo', args: [] })
+    await hooks.emit('kubb:hook:start', {
+      id: undefined as any,
+      command: 'echo',
+      args: [],
+    })
 
     expect(x).not.toHaveBeenCalled()
   })
 
   it('emits hook:end with success when command succeeds', async () => {
-    vi.mocked(x).mockResolvedValue({ stdout: 'output\n', stderr: '', exitCode: 0 } as any)
+    vi.mocked(x).mockResolvedValue({
+      stdout: 'output\n',
+      stderr: '',
+      exitCode: 0,
+    } as any)
 
     setupHookListener(hooks, '/root')
 
     const hookEndSpy = vi.fn()
     hooks.on('kubb:hook:end', hookEndSpy)
 
-    await hooks.emit('kubb:hook:start', { id: 'test-id', command: 'echo', args: ['hello'] })
+    await hooks.emit('kubb:hook:start', {
+      id: 'test-id',
+      command: 'echo',
+      args: ['hello'],
+    })
 
-    expect(hookEndSpy).toHaveBeenCalledWith(expect.objectContaining({ id: 'test-id', command: 'echo', args: ['hello'], success: true, error: null }))
+    expect(hookEndSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'test-id',
+        command: 'echo',
+        args: ['hello'],
+        success: true,
+        error: null,
+      }),
+    )
   })
 
   it('emits hook:end with failure and emits error when command throws', async () => {
@@ -51,9 +71,19 @@ describe('setupHookListener', () => {
     hooks.on('kubb:hook:end', hookEndSpy)
     hooks.on('kubb:error', errorSpy)
 
-    await hooks.emit('kubb:hook:start', { id: 'fail-id', command: 'nonexistent', args: [] })
+    await hooks.emit('kubb:hook:start', {
+      id: 'fail-id',
+      command: 'nonexistent',
+      args: [],
+    })
 
-    expect(hookEndSpy).toHaveBeenCalledWith(expect.objectContaining({ id: 'fail-id', success: false, error: expect.any(Error) }))
+    expect(hookEndSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'fail-id',
+        success: false,
+        error: expect.any(Error),
+      }),
+    )
     expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ message: 'Hook execute failed: nonexistent' }))
   })
 
@@ -65,28 +95,58 @@ describe('setupHookListener', () => {
     const errorSpy = vi.fn()
     hooks.on('kubb:error', errorSpy)
 
-    await hooks.emit('kubb:hook:start', { id: 'id-1', command: 'npm', args: ['run', 'build'] })
+    await hooks.emit('kubb:hook:start', {
+      id: 'id-1',
+      command: 'npm',
+      args: ['run', 'build'],
+    })
 
-    expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ message: 'Hook execute failed: npm run build' }))
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Hook execute failed: npm run build',
+      }),
+    )
   })
 
   it('passes the root as cwd to tinyexec', async () => {
-    vi.mocked(x).mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 } as any)
+    vi.mocked(x).mockResolvedValue({
+      stdout: '',
+      stderr: '',
+      exitCode: 0,
+    } as any)
 
     setupHookListener(hooks, '/my/project/root')
 
-    await hooks.emit('kubb:hook:start', { id: 'id-2', command: 'npm', args: ['run', 'lint'] })
+    await hooks.emit('kubb:hook:start', {
+      id: 'id-2',
+      command: 'npm',
+      args: ['run', 'lint'],
+    })
 
-    expect(x).toHaveBeenCalledWith('npm', ['run', 'lint'], expect.objectContaining({ nodeOptions: expect.objectContaining({ cwd: '/my/project/root' }) }))
+    expect(x).toHaveBeenCalledWith(
+      'npm',
+      ['run', 'lint'],
+      expect.objectContaining({
+        nodeOptions: expect.objectContaining({ cwd: '/my/project/root' }),
+      }),
+    )
   })
 
   it('logs stdout from the executed command', async () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    vi.mocked(x).mockResolvedValue({ stdout: 'build success\n', stderr: '', exitCode: 0 } as any)
+    vi.mocked(x).mockResolvedValue({
+      stdout: 'build success\n',
+      stderr: '',
+      exitCode: 0,
+    } as any)
 
     setupHookListener(hooks, '/root')
 
-    await hooks.emit('kubb:hook:start', { id: 'id-3', command: 'npm', args: ['run', 'build'] })
+    await hooks.emit('kubb:hook:start', {
+      id: 'id-3',
+      command: 'npm',
+      args: ['run', 'build'],
+    })
 
     expect(consoleSpy).toHaveBeenCalledWith('build success')
 

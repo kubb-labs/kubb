@@ -10,4 +10,3 @@ export const generateSchema = z.object({
   output: z.string().optional().describe('Output directory path (overrides config)'),
   logLevel: z.enum(['silent', 'error', 'warn', 'info', 'verbose', 'debug']).optional().default('info').describe('Log level for build output'),
 })
-

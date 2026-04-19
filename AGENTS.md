@@ -47,6 +47,7 @@ packages/
 ```
 
 Plugins follow this convention:
+
 - `src/components/` - React-fabric components
 - `src/generators/` - Generator implementations
 - `src/*.test.ts` - Tests
@@ -91,4 +92,4 @@ You have new skills. If any skill might be relevant then you MUST read it.
 - [plugin-architecture](.skills/plugin-architecture/SKILL.md) - Explains plugin lifecycle, generator types, and common utilities used by plugins in the Kubb ecosystem.
 - [pr](.skills/pr/SKILL.md) - Rules and checklist for preparing PRs, creating changesets, and releasing packages in the monorepo.
 - [testing](.skills/testing/SKILL.md) - Testing, CI, and troubleshooting guidance for running the repository's test suite and interpreting CI failures.
-</skills>
+  </skills>

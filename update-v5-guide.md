@@ -19,6 +19,7 @@ For `plugin-cypress`: PLUGIN_ID = `cypress`, PLUGIN_PASCAL = `Cypress`, PLUGIN_P
 v4 plugins depend on `@kubb/plugin-oas` which tightly couples them to the OpenAPI adapter. v5 decouples plugins from any specific adapter by using a universal AST layer (`@kubb/ast`) and core infrastructure (`@kubb/core`).
 
 v4 (remove):
+
 - `@kubb/plugin-oas` -- `OperationGenerator`, `createReactGenerator`, `pluginOasName`
 - `@kubb/plugin-oas/hooks` -- `useOas`, `useOperationManager`
 - `@kubb/plugin-oas/utils` -- `getBanner`, `getFooter`, `getPathParams`
@@ -27,6 +28,7 @@ v4 (remove):
 - `@kubb/core/hooks` -- `useDriver` (removed; no longer needed for cross-plugin resolution)
 
 v5 (add):
+
 - `@kubb/core` -- `defineGenerator`, `defineResolver`, `definePresets`, `getPreset`, `renderOperation`, `renderSchema`, `renderOperations`, `runGeneratorSchema`, `runGeneratorOperation`, `runGeneratorOperations`, `getMode`
 - `@kubb/ast` -- `walk`, `transform`, `createOperation`, `createParameter`, `createResponse`, `createSchema`, `caseParams`
 - `@kubb/ast/types` -- `OperationNode`, `SchemaNode`, `ParameterNode`, `Visitor`
@@ -34,6 +36,7 @@ v5 (add):
 ### Cross-plugin file references (operation plugins that import from plugin-ts)
 
 Operation plugins that generate code importing types from `plugin-ts` (e.g. `plugin-cypress`) need to:
+
 1. Know the file path that `plugin-ts` generates for each operation
 2. Use the same TypeScript type naming that respects the user's `compatibilityPreset`
 
@@ -42,12 +45,14 @@ In v5, both are solved without `useDriver()`:
 **For the TS file path** — call `pluginTs.resolver.resolveFile(...)` where `pluginTs` is obtained at render time in the generator via `driver.getPlugin<PluginTs>(pluginTsName)`.
 
 **For type names** — no `buildTypeNames` helper or `utils.ts` is needed. Instead:
+
 1. Use `caseParams(node.parameters, paramsCasing)` from `@kubb/ast` to apply param casing
 2. Filter by `p.in === 'path'|'query'|'header'` for each group
 3. For each group, call `tsResolver.resolvePathParamsName?.(node, p)` (with optional-chaining, since not all presets define it) or fall back to `tsResolver.resolveParamName(node, p)`
 4. Pass `resolver: tsResolver` directly to the component; the component uses `createOperationParams` from `@kubb/ast` to build the full typed function signature (path, query, header, body params with correct types and optionality)
 
 This means:
+
 - `@kubb/core/hooks` / `useDriver()` is **not** needed
 - `resolverTs` is **not** imported directly in the generator — it is obtained at runtime from `driver.getPlugin<PluginTs>(pluginTsName)?.resolver`
 - A second `getPreset` call for `tsResolver` in `plugin.ts` is **not** needed
@@ -81,9 +86,11 @@ if (!pluginZod?.resolver) {
 ## Two plugin categories
 
 Operation plugins (walk operations only, no printers needed):
+
 - `plugin-cypress`, `plugin-client`, `plugin-react-query`, `plugin-swr`, `plugin-solid-query`, `plugin-svelte-query`, `plugin-vue-query`, `plugin-msw`
 
 Schema plugins (walk both schemas and operations, need printers):
+
 - `plugin-ts`, `plugin-zod`, `plugin-faker`
 
 The plan covers both. Sections marked "(schema plugins only)" can be skipped for operation plugins.
@@ -93,6 +100,7 @@ The plan covers both. Sections marked "(schema plugins only)" can be skipped for
 Every file that needs to change, grouped by action:
 
 New files to create:
+
 - `src/constants.ts` -- typed `Set` as const constants in SCREAMING_SNAKE_CASE or consts with `as const` named in camelCase
 - `src/resolvers/resolverPLUGIN_PASCAL.ts` -- `defineResolver` with naming helpers
 - `src/presets.ts` -- `definePresets` registry (no `getPreset` wrapper; call `@kubb/core`'s `getPreset` directly in `plugin.ts`)
@@ -100,6 +108,7 @@ New files to create:
 - `src/printers/` -- (schema plugins only) `definePrinter` usage
 
 Files to rewrite:
+
 - `src/types.ts` -- new resolver type, v5 options, updated generics
 - `src/components/*.tsx` -- props change from OAS types to AST nodes
 - `src/generators/*Generator.tsx` -- `defineGenerator` replaces `createReactGenerator`
@@ -107,11 +116,13 @@ Files to rewrite:
 - `src/generators/*Generator.test.tsx` -- AST factory functions replace YAML parsing
 
 Files to update:
+
 - `package.json` -- swap dependencies, add export entries
 - `tsdown.config.ts` -- add `resolvers` build entry
 - `src/generators/__snapshots__/**` -- regenerate with `pnpm test -u`
 
 Files that stay the same:
+
 - `src/index.ts` -- usually unchanged
 - `src/generators/index.ts` -- remove file
 - `src/components/index.ts` -- remove file
@@ -120,6 +131,7 @@ Files that stay the same:
 ## Style rules (apply to all files)
 
 JSDoc (follow `.skills/jsdoc/SKILL.md` and `plugin-ts` conventions):
+
 - Exported constants: one-line JSDoc above each
 - Plugin name export: "Canonical plugin name for PLUGIN_PKG, ..."
 - Plugin factory: multi-line JSDoc with description + `@example` showing kubb config
@@ -131,6 +143,7 @@ JSDoc (follow `.skills/jsdoc/SKILL.md` and `plugin-ts` conventions):
 - Tags to avoid: `@param`, `@returns`, `@type` (TypeScript provides these)
 
 Constants:
+
 - SCREAMING_SNAKE_CASE names
 - Typed `new Set<T>([...] as const)`
 - One JSDoc line per constant explaining the grouping
@@ -140,6 +153,7 @@ Constants:
 Read these before starting. They show the exact patterns to follow.
 
 Core infrastructure:
+
 - `packages/core/src/defineGenerator.ts` -- generator factory, `ReactGeneratorV2` type, no-op defaults
 - `packages/core/src/defineResolver.ts` -- resolver factory, built-in defaults for path/file/banner/footer/options resolution
 - `packages/core/src/definePresets.ts` -- preset registry factory (`definePresets`); entries are plain `{ name, resolvers, generators? }` objects — no separate `definePreset` helper
@@ -149,6 +163,7 @@ Core infrastructure:
 - `packages/ast/src/nodes/operation.ts` -- `OperationNode.requestBody.required?: boolean` — `true` when spec has `required: true`, `undefined` when absent
 
 Reference implementation (plugin-ts, schema plugin):
+
 - `packages/plugin-ts/src/types.ts` -- `ResolverTs` type with methods + JSDoc, `Options` with all v5 fields, `PluginFactoryOptions` generic; `Options.group` is `UserGroup`, `ResolvedOptions.group` is `Group | undefined`
 - `packages/plugin-ts/src/constants.ts` -- SCREAMING_SNAKE_CASE `Set` constants (also how to export all-values sets for test parameterization — see `ENUM_TYPES`, `OPTIONAL_TYPES`, `ARRAY_TYPES`, `ENUM_KEY_CASINGS`)
 - `packages/plugin-ts/src/resolvers/resolverTs.ts` -- `defineResolver` with `default`, `resolveName`, `resolveTypedName`, etc.
@@ -162,11 +177,13 @@ Reference implementation (plugin-ts, schema plugin):
 - `packages/plugin-ts/package.json` -- `exports` and `typesVersions`
 
 Reference implementation (plugin-cypress, operation plugin that depends on plugin-ts):
+
 - `packages/plugin-cypress/src/components/Request.tsx` -- component that receives `resolver: ResolverTs` directly and uses `createOperationParams` from `@kubb/ast` + `functionPrinter` from `@kubb/plugin-ts`
 - `packages/plugin-cypress/src/generators/cypressGenerator.tsx` -- generator that retrieves `tsResolver` from the driver and builds the import list with `caseParams` + `resolveXxxName`
 - `packages/plugin-cypress/src/generators/cypressGenerator.test.ts` -- operation plugin test pattern with `createMockedPlugin`, `createMockedPluginDriver` and a mocked `plugin-ts` entry in the driver
 
 Schema plugins only:
+
 - `packages/plugin-ts/src/printers/printerTs.ts` -- `definePrinter`
 - `packages/plugin-zod/src/printers/printerZod.ts` -- complete schema-plugin printer example (all node types, keysToOmit, self-ref lazy getters, applyModifiers)
 - `packages/plugin-zod/src/printers/printerZodMini.ts` -- functional-API printer variant (z.optional(z.string()), .check() for constraints, no coercion)
@@ -178,6 +195,7 @@ Schema plugins only:
 - `packages/ast/src/printers/printer.ts` -- printer factory
 
 Test mocks:
+
 - `configs/mocks.ts` -- `createMockedAdapter`, `createMockedPlugin`, `createMockedPluginDriver`, `matchFiles`
 
 ---
@@ -195,11 +213,13 @@ Files to update: `package.json`, `tsdown.config.ts`
 Read `packages/plugin-ts/src/types.ts` first. Then rewrite the plugin's `types.ts` following that pattern.
 
 Remove these imports:
+
 - `contentType`, `Oas` from `@kubb/oas`
 - `Exclude`, `Include`, `Override`, `ResolvePathOptions` from `@kubb/plugin-oas`
 - `Generator` from `@kubb/plugin-oas/generators`
 
 Add these imports:
+
 - `Resolver`, `Generator`, `CompatibilityPreset`, `Output`, `Group`, `Exclude`, `Include`, `Override`, `PluginFactoryOptions`, `ResolvePathOptions` from `@kubb/core`
 - `Visitor` from `@kubb/ast/types`
 
@@ -219,6 +239,7 @@ export type ResolverCypress = Resolver & {
 For schema plugins, add more methods following `ResolverTs` (e.g. `resolveTypedName`, `resolveParamName`, `resolveResponseStatusName`, etc.).
 
 Update `Options` type:
+
 - Keep all plugin-specific options (`dataReturnType`, `paramsType`, `pathParamsType`, `baseURL`, `paramsCasing`, `group`, `exclude`, `include`, `override`, `output`)
 - Remove `contentType` (adapter responsibility)
 - Remove old `transformers` object with `name` callback
@@ -232,6 +253,7 @@ group?: UserGroup
 // In ResolvedOptions (after normalization in plugin.ts):
 group: Group | undefined
 ```
+
 - Add these new options with JSDoc:
 
 ```typescript
@@ -318,7 +340,7 @@ export type FooPrinterOptions = {
   // plugin-specific options visible to the printer
   guidType?: 'uuid' | 'guid'
   resolver?: ResolverFoo
-  schemaName?: string    // used for self-ref detection inside objects
+  schemaName?: string // used for self-ref detection inside objects
   keysToOmit?: Array<string>
 }
 
@@ -392,6 +414,7 @@ export const printerFoo = definePrinter<FooPrinterFactory>((options) => {
 ```
 
 Key rules for printers:
+
 - `this.transform(child)` dispatches to the correct `nodes.*` handler recursively — use it for all nested nodes
 - Modifiers (`.nullable()`, `.optional()`, `.nullish()`, `.default()`, `.describe()`) are applied in `print()`, not inside `nodes.*`; property-level modifiers are applied inside `nodes.object` when building each property value
 - `keysToOmit` is always applied at the top level in `print()`, not inside `nodes.object`, so it interacts with the fully-built object schema
@@ -414,7 +437,7 @@ The `default`, `resolveOptions`, `resolvePath`, `resolveFile`, `resolveBanner`, 
 
 Example for plugin-cypress:
 
-```typescript
+````typescript
 import { camelCase } from '@internals/utils'
 import { defineResolver } from '@kubb/core'
 import type { PluginCypress } from '../types.ts'
@@ -430,18 +453,18 @@ import type { PluginCypress } from '../types.ts'
  * resolverCypress.default('list pets', 'function') // -> 'listPets'
  * resolverCypress.resolveName('show pet by id')    // -> 'showPetById'
  * ```
-*/
+ */
 export const resolverCypress = defineResolver<PluginCypress>(() => ({
-name: 'default',
-pluginName: 'plugin-cypress',
-default(name, type) {
-return camelCase(name, { isFile: type === 'file' })
-},
-resolveName(name) {
-return this.default(name, 'function')
-},
+  name: 'default',
+  pluginName: 'plugin-cypress',
+  default(name, type) {
+    return camelCase(name, { isFile: type === 'file' })
+  },
+  resolveName(name) {
+    return this.default(name, 'function')
+  },
 }))
-```
+````
 
 For **schema plugins**, the resolver must also implement all operation-level naming helpers. Model it on `packages/plugin-zod/src/resolvers/resolverZod.ts`:
 
@@ -451,17 +474,28 @@ import { defineResolver } from '@kubb/core'
 import type { PluginFoo } from '../types.ts'
 
 function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
-  return camelCase(name, { suffix: type ? 'schema' : undefined, isFile: type === 'file' })
+  return camelCase(name, {
+    suffix: type ? 'schema' : undefined,
+    isFile: type === 'file',
+  })
 }
 
 export const resolverFoo = defineResolver<PluginFoo>(() => ({
   name: 'default',
   pluginName: 'plugin-foo',
 
-  default(name, type) { return resolveName(name, type) },
-  resolveName(name) { return this.default(name, 'function') },
-  resolveInferName(name) { return pascalCase(name) },   // 'fooSchema' → 'FooSchema'
-  resolvePathName(name, type) { return this.default(name, type) },
+  default(name, type) {
+    return resolveName(name, type)
+  },
+  resolveName(name) {
+    return this.default(name, 'function')
+  },
+  resolveInferName(name) {
+    return pascalCase(name)
+  }, // 'fooSchema' → 'FooSchema'
+  resolvePathName(name, type) {
+    return this.default(name, type)
+  },
 
   // Operation-level naming — called from the generator's Operation handler:
   resolveParamName(node, param) {
@@ -582,6 +616,7 @@ export const presets = definePresets<ResolverFoo>({
 ### Step 5: Update package.json
 
 In `dependencies`:
+
 - Remove `"@kubb/oas": "workspace:*"` and `"@kubb/plugin-oas": "workspace:*"`
 - Add `"@kubb/ast": "workspace:*"` and `"@kubb/fabric-core": "catalog:"`
 
@@ -631,17 +666,20 @@ Read `packages/plugin-cypress/src/components/Request.tsx` as the reference for t
 For each component file, make these changes:
 
 Remove these imports:
+
 - `HttpMethod`, `isAllOptional`, `isOptional` from `@kubb/oas`
 - `OperationSchemas` from `@kubb/plugin-oas`
 - `getPathParams` from `@kubb/plugin-oas/utils`
 
 Add or keep these imports:
+
 - `caseParams`, `createOperationParams`, `createFunctionParameter`, `createTypeNode` from `@kubb/ast`
 - `OperationNode` from `@kubb/ast/types`
 - `ResolverTs`, `functionPrinter` from `@kubb/plugin-ts` (for printing function-parameter signatures)
 - `URLPath`, `camelCase` from `@internals/utils` (still needed for URL template generation and path-param key normalization)
 
 Change the Props type:
+
 - Replace `typeSchemas: OperationSchemas` with `resolver: ResolverTs` — the component resolves type names itself via `resolver.resolveXxxName(node)`
 - Replace `url: string` and `method: HttpMethod` with `node: OperationNode` — get `node.path` and `node.method` directly
 - Keep plugin-specific props like `dataReturnType`, `paramsCasing`, `paramsType`, `pathParamsType`, etc.
@@ -660,7 +698,14 @@ function getParams({ paramsType, pathParamsType, paramsCasing, resolver, node })
     paramsCasing,
     resolver,
     extraParams: [
-      createFunctionParameter({ name: 'options', type: createTypeNode({ variant: 'reference', name: 'Partial<Cypress.RequestOptions>' }), default: '{}' }),
+      createFunctionParameter({
+        name: 'options',
+        type: createTypeNode({
+          variant: 'reference',
+          name: 'Partial<Cypress.RequestOptions>',
+        }),
+        default: '{}',
+      }),
     ],
   })
   return declarationPrinter.print(paramsNode) ?? ''
@@ -670,17 +715,20 @@ function getParams({ paramsType, pathParamsType, paramsCasing, resolver, node })
 `createOperationParams` automatically handles path-param typing, query-param grouping, request body optionality, and the resolver's `resolveXxxName` methods — no manual TypeNames construction needed.
 
 **Response type** — call `resolver.resolveResponseName(node)` directly:
+
 ```typescript
 const responseType = resolver.resolveResponseName(node)
 ```
 
 **URL template** — use `URLPath` from `@internals/utils` with the `paramsCasing` option:
+
 ```typescript
 const urlPath = new URLPath(node.path, { casing: paramsCasing })
 const urlTemplate = urlPath.toTemplateString({ prefix: baseURL, replacer: ... })
 ```
 
 **Query / header params with renamed keys** — when `paramsCasing` renames params (e.g. `page_size` → `pageSize`), remap keys back to original API names:
+
 ```typescript
 const casedQueryParams = caseParams(queryParams, paramsCasing)
 const needsQsTransform = casedQueryParams.some((p, i) => p.name !== queryParams[i].name)
@@ -707,17 +755,22 @@ import { printerFoo } from '../printers/printerFoo.ts'
 import type { ResolverFoo } from '../types.ts'
 
 type Props = {
-  name: string            // export const name
-  node: SchemaNode        // pre-transformed AST node
-  description?: string    // JSDoc @description comment
-  inferTypeName?: string  // optional: emit `type X = z.infer<typeof name>`
+  name: string // export const name
+  node: SchemaNode // pre-transformed AST node
+  description?: string // JSDoc @description comment
+  inferTypeName?: string // optional: emit `type X = z.infer<typeof name>`
   resolver?: ResolverFoo
   keysToOmit?: Array<string>
   // ... any printer-specific options (coercion, guidType, wrapOutput, etc.)
 }
 
 export function FooComponent({ name, node, description, inferTypeName, resolver, keysToOmit, ...rest }: Props): FabricReactNode {
-  const printer = printerFoo({ resolver, schemaName: name, keysToOmit, ...rest })
+  const printer = printerFoo({
+    resolver,
+    schemaName: name,
+    keysToOmit,
+    ...rest,
+  })
   const output = printer.print(node)
 
   if (!output) return
@@ -725,7 +778,13 @@ export function FooComponent({ name, node, description, inferTypeName, resolver,
   return (
     <>
       <File.Source name={name} isExportable isIndexable>
-        <Const export name={name} JSDoc={{ comments: [description ? `@description ${description}` : undefined].filter(Boolean) }}>
+        <Const
+          export
+          name={name}
+          JSDoc={{
+            comments: [description ? `@description ${description}` : undefined].filter(Boolean),
+          }}
+        >
           {output}
         </Const>
       </File.Source>
@@ -742,6 +801,7 @@ export function FooComponent({ name, node, description, inferTypeName, resolver,
 ```
 
 Key rules for schema plugin components:
+
 - `<File.Source>` with `isExportable isIndexable` marks the node for barrel-file collection; add `isTypeOnly` for type-only exports
 - Create a separate component (`FooMiniComponent`) if the plugin has a functional-API printer variant — identical props minus coercion, different printer
 - The component receives an already-transformed `SchemaNode` (transformation happens in the generator, before the component)
@@ -751,14 +811,17 @@ Key rules for schema plugin components:
 Read `packages/plugin-ts/src/generators/typeGenerator.tsx` first.
 
 Remove these imports:
+
 - `createReactGenerator` from `@kubb/plugin-oas/generators`
 - `useOas`, `useOperationManager` from `@kubb/plugin-oas/hooks`
 - `getBanner`, `getFooter` from `@kubb/plugin-oas/utils`
 
 Add these imports:
+
 - `defineGenerator`, `getMode` from `@kubb/core`
 
 **For plugins that import types from plugin-ts** (e.g. `plugin-cypress`):
+
 - Do **not** import `useDriver`, `resolverTs`, or anything from `@kubb/plugin-ts/resolvers` statically in the generator
 - Retrieve the TypeScript resolver at render time: `const tsResolver = driver.getPlugin<PluginTs>(pluginTsName)?.resolver`
 - Build the list of type names to import using `caseParams` from `@kubb/ast` and the resolver's `resolveXxxName` methods directly — no separate `buildTypeNames` utility needed
@@ -860,6 +923,7 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
 ```
 
 Key differences:
+
 - `defineGenerator` instead of `createReactGenerator`
 - Must include `type: 'react'` in the definition
 - Props are `{ node, adapter, options, config, driver, resolver }` not `{ operation, generator, plugin }`
@@ -928,6 +992,7 @@ Schema({ node, adapter, options, config, resolver }) {
 ```
 
 Key rules for the Schema handler:
+
 - Always call `transform(node, transformer ?? {})` before passing the node to the component — this applies any user-supplied AST transformer
 - Guard on `transformedNode.name` (not `node.name`) — the transformer may rename the node
 - Use `const meta = { name, file } as const` to co-locate the resolved name and file (pattern from `typeGenerator` and `zodGenerator`)
@@ -1048,6 +1113,7 @@ Operation({ node, adapter, options, config, resolver }) {
 ```
 
 Key rules for the Operation handler (schema plugins):
+
 - Apply `transform(node, transformer ?? {})` to the `OperationNode` at the TOP of `Operation` (not inside `renderSchemaEntry`) — the result is `transformedNode`; pass `transformedNode` to all resolver calls and schema access
 - `buildGroupedParamsSchema` is a local helper — **not** in a `utils.ts` file; keep it inside the generator file; set `primitive: 'object'` alongside `type: 'object'` so downstream consumers can distinguish object schemas
 - `renderSchemaEntry` takes a `schema` param (not `node`) — the description is NOT passed as a separate prop; instead merge it into the schema inline: `{ ...res.schema, description: res.description ?? res.schema.description }`
@@ -1069,9 +1135,11 @@ Files to rewrite: `src/plugin.ts`
 Read `packages/plugin-ts/src/plugin.ts` first.
 
 Remove these imports:
+
 - `OperationGenerator`, `pluginOasName` from `@kubb/plugin-oas`
 
 Add these imports:
+
 - `walk` from `@kubb/ast`
 - `runGeneratorSchema`, `runGeneratorOperation`, `runGeneratorOperations`, `getPreset` from `@kubb/core`
 - `presets` from `./presets.ts`
@@ -1214,7 +1282,7 @@ The three helpers from `@kubb/core` handle option resolution, null-filtering, an
 
 Add JSDoc to exports:
 
-```typescript
+````typescript
 /**
  * Canonical plugin name for `@kubb/plugin-cypress`, used to identify the plugin
  * in driver lookups and warnings.
@@ -1236,11 +1304,11 @@ export const pluginCypressName = 'plugin-cypress' satisfies PluginCypress['name'
  *   plugins: [pluginCypress({ output: { path: 'cypress' } })],
  * })
  * ```
-*/
+ */
 export const pluginCypress = createPlugin<PluginCypress>((options) => {
-// ...
+  // ...
 })
-```
+````
 
 ---
 
@@ -1257,12 +1325,14 @@ Files to regenerate: `src/generators/__snapshots__/**`
 Read `packages/plugin-ts/src/generators/typeGenerator.test.tsx` first.
 
 Remove these imports:
+
 - `OperationGenerator`, `renderOperation` from `@kubb/plugin-oas`
 - `parse` from `@kubb/oas`
 - `HttpMethod` from `@kubb/oas`
 - `fileURLToPath` and `__dirname` / `__filename` patterns
 
 Add these imports:
+
 - `createOperation`, `createParameter`, `createResponse`, `createSchema` from `@kubb/ast`
 - `renderOperation` from `@kubb/core`
 - `createMockedAdapter` from `#mocks`
@@ -1368,6 +1438,7 @@ Run `pnpm test -u` in the plugin package directory.
 ### plugin-ts (schema plugin — completed)
 
 Migrated to v5 architecture. Key specifics:
+
 - Generators (`typeGenerator.tsx`, `typeGeneratorLegacy.tsx`) now implement **both** `Schema` and `Operation` handlers; the `Schema` handler mirrors the zodGenerator pattern but handles enum naming via `resolver.resolveEnumKeyName()` and uses TypeScript-specific `Type` component
 - Generators apply `transform(node, transformer ?? {})` at the top of **both** handlers; for `Operation`, `caseParams` is applied to the `transformedNode.parameters`
 - `renderSchemaType` helper renamed parameter from `node` to `schema`; description is no longer passed as a separate prop but merged inline: `{ ...res.schema, description: res.description ?? res.schema.description }`
@@ -1388,6 +1459,7 @@ Migrated to v5 architecture. Key specifics:
 #### plugin-zod (completed)
 
 Migrated to v5 architecture:
+
 - Created `src/types.ts` — `ResolverZod` extends `Resolver & OperationParamsResolver`, updated `Options` with `compatibilityPreset`, `resolver?: Partial<ResolverZod> & ThisType<ResolverZod>`, `transformer?: Visitor`; removed `version` (dropped Zod v3 support), removed `contentType` (moved to adapter)
 - Created `src/constants.ts` — `ZOD_NAMESPACE_IMPORTS = new Set(['zod', 'zod/mini'])` for namespace vs named import detection
 - Created `src/resolvers/resolverZod.ts` — default resolver using `defineResolver` with camelCase+`Schema` suffix naming; all operation-level naming methods implemented

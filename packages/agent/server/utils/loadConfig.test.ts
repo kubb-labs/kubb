@@ -9,12 +9,27 @@ import { getCosmiConfig } from './getCosmiConfig.ts'
 
 describe('loadConfig', () => {
   it('returns the first config when multiple configs are found', async () => {
-    const first = { name: 'first', input: { path: 'spec.yaml' }, output: { path: './gen' }, plugins: [] }
-    const second = { name: 'second', input: { path: 'spec.yaml' }, output: { path: './gen' }, plugins: [] }
+    const first = {
+      name: 'first',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+      plugins: [],
+    }
+    const second = {
+      name: 'second',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+      plugins: [],
+    }
 
-    vi.mocked(getCosmiConfig).mockResolvedValue({ config: [first, second] } as any)
+    vi.mocked(getCosmiConfig).mockResolvedValue({
+      config: [first, second],
+    } as any)
 
-    await expect(loadConfig('/project/kubb.config.ts')).resolves.toMatchObject({ ...first, plugins: [] })
+    await expect(loadConfig('/project/kubb.config.ts')).resolves.toMatchObject({
+      ...first,
+      plugins: [],
+    })
   })
 
   it('throws when no configs are found', async () => {
@@ -26,7 +41,9 @@ describe('loadConfig', () => {
   it('passes the resolved config path to getCosmiConfig', async () => {
     const configPath = '/absolute/project/kubb.config.ts'
 
-    vi.mocked(getCosmiConfig).mockResolvedValue({ config: [{ name: 'test', input: { path: '' }, output: { path: '' } }] } as any)
+    vi.mocked(getCosmiConfig).mockResolvedValue({
+      config: [{ name: 'test', input: { path: '' }, output: { path: '' } }],
+    } as any)
 
     await loadConfig(configPath)
 
@@ -35,9 +52,15 @@ describe('loadConfig', () => {
 
   it('normalizes plugins when missing', async () => {
     vi.mocked(getCosmiConfig).mockResolvedValue({
-      config: { name: 'test', input: { path: 'api.yaml' }, output: { path: './gen' } },
+      config: {
+        name: 'test',
+        input: { path: 'api.yaml' },
+        output: { path: './gen' },
+      },
     } as any)
 
-    await expect(loadConfig('/project/kubb.config.ts')).resolves.toMatchObject({ plugins: [] })
+    await expect(loadConfig('/project/kubb.config.ts')).resolves.toMatchObject({
+      plugins: [],
+    })
   })
 })

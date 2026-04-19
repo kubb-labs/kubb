@@ -85,8 +85,14 @@ describe('definePrinter', () => {
     const node = createSchema({
       type: 'object',
       properties: [
-        createProperty({ name: 'id', schema: createSchema({ type: 'integer' }) }),
-        createProperty({ name: 'label', schema: createSchema({ type: 'string' }) }),
+        createProperty({
+          name: 'id',
+          schema: createSchema({ type: 'integer' }),
+        }),
+        createProperty({
+          name: 'label',
+          schema: createSchema({ type: 'string' }),
+        }),
       ],
     })
 
@@ -123,7 +129,11 @@ describe('definePrinter', () => {
 
   it('infers the Printer type correctly', () => {
     type P = PrinterFactoryOptions<'zod', object, string>
-    const zodPrinter = definePrinter<P>(() => ({ name: 'zod', options: {}, nodes: {} }))
+    const zodPrinter = definePrinter<P>(() => ({
+      name: 'zod',
+      options: {},
+      nodes: {},
+    }))
     const printer = zodPrinter()
 
     expectTypeOf(printer.name).toEqualTypeOf<'zod'>()

@@ -24,7 +24,9 @@ describe('InferSchemaNode', () => {
   })
 
   it('infers IntersectionSchemaNode for multi-member allOf', () => {
-    type Node = InferSchema<{ allOf: [{ type: 'string' }, { type: 'number' }] }>
+    type Node = InferSchema<{
+      allOf: [{ type: 'string' }, { type: 'number' }]
+    }>
 
     expectTypeOf<Node>().toEqualTypeOf<IntersectionSchemaNode>()
   })

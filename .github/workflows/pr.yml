@@ -103,7 +103,7 @@ jobs:
 
       - name: Linting
         env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
+          NODE_OPTIONS: '--max_old_space_size=4096'
         run: pnpm run lint
 
   spellcheck:
@@ -126,10 +126,10 @@ jobs:
       - name: Spell Check
         uses: streetsidesoftware/cspell-action@v8
         with:
-         files: |
-           **/*.{ts,md}
-         suggestions: 'true'
-         config: 'cspell.json'
+          files: |
+            **/*.{ts,md}
+          suggestions: 'true'
+          config: 'cspell.json'
 
   prerelease:
     name: Prerelease

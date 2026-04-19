@@ -4,7 +4,10 @@ import { describe, expect, test } from 'vitest'
 import { defineConfig } from './defineConfig.ts'
 
 describe('defineConfig', () => {
-  const plugin = createMockedPlugin({ name: 'plugin', options: undefined as any })
+  const plugin = createMockedPlugin({
+    name: 'plugin',
+    options: undefined as any,
+  })
 
   const baseConfig: UserConfig = {
     root: '.',
@@ -22,7 +25,11 @@ describe('defineConfig', () => {
   }
 
   test('applies default adapter when not set', () => {
-    const config = defineConfig({ root: '.', input: { path: 'spec.yaml' }, output: { path: './gen' } } as UserConfig)
+    const config = defineConfig({
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+    } as UserConfig)
     const resolved = config as UserConfig
 
     expect(resolved.adapter).toBeDefined()
@@ -30,7 +37,11 @@ describe('defineConfig', () => {
   })
 
   test('applies default parsers when not set', () => {
-    const config = defineConfig({ root: '.', input: { path: 'spec.yaml' }, output: { path: './gen' } } as UserConfig)
+    const config = defineConfig({
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+    } as UserConfig)
     const resolved = config as UserConfig
 
     expect(resolved.parsers?.length).toBeGreaterThan(0)
@@ -38,7 +49,12 @@ describe('defineConfig', () => {
 
   test('preserves existing adapter', () => {
     const adapter = createMockedAdapter()
-    const config = defineConfig({ root: '.', input: { path: 'spec.yaml' }, output: { path: './gen' }, adapter } as UserConfig)
+    const config = defineConfig({
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+      adapter,
+    } as UserConfig)
     const resolved = config as UserConfig
 
     expect(resolved.adapter).toBe(adapter)
@@ -46,7 +62,12 @@ describe('defineConfig', () => {
 
   test('preserves existing parsers when non-empty', () => {
     const parsers = [{ name: 'custom' } as any]
-    const config = defineConfig({ root: '.', input: { path: 'spec.yaml' }, output: { path: './gen' }, parsers } as UserConfig)
+    const config = defineConfig({
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+      parsers,
+    } as UserConfig)
     const resolved = config as UserConfig
 
     expect(resolved.parsers).toBe(parsers)

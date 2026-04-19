@@ -100,22 +100,22 @@
   pluginTs({
     resolver: {
       resolveName(name) {
-        return `Custom${this.default(name, "function")}`;
+        return `Custom${this.default(name, 'function')}`
       },
     },
     transformer: {
       schema(node) {
-        return { ...node, description: undefined };
+        return { ...node, description: undefined }
       },
     },
     printer: {
       nodes: {
         integer() {
-          return ts.factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword);
+          return ts.factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword)
         },
       },
     },
-  });
+  })
   ```
 
   ### `@kubb/plugin-zod`
@@ -127,22 +127,22 @@
   pluginZod({
     resolver: {
       resolveName(name) {
-        return `${this.default(name, "function")}Schema`;
+        return `${this.default(name, 'function')}Schema`
       },
     },
     transformer: {
       schema(node) {
-        return { ...node, description: undefined };
+        return { ...node, description: undefined }
       },
     },
     printer: {
       nodes: {
         integer() {
-          return "z.number()";
+          return 'z.number()'
         },
       },
     },
-  });
+  })
   ```
 
   ### `@kubb/plugin-cypress`

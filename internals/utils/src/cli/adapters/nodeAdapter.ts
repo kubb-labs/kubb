@@ -3,7 +3,11 @@ import { defineCLIAdapter } from '../define.ts'
 import { renderHelp } from '../help.ts'
 import type { CommandDefinition, OptionType, ParsedArgs, RunOptions } from '../types.ts'
 
-type ParseOption = { type: OptionType; short?: string; default?: string | boolean }
+type ParseOption = {
+  type: OptionType
+  short?: string
+  default?: string | boolean
+}
 type ParseOptions = Record<string, ParseOption>
 
 function buildParseOptions(def: CommandDefinition): ParseOptions {
@@ -33,7 +37,10 @@ async function runCommand(def: CommandDefinition, argv: string[], parentName?: s
       allowPositionals: true,
       strict: false,
     })
-    parsed = { values: result.values as ParsedArgs['values'], positionals: result.positionals }
+    parsed = {
+      values: result.values as ParsedArgs['values'],
+      positionals: result.positionals,
+    }
   } catch {
     renderHelp(def, parentName)
     process.exit(1)

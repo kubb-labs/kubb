@@ -22,10 +22,26 @@ describe('getCommandSchema', () => {
 
   describe('option flags', () => {
     it.each([
-      { option: { type: 'boolean' as const, description: 'Watch' }, expected: '--opt' },
-      { option: { type: 'string' as const, description: 'Config' }, expected: '--opt <opt>' },
-      { option: { type: 'string' as const, description: 'Config', hint: 'path' }, expected: '--opt <path>' },
-      { option: { type: 'string' as const, description: 'Config', short: 'c' }, expected: '-c, --opt <opt>' },
+      {
+        option: { type: 'boolean' as const, description: 'Watch' },
+        expected: '--opt',
+      },
+      {
+        option: { type: 'string' as const, description: 'Config' },
+        expected: '--opt <opt>',
+      },
+      {
+        option: {
+          type: 'string' as const,
+          description: 'Config',
+          hint: 'path',
+        },
+        expected: '--opt <path>',
+      },
+      {
+        option: { type: 'string' as const, description: 'Config', short: 'c' },
+        expected: '-c, --opt <opt>',
+      },
     ])('builds flags "$expected" for $option.type option', ({ option, expected }) => {
       expect(schemaOpt(option)?.flags).toBe(expected)
     })
@@ -33,10 +49,42 @@ describe('getCommandSchema', () => {
 
   describe('option fields', () => {
     it.each([
-      { option: { type: 'string' as const, description: 'Port', default: '3000' }, field: 'default', expected: '3000' },
-      { option: { type: 'string' as const, description: 'Config', hint: 'path' }, field: 'hint', expected: 'path' },
-      { option: { type: 'string' as const, description: 'Level', enum: ['info', 'debug'] }, field: 'enum', expected: ['info', 'debug'] },
-      { option: { type: 'string' as const, description: 'Config', required: true }, field: 'required', expected: true },
+      {
+        option: {
+          type: 'string' as const,
+          description: 'Port',
+          default: '3000',
+        },
+        field: 'default',
+        expected: '3000',
+      },
+      {
+        option: {
+          type: 'string' as const,
+          description: 'Config',
+          hint: 'path',
+        },
+        field: 'hint',
+        expected: 'path',
+      },
+      {
+        option: {
+          type: 'string' as const,
+          description: 'Level',
+          enum: ['info', 'debug'],
+        },
+        field: 'enum',
+        expected: ['info', 'debug'],
+      },
+      {
+        option: {
+          type: 'string' as const,
+          description: 'Config',
+          required: true,
+        },
+        field: 'required',
+        expected: true,
+      },
     ])('includes $field when set', ({ option, field, expected }) => {
       expect(schemaOpt(option)?.[field as keyof ReturnType<typeof schemaOpt>]).toEqual(expected)
     })
@@ -51,7 +99,13 @@ describe('getCommandSchema', () => {
       {
         name: 'agent',
         description: 'Agent',
-        subCommands: [{ name: 'start', description: 'Start agent', options: { port: { type: 'string', description: 'Port' } } }],
+        subCommands: [
+          {
+            name: 'start',
+            description: 'Start agent',
+            options: { port: { type: 'string', description: 'Port' } },
+          },
+        ],
       },
     ])
     const sub = schema?.subCommands[0]

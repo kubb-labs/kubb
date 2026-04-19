@@ -13,6 +13,7 @@ outline: deep
 ## What is a Configuration File?
 
 The Kubb configuration file (`kubb.config.ts`) defines:
+
 - **Input source** - Path to your OpenAPI/Swagger specification
 - **Output settings** - Where generated files are saved and how they're formatted
 - **Plugins** - Which code generators to use (TypeScript, React Query, Zod, etc.)
@@ -23,6 +24,7 @@ Kubb uses [Cosmiconfig](https://github.com/davidtheclark/cosmiconfig) to automat
 ## Configuration File Discovery
 
 **Kubb automatically searches for config files in this order:**
+
 1. `kubb.config.ts` (recommended - TypeScript with type safety)
 2. `kubb.config.mts` (TypeScript ES modules explicit)
 3. `kubb.config.cts` (TypeScript CommonJS explicit)
@@ -32,10 +34,12 @@ Kubb uses [Cosmiconfig](https://github.com/davidtheclark/cosmiconfig) to automat
 7. `.kubbrc` (JavaScript format)
 
 **Alternative locations:**
+
 - `configs/kubb.config.ts` (in a configs directory)
 - `.config/kubb.config.ts` (in a .config directory)
 
 **Why use TypeScript configuration?**
+
 - Full type checking catches errors before runtime
 - IntelliSense autocomplete in VS Code and other editors
 - Inline documentation for all options
@@ -44,15 +48,14 @@ Kubb uses [Cosmiconfig](https://github.com/davidtheclark/cosmiconfig) to automat
 > [!TIP]
 > Use TypeScript (`kubb.config.ts`) for the best developer experience with type safety and autocomplete.
 
-
 ## defineConfig
 
 The `defineConfig` helper provides TypeScript type checking and IntelliSense for your configuration. It also **automatically applies sensible defaults** so you don't have to configure them yourself:
 
-| Option | Default | Package |
-|:-------|:--------|:--------|
+| Option    | Default        | Package             |
+| :-------- | :------------- | :------------------ |
 | `adapter` | `adapterOas()` | `@kubb/adapter-oas` |
-| `parsers` | `[parserTs]` | `@kubb/parser-ts` |
+| `parsers` | `[parserTs]`   | `@kubb/parser-ts`   |
 
 > [!NOTE]
 > `@kubb/adapter-oas` and `@kubb/parser-ts` must be installed for the defaults to work. They are included when you run `npx kubb init` or install `@kubb/core`.
@@ -110,7 +113,7 @@ Configure Kubb's behavior with these options. All are optional unless marked as 
 Display name for this configuration in CLI output. Useful when running multiple configs.
 
 |           |          |
-|----------:|:---------|
+| --------: | :------- |
 |     Type: | `string` |
 | Required: | `false`  |
 
@@ -128,10 +131,10 @@ export default defineConfig({
 
 Project root directory - can be absolute or relative to the config file location.
 
-|           |          |
-|----------:|:---------|
-|     Type: | `string` |
-| Required: | `false`  |
+|           |                 |
+| --------: | :-------------- |
+|     Type: | `string`        |
+| Required: | `false`         |
 |  Default: | `process.cwd()` |
 
 ```typescript twoslash [kubb.config.ts]
@@ -153,9 +156,9 @@ OpenAPI specification source. Use either `input.path` or `input.data` (not both)
 Path to your OpenAPI file - absolute or relative to `root`.
 
 |           |          |
-|----------:|:---------|
+| --------: | :------- |
 |     Type: | `string` |
-| Required: | `true`*  |
+| Required: | `true`\* |
 
 > [!NOTE]
 > Required if `input.data` is not provided.
@@ -176,9 +179,9 @@ export default defineConfig({
 OpenAPI specification as a string or object. Useful for programmatic generation.
 
 |           |                     |
-|----------:|:--------------------|
+| --------: | :------------------ |
 |     Type: | `string \| unknown` |
-| Required: | `true`*             |
+| Required: | `true`\*            |
 
 > [!NOTE]
 > Required if `input.path` is not provided.
@@ -189,7 +192,9 @@ import { defineConfig } from '@kubb/core'
 // You can import a JSON file and pass it as data
 export default defineConfig({
   input: {
-    data: { /* your OpenAPI spec object */ },
+    data: {
+      /* your OpenAPI spec object */
+    },
   },
   output: { path: './src/gen' },
 })
@@ -204,7 +209,7 @@ Controls where and how files are generated.
 Directory for generated files - absolute or relative to `root`.
 
 |           |          |
-|----------:|:---------|
+| --------: | :------- |
 |     Type: | `string` |
 | Required: | `true`   |
 
@@ -224,7 +229,7 @@ export default defineConfig({
 Remove the output directory before generating new files.
 
 |           |           |
-|----------:|:----------|
+| --------: | :-------- |
 |     Type: | `boolean` |
 | Required: | `false`   |
 |  Default: | `false`   |
@@ -248,11 +253,11 @@ export default defineConfig({
 
 Code formatter to use on generated files.
 
-|           |                                             |
-|----------:|:--------------------------------------------|
+|           |                                            |
+| --------: | :----------------------------------------- |
 |     Type: | `'auto' \| 'prettier' \| 'biome' \| false` |
-| Required: | `false`                                     |
-|  Default: | `'prettier'`                                |
+| Required: | `false`                                    |
+|  Default: | `'prettier'`                               |
 
 - `'auto'` - Automatically detect and use available formatter (checks for biome, oxfmt then prettier)
 - `'prettier'` - Format with [Prettier](https://prettier.io/) (default, included since v3.17.1)
@@ -279,11 +284,11 @@ export default defineConfig({
 
 Linter to run on generated files.
 
-|           |                                                       |
-|----------:|:------------------------------------------------------|
+|           |                                                      |
+| --------: | :--------------------------------------------------- |
 |     Type: | `'auto' \| 'eslint' \| 'biome' \| 'oxlint' \| false` |
-| Required: | `false`                                               |
-|  Default: | `false`                                               |
+| Required: | `false`                                              |
+|  Default: | `false`                                              |
 
 - `'auto'` - Automatically detect and use available linter (checks for biome, oxlint, then eslint)
 - `'eslint'` - Lint with [ESLint](https://eslint.org/)
@@ -315,7 +320,7 @@ Set to `false` for a dry-run — files are generated in memory but nothing is pe
 > **Deprecated.** Use `output.storage` instead. To disable writing, pass `write: false` — this remains supported for backwards compatibility.
 
 |           |           |
-|----------:|:----------|
+| --------: | :-------- |
 |     Type: | `boolean` |
 | Required: | `false`   |
 |  Default: | `true`    |
@@ -339,7 +344,7 @@ Where generated files are persisted. Defaults to `fsStorage()` — the built-in 
 Use `createStorage` to create a custom driver for any backend (S3, Redis, in-memory, etc.).
 
 |           |               |
-|----------:|:--------------|
+| --------: | :------------ |
 |     Type: | `Storage`     |
 | Required: | `false`       |
 |  Default: | `fsStorage()` |
@@ -368,13 +373,21 @@ export const memoryStorage = createStorage(() => {
 
   return {
     name: 'memory',
-    async hasItem(key) { return store.has(key) },
-    async getItem(key) { return store.get(key) ?? null },
-    async setItem(key, value) { store.set(key, value) },
-    async removeItem(key) { store.delete(key) },
+    async hasItem(key) {
+      return store.has(key)
+    },
+    async getItem(key) {
+      return store.get(key) ?? null
+    },
+    async setItem(key, value) {
+      store.set(key, value)
+    },
+    async removeItem(key) {
+      store.delete(key)
+    },
     async getKeys(base) {
       const keys = [...store.keys()]
-      return base ? keys.filter(k => k.startsWith(base)) : keys
+      return base ? keys.filter((k) => k.startsWith(base)) : keys
     },
     async clear(base) {
       if (base) {
@@ -402,7 +415,7 @@ export default defineConfig({
 Override file extensions in generated imports/exports. Useful for ESM compatibility.
 
 |           |                                              |
-|----------:|:---------------------------------------------|
+| --------: | :------------------------------------------- |
 |     Type: | `Record<KubbFile.Extname, KubbFile.Extname>` |
 | Required: | `false`                                      |
 |  Default: | `{ '.ts': '.ts' }`                           |
@@ -429,7 +442,7 @@ export default defineConfig({
 Controls generation of barrel files (`index.ts`). This sets the root barrel file behavior.
 
 |           |                             |
-|----------:|:----------------------------|
+| --------: | :-------------------------- |
 |     Type: | `'all' \| 'named' \| false` |
 | Required: | `false`                     |
 |  Default: | `'named'`                   |
@@ -457,11 +470,11 @@ export default defineConfig({
 
 Banner comment added to generated files. Indicates the file was auto-generated.
 
-|           |                              |
-|----------:|:-----------------------------|
+|           |                               |
+| --------: | :---------------------------- |
 |     Type: | `'simple' \| 'full' \| false` |
-| Required: | `false`                      |
-|  Default: | `'simple'`                   |
+| Required: | `false`                       |
+|  Default: | `'simple'`                    |
 
 - `'simple'` - Basic banner with link and source file
   ```typescript
@@ -474,6 +487,7 @@ Banner comment added to generated files. Indicates the file was auto-generated.
   ```
 - `'full'` - Detailed banner with API title, description, and OpenAPI version
 - `false` - No banner
+
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
@@ -491,7 +505,7 @@ export default defineConfig({
 Overrides existing external files that Kubb can generate if they already exist. All plugins inherit this behavior from the global configuration by default. Individual plugins can override this behavior using their own `output.override` option.
 
 |           |           |
-|----------:|:----------|
+| --------: | :-------- |
 |     Type: | `boolean` |
 | Required: | `false`   |
 |  Default: | `false`   |
@@ -513,10 +527,9 @@ export default defineConfig({
 ### plugins
 
 |           |                         |
-|----------:|:------------------------|
+| --------: | :---------------------- |
 |     Type: | `Array<KubbUserPlugin>` |
 | Required: | `false`                 |
-
 
 An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Refer to “pre” for more details.
 How to use and set up plugins, see [plugins](/guide/plugins/).
@@ -543,14 +556,13 @@ export default defineConfig({
 })
 ```
 
-
 ### adapter
 
-|           |                    |
-|----------:|:-------------------|
-|     Type: | `Adapter`          |
-| Required: | `false`            |
-| Default:  | `adapterOas()` from `@kubb/adapter-oas` |
+|           |                                         |
+| --------: | :-------------------------------------- |
+|     Type: | `Adapter`                               |
+| Required: | `false`                                 |
+|  Default: | `adapterOas()` from `@kubb/adapter-oas` |
 
 The adapter converts your input file into a `@kubb/ast` `RootNode` — the universal intermediate representation consumed by all Kubb plugins.
 
@@ -573,14 +585,13 @@ export default defineConfig({
 })
 ```
 
-
 ### parsers
 
-|           |                    |
-|----------:|:-------------------|
-|     Type: | `Array<Parser>`    |
-| Required: | `false`            |
-| Default:  | `[parserTs]` from `@kubb/parser-ts` |
+|           |                                     |
+| --------: | :---------------------------------- |
+|     Type: | `Array<Parser>`                     |
+| Required: | `false`                             |
+|  Default: | `[parserTs]` from `@kubb/parser-ts` |
 
 An array of parsers that convert generated files to strings before they are written to disk. Each parser declares which file extensions it handles via `extNames`. A built-in catch-all fallback is always registered last for any unhandled extensions.
 
@@ -667,20 +678,16 @@ export default defineConfig(() => {
       path: './src/gen',
     },
     plugins: [
-      pluginOas(
-        {
-          output: {
-            path: 'schemas',
-          },
+      pluginOas({
+        output: {
+          path: 'schemas',
         },
-      ),
-      pluginOas(
-        {
-          output: {
-            path: 'schemas2',
-          },
+      }),
+      pluginOas({
+        output: {
+          path: 'schemas2',
         },
-      ),
+      }),
     ],
   }
 })
@@ -706,13 +713,11 @@ export default defineConfig([
       path: './src/gen',
     },
     plugins: [
-      pluginOas(
-        {
-           output: {
-            path: 'schemas',
-          },
+      pluginOas({
+        output: {
+          path: 'schemas',
         },
-      ),
+      }),
     ],
   },
   {
@@ -725,13 +730,11 @@ export default defineConfig([
       path: './src/gen-v2',
     },
     plugins: [
-      pluginOas(
-        {
-          output: {
-            path: 'schemas',
-          },
+      pluginOas({
+        output: {
+          path: 'schemas',
         },
-      ),
+      }),
     ],
   },
 ])

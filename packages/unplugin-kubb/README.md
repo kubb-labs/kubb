@@ -4,12 +4,12 @@
     <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
   </a>
 
-
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![Coverage][coverage-src]][coverage-href]
 [![License][license-src]][license-href]
 [![Sponsors][sponsors-src]][sponsors-href]
+
 <h4>
 <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/main//examples/typescript" target="_blank">View Demo</a>
 <span> · </span>
@@ -23,7 +23,6 @@
 
 Kubb plugin for Vite, webpack, esbuild, Rollup, Nuxt, Astro and Rspack.
 
-
 ## Install
 
 ```bash
@@ -35,7 +34,9 @@ import kubb from 'unplugin-kubb/vite'
 
 export default defineConfig({
   plugins: [
-    kubb({/* options */}),
+    kubb({
+      /* options */
+    }),
   ],
 })
 ```
@@ -45,7 +46,9 @@ import kubb from 'unplugin-kubb/rollup'
 
 export default {
   plugins: [
-    kubb({/* options */}),
+    kubb({
+      /* options */
+    }),
   ],
 }
 ```
@@ -54,7 +57,9 @@ export default {
 module.exports = {
   /* ... */
   plugins: [
-    require('unplugin-kubb/webpack')({/* options */}),
+    require('unplugin-kubb/webpack')({
+      /* options */
+    }),
   ],
 }
 ```
@@ -62,7 +67,12 @@ module.exports = {
 ```typescript
 export default defineNuxtConfig({
   modules: [
-    ['unplugin-kubb/nuxt', {/* options */}],
+    [
+      'unplugin-kubb/nuxt',
+      {
+        /* options */
+      },
+    ],
   ],
 })
 ```
@@ -73,7 +83,9 @@ export default defineNuxtConfig({
 module.exports = {
   configureWebpack: {
     plugins: [
-      require('unplugin-kubb/webpack')({/* options */}),
+      require('unplugin-kubb/webpack')({
+        /* options */
+      }),
     ],
   },
 }
@@ -111,7 +123,6 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
     <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
   </a>
 </p>
-
 
 <!-- Badges -->
 

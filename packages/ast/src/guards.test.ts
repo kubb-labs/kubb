@@ -54,7 +54,11 @@ describe('isOperationNode', () => {
     expect(isOperationNode(createInput())).toBe(false)
   })
   it('narrows to OperationNode in a conditional', () => {
-    const node: Node = createOperation({ operationId: 'op', method: 'GET', path: '/' })
+    const node: Node = createOperation({
+      operationId: 'op',
+      method: 'GET',
+      path: '/',
+    })
     if (isOperationNode(node)) {
       expectTypeOf(node).toEqualTypeOf<OperationNode>()
     }
@@ -78,13 +82,25 @@ describe('isSchemaNode', () => {
 
 describe('isParameterNode', () => {
   it('returns true for ParameterNode', () => {
-    expect(isParameterNode(createParameter({ name: 'id', in: 'path', schema: createSchema({ type: 'string' }) }))).toBe(true)
+    expect(
+      isParameterNode(
+        createParameter({
+          name: 'id',
+          in: 'path',
+          schema: createSchema({ type: 'string' }),
+        }),
+      ),
+    ).toBe(true)
   })
   it('returns false for other nodes', () => {
     expect(isParameterNode(createSchema({ type: 'string' }))).toBe(false)
   })
   it('narrows to ParameterNode in a conditional', () => {
-    const node: Node = createParameter({ name: 'id', in: 'path', schema: createSchema({ type: 'string' }) })
+    const node: Node = createParameter({
+      name: 'id',
+      in: 'path',
+      schema: createSchema({ type: 'string' }),
+    })
     if (isParameterNode(node)) {
       expectTypeOf(node).toEqualTypeOf<ParameterNode>()
     }
@@ -93,13 +109,23 @@ describe('isParameterNode', () => {
 
 describe('isPropertyNode', () => {
   it('returns true for PropertyNode', () => {
-    expect(isPropertyNode(createProperty({ name: 'id', schema: createSchema({ type: 'integer' }) }))).toBe(true)
+    expect(
+      isPropertyNode(
+        createProperty({
+          name: 'id',
+          schema: createSchema({ type: 'integer' }),
+        }),
+      ),
+    ).toBe(true)
   })
   it('returns false for non-property nodes', () => {
     expect(isPropertyNode(createSchema({ type: 'string' }))).toBe(false)
   })
   it('narrows to PropertyNode in a conditional', () => {
-    const node: Node = createProperty({ name: 'id', schema: createSchema({ type: 'integer' }) })
+    const node: Node = createProperty({
+      name: 'id',
+      schema: createSchema({ type: 'integer' }),
+    })
     if (isPropertyNode(node)) {
       expectTypeOf(node).toEqualTypeOf<PropertyNode>()
     }

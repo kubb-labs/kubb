@@ -49,7 +49,11 @@ describe('createInput', () => {
 
 describe('createOperation', () => {
   it('creates an OperationNode with required fields', () => {
-    const node = createOperation({ operationId: 'getPets', method: 'GET', path: '/pets' })
+    const node = createOperation({
+      operationId: 'getPets',
+      method: 'GET',
+      path: '/pets',
+    })
 
     expect(node.kind).toBe('Operation')
     expect(node.operationId).toBe('getPets')
@@ -85,14 +89,21 @@ describe('createSchema', () => {
   })
 
   it('accepts nullable and description', () => {
-    const node = createSchema({ type: 'number', nullable: true, description: 'An age value' })
+    const node = createSchema({
+      type: 'number',
+      nullable: true,
+      description: 'An age value',
+    })
 
     expect(node.nullable).toBe(true)
     expect(node.description).toBe('An age value')
   })
 
   it('creates an object schema with properties', () => {
-    const prop = createProperty({ name: 'id', schema: createSchema({ type: 'integer' }) })
+    const prop = createProperty({
+      name: 'id',
+      schema: createSchema({ type: 'integer' }),
+    })
     const node = createSchema({ type: 'object', properties: [prop] })
 
     expect(node.properties).toHaveLength(1)
@@ -116,7 +127,10 @@ describe('createSchema', () => {
 
 describe('createProperty', () => {
   it('defaults required to false', () => {
-    const node = createProperty({ name: 'name', schema: createSchema({ type: 'string' }) })
+    const node = createProperty({
+      name: 'name',
+      schema: createSchema({ type: 'string' }),
+    })
 
     expect(node.kind).toBe('Property')
     expect(node.required).toBe(false)
@@ -188,23 +202,38 @@ describe('createResponse', () => {
 
 describe('createFunctionParameter', () => {
   it('defaults optional to false', () => {
-    const node = createFunctionParameter({ name: 'petId', type: createParamsType({ variant: 'reference', name: 'string' }) })
+    const node = createFunctionParameter({
+      name: 'petId',
+      type: createParamsType({ variant: 'reference', name: 'string' }),
+    })
 
     expect(node.kind).toBe('FunctionParameter')
     expect(node.name).toBe('petId')
-    expect(node.type).toEqual({ kind: 'ParamsType', variant: 'reference', name: 'string' })
+    expect(node.type).toEqual({
+      kind: 'ParamsType',
+      variant: 'reference',
+      name: 'string',
+    })
     expect(node.optional).toBe(false)
   })
 
   it('supports optional true without default', () => {
-    const node = createFunctionParameter({ name: 'query', type: createParamsType({ variant: 'reference', name: 'Query' }), optional: true })
+    const node = createFunctionParameter({
+      name: 'query',
+      type: createParamsType({ variant: 'reference', name: 'Query' }),
+      optional: true,
+    })
 
     expect(node.optional).toBe(true)
     expect(node.default).toBeUndefined()
   })
 
   it('supports default value with optional false/omitted', () => {
-    const node = createFunctionParameter({ name: 'config', type: createParamsType({ variant: 'reference', name: 'RequestConfig' }), default: '{}' })
+    const node = createFunctionParameter({
+      name: 'config',
+      type: createParamsType({ variant: 'reference', name: 'RequestConfig' }),
+      default: '{}',
+    })
 
     expect(node.optional).toBe(false)
     expect(node.default).toBe('{}')
@@ -213,7 +242,12 @@ describe('createFunctionParameter', () => {
 
 describe('createParameterGroup', () => {
   it('creates object binding parameter with properties', () => {
-    const props = [createFunctionParameter({ name: 'id', type: createParamsType({ variant: 'reference', name: 'string' }) })]
+    const props = [
+      createFunctionParameter({
+        name: 'id',
+        type: createParamsType({ variant: 'reference', name: 'string' }),
+      }),
+    ]
     const node = createParameterGroup({ properties: props })
 
     expect(node.kind).toBe('ParameterGroup')
@@ -222,7 +256,12 @@ describe('createParameterGroup', () => {
 
   it('accepts inline and default options', () => {
     const node = createParameterGroup({
-      properties: [createFunctionParameter({ name: 'id', type: createParamsType({ variant: 'reference', name: 'string' }) })],
+      properties: [
+        createFunctionParameter({
+          name: 'id',
+          type: createParamsType({ variant: 'reference', name: 'string' }),
+        }),
+      ],
       inline: true,
       default: '{}',
     })
@@ -241,7 +280,12 @@ describe('createFunctionParameters', () => {
   })
 
   it('accepts params override', () => {
-    const params = [createFunctionParameter({ name: 'petId', type: createParamsType({ variant: 'reference', name: 'string' }) })]
+    const params = [
+      createFunctionParameter({
+        name: 'petId',
+        type: createParamsType({ variant: 'reference', name: 'string' }),
+      }),
+    ]
     const node = createFunctionParameters({ params })
 
     expect(node.params).toEqual(params)
@@ -258,7 +302,11 @@ describe('createImport', () => {
   })
 
   it('creates a type-only import', () => {
-    const node = createImport({ name: ['FC'], path: 'react', isTypeOnly: true })
+    const node = createImport({
+      name: ['FC'],
+      path: 'react',
+      isTypeOnly: true,
+    })
 
     expect(node.isTypeOnly).toBe(true)
   })
@@ -271,7 +319,11 @@ describe('createImport', () => {
   })
 
   it('creates a namespace import', () => {
-    const node = createImport({ name: ['*'], path: 'lodash', isTypeOnly: false })
+    const node = createImport({
+      name: ['*'],
+      path: 'lodash',
+      isTypeOnly: false,
+    })
 
     expect(node.name).toEqual(['*'])
   })
@@ -302,13 +354,21 @@ describe('createExport', () => {
   })
 
   it('creates a type-only export', () => {
-    const node = createExport({ name: ['Pet'], path: './Pet', isTypeOnly: true })
+    const node = createExport({
+      name: ['Pet'],
+      path: './Pet',
+      isTypeOnly: true,
+    })
 
     expect(node.isTypeOnly).toBe(true)
   })
 
   it('creates an aliased export', () => {
-    const node = createExport({ name: ['default'], path: './Pet', asAlias: true })
+    const node = createExport({
+      name: ['default'],
+      path: './Pet',
+      asAlias: true,
+    })
 
     expect(node.asAlias).toBe(true)
   })
@@ -323,21 +383,34 @@ describe('createExport', () => {
 
 describe('createSource', () => {
   it('creates a source node with nodes', () => {
-    const node = createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')] })
+    const node = createSource({
+      name: 'Pet',
+      nodes: [createText('export type Pet = { id: number }')],
+    })
 
     expect(node.kind).toBe('Source')
     expect(node.name).toBe('Pet')
-    expect(node.nodes?.[0]).toEqual({ kind: 'Text', value: 'export type Pet = { id: number }' })
+    expect(node.nodes?.[0]).toEqual({
+      kind: 'Text',
+      value: 'export type Pet = { id: number }',
+    })
   })
 
   it('supports isExportable flag', () => {
-    const node = createSource({ name: 'Pet', nodes: [createText('export type Pet = {}')], isExportable: true })
+    const node = createSource({
+      name: 'Pet',
+      nodes: [createText('export type Pet = {}')],
+      isExportable: true,
+    })
 
     expect(node.isExportable).toBe(true)
   })
 
   it('supports isTypeOnly flag', () => {
-    const node = createSource({ nodes: [createText('export type X = string')], isTypeOnly: true })
+    const node = createSource({
+      nodes: [createText('export type X = string')],
+      isTypeOnly: true,
+    })
 
     expect(node.isTypeOnly).toBe(true)
     expect(node.name).toBeUndefined()
@@ -353,7 +426,10 @@ describe('createSource', () => {
 
 describe('createFile', () => {
   it('creates a FileNode with correct kind, id, name and extname', () => {
-    const file = createFile({ baseName: 'petStore.ts', path: 'src/models/petStore.ts' })
+    const file = createFile({
+      baseName: 'petStore.ts',
+      path: 'src/models/petStore.ts',
+    })
 
     expect(file.kind).toBe('File')
     expect(file.name).toBe('petStore')
@@ -377,19 +453,35 @@ describe('createFile', () => {
   })
 
   it('throws when baseName has no extension', () => {
-    expect(() => createFile({ baseName: 'petStore' as `.${string}`, path: 'src/petStore' })).toThrow(/No extname found/)
+    expect(() =>
+      createFile({
+        baseName: 'petStore' as `.${string}`,
+        path: 'src/petStore',
+      }),
+    ).toThrow(/No extname found/)
   })
 
   it('deduplicates sources', () => {
-    const src = createSource({ name: 'Pet', nodes: [createText('export type Pet = {}')] })
-    const file = createFile({ baseName: 'pet.ts', path: 'src/pet.ts', sources: [src, src] })
+    const src = createSource({
+      name: 'Pet',
+      nodes: [createText('export type Pet = {}')],
+    })
+    const file = createFile({
+      baseName: 'pet.ts',
+      path: 'src/pet.ts',
+      sources: [src, src],
+    })
 
     expect(file.sources).toHaveLength(1)
   })
 
   it('deduplicates exports', () => {
     const exp = createExport({ name: ['Pet'], path: './Pet' })
-    const file = createFile({ baseName: 'index.ts', path: 'src/index.ts', exports: [exp, exp] })
+    const file = createFile({
+      baseName: 'index.ts',
+      path: 'src/index.ts',
+      exports: [exp, exp],
+    })
 
     expect(file.exports).toHaveLength(1)
   })
@@ -397,7 +489,9 @@ describe('createFile', () => {
   it('filters unused imports', () => {
     const usedImport = createImport({ name: ['z'], path: 'zod' })
     const unusedImport = createImport({ name: ['unused'], path: 'lodash' })
-    const src = createSource({ nodes: [createText('const schema = z.string()')] })
+    const src = createSource({
+      nodes: [createText('const schema = z.string()')],
+    })
     const file = createFile({
       baseName: 'schema.ts',
       path: 'src/schema.ts',
@@ -431,7 +525,11 @@ describe('createFile', () => {
 describe('createSource (nodes field)', () => {
   it('accepts structured child nodes', () => {
     const constNode = createConst({ name: 'pet', export: true })
-    const node = createSource({ name: 'pet', isExportable: true, nodes: [constNode] })
+    const node = createSource({
+      name: 'pet',
+      isExportable: true,
+      nodes: [constNode],
+    })
 
     expect(node.nodes).toHaveLength(1)
     expect(node.nodes?.[0]?.kind).toBe('Const')
@@ -458,7 +556,12 @@ describe('createConst', () => {
   })
 
   it('accepts export, type and asConst flags', () => {
-    const node = createConst({ name: 'pets', export: true, type: 'Pet[]', asConst: true })
+    const node = createConst({
+      name: 'pets',
+      export: true,
+      type: 'Pet[]',
+      asConst: true,
+    })
 
     expect(node.export).toBe(true)
     expect(node.type).toBe('Pet[]')
@@ -466,7 +569,10 @@ describe('createConst', () => {
   })
 
   it('accepts JSDoc comments', () => {
-    const node = createConst({ name: 'pet', JSDoc: { comments: ['@description A pet resource'] } })
+    const node = createConst({
+      name: 'pet',
+      JSDoc: { comments: ['@description A pet resource'] },
+    })
 
     expect(node.JSDoc?.comments).toEqual(['@description A pet resource'])
   })
@@ -568,7 +674,11 @@ describe('createFunction', () => {
   })
 
   it('accepts default export flag', () => {
-    const node = createFunction({ name: 'handler', default: true, export: true })
+    const node = createFunction({
+      name: 'handler',
+      default: true,
+      export: true,
+    })
 
     expect(node.default).toBe(true)
   })
@@ -643,7 +753,11 @@ describe('createArrowFunction', () => {
   })
 
   it('accepts default export flag', () => {
-    const node = createArrowFunction({ name: 'handler', default: true, export: true })
+    const node = createArrowFunction({
+      name: 'handler',
+      default: true,
+      export: true,
+    })
 
     expect(node.default).toBe(true)
   })

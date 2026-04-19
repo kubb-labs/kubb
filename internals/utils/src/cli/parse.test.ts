@@ -2,7 +2,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { createCLI } from './parse.ts'
 import type { CLIAdapter, CommandDefinition, RunOptions } from './types.ts'
 
-const opts: RunOptions = { programName: 'kubb', defaultCommandName: 'generate', version: '1.0.0' }
+const opts: RunOptions = {
+  programName: 'kubb',
+  defaultCommandName: 'generate',
+  version: '1.0.0',
+}
 
 describe('createCLI', () => {
   it('uses the nodeAdapter by default', async () => {

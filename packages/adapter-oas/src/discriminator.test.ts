@@ -35,7 +35,10 @@ describe('applyDiscriminatorInheritance', () => {
             oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
             discriminator: {
               propertyName: 'type',
-              mapping: { dog: '#/components/schemas/Dog', cat: '#/components/schemas/Cat' },
+              mapping: {
+                dog: '#/components/schemas/Dog',
+                cat: '#/components/schemas/Cat',
+              },
             },
           },
           Dog: { type: 'object', properties: { name: { type: 'string' } } },
@@ -192,11 +195,17 @@ describe('applyDiscriminatorInheritance', () => {
             oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
             discriminator: {
               propertyName: 'type',
-              mapping: { dog: '#/components/schemas/Dog', cat: '#/components/schemas/Cat' },
+              mapping: {
+                dog: '#/components/schemas/Dog',
+                cat: '#/components/schemas/Cat',
+              },
             },
             properties: { name: { type: 'string' } },
           },
-          Dog: { type: 'object', properties: { barkVolume: { type: 'integer' } } },
+          Dog: {
+            type: 'object',
+            properties: { barkVolume: { type: 'integer' } },
+          },
           Cat: { type: 'object', properties: { lives: { type: 'integer' } } },
         },
       },
@@ -292,7 +301,10 @@ describe('applyDiscriminatorInheritance', () => {
             },
           },
           Dog: { type: 'object', properties: { name: { type: 'string' } } },
-          UnrelatedSchema: { type: 'object', properties: { id: { type: 'integer' } } },
+          UnrelatedSchema: {
+            type: 'object',
+            properties: { id: { type: 'integer' } },
+          },
         },
       },
     })

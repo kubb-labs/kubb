@@ -23,10 +23,10 @@ Spec-agnostic AST layer for Kubb. Defines nodes, visitor pattern, factory functi
 
 ## Imports
 
-| Path | Contents |
-|---|---|
-| `@kubb/ast` | Runtime: factory functions, guards, visitor, ref helpers, constants |
-| `@kubb/ast/types` | Types only: all node interfaces, type aliases, visitor types |
+| Path              | Contents                                                            |
+| ----------------- | ------------------------------------------------------------------- |
+| `@kubb/ast`       | Runtime: factory functions, guards, visitor, ref helpers, constants |
+| `@kubb/ast/types` | Types only: all node interfaces, type aliases, visitor types        |
 
 ## Node tree
 
@@ -60,8 +60,16 @@ const root = createRoot({
       name: 'Pet',
       type: 'object',
       properties: [
-        createProperty({ name: 'id', schema: createSchema({ type: 'integer' }), required: true }),
-        createProperty({ name: 'name', schema: createSchema({ type: 'string' }), required: true }),
+        createProperty({
+          name: 'id',
+          schema: createSchema({ type: 'integer' }),
+          required: true,
+        }),
+        createProperty({
+          name: 'name',
+          schema: createSchema({ type: 'string' }),
+          required: true,
+        }),
       ],
     }),
   ],
@@ -75,17 +83,23 @@ import { walk, transform, collect } from '@kubb/ast'
 
 // Side effects
 await walk(root, {
-  schema(node) { console.log(node.type) },
+  schema(node) {
+    console.log(node.type)
+  },
 })
 
 // Immutable transformation
 const updated = transform(root, {
-  schema(node) { return { ...node, description: 'generated' } },
+  schema(node) {
+    return { ...node, description: 'generated' }
+  },
 })
 
 // Extraction
 const types = collect<string>(root, {
-  schema(node) { return node.type },
+  schema(node) {
+    return node.type
+  },
 })
 ```
 
@@ -98,7 +112,7 @@ import type { Node } from '@kubb/ast/types'
 function process(node: Node) {
   if (isSchemaNode(node)) {
     const obj = narrowSchema(node, 'object')
-    obj?.properties?.forEach(p => console.log(p.name))
+    obj?.properties?.forEach((p) => console.log(p.name))
   }
 }
 ```

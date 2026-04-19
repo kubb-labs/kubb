@@ -80,9 +80,9 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ github.token }}
-          commit-message: "docs: update changelog for v${{ inputs.version }}"
-          title: "docs: update changelog for v${{ inputs.version }}"
-          body: "Changelog entry for `v${{ inputs.version }}` generated from `.changeset/` files via GitHub Models."
-          branch: "changelog/v${{ inputs.version }}"
+          commit-message: 'docs: update changelog for v${{ inputs.version }}'
+          title: 'docs: update changelog for v${{ inputs.version }}'
+          body: 'Changelog entry for `v${{ inputs.version }}` generated from `.changeset/` files via GitHub Models.'
+          branch: 'changelog/v${{ inputs.version }}'
           base: main
           delete-branch: true

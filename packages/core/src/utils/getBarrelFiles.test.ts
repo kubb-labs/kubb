@@ -145,7 +145,11 @@ describe('getBarrelFiles', () => {
       }),
     ]
 
-    const barrelFiles = await getBarrelFiles(files, { type: 'named', root: 'src', output: { path: '.' } })
+    const barrelFiles = await getBarrelFiles(files, {
+      type: 'named',
+      root: 'src',
+      output: { path: '.' },
+    })
     const rootIndex = barrelFiles[0]
 
     expect(rootIndex).toBeDefined()
@@ -219,7 +223,11 @@ describe('getBarrelFiles', () => {
       }),
     ]
 
-    const barrelFiles = await getBarrelFiles(files, { type: 'named', root: 'src', output: { path: '.' } })
+    const barrelFiles = await getBarrelFiles(files, {
+      type: 'named',
+      root: 'src',
+      output: { path: '.' },
+    })
 
     expect(barrelFiles).toMatchInlineSnapshot(`
       [

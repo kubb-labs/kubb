@@ -46,7 +46,9 @@ export const fsStorage = createStorage(() => ({
         return false
       }
 
-      throw new Error(`Failed to access storage item "${key}"`, { cause: error as Error })
+      throw new Error(`Failed to access storage item "${key}"`, {
+        cause: error as Error,
+      })
     }
   },
   async getItem(key: string) {
@@ -57,7 +59,9 @@ export const fsStorage = createStorage(() => ({
         return null
       }
 
-      throw new Error(`Failed to read storage item "${key}"`, { cause: error as Error })
+      throw new Error(`Failed to read storage item "${key}"`, {
+        cause: error as Error,
+      })
     }
   },
   async setItem(key: string, value: string) {
@@ -73,13 +77,17 @@ export const fsStorage = createStorage(() => ({
     async function walk(dir: string, prefix: string): Promise<void> {
       let entries: Array<Dirent>
       try {
-        entries = (await readdir(dir, { withFileTypes: true })) as Array<Dirent>
+        entries = (await readdir(dir, {
+          withFileTypes: true,
+        })) as Array<Dirent>
       } catch (error) {
         if (isMissingPathError(error)) {
           return
         }
 
-        throw new Error(`Failed to list storage keys under "${resolvedBase}"`, { cause: error as Error })
+        throw new Error(`Failed to list storage keys under "${resolvedBase}"`, {
+          cause: error as Error,
+        })
       }
       for (const entry of entries) {
         const rel = prefix ? `${prefix}/${entry.name}` : entry.name

@@ -421,7 +421,15 @@ export function getSchemas(document: Document, { contentType }: GetSchemasOption
     ...(['responses', 'requestBodies'] as const).flatMap((source) =>
       Object.entries(components?.[source] ?? {}).flatMap(([name, item]) => {
         const schema = extractSchemaFromContent((item as { content?: Record<string, unknown> }).content, contentType)
-        return schema ? [{ schema: resolveSchemaRef(document, schema), source, originalName: name }] : []
+        return schema
+          ? [
+              {
+                schema: resolveSchemaRef(document, schema),
+                source,
+                originalName: name,
+              },
+            ]
+          : []
       }),
     ),
   ]
@@ -487,11 +495,17 @@ export function getDateType(
   }
 
   if (format === 'date') {
-    return { type: 'date', representation: options.dateType === 'date' ? 'date' : 'string' }
+    return {
+      type: 'date',
+      representation: options.dateType === 'date' ? 'date' : 'string',
+    }
   }
 
   // time
-  return { type: 'time', representation: options.dateType === 'date' ? 'date' : 'string' }
+  return {
+    type: 'time',
+    representation: options.dateType === 'date' ? 'date' : 'string',
+  }
 }
 
 /**

@@ -3,12 +3,12 @@
     <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
   </a>
 
-
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![Coverage][coverage-src]][coverage-href]
 [![License][license-src]][license-href]
 [![Sponsors][sponsors-src]][sponsors-href]
+
 <h4>
 <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/main/examples/typescript" target="_blank">View Demo</a>
 <span> · </span>
@@ -31,6 +31,7 @@ npx kubb init
 ```
 
 The interactive setup will:
+
 - Create a `package.json` (if needed)
 - Guide you through plugin selection
 - Install packages automatically
@@ -45,6 +46,7 @@ npx kubb generate
 See the [documentation](https://kubb.dev) for detailed usage and advanced features.
 
 ## Features
+
 - Works with Node.js 20+.
 - Convert Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 to TypeScript, Zod, React-Query, ...
 - Plugin ecosystem to extend beyond the default plugins we provide.
@@ -177,7 +179,6 @@ See [LICENSE](./LICENSE) for details.
     <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=kubb-labs/kubb&type=Date" />
   </picture>
 </a>
-
 
 <!-- Badges -->
 

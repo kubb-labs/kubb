@@ -15,6 +15,7 @@ Kubb v5 always generates **Zod v4** schemas. Zod v3 is no longer supported.
 ## Installation
 
 ::: code-group
+
 ```shell [bun]
 bun add -d @kubb/plugin-zod
 ```
@@ -43,11 +44,11 @@ Specify the export location for the files and define the behavior of the output.
 
 <!--@include: ./core/outputPath.md-->
 
-|           |           |
-| --------: | :-------- |
-|     Type: | `string`  |
-| Required: | `true`    |
-|  Default: | `'zod'` |
+|           |          |
+| --------: | :------- |
+|     Type: | `string` |
+| Required: | `true`   |
+|  Default: | `'zod'`  |
 
 #### output.barrelType
 
@@ -73,10 +74,10 @@ Specify the export location for the files and define the behavior of the output.
 
 <!--@include: ./core/resolvers.md-->
 
-|           |                                                          |
-| --------: | :------------------------------------------------------- |
-|     Type: | `Partial<ResolverZod> & ThisType<ResolverZod>`           |
-| Required: | `false`                                                  |
+|           |                                                |
+| --------: | :--------------------------------------------- |
+|     Type: | `Partial<ResolverZod> & ThisType<ResolverZod>` |
+| Required: | `false`                                        |
 
 ### group
 
@@ -156,23 +157,23 @@ See [DateTimes](https://zod.dev/?id=datetimes).
 ::: code-group
 
 ```typescript [false]
-z.string();
+z.string()
 ```
 
 ```typescript ['string']
-z.string().datetime();
+z.string().datetime()
 ```
 
 ```typescript ['stringOffset']
-z.string().datetime({ offset: true });
+z.string().datetime({ offset: true })
 ```
 
 ```typescript ['stringLocal']
-z.string().datetime({ local: true });
+z.string().datetime({ local: true })
 ```
 
 ```typescript ['date']
-z.date();
+z.date()
 ```
 
 :::
@@ -205,21 +206,21 @@ Apply `z.coerce` to automatically convert input values to the expected type befo
 ::: code-group
 
 ```typescript [true]
-z.coerce.string();
-z.coerce.date();
-z.coerce.number();
+z.coerce.string()
+z.coerce.date()
+z.coerce.number()
 ```
 
 ```typescript [false]
-z.string();
-z.date();
-z.number();
+z.string()
+z.date()
+z.number()
 ```
 
 ```typescript [{numbers: true, strings: false, dates: false}]
-z.string();
-z.date();
-z.coerce.number();
+z.string()
+z.date()
+z.coerce.number()
 ```
 
 :::
@@ -238,20 +239,20 @@ Generate a combined `operations.ts` file that exports all operation-level schema
 
 Transform property names in path, query, and header parameter types to camelCase.
 
-|           |                |
-| --------: | :------------- |
-|     Type: | `'camelcase'`  |
-| Required: | `false`        |
+|           |               |
+| --------: | :------------ |
+|     Type: | `'camelcase'` |
+| Required: | `false`       |
 
 ```typescript ['camelcase']
 // OpenAPI spec uses: pet_id, X-Api-Key
 
 type GetPetPathParams = {
-  petId: string   // ✓ camelCase
+  petId: string // ✓ camelCase
 }
 
 type GetPetHeaderParams = {
-  xApiKey?: string  // ✓ camelCase
+  xApiKey?: string // ✓ camelCase
 }
 ```
 
@@ -352,10 +353,10 @@ Override individual printer node handlers to customize how specific schema types
 
 Each key is a `SchemaType` (e.g. `'integer'`, `'date'`). The function you provide replaces the built-in handler for that type. Use `this.transform` to recurse into nested schema nodes.
 
-|           |                                                               |
-| --------: | :------------------------------------------------------------ |
-|     Type: | `{ nodes?: PrinterZodNodes \| PrinterZodMiniNodes }`          |
-| Required: | `false`                                                       |
+|           |                                                      |
+| --------: | :--------------------------------------------------- |
+|     Type: | `{ nodes?: PrinterZodNodes \| PrinterZodMiniNodes }` |
+| Required: | `false`                                              |
 
 ::: code-group
 
@@ -393,35 +394,35 @@ pluginZod({
 
 Wrap the generated Zod schema string with additional validation or metadata. The callback receives the schema's output string and the `SchemaNode` AST node, and returns the modified schema string.
 
-|           |                                                                         |
-| --------: | :---------------------------------------------------------------------- |
-|     Type: | `(arg: { output: string; schema: SchemaNode }) => string \| undefined`  |
-| Required: | `false`                                                                 |
+|           |                                                                        |
+| --------: | :--------------------------------------------------------------------- |
+|     Type: | `(arg: { output: string; schema: SchemaNode }) => string \| undefined` |
+| Required: | `false`                                                                |
 
 > [!TIP]
 > This is useful for cases where you need to extend the generated zod output with additional properties from an OpenAPI schema. E.g. in the case of `OpenAPI -> Zod -> OpenAPI`, you could include the examples from the schema for a given property and then ultimately provide a modified schema to a router that supports zod and OpenAPI spec generation.
 
 ```typescript [Conditionally append .openapi() to the generated schema]
 wrapOutput: ({ output, schema }) => {
-  const metadata: Record<string, unknown> = {};
+  const metadata: Record<string, unknown> = {}
 
   if (schema.keywords?.includes('example')) {
     // access SchemaNode properties
   }
 
   if (Object.keys(metadata).length > 0) {
-    return `${output}.openapi(${JSON.stringify(metadata)})`;
+    return `${output}.openapi(${JSON.stringify(metadata)})`
   }
-};
+}
 ```
 
 ## Example
 
 ```typescript twoslash
-import { adapterOas } from '@kubb/adapter-oas';
-import { defineConfig } from '@kubb/core';
-import { pluginTs } from '@kubb/plugin-ts';
-import { pluginZod } from '@kubb/plugin-zod';
+import { adapterOas } from '@kubb/adapter-oas'
+import { defineConfig } from '@kubb/core'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
 
 export default defineConfig({
   input: {
@@ -443,7 +444,7 @@ export default defineConfig({
       importPath: 'zod',
     }),
   ],
-});
+})
 ```
 
 ## See Also

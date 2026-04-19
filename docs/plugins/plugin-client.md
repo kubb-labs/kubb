@@ -15,6 +15,7 @@ By default, this plugin uses [Axios](https://axios-http.com/docs/intro), but you
 ## Installation
 
 ::: code-group
+
 ```shell [bun]
 bun add -d @kubb/plugin-client
 ```
@@ -30,21 +31,23 @@ npm install --save-dev @kubb/plugin-client
 ```shell [yarn]
 yarn add -D @kubb/plugin-client
 ```
+
 :::
 
 ## Options
 
 ### output
+
 Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
 <!--@include: ./core/outputPath.md-->
 
-|           |           |
-| --------: | :-------- |
-|     Type: | `string`  |
-| Required: | `true`    |
+|           |             |
+| --------: | :---------- |
+|     Type: | `string`    |
+| Required: | `true`      |
 |  Default: | `'clients'` |
 
 #### output.barrelType
@@ -64,9 +67,11 @@ Specify the export location for the files and define the behavior of the output.
 <!--@include: ./core/outputOverride.md-->
 
 ### contentType
+
 <!--@include: ./core/contentType.md-->
 
 ### group
+
 <!--@include: ./core/group.md-->
 
 #### group.type
@@ -84,9 +89,11 @@ Return the name of a group based on the group name, this will be used for the fi
 |  Default: | `(ctx) => '${ctx.group}Controller'` |
 
 ### importPath
+
 <!--@include: ./plugin-client/importPath.md-->
 
 ### operations
+
 Create `operations.ts` file with all operations grouped by methods.
 
 |           |           |
@@ -96,9 +103,11 @@ Create `operations.ts` file with all operations grouped by methods.
 |  Default: | `false`   |
 
 ### dataReturnType
+
 <!--@include: ./plugin-client/dataReturnType.md-->
 
 ### urlType
+
 Export urls that are used by operation x
 
 |           |                     |
@@ -117,42 +126,55 @@ export function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
 ```
 
 ### paramsType
+
 <!--@include: ./plugin-client/paramsType.md-->
 
 ### paramsCasing
+
 <!--@include: ./plugin-client/paramsCasing.md-->
 
 ### pathParamsType
+
 <!--@include: ./plugin-client/pathParamsType.md-->
 
 ### parser
+
 <!--@include: ./plugin-client/parser.md-->
 
 ### client
+
 <!--@include: ./plugin-client/client.md-->
 
 ### clientType
+
 <!--@include: ./plugin-client/clientType.md-->
 
 ### wrapper
+
 <!--@include: ./plugin-client/wrapper.md-->
 
 ### bundle
+
 <!--@include: ./plugin-client/bundle.md-->
 
 ### baseURL
+
 <!--@include: ./plugin-client/baseURL.md-->
 
 ### include
+
 <!--@include: ./core/include.md-->
 
 ### exclude
+
 <!--@include: ./core/exclude.md-->
 
 ### override
+
 <!--@include: ./core/override.md-->
 
 ### generators <img src="../public/icons/experimental.svg"/>
+
 <!--@include: ./core/generators.md-->
 
 |           |                                  |
@@ -160,19 +182,19 @@ export function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
 |     Type: | `Array<Generator<PluginClient>>` |
 | Required: | `false`                          |
 
-
 ### transformers
+
 <!--@include: ./core/transformers.md-->
 
 ### compatibilityPreset
 
 Use `compatibilityPreset` to control which naming convention is used for generated files and functions.
 
-|           |                              |
-| --------: | :--------------------------- |
-|     Type: | `'default' \| 'kubbV4'`      |
-| Required: | `false`                      |
-|  Default: | `'default'`                  |
+|           |                         |
+| --------: | :---------------------- |
+|     Type: | `'default' \| 'kubbV4'` |
+| Required: | `false`                 |
+|  Default: | `'default'`             |
 
 - `'default'` — v5 naming conventions (recommended)
 - `'kubbV4'` — v4 naming conventions for backwards compatibility
@@ -185,10 +207,10 @@ pluginClient({ compatibilityPreset: 'kubbV4' })
 
 Override individual resolver methods to customize generated names. Any method you omit falls back to the preset resolver. Use `this.default(...)` to call the preset's implementation.
 
-|           |                                                                  |
-| --------: | :--------------------------------------------------------------- |
-|     Type: | `Partial<ResolverClient> & ThisType<ResolverClient>`             |
-| Required: | `false`                                                          |
+|           |                                                      |
+| --------: | :--------------------------------------------------- |
+|     Type: | `Partial<ResolverClient> & ThisType<ResolverClient>` |
+| Required: | `false`                                              |
 
 ```typescript
 import { pluginClient } from '@kubb/plugin-client'
@@ -246,7 +268,7 @@ export default defineConfig({
         path: './clients/axios',
         barrelType: 'named',
         banner: '/* eslint-disable no-alert, no-console */',
-        footer: ''
+        footer: '',
       },
       group: {
         type: 'tag',
@@ -267,7 +289,7 @@ export default defineConfig({
       ],
       pathParamsType: 'object',
       dataReturnType: 'full',
-      client: 'axios'
+      client: 'axios',
     }),
   ],
 })

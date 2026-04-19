@@ -212,7 +212,13 @@ describe('syncOptionality — auto-derived optional/nullish', () => {
     const node = createSchema({
       type: 'object',
       name: 'Pet',
-      properties: [createProperty({ name: 'tag', schema: createSchema({ type: 'string' }), required: false })],
+      properties: [
+        createProperty({
+          name: 'tag',
+          schema: createSchema({ type: 'string' }),
+          required: false,
+        }),
+      ],
     })
 
     // Verify baseline: optional property has schema.optional = true
@@ -238,7 +244,13 @@ describe('syncOptionality — auto-derived optional/nullish', () => {
     const node = createSchema({
       type: 'object',
       name: 'Pet',
-      properties: [createProperty({ name: 'name', schema: createSchema({ type: 'string' }), required: true })],
+      properties: [
+        createProperty({
+          name: 'name',
+          schema: createSchema({ type: 'string' }),
+          required: true,
+        }),
+      ],
     })
 
     const result = transform(node, {
@@ -259,7 +271,13 @@ describe('syncOptionality — auto-derived optional/nullish', () => {
     const node = createSchema({
       type: 'object',
       name: 'Pet',
-      properties: [createProperty({ name: 'tag', schema: createSchema({ type: 'string', nullable: true }), required: true })],
+      properties: [
+        createProperty({
+          name: 'tag',
+          schema: createSchema({ type: 'string', nullable: true }),
+          required: true,
+        }),
+      ],
     })
 
     // Baseline: required + nullable = no optional/nullish
@@ -288,8 +306,16 @@ describe('syncOptionality — auto-derived optional/nullish', () => {
       type: 'object',
       name: 'Address',
       properties: [
-        createProperty({ name: 'street', schema: createSchema({ type: 'string' }), required: false }),
-        createProperty({ name: 'city', schema: createSchema({ type: 'string' }), required: false }),
+        createProperty({
+          name: 'street',
+          schema: createSchema({ type: 'string' }),
+          required: false,
+        }),
+        createProperty({
+          name: 'city',
+          schema: createSchema({ type: 'string' }),
+          required: false,
+        }),
       ],
     })
 
@@ -317,8 +343,16 @@ describe('VisitorContext — parent', () => {
       type: 'object',
       name: 'Pet',
       properties: [
-        createProperty({ name: 'name', schema: createSchema({ type: 'string' }), required: true }),
-        createProperty({ name: 'tag', schema: createSchema({ type: 'string' }), required: false }),
+        createProperty({
+          name: 'name',
+          schema: createSchema({ type: 'string' }),
+          required: true,
+        }),
+        createProperty({
+          name: 'tag',
+          schema: createSchema({ type: 'string' }),
+          required: false,
+        }),
       ],
     })
 

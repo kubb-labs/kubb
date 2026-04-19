@@ -38,7 +38,7 @@ async function isFormatterAvailable(formatter: Formatter): Promise<boolean> {
 /**
  * Detects the first available code formatter on the current system.
  *
- * - Checks in preference order: `biome`, `oxfmt`, `prettier`.
+ * - Checks in preference order: `oxfmt`, `biome`, `prettier`.
  * - Returns `null` when none are found.
  *
  * @example
@@ -50,7 +50,7 @@ async function isFormatterAvailable(formatter: Formatter): Promise<boolean> {
  * ```
  */
 export async function detectFormatter(): Promise<Formatter | null> {
-  const formatterNames = new Set(['biome', 'oxfmt', 'prettier'] as const)
+  const formatterNames = new Set(['oxfmt', 'biome', 'prettier'] as const)
 
   for (const formatter of formatterNames) {
     if (await isFormatterAvailable(formatter)) {

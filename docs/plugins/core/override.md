@@ -1,7 +1,7 @@
 Array containing override parameters to override `options` based on tags, operations, methods, paths, or content types.
 
 |           |                   |
-|----------:|:-------------------|
+| --------: | :---------------- |
 |     Type: | `Array<Override>` |
 | Required: | `false`           |
 

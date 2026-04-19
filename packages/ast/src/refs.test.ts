@@ -39,20 +39,16 @@ describe('buildRefMap', () => {
 })
 
 describe('resolveRef', () => {
-  it.each([
-    { ref: 'Pet' },
-    { ref: 'NewPet' },
-    { ref: 'PetList' },
-    { ref: 'Error' },
-    { ref: 'PetOrError' },
-    { ref: 'FullPet' },
-  ])('resolves $ref to the correct SchemaNode', ({ ref }) => {
-    const map = buildRefMap(buildFixture())
-    const node = resolveRef(map, ref)
+  it.each([{ ref: 'Pet' }, { ref: 'NewPet' }, { ref: 'PetList' }, { ref: 'Error' }, { ref: 'PetOrError' }, { ref: 'FullPet' }])(
+    'resolves $ref to the correct SchemaNode',
+    ({ ref }) => {
+      const map = buildRefMap(buildFixture())
+      const node = resolveRef(map, ref)
 
-    expect(node?.kind).toBe('Schema')
-    expect(node?.name).toBe(ref)
-  })
+      expect(node?.kind).toBe('Schema')
+      expect(node?.name).toBe(ref)
+    },
+  )
 
   it('returns undefined for unknown refs', () => {
     const map = buildRefMap(buildFixture())
@@ -74,8 +70,18 @@ describe('refMapToObject', () => {
       type: 'object',
       primitive: 'object',
       properties: [
-        { kind: 'Property', name: 'id', required: true, schema: { kind: 'Schema', type: 'integer', primitive: 'integer' } },
-        { kind: 'Property', name: 'name', required: true, schema: { kind: 'Schema', type: 'string', primitive: 'string' } },
+        {
+          kind: 'Property',
+          name: 'id',
+          required: true,
+          schema: { kind: 'Schema', type: 'integer', primitive: 'integer' },
+        },
+        {
+          kind: 'Property',
+          name: 'name',
+          required: true,
+          schema: { kind: 'Schema', type: 'string', primitive: 'string' },
+        },
       ],
     })
 
@@ -112,7 +118,13 @@ describe('refMapToObject', () => {
               kind: 'Property',
               name: 'createdAt',
               required: false,
-              schema: { kind: 'Schema', type: 'datetime', primitive: 'string', optional: true, nullish: undefined },
+              schema: {
+                kind: 'Schema',
+                type: 'datetime',
+                primitive: 'string',
+                optional: true,
+                nullish: undefined,
+              },
             },
           ],
         },

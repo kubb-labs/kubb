@@ -4,7 +4,11 @@ import { defineCommand } from './define.ts'
 describe('defineCommand', () => {
   it('returns a command without run for parent commands (e.g. agent with subCommands)', () => {
     const sub = defineCommand({ name: 'start', description: 'Start' })
-    const cmd = defineCommand({ name: 'agent', description: 'Agent', subCommands: [sub] })
+    const cmd = defineCommand({
+      name: 'agent',
+      description: 'Agent',
+      subCommands: [sub],
+    })
     expect(cmd.run).toBeUndefined()
     expect(cmd.subCommands).toEqual([sub])
   })
@@ -22,7 +26,10 @@ describe('defineCommand', () => {
         runFn(values.config, values.watch)
       },
     })
-    await cmd.run?.({ values: { config: 'kubb.config.ts', watch: true }, positionals: [] })
+    await cmd.run?.({
+      values: { config: 'kubb.config.ts', watch: true },
+      positionals: [],
+    })
     expect(runFn).toHaveBeenCalledWith('kubb.config.ts', true)
   })
 

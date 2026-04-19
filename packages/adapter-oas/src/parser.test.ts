@@ -5,7 +5,11 @@ import { parseDocument } from './factory.ts'
 import { parseOas, parseSchema } from './parser.ts'
 import type { Document, SchemaObject } from './types.ts'
 
-const emptyDocument: Document = { openapi: '3.0.0', info: { title: '', version: '' }, paths: {} } as Document
+const emptyDocument: Document = {
+  openapi: '3.0.0',
+  info: { title: '', version: '' },
+  paths: {},
+} as Document
 
 describe('buildAst', () => {
   it('returns an InputNode', async () => {
@@ -225,7 +229,10 @@ describe('buildAst', () => {
         info: { title: 'Test', version: '1.0.0' },
         components: {
           schemas: {
-            PetId: { type: 'integer', description: 'Unique identifier of a pet' },
+            PetId: {
+              type: 'integer',
+              description: 'Unique identifier of a pet',
+            },
           },
         },
         paths: {
@@ -323,7 +330,9 @@ describe('parseSchema uuid', () => {
   const ctx = { document: emptyDocument }
 
   it('maps format uuid to uuid', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', format: 'uuid' } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', format: 'uuid' },
+    })
 
     expect(node.type).toBe('uuid')
   })
@@ -335,14 +344,22 @@ describe('parseSchema uuid', () => {
   })
 
   it('preserves nullable on uuid', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', format: 'uuid', nullable: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', format: 'uuid', nullable: true },
+    })
 
     expect(node.type).toBe('uuid')
     expect(node.nullable).toBe(true)
   })
 
   it('preserves description on uuid', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', format: 'uuid', description: 'A unique identifier' } })
+    const node = parseSchema(ctx, {
+      schema: {
+        type: 'string',
+        format: 'uuid',
+        description: 'A unique identifier',
+      },
+    })
 
     expect(node.type).toBe('uuid')
     expect(node.description).toBe('A unique identifier')
@@ -353,13 +370,17 @@ describe('parseSchema email', () => {
   const ctx = { document: emptyDocument }
 
   it('maps format email to email', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', format: 'email' } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', format: 'email' },
+    })
 
     expect(node.type).toBe('email')
   })
 
   it('maps format idn-email to email', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', format: 'idn-email' } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', format: 'idn-email' },
+    })
 
     expect(node.type).toBe('email')
   })
@@ -371,7 +392,9 @@ describe('parseSchema email', () => {
   })
 
   it('preserves nullable on email', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', format: 'email', nullable: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', format: 'email', nullable: true },
+    })
 
     expect(node.type).toBe('email')
     expect(node.nullable).toBe(true)
@@ -406,7 +429,9 @@ describe('parseSchema url', () => {
   })
 
   it('preserves nullable on url', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', format: 'uri', nullable: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', format: 'uri', nullable: true },
+    })
 
     expect(node.type).toBe('url')
     expect(node.nullable).toBe(true)
@@ -417,13 +442,17 @@ describe('parseSchema binary', () => {
   const ctx = { document: emptyDocument }
 
   it('maps string with format binary to blob', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', format: 'binary' } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', format: 'binary' },
+    })
 
     expect(node.type).toBe('blob')
   })
 
   it('maps string with format byte to blob', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', format: 'byte' } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', format: 'byte' },
+    })
 
     expect(node.type).toBe('blob')
   })
@@ -439,13 +468,17 @@ describe('parseSchema contentMediaType (OAS 3.1)', () => {
   const ctx = { document: emptyDocument }
 
   it('maps string with contentMediaType application/octet-stream to blob', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', contentMediaType: 'application/octet-stream' } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', contentMediaType: 'application/octet-stream' },
+    })
 
     expect(node.type).toBe('blob')
   })
 
   it('leaves string with other contentMediaType as string', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', contentMediaType: 'text/plain' } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', contentMediaType: 'text/plain' },
+    })
 
     expect(node.type).toBe('string')
   })
@@ -455,7 +488,9 @@ describe('parseSchema allOf', () => {
   const ctx = { document: emptyDocument }
 
   it('flattens single-member allOf to the member type', () => {
-    const node = parseSchema(ctx, { schema: { allOf: [{ type: 'string' }] } as const })
+    const node = parseSchema(ctx, {
+      schema: { allOf: [{ type: 'string' }] } as const,
+    })
 
     expect(node.type).toBe('string')
   })
@@ -477,7 +512,12 @@ describe('parseSchema allOf', () => {
   })
 
   it('flattens single-member allOf $ref and preserves nullable', () => {
-    const node = parseSchema(ctx, { schema: { allOf: [{ $ref: '#/components/schemas/Pet' }], nullable: true } as const })
+    const node = parseSchema(ctx, {
+      schema: {
+        allOf: [{ $ref: '#/components/schemas/Pet' }],
+        nullable: true,
+      } as const,
+    })
 
     expect(node.type).toBe('ref')
     expect(node.nullable).toBe(true)
@@ -575,7 +615,12 @@ describe('parseSchema allOf', () => {
     // required on the outer schema signals structural intent — do not flatten.
     const node = parseSchema(ctx, {
       schema: {
-        allOf: [{ type: 'object', properties: { id: { type: 'integer' }, name: { type: 'string' } } }],
+        allOf: [
+          {
+            type: 'object',
+            properties: { id: { type: 'integer' }, name: { type: 'string' } },
+          },
+        ],
         required: ['id'],
       } as const,
     })
@@ -664,13 +709,17 @@ describe('parseSchema oneOf / anyOf', () => {
   const ctx = { document: emptyDocument }
 
   it('maps oneOf to a union node', () => {
-    const node = parseSchema(ctx, { schema: { oneOf: [{ type: 'string' }, { type: 'number' }] } })
+    const node = parseSchema(ctx, {
+      schema: { oneOf: [{ type: 'string' }, { type: 'number' }] },
+    })
 
     expect(node.type).toBe('union')
   })
 
   it('maps anyOf to a union node', () => {
-    const node = parseSchema(ctx, { schema: { anyOf: [{ type: 'string' }, { type: 'number' }] } })
+    const node = parseSchema(ctx, {
+      schema: { anyOf: [{ type: 'string' }, { type: 'number' }] },
+    })
 
     expect(node.type).toBe('union')
   })
@@ -701,7 +750,9 @@ describe('parseSchema oneOf / anyOf', () => {
   })
 
   it('propagates nullable onto the union node', () => {
-    const node = parseSchema(ctx, { schema: { oneOf: [{ type: 'string' }], nullable: true } })
+    const node = parseSchema(ctx, {
+      schema: { oneOf: [{ type: 'string' }], nullable: true },
+    })
 
     expect(node.nullable).toBe(true)
   })
@@ -827,7 +878,10 @@ describe('parseSchema const (OAS 3.1)', () => {
   })
 
   it('propagates name on const enum', () => {
-    const node = parseSchema(ctx, { schema: { const: 'active' }, name: 'Status' })
+    const node = parseSchema(ctx, {
+      schema: { const: 'active' },
+      name: 'Status',
+    })
 
     expect(node.name).toBe('Status')
   })
@@ -856,13 +910,17 @@ describe('parseSchema readOnly / writeOnly', () => {
   const ctx = { document: emptyDocument }
 
   it('sets readOnly: true when marked', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', readOnly: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', readOnly: true },
+    })
 
     expect(node.readOnly).toBe(true)
   })
 
   it('sets writeOnly: true when marked', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', writeOnly: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', writeOnly: true },
+    })
 
     expect(node.writeOnly).toBe(true)
   })
@@ -875,19 +933,25 @@ describe('parseSchema readOnly / writeOnly', () => {
   })
 
   it('propagates readOnly on object schema', () => {
-    const node = parseSchema(ctx, { schema: { type: 'object', readOnly: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'object', readOnly: true },
+    })
 
     expect(node.readOnly).toBe(true)
   })
 
   it('propagates writeOnly on array schema', () => {
-    const node = parseSchema(ctx, { schema: { type: 'array', writeOnly: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'array', writeOnly: true },
+    })
 
     expect(node.writeOnly).toBe(true)
   })
 
   it('propagates readOnly on enum schema', () => {
-    const node = parseSchema(ctx, { schema: { enum: ['a', 'b'], readOnly: true } })
+    const node = parseSchema(ctx, {
+      schema: { enum: ['a', 'b'], readOnly: true },
+    })
 
     expect(node.readOnly).toBe(true)
   })
@@ -923,13 +987,17 @@ describe('parseSchema readOnly / writeOnly', () => {
   })
 
   it('propagates readOnly on ref schema siblings', () => {
-    const node = parseSchema(ctx, { schema: { $ref: '#/components/schemas/Pet', readOnly: true } })
+    const node = parseSchema(ctx, {
+      schema: { $ref: '#/components/schemas/Pet', readOnly: true },
+    })
 
     expect(node.readOnly).toBe(true)
   })
 
   it('drops pattern on ref sibling when type is not string', () => {
-    const node = parseSchema(ctx, { schema: { $ref: '#/components/schemas/Pet', pattern: '^[a-z]+$' } })
+    const node = parseSchema(ctx, {
+      schema: { $ref: '#/components/schemas/Pet', pattern: '^[a-z]+$' },
+    })
 
     expect(ast.narrowSchema(node, 'ref')?.pattern).toBeUndefined()
   })
@@ -939,7 +1007,9 @@ describe('parseSchema deprecated', () => {
   const ctx = { document: emptyDocument }
 
   it('sets deprecated: true when marked', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', deprecated: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', deprecated: true },
+    })
 
     expect(node.deprecated).toBe(true)
   })
@@ -951,25 +1021,33 @@ describe('parseSchema deprecated', () => {
   })
 
   it('propagates deprecated on object schema', () => {
-    const node = parseSchema(ctx, { schema: { type: 'object', deprecated: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'object', deprecated: true },
+    })
 
     expect(node.deprecated).toBe(true)
   })
 
   it('propagates deprecated on array schema', () => {
-    const node = parseSchema(ctx, { schema: { type: 'array', deprecated: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'array', deprecated: true },
+    })
 
     expect(node.deprecated).toBe(true)
   })
 
   it('propagates deprecated on enum schema', () => {
-    const node = parseSchema(ctx, { schema: { enum: ['a', 'b'], deprecated: true } })
+    const node = parseSchema(ctx, {
+      schema: { enum: ['a', 'b'], deprecated: true },
+    })
 
     expect(node.deprecated).toBe(true)
   })
 
   it('propagates deprecated on ref schema siblings', () => {
-    const node = parseSchema(ctx, { schema: { $ref: '#/components/schemas/Pet', deprecated: true } })
+    const node = parseSchema(ctx, {
+      schema: { $ref: '#/components/schemas/Pet', deprecated: true },
+    })
 
     expect(node.deprecated).toBe(true)
   })
@@ -979,7 +1057,9 @@ describe('parseSchema default', () => {
   const ctx = { document: emptyDocument }
 
   it('passes through a normal default value', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', default: 'hello' } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', default: 'hello' },
+    })
 
     expect(node.default).toBe('hello')
   })
@@ -991,31 +1071,45 @@ describe('parseSchema default', () => {
   })
 
   it('passes through a falsy-but-non-null default (false)', () => {
-    const node = parseSchema(ctx, { schema: { type: 'boolean', default: false } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'boolean', default: false },
+    })
 
     expect(node.default).toBe(false)
   })
 
   it('drops default: null when schema is nullable (defaultNullAndNullable)', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', nullable: true, default: null } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', nullable: true, default: null },
+    })
 
     expect(node.default).toBeUndefined()
   })
 
   it('keeps default: null when schema is not nullable', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', default: null } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', default: null },
+    })
 
     expect(node.default).toBeNull()
   })
 
   it('drops default: null for nullable enum', () => {
-    const node = parseSchema(ctx, { schema: { enum: ['a', 'b'], nullable: true, default: null } })
+    const node = parseSchema(ctx, {
+      schema: { enum: ['a', 'b'], nullable: true, default: null },
+    })
 
     expect(node.default).toBeUndefined()
   })
 
   it('drops default: null for nullable ref sibling', () => {
-    const node = parseSchema(ctx, { schema: { $ref: '#/components/schemas/Pet', nullable: true, default: null } })
+    const node = parseSchema(ctx, {
+      schema: {
+        $ref: '#/components/schemas/Pet',
+        nullable: true,
+        default: null,
+      },
+    })
 
     expect(node.default).toBeUndefined()
   })
@@ -1112,7 +1206,9 @@ describe('parseSchema object additionalProperties', () => {
   const ctx = { document: emptyDocument }
 
   it('additionalProperties: true → additionalProperties is true', () => {
-    const node = parseSchema(ctx, { schema: { type: 'object', additionalProperties: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'object', additionalProperties: true },
+    })
     const narrowed = ast.narrowSchema(node, 'object')
 
     expect(node.type).toBe('object')
@@ -1157,7 +1253,9 @@ describe('parseSchema object additionalProperties', () => {
   })
 
   it('no additionalProperties → additionalProperties is undefined', () => {
-    const node = parseSchema(ctx, { schema: { type: 'object', properties: { id: { type: 'integer' } } } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'object', properties: { id: { type: 'integer' } } },
+    })
     const narrowed = ast.narrowSchema(node, 'object')
 
     expect(narrowed?.additionalProperties).toBeUndefined()
@@ -1237,8 +1335,12 @@ describe('parseSchema object patternProperties', () => {
     expect(narrowed?.patternProperties?.['I_']).toBeUndefined()
     expect(narrowed?.patternProperties?.['S_']).toBeUndefined()
     expect(narrowed?.patternProperties?.['S_']).toBeUndefined()
-    expect(narrowed?.patternProperties?.['^S_']).toMatchObject({ type: 'string' })
-    expect(narrowed?.patternProperties?.['^I_']).toMatchObject({ type: 'integer' })
+    expect(narrowed?.patternProperties?.['^S_']).toMatchObject({
+      type: 'string',
+    })
+    expect(narrowed?.patternProperties?.['^I_']).toMatchObject({
+      type: 'integer',
+    })
   })
 
   it('empty pattern schema falls back to unknownType', () => {
@@ -1288,7 +1390,9 @@ describe('parseSchema object patternProperties', () => {
     const narrowed = ast.narrowSchema(node, 'object')
 
     expect(narrowed?.properties).toHaveLength(1)
-    expect(narrowed?.patternProperties?.['^meta_']).toMatchObject({ type: 'string' })
+    expect(narrowed?.patternProperties?.['^meta_']).toMatchObject({
+      type: 'string',
+    })
   })
 })
 
@@ -1306,7 +1410,10 @@ describe('parseSchema object discriminator', () => {
         },
         discriminator: {
           propertyName: 'petType',
-          mapping: { Cat: '#/components/schemas/Cat', Dog: '#/components/schemas/Dog' },
+          mapping: {
+            Cat: '#/components/schemas/Cat',
+            Dog: '#/components/schemas/Dog',
+          },
         },
       },
     })
@@ -1389,7 +1496,9 @@ describe('parseSchema prefixItems (tuple)', () => {
   const ctx = { document: emptyDocument }
 
   it('maps type to tuple', () => {
-    const node = parseSchema(ctx, { schema: { prefixItems: [{ type: 'string' }] } })
+    const node = parseSchema(ctx, {
+      schema: { prefixItems: [{ type: 'string' }] },
+    })
 
     expect(node.type).toBe('tuple')
   })
@@ -1421,7 +1530,9 @@ describe('parseSchema prefixItems (tuple)', () => {
   })
 
   it('defaults rest to any when items is absent', () => {
-    const node = parseSchema(ctx, { schema: { prefixItems: [{ type: 'string' }] } })
+    const node = parseSchema(ctx, {
+      schema: { prefixItems: [{ type: 'string' }] },
+    })
     const narrowed = ast.narrowSchema(node, 'tuple')
 
     expect(narrowed?.rest?.type).toBe('any')
@@ -1462,21 +1573,27 @@ describe('parseSchema prefixItems (tuple)', () => {
   })
 
   it('maps minItems to min', () => {
-    const node = parseSchema(ctx, { schema: { prefixItems: [{ type: 'string' }], minItems: 1 } })
+    const node = parseSchema(ctx, {
+      schema: { prefixItems: [{ type: 'string' }], minItems: 1 },
+    })
     const narrowed = ast.narrowSchema(node, 'tuple')
 
     expect(narrowed?.min).toBe(1)
   })
 
   it('maps maxItems to max', () => {
-    const node = parseSchema(ctx, { schema: { prefixItems: [{ type: 'string' }], maxItems: 4 } })
+    const node = parseSchema(ctx, {
+      schema: { prefixItems: [{ type: 'string' }], maxItems: 4 },
+    })
     const narrowed = ast.narrowSchema(node, 'tuple')
 
     expect(narrowed?.max).toBe(4)
   })
 
   it('leaves min and max undefined when minItems and maxItems are absent', () => {
-    const node = parseSchema(ctx, { schema: { prefixItems: [{ type: 'string' }] } })
+    const node = parseSchema(ctx, {
+      schema: { prefixItems: [{ type: 'string' }] },
+    })
     const narrowed = ast.narrowSchema(node, 'tuple')
 
     expect(narrowed?.min).toBeUndefined()
@@ -1491,7 +1608,9 @@ describe('parseSchema prefixItems (tuple)', () => {
   })
 
   it('takes precedence over type: array — always resolves to tuple', () => {
-    const node = parseSchema(ctx, { schema: { type: 'array', prefixItems: [{ type: 'string' }] } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'array', prefixItems: [{ type: 'string' }] },
+    })
 
     expect(node.type).toBe('tuple')
   })
@@ -1581,13 +1700,17 @@ describe('parseSchema nullable', () => {
   const ctx = { document: emptyDocument }
 
   it('sets nullable via nullable: true (OAS 3.0)', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', nullable: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', nullable: true },
+    })
 
     expect(node.nullable).toBe(true)
   })
 
   it('sets nullable via x-nullable: true', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', 'x-nullable': true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', 'x-nullable': true },
+    })
 
     expect(node.nullable).toBe(true)
   })
@@ -1618,19 +1741,25 @@ describe('parseSchema nullable', () => {
   })
 
   it('propagates nullable from object schema', () => {
-    const node = parseSchema(ctx, { schema: { type: 'object', nullable: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'object', nullable: true },
+    })
 
     expect(node.nullable).toBe(true)
   })
 
   it('propagates nullable from array schema', () => {
-    const node = parseSchema(ctx, { schema: { type: 'array', nullable: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'array', nullable: true },
+    })
 
     expect(node.nullable).toBe(true)
   })
 
   it('propagates nullable from ref schema siblings', () => {
-    const node = parseSchema(ctx, { schema: { $ref: '#/components/schemas/Pet', nullable: true } })
+    const node = parseSchema(ctx, {
+      schema: { $ref: '#/components/schemas/Pet', nullable: true },
+    })
 
     expect(node.nullable).toBe(true)
   })
@@ -1646,7 +1775,9 @@ describe('parseSchema string', () => {
   })
 
   it('preserves nullable on string', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', nullable: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', nullable: true },
+    })
 
     expect(node.type).toBe('string')
     expect(node.nullable).toBe(true)
@@ -1660,7 +1791,9 @@ describe('parseSchema string', () => {
   })
 
   it('maps maxLength to max', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', maxLength: 100 } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', maxLength: 100 },
+    })
     const narrowed = ast.narrowSchema(node, 'string')
 
     expect(narrowed?.max).toBe(100)
@@ -1677,14 +1810,18 @@ describe('parseSchema boolean', () => {
   })
 
   it('preserves nullable on boolean', () => {
-    const node = parseSchema(ctx, { schema: { type: 'boolean', nullable: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'boolean', nullable: true },
+    })
 
     expect(node.type).toBe('boolean')
     expect(node.nullable).toBe(true)
   })
 
   it('passes through default value', () => {
-    const node = parseSchema(ctx, { schema: { type: 'boolean', default: false } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'boolean', default: false },
+    })
 
     expect(node.default).toBe(false)
   })
@@ -1728,7 +1865,9 @@ describe('parseSchema enum', () => {
   })
 
   it('sets enumNullable from schema nullable combined with null in enum', () => {
-    const node = parseSchema(ctx, { schema: { enum: ['a', null], nullable: true } })
+    const node = parseSchema(ctx, {
+      schema: { enum: ['a', null], nullable: true },
+    })
     const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(node.nullable).toBe(true)
@@ -1736,20 +1875,26 @@ describe('parseSchema enum', () => {
   })
 
   it('clears default when default is null and enum is nullable', () => {
-    const node = parseSchema(ctx, { schema: { enum: ['a', null], default: null } })
+    const node = parseSchema(ctx, {
+      schema: { enum: ['a', null], default: null },
+    })
 
     expect(node.default).toBeUndefined()
   })
 
   it('preserves non-null default', () => {
-    const node = parseSchema(ctx, { schema: { enum: ['a', 'b'], default: 'a' } })
+    const node = parseSchema(ctx, {
+      schema: { enum: ['a', 'b'], default: 'a' },
+    })
 
     expect(node.default).toBe('a')
   })
 
   // Number enum
   it('produces namedEnumValues with primitive number for integer enum', () => {
-    const node = parseSchema(ctx, { schema: { type: 'integer', enum: [1, 2, 3] } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'integer', enum: [1, 2, 3] },
+    })
     const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(node.type).toBe('enum')
@@ -1760,7 +1905,9 @@ describe('parseSchema enum', () => {
   })
 
   it('produces namedEnumValues with primitive number for number enum', () => {
-    const node = parseSchema(ctx, { schema: { type: 'number', enum: [0.5, 1.5] } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'number', enum: [0.5, 1.5] },
+    })
     const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(node.primitive).toBe('number')
@@ -1775,7 +1922,9 @@ describe('parseSchema enum', () => {
   })
 
   it('deduplicates numeric enum values', () => {
-    const node = parseSchema(ctx, { schema: { type: 'integer', enum: [1, 1, 2] } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'integer', enum: [1, 1, 2] },
+    })
     const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(narrowed?.namedEnumValues?.map((v) => v.value)).toEqual([1, 2])
@@ -1783,7 +1932,9 @@ describe('parseSchema enum', () => {
 
   // Boolean enum
   it('produces namedEnumValues with primitive boolean for boolean enum', () => {
-    const node = parseSchema(ctx, { schema: { type: 'boolean', enum: [true, false] } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'boolean', enum: [true, false] },
+    })
     const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(node.primitive).toBe('boolean')
@@ -1905,7 +2056,9 @@ describe('parseSchema enum', () => {
 
   // Array + enum normalization
   it('normalizes array+enum by moving enum into items and returning array node', () => {
-    const node = parseSchema(ctx, { schema: { type: 'array', enum: ['x', 'y'] } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'array', enum: ['x', 'y'] },
+    })
     const narrowed = ast.narrowSchema(node, 'array')
 
     expect(node.type).toBe('array')
@@ -1915,7 +2068,9 @@ describe('parseSchema enum', () => {
   })
 
   it('merges existing items schema when normalizing array+enum', () => {
-    const node = parseSchema(ctx, { schema: { type: 'array', items: { type: 'string' }, enum: ['x', 'y'] } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'array', items: { type: 'string' }, enum: ['x', 'y'] },
+    })
     const narrowed = ast.narrowSchema(node, 'array')
 
     expect(node.type).toBe('array')
@@ -1935,7 +2090,9 @@ describe('parseSchema null', () => {
   })
 
   it('propagates description on null', () => {
-    const node = parseSchema(ctx, { schema: { type: 'null', description: 'always null' } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'null', description: 'always null' },
+    })
 
     expect(node.description).toBe('always null')
   })
@@ -1973,7 +2130,9 @@ describe('parseSchema OAS 3.1 type array', () => {
   })
 
   it('produces a union node for three non-null types', () => {
-    const node = parseSchema(ctx, { schema: { type: ['string', 'integer', 'boolean'] } })
+    const node = parseSchema(ctx, {
+      schema: { type: ['string', 'integer', 'boolean'] },
+    })
     const narrowed = ast.narrowSchema(node, 'union')
 
     expect(node.type).toBe('union')
@@ -1981,7 +2140,9 @@ describe('parseSchema OAS 3.1 type array', () => {
   })
 
   it('sets nullable when null is among multiple types', () => {
-    const node = parseSchema(ctx, { schema: { type: ['string', 'integer', 'null'] } })
+    const node = parseSchema(ctx, {
+      schema: { type: ['string', 'integer', 'null'] },
+    })
     const narrowed = ast.narrowSchema(node, 'union')
 
     expect(node.type).toBe('union')
@@ -2017,7 +2178,9 @@ describe('parseSchema OAS 3.1 type array', () => {
   })
 
   it('each union member schema carries the shared schema properties', () => {
-    const node = parseSchema(ctx, { schema: { type: ['string', 'integer'], readOnly: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: ['string', 'integer'], readOnly: true },
+    })
     const narrowed = ast.narrowSchema(node, 'union')
 
     const members = narrowed?.members ?? []
@@ -2035,13 +2198,17 @@ describe('parseSchema integer', () => {
   })
 
   it('maps integer int32 to integer', () => {
-    const node = parseSchema(ctx, { schema: { type: 'integer', format: 'int32' } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'integer', format: 'int32' },
+    })
 
     expect(node.type).toBe('integer')
   })
 
   it('maps integer int64 to integer when integerType is number (default)', () => {
-    const node = parseSchema(ctx, { schema: { type: 'integer', format: 'int64' } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'integer', format: 'int64' },
+    })
 
     expect(node.type).toBe('integer')
   })
@@ -2053,7 +2220,9 @@ describe('parseSchema integer', () => {
   })
 
   it('preserves nullable on integer', () => {
-    const node = parseSchema(ctx, { schema: { type: 'integer', nullable: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'integer', nullable: true },
+    })
 
     expect(node.type).toBe('integer')
     expect(node.nullable).toBe(true)
@@ -2070,13 +2239,17 @@ describe('parseSchema number', () => {
   })
 
   it('maps number float to number', () => {
-    const node = parseSchema(ctx, { schema: { type: 'number', format: 'float' } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'number', format: 'float' },
+    })
 
     expect(node.type).toBe('number')
   })
 
   it('maps number double to number', () => {
-    const node = parseSchema(ctx, { schema: { type: 'number', format: 'double' } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'number', format: 'double' },
+    })
 
     expect(node.type).toBe('number')
   })
@@ -2088,7 +2261,9 @@ describe('parseSchema number', () => {
   })
 
   it('preserves nullable on number', () => {
-    const node = parseSchema(ctx, { schema: { type: 'number', nullable: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'number', nullable: true },
+    })
 
     expect(node.type).toBe('number')
     expect(node.nullable).toBe(true)
@@ -2099,7 +2274,9 @@ describe('parseSchema pattern', () => {
   const ctx = { document: emptyDocument }
 
   it('maps pattern on a string type to a string node with pattern', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', pattern: '^[a-z]+$' } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', pattern: '^[a-z]+$' },
+    })
     const narrowed = ast.narrowSchema(node, 'string')
 
     expect(node.type).toBe('string')
@@ -2115,14 +2292,18 @@ describe('parseSchema pattern', () => {
   })
 
   it('ignores pattern on non-string types', () => {
-    const node = parseSchema(ctx, { schema: { type: 'number', pattern: '^[0-9]+$' } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'number', pattern: '^[0-9]+$' },
+    })
 
     expect(node.type).toBe('number')
     expect(ast.narrowSchema(node, 'string')?.pattern).toBeUndefined()
   })
 
   it('preserves nullable on a pattern string', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', pattern: '^[a-z]+$', nullable: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', pattern: '^[a-z]+$', nullable: true },
+    })
     const narrowed = ast.narrowSchema(node, 'string')
 
     expect(node.type).toBe('string')
@@ -2131,7 +2312,14 @@ describe('parseSchema pattern', () => {
   })
 
   it('preserves minLength and maxLength alongside pattern', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', pattern: '^[a-z]+$', minLength: 2, maxLength: 10 } })
+    const node = parseSchema(ctx, {
+      schema: {
+        type: 'string',
+        pattern: '^[a-z]+$',
+        minLength: 2,
+        maxLength: 10,
+      },
+    })
     const narrowed = ast.narrowSchema(node, 'string')
 
     expect(node.type).toBe('string')
@@ -2157,7 +2345,9 @@ describe('parseSchema array', () => {
   })
 
   it('converts items to a single-element items array', () => {
-    const node = parseSchema(ctx, { schema: { type: 'array', items: { type: 'string' } } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'array', items: { type: 'string' } },
+    })
     const narrowed = ast.narrowSchema(node, 'array')
 
     expect(narrowed?.items).toHaveLength(1)
@@ -2186,14 +2376,18 @@ describe('parseSchema array', () => {
   })
 
   it('maps uniqueItems: true to unique: true', () => {
-    const node = parseSchema(ctx, { schema: { type: 'array', uniqueItems: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'array', uniqueItems: true },
+    })
     const narrowed = ast.narrowSchema(node, 'array')
 
     expect(narrowed?.unique).toBe(true)
   })
 
   it('maps uniqueItems: false to unique: false', () => {
-    const node = parseSchema(ctx, { schema: { type: 'array', uniqueItems: false } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'array', uniqueItems: false },
+    })
     const narrowed = ast.narrowSchema(node, 'array')
 
     expect(narrowed?.unique).toBe(false)
@@ -2207,14 +2401,21 @@ describe('parseSchema array', () => {
   })
 
   it('preserves nullable on array', () => {
-    const node = parseSchema(ctx, { schema: { type: 'array', nullable: true } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'array', nullable: true },
+    })
 
     expect(node.type).toBe('array')
     expect(node.nullable).toBe(true)
   })
 
   it('converts nested array items recursively', () => {
-    const node = parseSchema(ctx, { schema: { type: 'array', items: { type: 'array', items: { type: 'number' } } } })
+    const node = parseSchema(ctx, {
+      schema: {
+        type: 'array',
+        items: { type: 'array', items: { type: 'number' } },
+      },
+    })
     const narrowed = ast.narrowSchema(node, 'array')
     const outerItem = ast.narrowSchema(narrowed?.items?.[0], 'array')
     const innerItem = outerItem?.items?.[0]
@@ -2225,7 +2426,9 @@ describe('parseSchema array', () => {
   })
 
   it('converts ref items', () => {
-    const node = parseSchema(ctx, { schema: { type: 'array', items: { $ref: '#/components/schemas/Pet' } } })
+    const node = parseSchema(ctx, {
+      schema: { type: 'array', items: { $ref: '#/components/schemas/Pet' } },
+    })
     const narrowed = ast.narrowSchema(node, 'array')
 
     expect(node.type).toBe('array')
@@ -2305,14 +2508,18 @@ describe('parseSchema constraints', () => {
     })
 
     it('maps maxItems to max', () => {
-      const node = parseSchema(ctx, { schema: { type: 'array', maxItems: 10 } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'array', maxItems: 10 },
+      })
       const narrowed = ast.narrowSchema(node, 'array')
 
       expect(narrowed?.max).toBe(10)
     })
 
     it('maps both minItems and maxItems', () => {
-      const node = parseSchema(ctx, { schema: { type: 'array', minItems: 1, maxItems: 5 } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'array', minItems: 1, maxItems: 5 },
+      })
       const narrowed = ast.narrowSchema(node, 'array')
 
       expect(narrowed?.min).toBe(1)
@@ -2330,21 +2537,27 @@ describe('parseSchema constraints', () => {
 
   describe('string: minLength / maxLength', () => {
     it('maps minLength to min', () => {
-      const node = parseSchema(ctx, { schema: { type: 'string', minLength: 3 } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'string', minLength: 3 },
+      })
       const narrowed = ast.narrowSchema(node, 'string')
 
       expect(narrowed?.min).toBe(3)
     })
 
     it('maps maxLength to max', () => {
-      const node = parseSchema(ctx, { schema: { type: 'string', maxLength: 255 } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'string', maxLength: 255 },
+      })
       const narrowed = ast.narrowSchema(node, 'string')
 
       expect(narrowed?.max).toBe(255)
     })
 
     it('maps both minLength and maxLength', () => {
-      const node = parseSchema(ctx, { schema: { type: 'string', minLength: 1, maxLength: 100 } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'string', minLength: 1, maxLength: 100 },
+      })
       const narrowed = ast.narrowSchema(node, 'string')
 
       expect(narrowed?.min).toBe(1)
@@ -2369,13 +2582,17 @@ describe('parseSchema constraints', () => {
     })
 
     it('maps maximum to max', () => {
-      const node = parseSchema(ctx, { schema: { type: 'number', maximum: 999 } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'number', maximum: 999 },
+      })
       const narrowed = ast.narrowSchema(node, 'number')
       expect(narrowed?.max).toBe(999)
     })
 
     it('maps both minimum and maximum', () => {
-      const node = parseSchema(ctx, { schema: { type: 'number', minimum: 1, maximum: 100 } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'number', minimum: 1, maximum: 100 },
+      })
       const narrowed = ast.narrowSchema(node, 'number')
 
       expect(narrowed?.min).toBe(1)
@@ -2383,21 +2600,27 @@ describe('parseSchema constraints', () => {
     })
 
     it('maps numeric exclusiveMinimum', () => {
-      const node = parseSchema(ctx, { schema: { type: 'number', exclusiveMinimum: 0 } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'number', exclusiveMinimum: 0 },
+      })
       const narrowed = ast.narrowSchema(node, 'number')
 
       expect(narrowed?.exclusiveMinimum).toBe(0)
     })
 
     it('maps numeric exclusiveMaximum', () => {
-      const node = parseSchema(ctx, { schema: { type: 'number', exclusiveMaximum: 100 } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'number', exclusiveMaximum: 100 },
+      })
       const narrowed = ast.narrowSchema(node, 'number')
 
       expect(narrowed?.exclusiveMaximum).toBe(100)
     })
 
     it('ignores boolean exclusiveMinimum (OAS 3.0 style)', () => {
-      const node = parseSchema(ctx, { schema: { type: 'number', exclusiveMinimum: true } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'number', exclusiveMinimum: true },
+      })
       const narrowed = ast.narrowSchema(node, 'number')
 
       expect(narrowed?.exclusiveMinimum).toBeUndefined()
@@ -2414,21 +2637,27 @@ describe('parseSchema constraints', () => {
 
   describe('integer: minimum / maximum', () => {
     it('maps minimum to min', () => {
-      const node = parseSchema(ctx, { schema: { type: 'integer', minimum: 1 } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'integer', minimum: 1 },
+      })
       const narrowed = ast.narrowSchema(node, 'integer')
 
       expect(narrowed?.min).toBe(1)
     })
 
     it('maps maximum to max', () => {
-      const node = parseSchema(ctx, { schema: { type: 'integer', maximum: 100 } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'integer', maximum: 100 },
+      })
       const narrowed = ast.narrowSchema(node, 'integer')
 
       expect(narrowed?.max).toBe(100)
     })
 
     it('maps both minimum and maximum', () => {
-      const node = parseSchema(ctx, { schema: { type: 'integer', minimum: 1, maximum: 100 } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'integer', minimum: 1, maximum: 100 },
+      })
       const narrowed = ast.narrowSchema(node, 'integer')
 
       expect(narrowed?.min).toBe(1)
@@ -2436,21 +2665,27 @@ describe('parseSchema constraints', () => {
     })
 
     it('maps numeric exclusiveMinimum', () => {
-      const node = parseSchema(ctx, { schema: { type: 'integer', exclusiveMinimum: 0 } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'integer', exclusiveMinimum: 0 },
+      })
       const narrowed = ast.narrowSchema(node, 'integer')
 
       expect(narrowed?.exclusiveMinimum).toBe(0)
     })
 
     it('maps numeric exclusiveMaximum', () => {
-      const node = parseSchema(ctx, { schema: { type: 'integer', exclusiveMaximum: 100 } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'integer', exclusiveMaximum: 100 },
+      })
       const narrowed = ast.narrowSchema(node, 'integer')
 
       expect(narrowed?.exclusiveMaximum).toBe(100)
     })
 
     it('ignores boolean exclusiveMinimum (OAS 3.0 style)', () => {
-      const node = parseSchema(ctx, { schema: { type: 'integer', exclusiveMinimum: true } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'integer', exclusiveMinimum: true },
+      })
       const narrowed = ast.narrowSchema(node, 'integer')
 
       expect(narrowed?.exclusiveMinimum).toBeUndefined()
@@ -2507,7 +2742,9 @@ describe('parser options', () => {
   describe('integerType', () => {
     it('defaults to integer for int64 when integerType is not set', () => {
       const ctx = { document: emptyDocument }
-      const node = parseSchema(ctx, { schema: { type: 'integer', format: 'int64' } })
+      const node = parseSchema(ctx, {
+        schema: { type: 'integer', format: 'int64' },
+      })
 
       expect(node.type).toBe('integer')
     })
@@ -2545,7 +2782,9 @@ describe('parser options', () => {
     describe('format date-time', () => {
       it('defaults to datetime', () => {
         const ctx = { document: emptyDocument }
-        const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } })
+        const node = parseSchema(ctx, {
+          schema: { type: 'string', format: 'date-time' },
+        })
         const narrowed = ast.narrowSchema(node, 'datetime')
 
         expect(node.type).toBe('datetime')
@@ -2599,7 +2838,9 @@ describe('parser options', () => {
     describe('format date', () => {
       it('defaults to date with representation: string', () => {
         const ctx = { document: emptyDocument }
-        const node = parseSchema(ctx, { schema: { type: 'string', format: 'date' } })
+        const node = parseSchema(ctx, {
+          schema: { type: 'string', format: 'date' },
+        })
         const narrowed = ast.narrowSchema(node, 'date')
 
         expect(node.type).toBe('date')
@@ -2635,7 +2876,9 @@ describe('parser options', () => {
     describe('format time', () => {
       it('defaults to time with representation: string', () => {
         const ctx = { document: emptyDocument }
-        const node = parseSchema(ctx, { schema: { type: 'string', format: 'time' } })
+        const node = parseSchema(ctx, {
+          schema: { type: 'string', format: 'time' },
+        })
         const narrowed = ast.narrowSchema(node, 'time')
 
         expect(node.type).toBe('time')
@@ -2677,7 +2920,9 @@ describe('parseSchema not keyword', () => {
     // JSON Schema `not` has no direct equivalent in most code generators.
     // The parser intentionally does not handle it and falls through to the configured emptySchemaType.
     // Cast required: `not` is valid JSON Schema / OAS 3.1 but not in the TS SchemaObject type.
-    const node = parseSchema(ctx, { schema: { not: { type: 'string' } } as SchemaObject })
+    const node = parseSchema(ctx, {
+      schema: { not: { type: 'string' } } as SchemaObject,
+    })
 
     expect(node.type).toBe('any')
   })
@@ -2891,7 +3136,14 @@ describe('parseSchema circular allOf discriminator detection', () => {
           Cat: {
             allOf: [
               { $ref: '#/components/schemas/Animal' },
-              { type: 'object', required: ['type'], properties: { type: { type: 'string' }, name: { type: 'string' } } },
+              {
+                type: 'object',
+                required: ['type'],
+                properties: {
+                  type: { type: 'string' },
+                  name: { type: 'string' },
+                },
+              },
             ],
           },
         },
@@ -3207,14 +3459,25 @@ describe('unknownType / emptySchemaType → SchemaNode type', () => {
   })
 
   it('unannotated additionalProperties produce type: any by default', () => {
-    const node = ast.narrowSchema(parseSchema(ctx, { schema: { type: 'object', additionalProperties: {} } as SchemaObject }), 'object')
+    const node = ast.narrowSchema(
+      parseSchema(ctx, {
+        schema: { type: 'object', additionalProperties: {} } as SchemaObject,
+      }),
+      'object',
+    )
 
     expect(node?.additionalProperties).toMatchObject({ type: 'any' })
   })
 
   it('unannotated additionalProperties produce type: unknown when unknownType is unknown', () => {
     const node = ast.narrowSchema(
-      parseSchema(ctx, { schema: { type: 'object', additionalProperties: {} } as SchemaObject }, { unknownType: 'unknown' }),
+      parseSchema(
+        ctx,
+        {
+          schema: { type: 'object', additionalProperties: {} } as SchemaObject,
+        },
+        { unknownType: 'unknown' },
+      ),
       'object',
     )
 
@@ -3236,7 +3499,11 @@ describe('parameter enum naming', () => {
                 name: 'status',
                 in: 'query',
                 required: false,
-                schema: { type: 'string', default: 'available', enum: ['available', 'pending', 'sold'] },
+                schema: {
+                  type: 'string',
+                  default: 'available',
+                  enum: ['available', 'pending', 'sold'],
+                },
               },
             ],
             responses: { '200': { description: 'OK' } },

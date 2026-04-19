@@ -201,11 +201,20 @@ export function createPrinterFactory<TNode, TKey extends string, TNodeByKey exte
       options: T['options']
       nodes: Partial<{
         [K in TKey]: (
-          this: { transform: (node: TNode) => T['output'] | null | undefined; options: T['options'] },
+          this: {
+            transform: (node: TNode) => T['output'] | null | undefined
+            options: T['options']
+          },
           node: TNodeByKey[K],
         ) => T['output'] | null | undefined
       }>
-      print?: (this: { transform: (node: TNode) => T['output'] | null | undefined; options: T['options'] }, node: TNode) => T['printOutput'] | null | undefined
+      print?: (
+        this: {
+          transform: (node: TNode) => T['output'] | null | undefined
+          options: T['options']
+        },
+        node: TNode,
+      ) => T['printOutput'] | null | undefined
     },
   ): (options?: T['options']) => {
     name: T['name']

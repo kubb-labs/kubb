@@ -106,7 +106,10 @@ export class FileManager {
     const keys = [...this.#cache.keys()]
     const meta = new Map<string, { length: number; isIndex: boolean }>()
     for (const key of keys) {
-      meta.set(key, { length: key.length, isIndex: trimExtName(key).endsWith(BARREL_BASENAME) })
+      meta.set(key, {
+        length: key.length,
+        isIndex: trimExtName(key).endsWith(BARREL_BASENAME),
+      })
     }
     keys.sort((a, b) => {
       const ma = meta.get(a)!

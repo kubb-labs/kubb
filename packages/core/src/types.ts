@@ -202,20 +202,20 @@ export type Config<TInput = Input> = {
     storage?: Storage
     /**
      * Specifies the formatting tool to be used.
-     * - 'auto' automatically detects and uses biome or prettier (in that order of preference).
+     * - 'auto' automatically detects and uses oxfmt, biome, or prettier (in that order of preference).
+     * - 'oxfmt' uses Oxfmt for code formatting.
      * - 'prettier' uses Prettier for code formatting.
      * - 'biome' uses Biome for code formatting.
-     * - 'oxfmt' uses Oxfmt for code formatting.
      * - false disables code formatting.
      * @default 'prettier'
      */
     format?: 'auto' | 'prettier' | 'biome' | 'oxfmt' | false
     /**
      * Specifies the linter that should be used to analyze the code.
-     * - 'auto' automatically detects and uses biome, oxlint, or eslint (in that order of preference).
+     * - 'auto' automatically detects and uses oxlint, biome, or eslint (in that order of preference).
+     * - 'oxlint' uses Oxlint for linting.
      * - 'eslint' uses ESLint for linting.
      * - 'biome' uses Biome for linting.
-     * - 'oxlint' uses Oxlint for linting.
      * - false disables linting.
      * @default 'auto'
      */
@@ -648,7 +648,11 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
   /**
    * Inject a raw file into the build output, bypassing the normal generation pipeline.
    */
-  injectFile(file: Pick<FileNode, 'baseName' | 'path'> & { sources?: FileNode['sources'] }): void
+  injectFile(
+    file: Pick<FileNode, 'baseName' | 'path'> & {
+      sources?: FileNode['sources']
+    },
+  ): void
   /**
    * Merge a partial config update into the current build configuration.
    */

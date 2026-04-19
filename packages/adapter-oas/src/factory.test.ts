@@ -6,14 +6,22 @@ const petSchema: Document = {
   openapi: '3.0.3',
   info: { title: 'Pets API', version: '1.0.0' },
   paths: {},
-  components: { schemas: { Pet: { type: 'object', properties: { name: { type: 'string' } } } } },
+  components: {
+    schemas: {
+      Pet: { type: 'object', properties: { name: { type: 'string' } } },
+    },
+  },
 } as Document
 
 const orderSchema: Document = {
   openapi: '3.0.3',
   info: { title: 'Orders API', version: '1.0.0' },
   paths: {},
-  components: { schemas: { Order: { type: 'object', properties: { id: { type: 'integer' } } } } },
+  components: {
+    schemas: {
+      Order: { type: 'object', properties: { id: { type: 'integer' } } },
+    },
+  },
 } as Document
 
 describe('parseDocument', () => {
@@ -64,7 +72,10 @@ describe('parseFromConfig', () => {
   })
 
   it('parses an inline JSON string via type: data', async () => {
-    const doc = await parseFromConfig({ type: 'data', data: JSON.stringify(petSchema) })
+    const doc = await parseFromConfig({
+      type: 'data',
+      data: JSON.stringify(petSchema),
+    })
 
     expect(doc.components?.schemas?.['Pet']).toBeDefined()
   })
@@ -87,7 +98,10 @@ components:
   })
 
   it('merges multiple documents via type: paths (using object sources)', async () => {
-    const doc = await parseFromConfig({ type: 'paths', paths: [petSchema as unknown as string, orderSchema as unknown as string] })
+    const doc = await parseFromConfig({
+      type: 'paths',
+      paths: [petSchema as unknown as string, orderSchema as unknown as string],
+    })
 
     expect(doc.components?.schemas?.['Pet']).toBeDefined()
     expect(doc.components?.schemas?.['Order']).toBeDefined()

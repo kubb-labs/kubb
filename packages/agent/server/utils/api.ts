@@ -31,7 +31,9 @@ export async function createAgentSession({ token, studioUrl }: ConnectProps): Pr
 
     return data
   } catch (error: any) {
-    throw new Error('Failed to get agent session from Kubb Studio', { cause: error })
+    throw new Error('Failed to get agent session from Kubb Studio', {
+      cause: error,
+    })
   }
 }
 
@@ -89,6 +91,8 @@ export async function disconnect({ sessionId, token, studioUrl }: DisconnectProp
     })
     logger.success(`[${maskedSessionKey}] Disconnected from Studio`)
   } catch (error: any) {
-    throw new Error('Failed to notify Studio of disconnection on exit', { cause: error })
+    throw new Error('Failed to notify Studio of disconnection on exit', {
+      cause: error,
+    })
   }
 }

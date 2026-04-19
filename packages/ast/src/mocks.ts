@@ -9,8 +9,16 @@ export function buildSampleTree(): InputNode {
     type: 'object',
     name: 'Pet',
     properties: [
-      createProperty({ name: 'id', schema: createSchema({ type: 'integer' }), required: true }),
-      createProperty({ name: 'name', schema: createSchema({ type: 'string' }), required: true }),
+      createProperty({
+        name: 'id',
+        schema: createSchema({ type: 'integer' }),
+        required: true,
+      }),
+      createProperty({
+        name: 'name',
+        schema: createSchema({ type: 'string' }),
+        required: true,
+      }),
     ],
   })
 
@@ -19,9 +27,19 @@ export function buildSampleTree(): InputNode {
     method: 'GET',
     path: '/pets/{petId}',
     tags: ['pets'],
-    parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
+    parameters: [
+      createParameter({
+        name: 'petId',
+        in: 'path',
+        schema: createSchema({ type: 'integer' }),
+        required: true,
+      }),
+    ],
     responses: [
-      createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'Pet' }) }),
+      createResponse({
+        statusCode: '200',
+        schema: createSchema({ type: 'ref', name: 'Pet' }),
+      }),
       createResponse({
         statusCode: '404',
         schema: createSchema({ type: 'ref', name: 'Error' }),
@@ -47,14 +65,28 @@ export function buildFixture(): InputNode {
         name: 'Pet',
         type: 'object',
         properties: [
-          createProperty({ name: 'id', schema: createSchema({ type: 'integer' }), required: true }),
-          createProperty({ name: 'name', schema: createSchema({ type: 'string' }), required: true }),
+          createProperty({
+            name: 'id',
+            schema: createSchema({ type: 'integer' }),
+            required: true,
+          }),
+          createProperty({
+            name: 'name',
+            schema: createSchema({ type: 'string' }),
+            required: true,
+          }),
         ],
       }),
       createSchema({
         name: 'NewPet',
         type: 'object',
-        properties: [createProperty({ name: 'name', schema: createSchema({ type: 'string' }), required: true })],
+        properties: [
+          createProperty({
+            name: 'name',
+            schema: createSchema({ type: 'string' }),
+            required: true,
+          }),
+        ],
       }),
       createSchema({
         name: 'PetList',
@@ -65,11 +97,23 @@ export function buildFixture(): InputNode {
         name: 'Error',
         type: 'object',
         properties: [
-          createProperty({ name: 'code', schema: createSchema({ type: 'integer' }), required: true }),
-          createProperty({ name: 'message', schema: createSchema({ type: 'string' }), required: true }),
+          createProperty({
+            name: 'code',
+            schema: createSchema({ type: 'integer' }),
+            required: true,
+          }),
+          createProperty({
+            name: 'message',
+            schema: createSchema({ type: 'string' }),
+            required: true,
+          }),
         ],
       }),
-      createSchema({ name: 'PetOrError', type: 'union', members: [refPet, refError] }),
+      createSchema({
+        name: 'PetOrError',
+        type: 'union',
+        members: [refPet, refError],
+      }),
       createSchema({
         name: 'FullPet',
         type: 'intersection',
@@ -77,7 +121,12 @@ export function buildFixture(): InputNode {
           refPet,
           createSchema({
             type: 'object',
-            properties: [createProperty({ name: 'createdAt', schema: createSchema({ type: 'datetime' }) })],
+            properties: [
+              createProperty({
+                name: 'createdAt',
+                schema: createSchema({ type: 'datetime' }),
+              }),
+            ],
           }),
         ],
       }),
@@ -88,10 +137,24 @@ export function buildFixture(): InputNode {
         method: 'GET',
         path: '/pets',
         tags: ['pets'],
-        parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
+        parameters: [
+          createParameter({
+            name: 'limit',
+            in: 'query',
+            schema: createSchema({ type: 'integer' }),
+          }),
+        ],
         responses: [
-          createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', ref: 'PetList' }), mediaType: 'application/json' }),
-          createResponse({ statusCode: '400', schema: refError, mediaType: 'application/json' }),
+          createResponse({
+            statusCode: '200',
+            schema: createSchema({ type: 'ref', ref: 'PetList' }),
+            mediaType: 'application/json',
+          }),
+          createResponse({
+            statusCode: '400',
+            schema: refError,
+            mediaType: 'application/json',
+          }),
         ],
       }),
       createOperation({
@@ -100,7 +163,13 @@ export function buildFixture(): InputNode {
         path: '/pets',
         tags: ['pets'],
         requestBody: { schema: createSchema({ type: 'ref', ref: 'NewPet' }) },
-        responses: [createResponse({ statusCode: '201', schema: refPet, mediaType: 'application/json' })],
+        responses: [
+          createResponse({
+            statusCode: '201',
+            schema: refPet,
+            mediaType: 'application/json',
+          }),
+        ],
       }),
     ],
   })

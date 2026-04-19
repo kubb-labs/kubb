@@ -32,7 +32,13 @@ describe('FileProcessor', () => {
       const processor = new FileProcessor()
       const file = makeFile('/src/foo.ts', ['const a = 1'])
       const mockParse = vi.fn().mockResolvedValue('// formatted\nconst a = 1')
-      const parser = { name: 'ts', type: 'parser' as const, extNames: ['.ts' as const], install: vi.fn(), parse: mockParse }
+      const parser = {
+        name: 'ts',
+        type: 'parser' as const,
+        extNames: ['.ts' as const],
+        install: vi.fn(),
+        parse: mockParse,
+      }
       const parsers = new Map([['.ts' as const, parser]])
       const result = await processor.parse(file, { parsers })
       expect(mockParse).toHaveBeenCalledWith(file, { extname: undefined })
@@ -66,7 +72,11 @@ describe('FileProcessor', () => {
     it('passes correct percentage and processed count to onUpdate', async () => {
       const processor = new FileProcessor()
       const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
-      const updates: Array<{ processed: number; percentage: number; total: number }> = []
+      const updates: Array<{
+        processed: number
+        percentage: number
+        total: number
+      }> = []
 
       await processor.run(files, {
         onUpdate: ({ processed, percentage, total }) => {

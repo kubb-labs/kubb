@@ -15,6 +15,7 @@ Parsers are configured in `kubb.config.ts` via the [`parsers`](/getting-started/
 ## Installation
 
 ::: code-group
+
 ```shell [bun]
 bun add @kubb/parser-ts
 ```
@@ -30,6 +31,7 @@ npm install @kubb/parser-ts
 ```shell [yarn]
 yarn add @kubb/parser-ts
 ```
+
 :::
 
 ## Usage

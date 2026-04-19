@@ -13,6 +13,7 @@ Install Kubb to start generating type-safe TypeScript code from your OpenAPI/Swa
 ## Why Install Kubb?
 
 Kubb transforms OpenAPI specifications into production-ready TypeScript code including:
+
 - Type-safe API clients
 - React Query/SWR/TanStack Query hooks
 - Zod validation schemas
@@ -30,6 +31,7 @@ npx kubb init
 ```
 
 This single command handles the entire setup:
+
 - Detects or creates your `package.json`
 - Prompts for your OpenAPI/Swagger specification path
 - Asks which plugins you want to install
@@ -37,6 +39,7 @@ This single command handles the entire setup:
 - Generates a configured `kubb.config.ts` file
 
 **Why use `kubb init`?**
+
 - Zero configuration required
 - Avoids version mismatch errors
 - Sets up recommended defaults
@@ -260,19 +263,21 @@ yarn add -D @kubb/plugin-msw
 
 **Node.js version:** Kubb requires Node.js 20 or higher.
 
-|           |         |
-|----------:|:--------|
-|  Node.js: | `>= 20` |
+|          |         |
+| -------: | :------ |
+| Node.js: | `>= 20` |
 
 **Why Node.js 20?**
 Kubb uses modern JavaScript features available in Node.js 20+. Earlier versions are not supported.
 
 **Check your Node.js version:**
+
 ```bash
 node --version
 ```
 
 **Upgrade Node.js** (if needed):
+
 ```bash
 # Using nvm (recommended)
 nvm install 20
@@ -297,9 +302,11 @@ nvm use 20
 ```
 
 **Why these settings?**
+
 - `"module": "ESNext"` - Kubb uses ESM modules
 - `"moduleResolution": "bundler"` - Modern module resolution for bundlers
 - `"target": "ES2022"` - Modern JavaScript target for Node.js 20+
+
 ## Verify Installation
 
 Confirm Kubb is installed correctly by checking the version:
@@ -311,6 +318,7 @@ npx kubb --version
 **Expected output:** Version number (e.g., `3.0.0`)
 
 If you see an error, check that:
+
 - Node.js version is 20 or higher (`node --version`)
 - Kubb packages are installed (`npm list @kubb/cli`)
 - You're in the correct project directory
@@ -350,4 +358,3 @@ Peer dependency warnings are usually safe to ignore. Kubb will work correctly as
 
 **Q: How do I update Kubb?**
 Run your package manager's update command (e.g., `npm update @kubb/cli @kubb/core`) to get the latest version.
-

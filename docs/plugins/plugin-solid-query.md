@@ -35,6 +35,7 @@ yarn add -D @kubb/plugin-solid-query
 ## Options
 
 ### output
+
 Specify the export location for the files and define the behavior of the output.
 
 #### output.path
@@ -64,9 +65,11 @@ Specify the export location for the files and define the behavior of the output.
 <!--@include: ./core/outputOverride.md-->
 
 ### contentType
+
 <!--@include: ./core/contentType.md-->
 
 ### group
+
 <!--@include: ./core/group.md-->
 
 #### group.type
@@ -106,15 +109,19 @@ Return the name of a group based on the group name, this will be used for the fi
 <!--@include: ./plugin-client/bundle.md-->
 
 ### paramsType
+
 <!--@include: ./plugin-client/paramsType.md-->
 
 ### paramsCasing
+
 <!--@include: ./plugin-client/paramsCasing.md-->
 
 ### pathParamsType
+
 <!--@include: ./plugin-client/pathParamsType.md-->
 
 ### parser
+
 <!--@include: ./plugin-client/parser.md-->
 
 ### queryKey
@@ -122,6 +129,7 @@ Return the name of a group based on the group name, this will be used for the fi
 Customize the queryKey that will be used for the query.
 
 The function receives an object with:
+
 - `operation`: The OpenAPI operation object with methods like `getTags()`, `getOperationId()`, etc.
 - `schemas`: An object containing operation schemas including `pathParams`, `queryParams`, `request`, `response`, etc.
 
@@ -130,7 +138,7 @@ When using a string you need to use `JSON.stringify`.
 :::
 
 |           |                                                                             |
-| --------: | :-------- |
+| --------: | :-------------------------------------------------------------------------- |
 |     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
 | Required: | `false`                                                                     |
 
@@ -149,7 +157,7 @@ export default defineConfig({
   plugins: [
     pluginSolidQuery({
       queryKey: ({ operation, schemas }) => {
-        const tags = operation.getTags().map(tag => JSON.stringify(tag.name))
+        const tags = operation.getTags().map((tag) => JSON.stringify(tag.name))
         const pathParams = schemas.pathParams?.keys || []
         return [...tags, ...pathParams]
       },
@@ -159,9 +167,9 @@ export default defineConfig({
 ```
 
 For a GET operation with tags `["user"]` and path parameter `username`, this generates:
+
 ```typescript
-export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams["username"] }) =>
-  ['user', username] as const
+export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] }) => ['user', username] as const
 ```
 
 **Using the default transformer**
@@ -186,9 +194,9 @@ export default defineConfig({
 ```
 
 This prepends a version to the default queryKey:
+
 ```typescript
-export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) =>
-  ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 ```
 
 **Using operation ID**
@@ -246,17 +254,18 @@ export default defineConfig({
 Override some useQuery behaviors. <br/>
 To disable the creation of hooks pass `false`, this will result in only creating `queryOptions`.
 
-
 |           |         |
-| --------: | :-------- |
+| --------: | :------ |
 |     Type: | `Query` |
 | Required: | `false` |
 
 ```typescript [Query]
-type Query = {
-  methods: Array<HttpMethod>
-  importPath?: string
-} | false
+type Query =
+  | {
+      methods: Array<HttpMethod>
+      importPath?: string
+    }
+  | false
 ```
 
 #### query.methods
@@ -270,10 +279,10 @@ It will be used as `import { useQuery } from '${hook.importPath}'`.
 It allows both relative and absolute path.
 the path will be applied as is, so relative path should be based on the file being generated.
 
-|           |                        |
-| --------: | :-------- |
-|     Type: | `string`               |
-| Required: | `false`                |
+|           |                           |
+| --------: | :------------------------ |
+|     Type: | `string`                  |
+| Required: | `false`                   |
 |  Default: | `'@tanstack/solid-query'` |
 
 ### mutation
@@ -282,15 +291,17 @@ Override some useMutation behaviors. <br/>
 To disable queries pass `false`.
 
 |           |            |
-| --------: | :-------- |
+| --------: | :--------- |
 |     Type: | `Mutation` |
 | Required: | `false`    |
 
 ```typescript [Query]
-type Mutation = {
-  methods: Array<HttpMethod>
-  importPath?: string
-} | false
+type Mutation =
+  | {
+      methods: Array<HttpMethod>
+      importPath?: string
+    }
+  | false
 ```
 
 #### mutation.methods
@@ -305,7 +316,7 @@ It allows both relative and absolute path.
 the path will be applied as is, so relative path should be based on the file being generated.
 
 |           |                           |
-| --------: | :-------- |
+| --------: | :------------------------ |
 |     Type: | `string`                  |
 | Required: | `false`                   |
 |  Default: | `'@tanstack/solid-query'` |
@@ -319,38 +330,43 @@ When using a string you need to use `JSON.stringify`.
 :::
 
 |           |                                                                             |
-| --------: | :-------- |
+| --------: | :-------------------------------------------------------------------------- |
 |     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
 | Required: | `false`                                                                     |
 
 ### include
+
 <!--@include: ./core/include.md-->
 
 ### exclude
+
 <!--@include: ./core/exclude.md-->
 
 ### override
+
 <!--@include: ./core/override.md-->
 
 ### generators <img src="../public/icons/experimental.svg"/>
+
 <!--@include: ./core/generators.md-->
 
 |           |                                      |
-| --------: | :-------- |
+| --------: | :----------------------------------- |
 |     Type: | `Array<Generator<PluginSolidQuery>>` |
 | Required: | `false`                              |
 
-
 ### transformers
+
 <!--@include: ./core/transformers.md-->
 
 #### transformers.name
+
 Customize the names based on the type that is provided by the plugin.
 
-|           |                                                                               |
-| --------: | :-------- |
+|           |                                                |
+| --------: | :--------------------------------------------- |
 |     Type: | `(name: string, type?: ResolveType) => string` |
-| Required: | `false`                                                                       |
+| Required: | `false`                                        |
 
 ```typescript
 type ResolveType = 'file' | 'function' | 'type' | 'const'
@@ -386,8 +402,8 @@ export default defineConfig({
         dataReturnType: 'full',
       },
       query: {
-        methods: [ 'get' ],
-        importPath: '@tanstack/solid-query'
+        methods: ['get'],
+        importPath: '@tanstack/solid-query',
       },
     }),
   ],

@@ -3,10 +3,10 @@ name: Sync AGENTS.md from Skills
 on:
   push:
     paths:
-      - ".skills/**"
+      - '.skills/**'
   pull_request:
     paths:
-      - ".skills/**"
+      - '.skills/**'
   workflow_dispatch:
 
 permissions:
@@ -31,6 +31,6 @@ jobs:
           base: ${{ github.head_ref || github.ref_name }}
           branch: chore/update-agents-${{ github.event.number }}
           delete-branch: true
-          title: "Update AGENTS.md"
-          commit-message: "chore(agents): update AGENTS.md"
-          body: "Automated update of AGENTS.md from skills."
+          title: 'Update AGENTS.md'
+          commit-message: 'chore(agents): update AGENTS.md'
+          body: 'Automated update of AGENTS.md from skills.'

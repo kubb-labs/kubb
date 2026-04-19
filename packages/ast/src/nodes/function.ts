@@ -53,7 +53,11 @@ export type ParamsTypeNode = BaseNode & {
         /**
          * Properties of the struct type.
          */
-        properties: Array<{ name: string; optional: boolean; type: ParamsTypeNode }>
+        properties: Array<{
+          name: string
+          optional: boolean
+          type: ParamsTypeNode
+        }>
       }
     | {
         /**

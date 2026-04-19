@@ -337,7 +337,11 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
       await limit(() => visitor.output?.(node, { parent: parent as ParentOf<OutputNode> }))
       break
     case 'Operation':
-      await limit(() => visitor.operation?.(node, { parent: parent as ParentOf<OperationNode> }))
+      await limit(() =>
+        visitor.operation?.(node, {
+          parent: parent as ParentOf<OperationNode>,
+        }),
+      )
       break
     case 'Schema':
       await limit(() => visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> }))
@@ -346,7 +350,11 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
       await limit(() => visitor.property?.(node, { parent: parent as ParentOf<PropertyNode> }))
       break
     case 'Parameter':
-      await limit(() => visitor.parameter?.(node, { parent: parent as ParentOf<ParameterNode> }))
+      await limit(() =>
+        visitor.parameter?.(node, {
+          parent: parent as ParentOf<ParameterNode>,
+        }),
+      )
       break
     case 'Response':
       await limit(() => visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> }))
@@ -399,7 +407,9 @@ export function transform(node: Node, options: TransformOptions): Node {
   switch (node.kind) {
     case 'Input': {
       let input = node
-      const replaced = visitor.input?.(input, { parent: parent as ParentOf<InputNode> })
+      const replaced = visitor.input?.(input, {
+        parent: parent as ParentOf<InputNode>,
+      })
       if (replaced) input = replaced
 
       return {
@@ -410,45 +420,62 @@ export function transform(node: Node, options: TransformOptions): Node {
     }
     case 'Output': {
       let output = node
-      const replaced = visitor.output?.(output, { parent: parent as ParentOf<OutputNode> })
+      const replaced = visitor.output?.(output, {
+        parent: parent as ParentOf<OutputNode>,
+      })
       if (replaced) output = replaced
 
       return output
     }
     case 'Operation': {
       let op = node
-      const replaced = visitor.operation?.(op, { parent: parent as ParentOf<OperationNode> })
+      const replaced = visitor.operation?.(op, {
+        parent: parent as ParentOf<OperationNode>,
+      })
       if (replaced) op = replaced
 
       return {
         ...op,
         parameters: op.parameters.map((p) => transform(p, { ...options, parent: op })),
         requestBody: op.requestBody
-          ? { ...op.requestBody, schema: op.requestBody.schema ? transform(op.requestBody.schema, { ...options, parent: op }) : undefined }
+          ? {
+              ...op.requestBody,
+              schema: op.requestBody.schema ? transform(op.requestBody.schema, { ...options, parent: op }) : undefined,
+            }
           : undefined,
         responses: op.responses.map((r) => transform(r, { ...options, parent: op })),
       }
     }
     case 'Schema': {
       let schema = node
-      const replaced = visitor.schema?.(schema, { parent: parent as ParentOf<SchemaNode> })
+      const replaced = visitor.schema?.(schema, {
+        parent: parent as ParentOf<SchemaNode>,
+      })
       if (replaced) schema = replaced
 
       const childOptions = { ...options, parent: schema }
 
       return {
         ...schema,
-        ...('properties' in schema && recurse ? { properties: schema.properties.map((p) => transform(p, childOptions)) } : {}),
+        ...('properties' in schema && recurse
+          ? {
+              properties: schema.properties.map((p) => transform(p, childOptions)),
+            }
+          : {}),
         ...('items' in schema && recurse ? { items: schema.items?.map((i) => transform(i, childOptions)) } : {}),
         ...('members' in schema && recurse ? { members: schema.members?.map((m) => transform(m, childOptions)) } : {}),
         ...('additionalProperties' in schema && recurse && schema.additionalProperties && schema.additionalProperties !== true
-          ? { additionalProperties: transform(schema.additionalProperties, childOptions) }
+          ? {
+              additionalProperties: transform(schema.additionalProperties, childOptions),
+            }
           : {}),
       } as SchemaNode
     }
     case 'Property': {
       let prop = node
-      const replaced = visitor.property?.(prop, { parent: parent as ParentOf<PropertyNode> })
+      const replaced = visitor.property?.(prop, {
+        parent: parent as ParentOf<PropertyNode>,
+      })
       if (replaced) prop = replaced
 
       return createProperty({
@@ -458,7 +485,9 @@ export function transform(node: Node, options: TransformOptions): Node {
     }
     case 'Parameter': {
       let param = node
-      const replaced = visitor.parameter?.(param, { parent: parent as ParentOf<ParameterNode> })
+      const replaced = visitor.parameter?.(param, {
+        parent: parent as ParentOf<ParameterNode>,
+      })
       if (replaced) param = replaced
 
       return createParameter({
@@ -468,7 +497,9 @@ export function transform(node: Node, options: TransformOptions): Node {
     }
     case 'Response': {
       let response = node
-      const replaced = visitor.response?.(response, { parent: parent as ParentOf<ResponseNode> })
+      const replaced = visitor.response?.(response, {
+        parent: parent as ParentOf<ResponseNode>,
+      })
       if (replaced) response = replaced
 
       return {
@@ -519,19 +550,27 @@ export function collect<T>(node: Node, options: CollectOptions<T>): Array<T> {
       v = visitor.output?.(node, { parent: parent as ParentOf<OutputNode> })
       break
     case 'Operation':
-      v = visitor.operation?.(node, { parent: parent as ParentOf<OperationNode> })
+      v = visitor.operation?.(node, {
+        parent: parent as ParentOf<OperationNode>,
+      })
       break
     case 'Schema':
       v = visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> })
       break
     case 'Property':
-      v = visitor.property?.(node, { parent: parent as ParentOf<PropertyNode> })
+      v = visitor.property?.(node, {
+        parent: parent as ParentOf<PropertyNode>,
+      })
       break
     case 'Parameter':
-      v = visitor.parameter?.(node, { parent: parent as ParentOf<ParameterNode> })
+      v = visitor.parameter?.(node, {
+        parent: parent as ParentOf<ParameterNode>,
+      })
       break
     case 'Response':
-      v = visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> })
+      v = visitor.response?.(node, {
+        parent: parent as ParentOf<ResponseNode>,
+      })
       break
     case 'FunctionParameter':
     case 'ParameterGroup':

@@ -119,7 +119,10 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
   if (!generator.schema) return
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
-  const result = await generator.schema(transformedNode, { ...context, options: opts.options })
+  const result = await generator.schema(transformedNode, {
+    ...context,
+    options: opts.options,
+  })
   await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
 }
 
@@ -138,7 +141,10 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
   if (!generator.operation) return
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
-  const result = await generator.operation(transformedNode, { ...context, options: opts.options })
+  const result = await generator.operation(transformedNode, {
+    ...context,
+    options: opts.options,
+  })
   await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
 }
 
@@ -157,6 +163,9 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
   if (!generator.operations) return
   const context = createMockedPluginContext(opts)
   const transformedNodes = opts.plugin.transformer ? nodes.map((n) => transform(n, opts.plugin.transformer!)) : nodes
-  const result = await generator.operations(transformedNodes, { ...context, options: opts.options })
+  const result = await generator.operations(transformedNodes, {
+    ...context,
+    options: opts.options,
+  })
   await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
 }

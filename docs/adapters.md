@@ -49,9 +49,7 @@ export default defineConfig({
     dateType: 'date',
     unknownType: 'unknown',
   }),
-  plugins: [
-    pluginTs(),
-  ],
+  plugins: [pluginTs()],
 })
 ```
 

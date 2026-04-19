@@ -68,11 +68,17 @@ describe('getDateType', () => {
   })
 
   it('resolves date-time with dateType string to datetime without offset', () => {
-    expect(getDateType({ ...base, dateType: 'string' }, 'date-time')).toEqual({ type: 'datetime', offset: false })
+    expect(getDateType({ ...base, dateType: 'string' }, 'date-time')).toEqual({
+      type: 'datetime',
+      offset: false,
+    })
   })
 
   it('resolves date-time with dateType date', () => {
-    expect(getDateType({ ...base, dateType: 'date' }, 'date-time')).toEqual({ type: 'date', representation: 'date' })
+    expect(getDateType({ ...base, dateType: 'date' }, 'date-time')).toEqual({
+      type: 'date',
+      representation: 'date',
+    })
   })
 
   it('resolves date-time with dateType stringOffset', () => {
@@ -84,13 +90,25 @@ describe('getDateType', () => {
   })
 
   it('resolves date format', () => {
-    expect(getDateType({ ...base, dateType: 'string' }, 'date')).toEqual({ type: 'date', representation: 'string' })
-    expect(getDateType({ ...base, dateType: 'date' }, 'date')).toEqual({ type: 'date', representation: 'date' })
+    expect(getDateType({ ...base, dateType: 'string' }, 'date')).toEqual({
+      type: 'date',
+      representation: 'string',
+    })
+    expect(getDateType({ ...base, dateType: 'date' }, 'date')).toEqual({
+      type: 'date',
+      representation: 'date',
+    })
   })
 
   it('resolves time format', () => {
-    expect(getDateType({ ...base, dateType: 'string' }, 'time')).toEqual({ type: 'time', representation: 'string' })
-    expect(getDateType({ ...base, dateType: 'date' }, 'time')).toEqual({ type: 'time', representation: 'date' })
+    expect(getDateType({ ...base, dateType: 'string' }, 'time')).toEqual({
+      type: 'time',
+      representation: 'string',
+    })
+    expect(getDateType({ ...base, dateType: 'date' }, 'time')).toEqual({
+      type: 'time',
+      representation: 'date',
+    })
   })
 })
 
@@ -160,7 +178,9 @@ describe('flattenSchema', () => {
   })
 
   it('returns schema unchanged when allOf contains structural keys', () => {
-    const schema = { allOf: [{ properties: { id: { type: 'integer' as const } } }] }
+    const schema = {
+      allOf: [{ properties: { id: { type: 'integer' as const } } }],
+    }
 
     expect(flattenSchema(schema)).toBe(schema)
   })
@@ -173,7 +193,11 @@ describe('flattenSchema', () => {
     const result = flattenSchema(schema)
 
     expect(result).not.toHaveProperty('allOf')
-    expect(result).toMatchObject({ type: 'object', description: 'A pet', example: 'Fido' })
+    expect(result).toMatchObject({
+      type: 'object',
+      description: 'A pet',
+      example: 'Fido',
+    })
   })
 
   it('does not overwrite existing keys during merge', () => {
@@ -198,7 +222,10 @@ describe('extractSchemaFromContent', () => {
 
   it('returns the schema for the preferred content type', () => {
     const schema = { type: 'object' as const }
-    const content = { 'application/json': { schema }, 'application/xml': { schema: { type: 'string' as const } } }
+    const content = {
+      'application/json': { schema },
+      'application/xml': { schema: { type: 'string' as const } },
+    }
 
     expect(extractSchemaFromContent(content, 'application/json')).toBe(schema)
   })
@@ -211,13 +238,17 @@ describe('extractSchemaFromContent', () => {
   })
 
   it('returns null when the schema is a $ref', () => {
-    const content = { 'application/json': { schema: { $ref: '#/components/schemas/Pet' } } }
+    const content = {
+      'application/json': { schema: { $ref: '#/components/schemas/Pet' } },
+    }
 
     expect(extractSchemaFromContent(content, 'application/json')).toBeNull()
   })
 
   it('returns null when the preferred content type is absent', () => {
-    const content = { 'application/xml': { schema: { type: 'string' as const } } }
+    const content = {
+      'application/xml': { schema: { type: 'string' as const } },
+    }
 
     expect(extractSchemaFromContent(content, 'application/json')).toBeNull()
   })
@@ -229,7 +260,10 @@ describe('sortSchemas', () => {
   })
 
   it('preserves order when there are no dependencies', () => {
-    const schemas = { A: { type: 'string' as const }, B: { type: 'integer' as const } }
+    const schemas = {
+      A: { type: 'string' as const },
+      B: { type: 'integer' as const },
+    }
     const result = sortSchemas(schemas)
 
     expect(Object.keys(result)).toEqual(['A', 'B'])
@@ -237,7 +271,10 @@ describe('sortSchemas', () => {
 
   it('places referenced schemas before their dependents', () => {
     const schemas = {
-      Order: { type: 'object' as const, properties: { pet: { $ref: '#/components/schemas/Pet' } } },
+      Order: {
+        type: 'object' as const,
+        properties: { pet: { $ref: '#/components/schemas/Pet' } },
+      },
       Pet: { type: 'object' as const },
     }
     const result = sortSchemas(schemas)
@@ -275,23 +312,42 @@ describe('resolveServerUrl', () => {
   })
 
   it('replaces a variable with the provided override', () => {
-    expect(resolveServerUrl({ url: 'https://{env}.api.example.com', variables: { env: { default: 'dev', enum: ['dev', 'prod'] } } }, { env: 'prod' })).toBe(
-      'https://prod.api.example.com',
-    )
+    expect(
+      resolveServerUrl(
+        {
+          url: 'https://{env}.api.example.com',
+          variables: { env: { default: 'dev', enum: ['dev', 'prod'] } },
+        },
+        { env: 'prod' },
+      ),
+    ).toBe('https://prod.api.example.com')
   })
 
   it('falls back to the variable default when no override is given', () => {
-    expect(resolveServerUrl({ url: 'https://{env}.api.example.com', variables: { env: { default: 'dev' } } })).toBe('https://dev.api.example.com')
+    expect(
+      resolveServerUrl({
+        url: 'https://{env}.api.example.com',
+        variables: { env: { default: 'dev' } },
+      }),
+    ).toBe('https://dev.api.example.com')
   })
 
   it('leaves the placeholder unreplaced when no override and no default', () => {
-    expect(resolveServerUrl({ url: 'https://{env}.api.example.com', variables: { env: { default: '' } } })).toBe('https://.api.example.com')
+    expect(
+      resolveServerUrl({
+        url: 'https://{env}.api.example.com',
+        variables: { env: { default: '' } },
+      }),
+    ).toBe('https://.api.example.com')
   })
 
   it('replaces multiple variables', () => {
     expect(
       resolveServerUrl(
-        { url: 'https://{env}.api.example.com/{version}', variables: { env: { default: 'dev' }, version: { default: 'v1' } } },
+        {
+          url: 'https://{env}.api.example.com/{version}',
+          variables: { env: { default: 'dev' }, version: { default: 'v1' } },
+        },
         { env: 'prod', version: 'v2' },
       ),
     ).toBe('https://prod.api.example.com/v2')
@@ -299,13 +355,23 @@ describe('resolveServerUrl', () => {
 
   it('throws when an override value is not in the allowed enum list', () => {
     expect(() =>
-      resolveServerUrl({ url: 'https://{env}.api.example.com', variables: { env: { default: 'dev', enum: ['dev', 'prod'] } } }, { env: 'staging' }),
+      resolveServerUrl(
+        {
+          url: 'https://{env}.api.example.com',
+          variables: { env: { default: 'dev', enum: ['dev', 'prod'] } },
+        },
+        { env: 'staging' },
+      ),
     ).toThrow("Invalid server variable value 'staging' for 'env'")
   })
 })
 
 describe('getSchemas', () => {
-  const base: Document = { openapi: '3.0.3', info: { title: '', version: '' }, paths: {} } as Document
+  const base: Document = {
+    openapi: '3.0.3',
+    info: { title: '', version: '' },
+    paths: {},
+  } as Document
 
   it('returns empty schemas when components is absent', () => {
     const { schemas, nameMapping } = getSchemas(base, {})
@@ -346,7 +412,14 @@ describe('getSchemas', () => {
         responses: {
           PetResponse: {
             description: 'A pet',
-            content: { 'application/json': { schema: { type: 'object', properties: { id: { type: 'integer' } } } } },
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { id: { type: 'integer' } },
+                },
+              },
+            },
           },
         },
       },
@@ -374,7 +447,14 @@ describe('getSchemas', () => {
       components: {
         requestBodies: {
           CreatePet: {
-            content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } } } } },
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { name: { type: 'string' } },
+                },
+              },
+            },
           },
         },
       },
@@ -425,7 +505,14 @@ describe('getSchemas', () => {
         responses: {
           Pet: {
             description: 'Pet response',
-            content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } } } } },
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { name: { type: 'string' } },
+                },
+              },
+            },
           },
         },
       },
@@ -448,12 +535,26 @@ describe('getSchemas', () => {
         responses: {
           Pet: {
             description: 'Pet response',
-            content: { 'application/json': { schema: { type: 'object', properties: { id: { type: 'integer' } } } } },
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { id: { type: 'integer' } },
+                },
+              },
+            },
           },
         },
         requestBodies: {
           Pet: {
-            content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } } } } },
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { name: { type: 'string' } },
+                },
+              },
+            },
           },
         },
       },
@@ -477,7 +578,14 @@ describe('getSchemas', () => {
         responses: {
           PetList: {
             description: 'ok',
-            content: { 'application/json': { schema: { type: 'object', properties: { b: { type: 'string' } } } } },
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { b: { type: 'string' } },
+                },
+              },
+            },
           },
         },
       },
@@ -514,7 +622,14 @@ describe('getSchemas', () => {
         responses: {
           Status: {
             description: 'ok',
-            content: { 'application/json': { schema: { type: 'object', properties: { code: { type: 'integer' } } } } },
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { code: { type: 'integer' } },
+                },
+              },
+            },
           },
         },
       },
@@ -530,7 +645,10 @@ describe('getSchemas', () => {
       ...base,
       components: {
         schemas: {
-          Order: { type: 'object', properties: { pet: { $ref: '#/components/schemas/Pet' } } },
+          Order: {
+            type: 'object',
+            properties: { pet: { $ref: '#/components/schemas/Pet' } },
+          },
           Pet: { type: 'object', properties: { name: { type: 'string' } } },
         },
       },
@@ -549,15 +667,27 @@ describe('getSchemas', () => {
           PetResponse: {
             description: 'ok',
             content: {
-              'application/json': { schema: { type: 'object', properties: { id: { type: 'integer' } } } },
-              'application/xml': { schema: { type: 'object', properties: { xml: { type: 'string' } } } },
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { id: { type: 'integer' } },
+                },
+              },
+              'application/xml': {
+                schema: {
+                  type: 'object',
+                  properties: { xml: { type: 'string' } },
+                },
+              },
             },
           },
         },
       },
     }
 
-    const { schemas } = getSchemas(document, { contentType: 'application/xml' })
+    const { schemas } = getSchemas(document, {
+      contentType: 'application/xml',
+    })
     expect(toSnapshot(schemas)).toMatchInlineSnapshot(`
       {
         "PetResponse": {

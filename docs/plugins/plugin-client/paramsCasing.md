@@ -3,15 +3,16 @@ Transform parameter names to a specific casing format for path, query, and heade
 > [!IMPORTANT]
 > When using `paramsCasing`, ensure that `@kubb/plugin-ts` also has the same `paramsCasing` setting. This option automatically maps transformed parameter names back to their original API names in HTTP requests.
 
-|           |                |
-|----------:|:---------------|
-|     Type: | `'camelcase'`  |
-| Required: | `false`        |
-|  Default: | `undefined`    |
+|           |               |
+| --------: | :------------ |
+|     Type: | `'camelcase'` |
+| Required: | `false`       |
+|  Default: | `undefined`   |
 
 - `'camelcase'` transforms parameter names to camelCase
 
 ::: code-group
+
 ```typescript [With paramsCasing: 'camelcase']
 // Function parameters use camelCase
 export async function deletePet(
@@ -21,7 +22,7 @@ export async function deletePet(
 ) {
   // Automatically maps back to original name for the API
   const pet_id = petId
-  
+
   return fetch({
     method: 'DELETE',
     url: `/pet/${pet_id}`,  // Uses original API parameter name
@@ -44,6 +45,7 @@ export async function deletePet(
   })
 }
 ```
+
 :::
 
 > [!TIP]

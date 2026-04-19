@@ -1,7 +1,7 @@
 Parser used before returning data.
 
 |           |                     |
-|----------:|:--------------------|
+| --------: | :------------------ |
 |     Type: | `'client' \| 'zod'` |
 | Required: | `false`             |
 |  Default: | `'client'`          |

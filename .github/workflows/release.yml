@@ -7,10 +7,10 @@ on:
         required: false
         type: string
   push:
-    branches: ["main", "alpha", "beta", "rc"]
+    branches: ['main', 'alpha', 'beta', 'rc']
     paths:
-      - ".changeset/**"
-      - "packages/**"
+      - '.changeset/**'
+      - 'packages/**'
 permissions:
   actions: write
   contents: write
@@ -61,7 +61,7 @@ jobs:
         if: ${{ github.event.inputs.tag == '' }}
         with:
           publish: pnpm release
-          commit: "ci(changesets): version packages"
+          commit: 'ci(changesets): version packages'
           setupGitUser: false
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

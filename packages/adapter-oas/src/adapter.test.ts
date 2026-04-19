@@ -25,10 +25,17 @@ describe('adapterOas.getImports', () => {
       },
     })
 
-    const imports = adapter.getImports(ast.createSchema({ type: 'ref', ref: '#/components/schemas/Pet', name: 'Pet' }), () => ({
-      name: 'PetType',
-      path: './pet.ts',
-    }))
+    const imports = adapter.getImports(
+      ast.createSchema({
+        type: 'ref',
+        ref: '#/components/schemas/Pet',
+        name: 'Pet',
+      }),
+      () => ({
+        name: 'PetType',
+        path: './pet.ts',
+      }),
+    )
 
     expect(imports).toHaveLength(1)
     expect(imports[0]).toMatchObject({ name: ['PetType'], path: './pet.ts' })

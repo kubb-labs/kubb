@@ -63,6 +63,7 @@ export default defineConfig({
 ```
 
 This creates organized directories:
+
 ```
 src/gen/
 ├── types/
@@ -188,11 +189,13 @@ Only install plugins you actually use. Each plugin adds processing time:
 **Option 1: Commit Generated Code** (Recommended for libraries)
 
 Pros:
+
 - Consumers don't need to run Kubb
 - Works with CI/CD immediately
 - Easier to review changes
 
 Cons:
+
 - Larger repository size
 - More merge conflicts
 
@@ -204,11 +207,13 @@ Cons:
 **Option 2: Ignore Generated Code** (Recommended for applications)
 
 Pros:
+
 - Smaller repository
 - Fewer merge conflicts
 - Forces fresh generation
 
 Cons:
+
 - Requires generation step in CI/CD
 - Longer build times
 
@@ -219,6 +224,7 @@ src/gen/
 ```
 
 Add to your CI/CD:
+
 ```yaml [.github/workflows/ci.yml]
 - name: Generate API code
   run: pnpm kubb generate
@@ -268,11 +274,11 @@ import type { Pet } from './gen/types'
 
 Kubb uses your OpenAPI `operationId` to generate predictable names:
 
-| OpenAPI operationId | Generated Function | Generated Hook | Generated Type |
-|---------------------|-------------------|----------------|----------------|
-| `getPets` | `getPets()` | `useGetPets()` | `GetPetsResponse` |
-| `createPet` | `createPet()` | `useCreatePet()` | `CreatePetRequest` |
-| `updatePetById` | `updatePetById()` | `useUpdatePetById()` | `UpdatePetByIdRequest` |
+| OpenAPI operationId | Generated Function | Generated Hook       | Generated Type         |
+| ------------------- | ------------------ | -------------------- | ---------------------- |
+| `getPets`           | `getPets()`        | `useGetPets()`       | `GetPetsResponse`      |
+| `createPet`         | `createPet()`      | `useCreatePet()`     | `CreatePetRequest`     |
+| `updatePetById`     | `updatePetById()`  | `useUpdatePetById()` | `UpdatePetByIdRequest` |
 
 > [!TIP]
 > Use consistent `operationId` naming in your OpenAPI spec for predictable generated names.
@@ -382,6 +388,7 @@ kubb generate --debug
 ```
 
 This creates log files in `.kubb/`:
+
 - `kubb-<date>.log` - Main execution log
 - `kubb-files.log` - Generated files log
 
@@ -396,6 +403,7 @@ pluginOas({
 ```
 
 Or use external validators:
+
 - [Swagger Editor](https://editor.swagger.io/)
 - [OpenAPI Spec Validator](https://apitools.dev/swagger-parser/online/)
 
@@ -429,6 +437,7 @@ See [Creating OpenAPI Specifications](/guide/oas/#creating-openapi-specification
 **2. Your API Changes Constantly**
 
 If your API has breaking changes multiple times per day during active development:
+
 - Constant regeneration can be disruptive
 - Git conflicts in generated code become frequent
 - Manual coding might be faster initially
@@ -439,6 +448,7 @@ If your API has breaking changes multiple times per day during active developmen
 **3. You Need Full Control Over Generated Code**
 
 Kubb generates opinionated code. If you need:
+
 - Very specific code patterns
 - Custom business logic in API clients
 - Non-standard error handling throughout
@@ -448,6 +458,7 @@ Then manual coding or creating custom generators might be better.
 **4. Your Team Isn't Familiar with TypeScript**
 
 Kubb generates TypeScript code. If your team:
+
 - Exclusively uses JavaScript
 - Has no plans to adopt TypeScript
 - Prefers runtime validation only
@@ -457,6 +468,7 @@ Consider whether the learning curve is worth it.
 **5. Simple APIs with Few Endpoints**
 
 For tiny APIs (5-10 endpoints), manual coding might be faster:
+
 - Less tooling setup
 - Simpler project structure
 - Easier for beginners
@@ -469,6 +481,7 @@ For tiny APIs (5-10 endpoints), manual coding might be faster:
 **1. You Have a Well-Defined OpenAPI Specification**
 
 Ideal scenario:
+
 - Complete OpenAPI 3.x specification
 - Stable API contracts
 - Multiple consumers need the same types
@@ -476,6 +489,7 @@ Ideal scenario:
 **2. Working with Large APIs**
 
 Kubb shines with:
+
 - 50+ endpoints
 - Complex nested types
 - Multiple API versions
@@ -484,6 +498,7 @@ Kubb shines with:
 **3. You Need Multiple Output Formats**
 
 When you want:
+
 - TypeScript types
 - API clients (Axios, Fetch)
 - React Query hooks
@@ -494,6 +509,7 @@ When you want:
 **4. Type Safety Is Critical**
 
 Perfect for:
+
 - Production applications
 - Financial or healthcare systems
 - Apps with compliance requirements
@@ -502,6 +518,7 @@ Perfect for:
 **5. Multiple Teams/Projects Share the Same API**
 
 Kubb excels when:
+
 - Frontend and mobile teams need the same types
 - Multiple services consume the same API
 - You publish SDKs for your API
@@ -517,18 +534,15 @@ export default defineConfig({
   plugins: [
     pluginOas(),
     pluginTs({
-      include: [
-        { type: 'tag', pattern: 'stable-api' },
-      ],
-      exclude: [
-        { type: 'tag', pattern: 'experimental' },
-      ],
+      include: [{ type: 'tag', pattern: 'stable-api' }],
+      exclude: [{ type: 'tag', pattern: 'experimental' }],
     }),
   ],
 })
 ```
 
 This lets you:
+
 - Use Kubb for stable, production APIs
 - Write manual code for experimental features
 - Gradually adopt Kubb as your API matures
@@ -555,11 +569,7 @@ export default defineConfig([
       path: './src/gen/petStore',
       clean: true,
     },
-    plugins: [
-      pluginOas(),
-      pluginTs(),
-      pluginClient(),
-    ],
+    plugins: [pluginOas(), pluginTs(), pluginClient()],
   },
   {
     name: 'userService',
@@ -570,11 +580,7 @@ export default defineConfig([
       path: './src/gen/users',
       clean: true,
     },
-    plugins: [
-      pluginOas(),
-      pluginTs(),
-      pluginClient(),
-    ],
+    plugins: [pluginOas(), pluginTs(), pluginClient()],
   },
 ])
 ```
@@ -600,15 +606,13 @@ export default defineConfig(() => {
       path: `./src/gen/${name}`,
       clean: true,
     },
-    plugins: [
-      pluginOas(),
-      pluginTs(),
-    ],
+    plugins: [pluginOas(), pluginTs()],
   }))
 })
 ```
 
 Run once to generate all APIs:
+
 ```shell
 kubb generate
 ```
@@ -642,6 +646,7 @@ export default defineConfig({
 ```
 
 ::: tip Why Enable collisionDetection?
+
 - **Prevents cross-component collisions**: Automatically adds suffixes like `OrderSchema` vs `OrderRequest`
 - **Handles case-sensitivity**: Distinguishes between `Variant` and `variant` schemas
 - **Avoids enum duplicates**: Prevents nested enum name conflicts across different schemas

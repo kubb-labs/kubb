@@ -12,6 +12,7 @@ In Kubb, generators are functions that allow developers to hook into the framewo
 Generators are central to Kubb’s workflow, enabling the automated generation of code such as API clients, React-Query hooks, TypeScript types, or other files based on specific input(Swagger and OpenAPI specifications).
 
 To add extra code after a generated client with [`@kubb/plugin-client`](/plugins/plugin-client#generators), you can either:
+
 - Use the [`footer`](/plugins/plugin-client/#output-footer) option
 - Override the default generator of `@kubb/plugin-client`
 
@@ -20,23 +21,25 @@ To add extra code after a generated client with [`@kubb/plugin-client`](/plugins
 
 Generators can be used with the [React](/helpers/react/) renderer or you can define your own renderer and return an array of KubbFiles.
 
-
 ## createGenerator
 
 > [!TIP]
+>
 > - `operations`, `operation` and `schema` are all promises where you need to return an array of KubbFiles.
 > - You can utilize `this` to access the [`name`](#name) or any other property that is part of the generator.
 
-
 ::: code-group
+
 ```typescript [createGenerator]
 export function createGenerator(parseOptions: GeneratorOptions): Generator {
   return parseOptions
 }
 ```
+
 ```typescript [Generator]
 export type Generator = GeneratorOptions
 ```
+
 ```typescript [GeneratorOptions]
 export type Generator = {
   name: string
@@ -45,93 +48,93 @@ export type Generator = {
   schema?: (this: GeneratorOptions, props: SchemaProps) => Promise<KubbFile.File[]>
 }
 ```
+
 :::
 
 ### name
+
 Define a name that could be used to identify your generator.
 
-|           |           |
-|----------:|:----------|
-|     Type: | `string`  |
-| Required: | `true`    |
+|           |          |
+| --------: | :------- |
+|     Type: | `string` |
+| Required: | `true`   |
 
 ### operations
+
 This **function** will be called with all operations that are available in your Swagger/OpenAPI file.
 
-|           |          |
-|----------:|:---------|
+|           |                                                                                |
+| --------: | :----------------------------------------------------------------------------- |
 |     Type: | `(this: GeneratorOptions, props: OperationsProps) => Promise<KubbFile.File[]>` |
-| Required: | `false`  |
-
+| Required: | `false`                                                                        |
 
 The following properties will be accessible when `operations` is being called:
 
-|               Property | Description                                                                                            | Type                                                                          |
-|-----------------------:|--------------------------------------------------------------------------------------------------------|:------------------------------------------------------------------------------|
-|             `instance` | The `OperationsGenerator` instance, this class can be used to have full control over the Oas instance. | ` Omit<OperationGenerator, 'build'>`                                          |
-|              `options` | The resolved options from a specific plugin.                                                           | `object`                                                                      |
-|           `operations` | All Oas operations.                                                                                    | `Array<Operation>` |
-|   `operationsByMethod` | An object that is grouped by `HttpMethod` and an object with value as `{ operation, schemas }`.        | `OperationsByMethod`    |
-
+|             Property | Description                                                                                            | Type                                 |
+| -------------------: | ------------------------------------------------------------------------------------------------------ | :----------------------------------- |
+|           `instance` | The `OperationsGenerator` instance, this class can be used to have full control over the Oas instance. | ` Omit<OperationGenerator, 'build'>` |
+|            `options` | The resolved options from a specific plugin.                                                           | `object`                             |
+|         `operations` | All Oas operations.                                                                                    | `Array<Operation>`                   |
+| `operationsByMethod` | An object that is grouped by `HttpMethod` and an object with value as `{ operation, schemas }`.        | `OperationsByMethod`                 |
 
 ### operation
 
 This function is called with one operation from your OpenAPI file. `operation` is almost the same as [operations](#operations), with one difference: `operation` is called x times based on the operations array.
 
 |           |                                                                               |
-|----------:|:------------------------------------------------------------------------------|
+| --------: | :---------------------------------------------------------------------------- |
 |     Type: | `(this: GeneratorOptions, props: OperationProps) => Promise<KubbFile.File[]>` |
 | Required: | `false`                                                                       |
 
-
 The following properties will be accessible when `operation` is being called:
 
-|               Property | Description                                                                                            | Type                                                                         |
-|-----------------------:|--------------------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------|
-|             `instance` | The `OperationsGenerator` instance, this class can be used to have full control over the Oas instance. | ` Omit<OperationGenerator, 'build'>`                                         |
-|              `options` | The resolved options from a specific plugin.                                                           | `object`                                                                     |
-|            `operation` | One Oas operation.                                                                                     | `Operation` |
-
+|    Property | Description                                                                                            | Type                                 |
+| ----------: | ------------------------------------------------------------------------------------------------------ | :----------------------------------- |
+|  `instance` | The `OperationsGenerator` instance, this class can be used to have full control over the Oas instance. | ` Omit<OperationGenerator, 'build'>` |
+|   `options` | The resolved options from a specific plugin.                                                           | `object`                             |
+| `operation` | One Oas operation.                                                                                     | `Operation`                          |
 
 ### schema
 
 This function is called with one schema, executed x times based on your OpenAPI file.
 
-|           |          |
-|----------:|:---------|
+|           |                                                                            |
+| --------: | :------------------------------------------------------------------------- |
 |     Type: | `(this: GeneratorOptions, props: SchemaProps) => Promise<KubbFile.File[]>` |
-| Required: | `false`  |
+| Required: | `false`                                                                    |
 
 The following properties will be accessible when `schema` is being called:
 
-|   Property | Description                                                                                | Type                                                         |
-|-----------:|--------------------------------------------------------------------------------------------|:-------------------------------------------------------------|
+|   Property | Description                                                                                        | Type                                                         |
+| ---------: | -------------------------------------------------------------------------------------------------- | :----------------------------------------------------------- |
 | `instance` | The `SchemaGenerator` instance, this class can be used to have full control over the Oas instance. | ` Omit<SchemaGenerator, 'build'>`                            |
-|  `options` | The resolved options from a specific plugin.                                               | `object`                                                     |
-|   `schema` | One Oas schema object           | `{ name: string; tree: Array<Schema>; value: SchemaObject }` |
-
+|  `options` | The resolved options from a specific plugin.                                                       | `object`                                                     |
+|   `schema` | One Oas schema object                                                                              | `{ name: string; tree: Array<Schema>; value: SchemaObject }` |
 
 > [!TIP]
+>
 > - `schema.name` contains the name, see `#components/schemas/Pet` where name will be `Pet`.
 > - `schema.tree` contains the AST code that is generated based on the provided Swagger/OpenAPI file.
 > - `schema.value` contains the value of the schema, this is the original object without any transformations.
-
 
 ## createReactGenerator
 
 > [!TIP]
 > `createGenerator` is being used behind the scenes where we render the component and then search for all files and return that back to `createGenerator`.
 
-
 ::: code-group
+
 ```typescript [createGenerator]
 export function createReactGenerator(parseOptions: ReactGeneratorOptions): Generator {
   return parseOptions
 }
 ```
+
 ```typescript [Generator]
 export type Generator = GeneratorOptions
 ```
+
 ```typescript [ReactGeneratorOptions]
 export type Generator = {
   name: string
@@ -140,32 +143,31 @@ export type Generator = {
   Schema?: (this: ReactGeneratorOptions, props: SchemaProps) => FabricReactNode
 }
 ```
+
 :::
 
 ### Operations
+
 Same as [operations](#operations) with one difference is that the return type is a `FabricReactNode` instead of `Promise<KubbFile.File>`.
 
 ### Operation
 
 Same as [operation](#operation), with one difference: the return type is a `FabricReactNode` instead of `Promise<KubbFile.File>`.
 
-
 ### Schema
 
 Same as [schema](#schema), with one difference: the return type is a `FabricReactNode` instead of `Promise<KubbFile.File>`.
 
-
 ## Examples
-
 
 ### Create a file for every operationId with `createGenerator`
 
-
 Expected result:
+
 ```typescript
 export const createPets = {
   method: 'get',
-  url: '/pets'
+  url: '/pets',
 }
 ```
 
@@ -215,10 +217,10 @@ export const clientOperationGenerator = createGenerator<PluginClient>({
     ]
   },
 })
-
 ```
 
 Use of the generator:
+
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
@@ -233,20 +235,20 @@ export default defineConfig({
   },
   plugins: [
     pluginOas({
-      generators: [clientOperationGenerator] // [!code ++]
+      generators: [clientOperationGenerator], // [!code ++]
     }),
   ],
 })
 ```
 
-
 ### Create a file for every operationId with `createReactGenerator`
 
 Expected result:
+
 ```typescript
 export const createPets = {
   method: 'get',
-  url: '/pets'
+  url: '/pets',
 }
 ```
 
@@ -286,6 +288,7 @@ export const clientOperationGenerator = createReactGenerator({
 ```
 
 Use of the generator:
+
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
@@ -300,11 +303,10 @@ export default defineConfig({
   },
   plugins: [
     pluginOas({
-      generators: [clientOperationGenerator] // [!code ++]
+      generators: [clientOperationGenerator], // [!code ++]
     }),
   ],
 })
 ```
-
 
 More examples can be found as part of [examples/generators](/examples/generators).

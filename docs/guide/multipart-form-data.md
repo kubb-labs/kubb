@@ -40,7 +40,7 @@ export async function uploadFile(data: UploadFileRequest) {
     method: 'post',
     url: '/upload',
     data: formData,
-    headers: { 'Content-Type': 'multipart/form-data' }
+    headers: { 'Content-Type': 'multipart/form-data' },
   })
 }
 ```
@@ -112,7 +112,7 @@ await uploadFile({
   file: file,
   title: 'My Document',
   tags: ['important', 'work', 'pdf'],
-  uploadDate: new Date()
+  uploadDate: new Date(),
 })
 ```
 
@@ -121,14 +121,11 @@ await uploadFile({
 ```typescript [src/main.ts]
 import { uploadFiles } from './gen/uploadFiles'
 
-const files = [
-  new File(['content1'], 'doc1.pdf', { type: 'application/pdf' }),
-  new File(['content2'], 'doc2.pdf', { type: 'application/pdf' })
-]
+const files = [new File(['content1'], 'doc1.pdf', { type: 'application/pdf' }), new File(['content2'], 'doc2.pdf', { type: 'application/pdf' })]
 
 await uploadFiles({
   files: files,
-  category: 'documents'
+  category: 'documents',
 })
 ```
 
@@ -140,35 +137,36 @@ import { createPost } from './gen/createPost'
 await createPost({
   title: 'My Post',
   tags: ['javascript', 'typescript', 'kubb'],
-  images: [
-    new File(['img1'], 'image1.jpg', { type: 'image/jpeg' }),
-    new File(['img2'], 'image2.jpg', { type: 'image/jpeg' })
-  ],
+  images: [new File(['img1'], 'image1.jpg', { type: 'image/jpeg' }), new File(['img2'], 'image2.jpg', { type: 'image/jpeg' })],
   metadata: {
     author: 'John Doe',
-    publishDate: new Date()
-  }
+    publishDate: new Date(),
+  },
 })
 ```
 
 ## Data Type Handling
 
 ### Primitives
+
 - **Strings**: Append as-is
 - **Numbers**: Convert to string
 - **Booleans**: Convert to string ("true" or "false")
 
 ### Special Types
+
 - **Blob/File**: Append directly to FormData
 - **Date**: Convert to ISO string format
 - **Objects**: Wrap in a Blob with `Content-Type: application/json` to enable proper server-side parsing. This prevents 415 (Unsupported Media Type) errors that occur when sending JSON data without the correct content type in multipart requests.
 
 ### Arrays
+
 - Each array element appends individually with the same key
 - `null` and `undefined` elements filter automatically
 - Nested arrays and objects within arrays process recursively
 
 ### Null/Undefined Values
+
 - Top-level `null` or `undefined` values skip
 - Array elements that are `null` or `undefined` filter out
 - This prevents "null" or "undefined" string literals in FormData

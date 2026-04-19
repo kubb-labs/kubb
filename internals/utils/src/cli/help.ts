@@ -31,7 +31,15 @@ export function renderHelp(def: CommandDefinition, parentName?: string): void {
     console.log()
   }
 
-  const options: OptionSchema[] = [...schema.options, { name: 'help', flags: '-h, --help', type: 'boolean' as const, description: 'Show help' }]
+  const options: OptionSchema[] = [
+    ...schema.options,
+    {
+      name: 'help',
+      flags: '-h, --help',
+      type: 'boolean' as const,
+      description: 'Show help',
+    },
+  ]
 
   console.log(styleText('bold', 'Options:'))
   for (const opt of options) {

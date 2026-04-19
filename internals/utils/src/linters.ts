@@ -38,7 +38,7 @@ async function isLinterAvailable(linter: Linter): Promise<boolean> {
 /**
  * Detects the first available linter on the current system.
  *
- * - Checks in preference order: `biome`, `oxlint`, `eslint`.
+ * - Checks in preference order: `oxlint`, `biome`, `eslint`.
  * - Returns `null` when none are found.
  *
  * @example
@@ -50,7 +50,7 @@ async function isLinterAvailable(linter: Linter): Promise<boolean> {
  * ```
  */
 export async function detectLinter(): Promise<Linter | null> {
-  const linterNames = new Set(['biome', 'oxlint', 'eslint'] as const)
+  const linterNames = new Set(['oxlint', 'biome', 'eslint'] as const)
 
   for (const linter of linterNames) {
     if (await isLinterAvailable(linter)) {

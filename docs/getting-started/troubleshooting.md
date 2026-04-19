@@ -41,6 +41,7 @@ nvm use 20
 **Solution**: Clear your package manager cache and reinstall:
 
 ::: code-group
+
 ```shell [bun]
 bun pm cache rm
 rm -rf node_modules bun.lockb
@@ -64,6 +65,7 @@ yarn cache clean
 rm -rf node_modules yarn.lock
 yarn install
 ```
+
 :::
 
 ## Configuration Issues
@@ -73,6 +75,7 @@ yarn install
 **Error**: `Cannot find kubb config file`
 
 **Solution**: Ensure your config file exists in the project root with one of these names:
+
 - `kubb.config.ts` - TypeScript (recommended)
 - `kubb.config.mts` - TypeScript ES modules explicit
 - `kubb.config.cts` - TypeScript CommonJS explicit
@@ -91,6 +94,7 @@ kubb generate --config ./configs/kubb.config.ts
 **Error**: `Failed to parse OpenAPI specification`
 
 **Solution**:
+
 1. Validate your OpenAPI file using the [Swagger Editor](https://editor.swagger.io/)
 2. Ensure the file path is correct in your config
 3. If using a URL, verify it's accessible
@@ -151,6 +155,7 @@ export default defineConfig({
 **Problem**: Generated files are empty or missing content
 
 **Solutions**:
+
 1. Check if your OpenAPI file has the expected paths/schemas
 2. Review the `include`/`exclude` options in your plugin config
 3. Enable debug mode to see what's happening:
@@ -164,6 +169,7 @@ kubb generate --debug
 **Error**: TypeScript errors in generated files
 
 **Solutions**:
+
 1. Check your `tsconfig.json` compiler options
 2. Ensure `moduleResolution` is set to `bundler` or `node16`
 3. Verify the `paths` mapping if using path aliases
@@ -185,13 +191,12 @@ kubb generate --debug
 **Problem**: Code generation takes a long time
 
 **Solutions**:
+
 1. Use the `include` option to generate only what you need:
 
 ```typescript
 pluginTs({
-  include: [
-    { type: 'tag', pattern: 'pets' },
-  ],
+  include: [{ type: 'tag', pattern: 'pets' }],
 })
 ```
 
@@ -215,6 +220,7 @@ NODE_OPTIONS="--max-old-space-size=4096" kubb generate
 **Error**: `Cannot find module` when importing generated code
 
 **Solutions**:
+
 1. Verify the output path matches your import path
 2. Check the `output.extension` option:
 
@@ -236,6 +242,7 @@ export default defineConfig({
 **Problem**: Generated API clients fail to make requests
 
 **Solutions**:
+
 1. Verify your base URL configuration:
 
 ```typescript
@@ -291,6 +298,7 @@ output: {
 ### Can I customize the generated code?
 
 Yes, you can use:
+
 1. **Generators**: Create custom generators to control output
 2. **Transformers**: Modify names and paths
 3. **Override**: Override generation for specific operations/schemas

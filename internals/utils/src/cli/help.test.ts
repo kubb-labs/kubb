@@ -28,7 +28,10 @@ describe('renderHelp', () => {
   })
 
   it('prints command description', () => {
-    renderHelp({ name: 'generate', description: 'Generates client code from OpenAPI' })
+    renderHelp({
+      name: 'generate',
+      description: 'Generates client code from OpenAPI',
+    })
     expect(output()).toContain('Generates client code from OpenAPI')
   })
 
@@ -54,7 +57,9 @@ describe('renderHelp', () => {
     const def: CommandDefinition = {
       name: 'serve',
       description: 'Serve',
-      options: { port: { type: 'string', description: 'Port', default: '3000' } },
+      options: {
+        port: { type: 'string', description: 'Port', default: '3000' },
+      },
     }
     renderHelp(def)
     expect(output()).toContain('3000')
