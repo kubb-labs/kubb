@@ -30,11 +30,7 @@ export async function resolve(
   return nextResolve(specifier, context)
 }
 
-export async function load(
-  url: string,
-  context: LoadContext,
-  nextLoad: (u: string, c: LoadContext) => Promise<LoadResult>,
-): Promise<LoadResult> {
+export async function load(url: string, context: LoadContext, nextLoad: (u: string, c: LoadContext) => Promise<LoadResult>): Promise<LoadResult> {
   if (!url.startsWith('kubb-virtual:')) {
     return nextLoad(url, context)
   }
