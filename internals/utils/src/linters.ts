@@ -1,4 +1,22 @@
+import { readdirSync } from 'node:fs'
 import { spawn } from 'node:child_process'
+
+/**
+ * Collects all files under `dir` recursively using Node's built-in fs APIs.
+ *
+ * Passing explicit file paths to oxlint (instead of a directory) bypasses
+ * oxlint's `.gitignore`-aware directory traversal, which would otherwise skip
+ * files that are listed in `.gitignore` (e.g. generated output directories).
+ */
+function findLintableFiles(dir: string): string[] {
+  try {
+    return readdirSync(dir, { withFileTypes: true, recursive: true })
+      .filter((d) => d.isFile())
+      .map((d) => `${d.parentPath}/${d.name}`)
+  } catch {
+    return []
+  }
+}
 
 /**
  * CLI command descriptors for each supported linter.
@@ -20,7 +38,10 @@ export const linters = {
   },
   oxlint: {
     command: 'oxlint',
-    args: (outputPath: string) => ['--fix', outputPath],
+    // Pass files explicitly so oxlint lints them regardless of .gitignore rules.
+    // Oxlint skips files matched by .gitignore during directory traversal, which
+    // causes "No files found to lint" for generated output dirs that are gitignored.
+    args: (outputPath: string) => ['--fix', ...findLintableFiles(outputPath)],
     errorMessage: 'Oxlint not found',
   },
 } as const
