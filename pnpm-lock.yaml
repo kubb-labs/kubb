@@ -224,6 +224,7 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
+    optionalDependencies:
       '@kubb/agent':
         specifier: workspace:*
         version: link:../agent
