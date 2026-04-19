@@ -93,7 +93,6 @@
     "unprovide",
     "jsxs",
     "oxfmtrc",
-    "oxlintrc",
-    "manypkg"
+    "oxlintrc"
   ]
 }

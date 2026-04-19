@@ -23,7 +23,7 @@
     "format": "oxfmt -c oxfmt.config.ts packages internals configs",
     "graph": "npx nx graph ",
     "lint": "oxlint -c oxlint.config.ts ./packages",
-    "lint:fix": "oxlint -c oxlint.config.ts --fix ./packages && manypkg fix",
+    "lint:fix": "oxlint -c oxlint.config.ts --fix ./packages",
     "lint:spell": "cspell \"**/*.{ts,md}\" --config ./cspell.json --no-progress",
     "release": "changeset publish",
     "release:canary": "changeset publish --no-git-tag",
@@ -35,15 +35,9 @@
     "version": "changeset version",
     "version:canary": "changeset version --snapshot canary"
   },
-  "manypkg": {
-    "ignoredRules": [
-      "EXTERNAL_MISMATCH"
-    ]
-  },
   "devDependencies": {
     "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.31.0",
-    "@manypkg/cli": "^0.25.1",
     "@size-limit/file": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "^4.1.4",
