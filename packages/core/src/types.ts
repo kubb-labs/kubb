@@ -570,20 +570,6 @@ export type Output<_TOptions = unknown> = {
   override?: boolean
 }
 
-export type UserGroup = {
-  /**
-   * Determines how files are grouped into subdirectories.
-   * - `'tag'` groups files by OpenAPI tags.
-   * - `'path'` groups files by OpenAPI paths.
-   */
-  type: 'tag' | 'path'
-  /**
-   * Returns the subdirectory name for a given group value.
-   * Defaults to `${camelCase(group)}Controller` for tags and the first path segment for paths.
-   */
-  name?: (context: { group: string }) => string
-}
-
 export type Group = {
   /**
    * Determines how files are grouped into subdirectories.
