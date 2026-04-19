@@ -1,9 +1,17 @@
-import type { BaseNode } from './base.ts'
-import type { ParameterNode } from './parameter.ts'
-import type { ResponseNode } from './response.ts'
-import type { SchemaNode } from './schema.ts'
+import type { BaseNode } from "./base.ts";
+import type { ParameterNode } from "./parameter.ts";
+import type { ResponseNode } from "./response.ts";
+import type { SchemaNode } from "./schema.ts";
 
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE'
+export type HttpMethod =
+  | "GET"
+  | "POST"
+  | "PUT"
+  | "PATCH"
+  | "DELETE"
+  | "HEAD"
+  | "OPTIONS"
+  | "TRACE";
 
 /**
  * AST node representing one API operation.
@@ -25,41 +33,41 @@ export type OperationNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'Operation'
+  kind: "Operation";
   /**
    * Operation identifier, usually from OpenAPI `operationId`.
    */
-  operationId: string
+  operationId: string;
   /**
    * HTTP Method like 'GET'
    */
-  method: HttpMethod
+  method: HttpMethod;
   /**
    * OpenAPI-style path string, for example `/pets/{petId}`.
    * Path parameters retain the `{param}` notation from the original spec.
    */
-  path: string
+  path: string;
   /**
    * Group labels for the operation.
    * Usually copied from OpenAPI `tags`.
    */
-  tags: Array<string>
+  tags: Array<string>;
   /**
    * Short one-line operation summary.
    */
-  summary?: string
+  summary?: string;
   /**
    * Full operation description.
    */
-  description?: string
+  description?: string;
   /**
    * Marks the operation as deprecated.
    */
-  deprecated?: boolean
+  deprecated?: boolean;
   /**
    * Parameters that could be used, we have QueryParams, PathParams, HeaderParams and CookieParams
    */
-  parameters: Array<ParameterNode>
+  parameters: Array<ParameterNode>;
   /**
    * Request body metadata for the operation.
    */
@@ -67,30 +75,30 @@ export type OperationNode = BaseNode & {
     /**
      * Human-readable request body description.
      */
-    description?: string
+    description?: string;
     /**
      * Request body schema.
      * For OpenAPI, this is the schema from the first `content` entry.
      */
-    schema?: SchemaNode
+    schema?: SchemaNode;
     /**
      * Property keys to exclude from the generated request body type via `Omit<Type, Keys>`.
      * Set when a referenced schema has `readOnly` fields that should be omitted in request types.
      */
-    keysToOmit?: Array<string>
+    keysToOmit?: Array<string>;
     /**
      * Whether the request body is required (`requestBody.required: true` in the spec).
      * When `false` or absent, the generated `data` parameter should be optional.
      */
-    required?: boolean
+    required?: boolean;
     /**
      * Media type of the request body (e.g. `'application/json'`, `'multipart/form-data'`).
      * Extracted from the first `content` entry of the OpenAPI `requestBody`.
      */
-    contentType?: string
-  }
+    contentType?: string;
+  };
   /**
    * Operation responses.
    */
-  responses: Array<ResponseNode>
-}
+  responses: Array<ResponseNode>;
+};

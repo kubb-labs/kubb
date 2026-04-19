@@ -16,6 +16,7 @@ The CLI displays progress updates including plugin execution status, file counts
 ## Installation
 
 ::: code-group
+
 ```shell [bun]
 bun add -d @kubb/cli
 ```
@@ -31,6 +32,7 @@ npm install --save-dev @kubb/cli
 ```shell [yarn]
 yarn add -D @kubb/cli
 ```
+
 :::
 
 ## Usage
@@ -43,11 +45,11 @@ kubb --config kubb.config.ts
 USAGE kubb generate
 
 COMMANDS
-  init        Initialize a new Kubb project with interactive setup
-  generate    [input] Generate files based on a 'kubb.config.ts' file
-  validate    Validate a Swagger/OpenAPI file
-  agent       Manage the Agent server
-  mcp         Start the server to enable the MCP client to interact with the LLM.
+init Initialize a new Kubb project with interactive setup
+generate [input] Generate files based on a 'kubb.config.ts' file
+validate Validate a Swagger/OpenAPI file
+agent Manage the Agent server
+mcp Start the server to enable the MCP client to interact with the LLM.
 
 Use kubb <command> --help for more information about a command.
 ```
@@ -76,39 +78,41 @@ npx kubb init
 The interactive wizard will guide you through the setup process:
 
 ```mdx
-┌  Kubb Init
+┌ Kubb Init
 │
-◇  Where is your OpenAPI specification located?
-│  ./openapi.yaml
+◇ Where is your OpenAPI specification located?
+│ ./openapi.yaml
 │
-◇  Where should the generated files be output?
-│  ./src/gen
+◇ Where should the generated files be output?
+│ ./src/gen
 │
-◆  Select plugins to use:
-│  ◼ OpenAPI Parser (Required)
-│  ◼ TypeScript (Recommended)
-│  ◻ Client (Fetch/Axios)
-│  ◻ React Query / TanStack Query
-│  ◻ Zod Schemas
-│  └ More...
+◆ Select plugins to use:
+│ ◼ OpenAPI Parser (Required)
+│ ◼ TypeScript (Recommended)
+│ ◻ Client (Fetch/Axios)
+│ ◻ React Query / TanStack Query
+│ ◻ Zod Schemas
+│ └ More...
 │
-◇  Installing packages with pnpm...
+◇ Installing packages with pnpm...
 │
-◇  Creating kubb.config.ts...
+◇ Creating kubb.config.ts...
 │
-└  ✓ All set!
+└ ✓ All set!
 
 Next steps:
-  1. Make sure your OpenAPI spec is at: ./openapi.yaml
-  2. Generate code with: npx kubb generate
-     Or start a stream server with: npx kubb start
-  3. Find generated files in: ./src/gen
+
+1. Make sure your OpenAPI spec is at: ./openapi.yaml
+2. Generate code with: npx kubb generate
+   Or start a stream server with: npx kubb start
+3. Find generated files in: ./src/gen
 ```
 
 > [!NOTE]
 > The init command automatically selects `@kubb/plugin-oas` and `@kubb/plugin-ts` as recommended defaults.
 
 ## `kubb generate`
+
 Generate files based on a `kubb.config.ts` file
 
 > [!TIP]
@@ -120,12 +124,13 @@ USAGE kubb generate [OPTIONS]
 OPTIONS
 
                         -c, --config    Path to the Kubb config
-  -l, --logLevel=<silent|info|verbose|debug>    Log level control
-                         -w, --watch    Watch mode based on the input file
-                         -v, --verbose  Override logLevel to verbose (shows plugin timings)
-                         -s, --silent   Override logLevel to silent (shows plugin timings)
-                         -d, --debug    Override logLevel to debug (shows all details)
-                          -h, --help    Show help
+
+-l, --logLevel=<silent|info|verbose|debug> Log level control
+-w, --watch Watch mode based on the input file
+-v, --verbose Override logLevel to verbose (shows plugin timings)
+-s, --silent Override logLevel to silent (shows plugin timings)
+-d, --debug Override logLevel to debug (shows all details)
+-h, --help Show help
 ```
 
 Path of the input file(overrides the one in `kubb.config.js`)
@@ -145,6 +150,7 @@ kubb --config kubb.config.ts
 ```
 
 #### --log-level (-l)
+
 - `silent`: suppresses all log messages, warnings, and errors
 - `info`: logs warnings, errors, and informational messages (default)
 - `verbose`: adds plugin timing breakdown and performance metrics
@@ -159,6 +165,7 @@ kubb --log-level verbose
 Enables verbose logging with plugin performance metrics. The summary shows plugin execution times and performance breakdown.
 
 Output includes:
+
 - Plugin timing breakdown with visual bars
 - Performance metrics for slowest plugins
 - All info-level messages
@@ -168,13 +175,16 @@ kubb --verbose
 ```
 
 #### --debug
+
 > [!TIP]
 > Debug mode creates detailed log files in the `.kubb` directory:
+>
 > - `.kubb/kubb-{name}-{timestamp}.log` - Contains all debug messages with timestamps
 >
 > After each generation completes, the CLI will display the exact location of the debug log file.
 
 Debug mode provides comprehensive logging including:
+
 - Setup phase details (configuration, plugins, paths)
 - Plugin installation and execution timing
 - Hook execution with duration measurements
@@ -184,12 +194,14 @@ Debug mode provides comprehensive logging including:
 - Error messages with full stack traces
 
 Use debug mode for:
+
 - Troubleshooting generation issues
 - Understanding plugin execution flow
 - Performance analysis
 - Debugging schema parsing problems
 
 Alias for `kubb generate --log-level debug`
+
 ```shell [node]
 kubb --debug
 ```
@@ -199,6 +211,7 @@ See the [Debugging Guide](/guide/debugging) for more details on using debug mode
 #### --watch (-w)
 
 Watch mode based on the input file.
+
 ```shell [node]
 kubb --watch
 ```
@@ -212,6 +225,7 @@ kubb --version
 ```
 
 #### --help (-h)
+
 Display the help.
 
 ```shell [node]
@@ -223,6 +237,7 @@ kubb --help
 Start an HTTP server with SSE (Server-Sent Events) streaming for real-time code generation based on a `kubb.config.ts` file.
 
 This command launches an HTTP server that provides:
+
 - Real-time progress updates via Server-Sent Events
 - RESTful API endpoints for configuration and health checks
 
@@ -232,13 +247,14 @@ USAGE kubb start [OPTIONS]
 OPTIONS
 
                         -c, --config    Path to the Kubb config
-  -l, --logLevel=<silent|info|verbose|debug>    Log level control
-                         -v, --verbose  Override logLevel to verbose
-                         -s, --silent   Override logLevel to silent
-                         -d, --debug    Override logLevel to debug
-                         -p, --port     Port for stream server
-                         --host         Host for stream server
-                          -h, --help    Show help
+
+-l, --logLevel=<silent|info|verbose|debug> Log level control
+-v, --verbose Override logLevel to verbose
+-s, --silent Override logLevel to silent
+-d, --debug Override logLevel to debug
+-p, --port Port for stream server
+--host Host for stream server
+-h, --help Show help
 ```
 
 Path of the input file (overrides the one in `kubb.config.js`)
@@ -260,6 +276,7 @@ kubb start --config kubb.config.ts
 #### --log-level (-l)
 
 Control logging verbosity:
+
 - `silent`: suppresses all log messages
 - `info`: logs warnings, errors, and informational messages (default)
 - `verbose`: adds plugin timing breakdown
@@ -291,7 +308,6 @@ See the [Stream Server Guide](/guide/stream-server) for complete documentation.
 
 Start and manage the Kubb Agent Server, a HTTP server for code generation with WebSocket integration for real-time Studio communication.
 
-
 > [!IMPORTANT]
 > `@kubb/agent` should be installed to use this command.
 
@@ -299,7 +315,7 @@ Start and manage the Kubb Agent Server, a HTTP server for code generation with W
 USAGE kubb agent [COMMAND] [OPTIONS]
 
 COMMANDS
-  start    Start the Agent server
+start Start the Agent server
 
 Use kubb agent <command> --help for more information about a command.
 ```
@@ -354,6 +370,7 @@ kubb agent start --allow-all
 #### Environment Setup
 
 The agent automatically loads environment variables from:
+
 1. `.env` - Base environment variables
 2. `.env.local` - Local overrides (for secrets/local config)
 
@@ -380,6 +397,7 @@ KUBB_ALLOW_ALL=false
 Once the server is running, you can interact with it via HTTP:
 
 ##### `GET /api/health`
+
 Check server health status.
 
 ```bash
@@ -400,8 +418,8 @@ USAGE kubb validate [OPTIONS]
 
 OPTIONS
 
-  -i, --input    Path to Swagger/OpenAPI file
-   -h, --help    Show help
+-i, --input Path to Swagger/OpenAPI file
+-h, --help Show help
 ```
 
 ### Options
@@ -424,6 +442,7 @@ The MCP server allows AI assistants to generate code from OpenAPI specifications
 > `@kubb/mcp` should be installed to use this command.
 
 ::: code-group
+
 ```shell [bun]
 bun add -d @kubb/mcp
 ```
@@ -439,6 +458,7 @@ npm install --save-dev @kubb/mcp
 ```shell [yarn]
 yarn add -D @kubb/mcp
 ```
+
 :::
 
 ### Usage

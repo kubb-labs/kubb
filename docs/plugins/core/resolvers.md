@@ -4,30 +4,30 @@ A single resolver that overrides the preset's naming and path-resolution convent
 
 Each plugin ships a built-in resolver (and a legacy one for Kubb v4 compatibility):
 
-| Plugin | Default resolver | Legacy resolver |
-| --- | --- | --- |
-| `@kubb/plugin-ts` | `resolverTs` | `resolverTsLegacy` |
-| `@kubb/plugin-zod` | `resolverZod` | `resolverZodLegacy` |
-| `@kubb/plugin-cypress` | `resolverCypress` | — |
-| `@kubb/plugin-mcp` | `resolverMcp` | — |
+| Plugin                 | Default resolver  | Legacy resolver     |
+| ---------------------- | ----------------- | ------------------- |
+| `@kubb/plugin-ts`      | `resolverTs`      | `resolverTsLegacy`  |
+| `@kubb/plugin-zod`     | `resolverZod`     | `resolverZodLegacy` |
+| `@kubb/plugin-cypress` | `resolverCypress` | —                   |
+| `@kubb/plugin-mcp`     | `resolverMcp`     | —                   |
 
-|           |                                                      |
-| --------: | :--------------------------------------------------- |
-|     Type: | `Partial<Resolver> & ThisType<Resolver>`             |
-| Required: | `false`                                              |
+|           |                                          |
+| --------: | :--------------------------------------- |
+|     Type: | `Partial<Resolver> & ThisType<Resolver>` |
+| Required: | `false`                                  |
 
 ```typescript [Custom resolver (plugin-ts example)]
-import { pluginTs } from '@kubb/plugin-ts'
+import { pluginTs } from "@kubb/plugin-ts";
 
 pluginTs({
   resolver: {
     resolveName(name) {
       // Prefix every operation-derived name; falls back for names where
       // this returns null/undefined.
-      return `Api${this.default(name, 'function')}`
+      return `Api${this.default(name, "function")}`;
     },
   },
-})
+});
 ```
 
 > [!TIP]

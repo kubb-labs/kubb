@@ -30,8 +30,8 @@ If you were importing `NormalizedPlugin` or `PluginContext` from `@kubb/core`, s
 
 ```ts
 // Before
-import type { NormalizedPlugin, PluginContext } from '@kubb/core'
+import type { NormalizedPlugin, PluginContext } from "@kubb/core";
 
 // After
-import type { Plugin, GeneratorContext } from '@kubb/core'
+import type { Plugin, GeneratorContext } from "@kubb/core";
 ```

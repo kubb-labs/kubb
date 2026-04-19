@@ -1,117 +1,136 @@
-import { AsyncEventEmitter } from '@internals/utils'
-import { type Config, createKubb, type KubbHooks } from '@kubb/core'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types.d.ts'
-import type { z } from 'zod'
-import type { generateSchema } from '../schemas/generateSchema.ts'
-import { NotifyTypes } from '../types.ts'
-import { loadUserConfig } from '../utils/loadUserConfig.ts'
-import { resolveCwd } from '../utils/resolveCwd.ts'
-import { resolveUserConfig } from '../utils/resolveUserConfig.ts'
+import { AsyncEventEmitter } from "@internals/utils";
+import { type Config, createKubb, type KubbHooks } from "@kubb/core";
+import type { CallToolResult } from "@modelcontextprotocol/sdk/types.d.ts";
+import type { z } from "zod";
+import type { generateSchema } from "../schemas/generateSchema.ts";
+import { NotifyTypes } from "../types.ts";
+import { loadUserConfig } from "../utils/loadUserConfig.ts";
+import { resolveCwd } from "../utils/resolveCwd.ts";
+import { resolveUserConfig } from "../utils/resolveUserConfig.ts";
 
 interface NotificationHandler {
-  sendNotification(method: string, params: unknown): Promise<void>
+  sendNotification(method: string, params: unknown): Promise<void>;
 }
 
 /**
  * Build tool that generates code from OpenAPI specs using Kubb.
  * Sends real-time notifications of build progress and events.
  */
-export async function generate(schema: z.infer<typeof generateSchema>, handler: NotificationHandler): Promise<CallToolResult> {
-  const { config: configPath, input, output, logLevel } = schema
+export async function generate(
+  schema: z.infer<typeof generateSchema>,
+  handler: NotificationHandler,
+): Promise<CallToolResult> {
+  const { config: configPath, input, output, logLevel } = schema;
 
   try {
-    const hooks = new AsyncEventEmitter<KubbHooks>()
-    const messages: string[] = []
+    const hooks = new AsyncEventEmitter<KubbHooks>();
+    const messages: string[] = [];
 
     // Helper to send notifications
-    const notify = async (type: string, message: string, data?: Record<string, unknown>) => {
-      messages.push(`${type}: ${message}`)
+    const notify = async (
+      type: string,
+      message: string,
+      data?: Record<string, unknown>,
+    ) => {
+      messages.push(`${type}: ${message}`);
 
-      await handler.sendNotification('kubb/progress', {
+      await handler.sendNotification("kubb/progress", {
         type,
         message,
         timestamp: new Date().toISOString(),
         ...data,
-      })
-    }
+      });
+    };
 
     // Capture events for output and send notifications
-    hooks.on('kubb:info', async (message: string) => {
-      await notify(NotifyTypes.INFO, message)
-    })
+    hooks.on("kubb:info", async (message: string) => {
+      await notify(NotifyTypes.INFO, message);
+    });
 
-    hooks.on('kubb:success', async (message: string) => {
-      await notify(NotifyTypes.SUCCESS, message)
-    })
+    hooks.on("kubb:success", async (message: string) => {
+      await notify(NotifyTypes.SUCCESS, message);
+    });
 
-    hooks.on('kubb:error', async (error: Error) => {
-      await notify(NotifyTypes.ERROR, error.message, { stack: error.stack })
-    })
+    hooks.on("kubb:error", async (error: Error) => {
+      await notify(NotifyTypes.ERROR, error.message, { stack: error.stack });
+    });
 
-    hooks.on('kubb:warn', async (message: string) => {
-      await notify(NotifyTypes.WARN, message)
-    })
+    hooks.on("kubb:warn", async (message: string) => {
+      await notify(NotifyTypes.WARN, message);
+    });
 
     // Plugin lifecycle events
-    hooks.on('kubb:plugin:start', async (plugin) => {
-      await notify(NotifyTypes.PLUGIN_START, `Plugin starting: ${plugin.name}`)
-    })
+    hooks.on("kubb:plugin:start", async (plugin) => {
+      await notify(NotifyTypes.PLUGIN_START, `Plugin starting: ${plugin.name}`);
+    });
 
-    hooks.on('kubb:plugin:end', async (plugin, result) => {
-      await notify(NotifyTypes.PLUGIN_END, `Plugin finished: ${plugin.name}`, { duration: result.duration })
-    })
+    hooks.on("kubb:plugin:end", async (plugin, result) => {
+      await notify(NotifyTypes.PLUGIN_END, `Plugin finished: ${plugin.name}`, {
+        duration: result.duration,
+      });
+    });
 
     // File processing events
-    hooks.on('kubb:files:processing:start', async () => {
-      await notify(NotifyTypes.FILES_START, 'Starting file processing')
-    })
+    hooks.on("kubb:files:processing:start", async () => {
+      await notify(NotifyTypes.FILES_START, "Starting file processing");
+    });
 
-    hooks.on('kubb:file:processing:update', async ({ file }: { file: { name: string } }) => {
-      await notify(NotifyTypes.FILE_UPDATE, `Processing file: ${file.name}`)
-    })
+    hooks.on(
+      "kubb:file:processing:update",
+      async ({ file }: { file: { name: string } }) => {
+        await notify(NotifyTypes.FILE_UPDATE, `Processing file: ${file.name}`);
+      },
+    );
 
-    hooks.on('kubb:files:processing:end', async () => {
-      await notify(NotifyTypes.FILES_END, 'File processing complete')
-    })
+    hooks.on("kubb:files:processing:end", async () => {
+      await notify(NotifyTypes.FILES_END, "File processing complete");
+    });
 
     // Generation events
-    hooks.on('kubb:generation:start', async () => {
-      await notify(NotifyTypes.GENERATION_START, 'Generation started')
-    })
+    hooks.on("kubb:generation:start", async () => {
+      await notify(NotifyTypes.GENERATION_START, "Generation started");
+    });
 
-    hooks.on('kubb:generation:end', async () => {
-      await notify(NotifyTypes.GENERATION_END, 'Generation ended')
-    })
+    hooks.on("kubb:generation:end", async () => {
+      await notify(NotifyTypes.GENERATION_END, "Generation ended");
+    });
 
     // Load and process configuration
-    let userConfig: Config
-    let cwd: string
+    let userConfig: Config;
+    let cwd: string;
 
     try {
-      const configResult = await loadUserConfig(configPath, { notify })
-      userConfig = configResult.userConfig
-      cwd = configResult.cwd
+      const configResult = await loadUserConfig(configPath, { notify });
+      userConfig = configResult.userConfig;
+      cwd = configResult.cwd;
 
       if (Array.isArray(userConfig) && userConfig.length) {
-        throw new Error('Array type in kubb.config.ts is not supported in this tool. Please provide a single configuration object.')
+        throw new Error(
+          "Array type in kubb.config.ts is not supported in this tool. Please provide a single configuration object.",
+        );
       }
 
-      userConfig = await resolveUserConfig(userConfig, { configPath, logLevel })
+      userConfig = await resolveUserConfig(userConfig, {
+        configPath,
+        logLevel,
+      });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
-      await notify(NotifyTypes.CONFIG_ERROR, errorMessage)
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      await notify(NotifyTypes.CONFIG_ERROR, errorMessage);
       return {
         content: [
           {
-            type: 'text',
+            type: "text",
             text: errorMessage,
           },
         ],
         isError: true,
-      }
+      };
     }
 
-    const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
+    const inputPath =
+      input ?? ("path" in userConfig.input ? userConfig.input.path : undefined);
 
     // Override config with CLI options
     const config: Config = {
@@ -129,22 +148,25 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
             path: output,
           }
         : userConfig.output,
-    }
+    };
 
-    await notify(NotifyTypes.CONFIG_READY, 'Configuration ready', {
+    await notify(NotifyTypes.CONFIG_READY, "Configuration ready", {
       root: config.root,
-    })
+    });
 
     // Setup and build
-    await notify(NotifyTypes.SETUP_START, 'Setting up Kubb')
+    await notify(NotifyTypes.SETUP_START, "Setting up Kubb");
 
-    const kubb = createKubb(config, { hooks })
-    await kubb.setup()
-    await notify(NotifyTypes.SETUP_END, 'Kubb setup complete')
+    const kubb = createKubb(config, { hooks });
+    await kubb.setup();
+    await notify(NotifyTypes.SETUP_END, "Kubb setup complete");
 
-    await notify(NotifyTypes.BUILD_START, 'Starting build')
-    const { files, failedPlugins, error } = await kubb.safeBuild()
-    await notify(NotifyTypes.BUILD_END, `Build complete - Generated ${files.length} files`)
+    await notify(NotifyTypes.BUILD_START, "Starting build");
+    const { files, failedPlugins, error } = await kubb.safeBuild();
+    await notify(
+      NotifyTypes.BUILD_END,
+      `Build complete - Generated ${files.length} files`,
+    );
 
     if (error || failedPlugins.size > 0) {
       const allErrors: Error[] = [
@@ -152,54 +174,62 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
         ...Array.from(failedPlugins)
           .filter((it) => it.error)
           .map((it) => it.error),
-      ].filter(Boolean)
+      ].filter(Boolean);
 
-      await notify(NotifyTypes.BUILD_FAILED, `Build failed with ${allErrors.length} error(s)`, {
-        errorCount: allErrors.length,
-        errors: allErrors.map((err) => err.message),
-      })
+      await notify(
+        NotifyTypes.BUILD_FAILED,
+        `Build failed with ${allErrors.length} error(s)`,
+        {
+          errorCount: allErrors.length,
+          errors: allErrors.map((err) => err.message),
+        },
+      );
 
       return {
         content: [
           {
-            type: 'text',
-            text: `Build failed:\n${allErrors.map((err) => err.message).join('\n')}\n\n${messages.join('\n')}`,
+            type: "text",
+            text: `Build failed:\n${allErrors.map((err) => err.message).join("\n")}\n\n${messages.join("\n")}`,
           },
         ],
         isError: true,
-      }
+      };
     }
 
-    await notify(NotifyTypes.BUILD_SUCCESS, `Build completed successfully - Generated ${files.length} files`, {
-      filesCount: files.length,
-    })
+    await notify(
+      NotifyTypes.BUILD_SUCCESS,
+      `Build completed successfully - Generated ${files.length} files`,
+      {
+        filesCount: files.length,
+      },
+    );
 
     return {
       content: [
         {
-          type: 'text',
-          text: `Build completed successfully!\n\nGenerated ${files.length} files\n\n${messages.join('\n')}`,
+          type: "text",
+          text: `Build completed successfully!\n\nGenerated ${files.length} files\n\n${messages.join("\n")}`,
         },
       ],
-    }
+    };
   } catch (caughtError) {
-    const error = caughtError as Error
+    const error = caughtError as Error;
 
-    await handler.sendNotification('kubb/progress', {
+    await handler.sendNotification("kubb/progress", {
       type: NotifyTypes.FATAL_ERROR,
       message: error.message,
       stack: error.stack,
       timestamp: new Date().toISOString(),
-    })
+    });
 
     return {
       content: [
         {
-          type: 'text',
-          text: `Build error: ${error.message}\n${error.stack || ''}`,
+          type: "text",
+          text: `Build error: ${error.message}\n${error.stack || ""}`,
         },
       ],
       isError: true,
-    }
+    };
   }
 }

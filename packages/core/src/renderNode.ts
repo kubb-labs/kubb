@@ -1,6 +1,6 @@
-import type { FileNode } from '@kubb/ast'
-import type { RendererFactory } from './createRenderer.ts'
-import type { PluginDriver } from './PluginDriver.ts'
+import type { FileNode } from "@kubb/ast";
+import type { RendererFactory } from "./createRenderer.ts";
+import type { PluginDriver } from "./PluginDriver.ts";
 
 /**
  * Handles the return value of a plugin AST hook or generator method.
@@ -17,19 +17,19 @@ export async function applyHookResult<TElement = unknown>(
   driver: PluginDriver,
   rendererFactory?: RendererFactory<TElement>,
 ): Promise<void> {
-  if (!result) return
+  if (!result) return;
 
   if (Array.isArray(result)) {
-    driver.fileManager.upsert(...(result as Array<FileNode>))
-    return
+    driver.fileManager.upsert(...(result as Array<FileNode>));
+    return;
   }
 
   if (!rendererFactory) {
-    return
+    return;
   }
 
-  const renderer = rendererFactory()
-  await renderer.render(result)
-  driver.fileManager.upsert(...renderer.files)
-  renderer.unmount()
+  const renderer = rendererFactory();
+  await renderer.render(result);
+  driver.fileManager.upsert(...renderer.files);
+  renderer.unmount();
 }

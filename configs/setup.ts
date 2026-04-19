@@ -1,3 +1,3 @@
-import { beforeAll } from 'bun:test'
+import { beforeAll } from "bun:test";
 
-beforeAll(() => {})
+beforeAll(() => {});

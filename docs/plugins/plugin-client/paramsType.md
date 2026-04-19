@@ -1,11 +1,10 @@
 Defines how parameters are passed to generated functions. Switch between object-style parameters and inline parameters.
 
 |           |                        |
-|----------:|:-----------------------|
+| --------: | :--------------------- |
 |     Type: | `'object' \| 'inline'` |
 | Required: | `false`                |
 |  Default: | `'inline'`             |
-
 
 > [!TIP]
 > When `paramsType` is set to `'object'`, `pathParams` will also be set to `'object'`.
@@ -14,6 +13,7 @@ Defines how parameters are passed to generated functions. Switch between object-
 - `'inline'` returns params as comma-separated params.
 
 ::: code-group
+
 ```typescript ['object']
 export async function deletePet(
   {
@@ -38,4 +38,5 @@ export async function deletePet(
   ...
 }
 ```
+
 :::

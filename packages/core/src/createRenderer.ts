@@ -1,4 +1,4 @@
-import type { FileNode } from '@kubb/ast'
+import type { FileNode } from "@kubb/ast";
 
 /**
  * Minimal interface any Kubb renderer must satisfy.
@@ -12,17 +12,17 @@ import type { FileNode } from '@kubb/ast'
  * `@kubb/renderer-jsx` or any specific renderer implementation.
  */
 export type Renderer<TElement = unknown> = {
-  render(element: TElement): Promise<void>
-  unmount(error?: Error | number | null): void
-  readonly files: Array<FileNode>
-}
+  render(element: TElement): Promise<void>;
+  unmount(error?: Error | number | null): void;
+  readonly files: Array<FileNode>;
+};
 
 /**
  * A factory function that produces a fresh {@link Renderer} per render.
  *
  * Generators use this to declare which renderer handles their output.
  */
-export type RendererFactory<TElement = unknown> = () => Renderer<TElement>
+export type RendererFactory<TElement = unknown> = () => Renderer<TElement>;
 
 /**
  * Creates a renderer factory for use in generator definitions.
@@ -52,6 +52,8 @@ export type RendererFactory<TElement = unknown> = () => Renderer<TElement>
  * })
  * ```
  */
-export function createRenderer<TElement = unknown>(factory: RendererFactory<TElement>): RendererFactory<TElement> {
-  return factory
+export function createRenderer<TElement = unknown>(
+  factory: RendererFactory<TElement>,
+): RendererFactory<TElement> {
+  return factory;
 }

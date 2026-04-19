@@ -1,5 +1,5 @@
-import { nodeAdapter } from './adapters/nodeAdapter.ts'
-import type { CLIAdapter, CommandDefinition, RunOptions } from './types.ts'
+import { nodeAdapter } from "./adapters/nodeAdapter.ts";
+import type { CLIAdapter, CommandDefinition, RunOptions } from "./types.ts";
 
 /**
  * Creates a CLI runner bound to a specific adapter.
@@ -16,13 +16,17 @@ import type { CLIAdapter, CommandDefinition, RunOptions } from './types.ts'
  * ```
  */
 export function createCLI(options?: { adapter?: CLIAdapter }): {
-  run(commands: CommandDefinition[], argv: string[], opts: RunOptions): Promise<void>
+  run(
+    commands: CommandDefinition[],
+    argv: string[],
+    opts: RunOptions,
+  ): Promise<void>;
 } {
-  const adapter = options?.adapter ?? nodeAdapter
+  const adapter = options?.adapter ?? nodeAdapter;
 
   return {
     run(commands, argv, opts) {
-      return adapter.run(commands, argv, opts)
+      return adapter.run(commands, argv, opts);
     },
-  }
+  };
 }

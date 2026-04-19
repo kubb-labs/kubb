@@ -1,27 +1,23 @@
-'docs':
-  - any:
-      [
-        'docs/**',
-        '!docs/**/package.json',
-      ]
+"docs":
+  - any: ["docs/**", "!docs/**/package.json"]
 
-'@kubb/cli':
-  - any: ['packages/cli/**', '!packages/cli/package.json']
+"@kubb/cli":
+  - any: ["packages/cli/**", "!packages/cli/package.json"]
 
-'@kubb/core':
-  - any: ['packages/core/**', '!packages/core/package.json']
+"@kubb/core":
+  - any: ["packages/core/**", "!packages/core/package.json"]
 
-'kubb':
-  - any: ['packages/kubb/**', '!packages/kubb/package.json']
+"kubb":
+  - any: ["packages/kubb/**", "!packages/kubb/package.json"]
 
-'@kubb/mcp':
-  - any: ['packages/mcp/**', '!packages/mcp/package.json']
+"@kubb/mcp":
+  - any: ["packages/mcp/**", "!packages/mcp/package.json"]
 
-'unplugin-kubb':
-  - any: ['packages/unplugin-kubb/**', '!packages/unplugin-kubb/package.json']
+"unplugin-kubb":
+  - any: ["packages/unplugin-kubb/**", "!packages/unplugin-kubb/package.json"]
 
 feature:
-  - head-branch: ['^feat', 'feat']
+  - head-branch: ["^feat", "feat"]
 
 bug:
-  - head-branch: [ '^bug', 'bug', '^fix', 'fix', ]
+  - head-branch: ["^bug", "bug", "^fix", "fix"]

@@ -1,98 +1,110 @@
-import type { BaseNode } from './base.ts'
-import type { PropertyNode } from './property.ts'
+import type { BaseNode } from "./base.ts";
+import type { PropertyNode } from "./property.ts";
 
 export type PrimitiveSchemaType =
   /**
    * Text value.
    */
-  | 'string'
+  | "string"
   /**
    * Floating-point number.
    */
-  | 'number'
+  | "number"
   /**
    * Integer number.
    */
-  | 'integer'
+  | "integer"
   /**
    * Big integer number.
    */
-  | 'bigint'
+  | "bigint"
   /**
    * Boolean value.
    */
-  | 'boolean'
+  | "boolean"
   /**
    * Null value.
    */
-  | 'null'
+  | "null"
   /**
    * Any value.
    */
-  | 'any'
+  | "any"
   /**
    * Unknown value.
    */
-  | 'unknown'
+  | "unknown"
   /**
    * No value (`void`).
    */
-  | 'void'
+  | "void"
   /**
    * Never value.
    */
-  | 'never'
+  | "never"
   /**
    * Object value.
    */
-  | 'object'
+  | "object"
   /**
    * Array value.
    */
-  | 'array'
+  | "array"
   /**
    * Date value.
    */
-  | 'date'
+  | "date";
 
 /**
  * Composite schema types.
  */
-export type ComplexSchemaType = 'tuple' | 'union' | 'intersection' | 'enum'
+export type ComplexSchemaType = "tuple" | "union" | "intersection" | "enum";
 
 /**
  * Schema types that need special handling in generators.
  */
-export type SpecialSchemaType = 'ref' | 'datetime' | 'time' | 'uuid' | 'email' | 'url' | 'ipv4' | 'ipv6' | 'blob'
+export type SpecialSchemaType =
+  | "ref"
+  | "datetime"
+  | "time"
+  | "uuid"
+  | "email"
+  | "url"
+  | "ipv4"
+  | "ipv6"
+  | "blob";
 
 /**
  * All schema type strings.
  */
-export type SchemaType = PrimitiveSchemaType | ComplexSchemaType | SpecialSchemaType
+export type SchemaType =
+  | PrimitiveSchemaType
+  | ComplexSchemaType
+  | SpecialSchemaType;
 
 /**
  * Scalar schema types without extra object/array/ref structure.
  */
 export type ScalarSchemaType = Exclude<
   SchemaType,
-  | 'object'
-  | 'array'
-  | 'tuple'
-  | 'union'
-  | 'intersection'
-  | 'enum'
-  | 'ref'
-  | 'datetime'
-  | 'date'
-  | 'time'
-  | 'string'
-  | 'number'
-  | 'integer'
-  | 'bigint'
-  | 'url'
-  | 'uuid'
-  | 'email'
->
+  | "object"
+  | "array"
+  | "tuple"
+  | "union"
+  | "intersection"
+  | "enum"
+  | "ref"
+  | "datetime"
+  | "date"
+  | "time"
+  | "string"
+  | "number"
+  | "integer"
+  | "bigint"
+  | "url"
+  | "uuid"
+  | "email"
+>;
 
 /**
  * Fields shared by all schema nodes.
@@ -101,60 +113,60 @@ type SchemaNodeBase = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'Schema'
+  kind: "Schema";
   /**
    * Schema name for named definitions (for example, `"Pet"`).
    * Inline schemas omit this field.
    * `null` means kubb has processed this and determined there is no applicable name.
    * `undefined` means the name has not been set yet.
    */
-  name?: string | null
+  name?: string | null;
   /**
    * Short schema title.
    */
-  title?: string
+  title?: string;
   /**
    * Schema description text.
    */
-  description?: string
+  description?: string;
   /**
    * Whether `null` is allowed.
    */
-  nullable?: boolean
+  nullable?: boolean;
   /**
    * Whether the field is optional.
    */
-  optional?: boolean
+  optional?: boolean;
   /**
    * Both optional and nullable (`optional` + `nullable`).
    */
-  nullish?: boolean
+  nullish?: boolean;
   /**
    * Whether the schema is deprecated.
    */
-  deprecated?: boolean
+  deprecated?: boolean;
   /**
    * Whether the schema is read-only.
    */
-  readOnly?: boolean
+  readOnly?: boolean;
   /**
    * Whether the schema is write-only.
    */
-  writeOnly?: boolean
+  writeOnly?: boolean;
   /**
    * Default value.
    */
-  default?: unknown
+  default?: unknown;
   /**
    * Example value.
    */
-  example?: unknown
+  example?: unknown;
   /**
    * Base primitive type.
    * For example, this is `'string'` for a `uuid` schema.
    */
-  primitive?: PrimitiveSchemaType
-}
+  primitive?: PrimitiveSchemaType;
+};
 
 /**
  * Object schema with ordered properties.
@@ -172,15 +184,15 @@ export type ObjectSchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
-  type: 'object'
+  type: "object";
   /**
    * Primitive type — always `'object'` for object schemas.
    */
-  primitive: 'object'
+  primitive: "object";
   /**
    * Ordered object properties.
    */
-  properties: Array<PropertyNode>
+  properties: Array<PropertyNode>;
   /**
    * Additional object properties behavior:
    * - `true`: allow any value
@@ -188,20 +200,20 @@ export type ObjectSchemaNode = SchemaNodeBase & {
    * - `SchemaNode`: allow values that match that schema
    * - `undefined`: no additional properties constraint (open object)
    */
-  additionalProperties?: SchemaNode | boolean
+  additionalProperties?: SchemaNode | boolean;
   /**
    * Pattern-based property schemas.
    */
-  patternProperties?: Record<string, SchemaNode>
+  patternProperties?: Record<string, SchemaNode>;
   /**
    * Minimum number of properties allowed.
    */
-  minProperties?: number
+  minProperties?: number;
   /**
    * Maximum number of properties allowed.
    */
-  maxProperties?: number
-}
+  maxProperties?: number;
+};
 
 /**
  * Array-like schema (`array` or `tuple`).
@@ -219,28 +231,28 @@ export type ArraySchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator (`array` or `tuple`).
    */
-  type: 'array' | 'tuple'
+  type: "array" | "tuple";
   /**
    * Item schemas.
    */
-  items?: Array<SchemaNode>
+  items?: Array<SchemaNode>;
   /**
    * Tuple rest-item schema for elements beyond positional `items`.
    */
-  rest?: SchemaNode
+  rest?: SchemaNode;
   /**
    * Minimum item count (or tuple length).
    */
-  min?: number
+  min?: number;
   /**
    * Maximum item count (or tuple length).
    */
-  max?: number
+  max?: number;
   /**
    * Whether all items must be unique.
    */
-  unique?: boolean
-}
+  unique?: boolean;
+};
 
 /**
  * Shared shape for union and intersection schemas.
@@ -249,8 +261,8 @@ type CompositeSchemaNodeBase = SchemaNodeBase & {
   /**
    * Member schemas.
    */
-  members?: Array<SchemaNode>
-}
+  members?: Array<SchemaNode>;
+};
 
 /**
  * Union schema, often from `oneOf` or `anyOf`.
@@ -268,12 +280,12 @@ export type UnionSchemaNode = CompositeSchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
-  type: 'union'
+  type: "union";
   /**
    * Discriminator property name from OpenAPI `discriminator.propertyName`.
    */
-  discriminatorPropertyName?: string
-}
+  discriminatorPropertyName?: string;
+};
 
 /**
  * Intersection schema, often from `allOf`.
@@ -291,8 +303,8 @@ export type IntersectionSchemaNode = CompositeSchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
-  type: 'intersection'
-}
+  type: "intersection";
+};
 
 /**
  * One named enum item.
@@ -301,16 +313,16 @@ export type EnumValueNode = {
   /**
    * Enum item name.
    */
-  name: string
+  name: string;
   /**
    * Enum item value.
    */
-  value: string | number | boolean
+  value: string | number | boolean;
   /**
    * Primitive type of the enum value.
    */
-  primitive: Extract<PrimitiveSchemaType, 'string' | 'number' | 'boolean'>
-}
+  primitive: Extract<PrimitiveSchemaType, "string" | "number" | "boolean">;
+};
 
 /**
  * Enum schema node.
@@ -328,17 +340,17 @@ export type EnumSchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
-  type: 'enum'
+  type: "enum";
   /**
    * Enum values in simple form.
    */
-  enumValues?: Array<string | number | boolean | null>
+  enumValues?: Array<string | number | boolean | null>;
   /**
    * Enum values in named form.
    * If present, this is used instead of `enumValues`.
    */
-  namedEnumValues?: Array<EnumValueNode>
-}
+  namedEnumValues?: Array<EnumValueNode>;
+};
 
 /**
  * Reference schema that points to another schema definition.
@@ -356,20 +368,20 @@ export type RefSchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
-  type: 'ref'
+  type: "ref";
   /**
    * Referenced schema name.
    */
-  name?: string
+  name?: string;
   /**
    * Original `$ref` path, for example, `#/components/schemas/Order`.
    * Used to resolve names later.
    */
-  ref?: string
+  ref?: string;
   /**
    * Pattern copied from a sibling `pattern` field.
    */
-  pattern?: string
+  pattern?: string;
   /**
    * The fully-parsed schema that this ref resolves to.
    * Populated during OAS parsing when the referenced definition can be resolved.
@@ -378,8 +390,8 @@ export type RefSchemaNode = SchemaNodeBase & {
    * Useful for inspecting the referenced schema's structure (e.g. `primitive`, `properties`)
    * without following the reference manually.
    */
-  schema?: SchemaNode
-}
+  schema?: SchemaNode;
+};
 
 /**
  * Datetime schema.
@@ -393,30 +405,30 @@ export type DatetimeSchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
-  type: 'datetime'
+  type: "datetime";
   /**
    * Whether the datetime includes a timezone offset (`dateType: 'stringOffset'`).
    */
-  offset?: boolean
+  offset?: boolean;
   /**
    * Whether the datetime is local (no timezone, `dateType: 'stringLocal'`).
    */
-  local?: boolean
-}
+  local?: boolean;
+};
 
 /**
  * Shared base for `date` and `time` schemas.
  */
-type TemporalSchemaNodeBase<T extends 'date' | 'time'> = SchemaNodeBase & {
+type TemporalSchemaNodeBase<T extends "date" | "time"> = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
-  type: T
+  type: T;
   /**
    * Output representation in generated code.
    */
-  representation: 'date' | 'string'
-}
+  representation: "date" | "string";
+};
 
 /**
  * Date schema node.
@@ -426,7 +438,7 @@ type TemporalSchemaNodeBase<T extends 'date' | 'time'> = SchemaNodeBase & {
  * const dateSchema: DateSchemaNode = { kind: 'Schema', type: 'date', representation: 'string' }
  * ```
  */
-export type DateSchemaNode = TemporalSchemaNodeBase<'date'>
+export type DateSchemaNode = TemporalSchemaNodeBase<"date">;
 
 /**
  * Time schema node.
@@ -436,7 +448,7 @@ export type DateSchemaNode = TemporalSchemaNodeBase<'date'>
  * const timeSchema: TimeSchemaNode = { kind: 'Schema', type: 'time', representation: 'string' }
  * ```
  */
-export type TimeSchemaNode = TemporalSchemaNodeBase<'time'>
+export type TimeSchemaNode = TemporalSchemaNodeBase<"time">;
 
 /**
  * String schema node.
@@ -450,20 +462,20 @@ export type StringSchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
-  type: 'string'
+  type: "string";
   /**
    * Minimum string length.
    */
-  min?: number
+  min?: number;
   /**
    * Maximum string length.
    */
-  max?: number
+  max?: number;
   /**
    * Regex pattern.
    */
-  pattern?: string
-}
+  pattern?: string;
+};
 
 /**
  * Numeric schema (`number`, `integer`, or `bigint`).
@@ -477,28 +489,28 @@ export type NumberSchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
-  type: 'number' | 'integer' | 'bigint'
+  type: "number" | "integer" | "bigint";
   /**
    * Minimum value.
    */
-  min?: number
+  min?: number;
   /**
    * Maximum value.
    */
-  max?: number
+  max?: number;
   /**
    * Exclusive minimum value.
    */
-  exclusiveMinimum?: number
+  exclusiveMinimum?: number;
   /**
    * Exclusive maximum value.
    */
-  exclusiveMaximum?: number
+  exclusiveMaximum?: number;
   /**
    * The value must be a multiple of this number.
    */
-  multipleOf?: number
-}
+  multipleOf?: number;
+};
 
 /**
  * Scalar schema with no extra constraints.
@@ -512,8 +524,8 @@ export type ScalarSchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
-  type: ScalarSchemaType
-}
+  type: ScalarSchemaType;
+};
 
 /**
  * URL schema node.
@@ -528,20 +540,20 @@ export type UrlSchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
-  type: 'url'
+  type: "url";
   /**
    * OpenAPI-style path template, for example, `'/pets/{petId}'`.
    */
-  path?: string
+  path?: string;
   /**
    * Minimum string length.
    */
-  min?: number
+  min?: number;
   /**
    * Maximum string length.
    */
-  max?: number
-}
+  max?: number;
+};
 
 /**
  * Format-string schema for string-based formats that support length constraints.
@@ -555,16 +567,16 @@ export type FormatStringSchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
-  type: 'uuid' | 'email'
+  type: "uuid" | "email";
   /**
    * Minimum string length.
    */
-  min?: number
+  min?: number;
   /**
    * Maximum string length.
    */
-  max?: number
-}
+  max?: number;
+};
 
 /**
  * IPv4 address schema node.
@@ -578,8 +590,8 @@ export type Ipv4SchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
-  type: 'ipv4'
-}
+  type: "ipv4";
+};
 
 /**
  * IPv6 address schema node.
@@ -593,41 +605,41 @@ export type Ipv6SchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
-  type: 'ipv6'
-}
+  type: "ipv6";
+};
 
 /**
  * Mapping from schema type literals to concrete schema node types.
  * Used by `narrowSchema`.
  */
 export type SchemaNodeByType = {
-  object: ObjectSchemaNode
-  array: ArraySchemaNode
-  tuple: ArraySchemaNode
-  union: UnionSchemaNode
-  intersection: IntersectionSchemaNode
-  enum: EnumSchemaNode
-  ref: RefSchemaNode
-  datetime: DatetimeSchemaNode
-  date: DateSchemaNode
-  time: TimeSchemaNode
-  string: StringSchemaNode
-  number: NumberSchemaNode
-  integer: NumberSchemaNode
-  bigint: NumberSchemaNode
-  boolean: ScalarSchemaNode
-  null: ScalarSchemaNode
-  any: ScalarSchemaNode
-  unknown: ScalarSchemaNode
-  void: ScalarSchemaNode
-  never: ScalarSchemaNode
-  uuid: FormatStringSchemaNode
-  email: FormatStringSchemaNode
-  url: UrlSchemaNode
-  ipv4: Ipv4SchemaNode
-  ipv6: Ipv6SchemaNode
-  blob: ScalarSchemaNode
-}
+  object: ObjectSchemaNode;
+  array: ArraySchemaNode;
+  tuple: ArraySchemaNode;
+  union: UnionSchemaNode;
+  intersection: IntersectionSchemaNode;
+  enum: EnumSchemaNode;
+  ref: RefSchemaNode;
+  datetime: DatetimeSchemaNode;
+  date: DateSchemaNode;
+  time: TimeSchemaNode;
+  string: StringSchemaNode;
+  number: NumberSchemaNode;
+  integer: NumberSchemaNode;
+  bigint: NumberSchemaNode;
+  boolean: ScalarSchemaNode;
+  null: ScalarSchemaNode;
+  any: ScalarSchemaNode;
+  unknown: ScalarSchemaNode;
+  void: ScalarSchemaNode;
+  never: ScalarSchemaNode;
+  uuid: FormatStringSchemaNode;
+  email: FormatStringSchemaNode;
+  url: UrlSchemaNode;
+  ipv4: Ipv4SchemaNode;
+  ipv6: Ipv6SchemaNode;
+  blob: ScalarSchemaNode;
+};
 
 /**
  * Union of all schema node types.
@@ -648,4 +660,4 @@ export type SchemaNode =
   | FormatStringSchemaNode
   | Ipv4SchemaNode
   | Ipv6SchemaNode
-  | ScalarSchemaNode
+  | ScalarSchemaNode;

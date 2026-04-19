@@ -27,7 +27,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Build
         run: pnpm run build
@@ -47,7 +47,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Build
         run: pnpm run build
@@ -70,7 +70,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Build agent
         run: pnpm turbo run build --filter=@kubb/agent
@@ -99,7 +99,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Linting
         env:
@@ -121,15 +121,15 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Spell Check
         uses: streetsidesoftware/cspell-action@v8
         with:
-         files: |
-           **/*.{ts,md}
-         suggestions: 'true'
-         config: 'cspell.json'
+          files: |
+            **/*.{ts,md}
+          suggestions: "true"
+          config: "cspell.json"
 
   prerelease:
     name: Prerelease
@@ -146,7 +146,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Build
         run: pnpm run build

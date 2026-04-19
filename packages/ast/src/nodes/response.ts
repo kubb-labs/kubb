@@ -1,6 +1,6 @@
-import type { BaseNode } from './base.ts'
-import type { MediaType, StatusCode } from './http.ts'
-import type { SchemaNode } from './schema.ts'
+import type { BaseNode } from "./base.ts";
+import type { MediaType, StatusCode } from "./http.ts";
+import type { SchemaNode } from "./schema.ts";
 
 /**
  * AST node representing one operation response variant.
@@ -18,26 +18,26 @@ export type ResponseNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'Response'
+  kind: "Response";
   /**
    * HTTP status code or `'default'` for a fallback response.
    */
-  statusCode: StatusCode
+  statusCode: StatusCode;
   /**
    * Optional response description.
    */
-  description?: string
+  description?: string;
   /**
    * Response body schema.
    */
-  schema: SchemaNode
+  schema: SchemaNode;
   /**
    * Response media type.
    */
-  mediaType?: MediaType | null
+  mediaType?: MediaType | null;
   /**
    * Property keys to exclude from the generated type via `Omit<Type, Keys>`.
    * Set when a referenced schema has `writeOnly` fields that should not appear in response types.
    */
-  keysToOmit?: Array<string>
-}
+  keysToOmit?: Array<string>;
+};

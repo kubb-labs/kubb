@@ -29,6 +29,7 @@ Create the following folder structure:
 ```
 
 You'll need an OpenAPI specification file. You can:
+
 - Use your own OpenAPI/Swagger spec
 - Download a sample: [petStore.yaml](https://github.com/kubb-labs/kubb/blob/main/examples/typescript/petStore.yaml)
 - Create a simple one (see example below)
@@ -46,14 +47,14 @@ paths:
     get:
       operationId: listPets
       responses:
-        '200':
+        "200":
           description: List of pets
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Pet'
+                  $ref: "#/components/schemas/Pet"
 components:
   schemas:
     Pet:
@@ -84,36 +85,32 @@ For the [`@kubb/plugin-ts`](/plugins/plugin-ts/) plugin, set `output` to the `mo
 ::: code-group
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTs } from '@kubb/plugin-ts'
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
 
 export default defineConfig(() => {
   return {
-    root: '.',
+    root: ".",
     input: {
-      path: './petStore.yaml',
+      path: "./petStore.yaml",
     },
     output: {
-      path: './src',
+      path: "./src",
     },
     plugins: [
-      pluginOas(
-        {
-          generators: [],
-          validate: true,
+      pluginOas({
+        generators: [],
+        validate: true,
+      }),
+      pluginTs({
+        output: {
+          path: "models",
         },
-      ),
-      pluginTs(
-        {
-          output: {
-            path: 'models',
-          },
-        },
-      ),
+      }),
     ],
-  }
-})
+  };
+});
 ```
 
 :::
@@ -220,16 +217,16 @@ export type Pet = {
   /**
    * @type integer, int64
    */
-  id: number
+  id: number;
   /**
    * @type string
    */
-  name: string
+  name: string;
   /**
    * @type string | undefined
    */
-  tag?: string
-}
+  tag?: string;
+};
 ```
 
 Generation process:
@@ -239,10 +236,12 @@ Generation process:
 ## Understanding the Configuration
 
 **pluginOas()** - Parses your OpenAPI specification:
+
 - `generators` - Set to `[]` to skip JSON schema generation
 - `validate` - Validates the OpenAPI spec
 
 **pluginTs()** - Generates TypeScript types:
+
 - `output.path` - Where to save generated types (e.g., `models`)
 
 **input.path** - Location of your OpenAPI spec file

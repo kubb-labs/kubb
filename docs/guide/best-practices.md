@@ -25,44 +25,45 @@ For large projects with many endpoints, organize your generated code strategical
 Use tags from your OpenAPI specification to organize generated code by feature:
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTs } from '@kubb/plugin-ts'
-import { pluginClient } from '@kubb/plugin-client'
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginClient } from "@kubb/plugin-client";
 
 export default defineConfig({
   input: {
-    path: './openapi.yaml',
+    path: "./openapi.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
     clean: true,
   },
   plugins: [
     pluginOas(),
     pluginTs({
       output: {
-        path: './types',
+        path: "./types",
       },
       group: {
-        type: 'tag',
+        type: "tag",
         name: ({ group }) => `${group}Types`,
       },
     }),
     pluginClient({
       output: {
-        path: './clients',
+        path: "./clients",
       },
       group: {
-        type: 'tag',
+        type: "tag",
         name: ({ group }) => `${group}Client`,
       },
     }),
   ],
-})
+});
 ```
 
 This creates organized directories:
+
 ```
 src/gen/
 ├── types/
@@ -83,21 +84,21 @@ For very large APIs, generate only what you need using `include` and `exclude`:
 pluginTs({
   include: [
     {
-      type: 'tag',
-      pattern: 'pets',
+      type: "tag",
+      pattern: "pets",
     },
     {
-      type: 'tag',
-      pattern: 'users',
+      type: "tag",
+      pattern: "users",
     },
   ],
   exclude: [
     {
-      type: 'tag',
-      pattern: 'admin', // Exclude admin endpoints
+      type: "tag",
+      pattern: "admin", // Exclude admin endpoints
     },
   ],
-})
+});
 ```
 
 **3. Split Large OpenAPI Files**
@@ -111,19 +112,19 @@ For massive OpenAPI specifications (1000+ endpoints), consider:
 ```typescript [kubb.config.pets.ts]
 export default defineConfig({
   input: {
-    path: './openapi.yaml',
+    path: "./openapi.yaml",
   },
   output: {
-    path: './src/gen/pets',
+    path: "./src/gen/pets",
     clean: true,
   },
   plugins: [
     pluginOas(),
     pluginTs({
-      include: [{ type: 'tag', pattern: 'pets' }],
+      include: [{ type: "tag", pattern: "pets" }],
     }),
   ],
-})
+});
 ```
 
 ### Performance Optimization
@@ -135,10 +136,10 @@ Control barrel file generation to improve build performance:
 ```typescript [kubb.config.ts]
 export default defineConfig({
   output: {
-    path: './src/gen',
-    barrelType: 'named', // or 'all', false
+    path: "./src/gen",
+    barrelType: "named", // or 'all', false
   },
-})
+});
 ```
 
 - `false`: No barrel files (faster generation, manual imports)
@@ -156,15 +157,15 @@ kubb generate --watch
 Or integrate with your build tool using `unplugin-kubb`:
 
 ```typescript [vite.config.ts]
-import kubb from 'unplugin-kubb/vite'
+import kubb from "unplugin-kubb/vite";
 
 export default {
   plugins: [
     kubb({
-      config: './kubb.config.ts',
+      config: "./kubb.config.ts",
     }),
   ],
-}
+};
 ```
 
 **3. Optimize Dependencies**
@@ -188,11 +189,13 @@ Only install plugins you actually use. Each plugin adds processing time:
 **Option 1: Commit Generated Code** (Recommended for libraries)
 
 Pros:
+
 - Consumers don't need to run Kubb
 - Works with CI/CD immediately
 - Easier to review changes
 
 Cons:
+
 - Larger repository size
 - More merge conflicts
 
@@ -204,11 +207,13 @@ Cons:
 **Option 2: Ignore Generated Code** (Recommended for applications)
 
 Pros:
+
 - Smaller repository
 - Fewer merge conflicts
 - Forces fresh generation
 
 Cons:
+
 - Requires generation step in CI/CD
 - Longer build times
 
@@ -219,6 +224,7 @@ src/gen/
 ```
 
 Add to your CI/CD:
+
 ```yaml [.github/workflows/ci.yml]
 - name: Generate API code
   run: pnpm kubb generate
@@ -257,22 +263,22 @@ Generated barrel files (`index.ts`) provide convenient re-exports:
 
 ```typescript
 // Import everything you need from one place
-import { getPetById, createPet, type Pet, type CreatePetRequest } from './gen'
+import { getPetById, createPet, type Pet, type CreatePetRequest } from "./gen";
 
 // Or from specific modules
-import { getPetById } from './gen/pets'
-import type { Pet } from './gen/types'
+import { getPetById } from "./gen/pets";
+import type { Pet } from "./gen/types";
 ```
 
 **4. Consistent Naming Patterns**
 
 Kubb uses your OpenAPI `operationId` to generate predictable names:
 
-| OpenAPI operationId | Generated Function | Generated Hook | Generated Type |
-|---------------------|-------------------|----------------|----------------|
-| `getPets` | `getPets()` | `useGetPets()` | `GetPetsResponse` |
-| `createPet` | `createPet()` | `useCreatePet()` | `CreatePetRequest` |
-| `updatePetById` | `updatePetById()` | `useUpdatePetById()` | `UpdatePetByIdRequest` |
+| OpenAPI operationId | Generated Function | Generated Hook       | Generated Type         |
+| ------------------- | ------------------ | -------------------- | ---------------------- |
+| `getPets`           | `getPets()`        | `useGetPets()`       | `GetPetsResponse`      |
+| `createPet`         | `createPet()`      | `useCreatePet()`     | `CreatePetRequest`     |
+| `updatePetById`     | `updatePetById()`  | `useUpdatePetById()` | `UpdatePetByIdRequest` |
 
 > [!TIP]
 > Use consistent `operationId` naming in your OpenAPI spec for predictable generated names.
@@ -284,14 +290,14 @@ Kubb uses your OpenAPI `operationId` to generate predictable names:
 Generated TypeScript types are your API documentation:
 
 ```typescript
-import type { Pet, CreatePetRequest } from './gen'
+import type { Pet, CreatePetRequest } from "./gen";
 
 // Types tell you exactly what the API expects
 const newPet: CreatePetRequest = {
-  name: 'Fluffy',
-  status: 'available',
+  name: "Fluffy",
+  status: "available",
   // IDE will suggest all required fields
-}
+};
 ```
 
 **2. Leverage Query Hooks**
@@ -331,39 +337,39 @@ Where you import `client` from depends on your `pluginClient` configuration:
 ::: code-group
 
 ```typescript [src/api/client.ts (default)]
-import { client, axiosInstance } from '@kubb/plugin-client/clients/axios'
+import { client, axiosInstance } from "@kubb/plugin-client/clients/axios";
 
 // Configure base URL and auth
 client.setConfig({
   baseURL: import.meta.env.VITE_API_URL,
-})
+});
 
 // Add interceptors via axiosInstance
 axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem("token");
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  return config
-})
+  return config;
+});
 ```
 
 ```typescript [src/api/client.ts (bundle: true)]
-import { client, axiosInstance } from './.kubb/axios'
+import { client, axiosInstance } from "./.kubb/axios";
 
 // Configure base URL and auth
 client.setConfig({
   baseURL: import.meta.env.VITE_API_URL,
-})
+});
 
 // Add interceptors via axiosInstance
 axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem("token");
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  return config
-})
+  return config;
+});
 ```
 
 :::
@@ -382,6 +388,7 @@ kubb generate --debug
 ```
 
 This creates log files in `.kubb/`:
+
 - `kubb-<date>.log` - Main execution log
 - `kubb-files.log` - Generated files log
 
@@ -392,10 +399,11 @@ Most issues stem from OpenAPI specification problems:
 ```typescript [kubb.config.ts]
 pluginOas({
   validate: true, // Enable OpenAPI validation
-})
+});
 ```
 
 Or use external validators:
+
 - [Swagger Editor](https://editor.swagger.io/)
 - [OpenAPI Spec Validator](https://apitools.dev/swagger-parser/online/)
 
@@ -406,7 +414,7 @@ The generated code is readable TypeScript - inspect it directly:
 ```typescript
 // Generated files are in your output directory
 // Read them to understand what Kubb created
-import { getPetById } from './gen/pets/getPetById'
+import { getPetById } from "./gen/pets/getPetById";
 
 // Most issues are visible in the generated code
 ```
@@ -429,6 +437,7 @@ See [Creating OpenAPI Specifications](/guide/oas/#creating-openapi-specification
 **2. Your API Changes Constantly**
 
 If your API has breaking changes multiple times per day during active development:
+
 - Constant regeneration can be disruptive
 - Git conflicts in generated code become frequent
 - Manual coding might be faster initially
@@ -439,6 +448,7 @@ If your API has breaking changes multiple times per day during active developmen
 **3. You Need Full Control Over Generated Code**
 
 Kubb generates opinionated code. If you need:
+
 - Very specific code patterns
 - Custom business logic in API clients
 - Non-standard error handling throughout
@@ -448,6 +458,7 @@ Then manual coding or creating custom generators might be better.
 **4. Your Team Isn't Familiar with TypeScript**
 
 Kubb generates TypeScript code. If your team:
+
 - Exclusively uses JavaScript
 - Has no plans to adopt TypeScript
 - Prefers runtime validation only
@@ -457,6 +468,7 @@ Consider whether the learning curve is worth it.
 **5. Simple APIs with Few Endpoints**
 
 For tiny APIs (5-10 endpoints), manual coding might be faster:
+
 - Less tooling setup
 - Simpler project structure
 - Easier for beginners
@@ -469,6 +481,7 @@ For tiny APIs (5-10 endpoints), manual coding might be faster:
 **1. You Have a Well-Defined OpenAPI Specification**
 
 Ideal scenario:
+
 - Complete OpenAPI 3.x specification
 - Stable API contracts
 - Multiple consumers need the same types
@@ -476,6 +489,7 @@ Ideal scenario:
 **2. Working with Large APIs**
 
 Kubb shines with:
+
 - 50+ endpoints
 - Complex nested types
 - Multiple API versions
@@ -484,6 +498,7 @@ Kubb shines with:
 **3. You Need Multiple Output Formats**
 
 When you want:
+
 - TypeScript types
 - API clients (Axios, Fetch)
 - React Query hooks
@@ -494,6 +509,7 @@ When you want:
 **4. Type Safety Is Critical**
 
 Perfect for:
+
 - Production applications
 - Financial or healthcare systems
 - Apps with compliance requirements
@@ -502,6 +518,7 @@ Perfect for:
 **5. Multiple Teams/Projects Share the Same API**
 
 Kubb excels when:
+
 - Frontend and mobile teams need the same types
 - Multiple services consume the same API
 - You publish SDKs for your API
@@ -517,18 +534,15 @@ export default defineConfig({
   plugins: [
     pluginOas(),
     pluginTs({
-      include: [
-        { type: 'tag', pattern: 'stable-api' },
-      ],
-      exclude: [
-        { type: 'tag', pattern: 'experimental' },
-      ],
+      include: [{ type: "tag", pattern: "stable-api" }],
+      exclude: [{ type: "tag", pattern: "experimental" }],
     }),
   ],
-})
+});
 ```
 
 This lets you:
+
 - Use Kubb for stable, production APIs
 - Write manual code for experimental features
 - Gradually adopt Kubb as your API matures
@@ -540,57 +554,49 @@ This lets you:
 Use an array in `defineConfig` to handle multiple API specifications in a single configuration file:
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTs } from '@kubb/plugin-ts'
-import { pluginClient } from '@kubb/plugin-client'
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginClient } from "@kubb/plugin-client";
 
 export default defineConfig([
   {
-    name: 'petStore',
+    name: "petStore",
     input: {
-      path: './specs/petStore.yaml',
+      path: "./specs/petStore.yaml",
     },
     output: {
-      path: './src/gen/petStore',
+      path: "./src/gen/petStore",
       clean: true,
     },
-    plugins: [
-      pluginOas(),
-      pluginTs(),
-      pluginClient(),
-    ],
+    plugins: [pluginOas(), pluginTs(), pluginClient()],
   },
   {
-    name: 'userService',
+    name: "userService",
     input: {
-      path: './specs/users-api.yaml',
+      path: "./specs/users-api.yaml",
     },
     output: {
-      path: './src/gen/users',
+      path: "./src/gen/users",
       clean: true,
     },
-    plugins: [
-      pluginOas(),
-      pluginTs(),
-      pluginClient(),
-    ],
+    plugins: [pluginOas(), pluginTs(), pluginClient()],
   },
-])
+]);
 ```
 
 You can also dynamically generate configs from a list of schemas:
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTs } from '@kubb/plugin-ts'
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
 
 const schemas = [
-  { name: 'petStore', path: './specs/petStore.yaml' },
-  { name: 'inventory', path: './specs/inventory.json' },
-  { name: 'payments', path: 'https://api.example.com/openapi.json' },
-]
+  { name: "petStore", path: "./specs/petStore.yaml" },
+  { name: "inventory", path: "./specs/inventory.json" },
+  { name: "payments", path: "https://api.example.com/openapi.json" },
+];
 
 export default defineConfig(() => {
   return schemas.map(({ name, path }) => ({
@@ -600,15 +606,13 @@ export default defineConfig(() => {
       path: `./src/gen/${name}`,
       clean: true,
     },
-    plugins: [
-      pluginOas(),
-      pluginTs(),
-    ],
-  }))
-})
+    plugins: [pluginOas(), pluginTs()],
+  }));
+});
 ```
 
 Run once to generate all APIs:
+
 ```shell
 kubb generate
 ```
@@ -620,16 +624,16 @@ kubb generate
 For production applications, it's highly recommended to enable `collisionDetection` to prevent naming conflicts:
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTs } from '@kubb/plugin-ts'
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
 
 export default defineConfig({
   input: {
-    path: './openapi.yaml',
+    path: "./openapi.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
     clean: true,
   },
   plugins: [
@@ -638,10 +642,11 @@ export default defineConfig({
     }),
     pluginTs(),
   ],
-})
+});
 ```
 
 ::: tip Why Enable collisionDetection?
+
 - **Prevents cross-component collisions**: Automatically adds suffixes like `OrderSchema` vs `OrderRequest`
 - **Handles case-sensitivity**: Distinguishes between `Variant` and `variant` schemas
 - **Avoids enum duplicates**: Prevents nested enum name conflicts across different schemas
@@ -655,13 +660,13 @@ See [collisionDetection](/plugins/plugin-oas#collisiondetection) for more detail
 Sometimes you need to add properties to generated types:
 
 ```typescript
-import type { Pet as GeneratedPet } from './gen'
+import type { Pet as GeneratedPet } from "./gen";
 
 // Extend with local-only properties
 export interface Pet extends GeneratedPet {
   // Client-side only properties
-  isSelected?: boolean
-  localId?: string
+  isSelected?: boolean;
+  localId?: string;
 }
 ```
 
@@ -670,7 +675,7 @@ export interface Pet extends GeneratedPet {
 Customize how names are generated:
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
+import { defineConfig } from "@kubb/core";
 
 export default defineConfig({
   plugins: [
@@ -678,13 +683,13 @@ export default defineConfig({
       transformers: {
         name: (name, type) => {
           // Add custom suffixes
-          if (type === 'type') return `${name}Type`
-          return name
+          if (type === "type") return `${name}Type`;
+          return name;
         },
       },
     }),
   ],
-})
+});
 ```
 
 ### Handling Authentication
@@ -692,16 +697,16 @@ export default defineConfig({
 Set up authentication in a central location by importing from the client package:
 
 ```typescript [src/lib/api.ts]
-import { client } from '@kubb/plugin-client/clients/axios'
+import { client } from "@kubb/plugin-client/clients/axios";
 
 // Configure once, use everywhere
 export function setupAuth(token: string) {
   client.setConfig({
-    baseURL: 'https://api.example.com',
+    baseURL: "https://api.example.com",
     headers: {
       Authorization: `Bearer ${token}`,
     },
-  })
+  });
 }
 ```
 

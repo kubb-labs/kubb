@@ -35,22 +35,21 @@ yarn add -D @kubb/core
 ## Usage
 
 ```typescript
-import { build } from '@kubb/core'
+import { build } from "@kubb/core";
 
 const { error, files, driver } = await build({
   config: {
-    root: '.',
+    root: ".",
     input: {
-      data: '',
+      data: "",
     },
     output: {
-      path: './gen',
+      path: "./gen",
     },
   },
-})
+});
 
-
-console.log(files)
+console.log(files);
 ```
 
 Start the build process using a defined config (see [UserConfig](https://github.com/kubb-labs/kubb/blob/main/packages/core/src/config.ts) type).

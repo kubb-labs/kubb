@@ -19,13 +19,13 @@ The built-in OpenAPI adapter. Supports OpenAPI 2.0 (Swagger), 3.0, and 3.1.
 Controls how dates, integers, empty schemas, enums, and discriminators are represented in the AST. These settings affect all downstream plugins.
 
 ```typescript
-import { adapterOas } from '@kubb/adapter-oas'
+import { adapterOas } from "@kubb/adapter-oas";
 
 adapterOas({
   validate: true,
-  dateType: 'date',
+  dateType: "date",
   serverIndex: 0,
-})
+});
 ```
 
 ## Usage
@@ -33,26 +33,24 @@ adapterOas({
 The adapter is set at the top level of your `kubb.config.ts`:
 
 ```typescript twoslash
-import { adapterOas } from '@kubb/adapter-oas'
-import { defineConfig } from '@kubb/core'
-import { pluginTs } from '@kubb/plugin-ts'
+import { adapterOas } from "@kubb/adapter-oas";
+import { defineConfig } from "@kubb/core";
+import { pluginTs } from "@kubb/plugin-ts";
 
 export default defineConfig({
   input: {
-    path: './petstore.yaml',
+    path: "./petstore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
   },
   adapter: adapterOas({
     validate: true,
-    dateType: 'date',
-    unknownType: 'unknown',
+    dateType: "date",
+    unknownType: "unknown",
   }),
-  plugins: [
-    pluginTs(),
-  ],
-})
+  plugins: [pluginTs()],
+});
 ```
 
 ## Adapter Architecture

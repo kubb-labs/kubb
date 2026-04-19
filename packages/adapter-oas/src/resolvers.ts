@@ -1,12 +1,19 @@
-import { pascalCase } from '@internals/utils'
-import { ast } from '@kubb/core'
-import type { ParameterObject, ServerObject } from 'oas/types'
-import { isRef } from 'oas/types'
-import { matchesMimeType } from 'oas/utils'
-import { formatMap, SCHEMA_REF_PREFIX, structuralKeys } from './constants.ts'
-import { isReference } from './guards.ts'
-import { dereferenceWithRef, resolveRef } from './refs.ts'
-import type { ContentType, Document, MediaTypeObject, Operation, ResponseObject, SchemaObject } from './types.ts'
+import { pascalCase } from "@internals/utils";
+import { ast } from "@kubb/core";
+import type { ParameterObject, ServerObject } from "oas/types";
+import { isRef } from "oas/types";
+import { matchesMimeType } from "oas/utils";
+import { formatMap, SCHEMA_REF_PREFIX, structuralKeys } from "./constants.ts";
+import { isReference } from "./guards.ts";
+import { dereferenceWithRef, resolveRef } from "./refs.ts";
+import type {
+  ContentType,
+  Document,
+  MediaTypeObject,
+  Operation,
+  ResponseObject,
+  SchemaObject,
+} from "./types.ts";
 
 /**
  * Resolves `{variable}` placeholders in an OpenAPI server URL.
@@ -23,26 +30,36 @@ import type { ContentType, Document, MediaTypeObject, Operation, ResponseObject,
  * // 'https://prod.api.example.com'
  * ```
  */
-export function resolveServerUrl(server: ServerObject, overrides?: Record<string, string>): string {
+export function resolveServerUrl(
+  server: ServerObject,
+  overrides?: Record<string, string>,
+): string {
   if (!server.variables) {
-    return server.url
+    return server.url;
   }
 
-  let url = server.url
+  let url = server.url;
   for (const [key, variable] of Object.entries(server.variables)) {
-    const value = overrides?.[key] ?? (variable.default != null ? String(variable.default) : undefined)
+    const value =
+      overrides?.[key] ??
+      (variable.default != null ? String(variable.default) : undefined);
     if (value === undefined) {
-      continue
+      continue;
     }
 
-    if (variable.enum?.length && !variable.enum.some((e) => String(e) === value)) {
-      throw new Error(`Invalid server variable value '${value}' for '${key}' when resolving ${server.url}. Valid values are: ${variable.enum.join(', ')}.`)
+    if (
+      variable.enum?.length &&
+      !variable.enum.some((e) => String(e) === value)
+    ) {
+      throw new Error(
+        `Invalid server variable value '${value}' for '${key}' when resolving ${server.url}. Valid values are: ${variable.enum.join(", ")}.`,
+      );
     }
 
-    url = url.replaceAll(`{${key}}`, value)
+    url = url.replaceAll(`{${key}}`, value);
   }
 
-  return url
+  return url;
 }
 
 /**
@@ -51,7 +68,7 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
  * which are handled separately because their output depends on parser options.
  */
 export function getSchemaType(format: string): ast.SchemaType | null {
-  return formatMap[format as keyof typeof formatMap] ?? null
+  return formatMap[format as keyof typeof formatMap] ?? null;
 }
 
 /**
@@ -59,11 +76,13 @@ export function getSchemaType(format: string): ast.SchemaType | null {
  * Numeric types (`number`, `integer`, `bigint`) are returned unchanged;
  * `boolean` maps to `'boolean'`; everything else defaults to `'string'`.
  */
-export function getPrimitiveType(type: string | undefined): ast.PrimitiveSchemaType {
-  if (type === 'number' || type === 'integer' || type === 'bigint') return type
-  if (type === 'boolean') return 'boolean'
+export function getPrimitiveType(
+  type: string | undefined,
+): ast.PrimitiveSchemaType {
+  if (type === "number" || type === "integer" || type === "bigint") return type;
+  if (type === "boolean") return "boolean";
 
-  return 'string'
+  return "string";
 }
 
 /**
@@ -71,12 +90,14 @@ export function getPrimitiveType(type: string | undefined): ast.PrimitiveSchemaT
  * Returns `undefined` for content types not present in `KNOWN_MEDIA_TYPES`.
  */
 export function getMediaType(contentType: string): ast.MediaType | null {
-  return Object.values(ast.mediaTypes).includes(contentType as ast.MediaType) ? (contentType as ast.MediaType) : null
+  return Object.values(ast.mediaTypes).includes(contentType as ast.MediaType)
+    ? (contentType as ast.MediaType)
+    : null;
 }
 
 export type OperationsOptions = {
-  contentType?: ContentType
-}
+  contentType?: ContentType;
+};
 
 /**
  * Returns all resolved parameters for an operation, merging path-level and operation-level entries.
@@ -91,59 +112,78 @@ export type OperationsOptions = {
  * // [{ name: 'petId', in: 'path', required: true, schema: { type: 'integer' } }]
  * ```
  */
-export function getParameters(document: Document, operation: Operation): Array<ParameterObject> {
+export function getParameters(
+  document: Document,
+  operation: Operation,
+): Array<ParameterObject> {
   const resolveParams = (params: unknown[]): Array<ParameterObject> =>
-    params.map((p) => dereferenceWithRef(document, p)).filter((p): p is ParameterObject => !!p && typeof p === 'object' && 'in' in p && 'name' in p)
+    params
+      .map((p) => dereferenceWithRef(document, p))
+      .filter(
+        (p): p is ParameterObject =>
+          !!p && typeof p === "object" && "in" in p && "name" in p,
+      );
 
-  const operationParams = resolveParams(operation.schema?.parameters || [])
-  const pathItem = document.paths?.[operation.path]
-  const pathLevelParams = resolveParams(pathItem && !isReference(pathItem) && pathItem.parameters ? pathItem.parameters : [])
+  const operationParams = resolveParams(operation.schema?.parameters || []);
+  const pathItem = document.paths?.[operation.path];
+  const pathLevelParams = resolveParams(
+    pathItem && !isReference(pathItem) && pathItem.parameters
+      ? pathItem.parameters
+      : [],
+  );
 
-  const paramMap = new Map<string, ParameterObject>()
+  const paramMap = new Map<string, ParameterObject>();
   for (const p of pathLevelParams) {
     if (p.name && p.in) {
-      paramMap.set(`${p.in}:${p.name}`, p)
+      paramMap.set(`${p.in}:${p.name}`, p);
     }
   }
   for (const p of operationParams) {
     if (p.name && p.in) {
-      paramMap.set(`${p.in}:${p.name}`, p)
+      paramMap.set(`${p.in}:${p.name}`, p);
     }
   }
 
-  return Array.from(paramMap.values())
+  return Array.from(paramMap.values());
 }
 
-function getResponseBody(responseBody: boolean | ResponseObject, contentType?: string): MediaTypeObject | false | [string, MediaTypeObject, ...string[]] {
-  if (!responseBody) return false
-  if (isReference(responseBody)) return false
+function getResponseBody(
+  responseBody: boolean | ResponseObject,
+  contentType?: string,
+): MediaTypeObject | false | [string, MediaTypeObject, ...string[]] {
+  if (!responseBody) return false;
+  if (isReference(responseBody)) return false;
 
-  const body = responseBody as ResponseObject
-  if (!body.content) return false
+  const body = responseBody as ResponseObject;
+  if (!body.content) return false;
 
   if (contentType) {
-    if (!(contentType in body.content)) return false
-    return body.content[contentType]!
+    if (!(contentType in body.content)) return false;
+    return body.content[contentType]!;
   }
 
-  let availableContentType: string | undefined
-  const contentTypes = Object.keys(body.content)
+  let availableContentType: string | undefined;
+  const contentTypes = Object.keys(body.content);
   for (const mt of contentTypes) {
     if (matchesMimeType.json(mt)) {
-      availableContentType = mt
-      break
+      availableContentType = mt;
+      break;
     }
   }
 
   if (!availableContentType) {
-    availableContentType = contentTypes[0]
+    availableContentType = contentTypes[0];
   }
 
   if (availableContentType) {
-    return [availableContentType, body.content[availableContentType]!, ...(body.description ? [body.description] : [])]
+    return [
+      availableContentType,
+      body.content[availableContentType]!,
+      ...(body.description ? [body.description] : []),
+    ];
   }
 
-  return false
+  return false;
 }
 
 /**
@@ -157,30 +197,40 @@ function getResponseBody(responseBody: boolean | ResponseObject, contentType?: s
  * getResponseSchema(document, operation, '4XX')       // {}
  * ```
  */
-export function getResponseSchema(document: Document, operation: Operation, statusCode: string | number, options: OperationsOptions = {}): SchemaObject {
+export function getResponseSchema(
+  document: Document,
+  operation: Operation,
+  statusCode: string | number,
+  options: OperationsOptions = {},
+): SchemaObject {
   if (operation.schema.responses) {
-    const responses = operation.schema.responses
+    const responses = operation.schema.responses;
     for (const key in responses) {
-      const schema = responses[key]
+      const schema = responses[key];
       if (schema && isReference(schema)) {
-        responses[key] = resolveRef<any>(document, schema.$ref)
+        responses[key] = resolveRef<any>(document, schema.$ref);
       }
     }
   }
 
-  const responseBody = getResponseBody(operation.getResponseByStatusCode(statusCode), options.contentType)
+  const responseBody = getResponseBody(
+    operation.getResponseByStatusCode(statusCode),
+    options.contentType,
+  );
 
   if (responseBody === false) {
-    return {}
+    return {};
   }
 
-  const schema = Array.isArray(responseBody) ? responseBody[1].schema : responseBody.schema
+  const schema = Array.isArray(responseBody)
+    ? responseBody[1].schema
+    : responseBody.schema;
 
   if (!schema) {
-    return {}
+    return {};
   }
 
-  return dereferenceWithRef(document, schema)
+  return dereferenceWithRef(document, schema);
 }
 
 /**
@@ -191,30 +241,39 @@ export function getResponseSchema(document: Document, operation: Operation, stat
  * getRequestSchema(document, operation) // SchemaObject | null
  * ```
  */
-export function getRequestSchema(document: Document, operation: Operation, options: OperationsOptions = {}): SchemaObject | null {
+export function getRequestSchema(
+  document: Document,
+  operation: Operation,
+  options: OperationsOptions = {},
+): SchemaObject | null {
   if (operation.schema.requestBody) {
-    operation.schema.requestBody = dereferenceWithRef(document, operation.schema.requestBody)
+    operation.schema.requestBody = dereferenceWithRef(
+      document,
+      operation.schema.requestBody,
+    );
   }
 
-  const requestBody = operation.getRequestBody(options.contentType)
+  const requestBody = operation.getRequestBody(options.contentType);
 
   if (requestBody === false) {
-    return null
+    return null;
   }
 
-  const schema = Array.isArray(requestBody) ? requestBody[1].schema : requestBody.schema
+  const schema = Array.isArray(requestBody)
+    ? requestBody[1].schema
+    : requestBody.schema;
 
   if (!schema) {
-    return null
+    return null;
   }
 
-  return dereferenceWithRef(document, schema)
+  return dereferenceWithRef(document, schema);
 }
 
 /**
  * The three component sections Kubb reads schemas from.
  */
-type SchemaSourceMode = 'schemas' | 'responses' | 'requestBodies'
+type SchemaSourceMode = "schemas" | "responses" | "requestBodies";
 
 /**
  * A schema annotated with the component section it came from and its original name.
@@ -222,19 +281,19 @@ type SchemaSourceMode = 'schemas' | 'responses' | 'requestBodies'
  * Used during cross-source name-collision resolution in `resolveNameCollisions`.
  */
 export type SchemaWithMetadata = {
-  schema: SchemaObject
-  source: SchemaSourceMode
-  originalName: string
-}
+  schema: SchemaObject;
+  source: SchemaSourceMode;
+  originalName: string;
+};
 
 export type GetSchemasOptions = {
-  contentType?: ContentType
-}
+  contentType?: ContentType;
+};
 
 export type GetSchemasResult = {
-  schemas: Record<string, SchemaObject>
-  nameMapping: Map<string, string>
-}
+  schemas: Record<string, SchemaObject>;
+  nameMapping: Map<string, string>;
+};
 
 /**
  * Flattens a keyword-only `allOf` into its parent schema.
@@ -260,30 +319,32 @@ export type GetSchemasResult = {
  */
 function hasStructuralKeywords(fragment: SchemaObject): boolean {
   for (const key in fragment) {
-    if (structuralKeys.has(key as 'properties')) return true
+    if (structuralKeys.has(key as "properties")) return true;
   }
-  return false
+  return false;
 }
 
-export function flattenSchema(schema: SchemaObject | null): SchemaObject | null {
-  if (!schema?.allOf || schema.allOf.length === 0) return schema ?? null
+export function flattenSchema(
+  schema: SchemaObject | null,
+): SchemaObject | null {
+  if (!schema?.allOf || schema.allOf.length === 0) return schema ?? null;
 
-  const allOfFragments = schema.allOf as SchemaObject[]
-  if (allOfFragments.some((item) => isRef(item))) return schema
-  if (allOfFragments.some(hasStructuralKeywords)) return schema
+  const allOfFragments = schema.allOf as SchemaObject[];
+  if (allOfFragments.some((item) => isRef(item))) return schema;
+  if (allOfFragments.some(hasStructuralKeywords)) return schema;
 
-  const merged: SchemaObject = { ...schema }
-  delete merged.allOf
+  const merged: SchemaObject = { ...schema };
+  delete merged.allOf;
 
   for (const fragment of allOfFragments) {
     for (const [key, value] of Object.entries(fragment)) {
       if (merged[key as keyof typeof merged] === undefined) {
-        merged[key as keyof typeof merged] = value
+        merged[key as keyof typeof merged] = value;
       }
     }
   }
 
-  return merged
+  return merged;
 }
 
 /**
@@ -298,16 +359,21 @@ export function flattenSchema(schema: SchemaObject | null): SchemaObject | null 
  * // SchemaObject | null
  * ```
  */
-export function extractSchemaFromContent(content: Record<string, unknown> | undefined, preferredContentType?: ContentType): SchemaObject | null {
-  if (!content) return null
+export function extractSchemaFromContent(
+  content: Record<string, unknown> | undefined,
+  preferredContentType?: ContentType,
+): SchemaObject | null {
+  if (!content) return null;
 
-  const firstContentType = Object.keys(content)[0] ?? 'application/json'
-  const targetContentType = preferredContentType ?? firstContentType
-  const contentSchema = content[targetContentType] as { schema?: SchemaObject } | undefined
-  const schema = contentSchema?.schema
+  const firstContentType = Object.keys(content)[0] ?? "application/json";
+  const targetContentType = preferredContentType ?? firstContentType;
+  const contentSchema = content[targetContentType] as
+    | { schema?: SchemaObject }
+    | undefined;
+  const schema = contentSchema?.schema;
 
-  if (schema && '$ref' in schema) return null
-  return schema ?? null
+  if (schema && "$ref" in schema) return null;
+  return schema ?? null;
 }
 
 /**
@@ -315,25 +381,25 @@ export function extractSchemaFromContent(content: Record<string, unknown> | unde
  */
 function collectRefs(schema: unknown, refs = new Set<string>()): Set<string> {
   if (Array.isArray(schema)) {
-    for (const item of schema) collectRefs(item, refs)
-    return refs
+    for (const item of schema) collectRefs(item, refs);
+    return refs;
   }
 
-  if (schema && typeof schema === 'object') {
+  if (schema && typeof schema === "object") {
     for (const key in schema) {
-      const value = (schema as Record<string, unknown>)[key]
-      if (key === '$ref' && typeof value === 'string') {
+      const value = (schema as Record<string, unknown>)[key];
+      if (key === "$ref" && typeof value === "string") {
         if (value.startsWith(SCHEMA_REF_PREFIX)) {
-          const name = value.slice(SCHEMA_REF_PREFIX.length)
-          if (name) refs.add(name)
+          const name = value.slice(SCHEMA_REF_PREFIX.length);
+          if (name) refs.add(name);
         }
       } else {
-        collectRefs(value, refs)
+        collectRefs(value, refs);
       }
     }
   }
 
-  return refs
+  return refs;
 }
 
 /**
@@ -348,50 +414,55 @@ function collectRefs(schema: unknown, refs = new Set<string>()): Set<string> {
  * // Pet appears before Order when Order.$ref points at Pet
  * ```
  */
-export function sortSchemas(schemas: Record<string, SchemaObject>): Record<string, SchemaObject> {
-  const deps = new Map<string, string[]>()
+export function sortSchemas(
+  schemas: Record<string, SchemaObject>,
+): Record<string, SchemaObject> {
+  const deps = new Map<string, string[]>();
 
   for (const [name, schema] of Object.entries(schemas)) {
-    deps.set(name, Array.from(collectRefs(schema)))
+    deps.set(name, Array.from(collectRefs(schema)));
   }
 
-  const sorted: string[] = []
-  const visited = new Set<string>()
+  const sorted: string[] = [];
+  const visited = new Set<string>();
 
   function visit(name: string, stack: Set<string>) {
-    if (visited.has(name) || stack.has(name)) return
-    stack.add(name)
+    if (visited.has(name) || stack.has(name)) return;
+    stack.add(name);
     for (const child of deps.get(name) ?? []) {
-      if (deps.has(child)) visit(child, stack)
+      if (deps.has(child)) visit(child, stack);
     }
-    stack.delete(name)
-    visited.add(name)
-    sorted.push(name)
+    stack.delete(name);
+    visited.add(name);
+    sorted.push(name);
   }
 
   for (const name of Object.keys(schemas)) {
-    visit(name, new Set())
+    visit(name, new Set());
   }
 
-  const result: Record<string, SchemaObject> = {}
-  for (const name of sorted) result[name] = schemas[name]!
-  return result
+  const result: Record<string, SchemaObject> = {};
+  for (const name of sorted) result[name] = schemas[name]!;
+  return result;
 }
 
 const semanticSuffixes: Record<SchemaSourceMode, string> = {
-  schemas: 'Schema',
-  responses: 'Response',
-  requestBodies: 'Request',
-}
+  schemas: "Schema",
+  responses: "Response",
+  requestBodies: "Request",
+};
 
 function getSemanticSuffix(source: SchemaSourceMode): string {
-  return semanticSuffixes[source]
+  return semanticSuffixes[source];
 }
 
-function resolveSchemaRef(document: Document, schema: SchemaObject): SchemaObject {
-  if (!isReference(schema)) return schema
-  const resolved = resolveRef<SchemaObject>(document, schema.$ref)
-  return resolved && !isReference(resolved) ? resolved : schema
+function resolveSchemaRef(
+  document: Document,
+  schema: SchemaObject,
+): SchemaObject {
+  if (!isReference(schema)) return schema;
+  const resolved = resolveRef<SchemaObject>(document, schema.$ref);
+  return resolved && !isReference(resolved) ? resolved : schema;
 }
 
 /**
@@ -409,56 +480,81 @@ function resolveSchemaRef(document: Document, schema: SchemaObject): SchemaObjec
  * const { schemas, nameMapping } = getSchemas(document, { contentType: 'application/json' })
  * ```
  */
-export function getSchemas(document: Document, { contentType }: GetSchemasOptions): GetSchemasResult {
-  const components = document.components
+export function getSchemas(
+  document: Document,
+  { contentType }: GetSchemasOptions,
+): GetSchemasResult {
+  const components = document.components;
 
   const candidates: SchemaWithMetadata[] = [
-    ...Object.entries((components?.schemas as Record<string, SchemaObject>) ?? {}).map(([name, schema]) => ({
+    ...Object.entries(
+      (components?.schemas as Record<string, SchemaObject>) ?? {},
+    ).map(([name, schema]) => ({
       schema: resolveSchemaRef(document, schema),
-      source: 'schemas' as const,
+      source: "schemas" as const,
       originalName: name,
     })),
-    ...(['responses', 'requestBodies'] as const).flatMap((source) =>
+    ...(["responses", "requestBodies"] as const).flatMap((source) =>
       Object.entries(components?.[source] ?? {}).flatMap(([name, item]) => {
-        const schema = extractSchemaFromContent((item as { content?: Record<string, unknown> }).content, contentType)
-        return schema ? [{ schema: resolveSchemaRef(document, schema), source, originalName: name }] : []
+        const schema = extractSchemaFromContent(
+          (item as { content?: Record<string, unknown> }).content,
+          contentType,
+        );
+        return schema
+          ? [
+              {
+                schema: resolveSchemaRef(document, schema),
+                source,
+                originalName: name,
+              },
+            ]
+          : [];
       }),
     ),
-  ]
+  ];
 
-  const normalizedNames = new Map<string, SchemaWithMetadata[]>()
+  const normalizedNames = new Map<string, SchemaWithMetadata[]>();
   for (const item of candidates) {
-    const key = pascalCase(item.originalName)
-    const bucket = normalizedNames.get(key) ?? []
-    bucket.push(item)
-    normalizedNames.set(key, bucket)
+    const key = pascalCase(item.originalName);
+    const bucket = normalizedNames.get(key) ?? [];
+    bucket.push(item);
+    normalizedNames.set(key, bucket);
   }
 
-  const schemas: Record<string, SchemaObject> = {}
-  const nameMapping = new Map<string, string>()
+  const schemas: Record<string, SchemaObject> = {};
+  const nameMapping = new Map<string, string>();
 
   for (const [, items] of normalizedNames) {
-    const isSingle = items.length === 1
-    let hasMultipleSources = false
+    const isSingle = items.length === 1;
+    let hasMultipleSources = false;
     if (!isSingle) {
-      const firstSource = items[0]!.source
+      const firstSource = items[0]!.source;
       for (let i = 1; i < items.length; i++) {
         if (items[i]!.source !== firstSource) {
-          hasMultipleSources = true
-          break
+          hasMultipleSources = true;
+          break;
         }
       }
     }
 
     items.forEach((item, index) => {
-      const suffix = isSingle ? '' : hasMultipleSources ? getSemanticSuffix(item.source) : index === 0 ? '' : String(index + 1)
-      const uniqueName = item.originalName + suffix
-      schemas[uniqueName] = item.schema
-      nameMapping.set(`#/components/${item.source}/${item.originalName}`, uniqueName)
-    })
+      const suffix = isSingle
+        ? ""
+        : hasMultipleSources
+          ? getSemanticSuffix(item.source)
+          : index === 0
+            ? ""
+            : String(index + 1);
+      const uniqueName = item.originalName + suffix;
+      schemas[uniqueName] = item.schema;
+      nameMapping.set(
+        `#/components/${item.source}/${item.originalName}`,
+        uniqueName,
+      );
+    });
   }
 
-  return { schemas: sortSchemas(schemas), nameMapping }
+  return { schemas: sortSchemas(schemas), nameMapping };
 }
 
 /**
@@ -467,37 +563,51 @@ export function getSchemas(document: Document, { contentType }: GetSchemasOption
  */
 export function getDateType(
   options: ast.ParserOptions,
-  format: 'date-time' | 'date' | 'time',
-): { type: 'datetime'; offset?: boolean; local?: boolean } | { type: 'date' | 'time'; representation: 'date' | 'string' } | null {
+  format: "date-time" | "date" | "time",
+):
+  | { type: "datetime"; offset?: boolean; local?: boolean }
+  | { type: "date" | "time"; representation: "date" | "string" }
+  | null {
   if (!options.dateType) {
-    return null
+    return null;
   }
 
-  if (format === 'date-time') {
-    if (options.dateType === 'date') {
-      return { type: 'date', representation: 'date' }
+  if (format === "date-time") {
+    if (options.dateType === "date") {
+      return { type: "date", representation: "date" };
     }
-    if (options.dateType === 'stringOffset') {
-      return { type: 'datetime', offset: true }
+    if (options.dateType === "stringOffset") {
+      return { type: "datetime", offset: true };
     }
-    if (options.dateType === 'stringLocal') {
-      return { type: 'datetime', local: true }
+    if (options.dateType === "stringLocal") {
+      return { type: "datetime", local: true };
     }
-    return { type: 'datetime', offset: false }
+    return { type: "datetime", offset: false };
   }
 
-  if (format === 'date') {
-    return { type: 'date', representation: options.dateType === 'date' ? 'date' : 'string' }
+  if (format === "date") {
+    return {
+      type: "date",
+      representation: options.dateType === "date" ? "date" : "string",
+    };
   }
 
   // time
-  return { type: 'time', representation: options.dateType === 'date' ? 'date' : 'string' }
+  return {
+    type: "time",
+    representation: options.dateType === "date" ? "date" : "string",
+  };
 }
 
 /**
  * Collects the shared metadata fields passed to every `createSchema` call.
  */
-export function buildSchemaNode(schema: SchemaObject, name: string | null | undefined, nullable: true | undefined, defaultValue: unknown) {
+export function buildSchemaNode(
+  schema: SchemaObject,
+  name: string | null | undefined,
+  nullable: true | undefined,
+  defaultValue: unknown,
+) {
   return {
     name,
     nullable,
@@ -508,5 +618,5 @@ export function buildSchemaNode(schema: SchemaObject, name: string | null | unde
     writeOnly: schema.writeOnly,
     default: defaultValue,
     example: schema.example,
-  } as const
+  } as const;
 }

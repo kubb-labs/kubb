@@ -1,5 +1,5 @@
 ---
-'@kubb/core': minor
+"@kubb/core": minor
 ---
 
 Add typed generator context and lifecycle hooks.
@@ -11,9 +11,9 @@ Generators now receive a typed `this` context where `adapter` and `rootNode` are
 ```ts
 export const myGenerator = defineGenerator<PluginMyPlugin>({
   async schema(node, options) {
-    const { adapter, rootNode } = this // always present
+    const { adapter, rootNode } = this; // always present
   },
-})
+});
 ```
 
 ### `mergeGenerators(generators)`
@@ -21,7 +21,7 @@ export const myGenerator = defineGenerator<PluginMyPlugin>({
 Combine multiple generators into one. Each hook runs in sequence:
 
 ```ts
-const mergedGenerator = mergeGenerators([generatorA, generatorB])
+const mergedGenerator = mergeGenerators([generatorA, generatorB]);
 ```
 
 ### `PluginRegistry` augmentation
@@ -29,7 +29,7 @@ const mergedGenerator = mergeGenerators([generatorA, generatorB])
 Plugins now augment `Kubb.PluginRegistry` for automatic typing in `getPlugin`:
 
 ```ts
-const tsPlugin = context.getPlugin('plugin-ts') // typed as PluginTs
+const tsPlugin = context.getPlugin("plugin-ts"); // typed as PluginTs
 ```
 
 ### Renamed hooks

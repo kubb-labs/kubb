@@ -12,8 +12,7 @@ outline: deep
 
 #### [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core)
 
--   [`ff16227`](https://github.com/kubb-labs/kubb/commit/ff162270a5695543cde5055345668bbf30aa14ce) - Updated internal Fabric setup to address minor compatibility issues, ensuring smoother integration with all plugins.
-
+- [`ff16227`](https://github.com/kubb-labs/kubb/commit/ff162270a5695543cde5055345668bbf30aa14ce) - Updated internal Fabric setup to address minor compatibility issues, ensuring smoother integration with all plugins.
 
 ## 4.36.2
 
@@ -27,21 +26,22 @@ outline: deep
 
 #### [`@kubb/core`](/packages/core)
 
--   [`a4ac8d2`](https://github.com/kubb-labs/kubb/commit/a4ac8d28d4b17f5275c3fbe3dedfff0ac3bc3357) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Exposed a new `URLPath` helper to simplify the management and manipulation of URL paths in custom plugins.
+- [`a4ac8d2`](https://github.com/kubb-labs/kubb/commit/a4ac8d28d4b17f5275c3fbe3dedfff0ac3bc3357) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Exposed a new `URLPath` helper to simplify the management and manipulation of URL paths in custom plugins.
 
-    The `URLPath` helper provides utility methods for standardizing and assembling paths, making it easier to ensure consistency in generated URLs across various plugins.
+  The `URLPath` helper provides utility methods for standardizing and assembling paths, making it easier to ensure consistency in generated URLs across various plugins.
 
-    ::: code-group
-    ```typescript [Example Usage]
-    import { URLPath } from '@kubb/core';
+  ::: code-group
 
-    const path = new URLPath('api/v1');
-    path.append('users');
-    path.replace('v1', 'v2');
-    console.log(path.toString()); // Outputs 'api/v2/users'
-    ```
-    :::
+  ```typescript [Example Usage]
+  import { URLPath } from "@kubb/core";
 
+  const path = new URLPath("api/v1");
+  path.append("users");
+  path.replace("v1", "v2");
+  console.log(path.toString()); // Outputs 'api/v2/users'
+  ```
+
+  :::
 
 ## 4.36.0
 
@@ -49,61 +49,61 @@ outline: deep
 
 #### [`@kubb/core`](/packages/core)
 
--   [#2759](https://github.com/kubb-labs/kubb/pull/2759) [`4e06911`](https://github.com/kubb-labs/kubb/commit/4e0691160314ff3b9054fbba3efcaeb4c9b10008) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add storage abstraction for generated output.
+- [#2759](https://github.com/kubb-labs/kubb/pull/2759) [`4e06911`](https://github.com/kubb-labs/kubb/commit/4e0691160314ff3b9054fbba3efcaeb4c9b10008) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add storage abstraction for generated output.
 
-    Introduces a `storage` option in `output` that replaces direct filesystem writes with a pluggable storage layer, inspired by the Nitro/unstorage API.
+  Introduces a `storage` option in `output` that replaces direct filesystem writes with a pluggable storage layer, inspired by the Nitro/unstorage API.
 
-    **New exports from `@kubb/core`:**
+  **New exports from `@kubb/core`:**
+  - `defineStorage(builder)` — factory helper (same pattern as `definePlugin`/`defineLogger`/`defineAdapter`) that wraps a builder function and makes options optional.
+  - `fsStorage()` — built-in filesystem driver; the default when no `storage` is configured, preserving existing on-disk behavior.
+  - `memoryStorage()` — built-in in-memory driver; useful for testing and dry-run scenarios.
+  - `DefineStorage` — TypeScript interface for implementing custom drivers.
 
-    -   `defineStorage(builder)` — factory helper (same pattern as `definePlugin`/`defineLogger`/`defineAdapter`) that wraps a builder function and makes options optional.
-    -   `fsStorage()` — built-in filesystem driver; the default when no `storage` is configured, preserving existing on-disk behavior.
-    -   `memoryStorage()` — built-in in-memory driver; useful for testing and dry-run scenarios.
-    -   `DefineStorage` — TypeScript interface for implementing custom drivers.
+  **`output.write` is now deprecated.** Setting `write: false` for dry-runs still works and continues to be supported.
 
-    **`output.write` is now deprecated.** Setting `write: false` for dry-runs still works and continues to be supported.
+  ::: code-group
 
-    ::: code-group
-    ```typescript [Example Usage]
-    import { defineConfig, defineStorage, fsStorage } from '@kubb/core';
+  ```typescript [Example Usage]
+  import { defineConfig, defineStorage, fsStorage } from "@kubb/core";
 
-    // Default (no change needed for existing configs)
-    export default defineConfig({
-      output: { path: './src/gen' },
-    });
+  // Default (no change needed for existing configs)
+  export default defineConfig({
+    output: { path: "./src/gen" },
+  });
 
-    // Explicit filesystem storage
-    export default defineConfig({
-      output: { path: './src/gen', storage: fsStorage() },
-    });
+  // Explicit filesystem storage
+  export default defineConfig({
+    output: { path: "./src/gen", storage: fsStorage() },
+  });
 
-    // Custom in-memory storage
-    export const memoryStorage = defineStorage((_options) => {
-      const store = new Map<string, string>();
-      return {
-        name: 'memory',
-        async hasItem(key) {
-          return store.has(key);
-        },
-        async getItem(key) {
-          return store.get(key) ?? null;
-        },
-        async setItem(key, value) {
-          store.set(key, value);
-        },
-        async removeItem(key) {
-          store.delete(key);
-        },
-        async getKeys() {
-          return [...store.keys()];
-        },
-        async clear() {
-          store.clear();
-        },
-      };
-    });
-    ```
-    :::
+  // Custom in-memory storage
+  export const memoryStorage = defineStorage((_options) => {
+    const store = new Map<string, string>();
+    return {
+      name: "memory",
+      async hasItem(key) {
+        return store.has(key);
+      },
+      async getItem(key) {
+        return store.get(key) ?? null;
+      },
+      async setItem(key, value) {
+        store.set(key, value);
+      },
+      async removeItem(key) {
+        store.delete(key);
+      },
+      async getKeys() {
+        return [...store.keys()];
+      },
+      async clear() {
+        store.clear();
+      },
+    };
+  });
+  ```
 
+  :::
 
 ## 4.35.1
 
@@ -111,16 +111,17 @@ outline: deep
 
 #### [`@kubb/plugin-ts`](/plugins/plugin-ts)
 
--   [#2754](https://github.com/kubb-labs/kubb/pull/2754) [`e24fe13`](https://github.com/kubb-labs/kubb/commit/e24fe135aba61f56d3ff218735cb616a627027b9) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix crash when generating enums with negative numeric values (e.g., `enum: [-1, 0, 5]`). Negative numbers now correctly use `createPrefixUnaryExpression` instead of `createNumericLiteral` for all enum type variants (`literal`, `inlineLiteral`, `enum`, `constEnum`).
+- [#2754](https://github.com/kubb-labs/kubb/pull/2754) [`e24fe13`](https://github.com/kubb-labs/kubb/commit/e24fe135aba61f56d3ff218735cb616a627027b9) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix crash when generating enums with negative numeric values (e.g., `enum: [-1, 0, 5]`). Negative numbers now correctly use `createPrefixUnaryExpression` instead of `createNumericLiteral` for all enum type variants (`literal`, `inlineLiteral`, `enum`, `constEnum`).
 
 ::: code-group
+
 ```typescript [Before]
 // Invalid code for negative numbers was generated
 export const MyEnum = {
   Negative: -1,
   Zero: 0,
   Positive: 5,
-}
+};
 ```
 
 ```typescript [After]
@@ -129,10 +130,10 @@ export const MyEnum = {
   Negative: -1,
   Zero: 0,
   Positive: 5,
-}
+};
 ```
-:::
 
+:::
 
 ## 4.35.0
 
@@ -140,18 +141,18 @@ export const MyEnum = {
 
 #### [`@kubb/plugin-client`](/plugins/plugin-client)
 
--   [#2554](https://github.com/kubb-labs/kubb/pull/2554) [`4d8616c`](https://github.com/kubb-labs/kubb/commit/4d8616c7120acea5deb057a2e8fd337bdab6b26d) Thanks [@icholy](https://github.com/icholy)! - Add `wrapper` option to generate a wrapper class that composes all tag-based client classes into a single entry point.
+- [#2554](https://github.com/kubb-labs/kubb/pull/2554) [`4d8616c`](https://github.com/kubb-labs/kubb/commit/4d8616c7120acea5deb057a2e8fd337bdab6b26d) Thanks [@icholy](https://github.com/icholy)! - Add `wrapper` option to generate a wrapper class that composes all tag-based client classes into a single entry point.
 
 ::: code-group
-```typescript [Example Usage]
 
+```typescript [Example Usage]
 const api = new ApiWrapper({
   client: new HttpClient(),
 });
-const user = await api.user.getUserById({ id: '123' });
+const user = await api.user.getUserById({ id: "123" });
 ```
-:::
 
+:::
 
 ## 4.34.0
 
@@ -159,8 +160,7 @@ const user = await api.user.getUserById({ id: '123' });
 
 #### [`@kubb/ast`](/packages/ast)
 
--   [`6223e05`](https://github.com/kubb-labs/kubb/commit/6223e05881dafdd7bf4b2301e75dd853afcc5718) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add `RootMeta` type to `RootNode` with optional `meta` field for format-agnostic API document metadata (`title`, `version`, `baseURL`). Convert all node `interface` declarations to `type` aliases for consistency.
-
+- [`6223e05`](https://github.com/kubb-labs/kubb/commit/6223e05881dafdd7bf4b2301e75dd853afcc5718) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add `RootMeta` type to `RootNode` with optional `meta` field for format-agnostic API document metadata (`title`, `version`, `baseURL`). Convert all node `interface` declarations to `type` aliases for consistency.
 
 ## 4.33.5
 
@@ -168,8 +168,7 @@ const user = await api.user.getUserById({ id: '123' });
 
 #### [`@kubb/oas`](/plugins/oas) & [`@kubb/plugin-oas`](/plugins/plugin-oas)
 
--   [#2738](https://github.com/kubb-labs/kubb/pull/2738) [`45b7dc7`](https://github.com/kubb-labs/kubb/commit/45b7dc7939621a29a342af36db34c5f9bee3e155) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix `$ref` resolution in `Oas.getSchemas()` to prevent self-referential `z.lazy()` output when the bundler deduplicates schemas referenced from multiple external files. The resolution logic is moved from `SchemaGenerator` into `Oas` where it belongs.
-
+- [#2738](https://github.com/kubb-labs/kubb/pull/2738) [`45b7dc7`](https://github.com/kubb-labs/kubb/commit/45b7dc7939621a29a342af36db34c5f9bee3e155) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix `$ref` resolution in `Oas.getSchemas()` to prevent self-referential `z.lazy()` output when the bundler deduplicates schemas referenced from multiple external files. The resolution logic is moved from `SchemaGenerator` into `Oas` where it belongs.
 
 ## 4.33.4
 
@@ -177,8 +176,7 @@ const user = await api.user.getUserById({ id: '123' });
 
 #### [`@kubb/core`](/plugins/core)
 
--   Improved internal package management to ensure better stability and consistency across plugins. This change resolves a range of minor bugs caused by dependency mismatches.
-
+- Improved internal package management to ensure better stability and consistency across plugins. This change resolves a range of minor bugs caused by dependency mismatches.
 
 ## 4.33.3
 
@@ -186,7 +184,7 @@ const user = await api.user.getUserById({ id: '123' });
 
 #### [`@kubb/oas`](/plugins/oas)
 
--   Fixed `$ref` parameter handling in `getParametersSchema()` to resolve `$ref` parameters directly following changes in `oas` v31. This adjustment ensures all parameters, including those filtered out in `getParameters()`, are now accounted for as part of schema generation.
+- Fixed `$ref` parameter handling in `getParametersSchema()` to resolve `$ref` parameters directly following changes in `oas` v31. This adjustment ensures all parameters, including those filtered out in `getParameters()`, are now accounted for as part of schema generation.
 
 ::: code-group
 
@@ -206,7 +204,6 @@ export const parametersSchema = resolveParameters({
 
 :::
 
-
 ## 4.33.2
 
 ### 🐛 Bug Fixes
@@ -222,21 +219,20 @@ When an OpenAPI query parameter uses a `$ref` alongside a `default` value (e.g. 
 ```typescript [Before]
 export const projectsGetQueryParamsSchema = z.object({
   get type() {
-    return projectTypeSchema  // missing .default()
+    return projectTypeSchema; // missing .default()
   },
-})
+});
 ```
 
 ```typescript [After]
 export const projectsGetQueryParamsSchema = z.object({
   get type() {
-    return projectTypeSchema.default('project')
+    return projectTypeSchema.default("project");
   },
-})
+});
 ```
 
 :::
-
 
 ## 4.33.1
 
@@ -261,7 +257,7 @@ The `@kubb/core/fs` and `@kubb/core/utils` subpath exports have been **removed**
 Update imports referencing `@kubb/core/fs` or `@kubb/core/utils` to use:
 
 ```typescript
-import { clean, getRelativePath } from '@kubb/core';
+import { clean, getRelativePath } from "@kubb/core";
 ```
 
 ### ✨ Features
@@ -270,7 +266,6 @@ import { clean, getRelativePath } from '@kubb/core';
 
 - Improved internal logic by bundling node-native utilities into a scoped internal package, reducing module redundancy and increasing maintainability. ([#2689](https://github.com/kubb-labs/kubb/pull/2689) by [@stijnvanhulle](https://github.com/stijnvanhulle))
 
-
 ## 4.33.0
 
 ### ✨ Features
@@ -278,7 +273,6 @@ import { clean, getRelativePath } from '@kubb/core';
 #### [`@kubb/cli`](/plugins/cli/)
 
 Replaced `citty` with a zero-dependency CLI layer built on `node:util`'s `parseArgs`. This new implementation makes command runners lazily importable, meaning the heavy runner logic is only loaded when a specific command is executed. Introduced `defineCommand` with typed option inference, a `nodeAdapter`, and a `createCLI` factory for creating custom CLI tools. ([#2675](https://github.com/kubb-labs/kubb/pull/2675) by [@stijnvanhulle](https://github.com/stijnvanhulle))
-
 
 ## 4.32.4
 
@@ -309,7 +303,6 @@ const schema = z.object({...});
 
 :::
 
-
 ## 4.32.3
 
 ### 🐛 Bug Fixes
@@ -325,25 +318,30 @@ The fix renames the local variable to `resolvedOptions` and ensures user options
 ::: code-group
 
 ```typescript [Before]
-const { client: queryClient, ...queryOptions } = queryConfig  // shadows import!
-const query = useQuery({
-  ...getPetByIdQueryOptions(petId, config),
-  queryKey,
-  ...queryOptions,  // user options could be ignored
-} as unknown as QueryObserverOptions, queryClient)
+const { client: queryClient, ...queryOptions } = queryConfig; // shadows import!
+const query = useQuery(
+  {
+    ...getPetByIdQueryOptions(petId, config),
+    queryKey,
+    ...queryOptions, // user options could be ignored
+  } as unknown as QueryObserverOptions,
+  queryClient,
+);
 ```
 
 ```typescript [After]
-const { client: queryClient, ...resolvedOptions } = queryConfig  // no shadow
-const query = useQuery({
-  ...getPetByIdQueryOptions(petId, config),
-  ...resolvedOptions,  // user options always applied
-  queryKey,
-} as unknown as QueryObserverOptions, queryClient)
+const { client: queryClient, ...resolvedOptions } = queryConfig; // no shadow
+const query = useQuery(
+  {
+    ...getPetByIdQueryOptions(petId, config),
+    ...resolvedOptions, // user options always applied
+    queryKey,
+  } as unknown as QueryObserverOptions,
+  queryClient,
+);
 ```
 
 :::
-
 
 ## 4.32.3
 
@@ -360,21 +358,27 @@ The fix renames the local variable to `resolvedOptions` and ensures user options
 ::: code-group
 
 ```typescript [Before]
-const { client: queryClient, ...queryOptions } = queryConfig  // shadows import!
-const query = useQuery({
-  ...getPetByIdQueryOptions(petId, config),
-  queryKey,
-  ...queryOptions,  // user options could be ignored
-} as unknown as QueryObserverOptions, queryClient)
+const { client: queryClient, ...queryOptions } = queryConfig; // shadows import!
+const query = useQuery(
+  {
+    ...getPetByIdQueryOptions(petId, config),
+    queryKey,
+    ...queryOptions, // user options could be ignored
+  } as unknown as QueryObserverOptions,
+  queryClient,
+);
 ```
 
 ```typescript [After]
-const { client: queryClient, ...resolvedOptions } = queryConfig  // no shadow
-const query = useQuery({
-  ...getPetByIdQueryOptions(petId, config),
-  ...resolvedOptions,  // user options always applied
-  queryKey,
-} as unknown as QueryObserverOptions, queryClient)
+const { client: queryClient, ...resolvedOptions } = queryConfig; // no shadow
+const query = useQuery(
+  {
+    ...getPetByIdQueryOptions(petId, config),
+    ...resolvedOptions, // user options always applied
+    queryKey,
+  } as unknown as QueryObserverOptions,
+  queryClient,
+);
 ```
 
 :::
@@ -400,7 +404,7 @@ const organization-id = organizationId  // ❌ SyntaxError: Unexpected token '-'
 
 ```typescript [After]
 // CamelCase is used directly for the path parameter
-const organizationId = '12345'  // ✅ Correct and valid
+const organizationId = "12345"; // ✅ Correct and valid
 ```
 
 :::
@@ -419,12 +423,12 @@ When enum schemas have no values (e.g., `enum: []` or `enum: [null]`), the plugi
 
 ```typescript [Before]
 // Incorrect runtime constant export for empty enum
-export const MyEnum = { } as const;  // ❌ Unused constant
+export const MyEnum = {} as const; // ❌ Unused constant
 ```
 
 ```typescript [After]
 // Correctly generates 'type' alias for empty enum
-export type MyEnumKey = never;  // ✅ No unused constant
+export type MyEnumKey = never; // ✅ No unused constant
 ```
 
 :::
@@ -435,7 +439,7 @@ export type MyEnumKey = never;  // ✅ No unused constant
 
 **Fix named array type aliases no longer wrapped in `Partial<>`**
 
-Named array type aliases are no longer erroneously wrapped with the `Partial<>` TypeScript utility type, ensuring the correct type generation. 
+Named array type aliases are no longer erroneously wrapped with the `Partial<>` TypeScript utility type, ensuring the correct type generation.
 
 ---
 
@@ -446,11 +450,11 @@ Named array type aliases are no longer erroneously wrapped with the `Partial<>` 
 Updated to version `0.13.2`, fixing the `MaxListenersExceededWarning` issue by dynamically adjusting `process.maxListeners` in `onProcessExit()`. The `Fabric` interface now exposes a new `unmount()` method to manage lifecycle events.
 
 **Fixes include**:
+
 - Moving the `createReactFabric()` function to a broader scope in tests to prevent excessive event listener accumulation.
 - Added `fabricChild.unmount()` calls within the generation process to clean up residual listeners.
 
 ---
-
 
 ## 4.32.1
 
@@ -471,7 +475,7 @@ const organization-id = organizationId  // ❌ SyntaxError: Unexpected token '-'
 
 ```typescript [After]
 // CamelCase is used directly for the path parameter
-const organizationId = '12345'  // ✅ Correct and valid
+const organizationId = "12345"; // ✅ Correct and valid
 ```
 
 :::
@@ -479,7 +483,6 @@ const organizationId = '12345'  // ✅ Correct and valid
 **Tests added**: New test cases verify that path parameters with dashes produce valid JavaScript.
 
 ---
-
 
 ## 4.32.0
 
@@ -494,17 +497,17 @@ When using `serverIndex` to select a server from the OpenAPI spec, URLs may cont
 ::: code-group
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
 
 export default defineConfig({
   plugins: [
     pluginOas({
       serverIndex: 0,
-      serverVariables: { env: 'prod' },
+      serverVariables: { env: "prod" },
     }),
   ],
-})
+});
 ```
 
 ```yaml [openapi.yaml]
@@ -533,6 +536,7 @@ servers:
 **Fix empty enum generating a broken barrel export**
 
 Two scenarios produce an enum with no runtime values:
+
 - `enum: [null]` — only `null` is valid; Kubb filters `null` out of the `as const` object, leaving an empty list.
 - `enum: []` — a placeholder empty enum in the spec.
 
@@ -545,13 +549,13 @@ When `enums.length === 0`, `createEnumDeclaration` now returns `[undefined, neve
 ```typescript [Before]
 // enum: [null] with enumType: 'asConst'
 // barrel emitted a broken export pointing to a non-existent const
-export { myConst }        // ❌ myConst was never written
-export type MyConstKey = never
+export { myConst }; // ❌ myConst was never written
+export type MyConstKey = never;
 ```
 
 ```typescript [After]
 // barrel omits the value export entirely
-export type MyConstKey = never  // ✅ self-contained, no dangling reference
+export type MyConstKey = never; // ✅ self-contained, no dangling reference
 ```
 
 :::
@@ -567,13 +571,13 @@ export type MyConstKey = never  // ✅ self-contained, no dangling reference
 ```typescript [Before]
 // $ref → { type: 'array', items: { $ref: '#/components/schemas/Item' } }
 export function createItems(): Partial<Item>[] {
-  return [createItem()]  // ❌ (Item | undefined)[] not assignable to Item[]
+  return [createItem()]; // ❌ (Item | undefined)[] not assignable to Item[]
 }
 ```
 
 ```typescript [After]
 export function createItems(): Item[] {
-  return [createItem()]  // ✅
+  return [createItem()]; // ✅
 }
 ```
 
@@ -588,11 +592,11 @@ export function createItems(): Item[] {
 ::: code-group
 
 ```typescript [Before]
-import { ToZod } from '@kubb/plugin-zod/zod'  // ❌ stripped at runtime
+import { ToZod } from "@kubb/plugin-zod/zod"; // ❌ stripped at runtime
 ```
 
 ```typescript [After]
-import type { ToZod } from '@kubb/plugin-zod/zod'  // ✅
+import type { ToZod } from "@kubb/plugin-zod/zod"; // ✅
 ```
 
 :::
@@ -614,7 +618,7 @@ When `@readme/openapi-parser` bundles multi-file specs, schemas in `components.s
 ```typescript [Before]
 // multi-file spec: parcel.yaml referenced from main spec
 // output was a self-referential lazy schema
-export const parcelSchema = z.lazy(() => parcelSchema)
+export const parcelSchema = z.lazy(() => parcelSchema);
 ```
 
 ```typescript [After]
@@ -623,7 +627,7 @@ export const parcelSchema = z.lazy(() => parcelSchema)
 export const parcelSchema = z.object({
   id: z.number(),
   // ...
-})
+});
 ```
 
 :::
@@ -648,14 +652,14 @@ Now, when `paramsCasing: 'camelcase'` is set and any transformation is needed, a
 // Schema: { user_id, page } with paramsCasing: 'camelcase'
 // mappedParams only contained user_id -> userId
 // 'page' was missing and never sent to the API
-const { userId } = params
+const { userId } = params;
 // 'page' was silently dropped
 ```
 
 ```typescript [After]
 // Schema: { user_id, page } with paramsCasing: 'camelcase'
 // mappedParams contains both user_id -> userId AND page -> page
-const { userId, page } = params
+const { userId, page } = params;
 // Both params are correctly sent to the API
 ```
 
@@ -686,7 +690,6 @@ MCP handlers now use the `registerTool` helper and return `structuredContent: { 
 ## 4.31.1
 
 ### 🐛 Bug Fixes
-
 
 #### [`@kubb/oas`](/plugins/plugin-oas/)
 
@@ -721,8 +724,7 @@ queryFn: async ({ signal }) => {
 },
 ```
 
-:::
----
+## :::
 
 ## 4.31.0
 
@@ -770,17 +772,23 @@ When using a custom `client.importPath` with query plugins (`plugin-react-query`
 Your custom client module must now explicitly export all three types:
 
 ```typescript [client.ts]
-export type RequestConfig<TData = unknown> = { /* type properties omitted for brevity */ }
-export type ResponseConfig<TData = unknown> = { /* type properties omitted for brevity */ }
-export type ResponseErrorConfig<TError = unknown> = TError
+export type RequestConfig<TData = unknown> = {
+  /* type properties omitted for brevity */
+};
+export type ResponseConfig<TData = unknown> = {
+  /* type properties omitted for brevity */
+};
+export type ResponseErrorConfig<TError = unknown> = TError;
 
 // Required when using query plugins
 export type Client = <TData, _TError = unknown, TVariables = unknown>(
-  config: RequestConfig<TVariables>
-) => Promise<ResponseConfig<TData>>
+  config: RequestConfig<TVariables>,
+) => Promise<ResponseConfig<TData>>;
 
-export const client: Client = async (config) => { /* ... */ }
-export default client
+export const client: Client = async (config) => {
+  /* ... */
+};
+export default client;
 ```
 
 See the [`importPath` documentation](/plugins/plugin-client/#client-importpath) for the full type definitions and a complete example.
@@ -829,7 +837,6 @@ Schemas with `contentMediaType: application/octet-stream` are interpreted as `Bl
 
 ---
 
-
 ## 4.28.0
 
 ### ✨ Features
@@ -845,8 +852,8 @@ Adds an `integerType` option that controls how OpenAPI `integer` fields with `fo
 
 ```typescript
 pluginTs({
-  integerType: 'number', // 'number' | 'bigint', default: 'bigint'
-})
+  integerType: "number", // 'number' | 'bigint', default: 'bigint'
+});
 ```
 
 ---
@@ -954,6 +961,7 @@ Fixed class client generators incorrectly using a default import for fetch in bu
 The Kubb Agent now supports bidirectional WebSocket communication with Kubb Studio. When `KUBB_STUDIO_URL` and `KUBB_AGENT_TOKEN` environment variables are configured, the agent automatically establishes a secure WebSocket connection on startup.
 
 Key features:
+
 - **Real-time event streaming**: Generation progress and lifecycle events are streamed live to Studio
 - **Command handling**: Receives and executes `generate` and `connect` commands from Studio
 - **Session management**: Automatic session caching with 24-hour expiration for faster reconnects
@@ -1018,12 +1026,14 @@ Faker's functions was passing data downstream, but it was failing with enums. It
 When using `enumType: "asPascalConst"`, the generated const identifier incorrectly included the `Key` suffix, causing barrel exports to reference non-existent symbols. The const now uses the base name without the `Key` suffix, while the type alias correctly uses the name with the `Key` suffix.
 
 **Before:**
+
 ```typescript
 export const GetPetsQueryParamsStatusEnumKey = { ... } as const // ❌ Wrong
 export type GetPetsQueryParamsStatusEnumKey = ...               // Correct
 ```
 
 **After:**
+
 ```typescript
 export const GetPetsQueryParamsStatusEnum = { ... } as const    // ✅ Correct
 export type GetPetsQueryParamsStatusEnumKey = ...               // ✅ Correct
@@ -1074,6 +1084,7 @@ Improved the data flow in faker generators, allowing top-level functions to pass
 Fixed TypeScript type incompatibility errors by externalizing all @kubb/\* packages in tsdown configurations. This prevents duplicate type declarations across packages caused by inlined #private class fields.
 
 **Affected packages:**
+
 - `@kubb/oas`
 - `@kubb/plugin-client`
 - `@kubb/plugin-cypress`
@@ -1129,6 +1140,7 @@ Upgrade `fabric`.
 Added `paramsCasing` option to transform API parameter names to camelCase across all generated code while maintaining full API compatibility.
 
 **Affected Plugins:**
+
 - [`@kubb/plugin-ts`](/plugins/plugin-ts/) - Transforms TypeScript type property names
 - [`@kubb/plugin-client`](/plugins/plugin-client/) - Transforms function parameters with automatic mapping
 - [`@kubb/plugin-react-query`](/plugins/plugin-react-query/) - Transforms React Query hook parameters
@@ -1140,6 +1152,7 @@ Added `paramsCasing` option to transform API parameter names to camelCase across
 - [`@kubb/plugin-mcp`](/plugins/plugin-mcp/) - Transforms MCP handler parameters
 
 **Key Features:**
+
 - ✅ Transform path, query, and header parameter names to camelCase
 - ✅ Automatic mapping back to original API names in HTTP requests
 - ✅ Full TypeScript type safety with indexed access types
@@ -1149,27 +1162,27 @@ Added `paramsCasing` option to transform API parameter names to camelCase across
 **Configuration Example:**
 
 ```typescript
-import { defineConfig } from '@kubb/core'
-import { pluginTs } from '@kubb/plugin-ts'
-import { pluginClient } from '@kubb/plugin-client'
-import { pluginReactQuery } from '@kubb/plugin-react-query'
+import { defineConfig } from "@kubb/core";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginClient } from "@kubb/plugin-client";
+import { pluginReactQuery } from "@kubb/plugin-react-query";
 
 export default defineConfig({
   plugins: [
     pluginTs({
-      paramsCasing: 'camelcase',
+      paramsCasing: "camelcase",
     }),
     pluginClient({
-      paramsCasing: 'camelcase',
+      paramsCasing: "camelcase",
     }),
     pluginReactQuery({
-      paramsCasing: 'camelcase',
+      paramsCasing: "camelcase",
       client: {
-        paramsCasing: 'camelcase',
+        paramsCasing: "camelcase",
       },
     }),
   ],
-})
+});
 ```
 
 **Before:**
@@ -1178,9 +1191,9 @@ export default defineConfig({
 // Original API has: step_id, X-Custom-Header
 export async function findPet(
   step_id: string,
-  headers?: { 'X-Custom-Header'?: string }
+  headers?: { "X-Custom-Header"?: string },
 ) {
-  return fetch(`/pet/${step_id}`)
+  return fetch(`/pet/${step_id}`);
 }
 ```
 
@@ -1189,15 +1202,16 @@ export async function findPet(
 ```typescript
 // With paramsCasing: 'camelcase'
 export async function findPet(
-  stepId: string,  // ✓ camelCase
-  headers?: { xCustomHeader?: string }  // ✓ camelCase
+  stepId: string, // ✓ camelCase
+  headers?: { xCustomHeader?: string }, // ✓ camelCase
 ) {
-  const step_id = stepId  // Automatically mapped
-  return fetch(`/pet/${step_id}`)  // Uses original API name
+  const step_id = stepId; // Automatically mapped
+  return fetch(`/pet/${step_id}`); // Uses original API name
 }
 ```
 
 **Learn More:**
+
 - 📖 [Parameter Casing Guide](/guide/parameter-casing) - Comprehensive documentation
 - 🔧 [Plugin TypeScript](/plugins/plugin-ts#paramscasing) - Configuration reference
 - 🔧 [Plugin Client](/plugins/plugin-client#paramscasing) - Client-specific docs
@@ -1247,6 +1261,7 @@ Changed from `import z from 'zod'` to `import * as z from 'zod'` to improve comp
 Line breaks (`\r\n`, `\n`) in OpenAPI schema descriptions are now properly preserved in generated JSDoc comments. Previously, multi-line descriptions were being collapsed into single lines without whitespace separation.
 
 **Before:**
+
 ```typescript
 /**
  * @description Creates a pet in the store.This is an arbitrary description with lots of formatting from the real world.- We like to make lists
@@ -1254,6 +1269,7 @@ Line breaks (`\r\n`, `\n`) in OpenAPI schema descriptions are now properly prese
 ```
 
 **After:**
+
 ```typescript
 /**
  * @description Creates a pet in the store.
@@ -1281,6 +1297,7 @@ npx kubb init
 ```
 
 Features:
+
 - **Interactive prompts** - Guides you through essential configuration options
 - **Package manager detection** - Automatically detects `npm`, `pnpm`, `yarn`, or `bun`
 - **Plugin selection** - Multi-select from all 13 available Kubb plugins
@@ -1290,6 +1307,7 @@ Features:
 - **Task-based progress** - Clear visual feedback during installation and setup
 
 The command guides you through:
+
 1. Creating a `package.json` (if needed)
 2. Selecting your OpenAPI specification path
 3. Choosing an output directory for generated files
@@ -1355,30 +1373,31 @@ components:
 // ❌ Both files export the same enum - collision!
 // NotificationTypeA.ts
 export const paramsChannelEnum = {
-  public: 'public',
-  collaborators: 'collaborators'
-} as const
+  public: "public",
+  collaborators: "collaborators",
+} as const;
 
 // NotificationTypeB.ts
-export const paramsChannelEnum = {  // Duplicate!
-  public: 'public',
-  collaborators: 'collaborators'
-} as const
+export const paramsChannelEnum = {
+  // Duplicate!
+  public: "public",
+  collaborators: "collaborators",
+} as const;
 ```
 
 ```typescript [With collisionDetection: true]
 // ✅ Unique enum names - no collision
 // NotificationTypeA.ts
 export const notificationTypeAParamsChannelEnum = {
-  public: 'public',
-  collaborators: 'collaborators'
-} as const
+  public: "public",
+  collaborators: "collaborators",
+} as const;
 
 // NotificationTypeB.ts
 export const notificationTypeBParamsChannelEnum = {
-  public: 'public',
-  collaborators: 'collaborators'
-} as const
+  public: "public",
+  collaborators: "collaborators",
+} as const;
 ```
 
 :::
@@ -1390,10 +1409,10 @@ export const notificationTypeBParamsChannelEnum = {
 export default defineConfig({
   plugins: [
     pluginOas({
-      collisionDetection: true,  // Recommended - prevents all collision types
+      collisionDetection: true, // Recommended - prevents all collision types
     }),
   ],
-})
+});
 ```
 
 > [!TIP]
@@ -1416,10 +1435,10 @@ New opt-in `collisionDetection` option intelligently handles name collisions whe
 export default defineConfig({
   plugins: [
     pluginOas({
-      collisionDetection: true,  // Enable collision detection
+      collisionDetection: true, // Enable collision detection
     }),
   ],
-})
+});
 ```
 
 **How it works:**
@@ -1448,14 +1467,14 @@ components:
 
 ```typescript [Generated with collisionDetection: true]
 // ✅ No conflicts - semantic suffixes added
-export type OrderSchema = { id: string }
-export type OrderRequest = { items: unknown[] }
+export type OrderSchema = { id: string };
+export type OrderRequest = { items: unknown[] };
 ```
 
 ```typescript [Generated with collisionDetection: false]
 // ❌ May cause duplicate files or overwrite issues
-export type Order = { id: string }
-export type Order = { items: unknown[] }  // Collision!
+export type Order = { id: string };
+export type Order = { items: unknown[] }; // Collision!
 ```
 
 :::
@@ -1473,8 +1492,8 @@ components:
 
 ```typescript [Generated]
 // ✅ Deterministic numeric suffixes
-export type Variant = 'A' | 'B'
-export type Variant2 = 'X' | 'Y'
+export type Variant = "A" | "B";
+export type Variant2 = "X" | "Y";
 ```
 
 :::
@@ -1549,19 +1568,19 @@ When using `enumType: 'asPascalConst'`, the generated type alias was not exporte
 ```typescript [Before]
 // Generated enum const
 export const PetType = {
-  Dog: 'dog',
-  Cat: 'cat',
-} as const
-type PetType = (typeof PetType)[keyof typeof PetType] // ❌ Not exported!
+  Dog: "dog",
+  Cat: "cat",
+} as const;
+type PetType = (typeof PetType)[keyof typeof PetType]; // ❌ Not exported!
 ```
 
 ```typescript [After]
 // Generated enum const
 export const PetType = {
-  Dog: 'dog',
-  Cat: 'cat',
-} as const
-export type PetType = (typeof PetType)[keyof typeof PetType] // ✅ Now exported!
+  Dog: "dog",
+  Cat: "cat",
+} as const;
+export type PetType = (typeof PetType)[keyof typeof PetType]; // ✅ Now exported!
 ```
 
 :::
@@ -1579,30 +1598,40 @@ When using `allOf` with a single reference to a primitive type (e.g., enum), the
 ```typescript [Before]
 // Generated factory for enum type
 export function createIssueCategory() {
-  faker.seed([100])
-  return faker.helpers.arrayElement(['close out', 'something needed', 'safety', 'progress'])
+  faker.seed([100]);
+  return faker.helpers.arrayElement([
+    "close out",
+    "something needed",
+    "safety",
+    "progress",
+  ]);
 }
 
 // Parent object incorrectly spreading the enum factory
 export function createTestObject() {
   return {
     category: { ...createIssueCategory() }, // ❌ Spreading a string value!
-  }
+  };
 }
 ```
 
 ```typescript [After]
 // Generated factory for enum type (unchanged)
 export function createIssueCategory() {
-  faker.seed([100])
-  return faker.helpers.arrayElement(['close out', 'something needed', 'safety', 'progress'])
+  faker.seed([100]);
+  return faker.helpers.arrayElement([
+    "close out",
+    "something needed",
+    "safety",
+    "progress",
+  ]);
 }
 
 // Parent object correctly using the enum factory
 export function createTestObject() {
   return {
     category: createIssueCategory(), // ✅ No spreading!
-  }
+  };
 }
 ```
 
@@ -1629,9 +1658,12 @@ Fixed a critical issue where self-referencing types (e.g., `Node` with `children
 // Self-referencing type caused infinite recursion
 export function node(data?: Partial<Node>): Node {
   return {
-    ...{ id: faker.string.alpha(), children: faker.helpers.multiple(() => node()) }, // ❌ Stack overflow!
+    ...{
+      id: faker.string.alpha(),
+      children: faker.helpers.multiple(() => node()),
+    }, // ❌ Stack overflow!
     ...(data || {}),
-  }
+  };
 }
 ```
 
@@ -1639,13 +1671,16 @@ export function node(data?: Partial<Node>): Node {
 // Safe handling of self-references
 export function node(data?: Partial<Node>): Node {
   return {
-    ...{ id: faker.string.alpha(), children: faker.helpers.multiple(() => undefined) }, // ✅ Safe!
+    ...{
+      id: faker.string.alpha(),
+      children: faker.helpers.multiple(() => undefined),
+    }, // ✅ Safe!
     ...(data || {}),
-  }
+  };
 }
 
 // Users can still override with actual data:
-const myNode = node({ children: [{ id: 'child1' }] })
+const myNode = node({ children: [{ id: "child1" }] });
 ```
 
 :::
@@ -1666,14 +1701,16 @@ const myNode = node({ children: [{ id: 'child1' }] })
 Added support for generating API clients as classes with static methods using `clientType: 'staticClass'`. This allows you to call API methods directly on the class without instantiating it:
 
 ::: code-group
+
 ```typescript [Before]
-const client = new Pet()
-await client.getPetById({ petId: 1 })
+const client = new Pet();
+await client.getPetById({ petId: 1 });
 ```
 
 ```typescript [After]
-await Pet.getPetById({ petId: 1 })
+await Pet.getPetById({ petId: 1 });
 ```
+
 :::
 
 To enable, set `clientType: 'staticClass'` in your `pluginClient` options. See the plugin-client documentation for details and usage notes.
@@ -1694,6 +1731,7 @@ To enable, set `clientType: 'staticClass'` in your `pluginClient` options. See t
 Fixed an issue where QueryKey functions and client functions incorrectly assigned `= {}` as the default parameter value for all optional request body parameters, causing TypeScript error TS2322 when the schema type was an array or a discriminated union with required fields.
 
 **Affected plugins:**
+
 - [`@kubb/plugin-react-query`](/plugins/plugin-react-query/)
 - [`@kubb/plugin-solid-query`](/plugins/plugin-solid-query/)
 - [`@kubb/plugin-vue-query`](/plugins/plugin-vue-query/)
@@ -1702,12 +1740,14 @@ Fixed an issue where QueryKey functions and client functions incorrectly assigne
 - [`@kubb/plugin-client`](/plugins/plugin-client/)
 
 **Changes:**
+
 - Array types now correctly use `= []` as default
 - Union types (anyOf/oneOf) with required fields now have no default value
 - Union types with all-optional variants use `= {}`
 - Object types with optional fields continue to use `= {}`
 
 **Code improvements:**
+
 - Added shared `getDefaultValue()` utility function to [`@kubb/oas`](/core/oas/) for determining appropriate default values based on schema type
 - Eliminated 515 lines of duplicated code across all affected plugins
 - Single source of truth ensures consistent behavior
@@ -1717,25 +1757,25 @@ Fixed an issue where QueryKey functions and client functions incorrectly assigne
 ```typescript [Before]
 // Array type - incorrect default
 export const getUsersByIdsQueryKey = (
-  data: string[] = {},  // ❌ TS2322 error
-) => [{ url: '/users/batch' }, ...(data ? [data] : [])] as const
+  data: string[] = {}, // ❌ TS2322 error
+) => [{ url: "/users/batch" }, ...(data ? [data] : [])] as const;
 
 // Union type with required fields - incorrect default
 export const filterItemsQueryKey = (
-  data: FilterByCategory | FilterByTag = {},  // ❌ TS2322 error
-) => [{ url: '/items/filter' }, ...(data ? [data] : [])] as const
+  data: FilterByCategory | FilterByTag = {}, // ❌ TS2322 error
+) => [{ url: "/items/filter" }, ...(data ? [data] : [])] as const;
 ```
 
 ```typescript [After]
 // Array type - correct default
 export const getUsersByIdsQueryKey = (
-  data: string[] = [],  // ✅ Correct!
-) => [{ url: '/users/batch' }, ...(data ? [data] : [])] as const
+  data: string[] = [], // ✅ Correct!
+) => [{ url: "/users/batch" }, ...(data ? [data] : [])] as const;
 
 // Union type with required fields - no default
 export const filterItemsQueryKey = (
-  data: FilterByCategory | FilterByTag,  // ✅ Correct!
-) => [{ url: '/items/filter' }, ...(data ? [data] : [])] as const
+  data: FilterByCategory | FilterByTag, // ✅ Correct!
+) => [{ url: "/items/filter" }, ...(data ? [data] : [])] as const;
 ```
 
 :::
@@ -1748,7 +1788,6 @@ export const filterItemsQueryKey = (
 
 Update packages
 
-
 ## 4.17.0
 
 ### ✨ Features
@@ -1760,12 +1799,14 @@ Update packages
 Added a new `enumKeyCasing` option to `@kubb/plugin-ts` that allows you to control how enum key names are generated. This improves code readability and allows you to use conventional dot-notation syntax instead of bracket notation when accessing enum values.
 
 **New transformers in `@kubb/core`:**
+
 - `screamingSnakeCase`: Converts to SCREAMING_SNAKE_CASE
 - `snakeCase`: Converts to snake_case
 
 **New option in `@kubb/plugin-ts`:**
 
 The `enumKeyCasing` option supports the following values:
+
 - `'screamingSnakeCase'`: ENUM_VALUE (recommended for TypeScript enums)
 - `'snakeCase'`: enum_value
 - `'pascalCase'`: EnumValue
@@ -1779,36 +1820,37 @@ The `enumKeyCasing` option supports the following values:
 export default {
   plugins: [
     pluginTs({
-      enumType: 'enum',
-      enumKeyCasing: 'screamingSnakeCase',
+      enumType: "enum",
+      enumKeyCasing: "screamingSnakeCase",
     }),
   ],
-}
+};
 ```
 
 ```typescript [Before]
 export const enumStringEnum = {
-  'created at': 'created at',
-  'FILE.UPLOADED': 'FILE.UPLOADED',
-} as const
+  "created at": "created at",
+  "FILE.UPLOADED": "FILE.UPLOADED",
+} as const;
 
 // Usage requires bracket syntax
-const value = enumStringEnum['created at']
+const value = enumStringEnum["created at"];
 ```
 
 ```typescript [After]
 export const enumStringEnum = {
-  CREATED_AT: 'created at',
-  FILE_UPLOADED: 'FILE.UPLOADED',
-} as const
+  CREATED_AT: "created at",
+  FILE_UPLOADED: "FILE.UPLOADED",
+} as const;
 
 // Usage with clean dot-notation syntax
-const value = enumStringEnum.CREATED_AT
+const value = enumStringEnum.CREATED_AT;
 ```
 
 :::
 
 **Additional improvements:**
+
 - Enum member keys now use identifiers without quotes when the key is a valid JavaScript identifier, making the output cleaner and more idiomatic
 - Default value is `'none'` to preserve existing behavior and ensure backward compatibility
 
@@ -1864,25 +1906,26 @@ When typed properties and `additionalProperties` coexist, use `[key: string]: un
 
 ```typescript [Before (TS2411 Error)]
 export type QueryParams = {
-  include?: 'author' | 'tags';    // ❌ TS2411: not assignable to string
-  page?: { number?: number };      // ❌ TS2411: not assignable to string
+  include?: "author" | "tags"; // ❌ TS2411: not assignable to string
+  page?: { number?: number }; // ❌ TS2411: not assignable to string
   sort?: string;
-  [key: string]: string;           // 💥 Conflicts with typed properties
+  [key: string]: string; // 💥 Conflicts with typed properties
 };
 ```
 
 ```typescript [After (Fixed)]
 export type QueryParams = {
-  include?: 'author' | 'tags';     // ✅ Compatible with unknown
-  page?: { number?: number };      // ✅ Compatible with unknown
+  include?: "author" | "tags"; // ✅ Compatible with unknown
+  page?: { number?: number }; // ✅ Compatible with unknown
   sort?: string;
-  [key: string]: unknown;          // ✅ No conflicts
+  [key: string]: unknown; // ✅ No conflicts
 };
 ```
 
 :::
 
 **Impact:**
+
 - No breaking changes - backward compatible
 - Only affects types with both typed properties and `additionalProperties`
 - Types with only `additionalProperties` remain unchanged
@@ -1900,6 +1943,7 @@ export type QueryParams = {
 Added support for custom TanStack Query hook options through the new `customOptions` configuration. This allows you to inject custom behavior into generated hooks such as query invalidation, custom error handling, or any other TanStack Query options you need to customize globally.
 
 **Key features:**
+
 - **Type-safe customization**: Generates a `HookOptions` type for full type safety when implementing custom hook options
 - **Per-hook customization**: Customize options for individual hooks based on `hookName` or `operationId`
 - **Flexible integration**: Use any custom logic in your hook (access query client, implement error handling, etc.)
@@ -1908,46 +1952,46 @@ Added support for custom TanStack Query hook options through the new `customOpti
 
 ```typescript [Configuration]
 // kubb.config.ts
-import { defineConfig } from '@kubb/core'
-import { pluginReactQuery } from '@kubb/plugin-react-query'
+import { defineConfig } from "@kubb/core";
+import { pluginReactQuery } from "@kubb/plugin-react-query";
 
 export default defineConfig({
   plugins: [
     pluginReactQuery({
       customOptions: {
-        importPath: './hooks/useCustomHookOptions.ts',
-        name: 'useCustomHookOptions', // optional, defaults to 'useCustomHookOptions'
+        importPath: "./hooks/useCustomHookOptions.ts",
+        name: "useCustomHookOptions", // optional, defaults to 'useCustomHookOptions'
       },
     }),
   ],
-})
+});
 ```
 
 ```typescript [Custom Hook Implementation]
 // hooks/useCustomHookOptions.ts
-import { useQueryClient } from '@tanstack/react-query'
-import type { HookOptions } from './gen/HookOptions' // Generated type
+import { useQueryClient } from "@tanstack/react-query";
+import type { HookOptions } from "./gen/HookOptions"; // Generated type
 
 export function useCustomHookOptions<T extends keyof HookOptions>({
   hookName,
-  operationId
+  operationId,
 }: {
-  hookName: T
-  operationId: string
+  hookName: T;
+  operationId: string;
 }): HookOptions[T] {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   // Example: Invalidate related queries on mutation
   const customOptions = {
     useFindPetById: {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['pets'] })
+        queryClient.invalidateQueries({ queryKey: ["pets"] });
       },
     },
     // ... more custom options for other hooks
-  }
+  };
 
-  return customOptions[hookName] ?? {}
+  return customOptions[hookName] ?? {};
 }
 ```
 
@@ -1955,21 +1999,22 @@ export function useCustomHookOptions<T extends keyof HookOptions>({
 // Generated hook will automatically use custom options
 export function useFindPetById(petId: string, options?: QueryOptions) {
   const customOptions = useCustomHookOptions({
-    hookName: 'useFindPetById',
-    operationId: 'findPetById'
-  })
+    hookName: "useFindPetById",
+    operationId: "findPetById",
+  });
 
   return useQuery({
     ...findPetByIdQueryOptions(petId),
     ...customOptions, // Custom options are applied here
     ...options,
-  })
+  });
 }
 ```
 
 :::
 
 **Use cases:**
+
 - Automatically invalidate related queries on mutations
 - Implement global error handling for specific operations
 - Add retry logic based on operation type
@@ -1994,15 +2039,18 @@ Achieved 18-27% performance improvement for OpenAPI code generation through adva
 #### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
 
 **Increased Processing Parallelism:**
+
 - Operation processing concurrency increased from 10 to 30 concurrent operations
 - Schema processing concurrency increased from 10 to 30 concurrent schemas
 - Generator parallelism increased from 1 to 3 concurrent generators
 
 **Added Schema Caching:**
+
 - Implemented schema parse caching to eliminate redundant parsing
 
 ::: tip Performance Impact
 These optimizations provide:
+
 - **10-15%** faster operation processing
 - **8-12%** faster schema generation
 - **3-5%** reduction from schema caching
@@ -2012,6 +2060,7 @@ These optimizations provide:
 #### [`@kubb/core`](/core/)
 
 **Improved Parallelism:**
+
 - PluginManager concurrency increased from 5 to 15 for better parallel plugin execution
 - Better resource utilization on multi-core systems
 - **4-7%** performance improvement
@@ -2030,31 +2079,33 @@ Added `inlineLiteral` as a new value for the `enumType` option, allowing enum va
 
 ```typescript [Before (asConst)]
 export const petStatusEnum = {
-  available: 'available',
-  pending: 'pending',
-  sold: 'sold',
-} as const
+  available: "available",
+  pending: "pending",
+  sold: "sold",
+} as const;
 
-export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
+export type PetStatusEnumKey =
+  (typeof petStatusEnum)[keyof typeof petStatusEnum];
 
 export interface Pet {
-  status?: PetStatusEnumKey
+  status?: PetStatusEnumKey;
 }
 ```
 
 ```typescript [After (inlineLiteral)]
 export interface Pet {
-  status?: 'available' | 'pending' | 'sold'
+  status?: "available" | "pending" | "sold";
 }
 ```
 
 :::
 
 **Usage:**
+
 ```typescript
 pluginTs({
-  enumType: 'inlineLiteral',
-})
+  enumType: "inlineLiteral",
+});
 ```
 
 > [!NOTE]
@@ -2072,7 +2123,6 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
-
 ## 4.14.0
 
 ### ✨ Features
@@ -2085,14 +2135,14 @@ Added `arrayType` option to switch between `Array<Type>` and `Type[]` syntax for
 
 ```typescript [array (default)]
 type Pet = {
-  tags: string[]
-}
+  tags: string[];
+};
 ```
 
 ```typescript [generic]
 type Pet = {
-  tags: Array<string>
-}
+  tags: Array<string>;
+};
 ```
 
 :::
@@ -2120,14 +2170,17 @@ Changed the mapper check to use `Object.prototype.hasOwnProperty.call()` to only
 ```typescript [Before]
 // Matches inherited properties from Object.prototype
 if (options.mapper?.[mappedName]) {
-  return options.mapper?.[mappedName]  // Returns Object.prototype.toString
+  return options.mapper?.[mappedName]; // Returns Object.prototype.toString
 }
 ```
 
 ```typescript [After]
 // Only matches own properties, not inherited ones
-if (options.mapper && Object.prototype.hasOwnProperty.call(options.mapper, mappedName)) {
-  return options.mapper[mappedName]
+if (
+  options.mapper &&
+  Object.prototype.hasOwnProperty.call(options.mapper, mappedName)
+) {
+  return options.mapper[mappedName];
 }
 ```
 
@@ -2136,6 +2189,7 @@ if (options.mapper && Object.prototype.hasOwnProperty.call(options.mapper, mappe
 **Affected Schemas:**
 
 This bug affected any OpenAPI schema with properties named after JavaScript built-in methods, including:
+
 - `toString`
 - `valueOf`
 - `hasOwnProperty`
@@ -2151,8 +2205,8 @@ components:
       type: object
       properties:
         field: { type: string }
-        toString: { type: string }  # Previously crashed, now works
-        valueOf: { type: string }    # Previously crashed, now works
+        toString: { type: string } # Previously crashed, now works
+        valueOf: { type: string } # Previously crashed, now works
 ```
 
 ## 4.13.0
@@ -2168,6 +2222,7 @@ Added `'auto'` option for both `output.format` and `output.lint` configurations.
 **Format Auto-Detection:**
 
 When `format: 'auto'` is set, Kubb checks for formatters in this order:
+
 1. **biome** (first choice)
 2. **oxfmt** (second choice)
 3. **prettier** (third choice)
@@ -2176,22 +2231,22 @@ When `format: 'auto'` is set, Kubb checks for formatters in this order:
 
 ```typescript [Before]
 export default defineConfig({
-  input: { path: './petStore.yaml' },
+  input: { path: "./petStore.yaml" },
   output: {
-    path: './src/gen',
-    format: 'prettier', // Had to specify which formatter
+    path: "./src/gen",
+    format: "prettier", // Had to specify which formatter
   },
-})
+});
 ```
 
 ```typescript [After]
 export default defineConfig({
-  input: { path: './petStore.yaml' },
+  input: { path: "./petStore.yaml" },
   output: {
-    path: './src/gen',
-    format: 'auto', // Automatically detects biome or oxfmt or prettier
+    path: "./src/gen",
+    format: "auto", // Automatically detects biome or oxfmt or prettier
   },
-})
+});
 ```
 
 :::
@@ -2199,6 +2254,7 @@ export default defineConfig({
 **Lint Auto-Detection:**
 
 When `lint: 'auto'` is set, Kubb checks for linters in this order:
+
 1. **biome** (first choice)
 2. **oxlint** (second choice)
 3. **eslint** (third choice)
@@ -2207,22 +2263,22 @@ When `lint: 'auto'` is set, Kubb checks for linters in this order:
 
 ```typescript [Before]
 export default defineConfig({
-  input: { path: './petStore.yaml' },
+  input: { path: "./petStore.yaml" },
   output: {
-    path: './src/gen',
-    lint: 'eslint', // Had to specify which linter
+    path: "./src/gen",
+    lint: "eslint", // Had to specify which linter
   },
-})
+});
 ```
 
 ```typescript [After]
 export default defineConfig({
-  input: { path: './petStore.yaml' },
+  input: { path: "./petStore.yaml" },
   output: {
-    path: './src/gen',
-    lint: 'auto', // Automatically detects biome, oxlint, or eslint
+    path: "./src/gen",
+    lint: "auto", // Automatically detects biome, oxlint, or eslint
   },
-})
+});
 ```
 
 :::
@@ -2233,13 +2289,13 @@ export default defineConfig({
 
 ```typescript [kubb.config.ts]
 export default defineConfig({
-  input: { path: './petStore.yaml' },
+  input: { path: "./petStore.yaml" },
   output: {
-    path: './src/gen',
-    format: 'auto', // Detects biome or prettier
-    lint: 'auto',   // Detects biome, oxlint, or eslint
+    path: "./src/gen",
+    format: "auto", // Detects biome or prettier
+    lint: "auto", // Detects biome, oxlint, or eslint
   },
-})
+});
 ```
 
 :::
@@ -2302,13 +2358,13 @@ components:
 ```typescript [Generated]
 export type Response =
   | {
-      status?: 'success'
-      data?: object
+      status?: "success";
+      data?: object;
     }
   | {
-      status?: 'error'
-      message?: string
-    }
+      status?: "error";
+      message?: string;
+    };
 ```
 
 :::
@@ -2341,11 +2397,11 @@ components:
 ```typescript [Generated]
 export type Data =
   | {
-      result?: object
+      result?: object;
     }
   | {
-      error?: string
-    }
+      error?: string;
+    };
 ```
 
 :::
@@ -2371,7 +2427,7 @@ All discriminator patterns from OpenAPI 3.0 and 3.1 specifications are now suppo
 - `oneOf` and `anyOf` constructs
 - Strict and inherit modes
 - Inline schemas
-- Extension properties (x-*)
+- Extension properties (x-\*)
 - Const values
 - Single-value enums
 - Mixed `$ref` and inline schemas
@@ -2571,7 +2627,7 @@ Uses backticks so that the baseUrl can be set to a dynamic value (like an enviro
 
 ```typescript [Before]
 // Generated with single quotes - static string
-const baseUrl = 'https://api.example.com';
+const baseUrl = "https://api.example.com";
 ```
 
 ```typescript [After]
@@ -2604,26 +2660,26 @@ Replace cli-progress and consola with @clack/prompts for modern interactive prog
 ::: code-group
 
 ```typescript [Custom Logger]
-import { defineLogger, LogLevel } from '@kubb/core';
+import { defineLogger, LogLevel } from "@kubb/core";
 
 export const customLogger = defineLogger({
-  name: 'custom',
+  name: "custom",
   install(context, options) {
     const logLevel = options?.logLevel || LogLevel.info;
 
-    context.on('lifecycle:start', (version) => {
+    context.on("lifecycle:start", (version) => {
       console.log(`Starting Kubb ${version}`);
     });
 
-    context.on('plugin:start', (plugin) => {
+    context.on("plugin:start", (plugin) => {
       console.log(`Generating ${plugin.name}`);
     });
 
-    context.on('plugin:end', (plugin, { duration }) => {
+    context.on("plugin:end", (plugin, { duration }) => {
       console.log(`${plugin.name} completed in ${duration}ms`);
     });
 
-    context.on('error', (error) => {
+    context.on("error", (error) => {
       console.error(error.message);
     });
   },
@@ -2678,10 +2734,10 @@ Fixed issue with uninitialized `oasClass` causing errors during OpenAPI schema p
     mapper: zodKeywordMapper,
     handlers: {
       string(tree, options) {
-        const minSchema = findSchemaKeyword(tree.siblings, 'min');
-        const maxSchema = findSchemaKeyword(tree.siblings, 'max');
+        const minSchema = findSchemaKeyword(tree.siblings, "min");
+        const maxSchema = findSchemaKeyword(tree.siblings, "max");
         return zodKeywordMapper.string(
-          shouldCoerce(options.coercion, 'strings'),
+          shouldCoerce(options.coercion, "strings"),
           minSchema?.args,
           maxSchema?.args,
           options.mini,
@@ -2725,8 +2781,8 @@ Upgrade tsdown.
 
   ```typescript [asConst (default)]
   const petType = {
-    Dog: 'dog',
-    Cat: 'cat',
+    Dog: "dog",
+    Cat: "cat",
   } as const;
 
   type PetTypeKey = (typeof petType)[keyof typeof petType];
@@ -2734,8 +2790,8 @@ Upgrade tsdown.
 
   ```typescript [asPascalConst]
   const PetType = {
-    Dog: 'dog',
-    Cat: 'cat',
+    Dog: "dog",
+    Cat: "cat",
   } as const;
 
   type PetType = (typeof PetType)[keyof typeof PetType];
@@ -2800,8 +2856,8 @@ Upgrade tsdown.
   ::: code-group
 
   ```typescript [Before - Not Working]
-  import { defineConfig } from '@kubb/core';
-  import { pluginReactQuery } from '@kubb/plugin-react-query';
+  import { defineConfig } from "@kubb/core";
+  import { pluginReactQuery } from "@kubb/plugin-react-query";
 
   export default defineConfig({
     plugins: [
@@ -2813,8 +2869,8 @@ Upgrade tsdown.
   ```
 
   ```typescript [After - Working]
-  import { defineConfig } from '@kubb/core';
-  import { pluginReactQuery } from '@kubb/plugin-react-query';
+  import { defineConfig } from "@kubb/core";
+  import { pluginReactQuery } from "@kubb/plugin-react-query";
 
   export default defineConfig({
     plugins: [
@@ -2862,18 +2918,18 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
   ::: code-group
 
   ```typescript [Configuration]
-  import { defineConfig } from '@kubb/core';
-  import { pluginClient } from '@kubb/plugin-client';
-  import { pluginOas } from '@kubb/plugin-oas';
-  import { pluginReactQuery } from '@kubb/plugin-react-query';
-  import { pluginTs } from '@kubb/plugin-ts';
+  import { defineConfig } from "@kubb/core";
+  import { pluginClient } from "@kubb/plugin-client";
+  import { pluginOas } from "@kubb/plugin-oas";
+  import { pluginReactQuery } from "@kubb/plugin-react-query";
+  import { pluginTs } from "@kubb/plugin-ts";
 
   export default defineConfig({
     input: {
-      path: './petStore.yaml',
+      path: "./petStore.yaml",
     },
     output: {
-      path: './src/gen',
+      path: "./src/gen",
     },
     plugins: [
       pluginOas(),
@@ -2881,15 +2937,15 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
       // Class-based clients for direct usage
       pluginClient({
         output: {
-          path: './clients/class',
+          path: "./clients/class",
         },
-        clientType: 'class',
-        group: { type: 'tag' },
+        clientType: "class",
+        group: { type: "tag" },
       }),
       // Query hooks work with inline function-based clients
       pluginReactQuery({
         output: {
-          path: './hooks',
+          path: "./hooks",
         },
       }),
     ],
@@ -2914,28 +2970,28 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
   ::: code-group
 
   ```typescript [Configuration]
-  import { defineConfig } from '@kubb/core';
-  import { pluginClient } from '@kubb/plugin-client';
-  import { pluginOas } from '@kubb/plugin-oas';
-  import { pluginTs } from '@kubb/plugin-ts';
+  import { defineConfig } from "@kubb/core";
+  import { pluginClient } from "@kubb/plugin-client";
+  import { pluginOas } from "@kubb/plugin-oas";
+  import { pluginTs } from "@kubb/plugin-ts";
 
   export default defineConfig({
     input: {
-      path: './petStore.yaml',
+      path: "./petStore.yaml",
     },
     output: {
-      path: './src/gen',
+      path: "./src/gen",
     },
     plugins: [
       pluginOas(),
       pluginTs(),
       pluginClient({
         output: {
-          path: './clients',
+          path: "./clients",
         },
-        clientType: 'class',
+        clientType: "class",
         group: {
-          type: 'tag',
+          type: "tag",
         },
       }),
     ],
@@ -2959,7 +3015,7 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
         ResponseErrorConfig<GetPetById400>,
         unknown
       >({
-        method: 'GET',
+        method: "GET",
         url: `/pet/${petId}`,
         ...requestConfig,
       });
@@ -2974,8 +3030,8 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
         ResponseErrorConfig<AddPet405>,
         AddPetMutationRequest
       >({
-        method: 'POST',
-        url: '/pet',
+        method: "POST",
+        url: "/pet",
         data: requestData,
         ...requestConfig,
       });
@@ -2985,7 +3041,7 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
   ```
 
   ```typescript [Usage]
-  import { Pet } from './gen/clients/Pet';
+  import { Pet } from "./gen/clients/Pet";
 
   const petClient = new Pet();
 
@@ -2994,8 +3050,8 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
 
   // Add a new pet
   const newPet = await petClient.addPet({
-    name: 'Fluffy',
-    status: 'available',
+    name: "Fluffy",
+    status: "available",
   });
   ```
 
@@ -3338,11 +3394,11 @@ Update Fabric packages.
   ::: code-group
 
   ```typescript [Before]
-  import { client } from '@kubb/plugin-client';
+  import { client } from "@kubb/plugin-client";
   ```
 
   ```typescript [After]
-  import { client } from './.kubb/client';
+  import { client } from "./.kubb/client";
   ```
 
   :::
@@ -3512,15 +3568,15 @@ Upgrade internal packages.
 
 ```typescript [After]
 const StatusKey = {
-  Active: 'active',
-  Inactive: 'inactive',
+  Active: "active",
+  Inactive: "inactive",
 } as const;
 ```
 
 ```typescript [Before]
 const Status = {
-  Active: 'active',
-  Inactive: 'inactive',
+  Active: "active",
+  Inactive: "inactive",
 } as const;
 ```
 
@@ -4154,7 +4210,7 @@ Reduce any's being used:
 ::: code-group
 
 ```typescript [Example with @hono/zod-openapi]
-import { z } from '@hono/zod-openapi';
+import { z } from "@hono/zod-openapi";
 
 export const showPetByIdError = z
   .lazy(() => error)
@@ -4162,14 +4218,14 @@ export const showPetByIdError = z
     examples: [
       {
         sample: {
-          summary: 'A sample error',
-          value: { code: 1, message: 'A sample error message' },
+          summary: "A sample error",
+          value: { code: 1, message: "A sample error message" },
         },
       },
       {
         other_example: {
-          summary: 'Another sample error',
-          value: { code: 2, message: 'A totally specific message' },
+          summary: "Another sample error",
+          value: { code: 2, message: "A totally specific message" },
         },
       },
     ],
@@ -4198,7 +4254,7 @@ export type FooBase = {
   /**
    * @type string
    */
-  $type: 'type-string' | 'type-number';
+  $type: "type-string" | "type-number";
 };
 ```
 
@@ -4220,7 +4276,7 @@ export type FooNumber = FooBase & {
   /**
    * @type string
    */
-  $type: 'type-number';
+  $type: "type-number";
 
   /**
    * @type number
@@ -4419,11 +4475,11 @@ group: {
 findPetsByStatusHandler((info) => {
   const { params } = info;
   if (params.someKey) {
-    return new Response(JSON.stringify({ error: 'some error response' }), {
+    return new Response(JSON.stringify({ error: "some error response" }), {
       status: 400,
     });
   }
-  return new Response(JSON.stringify({ newData: 'new data' }), { status: 200 });
+  return new Response(JSON.stringify({ newData: "new data" }), { status: 200 });
 });
 ```
 
@@ -4569,28 +4625,28 @@ type coercion =
 - [`plugin-core`](/plugins/core/): Removal of `group.output` in favour of `group.name`(no need to specify the output/root)
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core';
-import { pluginOas } from '@kubb/plugin-oas';
-import { pluginTs } from '@kubb/plugin-ts';
-import { pluginClient } from '@kubb/plugin-client';
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginClient } from "@kubb/plugin-client";
 
 export default defineConfig({
-  root: '.',
+  root: ".",
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
     clean: true,
   },
   plugins: [
     pluginOas({ generators: [] }),
     pluginClient({
       output: {
-        path: './clients/axios',
+        path: "./clients/axios",
       },
       // group: { type: 'tag', output: './clients/axios/{{tag}}Service' }, // [!code --]
-      group: { type: 'tag', name: ({ group }) => `${group}Service` }, // [!code ++]
+      group: { type: "tag", name: ({ group }) => `${group}Service` }, // [!code ++]
     }),
   ],
 });
@@ -4659,7 +4715,7 @@ enum:
 ```
 
 ```typescript [output]
-z.enum(['true', 'false']); // [!code --]
+z.enum(["true", "false"]); // [!code --]
 z.union([z.literal(true), z.literal(false)]); // [!code ++]
 ```
 
@@ -4677,31 +4733,31 @@ z.union([z.literal(true), z.literal(false)]); // [!code ++]
 - Separate plugin/package for Solid-Query: `@kubb/plugin-solid-query`
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core';
-import { pluginOas } from '@kubb/plugin-oas';
-import { pluginTs } from '@kubb/plugin-ts';
-import { pluginSolidQuery } from '@kubb/plugin-solid-query'; // [!code ++]
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'; // [!code --]
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginSolidQuery } from "@kubb/plugin-solid-query"; // [!code ++]
+import { pluginTanstackQuery } from "@kubb/plugin-tanstack-query"; // [!code --]
 
 export default defineConfig({
-  root: '.',
+  root: ".",
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
     clean: true,
   },
   plugins: [
     pluginOas({ generators: [] }),
     pluginTs({
       output: {
-        path: 'models',
+        path: "models",
       },
     }),
     pluginSolidQuery({
       output: {
-        path: './hooks',
+        path: "./hooks",
       },
     }),
   ],
@@ -4711,31 +4767,31 @@ export default defineConfig({
 - Separate plugin/package for Svelte-Query: `@kubb/plugin-svelte-query`
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core';
-import { pluginOas } from '@kubb/plugin-oas';
-import { pluginTs } from '@kubb/plugin-ts';
-import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'; // [!code ++]
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'; // [!code --]
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginSvelteQuery } from "@kubb/plugin-svelte-query"; // [!code ++]
+import { pluginTanstackQuery } from "@kubb/plugin-tanstack-query"; // [!code --]
 
 export default defineConfig({
-  root: '.',
+  root: ".",
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
     clean: true,
   },
   plugins: [
     pluginOas({ generators: [] }),
     pluginTs({
       output: {
-        path: 'models',
+        path: "models",
       },
     }),
     pluginSvelteQuery({
       output: {
-        path: './hooks',
+        path: "./hooks",
       },
     }),
   ],
@@ -4745,31 +4801,31 @@ export default defineConfig({
 - Separate plugin/package for Vue-Query: `@kubb/plugin-vue-query`
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core';
-import { pluginOas } from '@kubb/plugin-oas';
-import { pluginTs } from '@kubb/plugin-ts';
-import { pluginVueQuery } from '@kubb/plugin-vue-query'; // [!code ++]
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'; // [!code --]
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginVueQuery } from "@kubb/plugin-vue-query"; // [!code ++]
+import { pluginTanstackQuery } from "@kubb/plugin-tanstack-query"; // [!code --]
 
 export default defineConfig({
-  root: '.',
+  root: ".",
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
     clean: true,
   },
   plugins: [
     pluginOas({ generators: [] }),
     pluginTs({
       output: {
-        path: 'models',
+        path: "models",
       },
     }),
     pluginVueQuery({
       output: {
-        path: './hooks',
+        path: "./hooks",
       },
     }),
   ],
@@ -4781,31 +4837,31 @@ export default defineConfig({
 - Separate plugin/package for React-Query: `@kubb/plugin-react-query`
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core';
-import { pluginOas } from '@kubb/plugin-oas';
-import { pluginTs } from '@kubb/plugin-ts';
-import { pluginReactQuery } from '@kubb/plugin-react-query'; // [!code ++]
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'; // [!code --]
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginReactQuery } from "@kubb/plugin-react-query"; // [!code ++]
+import { pluginTanstackQuery } from "@kubb/plugin-tanstack-query"; // [!code --]
 
 export default defineConfig({
-  root: '.',
+  root: ".",
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
     clean: true,
   },
   plugins: [
     pluginOas({ generators: [] }),
     pluginTs({
       output: {
-        path: 'models',
+        path: "models",
       },
     }),
     pluginReactQuery({
       output: {
-        path: './hooks',
+        path: "./hooks",
       },
     }),
   ],

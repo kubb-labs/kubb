@@ -13,7 +13,6 @@ Kubb plugin for Vite, webpack, esbuild, Rollup, Nuxt, Astro and Rspack.
 > [!TIP]
 > The `hook` option will not work with Unplugin. If you need to run Prettier or ESLint after the generation, use Kubb CLI instead.
 
-
 ## Installation
 
 ::: code-group
@@ -42,41 +41,41 @@ yarn add -D unplugin-kubb @kubb/core
 
 Define the options for Kubb.
 
-
 ::: code-group
+
 ```typescript [Options]
-import type { UserConfig } from '@kubb/core'
+import type { UserConfig } from "@kubb/core";
 
 type Options = {
-  config: UserConfig
-}
+  config: UserConfig;
+};
 ```
 
 ```typescript [vite.config.ts]
-import kubb from 'unplugin-kubb/vite'
-import { defineConfig as defineViteConfig } from 'vite'
-import { defineConfig, UserConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTs } from '@kubb/plugin-ts'
+import kubb from "unplugin-kubb/vite";
+import { defineConfig as defineViteConfig } from "vite";
+import { defineConfig, UserConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
 
 export const config = {
-  root: '.',
+  root: ".",
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
     clean: true,
   },
   plugins: [
     pluginOas(),
     pluginTs({
       output: {
-        path: 'models',
+        path: "models",
       },
     }),
   ],
-}
+};
 
 // https://vitejs.dev/config/
 export default defineViteConfig({
@@ -85,36 +84,39 @@ export default defineViteConfig({
       config,
     }),
   ],
-})
+});
 ```
+
 :::
 
 ## Examples
-
-
 
 ::: code-group
 
 ```ts [Vite]
 // vite.config.ts
-import kubb from 'unplugin-kubb/vite'
+import kubb from "unplugin-kubb/vite";
 
 export default defineConfig({
   plugins: [
-    kubb({/* options */}),
+    kubb({
+      /* options */
+    }),
   ],
-})
+});
 ```
 
 ```typescript [Rollup]
 // rollup.config.js
-import kubb from 'unplugin-kubb/rollup'
+import kubb from "unplugin-kubb/rollup";
 
 export default {
   plugins: [
-    kubb({/* options */}),
+    kubb({
+      /* options */
+    }),
   ],
-}
+};
 ```
 
 ```typescript [webpack]
@@ -122,9 +124,11 @@ export default {
 module.exports = {
   /* ... */
   plugins: [
-    require('unplugin-kubb/webpack')({/* options */}),
+    require("unplugin-kubb/webpack")({
+      /* options */
+    }),
   ],
-}
+};
 ```
 
 ```typescript [Rspack]
@@ -132,21 +136,25 @@ module.exports = {
 module.exports = {
   /* ... */
   plugins: [
-    require('unplugin-kubb/rspack')({ /* options */ })
-  ]
-}
+    require("unplugin-kubb/rspack")({
+      /* options */
+    }),
+  ],
+};
 ```
 
 ```typescript [esbuild]
 // esbuild.config.js
-import { build } from 'esbuild'
-import kubb from 'unplugin-kubb/esbuild'
+import { build } from "esbuild";
+import kubb from "unplugin-kubb/esbuild";
 
 build({
   plugins: [
-    kubb({/* options */}),
+    kubb({
+      /* options */
+    }),
   ],
-})
+});
 ```
 
 ```typescript [Vue-CLI]
@@ -154,34 +162,44 @@ build({
 module.exports = {
   configureWebpack: {
     plugins: [
-      require('unplugin-kubb/webpack')({/* options */}),
+      require("unplugin-kubb/webpack")({
+        /* options */
+      }),
     ],
   },
-}
+};
 ```
 
 ```typescript [Nuxt]
 // nuxt.config.js
 export default defineNuxtConfig({
   modules: [
-    ['unplugin-kubb/nuxt', {/* options */}],
+    [
+      "unplugin-kubb/nuxt",
+      {
+        /* options */
+      },
+    ],
   ],
-})
+});
 ```
+
 ```typescript [Astro]
 // astro.config.mjs
-import { defineConfig } from 'astro/config'
-import Kubb from 'unplugin-kubb/astro'
+import { defineConfig } from "astro/config";
+import Kubb from "unplugin-kubb/astro";
 
 // https://astro.build/config
 export default defineConfig({
   integrations: [
-    Kubb({/* options */})
-  ]
-})
+    Kubb({
+      /* options */
+    }),
+  ],
+});
 ```
-:::
 
+:::
 
 ## See Also
 

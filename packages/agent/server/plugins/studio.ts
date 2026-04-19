@@ -1,16 +1,16 @@
-import process from 'node:process'
-import { maskString } from '@internals/utils'
-import type { AgentConnectResponse } from '~/types/agent.ts'
-import { createAgentSession, registerAgent } from '~/utils/api.ts'
-import { connectToStudio } from '~/utils/connectStudio.ts'
-import { logger } from '~/utils/logger.ts'
-import { resolveStudioRuntimeConfig } from '~/utils/runtimeConfig.ts'
+import process from "node:process";
+import { maskString } from "@internals/utils";
+import type { AgentConnectResponse } from "~/types/agent.ts";
+import { createAgentSession, registerAgent } from "~/utils/api.ts";
+import { connectToStudio } from "~/utils/connectStudio.ts";
+import { logger } from "~/utils/logger.ts";
+import { resolveStudioRuntimeConfig } from "~/utils/runtimeConfig.ts";
 
 /**
  * Normalizes unknown thrown values into a logger-friendly message string.
  */
 function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error)
+  return error instanceof Error ? error.message : String(error);
 }
 
 /**
@@ -28,23 +28,35 @@ function getErrorMessage(error: unknown): string {
  * so each Studio user gets their own isolated WebSocket session.
  */
 export default defineNitroPlugin(async (nitro) => {
-  const { studioUrl, token, configPath, resolvedConfigPath, retryInterval, heartbeatInterval, root, allowAll, allowWrite, allowPublish, poolSize, hasSecret } =
-    resolveStudioRuntimeConfig(process.env)
+  const {
+    studioUrl,
+    token,
+    configPath,
+    resolvedConfigPath,
+    retryInterval,
+    heartbeatInterval,
+    root,
+    allowAll,
+    allowWrite,
+    allowPublish,
+    poolSize,
+    hasSecret,
+  } = resolveStudioRuntimeConfig(process.env);
 
   if (!token) {
-    logger.warn('KUBB_AGENT_TOKEN not set', 'cannot authenticate with studio')
+    logger.warn("KUBB_AGENT_TOKEN not set", "cannot authenticate with studio");
 
-    return null
+    return null;
   }
 
   if (!hasSecret) {
-    logger.warn('KUBB_AGENT_SECRET not set', 'secret should be set')
+    logger.warn("KUBB_AGENT_SECRET not set", "secret should be set");
   }
 
-  const maskedToken = maskString(token)
+  const maskedToken = maskString(token);
 
   try {
-    await registerAgent({ token, studioUrl, poolSize })
+    await registerAgent({ token, studioUrl, poolSize });
 
     const baseOptions = {
       token,
@@ -58,31 +70,45 @@ export default defineNitroPlugin(async (nitro) => {
       retryInterval,
       heartbeatInterval,
       nitro,
-    }
+    };
 
-    logger.info(`[${maskedToken}] Starting session pool of ${poolSize} connection(s)`)
+    logger.info(
+      `[${maskedToken}] Starting session pool of ${poolSize} connection(s)`,
+    );
 
-    const sessions = new Map<number, AgentConnectResponse | null>()
+    const sessions = new Map<number, AgentConnectResponse | null>();
     for (const index of Array.from({ length: poolSize }, (_, i) => i)) {
-      const session = await createAgentSession({ token, studioUrl }).catch((error: unknown) => {
-        logger.warn(`[${maskedToken}] Failed to pre-create pool session ${index}:`, getErrorMessage(error))
-        return null
-      })
-      sessions.set(index, session)
+      const session = await createAgentSession({ token, studioUrl }).catch(
+        (error: unknown) => {
+          logger.warn(
+            `[${maskedToken}] Failed to pre-create pool session ${index}:`,
+            getErrorMessage(error),
+          );
+          return null;
+        },
+      );
+      sessions.set(index, session);
     }
 
     for (const [index, session] of sessions.entries()) {
       if (!session) {
-        continue
+        continue;
       }
-      const maskedSessionId = maskString(session.sessionId)
+      const maskedSessionId = maskString(session.sessionId);
 
-      logger.info(`[${maskedSessionId}] Connecting session ${index + 1}/${sessions.size}`)
-      await connectToStudio({ ...baseOptions, initialSession: session }).catch((error: unknown) => {
-        logger.warn(`[${maskedSessionId}] Session ${index + 1} failed to connect:`, getErrorMessage(error))
-      })
+      logger.info(
+        `[${maskedSessionId}] Connecting session ${index + 1}/${sessions.size}`,
+      );
+      await connectToStudio({ ...baseOptions, initialSession: session }).catch(
+        (error: unknown) => {
+          logger.warn(
+            `[${maskedSessionId}] Session ${index + 1} failed to connect:`,
+            getErrorMessage(error),
+          );
+        },
+      );
     }
   } catch (error: unknown) {
-    logger.error('Failed to connect to Kubb Studio\n', getErrorMessage(error))
+    logger.error("Failed to connect to Kubb Studio\n", getErrorMessage(error));
   }
-})
+});

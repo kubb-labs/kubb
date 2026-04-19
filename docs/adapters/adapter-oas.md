@@ -59,9 +59,9 @@ Defaults to the first valid JSON media type found in the spec.
 ::: code-group
 
 ```typescript [kubb.config.ts]
-import { adapterOas } from '@kubb/adapter-oas'
+import { adapterOas } from "@kubb/adapter-oas";
 
-adapterOas({ contentType: 'application/vnd.api+json' })
+adapterOas({ contentType: "application/vnd.api+json" });
 ```
 
 :::
@@ -91,15 +91,15 @@ servers:
 ```
 
 ```typescript [serverIndex 0]
-import { adapterOas } from '@kubb/adapter-oas'
+import { adapterOas } from "@kubb/adapter-oas";
 
-adapterOas({ serverIndex: 0 })
+adapterOas({ serverIndex: 0 });
 ```
 
 ```typescript [serverIndex 1]
-import { adapterOas } from '@kubb/adapter-oas'
+import { adapterOas } from "@kubb/adapter-oas";
 
-adapterOas({ serverIndex: 1 })
+adapterOas({ serverIndex: 1 });
 ```
 
 :::
@@ -128,12 +128,12 @@ servers:
 ```
 
 ```typescript [kubb.config.ts]
-import { adapterOas } from '@kubb/adapter-oas'
+import { adapterOas } from "@kubb/adapter-oas";
 
 adapterOas({
   serverIndex: 0,
-  serverVariables: { env: 'prod' },
-})
+  serverVariables: { env: "prod" },
+});
 // Results in baseURL: https://api.prod.example.com
 ```
 
@@ -145,11 +145,11 @@ How the discriminator field is interpreted when processing `oneOf`/`anyOf` schem
 
 See [Discriminators](/guide/oas#discriminators) in the knowledge base for detailed examples and supported patterns.
 
-|           |                           |
-| --------: | :------------------------ |
-|     Type: | `'strict' \| 'inherit'`   |
-| Required: | `false`                   |
-|  Default: | `'strict'`                |
+|           |                         |
+| --------: | :---------------------- |
+|     Type: | `'strict' \| 'inherit'` |
+| Required: | `false`                 |
+|  Default: | `'strict'`              |
 
 - `'strict'` — uses `oneOf` schemas as written in the spec. The discriminator is used for type narrowing but child schemas are not modified.
 - `'inherit'` — propagates the discriminator property with appropriate enum values into each child schema, ensuring type safety and enabling better code generation.
@@ -189,30 +189,30 @@ components:
 
 ```typescript [discriminator 'strict']
 export type Cat = {
-  type: string
-  indoor?: boolean
-}
+  type: string;
+  indoor?: boolean;
+};
 
 export type Dog = {
-  type: string
-  name?: string
-}
+  type: string;
+  name?: string;
+};
 
-export type Animal = Cat | Dog
+export type Animal = Cat | Dog;
 ```
 
 ```typescript [discriminator 'inherit']
 export type Cat = {
-  type: 'cat'
-  indoor?: boolean
-}
+  type: "cat";
+  indoor?: boolean;
+};
 
 export type Dog = {
-  type: 'dog'
-  name?: string
-}
+  type: "dog";
+  name?: string;
+};
 
-export type Animal = Cat | Dog
+export type Animal = Cat | Dog;
 ```
 
 :::
@@ -221,11 +221,11 @@ export type Animal = Cat | Dog
 
 How `format: 'date-time'` schemas are represented in the generated AST and downstream output.
 
-|           |                                                                   |
-| --------: | :---------------------------------------------------------------- |
+|           |                                                                  |
+| --------: | :--------------------------------------------------------------- |
 |     Type: | `false \| 'string' \| 'stringOffset' \| 'stringLocal' \| 'date'` |
-| Required: | `false`                                                           |
-|  Default: | `'string'`                                                        |
+| Required: | `false`                                                          |
+|  Default: | `'string'`                                                       |
 
 - `false` — falls through to a plain `string` type.
 - `'string'` — emits a datetime string node (e.g. `z.string().datetime()`).
@@ -237,27 +237,27 @@ How `format: 'date-time'` schemas are represented in the generated AST and downs
 
 ```typescript [false]
 // format: date-time → plain string
-type CreatedAt = string
+type CreatedAt = string;
 ```
 
 ```typescript ['string' (default)]
 // format: date-time → datetime string
-type CreatedAt = string // validated as ISO 8601 datetime
+type CreatedAt = string; // validated as ISO 8601 datetime
 ```
 
 ```typescript ['stringOffset']
 // format: date-time → datetime string with offset
-type CreatedAt = string // validated as ISO 8601 datetime with offset
+type CreatedAt = string; // validated as ISO 8601 datetime with offset
 ```
 
 ```typescript ['stringLocal']
 // format: date-time → local datetime string
-type CreatedAt = string // validated as local ISO 8601 datetime
+type CreatedAt = string; // validated as local ISO 8601 datetime
 ```
 
 ```typescript ['date']
 // format: date-time → JavaScript Date
-type CreatedAt = Date
+type CreatedAt = Date;
 ```
 
 :::
@@ -276,14 +276,14 @@ Whether `type: 'integer'` and `format: 'int64'` produce `number` or `bigint` nod
 
 ```typescript ['number' (default)]
 type Pet = {
-  id: number
-}
+  id: number;
+};
 ```
 
 ```typescript ['bigint']
 type Pet = {
-  id: bigint
-}
+  id: bigint;
+};
 ```
 
 :::
@@ -302,20 +302,20 @@ AST type used when no schema type can be inferred from the OpenAPI spec.
 
 ```typescript ['any' (default)]
 type Pet = {
-  extra: any
-}
+  extra: any;
+};
 ```
 
 ```typescript ['unknown']
 type Pet = {
-  extra: unknown
-}
+  extra: unknown;
+};
 ```
 
 ```typescript ['void']
 type Pet = {
-  extra: void
-}
+  extra: void;
+};
 ```
 
 :::
@@ -337,12 +337,12 @@ AST type used for completely empty schemas (`{}`).
 
 ```typescript ['any' (default)]
 // empty schema {} → any
-type EmptyModel = any
+type EmptyModel = any;
 ```
 
 ```typescript ['unknown']
 // empty schema {} → unknown
-type EmptyModel = unknown
+type EmptyModel = unknown;
 ```
 
 :::
@@ -361,14 +361,14 @@ Suffix appended to derived enum names when building nested property schema names
 
 ```typescript ['enum' (default)]
 // property `status` with inline enum values
-const statusEnum = { available: 'available', pending: 'pending' } as const
-type StatusEnum = (typeof statusEnum)[keyof typeof statusEnum]
+const statusEnum = { available: "available", pending: "pending" } as const;
+type StatusEnum = (typeof statusEnum)[keyof typeof statusEnum];
 ```
 
 ```typescript ['type']
 // enumSuffix: 'type'
-const statusType = { available: 'available', pending: 'pending' } as const
-type StatusType = (typeof statusType)[keyof typeof statusType]
+const statusType = { available: "available", pending: "pending" } as const;
+type StatusType = (typeof statusType)[keyof typeof statusType];
 ```
 
 :::
@@ -376,32 +376,30 @@ type StatusType = (typeof statusType)[keyof typeof statusType]
 ## Example
 
 ```typescript twoslash
-import { adapterOas } from '@kubb/adapter-oas'
-import { defineConfig } from '@kubb/core'
-import { pluginTs } from '@kubb/plugin-ts'
+import { adapterOas } from "@kubb/adapter-oas";
+import { defineConfig } from "@kubb/core";
+import { pluginTs } from "@kubb/plugin-ts";
 
 export default defineConfig({
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
   },
   adapter: adapterOas({
     validate: true,
     serverIndex: 0,
-    serverVariables: { env: 'prod' },
-    discriminator: 'inherit',
-    dateType: 'date',
-    integerType: 'number',
-    unknownType: 'unknown',
-    emptySchemaType: 'unknown',
-    enumSuffix: 'enum',
+    serverVariables: { env: "prod" },
+    discriminator: "inherit",
+    dateType: "date",
+    integerType: "number",
+    unknownType: "unknown",
+    emptySchemaType: "unknown",
+    enumSuffix: "enum",
   }),
-  plugins: [
-    pluginTs(),
-  ],
-})
+  plugins: [pluginTs()],
+});
 ```
 
 ## See Also

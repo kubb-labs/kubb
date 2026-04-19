@@ -1,4 +1,4 @@
-import { createJiti } from 'jiti'
+import { createJiti } from "jiti";
 
 /**
  * Shared jiti instance for dynamic ESM/TS imports across CLI commands.
@@ -6,4 +6,4 @@ import { createJiti } from 'jiti'
  */
 export const jiti = createJiti(import.meta.url, {
   sourceMaps: true,
-})
+});

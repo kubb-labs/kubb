@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to generate changelog for (e.g. 4.32.1)'
+        description: "Version to generate changelog for (e.g. 4.32.1)"
         required: true
         type: string
   workflow_call:
     inputs:
       version:
-        description: 'Version to generate changelog for'
+        description: "Version to generate changelog for"
         required: true
         type: string
 

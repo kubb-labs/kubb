@@ -1,14 +1,14 @@
-import { extname, resolve } from 'node:path'
-import type { AsyncEventEmitter } from '@internals/utils'
-import type { FileNode, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
-import { createFile } from '@kubb/ast'
-import { DEFAULT_STUDIO_URL } from './constants.ts'
-import type { Generator } from './defineGenerator.ts'
-import type { Plugin } from './definePlugin.ts'
-import { defineResolver } from './defineResolver.ts'
-import { openInStudio as openInStudioFn } from './devtools.ts'
-import { FileManager } from './FileManager.ts'
-import { applyHookResult } from './renderNode.ts'
+import { extname, resolve } from "node:path";
+import type { AsyncEventEmitter } from "@internals/utils";
+import type { FileNode, InputNode, OperationNode, SchemaNode } from "@kubb/ast";
+import { createFile } from "@kubb/ast";
+import { DEFAULT_STUDIO_URL } from "./constants.ts";
+import type { Generator } from "./defineGenerator.ts";
+import type { Plugin } from "./definePlugin.ts";
+import { defineResolver } from "./defineResolver.ts";
+import { openInStudio as openInStudioFn } from "./devtools.ts";
+import { FileManager } from "./FileManager.ts";
+import { applyHookResult } from "./renderNode.ts";
 
 import type {
   Adapter,
@@ -20,17 +20,17 @@ import type {
   NormalizedPlugin,
   PluginFactoryOptions,
   Resolver,
-} from './types.ts'
+} from "./types.ts";
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
 type Options = {
-  hooks: AsyncEventEmitter<KubbHooks>
-}
+  hooks: AsyncEventEmitter<KubbHooks>;
+};
 
 export class PluginDriver {
-  readonly config: Config
-  readonly options: Options
+  readonly config: Config;
+  readonly options: Options;
 
   /**
    * Returns `'single'` when `fileOrFolder` has a file extension, `'split'` otherwise.
@@ -41,62 +41,65 @@ export class PluginDriver {
    * PluginDriver.getMode('src/gen/types')     // 'split'
    * ```
    */
-  static getMode(fileOrFolder: string | undefined | null): 'single' | 'split' {
+  static getMode(fileOrFolder: string | undefined | null): "single" | "split" {
     if (!fileOrFolder) {
-      return 'split'
+      return "split";
     }
-    return extname(fileOrFolder) ? 'single' : 'split'
+    return extname(fileOrFolder) ? "single" : "split";
   }
 
   /**
    * The universal `@kubb/ast` `InputNode` produced by the adapter, set by
    * the build pipeline after the adapter's `parse()` resolves.
    */
-  inputNode: InputNode | undefined = undefined
-  adapter: Adapter | undefined = undefined
-  #studioIsOpen = false
+  inputNode: InputNode | undefined = undefined;
+  adapter: Adapter | undefined = undefined;
+  #studioIsOpen = false;
 
   /**
    * Central file store for all generated files.
    * Plugins should use `this.addFile()` / `this.upsertFile()` (via their context) to
    * add files; this property gives direct read/write access when needed.
    */
-  readonly fileManager = new FileManager()
+  readonly fileManager = new FileManager();
 
-  readonly plugins = new Map<string, NormalizedPlugin>()
+  readonly plugins = new Map<string, NormalizedPlugin>();
 
   /**
    * Tracks which plugins have generators registered via `addGenerator()` (event-based path).
    * Used by the build loop to decide whether to emit generator events for a given plugin.
    */
-  readonly #pluginsWithEventGenerators = new Set<string>()
-  readonly #resolvers = new Map<string, Resolver>()
-  readonly #defaultResolvers = new Map<string, Resolver>()
-  readonly #hookListeners = new Map<keyof KubbHooks, Set<(...args: never[]) => void | Promise<void>>>()
+  readonly #pluginsWithEventGenerators = new Set<string>();
+  readonly #resolvers = new Map<string, Resolver>();
+  readonly #defaultResolvers = new Map<string, Resolver>();
+  readonly #hookListeners = new Map<
+    keyof KubbHooks,
+    Set<(...args: never[]) => void | Promise<void>>
+  >();
 
   constructor(config: Config, options: Options) {
-    this.config = config
-    this.options = options
+    this.config = config;
+    this.options = options;
     config.plugins
       .map((rawPlugin) => this.#normalizePlugin(rawPlugin as Plugin))
       .filter((plugin) => {
-        if (typeof plugin.apply === 'function') {
-          return plugin.apply(config)
+        if (typeof plugin.apply === "function") {
+          return plugin.apply(config);
         }
-        return true
+        return true;
       })
       .sort((a, b) => {
-        if (b.dependencies?.includes(a.name)) return -1
-        if (a.dependencies?.includes(b.name)) return 1
-        return 0
+        if (b.dependencies?.includes(a.name)) return -1;
+        if (a.dependencies?.includes(b.name)) return 1;
+        return 0;
       })
       .forEach((plugin) => {
-        this.plugins.set(plugin.name, plugin)
-      })
+        this.plugins.set(plugin.name, plugin);
+      });
   }
 
   get hooks() {
-    return this.options.hooks
+    return this.options.hooks;
   }
 
   /**
@@ -107,11 +110,11 @@ export class PluginDriver {
     const normalizedPlugin = {
       name: hookPlugin.name,
       dependencies: hookPlugin.dependencies,
-      options: { output: { path: '.' }, exclude: [], override: [] },
-    } as unknown as NormalizedPlugin
+      options: { output: { path: "." }, exclude: [], override: [] },
+    } as unknown as NormalizedPlugin;
 
-    this.registerPluginHooks(hookPlugin, normalizedPlugin)
-    return normalizedPlugin
+    this.registerPluginHooks(hookPlugin, normalizedPlugin);
+    return normalizedPlugin;
   }
 
   /**
@@ -129,49 +132,65 @@ export class PluginDriver {
    *
    * @internal
    */
-  registerPluginHooks(hookPlugin: Plugin, normalizedPlugin: NormalizedPlugin): void {
-    const { hooks } = hookPlugin
+  registerPluginHooks(
+    hookPlugin: Plugin,
+    normalizedPlugin: NormalizedPlugin,
+  ): void {
+    const { hooks } = hookPlugin;
 
     // kubb:plugin:setup gets special treatment: the globally emitted context is wrapped with
     // plugin-specific implementations so that addGenerator / setResolver / etc. target
     // this plugin's normalizedPlugin entry rather than being no-ops.
-    if (hooks['kubb:plugin:setup']) {
+    if (hooks["kubb:plugin:setup"]) {
       const setupHandler = (globalCtx: KubbPluginSetupContext) => {
         const pluginCtx: KubbPluginSetupContext = {
           ...globalCtx,
           options: hookPlugin.options ?? {},
           addGenerator: (gen) => {
-            this.registerGenerator(normalizedPlugin.name, gen)
+            this.registerGenerator(normalizedPlugin.name, gen);
           },
           setResolver: (resolver) => {
-            this.setPluginResolver(normalizedPlugin.name, resolver)
+            this.setPluginResolver(normalizedPlugin.name, resolver);
           },
           setTransformer: (visitor) => {
-            normalizedPlugin.transformer = visitor
+            normalizedPlugin.transformer = visitor;
           },
           setRenderer: (renderer) => {
-            normalizedPlugin.renderer = renderer
+            normalizedPlugin.renderer = renderer;
           },
           setOptions: (opts) => {
-            normalizedPlugin.options = { ...normalizedPlugin.options, ...opts }
+            normalizedPlugin.options = { ...normalizedPlugin.options, ...opts };
           },
           injectFile: ({ sources = [], ...rest }) => {
-            this.fileManager.add(createFile({ imports: [], exports: [], sources, ...rest }))
+            this.fileManager.add(
+              createFile({ imports: [], exports: [], sources, ...rest }),
+            );
           },
-        }
-        return hooks['kubb:plugin:setup']!(pluginCtx)
-      }
+        };
+        return hooks["kubb:plugin:setup"]!(pluginCtx);
+      };
 
-      this.hooks.on('kubb:plugin:setup', setupHandler)
-      this.#trackHookListener('kubb:plugin:setup', setupHandler as (...args: never[]) => void | Promise<void>)
+      this.hooks.on("kubb:plugin:setup", setupHandler);
+      this.#trackHookListener(
+        "kubb:plugin:setup",
+        setupHandler as (...args: never[]) => void | Promise<void>,
+      );
     }
 
     // All other hooks are registered as direct pass-through listeners on the shared emitter.
-    for (const [event, handler] of Object.entries(hooks) as Array<[keyof KubbHooks, ((...args: never[]) => void | Promise<void>) | undefined]>) {
-      if (event === 'kubb:plugin:setup' || !handler) continue
+    for (const [event, handler] of Object.entries(hooks) as Array<
+      [
+        keyof KubbHooks,
+        ((...args: never[]) => void | Promise<void>) | undefined,
+      ]
+    >) {
+      if (event === "kubb:plugin:setup" || !handler) continue;
 
-      this.hooks.on(event, handler as never)
-      this.#trackHookListener(event, handler as (...args: never[]) => void | Promise<void>)
+      this.hooks.on(event, handler as never);
+      this.#trackHookListener(
+        event,
+        handler as (...args: never[]) => void | Promise<void>,
+      );
     }
   }
 
@@ -182,8 +201,8 @@ export class PluginDriver {
    * Call this once from `safeBuild` before the plugin execution loop begins.
    */
   async emitSetupHooks(): Promise<void> {
-    const noop = () => {}
-    await this.hooks.emit('kubb:plugin:setup', {
+    const noop = () => {};
+    await this.hooks.emit("kubb:plugin:setup", {
       config: this.config,
       options: {},
       addGenerator: noop,
@@ -193,7 +212,7 @@ export class PluginDriver {
       setOptions: noop,
       injectFile: noop,
       updateConfig: noop,
-    })
+    });
   }
 
   /**
@@ -212,44 +231,61 @@ export class PluginDriver {
    */
   registerGenerator(pluginName: string, gen: Generator): void {
     const resolveRenderer = () => {
-      const plugin = this.plugins.get(pluginName)
-      return gen.renderer === null ? undefined : (gen.renderer ?? plugin?.renderer ?? this.config.renderer)
-    }
+      const plugin = this.plugins.get(pluginName);
+      return gen.renderer === null
+        ? undefined
+        : (gen.renderer ?? plugin?.renderer ?? this.config.renderer);
+    };
 
     if (gen.schema) {
       const schemaHandler = async (node: SchemaNode, ctx: GeneratorContext) => {
-        if (ctx.plugin.name !== pluginName) return
-        const result = await gen.schema!(node, ctx)
-        await applyHookResult(result, this, resolveRenderer())
-      }
+        if (ctx.plugin.name !== pluginName) return;
+        const result = await gen.schema!(node, ctx);
+        await applyHookResult(result, this, resolveRenderer());
+      };
 
-      this.hooks.on('kubb:generate:schema', schemaHandler)
-      this.#trackHookListener('kubb:generate:schema', schemaHandler as (...args: never[]) => void | Promise<void>)
+      this.hooks.on("kubb:generate:schema", schemaHandler);
+      this.#trackHookListener(
+        "kubb:generate:schema",
+        schemaHandler as (...args: never[]) => void | Promise<void>,
+      );
     }
 
     if (gen.operation) {
-      const operationHandler = async (node: OperationNode, ctx: GeneratorContext) => {
-        if (ctx.plugin.name !== pluginName) return
-        const result = await gen.operation!(node, ctx)
-        await applyHookResult(result, this, resolveRenderer())
-      }
+      const operationHandler = async (
+        node: OperationNode,
+        ctx: GeneratorContext,
+      ) => {
+        if (ctx.plugin.name !== pluginName) return;
+        const result = await gen.operation!(node, ctx);
+        await applyHookResult(result, this, resolveRenderer());
+      };
 
-      this.hooks.on('kubb:generate:operation', operationHandler)
-      this.#trackHookListener('kubb:generate:operation', operationHandler as (...args: never[]) => void | Promise<void>)
+      this.hooks.on("kubb:generate:operation", operationHandler);
+      this.#trackHookListener(
+        "kubb:generate:operation",
+        operationHandler as (...args: never[]) => void | Promise<void>,
+      );
     }
 
     if (gen.operations) {
-      const operationsHandler = async (nodes: Array<OperationNode>, ctx: GeneratorContext) => {
-        if (ctx.plugin.name !== pluginName) return
-        const result = await gen.operations!(nodes, ctx)
-        await applyHookResult(result, this, resolveRenderer())
-      }
+      const operationsHandler = async (
+        nodes: Array<OperationNode>,
+        ctx: GeneratorContext,
+      ) => {
+        if (ctx.plugin.name !== pluginName) return;
+        const result = await gen.operations!(nodes, ctx);
+        await applyHookResult(result, this, resolveRenderer());
+      };
 
-      this.hooks.on('kubb:generate:operations', operationsHandler)
-      this.#trackHookListener('kubb:generate:operations', operationsHandler as (...args: never[]) => void | Promise<void>)
+      this.hooks.on("kubb:generate:operations", operationsHandler);
+      this.#trackHookListener(
+        "kubb:generate:operations",
+        operationsHandler as (...args: never[]) => void | Promise<void>,
+      );
     }
 
-    this.#pluginsWithEventGenerators.add(pluginName)
+    this.#pluginsWithEventGenerators.add(pluginName);
   }
 
   /**
@@ -260,7 +296,7 @@ export class PluginDriver {
    * for a plugin that has no static `plugin.generators`.
    */
   hasRegisteredGenerators(pluginName: string): boolean {
-    return this.#pluginsWithEventGenerators.has(pluginName)
+    return this.#pluginsWithEventGenerators.has(pluginName);
   }
 
   /**
@@ -272,34 +308,37 @@ export class PluginDriver {
   dispose(): void {
     for (const [event, handlers] of this.#hookListeners) {
       for (const handler of handlers) {
-        this.hooks.off(event, handler as never)
+        this.hooks.off(event, handler as never);
       }
     }
-    this.#hookListeners.clear()
-    this.#pluginsWithEventGenerators.clear()
+    this.#hookListeners.clear();
+    this.#pluginsWithEventGenerators.clear();
   }
 
-  #trackHookListener(event: keyof KubbHooks, handler: (...args: never[]) => void | Promise<void>): void {
-    let handlers = this.#hookListeners.get(event)
+  #trackHookListener(
+    event: keyof KubbHooks,
+    handler: (...args: never[]) => void | Promise<void>,
+  ): void {
+    let handlers = this.#hookListeners.get(event);
     if (!handlers) {
-      handlers = new Set()
-      this.#hookListeners.set(event, handlers)
+      handlers = new Set();
+      this.#hookListeners.set(event, handlers);
     }
-    handlers.add(handler)
+    handlers.add(handler);
   }
 
   #createDefaultResolver(pluginName: string): Resolver {
-    const existingResolver = this.#defaultResolvers.get(pluginName)
+    const existingResolver = this.#defaultResolvers.get(pluginName);
     if (existingResolver) {
-      return existingResolver
+      return existingResolver;
     }
 
     const resolver = defineResolver<PluginFactoryOptions>(() => ({
-      name: 'default',
+      name: "default",
       pluginName,
-    }))
-    this.#defaultResolvers.set(pluginName, resolver)
-    return resolver
+    }));
+    this.#defaultResolvers.set(pluginName, resolver);
+    return resolver;
   }
 
   /**
@@ -308,12 +347,12 @@ export class PluginDriver {
    * get the up-to-date resolver without going through `getResolver()`.
    */
   setPluginResolver(pluginName: string, partial: Partial<Resolver>): void {
-    const defaultResolver = this.#createDefaultResolver(pluginName)
-    const merged = { ...defaultResolver, ...partial }
-    this.#resolvers.set(pluginName, merged)
-    const plugin = this.plugins.get(pluginName)
+    const defaultResolver = this.#createDefaultResolver(pluginName);
+    const merged = { ...defaultResolver, ...partial };
+    this.#resolvers.set(pluginName, merged);
+    const plugin = this.plugins.get(pluginName);
     if (plugin) {
-      plugin.resolver = merged
+      plugin.resolver = merged;
     }
   }
 
@@ -323,22 +362,34 @@ export class PluginDriver {
    * Resolution order: dynamic resolver set via `setPluginResolver` → static resolver on the
    * plugin → lazily created default resolver (identity name, no path transforms).
    */
-  getResolver<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Kubb.PluginRegistry[TName]['resolver']
-  getResolver<TResolver extends Resolver = Resolver>(pluginName: string): TResolver
+  getResolver<TName extends keyof Kubb.PluginRegistry>(
+    pluginName: TName,
+  ): Kubb.PluginRegistry[TName]["resolver"];
+  getResolver<TResolver extends Resolver = Resolver>(
+    pluginName: string,
+  ): TResolver;
   getResolver(pluginName: string): Resolver {
-    return this.#resolvers.get(pluginName) ?? this.plugins.get(pluginName)?.resolver ?? this.#createDefaultResolver(pluginName)
+    return (
+      this.#resolvers.get(pluginName) ??
+      this.plugins.get(pluginName)?.resolver ??
+      this.#createDefaultResolver(pluginName)
+    );
   }
 
-  getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): GeneratorContext<TOptions> & Record<string, unknown> {
-    const driver = this
+  getContext<TOptions extends PluginFactoryOptions>(
+    plugin: NormalizedPlugin<TOptions>,
+  ): GeneratorContext<TOptions> & Record<string, unknown> {
+    const driver = this;
 
     const baseContext = {
       config: driver.config,
       get root(): string {
-        return resolve(driver.config.root, driver.config.output.path)
+        return resolve(driver.config.root, driver.config.output.path);
       },
-      getMode(output: { path: string }): 'single' | 'split' {
-        return PluginDriver.getMode(resolve(driver.config.root, driver.config.output.path, output.path))
+      getMode(output: { path: string }): "single" | "split" {
+        return PluginDriver.getMode(
+          resolve(driver.config.root, driver.config.output.path, output.path),
+        );
       },
       hooks: driver.hooks,
       plugin,
@@ -347,72 +398,88 @@ export class PluginDriver {
       getResolver: driver.getResolver.bind(driver),
       driver,
       addFile: async (...files: Array<FileNode>) => {
-        driver.fileManager.add(...files)
+        driver.fileManager.add(...files);
       },
       upsertFile: async (...files: Array<FileNode>) => {
-        driver.fileManager.upsert(...files)
+        driver.fileManager.upsert(...files);
       },
       get inputNode(): InputNode | undefined {
-        return driver.inputNode
+        return driver.inputNode;
       },
       get adapter(): Adapter | undefined {
-        return driver.adapter
+        return driver.adapter;
       },
       get resolver() {
-        return driver.getResolver(plugin.name)
+        return driver.getResolver(plugin.name);
       },
       get transformer() {
-        return plugin.transformer
+        return plugin.transformer;
       },
       warn(message: string) {
-        driver.hooks.emit('kubb:warn', message)
+        driver.hooks.emit("kubb:warn", message);
       },
       error(error: string | Error) {
-        driver.hooks.emit('kubb:error', typeof error === 'string' ? new Error(error) : error)
+        driver.hooks.emit(
+          "kubb:error",
+          typeof error === "string" ? new Error(error) : error,
+        );
       },
       info(message: string) {
-        driver.hooks.emit('kubb:info', message)
+        driver.hooks.emit("kubb:info", message);
       },
       openInStudio(options?: DevtoolsOptions) {
         if (!driver.config.devtools || driver.#studioIsOpen) {
-          return
+          return;
         }
 
-        if (typeof driver.config.devtools !== 'object') {
-          throw new Error('Devtools must be an object')
+        if (typeof driver.config.devtools !== "object") {
+          throw new Error("Devtools must be an object");
         }
 
         if (!driver.inputNode || !driver.adapter) {
-          throw new Error('adapter is not defined, make sure you have set the parser in kubb.config.ts')
+          throw new Error(
+            "adapter is not defined, make sure you have set the parser in kubb.config.ts",
+          );
         }
 
-        driver.#studioIsOpen = true
+        driver.#studioIsOpen = true;
 
-        const studioUrl = driver.config.devtools?.studioUrl ?? DEFAULT_STUDIO_URL
+        const studioUrl =
+          driver.config.devtools?.studioUrl ?? DEFAULT_STUDIO_URL;
 
-        return openInStudioFn(driver.inputNode, studioUrl, options)
+        return openInStudioFn(driver.inputNode, studioUrl, options);
       },
-    } as unknown as GeneratorContext<TOptions>
+    } as unknown as GeneratorContext<TOptions>;
 
-    return baseContext
+    return baseContext;
   }
 
-  getPlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
-  getPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string): Plugin<TOptions> | undefined
+  getPlugin<TName extends keyof Kubb.PluginRegistry>(
+    pluginName: TName,
+  ): Plugin<Kubb.PluginRegistry[TName]> | undefined;
+  getPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(
+    pluginName: string,
+  ): Plugin<TOptions> | undefined;
   getPlugin(pluginName: string): Plugin | undefined {
-    return this.plugins.get(pluginName)
+    return this.plugins.get(pluginName);
   }
 
   /**
    * Like `getPlugin` but throws a descriptive error when the plugin is not found.
    */
-  requirePlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Plugin<Kubb.PluginRegistry[TName]>
-  requirePlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string): Plugin<TOptions>
+  requirePlugin<TName extends keyof Kubb.PluginRegistry>(
+    pluginName: TName,
+  ): Plugin<Kubb.PluginRegistry[TName]>;
+  requirePlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(
+    pluginName: string,
+  ): Plugin<TOptions>;
   requirePlugin(pluginName: string): Plugin {
-    const plugin = this.plugins.get(pluginName)
+    const plugin = this.plugins.get(pluginName);
     if (!plugin) {
-      throw new Error(`[kubb] Plugin "${pluginName}" is required but not found. Make sure it is included in your Kubb config.`)
+      throw new Error(
+        `[kubb] Plugin "${pluginName}" is required but not found. Make sure it is included in your Kubb config.`,
+      );
     }
-    return plugin
+    return plugin;
   }
 }

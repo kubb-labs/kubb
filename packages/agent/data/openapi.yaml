@@ -58,7 +58,7 @@ paths:
               "$ref": "#/components/schemas/Pet"
         required: true
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
@@ -67,11 +67,11 @@ paths:
             application/xml:
               schema:
                 "$ref": "#/components/schemas/Pet"
-        '400':
+        "400":
           description: Invalid ID supplied
-        '404':
+        "404":
           description: Pet not found
-        '422':
+        "422":
           description: Validation exception
         default:
           description: Unexpected error
@@ -99,7 +99,7 @@ paths:
               "$ref": "#/components/schemas/Pet"
         required: true
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
@@ -108,9 +108,9 @@ paths:
             application/xml:
               schema:
                 "$ref": "#/components/schemas/Pet"
-        '400':
+        "400":
           description: Invalid input
-        '422':
+        "422":
           description: Validation exception
         default:
           description: Unexpected error
@@ -139,7 +139,7 @@ paths:
               - pending
               - sold
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
@@ -152,7 +152,7 @@ paths:
                 type: array
                 items:
                   "$ref": "#/components/schemas/Pet"
-        '400':
+        "400":
           description: Invalid status value
         default:
           description: Unexpected error
@@ -165,7 +165,8 @@ paths:
       tags:
         - pet
       summary: Finds Pets by tags.
-      description: Multiple tags can be provided with comma separated strings. Use
+      description:
+        Multiple tags can be provided with comma separated strings. Use
         tag1, tag2, tag3 for testing.
       operationId: findPetsByTags
       parameters:
@@ -179,7 +180,7 @@ paths:
             items:
               type: string
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
@@ -192,7 +193,7 @@ paths:
                 type: array
                 items:
                   "$ref": "#/components/schemas/Pet"
-        '400':
+        "400":
           description: Invalid tag value
         default:
           description: Unexpected error
@@ -216,7 +217,7 @@ paths:
             type: integer
             format: int64
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
@@ -225,9 +226,9 @@ paths:
             application/xml:
               schema:
                 "$ref": "#/components/schemas/Pet"
-        '400':
+        "400":
           description: Invalid ID supplied
-        '404':
+        "404":
           description: Pet not found
         default:
           description: Unexpected error
@@ -261,7 +262,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
@@ -270,7 +271,7 @@ paths:
             application/xml:
               schema:
                 "$ref": "#/components/schemas/Pet"
-        '400':
+        "400":
           description: Invalid input
         default:
           description: Unexpected error
@@ -287,7 +288,7 @@ paths:
       parameters:
         - name: api_key
           in: header
-          description: ''
+          description: ""
           required: false
           schema:
             type: string
@@ -299,9 +300,9 @@ paths:
             type: integer
             format: int64
       responses:
-        '200':
+        "200":
           description: Pet deleted
-        '400':
+        "400":
           description: Invalid pet value
         default:
           description: Unexpected error
@@ -337,15 +338,15 @@ paths:
               type: string
               format: binary
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/ApiResponse"
-        '400':
+        "400":
           description: No file uploaded
-        '404':
+        "404":
           description: Pet not found
         default:
           description: Unexpected error
@@ -361,7 +362,7 @@ paths:
       description: Returns a map of status codes to quantities.
       operationId: getInventory
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
@@ -393,15 +394,15 @@ paths:
             schema:
               "$ref": "#/components/schemas/Order"
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Order"
-        '400':
+        "400":
           description: Invalid input
-        '422':
+        "422":
           description: Validation exception
         default:
           description: Unexpected error
@@ -410,7 +411,8 @@ paths:
       tags:
         - store
       summary: Find purchase order by ID.
-      description: For valid response try integer IDs with value <= 5 or > 10. Other
+      description:
+        For valid response try integer IDs with value <= 5 or > 10. Other
         values will generate exceptions.
       operationId: getOrderById
       parameters:
@@ -422,7 +424,7 @@ paths:
             type: integer
             format: int64
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
@@ -431,9 +433,9 @@ paths:
             application/xml:
               schema:
                 "$ref": "#/components/schemas/Order"
-        '400':
+        "400":
           description: Invalid ID supplied
-        '404':
+        "404":
           description: Order not found
         default:
           description: Unexpected error
@@ -441,7 +443,8 @@ paths:
       tags:
         - store
       summary: Delete purchase order by identifier.
-      description: For valid response try integer IDs with value < 1000. Anything
+      description:
+        For valid response try integer IDs with value < 1000. Anything
         above 1000 or non-integers will generate API errors.
       operationId: deleteOrder
       parameters:
@@ -453,11 +456,11 @@ paths:
             type: integer
             format: int64
       responses:
-        '200':
+        "200":
           description: order deleted
-        '400':
+        "400":
           description: Invalid ID supplied
-        '404':
+        "404":
           description: Order not found
         default:
           description: Unexpected error
@@ -481,7 +484,7 @@ paths:
             schema:
               "$ref": "#/components/schemas/User"
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
@@ -507,7 +510,7 @@ paths:
               items:
                 "$ref": "#/components/schemas/User"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
@@ -539,7 +542,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: successful operation
           headers:
             X-Rate-Limit:
@@ -559,7 +562,7 @@ paths:
             application/json:
               schema:
                 type: string
-        '400':
+        "400":
           description: Invalid username/password supplied
         default:
           description: Unexpected error
@@ -572,7 +575,7 @@ paths:
       operationId: logoutUser
       parameters: []
       responses:
-        '200':
+        "200":
           description: successful operation
         default:
           description: Unexpected error
@@ -591,7 +594,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
@@ -600,9 +603,9 @@ paths:
             application/xml:
               schema:
                 "$ref": "#/components/schemas/User"
-        '400':
+        "400":
           description: Invalid username supplied
-        '404':
+        "404":
           description: User not found
         default:
           description: Unexpected error
@@ -632,11 +635,11 @@ paths:
             schema:
               "$ref": "#/components/schemas/User"
       responses:
-        '200':
+        "200":
           description: successful operation
-        '400':
+        "400":
           description: bad request
-        '404':
+        "404":
           description: user not found
         default:
           description: Unexpected error
@@ -654,11 +657,11 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: User deleted
-        '400':
+        "400":
           description: Invalid username supplied
-        '404':
+        "404":
           description: User not found
         default:
           description: Unexpected error
@@ -727,10 +730,10 @@ components:
           example: john@email.com
         password:
           type: string
-          example: '12345'
+          example: "12345"
         phone:
           type: string
-          example: '12345'
+          example: "12345"
         userStatus:
           type: integer
           description: User Status

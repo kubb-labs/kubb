@@ -8,48 +8,55 @@
  * - Bidirectional: ErrorMessage, StatusMessage
  */
 
-import type { FileNode } from '@kubb/ast'
-import type { Config } from '@kubb/core'
+import type { FileNode } from "@kubb/ast";
+import type { Config } from "@kubb/core";
 
 export type JSONKubbConfig = {
   plugins?: Array<{
-    name: string
-    options: object
-  }>
+    name: string;
+    options: object;
+  }>;
   /**
    * Raw OpenAPI / Swagger spec content (YAML or JSON string).
    * Only possible to set when agent type is 'sandbox'
    */
-  input?: string
-}
+  input?: string;
+};
 
 /**
  * Typed events sent by the Kubb agent.
  * Follows the same tuple structure as {@link KubbHooks}.
  */
 export type KubbHooks = {
-  'kubb:plugin:start': [plugin: { name: string }]
-  'kubb:plugin:end': [plugin: { name: string }, meta: { duration: number; success: boolean }]
-  'kubb:files:processing:start': [meta: { total: number }]
-  'kubb:file:processing:update': [
+  "kubb:plugin:start": [plugin: { name: string }];
+  "kubb:plugin:end": [
+    plugin: { name: string },
+    meta: { duration: number; success: boolean },
+  ];
+  "kubb:files:processing:start": [meta: { total: number }];
+  "kubb:file:processing:update": [
     meta: {
-      file: string
-      processed: number
-      total: number
-      percentage: number
+      file: string;
+      processed: number;
+      total: number;
+      percentage: number;
     },
-  ]
-  'kubb:files:processing:end': [meta: { total: number }]
-  'kubb:info': [message: string, info?: string]
-  'kubb:success': [message: string, info?: string]
-  'kubb:warn': [message: string, info?: string]
-  'kubb:error': [error: { message: string; stack?: string }]
-  'kubb:generation:start': [config: { name?: string; plugins: number }]
-  'kubb:generation:end': [Config: Config, files: Array<FileNode>, sources: Record<string, string>]
-  'kubb:lifecycle:end': []
-}
+  ];
+  "kubb:files:processing:end": [meta: { total: number }];
+  "kubb:info": [message: string, info?: string];
+  "kubb:success": [message: string, info?: string];
+  "kubb:warn": [message: string, info?: string];
+  "kubb:error": [error: { message: string; stack?: string }];
+  "kubb:generation:start": [config: { name?: string; plugins: number }];
+  "kubb:generation:end": [
+    Config: Config,
+    files: Array<FileNode>,
+    sources: Record<string, string>,
+  ];
+  "kubb:lifecycle:end": [];
+};
 
-export type KubbHook = keyof KubbHooks
+export type KubbHook = keyof KubbHooks;
 
 /**
  * Payload for the publish command, sent from Studio to the Agent.
@@ -58,124 +65,132 @@ export type KubbHook = keyof KubbHooks
  * env var and then to 'npm publish'.
  */
 export type PublishCommandPayload = {
-  publisher: 'npm'
+  publisher: "npm";
   /** Optional shell command override, e.g. 'npm publish --access public' */
-  command?: string
+  command?: string;
   /** Arbitrary metadata stored in Studio (name, version, scope, …) */
-  meta?: Record<string, unknown>
-}
+  meta?: Record<string, unknown>;
+};
 
 /**
  * Command message sent from Studio to Agent
  * Triggers actions like code generation or connection establishment
  */
 export type CommandMessage =
-  | { type: 'command'; command: 'generate'; payload: JSONKubbConfig }
+  | { type: "command"; command: "generate"; payload: JSONKubbConfig }
   | {
-      type: 'command'
-      command: 'connect'
+      type: "command";
+      command: "connect";
       permissions: {
-        allowAll: boolean
-        allowWrite: boolean
-        allowPublish: boolean
-      }
+        allowAll: boolean;
+        allowWrite: boolean;
+        allowPublish: boolean;
+      };
     }
-  | { type: 'command'; command: 'publish'; payload: PublishCommandPayload }
+  | { type: "command"; command: "publish"; payload: PublishCommandPayload };
 
 export type ConnectMessagePayload = {
-  version: string
-  configPath: string
-  config: JSONKubbConfig
+  version: string;
+  configPath: string;
+  config: JSONKubbConfig;
   permissions: {
-    allowAll: boolean
-    allowWrite: boolean
-    allowPublish: boolean
-  }
-}
+    allowAll: boolean;
+    allowWrite: boolean;
+    allowPublish: boolean;
+  };
+};
 
 /**
  * Connected message sent from Agent to Studio
  * Includes agent info like supported plugins and version
  */
 export type ConnectedMessage = {
-  type: 'connected'
-  payload: ConnectMessagePayload
-}
+  type: "connected";
+  payload: ConnectMessagePayload;
+};
 
 /**
  * Error message for communicating failures
  */
 export type ErrorMessage = {
-  type: 'kubb:error'
-  message: string
-}
+  type: "kubb:error";
+  message: string;
+};
 
 /**
  * Ping message from Agent to keep connection alive
  */
 export type PingMessage = {
-  type: 'ping'
-}
+  type: "ping";
+};
 
 /**
  * Pong response from Studio to Agent ping
  */
 export type PongMessage = {
-  type: 'pong'
-}
+  type: "pong";
+};
 
 /**
  * Disconnect message sent from Studio to Agent when the session is expired or revoked.
  * The agent should close the connection without reconnecting.
  */
 export type DisconnectMessage = {
-  type: 'disconnect'
-  reason: 'expired' | 'revoked'
-}
+  type: "disconnect";
+  reason: "expired" | "revoked";
+};
 
 /**
  * Status message with connected agents information
  */
 export type StatusMessage = {
-  type: 'status'
-  message: string
-  connectedAgents: number
+  type: "status";
+  message: string;
+  connectedAgents: number;
   agents: Array<{
-    name: string
-    connectedAt: string
-  }>
-}
+    name: string;
+    connectedAt: string;
+  }>;
+};
 
 export type DataMessagePayload<T extends KubbHook = KubbHook> = {
-  type: T
-  data: KubbHooks[T]
-  timestamp: number
-  source?: 'generate' | 'publish'
-}
+  type: T;
+  data: KubbHooks[T];
+  timestamp: number;
+  source?: "generate" | "publish";
+};
 
 /**
  * Data message containing code generation events
  * Wraps Kubb SSE events for real-time generation progress
  */
 export type DataMessage<T extends KubbHook = KubbHook> = {
-  type: 'data'
-  payload: DataMessagePayload<T>
-}
+  type: "data";
+  payload: DataMessagePayload<T>;
+};
 
 /** Response returned by the Studio `/api/agent/session/create` endpoint. */
 export type AgentConnectResponse = {
-  wsUrl: string
-  expiresAt: string
-  revokedAt: string | null
-  sessionId: string
-  isSandbox: boolean
-}
+  wsUrl: string;
+  expiresAt: string;
+  revokedAt: string | null;
+  sessionId: string;
+  isSandbox: boolean;
+};
 
-export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ErrorMessage | StatusMessage | PingMessage | PongMessage | DisconnectMessage
+export type AgentMessage =
+  | CommandMessage
+  | DataMessage
+  | ConnectedMessage
+  | ErrorMessage
+  | StatusMessage
+  | PingMessage
+  | PongMessage
+  | DisconnectMessage;
 
 // Helper type guards
 export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
-  return msg.type === 'command'
+  return msg.type === "command";
 }
 
 /**
@@ -186,34 +201,44 @@ export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
  *   const pluginName = msg.event.data[0].name
  * }
  */
-export function isDataMessage<T extends KubbHook>(msg: AgentMessage, type?: T): msg is DataMessage<T> {
-  return msg.type === 'data' && (type ? msg.payload.type === type : true)
+export function isDataMessage<T extends KubbHook>(
+  msg: AgentMessage,
+  type?: T,
+): msg is DataMessage<T> {
+  return msg.type === "data" && (type ? msg.payload.type === type : true);
 }
 
 export function isConnectedMessage(msg: AgentMessage): msg is ConnectedMessage {
-  return msg.type === 'connected'
+  return msg.type === "connected";
 }
 
 export function isErrorMessage(msg: AgentMessage): msg is ErrorMessage {
-  return msg.type === 'kubb:error'
+  return msg.type === "kubb:error";
 }
 
 export function isPingMessage(msg: AgentMessage): msg is PingMessage {
-  return msg.type === 'ping'
+  return msg.type === "ping";
 }
 
 export function isPongMessage(msg: AgentMessage): msg is PongMessage {
-  return msg.type === 'pong'
+  return msg.type === "pong";
 }
 
 export function isStatusMessage(msg: AgentMessage): msg is StatusMessage {
-  return msg.type === 'status'
+  return msg.type === "status";
 }
 
-export function isDisconnectMessage(msg: AgentMessage): msg is DisconnectMessage {
-  return msg.type === 'disconnect'
+export function isDisconnectMessage(
+  msg: AgentMessage,
+): msg is DisconnectMessage {
+  return msg.type === "disconnect";
 }
 
-export function isPublishCommandMessage(msg: AgentMessage): msg is CommandMessage & { command: 'publish' } {
-  return msg.type === 'command' && (msg as CommandMessage & { command: string }).command === 'publish'
+export function isPublishCommandMessage(
+  msg: AgentMessage,
+): msg is CommandMessage & { command: "publish" } {
+  return (
+    msg.type === "command" &&
+    (msg as CommandMessage & { command: string }).command === "publish"
+  );
 }

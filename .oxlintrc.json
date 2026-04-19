@@ -20,6 +20,18 @@
     "no-unsafe-optional-chaining": "off",
     "no-unused-private-class-members": "off",
     "jsx-a11y/html-has-lang": "off",
+    "no-unused-vars": [
+      "warn",
+      {
+        "varsIgnorePattern": "^_",
+        "argsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
+
+    "@typescript-eslint/no-this-alias": "off",
+
+    "unicorn/no-useless-fallback-in-spread": "off",
 
     "no-else-return": "error",
     "no-constructor-return": "error",
@@ -29,7 +41,10 @@
     "unicorn/prefer-node-protocol": "error",
     "unicorn/prefer-number-properties": "error",
 
-    "@typescript-eslint/consistent-type-imports": "error",
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      { "disallowTypeAnnotations": false }
+    ],
     "@typescript-eslint/no-inferrable-types": "error",
     "@typescript-eslint/prefer-function-type": "error",
 

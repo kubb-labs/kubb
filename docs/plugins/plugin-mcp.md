@@ -48,17 +48,18 @@ yarn add -D @kubb/plugin-mcp
 ## Options
 
 ### output
+
 Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
 <!--@include: ./core/outputPath.md-->
 
-|           |           |
-| --------: | :-------- |
-|     Type: | `string`  |
-| Required: | `true`    |
-|  Default: | `'mcp'`   |
+|           |          |
+| --------: | :------- |
+|     Type: | `string` |
+| Required: | `true`   |
+|  Default: | `'mcp'`  |
 
 #### output.barrelType
 
@@ -84,12 +85,13 @@ Specify the export location for the files and define the behavior of the output.
 
 <!--@include: ./core/resolvers.md-->
 
-|           |                                                          |
-| --------: | :------------------------------------------------------- |
-|     Type: | `Partial<ResolverMcp> & ThisType<ResolverMcp>`           |
-| Required: | `false`                                                  |
+|           |                                                |
+| --------: | :--------------------------------------------- |
+|     Type: | `Partial<ResolverMcp> & ThisType<ResolverMcp>` |
+| Required: | `false`                                        |
 
 ### group
+
 <!--@include: ./core/group.md-->
 
 #### group.type
@@ -113,25 +115,26 @@ Transform parameter names to a specific casing format for path, query, and heade
 > [!IMPORTANT]
 > When using `paramsCasing`, ensure that `@kubb/plugin-ts` also has the same `paramsCasing` setting. This option automatically maps transformed parameter names back to their original API names in HTTP requests.
 
-|           |                |
-| --------: | :------------- |
-|     Type: | `'camelcase'`  |
-| Required: | `false`        |
-|  Default: | `undefined`    |
+|           |               |
+| --------: | :------------ |
+|     Type: | `'camelcase'` |
+| Required: | `false`       |
+|  Default: | `undefined`   |
 
 - `'camelcase'` transforms parameter names to camelCase
 
 ::: code-group
+
 ```typescript [With paramsCasing: 'camelcase']
 // Handler uses camelCase parameters
-export async function findPetsByStatusHandler({ 
+export async function findPetsByStatusHandler({
   stepId  // ✓ camelCase
-}: { 
-  stepId: FindPetsByStatusPathParams['stepId'] 
+}: {
+  stepId: FindPetsByStatusPathParams['stepId']
 }): Promise<Promise<CallToolResult>> {
   // Automatically maps back to original name
   const step_id = stepId
-  
+
   const res = await fetch({
     method: 'GET',
     url: `/pet/findByStatus/${step_id}`,  // Uses original API name
@@ -143,10 +146,10 @@ export async function findPetsByStatusHandler({
 
 ```typescript [Without paramsCasing]
 // Handler uses original API naming
-export async function findPetsByStatusHandler({ 
+export async function findPetsByStatusHandler({
   step_id  // Original naming
-}: { 
-  step_id: FindPetsByStatusPathParams['step_id'] 
+}: {
+  step_id: FindPetsByStatusPathParams['step_id']
 }): Promise<Promise<CallToolResult>> {
   const res = await fetch({
     method: 'GET',
@@ -156,6 +159,7 @@ export async function findPetsByStatusHandler({
   ...
 }
 ```
+
 :::
 
 ### client
@@ -172,17 +176,20 @@ export async function findPetsByStatusHandler({
 
 <!--@include: ./plugin-client/baseURL.md-->
 
-
 ### include
+
 <!--@include: ./core/include.md-->
 
 ### exclude
+
 <!--@include: ./core/exclude.md-->
 
 ### override
+
 <!--@include: ./core/override.md-->
 
 ### generators <img src="../public/icons/experimental.svg"/>
+
 <!--@include: ./core/generators.md-->
 
 |           |                               |
@@ -197,18 +204,18 @@ export async function findPetsByStatusHandler({
 ## Example
 
 ```typescript twoslash
-import { defineConfig } from '@kubb/core'
-import { adapterOas } from '@kubb/adapter-oas'
-import { pluginTs } from '@kubb/plugin-ts'
-import { pluginZod } from '@kubb/plugin-zod'
-import { pluginMcp } from '@kubb/plugin-mcp'
+import { defineConfig } from "@kubb/core";
+import { adapterOas } from "@kubb/adapter-oas";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginZod } from "@kubb/plugin-zod";
+import { pluginMcp } from "@kubb/plugin-mcp";
 
 export default defineConfig({
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
   },
   adapter: adapterOas(),
   plugins: [
@@ -216,20 +223,21 @@ export default defineConfig({
     pluginZod(),
     pluginMcp({
       output: {
-        path: './mcp',
-        barrelType: 'named',
+        path: "./mcp",
+        barrelType: "named",
       },
       client: {
-        baseURL: 'https://petstore.swagger.io/v2',
+        baseURL: "https://petstore.swagger.io/v2",
       },
       group: {
-        type: 'tag',
+        type: "tag",
         name: ({ group }) => `${group}Handlers`,
       },
     }),
   ],
-})
+});
 ```
+
 ## See Also
 
 - [MCP](https://modelcontextprotocol.io/)

@@ -693,23 +693,23 @@ components:
   schemas:
     Vehicle:
       type: object
-      required: [ type ]
+      required: [type]
       properties:
         type:
           type: string
       discriminator:
         propertyName: type
         mapping:
-          car: '#/components/schemas/Car'
+          car: "#/components/schemas/Car"
       oneOf:
-        - $ref: '#/components/schemas/Car'
+        - $ref: "#/components/schemas/Car"
 
     Car:
       type: object
       properties:
         doors:
           type: integer
-      required: [ type ]
+      required: [type]
     Order:
       type: object
       properties:
@@ -726,14 +726,14 @@ components:
           format: int32
           example: 7
         orderType:
-           type: string
-           enum:
-             - foo
-             - bar
+          type: string
+          enum:
+            - foo
+            - bar
         type:
-           type: string
-           description: Order Status
-           example: approved
+          type: string
+          description: Order Status
+          example: approved
         shipDate:
           type: string
           format: date-time

@@ -1,8 +1,8 @@
-import { cpSync, existsSync } from 'node:fs'
-import { createRequire } from 'node:module'
-import { dirname, join, resolve } from 'node:path'
+import { cpSync, existsSync } from "node:fs";
+import { createRequire } from "node:module";
+import { dirname, join, resolve } from "node:path";
 
-const _require = createRequire(import.meta.url)
+const _require = createRequire(import.meta.url);
 
 /**
  * Locate the `ajv` package directory using multiple resolution strategies.
@@ -20,34 +20,46 @@ const _require = createRequire(import.meta.url)
 function resolveAjvSrc(): string {
   const strategies: Array<() => string> = [
     // 1. Standard: resolve from the nitro.config.ts file location
-    () => dirname(_require.resolve('ajv/package.json')),
+    () => dirname(_require.resolve("ajv/package.json")),
     // 2. Resolve from the package directory (process.cwd() = packages/agent/ during nitro build)
-    () => dirname(createRequire(resolve(process.cwd(), 'package.json')).resolve('ajv/package.json')),
+    () =>
+      dirname(
+        createRequire(resolve(process.cwd(), "package.json")).resolve(
+          "ajv/package.json",
+        ),
+      ),
     // 3. Resolve from the monorepo root (pnpm workspace hoists ajv there)
-    () => dirname(createRequire(resolve(process.cwd(), '../../package.json')).resolve('ajv/package.json')),
-  ]
+    () =>
+      dirname(
+        createRequire(resolve(process.cwd(), "../../package.json")).resolve(
+          "ajv/package.json",
+        ),
+      ),
+  ];
 
   for (const strategy of strategies) {
     try {
-      const src = strategy()
+      const src = strategy();
       // Validate that this is a real, complete ajv installation
-      if (existsSync(join(src, 'dist', 'ajv.js'))) {
-        return src
+      if (existsSync(join(src, "dist", "ajv.js"))) {
+        return src;
       }
     } catch {}
   }
 
-  throw new Error('[kubb-agent] Could not locate a valid ajv package (with dist/ajv.js). Ensure ajv@^8 is installed.')
+  throw new Error(
+    "[kubb-agent] Could not locate a valid ajv package (with dist/ajv.js). Ensure ajv@^8 is installed.",
+  );
 }
 
 export default defineNitroConfig({
-  srcDir: 'server',
+  srcDir: "server",
   alias: {
     // @redocly/openapi-core uses an npm alias pointing 'ajv' to '@redocly/ajv'.
     // esbuild (used by Nitro) resolves based on the physical folder structure and
     // does not follow the alias in the lockfile/package.json metadata during bundling.
     // Explicitly mapping 'ajv' here ensures Nitro/esbuild finds the correct package.
-    ajv: '@redocly/ajv',
+    ajv: "@redocly/ajv",
   },
   hooks: {
     // The `ajv` alias above replaces the entry-point import in the bundle, so Nitro's
@@ -57,9 +69,9 @@ export default defineNitroConfig({
     // filesystem and fails because the package is incomplete. Copy the full package
     // from the real `ajv` installation after the build to fix that.
     compiled(nitro) {
-      const dest = resolve(nitro.options.output.serverDir, 'node_modules/ajv')
-      const src = resolveAjvSrc()
-      cpSync(src, dest, { recursive: true, force: true, dereference: true })
+      const dest = resolve(nitro.options.output.serverDir, "node_modules/ajv");
+      const src = resolveAjvSrc();
+      cpSync(src, dest, { recursive: true, force: true, dereference: true });
     },
   },
   externals: {
@@ -71,21 +83,21 @@ export default defineNitroConfig({
     // commonjs--resolver parser fails on certain React 19 code patterns inside
     // that bundle. Externalizing it causes Nitro to copy the package to the
     // output node_modules instead of trying to bundle it.
-    external: ['typescript', '@kubb/renderer-jsx'],
+    external: ["typescript", "@kubb/renderer-jsx"],
   },
   storage: {
     kubb: {
-      driver: 'fs',
-      base: './.kubb/cache',
+      driver: "fs",
+      base: "./.kubb/cache",
     },
   },
   debug: false,
   serveStatic: false,
-  compatibilityDate: '2026-02-22',
-  ignore: ['**/*.test.ts', '**/*.spec.ts'],
+  compatibilityDate: "2026-02-22",
+  ignore: ["**/*.test.ts", "**/*.spec.ts"],
   nodeModulesDirs: [
-    './node_modules', // Local modules
-    '../../node_modules', // Root modules (in a monorepo)
+    "./node_modules", // Local modules
+    "../../node_modules", // Root modules (in a monorepo)
   ],
   rollupConfig: {
     // Prevent TypeScript from being bundled into the Nitro output. TypeScript is a
@@ -94,7 +106,7 @@ export default defineNitroConfig({
     // rollup external ensures it is resolved from node_modules at runtime.
     //
     // @kubb/renderer-jsx is also excluded here to match the externals config above.
-    external: ['typescript', '@kubb/renderer-jsx'],
+    external: ["typescript", "@kubb/renderer-jsx"],
     output: {
       // Polyfill CJS globals for bundled dependencies that reference __filename/__dirname
       // in the ESM output (.mjs). These are not defined in ES module scope by default.
@@ -105,14 +117,15 @@ const __dirname = pathNode.dirname(__filename)`,
     },
   },
   routeRules: {
-    '/**': {
+    "/**": {
       cors: false,
       headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-        'Access-Control-Allow-Headers': '*',
-        'Access-Control-Expose-Headers': '*',
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods":
+          "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Expose-Headers": "*",
       },
     },
   },
-})
+});

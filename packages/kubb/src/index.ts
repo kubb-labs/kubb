@@ -1,1 +1,1 @@
-export { defineConfig } from './defineConfig.ts'
+export { defineConfig } from "./defineConfig.ts";

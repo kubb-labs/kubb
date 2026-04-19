@@ -39,7 +39,7 @@ This skill provides focused guidelines for writing JSDoc comments consistently a
 
 ### Multi-line — fenced code block immediately after `@example`
 
-```typescript
+````typescript
 /**
  * @example
  * ```ts
@@ -48,7 +48,7 @@ This skill provides focused guidelines for writing JSDoc comments consistently a
  * })
  * ```
  */
-```
+````
 
 ### Multiple variants — use multiple `@example` blocks
 
@@ -64,12 +64,12 @@ This skill provides focused guidelines for writing JSDoc comments consistently a
 
 ### Rules
 
-| Rule | ✅ Correct | ❌ Incorrect |
-|------|-----------|-------------|
-| Label + inline code | `@example Required\n\`name: Type\`` | `@example \`name: Type\`` (code on tag line) |
-| Multi-line code | Fenced ` ```ts ``` ` block | Bare code lines without a fence |
-| Short examples | Inline backtick | Triple-backtick fence (too heavy) |
-| One concern per example | Separate `@example` blocks | One example covering all cases |
+| Rule                    | ✅ Correct                          | ❌ Incorrect                                 |
+| ----------------------- | ----------------------------------- | -------------------------------------------- |
+| Label + inline code     | `@example Required\n\`name: Type\`` | `@example \`name: Type\`` (code on tag line) |
+| Multi-line code         | Fenced ` ```ts ``` ` block          | Bare code lines without a fence              |
+| Short examples          | Inline backtick                     | Triple-backtick fence (too heavy)            |
+| One concern per example | Separate `@example` blocks          | One example covering all cases               |
 
 ---
 
@@ -77,20 +77,20 @@ This skill provides focused guidelines for writing JSDoc comments consistently a
 
 ### Use Frequently
 
-| Tag | Purpose | Notes |
-| --- | ------- | ----- |
-| `@default` | Default value | Only when default is non-obvious; omit for `undefined` |
-| `@example` | Usage example | Prefer for complex or multi-variant APIs |
-| `@note` | Important caveat | Version info, breaking changes |
-| `@deprecated` | Mark as deprecated | Include migration path |
+| Tag           | Purpose            | Notes                                                  |
+| ------------- | ------------------ | ------------------------------------------------------ |
+| `@default`    | Default value      | Only when default is non-obvious; omit for `undefined` |
+| `@example`    | Usage example      | Prefer for complex or multi-variant APIs               |
+| `@note`       | Important caveat   | Version info, breaking changes                         |
+| `@deprecated` | Mark as deprecated | Include migration path                                 |
 
 ### Use Sparingly
 
-| Tag | Purpose |
-| --- | ------- |
-| `@see` | Reference external docs |
-| `@internal` | Internal API |
-| `@beta` | Experimental |
+| Tag         | Purpose                 |
+| ----------- | ----------------------- |
+| `@see`      | Reference external docs |
+| `@internal` | Internal API            |
+| `@beta`     | Experimental            |
 
 ### Avoid (TypeScript Provides)
 
@@ -138,7 +138,7 @@ concurrency?: number
  * - `'inline'` spreads them as individual parameters
  * - `'inlineSpread'` emits a single rest parameter
  */
-pathParamsType: 'object' | 'inline' | 'inlineSpread'
+pathParamsType: "object" | "inline" | "inlineSpread";
 ```
 
 ### Property with example
@@ -205,6 +205,7 @@ function isStringType(node: SchemaNode): boolean { ... }
 ## Guidelines
 
 **✅ DO:**
+
 - Document **what** the property does, not its TypeScript type
 - Give every exported type, property, and function a JSDoc comment
 - Always use multi-line JSDoc blocks — never single-line `/** ... */`
@@ -214,6 +215,7 @@ function isStringType(node: SchemaNode): boolean { ... }
 - Keep `@example` labels short and descriptive
 
 **❌ DON'T:**
+
 - Write single-line `/** description */` — always use multi-line
 - Write `@default undefined` — optional `?` already implies this
 - Put code directly on the `@example` line: `@example \`foo: string\`` → move code to next line
@@ -238,7 +240,7 @@ For consistency, use this order within a JSDoc block:
 
 ## Related Skills
 
-| Skill | Use For |
-| ----- | ------- |
+| Skill                                                      | Use For                              |
+| ---------------------------------------------------------- | ------------------------------------ |
 | **[../documentation/SKILL.md](../documentation/SKILL.md)** | Writing markdown documentation files |
-| **[../coding-style/SKILL.md](../coding-style/SKILL.md)** | General coding conventions |
+| **[../coding-style/SKILL.md](../coding-style/SKILL.md)**   | General coding conventions           |

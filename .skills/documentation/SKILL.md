@@ -36,11 +36,11 @@ Brevity is still valued, but never at the cost of clarity or correctness.
 
 ## Available References
 
-| Reference                                                                                              | Purpose                                         |
-|--------------------------------------------------------------------------------------------------------| ----------------------------------------------- |
-| **[../documentation/references/writing-style.md](./../documentation/references/writing-style.md)**     | Voice, tone, sentence structure                 |
-| **[../documentation/references/content-patterns.md](../documentation/references/content-patterns.md)** | Usage patterns, props structure, component patterns |
-| **[../documentation/references/config-json.md](../documentation/references/config-json.md)**           | Navigation and sidebar configuration schema     |
+| Reference                                                                                              | Purpose                                                  |
+| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------- |
+| **[../documentation/references/writing-style.md](./../documentation/references/writing-style.md)**     | Voice, tone, sentence structure                          |
+| **[../documentation/references/content-patterns.md](../documentation/references/content-patterns.md)** | Usage patterns, props structure, component patterns      |
+| **[../documentation/references/config-json.md](../documentation/references/config-json.md)**           | Navigation and sidebar configuration schema              |
 | **[../documentation/references/seo-optimization.md](../documentation/references/seo-optimization.md)** | SEO best practices, titles, descriptions, keywords, FAQs |
 
 **Load based on context:**
@@ -63,7 +63,7 @@ Brevity is still valued, but never at the cost of clarity or correctness.
 ### Writing Patterns
 
 | Pattern       | Example                                                    |
-| ------------- |------------------------------------------------------------|
+| ------------- | ---------------------------------------------------------- |
 | Subject-first | "The `useFabric` composable handles Fabric related logic." |
 | Imperative    | "Add the following to `kubb.config.ts`."                   |
 | Contextual    | "When relying on TypeScript, configure..."                 |
@@ -78,12 +78,12 @@ Brevity is still valued, but never at the cost of clarity or correctness.
 
 ### Component Patterns (WHEN to use)
 
-| Need              | Component                           |
-| ----------------- |-------------------------------------|
-| Info aside        | `> [!NOTE]`                         |
-| Suggestion        | `> [!TIP]`                          |
-| Caution           | `> [!WARNING]`                      |
-| Required          | `> [!IMPORTANT]`                    |
+| Need              | Component                            |
+| ----------------- | ------------------------------------ |
+| Info aside        | `> [!NOTE]`                          |
+| Suggestion        | `> [!TIP]`                           |
+| Caution           | `> [!WARNING]`                       |
+| Required          | `> [!IMPORTANT]`                     |
 | Multi-source code | `::: code-group` and ends with `:::` |
 
 ## Headings
@@ -117,6 +117,7 @@ The `docs/config.json` file defines navigation and sidebar structure using the K
 - **Route mapping**: `/getting-started` maps to `gettingStarted` sidebar name
 
 When adding new sections:
+
 1. Define sidebar in `sidebars` array with unique `name`
 2. Add navigation items to `nav` array
 3. Map route prefix to sidebar name in `sidebar` object

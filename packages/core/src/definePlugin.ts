@@ -1,5 +1,5 @@
-import type { KubbHooks } from './Kubb.ts'
-import type { KubbPluginSetupContext, PluginFactoryOptions } from './types.ts'
+import type { KubbHooks } from "./Kubb.ts";
+import type { KubbPluginSetupContext, PluginFactoryOptions } from "./types.ts";
 
 /**
  * A plugin object produced by `definePlugin`.
@@ -8,30 +8,36 @@ import type { KubbPluginSetupContext, PluginFactoryOptions } from './types.ts'
  *
  * @template TFactory - The plugin's `PluginFactoryOptions` type.
  */
-export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
+export type Plugin<
+  TFactory extends PluginFactoryOptions = PluginFactoryOptions,
+> = {
   /**
    * Unique name for the plugin, following the same naming convention as `createPlugin`.
    */
-  name: string
+  name: string;
   /**
    * Plugins that must be registered before this plugin executes.
    * An error is thrown at startup when any listed dependency is missing.
    */
-  dependencies?: Array<string>
+  dependencies?: Array<string>;
   /**
    * The options passed by the user when calling the plugin factory.
    */
-  options?: TFactory['options']
+  options?: TFactory["options"];
   /**
    * Lifecycle event handlers for this plugin.
    * Any event from the global `KubbHooks` map can be subscribed to here.
    */
   hooks: {
-    [K in Exclude<keyof KubbHooks, 'kubb:plugin:setup'>]?: (...args: KubbHooks[K]) => void | Promise<void>
+    [K in Exclude<keyof KubbHooks, "kubb:plugin:setup">]?: (
+      ...args: KubbHooks[K]
+    ) => void | Promise<void>;
   } & {
-    'kubb:plugin:setup'?(ctx: KubbPluginSetupContext<TFactory>): void | Promise<void>
-  }
-}
+    "kubb:plugin:setup"?(
+      ctx: KubbPluginSetupContext<TFactory>,
+    ): void | Promise<void>;
+  };
+};
 
 /**
  * Returns `true` when `plugin` is a hook-style plugin created with `definePlugin`.
@@ -40,7 +46,7 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
  * so it can normalize them and register their handlers on the `AsyncEventEmitter`.
  */
 export function isPlugin(plugin: unknown): plugin is Plugin {
-  return typeof plugin === 'object' && plugin !== null && 'hooks' in plugin
+  return typeof plugin === "object" && plugin !== null && "hooks" in plugin;
 }
 
 /**
@@ -66,8 +72,10 @@ export function isPlugin(plugin: unknown): plugin is Plugin {
  * }))
  * ```
  */
-export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(
-  factory: (options: TFactory['options']) => Plugin<TFactory>,
-): (options?: TFactory['options']) => Plugin<TFactory> {
-  return (options) => factory(options ?? ({} as TFactory['options']))
+export function definePlugin<
+  TFactory extends PluginFactoryOptions = PluginFactoryOptions,
+>(
+  factory: (options: TFactory["options"]) => Plugin<TFactory>,
+): (options?: TFactory["options"]) => Plugin<TFactory> {
+  return (options) => factory(options ?? ({} as TFactory["options"]));
 }

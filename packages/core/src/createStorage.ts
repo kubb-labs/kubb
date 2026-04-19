@@ -2,36 +2,36 @@ export type Storage = {
   /**
    * Identifier used for logging and debugging (e.g. `'fs'`, `'s3'`).
    */
-  readonly name: string
+  readonly name: string;
   /**
    * Returns `true` when an entry for `key` exists in storage.
    */
-  hasItem(key: string): Promise<boolean>
+  hasItem(key: string): Promise<boolean>;
   /**
    * Returns the stored string value, or `null` when `key` does not exist.
    */
-  getItem(key: string): Promise<string | null>
+  getItem(key: string): Promise<string | null>;
   /**
    * Persists `value` under `key`, creating any required structure.
    */
-  setItem(key: string, value: string): Promise<void>
+  setItem(key: string, value: string): Promise<void>;
   /**
    *  Removes the entry for `key`. No-ops when the key does not exist.
    */
-  removeItem(key: string): Promise<void>
+  removeItem(key: string): Promise<void>;
   /**
    * Returns all keys, optionally filtered to those starting with `base`.
    */
-  getKeys(base?: string): Promise<Array<string>>
+  getKeys(base?: string): Promise<Array<string>>;
   /**
    * Removes all entries, optionally scoped to those starting with `base`.
    */
-  clear(base?: string): Promise<void>
+  clear(base?: string): Promise<void>;
   /**
    * Optional teardown hook called after the build completes.
    */
-  dispose?(): Promise<void>
-}
+  dispose?(): Promise<void>;
+};
 
 /**
  * Creates a storage factory. Call the returned function with optional options to get the storage instance.
@@ -53,6 +53,8 @@ export type Storage = {
  *   }
  * })
  */
-export function createStorage<TOptions = Record<string, never>>(build: (options: TOptions) => Storage): (options?: TOptions) => Storage {
-  return (options) => build(options ?? ({} as TOptions))
+export function createStorage<TOptions = Record<string, never>>(
+  build: (options: TOptions) => Storage,
+): (options?: TOptions) => Storage {
+  return (options) => build(options ?? ({} as TOptions));
 }

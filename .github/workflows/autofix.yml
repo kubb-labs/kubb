@@ -25,7 +25,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Fix formatting
         run: pnpm run format
@@ -36,5 +36,5 @@ jobs:
       - name: Apply fixes
         uses: autofix-ci/action@v1
         with:
-          commit-message: 'ci: apply linting and formating'
+          commit-message: "ci: apply linting and formating"
           comment: Auto fix applied for linting and formating

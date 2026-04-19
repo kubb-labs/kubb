@@ -1,7 +1,7 @@
-import type { Plugin } from '@kubb/core'
-import type { JSONKubbConfig } from '~/types/agent.ts'
+import type { Plugin } from "@kubb/core";
+import type { JSONKubbConfig } from "~/types/agent.ts";
 
-type PluginFactory = (options: unknown) => Plugin
+type PluginFactory = (options: unknown) => Plugin;
 
 /**
  * Derives the conventional named export for a plugin package from its package name.
@@ -15,9 +15,9 @@ type PluginFactory = (options: unknown) => Plugin
  */
 function toExportName(packageName: string): string {
   // Strip scope and any leading path segments, e.g. '@kubb/plugin-ts' → 'plugin-ts'
-  const base = packageName.split('/').pop() ?? packageName
+  const base = packageName.split("/").pop() ?? packageName;
   // camelCase: 'plugin-react-query' → 'pluginReactQuery'
-  return base.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase())
+  return base.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase());
 }
 
 /**
@@ -33,26 +33,35 @@ function toExportName(packageName: string): string {
  * @throws if the package cannot be imported or no callable factory is found.
  */
 async function loadPluginFactory(packageName: string): Promise<PluginFactory> {
-  let mod: Record<string, unknown>
+  let mod: Record<string, unknown>;
   try {
-    mod = await import(packageName)
+    mod = await import(packageName);
   } catch {
-    throw new Error(`Plugin "${packageName}" could not be loaded. Make sure it is installed: \`npm install ${packageName}\``)
+    throw new Error(
+      `Plugin "${packageName}" could not be loaded. Make sure it is installed: \`npm install ${packageName}\``,
+    );
   }
 
-  const exportName = toExportName(packageName)
+  const exportName = toExportName(packageName);
 
   // 1. camelCase named export (e.g. pluginTs, pluginReactQuery, myPlugin)
-  if (typeof mod[exportName] === 'function') return mod[exportName] as PluginFactory
+  if (typeof mod[exportName] === "function")
+    return mod[exportName] as PluginFactory;
 
   // 2. default export
-  if (typeof mod['default'] === 'function') return mod['default'] as PluginFactory
+  if (typeof mod["default"] === "function")
+    return mod["default"] as PluginFactory;
 
   // 3. first exported function (handles single-export CJS/ESM packages)
-  const firstFn = Object.values(mod).find((v) => typeof v === 'function') as PluginFactory | undefined
-  if (firstFn) return firstFn
+  const firstFn = Object.values(mod).find((v) => typeof v === "function") as
+    | PluginFactory
+    | undefined;
+  if (firstFn) return firstFn;
 
-  throw new Error(`Plugin "${packageName}" does not export a callable factory. ` + `Tried: named export "${exportName}", "default", and any exported function.`)
+  throw new Error(
+    `Plugin "${packageName}" does not export a callable factory. ` +
+      `Tried: named export "${exportName}", "default", and any exported function.`,
+  );
 }
 
 /**
@@ -71,11 +80,13 @@ async function loadPluginFactory(packageName: string): Promise<PluginFactory> {
  * { name: '@kubb/plugin-react-query', options: { output: { path: './hooks' } } }
  * { name: 'my-custom-plugin', options: { output: { path: './custom' } } }
  */
-export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugins']>): Promise<Array<Plugin>> {
+export async function resolvePlugins(
+  plugins: NonNullable<JSONKubbConfig["plugins"]>,
+): Promise<Array<Plugin>> {
   return Promise.all(
     plugins.map(async ({ name, options }) => {
-      const factory = await loadPluginFactory(name)
-      return factory(options ?? {})
+      const factory = await loadPluginFactory(name);
+      return factory(options ?? {});
     }),
-  )
+  );
 }

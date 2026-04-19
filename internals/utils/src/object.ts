@@ -8,8 +8,14 @@
  * isPlainObject(null)        // false
  * ```
  */
-export function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && Object.getPrototypeOf(value) === Object.prototype
+export function isPlainObject(
+  value: unknown,
+): value is Record<string, unknown> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    Object.getPrototypeOf(value) === Object.prototype
+  );
 }
 
 /**
@@ -22,17 +28,28 @@ export function isPlainObject(value: unknown): value is Record<string, unknown> 
  * // { a: { x: 1, y: 2 } }
  * ```
  */
-export function mergeDeep(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
-  const result: Record<string, unknown> = { ...target }
+export function mergeDeep(
+  target: Record<string, unknown>,
+  source: Record<string, unknown>,
+): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...target };
   for (const key of Object.keys(source)) {
-    const sv = source[key]
-    const tv = result[key]
+    const sv = source[key];
+    const tv = result[key];
     result[key] =
-      sv !== null && typeof sv === 'object' && !Array.isArray(sv) && tv !== null && typeof tv === 'object' && !Array.isArray(tv)
-        ? mergeDeep(tv as Record<string, unknown>, sv as Record<string, unknown>)
-        : sv
+      sv !== null &&
+      typeof sv === "object" &&
+      !Array.isArray(sv) &&
+      tv !== null &&
+      typeof tv === "object" &&
+      !Array.isArray(tv)
+        ? mergeDeep(
+            tv as Record<string, unknown>,
+            sv as Record<string, unknown>,
+          )
+        : sv;
   }
-  return result
+  return result;
 }
 
 /**
@@ -44,15 +61,26 @@ export function mergeDeep(target: Record<string, unknown>, source: Record<string
  * // { output: './src' }  (function stripped)
  * ```
  */
-export function serializePluginOptions<TOptions extends object>(options: TOptions): TOptions {
-  if (options === null || options === undefined) return {} as TOptions
-  if (typeof options !== 'object') return options
-  if (Array.isArray(options)) return options.map(serializePluginOptions) as unknown as TOptions
+export function serializePluginOptions<TOptions extends object>(
+  options: TOptions,
+): TOptions {
+  if (options === null || options === undefined) return {} as TOptions;
+  if (typeof options !== "object") return options;
+  if (Array.isArray(options))
+    return options.map(serializePluginOptions) as unknown as TOptions;
 
-  const serialized: Record<string, unknown> = {}
+  const serialized: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(options)) {
-    if (typeof value === 'function' || typeof value === 'symbol' || value === undefined) continue
-    serialized[key] = value !== null && typeof value === 'object' ? serializePluginOptions(value as object) : value
+    if (
+      typeof value === "function" ||
+      typeof value === "symbol" ||
+      value === undefined
+    )
+      continue;
+    serialized[key] =
+      value !== null && typeof value === "object"
+        ? serializePluginOptions(value as object)
+        : value;
   }
-  return serialized as TOptions
+  return serialized as TOptions;
 }

@@ -1,14 +1,19 @@
-import type { Dirent } from 'node:fs'
-import { access, readdir, readFile, rm } from 'node:fs/promises'
-import { join, resolve } from 'node:path'
-import { clean, write } from '@internals/utils'
-import { createStorage } from '../createStorage.ts'
+import type { Dirent } from "node:fs";
+import { access, readdir, readFile, rm } from "node:fs/promises";
+import { join, resolve } from "node:path";
+import { clean, write } from "@internals/utils";
+import { createStorage } from "../createStorage.ts";
 
 /**
  * Detects the filesystem error used to indicate that a path does not exist.
  */
 function isMissingPathError(error: unknown): error is NodeJS.ErrnoException {
-  return typeof error === 'object' && error !== null && 'code' in error && (error as NodeJS.ErrnoException).code === 'ENOENT'
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as NodeJS.ErrnoException).code === "ENOENT"
+  );
 }
 
 /**
@@ -36,70 +41,78 @@ function isMissingPathError(error: unknown): error is NodeJS.ErrnoException {
  * ```
  */
 export const fsStorage = createStorage(() => ({
-  name: 'fs',
+  name: "fs",
   async hasItem(key: string) {
     try {
-      await access(resolve(key))
-      return true
+      await access(resolve(key));
+      return true;
     } catch (error) {
       if (isMissingPathError(error)) {
-        return false
+        return false;
       }
 
-      throw new Error(`Failed to access storage item "${key}"`, { cause: error as Error })
+      throw new Error(`Failed to access storage item "${key}"`, {
+        cause: error as Error,
+      });
     }
   },
   async getItem(key: string) {
     try {
-      return await readFile(resolve(key), 'utf8')
+      return await readFile(resolve(key), "utf8");
     } catch (error) {
       if (isMissingPathError(error)) {
-        return null
+        return null;
       }
 
-      throw new Error(`Failed to read storage item "${key}"`, { cause: error as Error })
+      throw new Error(`Failed to read storage item "${key}"`, {
+        cause: error as Error,
+      });
     }
   },
   async setItem(key: string, value: string) {
-    await write(resolve(key), value, { sanity: false })
+    await write(resolve(key), value, { sanity: false });
   },
   async removeItem(key: string) {
-    await rm(resolve(key), { force: true })
+    await rm(resolve(key), { force: true });
   },
   async getKeys(base?: string) {
-    const keys: Array<string> = []
-    const resolvedBase = resolve(base ?? process.cwd())
+    const keys: Array<string> = [];
+    const resolvedBase = resolve(base ?? process.cwd());
 
     async function walk(dir: string, prefix: string): Promise<void> {
-      let entries: Array<Dirent>
+      let entries: Array<Dirent>;
       try {
-        entries = (await readdir(dir, { withFileTypes: true })) as Array<Dirent>
+        entries = (await readdir(dir, {
+          withFileTypes: true,
+        })) as Array<Dirent>;
       } catch (error) {
         if (isMissingPathError(error)) {
-          return
+          return;
         }
 
-        throw new Error(`Failed to list storage keys under "${resolvedBase}"`, { cause: error as Error })
+        throw new Error(`Failed to list storage keys under "${resolvedBase}"`, {
+          cause: error as Error,
+        });
       }
       for (const entry of entries) {
-        const rel = prefix ? `${prefix}/${entry.name}` : entry.name
+        const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
         if (entry.isDirectory()) {
-          await walk(join(dir, entry.name), rel)
+          await walk(join(dir, entry.name), rel);
         } else {
-          keys.push(rel)
+          keys.push(rel);
         }
       }
     }
 
-    await walk(resolvedBase, '')
+    await walk(resolvedBase, "");
 
-    return keys
+    return keys;
   },
   async clear(base?: string) {
     if (!base) {
-      return
+      return;
     }
 
-    await clean(resolve(base))
+    await clean(resolve(base));
   },
-}))
+}));

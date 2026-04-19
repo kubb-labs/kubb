@@ -1,17 +1,24 @@
-import type { WritableOptions } from 'node:stream'
-import { Writable } from 'node:stream'
-import { styleText } from 'node:util'
-import type * as clack from '@clack/prompts'
+import type { WritableOptions } from "node:stream";
+import { Writable } from "node:stream";
+import { styleText } from "node:util";
+import type * as clack from "@clack/prompts";
 
 export class ClackWritable extends Writable {
-  taskLog: ReturnType<typeof clack.taskLog>
-  constructor(taskLog: ReturnType<typeof clack.taskLog>, opts?: WritableOptions) {
-    super(opts)
+  taskLog: ReturnType<typeof clack.taskLog>;
+  constructor(
+    taskLog: ReturnType<typeof clack.taskLog>,
+    opts?: WritableOptions,
+  ) {
+    super(opts);
 
-    this.taskLog = taskLog
+    this.taskLog = taskLog;
   }
-  _write(chunk: Buffer, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
-    this.taskLog.message(`${styleText('dim', chunk.toString())}`)
-    callback()
+  _write(
+    chunk: Buffer,
+    _encoding: BufferEncoding,
+    callback: (error?: Error | null) => void,
+  ): void {
+    this.taskLog.message(`${styleText("dim", chunk.toString())}`);
+    callback();
   }
 }

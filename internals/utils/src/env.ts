@@ -9,7 +9,7 @@
  * ```
  */
 export function isGitHubActions(): boolean {
-  return !!process.env.GITHUB_ACTIONS
+  return !!process.env.GITHUB_ACTIONS;
 }
 
 /**
@@ -36,7 +36,7 @@ export function isCIEnvironment(): boolean {
     process.env.TEAMCITY_VERSION ||
     process.env.BUILDKITE ||
     process.env.TF_BUILD
-  )
+  );
 }
 
 /**
@@ -56,5 +56,9 @@ export function isCIEnvironment(): boolean {
  * ```
  */
 export function canUseTTY(): boolean {
-  return !!process.stdout.isTTY && (process.stdout.columns ?? 0) > 0 && !isCIEnvironment()
+  return (
+    !!process.stdout.isTTY &&
+    (process.stdout.columns ?? 0) > 0 &&
+    !isCIEnvironment()
+  );
 }

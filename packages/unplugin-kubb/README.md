@@ -4,12 +4,12 @@
     <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
   </a>
 
-
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![Coverage][coverage-src]][coverage-href]
 [![License][license-src]][license-href]
 [![Sponsors][sponsors-src]][sponsors-href]
+
 <h4>
 <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/main//examples/typescript" target="_blank">View Demo</a>
 <span> · </span>
@@ -23,7 +23,6 @@
 
 Kubb plugin for Vite, webpack, esbuild, Rollup, Nuxt, Astro and Rspack.
 
-
 ## Install
 
 ```bash
@@ -31,40 +30,51 @@ npm i -D unplugin-kubb @kubb/core
 ```
 
 ```typescript
-import kubb from 'unplugin-kubb/vite'
+import kubb from "unplugin-kubb/vite";
 
 export default defineConfig({
   plugins: [
-    kubb({/* options */}),
+    kubb({
+      /* options */
+    }),
   ],
-})
+});
 ```
 
 ```typescript
-import kubb from 'unplugin-kubb/rollup'
+import kubb from "unplugin-kubb/rollup";
 
 export default {
   plugins: [
-    kubb({/* options */}),
+    kubb({
+      /* options */
+    }),
   ],
-}
+};
 ```
 
 ```typescript
 module.exports = {
   /* ... */
   plugins: [
-    require('unplugin-kubb/webpack')({/* options */}),
+    require("unplugin-kubb/webpack")({
+      /* options */
+    }),
   ],
-}
+};
 ```
 
 ```typescript
 export default defineNuxtConfig({
   modules: [
-    ['unplugin-kubb/nuxt', {/* options */}],
+    [
+      "unplugin-kubb/nuxt",
+      {
+        /* options */
+      },
+    ],
   ],
-})
+});
 ```
 
 > This module works for both Nuxt 2 and [Nuxt Vite](https://github.com/nuxt/vite)
@@ -73,19 +83,21 @@ export default defineNuxtConfig({
 module.exports = {
   configureWebpack: {
     plugins: [
-      require('unplugin-kubb/webpack')({/* options */}),
+      require("unplugin-kubb/webpack")({
+        /* options */
+      }),
     ],
   },
-}
+};
 ```
 
 ```typescript
-import { build } from 'esbuild'
-import kubb from 'unplugin-kubb/esbuild'
+import { build } from "esbuild";
+import kubb from "unplugin-kubb/esbuild";
 
 build({
   plugins: [kubb()],
-})
+});
 ```
 
 ## Options
@@ -96,8 +108,8 @@ Define the options for Kubb.
 
 ```typescript [Options]
 type Options = {
-  config: UserConfig
-}
+  config: UserConfig;
+};
 ```
 
 ## Supporting Kubb
@@ -111,7 +123,6 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
     <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
   </a>
 </p>
-
 
 <!-- Badges -->
 

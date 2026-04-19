@@ -60,7 +60,7 @@ After installing the module, restart the server.
 Subject performs action. Prefer this.
 
 | Active (use)                    | Passive (avoid)                       |
-|---------------------------------|---------------------------------------|
+| ------------------------------- | ------------------------------------- |
 | The module creates a connection | A connection is created by the module |
 | You can override defaults       | Defaults can be overridden            |
 | Kubb handles Swagger validation | Swagger Validation is handled by Kubb |

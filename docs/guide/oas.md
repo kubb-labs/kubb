@@ -21,8 +21,8 @@ The [OpenAPI Specification](https://www.openapis.org/) (OAS) is a standard, lang
 
 Kubb supports the following OpenAPI/Swagger versions:
 
-| Version | Status |
-|---------|--------|
+| Version     | Status       |
+| ----------- | ------------ |
 | Swagger 2.0 | ✅ Supported |
 | OpenAPI 3.0 | ✅ Supported |
 | OpenAPI 3.1 | ✅ Supported |
@@ -105,8 +105,8 @@ Generated TypeScript type:
 
 ```typescript
 export type QueryParams = {
-  [key: string]: string
-}
+  [key: string]: string;
+};
 ```
 
 This allows for dynamic query parameters like `?field1=value1&field2=value2` instead of nesting them under a single parameter name.
@@ -132,9 +132,9 @@ Generated TypeScript type:
 ```typescript
 export type QueryParams = {
   customFields?: {
-    [key: string]: string
-  }
-}
+    [key: string]: string;
+  };
+};
 ```
 
 ## Working with OpenAPI Files
@@ -144,11 +144,11 @@ export type QueryParams = {
 It's recommended to validate your OpenAPI file before using it with Kubb. The [`@kubb/plugin-oas`](/plugins/plugin-oas/) plugin includes built-in validation.
 
 ```typescript
-import { pluginOas } from '@kubb/plugin-oas'
+import { pluginOas } from "@kubb/plugin-oas";
 
 pluginOas({
   validate: true, // Enable validation
-})
+});
 ```
 
 ### Formatting and Filtering
@@ -176,9 +176,9 @@ Then use separate Kubb configurations for each:
 
 ```typescript [kubb.config.pets.ts]
 export default defineConfig({
-  input: { path: './specs/pets-api.yaml' },
-  output: { path: './src/gen/pets' },
-})
+  input: { path: "./specs/pets-api.yaml" },
+  output: { path: "./src/gen/pets" },
+});
 ```
 
 **Use $ref for Reusability**
@@ -200,13 +200,13 @@ paths:
   /pets:
     get:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Pet'
+                  $ref: "#/components/schemas/Pet"
 ```
 
 **Organize with Tags**
@@ -217,11 +217,11 @@ Use tags to logically group operations, which Kubb will use for code organizatio
 paths:
   /pets:
     get:
-      tags: ['pets']
+      tags: ["pets"]
       operationId: listPets
   /pets/{id}:
     get:
-      tags: ['pets']
+      tags: ["pets"]
       operationId: getPetById
 ```
 
@@ -278,7 +278,7 @@ components:
 
     Pet:
       type: object
-      required: ['id', 'name']
+      required: ["id", "name"]
       properties:
         id:
           type: integer
@@ -309,6 +309,7 @@ Kubb provides comprehensive support for OpenAPI discriminators, which are used t
 Kubb supports all discriminator patterns from **OpenAPI 3.0** and **OpenAPI 3.1** specifications:
 
 **OpenAPI 3.0 Patterns:**
+
 - ✅ With explicit mapping
 - ✅ Without mapping (inferred from schema names)
 - ✅ With `oneOf`
@@ -316,10 +317,12 @@ Kubb supports all discriminator patterns from **OpenAPI 3.0** and **OpenAPI 3.1*
 - ✅ Strict vs Inherit modes
 
 **OpenAPI 3.1 Patterns:**
+
 - ✅ With `$ref` in `oneOf`/`anyOf`
 - ✅ Enhanced polymorphism support
 
 **Edge Cases:**
+
 - ✅ Inline schemas (not just `$ref`)
 - ✅ Extension properties (e.g., `x-custom-name`)
 - ✅ Const values
@@ -341,11 +344,11 @@ components:
       discriminator:
         propertyName: petType
         mapping:
-          cat: '#/components/schemas/Cat'
-          dog: '#/components/schemas/Dog'
+          cat: "#/components/schemas/Cat"
+          dog: "#/components/schemas/Dog"
       oneOf:
-        - $ref: '#/components/schemas/Cat'
-        - $ref: '#/components/schemas/Dog'
+        - $ref: "#/components/schemas/Cat"
+        - $ref: "#/components/schemas/Dog"
 
     Cat:
       type: object
@@ -379,11 +382,12 @@ components:
       discriminator:
         propertyName: animalType
       oneOf:
-        - $ref: '#/components/schemas/Cat'
-        - $ref: '#/components/schemas/Dog'
+        - $ref: "#/components/schemas/Cat"
+        - $ref: "#/components/schemas/Dog"
 ```
 
 Kubb automatically creates mapping:
+
 ```
 {
   Cat: '#/components/schemas/Cat',
@@ -431,7 +435,7 @@ components:
   schemas:
     Data:
       discriminator:
-        propertyName: x-custom-type  # Extension property
+        propertyName: x-custom-type # Extension property
       oneOf:
         - type: object
           x-custom-type: TypeA
@@ -452,23 +456,25 @@ Extension properties are treated as metadata and don't generate runtime validati
 Kubb supports two modes for discriminator handling:
 
 **Strict Mode (default):**
+
 ```typescript
-import { pluginOas } from '@kubb/plugin-oas'
+import { pluginOas } from "@kubb/plugin-oas";
 
 pluginOas({
-  discriminator: 'strict', // Default
-})
+  discriminator: "strict", // Default
+});
 ```
 
 In strict mode, the discriminator property is not automatically added to child schemas.
 
 **Inherit Mode:**
+
 ```typescript
-import { pluginOas } from '@kubb/plugin-oas'
+import { pluginOas } from "@kubb/plugin-oas";
 
 pluginOas({
-  discriminator: 'inherit',
-})
+  discriminator: "inherit",
+});
 ```
 
 In inherit mode, Kubb automatically adds the discriminator property with appropriate enum values to each child schema, ensuring type safety.
@@ -485,7 +491,7 @@ In inherit mode, Kubb automatically adds the discriminator property with appropr
 Cat:
   properties:
     petType:
-      const: cat  # Preferred for discriminator values
+      const: cat # Preferred for discriminator values
 ```
 
 4. **Ensure all oneOf/anyOf members share the same base type** when possible (all objects or all arrays, not mixed)

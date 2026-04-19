@@ -19,9 +19,9 @@ Parse and validate your OpenAPI schema with this core plugin.
 This is the foundational plugin that reads and processes OpenAPI/Swagger specifications, making them available for other plugins to consume.
 
 ```typescript
-import { pluginOas } from '@kubb/plugin-oas'
+import { pluginOas } from "@kubb/plugin-oas";
 
-pluginOas()
+pluginOas();
 ```
 
 ### [@kubb/plugin-ts](/plugins/plugin-ts)
@@ -31,13 +31,13 @@ Generate TypeScript types from your OpenAPI schema.
 Creates type-safe TypeScript interfaces and types based on your API schema definitions, ensuring your code stays in sync with your API contract.
 
 ```typescript
-import { pluginTs } from '@kubb/plugin-ts'
+import { pluginTs } from "@kubb/plugin-ts";
 
 pluginTs({
   output: {
-    path: './types',
+    path: "./types",
   },
-})
+});
 ```
 
 ## Client Generation
@@ -49,13 +49,13 @@ Generate API client code for handling API requests.
 By default, this plugin uses [Axios](https://axios-http.com/docs/intro), but you can add your own client. See [Use of Fetch](/guide/fetch) for an example.
 
 ```typescript
-import { pluginClient } from '@kubb/plugin-client'
+import { pluginClient } from "@kubb/plugin-client";
 
 pluginClient({
   output: {
-    path: './clients',
+    path: "./clients",
   },
-})
+});
 ```
 
 ## Data Query Hooks
@@ -67,13 +67,13 @@ Generate React Query hooks from your OpenAPI schema.
 Creates hooks for [TanStack Query (React Query)](https://tanstack.com/query) that handle data fetching, caching, and state management for React applications.
 
 ```typescript
-import { pluginReactQuery } from '@kubb/plugin-react-query'
+import { pluginReactQuery } from "@kubb/plugin-react-query";
 
 pluginReactQuery({
   output: {
-    path: './hooks',
+    path: "./hooks",
   },
-})
+});
 ```
 
 ### [@kubb/plugin-solid-query](/plugins/plugin-solid-query)
@@ -83,13 +83,13 @@ Generate SolidJS Query hooks from your OpenAPI schema.
 Creates hooks for [TanStack Query (Solid)](https://tanstack.com/query) optimized for SolidJS applications.
 
 ```typescript
-import { pluginSolidQuery } from '@kubb/plugin-solid-query'
+import { pluginSolidQuery } from "@kubb/plugin-solid-query";
 
 pluginSolidQuery({
   output: {
-    path: './hooks',
+    path: "./hooks",
   },
-})
+});
 ```
 
 ### [@kubb/plugin-svelte-query](/plugins/plugin-svelte-query)
@@ -99,13 +99,13 @@ Generate SvelteQuery hooks from your OpenAPI schema.
 Creates hooks for [TanStack Query (Svelte)](https://tanstack.com/query) optimized for Svelte applications.
 
 ```typescript
-import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'
+import { pluginSvelteQuery } from "@kubb/plugin-svelte-query";
 
 pluginSvelteQuery({
   output: {
-    path: './hooks',
+    path: "./hooks",
   },
-})
+});
 ```
 
 ### [@kubb/plugin-vue-query](/plugins/plugin-vue-query)
@@ -115,13 +115,13 @@ Generate Vue Query hooks from your OpenAPI schema.
 Creates composables for [TanStack Query (Vue)](https://tanstack.com/query) optimized for Vue applications.
 
 ```typescript
-import { pluginVueQuery } from '@kubb/plugin-vue-query'
+import { pluginVueQuery } from "@kubb/plugin-vue-query";
 
 pluginVueQuery({
   output: {
-    path: './hooks',
+    path: "./hooks",
   },
-})
+});
 ```
 
 ### [@kubb/plugin-swr](/plugins/plugin-swr)
@@ -131,13 +131,13 @@ Generate [SWR](https://swr.vercel.app/) hooks from your OpenAPI schema.
 Creates hooks for Vercel's SWR library, providing a lightweight alternative for data fetching in React applications.
 
 ```typescript
-import { pluginSwr } from '@kubb/plugin-swr'
+import { pluginSwr } from "@kubb/plugin-swr";
 
 pluginSwr({
   output: {
-    path: './hooks',
+    path: "./hooks",
   },
-})
+});
 ```
 
 ## Validation & Mocking
@@ -149,13 +149,13 @@ Generate [Zod](https://zod.dev/) validation schemas from your OpenAPI schema.
 Creates runtime validation schemas that ensure your data matches the API contract at runtime, providing type-safe validation with excellent error messages.
 
 ```typescript
-import { pluginZod } from '@kubb/plugin-zod'
+import { pluginZod } from "@kubb/plugin-zod";
 
 pluginZod({
   output: {
-    path: './zod',
+    path: "./zod",
   },
-})
+});
 ```
 
 ### [@kubb/plugin-faker](/plugins/plugin-faker)
@@ -165,13 +165,13 @@ Generate mock data using [Faker](https://fakerjs.dev/).
 Creates realistic mock data generators based on your schema definitions, useful for development and testing.
 
 ```typescript
-import { pluginFaker } from '@kubb/plugin-faker'
+import { pluginFaker } from "@kubb/plugin-faker";
 
 pluginFaker({
   output: {
-    path: './mocks',
+    path: "./mocks",
   },
-})
+});
 ```
 
 ### [@kubb/plugin-msw](/plugins/plugin-msw)
@@ -181,13 +181,13 @@ Generate [MSW](https://mswjs.io/) API mock handlers from your OpenAPI schema.
 Creates Mock Service Worker handlers that intercept API requests during development and testing, enabling you to develop against a mocked backend.
 
 ```typescript
-import { pluginMsw } from '@kubb/plugin-msw'
+import { pluginMsw } from "@kubb/plugin-msw";
 
 pluginMsw({
   output: {
-    path: './mocks',
+    path: "./mocks",
   },
-})
+});
 ```
 
 ## Testing
@@ -199,13 +199,13 @@ Generate Cypress request definitions from your OpenAPI schema.
 Creates type-safe Cypress commands for end-to-end testing, making it easy to test your API integration.
 
 ```typescript
-import { pluginCypress } from '@kubb/plugin-cypress'
+import { pluginCypress } from "@kubb/plugin-cypress";
 
 pluginCypress({
   output: {
-    path: './cypress',
+    path: "./cypress",
   },
-})
+});
 ```
 
 ## Documentation
@@ -217,13 +217,13 @@ Generate API documentation using [Redoc](https://redocly.com/).
 Creates beautiful, interactive API documentation from your OpenAPI schema.
 
 ```typescript
-import { pluginRedoc } from '@kubb/plugin-redoc'
+import { pluginRedoc } from "@kubb/plugin-redoc";
 
 pluginRedoc({
   output: {
-    path: './docs',
+    path: "./docs",
   },
-})
+});
 ```
 
 ## AI Integration
@@ -235,13 +235,13 @@ Generate [Model Context Protocol](https://modelcontextprotocol.io/introduction) 
 Creates MCP servers that expose your API to AI assistants and agents, enabling them to make authenticated API calls and understand your API structure.
 
 ```typescript
-import { pluginMcp } from '@kubb/plugin-mcp'
+import { pluginMcp } from "@kubb/plugin-mcp";
 
 pluginMcp({
   output: {
-    path: './mcp',
+    path: "./mcp",
   },
-})
+});
 ```
 
 ## Example
@@ -249,24 +249,20 @@ pluginMcp({
 Plugins are configured in your `kubb.config.ts` file:
 
 ```typescript twoslash
-import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTs } from '@kubb/plugin-ts'
-import { pluginClient } from '@kubb/plugin-client'
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginClient } from "@kubb/plugin-client";
 
 export default defineConfig({
   input: {
-    path: './petstore.yaml',
+    path: "./petstore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
   },
-  plugins: [
-    pluginOas(),
-    pluginTs(),
-    pluginClient(),
-  ],
-})
+  plugins: [pluginOas(), pluginTs(), pluginClient()],
+});
 ```
 
 Each plugin can be configured with its own options. See individual plugin documentation for details.

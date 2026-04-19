@@ -1,5 +1,5 @@
-import { createFarmPlugin } from 'unplugin'
+import { createFarmPlugin } from "unplugin";
 
-import { unpluginFactory } from './unpluginFactory.ts'
+import { unpluginFactory } from "./unpluginFactory.ts";
 
-export default createFarmPlugin(unpluginFactory)
+export default createFarmPlugin(unpluginFactory);

@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process'
+import { spawn } from "node:child_process";
 
 /**
  * Tokenizes a shell command string, respecting single and double quotes.
@@ -8,7 +8,9 @@ import { spawn } from 'node:child_process'
  * // → ['git', 'commit', '-m', 'initial commit']
  */
 export function tokenize(command: string): string[] {
-  return (command.match(/[^\s"']+|"([^"]*)"|'([^']*)'/g) ?? []).map((token) => token.replace(/^["']|["']$/g, ''))
+  return (command.match(/[^\s"']+|"([^"]*)"|'([^']*)'/g) ?? []).map((token) =>
+    token.replace(/^["']|["']$/g, ""),
+  );
 }
 
 type SpawnOptions = {
@@ -16,19 +18,19 @@ type SpawnOptions = {
    * Working directory for the child process.
    * @default process.cwd()
    */
-  cwd?: string
+  cwd?: string;
   /**
    * Environment variables passed to the child process.
    * @default process.env
    */
-  env?: NodeJS.ProcessEnv
+  env?: NodeJS.ProcessEnv;
   /**
    * When `true`, spawns a detached background process and resolves immediately.
    * The child is unref'd so the parent process can exit independently.
    * @default false
    */
-  detached?: boolean
-}
+  detached?: boolean;
+};
 
 /**
  * Spawns `cmd` with `args` and returns a promise that settles when the child process finishes.
@@ -42,32 +44,42 @@ type SpawnOptions = {
  * await spawnAsync('node', ['server.js'], { detached: true }) // fire-and-forget
  * ```
  */
-export function spawnAsync(cmd: string, args: string[], options: SpawnOptions = {}): Promise<void> {
-  const { cwd = process.cwd(), env, detached = false } = options
+export function spawnAsync(
+  cmd: string,
+  args: string[],
+  options: SpawnOptions = {},
+): Promise<void> {
+  const { cwd = process.cwd(), env, detached = false } = options;
 
   return new Promise((resolve, reject) => {
     const child = spawn(cmd, args, {
-      stdio: detached ? 'ignore' : 'inherit',
+      stdio: detached ? "ignore" : "inherit",
       cwd,
       env,
       detached,
-    })
+    });
 
     if (detached) {
-      child.unref()
-      resolve()
-      return
+      child.unref();
+      resolve();
+      return;
     }
 
-    child.on('close', (code, signal) => {
+    child.on("close", (code, signal) => {
       if (code === 0) {
-        resolve()
+        resolve();
       } else if (signal !== null) {
-        reject(new Error(`"${cmd} ${args.join(' ')}" was terminated by signal ${signal}`))
+        reject(
+          new Error(
+            `"${cmd} ${args.join(" ")}" was terminated by signal ${signal}`,
+          ),
+        );
       } else {
-        reject(new Error(`"${cmd} ${args.join(' ')}" exited with code ${code}`))
+        reject(
+          new Error(`"${cmd} ${args.join(" ")}" exited with code ${code}`),
+        );
       }
-    })
-    child.on('error', reject)
-  })
+    });
+    child.on("error", reject);
+  });
 }

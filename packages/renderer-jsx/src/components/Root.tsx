@@ -1,33 +1,33 @@
-import { Component } from 'react'
-import type { KubbReactElement, KubbReactNode } from '../types.ts'
+import { Component } from "react";
+import type { KubbReactElement, KubbReactNode } from "../types.ts";
 
 type ErrorBoundaryProps = {
-  onError: (error: Error) => void
-  children?: KubbReactNode
-}
+  onError: (error: Error) => void;
+  children?: KubbReactNode;
+};
 
 class ErrorBoundary extends Component<{
-  onError: ErrorBoundaryProps['onError']
-  children?: KubbReactNode
+  onError: ErrorBoundaryProps["onError"];
+  children?: KubbReactNode;
 }> {
-  state = { hasError: false }
+  state = { hasError: false };
 
-  static displayName = 'ErrorBoundary'
+  static displayName = "ErrorBoundary";
   static getDerivedStateFromError(_error: Error) {
-    return { hasError: true }
+    return { hasError: true };
   }
 
   componentDidCatch(error: Error) {
     if (error) {
-      this.props.onError(error)
+      this.props.onError(error);
     }
   }
 
   render() {
     if (this.state.hasError) {
-      return null
+      return null;
     }
-    return this.props.children
+    return this.props.children;
   }
 }
 
@@ -37,17 +37,17 @@ type RootProps = {
    * Called with an `Error` when the exit is caused by a render error,
    * or with `undefined` for a clean shutdown.
    */
-  onExit: (error?: Error) => void
+  onExit: (error?: Error) => void;
   /**
    * Callback invoked whenever a render error is caught by the error boundary.
    * Use this to propagate errors up to the caller of {@link createRenderer}.
    */
-  onError: (error: Error) => void
+  onError: (error: Error) => void;
   /**
    * Child nodes rendered inside the error boundary.
    */
-  children?: KubbReactNode
-}
+  children?: KubbReactNode;
+};
 
 /**
  * Root component for the Kubb renderer tree.
@@ -59,12 +59,12 @@ export function Root({ onError, children }: RootProps): KubbReactElement {
   return (
     <ErrorBoundary
       onError={(error) => {
-        onError(error)
+        onError(error);
       }}
     >
       {children}
     </ErrorBoundary>
-  )
+  );
 }
 
-Root.displayName = 'Root'
+Root.displayName = "Root";

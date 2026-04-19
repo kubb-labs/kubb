@@ -31,17 +31,17 @@ The `buildFormData` utility:
 For endpoints that accept `multipart/form-data`, Kubb generates code like this:
 
 ```typescript [src/gen/uploadFile.ts]
-import { buildFormData } from './.kubb/config'
+import { buildFormData } from "./.kubb/config";
 
 export async function uploadFile(data: UploadFileRequest) {
-  const formData = buildFormData(data)
+  const formData = buildFormData(data);
 
   return client({
-    method: 'post',
-    url: '/upload',
+    method: "post",
+    url: "/upload",
     data: formData,
-    headers: { 'Content-Type': 'multipart/form-data' }
-  })
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 }
 ```
 
@@ -51,50 +51,53 @@ The `buildFormData` function generates in `.kubb/config.ts` and handles various 
 
 ```typescript [.kubb/config.ts]
 export function buildFormData<T = unknown>(data: T): FormData {
-  const formData = new FormData()
+  const formData = new FormData();
 
   function appendData(key: string, value: any) {
     if (value instanceof Blob) {
-      formData.append(key, value)
-      return
+      formData.append(key, value);
+      return;
     }
     if (value instanceof Date) {
-      formData.append(key, value.toISOString())
-      return
+      formData.append(key, value.toISOString());
+      return;
     }
-    if (typeof value === 'number' || typeof value === 'boolean') {
-      formData.append(key, String(value))
-      return
+    if (typeof value === "number" || typeof value === "boolean") {
+      formData.append(key, String(value));
+      return;
     }
-    if (typeof value === 'string') {
-      formData.append(key, value)
-      return
+    if (typeof value === "string") {
+      formData.append(key, value);
+      return;
     }
-    if (typeof value === 'object') {
+    if (typeof value === "object") {
       // Wrap JSON data in a Blob with application/json content type to ensure
       // servers correctly interpret the data. Without this, many servers return
       // 415 Unsupported Media Type errors when receiving JSON in multipart requests.
-      formData.append(key, new Blob([JSON.stringify(value)], { type: 'application/json' }))
-      return
+      formData.append(
+        key,
+        new Blob([JSON.stringify(value)], { type: "application/json" }),
+      );
+      return;
     }
   }
 
   if (data) {
     Object.entries(data).forEach(([key, value]) => {
-      if (value === undefined || value === null) return
+      if (value === undefined || value === null) return;
 
       if (Array.isArray(value)) {
         for (const valueItem of value) {
-          if (valueItem === undefined || valueItem === null) continue
-          appendData(key, valueItem)
+          if (valueItem === undefined || valueItem === null) continue;
+          appendData(key, valueItem);
         }
       } else {
-        appendData(key, value)
+        appendData(key, value);
       }
-    })
+    });
   }
 
-  return formData
+  return formData;
 }
 ```
 
@@ -103,72 +106,76 @@ export function buildFormData<T = unknown>(data: T): FormData {
 ### Uploading Files with Metadata
 
 ```typescript [src/main.ts]
-import { uploadFile } from './gen/uploadFile'
+import { uploadFile } from "./gen/uploadFile";
 
 // Upload a single file with metadata
-const file = new File(['content'], 'document.pdf', { type: 'application/pdf' })
+const file = new File(["content"], "document.pdf", { type: "application/pdf" });
 
 await uploadFile({
   file: file,
-  title: 'My Document',
-  tags: ['important', 'work', 'pdf'],
-  uploadDate: new Date()
-})
+  title: "My Document",
+  tags: ["important", "work", "pdf"],
+  uploadDate: new Date(),
+});
 ```
 
 ### Uploading Multiple Files
 
 ```typescript [src/main.ts]
-import { uploadFiles } from './gen/uploadFiles'
+import { uploadFiles } from "./gen/uploadFiles";
 
 const files = [
-  new File(['content1'], 'doc1.pdf', { type: 'application/pdf' }),
-  new File(['content2'], 'doc2.pdf', { type: 'application/pdf' })
-]
+  new File(["content1"], "doc1.pdf", { type: "application/pdf" }),
+  new File(["content2"], "doc2.pdf", { type: "application/pdf" }),
+];
 
 await uploadFiles({
   files: files,
-  category: 'documents'
-})
+  category: "documents",
+});
 ```
 
 ### Complex Data with Arrays
 
 ```typescript [src/main.ts]
-import { createPost } from './gen/createPost'
+import { createPost } from "./gen/createPost";
 
 await createPost({
-  title: 'My Post',
-  tags: ['javascript', 'typescript', 'kubb'],
+  title: "My Post",
+  tags: ["javascript", "typescript", "kubb"],
   images: [
-    new File(['img1'], 'image1.jpg', { type: 'image/jpeg' }),
-    new File(['img2'], 'image2.jpg', { type: 'image/jpeg' })
+    new File(["img1"], "image1.jpg", { type: "image/jpeg" }),
+    new File(["img2"], "image2.jpg", { type: "image/jpeg" }),
   ],
   metadata: {
-    author: 'John Doe',
-    publishDate: new Date()
-  }
-})
+    author: "John Doe",
+    publishDate: new Date(),
+  },
+});
 ```
 
 ## Data Type Handling
 
 ### Primitives
+
 - **Strings**: Append as-is
 - **Numbers**: Convert to string
 - **Booleans**: Convert to string ("true" or "false")
 
 ### Special Types
+
 - **Blob/File**: Append directly to FormData
 - **Date**: Convert to ISO string format
 - **Objects**: Wrap in a Blob with `Content-Type: application/json` to enable proper server-side parsing. This prevents 415 (Unsupported Media Type) errors that occur when sending JSON data without the correct content type in multipart requests.
 
 ### Arrays
+
 - Each array element appends individually with the same key
 - `null` and `undefined` elements filter automatically
 - Nested arrays and objects within arrays process recursively
 
 ### Null/Undefined Values
+
 - Top-level `null` or `undefined` values skip
 - Array elements that are `null` or `undefined` filter out
 - This prevents "null" or "undefined" string literals in FormData

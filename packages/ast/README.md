@@ -23,10 +23,10 @@ Spec-agnostic AST layer for Kubb. Defines nodes, visitor pattern, factory functi
 
 ## Imports
 
-| Path | Contents |
-|---|---|
-| `@kubb/ast` | Runtime: factory functions, guards, visitor, ref helpers, constants |
-| `@kubb/ast/types` | Types only: all node interfaces, type aliases, visitor types |
+| Path              | Contents                                                            |
+| ----------------- | ------------------------------------------------------------------- |
+| `@kubb/ast`       | Runtime: factory functions, guards, visitor, ref helpers, constants |
+| `@kubb/ast/types` | Types only: all node interfaces, type aliases, visitor types        |
 
 ## Node tree
 
@@ -52,53 +52,72 @@ SchemaNode (discriminated union)
 ### Factory
 
 ```ts
-import { createRoot, createOperation, createSchema, createProperty } from '@kubb/ast'
+import {
+  createRoot,
+  createOperation,
+  createSchema,
+  createProperty,
+} from "@kubb/ast";
 
 const root = createRoot({
   schemas: [
     createSchema({
-      name: 'Pet',
-      type: 'object',
+      name: "Pet",
+      type: "object",
       properties: [
-        createProperty({ name: 'id', schema: createSchema({ type: 'integer' }), required: true }),
-        createProperty({ name: 'name', schema: createSchema({ type: 'string' }), required: true }),
+        createProperty({
+          name: "id",
+          schema: createSchema({ type: "integer" }),
+          required: true,
+        }),
+        createProperty({
+          name: "name",
+          schema: createSchema({ type: "string" }),
+          required: true,
+        }),
       ],
     }),
   ],
-})
+});
 ```
 
 ### Visitor
 
 ```ts
-import { walk, transform, collect } from '@kubb/ast'
+import { walk, transform, collect } from "@kubb/ast";
 
 // Side effects
 await walk(root, {
-  schema(node) { console.log(node.type) },
-})
+  schema(node) {
+    console.log(node.type);
+  },
+});
 
 // Immutable transformation
 const updated = transform(root, {
-  schema(node) { return { ...node, description: 'generated' } },
-})
+  schema(node) {
+    return { ...node, description: "generated" };
+  },
+});
 
 // Extraction
 const types = collect<string>(root, {
-  schema(node) { return node.type },
-})
+  schema(node) {
+    return node.type;
+  },
+});
 ```
 
 ### Guards
 
 ```ts
-import { isSchemaNode, narrowSchema } from '@kubb/ast'
-import type { Node } from '@kubb/ast/types'
+import { isSchemaNode, narrowSchema } from "@kubb/ast";
+import type { Node } from "@kubb/ast/types";
 
 function process(node: Node) {
   if (isSchemaNode(node)) {
-    const obj = narrowSchema(node, 'object')
-    obj?.properties?.forEach(p => console.log(p.name))
+    const obj = narrowSchema(node, "object");
+    obj?.properties?.forEach((p) => console.log(p.name));
   }
 }
 ```
@@ -106,10 +125,10 @@ function process(node: Node) {
 ### Refs
 
 ```ts
-import { buildRefMap, resolveRef } from '@kubb/ast'
+import { buildRefMap, resolveRef } from "@kubb/ast";
 
-const refMap = buildRefMap(root)
-const pet = resolveRef(refMap, 'Pet')
+const refMap = buildRefMap(root);
+const pet = resolveRef(refMap, "Pet");
 ```
 
 ## Supporting Kubb

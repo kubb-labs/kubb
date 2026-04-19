@@ -5,6 +5,7 @@
 Add `@kubb/core/mocks` subpath export for testing utilities.
 
 New exports:
+
 - `createMockedPluginDriver(options)` — create a minimal PluginDriver mock
 - `createMockedAdapter(options)` — create a minimal Adapter mock
 - `createMockedPlugin(params)` — create a minimal Plugin mock
@@ -18,5 +19,5 @@ import {
   createMockedPlugin,
   createMockedPluginDriver,
   renderGeneratorSchema,
-} from '@kubb/core/mocks'
+} from "@kubb/core/mocks";
 ```

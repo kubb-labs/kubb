@@ -36,17 +36,18 @@ pnpm changeset
 ```
 
 **Interactive prompts:**
+
 1. Select which packages are affected
 2. Choose version bump type (major / minor / patch)
 3. Write a concise summary of the changes
 
 ### Version Bump Types
 
-| Type | Description |
-| --- | --- |
-| Major (breaking) | Changes that break existing functionality |
-| Minor (feature) | New features that don't break existing functionality |
-| Patch (fix) | Bug fixes and minor improvements |
+| Type             | Description                                          |
+| ---------------- | ---------------------------------------------------- |
+| Major (breaking) | Changes that break existing functionality            |
+| Minor (feature)  | New features that don't break existing functionality |
+| Patch (fix)      | Bug fixes and minor improvements                     |
 
 ## Changelog Format
 
@@ -56,16 +57,14 @@ The changelog follows a specific structure in `docs/changelog.md`.
 - Use `###` for change type sections with emoji prefixes.
 - Use `####` for individual plugin names with links.
 
-
 Change type:
 
-| Category | Description |
-| --- | --- |
-| ✨ Features | New functionality and enhancements |
-| 🐛 Bug Fixes | Bug fixes and corrections |
-| 🚀 Breaking Changes | Changes that may require code updates |
-| 📦 Dependencies | Package updates and dependency changes |
-
+| Category            | Description                            |
+| ------------------- | -------------------------------------- |
+| ✨ Features         | New functionality and enhancements     |
+| 🐛 Bug Fixes        | Bug fixes and corrections              |
+| 🚀 Breaking Changes | Changes that may require code updates  |
+| 📦 Dependencies     | Package updates and dependency changes |
 
 **Example:**
 
@@ -78,15 +77,17 @@ Change type:
 Added support for generating union types with the new `unionType` option.
 
 ::: code-group
+
 ```typescript [Before]
 // Generated separate types
-export type PetDog = { type: 'dog'; bark: string }
-export type PetCat = { type: 'cat'; meow: string }
+export type PetDog = { type: "dog"; bark: string };
+export type PetCat = { type: "cat"; meow: string };
 ```
 
 ```typescript [After]
-export type Pet = PetDog | PetCat
+export type Pet = PetDog | PetCat;
 ```
+
 :::
 
 ## Changelog Style
@@ -96,18 +97,21 @@ export type Pet = PetDog | PetCat
 When fixing bugs that affect user-facing behavior:
 
 1. **Update relevant documentation**
-  - Fix incorrect examples
-  - Clarify ambiguous descriptions
-  - Update troubleshooting guide if applicable
+
+- Fix incorrect examples
+- Clarify ambiguous descriptions
+- Update troubleshooting guide if applicable
 
 2. **Add to changelog** (via `pnpm changeset`)
-  - Explain what was broken
-  - Show correct usage
-  - Link to relevant docs
+
+- Explain what was broken
+- Show correct usage
+- Link to relevant docs
 
 3. **Consider migration notes**
-  - If fix changes expected behavior
-  - Add to migration guide with before/after examples
+
+- If fix changes expected behavior
+- Add to migration guide with before/after examples
 
 **Example:**
 
@@ -119,18 +123,16 @@ When fixing bugs that affect user-facing behavior:
 
 ```typescript
 const petType = {
-  Dog: 'dog',
-  Cat: 'cat',
-} as const
+  Dog: "dog",
+  Cat: "cat",
+} as const;
 ```
-
 
 ## Related Skills
 
 | Skill                                                      | Use For             |
-|------------------------------------------------------------|---------------------|
+| ---------------------------------------------------------- | ------------------- | ------------------------------------------ |
 | **[../documentation/SKILL.md](../documentation/SKILL.md)** | Documentation style | Adding documentation for changelog entries |
-
 
 ## Checklist
 
@@ -138,7 +140,6 @@ const petType = {
 - [ ] Frontmatter is complete and correct
 - [ ] Changeset updated via `pnpm changeset` (for code changes)
 - [ ] Changelog added or updated in `docs/changelog.md`
-
 
 ## Resources
 

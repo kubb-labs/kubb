@@ -1,58 +1,70 @@
 Defines the client code generation style.
 
 |           |                                          |
-|----------:|:-----------------------------------------|
+| --------: | :--------------------------------------- |
 |     Type: | `'function' \| 'class' \| 'staticClass'` |
 | Required: | `false`                                  |
 |  Default: | `'function'`                             |
 
-
-* `'function'` generates standalone functions for each operation.
-* `'class'` generates a class with instance methods for each operation.
-* `'staticClass'` generates a class with static methods for each operation. Use this style to call methods like `Pet.getPetById(...)` without instantiating the class.
+- `'function'` generates standalone functions for each operation.
+- `'class'` generates a class with instance methods for each operation.
+- `'staticClass'` generates a class with static methods for each operation. Use this style to call methods like `Pet.getPetById(...)` without instantiating the class.
 
 ::: warning
 When using `clientType: 'class'` or `clientType: 'staticClass'`, these are not compatible with query plugins like `@kubb/plugin-react-query`, `@kubb/plugin-vue-query`, `@kubb/plugin-solid-query`, `@kubb/plugin-svelte-query`, or `@kubb/plugin-swr`. These plugins are designed to work with function-based clients. If you need to use both class-based or static-class clients and query hooks, configure separate `pluginClient` instances: one with `clientType: 'class'` or `clientType: 'staticClass'` for your needs, and another with `clientType: 'function'` (or omit it for the default) that the query plugins will reference.
 :::
 
 ::: code-group
+
 ```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-import { pluginClient } from '@kubb/plugin-client'
-import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTs } from '@kubb/plugin-ts'
+import { defineConfig } from "@kubb/core";
+import { pluginClient } from "@kubb/plugin-client";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
 
 export default defineConfig({
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
   },
   plugins: [
     pluginOas(),
     pluginTs(),
     pluginClient({
       output: {
-        path: './clients',
+        path: "./clients",
       },
-      clientType: 'staticClass',
+      clientType: "staticClass",
       group: {
-        type: 'tag',
+        type: "tag",
       },
     }),
   ],
-})
+});
 ```
 
 ```typescript [Pet.ts]
-import fetch from '@kubb/plugin-client/clients/fetch'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.js'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.js'
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+import fetch from "@kubb/plugin-client/clients/fetch";
+import type {
+  GetPetByIdQueryResponse,
+  GetPetByIdPathParams,
+  GetPetById400,
+  GetPetById404,
+} from "../../../models/ts/petController/GetPetById.js";
+import type {
+  AddPetMutationRequest,
+  AddPetMutationResponse,
+  AddPet405,
+} from "../../../models/ts/petController/AddPet.js";
+import type {
+  RequestConfig,
+  ResponseErrorConfig,
+} from "@kubb/plugin-client/clients/fetch";
 
 export class Pet {
-  static #client: typeof fetch = fetch
+  static #client: typeof fetch = fetch;
 
   /**
    * @description Returns a single pet
@@ -60,17 +72,21 @@ export class Pet {
    * {@link /pet/:petId}
    */
   static async getPetById(
-    { petId }: { petId: GetPetByIdPathParams['petId'] },
-    config: Partial<RequestConfig> & { client?: typeof fetch } = {}
+    { petId }: { petId: GetPetByIdPathParams["petId"] },
+    config: Partial<RequestConfig> & { client?: typeof fetch } = {},
   ) {
-    const request = this.#client || fetch
-    const { client: _request = this.#client, ...requestConfig } = config
-    const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
-      method: 'GET',
+    const request = this.#client || fetch;
+    const { client: _request = this.#client, ...requestConfig } = config;
+    const res = await request<
+      GetPetByIdQueryResponse,
+      ResponseErrorConfig<GetPetById400 | GetPetById404>,
+      unknown
+    >({
+      method: "GET",
       url: `/pet/${petId}`,
       ...requestConfig,
-    })
-    return res.data
+    });
+    return res.data;
   }
 
   /**
@@ -80,34 +96,41 @@ export class Pet {
    */
   static async addPet(
     data: AddPetMutationRequest,
-    config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {}
+    config: Partial<RequestConfig<AddPetMutationRequest>> & {
+      client?: typeof fetch;
+    } = {},
   ) {
-    const request = this.#client || fetch
-    const { client: _request = this.#client, ...requestConfig } = config
-    const requestData = data
-    const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
-      method: 'POST',
-      url: '/pet',
+    const request = this.#client || fetch;
+    const { client: _request = this.#client, ...requestConfig } = config;
+    const requestData = data;
+    const res = await request<
+      AddPetMutationResponse,
+      ResponseErrorConfig<AddPet405>,
+      AddPetMutationRequest
+    >({
+      method: "POST",
+      url: "/pet",
       data: requestData,
       ...requestConfig,
-    })
-    return res.data
+    });
+    return res.data;
   }
 }
 ```
 
 ```typescript [usage.ts]
-import { Pet } from './gen/clients/Pet'
+import { Pet } from "./gen/clients/Pet";
 
 // Get a pet by ID
-const pet = await Pet.getPetById({ petId: 1 })
+const pet = await Pet.getPetById({ petId: 1 });
 
 // Add a new pet
 const newPet = await Pet.addPet({
-  name: 'Fluffy',
-  status: 'available'
-})
+  name: "Fluffy",
+  status: "available",
+});
 ```
+
 :::
 
 - `'class'` generates a class with methods for each operation.
@@ -117,46 +140,59 @@ When using `clientType: 'class'`, it is not compatible with query plugins like `
 :::
 
 ::: code-group
+
 ```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-import { pluginClient } from '@kubb/plugin-client'
-import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTs } from '@kubb/plugin-ts'
+import { defineConfig } from "@kubb/core";
+import { pluginClient } from "@kubb/plugin-client";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
 
 export default defineConfig({
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
   },
   plugins: [
     pluginOas(),
     pluginTs(),
     pluginClient({
       output: {
-        path: './clients',
+        path: "./clients",
       },
-      clientType: 'class',
+      clientType: "class",
       group: {
-        type: 'tag',
+        type: "tag",
       },
     }),
   ],
-})
+});
 ```
 
 ```typescript [Pet.ts]
-import fetch from '@kubb/plugin-client/clients/fetch'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.js'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.js'
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+import fetch from "@kubb/plugin-client/clients/fetch";
+import type {
+  GetPetByIdQueryResponse,
+  GetPetByIdPathParams,
+  GetPetById400,
+  GetPetById404,
+} from "../../../models/ts/petController/GetPetById.js";
+import type {
+  AddPetMutationRequest,
+  AddPetMutationResponse,
+  AddPet405,
+} from "../../../models/ts/petController/AddPet.js";
+import type {
+  RequestConfig,
+  ResponseErrorConfig,
+} from "@kubb/plugin-client/clients/fetch";
 
 export class Pet {
-  #client: typeof fetch
+  #client: typeof fetch;
 
   constructor(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-    this.#client = config.client || fetch
+    this.#client = config.client || fetch;
   }
 
   /**
@@ -165,16 +201,20 @@ export class Pet {
    * {@link /pet/:petId}
    */
   async getPetById(
-    { petId }: { petId: GetPetByIdPathParams['petId'] },
-    config: Partial<RequestConfig> & { client?: typeof fetch } = {}
+    { petId }: { petId: GetPetByIdPathParams["petId"] },
+    config: Partial<RequestConfig> & { client?: typeof fetch } = {},
   ) {
-    const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
-      method: 'GET',
+    const { client: request = this.#client, ...requestConfig } = config;
+    const res = await request<
+      GetPetByIdQueryResponse,
+      ResponseErrorConfig<GetPetById400 | GetPetById404>,
+      unknown
+    >({
+      method: "GET",
       url: `/pet/${petId}`,
       ...requestConfig,
-    })
-    return res.data
+    });
+    return res.data;
   }
 
   /**
@@ -184,33 +224,40 @@ export class Pet {
    */
   async addPet(
     data: AddPetMutationRequest,
-    config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {}
+    config: Partial<RequestConfig<AddPetMutationRequest>> & {
+      client?: typeof fetch;
+    } = {},
   ) {
-    const { client: request = this.#client, ...requestConfig } = config
-    const requestData = data
-    const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
-      method: 'POST',
-      url: '/pet',
+    const { client: request = this.#client, ...requestConfig } = config;
+    const requestData = data;
+    const res = await request<
+      AddPetMutationResponse,
+      ResponseErrorConfig<AddPet405>,
+      AddPetMutationRequest
+    >({
+      method: "POST",
+      url: "/pet",
       data: requestData,
       ...requestConfig,
-    })
-    return res.data
+    });
+    return res.data;
   }
 }
 ```
 
 ```typescript [usage.ts]
-import { Pet } from './gen/clients/Pet'
+import { Pet } from "./gen/clients/Pet";
 
-const petClient = new Pet()
+const petClient = new Pet();
 
 // Get a pet by ID
-const pet = await petClient.getPetById({ petId: 1 })
+const pet = await petClient.getPetById({ petId: 1 });
 
 // Add a new pet
 const newPet = await petClient.addPet({
-  name: 'Fluffy',
-  status: 'available'
-})
+  name: "Fluffy",
+  status: "available",
+});
 ```
+
 :::

@@ -40,18 +40,18 @@ The core `Adapter<T>` type in `@kubb/core` defines the interface every adapter m
 
 ```ts
 type Adapter<TOptions> = {
-  name: string
-  options: TOptions
-  parse: (source: AdapterSource) => Promise<RootNode>
-}
+  name: string;
+  options: TOptions;
+  parse: (source: AdapterSource) => Promise<RootNode>;
+};
 ```
 
 `AdapterSource` is a discriminated union that covers the three ways a user can supply an input:
 
-| Variant | When to use |
-|---|---|
-| `{ type: 'path'; path: string }` | Local file or URL |
-| `{ type: 'data'; data: object }` | Pre-parsed JS object |
+| Variant                              | When to use                             |
+| ------------------------------------ | --------------------------------------- |
+| `{ type: 'path'; path: string }`     | Local file or URL                       |
+| `{ type: 'data'; data: object }`     | Pre-parsed JS object                    |
 | `{ type: 'paths'; paths: string[] }` | Multiple spec files merged at load time |
 
 `RootNode` is defined by `@kubb/ast` and is the universal intermediate representation consumed by all plugins.
@@ -87,25 +87,25 @@ kubb.config.ts
 ### User-facing configuration
 
 ```ts
-import { defineConfig } from '@kubb/core'
-import { adapterOas } from '@kubb/adapter-oas'
+import { defineConfig } from "@kubb/core";
+import { adapterOas } from "@kubb/adapter-oas";
 
 export default defineConfig({
   adapter: adapterOas({
     validate: true,
-    dateType: 'date',           // ← was repeated in every plugin before
-    integerType: 'number',      // ← same
-    discriminator: 'strict',   // ← same
-    collisionDetection: false,  // ← same
-    contentType: 'application/json',
+    dateType: "date", // ← was repeated in every plugin before
+    integerType: "number", // ← same
+    discriminator: "strict", // ← same
+    collisionDetection: false, // ← same
+    contentType: "application/json",
     serverIndex: 0,
   }),
-  input: { path: './openapi.yaml' },
+  input: { path: "./openapi.yaml" },
   plugins: [
-    pluginTs(),    // ← no longer need dateType, integerType, etc.
+    pluginTs(), // ← no longer need dateType, integerType, etc.
     pluginZod(),
   ],
-})
+});
 ```
 
 Options that describe **how to interpret the spec** are now on the adapter. Options that describe **how to generate code** remain on the individual plugins.
@@ -115,17 +115,19 @@ Options that describe **how to interpret the spec** are now on the adapter. Opti
 New adapters are created with the `createAdapter` factory from `@kubb/core`:
 
 ```ts
-import { createAdapter } from '@kubb/core'
+import { createAdapter } from "@kubb/core";
 
 export const adapterOas = createAdapter<OasAdapter>((options) => ({
-  name: 'oas',
-  options: { /* resolved options with defaults */ },
-  async parse(source) {
-    const oas = await loadOas(source)
-    const parser = createOasParser(oas, options)
-    return parser.buildAst(options)
+  name: "oas",
+  options: {
+    /* resolved options with defaults */
   },
-}))
+  async parse(source) {
+    const oas = await loadOas(source);
+    const parser = createOasParser(oas, options);
+    return parser.buildAst(options);
+  },
+}));
 ```
 
 This pattern makes it straightforward to add adapters for other spec formats — each one is a self-contained module with a typed options interface and a single `parse` method.

@@ -1,43 +1,47 @@
-import { styleText } from 'node:util'
-import { createCLI } from '@internals/utils'
-import { version } from '../package.json'
-import { QUITE_FLAGS } from './constants.ts'
-import { isFlag } from './utils/flags.ts'
-import { isTelemetryDisabled } from './utils/telemetry.ts'
+import { styleText } from "node:util";
+import { createCLI } from "@internals/utils";
+import { version } from "../package.json";
+import { QUITE_FLAGS } from "./constants.ts";
+import { isFlag } from "./utils/flags.ts";
+import { isTelemetryDisabled } from "./utils/telemetry.ts";
 
-const cli = createCLI()
+const cli = createCLI();
 
 function shouldShowTelemetryNotice(argv: Array<string>): boolean {
   if (isTelemetryDisabled()) {
-    return false
+    return false;
   }
   // Skip when the user is just asking for help or version info
   if (argv.some((arg) => isFlag(QUITE_FLAGS, arg))) {
-    return false
+    return false;
   }
   // Skip in non-interactive / scripting contexts
   if (!process.stdout.isTTY) {
-    return false
+    return false;
   }
-  return true
+  return true;
 }
 
 export async function run(argv: Array<string> = process.argv): Promise<void> {
   if (shouldShowTelemetryNotice(argv)) {
     console.log(
-      `${styleText('yellow', 'Notice:')} Kubb collects anonymous telemetry data to help improve the tool. No personal data or file contents are collected. \nTo disable, set ${styleText('cyan', 'KUBB_DISABLE_TELEMETRY=1')}.\n`,
-    )
+      `${styleText("yellow", "Notice:")} Kubb collects anonymous telemetry data to help improve the tool. No personal data or file contents are collected. \nTo disable, set ${styleText("cyan", "KUBB_DISABLE_TELEMETRY=1")}.\n`,
+    );
   }
 
-  const { command: generateCommand } = await import('./commands/generate.ts')
-  const { command: validateCommand } = await import('./commands/validate.ts')
-  const { command: mcpCommand } = await import('./commands/mcp.ts')
-  const { command: agentCommand } = await import('./commands/agent.ts')
-  const { command: initCommand } = await import('./commands/init.ts')
+  const { command: generateCommand } = await import("./commands/generate.ts");
+  const { command: validateCommand } = await import("./commands/validate.ts");
+  const { command: mcpCommand } = await import("./commands/mcp.ts");
+  const { command: agentCommand } = await import("./commands/agent.ts");
+  const { command: initCommand } = await import("./commands/init.ts");
 
-  await cli.run([generateCommand, validateCommand, mcpCommand, agentCommand, initCommand], argv, {
-    programName: 'kubb',
-    defaultCommandName: 'generate',
-    version,
-  })
+  await cli.run(
+    [generateCommand, validateCommand, mcpCommand, agentCommand, initCommand],
+    argv,
+    {
+      programName: "kubb",
+      defaultCommandName: "generate",
+      version,
+    },
+  );
 }

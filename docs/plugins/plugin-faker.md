@@ -35,6 +35,7 @@ yarn add -D @kubb/plugin-faker
 ## Options
 
 ### output
+
 Specify the export location for the files and define the behavior of the output.
 
 #### output.path
@@ -64,9 +65,11 @@ Specify the export location for the files and define the behavior of the output.
 <!--@include: ./core/outputOverride.md-->
 
 ### contentType
+
 <!--@include: ./core/contentType.md-->
 
 ### group
+
 <!--@include: ./core/group.md-->
 
 #### group.type
@@ -88,19 +91,21 @@ Return the name of a group based on the group name, this will be used for the fi
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 
 |           |                      |
-| --------: | :-------- |
+| --------: | :------------------- |
 |     Type: | `'string' \| 'date'` |
 | Required: | `false`              |
 |  Default: | `'string'`           |
 
 ::: code-group
+
 ```typescript ['string']
-faker.date.anytime().toISOString()
+faker.date.anytime().toISOString();
 ```
 
 ```typescript ['date']
-faker.date.anytime()
+faker.date.anytime();
 ```
+
 :::
 
 ### dateParser
@@ -108,7 +113,7 @@ faker.date.anytime()
 Which parser should be used when dateType is set to 'string'.
 
 |           |                                            |
-| --------: | :-------- |
+| --------: | :----------------------------------------- |
 |     Type: | `'faker' \| 'dayjs' \| 'moment' \| string` |
 | Required: | `false`                                    |
 |  Default: | `'faker'`                                  |
@@ -121,55 +126,53 @@ Which parser should be used when dateType is set to 'string'.
 
 ```typescript [undefined]
 // schema with format set to 'date'
-faker.date.anytime().toISOString().substring(0, 10)
+faker.date.anytime().toISOString().substring(0, 10);
 
 // schema with format set to 'time'
-faker.date.anytime().toISOString().substring(11, 19)
-
+faker.date.anytime().toISOString().substring(11, 19);
 ```
 
 ```typescript ['dayjs']
 // schema with format set to 'date'
-dayjs(faker.date.anytime()).format('YYYY-MM-DD')
+dayjs(faker.date.anytime()).format("YYYY-MM-DD");
 
 // schema with format set to 'time'
-dayjs(faker.date.anytime()).format('HH:mm:ss')
-
+dayjs(faker.date.anytime()).format("HH:mm:ss");
 ```
 
 ```typescript ['moment']
 // schema with format set to 'date'
-moment(faker.date.anytime()).format('YYYY-MM-DD')
+moment(faker.date.anytime()).format("YYYY-MM-DD");
 
 // schema with format set to 'time'
-moment(faker.date.anytime()).format('HH:mm:ss')
+moment(faker.date.anytime()).format("HH:mm:ss");
 ```
+
 :::
 
 ### mapper
 
-|           |           |
-| --------: | :-------- |
+|           |                          |
+| --------: | :----------------------- |
 |     Type: | `Record<string, string>` |
-| Required: | `false`   |
-
+| Required: | `false`                  |
 
 ### unknownType
+
 Which type to use when the Swagger/OpenAPI file is not providing more information.
 
-|           |                               |
-| --------: | :-------- |
+|           |                                |
+| --------: | :----------------------------- |
 |     Type: | `'any' \| 'unknown' \| 'void'` |
-| Required: | `false`                       |
-|  Default: | `'any'`                       |
-
+| Required: | `false`                        |
+|  Default: | `'any'`                        |
 
 ### emptySchemaType
 
 Which type to use for empty schema values.
 
 |           |                                |
-| --------: | :-------- |
+| --------: | :----------------------------- |
 |     Type: | `'any' \| 'unknown' \| 'void'` |
 | Required: | `false`                        |
 |  Default: | `unknownType`                  |
@@ -181,141 +184,148 @@ Transform parameter names to a specific casing format for path, query, and heade
 > [!IMPORTANT]
 > When using `paramsCasing`, ensure that `@kubb/plugin-ts` also has the same `paramsCasing` setting. This option transforms property names in mock objects to match the TypeScript types.
 
-|           |                |
-| --------: | :-------- |
-|     Type: | `'camelcase'`  |
-| Required: | `false`        |
-|  Default: | `undefined`    |
+|           |               |
+| --------: | :------------ |
+|     Type: | `'camelcase'` |
+| Required: | `false`       |
+|  Default: | `undefined`   |
 
 - `'camelcase'` transforms parameter names to camelCase
 
 ::: code-group
+
 ```typescript [With paramsCasing: 'camelcase']
 // Mock data uses camelCase property names
 export function createFindPetsByStatusPathParamsFaker(
-  data?: Partial<FindPetsByStatusPathParams>
+  data?: Partial<FindPetsByStatusPathParams>,
 ): FindPetsByStatusPathParams {
   return {
-    ...{ stepId: faker.string.alpha() },  // ✓ camelCase
+    ...{ stepId: faker.string.alpha() }, // ✓ camelCase
     ...(data || {}),
-  }
+  };
 }
 ```
 
 ```typescript [Without paramsCasing]
 // Mock data uses original API naming
 export function createFindPetsByStatusPathParamsFaker(
-  data?: Partial<FindPetsByStatusPathParams>
+  data?: Partial<FindPetsByStatusPathParams>,
 ): FindPetsByStatusPathParams {
   return {
-    ...{ step_id: faker.string.alpha() },  // Original naming
+    ...{ step_id: faker.string.alpha() }, // Original naming
     ...(data || {}),
-  }
+  };
 }
 ```
+
 :::
 
 ### regexGenerator
 
 Choose which generator to use when using Regexp.
 
-
 |           |                        |
-| --------: | :-------- |
+| --------: | :--------------------- |
 |     Type: | `'faker' \| 'randexp'` |
 | Required: | `false`                |
-|  Default: | `'faker'`                |
+|  Default: | `'faker'`              |
 
 ::: code-group
+
 ```typescript ['faker']
-faker.helpers.fromRegExp(new RegExp(/test/))
+faker.helpers.fromRegExp(new RegExp(/test/));
 ```
 
 ```typescript ['randexp']
-new RandExp(/test/).gen()
+new RandExp(/test/).gen();
 ```
+
 :::
 
-
 ### seed
+
 The use of Seed is intended to allow for consistent values in a test.
 
 |           |         |
-| --------: | :-------- |
+| --------: | :------ | --------- |
 |     Type: | `number | number[]` |
 | Required: | `false` |
 
-
 ### include
+
 <!--@include: ./core/include.md-->
 
 ### exclude
+
 <!--@include: ./core/exclude.md-->
 
 ### override
+
 <!--@include: ./core/override.md-->
 
 ### generators <img src="../public/icons/experimental.svg"/>
+
 <!--@include: ./core/generators.md-->
 
 |           |                                 |
-| --------: | :-------- |
+| --------: | :------------------------------ |
 |     Type: | `Array<Generator<PluginFaker>>` |
 | Required: | `false`                         |
 
-
 ### transformers
+
 <!--@include: ./core/transformers.md-->
 
 #### transformers.name
+
 Customize the names based on the type that is provided by the plugin.
 
-|           |                                                                               |
-| --------: | :-------- |
+|           |                                                |
+| --------: | :--------------------------------------------- |
 |     Type: | `(name: string, type?: ResolveType) => string` |
-| Required: | `false`                                                                       |
+| Required: | `false`                                        |
 
 ```typescript
-type ResolveType = 'file' | 'function' | 'type' | 'const'
+type ResolveType = "file" | "function" | "type" | "const";
 ```
-
 
 ## Example
 
 ```typescript twoslash
-import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
-import { pluginFaker} from '@kubb/plugin-faker'
-import { pluginTs } from '@kubb/plugin-ts'
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginFaker } from "@kubb/plugin-faker";
+import { pluginTs } from "@kubb/plugin-ts";
 
 export default defineConfig({
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
   },
   plugins: [
     pluginOas(),
     pluginTs(),
     pluginFaker({
       output: {
-        path: './mocks',
-        barrelType: 'named',
-        banner: '/* eslint-disable no-alert, no-console */',
-        footer: ''
+        path: "./mocks",
+        barrelType: "named",
+        banner: "/* eslint-disable no-alert, no-console */",
+        footer: "",
       },
       group: {
-        type: 'tag',
+        type: "tag",
         name: ({ group }) => `${group}Service`,
       },
-      dateType: 'date',
-      unknownType: 'unknown',
+      dateType: "date",
+      unknownType: "unknown",
       seed: [100],
     }),
   ],
-})
+});
 ```
+
 ## See Also
 
 - [Faker](https://fakerjs.dev/)

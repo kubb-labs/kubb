@@ -15,6 +15,7 @@ By default, this plugin uses [Axios](https://axios-http.com/docs/intro), but you
 ## Installation
 
 ::: code-group
+
 ```shell [bun]
 bun add -d @kubb/plugin-client
 ```
@@ -30,21 +31,23 @@ npm install --save-dev @kubb/plugin-client
 ```shell [yarn]
 yarn add -D @kubb/plugin-client
 ```
+
 :::
 
 ## Options
 
 ### output
+
 Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
 <!--@include: ./core/outputPath.md-->
 
-|           |           |
-| --------: | :-------- |
-|     Type: | `string`  |
-| Required: | `true`    |
+|           |             |
+| --------: | :---------- |
+|     Type: | `string`    |
+| Required: | `true`      |
 |  Default: | `'clients'` |
 
 #### output.barrelType
@@ -64,9 +67,11 @@ Specify the export location for the files and define the behavior of the output.
 <!--@include: ./core/outputOverride.md-->
 
 ### contentType
+
 <!--@include: ./core/contentType.md-->
 
 ### group
+
 <!--@include: ./core/group.md-->
 
 #### group.type
@@ -84,9 +89,11 @@ Return the name of a group based on the group name, this will be used for the fi
 |  Default: | `(ctx) => '${ctx.group}Controller'` |
 
 ### importPath
+
 <!--@include: ./plugin-client/importPath.md-->
 
 ### operations
+
 Create `operations.ts` file with all operations grouped by methods.
 
 |           |           |
@@ -96,9 +103,11 @@ Create `operations.ts` file with all operations grouped by methods.
 |  Default: | `false`   |
 
 ### dataReturnType
+
 <!--@include: ./plugin-client/dataReturnType.md-->
 
 ### urlType
+
 Export urls that are used by operation x
 
 |           |                     |
@@ -111,48 +120,61 @@ Export urls that are used by operation x
 - `false` will not make them exportable
 
 ```typescript
-export function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
-  return `/pet/${petId}` as const
+export function getGetPetByIdUrl(petId: GetPetByIdPathParams["petId"]) {
+  return `/pet/${petId}` as const;
 }
 ```
 
 ### paramsType
+
 <!--@include: ./plugin-client/paramsType.md-->
 
 ### paramsCasing
+
 <!--@include: ./plugin-client/paramsCasing.md-->
 
 ### pathParamsType
+
 <!--@include: ./plugin-client/pathParamsType.md-->
 
 ### parser
+
 <!--@include: ./plugin-client/parser.md-->
 
 ### client
+
 <!--@include: ./plugin-client/client.md-->
 
 ### clientType
+
 <!--@include: ./plugin-client/clientType.md-->
 
 ### wrapper
+
 <!--@include: ./plugin-client/wrapper.md-->
 
 ### bundle
+
 <!--@include: ./plugin-client/bundle.md-->
 
 ### baseURL
+
 <!--@include: ./plugin-client/baseURL.md-->
 
 ### include
+
 <!--@include: ./core/include.md-->
 
 ### exclude
+
 <!--@include: ./core/exclude.md-->
 
 ### override
+
 <!--@include: ./core/override.md-->
 
 ### generators <img src="../public/icons/experimental.svg"/>
+
 <!--@include: ./core/generators.md-->
 
 |           |                                  |
@@ -160,46 +182,46 @@ export function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
 |     Type: | `Array<Generator<PluginClient>>` |
 | Required: | `false`                          |
 
-
 ### transformers
+
 <!--@include: ./core/transformers.md-->
 
 ### compatibilityPreset
 
 Use `compatibilityPreset` to control which naming convention is used for generated files and functions.
 
-|           |                              |
-| --------: | :--------------------------- |
-|     Type: | `'default' \| 'kubbV4'`      |
-| Required: | `false`                      |
-|  Default: | `'default'`                  |
+|           |                         |
+| --------: | :---------------------- |
+|     Type: | `'default' \| 'kubbV4'` |
+| Required: | `false`                 |
+|  Default: | `'default'`             |
 
 - `'default'` — v5 naming conventions (recommended)
 - `'kubbV4'` — v4 naming conventions for backwards compatibility
 
 ```typescript
-pluginClient({ compatibilityPreset: 'kubbV4' })
+pluginClient({ compatibilityPreset: "kubbV4" });
 ```
 
 ### resolver
 
 Override individual resolver methods to customize generated names. Any method you omit falls back to the preset resolver. Use `this.default(...)` to call the preset's implementation.
 
-|           |                                                                  |
-| --------: | :--------------------------------------------------------------- |
-|     Type: | `Partial<ResolverClient> & ThisType<ResolverClient>`             |
-| Required: | `false`                                                          |
+|           |                                                      |
+| --------: | :--------------------------------------------------- |
+|     Type: | `Partial<ResolverClient> & ThisType<ResolverClient>` |
+| Required: | `false`                                              |
 
 ```typescript
-import { pluginClient } from '@kubb/plugin-client'
+import { pluginClient } from "@kubb/plugin-client";
 
 pluginClient({
   resolver: {
     resolveName(name) {
-      return `${this.default(name)}Client`
+      return `${this.default(name)}Client`;
     },
   },
-})
+});
 ```
 
 ### transformer <img src="../public/icons/experimental.svg"/>
@@ -212,65 +234,65 @@ Apply an AST `Visitor` to transform operation nodes before they are printed.
 | Required: | `false`   |
 
 ```typescript
-import { pluginClient } from '@kubb/plugin-client'
+import { pluginClient } from "@kubb/plugin-client";
 
 pluginClient({
   transformer: {
     operation(node) {
-      return { ...node, operationId: `api_${node.operationId}` }
+      return { ...node, operationId: `api_${node.operationId}` };
     },
   },
-})
+});
 ```
 
 ## Example
 
 ```typescript twoslash [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTs } from '@kubb/plugin-ts'
-import { pluginClient } from '@kubb/plugin-client'
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginClient } from "@kubb/plugin-client";
 
 export default defineConfig({
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
   },
   plugins: [
     pluginOas(),
     pluginTs(),
     pluginClient({
       output: {
-        path: './clients/axios',
-        barrelType: 'named',
-        banner: '/* eslint-disable no-alert, no-console */',
-        footer: ''
+        path: "./clients/axios",
+        barrelType: "named",
+        banner: "/* eslint-disable no-alert, no-console */",
+        footer: "",
       },
       group: {
-        type: 'tag',
+        type: "tag",
         name: ({ group }) => `${group}Service`,
       },
       resolver: {
         resolveName(name) {
-          return `${this.default(name)}Client`
+          return `${this.default(name)}Client`;
         },
       },
       operations: true,
-      parser: 'client',
+      parser: "client",
       exclude: [
         {
-          type: 'tag',
-          pattern: 'store',
+          type: "tag",
+          pattern: "store",
         },
       ],
-      pathParamsType: 'object',
-      dataReturnType: 'full',
-      client: 'axios'
+      pathParamsType: "object",
+      dataReturnType: "full",
+      client: "axios",
     }),
   ],
-})
+});
 ```
 
 ## See Also

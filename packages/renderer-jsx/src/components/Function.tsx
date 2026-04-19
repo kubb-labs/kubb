@@ -1,41 +1,41 @@
-import type { JSDoc, Key, KubbReactElement, KubbReactNode } from '../types.ts'
+import type { JSDoc, Key, KubbReactElement, KubbReactNode } from "../types.ts";
 
 type Props = {
-  key?: Key
+  key?: Key;
   /**
    * Identifier of the generated function declaration.
    *
    * @example
    * `name: 'getPet'`
    */
-  name: string
+  name: string;
   /**
    * Emit `default` after the `export` keyword, making this the module's default export.
    * Requires `export` to also be `true`.
    * @default false
    */
-  default?: boolean
+  default?: boolean;
   /**
    * Parameter list written verbatim between the function's parentheses.
    *
    * @example
    * `params: 'petId: string, options?: RequestOptions'`
    */
-  params?: string
+  params?: string;
   /**
    * Emit the `export` keyword before the function declaration.
    * - `true` generates `export function name(…) { … }`
    * - `false` generates `function name(…) { … }`
    * @default false
    */
-  export?: boolean
+  export?: boolean;
   /**
    * Emit the `async` keyword, making this an async function.
    * The return type is automatically wrapped in `Promise<returnType>` when both
    * `async` and `returnType` are set.
    * @default false
    */
-  async?: boolean
+  async?: boolean;
   /**
    * TypeScript generic type parameters written verbatim between `<` and `>`.
    * Pass an array to emit multiple parameters separated by commas.
@@ -46,7 +46,7 @@ type Props = {
    * @example Multiple generics
    * `generics: ['TData', 'TError = unknown']`
    */
-  generics?: string | string[]
+  generics?: string | string[];
   /**
    * TypeScript return type annotation written verbatim after `:`.
    * When `async` is `true`, the value is automatically wrapped in `Promise<…>`.
@@ -54,17 +54,17 @@ type Props = {
    * @example
    * `returnType: 'Pet'`
    */
-  returnType?: string
+  returnType?: string;
   /**
    * JSDoc block to prepend to the function declaration.
    * Each entry in `comments` becomes one line inside the emitted `/** … *\/` block.
    */
-  JSDoc?: JSDoc
+  JSDoc?: JSDoc;
   /**
    * Child nodes rendered as the body of the function.
    */
-  children?: KubbReactNode
-}
+  children?: KubbReactNode;
+};
 
 /**
  * Generates a TypeScript function declaration.
@@ -80,10 +80,21 @@ type Props = {
  * ```
  */
 export function Function({ children, ...props }: Props): KubbReactElement {
-  const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc } = props
+  const {
+    name,
+    default: isDefault,
+    export: canExport,
+    async: isAsync,
+    generics,
+    params,
+    returnType,
+    JSDoc,
+  } = props;
 
   // Normalize generics array to comma-separated string for DOM attribute storage
-  const genericsString = Array.isArray(generics) ? generics.join(', ').trim() : generics
+  const genericsString = Array.isArray(generics)
+    ? generics.join(", ").trim()
+    : generics;
 
   return (
     <kubb-function
@@ -98,10 +109,10 @@ export function Function({ children, ...props }: Props): KubbReactElement {
     >
       {children}
     </kubb-function>
-  )
+  );
 }
 
-Function.displayName = 'Function'
+Function.displayName = "Function";
 
 type ArrowFunctionProps = Props & {
   /**
@@ -110,8 +121,8 @@ type ArrowFunctionProps = Props & {
    * - `false` generates `const name = (…) => { … }`
    * @default false
    */
-  singleLine?: boolean
-}
+  singleLine?: boolean;
+};
 
 /**
  * Generates an arrow function expression assigned to a `const`.
@@ -127,9 +138,21 @@ type ArrowFunctionProps = Props & {
  * ```
  */
 function ArrowFunction({ children, ...props }: ArrowFunctionProps) {
-  const { name, default: isDefault, export: canExport, async, generics, params, returnType, JSDoc, singleLine } = props
+  const {
+    name,
+    default: isDefault,
+    export: canExport,
+    async,
+    generics,
+    params,
+    returnType,
+    JSDoc,
+    singleLine,
+  } = props;
 
-  const genericsString = Array.isArray(generics) ? generics.join(', ').trim() : generics
+  const genericsString = Array.isArray(generics)
+    ? generics.join(", ").trim()
+    : generics;
 
   return (
     <kubb-arrow-function
@@ -145,8 +168,8 @@ function ArrowFunction({ children, ...props }: ArrowFunctionProps) {
     >
       {children}
     </kubb-arrow-function>
-  )
+  );
 }
 
-ArrowFunction.displayName = 'ArrowFunction'
-Function.Arrow = ArrowFunction
+ArrowFunction.displayName = "ArrowFunction";
+Function.Arrow = ArrowFunction;

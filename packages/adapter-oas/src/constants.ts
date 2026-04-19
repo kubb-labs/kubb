@@ -1,4 +1,4 @@
-import { ast } from '@kubb/core'
+import { ast } from "@kubb/core";
 
 /**
  * Default parser options applied when no explicit options are provided.
@@ -12,12 +12,12 @@ import { ast } from '@kubb/core'
  * ```
  */
 export const DEFAULT_PARSER_OPTIONS = {
-  dateType: 'string',
-  integerType: 'number',
-  unknownType: 'any',
-  emptySchemaType: 'any',
-  enumSuffix: 'enum',
-} as const satisfies ast.ParserOptions
+  dateType: "string",
+  integerType: "number",
+  unknownType: "any",
+  emptySchemaType: "any",
+  enumSuffix: "enum",
+} as const satisfies ast.ParserOptions;
 
 /**
  * JSON-Pointer prefix for schemas declared under `components.schemas` in an OpenAPI document.
@@ -29,22 +29,22 @@ export const DEFAULT_PARSER_OPTIONS = {
  * `${SCHEMA_REF_PREFIX}Pet` // '#/components/schemas/Pet'
  * ```
  */
-export const SCHEMA_REF_PREFIX = '#/components/schemas/' as const
+export const SCHEMA_REF_PREFIX = "#/components/schemas/" as const;
 
 /**
  * OpenAPI version string written into the stub document created during multi-spec merges.
  */
-export const MERGE_OPENAPI_VERSION = '3.0.0' as const
+export const MERGE_OPENAPI_VERSION = "3.0.0" as const;
 
 /**
  * Fallback `info.title` placed in the stub document when merging multiple API files.
  */
-export const MERGE_DEFAULT_TITLE = 'Merged API' as const
+export const MERGE_DEFAULT_TITLE = "Merged API" as const;
 
 /**
  * Fallback `info.version` placed in the stub document when merging multiple API files.
  */
-export const MERGE_DEFAULT_VERSION = '1.0.0' as const
+export const MERGE_DEFAULT_VERSION = "1.0.0" as const;
 
 /**
  * Set of JSON Schema keywords that prevent a schema fragment from being inlined during `allOf` flattening.
@@ -60,7 +60,15 @@ export const MERGE_DEFAULT_VERSION = '1.0.0' as const
  * // true when fragment has e.g. 'properties' or 'oneOf'
  * ```
  */
-export const structuralKeys = new Set(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'] as const)
+export const structuralKeys = new Set([
+  "properties",
+  "items",
+  "additionalProperties",
+  "oneOf",
+  "anyOf",
+  "allOf",
+  "not",
+] as const);
 
 /**
  * Static map from OAS `format` strings to Kubb `SchemaType` values.
@@ -80,24 +88,24 @@ export const structuralKeys = new Set(['properties', 'items', 'additionalPropert
  * ```
  */
 export const formatMap = {
-  uuid: 'uuid',
-  email: 'email',
-  'idn-email': 'email',
-  uri: 'url',
-  'uri-reference': 'url',
-  url: 'url',
-  ipv4: 'ipv4',
-  ipv6: 'ipv6',
-  hostname: 'url',
-  'idn-hostname': 'url',
-  binary: 'blob',
-  byte: 'blob',
+  uuid: "uuid",
+  email: "email",
+  "idn-email": "email",
+  uri: "url",
+  "uri-reference": "url",
+  url: "url",
+  ipv4: "ipv4",
+  ipv6: "ipv6",
+  hostname: "url",
+  "idn-hostname": "url",
+  binary: "blob",
+  byte: "blob",
   // Numeric formats override the OAS `type` because format is more specific.
   // See https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.7
-  int32: 'integer',
-  float: 'number',
-  double: 'number',
-} as const satisfies Record<string, ast.SchemaType>
+  int32: "integer",
+  float: "number",
+  double: "number",
+} as const satisfies Record<string, ast.SchemaType>;
 
 /**
  * Vendor extension keys that attach human-readable labels to enum values, checked in priority order.
@@ -109,14 +117,17 @@ export const formatMap = {
  * const key = enumExtensionKeys.find((k) => k in schema) // 'x-enumNames' | 'x-enum-varnames' | undefined
  * ```
  */
-export const enumExtensionKeys = ['x-enumNames', 'x-enum-varnames'] as const
+export const enumExtensionKeys = ["x-enumNames", "x-enum-varnames"] as const;
 
 /**
  * Maps `'any' | 'unknown' | 'void'` option strings to their `ScalarSchemaType` constant.
  * Replaces a plain object lookup with a `Map` for explicit key membership testing via `.has()`.
  */
-export const typeOptionMap = new Map<'any' | 'unknown' | 'void', ast.ScalarSchemaType>([
-  ['any', ast.schemaTypes.any],
-  ['unknown', ast.schemaTypes.unknown],
-  ['void', ast.schemaTypes.void],
-])
+export const typeOptionMap = new Map<
+  "any" | "unknown" | "void",
+  ast.ScalarSchemaType
+>([
+  ["any", ast.schemaTypes.any],
+  ["unknown", ast.schemaTypes.unknown],
+  ["void", ast.schemaTypes.void],
+]);

@@ -1,5 +1,5 @@
-import { createRolldownPlugin } from 'unplugin'
+import { createRolldownPlugin } from "unplugin";
 
-import { unpluginFactory } from './unpluginFactory.ts'
+import { unpluginFactory } from "./unpluginFactory.ts";
 
-export default createRolldownPlugin(unpluginFactory)
+export default createRolldownPlugin(unpluginFactory);

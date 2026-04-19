@@ -36,7 +36,6 @@ pnpm changeset
 
 ## Related Skills
 
-| Skill                                   | Use For                          |
-|-----------------------------------------|----------------------------------|
+| Skill                                              | Use For                          |
+| -------------------------------------------------- | -------------------------------- |
 | **[../changelog/SKILL.md](../changelog/SKILL.md)** | Update changelogs and changesets |
-

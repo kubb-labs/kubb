@@ -1,4 +1,4 @@
-import type { Logger, LoggerOptions, UserLogger } from './types.ts'
+import type { Logger, LoggerOptions, UserLogger } from "./types.ts";
 
 /**
  * Wraps a logger definition into a typed {@link Logger}.
@@ -12,6 +12,8 @@ import type { Logger, LoggerOptions, UserLogger } from './types.ts'
  *   },
  * })
  */
-export function defineLogger<Options extends LoggerOptions = LoggerOptions>(logger: UserLogger<Options>): Logger<Options> {
-  return logger
+export function defineLogger<Options extends LoggerOptions = LoggerOptions>(
+  logger: UserLogger<Options>,
+): Logger<Options> {
+  return logger;
 }

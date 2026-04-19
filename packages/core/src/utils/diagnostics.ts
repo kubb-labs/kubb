@@ -1,5 +1,5 @@
-import { version as nodeVersion } from 'node:process'
-import { version as KubbVersion } from '../../package.json'
+import { version as nodeVersion } from "node:process";
+import { version as KubbVersion } from "../../package.json";
 
 /**
  * Returns a snapshot of the current runtime environment.
@@ -14,5 +14,5 @@ export function getDiagnosticInfo() {
     platform: process.platform,
     arch: process.arch,
     cwd: process.cwd(),
-  } as const
+  } as const;
 }

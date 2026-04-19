@@ -31,10 +31,10 @@ The `PluginDriver` triggers events when a plugin executes (`execute`), when a pl
 
 ```typescript [Events]
 type Events = {
-  execute: [executer: Executer]
-  executed: [executer: Executer]
-  error: [error: Error]
-}
+  execute: [executer: Executer];
+  executed: [executer: Executer];
+  error: [error: Error];
+};
 ```
 
 - **Type:** `Events` <br/>
@@ -56,7 +56,6 @@ The config that has been set in `kubb.config.ts`.
 Array of all executed plugins.
 
 - **Type:** `Array<Executer>` <br/>
-
 
 ### driver.resolvePath
 

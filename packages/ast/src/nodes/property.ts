@@ -1,5 +1,5 @@
-import type { BaseNode } from './base.ts'
-import type { SchemaNode } from './schema.ts'
+import type { BaseNode } from "./base.ts";
+import type { SchemaNode } from "./schema.ts";
 
 /**
  * AST node representing one named object property.
@@ -18,17 +18,17 @@ export type PropertyNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'Property'
+  kind: "Property";
   /**
    * Property key.
    */
-  name: string
+  name: string;
   /**
    * Property schema.
    */
-  schema: SchemaNode
+  schema: SchemaNode;
   /**
    * Whether the property is required.
    */
-  required: boolean
-}
+  required: boolean;
+};

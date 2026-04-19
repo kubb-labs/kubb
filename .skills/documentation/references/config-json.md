@@ -21,25 +21,31 @@ The `docs/config.json` file uses a custom Kubb.dev schema (not standard VitePres
 ```json
 {
   "$schema": "https://kubb.dev/schemas/config/schema.json",
-  "sidebars": [/* named sidebar definitions */],
-  "nav": [/* navigation items */],
-  "sidebar": {/* route-to-sidebar mapping */}
+  "sidebars": [
+    /* named sidebar definitions */
+  ],
+  "nav": [
+    /* navigation items */
+  ],
+  "sidebar": {
+    /* route-to-sidebar mapping */
+  }
 }
 ```
 
 ## Required Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `sidebars` | `array` | Named sidebar definitions |
-| `sidebar` | `object` | Maps route prefixes to sidebar names |
+| Field      | Type     | Description                          |
+| ---------- | -------- | ------------------------------------ |
+| `sidebars` | `array`  | Named sidebar definitions            |
+| `sidebar`  | `object` | Maps route prefixes to sidebar names |
 
 ## Optional Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
+| Field     | Type     | Description                          |
+| --------- | -------- | ------------------------------------ |
 | `$schema` | `string` | JSON Schema reference for validation |
-| `nav` | `array` | Top navigation bar items |
+| `nav`     | `array`  | Top navigation bar items             |
 
 ## Sidebars
 
@@ -69,14 +75,14 @@ Named sidebar definitions that can be reused across multiple routes.
 
 ### Sidebar Item Properties
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `text` | `string` | Yes | Label shown in sidebar |
-| `link` | `string` | No | Target page (omit for group labels) |
-| `collapsed` | `boolean` | No | Whether group is collapsed by default |
-| `items` | `array` | No | Nested sidebar items |
-| `target` | `string` | No | Link target (`_blank`, `_self`) |
-| `activeMatch` | `string` | No | Regex for active state |
+| Property      | Type      | Required | Description                           |
+| ------------- | --------- | -------- | ------------------------------------- |
+| `text`        | `string`  | Yes      | Label shown in sidebar                |
+| `link`        | `string`  | No       | Target page (omit for group labels)   |
+| `collapsed`   | `boolean` | No       | Whether group is collapsed by default |
+| `items`       | `array`   | No       | Nested sidebar items                  |
+| `target`      | `string`  | No       | Link target (`_blank`, `_self`)       |
+| `activeMatch` | `string`  | No       | Regex for active state                |
 
 ## Navigation
 
@@ -105,13 +111,13 @@ Top navigation bar configuration.
 
 ### Nav Item Properties
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `text` | `string` | Yes | Navigation label |
-| `link` | `string` | No | Navigation target (omit for dropdown) |
-| `items` | `array` | No | Dropdown menu items |
-| `target` | `string` | No | Link target (`_blank`, `_self`) |
-| `activeMatch` | `string` | No | Regex for active state |
+| Property      | Type     | Required | Description                           |
+| ------------- | -------- | -------- | ------------------------------------- |
+| `text`        | `string` | Yes      | Navigation label                      |
+| `link`        | `string` | No       | Navigation target (omit for dropdown) |
+| `items`       | `array`  | No       | Dropdown menu items                   |
+| `target`      | `string` | No       | Link target (`_blank`, `_self`)       |
+| `activeMatch` | `string` | No       | Regex for active state                |
 
 ## Sidebar Mapping
 
@@ -129,6 +135,7 @@ Maps route prefixes to named sidebars.
 ```
 
 **Rules**:
+
 - Route prefix must start with `/`
 - Value must match a sidebar `name` defined in `sidebars`
 - VitePress selects sidebar based on current route
@@ -257,7 +264,9 @@ The config.json integrates with `kubb.dev`:
 {
   "text": "Advanced Topics",
   "collapsed": true,
-  "items": [/* nested items */]
+  "items": [
+    /* nested items */
+  ]
 }
 ```
 

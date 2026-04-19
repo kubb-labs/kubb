@@ -19,6 +19,7 @@ The MCP server acts as a bridge between MCP clients (like [Claude Desktop](https
 Install the package as a dev dependency:
 
 ::: code-group
+
 ```shell [bun]
 bun add -d @kubb/mcp @kubb/cli
 ```
@@ -34,6 +35,7 @@ npm install --save-dev @kubb/mcp @kubb/cli
 ```shell [yarn]
 yarn add -D @kubb/mcp @kubb/cli
 ```
+
 :::
 
 > [!IMPORTANT]
@@ -54,7 +56,6 @@ Or run it directly as a standalone package:
 
 > [!IMPORTANT]
 > Here you only need to install `@kubb/mcp` if you use this method.
-
 
 ```shell
 npx @kubb/mcp
@@ -78,6 +79,7 @@ Add to `claude_desktop_config.json` (location varies by OS):
 - **Linux**: `~/.config/Claude/claude_desktop_config.json`
 
 **Option 1: Using Kubb CLI (recommended):**
+
 ```json
 {
   "mcpServers": {
@@ -90,6 +92,7 @@ Add to `claude_desktop_config.json` (location varies by OS):
 ```
 
 **Option 2: Using standalone bin:**
+
 ```json
 {
   "mcpServers": {
@@ -106,24 +109,20 @@ Add to `claude_desktop_config.json` (location varies by OS):
 Ensure you have a `kubb.config.ts` file in your project:
 
 ```typescript
-import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTs } from '@kubb/plugin-ts'
-import { pluginClient } from '@kubb/plugin-client'
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginClient } from "@kubb/plugin-client";
 
 export default defineConfig({
   input: {
-    path: './petstore.yaml',
+    path: "./petstore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
   },
-  plugins: [
-    pluginOas(),
-    pluginTs(),
-    pluginClient(),
-  ],
-})
+  plugins: [pluginOas(), pluginTs(), pluginClient()],
+});
 ```
 
 ### 4. Use with Your AI Assistant
@@ -134,9 +133,10 @@ Once configured, you can interact with Kubb through natural language:
 
 > **You:** "Use Kubb to generate code from my OpenAPI specification in examples/cypress of my project"
 >
-> **Claude:** *Uses the Kubb MCP server to run the generate command*
+> **Claude:** _Uses the Kubb MCP server to run the generate command_
 >
 > **Result:** Code generated successfully with real-time progress updates showing:
+>
 > - Configuration loading
 > - Plugin execution
 > - File generation progress
@@ -152,13 +152,12 @@ Generate code from OpenAPI/Swagger specifications using Kubb configuration.
 
 **Parameters:**
 
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `config` | string | No | `kubb.config.ts` | Path to the kubb.config.ts file |
-| `input` | string | No | — | Path to the OpenAPI/Swagger spec file (overrides config) |
-| `output` | string | No | — | Output directory path (overrides config) |
-| `logLevel` | enum | No | `info` | Log level: `silent`, `error`, `warn`, `info`, `verbose`, `debug` |
-
+| Parameter  | Type   | Required | Default          | Description                                                      |
+| ---------- | ------ | -------- | ---------------- | ---------------------------------------------------------------- |
+| `config`   | string | No       | `kubb.config.ts` | Path to the kubb.config.ts file                                  |
+| `input`    | string | No       | —                | Path to the OpenAPI/Swagger spec file (overrides config)         |
+| `output`   | string | No       | —                | Output directory path (overrides config)                         |
+| `logLevel` | enum   | No       | `info`           | Log level: `silent`, `error`, `warn`, `info`, `verbose`, `debug` |
 
 ## Use Cases
 
@@ -186,7 +185,6 @@ Use this when troubleshooting:
 >
 > **AI:** Runs generate with `logLevel: verbose` to show plugin timing
 
-
 ## Troubleshooting
 
 ### Server Won't Start
@@ -194,6 +192,7 @@ Use this when troubleshooting:
 **Issue:** `kubb mcp` command not found
 
 **Solution:** Ensure `@kubb/cli` is installed:
+
 ```shell
 npm install --save-dev @kubb/cli
 ```
@@ -203,6 +202,7 @@ npm install --save-dev @kubb/cli
 **Issue:** [Claude](https://claude.ai) doesn't show Kubb as available
 
 **Solution:**
+
 1. Verify `claude_desktop_config.json` is in the correct location
 2. Restart [Claude Desktop](https://claude.ai/download) after modifying the config
 3. Confirm the server starts without errors using `npx kubb mcp`
@@ -212,6 +212,7 @@ npm install --save-dev @kubb/cli
 **Issue:** AI reports generation errors
 
 **Solution:**
+
 1. Verify `kubb.config.ts` exists and is valid
 2. Confirm the OpenAPI spec path is correct
 3. Run with debug logging: ask the AI to use `logLevel: debug`

@@ -1,6 +1,6 @@
-import type { FileNode } from '@kubb/ast'
-import { Runtime } from './Runtime.tsx'
-import type { KubbReactElement } from './types.ts'
+import type { FileNode } from "@kubb/ast";
+import { Runtime } from "./Runtime.tsx";
+import type { KubbReactElement } from "./types.ts";
 
 type Options = {
   /**
@@ -8,8 +8,8 @@ type Options = {
    * Useful when diagnosing output differences between renders.
    * @default false
    */
-  debug?: boolean
-}
+  debug?: boolean;
+};
 
 /**
  * The renderer instance returned by {@link createRenderer}.
@@ -19,17 +19,17 @@ type Renderer = {
    * Render a JSX element tree and collect the resulting {@link FileNode} entries.
    * Resolves once all synchronous render work (including React's flush) is done.
    */
-  render(Element: KubbReactElement): Promise<void>
+  render(Element: KubbReactElement): Promise<void>;
   /**
    * Tear down the renderer and release all React resources.
    * Pass an `Error` to signal an abnormal shutdown.
    */
-  unmount(error?: Error | number | null): void
+  unmount(error?: Error | number | null): void;
   /**
    * The {@link FileNode} entries collected from the most recent `render` call.
    */
-  files: Array<FileNode>
-}
+  files: Array<FileNode>;
+};
 
 /**
  * Create a Kubb JSX renderer.
@@ -54,19 +54,19 @@ type Renderer = {
  * ```
  */
 export function createRenderer(options: Options = {}): Renderer {
-  const runtime = new Runtime(options)
+  const runtime = new Runtime(options);
 
   return {
     async render(Element) {
-      await runtime.render(Element)
+      await runtime.render(Element);
     },
     get files() {
-      return runtime.nodes
+      return runtime.nodes;
     },
     unmount(error) {
-      runtime.unmount(error)
+      runtime.unmount(error);
     },
-  }
+  };
 }
 
 /**
@@ -90,4 +90,4 @@ export function createRenderer(options: Options = {}): Renderer {
  * })
  * ```
  */
-export const jsxRenderer: () => Renderer = () => createRenderer()
+export const jsxRenderer: () => Renderer = () => createRenderer();

@@ -11,6 +11,7 @@ outline: deep
 Parse and validate your OpenAPI schema with this core plugin.
 
 ## Installation
+
 ::: code-group
 
 ```shell [bun]
@@ -28,21 +29,23 @@ npm install --save-dev @kubb/plugin-oas
 ```shell [yarn]
 yarn add -D @kubb/plugin-oas
 ```
+
 :::
 
 ## Options
 
 ### output
+
 Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
 <!--@include: ./core/outputPath.md-->
 
-|           |           |
-| --------: | :-------- |
-|     Type: | `string`  |
-| Required: | `true`    |
+|           |             |
+| --------: | :---------- |
+|     Type: | `string`    |
+| Required: | `true`      |
 |  Default: | `'schemas'` |
 
 #### output.barrelType
@@ -62,6 +65,7 @@ Specify the export location for the files and define the behavior of the output.
 <!--@include: ./core/outputOverride.md-->
 
 ### group
+
 <!--@include: ./core/group.md-->
 
 #### group.type
@@ -96,7 +100,7 @@ Which server to use from the array of `servers.url[serverIndex]`
 > Defining the server here will make it possible to use that endpoint as `baseURL` in other plugins.
 
 |           |          |
-| --------: | :-------- |
+| --------: | :------- |
 |     Type: | `number` |
 | Required: | `false`  |
 
@@ -115,31 +119,32 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: 1.0.0
 servers:
-- url: http://petstore.swagger.io/api
-- url: http://localhost:3000
+  - url: http://petstore.swagger.io/api
+  - url: http://localhost:3000
 ```
 
 ```typescript [serverIndex 0]
-import { pluginOas } from '@kubb/plugin-oas'
+import { pluginOas } from "@kubb/plugin-oas";
 
-const plugin = pluginOas({ serverIndex: 0 })
+const plugin = pluginOas({ serverIndex: 0 });
 ```
 
 ```typescript [serverIndex 1]
-import { pluginOas } from '@kubb/plugin-oas'
+import { pluginOas } from "@kubb/plugin-oas";
 
-const plugin = pluginOas({ serverIndex: 1 })
+const plugin = pluginOas({ serverIndex: 1 });
 ```
+
 :::
 
 ### serverVariables
 
 Override OpenAPI server variables when resolving the base URL. When `serverIndex` is set and the selected server URL contains `{variable}` placeholders (as defined in the OpenAPI `servers[].variables` object), these values will be substituted. Any variable not provided falls back to its `default` value from the specification. If a variable has an `enum`, the provided value is validated at generation time.
 
-|           |                              |
-| --------: | :-------- |
-|     Type: | `Record<string, string>`     |
-| Required: | `false`                      |
+|           |                          |
+| --------: | :----------------------- |
+|     Type: | `Record<string, string>` |
+| Required: | `false`                  |
 
 ::: code-group
 
@@ -154,14 +159,15 @@ servers:
 ```
 
 ```typescript [serverVariables]
-import { pluginOas } from '@kubb/plugin-oas'
+import { pluginOas } from "@kubb/plugin-oas";
 
 const plugin = pluginOas({
   serverIndex: 0,
-  serverVariables: { env: 'prod' },
-})
+  serverVariables: { env: "prod" },
+});
 // Results in baseURL: https://api.prod.example.com
 ```
+
 :::
 
 ### discriminator
@@ -169,6 +175,7 @@ const plugin = pluginOas({
 Defines how the discriminator value should be interpreted during processing.
 
 Kubb provides comprehensive support for OpenAPI discriminators in both **OpenAPI 3.0** and **OpenAPI 3.1** specifications, including:
+
 - Explicit and inferred mapping
 - `oneOf` and `anyOf` constructs
 - Inline schemas and `$ref` references
@@ -179,7 +186,7 @@ Kubb provides comprehensive support for OpenAPI discriminators in both **OpenAPI
 See [Discriminators](/guide/oas#discriminators) in the knowledge base for detailed examples and supported patterns.
 
 |           |                          |
-| --------: | :-------- |
+| --------: | :----------------------- |
 |     Type: | ` 'strict' \| 'inherit'` |
 | Required: | `false`                  |
 |  Default: | `'strict'`               |
@@ -242,54 +249,54 @@ components:
 
 ```typescript [discriminator 'strict']
 export type Cat = {
-  type: string
-  name?: string
-  indoor: boolean
-}
+  type: string;
+  name?: string;
+  indoor: boolean;
+};
 
 export type Dog = {
-  type: string
-  name: string
-}
+  type: string;
+  name: string;
+};
 
 export type Animal =
   | (Cat & {
-  type: 'cat'
-})
+      type: "cat";
+    })
   | (Dog & {
-  type: 'dog'
-})
+      type: "dog";
+    });
 ```
 
 ```typescript [discriminator 'inherit']
 export const catTypeEnum = {
-  cat: 'cat',
-} as const
+  cat: "cat",
+} as const;
 
-export type CatTypeEnum = (typeof catTypeEnum)[keyof typeof catTypeEnum]
+export type CatTypeEnum = (typeof catTypeEnum)[keyof typeof catTypeEnum];
 export type Cat = {
-  type: CatTypeEnum
-  name?: string
-  indoor: boolean
-}
+  type: CatTypeEnum;
+  name?: string;
+  indoor: boolean;
+};
 
 export const dogTypeEnum = {
-  dog: 'dog',
-} as const
+  dog: "dog",
+} as const;
 
-export type DogTypeEnum = (typeof dogTypeEnum)[keyof typeof dogTypeEnum]
+export type DogTypeEnum = (typeof dogTypeEnum)[keyof typeof dogTypeEnum];
 export type Dog = {
-  type: DogTypeEnum
-  name: string
-}
+  type: DogTypeEnum;
+  name: string;
+};
 
 export type Animal =
   | (Cat & {
-  type: 'cat'
-})
+      type: "cat";
+    })
   | (Dog & {
-  type: 'dog'
-})
+      type: "dog";
+    });
 ```
 
 :::
@@ -299,6 +306,7 @@ export type Animal =
 Resolve name collisions when schemas from different components share the same name (case-insensitive).
 
 When enabled, Kubb automatically detects and resolves collisions using intelligent suffixes:
+
 - **Cross-component collisions**: Adds semantic suffixes based on the component type (Schema/Response/Request)
 - **Same-component collisions**: Adds numeric suffixes (2, 3, ...) for case-insensitive duplicates
 - **Nested enum collisions**: Includes root schema name in enum names to prevent duplicates across schemas
@@ -317,34 +325,39 @@ When enabled, Kubb automatically detects and resolves collisions using intellige
 **Cross-component collision:**
 
 If you have "Order" in both schemas and requestBodies:
+
 - With `collisionDetection: true`: Generates `OrderSchema.ts`, `OrderRequest.ts`
 - With `collisionDetection: false`: May generate duplicate `Order.ts` files
 
 **Same-component collision:**
 
 If you have "Variant" and "variant" in schemas:
+
 - With `collisionDetection: true`: Generates `Variant.ts`, `Variant2.ts`
 - With `collisionDetection: false`: May overwrite or create duplicates
 
 **Nested enum collision:**
 
 If you have "params.channel" enum in both "NotificationTypeA" and "NotificationTypeB":
+
 - With `collisionDetection: true`: Generates `notificationTypeAParamsChannelEnum`, `notificationTypeBParamsChannelEnum`
 - With `collisionDetection: false`: Generates duplicate `paramsChannelEnum` in both files
 
 ### contentType
+
 <!--@include: ./core/contentType.md-->
 
 ### oasClass <img src="../public/icons/experimental.svg"/>
+
 Override some behavior of the OAS parser instance from `@kubb/adapter-oas`.
 
-|           |                                |
-| --------: | :-------- |
-|     Type: | `typeof Oas`                             |
-| Required: | `false`                        |
-
+|           |              |
+| --------: | :----------- |
+|     Type: | `typeof Oas` |
+| Required: | `false`      |
 
 ### generators <img src="../public/icons/experimental.svg"/>
+
 Define some generators to create files based on the operation and/or schema. All plugin are using generators to create files based on the OperationGenerator and SchemaGenerators. An empty array will result in no schema's being generated, in v2 of Kubb we used `output: false`.
 
 See [Generators](/guide/generators) for more information on how to use generators.
@@ -352,47 +365,48 @@ See [Generators](/guide/generators) for more information on how to use generator
 ::: info
 
 ```typescript
-import { pluginOas, createGenerator, PluginOas } from '@kubb/plugin-oas'
-import { jsonGenerator } from '@kubb/plugin-oas/generators';
+import { pluginOas, createGenerator, PluginOas } from "@kubb/plugin-oas";
+import { jsonGenerator } from "@kubb/plugin-oas/generators";
 
 export const customGenerator = createGenerator<PluginOas>({
-  name: 'plugin-oas',
+  name: "plugin-oas",
   async schema({ schema, name, instance }) {
-    return []
-  }
-})
+    return [];
+  },
+});
 
 const plugin = pluginOas({
-  generators: [jsonGenerator,  customGenerator]
-})
+  generators: [jsonGenerator, customGenerator],
+});
 ```
+
 :::
 
 ## Example
 
 ```typescript
-import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
 
 export default defineConfig({
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
   },
   plugins: [
     pluginOas({
       validate: true,
       output: {
-        path: './json',
+        path: "./json",
       },
       serverIndex: 0,
-      contentType: 'application/json',
+      contentType: "application/json",
       collisionDetection: true, // Recommended - prevents name collisions
     }),
   ],
-})
+});
 ```
 
 ## See Also

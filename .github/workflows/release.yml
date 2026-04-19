@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Optional: Custom tag for canary release'
+        description: "Optional: Custom tag for canary release"
         required: false
         type: string
   push:
@@ -42,7 +42,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Build
         run: pnpm run build

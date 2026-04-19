@@ -1,5 +1,5 @@
-import type { ExportNode, ImportNode, SourceNode } from '@kubb/ast'
-import type { Key, KubbReactElement, KubbReactNode } from '../types.ts'
+import type { ExportNode, ImportNode, SourceNode } from "@kubb/ast";
+import type { Key, KubbReactElement, KubbReactNode } from "../types.ts";
 
 type BasePropsWithBaseName = {
   /**
@@ -11,47 +11,47 @@ type BasePropsWithBaseName = {
    * @example
    * `baseName: 'petStore.ts'`
    */
-  baseName: `${string}.${string}`
+  baseName: `${string}.${string}`;
   /**
    * Fully qualified path to the generated file.
    *
    * @example
    * `path: 'src/models/petStore.ts'`
    */
-  path: string
-}
+  path: string;
+};
 
 type BasePropsWithoutBaseName = {
-  baseName?: never
+  baseName?: never;
   /**
    * Fully qualified path to the generated file.
    * Optional when `baseName` is omitted — the component renders its children inline.
    */
-  path?: string
-}
+  path?: string;
+};
 
-type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
+type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName;
 
 type Props<TMeta> = BaseProps & {
-  key?: Key
+  key?: Key;
   /**
    * Arbitrary metadata attached to the file node.
    * Used by plugins for barrel generation and custom post-processing.
    */
-  meta?: TMeta
+  meta?: TMeta;
   /**
    * Text prepended to the generated file content before any source blocks.
    */
-  banner?: string
+  banner?: string;
   /**
    * Text appended to the generated file content after all source blocks.
    */
-  footer?: string
+  footer?: string;
   /**
    * Child nodes rendered as the content of this file (source blocks, imports, exports).
    */
-  children?: KubbReactNode
-}
+  children?: KubbReactNode;
+};
 
 /**
  * Declares a generated file entry to be collected by the renderer.
@@ -69,25 +69,28 @@ type Props<TMeta> = BaseProps & {
  * </File>
  * ```
  */
-export function File<TMeta extends object = object>({ children, ...props }: Props<TMeta>): KubbReactElement {
-  const { baseName, path } = props
+export function File<TMeta extends object = object>({
+  children,
+  ...props
+}: Props<TMeta>): KubbReactElement {
+  const { baseName, path } = props;
 
   if (!baseName || !path) {
-    return <>{children}</>
+    return <>{children}</>;
   }
 
-  return <kubb-file {...props}>{children}</kubb-file>
+  return <kubb-file {...props}>{children}</kubb-file>;
 }
 
-File.displayName = 'File'
+File.displayName = "File";
 
-type FileSourceProps = Omit<SourceNode, 'kind' | 'value'> & {
-  key?: Key
+type FileSourceProps = Omit<SourceNode, "kind" | "value"> & {
+  key?: Key;
   /**
    * Child nodes rendered as the source content of this block.
    */
-  children?: KubbReactNode
-}
+  children?: KubbReactNode;
+};
 
 /**
  * Marks a block of source text to be associated with the enclosing {@link File}.
@@ -110,18 +113,23 @@ type FileSourceProps = Omit<SourceNode, 'kind' | 'value'> & {
  * ```
  */
 function FileSource({ children, ...props }: FileSourceProps): KubbReactElement {
-  const { name, isExportable, isIndexable, isTypeOnly } = props
+  const { name, isExportable, isIndexable, isTypeOnly } = props;
 
   return (
-    <kubb-source name={name} isTypeOnly={isTypeOnly} isExportable={isExportable} isIndexable={isIndexable}>
+    <kubb-source
+      name={name}
+      isTypeOnly={isTypeOnly}
+      isExportable={isExportable}
+      isIndexable={isIndexable}
+    >
       {children}
     </kubb-source>
-  )
+  );
 }
 
-FileSource.displayName = 'FileSource'
+FileSource.displayName = "FileSource";
 
-type FileExportProps = Omit<ExportNode, 'kind'> & { key?: Key }
+type FileExportProps = Omit<ExportNode, "kind"> & { key?: Key };
 
 /**
  * Declares an export entry for the enclosing {@link File}.
@@ -141,14 +149,21 @@ type FileExportProps = Omit<ExportNode, 'kind'> & { key?: Key }
  * ```
  */
 function FileExport(props: FileExportProps): KubbReactElement {
-  const { name, path, isTypeOnly, asAlias } = props
+  const { name, path, isTypeOnly, asAlias } = props;
 
-  return <kubb-export name={name} path={path} isTypeOnly={isTypeOnly} asAlias={asAlias} />
+  return (
+    <kubb-export
+      name={name}
+      path={path}
+      isTypeOnly={isTypeOnly}
+      asAlias={asAlias}
+    />
+  );
 }
 
-FileExport.displayName = 'FileExport'
+FileExport.displayName = "FileExport";
 
-type FileImportProps = Omit<ImportNode, 'kind'> & { key?: Key }
+type FileImportProps = Omit<ImportNode, "kind"> & { key?: Key };
 
 /**
  * Declares an import entry for the enclosing {@link File}.
@@ -174,13 +189,21 @@ type FileImportProps = Omit<ImportNode, 'kind'> & { key?: Key }
  * ```
  */
 function FileImport(props: FileImportProps): KubbReactElement {
-  const { name, root, path, isTypeOnly, isNameSpace } = props
+  const { name, root, path, isTypeOnly, isNameSpace } = props;
 
-  return <kubb-import name={name} root={root} path={path} isNameSpace={isNameSpace} isTypeOnly={isTypeOnly} />
+  return (
+    <kubb-import
+      name={name}
+      root={root}
+      path={path}
+      isNameSpace={isNameSpace}
+      isTypeOnly={isTypeOnly}
+    />
+  );
 }
 
-FileImport.displayName = 'FileImport'
+FileImport.displayName = "FileImport";
 
-File.Export = FileExport
-File.Import = FileImport
-File.Source = FileSource
+File.Export = FileExport;
+File.Import = FileImport;
+File.Source = FileSource;

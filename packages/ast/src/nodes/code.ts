@@ -1,4 +1,4 @@
-import type { BaseNode } from './base.ts'
+import type { BaseNode } from "./base.ts";
 
 /**
  * JSDoc documentation metadata attached to code declarations.
@@ -8,8 +8,8 @@ export type JSDocNode = {
    * JSDoc comment lines. `undefined` entries are filtered out during rendering.
    * @example ['@description A pet resource', '@deprecated']
    */
-  comments?: Array<string | undefined>
-}
+  comments?: Array<string | undefined>;
+};
 
 /**
  * AST node representing a TypeScript `const` declaration.
@@ -27,36 +27,36 @@ export type ConstNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'Const'
+  kind: "Const";
   /**
    * Name of the constant declaration.
    */
-  name: string
+  name: string;
   /**
    * Whether the declaration should be exported.
    * @default false
    */
-  export?: boolean
+  export?: boolean;
   /**
    * Optional explicit type annotation.
    * @example 'Pet'
    */
-  type?: string
+  type?: string;
   /**
    * JSDoc documentation metadata.
    */
-  JSDoc?: JSDocNode
+  JSDoc?: JSDocNode;
   /**
    * Whether to append `as const` to the declaration.
    * @default false
    */
-  asConst?: boolean
+  asConst?: boolean;
   /**
    * Child nodes representing the value of the constant (children of the `Const` component).
    * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
    */
-  nodes?: Array<CodeNode>
-}
+  nodes?: Array<CodeNode>;
+};
 
 /**
  * AST node representing a TypeScript `type` alias declaration.
@@ -74,32 +74,32 @@ export type TypeNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'Type'
+  kind: "Type";
   /**
    * Name of the type alias.
    */
-  name: string
+  name: string;
   /**
    * Whether the declaration should be exported.
    * @default false
    */
-  export?: boolean
+  export?: boolean;
   /**
    * JSDoc documentation metadata.
    */
-  JSDoc?: JSDocNode
+  JSDoc?: JSDocNode;
   /**
    * Child nodes representing the type body (children of the `Type` component).
    * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
    */
-  nodes?: Array<CodeNode>
-}
+  nodes?: Array<CodeNode>;
+};
 
 /**
  * Convenience alias for {@link TypeNode}.
  * @deprecated Use `TypeNode` directly.
  */
-export type TypeDeclarationNode = TypeNode
+export type TypeDeclarationNode = TypeNode;
 
 /**
  * AST node representing a TypeScript `function` declaration.
@@ -117,50 +117,50 @@ export type FunctionNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'Function'
+  kind: "Function";
   /**
    * Name of the function.
    */
-  name: string
+  name: string;
   /**
    * Whether the function is a default export.
    * @default false
    */
-  default?: boolean
+  default?: boolean;
   /**
    * Function parameter list rendered as a string (e.g. from `FunctionParams.toConstructor()`).
    */
-  params?: string
+  params?: string;
   /**
    * Whether the function should be exported.
    * @default false
    */
-  export?: boolean
+  export?: boolean;
   /**
    * Whether the function is async. When `true`, the return type is wrapped in `Promise<>`.
    * @default false
    */
-  async?: boolean
+  async?: boolean;
   /**
    * TypeScript generic type parameters.
    * @example ['T', 'U extends string']
    */
-  generics?: string | string[]
+  generics?: string | string[];
   /**
    * Return type annotation.
    * @example 'Pet'
    */
-  returnType?: string
+  returnType?: string;
   /**
    * JSDoc documentation metadata.
    */
-  JSDoc?: JSDocNode
+  JSDoc?: JSDocNode;
   /**
    * Child nodes representing the function body (children of the `Function` component).
    * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
    */
-  nodes?: Array<CodeNode>
-}
+  nodes?: Array<CodeNode>;
+};
 
 /**
  * AST node representing a TypeScript arrow function (`const name = () => { ... }`).
@@ -178,55 +178,55 @@ export type ArrowFunctionNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'ArrowFunction'
+  kind: "ArrowFunction";
   /**
    * Name of the arrow function (used as the `const` variable name).
    */
-  name: string
+  name: string;
   /**
    * Whether the function is a default export.
    * @default false
    */
-  default?: boolean
+  default?: boolean;
   /**
    * Function parameter list rendered as a string (e.g. from `FunctionParams.toConstructor()`).
    */
-  params?: string
+  params?: string;
   /**
    * Whether the arrow function should be exported.
    * @default false
    */
-  export?: boolean
+  export?: boolean;
   /**
    * Whether the arrow function is async. When `true`, the return type is wrapped in `Promise<>`.
    * @default false
    */
-  async?: boolean
+  async?: boolean;
   /**
    * TypeScript generic type parameters.
    * @example ['T', 'U extends string']
    */
-  generics?: string | string[]
+  generics?: string | string[];
   /**
    * Return type annotation.
    * @example 'Pet'
    */
-  returnType?: string
+  returnType?: string;
   /**
    * JSDoc documentation metadata.
    */
-  JSDoc?: JSDocNode
+  JSDoc?: JSDocNode;
   /**
    * Render the arrow function body as a single-line expression.
    * @default false
    */
-  singleLine?: boolean
+  singleLine?: boolean;
   /**
    * Child nodes representing the function body (children of the `Function.Arrow` component).
    * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
    */
-  nodes?: Array<CodeNode>
-}
+  nodes?: Array<CodeNode>;
+};
 
 /**
  * AST node representing a raw text/string fragment in the source output.
@@ -244,12 +244,12 @@ export type TextNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'Text'
+  kind: "Text";
   /**
    * The raw string content.
    */
-  value: string
-}
+  value: string;
+};
 
 /**
  * AST node representing a line break in the source output.
@@ -269,8 +269,8 @@ export type BreakNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'Break'
-}
+  kind: "Break";
+};
 
 /**
  * AST node representing a raw JSX fragment in the source output.
@@ -288,12 +288,12 @@ export type JsxNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'Jsx'
+  kind: "Jsx";
   /**
    * The raw JSX string content.
    */
-  value: string
-}
+  value: string;
+};
 
 /**
  * Union of all code-generation AST nodes.
@@ -301,4 +301,11 @@ export type JsxNode = BaseNode & {
  * These nodes mirror the JSX components from `@kubb/renderer-jsx` and are used as
  * structured children in {@link SourceNode.nodes}.
  */
-export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode | TextNode | BreakNode | JsxNode
+export type CodeNode =
+  | ConstNode
+  | TypeNode
+  | FunctionNode
+  | ArrowFunctionNode
+  | TextNode
+  | BreakNode
+  | JsxNode;

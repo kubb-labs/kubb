@@ -7,7 +7,7 @@
  * }
  * ```
  */
-export type PossiblePromise<T> = Promise<T> | T
+export type PossiblePromise<T> = Promise<T> | T;
 
 /** Returns `true` when `result` is a thenable `Promise`.
  *
@@ -18,7 +18,11 @@ export type PossiblePromise<T> = Promise<T> | T
  * ```
  */
 export function isPromise<T>(result: PossiblePromise<T>): result is Promise<T> {
-  return result !== null && result !== undefined && typeof (result as Record<string, unknown>)['then'] === 'function'
+  return (
+    result !== null &&
+    result !== undefined &&
+    typeof (result as Record<string, unknown>)["then"] === "function"
+  );
 }
 
 /** Returns `true` when `result` is a fulfilled `Promise.allSettled` result.
@@ -29,8 +33,10 @@ export function isPromise<T>(result: PossiblePromise<T>): result is Promise<T> {
  * results.filter(isPromiseFulfilledResult).map((r) => r.value)
  * ```
  */
-export function isPromiseFulfilledResult<T = unknown>(result: PromiseSettledResult<unknown>): result is PromiseFulfilledResult<T> {
-  return result.status === 'fulfilled'
+export function isPromiseFulfilledResult<T = unknown>(
+  result: PromiseSettledResult<unknown>,
+): result is PromiseFulfilledResult<T> {
+  return result.status === "fulfilled";
 }
 
 /** Returns `true` when `result` is a rejected `Promise.allSettled` result with a typed `reason`.
@@ -41,6 +47,8 @@ export function isPromiseFulfilledResult<T = unknown>(result: PromiseSettledResu
  * results.filter(isPromiseRejectedResult<Error>).map((r) => r.reason.message)
  * ```
  */
-export function isPromiseRejectedResult<T>(result: PromiseSettledResult<unknown>): result is Omit<PromiseRejectedResult, 'reason'> & { reason: T } {
-  return result.status === 'rejected'
+export function isPromiseRejectedResult<T>(
+  result: PromiseSettledResult<unknown>,
+): result is Omit<PromiseRejectedResult, "reason"> & { reason: T } {
+  return result.status === "rejected";
 }

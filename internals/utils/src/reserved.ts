@@ -3,88 +3,88 @@
  * @link https://github.com/jonschlinkert/reserved/blob/master/index.js
  */
 const reservedWords = new Set([
-  'abstract',
-  'arguments',
-  'boolean',
-  'break',
-  'byte',
-  'case',
-  'catch',
-  'char',
-  'class',
-  'const',
-  'continue',
-  'debugger',
-  'default',
-  'delete',
-  'do',
-  'double',
-  'else',
-  'enum',
-  'eval',
-  'export',
-  'extends',
-  'false',
-  'final',
-  'finally',
-  'float',
-  'for',
-  'function',
-  'goto',
-  'if',
-  'implements',
-  'import',
-  'in',
-  'instanceof',
-  'int',
-  'interface',
-  'let',
-  'long',
-  'native',
-  'new',
-  'null',
-  'package',
-  'private',
-  'protected',
-  'public',
-  'return',
-  'short',
-  'static',
-  'super',
-  'switch',
-  'synchronized',
-  'this',
-  'throw',
-  'throws',
-  'transient',
-  'true',
-  'try',
-  'typeof',
-  'var',
-  'void',
-  'volatile',
-  'while',
-  'with',
-  'yield',
-  'Array',
-  'Date',
-  'hasOwnProperty',
-  'Infinity',
-  'isFinite',
-  'isNaN',
-  'isPrototypeOf',
-  'length',
-  'Math',
-  'name',
-  'NaN',
-  'Number',
-  'Object',
-  'prototype',
-  'String',
-  'toString',
-  'undefined',
-  'valueOf',
-] as const)
+  "abstract",
+  "arguments",
+  "boolean",
+  "break",
+  "byte",
+  "case",
+  "catch",
+  "char",
+  "class",
+  "const",
+  "continue",
+  "debugger",
+  "default",
+  "delete",
+  "do",
+  "double",
+  "else",
+  "enum",
+  "eval",
+  "export",
+  "extends",
+  "false",
+  "final",
+  "finally",
+  "float",
+  "for",
+  "function",
+  "goto",
+  "if",
+  "implements",
+  "import",
+  "in",
+  "instanceof",
+  "int",
+  "interface",
+  "let",
+  "long",
+  "native",
+  "new",
+  "null",
+  "package",
+  "private",
+  "protected",
+  "public",
+  "return",
+  "short",
+  "static",
+  "super",
+  "switch",
+  "synchronized",
+  "this",
+  "throw",
+  "throws",
+  "transient",
+  "true",
+  "try",
+  "typeof",
+  "var",
+  "void",
+  "volatile",
+  "while",
+  "with",
+  "yield",
+  "Array",
+  "Date",
+  "hasOwnProperty",
+  "Infinity",
+  "isFinite",
+  "isNaN",
+  "isPrototypeOf",
+  "length",
+  "Math",
+  "name",
+  "NaN",
+  "Number",
+  "Object",
+  "prototype",
+  "String",
+  "toString",
+  "undefined",
+  "valueOf",
+] as const);
 
 /**
  * Prefixes `word` with `_` when it is a reserved JavaScript/Java identifier or starts with a digit.
@@ -97,11 +97,15 @@ const reservedWords = new Set([
  * ```
  */
 export function transformReservedWord(word: string): string {
-  const firstChar = word.charCodeAt(0)
-  if (word && (reservedWords.has(word as 'valueOf') || (firstChar >= 48 && firstChar <= 57))) {
-    return `_${word}`
+  const firstChar = word.charCodeAt(0);
+  if (
+    word &&
+    (reservedWords.has(word as "valueOf") ||
+      (firstChar >= 48 && firstChar <= 57))
+  ) {
+    return `_${word}`;
   }
-  return word
+  return word;
 }
 
 /**
@@ -116,9 +120,9 @@ export function transformReservedWord(word: string): string {
  */
 export function isValidVarName(name: string): boolean {
   try {
-    new Function(`var ${name}`)
+    new Function(`var ${name}`);
   } catch {
-    return false
+    return false;
   }
-  return true
+  return true;
 }

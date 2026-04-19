@@ -16,4 +16,5 @@ Plugins are now resolved at runtime via dynamic `import()` instead of being hard
 ```
 
 If a plugin cannot be resolved, a clear error is thrown:
+
 > Plugin '@kubb/plugin-ts' could not be loaded. Make sure it is installed.

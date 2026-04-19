@@ -21,7 +21,7 @@ This skill helps agents answer questions about authoring components and generato
 ## Conceptual Example
 
 ```tsx
-import { File, Function } from '@kubb/react-fabric'
+import { File, Function } from "@kubb/react-fabric";
 export function Query({ name }: Props): FabricReactNode {
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -29,7 +29,7 @@ export function Query({ name }: Props): FabricReactNode {
         // Generated code
       </Function>
     </File.Source>
-  )
+  );
 }
 ```
 
@@ -41,6 +41,6 @@ export function Query({ name }: Props): FabricReactNode {
 
 ## Related Skills
 
-| Skill                                                      | Use For                                       |
-|------------------------------------------------------------|-----------------------------------------------|
+| Skill                                                                  | Use For                                       |
+| ---------------------------------------------------------------------- | --------------------------------------------- |
 | **[../plugin-architecture/SKILL.md](../plugin-architecture/SKILL.md)** | For lifecycle and plugin registration details |

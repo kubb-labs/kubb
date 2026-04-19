@@ -1,10 +1,10 @@
-import type { InputNode } from './nodes/root.ts'
-import type { SchemaNode } from './nodes/schema.ts'
+import type { InputNode } from "./nodes/root.ts";
+import type { SchemaNode } from "./nodes/schema.ts";
 
 /**
  * Lookup map from schema name to `SchemaNode`.
  */
-export type RefMap = Map<string, SchemaNode>
+export type RefMap = Map<string, SchemaNode>;
 
 /**
  * Returns the last path segment of a reference string.
@@ -17,7 +17,7 @@ export type RefMap = Map<string, SchemaNode>
  * ```
  */
 export function extractRefName(ref: string): string {
-  return ref.split('/').at(-1) ?? ref
+  return ref.split("/").at(-1) ?? ref;
 }
 
 /**
@@ -32,14 +32,14 @@ export function extractRefName(ref: string): string {
  * ```
  */
 export function buildRefMap(input: InputNode): RefMap {
-  const map: RefMap = new Map()
+  const map: RefMap = new Map();
 
   for (const schema of input.schemas) {
     if (schema.name) {
-      map.set(schema.name, schema)
+      map.set(schema.name, schema);
     }
   }
-  return map
+  return map;
 }
 
 /**
@@ -50,8 +50,11 @@ export function buildRefMap(input: InputNode): RefMap {
  * const petSchema = resolveRef(refMap, 'Pet')
  * ```
  */
-export function resolveRef(refMap: RefMap, ref: string): SchemaNode | undefined {
-  return refMap.get(ref)
+export function resolveRef(
+  refMap: RefMap,
+  ref: string,
+): SchemaNode | undefined {
+  return refMap.get(ref);
 }
 
 /**
@@ -63,5 +66,5 @@ export function resolveRef(refMap: RefMap, ref: string): SchemaNode | undefined 
  * ```
  */
 export function refMapToObject(refMap: RefMap): Record<string, SchemaNode> {
-  return Object.fromEntries(refMap)
+  return Object.fromEntries(refMap);
 }

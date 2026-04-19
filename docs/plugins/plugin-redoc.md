@@ -29,45 +29,46 @@ npm install --save-dev @kubb/plugin-redoc
 ```shell [yarn]
 yarn add -D @kubb/plugin-redoc
 ```
+
 :::
 
 ## Options
 
 ### output
+
 #### output.path
 
 The output location for the generated documentation.
 
 This plugin uses [Redocly](https://redocly.com/) for HTML generation.
 
-|           |                |
-| --------: | :-------- |
-|     Type: | `string`       |
-| Required: | `false`        |
-|  Default: | `'docs.html'`  |
-
+|           |               |
+| --------: | :------------ |
+|     Type: | `string`      |
+| Required: | `false`       |
+|  Default: | `'docs.html'` |
 
 ## Example
 
 ```typescript twoslash [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-import { pluginRedoc } from '@kubb/plugin-redoc'
+import { defineConfig } from "@kubb/core";
+import { pluginRedoc } from "@kubb/plugin-redoc";
 
 export default defineConfig({
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
   },
   plugins: [
     pluginRedoc({
       output: {
-        path: './docs/index.html',
+        path: "./docs/index.html",
       },
     }),
   ],
-})
+});
 ```
 
 ## See Also
