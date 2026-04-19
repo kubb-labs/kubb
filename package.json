@@ -20,7 +20,6 @@
     "build": "turbo run build --filter=./packages/*",
     "changeset": "changeset",
     "clean": "turbo run clean",
-    "format": "prettier --write packages internals configs --ignore-unknown",
     "graph": "npx nx graph ",
     "lint": "oxlint ./packages",
     "lint:fix": "oxlint --fix ./packages && manypkg fix",
@@ -51,7 +50,6 @@
     "bun-types": "^1.3.12",
     "cspell": "^10.0.0",
     "oxlint": "^0.16.0",
-    "prettier": "^3.8.3",
     "size-limit": "catalog:",
     "taze": "^19.11.0",
     "ts-node": "^10.9.2",
@@ -70,15 +68,5 @@
       "esbuild"
     ]
   },
-  "namespace": "@kubb",
-  "prettier": {
-    "printWidth": 160,
-    "tabWidth": 2,
-    "useTabs": false,
-    "trailingComma": "all",
-    "semi": false,
-    "singleQuote": true,
-    "jsxSingleQuote": false,
-    "bracketSameLine": false
-  }
+  "namespace": "@kubb"
 }
