@@ -124,3 +124,118 @@ No changes to the autofix workflow steps — it runs `pnpm run format` and `pnpm
 ```
 
 `prettier` is removed from devDependencies entirely. It remains available as a kubb output option (the `prettier` binary is invoked at runtime if the user has it installed).
+
+---
+
+## Prompt: apply this migration to another repo
+
+Use the following prompt with Claude Code in any kubb-labs plugin repo to apply the same migration:
+
+```
+Migrate this repo from Biome to oxlint + oxfmt for internal dev tooling, following the same approach used in the main kubb repo.
+
+Context and decisions already made:
+- Biome must stay as a valid *output* option (do not remove it from any formatter/linter maps or type unions exposed to kubb consumers)
+- oxfmt ^0.45.0 replaces biome for formatting; oxlint ^1.60.0 replaces biome for linting
+- Remove @biomejs/biome and prettier from devDependencies
+- Do NOT add prettier back for internal use
+
+Steps to follow:
+
+1. Remove biome.json and uninstall @biomejs/biome (and prettier if present).
+
+2. Install oxfmt and oxlint:
+   pnpm add -D oxfmt@^0.45.0 oxlint@^1.60.0
+
+3. Create oxfmt.config.ts at the repo root:
+   import { defineConfig } from 'oxfmt'
+   export default defineConfig({
+     printWidth: 160,
+     tabWidth: 2,
+     useTabs: false,
+     trailingComma: 'all',
+     semi: false,
+     singleQuote: true,
+     jsxSingleQuote: false,
+     bracketSameLine: false,
+     endOfLine: 'lf',
+     ignorePatterns: [
+       '**/__snapshots__/**',
+       '**/schemas/**',
+       '**/tests/e2e/schemas/**',
+       '**/dist/**',
+       '**/artifacts/**',
+       '**/.next/**',
+       '**/.output/**',
+       '**/.nitro/**',
+     ],
+   })
+
+4. Create oxlint.config.ts at the repo root:
+   import { defineConfig } from 'oxlint'
+   export default defineConfig({
+     plugins: ['typescript', 'react'],
+     ignorePatterns: [
+       '**/node_modules/**',
+       '**/__snapshots__/**',
+       '**/schemas/**',
+       '**/tests/e2e/schemas/**',
+       '**/coverage/**',
+       '**/assets/**',
+       '**/public/**',
+       '**/dist/**',
+       '**/artifacts/**',
+       '**/.next/**',
+       '**/.output/**',
+       '**/.nitro/**',
+     ],
+     rules: {
+       'no-shadow-restricted-names': 'off',
+       'no-empty-pattern': 'off',
+       'no-unsafe-optional-chaining': 'off',
+       'no-unused-private-class-members': 'off',
+       'no-constructor-return': 'off',
+       'no-unused-vars': ['warn', { varsIgnorePattern: '^_', argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
+       '@typescript-eslint/no-this-alias': 'off',
+       'no-else-return': 'error',
+       'default-param-last': 'error',
+       'prefer-exponentiation-operator': 'error',
+       '@typescript-eslint/consistent-type-imports': ['error', { disallowTypeAnnotations: false }],
+       '@typescript-eslint/no-inferrable-types': 'error',
+       '@typescript-eslint/prefer-function-type': 'error',
+       'react/self-closing-comp': 'error',
+       'react/no-array-index-key': 'warn',
+     },
+   })
+
+5. Update root package.json scripts. Adjust the directories passed to oxfmt to match what exists in this repo (e.g. `packages`, `src`, `internals`):
+   "format":   "oxfmt -c oxfmt.config.ts <dirs>",
+   "lint":     "oxlint -c oxlint.config.ts ./<main-src-dir>",
+   "lint:fix": "oxlint -c oxlint.config.ts --fix ./<main-src-dir> && manypkg fix"
+   (drop manypkg fix if not used)
+
+6. Update any per-package lint scripts from biome to:
+   "lint":     "oxlint .",
+   "lint:fix": "oxlint --fix ."
+   oxlint 1.x auto-discovers the root oxlint.config.ts from subdirectories.
+
+7. If the repo has a .github/workflows/autofix.yml, make sure the format and lint:fix steps run pnpm run format and pnpm run lint:fix (no biome-specific commands).
+
+8. Run pnpm run format to reformat all source files.
+
+9. Run pnpm run lint to check for violations and fix any that come up.
+
+10. Run pnpm test to verify nothing broke, and update snapshots if needed:
+    pnpm vitest run -u
+
+11. Commit with message: "chore: replace Biome with oxlint and oxfmt"
+
+Rule mapping notes (biome rules with NO oxlint equivalent — acceptable gap):
+- style.useConst (prefer-const)
+- style.useTemplate / noUnusedTemplateLiteral (prefer-template)
+- style.useLiteralEnumMembers
+- style.useAsConstAssertion
+- style.useEnumInitializers
+- style.useSingleVarDeclarator
+- style.useExportType
+```
