@@ -212,7 +212,7 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
 
       const ctx = { ...generatorContext, options }
 
-      await generatorContextStorage.run(ctx, async () => {
+      await generatorContextStorage.run({ ctx, currentNode: transformedNode }, async () => {
         for (const gen of generators) {
           if (!gen.schema) continue
           const result = await gen.schema(transformedNode, ctx)
@@ -235,7 +235,7 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
 
         const ctx = { ...generatorContext, options }
 
-        await generatorContextStorage.run(ctx, async () => {
+        await generatorContextStorage.run({ ctx, currentNode: transformedNode }, async () => {
           for (const gen of generators) {
             if (!gen.operation) continue
             const result = await gen.operation(transformedNode, ctx)
@@ -251,7 +251,7 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
   if (collectedOperations.length > 0) {
     const ctx = { ...generatorContext, options: plugin.options }
 
-    await generatorContextStorage.run(ctx, async () => {
+    await generatorContextStorage.run({ ctx, currentNode: null }, async () => {
       for (const gen of generators) {
         if (!gen.operations) continue
         const result = await gen.operations(collectedOperations, ctx)

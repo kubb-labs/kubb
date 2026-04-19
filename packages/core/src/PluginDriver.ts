@@ -8,6 +8,8 @@ import type { Plugin } from './definePlugin.ts'
 import { defineResolver } from './defineResolver.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
+import { getContextStore } from './generatorContext.ts'
+import { OutputRegistry } from './OutputRegistry.ts'
 import { applyHookResult } from './renderNode.ts'
 
 import type {
@@ -62,6 +64,13 @@ export class PluginDriver {
    * add files; this property gives direct read/write access when needed.
    */
   readonly fileManager = new FileManager()
+
+  /**
+   * Tracks what each plugin produced for each schema/operation node.
+   * Plugins opt-in by tagging files with `meta: { kind: 'type' | 'zod' | ... }`.
+   * Queryable via the `kubb:outputs` virtual module.
+   */
+  readonly outputRegistry = new OutputRegistry()
 
   readonly plugins = new Map<string, NormalizedPlugin>()
 
@@ -348,9 +357,11 @@ export class PluginDriver {
       driver,
       addFile: async (...files: Array<FileNode>) => {
         driver.fileManager.add(...files)
+        driver.#autoRegister(plugin.name, files)
       },
       upsertFile: async (...files: Array<FileNode>) => {
         driver.fileManager.upsert(...files)
+        driver.#autoRegister(plugin.name, files)
       },
       get inputNode(): InputNode | undefined {
         return driver.inputNode
@@ -395,6 +406,40 @@ export class PluginDriver {
     } as unknown as GeneratorContext<TOptions>
 
     return baseContext
+  }
+
+  /**
+   * Automatically registers files into the OutputRegistry when called inside a
+   * generator context. Only registers files that carry a `meta.kind` tag.
+   */
+  #autoRegister(pluginName: string, files: Array<FileNode>): void {
+    let store: ReturnType<typeof getContextStore> | undefined
+    try {
+      store = getContextStore()
+    } catch {
+      return
+    }
+
+    const { currentNode } = store
+    if (!currentNode) return
+
+    const isOperation = currentNode.kind === 'Operation'
+    const nodeId = isOperation ? (currentNode as OperationNode).operationId : ((currentNode as SchemaNode).name ?? '')
+    const nodeKind = isOperation ? 'operation' : 'schema'
+
+    for (const file of files) {
+      const kind = (file.meta as { kind?: string } | undefined)?.kind
+      if (!kind) continue
+
+      this.outputRegistry.register({
+        nodeId,
+        nodeKind,
+        plugin: pluginName,
+        kind,
+        file: file.path,
+        exports: OutputRegistry.extractExportNames(file),
+      })
+    }
   }
 
   getPlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined

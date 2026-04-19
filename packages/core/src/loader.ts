@@ -3,9 +3,9 @@
  *
  * Register via:  node --import @kubb/core/register
  *
- * Intercepts bare specifiers starting with 'kubb:' and returns
- * synthetic modules backed by the AsyncLocalStorage context set
- * by runPluginAstHooks() in createKubb.ts.
+ * Supported virtual modules:
+ *   kubb:spec    — query the parsed OpenAPI spec (schemas, operations, tags)
+ *   kubb:outputs — resolve cross-plugin outputs to ready-to-use ImportNodes
  */
 
 const COMPOSABLES_URL = new URL('./composables.js', import.meta.url).href
@@ -38,19 +38,25 @@ export async function load(url: string, context: LoadContext, nextLoad: (u: stri
   const name = url.slice('kubb-virtual:'.length)
 
   switch (name) {
-    case 'files':
+    case 'spec':
       return {
         format: 'module',
         shortCircuit: true,
-        source: `import { useFiles } from '${COMPOSABLES_URL}'; export const files = useFiles;`,
+        source: `
+import { getSchemas, getSchema, getOperations, getOperation, getOperationsByTag, getCurrentNode, getInputMeta } from '${COMPOSABLES_URL}';
+export { getSchemas, getSchema, getOperations, getOperation, getOperationsByTag, getCurrentNode, getInputMeta };
+        `.trim(),
       }
-    case 'driver':
+    case 'outputs':
       return {
         format: 'module',
         shortCircuit: true,
-        source: `import { useDriver } from '${COMPOSABLES_URL}'; export const driver = useDriver;`,
+        source: `
+import { queryOutputs, resolveImport } from '${COMPOSABLES_URL}';
+export { queryOutputs, resolveImport };
+        `.trim(),
       }
     default:
-      throw new Error(`[kubb] Unknown virtual module 'kubb:${name}'. Available: kubb:files, kubb:driver`)
+      throw new Error(`[kubb] Unknown virtual module 'kubb:${name}'. Available: kubb:spec, kubb:outputs`)
   }
 }
