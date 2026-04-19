@@ -124,15 +124,15 @@ servers:
 ```
 
 ```typescript [serverIndex 0]
-import { pluginOas } from "@kubb/plugin-oas";
+import { pluginOas } from '@kubb/plugin-oas'
 
-const plugin = pluginOas({ serverIndex: 0 });
+const plugin = pluginOas({ serverIndex: 0 })
 ```
 
 ```typescript [serverIndex 1]
-import { pluginOas } from "@kubb/plugin-oas";
+import { pluginOas } from '@kubb/plugin-oas'
 
-const plugin = pluginOas({ serverIndex: 1 });
+const plugin = pluginOas({ serverIndex: 1 })
 ```
 
 :::
@@ -159,12 +159,12 @@ servers:
 ```
 
 ```typescript [serverVariables]
-import { pluginOas } from "@kubb/plugin-oas";
+import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({
   serverIndex: 0,
-  serverVariables: { env: "prod" },
-});
+  serverVariables: { env: 'prod' },
+})
 // Results in baseURL: https://api.prod.example.com
 ```
 
@@ -206,8 +206,8 @@ components:
       - type
     type: object
     oneOf:
-      - $ref: "#/components/schemas/Cat"
-      - $ref: "#/components/schemas/Dog"
+      - $ref: '#/components/schemas/Cat'
+      - $ref: '#/components/schemas/Dog'
     properties:
       type:
         type: string
@@ -217,8 +217,8 @@ components:
     discriminator:
       propertyName: type
       mapping:
-        cat: "#/components/schemas/Cat"
-        dog: "#/components/schemas/Dog"
+        cat: '#/components/schemas/Cat'
+        dog: '#/components/schemas/Dog'
 
     Cat:
       title: Cat
@@ -249,54 +249,54 @@ components:
 
 ```typescript [discriminator 'strict']
 export type Cat = {
-  type: string;
-  name?: string;
-  indoor: boolean;
-};
+  type: string
+  name?: string
+  indoor: boolean
+}
 
 export type Dog = {
-  type: string;
-  name: string;
-};
+  type: string
+  name: string
+}
 
 export type Animal =
   | (Cat & {
-      type: "cat";
+      type: 'cat'
     })
   | (Dog & {
-      type: "dog";
-    });
+      type: 'dog'
+    })
 ```
 
 ```typescript [discriminator 'inherit']
 export const catTypeEnum = {
-  cat: "cat",
-} as const;
+  cat: 'cat',
+} as const
 
-export type CatTypeEnum = (typeof catTypeEnum)[keyof typeof catTypeEnum];
+export type CatTypeEnum = (typeof catTypeEnum)[keyof typeof catTypeEnum]
 export type Cat = {
-  type: CatTypeEnum;
-  name?: string;
-  indoor: boolean;
-};
+  type: CatTypeEnum
+  name?: string
+  indoor: boolean
+}
 
 export const dogTypeEnum = {
-  dog: "dog",
-} as const;
+  dog: 'dog',
+} as const
 
-export type DogTypeEnum = (typeof dogTypeEnum)[keyof typeof dogTypeEnum];
+export type DogTypeEnum = (typeof dogTypeEnum)[keyof typeof dogTypeEnum]
 export type Dog = {
-  type: DogTypeEnum;
-  name: string;
-};
+  type: DogTypeEnum
+  name: string
+}
 
 export type Animal =
   | (Cat & {
-      type: "cat";
+      type: 'cat'
     })
   | (Dog & {
-      type: "dog";
-    });
+      type: 'dog'
+    })
 ```
 
 :::
@@ -365,19 +365,19 @@ See [Generators](/guide/generators) for more information on how to use generator
 ::: info
 
 ```typescript
-import { pluginOas, createGenerator, PluginOas } from "@kubb/plugin-oas";
-import { jsonGenerator } from "@kubb/plugin-oas/generators";
+import { pluginOas, createGenerator, PluginOas } from '@kubb/plugin-oas'
+import { jsonGenerator } from '@kubb/plugin-oas/generators'
 
 export const customGenerator = createGenerator<PluginOas>({
-  name: "plugin-oas",
+  name: 'plugin-oas',
   async schema({ schema, name, instance }) {
-    return [];
+    return []
   },
-});
+})
 
 const plugin = pluginOas({
   generators: [jsonGenerator, customGenerator],
-});
+})
 ```
 
 :::
@@ -385,28 +385,28 @@ const plugin = pluginOas({
 ## Example
 
 ```typescript
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   plugins: [
     pluginOas({
       validate: true,
       output: {
-        path: "./json",
+        path: './json',
       },
       serverIndex: 0,
-      contentType: "application/json",
+      contentType: 'application/json',
       collisionDetection: true, // Recommended - prevents name collisions
     }),
   ],
-});
+})
 ```
 
 ## See Also

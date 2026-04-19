@@ -109,40 +109,40 @@ Choose to use `enum` or `as const` for enums.
 
 ```typescript ['enum']
 enum PetType {
-  Dog = "dog",
-  Cat = "cat",
+  Dog = 'dog',
+  Cat = 'cat',
 }
 ```
 
 ```typescript ['asConst']
 const petType = {
-  Dog: "dog",
-  Cat: "cat",
-} as const;
+  Dog: 'dog',
+  Cat: 'cat',
+} as const
 ```
 
 ```typescript ['asPascalConst']
 const PetType = {
-  Dog: "dog",
-  Cat: "cat",
-} as const;
+  Dog: 'dog',
+  Cat: 'cat',
+} as const
 ```
 
 ```typescript ['constEnum']
 const enum PetType {
-  Dog = "dog",
-  Cat = "cat",
+  Dog = 'dog',
+  Cat = 'cat',
 }
 ```
 
 ```typescript ['literal']
-type PetType = "dog" | "cat";
+type PetType = 'dog' | 'cat'
 ```
 
 ```typescript ['inlineLiteral']
 // Enum values are inlined directly into the type
 export interface Pet {
-  status?: "available" | "pending" | "sold";
+  status?: 'available' | 'pending' | 'sold'
 }
 ```
 
@@ -169,31 +169,31 @@ Only the type alias is affected — the const object name stays unchanged.
 
 ```typescript ['Key' (default)]
 const petType = {
-  Dog: "dog",
-  Cat: "cat",
-} as const;
+  Dog: 'dog',
+  Cat: 'cat',
+} as const
 
-export type PetTypeKey = (typeof petType)[keyof typeof petType];
+export type PetTypeKey = (typeof petType)[keyof typeof petType]
 ```
 
 ```typescript ['Value']
 // enumTypeSuffix: 'Value'
 const petType = {
-  Dog: "dog",
-  Cat: "cat",
-} as const;
+  Dog: 'dog',
+  Cat: 'cat',
+} as const
 
-export type PetTypeValue = (typeof petType)[keyof typeof petType];
+export type PetTypeValue = (typeof petType)[keyof typeof petType]
 ```
 
 ```typescript ['' (no suffix)]
 // enumTypeSuffix: ''
 const petType = {
-  Dog: "dog",
-  Cat: "cat",
-} as const;
+  Dog: 'dog',
+  Cat: 'cat',
+} as const
 
-export type PetType = (typeof petType)[keyof typeof petType];
+export type PetType = (typeof petType)[keyof typeof petType]
 ```
 
 :::
@@ -239,13 +239,13 @@ See [Type vs Interface: Which Should You Use](https://www.totaltypescript.com/ty
 
 ```typescript ['type']
 type Pet = {
-  name: string;
-};
+  name: string
+}
 ```
 
 ```typescript ['interface']
 interface Pet {
-  name: string;
+  name: string
 }
 ```
 
@@ -275,20 +275,20 @@ Control how optional properties are represented in generated TypeScript types.
 
 ```typescript ['questionToken']
 type Pet = {
-  type?: string;
-};
+  type?: string
+}
 ```
 
 ```typescript ['undefined']
 type Pet = {
-  type: string | undefined;
-};
+  type: string | undefined
+}
 ```
 
 ```typescript ['questionTokenAndUndefined']
 type Pet = {
-  type?: string | undefined;
-};
+  type?: string | undefined
+}
 ```
 
 :::
@@ -307,14 +307,14 @@ Choose between `Array<Type>` or `Type[]` syntax for array types.
 
 ```typescript ['array']
 type Pet = {
-  tags: string[];
-};
+  tags: string[]
+}
 ```
 
 ```typescript ['generic']
 type Pet = {
-  tags: Array<string>;
-};
+  tags: Array<string>
+}
 ```
 
 :::
@@ -341,32 +341,32 @@ Transform parameter names to a specific casing format for path, query, and heade
 
 // Without paramsCasing
 type FindPetsByStatusPathParams = {
-  step_id: string;
-};
+  step_id: string
+}
 
 type FindPetsByStatusQueryParams = {
-  bool_param?: boolean;
-};
+  bool_param?: boolean
+}
 
 type FindPetsByStatusHeaderParams = {
-  "X-Custom-Header"?: string;
-};
+  'X-Custom-Header'?: string
+}
 ```
 
 ```typescript [With paramsCasing: 'camelcase']
 // Properties are transformed to camelCase
 
 type FindPetsByStatusPathParams = {
-  stepId: string; // ✓ camelCase
-};
+  stepId: string // ✓ camelCase
+}
 
 type FindPetsByStatusQueryParams = {
-  boolParam?: boolean; // ✓ camelCase
-};
+  boolParam?: boolean // ✓ camelCase
+}
 
 type FindPetsByStatusHeaderParams = {
-  xCustomHeader?: string; // ✓ camelCase
-};
+  xCustomHeader?: string // ✓ camelCase
+}
 ```
 
 :::
@@ -379,14 +379,14 @@ type FindPetsByStatusHeaderParams = {
 
 ```typescript [Default]
 pluginTs({
-  compatibilityPreset: "default",
-});
+  compatibilityPreset: 'default',
+})
 ```
 
 ```typescript [Kubb v4 compatibility]
 pluginTs({
-  compatibilityPreset: "kubbV4",
-});
+  compatibilityPreset: 'kubbV4',
+})
 ```
 
 :::
@@ -409,23 +409,23 @@ Resolver precedence for `@kubb/plugin-ts`:
 ::: code-group
 
 ```typescript [v4 compatibility]
-import { pluginTs } from "@kubb/plugin-ts";
+import { pluginTs } from '@kubb/plugin-ts'
 
 pluginTs({
-  compatibilityPreset: "kubbV4",
-});
+  compatibilityPreset: 'kubbV4',
+})
 ```
 
 ```typescript [Custom prefix for operation names]
-import { pluginTs } from "@kubb/plugin-ts";
+import { pluginTs } from '@kubb/plugin-ts'
 
 pluginTs({
   resolver: {
     resolveName(name) {
-      return `Custom${this.default(name, "function")}`;
+      return `Custom${this.default(name, 'function')}`
     },
   },
-});
+})
 ```
 
 :::
@@ -472,33 +472,33 @@ Each key is a `SchemaType` (e.g. `'integer'`, `'date'`). The function you provid
 ::: code-group
 
 ```typescript [Override the date node to use the Date object]
-import ts from "typescript";
-import { pluginTs } from "@kubb/plugin-ts";
+import ts from 'typescript'
+import { pluginTs } from '@kubb/plugin-ts'
 
 pluginTs({
   printer: {
     nodes: {
       date(node) {
-        return ts.factory.createTypeReferenceNode("Date", []);
+        return ts.factory.createTypeReferenceNode('Date', [])
       },
     },
   },
-});
+})
 ```
 
 ```typescript [Override integer to bigint]
-import ts from "typescript";
-import { pluginTs } from "@kubb/plugin-ts";
+import ts from 'typescript'
+import { pluginTs } from '@kubb/plugin-ts'
 
 pluginTs({
   printer: {
     nodes: {
       integer() {
-        return ts.factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword);
+        return ts.factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword)
       },
     },
   },
-});
+})
 ```
 
 :::
@@ -506,39 +506,39 @@ pluginTs({
 ## Example
 
 ```typescript twoslash
-import { adapterOas } from "@kubb/adapter-oas";
-import { defineConfig } from "@kubb/core";
-import { pluginTs } from "@kubb/plugin-ts";
+import { adapterOas } from '@kubb/adapter-oas'
+import { defineConfig } from '@kubb/core'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   adapter: adapterOas(),
   plugins: [
     pluginTs({
       output: {
-        path: "./types",
+        path: './types',
       },
       exclude: [
         {
-          type: "tag",
-          pattern: "store",
+          type: 'tag',
+          pattern: 'store',
         },
       ],
       group: {
-        type: "tag",
+        type: 'tag',
         name: ({ group }) => `${group}Controller`,
       },
-      enumType: "asConst",
-      optionalType: "questionTokenAndUndefined",
-      paramsCasing: "camelcase",
+      enumType: 'asConst',
+      optionalType: 'questionTokenAndUndefined',
+      paramsCasing: 'camelcase',
     }),
   ],
-});
+})
 ```
 
 ## See Also

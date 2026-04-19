@@ -1,7 +1,7 @@
-import type { BaseNode } from "./base.ts";
-import type { SchemaNode } from "./schema.ts";
+import type { BaseNode } from './base.ts'
+import type { SchemaNode } from './schema.ts'
 
-export type ParameterLocation = "path" | "query" | "header" | "cookie";
+export type ParameterLocation = 'path' | 'query' | 'header' | 'cookie'
 
 /**
  * AST node representing one operation parameter.
@@ -21,21 +21,21 @@ export type ParameterNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: "Parameter";
+  kind: 'Parameter'
   /**
    * Parameter name.
    */
-  name: string;
+  name: string
   /**
    * Parameter location (`path`, `query`, `header`, or `cookie`).
    */
-  in: ParameterLocation;
+  in: ParameterLocation
   /**
    * Parameter schema.
    */
-  schema: SchemaNode;
+  schema: SchemaNode
   /**
    * Whether the parameter is required.
    */
-  required: boolean;
-};
+  required: boolean
+}

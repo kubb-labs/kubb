@@ -1,247 +1,246 @@
-import type { CLIOptions, UserConfig } from "@kubb/core";
-import { createMockedAdapter, createMockedPlugin } from "@kubb/core/mocks";
-import { describe, expect, test } from "vitest";
-import { defineConfig } from "./defineConfig.ts";
+import type { CLIOptions, UserConfig } from '@kubb/core'
+import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
+import { describe, expect, test } from 'vitest'
+import { defineConfig } from './defineConfig.ts'
 
-describe("defineConfig", () => {
+describe('defineConfig', () => {
   const plugin = createMockedPlugin({
-    name: "plugin",
+    name: 'plugin',
     options: undefined as any,
-  });
+  })
 
   const baseConfig: UserConfig = {
-    root: ".",
+    root: '.',
     input: {
-      path: "https://petstore3.swagger.io/api/v3/openapi.json",
+      path: 'https://petstore3.swagger.io/api/v3/openapi.json',
     },
     output: {
-      path: "./src/gen",
+      path: './src/gen',
       clean: true,
       barrelType: false,
     },
     parsers: [],
     adapter: createMockedAdapter(),
     plugins: [plugin],
-  };
+  }
 
-  test("applies default adapter when not set", () => {
+  test('applies default adapter when not set', () => {
     const config = defineConfig({
-      root: ".",
-      input: { path: "spec.yaml" },
-      output: { path: "./gen" },
-    } as UserConfig);
-    const resolved = config as UserConfig;
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+    } as UserConfig)
+    const resolved = config as UserConfig
 
-    expect(resolved.adapter).toBeDefined();
-    expect(resolved.adapter?.name).toBe("oas");
-  });
+    expect(resolved.adapter).toBeDefined()
+    expect(resolved.adapter?.name).toBe('oas')
+  })
 
-  test("applies default parsers when not set", () => {
+  test('applies default parsers when not set', () => {
     const config = defineConfig({
-      root: ".",
-      input: { path: "spec.yaml" },
-      output: { path: "./gen" },
-    } as UserConfig);
-    const resolved = config as UserConfig;
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+    } as UserConfig)
+    const resolved = config as UserConfig
 
-    expect(resolved.parsers?.length).toBeGreaterThan(0);
-  });
+    expect(resolved.parsers?.length).toBeGreaterThan(0)
+  })
 
-  test("preserves existing adapter", () => {
-    const adapter = createMockedAdapter();
+  test('preserves existing adapter', () => {
+    const adapter = createMockedAdapter()
     const config = defineConfig({
-      root: ".",
-      input: { path: "spec.yaml" },
-      output: { path: "./gen" },
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
       adapter,
-    } as UserConfig);
-    const resolved = config as UserConfig;
+    } as UserConfig)
+    const resolved = config as UserConfig
 
-    expect(resolved.adapter).toBe(adapter);
-  });
+    expect(resolved.adapter).toBe(adapter)
+  })
 
-  test("preserves existing parsers when non-empty", () => {
-    const parsers = [{ name: "custom" } as any];
+  test('preserves existing parsers when non-empty', () => {
+    const parsers = [{ name: 'custom' } as any]
     const config = defineConfig({
-      root: ".",
-      input: { path: "spec.yaml" },
-      output: { path: "./gen" },
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
       parsers,
-    } as UserConfig);
-    const resolved = config as UserConfig;
+    } as UserConfig)
+    const resolved = config as UserConfig
 
-    expect(resolved.parsers).toBe(parsers);
-  });
+    expect(resolved.parsers).toBe(parsers)
+  })
 
-  test("handles array of configs", () => {
-    const result = defineConfig([{ ...baseConfig }, { ...baseConfig }]);
+  test('handles array of configs', () => {
+    const result = defineConfig([{ ...baseConfig }, { ...baseConfig }])
 
-    expect(Array.isArray(result)).toBe(true);
-    expect(result).toHaveLength(2);
-  });
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(2)
+  })
 
-  test("handles function config", async () => {
-    const fn = defineConfig(() => ({ ...baseConfig }));
-    const typedFn: (cli: CLIOptions) => Promise<UserConfig> = fn;
+  test('handles function config', async () => {
+    const fn = defineConfig(() => ({ ...baseConfig }))
+    const typedFn: (cli: CLIOptions) => Promise<UserConfig> = fn
 
-    expect(typeof fn).toBe("function");
-    expect(typeof typedFn).toBe("function");
-    const result = await fn({});
+    expect(typeof fn).toBe('function')
+    expect(typeof typedFn).toBe('function')
+    const result = await fn({})
 
-    expect(result).toBeDefined();
-  });
+    expect(result).toBeDefined()
+  })
 
-  test("handles async function config", async () => {
-    const fn = defineConfig(async () => ({ ...baseConfig }));
-    const typedFn: (cli: CLIOptions) => Promise<UserConfig> = fn;
+  test('handles async function config', async () => {
+    const fn = defineConfig(async () => ({ ...baseConfig }))
+    const typedFn: (cli: CLIOptions) => Promise<UserConfig> = fn
 
-    expect(typeof typedFn).toBe("function");
-    const result = await fn({});
+    expect(typeof typedFn).toBe('function')
+    const result = await fn({})
 
-    expect(result).toBeDefined();
-  });
+    expect(result).toBeDefined()
+  })
 
-  test("handles function array config", async () => {
-    const fn = defineConfig(() => [{ ...baseConfig }]);
-    const typedFn: (cli: CLIOptions) => Promise<UserConfig[]> = fn;
+  test('handles function array config', async () => {
+    const fn = defineConfig(() => [{ ...baseConfig }])
+    const typedFn: (cli: CLIOptions) => Promise<UserConfig[]> = fn
 
-    expect(typeof typedFn).toBe("function");
-    const result = await fn({});
+    expect(typeof typedFn).toBe('function')
+    const result = await fn({})
 
-    expect(result).toHaveLength(1);
-  });
+    expect(result).toHaveLength(1)
+  })
 
-  test("handles async function array config", async () => {
-    const fn = defineConfig(async () => [{ ...baseConfig }]);
-    const typedFn: (cli: CLIOptions) => Promise<UserConfig[]> = fn;
+  test('handles async function array config', async () => {
+    const fn = defineConfig(async () => [{ ...baseConfig }])
+    const typedFn: (cli: CLIOptions) => Promise<UserConfig[]> = fn
 
-    expect(typeof typedFn).toBe("function");
-    const result = await fn({});
+    expect(typeof typedFn).toBe('function')
+    const result = await fn({})
 
-    expect(result).toHaveLength(1);
-  });
+    expect(result).toHaveLength(1)
+  })
 
-  test("handles promise config", async () => {
+  test('handles promise config', async () => {
     const config = defineConfig(
       Promise.resolve({
-        input: { path: "spec.yaml" },
-        output: { path: "./gen" },
+        input: { path: 'spec.yaml' },
+        output: { path: './gen' },
       }),
-    );
-    const typedConfig: Promise<UserConfig<{ path: string }>> = config;
+    )
+    const typedConfig: Promise<UserConfig<{ path: string }>> = config
 
-    const result = await config;
+    const result = await config
 
-    expect(result).toBeDefined();
-    expect(typedConfig).toBeDefined();
-  });
+    expect(result).toBeDefined()
+    expect(typedConfig).toBeDefined()
+  })
 
-  test("handles promise array config", async () => {
+  test('handles promise array config', async () => {
     const config = defineConfig(
       Promise.resolve([
         {
-          input: { path: "spec.yaml" },
-          output: { path: "./gen" },
+          input: { path: 'spec.yaml' },
+          output: { path: './gen' },
         },
       ]),
-    );
-    const typedConfig: Promise<Array<UserConfig<{ path: string }>>> = config;
+    )
+    const typedConfig: Promise<Array<UserConfig<{ path: string }>>> = config
 
-    const result = await config;
+    const result = await config
 
-    expect(result).toHaveLength(1);
-    expect(typedConfig).toBeDefined();
-  });
+    expect(result).toHaveLength(1)
+    expect(typedConfig).toBeDefined()
+  })
 
-  test("preserves inferred input types", () => {
+  test('preserves inferred input types', () => {
     const pathConfig = defineConfig({
-      input: { path: "spec.yaml" },
-      output: { path: "./gen" },
-    });
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+    })
     const dataConfig = defineConfig({
-      input: { data: { openapi: "3.1.0" } },
-      output: { path: "./gen" },
-    });
-    const typedPathConfig: UserConfig<{ path: string }> = pathConfig;
-    const typedDataConfig: UserConfig<{ data: { openapi: string } }> =
-      dataConfig;
+      input: { data: { openapi: '3.1.0' } },
+      output: { path: './gen' },
+    })
+    const typedPathConfig: UserConfig<{ path: string }> = pathConfig
+    const typedDataConfig: UserConfig<{ data: { openapi: string } }> = dataConfig
 
-    expect(typedPathConfig.input.path).toBe("spec.yaml");
-    expect(typedDataConfig.input.data).toEqual({ openapi: "3.1.0" });
-  });
+    expect(typedPathConfig.input.path).toBe('spec.yaml')
+    expect(typedDataConfig.input.data).toEqual({ openapi: '3.1.0' })
+  })
 
-  test("accepts named configs with hooks", () => {
+  test('accepts named configs with hooks', () => {
     const namedConfig = defineConfig({
-      name: "gen",
-      root: ".",
-      input: { path: "spec.yaml" },
-      output: { path: "./gen" },
+      name: 'gen',
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
       hooks: {
-        done: ["npm run typecheck"],
+        done: ['npm run typecheck'],
       },
       plugins: [],
-    });
-    const typedNamedConfig: UserConfig<{ path: string }> = namedConfig;
+    })
+    const typedNamedConfig: UserConfig<{ path: string }> = namedConfig
 
-    expect(typedNamedConfig.name).toBe("gen");
-  });
+    expect(typedNamedConfig.name).toBe('gen')
+  })
 
-  test("preserves inferred input types for array results", () => {
+  test('preserves inferred input types for array results', () => {
     const arrayConfig = defineConfig([
       {
-        input: { path: "spec.yaml" },
-        output: { path: "./gen" },
+        input: { path: 'spec.yaml' },
+        output: { path: './gen' },
       },
-    ]);
-    const typedArrayConfig: Array<UserConfig<{ path: string }>> = arrayConfig;
+    ])
+    const typedArrayConfig: Array<UserConfig<{ path: string }>> = arrayConfig
 
-    expect(typedArrayConfig).toHaveLength(1);
-  });
+    expect(typedArrayConfig).toHaveLength(1)
+  })
 
   const configs = [
     {
-      name: "simple",
+      name: 'simple',
       config: baseConfig,
     },
     {
-      name: "array",
+      name: 'array',
       config: defineConfig([{ ...baseConfig }]),
     },
     {
-      name: "function",
+      name: 'function',
       config: defineConfig(() => ({ ...baseConfig })),
     },
     {
-      name: "functionArray",
+      name: 'functionArray',
       config: defineConfig(() => [{ ...baseConfig }]),
     },
     {
-      name: "asyncFunctionArray",
+      name: 'asyncFunctionArray',
       config: defineConfig(async () => [{ ...baseConfig }]),
     },
     {
-      name: "promiseArray",
+      name: 'promiseArray',
       config: defineConfig(Promise.resolve([{ ...baseConfig }])),
     },
-  ];
+  ]
 
-  test.each(configs)("resolves config as $name", async ({ config }) => {
-    let kubbUserConfig = Promise.resolve(config) as Promise<unknown>;
+  test.each(configs)('resolves config as $name', async ({ config }) => {
+    let kubbUserConfig = Promise.resolve(config) as Promise<unknown>
 
-    if (typeof config === "function") {
-      kubbUserConfig = Promise.resolve(config({}));
+    if (typeof config === 'function') {
+      kubbUserConfig = Promise.resolve(config({}))
     }
 
-    let JSONConfig = (await kubbUserConfig) as UserConfig | Array<UserConfig>;
+    let JSONConfig = (await kubbUserConfig) as UserConfig | Array<UserConfig>
 
     if (!Array.isArray(JSONConfig)) {
-      JSONConfig = [JSONConfig];
+      JSONConfig = [JSONConfig]
     }
 
     for (const c of JSONConfig) {
-      expect(c).toBeDefined();
-      expect(c.root).toBe(".");
-      expect(c.adapter).toBeDefined();
+      expect(c).toBeDefined()
+      expect(c.root).toBe('.')
+      expect(c.adapter).toBeDefined()
     }
-  });
-});
+  })
+})

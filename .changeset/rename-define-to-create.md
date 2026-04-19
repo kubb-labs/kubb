@@ -1,6 +1,6 @@
 ---
-"@kubb/core": major
-"@kubb/adapter-oas": major
+'@kubb/core': major
+'@kubb/adapter-oas': major
 ---
 
 Rename factory functions from `define*` to `create*`.

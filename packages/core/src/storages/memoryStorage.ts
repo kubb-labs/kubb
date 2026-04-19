@@ -1,4 +1,4 @@
-import { createStorage } from "../createStorage.ts";
+import { createStorage } from '../createStorage.ts'
 
 /**
  * In-memory storage driver. Useful for testing and dry-run scenarios where
@@ -19,36 +19,36 @@ import { createStorage } from "../createStorage.ts";
  * ```
  */
 export const memoryStorage = createStorage(() => {
-  const store = new Map<string, string>();
+  const store = new Map<string, string>()
 
   return {
-    name: "memory",
+    name: 'memory',
     async hasItem(key: string) {
-      return store.has(key);
+      return store.has(key)
     },
     async getItem(key: string) {
-      return store.get(key) ?? null;
+      return store.get(key) ?? null
     },
     async setItem(key: string, value: string) {
-      store.set(key, value);
+      store.set(key, value)
     },
     async removeItem(key: string) {
-      store.delete(key);
+      store.delete(key)
     },
     async getKeys(base?: string) {
-      const keys = [...store.keys()];
-      return base ? keys.filter((k) => k.startsWith(base)) : keys;
+      const keys = [...store.keys()]
+      return base ? keys.filter((k) => k.startsWith(base)) : keys
     },
     async clear(base?: string) {
       if (!base) {
-        store.clear();
-        return;
+        store.clear()
+        return
       }
       for (const key of store.keys()) {
         if (key.startsWith(base)) {
-          store.delete(key);
+          store.delete(key)
         }
       }
     },
-  };
-});
+  }
+})

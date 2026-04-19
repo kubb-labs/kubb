@@ -132,15 +132,15 @@ Export a `z.infer<typeof schema>` type alias alongside each generated schema. Th
 |  Default: | `false`   |
 
 ```typescript [inferred: true]
-import { z } from "zod";
+import { z } from 'zod'
 
 export const petSchema = z.object({
   name: z.string(),
-  status: z.enum(["available", "pending", "sold"]).optional(),
-});
+  status: z.enum(['available', 'pending', 'sold']).optional(),
+})
 
 // Inferred type export
-export type Pet = z.infer<typeof petSchema>;
+export type Pet = z.infer<typeof petSchema>
 ```
 
 ### dateType
@@ -157,23 +157,23 @@ See [DateTimes](https://zod.dev/?id=datetimes).
 ::: code-group
 
 ```typescript [false]
-z.string();
+z.string()
 ```
 
 ```typescript ['string']
-z.string().datetime();
+z.string().datetime()
 ```
 
 ```typescript ['stringOffset']
-z.string().datetime({ offset: true });
+z.string().datetime({ offset: true })
 ```
 
 ```typescript ['stringLocal']
-z.string().datetime({ local: true });
+z.string().datetime({ local: true })
 ```
 
 ```typescript ['date']
-z.date();
+z.date()
 ```
 
 :::
@@ -206,21 +206,21 @@ Apply `z.coerce` to automatically convert input values to the expected type befo
 ::: code-group
 
 ```typescript [true]
-z.coerce.string();
-z.coerce.date();
-z.coerce.number();
+z.coerce.string()
+z.coerce.date()
+z.coerce.number()
 ```
 
 ```typescript [false]
-z.string();
-z.date();
-z.number();
+z.string()
+z.date()
+z.number()
 ```
 
 ```typescript [{numbers: true, strings: false, dates: false}]
-z.string();
-z.date();
-z.coerce.number();
+z.string()
+z.date()
+z.coerce.number()
 ```
 
 :::
@@ -248,12 +248,12 @@ Transform property names in path, query, and header parameter types to camelCase
 // OpenAPI spec uses: pet_id, X-Api-Key
 
 type GetPetPathParams = {
-  petId: string; // ✓ camelCase
-};
+  petId: string // ✓ camelCase
+}
 
 type GetPetHeaderParams = {
-  xApiKey?: string; // ✓ camelCase
-};
+  xApiKey?: string // ✓ camelCase
+}
 ```
 
 ### guidType
@@ -269,11 +269,11 @@ Validator to use for OpenAPI properties with `format: uuid`. Use `'guid'` to gen
 ::: code-group
 
 ```typescript ['uuid' (default)]
-z.uuid();
+z.uuid()
 ```
 
 ```typescript ['guid']
-z.guid();
+z.guid()
 ```
 
 :::
@@ -302,22 +302,22 @@ When `mini: true`, `importPath` will default to `'zod/mini'`.
 
 ```typescript [mini: true]
 // Import from zod/mini
-import { z } from "zod/mini";
+import { z } from 'zod/mini'
 
 // Functional syntax for better tree-shaking
-z.optional(z.string());
-z.nullable(z.number());
-z.array(z.string()).check(z.minLength(1), z.maxLength(10));
+z.optional(z.string())
+z.nullable(z.number())
+z.array(z.string()).check(z.minLength(1), z.maxLength(10))
 ```
 
 ```typescript [mini: false (default)]
 // Import from zod or zod/v4
-import { z } from "zod";
+import { z } from 'zod'
 
 // Chainable method syntax
-z.string().optional();
-z.number().nullable();
-z.array(z.string()).min(1).max(10);
+z.string().optional()
+z.number().nullable()
+z.array(z.string()).min(1).max(10)
 ```
 
 :::
@@ -361,31 +361,31 @@ Each key is a `SchemaType` (e.g. `'integer'`, `'date'`). The function you provid
 ::: code-group
 
 ```typescript [Override integer to z.number()]
-import { pluginZod } from "@kubb/plugin-zod";
+import { pluginZod } from '@kubb/plugin-zod'
 
 pluginZod({
   printer: {
     nodes: {
       integer() {
-        return "z.number()";
+        return 'z.number()'
       },
     },
   },
-});
+})
 ```
 
 ```typescript [Override date to z.string().date()]
-import { pluginZod } from "@kubb/plugin-zod";
+import { pluginZod } from '@kubb/plugin-zod'
 
 pluginZod({
   printer: {
     nodes: {
       date(node) {
-        return "z.string().date()";
+        return 'z.string().date()'
       },
     },
   },
-});
+})
 ```
 
 :::
@@ -404,47 +404,47 @@ Wrap the generated Zod schema string with additional validation or metadata. The
 
 ```typescript [Conditionally append .openapi() to the generated schema]
 wrapOutput: ({ output, schema }) => {
-  const metadata: Record<string, unknown> = {};
+  const metadata: Record<string, unknown> = {}
 
-  if (schema.keywords?.includes("example")) {
+  if (schema.keywords?.includes('example')) {
     // access SchemaNode properties
   }
 
   if (Object.keys(metadata).length > 0) {
-    return `${output}.openapi(${JSON.stringify(metadata)})`;
+    return `${output}.openapi(${JSON.stringify(metadata)})`
   }
-};
+}
 ```
 
 ## Example
 
 ```typescript twoslash
-import { adapterOas } from "@kubb/adapter-oas";
-import { defineConfig } from "@kubb/core";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginZod } from "@kubb/plugin-zod";
+import { adapterOas } from '@kubb/adapter-oas'
+import { defineConfig } from '@kubb/core'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   adapter: adapterOas(),
   plugins: [
     pluginTs(),
     pluginZod({
       output: {
-        path: "./zod",
+        path: './zod',
       },
-      group: { type: "tag", name: ({ group }) => `${group}Schemas` },
+      group: { type: 'tag', name: ({ group }) => `${group}Schemas` },
       typed: true,
-      dateType: "stringOffset",
-      importPath: "zod",
+      dateType: 'stringOffset',
+      importPath: 'zod',
     }),
   ],
-});
+})
 ```
 
 ## See Also

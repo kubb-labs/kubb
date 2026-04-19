@@ -1,182 +1,178 @@
-import { describe, expect, it } from "vitest";
-import type { AgentMessage } from "../types/agent.ts";
-import {
-  isCommandMessage,
-  isDataMessage,
-  isDisconnectMessage,
-} from "../types/agent.ts";
+import { describe, expect, it } from 'vitest'
+import type { AgentMessage } from '../types/agent.ts'
+import { isCommandMessage, isDataMessage, isDisconnectMessage } from '../types/agent.ts'
 
-describe("Studio Plugin - Message Handling", () => {
-  describe("Message Type Guards", () => {
-    it("should identify command messages correctly", () => {
+describe('Studio Plugin - Message Handling', () => {
+  describe('Message Type Guards', () => {
+    it('should identify command messages correctly', () => {
       const message: AgentMessage = {
-        type: "command",
-        command: "generate",
+        type: 'command',
+        command: 'generate',
         payload: {},
-      };
+      }
 
-      expect(isCommandMessage(message)).toBe(true);
-      expect(isDataMessage(message)).toBe(false);
-    });
+      expect(isCommandMessage(message)).toBe(true)
+      expect(isDataMessage(message)).toBe(false)
+    })
 
-    it("should identify data messages correctly", () => {
+    it('should identify data messages correctly', () => {
       const message: AgentMessage = {
-        type: "data",
+        type: 'data',
         payload: {
-          type: "kubb:info",
-          data: ["message"],
+          type: 'kubb:info',
+          data: ['message'],
           timestamp: Date.now(),
         },
-      };
+      }
 
-      expect(isDataMessage(message)).toBe(true);
-      expect(isCommandMessage(message)).toBe(false);
+      expect(isDataMessage(message)).toBe(true)
+      expect(isCommandMessage(message)).toBe(false)
 
-      const event = isDataMessage(message, "kubb:info") ? message : undefined;
-      expect(event.payload.type).toEqual("kubb:info");
-    });
+      const event = isDataMessage(message, 'kubb:info') ? message : undefined
+      expect(event.payload.type).toEqual('kubb:info')
+    })
 
     it('should identify disconnect message with reason "expired"', () => {
-      const message: AgentMessage = { type: "disconnect", reason: "expired" };
+      const message: AgentMessage = { type: 'disconnect', reason: 'expired' }
 
-      expect(isDisconnectMessage(message)).toBe(true);
-      expect(isCommandMessage(message)).toBe(false);
-      expect(isDataMessage(message)).toBe(false);
-    });
+      expect(isDisconnectMessage(message)).toBe(true)
+      expect(isCommandMessage(message)).toBe(false)
+      expect(isDataMessage(message)).toBe(false)
+    })
 
     it('should identify disconnect message with reason "revoked"', () => {
-      const message: AgentMessage = { type: "disconnect", reason: "revoked" };
+      const message: AgentMessage = { type: 'disconnect', reason: 'revoked' }
 
-      expect(isDisconnectMessage(message)).toBe(true);
+      expect(isDisconnectMessage(message)).toBe(true)
       if (isDisconnectMessage(message)) {
-        expect(message.reason).toBe("revoked");
+        expect(message.reason).toBe('revoked')
       }
-    });
-  });
+    })
+  })
 
-  describe("WebSocket Message Serialization", () => {
-    it("should serialize ping message", () => {
+  describe('WebSocket Message Serialization', () => {
+    it('should serialize ping message', () => {
       const message: AgentMessage = {
-        type: "ping",
-      };
+        type: 'ping',
+      }
 
-      const serialized = JSON.stringify(message);
-      expect(serialized).toContain('"type":"ping"');
-    });
+      const serialized = JSON.stringify(message)
+      expect(serialized).toContain('"type":"ping"')
+    })
 
-    it("should serialize disconnect message with reason", () => {
-      const expired: AgentMessage = { type: "disconnect", reason: "expired" };
-      const revoked: AgentMessage = { type: "disconnect", reason: "revoked" };
+    it('should serialize disconnect message with reason', () => {
+      const expired: AgentMessage = { type: 'disconnect', reason: 'expired' }
+      const revoked: AgentMessage = { type: 'disconnect', reason: 'revoked' }
 
       expect(JSON.parse(JSON.stringify(expired))).toEqual({
-        type: "disconnect",
-        reason: "expired",
-      });
+        type: 'disconnect',
+        reason: 'expired',
+      })
       expect(JSON.parse(JSON.stringify(revoked))).toEqual({
-        type: "disconnect",
-        reason: "revoked",
-      });
-    });
+        type: 'disconnect',
+        reason: 'revoked',
+      })
+    })
 
-    it("should serialize connected message with info response", () => {
+    it('should serialize connected message with info response', () => {
       const message: AgentMessage = {
-        type: "connected",
+        type: 'connected',
         payload: {
-          version: "4.24.0",
-          configPath: "kubb.config.ts",
+          version: '4.24.0',
+          configPath: 'kubb.config.ts',
           permissions: {
             allowAll: true,
             allowWrite: true,
             allowPublish: false,
           },
           config: {
-            plugins: [{ name: "@kubb/plugin-ts", options: {} }],
+            plugins: [{ name: '@kubb/plugin-ts', options: {} }],
           },
         },
-      };
+      }
 
-      const serialized = JSON.stringify(message);
-      expect(serialized).toContain('"connected"');
-      expect(serialized).toContain('"version":"4.24.0"');
-    });
+      const serialized = JSON.stringify(message)
+      expect(serialized).toContain('"connected"')
+      expect(serialized).toContain('"version":"4.24.0"')
+    })
 
-    it("should serialize data message with event", () => {
+    it('should serialize data message with event', () => {
       const message: AgentMessage = {
-        type: "data",
+        type: 'data',
         payload: {
-          type: "kubb:plugin:start",
-          data: [{ name: "test-plugin" }],
+          type: 'kubb:plugin:start',
+          data: [{ name: 'test-plugin' }],
           timestamp: 1234567890,
         },
-      };
+      }
 
-      const serialized = JSON.stringify(message);
-      expect(serialized).toContain('"type":"data"');
-      expect(serialized).toContain('"kubb:plugin:start"');
-    });
-  });
+      const serialized = JSON.stringify(message)
+      expect(serialized).toContain('"type":"data"')
+      expect(serialized).toContain('"kubb:plugin:start"')
+    })
+  })
 
-  describe("Config Validation", () => {
-    it("should validate config has required fields", () => {
+  describe('Config Validation', () => {
+    it('should validate config has required fields', () => {
       const config = {
-        name: "test",
-        root: "./src",
-        input: { path: "spec.yaml" },
+        name: 'test',
+        root: './src',
+        input: { path: 'spec.yaml' },
         output: {
-          path: "./dist",
+          path: './dist',
           write: true,
-          extension: ".ts",
-          barrelType: "star",
+          extension: '.ts',
+          barrelType: 'star',
         },
         plugins: [],
-      };
+      }
 
-      expect(config.name).toBeDefined();
-      expect(config.input).toBeDefined();
-      expect(config.output).toBeDefined();
-      expect(config.output.path).toBeDefined();
-    });
+      expect(config.name).toBeDefined()
+      expect(config.input).toBeDefined()
+      expect(config.output).toBeDefined()
+      expect(config.output.path).toBeDefined()
+    })
 
-    it("should handle config without optional input path", () => {
+    it('should handle config without optional input path', () => {
       const config = {
-        name: "test",
-        root: "./src",
+        name: 'test',
+        root: './src',
         input: {
           /* no path */
         },
         output: {
-          path: "./dist",
+          path: './dist',
           write: true,
-          extension: ".ts",
-          barrelType: "star",
+          extension: '.ts',
+          barrelType: 'star',
         },
         plugins: [],
-      };
+      }
 
-      const hasPath = "path" in config.input;
-      expect(hasPath).toBe(false);
-    });
+      const hasPath = 'path' in config.input
+      expect(hasPath).toBe(false)
+    })
 
-    it("should serialize plugin options from config", () => {
+    it('should serialize plugin options from config', () => {
       const plugins = [
         {
-          name: "ts",
-          options: { enumType: "const", esmInterop: true },
+          name: 'ts',
+          options: { enumType: 'const', esmInterop: true },
         },
         {
-          name: "client",
-          options: { importPath: "@/lib/api" },
+          name: 'client',
+          options: { importPath: '@/lib/api' },
         },
-      ];
+      ]
 
       const pluginsInfo = plugins.map((plugin) => ({
         name: `@kubb/${plugin.name}`,
         options: plugin.options,
-      }));
+      }))
 
-      expect(pluginsInfo).toHaveLength(2);
-      expect(pluginsInfo[0].name).toBe("@kubb/ts");
-      expect(pluginsInfo[1].options.importPath).toBe("@/lib/api");
-    });
-  });
-});
+      expect(pluginsInfo).toHaveLength(2)
+      expect(pluginsInfo[0].name).toBe('@kubb/ts')
+      expect(pluginsInfo[1].options.importPath).toBe('@/lib/api')
+    })
+  })
+})

@@ -1,5 +1,5 @@
 ---
-"@kubb/agent": minor
+'@kubb/agent': minor
 ---
 
 Decouple `@kubb/agent` from static plugin knowledge.

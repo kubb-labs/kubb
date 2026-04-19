@@ -1,6 +1,6 @@
 ---
-"@kubb/core": minor
-"kubb": minor
+'@kubb/core': minor
+'kubb': minor
 ---
 
 Apply default adapter and parsers automatically in `defineConfig`.
@@ -13,17 +13,17 @@ When omitted from the config:
 ```ts
 // before
 export default defineConfig({
-  input: { path: "./petStore.yaml" },
-  output: { path: "./src/gen" },
+  input: { path: './petStore.yaml' },
+  output: { path: './src/gen' },
   adapter: adapterOas(),
   parsers: [parserTs],
   plugins: [],
-});
+})
 
 // after — adapter and parsers applied automatically
 export default defineConfig({
-  input: { path: "./petStore.yaml" },
-  output: { path: "./src/gen" },
+  input: { path: './petStore.yaml' },
+  output: { path: './src/gen' },
   plugins: [],
-});
+})
 ```

@@ -1,14 +1,14 @@
-import { defineConfig, type UserConfig } from "tsdown";
+import { defineConfig, type UserConfig } from 'tsdown'
 
 const entry = {
-  index: "src/index.ts",
-  types: "src/types.ts",
-  "jsx-runtime": "./src/jsx-runtime.ts",
-  "jsx-dev-runtime": "./src/jsx-dev-runtime.ts",
-};
+  index: 'src/index.ts',
+  types: 'src/types.ts',
+  'jsx-runtime': './src/jsx-runtime.ts',
+  'jsx-dev-runtime': './src/jsx-dev-runtime.ts',
+}
 
 const shared: Partial<UserConfig> = {
-  platform: "node",
+  platform: 'node',
   sourcemap: true,
   shims: true,
   exports: true,
@@ -19,19 +19,19 @@ const shared: Partial<UserConfig> = {
   deps: {
     onlyBundle: false,
   },
-};
+}
 
 export default defineConfig([
   {
     entry,
-    format: "esm",
+    format: 'esm',
     dts: true,
     ...shared,
   },
   {
     entry,
-    format: "cjs",
+    format: 'cjs',
     dts: false,
     ...shared,
   },
-]);
+])

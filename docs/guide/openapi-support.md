@@ -69,8 +69,8 @@ Configure the enum output style via the `enumType` option in `pluginTs`:
 
 ```typescript [kubb.config.ts]
 pluginTs({
-  enumType: "asConst", // recommended
-});
+  enumType: 'asConst', // recommended
+})
 ```
 
 | Style           | Output                                   | Notes                        |
@@ -116,11 +116,11 @@ components:
       discriminator:
         propertyName: petType
         mapping:
-          cat: "#/components/schemas/Cat"
-          dog: "#/components/schemas/Dog"
+          cat: '#/components/schemas/Cat'
+          dog: '#/components/schemas/Dog'
       oneOf:
-        - $ref: "#/components/schemas/Cat"
-        - $ref: "#/components/schemas/Dog"
+        - $ref: '#/components/schemas/Cat'
+        - $ref: '#/components/schemas/Dog'
 ```
 
 ## Parameter Serialization
@@ -145,7 +145,7 @@ parameters:
 
 ```typescript
 // Generated type
-type QueryParams = { [key: string]: string };
+type QueryParams = { [key: string]: string }
 ```
 
 ### `style: form` + `explode: false`
@@ -154,8 +154,8 @@ Object remains nested under the parameter name:
 
 ```typescript
 type QueryParams = {
-  filters?: { [key: string]: string };
-};
+  filters?: { [key: string]: string }
+}
 ```
 
 ## Known Limitations
@@ -196,9 +196,9 @@ When an object has both named properties and `additionalProperties`, the index s
 
 ```typescript
 type Config = {
-  name: string;
-  [key: string]: unknown; // additionalProperties typed as unknown
-};
+  name: string
+  [key: string]: unknown // additionalProperties typed as unknown
+}
 ```
 
 ### `oneOf`/`anyOf` Without Discriminator
@@ -206,7 +206,7 @@ type Config = {
 These generate plain TypeScript unions without type narrowing helpers:
 
 ```typescript
-type Response = Cat | Dog | Bird;
+type Response = Cat | Dog | Bird
 ```
 
 ## Validated Schemas

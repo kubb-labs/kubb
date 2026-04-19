@@ -1,5 +1,5 @@
 ---
-"@kubb/ast": minor
+'@kubb/ast': minor
 ---
 
 Add AST nodes for function parameters.

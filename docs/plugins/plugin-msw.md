@@ -148,42 +148,42 @@ Customize the names based on the type that is provided by the plugin.
 | Required: | `false`                                        |
 
 ```typescript
-type ResolveType = "file" | "function" | "type" | "const";
+type ResolveType = 'file' | 'function' | 'type' | 'const'
 ```
 
 ## Example
 
 ```typescript twoslash
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginMsw } from "@kubb/plugin-msw";
-import { pluginTs } from "@kubb/plugin-ts";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginMsw } from '@kubb/plugin-msw'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   plugins: [
     pluginOas(),
     pluginTs(),
     pluginMsw({
       output: {
-        path: "./mocks",
-        barrelType: "named",
-        banner: "/* eslint-disable no-alert, no-console */",
-        footer: "",
+        path: './mocks',
+        barrelType: 'named',
+        banner: '/* eslint-disable no-alert, no-console */',
+        footer: '',
       },
       group: {
-        type: "tag",
+        type: 'tag',
         name: ({ group }) => `${group}Service`,
       },
       handlers: true,
     }),
   ],
-});
+})
 ```
 
 ## See Also

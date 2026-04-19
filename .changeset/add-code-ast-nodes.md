@@ -1,5 +1,5 @@
 ---
-"@kubb/ast": minor
+'@kubb/ast': minor
 ---
 
 Add structured AST nodes for code generation.

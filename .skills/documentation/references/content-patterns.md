@@ -191,17 +191,17 @@ Use `twoslash` annotation for TypeScript: enables type checking
 
 ````md
 ```ts twoslash [kubb.config.ts]
-export default defineConfig({});
+export default defineConfig({})
 ```
 
 ```ts [kubb.config.ts]
-export default defineConfig({});
+export default defineConfig({})
 ```
 
 ```typescript [./types.ts]
 type Test = {
-  name: string;
-};
+  name: string
+}
 ```
 
 ```bash

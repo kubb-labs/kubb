@@ -1,31 +1,17 @@
-import type {
-  CLIAdapter,
-  CommandDefinition,
-  OptionDefinition,
-} from "./types.ts";
+import type { CLIAdapter, CommandDefinition, OptionDefinition } from './types.ts'
 
-type OptionTypeMap = { string: string; boolean: boolean };
+type OptionTypeMap = { string: string; boolean: boolean }
 
-type IsRequired<O extends OptionDefinition> = O["default"] extends
-  | string
-  | boolean
-  ? true
-  : O["required"] extends true
-    ? true
-    : false;
+type IsRequired<O extends OptionDefinition> = O['default'] extends string | boolean ? true : O['required'] extends true ? true : false
 
 /**
  * Infers typed values from an options record. Options with a `default` or `required: true` are always defined.
  */
 type InferValues<O extends Record<string, OptionDefinition>> = {
-  [K in keyof O as IsRequired<O[K]> extends true
-    ? K
-    : never]: OptionTypeMap[O[K]["type"]];
+  [K in keyof O as IsRequired<O[K]> extends true ? K : never]: OptionTypeMap[O[K]['type']]
 } & {
-  [K in keyof O as IsRequired<O[K]> extends true
-    ? never
-    : K]?: OptionTypeMap[O[K]["type"]];
-};
+  [K in keyof O as IsRequired<O[K]> extends true ? never : K]?: OptionTypeMap[O[K]['type']]
+}
 
 /**
  * Returns a `CLIAdapter` as-is with full type inference. Pass a custom adapter to `createCLI` to swap the CLI engine.
@@ -37,7 +23,7 @@ type InferValues<O extends Record<string, OptionDefinition>> = {
  * ```
  */
 export function defineCLIAdapter(adapter: CLIAdapter): CLIAdapter {
-  return adapter;
+  return adapter
 }
 
 /**
@@ -55,18 +41,15 @@ export function defineCLIAdapter(adapter: CLIAdapter): CLIAdapter {
  * ```
  */
 export function defineCommand<O extends Record<string, OptionDefinition>>(def: {
-  name: string;
-  description: string;
-  arguments?: string[];
-  options?: O;
-  subCommands?: CommandDefinition[];
-  run?: (args: {
-    values: InferValues<O>;
-    positionals: string[];
-  }) => Promise<void>;
+  name: string
+  description: string
+  arguments?: string[]
+  options?: O
+  subCommands?: CommandDefinition[]
+  run?: (args: { values: InferValues<O>; positionals: string[] }) => Promise<void>
 }): CommandDefinition {
-  const { run, ...rest } = def;
-  if (!run) return rest;
+  const { run, ...rest } = def
+  if (!run) return rest
   return {
     ...rest,
     run: (args) =>
@@ -74,5 +57,5 @@ export function defineCommand<O extends Record<string, OptionDefinition>>(def: {
         values: args.values as InferValues<O>,
         positionals: args.positionals,
       }),
-  };
+  }
 }

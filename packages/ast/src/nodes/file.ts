@@ -1,14 +1,12 @@
-import type { BaseNode } from "./base.ts";
-import type { CodeNode } from "./code.ts";
+import type { BaseNode } from './base.ts'
+import type { CodeNode } from './code.ts'
 
 /**
  * Supported file extensions.
  */
-export type Extname = ".ts" | ".js" | ".tsx" | ".json" | `.${string}`;
+export type Extname = '.ts' | '.js' | '.tsx' | '.json' | `.${string}`
 
-type ImportName =
-  | string
-  | Array<string | { propertyName: string; name?: string }>;
+type ImportName = string | Array<string | { propertyName: string; name?: string }>
 
 /**
  * Represents a language-agnostic import/dependency declaration.
@@ -34,37 +32,37 @@ type ImportName =
  * ```
  */
 export type ImportNode = BaseNode & {
-  kind: "Import";
+  kind: 'Import'
   /**
    * Import name(s) to be used.
    * @example ['useState']
    * @example 'React'
    */
-  name: ImportName;
+  name: ImportName
   /**
    * Path for the import.
    * @example '@kubb/core'
    */
-  path: string;
+  path: string
   /**
    * Add type-only import prefix.
    * - `true` generates `import type { Type } from './path'`
    * - `false` generates `import { Type } from './path'`
    * @default false
    */
-  isTypeOnly?: boolean;
+  isTypeOnly?: boolean
   /**
    * Import entire module as namespace.
    * - `true` generates `import * as Name from './path'`
    * - `false` generates standard import
    * @default false
    */
-  isNameSpace?: boolean;
+  isNameSpace?: boolean
   /**
    * When set, the import path is resolved relative to this root.
    */
-  root?: string;
-};
+  root?: string
+}
 
 /**
  * Represents a language-agnostic export/public API declaration.
@@ -90,33 +88,33 @@ export type ImportNode = BaseNode & {
  * ```
  */
 export type ExportNode = BaseNode & {
-  kind: "Export";
+  kind: 'Export'
   /**
    * Export name(s) to be used. When omitted, generates a wildcard export.
    * @example ['useState']
    * @example 'React'
    */
-  name?: string | Array<string>;
+  name?: string | Array<string>
   /**
    * Path for the export.
    * @example '@kubb/core'
    */
-  path: string;
+  path: string
   /**
    * Add type-only export prefix.
    * - `true` generates `export type { Type } from './path'`
    * - `false` generates `export { Type } from './path'`
    * @default false
    */
-  isTypeOnly?: boolean;
+  isTypeOnly?: boolean
   /**
    * Export as an aliased namespace.
    * - `true` generates `export * as aliasName from './path'`
    * - `false` generates a standard export
    * @default false
    */
-  asAlias?: boolean;
-};
+  asAlias?: boolean
+}
 
 /**
  * Represents a fragment of source code within a file.
@@ -132,32 +130,32 @@ export type ExportNode = BaseNode & {
  * ```
  */
 export type SourceNode = BaseNode & {
-  kind: "Source";
+  kind: 'Source'
   /**
    * Optional name identifying this source (used for deduplication and barrel generation).
    */
-  name?: string;
+  name?: string
   /**
    * Mark this source as a type-only export.
    * @default false
    */
-  isTypeOnly?: boolean;
+  isTypeOnly?: boolean
   /**
    * Include `export` keyword in the generated source.
    * @default false
    */
-  isExportable?: boolean;
+  isExportable?: boolean
   /**
    * Include this source in barrel/index file generation.
    * @default false
    */
-  isIndexable?: boolean;
+  isIndexable?: boolean
   /**
    * Structured child nodes representing the content of this source fragment, in DOM order.
    * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
    */
-  nodes?: Array<CodeNode>;
-};
+  nodes?: Array<CodeNode>
+}
 
 /**
  * Represents a fully resolved file in the AST.
@@ -180,53 +178,53 @@ export type SourceNode = BaseNode & {
  * ```
  */
 export type FileNode<TMeta extends object = object> = BaseNode & {
-  kind: "File";
+  kind: 'File'
   /**
    * Unique identifier derived from a SHA256 hash of the file path.
    * @default hash
    */
-  id: string;
+  id: string
   /**
    * File name without extension, derived from `baseName`.
    * @link https://nodejs.org/api/path.html#pathformatpathobject
    */
-  name: string;
+  name: string
   /**
    * File base name, including extension.
    * Based on UNIX basename: `${name}${extname}`
    * @link https://nodejs.org/api/path.html#pathbasenamepath-suffix
    */
-  baseName: `${string}.${string}`;
+  baseName: `${string}.${string}`
   /**
    * Full qualified path to the file.
    */
-  path: string;
+  path: string
   /**
    * File extension extracted from `baseName`.
    */
-  extname: Extname;
+  extname: Extname
   /**
    * Deduplicated list of source code fragments.
    */
-  sources: Array<SourceNode>;
+  sources: Array<SourceNode>
   /**
    * Deduplicated list of import declarations.
    */
-  imports: Array<ImportNode>;
+  imports: Array<ImportNode>
   /**
    * Deduplicated list of export declarations.
    */
-  exports: Array<ExportNode>;
+  exports: Array<ExportNode>
   /**
    * Optional metadata attached to this file (used by plugins for barrel generation etc.).
    */
-  meta?: TMeta;
+  meta?: TMeta
   /**
    * Optional banner prepended to the generated file content.
    */
-  banner?: string;
+  banner?: string
   /**
    * Optional footer appended to the generated file content.
    */
-  footer?: string;
-};
+  footer?: string
+}

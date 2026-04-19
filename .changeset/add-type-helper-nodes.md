@@ -1,7 +1,7 @@
 ---
-"@kubb/ast": minor
-"@kubb/adapter-oas": minor
-"@kubb/core": patch
+'@kubb/ast': minor
+'@kubb/adapter-oas': minor
+'@kubb/core': patch
 ---
 
 Add type helper nodes and options.

@@ -1,6 +1,6 @@
-import type { BaseNode } from "./base.ts";
-import type { OperationNode } from "./operation.ts";
-import type { SchemaNode } from "./schema.ts";
+import type { BaseNode } from './base.ts'
+import type { OperationNode } from './operation.ts'
+import type { SchemaNode } from './schema.ts'
 
 /**
  * Basic metadata for an API document.
@@ -15,21 +15,21 @@ export type InputMeta = {
   /**
    * API title (from `info.title` in OAS/AsyncAPI).
    */
-  title?: string;
+  title?: string
   /**
    * API description (from `info.description` in OAS/AsyncAPI).
    */
-  description?: string;
+  description?: string
   /**
    * API version string (from `info.version` in OAS/AsyncAPI).
    */
-  version?: string;
+  version?: string
   /**
    * Resolved API base URL.
    * For OpenAPI and AsyncAPI, this comes from the selected server URL.
    */
-  baseURL?: string;
-};
+  baseURL?: string
+}
 
 /**
  * Input AST node that contains all schemas and operations for one API document.
@@ -48,17 +48,17 @@ export type InputNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: "Input";
+  kind: 'Input'
   /**
    * All schema nodes in the document.
    */
-  schemas: Array<SchemaNode>;
+  schemas: Array<SchemaNode>
   /**
    * All operation nodes in the document.
    */
-  operations: Array<OperationNode>;
+  operations: Array<OperationNode>
   /**
    * Optional document metadata populated by the adapter.
    */
-  meta?: InputMeta;
-};
+  meta?: InputMeta
+}

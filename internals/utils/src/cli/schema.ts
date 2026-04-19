@@ -1,9 +1,4 @@
-import type {
-  CommandDefinition,
-  CommandSchema,
-  OptionDefinition,
-  OptionSchema,
-} from "./types.ts";
+import type { CommandDefinition, CommandSchema, OptionDefinition, OptionSchema } from './types.ts'
 
 /**
  * Serializes `CommandDefinition[]` to a plain, JSON-serializable structure.
@@ -16,7 +11,7 @@ import type {
  * ```
  */
 export function getCommandSchema(defs: CommandDefinition[]): CommandSchema[] {
-  return defs.map(serializeCommand);
+  return defs.map(serializeCommand)
 }
 
 function serializeCommand(def: CommandDefinition): CommandSchema {
@@ -26,16 +21,14 @@ function serializeCommand(def: CommandDefinition): CommandSchema {
     arguments: def.arguments,
     options: serializeOptions(def.options ?? {}),
     subCommands: def.subCommands ? def.subCommands.map(serializeCommand) : [],
-  };
+  }
 }
 
-function serializeOptions(
-  options: Record<string, OptionDefinition>,
-): OptionSchema[] {
+function serializeOptions(options: Record<string, OptionDefinition>): OptionSchema[] {
   return Object.entries(options).map(([name, opt]) => {
-    const shortPart = opt.short ? `-${opt.short}, ` : "";
-    const valuePart = opt.type === "string" ? ` <${opt.hint ?? name}>` : "";
-    const flags = `${shortPart}--${name}${valuePart}`;
+    const shortPart = opt.short ? `-${opt.short}, ` : ''
+    const valuePart = opt.type === 'string' ? ` <${opt.hint ?? name}>` : ''
+    const flags = `${shortPart}--${name}${valuePart}`
 
     return {
       name,
@@ -46,6 +39,6 @@ function serializeOptions(
       ...(opt.hint ? { hint: opt.hint } : {}),
       ...(opt.enum ? { enum: opt.enum } : {}),
       ...(opt.required ? { required: opt.required } : {}),
-    };
-  });
+    }
+  })
 }

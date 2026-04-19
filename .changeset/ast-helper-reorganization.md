@@ -1,6 +1,6 @@
 ---
-"@kubb/ast": minor
-"@kubb/adapter-oas": patch
+'@kubb/ast': minor
+'@kubb/adapter-oas': patch
 ---
 
 Reorganize schema helper modules into clearer categories.

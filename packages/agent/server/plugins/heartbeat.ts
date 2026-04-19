@@ -1,8 +1,8 @@
-import process from "node:process";
-import { maskString } from "@internals/utils";
-import { logger } from "~/utils/logger.ts";
+import process from 'node:process'
+import { maskString } from '@internals/utils'
+import { logger } from '~/utils/logger.ts'
 
-const HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000;
+const HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000
 
 /**
  * Nitro plugin that sends a periodic HTTP GET to `KUBB_AGENT_HEARTBEAT_URL`
@@ -15,24 +15,24 @@ const HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000;
  * The timer is cleared when the Nitro server closes.
  */
 export default defineNitroPlugin((nitro) => {
-  const heartbeatUrl = process.env.KUBB_AGENT_HEARTBEAT_URL;
+  const heartbeatUrl = process.env.KUBB_AGENT_HEARTBEAT_URL
 
   if (!heartbeatUrl) {
-    return;
+    return
   }
 
-  const maskedUrl = maskString(heartbeatUrl);
+  const maskedUrl = maskString(heartbeatUrl)
 
   const timer = setInterval(async () => {
     try {
-      await $fetch(heartbeatUrl, { method: "GET" });
-      logger.info(`Heartbeat sent to ${maskedUrl}`);
+      await $fetch(heartbeatUrl, { method: 'GET' })
+      logger.info(`Heartbeat sent to ${maskedUrl}`)
     } catch (error: any) {
-      logger.warn(`Failed to send heartbeat to ${maskedUrl}`, error?.message);
+      logger.warn(`Failed to send heartbeat to ${maskedUrl}`, error?.message)
     }
-  }, HEARTBEAT_INTERVAL_MS);
+  }, HEARTBEAT_INTERVAL_MS)
 
-  nitro.hooks.hook("close", () => {
-    clearInterval(timer);
-  });
-});
+  nitro.hooks.hook('close', () => {
+    clearInterval(timer)
+  })
+})

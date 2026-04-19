@@ -17,17 +17,17 @@ Each plugin ships a built-in resolver (and a legacy one for Kubb v4 compatibilit
 | Required: | `false`                                  |
 
 ```typescript [Custom resolver (plugin-ts example)]
-import { pluginTs } from "@kubb/plugin-ts";
+import { pluginTs } from '@kubb/plugin-ts'
 
 pluginTs({
   resolver: {
     resolveName(name) {
       // Prefix every operation-derived name; falls back for names where
       // this returns null/undefined.
-      return `Api${this.default(name, "function")}`;
+      return `Api${this.default(name, 'function')}`
     },
   },
-});
+})
 ```
 
 > [!TIP]

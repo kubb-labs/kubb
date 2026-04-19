@@ -80,12 +80,12 @@ Added support for generating union types with the new `unionType` option.
 
 ```typescript [Before]
 // Generated separate types
-export type PetDog = { type: "dog"; bark: string };
-export type PetCat = { type: "cat"; meow: string };
+export type PetDog = { type: 'dog'; bark: string }
+export type PetCat = { type: 'cat'; meow: string }
 ```
 
 ```typescript [After]
-export type Pet = PetDog | PetCat;
+export type Pet = PetDog | PetCat
 ```
 
 :::
@@ -123,9 +123,9 @@ When fixing bugs that affect user-facing behavior:
 
 ```typescript
 const petType = {
-  Dog: "dog",
-  Cat: "cat",
-} as const;
+  Dog: 'dog',
+  Cat: 'cat',
+} as const
 ```
 
 ## Related Skills

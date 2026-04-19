@@ -109,20 +109,20 @@ Add to `claude_desktop_config.json` (location varies by OS):
 Ensure you have a `kubb.config.ts` file in your project:
 
 ```typescript
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginClient } from "@kubb/plugin-client";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginClient } from '@kubb/plugin-client'
 
 export default defineConfig({
   input: {
-    path: "./petstore.yaml",
+    path: './petstore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   plugins: [pluginOas(), pluginTs(), pluginClient()],
-});
+})
 ```
 
 ### 4. Use with Your AI Assistant

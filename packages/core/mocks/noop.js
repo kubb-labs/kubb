@@ -1,3 +1,3 @@
 export function noop() {
-  return "js-noop";
+  return 'js-noop'
 }

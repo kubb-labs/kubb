@@ -1073,13 +1073,13 @@
   ```typescript
   // kubb.config.ts
   export default defineConfig({
-    input: { path: "./petStore.yaml" },
+    input: { path: './petStore.yaml' },
     output: {
-      path: "./src/gen",
-      format: "auto", // Detects biome or prettier
-      lint: "auto", // Detects biome, oxlint, or eslint
+      path: './src/gen',
+      format: 'auto', // Detects biome or prettier
+      lint: 'auto', // Detects biome, oxlint, or eslint
     },
-  });
+  })
   ```
 
 ### Patch Changes

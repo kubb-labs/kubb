@@ -1,56 +1,39 @@
-import { formatMs, maskString, serializePluginOptions } from "@internals/utils";
-import {
-  AsyncEventEmitter,
-  fsStorage,
-  type KubbHooks,
-  memoryStorage,
-} from "@kubb/core";
-import type { NitroApp } from "nitropack/types";
-import { version } from "~~/package.json";
-import {
-  type AgentConnectResponse,
-  type AgentMessage,
-  isCommandMessage,
-  isDisconnectMessage,
-  isPongMessage,
-  isPublishCommandMessage,
-} from "../types/agent.ts";
-import {
-  getLatestStudioConfigFromStorage,
-  saveStudioConfigToStorage,
-} from "./agentCache.ts";
-import { createAgentSession, disconnect } from "./api.ts";
-import { generate } from "./generate.ts";
-import { loadConfig } from "./loadConfig.ts";
-import { logger } from "./logger.ts";
-import { mergePlugins } from "./mergePlugins.ts";
-import { publish } from "./publish.ts";
-import { setupHookListener } from "./setupHookListener.ts";
-import { createWebsocket, sendAgentMessage, setupEventsStream } from "./ws.ts";
+import { formatMs, maskString, serializePluginOptions } from '@internals/utils'
+import { AsyncEventEmitter, fsStorage, type KubbHooks, memoryStorage } from '@kubb/core'
+import type { NitroApp } from 'nitropack/types'
+import { version } from '~~/package.json'
+import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage, isPublishCommandMessage } from '../types/agent.ts'
+import { getLatestStudioConfigFromStorage, saveStudioConfigToStorage } from './agentCache.ts'
+import { createAgentSession, disconnect } from './api.ts'
+import { generate } from './generate.ts'
+import { loadConfig } from './loadConfig.ts'
+import { logger } from './logger.ts'
+import { mergePlugins } from './mergePlugins.ts'
+import { publish } from './publish.ts'
+import { setupHookListener } from './setupHookListener.ts'
+import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
 
 export type ConnectToStudioOptions = {
-  token: string;
-  studioUrl: string;
-  configPath: string;
-  resolvedConfigPath: string;
-  allowAll: boolean;
-  allowWrite: boolean;
-  allowPublish: boolean;
-  root: string;
-  retryInterval: number;
-  heartbeatInterval?: number;
+  token: string
+  studioUrl: string
+  configPath: string
+  resolvedConfigPath: string
+  allowAll: boolean
+  allowWrite: boolean
+  allowPublish: boolean
+  root: string
+  retryInterval: number
+  heartbeatInterval?: number
   /** Pre-created session to use instead of calling createAgentSession. Only used on the first connect, not on reconnects. */
-  initialSession?: AgentConnectResponse;
-  nitro: NitroApp;
-};
+  initialSession?: AgentConnectResponse
+  nitro: NitroApp
+}
 
 /**
  * Opens a WebSocket connection to Kubb Studio and handles incoming commands.
  * Automatically reconnects after `retryInterval` ms on close or error.
  */
-export async function connectToStudio(
-  options: ConnectToStudioOptions,
-): Promise<void> {
+export async function connectToStudio(options: ConnectToStudioOptions): Promise<void> {
   const {
     token,
     studioUrl,
@@ -64,175 +47,150 @@ export async function connectToStudio(
     heartbeatInterval = 30_000,
     initialSession,
     nitro,
-  } = options;
+  } = options
 
   // Each connection gets its own isolated event emitter so generation events
   // from one session do not bleed into another session's WebSocket stream.
-  const hooks = new AsyncEventEmitter<KubbHooks>();
-  let currentSource: "generate" | "publish" | undefined;
+  const hooks = new AsyncEventEmitter<KubbHooks>()
+  let currentSource: 'generate' | 'publish' | undefined
 
   async function reconnect() {
-    logger.info(
-      `Retrying connection in ${formatMs(retryInterval)} to Kubb Studio ...`,
-    );
+    logger.info(`Retrying connection in ${formatMs(retryInterval)} to Kubb Studio ...`)
 
     // On reconnect, don't reuse the initial session — always create a fresh one
-    setTimeout(
-      () => connectToStudio({ ...options, initialSession: undefined }),
-      retryInterval,
-    );
+    setTimeout(() => connectToStudio({ ...options, initialSession: undefined }), retryInterval)
   }
 
   try {
-    setupHookListener(hooks, root);
+    setupHookListener(hooks, root)
 
-    const { sessionId, wsUrl, isSandbox } =
-      initialSession ?? (await createAgentSession({ token, studioUrl }));
+    const { sessionId, wsUrl, isSandbox } = initialSession ?? (await createAgentSession({ token, studioUrl }))
     const ws = createWebsocket(wsUrl, {
       headers: { Authorization: `Bearer ${token}` },
-    });
-    const maskedWsUrl = maskString(wsUrl);
-    const maskedSessionId = maskString(sessionId);
+    })
+    const maskedWsUrl = maskString(wsUrl)
+    const maskedSessionId = maskString(sessionId)
 
     // Effective permissions: always disabled in sandbox mode
-    const effectiveAllowAll = isSandbox ? false : allowAll;
-    const effectiveWrite = isSandbox ? false : allowWrite;
-    const effectivePublish = isSandbox ? false : allowPublish;
+    const effectiveAllowAll = isSandbox ? false : allowAll
+    const effectiveWrite = isSandbox ? false : allowWrite
+    const effectivePublish = isSandbox ? false : allowPublish
 
     // Tracks whether the studio server explicitly disconnected us (no reconnect needed)
-    let serverDisconnected = false;
-    let heartbeatTimer: ReturnType<typeof setInterval> | undefined;
+    let serverDisconnected = false
+    let heartbeatTimer: ReturnType<typeof setInterval> | undefined
 
-    async function cleanup(reason = "cleanup") {
+    async function cleanup(reason = 'cleanup') {
       try {
-        clearInterval(heartbeatTimer);
-        heartbeatTimer = undefined;
+        clearInterval(heartbeatTimer)
+        heartbeatTimer = undefined
 
-        hooks.removeAll();
+        hooks.removeAll()
 
-        ws.close(1000, reason);
-        ws.removeEventListener("open", onOpen);
-        ws.removeEventListener("close", onClose);
-        ws.removeEventListener("error", onError);
+        ws.close(1000, reason)
+        ws.removeEventListener('open', onOpen)
+        ws.removeEventListener('close', onClose)
+        ws.removeEventListener('error', onError)
       } catch (_error: any) {}
     }
 
     const onOpen = () => {
-      logger.success(
-        `[${maskedSessionId}] Connected to Kubb Studio on "${maskedWsUrl}"`,
-      );
-    };
+      logger.success(`[${maskedSessionId}] Connected to Kubb Studio on "${maskedWsUrl}"`)
+    }
 
     const onClose = async () => {
       if (serverDisconnected) {
-        return;
+        return
       }
 
-      serverDisconnected = true;
+      serverDisconnected = true
 
       // first cleanup the event listeners and then connect again
-      await cleanup();
+      await cleanup()
 
       await disconnect({ sessionId, studioUrl, token }).catch(() => {
         // Ignore disconnect errors since we're already handling a closed connection
-      });
+      })
 
-      await reconnect();
-    };
+      await reconnect()
+    }
 
     const onError = async () => {
-      logger.error(
-        `[${maskedSessionId}] Failed to connect to Kubb Studio on "${maskedWsUrl}"`,
-      );
+      logger.error(`[${maskedSessionId}] Failed to connect to Kubb Studio on "${maskedWsUrl}"`)
 
       // first cleanup the event listeners and then connect again
-      await cleanup();
+      await cleanup()
       await disconnect({ sessionId, studioUrl, token }).catch(() => {
         // Ignore disconnect errors since we're already handling a failed connection
-      });
-      await reconnect();
-    };
+      })
+      await reconnect()
+    }
 
-    ws.addEventListener("open", onOpen);
-    ws.addEventListener("close", onClose);
-    ws.addEventListener("error", onError);
-    nitro.hooks.hook("close", async () => {
-      await cleanup();
+    ws.addEventListener('open', onOpen)
+    ws.addEventListener('close', onClose)
+    ws.addEventListener('error', onError)
+    nitro.hooks.hook('close', async () => {
+      await cleanup()
       await disconnect({ sessionId, studioUrl, token }).catch(() => {
         // Ignore disconnect errors since we're already handling a closed connection
-      });
-    });
+      })
+    })
 
-    heartbeatTimer = setInterval(
-      () => sendAgentMessage(ws, { type: "ping" }),
-      heartbeatInterval,
-    );
+    heartbeatTimer = setInterval(() => sendAgentMessage(ws, { type: 'ping' }), heartbeatInterval)
 
-    setupEventsStream(ws, hooks, () => currentSource);
+    setupEventsStream(ws, hooks, () => currentSource)
 
-    ws.addEventListener("message", async (message) => {
+    ws.addEventListener('message', async (message) => {
       try {
-        const data = JSON.parse(message.data as string) as AgentMessage;
+        const data = JSON.parse(message.data as string) as AgentMessage
 
-        logger.info(`[${maskedSessionId}] Received "${data.type}" from Studio`);
+        logger.info(`[${maskedSessionId}] Received "${data.type}" from Studio`)
 
         if (isPongMessage(data)) {
-          return;
+          return
         }
 
         if (isDisconnectMessage(data)) {
-          logger.warn(
-            `[${maskedSessionId}] Agent session disconnected by Studio with reason: ${data.reason}`,
-          );
+          logger.warn(`[${maskedSessionId}] Agent session disconnected by Studio with reason: ${data.reason}`)
 
-          if (data.reason === "revoked") {
-            await cleanup(`session_${data.reason}`);
-            return;
+          if (data.reason === 'revoked') {
+            await cleanup(`session_${data.reason}`)
+            return
           }
 
-          if (data.reason === "expired") {
+          if (data.reason === 'expired') {
             // first cleanup the event listeners and then connect again
-            await cleanup();
-            await reconnect();
+            await cleanup()
+            await reconnect()
 
-            return;
+            return
           }
 
-          return;
+          return
         }
 
         if (isCommandMessage(data)) {
-          if (data.command === "generate") {
-            currentSource = "generate";
-            const config = await loadConfig(resolvedConfigPath);
+          if (data.command === 'generate') {
+            currentSource = 'generate'
+            const config = await loadConfig(resolvedConfigPath)
 
             // Message payload takes priority over previously saved studio config
-            const storedConfig = data.payload
-              ? null
-              : await getLatestStudioConfigFromStorage({ sessionId }).catch(
-                  () => null,
-                );
-            const patch = data.payload ?? storedConfig ?? undefined;
-            const plugins = await mergePlugins(config.plugins, patch?.plugins);
+            const storedConfig = data.payload ? null : await getLatestStudioConfigFromStorage({ sessionId }).catch(() => null)
+            const patch = data.payload ?? storedConfig ?? undefined
+            const plugins = await mergePlugins(config.plugins, patch?.plugins)
 
             // In sandbox mode the caller may supply raw OpenAPI / Swagger spec
             // content inline (YAML or JSON string) via `payload.input`.
             // Outside of sandbox mode the input is always taken from the config
             // file on disk — ignoring any payload-supplied input for security.
-            const inputOverride = isSandbox
-              ? { data: patch?.input ?? "" }
-              : undefined;
+            const inputOverride = isSandbox ? { data: patch?.input ?? '' } : undefined
 
             if (allowWrite && isSandbox) {
-              logger.warn(
-                `[${maskedSessionId}] Agent is running in a sandbox environment, write will be disabled`,
-              );
+              logger.warn(`[${maskedSessionId}] Agent is running in a sandbox environment, write will be disabled`)
             }
 
             if (patch?.input && !isSandbox) {
-              logger.warn(
-                `[${maskedSessionId}] Input override via payload is only supported in sandbox mode and will be ignored`,
-              );
+              logger.warn(`[${maskedSessionId}] Input override via payload is only supported in sandbox mode and will be ignored`)
             }
 
             if (data.payload && effectiveWrite) {
@@ -240,10 +198,8 @@ export async function connectToStudio(
                 sessionId,
                 config: data.payload,
               }).catch((err) => {
-                logger.warn(
-                  `[${maskedSessionId}] Failed to save studio config: ${err?.message}`,
-                );
-              });
+                logger.warn(`[${maskedSessionId}] Failed to save studio config: ${err?.message}`)
+              })
             }
 
             await generate({
@@ -258,21 +214,19 @@ export async function connectToStudio(
                 plugins,
               },
               hooks,
-            });
+            })
 
-            logger.success(
-              `[${maskedSessionId}] Completed "${data.type}" from Studio`,
-            );
-            currentSource = undefined;
+            logger.success(`[${maskedSessionId}] Completed "${data.type}" from Studio`)
+            currentSource = undefined
 
-            return;
+            return
           }
 
-          if (data.command === "connect") {
-            const config = await loadConfig(resolvedConfigPath);
+          if (data.command === 'connect') {
+            const config = await loadConfig(resolvedConfigPath)
 
             sendAgentMessage(ws, {
-              type: "connected",
+              type: 'connected',
               payload: {
                 version,
                 configPath,
@@ -288,60 +242,47 @@ export async function connectToStudio(
                   })),
                 },
               },
-            });
+            })
 
-            logger.success(
-              `[${maskedSessionId}] Completed "${data.type}" from Studio`,
-            );
+            logger.success(`[${maskedSessionId}] Completed "${data.type}" from Studio`)
 
-            return;
+            return
           }
 
           if (isPublishCommandMessage(data)) {
             if (!effectivePublish) {
-              logger.warn(
-                `[${maskedSessionId}] Publish command rejected — KUBB_AGENT_ALLOW_PUBLISH is not enabled`,
-              );
-              return;
+              logger.warn(`[${maskedSessionId}] Publish command rejected — KUBB_AGENT_ALLOW_PUBLISH is not enabled`)
+              return
             }
 
-            currentSource = "publish";
-            const config = await loadConfig(resolvedConfigPath);
+            currentSource = 'publish'
+            const config = await loadConfig(resolvedConfigPath)
 
             // Command priority: WS payload → env var → default
-            const resolvedCommand =
-              data.payload.command ??
-              process.env.KUBB_AGENT_PUBLISH_COMMAND ??
-              "npm publish";
+            const resolvedCommand = data.payload.command ?? process.env.KUBB_AGENT_PUBLISH_COMMAND ?? 'npm publish'
 
             await publish({
               command: resolvedCommand,
               outputPath: config.output.path,
               root,
               hooks,
-            });
+            })
 
-            logger.success(
-              `[${maskedSessionId}] Completed "${data.command}" from Studio`,
-            );
-            currentSource = undefined;
+            logger.success(`[${maskedSessionId}] Completed "${data.command}" from Studio`)
+            currentSource = undefined
 
-            return;
+            return
           }
         }
 
-        logger.warn(
-          `[${maskedSessionId}] Unknown message type from Kubb Studio: ${message.data}`,
-        );
+        logger.warn(`[${maskedSessionId}] Unknown message type from Kubb Studio: ${message.data}`)
       } catch (error: any) {
-        logger.error(
-          `[${maskedSessionId}] [unhandledRejection] ${error?.message ?? error}`,
-        );
+        logger.error(`[${maskedSessionId}] [unhandledRejection] ${error?.message ?? error}`)
       }
-    });
+    })
   } catch (error: any) {
     throw new Error(`[unhandledRejection] ${error?.message ?? error}`, {
       cause: error,
-    });
+    })
   }
 }

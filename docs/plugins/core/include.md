@@ -7,7 +7,7 @@ Array containing include parameters to include tags, operations, methods, paths,
 
 ```typescript [Include]
 export type Include = {
-  type: "tag" | "operationId" | "path" | "method" | "contentType";
-  pattern: string | RegExp;
-};
+  type: 'tag' | 'operationId' | 'path' | 'method' | 'contentType'
+  pattern: string | RegExp
+}
 ```

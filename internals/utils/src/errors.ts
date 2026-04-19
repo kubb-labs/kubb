@@ -8,15 +8,12 @@
  * ```
  */
 export class BuildError extends Error {
-  errors: Array<Error>;
+  errors: Array<Error>
 
-  constructor(
-    message: string,
-    options: { cause?: Error; errors: Array<Error> },
-  ) {
-    super(message, { cause: options.cause });
-    this.name = "BuildError";
-    this.errors = options.errors;
+  constructor(message: string, options: { cause?: Error; errors: Array<Error> }) {
+    super(message, { cause: options.cause })
+    this.name = 'BuildError'
+    this.errors = options.errors
   }
 }
 
@@ -32,7 +29,7 @@ export class BuildError extends Error {
  * ```
  */
 export function toError(value: unknown): Error {
-  return value instanceof Error ? value : new Error(String(value));
+  return value instanceof Error ? value : new Error(String(value))
 }
 
 /**
@@ -45,7 +42,7 @@ export function toError(value: unknown): Error {
  * ```
  */
 export function getErrorMessage(value: unknown): string {
-  return value instanceof Error ? value.message : String(value);
+  return value instanceof Error ? value.message : String(value)
 }
 
 /**
@@ -57,5 +54,5 @@ export function getErrorMessage(value: unknown): string {
  * ```
  */
 export function toCause(error: Error): Error | undefined {
-  return error.cause instanceof Error ? error.cause : undefined;
+  return error.cause instanceof Error ? error.cause : undefined
 }

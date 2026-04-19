@@ -1,8 +1,8 @@
-import { generateToken, hashToken } from "@internals/utils";
+import { generateToken, hashToken } from '@internals/utils'
 
-export { generateToken, hashToken };
+export { generateToken, hashToken }
 
-const _fallbackSecret = generateToken();
+const _fallbackSecret = generateToken()
 
 /**
  * Returns the machine token derived from the `KUBB_AGENT_SECRET` environment variable.
@@ -10,5 +10,5 @@ const _fallbackSecret = generateToken();
  * The token is hashed with SHA-256.
  */
 export function getMachineToken(): string {
-  return hashToken(process.env.KUBB_AGENT_SECRET ?? _fallbackSecret);
+  return hashToken(process.env.KUBB_AGENT_SECRET ?? _fallbackSecret)
 }

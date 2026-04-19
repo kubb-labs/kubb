@@ -1,5 +1,5 @@
 ---
-"@kubb/adapter-oas": minor
+'@kubb/adapter-oas': minor
 ---
 
 Extract `ParserOptions` type and add `enumSuffix` option.

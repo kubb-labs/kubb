@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { spawn } from 'node:child_process'
 
 /**
  * CLI command descriptors for each supported code formatter.
@@ -9,30 +9,30 @@ import { spawn } from "node:child_process";
  */
 export const formatters = {
   prettier: {
-    command: "prettier",
-    args: (outputPath: string) => ["--ignore-unknown", "--write", outputPath],
-    errorMessage: "Prettier not found",
+    command: 'prettier',
+    args: (outputPath: string) => ['--ignore-unknown', '--write', outputPath],
+    errorMessage: 'Prettier not found',
   },
   biome: {
-    command: "biome",
-    args: (outputPath: string) => ["format", "--write", outputPath],
-    errorMessage: "Biome not found",
+    command: 'biome',
+    args: (outputPath: string) => ['format', '--write', outputPath],
+    errorMessage: 'Biome not found',
   },
   oxfmt: {
-    command: "oxfmt",
+    command: 'oxfmt',
     args: (outputPath: string) => [outputPath],
-    errorMessage: "Oxfmt not found",
+    errorMessage: 'Oxfmt not found',
   },
-} as const;
+} as const
 
-type Formatter = keyof typeof formatters;
+type Formatter = keyof typeof formatters
 
 async function isFormatterAvailable(formatter: Formatter): Promise<boolean> {
   return new Promise((resolve) => {
-    const child = spawn(formatter, ["--version"], { stdio: "ignore" });
-    child.on("close", (code) => resolve(code === 0));
-    child.on("error", () => resolve(false));
-  });
+    const child = spawn(formatter, ['--version'], { stdio: 'ignore' })
+    child.on('close', (code) => resolve(code === 0))
+    child.on('error', () => resolve(false))
+  })
 }
 
 /**
@@ -50,13 +50,13 @@ async function isFormatterAvailable(formatter: Formatter): Promise<boolean> {
  * ```
  */
 export async function detectFormatter(): Promise<Formatter | null> {
-  const formatterNames = new Set(["oxfmt", "biome", "prettier"] as const);
+  const formatterNames = new Set(['oxfmt', 'biome', 'prettier'] as const)
 
   for (const formatter of formatterNames) {
     if (await isFormatterAvailable(formatter)) {
-      return formatter;
+      return formatter
     }
   }
 
-  return null;
+  return null
 }

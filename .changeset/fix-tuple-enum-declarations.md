@@ -1,5 +1,5 @@
 ---
-"@kubb/adapter-oas": patch
+'@kubb/adapter-oas': patch
 ---
 
 Generate named enum declarations for tuple elements.

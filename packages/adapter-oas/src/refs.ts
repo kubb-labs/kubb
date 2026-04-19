@@ -1,5 +1,5 @@
-import { isReference } from "./guards.ts";
-import type { Document } from "./types.ts";
+import { isReference } from './guards.ts'
+import type { Document } from './types.ts'
 
 /**
  * Resolves a local JSON pointer reference from a document.
@@ -12,32 +12,26 @@ import type { Document } from "./types.ts";
  * resolveRef<SchemaObject>(document, '#/components/schemas/Pet') // SchemaObject | null
  * ```
  */
-export function resolveRef<T = unknown>(
-  document: Document,
-  $ref: string,
-): T | null {
-  const origRef = $ref;
-  $ref = $ref.trim();
-  if ($ref === "") {
-    return null;
+export function resolveRef<T = unknown>(document: Document, $ref: string): T | null {
+  const origRef = $ref
+  $ref = $ref.trim()
+  if ($ref === '') {
+    return null
   }
-  if ($ref.startsWith("#")) {
-    $ref = globalThis.decodeURIComponent($ref.substring(1));
+  if ($ref.startsWith('#')) {
+    $ref = globalThis.decodeURIComponent($ref.substring(1))
   } else {
-    return null;
+    return null
   }
   const current = $ref
-    .split("/")
+    .split('/')
     .filter(Boolean)
-    .reduce(
-      (obj: unknown, key: string) => (obj as Record<string, unknown>)?.[key],
-      document as unknown,
-    );
+    .reduce((obj: unknown, key: string) => (obj as Record<string, unknown>)?.[key], document as unknown)
 
   if (!current) {
-    throw new Error(`Could not find a definition for ${origRef}.`);
+    throw new Error(`Could not find a definition for ${origRef}.`)
   }
-  return current as T;
+  return current as T
 }
 
 /**
@@ -52,17 +46,14 @@ export function resolveRef<T = unknown>(
  * // { $ref: '#/components/schemas/Pet', type: 'object', properties: { ... } }
  * ```
  */
-export function dereferenceWithRef<T = unknown>(
-  document: Document,
-  schema?: T,
-): T {
+export function dereferenceWithRef<T = unknown>(document: Document, schema?: T): T {
   if (isReference(schema)) {
     return {
       ...schema,
       ...resolveRef(document, schema.$ref),
       $ref: schema.$ref,
-    };
+    }
   }
 
-  return schema as T;
+  return schema as T
 }

@@ -62,10 +62,10 @@ This means:
 **IMPORTANT — always guard with `?.resolver`:** When using another plugin's resolver, always check that both the plugin and its resolver exist before proceeding. The plugin may not be configured by the user:
 
 ```ts
-const pluginTs = driver.getPlugin<PluginTs>(pluginTsName);
+const pluginTs = driver.getPlugin<PluginTs>(pluginTsName)
 
 if (!pluginTs?.resolver) {
-  return null;
+  return null
 }
 
 // Safe to use pluginTs.resolver from here
@@ -74,10 +74,10 @@ if (!pluginTs?.resolver) {
 The same pattern applies for any cross-plugin resolver lookup (e.g. `pluginZod`):
 
 ```ts
-const pluginZod = driver.getPlugin<PluginZod>(pluginZodName);
+const pluginZod = driver.getPlugin<PluginZod>(pluginZodName)
 
 if (!pluginZod?.resolver) {
-  return;
+  return
 }
 
 // Safe to use pluginZod.resolver from here
@@ -232,8 +232,8 @@ export type ResolverCypress = Resolver & {
    * @example
    * resolver.resolveName('show pet by id') // -> 'showPetById'
    */
-  resolveName(name: string): string;
-};
+  resolveName(name: string): string
+}
 ```
 
 For schema plugins, add more methods following `ResolverTs` (e.g. `resolveTypedName`, `resolveParamName`, `resolveResponseStatusName`, etc.).
@@ -281,13 +281,13 @@ generators?: Array<Generator<PluginCypress>>
 Update `ResolvedOptions` type -- add:
 
 ```typescript
-resolver: ResolverCypress;
-transformer: Visitor;
+resolver: ResolverCypress
+transformer: Visitor
 /**
  * Fully resolved group: always has a `name` function (normalized in `plugin.ts`
  * from the user-supplied `UserGroup` which may omit `name`).
  */
-group: Group | undefined;
+group: Group | undefined
 ```
 
 > **Note:** Do **not** add `tsResolver` to `ResolvedOptions`. The TypeScript resolver is retrieved at render time in the generator via `driver.getPlugin(pluginTsName)?.resolver as ResolverTs` — it does not need to live in the plugin's options.
@@ -296,14 +296,7 @@ Update `PluginFactoryOptions` generic -- add resolver type as 6th param:
 
 ```typescript
 // Operation plugin:
-export type PluginCypress = PluginFactoryOptions<
-  "plugin-cypress",
-  Options,
-  ResolvedOptions,
-  never,
-  ResolvePathOptions,
-  ResolverCypress
->;
+export type PluginCypress = PluginFactoryOptions<'plugin-cypress', Options, ResolvedOptions, never, ResolvePathOptions, ResolverCypress>
 
 // Schema plugin (same, no 7th param needed):
 // export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions, ResolverZod>
@@ -316,19 +309,19 @@ Read `packages/plugin-ts/src/constants.ts` first. Create constants for option va
 Example for plugin-cypress:
 
 ```typescript
-import type { PluginCypress } from "./types.ts";
+import type { PluginCypress } from './types.ts'
 
-type DataReturnType = PluginCypress["resolvedOptions"]["dataReturnType"];
+type DataReturnType = PluginCypress['resolvedOptions']['dataReturnType']
 
 /**
  * `dataReturnType` values where `cy.request` returns the full `Cypress.Response` object.
  */
-export const DATA_RETURN_TYPE_FULL = new Set<DataReturnType>(["full"] as const);
+export const DATA_RETURN_TYPE_FULL = new Set<DataReturnType>(['full'] as const)
 
 /**
  * `dataReturnType` values where `cy.request` returns only `response.body`.
  */
-export const DATA_RETURN_TYPE_DATA = new Set<DataReturnType>(["data"] as const);
+export const DATA_RETURN_TYPE_DATA = new Set<DataReturnType>(['data'] as const)
 ```
 
 ### Step 2b: Create src/printers/ (schema plugins only)
@@ -340,74 +333,57 @@ Read `packages/plugin-zod/src/printers/printerZod.ts` as the reference. Create o
 Printers are created with `definePrinter` from `@kubb/core`. The factory receives runtime options and returns an object with a `nodes` map (one handler per `SchemaNode` type) and a `print(node)` entry-point method.
 
 ```typescript
-import { definePrinter } from "@kubb/core";
-import type { PrinterFactoryOptions, SchemaNode } from "@kubb/core";
+import { definePrinter } from '@kubb/core'
+import type { PrinterFactoryOptions, SchemaNode } from '@kubb/core'
 
 export type FooPrinterOptions = {
   // plugin-specific options visible to the printer
-  guidType?: "uuid" | "guid";
-  resolver?: ResolverFoo;
-  schemaName?: string; // used for self-ref detection inside objects
-  keysToOmit?: Array<string>;
-};
+  guidType?: 'uuid' | 'guid'
+  resolver?: ResolverFoo
+  schemaName?: string // used for self-ref detection inside objects
+  keysToOmit?: Array<string>
+}
 
-type FooPrinterFactory = PrinterFactoryOptions<
-  "foo",
-  FooPrinterOptions,
-  string,
-  string
->;
+type FooPrinterFactory = PrinterFactoryOptions<'foo', FooPrinterOptions, string, string>
 
 export const printerFoo = definePrinter<FooPrinterFactory>((options) => {
   return {
-    name: "foo",
-    options: { guidType: "uuid", ...options },
+    name: 'foo',
+    options: { guidType: 'uuid', ...options },
 
     // One handler per SchemaNode type. Return the code string for that node.
     // `this.transform(child)` recursively processes nested nodes.
     nodes: {
-      any: () => "foo.any()",
-      unknown: () => "foo.unknown()",
+      any: () => 'foo.any()',
+      unknown: () => 'foo.unknown()',
       string(node) {
-        return `foo.string()${lengthConstraints(node)}`;
+        return `foo.string()${lengthConstraints(node)}`
       },
       number(node) {
-        return `foo.number()${numberConstraints(node)}`;
+        return `foo.number()${numberConstraints(node)}`
       },
       object(node) {
         const props = node.properties
           .map((prop) => {
-            const baseOutput = this.transform(prop.schema) ?? "foo.unknown()";
+            const baseOutput = this.transform(prop.schema) ?? 'foo.unknown()'
             // Detect self-references → emit a lazy getter instead of an eager property
-            const isSelfRef =
-              this.options.schemaName != null &&
-              containsRef(
-                prop.schema,
-                this.options.schemaName,
-                this.options.resolver,
-              );
-            const value = applyModifiers({ value: baseOutput, ...prop.schema });
-            return isSelfRef
-              ? `get "${prop.name}"() { return ${value} }`
-              : `"${prop.name}": ${value}`;
+            const isSelfRef = this.options.schemaName != null && containsRef(prop.schema, this.options.schemaName, this.options.resolver)
+            const value = applyModifiers({ value: baseOutput, ...prop.schema })
+            return isSelfRef ? `get "${prop.name}"() { return ${value} }` : `"${prop.name}": ${value}`
           })
-          .join(",\n    ");
-        return `foo.object({\n    ${props}\n    })`;
+          .join(',\n    ')
+        return `foo.object({\n    ${props}\n    })`
       },
       ref(node) {
-        if (!node.name) return undefined;
-        const resolved = node.ref
-          ? (this.options.resolver?.default(node.name, "function") ?? node.name)
-          : node.name;
-        return resolved;
+        if (!node.name) return undefined
+        const resolved = node.ref ? (this.options.resolver?.default(node.name, 'function') ?? node.name) : node.name
+        return resolved
       },
       union(node) {
-        const members = (node.members ?? [])
-          .map((m) => this.transform(m))
-          .filter(Boolean);
-        if (members.length === 0) return "";
-        if (members.length === 1) return members[0]!;
-        return `foo.union([${members.join(", ")}])`;
+        const members = (node.members ?? []).map((m) => this.transform(m)).filter(Boolean)
+        if (members.length === 0) return ''
+        if (members.length === 1) return members[0]!
+        return `foo.union([${members.join(', ')}])`
       },
       // ... all other types: boolean, null, integer, bigint, date, datetime, time,
       //     uuid, email, url, blob, enum, array, tuple, intersection
@@ -416,12 +392,12 @@ export const printerFoo = definePrinter<FooPrinterFactory>((options) => {
     // Entry-point: called once per top-level schema.
     // Apply keysToOmit here (after building the base schema) rather than in nodes.object.
     print(node) {
-      const base = this.transform(node);
-      if (!base) return null;
+      const base = this.transform(node)
+      if (!base) return null
 
       if (this.options.keysToOmit?.length) {
         // When omitting keys the result is a non-nullable derived type — skip nullable/optional modifiers
-        return `${base}.omit({ ${this.options.keysToOmit.map((k) => `"${k}": true`).join(", ")} })`;
+        return `${base}.omit({ ${this.options.keysToOmit.map((k) => `"${k}": true`).join(', ')} })`
       }
 
       return applyModifiers({
@@ -431,10 +407,10 @@ export const printerFoo = definePrinter<FooPrinterFactory>((options) => {
         nullish: node.nullish,
         defaultValue: node.default,
         description: node.description,
-      });
+      })
     },
-  };
-});
+  }
+})
 ```
 
 Key rules for printers:
@@ -462,9 +438,9 @@ The `default`, `resolveOptions`, `resolvePath`, `resolveFile`, `resolveBanner`, 
 Example for plugin-cypress:
 
 ````typescript
-import { camelCase } from "@internals/utils";
-import { defineResolver } from "@kubb/core";
-import type { PluginCypress } from "../types.ts";
+import { camelCase } from '@internals/utils'
+import { defineResolver } from '@kubb/core'
+import type { PluginCypress } from '../types.ts'
 
 /**
  * Resolver for `@kubb/plugin-cypress` that provides the default naming
@@ -479,82 +455,79 @@ import type { PluginCypress } from "../types.ts";
  * ```
  */
 export const resolverCypress = defineResolver<PluginCypress>(() => ({
-  name: "default",
-  pluginName: "plugin-cypress",
+  name: 'default',
+  pluginName: 'plugin-cypress',
   default(name, type) {
-    return camelCase(name, { isFile: type === "file" });
+    return camelCase(name, { isFile: type === 'file' })
   },
   resolveName(name) {
-    return this.default(name, "function");
+    return this.default(name, 'function')
   },
-}));
+}))
 ````
 
 For **schema plugins**, the resolver must also implement all operation-level naming helpers. Model it on `packages/plugin-zod/src/resolvers/resolverZod.ts`:
 
 ```typescript
-import { camelCase, pascalCase } from "@internals/utils";
-import { defineResolver } from "@kubb/core";
-import type { PluginFoo } from "../types.ts";
+import { camelCase, pascalCase } from '@internals/utils'
+import { defineResolver } from '@kubb/core'
+import type { PluginFoo } from '../types.ts'
 
-function resolveName(
-  name: string,
-  type?: "file" | "function" | "type" | "const",
-): string {
+function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
   return camelCase(name, {
-    suffix: type ? "schema" : undefined,
-    isFile: type === "file",
-  });
+    suffix: type ? 'schema' : undefined,
+    isFile: type === 'file',
+  })
 }
 
 export const resolverFoo = defineResolver<PluginFoo>(() => ({
-  name: "default",
-  pluginName: "plugin-foo",
+  name: 'default',
+  pluginName: 'plugin-foo',
 
   default(name, type) {
-    return resolveName(name, type);
+    return resolveName(name, type)
   },
   resolveName(name) {
-    return this.default(name, "function");
+    return this.default(name, 'function')
   },
   resolveInferName(name) {
-    return pascalCase(name);
+    return pascalCase(name)
   }, // 'fooSchema' → 'FooSchema'
   resolvePathName(name, type) {
-    return this.default(name, type);
+    return this.default(name, type)
   },
 
   // Operation-level naming — called from the generator's Operation handler:
   resolveParamName(node, param) {
-    return this.resolveName(`${node.operationId} ${param.in} ${param.name}`);
+    return this.resolveName(`${node.operationId} ${param.in} ${param.name}`)
   },
   resolveResponseStatusName(node, statusCode) {
-    return this.resolveName(`${node.operationId} Status ${statusCode}`);
+    return this.resolveName(`${node.operationId} Status ${statusCode}`)
     // e.g. 'listPets Status 200' → 'listPetsStatus200Schema'
   },
   resolveDataName(node) {
-    return this.resolveName(`${node.operationId} Data`);
+    return this.resolveName(`${node.operationId} Data`)
     // e.g. 'createPet Data' → 'createPetDataSchema'
   },
   resolveResponsesName(node) {
-    return this.resolveName(`${node.operationId} Responses`);
+    return this.resolveName(`${node.operationId} Responses`)
     // e.g. 'listPets Responses' → 'listPetsResponsesSchema'
   },
   resolveResponseName(node) {
-    return this.resolveName(`${node.operationId} Response`);
+    return this.resolveName(`${node.operationId} Response`)
     // e.g. 'listPets Response' → 'listPetsResponseSchema'
   },
   resolvePathParamsName(node, _param) {
-    return this.resolveName(`${node.operationId} PathParams`);
+    return this.resolveName(`${node.operationId} PathParams`)
     // e.g. 'listPets PathParams' → 'listPetsPathParamsSchema'
   },
   resolveQueryParamsName(node, _param) {
-    return this.resolveName(`${node.operationId} QueryParams`);
+    return this.resolveName(`${node.operationId} QueryParams`)
   },
   resolveHeaderParamsName(node, _param) {
-    return this.resolveName(`${node.operationId} HeaderParams`);
+    return this.resolveName(`${node.operationId} HeaderParams`)
   },
-}));
+}))
 ```
 
 For a `kubbV4` legacy resolver, spread the default resolver and override only the methods that changed naming conventions (e.g. use `MutationRequest`/`QueryRequest` for `resolveDataName`, `<statusCode>` instead of `Status<statusCode>` for `resolveResponseStatusName`, `Error` for `statusCode === 'default'`):
@@ -562,25 +535,24 @@ For a `kubbV4` legacy resolver, spread the default resolver and override only th
 ```typescript
 export const resolverFooLegacy = defineResolver<PluginFoo>(() => ({
   ...resolverFoo,
-  pluginName: "plugin-foo",
+  pluginName: 'plugin-foo',
   resolveResponseStatusName(node, statusCode) {
-    if (statusCode === "default")
-      return this.resolveName(`${node.operationId} Error`);
-    return this.resolveName(`${node.operationId} ${statusCode}`);
+    if (statusCode === 'default') return this.resolveName(`${node.operationId} Error`)
+    return this.resolveName(`${node.operationId} ${statusCode}`)
   },
   resolveDataName(node) {
-    const suffix = node.method === "GET" ? "QueryRequest" : "MutationRequest";
-    return this.resolveName(`${node.operationId} ${suffix}`);
+    const suffix = node.method === 'GET' ? 'QueryRequest' : 'MutationRequest'
+    return this.resolveName(`${node.operationId} ${suffix}`)
   },
   resolveResponsesName(node) {
-    const suffix = node.method === "GET" ? "Query" : "Mutation";
-    return this.resolveName(`${node.operationId} ${suffix}`);
+    const suffix = node.method === 'GET' ? 'Query' : 'Mutation'
+    return this.resolveName(`${node.operationId} ${suffix}`)
   },
   resolveResponseName(node) {
-    const suffix = node.method === "GET" ? "QueryResponse" : "MutationResponse";
-    return this.resolveName(`${node.operationId} ${suffix}`);
+    const suffix = node.method === 'GET' ? 'QueryResponse' : 'MutationResponse'
+    return this.resolveName(`${node.operationId} ${suffix}`)
   },
-}));
+}))
 ```
 
 ### Step 4: Create src/presets.ts
@@ -592,10 +564,10 @@ The presets file only exports a `presets` registry — **no `getPreset` wrapper*
 For operation plugins both presets can share the same resolver and generator (naming conventions are the same):
 
 ```typescript
-import { definePresets } from "@kubb/core";
-import { cypressGenerator } from "./generators/index.ts";
-import { resolverCypress } from "./resolvers/resolverCypress.ts";
-import type { ResolverCypress } from "./types.ts";
+import { definePresets } from '@kubb/core'
+import { cypressGenerator } from './generators/index.ts'
+import { resolverCypress } from './resolvers/resolverCypress.ts'
+import type { ResolverCypress } from './types.ts'
 
 /**
  * Built-in preset registry for `@kubb/plugin-cypress`.
@@ -605,40 +577,40 @@ import type { ResolverCypress } from "./types.ts";
  */
 export const presets = definePresets<ResolverCypress>({
   default: {
-    name: "default",
+    name: 'default',
     resolvers: [resolverCypress],
     generators: [cypressGenerator],
   },
   kubbV4: {
-    name: "kubbV4",
+    name: 'kubbV4',
     resolvers: [resolverCypress],
     generators: [cypressGenerator],
   },
-});
+})
 ```
 
 For **schema plugins** that have a `kubbV4` compatibility preset, wire the legacy resolver and legacy generator into the `kubbV4` entry (model on `packages/plugin-zod/src/presets.ts`):
 
 ```typescript
-import { definePresets } from "@kubb/core";
-import { fooGenerator } from "./generators/fooGenerator.tsx";
-import { fooGeneratorLegacy } from "./generators/fooGeneratorLegacy.tsx";
-import { resolverFoo } from "./resolvers/resolverFoo.ts";
-import { resolverFooLegacy } from "./resolvers/resolverFooLegacy.ts";
-import type { ResolverFoo } from "./types.ts";
+import { definePresets } from '@kubb/core'
+import { fooGenerator } from './generators/fooGenerator.tsx'
+import { fooGeneratorLegacy } from './generators/fooGeneratorLegacy.tsx'
+import { resolverFoo } from './resolvers/resolverFoo.ts'
+import { resolverFooLegacy } from './resolvers/resolverFooLegacy.ts'
+import type { ResolverFoo } from './types.ts'
 
 export const presets = definePresets<ResolverFoo>({
   default: {
-    name: "default",
+    name: 'default',
     resolvers: [resolverFoo],
     generators: [fooGenerator],
   },
   kubbV4: {
-    name: "kubbV4",
+    name: 'kubbV4',
     resolvers: [resolverFooLegacy],
     generators: [fooGeneratorLegacy],
   },
-});
+})
 ```
 
 ### Step 5: Update package.json
@@ -669,8 +641,8 @@ Keep the entry map with only `index`:
 
 ```typescript
 const entry = {
-  index: "src/index.ts",
-};
+  index: 'src/index.ts',
+}
 ```
 
 Remove any extra entries (`presets`, `resolvers`, `components`, `generators`, `printers`).
@@ -717,15 +689,9 @@ Change the implementation:
 **Function signature** — use `createOperationParams` from `@kubb/ast` to build the typed parameter node, then print it with `functionPrinter`:
 
 ```typescript
-const declarationPrinter = functionPrinter({ mode: "declaration" });
+const declarationPrinter = functionPrinter({ mode: 'declaration' })
 
-function getParams({
-  paramsType,
-  pathParamsType,
-  paramsCasing,
-  resolver,
-  node,
-}) {
+function getParams({ paramsType, pathParamsType, paramsCasing, resolver, node }) {
   const paramsNode = createOperationParams(node, {
     paramsType,
     pathParamsType,
@@ -733,16 +699,16 @@ function getParams({
     resolver,
     extraParams: [
       createFunctionParameter({
-        name: "options",
+        name: 'options',
         type: createTypeNode({
-          variant: "reference",
-          name: "Partial<Cypress.RequestOptions>",
+          variant: 'reference',
+          name: 'Partial<Cypress.RequestOptions>',
         }),
-        default: "{}",
+        default: '{}',
       }),
     ],
-  });
-  return declarationPrinter.print(paramsNode) ?? "";
+  })
+  return declarationPrinter.print(paramsNode) ?? ''
 }
 ```
 
@@ -751,7 +717,7 @@ function getParams({
 **Response type** — call `resolver.resolveResponseName(node)` directly:
 
 ```typescript
-const responseType = resolver.resolveResponseName(node);
+const responseType = resolver.resolveResponseName(node)
 ```
 
 **URL template** — use `URLPath` from `@internals/utils` with the `paramsCasing` option:
@@ -764,17 +730,13 @@ const urlTemplate = urlPath.toTemplateString({ prefix: baseURL, replacer: ... })
 **Query / header params with renamed keys** — when `paramsCasing` renames params (e.g. `page_size` → `pageSize`), remap keys back to original API names:
 
 ```typescript
-const casedQueryParams = caseParams(queryParams, paramsCasing);
-const needsQsTransform = casedQueryParams.some(
-  (p, i) => p.name !== queryParams[i].name,
-);
+const casedQueryParams = caseParams(queryParams, paramsCasing)
+const needsQsTransform = casedQueryParams.some((p, i) => p.name !== queryParams[i].name)
 if (needsQsTransform) {
-  const pairs = queryParams
-    .map((orig, i) => `${orig.name}: params.${casedQueryParams[i].name}`)
-    .join(", ");
-  requestOptions.push(`qs: params ? { ${pairs} } : undefined`);
+  const pairs = queryParams.map((orig, i) => `${orig.name}: params.${casedQueryParams[i].name}`).join(', ')
+  requestOptions.push(`qs: params ? { ${pairs} } : undefined`)
 } else {
-  requestOptions.push("qs: params");
+  requestOptions.push('qs: params')
 }
 ```
 
@@ -786,40 +748,32 @@ Apply the same remapping pattern for header params.
 **Schema plugin components** (e.g. `Zod.tsx`, `Type.tsx`) are simpler — they wrap a printer and emit `<Const>` / `<Type>` blocks. Model on `packages/plugin-zod/src/components/Zod.tsx`:
 
 ```tsx
-import { Const, File, Type } from "@kubb/react-fabric";
-import type { FabricReactNode } from "@kubb/react-fabric/types";
-import type { SchemaNode } from "@kubb/ast/types";
-import { printerFoo } from "../printers/printerFoo.ts";
-import type { ResolverFoo } from "../types.ts";
+import { Const, File, Type } from '@kubb/react-fabric'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
+import type { SchemaNode } from '@kubb/ast/types'
+import { printerFoo } from '../printers/printerFoo.ts'
+import type { ResolverFoo } from '../types.ts'
 
 type Props = {
-  name: string; // export const name
-  node: SchemaNode; // pre-transformed AST node
-  description?: string; // JSDoc @description comment
-  inferTypeName?: string; // optional: emit `type X = z.infer<typeof name>`
-  resolver?: ResolverFoo;
-  keysToOmit?: Array<string>;
+  name: string // export const name
+  node: SchemaNode // pre-transformed AST node
+  description?: string // JSDoc @description comment
+  inferTypeName?: string // optional: emit `type X = z.infer<typeof name>`
+  resolver?: ResolverFoo
+  keysToOmit?: Array<string>
   // ... any printer-specific options (coercion, guidType, wrapOutput, etc.)
-};
+}
 
-export function FooComponent({
-  name,
-  node,
-  description,
-  inferTypeName,
-  resolver,
-  keysToOmit,
-  ...rest
-}: Props): FabricReactNode {
+export function FooComponent({ name, node, description, inferTypeName, resolver, keysToOmit, ...rest }: Props): FabricReactNode {
   const printer = printerFoo({
     resolver,
     schemaName: name,
     keysToOmit,
     ...rest,
-  });
-  const output = printer.print(node);
+  })
+  const output = printer.print(node)
 
-  if (!output) return;
+  if (!output) return
 
   return (
     <>
@@ -828,9 +782,7 @@ export function FooComponent({
           export
           name={name}
           JSDoc={{
-            comments: [
-              description ? `@description ${description}` : undefined,
-            ].filter(Boolean),
+            comments: [description ? `@description ${description}` : undefined].filter(Boolean),
           }}
         >
           {output}
@@ -844,7 +796,7 @@ export function FooComponent({
         </File.Source>
       )}
     </>
-  );
+  )
 }
 ```
 
@@ -881,14 +833,14 @@ Before (v4):
 
 ```typescript
 export const cypressGenerator = createReactGenerator<PluginCypress>({
-  name: "cypress",
+  name: 'cypress',
   Operation({ operation, generator, plugin }) {
-    const driver = useDriver();
-    const oas = useOas();
-    const { getSchemas, getName, getFile } = useOperationManager(generator);
+    const driver = useDriver()
+    const oas = useOas()
+    const { getSchemas, getName, getFile } = useOperationManager(generator)
     // ...
   },
-});
+})
 ```
 
 After (v5):
@@ -1199,17 +1151,17 @@ Change the options destructuring to include v5 fields:
 
 ```typescript
 const {
-  output = { path: "cypress", barrelType: "named" },
+  output = { path: 'cypress', barrelType: 'named' },
   group,
   exclude = [],
   include,
   override = [],
   // ... other plugin-specific options ...
-  compatibilityPreset = "default",
+  compatibilityPreset = 'default',
   resolvers: userResolvers = [],
   transformers: userTransformers = [],
   generators: userGenerators = [],
-} = options;
+} = options
 
 // Get the plugin's own resolver, transformers, and generators from its preset registry.
 const preset = getPreset({
@@ -1218,7 +1170,7 @@ const preset = getPreset({
   resolvers: [resolverCypress, ...userResolvers],
   transformers: userTransformers,
   generators: userGenerators,
-});
+})
 ```
 
 > **Note:** Always pass the plugin's default resolver (e.g. `resolverCypress`) as the first element of `resolvers`. It acts as the base that preset and user resolvers are merged on top of.
@@ -1233,7 +1185,7 @@ Use **getter syntax** for `resolver` and `options` so values always reflect the 
 return {
   name: pluginCypressName,
   get resolver() {
-    return preset.resolver;
+    return preset.resolver
   },
   get options() {
     return {
@@ -1246,20 +1198,20 @@ return {
             name: options.group?.name
               ? options.group.name
               : (ctx) => {
-                  if (group.type === "path") {
-                    return `${ctx.group.split("/")[1]}`;
+                  if (group.type === 'path') {
+                    return `${ctx.group.split('/')[1]}`
                   }
-                  return `${camelCase(ctx.group)}Requests`;
+                  return `${camelCase(ctx.group)}Requests`
                 },
           } as Group)
         : undefined,
       resolver,
       transformers,
       // ... other plugin-specific options
-    };
+    }
   },
   // ...
-};
+}
 ```
 
 `options` object: Add `resolver` and `transformers` to the resolved options. Do **not** add `tsResolver` — the TypeScript resolver is retrieved lazily in the generator via `driver.getPlugin(pluginTsName)?.resolver`.
@@ -1335,8 +1287,7 @@ Add JSDoc to exports:
  * Canonical plugin name for `@kubb/plugin-cypress`, used to identify the plugin
  * in driver lookups and warnings.
  */
-export const pluginCypressName =
-  "plugin-cypress" satisfies PluginCypress["name"];
+export const pluginCypressName = 'plugin-cypress' satisfies PluginCypress['name']
 
 /**
  * The `@kubb/plugin-cypress` plugin factory.
@@ -1356,7 +1307,7 @@ export const pluginCypressName =
  */
 export const pluginCypress = createPlugin<PluginCypress>((options) => {
   // ...
-});
+})
 ````
 
 ---
@@ -1392,61 +1343,61 @@ Replace YAML-parsed test data with AST factory calls:
 ```typescript
 const testData = [
   {
-    name: "showPetById",
+    name: 'showPetById',
     node: createOperation({
-      operationId: "showPetById",
-      method: "GET",
-      path: "/pets/:petId",
-      tags: ["pets"],
+      operationId: 'showPetById',
+      method: 'GET',
+      path: '/pets/:petId',
+      tags: ['pets'],
       parameters: [
         createParameter({
-          name: "petId",
-          in: "path",
-          schema: createSchema({ type: "string" }),
+          name: 'petId',
+          in: 'path',
+          schema: createSchema({ type: 'string' }),
           required: true,
         }),
       ],
       responses: [
         createResponse({
-          statusCode: "200",
-          schema: createSchema({ type: "object", properties: [] }),
-          description: "Expected response",
+          statusCode: '200',
+          schema: createSchema({ type: 'object', properties: [] }),
+          description: 'Expected response',
         }),
       ],
     }),
   },
   // ... more test cases
-];
+]
 ```
 
 Update default options to include `resolver` and `transformers`:
 
 ```typescript
-const defaultOptions: PluginCypress["resolvedOptions"] = {
-  output: { path: "." },
+const defaultOptions: PluginCypress['resolvedOptions'] = {
+  output: { path: '.' },
   baseURL: undefined,
   group: undefined,
-  dataReturnType: "data",
-  paramsCasing: "camelcase",
-  paramsType: "inline",
-  pathParamsType: "inline",
+  dataReturnType: 'data',
+  paramsCasing: 'camelcase',
+  paramsType: 'inline',
+  pathParamsType: 'inline',
   resolver: resolverCypress,
   transformers: [],
-};
+}
 ```
 
 Update the render call:
 
 ```typescript
 await renderOperation(props.node, {
-  config: { root: ".", output: { path: "test" } } as Config,
+  config: { root: '.', output: { path: 'test' } } as Config,
   fabric,
   adapter: createMockedAdapter(),
   driver: mockedPluginDriver,
   Component: cypressGenerator.Operation,
   plugin,
   options,
-});
+})
 ```
 
 Remove `OperationGenerator` instantiation, `oas.operation()` calls, and YAML file references.

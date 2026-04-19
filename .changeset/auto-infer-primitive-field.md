@@ -1,5 +1,5 @@
 ---
-"@kubb/ast": patch
+'@kubb/ast': patch
 ---
 
 Auto-infer `primitive` field in AST factory functions.

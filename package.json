@@ -70,5 +70,15 @@
       "esbuild"
     ]
   },
-  "namespace": "@kubb"
+  "namespace": "@kubb",
+  "prettier": {
+    "printWidth": 160,
+    "tabWidth": 2,
+    "useTabs": false,
+    "trailingComma": "all",
+    "semi": false,
+    "singleQuote": true,
+    "jsxSingleQuote": false,
+    "bracketSameLine": false
+  }
 }

@@ -99,18 +99,18 @@ These packages provide the CLI command and core generation functionality. Additi
 **Create `kubb.config.ts`** in your project root directory:
 
 ```typescript twoslash [kubb.config.ts]
-import { defineConfig } from "@kubb/core";
+import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
-  root: ".",
+  root: '.',
   input: {
-    path: "./petStore.yaml", // Path to your OpenAPI specification file
+    path: './petStore.yaml', // Path to your OpenAPI specification file
   },
   output: {
-    path: "./src/gen", // Where to save generated files
+    path: './src/gen', // Where to save generated files
   },
   plugins: [], // Add plugins here (see plugin documentation)
-});
+})
 ```
 
 **Configuration breakdown:**
@@ -178,29 +178,29 @@ Kubb automatically detects configuration files in this order:
 - Embedding code generation in automated pipelines
 
 ```typescript [generate.ts]
-import { build } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
+import { build } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 
 const { error, files, driver } = await build({
   config: {
-    root: ".",
+    root: '.',
     input: {
-      path: "./petStore.yaml",
+      path: './petStore.yaml',
     },
     output: {
-      path: "./gen",
+      path: './gen',
     },
     plugins: [pluginOas(), pluginTs()],
   },
-});
+})
 
 if (error) {
-  console.error(error);
-  process.exit(1);
+  console.error(error)
+  process.exit(1)
 }
 
-console.log(files);
+console.log(files)
 ```
 
 > [!NOTE]
@@ -213,18 +213,18 @@ console.log(files);
 Generate TypeScript types and React Query hooks from a single OpenAPI file:
 
 ```typescript twoslash [kubb.config.ts]
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginReactQuery } from "@kubb/plugin-react-query";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
 export default defineConfig({
-  root: ".",
+  root: '.',
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
     clean: true, // Remove old files before generating
   },
   plugins: [
@@ -232,7 +232,7 @@ export default defineConfig({
     pluginTs(), // Generate TypeScript types
     pluginReactQuery(), // Generate React Query hooks
   ],
-});
+})
 ```
 
 ### Example 2: Multiple OpenAPI Specifications
@@ -240,24 +240,24 @@ export default defineConfig({
 Generate code from multiple API specifications in one command:
 
 ```typescript twoslash [kubb.config.ts]
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig([
   {
-    name: "petStore",
-    input: { path: "./petStore.yaml" },
-    output: { path: "./src/gen/petStore" },
+    name: 'petStore',
+    input: { path: './petStore.yaml' },
+    output: { path: './src/gen/petStore' },
     plugins: [pluginOas(), pluginTs()],
   },
   {
-    name: "userApi",
-    input: { path: "./userApi.yaml" },
-    output: { path: "./src/gen/userApi" },
+    name: 'userApi',
+    input: { path: './userApi.yaml' },
+    output: { path: './src/gen/userApi' },
     plugins: [pluginOas(), pluginTs()],
   },
-]);
+])
 ```
 
 ## What to Do Next

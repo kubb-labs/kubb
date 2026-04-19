@@ -1,16 +1,16 @@
-import { adapterOas } from "@kubb/adapter-oas";
-import { parserTs } from "@kubb/parser-ts";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
-import { defineConfig } from "kubb";
+import { adapterOas } from '@kubb/adapter-oas'
+import { parserTs } from '@kubb/parser-ts'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+import { defineConfig } from 'kubb'
 
 export default defineConfig({
-  root: ".",
+  root: '.',
   input: {
-    path: "./openapi.yaml",
+    path: './openapi.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
     clean: true,
     write: false,
   },
@@ -20,8 +20,8 @@ export default defineConfig({
     pluginOas(),
     pluginTs({
       output: {
-        path: "models",
+        path: 'models',
       },
     }),
   ],
-});
+})

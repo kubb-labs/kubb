@@ -32,30 +32,21 @@ Generators can be used with the [React](/helpers/react/) renderer or you can def
 
 ```typescript [createGenerator]
 export function createGenerator(parseOptions: GeneratorOptions): Generator {
-  return parseOptions;
+  return parseOptions
 }
 ```
 
 ```typescript [Generator]
-export type Generator = GeneratorOptions;
+export type Generator = GeneratorOptions
 ```
 
 ```typescript [GeneratorOptions]
 export type Generator = {
-  name: string;
-  operations?: (
-    this: GeneratorOptions,
-    props: OperationsProps,
-  ) => Promise<KubbFile.File[]>;
-  operation?: (
-    this: GeneratorOptions,
-    props: OperationProps,
-  ) => Promise<KubbFile.File[]>;
-  schema?: (
-    this: GeneratorOptions,
-    props: SchemaProps,
-  ) => Promise<KubbFile.File[]>;
-};
+  name: string
+  operations?: (this: GeneratorOptions, props: OperationsProps) => Promise<KubbFile.File[]>
+  operation?: (this: GeneratorOptions, props: OperationProps) => Promise<KubbFile.File[]>
+  schema?: (this: GeneratorOptions, props: SchemaProps) => Promise<KubbFile.File[]>
+}
 ```
 
 :::
@@ -135,30 +126,22 @@ The following properties will be accessible when `schema` is being called:
 ::: code-group
 
 ```typescript [createGenerator]
-export function createReactGenerator(
-  parseOptions: ReactGeneratorOptions,
-): Generator {
-  return parseOptions;
+export function createReactGenerator(parseOptions: ReactGeneratorOptions): Generator {
+  return parseOptions
 }
 ```
 
 ```typescript [Generator]
-export type Generator = GeneratorOptions;
+export type Generator = GeneratorOptions
 ```
 
 ```typescript [ReactGeneratorOptions]
 export type Generator = {
-  name: string;
-  Operations?: (
-    this: ReactGeneratorOptions,
-    props: OperationsProps,
-  ) => FabricReactNode;
-  Operation?: (
-    this: ReactGeneratorOptions,
-    props: OperationProps,
-  ) => FabricReactNode;
-  Schema?: (this: ReactGeneratorOptions, props: SchemaProps) => FabricReactNode;
-};
+  name: string
+  Operations?: (this: ReactGeneratorOptions, props: OperationsProps) => FabricReactNode
+  Operation?: (this: ReactGeneratorOptions, props: OperationProps) => FabricReactNode
+  Schema?: (this: ReactGeneratorOptions, props: SchemaProps) => FabricReactNode
+}
 ```
 
 :::
@@ -183,37 +166,37 @@ Expected result:
 
 ```typescript
 export const createPets = {
-  method: "get",
-  url: "/pets",
-};
+  method: 'get',
+  url: '/pets',
+}
 ```
 
 Create your generator:
 
 ```tsx
-import { URLPath } from "@kubb/core";
-import type { PluginClient } from "@kubb/plugin-client";
-import { createGenerator } from "@kubb/plugin-oas/generators";
+import { URLPath } from '@kubb/core'
+import type { PluginClient } from '@kubb/plugin-client'
+import { createGenerator } from '@kubb/plugin-oas/generators'
 
 export const clientOperationGenerator = createGenerator<PluginClient>({
-  name: "client-operation",
+  name: 'client-operation',
   async operation({ operation, generator }) {
-    const pluginKey = generator.context.plugin.key;
+    const pluginKey = generator.context.plugin.key
     const name = generator.context.driver.resolveName({
       name: operation.getOperationId(),
       pluginKey,
-      type: "function",
-    });
+      type: 'function',
+    })
 
     const client = {
       name,
       file: generator.context.driver.getFile({
         name,
-        extname: ".ts",
+        extname: '.ts',
         pluginKey,
-        options: { type: "file", pluginKey },
+        options: { type: 'file', pluginKey },
       }),
-    };
+    }
 
     return [
       {
@@ -231,31 +214,31 @@ export const clientOperationGenerator = createGenerator<PluginClient>({
           },
         ],
       },
-    ];
+    ]
   },
-});
+})
 ```
 
 Use of the generator:
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
 
 export default defineConfig({
-  root: ".",
+  root: '.',
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   plugins: [
     pluginOas({
       generators: [clientOperationGenerator], // [!code ++]
     }),
   ],
-});
+})
 ```
 
 ### Create a file for every operationId with `createReactGenerator`
@@ -264,36 +247,32 @@ Expected result:
 
 ```typescript
 export const createPets = {
-  method: "get",
-  url: "/pets",
-};
+  method: 'get',
+  url: '/pets',
+}
 ```
 
 Create your generator with `@kubb/react-fabric`:
 
 ```tsx
-import { URLPath } from "@kubb/core";
-import { createReactGenerator } from "@kubb/plugin-oas/generators";
-import { useOperationManager } from "@kubb/plugin-oas/hooks";
-import { File } from "@kubb/react-fabric";
-import React from "react";
+import { URLPath } from '@kubb/core'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
+import { useOperationManager } from '@kubb/plugin-oas/hooks'
+import { File } from '@kubb/react-fabric'
+import React from 'react'
 
 export const clientOperationGenerator = createReactGenerator({
-  name: "client-operation",
+  name: 'client-operation',
   Operation({ operation, generator }) {
-    const { getName, getFile } = useOperationManager(generator);
+    const { getName, getFile } = useOperationManager(generator)
 
     const client = {
-      name: getName(operation, { type: "function" }),
+      name: getName(operation, { type: 'function' }),
       file: getFile(operation),
-    };
+    }
 
     return (
-      <File
-        baseName={client.file.baseName}
-        path={client.file.path}
-        meta={client.file.meta}
-      >
+      <File baseName={client.file.baseName} path={client.file.path} meta={client.file.meta}>
         <File.Source>
           {`
           export const ${operation.getOperationId()} = {
@@ -303,31 +282,31 @@ export const clientOperationGenerator = createReactGenerator({
         `}
         </File.Source>
       </File>
-    );
+    )
   },
-});
+})
 ```
 
 Use of the generator:
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
 
 export default defineConfig({
-  root: ".",
+  root: '.',
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   plugins: [
     pluginOas({
       generators: [clientOperationGenerator], // [!code ++]
     }),
   ],
-});
+})
 ```
 
 More examples can be found as part of [examples/generators](/examples/generators).

@@ -35,7 +35,7 @@ export const pluginExample = createPlugin<PluginOptions>((options) => ({
   async install() {
     /* ... */
   },
-}));
+}))
 ```
 
 ## Utilities to Reference

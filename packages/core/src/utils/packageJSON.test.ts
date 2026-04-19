@@ -1,18 +1,16 @@
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { describe, expect, test } from "vitest";
-import { satisfiesDependency } from "./packageJSON.ts";
+import { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { describe, expect, test } from 'vitest'
+import { satisfiesDependency } from './packageJSON.ts'
 
-const cwd = dirname(fileURLToPath(import.meta.url));
+const cwd = dirname(fileURLToPath(import.meta.url))
 
-describe("satisfiesDependency", () => {
-  test("returns true when dependency satisfies the version range", () => {
-    expect(satisfiesDependency("fflate", ">=0.8", cwd)).toBeTruthy();
-  });
+describe('satisfiesDependency', () => {
+  test('returns true when dependency satisfies the version range', () => {
+    expect(satisfiesDependency('fflate', '>=0.8', cwd)).toBeTruthy()
+  })
 
-  test("returns false for an unknown dependency", () => {
-    expect(
-      satisfiesDependency("non-existent-package-xyz", ">=1", cwd),
-    ).toBeFalsy();
-  });
-});
+  test('returns false for an unknown dependency', () => {
+    expect(satisfiesDependency('non-existent-package-xyz', '>=1', cwd)).toBeFalsy()
+  })
+})

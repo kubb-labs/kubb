@@ -47,25 +47,25 @@ yarn add -D @kubb/react-fabric
 ### Update `kubb.config.ts`
 
 ```typescript [kubb.config.ts]
-import { openDevtools } from "@kubb/react-fabric"; // [!code ++]
+import { openDevtools } from '@kubb/react-fabric' // [!code ++]
 
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig(() => {
-  openDevtools(); // [!code ++]
+  openDevtools() // [!code ++]
 
   return {
     input: {
-      path: "./petStore.yaml",
+      path: './petStore.yaml',
     },
     output: {
-      path: "./src/gen",
+      path: './src/gen',
     },
     plugins: [pluginOas(), pluginTs()],
-  };
-});
+  }
+})
 ```
 
 After startup, the component tree displays. Inspect all components.
@@ -106,30 +106,30 @@ The system selects the logger automatically based on the environment, or use the
 Create custom loggers by listening to `KubbHooks`:
 
 ```typescript [kubb.logger.ts]
-import { createLogger, LogLevel } from "@kubb/core";
+import { createLogger, LogLevel } from '@kubb/core'
 
 export const customLogger = createLogger({
-  name: "custom",
+  name: 'custom',
   install(context, options) {
-    const logLevel = options?.logLevel || LogLevel.info;
+    const logLevel = options?.logLevel || LogLevel.info
 
-    context.on("lifecycle:start", (version) => {
-      console.log(`Starting Kubb ${version}`);
-    });
+    context.on('lifecycle:start', (version) => {
+      console.log(`Starting Kubb ${version}`)
+    })
 
-    context.on("plugin:start", (plugin) => {
-      console.log(`Generating ${plugin.name}`);
-    });
+    context.on('plugin:start', (plugin) => {
+      console.log(`Generating ${plugin.name}`)
+    })
 
-    context.on("plugin:end", (plugin, { duration }) => {
-      console.log(`${plugin.name} completed in ${duration}ms`);
-    });
+    context.on('plugin:end', (plugin, { duration }) => {
+      console.log(`${plugin.name} completed in ${duration}ms`)
+    })
 
-    context.on("error", (error) => {
-      console.error(error.message);
-    });
+    context.on('error', (error) => {
+      console.error(error.message)
+    })
   },
-});
+})
 ```
 
 See the [KubbHooks](/api/core/events) API documentation for a complete list of available events.

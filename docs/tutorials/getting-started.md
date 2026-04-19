@@ -47,14 +47,14 @@ paths:
     get:
       operationId: listPets
       responses:
-        "200":
+        '200':
           description: List of pets
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Pet"
+                  $ref: '#/components/schemas/Pet'
 components:
   schemas:
     Pet:
@@ -85,18 +85,18 @@ For the [`@kubb/plugin-ts`](/plugins/plugin-ts/) plugin, set `output` to the `mo
 ::: code-group
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig(() => {
   return {
-    root: ".",
+    root: '.',
     input: {
-      path: "./petStore.yaml",
+      path: './petStore.yaml',
     },
     output: {
-      path: "./src",
+      path: './src',
     },
     plugins: [
       pluginOas({
@@ -105,12 +105,12 @@ export default defineConfig(() => {
       }),
       pluginTs({
         output: {
-          path: "models",
+          path: 'models',
         },
       }),
     ],
-  };
-});
+  }
+})
 ```
 
 :::
@@ -217,16 +217,16 @@ export type Pet = {
   /**
    * @type integer, int64
    */
-  id: number;
+  id: number
   /**
    * @type string
    */
-  name: string;
+  name: string
   /**
    * @type string | undefined
    */
-  tag?: string;
-};
+  tag?: string
+}
 ```
 
 Generation process:

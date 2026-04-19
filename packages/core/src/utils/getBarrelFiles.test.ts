@@ -1,25 +1,25 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import type { FileNode } from "@kubb/ast";
-import { createFile, createSource, createText } from "@kubb/ast";
-import { describe, expect, it, test } from "vitest";
-import { FileManager } from "../FileManager.ts";
-import { getBarrelFiles } from "./getBarrelFiles.ts";
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import type { FileNode } from '@kubb/ast'
+import { createFile, createSource, createText } from '@kubb/ast'
+import { describe, expect, it, test } from 'vitest'
+import { FileManager } from '../FileManager.ts'
+import { getBarrelFiles } from './getBarrelFiles.ts'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-describe("getBarrelFiles", () => {
-  it("should generate barrel files correctly", async () => {
-    const fileManager = new FileManager();
+describe('getBarrelFiles', () => {
+  it('should generate barrel files correctly', async () => {
+    const fileManager = new FileManager()
     const files: FileNode[] = [
       createFile({
-        path: "src/test.ts",
-        baseName: "test.ts",
+        path: 'src/test.ts',
+        baseName: 'test.ts',
         sources: [
           createSource({
-            name: "test",
-            nodes: [createText("export const test = 2;")],
+            name: 'test',
+            nodes: [createText('export const test = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -28,37 +28,37 @@ describe("getBarrelFiles", () => {
         exports: [],
       }),
       createFile({
-        path: "src/sub/index.ts",
-        baseName: "index.ts",
+        path: 'src/sub/index.ts',
+        baseName: 'index.ts',
         sources: [
           createSource({
-            name: "hello",
+            name: 'hello',
           }),
           createSource({
-            name: "world",
+            name: 'world',
           }),
         ],
         imports: [],
         exports: [
           {
-            kind: "Export",
-            name: ["hello"],
-            path: "./sub/hello.ts",
+            kind: 'Export',
+            name: ['hello'],
+            path: './sub/hello.ts',
           },
           {
-            kind: "Export",
-            name: ["world"],
-            path: "./sub/world.ts",
+            kind: 'Export',
+            name: ['world'],
+            path: './sub/world.ts',
           },
         ],
       }),
       createFile({
-        path: "src/sub/hello.ts",
-        baseName: "hello.ts",
+        path: 'src/sub/hello.ts',
+        baseName: 'hello.ts',
         sources: [
           createSource({
-            name: "hello",
-            nodes: [createText("export const hello = 2;")],
+            name: 'hello',
+            nodes: [createText('export const hello = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -67,12 +67,12 @@ describe("getBarrelFiles", () => {
         exports: [],
       }),
       createFile({
-        path: "src/sub/world.ts",
-        baseName: "world.ts",
+        path: 'src/sub/world.ts',
+        baseName: 'world.ts',
         sources: [
           createSource({
-            name: "world",
-            nodes: [createText("export const world = 2;")],
+            name: 'world',
+            nodes: [createText('export const world = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -80,39 +80,34 @@ describe("getBarrelFiles", () => {
         imports: [],
         exports: [],
       }),
-    ];
+    ]
 
-    await fileManager.upsert(...files);
+    await fileManager.upsert(...files)
 
-    const barrelFiles = await getBarrelFiles(
-      fileManager.files as unknown as FileNode[],
-      {
-        type: "all",
-        root: "src",
-        output: {
-          path: ".",
-        },
+    const barrelFiles = await getBarrelFiles(fileManager.files as unknown as FileNode[], {
+      type: 'all',
+      root: 'src',
+      output: {
+        path: '.',
       },
-    );
+    })
 
-    await fileManager.upsert(...barrelFiles);
+    await fileManager.upsert(...barrelFiles)
 
-    const processedFiles = fileManager.files;
+    const processedFiles = fileManager.files
 
-    await expect(
-      JSON.stringify(processedFiles, undefined, 2),
-    ).toMatchFileSnapshot(path.resolve(__dirname, "__snapshots__/barrel.json"));
-  });
+    await expect(JSON.stringify(processedFiles, undefined, 2)).toMatchFileSnapshot(path.resolve(__dirname, '__snapshots__/barrel.json'))
+  })
 
   it(`should return 'index.ts' barrel files`, async () => {
     const files: FileNode[] = [
       createFile({
-        path: "src/test.ts",
-        baseName: "test.ts",
+        path: 'src/test.ts',
+        baseName: 'test.ts',
         sources: [
           createSource({
-            name: "test",
-            nodes: [createText("export const test = 2;")],
+            name: 'test',
+            nodes: [createText('export const test = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -121,12 +116,12 @@ describe("getBarrelFiles", () => {
         exports: [],
       }),
       createFile({
-        path: "src/sub/hello.ts",
-        baseName: "hello.ts",
+        path: 'src/sub/hello.ts',
+        baseName: 'hello.ts',
         sources: [
           createSource({
-            name: "hello",
-            nodes: [createText("export const hello = 2;")],
+            name: 'hello',
+            nodes: [createText('export const hello = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -135,12 +130,12 @@ describe("getBarrelFiles", () => {
         exports: [],
       }),
       createFile({
-        path: "src/sub/world.ts",
-        baseName: "world.ts",
+        path: 'src/sub/world.ts',
+        baseName: 'world.ts',
         sources: [
           createSource({
-            name: "world",
-            nodes: [createText("export const world = 2;")],
+            name: 'world',
+            nodes: [createText('export const world = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -148,33 +143,29 @@ describe("getBarrelFiles", () => {
         imports: [],
         exports: [],
       }),
-    ];
+    ]
 
     const barrelFiles = await getBarrelFiles(files, {
-      type: "named",
-      root: "src",
-      output: { path: "." },
-    });
-    const rootIndex = barrelFiles[0];
+      type: 'named',
+      root: 'src',
+      output: { path: '.' },
+    })
+    const rootIndex = barrelFiles[0]
 
-    expect(rootIndex).toBeDefined();
-    expect(
-      barrelFiles?.every((file) => file.baseName === "index.ts"),
-    ).toBeTruthy();
-    expect(
-      rootIndex?.exports?.every((file) => file.path?.endsWith(".ts")),
-    ).toBeTruthy();
-  });
+    expect(rootIndex).toBeDefined()
+    expect(barrelFiles?.every((file) => file.baseName === 'index.ts')).toBeTruthy()
+    expect(rootIndex?.exports?.every((file) => file.path?.endsWith('.ts'))).toBeTruthy()
+  })
 
-  test("should generate barrel files for subdirectories that contain existing index files", async () => {
+  test('should generate barrel files for subdirectories that contain existing index files', async () => {
     const files: FileNode[] = [
       createFile({
-        path: "src/test.ts",
-        baseName: "test.ts",
+        path: 'src/test.ts',
+        baseName: 'test.ts',
         sources: [
           createSource({
-            name: "test",
-            nodes: [createText("export const test = 2;")],
+            name: 'test',
+            nodes: [createText('export const test = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -183,12 +174,12 @@ describe("getBarrelFiles", () => {
         exports: [],
       }),
       createFile({
-        path: "src/sub/hello.ts",
-        baseName: "hello.ts",
+        path: 'src/sub/hello.ts',
+        baseName: 'hello.ts',
         sources: [
           createSource({
-            name: "hello",
-            nodes: [createText("export const hello = 2;")],
+            name: 'hello',
+            nodes: [createText('export const hello = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -197,12 +188,12 @@ describe("getBarrelFiles", () => {
         exports: [],
       }),
       createFile({
-        path: "src/sub/world.ts",
-        baseName: "world.ts",
+        path: 'src/sub/world.ts',
+        baseName: 'world.ts',
         sources: [
           createSource({
-            name: "world",
-            nodes: [createText("export const world = 2;")],
+            name: 'world',
+            nodes: [createText('export const world = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -211,18 +202,18 @@ describe("getBarrelFiles", () => {
         exports: [],
       }),
       createFile({
-        path: "src/sub/index.ts",
-        baseName: "index.ts",
+        path: 'src/sub/index.ts',
+        baseName: 'index.ts',
         sources: [
           createSource({
-            name: "world",
-            nodes: [createText("export const world = 2;")],
+            name: 'world',
+            nodes: [createText('export const world = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
           createSource({
-            name: "hello",
-            nodes: [createText("export const hello = 2;")],
+            name: 'hello',
+            nodes: [createText('export const hello = 2;')],
             isExportable: true,
             isIndexable: true,
           }),
@@ -230,13 +221,13 @@ describe("getBarrelFiles", () => {
         imports: [],
         exports: [],
       }),
-    ];
+    ]
 
     const barrelFiles = await getBarrelFiles(files, {
-      type: "named",
-      root: "src",
-      output: { path: "." },
-    });
+      type: 'named',
+      root: 'src',
+      output: { path: '.' },
+    })
 
     expect(barrelFiles).toMatchInlineSnapshot(`
       [
@@ -374,6 +365,6 @@ describe("getBarrelFiles", () => {
           ],
         },
       ]
-    `);
-  });
-});
+    `)
+  })
+})

@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
   createArrowFunction,
   createConst,
@@ -19,775 +19,757 @@ import {
   createSource,
   createText,
   createType,
-} from "./factory.ts";
-import type {
-  ArrowFunctionNode,
-  ConstNode,
-  FileNode,
-  FunctionNode,
-  ObjectSchemaNode,
-  StringSchemaNode,
-  TypeNode,
-} from "./nodes/index.ts";
+} from './factory.ts'
+import type { ArrowFunctionNode, ConstNode, FileNode, FunctionNode, ObjectSchemaNode, StringSchemaNode, TypeNode } from './nodes/index.ts'
 
-describe("createInput", () => {
-  it("creates an InputNode with default empty arrays", () => {
-    const node = createInput();
+describe('createInput', () => {
+  it('creates an InputNode with default empty arrays', () => {
+    const node = createInput()
 
-    expect(node.kind).toBe("Input");
-    expect(node.schemas).toEqual([]);
-    expect(node.operations).toEqual([]);
-  });
+    expect(node.kind).toBe('Input')
+    expect(node.schemas).toEqual([])
+    expect(node.operations).toEqual([])
+  })
 
-  it("accepts overrides", () => {
-    const schema = createSchema({ type: "string" });
-    const node = createInput({ schemas: [schema] });
+  it('accepts overrides', () => {
+    const schema = createSchema({ type: 'string' })
+    const node = createInput({ schemas: [schema] })
 
-    expect(node.schemas).toHaveLength(1);
-    expect(node.operations).toEqual([]);
-  });
+    expect(node.schemas).toHaveLength(1)
+    expect(node.operations).toEqual([])
+  })
 
-  it("always sets kind to Input", () => {
+  it('always sets kind to Input', () => {
     // @ts-expect-error — kind should be overridden back to 'Input'
-    const node = createInput({ kind: "Operation" });
+    const node = createInput({ kind: 'Operation' })
 
-    expect(node.kind).toBe("Input");
-  });
-});
+    expect(node.kind).toBe('Input')
+  })
+})
 
-describe("createOperation", () => {
-  it("creates an OperationNode with required fields", () => {
+describe('createOperation', () => {
+  it('creates an OperationNode with required fields', () => {
     const node = createOperation({
-      operationId: "getPets",
-      method: "GET",
-      path: "/pets",
-    });
+      operationId: 'getPets',
+      method: 'GET',
+      path: '/pets',
+    })
 
-    expect(node.kind).toBe("Operation");
-    expect(node.operationId).toBe("getPets");
-    expect(node.method).toBe("GET");
-    expect(node.path).toBe("/pets");
-    expect(node.tags).toEqual([]);
-    expect(node.parameters).toEqual([]);
-    expect(node.responses).toEqual([]);
-  });
+    expect(node.kind).toBe('Operation')
+    expect(node.operationId).toBe('getPets')
+    expect(node.method).toBe('GET')
+    expect(node.path).toBe('/pets')
+    expect(node.tags).toEqual([])
+    expect(node.parameters).toEqual([])
+    expect(node.responses).toEqual([])
+  })
 
-  it("accepts optional fields", () => {
+  it('accepts optional fields', () => {
     const node = createOperation({
-      operationId: "createPet",
-      method: "POST",
-      path: "/pets",
-      summary: "Create a pet",
+      operationId: 'createPet',
+      method: 'POST',
+      path: '/pets',
+      summary: 'Create a pet',
       deprecated: true,
-      tags: ["pets"],
-    });
+      tags: ['pets'],
+    })
 
-    expect(node.summary).toBe("Create a pet");
-    expect(node.deprecated).toBe(true);
-    expect(node.tags).toEqual(["pets"]);
-  });
-});
+    expect(node.summary).toBe('Create a pet')
+    expect(node.deprecated).toBe(true)
+    expect(node.tags).toEqual(['pets'])
+  })
+})
 
-describe("createSchema", () => {
-  it("creates a SchemaNode with a type", () => {
-    const node = createSchema({ type: "string" });
+describe('createSchema', () => {
+  it('creates a SchemaNode with a type', () => {
+    const node = createSchema({ type: 'string' })
 
-    expect(node.kind).toBe("Schema");
-    expect(node.type).toBe("string");
-  });
+    expect(node.kind).toBe('Schema')
+    expect(node.type).toBe('string')
+  })
 
-  it("accepts nullable and description", () => {
+  it('accepts nullable and description', () => {
     const node = createSchema({
-      type: "number",
+      type: 'number',
       nullable: true,
-      description: "An age value",
-    });
+      description: 'An age value',
+    })
 
-    expect(node.nullable).toBe(true);
-    expect(node.description).toBe("An age value");
-  });
+    expect(node.nullable).toBe(true)
+    expect(node.description).toBe('An age value')
+  })
 
-  it("creates an object schema with properties", () => {
+  it('creates an object schema with properties', () => {
     const prop = createProperty({
-      name: "id",
-      schema: createSchema({ type: "integer" }),
-    });
-    const node = createSchema({ type: "object", properties: [prop] });
+      name: 'id',
+      schema: createSchema({ type: 'integer' }),
+    })
+    const node = createSchema({ type: 'object', properties: [prop] })
 
-    expect(node.properties).toHaveLength(1);
-    expect(node.properties?.[0]?.name).toBe("id");
-  });
+    expect(node.properties).toHaveLength(1)
+    expect(node.properties?.[0]?.name).toBe('id')
+  })
 
-  it("creates a ref schema", () => {
-    const node = createSchema({ type: "ref", name: "Pet" });
+  it('creates a ref schema', () => {
+    const node = createSchema({ type: 'ref', name: 'Pet' })
 
-    expect(node.name).toBe("Pet");
-  });
+    expect(node.name).toBe('Pet')
+  })
 
   it('narrows return type to StringSchemaNode for type "string"', () => {
-    expectTypeOf(createSchema({ type: "string" })).toMatchTypeOf<
-      StringSchemaNode & { kind: "Schema" }
-    >();
-  });
+    expectTypeOf(createSchema({ type: 'string' })).toMatchTypeOf<StringSchemaNode & { kind: 'Schema' }>()
+  })
 
   it('narrows return type to ObjectSchemaNode for type "object"', () => {
-    expectTypeOf(createSchema({ type: "object" })).toMatchTypeOf<
-      ObjectSchemaNode & { kind: "Schema" }
-    >();
-  });
-});
+    expectTypeOf(createSchema({ type: 'object' })).toMatchTypeOf<ObjectSchemaNode & { kind: 'Schema' }>()
+  })
+})
 
-describe("createProperty", () => {
-  it("defaults required to false", () => {
+describe('createProperty', () => {
+  it('defaults required to false', () => {
     const node = createProperty({
-      name: "name",
-      schema: createSchema({ type: "string" }),
-    });
+      name: 'name',
+      schema: createSchema({ type: 'string' }),
+    })
 
-    expect(node.kind).toBe("Property");
-    expect(node.required).toBe(false);
-  });
+    expect(node.kind).toBe('Property')
+    expect(node.required).toBe(false)
+  })
 
-  it("accepts required: true", () => {
+  it('accepts required: true', () => {
     const node = createProperty({
-      name: "id",
-      schema: createSchema({ type: "integer" }),
+      name: 'id',
+      schema: createSchema({ type: 'integer' }),
       required: true,
-    });
+    })
 
-    expect(node.required).toBe(true);
-    expect(node.schema.optional).toBeFalsy();
-    expect(node.schema.nullable).toBeFalsy();
-    expect(node.schema.nullish).toBeFalsy();
-  });
-});
+    expect(node.required).toBe(true)
+    expect(node.schema.optional).toBeFalsy()
+    expect(node.schema.nullable).toBeFalsy()
+    expect(node.schema.nullish).toBeFalsy()
+  })
+})
 
-describe("createParameter", () => {
-  it("creates a path parameter", () => {
+describe('createParameter', () => {
+  it('creates a path parameter', () => {
     const node = createParameter({
-      name: "petId",
-      in: "path",
-      schema: createSchema({ type: "integer" }),
+      name: 'petId',
+      in: 'path',
+      schema: createSchema({ type: 'integer' }),
       required: true,
-    });
+    })
 
-    expect(node.kind).toBe("Parameter");
-    expect(node.in).toBe("path");
-    expect(node.required).toBe(true);
-  });
+    expect(node.kind).toBe('Parameter')
+    expect(node.in).toBe('path')
+    expect(node.required).toBe(true)
+  })
 
-  it("defaults required to false", () => {
+  it('defaults required to false', () => {
     const node = createParameter({
-      name: "limit",
-      in: "query",
-      schema: createSchema({ type: "integer" }),
-    });
+      name: 'limit',
+      in: 'query',
+      schema: createSchema({ type: 'integer' }),
+    })
 
-    expect(node.required).toBe(false);
-  });
-});
+    expect(node.required).toBe(false)
+  })
+})
 
-describe("createResponse", () => {
-  it("creates a response with just a status code", () => {
+describe('createResponse', () => {
+  it('creates a response with just a status code', () => {
     const node = createResponse({
-      statusCode: "200",
+      statusCode: '200',
       schema: createSchema({
-        type: "string",
+        type: 'string',
       }),
-    });
+    })
 
-    expect(node.kind).toBe("Response");
-    expect(node.statusCode).toBe("200");
-  });
+    expect(node.kind).toBe('Response')
+    expect(node.statusCode).toBe('200')
+  })
 
-  it("accepts a schema and description", () => {
+  it('accepts a schema and description', () => {
     const node = createResponse({
-      statusCode: "200",
-      schema: createSchema({ type: "object" }),
-      description: "Success",
-    });
+      statusCode: '200',
+      schema: createSchema({ type: 'object' }),
+      description: 'Success',
+    })
 
-    expect(node.schema?.type).toBe("object");
-    expect(node.description).toBe("Success");
-  });
-});
+    expect(node.schema?.type).toBe('object')
+    expect(node.description).toBe('Success')
+  })
+})
 
-describe("createFunctionParameter", () => {
-  it("defaults optional to false", () => {
+describe('createFunctionParameter', () => {
+  it('defaults optional to false', () => {
     const node = createFunctionParameter({
-      name: "petId",
-      type: createParamsType({ variant: "reference", name: "string" }),
-    });
+      name: 'petId',
+      type: createParamsType({ variant: 'reference', name: 'string' }),
+    })
 
-    expect(node.kind).toBe("FunctionParameter");
-    expect(node.name).toBe("petId");
+    expect(node.kind).toBe('FunctionParameter')
+    expect(node.name).toBe('petId')
     expect(node.type).toEqual({
-      kind: "ParamsType",
-      variant: "reference",
-      name: "string",
-    });
-    expect(node.optional).toBe(false);
-  });
+      kind: 'ParamsType',
+      variant: 'reference',
+      name: 'string',
+    })
+    expect(node.optional).toBe(false)
+  })
 
-  it("supports optional true without default", () => {
+  it('supports optional true without default', () => {
     const node = createFunctionParameter({
-      name: "query",
-      type: createParamsType({ variant: "reference", name: "Query" }),
+      name: 'query',
+      type: createParamsType({ variant: 'reference', name: 'Query' }),
       optional: true,
-    });
+    })
 
-    expect(node.optional).toBe(true);
-    expect(node.default).toBeUndefined();
-  });
+    expect(node.optional).toBe(true)
+    expect(node.default).toBeUndefined()
+  })
 
-  it("supports default value with optional false/omitted", () => {
+  it('supports default value with optional false/omitted', () => {
     const node = createFunctionParameter({
-      name: "config",
-      type: createParamsType({ variant: "reference", name: "RequestConfig" }),
-      default: "{}",
-    });
+      name: 'config',
+      type: createParamsType({ variant: 'reference', name: 'RequestConfig' }),
+      default: '{}',
+    })
 
-    expect(node.optional).toBe(false);
-    expect(node.default).toBe("{}");
-  });
-});
+    expect(node.optional).toBe(false)
+    expect(node.default).toBe('{}')
+  })
+})
 
-describe("createParameterGroup", () => {
-  it("creates object binding parameter with properties", () => {
+describe('createParameterGroup', () => {
+  it('creates object binding parameter with properties', () => {
     const props = [
       createFunctionParameter({
-        name: "id",
-        type: createParamsType({ variant: "reference", name: "string" }),
+        name: 'id',
+        type: createParamsType({ variant: 'reference', name: 'string' }),
       }),
-    ];
-    const node = createParameterGroup({ properties: props });
+    ]
+    const node = createParameterGroup({ properties: props })
 
-    expect(node.kind).toBe("ParameterGroup");
-    expect(node.properties).toEqual(props);
-  });
+    expect(node.kind).toBe('ParameterGroup')
+    expect(node.properties).toEqual(props)
+  })
 
-  it("accepts inline and default options", () => {
+  it('accepts inline and default options', () => {
     const node = createParameterGroup({
       properties: [
         createFunctionParameter({
-          name: "id",
-          type: createParamsType({ variant: "reference", name: "string" }),
+          name: 'id',
+          type: createParamsType({ variant: 'reference', name: 'string' }),
         }),
       ],
       inline: true,
-      default: "{}",
-    });
+      default: '{}',
+    })
 
-    expect(node.inline).toBe(true);
-    expect(node.default).toBe("{}");
-  });
-});
+    expect(node.inline).toBe(true)
+    expect(node.default).toBe('{}')
+  })
+})
 
-describe("createFunctionParameters", () => {
-  it("defaults params to empty array", () => {
-    const node = createFunctionParameters();
+describe('createFunctionParameters', () => {
+  it('defaults params to empty array', () => {
+    const node = createFunctionParameters()
 
-    expect(node.kind).toBe("FunctionParameters");
-    expect(node.params).toEqual([]);
-  });
+    expect(node.kind).toBe('FunctionParameters')
+    expect(node.params).toEqual([])
+  })
 
-  it("accepts params override", () => {
+  it('accepts params override', () => {
     const params = [
       createFunctionParameter({
-        name: "petId",
-        type: createParamsType({ variant: "reference", name: "string" }),
+        name: 'petId',
+        type: createParamsType({ variant: 'reference', name: 'string' }),
       }),
-    ];
-    const node = createFunctionParameters({ params });
+    ]
+    const node = createFunctionParameters({ params })
 
-    expect(node.params).toEqual(params);
-  });
-});
+    expect(node.params).toEqual(params)
+  })
+})
 
-describe("createImport", () => {
-  it("creates a named import", () => {
-    const node = createImport({ name: ["useState"], path: "react" });
+describe('createImport', () => {
+  it('creates a named import', () => {
+    const node = createImport({ name: ['useState'], path: 'react' })
 
-    expect(node.kind).toBe("Import");
-    expect(node.name).toEqual(["useState"]);
-    expect(node.path).toBe("react");
-  });
+    expect(node.kind).toBe('Import')
+    expect(node.name).toEqual(['useState'])
+    expect(node.path).toBe('react')
+  })
 
-  it("creates a type-only import", () => {
+  it('creates a type-only import', () => {
     const node = createImport({
-      name: ["FC"],
-      path: "react",
+      name: ['FC'],
+      path: 'react',
       isTypeOnly: true,
-    });
+    })
 
-    expect(node.isTypeOnly).toBe(true);
-  });
+    expect(node.isTypeOnly).toBe(true)
+  })
 
-  it("creates a default import (no name array)", () => {
-    const node = createImport({ name: "React", path: "react" });
+  it('creates a default import (no name array)', () => {
+    const node = createImport({ name: 'React', path: 'react' })
 
-    expect(node.name).toBe("React");
-    expect(node.kind).toBe("Import");
-  });
+    expect(node.name).toBe('React')
+    expect(node.kind).toBe('Import')
+  })
 
-  it("creates a namespace import", () => {
+  it('creates a namespace import', () => {
     const node = createImport({
-      name: ["*"],
-      path: "lodash",
+      name: ['*'],
+      path: 'lodash',
       isTypeOnly: false,
-    });
+    })
 
-    expect(node.name).toEqual(["*"]);
-  });
+    expect(node.name).toEqual(['*'])
+  })
 
-  it("always sets kind to Import", () => {
+  it('always sets kind to Import', () => {
     // @ts-expect-error — kind should be forced to 'Import'
-    const node = createImport({ name: ["x"], path: "./x", kind: "Export" });
+    const node = createImport({ name: ['x'], path: './x', kind: 'Export' })
 
-    expect(node.kind).toBe("Import");
-  });
-});
+    expect(node.kind).toBe('Import')
+  })
+})
 
-describe("createExport", () => {
-  it("creates a named export", () => {
-    const node = createExport({ name: ["Pet"], path: "./Pet" });
+describe('createExport', () => {
+  it('creates a named export', () => {
+    const node = createExport({ name: ['Pet'], path: './Pet' })
 
-    expect(node.kind).toBe("Export");
-    expect(node.name).toEqual(["Pet"]);
-    expect(node.path).toBe("./Pet");
-  });
+    expect(node.kind).toBe('Export')
+    expect(node.name).toEqual(['Pet'])
+    expect(node.path).toBe('./Pet')
+  })
 
-  it("creates a wildcard export (no name)", () => {
-    const node = createExport({ path: "./utils" });
+  it('creates a wildcard export (no name)', () => {
+    const node = createExport({ path: './utils' })
 
-    expect(node.kind).toBe("Export");
-    expect(node.name).toBeUndefined();
-    expect(node.path).toBe("./utils");
-  });
+    expect(node.kind).toBe('Export')
+    expect(node.name).toBeUndefined()
+    expect(node.path).toBe('./utils')
+  })
 
-  it("creates a type-only export", () => {
+  it('creates a type-only export', () => {
     const node = createExport({
-      name: ["Pet"],
-      path: "./Pet",
+      name: ['Pet'],
+      path: './Pet',
       isTypeOnly: true,
-    });
+    })
 
-    expect(node.isTypeOnly).toBe(true);
-  });
+    expect(node.isTypeOnly).toBe(true)
+  })
 
-  it("creates an aliased export", () => {
+  it('creates an aliased export', () => {
     const node = createExport({
-      name: ["default"],
-      path: "./Pet",
+      name: ['default'],
+      path: './Pet',
       asAlias: true,
-    });
+    })
 
-    expect(node.asAlias).toBe(true);
-  });
+    expect(node.asAlias).toBe(true)
+  })
 
-  it("always sets kind to Export", () => {
+  it('always sets kind to Export', () => {
     // @ts-expect-error — kind should be forced to 'Export'
-    const node = createExport({ name: ["x"], path: "./x", kind: "Import" });
+    const node = createExport({ name: ['x'], path: './x', kind: 'Import' })
 
-    expect(node.kind).toBe("Export");
-  });
-});
+    expect(node.kind).toBe('Export')
+  })
+})
 
-describe("createSource", () => {
-  it("creates a source node with nodes", () => {
+describe('createSource', () => {
+  it('creates a source node with nodes', () => {
     const node = createSource({
-      name: "Pet",
-      nodes: [createText("export type Pet = { id: number }")],
-    });
+      name: 'Pet',
+      nodes: [createText('export type Pet = { id: number }')],
+    })
 
-    expect(node.kind).toBe("Source");
-    expect(node.name).toBe("Pet");
+    expect(node.kind).toBe('Source')
+    expect(node.name).toBe('Pet')
     expect(node.nodes?.[0]).toEqual({
-      kind: "Text",
-      value: "export type Pet = { id: number }",
-    });
-  });
+      kind: 'Text',
+      value: 'export type Pet = { id: number }',
+    })
+  })
 
-  it("supports isExportable flag", () => {
+  it('supports isExportable flag', () => {
     const node = createSource({
-      name: "Pet",
-      nodes: [createText("export type Pet = {}")],
+      name: 'Pet',
+      nodes: [createText('export type Pet = {}')],
       isExportable: true,
-    });
+    })
 
-    expect(node.isExportable).toBe(true);
-  });
+    expect(node.isExportable).toBe(true)
+  })
 
-  it("supports isTypeOnly flag", () => {
+  it('supports isTypeOnly flag', () => {
     const node = createSource({
-      nodes: [createText("export type X = string")],
+      nodes: [createText('export type X = string')],
       isTypeOnly: true,
-    });
+    })
 
-    expect(node.isTypeOnly).toBe(true);
-    expect(node.name).toBeUndefined();
-  });
+    expect(node.isTypeOnly).toBe(true)
+    expect(node.name).toBeUndefined()
+  })
 
-  it("always sets kind to Source", () => {
+  it('always sets kind to Source', () => {
     // @ts-expect-error — kind should be forced to 'Source'
-    const node = createSource({ nodes: [createText("x")], kind: "Import" });
+    const node = createSource({ nodes: [createText('x')], kind: 'Import' })
 
-    expect(node.kind).toBe("Source");
-  });
-});
+    expect(node.kind).toBe('Source')
+  })
+})
 
-describe("createFile", () => {
-  it("creates a FileNode with correct kind, id, name and extname", () => {
+describe('createFile', () => {
+  it('creates a FileNode with correct kind, id, name and extname', () => {
     const file = createFile({
-      baseName: "petStore.ts",
-      path: "src/models/petStore.ts",
-    });
+      baseName: 'petStore.ts',
+      path: 'src/models/petStore.ts',
+    })
 
-    expect(file.kind).toBe("File");
-    expect(file.name).toBe("petStore");
-    expect(file.extname).toBe(".ts");
-    expect(typeof file.id).toBe("string");
-    expect(file.id.length).toBeGreaterThan(0);
-  });
+    expect(file.kind).toBe('File')
+    expect(file.name).toBe('petStore')
+    expect(file.extname).toBe('.ts')
+    expect(typeof file.id).toBe('string')
+    expect(file.id.length).toBeGreaterThan(0)
+  })
 
-  it("generates a stable id from the path", () => {
-    const a = createFile({ baseName: "pet.ts", path: "src/pet.ts" });
-    const b = createFile({ baseName: "pet.ts", path: "src/pet.ts" });
+  it('generates a stable id from the path', () => {
+    const a = createFile({ baseName: 'pet.ts', path: 'src/pet.ts' })
+    const b = createFile({ baseName: 'pet.ts', path: 'src/pet.ts' })
 
-    expect(a.id).toBe(b.id);
-  });
+    expect(a.id).toBe(b.id)
+  })
 
-  it("generates different ids for different paths", () => {
-    const a = createFile({ baseName: "pet.ts", path: "src/a/pet.ts" });
-    const b = createFile({ baseName: "pet.ts", path: "src/b/pet.ts" });
+  it('generates different ids for different paths', () => {
+    const a = createFile({ baseName: 'pet.ts', path: 'src/a/pet.ts' })
+    const b = createFile({ baseName: 'pet.ts', path: 'src/b/pet.ts' })
 
-    expect(a.id).not.toBe(b.id);
-  });
+    expect(a.id).not.toBe(b.id)
+  })
 
-  it("throws when baseName has no extension", () => {
+  it('throws when baseName has no extension', () => {
     expect(() =>
       createFile({
-        baseName: "petStore" as `.${string}`,
-        path: "src/petStore",
+        baseName: 'petStore' as `.${string}`,
+        path: 'src/petStore',
       }),
-    ).toThrow(/No extname found/);
-  });
+    ).toThrow(/No extname found/)
+  })
 
-  it("deduplicates sources", () => {
+  it('deduplicates sources', () => {
     const src = createSource({
-      name: "Pet",
-      nodes: [createText("export type Pet = {}")],
-    });
+      name: 'Pet',
+      nodes: [createText('export type Pet = {}')],
+    })
     const file = createFile({
-      baseName: "pet.ts",
-      path: "src/pet.ts",
+      baseName: 'pet.ts',
+      path: 'src/pet.ts',
       sources: [src, src],
-    });
+    })
 
-    expect(file.sources).toHaveLength(1);
-  });
+    expect(file.sources).toHaveLength(1)
+  })
 
-  it("deduplicates exports", () => {
-    const exp = createExport({ name: ["Pet"], path: "./Pet" });
+  it('deduplicates exports', () => {
+    const exp = createExport({ name: ['Pet'], path: './Pet' })
     const file = createFile({
-      baseName: "index.ts",
-      path: "src/index.ts",
+      baseName: 'index.ts',
+      path: 'src/index.ts',
       exports: [exp, exp],
-    });
+    })
 
-    expect(file.exports).toHaveLength(1);
-  });
+    expect(file.exports).toHaveLength(1)
+  })
 
-  it("filters unused imports", () => {
-    const usedImport = createImport({ name: ["z"], path: "zod" });
-    const unusedImport = createImport({ name: ["unused"], path: "lodash" });
+  it('filters unused imports', () => {
+    const usedImport = createImport({ name: ['z'], path: 'zod' })
+    const unusedImport = createImport({ name: ['unused'], path: 'lodash' })
     const src = createSource({
-      nodes: [createText("const schema = z.string()")],
-    });
+      nodes: [createText('const schema = z.string()')],
+    })
     const file = createFile({
-      baseName: "schema.ts",
-      path: "src/schema.ts",
+      baseName: 'schema.ts',
+      path: 'src/schema.ts',
       sources: [src],
       imports: [usedImport, unusedImport],
-    });
+    })
 
-    expect(file.imports.map((i) => i.path)).toContain("zod");
-    expect(file.imports.map((i) => i.path)).not.toContain("lodash");
-  });
+    expect(file.imports.map((i) => i.path)).toContain('zod')
+    expect(file.imports.map((i) => i.path)).not.toContain('lodash')
+  })
 
-  it("carries through meta, banner and footer", () => {
+  it('carries through meta, banner and footer', () => {
     const file = createFile({
-      baseName: "pet.ts",
-      path: "src/pet.ts",
-      meta: { tag: "pets" },
-      banner: "// generated",
-      footer: "// end",
-    });
+      baseName: 'pet.ts',
+      path: 'src/pet.ts',
+      meta: { tag: 'pets' },
+      banner: '// generated',
+      footer: '// end',
+    })
 
-    expect(file.meta).toEqual({ tag: "pets" });
-    expect(file.banner).toBe("// generated");
-    expect(file.footer).toBe("// end");
-  });
+    expect(file.meta).toEqual({ tag: 'pets' })
+    expect(file.banner).toBe('// generated')
+    expect(file.footer).toBe('// end')
+  })
 
-  it("narrows the return type to FileNode", () => {
-    expectTypeOf(
-      createFile({ baseName: "pet.ts", path: "src/pet.ts" }),
-    ).toMatchTypeOf<FileNode>();
-  });
-});
+  it('narrows the return type to FileNode', () => {
+    expectTypeOf(createFile({ baseName: 'pet.ts', path: 'src/pet.ts' })).toMatchTypeOf<FileNode>()
+  })
+})
 
-describe("createSource (nodes field)", () => {
-  it("accepts structured child nodes", () => {
-    const constNode = createConst({ name: "pet", export: true });
+describe('createSource (nodes field)', () => {
+  it('accepts structured child nodes', () => {
+    const constNode = createConst({ name: 'pet', export: true })
     const node = createSource({
-      name: "pet",
+      name: 'pet',
       isExportable: true,
       nodes: [constNode],
-    });
+    })
 
-    expect(node.nodes).toHaveLength(1);
-    expect(node.nodes?.[0]?.kind).toBe("Const");
-  });
+    expect(node.nodes).toHaveLength(1)
+    expect(node.nodes?.[0]?.kind).toBe('Const')
+  })
 
-  it("omits nodes when not provided", () => {
-    const node = createSource({ name: "pet", isExportable: true });
+  it('omits nodes when not provided', () => {
+    const node = createSource({ name: 'pet', isExportable: true })
 
-    expect(node.nodes).toBeUndefined();
-  });
-});
+    expect(node.nodes).toBeUndefined()
+  })
+})
 
-describe("createConst", () => {
-  it("creates a ConstNode with required name", () => {
-    const node = createConst({ name: "pet" });
+describe('createConst', () => {
+  it('creates a ConstNode with required name', () => {
+    const node = createConst({ name: 'pet' })
 
-    expect(node.kind).toBe("Const");
-    expect(node.name).toBe("pet");
-    expect(node.export).toBeUndefined();
-    expect(node.asConst).toBeUndefined();
-    expect(node.type).toBeUndefined();
-    expect(node.JSDoc).toBeUndefined();
-    expect(node.nodes).toBeUndefined();
-  });
+    expect(node.kind).toBe('Const')
+    expect(node.name).toBe('pet')
+    expect(node.export).toBeUndefined()
+    expect(node.asConst).toBeUndefined()
+    expect(node.type).toBeUndefined()
+    expect(node.JSDoc).toBeUndefined()
+    expect(node.nodes).toBeUndefined()
+  })
 
-  it("accepts export, type and asConst flags", () => {
+  it('accepts export, type and asConst flags', () => {
     const node = createConst({
-      name: "pets",
+      name: 'pets',
       export: true,
-      type: "Pet[]",
+      type: 'Pet[]',
       asConst: true,
-    });
+    })
 
-    expect(node.export).toBe(true);
-    expect(node.type).toBe("Pet[]");
-    expect(node.asConst).toBe(true);
-  });
+    expect(node.export).toBe(true)
+    expect(node.type).toBe('Pet[]')
+    expect(node.asConst).toBe(true)
+  })
 
-  it("accepts JSDoc comments", () => {
+  it('accepts JSDoc comments', () => {
     const node = createConst({
-      name: "pet",
-      JSDoc: { comments: ["@description A pet resource"] },
-    });
+      name: 'pet',
+      JSDoc: { comments: ['@description A pet resource'] },
+    })
 
-    expect(node.JSDoc?.comments).toEqual(["@description A pet resource"]);
-  });
+    expect(node.JSDoc?.comments).toEqual(['@description A pet resource'])
+  })
 
-  it("accepts child nodes", () => {
-    const child = createType({ name: "Pet" });
-    const node = createConst({ name: "pet", nodes: [child] });
+  it('accepts child nodes', () => {
+    const child = createType({ name: 'Pet' })
+    const node = createConst({ name: 'pet', nodes: [child] })
 
-    expect(node.nodes).toHaveLength(1);
-    const first = node.nodes?.[0];
-    expect(typeof first === "object" && first.kind).toBe("Type");
-  });
+    expect(node.nodes).toHaveLength(1)
+    const first = node.nodes?.[0]
+    expect(typeof first === 'object' && first.kind).toBe('Type')
+  })
 
-  it("always sets kind to Const", () => {
+  it('always sets kind to Const', () => {
     // @ts-expect-error — kind should be forced to 'Const'
-    const node = createConst({ name: "x", kind: "Import" });
+    const node = createConst({ name: 'x', kind: 'Import' })
 
-    expect(node.kind).toBe("Const");
-  });
+    expect(node.kind).toBe('Const')
+  })
 
-  it("narrows the return type to ConstNode", () => {
-    expectTypeOf(createConst({ name: "pet" })).toMatchTypeOf<ConstNode>();
-  });
-});
+  it('narrows the return type to ConstNode', () => {
+    expectTypeOf(createConst({ name: 'pet' })).toMatchTypeOf<ConstNode>()
+  })
+})
 
-describe("createType", () => {
-  it("creates a TypeNode with required name", () => {
-    const node = createType({ name: "Pet" });
+describe('createType', () => {
+  it('creates a TypeNode with required name', () => {
+    const node = createType({ name: 'Pet' })
 
-    expect(node.kind).toBe("Type");
-    expect(node.name).toBe("Pet");
-    expect(node.export).toBeUndefined();
-    expect(node.JSDoc).toBeUndefined();
-    expect(node.nodes).toBeUndefined();
-  });
+    expect(node.kind).toBe('Type')
+    expect(node.name).toBe('Pet')
+    expect(node.export).toBeUndefined()
+    expect(node.JSDoc).toBeUndefined()
+    expect(node.nodes).toBeUndefined()
+  })
 
-  it("accepts export flag and JSDoc", () => {
+  it('accepts export flag and JSDoc', () => {
     const node = createType({
-      name: "PetStatus",
+      name: 'PetStatus',
       export: true,
-      JSDoc: { comments: ["@description Status of a pet"] },
-    });
+      JSDoc: { comments: ['@description Status of a pet'] },
+    })
 
-    expect(node.export).toBe(true);
-    expect(node.JSDoc?.comments).toEqual(["@description Status of a pet"]);
-  });
+    expect(node.export).toBe(true)
+    expect(node.JSDoc?.comments).toEqual(['@description Status of a pet'])
+  })
 
-  it("accepts child nodes", () => {
-    const child = createConst({ name: "value" });
-    const node = createType({ name: "PetStatus", nodes: [child] });
+  it('accepts child nodes', () => {
+    const child = createConst({ name: 'value' })
+    const node = createType({ name: 'PetStatus', nodes: [child] })
 
-    expect(node.nodes).toHaveLength(1);
-    const first = node.nodes?.[0];
-    expect(typeof first === "object" && first.kind).toBe("Const");
-  });
+    expect(node.nodes).toHaveLength(1)
+    const first = node.nodes?.[0]
+    expect(typeof first === 'object' && first.kind).toBe('Const')
+  })
 
-  it("always sets kind to Type", () => {
+  it('always sets kind to Type', () => {
     // @ts-expect-error — kind should be forced to 'Type'
-    const node = createType({ name: "X", kind: "Import" });
+    const node = createType({ name: 'X', kind: 'Import' })
 
-    expect(node.kind).toBe("Type");
-  });
+    expect(node.kind).toBe('Type')
+  })
 
-  it("narrows the return type to TypeNode", () => {
-    expectTypeOf(createType({ name: "Pet" })).toMatchTypeOf<TypeNode>();
-  });
-});
+  it('narrows the return type to TypeNode', () => {
+    expectTypeOf(createType({ name: 'Pet' })).toMatchTypeOf<TypeNode>()
+  })
+})
 
-describe("createFunction", () => {
-  it("creates a FunctionNode with required name", () => {
-    const node = createFunction({ name: "getPet" });
+describe('createFunction', () => {
+  it('creates a FunctionNode with required name', () => {
+    const node = createFunction({ name: 'getPet' })
 
-    expect(node.kind).toBe("Function");
-    expect(node.name).toBe("getPet");
-    expect(node.export).toBeUndefined();
-    expect(node.async).toBeUndefined();
-    expect(node.params).toBeUndefined();
-    expect(node.returnType).toBeUndefined();
-    expect(node.generics).toBeUndefined();
-    expect(node.JSDoc).toBeUndefined();
-    expect(node.nodes).toBeUndefined();
-  });
+    expect(node.kind).toBe('Function')
+    expect(node.name).toBe('getPet')
+    expect(node.export).toBeUndefined()
+    expect(node.async).toBeUndefined()
+    expect(node.params).toBeUndefined()
+    expect(node.returnType).toBeUndefined()
+    expect(node.generics).toBeUndefined()
+    expect(node.JSDoc).toBeUndefined()
+    expect(node.nodes).toBeUndefined()
+  })
 
-  it("accepts export, async, params, returnType and generics", () => {
+  it('accepts export, async, params, returnType and generics', () => {
     const node = createFunction({
-      name: "fetchPet",
+      name: 'fetchPet',
       export: true,
       async: true,
-      params: "id: string",
-      returnType: "Pet",
-      generics: ["T"],
-    });
+      params: 'id: string',
+      returnType: 'Pet',
+      generics: ['T'],
+    })
 
-    expect(node.export).toBe(true);
-    expect(node.async).toBe(true);
-    expect(node.params).toBe("id: string");
-    expect(node.returnType).toBe("Pet");
-    expect(node.generics).toEqual(["T"]);
-  });
+    expect(node.export).toBe(true)
+    expect(node.async).toBe(true)
+    expect(node.params).toBe('id: string')
+    expect(node.returnType).toBe('Pet')
+    expect(node.generics).toEqual(['T'])
+  })
 
-  it("accepts default export flag", () => {
+  it('accepts default export flag', () => {
     const node = createFunction({
-      name: "handler",
+      name: 'handler',
       default: true,
       export: true,
-    });
+    })
 
-    expect(node.default).toBe(true);
-  });
+    expect(node.default).toBe(true)
+  })
 
-  it("accepts JSDoc and child nodes", () => {
+  it('accepts JSDoc and child nodes', () => {
     const node = createFunction({
-      name: "getPet",
-      JSDoc: { comments: ["@description Fetch a pet"] },
-      nodes: [createConst({ name: "url" })],
-    });
+      name: 'getPet',
+      JSDoc: { comments: ['@description Fetch a pet'] },
+      nodes: [createConst({ name: 'url' })],
+    })
 
-    expect(node.JSDoc?.comments).toEqual(["@description Fetch a pet"]);
-    expect(node.nodes).toHaveLength(1);
-  });
+    expect(node.JSDoc?.comments).toEqual(['@description Fetch a pet'])
+    expect(node.nodes).toHaveLength(1)
+  })
 
-  it("always sets kind to Function", () => {
+  it('always sets kind to Function', () => {
     // @ts-expect-error — kind should be forced to 'Function'
-    const node = createFunction({ name: "x", kind: "Import" });
+    const node = createFunction({ name: 'x', kind: 'Import' })
 
-    expect(node.kind).toBe("Function");
-  });
+    expect(node.kind).toBe('Function')
+  })
 
-  it("narrows the return type to FunctionNode", () => {
-    expectTypeOf(
-      createFunction({ name: "getPet" }),
-    ).toMatchTypeOf<FunctionNode>();
-  });
-});
+  it('narrows the return type to FunctionNode', () => {
+    expectTypeOf(createFunction({ name: 'getPet' })).toMatchTypeOf<FunctionNode>()
+  })
+})
 
-describe("createArrowFunction", () => {
-  it("creates an ArrowFunctionNode with required name", () => {
-    const node = createArrowFunction({ name: "getPet" });
+describe('createArrowFunction', () => {
+  it('creates an ArrowFunctionNode with required name', () => {
+    const node = createArrowFunction({ name: 'getPet' })
 
-    expect(node.kind).toBe("ArrowFunction");
-    expect(node.name).toBe("getPet");
-    expect(node.export).toBeUndefined();
-    expect(node.async).toBeUndefined();
-    expect(node.singleLine).toBeUndefined();
-    expect(node.params).toBeUndefined();
-    expect(node.returnType).toBeUndefined();
-    expect(node.generics).toBeUndefined();
-    expect(node.JSDoc).toBeUndefined();
-    expect(node.nodes).toBeUndefined();
-  });
+    expect(node.kind).toBe('ArrowFunction')
+    expect(node.name).toBe('getPet')
+    expect(node.export).toBeUndefined()
+    expect(node.async).toBeUndefined()
+    expect(node.singleLine).toBeUndefined()
+    expect(node.params).toBeUndefined()
+    expect(node.returnType).toBeUndefined()
+    expect(node.generics).toBeUndefined()
+    expect(node.JSDoc).toBeUndefined()
+    expect(node.nodes).toBeUndefined()
+  })
 
-  it("accepts export, async, params, returnType, generics and singleLine", () => {
+  it('accepts export, async, params, returnType, generics and singleLine', () => {
     const node = createArrowFunction({
-      name: "double",
+      name: 'double',
       export: true,
       async: false,
-      params: "n: number",
-      returnType: "number",
-      generics: "T",
+      params: 'n: number',
+      returnType: 'number',
+      generics: 'T',
       singleLine: true,
-    });
+    })
 
-    expect(node.export).toBe(true);
-    expect(node.async).toBe(false);
-    expect(node.params).toBe("n: number");
-    expect(node.returnType).toBe("number");
-    expect(node.generics).toBe("T");
-    expect(node.singleLine).toBe(true);
-  });
+    expect(node.export).toBe(true)
+    expect(node.async).toBe(false)
+    expect(node.params).toBe('n: number')
+    expect(node.returnType).toBe('number')
+    expect(node.generics).toBe('T')
+    expect(node.singleLine).toBe(true)
+  })
 
-  it("accepts JSDoc and child nodes", () => {
+  it('accepts JSDoc and child nodes', () => {
     const node = createArrowFunction({
-      name: "fetchPet",
-      JSDoc: { comments: ["@description Fetch a pet"] },
-      nodes: [createConst({ name: "url" })],
-    });
+      name: 'fetchPet',
+      JSDoc: { comments: ['@description Fetch a pet'] },
+      nodes: [createConst({ name: 'url' })],
+    })
 
-    expect(node.JSDoc?.comments).toEqual(["@description Fetch a pet"]);
-    expect(node.nodes).toHaveLength(1);
-  });
+    expect(node.JSDoc?.comments).toEqual(['@description Fetch a pet'])
+    expect(node.nodes).toHaveLength(1)
+  })
 
-  it("accepts default export flag", () => {
+  it('accepts default export flag', () => {
     const node = createArrowFunction({
-      name: "handler",
+      name: 'handler',
       default: true,
       export: true,
-    });
+    })
 
-    expect(node.default).toBe(true);
-  });
+    expect(node.default).toBe(true)
+  })
 
-  it("always sets kind to ArrowFunction", () => {
+  it('always sets kind to ArrowFunction', () => {
     // @ts-expect-error — kind should be forced to 'ArrowFunction'
-    const node = createArrowFunction({ name: "x", kind: "Import" });
+    const node = createArrowFunction({ name: 'x', kind: 'Import' })
 
-    expect(node.kind).toBe("ArrowFunction");
-  });
+    expect(node.kind).toBe('ArrowFunction')
+  })
 
-  it("narrows the return type to ArrowFunctionNode", () => {
-    expectTypeOf(
-      createArrowFunction({ name: "getPet" }),
-    ).toMatchTypeOf<ArrowFunctionNode>();
-  });
-});
+  it('narrows the return type to ArrowFunctionNode', () => {
+    expectTypeOf(createArrowFunction({ name: 'getPet' })).toMatchTypeOf<ArrowFunctionNode>()
+  })
+})

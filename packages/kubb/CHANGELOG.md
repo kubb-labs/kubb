@@ -225,19 +225,19 @@
   ```ts
   // before — had to set adapter and parsers explicitly
   export default defineConfig({
-    input: { path: "./petStore.yaml" },
-    output: { path: "./src/gen" },
+    input: { path: './petStore.yaml' },
+    output: { path: './src/gen' },
     adapter: adapterOas(),
     parsers: [parserTs],
     plugins: [],
-  });
+  })
 
   // after — adapter and parsers are applied automatically
   export default defineConfig({
-    input: { path: "./petStore.yaml" },
-    output: { path: "./src/gen" },
+    input: { path: './petStore.yaml' },
+    output: { path: './src/gen' },
     plugins: [],
-  });
+  })
   ```
 
   `@kubb/adapter-oas` and `@kubb/parser-ts` must be installed for the defaults to work.

@@ -204,18 +204,18 @@ export async function findPetsByStatusHandler({
 ## Example
 
 ```typescript twoslash
-import { defineConfig } from "@kubb/core";
-import { adapterOas } from "@kubb/adapter-oas";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginZod } from "@kubb/plugin-zod";
-import { pluginMcp } from "@kubb/plugin-mcp";
+import { defineConfig } from '@kubb/core'
+import { adapterOas } from '@kubb/adapter-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
+import { pluginMcp } from '@kubb/plugin-mcp'
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   adapter: adapterOas(),
   plugins: [
@@ -223,19 +223,19 @@ export default defineConfig({
     pluginZod(),
     pluginMcp({
       output: {
-        path: "./mcp",
-        barrelType: "named",
+        path: './mcp',
+        barrelType: 'named',
       },
       client: {
-        baseURL: "https://petstore.swagger.io/v2",
+        baseURL: 'https://petstore.swagger.io/v2',
       },
       group: {
-        type: "tag",
+        type: 'tag',
         name: ({ group }) => `${group}Handlers`,
       },
     }),
   ],
-});
+})
 ```
 
 ## See Also

@@ -1,4 +1,4 @@
-import type React from "react";
+import type React from 'react'
 import type {
   KubbExportProps,
   KubbFileProps,
@@ -9,26 +9,26 @@ import type {
   KubbSourceProps,
   KubbTextProps,
   LineBreakProps,
-} from "./types.ts";
+} from './types.ts'
 
 declare global {
   namespace JSX {
-    type Element = KubbReactElement;
+    type Element = KubbReactElement
 
     interface ElementClass extends React.ComponentClass<any> {
-      render(): KubbReactNode;
+      render(): KubbReactNode
     }
 
     interface IntrinsicElements {
-      "kubb-jsx": KubbJsxProps;
-      "kubb-text": KubbTextProps;
-      "kubb-file": KubbFileProps;
-      "kubb-source": KubbSourceProps;
-      "kubb-import": KubbImportProps;
-      "kubb-export": KubbExportProps;
-      br: LineBreakProps;
-      indent: {};
-      dedent: {};
+      'kubb-jsx': KubbJsxProps
+      'kubb-text': KubbTextProps
+      'kubb-file': KubbFileProps
+      'kubb-source': KubbSourceProps
+      'kubb-import': KubbImportProps
+      'kubb-export': KubbExportProps
+      br: LineBreakProps
+      indent: {}
+      dedent: {}
     }
   }
 }

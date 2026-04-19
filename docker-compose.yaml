@@ -1,11 +1,5 @@
 x-healthcheck-node: &healthcheck-node
-  test:
-    [
-      "CMD",
-      "node",
-      "-e",
-      "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))",
-    ]
+  test: ['CMD', 'node', '-e', "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
   interval: 15s
   timeout: 10s
   start_period: 60s
@@ -17,7 +11,7 @@ services:
     container_name: kubb-studio
     platform: linux/amd64
     ports:
-      - "3002:3000"
+      - '3002:3000'
     env_file:
       - .env
     environment:
@@ -36,14 +30,14 @@ services:
     image: kubblabs/kubb-agent:latest
     container_name: kubb-agent
     ports:
-      - "3001:3000"
+      - '3001:3000'
     env_file:
       - .env
     environment:
       PORT: 3000
-      KUBB_AGENT_ALLOW_WRITE: "false"
-      KUBB_AGENT_ALLOW_ALL: "false"
-      KUBB_AGENT_RETRY_TIMEOUT: "30000"
+      KUBB_AGENT_ALLOW_WRITE: 'false'
+      KUBB_AGENT_ALLOW_ALL: 'false'
+      KUBB_AGENT_RETRY_TIMEOUT: '30000'
       KUBB_STUDIO_URL: http://kubb-studio:3000
     volumes:
       - ./data:/kubb/agent/data
@@ -61,11 +55,11 @@ services:
       POSTGRES_USER: studio
       POSTGRES_PASSWORD: studio_dev_password
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U studio"]
+      test: ['CMD-SHELL', 'pg_isready -U studio']
       interval: 10s
       timeout: 5s
       start_period: 20s

@@ -1,5 +1,5 @@
 ---
-"@kubb/ast": minor
+'@kubb/ast': minor
 ---
 
 Add `createOperationParams` utility for converting operations to function parameters.

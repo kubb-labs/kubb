@@ -7,5 +7,5 @@
  * // { kind: 'Schema', type: 'string' }
  */
 export function toSnapshot<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value));
+  return JSON.parse(JSON.stringify(value))
 }

@@ -1,34 +1,31 @@
-import type { Config } from "@kubb/core";
-import { cosmiconfig } from "cosmiconfig";
-import { createJiti } from "jiti";
+import type { Config } from '@kubb/core'
+import { cosmiconfig } from 'cosmiconfig'
+import { createJiti } from 'jiti'
 
 type CosmiconfigResult = {
-  filepath: string;
-  isEmpty?: boolean;
-  config: Config;
-};
+  filepath: string
+  isEmpty?: boolean
+  config: Config
+}
 
 const jiti = createJiti(import.meta.url, {
   jsx: {
-    runtime: "automatic",
-    importSource: "@kubb/renderer-jsx",
+    runtime: 'automatic',
+    importSource: '@kubb/renderer-jsx',
   },
   sourceMaps: true,
   interopDefault: true,
-});
+})
 
 const tsLoader = async (configFile: string) => {
-  const mod = await jiti.import(configFile, { default: true });
-  return mod;
-};
+  const mod = await jiti.import(configFile, { default: true })
+  return mod
+}
 
-export async function getCosmiConfig(
-  moduleName: string,
-  config?: string,
-): Promise<CosmiconfigResult> {
-  let result: CosmiconfigResult;
+export async function getCosmiConfig(moduleName: string, config?: string): Promise<CosmiconfigResult> {
+  let result: CosmiconfigResult
   const searchPlaces = [
-    "package.json",
+    'package.json',
     `.${moduleName}rc`,
     `.${moduleName}rc.json`,
     `.${moduleName}rc.yaml`,
@@ -47,38 +44,34 @@ export async function getCosmiConfig(
     `${moduleName}.config.js`,
     `${moduleName}.config.mjs`,
     `${moduleName}.config.cjs`,
-  ];
+  ]
   const explorer = cosmiconfig(moduleName, {
     cache: false,
     searchPlaces: [
       ...searchPlaces.map((searchPlace) => {
-        return `.config/${searchPlace}`;
+        return `.config/${searchPlace}`
       }),
       ...searchPlaces.map((searchPlace) => {
-        return `configs/${searchPlace}`;
+        return `configs/${searchPlace}`
       }),
       ...searchPlaces,
     ],
     loaders: {
-      ".ts": tsLoader,
-      ".mts": tsLoader,
-      ".cts": tsLoader,
+      '.ts': tsLoader,
+      '.mts': tsLoader,
+      '.cts': tsLoader,
     },
-  });
+  })
 
   try {
-    result = config
-      ? ((await explorer.load(config)) as CosmiconfigResult)
-      : ((await explorer.search()) as CosmiconfigResult);
+    result = config ? ((await explorer.load(config)) as CosmiconfigResult) : ((await explorer.search()) as CosmiconfigResult)
   } catch (error) {
-    throw new Error("Config failed loading", { cause: error });
+    throw new Error('Config failed loading', { cause: error })
   }
 
   if (result?.isEmpty || !result || !result.config) {
-    throw new Error(
-      "Config not defined, create a kubb.config.js or pass through your config with the option --config",
-    );
+    throw new Error('Config not defined, create a kubb.config.js or pass through your config with the option --config')
   }
 
-  return result as CosmiconfigResult;
+  return result as CosmiconfigResult
 }

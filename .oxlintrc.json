@@ -41,10 +41,7 @@
     "unicorn/prefer-node-protocol": "error",
     "unicorn/prefer-number-properties": "error",
 
-    "@typescript-eslint/consistent-type-imports": [
-      "error",
-      { "disallowTypeAnnotations": false }
-    ],
+    "@typescript-eslint/consistent-type-imports": ["error", { "disallowTypeAnnotations": false }],
     "@typescript-eslint/no-inferrable-types": "error",
     "@typescript-eslint/prefer-function-type": "error",
 

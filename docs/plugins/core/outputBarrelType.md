@@ -12,11 +12,11 @@ Specify what to export and optionally disable barrel file generation.
 ::: code-group
 
 ```typescript [all]
-export * from "./gen/petService.ts";
+export * from './gen/petService.ts'
 ```
 
 ```typescript [named]
-export { PetService } from "./gen/petService.ts";
+export { PetService } from './gen/petService.ts'
 ```
 
 ```typescript [propagate]

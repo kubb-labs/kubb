@@ -1,16 +1,7 @@
-import type { VisitorDepth } from "./constants.ts";
-import { visitorDepths, WALK_CONCURRENCY } from "./constants.ts";
-import { createParameter, createProperty } from "./factory.ts";
-import type {
-  InputNode,
-  Node,
-  OperationNode,
-  OutputNode,
-  ParameterNode,
-  PropertyNode,
-  ResponseNode,
-  SchemaNode,
-} from "./nodes/index.ts";
+import type { VisitorDepth } from './constants.ts'
+import { visitorDepths, WALK_CONCURRENCY } from './constants.ts'
+import { createParameter, createProperty } from './factory.ts'
+import type { InputNode, Node, OperationNode, OutputNode, ParameterNode, PropertyNode, ResponseNode, SchemaNode } from './nodes/index.ts'
 
 /**
  * Creates a small async concurrency limiter.
@@ -27,13 +18,13 @@ import type {
  * ```
  */
 function createLimit(concurrency: number) {
-  let active = 0;
-  const queue: Array<() => void> = [];
+  let active = 0
+  const queue: Array<() => void> = []
 
   function next() {
     if (active < concurrency && queue.length > 0) {
-      active++;
-      queue.shift()!();
+      active++
+      queue.shift()!()
     }
   }
 
@@ -43,16 +34,16 @@ function createLimit(concurrency: number) {
         Promise.resolve(fn())
           .then(resolve, reject)
           .finally(() => {
-            active--;
-            next();
-          });
-      });
-      next();
-    });
-  };
+            active--
+            next()
+          })
+      })
+      next()
+    })
+  }
 }
 
-type LimitFn = ReturnType<typeof createLimit>;
+type LimitFn = ReturnType<typeof createLimit>
 
 /**
  * Ordered mapping of `[NodeType, ParentType]` pairs.
@@ -63,21 +54,11 @@ type ParentNodeMap = [
   [InputNode, undefined],
   [OutputNode, undefined],
   [OperationNode, InputNode],
-  [
-    SchemaNode,
-    (
-      | InputNode
-      | OperationNode
-      | SchemaNode
-      | PropertyNode
-      | ParameterNode
-      | ResponseNode
-    ),
-  ],
+  [SchemaNode, InputNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode],
   [PropertyNode, SchemaNode],
   [ParameterNode, OperationNode],
   [ResponseNode, OperationNode],
-];
+]
 
 /**
  * Resolves the parent node type for a given AST node type.
@@ -103,17 +84,14 @@ type ParentNodeMap = [
  * // InputNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode
  * ```
  */
-export type ParentOf<
-  T extends Node,
-  TEntries extends ReadonlyArray<[Node, unknown]> = ParentNodeMap,
-> = TEntries extends [
+export type ParentOf<T extends Node, TEntries extends ReadonlyArray<[Node, unknown]> = ParentNodeMap> = TEntries extends [
   infer TEntry extends [Node, unknown],
   ...infer TRest extends ReadonlyArray<[Node, unknown]>,
 ]
   ? T extends TEntry[0]
     ? TEntry[1]
     : ParentOf<T, TRest>
-  : Node;
+  : Node
 
 /**
  * Traversal context passed as the second argument to every visitor callback.
@@ -133,8 +111,8 @@ export type VisitorContext<T extends Node = Node> = {
    * Parent node of the currently visited node.
    * For `InputNode`, this is `undefined`.
    */
-  parent?: ParentOf<T>;
-};
+  parent?: ParentOf<T>
+}
 
 /**
  * Synchronous visitor used by `transform`.
@@ -149,37 +127,19 @@ export type VisitorContext<T extends Node = Node> = {
  * ```
  */
 export type Visitor = {
-  input?(node: InputNode, context: VisitorContext<InputNode>): void | InputNode;
-  output?(
-    node: OutputNode,
-    context: VisitorContext<OutputNode>,
-  ): void | OutputNode;
-  operation?(
-    node: OperationNode,
-    context: VisitorContext<OperationNode>,
-  ): void | OperationNode;
-  schema?(
-    node: SchemaNode,
-    context: VisitorContext<SchemaNode>,
-  ): void | SchemaNode;
-  property?(
-    node: PropertyNode,
-    context: VisitorContext<PropertyNode>,
-  ): void | PropertyNode;
-  parameter?(
-    node: ParameterNode,
-    context: VisitorContext<ParameterNode>,
-  ): void | ParameterNode;
-  response?(
-    node: ResponseNode,
-    context: VisitorContext<ResponseNode>,
-  ): void | ResponseNode;
-};
+  input?(node: InputNode, context: VisitorContext<InputNode>): void | InputNode
+  output?(node: OutputNode, context: VisitorContext<OutputNode>): void | OutputNode
+  operation?(node: OperationNode, context: VisitorContext<OperationNode>): void | OperationNode
+  schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): void | SchemaNode
+  property?(node: PropertyNode, context: VisitorContext<PropertyNode>): void | PropertyNode
+  parameter?(node: ParameterNode, context: VisitorContext<ParameterNode>): void | ParameterNode
+  response?(node: ResponseNode, context: VisitorContext<ResponseNode>): void | ResponseNode
+}
 
 /**
  * Utility type for values that can be returned directly or asynchronously.
  */
-type MaybePromise<T> = T | Promise<T>;
+type MaybePromise<T> = T | Promise<T>
 
 /**
  * Async visitor for `walk`. Synchronous `Visitor` objects are compatible.
@@ -194,35 +154,14 @@ type MaybePromise<T> = T | Promise<T>;
  * ```
  */
 export type AsyncVisitor = {
-  input?(
-    node: InputNode,
-    context: VisitorContext<InputNode>,
-  ): MaybePromise<void | InputNode>;
-  output?(
-    node: OutputNode,
-    context: VisitorContext<OutputNode>,
-  ): MaybePromise<void | OutputNode>;
-  operation?(
-    node: OperationNode,
-    context: VisitorContext<OperationNode>,
-  ): MaybePromise<void | OperationNode>;
-  schema?(
-    node: SchemaNode,
-    context: VisitorContext<SchemaNode>,
-  ): MaybePromise<void | SchemaNode>;
-  property?(
-    node: PropertyNode,
-    context: VisitorContext<PropertyNode>,
-  ): MaybePromise<void | PropertyNode>;
-  parameter?(
-    node: ParameterNode,
-    context: VisitorContext<ParameterNode>,
-  ): MaybePromise<void | ParameterNode>;
-  response?(
-    node: ResponseNode,
-    context: VisitorContext<ResponseNode>,
-  ): MaybePromise<void | ResponseNode>;
-};
+  input?(node: InputNode, context: VisitorContext<InputNode>): MaybePromise<void | InputNode>
+  output?(node: OutputNode, context: VisitorContext<OutputNode>): MaybePromise<void | OutputNode>
+  operation?(node: OperationNode, context: VisitorContext<OperationNode>): MaybePromise<void | OperationNode>
+  schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): MaybePromise<void | SchemaNode>
+  property?(node: PropertyNode, context: VisitorContext<PropertyNode>): MaybePromise<void | PropertyNode>
+  parameter?(node: ParameterNode, context: VisitorContext<ParameterNode>): MaybePromise<void | ParameterNode>
+  response?(node: ResponseNode, context: VisitorContext<ResponseNode>): MaybePromise<void | ResponseNode>
+}
 
 /**
  * Visitor used by `collect`.
@@ -237,26 +176,14 @@ export type AsyncVisitor = {
  * ```
  */
 export type CollectVisitor<T> = {
-  input?(node: InputNode, context: VisitorContext<InputNode>): T | undefined;
-  output?(node: OutputNode, context: VisitorContext<OutputNode>): T | undefined;
-  operation?(
-    node: OperationNode,
-    context: VisitorContext<OperationNode>,
-  ): T | undefined;
-  schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): T | undefined;
-  property?(
-    node: PropertyNode,
-    context: VisitorContext<PropertyNode>,
-  ): T | undefined;
-  parameter?(
-    node: ParameterNode,
-    context: VisitorContext<ParameterNode>,
-  ): T | undefined;
-  response?(
-    node: ResponseNode,
-    context: VisitorContext<ResponseNode>,
-  ): T | undefined;
-};
+  input?(node: InputNode, context: VisitorContext<InputNode>): T | undefined
+  output?(node: OutputNode, context: VisitorContext<OutputNode>): T | undefined
+  operation?(node: OperationNode, context: VisitorContext<OperationNode>): T | undefined
+  schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): T | undefined
+  property?(node: PropertyNode, context: VisitorContext<PropertyNode>): T | undefined
+  parameter?(node: ParameterNode, context: VisitorContext<ParameterNode>): T | undefined
+  response?(node: ResponseNode, context: VisitorContext<ResponseNode>): T | undefined
+}
 
 /**
  * Options for `transform`.
@@ -277,12 +204,12 @@ export type TransformOptions = Visitor & {
    * Traversal depth (`'deep'` by default).
    * @default 'deep'
    */
-  depth?: VisitorDepth;
+  depth?: VisitorDepth
   /**
    * Internal parent override used during recursion.
    */
-  parent?: Node;
-};
+  parent?: Node
+}
 
 /**
  * Options for `walk`.
@@ -297,13 +224,13 @@ export type WalkOptions = AsyncVisitor & {
    * Traversal depth (`'deep'` by default).
    * @default 'deep'
    */
-  depth?: VisitorDepth;
+  depth?: VisitorDepth
   /**
    * Maximum number of sibling nodes visited concurrently.
    * @default 30
    */
-  concurrency?: number;
-};
+  concurrency?: number
+}
 
 /**
  * Options for `collect`.
@@ -318,12 +245,12 @@ export type CollectOptions<T> = CollectVisitor<T> & {
    * Traversal depth (`'deep'` by default).
    * @default 'deep'
    */
-  depth?: VisitorDepth;
+  depth?: VisitorDepth
   /**
    * Internal parent override used during recursion.
    */
-  parent?: Node;
-};
+  parent?: Node
+}
 
 /**
  * Returns the immediate traversable children of `node`.
@@ -340,47 +267,37 @@ export type CollectOptions<T> = CollectVisitor<T> & {
  */
 function getChildren(node: Node, recurse: boolean): Array<Node> {
   switch (node.kind) {
-    case "Input":
-      return [...node.schemas, ...node.operations];
-    case "Output":
-      return [];
-    case "Operation":
-      return [
-        ...node.parameters,
-        ...(node.requestBody?.schema ? [node.requestBody.schema] : []),
-        ...node.responses,
-      ];
-    case "Schema": {
-      const children: Array<Node> = [];
+    case 'Input':
+      return [...node.schemas, ...node.operations]
+    case 'Output':
+      return []
+    case 'Operation':
+      return [...node.parameters, ...(node.requestBody?.schema ? [node.requestBody.schema] : []), ...node.responses]
+    case 'Schema': {
+      const children: Array<Node> = []
 
-      if (!recurse) return [];
+      if (!recurse) return []
 
-      if ("properties" in node && node.properties.length > 0)
-        children.push(...node.properties);
-      if ("items" in node && node.items) children.push(...node.items);
-      if ("members" in node && node.members) children.push(...node.members);
-      if (
-        "additionalProperties" in node &&
-        node.additionalProperties &&
-        node.additionalProperties !== true
-      )
-        children.push(node.additionalProperties);
+      if ('properties' in node && node.properties.length > 0) children.push(...node.properties)
+      if ('items' in node && node.items) children.push(...node.items)
+      if ('members' in node && node.members) children.push(...node.members)
+      if ('additionalProperties' in node && node.additionalProperties && node.additionalProperties !== true) children.push(node.additionalProperties)
 
-      return children;
+      return children
     }
-    case "Property":
-      return [node.schema];
-    case "Parameter":
-      return [node.schema];
-    case "Response":
-      return node.schema ? [node.schema] : [];
-    case "FunctionParameter":
-    case "ParameterGroup":
-    case "FunctionParameters":
-    case "Type":
-      return [];
+    case 'Property':
+      return [node.schema]
+    case 'Parameter':
+      return [node.schema]
+    case 'Response':
+      return node.schema ? [node.schema] : []
+    case 'FunctionParameter':
+    case 'ParameterGroup':
+    case 'FunctionParameters':
+    case 'Type':
+      return []
     default:
-      return [];
+      return []
   }
 }
 
@@ -405,68 +322,52 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
  * ```
  */
 export async function walk(node: Node, options: WalkOptions): Promise<void> {
-  const recurse = (options.depth ?? visitorDepths.deep) === visitorDepths.deep;
-  const limit = createLimit(options.concurrency ?? WALK_CONCURRENCY);
+  const recurse = (options.depth ?? visitorDepths.deep) === visitorDepths.deep
+  const limit = createLimit(options.concurrency ?? WALK_CONCURRENCY)
 
-  return _walk(node, options, recurse, limit, undefined);
+  return _walk(node, options, recurse, limit, undefined)
 }
 
-async function _walk(
-  node: Node,
-  visitor: AsyncVisitor,
-  recurse: boolean,
-  limit: LimitFn,
-  parent: Node | undefined,
-): Promise<void> {
+async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit: LimitFn, parent: Node | undefined): Promise<void> {
   switch (node.kind) {
-    case "Input":
-      await limit(() =>
-        visitor.input?.(node, { parent: parent as ParentOf<InputNode> }),
-      );
-      break;
-    case "Output":
-      await limit(() =>
-        visitor.output?.(node, { parent: parent as ParentOf<OutputNode> }),
-      );
-      break;
-    case "Operation":
+    case 'Input':
+      await limit(() => visitor.input?.(node, { parent: parent as ParentOf<InputNode> }))
+      break
+    case 'Output':
+      await limit(() => visitor.output?.(node, { parent: parent as ParentOf<OutputNode> }))
+      break
+    case 'Operation':
       await limit(() =>
         visitor.operation?.(node, {
           parent: parent as ParentOf<OperationNode>,
         }),
-      );
-      break;
-    case "Schema":
-      await limit(() =>
-        visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> }),
-      );
-      break;
-    case "Property":
-      await limit(() =>
-        visitor.property?.(node, { parent: parent as ParentOf<PropertyNode> }),
-      );
-      break;
-    case "Parameter":
+      )
+      break
+    case 'Schema':
+      await limit(() => visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> }))
+      break
+    case 'Property':
+      await limit(() => visitor.property?.(node, { parent: parent as ParentOf<PropertyNode> }))
+      break
+    case 'Parameter':
       await limit(() =>
         visitor.parameter?.(node, {
           parent: parent as ParentOf<ParameterNode>,
         }),
-      );
-      break;
-    case "Response":
-      await limit(() =>
-        visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> }),
-      );
-      break;
-    case "FunctionParameter":
-    case "ParameterGroup":
-    case "FunctionParameters":
-      break;
+      )
+      break
+    case 'Response':
+      await limit(() => visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> }))
+      break
+    case 'FunctionParameter':
+    case 'ParameterGroup':
+    case 'FunctionParameters':
+      break
   }
 
-  const children = getChildren(node, recurse);
+  const children = getChildren(node, recurse)
   for (const child of children) {
-    await _walk(child, visitor, recurse, limit, node);
+    await _walk(child, visitor, recurse, limit, node)
   }
 }
 
@@ -491,171 +392,128 @@ async function _walk(
  * const next = transform(root, { depth: 'shallow', root: (node) => node })
  * ```
  */
-export function transform(
-  node: InputNode,
-  options: TransformOptions,
-): InputNode;
-export function transform(
-  node: OutputNode,
-  options: TransformOptions,
-): OutputNode;
-export function transform(
-  node: OperationNode,
-  options: TransformOptions,
-): OperationNode;
-export function transform(
-  node: SchemaNode,
-  options: TransformOptions,
-): SchemaNode;
-export function transform(
-  node: PropertyNode,
-  options: TransformOptions,
-): PropertyNode;
-export function transform(
-  node: ParameterNode,
-  options: TransformOptions,
-): ParameterNode;
-export function transform(
-  node: ResponseNode,
-  options: TransformOptions,
-): ResponseNode;
-export function transform(node: Node, options: TransformOptions): Node;
+export function transform(node: InputNode, options: TransformOptions): InputNode
+export function transform(node: OutputNode, options: TransformOptions): OutputNode
+export function transform(node: OperationNode, options: TransformOptions): OperationNode
+export function transform(node: SchemaNode, options: TransformOptions): SchemaNode
+export function transform(node: PropertyNode, options: TransformOptions): PropertyNode
+export function transform(node: ParameterNode, options: TransformOptions): ParameterNode
+export function transform(node: ResponseNode, options: TransformOptions): ResponseNode
+export function transform(node: Node, options: TransformOptions): Node
 export function transform(node: Node, options: TransformOptions): Node {
-  const { depth, parent, ...visitor } = options;
-  const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep;
+  const { depth, parent, ...visitor } = options
+  const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
 
   switch (node.kind) {
-    case "Input": {
-      let input = node;
+    case 'Input': {
+      let input = node
       const replaced = visitor.input?.(input, {
         parent: parent as ParentOf<InputNode>,
-      });
-      if (replaced) input = replaced;
+      })
+      if (replaced) input = replaced
 
       return {
         ...input,
-        schemas: input.schemas.map((s) =>
-          transform(s, { ...options, parent: input }),
-        ),
-        operations: input.operations.map((op) =>
-          transform(op, { ...options, parent: input }),
-        ),
-      };
+        schemas: input.schemas.map((s) => transform(s, { ...options, parent: input })),
+        operations: input.operations.map((op) => transform(op, { ...options, parent: input })),
+      }
     }
-    case "Output": {
-      let output = node;
+    case 'Output': {
+      let output = node
       const replaced = visitor.output?.(output, {
         parent: parent as ParentOf<OutputNode>,
-      });
-      if (replaced) output = replaced;
+      })
+      if (replaced) output = replaced
 
-      return output;
+      return output
     }
-    case "Operation": {
-      let op = node;
+    case 'Operation': {
+      let op = node
       const replaced = visitor.operation?.(op, {
         parent: parent as ParentOf<OperationNode>,
-      });
-      if (replaced) op = replaced;
+      })
+      if (replaced) op = replaced
 
       return {
         ...op,
-        parameters: op.parameters.map((p) =>
-          transform(p, { ...options, parent: op }),
-        ),
+        parameters: op.parameters.map((p) => transform(p, { ...options, parent: op })),
         requestBody: op.requestBody
           ? {
               ...op.requestBody,
-              schema: op.requestBody.schema
-                ? transform(op.requestBody.schema, { ...options, parent: op })
-                : undefined,
+              schema: op.requestBody.schema ? transform(op.requestBody.schema, { ...options, parent: op }) : undefined,
             }
           : undefined,
-        responses: op.responses.map((r) =>
-          transform(r, { ...options, parent: op }),
-        ),
-      };
+        responses: op.responses.map((r) => transform(r, { ...options, parent: op })),
+      }
     }
-    case "Schema": {
-      let schema = node;
+    case 'Schema': {
+      let schema = node
       const replaced = visitor.schema?.(schema, {
         parent: parent as ParentOf<SchemaNode>,
-      });
-      if (replaced) schema = replaced;
+      })
+      if (replaced) schema = replaced
 
-      const childOptions = { ...options, parent: schema };
+      const childOptions = { ...options, parent: schema }
 
       return {
         ...schema,
-        ...("properties" in schema && recurse
+        ...('properties' in schema && recurse
           ? {
-              properties: schema.properties.map((p) =>
-                transform(p, childOptions),
-              ),
+              properties: schema.properties.map((p) => transform(p, childOptions)),
             }
           : {}),
-        ...("items" in schema && recurse
-          ? { items: schema.items?.map((i) => transform(i, childOptions)) }
-          : {}),
-        ...("members" in schema && recurse
-          ? { members: schema.members?.map((m) => transform(m, childOptions)) }
-          : {}),
-        ...("additionalProperties" in schema &&
-        recurse &&
-        schema.additionalProperties &&
-        schema.additionalProperties !== true
+        ...('items' in schema && recurse ? { items: schema.items?.map((i) => transform(i, childOptions)) } : {}),
+        ...('members' in schema && recurse ? { members: schema.members?.map((m) => transform(m, childOptions)) } : {}),
+        ...('additionalProperties' in schema && recurse && schema.additionalProperties && schema.additionalProperties !== true
           ? {
-              additionalProperties: transform(
-                schema.additionalProperties,
-                childOptions,
-              ),
+              additionalProperties: transform(schema.additionalProperties, childOptions),
             }
           : {}),
-      } as SchemaNode;
+      } as SchemaNode
     }
-    case "Property": {
-      let prop = node;
+    case 'Property': {
+      let prop = node
       const replaced = visitor.property?.(prop, {
         parent: parent as ParentOf<PropertyNode>,
-      });
-      if (replaced) prop = replaced;
+      })
+      if (replaced) prop = replaced
 
       return createProperty({
         ...prop,
         schema: transform(prop.schema, { ...options, parent: prop }),
-      });
+      })
     }
-    case "Parameter": {
-      let param = node;
+    case 'Parameter': {
+      let param = node
       const replaced = visitor.parameter?.(param, {
         parent: parent as ParentOf<ParameterNode>,
-      });
-      if (replaced) param = replaced;
+      })
+      if (replaced) param = replaced
 
       return createParameter({
         ...param,
         schema: transform(param.schema, { ...options, parent: param }),
-      });
+      })
     }
-    case "Response": {
-      let response = node;
+    case 'Response': {
+      let response = node
       const replaced = visitor.response?.(response, {
         parent: parent as ParentOf<ResponseNode>,
-      });
-      if (replaced) response = replaced;
+      })
+      if (replaced) response = replaced
 
       return {
         ...response,
         schema: transform(response.schema, { ...options, parent: response }),
-      };
+      }
     }
-    case "FunctionParameter":
-    case "ParameterGroup":
-    case "FunctionParameters":
-    case "Type":
-      return node;
+    case 'FunctionParameter':
+    case 'ParameterGroup':
+    case 'FunctionParameters':
+    case 'Type':
+      return node
     default:
-      return node;
+      return node
   }
 }
 /**
@@ -679,53 +537,53 @@ export function transform(node: Node, options: TransformOptions): Node {
  * ```
  */
 export function collect<T>(node: Node, options: CollectOptions<T>): Array<T> {
-  const { depth, parent, ...visitor } = options;
-  const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep;
-  const results: Array<T> = [];
+  const { depth, parent, ...visitor } = options
+  const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
+  const results: Array<T> = []
 
-  let v: T | undefined;
+  let v: T | undefined
   switch (node.kind) {
-    case "Input":
-      v = visitor.input?.(node, { parent: parent as ParentOf<InputNode> });
-      break;
-    case "Output":
-      v = visitor.output?.(node, { parent: parent as ParentOf<OutputNode> });
-      break;
-    case "Operation":
+    case 'Input':
+      v = visitor.input?.(node, { parent: parent as ParentOf<InputNode> })
+      break
+    case 'Output':
+      v = visitor.output?.(node, { parent: parent as ParentOf<OutputNode> })
+      break
+    case 'Operation':
       v = visitor.operation?.(node, {
         parent: parent as ParentOf<OperationNode>,
-      });
-      break;
-    case "Schema":
-      v = visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> });
-      break;
-    case "Property":
+      })
+      break
+    case 'Schema':
+      v = visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> })
+      break
+    case 'Property':
       v = visitor.property?.(node, {
         parent: parent as ParentOf<PropertyNode>,
-      });
-      break;
-    case "Parameter":
+      })
+      break
+    case 'Parameter':
       v = visitor.parameter?.(node, {
         parent: parent as ParentOf<ParameterNode>,
-      });
-      break;
-    case "Response":
+      })
+      break
+    case 'Response':
       v = visitor.response?.(node, {
         parent: parent as ParentOf<ResponseNode>,
-      });
-      break;
-    case "FunctionParameter":
-    case "ParameterGroup":
-    case "FunctionParameters":
-      break;
+      })
+      break
+    case 'FunctionParameter':
+    case 'ParameterGroup':
+    case 'FunctionParameters':
+      break
   }
-  if (v !== undefined) results.push(v);
+  if (v !== undefined) results.push(v)
 
   for (const child of getChildren(node, recurse)) {
     for (const item of collect(child, { ...options, parent: node })) {
-      results.push(item);
+      results.push(item)
     }
   }
 
-  return results;
+  return results
 }

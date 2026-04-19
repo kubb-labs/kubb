@@ -1,10 +1,5 @@
-import { TEXT_NODE_NAME } from "./constants.ts";
-import type {
-  DOMElement,
-  DOMNode,
-  DOMNodeAttribute,
-  TextNode,
-} from "./types.ts";
+import { TEXT_NODE_NAME } from './constants.ts'
+import type { DOMElement, DOMNode, DOMNodeAttribute, TextNode } from './types.ts'
 
 /**
  * Create a new, empty {@link DOMElement} with the given node name.
@@ -12,14 +7,14 @@ import type {
  */
 export const createNode = (nodeName: string): DOMElement => {
   const node: DOMElement = {
-    nodeName: nodeName as DOMElement["nodeName"],
+    nodeName: nodeName as DOMElement['nodeName'],
     attributes: new Map(),
     childNodes: [],
     parentNode: undefined,
-  };
+  }
 
-  return node;
-};
+  return node
+}
 
 /**
  * Append `childNode` as the last child of `node`.
@@ -28,19 +23,16 @@ export const createNode = (nodeName: string): DOMElement => {
  * (matching standard DOM move semantics).
  * Text nodes (`nodeName === '#text'`) are silently ignored.
  */
-export const appendChildNode = (
-  node: DOMNode,
-  childNode: DOMElement | DOMNode,
-): void => {
+export const appendChildNode = (node: DOMNode, childNode: DOMElement | DOMNode): void => {
   if (childNode.parentNode) {
-    removeChildNode(childNode.parentNode, childNode);
+    removeChildNode(childNode.parentNode, childNode)
   }
 
   if (node.nodeName !== TEXT_NODE_NAME) {
-    childNode.parentNode = node;
-    node.childNodes.push(childNode);
+    childNode.parentNode = node
+    node.childNodes.push(childNode)
   }
-};
+}
 
 /**
  * Insert `newChildNode` before `beforeChildNode` in `node`'s child list.
@@ -48,53 +40,42 @@ export const appendChildNode = (
  * If `newChildNode` already has a parent, it is removed from that parent first.
  * If `beforeChildNode` is not found, `newChildNode` is appended at the end.
  */
-export const insertBeforeNode = (
-  node: DOMElement,
-  newChildNode: DOMNode,
-  beforeChildNode: DOMNode,
-): void => {
+export const insertBeforeNode = (node: DOMElement, newChildNode: DOMNode, beforeChildNode: DOMNode): void => {
   if (newChildNode.parentNode) {
-    removeChildNode(newChildNode.parentNode, newChildNode);
+    removeChildNode(newChildNode.parentNode, newChildNode)
   }
 
-  newChildNode.parentNode = node;
+  newChildNode.parentNode = node
 
-  const index = node.childNodes.indexOf(beforeChildNode);
+  const index = node.childNodes.indexOf(beforeChildNode)
   if (index >= 0) {
-    node.childNodes.splice(index, 0, newChildNode);
+    node.childNodes.splice(index, 0, newChildNode)
 
-    return;
+    return
   }
 
-  node.childNodes.push(newChildNode);
-};
+  node.childNodes.push(newChildNode)
+}
 
 /**
  * Remove `removeNode` from `node`'s child list and clear its `parentNode` reference.
  * Does nothing if `removeNode` is not a direct child of `node`.
  */
-export const removeChildNode = (
-  node: DOMElement,
-  removeNode: DOMNode,
-): void => {
-  removeNode.parentNode = undefined;
+export const removeChildNode = (node: DOMElement, removeNode: DOMNode): void => {
+  removeNode.parentNode = undefined
 
-  const index = node.childNodes.indexOf(removeNode);
+  const index = node.childNodes.indexOf(removeNode)
   if (index >= 0) {
-    node.childNodes.splice(index, 1);
+    node.childNodes.splice(index, 1)
   }
-};
+}
 
 /**
  * Set an attribute on `node`, storing it in the node's `attributes` map.
  */
-export const setAttribute = (
-  node: DOMElement,
-  key: string,
-  value: DOMNodeAttribute,
-): void => {
-  node.attributes.set(key, value);
-};
+export const setAttribute = (node: DOMElement, key: string, value: DOMNodeAttribute): void => {
+  node.attributes.set(key, value)
+}
 
 /**
  * Create a new {@link TextNode} with the given text value.
@@ -104,21 +85,21 @@ export const createTextNode = (text: string): TextNode => {
     nodeName: TEXT_NODE_NAME,
     nodeValue: text,
     parentNode: undefined,
-  };
+  }
 
-  setTextNodeValue(node, text);
+  setTextNodeValue(node, text)
 
-  return node;
-};
+  return node
+}
 
 /**
  * Update the `nodeValue` of an existing {@link TextNode}.
  * Non-string values are coerced to strings via `String(text)`.
  */
 export const setTextNodeValue = (node: TextNode, text: string): void => {
-  if (typeof text !== "string") {
-    text = String(text);
+  if (typeof text !== 'string') {
+    text = String(text)
   }
 
-  node.nodeValue = text;
-};
+  node.nodeValue = text
+}

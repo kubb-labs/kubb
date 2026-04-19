@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { spawn } from 'node:child_process'
 
 /**
  * CLI command descriptors for each supported linter.
@@ -9,30 +9,30 @@ import { spawn } from "node:child_process";
  */
 export const linters = {
   eslint: {
-    command: "eslint",
-    args: (outputPath: string) => [outputPath, "--fix"],
-    errorMessage: "Eslint not found",
+    command: 'eslint',
+    args: (outputPath: string) => [outputPath, '--fix'],
+    errorMessage: 'Eslint not found',
   },
   biome: {
-    command: "biome",
-    args: (outputPath: string) => ["lint", "--fix", outputPath],
-    errorMessage: "Biome not found",
+    command: 'biome',
+    args: (outputPath: string) => ['lint', '--fix', outputPath],
+    errorMessage: 'Biome not found',
   },
   oxlint: {
-    command: "oxlint",
-    args: (outputPath: string) => ["--fix", outputPath],
-    errorMessage: "Oxlint not found",
+    command: 'oxlint',
+    args: (outputPath: string) => ['--fix', outputPath],
+    errorMessage: 'Oxlint not found',
   },
-} as const;
+} as const
 
-type Linter = keyof typeof linters;
+type Linter = keyof typeof linters
 
 async function isLinterAvailable(linter: Linter): Promise<boolean> {
   return new Promise((resolve) => {
-    const child = spawn(linter, ["--version"], { stdio: "ignore" });
-    child.on("close", (code) => resolve(code === 0));
-    child.on("error", () => resolve(false));
-  });
+    const child = spawn(linter, ['--version'], { stdio: 'ignore' })
+    child.on('close', (code) => resolve(code === 0))
+    child.on('error', () => resolve(false))
+  })
 }
 
 /**
@@ -50,13 +50,13 @@ async function isLinterAvailable(linter: Linter): Promise<boolean> {
  * ```
  */
 export async function detectLinter(): Promise<Linter | null> {
-  const linterNames = new Set(["oxlint", "biome", "eslint"] as const);
+  const linterNames = new Set(['oxlint', 'biome', 'eslint'] as const)
 
   for (const linter of linterNames) {
     if (await isLinterAvailable(linter)) {
-      return linter;
+      return linter
     }
   }
 
-  return null;
+  return null
 }

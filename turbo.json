@@ -6,15 +6,7 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", "*.d.ts", "*.d.cts", ".output/**"],
-      "inputs": [
-        "src/**/*.ts",
-        "server/**/*.ts",
-        "src/**/*.tsx",
-        "tsdown.config.ts",
-        "nitro.config.ts",
-        "package.json",
-        "tsconfig.json"
-      ]
+      "inputs": ["src/**/*.ts", "server/**/*.ts", "src/**/*.tsx", "tsdown.config.ts", "nitro.config.ts", "package.json", "tsconfig.json"]
     },
     "clean": {
       "dependsOn": ["^clean"],
@@ -31,13 +23,7 @@
     "test": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
-      "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "test/**/*.ts",
-        "test/**/*.tsx",
-        "vitest.config.ts"
-      ]
+      "inputs": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx", "vitest.config.ts"]
     },
     "lint": {
       "outputs": [],

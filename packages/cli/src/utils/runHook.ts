@@ -1,101 +1,93 @@
-import type { AsyncEventEmitter } from "@internals/utils";
-import { toError } from "@internals/utils";
-import type { KubbHooks } from "@kubb/core";
-import { NonZeroExitError, x } from "tinyexec";
+import type { AsyncEventEmitter } from '@internals/utils'
+import { toError } from '@internals/utils'
+import type { KubbHooks } from '@kubb/core'
+import { NonZeroExitError, x } from 'tinyexec'
 
 type HookOutputSink = {
   /** Called for each streamed stdout line while the hook runs (optional). */
-  onLine?: (line: string) => void;
+  onLine?: (line: string) => void
   /** Called on stderr after failure (optional). */
-  onStderr?: (text: string) => void;
+  onStderr?: (text: string) => void
   /** Called on stdout after failure (optional). */
-  onStdout?: (text: string) => void;
-};
+  onStdout?: (text: string) => void
+}
 
 type RunHookOptions = {
-  id: string;
-  command: string;
-  args?: readonly string[];
-  commandWithArgs: string;
-  context: AsyncEventEmitter<KubbHooks>;
+  id: string
+  command: string
+  args?: readonly string[]
+  commandWithArgs: string
+  context: AsyncEventEmitter<KubbHooks>
   /** When true the process output is streamed line-by-line via onLine. */
-  stream?: boolean;
-  sink?: HookOutputSink;
-};
+  stream?: boolean
+  sink?: HookOutputSink
+}
 
 /**
  * Execute a hook command, emit debug/hook:end events, and forward output to
  * an optional HookOutputSink.  All three logger adapters share this function
  * so the process-spawning logic lives in exactly one place.
  */
-export async function runHook({
-  id,
-  command,
-  args,
-  commandWithArgs,
-  context,
-  stream = false,
-  sink,
-}: RunHookOptions): Promise<void> {
+export async function runHook({ id, command, args, commandWithArgs, context, stream = false, sink }: RunHookOptions): Promise<void> {
   try {
     const proc = x(command, [...(args ?? [])], {
       nodeOptions: { detached: true },
       throwOnError: true,
-    });
+    })
 
     if (stream && sink?.onLine) {
       for await (const line of proc) {
-        sink.onLine(line);
+        sink.onLine(line)
       }
     }
 
-    const result = await proc;
+    const result = await proc
 
-    await context.emit("kubb:debug", {
+    await context.emit('kubb:debug', {
       date: new Date(),
       logs: [result.stdout.trimEnd()],
-    });
+    })
 
-    await context.emit("kubb:hook:end", {
+    await context.emit('kubb:hook:end', {
       command,
       args,
       id,
       success: true,
       error: null,
-    });
+    })
   } catch (err) {
     if (!(err instanceof NonZeroExitError)) {
-      await context.emit("kubb:hook:end", {
+      await context.emit('kubb:hook:end', {
         command,
         args,
         id,
         success: false,
         error: toError(err),
-      });
-      await context.emit("kubb:error", toError(err));
-      return;
+      })
+      await context.emit('kubb:error', toError(err))
+      return
     }
 
-    const stderr = err.output?.stderr ?? "";
-    const stdout = err.output?.stdout ?? "";
+    const stderr = err.output?.stderr ?? ''
+    const stdout = err.output?.stdout ?? ''
 
-    await context.emit("kubb:debug", {
+    await context.emit('kubb:debug', {
       date: new Date(),
       logs: [stdout, stderr].filter(Boolean),
-    });
+    })
 
-    if (stderr) sink?.onStderr?.(stderr);
-    if (stdout) sink?.onStdout?.(stdout);
+    if (stderr) sink?.onStderr?.(stderr)
+    if (stdout) sink?.onStdout?.(stdout)
 
-    const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`);
+    const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
 
-    await context.emit("kubb:hook:end", {
+    await context.emit('kubb:hook:end', {
       command,
       args,
       id,
       success: false,
       error: errorMessage,
-    });
-    await context.emit("kubb:error", errorMessage);
+    })
+    await context.emit('kubb:error', errorMessage)
   }
 }

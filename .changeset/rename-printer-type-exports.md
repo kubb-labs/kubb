@@ -1,6 +1,6 @@
 ---
-"@kubb/ast": minor
-"@kubb/core": minor
+'@kubb/ast': minor
+'@kubb/core': minor
 ---
 
 Rename printer type exports and simplify resolver/transformer APIs.

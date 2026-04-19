@@ -23,14 +23,14 @@ aside: false
 Generate clients with static methods:
 
 ```typescript title="src/example.ts"
-import { Pet } from "./gen/clients/Pet";
+import { Pet } from './gen/clients/Pet'
 
 // Get a pet by ID
-const pet = await Pet.getPetById({ petId: 1 });
+const pet = await Pet.getPetById({ petId: 1 })
 
 // Add a new pet
 const newPet = await Pet.addPet({
-  name: "Fluffy",
-  status: "available",
-});
+  name: 'Fluffy',
+  status: 'available',
+})
 ```

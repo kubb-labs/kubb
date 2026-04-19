@@ -30,7 +30,7 @@ npm i -D unplugin-kubb @kubb/core
 ```
 
 ```typescript
-import kubb from "unplugin-kubb/vite";
+import kubb from 'unplugin-kubb/vite'
 
 export default defineConfig({
   plugins: [
@@ -38,11 +38,11 @@ export default defineConfig({
       /* options */
     }),
   ],
-});
+})
 ```
 
 ```typescript
-import kubb from "unplugin-kubb/rollup";
+import kubb from 'unplugin-kubb/rollup'
 
 export default {
   plugins: [
@@ -50,31 +50,31 @@ export default {
       /* options */
     }),
   ],
-};
+}
 ```
 
 ```typescript
 module.exports = {
   /* ... */
   plugins: [
-    require("unplugin-kubb/webpack")({
+    require('unplugin-kubb/webpack')({
       /* options */
     }),
   ],
-};
+}
 ```
 
 ```typescript
 export default defineNuxtConfig({
   modules: [
     [
-      "unplugin-kubb/nuxt",
+      'unplugin-kubb/nuxt',
       {
         /* options */
       },
     ],
   ],
-});
+})
 ```
 
 > This module works for both Nuxt 2 and [Nuxt Vite](https://github.com/nuxt/vite)
@@ -83,21 +83,21 @@ export default defineNuxtConfig({
 module.exports = {
   configureWebpack: {
     plugins: [
-      require("unplugin-kubb/webpack")({
+      require('unplugin-kubb/webpack')({
         /* options */
       }),
     ],
   },
-};
+}
 ```
 
 ```typescript
-import { build } from "esbuild";
-import kubb from "unplugin-kubb/esbuild";
+import { build } from 'esbuild'
+import kubb from 'unplugin-kubb/esbuild'
 
 build({
   plugins: [kubb()],
-});
+})
 ```
 
 ## Options
@@ -108,8 +108,8 @@ Define the options for Kubb.
 
 ```typescript [Options]
 type Options = {
-  config: UserConfig;
-};
+  config: UserConfig
+}
 ```
 
 ## Supporting Kubb

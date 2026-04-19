@@ -1,5 +1,5 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 /**
  * Supported package manager identifiers.
@@ -9,7 +9,7 @@ import { join } from "node:path";
  * const pm: PackageManagerName = 'pnpm'
  * ```
  */
-export type PackageManagerName = "npm" | "pnpm" | "yarn" | "bun";
+export type PackageManagerName = 'npm' | 'pnpm' | 'yarn' | 'bun'
 
 /**
  * Metadata describing a package manager's lock file and install command.
@@ -18,15 +18,15 @@ export interface PackageManagerInfo {
   /**
    * Identifier used in CLI commands, e.g. `pnpm`, `yarn`.
    */
-  name: PackageManagerName;
+  name: PackageManagerName
   /**
    * Lock file name that uniquely identifies this package manager in a project root.
    */
-  lockFile: string;
+  lockFile: string
   /**
    * Subcommands passed to the package manager binary to install a dev dependency.
    */
-  installCommand: ReadonlyArray<string>;
+  installCommand: ReadonlyArray<string>
 }
 /**
  * Metadata for each supported package manager, keyed by its short name.
@@ -39,26 +39,26 @@ export interface PackageManagerInfo {
  */
 const packageManagers: Record<PackageManagerName, PackageManagerInfo> = {
   pnpm: {
-    name: "pnpm",
-    lockFile: "pnpm-lock.yaml",
-    installCommand: ["add", "-D"],
+    name: 'pnpm',
+    lockFile: 'pnpm-lock.yaml',
+    installCommand: ['add', '-D'],
   },
   yarn: {
-    name: "yarn",
-    lockFile: "yarn.lock",
-    installCommand: ["add", "-D"],
+    name: 'yarn',
+    lockFile: 'yarn.lock',
+    installCommand: ['add', '-D'],
   },
   bun: {
-    name: "bun",
-    lockFile: "bun.lockb",
-    installCommand: ["add", "-d"],
+    name: 'bun',
+    lockFile: 'bun.lockb',
+    installCommand: ['add', '-d'],
   },
   npm: {
-    name: "npm",
-    lockFile: "package-lock.json",
-    installCommand: ["install", "--save-dev"],
+    name: 'npm',
+    lockFile: 'package-lock.json',
+    installCommand: ['install', '--save-dev'],
   },
-};
+}
 
 /**
  * Minimal shape of `package.json` fields read during detection.
@@ -67,8 +67,8 @@ type PackageJson = {
   /**
    * The `packageManager` field from `package.json` (e.g. `"pnpm@9.0.0"`).
    */
-  packageManager?: string;
-};
+  packageManager?: string
+}
 
 /**
  * Detects the active package manager for the given directory.
@@ -81,20 +81,16 @@ type PackageJson = {
  * detectPackageManager()              // falls back to npm when no lock file is found
  * ```
  */
-export function detectPackageManager(
-  cwd: string = process.cwd(),
-): PackageManagerInfo {
-  const packageJsonPath = join(cwd, "package.json");
+export function detectPackageManager(cwd: string = process.cwd()): PackageManagerInfo {
+  const packageJsonPath = join(cwd, 'package.json')
   if (existsSync(packageJsonPath)) {
     try {
-      const packageJson = JSON.parse(
-        readFileSync(packageJsonPath, "utf-8"),
-      ) as PackageJson;
-      const pmField = packageJson.packageManager;
-      if (typeof pmField === "string") {
-        const name = pmField.split("@")[0];
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8')) as PackageJson
+      const pmField = packageJson.packageManager
+      if (typeof pmField === 'string') {
+        const name = pmField.split('@')[0]
         if (name && name in packageManagers) {
-          return packageManagers[name as PackageManagerName];
+          return packageManagers[name as PackageManagerName]
         }
       }
     } catch {
@@ -104,9 +100,9 @@ export function detectPackageManager(
 
   for (const pm of Object.values(packageManagers)) {
     if (existsSync(join(cwd, pm.lockFile))) {
-      return pm;
+      return pm
     }
   }
 
-  return packageManagers.npm;
+  return packageManagers.npm
 }

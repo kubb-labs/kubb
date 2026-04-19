@@ -100,17 +100,17 @@ kubb generate --config ./configs/kubb.config.ts
 3. If using a URL, verify it's accessible
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core";
+import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
   input: {
     // Use absolute path if relative path fails
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
-});
+})
 ```
 
 ### Module Type Errors
@@ -136,18 +136,18 @@ export default defineConfig({
 Most plugins require `@kubb/plugin-oas`:
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
-  input: { path: "./petStore.yaml" },
-  output: { path: "./src/gen" },
+  input: { path: './petStore.yaml' },
+  output: { path: './src/gen' },
   plugins: [
     pluginOas(), // Required by most plugins
     pluginTs(),
   ],
-});
+})
 ```
 
 ### Empty or Incomplete Output
@@ -196,8 +196,8 @@ kubb generate --debug
 
 ```typescript
 pluginTs({
-  include: [{ type: "tag", pattern: "pets" }],
-});
+  include: [{ type: 'tag', pattern: 'pets' }],
+})
 ```
 
 2. Disable unused plugins
@@ -227,12 +227,12 @@ NODE_OPTIONS="--max-old-space-size=4096" kubb generate
 ```typescript [kubb.config.ts]
 export default defineConfig({
   output: {
-    path: "./src/gen",
+    path: './src/gen',
     extension: {
-      ".ts": ".js", // For ESM compatibility
+      '.ts': '.js', // For ESM compatibility
     },
   },
-});
+})
 ```
 
 3. Ensure barrel files are generated (check `output.barrelType`)
@@ -246,11 +246,11 @@ export default defineConfig({
 1. Verify your base URL configuration:
 
 ```typescript
-import { client } from "./gen/client";
+import { client } from './gen/client'
 
 client.setConfig({
-  baseURL: "https://api.example.com",
-});
+  baseURL: 'https://api.example.com',
+})
 ```
 
 2. Check if CORS is enabled on the server

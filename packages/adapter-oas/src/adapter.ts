@@ -1,15 +1,15 @@
-import { ast, createAdapter } from "@kubb/core";
-import { DEFAULT_PARSER_OPTIONS } from "./constants.ts";
-import { applyDiscriminatorInheritance } from "./discriminator.ts";
-import { parseFromConfig, validateDocument } from "./factory.ts";
-import { parseOas } from "./parser.ts";
-import { resolveServerUrl } from "./resolvers.ts";
-import type { AdapterOas, Document } from "./types.ts";
+import { ast, createAdapter } from '@kubb/core'
+import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
+import { applyDiscriminatorInheritance } from './discriminator.ts'
+import { parseFromConfig, validateDocument } from './factory.ts'
+import { parseOas } from './parser.ts'
+import { resolveServerUrl } from './resolvers.ts'
+import type { AdapterOas, Document } from './types.ts'
 
 /**
  * Stable string identifier for the OAS adapter used in Kubb's adapter registry.
  */
-export const adapterOasName = "oas" satisfies AdapterOas["name"];
+export const adapterOasName = 'oas' satisfies AdapterOas['name']
 
 /**
  * Creates the default OpenAPI / Swagger adapter for Kubb.
@@ -36,18 +36,18 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     contentType,
     serverIndex,
     serverVariables,
-    discriminator = "strict",
+    discriminator = 'strict',
     dateType = DEFAULT_PARSER_OPTIONS.dateType,
     integerType = DEFAULT_PARSER_OPTIONS.integerType,
     unknownType = DEFAULT_PARSER_OPTIONS.unknownType,
     enumSuffix = DEFAULT_PARSER_OPTIONS.enumSuffix,
     emptySchemaType = unknownType || DEFAULT_PARSER_OPTIONS.emptySchemaType,
-  } = options;
+  } = options
 
   // Let-binding so parse() can replace it with a simple reassignment (no clear+loop).
-  let nameMapping = new Map<string, string>();
-  let parsedDocument: Document | null;
-  let inputNode: ast.InputNode | null;
+  let nameMapping = new Map<string, string>()
+  let parsedDocument: Document | null
+  let inputNode: ast.InputNode | null
 
   return {
     name: adapterOasName,
@@ -64,62 +64,51 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         emptySchemaType,
         enumSuffix,
         nameMapping,
-      };
+      }
     },
     get document() {
-      return parsedDocument;
+      return parsedDocument
     },
     get inputNode() {
-      return inputNode;
+      return inputNode
     },
     getImports(node, resolve) {
       return ast.collectImports({
         node,
         nameMapping,
         resolve: (schemaName) => {
-          const result = resolve(schemaName);
-          if (!result) return;
+          const result = resolve(schemaName)
+          if (!result) return
 
-          return ast.createImport({ name: [result.name], path: result.path });
+          return ast.createImport({ name: [result.name], path: result.path })
         },
-      });
+      })
     },
     async parse(source) {
-      const document = await parseFromConfig(source);
+      const document = await parseFromConfig(source)
 
       if (validate) {
-        await validateDocument(document);
+        await validateDocument(document)
       }
 
-      const server =
-        serverIndex !== undefined
-          ? document.servers?.at(serverIndex)
-          : undefined;
-      const baseURL = server?.url
-        ? resolveServerUrl(server, serverVariables)
-        : undefined;
+      const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
+      const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
 
-      const { root: parsedRoot, nameMapping: parsedNameMapping } = parseOas(
-        document,
-        {
-          contentType,
-          dateType,
-          integerType,
-          unknownType,
-          emptySchemaType,
-          enumSuffix,
-        },
-      );
+      const { root: parsedRoot, nameMapping: parsedNameMapping } = parseOas(document, {
+        contentType,
+        dateType,
+        integerType,
+        unknownType,
+        emptySchemaType,
+        enumSuffix,
+      })
 
-      const node =
-        discriminator === "inherit"
-          ? applyDiscriminatorInheritance(parsedRoot)
-          : parsedRoot;
+      const node = discriminator === 'inherit' ? applyDiscriminatorInheritance(parsedRoot) : parsedRoot
 
       // This must happen after parseOas() because legacy enum remapping is finalized there.
-      nameMapping = parsedNameMapping;
+      nameMapping = parsedNameMapping
       // Expose the raw document so consumers (e.g. plugin-redoc) can access it.
-      parsedDocument = document;
+      parsedDocument = document
 
       inputNode = ast.createInput({
         ...node,
@@ -129,9 +118,9 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
           version: document.info?.version,
           baseURL,
         },
-      });
+      })
 
-      return inputNode;
+      return inputNode
     },
-  };
-});
+  }
+})

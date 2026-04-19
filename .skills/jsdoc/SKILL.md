@@ -138,7 +138,7 @@ concurrency?: number
  * - `'inline'` spreads them as individual parameters
  * - `'inlineSpread'` emits a single rest parameter
  */
-pathParamsType: "object" | "inline" | "inlineSpread";
+pathParamsType: 'object' | 'inline' | 'inlineSpread'
 ```
 
 ### Property with example

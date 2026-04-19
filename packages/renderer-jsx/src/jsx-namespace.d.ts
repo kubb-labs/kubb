@@ -1,4 +1,4 @@
-import type React from "react";
+import type React from 'react'
 
 import type {
   KubbArrowFunctionProps,
@@ -14,43 +14,39 @@ import type {
   KubbTextProps,
   KubbTypeProps,
   LineBreakProps,
-} from "./types";
+} from './types'
 
 export namespace JSX {
-  type ElementType = React.JSX.ElementType;
-  type Element = KubbReactElement;
+  type ElementType = React.JSX.ElementType
+  type Element = KubbReactElement
 
   interface ElementClass extends React.JSX.ElementClass {
-    render(): KubbReactNode;
+    render(): KubbReactNode
   }
   interface ElementAttributesProperty {
-    props: {};
+    props: {}
   }
 
   interface ElementChildrenAttribute {
-    children: {};
+    children: {}
   }
 
   interface IntrinsicElements extends React.JSX.IntrinsicElements {
-    "kubb-jsx": KubbJsxProps;
-    "kubb-text": KubbTextProps;
-    "kubb-file": KubbFileProps;
-    "kubb-source": KubbSourceProps;
-    "kubb-import": KubbImportProps;
-    "kubb-export": KubbExportProps;
-    "kubb-function": KubbFunctionProps;
-    "kubb-arrow-function": KubbArrowFunctionProps;
-    "kubb-const": KubbConstProps;
-    "kubb-type": KubbTypeProps;
-    br: LineBreakProps;
-    indent: {};
-    dedent: {};
+    'kubb-jsx': KubbJsxProps
+    'kubb-text': KubbTextProps
+    'kubb-file': KubbFileProps
+    'kubb-source': KubbSourceProps
+    'kubb-import': KubbImportProps
+    'kubb-export': KubbExportProps
+    'kubb-function': KubbFunctionProps
+    'kubb-arrow-function': KubbArrowFunctionProps
+    'kubb-const': KubbConstProps
+    'kubb-type': KubbTypeProps
+    br: LineBreakProps
+    indent: {}
+    dedent: {}
   }
-  type LibraryManagedAttributes<C, P> = React.JSX.LibraryManagedAttributes<
-    C,
-    P
-  >;
-  interface IntrinsicClassAttributes<T> extends React.JSX
-    .IntrinsicClassAttributes<T> {}
+  type LibraryManagedAttributes<C, P> = React.JSX.LibraryManagedAttributes<C, P>
+  interface IntrinsicClassAttributes<T> extends React.JSX.IntrinsicClassAttributes<T> {}
   interface IntrinsicElements extends React.JSX.IntrinsicElements {}
 }

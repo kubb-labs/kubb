@@ -1,70 +1,60 @@
-import path from "node:path";
-import { describe, expect, it } from "vitest";
+import path from 'node:path'
+import { describe, expect, it } from 'vitest'
 
-describe("Output path resolution", () => {
-  it("should resolve relative paths correctly", () => {
+describe('Output path resolution', () => {
+  it('should resolve relative paths correctly', () => {
     const config = {
-      root: "./src",
+      root: './src',
       output: {
-        path: "./generated",
+        path: './generated',
       },
-    };
+    }
 
     // Simulate the fix: use absolute path resolution
-    const outputPath = path.isAbsolute(config.output.path)
-      ? config.output.path
-      : path.resolve(process.cwd(), config.root, config.output.path);
+    const outputPath = path.isAbsolute(config.output.path) ? config.output.path : path.resolve(process.cwd(), config.root, config.output.path)
 
     // Should resolve to cwd/src/generated
-    expect(outputPath).toBe(path.join(process.cwd(), "src", "generated"));
-    expect(path.isAbsolute(outputPath)).toBe(true);
-  });
+    expect(outputPath).toBe(path.join(process.cwd(), 'src', 'generated'))
+    expect(path.isAbsolute(outputPath)).toBe(true)
+  })
 
-  it("should handle absolute output paths", () => {
-    const absolutePath = "/absolute/path/to/generated";
+  it('should handle absolute output paths', () => {
+    const absolutePath = '/absolute/path/to/generated'
     const config = {
-      root: "./src",
+      root: './src',
       output: {
         path: absolutePath,
       },
-    };
+    }
 
-    const outputPath = path.isAbsolute(config.output.path)
-      ? config.output.path
-      : path.resolve(process.cwd(), config.root, config.output.path);
+    const outputPath = path.isAbsolute(config.output.path) ? config.output.path : path.resolve(process.cwd(), config.root, config.output.path)
 
-    expect(outputPath).toBe(absolutePath);
-  });
+    expect(outputPath).toBe(absolutePath)
+  })
 
-  it("should work with different root configurations", () => {
+  it('should work with different root configurations', () => {
     const config = {
-      root: "./my-api",
+      root: './my-api',
       output: {
-        path: "./dist/generated",
+        path: './dist/generated',
       },
-    };
+    }
 
-    const outputPath = path.isAbsolute(config.output.path)
-      ? config.output.path
-      : path.resolve(process.cwd(), config.root, config.output.path);
+    const outputPath = path.isAbsolute(config.output.path) ? config.output.path : path.resolve(process.cwd(), config.root, config.output.path)
 
-    expect(outputPath).toBe(
-      path.join(process.cwd(), "my-api", "dist", "generated"),
-    );
-  });
+    expect(outputPath).toBe(path.join(process.cwd(), 'my-api', 'dist', 'generated'))
+  })
 
-  it("should handle root at project root", () => {
+  it('should handle root at project root', () => {
     const config = {
-      root: ".",
+      root: '.',
       output: {
-        path: "./generated",
+        path: './generated',
       },
-    };
+    }
 
-    const outputPath = path.isAbsolute(config.output.path)
-      ? config.output.path
-      : path.resolve(process.cwd(), config.root, config.output.path);
+    const outputPath = path.isAbsolute(config.output.path) ? config.output.path : path.resolve(process.cwd(), config.root, config.output.path)
 
-    expect(outputPath).toBe(path.join(process.cwd(), "generated"));
-  });
-});
+    expect(outputPath).toBe(path.join(process.cwd(), 'generated'))
+  })
+})

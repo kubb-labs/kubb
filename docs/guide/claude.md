@@ -91,29 +91,29 @@ To use [Claude](https://claude.ai), define a `kubb.config.ts` file with [MCP](ht
 > Define your `baseURL` so Claude knows which endpoints to call.
 
 ```typescript [kubb.config.ts] twoslash
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginMcp } from "@kubb/plugin-mcp";
-import { pluginZod } from "@kubb/plugin-zod";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginMcp } from '@kubb/plugin-mcp'
+import { pluginZod } from '@kubb/plugin-zod'
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   plugins: [
     pluginOas(),
     pluginTs(),
     pluginMcp({
       client: {
-        baseURL: "https://petstore.swagger.io/v2", // [!code ++]
+        baseURL: 'https://petstore.swagger.io/v2', // [!code ++]
       },
     }),
   ],
-});
+})
 ```
 
 ## Generate MCP files
@@ -153,37 +153,25 @@ This example focuses on the `src/mcp` folder, which contains files for creating 
 The `addPetHandler` function sends a POST request to the Swagger PetStore API to add a new pet. It takes pet data as input, handles the response, and returns it as a JSON-formatted message for [MCP](https://modelcontextprotocol.io) to use in conversations.
 
 ```typescript [src/mcp/addPet.ts]
-import client from "@kubb/plugin-clients/client/axios";
-import type {
-  AddPetMutationRequest,
-  AddPetMutationResponse,
-  AddPet405,
-} from "../models/AddPet";
-import type { CallToolResult } from "@modelcontextprotocol/sdk/types";
+import client from '@kubb/plugin-clients/client/axios'
+import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 
-export async function addPetHandler({
-  data,
-}: {
-  data: AddPetMutationRequest;
-}): Promise<Promise<CallToolResult>> {
-  const res = await client<
-    AddPetMutationResponse,
-    ResponseErrorConfig<AddPet405>,
-    AddPetMutationRequest
-  >({
-    method: "POST",
-    url: "/pet",
-    baseURL: "https://petstore.swagger.io/v2",
+export async function addPetHandler({ data }: { data: AddPetMutationRequest }): Promise<Promise<CallToolResult>> {
+  const res = await client<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
+    method: 'POST',
+    url: '/pet',
+    baseURL: 'https://petstore.swagger.io/v2',
     data,
-  });
+  })
   return {
     content: [
       {
-        type: "text",
+        type: 'text',
         text: JSON.stringify(res.data),
       },
     ],
-  };
+  }
 }
 ```
 
@@ -219,37 +207,32 @@ This code sets up and starts an [MCP](https://modelcontextprotocol.io) server th
 In short, this code sets up an [MCP](https://modelcontextprotocol.io) server that processes API requests to 'add a new pet' by using the `addPetHandler`.
 
 ```typescript [src/mcp/server.ts]
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio";
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
 
-import { addPetHandler } from "./addPet";
-import { addPetMutationRequestSchema } from "../zod/addPetSchema";
+import { addPetHandler } from './addPet'
+import { addPetMutationRequestSchema } from '../zod/addPetSchema'
 
 export const server = new McpServer({
-  name: "Swagger PetStore - OpenAPI 3.0",
-  version: "3.0.3",
-});
+  name: 'Swagger PetStore - OpenAPI 3.0',
+  version: '3.0.3',
+})
 
-server.tool(
-  "addPet",
-  "Add a new pet to the store",
-  { data: addPetMutationRequestSchema },
-  async ({ data }) => {
-    return addPetHandler({ data });
-  },
-);
+server.tool('addPet', 'Add a new pet to the store', { data: addPetMutationRequestSchema }, async ({ data }) => {
+  return addPetHandler({ data })
+})
 
 async function startServer() {
   try {
-    const transport = new StdioServerTransport();
-    await server.connect(transport);
+    const transport = new StdioServerTransport()
+    await server.connect(transport)
   } catch (error) {
-    console.error("Failed to start server:", error);
-    process.exit(1);
+    console.error('Failed to start server:', error)
+    process.exit(1)
   }
 }
 
-startServer();
+startServer()
 ```
 
 ## Start Claude with the MCP server

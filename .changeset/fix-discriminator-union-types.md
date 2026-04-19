@@ -1,5 +1,5 @@
 ---
-"@kubb/adapter-oas": patch
+'@kubb/adapter-oas': patch
 ---
 
 Embed discriminant values into union members.

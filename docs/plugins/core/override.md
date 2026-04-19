@@ -7,8 +7,8 @@ Array containing override parameters to override `options` based on tags, operat
 
 ```typescript [Override]
 export type Override = {
-  type: "tag" | "operationId" | "path" | "method" | "contentType";
-  pattern: string | RegExp;
-  options: PluginOptions;
-};
+  type: 'tag' | 'operationId' | 'path' | 'method' | 'contentType'
+  pattern: string | RegExp
+  options: PluginOptions
+}
 ```

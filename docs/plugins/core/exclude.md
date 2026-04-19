@@ -7,7 +7,7 @@ Array containing exclude parameters to exclude or skip tags, operations, methods
 
 ```typescript [Exclude]
 export type Exclude = {
-  type: "tag" | "operationId" | "path" | "method" | "contentType";
-  pattern: string | RegExp;
-};
+  type: 'tag' | 'operationId' | 'path' | 'method' | 'contentType'
+  pattern: string | RegExp
+}
 ```

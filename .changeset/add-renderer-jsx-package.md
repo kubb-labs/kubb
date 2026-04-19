@@ -1,6 +1,6 @@
 ---
-"@kubb/renderer-jsx": minor
-"@kubb/core": patch
+'@kubb/renderer-jsx': minor
+'@kubb/core': patch
 ---
 
 Add `@kubb/renderer-jsx` package.

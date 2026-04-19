@@ -1,11 +1,11 @@
-import type { FileNode } from "@kubb/ast";
+import type { FileNode } from '@kubb/ast'
 
 type PrintOptions = {
-  extname?: FileNode["extname"];
-};
+  extname?: FileNode['extname']
+}
 
 export type Parser<TMeta extends object = any> = {
-  name: string;
+  name: string
   /**
    * File extensions this parser handles.
    * Use `undefined` to create a catch-all fallback parser.
@@ -13,15 +13,12 @@ export type Parser<TMeta extends object = any> = {
    * @example Handled extensions
    * `['.ts', '.js']`
    */
-  extNames: Array<FileNode["extname"]> | undefined;
+  extNames: Array<FileNode['extname']> | undefined
   /**
    * Convert a resolved file to a string.
    */
-  parse(
-    file: FileNode<TMeta>,
-    options?: PrintOptions,
-  ): Promise<string> | string;
-};
+  parse(file: FileNode<TMeta>, options?: PrintOptions): Promise<string> | string
+}
 
 /**
  * Defines a parser with type safety.
@@ -43,8 +40,6 @@ export type Parser<TMeta extends object = any> = {
  * })
  * ```
  */
-export function defineParser<TMeta extends object = any>(
-  parser: Parser<TMeta>,
-): Parser<TMeta> {
-  return parser;
+export function defineParser<TMeta extends object = any>(parser: Parser<TMeta>): Parser<TMeta> {
+  return parser
 }

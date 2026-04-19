@@ -88,13 +88,7 @@ services:
       - agent_kv:/kubb/agent/.kubb/data
     restart: unless-stopped
     healthcheck:
-      test:
-        [
-          "CMD",
-          "node",
-          "-e",
-          "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))",
-        ]
+      test: ['CMD', 'node', '-e', "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
       interval: 15s
       timeout: 10s
       start_period: 60s
@@ -308,19 +302,19 @@ The `input` value is treated as `InputData` (i.e. `{ data: "<content>" }`) and o
 ### 1. Create a Kubb configuration file (`kubb.config.ts`):
 
 ```typescript
-import { defineConfig } from "kubb";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
+import { defineConfig } from 'kubb'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: {
-    path: "./openapi.json",
+    path: './openapi.json',
   },
   output: {
-    path: "./src/generated",
+    path: './src/generated',
   },
   plugins: [pluginOas(), pluginTs()],
-});
+})
 ```
 
 ### 2. Start the agent server:

@@ -143,34 +143,34 @@ Return the name of a group based on the group name, this will be used for the fi
 ## Example
 
 ```typescript twoslash
-import { defineConfig } from "@kubb/core";
-import { adapterOas } from "@kubb/adapter-oas";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginCypress } from "@kubb/plugin-cypress";
+import { defineConfig } from '@kubb/core'
+import { adapterOas } from '@kubb/adapter-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginCypress } from '@kubb/plugin-cypress'
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   adapter: adapterOas(),
   plugins: [
     pluginTs(),
     pluginCypress({
       output: {
-        path: "./cypress",
-        barrelType: "named",
-        banner: "/* eslint-disable no-alert, no-console */",
+        path: './cypress',
+        barrelType: 'named',
+        banner: '/* eslint-disable no-alert, no-console */',
       },
       group: {
-        type: "tag",
+        type: 'tag',
         name: ({ group }) => `${group}Requests`,
       },
     }),
   ],
-});
+})
 ```
 
 ## See Also

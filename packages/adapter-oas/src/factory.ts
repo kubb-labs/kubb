@@ -1,25 +1,21 @@
-import path from "node:path";
-import { mergeDeep, URLPath } from "@internals/utils";
-import type { AdapterSource } from "@kubb/core";
-import { bundle, loadConfig } from "@redocly/openapi-core";
-import OASNormalize from "oas-normalize";
-import swagger2openapi from "swagger2openapi";
-import {
-  MERGE_DEFAULT_TITLE,
-  MERGE_DEFAULT_VERSION,
-  MERGE_OPENAPI_VERSION,
-} from "./constants.ts";
-import { isOpenApiV2Document } from "./guards.ts";
-import type { Document } from "./types.ts";
+import path from 'node:path'
+import { mergeDeep, URLPath } from '@internals/utils'
+import type { AdapterSource } from '@kubb/core'
+import { bundle, loadConfig } from '@redocly/openapi-core'
+import OASNormalize from 'oas-normalize'
+import swagger2openapi from 'swagger2openapi'
+import { MERGE_DEFAULT_TITLE, MERGE_DEFAULT_VERSION, MERGE_OPENAPI_VERSION } from './constants.ts'
+import { isOpenApiV2Document } from './guards.ts'
+import type { Document } from './types.ts'
 
 export type ParseOptions = {
-  canBundle?: boolean;
-  enablePaths?: boolean;
-};
+  canBundle?: boolean
+  enablePaths?: boolean
+}
 
 export type ValidateDocumentOptions = {
-  throwOnError?: boolean;
-};
+  throwOnError?: boolean
+}
 
 /**
  * Loads and dereferences an OpenAPI document, returning the raw `Document`.
@@ -34,39 +30,36 @@ export type ValidateDocumentOptions = {
  * const document = await parse(rawDocumentObject, { canBundle: false })
  * ```
  */
-export async function parseDocument(
-  pathOrApi: string | Document,
-  { canBundle = true, enablePaths = true }: ParseOptions = {},
-): Promise<Document> {
-  if (typeof pathOrApi === "string" && canBundle) {
-    const config = await loadConfig();
+export async function parseDocument(pathOrApi: string | Document, { canBundle = true, enablePaths = true }: ParseOptions = {}): Promise<Document> {
+  if (typeof pathOrApi === 'string' && canBundle) {
+    const config = await loadConfig()
     const bundleResults = await bundle({
       ref: pathOrApi,
       config,
       base: pathOrApi,
-    });
+    })
 
     return parseDocument(bundleResults.bundle.parsed as string, {
       canBundle,
       enablePaths,
-    });
+    })
   }
 
   const oasNormalize = new OASNormalize(pathOrApi, {
     enablePaths,
     colorizeErrors: true,
-  });
-  const document = (await oasNormalize.load()) as Document;
+  })
+  const document = (await oasNormalize.load()) as Document
 
   if (isOpenApiV2Document(document)) {
     const { openapi } = await swagger2openapi.convertObj(document, {
       anchors: true,
-    });
+    })
 
-    return openapi as Document;
+    return openapi as Document
   }
 
-  return document;
+  return document
 }
 
 /**
@@ -80,18 +73,14 @@ export async function parseDocument(
  * const document = await mergeDocuments(['./pets.yaml', './orders.yaml'])
  * ```
  */
-export async function mergeDocuments(
-  pathOrApi: Array<string | Document>,
-): Promise<Document> {
-  const documents: Document[] = [];
+export async function mergeDocuments(pathOrApi: Array<string | Document>): Promise<Document> {
+  const documents: Document[] = []
   for (const p of pathOrApi) {
-    documents.push(
-      await parseDocument(p, { enablePaths: false, canBundle: false }),
-    );
+    documents.push(await parseDocument(p, { enablePaths: false, canBundle: false }))
   }
 
   if (documents.length === 0) {
-    throw new Error("No OAS documents provided for merging.");
+    throw new Error('No OAS documents provided for merging.')
   }
 
   const seed: Document = {
@@ -99,18 +88,14 @@ export async function mergeDocuments(
     info: { title: MERGE_DEFAULT_TITLE, version: MERGE_DEFAULT_VERSION },
     paths: {},
     components: { schemas: {} },
-  } as Document;
+  } as Document
 
   const merged = documents.reduce(
-    (acc, current) =>
-      mergeDeep(
-        acc as Record<string, unknown>,
-        current as Record<string, unknown>,
-      ),
+    (acc, current) => mergeDeep(acc as Record<string, unknown>, current as Record<string, unknown>),
     seed as Record<string, unknown>,
-  );
+  )
 
-  return parseDocument(merged as Document);
+  return parseDocument(merged as Document)
 }
 
 /**
@@ -128,24 +113,24 @@ export async function mergeDocuments(
  * ```
  */
 export function parseFromConfig(source: AdapterSource): Promise<Document> {
-  if (source.type === "data") {
-    if (typeof source.data === "object") {
-      return parseDocument(structuredClone(source.data) as Document);
+  if (source.type === 'data') {
+    if (typeof source.data === 'object') {
+      return parseDocument(structuredClone(source.data) as Document)
     }
 
-    return parseDocument(source.data as string, { canBundle: false });
+    return parseDocument(source.data as string, { canBundle: false })
   }
 
-  if (source.type === "paths") {
-    return mergeDocuments(source.paths);
+  if (source.type === 'paths') {
+    return mergeDocuments(source.paths)
   }
 
   // type === 'path'
   if (new URLPath(source.path).isURL) {
-    return parseDocument(source.path);
+    return parseDocument(source.path)
   }
 
-  return parseDocument(path.resolve(path.dirname(source.path), source.path));
+  return parseDocument(path.resolve(path.dirname(source.path), source.path))
 }
 
 /**
@@ -156,15 +141,12 @@ export function parseFromConfig(source: AdapterSource): Promise<Document> {
  * await validateDocument(document)
  * ```
  */
-export async function validateDocument(
-  document: Document,
-  { throwOnError = false }: ValidateDocumentOptions = {},
-): Promise<void> {
+export async function validateDocument(document: Document, { throwOnError = false }: ValidateDocumentOptions = {}): Promise<void> {
   try {
     const oasNormalize = new OASNormalize(document, {
       enablePaths: true,
       colorizeErrors: true,
-    });
+    })
 
     await oasNormalize.validate({
       parser: {
@@ -172,10 +154,10 @@ export async function validateDocument(
           errors: { colorize: true },
         },
       },
-    });
+    })
   } catch (error) {
     if (throwOnError) {
-      throw error;
+      throw error
     }
 
     // Validation failures are non-fatal — mirror plugin-oas behavior

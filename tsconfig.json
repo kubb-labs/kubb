@@ -12,23 +12,13 @@
       "@kubb/agent": ["./packages/agent/src/index.ts"],
       "@kubb/mcp": ["./packages/mcp/src/index.ts"],
       "@kubb/renderer-jsx": ["./packages/renderer-jsx/src/index.ts"],
-      "@kubb/renderer-jsx/jsx-runtime": [
-        "./packages/renderer-jsx/src/jsx-runtime.ts"
-      ],
-      "@kubb/renderer-jsx/jsx-dev-runtime": [
-        "./packages/renderer-jsx/src/jsx-runtime.ts"
-      ],
+      "@kubb/renderer-jsx/jsx-runtime": ["./packages/renderer-jsx/src/jsx-runtime.ts"],
+      "@kubb/renderer-jsx/jsx-dev-runtime": ["./packages/renderer-jsx/src/jsx-runtime.ts"],
       "@kubb/parser-ts": ["./packages/parser-ts/src/index.ts"],
       "@kubb/adapter-oas": ["./packages/adapter-oas/src/index.ts"],
       "unplugin-kubb": ["./packages/unplugin/src/index.ts"]
     }
   },
-  "include": [
-    "./package.json",
-    "./tsdown.config.ts",
-    "./vitest.config.ts",
-    "./src/**/*",
-    "tests"
-  ],
+  "include": ["./package.json", "./tsdown.config.ts", "./vitest.config.ts", "./src/**/*", "tests"],
   "exclude": ["node_modules", "dist", "tmp", "coverage", "**/__snapshots__/**"]
 }

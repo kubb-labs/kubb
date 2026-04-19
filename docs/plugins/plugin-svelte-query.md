@@ -149,31 +149,27 @@ When using a string you need to use `JSON.stringify`.
 Generate a queryKey with operation tags and path parameters:
 
 ```typescript
-import { defineConfig } from "@kubb/core";
-import { pluginSvelteQuery } from "@kubb/plugin-svelte-query";
+import { defineConfig } from '@kubb/core'
+import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'
 
 export default defineConfig({
   // ...
   plugins: [
     pluginSvelteQuery({
       queryKey: ({ operation, schemas }) => {
-        const tags = operation.getTags().map((tag) => JSON.stringify(tag.name));
-        const pathParams = schemas.pathParams?.keys || [];
-        return [...tags, ...pathParams];
+        const tags = operation.getTags().map((tag) => JSON.stringify(tag.name))
+        const pathParams = schemas.pathParams?.keys || []
+        return [...tags, ...pathParams]
       },
     }),
   ],
-});
+})
 ```
 
 For a GET operation with tags `["user"]` and path parameter `username`, this generates:
 
 ```typescript
-export const getUserByNameQueryKey = ({
-  username,
-}: {
-  username: GetUserByNamePathParams["username"];
-}) => ["user", username] as const;
+export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] }) => ['user', username] as const
 ```
 
 **Using the default transformer**
@@ -181,27 +177,26 @@ export const getUserByNameQueryKey = ({
 You can extend the default queryKey transformer:
 
 ```typescript
-import { pluginSvelteQuery } from "@kubb/plugin-svelte-query";
-import { QueryKey } from "@kubb/plugin-svelte-query/components";
+import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'
+import { QueryKey } from '@kubb/plugin-svelte-query/components'
 
 export default defineConfig({
   // ...
   plugins: [
     pluginSvelteQuery({
       queryKey: (props) => {
-        const defaultKeys = QueryKey.getTransformer(props);
-        return [JSON.stringify("v5"), ...defaultKeys];
+        const defaultKeys = QueryKey.getTransformer(props)
+        return [JSON.stringify('v5'), ...defaultKeys]
       },
     }),
   ],
-});
+})
 ```
 
 This prepends a version to the default queryKey:
 
 ```typescript
-export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) =>
-  ["v5", { url: "/pet/findByTags" }, ...(params ? [params] : [])] as const;
+export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 ```
 
 **Using operation ID**
@@ -209,18 +204,18 @@ export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) =>
 Create a simple queryKey using the operation ID:
 
 ```typescript
-import { pluginSvelteQuery } from "@kubb/plugin-svelte-query";
+import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'
 
 export default defineConfig({
   // ...
   plugins: [
     pluginSvelteQuery({
       queryKey: ({ operation }) => {
-        return [JSON.stringify(operation.getOperationId())];
+        return [JSON.stringify(operation.getOperationId())]
       },
     }),
   ],
-});
+})
 ```
 
 **Conditional keys based on parameters**
@@ -228,30 +223,30 @@ export default defineConfig({
 Include query parameters when they exist:
 
 ```typescript
-import { pluginSvelteQuery } from "@kubb/plugin-svelte-query";
+import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'
 
 export default defineConfig({
   // ...
   plugins: [
     pluginSvelteQuery({
       queryKey: ({ operation, schemas }) => {
-        const keys = [JSON.stringify(operation.getOperationId())];
+        const keys = [JSON.stringify(operation.getOperationId())]
 
         // Add path parameter values (without quotes, so they reference the variables)
         if (schemas.pathParams?.keys) {
-          keys.push(...schemas.pathParams.keys);
+          keys.push(...schemas.pathParams.keys)
         }
 
         // Add query params conditionally (the string gets embedded as code)
         if (schemas.queryParams?.name) {
-          keys.push("...(params ? [params] : [])");
+          keys.push('...(params ? [params] : [])')
         }
 
-        return keys;
+        return keys
       },
     }),
   ],
-});
+})
 ```
 
 ### query
@@ -267,10 +262,10 @@ To disable the creation of hooks pass `false`, this will result in only creating
 ```typescript [Query]
 type Query =
   | {
-      methods: Array<HttpMethod>;
-      importPath?: string;
+      methods: Array<HttpMethod>
+      importPath?: string
     }
-  | false;
+  | false
 ```
 
 #### query.methods
@@ -303,10 +298,10 @@ To disable queries pass `false`.
 ```typescript [Query]
 type Mutation =
   | {
-      methods: Array<HttpMethod>;
-      importPath?: string;
+      methods: Array<HttpMethod>
+      importPath?: string
     }
-  | false;
+  | false
 ```
 
 #### mutation.methods
@@ -374,48 +369,48 @@ Customize the names based on the type that is provided by the plugin.
 | Required: | `false`                                        |
 
 ```typescript
-type ResolveType = "file" | "function" | "type" | "const";
+type ResolveType = 'file' | 'function' | 'type' | 'const'
 ```
 
 ## Example
 
 ```typescript twoslash
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginSvelteQuery } from "@kubb/plugin-svelte-query";
-import { pluginTs } from "@kubb/plugin-ts";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   plugins: [
     pluginOas(),
     pluginTs(),
     pluginSvelteQuery({
       output: {
-        path: "./hooks",
+        path: './hooks',
       },
       group: {
-        type: "tag",
+        type: 'tag',
         name: ({ group }) => `${group}Hooks`,
       },
       client: {
-        dataReturnType: "full",
+        dataReturnType: 'full',
       },
       mutation: {
-        methods: ["post", "put", "delete"],
+        methods: ['post', 'put', 'delete'],
       },
       query: {
-        methods: ["get"],
-        importPath: "@tanstack/svelte-query",
+        methods: ['get'],
+        importPath: '@tanstack/svelte-query',
       },
     }),
   ],
-});
+})
 ```
 
 ## See Also

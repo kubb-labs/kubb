@@ -1,5 +1,5 @@
 ---
-"@kubb/cli": patch
+'@kubb/cli': patch
 ---
 
 Fix `RangeError` in IDE-embedded terminals.

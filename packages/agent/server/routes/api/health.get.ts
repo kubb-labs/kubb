@@ -1,4 +1,4 @@
-import { version } from "~~/package.json";
+import { version } from '~~/package.json'
 
 /**
  * `GET /api/health`
@@ -7,7 +7,7 @@ import { version } from "~~/package.json";
  */
 export default defineEventHandler(() => {
   return {
-    status: "ok",
+    status: 'ok',
     version,
-  };
-});
+  }
+})

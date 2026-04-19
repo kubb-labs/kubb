@@ -1,10 +1,10 @@
-import { join } from "node:path";
-import { getRelativePath } from "@internals/utils";
-import type { FileNode } from "@kubb/ast";
-import { createExport, createFile, createSource } from "@kubb/ast";
-import { BARREL_BASENAME, BARREL_FILENAME } from "../constants.ts";
-import type { BarrelType } from "../types.ts";
-import { TreeNode } from "./TreeNode.ts";
+import { join } from 'node:path'
+import { getRelativePath } from '@internals/utils'
+import type { FileNode } from '@kubb/ast'
+import { createExport, createFile, createSource } from '@kubb/ast'
+import { BARREL_BASENAME, BARREL_FILENAME } from '../constants.ts'
+import type { BarrelType } from '../types.ts'
+import { TreeNode } from './TreeNode.ts'
 
 /**
  * Minimal file metadata attached to every generated file for barrel-file bookkeeping.
@@ -12,71 +12,65 @@ import { TreeNode } from "./TreeNode.ts";
  * @internal
  */
 export type FileMetaBase = {
-  pluginName?: string;
-};
+  pluginName?: string
+}
 
 type AddIndexesProps = {
-  type: BarrelType | false | undefined;
+  type: BarrelType | false | undefined
   /**
    * Absolute output root derived from config `root` and `output.path`.
    */
-  root: string;
+  root: string
   /**
    * Output settings for the plugin.
    */
   output: {
-    path: string;
-  };
+    path: string
+  }
   group?: {
-    output: string;
-    exportAs: string;
-  };
+    output: string
+    exportAs: string
+  }
 
-  meta?: FileMetaBase;
-};
+  meta?: FileMetaBase
+}
 
-function getBarrelFilesByRoot(
-  root: string | undefined,
-  files: Array<FileNode>,
-): Array<FileNode> {
-  const cachedFiles = new Map<string, FileNode>();
+function getBarrelFilesByRoot(root: string | undefined, files: Array<FileNode>): Array<FileNode> {
+  const cachedFiles = new Map<string, FileNode>()
 
   TreeNode.build(files, root)?.forEach((treeNode) => {
     if (!treeNode?.children || !treeNode.parent?.data.path) {
-      return;
+      return
     }
 
-    const barrelFilePath = join(treeNode.parent?.data.path, BARREL_FILENAME);
+    const barrelFilePath = join(treeNode.parent?.data.path, BARREL_FILENAME)
     const barrelFile = createFile({
       path: barrelFilePath,
       baseName: BARREL_FILENAME,
       exports: [],
       imports: [],
       sources: [],
-    });
-    const previousBarrelFile = cachedFiles.get(barrelFile.path);
-    const leaves = treeNode.leaves;
+    })
+    const previousBarrelFile = cachedFiles.get(barrelFile.path)
+    const leaves = treeNode.leaves
 
     leaves.forEach((item) => {
       if (!item.data.name) {
-        return;
+        return
       }
 
-      const sources = item.data.file?.sources || [];
+      const sources = item.data.file?.sources || []
 
       sources.forEach((source) => {
         if (!item.data.file?.path || !source.isIndexable || !source.name) {
-          return;
+          return
         }
-        const alreadyContainInPreviousBarrelFile =
-          previousBarrelFile?.sources.some(
-            (item) =>
-              item.name === source.name &&
-              item.isTypeOnly === source.isTypeOnly,
-          );
+        const alreadyContainInPreviousBarrelFile = previousBarrelFile?.sources.some(
+          (item) => item.name === source.name && item.isTypeOnly === source.isTypeOnly,
+        )
 
         if (alreadyContainInPreviousBarrelFile) {
-          return;
+          return
         }
 
         barrelFile.exports.push(
@@ -85,7 +79,7 @@ function getBarrelFilesByRoot(
             path: getRelativePath(treeNode.parent?.data.path, item.data.path),
             isTypeOnly: source.isTypeOnly,
           }),
-        );
+        )
 
         barrelFile.sources.push(
           createSource({
@@ -94,29 +88,29 @@ function getBarrelFilesByRoot(
             isExportable: false,
             isIndexable: false,
           }),
-        );
-      });
-    });
+        )
+      })
+    })
 
     if (previousBarrelFile) {
-      previousBarrelFile.sources.push(...barrelFile.sources);
-      previousBarrelFile.exports.push(...barrelFile.exports);
+      previousBarrelFile.sources.push(...barrelFile.sources)
+      previousBarrelFile.exports.push(...barrelFile.exports)
     } else {
-      cachedFiles.set(barrelFile.path, barrelFile);
+      cachedFiles.set(barrelFile.path, barrelFile)
     }
-  });
+  })
 
-  return [...cachedFiles.values()];
+  return [...cachedFiles.values()]
 }
 
 function trimExtName(text: string): string {
-  const dotIndex = text.lastIndexOf(".");
+  const dotIndex = text.lastIndexOf('.')
   // Only strip when the dot is found and no path separator follows it
   // (guards against stripping dots that are part of a directory name like /project.v2/gen)
-  if (dotIndex > 0 && !text.includes("/", dotIndex)) {
-    return text.slice(0, dotIndex);
+  if (dotIndex > 0 && !text.includes('/', dotIndex)) {
+    return text.slice(0, dotIndex)
   }
-  return text;
+  return text
 }
 
 /**
@@ -127,23 +121,20 @@ function trimExtName(text: string): string {
  * - When `type` is `'all'`, strips named exports so every re-export becomes a wildcard (`export * from`).
  * - Attaches `meta` to each barrel file for downstream plugin identification.
  */
-export async function getBarrelFiles(
-  files: Array<FileNode>,
-  { type, meta = {}, root, output }: AddIndexesProps,
-): Promise<Array<FileNode>> {
-  if (!type || type === "propagate") {
-    return [];
+export async function getBarrelFiles(files: Array<FileNode>, { type, meta = {}, root, output }: AddIndexesProps): Promise<Array<FileNode>> {
+  if (!type || type === 'propagate') {
+    return []
   }
 
-  const pathToBuildFrom = join(root, output.path);
+  const pathToBuildFrom = join(root, output.path)
 
   if (trimExtName(pathToBuildFrom).endsWith(BARREL_BASENAME)) {
-    return [];
+    return []
   }
 
-  const barrelFiles = getBarrelFilesByRoot(pathToBuildFrom, files);
+  const barrelFiles = getBarrelFilesByRoot(pathToBuildFrom, files)
 
-  if (type === "all") {
+  if (type === 'all') {
     return barrelFiles.map((file) => {
       return {
         ...file,
@@ -151,16 +142,16 @@ export async function getBarrelFiles(
           return {
             ...exportItem,
             name: undefined,
-          };
+          }
         }),
-      } as FileNode;
-    });
+      } as FileNode
+    })
   }
 
   return barrelFiles.map((indexFile) => {
     return {
       ...indexFile,
       meta,
-    } as FileNode;
-  });
+    } as FileNode
+  })
 }

@@ -137,18 +137,18 @@ The build tool looks for `kubb.config.ts` in the current directory by default. Y
 Example `kubb.config.ts`:
 
 ```typescript
-import { defineConfig } from "kubb";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginClient } from "@kubb/plugin-client";
+import { defineConfig } from 'kubb'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginClient } from '@kubb/plugin-client'
 
 export default defineConfig({
   input: {
-    path: "./petstore.yaml",
+    path: './petstore.yaml',
   },
   output: {
-    path: "./src/generated",
+    path: './src/generated',
   },
   plugins: [pluginOas(), pluginTs(), pluginClient()],
-});
+})
 ```

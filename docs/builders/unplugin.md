@@ -44,38 +44,38 @@ Define the options for Kubb.
 ::: code-group
 
 ```typescript [Options]
-import type { UserConfig } from "@kubb/core";
+import type { UserConfig } from '@kubb/core'
 
 type Options = {
-  config: UserConfig;
-};
+  config: UserConfig
+}
 ```
 
 ```typescript [vite.config.ts]
-import kubb from "unplugin-kubb/vite";
-import { defineConfig as defineViteConfig } from "vite";
-import { defineConfig, UserConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
+import kubb from 'unplugin-kubb/vite'
+import { defineConfig as defineViteConfig } from 'vite'
+import { defineConfig, UserConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export const config = {
-  root: ".",
+  root: '.',
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
     clean: true,
   },
   plugins: [
     pluginOas(),
     pluginTs({
       output: {
-        path: "models",
+        path: 'models',
       },
     }),
   ],
-};
+}
 
 // https://vitejs.dev/config/
 export default defineViteConfig({
@@ -84,7 +84,7 @@ export default defineViteConfig({
       config,
     }),
   ],
-});
+})
 ```
 
 :::
@@ -95,7 +95,7 @@ export default defineViteConfig({
 
 ```ts [Vite]
 // vite.config.ts
-import kubb from "unplugin-kubb/vite";
+import kubb from 'unplugin-kubb/vite'
 
 export default defineConfig({
   plugins: [
@@ -103,12 +103,12 @@ export default defineConfig({
       /* options */
     }),
   ],
-});
+})
 ```
 
 ```typescript [Rollup]
 // rollup.config.js
-import kubb from "unplugin-kubb/rollup";
+import kubb from 'unplugin-kubb/rollup'
 
 export default {
   plugins: [
@@ -116,7 +116,7 @@ export default {
       /* options */
     }),
   ],
-};
+}
 ```
 
 ```typescript [webpack]
@@ -124,11 +124,11 @@ export default {
 module.exports = {
   /* ... */
   plugins: [
-    require("unplugin-kubb/webpack")({
+    require('unplugin-kubb/webpack')({
       /* options */
     }),
   ],
-};
+}
 ```
 
 ```typescript [Rspack]
@@ -136,17 +136,17 @@ module.exports = {
 module.exports = {
   /* ... */
   plugins: [
-    require("unplugin-kubb/rspack")({
+    require('unplugin-kubb/rspack')({
       /* options */
     }),
   ],
-};
+}
 ```
 
 ```typescript [esbuild]
 // esbuild.config.js
-import { build } from "esbuild";
-import kubb from "unplugin-kubb/esbuild";
+import { build } from 'esbuild'
+import kubb from 'unplugin-kubb/esbuild'
 
 build({
   plugins: [
@@ -154,7 +154,7 @@ build({
       /* options */
     }),
   ],
-});
+})
 ```
 
 ```typescript [Vue-CLI]
@@ -162,12 +162,12 @@ build({
 module.exports = {
   configureWebpack: {
     plugins: [
-      require("unplugin-kubb/webpack")({
+      require('unplugin-kubb/webpack')({
         /* options */
       }),
     ],
   },
-};
+}
 ```
 
 ```typescript [Nuxt]
@@ -175,19 +175,19 @@ module.exports = {
 export default defineNuxtConfig({
   modules: [
     [
-      "unplugin-kubb/nuxt",
+      'unplugin-kubb/nuxt',
       {
         /* options */
       },
     ],
   ],
-});
+})
 ```
 
 ```typescript [Astro]
 // astro.config.mjs
-import { defineConfig } from "astro/config";
-import Kubb from "unplugin-kubb/astro";
+import { defineConfig } from 'astro/config'
+import Kubb from 'unplugin-kubb/astro'
 
 // https://astro.build/config
 export default defineConfig({
@@ -196,7 +196,7 @@ export default defineConfig({
       /* options */
     }),
   ],
-});
+})
 ```
 
 :::

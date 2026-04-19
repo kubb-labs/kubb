@@ -99,11 +99,11 @@ Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 ::: code-group
 
 ```typescript ['string']
-faker.date.anytime().toISOString();
+faker.date.anytime().toISOString()
 ```
 
 ```typescript ['date']
-faker.date.anytime();
+faker.date.anytime()
 ```
 
 :::
@@ -126,26 +126,26 @@ Which parser should be used when dateType is set to 'string'.
 
 ```typescript [undefined]
 // schema with format set to 'date'
-faker.date.anytime().toISOString().substring(0, 10);
+faker.date.anytime().toISOString().substring(0, 10)
 
 // schema with format set to 'time'
-faker.date.anytime().toISOString().substring(11, 19);
+faker.date.anytime().toISOString().substring(11, 19)
 ```
 
 ```typescript ['dayjs']
 // schema with format set to 'date'
-dayjs(faker.date.anytime()).format("YYYY-MM-DD");
+dayjs(faker.date.anytime()).format('YYYY-MM-DD')
 
 // schema with format set to 'time'
-dayjs(faker.date.anytime()).format("HH:mm:ss");
+dayjs(faker.date.anytime()).format('HH:mm:ss')
 ```
 
 ```typescript ['moment']
 // schema with format set to 'date'
-moment(faker.date.anytime()).format("YYYY-MM-DD");
+moment(faker.date.anytime()).format('YYYY-MM-DD')
 
 // schema with format set to 'time'
-moment(faker.date.anytime()).format("HH:mm:ss");
+moment(faker.date.anytime()).format('HH:mm:ss')
 ```
 
 :::
@@ -196,25 +196,21 @@ Transform parameter names to a specific casing format for path, query, and heade
 
 ```typescript [With paramsCasing: 'camelcase']
 // Mock data uses camelCase property names
-export function createFindPetsByStatusPathParamsFaker(
-  data?: Partial<FindPetsByStatusPathParams>,
-): FindPetsByStatusPathParams {
+export function createFindPetsByStatusPathParamsFaker(data?: Partial<FindPetsByStatusPathParams>): FindPetsByStatusPathParams {
   return {
     ...{ stepId: faker.string.alpha() }, // ✓ camelCase
     ...(data || {}),
-  };
+  }
 }
 ```
 
 ```typescript [Without paramsCasing]
 // Mock data uses original API naming
-export function createFindPetsByStatusPathParamsFaker(
-  data?: Partial<FindPetsByStatusPathParams>,
-): FindPetsByStatusPathParams {
+export function createFindPetsByStatusPathParamsFaker(data?: Partial<FindPetsByStatusPathParams>): FindPetsByStatusPathParams {
   return {
     ...{ step_id: faker.string.alpha() }, // Original naming
     ...(data || {}),
-  };
+  }
 }
 ```
 
@@ -233,11 +229,11 @@ Choose which generator to use when using Regexp.
 ::: code-group
 
 ```typescript ['faker']
-faker.helpers.fromRegExp(new RegExp(/test/));
+faker.helpers.fromRegExp(new RegExp(/test/))
 ```
 
 ```typescript ['randexp']
-new RandExp(/test/).gen();
+new RandExp(/test/).gen()
 ```
 
 :::
@@ -286,44 +282,44 @@ Customize the names based on the type that is provided by the plugin.
 | Required: | `false`                                        |
 
 ```typescript
-type ResolveType = "file" | "function" | "type" | "const";
+type ResolveType = 'file' | 'function' | 'type' | 'const'
 ```
 
 ## Example
 
 ```typescript twoslash
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginFaker } from "@kubb/plugin-faker";
-import { pluginTs } from "@kubb/plugin-ts";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginFaker } from '@kubb/plugin-faker'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   plugins: [
     pluginOas(),
     pluginTs(),
     pluginFaker({
       output: {
-        path: "./mocks",
-        barrelType: "named",
-        banner: "/* eslint-disable no-alert, no-console */",
-        footer: "",
+        path: './mocks',
+        barrelType: 'named',
+        banner: '/* eslint-disable no-alert, no-console */',
+        footer: '',
       },
       group: {
-        type: "tag",
+        type: 'tag',
         name: ({ group }) => `${group}Service`,
       },
-      dateType: "date",
-      unknownType: "unknown",
+      dateType: 'date',
+      unknownType: 'unknown',
       seed: [100],
     }),
   ],
-});
+})
 ```
 
 ## See Also

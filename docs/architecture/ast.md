@@ -57,23 +57,23 @@ createSchema({ type: 'union', members: [...] })       // returns UnionSchemaNode
 **Visitor** — depth-first traversal with three modes:
 
 ```ts
-walk(root, visitor); // async, side effects only
-transform(root, visitor); // sync, returns new tree (immutable)
-collect<T>(root, visitor); // sync, returns T[]
+walk(root, visitor) // async, side effects only
+transform(root, visitor) // sync, returns new tree (immutable)
+collect<T>(root, visitor) // sync, returns T[]
 ```
 
 **Guards** — type-narrowing predicates:
 
 ```ts
-isSchemaNode(node); // node is SchemaNode
-narrowSchema(node, "object"); // ObjectSchemaNode | undefined
+isSchemaNode(node) // node is SchemaNode
+narrowSchema(node, 'object') // ObjectSchemaNode | undefined
 ```
 
 **Refs** — fast named-schema lookup:
 
 ```ts
-const map = buildRefMap(root);
-const pet = resolveRef(map, "Pet");
+const map = buildRefMap(root)
+const pet = resolveRef(map, 'Pet')
 ```
 
 ## Consequences

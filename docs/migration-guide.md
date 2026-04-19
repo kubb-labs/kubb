@@ -21,31 +21,31 @@ Kubb v5 requires **Node.js 22** or later.
 ::: code-group
 
 ```typescript [Before]
-import { definePlugin, defineAdapter, defineStorage } from "@kubb/core";
+import { definePlugin, defineAdapter, defineStorage } from '@kubb/core'
 
 export const myPlugin = definePlugin((options) => ({
   /* ... */
-}));
+}))
 export const myAdapter = defineAdapter((options) => ({
   /* ... */
-}));
+}))
 export const myStorage = defineStorage((options) => ({
   /* ... */
-}));
+}))
 ```
 
 ```typescript [After]
-import { createPlugin, createAdapter, createStorage } from "@kubb/core";
+import { createPlugin, createAdapter, createStorage } from '@kubb/core'
 
 export const myPlugin = createPlugin((options) => ({
   /* ... */
-}));
+}))
 export const myAdapter = createAdapter((options) => ({
   /* ... */
-}));
+}))
 export const myStorage = createStorage((options) => ({
   /* ... */
-}));
+}))
 ```
 
 :::
@@ -58,34 +58,34 @@ export const myStorage = createStorage((options) => ({
 Kubb v5 introduces a new `definePlugin` export for creating plugins using the hook-style API. Unlike `createPlugin`, this API groups all lifecycle handlers under a `hooks:` property. Hook-style plugins coexist with `createPlugin` plugins in the same config.
 
 ```typescript
-import { definePlugin } from "@kubb/core";
-import type { PluginFactoryOptions } from "@kubb/core";
+import { definePlugin } from '@kubb/core'
+import type { PluginFactoryOptions } from '@kubb/core'
 
-type MyPluginOptions = PluginFactoryOptions<"my-plugin", { tag: string }>;
+type MyPluginOptions = PluginFactoryOptions<'my-plugin', { tag: string }>
 
 export const myPlugin = definePlugin<MyPluginOptions>((options) => ({
-  name: "my-plugin",
+  name: 'my-plugin',
   options,
   hooks: {
-    "kubb:plugin:setup"(ctx) {
+    'kubb:plugin:setup'(ctx) {
       ctx.setOptions({
         /* resolved options passed to generators */
-      });
-      ctx.setResolver(myResolver);
-      ctx.addGenerator(myGenerator);
+      })
+      ctx.setResolver(myResolver)
+      ctx.addGenerator(myGenerator)
     },
   },
-}));
+}))
 ```
 
 Call the factory in your `kubb.config.ts` just like any other plugin:
 
 ```typescript
-import { defineConfig } from "@kubb/core";
+import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
-  plugins: [myPlugin({ tag: "pets" })],
-});
+  plugins: [myPlugin({ tag: 'pets' })],
+})
 ```
 
 #### `kubb:plugin:setup` context
@@ -106,19 +106,19 @@ Hook-style plugins can also subscribe to any other `KubbHooks` event in their `h
 
 ```typescript
 export const myPlugin = definePlugin((options) => ({
-  name: "my-plugin",
+  name: 'my-plugin',
   hooks: {
-    "kubb:plugin:setup"(ctx) {
-      ctx.addGenerator(myGenerator);
+    'kubb:plugin:setup'(ctx) {
+      ctx.addGenerator(myGenerator)
     },
-    "kubb:plugin:start"(plugin) {
-      console.log(`Starting plugin: ${plugin.name}`);
+    'kubb:plugin:start'(plugin) {
+      console.log(`Starting plugin: ${plugin.name}`)
     },
-    "kubb:plugin:end"(plugin, { duration }) {
-      console.log(`Plugin ${plugin.name} completed in ${duration}ms`);
+    'kubb:plugin:end'(plugin, { duration }) {
+      console.log(`Plugin ${plugin.name} completed in ${duration}ms`)
     },
   },
-}));
+}))
 ```
 
 ### `KubbHooks` — lifecycle event reference
@@ -126,19 +126,19 @@ export const myPlugin = definePlugin((options) => ({
 `KubbHooks` is the TypeScript interface for all events emitted during Kubb's code generation lifecycle. Subscribe to events on the `kubb.hooks` emitter returned by `createKubb()`, or inside a `definePlugin` `hooks:` object.
 
 ```typescript
-import { createKubb } from "@kubb/core";
+import { createKubb } from '@kubb/core'
 
-const kubb = createKubb(userConfig);
+const kubb = createKubb(userConfig)
 
-kubb.hooks.on("kubb:lifecycle:start", (version) => {
-  console.log(`Kubb ${version} starting`);
-});
+kubb.hooks.on('kubb:lifecycle:start', (version) => {
+  console.log(`Kubb ${version} starting`)
+})
 
-kubb.hooks.on("kubb:plugin:end", (plugin, { duration }) => {
-  console.log(`Plugin ${plugin.name} completed in ${duration}ms`);
-});
+kubb.hooks.on('kubb:plugin:end', (plugin, { duration }) => {
+  console.log(`Plugin ${plugin.name} completed in ${duration}ms`)
+})
 
-await kubb.build();
+await kubb.build()
 ```
 
 #### Available events
@@ -186,12 +186,12 @@ Adding the same plugin twice will throw an error.
 // ❌ No longer allowed
 export default defineConfig({
   plugins: [pluginTs({}), pluginTs({})],
-});
+})
 
 // ✅ Use a single instance
 export default defineConfig({
   plugins: [pluginTs({})],
-});
+})
 ```
 
 ### `PluginManager` renamed to `PluginDriver`
@@ -201,19 +201,19 @@ Affects custom plugin and generator authors.
 ::: code-group
 
 ```typescript [Before]
-import { PluginManager } from "@kubb/core";
-import { usePluginManager } from "@kubb/core/hooks";
+import { PluginManager } from '@kubb/core'
+import { usePluginManager } from '@kubb/core/hooks'
 
 // In a generator or plugin context:
-meta.pluginManager;
+meta.pluginManager
 ```
 
 ```typescript [After]
-import { PluginDriver } from "@kubb/core";
-import { usePluginDriver } from "@kubb/core/hooks";
+import { PluginDriver } from '@kubb/core'
+import { usePluginDriver } from '@kubb/core/hooks'
 
 // In a generator or plugin context:
-meta.driver;
+meta.driver
 ```
 
 :::
@@ -226,22 +226,22 @@ Only the array-of-plugin-instances format is supported.
 
 ```typescript [Before (object style)]
 export default defineConfig({
-  plugins: { "@kubb/plugin-ts": {} },
-});
+  plugins: { '@kubb/plugin-ts': {} },
+})
 ```
 
 ```typescript [Before (array tuple)]
 export default defineConfig({
-  plugins: [["@kubb/plugin-ts", {}]],
-});
+  plugins: [['@kubb/plugin-ts', {}]],
+})
 ```
 
 ```typescript [After]
-import { pluginTs } from "@kubb/plugin-ts";
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   plugins: [pluginTs({})],
-});
+})
 ```
 
 :::
@@ -253,11 +253,11 @@ The `mapper` option (`Record<string, ts.PropertySignature>`) has been removed. U
 ::: code-group
 
 ```typescript [Before (v4) — mapper]
-import { defineConfig } from "@kubb/core";
-import { pluginTs } from "@kubb/plugin-ts";
-import ts from "typescript";
+import { defineConfig } from '@kubb/core'
+import { pluginTs } from '@kubb/plugin-ts'
+import ts from 'typescript'
 
-const factory = ts.factory;
+const factory = ts.factory
 
 export default defineConfig({
   plugins: [
@@ -266,19 +266,19 @@ export default defineConfig({
         // Override the 'category' property to always be a string
         category: factory.createPropertySignature(
           undefined,
-          factory.createIdentifier("category"),
+          factory.createIdentifier('category'),
           factory.createToken(ts.SyntaxKind.QuestionToken),
           factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
         ),
       },
     }),
   ],
-});
+})
 ```
 
 ```typescript [After (v5) — transformers]
-import { defineConfig } from "@kubb/core";
-import { pluginTs } from "@kubb/plugin-ts";
+import { defineConfig } from '@kubb/core'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   plugins: [
@@ -287,19 +287,19 @@ export default defineConfig({
         {
           // Override the 'category' property to use a string schema and make it optional
           property(node) {
-            if (node.name === "category") {
+            if (node.name === 'category') {
               return {
                 ...node,
                 required: false,
-                schema: { ...node.schema, kind: "Schema", type: "string" },
-              };
+                schema: { ...node.schema, kind: 'Schema', type: 'string' },
+              }
             }
           },
         },
       ],
     }),
   ],
-});
+})
 ```
 
 :::
@@ -314,32 +314,32 @@ pluginTs({
     {
       // Remove a property entirely (return undefined to skip it)
       property(node) {
-        if (node.name === "internalId") {
+        if (node.name === 'internalId') {
           return {
             ...node,
-            schema: { ...node.schema, kind: "Schema", type: "never" },
-          };
+            schema: { ...node.schema, kind: 'Schema', type: 'never' },
+          }
         }
       },
     },
     {
       // Force all date types to plain strings
       schema(node) {
-        if (node.type === "date") {
-          return { ...node, type: "string", representation: "string" };
+        if (node.type === 'date') {
+          return { ...node, type: 'string', representation: 'string' }
         }
       },
     },
     {
       // Add a JSDoc description to a specific schema
       schema(node) {
-        if (node.name === "Pet") {
-          return { ...node, description: "Represents a pet in the store." };
+        if (node.name === 'Pet') {
+          return { ...node, description: 'Represents a pet in the store.' }
         }
       },
     },
   ],
-});
+})
 ```
 
 #### Using `context.parent` for scoped transformations
@@ -363,36 +363,32 @@ pluginTs({
     {
       // Make all properties of the 'Pet' schema optional
       property(node, { parent }) {
-        if (parent?.name === "Pet") {
-          return { ...node, required: false };
+        if (parent?.name === 'Pet') {
+          return { ...node, required: false }
         }
       },
     },
     {
       // Remove writeOnly properties, but only inside response schemas
       property(node, { parent }) {
-        if (parent?.kind === "Schema" && node.schema.writeOnly) {
+        if (parent?.kind === 'Schema' && node.schema.writeOnly) {
           return {
             ...node,
-            schema: { ...node.schema, kind: "Schema", type: "never" },
-          };
+            schema: { ...node.schema, kind: 'Schema', type: 'never' },
+          }
         }
       },
     },
     {
       // Override a nested schema inside a specific operation's request body
       schema(node, { parent }) {
-        if (
-          parent?.kind === "Operation" &&
-          parent.operationId === "createPet" &&
-          node.type === "date"
-        ) {
-          return { ...node, type: "string" };
+        if (parent?.kind === 'Operation' && parent.operationId === 'createPet' && node.type === 'date') {
+          return { ...node, type: 'string' }
         }
       },
     },
   ],
-});
+})
 ```
 
 Use `composeTransformers` from `@kubb/ast` to combine multiple visitors into one when building reusable transformer presets.
@@ -404,39 +400,39 @@ These options no longer exist on `pluginTs(...)` — pass them to `adapterOas(..
 ::: code-group
 
 ```typescript [Before]
-import { defineConfig } from "@kubb/core";
-import { pluginTs } from "@kubb/plugin-ts";
+import { defineConfig } from '@kubb/core'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   plugins: [
     pluginTs({
-      enumSuffix: "enum",
-      dateType: "date",
-      integerType: "bigint",
-      unknownType: "unknown",
-      emptySchemaType: "unknown",
+      enumSuffix: 'enum',
+      dateType: 'date',
+      integerType: 'bigint',
+      unknownType: 'unknown',
+      emptySchemaType: 'unknown',
     }),
   ],
-});
+})
 ```
 
 ```typescript [After]
-import { defineConfig } from "@kubb/core";
-import { adapterOas } from "@kubb/adapter-oas";
-import { pluginTs } from "@kubb/plugin-ts";
+import { defineConfig } from '@kubb/core'
+import { adapterOas } from '@kubb/adapter-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   plugins: [
     adapterOas({
-      enumSuffix: "enum",
-      dateType: "date",
-      integerType: "bigint",
-      unknownType: "unknown",
-      emptySchemaType: "unknown",
+      enumSuffix: 'enum',
+      dateType: 'date',
+      integerType: 'bigint',
+      unknownType: 'unknown',
+      emptySchemaType: 'unknown',
     }),
     pluginTs(),
   ],
-});
+})
 ```
 
 :::
@@ -450,16 +446,11 @@ The `kubb validate` command now uses `@kubb/adapter-oas` directly, so you no lon
 ::: code-group
 
 ```typescript [Before]
-import { HttpMethods, parse, validate, type SchemaObject } from "@kubb/oas";
+import { HttpMethods, parse, validate, type SchemaObject } from '@kubb/oas'
 ```
 
 ```typescript [After]
-import {
-  HttpMethods,
-  parseDocument,
-  validateDocument,
-  type SchemaObject,
-} from "@kubb/adapter-oas";
+import { HttpMethods, parseDocument, validateDocument, type SchemaObject } from '@kubb/adapter-oas'
 ```
 
 :::
@@ -481,12 +472,12 @@ The old v4-style short naming (e.g. `ParamsStatusEnum`) is not available in v5.
 If your code relies on v4 operation type names, set `compatibilityPreset: 'kubbV4'` in `pluginTs` while you migrate.
 
 ```typescript
-import { defineConfig } from "@kubb/core";
-import { pluginTs } from "@kubb/plugin-ts";
+import { defineConfig } from '@kubb/core'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
-  plugins: [pluginTs({ compatibilityPreset: "kubbV4" })],
-});
+  plugins: [pluginTs({ compatibilityPreset: 'kubbV4' })],
+})
 ```
 
 | Type            | v5 default                   | `compatibilityPreset: 'kubbV4'`                   |
@@ -504,36 +495,36 @@ The `transformers: { name }` callback has been removed. Use the `resolver` optio
 ::: code-group
 
 ```typescript [Before (v4)]
-import { defineConfig } from "@kubb/core";
-import { pluginTs } from "@kubb/plugin-ts";
+import { defineConfig } from '@kubb/core'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   plugins: [
     pluginTs({
       transformers: {
-        name: (name, type) => (type === "type" ? `${name}Type` : name),
+        name: (name, type) => (type === 'type' ? `${name}Type` : name),
       },
     }),
   ],
-});
+})
 ```
 
 ```typescript [After (v5)]
-import { defineConfig } from "@kubb/core";
-import { pluginTs } from "@kubb/plugin-ts";
+import { defineConfig } from '@kubb/core'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   plugins: [
     pluginTs({
       resolver: {
         resolveName(name, type) {
-          const resolved = this.default(name, type);
-          return type === "type" ? `${resolved}Type` : resolved;
+          const resolved = this.default(name, type)
+          return type === 'type' ? `${resolved}Type` : resolved
         },
       },
     }),
   ],
-});
+})
 ```
 
 :::
@@ -543,19 +534,19 @@ export default defineConfig({
 The `resolver` option accepts a partial resolver object that controls naming conventions. Any method you omit falls back to the preset resolver. Use `this.default(...)` to call the preset's implementation.
 
 ```typescript
-import { pluginTs, resolverTs, resolverTsLegacy } from "@kubb/plugin-ts";
+import { pluginTs, resolverTs, resolverTsLegacy } from '@kubb/plugin-ts'
 
 // Use legacy naming conventions
-pluginTs({ compatibilityPreset: "kubbV4" });
+pluginTs({ compatibilityPreset: 'kubbV4' })
 
 // Override a single method
 pluginTs({
   resolver: {
     resolveName(name) {
-      return `Custom${this.default(name, "function")}`;
+      return `Custom${this.default(name, 'function')}`
     },
   },
-});
+})
 ```
 
 ### Compatibility preset for Kubb v4 naming
@@ -563,9 +554,9 @@ pluginTs({
 Use `compatibilityPreset` in `pluginTs` when you need Kubb v4 naming behavior:
 
 ```typescript
-import { pluginTs } from "@kubb/plugin-ts";
+import { pluginTs } from '@kubb/plugin-ts'
 
-pluginTs({ compatibilityPreset: "kubbV4" });
+pluginTs({ compatibilityPreset: 'kubbV4' })
 ```
 
 For custom naming, use the `resolver` option.
@@ -578,18 +569,18 @@ For custom naming, use the `resolver` option.
 The `transformer` option accepts a single AST `Visitor` object. The visitor modifies `SchemaNode` trees before they are printed to TypeScript. Use this to customize the generated types without writing a custom generator.
 
 ```typescript
-import { pluginTs } from "@kubb/plugin-ts";
+import { pluginTs } from '@kubb/plugin-ts'
 
 pluginTs({
   transformer: {
     // Force all date types to plain strings
     schema(node) {
-      if (node.type === "date") {
-        return { ...node, type: "string" };
+      if (node.type === 'date') {
+        return { ...node, type: 'string' }
       }
     },
   },
-});
+})
 ```
 
 Returning `undefined` or `void` from a visitor method leaves the node unchanged.
@@ -599,19 +590,19 @@ Returning `undefined` or `void` from a visitor method leaves the node unchanged.
 The new `printer.nodes` option lets you override the rendering of specific schema types without replacing the whole printer.
 
 ```typescript
-import ts from "typescript";
-import { pluginTs } from "@kubb/plugin-ts";
+import ts from 'typescript'
+import { pluginTs } from '@kubb/plugin-ts'
 
 pluginTs({
   printer: {
     nodes: {
       date(node) {
         // Render date as the native Date object
-        return ts.factory.createTypeReferenceNode("Date", []);
+        return ts.factory.createTypeReferenceNode('Date', [])
       },
     },
   },
-});
+})
 ```
 
 ### `defineResolver` now requires a `name` property
@@ -621,24 +612,24 @@ Plugin resolvers created with `defineResolver` must include a `name` property in
 ::: code-group
 
 ```typescript [Before (v4)]
-import { defineResolver } from "@kubb/core";
+import { defineResolver } from '@kubb/core'
 
 export const myResolver = defineResolver(() => ({
   resolveName(name) {
-    return name;
+    return name
   },
-}));
+}))
 ```
 
 ```typescript [After (v5)]
-import { defineResolver } from "@kubb/core";
+import { defineResolver } from '@kubb/core'
 
 export const myResolver = defineResolver(() => ({
-  name: "my-resolver",
+  name: 'my-resolver',
   resolveName(name) {
-    return name;
+    return name
   },
-}));
+}))
 ```
 
 :::
@@ -660,15 +651,15 @@ In v4, a path parameter whose `schema` was a `$ref` was incorrectly typed as `an
 
 // Generated type (v4)
 export type GetPetByIdPathParams = {
-  petId: any;
-};
+  petId: any
+}
 ```
 
 ```typescript [After (v5 — typed correctly)]
 // Generated type (v5)
 export type GetPetByIdPathParams = {
-  petId: PetId;
-};
+  petId: PetId
+}
 ```
 
 :::
@@ -682,20 +673,20 @@ Kubb v5 only supports **Zod v4** and **Zod v4 Mini**. If you are using Zod v3, u
 ::: code-group
 
 ```typescript [Before (v4 — Zod v3)]
-import { pluginZod } from "@kubb/plugin-zod";
+import { pluginZod } from '@kubb/plugin-zod'
 
 pluginZod({
-  version: "3",
-  importPath: "zod",
-});
+  version: '3',
+  importPath: 'zod',
+})
 ```
 
 ```typescript [After (v5 — Zod v4)]
-import { pluginZod } from "@kubb/plugin-zod";
+import { pluginZod } from '@kubb/plugin-zod'
 
 pluginZod({
-  importPath: "zod",
-});
+  importPath: 'zod',
+})
 ```
 
 :::
@@ -714,36 +705,36 @@ The `transformers: { name, schema }` callbacks have been replaced with a single 
 ::: code-group
 
 ```typescript [Before (v4)]
-import { pluginZod } from "@kubb/plugin-zod";
+import { pluginZod } from '@kubb/plugin-zod'
 
 pluginZod({
   transformers: {
-    name: (name, type) => (type === "function" ? `${name}Validator` : name),
+    name: (name, type) => (type === 'function' ? `${name}Validator` : name),
   },
-});
+})
 ```
 
 ```typescript [After (v5)]
-import { pluginZod } from "@kubb/plugin-zod";
+import { pluginZod } from '@kubb/plugin-zod'
 
 // Use resolver for name transformations
 pluginZod({
   resolver: {
     resolveName(name, type) {
-      const resolved = this.default(name, type);
-      return type === "function" ? `${resolved}Validator` : resolved;
+      const resolved = this.default(name, type)
+      return type === 'function' ? `${resolved}Validator` : resolved
     },
   },
-});
+})
 
 // Use transformer for AST node transformations
 pluginZod({
   transformer: {
     schema(node) {
-      return { ...node, description: undefined };
+      return { ...node, description: undefined }
     },
   },
-});
+})
 ```
 
 :::
@@ -770,31 +761,25 @@ The `schema` argument in the `wrapOutput` callback is now a `SchemaNode` from `@
 ::: code-group
 
 ```typescript [Before (v4)]
-import { pluginZod } from "@kubb/plugin-zod";
-import type { SchemaObject } from "@kubb/adapter-oas";
+import { pluginZod } from '@kubb/plugin-zod'
+import type { SchemaObject } from '@kubb/adapter-oas'
 
 pluginZod({
-  wrapOutput: ({
-    output,
-    schema,
-  }: {
-    output: string;
-    schema: SchemaObject;
-  }) => {
-    return `${output}.openapi({ example: schema.example })`;
+  wrapOutput: ({ output, schema }: { output: string; schema: SchemaObject }) => {
+    return `${output}.openapi({ example: schema.example })`
   },
-});
+})
 ```
 
 ```typescript [After (v5)]
-import { pluginZod } from "@kubb/plugin-zod";
-import type { SchemaNode } from "@kubb/ast/types";
+import { pluginZod } from '@kubb/plugin-zod'
+import type { SchemaNode } from '@kubb/ast/types'
 
 pluginZod({
   wrapOutput: ({ output, schema }: { output: string; schema: SchemaNode }) => {
-    return `${output}.describe(${JSON.stringify(schema.description ?? "")})`;
+    return `${output}.describe(${JSON.stringify(schema.description ?? '')})`
   },
-});
+})
 ```
 
 :::
@@ -804,12 +789,12 @@ pluginZod({
 `coercion` can now be an object `{ dates?, strings?, numbers? }` to enable coercion selectively per type, in addition to the existing `boolean` shorthand.
 
 ```typescript
-import { pluginZod } from "@kubb/plugin-zod";
+import { pluginZod } from '@kubb/plugin-zod'
 
 pluginZod({
   // Enable coercion only for date and number fields:
   coercion: { dates: true, numbers: true },
-});
+})
 ```
 
 ### `@kubb/plugin-zod` — response schema naming changed
@@ -821,28 +806,28 @@ To keep the Kubb v4 naming conventions, set `compatibilityPreset: 'kubbV4'`:
 ::: code-group
 
 ```typescript [Before (v4 names)]
-import { pluginZod } from "@kubb/plugin-zod";
+import { pluginZod } from '@kubb/plugin-zod'
 
 pluginZod({
   // v4 generated: listPets200Schema, createPetsMutationRequestSchema
-});
+})
 ```
 
 ```typescript [After (v5 default names)]
-import { pluginZod } from "@kubb/plugin-zod";
+import { pluginZod } from '@kubb/plugin-zod'
 
 pluginZod({
   // v5 generates: listPetsStatus200Schema, createPetsDataSchema
-});
+})
 ```
 
 ```typescript [After (v5 — keep v4 names)]
-import { pluginZod } from "@kubb/plugin-zod";
+import { pluginZod } from '@kubb/plugin-zod'
 
 pluginZod({
-  compatibilityPreset: "kubbV4",
+  compatibilityPreset: 'kubbV4',
   // keeps: listPets200Schema, createPetsMutationRequestSchema
-});
+})
 ```
 
 :::
@@ -869,47 +854,47 @@ In v5, `@kubb/plugin-mcp` no longer depends on `@kubb/plugin-oas`. Use `adapterO
 ::: code-group
 
 ```typescript [Before (v4)]
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginZod } from "@kubb/plugin-zod";
-import { pluginMcp } from "@kubb/plugin-mcp";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
+import { pluginMcp } from '@kubb/plugin-mcp'
 
 export default defineConfig({
-  input: { path: "./petStore.yaml" },
-  output: { path: "./src/gen" },
+  input: { path: './petStore.yaml' },
+  output: { path: './src/gen' },
   plugins: [
     pluginOas(),
     pluginTs(),
     pluginZod(),
     pluginMcp({
-      output: { path: "./mcp" },
-      client: { baseURL: "https://petstore.swagger.io/v2" },
+      output: { path: './mcp' },
+      client: { baseURL: 'https://petstore.swagger.io/v2' },
     }),
   ],
-});
+})
 ```
 
 ```typescript [After (v5)]
-import { defineConfig } from "@kubb/core";
-import { adapterOas } from "@kubb/adapter-oas";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginZod } from "@kubb/plugin-zod";
-import { pluginMcp } from "@kubb/plugin-mcp";
+import { defineConfig } from '@kubb/core'
+import { adapterOas } from '@kubb/adapter-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
+import { pluginMcp } from '@kubb/plugin-mcp'
 
 export default defineConfig({
-  input: { path: "./petStore.yaml" },
-  output: { path: "./src/gen" },
+  input: { path: './petStore.yaml' },
+  output: { path: './src/gen' },
   adapter: adapterOas(),
   plugins: [
     pluginTs(),
     pluginZod(),
     pluginMcp({
-      output: { path: "./mcp" },
-      client: { baseURL: "https://petstore.swagger.io/v2" },
+      output: { path: './mcp' },
+      client: { baseURL: 'https://petstore.swagger.io/v2' },
     }),
   ],
-});
+})
 ```
 
 :::
@@ -922,14 +907,14 @@ The `contentType` option has been removed from `@kubb/plugin-mcp`. Content type 
 
 ```typescript [Before (v4)]
 pluginMcp({
-  contentType: "application/json",
-});
+  contentType: 'application/json',
+})
 ```
 
 ```typescript [After (v5)]
 adapterOas({
-  contentType: "application/json",
-});
+  contentType: 'application/json',
+})
 ```
 
 :::
@@ -943,19 +928,19 @@ The `transformers: { name }` callback has been removed. Use the `resolver` optio
 ```typescript [Before (v4)]
 pluginMcp({
   transformers: {
-    name: (name, type) => (type === "function" ? `${name}Fn` : name),
+    name: (name, type) => (type === 'function' ? `${name}Fn` : name),
   },
-});
+})
 ```
 
 ```typescript [After (v5)]
 pluginMcp({
   resolver: {
     resolveName(name) {
-      return `${this.default(name)}Fn`;
+      return `${this.default(name)}Fn`
     },
   },
-});
+})
 ```
 
 :::
@@ -968,10 +953,10 @@ The `transformers` object has been replaced by a single `transformer` option tha
 pluginMcp({
   transformer: {
     operation(node) {
-      return { ...node, operationId: `api_${node.operationId}` };
+      return { ...node, operationId: `api_${node.operationId}` }
     },
   },
-});
+})
 ```
 
 #### New `compatibilityPreset` option
@@ -980,8 +965,8 @@ Use `compatibilityPreset: 'kubbV4'` to preserve v4 naming conventions while migr
 
 ```typescript
 pluginMcp({
-  compatibilityPreset: "kubbV4",
-});
+  compatibilityPreset: 'kubbV4',
+})
 ```
 
 ### `@kubb/plugin-mcp` — new options in v5
@@ -1006,21 +991,21 @@ The `transformers: { name }` callback has been removed. Use the `resolver` optio
 ```typescript [Before (v4)]
 pluginClient({
   transformers: {
-    name: (name, type) => (type === "function" ? `${name}Client` : name),
+    name: (name, type) => (type === 'function' ? `${name}Client` : name),
   },
-});
+})
 ```
 
 ```typescript [After (v5)]
-import { pluginClient } from "@kubb/plugin-client";
+import { pluginClient } from '@kubb/plugin-client'
 
 pluginClient({
   resolver: {
     resolveName(name) {
-      return `${this.default(name)}Client`;
+      return `${this.default(name)}Client`
     },
   },
-});
+})
 ```
 
 :::
@@ -1030,9 +1015,9 @@ pluginClient({
 Use `compatibilityPreset: 'kubbV4'` to preserve v4 naming conventions while migrating.
 
 ```typescript
-import { pluginClient } from "@kubb/plugin-client";
+import { pluginClient } from '@kubb/plugin-client'
 
-pluginClient({ compatibilityPreset: "kubbV4" });
+pluginClient({ compatibilityPreset: 'kubbV4' })
 ```
 
 #### New `transformer` option
@@ -1040,15 +1025,15 @@ pluginClient({ compatibilityPreset: "kubbV4" });
 Apply an AST `Visitor` to transform operation nodes before they are printed. This replaces the old `transformers` callback approach for structural modifications.
 
 ```typescript
-import { pluginClient } from "@kubb/plugin-client";
+import { pluginClient } from '@kubb/plugin-client'
 
 pluginClient({
   transformer: {
     operation(node) {
-      return { ...node, operationId: `api_${node.operationId}` };
+      return { ...node, operationId: `api_${node.operationId}` }
     },
   },
-});
+})
 ```
 
 #### `baseURL` now defaults to the adapter baseURL

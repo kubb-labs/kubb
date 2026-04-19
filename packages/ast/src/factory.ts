@@ -1,7 +1,7 @@
-import { createHash } from "node:crypto";
-import path from "node:path";
-import { trimExtName } from "@internals/utils";
-import type { InferSchemaNode } from "./infer.ts";
+import { createHash } from 'node:crypto'
+import path from 'node:path'
+import { trimExtName } from '@internals/utils'
+import type { InferSchemaNode } from './infer.ts'
 import type {
   ArrowFunctionNode,
   BreakNode,
@@ -27,13 +27,8 @@ import type {
   SourceNode,
   TextNode,
   TypeNode,
-} from "./nodes/index.ts";
-import {
-  combineExports,
-  combineImports,
-  combineSources,
-  extractStringsFromNodes,
-} from "./utils.ts";
+} from './nodes/index.ts'
+import { combineExports, combineImports, combineSources, extractStringsFromNodes } from './utils.ts'
 
 /**
  * Syncs property/parameter schema optionality flags from `required` and `schema.nullable`.
@@ -41,17 +36,14 @@ import {
  * - `optional` is set for non-required, non-nullable schemas.
  * - `nullish` is set for non-required, nullable schemas.
  */
-export function syncOptionality(
-  schema: SchemaNode,
-  required: boolean,
-): SchemaNode {
-  const nullable = schema.nullable ?? false;
+export function syncOptionality(schema: SchemaNode, required: boolean): SchemaNode {
+  const nullable = schema.nullable ?? false
 
   return {
     ...schema,
     optional: !required && !nullable ? true : undefined,
     nullish: !required && nullable ? true : undefined,
-  };
+  }
 }
 
 /**
@@ -65,20 +57,13 @@ export function syncOptionality(
  * // -> { kind: 'a'; keep: string } | { kind: 'b'; keep: boolean }
  * ```
  */
-export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown
-  ? Omit<T, K>
-  : never;
+export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
 
-type CreateSchemaObjectInput = Omit<
-  ObjectSchemaNode,
-  "kind" | "properties" | "primitive"
-> & { properties?: Array<PropertyNode>; primitive?: "object" };
-type CreateSchemaInput =
-  | CreateSchemaObjectInput
-  | DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, "kind">;
+type CreateSchemaObjectInput = Omit<ObjectSchemaNode, 'kind' | 'properties' | 'primitive'> & { properties?: Array<PropertyNode>; primitive?: 'object' }
+type CreateSchemaInput = CreateSchemaObjectInput | DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>
 type CreateSchemaOutput<T extends CreateSchemaInput> = InferSchemaNode<T> & {
-  kind: "Schema";
-};
+  kind: 'Schema'
+}
 
 /**
  * Creates an `InputNode` with stable defaults for `schemas` and `operations`.
@@ -95,15 +80,13 @@ type CreateSchemaOutput<T extends CreateSchemaInput> = InferSchemaNode<T> & {
  * // keeps default operations: []
  * ```
  */
-export function createInput(
-  overrides: Partial<Omit<InputNode, "kind">> = {},
-): InputNode {
+export function createInput(overrides: Partial<Omit<InputNode, 'kind'>> = {}): InputNode {
   return {
     schemas: [],
     operations: [],
     ...overrides,
-    kind: "Input",
-  };
+    kind: 'Input',
+  }
 }
 
 /**
@@ -120,14 +103,12 @@ export function createInput(
  * const output = createOutput({ files: [petFile] })
  * ```
  */
-export function createOutput(
-  overrides: Partial<Omit<OutputNode, "kind">> = {},
-): OutputNode {
+export function createOutput(overrides: Partial<Omit<OutputNode, 'kind'>> = {}): OutputNode {
   return {
     files: [],
     ...overrides,
-    kind: "Output",
-  };
+    kind: 'Output',
+  }
 }
 
 /**
@@ -154,16 +135,15 @@ export function createOutput(
  * ```
  */
 export function createOperation(
-  props: Pick<OperationNode, "operationId" | "method" | "path"> &
-    Partial<Omit<OperationNode, "kind" | "operationId" | "method" | "path">>,
+  props: Pick<OperationNode, 'operationId' | 'method' | 'path'> & Partial<Omit<OperationNode, 'kind' | 'operationId' | 'method' | 'path'>>,
 ): OperationNode {
   return {
     tags: [],
     parameters: [],
     responses: [],
     ...props,
-    kind: "Operation",
-  };
+    kind: 'Operation',
+  }
 }
 
 /**
@@ -171,28 +151,26 @@ export function createOperation(
  * Primitive types map to themselves; special string formats map to `'string'`.
  * Complex types (`ref`, `enum`, `union`, `intersection`, `tuple`, `blob`) are left unset.
  */
-const TYPE_TO_PRIMITIVE: Partial<
-  Record<SchemaNode["type"], PrimitiveSchemaType>
-> = {
-  string: "string",
-  number: "number",
-  integer: "integer",
-  bigint: "bigint",
-  boolean: "boolean",
-  null: "null",
-  any: "any",
-  unknown: "unknown",
-  void: "void",
-  never: "never",
-  object: "object",
-  array: "array",
-  date: "date",
-  uuid: "string",
-  email: "string",
-  url: "string",
-  datetime: "string",
-  time: "string",
-};
+const TYPE_TO_PRIMITIVE: Partial<Record<SchemaNode['type'], PrimitiveSchemaType>> = {
+  string: 'string',
+  number: 'number',
+  integer: 'integer',
+  bigint: 'bigint',
+  boolean: 'boolean',
+  null: 'null',
+  any: 'any',
+  unknown: 'unknown',
+  void: 'void',
+  never: 'never',
+  object: 'object',
+  array: 'array',
+  date: 'date',
+  uuid: 'string',
+  email: 'string',
+  url: 'string',
+  datetime: 'string',
+  time: 'string',
+}
 
 /**
  * Creates a `SchemaNode`, narrowed to the variant of `props.type`.
@@ -226,32 +204,28 @@ const TYPE_TO_PRIMITIVE: Partial<
  * })
  * ```
  */
-export function createSchema<T extends CreateSchemaInput>(
-  props: T,
-): CreateSchemaOutput<T>;
-export function createSchema(props: CreateSchemaInput): SchemaNode;
+export function createSchema<T extends CreateSchemaInput>(props: T): CreateSchemaOutput<T>
+export function createSchema(props: CreateSchemaInput): SchemaNode
 export function createSchema(props: CreateSchemaInput): SchemaNode {
-  const inferredPrimitive =
-    TYPE_TO_PRIMITIVE[props.type as keyof typeof TYPE_TO_PRIMITIVE];
+  const inferredPrimitive = TYPE_TO_PRIMITIVE[props.type as keyof typeof TYPE_TO_PRIMITIVE]
 
-  if (props["type"] === "object") {
+  if (props['type'] === 'object') {
     return {
       properties: [],
-      primitive: "object",
+      primitive: 'object',
       ...props,
-      kind: "Schema",
-    } as CreateSchemaOutput<typeof props>;
+      kind: 'Schema',
+    } as CreateSchemaOutput<typeof props>
   }
 
   return {
     primitive: inferredPrimitive,
     ...props,
-    kind: "Schema",
-  } as CreateSchemaOutput<typeof props>;
+    kind: 'Schema',
+  } as CreateSchemaOutput<typeof props>
 }
 
-type UserPropertyNode = Pick<PropertyNode, "name" | "schema"> &
-  Partial<Omit<PropertyNode, "kind" | "name" | "schema">>;
+type UserPropertyNode = Pick<PropertyNode, 'name' | 'schema'> & Partial<Omit<PropertyNode, 'kind' | 'name' | 'schema'>>
 
 /**
  * Creates a `PropertyNode`.
@@ -279,14 +253,14 @@ type UserPropertyNode = Pick<PropertyNode, "name" | "schema"> &
  * ```
  */
 export function createProperty(props: UserPropertyNode): PropertyNode {
-  const required = props.required ?? false;
+  const required = props.required ?? false
 
   return {
     ...props,
-    kind: "Property",
+    kind: 'Property',
     required,
     schema: syncOptionality(props.schema, required),
-  };
+  }
 }
 
 /**
@@ -316,16 +290,15 @@ export function createProperty(props: UserPropertyNode): PropertyNode {
  * ```
  */
 export function createParameter(
-  props: Pick<ParameterNode, "name" | "in" | "schema"> &
-    Partial<Omit<ParameterNode, "kind" | "name" | "in" | "schema">>,
+  props: Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial<Omit<ParameterNode, 'kind' | 'name' | 'in' | 'schema'>>,
 ): ParameterNode {
-  const required = props.required ?? false;
+  const required = props.required ?? false
   return {
     ...props,
-    kind: "Parameter",
+    kind: 'Parameter',
     required,
     schema: syncOptionality(props.schema, required),
-  };
+  }
 }
 
 /**
@@ -341,13 +314,12 @@ export function createParameter(
  * ```
  */
 export function createResponse(
-  props: Pick<ResponseNode, "statusCode" | "schema"> &
-    Partial<Omit<ResponseNode, "kind" | "statusCode" | "schema">>,
+  props: Pick<ResponseNode, 'statusCode' | 'schema'> & Partial<Omit<ResponseNode, 'kind' | 'statusCode' | 'schema'>>,
 ): ResponseNode {
   return {
     ...props,
-    kind: "Response",
-  };
+    kind: 'Response',
+  }
 }
 
 /**
@@ -374,16 +346,13 @@ export function createResponse(
  * ```
  */
 export function createFunctionParameter(
-  props: { name: string; type?: ParamsTypeNode; rest?: boolean } & (
-    | { optional: true; default?: never }
-    | { optional?: false; default?: string }
-  ),
+  props: { name: string; type?: ParamsTypeNode; rest?: boolean } & ({ optional: true; default?: never } | { optional?: false; default?: string }),
 ): FunctionParameterNode {
   return {
     optional: false,
     ...props,
-    kind: "FunctionParameter",
-  } as FunctionParameterNode;
+    kind: 'FunctionParameter',
+  } as FunctionParameterNode
 }
 
 /**
@@ -410,18 +379,18 @@ export function createFunctionParameter(
  */
 export function createParamsType(
   props:
-    | { variant: "reference"; name: string }
+    | { variant: 'reference'; name: string }
     | {
-        variant: "struct";
+        variant: 'struct'
         properties: Array<{
-          name: string;
-          optional: boolean;
-          type: ParamsTypeNode;
-        }>;
+          name: string
+          optional: boolean
+          type: ParamsTypeNode
+        }>
       }
-    | { variant: "member"; base: string; key: string },
+    | { variant: 'member'; base: string; key: string },
 ): ParamsTypeNode {
-  return { ...props, kind: "ParamsType" } as ParamsTypeNode;
+  return { ...props, kind: 'ParamsType' } as ParamsTypeNode
 }
 
 /**
@@ -451,13 +420,12 @@ export function createParamsType(
  * ```
  */
 export function createParameterGroup(
-  props: Pick<ParameterGroupNode, "properties"> &
-    Partial<Omit<ParameterGroupNode, "kind" | "properties">>,
+  props: Pick<ParameterGroupNode, 'properties'> & Partial<Omit<ParameterGroupNode, 'kind' | 'properties'>>,
 ): ParameterGroupNode {
   return {
     ...props,
-    kind: "ParameterGroup",
-  };
+    kind: 'ParameterGroup',
+  }
 }
 
 /**
@@ -479,14 +447,12 @@ export function createParameterGroup(
  * // { kind: 'FunctionParameters', params: [] }
  * ```
  */
-export function createFunctionParameters(
-  props: Partial<Omit<FunctionParametersNode, "kind">> = {},
-): FunctionParametersNode {
+export function createFunctionParameters(props: Partial<Omit<FunctionParametersNode, 'kind'>> = {}): FunctionParametersNode {
   return {
     params: [],
     ...props,
-    kind: "FunctionParameters",
-  };
+    kind: 'FunctionParameters',
+  }
 }
 
 /**
@@ -504,8 +470,8 @@ export function createFunctionParameters(
  * // import type { FC } from 'react'
  * ```
  */
-export function createImport(props: Omit<ImportNode, "kind">): ImportNode {
-  return { ...props, kind: "Import" };
+export function createImport(props: Omit<ImportNode, 'kind'>): ImportNode {
+  return { ...props, kind: 'Import' }
 }
 
 /**
@@ -523,8 +489,8 @@ export function createImport(props: Omit<ImportNode, "kind">): ImportNode {
  * // export * from './utils'
  * ```
  */
-export function createExport(props: Omit<ExportNode, "kind">): ExportNode {
-  return { ...props, kind: "Export" };
+export function createExport(props: Omit<ExportNode, 'kind'>): ExportNode {
+  return { ...props, kind: 'Export' }
 }
 
 /**
@@ -535,15 +501,12 @@ export function createExport(props: Omit<ExportNode, "kind">): ExportNode {
  * createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], isExportable: true })
  * ```
  */
-export function createSource(props: Omit<SourceNode, "kind">): SourceNode {
-  return { ...props, kind: "Source" };
+export function createSource(props: Omit<SourceNode, 'kind'>): SourceNode {
+  return { ...props, kind: 'Source' }
 }
 
-type UserFileNode<TMeta extends object = object> = Omit<
-  FileNode<TMeta>,
-  "kind" | "id" | "name" | "extname" | "imports" | "exports" | "sources"
-> &
-  Pick<Partial<FileNode<TMeta>>, "imports" | "exports" | "sources">;
+type UserFileNode<TMeta extends object = object> = Omit<FileNode<TMeta>, 'kind' | 'id' | 'name' | 'extname' | 'imports' | 'exports' | 'sources'> &
+  Pick<Partial<FileNode<TMeta>>, 'imports' | 'exports' | 'sources'>
 
 /**
  * Creates a fully resolved `FileNode` from a file input descriptor.
@@ -574,43 +537,34 @@ type UserFileNode<TMeta extends object = object> = Omit<
  * // file.extname = '.ts'
  * ```
  */
-export function createFile<TMeta extends object = object>(
-  input: UserFileNode<TMeta>,
-): FileNode<TMeta> {
-  const rawExtname = path.extname(input.baseName);
+export function createFile<TMeta extends object = object>(input: UserFileNode<TMeta>): FileNode<TMeta> {
+  const rawExtname = path.extname(input.baseName)
   // Handle dotfile basename like '.ts' where path.extname returns ''
-  const extname = (rawExtname ||
-    (input.baseName.startsWith(".") ? input.baseName : "")) as `.${string}`;
+  const extname = (rawExtname || (input.baseName.startsWith('.') ? input.baseName : '')) as `.${string}`
   if (!extname) {
-    throw new Error(`No extname found for ${input.baseName}`);
+    throw new Error(`No extname found for ${input.baseName}`)
   }
 
   const source = (input.sources ?? [])
     .flatMap((item) => item.nodes ?? [])
     .map((node) => extractStringsFromNodes([node]))
     .filter(Boolean)
-    .join("\n\n");
-  const resolvedExports = input.exports?.length
-    ? combineExports(input.exports)
-    : [];
-  const resolvedImports = input.imports?.length
-    ? combineImports(input.imports, resolvedExports, source || undefined)
-    : [];
-  const resolvedSources = input.sources?.length
-    ? combineSources(input.sources)
-    : [];
+    .join('\n\n')
+  const resolvedExports = input.exports?.length ? combineExports(input.exports) : []
+  const resolvedImports = input.imports?.length ? combineImports(input.imports, resolvedExports, source || undefined) : []
+  const resolvedSources = input.sources?.length ? combineSources(input.sources) : []
 
   return {
-    kind: "File",
+    kind: 'File',
     ...input,
-    id: createHash("sha256").update(input.path).digest("hex"),
+    id: createHash('sha256').update(input.path).digest('hex'),
     name: trimExtName(input.baseName),
     extname,
     imports: resolvedImports,
     exports: resolvedExports,
     sources: resolvedSources,
     meta: input.meta ?? ({} as TMeta),
-  };
+  }
 }
 
 /**
@@ -641,8 +595,8 @@ export function createFile<TMeta extends object = object>(
  * })
  * ```
  */
-export function createConst(props: Omit<ConstNode, "kind">): ConstNode {
-  return { ...props, kind: "Const" };
+export function createConst(props: Omit<ConstNode, 'kind'>): ConstNode {
+  return { ...props, kind: 'Const' }
 }
 
 /**
@@ -667,8 +621,8 @@ export function createConst(props: Omit<ConstNode, "kind">): ConstNode {
  * // export type PetStatus = ...
  * ```
  */
-export function createType(props: Omit<TypeNode, "kind">): TypeNode {
-  return { ...props, kind: "Type" };
+export function createType(props: Omit<TypeNode, 'kind'>): TypeNode {
+  return { ...props, kind: 'Type' }
 }
 
 /**
@@ -701,10 +655,8 @@ export function createType(props: Omit<TypeNode, "kind">): TypeNode {
  * // export function identity<T>(value: T): T { ... }
  * ```
  */
-export function createFunction(
-  props: Omit<FunctionNode, "kind">,
-): FunctionNode {
-  return { ...props, kind: "Function" };
+export function createFunction(props: Omit<FunctionNode, 'kind'>): FunctionNode {
+  return { ...props, kind: 'Function' }
 }
 
 /**
@@ -738,10 +690,8 @@ export function createFunction(
  * // export const fetchPet = async <T>(id: string): Promise<T> => { ... }
  * ```
  */
-export function createArrowFunction(
-  props: Omit<ArrowFunctionNode, "kind">,
-): ArrowFunctionNode {
-  return { ...props, kind: "ArrowFunction" };
+export function createArrowFunction(props: Omit<ArrowFunctionNode, 'kind'>): ArrowFunctionNode {
+  return { ...props, kind: 'ArrowFunction' }
 }
 
 /**
@@ -757,7 +707,7 @@ export function createArrowFunction(
  * ```
  */
 export function createText(value: string): TextNode {
-  return { value, kind: "Text" };
+  return { value, kind: 'Text' }
 }
 
 /**
@@ -773,7 +723,7 @@ export function createText(value: string): TextNode {
  * ```
  */
 export function createBreak(): BreakNode {
-  return { kind: "Break" };
+  return { kind: 'Break' }
 }
 
 /**
@@ -788,5 +738,5 @@ export function createBreak(): BreakNode {
  * ```
  */
 export function createJsx(value: string): JsxNode {
-  return { value, kind: "Jsx" };
+  return { value, kind: 'Jsx' }
 }

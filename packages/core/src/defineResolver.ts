@@ -1,14 +1,8 @@
-import path from "node:path";
-import { camelCase, pascalCase } from "@internals/utils";
-import type {
-  FileNode,
-  InputNode,
-  Node,
-  OperationNode,
-  SchemaNode,
-} from "@kubb/ast";
-import { createFile, isOperationNode, isSchemaNode } from "@kubb/ast";
-import { PluginDriver } from "./PluginDriver.ts";
+import path from 'node:path'
+import { camelCase, pascalCase } from '@internals/utils'
+import type { FileNode, InputNode, Node, OperationNode, SchemaNode } from '@kubb/ast'
+import { createFile, isOperationNode, isSchemaNode } from '@kubb/ast'
+import { PluginDriver } from './PluginDriver.ts'
 import type {
   Config,
   PluginFactoryOptions,
@@ -18,7 +12,7 @@ import type {
   ResolverContext,
   ResolverFileParams,
   ResolverPathParams,
-} from "./types.ts";
+} from './types.ts'
 
 /**
  * Builder type for the plugin-specific resolver fields.
@@ -27,70 +21,47 @@ import type {
  * are optional — built-in fallbacks are injected when omitted.
  */
 type ResolverBuilder<T extends PluginFactoryOptions> = () => Omit<
-  T["resolver"],
-  | "default"
-  | "resolveOptions"
-  | "resolvePath"
-  | "resolveFile"
-  | "resolveBanner"
-  | "resolveFooter"
-  | "name"
-  | "pluginName"
+  T['resolver'],
+  'default' | 'resolveOptions' | 'resolvePath' | 'resolveFile' | 'resolveBanner' | 'resolveFooter' | 'name' | 'pluginName'
 > &
-  Partial<
-    Pick<
-      T["resolver"],
-      | "default"
-      | "resolveOptions"
-      | "resolvePath"
-      | "resolveFile"
-      | "resolveBanner"
-      | "resolveFooter"
-    >
-  > & {
-    name: string;
-    pluginName: T["name"];
-  } & ThisType<T["resolver"]>;
+  Partial<Pick<T['resolver'], 'default' | 'resolveOptions' | 'resolvePath' | 'resolveFile' | 'resolveBanner' | 'resolveFooter'>> & {
+    name: string
+    pluginName: T['name']
+  } & ThisType<T['resolver']>
 
 // String patterns are compiled lazily and cached — the same filter is reused for every node.
-const stringPatternCache = new Map<string, RegExp>();
+const stringPatternCache = new Map<string, RegExp>()
 
 function testPattern(value: string, pattern: string | RegExp): boolean {
-  if (typeof pattern === "string") {
-    let regex = stringPatternCache.get(pattern);
+  if (typeof pattern === 'string') {
+    let regex = stringPatternCache.get(pattern)
     if (!regex) {
-      regex = new RegExp(pattern);
-      stringPatternCache.set(pattern, regex);
+      regex = new RegExp(pattern)
+      stringPatternCache.set(pattern, regex)
     }
-    return regex.test(value);
+    return regex.test(value)
   }
   // Use .match() for user-supplied RegExp to preserve semantics regardless of `g`/`y` flags.
-  return value.match(pattern) !== null;
+  return value.match(pattern) !== null
 }
 
 /**
  * Checks if an operation matches a pattern for a given filter type (`tag`, `operationId`, `path`, `method`).
  */
-function matchesOperationPattern(
-  node: OperationNode,
-  type: string,
-  pattern: string | RegExp,
-): boolean {
+function matchesOperationPattern(node: OperationNode, type: string, pattern: string | RegExp): boolean {
   switch (type) {
-    case "tag":
-      return node.tags.some((tag) => testPattern(tag, pattern));
-    case "operationId":
-      return testPattern(node.operationId, pattern);
-    case "path":
-      return testPattern(node.path, pattern);
-    case "method":
-      return testPattern(node.method.toLowerCase(), pattern);
-    case "contentType":
-      return node.requestBody?.contentType
-        ? testPattern(node.requestBody.contentType, pattern)
-        : false;
+    case 'tag':
+      return node.tags.some((tag) => testPattern(tag, pattern))
+    case 'operationId':
+      return testPattern(node.operationId, pattern)
+    case 'path':
+      return testPattern(node.path, pattern)
+    case 'method':
+      return testPattern(node.method.toLowerCase(), pattern)
+    case 'contentType':
+      return node.requestBody?.contentType ? testPattern(node.requestBody.contentType, pattern) : false
     default:
-      return false;
+      return false
   }
 }
 
@@ -99,16 +70,12 @@ function matchesOperationPattern(
  *
  * Returns `null` when the filter type doesn't apply to schemas.
  */
-function matchesSchemaPattern(
-  node: SchemaNode,
-  type: string,
-  pattern: string | RegExp,
-): boolean | null {
+function matchesSchemaPattern(node: SchemaNode, type: string, pattern: string | RegExp): boolean | null {
   switch (type) {
-    case "schemaName":
-      return node.name ? testPattern(node.name, pattern) : false;
+    case 'schemaName':
+      return node.name ? testPattern(node.name, pattern) : false
     default:
-      return null;
+      return null
   }
 }
 
@@ -119,23 +86,20 @@ function matchesSchemaPattern(
  * - `PascalCase` for `type`.
  * - `camelCase` for everything else.
  */
-function defaultResolver(
-  name: string,
-  type?: "file" | "function" | "type" | "const",
-): string {
-  let resolvedName = camelCase(name);
+function defaultResolver(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
+  let resolvedName = camelCase(name)
 
-  if (type === "file" || type === "function") {
+  if (type === 'file' || type === 'function') {
     resolvedName = camelCase(name, {
-      isFile: type === "file",
-    });
+      isFile: type === 'file',
+    })
   }
 
-  if (type === "type") {
-    resolvedName = pascalCase(name);
+  if (type === 'type') {
+    resolvedName = pascalCase(name)
   }
 
-  return resolvedName;
+  return resolvedName
 }
 
 /**
@@ -163,65 +127,42 @@ function defaultResolver(
  */
 export function defaultResolveOptions<TOptions>(
   node: Node,
-  {
-    options,
-    exclude = [],
-    include,
-    override = [],
-  }: ResolveOptionsContext<TOptions>,
+  { options, exclude = [], include, override = [] }: ResolveOptionsContext<TOptions>,
 ): TOptions | null {
   if (isOperationNode(node)) {
-    const isExcluded = exclude.some(({ type, pattern }) =>
-      matchesOperationPattern(node, type, pattern),
-    );
+    const isExcluded = exclude.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))
     if (isExcluded) {
-      return null;
+      return null
     }
 
-    if (
-      include &&
-      !include.some(({ type, pattern }) =>
-        matchesOperationPattern(node, type, pattern),
-      )
-    ) {
-      return null;
+    if (include && !include.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))) {
+      return null
     }
 
-    const overrideOptions = override.find(({ type, pattern }) =>
-      matchesOperationPattern(node, type, pattern),
-    )?.options;
+    const overrideOptions = override.find(({ type, pattern }) => matchesOperationPattern(node, type, pattern))?.options
 
-    return { ...options, ...overrideOptions };
+    return { ...options, ...overrideOptions }
   }
 
   if (isSchemaNode(node)) {
-    if (
-      exclude.some(
-        ({ type, pattern }) =>
-          matchesSchemaPattern(node, type, pattern) === true,
-      )
-    ) {
-      return null;
+    if (exclude.some(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)) {
+      return null
     }
 
     if (include) {
-      const results = include.map(({ type, pattern }) =>
-        matchesSchemaPattern(node, type, pattern),
-      );
-      const applicable = results.filter((r) => r !== null);
+      const results = include.map(({ type, pattern }) => matchesSchemaPattern(node, type, pattern))
+      const applicable = results.filter((r) => r !== null)
       if (applicable.length > 0 && !applicable.includes(true)) {
-        return null;
+        return null
       }
     }
 
-    const overrideOptions = override.find(
-      ({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true,
-    )?.options;
+    const overrideOptions = override.find(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)?.options
 
-    return { ...options, ...overrideOptions };
+    return { ...options, ...overrideOptions }
   }
 
-  return options;
+  return options
 }
 
 /**
@@ -268,34 +209,24 @@ export function defaultResolveOptions<TOptions>(
  * // → '/src/types'
  * ```
  */
-export function defaultResolvePath(
-  { baseName, pathMode, tag, path: groupPath }: ResolverPathParams,
-  { root, output, group }: ResolverContext,
-): string {
-  const mode =
-    pathMode ?? PluginDriver.getMode(path.resolve(root, output.path));
+export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }: ResolverPathParams, { root, output, group }: ResolverContext): string {
+  const mode = pathMode ?? PluginDriver.getMode(path.resolve(root, output.path))
 
-  if (mode === "single") {
-    return path.resolve(root, output.path);
+  if (mode === 'single') {
+    return path.resolve(root, output.path)
   }
 
   if (group && (groupPath || tag)) {
-    const groupValue = group.type === "path" ? groupPath! : tag!;
+    const groupValue = group.type === 'path' ? groupPath! : tag!
     const defaultName =
-      group.type === "tag"
+      group.type === 'tag'
         ? ({ group: g }: { group: string }) => `${camelCase(g)}Controller`
-        : ({ group: g }: { group: string }) =>
-            g.split("/").filter(Boolean)[0] ?? g;
-    const resolveName = group.name ?? defaultName;
-    return path.resolve(
-      root,
-      output.path,
-      resolveName({ group: groupValue }),
-      baseName,
-    );
+        : ({ group: g }: { group: string }) => g.split('/').filter(Boolean)[0] ?? g
+    const resolveName = group.name ?? defaultName
+    return path.resolve(root, output.path, resolveName({ group: groupValue }), baseName)
   }
 
-  return path.resolve(root, output.path, baseName);
+  return path.resolve(root, output.path, baseName)
 }
 
 /**
@@ -325,20 +256,11 @@ export function defaultResolvePath(
  * // → { baseName: 'listPets.ts', path: '/src/types/petsController/listPets.ts', ... }
  * ```
  */
-export function defaultResolveFile(
-  this: Resolver,
-  { name, extname, tag, path: groupPath }: ResolverFileParams,
-  context: ResolverContext,
-): FileNode {
-  const pathMode = PluginDriver.getMode(
-    path.resolve(context.root, context.output.path),
-  );
-  const resolvedName = pathMode === "single" ? "" : this.default(name, "file");
-  const baseName = `${resolvedName}${extname}` as FileNode["baseName"];
-  const filePath = this.resolvePath(
-    { baseName, pathMode, tag, path: groupPath },
-    context,
-  );
+export function defaultResolveFile(this: Resolver, { name, extname, tag, path: groupPath }: ResolverFileParams, context: ResolverContext): FileNode {
+  const pathMode = PluginDriver.getMode(path.resolve(context.root, context.output.path))
+  const resolvedName = pathMode === 'single' ? '' : this.default(name, 'file')
+  const baseName = `${resolvedName}${extname}` as FileNode['baseName']
+  const filePath = this.resolvePath({ baseName, pathMode, tag, path: groupPath }, context)
 
   return createFile({
     path: filePath,
@@ -349,7 +271,7 @@ export function defaultResolveFile(
     sources: [],
     imports: [],
     exports: [],
-  });
+  })
 }
 
 /**
@@ -361,53 +283,52 @@ export function buildDefaultBanner({
   version,
   config,
 }: {
-  title?: string;
-  description?: string;
-  version?: string;
-  config: Config;
+  title?: string
+  description?: string
+  version?: string
+  config: Config
 }): string {
   try {
-    let source = "";
+    let source = ''
     if (Array.isArray(config.input)) {
-      const first = config.input[0];
-      if (first && "path" in first) {
-        source = path.basename(first.path);
+      const first = config.input[0]
+      if (first && 'path' in first) {
+        source = path.basename(first.path)
       }
-    } else if ("path" in config.input) {
-      source = path.basename(config.input.path);
-    } else if ("data" in config.input) {
-      source = "text content";
+    } else if ('path' in config.input) {
+      source = path.basename(config.input.path)
+    } else if ('data' in config.input) {
+      source = 'text content'
     }
 
-    let banner =
-      "/**\n* Generated by Kubb (https://kubb.dev/).\n* Do not edit manually.\n";
+    let banner = '/**\n* Generated by Kubb (https://kubb.dev/).\n* Do not edit manually.\n'
 
-    if (config.output.defaultBanner === "simple") {
-      banner += "*/\n";
-      return banner;
+    if (config.output.defaultBanner === 'simple') {
+      banner += '*/\n'
+      return banner
     }
 
     if (source) {
-      banner += `* Source: ${source}\n`;
+      banner += `* Source: ${source}\n`
     }
 
     if (title) {
-      banner += `* Title: ${title}\n`;
+      banner += `* Title: ${title}\n`
     }
 
     if (description) {
-      const formattedDescription = description.replace(/\n/gm, "\n* ");
-      banner += `* Description: ${formattedDescription}\n`;
+      const formattedDescription = description.replace(/\n/gm, '\n* ')
+      banner += `* Description: ${formattedDescription}\n`
     }
 
     if (version) {
-      banner += `* OpenAPI spec version: ${version}\n`;
+      banner += `* OpenAPI spec version: ${version}\n`
     }
 
-    banner += "*/\n";
-    return banner;
+    banner += '*/\n'
+    return banner
   } catch (_error) {
-    return "/**\n* Generated by Kubb (https://kubb.dev/).\n* Do not edit manually.\n*/";
+    return '/**\n* Generated by Kubb (https://kubb.dev/).\n* Do not edit manually.\n*/'
   }
 }
 
@@ -448,27 +369,24 @@ export function buildDefaultBanner({
  * // → undefined
  * ```
  */
-export function defaultResolveBanner(
-  node: InputNode | undefined,
-  { output, config }: ResolveBannerContext,
-): string | undefined {
-  if (typeof output?.banner === "function") {
-    return output.banner(node);
+export function defaultResolveBanner(node: InputNode | undefined, { output, config }: ResolveBannerContext): string | undefined {
+  if (typeof output?.banner === 'function') {
+    return output.banner(node)
   }
 
-  if (typeof output?.banner === "string") {
-    return output.banner;
+  if (typeof output?.banner === 'string') {
+    return output.banner
   }
 
   if (config.output.defaultBanner === false) {
-    return undefined;
+    return undefined
   }
 
   return buildDefaultBanner({
     title: node?.meta?.title,
     version: node?.meta?.version,
     config,
-  });
+  })
 }
 
 /**
@@ -491,17 +409,14 @@ export function defaultResolveBanner(
  * // → '// Pet Store'
  * ```
  */
-export function defaultResolveFooter(
-  node: InputNode | undefined,
-  { output }: ResolveBannerContext,
-): string | undefined {
-  if (typeof output?.footer === "function") {
-    return node ? output.footer(node) : undefined;
+export function defaultResolveFooter(node: InputNode | undefined, { output }: ResolveBannerContext): string | undefined {
+  if (typeof output?.footer === 'function') {
+    return node ? output.footer(node) : undefined
   }
-  if (typeof output?.footer === "string") {
-    return output.footer;
+  if (typeof output?.footer === 'string') {
+    return output.footer
   }
-  return undefined;
+  return undefined
 }
 
 /**
@@ -550,9 +465,7 @@ export function defaultResolveFooter(
  * }))
  * ```
  */
-export function defineResolver<T extends PluginFactoryOptions>(
-  build: ResolverBuilder<T>,
-): T["resolver"] {
+export function defineResolver<T extends PluginFactoryOptions>(build: ResolverBuilder<T>): T['resolver'] {
   return {
     default: defaultResolver,
     resolveOptions: defaultResolveOptions,
@@ -561,5 +474,5 @@ export function defineResolver<T extends PluginFactoryOptions>(
     resolveBanner: defaultResolveBanner,
     resolveFooter: defaultResolveFooter,
     ...build(),
-  } as T["resolver"];
+  } as T['resolver']
 }

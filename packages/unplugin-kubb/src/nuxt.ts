@@ -1,22 +1,22 @@
-import { addVitePlugin, addWebpackPlugin, defineNuxtModule } from "@nuxt/kit";
-import "@nuxt/schema";
+import { addVitePlugin, addWebpackPlugin, defineNuxtModule } from '@nuxt/kit'
+import '@nuxt/schema'
 
-import type { Options } from "./types.ts";
-import vite from "./vite.ts";
-import webpack from "./webpack.ts";
+import type { Options } from './types.ts'
+import vite from './vite.ts'
+import webpack from './webpack.ts'
 
 export interface ModuleOptions extends Options {}
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: "nuxt-unplugin-kubb",
-    configKey: "unpluginKubb",
+    name: 'nuxt-unplugin-kubb',
+    configKey: 'unpluginKubb',
   },
   defaults: undefined,
   setup(options, _nuxt) {
-    addVitePlugin(() => vite(options));
-    addWebpackPlugin(() => webpack(options));
+    addVitePlugin(() => vite(options))
+    addWebpackPlugin(() => webpack(options))
 
     // ...
   },
-});
+})

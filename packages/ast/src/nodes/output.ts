@@ -1,5 +1,5 @@
-import type { BaseNode } from "./base.ts";
-import type { FileNode } from "./file.ts";
+import type { BaseNode } from './base.ts'
+import type { FileNode } from './file.ts'
 
 /**
  * Output AST node that groups all generated file output for one API document.
@@ -18,9 +18,9 @@ export type OutputNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: "Output";
+  kind: 'Output'
   /**
    * Generated file nodes.
    */
-  files: Array<FileNode>;
-};
+  files: Array<FileNode>
+}

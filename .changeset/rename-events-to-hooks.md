@@ -1,9 +1,9 @@
 ---
-"@kubb/core": minor
-"@kubb/cli": patch
-"@kubb/agent": patch
-"@kubb/mcp": patch
-"unplugin-kubb": patch
+'@kubb/core': minor
+'@kubb/cli': patch
+'@kubb/agent': patch
+'@kubb/mcp': patch
+'unplugin-kubb': patch
 ---
 
 Rename `KubbEvents` to `KubbHooks`.

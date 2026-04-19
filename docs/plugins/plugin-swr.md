@@ -182,16 +182,16 @@ When `true`, mutation parameters (path params, query params, headers, request bo
 
 ```typescript
 // Parameters required when calling the hook
-const { trigger } = useDeletePet(petId, params, headers);
-trigger();
+const { trigger } = useDeletePet(petId, params, headers)
+trigger()
 ```
 
 **Example with `paramsToTrigger: true`:**
 
 ```typescript
 // Parameters passed when triggering
-const { trigger } = useDeletePet();
-trigger({ petId, data, params, headers });
+const { trigger } = useDeletePet()
+trigger({ petId, data, params, headers })
 ```
 
 #### mutationKey
@@ -242,24 +242,24 @@ Customize the names based on the type that is provided by the plugin.
 | Required: | `false`                                        |
 
 ```typescript
-type ResolveType = "file" | "function" | "type" | "const";
+type ResolveType = 'file' | 'function' | 'type' | 'const'
 ```
 
 ## Example
 
 ```typescript twoslash
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginSwr } from "@kubb/plugin-swr";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginZod } from "@kubb/plugin-zod";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginSwr } from '@kubb/plugin-swr'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   plugins: [
     pluginOas(),
@@ -267,19 +267,19 @@ export default defineConfig({
     pluginZod(),
     pluginSwr({
       output: {
-        path: "./hooks",
+        path: './hooks',
       },
       group: {
-        type: "tag",
+        type: 'tag',
         name: ({ group }) => `${group}Hooks`,
       },
       client: {
-        dataReturnType: "full",
+        dataReturnType: 'full',
       },
-      parser: "zod",
+      parser: 'zod',
     }),
   ],
-});
+})
 ```
 
 ## See Also

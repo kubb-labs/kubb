@@ -12,7 +12,7 @@ import type {
   ResponseNode,
   SchemaNode,
   SchemaNodeByType,
-} from "./nodes/index.ts";
+} from './nodes/index.ts'
 
 /**
  * Narrows a `SchemaNode` to the variant that matches `type`.
@@ -23,15 +23,12 @@ import type {
  * const stringNode = narrowSchema(schema, 'string') // StringSchemaNode | undefined
  * ```
  */
-export function narrowSchema<T extends SchemaNode["type"]>(
-  node: SchemaNode | undefined,
-  type: T,
-): SchemaNodeByType[T] | undefined {
-  return node?.type === type ? (node as SchemaNodeByType[T]) : undefined;
+export function narrowSchema<T extends SchemaNode['type']>(node: SchemaNode | undefined, type: T): SchemaNodeByType[T] | undefined {
+  return node?.type === type ? (node as SchemaNodeByType[T]) : undefined
 }
 
 function isKind<T extends Node>(kind: NodeKind) {
-  return (node: unknown): node is T => (node as Node).kind === kind;
+  return (node: unknown): node is T => (node as Node).kind === kind
 }
 
 /**
@@ -44,7 +41,7 @@ function isKind<T extends Node>(kind: NodeKind) {
  * }
  * ```
  */
-export const isInputNode = isKind<InputNode>("Input");
+export const isInputNode = isKind<InputNode>('Input')
 
 /**
  * Returns `true` when the input is an `OutputNode`.
@@ -56,7 +53,7 @@ export const isInputNode = isKind<InputNode>("Input");
  * }
  * ```
  */
-export const isOutputNode = isKind<OutputNode>("Output");
+export const isOutputNode = isKind<OutputNode>('Output')
 
 /**
  * Returns `true` when the input is an `OperationNode`.
@@ -68,7 +65,7 @@ export const isOutputNode = isKind<OutputNode>("Output");
  * }
  * ```
  */
-export const isOperationNode = isKind<OperationNode>("Operation");
+export const isOperationNode = isKind<OperationNode>('Operation')
 
 /**
  * Returns `true` when the input is a `SchemaNode`.
@@ -80,37 +77,34 @@ export const isOperationNode = isKind<OperationNode>("Operation");
  * }
  * ```
  */
-export const isSchemaNode = isKind<SchemaNode>("Schema");
+export const isSchemaNode = isKind<SchemaNode>('Schema')
 
 /**
  * Returns `true` when the input is a `PropertyNode`.
  */
-export const isPropertyNode = isKind<PropertyNode>("Property");
+export const isPropertyNode = isKind<PropertyNode>('Property')
 
 /**
  * Returns `true` when the input is a `ParameterNode`.
  */
-export const isParameterNode = isKind<ParameterNode>("Parameter");
+export const isParameterNode = isKind<ParameterNode>('Parameter')
 
 /**
  * Returns `true` when the input is a `ResponseNode`.
  */
-export const isResponseNode = isKind<ResponseNode>("Response");
+export const isResponseNode = isKind<ResponseNode>('Response')
 
 /**
  * Returns `true` when the input is a `FunctionParameterNode`.
  */
-export const isFunctionParameterNode =
-  isKind<FunctionParameterNode>("FunctionParameter");
+export const isFunctionParameterNode = isKind<FunctionParameterNode>('FunctionParameter')
 
 /**
  * Returns `true` when the input is a `ParameterGroupNode`.
  */
-export const isParameterGroupNode =
-  isKind<ParameterGroupNode>("ParameterGroup");
+export const isParameterGroupNode = isKind<ParameterGroupNode>('ParameterGroup')
 
 /**
  * Returns `true` when the input is a `FunctionParametersNode`.
  */
-export const isFunctionParametersNode =
-  isKind<FunctionParametersNode>("FunctionParameters");
+export const isFunctionParametersNode = isKind<FunctionParametersNode>('FunctionParameters')

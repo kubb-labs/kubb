@@ -1,5 +1,5 @@
 ---
-"@kubb/core": minor
+'@kubb/core': minor
 ---
 
 Add generator dispatch helpers.

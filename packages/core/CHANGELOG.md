@@ -40,10 +40,10 @@
 
   ```ts
   // before – always returned the base Resolver type
-  const resolver = driver.getResolver("@kubb/plugin-ts"); // Resolver
+  const resolver = driver.getResolver('@kubb/plugin-ts') // Resolver
 
   // after – returns the plugin's typed resolver
-  const resolver = driver.getResolver("@kubb/plugin-ts"); // PluginTs['resolver']
+  const resolver = driver.getResolver('@kubb/plugin-ts') // PluginTs['resolver']
   ```
 
   ### `GeneratorContext.getResolver`
@@ -53,9 +53,9 @@
   ```ts
   export const myGenerator = defineGenerator<PluginMyPlugin>({
     async schema(node, ctx) {
-      const tsResolver = ctx.getResolver("@kubb/plugin-ts"); // PluginTs['resolver']
+      const tsResolver = ctx.getResolver('@kubb/plugin-ts') // PluginTs['resolver']
     },
-  });
+  })
   ```
 
 ### Patch Changes
@@ -103,10 +103,10 @@
 
   ```ts
   // Before
-  import type { NormalizedPlugin, PluginContext } from "@kubb/core";
+  import type { NormalizedPlugin, PluginContext } from '@kubb/core'
 
   // After
-  import type { Plugin, GeneratorContext } from "@kubb/core";
+  import type { Plugin, GeneratorContext } from '@kubb/core'
   ```
 
 ### Patch Changes
@@ -182,15 +182,15 @@
   **Before:**
 
   ```ts
-  import { getMode } from "@kubb/core";
-  getMode("src/gen/types.ts"); // 'single'
+  import { getMode } from '@kubb/core'
+  getMode('src/gen/types.ts') // 'single'
   ```
 
   **After:**
 
   ```ts
-  import { PluginDriver } from "@kubb/core";
-  PluginDriver.getMode("src/gen/types.ts"); // 'single'
+  import { PluginDriver } from '@kubb/core'
+  PluginDriver.getMode('src/gen/types.ts') // 'single'
   ```
 
   The following utilities have also been removed from `@kubb/core`'s public API as they are internal post-processing helpers used only by CLI/agent tooling:
@@ -294,13 +294,13 @@
   ```ts
   // Before
   pluginClient({
-    pre: ["@kubb/plugin-ts", "@kubb/plugin-zod"],
-  });
+    pre: ['@kubb/plugin-ts', '@kubb/plugin-zod'],
+  })
 
   // After
   pluginClient({
-    dependencies: ["@kubb/plugin-ts", "@kubb/plugin-zod"],
-  });
+    dependencies: ['@kubb/plugin-ts', '@kubb/plugin-zod'],
+  })
   ```
 
   All built-in plugins have been updated automatically. If you were setting `pre` or `post` directly on a custom plugin, update them to use `dependencies` instead.
@@ -363,19 +363,19 @@
   ```ts
   // before — had to set adapter and parsers explicitly
   export default defineConfig({
-    input: { path: "./petStore.yaml" },
-    output: { path: "./src/gen" },
+    input: { path: './petStore.yaml' },
+    output: { path: './src/gen' },
     adapter: adapterOas(),
     parsers: [parserTs],
     plugins: [],
-  });
+  })
 
   // after — adapter and parsers are applied automatically
   export default defineConfig({
-    input: { path: "./petStore.yaml" },
-    output: { path: "./src/gen" },
+    input: { path: './petStore.yaml' },
+    output: { path: './src/gen' },
     plugins: [],
-  });
+  })
   ```
 
   `@kubb/adapter-oas` and `@kubb/parser-ts` must be installed for the defaults to work.
@@ -396,14 +396,14 @@
   Generators now receive a typed `this` context that guarantees `adapter` and `rootNode` are always present (non-optional). Use it instead of the raw `PluginContext` to avoid null-checks in every hook:
 
   ```ts
-  import { defineGenerator } from "@kubb/core";
+  import { defineGenerator } from '@kubb/core'
 
   export const myGenerator = defineGenerator<PluginMyPlugin>({
     async schema(node, options) {
-      const { adapter, rootNode } = this; // always present, no null-check needed
+      const { adapter, rootNode } = this // always present, no null-check needed
       // ...
     },
-  });
+  })
   ```
 
   ### New: `mergeGenerators(generators)`
@@ -411,25 +411,25 @@
   Combines an array of generators into a single merged generator. Each hook runs in sequence and applies its result via `applyHookResult`. Use this inside plugin hooks to delegate to all generators in the preset:
 
   ```ts
-  import { mergeGenerators } from "@kubb/core";
+  import { mergeGenerators } from '@kubb/core'
 
   export const myPlugin = createPlugin<MyPlugin>((options) => {
-    const generators = [generatorA, generatorB];
-    const mergedGenerator = mergeGenerators(generators);
+    const generators = [generatorA, generatorB]
+    const mergedGenerator = mergeGenerators(generators)
 
     return {
-      name: "my-plugin",
+      name: 'my-plugin',
       async schema(node, opts) {
-        return mergedGenerator.schema?.call(this, node, opts);
+        return mergedGenerator.schema?.call(this, node, opts)
       },
       async operation(node, opts) {
-        return mergedGenerator.operation?.call(this, node, opts);
+        return mergedGenerator.operation?.call(this, node, opts)
       },
       async operations(nodes, opts) {
-        return mergedGenerator.operations?.call(this, nodes, opts);
+        return mergedGenerator.operations?.call(this, nodes, opts)
       },
-    };
-  });
+    }
+  })
   ```
 
   ### New: `PluginRegistry` augmentation
@@ -437,7 +437,7 @@
   Every plugin now augments the global `Kubb.PluginRegistry` interface, enabling automatic typing for `getPlugin` and `requirePlugin`:
 
   ```ts
-  const tsPlugin = context.getPlugin("plugin-ts");
+  const tsPlugin = context.getPlugin('plugin-ts')
   // tsPlugin is typed as PluginTs automatically
   ```
 
@@ -524,22 +524,22 @@
   pluginTs({
     resolver: {
       resolveName(name) {
-        return `Custom${this.default(name, "function")}`;
+        return `Custom${this.default(name, 'function')}`
       },
     },
     transformer: {
       schema(node) {
-        return { ...node, description: undefined };
+        return { ...node, description: undefined }
       },
     },
     printer: {
       nodes: {
         integer() {
-          return ts.factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword);
+          return ts.factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword)
         },
       },
     },
-  });
+  })
   ```
 
   ### `@kubb/plugin-zod`
@@ -551,22 +551,22 @@
   pluginZod({
     resolver: {
       resolveName(name) {
-        return `${this.default(name, "function")}Schema`;
+        return `${this.default(name, 'function')}Schema`
       },
     },
     transformer: {
       schema(node) {
-        return { ...node, description: undefined };
+        return { ...node, description: undefined }
       },
     },
     printer: {
       nodes: {
         integer() {
-          return "z.number()";
+          return 'z.number()'
         },
       },
     },
-  });
+  })
   ```
 
   ### `@kubb/plugin-cypress`
@@ -879,43 +879,43 @@
   **`output.write` is now deprecated.** Setting `write: false` for dry-runs still works and continues to be supported.
 
   ```ts
-  import { defineConfig, defineStorage, fsStorage } from "@kubb/core";
+  import { defineConfig, defineStorage, fsStorage } from '@kubb/core'
 
   // default (no change needed for existing configs)
   export default defineConfig({
-    output: { path: "./src/gen" },
-  });
+    output: { path: './src/gen' },
+  })
 
   // explicit filesystem storage
   export default defineConfig({
-    output: { path: "./src/gen", storage: fsStorage() },
-  });
+    output: { path: './src/gen', storage: fsStorage() },
+  })
 
   // custom in-memory storage
   export const memoryStorage = defineStorage((_options) => {
-    const store = new Map<string, string>();
+    const store = new Map<string, string>()
     return {
-      name: "memory",
+      name: 'memory',
       async hasItem(key) {
-        return store.has(key);
+        return store.has(key)
       },
       async getItem(key) {
-        return store.get(key) ?? null;
+        return store.get(key) ?? null
       },
       async setItem(key, value) {
-        store.set(key, value);
+        store.set(key, value)
       },
       async removeItem(key) {
-        store.delete(key);
+        store.delete(key)
       },
       async getKeys() {
-        return [...store.keys()];
+        return [...store.keys()]
       },
       async clear() {
-        store.clear();
+        store.clear()
       },
-    };
-  });
+    }
+  })
   ```
 
 ### Patch Changes
@@ -1161,28 +1161,28 @@
   export default {
     plugins: [
       pluginTs({
-        enumKeyCasing: "screamingSnakeCase",
+        enumKeyCasing: 'screamingSnakeCase',
       }),
     ],
-  };
+  }
   ```
 
   Before:
 
   ```typescript
   export const enumStringEnum = {
-    "created at": "created at",
-    "FILE.UPLOADED": "FILE.UPLOADED",
-  } as const;
+    'created at': 'created at',
+    'FILE.UPLOADED': 'FILE.UPLOADED',
+  } as const
   ```
 
   After:
 
   ```typescript
   export const enumStringEnum = {
-    CREATED_AT: "created at",
-    FILE_UPLOADED: "FILE.UPLOADED",
-  } as const;
+    CREATED_AT: 'created at',
+    FILE_UPLOADED: 'FILE.UPLOADED',
+  } as const
   ```
 
   **Additional improvements:**
@@ -1228,13 +1228,13 @@
   ```typescript
   // kubb.config.ts
   export default defineConfig({
-    input: { path: "./petStore.yaml" },
+    input: { path: './petStore.yaml' },
     output: {
-      path: "./src/gen",
-      format: "auto", // Detects biome or prettier
-      lint: "auto", // Detects biome, oxlint, or eslint
+      path: './src/gen',
+      format: 'auto', // Detects biome or prettier
+      lint: 'auto', // Detects biome, oxlint, or eslint
     },
-  });
+  })
   ```
 
 ## 4.12.15

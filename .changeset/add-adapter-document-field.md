@@ -1,6 +1,6 @@
 ---
-"@kubb/core": minor
-"@kubb/adapter-oas": minor
+'@kubb/core': minor
+'@kubb/adapter-oas': minor
 ---
 
 Expose raw source document on adapters.

@@ -17,88 +17,71 @@ When [defining your own client](/guide/fetch), set a baseURL that applies to eve
 ::: code-group
 
 ```typescript [client.ts]
-import axios from "axios";
+import axios from 'axios'
 
-import type {
-  AxiosError,
-  AxiosHeaders,
-  AxiosRequestConfig,
-  AxiosResponse,
-} from "axios";
+import type { AxiosError, AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios'
 
-declare const AXIOS_BASE: string;
-declare const AXIOS_HEADERS: string;
+declare const AXIOS_BASE: string
+declare const AXIOS_HEADERS: string
 
 /**
  * Subset of AxiosRequestConfig
  */
 export type RequestConfig<TData = unknown> = {
-  url?: string;
-  method: "GET" | "PUT" | "PATCH" | "POST" | "DELETE";
-  params?: unknown;
-  data?: TData;
-  responseType?:
-    | "arraybuffer"
-    | "blob"
-    | "document"
-    | "json"
-    | "text"
-    | "stream";
-  signal?: AbortSignal;
-  headers?: AxiosRequestConfig["headers"];
-};
+  url?: string
+  method: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE'
+  params?: unknown
+  data?: TData
+  responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
+  signal?: AbortSignal
+  headers?: AxiosRequestConfig['headers']
+}
 /**
  * Subset of AxiosResponse
  */
 export type ResponseConfig<TData = unknown> = {
-  data: TData;
-  status: number;
-  statusText: string;
-  headers?: AxiosResponse["headers"];
-};
+  data: TData
+  status: number
+  statusText: string
+  headers?: AxiosResponse['headers']
+}
 
 export const axiosInstance = axios.create({
-  baseURL: "https://localhost:8080/api/v1", // [!code ++]
-});
+  baseURL: 'https://localhost:8080/api/v1', // [!code ++]
+})
 
-export type Client = <TData, _TError = unknown, TVariables = unknown>(
-  config: RequestConfig<TVariables>,
-) => Promise<ResponseConfig<TData>>;
+export type Client = <TData, _TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>) => Promise<ResponseConfig<TData>>
 
-export const client = async <TData, TError = unknown, TVariables = unknown>(
-  config: RequestConfig<TVariables>,
-): Promise<ResponseConfig<TData>> => {
-  const promise = axiosInstance
-    .request<TVariables, ResponseConfig<TData>>({ ...config })
-    .catch((e: AxiosError<TError>) => {
-      throw e;
-    });
+export const client = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
+  const promise = axiosInstance.request<TVariables, ResponseConfig<TData>>({ ...config }).catch((e: AxiosError<TError>) => {
+    throw e
+  })
 
-  return promise;
-};
+  return promise
+}
 ```
 
 ```typescript twoslash [kubb.config.ts]
-import { defineConfig } from "@kubb/core";
-import { pluginClient } from "@kubb/plugin-client";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
+import { defineConfig } from '@kubb/core'
+import { pluginClient } from '@kubb/plugin-client'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   plugins: [
     pluginOas(),
     pluginTs(),
     pluginClient({
-      importPath: "../../client.ts", // [!code ++]
+      importPath: '../../client.ts', // [!code ++]
     }),
   ],
-});
+})
 ```
 
 :::
@@ -124,16 +107,16 @@ servers:
 ```
 
 ```typescript twoslash [kubb.config.ts]
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginClient } from "@kubb/plugin-client";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginClient } from '@kubb/plugin-client'
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   plugins: [
     pluginOas({
@@ -141,7 +124,7 @@ export default defineConfig({
     }),
     pluginClient(),
   ],
-});
+})
 ```
 
 :::
@@ -153,30 +136,30 @@ Set the baseURL in your config.
 :::code-group
 
 ```typescript twoslash [kubb.config.ts]
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginClient } from "@kubb/plugin-client";
-import { pluginReactQuery } from "@kubb/plugin-react-query";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginClient } from '@kubb/plugin-client'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   plugins: [
     pluginOas(),
     pluginClient({
-      baseURL: "https://localhost:8080/api/v1", // [!code ++]
+      baseURL: 'https://localhost:8080/api/v1', // [!code ++]
     }),
     pluginReactQuery({
       client: {
-        baseURL: "https://localhost:8080/api/v1", // [!code ++]
+        baseURL: 'https://localhost:8080/api/v1', // [!code ++]
       },
     }),
   ],
-});
+})
 ```
 
 :::

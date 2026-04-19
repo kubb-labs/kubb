@@ -1,5 +1,5 @@
 ---
-"@kubb/core": minor
+'@kubb/core': minor
 ---
 
 Export `ast` namespace from `@kubb/core`.

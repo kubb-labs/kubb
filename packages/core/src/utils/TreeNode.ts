@@ -1,16 +1,16 @@
-import path from "node:path";
-import type { FileNode } from "@kubb/ast";
-import { PluginDriver } from "../PluginDriver.ts";
+import path from 'node:path'
+import type { FileNode } from '@kubb/ast'
+import { PluginDriver } from '../PluginDriver.ts'
 
 type BarrelData = {
-  file?: FileNode;
+  file?: FileNode
   /**
    * @deprecated use file instead
    */
-  type: "single" | "split";
-  path: string;
-  name: string;
-};
+  type: 'single' | 'split'
+  path: string
+  name: string
+}
 
 /**
  * Tree structure used to build per-directory barrel (`index.ts`) files from a
@@ -22,23 +22,23 @@ type BarrelData = {
  * `*Deep` helpers.
  */
 export class TreeNode {
-  data: BarrelData;
-  parent?: TreeNode;
-  children: Array<TreeNode> = [];
-  #cachedLeaves?: Array<TreeNode> = undefined;
+  data: BarrelData
+  parent?: TreeNode
+  children: Array<TreeNode> = []
+  #cachedLeaves?: Array<TreeNode> = undefined
 
   constructor(data: BarrelData, parent?: TreeNode) {
-    this.data = data;
-    this.parent = parent;
+    this.data = data
+    this.parent = parent
   }
 
   addChild(data: BarrelData): TreeNode {
-    const child = new TreeNode(data, this);
+    const child = new TreeNode(data, this)
     if (!this.children) {
-      this.children = [];
+      this.children = []
     }
-    this.children.push(child);
-    return child;
+    this.children.push(child)
+    return child
   }
 
   /**
@@ -46,9 +46,9 @@ export class TreeNode {
    */
   get root(): TreeNode {
     if (!this.parent) {
-      return this;
+      return this
     }
-    return this.parent.root;
+    return this.parent.root
   }
 
   /**
@@ -59,84 +59,82 @@ export class TreeNode {
   get leaves(): Array<TreeNode> {
     if (!this.children || this.children.length === 0) {
       // this is a leaf
-      return [this];
+      return [this]
     }
 
     if (this.#cachedLeaves) {
-      return this.#cachedLeaves;
+      return this.#cachedLeaves
     }
 
-    const leaves: TreeNode[] = [];
+    const leaves: TreeNode[] = []
     for (const child of this.children) {
-      leaves.push(...child.leaves);
+      leaves.push(...child.leaves)
     }
 
-    this.#cachedLeaves = leaves;
+    this.#cachedLeaves = leaves
 
-    return leaves;
+    return leaves
   }
 
   /**
    * Visits this node and every descendant in depth-first order.
    */
   forEach(callback: (treeNode: TreeNode) => void): this {
-    if (typeof callback !== "function") {
-      throw new TypeError("forEach() callback must be a function");
+    if (typeof callback !== 'function') {
+      throw new TypeError('forEach() callback must be a function')
     }
 
-    callback(this);
+    callback(this)
 
     for (const child of this.children) {
-      child.forEach(callback);
+      child.forEach(callback)
     }
 
-    return this;
+    return this
   }
 
   /**
    * Finds the first leaf that satisfies `predicate`, or `undefined` when none match.
    */
-  findDeep(
-    predicate?: (value: TreeNode, index: number, obj: TreeNode[]) => boolean,
-  ): TreeNode | undefined {
-    if (typeof predicate !== "function") {
-      throw new TypeError("find() predicate must be a function");
+  findDeep(predicate?: (value: TreeNode, index: number, obj: TreeNode[]) => boolean): TreeNode | undefined {
+    if (typeof predicate !== 'function') {
+      throw new TypeError('find() predicate must be a function')
     }
 
-    return this.leaves.find(predicate);
+    return this.leaves.find(predicate)
   }
 
   /**
    * Calls `callback` for every leaf of this node.
    */
   forEachDeep(callback: (treeNode: TreeNode) => void): void {
-    if (typeof callback !== "function") {
-      throw new TypeError("forEach() callback must be a function");
+    if (typeof callback !== 'function') {
+      throw new TypeError('forEach() callback must be a function')
     }
 
-    this.leaves.forEach(callback);
+    this.leaves.forEach(callback)
   }
 
   /**
    * Returns all leaves that satisfy `callback`.
    */
   filterDeep(callback: (treeNode: TreeNode) => boolean): Array<TreeNode> {
-    if (typeof callback !== "function") {
-      throw new TypeError("filter() callback must be a function");
+    if (typeof callback !== 'function') {
+      throw new TypeError('filter() callback must be a function')
     }
 
-    return this.leaves.filter(callback);
+    return this.leaves.filter(callback)
   }
 
   /**
    * Maps every leaf through `callback` and returns the resulting array.
    */
   mapDeep<T>(callback: (treeNode: TreeNode) => T): Array<T> {
-    if (typeof callback !== "function") {
-      throw new TypeError("map() callback must be a function");
+    if (typeof callback !== 'function') {
+      throw new TypeError('map() callback must be a function')
     }
 
-    return this.leaves.map(callback);
+    return this.leaves.map(callback)
   }
 
   /**
@@ -147,10 +145,10 @@ export class TreeNode {
    */
   public static build(files: FileNode[], root?: string): TreeNode | null {
     try {
-      const filteredTree = buildDirectoryTree(files, root);
+      const filteredTree = buildDirectoryTree(files, root)
 
       if (!filteredTree) {
-        return null;
+        return null
       }
 
       const treeNode = new TreeNode({
@@ -158,7 +156,7 @@ export class TreeNode {
         path: filteredTree.path,
         file: filteredTree.file,
         type: PluginDriver.getMode(filteredTree.path),
-      });
+      })
 
       const recurse = (node: typeof treeNode, item: DirectoryTree) => {
         const subNode = node.addChild({
@@ -166,75 +164,64 @@ export class TreeNode {
           path: item.path,
           file: item.file,
           type: PluginDriver.getMode(item.path),
-        });
+        })
 
         if (item.children?.length) {
           item.children?.forEach((child) => {
-            recurse(subNode, child);
-          });
+            recurse(subNode, child)
+          })
         }
-      };
+      }
 
       filteredTree.children?.forEach((child) => {
-        recurse(treeNode, child);
-      });
+        recurse(treeNode, child)
+      })
 
-      return treeNode;
+      return treeNode
     } catch (error) {
-      throw new Error(
-        "Something went wrong with creating barrel files with the TreeNode class",
-        { cause: error },
-      );
+      throw new Error('Something went wrong with creating barrel files with the TreeNode class', { cause: error })
     }
   }
 }
 
 type DirectoryTree = {
-  name: string;
-  path: string;
-  file?: FileNode;
-  children: Array<DirectoryTree>;
-};
+  name: string
+  path: string
+  file?: FileNode
+  children: Array<DirectoryTree>
+}
 
-const normalizePath = (p: string): string => p.replaceAll("\\", "/");
+const normalizePath = (p: string): string => p.replaceAll('\\', '/')
 
-function buildDirectoryTree(
-  files: Array<FileNode>,
-  rootFolder = "",
-): DirectoryTree | null {
-  const normalizedRootFolder = normalizePath(rootFolder);
-  const rootPrefix = normalizedRootFolder.endsWith("/")
-    ? normalizedRootFolder
-    : `${normalizedRootFolder}/`;
+function buildDirectoryTree(files: Array<FileNode>, rootFolder = ''): DirectoryTree | null {
+  const normalizedRootFolder = normalizePath(rootFolder)
+  const rootPrefix = normalizedRootFolder.endsWith('/') ? normalizedRootFolder : `${normalizedRootFolder}/`
 
   const filteredFiles = files.filter((file) => {
-    const normalizedFilePath = normalizePath(file.path);
-    return rootFolder
-      ? normalizedFilePath.startsWith(rootPrefix) &&
-          !normalizedFilePath.endsWith(".json")
-      : !normalizedFilePath.endsWith(".json");
-  });
+    const normalizedFilePath = normalizePath(file.path)
+    return rootFolder ? normalizedFilePath.startsWith(rootPrefix) && !normalizedFilePath.endsWith('.json') : !normalizedFilePath.endsWith('.json')
+  })
 
   if (filteredFiles.length === 0) {
-    return null; // No files match the root folder
+    return null // No files match the root folder
   }
 
   const root: DirectoryTree = {
-    name: rootFolder || "",
-    path: rootFolder || "",
+    name: rootFolder || '',
+    path: rootFolder || '',
     children: [],
-  };
+  }
 
   filteredFiles.forEach((file) => {
-    const relativePath = file.path.slice(rootFolder.length);
-    const parts = relativePath.split("/").filter(Boolean);
-    let currentLevel: DirectoryTree[] = root.children;
-    let currentPath = normalizePath(rootFolder);
+    const relativePath = file.path.slice(rootFolder.length)
+    const parts = relativePath.split('/').filter(Boolean)
+    let currentLevel: DirectoryTree[] = root.children
+    let currentPath = normalizePath(rootFolder)
 
     parts.forEach((part, index) => {
-      currentPath = path.posix.join(currentPath, part);
+      currentPath = path.posix.join(currentPath, part)
 
-      let existingNode = currentLevel.find((node) => node.name === part);
+      let existingNode = currentLevel.find((node) => node.name === part)
 
       if (!existingNode) {
         if (index === parts.length - 1) {
@@ -243,24 +230,24 @@ function buildDirectoryTree(
             name: part,
             file,
             path: currentPath,
-          } as DirectoryTree;
+          } as DirectoryTree
         } else {
           // Otherwise, its a folder
           existingNode = {
             name: part,
             path: currentPath,
             children: [],
-          } as DirectoryTree;
+          } as DirectoryTree
         }
-        currentLevel.push(existingNode);
+        currentLevel.push(existingNode)
       }
 
       // Move to the next level if its a folder
       if (!existingNode.file) {
-        currentLevel = existingNode.children;
+        currentLevel = existingNode.children
       }
-    });
-  });
+    })
+  })
 
-  return root;
+  return root
 }

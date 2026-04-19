@@ -1,9 +1,9 @@
-import type { PossiblePromise } from "@internals/utils";
-import type { FileNode, OperationNode, SchemaNode } from "@kubb/ast";
-import type { RendererFactory } from "./createRenderer.ts";
-import type { GeneratorContext, PluginFactoryOptions } from "./types.ts";
+import type { PossiblePromise } from '@internals/utils'
+import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
+import type { RendererFactory } from './createRenderer.ts'
+import type { GeneratorContext, PluginFactoryOptions } from './types.ts'
 
-export type { GeneratorContext } from "./types.ts";
+export type { GeneratorContext } from './types.ts'
 
 /**
  * A generator is a named object with optional `schema`, `operation`, and `operations`
@@ -36,14 +36,11 @@ export type { GeneratorContext } from "./types.ts";
  * })
  * ```
  */
-export type Generator<
-  TOptions extends PluginFactoryOptions = PluginFactoryOptions,
-  TElement = unknown,
-> = {
+export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptions, TElement = unknown> = {
   /**
    * Used in diagnostic messages and debug output.
    */
-  name: string;
+  name: string
   /**
    * Optional renderer factory that produces a {@link Renderer} for each render cycle.
    *
@@ -64,44 +61,34 @@ export type Generator<
    * })
    * ```
    */
-  renderer?: RendererFactory<TElement> | null;
+  renderer?: RendererFactory<TElement> | null
   /**
    * Called for each schema node in the AST walk.
    * `ctx` carries the plugin context with `adapter` and `inputNode` guaranteed present,
    * plus `ctx.options` with the per-node resolved options (after exclude/include/override).
    */
-  schema?: (
-    node: SchemaNode,
-    ctx: GeneratorContext<TOptions>,
-  ) => PossiblePromise<TElement | Array<FileNode> | void>;
+  schema?: (node: SchemaNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
   /**
    * Called for each operation node in the AST walk.
    * `ctx` carries the plugin context with `adapter` and `inputNode` guaranteed present,
    * plus `ctx.options` with the per-node resolved options (after exclude/include/override).
    */
-  operation?: (
-    node: OperationNode,
-    ctx: GeneratorContext<TOptions>,
-  ) => PossiblePromise<TElement | Array<FileNode> | void>;
+  operation?: (node: OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
   /**
    * Called once after all operations have been walked.
    * `ctx` carries the plugin context with `adapter` and `inputNode` guaranteed present,
    * plus `ctx.options` with the plugin-level options for the batch call.
    */
-  operations?: (
-    nodes: Array<OperationNode>,
-    ctx: GeneratorContext<TOptions>,
-  ) => PossiblePromise<TElement | Array<FileNode> | void>;
-};
+  operations?: (nodes: Array<OperationNode>, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
+}
 
 /**
  * Defines a generator. Returns the object as-is with correct `this` typings.
  * `applyHookResult` handles renderer elements and `File[]` uniformly using
  * the generator's declared `renderer` factory.
  */
-export function defineGenerator<
-  TOptions extends PluginFactoryOptions = PluginFactoryOptions,
-  TElement = unknown,
->(generator: Generator<TOptions, TElement>): Generator<TOptions, TElement> {
-  return generator;
+export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFactoryOptions, TElement = unknown>(
+  generator: Generator<TOptions, TElement>,
+): Generator<TOptions, TElement> {
+  return generator
 }

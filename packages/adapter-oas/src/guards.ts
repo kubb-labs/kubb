@@ -1,6 +1,6 @@
-import { isPlainObject } from "@internals/utils";
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from "openapi-types";
-import type { DiscriminatorObject, SchemaObject } from "./types.ts";
+import { isPlainObject } from '@internals/utils'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
+import type { DiscriminatorObject, SchemaObject } from './types.ts'
 
 /**
  * Returns `true` when `doc` is a Swagger 2.0 document (no `openapi` key).
@@ -13,7 +13,7 @@ import type { DiscriminatorObject, SchemaObject } from "./types.ts";
  * ```
  */
 export function isOpenApiV2Document(doc: unknown): doc is OpenAPIV2.Document {
-  return !!doc && isPlainObject(doc) && !("openapi" in doc);
+  return !!doc && isPlainObject(doc) && !('openapi' in doc)
 }
 
 /**
@@ -29,17 +29,15 @@ export function isOpenApiV2Document(doc: unknown): doc is OpenAPIV2.Document {
  * isNullable({ type: 'string' })                 // false
  * ```
  */
-export function isNullable(
-  schema?: SchemaObject & { "x-nullable"?: boolean },
-): boolean {
-  const explicitNullable = schema?.nullable ?? schema?.["x-nullable"];
-  if (explicitNullable === true) return true;
+export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): boolean {
+  const explicitNullable = schema?.nullable ?? schema?.['x-nullable']
+  if (explicitNullable === true) return true
 
-  const schemaType = schema?.type;
-  if (schemaType === "null") return true;
-  if (Array.isArray(schemaType)) return schemaType.includes("null");
+  const schemaType = schema?.type
+  if (schemaType === 'null') return true
+  if (Array.isArray(schemaType)) return schemaType.includes('null')
 
-  return false;
+  return false
 }
 
 /**
@@ -51,10 +49,8 @@ export function isNullable(
  * isReference({ type: 'string' })                   // false
  * ```
  */
-export function isReference(
-  obj?: unknown,
-): obj is OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject {
-  return !!obj && typeof obj === "object" && "$ref" in obj;
+export function isReference(obj?: unknown): obj is OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject {
+  return !!obj && typeof obj === 'object' && '$ref' in obj
 }
 
 /**
@@ -66,13 +62,7 @@ export function isReference(
  * isDiscriminator({ discriminator: 'type' })                                 // false (Swagger 2 string form)
  * ```
  */
-export function isDiscriminator(
-  obj?: unknown,
-): obj is SchemaObject & { discriminator: DiscriminatorObject } {
-  const record = obj as Record<string, unknown>;
-  return (
-    !!obj &&
-    !!record["discriminator"] &&
-    typeof record["discriminator"] !== "string"
-  );
+export function isDiscriminator(obj?: unknown): obj is SchemaObject & { discriminator: DiscriminatorObject } {
+  const record = obj as Record<string, unknown>
+  return !!obj && !!record['discriminator'] && typeof record['discriminator'] !== 'string'
 }
