@@ -15,17 +15,25 @@
     "**/.nitro/**"
   ],
   "rules": {
-    "prefer-const": "error",
-    "prefer-template": "error",
-    "default-param-last": "error",
+    "no-shadow-restricted-names": "off",
+    "no-empty-pattern": "off",
+    "no-unsafe-optional-chaining": "off",
+    "no-unused-private-class-members": "off",
+    "jsx-a11y/html-has-lang": "off",
+
     "no-else-return": "error",
+    "no-constructor-return": "error",
+    "default-param-last": "error",
     "prefer-exponentiation-operator": "error",
-    "react/no-array-index-key": "warn",
+
     "unicorn/prefer-node-protocol": "error",
+    "unicorn/prefer-number-properties": "error",
+
     "@typescript-eslint/consistent-type-imports": "error",
-    "@typescript-eslint/consistent-type-exports": "error",
     "@typescript-eslint/no-inferrable-types": "error",
-    "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-non-null-assertion": "off"
+    "@typescript-eslint/prefer-function-type": "error",
+
+    "react/self-closing-comp": "error",
+    "react/no-array-index-key": "warn"
   }
 }

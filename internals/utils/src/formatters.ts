@@ -13,6 +13,11 @@ export const formatters = {
     args: (outputPath: string) => ['--ignore-unknown', '--write', outputPath],
     errorMessage: 'Prettier not found',
   },
+  biome: {
+    command: 'biome',
+    args: (outputPath: string) => ['format', '--write', outputPath],
+    errorMessage: 'Biome not found',
+  },
   oxfmt: {
     command: 'oxfmt',
     args: (outputPath: string) => [outputPath],
@@ -33,7 +38,7 @@ async function isFormatterAvailable(formatter: Formatter): Promise<boolean> {
 /**
  * Detects the first available code formatter on the current system.
  *
- * - Checks in preference order: `oxfmt`, `prettier`.
+ * - Checks in preference order: `oxfmt`, `biome`, `prettier`.
  * - Returns `null` when none are found.
  *
  * @example
@@ -45,7 +50,7 @@ async function isFormatterAvailable(formatter: Formatter): Promise<boolean> {
  * ```
  */
 export async function detectFormatter(): Promise<Formatter | null> {
-  const formatterNames = new Set(['oxfmt', 'prettier'] as const)
+  const formatterNames = new Set(['oxfmt', 'biome', 'prettier'] as const)
 
   for (const formatter of formatterNames) {
     if (await isFormatterAvailable(formatter)) {

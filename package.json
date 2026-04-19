@@ -20,7 +20,7 @@
     "build": "turbo run build --filter=./packages/*",
     "changeset": "changeset",
     "clean": "turbo run clean",
-    "format": "oxfmt ./",
+    "format": "prettier --write . --ignore-unknown",
     "graph": "npx nx graph ",
     "lint": "oxlint ./packages",
     "lint:fix": "oxlint --fix ./packages && manypkg fix",

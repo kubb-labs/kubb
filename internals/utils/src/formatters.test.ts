@@ -32,7 +32,16 @@ describe('detectFormatter', () => {
     expect(result).toBe('oxfmt')
   })
 
-  it('should detect prettier when oxfmt is not available', async () => {
+  it('should detect biome when oxfmt is not available', async () => {
+    vi.mocked(spawn).mockImplementation((command: string) => {
+      return makeChild(command === 'biome' ? 0 : 1)
+    })
+
+    const result = await detectFormatter()
+    expect(result).toBe('biome')
+  })
+
+  it('should detect prettier when oxfmt and biome are not available', async () => {
     vi.mocked(spawn).mockImplementation((command: string) => {
       return makeChild(command === 'prettier' ? 0 : 1)
     })
