@@ -218,7 +218,10 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
 
   if (group && (groupPath || tag)) {
     const groupValue = group.type === 'path' ? groupPath! : tag!
-    const defaultName = group.type === 'tag' ? ({ group: g }: { group: string }) => `${camelCase(g)}Controller` : ({ group: g }: { group: string }) => g.split('/').filter(Boolean)[0] ?? g
+    const defaultName =
+      group.type === 'tag'
+        ? ({ group: g }: { group: string }) => `${camelCase(g)}Controller`
+        : ({ group: g }: { group: string }) => g.split('/').filter(Boolean)[0] ?? g
     const resolveName = group.name ?? defaultName
     return path.resolve(root, output.path, resolveName({ group: groupValue }), baseName)
   }
