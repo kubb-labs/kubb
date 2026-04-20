@@ -294,7 +294,7 @@ export class PluginDriver {
       return existingResolver
     }
 
-    const resolver = defineResolver<PluginFactoryOptions>(() => ({
+    const resolver = defineResolver<PluginFactoryOptions>((_ctx) => ({
       name: 'default',
       pluginName,
     }))
