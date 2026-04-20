@@ -6,6 +6,39 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.50
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core)
+
+- [#3124](https://github.com/kubb-labs/kubb/pull/3124) [`80d43c6`](https://github.com/kubb-labs/kubb/commit/80d43c66c86ee69359c78184024497f4e2eb1d3e) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fixed path traversal vulnerabilities in file path resolution.
+
+  - `camelCase` / `pascalCase` with `isFile: true` no longer produces a leading `/` when a schema name starts with `.{letter}` (e.g. `..Schema`). Empty segments produced by such names are now filtered before joining with `/`, preventing the result from being interpreted as an absolute path.
+  - `defaultResolvePath` default group name for `group.type === 'path'` now strips `.` and `..` components from the OpenAPI operation path before selecting the first segment as a subdirectory name.
+  - Added an output-directory boundary check to `defaultResolvePath`: if the resolved path escapes the configured output directory, an error is thrown, providing defense-in-depth against path traversal in malicious OpenAPI specs or misconfigured `group.name` functions.
+
+  ::: code-group
+
+  ```typescript [Before]
+  // Example of previous behavior
+  const schemaName = '../User';
+  const resolvedPath = `/output/${schemaName}`;
+  console.log(resolvedPath);
+  // Output: /../User
+  ```
+  
+  ```typescript [After]
+// Fixed behavior
+const schemaName = '../User';
+const resolvedPath = '/output/User';
+console.log(resolvedPath);
+// Output: /output/User
+  ```
+
+  :::
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
