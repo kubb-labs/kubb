@@ -26,7 +26,7 @@ const context: ResolverContext = {
 
 describe('defineResolver', () => {
   it('injects default and resolveOptions', () => {
-    const resolver = defineResolver<TestPluginFactory>(() => ({
+    const resolver = defineResolver<TestPluginFactory>((_ctx) => ({
       pluginName: 'test',
       name: 'test',
       greet(name) {
@@ -45,17 +45,17 @@ describe('defineResolver', () => {
   })
 
   it('build function values override defaults', () => {
-    const resolver = defineResolver<TestPluginFactory>(() => ({
+    const resolver = defineResolver<TestPluginFactory>((ctx) => ({
       pluginName: 'test',
       name: 'custom',
       default(name) {
         return name.toUpperCase()
       },
       greet(name) {
-        return this.default(name)
+        return ctx.default(name)
       },
       farewell(name) {
-        return `bye ${this.default(name)}`
+        return `bye ${ctx.default(name)}`
       },
     }))
 
@@ -180,7 +180,7 @@ describe('defaultResolvePath', () => {
 })
 
 describe('defaultResolveFile', () => {
-  const resolver = defineResolver<TestPluginFactory>(() => ({
+  const resolver = defineResolver<TestPluginFactory>((_ctx) => ({
     name: 'test',
     pluginName: 'test',
     greet: () => '',
@@ -188,7 +188,7 @@ describe('defaultResolveFile', () => {
   }))
 
   it('resolves a file with correct baseName and path', () => {
-    const file = defaultResolveFile.call(resolver, { name: 'pet', extname: '.ts' }, context)
+    const file = defaultResolveFile({ name: 'pet', extname: '.ts' }, context, resolver)
 
     expect(file.baseName).toBe('pet.ts')
     expect(file.path).toBe('/root/types/pet.ts')
@@ -198,14 +198,13 @@ describe('defaultResolveFile', () => {
   })
 
   it('uses PascalCase file name via resolver.default', () => {
-    const file = defaultResolveFile.call(resolver, { name: 'list pets', extname: '.ts' }, context)
+    const file = defaultResolveFile({ name: 'list pets', extname: '.ts' }, context, resolver)
 
     expect(file.baseName).toBe('listPets.ts')
   })
 
   it('returns output dir path in single mode', () => {
-    const file = defaultResolveFile.call(
-      resolver,
+    const file = defaultResolveFile(
       { name: 'pet', extname: '.ts' },
       {
         ...context,
@@ -214,6 +213,7 @@ describe('defaultResolveFile', () => {
           path: 'types' as const,
         },
       },
+      resolver,
     )
 
     expect(file.path).toBe('/root/types/pet.ts')
@@ -221,8 +221,7 @@ describe('defaultResolveFile', () => {
   })
 
   it('groups by tag when resolver is tag-grouped', () => {
-    const file = defaultResolveFile.call(
-      resolver,
+    const file = defaultResolveFile(
       { name: 'pet', extname: '.ts', tag: 'pets' },
       {
         root: '/root',
@@ -234,6 +233,7 @@ describe('defaultResolveFile', () => {
           },
         },
       },
+      resolver,
     )
 
     expect(file.path).toBe('/root/types/petsController/pet.ts')
