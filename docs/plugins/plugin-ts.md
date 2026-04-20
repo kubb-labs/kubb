@@ -371,35 +371,9 @@ type FindPetsByStatusHeaderParams = {
 
 :::
 
-### compatibilityPreset
-
-<!--@include: ./core/compatibilityPreset.md-->
-
-::: code-group
-
-```typescript [Default]
-pluginTs({
-  compatibilityPreset: 'default',
-});
-```
-
-```typescript [Kubb v4 compatibility]
-pluginTs({
-  compatibilityPreset: 'kubbV4',
-});
-```
-
-:::
-
 ### resolver
 
 <!--@include: ./core/resolvers.md-->
-
-Resolver precedence for `@kubb/plugin-ts`:
-
-1. Start with the preset resolver (`resolverTs` or `resolverTsLegacy`).
-2. Apply `compatibilityPreset` to select the active preset.
-3. Apply explicit `resolver` overrides on top (method-level, with `null`/`undefined` fallback).
 
 |           |                                                          |
 | --------: | :------------------------------------------------------- |
@@ -407,14 +381,6 @@ Resolver precedence for `@kubb/plugin-ts`:
 | Required: | `false`                                                  |
 
 ::: code-group
-
-```typescript [v4 compatibility]
-import { pluginTs } from '@kubb/plugin-ts'
-
-pluginTs({
-  compatibilityPreset: 'kubbV4',
-})
-```
 
 ```typescript [Custom prefix for operation names]
 import { pluginTs } from '@kubb/plugin-ts'

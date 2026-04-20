@@ -419,29 +419,6 @@ Nested enums now always include their parent path context:
 
 The old v4-style short naming (e.g. `ParamsStatusEnum`) is not available in v5.
 
-### Backwards-compatible type naming (`compatibilityPreset: 'kubbV4'`)
-
-If your code relies on v4 operation type names, set `compatibilityPreset: 'kubbV4'` in `pluginTs` while you migrate.
-
-```typescript
-import { defineConfig } from '@kubb/core'
-import { pluginTs } from '@kubb/plugin-ts'
-
-export default defineConfig({
-  plugins: [
-    pluginTs({ compatibilityPreset: 'kubbV4' }),
-  ],
-})
-```
-
-| Type | v5 default | `compatibilityPreset: 'kubbV4'` |
-|---|---|---|
-| Request body | `<OperationId>Data` | `<OperationId>MutationRequest` / `QueryRequest` |
-| Response union | `<OperationId>Response` | `<OperationId>MutationResponse` / `QueryResponse` |
-| All responses | `<OperationId>Responses` | `<OperationId>Mutation` / `Query` |
-| Response status | `<OperationId>Status201` | `<OperationId>201` |
-| Default/error | `<OperationId>StatusDefault` | `<OperationId>Error` |
-
 ### `transformers.name` removed from `@kubb/plugin-ts`
 
 The `transformers: { name }` callback has been removed. Use the `resolver` option instead.
@@ -486,10 +463,7 @@ export default defineConfig({
 The `resolver` option accepts a partial resolver object that controls naming conventions. Any method you omit falls back to the preset resolver. Use `this.default(...)` to call the preset's implementation.
 
 ```typescript
-import { pluginTs, resolverTs, resolverTsLegacy } from '@kubb/plugin-ts'
-
-// Use legacy naming conventions
-pluginTs({ compatibilityPreset: 'kubbV4' })
+import { pluginTs, resolverTs } from '@kubb/plugin-ts'
 
 // Override a single method
 pluginTs({
@@ -501,20 +475,24 @@ pluginTs({
 })
 ```
 
-### Compatibility preset for Kubb v4 naming
+### Custom naming with the resolver option
 
-Use `compatibilityPreset` in `pluginTs` when you need Kubb v4 naming behavior:
+Use the `resolver` option for custom naming:
 
 ```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
-pluginTs({ compatibilityPreset: 'kubbV4' })
+pluginTs({
+  resolver: {
+    resolveName(name) {
+      return `Custom${this.default(name, 'function')}`
+    },
+  },
+})
 ```
 
-For custom naming, use the `resolver` option.
-
 > [!NOTE]
-> If `resolver` is explicitly provided, its methods override the active preset resolver.
+> If `resolver` is explicitly provided, its methods override the default resolver.
 
 ### AST transformer for `@kubb/plugin-ts`
 
@@ -736,9 +714,7 @@ pluginZod({
 
 ### `@kubb/plugin-zod` — response schema naming changed
 
-The default preset now uses `<operationId>Status<code>Schema` for per-status response schemas (e.g. `listPetsStatus200Schema`) instead of the v4 convention `<operationId><code>Schema` (e.g. `listPets200Schema`).
-
-To keep the Kubb v4 naming conventions, set `compatibilityPreset: 'kubbV4'`:
+The default now uses `<operationId>Status<code>Schema` for per-status response schemas (e.g. `listPetsStatus200Schema`) instead of the v4 convention `<operationId><code>Schema` (e.g. `listPets200Schema`).
 
 ::: code-group
 ```typescript [Before (v4 names)]
@@ -756,15 +732,6 @@ pluginZod({
   // v5 generates: listPetsStatus200Schema, createPetsDataSchema
 })
 ```
-
-```typescript [After (v5 — keep v4 names)]
-import { pluginZod } from '@kubb/plugin-zod'
-
-pluginZod({
-  compatibilityPreset: 'kubbV4',
-  // keeps: listPets200Schema, createPetsMutationRequestSchema
-})
-```
 :::
 
 ### `@kubb/plugin-zod` — new options in v5
@@ -772,7 +739,6 @@ pluginZod({
 | New option | Type | Default | Description |
 |---|---|---|---|
 | `paramsCasing` | `'camelcase'` | `undefined` | Apply camelCase to path/query/header param names |
-| `compatibilityPreset` | `'default' \| 'kubbV4'` | `'default'` | Naming convention preset |
 | `resolver` | `Partial<ResolverZod> & ThisType<ResolverZod>` | — | Override individual resolver methods (with `this.default` fallback) |
 | `transformer` | `Visitor` | — | Single AST visitor applied before printing |
 | `printer.nodes` | `PrinterZodNodes \| PrinterZodMiniNodes` | — | Override per-type code generation handlers |
@@ -900,16 +866,6 @@ pluginFaker({
 ```
 :::
 
-#### New `compatibilityPreset` option
-
-Use `compatibilityPreset: 'kubbV4'` to keep the v4 helper naming convention while you migrate existing tests or imports.
-
-```typescript
-import { pluginFaker } from '@kubb/plugin-faker'
-
-pluginFaker({ compatibilityPreset: 'kubbV4' })
-```
-
 #### New `printer.nodes` option
 
 Use `printer.nodes` to override individual schema-type renderers without replacing the full faker generator.
@@ -937,7 +893,6 @@ pluginFaker({
 | New option | Type | Default | Description |
 |---|---|---|---|
 | `paramsCasing` | `'camelcase'` | `undefined` | Apply camelCase to path/query/header param names |
-| `compatibilityPreset` | `'default' \| 'kubbV4'` | `'default'` | Naming convention preset |
 | `resolver` | `Partial<ResolverFaker> & ThisType<ResolverFaker>` | — | Override individual resolver methods |
 | `transformer` | `Visitor` | — | Single AST visitor applied before printing |
 | `printer.nodes` | `PrinterFakerNodes` | — | Override per-type faker rendering handlers |
@@ -1052,21 +1007,10 @@ pluginMcp({
 })
 ```
 
-#### New `compatibilityPreset` option
-
-Use `compatibilityPreset: 'kubbV4'` to preserve v4 naming conventions while migrating.
-
-```typescript
-pluginMcp({
-  compatibilityPreset: 'kubbV4',
-})
-```
-
 ### `@kubb/plugin-mcp` — new options in v5
 
 | New option | Type | Default | Description |
 |---|---|---|---|
-| `compatibilityPreset` | `'default' \| 'kubbV4'` | `'default'` | Naming convention preset |
 | `resolver` | `Partial<ResolverMcp> & ThisType<ResolverMcp>` | — | Override individual resolver methods |
 | `transformer` | `Visitor` | — | Single AST visitor applied before printing |
 | `paramsCasing` | `'camelcase'` | `undefined` | Apply camelCase to parameter names |
@@ -1200,16 +1144,6 @@ pluginClient({
 ```
 :::
 
-#### New `compatibilityPreset` option
-
-Use `compatibilityPreset: 'kubbV4'` to preserve v4 naming conventions while migrating.
-
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-pluginClient({ compatibilityPreset: 'kubbV4' })
-```
-
 #### New `transformer` option
 
 Apply an AST `Visitor` to transform operation nodes before they are printed. This replaces the old `transformers` callback approach for structural modifications.
@@ -1238,7 +1172,6 @@ The `{ type: 'contentType', pattern: '...' }` override form now correctly filter
 
 | New option | Type | Default | Description |
 |---|---|---|---|
-| `compatibilityPreset` | `'default' \| 'kubbV4'` | `'default'` | Naming convention preset |
 | `resolver` | `Partial<ResolverClient> & ThisType<ResolverClient>` | — | Override individual resolver methods |
 | `transformer` | `Visitor` | — | Single AST visitor applied before printing |
 
@@ -1316,16 +1249,6 @@ pluginReactQuery({
 ```
 :::
 
-#### New `compatibilityPreset` option
-
-Use `compatibilityPreset: 'kubbV4'` to preserve v4 naming conventions while migrating. This ensures generated file names, function names, and type names match the v4 output.
-
-```typescript
-import { pluginReactQuery } from '@kubb/plugin-react-query'
-
-pluginReactQuery({ compatibilityPreset: 'kubbV4' })
-```
-
 #### New `transformer` option
 
 Apply an AST `Visitor` to transform operation nodes before they are printed. This replaces the old `transformers` callback approach for structural modifications.
@@ -1352,7 +1275,6 @@ Generators have been rewritten from the v4 `createReactGenerator` + `OperationGe
 
 | New option | Type | Default | Description |
 |---|---|---|---|
-| `compatibilityPreset` | `'default' \| 'kubbV4'` | `'default'` | Naming convention preset |
 | `resolver` | `Partial<ResolverReactQuery> & ThisType<ResolverReactQuery>` | — | Override individual resolver methods |
 | `transformer` | `Visitor` | — | Single AST visitor applied before printing |
 
@@ -1442,16 +1364,6 @@ pluginVueQuery({
 ```
 :::
 
-#### New `compatibilityPreset` option
-
-Use `compatibilityPreset: 'kubbV4'` to preserve v4 naming conventions while migrating. This ensures generated file names, function names, and type names match the v4 output.
-
-```typescript
-import { pluginVueQuery } from '@kubb/plugin-vue-query'
-
-pluginVueQuery({ compatibilityPreset: 'kubbV4' })
-```
-
 #### New `transformer` option
 
 Apply an AST `Visitor` to transform operation nodes before they are printed. This replaces the old `transformers` callback approach for structural modifications.
@@ -1478,6 +1390,5 @@ Generators have been rewritten from the v4 `createReactGenerator` + `OperationGe
 
 | New option | Type | Default | Description |
 |---|---|---|---|
-| `compatibilityPreset` | `'default' \| 'kubbV4'` | `'default'` | Naming convention preset |
 | `resolver` | `Partial<ResolverVueQuery> & ThisType<ResolverVueQuery>` | — | Override individual resolver methods |
 | `transformer` | `Visitor` | — | Single AST visitor applied before printing |

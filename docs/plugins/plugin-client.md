@@ -164,23 +164,6 @@ export function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
 ### transformers
 <!--@include: ./core/transformers.md-->
 
-### compatibilityPreset
-
-Use `compatibilityPreset` to control which naming convention is used for generated files and functions.
-
-|           |                              |
-| --------: | :--------------------------- |
-|     Type: | `'default' \| 'kubbV4'`      |
-| Required: | `false`                      |
-|  Default: | `'default'`                  |
-
-- `'default'` — v5 naming conventions (recommended)
-- `'kubbV4'` — v4 naming conventions for backwards compatibility
-
-```typescript
-pluginClient({ compatibilityPreset: 'kubbV4' })
-```
-
 ### resolver
 
 Override individual resolver methods to customize generated names. Any method you omit falls back to the preset resolver. Use `this.default(...)` to call the preset's implementation.

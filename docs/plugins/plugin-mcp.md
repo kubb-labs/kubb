@@ -76,10 +76,6 @@ Specify the export location for the files and define the behavior of the output.
 
 <!--@include: ./core/outputOverride.md-->
 
-### compatibilityPreset
-
-<!--@include: ./core/compatibilityPreset.md-->
-
 ### resolver
 
 <!--@include: ./core/resolvers.md-->

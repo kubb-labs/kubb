@@ -185,10 +185,6 @@ Seed faker for deterministic output.
 |     Type: | `Array<Generator<PluginFaker>>` |
 | Required: | `false`                         |
 
-### compatibilityPreset
-
-<!--@include: ./core/compatibilityPreset.md-->
-
 ### resolver
 
 Customize helper naming on top of the active compatibility preset.
@@ -293,7 +289,6 @@ export default defineConfig({
       },
       seed: [100],
       paramsCasing: 'camelcase',
-      compatibilityPreset: 'kubbV4',
     }),
   ],
 })

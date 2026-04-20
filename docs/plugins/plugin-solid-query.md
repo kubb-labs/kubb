@@ -374,7 +374,7 @@ type ResolveType = 'file' | 'function' | 'type' | 'const'
 
 ## Example
 
-```typescript twoslash
+```typescript
 import { defineConfig } from '@kubb/core'
 import { adapterOas } from '@kubb/adapter-oas'
 import { pluginSolidQuery } from '@kubb/plugin-solid-query'
