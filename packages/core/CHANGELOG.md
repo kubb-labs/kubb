@@ -1,10 +1,29 @@
 # @kubb/core
 
+## 5.0.0-alpha.51
+
+### Patch Changes
+
+- [#3127](https://github.com/kubb-labs/kubb/pull/3127) [`570d8d5`](https://github.com/kubb-labs/kubb/commit/570d8d514e8c1864c1981763ff61ac5cdc4c10db) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Replace `this` with explicit `ctx` parameter in `defineResolver` builder.
+
+  ### `@kubb/core`
+
+  - `ResolverBuilder<T>` now receives the assembled resolver as `ctx` instead of using `ThisType<T['resolver']>`.
+  - `defaultResolveFile` accepts the resolver as an explicit `ctx: Resolver` third parameter instead of a `this` receiver.
+  - `defineResolver` creates the resolver shell first and passes it to the builder, so `ctx` methods resolve lazily and include any builder overrides.
+
+  Migration: replace `this.xxx(...)` calls inside `defineResolver` builders with `ctx.xxx(...)`.
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.51
+  - @kubb/renderer-jsx@5.0.0-alpha.51
+
 ## 5.0.0-alpha.50
 
 ### Patch Changes
 
 - [#3124](https://github.com/kubb-labs/kubb/pull/3124) [`80d43c6`](https://github.com/kubb-labs/kubb/commit/80d43c66c86ee69359c78184024497f4e2eb1d3e) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix path traversal vulnerabilities in file path resolution.
+
   - `camelCase` / `pascalCase` with `isFile: true` no longer produces a leading `/` when a schema name starts with `.{letter}` (e.g. `..Schema`). Empty segments produced by such names are now filtered before joining with `/`, preventing the result from being interpreted as an absolute path.
   - `defaultResolvePath` default group name for `group.type === 'path'` now strips `.` and `..` components from the OpenAPI operation path before selecting the first segment as a subdirectory name.
   - Added an output-directory boundary check to `defaultResolvePath`: if the resolved path escapes the configured output directory an error is thrown, providing defense-in-depth against path traversal in malicious OpenAPI specs or misconfigured `group.name` functions.
@@ -61,10 +80,10 @@
 
   ```ts
   // before – always returned the base Resolver type
-  const resolver = driver.getResolver('@kubb/plugin-ts') // Resolver
+  const resolver = driver.getResolver("@kubb/plugin-ts"); // Resolver
 
   // after – returns the plugin's typed resolver
-  const resolver = driver.getResolver('@kubb/plugin-ts') // PluginTs['resolver']
+  const resolver = driver.getResolver("@kubb/plugin-ts"); // PluginTs['resolver']
   ```
 
   ### `GeneratorContext.getResolver`
@@ -74,9 +93,9 @@
   ```ts
   export const myGenerator = defineGenerator<PluginMyPlugin>({
     async schema(node, ctx) {
-      const tsResolver = ctx.getResolver('@kubb/plugin-ts') // PluginTs['resolver']
+      const tsResolver = ctx.getResolver("@kubb/plugin-ts"); // PluginTs['resolver']
     },
-  })
+  });
   ```
 
 ### Patch Changes
@@ -102,14 +121,17 @@
 - [#3095](https://github.com/kubb-labs/kubb/pull/3095) [`96ac140`](https://github.com/kubb-labs/kubb/commit/96ac140638e1c10bbdf91840f0c8271c91124c03) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Remove legacy plugin infrastructure now that all plugins use `definePlugin`.
 
   ### Removed types
+
   - `NormalizedPlugin` — internal plugin state is no longer part of the public API. Use `Plugin` for all external-facing plugin references.
   - `PluginContext` — replaced by the standalone `GeneratorContext` type.
   - `SchemaHook`, `OperationHook`, `OperationsHook` — unused hook type aliases.
 
   ### Renamed types
+
   - The internal `InternalPlugin` type (never public) was renamed to `NormalizedPlugin` for clarity, but this type is marked `@internal` and should not be used by plugin authors.
 
   ### Improved types
+
   - `ResolveOptionsContext` — marked `@internal`.
   - `FileMetaBase` — marked `@internal`.
   - `FileProcessor` — marked `@internal`.
@@ -124,10 +146,10 @@
 
   ```ts
   // Before
-  import type { NormalizedPlugin, PluginContext } from '@kubb/core'
+  import type { NormalizedPlugin, PluginContext } from "@kubb/core";
 
   // After
-  import type { Plugin, GeneratorContext } from '@kubb/core'
+  import type { Plugin, GeneratorContext } from "@kubb/core";
   ```
 
 ### Patch Changes
@@ -203,18 +225,19 @@
   **Before:**
 
   ```ts
-  import { getMode } from '@kubb/core'
-  getMode('src/gen/types.ts') // 'single'
+  import { getMode } from "@kubb/core";
+  getMode("src/gen/types.ts"); // 'single'
   ```
 
   **After:**
 
   ```ts
-  import { PluginDriver } from '@kubb/core'
-  PluginDriver.getMode('src/gen/types.ts') // 'single'
+  import { PluginDriver } from "@kubb/core";
+  PluginDriver.getMode("src/gen/types.ts"); // 'single'
   ```
 
   The following utilities have also been removed from `@kubb/core`'s public API as they are internal post-processing helpers used only by CLI/agent tooling:
+
   - `formatters` — moved to `@internals/utils`
   - `linters` — moved to `@internals/utils`
   - `detectFormatter` — moved to `@internals/utils`
@@ -315,13 +338,13 @@
   ```ts
   // Before
   pluginClient({
-    pre: ['@kubb/plugin-ts', '@kubb/plugin-zod'],
-  })
+    pre: ["@kubb/plugin-ts", "@kubb/plugin-zod"],
+  });
 
   // After
   pluginClient({
-    dependencies: ['@kubb/plugin-ts', '@kubb/plugin-zod'],
-  })
+    dependencies: ["@kubb/plugin-ts", "@kubb/plugin-zod"],
+  });
   ```
 
   All built-in plugins have been updated automatically. If you were setting `pre` or `post` directly on a custom plugin, update them to use `dependencies` instead.
@@ -352,6 +375,7 @@
 - [#2990](https://github.com/kubb-labs/kubb/pull/2990) [`3ac7d1f`](https://github.com/kubb-labs/kubb/commit/3ac7d1f9b75099bfe793e35152e5c322e65aa6ad) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Update `@kubb/react-fabric` and `@kubb/fabric-core` to v0.16.0
 
 - [#2994](https://github.com/kubb-labs/kubb/pull/2994) [`9e6a772`](https://github.com/kubb-labs/kubb/commit/9e6a772c7ca1ee54e931d2dbf0f2448f67707c0e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add `@kubb/renderer-jsx` — a lightweight JSX renderer for Kubb plugins.
+
   - New package `@kubb/renderer-jsx` with a custom JSX runtime (`jsx-runtime`, `jsx-dev-runtime`)
   - Provides `createRenderer` to render JSX trees into `FileNode` arrays without React
   - Built-in components: `File`, `Const`, `Function`, `Type`, `Root`
@@ -376,6 +400,7 @@
 - [#2971](https://github.com/kubb-labs/kubb/pull/2971) [`6c49d8d`](https://github.com/kubb-labs/kubb/commit/6c49d8d02d7c4bf5341fb6f0114f6aa2ee735e1e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `UserConfig` now correctly marks `adapter` and `parsers` as optional properties.
 
   `defineConfig` automatically applies defaults when these options are omitted:
+
   - `adapter` defaults to `adapterOas()` from `@kubb/adapter-oas`
   - `parsers` defaults to `[parserTs]` from `@kubb/parser-ts`
 
@@ -384,19 +409,19 @@
   ```ts
   // before — had to set adapter and parsers explicitly
   export default defineConfig({
-    input: { path: './petStore.yaml' },
-    output: { path: './src/gen' },
+    input: { path: "./petStore.yaml" },
+    output: { path: "./src/gen" },
     adapter: adapterOas(),
     parsers: [parserTs],
     plugins: [],
-  })
+  });
 
   // after — adapter and parsers are applied automatically
   export default defineConfig({
-    input: { path: './petStore.yaml' },
-    output: { path: './src/gen' },
+    input: { path: "./petStore.yaml" },
+    output: { path: "./src/gen" },
     plugins: [],
-  })
+  });
   ```
 
   `@kubb/adapter-oas` and `@kubb/parser-ts` must be installed for the defaults to work.
@@ -417,14 +442,14 @@
   Generators now receive a typed `this` context that guarantees `adapter` and `rootNode` are always present (non-optional). Use it instead of the raw `PluginContext` to avoid null-checks in every hook:
 
   ```ts
-  import { defineGenerator } from '@kubb/core'
+  import { defineGenerator } from "@kubb/core";
 
   export const myGenerator = defineGenerator<PluginMyPlugin>({
     async schema(node, options) {
-      const { adapter, rootNode } = this // always present, no null-check needed
+      const { adapter, rootNode } = this; // always present, no null-check needed
       // ...
     },
-  })
+  });
   ```
 
   ### New: `mergeGenerators(generators)`
@@ -432,25 +457,25 @@
   Combines an array of generators into a single merged generator. Each hook runs in sequence and applies its result via `applyHookResult`. Use this inside plugin hooks to delegate to all generators in the preset:
 
   ```ts
-  import { mergeGenerators } from '@kubb/core'
+  import { mergeGenerators } from "@kubb/core";
 
   export const myPlugin = createPlugin<MyPlugin>((options) => {
-    const generators = [generatorA, generatorB]
-    const mergedGenerator = mergeGenerators(generators)
+    const generators = [generatorA, generatorB];
+    const mergedGenerator = mergeGenerators(generators);
 
     return {
-      name: 'my-plugin',
+      name: "my-plugin",
       async schema(node, opts) {
-        return mergedGenerator.schema?.call(this, node, opts)
+        return mergedGenerator.schema?.call(this, node, opts);
       },
       async operation(node, opts) {
-        return mergedGenerator.operation?.call(this, node, opts)
+        return mergedGenerator.operation?.call(this, node, opts);
       },
       async operations(nodes, opts) {
-        return mergedGenerator.operations?.call(this, nodes, opts)
+        return mergedGenerator.operations?.call(this, nodes, opts);
       },
-    }
-  })
+    };
+  });
   ```
 
   ### New: `PluginRegistry` augmentation
@@ -458,7 +483,7 @@
   Every plugin now augments the global `Kubb.PluginRegistry` interface, enabling automatic typing for `getPlugin` and `requirePlugin`:
 
   ```ts
-  const tsPlugin = context.getPlugin('plugin-ts')
+  const tsPlugin = context.getPlugin("plugin-ts");
   // tsPlugin is typed as PluginTs automatically
   ```
 
@@ -520,6 +545,7 @@
 ### Minor Changes
 
 - [#2958](https://github.com/kubb-labs/kubb/pull/2958) [`795cac8`](https://github.com/kubb-labs/kubb/commit/795cac8edd6dd456185b7da90db9fd422c2b8330) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ### `@kubb/ast`
+
   - Rename printer type exports to follow the `Printer{Suffix}` convention:
     - `TsPrinterFactory` → `PrinterTsFactory`
     - `TsPrinterNodes` → `PrinterTsNodes`
@@ -532,11 +558,13 @@
     - `ZodMiniPrinterOptions` → `PrinterZodMiniOptions`
 
   ### `@kubb/core`
+
   - Replace `mergeResolvers` with a single `resolver` partial override pattern. User-supplied methods are merged on top of the preset resolver via `withFallback`. Any method returning `null` or `undefined` falls back to the preset's implementation.
   - Remove `composeTransformers`. Replace the `transformers: Array<Visitor>` option with a single `transformer?: Visitor`. The visitor is applied directly via `transform(node, transformer ?? {})`.
   - `getPreset` now accepts `resolver?: Partial<TResolver> & ThisType<TResolver>` — use `this.default(...)` inside an override to call the preset resolver's implementation.
 
   ### `@kubb/plugin-ts`
+
   - **Breaking:** Replace `resolvers?: Array<ResolverTs>` with `resolver?: Partial<ResolverTs> & ThisType<ResolverTs>`. Supply only the methods you want to override; all others fall back to the active preset resolver.
   - **Breaking:** Replace `transformers?: Array<Visitor>` with `transformer?: Visitor`.
   - Add `printer?: { nodes?: PrinterTsNodes }` — override the TypeScript output for individual schema types (e.g. render `integer` as `bigint`).
@@ -545,25 +573,26 @@
   pluginTs({
     resolver: {
       resolveName(name) {
-        return `Custom${this.default(name, 'function')}`
+        return `Custom${this.default(name, "function")}`;
       },
     },
     transformer: {
       schema(node) {
-        return { ...node, description: undefined }
+        return { ...node, description: undefined };
       },
     },
     printer: {
       nodes: {
         integer() {
-          return ts.factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword)
+          return ts.factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword);
         },
       },
     },
-  })
+  });
   ```
 
   ### `@kubb/plugin-zod`
+
   - **Breaking:** Replace `resolvers?: Array<ResolverZod>` with `resolver?: Partial<ResolverZod> & ThisType<ResolverZod>`.
   - **Breaking:** Replace `transformers?: Array<Visitor>` with `transformer?: Visitor`.
   - Add `printer?: { nodes?: PrinterZodNodes | PrinterZodMiniNodes }` — override Zod output for individual schema types (e.g. render `integer` as `z.number()`).
@@ -572,25 +601,26 @@
   pluginZod({
     resolver: {
       resolveName(name) {
-        return `${this.default(name, 'function')}Schema`
+        return `${this.default(name, "function")}Schema`;
       },
     },
     transformer: {
       schema(node) {
-        return { ...node, description: undefined }
+        return { ...node, description: undefined };
       },
     },
     printer: {
       nodes: {
         integer() {
-          return 'z.number()'
+          return "z.number()";
         },
       },
     },
-  })
+  });
   ```
 
   ### `@kubb/plugin-cypress`
+
   - **Breaking:** Replace `resolvers?: Array<ResolverCypress>` with `resolver?: Partial<ResolverCypress> & ThisType<ResolverCypress>`.
   - **Breaking:** Replace `transformers?: Array<Visitor>` with `transformer?: Visitor`.
 
@@ -613,6 +643,7 @@
 - [#2940](https://github.com/kubb-labs/kubb/pull/2940) [`c1e9257`](https://github.com/kubb-labs/kubb/commit/c1e92572c04cf82ddb4df2e9e72e1551287a21fa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ### `@kubb/core`
 
   Add three generic helper functions to `renderNode.tsx` that encapsulate the repeated react + core generator dispatch boilerplate:
+
   - `runGeneratorSchema(node, ctx)` — dispatches a single schema node to all generators (react + core), resolving and null-checking options per generator.
   - `runGeneratorOperation(node, ctx)` — dispatches a single operation node to all generators (react + core), resolving and null-checking options per generator.
   - `runGeneratorOperations(nodes, ctx)` — batch-dispatches a list of collected operation nodes to all generators using `plugin.options` directly (no per-node filtering).
@@ -717,14 +748,17 @@
 ### Minor Changes
 
 - [#2872](https://github.com/kubb-labs/kubb/pull/2872) [`591977c`](https://github.com/kubb-labs/kubb/commit/591977c5c2f167736d6e43126ed0387a1e5e0ce5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ### `@kubb/core`
+
   - Add `name: string` to the `Resolver` base type. Every resolver now carries a name that identifies it.
   - `defineResolver` build functions must return a `name` property.
   - Add `mergeResolvers(...resolvers)` helper that merges multiple resolvers into one (last wins).
 
   ### `@kubb/ast`
+
   - Add `composeTransformers(...visitors)` helper that combines multiple `Visitor` objects into a single visitor. Each node kind is piped through all visitors sequentially (left to right).
 
   ### `@kubb/plugin-ts`
+
   - Add `resolvers` option — an array of named resolvers that control naming conventions. Later entries override earlier ones. Built-in resolvers: `resolverTs` (default) and `resolverTsLegacy`.
   - Add `transformers` option — an array of AST `Visitor` objects applied to each `SchemaNode` before printing. Uses `composeTransformers` + `transform` from `@kubb/ast`.
   - Export `resolverTs`, `resolverTsLegacy`, and `ResolverTs` from the package root.
@@ -892,6 +926,7 @@
   Introduces a `storage` option in `output` that replaces direct filesystem writes with a pluggable storage layer, inspired by the Nitro/unstorage API.
 
   **New exports from `@kubb/core`:**
+
   - `defineStorage(builder)` — factory helper (same pattern as `definePlugin`/`defineLogger`/`defineAdapter`) that wraps a builder function and makes options optional
   - `fsStorage()` — built-in filesystem driver; the default when no `storage` is configured, preserving existing on-disk behavior
   - `memoryStorage()` — built-in in-memory driver; useful for testing and dry-run scenarios
@@ -900,43 +935,43 @@
   **`output.write` is now deprecated.** Setting `write: false` for dry-runs still works and continues to be supported.
 
   ```ts
-  import { defineConfig, defineStorage, fsStorage } from '@kubb/core'
+  import { defineConfig, defineStorage, fsStorage } from "@kubb/core";
 
   // default (no change needed for existing configs)
   export default defineConfig({
-    output: { path: './src/gen' },
-  })
+    output: { path: "./src/gen" },
+  });
 
   // explicit filesystem storage
   export default defineConfig({
-    output: { path: './src/gen', storage: fsStorage() },
-  })
+    output: { path: "./src/gen", storage: fsStorage() },
+  });
 
   // custom in-memory storage
   export const memoryStorage = defineStorage((_options) => {
-    const store = new Map<string, string>()
+    const store = new Map<string, string>();
     return {
-      name: 'memory',
+      name: "memory",
       async hasItem(key) {
-        return store.has(key)
+        return store.has(key);
       },
       async getItem(key) {
-        return store.get(key) ?? null
+        return store.get(key) ?? null;
       },
       async setItem(key, value) {
-        store.set(key, value)
+        store.set(key, value);
       },
       async removeItem(key) {
-        store.delete(key)
+        store.delete(key);
       },
       async getKeys() {
-        return [...store.keys()]
+        return [...store.keys()];
       },
       async clear() {
-        store.clear()
+        store.clear();
       },
-    }
-  })
+    };
+  });
   ```
 
 ### Patch Changes
@@ -979,6 +1014,7 @@
 - [#2689](https://github.com/kubb-labs/kubb/pull/2689) [`856fa78`](https://github.com/kubb-labs/kubb/commit/856fa78e5cc281ef3cd1b66a38e2deeca69f1b6e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Extract node-native and pure-TypeScript utilities into `@internals/utils`.
 
   The following utilities have been moved from `@kubb/core`, `@kubb/cli`, and `@kubb/plugin-oas` into the private `@internals/utils` package and are now bundled into each consumer at build time:
+
   - **`@kubb/core`** → `@internals/utils`: `clean`, `exists`/`existsSync`, `read`/`readSync`, `write`, `getRelativePath` (fs utilities), `formatHrtime`/`formatMs`/`getElapsedMs`, `spawnAsync`, `executeIfOnline`/`isOnline`, `canUseTTY`/`isCIEnvironment`/`isGitHubActions`, `serializePluginOptions`
   - **`@kubb/cli`** → `@internals/utils`: `randomCliColor`/`randomColors`, `formatMsWithColor`, `toError`/`getErrorMessage`/`toCause`
   - **`@kubb/plugin-oas`** → `@kubb/oas`: `resolveServerUrl` (moved to `@kubb/oas` as it depends on OAS types)
@@ -1169,10 +1205,12 @@
   Generated enums now support configurable key casing through the new `enumKeyCasing` option in `@kubb/plugin-ts`. This allows transforming enum keys into conventional casing formats instead of using raw values.
 
   **New transformers in @kubb/core:**
+
   - `screamingSnakeCase`: Converts to SCREAMING_SNAKE_CASE
   - `snakeCase`: Converts to snake_case
 
   **New option in @kubb/plugin-ts:**
+
   - `enumKeyCasing`: Choose from `'screamingSnakeCase'` | `'snakeCase'` | `'pascalCase'` | `'camelCase'` | `'none'` (default: `'none'`)
 
   **Example:**
@@ -1182,31 +1220,32 @@
   export default {
     plugins: [
       pluginTs({
-        enumKeyCasing: 'screamingSnakeCase',
+        enumKeyCasing: "screamingSnakeCase",
       }),
     ],
-  }
+  };
   ```
 
   Before:
 
   ```typescript
   export const enumStringEnum = {
-    'created at': 'created at',
-    'FILE.UPLOADED': 'FILE.UPLOADED',
-  } as const
+    "created at": "created at",
+    "FILE.UPLOADED": "FILE.UPLOADED",
+  } as const;
   ```
 
   After:
 
   ```typescript
   export const enumStringEnum = {
-    CREATED_AT: 'created at',
-    FILE_UPLOADED: 'FILE.UPLOADED',
-  } as const
+    CREATED_AT: "created at",
+    FILE_UPLOADED: "FILE.UPLOADED",
+  } as const;
   ```
 
   **Additional improvements:**
+
   - Enum member keys now use identifiers without quotes when the key is a valid JavaScript identifier, making the output cleaner and more idiomatic
   - Default value is `'none'` to preserve backward compatibility
 
@@ -1249,13 +1288,13 @@
   ```typescript
   // kubb.config.ts
   export default defineConfig({
-    input: { path: './petStore.yaml' },
+    input: { path: "./petStore.yaml" },
     output: {
-      path: './src/gen',
-      format: 'auto', // Detects biome or prettier
-      lint: 'auto', // Detects biome, oxlint, or eslint
+      path: "./src/gen",
+      format: "auto", // Detects biome or prettier
+      lint: "auto", // Detects biome, oxlint, or eslint
     },
-  })
+  });
   ```
 
 ## 4.12.15
