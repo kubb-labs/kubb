@@ -1,5 +1,14 @@
 # unplugin-kubb
 
+## 5.0.0-alpha.50
+
+### Patch Changes
+
+- Updated dependencies [[`80d43c6`](https://github.com/kubb-labs/kubb/commit/80d43c66c86ee69359c78184024497f4e2eb1d3e)]:
+  - @kubb/core@5.0.0-alpha.50
+  - @kubb/adapter-oas@5.0.0-alpha.50
+  - @kubb/parser-ts@5.0.0-alpha.50
+
 ## 5.0.0-alpha.49
 
 ### Patch Changes
@@ -192,6 +201,7 @@
   | `plugins:hook:processing:end`   | `kubb:plugins:hook:processing:end`   |
 
 - [#3043](https://github.com/kubb-labs/kubb/pull/3043) [`e877926`](https://github.com/kubb-labs/kubb/commit/e877926222b4e3d56c7ccf07caaf7cdaba71bcd6) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Rename `KubbEvents` to `KubbHooks` and adopt `hooks` as the preferred emitter field.
+
   - `KubbEvents` is now `KubbHooks` in `@kubb/core`.
   - `driver.hooks` is now the primary emitter API.
   - Build/setup options now prefer `hooks` (`events` is kept as a deprecated alias for compatibility).

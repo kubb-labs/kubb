@@ -1,5 +1,13 @@
 # @kubb/agent
 
+## 5.0.0-alpha.50
+
+### Patch Changes
+
+- Updated dependencies [[`80d43c6`](https://github.com/kubb-labs/kubb/commit/80d43c66c86ee69359c78184024497f4e2eb1d3e)]:
+  - @kubb/core@5.0.0-alpha.50
+  - @kubb/ast@5.0.0-alpha.50
+
 ## 5.0.0-alpha.49
 
 ### Patch Changes
@@ -119,6 +127,7 @@
 - [#64](https://github.com/tigawanna/kubb/pull/64) [`f7d19bb`](https://github.com/kubb-labs/kubb/commit/f7d19bb69177fbd1b54c855423b3b55c399678b0) Thanks [@pull](https://github.com/apps/pull)! - Decouple `@kubb/agent` from static plugin knowledge.
 
   Plugins are now resolved at runtime via dynamic `import()` instead of being hard-coded as dependencies. This means:
+
   - `@kubb/agent` no longer bundles or lists any `@kubb/plugin-*` packages as dependencies.
   - Any Kubb plugin (or third-party plugin) is supported — install whichever plugins you need alongside the agent.
   - Plugin factory resolution tries three strategies in order: camelCase named export (`pluginReactQuery`), `default` export, or first exported function.
@@ -218,6 +227,7 @@
   | `plugins:hook:processing:end`   | `kubb:plugins:hook:processing:end`   |
 
 - [#3043](https://github.com/kubb-labs/kubb/pull/3043) [`e877926`](https://github.com/kubb-labs/kubb/commit/e877926222b4e3d56c7ccf07caaf7cdaba71bcd6) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Rename `KubbEvents` to `KubbHooks` and adopt `hooks` as the preferred emitter field.
+
   - `KubbEvents` is now `KubbHooks` in `@kubb/core`.
   - `driver.hooks` is now the primary emitter API.
   - Build/setup options now prefer `hooks` (`events` is kept as a deprecated alias for compatibility).
@@ -1743,6 +1753,7 @@
   Add bidirectional WebSocket communication between Kubb Agent and Kubb Studio. The agent now automatically connects to Studio on startup when `KUBB_STUDIO_URL` and `KUBB_AGENT_TOKEN` environment variables are set.
 
   Features:
+
   - Persistent WebSocket connection with automatic reconnection
   - Real-time streaming of generation events to Studio
   - Command handling for `generate` and `connect` commands from Studio
