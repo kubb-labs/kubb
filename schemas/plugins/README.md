@@ -53,6 +53,8 @@ Schema for the aggregated plugin registry. This is maintained in the kubb.dev re
 | `tags` | `array` | Discovery tags |
 | `dependencies` | `array` | Required Kubb plugin IDs |
 | `skills` | `array` | Plugin capabilities for AI tools |
+| `options` | `array` | Plugin configuration options for auto-generated reference docs |
+| `fullExample` | `string` | Complete `kubb.config.ts` snippet used as the Example section on the reference page |
 
 ## Skills
 
