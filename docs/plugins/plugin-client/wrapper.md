@@ -5,16 +5,15 @@ Generate a wrapper class that composes all tag-based client classes into a singl
 Name of the generated wrapper class.
 
 |           |          |
-| --------: | :------- |
+|----------:|:---------|
 |     Type: | `string` |
 | Required: | `true`   |
 
 ::: code-group
-
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
-import { pluginOas } from '@kubb/plugin-oas'
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
@@ -24,8 +23,8 @@ export default defineConfig({
   output: {
     path: './src/gen',
   },
-  plugins: [
-    pluginOas(),
+adapter: adapterOas(),
+plugins: [
     pluginTs(),
     pluginClient({
       output: {
@@ -65,13 +64,10 @@ export class PetStoreClient {
 ```typescript [usage.ts]
 import { PetStoreClient } from './gen/clients/PetStoreClient'
 
-const client = new PetStoreClient({
-  baseURL: 'https://petstore.swagger.io/v2',
-})
+const client = new PetStoreClient({ baseURL: 'https://petstore.swagger.io/v2' })
 
 // Access operations through tag-based properties
 const pets = await client.pet.findPetsByTags({ tags: ['available'] })
 const user = await client.user.getUserByName({ username: 'john' })
 ```
-
 :::

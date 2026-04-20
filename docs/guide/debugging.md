@@ -18,7 +18,6 @@ Kubb supports React DevTools out of the box. Enable integration by importing the
 > Kubb runs `npx react-devtools` as part of the `@kubb/react-fabric` import.
 
 ### Installation
-
 Before using React DevTools, install the React package.
 
 > [!IMPORTANT]
@@ -41,7 +40,6 @@ npm install --save-dev @kubb/react-fabric
 ```shell [yarn]
 yarn add -D @kubb/react-fabric
 ```
-
 :::
 
 ### Update `kubb.config.ts`
@@ -50,7 +48,7 @@ yarn add -D @kubb/react-fabric
 import { openDevtools } from '@kubb/react-fabric' // [!code ++]
 
 import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig(() => {
@@ -63,7 +61,10 @@ export default defineConfig(() => {
     output: {
       path: './src/gen',
     },
-    plugins: [pluginOas(), pluginTs()],
+adapter: adapterOas(),
+plugins: [
+      pluginTs(),
+    ],
   }
 })
 ```

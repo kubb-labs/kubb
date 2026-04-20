@@ -12,7 +12,6 @@ group: {
 ```
 
 This generates the following structure:
-
 ```
 .
 ├── src/

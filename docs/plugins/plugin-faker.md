@@ -2,13 +2,13 @@
 layout: doc
 
 title: Kubb Faker Plugin - Generate Mock Data
-description: Generate Faker.js mock data generators from OpenAPI schemas with @kubb/plugin-faker for testing and development.
+description: Generate Faker.js mock data helpers from OpenAPI schemas with @kubb/plugin-faker for testing and development.
 outline: deep
 ---
 
 # @kubb/plugin-faker
 
-Generate mock data using [Faker](https://fakerjs.dev/).
+Generate mock data helpers with [Faker](https://fakerjs.dev/).
 
 ## Installation
 
@@ -64,10 +64,6 @@ Specify the export location for the files and define the behavior of the output.
 
 <!--@include: ./core/outputOverride.md-->
 
-### contentType
-
-<!--@include: ./core/contentType.md-->
-
 ### group
 
 <!--@include: ./core/group.md-->
@@ -78,7 +74,7 @@ Specify the export location for the files and define the behavior of the output.
 
 #### group.name
 
-Return the name of a group based on the group name, this will be used for the file and name generation.
+Return the name of a group based on the group name. This is used for file and helper name generation.
 
 |           |                                     |
 | --------: | :---------------------------------- |
@@ -86,31 +82,9 @@ Return the name of a group based on the group name, this will be used for the fi
 | Required: | `false`                             |
 |  Default: | `(ctx) => '${ctx.group}Controller'` |
 
-### dateType
-
-Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
-
-|           |                      |
-| --------: | :------------------- |
-|     Type: | `'string' \| 'date'` |
-| Required: | `false`              |
-|  Default: | `'string'`           |
-
-::: code-group
-
-```typescript ['string']
-faker.date.anytime().toISOString()
-```
-
-```typescript ['date']
-faker.date.anytime()
-```
-
-:::
-
 ### dateParser
 
-Which parser should be used when dateType is set to 'string'.
+Choose which formatter to use when `date`, `time`, or `datetime` schema nodes are represented as strings.
 
 |           |                                            |
 | --------: | :----------------------------------------- |
@@ -119,70 +93,39 @@ Which parser should be used when dateType is set to 'string'.
 |  Default: | `'faker'`                                  |
 
 > [!TIP]
-> You can use any other library. For example, when you want to use `moment` you can pass `moment` and Kubb will add the import for moment: `import moment from 'moment'`.
-> This only works when the package is using default exports like Dayjs and Moment.
+> You can use another library that exposes a default export. Kubb adds the import automatically.
 
 ::: code-group
 
-```typescript [undefined]
-// schema with format set to 'date'
+```typescript ['faker']
 faker.date.anytime().toISOString().substring(0, 10)
-
-// schema with format set to 'time'
-faker.date.anytime().toISOString().substring(11, 19)
 ```
 
 ```typescript ['dayjs']
-// schema with format set to 'date'
 dayjs(faker.date.anytime()).format('YYYY-MM-DD')
-
-// schema with format set to 'time'
-dayjs(faker.date.anytime()).format('HH:mm:ss')
 ```
 
 ```typescript ['moment']
-// schema with format set to 'date'
 moment(faker.date.anytime()).format('YYYY-MM-DD')
-
-// schema with format set to 'time'
-moment(faker.date.anytime()).format('HH:mm:ss')
 ```
 
 :::
 
 ### mapper
 
-|           |                          |
-| --------: | :----------------------- |
+Override individual object properties with custom faker expressions.
+
+|           |                         |
+| --------: | :---------------------- |
 |     Type: | `Record<string, string>` |
-| Required: | `false`                  |
-
-### unknownType
-
-Which type to use when the Swagger/OpenAPI file is not providing more information.
-
-|           |                                |
-| --------: | :----------------------------- |
-|     Type: | `'any' \| 'unknown' \| 'void'` |
-| Required: | `false`                        |
-|  Default: | `'any'`                        |
-
-### emptySchemaType
-
-Which type to use for empty schema values.
-
-|           |                                |
-| --------: | :----------------------------- |
-|     Type: | `'any' \| 'unknown' \| 'void'` |
-| Required: | `false`                        |
-|  Default: | `unknownType`                  |
+| Required: | `false`                 |
 
 ### paramsCasing
 
-Transform parameter names to a specific casing format for path, query, and header parameters in generated mock data.
+Transform path, query, and header parameter property names in generated mocks.
 
 > [!IMPORTANT]
-> When using `paramsCasing`, ensure that `@kubb/plugin-ts` also has the same `paramsCasing` setting. This option transforms property names in mock objects to match the TypeScript types.
+> Use the same `paramsCasing` value in `@kubb/plugin-ts` so the generated mock objects stay compatible with the generated types.
 
 |           |               |
 | --------: | :------------ |
@@ -190,35 +133,9 @@ Transform parameter names to a specific casing format for path, query, and heade
 | Required: | `false`       |
 |  Default: | `undefined`   |
 
-- `'camelcase'` transforms parameter names to camelCase
-
-::: code-group
-
-```typescript [With paramsCasing: 'camelcase']
-// Mock data uses camelCase property names
-export function createFindPetsByStatusPathParamsFaker(data?: Partial<FindPetsByStatusPathParams>): FindPetsByStatusPathParams {
-  return {
-    ...{ stepId: faker.string.alpha() }, // ✓ camelCase
-    ...(data || {}),
-  }
-}
-```
-
-```typescript [Without paramsCasing]
-// Mock data uses original API naming
-export function createFindPetsByStatusPathParamsFaker(data?: Partial<FindPetsByStatusPathParams>): FindPetsByStatusPathParams {
-  return {
-    ...{ step_id: faker.string.alpha() }, // Original naming
-    ...(data || {}),
-  }
-}
-```
-
-:::
-
 ### regexGenerator
 
-Choose which generator to use when using Regexp.
+Choose which generator to use for regex-backed string schemas.
 
 |           |                        |
 | --------: | :--------------------- |
@@ -229,23 +146,23 @@ Choose which generator to use when using Regexp.
 ::: code-group
 
 ```typescript ['faker']
-faker.helpers.fromRegExp(new RegExp(/test/))
+faker.helpers.fromRegExp('^[A-Z]+$')
 ```
 
 ```typescript ['randexp']
-new RandExp(/test/).gen()
+new RandExp(/^[A-Z]+$/).gen()
 ```
 
 :::
 
 ### seed
 
-The use of Seed is intended to allow for consistent values in a test.
+Seed faker for deterministic output.
 
-|           |         |
-| --------: | :------ | --------- |
-|     Type: | `number | number[]` |
-| Required: | `false` |
+|           |                   |
+| --------: | :---------------- |
+|     Type: | `number \| number[]` |
+| Required: | `false`           |
 
 ### include
 
@@ -268,28 +185,90 @@ The use of Seed is intended to allow for consistent values in a test.
 |     Type: | `Array<Generator<PluginFaker>>` |
 | Required: | `false`                         |
 
-### transformers
+### compatibilityPreset
 
-<!--@include: ./core/transformers.md-->
+<!--@include: ./core/compatibilityPreset.md-->
 
-#### transformers.name
+### resolver
 
-Customize the names based on the type that is provided by the plugin.
-
-|           |                                                |
-| --------: | :--------------------------------------------- |
-|     Type: | `(name: string, type?: ResolveType) => string` |
-| Required: | `false`                                        |
+Customize helper naming on top of the active compatibility preset.
 
 ```typescript
-type ResolveType = 'file' | 'function' | 'type' | 'const'
+pluginFaker({
+  resolver: {
+    resolveName(name) {
+      return `${this.default(name)}Mock`
+    },
+  },
+})
 ```
+
+### transformer
+
+Apply a single AST visitor before the faker helpers are rendered.
+
+```typescript
+pluginFaker({
+  transformer: {
+    schema(node) {
+      return { ...node, description: undefined }
+    },
+  },
+})
+```
+
+### printer
+
+Override individual printer node handlers to customize how specific schema types are rendered.
+
+Each key is a `SchemaType` (for example `'integer'`, `'date'`, or `'ref'`). The function you provide replaces the built-in handler for that type. Use `this.transform` to recurse into nested schema nodes and `this.options` to read printer options.
+
+|           |                        |
+| --------: | :--------------------- |
+|     Type: | `{ nodes?: PrinterFakerNodes }` |
+| Required: | `false`                |
+
+::: code-group
+
+```typescript [Override integer to float()]
+import { pluginFaker } from '@kubb/plugin-faker'
+
+pluginFaker({
+  printer: {
+    nodes: {
+      integer() {
+        return 'faker.number.float()'
+      },
+    },
+  },
+})
+```
+
+```typescript [Override date strings]
+import { pluginFaker } from '@kubb/plugin-faker'
+
+pluginFaker({
+  printer: {
+    nodes: {
+      date(node) {
+        if (node.representation === 'string') {
+          return 'new Date().toISOString().substring(0, 10)'
+        }
+
+        return 'new Date()'
+      },
+    },
+  },
+})
+```
+
+:::
 
 ## Example
 
 ```typescript twoslash
+import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginTs } from '@kubb/plugin-ts'
 
@@ -300,23 +279,21 @@ export default defineConfig({
   output: {
     path: './src/gen',
   },
+  adapter: adapterOas(),
   plugins: [
-    pluginOas(),
-    pluginTs(),
+    pluginTs({
+      output: {
+        path: './types',
+      },
+    }),
     pluginFaker({
       output: {
         path: './mocks',
         barrelType: 'named',
-        banner: '/* eslint-disable no-alert, no-console */',
-        footer: '',
       },
-      group: {
-        type: 'tag',
-        name: ({ group }) => `${group}Service`,
-      },
-      dateType: 'date',
-      unknownType: 'unknown',
       seed: [100],
+      paramsCasing: 'camelcase',
+      compatibilityPreset: 'kubbV4',
     }),
   ],
 })

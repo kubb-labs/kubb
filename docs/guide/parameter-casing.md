@@ -33,7 +33,7 @@ To enable parameter casing, add `paramsCasing: 'camelcase'` to each plugin that 
 
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
@@ -45,8 +45,8 @@ export default defineConfig({
   output: {
     path: './src/gen',
   },
-  plugins: [
-    pluginOas(),
+adapter: adapterOas(),
+plugins: [
     pluginTs({
       output: { path: './types' },
       paramsCasing: 'camelcase', // Transform TypeScript types
@@ -76,7 +76,6 @@ export default defineConfig({
 Plugin-ts transforms property names in parameter types:
 
 ::: code-group
-
 ```typescript [Before (Original API)]
 // From OpenAPI: /pet/{step_id}
 type FindPetsByStatusPathParams = {
@@ -96,19 +95,18 @@ type FindPetsByTagsHeaderParams = {
 ```typescript [After (paramsCasing: 'camelcase')]
 // Transformed to camelCase
 type FindPetsByStatusPathParams = {
-  stepId: string // ✓
+  stepId: string  // ✓
 }
 
 type CreatePetsQueryParams = {
-  boolParam?: boolean // ✓
+  boolParam?: boolean  // ✓
   offset?: number
 }
 
 type FindPetsByTagsHeaderParams = {
-  xExample?: 'ONE' | 'TWO' | 'THREE' // ✓
+  xExample?: 'ONE' | 'TWO' | 'THREE'  // ✓
 }
 ```
-
 :::
 
 ### Client Code
@@ -116,25 +114,26 @@ type FindPetsByTagsHeaderParams = {
 Plugin-client transforms function parameters and automatically maps them back to original API names:
 
 ::: code-group
-
 ```typescript [Before (Original API)]
-export async function findPetsByStatus(step_id: FindPetsByStatusPathParams['step_id'], config: Partial<RequestConfig> = {}) {
+export async function findPetsByStatus(
+  step_id: FindPetsByStatusPathParams['step_id'],
+  config: Partial<RequestConfig> = {}
+) {
   return axios.get(`/pet/findByStatus/${step_id}`)
 }
 ```
 
 ```typescript [After (paramsCasing: 'camelcase')]
 export async function findPetsByStatus(
-  stepId: FindPetsByStatusPathParams['stepId'], // ✓ camelCase parameter
-  config: Partial<RequestConfig> = {},
+  stepId: FindPetsByStatusPathParams['stepId'],  // ✓ camelCase parameter
+  config: Partial<RequestConfig> = {}
 ) {
   // Automatically maps back to original name
   const step_id = stepId
 
-  return axios.get(`/pet/findByStatus/${step_id}`) // Uses original API name
+  return axios.get(`/pet/findByStatus/${step_id}`)  // Uses original API name
 }
 ```
-
 :::
 
 ### Query Hooks
@@ -142,9 +141,11 @@ export async function findPetsByStatus(
 React Query, SWR, and other query plugins also transform parameters:
 
 ::: code-group
-
 ```typescript [Before (Original API)]
-export function useFindPetsByStatus({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }, options = {}) {
+export function useFindPetsByStatus(
+  { step_id }: { step_id: FindPetsByStatusPathParams['step_id'] },
+  options = {}
+) {
   return useQuery({
     queryKey: [{ url: '/pet/findByStatus/:step_id', params: { step_id } }],
     queryFn: () => findPetsByStatus(step_id),
@@ -154,16 +155,15 @@ export function useFindPetsByStatus({ step_id }: { step_id: FindPetsByStatusPath
 
 ```typescript [After (paramsCasing: 'camelcase')]
 export function useFindPetsByStatus(
-  { stepId }: { stepId: FindPetsByStatusPathParams['stepId'] }, // ✓
-  options = {},
+  { stepId }: { stepId: FindPetsByStatusPathParams['stepId'] },  // ✓
+  options = {}
 ) {
   return useQuery({
-    queryKey: [{ url: '/pet/findByStatus/:step_id', params: { stepId } }], // ✓
-    queryFn: () => findPetsByStatus(stepId), // ✓
+    queryKey: [{ url: '/pet/findByStatus/:step_id', params: { stepId } }],  // ✓
+    queryFn: () => findPetsByStatus(stepId),  // ✓
   })
 }
 ```
-
 :::
 
 ### Mock Data
@@ -171,9 +171,10 @@ export function useFindPetsByStatus(
 Plugin-faker transforms property names in mock data objects:
 
 ::: code-group
-
 ```typescript [Before (Original API)]
-export function createFindPetsByStatusPathParamsFaker(data?: Partial<FindPetsByStatusPathParams>): FindPetsByStatusPathParams {
+export function createFindPetsByStatusPathParamsFaker(
+  data?: Partial<FindPetsByStatusPathParams>
+): FindPetsByStatusPathParams {
   return {
     ...{ step_id: faker.string.alpha() },
     ...(data || {}),
@@ -182,14 +183,15 @@ export function createFindPetsByStatusPathParamsFaker(data?: Partial<FindPetsByS
 ```
 
 ```typescript [After (paramsCasing: 'camelcase')]
-export function createFindPetsByStatusPathParamsFaker(data?: Partial<FindPetsByStatusPathParams>): FindPetsByStatusPathParams {
+export function createFindPetsByStatusPathParamsFaker(
+  data?: Partial<FindPetsByStatusPathParams>
+): FindPetsByStatusPathParams {
   return {
-    ...{ stepId: faker.string.alpha() }, // ✓
+    ...{ stepId: faker.string.alpha() },  // ✓
     ...(data || {}),
   }
 }
 ```
-
 :::
 
 ## Usage Example
@@ -207,7 +209,7 @@ const pet = await findPetsByStatus('my-step-id')
 // React Query hook - use camelCase
 function PetStatus() {
   const { data } = useFindPetsByStatus({
-    stepId: 'my-step-id', // ✓ camelCase
+    stepId: 'my-step-id'  // ✓ camelCase
   })
 
   return <div>{data?.name}</div>
@@ -215,7 +217,7 @@ function PetStatus() {
 
 // Mock data - camelCase properties
 const mockParams = createFindPetsByStatusPathParamsFaker({
-  stepId: 'test-id', // ✓ camelCase
+  stepId: 'test-id'  // ✓ camelCase
 })
 ```
 
@@ -224,13 +226,11 @@ All HTTP requests still use the original parameter names from your OpenAPI speci
 ## What Gets Transformed
 
 ### ✅ Transformed
-
 - **Path parameters** - e.g., `step_id` → `stepId`
 - **Query parameters** - e.g., `bool_param` → `boolParam`
 - **Header parameters** - e.g., `X-Custom-Header` → `xCustomHeader`
 
 ### ❌ Not Transformed
-
 - **Request bodies** - Property names in request/response types remain unchanged
 - **Response bodies** - Response data structure stays as defined in OpenAPI
 - **Schema definitions** - Only parameter schemas are affected

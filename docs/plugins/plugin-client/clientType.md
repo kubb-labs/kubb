@@ -1,25 +1,25 @@
 Defines the client code generation style.
 
 |           |                                          |
-| --------: | :--------------------------------------- |
+|----------:|:-----------------------------------------|
 |     Type: | `'function' \| 'class' \| 'staticClass'` |
 | Required: | `false`                                  |
 |  Default: | `'function'`                             |
 
-- `'function'` generates standalone functions for each operation.
-- `'class'` generates a class with instance methods for each operation.
-- `'staticClass'` generates a class with static methods for each operation. Use this style to call methods like `Pet.getPetById(...)` without instantiating the class.
+
+* `'function'` generates standalone functions for each operation.
+* `'class'` generates a class with instance methods for each operation.
+* `'staticClass'` generates a class with static methods for each operation. Use this style to call methods like `Pet.getPetById(...)` without instantiating the class.
 
 ::: warning
 When using `clientType: 'class'` or `clientType: 'staticClass'`, these are not compatible with query plugins like `@kubb/plugin-react-query`, `@kubb/plugin-vue-query`, `@kubb/plugin-solid-query`, `@kubb/plugin-svelte-query`, or `@kubb/plugin-swr`. These plugins are designed to work with function-based clients. If you need to use both class-based or static-class clients and query hooks, configure separate `pluginClient` instances: one with `clientType: 'class'` or `clientType: 'staticClass'` for your needs, and another with `clientType: 'function'` (or omit it for the default) that the query plugins will reference.
 :::
 
 ::: code-group
-
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
-import { pluginOas } from '@kubb/plugin-oas'
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
@@ -29,8 +29,8 @@ export default defineConfig({
   output: {
     path: './src/gen',
   },
-  plugins: [
-    pluginOas(),
+adapter: adapterOas(),
+plugins: [
     pluginTs(),
     pluginClient({
       output: {
@@ -59,7 +59,10 @@ export class Pet {
    * @summary Find pet by ID
    * {@link /pet/:petId}
    */
-  static async getPetById({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  static async getPetById(
+    { petId }: { petId: GetPetByIdPathParams['petId'] },
+    config: Partial<RequestConfig> & { client?: typeof fetch } = {}
+  ) {
     const request = this.#client || fetch
     const { client: _request = this.#client, ...requestConfig } = config
     const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
@@ -77,9 +80,7 @@ export class Pet {
    */
   static async addPet(
     data: AddPetMutationRequest,
-    config: Partial<RequestConfig<AddPetMutationRequest>> & {
-      client?: typeof fetch
-    } = {},
+    config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {}
   ) {
     const request = this.#client || fetch
     const { client: _request = this.#client, ...requestConfig } = config
@@ -104,10 +105,9 @@ const pet = await Pet.getPetById({ petId: 1 })
 // Add a new pet
 const newPet = await Pet.addPet({
   name: 'Fluffy',
-  status: 'available',
+  status: 'available'
 })
 ```
-
 :::
 
 - `'class'` generates a class with methods for each operation.
@@ -117,11 +117,10 @@ When using `clientType: 'class'`, it is not compatible with query plugins like `
 :::
 
 ::: code-group
-
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
-import { pluginOas } from '@kubb/plugin-oas'
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
@@ -131,8 +130,8 @@ export default defineConfig({
   output: {
     path: './src/gen',
   },
-  plugins: [
-    pluginOas(),
+adapter: adapterOas(),
+plugins: [
     pluginTs(),
     pluginClient({
       output: {
@@ -165,7 +164,10 @@ export class Pet {
    * @summary Find pet by ID
    * {@link /pet/:petId}
    */
-  async getPetById({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  async getPetById(
+    { petId }: { petId: GetPetByIdPathParams['petId'] },
+    config: Partial<RequestConfig> & { client?: typeof fetch } = {}
+  ) {
     const { client: request = this.#client, ...requestConfig } = config
     const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
       method: 'GET',
@@ -182,9 +184,7 @@ export class Pet {
    */
   async addPet(
     data: AddPetMutationRequest,
-    config: Partial<RequestConfig<AddPetMutationRequest>> & {
-      client?: typeof fetch
-    } = {},
+    config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {}
   ) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
@@ -210,8 +210,7 @@ const pet = await petClient.getPetById({ petId: 1 })
 // Add a new pet
 const newPet = await petClient.addPet({
   name: 'Fluffy',
-  status: 'available',
+  status: 'available'
 })
 ```
-
 :::

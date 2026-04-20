@@ -17,7 +17,6 @@ outline: deep
 ## What You'll Build
 
 By the end of this quick start, you'll have:
-
 - A configured Kubb project
 - Auto-generated TypeScript types from your OpenAPI spec
 - Type-safe API client functions
@@ -43,7 +42,6 @@ npx kubb init
 ```
 
 This interactive wizard will:
-
 1. Detect or create a `package.json` file
 2. Ask for your OpenAPI specification file path (e.g., `./openapi.yaml`)
 3. Prompt for the output directory (where generated code will be saved)
@@ -73,7 +71,6 @@ If you prefer manual control over configuration:
 Install Kubb's core packages as development dependencies:
 
 ::: code-group
-
 ```shell [bun]
 bun add -d @kubb/cli @kubb/core
 ```
@@ -89,7 +86,6 @@ npm install --save-dev @kubb/cli @kubb/core
 ```shell [yarn]
 yarn add -D @kubb/cli @kubb/core
 ```
-
 :::
 
 These packages provide the CLI command and core generation functionality. Additional plugins can be installed as needed.
@@ -114,7 +110,6 @@ export default defineConfig({
 ```
 
 **Configuration breakdown:**
-
 - `root` - Project root directory (relative to config file)
 - `input.path` - Location of your OpenAPI/Swagger file
 - `output.path` - Directory for generated code
@@ -149,7 +144,6 @@ yarn run generate
 **What config files does Kubb recognize?**
 
 Kubb automatically detects configuration files in this order:
-
 1. `kubb.config.ts` (recommended)
 2. `kubb.config.mts`
 3. `kubb.config.cts`
@@ -159,7 +153,6 @@ Kubb automatically detects configuration files in this order:
 
 > [!TIP]
 > Use `--config <path>` to specify a custom config file location:
->
 > ```shell
 > kubb generate --config ./configs/kubb.config.ts
 > ```
@@ -169,17 +162,17 @@ Kubb automatically detects configuration files in this order:
 
 ![CLI in action](../public/screenshots/cli.gif)
 
+
 ## Programmatic Usage (Node.js API)
 
 **When to use the programmatic API?** Use `@kubb/core` directly when:
-
 - Building custom tooling or build scripts
 - Integrating Kubb into monorepo workflows
 - Embedding code generation in automated pipelines
 
 ```typescript [generate.ts]
 import { build } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
 const { error, files, driver } = await build({
@@ -191,7 +184,10 @@ const { error, files, driver } = await build({
     output: {
       path: './gen',
     },
-    plugins: [pluginOas(), pluginTs()],
+adapter: adapterOas(),
+plugins: [
+      pluginTs(),
+    ]
   },
 })
 
@@ -214,7 +210,7 @@ Generate TypeScript types and React Query hooks from a single OpenAPI file:
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 
@@ -227,8 +223,8 @@ export default defineConfig({
     path: './src/gen',
     clean: true, // Remove old files before generating
   },
-  plugins: [
-    pluginOas(), // Required: Parse OpenAPI specification
+adapter: adapterOas(),
+plugins: [
     pluginTs(), // Generate TypeScript types
     pluginReactQuery(), // Generate React Query hooks
   ],
@@ -241,7 +237,7 @@ Generate code from multiple API specifications in one command:
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig([
@@ -249,13 +245,15 @@ export default defineConfig([
     name: 'petStore',
     input: { path: './petStore.yaml' },
     output: { path: './src/gen/petStore' },
-    plugins: [pluginOas(), pluginTs()],
+adapter: adapterOas(),
+plugins: [],
   },
   {
     name: 'userApi',
     input: { path: './userApi.yaml' },
     output: { path: './src/gen/userApi' },
-    plugins: [pluginOas(), pluginTs()],
+adapter: adapterOas(),
+plugins: [],
   },
 ])
 ```

@@ -15,7 +15,7 @@ The `FileManager` instance contains building blocks for writing files, combining
 
 ### fileManager.files
 
-An array of files added to the `FileManager` instance.
+ An array of files added to the `FileManager` instance.
 
 - **Type:** `Array<KubbFile.File>` <br/>
 
@@ -36,6 +36,7 @@ The system checks if the file already exists. If so, it appends (combining impor
 > [!TIP]
 > The system adds `name`, based on the basename without extension.
 
+
 - **Type:** `(...files: Array<KubbFile.File>): Promise<Array<KubbFile.File>>` <br/>
 
 ### fileManager.addIndexes
@@ -44,6 +45,7 @@ Add `index.ts` files using `BarrelManager` to create index files for the folder 
 
 > [!TIP]
 > Set `output.exportType` to `false` to disable barrel file creation.
+
 
 - **Type:** `(AddIndexesProps): Promise<Array<KubbFile.File> | undefined>)` <br/>
 

@@ -35,7 +35,6 @@ yarn add -D @kubb/plugin-react-query
 ## Options
 
 ### output
-
 Specify the export location for the files and define the behavior of the output.
 
 #### output.path
@@ -65,11 +64,9 @@ Specify the export location for the files and define the behavior of the output.
 <!--@include: ./core/outputOverride.md-->
 
 ### contentType
-
 <!--@include: ./core/contentType.md-->
 
 ### group
-
 <!--@include: ./core/group.md-->
 
 #### group.type
@@ -109,19 +106,15 @@ Return the name of a group based on the group name, this will be used for the fi
 <!--@include: ./plugin-client/bundle.md-->
 
 ### paramsType
-
 <!--@include: ./plugin-client/paramsType.md-->
 
 ### paramsCasing
-
 <!--@include: ./plugin-client/paramsCasing.md-->
 
 ### pathParamsType
-
 <!--@include: ./plugin-client/pathParamsType.md-->
 
 ### parser
-
 <!--@include: ./plugin-client/parser.md-->
 
 ### infinite
@@ -130,41 +123,39 @@ When set, an 'infiniteQuery' hook will be added. <br/>
 To disable infinite queries pass `false`.
 
 |           |                     |
-| --------: | :------------------ |
+| --------: | :-------- |
 |     Type: | `Infinite \| false` |
 | Required: | `false`             |
 |  Default: | `false`             |
 
 ```typescript [Infinite]
-type Infinite =
-  | {
-      /**
-       * Specify the params key used for `pageParam`.
-       * @default `'id'`
-       */
-      queryParam: string
-      /**
-       * Which field of the data will be used, set it to undefined when no cursor is known.
-       * @deprecated Use `nextParam` and `previousParam` instead for more flexible pagination handling.
-       */
-      cursorParam?: string | undefined
-      /**
-       * Which field of the data will be used to get the cursor for the next page.
-       * Supports dot notation (e.g. 'pagination.next.id') or array path (e.g. ['pagination', 'next', 'id']) to access nested fields.
-       */
-      nextParam?: string | string[] | undefined
-      /**
-       * Which field of the data will be used to get the cursor for the previous page.
-       * Supports dot notation (e.g. 'pagination.prev.id') or array path (e.g. ['pagination', 'prev', 'id']) to access nested fields.
-       */
-      previousParam?: string | string[] | undefined
-      /**
-       * The initial value, the value of the first page.
-       * @default `0`
-       */
-      initialPageParam: unknown
-    }
-  | false
+type Infinite = {
+  /**
+   * Specify the params key used for `pageParam`.
+   * @default `'id'`
+   */
+  queryParam: string
+  /**
+   * Which field of the data will be used, set it to undefined when no cursor is known.
+   * @deprecated Use `nextParam` and `previousParam` instead for more flexible pagination handling.
+   */
+  cursorParam?: string | undefined
+  /**
+   * Which field of the data will be used to get the cursor for the next page.
+   * Supports dot notation (e.g. 'pagination.next.id') or array path (e.g. ['pagination', 'next', 'id']) to access nested fields.
+   */
+  nextParam?: string | string[] | undefined
+  /**
+   * Which field of the data will be used to get the cursor for the previous page.
+   * Supports dot notation (e.g. 'pagination.prev.id') or array path (e.g. ['pagination', 'prev', 'id']) to access nested fields.
+   */
+  previousParam?: string | string[] | undefined
+  /**
+   * The initial value, the value of the first page.
+   * @default `0`
+   */
+  initialPageParam: unknown
+} | false
 ```
 
 #### infinite.queryParam
@@ -172,10 +163,11 @@ type Infinite =
 Specify the params key used for `pageParam`.
 
 |           |          |
-| --------: | :------- |
+| --------: | :-------- |
 |     Type: | `string` |
 | Required: | `false`  |
 |  Default: | `'id'`   |
+
 
 #### infinite.initialPageParam
 
@@ -187,6 +179,7 @@ Specify the initial page param value.
 | Required: | `false`   |
 |  Default: | `0`       |
 
+
 #### infinite.cursorParam
 
 Which field of the data will be used, set it to undefined when no cursor is known.
@@ -194,48 +187,47 @@ Which field of the data will be used, set it to undefined when no cursor is know
 > [!WARNING]
 > `cursorParam` is deprecated. Use `nextParam` and `previousParam` instead for more flexible pagination handling.
 
-|           |                       |
-| --------: | :-------------------- |
+|           |                      |
+| --------: | :-------- |
 |     Type: | `string \| undefined` |
-| Required: | `false`               |
+| Required: | `false`              |
 
 #### infinite.nextParam
 
 Which field of the data will be used to get the cursor for the next page. <br/>
 Supports dot notation (e.g. 'pagination.next.id') or array path (e.g. ['pagination', 'next', 'id']) to access nested fields.
 
-|           |                                   |
-| --------: | :-------------------------------- |
+|           |                                 |
+| --------: | :-------- |
 |     Type: | `string \| string[] \| undefined` |
-| Required: | `false`                           |
+| Required: | `false`                         |
 
 #### infinite.previousParam
 
 Which field of the data will be used to get the cursor for the previous page. <br/>
 Supports dot notation (e.g. 'pagination.prev.id') or array path (e.g. ['pagination', 'prev', 'id']) to access nested fields.
 
-|           |                                   |
-| --------: | :-------------------------------- |
+|           |                                 |
+| --------: | :-------- |
 |     Type: | `string \| string[] \| undefined` |
-| Required: | `false`                           |
+| Required: | `false`                         |
 
 ### query
 
 Override some useQuery behaviors. <br/>
 To disable the creation of hooks pass `false`, this will result in only creating `queryOptions`.
 
+
 |           |         |
-| --------: | :------ |
+| --------: | :-------- |
 |     Type: | `Query` |
 | Required: | `false` |
 
 ```typescript [Query]
-type Query =
-  | {
-      methods: Array<HttpMethod>
-      importPath?: string
-    }
-  | false
+type Query = {
+  methods: Array<HttpMethod>
+  importPath?: string
+} | false
 ```
 
 #### query.methods
@@ -250,7 +242,7 @@ It allows both relative and absolute path.
 the path will be applied as is, so relative path should be based on the file being generated.
 
 |           |                           |
-| --------: | :------------------------ |
+| --------: | :-------- |
 |     Type: | `string`                  |
 | Required: | `false`                   |
 |  Default: | `'@tanstack/react-query'` |
@@ -260,7 +252,6 @@ the path will be applied as is, so relative path should be based on the file bei
 Customize the queryKey that will be used for the query.
 
 The function receives an object with:
-
 - `operation`: The OpenAPI operation object with methods like `getTags()`, `getOperationId()`, etc.
 - `schemas`: An object containing operation schemas including `pathParams`, `queryParams`, `request`, `response`, etc.
 
@@ -269,7 +260,7 @@ When using a string you need to use `JSON.stringify`.
 :::
 
 |           |                                                                             |
-| --------: | :-------------------------------------------------------------------------- |
+| --------: | :-------- |
 |     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
 | Required: | `false`                                                                     |
 
@@ -288,7 +279,7 @@ export default defineConfig({
   plugins: [
     pluginReactQuery({
       queryKey: ({ operation, schemas }) => {
-        const tags = operation.getTags().map((tag) => JSON.stringify(tag.name))
+        const tags = operation.getTags().map(tag => JSON.stringify(tag.name))
         const pathParams = schemas.pathParams?.keys || []
         return [...tags, ...pathParams]
       },
@@ -298,9 +289,9 @@ export default defineConfig({
 ```
 
 For a GET operation with tags `["user"]` and path parameter `username`, this generates:
-
 ```typescript
-export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] }) => ['user', username] as const
+export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams["username"] }) =>
+  ['user', username] as const
 ```
 
 **Using the default transformer**
@@ -325,9 +316,9 @@ export default defineConfig({
 ```
 
 This prepends a version to the default queryKey:
-
 ```typescript
-export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) =>
+  ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 ```
 
 **Using operation ID**
@@ -384,10 +375,10 @@ export default defineConfig({
 
 When set, a suspenseQuery hook will be added. This will only work for v5 and react.
 
-|           |                   |
-| --------: | :---------------- |
-|     Type: | `object \| false` |
-| Required: | `false`           |
+|           |                           |
+| --------: | :-------- |
+|     Type: | `object \| false`         |
+| Required: | `false`                   |
 
 ### mutation
 
@@ -395,17 +386,15 @@ Override some useMutation behaviors. <br/>
 To disable queries pass `false`.
 
 |           |            |
-| --------: | :--------- |
+| --------: | :-------- |
 |     Type: | `Mutation` |
 | Required: | `false`    |
 
 ```typescript [Query]
-type Mutation =
-  | {
-      methods: Array<HttpMethod>
-      importPath?: string
-    }
-  | false
+type Mutation = {
+  methods: Array<HttpMethod>
+  importPath?: string
+} | false
 ```
 
 #### mutation.methods
@@ -420,7 +409,7 @@ It allows both relative and absolute path.
 the path will be applied as is, so relative path should be based on the file being generated.
 
 |           |                           |
-| --------: | :------------------------ |
+| --------: | :-------- |
 |     Type: | `string`                  |
 | Required: | `false`                   |
 |  Default: | `'@tanstack/react-query'` |
@@ -434,9 +423,10 @@ When using a string you need to use `JSON.stringify`.
 :::
 
 |           |                                                                             |
-| --------: | :-------------------------------------------------------------------------- |
+| --------: | :-------- |
 |     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
 | Required: | `false`                                                                     |
+
 
 ### customOptions
 
@@ -444,7 +434,7 @@ When set, a custom hook will be used to customize the options of the generated h
 It will also generate a `HookOptions` type that can be used to type the custom options of each hook for type-safety.
 
 |           |                 |
-| --------: | :-------------- |
+| --------: | :-------- |
 |     Type: | `CustomOptions` |
 | Required: | `false`         |
 
@@ -458,7 +448,7 @@ type CustomOptions = {
 #### importPath
 
 |           |          |
-| --------: | :------- |
+| --------: | :-------- |
 |     Type: | `string` |
 | Required: | `true`   |
 
@@ -470,7 +460,7 @@ However, the path will be applied as is, so relative paths should be based on th
 #### name
 
 |           |                        |
-| --------: | :--------------------- |
+| --------: | :-------- |
 |     Type: | `string`               |
 | Required: | `false`                |
 |  Default: | `useCustomHookOptions` |
@@ -495,17 +485,13 @@ function getCustomHookOptions({ queryClient }: { queryClient: QueryClient }): Pa
     useDeletePetHook: {
       onSuccess: (_data, variables, _onMutateResult, _context) => {
         // Invalidate queries using the provided variables
-        void queryClient.invalidateQueries({
-          queryKey: ['pet', variables.pet_id],
-        })
+        void queryClient.invalidateQueries({ queryKey: ['pet', variables.pet_id] })
       },
     },
     useUpdateUserHook: {
       onSuccess: (_data, variables, _onMutateResult, _context) => {
         // Invalidate queries using the provided query key generator function
-        void queryClient.invalidateQueries({
-          queryKey: getUserByNameQueryKey({ username: variables.username }),
-        })
+        void queryClient.invalidateQueries({ queryKey: getUserByNameQueryKey({ username: variables.username }) })
       },
     },
     // Add more custom hook options here...
@@ -522,28 +508,24 @@ export function useCustomHookOptions<T extends keyof HookOptions>({ hookName, op
 **Add custom hook options to implement custom error handling**
 
 ```typescript [useCustomHookOptions.ts]
-function getCustomHookOptions({ queryClient }: { queryClient: QueryClient }): Partial<HookOptions> {
+function getCustomHookOptions({queryClient}: { queryClient: QueryClient }): Partial<HookOptions> {
   return {
     useUpdatePetHook: {
       onError: (error, _variables, _onMutateResult, _context) => {
         // Log the error
-        console.error(`Failed to update pet:`, error)
+        console.error(`Failed to update pet:`, error);
       },
     },
     useDeletePetHook: {
       onError: (_error, variables, _onMutateResult, _context) => {
         // Show a toast notification
-        toast.error(`Failed to delete pet with id '${variables.pet_id}'`)
+        toast.error(`Failed to delete pet with id '${variables.pet_id}'`);
       },
     },
     useUpdateUserHook: {
       onError: (_error, variables, _onMutateResult, _context) => {
         // Post the error to a custom analytics service
-        postEvent('user_updated_failed', {
-          username: variables.username,
-          message: error.message,
-          date: Date.now(),
-        })
+        postEvent('user_updated_failed', { username: variables.username, message: error.message, date: Date.now() })
       },
     },
     // Add more custom hook options here...
@@ -552,44 +534,39 @@ function getCustomHookOptions({ queryClient }: { queryClient: QueryClient }): Pa
 
 export function useCustomHookOptions<T extends keyof HookOptions>({ hookName, operationId }: { hookName: T; operationId: string }): HookOptions[T] {
   const queryClient = useQueryClient()
-  const customOptions = getCustomHookOptions({ queryClient })
+  const customOptions = getCustomHookOptions({queryClient})
   return customOptions[hookName] ?? {}
 }
 ```
 
 ### include
-
 <!--@include: ./core/include.md-->
 
 ### exclude
-
 <!--@include: ./core/exclude.md-->
 
 ### override
-
 <!--@include: ./core/override.md-->
 
 ### generators <img src="../public/icons/experimental.svg"/>
-
 <!--@include: ./core/generators.md-->
 
 |           |                                      |
-| --------: | :----------------------------------- |
+| --------: | :-------- |
 |     Type: | `Array<Generator<PluginReactQuery>>` |
 | Required: | `false`                              |
 
-### transformers
 
+### transformers
 <!--@include: ./core/transformers.md-->
 
 #### transformers.name
-
 Customize the names based on the type that is provided by the plugin.
 
-|           |                                                |
-| --------: | :--------------------------------------------- |
+|           |                                                                               |
+| --------: | :-------- |
 |     Type: | `(name: string, type?: ResolveType) => string` |
-| Required: | `false`                                        |
+| Required: | `false`                                                                       |
 
 ```typescript
 type ResolveType = 'file' | 'function' | 'type' | 'const'
@@ -599,7 +576,7 @@ type ResolveType = 'file' | 'function' | 'type' | 'const'
 
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginTs } from '@kubb/plugin-ts'
 
@@ -610,8 +587,8 @@ export default defineConfig({
   output: {
     path: './src/gen',
   },
-  plugins: [
-    pluginOas(),
+adapter: adapterOas(),
+plugins: [
     pluginTs(),
     pluginReactQuery({
       output: {
@@ -625,7 +602,7 @@ export default defineConfig({
         dataReturnType: 'full',
       },
       mutation: {
-        methods: ['post', 'put', 'delete'],
+        methods: [ 'post', 'put', 'delete' ],
       },
       infinite: {
         queryParam: 'next_page',
@@ -634,8 +611,8 @@ export default defineConfig({
         previousParam: ['pagination', 'prev', 'cursor'],
       },
       query: {
-        methods: ['get'],
-        importPath: '@tanstack/react-query',
+        methods: [ 'get' ],
+        importPath: '@tanstack/react-query'
       },
       suspense: {},
     }),

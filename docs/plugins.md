@@ -10,18 +10,18 @@ outline: deep
 
 Kubb uses a plugin-based architecture to generate different types of code from OpenAPI specifications. Each plugin extends Kubb's capabilities, enabling you to generate everything from TypeScript types to API clients and testing utilities.
 
-## Core Plugins
+## Core Packages
 
-### [@kubb/plugin-oas](/plugins/plugin-oas)
+### [@kubb/adapter-oas](/adapters/adapter-oas)
 
-Parse and validate your OpenAPI schema with this core plugin.
+Parse and validate your OpenAPI schema with the OpenAPI adapter.
 
-This is the foundational plugin that reads and processes OpenAPI/Swagger specifications, making them available for other plugins to consume.
+The adapter reads and normalizes the OpenAPI document before the plugins run, making the schema and operation nodes available to the rest of the pipeline.
 
 ```typescript
-import { pluginOas } from '@kubb/plugin-oas'
+import { adapterOas } from '@kubb/adapter-oas'
 
-pluginOas()
+adapterOas()
 ```
 
 ### [@kubb/plugin-ts](/plugins/plugin-ts)
@@ -250,7 +250,7 @@ Plugins are configured in your `kubb.config.ts` file:
 
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginClient } from '@kubb/plugin-client'
 
@@ -258,10 +258,14 @@ export default defineConfig({
   input: {
     path: './petstore.yaml',
   },
+  adapter: adapterOas(),
   output: {
     path: './src/gen',
   },
-  plugins: [pluginOas(), pluginTs(), pluginClient()],
+  plugins: [
+    pluginTs(),
+    pluginClient(),
+  ],
 })
 ```
 
@@ -274,6 +278,6 @@ All Kubb plugins follow a consistent pattern:
 - **Installation**: Add via npm/pnpm/yarn/bun
 - **Configuration**: Configure in `kubb.config.ts`
 - **Output**: Specify output directory and file options
-- **Dependencies**: Many plugins depend on `@kubb/plugin-oas`
+- **Input format**: OpenAPI-based workflows use `adapter: adapterOas(...)`
 
 For detailed configuration options and usage examples, visit each plugin's documentation page.

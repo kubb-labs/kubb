@@ -2,284 +2,119 @@
 layout: doc
 
 title: Kubb Custom Generators - Extend Code Generation
-description: Create custom generators in Kubb. Extend code generation with custom templates and transformation logic.
+description: Create custom generators in Kubb with defineGenerator. Extend code generation with custom templates and renderer output.
 outline: deep
 ---
 
-# Generators <a href="/plugins/plugin-oas"><Badge type="info" text="@kubb/plugin-oas" /></a>
+# Generators
 
-In Kubb, generators are functions that allow developers to hook into the framework’s file generation process to create, modify, or extend code automatically.
-Generators are central to Kubb’s workflow, enabling the automated generation of code such as API clients, React-Query hooks, TypeScript types, or other files based on specific input(Swagger and OpenAPI specifications).
+Generators let you extend a plugin's output with your own files. In v5, define custom generators with `defineGenerator(...)` and attach them to a plugin that already works with your chosen adapter.
 
-To add extra code after a generated client with [`@kubb/plugin-client`](/plugins/plugin-client#generators), you can either:
-
-- Use the [`footer`](/plugins/plugin-client/#output-footer) option
-- Override the default generator of `@kubb/plugin-client`
+To add extra code after a generated client with [`@kubb/plugin-client`](/plugins/plugin-client#generators), you can either use the [`footer`](/plugins/plugin-client/#output-footer) option or override the default generator list.
 
 > [!TIP]
-> Every plugin has the `generators` option but for the most basic generation you can use [`plugin-oas`](/plugins/plugin-oas#generators).
+> Every plugin exposes a `generators` option. Pair that plugin with `adapterOas()` when you are generating from an OpenAPI document.
 
-Generators can be used with the [React](/helpers/react/) renderer or you can define your own renderer and return an array of KubbFiles.
+## `defineGenerator`
 
-## createGenerator
+Use `defineGenerator` for both string-based and JSX-based generators. Add a `renderer` only when you want to return JSX output.
 
-> [!TIP]
->
-> - `operations`, `operation` and `schema` are all promises where you need to return an array of KubbFiles.
-> - You can utilize `this` to access the [`name`](#name) or any other property that is part of the generator.
+```ts
+import { defineGenerator } from '@kubb/core'
 
-::: code-group
-
-```typescript [createGenerator]
-export function createGenerator(parseOptions: GeneratorOptions): Generator {
-  return parseOptions
-}
+export const myGenerator = defineGenerator({
+  name: 'my-generator',
+})
 ```
 
-```typescript [Generator]
-export type Generator = GeneratorOptions
-```
+## Operation generator example
 
-```typescript [GeneratorOptions]
-export type Generator = {
-  name: string
-  operations?: (this: GeneratorOptions, props: OperationsProps) => Promise<KubbFile.File[]>
-  operation?: (this: GeneratorOptions, props: OperationProps) => Promise<KubbFile.File[]>
-  schema?: (this: GeneratorOptions, props: SchemaProps) => Promise<KubbFile.File[]>
-}
-```
-
-:::
-
-### name
-
-Define a name that could be used to identify your generator.
-
-|           |          |
-| --------: | :------- |
-|     Type: | `string` |
-| Required: | `true`   |
-
-### operations
-
-This **function** will be called with all operations that are available in your Swagger/OpenAPI file.
-
-|           |                                                                                |
-| --------: | :----------------------------------------------------------------------------- |
-|     Type: | `(this: GeneratorOptions, props: OperationsProps) => Promise<KubbFile.File[]>` |
-| Required: | `false`                                                                        |
-
-The following properties will be accessible when `operations` is being called:
-
-|             Property | Description                                                                                            | Type                                 |
-| -------------------: | ------------------------------------------------------------------------------------------------------ | :----------------------------------- |
-|           `instance` | The `OperationsGenerator` instance, this class can be used to have full control over the Oas instance. | ` Omit<OperationGenerator, 'build'>` |
-|            `options` | The resolved options from a specific plugin.                                                           | `object`                             |
-|         `operations` | All Oas operations.                                                                                    | `Array<Operation>`                   |
-| `operationsByMethod` | An object that is grouped by `HttpMethod` and an object with value as `{ operation, schemas }`.        | `OperationsByMethod`                 |
-
-### operation
-
-This function is called with one operation from your OpenAPI file. `operation` is almost the same as [operations](#operations), with one difference: `operation` is called x times based on the operations array.
-
-|           |                                                                               |
-| --------: | :---------------------------------------------------------------------------- |
-|     Type: | `(this: GeneratorOptions, props: OperationProps) => Promise<KubbFile.File[]>` |
-| Required: | `false`                                                                       |
-
-The following properties will be accessible when `operation` is being called:
-
-|    Property | Description                                                                                            | Type                                 |
-| ----------: | ------------------------------------------------------------------------------------------------------ | :----------------------------------- |
-|  `instance` | The `OperationsGenerator` instance, this class can be used to have full control over the Oas instance. | ` Omit<OperationGenerator, 'build'>` |
-|   `options` | The resolved options from a specific plugin.                                                           | `object`                             |
-| `operation` | One Oas operation.                                                                                     | `Operation`                          |
-
-### schema
-
-This function is called with one schema, executed x times based on your OpenAPI file.
-
-|           |                                                                            |
-| --------: | :------------------------------------------------------------------------- |
-|     Type: | `(this: GeneratorOptions, props: SchemaProps) => Promise<KubbFile.File[]>` |
-| Required: | `false`                                                                    |
-
-The following properties will be accessible when `schema` is being called:
-
-|   Property | Description                                                                                        | Type                                                         |
-| ---------: | -------------------------------------------------------------------------------------------------- | :----------------------------------------------------------- |
-| `instance` | The `SchemaGenerator` instance, this class can be used to have full control over the Oas instance. | ` Omit<SchemaGenerator, 'build'>`                            |
-|  `options` | The resolved options from a specific plugin.                                                       | `object`                                                     |
-|   `schema` | One Oas schema object                                                                              | `{ name: string; tree: Array<Schema>; value: SchemaObject }` |
-
-> [!TIP]
->
-> - `schema.name` contains the name, see `#components/schemas/Pet` where name will be `Pet`.
-> - `schema.tree` contains the AST code that is generated based on the provided Swagger/OpenAPI file.
-> - `schema.value` contains the value of the schema, this is the original object without any transformations.
-
-## createReactGenerator
-
-> [!TIP]
-> `createGenerator` is being used behind the scenes where we render the component and then search for all files and return that back to `createGenerator`.
-
-::: code-group
-
-```typescript [createGenerator]
-export function createReactGenerator(parseOptions: ReactGeneratorOptions): Generator {
-  return parseOptions
-}
-```
-
-```typescript [Generator]
-export type Generator = GeneratorOptions
-```
-
-```typescript [ReactGeneratorOptions]
-export type Generator = {
-  name: string
-  Operations?: (this: ReactGeneratorOptions, props: OperationsProps) => FabricReactNode
-  Operation?: (this: ReactGeneratorOptions, props: OperationProps) => FabricReactNode
-  Schema?: (this: ReactGeneratorOptions, props: SchemaProps) => FabricReactNode
-}
-```
-
-:::
-
-### Operations
-
-Same as [operations](#operations) with one difference is that the return type is a `FabricReactNode` instead of `Promise<KubbFile.File>`.
-
-### Operation
-
-Same as [operation](#operation), with one difference: the return type is a `FabricReactNode` instead of `Promise<KubbFile.File>`.
-
-### Schema
-
-Same as [schema](#schema), with one difference: the return type is a `FabricReactNode` instead of `Promise<KubbFile.File>`.
-
-## Examples
-
-### Create a file for every operationId with `createGenerator`
-
-Expected result:
-
-```typescript
-export const createPets = {
-  method: 'get',
-  url: '/pets',
-}
-```
-
-Create your generator:
+The following example creates one file per operation and writes the method and URL.
 
 ```tsx
-import { URLPath } from '@kubb/core'
+import { ast, defineGenerator } from '@kubb/core'
 import type { PluginClient } from '@kubb/plugin-client'
-import { createGenerator } from '@kubb/plugin-oas/generators'
 
-export const clientOperationGenerator = createGenerator<PluginClient>({
+const toURL = (path: string) => path.replaceAll('{', ':').replaceAll('}', '')
+
+export const clientOperationGenerator = defineGenerator<PluginClient>({
   name: 'client-operation',
-  async operation({ operation, generator }) {
-    const pluginKey = generator.context.plugin.key
-    const name = generator.context.driver.resolveName({
-      name: operation.getOperationId(),
-      pluginKey,
-      type: 'function',
-    })
-
-    const client = {
-      name,
-      file: generator.context.driver.getFile({
-        name,
-        extname: '.ts',
-        pluginKey,
-        options: { type: 'file', pluginKey },
-      }),
-    }
+  async operation(node, ctx) {
+    const { resolver, root } = ctx
+    const { output } = ctx.options
+    const file = resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output })
 
     return [
-      {
-        baseName: client.file.baseName,
-        path: client.file.path,
-        meta: client.file.meta,
+      ast.createFile({
+        baseName: file.baseName,
+        path: file.path,
+        meta: file.meta,
         sources: [
-          {
-            value: `
-          export const ${operation.getOperationId()} = {
-            method: '${operation.method}',
-            url: '${new URLPath(operation.path).URL}'
-          }
-        `,
-          },
+          ast.createSource({
+            nodes: [
+              ast.createText(`export const ${node.operationId} = {
+  method: '${node.method}',
+  url: '${toURL(node.path)}'
+}`),
+            ],
+          }),
         ],
-      },
+      }),
     ]
   },
 })
 ```
 
-Use of the generator:
+Use the generator from `kubb.config.ts`:
 
-```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
+```ts
+import { adapterOas } from '@kubb/adapter-oas'
+import { pluginClient } from '@kubb/plugin-client'
+import { defineConfig } from 'kubb'
 
 export default defineConfig({
   root: '.',
   input: {
     path: './petStore.yaml',
   },
+  adapter: adapterOas({ validate: false }),
   output: {
     path: './src/gen',
   },
   plugins: [
-    pluginOas({
-      generators: [clientOperationGenerator], // [!code ++]
+    pluginClient({
+      generators: [clientOperationGenerator],
     }),
   ],
 })
 ```
 
-### Create a file for every operationId with `createReactGenerator`
+## JSX generator example
 
-Expected result:
-
-```typescript
-export const createPets = {
-  method: 'get',
-  url: '/pets',
-}
-```
-
-Create your generator with `@kubb/react-fabric`:
+Use `jsxRenderer` when you want to return JSX instead of raw AST/text nodes.
 
 ```tsx
-import { URLPath } from '@kubb/core'
-import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
-import { File } from '@kubb/react-fabric'
-import React from 'react'
+import { defineGenerator } from '@kubb/core'
+import type { PluginClient } from '@kubb/plugin-client'
+import { File, jsxRenderer } from '@kubb/renderer-jsx'
 
-export const clientOperationGenerator = createReactGenerator({
+const toURL = (path: string) => path.replaceAll('{', ':').replaceAll('}', '')
+
+export const clientOperationReactGenerator = defineGenerator<PluginClient>({
   name: 'client-operation',
-  Operation({ operation, generator }) {
-    const { getName, getFile } = useOperationManager(generator)
-
-    const client = {
-      name: getName(operation, { type: 'function' }),
-      file: getFile(operation),
-    }
+  renderer: jsxRenderer,
+  operation(node, ctx) {
+    const { resolver, root } = ctx
+    const { output } = ctx.options
+    const file = resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output })
 
     return (
-      <File baseName={client.file.baseName} path={client.file.path} meta={client.file.meta}>
+      <File baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Source>
-          {`
-          export const ${operation.getOperationId()} = {
-            method: '${operation.method}',
-            url: '${new URLPath(operation.path).URL}'
-          }
-        `}
+          {`export const ${node.operationId} = {
+  method: '${node.method}',
+  url: '${toURL(node.path)}'
+}`}
         </File.Source>
       </File>
     )
@@ -287,26 +122,4 @@ export const clientOperationGenerator = createReactGenerator({
 })
 ```
 
-Use of the generator:
-
-```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
-
-export default defineConfig({
-  root: '.',
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginOas({
-      generators: [clientOperationGenerator], // [!code ++]
-    }),
-  ],
-})
-```
-
-More examples can be found as part of [examples/generators](/examples/generators).
+More examples can be found in [examples/generators](/examples/generators).

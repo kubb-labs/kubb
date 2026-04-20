@@ -49,6 +49,7 @@ const { error, files, driver } = await build({
   },
 })
 
+
 console.log(files)
 ```
 
