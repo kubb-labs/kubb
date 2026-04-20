@@ -6,6 +6,43 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.51
+
+### ✨ Features
+
+#### [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core)
+
+- [#3127](https://github.com/kubb-labs/kubb/pull/3127) [`570d8d5`](https://github.com/kubb-labs/kubb/commit/570d8d514e8c1864c1981763ff61ac5cdc4c10db) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Introduced explicit `ctx` parameter in `defineResolver` builder to replace `this`.
+
+  ::: code-group
+
+  ```typescript [Before]
+  const resolver = defineResolver({
+    name: 'example',
+    resolve() {
+      return this.someHelperMethod();
+    }
+  });
+  ```
+
+  ```typescript [After]
+  const resolver = defineResolver({
+    name: 'example',
+    resolve(ctx) {
+      return ctx.someHelperMethod();
+    }
+  });
+  ```
+
+  :::
+
+  - `ResolverBuilder<T>` now provides the assembled resolver as `ctx` instead of using `ThisType<T['resolver']>`.
+  - `defaultResolveFile` takes the resolver as an explicit `ctx: Resolver` third parameter instead of using a `this` receiver.
+  - `defineResolver` passes the resolver shell to the builder (`ctx`), enabling lazy method resolution with any builder changes fully applied.
+
+  **Migration**: Replace `this.xxx(...)` invocations inside `defineResolver` builders with `ctx.xxx(...)`.
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
