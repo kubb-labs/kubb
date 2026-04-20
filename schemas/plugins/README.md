@@ -114,20 +114,6 @@ Use the schema URL in your `plugin.json`:
   ...
 }
 ```
-
-### Generating Documentation
-
-Run the generation script to create documentation pages:
-
-```bash
-npx tsx scripts/generatePluginPages.ts
-```
-
-This generates:
-
-- `docs/plugins/index.md`: Overview page with all plugins
-- `docs/plugins/{id}.generated.md`: Individual plugin pages
-
 ## Categories
 
 | ID | Name | Description |
