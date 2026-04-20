@@ -58,6 +58,10 @@ describe('casing', () => {
     ['version.1.2.3', { isFile: true }, 'version123'],
     // dots before letters DO split
     ['api.v2', { isFile: true }, 'api/v2'],
+    // Security: names starting with dots must NOT produce a leading slash (path traversal guard)
+    ['..Schema', { isFile: true }, 'schema'],
+    ['...Schema', { isFile: true }, 'schema'],
+    ['.Internal', { isFile: true }, 'internal'],
   ])('camelCase(%s, %o) -> %s (file mode dot handling)', (input, options, expected) => {
     expect(camelCase(input, options as Parameters<typeof camelCase>[1])).toBe(expected)
   })

@@ -143,6 +143,40 @@ describe('defaultResolvePath', () => {
 
     expect(result).toBe('/root/types/petsController/petTypes.ts')
   })
+
+  it('sanitizes traversal segments in default path-based grouping', () => {
+    const result = defaultResolvePath(
+      { baseName: 'petTypes.ts', path: '../../etc/passwd' },
+      {
+        root: '/root',
+        output: { path: 'types' },
+        group: { type: 'path' },
+      },
+    )
+
+    // Traversal components (..) are stripped; first valid segment ('etc') is used as the directory
+    expect(result).toBe('/root/types/etc/petTypes.ts')
+    // Verify traversal did not escape the output directory
+    expect(result).toContain('/root/types/')
+    expect(result).not.toContain('..')
+  })
+
+  it('throws when a custom group.name returns a path outside the output directory', () => {
+    expect(() =>
+      defaultResolvePath(
+        { baseName: 'petTypes.ts', path: '/pets' },
+        {
+          root: '/root',
+          output: { path: 'types' },
+          group: { type: 'path', name: () => '../../secrets' },
+        },
+      ),
+    ).toThrow('[Kubb]')
+  })
+
+  it('throws when baseName contains a traversal sequence', () => {
+    expect(() => defaultResolvePath({ baseName: '../../etc/passwd' }, { root: '/root', output: { path: 'types' }, group: undefined })).toThrow('[Kubb]')
+  })
 })
 
 describe('defaultResolveFile', () => {
