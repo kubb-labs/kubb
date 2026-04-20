@@ -175,9 +175,7 @@ describe('defaultResolvePath', () => {
   })
 
   it('throws when baseName contains a traversal sequence', () => {
-    expect(() =>
-      defaultResolvePath({ baseName: '../../etc/passwd' }, { root: '/root', output: { path: 'types' }, group: undefined }),
-    ).toThrow('[Kubb]')
+    expect(() => defaultResolvePath({ baseName: '../../etc/passwd' }, { root: '/root', output: { path: 'types' }, group: undefined })).toThrow('[Kubb]')
   })
 })
 

@@ -56,7 +56,10 @@ function toCamelOrPascal(text: string, pascal: boolean): string {
  */
 function applyToFileParts(text: string, transformPart: (part: string, isLast: boolean) => string): string {
   const parts = text.split(/\.(?=[a-zA-Z])/)
-  return parts.map((part, i) => transformPart(part, i === parts.length - 1)).filter(Boolean).join('/')
+  return parts
+    .map((part, i) => transformPart(part, i === parts.length - 1))
+    .filter(Boolean)
+    .join('/')
 }
 
 /**
