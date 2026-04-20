@@ -2,86 +2,11 @@
 layout: doc
 
 title: Debug Kubb Code Generation - Troubleshooting Guide
-description: Debug Kubb with React DevTools and debug mode. Inspect code generation, find issues, and optimize performance.
+description: Debug Kubb with debug mode. Inspect code generation, find issues, and optimize performance.
 outline: deep
 ---
 
-# Debugging Kubb <a href="/plugins/react"><Badge type="info" text="@kubb/react-fabric" /></a>
-
-## React DevTools
-
-Kubb supports React DevTools out of the box. Enable integration by importing the devtools package in your `kubb.config.ts` file.
-
-![React-DevTools](/screenshots/react-devtools.png)
-
-> [!NOTE]
-> Kubb runs `npx react-devtools` as part of the `@kubb/react-fabric` import.
-
-### Installation
-Before using React DevTools, install the React package.
-
-> [!IMPORTANT]
-> Requires Kubb version `v3.0.0-alpha.11` or higher.
-
-::: code-group
-
-```shell [bun]
-bun add -d @kubb/react-fabric
-```
-
-```shell [pnpm]
-pnpm add -D @kubb/react-fabric
-```
-
-```shell [npm]
-npm install --save-dev @kubb/react-fabric
-```
-
-```shell [yarn]
-yarn add -D @kubb/react-fabric
-```
-:::
-
-### Update `kubb.config.ts`
-
-```typescript [kubb.config.ts]
-import { openDevtools } from '@kubb/react-fabric' // [!code ++]
-
-import { defineConfig } from '@kubb/core'
-import { adapterOas } from '@kubb/adapter-oas'
-import { pluginTs } from '@kubb/plugin-ts'
-
-export default defineConfig(() => {
-  openDevtools() // [!code ++]
-
-  return {
-    input: {
-      path: './petStore.yaml',
-    },
-    output: {
-      path: './src/gen',
-    },
-adapter: adapterOas(),
-plugins: [
-      pluginTs(),
-    ],
-  }
-})
-```
-
-After startup, the component tree displays. Inspect all components.
-
-> [!NOTE]
-> Kubb filters out internal components:
->
-> `KubbApp`, `KubbRoot`, `KubbErrorBoundary`, `kubb-text`, `kubb-file`, `kubb-source`, `kubb-import`, and `kubb-export`.
-
-The system uses the internal components `kubb-text`, `kubb-file`, `kubb-source`, `kubb-import`, and `kubb-export` to convert the React tree into a file with proper imports, exports, and source code.
-
-> [!IMPORTANT]
-> Quit your CLI manually via `Ctrl+C` after testing.
-
-![React-DevTools](/screenshots/react-devtools.gif)
+# Debugging Kubb
 
 ## Node debugging
 
@@ -137,5 +62,4 @@ See the [KubbHooks](/api/core/events) API documentation for a complete list of a
 
 ## See Also
 
-- [React DevTools](https://react.dev/learn/react-developer-tools)
 - [Node debugging](https://www.youtube.com/watch?v=i9hOCvBDMMg)
