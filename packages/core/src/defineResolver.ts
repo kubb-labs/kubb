@@ -496,9 +496,9 @@ export function defaultResolveFooter(node: InputNode | undefined, { output }: Re
  * ```
  */
 export function defineResolver<T extends PluginFactoryOptions>(build: ResolverBuilder<T>): T['resolver'] {
-  // Create the resolver shell first so that `ctx` passed to the builder already refers
-  // to the final object.  Methods returned by the builder capture `ctx` lazily — by the
-  // time any method is actually *called*, `Object.assign` below will have populated all
+  // Create the resolver shell first.  When `build(resolver)` executes below, `resolver` is
+  // still empty, but methods returned by the builder capture it by reference.  By the time
+  // those methods are actually called, `Object.assign` will have already populated all
   // properties (including any overrides from the builder itself).
   const resolver = {} as T['resolver']
 
@@ -506,7 +506,9 @@ export function defineResolver<T extends PluginFactoryOptions>(build: ResolverBu
     default: defaultResolver,
     resolveOptions: defaultResolveOptions,
     resolvePath: defaultResolvePath,
-    // Wire the default resolveFile implementation to receive the resolver as ctx.
+    // Wire the default resolveFile implementation with a wrapper that passes resolver as ctx.
+    // Unlike other defaults which can be assigned directly, defaultResolveFile requires the
+    // resolver as its third parameter.
     resolveFile: (params: ResolverFileParams, context: ResolverContext) => defaultResolveFile(params, context, resolver as Resolver),
     resolveBanner: defaultResolveBanner,
     resolveFooter: defaultResolveFooter,
