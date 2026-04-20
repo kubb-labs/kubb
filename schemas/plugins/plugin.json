@@ -139,9 +139,67 @@
       "items": {
         "$ref": "#/definitions/skill"
       }
+    },
+    "options": {
+      "type": "array",
+      "description": "Plugin configuration options, used to auto-generate reference docs.",
+      "items": {
+        "$ref": "#/definitions/pluginOption"
+      }
+    },
+    "fullExample": {
+      "type": "string",
+      "description": "A complete kubb.config.ts snippet (defineConfig + all plugins) used as the Example section on the generated reference page."
     }
   },
   "definitions": {
+    "pluginOption": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Option name as it appears in the plugin config (e.g. 'output', 'infinite')."
+        },
+        "type": {
+          "type": "string",
+          "description": "TypeScript type string shown in the docs table (e.g. 'string', 'boolean', 'Infinite | false')."
+        },
+        "required": {
+          "type": "boolean",
+          "default": false
+        },
+        "default": {
+          "description": "Default value. Use a string representation (e.g. \"'hooks'\", \"false\", \"0\")."
+        },
+        "description": {
+          "type": "string"
+        },
+        "typeDefinition": {
+          "type": "string",
+          "description": "Multiline TypeScript type block, rendered in a fenced typescript code block."
+        },
+        "example": {
+          "type": "string",
+          "description": "Short TypeScript usage snippet, rendered in a fenced typescript code block."
+        },
+        "deprecated": {
+          "type": "boolean",
+          "default": false
+        },
+        "deprecationNote": {
+          "type": "string",
+          "description": "Migration guidance. Only shown when deprecated is true."
+        },
+        "properties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/pluginOption"
+          },
+          "description": "Nested sub-options (e.g. output.path, output.barrelType)."
+        }
+      }
+    },
     "skill": {
       "type": "object",
       "required": ["name", "description"],
