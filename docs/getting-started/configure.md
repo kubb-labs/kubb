@@ -73,13 +73,13 @@ You can always override the defaults explicitly:
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { adapterOas } from '@kubb/adapter-oas'
-import { parserTs, tsxParser } from '@kubb/parser-ts'
+import { parserTs, parserTsx } from '@kubb/parser-ts'
 
 export default defineConfig({
   input: { path: './petStore.yaml' },
   output: { path: './src/gen' },
   adapter: adapterOas({ validate: true }),
-  parsers: [parserTs, tsxParser],
+  parsers: [parserTs, parserTsx],
   plugins: [],
 })
 ```
@@ -578,13 +578,13 @@ export default defineConfig({
 
 An array of parsers that convert generated files to strings before they are written to disk. Each parser declares which file extensions it handles via `extNames`. A built-in catch-all fallback is always registered last for any unhandled extensions.
 
-When this option is omitted, Kubb automatically uses `[parserTs]` from `@kubb/parser-ts`, which handles `.ts` and `.js` files. Import additional parsers (e.g. `tsxParser` for `.tsx`/`.jsx`) to extend the defaults.
+When this option is omitted, Kubb automatically uses `[parserTs]` from `@kubb/parser-ts`, which handles `.ts` and `.js` files. Import additional parsers (e.g. `parserTsx` for `.tsx`/`.jsx`) to extend the defaults.
 
 See [`@kubb/parser-ts`](/helpers/parser-ts) for the available parsers and [`defineParser`](/helpers/parser-ts#defineparser) for creating custom ones.
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import { parserTs, tsxParser } from '@kubb/parser-ts'
+import { parserTs, parserTsx } from '@kubb/parser-ts'
 
 export default defineConfig({
   input: {
@@ -593,7 +593,7 @@ export default defineConfig({
   output: {
     path: './src/gen',
   },
-  parsers: [parserTs, tsxParser],
+  parsers: [parserTs, parserTsx],
   plugins: [],
 })
 ```

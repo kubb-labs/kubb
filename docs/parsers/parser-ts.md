@@ -36,7 +36,7 @@ yarn add @kubb/parser-ts
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import { typescriptParser, tsxParser } from '@kubb/parser-ts'
+import { parserTs, parserTsx } from '@kubb/parser-ts'
 
 export default defineConfig({
   input: {
@@ -45,29 +45,29 @@ export default defineConfig({
   output: {
     path: './src/gen',
   },
-  parsers: [typescriptParser, tsxParser],
+  parsers: [parserTs, parserTsx],
   plugins: [],
 })
 ```
 
 ## Parsers
 
-### typescriptParser
+### parserTs
 
 Handles `.ts` and `.js` files. Converts a generated file's imports, exports, and source fragments into a single string using the TypeScript compiler printer.
 
 ```typescript
-import { typescriptParser } from '@kubb/parser-ts'
+import { parserTs } from '@kubb/parser-ts'
 ```
 
 **Handled extensions:** `.ts`, `.js`
 
-### tsxParser
+### parserTsx
 
-Handles `.tsx` and `.jsx` files. Delegates to `typescriptParser` — the TypeScript compiler natively supports JSX via `ScriptKind.TSX`.
+Handles `.tsx` and `.jsx` files. Delegates to `parserTs` — the TypeScript compiler natively supports JSX via `ScriptKind.TSX`.
 
 ```typescript
-import { tsxParser } from '@kubb/parser-ts'
+import { parserTsx } from '@kubb/parser-ts'
 ```
 
 **Handled extensions:** `.tsx`, `.jsx`
