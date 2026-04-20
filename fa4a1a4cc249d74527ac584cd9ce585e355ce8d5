@@ -1,0 +1,40 @@
+schemas/plugins/README.md
+  e1e4300d13842876 1-146
+schemas/plugins/plugin.json
+  e1e4300d13842876 1-231
+schemas/plugins/plugins.json
+  e1e4300d13842876 1-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.0",
+  "base_commit_sha": "fa4a1a4cc249d74527ac584cd9ce585e355ce8d5",
+  "prompts": {
+    "290afcd2d7ff8b2e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "fa4321d1-8fe5-4b17-bb2f-22fd1b7c945a",
+        "model": "claude-4.5-opus-high-thinking"
+      },
+      "human_author": "Stijn Van Hulle",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 170,
+      "overriden_lines": 13
+    },
+    "e1e4300d13842876": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "033c052d-3c87-4213-b120-1354b0700dc1",
+        "model": "claude-4.5-opus-high-thinking"
+      },
+      "human_author": "Stijn Van Hulle",
+      "messages": [],
+      "total_additions": 1702,
+      "total_deletions": 0,
+      "accepted_lines": 1702,
+      "overriden_lines": 0
+    }
+  }
+}
