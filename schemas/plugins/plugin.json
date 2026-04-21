@@ -110,9 +110,15 @@
         }
       }
     },
-    "icon": {
+    "iconLight": {
       "type": "string",
-      "description": "Emoji or icon identifier for display"
+      "format": "uri",
+      "description": "URL to the plugin icon for light mode (e.g. https://kubb.dev/feature/typescript.svg)"
+    },
+    "iconDark": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to the plugin icon for dark mode. Falls back to iconLight when omitted."
     },
     "featured": {
       "type": "boolean",
