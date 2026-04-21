@@ -21,7 +21,7 @@
     },
     "category": {
       "type": "string",
-      "enum": ["specification", "framework", "testing", "utility", "documentation", "ai"],
+      "enum": ["types", "client", "validation", "framework", "mocks", "testing", "documentation", "ai"],
       "description": "Plugin category for organization"
     },
     "type": {
