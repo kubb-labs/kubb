@@ -170,10 +170,25 @@
           "type": "integer",
           "minimum": 0,
           "description": "GitHub star count for the plugin's source repository"
+        },
+        "bundleSize": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Unpacked tarball size of the latest published version, in bytes (from the npm registry)."
         }
       },
       "required": ["downloads", "stars"],
       "additionalProperties": false
+    },
+    "updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Publish time of the latest version on npm, as a UTC ISO 8601 string. Injected at build time by generatePlugins.ts — not present in source YAML files."
+    },
+    "created": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Publish time of the first version on npm, as a UTC ISO 8601 string. Injected at build time by generatePlugins.ts — not present in source YAML files."
     }
   },
   "definitions": {
