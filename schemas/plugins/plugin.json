@@ -230,6 +230,33 @@
           "type": "string",
           "description": "Migration guidance. Only shown when deprecated is true."
         },
+        "tip": {
+          "type": "string",
+          "description": "Optional callout rendered as a > [!TIP] block directly under the option's metadata table."
+        },
+        "values": {
+          "type": "array",
+          "description": "Per-value metadata for union-typed options. Each entry documents one possible literal value.",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The literal value string, e.g. \"'object'\" or \"'inline'\"."
+              },
+              "description": {
+                "type": "string",
+                "description": "What this specific value does."
+              },
+              "example": {
+                "type": "string",
+                "description": "TypeScript code snippet showing generated output when this value is active."
+              }
+            }
+          }
+        },
         "properties": {
           "type": "array",
           "items": {
