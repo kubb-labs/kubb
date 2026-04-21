@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://kubb.dev/schemas/plugins/plugins.json",
+  "$id": "https://kubb.dev/schemas/plugins.json",
   "title": "Kubb Plugin Registry",
   "description": "Schema for the aggregated Kubb plugin registry",
   "type": "object",
@@ -24,7 +24,7 @@
       "type": "array",
       "description": "Array of plugin metadata",
       "items": {
-        "$ref": "https://kubb.dev/schemas/plugins/plugin.json"
+        "$ref": "https://kubb.dev/schemas/plugin.json"
       }
     },
     "categories": {

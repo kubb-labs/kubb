@@ -7,7 +7,6 @@ This directory contains JSON schemas for Kubb plugin metadata, inspired by the [
 The plugin metadata system enables:
 
 - **Distributed maintenance**: Each plugin maintains its own metadata
-- **Central registry**: Aggregated in `plugins.json` for discovery
 - **Auto-generated documentation**: Pages generated from structured data
 - **Skill discovery**: Plugin capabilities exposed for AI tools
 
@@ -17,13 +16,13 @@ The plugin metadata system enables:
 
 Schema for individual plugin metadata files. Each plugin package should include a `plugin.json` file with this structure.
 
-**Schema URL**: `https://kubb.dev/schemas/plugins/plugin.json`
+**Schema URL**: `https://kubb.dev/schemas/plugin.json`
 
 ### `plugins.json`
 
 Schema for the aggregated plugin registry. This is maintained in the kubb.dev repository.
 
-**Schema URL**: `https://kubb.dev/schemas/plugins/plugins.json`
+**Schema URL**: `https://kubb.dev/schemas/plugins.json`
 
 ## Plugin Metadata Structure
 
@@ -111,7 +110,7 @@ Use the schema URL in your `plugin.json`:
 
 ```json
 {
-  "$schema": "https://kubb.dev/schemas/plugins/plugin.json",
+  "$schema": "https://kubb.dev/schemas/plugin.json",
   "id": "my-plugin",
   ...
 }
@@ -126,9 +125,3 @@ Use the schema URL in your `plugin.json`:
 | `utility` | Utility | Validation, types, and clients |
 | `documentation` | Documentation | API documentation generation |
 | `ai` | AI Integration | AI and MCP integration |
-
-## References
-
-- [Nuxt Modules Registry](https://github.com/nuxt/modules) - Architecture inspiration
-- [Plugin Documentation](https://kubb.dev/plugins) - Generated documentation
-- [generatePluginPages.ts](../scripts/generatePluginPages.ts) - Generation script

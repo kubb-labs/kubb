@@ -1,27 +1,16 @@
 # AGENTS.md
 
-Kubb is a plugin-based code-generation toolkit for generating client code from OpenAPI specifications.
+Kubb is a code-generation toolkit for generating client code from OpenAPI specifications. Plugins are maintained in a separate monorepo at [kubb-project/kubb-plugins](https://github.com/kubb-project/kubb-plugins).
+
+## Plugin Configuration
+
+Plugins are configured using YAML schemas. Each plugin in the [kubb-plugins](https://github.com/kubb-project/kubb-plugins) repository includes a `plugin-*.yaml` file that defines its configuration structure.
+
+**Schema Reference**: See [schemas/plugins/README.md](./schemas/plugins/README.md) for plugin metadata and configuration details.
+
+**Example**: Plugin configuration from the kubb-plugins repository (e.g., `plugin-client.yaml`, `plugin-ts.yaml`) can be referenced to understand plugin options and usage patterns.
 
 ## Folder Structure
-
-### Documentation
-
-```
-docs/
-├── config.json              # Navigation and sidebar (Kubb.dev schema)
-├── migration-guide.md       # Updated after major releases
-├── changelog.md             # Updated with every PR (via changeset)
-├── getting-started/         # Installation, quick-start, configuration
-├── helpers/                 # Extra packages (CLI guides, OAS core helpers)
-├── guide/                   # Feature deep-dives and how-tos
-├── plugins/                 # Plugin documentation (mirrors `packages/`)
-├── tutorials/               # Step-by-step tutorials
-├── examples/                # Playground and examples
-├── builders/                # Builder integrations (unplugin, etc.)
-└── public/                  # Static assets
-```
-
-All markdown files follow VitePress conventions. The `config.json` file uses the Kubb.dev schema for navigation. See `.skills/documentation/` for writing guidelines.
 
 ### Packages
 
@@ -29,28 +18,11 @@ All markdown files follow VitePress conventions. The `config.json` file uses the
 packages/
 ├── core/                    # Core utilities and shared runtime
 ├── kubb/                    # Core kubb package (CLI, config, manager)
-├── plugin-oas/              # OAS plugin - OpenAPI spec parsing
-├── plugin-ts/               # TypeScript type generation
-├── plugin-client/           # Client generator (fetch, axios, etc.)
-├── plugin-faker/            # Faker.js mock data generation
-├── plugin-zod/              # Zod schema generation
-├── plugin-msw/              # MSW mock handlers
-├── plugin-react-query/      # React Query/TanStack Query hooks
-├── plugin-solid-query/      # Solid Query hooks
-├── plugin-svelte-query/     # Svelte Query hooks
-├── plugin-vue-query/        # Vue Query hooks
-├── plugin-swr/              # SWR hooks
-├── plugin-cypress/          # Cypress test generation
-├── plugin-redoc/            # ReDoc documentation
-├── plugin-mcp/              # MCP (Model Context Protocol) integration
-└── unplugin-kubb/           # Unplugin integration
+├── agent/                   # AI-assisted code generation agent
+├── parser-ts/               # TypeScript parser
+├── renderer-jsx/            # JSX renderer for components
+└── unplugin/                # Unplugin integration
 ```
-
-Plugins follow this convention:
-
-- `src/components/` - React-fabric components
-- `src/generators/` - Generator implementations
-- `src/*.test.ts` - Tests
 
 ## Repository Setup
 

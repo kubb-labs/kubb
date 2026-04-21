@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://kubb.dev/schemas/plugins/plugin.json",
+  "$id": "https://kubb.dev/schemas/plugin.json",
   "title": "Kubb Plugin Metadata",
   "description": "Schema for individual Kubb plugin metadata files",
   "type": "object",
