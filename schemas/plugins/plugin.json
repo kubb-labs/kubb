@@ -26,7 +26,7 @@
     },
     "type": {
       "type": "string",
-      "enum": ["official", "community", "3rd-party"],
+      "enum": ["official", "community", "sponsor", "3rd-party"],
       "description": "Plugin authorship type"
     },
     "version": {
@@ -156,6 +156,24 @@
     "fullExample": {
       "type": "string",
       "description": "A complete kubb.config.ts snippet (defineConfig + all plugins) used as the Example section on the generated reference page."
+    },
+    "stats": {
+      "type": "object",
+      "description": "Live statistics injected at build time by generatePlugins.ts — not present in source YAML files.",
+      "properties": {
+        "downloads": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "npm downloads in the last calendar month"
+        },
+        "stars": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "GitHub star count for the plugin's source repository"
+        }
+      },
+      "required": ["downloads", "stars"],
+      "additionalProperties": false
     }
   },
   "definitions": {
