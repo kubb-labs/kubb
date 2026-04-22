@@ -366,14 +366,6 @@ export type PluginFactoryOptions<
    */
   TResolvedOptions extends object = TOptions,
   /**
-   * Context that you want to expose to other plugins.
-   */
-  TContext = unknown,
-  /**
-   * When calling `resolvePath` you can specify better types.
-   */
-  TResolvePathOptions extends object = object,
-  /**
    * Resolver object that encapsulates the naming and path-resolution helpers used by this plugin.
    * Use `defineResolver` to define the resolver object and export it alongside the plugin.
    */
@@ -382,8 +374,6 @@ export type PluginFactoryOptions<
   name: TName
   options: TOptions
   resolvedOptions: TResolvedOptions
-  context: TContext
-  resolvePathOptions: TResolvePathOptions
   resolver: TResolver
 }
 
