@@ -12,48 +12,11 @@ import type { Kubb } from './Kubb.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.ts'
 import { fsStorage } from './storages/fsStorage.ts'
-import type { AdapterSource, BarrelType, Config, GeneratorContext, KubbHooks, NormalizedPlugin, Storage, UserConfig } from './types.ts'
+import type { AdapterSource, Config, GeneratorContext, KubbHooks, NormalizedPlugin, Storage, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { getBarrelFiles } from './utils/getBarrelFiles.ts'
 import { isInputPath } from './utils/isInputPath.ts'
-
-/**
- * Shape of the resolved options stored on the `plugin-barrel` normalized plugin.
- * Defined here so `createKubb` can read them without depending on the `@kubb/plugin-barrel` package.
- */
-type BarrelPluginConfig = {
-  plugins?: Array<{ name: string; barrelType: BarrelType | false }>
-  root?: { barrelType: BarrelType | false }
-}
-
-const BARREL_PLUGIN_NAME = 'plugin-barrel'
-
-/**
- * Returns the barrel plugin configuration stored on the `plugin-barrel` plugin,
- * or `null` if that plugin is not registered.
- */
-function getBarrelPluginConfig(driver: PluginDriver): BarrelPluginConfig | null {
-  const plugin = driver.plugins.get(BARREL_PLUGIN_NAME)
-  if (!plugin) return null
-  return (plugin.options as BarrelPluginConfig) ?? null
-}
-
-/**
- * Resolves the effective `barrelType` for a single plugin.
- *
- * Resolution order:
- * 1. Explicit entry in the `plugin-barrel` plugins array.
- * 2. The plugin's own `output.barrelType` setting.
- * 3. `'named'` as the default fallback.
- */
-function resolvePerPluginBarrelType(pluginName: string, pluginOutputBarrelType: BarrelType | false | undefined, barrelConfig: BarrelPluginConfig | null): BarrelType | false {
-  if (barrelConfig) {
-    const entry = barrelConfig.plugins?.find((p) => p.name === pluginName)
-    if (entry) return entry.barrelType
-  }
-  return pluginOutputBarrelType ?? 'named'
-}
 
 type SetupOptions = {
   hooks?: AsyncEventEmitter<KubbHooks>
@@ -332,11 +295,9 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           await runPluginAstHooks(plugin, context)
         }
 
-        if (output && plugin.name !== BARREL_PLUGIN_NAME) {
-          const barrelConfig = getBarrelPluginConfig(driver)
-          const barrelType = resolvePerPluginBarrelType(plugin.name, output.barrelType, barrelConfig)
+        if (output) {
           const barrelFiles = await getBarrelFiles(driver.fileManager.files, {
-            type: barrelType,
+            type: output.barrelType ?? 'named',
             root,
             output,
             meta: { pluginName: plugin.name },
@@ -382,17 +343,14 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       }
     }
 
-    const barrelConfig = getBarrelPluginConfig(driver)
-    const rootBarrelType = barrelConfig !== null ? barrelConfig.root?.barrelType : config.output.barrelType
-
-    if (rootBarrelType) {
+    if (config.output.barrelType) {
       const root = resolve(config.root)
       const rootPath = resolve(root, config.output.path, BARREL_FILENAME)
       const rootDir = dirname(rootPath)
 
       await hooks.emit('kubb:debug', {
         date: new Date(),
-        logs: ['Generating barrel file', `  • Type: ${rootBarrelType}`, `  • Path: ${rootPath}`],
+        logs: ['Generating barrel file', `  • Type: ${config.output.barrelType}`, `  • Path: ${rootPath}`],
       })
 
       const barrelFiles = driver.fileManager.files.filter((file) => {
@@ -416,8 +374,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           barrelFiles,
           rootDir,
           existingExports,
-          rootBarrelType,
-          barrelConfig,
+          config,
           driver,
         }).map((e) => createExport(e)),
         sources: [],
@@ -534,12 +491,11 @@ type BuildBarrelExportsParams = {
   barrelFiles: FileNode[]
   rootDir: string
   existingExports: Set<string>
-  rootBarrelType: BarrelType
-  barrelConfig: BarrelPluginConfig | null
+  config: Config
   driver: PluginDriver
 }
 
-function buildBarrelExports({ barrelFiles, rootDir, existingExports, rootBarrelType, barrelConfig, driver }: BuildBarrelExportsParams): ExportNode[] {
+function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }: BuildBarrelExportsParams): ExportNode[] {
   const pluginNameMap = new Map<string, NormalizedPlugin>()
   for (const plugin of driver.plugins.values()) {
     pluginNameMap.set(plugin.name, plugin)
@@ -554,17 +510,14 @@ function buildBarrelExports({ barrelFiles, rootDir, existingExports, rootBarrelT
       }
 
       const meta = file.meta as FileMetaBase | undefined
-      const pluginName = meta?.pluginName
-      const plugin = pluginName ? pluginNameMap.get(pluginName) : undefined
+      const plugin = meta?.pluginName ? pluginNameMap.get(meta.pluginName) : undefined
       const pluginOptions = plugin?.options
 
-      const effectiveBarrelType = resolvePerPluginBarrelType(pluginName ?? '', pluginOptions?.output?.barrelType, barrelConfig)
-
-      if (!pluginOptions || effectiveBarrelType === false) {
+      if (!pluginOptions || pluginOptions.output?.barrelType === false) {
         return []
       }
 
-      const exportName = rootBarrelType === 'all' ? undefined : source.name ? [source.name] : undefined
+      const exportName = config.output.barrelType === 'all' ? undefined : source.name ? [source.name] : undefined
       if (exportName?.some((n) => existingExports.has(n))) {
         return []
       }
@@ -573,7 +526,7 @@ function buildBarrelExports({ barrelFiles, rootDir, existingExports, rootBarrelT
         createExport({
           name: exportName,
           path: getRelativePath(rootDir, file.path),
-          isTypeOnly: rootBarrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
+          isTypeOnly: config.output.barrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
         }),
       ]
     })
