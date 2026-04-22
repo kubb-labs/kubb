@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kubb.dev/schemas/adapters.json",
+  "title": "Kubb Adapter Registry",
+  "description": "Schema for the aggregated Kubb adapter registry. Each entry extends the per-adapter schema with NPM-derived stats and timestamps.",
+  "type": "object",
+  "required": ["$schema", "adapters"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    },
+    "adapters": {
+      "type": "array",
+      "description": "Array of adapter metadata. Each entry is a per-adapter record extended with `stats`, `updated`, and `created`.",
+      "items": { "$ref": "#/definitions/registryAdapter" }
+    },
+    "categories": {
+      "type": "array",
+      "description": "Distinct adapter categories present in the registry.",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string", "description": "Category identifier" },
+          "name": { "type": "string", "description": "Category display name" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "registryAdapter": {
+      "description": "An adapter entry as it appears in the aggregated registry: the canonical adapter schema plus runtime-derived stats and publish timestamps.",
+      "allOf": [
+        { "$ref": "https://kubb.dev/schemas/adapter.json" },
+        {
+          "type": "object",
+          "properties": {
+            "stats": { "$ref": "#/definitions/stats" },
+            "updated": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Publish date of the latest version on NPM (UTC ISO string)."
+            },
+            "created": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Publish date of the first version on NPM (UTC ISO string)."
+            }
+          }
+        }
+      ]
+    },
+    "stats": {
+      "type": "object",
+      "description": "Runtime-derived metrics fetched from NPM and GitHub during registry generation.",
+      "properties": {
+        "downloads": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Monthly NPM downloads."
+        },
+        "stars": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "GitHub star count for the adapter's repository."
+        },
+        "bundleSize": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Unpacked package size in bytes (from the latest NPM version)."
+        }
+      }
+    }
+  }
+}
