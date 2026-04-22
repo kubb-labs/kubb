@@ -171,6 +171,12 @@
     "pluginOption": {
       "$id": "#plugin-options",
       "type": "object",
+      "if": {
+        "not": { "required": ["extends"] }
+      },
+      "then": {
+        "required": ["name"]
+      },
       "properties": {
         "name": {
           "type": "string",
