@@ -4,16 +4,11 @@
   "title": "Kubb Plugin Registry",
   "description": "Schema for the aggregated Kubb plugin registry. Each entry extends the per-plugin schema with NPM-derived stats and timestamps.",
   "type": "object",
-  "required": ["$schema", "version", "plugins"],
+  "required": ["$schema", "plugins"],
   "properties": {
     "$schema": {
       "type": "string",
       "description": "JSON Schema reference"
-    },
-    "version": {
-      "type": "string",
-      "description": "Registry schema version",
-      "pattern": "^\\d+\\.\\d+\\.\\d+$"
     },
     "lastUpdated": {
       "type": "string",

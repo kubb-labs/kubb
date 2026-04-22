@@ -4,7 +4,7 @@
   "title": "Kubb Plugin Metadata",
   "description": "Schema for individual Kubb plugin metadata files",
   "type": "object",
-  "required": ["id", "name", "description", "category", "type", "version", "npmPackage"],
+  "required": ["id", "name", "description", "category", "type", "npmPackage"],
   "properties": {
     "id": {
       "type": "string",
@@ -28,11 +28,6 @@
       "type": "string",
       "enum": ["official", "community", "3rd-party"],
       "description": "Plugin authorship type"
-    },
-    "version": {
-      "type": "string",
-      "description": "Current semantic version",
-      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-z0-9.]+)?$"
     },
     "npmPackage": {
       "type": "string",
