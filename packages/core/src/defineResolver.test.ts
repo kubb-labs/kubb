@@ -13,8 +13,6 @@ type TestPluginFactory = {
   name: 'test'
   options: {}
   resolvedOptions: {}
-  context: never
-  resolvePathOptions: object
   resolver: TestResolver
 }
 
