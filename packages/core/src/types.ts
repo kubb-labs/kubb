@@ -683,34 +683,6 @@ export type KubbBuildEndContext = {
   outputDir: string
 }
 
-/**
- * Context passed to the `kubb:barrel:generate` hook.
- *
- * Fires after all plugin generators have run but before file writing begins.
- * Provides the full file list and a mutating helper so barrel plugins can inject
- * `index.ts` files without direct access to the `PluginDriver`.
- */
-export type KubbBarrelGenerateContext = {
-  /**
-   * All files currently in the file manager, including files from every plugin.
-   * Barrel files injected via `upsertFile` are reflected here immediately.
-   */
-  files: Array<FileNode>
-  /**
-   * The resolved build configuration.
-   */
-  config: Config
-  /**
-   * The active plugin driver, providing access to registered plugins and the file manager.
-   */
-  driver: PluginDriver
-  /**
-   * Merge one or more files into the file manager.
-   * If a file with the same path already exists its content is merged rather than replaced.
-   */
-  upsertFile: (...files: Array<FileNode>) => void
-}
-
 type ByTag = {
   type: 'tag'
   pattern: string | RegExp
