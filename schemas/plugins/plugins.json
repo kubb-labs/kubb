@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://kubb.dev/schemas/plugins.json",
   "title": "Kubb Plugin Registry",
-  "description": "Schema for the aggregated Kubb plugin registry",
+  "description": "Schema for the aggregated Kubb plugin registry. Each entry extends the per-plugin schema with NPM-derived stats and timestamps.",
   "type": "object",
   "required": ["$schema", "version", "plugins"],
   "properties": {
@@ -22,62 +22,63 @@
     },
     "plugins": {
       "type": "array",
-      "description": "Array of plugin metadata",
-      "items": {
-        "$ref": "https://kubb.dev/schemas/plugin.json"
-      }
+      "description": "Array of plugin metadata. Each entry is a per-plugin record extended with `stats`, `updated`, and `created`.",
+      "items": { "$ref": "#/definitions/registryPlugin" }
     },
     "categories": {
       "type": "array",
-      "description": "Available plugin categories with metadata",
+      "description": "Distinct plugin categories present in the registry.",
       "items": {
         "type": "object",
         "required": ["id", "name"],
         "properties": {
-          "id": {
-            "type": "string",
-            "description": "Category identifier"
-          },
-          "name": {
-            "type": "string",
-            "description": "Category display name"
-          },
-          "description": {
-            "type": "string",
-            "description": "Category description"
-          },
-          "icon": {
-            "type": "string",
-            "description": "Category icon"
-          }
+          "id": { "type": "string", "description": "Category identifier" },
+          "name": { "type": "string", "description": "Category display name" }
         }
       }
-    },
-    "skillsIndex": {
-      "type": "array",
-      "description": "Index of all available skills across plugins",
-      "items": {
-        "type": "object",
-        "required": ["name", "pluginId"],
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Skill name"
-          },
-          "pluginId": {
-            "type": "string",
-            "description": "Parent plugin ID"
-          },
-          "description": {
-            "type": "string",
-            "description": "Skill description"
-          },
-          "tags": {
-            "type": "array",
-            "items": {
-              "type": "string"
+    }
+  },
+  "definitions": {
+    "registryPlugin": {
+      "description": "A plugin entry as it appears in the aggregated registry: the canonical plugin schema plus runtime-derived stats and publish timestamps.",
+      "allOf": [
+        { "$ref": "https://kubb.dev/schemas/plugin.json" },
+        {
+          "type": "object",
+          "properties": {
+            "stats": { "$ref": "#/definitions/stats" },
+            "updated": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Publish date of the latest version on NPM (UTC ISO string)."
+            },
+            "created": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Publish date of the first version on NPM (UTC ISO string)."
             }
           }
+        }
+      ]
+    },
+    "stats": {
+      "type": "object",
+      "description": "Runtime-derived metrics fetched from NPM and GitHub during registry generation.",
+      "properties": {
+        "downloads": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Weekly NPM downloads."
+        },
+        "stars": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "GitHub star count for the plugin's repository."
+        },
+        "bundleSize": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Unpacked package size in bytes (from the latest NPM version)."
         }
       }
     }

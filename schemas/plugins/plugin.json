@@ -21,12 +21,12 @@
     },
     "category": {
       "type": "string",
-      "enum": ["types", "client", "validation", "framework", "mocks", "testing", "documentation", "ai"],
+      "enum": ["ai", "client", "documentation", "framework", "mocks", "testing", "types", "validation"],
       "description": "Plugin category for organization"
     },
     "type": {
       "type": "string",
-      "enum": ["official", "community", "sponsor", "3rd-party"],
+      "enum": ["official", "community", "3rd-party"],
       "description": "Plugin authorship type"
     },
     "version": {
@@ -39,41 +39,12 @@
       "description": "NPM package name (e.g., '@kubb/plugin-react-query')"
     },
     "compatibility": {
-      "type": "object",
-      "description": "Version compatibility requirements",
-      "properties": {
-        "kubb": {
-          "type": "string",
-          "description": "Kubb version constraint (e.g., '>=5.0.0')"
-        },
-        "node": {
-          "type": "string",
-          "description": "Node.js version constraint (e.g., '>=18.0.0')"
-        }
-      }
+      "$ref": "#/definitions/compatibility"
     },
     "maintainers": {
       "type": "array",
       "description": "Plugin maintainers",
-      "items": {
-        "type": "object",
-        "required": ["name", "github"],
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Maintainer's display name"
-          },
-          "github": {
-            "type": "string",
-            "description": "GitHub username"
-          },
-          "avatar": {
-            "type": "string",
-            "format": "uri",
-            "description": "Avatar image URL"
-          }
-        }
-      }
+      "items": { "$ref": "#/definitions/maintainer" }
     },
     "repo": {
       "type": "string",
@@ -85,40 +56,10 @@
       "description": "Path to documentation within kubb.dev (e.g., '/plugins/plugin-react-query')"
     },
     "resources": {
-      "type": "object",
-      "description": "Related resource URLs",
-      "properties": {
-        "documentation": {
-          "type": "string",
-          "format": "uri",
-          "description": "Documentation URL"
-        },
-        "repository": {
-          "type": "string",
-          "format": "uri",
-          "description": "Repository URL"
-        },
-        "issues": {
-          "type": "string",
-          "format": "uri",
-          "description": "Issue tracker URL"
-        },
-        "changelog": {
-          "type": "string",
-          "format": "uri",
-          "description": "Changelog URL"
-        }
-      }
+      "$ref": "#/definitions/resources"
     },
-    "iconLight": {
-      "type": "string",
-      "format": "uri",
-      "description": "URL to the plugin icon for light mode (e.g. https://kubb.dev/feature/typescript.svg)"
-    },
-    "iconDark": {
-      "type": "string",
-      "format": "uri",
-      "description": "URL to the plugin icon for dark mode. Falls back to iconLight when omitted."
+    "icon": {
+      "$ref": "#/definitions/icon"
     },
     "featured": {
       "type": "boolean",
@@ -139,13 +80,6 @@
       },
       "description": "Required Kubb plugin dependencies (plugin IDs)"
     },
-    "skills": {
-      "type": "array",
-      "description": "Plugin capabilities exposed to AI tools",
-      "items": {
-        "$ref": "#/definitions/skill"
-      }
-    },
     "options": {
       "type": "array",
       "description": "Plugin configuration options, used to auto-generate reference docs.",
@@ -153,202 +87,201 @@
         "$ref": "#/definitions/pluginOption"
       }
     },
-    "fullExample": {
-      "type": "string",
-      "description": "A complete kubb.config.ts snippet (defineConfig + all plugins) used as the Example section on the generated reference page."
+    "examples": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/exampleTab" },
+      "description": "Page-level ::: code-group rendered as the 'Example' section. Each tab can hold one or more files (typically a complete kubb.config.ts snippet)."
     },
-    "stats": {
-      "type": "object",
-      "description": "Live statistics injected at build time by generatePlugins.ts — not present in source YAML files.",
-      "properties": {
-        "downloads": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "npm downloads in the last calendar month"
-        },
-        "stars": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "GitHub star count for the plugin's source repository"
-        },
-        "bundleSize": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "Unpacked tarball size of the latest published version, in bytes (from the npm registry)."
-        }
-      },
-      "required": ["downloads", "stars"],
-      "additionalProperties": false
-    },
-    "updated": {
+    "intro": {
       "type": "string",
-      "format": "date-time",
-      "description": "Publish time of the latest version on npm, as a UTC ISO 8601 string. Injected at build time by generatePlugins.ts — not present in source YAML files."
+      "description": "Free-form markdown rendered between <HeaderPlugin/> and the Installation section. Use for an opening paragraph, an overview diagram, etc."
     },
-    "created": {
-      "type": "string",
-      "format": "date-time",
-      "description": "Publish time of the first version on npm, as a UTC ISO 8601 string. Injected at build time by generatePlugins.ts — not present in source YAML files."
+    "notes": {
+      "type": "array",
+      "description": "Page-level callouts rendered after the Installation section.",
+      "items": { "$ref": "#/definitions/calloutBlock" }
     }
   },
   "definitions": {
-    "pluginOption": {
+    "calloutBlock": {
       "type": "object",
-      "required": ["name"],
+      "required": ["type", "body"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["tip", "note", "important", "warning", "caution"],
+          "description": "Callout flavour, mapped to VitePress >[!TYPE] directives."
+        },
+        "title": { "type": "string", "description": "Optional override for the callout title." },
+        "body": { "type": "string", "description": "Markdown body of the callout." }
+      }
+    },
+    "codeBlock": {
+      "type": "object",
+      "required": ["code"],
+      "properties": {
+        "lang": { "type": "string", "default": "typescript", "description": "Fence language (e.g. typescript, ts, shell)." },
+        "title": { "type": "string", "description": "Optional tab title (rendered as `[title]` after the lang)." },
+        "twoslash": { "type": "boolean", "default": false, "description": "When true and lang is typescript/ts, append ` twoslash` to the fence so VitePress renders inline type hints." },
+        "code": { "type": "string", "description": "Code body." }
+      }
+    },
+    "exampleFile": {
+      "type": "object",
+      "required": ["code"],
+      "properties": {
+        "name": { "type": "string", "description": "Optional file name comment rendered as the first line (e.g. 'kubb.config.ts')." },
+        "lang": { "type": "string", "default": "typescript" },
+        "twoslash": { "type": "boolean", "default": false, "description": "When true and lang is typescript/ts, append ` twoslash` to the fence so VitePress renders inline type hints." },
+        "code": { "type": "string" }
+      }
+    },
+    "exampleTab": {
+      "type": "object",
+      "required": ["name", "files"],
+      "properties": {
+        "name": { "type": "string", "description": "Tab label inside the ::: code-group block." },
+        "files": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/exampleFile" },
+          "description": "Multi-file code listing concatenated inside one tab. Each file is rendered as its own fenced block."
+        }
+      }
+    },
+    "details": {
+      "type": "object",
+      "required": ["title"],
+      "properties": {
+        "title": { "type": "string" },
+        "body": { "type": "string", "description": "Optional prose for the sub-section." },
+        "codeBlock": {
+          "$ref": "#/definitions/codeBlockOrArray",
+          "description": "One or more code blocks rendered after the body. Always prefer this over inline fenced code in `body` for TS/JSON snippets."
+        }
+      }
+    },
+    "badge": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["info", "tip", "warning", "danger"],
+          "default": "tip",
+          "description": "VitePress <Badge type=...> flavour."
+        },
+        "text": { "type": "string" }
+      }
+    },
+    "pluginOption": {
+      "$id": "#plugin-options",
+      "type": "object",
       "properties": {
         "name": {
           "type": "string",
           "description": "Option name as it appears in the plugin config (e.g. 'output', 'infinite')."
         },
+        "extends": {
+          "type": "string",
+          "description": "Relative path to a shared option YAML (e.g. './_shared/core/output-path.yaml'). The referenced block is deep-merged under this option; locally-set fields win."
+        },
         "type": {
           "type": "string",
           "description": "TypeScript type string shown in the docs table (e.g. 'string', 'boolean', 'Infinite | false')."
         },
-        "required": {
+        "required": { "type": "boolean", "default": false },
+        "default": { "description": "Default value. Use a string representation (e.g. \"'hooks'\", \"false\", \"0\")." },
+        "description": { "type": "string" },
+        "badge": {
+          "$ref": "#/definitions/badge",
+          "description": "Optional <Badge> rendered next to the option heading (e.g. {type: 'tip', text: 'beta'})."
+        },
+        "experimental": {
           "type": "boolean",
-          "default": false
-        },
-        "default": {
-          "description": "Default value. Use a string representation (e.g. \"'hooks'\", \"false\", \"0\")."
-        },
-        "description": {
-          "type": "string"
+          "default": false,
+          "description": "When true, render the experimental icon next to the option heading."
         },
         "typeDefinition": {
           "type": "string",
-          "description": "Multiline TypeScript type block, rendered in a fenced typescript code block."
+          "description": "Multiline TypeScript type block, rendered in a fenced typescript code block under the option."
         },
-        "example": {
-          "type": "string",
-          "description": "Short TypeScript usage snippet, rendered in a fenced typescript code block."
+        "codeBlock": {
+          "$ref": "#/definitions/codeBlockOrArray",
+          "description": "One or more fenced code blocks rendered after the property table. Use this for any TypeScript/JSON snippet (type defs, configuration excerpts, single-snippet examples) rather than inline fenced code in `body`/`description`/callouts."
         },
-        "deprecated": {
-          "type": "boolean",
-          "default": false
-        },
-        "deprecationNote": {
-          "type": "string",
-          "description": "Migration guidance. Only shown when deprecated is true."
-        },
-        "tip": {
-          "type": "string",
-          "description": "Optional callout rendered as a > [!TIP] block directly under the option's metadata table."
-        },
-        "values": {
+        "examples": {
           "type": "array",
-          "description": "Per-value metadata for union-typed options. Each entry documents one possible literal value.",
-          "items": {
-            "type": "object",
-            "required": ["name"],
-            "additionalProperties": false,
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "The literal value string, e.g. \"'object'\" or \"'inline'\"."
-              },
-              "description": {
-                "type": "string",
-                "description": "What this specific value does."
-              },
-              "example": {
-                "type": "string",
-                "description": "TypeScript code snippet showing generated output when this value is active."
-              }
-            }
-          }
+          "items": { "$ref": "#/definitions/exampleTab" },
+          "description": "Multi-tab ::: code-group block. Use for value-per-tab snippets or multi-file walkthroughs."
         },
+        "tip": { "type": "string", "description": "Markdown body rendered as a > [!TIP] callout." },
+        "note": { "type": "string", "description": "Markdown body rendered as a > [!NOTE] callout." },
+        "important": { "type": "string", "description": "Markdown body rendered as a > [!IMPORTANT] callout." },
+        "warning": { "type": "string", "description": "Markdown body rendered as a > [!WARNING] callout." },
+        "details": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/details" },
+          "description": "Free-form sub-sections rendered as h4+ headings under the option (e.g. 'When to use', 'Default behavior')."
+        },
+        "body": {
+          "type": "string",
+          "description": "Free-form markdown appended at the very end of the option (after callouts, code blocks, examples, details)."
+        },
+        "deprecated": { "$ref": "#/definitions/deprecated" },
         "properties": {
           "type": "array",
-          "items": {
-            "$ref": "#/definitions/pluginOption"
-          },
+          "items": { "$ref": "#/definitions/pluginOption" },
           "description": "Nested sub-options (e.g. output.path, output.barrelType)."
         }
       }
     },
-    "skill": {
+    "compatibility": {
       "type": "object",
-      "required": ["name", "description"],
+      "description": "Version compatibility requirements",
       "properties": {
-        "name": {
-          "type": "string",
-          "description": "Skill identifier (e.g., 'generate-react-query-hooks')",
-          "pattern": "^[a-z0-9-]+$"
-        },
-        "description": {
-          "type": "string",
-          "description": "What this skill does"
-        },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Tags for skill categorization"
-        },
-        "dependencies": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Required packages or plugins"
-        },
-        "apiParameters": {
-          "type": "array",
-          "description": "Configuration parameters for this skill",
-          "items": {
-            "type": "object",
-            "required": ["name", "type"],
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "Parameter name"
-              },
-              "type": {
-                "type": "string",
-                "description": "Parameter type"
-              },
-              "required": {
-                "type": "boolean",
-                "default": false,
-                "description": "Whether the parameter is required"
-              },
-              "default": {
-                "description": "Default value"
-              },
-              "description": {
-                "type": "string",
-                "description": "Parameter description"
-              }
-            }
-          }
-        },
-        "examples": {
-          "type": "array",
-          "description": "Usage examples",
-          "items": {
-            "type": "object",
-            "required": ["title", "code"],
-            "properties": {
-              "title": {
-                "type": "string",
-                "description": "Example title"
-              },
-              "description": {
-                "type": "string",
-                "description": "Example description"
-              },
-              "code": {
-                "type": "string",
-                "description": "Code snippet"
-              },
-              "output": {
-                "type": "string",
-                "description": "Expected output"
-              }
-            }
-          }
-        }
+        "kubb": { "type": "string", "description": "Kubb version constraint (e.g., '>=5.0.0')" },
+        "node": { "type": "string", "description": "Node.js version constraint (e.g., '>=18.0.0')" }
+      }
+    },
+    "maintainer": {
+      "type": "object",
+      "required": ["name", "github"],
+      "properties": {
+        "name": { "type": "string", "description": "Maintainer's display name" },
+        "github": { "type": "string", "description": "GitHub username" },
+        "avatar": { "type": "string", "format": "uri", "description": "Avatar image URL" }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "description": "Related resource URLs",
+      "properties": {
+        "documentation": { "type": "string", "format": "uri", "description": "Documentation URL" },
+        "repository": { "type": "string", "format": "uri", "description": "Repository URL" },
+        "issues": { "type": "string", "format": "uri", "description": "Issue tracker URL" },
+        "changelog": { "type": "string", "format": "uri", "description": "Changelog URL" }
+      }
+    },
+    "codeBlockOrArray": {
+      "oneOf": [
+        { "$ref": "#/definitions/codeBlock" },
+        { "type": "array", "items": { "$ref": "#/definitions/codeBlock" } }
+      ]
+    },
+    "deprecated": {
+      "type": "object",
+      "description": "Marks an option as deprecated. Presence implies deprecation; rendered as a `**Deprecated.**` callout.",
+      "properties": {
+        "note": { "type": "string", "description": "Migration guidance shown after the deprecation marker." }
+      }
+    },
+    "icon": {
+      "type": "object",
+      "description": "Plugin icon URLs. `light` is rendered on light backgrounds (and as the default); `dark` is an optional override for dark backgrounds.",
+      "required": ["light"],
+      "properties": {
+        "light": { "type": "string", "format": "uri", "description": "Icon URL used on light backgrounds." },
+        "dark": { "type": "string", "format": "uri", "description": "Optional icon URL used on dark backgrounds; falls back to light when omitted." }
       }
     }
   }
