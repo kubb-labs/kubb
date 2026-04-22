@@ -3,6 +3,7 @@ import { getRelativePath } from '@internals/utils'
 import { createExport, createFile } from '@kubb/ast'
 import { BARREL_FILENAME, definePlugin, getBarrelFiles } from '@kubb/core'
 import type { BarrelType, FileMetaBase, KubbBarrelGenerateContext, NormalizedPlugin } from '@kubb/core'
+import type { Plugin } from '@kubb/core'
 import type { PluginBarrel, PluginBarrelOptions } from './types.ts'
 import { pluginBarrelName } from './types.ts'
 
@@ -27,6 +28,17 @@ function resolvePluginBarrelType(
 }
 
 /**
+ * Returns the plugin entry from the driver as a `NormalizedPlugin`.
+ *
+ * `driver.plugins` is typed as `Map<string, NormalizedPlugin>` internally (see `PluginDriver`),
+ * but the public `getPlugin()` API returns `Plugin` to avoid leaking the internal `NormalizedPlugin`
+ * type. The plugins map always holds the normalized form, so the widening cast here is safe.
+ */
+function asNormalized(plugin: Plugin): NormalizedPlugin {
+  return plugin as NormalizedPlugin
+}
+
+/**
  * Generates per-plugin `index.ts` barrel files for every registered plugin
  * that has an `output.path` configured.
  */
@@ -40,7 +52,7 @@ async function generatePluginBarrels(ctx: KubbBarrelGenerateContext, options: Pl
       continue
     }
 
-    const normalizedPlugin = plugin as NormalizedPlugin
+    const normalizedPlugin = asNormalized(plugin)
     const output = normalizedPlugin.options?.output
     if (!output?.path) {
       continue
@@ -79,7 +91,7 @@ function generateRootBarrel(ctx: KubbBarrelGenerateContext, options: PluginBarre
 
   const pluginMap = new Map<string, NormalizedPlugin>()
   for (const [name, plugin] of driver.plugins) {
-    pluginMap.set(name, plugin as NormalizedPlugin)
+    pluginMap.set(name, asNormalized(plugin))
   }
 
   const indexableFiles = driver.fileManager.files.filter((file) => file.sources.some((s) => s.isIndexable))

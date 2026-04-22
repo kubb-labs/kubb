@@ -5,7 +5,8 @@ export const pluginBarrelName = 'plugin-barrel' as const
 export type PluginBarrelPlugin = {
   /**
    * Plugin name as registered in `Kubb.PluginRegistry`.
-   * Typed to provide autocomplete for all known plugins.
+   * The union with `(string & {})` preserves autocomplete for known plugin names
+   * while still accepting any arbitrary string at runtime.
    */
   name: keyof Kubb.PluginRegistry | (string & {})
   /**
