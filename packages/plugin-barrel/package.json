@@ -1,0 +1,72 @@
+{
+  "name": "@kubb/plugin-barrel",
+  "version": "5.0.0-alpha.52",
+  "description": "Kubb plugin for generating barrel (index.ts) files at the root and per-plugin level.",
+  "keywords": [
+    "barrel",
+    "code-generator",
+    "codegen",
+    "index",
+    "kubb",
+    "openapi",
+    "plugin",
+    "swagger",
+    "typescript"
+  ],
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
+    "directory": "packages/plugin-barrel"
+  },
+  "files": [
+    "src",
+    "dist",
+    "*.d.ts",
+    "*.d.cts",
+    "!/**/**.test.**",
+    "!/**/__tests__/**",
+    "!/**/__snapshots__/**"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "clean": "npx rimraf ./dist",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "release": "pnpm publish --no-git-check",
+    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
+    "start": "tsdown --watch",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@internals/utils": "workspace:*",
+    "@kubb/ast": "workspace:*"
+  },
+  "peerDependencies": {
+    "@kubb/core": "workspace:*"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -3,7 +3,7 @@ import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import type { BuildOutput } from './createKubb.ts'
 import type { Plugin } from './definePlugin.ts'
 import type { PluginDriver } from './PluginDriver.ts'
-import type { Config, GeneratorContext, KubbBuildEndContext, KubbBuildStartContext, KubbPluginSetupContext } from './types'
+import type { Config, GeneratorContext, KubbBarrelGenerateContext, KubbBuildEndContext, KubbBuildStartContext, KubbPluginSetupContext } from './types'
 
 type DebugInfo = {
   date: Date
@@ -279,6 +279,15 @@ export interface KubbHooks {
    * `ctx.options` carries the plugin-level resolved options for the batch call.
    */
   'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext]
+
+  /**
+   * Fired after all plugin generators have run but before file writing begins.
+   * Use this hook to inject barrel (`index.ts`) files into the file manager.
+   *
+   * When `plugin-barrel` is registered it handles this event exclusively.
+   * The default barrel generation in `createKubb` is skipped so there is no duplication.
+   */
+  'kubb:barrel:generate': [ctx: KubbBarrelGenerateContext]
 }
 
 declare global {

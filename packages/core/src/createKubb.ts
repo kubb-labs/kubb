@@ -295,7 +295,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           await runPluginAstHooks(plugin, context)
         }
 
-        if (output) {
+        if (output && !driver.plugins.has('plugin-barrel')) {
           const barrelFiles = await getBarrelFiles(driver.fileManager.files, {
             type: output.barrelType ?? 'named',
             root,
@@ -343,7 +343,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       }
     }
 
-    if (config.output.barrelType) {
+    if (config.output.barrelType && !driver.plugins.has('plugin-barrel')) {
       const root = resolve(config.root)
       const rootPath = resolve(root, config.output.path, BARREL_FILENAME)
       const rootDir = dirname(rootPath)
@@ -389,6 +389,13 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         logs: [`✓ Generated barrel file (${rootFile.exports?.length || 0} exports)`],
       })
     }
+
+    await hooks.emit('kubb:barrel:generate', {
+      files: driver.fileManager.files,
+      config,
+      driver,
+      upsertFile: (...files) => driver.fileManager.upsert(...files),
+    })
 
     const files = driver.fileManager.files
 

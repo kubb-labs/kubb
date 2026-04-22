@@ -314,6 +314,19 @@ importers:
         specifier: workspace:*
         version: link:../ast
 
+  packages/plugin-barrel:
+    dependencies:
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@internals/utils':
+        specifier: workspace:*
+        version: link:../../internals/utils
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
+
   packages/renderer-jsx:
     dependencies:
       '@kubb/ast':
