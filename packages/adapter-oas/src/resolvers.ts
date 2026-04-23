@@ -543,9 +543,10 @@ export function getRequestBodyContentTypes(document: Document, operation: Operat
     operation.schema.requestBody = dereferenceWithRef(document, operation.schema.requestBody)
   }
 
-  const body = operation.schema.requestBody
-  if (!body || isReference(body)) return []
+  const body = operation.schema.requestBody as { content?: Record<string, unknown> } | undefined
+  if (!body) return []
 
-  const inline = body as { content?: Record<string, unknown> }
-  return inline.content ? Object.keys(inline.content) : []
+  // dereferenceWithRef keeps $ref but spreads all resolved fields (including `content`).
+  // Do not bail out on isReference — the content is already present on the merged object.
+  return body.content ? Object.keys(body.content) : []
 }

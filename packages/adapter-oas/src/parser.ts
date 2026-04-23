@@ -797,17 +797,14 @@ function createSchemaParser(ctx: OasParserContext) {
     description?: string
     required: boolean
   } {
-    const body = operation.schema.requestBody
-    if (!body || isReference(body)) return { required: false }
+    const body = operation.schema.requestBody as { description?: string; required?: boolean } | undefined
+    if (!body) return { required: false }
 
-    const inline = body as {
-      description?: string
-      required?: boolean
-    }
-
+    // After getRequestBodyContentTypes has run, body may still carry $ref but the
+    // resolved fields (description, required, content) are already spread onto it.
     return {
-      description: inline.description,
-      required: inline.required === true,
+      description: body.description,
+      required: body.required === true,
     }
   }
 
