@@ -13,53 +13,74 @@ Barrel-file generation must be decoupled from individual plugins and from the co
 
 `BarrelType` and `barrelType` are **not** part of `@kubb/core`'s `Output` or `Config` types. Core knows nothing about barrel generation.
 
-`@kubb/core` already exposes an extension point — `declare global { namespace Kubb { interface PluginRegistry } }` — used by plugins to register themselves for `getPlugin`/`requirePlugin` typed lookups. Middleware packages follow the same pattern, adding new empty extension interfaces to the `Kubb` namespace that third-party packages can augment:
+`@kubb/core` already exposes an extension point — `declare global { namespace Kubb { interface PluginRegistry } }` — used by plugins to register themselves for `getPlugin`/`requirePlugin` typed lookups. Middleware packages follow the same pattern, adding new **keyed registry interfaces** to the `Kubb` namespace that third-party packages can augment:
 
 ```ts
-// packages/core/src/Kubb.ts  (additions to existing declare global block)
+// packages/core/src/Kubb.ts  (additions to existing declare global block) ✅ IMPLEMENTED
 
 declare global {
   namespace Kubb {
     interface PluginRegistry {}   // already exists
 
     /**
-     * Extension point for plugin output options.
-     * Augment this interface in middleware packages to add fields to `Output`.
+     * Extension point for root `Config['output']` options.
+     * Augment the `output` key in middleware or plugin packages to add extra fields
+     * to the global output configuration without touching core types.
      *
      * @example
      * ```ts
      * // packages/middleware-barrel/src/types.ts
      * declare global {
      *   namespace Kubb {
-     *     interface OutputExtensions {
-     *       barrelType?: import('./types.ts').BarrelType | false
+     *     interface ConfigOptionsRegistry {
+     *       output: {
+     *         barrelType?: import('./types.ts').BarrelType | false
+     *       }
      *     }
      *   }
      * }
      * ```
      */
-    interface OutputExtensions {}
+    interface ConfigOptionsRegistry {}
 
     /**
-     * Extension point for the root `Config['output']` object.
-     * Augment this interface in middleware packages to add fields to the root config output.
+     * Extension point for per-plugin `Output` options.
+     * Augment the `output` key in middleware or plugin packages to add extra fields
+     * to the per-plugin output configuration without touching core types.
+     *
+     * @example
+     * ```ts
+     * // packages/middleware-barrel/src/types.ts
+     * declare global {
+     *   namespace Kubb {
+     *     interface PluginOptionsRegistry {
+     *       output: {
+     *         barrelType?: import('./types.ts').BarrelType | false
+     *       }
+     *     }
+     *   }
+     * }
+     * ```
      */
-    interface ConfigOutputExtensions {}
+    interface PluginOptionsRegistry {}
   }
 }
 ```
 
-`Output` and the root config output are then typed as intersections of their base shape and the extension interface:
+`Output` and the root config output are then typed as conditional intersections so that augmentations are only applied when a middleware/plugin actually provides the `output` key:
 
 ```ts
-// packages/core/src/types.ts
+// packages/core/src/types.ts  ✅ IMPLEMENTED
 
 export type Output = {
   path: string
   banner?: string | ((file: FileNode) => string)
   footer?: string | ((file: FileNode) => string)
   override?: boolean
-} & Kubb.OutputExtensions
+} & ('output' extends keyof Kubb.PluginOptionsRegistry ? Kubb.PluginOptionsRegistry['output'] : {})
+
+// and similarly for Config['output']:
+// } & ('output' extends keyof Kubb.ConfigOptionsRegistry ? Kubb.ConfigOptionsRegistry['output'] : {})
 ```
 
 `@kubb/middleware-barrel` augments those interfaces:
@@ -71,11 +92,15 @@ export type BarrelType = 'all' | 'named' | 'propagate'
 
 declare global {
   namespace Kubb {
-    interface OutputExtensions {
-      barrelType?: BarrelType | false
+    interface PluginOptionsRegistry {
+      output: {
+        barrelType?: BarrelType | false
+      }
     }
-    interface ConfigOutputExtensions {
-      barrelType?: BarrelType | false
+    interface ConfigOptionsRegistry {
+      output: {
+        barrelType?: BarrelType | false
+      }
     }
   }
 }
@@ -270,14 +295,14 @@ These helpers use a `TreeNode` structure (directory tree) to determine which fil
 
 ## File-level changes
 
-### `packages/core/src/types.ts`
-- Change `Output` type to be `{ path: string; banner?: ...; footer?: ...; override?: boolean } & Kubb.OutputExtensions` (intersection with global extension interface).
-- Change the inline root `Config['output']` type similarly to intersect with `Kubb.ConfigOutputExtensions`.
+### `packages/core/src/types.ts` ✅ done
+- Change `Output` type to conditionally intersect with `Kubb.PluginOptionsRegistry['output']`.
+- Change the inline root `Config['output']` type to conditionally intersect with `Kubb.ConfigOptionsRegistry['output']`.
 - Add `middleware?: Array<Middleware>` to `Config` and `UserConfig`.
 - **No** `BarrelType`, no `barrelType` field — those live solely in `@kubb/middleware-barrel`.
 
-### `packages/core/src/Kubb.ts`
-- Add `interface OutputExtensions {}` and `interface ConfigOutputExtensions {}` to the existing `declare global { namespace Kubb { ... } }` block.
+### `packages/core/src/Kubb.ts` ✅ done
+- Add `interface ConfigOptionsRegistry {}` and `interface PluginOptionsRegistry {}` to the existing `declare global { namespace Kubb { ... } }` block.
 - Document the augmentation pattern in JSDoc (mirrors existing `PluginRegistry` docs).
 
 ### `packages/core/src/defineMiddleware.ts` *(new)*
@@ -309,25 +334,28 @@ These helpers use a `TreeNode` structure (directory tree) to determine which fil
 
 | Concern | Owner |
 |---|---|
-| `BarrelType` type + `output.barrelType` field | `@kubb/core` |
+| `Kubb.ConfigOptionsRegistry` + `Kubb.PluginOptionsRegistry` extension interfaces | `@kubb/core` |
+| `Output` / `Config['output']` conditional-intersection with registry keys | `@kubb/core` |
+| `BarrelType` type + `output.barrelType` augmentation | `@kubb/middleware-barrel` |
 | `Middleware` type + `defineMiddleware` factory | `@kubb/core` |
 | Middleware install call during `setup()` | `@kubb/core/createKubb.ts` |
 | Barrel-specific runtime logic | `@kubb/middleware-barrel` |
 | Individual plugins | **zero changes** |
-| Root `Config` | gains only `barrelType` on `output` and `middleware` array |
+| Root `Config` | gains `middleware` array; `barrelType` on `output` via registry augmentation |
 
 ---
 
 ## Checklist
 
-- [ ] Add `BarrelType` to `packages/core/src/types.ts`
-- [ ] Add `barrelType?: BarrelType | false` to the shared `Output` type
-- [ ] Add `barrelType?: BarrelType | false` to `Config['output']`
+- [x] Add `Kubb.ConfigOptionsRegistry` and `Kubb.PluginOptionsRegistry` interfaces to `packages/core/src/Kubb.ts`
+- [x] Update `Output` type in `packages/core/src/types.ts` to conditionally intersect with `Kubb.PluginOptionsRegistry['output']`
+- [x] Update root `Config['output']` in `packages/core/src/types.ts` to conditionally intersect with `Kubb.ConfigOptionsRegistry['output']`
 - [ ] Add `middleware?: Array<Middleware>` to `Config` / `UserConfig`
 - [ ] Create `packages/core/src/defineMiddleware.ts` with `Middleware` type + factory
 - [ ] Export new symbols from `packages/core/src/index.ts`
 - [ ] Wire `config.middleware` install loop into `createKubb.ts` `setup()`
 - [ ] Scaffold `packages/middleware-barrel/` (package.json, tsconfig.json, src/)
+- [ ] Implement `BarrelType` type + `declare global` augmentation in `middleware-barrel/src/types.ts`
 - [ ] Implement `TreeNode`, `getBarrelFiles`, `generatePerPluginBarrel`, `generateRootBarrel`
 - [ ] Implement `middlewareBarrel` in `middleware-barrel/src/middleware.ts`
 - [ ] Export from `middleware-barrel/src/index.ts`
