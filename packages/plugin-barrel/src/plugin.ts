@@ -57,8 +57,8 @@ export const pluginBarrel = definePlugin<PluginBarrel>((options: PluginBarrelOpt
         ctx = c
       },
 
-      async 'kubb:plugin:end'(plugin, result) {
-        if (!result.success || !ctx) return
+      async 'kubb:plugin:end'({ plugin, success }) {
+        if (!success || !ctx) return
 
         const buildConfig = ctx.config
         const files = ctx.files
