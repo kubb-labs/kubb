@@ -1,5 +1,12 @@
 # @kubb/parser-ts
 
+## 5.0.0-alpha.56
+
+### Patch Changes
+
+- Updated dependencies [[`45acd89`](https://github.com/kubb-labs/kubb/commit/45acd890db6c022c654de8102c284ee898d019b8)]:
+  - @kubb/core@5.0.0-alpha.56
+
 ## 5.0.0-alpha.55
 
 ### Patch Changes
