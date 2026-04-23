@@ -19,14 +19,15 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
    */
   dependencies?: Array<string>
   /**
-   * Execution priority relative to other plugins.
+   * Execution order for the plugin relative to other plugins.
    *
-   * Higher numbers run earlier. Plugins with equal priority keep their original
-   * declaration order. Dependency constraints always take precedence over priority.
+   * - `'pre'` — runs before all normal plugins.
+   * - `'post'` — runs after all normal plugins.
+   * - `undefined` (default) — runs in declaration order among normal plugins.
    *
-   * @default 0
+   * Dependency constraints always take precedence over `enforce`.
    */
-  priority?: number
+  enforce?: 'pre' | 'post'
   /**
    * The options passed by the user when calling the plugin factory.
    */

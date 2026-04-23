@@ -46,7 +46,7 @@ export const pluginBarrel = definePlugin<PluginBarrel>((options: PluginBarrelOpt
 
   return {
     name: pluginBarrelName,
-    priority: Number.NEGATIVE_INFINITY,
+    enforce: 'post',
     options,
     hooks: {
       'kubb:plugin:setup'(c) {

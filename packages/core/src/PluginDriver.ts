@@ -88,7 +88,10 @@ export class PluginDriver {
       .sort((a, b) => {
         if (b.dependencies?.includes(a.name)) return -1
         if (a.dependencies?.includes(b.name)) return 1
-        return (b.priority ?? 0) - (a.priority ?? 0)
+        // enforce: 'pre' plugins run first, 'post' plugins run last
+        const aOrder = a.enforce === 'pre' ? -1 : a.enforce === 'post' ? 1 : 0
+        const bOrder = b.enforce === 'pre' ? -1 : b.enforce === 'post' ? 1 : 0
+        return aOrder - bOrder
       })
       .forEach((plugin) => {
         this.plugins.set(plugin.name, plugin)
@@ -107,6 +110,7 @@ export class PluginDriver {
     const normalizedPlugin = {
       name: hookPlugin.name,
       dependencies: hookPlugin.dependencies,
+      enforce: hookPlugin.enforce,
       options: { output: { path: '.' }, exclude: [], override: [] },
     } as unknown as NormalizedPlugin
 
