@@ -13,9 +13,10 @@ import { getBarrelFiles } from './utils/getBarrelFiles.ts'
  * Barrel-file generation plugin.
  *
  * Owns all barrel generation logic — core has zero awareness of this plugin.
- * Must be listed **last** in the plugins array so that, when its own
- * `kubb:plugin:end` fires, every other plugin has already deposited its
- * files into the file manager (required for a complete root barrel).
+ * Automatically runs after all other plugins regardless of its position in the
+ * plugins array (via `priority: Number.NEGATIVE_INFINITY`), so that every other
+ * plugin has already deposited its files into the file manager before the root
+ * barrel is generated.
  *
  * - `kubb:plugin:setup`: persists the resolved options.
  * - `kubb:build:start`: captures lazy references to `getFiles` and `upsertFile`
@@ -34,8 +35,6 @@ import { getBarrelFiles } from './utils/getBarrelFiles.ts'
  * export default defineConfig({
  *   plugins: [
  *     pluginTs(),
- *     pluginZod(),
- *     // Always place pluginBarrel last
  *     pluginBarrel({
  *       root: { barrelType: 'named' },
  *       plugins: [
@@ -43,6 +42,7 @@ import { getBarrelFiles } from './utils/getBarrelFiles.ts'
  *         { name: 'plugin-zod', barrelType: 'all'   },
  *       ],
  *     }),
+ *     pluginZod(),
  *   ],
  * })
  * ```
@@ -55,6 +55,7 @@ export const pluginBarrel = definePlugin<PluginBarrel>((options: PluginBarrelOpt
 
   return {
     name: pluginBarrelName,
+    priority: Number.NEGATIVE_INFINITY,
     options,
     hooks: {
       'kubb:plugin:setup'(ctx) {

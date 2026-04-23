@@ -88,7 +88,7 @@ export class PluginDriver {
       .sort((a, b) => {
         if (b.dependencies?.includes(a.name)) return -1
         if (a.dependencies?.includes(b.name)) return 1
-        return 0
+        return (b.priority ?? 0) - (a.priority ?? 0)
       })
       .forEach((plugin) => {
         this.plugins.set(plugin.name, plugin)
