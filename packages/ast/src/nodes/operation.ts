@@ -69,27 +69,10 @@ export type OperationNode = BaseNode & {
      */
     description?: string
     /**
-     * Request body schema.
-     * For OpenAPI, this is the schema from the first `content` entry (or the entry that matches
-     * the adapter `contentType` option).
-     */
-    schema?: SchemaNode
-    /**
-     * Property keys to exclude from the generated request body type via `Omit<Type, Keys>`.
-     * Set when a referenced schema has `readOnly` fields that should be omitted in request types.
-     */
-    keysToOmit?: Array<string>
-    /**
      * Whether the request body is required (`requestBody.required: true` in the spec).
      * When `false` or absent, the generated `data` parameter should be optional.
      */
     required?: boolean
-    /**
-     * Media type of the request body (e.g. `'application/json'`, `'multipart/form-data'`).
-     * When the adapter `contentType` option is set this reflects that exact value; otherwise it
-     * holds the first content type found in the spec.
-     */
-    contentType?: string
     /**
      * All available content type entries for this request body.
      *
@@ -97,9 +80,6 @@ export type OperationNode = BaseNode & {
      * that content type. Otherwise it contains one entry per content type declared in the spec,
      * so that plugins can generate code for every variant (e.g. separate hooks for
      * `application/json` and `multipart/form-data`).
-     *
-     * The first entry always corresponds to the top-level `schema` / `contentType` / `keysToOmit`
-     * fields for backward compatibility.
      *
      * @example
      * ```ts
@@ -118,7 +98,8 @@ export type OperationNode = BaseNode & {
        */
       schema?: SchemaNode
       /**
-       * Property keys to exclude (readOnly fields) for this content type.
+       * Property keys to exclude from the generated request body type via `Omit<Type, Keys>`.
+       * Set when a referenced schema has `readOnly` fields that should be omitted in request types.
        */
       keysToOmit?: Array<string>
     }>

@@ -266,7 +266,7 @@ describe('buildAst', () => {
       const createPet = root.operations.find((op) => op.operationId === 'createPet')
 
       expect(createPet?.requestBody).toBeDefined()
-      expect(createPet?.requestBody?.schema?.type).toBe('ref')
+      expect(createPet?.requestBody?.content?.[0]?.schema?.type).toBe('ref')
     })
 
     it('captures requestBody description', async () => {
@@ -283,7 +283,7 @@ describe('buildAst', () => {
       const createPet = root.operations.find((op) => op.operationId === 'createPet')
 
       expect(createPet?.requestBody?.required).toBe(true)
-      expect(createPet?.requestBody?.schema?.optional).toBeFalsy()
+      expect(createPet?.requestBody?.content?.[0]?.schema?.optional).toBeFalsy()
     })
 
     it('leaves requestBody.required undefined when spec omits required', async () => {
@@ -293,7 +293,7 @@ describe('buildAst', () => {
 
       expect(patchPet?.requestBody).toBeDefined()
       expect(patchPet?.requestBody?.required).toBeUndefined()
-      expect(patchPet?.requestBody?.schema?.optional).toBe(true)
+      expect(patchPet?.requestBody?.content?.[0]?.schema?.optional).toBe(true)
     })
 
     it('converts responses with statusCode and schema', async () => {
@@ -366,7 +366,7 @@ describe('buildAst', () => {
       expect(upload?.requestBody?.content?.[1]?.contentType).toBe('multipart/form-data')
     })
 
-    it('backward-compat: requestBody.schema and requestBody.contentType reflect the first content type', async () => {
+    it('requestBody.content[0] reflects the first content type when no contentType option is set', async () => {
       const oas = await parseDocument({
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
@@ -393,9 +393,8 @@ describe('buildAst', () => {
       const root = parseOas(oas).root
       const upload = root.operations.find((op) => op.operationId === 'upload')
 
-      // Top-level fields remain backward-compatible (first content type)
-      expect(upload?.requestBody?.contentType).toBe('application/json')
-      expect(upload?.requestBody?.schema?.type).toBe('object')
+      expect(upload?.requestBody?.content?.[0]?.contentType).toBe('application/json')
+      expect(upload?.requestBody?.content?.[0]?.schema?.type).toBe('object')
     })
 
     it('when contentType is set, requestBody.content contains only that content type', async () => {
@@ -427,8 +426,6 @@ describe('buildAst', () => {
 
       expect(upload?.requestBody?.content).toHaveLength(1)
       expect(upload?.requestBody?.content?.[0]?.contentType).toBe('multipart/form-data')
-      // Bug fix: top-level contentType now correctly reflects the selected type
-      expect(upload?.requestBody?.contentType).toBe('multipart/form-data')
     })
   })
 })

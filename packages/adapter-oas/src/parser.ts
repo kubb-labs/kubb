@@ -790,17 +790,12 @@ function createSchemaParser(ctx: OasParserContext) {
   }
 
   /**
-   * Reads the inline `requestBody` metadata (description / required / contentType) that OAS exposes
+   * Reads the inline `requestBody` metadata (description / required) that OAS exposes
    * outside the schema itself. Returns an empty object when the request body is missing or a `$ref`.
-   *
-   * When `contentType` is provided and exists in the request body's `content` map, that content
-   * type is returned as-is. Otherwise the first key in the map is used, matching the same fallback
-   * logic used by `getRequestSchema`.
    */
-  function getRequestBodyMeta(operation: Operation, contentType?: string): {
+  function getRequestBodyMeta(operation: Operation): {
     description?: string
     required: boolean
-    contentType?: string
   } {
     const body = operation.schema.requestBody
     if (!body || isReference(body)) return { required: false }
@@ -808,23 +803,11 @@ function createSchemaParser(ctx: OasParserContext) {
     const inline = body as {
       description?: string
       required?: boolean
-      content?: Record<string, unknown>
-    }
-
-    let actualContentType: string | undefined
-    if (inline.content) {
-      const contentKeys = Object.keys(inline.content)
-      if (contentType && contentKeys.includes(contentType)) {
-        actualContentType = contentType
-      } else {
-        actualContentType = contentKeys[0]
-      }
     }
 
     return {
       description: inline.description,
       required: inline.required === true,
-      contentType: actualContentType,
     }
   }
 
@@ -874,7 +857,7 @@ function createSchemaParser(ctx: OasParserContext) {
     // Otherwise include every content type declared in the spec.
     const allContentTypes = ctx.contentType ? [ctx.contentType] : getRequestBodyContentTypes(document, operation)
 
-    const requestBodyMeta = getRequestBodyMeta(operation, ctx.contentType)
+    const requestBodyMeta = getRequestBodyMeta(operation)
 
     const content = allContentTypes.flatMap((ct) => {
       const schema = getRequestSchema(document, operation, { contentType: ct })
@@ -888,17 +871,11 @@ function createSchemaParser(ctx: OasParserContext) {
       ]
     })
 
-    // Derive top-level backward-compat fields from the first content entry.
-    const primaryContent = content[0]
-
     const requestBody =
-      primaryContent || requestBodyMeta.description
+      content.length > 0 || requestBodyMeta.description
         ? {
             description: requestBodyMeta.description,
-            schema: primaryContent?.schema,
-            keysToOmit: primaryContent?.keysToOmit,
             required: requestBodyMeta.required || undefined,
-            contentType: primaryContent?.contentType ?? requestBodyMeta.contentType,
             content: content.length > 0 ? content : undefined,
           }
         : undefined
