@@ -1,8 +1,5 @@
-import { trimExtName } from '@internals/utils'
 import type { FileNode } from '@kubb/ast'
 import { createFile } from '@kubb/ast'
-
-const BARREL_BASENAME = 'index' as const
 
 function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNode<TMeta>): FileNode<TMeta> {
   return {
@@ -96,39 +93,13 @@ export class FileManager {
 
   /**
    * All stored files, sorted by path length (shorter paths first).
-   * Barrel/index files (e.g. index.ts) are sorted last within each length bucket.
    */
   get files(): Array<FileNode> {
     if (this.#filesCache) {
       return this.#filesCache
     }
 
-    // Precompute the barrel-file flag per key so the comparator avoids repeated string work.
-    const keys = [...this.#cache.keys()]
-    const meta = new Map<string, { length: number; isIndex: boolean }>()
-    for (const key of keys) {
-      meta.set(key, {
-        length: key.length,
-        isIndex: trimExtName(key).endsWith(BARREL_BASENAME),
-      })
-    }
-    keys.sort((a, b) => {
-      const ma = meta.get(a)!
-      const mb = meta.get(b)!
-      if (ma.length !== mb.length) return ma.length - mb.length
-      if (ma.isIndex !== mb.isIndex) return ma.isIndex ? 1 : -1
-      return 0
-    })
-
-    const files: Array<FileNode> = []
-    for (const key of keys) {
-      const file = this.#cache.get(key)
-      if (file) {
-        files.push(file)
-      }
-    }
-
-    this.#filesCache = files
-    return files
+    this.#filesCache = [...this.#cache.values()].sort((a, b) => a.path.length - b.path.length)
+    return this.#filesCache
   }
 }
