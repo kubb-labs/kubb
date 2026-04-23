@@ -47,6 +47,7 @@
     "eight-months-speak",
     "export-ast-namespace-from-core",
     "fix-additional-properties-traversal",
+    "fix-barrel-non-ts-and-non-indexable",
     "fix-boolean-const-enums",
     "fix-cli-tty-column-error",
     "fix-defineconfig-entrypoint",
