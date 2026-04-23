@@ -2,7 +2,8 @@ import { defineMiddleware } from '@kubb/core'
 import type { KubbBuildStartContext, NormalizedPlugin } from '@kubb/core'
 import './types.ts'
 import type { BarrelType } from './types.ts'
-import { generatePerPluginBarrel, generateRootBarrel } from './utils.ts'
+import { generatePerPluginBarrel } from './utils/generatePerPluginBarrel.ts'
+import { generateRootBarrel } from './utils/generateRootBarrel.ts'
 
 /**
  * Barrel-file generation middleware.
