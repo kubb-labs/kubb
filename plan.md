@@ -9,50 +9,51 @@ Barrel-file generation must be decoupled from individual plugins and from the co
 
 ---
 
-## API: `output.barrelType`
+## API: `output.barrelType` via `declare global` module augmentation
 
-The user-facing field lives on the **shared `Output` type** in `@kubb/core` (and therefore automatically on every plugin's `output` too) and on the root `Config['output']` object.
+`BarrelType` and `barrelType` are **not** part of `@kubb/core`'s `Output` or `Config` types. Core knows nothing about barrel generation.
+
+Instead, `@kubb/middleware-barrel` uses TypeScript's **module augmentation** (`declare global` / `declare module`) to extend the shared types only when the package is imported. This means `barrelType` appears in IntelliSense and type checks only in projects that have added `@kubb/middleware-barrel`.
 
 ```ts
-// packages/core/src/types.ts  (additions only)
+// packages/middleware-barrel/src/augmentation.ts
 
-export type BarrelType = 'all' | 'named' | 'propagate'
+import '@kubb/core'
 
-export type Output = {
-  path: string
-  banner?: …
-  footer?: …
-  override?: boolean
-  /**
-   * Controls barrel-file (index.ts) generation for this plugin's output.
-   * - `'all'`       — export everything with `export * from '…'`
-   * - `'named'`     — export only named exports (`export { Foo } from '…'`)
-   * - `'propagate'` — write a barrel even if the plugin produces no files
-   * - `false`       — disable barrel generation for this plugin
-   * Inherits the root `Config.output.barrelType` when omitted.
-   */
-  barrelType?: BarrelType | false
+declare module '@kubb/core' {
+  export type BarrelType = 'all' | 'named' | 'propagate'
+
+  interface Output {
+    /**
+     * Controls barrel-file (index.ts) generation for this plugin's output.
+     * - `'all'`       — export everything with `export * from '…'`
+     * - `'named'`     — export only named exports (`export { Foo } from '…'`)
+     * - `'propagate'` — write a barrel even if the plugin produces no files
+     * - `false`       — disable barrel generation for this plugin
+     * Inherits the root `Config.output.barrelType` when omitted.
+     */
+    barrelType?: BarrelType | false
+  }
+
+  interface ConfigOutput {
+    /**
+     * Default barrelType for every plugin that does not set its own `output.barrelType`.
+     * Omit (or set `false`) to disable barrel generation entirely.
+     */
+    barrelType?: BarrelType | false
+  }
 }
 ```
 
-Root config gains the same field automatically (its inline `output` object mirrors `Output`):
-
-```ts
-output: {
-  path: string
-  clean?: boolean
-  // …existing fields…
-  /**
-   * Default barrelType for every plugin that does not set its own `output.barrelType`.
-   * Omit (or set `false`) to disable barrel generation entirely.
-   */
-  barrelType?: BarrelType | false
-}
-```
+For the augmentation to work, `@kubb/core` must export `Output` and `ConfigOutput` as **interfaces** (not type aliases), since only interfaces support declaration merging. The same is true for any other type that middleware packages want to augment (e.g., `Config`).
 
 ### User-facing config
 
+Importing `middlewareBarrel` automatically pulls in the augmentation, so `barrelType` becomes valid in `kubb.config.ts`:
+
 ```ts
+import { middlewareBarrel } from '@kubb/middleware-barrel' // augmentation side-effect
+
 export default defineConfig({
   output: { path: 'src/gen', barrelType: 'named' },   // root default
   plugins: [
@@ -63,6 +64,8 @@ export default defineConfig({
   ],
 })
 ```
+
+At runtime `barrelType` is just an unknown optional field on `output` from core's perspective — `middleware-barrel` casts it internally.
 
 ---
 
@@ -234,10 +237,9 @@ These helpers use a `TreeNode` structure (directory tree) to determine which fil
 ## File-level changes
 
 ### `packages/core/src/types.ts`
-- Export `BarrelType = 'all' | 'named' | 'propagate'`
-- Add `barrelType?: BarrelType | false` to the shared `Output` type
-- Add `barrelType?: BarrelType | false` to the inline `Config['output']` object
-- Add `middleware?: Array<Middleware>` to `Config` and `UserConfig`
+- Convert `Output` and the inline root `Config['output']` object from `type` aliases to **interfaces** so they support declaration merging by middleware packages.
+- Add `middleware?: Array<Middleware>` to `Config` and `UserConfig`.
+- **No** `BarrelType`, no `barrelType` field — those live solely in `@kubb/middleware-barrel`.
 
 ### `packages/core/src/defineMiddleware.ts` *(new)*
 - `Middleware` type + `defineMiddleware` factory
@@ -246,13 +248,15 @@ These helpers use a `TreeNode` structure (directory tree) to determine which fil
 - After `setup()`, iterate `config.middleware` and call `mw.install(hooks)`
 
 ### `packages/core/src/index.ts`
-- Export `BarrelType`, `Middleware`, `defineMiddleware`
+- Export `Middleware`, `defineMiddleware`
+- **No** `BarrelType` export
 
 ### `packages/middleware-barrel/` (new package)
 | File | Purpose |
 |---|---|
 | `package.json` | `name: "@kubb/middleware-barrel"`, peer-depends on `@kubb/core` |
 | `tsconfig.json` | Mirrors other packages |
+| `src/augmentation.ts` | `declare module '@kubb/core'` — adds `BarrelType`, `barrelType` to `Output` and `ConfigOutput` interfaces |
 | `src/constants.ts` | `BARREL_BASENAME`, `BARREL_FILENAME` |
 | `src/utils/TreeNode.ts` | Directory-tree helper for barrel resolution |
 | `src/utils/getBarrelFiles.ts` | Converts a `TreeNode` into `FileNode[]` barrel files |
