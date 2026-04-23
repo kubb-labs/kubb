@@ -232,7 +232,7 @@ export type Config<TInput = Input> = {
      * @default false
      */
     override?: boolean
-  }
+  } & ('output' extends keyof Kubb.ConfigOptionsRegistry ? Kubb.ConfigOptionsRegistry['output'] : {})
   /**
    * An array of Kubb plugins used for code generation.
    * Each plugin may declare additional configurable options.
@@ -540,7 +540,7 @@ export type Output<_TOptions = unknown> = {
    * @default false
    */
   override?: boolean
-}
+} & ('output' extends keyof Kubb.PluginOptionsRegistry ? Kubb.PluginOptionsRegistry['output'] : {})
 
 export type Group = {
   /**

@@ -273,5 +273,47 @@ declare global {
      * ```
      */
     interface PluginRegistry {}
+
+    /**
+     * Extension point for root `Config['output']` options.
+     * Augment the `output` key in middleware or plugin packages to add extra fields
+     * to the global output configuration without touching core types.
+     *
+     * @example
+     * ```ts
+     * // packages/middleware-barrel/src/types.ts
+     * declare global {
+     *   namespace Kubb {
+     *     interface ConfigOptionsRegistry {
+     *       output: {
+     *         barrelType?: import('./types.ts').BarrelType | false
+     *       }
+     *     }
+     *   }
+     * }
+     * ```
+     */
+    interface ConfigOptionsRegistry {}
+
+    /**
+     * Extension point for per-plugin `Output` options.
+     * Augment the `output` key in middleware or plugin packages to add extra fields
+     * to the per-plugin output configuration without touching core types.
+     *
+     * @example
+     * ```ts
+     * // packages/middleware-barrel/src/types.ts
+     * declare global {
+     *   namespace Kubb {
+     *     interface PluginOptionsRegistry {
+     *       output: {
+     *         barrelType?: import('./types.ts').BarrelType | false
+     *       }
+     *     }
+     *   }
+     * }
+     * ```
+     */
+    interface PluginOptionsRegistry {}
   }
 }
