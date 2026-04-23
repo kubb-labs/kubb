@@ -7,7 +7,6 @@ import { resolveRef } from './refs.ts'
 import {
   buildSchemaNode,
   flattenSchema,
-  getContentTypeSuffix,
   getDateType,
   getMediaType,
   getParameters,
@@ -870,21 +869,39 @@ function createSchemaParser(ctx: OasParserContext) {
       parseParameter(options, param as unknown as Record<string, unknown>),
     )
 
-    const requestBodySchema = getRequestSchema(document, operation, {
-      contentType: ctx.contentType,
-    })
-    const requestBodySchemaNode = requestBodySchema ? parseSchema({ schema: requestBodySchema }, options) : undefined
-    const requestBodyMeta = getRequestBodyMeta(operation)
+    // Determine which content types to include in requestBody.content.
+    // When a global contentType is configured, restrict to that single type.
+    // Otherwise include every content type declared in the spec.
+    const allContentTypes = ctx.contentType ? [ctx.contentType] : getRequestBodyContentTypes(document, operation)
 
-    const requestBody = requestBodySchemaNode
-      ? {
-          description: requestBodyMeta.description,
-          schema: ast.syncOptionality(requestBodySchemaNode, requestBodyMeta.required),
-          keysToOmit: collectPropertyKeysByFlag(requestBodySchema, 'readOnly'),
-          required: requestBodyMeta.required || undefined,
-          contentType: requestBodyMeta.contentType,
+    const requestBodyMeta = getRequestBodyMeta(operation, ctx.contentType)
+
+    const content = allContentTypes
+      .map((ct) => {
+        const schema = getRequestSchema(document, operation, { contentType: ct })
+        if (!schema) return null
+        return {
+          contentType: ct,
+          schema: ast.syncOptionality(parseSchema({ schema }, options), requestBodyMeta.required),
+          keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
         }
-      : undefined
+      })
+      .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
+
+    // Derive top-level backward-compat fields from the first content entry.
+    const primaryContent = content[0]
+
+    const requestBody =
+      primaryContent || requestBodyMeta.description
+        ? {
+            description: requestBodyMeta.description,
+            schema: primaryContent?.schema,
+            keysToOmit: primaryContent?.keysToOmit,
+            required: requestBodyMeta.required || undefined,
+            contentType: primaryContent?.contentType ?? requestBodyMeta.contentType,
+            content: content.length > 0 ? content : undefined,
+          }
+        : undefined
 
     const responses: Array<ast.ResponseNode> = operation.getResponseStatusCodes().map((statusCode) => {
       const responseObj = operation.getResponseByStatusCode(statusCode)

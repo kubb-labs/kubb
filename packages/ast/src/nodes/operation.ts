@@ -70,7 +70,8 @@ export type OperationNode = BaseNode & {
     description?: string
     /**
      * Request body schema.
-     * For OpenAPI, this is the schema from the first `content` entry.
+     * For OpenAPI, this is the schema from the first `content` entry (or the entry that matches
+     * the adapter `contentType` option).
      */
     schema?: SchemaNode
     /**
@@ -85,9 +86,42 @@ export type OperationNode = BaseNode & {
     required?: boolean
     /**
      * Media type of the request body (e.g. `'application/json'`, `'multipart/form-data'`).
-     * Extracted from the first `content` entry of the OpenAPI `requestBody`.
+     * When the adapter `contentType` option is set this reflects that exact value; otherwise it
+     * holds the first content type found in the spec.
      */
     contentType?: string
+    /**
+     * All available content type entries for this request body.
+     *
+     * When the adapter `contentType` option is set, this array contains exactly one entry for
+     * that content type. Otherwise it contains one entry per content type declared in the spec,
+     * so that plugins can generate code for every variant (e.g. separate hooks for
+     * `application/json` and `multipart/form-data`).
+     *
+     * The first entry always corresponds to the top-level `schema` / `contentType` / `keysToOmit`
+     * fields for backward compatibility.
+     *
+     * @example
+     * ```ts
+     * // spec has both application/json and multipart/form-data
+     * requestBody.content[0].contentType // 'application/json'
+     * requestBody.content[1].contentType // 'multipart/form-data'
+     * ```
+     */
+    content?: Array<{
+      /**
+       * The content type for this entry (e.g. `'application/json'`).
+       */
+      contentType: string
+      /**
+       * Request body schema for this content type.
+       */
+      schema?: SchemaNode
+      /**
+       * Property keys to exclude (readOnly fields) for this content type.
+       */
+      keysToOmit?: Array<string>
+    }>
   }
   /**
    * Operation responses.

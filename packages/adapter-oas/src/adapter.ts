@@ -37,7 +37,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     serverIndex,
     serverVariables,
     discriminator = 'strict',
-    expandContentTypes = false,
     dateType = DEFAULT_PARSER_OPTIONS.dateType,
     integerType = DEFAULT_PARSER_OPTIONS.integerType,
     unknownType = DEFAULT_PARSER_OPTIONS.unknownType,
@@ -59,7 +58,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         serverIndex,
         serverVariables,
         discriminator,
-        expandContentTypes,
         dateType,
         integerType,
         unknownType,
@@ -98,7 +96,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
       const { root: parsedRoot, nameMapping: parsedNameMapping } = parseOas(document, {
         contentType,
-        expandContentTypes,
         dateType,
         integerType,
         unknownType,
