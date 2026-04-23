@@ -1,5 +1,6 @@
 import type { CLIOptions, UserConfig } from '@kubb/core'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
+import { middlewareBarrel } from '@kubb/middleware-barrel'
 import { describe, expect, test } from 'vitest'
 import { defineConfig } from './defineConfig.ts'
 
@@ -17,11 +18,12 @@ describe('defineConfig', () => {
     output: {
       path: './src/gen',
       clean: true,
-      barrelType: false,
+      barrelType: 'named',
     },
     parsers: [],
     adapter: createMockedAdapter(),
     plugins: [plugin],
+    middleware: [middlewareBarrel],
   }
 
   test('applies default adapter when not set', () => {
@@ -45,6 +47,32 @@ describe('defineConfig', () => {
     const resolved = config as UserConfig
 
     expect(resolved.parsers?.length).toBeGreaterThan(0)
+  })
+
+  test('applies default middleware (middlewareBarrel) when not set', () => {
+    const config = defineConfig({
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+    } as UserConfig)
+    const resolved = config as UserConfig
+
+    expect(resolved.middleware).toHaveLength(1)
+    expect(resolved.middleware?.[0]).toBe(middlewareBarrel)
+  })
+
+  test('preserves existing middleware when non-empty', () => {
+    const customMiddleware = { name: 'custom', install: () => {} }
+    const config = defineConfig({
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+      middleware: [customMiddleware],
+    } as UserConfig)
+    const resolved = config as UserConfig
+
+    expect(resolved.middleware).toHaveLength(1)
+    expect(resolved.middleware?.[0]).toBe(customMiddleware)
   })
 
   test('preserves existing adapter', () => {

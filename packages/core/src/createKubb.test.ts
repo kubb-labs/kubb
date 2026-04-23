@@ -1,6 +1,3 @@
-import { mkdtempSync, rmSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
 import { AsyncEventEmitter } from '@internals/utils'
 import { createFile, createSource, createText } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
@@ -40,7 +37,6 @@ describe('createKubb', () => {
     output: {
       path: './src/gen',
       clean: true,
-      barrelType: false as const,
     },
     parsers: [],
     adapter: createMockedAdapter(),
@@ -179,10 +175,6 @@ describe('createKubb', () => {
     expect(warnSpy).toHaveBeenCalledWith({ message: 'This feature is still under development — use with caution' })
   })
 
-  it.todo('should generate barrel file when barrelType is set')
-
-  it.todo('should handle "all" barrel type')
-
   test('safeBuild should return error instead of throwing', async () => {
     const throwingPlugin = definePlugin(() => ({
       name: 'throwingPlugin',
@@ -226,60 +218,6 @@ describe('createKubb', () => {
 
     expect(startSpy).toHaveBeenCalled()
     expect(endSpy).toHaveBeenCalled()
-  })
-
-  it('should not include files with barrelType false in barrel', async () => {
-    const tmpDir = mkdtempSync(join(tmpdir(), 'kubb-test-excluded-'))
-
-    try {
-      const indexableFile = createFile({
-        path: join(tmpDir, 'mocks/excluded.ts'),
-        baseName: 'excluded.ts',
-        sources: [
-          createSource({
-            nodes: [createText('export const excluded = "excluded"')],
-            isIndexable: true,
-            name: 'excluded',
-          }),
-        ],
-        imports: [],
-        exports: [],
-        meta: { pluginName: 'excludedPlugin' },
-      })
-
-      const excludedPlugin = definePlugin(() => ({
-        name: 'excludedPlugin',
-        hooks: {
-          'kubb:plugin:setup'(ctx) {
-            ctx.setOptions({ output: { barrelType: false } } as never)
-            ctx.injectFile(indexableFile)
-          },
-        },
-      }))()
-
-      const excludeConfig: Config = {
-        ...config,
-        output: {
-          ...config.output,
-          path: tmpDir,
-          barrelType: 'named' as const,
-          write: false,
-        },
-        plugins: [excludedPlugin] as unknown as Array<Plugin>,
-      }
-
-      const { driver } = await createKubb(excludeConfig, {
-        hooks: new AsyncEventEmitter<KubbHooks>(),
-      }).build()
-
-      const barrelFile = driver.fileManager.files.find((f) => f.baseName === 'index.ts')
-      if (barrelFile) {
-        const hasExcludedExport = barrelFile.exports?.some((e) => e.name?.includes('excluded'))
-        expect(hasExcludedExport).toBeFalsy()
-      }
-    } finally {
-      rmSync(tmpDir, { recursive: true, force: true })
-    }
   })
 
   it('cleans up hook-style plugin listeners between builds on shared hooks', async () => {

@@ -1,41 +1,28 @@
 {
-  "name": "kubb",
-  "version": "5.0.0-alpha.54",
-  "description": "Transform OpenAPI specifications into TypeScript, React-Query, Zod, Faker.js, MSW and more with a plugin-based code generation tool.",
+  "name": "@kubb/middleware-barrel",
+  "version": "5.0.0-alpha.53",
+  "description": "Barrel-file generation middleware for Kubb. Generates index.ts barrel files for each plugin's output directory and a root index.ts after all plugins have run.",
   "keywords": [
-    "api-client",
-    "cli",
+    "barrel",
     "code-generator",
     "codegen",
-    "faker",
     "kubb",
-    "msw",
-    "oas",
+    "middleware",
     "openapi",
-    "plugin-system",
-    "plugins",
-    "react-query",
-    "sdk-generator",
-    "swagger",
-    "tanstack-query",
-    "type-safe",
-    "typescript",
-    "zod"
+    "typescript"
   ],
   "license": "MIT",
   "author": "stijnvanhulle",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/kubb"
-  },
-  "bin": {
-    "kubb": "bin/kubb.js"
+    "directory": "packages/middleware-barrel"
   },
   "files": [
     "src",
     "dist",
-    "bin",
+    "*.d.ts",
+    "*.d.cts",
     "!/**/**.test.**",
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
@@ -62,31 +49,13 @@
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "release": "pnpm publish --no-git-check",
-    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
     "start": "tsdown --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
-  "dependencies": {
-    "@kubb/adapter-oas": "workspace:*",
-    "@kubb/agent": "workspace:*",
-    "@kubb/cli": "workspace:*",
-    "@kubb/core": "workspace:*",
-    "@kubb/middleware-barrel": "workspace:*",
-    "@kubb/mcp": "workspace:*",
-    "@kubb/parser-ts": "workspace:*"
+  "peerDependencies": {
+    "@kubb/core": "workspace:*"
   },
-  "devDependencies": {
-    "@internals/utils": "workspace:*"
-  },
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
-    }
-  ],
-  "preferGlobal": true,
   "engines": {
     "node": ">=22"
   }

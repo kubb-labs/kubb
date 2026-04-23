@@ -1,7 +1,5 @@
-import { trimExtName } from '@internals/utils'
 import type { FileNode } from '@kubb/ast'
 import { createFile } from '@kubb/ast'
-import { BARREL_BASENAME } from './constants.ts'
 
 function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNode<TMeta>): FileNode<TMeta> {
   return {
@@ -95,39 +93,23 @@ export class FileManager {
 
   /**
    * All stored files, sorted by path length (shorter paths first).
-   * Barrel/index files (e.g. index.ts) are sorted last within each length bucket.
    */
   get files(): Array<FileNode> {
     if (this.#filesCache) {
       return this.#filesCache
     }
 
-    // Precompute the barrel-file flag per key so the comparator avoids repeated string work.
-    const keys = [...this.#cache.keys()]
-    const meta = new Map<string, { length: number; isIndex: boolean }>()
-    for (const key of keys) {
-      meta.set(key, {
-        length: key.length,
-        isIndex: trimExtName(key).endsWith(BARREL_BASENAME),
-      })
-    }
-    keys.sort((a, b) => {
-      const ma = meta.get(a)!
-      const mb = meta.get(b)!
-      if (ma.length !== mb.length) return ma.length - mb.length
-      if (ma.isIndex !== mb.isIndex) return ma.isIndex ? 1 : -1
+    this.#filesCache = [...this.#cache.values()].sort((a, b) => {
+      const lenDiff = a.path.length - b.path.length
+      if (lenDiff !== 0) return lenDiff
+      // Within the same length bucket, index.ts barrel files go last so other
+      // files are always processed before their barrel file.
+      const aIsIndex = a.path.endsWith('/index.ts') || a.path === 'index.ts'
+      const bIsIndex = b.path.endsWith('/index.ts') || b.path === 'index.ts'
+      if (aIsIndex && !bIsIndex) return 1
+      if (!aIsIndex && bIsIndex) return -1
       return 0
     })
-
-    const files: Array<FileNode> = []
-    for (const key of keys) {
-      const file = this.#cache.get(key)
-      if (file) {
-        files.push(file)
-      }
-    }
-
-    this.#filesCache = files
-    return files
+    return this.#filesCache
   }
 }

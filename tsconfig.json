@@ -16,7 +16,8 @@
       "@kubb/renderer-jsx/jsx-dev-runtime": ["./packages/renderer-jsx/src/jsx-runtime.ts"],
       "@kubb/parser-ts": ["./packages/parser-ts/src/index.ts"],
       "@kubb/adapter-oas": ["./packages/adapter-oas/src/index.ts"],
-      "unplugin-kubb": ["./packages/unplugin/src/index.ts"]
+      "unplugin-kubb": ["./packages/unplugin/src/index.ts"],
+      "@kubb/middleware-barrel": ["./packages/middleware-barrel/src/index.ts"]
     }
   },
   "include": ["./package.json", "./tsdown.config.ts", "./vitest.config.ts", "./src/**/*", "tests"],

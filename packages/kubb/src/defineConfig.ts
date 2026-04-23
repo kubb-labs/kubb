@@ -1,6 +1,7 @@
 import { isPromise, type PossiblePromise } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
 import type { CLIOptions, UserConfig } from '@kubb/core'
+import { middlewareBarrel } from '@kubb/middleware-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 
 type AnyConfigResult = UserConfig<any> | Array<UserConfig<any>>
@@ -24,6 +25,7 @@ function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
     ...config,
     adapter: config.adapter ?? adapterOas(),
     parsers: config.parsers?.length ? config.parsers : [parserTs, parserTsx],
+    middleware: config.middleware?.length ? config.middleware : [middlewareBarrel],
   }
 }
 
