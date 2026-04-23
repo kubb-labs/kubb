@@ -75,4 +75,3 @@ export const pluginBarrel = definePlugin<PluginBarrel>((options: PluginBarrelOpt
     },
   }
 })
-
