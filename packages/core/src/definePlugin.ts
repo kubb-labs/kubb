@@ -19,9 +19,9 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
    */
   dependencies?: Array<string>
   /**
-   * Execution order for the plugin relative to other plugins.
+   * Controls the execution order of this plugin relative to others.
    *
-   * - `'pre'` — runs before all normal plugins.
+   * - `'pre'`  — runs before all normal plugins.
    * - `'post'` — runs after all normal plugins.
    * - `undefined` (default) — runs in declaration order among normal plugins.
    *

@@ -1,5 +1,37 @@
 # @kubb/core
 
+## 5.0.0-alpha.54
+
+### Minor Changes
+
+- [#3139](https://github.com/kubb-labs/kubb/pull/3139) [`edf99aa`](https://github.com/kubb-labs/kubb/commit/edf99aaae51d8a70ee8d919bf619951a998d5a13) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Restructure `OperationNode.requestBody` to use a typed `content` array.
+
+  The top-level `schema`, `keysToOmit`, and `contentType` fields have been removed from `requestBody`. All per-content-type data now lives in `requestBody.content`, one entry per content type declared in the spec.
+
+  **Before**
+
+  ```ts
+  operation.requestBody?.schema
+  operation.requestBody?.contentType
+  operation.requestBody?.keysToOmit
+  ```
+
+  **After**
+
+  ```ts
+  operation.requestBody?.content?.[0]?.schema
+  operation.requestBody?.content?.[0]?.contentType
+  operation.requestBody?.content?.[0]?.keysToOmit
+  ```
+
+  See `migration/requestBody-content.md` for a full migration guide.
+
+### Patch Changes
+
+- Updated dependencies [[`edf99aa`](https://github.com/kubb-labs/kubb/commit/edf99aaae51d8a70ee8d919bf619951a998d5a13)]:
+  - @kubb/ast@5.0.0-alpha.54
+  - @kubb/renderer-jsx@5.0.0-alpha.54
+
 ## 5.0.0-alpha.53
 
 ### Patch Changes

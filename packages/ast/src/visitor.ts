@@ -272,7 +272,7 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
     case 'Output':
       return []
     case 'Operation':
-      return [...node.parameters, ...(node.requestBody?.schema ? [node.requestBody.schema] : []), ...node.responses]
+      return [...node.parameters, ...(node.requestBody?.content?.flatMap((c) => (c.schema ? [c.schema] : [])) ?? []), ...node.responses]
     case 'Schema': {
       const children: Array<Node> = []
 
@@ -440,7 +440,10 @@ export function transform(node: Node, options: TransformOptions): Node {
         requestBody: op.requestBody
           ? {
               ...op.requestBody,
-              schema: op.requestBody.schema ? transform(op.requestBody.schema, { ...options, parent: op }) : undefined,
+              content: op.requestBody.content?.map((c) => ({
+                ...c,
+                schema: c.schema ? transform(c.schema, { ...options, parent: op }) : undefined,
+              })),
             }
           : undefined,
         responses: op.responses.map((r) => transform(r, { ...options, parent: op })),

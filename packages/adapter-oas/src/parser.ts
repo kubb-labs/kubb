@@ -11,6 +11,7 @@ import {
   getMediaType,
   getParameters,
   getPrimitiveType,
+  getRequestBodyContentTypes,
   getRequestSchema,
   getResponseSchema,
   getSchemas,
@@ -789,13 +790,12 @@ function createSchemaParser(ctx: OasParserContext) {
   }
 
   /**
-   * Reads the inline `requestBody` metadata (description / required / contentType) that OAS exposes
+   * Reads the inline `requestBody` metadata (description / required) that OAS exposes
    * outside the schema itself. Returns an empty object when the request body is missing or a `$ref`.
    */
   function getRequestBodyMeta(operation: Operation): {
     description?: string
     required: boolean
-    contentType?: string
   } {
     const body = operation.schema.requestBody
     if (!body || isReference(body)) return { required: false }
@@ -803,12 +803,11 @@ function createSchemaParser(ctx: OasParserContext) {
     const inline = body as {
       description?: string
       required?: boolean
-      content?: Record<string, unknown>
     }
+
     return {
       description: inline.description,
       required: inline.required === true,
-      contentType: inline.content ? Object.keys(inline.content)[0] : undefined,
     }
   }
 
@@ -853,21 +852,33 @@ function createSchemaParser(ctx: OasParserContext) {
       parseParameter(options, param as unknown as Record<string, unknown>),
     )
 
-    const requestBodySchema = getRequestSchema(document, operation, {
-      contentType: ctx.contentType,
-    })
-    const requestBodySchemaNode = requestBodySchema ? parseSchema({ schema: requestBodySchema }, options) : undefined
+    // Determine which content types to include in requestBody.content.
+    // When a global contentType is configured, restrict to that single type.
+    // Otherwise include every content type declared in the spec.
+    const allContentTypes = ctx.contentType ? [ctx.contentType] : getRequestBodyContentTypes(document, operation)
+
     const requestBodyMeta = getRequestBodyMeta(operation)
 
-    const requestBody = requestBodySchemaNode
-      ? {
-          description: requestBodyMeta.description,
-          schema: ast.syncOptionality(requestBodySchemaNode, requestBodyMeta.required),
-          keysToOmit: collectPropertyKeysByFlag(requestBodySchema, 'readOnly'),
-          required: requestBodyMeta.required || undefined,
-          contentType: requestBodyMeta.contentType,
-        }
-      : undefined
+    const content = allContentTypes.flatMap((ct) => {
+      const schema = getRequestSchema(document, operation, { contentType: ct })
+      if (!schema) return []
+      return [
+        {
+          contentType: ct,
+          schema: ast.syncOptionality(parseSchema({ schema }, options), requestBodyMeta.required),
+          keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
+        },
+      ]
+    })
+
+    const requestBody =
+      content.length > 0 || requestBodyMeta.description
+        ? {
+            description: requestBodyMeta.description,
+            required: requestBodyMeta.required || undefined,
+            content: content.length > 0 ? content : undefined,
+          }
+        : undefined
 
     const responses: Array<ast.ResponseNode> = operation.getResponseStatusCodes().map((statusCode) => {
       const responseObj = operation.getResponseByStatusCode(statusCode)

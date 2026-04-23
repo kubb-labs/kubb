@@ -266,7 +266,7 @@ describe('buildAst', () => {
       const createPet = root.operations.find((op) => op.operationId === 'createPet')
 
       expect(createPet?.requestBody).toBeDefined()
-      expect(createPet?.requestBody?.schema?.type).toBe('ref')
+      expect(createPet?.requestBody?.content?.[0]?.schema?.type).toBe('ref')
     })
 
     it('captures requestBody description', async () => {
@@ -283,7 +283,7 @@ describe('buildAst', () => {
       const createPet = root.operations.find((op) => op.operationId === 'createPet')
 
       expect(createPet?.requestBody?.required).toBe(true)
-      expect(createPet?.requestBody?.schema?.optional).toBeFalsy()
+      expect(createPet?.requestBody?.content?.[0]?.schema?.optional).toBeFalsy()
     })
 
     it('leaves requestBody.required undefined when spec omits required', async () => {
@@ -293,7 +293,7 @@ describe('buildAst', () => {
 
       expect(patchPet?.requestBody).toBeDefined()
       expect(patchPet?.requestBody?.required).toBeUndefined()
-      expect(patchPet?.requestBody?.schema?.optional).toBe(true)
+      expect(patchPet?.requestBody?.content?.[0]?.schema?.optional).toBe(true)
     })
 
     it('converts responses with statusCode and schema', async () => {
@@ -322,6 +322,110 @@ describe('buildAst', () => {
       const ok = listPets?.responses.find((r) => r.statusCode === '200')
 
       expect(ok?.mediaType).toBe('application/json')
+    })
+
+    it('populates requestBody.content with a single entry when operation has one content type', async () => {
+      const oas = await buildMinimalOas()
+      const root = parseOas(oas).root
+      const createPet = root.operations.find((op) => op.operationId === 'createPet')
+
+      expect(createPet?.requestBody?.content).toHaveLength(1)
+      expect(createPet?.requestBody?.content?.[0]?.contentType).toBe('application/json')
+      expect(createPet?.requestBody?.content?.[0]?.schema?.type).toBe('ref')
+    })
+
+    it('populates requestBody.content with all entries when operation has multiple content types', async () => {
+      const oas = await parseDocument({
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/upload': {
+            post: {
+              operationId: 'upload',
+              requestBody: {
+                required: true,
+                content: {
+                  'application/json': {
+                    schema: { type: 'object', properties: { name: { type: 'string' } } },
+                  },
+                  'multipart/form-data': {
+                    schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } },
+                  },
+                },
+              },
+              responses: { '201': { description: 'Created' } },
+            },
+          },
+        },
+      })
+      const root = parseOas(oas).root
+      const upload = root.operations.find((op) => op.operationId === 'upload')
+
+      expect(upload?.requestBody?.content).toHaveLength(2)
+      expect(upload?.requestBody?.content?.[0]?.contentType).toBe('application/json')
+      expect(upload?.requestBody?.content?.[1]?.contentType).toBe('multipart/form-data')
+    })
+
+    it('requestBody.content[0] reflects the first content type when no contentType option is set', async () => {
+      const oas = await parseDocument({
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/upload': {
+            post: {
+              operationId: 'upload',
+              requestBody: {
+                required: true,
+                content: {
+                  'application/json': {
+                    schema: { type: 'object', properties: { name: { type: 'string' } } },
+                  },
+                  'multipart/form-data': {
+                    schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } },
+                  },
+                },
+              },
+              responses: { '201': { description: 'Created' } },
+            },
+          },
+        },
+      })
+      const root = parseOas(oas).root
+      const upload = root.operations.find((op) => op.operationId === 'upload')
+
+      expect(upload?.requestBody?.content?.[0]?.contentType).toBe('application/json')
+      expect(upload?.requestBody?.content?.[0]?.schema?.type).toBe('object')
+    })
+
+    it('when contentType is set, requestBody.content contains only that content type', async () => {
+      const oas = await parseDocument({
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/upload': {
+            post: {
+              operationId: 'upload',
+              requestBody: {
+                required: true,
+                content: {
+                  'application/json': {
+                    schema: { type: 'object', properties: { name: { type: 'string' } } },
+                  },
+                  'multipart/form-data': {
+                    schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } },
+                  },
+                },
+              },
+              responses: { '201': { description: 'Created' } },
+            },
+          },
+        },
+      })
+      const root = parseOas(oas, { contentType: 'multipart/form-data' }).root
+      const upload = root.operations.find((op) => op.operationId === 'upload')
+
+      expect(upload?.requestBody?.content).toHaveLength(1)
+      expect(upload?.requestBody?.content?.[0]?.contentType).toBe('multipart/form-data')
     })
   })
 })

@@ -2,20 +2,16 @@
 '@kubb/core': minor
 ---
 
-Add `enforce: 'pre' | 'post'` plugin ordering to core.
+Add `enforce: 'pre' | 'post'` plugin ordering.
 
-The `Plugin` type now supports an `enforce` field (matching Vite's plugin convention) to control execution order: `'pre'` plugins run first, `'post'` plugins run last, and plugins without `enforce` run in the middle.
+Plugins can now declare their execution order relative to all others using the `enforce` field (matching Vite's convention). Plugins with `enforce: 'pre'` run before normal plugins; `enforce: 'post'` run after.
 
 ```ts
-definePlugin({
-  name: 'my-post-plugin',
-  enforce: 'post',
-  hooks: {
-    // ...
-  },
-})
+export const pluginBarrel = definePlugin<PluginBarrel>((options) => ({
+  name: 'plugin-barrel',
+  enforce: 'post', // always runs after all normal plugins
+  hooks: { /* ... */ },
+}))
 ```
 
-`FileManager.files` now sorts `index.ts` barrel files last within the same path-depth bucket so source files are always processed before their barrel.
-
-`KubbBuildStartContext.files` is now a lazy `readonly` property instead of a callable function.
+Execution order: `pre → normal → post`. Existing `dependencies` constraints still take precedence within each group.

@@ -524,3 +524,28 @@ export function buildSchemaNode(schema: SchemaObject, name: string | null | unde
     example: schema.example,
   } as const
 }
+
+/**
+ * Returns all request body content type keys for an operation.
+ *
+ * The requestBody is dereferenced **in-place** when it is a `$ref` — the same mutation
+ * that `getRequestSchema` already performs — so that the returned list accurately reflects
+ * the available content types even for referenced bodies.
+ *
+ * @example
+ * ```ts
+ * getRequestBodyContentTypes(document, operation)
+ * // ['application/json', 'multipart/form-data']
+ * ```
+ */
+export function getRequestBodyContentTypes(document: Document, operation: Operation): string[] {
+  if (operation.schema.requestBody) {
+    operation.schema.requestBody = dereferenceWithRef(document, operation.schema.requestBody)
+  }
+
+  const body = operation.schema.requestBody
+  if (!body || isReference(body)) return []
+
+  const inline = body as { content?: Record<string, unknown> }
+  return inline.content ? Object.keys(inline.content) : []
+}

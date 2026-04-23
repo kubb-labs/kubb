@@ -232,8 +232,8 @@ describe('createOperationParams', () => {
       const node = makeOperation({
         parameters: [makePathParam('petId'), makeQueryParam('filter'), makeHeaderParam('x-api-key')],
         requestBody: {
-          schema: createSchema({ type: 'object' }),
           required: true,
+          content: [{ contentType: 'application/json', schema: createSchema({ type: 'object' }) }],
         },
       })
 
@@ -432,8 +432,8 @@ describe('createOperationParams', () => {
       const node = makeOperation({
         parameters: [makePathParam('petId'), makeQueryParam('status', { required: true })],
         requestBody: {
-          schema: createSchema({ type: 'object' }),
           required: false,
+          content: [{ contentType: 'application/json', schema: createSchema({ type: 'object' }) }],
         },
       })
 
@@ -666,8 +666,8 @@ describe('createOperationParams', () => {
     it('produces data param when operation has only requestBody', () => {
       const node = makeOperation({
         requestBody: {
-          schema: createSchema({ type: 'object' }),
           required: true,
+          content: [{ contentType: 'application/json', schema: createSchema({ type: 'object' }) }],
         },
       })
 
@@ -702,8 +702,8 @@ describe('createOperationParams', () => {
     it('produces optional data param when requestBody is not required', () => {
       const node = makeOperation({
         requestBody: {
-          schema: createSchema({ type: 'object' }),
           required: false,
+          content: [{ contentType: 'application/json', schema: createSchema({ type: 'object' }) }],
         },
       })
 
@@ -975,8 +975,8 @@ describe('createOperationParams', () => {
       const node = makeOperation({
         parameters: [makePathParam('petId'), makeQueryParam('filter')],
         requestBody: {
-          schema: createSchema({ type: 'object' }),
           required: false,
+          content: [{ contentType: 'application/json', schema: createSchema({ type: 'object' }) }],
         },
       })
 
@@ -1112,8 +1112,8 @@ describe('createOperationParams', () => {
       const node = makeOperation({
         parameters: [makePathParam('petId'), makeQueryParam('status'), makeHeaderParam('x-api-key')],
         requestBody: {
-          schema: createSchema({ type: 'object' }),
           required: true,
+          content: [{ contentType: 'application/json', schema: createSchema({ type: 'object' }) }],
         },
       })
 
@@ -1188,8 +1188,8 @@ describe('createOperationParams', () => {
       const node = makeOperation({
         parameters: [makePathParam('petId'), makeQueryParam('status', { required: true }), makeHeaderParam('x-api-key', { required: true })],
         requestBody: {
-          schema: createSchema({ type: 'object' }),
           required: false,
+          content: [{ contentType: 'application/json', schema: createSchema({ type: 'object' }) }],
         },
       })
 
@@ -1323,7 +1323,7 @@ describe('typeWrapper option', () => {
 
   it('wraps body type with the provided function', () => {
     const node = makeOperation({
-      requestBody: { schema: createSchema({ type: 'object' }), required: true },
+      requestBody: { required: true, content: [{ contentType: 'application/json', schema: createSchema({ type: 'object' }) }] },
     })
 
     const params = createOperationParams(node, {
