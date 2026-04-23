@@ -528,8 +528,9 @@ export function buildSchemaNode(schema: SchemaObject, name: string | null | unde
 /**
  * Returns all request body content type keys for an operation.
  *
- * The requestBody is dereferenced when it is a `$ref` so that the returned list
- * accurately reflects the available content types even for referenced bodies.
+ * The requestBody is dereferenced **in-place** when it is a `$ref` — the same mutation
+ * that `getRequestSchema` already performs — so that the returned list accurately reflects
+ * the available content types even for referenced bodies.
  *
  * @example
  * ```ts

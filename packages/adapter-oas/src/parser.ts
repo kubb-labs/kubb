@@ -876,17 +876,17 @@ function createSchemaParser(ctx: OasParserContext) {
 
     const requestBodyMeta = getRequestBodyMeta(operation, ctx.contentType)
 
-    const content = allContentTypes
-      .map((ct) => {
-        const schema = getRequestSchema(document, operation, { contentType: ct })
-        if (!schema) return null
-        return {
+    const content = allContentTypes.flatMap((ct) => {
+      const schema = getRequestSchema(document, operation, { contentType: ct })
+      if (!schema) return []
+      return [
+        {
           contentType: ct,
           schema: ast.syncOptionality(parseSchema({ schema }, options), requestBodyMeta.required),
           keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
-        }
-      })
-      .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
+        },
+      ]
+    })
 
     // Derive top-level backward-compat fields from the first content entry.
     const primaryContent = content[0]
