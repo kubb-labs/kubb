@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kubb.dev/schemas/middlewares.json",
+  "title": "Kubb Middleware Registry",
+  "description": "Schema for the aggregated Kubb middleware registry. Each entry extends the per-middleware schema with NPM-derived stats and timestamps.",
+  "type": "object",
+  "required": ["$schema", "middlewares"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    },
+    "middlewares": {
+      "type": "array",
+      "description": "Array of middleware metadata. Each entry is a per-middleware record extended with `stats`, `updated`, and `created`.",
+      "items": { "$ref": "#/definitions/registryMiddleware" }
+    }
+  },
+  "definitions": {
+    "registryMiddleware": {
+      "description": "A middleware entry as it appears in the aggregated registry: the canonical middleware schema plus runtime-derived stats and publish timestamps.",
+      "allOf": [
+        { "$ref": "https://kubb.dev/schemas/middleware.json" },
+        {
+          "type": "object",
+          "properties": {
+            "stats": { "$ref": "#/definitions/stats" },
+            "updated": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Publish date of the latest version on NPM (UTC ISO string)."
+            },
+            "created": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Publish date of the first version on NPM (UTC ISO string)."
+            }
+          }
+        }
+      ]
+    },
+    "stats": {
+      "type": "object",
+      "description": "Runtime-derived metrics fetched from NPM and GitHub during registry generation.",
+      "properties": {
+        "downloads": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Monthly NPM downloads."
+        },
+        "stars": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "GitHub star count for the middleware's repository."
+        },
+        "bundleSize": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Unpacked package size in bytes (from the latest NPM version)."
+        }
+      }
+    }
+  }
+}

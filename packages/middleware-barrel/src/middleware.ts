@@ -26,62 +26,61 @@ import { generatePerPluginBarrel, generateRootBarrel } from './utils.ts'
  *     pluginTs({ output: { path: 'types', barrelType: 'all' } }),
  *     pluginZod({ output: { path: 'schemas' } }),
  *   ],
- *   middleware: [middlewareBarrel()],
+ *   middleware: [middlewareBarrel],
  * })
  * ```
  */
-export const middlewareBarrel = () =>
-  defineMiddleware({
-    name: 'middleware-barrel',
+export const middlewareBarrel = defineMiddleware({
+  name: 'middleware-barrel',
 
-    install(hooks) {
-      let ctx: KubbBuildStartContext
+  install(hooks) {
+    let ctx: KubbBuildStartContext
 
-      hooks.on('kubb:build:start', (buildCtx) => {
-        ctx = buildCtx
+    hooks.on('kubb:build:start', (buildCtx) => {
+      ctx = buildCtx
+    })
+
+    hooks.on('kubb:plugin:end', ({ plugin }) => {
+      if (!ctx) return
+
+      // At runtime the plugin in kubb:plugin:end is always a NormalizedPlugin;
+      // KubbPluginEndContext types it as Plugin for public API simplicity.
+      const normalizedPlugin = plugin as NormalizedPlugin
+      const pluginOutput = normalizedPlugin.options.output as { barrelType?: BarrelType | false } | undefined
+      const rootOutput = ctx.config.output as { barrelType?: BarrelType | false }
+      const barrelType = pluginOutput?.barrelType !== undefined ? pluginOutput.barrelType : rootOutput.barrelType
+
+      if (!barrelType) return
+
+      const barrelFiles = generatePerPluginBarrel({
+        barrelType,
+        plugin: normalizedPlugin,
+        files: ctx.files,
+        config: ctx.config,
       })
 
-      hooks.on('kubb:plugin:end', ({ plugin }) => {
-        if (!ctx) return
+      if (barrelFiles.length > 0) {
+        ctx.upsertFile(...barrelFiles)
+      }
+    })
 
-        // At runtime the plugin in kubb:plugin:end is always a NormalizedPlugin;
-        // KubbPluginEndContext types it as Plugin for public API simplicity.
-        const normalizedPlugin = plugin as NormalizedPlugin
-        const pluginOutput = normalizedPlugin.options.output as { barrelType?: BarrelType | false } | undefined
-        const rootOutput = ctx.config.output as { barrelType?: BarrelType | false }
-        const barrelType = pluginOutput?.barrelType !== undefined ? pluginOutput.barrelType : rootOutput.barrelType
+    hooks.on('kubb:build:end', () => {
+      if (!ctx) return
 
-        if (!barrelType) return
+      const rootOutput = ctx.config.output as { barrelType?: BarrelType | false }
+      const rootBarrelType = rootOutput.barrelType
 
-        const barrelFiles = generatePerPluginBarrel({
-          barrelType,
-          plugin: normalizedPlugin,
-          files: ctx.files,
-          config: ctx.config,
-        })
+      if (!rootBarrelType) return
 
-        if (barrelFiles.length > 0) {
-          ctx.upsertFile(...barrelFiles)
-        }
+      const rootBarrelFiles = generateRootBarrel({
+        barrelType: rootBarrelType,
+        files: ctx.files,
+        config: ctx.config,
       })
 
-      hooks.on('kubb:build:end', () => {
-        if (!ctx) return
-
-        const rootOutput = ctx.config.output as { barrelType?: BarrelType | false }
-        const rootBarrelType = rootOutput.barrelType
-
-        if (!rootBarrelType) return
-
-        const rootBarrelFiles = generateRootBarrel({
-          barrelType: rootBarrelType,
-          files: ctx.files,
-          config: ctx.config,
-        })
-
-        if (rootBarrelFiles.length > 0) {
-          ctx.upsertFile(...rootBarrelFiles)
-        }
-      })
-    },
-  })
+      if (rootBarrelFiles.length > 0) {
+        ctx.upsertFile(...rootBarrelFiles)
+      }
+    })
+  },
+})
