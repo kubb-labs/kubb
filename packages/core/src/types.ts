@@ -261,7 +261,7 @@ export type Config<TInput = Input> = {
    * ```ts
    * import { middlewareBarrel } from '@kubb/middleware-barrel'
    * export default defineConfig({
-   *   middleware: [middlewareBarrel()],
+   *   middleware: [middlewareBarrel],
    *   plugins: [pluginTs(), pluginZod()],
    * })
    * ```
