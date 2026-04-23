@@ -147,7 +147,7 @@ describe('pluginBarrel', () => {
     expect(rootBarrel).toBeUndefined()
   })
 
-  it('does not duplicate barrels when plugin-barrel is registered alongside config.output.barrelType', async () => {
+  it('generates only one root barrel when config.output.barrelType is also set', async () => {
     const typeFile = makeIndexableFile(join(OUTPUT_DIR, 'gen/types/Pet.ts'), 'Pet.ts', 'Pet', 'plugin-ts')
 
     const mockPlugin = definePlugin(() => ({

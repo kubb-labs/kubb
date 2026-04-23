@@ -671,6 +671,18 @@ export type KubbBuildStartContext = {
    */
   getPlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
   getPlugin(name: string): Plugin | undefined
+  /**
+   * Returns all files currently in the file manager.
+   * Call this lazily (e.g. inside a `kubb:plugin:end` listener) to see files added by plugins
+   * that have already run.
+   */
+  getFiles: () => ReadonlyArray<FileNode>
+  /**
+   * Upsert one or more files into the file manager.
+   * Files with the same path are merged; new files are appended.
+   * Safe to call at any point during the plugin lifecycle, including inside `kubb:plugin:end`.
+   */
+  upsertFile: (...files: Array<FileNode>) => void
 }
 
 /**

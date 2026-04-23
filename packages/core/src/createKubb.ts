@@ -1,8 +1,8 @@
-import { dirname, resolve } from 'node:path'
-import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
-import type { ExportNode, FileNode, OperationNode } from '@kubb/ast'
-import { createExport, createFile, transform, walk } from '@kubb/ast'
-import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
+import { resolve } from 'node:path'
+import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, URLPath } from '@internals/utils'
+import type { FileNode, OperationNode } from '@kubb/ast'
+import { transform, walk } from '@kubb/ast'
+import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
@@ -14,8 +14,6 @@ import { applyHookResult } from './renderNode.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { AdapterSource, Config, GeneratorContext, KubbHooks, NormalizedPlugin, Storage, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
-import type { FileMetaBase } from './utils/getBarrelFiles.ts'
-import { getBarrelFiles } from './utils/getBarrelFiles.ts'
 import { isInputPath } from './utils/isInputPath.ts'
 
 type SetupOptions = {
@@ -113,7 +111,6 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     adapter: userConfig.adapter,
     output: {
       write: true,
-      barrelType: 'named',
       extension: DEFAULT_EXTENSION,
       defaultBanner: DEFAULT_BANNER,
       ...userConfig.output,
@@ -272,14 +269,14 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         adapter: driver.adapter,
         inputNode: driver.inputNode,
         getPlugin: driver.getPlugin.bind(driver),
+        getFiles: () => driver.fileManager.files,
+        upsertFile: (...files) => driver.fileManager.upsert(...files),
       })
     }
 
     for (const plugin of driver.plugins.values()) {
       const context = driver.getContext(plugin)
       const hrStart = process.hrtime()
-      const { output } = plugin.options ?? {}
-      const root = resolve(config.root, config.output.path)
 
       try {
         const timestamp = new Date()
@@ -293,16 +290,6 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
 
         if (plugin.generators?.length || driver.hasRegisteredGenerators(plugin.name)) {
           await runPluginAstHooks(plugin, context)
-        }
-
-        if (output) {
-          const barrelFiles = await getBarrelFiles(driver.fileManager.files, {
-            type: output.barrelType ?? 'named',
-            root,
-            output,
-            meta: { pluginName: plugin.name },
-          })
-          await context.upsertFile(...barrelFiles)
         }
 
         const duration = getElapsedMs(hrStart)
@@ -341,53 +328,6 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
 
         failedPlugins.add({ plugin, error })
       }
-    }
-
-    if (config.output.barrelType) {
-      const root = resolve(config.root)
-      const rootPath = resolve(root, config.output.path, BARREL_FILENAME)
-      const rootDir = dirname(rootPath)
-
-      await hooks.emit('kubb:debug', {
-        date: new Date(),
-        logs: ['Generating barrel file', `  • Type: ${config.output.barrelType}`, `  • Path: ${rootPath}`],
-      })
-
-      const barrelFiles = driver.fileManager.files.filter((file) => {
-        return file.sources.some((source) => source.isIndexable)
-      })
-
-      await hooks.emit('kubb:debug', {
-        date: new Date(),
-        logs: [`Found ${barrelFiles.length} indexable files for barrel export`],
-      })
-
-      const existingBarrel = driver.fileManager.files.find((f) => f.path === rootPath)
-      const existingExports = new Set(
-        existingBarrel?.exports?.flatMap((e) => (Array.isArray(e.name) ? e.name : [e.name])).filter((n): n is string => Boolean(n)) ?? [],
-      )
-
-      const rootFile = createFile<object>({
-        path: rootPath,
-        baseName: BARREL_FILENAME,
-        exports: buildBarrelExports({
-          barrelFiles,
-          rootDir,
-          existingExports,
-          config,
-          driver,
-        }).map((e) => createExport(e)),
-        sources: [],
-        imports: [],
-        meta: {},
-      })
-
-      driver.fileManager.upsert(rootFile)
-
-      await hooks.emit('kubb:debug', {
-        date: new Date(),
-        logs: [`✓ Generated barrel file (${rootFile.exports?.length || 0} exports)`],
-      })
     }
 
     const files = driver.fileManager.files
@@ -485,52 +425,6 @@ async function build(setupResult: SetupResult): Promise<BuildOutput> {
     error: undefined,
     sources,
   }
-}
-
-type BuildBarrelExportsParams = {
-  barrelFiles: FileNode[]
-  rootDir: string
-  existingExports: Set<string>
-  config: Config
-  driver: PluginDriver
-}
-
-function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }: BuildBarrelExportsParams): ExportNode[] {
-  const pluginNameMap = new Map<string, NormalizedPlugin>()
-  for (const plugin of driver.plugins.values()) {
-    pluginNameMap.set(plugin.name, plugin)
-  }
-
-  return barrelFiles.flatMap((file) => {
-    const containsOnlyTypes = file.sources?.every((source) => source.isTypeOnly)
-
-    return (file.sources ?? []).flatMap((source) => {
-      if (!file.path || !source.isIndexable) {
-        return []
-      }
-
-      const meta = file.meta as FileMetaBase | undefined
-      const plugin = meta?.pluginName ? pluginNameMap.get(meta.pluginName) : undefined
-      const pluginOptions = plugin?.options
-
-      if (!pluginOptions || pluginOptions.output?.barrelType === false) {
-        return []
-      }
-
-      const exportName = config.output.barrelType === 'all' ? undefined : source.name ? [source.name] : undefined
-      if (exportName?.some((n) => existingExports.has(n))) {
-        return []
-      }
-
-      return [
-        createExport({
-          name: exportName,
-          path: getRelativePath(rootDir, file.path),
-          isTypeOnly: config.output.barrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
-        }),
-      ]
-    })
-  })
 }
 
 function inputToAdapterSource(config: Config): AdapterSource {

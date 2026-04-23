@@ -1,23 +1,29 @@
-import { definePlugin } from '@kubb/core'
-import type { NormalizedPlugin } from '@kubb/core'
+import { dirname, resolve } from 'node:path'
+import { getRelativePath } from '@internals/utils'
+import type { FileNode } from '@kubb/ast'
+import { createExport, createFile } from '@kubb/ast'
+import { BARREL_FILENAME, definePlugin, getBarrelFiles } from '@kubb/core'
+import type { BarrelType, NormalizedPlugin } from '@kubb/core'
 import type { PluginBarrel, PluginBarrelOptions } from './types.ts'
 import { pluginBarrelName } from './types.ts'
 
 /**
  * Barrel-file generation plugin.
  *
- * Integrates with the existing Kubb build lifecycle — no new hooks required.
+ * Owns all barrel generation logic — core has zero awareness of this plugin.
+ * Must be listed **last** in the plugins array so that, when its own
+ * `kubb:plugin:end` fires, every other plugin has already deposited its
+ * files into the file manager (required for a complete root barrel).
  *
- * - `kubb:plugin:setup`: Disables own barrel generation (this plugin produces no output
- *   files, so the core per-plugin barrel loop must skip it).
- * - `kubb:build:start`: Runs before the plugin execution loop. Overwrites each listed
- *   plugin's `output.barrelType` with the value from `options.plugins`, and (when
- *   `options.root` is specified) overwrites `config.output.barrelType` so that the core
- *   root-barrel phase uses the correct type.
- *
- * Because these mutations happen before the build loop, the standard barrel generation
- * in `createKubb` naturally produces the correct output — core remains unaware of this
- * plugin.
+ * - `kubb:plugin:setup`: persists the resolved options.
+ * - `kubb:build:start`: captures lazy references to `getFiles` and `upsertFile`
+ *   from the shared driver so they can be called during `kubb:plugin:end`.
+ * - `kubb:plugin:end`:
+ *   - For every other plugin: generates the per-plugin `index.ts` inside that
+ *     plugin's output directory (respecting `options.plugins` overrides and the
+ *     plugin's own `output.barrelType`).
+ *   - For `plugin-barrel` itself: generates the root `index.ts` that re-exports
+ *     from all indexable sources across every plugin.
  *
  * @example
  * ```ts
@@ -27,42 +33,134 @@ import { pluginBarrelName } from './types.ts'
  *   plugins: [
  *     pluginTs(),
  *     pluginZod(),
+ *     // Always place pluginBarrel last
  *     pluginBarrel({
  *       root: { barrelType: 'named' },
  *       plugins: [
- *         { name: 'plugin-ts', barrelType: 'named' },
- *         { name: 'plugin-zod', barrelType: 'all' },
+ *         { name: 'plugin-ts',  barrelType: 'named' },
+ *         { name: 'plugin-zod', barrelType: 'all'   },
  *       ],
  *     }),
  *   ],
  * })
  * ```
  */
-export const pluginBarrel = definePlugin<PluginBarrel>((options: PluginBarrelOptions = {}) => ({
-  name: pluginBarrelName,
-  options,
-  hooks: {
-    'kubb:plugin:setup'(ctx) {
-      // Store barrel config and prevent own barrel generation.
-      // `plugin-barrel` has no output files; setting output.barrelType: false ensures
-      // the core per-plugin barrel loop produces nothing for this plugin.
-      ctx.setOptions({ ...options, output: { barrelType: false } } as never)
-    },
-    'kubb:build:start'(ctx) {
-      // Overwrite each listed plugin's barrelType before the build loop starts so that
-      // the core barrel generation picks up the correct type without any special casing.
-      for (const entry of options.plugins ?? []) {
-        const plugin = ctx.getPlugin(entry.name) as NormalizedPlugin | undefined
-        if (plugin?.options) {
-          plugin.options.output = { ...plugin.options.output, barrelType: entry.barrelType }
-        }
-      }
+export const pluginBarrel = definePlugin<PluginBarrel>((options: PluginBarrelOptions = {}) => {
+  let getFiles: (() => ReadonlyArray<FileNode>) | undefined
+  let upsertFile: ((...files: Array<FileNode>) => void) | undefined
+  let getPlugin: ((name: string) => NormalizedPlugin | undefined) | undefined
+  let buildConfig: { root: string; output: { path: string } } | undefined
 
-      // When the caller explicitly configures a root barrel type, overwrite
-      // config.output.barrelType so the core root-barrel phase uses it.
-      if (options.root !== undefined) {
-        ctx.config.output = { ...ctx.config.output, barrelType: options.root.barrelType ?? undefined }
-      }
+  return {
+    name: pluginBarrelName,
+    options,
+    hooks: {
+      'kubb:plugin:setup'(ctx) {
+        ctx.setOptions(options)
+      },
+
+      'kubb:build:start'(ctx) {
+        getFiles = ctx.getFiles
+        upsertFile = ctx.upsertFile
+        getPlugin = (name) => ctx.getPlugin(name) as NormalizedPlugin | undefined
+        buildConfig = ctx.config
+      },
+
+      async 'kubb:plugin:end'(plugin, result) {
+        if (!result.success || !getFiles || !upsertFile || !buildConfig) return
+
+        if (plugin.name === pluginBarrelName) {
+          await generateRootBarrel()
+          return
+        }
+
+        await generatePerPluginBarrel(plugin.name)
+      },
     },
-  },
-}))
+  }
+
+  async function generatePerPluginBarrel(pluginName: string): Promise<void> {
+    const configEntry = options.plugins?.find((p) => p.name === pluginName)
+    const normalizedPlugin = getPlugin!(pluginName)
+    let barrelType: BarrelType | false | undefined
+
+    if (configEntry !== undefined) {
+      barrelType = configEntry.barrelType
+    } else {
+      barrelType = normalizedPlugin?.options?.output?.barrelType
+    }
+
+    if (!barrelType) return
+
+    const output = normalizedPlugin?.options?.output
+    if (!output?.path) return
+
+    const root = resolve(buildConfig!.root, buildConfig!.output.path)
+    const barrelFiles = await getBarrelFiles(getFiles!() as Array<FileNode>, {
+      type: barrelType,
+      root,
+      output,
+      meta: { pluginName },
+    })
+
+    upsertFile!(...barrelFiles)
+  }
+
+  async function generateRootBarrel(): Promise<void> {
+    const rootBarrelType = options.root?.barrelType
+    if (!rootBarrelType) return
+
+    const root = resolve(buildConfig!.root)
+    const rootPath = resolve(root, buildConfig!.output.path, BARREL_FILENAME)
+    const rootDir = dirname(rootPath)
+
+    const allFiles = getFiles!() as Array<FileNode>
+    const indexableFiles = allFiles.filter((f) => f.sources.some((s) => s.isIndexable))
+
+    const existingBarrel = allFiles.find((f) => f.path === rootPath)
+    const existingExports = new Set(
+      existingBarrel?.exports?.flatMap((e) => (Array.isArray(e.name) ? e.name : [e.name])).filter((n): n is string => Boolean(n)) ?? [],
+    )
+
+    const exports = indexableFiles.flatMap((file) => {
+      const containsOnlyTypes = file.sources.every((s) => s.isTypeOnly)
+      const pluginName = (file.meta as { pluginName?: string } | undefined)?.pluginName
+      if (!pluginName) return []
+
+      const configEntry = options.plugins?.find((p) => p.name === pluginName)
+      let barrelType: BarrelType | false | undefined
+      if (configEntry !== undefined) {
+        barrelType = configEntry.barrelType
+      } else {
+        barrelType = getPlugin!(pluginName)?.options?.output?.barrelType
+      }
+      if (!barrelType) return []
+
+      return file.sources.flatMap((source) => {
+        if (!file.path || !source.isIndexable) return []
+
+        const exportName = rootBarrelType === 'all' ? undefined : source.name ? [source.name] : undefined
+        if (exportName?.some((n) => existingExports.has(n))) return []
+
+        return [
+          createExport({
+            name: exportName,
+            path: getRelativePath(rootDir, file.path),
+            isTypeOnly: rootBarrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
+          }),
+        ]
+      })
+    })
+
+    const rootFile = createFile<object>({
+      path: rootPath,
+      baseName: BARREL_FILENAME,
+      exports,
+      sources: [],
+      imports: [],
+      meta: {},
+    })
+
+    upsertFile!(rootFile)
+  }
+})
