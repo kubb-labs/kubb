@@ -1,4 +1,12 @@
-import type { BarrelType, PluginFactoryOptions, Resolver } from '@kubb/core'
+import type { PluginFactoryOptions, Resolver } from '@kubb/core'
+
+/**
+ * Controls how `index.ts` barrel files are generated.
+ * - `'all'` — exports every generated symbol from every file.
+ * - `'named'` — exports only explicitly named exports.
+ * - `'propagate'` — propagates re-exports from nested barrel files upward.
+ */
+export type BarrelType = 'all' | 'named' | 'propagate'
 
 export const pluginBarrelName = 'plugin-barrel' as const
 

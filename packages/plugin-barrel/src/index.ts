@@ -1,6 +1,3 @@
 export { pluginBarrel } from './plugin.ts'
-export type { PluginBarrel, PluginBarrelOptions, PluginBarrelPlugin } from './types.ts'
+export type { BarrelType, PluginBarrel, PluginBarrelOptions, PluginBarrelPlugin } from './types.ts'
 export { pluginBarrelName } from './types.ts'
-export { BARREL_BASENAME, BARREL_FILENAME } from './constants.ts'
-export { getBarrelFiles } from './utils/getBarrelFiles.ts'
-export type { FileMetaBase } from './utils/getBarrelFiles.ts'

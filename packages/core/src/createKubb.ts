@@ -269,7 +269,9 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         adapter: driver.adapter,
         inputNode: driver.inputNode,
         getPlugin: driver.getPlugin.bind(driver),
-        getFiles: () => driver.fileManager.files,
+        get files() {
+          return driver.fileManager.files
+        },
         upsertFile: (...files) => driver.fileManager.upsert(...files),
       })
     }

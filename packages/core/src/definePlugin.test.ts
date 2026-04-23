@@ -246,7 +246,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.setOptions({
-            output: { path: 'types', barrelType: 'named' },
+            output: { path: 'types' },
             enumType: 'asConst',
             syntaxType: 'type',
           })
@@ -264,7 +264,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     const opts = plugin.options as Record<string, unknown>
     expect(opts.enumType).toBe('asConst')
     expect(opts.syntaxType).toBe('type')
-    expect(opts.output).toEqual({ path: 'types', barrelType: 'named' })
+    expect(opts.output).toEqual({ path: 'types' })
   })
 
   it('external listeners receive kubb:plugin:setup context', async () => {

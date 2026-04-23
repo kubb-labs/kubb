@@ -1,6 +1,6 @@
 import path from 'node:path'
 import type { FileNode } from '@kubb/ast'
-import { PluginDriver } from '../PluginDriver.ts'
+import { PluginDriver } from '@kubb/core'
 
 type BarrelData = {
   file?: FileNode
