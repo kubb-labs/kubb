@@ -4,10 +4,28 @@ import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { definePlugin, isPlugin } from './definePlugin.ts'
 import { PluginDriver } from './PluginDriver.ts'
-import type { Config, GeneratorContext, KubbHooks, Plugin, PluginFactoryOptions } from './types.ts'
+import type { Config, GeneratorContext, KubbHooks, KubbPluginSetupContext, Plugin, PluginFactoryOptions } from './types.ts'
 
 type TestPluginOptions = PluginFactoryOptions<string, { tag: string }>
 type TestPluginOptionalOptions = PluginFactoryOptions<string, { tag?: string }>
+
+/**
+ * Builds a stub `kubb:plugin:setup` context with no-op methods.
+ * Used by tests that emit the hook directly without a full driver.
+ */
+function createSetupCtxStub(config: Config): KubbPluginSetupContext {
+  return {
+    config,
+    addGenerator: () => {},
+    setResolver: () => {},
+    setTransformer: () => {},
+    setRenderer: () => {},
+    setOptions: () => {},
+    injectFile: () => {},
+    updateConfig: () => {},
+    options: {},
+  } as unknown as KubbPluginSetupContext
+}
 
 describe('definePlugin', () => {
   it('creates a valid hook-style plugin with `hooks:` property', () => {
@@ -95,17 +113,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     const hooks = new AsyncEventEmitter<KubbHooks>()
     new PluginDriver(makeConfig([hookPlugin]), { hooks })
 
-    await hooks.emit('kubb:plugin:setup', {
-      config: makeConfig([]),
-      addGenerator: () => {},
-      setResolver: () => {},
-      setTransformer: () => {},
-      setRenderer: () => {},
-      setOptions: () => {},
-      injectFile: () => {},
-      updateConfig: () => {},
-      options: {},
-    })
+    await hooks.emit('kubb:plugin:setup', createSetupCtxStub(makeConfig([])))
     expect(setupHandler).toHaveBeenCalledOnce()
   })
 
@@ -152,17 +160,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
       hooks: events,
     })
 
-    await events.emit('kubb:plugin:setup', {
-      config: makeConfig([]),
-      addGenerator: () => {},
-      setResolver: () => {},
-      setTransformer: () => {},
-      setRenderer: () => {},
-      setOptions: () => {},
-      injectFile: () => {},
-      updateConfig: () => {},
-      options: {},
-    })
+    await events.emit('kubb:plugin:setup', createSetupCtxStub(makeConfig([])))
 
     expect(capturedOptions[0]).toEqual({ tag: 'pets' })
   })
@@ -279,17 +277,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     const externalListener = vi.fn()
     events.on('kubb:plugin:setup', externalListener)
 
-    const ctx = {
-      config: makeConfig([]),
-      addGenerator: () => {},
-      setResolver: () => {},
-      setTransformer: () => {},
-      setRenderer: () => {},
-      setOptions: () => {},
-      injectFile: () => {},
-      updateConfig: () => {},
-      options: {},
-    }
+    const ctx = createSetupCtxStub(makeConfig([]))
     await events.emit('kubb:plugin:setup', ctx)
 
     expect(externalListener).toHaveBeenCalledWith(ctx)

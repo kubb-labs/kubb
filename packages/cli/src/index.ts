@@ -1,7 +1,7 @@
 import { styleText } from 'node:util'
 import { createCLI } from '@internals/utils'
 import { version } from '../package.json'
-import { QUITE_FLAGS } from './constants.ts'
+import { QUIET_FLAGS } from './constants.ts'
 import { isFlag } from './utils/flags.ts'
 import { isTelemetryDisabled } from './utils/telemetry.ts'
 
@@ -12,7 +12,7 @@ function shouldShowTelemetryNotice(argv: Array<string>): boolean {
     return false
   }
   // Skip when the user is just asking for help or version info
-  if (argv.some((arg) => isFlag(QUITE_FLAGS, arg))) {
+  if (argv.some((arg) => isFlag(QUIET_FLAGS, arg))) {
     return false
   }
   // Skip in non-interactive / scripting contexts

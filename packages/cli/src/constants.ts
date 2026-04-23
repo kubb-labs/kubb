@@ -38,32 +38,7 @@ export const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
 /**
  * Flags that short-circuit execution (help/version) — no telemetry notice is shown.
  */
-export const QUITE_FLAGS = new Set(['--help', '-h', '--version', '-v'] as const)
-
-/**
- * Flags accepted by the `generate` command.
- */
-export const GENERATE_FLAGS = new Set(['--config', '-c', '--log-level', '-l', '--watch', '-w', '--debug', '-d', '--verbose', '-v', '--silent', '-s'] as const)
-
-/**
- * Flags accepted by the `validate` command.
- */
-export const VALIDATE_FLAGS = new Set(['--input', '-i'] as const)
-
-/**
- * Flags accepted by the `init` command.
- */
-export const INIT_FLAGS = new Set(['--yes', '-y'] as const)
-
-/**
- * Flags accepted by the `agent start` command.
- */
-export const AGENT_START_FLAGS = new Set(['--config', '-c', '--port', '-p', '--host', '--allow-write', '--allow-all'] as const)
-
-/**
- * All known CLI flags across every command.
- */
-export const ARGS = new Set([...QUITE_FLAGS, ...GENERATE_FLAGS, ...VALIDATE_FLAGS, ...INIT_FLAGS, ...AGENT_START_FLAGS] as const)
+export const QUIET_FLAGS = new Set(['--help', '-h', '--version', '-v'] as const)
 
 export const agentDefaults = {
   port: '3000',

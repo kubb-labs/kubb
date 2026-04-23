@@ -3,21 +3,53 @@ import type { ArrowFunctionNode, CodeNode, ConstNode, FileNode, FunctionNode, JS
 import type { Parser } from '@kubb/core'
 import { defineParser } from '@kubb/core'
 import ts from 'typescript'
+import {
+  CARRIAGE_RETURN_PATTERN,
+  CRLF_PATTERN,
+  CURRENT_DIRECTORY_PREFIX,
+  FILE_EXTENSION_PATTERN,
+  INDENT_SIZE,
+  JSDOC_TERMINATOR_PATTERN,
+  LEADING_DIGIT_PATTERN,
+  PARENT_DIRECTORY_PREFIX,
+  WINDOWS_PATH_SEPARATOR,
+} from './constants.ts'
 
 const { factory } = ts
 
 function slash(path: string): string {
-  return normalize(path).replaceAll(/\\/g, '/').replace('../', '')
+  return normalize(path).replaceAll(WINDOWS_PATH_SEPARATOR, '/').replace(PARENT_DIRECTORY_PREFIX, '')
 }
 
+/**
+ * Resolves `filePath` relative to `rootDir` and returns a POSIX-style path
+ * prefixed with `./` when the target sits inside the root, or `../` when it escapes it.
+ */
 function getRelativePath(rootDir: string, filePath: string): string {
   const rel = relative(rootDir, filePath)
   const slashed = slash(rel)
-  return slashed.startsWith('../') ? slashed : `./${slashed}`
+  return slashed.startsWith(PARENT_DIRECTORY_PREFIX) ? slashed : `${CURRENT_DIRECTORY_PREFIX}${slashed}`
 }
 
+/**
+ * Strips the trailing file extension (for example `.ts`) from a path.
+ * Preserves intermediate dots like `foo.bar.ts` → `foo.bar`.
+ */
 function trimExtName(text: string): string {
-  return text.replace(/\.[^/.]+$/, '')
+  return text.replace(FILE_EXTENSION_PATTERN, '')
+}
+
+/**
+ * Rewrites an import/export path so its extension matches the caller-supplied
+ * `options.extname`. When the source path has no extension the original is kept,
+ * so virtual/module-only paths flow through unchanged.
+ */
+function resolveOutputPath(path: string, options: { extname?: string } | undefined, rootAware: boolean): string {
+  const hasExtname = FILE_EXTENSION_PATTERN.test(path)
+  if (options?.extname && hasExtname) {
+    return `${trimExtName(path)}${options.extname}`
+  }
+  return rootAware ? trimExtName(path) : path
 }
 
 /**
@@ -55,7 +87,7 @@ export function print(...elements: Array<ts.Node>): string {
 
   const output = printer.printList(ts.ListFormat.MultiLine, factory.createNodeArray(elements.filter(Boolean)), sourceFile)
 
-  return output.replace(/\r\n/g, '\n')
+  return output.replace(CRLF_PATTERN, '\n')
 }
 
 /**
@@ -135,7 +167,7 @@ export function createExport({
   }
 
   if (!Array.isArray(name)) {
-    const parsedName = name?.match(/^\d/) ? `_${name?.slice(1)}` : name
+    const parsedName = name && LEADING_DIGIT_PATTERN.test(name) ? `_${name.slice(1)}` : name
 
     return factory.createExportDeclaration(
       undefined,
@@ -177,7 +209,7 @@ export function printJSDoc(jsDoc: JSDocNode): string {
 
   const lines = comments
     .flatMap((c) => c.split(/\r?\n/))
-    .map((l) => l.replace(/\*\//g, '* /').replace(/\r/g, ''))
+    .map((l) => l.replace(JSDOC_TERMINATOR_PATTERN, '* /').replace(CARRIAGE_RETURN_PATTERN, ''))
     .filter((l) => l.trim().length > 0)
 
   if (lines.length === 0) return ''
@@ -200,13 +232,31 @@ function printNodes(nodes: Array<CodeNode> | undefined): string {
 /**
  * Indents every non-empty line of `text` by `spaces` spaces.
  */
-function indentLines(text: string, spaces = 2): string {
+function indentLines(text: string, spaces: number = INDENT_SIZE): string {
   if (!text) return ''
   const pad = ' '.repeat(spaces)
   return text
     .split('\n')
     .map((line) => (line.trim() ? `${pad}${line}` : ''))
     .join('\n')
+}
+
+/**
+ * Renders the generic clause (`<T, U>`) shared by function and arrow-function nodes.
+ * Accepts either a raw string (rendered verbatim) or an array of type-parameter names.
+ */
+function formatGenerics(generics: FunctionNode['generics'] | ArrowFunctionNode['generics']): string {
+  if (!generics) return ''
+  return `<${Array.isArray(generics) ? generics.join(', ') : generics}>`
+}
+
+/**
+ * Renders the return-type suffix (`: T` or `: Promise<T>` when `isAsync` is true).
+ * Returns an empty string when no return type is provided.
+ */
+function formatReturnType(returnType: string | undefined, isAsync: boolean | undefined): string {
+  if (!returnType) return ''
+  return isAsync ? `: Promise<${returnType}>` : `: ${returnType}`
 }
 
 /**
@@ -296,11 +346,6 @@ export function printFunction(node: FunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes } = node
 
   const jsDocStr = JSDoc ? printJSDoc(JSDoc) : ''
-
-  const genericsStr = generics ? `<${Array.isArray(generics) ? generics.join(', ') : generics}>` : ''
-
-  const returnTypeStr = returnType ? (isAsync ? `: Promise<${returnType}>` : `: ${returnType}`) : ''
-
   const body = printNodes(nodes)
   const indented = body ? indentLines(body) : ''
 
@@ -310,9 +355,9 @@ export function printFunction(node: FunctionNode): string {
   if (isAsync) parts.push('async ')
   parts.push('function ')
   parts.push(name)
-  parts.push(genericsStr)
+  parts.push(formatGenerics(generics))
   parts.push(`(${params ?? ''})`)
-  parts.push(returnTypeStr)
+  parts.push(formatReturnType(returnType, isAsync))
   parts.push(' {')
   if (indented) {
     parts.push(`\n${indented}\n`)
@@ -344,13 +389,7 @@ export function printArrowFunction(node: ArrowFunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes, singleLine } = node
 
   const jsDocStr = JSDoc ? printJSDoc(JSDoc) : ''
-
-  const genericsStr = generics ? `<${Array.isArray(generics) ? generics.join(', ') : generics}>` : ''
-
-  const returnTypeStr = returnType ? (isAsync ? `: Promise<${returnType}>` : `: ${returnType}`) : ''
-
   const body = printNodes(nodes)
-
   const arrowBody = singleLine ? ` => ${body}` : body ? ` => {\n${indentLines(body)}\n}` : ' => {}'
 
   const parts: string[] = []
@@ -360,9 +399,9 @@ export function printArrowFunction(node: ArrowFunctionNode): string {
   parts.push(name)
   parts.push(' = ')
   if (isAsync) parts.push('async ')
-  parts.push(genericsStr)
+  parts.push(formatGenerics(generics))
   parts.push(`(${params ?? ''})`)
-  parts.push(returnTypeStr)
+  parts.push(formatReturnType(returnType, isAsync))
   parts.push(arrowBody)
 
   const declaration = parts.join('')
@@ -440,12 +479,10 @@ export const parserTs: Parser = defineParser({
     const importNodes: Array<ts.ImportDeclaration> = []
     for (const item of (file as FileNode).imports) {
       const importPath = item.root ? getRelativePath(item.root, item.path) : item.path
-      const hasExtname = !!/\.[^/.]+$/.exec(importPath)
-
       importNodes.push(
         createImport({
           name: item.name as string | Array<string | { propertyName: string; name?: string }>,
-          path: options?.extname && hasExtname ? `${trimExtName(importPath)}${options.extname}` : item.root ? trimExtName(importPath) : importPath,
+          path: resolveOutputPath(importPath, options, Boolean(item.root)),
           isTypeOnly: item.isTypeOnly,
           isNameSpace: item.isNameSpace,
         }),
@@ -454,13 +491,10 @@ export const parserTs: Parser = defineParser({
 
     const exportNodes: Array<ts.ExportDeclaration> = []
     for (const item of (file as FileNode).exports) {
-      const exportPath = item.path
-      const hasExtname = !!/\.[^/.]+$/.exec(exportPath)
-
       exportNodes.push(
         createExport({
           name: item.name as string | Array<ts.Identifier | string> | undefined,
-          path: options?.extname && hasExtname ? `${trimExtName(item.path)}${options.extname}` : trimExtName(item.path),
+          path: resolveOutputPath(item.path, options, true),
           isTypeOnly: item.isTypeOnly,
           asAlias: item.asAlias,
         }),

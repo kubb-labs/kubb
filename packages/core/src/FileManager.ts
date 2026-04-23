@@ -11,6 +11,19 @@ function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNod
 }
 
 /**
+ * Collapses a list of files so that duplicates sharing the same `path` are merged
+ * in arrival order. Keeps the original order of first occurrence.
+ */
+function mergeFilesByPath(files: ReadonlyArray<FileNode>): Map<string, FileNode> {
+  const merged = new Map<string, FileNode>()
+  for (const file of files) {
+    const existing = merged.get(file.path)
+    merged.set(file.path, existing ? mergeFile(existing, file) : file)
+  }
+  return merged
+}
+
+/**
  * In-memory file store for generated files.
  *
  * Files with the same `path` are merged — sources, imports, and exports are concatenated.
@@ -30,50 +43,32 @@ export class FileManager {
   #filesCache: Array<FileNode> | null = null
 
   /**
-   * Adds one or more files. Files with the same path are merged — sources, imports,
-   * and exports from all calls with the same path are concatenated together.
+   * Adds one or more files. Incoming files with the same path are merged
+   * (sources/imports/exports concatenated), but existing cache entries are
+   * replaced — use {@link upsert} when you want to merge into the cache too.
    */
   add(...files: Array<FileNode>): Array<FileNode> {
-    const resolvedFiles: Array<FileNode> = []
-    const mergedFiles = new Map<string, FileNode>()
-
-    for (const file of files) {
-      const existing = mergedFiles.get(file.path)
-      mergedFiles.set(file.path, existing ? mergeFile(existing, file) : file)
-    }
-
-    for (const file of mergedFiles.values()) {
-      const resolvedFile = createFile(file)
-      this.#cache.set(resolvedFile.path, resolvedFile)
-      resolvedFiles.push(resolvedFile)
-    }
-    this.#filesCache = null
-
-    return resolvedFiles
+    return this.#store(files, false)
   }
 
   /**
    * Adds or merges one or more files.
-   * If a file with the same path already exists, its sources/imports/exports are merged together.
+   * If a file with the same path already exists in the cache, its
+   * sources/imports/exports are merged into the incoming file.
    */
   upsert(...files: Array<FileNode>): Array<FileNode> {
+    return this.#store(files, true)
+  }
+
+  #store(files: ReadonlyArray<FileNode>, mergeExisting: boolean): Array<FileNode> {
     const resolvedFiles: Array<FileNode> = []
-    const mergedFiles = new Map<string, FileNode>()
-
-    for (const file of files) {
-      const existing = mergedFiles.get(file.path)
-      mergedFiles.set(file.path, existing ? mergeFile(existing, file) : file)
-    }
-
-    for (const file of mergedFiles.values()) {
-      const existing = this.#cache.get(file.path)
-      const merged = existing ? mergeFile(existing, file) : file
-      const resolvedFile = createFile(merged)
+    for (const file of mergeFilesByPath(files).values()) {
+      const existing = mergeExisting ? this.#cache.get(file.path) : undefined
+      const resolvedFile = createFile(existing ? mergeFile(existing, file) : file)
       this.#cache.set(resolvedFile.path, resolvedFile)
       resolvedFiles.push(resolvedFile)
     }
     this.#filesCache = null
-
     return resolvedFiles
   }
 
