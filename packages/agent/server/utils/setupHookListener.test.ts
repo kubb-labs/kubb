@@ -84,7 +84,7 @@ describe('setupHookListener', () => {
         error: expect.any(Error),
       }),
     )
-    expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ message: 'Hook execute failed: nonexistent' }))
+    expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ error: expect.objectContaining({ message: 'Hook execute failed: nonexistent' }) }))
   })
 
   it('includes args in the error message when command with args fails', async () => {
@@ -103,7 +103,9 @@ describe('setupHookListener', () => {
 
     expect(errorSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Hook execute failed: npm run build',
+        error: expect.objectContaining({
+          message: 'Hook execute failed: npm run build',
+        }),
       }),
     )
   })

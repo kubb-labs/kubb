@@ -26,12 +26,12 @@ export async function executeHooks({ configHooks, hooks }: ExecutingHooksProps):
     const hookId = createHash('sha256').update(command).digest('hex')
     await hooks.emit('kubb:hook:start', { id: hookId, command: cmd, args })
 
-    await hooks.onOnce('kubb:hook:end', async ({ success, error }) => {
-      if (!success) {
-        throw error
+    await hooks.onOnce('kubb:hook:end', async (ctx) => {
+      if (!ctx.success) {
+        throw ctx.error
       }
 
-      await hooks.emit('kubb:success', `${command} successfully executed`)
+      await hooks.emit('kubb:success', { message: `${command} successfully executed` })
     })
   }
 }

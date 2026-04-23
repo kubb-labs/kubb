@@ -6,7 +6,8 @@ import { x } from 'tinyexec'
  * command via tinyexec and emits `hook:end` with the result.
  */
 export function setupHookListener(hooks: AsyncEventEmitter<KubbHooks>, root: string): void {
-  hooks.on('kubb:hook:start', async ({ id, command, args }) => {
+  hooks.on('kubb:hook:start', async (ctx) => {
+    const { id, command, args } = ctx
     // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
     if (!id) {
       return
@@ -39,7 +40,7 @@ export function setupHookListener(hooks: AsyncEventEmitter<KubbHooks>, root: str
         success: false,
         error: errorMessage,
       })
-      await hooks.emit('kubb:error', errorMessage)
+      await hooks.emit('kubb:error', { error: errorMessage })
     }
   })
 }

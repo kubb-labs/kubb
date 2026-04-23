@@ -64,7 +64,7 @@ export async function runHook({ id, command, args, commandWithArgs, context, str
         success: false,
         error: toError(err),
       })
-      await context.emit('kubb:error', toError(err))
+      await context.emit('kubb:error', { error: toError(err) })
       return
     }
 
@@ -88,6 +88,6 @@ export async function runHook({ id, command, args, commandWithArgs, context, str
       success: false,
       error: errorMessage,
     })
-    await context.emit('kubb:error', errorMessage)
+    await context.emit('kubb:error', { error: errorMessage })
   }
 }
