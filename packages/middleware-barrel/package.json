@@ -1,0 +1,62 @@
+{
+  "name": "@kubb/middleware-barrel",
+  "version": "5.0.0-alpha.53",
+  "description": "Barrel-file generation middleware for Kubb. Generates index.ts barrel files for each plugin's output directory and a root index.ts after all plugins have run.",
+  "keywords": [
+    "barrel",
+    "code-generator",
+    "codegen",
+    "kubb",
+    "middleware",
+    "openapi",
+    "typescript"
+  ],
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
+    "directory": "packages/middleware-barrel"
+  },
+  "files": [
+    "src",
+    "dist",
+    "*.d.ts",
+    "*.d.cts",
+    "!/**/**.test.**",
+    "!/**/__tests__/**",
+    "!/**/__snapshots__/**"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "clean": "npx rimraf ./dist",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "release": "pnpm publish --no-git-check",
+    "start": "tsdown --watch",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "peerDependencies": {
+    "@kubb/core": "workspace:*"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

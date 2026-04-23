@@ -138,6 +138,13 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     hooks,
   })
 
+  // Install middleware listeners after all plugin hooks are registered.
+  // Because AsyncEventEmitter calls listeners in registration order,
+  // middleware hooks for any event fire after all plugin hooks for that event.
+  for (const mw of config.middleware ?? []) {
+    mw.install(hooks)
+  }
+
   const adapter = config.adapter
   if (!adapter) {
     throw new Error('No adapter configured. Please provide an adapter in your kubb.config.ts.')

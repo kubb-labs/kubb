@@ -350,14 +350,14 @@ These helpers use a `TreeNode` structure (directory tree) to determine which fil
 - [x] Add `Kubb.ConfigOptionsRegistry` and `Kubb.PluginOptionsRegistry` interfaces to `packages/core/src/Kubb.ts`
 - [x] Update `Output` type in `packages/core/src/types.ts` to conditionally intersect with `Kubb.PluginOptionsRegistry['output']`
 - [x] Update root `Config['output']` in `packages/core/src/types.ts` to conditionally intersect with `Kubb.ConfigOptionsRegistry['output']`
-- [ ] Add `middleware?: Array<Middleware>` to `Config` / `UserConfig`
-- [ ] Create `packages/core/src/defineMiddleware.ts` with `Middleware` type + factory
-- [ ] Export new symbols from `packages/core/src/index.ts`
-- [ ] Wire `config.middleware` install loop into `createKubb.ts` `setup()`
-- [ ] Scaffold `packages/middleware-barrel/` (package.json, tsconfig.json, src/)
-- [ ] Implement `BarrelType` type + `declare global` augmentation in `middleware-barrel/src/types.ts`
-- [ ] Implement `TreeNode`, `getBarrelFiles`, `generatePerPluginBarrel`, `generateRootBarrel`
-- [ ] Implement `middlewareBarrel` in `middleware-barrel/src/middleware.ts`
-- [ ] Export from `middleware-barrel/src/index.ts`
-- [ ] Add `@kubb/middleware-barrel` to `pnpm-workspace.yaml`
-- [ ] Add changeset entries for `@kubb/core` and `@kubb/middleware-barrel`
+- [x] Add `middleware?: Array<Middleware>` to `Config` / `UserConfig`
+- [x] Create `packages/core/src/defineMiddleware.ts` with `Middleware` type + factory
+- [x] Export new symbols from `packages/core/src/index.ts`
+- [x] Wire `config.middleware` install loop into `createKubb.ts` `setup()`
+- [x] Scaffold `packages/middleware-barrel/` (package.json, tsconfig.json, src/)
+- [x] Implement `BarrelType` type + `declare global` augmentation in `middleware-barrel/src/types.ts`
+- [x] Implement `TreeNode`, `getBarrelFiles`, `generatePerPluginBarrel`, `generateRootBarrel`
+- [x] Implement `middlewareBarrel` in `middleware-barrel/src/middleware.ts`
+- [x] Export from `middleware-barrel/src/index.ts`
+- [x] Add `@kubb/middleware-barrel` to `pnpm-workspace.yaml`
+- [x] Add changeset entries for `@kubb/core` and `@kubb/middleware-barrel`

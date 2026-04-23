@@ -4,12 +4,23 @@ import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
+import type { Middleware } from './defineMiddleware.ts'
 import type { Parser } from './defineParser.ts'
 import type { Plugin } from './definePlugin.ts'
 import type { KubbHooks } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
 export type { Renderer, RendererFactory } from './createRenderer.ts'
+
+/**
+ * Safely extracts the type of key `K` from `T`, returning `{}` when `K` is not a key of `T`.
+ * Used to implement optional interface augmentation for `Kubb.ConfigOptionsRegistry` and
+ * `Kubb.PluginOptionsRegistry` so that middleware and plugin packages can extend core types
+ * without requiring modifications to core.
+ *
+ * @internal
+ */
+type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {}
 
 export type InputPath = {
   /**
@@ -232,7 +243,7 @@ export type Config<TInput = Input> = {
      * @default false
      */
     override?: boolean
-  } & ('output' extends keyof Kubb.ConfigOptionsRegistry ? Kubb.ConfigOptionsRegistry['output'] : {})
+  } & ExtractRegistryKey<Kubb.ConfigOptionsRegistry, 'output'>
   /**
    * An array of Kubb plugins used for code generation.
    * Each plugin may declare additional configurable options.
@@ -240,6 +251,22 @@ export type Config<TInput = Input> = {
    * Use `dependencies` on the plugin to declare execution order.
    */
   plugins: Array<Plugin>
+  /**
+   * Middleware instances that observe and post-process the build output.
+   * Each middleware receives the `hooks` emitter and attaches its own listeners.
+   * Middleware listeners are always registered after all plugin listeners,
+   * so middleware hooks fire last for any given event.
+   *
+   * @example
+   * ```ts
+   * import { middlewareBarrel } from '@kubb/middleware-barrel'
+   * export default defineConfig({
+   *   middleware: [middlewareBarrel()],
+   *   plugins: [pluginTs(), pluginZod()],
+   * })
+   * ```
+   */
+  middleware?: Array<Middleware>
   /**
    * Project-wide renderer factory. All plugins and generators that do not declare their own
    * `renderer` ultimately fall back to this value.
@@ -540,7 +567,7 @@ export type Output<_TOptions = unknown> = {
    * @default false
    */
   override?: boolean
-} & ('output' extends keyof Kubb.PluginOptionsRegistry ? Kubb.PluginOptionsRegistry['output'] : {})
+} & ExtractRegistryKey<Kubb.PluginOptionsRegistry, 'output'>
 
 export type Group = {
   /**
@@ -577,6 +604,7 @@ export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Logger<
 
 export type { Storage } from './createStorage.ts'
 export type { Generator } from './defineGenerator.ts'
+export type { Middleware } from './defineMiddleware.ts'
 export type { Plugin } from './definePlugin.ts'
 export type { Kubb, KubbHooks } from './Kubb.ts'
 
