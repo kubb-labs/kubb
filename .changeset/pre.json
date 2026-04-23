@@ -51,6 +51,7 @@
     "fix-cli-tty-column-error",
     "fix-defineconfig-entrypoint",
     "fix-discriminator-union-types",
+    "fix-middleware-barrel-generation",
     "fix-null-const-duplication",
     "fix-oxlint-gitignore-lint-failure",
     "fix-path-param-ref-types",
