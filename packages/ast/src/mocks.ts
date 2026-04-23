@@ -162,7 +162,7 @@ export function buildFixture(): InputNode {
         method: 'POST',
         path: '/pets',
         tags: ['pets'],
-        requestBody: { schema: createSchema({ type: 'ref', ref: 'NewPet' }) },
+        requestBody: { content: [{ contentType: 'application/json', schema: createSchema({ type: 'ref', ref: 'NewPet' }) }] },
         responses: [
           createResponse({
             statusCode: '201',

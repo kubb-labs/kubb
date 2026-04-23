@@ -69,25 +69,40 @@ export type OperationNode = BaseNode & {
      */
     description?: string
     /**
-     * Request body schema.
-     * For OpenAPI, this is the schema from the first `content` entry.
-     */
-    schema?: SchemaNode
-    /**
-     * Property keys to exclude from the generated request body type via `Omit<Type, Keys>`.
-     * Set when a referenced schema has `readOnly` fields that should be omitted in request types.
-     */
-    keysToOmit?: Array<string>
-    /**
      * Whether the request body is required (`requestBody.required: true` in the spec).
      * When `false` or absent, the generated `data` parameter should be optional.
      */
     required?: boolean
     /**
-     * Media type of the request body (e.g. `'application/json'`, `'multipart/form-data'`).
-     * Extracted from the first `content` entry of the OpenAPI `requestBody`.
+     * All available content type entries for this request body.
+     *
+     * When the adapter `contentType` option is set, this array contains exactly one entry for
+     * that content type. Otherwise it contains one entry per content type declared in the spec,
+     * so that plugins can generate code for every variant (e.g. separate hooks for
+     * `application/json` and `multipart/form-data`).
+     *
+     * @example
+     * ```ts
+     * // spec has both application/json and multipart/form-data
+     * requestBody.content[0].contentType // 'application/json'
+     * requestBody.content[1].contentType // 'multipart/form-data'
+     * ```
      */
-    contentType?: string
+    content?: Array<{
+      /**
+       * The content type for this entry (e.g. `'application/json'`).
+       */
+      contentType: string
+      /**
+       * Request body schema for this content type.
+       */
+      schema?: SchemaNode
+      /**
+       * Property keys to exclude from the generated request body type via `Omit<Type, Keys>`.
+       * Set when a referenced schema has `readOnly` fields that should be omitted in request types.
+       */
+      keysToOmit?: Array<string>
+    }>
   }
   /**
    * Operation responses.
