@@ -1,5 +1,17 @@
 # kubb
 
+## 5.0.0-alpha.53
+
+### Patch Changes
+
+- Updated dependencies [[`72025d7`](https://github.com/kubb-labs/kubb/commit/72025d7255c7d09b69b2665b938a9a5fd3890cf7)]:
+  - @kubb/core@5.0.0-alpha.53
+  - @kubb/cli@5.0.0-alpha.53
+  - @kubb/adapter-oas@5.0.0-alpha.53
+  - @kubb/agent@5.0.0-alpha.53
+  - @kubb/mcp@5.0.0-alpha.53
+  - @kubb/parser-ts@5.0.0-alpha.53
+
 ## 5.0.0-alpha.52
 
 ### Patch Changes
@@ -125,6 +137,7 @@
 ### Patch Changes
 
 - [#64](https://github.com/tigawanna/kubb/pull/64) [`84b4ba5`](https://github.com/kubb-labs/kubb/commit/84b4ba543597dd8fc2ca74914143865976741153) Thanks [@pull](https://github.com/apps/pull)! - Improve `defineConfig` usage in v5.
+
   - Fix `defineConfig` typing in the `kubb` package so object configs keep the expected inferred shape.
   - Update `kubb init` to install `kubb`, which matches the generated `import { defineConfig } from 'kubb'` config file.
 
@@ -265,6 +278,7 @@
 - [#2971](https://github.com/kubb-labs/kubb/pull/2971) [`6c49d8d`](https://github.com/kubb-labs/kubb/commit/6c49d8d02d7c4bf5341fb6f0114f6aa2ee735e1e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `UserConfig` now correctly marks `adapter` and `parsers` as optional properties.
 
   `defineConfig` automatically applies defaults when these options are omitted:
+
   - `adapter` defaults to `adapterOas()` from `@kubb/adapter-oas`
   - `parsers` defaults to `[parserTs]` from `@kubb/parser-ts`
 
@@ -273,19 +287,19 @@
   ```ts
   // before — had to set adapter and parsers explicitly
   export default defineConfig({
-    input: { path: './petStore.yaml' },
-    output: { path: './src/gen' },
+    input: { path: "./petStore.yaml" },
+    output: { path: "./src/gen" },
     adapter: adapterOas(),
     parsers: [parserTs],
     plugins: [],
-  })
+  });
 
   // after — adapter and parsers are applied automatically
   export default defineConfig({
-    input: { path: './petStore.yaml' },
-    output: { path: './src/gen' },
+    input: { path: "./petStore.yaml" },
+    output: { path: "./src/gen" },
     plugins: [],
-  })
+  });
   ```
 
   `@kubb/adapter-oas` and `@kubb/parser-ts` must be installed for the defaults to work.
