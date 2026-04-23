@@ -3,13 +3,31 @@ import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import type { BuildOutput } from './createKubb.ts'
 import type { Plugin } from './definePlugin.ts'
 import type { PluginDriver } from './PluginDriver.ts'
-import type { Config, GeneratorContext, KubbBuildEndContext, KubbBuildStartContext, KubbPluginSetupContext } from './types'
-
-type DebugInfo = {
-  date: Date
-  logs: Array<string>
-  fileName?: string
-}
+import type {
+  Config,
+  GeneratorContext,
+  KubbBuildEndContext,
+  KubbBuildStartContext,
+  KubbConfigEndContext,
+  KubbDebugContext,
+  KubbErrorContext,
+  KubbFileProcessingUpdateContext,
+  KubbFilesProcessingEndContext,
+  KubbFilesProcessingStartContext,
+  KubbGenerationEndContext,
+  KubbGenerationStartContext,
+  KubbGenerationSummaryContext,
+  KubbHookEndContext,
+  KubbHookStartContext,
+  KubbInfoContext,
+  KubbLifecycleStartContext,
+  KubbPluginEndContext,
+  KubbPluginSetupContext,
+  KubbPluginStartContext,
+  KubbSuccessContext,
+  KubbVersionNewContext,
+  KubbWarnContext,
+} from './types'
 
 /**
  * The instance returned by {@link createKubb}.
@@ -67,7 +85,7 @@ export type Kubb = {
  *   console.log('Starting Kubb generation')
  * })
  *
- * hooks.on('kubb:plugin:end', (plugin, { duration }) => {
+ * hooks.on('kubb:plugin:end', ({ plugin, duration }) => {
  *   console.log(`Plugin ${plugin.name} completed in ${duration}ms`)
  * })
  * ```
@@ -76,7 +94,7 @@ export interface KubbHooks {
   /**
    * Emitted at the beginning of the Kubb lifecycle, before any code generation starts.
    */
-  'kubb:lifecycle:start': [version: string]
+  'kubb:lifecycle:start': [ctx: KubbLifecycleStartContext]
   /**
    * Emitted at the end of the Kubb lifecycle, after all code generation is complete.
    */
@@ -89,30 +107,21 @@ export interface KubbHooks {
   /**
    * Emitted when configuration loading is complete.
    */
-  'kubb:config:end': [configs: Array<Config>]
+  'kubb:config:end': [ctx: KubbConfigEndContext]
 
   /**
    * Emitted when code generation phase starts.
    */
-  'kubb:generation:start': [config: Config]
+  'kubb:generation:start': [ctx: KubbGenerationStartContext]
   /**
    * Emitted when code generation phase completes.
    */
-  'kubb:generation:end': [config: Config, files: Array<FileNode>, sources: Map<string, string>]
+  'kubb:generation:end': [ctx: KubbGenerationEndContext]
   /**
    * Emitted with a summary of the generation results.
    * Contains summary lines, title, and success status.
    */
-  'kubb:generation:summary': [
-    config: Config,
-    {
-      failedPlugins: Set<{ plugin: Plugin; error: Error }>
-      status: 'success' | 'failed'
-      hrStart: [number, number]
-      filesCreated: number
-      pluginTimings?: Map<Plugin['name'], number>
-    },
-  ]
+  'kubb:generation:summary': [ctx: KubbGenerationSummaryContext]
 
   /**
    * Emitted when code formatting starts (e.g., running Biome or Prettier).
@@ -145,100 +154,64 @@ export interface KubbHooks {
    * Emitted when a single hook execution starts (e.g., format or lint).
    * The callback should be invoked when the command completes.
    */
-  'kubb:hook:start': [{ id?: string; command: string; args?: readonly string[] }]
+  'kubb:hook:start': [ctx: KubbHookStartContext]
   /**
    * Emitted when a single hook execution completes.
    */
-  'kubb:hook:end': [
-    {
-      id?: string
-      command: string
-      args?: readonly string[]
-      success: boolean
-      error: Error | null
-    },
-  ]
+  'kubb:hook:end': [ctx: KubbHookEndContext]
 
   /**
    * Emitted when a new version of Kubb is available.
    */
-  'kubb:version:new': [currentVersion: string, latestVersion: string]
+  'kubb:version:new': [ctx: KubbVersionNewContext]
 
   /**
    * Informational message event.
    */
-  'kubb:info': [message: string, info?: string]
+  'kubb:info': [ctx: KubbInfoContext]
   /**
    * Error event. Emitted when an error occurs during code generation.
    */
-  'kubb:error': [error: Error, meta?: Record<string, unknown>]
+  'kubb:error': [ctx: KubbErrorContext]
   /**
    * Success message event.
    */
-  'kubb:success': [message: string, info?: string]
+  'kubb:success': [ctx: KubbSuccessContext]
   /**
    * Warning message event.
    */
-  'kubb:warn': [message: string, info?: string]
+  'kubb:warn': [ctx: KubbWarnContext]
   /**
    * Debug event for detailed logging.
    * Contains timestamp, log messages, and optional filename.
    */
-  'kubb:debug': [info: DebugInfo]
+  'kubb:debug': [ctx: KubbDebugContext]
 
   /**
    * Emitted when file processing starts.
    * Contains the list of files to be processed.
    */
-  'kubb:files:processing:start': [files: Array<FileNode>]
+  'kubb:files:processing:start': [ctx: KubbFilesProcessingStartContext]
   /**
    * Emitted for each file being processed, providing progress updates.
    * Contains processed count, total count, percentage, and file details.
    */
-  'kubb:file:processing:update': [
-    {
-      /**
-       * Number of files processed so far.
-       */
-      processed: number
-      /**
-       * Total number of files to process.
-       */
-      total: number
-      /**
-       * Processing percentage (0–100).
-       */
-      percentage: number
-      /**
-       * Optional source identifier.
-       */
-      source?: string
-      /**
-       * The file being processed.
-       */
-      file: FileNode
-      /**
-       * Kubb configuration
-       * Provides access to the current config during file processing.
-       */
-      config: Config
-    },
-  ]
+  'kubb:file:processing:update': [ctx: KubbFileProcessingUpdateContext]
   /**
    * Emitted when file processing completes.
    * Contains the list of processed files.
    */
-  'kubb:files:processing:end': [files: Array<FileNode>]
+  'kubb:files:processing:end': [ctx: KubbFilesProcessingEndContext]
 
   /**
    * Emitted when a plugin starts executing.
    */
-  'kubb:plugin:start': [plugin: Plugin]
+  'kubb:plugin:start': [ctx: KubbPluginStartContext]
   /**
    * Emitted when a plugin completes execution.
    * Duration in ms.
    */
-  'kubb:plugin:end': [plugin: Plugin, result: { duration: number; success: boolean; error?: Error }]
+  'kubb:plugin:end': [ctx: KubbPluginEndContext]
 
   /**
    * Fired once — before any plugin's `buildStart` runs — so that hook-style plugins

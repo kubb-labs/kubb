@@ -29,7 +29,7 @@ export async function publish({ command, outputPath, root, hooks }: PublishProps
 
   const commandWithArgs = args.length ? `${cmd} ${args.join(' ')}` : cmd
 
-  await hooks.emit('kubb:info', `[publish] Running "${commandWithArgs}" in "${resolvedOutputPath}"`)
+  await hooks.emit('kubb:info', { message: `[publish] Running "${commandWithArgs}" in "${resolvedOutputPath}"` })
 
   const startTime = Date.now()
 
@@ -43,7 +43,7 @@ export async function publish({ command, outputPath, root, hooks }: PublishProps
     // Stream output line-by-line (stdout + stderr interleaved) in real time
     for await (const line of proc) {
       if (line.trim()) {
-        await hooks.emit('kubb:info', line.trim())
+        await hooks.emit('kubb:info', { message: line.trim() })
       }
     }
 
@@ -55,16 +55,16 @@ export async function publish({ command, outputPath, root, hooks }: PublishProps
     const error = new Error(`[publish] Failed to run "${commandWithArgs}": ${message}`)
     error.cause = err
 
-    await hooks.emit('kubb:error', error)
+    await hooks.emit('kubb:error', { error })
     throw error
   }
 
   if (exitCode !== 0) {
     const error = new Error(`[publish] "${commandWithArgs}" exited with code ${exitCode}`)
-    await hooks.emit('kubb:error', error)
+    await hooks.emit('kubb:error', { error })
     throw error
   }
 
   const duration = Date.now() - startTime
-  await hooks.emit('kubb:success', `[publish] Published successfully in ${duration}ms`)
+  await hooks.emit('kubb:success', { message: `[publish] Published successfully in ${duration}ms` })
 }

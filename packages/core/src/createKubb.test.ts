@@ -176,7 +176,7 @@ describe('createKubb', () => {
 
     await createKubb(arrayConfig, { hooks }).build()
 
-    expect(warnSpy).toHaveBeenCalledWith('This feature is still under development — use with caution')
+    expect(warnSpy).toHaveBeenCalledWith({ message: 'This feature is still under development — use with caution' })
   })
 
   it.todo('should generate barrel file when barrelType is set')
