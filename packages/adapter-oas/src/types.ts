@@ -173,6 +173,20 @@ export type AdapterOasOptions = {
    * @default 'strict'
    */
   discriminator?: 'strict' | 'inherit'
+  /**
+   * When `true`, operations with multiple request body content types generate one `OperationNode`
+   * per content type, each with a unique `operationId` suffixed by the content type
+   * (e.g. `createPathJson`, `createPathMultipart`).
+   *
+   * Use this when you need separate client functions or hooks for each content type variant
+   * of the same endpoint (for example `application/json` and `multipart/form-data`).
+   *
+   * Has no effect when `contentType` is also set (a fixed content type already produces a
+   * single operation node).
+   *
+   * @default false
+   */
+  expandContentTypes?: boolean
 } & Partial<ast.ParserOptions>
 
 /**
@@ -189,6 +203,12 @@ export type AdapterOasResolvedOptions = {
   unknownType: NonNullable<AdapterOasOptions['unknownType']>
   emptySchemaType: NonNullable<AdapterOasOptions['emptySchemaType']>
   enumSuffix: AdapterOasOptions['enumSuffix']
+  /**
+   * Whether to expand operations with multiple request body content types into separate
+   * `OperationNode`s, one per content type.
+   * @default false
+   */
+  expandContentTypes: boolean
   /**
    * Map from original `$ref` paths to their collision-resolved schema names.
    * Populated after each `parse()` call.

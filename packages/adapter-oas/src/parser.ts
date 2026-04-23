@@ -7,10 +7,12 @@ import { resolveRef } from './refs.ts'
 import {
   buildSchemaNode,
   flattenSchema,
+  getContentTypeSuffix,
   getDateType,
   getMediaType,
   getParameters,
   getPrimitiveType,
+  getRequestBodyContentTypes,
   getRequestSchema,
   getResponseSchema,
   getSchemas,
@@ -791,8 +793,12 @@ function createSchemaParser(ctx: OasParserContext) {
   /**
    * Reads the inline `requestBody` metadata (description / required / contentType) that OAS exposes
    * outside the schema itself. Returns an empty object when the request body is missing or a `$ref`.
+   *
+   * When `contentType` is provided and exists in the request body's `content` map, that content
+   * type is returned as-is. Otherwise the first key in the map is used, matching the same fallback
+   * logic used by `getRequestSchema`.
    */
-  function getRequestBodyMeta(operation: Operation): {
+  function getRequestBodyMeta(operation: Operation, contentType?: string): {
     description?: string
     required: boolean
     contentType?: string
@@ -805,10 +811,21 @@ function createSchemaParser(ctx: OasParserContext) {
       required?: boolean
       content?: Record<string, unknown>
     }
+
+    let actualContentType: string | undefined
+    if (inline.content) {
+      const contentKeys = Object.keys(inline.content)
+      if (contentType && contentKeys.includes(contentType)) {
+        actualContentType = contentType
+      } else {
+        actualContentType = contentKeys[0]
+      }
+    }
+
     return {
       description: inline.description,
       required: inline.required === true,
-      contentType: inline.content ? Object.keys(inline.content)[0] : undefined,
+      contentType: actualContentType,
     }
   }
 
