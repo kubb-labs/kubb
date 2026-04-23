@@ -365,7 +365,8 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.outro(text)
     })
 
-    context.on('kubb:hook:start', async ({ id, command, args }) => {      const commandWithArgs = formatCommandWithArgs(command, args)
+    context.on('kubb:hook:start', async ({ id, command, args }) => {
+      const commandWithArgs = formatCommandWithArgs(command, args)
       const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} started`)
 
       // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
@@ -411,7 +412,8 @@ Run \`npm install -g @kubb/cli\` to update`,
       })
     })
 
-    context.on('kubb:hook:end', ({ command, args }) => {      if (logLevel <= logLevelMap.silent) {
+    context.on('kubb:hook:end', ({ command, args }) => {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
