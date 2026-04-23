@@ -1,5 +1,12 @@
 # @kubb/middleware-barrel
 
+## 5.0.0-alpha.57
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.57
+
 ## 5.0.0-alpha.56
 
 ### Patch Changes
@@ -22,12 +29,12 @@
   Provides barrel-file generation as a Kubb middleware. Add `middlewareBarrel` to `config.middleware` and set `output.barrelType` (`'all'`, `'named'`, or `'propagate'`) on the root config or individual plugins.
 
   ```ts
-  import { middlewareBarrel } from '@kubb/middleware-barrel'
+  import { middlewareBarrel } from "@kubb/middleware-barrel";
 
   export default defineConfig({
     middleware: [middlewareBarrel],
     plugins: [pluginTs(), pluginZod()],
-  })
+  });
   ```
 
 ### Patch Changes
