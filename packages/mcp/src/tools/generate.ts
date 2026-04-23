@@ -36,30 +36,30 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
     }
 
     // Capture events for output and send notifications
-    hooks.on('kubb:info', async (message: string) => {
+    hooks.on('kubb:info', async ({ message }: { message: string }) => {
       await notify(NotifyTypes.INFO, message)
     })
 
-    hooks.on('kubb:success', async (message: string) => {
+    hooks.on('kubb:success', async ({ message }: { message: string }) => {
       await notify(NotifyTypes.SUCCESS, message)
     })
 
-    hooks.on('kubb:error', async (error: Error) => {
+    hooks.on('kubb:error', async ({ error }: { error: Error }) => {
       await notify(NotifyTypes.ERROR, error.message, { stack: error.stack })
     })
 
-    hooks.on('kubb:warn', async (message: string) => {
+    hooks.on('kubb:warn', async ({ message }: { message: string }) => {
       await notify(NotifyTypes.WARN, message)
     })
 
     // Plugin lifecycle events
-    hooks.on('kubb:plugin:start', async (plugin) => {
+    hooks.on('kubb:plugin:start', async ({ plugin }) => {
       await notify(NotifyTypes.PLUGIN_START, `Plugin starting: ${plugin.name}`)
     })
 
-    hooks.on('kubb:plugin:end', async (plugin, result) => {
+    hooks.on('kubb:plugin:end', async ({ plugin, duration }) => {
       await notify(NotifyTypes.PLUGIN_END, `Plugin finished: ${plugin.name}`, {
-        duration: result.duration,
+        duration,
       })
     })
 

@@ -683,6 +683,125 @@ export type KubbBuildEndContext = {
   outputDir: string
 }
 
+export type KubbLifecycleStartContext = {
+  version: string
+}
+
+export type KubbConfigEndContext = {
+  configs: Array<Config>
+}
+
+export type KubbGenerationStartContext = {
+  config: Config
+}
+
+export type KubbGenerationEndContext = {
+  config: Config
+  files: Array<FileNode>
+  sources: Map<string, string>
+}
+
+export type KubbGenerationSummaryContext = {
+  config: Config
+  failedPlugins: Set<{ plugin: Plugin; error: Error }>
+  status: 'success' | 'failed'
+  hrStart: [number, number]
+  filesCreated: number
+  pluginTimings?: Map<Plugin['name'], number>
+}
+
+export type KubbVersionNewContext = {
+  currentVersion: string
+  latestVersion: string
+}
+
+export type KubbInfoContext = {
+  message: string
+  info?: string
+}
+
+export type KubbErrorContext = {
+  error: Error
+  meta?: Record<string, unknown>
+}
+
+export type KubbSuccessContext = {
+  message: string
+  info?: string
+}
+
+export type KubbWarnContext = {
+  message: string
+  info?: string
+}
+
+export type KubbDebugContext = {
+  date: Date
+  logs: Array<string>
+  fileName?: string
+}
+
+export type KubbFilesProcessingStartContext = {
+  files: Array<FileNode>
+}
+
+export type KubbFileProcessingUpdateContext = {
+  /**
+   * Number of files processed so far.
+   */
+  processed: number
+  /**
+   * Total number of files to process.
+   */
+  total: number
+  /**
+   * Processing percentage (0–100).
+   */
+  percentage: number
+  /**
+   * Optional source identifier.
+   */
+  source?: string
+  /**
+   * The file being processed.
+   */
+  file: FileNode
+  /**
+   * Kubb configuration.
+   * Provides access to the current config during file processing.
+   */
+  config: Config
+}
+
+export type KubbFilesProcessingEndContext = {
+  files: Array<FileNode>
+}
+
+export type KubbPluginStartContext = {
+  plugin: Plugin
+}
+
+export type KubbPluginEndContext = {
+  plugin: Plugin
+  duration: number
+  success: boolean
+  error?: Error
+}
+
+export type KubbHookStartContext = {
+  id?: string
+  command: string
+  args?: readonly string[]
+}
+
+export type KubbHookEndContext = {
+  id?: string
+  command: string
+  args?: readonly string[]
+  success: boolean
+  error: Error | null
+}
+
 type ByTag = {
   type: 'tag'
   pattern: string | RegExp

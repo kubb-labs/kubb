@@ -47,23 +47,23 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
     })
   }
 
-  hooks.on('kubb:plugin:start', (plugin) => {
+  hooks.on('kubb:plugin:start', (ctx) => {
     sendDataMessage({
       type: 'kubb:plugin:start',
-      data: [plugin],
+      data: [ctx.plugin],
       timestamp: Date.now(),
     })
   })
 
-  hooks.on('kubb:plugin:end', (plugin, meta) => {
+  hooks.on('kubb:plugin:end', (ctx) => {
     sendDataMessage({
       type: 'kubb:plugin:end',
-      data: [plugin, meta],
+      data: [ctx.plugin, { duration: ctx.duration, success: ctx.success }],
       timestamp: Date.now(),
     })
   })
 
-  hooks.on('kubb:files:processing:start', (files) => {
+  hooks.on('kubb:files:processing:start', ({ files }) => {
     sendDataMessage({
       type: 'kubb:files:processing:start',
       data: [{ total: files.length }],
@@ -71,22 +71,22 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
     })
   })
 
-  hooks.on('kubb:file:processing:update', (meta) => {
+  hooks.on('kubb:file:processing:update', (ctx) => {
     sendDataMessage({
       type: 'kubb:file:processing:update',
       data: [
         {
-          file: meta.file.path,
-          processed: meta.processed,
-          total: meta.total,
-          percentage: meta.percentage,
+          file: ctx.file.path,
+          processed: ctx.processed,
+          total: ctx.total,
+          percentage: ctx.percentage,
         },
       ],
       timestamp: Date.now(),
     })
   })
 
-  hooks.on('kubb:files:processing:end', (files) => {
+  hooks.on('kubb:files:processing:end', ({ files }) => {
     sendDataMessage({
       type: 'kubb:files:processing:end',
       data: [{ total: files.length }],
@@ -94,7 +94,7 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
     })
   })
 
-  hooks.on('kubb:info', (message, info) => {
+  hooks.on('kubb:info', ({ message, info }) => {
     sendDataMessage({
       type: 'kubb:info',
       data: [message, info],
@@ -102,7 +102,7 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
     })
   })
 
-  hooks.on('kubb:success', (message, info) => {
+  hooks.on('kubb:success', ({ message, info }) => {
     sendDataMessage({
       type: 'kubb:success',
       data: [message, info],
@@ -110,7 +110,7 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
     })
   })
 
-  hooks.on('kubb:warn', (message, info) => {
+  hooks.on('kubb:warn', ({ message, info }) => {
     sendDataMessage({
       type: 'kubb:warn',
       data: [message, info],
@@ -118,7 +118,7 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
     })
   })
 
-  hooks.on('kubb:generation:start', (config) => {
+  hooks.on('kubb:generation:start', ({ config }) => {
     sendDataMessage({
       type: 'kubb:generation:start',
       data: [
@@ -131,7 +131,7 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
     })
   })
 
-  hooks.on('kubb:generation:end', (config, files, sources) => {
+  hooks.on('kubb:generation:end', ({ config, files, sources }) => {
     const sourcesRecord: Record<string, string> = {}
 
     sources.forEach((value, key) => {
@@ -144,7 +144,7 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
     })
   })
 
-  hooks.on('kubb:error', (error) => {
+  hooks.on('kubb:error', ({ error }) => {
     sendDataMessage({
       type: 'kubb:error',
       data: [

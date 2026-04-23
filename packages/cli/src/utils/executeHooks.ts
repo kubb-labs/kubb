@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { styleText } from 'node:util'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { tokenize } from '@internals/utils'
-import type { Config, KubbHooks } from '@kubb/core'
+import type { Config, KubbHookEndContext, KubbHooks } from '@kubb/core'
 
 type ExecutingHooksProps = {
   configHooks: NonNullable<Config['hooks']>
@@ -24,15 +24,15 @@ export async function executeHooks({ configHooks, hooks }: ExecutingHooksProps):
     // Wire up the hook:end listener BEFORE emitting hook:start to avoid the race condition
     // where hook:end fires synchronously inside emit('kubb:hook:start') before the listener is registered.
     const hookEndPromise = new Promise<void>((resolve, reject) => {
-      const handler = ({ id, success, error }: { id?: string; command: string; args?: readonly string[]; success: boolean; error: Error | null }) => {
-        if (id !== hookId) return
+      const handler = (ctx: KubbHookEndContext) => {
+        if (ctx.id !== hookId) return
         hooks.off('kubb:hook:end', handler)
-        if (!success) {
-          reject(error ?? new Error(`Hook failed: ${command}`))
+        if (!ctx.success) {
+          reject(ctx.error ?? new Error(`Hook failed: ${command}`))
           return
         }
         hooks
-          .emit('kubb:success', `${styleText('dim', command)} successfully executed`)
+          .emit('kubb:success', { message: `${styleText('dim', command)} successfully executed` })
           .then(resolve)
           .catch(reject)
       }

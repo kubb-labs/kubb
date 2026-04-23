@@ -73,7 +73,7 @@ export const clackLogger = defineLogger({
       state.isSpinning = false
     }
 
-    context.on('kubb:info', (message, info = '') => {
+    context.on('kubb:info', ({ message, info = '' }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -87,7 +87,7 @@ export const clackLogger = defineLogger({
       }
     })
 
-    context.on('kubb:success', (message, info = '') => {
+    context.on('kubb:success', ({ message, info = '' }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -101,7 +101,7 @@ export const clackLogger = defineLogger({
       }
     })
 
-    context.on('kubb:warn', (message, info) => {
+    context.on('kubb:warn', ({ message, info }) => {
       if (logLevel < logLevelMap.warn) {
         return
       }
@@ -113,7 +113,7 @@ export const clackLogger = defineLogger({
       clack.log.warn(text)
     })
 
-    context.on('kubb:error', (error) => {
+    context.on('kubb:error', ({ error }) => {
       const caused = toCause(error)
 
       const text = [styleText('red', '✗'), error.message].join(' ')
@@ -142,14 +142,14 @@ export const clackLogger = defineLogger({
       }
     })
 
-    context.on('kubb:version:new', (version, latestVersion) => {
+    context.on('kubb:version:new', ({ currentVersion, latestVersion }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
 
       try {
         clack.box(
-          `\`v${version}\` → \`v${latestVersion}\`
+          `\`v${currentVersion}\` → \`v${latestVersion}\`
 Run \`npm install -g @kubb/cli\` to update`,
           'Update available for `Kubb`',
           {
@@ -162,12 +162,12 @@ Run \`npm install -g @kubb/cli\` to update`,
           },
         )
       } catch {
-        console.log(`Update available for Kubb: v${version} → v${latestVersion}`)
+        console.log(`Update available for Kubb: v${currentVersion} → v${latestVersion}`)
         console.log('Run `npm install -g @kubb/cli` to update')
       }
     })
 
-    context.on('kubb:lifecycle:start', async (version) => {
+    context.on('kubb:lifecycle:start', async ({ version }) => {
       console.log(`\n${getIntro({ title: 'The ultimate toolkit for working with APIs', description: 'Ready to start', version, areEyesOpen: true })}\n`)
 
       reset()
@@ -184,7 +184,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       startSpinner(getMessage('Configuration loading'))
     })
 
-    context.on('kubb:config:end', (_configs) => {
+    context.on('kubb:config:end', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -194,7 +194,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.outro(text)
     })
 
-    context.on('kubb:generation:start', (config) => {
+    context.on('kubb:generation:start', ({ config }) => {
       reset()
 
       // Initialize progress tracking for this generation
@@ -205,7 +205,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.intro(text)
     })
 
-    context.on('kubb:plugin:start', (plugin) => {
+    context.on('kubb:plugin:start', ({ plugin }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -227,7 +227,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       state.activeProgress.set(plugin.name, { progressBar, interval })
     })
 
-    context.on('kubb:plugin:end', (plugin, { duration, success }) => {
+    context.on('kubb:plugin:end', ({ plugin, duration, success }) => {
       stopSpinner()
 
       const active = state.activeProgress.get(plugin.name)
@@ -258,7 +258,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       showProgressStep()
     })
 
-    context.on('kubb:files:processing:start', (files) => {
+    context.on('kubb:files:processing:start', ({ files }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -275,7 +275,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         size: 30,
       })
 
-      context.emit('kubb:info', text)
+      context.emit('kubb:info', { message: text })
       progressBar.start(getMessage(text))
       state.activeProgress.set('files', { progressBar })
     })
@@ -319,7 +319,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       showProgressStep()
     })
 
-    context.on('kubb:generation:end', (config) => {
+    context.on('kubb:generation:end', ({ config }) => {
       const text = getMessage(config.name ? `Generation completed for ${styleText('dim', config.name)}` : 'Generation completed')
 
       clack.outro(text)
@@ -423,7 +423,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.outro(text)
     })
 
-    context.on('kubb:generation:summary', (config, { pluginTimings, failedPlugins, filesCreated, status, hrStart }) => {
+    context.on('kubb:generation:summary', ({ config, pluginTimings, failedPlugins, filesCreated, status, hrStart }) => {
       const summary = getSummary({
         failedPlugins,
         filesCreated,

@@ -57,28 +57,28 @@ export const fileSystemLogger = defineLogger({
       return Object.keys(files)
     }
 
-    context.on('kubb:info', (message, info) => {
+    context.on('kubb:info', ({ message, info }) => {
       state.cachedLogs.add({
         date: new Date(),
         logs: [`ℹ ${message} ${info}`],
       })
     })
 
-    context.on('kubb:success', (message, info) => {
+    context.on('kubb:success', ({ message, info }) => {
       state.cachedLogs.add({
         date: new Date(),
         logs: [`✓ ${message} ${info}`],
       })
     })
 
-    context.on('kubb:warn', (message, info) => {
+    context.on('kubb:warn', ({ message, info }) => {
       state.cachedLogs.add({
         date: new Date(),
         logs: [`⚠ ${message} ${info}`],
       })
     })
 
-    context.on('kubb:error', (error) => {
+    context.on('kubb:error', ({ error }) => {
       state.cachedLogs.add({
         date: new Date(),
         logs: [`✗ ${error.message}`, error.stack || 'unknown stack'],
@@ -92,14 +92,14 @@ export const fileSystemLogger = defineLogger({
       })
     })
 
-    context.on('kubb:plugin:start', (plugin) => {
+    context.on('kubb:plugin:start', ({ plugin }) => {
       state.cachedLogs.add({
         date: new Date(),
         logs: [`Generating ${plugin.name}`],
       })
     })
 
-    context.on('kubb:plugin:end', (plugin, { duration, success }) => {
+    context.on('kubb:plugin:end', ({ plugin, duration, success }) => {
       const durationStr = formatMs(duration)
 
       state.cachedLogs.add({
@@ -108,18 +108,18 @@ export const fileSystemLogger = defineLogger({
       })
     })
 
-    context.on('kubb:files:processing:start', (files) => {
+    context.on('kubb:files:processing:start', ({ files }) => {
       state.cachedLogs.add({
         date: new Date(),
         logs: [`Start ${files.length} writing:`, ...files.map((file) => file.path)],
       })
     })
 
-    context.on('kubb:generation:end', async (config) => {
+    context.on('kubb:generation:end', async ({ config }) => {
       const writtenFilePaths = await writeLogs(config.name)
       if (writtenFilePaths.length > 0) {
         const files = writtenFilePaths.map((f) => relative(process.cwd(), f))
-        await context.emit('kubb:info', 'Debug files written to:', files.join(', '))
+        await context.emit('kubb:info', { message: 'Debug files written to:', info: files.join(', ') })
       }
       reset()
     })
