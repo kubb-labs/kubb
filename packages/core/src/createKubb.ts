@@ -58,7 +58,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
   const diagnosticInfo = getDiagnosticInfo()
 
   if (Array.isArray(userConfig.input)) {
-    await hooks.emit('kubb:warn', 'This feature is still under development — use with caution')
+    await hooks.emit('kubb:warn', { message: 'This feature is still under development — use with caution' })
   }
 
   await hooks.emit('kubb:debug', {
@@ -284,7 +284,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       try {
         const timestamp = new Date()
 
-        await hooks.emit('kubb:plugin:start', plugin)
+        await hooks.emit('kubb:plugin:start', { plugin })
 
         await hooks.emit('kubb:debug', {
           date: timestamp,
@@ -308,7 +308,8 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         const duration = getElapsedMs(hrStart)
         pluginTimings.set(plugin.name, duration)
 
-        await hooks.emit('kubb:plugin:end', plugin, {
+        await hooks.emit('kubb:plugin:end', {
+          plugin,
           duration,
           success: true,
         })
@@ -322,7 +323,8 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         const errorTimestamp = new Date()
         const duration = getElapsedMs(hrStart)
 
-        await hooks.emit('kubb:plugin:end', plugin, {
+        await hooks.emit('kubb:plugin:end', {
+          plugin,
           duration,
           success: false,
           error,
@@ -412,7 +414,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       parsers: parsersMap,
       extension: config.output.extension,
       onStart: async (processingFiles) => {
-        await hooks.emit('kubb:files:processing:start', processingFiles)
+        await hooks.emit('kubb:files:processing:start', { files: processingFiles })
       },
       onUpdate: async ({ file, source, processed, total, percentage }) => {
         await hooks.emit('kubb:file:processing:update', {
@@ -429,7 +431,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         }
       },
       onEnd: async (processedFiles) => {
-        await hooks.emit('kubb:files:processing:end', processedFiles)
+        await hooks.emit('kubb:files:processing:end', { files: processedFiles })
         await hooks.emit('kubb:debug', {
           date: new Date(),
           logs: [`✓ File write process completed for ${processedFiles.length} files`],
@@ -569,7 +571,7 @@ type CreateKubbOptions = {
  * ```ts
  * const kubb = createKubb(userConfig)
  *
- * kubb.hooks.on('kubb:plugin:end', (plugin, { duration }) => {
+ * kubb.hooks.on('kubb:plugin:end', ({ plugin, duration }) => {
  *   console.log(`${plugin.name} completed in ${duration}ms`)
  * })
  *

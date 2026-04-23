@@ -365,13 +365,13 @@ export class PluginDriver {
         return plugin.transformer
       },
       warn(message: string) {
-        driver.hooks.emit('kubb:warn', message)
+        driver.hooks.emit('kubb:warn', { message })
       },
       error(error: string | Error) {
-        driver.hooks.emit('kubb:error', typeof error === 'string' ? new Error(error) : error)
+        driver.hooks.emit('kubb:error', { error: typeof error === 'string' ? new Error(error) : error })
       },
       info(message: string) {
-        driver.hooks.emit('kubb:info', message)
+        driver.hooks.emit('kubb:info', { message })
       },
       openInStudio(options?: DevtoolsOptions) {
         if (!driver.config.devtools || driver.#studioIsOpen) {

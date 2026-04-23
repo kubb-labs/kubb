@@ -53,6 +53,7 @@
     "fix-path-traversal-security",
     "fix-requestbody-description",
     "fix-tuple-enum-declarations",
+    "fix-typecheck-issues",
     "fix-url-input-resolution",
     "fix-workspace-renderer-jsx-deps",
     "get-resolver-typed-by-plugin-name",

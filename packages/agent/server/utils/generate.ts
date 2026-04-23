@@ -20,18 +20,18 @@ type GenerateProps = {
  *
  */
 export async function generate({ config, hooks }: GenerateProps): Promise<void> {
-  await hooks.emit('kubb:generation:start', config)
+  await hooks.emit('kubb:generation:start', { config })
 
-  await hooks.emit('kubb:info', config.name ? `Setup generation ${config.name}` : 'Setup generation')
+  await hooks.emit('kubb:info', { message: config.name ? `Setup generation ${config.name}` : 'Setup generation' })
 
   const kubb = createKubb(config, { hooks })
   await kubb.setup()
 
-  await hooks.emit('kubb:info', config.name ? `Build generation ${config.name}` : 'Build generation')
+  await hooks.emit('kubb:info', { message: config.name ? `Build generation ${config.name}` : 'Build generation' })
 
   const { files, failedPlugins, error } = await kubb.safeBuild()
 
-  await hooks.emit('kubb:info', 'Load summary')
+  await hooks.emit('kubb:info', { message: 'Load summary' })
 
   // Handle build failures (either from failed plugins or general errors)
   const hasFailures = failedPlugins.size > 0 || error
@@ -45,16 +45,16 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
     ].filter(Boolean)
 
     allErrors.forEach((err) => {
-      hooks.emit('kubb:error', err)
+      hooks.emit('kubb:error', { error: err })
     })
 
-    await hooks.emit('kubb:generation:end', config, files, kubb.sources)
+    await hooks.emit('kubb:generation:end', { config, files, sources: kubb.sources })
 
     throw new Error('Generation failed')
   }
 
-  await hooks.emit('kubb:success', 'Generation successfully')
-  await hooks.emit('kubb:generation:end', config, files, kubb.sources)
+  await hooks.emit('kubb:success', { message: 'Generation successfully' })
+  await hooks.emit('kubb:generation:end', { config, files, sources: kubb.sources })
 
   // formatting
   if (config.output.format) {
@@ -64,10 +64,10 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
     if (formatter === 'auto') {
       const detectedFormatter = await detectFormatter()
       if (!detectedFormatter) {
-        await hooks.emit('kubb:warn', 'No formatter found (oxfmt, biome, or prettier). Skipping formatting.')
+        await hooks.emit('kubb:warn', { message: 'No formatter found (oxfmt, biome, or prettier). Skipping formatting.' })
       } else {
         formatter = detectedFormatter
-        await hooks.emit('kubb:info', `Auto-detected formatter: ${formatter}`)
+        await hooks.emit('kubb:info', { message: `Auto-detected formatter: ${formatter}` })
       }
     }
 
@@ -84,15 +84,15 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
           args: formatterConfig.args(outputPath),
         })
 
-        await hooks.onOnce('kubb:hook:end', async ({ success, error }) => {
-          if (!success) throw error
+        await hooks.onOnce('kubb:hook:end', async (ctx) => {
+          if (!ctx.success) throw ctx.error
 
-          await hooks.emit('kubb:success', `Formatting with ${formatter} successfully`)
+          await hooks.emit('kubb:success', { message: `Formatting with ${formatter} successfully` })
         })
       } catch (caughtError) {
         const error = new Error(formatterConfig.errorMessage)
         error.cause = caughtError
-        await hooks.emit('kubb:error', error)
+        await hooks.emit('kubb:error', { error })
       }
     }
 
@@ -108,10 +108,10 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
     if (linter === 'auto') {
       const detectedLinter = await detectLinter()
       if (!detectedLinter) {
-        await hooks.emit('kubb:warn', 'No linter found (oxlint, biome, or eslint). Skipping linting.')
+        await hooks.emit('kubb:warn', { message: 'No linter found (oxlint, biome, or eslint). Skipping linting.' })
       } else {
         linter = detectedLinter
-        await hooks.emit('kubb:info', `Auto-detected linter: ${styleText('dim', linter)}`)
+        await hooks.emit('kubb:info', { message: `Auto-detected linter: ${styleText('dim', linter)}` })
       }
     }
 
@@ -129,13 +129,13 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
           args: linterConfig.args(outputPath),
         })
 
-        await hooks.onOnce('kubb:hook:end', async ({ success, error }) => {
-          if (!success) throw error
+        await hooks.onOnce('kubb:hook:end', async (ctx) => {
+          if (!ctx.success) throw ctx.error
         })
       } catch (caughtError) {
         const error = new Error(linterConfig.errorMessage)
         error.cause = caughtError
-        await hooks.emit('kubb:error', error)
+        await hooks.emit('kubb:error', { error })
       }
     }
 
