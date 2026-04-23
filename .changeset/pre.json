@@ -12,7 +12,8 @@
     "@kubb/renderer-jsx": "4.36.1",
     "unplugin-kubb": "5.0.7",
     "@kubb/parser-ts": "5.0.0-alpha.30",
-    "@internals/utils": "0.0.0"
+    "@internals/utils": "0.0.0",
+    "@kubb/middleware-barrel": "5.0.0-alpha.53"
   },
   "changesets": [
     "add-adapter-document-field",
@@ -26,7 +27,10 @@
     "add-generator-context-api",
     "add-generator-run-helpers",
     "add-kubb-event-prefix",
+    "add-middleware-barrel",
+    "add-middleware-support",
     "add-parser-options-type",
+    "add-plugin-enforce-ordering",
     "add-renderer-jsx-package",
     "add-resolve-file-to-resolvers",
     "add-resolve-options-helper",
