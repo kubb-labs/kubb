@@ -881,4 +881,3 @@ export type PossibleConfig<TCliOptions = undefined> =
 
 export type { BuildOutput } from './createKubb.ts'
 export type { Parser } from './defineParser.ts'
-export type { FileMetaBase } from './utils/getBarrelFiles.ts'

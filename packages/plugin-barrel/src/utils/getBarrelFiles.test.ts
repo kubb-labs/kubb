@@ -2,8 +2,8 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { FileNode } from '@kubb/ast'
 import { createFile, createSource, createText } from '@kubb/ast'
+import { FileManager } from '@kubb/core'
 import { describe, expect, it, test } from 'vitest'
-import { FileManager } from '../FileManager.ts'
 import { getBarrelFiles } from './getBarrelFiles.ts'
 
 const __filename = fileURLToPath(import.meta.url)

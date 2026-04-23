@@ -2,10 +2,12 @@ import { dirname, resolve } from 'node:path'
 import { getRelativePath } from '@internals/utils'
 import type { FileNode } from '@kubb/ast'
 import { createExport, createFile } from '@kubb/ast'
-import { BARREL_FILENAME, definePlugin, getBarrelFiles } from '@kubb/core'
+import { definePlugin } from '@kubb/core'
 import type { BarrelType, NormalizedPlugin } from '@kubb/core'
+import { BARREL_FILENAME } from './constants.ts'
 import type { PluginBarrel, PluginBarrelOptions } from './types.ts'
 import { pluginBarrelName } from './types.ts'
+import { getBarrelFiles } from './utils/getBarrelFiles.ts'
 
 /**
  * Barrel-file generation plugin.
