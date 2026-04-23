@@ -1,5 +1,22 @@
 # @kubb/adapter-oas
 
+## 5.0.0-alpha.57
+
+### Patch Changes
+
+- [#3149](https://github.com/kubb-labs/kubb/pull/3149) [`52ddabf`](https://github.com/kubb-labs/kubb/commit/52ddabfc85f8c3d3cb9b6682385099053144dd09) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix `$ref` requestBody not being parsed in `getRequestBodyContentTypes` and `getRequestBodyMeta`.
+
+  `dereferenceWithRef` intentionally keeps `$ref` on the merged object for provenance tracking,
+  but the subsequent `isReference` guards treated the fully-resolved object as an unresolved
+  reference and returned early. Operations whose `requestBody` was a `$ref` therefore produced
+  `requestBody: undefined`, and downstream plugins emitted `data?: never` instead of the
+  expected typed parameter.
+
+  Both guards are removed; only a `!body` check (missing body) remains.
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.57
+
 ## 5.0.0-alpha.56
 
 ### Patch Changes
@@ -25,17 +42,17 @@
   **Before**
 
   ```ts
-  operation.requestBody?.schema
-  operation.requestBody?.contentType
-  operation.requestBody?.keysToOmit
+  operation.requestBody?.schema;
+  operation.requestBody?.contentType;
+  operation.requestBody?.keysToOmit;
   ```
 
   **After**
 
   ```ts
-  operation.requestBody?.content?.[0]?.schema
-  operation.requestBody?.content?.[0]?.contentType
-  operation.requestBody?.content?.[0]?.keysToOmit
+  operation.requestBody?.content?.[0]?.schema;
+  operation.requestBody?.content?.[0]?.contentType;
+  operation.requestBody?.content?.[0]?.keysToOmit;
   ```
 
   See `migration/requestBody-content.md` for a full migration guide.
@@ -341,6 +358,7 @@
 ### Patch Changes
 
 - [#2889](https://github.com/kubb-labs/kubb/pull/2889) [`2546c05`](https://github.com/kubb-labs/kubb/commit/2546c051d81e490709df9d8a834402ef546a8f1c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ### `@kubb/ast`
+
   - Reorganized schema helper modules into clearer categories:
     - `transformers.ts` for schema transformation helpers
     - `resolvers.ts` for lookup/derivation helpers
@@ -352,6 +370,7 @@
   - Removed deprecated alias exports for old names.
 
   ### `@kubb/adapter-oas`
+
   - Fixed named import shape regression in adapter import resolution.
   - `adapter.getImports(...)` now correctly returns `KubbFile.Import` entries with `name` as `string[]` (for example `['PetType']`), with added regression coverage.
 
@@ -404,6 +423,7 @@
 - [#2858](https://github.com/kubb-labs/kubb/pull/2858) [`975717e`](https://github.com/kubb-labs/kubb/commit/975717e2c8cf8d33f5d9d641be4bb164fd36f423) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix missing `@description` on request body type aliases.
 
   The OAS `requestBody.description` field (top-level on the request body object, distinct from the schema's own description) was silently dropped. It is now:
+
   - Added as `description?: string` to `OperationNode.requestBody` in `@kubb/ast`
   - Populated by `@kubb/adapter-oas` parser from `operation.schema.requestBody.description`
   - Used by `@kubb/plugin-ts` typeGenerator: `requestBody.description` takes precedence, falling back to `requestBody.schema.description`
@@ -419,6 +439,7 @@
 ### Minor Changes
 
 - [#2821](https://github.com/kubb-labs/kubb/pull/2821) [`f4105fe`](https://github.com/kubb-labs/kubb/commit/f4105fe44e46ec2846e665fd6079290e6d6ce6c6) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - **`@kubb/plugin-ts`**: When `legacy: true`, the type generator now fully matches the v4 output:
+
   - Grouped parameter types: `<OperationId>PathParams`, `<OperationId>QueryParams`, `<OperationId>HeaderParams`
   - No `<OperationId>RequestConfig` type emitted
   - Wrapper types (`Mutation`/`Query`) use `{ Response, Request?, QueryParams?, Errors }` shape
@@ -428,6 +449,7 @@
   Six `@deprecated` resolver methods added to `ResolverTs` for grouped parameter naming (`resolvePathParamsName`, `resolveQueryParamsName`, `resolveHeaderParamsName` and typed variants). Implemented only in `resolverTsLegacy`; will be removed in v6.
 
   **`@kubb/adapter-oas`**: `collisionDetection` is now part of the public API with a default of `true`.
+
   - `collisionDetection: true` (default) → full-path enum names, e.g. `OrderParamsStatusEnum`
   - `collisionDetection: false` → immediate-parent enum names with numeric deduplication, e.g. `ParamsStatusEnum`, `ParamsStatusEnum2`
 

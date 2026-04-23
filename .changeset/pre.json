@@ -56,6 +56,7 @@
     "fix-oxlint-gitignore-lint-failure",
     "fix-path-param-ref-types",
     "fix-path-traversal-security",
+    "fix-ref-requestbody-parsing",
     "fix-requestbody-description",
     "fix-tuple-enum-declarations",
     "fix-typecheck-issues",
