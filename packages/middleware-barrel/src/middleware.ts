@@ -9,8 +9,9 @@ import { generateRootBarrel } from './utils/generateRootBarrel.ts'
  * Barrel-file generation middleware.
  *
  * When added to `config.middleware`, generates an `index.ts` barrel file for each
- * plugin that has `output.barrelType` set (or inherits it from `config.output.barrelType`),
- * as well as a root `index.ts` at `config.output.path` when `config.output.barrelType` is set.
+ * plugin. When `output.barrelType` is omitted on a plugin it inherits from `config.output.barrelType`,
+ * and when that is also omitted both default to `'all'`. Set `barrelType: false` to disable
+ * barrel generation for a specific plugin or for the root entirely.
  *
  * The `barrelType` option controls the re-export style:
  * - `'all'`       — `export * from '...'` for each generated file
@@ -49,7 +50,7 @@ export const middlewareBarrel = defineMiddleware({
       const normalizedPlugin = plugin as NormalizedPlugin
       const pluginOutput = normalizedPlugin.options.output as { barrelType?: BarrelType | false } | undefined
       const rootOutput = ctx.config.output as { barrelType?: BarrelType | false }
-      const barrelType = pluginOutput?.barrelType !== undefined ? pluginOutput.barrelType : rootOutput.barrelType
+      const barrelType = pluginOutput?.barrelType !== undefined ? pluginOutput.barrelType : (rootOutput.barrelType ?? 'all')
 
       if (!barrelType) return
 
@@ -67,7 +68,7 @@ export const middlewareBarrel = defineMiddleware({
 
     hooks.on('kubb:plugins:end', ({ files, config, upsertFile }) => {
       const rootOutput = config.output as { barrelType?: BarrelType | false }
-      const rootBarrelType = rootOutput.barrelType
+      const rootBarrelType = rootOutput.barrelType ?? 'all'
 
       if (!rootBarrelType) return
 
