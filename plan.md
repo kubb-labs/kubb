@@ -9,63 +9,97 @@ Barrel-file generation must be decoupled from individual plugins and from the co
 
 ---
 
-## API: `output.barrelType` via `declare global` module augmentation
+## API: `output.barrelType` via `declare global { namespace Kubb }`
 
 `BarrelType` and `barrelType` are **not** part of `@kubb/core`'s `Output` or `Config` types. Core knows nothing about barrel generation.
 
-Instead, `@kubb/middleware-barrel` uses TypeScript's **module augmentation** (`declare global` / `declare module`) to extend the shared types only when the package is imported. This means `barrelType` appears in IntelliSense and type checks only in projects that have added `@kubb/middleware-barrel`.
+`@kubb/core` already exposes an extension point — `declare global { namespace Kubb { interface PluginRegistry } }` — used by plugins to register themselves for `getPlugin`/`requirePlugin` typed lookups. Middleware packages follow the same pattern, adding new empty extension interfaces to the `Kubb` namespace that third-party packages can augment:
 
 ```ts
-// packages/middleware-barrel/src/augmentation.ts
+// packages/core/src/Kubb.ts  (additions to existing declare global block)
 
-import '@kubb/core'
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {}   // already exists
 
-declare module '@kubb/core' {
-  export type BarrelType = 'all' | 'named' | 'propagate'
-
-  interface Output {
     /**
-     * Controls barrel-file (index.ts) generation for this plugin's output.
-     * - `'all'`       — export everything with `export * from '…'`
-     * - `'named'`     — export only named exports (`export { Foo } from '…'`)
-     * - `'propagate'` — write a barrel even if the plugin produces no files
-     * - `false`       — disable barrel generation for this plugin
-     * Inherits the root `Config.output.barrelType` when omitted.
+     * Extension point for plugin output options.
+     * Augment this interface in middleware packages to add fields to `Output`.
+     *
+     * @example
+     * ```ts
+     * // packages/middleware-barrel/src/types.ts
+     * declare global {
+     *   namespace Kubb {
+     *     interface OutputExtensions {
+     *       barrelType?: import('./types.ts').BarrelType | false
+     *     }
+     *   }
+     * }
+     * ```
      */
-    barrelType?: BarrelType | false
-  }
+    interface OutputExtensions {}
 
-  interface ConfigOutput {
     /**
-     * Default barrelType for every plugin that does not set its own `output.barrelType`.
-     * Omit (or set `false`) to disable barrel generation entirely.
+     * Extension point for the root `Config['output']` object.
+     * Augment this interface in middleware packages to add fields to the root config output.
      */
-    barrelType?: BarrelType | false
+    interface ConfigOutputExtensions {}
   }
 }
 ```
 
-For the augmentation to work, `@kubb/core` must export `Output` and `ConfigOutput` as **interfaces** (not type aliases), since only interfaces support declaration merging. The same is true for any other type that middleware packages want to augment (e.g., `Config`).
+`Output` and the root config output are then typed as intersections of their base shape and the extension interface:
+
+```ts
+// packages/core/src/types.ts
+
+export type Output = {
+  path: string
+  banner?: string | ((file: FileNode) => string)
+  footer?: string | ((file: FileNode) => string)
+  override?: boolean
+} & Kubb.OutputExtensions
+```
+
+`@kubb/middleware-barrel` augments those interfaces:
+
+```ts
+// packages/middleware-barrel/src/types.ts
+
+export type BarrelType = 'all' | 'named' | 'propagate'
+
+declare global {
+  namespace Kubb {
+    interface OutputExtensions {
+      barrelType?: BarrelType | false
+    }
+    interface ConfigOutputExtensions {
+      barrelType?: BarrelType | false
+    }
+  }
+}
+```
 
 ### User-facing config
 
-Importing `middlewareBarrel` automatically pulls in the augmentation, so `barrelType` becomes valid in `kubb.config.ts`:
+When a project imports `@kubb/middleware-barrel`, the `declare global` augmentation is pulled in automatically, making `barrelType` valid in `kubb.config.ts`:
 
 ```ts
-import { middlewareBarrel } from '@kubb/middleware-barrel' // augmentation side-effect
+import { middlewareBarrel } from '@kubb/middleware-barrel'
 
 export default defineConfig({
-  output: { path: 'src/gen', barrelType: 'named' },   // root default
+  output: { path: 'src/gen', barrelType: 'named' },
   plugins: [
-    pluginTs({ output: { path: 'types', barrelType: 'all' } }),  // per-plugin override
-    pluginZod({ output: { path: 'schemas' } }),                  // inherits 'named'
-    pluginClient({ output: { path: 'client', barrelType: false } }), // opt-out
-    middlewareBarrel(),    // drives the actual barrel generation
+    pluginTs({ output: { path: 'types', barrelType: 'all' } }),
+    pluginZod({ output: { path: 'schemas' } }),
+    pluginClient({ output: { path: 'client', barrelType: false } }),
+    middlewareBarrel(),
   ],
 })
 ```
 
-At runtime `barrelType` is just an unknown optional field on `output` from core's perspective — `middleware-barrel` casts it internally.
+At runtime `barrelType` is opaque to core — `middleware-barrel` casts `output` to its own augmented type internally.
 
 ---
 
@@ -237,9 +271,14 @@ These helpers use a `TreeNode` structure (directory tree) to determine which fil
 ## File-level changes
 
 ### `packages/core/src/types.ts`
-- Convert `Output` and the inline root `Config['output']` object from `type` aliases to **interfaces** so they support declaration merging by middleware packages.
+- Change `Output` type to be `{ path: string; banner?: ...; footer?: ...; override?: boolean } & Kubb.OutputExtensions` (intersection with global extension interface).
+- Change the inline root `Config['output']` type similarly to intersect with `Kubb.ConfigOutputExtensions`.
 - Add `middleware?: Array<Middleware>` to `Config` and `UserConfig`.
 - **No** `BarrelType`, no `barrelType` field — those live solely in `@kubb/middleware-barrel`.
+
+### `packages/core/src/Kubb.ts`
+- Add `interface OutputExtensions {}` and `interface ConfigOutputExtensions {}` to the existing `declare global { namespace Kubb { ... } }` block.
+- Document the augmentation pattern in JSDoc (mirrors existing `PluginRegistry` docs).
 
 ### `packages/core/src/defineMiddleware.ts` *(new)*
 - `Middleware` type + `defineMiddleware` factory
@@ -256,7 +295,7 @@ These helpers use a `TreeNode` structure (directory tree) to determine which fil
 |---|---|
 | `package.json` | `name: "@kubb/middleware-barrel"`, peer-depends on `@kubb/core` |
 | `tsconfig.json` | Mirrors other packages |
-| `src/augmentation.ts` | `declare module '@kubb/core'` — adds `BarrelType`, `barrelType` to `Output` and `ConfigOutput` interfaces |
+| `src/types.ts` | `export type BarrelType`; `declare global { namespace Kubb { interface OutputExtensions; interface ConfigOutputExtensions } }` |
 | `src/constants.ts` | `BARREL_BASENAME`, `BARREL_FILENAME` |
 | `src/utils/TreeNode.ts` | Directory-tree helper for barrel resolution |
 | `src/utils/getBarrelFiles.ts` | Converts a `TreeNode` into `FileNode[]` barrel files |
