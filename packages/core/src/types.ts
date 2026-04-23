@@ -696,6 +696,26 @@ export type KubbBuildStartContext = {
 }
 
 /**
+ * Context passed to `kubb:plugins:end` handlers.
+ * Fires after all plugins have run and per-plugin barrels have been upserted,
+ * but BEFORE files are written to disk.
+ * Middleware that needs to inject final files (e.g. a root barrel) should use this event.
+ */
+export type KubbPluginsEndContext = {
+  config: Config
+  /**
+   * Returns all files currently in the file manager (lazy snapshot).
+   * Includes files upserted by plugins and per-plugin barrel middleware.
+   */
+  readonly files: ReadonlyArray<FileNode>
+  /**
+   * Upsert one or more files into the file manager.
+   * Files added here will be included in the write pass that follows.
+   */
+  upsertFile: (...files: Array<FileNode>) => void
+}
+
+/**
  * Context passed to a hook-style plugin's `kubb:build:end` handler.
  * Fires after all files have been written to disk.
  */

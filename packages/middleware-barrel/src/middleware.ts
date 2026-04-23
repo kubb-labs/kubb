@@ -65,22 +65,20 @@ export const middlewareBarrel = defineMiddleware({
       }
     })
 
-    hooks.on('kubb:build:end', () => {
-      if (!ctx) return
-
-      const rootOutput = ctx.config.output as { barrelType?: BarrelType | false }
+    hooks.on('kubb:plugins:end', ({ files, config, upsertFile }) => {
+      const rootOutput = config.output as { barrelType?: BarrelType | false }
       const rootBarrelType = rootOutput.barrelType
 
       if (!rootBarrelType) return
 
       const rootBarrelFiles = generateRootBarrel({
         barrelType: rootBarrelType,
-        files: ctx.files,
-        config: ctx.config,
+        files,
+        config,
       })
 
       if (rootBarrelFiles.length > 0) {
-        ctx.upsertFile(...rootBarrelFiles)
+        upsertFile(...rootBarrelFiles)
       }
     })
   },

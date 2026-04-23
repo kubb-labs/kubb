@@ -170,6 +170,39 @@ describe('middleware runtime integration with createKubb', () => {
     // files array is observable (may be empty in a no-op adapter, but the hook fired)
     expect(Array.isArray(capturedFiles)).toBe(true)
   })
+
+  it('kubb:plugins:end fires before file writing and allows file injection', async () => {
+    const { createFile, createSource, createText } = await import('@kubb/ast')
+
+    const injectedFile = createFile({
+      path: '/tmp/barrel/index.ts',
+      baseName: 'index.ts',
+      sources: [createSource({ nodes: [createText('export {}') as never] })],
+      imports: [],
+      exports: [],
+    })
+
+    let pluginsEndFired = false
+
+    const middleware = defineMiddleware({
+      name: 'plugins-end-injector',
+      install(hooks) {
+        hooks.on('kubb:plugins:end', ({ upsertFile }) => {
+          pluginsEndFired = true
+          upsertFile(injectedFile)
+        })
+      },
+    })
+
+    const { files } = await createKubb(
+      makeConfig({ middleware: [middleware] }),
+      { hooks: new AsyncEventEmitter<KubbHooks>() },
+    ).build()
+
+    expect(pluginsEndFired).toBe(true)
+    // The injected file must be included in the final file set
+    expect(files.some((f) => f.baseName === 'index.ts')).toBe(true)
+  })
 })
 
 describe('declare global augmentation', () => {
