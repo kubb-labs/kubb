@@ -72,8 +72,8 @@
     "@kubb/agent": "workspace:*",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/middleware-barrel": "workspace:*",
     "@kubb/mcp": "workspace:*",
+    "@kubb/middleware-barrel": "workspace:*",
     "@kubb/parser-ts": "workspace:*"
   },
   "devDependencies": {

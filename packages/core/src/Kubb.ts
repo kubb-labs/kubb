@@ -23,6 +23,7 @@ import type {
   KubbPluginEndContext,
   KubbPluginSetupContext,
   KubbPluginStartContext,
+  KubbPluginsEndContext,
   KubbSuccessContext,
   KubbVersionNewContext,
   KubbWarnContext,
@@ -225,6 +226,13 @@ export interface KubbHooks {
    * The adapter has already parsed the source and `inputNode` is available.
    */
   'kubb:build:start': [ctx: KubbBuildStartContext]
+  /**
+   * Fired after all plugins have run and all per-plugin barrels have been generated,
+   * but BEFORE files are written to disk.
+   * Use this event to inject final files (e.g. a root barrel) that must be persisted
+   * in the same write pass as the plugin output.
+   */
+  'kubb:plugins:end': [ctx: KubbPluginsEndContext]
   /**
    * Fired after all files have been written to disk.
    */

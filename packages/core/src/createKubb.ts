@@ -341,6 +341,14 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       }
     }
 
+    await hooks.emit('kubb:plugins:end', {
+      config,
+      get files() {
+        return driver.fileManager.files
+      },
+      upsertFile: (...files) => driver.fileManager.upsert(...files),
+    })
+
     const files = driver.fileManager.files
 
     const parsersMap = new Map<FileNode['extname'], Parser>()

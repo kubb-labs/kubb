@@ -1,4 +1,5 @@
 import { AsyncEventEmitter } from '@internals/utils'
+import { createFile, createSource, createText } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
@@ -85,10 +86,7 @@ describe('middleware runtime integration with createKubb', () => {
     const installMock = vi.fn()
     const middleware = defineMiddleware({ name: 'test-mw', install: installMock })
 
-    await createKubb(
-      makeConfig({ middleware: [middleware] }),
-      { hooks: new AsyncEventEmitter<KubbHooks>() },
-    ).build()
+    await createKubb(makeConfig({ middleware: [middleware] }), { hooks: new AsyncEventEmitter<KubbHooks>() }).build()
 
     expect(installMock).toHaveBeenCalledOnce()
   })
@@ -99,19 +97,14 @@ describe('middleware runtime integration with createKubb', () => {
     const mw1 = defineMiddleware({ name: 'mw-1', install: install1 })
     const mw2 = defineMiddleware({ name: 'mw-2', install: install2 })
 
-    await createKubb(
-      makeConfig({ middleware: [mw1, mw2] }),
-      { hooks: new AsyncEventEmitter<KubbHooks>() },
-    ).build()
+    await createKubb(makeConfig({ middleware: [mw1, mw2] }), { hooks: new AsyncEventEmitter<KubbHooks>() }).build()
 
     expect(install1).toHaveBeenCalledOnce()
     expect(install2).toHaveBeenCalledOnce()
   })
 
   it('no error when middleware array is omitted', async () => {
-    await expect(
-      createKubb(makeConfig(), { hooks: new AsyncEventEmitter<KubbHooks>() }).build(),
-    ).resolves.toBeDefined()
+    await expect(createKubb(makeConfig(), { hooks: new AsyncEventEmitter<KubbHooks>() }).build()).resolves.toBeDefined()
   })
 
   it('middleware listeners fire after plugin listeners for the same event', async () => {
@@ -162,13 +155,38 @@ describe('middleware runtime integration with createKubb', () => {
       },
     })
 
-    await createKubb(
-      makeConfig({ middleware: [middleware] }),
-      { hooks: new AsyncEventEmitter<KubbHooks>() },
-    ).build()
+    await createKubb(makeConfig({ middleware: [middleware] }), { hooks: new AsyncEventEmitter<KubbHooks>() }).build()
 
     // files array is observable (may be empty in a no-op adapter, but the hook fired)
     expect(Array.isArray(capturedFiles)).toBe(true)
+  })
+
+  it('kubb:plugins:end fires before file writing and allows file injection', async () => {
+    const injectedFile = createFile({
+      path: '/tmp/barrel/index.ts',
+      baseName: 'index.ts',
+      sources: [createSource({ nodes: [createText('export {}')] })],
+      imports: [],
+      exports: [],
+    })
+
+    let pluginsEndFired = false
+
+    const middleware = defineMiddleware({
+      name: 'plugins-end-injector',
+      install(hooks) {
+        hooks.on('kubb:plugins:end', ({ upsertFile }) => {
+          pluginsEndFired = true
+          upsertFile(injectedFile)
+        })
+      },
+    })
+
+    const { files } = await createKubb(makeConfig({ middleware: [middleware] }), { hooks: new AsyncEventEmitter<KubbHooks>() }).build()
+
+    expect(pluginsEndFired).toBe(true)
+    // The injected file must be included in the final file set
+    expect(files.some((f) => f.baseName === 'index.ts')).toBe(true)
   })
 })
 
