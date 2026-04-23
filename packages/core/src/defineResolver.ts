@@ -64,7 +64,7 @@ function matchesOperationPattern(node: OperationNode, type: string, pattern: str
     case 'method':
       return testPattern(node.method.toLowerCase(), pattern)
     case 'contentType':
-      return node.requestBody?.contentType ? testPattern(node.requestBody.contentType, pattern) : false
+      return node.requestBody?.content?.some((c) => testPattern(c.contentType, pattern)) ?? false
     default:
       return false
   }

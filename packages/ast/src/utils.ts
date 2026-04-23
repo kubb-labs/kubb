@@ -340,7 +340,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
   const queryParams = casedParams.filter((p) => p.in === 'query')
   const headerParams = casedParams.filter((p) => p.in === 'header')
 
-  const bodyType = node.requestBody?.schema ? wrapType(resolver?.resolveDataName(node) ?? 'unknown') : undefined
+  const bodyType = node.requestBody?.content?.[0]?.schema ? wrapType(resolver?.resolveDataName(node) ?? 'unknown') : undefined
   const bodyRequired = node.requestBody?.required ?? false
 
   const queryGroupType = resolver
