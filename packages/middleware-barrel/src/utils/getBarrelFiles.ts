@@ -4,6 +4,8 @@ import { BARREL_BASENAME, BARREL_FILENAME } from '../constants.ts'
 import type { BarrelType } from '../types.ts'
 import { buildTree, type TreeNode } from './TreeNode.ts'
 
+const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx'])
+
 /**
  * Derives a relative module specifier (no extension) from an absolute `filePath`
  * relative to an absolute `fromDir`.
@@ -72,7 +74,9 @@ function getBarrelFilesNamed(treeNode: TreeNode, sourceFiles: ReadonlyArray<File
 
     const indexableSources = sourceFile.sources.filter((s) => s.isIndexable && s.name)
     if (indexableSources.length === 0) {
-      // No named exports: fall back to wildcard
+      // If the file has explicit sources but none are indexable, skip it entirely.
+      // Only fall back to wildcard when there are no sources at all (unknown exports).
+      if (sourceFile.sources.length > 0) continue
       exports.push(createExport({ path: toRelativeModulePath(treeNode.path, filePath) }))
       continue
     }
@@ -164,11 +168,15 @@ function collectLeafPaths(node: TreeNode): Array<string> {
  * @param barrelType Barrel generation strategy.
  */
 export function getBarrelFiles(outputPath: string, files: ReadonlyArray<FileNode>, barrelType: BarrelType): Array<FileNode> {
-  // Only include files that live inside this outputPath
+  // Only include files that live inside this outputPath and have a recognised source extension
   const relevantFiles = files.filter((f) => {
     const normalizedFilePath = f.path.replace(/\\/g, '/')
     const normalizedOutputPath = outputPath.replace(/\\/g, '/')
-    return normalizedFilePath.startsWith(normalizedOutputPath + '/') && !normalizedFilePath.endsWith(`/${BARREL_FILENAME}`)
+    if (!normalizedFilePath.startsWith(normalizedOutputPath + '/')) return false
+    if (normalizedFilePath.endsWith(`/${BARREL_FILENAME}`)) return false
+    const dotIndex = normalizedFilePath.lastIndexOf('.')
+    const ext = dotIndex === -1 ? '' : normalizedFilePath.slice(dotIndex)
+    return SOURCE_EXTENSIONS.has(ext)
   })
 
   if (relevantFiles.length === 0) return []
