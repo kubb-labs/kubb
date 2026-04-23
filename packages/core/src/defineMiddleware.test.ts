@@ -1,4 +1,5 @@
 import { AsyncEventEmitter } from '@internals/utils'
+import { createFile, createSource, createText } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
@@ -172,12 +173,10 @@ describe('middleware runtime integration with createKubb', () => {
   })
 
   it('kubb:plugins:end fires before file writing and allows file injection', async () => {
-    const { createFile, createSource, createText } = await import('@kubb/ast')
-
     const injectedFile = createFile({
       path: '/tmp/barrel/index.ts',
       baseName: 'index.ts',
-      sources: [createSource({ nodes: [createText('export {}') as never] })],
+      sources: [createSource({ nodes: [createText('export {}')] })],
       imports: [],
       exports: [],
     })
