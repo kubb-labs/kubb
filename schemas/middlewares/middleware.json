@@ -63,6 +63,13 @@
       },
       "description": "Discovery tags for search and filtering"
     },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Required Kubb middleware dependencies (middleware IDs)"
+    },
     "options": {
       "type": "array",
       "description": "Middleware configuration options, used to auto-generate reference docs.",
@@ -248,7 +255,8 @@
         "documentation": { "type": "string", "format": "uri", "description": "Documentation URL" },
         "repository": { "type": "string", "format": "uri", "description": "Repository URL" },
         "issues": { "type": "string", "format": "uri", "description": "Issue tracker URL" },
-        "changelog": { "type": "string", "format": "uri", "description": "Changelog URL" }
+        "changelog": { "type": "string", "format": "uri", "description": "Changelog URL" },
+        "codesandbox": { "type": "string", "format": "uri", "description": "CodeSandbox example URL" }
       }
     },
     "codeBlockOrArray": {

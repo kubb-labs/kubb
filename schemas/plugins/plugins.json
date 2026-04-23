@@ -23,17 +23,19 @@
     "categories": {
       "type": "array",
       "description": "Distinct plugin categories present in the registry.",
-      "items": {
-        "type": "object",
-        "required": ["id", "name"],
-        "properties": {
-          "id": { "type": "string", "description": "Category identifier" },
-          "name": { "type": "string", "description": "Category display name" }
-        }
-      }
+      "items": { "$ref": "#/definitions/category" }
     }
   },
   "definitions": {
+    "category": {
+      "type": "object",
+      "description": "Registry category entry.",
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string", "description": "Category identifier" },
+        "name": { "type": "string", "description": "Category display name" }
+      }
+    },
     "registryPlugin": {
       "description": "A plugin entry as it appears in the aggregated registry: the canonical plugin schema plus runtime-derived stats and publish timestamps.",
       "allOf": [
@@ -63,7 +65,7 @@
         "downloads": {
           "type": "integer",
           "minimum": 0,
-          "description": "Weekly NPM downloads."
+          "description": "Monthly NPM downloads."
         },
         "stars": {
           "type": "integer",

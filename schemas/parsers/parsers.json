@@ -23,17 +23,19 @@
     "categories": {
       "type": "array",
       "description": "Distinct parser categories present in the registry.",
-      "items": {
-        "type": "object",
-        "required": ["id", "name"],
-        "properties": {
-          "id": { "type": "string", "description": "Category identifier" },
-          "name": { "type": "string", "description": "Category display name" }
-        }
-      }
+      "items": { "$ref": "#/definitions/category" }
     }
   },
   "definitions": {
+    "category": {
+      "type": "object",
+      "description": "Registry category entry.",
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string", "description": "Category identifier" },
+        "name": { "type": "string", "description": "Category display name" }
+      }
+    },
     "registryParser": {
       "description": "A parser entry as it appears in the aggregated registry: the canonical parser schema plus runtime-derived stats and publish timestamps.",
       "allOf": [

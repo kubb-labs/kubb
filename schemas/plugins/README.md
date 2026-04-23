@@ -35,7 +35,6 @@ Schema for the aggregated plugin registry. This is maintained in the kubb.dev re
 | `description` | `string` | Short description |
 | `category` | `string` | Plugin category |
 | `type` | `string` | `official`, `community`, or `3rd-party` |
-| `version` | `string` | Semantic version |
 | `npmPackage` | `string` | NPM package name |
 
 ### Optional Fields
@@ -46,82 +45,65 @@ Schema for the aggregated plugin registry. This is maintained in the kubb.dev re
 | `maintainers` | `array` | Plugin maintainers with GitHub info |
 | `repo` | `string` | Source repository URL |
 | `docsPath` | `string` | Documentation path on kubb.dev |
-| `resources` | `object` | Related URLs (docs, issues, changelog) |
-| `icon` | `string` | Emoji identifier |
+| `resources` | `object` | Related URLs (docs, issues, changelog, codesandbox) |
+| `icon` | `object` | Light/dark icon URLs |
 | `featured` | `boolean` | Feature prominently on homepage |
 | `tags` | `array` | Discovery tags |
 | `dependencies` | `array` | Required Kubb plugin IDs |
-| `skills` | `array` | Plugin capabilities for AI tools |
 | `options` | `array` | Plugin configuration options for auto-generated reference docs |
-| `fullExample` | `string` | Complete `kubb.config.ts` snippet used as the Example section on the reference page |
+| `examples` | `array` | Example tabs rendered as the page-level Example section |
+| `intro` | `string` | Free-form markdown rendered between header and installation |
+| `notes` | `array` | Page-level callouts |
 
-## Skills
+## Categories
 
-Skills represent plugin capabilities that can be discovered by AI tools. Each skill includes:
-
-- `name`: Skill identifier
-- `description`: What the skill does
-- `tags`: Categorization tags
-- `dependencies`: Required packages
-- `apiParameters`: Configuration options
-- `examples`: Usage examples with code
+| ID | Name |
+| -- | ---- |
+| `ai` | AI |
+| `client` | Client |
+| `documentation` | Documentation |
+| `framework` | Framework |
+| `mocks` | Mocks |
+| `testing` | Testing |
+| `types` | Types |
+| `validation` | Validation |
 
 ## Example
 
-```json
-{
-  "$schema": "https://kubb.dev/schemas/plugins/plugin.json",
-  "id": "plugin-react-query",
-  "name": "React Query Plugin",
-  "description": "Generate React Query hooks from API specifications",
-  "category": "framework",
-  "type": "official",
-  "version": "5.0.0",
-  "npmPackage": "@kubb/plugin-react-query",
-  "compatibility": {
-    "kubb": ">=5.0.0",
-    "node": ">=18.0.0"
-  },
-  "icon": "⚛️",
-  "featured": true,
-  "tags": ["react", "hooks", "tanstack-query"],
-  "dependencies": ["plugin-oas", "plugin-ts"],
-  "skills": [
-    {
-      "name": "generate-react-query-hooks",
-      "description": "Generate React Query hooks for API endpoints",
-      "tags": ["react", "hooks"],
-      "examples": [
-        {
-          "title": "Basic usage",
-          "code": "pluginReactQuery({ output: { path: './hooks' } })"
-        }
-      ]
-    }
-  ]
-}
+```yaml
+$schema: 'https://kubb.dev/schemas/plugin.json'
+id: plugin-react-query
+name: React Query
+description: Generate React Query hooks from API specifications.
+category: framework
+type: official
+npmPackage: '@kubb/plugin-react-query'
+docsPath: /plugins/plugin-react-query
+repo: https://github.com/kubb-labs/kubb
+maintainers:
+  - name: Stijn Van Hulle
+    github: stijnvanhulle
+compatibility:
+  kubb: '>=5.0.0'
+  node: '>=22'
+tags:
+  - react
+  - hooks
+  - tanstack-query
+dependencies:
+  - plugin-oas
+  - plugin-ts
+featured: true
 ```
 
 ## Usage
 
 ### Validating Plugin Metadata
 
-Use the schema URL in your `plugin.json`:
+Use the schema URL in your YAML frontmatter:
 
-```json
-{
-  "$schema": "https://kubb.dev/schemas/plugin.json",
-  "id": "my-plugin",
-  ...
-}
+```yaml
+$schema: 'https://kubb.dev/schemas/plugin.json'
+id: my-plugin
+# ...
 ```
-## Categories
-
-| ID | Name | Description |
-| -- | ---- | ----------- |
-| `specification` | Specification | Core OpenAPI parsing plugins |
-| `framework` | Framework | Framework-specific code generation |
-| `testing` | Testing | Test utilities and mock data |
-| `utility` | Utility | Validation, types, and clients |
-| `documentation` | Documentation | API documentation generation |
-| `ai` | AI Integration | AI and MCP integration |

@@ -260,7 +260,8 @@
         "documentation": { "type": "string", "format": "uri", "description": "Documentation URL" },
         "repository": { "type": "string", "format": "uri", "description": "Repository URL" },
         "issues": { "type": "string", "format": "uri", "description": "Issue tracker URL" },
-        "changelog": { "type": "string", "format": "uri", "description": "Changelog URL" }
+        "changelog": { "type": "string", "format": "uri", "description": "Changelog URL" },
+        "codesandbox": { "type": "string", "format": "uri", "description": "CodeSandbox example URL" }
       }
     },
     "codeBlockOrArray": {

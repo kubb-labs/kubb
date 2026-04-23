@@ -23,17 +23,19 @@
     "categories": {
       "type": "array",
       "description": "Distinct adapter categories present in the registry.",
-      "items": {
-        "type": "object",
-        "required": ["id", "name"],
-        "properties": {
-          "id": { "type": "string", "description": "Category identifier" },
-          "name": { "type": "string", "description": "Category display name" }
-        }
-      }
+      "items": { "$ref": "#/definitions/category" }
     }
   },
   "definitions": {
+    "category": {
+      "type": "object",
+      "description": "Registry category entry.",
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string", "description": "Category identifier" },
+        "name": { "type": "string", "description": "Category display name" }
+      }
+    },
     "registryAdapter": {
       "description": "An adapter entry as it appears in the aggregated registry: the canonical adapter schema plus runtime-derived stats and publish timestamps.",
       "allOf": [
