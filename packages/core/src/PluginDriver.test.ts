@@ -43,4 +43,22 @@ describe('PluginDriver', () => {
   test('if pluginDriver can be created', () => {
     expect(pluginDriver.plugins.size).toBe(config.plugins.length)
   })
+
+  test('enforce: pre plugins run before normal and post plugins', () => {
+    const prePlugin = { name: 'pre', enforce: 'pre' as const, hooks: {} }
+    const normalPlugin = { name: 'normal', hooks: {} }
+    const postPlugin = { name: 'post', enforce: 'post' as const, hooks: {} }
+
+    const cfg = {
+      ...config,
+      // intentionally declared in reverse order to verify sorting
+      plugins: [postPlugin, normalPlugin, prePlugin] as unknown as Array<Plugin>,
+    } satisfies Config
+
+    const driver = new PluginDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })
+    const names = [...driver.plugins.keys()]
+
+    expect(names.indexOf('pre')).toBeLessThan(names.indexOf('normal'))
+    expect(names.indexOf('normal')).toBeLessThan(names.indexOf('post'))
+  })
 })
