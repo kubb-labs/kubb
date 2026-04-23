@@ -28,6 +28,10 @@ type Options = {
   hooks: AsyncEventEmitter<KubbHooks>
 }
 
+function enforceOrder(enforce: 'pre' | 'post' | undefined): number {
+  return enforce === 'pre' ? -1 : enforce === 'post' ? 1 : 0
+}
+
 export class PluginDriver {
   readonly config: Config
   readonly options: Options
@@ -88,7 +92,8 @@ export class PluginDriver {
       .sort((a, b) => {
         if (b.dependencies?.includes(a.name)) return -1
         if (a.dependencies?.includes(b.name)) return 1
-        return 0
+        // enforce: 'pre' plugins run first, 'post' plugins run last
+        return enforceOrder(a.enforce) - enforceOrder(b.enforce)
       })
       .forEach((plugin) => {
         this.plugins.set(plugin.name, plugin)
@@ -107,6 +112,7 @@ export class PluginDriver {
     const normalizedPlugin = {
       name: hookPlugin.name,
       dependencies: hookPlugin.dependencies,
+      enforce: hookPlugin.enforce,
       options: { output: { path: '.' }, exclude: [], override: [] },
     } as unknown as NormalizedPlugin
 
