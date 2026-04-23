@@ -2,140 +2,243 @@
 
 ## Problem
 
-A middleware (or any third-party package) needs to inject extra fields into two places that currently have no awareness of it:
+Barrel-file generation must be decoupled from individual plugins and from the core build engine. Currently there is no first-class "middleware" concept in Kubb — middleware needs to:
 
-1. The root `Config` object (e.g. a top-level `barrel` option)
-2. Every individual plugin's `options` object (e.g. a per-plugin `barrel` override)
-
-Neither `Config` nor any plugin declares these fields today, so they must appear through TypeScript module augmentation — zero changes to core types.
+1. Add `output.barrelType` to the root `Config['output']` and to each plugin's `Output` type (the shared `Output` type in `@kubb/core`).
+2. Hook into the build lifecycle at the right moment to read every plugin's generated files and write the barrel files after all plugins have finished.
 
 ---
 
-## Solution: `Kubb.MiddlewareRegistry` global namespace
+## API: `output.barrelType`
 
-Add an empty, augmentable interface in `@kubb/core` that any package can extend. The `Config` and the per-plugin options base type each intersect with computed helpers that collect all registered fields.
-
-### How it looks in `@kubb/core`
+The user-facing field lives on the **shared `Output` type** in `@kubb/core` (and therefore automatically on every plugin's `output` too) and on the root `Config['output']` object.
 
 ```ts
 // packages/core/src/types.ts  (additions only)
 
-declare global {
-  namespace Kubb {
-    /**
-     * Middleware packages augment this interface to declare the fields they
-     * inject into Config and into every plugin's options object.
-     *
-     * Each key is the middleware name; the value shape is:
-     *   { configOptions?: { ... }; pluginOptions?: { ... } }
-     */
-    interface MiddlewareRegistry {}
+export type BarrelType = 'all' | 'named' | 'propagate'
 
-    /**
-     * Union → intersection of every `configOptions` contributed by registered middlewares.
-     * Intersected into the root `Config` type.
-     */
-    type MiddlewareConfigOptions = MiddlewareRegistry extends Record<string, { configOptions?: infer O }>
-      ? O
-      : unknown
-
-    /**
-     * Union → intersection of every `pluginOptions` contributed by registered middlewares.
-     * Intersected into every plugin's `options` type.
-     */
-    type MiddlewarePluginOptions = MiddlewareRegistry extends Record<string, { pluginOptions?: infer O }>
-      ? O
-      : unknown
-  }
-}
-
-// Config gets the extra fields automatically:
-export type Config = {
-  // ... existing fields ...
-} & Kubb.MiddlewareConfigOptions
-
-// PluginFactoryOptions base also gets them:
-export type PluginFactoryOptions<...> = {
-  options: TOptions & Kubb.MiddlewarePluginOptions
-  // ...
+export type Output = {
+  path: string
+  banner?: …
+  footer?: …
+  override?: boolean
+  /**
+   * Controls barrel-file (index.ts) generation for this plugin's output.
+   * - `'all'`       — export everything with `export * from '…'`
+   * - `'named'`     — export only named exports (`export { Foo } from '…'`)
+   * - `'propagate'` — write a barrel even if the plugin produces no files
+   * - `false`       — disable barrel generation for this plugin
+   * Inherits the root `Config.output.barrelType` when omitted.
+   */
+  barrelType?: BarrelType | false
 }
 ```
 
-### How `@kubb/middleware-barrel` uses it
+Root config gains the same field automatically (its inline `output` object mirrors `Output`):
 
 ```ts
-// packages/middleware-barrel/src/types.ts
-
-declare global {
-  namespace Kubb {
-    interface MiddlewareRegistry {
-      'middleware-barrel': {
-        configOptions?: {
-          /**
-           * Barrel-file generation for the entire output.
-           * Set to `false` to disable, or configure the type and output path.
-           */
-          barrel?:
-            | { type?: 'all' | 'named' | 'propagate'; path?: string }
-            | false
-        }
-        pluginOptions?: {
-          /**
-           * Override barrel-file generation for this specific plugin's output.
-           * Inherits the root `barrel` setting when omitted.
-           */
-          barrel?:
-            | { type?: 'all' | 'named' | 'propagate' }
-            | false
-        }
-      }
-    }
-  }
+output: {
+  path: string
+  clean?: boolean
+  // …existing fields…
+  /**
+   * Default barrelType for every plugin that does not set its own `output.barrelType`.
+   * Omit (or set `false`) to disable barrel generation entirely.
+   */
+  barrelType?: BarrelType | false
 }
 ```
 
-After this augmentation TypeScript users automatically see:
+### User-facing config
 
 ```ts
-import { defineConfig } from '@kubb/kubb'
-import '@kubb/middleware-barrel'   // side-effect import — types only
-
 export default defineConfig({
-  barrel: { type: 'named' },        // ✅  autocompleted, type-checked
+  output: { path: 'src/gen', barrelType: 'named' },   // root default
   plugins: [
-    pluginTs({
-      barrel: false,                // ✅  per-plugin override, also type-checked
-    }),
+    pluginTs({ output: { path: 'types', barrelType: 'all' } }),  // per-plugin override
+    pluginZod({ output: { path: 'schemas' } }),                  // inherits 'named'
+    pluginClient({ output: { path: 'client', barrelType: false } }), // opt-out
+    middlewareBarrel(),    // drives the actual barrel generation
   ],
 })
 ```
 
-Neither `defineConfig`, `Config`, nor `pluginTs` need to know about `barrel`.
+---
+
+## Middleware runtime: `defineMiddleware` in `@kubb/core`
+
+### What a middleware is
+
+A middleware is a plain object that attaches listeners to the `AsyncEventEmitter<KubbHooks>` before the build loop runs. It has no generators of its own; it only observes and mutates the file set produced by other plugins.
+
+```ts
+// packages/core/src/defineMiddleware.ts  (new file)
+
+export type Middleware = {
+  name: string
+  /**
+   * Called during `createKubb` after `setup()` but before the plugin
+   * execution loop starts. Use this to attach listeners on `hooks`.
+   */
+  install(hooks: AsyncEventEmitter<KubbHooks>): void
+}
+
+export function defineMiddleware(middleware: Middleware): Middleware {
+  return middleware
+}
+```
+
+### Where `createKubb` calls middleware
+
+`createKubb` already accepts a `Config` that contains `plugins`. Middleware is passed separately (or appended to a dedicated `config.middleware` array) and wired in during `setup()`:
+
+```ts
+// packages/core/src/createKubb.ts  (conceptual diff)
+
+async function setup(userConfig: UserConfig) {
+  // … existing setup …
+
+  for (const mw of userConfig.middleware ?? []) {
+    mw.install(hooks)          // attach all listeners before the build loop
+  }
+
+  // … build loop runs, plugins generate files …
+}
+```
+
+Alternatively, middleware can be passed as an array on `Config`:
+
+```ts
+// packages/core/src/types.ts  (addition)
+export type Config = {
+  // …existing fields…
+  /**
+   * Middleware instances that observe and post-process the build output.
+   * Each middleware receives the `hooks` emitter and attaches its own listeners.
+   */
+  middleware?: Array<Middleware>
+}
+```
+
+---
+
+## `@kubb/middleware-barrel` runtime
+
+### Lifecycle hooks used
+
+| Hook | Purpose |
+|---|---|
+| `kubb:build:start` | Capture `config`, `upsertFile`, and the lazy `files` reference |
+| `kubb:plugin:end` | After each plugin finishes, generate that plugin's per-plugin barrel (index.ts inside its `output.path`) |
+| `kubb:build:end` | After all plugins finish, generate the root barrel (index.ts at `config.output.path`) |
+
+### `middleware.ts` skeleton
+
+```ts
+// packages/middleware-barrel/src/middleware.ts
+
+import { defineMiddleware } from '@kubb/core'
+import type { KubbBuildStartContext } from '@kubb/core'
+import { generatePerPluginBarrel, generateRootBarrel } from './utils.ts'
+
+export const middlewareBarrel = defineMiddleware({
+  name: 'middleware-barrel',
+
+  install(hooks) {
+    let ctx: KubbBuildStartContext
+
+    hooks.on('kubb:build:start', (buildCtx) => {
+      ctx = buildCtx
+    })
+
+    hooks.on('kubb:plugin:end', ({ plugin }) => {
+      const barrelType = plugin.options?.output?.barrelType
+        ?? ctx.config.output.barrelType
+      if (!barrelType) return
+
+      const pluginFiles = ctx.files.filter(
+        (f) => f.meta?.pluginName === plugin.name,
+      )
+      const barrelFiles = generatePerPluginBarrel({
+        barrelType,
+        pluginName: plugin.name,
+        outputPath: plugin.options.output.path,
+        files: pluginFiles,
+        config: ctx.config,
+      })
+      ctx.upsertFile(...barrelFiles)
+    })
+
+    hooks.on('kubb:build:end', () => {
+      const rootBarrelType = ctx.config.output.barrelType
+      if (!rootBarrelType) return
+
+      const rootBarrelFiles = generateRootBarrel({
+        barrelType: rootBarrelType,
+        outputPath: ctx.config.output.path,
+        files: ctx.files,
+        config: ctx.config,
+      })
+      ctx.upsertFile(...rootBarrelFiles)
+    })
+  },
+})
+```
+
+### `utils.ts` — barrel file generation helpers
+
+```ts
+// packages/middleware-barrel/src/utils.ts
+
+export function generatePerPluginBarrel(params: {
+  barrelType: BarrelType
+  pluginName: string
+  outputPath: string
+  files: ReadonlyArray<FileNode>
+  config: Config
+}): Array<FileNode>
+
+export function generateRootBarrel(params: {
+  barrelType: BarrelType
+  outputPath: string
+  files: ReadonlyArray<FileNode>
+  config: Config
+}): Array<FileNode>
+```
+
+These helpers use a `TreeNode` structure (directory tree) to determine which files to re-export and produce `FileNode` objects with `export * from '…'` or named-export statements.
 
 ---
 
 ## File-level changes
 
 ### `packages/core/src/types.ts`
-- Add `declare global { namespace Kubb { interface MiddlewareRegistry {} … } }`
-- Add `Kubb.MiddlewareConfigOptions` and `Kubb.MiddlewarePluginOptions` helpers
-- Intersect `Config` with `Kubb.MiddlewareConfigOptions`
-- Intersect the `options` field inside `PluginFactoryOptions` with `Kubb.MiddlewarePluginOptions`
+- Export `BarrelType = 'all' | 'named' | 'propagate'`
+- Add `barrelType?: BarrelType | false` to the shared `Output` type
+- Add `barrelType?: BarrelType | false` to the inline `Config['output']` object
+- Add `middleware?: Array<Middleware>` to `Config` and `UserConfig`
+
+### `packages/core/src/defineMiddleware.ts` *(new)*
+- `Middleware` type + `defineMiddleware` factory
+
+### `packages/core/src/createKubb.ts`
+- After `setup()`, iterate `config.middleware` and call `mw.install(hooks)`
 
 ### `packages/core/src/index.ts`
-- No new exports required; the global namespace is self-registering
+- Export `BarrelType`, `Middleware`, `defineMiddleware`
 
 ### `packages/middleware-barrel/` (new package)
 | File | Purpose |
 |---|---|
-| `package.json` | `name: "@kubb/middleware-barrel"`, depends on `@kubb/core` |
+| `package.json` | `name: "@kubb/middleware-barrel"`, peer-depends on `@kubb/core` |
 | `tsconfig.json` | Mirrors other packages |
-| `src/types.ts` | `MiddlewareRegistry` augmentation (barrel config + plugin option shapes) |
-| `src/middleware.ts` | `defineMiddleware` call — exports `barrelMiddleware` runtime object |
-| `src/index.ts` | Re-exports `barrelMiddleware` and types |
-
-### `packages/kubb/src/defineConfig.ts` *(optional convenience)*
-- When `barrel` is present in `config` or any plugin option, auto-append `barrelMiddleware` to the middleware list so users don't have to do it manually.
+| `src/constants.ts` | `BARREL_BASENAME`, `BARREL_FILENAME` |
+| `src/utils/TreeNode.ts` | Directory-tree helper for barrel resolution |
+| `src/utils/getBarrelFiles.ts` | Converts a `TreeNode` into `FileNode[]` barrel files |
+| `src/utils.ts` | `generatePerPluginBarrel`, `generateRootBarrel` |
+| `src/middleware.ts` | `middlewareBarrel` — the `defineMiddleware` export |
+| `src/index.ts` | Re-exports `middlewareBarrel`, `BarrelType`, types |
 
 ---
 
@@ -143,24 +246,27 @@ Neither `defineConfig`, `Config`, nor `pluginTs` need to know about `barrel`.
 
 | Concern | Owner |
 |---|---|
-| `MiddlewareRegistry` type augmentation mechanism | `@kubb/core` |
-| Barrel-specific types (augmentation + barrel shapes) | `@kubb/middleware-barrel` |
-| Barrel runtime logic (file generation, `TreeNode`, etc.) | `@kubb/middleware-barrel` |
-| Auto-injection of barrel middleware | `@kubb/kubb/defineConfig.ts` (optional) |
+| `BarrelType` type + `output.barrelType` field | `@kubb/core` |
+| `Middleware` type + `defineMiddleware` factory | `@kubb/core` |
+| Middleware install call during `setup()` | `@kubb/core/createKubb.ts` |
+| Barrel-specific runtime logic | `@kubb/middleware-barrel` |
 | Individual plugins | **zero changes** |
-| Root `Config` | **zero explicit barrel fields** |
+| Root `Config` | gains only `barrelType` on `output` and `middleware` array |
 
 ---
 
 ## Checklist
 
-- [ ] Add `Kubb.MiddlewareRegistry` + computed helpers to `packages/core/src/types.ts`
-- [ ] Intersect `Config` with `Kubb.MiddlewareConfigOptions`
-- [ ] Intersect plugin `options` base with `Kubb.MiddlewarePluginOptions`
+- [ ] Add `BarrelType` to `packages/core/src/types.ts`
+- [ ] Add `barrelType?: BarrelType | false` to the shared `Output` type
+- [ ] Add `barrelType?: BarrelType | false` to `Config['output']`
+- [ ] Add `middleware?: Array<Middleware>` to `Config` / `UserConfig`
+- [ ] Create `packages/core/src/defineMiddleware.ts` with `Middleware` type + factory
+- [ ] Export new symbols from `packages/core/src/index.ts`
+- [ ] Wire `config.middleware` install loop into `createKubb.ts` `setup()`
 - [ ] Scaffold `packages/middleware-barrel/` (package.json, tsconfig.json, src/)
-- [ ] Add `MiddlewareRegistry` augmentation in `middleware-barrel/src/types.ts`
-- [ ] Implement `barrelMiddleware` runtime in `middleware-barrel/src/middleware.ts`
+- [ ] Implement `TreeNode`, `getBarrelFiles`, `generatePerPluginBarrel`, `generateRootBarrel`
+- [ ] Implement `middlewareBarrel` in `middleware-barrel/src/middleware.ts`
 - [ ] Export from `middleware-barrel/src/index.ts`
-- [ ] Add `@kubb/middleware-barrel` to `pnpm-workspace.yaml` and root `package.json` if needed
-- [ ] (Optional) Auto-inject `barrelMiddleware` in `defineConfig` when `barrel` option is detected
-- [ ] Add changeset entry
+- [ ] Add `@kubb/middleware-barrel` to `pnpm-workspace.yaml`
+- [ ] Add changeset entries for `@kubb/core` and `@kubb/middleware-barrel`
