@@ -141,8 +141,8 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
   // Install middleware listeners after all plugin hooks are registered.
   // Because AsyncEventEmitter calls listeners in registration order,
   // middleware hooks for any event fire after all plugin hooks for that event.
-  for (const mw of config.middleware ?? []) {
-    mw.install(hooks)
+  for (const middleware of config.middleware ?? []) {
+    middleware.install(hooks)
   }
 
   const adapter = config.adapter
