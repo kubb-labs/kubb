@@ -1,10 +1,37 @@
 import { AsyncEventEmitter } from '@internals/utils'
 import { createMockedAdapter } from '@kubb/core/mocks'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { defineMiddleware } from './defineMiddleware.ts'
 import { definePlugin } from './definePlugin.ts'
-import type { Config, KubbHooks, Middleware, Plugin } from './types.ts'
+import type { Config, KubbHooks, Middleware, Output, Plugin } from './types.ts'
+
+// ---------------------------------------------------------------------------
+// Module-level declare global augmentations used by the type tests below.
+// Each uses a unique field name to avoid polluting other tests.
+// ---------------------------------------------------------------------------
+declare global {
+  namespace Kubb {
+    interface ConfigOptionsRegistry {
+      output: {
+        /**
+         * Test-only field: verifies that `ConfigOptionsRegistry` augmentation
+         * propagates to `Config['output']`.
+         */
+        _testConfigField?: string
+      }
+    }
+    interface PluginOptionsRegistry {
+      output: {
+        /**
+         * Test-only field: verifies that `PluginOptionsRegistry` augmentation
+         * propagates to the per-plugin `Output` type.
+         */
+        _testPluginField?: number
+      }
+    }
+  }
+}
 
 function makeConfig(overrides: Partial<Config> = {}): Config {
   return {
@@ -142,5 +169,35 @@ describe('middleware runtime integration with createKubb', () => {
 
     // files array is observable (may be empty in a no-op adapter, but the hook fired)
     expect(Array.isArray(capturedFiles)).toBe(true)
+  })
+})
+
+describe('declare global augmentation', () => {
+  it('ConfigOptionsRegistry: augmented output field is present on Config["output"]', () => {
+    // Verify that `_testConfigField` added via `declare global { namespace Kubb {
+    // interface ConfigOptionsRegistry { output: { _testConfigField?: string } } } }`
+    // is visible on the `Config['output']` intersection type.
+    expectTypeOf<Config['output']>().toHaveProperty('_testConfigField')
+    expectTypeOf<Config['output']['_testConfigField']>().toEqualTypeOf<string | undefined>()
+
+    // A value that satisfies the augmented type should be accepted at compile time.
+    const output = { path: './src/gen' } satisfies Config['output']
+    const withField = { path: './src/gen', _testConfigField: 'hello' } satisfies Config['output']
+
+    expect(output).toBeDefined()
+    expect(withField._testConfigField).toBe('hello')
+  })
+
+  it('PluginOptionsRegistry: augmented output field is present on per-plugin Output', () => {
+    // Verify that `_testPluginField` added via `declare global { namespace Kubb {
+    // interface PluginOptionsRegistry { output: { _testPluginField?: number } } } }`
+    // is visible on the `Output` intersection type used by plugins.
+    expectTypeOf<Output>().toHaveProperty('_testPluginField')
+    expectTypeOf<Output['_testPluginField']>().toEqualTypeOf<number | undefined>()
+
+    // A value satisfying Output can include the augmented field.
+    const pluginOutput = { path: './src/gen', _testPluginField: 42 } satisfies Output
+
+    expect(pluginOutput._testPluginField).toBe(42)
   })
 })
