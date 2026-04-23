@@ -70,6 +70,50 @@
   },
   {
     "kind": "File",
+    "path": "src/sub/index.ts",
+    "baseName": "index.ts",
+    "sources": [
+      {
+        "name": "hello",
+        "kind": "Source"
+      },
+      {
+        "name": "world",
+        "kind": "Source"
+      }
+    ],
+    "imports": [],
+    "exports": [
+      {
+        "path": "./hello.ts",
+        "kind": "Export"
+      },
+      {
+        "path": "./world.ts",
+        "kind": "Export"
+      },
+      {
+        "kind": "Export",
+        "name": [
+          "hello"
+        ],
+        "path": "./sub/hello.ts"
+      },
+      {
+        "kind": "Export",
+        "name": [
+          "world"
+        ],
+        "path": "./sub/world.ts"
+      }
+    ],
+    "id": "00d9bb747968e55db50fa82465b2f0678d957e9befeaff84a70e431486a8a132",
+    "name": "index",
+    "extname": ".ts",
+    "meta": {}
+  },
+  {
+    "kind": "File",
     "path": "src/sub/hello.ts",
     "baseName": "hello.ts",
     "sources": [
@@ -115,50 +159,6 @@
     "exports": [],
     "id": "8875e1f9f216417bf0cd05cf4a1a49f430094b0700574b1db6e4e2406feeb850",
     "name": "world",
-    "extname": ".ts",
-    "meta": {}
-  },
-  {
-    "kind": "File",
-    "path": "src/sub/index.ts",
-    "baseName": "index.ts",
-    "sources": [
-      {
-        "name": "hello",
-        "kind": "Source"
-      },
-      {
-        "name": "world",
-        "kind": "Source"
-      }
-    ],
-    "imports": [],
-    "exports": [
-      {
-        "path": "./hello.ts",
-        "kind": "Export"
-      },
-      {
-        "path": "./world.ts",
-        "kind": "Export"
-      },
-      {
-        "kind": "Export",
-        "name": [
-          "hello"
-        ],
-        "path": "./sub/hello.ts"
-      },
-      {
-        "kind": "Export",
-        "name": [
-          "world"
-        ],
-        "path": "./sub/world.ts"
-      }
-    ],
-    "id": "00d9bb747968e55db50fa82465b2f0678d957e9befeaff84a70e431486a8a132",
-    "name": "index",
     "extname": ".ts",
     "meta": {}
   }

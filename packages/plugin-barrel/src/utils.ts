@@ -9,6 +9,8 @@ import { getBarrelFiles } from './utils/getBarrelFiles.ts'
 
 type BuildConfig = { root: string; output: { path: string } }
 
+type OutputWithBarrel = { path?: string; barrelType?: BarrelType | false }
+
 export async function generatePerPluginBarrel(
   pluginName: string,
   options: PluginBarrelOptions,
@@ -24,7 +26,7 @@ export async function generatePerPluginBarrel(
   if (configEntry !== undefined) {
     barrelType = configEntry.barrelType
   } else {
-    barrelType = normalizedPlugin?.options?.output?.barrelType
+    barrelType = (normalizedPlugin?.options?.output as OutputWithBarrel | undefined)?.barrelType
   }
 
   if (!barrelType) return
@@ -75,7 +77,7 @@ export async function generateRootBarrel(
     if (configEntry !== undefined) {
       barrelType = configEntry.barrelType
     } else {
-      barrelType = getPlugin(pluginName)?.options?.output?.barrelType
+      barrelType = (getPlugin(pluginName)?.options?.output as OutputWithBarrel | undefined)?.barrelType
     }
     if (!barrelType) return []
 
