@@ -33,7 +33,7 @@ type GetParamsProps = {
 
 function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
   if (paramsType === 'object') {
-    const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
+    const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing, override: (item) => ({ ...item, type: `${item.type} | undefined` }) })
 
     const children = {
       ...pathParams,
@@ -82,6 +82,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
           children: getPathParams(typeSchemas.pathParams, {
             typed: true,
             casing: paramsCasing,
+            override: (item) => ({ ...item, type: `${item.type} | undefined` }),
           }),
           default: isAllOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
         }
@@ -219,14 +220,15 @@ export function SuspenseInfiniteQueryOptions({
 
   // Only add enabled check for required (non-optional) parameters
   // Optional parameters with defaults should not prevent query execution
-  const enabled = Object.entries(queryKeyParams.flatParams)
-    .map(([key, item]) => {
+  const enabledPathParams = getPathParams(typeSchemas.pathParams, { casing: paramsCasing })
+  const enabledParamNames = new Set(
+    Object.entries(enabledPathParams)
       // Only include if the parameter exists and is NOT optional
       // This ensures we only check required parameters
-      return item && !item.optional && !item.default ? key : undefined
-    })
-    .filter(Boolean)
-    .join('&& ')
+      .filter(([, item]) => item && !item.optional && !item.default)
+      .map(([key]) => key),
+  )
+  const enabled = [...enabledParamNames].join(' && ')
 
   const enabledText = enabled ? `enabled: !!(${enabled}),` : ''
 
@@ -247,7 +249,7 @@ export function SuspenseInfiniteQueryOptions({
                 return '{ ...config, signal: config.signal ?? signal }'
               }
 
-              return name
+              return enabledParamNames.has(name) ? `${name}!` : name
             },
           })})
         },
@@ -274,7 +276,7 @@ export function SuspenseInfiniteQueryOptions({
                 return '{ ...config, signal: config.signal ?? signal }'
               }
 
-              return name
+              return enabledParamNames.has(name) ? `${name}!` : name
             },
           })})
         },
