@@ -173,7 +173,10 @@ export function getBarrelFiles(outputPath: string, files: ReadonlyArray<FileNode
 
   if (relevantFiles.length === 0) return []
 
-  const tree = buildTree(outputPath, relevantFiles.map((f) => f.path))
+  const tree = buildTree(
+    outputPath,
+    relevantFiles.map((f) => f.path),
+  )
 
   switch (barrelType) {
     case 'all':
