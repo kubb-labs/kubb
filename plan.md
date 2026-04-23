@@ -125,6 +125,26 @@ export type Config = {
 
 ## `@kubb/middleware-barrel` runtime
 
+### Execution order — the `enforce: 'post'` equivalent
+
+Plugins use `enforce: 'post'` to run after all normal plugins. Middleware has a simpler guarantee: **middleware listeners are always registered after all plugin listeners**, because `createKubb` installs middleware in `setup()` only after the `PluginDriver` has already registered every plugin's hooks.
+
+```
+createKubb setup() call order
+──────────────────────────────────────────────────────────────
+1. PluginDriver.install(config)       ← registers all plugin hooks
+2. for (mw of config.middleware)      ← installs middleware listeners
+     mw.install(hooks)                  (always AFTER all plugin hooks)
+3. hooks.emit('kubb:plugin:setup')   ← build loop begins
+```
+
+Because `AsyncEventEmitter` calls listeners in registration order, middleware listeners for any event fire **after** all plugin listeners for that same event. This means:
+
+- `kubb:plugin:end` in middleware fires after the plugin's own `kubb:plugin:end` — all of that plugin's files are already in `FileManager`.
+- `kubb:build:end` in middleware fires after every plugin's `kubb:build:end` — the complete file set is available.
+
+No `enforce: 'post'` flag, no `priority` field, no special ordering needed on `Middleware` — the install sequence itself guarantees barrel generation always comes last.
+
 ### Lifecycle hooks used
 
 | Hook | Purpose |
