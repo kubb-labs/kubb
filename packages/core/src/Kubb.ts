@@ -1,7 +1,6 @@
 import type { AsyncEventEmitter } from '@internals/utils'
-import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
+import type { OperationNode, SchemaNode } from '@kubb/ast'
 import type { BuildOutput } from './createKubb.ts'
-import type { Plugin } from './definePlugin.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 import type {
   Config,

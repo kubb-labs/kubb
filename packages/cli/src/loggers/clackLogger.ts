@@ -275,7 +275,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         size: 30,
       })
 
-      context.emit('kubb:info', text)
+      context.emit('kubb:info', { message: text })
       progressBar.start(getMessage(text))
       state.activeProgress.set('files', { progressBar })
     })

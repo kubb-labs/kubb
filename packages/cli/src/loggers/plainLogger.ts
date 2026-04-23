@@ -98,7 +98,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:generation:start', ({ config }) => {
+    context.on('kubb:generation:start', () => {
       const text = getMessage('Generation started')
 
       console.log(text)
