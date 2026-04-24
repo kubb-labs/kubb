@@ -1,7 +1,6 @@
 import type { NodeKind } from './nodes/base.ts'
 import type { MediaType } from './nodes/http.ts'
 import type { HttpMethod } from './nodes/operation.ts'
-import type { ParameterLocation } from './nodes/parameter.ts'
 import type { SchemaType } from './nodes/schema.ts'
 
 /**
@@ -177,13 +176,6 @@ export const httpMethods = {
   trace: 'TRACE',
 } as const satisfies Record<Lowercase<HttpMethod>, HttpMethod>
 
-export const parameterLocations = {
-  path: 'path',
-  query: 'query',
-  header: 'header',
-  cookie: 'cookie',
-} as const satisfies Record<ParameterLocation, ParameterLocation>
-
 /**
  * Default maximum number of concurrent callbacks used by `walk`.
  *
@@ -197,16 +189,6 @@ export const parameterLocations = {
  * ```
  */
 export const WALK_CONCURRENCY = 30
-
-/**
- * Fallback response status code used for catch-all responses.
- *
- * @example
- * ```ts
- * const status = DEFAULT_STATUS_CODE // 'default'
- * ```
- */
-export const DEFAULT_STATUS_CODE = 'default' as const
 
 export const mediaTypes = {
   applicationJson: 'application/json',

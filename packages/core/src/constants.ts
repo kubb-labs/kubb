@@ -6,11 +6,6 @@ import type { FileNode } from '@kubb/ast'
 export const DEFAULT_STUDIO_URL = 'https://studio.kubb.dev' as const
 
 /**
- * Default number of plugins that may run concurrently during a build.
- */
-export const DEFAULT_CONCURRENCY = 15
-
-/**
  * Maximum number of files processed in parallel by FileProcessor.
  */
 export const PARALLEL_CONCURRENCY_LIMIT = 100
@@ -24,11 +19,6 @@ export const DEFAULT_BANNER = 'simple' as const
  * Default file-extension mapping used when no explicit mapping is configured.
  */
 export const DEFAULT_EXTENSION: Record<FileNode['extname'], FileNode['extname'] | ''> = { '.ts': '.ts' }
-
-/**
- * Characters recognized as path separators on both POSIX and Windows.
- */
-export const PATH_SEPARATORS = new Set(['/', '\\'] as const)
 
 /**
  * Numeric log-level thresholds used internally to compare verbosity.

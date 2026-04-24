@@ -121,14 +121,10 @@ export function getIntro({
 `
 }
 
-/** ANSI color names available for deterministic terminal coloring.
- *
- * @example
- * ```ts
- * const color = randomColors[2] // 'green'
- * ```
+/**
+ * ANSI color names used by {@link randomCliColor} for deterministic terminal coloring.
  */
-export const randomColors = ['black', 'red', 'green', 'yellow', 'blue', 'white', 'magenta', 'cyan', 'gray'] as const
+const randomColors = ['black', 'red', 'green', 'yellow', 'blue', 'white', 'magenta', 'cyan', 'gray'] as const
 
 /**
  * Wraps `text` in a deterministic ANSI color derived from the text's SHA-256 hash.
