@@ -1,5 +1,19 @@
 # @kubb/middleware-barrel
 
+## 5.0.0-alpha.67
+
+### Patch Changes
+
+- [`0b1e3aa`](https://github.com/kubb-labs/kubb/commit/0b1e3aa73373eacead128f590432764d02f912f8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix `middleware-barrel` failing on Windows due to mixed path separators.
+
+  - `buildTree` now POSIX-normalizes its root path so all child paths use forward slashes.
+  - `getBarrelFiles` indexes source files on POSIX-normalized paths, restoring the `'named'` strategy on Windows.
+  - `getPluginOutputPrefix` / `isExcludedPath` POSIX-normalize both sides so plugins with `barrelType: false` are correctly excluded from the root barrel.
+  - New `toPosixPath` helper exported from `@internals/utils` centralizes the conversion.
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.67
+
 ## 5.0.0-alpha.66
 
 ### Patch Changes

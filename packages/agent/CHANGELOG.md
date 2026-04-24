@@ -1,5 +1,13 @@
 # @kubb/agent
 
+## 5.0.0-alpha.67
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.67
+  - @kubb/core@5.0.0-alpha.67
+
 ## 5.0.0-alpha.66
 
 ### Patch Changes

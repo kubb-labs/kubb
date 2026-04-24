@@ -58,6 +58,7 @@
     "fix-discriminator-union-types",
     "fix-middleware-barrel-barrel-type-augmentation",
     "fix-middleware-barrel-generation",
+    "fix-middleware-barrel-windows",
     "fix-null-const-duplication",
     "fix-oxlint-gitignore-lint-failure",
     "fix-path-param-ref-types",
