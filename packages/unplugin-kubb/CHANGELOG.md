@@ -1,5 +1,15 @@
 # unplugin-kubb
 
+## 5.0.0-alpha.68
+
+### Patch Changes
+
+- [`baf9929`](https://github.com/kubb-labs/kubb/commit/baf99296cda9d7ae6d72eb887ed867e9cbbdb57c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Mirror `@kubb/kubb`'s `defineConfig` defaults inside `unplugin-kubb`:
+
+  - `middleware` defaults to `[middlewareBarrel]` when not provided.
+  - `output.barrelType` defaults to `'named'` when `middlewareBarrel` is part of the resolved `middleware` list.
+  - Re-exports the `BarrelType` type from `@kubb/middleware-barrel` for convenience.
+
 ## 5.0.0-alpha.67
 
 ### Patch Changes

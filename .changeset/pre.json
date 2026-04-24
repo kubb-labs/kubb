@@ -87,6 +87,7 @@
     "some-dodos-search",
     "sort-named-barrel-exports",
     "typescript-6-upgrade",
+    "unplugin-default-middleware-barrel",
     "update-react-fabric-dependency"
   ]
 }
