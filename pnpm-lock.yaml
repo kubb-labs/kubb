@@ -278,6 +278,9 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
 
   packages/mcp:
     dependencies:
