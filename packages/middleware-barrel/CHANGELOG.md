@@ -1,5 +1,14 @@
 # @kubb/middleware-barrel
 
+## 5.0.0-alpha.61
+
+### Patch Changes
+
+- [`f14c2e6`](https://github.com/kubb-labs/kubb/commit/f14c2e6e21922483533c880dd68491e342f3083a) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add unit tests for `buildTree`, `getBarrelFiles`, `generatePerPluginBarrel`, and `generateRootBarrel`. Covers all three barrel strategies (`all`, `named`, `propagate`), edge cases (non-indexable sources, out-of-root files, extension filtering), and integration through the per-plugin and root barrel generators.
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.61
+
 ## 5.0.0-alpha.60
 
 ### Patch Changes
