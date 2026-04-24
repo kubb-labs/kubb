@@ -1,5 +1,14 @@
 # @kubb/middleware-barrel
 
+## 5.0.0-alpha.65
+
+### Patch Changes
+
+- [`e673968`](https://github.com/kubb-labs/kubb/commit/e673968cc8b468f34cf08ce9c6827f37c24ba140) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Sort named re-exports alphabetically within each generated barrel export node so that `export { a, m, z }` is emitted instead of source-order. File-level export order was already alphabetical via the sorted directory tree.
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.65
+
 ## 5.0.0-alpha.64
 
 ### Patch Changes
