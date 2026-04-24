@@ -83,6 +83,7 @@
     "rename-printer-type-exports",
     "requestbody-content-array",
     "some-dodos-search",
+    "sort-named-barrel-exports",
     "typescript-6-upgrade",
     "update-react-fabric-dependency"
   ]
