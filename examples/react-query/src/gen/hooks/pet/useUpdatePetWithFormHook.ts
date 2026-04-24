@@ -15,7 +15,7 @@ import type {
   UpdatePetWithFormQueryParams,
 } from '../../models/UpdatePetWithForm.ts'
 
-export const updatePetWithFormQueryKey = (pet_id: UpdatePetWithFormPathParams['pet_id'], params?: UpdatePetWithFormQueryParams) =>
+export const updatePetWithFormQueryKey = (pet_id: UpdatePetWithFormPathParams['pet_id'] | undefined, params?: UpdatePetWithFormQueryParams) =>
   ['v5', { url: '/pet/:pet_id', params: { pet_id: pet_id } }, ...(params ? [params] : [])] as const
 
 export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>
@@ -41,7 +41,7 @@ export async function updatePetWithFormHook(
 }
 
 export function updatePetWithFormQueryOptionsHook(
-  pet_id: UpdatePetWithFormPathParams['pet_id'],
+  pet_id: UpdatePetWithFormPathParams['pet_id'] | undefined,
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
@@ -50,7 +50,7 @@ export function updatePetWithFormQueryOptionsHook(
     enabled: !!pet_id,
     queryKey,
     queryFn: async ({ signal }) => {
-      return updatePetWithFormHook(pet_id, params, {
+      return updatePetWithFormHook(pet_id!, params, {
         ...config,
         signal: config.signal ?? signal,
       })
@@ -67,7 +67,7 @@ export function useUpdatePetWithFormHook<
   TQueryData = UpdatePetWithFormMutationResponse,
   TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
 >(
-  pet_id: UpdatePetWithFormPathParams['pet_id'],
+  pet_id: UpdatePetWithFormPathParams['pet_id'] | undefined,
   params?: UpdatePetWithFormQueryParams,
   options: {
     query?: Partial<QueryObserverOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {

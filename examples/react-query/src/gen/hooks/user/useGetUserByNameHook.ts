@@ -10,7 +10,7 @@ import type { Client, RequestConfig, ResponseErrorConfig } from '../../.kubb/fet
 import { fetch } from '../../.kubb/fetch.ts'
 import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/GetUserByName.ts'
 
-export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] }) =>
+export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] | undefined }) =>
   ['v5', { url: '/user/:username', params: { username: username } }] as const
 
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
@@ -34,7 +34,7 @@ export async function getUserByNameHook(
 }
 
 export function getUserByNameQueryOptionsHook(
-  { username }: { username: GetUserByNamePathParams['username'] },
+  { username }: { username: GetUserByNamePathParams['username'] | undefined },
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = getUserByNameQueryKey({ username })
@@ -42,7 +42,7 @@ export function getUserByNameQueryOptionsHook(
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getUserByNameHook({ username: username }, { ...config, signal: config.signal ?? signal })
+      return getUserByNameHook({ username: username! }, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -56,7 +56,7 @@ export function useGetUserByNameHook<
   TQueryData = GetUserByNameQueryResponse,
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(
-  { username }: { username: GetUserByNamePathParams['username'] },
+  { username }: { username: GetUserByNamePathParams['username'] | undefined },
   options: {
     query?: Partial<
       QueryObserverOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryData, TQueryKey>

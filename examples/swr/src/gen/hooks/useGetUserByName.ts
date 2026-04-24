@@ -8,7 +8,8 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
 import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../models/GetUserByName.ts'
 
-export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
+export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username'] | undefined) =>
+  [{ url: '/user/:username', params: { username: username } }] as const
 
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
 

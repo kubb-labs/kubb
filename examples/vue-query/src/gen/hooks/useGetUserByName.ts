@@ -11,7 +11,7 @@ import type { MaybeRefOrGetter } from 'vue'
 import { toValue } from 'vue'
 import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../models/GetUserByName.ts'
 
-export const getUserByNameQueryKey = ({ username }: { username: MaybeRefOrGetter<GetUserByNamePathParams['username']> }) =>
+export const getUserByNameQueryKey = ({ username }: { username: MaybeRefOrGetter<GetUserByNamePathParams['username'] | undefined> }) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
@@ -35,7 +35,7 @@ export async function getUserByName(
 }
 
 export function getUserByNameQueryOptions(
-  { username }: { username: MaybeRefOrGetter<GetUserByNamePathParams['username']> },
+  { username }: { username: MaybeRefOrGetter<GetUserByNamePathParams['username'] | undefined> },
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = getUserByNameQueryKey({ username })
@@ -43,7 +43,7 @@ export function getUserByNameQueryOptions(
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getUserByName(toValue({ username: toValue(username) }), { ...config, signal: config.signal ?? signal })
+      return getUserByName(toValue({ username: toValue(username)! }), { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -57,7 +57,7 @@ export function useGetUserByName<
   TQueryData = GetUserByNameQueryResponse,
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(
-  { username }: { username: MaybeRefOrGetter<GetUserByNamePathParams['username']> },
+  { username }: { username: MaybeRefOrGetter<GetUserByNamePathParams['username'] | undefined> },
   options: {
     query?: Partial<UseQueryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient

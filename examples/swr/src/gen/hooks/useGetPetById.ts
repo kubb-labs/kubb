@@ -8,7 +8,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
 import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../models/GetPetById.ts'
 
-export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId'] | undefined) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 

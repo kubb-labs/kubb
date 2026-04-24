@@ -36,7 +36,11 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   if (paramsType === 'object') {
-    const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing, override: (item) => ({ ...item, type: `${item.type} | undefined` }) })
+    const pathParams = getPathParams(typeSchemas.pathParams, {
+      typed: true,
+      casing: paramsCasing,
+      override: (item) => ({ ...item, type: `${item.type} | undefined` }),
+    })
 
     const children = {
       ...pathParams,
@@ -85,7 +89,11 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing, override: (item) => ({ ...item, type: `${item.type} | undefined` }) }),
+          children: getPathParams(typeSchemas.pathParams, {
+            typed: true,
+            casing: paramsCasing,
+            override: (item) => ({ ...item, type: `${item.type} | undefined` }),
+          }),
           default: isAllOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
         }
       : undefined,

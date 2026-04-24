@@ -8,7 +8,8 @@ import type { Client, RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.
 import { fetch } from '../.kubb/fetch.ts'
 import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../models/GetUserByName.ts'
 
-export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
+export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username'] | undefined) =>
+  [{ url: '/user/:username', params: { username: username } }] as const
 
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
 
@@ -27,13 +28,16 @@ export async function getUserByName(username: GetUserByNamePathParams['username'
   return res.data
 }
 
-export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function getUserByNameQueryOptions(
+  username: GetUserByNamePathParams['username'] | undefined,
+  config: Partial<RequestConfig> & { client?: Client } = {},
+) {
   const queryKey = getUserByNameQueryKey(username)
   return queryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryResponse, typeof queryKey>({
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getUserByName(username, {
+      return getUserByName(username!, {
         ...config,
         signal: config.signal ?? signal,
       })
