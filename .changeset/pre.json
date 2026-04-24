@@ -42,6 +42,7 @@
     "ast-helper-reorganization",
     "auto-infer-primitive-field",
     "backend-refactor-dedupe",
+    "barrel-middleware-recursive-subdirs",
     "clever-cases-deny",
     "cli-esm-bin-multi-runtime",
     "core-getmode-static-cleanup",
