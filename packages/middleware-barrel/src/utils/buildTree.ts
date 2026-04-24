@@ -1,37 +1,33 @@
 import { posix } from 'node:path'
 
 /**
- * A node in a directory tree used to compute barrel file exports.
- *
- * Each `TreeNode` represents either a directory or a file entry.
- * Directory nodes have `children`; file nodes have an empty `children` array.
+ * A node in the directory tree used to compute barrel file exports.
+ * Either represents a directory (with `children`) or a file (`isFile: true`, empty `children`).
  */
 export type BuildTree = {
   /**
-   * Absolute path of the directory (root of this subtree) or file.
+   * Absolute filesystem path of this directory or file.
    */
   path: string
   /**
-   * Child nodes (sub-directories and files) within this directory.
+   * Sub-directories and files contained within this directory.
+   * Always empty for file nodes.
    */
   children: Array<BuildTree>
   /**
-   * `true` when this node represents a file (leaf node).
+   * `true` when this node represents a file (leaf), `false` for directory nodes.
    */
   isFile: boolean
 }
 
 /**
- * Builds a `TreeNode` directory tree from a list of absolute file paths.
- *
- * All `filePaths` must be inside `rootPath`. Paths that are outside
- * the root or that equal the root are silently ignored.
+ * Builds a directory tree rooted at `rootPath` from a list of absolute file paths.
+ * Paths outside `rootPath` are silently ignored.
  *
  * @example
  * ```ts
- * const tree = buildTree('/src/gen/types', [
+ * buildTree('/src/gen/types', [
  *   '/src/gen/types/pet.ts',
- *   '/src/gen/types/user.ts',
  *   '/src/gen/types/pets/listPets.ts',
  * ])
  * ```
