@@ -1,8 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import { createFunctionParameter, createOperation, createParameter, createParamsType, createSchema } from './factory.ts'
+import { createFunctionParameter, createOperation, createParameter, createParamsType, createProperty, createSchema } from './factory.ts'
 import type { OperationNode, ParameterNode } from './types.ts'
 import type { OperationParamsResolver } from './utils.ts'
-import { caseParams, createDiscriminantNode, createOperationParams, isStringType, syncSchemaRef } from './utils.ts'
+import {
+  caseParams,
+  collectReferencedSchemaNames,
+  containsCircularRef,
+  createDiscriminantNode,
+  createOperationParams,
+  findCircularSchemas,
+  isStringType,
+  resolveRefName,
+  syncSchemaRef,
+} from './utils.ts'
 
 const param = (name: string) =>
   createParameter({
@@ -1742,5 +1752,179 @@ describe('combineImports', () => {
 
   it('returns empty array for empty input', () => {
     expect(combineImports([], [], '')).toEqual([])
+  })
+})
+
+describe('findCircularSchemas', () => {
+  it('returns empty set for acyclic schemas', () => {
+    const Category = createSchema({ type: 'object', name: 'Category', properties: [] })
+    const Pet = createSchema({
+      type: 'object',
+      name: 'Pet',
+      properties: [
+        createProperty({ name: 'category', required: false, schema: createSchema({ type: 'ref', name: 'Category', ref: '#/components/schemas/Category' }) }),
+      ],
+    })
+
+    expect(findCircularSchemas([Category, Pet])).toEqual(new Set())
+  })
+
+  it('detects direct self-reference (TreeNode → TreeNode)', () => {
+    const TreeNode = createSchema({
+      type: 'object',
+      name: 'TreeNode',
+      properties: [
+        createProperty({ name: 'left', required: false, schema: createSchema({ type: 'ref', name: 'TreeNode', ref: '#/components/schemas/TreeNode' }) }),
+      ],
+    })
+
+    expect(findCircularSchemas([TreeNode])).toEqual(new Set(['TreeNode']))
+  })
+
+  it('detects indirect cycle (Pet → Cat → Pet)', () => {
+    const Pet = createSchema({
+      type: 'union',
+      name: 'Pet',
+      members: [createSchema({ type: 'ref', name: 'Cat', ref: '#/components/schemas/Cat' })],
+    })
+    const Cat = createSchema({
+      type: 'object',
+      name: 'Cat',
+      properties: [
+        createProperty({
+          name: 'friends',
+          required: false,
+          schema: createSchema({ type: 'array', items: [createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' })] }),
+        }),
+      ],
+    })
+
+    expect(findCircularSchemas([Pet, Cat])).toEqual(new Set(['Pet', 'Cat']))
+  })
+
+  it('detects refs nested inside unions and arrays', () => {
+    const A = createSchema({
+      type: 'object',
+      name: 'A',
+      properties: [
+        createProperty({
+          name: 'next',
+          required: false,
+          schema: createSchema({
+            type: 'union',
+            members: [createSchema({ type: 'null' }), createSchema({ type: 'ref', name: 'A', ref: '#/components/schemas/A' })],
+          }),
+        }),
+      ],
+    })
+
+    expect(findCircularSchemas([A])).toEqual(new Set(['A']))
+  })
+
+  it('does not flag schemas that only reference cyclic schemas without participating', () => {
+    // B → A → A, but A does not reference B.
+    const A = createSchema({
+      type: 'object',
+      name: 'A',
+      properties: [createProperty({ name: 'self', required: false, schema: createSchema({ type: 'ref', name: 'A', ref: '#/components/schemas/A' }) })],
+    })
+    const B = createSchema({
+      type: 'object',
+      name: 'B',
+      properties: [createProperty({ name: 'a', required: false, schema: createSchema({ type: 'ref', name: 'A', ref: '#/components/schemas/A' }) })],
+    })
+    const result = findCircularSchemas([A, B])
+
+    expect(result.has('A')).toBe(true)
+    expect(result.has('B')).toBe(false)
+  })
+
+  it('skips unnamed schemas', () => {
+    const anon = createSchema({ type: 'object' })
+    expect(findCircularSchemas([anon])).toEqual(new Set())
+  })
+})
+
+describe('resolveRefName', () => {
+  it('extracts the name from a $ref pointer', () => {
+    const ref = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' })
+
+    expect(resolveRefName(ref)).toBe('Pet')
+  })
+
+  it('falls back to node.name when ref is missing', () => {
+    const ref = createSchema({ type: 'ref', name: 'Pet' })
+
+    expect(resolveRefName(ref)).toBe('Pet')
+  })
+
+  it('returns undefined for non-ref nodes', () => {
+    expect(resolveRefName(createSchema({ type: 'string' }))).toBeUndefined()
+    expect(resolveRefName(undefined)).toBeUndefined()
+  })
+})
+
+describe('collectReferencedSchemaNames', () => {
+  it('collects ref names nested in objects, arrays and unions', () => {
+    const schema = createSchema({
+      type: 'object',
+      name: 'Pet',
+      properties: [
+        createProperty({ name: 'category', required: false, schema: createSchema({ type: 'ref', name: 'Category', ref: '#/components/schemas/Category' }) }),
+        createProperty({
+          name: 'tags',
+          required: false,
+          schema: createSchema({ type: 'array', items: [createSchema({ type: 'ref', name: 'Tag', ref: '#/components/schemas/Tag' })] }),
+        }),
+        createProperty({
+          name: 'owner',
+          required: false,
+          schema: createSchema({
+            type: 'union',
+            members: [createSchema({ type: 'null' }), createSchema({ type: 'ref', name: 'User', ref: '#/components/schemas/User' })],
+          }),
+        }),
+      ],
+    })
+
+    expect(collectReferencedSchemaNames(schema)).toEqual(new Set(['Category', 'Tag', 'User']))
+  })
+
+  it('returns an empty set for schemas without refs', () => {
+    expect(collectReferencedSchemaNames(createSchema({ type: 'string' }))).toEqual(new Set())
+  })
+})
+
+describe('containsCircularRef', () => {
+  it('returns true when a nested ref points to a circular schema', () => {
+    const schema = createSchema({
+      type: 'object',
+      name: 'Cat',
+      properties: [createProperty({ name: 'archEnemy', required: false, schema: createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' }) })],
+    })
+
+    expect(containsCircularRef(schema, { circularSchemas: new Set(['Pet']) })).toBe(true)
+  })
+
+  it('returns false when excludeName matches the only circular ref', () => {
+    const schema = createSchema({
+      type: 'object',
+      name: 'TreeNode',
+      properties: [
+        createProperty({ name: 'left', required: false, schema: createSchema({ type: 'ref', name: 'TreeNode', ref: '#/components/schemas/TreeNode' }) }),
+      ],
+    })
+
+    expect(containsCircularRef(schema, { circularSchemas: new Set(['TreeNode']), excludeName: 'TreeNode' })).toBe(false)
+  })
+
+  it('returns false when there are no refs', () => {
+    expect(containsCircularRef(createSchema({ type: 'string' }), { circularSchemas: new Set(['Pet']) })).toBe(false)
+  })
+
+  it('short-circuits when the circular set is empty', () => {
+    const schema = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' })
+
+    expect(containsCircularRef(schema, { circularSchemas: new Set() })).toBe(false)
   })
 })

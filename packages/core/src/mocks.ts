@@ -40,10 +40,11 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
     getImports?: Adapter<TOptions>['getImports']
   } = {},
 ): Adapter<TOptions> {
+  const inputNode = options.inputNode ?? null
   return {
     name: (options.name ?? 'oas') as TOptions['name'],
     options: (options.resolvedOptions ?? {}) as TOptions['resolvedOptions'],
-    inputNode: options.inputNode ?? null,
+    inputNode,
     parse: options.parse ?? (async () => ({ kind: 'Input' as const, schemas: [], operations: [] })),
     getImports: options.getImports ?? ((_node: SchemaNode, _resolve: (schemaName: string) => { name: string; path: string }) => []),
   } as Adapter<TOptions>

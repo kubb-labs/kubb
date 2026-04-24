@@ -16,6 +16,8 @@ import type {
   SourceNode,
 } from './nodes/index.ts'
 import type { SchemaType } from './nodes/schema.ts'
+import { extractRefName } from './refs.ts'
+import { collect } from './visitor.ts'
 
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
 
@@ -738,4 +740,134 @@ export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): str
     })
     .filter(Boolean)
     .join('\n')
+}
+
+/**
+ * Resolves the referenced schema name of a `ref` node, falling back through
+ * `ref` → `name` → nested `schema.name`. Returns `undefined` for non-ref
+ * nodes or when no name can be resolved.
+ *
+ * @example
+ * ```ts
+ * resolveRefName({ kind: 'Schema', type: 'ref', ref: '#/components/schemas/Pet' })
+ * // => 'Pet'
+ * ```
+ */
+export function resolveRefName(node: SchemaNode | undefined): string | undefined {
+  if (!node || node.type !== 'ref') return undefined
+  if (node.ref) return extractRefName(node.ref) ?? node.name ?? node.schema?.name ?? undefined
+
+  return node.name ?? node.schema?.name ?? undefined
+}
+
+/**
+ * Recursively collects every named schema referenced (transitively) from
+ * `node` via `ref` edges. Refs are followed by name only — the resolved
+ * `node.schema` of a ref is not traversed inline.
+ *
+ * @example
+ * ```ts
+ * const refs = collectReferencedSchemaNames(petSchema)
+ * // => Set { 'Cat', 'Dog' }
+ * ```
+ */
+export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: Set<string> = new Set()): Set<string> {
+  if (!node) return out
+  collect<void>(node, {
+    schema(child) {
+      if (child.type === 'ref') {
+        const name = resolveRefName(child)
+
+        if (name) out.add(name)
+      }
+      return undefined
+    },
+  })
+  return out
+}
+
+/**
+ * Identifies every named schema that participates in a circular dependency
+ * chain — including direct self-loops (e.g. `TreeNode → TreeNode`) and indirect
+ * cycles spanning multiple schemas (e.g. `Pet → Cat → Pet`).
+ *
+ * The returned set contains schema names. Plugins that translate schemas into
+ * a host language can use this to wrap recursive positions in a deferred
+ * construct (lazy getter, `z.lazy(() => …)`, etc.) and avoid runtime stack
+ * overflows when the generated code is executed.
+ *
+ * Refs are followed by name only — `node.schema` (the resolved referent) is
+ * not traversed inline, which keeps the algorithm linear in the size of the
+ * schema graph.
+ *
+ * @example
+ * ```ts
+ * const circular = findCircularSchemas(inputNode.schemas)
+ * if (circular.has('Pet')) {
+ *   // emit lazy wrapper for any property whose schema references Pet
+ * }
+ * ```
+ */
+export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<string> {
+  const graph = new Map<string, Set<string>>()
+
+  for (const schema of schemas) {
+    if (!schema.name) continue
+    graph.set(schema.name, collectReferencedSchemaNames(schema))
+  }
+
+  const circular = new Set<string>()
+  for (const start of graph.keys()) {
+    const visited = new Set<string>()
+    const stack: string[] = [...(graph.get(start) ?? [])]
+    while (stack.length > 0) {
+      const node = stack.pop()!
+      if (node === start) {
+        circular.add(start)
+        break
+      }
+      if (visited.has(node)) continue
+      visited.add(node)
+
+      const next = graph.get(node)
+      if (next) for (const r of next) stack.push(r)
+    }
+  }
+
+  return circular
+}
+
+/**
+ * Returns true when `node` (or anything nested within it) carries a `ref`
+ * whose resolved name belongs to `circularSchemas`.
+ *
+ * When `excludeName` is provided, refs to that name are ignored — useful
+ * when self-references are already handled separately from cross-schema
+ * cycles (e.g. the faker plugin emits `undefined as any` for direct
+ * self-recursion but a lazy getter for indirect cycles).
+ *
+ * @example
+ * ```ts
+ * const circular = findCircularSchemas(schemas)
+ * if (containsCircularRef(property.schema, { circularSchemas: circular, excludeName: 'Pet' })) {
+ *   // emit `get foo() { return fakeCat() }` instead of eager call
+ * }
+ * ```
+ */
+export function containsCircularRef(
+  node: SchemaNode | undefined,
+  { circularSchemas, excludeName }: { circularSchemas: ReadonlySet<string>; excludeName?: string },
+): boolean {
+  if (!node || circularSchemas.size === 0) return false
+
+  const matches = collect<true>(node, {
+    schema(child) {
+      if (child.type !== 'ref') return undefined
+      const name = resolveRefName(child)
+
+      return name && name !== excludeName && circularSchemas.has(name) ? true : undefined
+    },
+  })
+
+  return matches.length > 0
 }

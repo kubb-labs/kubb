@@ -34,5 +34,16 @@ export { childName, collectImports, enumPropName, findDiscriminator } from './re
 export { mergeAdjacentObjects, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
 export type * from './types.ts'
 export type { OperationParamsResolver } from './utils.ts'
-export { caseParams, createDiscriminantNode, createOperationParams, extractStringsFromNodes, isStringType, syncSchemaRef } from './utils.ts'
+export {
+  caseParams,
+  collectReferencedSchemaNames,
+  containsCircularRef,
+  createDiscriminantNode,
+  createOperationParams,
+  extractStringsFromNodes,
+  findCircularSchemas,
+  isStringType,
+  resolveRefName,
+  syncSchemaRef,
+} from './utils.ts'
 export { collect, transform, walk } from './visitor.ts'

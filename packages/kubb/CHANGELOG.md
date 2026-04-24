@@ -44,7 +44,6 @@
 ### Patch Changes
 
 - [`33b9156`](https://github.com/kubb-labs/kubb/commit/33b91569d9c8f7fe2d7c7d826538249e3eeb18a2) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Refactor middleware-barrel internals and tighten `barrelType` defaulting.
-
   - `buildTree` is now exported from `@internals/utils` and reused by `@kubb/middleware-barrel`.
   - `middleware-barrel` utils are split into focused modules (`resolveBarrelType`, `excludedPaths`, `getBarrelFiles`, `generatePerPluginBarrel`, `generateRootBarrel`), each with its own test file.
   - `output.barrelType` now only defaults to `'named'` when `middlewareBarrel` is part of the resolved `middleware` list. Custom middleware lists without it leave `barrelType` untouched.
@@ -325,7 +324,6 @@
 ### Patch Changes
 
 - [#64](https://github.com/tigawanna/kubb/pull/64) [`84b4ba5`](https://github.com/kubb-labs/kubb/commit/84b4ba543597dd8fc2ca74914143865976741153) Thanks [@pull](https://github.com/apps/pull)! - Improve `defineConfig` usage in v5.
-
   - Fix `defineConfig` typing in the `kubb` package so object configs keep the expected inferred shape.
   - Update `kubb init` to install `kubb`, which matches the generated `import { defineConfig } from 'kubb'` config file.
 
@@ -466,7 +464,6 @@
 - [#2971](https://github.com/kubb-labs/kubb/pull/2971) [`6c49d8d`](https://github.com/kubb-labs/kubb/commit/6c49d8d02d7c4bf5341fb6f0114f6aa2ee735e1e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `UserConfig` now correctly marks `adapter` and `parsers` as optional properties.
 
   `defineConfig` automatically applies defaults when these options are omitted:
-
   - `adapter` defaults to `adapterOas()` from `@kubb/adapter-oas`
   - `parsers` defaults to `[parserTs]` from `@kubb/parser-ts`
 
@@ -475,19 +472,19 @@
   ```ts
   // before — had to set adapter and parsers explicitly
   export default defineConfig({
-    input: { path: "./petStore.yaml" },
-    output: { path: "./src/gen" },
+    input: { path: './petStore.yaml' },
+    output: { path: './src/gen' },
     adapter: adapterOas(),
     parsers: [parserTs],
     plugins: [],
-  });
+  })
 
   // after — adapter and parsers are applied automatically
   export default defineConfig({
-    input: { path: "./petStore.yaml" },
-    output: { path: "./src/gen" },
+    input: { path: './petStore.yaml' },
+    output: { path: './src/gen' },
     plugins: [],
-  });
+  })
   ```
 
   `@kubb/adapter-oas` and `@kubb/parser-ts` must be installed for the defaults to work.
