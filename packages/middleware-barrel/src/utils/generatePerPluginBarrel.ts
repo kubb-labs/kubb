@@ -23,5 +23,6 @@ export type GeneratePerPluginBarrelParams = {
  */
 export function generatePerPluginBarrel({ barrelType, plugin, files, config }: GeneratePerPluginBarrelParams): Array<FileNode> {
   const outputPath = resolve(config.root, config.output.path, plugin.options.output.path)
+
   return getBarrelFiles(outputPath, files, barrelType)
 }

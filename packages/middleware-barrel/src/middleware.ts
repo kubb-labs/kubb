@@ -1,6 +1,5 @@
-import { resolve } from 'node:path'
 import { defineMiddleware } from '@kubb/core'
-import type { KubbBuildStartContext, NormalizedPlugin } from '@kubb/core'
+import type { KubbBuildStartContext } from '@kubb/core'
 import './types.ts'
 import type { BarrelType } from './types.ts'
 import { generatePerPluginBarrel } from './utils/generatePerPluginBarrel.ts'
@@ -84,23 +83,19 @@ export const middlewareBarrel = defineMiddleware({
     hooks.on('kubb:plugin:end', ({ plugin }) => {
       if (!ctx) return
 
-      // At runtime the plugin in kubb:plugin:end is always a NormalizedPlugin;
-      // KubbPluginEndContext types it as Plugin for public API simplicity.
-      const normalizedPlugin = plugin as NormalizedPlugin
-      const pluginOutput = normalizedPlugin.options.output as { barrelType?: BarrelType | false } | undefined
-      const rootOutput = ctx.config.output as { barrelType?: BarrelType | false }
-      const barrelType = pluginOutput?.barrelType !== undefined ? pluginOutput.barrelType : (rootOutput.barrelType ?? 'all')
+      const pluginOutput = plugin.options.output
+      const barrelType = pluginOutput?.barrelType !== undefined ? pluginOutput.barrelType : (ctx.config.output.barrelType ?? 'all')
 
       if (!barrelType) {
         // Remember this plugin's output path so we can exclude it from the root barrel
-        const outputPath = resolve(ctx.config.root, ctx.config.output.path, normalizedPlugin.options.output.path)
+        const outputPath = plugin.options.output.path
         excludedOutputPaths.push(outputPath)
         return
       }
 
       const barrelFiles = generatePerPluginBarrel({
         barrelType,
-        plugin: normalizedPlugin,
+        plugin,
         files: ctx.files,
         config: ctx.config,
       })
@@ -111,8 +106,7 @@ export const middlewareBarrel = defineMiddleware({
     })
 
     hooks.on('kubb:plugins:end', ({ files, config, upsertFile }) => {
-      const rootOutput = config.output as { barrelType?: BarrelType | false }
-      const rootBarrelType = rootOutput.barrelType ?? 'all'
+      const rootBarrelType = config.output.barrelType ?? 'all'
 
       if (!rootBarrelType) return
 

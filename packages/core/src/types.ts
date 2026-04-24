@@ -820,11 +820,11 @@ export type KubbFilesProcessingEndContext = {
 }
 
 export type KubbPluginStartContext = {
-  plugin: Plugin
+  plugin: NormalizedPlugin
 }
 
 export type KubbPluginEndContext = {
-  plugin: Plugin
+  plugin: NormalizedPlugin
   duration: number
   success: boolean
   error?: Error

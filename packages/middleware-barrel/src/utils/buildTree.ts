@@ -6,7 +6,7 @@ import { posix } from 'node:path'
  * Each `TreeNode` represents either a directory or a file entry.
  * Directory nodes have `children`; file nodes have an empty `children` array.
  */
-export type TreeNode = {
+export type BuildTree = {
   /**
    * Absolute path of the directory (root of this subtree) or file.
    */
@@ -14,7 +14,7 @@ export type TreeNode = {
   /**
    * Child nodes (sub-directories and files) within this directory.
    */
-  children: Array<TreeNode>
+  children: Array<BuildTree>
   /**
    * `true` when this node represents a file (leaf node).
    */
@@ -36,8 +36,8 @@ export type TreeNode = {
  * ])
  * ```
  */
-export function buildTree(rootPath: string, filePaths: ReadonlyArray<string>): TreeNode {
-  const root: TreeNode = { path: rootPath, children: [], isFile: false }
+export function buildTree(rootPath: string, filePaths: ReadonlyArray<string>): BuildTree {
+  const root: BuildTree = { path: rootPath, children: [], isFile: false }
 
   for (const filePath of filePaths) {
     // Only include files inside rootPath

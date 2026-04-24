@@ -21,5 +21,6 @@ export type GenerateRootBarrelParams = {
  */
 export function generateRootBarrel({ barrelType, files, config }: GenerateRootBarrelParams): Array<FileNode> {
   const outputPath = resolve(config.root, config.output.path)
+
   return getBarrelFiles(outputPath, files, barrelType)
 }
