@@ -1,10 +1,9 @@
+import { resolve } from 'node:path'
 import { defineMiddleware } from '@kubb/core'
 import type { KubbBuildStartContext } from '@kubb/core'
 import type { BarrelType } from './types.ts'
-import { generatePerPluginBarrel } from './utils/generatePerPluginBarrel.ts'
-import { generateRootBarrel } from './utils/generateRootBarrel.ts'
 import { getPluginOutputPrefix, isExcludedPath } from './utils/excludedPaths.ts'
-import { resolvePluginBarrelType, resolveRootBarrelType } from './utils/resolveBarrelType.ts'
+import { getBarrelFiles } from './utils/getBarrelFiles.ts'
 
 declare global {
   namespace Kubb {
@@ -73,18 +72,18 @@ export const middlewareBarrel = defineMiddleware({
     hooks.on('kubb:plugin:end', ({ plugin }) => {
       if (!ctx) return
 
-      const barrelType = resolvePluginBarrelType(plugin, ctx.config)
+      const barrelType = plugin.options.output?.barrelType ?? ctx.config.output.barrelType ?? 'named'
 
       if (!barrelType) {
         excludedPrefixes.add(getPluginOutputPrefix(plugin, ctx.config))
         return
       }
 
-      const barrelFiles = generatePerPluginBarrel({
-        barrelType,
-        plugin,
+      const barrelFiles = getBarrelFiles({
+        outputPath: resolve(ctx.config.root, ctx.config.output.path, plugin.options.output.path),
         files: ctx.files,
-        config: ctx.config,
+        barrelType,
+        recursive: true,
       })
 
       if (barrelFiles.length > 0) {
@@ -93,15 +92,15 @@ export const middlewareBarrel = defineMiddleware({
     })
 
     hooks.on('kubb:plugins:end', ({ files, config, upsertFile }) => {
-      const rootBarrelType = resolveRootBarrelType(config)
+      const rootBarrelType = config.output.barrelType ?? 'named'
       if (!rootBarrelType) return
 
       const filteredFiles = excludedPrefixes.size === 0 ? files : files.filter((f) => !isExcludedPath(f.path, excludedPrefixes))
 
-      const rootBarrelFiles = generateRootBarrel({
-        barrelType: rootBarrelType,
+      const rootBarrelFiles = getBarrelFiles({
+        outputPath: resolve(config.root, config.output.path),
         files: filteredFiles,
-        config,
+        barrelType: rootBarrelType,
       })
 
       if (rootBarrelFiles.length > 0) {

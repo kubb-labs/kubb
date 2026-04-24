@@ -1,10 +1,12 @@
+import { toPosixPath } from './path.ts'
+
 /**
  * A node in the directory tree used to compute barrel file exports.
  * Either represents a directory (with `children`) or a file (`isFile: true`, empty `children`).
  */
 export type BuildTree = {
   /**
-   * Absolute filesystem path of this directory or file.
+   * Absolute filesystem path of this directory or file. Always normalized to POSIX (`/`) separators.
    */
   path: string
   /**
@@ -23,7 +25,9 @@ export type BuildTree = {
  * Paths outside `rootPath` are silently ignored. Children are sorted alphabetically
  * by path so consumers (barrel exports, propagated indexes) emit a deterministic order.
  *
- * Both POSIX (`/`) and Windows (`\`) separators are accepted in input paths.
+ * Both POSIX (`/`) and Windows (`\`) separators are accepted in input paths; emitted node
+ * paths are always POSIX-normalized so downstream prefix/lookup operations behave the same
+ * across platforms.
  *
  * @example
  * ```ts
@@ -34,16 +38,16 @@ export type BuildTree = {
  * ```
  */
 export function buildTree(rootPath: string, filePaths: ReadonlyArray<string>): BuildTree {
-  const root: BuildTree = { path: rootPath, children: [], isFile: false }
+  const normalizedRoot = toPosixPath(rootPath)
+  const root: BuildTree = { path: normalizedRoot, children: [], isFile: false }
   // Per-directory child lookup avoids the O(N) `Array.find` scan during insertion.
   const childIndex = new Map<BuildTree, Map<string, BuildTree>>()
   childIndex.set(root, new Map())
 
-  const normalizedRoot = rootPath.replaceAll('\\', '/')
   const rootPrefix = `${normalizedRoot}/`
 
   for (const filePath of filePaths) {
-    const normalized = filePath.replaceAll('\\', '/')
+    const normalized = toPosixPath(filePath)
     if (!normalized.startsWith(rootPrefix)) continue
 
     const parts = normalized.slice(rootPrefix.length).split('/')

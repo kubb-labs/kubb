@@ -127,6 +127,17 @@ describe('getBarrelFiles', () => {
       expect(barrels[0]!.path).toBe(`${ROOT}/index.ts`)
     })
 
+    it('uses indexed source names when files are stored with Windows-style backslash paths', () => {
+      const winRoot = 'C:\\workspace\\src\\gen\\types'
+      const files = [makeFile(`${winRoot}\\pet.ts`, [makeIndexableSource('Pet', true), makeIndexableSource('createPet', false)])]
+      const barrels = getBarrelFiles({ outputPath: winRoot, files, barrelType: 'named' })
+
+      expect(barrels).toHaveLength(1)
+      // Should produce named exports rather than the wildcard fallback used when sourceFiles lookup misses
+      expect(barrels[0]!.exports.find((e) => e.isTypeOnly)?.name).toContain('Pet')
+      expect(barrels[0]!.exports.find((e) => !e.isTypeOnly)?.name).toContain('createPet')
+    })
+
     it('sorts named exports alphabetically within each export node', () => {
       const files = [
         makeFile(`${ROOT}/pet.ts`, [

@@ -3,21 +3,11 @@ import { createExport, createFile } from '@kubb/ast'
 import type { ExportNode, FileNode, SourceNode } from '@kubb/ast'
 import { BARREL_FILENAME } from '../constants.ts'
 import type { BarrelType } from '../types.ts'
-import { type BuildTree, buildTree } from '@internals/utils'
+import { type BuildTree, buildTree, toPosixPath } from '@internals/utils'
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx'])
 const BARREL_SUFFIX = `/${BARREL_FILENAME}`
 
-/**
- * Derives a relative module specifier from `filePath` relative to `fromDir`.
- * The source extension is preserved so `@kubb/parser-ts` can apply its `extNames` mapping.
- *
- * @example
- * ```ts
- * toRelativeModulePath('/src/gen/types', '/src/gen/types/pet.ts') // './pet.ts'
- * toRelativeModulePath('/src/gen/types', '/src/gen/types/tags/tag.ts') // './tags/tag.ts'
- * ```
- */
 function toRelativeModulePath(fromDir: string, filePath: string): string {
   return `./${filePath.slice(fromDir.length + 1)}`
 }
@@ -105,8 +95,7 @@ type LeafWalkParams = {
 }
 
 /**
- * Single-pass post-order traversal that emits a barrel for each visited directory and
- * returns its leaf paths so parents don't have to re-walk the subtree.
+ * Post-order walk that emits a barrel per visited directory.
  */
 function walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolean, out: Array<FileNode>): Array<string> {
   const subtreeLeaves: Array<string> = []
@@ -121,7 +110,6 @@ function walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolean
     for (const leaf of childLeaves) subtreeLeaves.push(leaf)
   }
 
-  // Sub-directory barrels are only emitted when the caller asked for them.
   if (!isRoot && !params.recursive) return subtreeLeaves
 
   const exports = subtreeLeaves.flatMap((leafPath) => params.strategy({ dirPath: node.path, leafPath, sourceFile: params.sourceFiles.get(leafPath) }))
@@ -134,8 +122,7 @@ function walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolean
 }
 
 /**
- * Emits one barrel per directory: every direct child file is re-exported and every
- * sub-directory is re-exported via its own barrel (recursive by design).
+ * Recursive walk that emits one barrel per directory, re-exporting files and sub-barrels.
  */
 function walkPropagate(node: BuildTree, out: Array<FileNode>): void {
   const exports: Array<ExportNode> = []
@@ -157,29 +144,23 @@ function walkPropagate(node: BuildTree, out: Array<FileNode>): void {
 }
 
 type IndexedFiles = {
-  /**
-   * `path → FileNode` lookup limited to files that participate in barrel generation.
-   */
   sourceFiles: ReadonlyMap<string, FileNode>
-  /**
-   * Original (un-normalized) paths of `sourceFiles`, in input order — used as input for {@link buildTree}.
-   */
   paths: ReadonlyArray<string>
 }
 
 function indexRelevantFiles(files: ReadonlyArray<FileNode>, outputPath: string): IndexedFiles {
-  const outputPrefix = `${outputPath.replaceAll('\\', '/')}/`
+  const outputPrefix = `${toPosixPath(outputPath)}/`
   const sourceFiles = new Map<string, FileNode>()
   const paths: Array<string> = []
 
   for (const file of files) {
-    const normalized = file.path.replaceAll('\\', '/')
+    const normalized = toPosixPath(file.path)
     if (!normalized.startsWith(outputPrefix)) continue
     if (isBarrelPath(normalized)) continue
     if (!SOURCE_EXTENSIONS.has(extname(normalized))) continue
 
-    sourceFiles.set(file.path, file)
-    paths.push(file.path)
+    sourceFiles.set(normalized, file)
+    paths.push(normalized)
   }
 
   return { sourceFiles, paths }
@@ -187,24 +168,24 @@ function indexRelevantFiles(files: ReadonlyArray<FileNode>, outputPath: string):
 
 export type GetBarrelFilesParams = {
   /**
-   * Absolute path to the directory the barrel(s) should be rooted at.
-   * Files outside this directory are ignored.
+   * Absolute directory the barrel(s) should be rooted at.
+   * Only files living under this path are considered.
    */
   outputPath: string
   /**
-   * Full set of generated files across all plugins.
-   * Used both to discover what to re-export and to read each file's indexable sources.
+   * Pool of generated files to scan for indexable sources.
    */
   files: ReadonlyArray<FileNode>
   /**
-   * Re-export style used in the generated barrel(s).
+   * Re-export style used when emitting each barrel.
+   * - `'all'` re-exports the whole module (`export * from './x'`)
+   * - `'named'` re-exports only the indexable named symbols
+   * - `'propagate'` emits one barrel per directory and chains sub-barrels
    */
   barrelType: BarrelType
   /**
-   * When `true`, also generate a barrel for each sub-directory of `outputPath`.
-   * Used by per-plugin barrels so that grouped output (e.g. `petController/`) gets its own `index.ts`.
-   *
-   * Has no effect for `barrelType: 'propagate'`, which always recurses by design.
+   * Also generate a barrel for each sub-directory of `outputPath`.
+   * No effect for `barrelType: 'propagate'`, which always recurses.
    *
    * @default false
    */
@@ -213,9 +194,6 @@ export type GetBarrelFilesParams = {
 
 /**
  * Generates barrel `FileNode`s for the directory rooted at `outputPath`.
- *
- * Files outside `outputPath`, existing barrel files, and non-source extensions are filtered out
- * before the tree is built.
  */
 export function getBarrelFiles({ outputPath, files, barrelType, recursive = false }: GetBarrelFilesParams): Array<FileNode> {
   const { sourceFiles, paths } = indexRelevantFiles(files, outputPath)

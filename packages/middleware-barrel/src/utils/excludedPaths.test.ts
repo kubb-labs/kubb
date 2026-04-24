@@ -40,4 +40,8 @@ describe('isExcludedPath', () => {
   it('returns false for an empty prefix set', () => {
     expect(isExcludedPath('/workspace/src/gen/types/pet.ts', new Set())).toBe(false)
   })
+
+  it('matches Windows-style backslash paths against forward-slash prefixes', () => {
+    expect(isExcludedPath('C:\\workspace\\src\\gen\\types\\pet.ts', new Set(['C:/workspace/src/gen/types/']))).toBe(true)
+  })
 })
