@@ -1761,7 +1761,9 @@ describe('findCircularSchemas', () => {
     const Pet = createSchema({
       type: 'object',
       name: 'Pet',
-      properties: [createProperty({ name: 'category', required: false, schema: createSchema({ type: 'ref', name: 'Category', ref: '#/components/schemas/Category' }) })],
+      properties: [
+        createProperty({ name: 'category', required: false, schema: createSchema({ type: 'ref', name: 'Category', ref: '#/components/schemas/Category' }) }),
+      ],
     })
 
     expect(findCircularSchemas([Category, Pet])).toEqual(new Set())
@@ -1908,7 +1910,9 @@ describe('containsCircularRef', () => {
     const schema = createSchema({
       type: 'object',
       name: 'TreeNode',
-      properties: [createProperty({ name: 'left', required: false, schema: createSchema({ type: 'ref', name: 'TreeNode', ref: '#/components/schemas/TreeNode' }) })],
+      properties: [
+        createProperty({ name: 'left', required: false, schema: createSchema({ type: 'ref', name: 'TreeNode', ref: '#/components/schemas/TreeNode' }) }),
+      ],
     })
 
     expect(containsCircularRef(schema, { circularSchemas: new Set(['TreeNode']), excludeName: 'TreeNode' })).toBe(false)

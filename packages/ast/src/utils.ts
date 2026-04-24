@@ -854,7 +854,10 @@ export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<str
  * }
  * ```
  */
-export function containsCircularRef(node: SchemaNode | undefined, { circularSchemas, excludeName }: { circularSchemas: ReadonlySet<string>; excludeName?: string }): boolean {
+export function containsCircularRef(
+  node: SchemaNode | undefined,
+  { circularSchemas, excludeName }: { circularSchemas: ReadonlySet<string>; excludeName?: string },
+): boolean {
   if (!node || circularSchemas.size === 0) return false
 
   const matches = collect<true>(node, {

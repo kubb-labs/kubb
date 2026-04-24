@@ -5,7 +5,6 @@
 ### Patch Changes
 
 - [`0b1e3aa`](https://github.com/kubb-labs/kubb/commit/0b1e3aa73373eacead128f590432764d02f912f8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix `middleware-barrel` failing on Windows due to mixed path separators.
-
   - `buildTree` now POSIX-normalizes its root path so all child paths use forward slashes.
   - `getBarrelFiles` indexes source files on POSIX-normalized paths, restoring the `'named'` strategy on Windows.
   - `getPluginOutputPrefix` / `isExcludedPath` POSIX-normalize both sides so plugins with `barrelType: false` are correctly excluded from the root barrel.
@@ -35,7 +34,6 @@
 ### Patch Changes
 
 - [`33b9156`](https://github.com/kubb-labs/kubb/commit/33b91569d9c8f7fe2d7c7d826538249e3eeb18a2) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Refactor middleware-barrel internals and tighten `barrelType` defaulting.
-
   - `buildTree` is now exported from `@internals/utils` and reused by `@kubb/middleware-barrel`.
   - `middleware-barrel` utils are split into focused modules (`resolveBarrelType`, `excludedPaths`, `getBarrelFiles`, `generatePerPluginBarrel`, `generateRootBarrel`), each with its own test file.
   - `output.barrelType` now only defaults to `'named'` when `middlewareBarrel` is part of the resolved `middleware` list. Custom middleware lists without it leave `barrelType` untouched.
@@ -139,12 +137,12 @@
   Provides barrel-file generation as a Kubb middleware. Add `middlewareBarrel` to `config.middleware` and set `output.barrelType` (`'all'`, `'named'`, or `'propagate'`) on the root config or individual plugins.
 
   ```ts
-  import { middlewareBarrel } from "@kubb/middleware-barrel";
+  import { middlewareBarrel } from '@kubb/middleware-barrel'
 
   export default defineConfig({
     middleware: [middlewareBarrel],
     plugins: [pluginTs(), pluginZod()],
-  });
+  })
   ```
 
 ### Patch Changes
