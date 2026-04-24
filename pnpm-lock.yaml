@@ -306,12 +306,13 @@ importers:
 
   packages/middleware-barrel:
     dependencies:
-      '@internals/utils':
-        specifier: workspace:*
-        version: link:../../internals/utils
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+    devDependencies:
+      '@internals/utils':
+        specifier: workspace:*
+        version: link:../../internals/utils
 
   packages/parser-ts:
     dependencies:

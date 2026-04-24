@@ -56,7 +56,7 @@
   "peerDependencies": {
     "@kubb/core": "workspace:*"
   },
-  "dependencies": {
+  "devDependencies": {
     "@internals/utils": "workspace:*"
   },
   "engines": {
