@@ -10,7 +10,7 @@ import type { Client, RequestConfig, ResponseErrorConfig } from '../../.kubb/fet
 import { fetch } from '../../.kubb/fetch.ts'
 import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/GetPetById.ts'
 
-export const getPetByIdSuspenseQueryKey = ({ pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] }) =>
+export const getPetByIdSuspenseQueryKey = ({ pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] | undefined }) =>
   ['v5', { url: '/pet/:pet_id', params: { pet_id: pet_id } }] as const
 
 export type GetPetByIdSuspenseQueryKey = ReturnType<typeof getPetByIdSuspenseQueryKey>
@@ -35,7 +35,7 @@ export async function getPetByIdSuspenseHook(
 }
 
 export function getPetByIdSuspenseQueryOptionsHook(
-  { pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] },
+  { pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] | undefined },
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = getPetByIdSuspenseQueryKey({ pet_id })
@@ -43,7 +43,7 @@ export function getPetByIdSuspenseQueryOptionsHook(
     enabled: !!pet_id,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getPetByIdSuspenseHook({ pet_id: pet_id }, { ...config, signal: config.signal ?? signal })
+      return getPetByIdSuspenseHook({ pet_id: pet_id! }, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -54,7 +54,7 @@ export function getPetByIdSuspenseQueryOptionsHook(
  * {@link /pet/:pet_id}
  */
 export function useGetPetByIdSuspenseHook<TData = GetPetByIdQueryResponse, TQueryKey extends QueryKey = GetPetByIdSuspenseQueryKey>(
-  { pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] },
+  { pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] | undefined },
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryKey>> & {
       client?: QueryClient

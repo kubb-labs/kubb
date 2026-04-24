@@ -33,7 +33,11 @@ type GetParamsProps = {
 
 function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
   if (paramsType === 'object') {
-    const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing, override: (item) => ({ ...item, type: `${item.type} | undefined` }) })
+    const pathParams = getPathParams(typeSchemas.pathParams, {
+      typed: true,
+      casing: paramsCasing,
+      override: (item) => ({ ...item, type: `${item.type} | undefined` }),
+    })
 
     const children = {
       ...pathParams,

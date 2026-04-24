@@ -10,7 +10,7 @@ import type { Client, RequestConfig, ResponseErrorConfig } from '../../.kubb/fet
 import { fetch } from '../../.kubb/fetch.ts'
 import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../models/GetOrderById.ts'
 
-export const getOrderByIdSuspenseQueryKey = ({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }) =>
+export const getOrderByIdSuspenseQueryKey = ({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] | undefined }) =>
   ['v5', { url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 
 export type GetOrderByIdSuspenseQueryKey = ReturnType<typeof getOrderByIdSuspenseQueryKey>
@@ -35,7 +35,7 @@ export async function getOrderByIdSuspenseHook(
 }
 
 export function getOrderByIdSuspenseQueryOptionsHook(
-  { orderId }: { orderId: GetOrderByIdPathParams['orderId'] },
+  { orderId }: { orderId: GetOrderByIdPathParams['orderId'] | undefined },
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = getOrderByIdSuspenseQueryKey({ orderId })
@@ -43,7 +43,7 @@ export function getOrderByIdSuspenseQueryOptionsHook(
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getOrderByIdSuspenseHook({ orderId: orderId }, { ...config, signal: config.signal ?? signal })
+      return getOrderByIdSuspenseHook({ orderId: orderId! }, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -54,7 +54,7 @@ export function getOrderByIdSuspenseQueryOptionsHook(
  * {@link /store/order/:orderId}
  */
 export function useGetOrderByIdSuspenseHook<TData = GetOrderByIdQueryResponse, TQueryKey extends QueryKey = GetOrderByIdSuspenseQueryKey>(
-  { orderId }: { orderId: GetOrderByIdPathParams['orderId'] },
+  { orderId }: { orderId: GetOrderByIdPathParams['orderId'] | undefined },
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, TData, TQueryKey>> & {
       client?: QueryClient

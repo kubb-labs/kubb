@@ -10,7 +10,7 @@ import type { Client, RequestConfig, ResponseErrorConfig } from '../../.kubb/fet
 import { fetch } from '../../.kubb/fetch.ts'
 import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../models/GetOrderById.ts'
 
-export const getOrderByIdQueryKey = ({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }) =>
+export const getOrderByIdQueryKey = ({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] | undefined }) =>
   ['v5', { url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
@@ -32,7 +32,7 @@ export async function getOrderByIdHook({ orderId }: { orderId: GetOrderByIdPathP
 }
 
 export function getOrderByIdQueryOptionsHook(
-  { orderId }: { orderId: GetOrderByIdPathParams['orderId'] },
+  { orderId }: { orderId: GetOrderByIdPathParams['orderId'] | undefined },
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = getOrderByIdQueryKey({ orderId })
@@ -40,7 +40,7 @@ export function getOrderByIdQueryOptionsHook(
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getOrderByIdHook({ orderId: orderId }, { ...config, signal: config.signal ?? signal })
+      return getOrderByIdHook({ orderId: orderId! }, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -55,7 +55,7 @@ export function useGetOrderByIdHook<
   TQueryData = GetOrderByIdQueryResponse,
   TQueryKey extends QueryKey = GetOrderByIdQueryKey,
 >(
-  { orderId }: { orderId: GetOrderByIdPathParams['orderId'] },
+  { orderId }: { orderId: GetOrderByIdPathParams['orderId'] | undefined },
   options: {
     query?: Partial<QueryObserverOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient

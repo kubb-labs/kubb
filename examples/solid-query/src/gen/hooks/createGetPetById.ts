@@ -8,7 +8,7 @@ import type { Client, RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.
 import { fetch } from '../.kubb/fetch.ts'
 import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../models/GetPetById.ts'
 
-export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId'] | undefined) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 
@@ -28,13 +28,13 @@ export async function getPetById(petId: GetPetByIdPathParams['petId'], config: P
   return res.data
 }
 
-export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'] | undefined, config: Partial<RequestConfig> & { client?: Client } = {}) {
   const queryKey = getPetByIdQueryKey(petId)
   return queryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryResponse, typeof queryKey>({
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getPetById(petId, { ...config, signal: config.signal ?? signal })
+      return getPetById(petId!, { ...config, signal: config.signal ?? signal })
     },
   })
 }

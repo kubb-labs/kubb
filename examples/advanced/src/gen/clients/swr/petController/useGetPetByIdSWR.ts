@@ -3,7 +3,8 @@ import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from 
 import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../models/ts/petController/GetPetById.ts'
 import { getPetById } from '../../axios/petService/getPetById.ts'
 
-export const getPetByIdQueryKeySWR = ({ petId }: { petId: GetPetByIdPathParams['petId'] }) => [{ url: '/pet/:petId:search', params: { petId: petId } }] as const
+export const getPetByIdQueryKeySWR = ({ petId }: { petId: GetPetByIdPathParams['petId'] | undefined }) =>
+  [{ url: '/pet/:petId:search', params: { petId: petId } }] as const
 
 export type GetPetByIdQueryKeySWR = ReturnType<typeof getPetByIdQueryKeySWR>
 

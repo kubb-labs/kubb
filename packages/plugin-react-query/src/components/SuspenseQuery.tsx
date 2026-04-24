@@ -37,7 +37,11 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   if (paramsType === 'object') {
-    const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing, override: (item) => ({ ...item, type: `${item.type} | undefined` }) })
+    const pathParams = getPathParams(typeSchemas.pathParams, {
+      typed: true,
+      casing: paramsCasing,
+      override: (item) => ({ ...item, type: `${item.type} | undefined` }),
+    })
 
     const children = {
       ...pathParams,
