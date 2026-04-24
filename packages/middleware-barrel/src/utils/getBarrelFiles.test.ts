@@ -126,6 +126,22 @@ describe('getBarrelFiles', () => {
       expect(barrels).toHaveLength(1)
       expect(barrels[0]!.path).toBe(`${ROOT}/index.ts`)
     })
+
+    it('sorts named exports alphabetically within each export node', () => {
+      const files = [
+        makeFile(`${ROOT}/pet.ts`, [
+          makeIndexableSource('zPet'),
+          makeIndexableSource('aPet'),
+          makeIndexableSource('mPet'),
+          makeIndexableSource('ZType', true),
+          makeIndexableSource('AType', true),
+        ]),
+      ]
+      const barrels = getBarrelFiles({ outputPath: ROOT, files, barrelType: 'named' })
+
+      expect(barrels[0]!.exports.find((e) => !e.isTypeOnly)?.name).toEqual(['aPet', 'mPet', 'zPet'])
+      expect(barrels[0]!.exports.find((e) => e.isTypeOnly)?.name).toEqual(['AType', 'ZType'])
+    })
   })
 
   describe("strategy: 'propagate'", () => {

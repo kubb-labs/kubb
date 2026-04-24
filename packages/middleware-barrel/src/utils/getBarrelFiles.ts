@@ -85,10 +85,10 @@ const namedStrategy: LeafStrategy = ({ dirPath, leafPath, sourceFile }) => {
 
   const exports: Array<ExportNode> = []
   if (valueNames.size > 0) {
-    exports.push(createExport({ name: [...valueNames], path: modulePath }))
+    exports.push(createExport({ name: [...valueNames].sort(), path: modulePath }))
   }
   if (typeNames.size > 0) {
-    exports.push(createExport({ name: [...typeNames], path: modulePath, isTypeOnly: true }))
+    exports.push(createExport({ name: [...typeNames].sort(), path: modulePath, isTypeOnly: true }))
   }
   return exports
 }
