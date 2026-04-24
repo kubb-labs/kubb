@@ -64,6 +64,7 @@
     "fix-path-traversal-security",
     "fix-ref-requestbody-parsing",
     "fix-requestbody-description",
+    "fix-runhook-windows-detached",
     "fix-tuple-enum-declarations",
     "fix-typecheck-issues",
     "fix-url-input-resolution",
