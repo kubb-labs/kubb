@@ -1,6 +1,6 @@
 {
   "name": "@kubb/middleware-barrel",
-  "version": "5.0.0-alpha.58",
+  "version": "5.0.0-alpha.59",
   "description": "Barrel-file generation middleware for Kubb. Generates index.ts barrel files for each plugin's output directory and a root index.ts after all plugins have run.",
   "keywords": [
     "barrel",
