@@ -1,6 +1,6 @@
 ---
 "@kubb/middleware-barrel": patch
-"@kubb/kubb": patch
+"kubb": patch
 ---
 
 Refactor middleware-barrel internals and tighten `barrelType` defaulting.
