@@ -27,6 +27,7 @@
     "add-generator-context-api",
     "add-generator-run-helpers",
     "add-kubb-event-prefix",
+    "add-middleware-barrel-tests",
     "add-middleware-barrel",
     "add-middleware-support",
     "add-parser-options-type",

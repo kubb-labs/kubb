@@ -1,5 +1,18 @@
 # kubb
 
+## 5.0.0-alpha.61
+
+### Patch Changes
+
+- Updated dependencies [[`f14c2e6`](https://github.com/kubb-labs/kubb/commit/f14c2e6e21922483533c880dd68491e342f3083a)]:
+  - @kubb/middleware-barrel@5.0.0-alpha.61
+  - @kubb/adapter-oas@5.0.0-alpha.61
+  - @kubb/agent@5.0.0-alpha.61
+  - @kubb/cli@5.0.0-alpha.61
+  - @kubb/core@5.0.0-alpha.61
+  - @kubb/mcp@5.0.0-alpha.61
+  - @kubb/parser-ts@5.0.0-alpha.61
+
 ## 5.0.0-alpha.60
 
 ### Patch Changes
