@@ -14,7 +14,6 @@
 ### Patch Changes
 
 - [`33b9156`](https://github.com/kubb-labs/kubb/commit/33b91569d9c8f7fe2d7c7d826538249e3eeb18a2) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Refactor middleware-barrel internals and tighten `barrelType` defaulting.
-
   - `buildTree` is now exported from `@internals/utils` and reused by `@kubb/middleware-barrel`.
   - `middleware-barrel` utils are split into focused modules (`resolveBarrelType`, `excludedPaths`, `getBarrelFiles`, `generatePerPluginBarrel`, `generateRootBarrel`), each with its own test file.
   - `output.barrelType` now only defaults to `'named'` when `middlewareBarrel` is part of the resolved `middleware` list. Custom middleware lists without it leave `barrelType` untouched.
@@ -28,7 +27,6 @@
 ### Minor Changes
 
 - [`de614a0`](https://github.com/kubb-labs/kubb/commit/de614a0ab7405248dcff0584827822b7af57cc19) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Restore per-subdirectory barrel generation and fix `barrelType: false` exclusion from root barrel.
-
   - `barrelType: false` on a plugin now correctly excludes that plugin's files from the root `index.ts` barrel.
   - Per-subdirectory barrels (e.g. `models/ts/petController/index.ts`) are generated again when a plugin uses `group` and `barrelType: 'named'` or `'all'`. The `getBarrelFiles` utility now accepts a `recursive` option; `generatePerPluginBarrel` passes `recursive: true` while `generateRootBarrel` keeps the default of `false`.
   - Type-only re-exports now use `export type { ... }` to satisfy `verbatimModuleSyntax` (fixes TS1205).
@@ -119,12 +117,12 @@
   Provides barrel-file generation as a Kubb middleware. Add `middlewareBarrel` to `config.middleware` and set `output.barrelType` (`'all'`, `'named'`, or `'propagate'`) on the root config or individual plugins.
 
   ```ts
-  import { middlewareBarrel } from "@kubb/middleware-barrel";
+  import { middlewareBarrel } from '@kubb/middleware-barrel'
 
   export default defineConfig({
     middleware: [middlewareBarrel],
     plugins: [pluginTs(), pluginZod()],
-  });
+  })
   ```
 
 ### Patch Changes

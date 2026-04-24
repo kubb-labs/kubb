@@ -31,7 +31,7 @@ type RunHookOptions = {
 export async function runHook({ id, command, args, commandWithArgs, context, stream = false, sink }: RunHookOptions): Promise<void> {
   try {
     const proc = x(command, [...(args ?? [])], {
-      nodeOptions: { detached: true },
+      nodeOptions: { detached: process.platform !== 'win32' },
       throwOnError: true,
     })
 
