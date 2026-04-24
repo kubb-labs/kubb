@@ -1,10 +1,8 @@
 /**
- * The barrel type controls the style of re-exports generated in barrel files.
- *
- * - `'all'`       — `export * from '...'` (re-export everything)
- * - `'named'`     — `export { name1, name2 } from '...'` (named re-exports only)
- * - `'propagate'` — like `'all'` but also generates intermediate barrel files for
- *                   every sub-directory so that consumers can import from any depth.
+ * Re-export style used when generating barrel `index.ts` files.
+ * - `'all'` emits `export * from '...'` for every file.
+ * - `'named'` emits `export { name1, name2 } from '...'` from each file's indexable sources.
+ * - `'propagate'` behaves like `'all'` and also generates an intermediate barrel for every
+ *   sub-directory so consumers can import from any depth.
  */
 export type BarrelType = 'all' | 'named' | 'propagate'
-

@@ -26,7 +26,6 @@
 ### Patch Changes
 
 - [#3156](https://github.com/kubb-labs/kubb/pull/3156) [`a91e448`](https://github.com/kubb-labs/kubb/commit/a91e448f6f08fc78c956cfe0662ffec75fac14cd) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Internal cleanup: dedupe backend code and drop unused exports.
-
   - `@kubb/parser-ts`: add `src/constants.ts` (regex + path-prefix literals); dedupe `printFunction`/`printArrowFunction` via `formatGenerics` / `formatReturnType`; dedupe the import/export path resolution inside `parserTs.parse` into `resolveOutputPath`.
   - `@kubb/core`: collapse `FileManager#add` and `FileManager#upsert` onto a shared private `#store` helper (`mergeFilesByPath`); drop unused `DEFAULT_CONCURRENCY` / `PATH_SEPARATORS` constants.
   - `@kubb/ast`: drop unused `parameterLocations` and `DEFAULT_STATUS_CODE` constants.

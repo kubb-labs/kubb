@@ -36,10 +36,7 @@ describe('generatePerPluginBarrel', () => {
       options: { output: { path: 'types' } } as any,
     })
     const config = makeConfig()
-    const files = [
-      makeFile(`${ROOT}/${OUTPUT}/types/pet.ts`),
-      makeFile(`${ROOT}/${OUTPUT}/types/user.ts`),
-    ]
+    const files = [makeFile(`${ROOT}/${OUTPUT}/types/pet.ts`), makeFile(`${ROOT}/${OUTPUT}/types/user.ts`)]
 
     const barrels = generatePerPluginBarrel({ barrelType: 'all', plugin, files, config })
 
@@ -67,9 +64,7 @@ describe('generatePerPluginBarrel', () => {
       options: { output: { path: 'types' } } as any,
     })
     const config = makeConfig()
-    const files = [
-      makeFile(`${ROOT}/${OUTPUT}/types/sub/pet.ts`),
-    ]
+    const files = [makeFile(`${ROOT}/${OUTPUT}/types/sub/pet.ts`)]
 
     const propagateBarrels = generatePerPluginBarrel({ barrelType: 'propagate', plugin, files, config })
 
@@ -81,10 +76,7 @@ describe('generatePerPluginBarrel', () => {
 describe('generateRootBarrel', () => {
   it('generates a root barrel for all files inside the output directory', () => {
     const config = makeConfig()
-    const files = [
-      makeFile(`${ROOT}/${OUTPUT}/types/pet.ts`),
-      makeFile(`${ROOT}/${OUTPUT}/schemas/petSchema.ts`),
-    ]
+    const files = [makeFile(`${ROOT}/${OUTPUT}/types/pet.ts`), makeFile(`${ROOT}/${OUTPUT}/schemas/petSchema.ts`)]
 
     const barrels = generateRootBarrel({ barrelType: 'all', files, config })
 

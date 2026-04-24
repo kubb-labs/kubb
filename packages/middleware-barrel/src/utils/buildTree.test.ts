@@ -63,11 +63,7 @@ describe('buildTree', () => {
   })
 
   it('handles mixed depths correctly', () => {
-    const tree = buildTree('/src/gen', [
-      '/src/gen/pet.ts',
-      '/src/gen/pets/listPets.ts',
-      '/src/gen/pets/tags/getTag.ts',
-    ])
+    const tree = buildTree('/src/gen', ['/src/gen/pet.ts', '/src/gen/pets/listPets.ts', '/src/gen/pets/tags/getTag.ts'])
 
     // root has pet.ts and pets/ dir
     expect(tree.children).toHaveLength(2)

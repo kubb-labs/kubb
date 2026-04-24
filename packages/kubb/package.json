@@ -77,8 +77,8 @@
     "@kubb/parser-ts": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "catalog:",
-    "@internals/utils": "workspace:*"
+    "@internals/utils": "workspace:*",
+    "typescript": "catalog:"
   },
   "size-limit": [
     {

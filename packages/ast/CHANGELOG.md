@@ -11,7 +11,6 @@
 ### Patch Changes
 
 - [#3156](https://github.com/kubb-labs/kubb/pull/3156) [`a91e448`](https://github.com/kubb-labs/kubb/commit/a91e448f6f08fc78c956cfe0662ffec75fac14cd) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Internal cleanup: dedupe backend code and drop unused exports.
-
   - `@kubb/parser-ts`: add `src/constants.ts` (regex + path-prefix literals); dedupe `printFunction`/`printArrowFunction` via `formatGenerics` / `formatReturnType`; dedupe the import/export path resolution inside `parserTs.parse` into `resolveOutputPath`.
   - `@kubb/core`: collapse `FileManager#add` and `FileManager#upsert` onto a shared private `#store` helper (`mergeFilesByPath`); drop unused `DEFAULT_CONCURRENCY` / `PATH_SEPARATORS` constants.
   - `@kubb/ast`: drop unused `parameterLocations` and `DEFAULT_STATUS_CODE` constants.
@@ -38,17 +37,17 @@
   **Before**
 
   ```ts
-  operation.requestBody?.schema;
-  operation.requestBody?.contentType;
-  operation.requestBody?.keysToOmit;
+  operation.requestBody?.schema
+  operation.requestBody?.contentType
+  operation.requestBody?.keysToOmit
   ```
 
   **After**
 
   ```ts
-  operation.requestBody?.content?.[0]?.schema;
-  operation.requestBody?.content?.[0]?.contentType;
-  operation.requestBody?.content?.[0]?.keysToOmit;
+  operation.requestBody?.content?.[0]?.schema
+  operation.requestBody?.content?.[0]?.contentType
+  operation.requestBody?.content?.[0]?.keysToOmit
   ```
 
   See `migration/requestBody-content.md` for a full migration guide.
@@ -104,7 +103,6 @@
   ### `@kubb/ast`
 
   New node types in `nodes/code.ts`:
-
   - `ConstNode` (`kind: 'Const'`) — mirrors the `Const` component
   - `TypeNode` (`kind: 'Type'`) — mirrors the `Type` component; a plain type alias declaration with `name`, `export`, `JSDoc`, and `nodes` fields
   - `FunctionNode` (`kind: 'Function'`) — mirrors the `Function` component
@@ -139,7 +137,6 @@
 ### Minor Changes
 
 - [#2958](https://github.com/kubb-labs/kubb/pull/2958) [`795cac8`](https://github.com/kubb-labs/kubb/commit/795cac8edd6dd456185b7da90db9fd422c2b8330) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ### `@kubb/ast`
-
   - Rename printer type exports to follow the `Printer{Suffix}` convention:
     - `TsPrinterFactory` → `PrinterTsFactory`
     - `TsPrinterNodes` → `PrinterTsNodes`
@@ -152,13 +149,11 @@
     - `ZodMiniPrinterOptions` → `PrinterZodMiniOptions`
 
   ### `@kubb/core`
-
   - Replace `mergeResolvers` with a single `resolver` partial override pattern. User-supplied methods are merged on top of the preset resolver via `withFallback`. Any method returning `null` or `undefined` falls back to the preset's implementation.
   - Remove `composeTransformers`. Replace the `transformers: Array<Visitor>` option with a single `transformer?: Visitor`. The visitor is applied directly via `transform(node, transformer ?? {})`.
   - `getPreset` now accepts `resolver?: Partial<TResolver> & ThisType<TResolver>` — use `this.default(...)` inside an override to call the preset resolver's implementation.
 
   ### `@kubb/plugin-ts`
-
   - **Breaking:** Replace `resolvers?: Array<ResolverTs>` with `resolver?: Partial<ResolverTs> & ThisType<ResolverTs>`. Supply only the methods you want to override; all others fall back to the active preset resolver.
   - **Breaking:** Replace `transformers?: Array<Visitor>` with `transformer?: Visitor`.
   - Add `printer?: { nodes?: PrinterTsNodes }` — override the TypeScript output for individual schema types (e.g. render `integer` as `bigint`).
@@ -167,26 +162,25 @@
   pluginTs({
     resolver: {
       resolveName(name) {
-        return `Custom${this.default(name, "function")}`;
+        return `Custom${this.default(name, 'function')}`
       },
     },
     transformer: {
       schema(node) {
-        return { ...node, description: undefined };
+        return { ...node, description: undefined }
       },
     },
     printer: {
       nodes: {
         integer() {
-          return ts.factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword);
+          return ts.factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword)
         },
       },
     },
-  });
+  })
   ```
 
   ### `@kubb/plugin-zod`
-
   - **Breaking:** Replace `resolvers?: Array<ResolverZod>` with `resolver?: Partial<ResolverZod> & ThisType<ResolverZod>`.
   - **Breaking:** Replace `transformers?: Array<Visitor>` with `transformer?: Visitor`.
   - Add `printer?: { nodes?: PrinterZodNodes | PrinterZodMiniNodes }` — override Zod output for individual schema types (e.g. render `integer` as `z.number()`).
@@ -195,26 +189,25 @@
   pluginZod({
     resolver: {
       resolveName(name) {
-        return `${this.default(name, "function")}Schema`;
+        return `${this.default(name, 'function')}Schema`
       },
     },
     transformer: {
       schema(node) {
-        return { ...node, description: undefined };
+        return { ...node, description: undefined }
       },
     },
     printer: {
       nodes: {
         integer() {
-          return "z.number()";
+          return 'z.number()'
         },
       },
     },
-  });
+  })
   ```
 
   ### `@kubb/plugin-cypress`
-
   - **Breaking:** Replace `resolvers?: Array<ResolverCypress>` with `resolver?: Partial<ResolverCypress> & ThisType<ResolverCypress>`.
   - **Breaking:** Replace `transformers?: Array<Visitor>` with `transformer?: Visitor`.
 
@@ -229,7 +222,6 @@
   Complete rewrite of `@kubb/plugin-zod` to the v5 AST-based architecture. The plugin no longer depends on `@kubb/plugin-oas` or `@kubb/oas`; it operates entirely on the `@kubb/ast` node graph.
 
   **Breaking changes:**
-
   - `mapper` option removed — no replacement (naming is now controlled via `resolvers`)
   - `version` option removed — Zod v3 is no longer supported; Kubb v5 always generates Zod v4 code
   - `contentType` option removed — moved to `adapterOas(...)`
@@ -243,21 +235,18 @@
   - Naming conventions (default preset): response status schemas are now named `<operationId>Status<code>Schema` instead of `<operationId><code>Schema`. Use `compatibilityPreset: 'kubbV4'` to keep the old names.
 
   **New options:**
-
   - `paramsCasing?: 'camelcase'` — apply camelCase to path/query/header parameter names in operation schemas
   - `compatibilityPreset?: 'default' | 'kubbV4'` — select naming conventions; `'kubbV4'` reproduces Kubb v4 names for a gradual migration
   - `resolvers?: Array<ResolverZod>` — provide custom resolver instances to override naming conventions
   - `transformers?: Array<Visitor>` — AST visitor array applied to each `SchemaNode` before printing (replaces the old `transformers.schema` callback)
 
   **New exports:**
-
   - `resolverZod` — default v5 resolver (camelCase + `Schema` suffix)
   - `resolverZodLegacy` — Kubb v4-compatible resolver (use with `compatibilityPreset: 'kubbV4'`)
   - `printerZod` — Zod v4 chainable-API printer factory (`definePrinter`)
   - `printerZodMini` — Zod v4 Mini functional-API printer factory
 
   ### `@kubb/ast`
-
   - `createSchema`, `createProperty`, `createOperation` factory functions now automatically infer and set the `primitive` field based on the node `type`, reducing boilerplate in tests and custom generators.
 
 ## 5.0.0-alpha.24
@@ -267,7 +256,6 @@
 ### Minor Changes
 
 - [#2931](https://github.com/kubb-labs/kubb/pull/2931) [`8cfa19a`](https://github.com/kubb-labs/kubb/commit/8cfa19adbe681d4466f0ff97a8c14ece8ba1e5d8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ### `@kubb/ast`
-
   - Added `createOperationParams(node, options)` utility that converts an `OperationNode` into a `FunctionParametersNode`.
   - Added `reference` variant to `TypeNode` for plain type name strings (e.g. `'string'`, `'QueryParams'`), so all type annotations in the AST are always `TypeNode` — never raw strings.
   - Changed `FunctionParameterNode.type` from `string | TypeNode` to `TypeNode`.
@@ -276,7 +264,6 @@
   - Removed `typeToString` helper from `utils.ts`; `resolveType` now returns `TypeNode` directly.
 
   ### `@kubb/plugin-ts`
-
   - Updated `functionPrinter` to handle all three `TypeNode` variants (`member`, `struct`, `reference`) explicitly; removed all `typeof … === 'string'` checks.
 
 ## 5.0.0-alpha.22
@@ -298,7 +285,6 @@
 ### Minor Changes
 
 - [#2889](https://github.com/kubb-labs/kubb/pull/2889) [`2546c05`](https://github.com/kubb-labs/kubb/commit/2546c051d81e490709df9d8a834402ef546a8f1c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ### `@kubb/ast`
-
   - Reorganized schema helper modules into clearer categories:
     - `transformers.ts` for schema transformation helpers
     - `resolvers.ts` for lookup/derivation helpers
@@ -310,7 +296,6 @@
   - Removed deprecated alias exports for old names.
 
   ### `@kubb/adapter-oas`
-
   - Fixed named import shape regression in adapter import resolution.
   - `adapter.getImports(...)` now correctly returns `KubbFile.Import` entries with `name` as `string[]` (for example `['PetType']`), with added regression coverage.
 
@@ -323,17 +308,14 @@
 ### Minor Changes
 
 - [#2872](https://github.com/kubb-labs/kubb/pull/2872) [`591977c`](https://github.com/kubb-labs/kubb/commit/591977c5c2f167736d6e43126ed0387a1e5e0ce5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ### `@kubb/core`
-
   - Add `name: string` to the `Resolver` base type. Every resolver now carries a name that identifies it.
   - `defineResolver` build functions must return a `name` property.
   - Add `mergeResolvers(...resolvers)` helper that merges multiple resolvers into one (last wins).
 
   ### `@kubb/ast`
-
   - Add `composeTransformers(...visitors)` helper that combines multiple `Visitor` objects into a single visitor. Each node kind is piped through all visitors sequentially (left to right).
 
   ### `@kubb/plugin-ts`
-
   - Add `resolvers` option — an array of named resolvers that control naming conventions. Later entries override earlier ones. Built-in resolvers: `resolverTs` (default) and `resolverTsLegacy`.
   - Add `transformers` option — an array of AST `Visitor` objects applied to each `SchemaNode` before printing. Uses `composeTransformers` + `transform` from `@kubb/ast`.
   - Export `resolverTs`, `resolverTsLegacy`, and `ResolverTs` from the package root.
@@ -347,7 +329,6 @@
 - [#2858](https://github.com/kubb-labs/kubb/pull/2858) [`975717e`](https://github.com/kubb-labs/kubb/commit/975717e2c8cf8d33f5d9d641be4bb164fd36f423) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix missing `@description` on request body type aliases.
 
   The OAS `requestBody.description` field (top-level on the request body object, distinct from the schema's own description) was silently dropped. It is now:
-
   - Added as `description?: string` to `OperationNode.requestBody` in `@kubb/ast`
   - Populated by `@kubb/adapter-oas` parser from `operation.schema.requestBody.description`
   - Used by `@kubb/plugin-ts` typeGenerator: `requestBody.description` takes precedence, falling back to `requestBody.schema.description`

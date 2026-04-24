@@ -7,81 +7,82 @@ import { buildTree, type BuildTree } from './buildTree.ts'
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx'])
 
 /**
- * Derives a relative module specifier from an absolute `filePath` relative to an absolute `fromDir`.
- * The source extension is preserved so that `@kubb/parser-ts` can apply the `extNames` mapping
- * (e.g. `.ts` → `.js` for ESM output).
+ * Derives a relative module specifier from `filePath` relative to `fromDir`.
+ * The source extension is preserved so `@kubb/parser-ts` can apply its `extNames` mapping.
  *
  * @example
+ * ```ts
  * toRelativeModulePath('/src/gen/types', '/src/gen/types/pet.ts') // './pet.ts'
  * toRelativeModulePath('/src/gen/types', '/src/gen/types/tags/tag.ts') // './tags/tag.ts'
+ * ```
  */
 function toRelativeModulePath(fromDir: string, filePath: string): string {
   const relative = filePath.slice(fromDir.length).replace(/^[/\\]/g, '')
   return `./${relative}`
 }
 
-/**
- * Generates barrel `FileNode[]` for a given directory tree node using the `'all'` strategy:
- * each leaf file gets a `export * from './relPath'` in the barrel of its nearest ancestor directory.
- *
- * Only a single barrel file (at `treeNode.path`) is generated — sub-directory files are referenced
- * with their full relative path from `treeNode.path`.
- */
-function getBarrelFilesAll(treeNode: BuildTree, sourceFiles: ReadonlyArray<FileNode>): Array<FileNode> {
-  // Collect all source file paths under this node (excluding barrel files themselves)
+type BarrelFilesParams = {
+  treeNode: BuildTree
+  sourceFiles: ReadonlyArray<FileNode>
+  recursive?: boolean
+}
+
+function getBarrelFilesAll({ treeNode, sourceFiles, recursive = false }: BarrelFilesParams): Array<FileNode> {
   const leafPaths = collectLeafPaths(treeNode).filter((p) => !p.endsWith(`/${BARREL_FILENAME}`))
 
   if (leafPaths.length === 0) return []
 
-  const barrelPath = `${treeNode.path}/${BARREL_FILENAME}`
   const exports: ReturnType<typeof createExport>[] = []
 
   for (const filePath of leafPaths) {
     const sourceFile = sourceFiles.find((f) => f.path === filePath)
-    // Skip files whose sources all have isIndexable: false (e.g. internal injected files)
     if (sourceFile && sourceFile.sources.length > 0 && sourceFile.sources.every((s) => !s.isIndexable)) {
       continue
     }
     exports.push(createExport({ path: toRelativeModulePath(treeNode.path, filePath) }))
   }
 
-  if (exports.length === 0) return []
+  const result: Array<FileNode> = []
 
-  return [
+  if (recursive) {
+    for (const child of treeNode.children) {
+      if (!child.isFile) {
+        result.push(...getBarrelFilesAll({ treeNode: child, sourceFiles, recursive: true }))
+      }
+    }
+  }
+
+  if (exports.length === 0) return result
+
+  result.push(
     createFile({
       baseName: BARREL_FILENAME,
-      path: barrelPath,
+      path: `${treeNode.path}/${BARREL_FILENAME}`,
       exports,
       sources: [],
       imports: [],
     }),
-  ]
+  )
+
+  return result
 }
 
-/**
- * Generates barrel `FileNode[]` for a given directory tree node using the `'named'` strategy:
- * each indexable source in each leaf file gets an individual named `export { name } from '...'`.
- */
-function getBarrelFilesNamed(treeNode: BuildTree, sourceFiles: ReadonlyArray<FileNode>): Array<FileNode> {
+function getBarrelFilesNamed({ treeNode, sourceFiles, recursive = false }: BarrelFilesParams): Array<FileNode> {
   const leafPaths = collectLeafPaths(treeNode).filter((p) => !p.endsWith(`/${BARREL_FILENAME}`))
 
   if (leafPaths.length === 0) return []
 
-  const barrelPath = `${treeNode.path}/${BARREL_FILENAME}`
   const exports: ReturnType<typeof createExport>[] = []
 
   for (const filePath of leafPaths) {
     const sourceFile = sourceFiles.find((f) => f.path === filePath)
     if (!sourceFile) {
-      // Fall back to wildcard if the source file is not in our set
       exports.push(createExport({ path: toRelativeModulePath(treeNode.path, filePath) }))
       continue
     }
 
     const indexableSources = sourceFile.sources.filter((s) => s.isIndexable && s.name)
     if (indexableSources.length === 0) {
-      // If the file has explicit sources but none are indexable, skip it entirely.
-      // Only fall back to wildcard when there are no sources at all (unknown exports).
       if (sourceFile.sources.length > 0) continue
       exports.push(createExport({ path: toRelativeModulePath(treeNode.path, filePath) }))
       continue
@@ -99,27 +100,32 @@ function getBarrelFilesNamed(treeNode: BuildTree, sourceFiles: ReadonlyArray<Fil
     }
   }
 
-  if (exports.length === 0) return []
+  const result: Array<FileNode> = []
 
-  return [
-    createFile({
-      baseName: BARREL_FILENAME,
-      path: barrelPath,
-      exports,
-      sources: [],
-      imports: [],
-    }),
-  ]
+  if (recursive) {
+    for (const child of treeNode.children) {
+      if (!child.isFile) {
+        result.push(...getBarrelFilesNamed({ treeNode: child, sourceFiles, recursive: true }))
+      }
+    }
+  }
+
+  if (exports.length > 0) {
+    result.push(
+      createFile({
+        baseName: BARREL_FILENAME,
+        path: `${treeNode.path}/${BARREL_FILENAME}`,
+        exports,
+        sources: [],
+        imports: [],
+      }),
+    )
+  }
+
+  return result
 }
 
-/**
- * Generates barrel `FileNode[]` for a given directory tree node using the `'propagate'` strategy:
- * like `'all'` but also generates intermediate barrel files for every sub-directory, so that
- * consumers can import from any depth.
- *
- * Leaf barrels export directly from their files; parent barrels export from their sub-barrel files.
- */
-function getBarrelFilesPropagate(treeNode: BuildTree): Array<FileNode> {
+function getBarrelFilesPropagate({ treeNode }: Pick<BarrelFilesParams, 'treeNode'>): Array<FileNode> {
   return collectPropagatedBarrels(treeNode)
 }
 
@@ -133,11 +139,9 @@ function collectPropagatedBarrels(node: BuildTree): Array<FileNode> {
         barrelExports.push(createExport({ path: toRelativeModulePath(node.path, child.path) }))
       }
     } else {
-      // Recurse into sub-directory
       const subBarrels = collectPropagatedBarrels(child)
       result.push(...subBarrels)
 
-      // Export the sub-directory's barrel (not individual files)
       const subBarrelPath = `${child.path}/${BARREL_FILENAME}`
       barrelExports.push(createExport({ path: toRelativeModulePath(node.path, subBarrelPath) }))
     }
@@ -158,26 +162,44 @@ function collectPropagatedBarrels(node: BuildTree): Array<FileNode> {
   return result
 }
 
-/**
- * Collects all leaf (file) paths within a tree node recursively.
- */
 function collectLeafPaths(node: BuildTree): Array<string> {
   if (node.isFile) return [node.path]
   return node.children.flatMap((c) => collectLeafPaths(c))
 }
 
+export type GetBarrelFilesParams = {
+  /**
+   * Absolute path to the directory the barrel(s) should be rooted at.
+   * Files outside this directory are ignored.
+   */
+  outputPath: string
+  /**
+   * Full set of generated files across all plugins.
+   * Used both to discover what to re-export and to read each file's indexable sources.
+   */
+  files: ReadonlyArray<FileNode>
+  /**
+   * Re-export style used in the generated barrel(s).
+   */
+  barrelType: BarrelType
+  /**
+   * When `true`, also generate a barrel for each sub-directory of `outputPath`.
+   * Used by per-plugin barrels so that grouped output (e.g. `petController/`) gets its own `index.ts`.
+   *
+   * Has no effect for `barrelType: 'propagate'`, which always recurses by design.
+   *
+   * @default false
+   */
+  recursive?: boolean
+}
+
 /**
- * Generates barrel `FileNode[]` for a directory rooted at `outputPath`, given the full set of
- * generated source `files`, using the specified `barrelType` strategy.
+ * Generates barrel `FileNode`s for the directory rooted at `outputPath`.
  *
- * Files not located inside `outputPath` are excluded automatically.
- *
- * @param outputPath Absolute path to the output directory.
- * @param files All generated files (across all plugins).
- * @param barrelType Barrel generation strategy.
+ * Files outside `outputPath`, existing barrel files, and non-source extensions are filtered out
+ * before the tree is built.
  */
-export function getBarrelFiles(outputPath: string, files: ReadonlyArray<FileNode>, barrelType: BarrelType): Array<FileNode> {
-  // Only include files that live inside this outputPath and have a recognised source extension
+export function getBarrelFiles({ outputPath, files, barrelType, recursive = false }: GetBarrelFilesParams): Array<FileNode> {
   const relevantFiles = files.filter((f) => {
     const normalizedFilePath = f.path.replace(/\\/g, '/')
     const normalizedOutputPath = outputPath.replace(/\\/g, '/')
@@ -197,11 +219,11 @@ export function getBarrelFiles(outputPath: string, files: ReadonlyArray<FileNode
 
   switch (barrelType) {
     case 'all':
-      return getBarrelFilesAll(tree, relevantFiles)
+      return getBarrelFilesAll({ treeNode: tree, sourceFiles: relevantFiles, recursive })
     case 'named':
-      return getBarrelFilesNamed(tree, relevantFiles)
+      return getBarrelFilesNamed({ treeNode: tree, sourceFiles: relevantFiles, recursive })
     case 'propagate':
-      return getBarrelFilesPropagate(tree)
+      return getBarrelFilesPropagate({ treeNode: tree })
     default:
       return []
   }

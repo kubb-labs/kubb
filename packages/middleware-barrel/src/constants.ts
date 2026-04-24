@@ -1,4 +1,3 @@
-
 /**
  * Full file name for barrel files (with extension).
  */
