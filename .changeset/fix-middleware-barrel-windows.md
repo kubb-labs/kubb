@@ -1,6 +1,5 @@
 ---
 "@kubb/middleware-barrel": patch
-"@internals/utils": patch
 ---
 
 Fix `middleware-barrel` failing on Windows due to mixed path separators.
