@@ -1,5 +1,14 @@
 # @kubb/middleware-barrel
 
+## 5.0.0-alpha.62
+
+### Patch Changes
+
+- [`bdfc4e9`](https://github.com/kubb-labs/kubb/commit/bdfc4e93c839efa60efb394fadf034d6cacac1aa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Cleanup logic to also use excluded
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.62
+
 ## 5.0.0-alpha.61
 
 ### Patch Changes
