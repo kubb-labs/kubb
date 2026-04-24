@@ -61,6 +61,33 @@ describe('defineConfig', () => {
     expect(resolved.middleware?.[0]).toBe(middlewareBarrel)
   })
 
+  test("defaults output.barrelType to 'named' when not set", () => {
+    const config = defineConfig({
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+    } as UserConfig)
+    const resolved = config as UserConfig
+
+    expect(resolved.output.barrelType).toBe('named')
+  })
+
+  test('preserves explicit output.barrelType (including false)', () => {
+    const named = defineConfig({
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen', barrelType: 'all' },
+    } as UserConfig) as UserConfig
+    const disabled = defineConfig({
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen', barrelType: false },
+    } as UserConfig) as UserConfig
+
+    expect(named.output.barrelType).toBe('all')
+    expect(disabled.output.barrelType).toBe(false)
+  })
+
   test('preserves existing middleware when non-empty', () => {
     const customMiddleware = { name: 'custom', install: () => {} }
     const config = defineConfig({
@@ -73,6 +100,32 @@ describe('defineConfig', () => {
 
     expect(resolved.middleware).toHaveLength(1)
     expect(resolved.middleware?.[0]).toBe(customMiddleware)
+  })
+
+  test('does not default barrelType when middlewareBarrel is not part of middleware', () => {
+    const customMiddleware = { name: 'custom', install: () => {} }
+    const config = defineConfig({
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+      middleware: [customMiddleware],
+    } as UserConfig)
+    const resolved = config as UserConfig
+
+    expect(resolved.output.barrelType).toBeUndefined()
+  })
+
+  test('defaults barrelType when middlewareBarrel is explicitly listed alongside others', () => {
+    const customMiddleware = { name: 'custom', install: () => {} }
+    const config = defineConfig({
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+      middleware: [customMiddleware, middlewareBarrel],
+    } as UserConfig)
+    const resolved = config as UserConfig
+
+    expect(resolved.output.barrelType).toBe('named')
   })
 
   test('preserves existing adapter', () => {

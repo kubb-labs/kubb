@@ -15,17 +15,29 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
     : NormalizeConfig<TConfig>
 
 /**
- * Applies default adapter and parsers to a single user config when not set.
+ * Applies default adapter, parsers, middleware, and `output.barrelType` to a single user config when not set.
  *
  * - `adapter` defaults to `adapterOas()`
  * - `parsers` defaults to `[parserTs, parserTsx]`
+ * - `middleware` defaults to `[middlewareBarrel]`
+ * - `output.barrelType` defaults to `'named'` **only when `middlewareBarrel` is part of `middleware`**.
+ *   When the user provides a custom middleware list without `middlewareBarrel`, `barrelType` is left untouched.
  */
 function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
+  const middleware = config.middleware?.length ? config.middleware : [middlewareBarrel]
+  const hasBarrelMiddleware = middleware.includes(middlewareBarrel)
+
+  const output = { ...config.output }
+  if (hasBarrelMiddleware && output.barrelType === undefined) {
+    output.barrelType = 'named'
+  }
+
   return {
     ...config,
     adapter: config.adapter ?? adapterOas(),
     parsers: config.parsers?.length ? config.parsers : [parserTs, parserTsx],
-    middleware: config.middleware?.length ? config.middleware : [middlewareBarrel],
+    middleware,
+    output,
   }
 }
 
