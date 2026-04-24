@@ -1,10 +1,9 @@
 import { defineMiddleware } from '@kubb/core'
 import type { KubbBuildStartContext } from '@kubb/core'
-import './types.ts'
 import type { BarrelType } from './types.ts'
 import { generatePerPluginBarrel } from './utils/generatePerPluginBarrel.ts'
 import { generateRootBarrel } from './utils/generateRootBarrel.ts'
-
+import {resolve} from "node:path";
 
 declare global {
   namespace Kubb {
@@ -72,9 +71,7 @@ export const middlewareBarrel = defineMiddleware({
   name: 'middleware-barrel',
   install(hooks) {
     let ctx: KubbBuildStartContext
-    // Track output paths of plugins with barrelType: false so the root barrel
-    // can exclude their files.
-    const excludedOutputPaths: string[] = []
+    const excludedPaths = new Set<string>()
 
     hooks.on('kubb:build:start', (buildCtx) => {
       ctx = buildCtx
@@ -83,13 +80,10 @@ export const middlewareBarrel = defineMiddleware({
     hooks.on('kubb:plugin:end', ({ plugin }) => {
       if (!ctx) return
 
-      const pluginOutput = plugin.options.output
-      const barrelType = pluginOutput?.barrelType !== undefined ? pluginOutput.barrelType : (ctx.config.output.barrelType ?? 'all')
+      const barrelType = plugin.options.output?.barrelType ?? ctx.config.output.barrelType ?? 'all'
 
       if (!barrelType) {
-        // Remember this plugin's output path so we can exclude it from the root barrel
-        const outputPath = plugin.options.output.path
-        excludedOutputPaths.push(outputPath)
+        excludedPaths.add(resolve(ctx.config.root, ctx.config.output.path, plugin.options.output.path))
         return
       }
 
@@ -107,16 +101,11 @@ export const middlewareBarrel = defineMiddleware({
 
     hooks.on('kubb:plugins:end', ({ files, config, upsertFile }) => {
       const rootBarrelType = config.output.barrelType ?? 'all'
-
       if (!rootBarrelType) return
 
-      // Exclude files that belong to plugins with barrelType: false
       const filteredFiles =
-        excludedOutputPaths.length > 0
-          ? files.filter((f) => {
-              const normalizedPath = f.path.replace(/\\/g, '/')
-              return !excludedOutputPaths.some((excluded) => normalizedPath.startsWith(excluded.replace(/\\/g, '/') + '/'))
-            })
+        excludedPaths.size > 0
+          ? files.filter((f) => ![...excludedPaths].some((excluded) => f.path.startsWith(excluded + '/')))
           : files
 
       const rootBarrelFiles = generateRootBarrel({
