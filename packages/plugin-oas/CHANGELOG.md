@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 4.37.4
+
+### Patch Changes
+
+- [#3165](https://github.com/kubb-labs/kubb/pull/3165) [`ba6251e`](https://github.com/kubb-labs/kubb/commit/ba6251e43b49d2daf4ce06fe8741303b2cfd20b0) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix `Generator` type so it accepts version-specific generators (e.g. `ReactGenerator<PluginTs, '1'>`) when used as `Generator<PluginTs>`. The type now distributes over `Version`, avoiding contravariance failures on the inner `OperationsProps`/`OperationProps`/`SchemaProps` function arguments.
+
+- Updated dependencies []:
+  - @kubb/core@4.37.4
+  - @kubb/oas@4.37.4
+
 ## 4.37.3
 
 ### Patch Changes
