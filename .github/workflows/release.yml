@@ -101,16 +101,6 @@ jobs:
             const publishedPackages = JSON.parse(process.env.PUBLISHED_PACKAGES || '[]');
             const corePackage = publishedPackages.find(pkg => pkg.name === '@kubb/core');
             return corePackage?.version || '';
-
-  changelog:
-    name: Update Changelog
-    if: needs.get-version.outputs.version != ''
-    needs: [get-version]
-    uses: ./.github/workflows/changelog.yml
-    with:
-      version: ${{ needs.get-version.outputs.version }}
-    secrets: inherit
-
   notify:
     name: Send Discord Notification
     if: needs.release.outputs.published == 'true'
