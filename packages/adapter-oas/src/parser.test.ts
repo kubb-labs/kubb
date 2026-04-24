@@ -918,6 +918,25 @@ describe('parseSchema oneOf / anyOf', () => {
     expect(ast.narrowSchema(node, 'union')?.discriminatorPropertyName).toBeUndefined()
   })
 
+  it('parses oneOf with object members without explicit discriminator', () => {
+    // Test case from issue #14: oneOf should be preserved for validation
+    const node = parseSchema(ctx, {
+      schema: {
+        oneOf: [
+          { $ref: '#/components/schemas/TypeA' },
+          { $ref: '#/components/schemas/TypeB' },
+        ],
+      },
+    })
+
+    const unionNode = ast.narrowSchema(node, 'union')
+    expect(unionNode?.type).toBe('union')
+    expect(unionNode?.unionKind).toBe('oneOf')
+    expect(unionNode?.members).toHaveLength(2)
+    expect(unionNode?.members?.[0]?.type).toBe('ref')
+    expect(unionNode?.members?.[1]?.type).toBe('ref')
+  })
+
   it('intersects each member with sibling properties when properties are present', () => {
     const node = parseSchema(ctx, {
       schema: {
