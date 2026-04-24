@@ -1,6 +1,5 @@
 ---
 "@kubb/middleware-barrel": patch
-"@internals/utils": patch
 "@kubb/kubb": patch
 ---
 
