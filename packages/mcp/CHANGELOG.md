@@ -1,5 +1,13 @@
 # @kubb/mcp
 
+## 5.0.0-alpha.60
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.60
+  - @kubb/renderer-jsx@5.0.0-alpha.60
+
 ## 5.0.0-alpha.59
 
 ### Patch Changes
