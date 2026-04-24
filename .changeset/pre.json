@@ -72,6 +72,7 @@
     "make-getplugin-typesafe",
     "move-plugins-to-own-repo",
     "node-22-minimum",
+    "refactor-middleware-barrel",
     "remove-deprecated-plugin-checks",
     "remove-legacy-plugin-types",
     "remove-oas-package",

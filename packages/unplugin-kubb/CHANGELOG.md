@@ -1,5 +1,14 @@
 # unplugin-kubb
 
+## 5.0.0-alpha.64
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/adapter-oas@5.0.0-alpha.64
+  - @kubb/core@5.0.0-alpha.64
+  - @kubb/parser-ts@5.0.0-alpha.64
+
 ## 5.0.0-alpha.63
 
 ### Patch Changes

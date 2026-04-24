@@ -1,5 +1,19 @@
 # @kubb/middleware-barrel
 
+## 5.0.0-alpha.64
+
+### Patch Changes
+
+- [`33b9156`](https://github.com/kubb-labs/kubb/commit/33b91569d9c8f7fe2d7c7d826538249e3eeb18a2) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Refactor middleware-barrel internals and tighten `barrelType` defaulting.
+
+  - `buildTree` is now exported from `@internals/utils` and reused by `@kubb/middleware-barrel`.
+  - `middleware-barrel` utils are split into focused modules (`resolveBarrelType`, `excludedPaths`, `getBarrelFiles`, `generatePerPluginBarrel`, `generateRootBarrel`), each with its own test file.
+  - `output.barrelType` now only defaults to `'named'` when `middlewareBarrel` is part of the resolved `middleware` list. Custom middleware lists without it leave `barrelType` untouched.
+  - Internal use of Node 22 helpers (`path.extname`, `String.prototype.replaceAll`, `Iterator.prototype.some`) for clearer, allocation-free path handling.
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.64
+
 ## 5.0.0-alpha.63
 
 ### Minor Changes
