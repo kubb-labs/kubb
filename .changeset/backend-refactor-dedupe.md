@@ -3,7 +3,6 @@
 "@kubb/ast": patch
 "@kubb/cli": patch
 "@kubb/parser-ts": patch
-"@internals/utils": patch
 ---
 
 Internal cleanup: dedupe backend code and drop unused exports.
