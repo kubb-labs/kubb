@@ -23,6 +23,7 @@
     "add-create-operation-params",
     "add-default-adapter-and-parsers",
     "add-express-style-paths",
+    "add-find-circular-schemas",
     "add-function-parameter-nodes",
     "add-generator-context-api",
     "add-generator-run-helpers",
