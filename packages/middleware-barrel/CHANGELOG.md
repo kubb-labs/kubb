@@ -1,5 +1,16 @@
 # @kubb/middleware-barrel
 
+## 5.0.0-alpha.60
+
+### Patch Changes
+
+- [`29063f5`](https://github.com/kubb-labs/kubb/commit/29063f570c208cd82f93d4fa1a1688f277f2af38) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix `barrelType` TypeScript error when using `@kubb/middleware-barrel`.
+
+  The global type augmentation that adds `barrelType` to `Output` was only reachable via a transitive side-effect import. TypeScript does not reliably follow side-effect imports through re-export chains, so `barrelType` appeared as an unknown property. The fix imports `./types.ts` directly in the package entry point, guaranteeing the augmentation is applied whenever the package is imported.
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.60
+
 ## 5.0.0-alpha.59
 
 ### Patch Changes

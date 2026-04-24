@@ -1,5 +1,7 @@
 # @kubb/ast
 
+## 5.0.0-alpha.60
+
 ## 5.0.0-alpha.59
 
 ### Patch Changes
