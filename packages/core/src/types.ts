@@ -603,7 +603,7 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
 export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Logger<TOptions>
 
 export type { Storage } from './createStorage.ts'
-export type { Generator } from './defineGenerator.ts'
+export type { Generator, ReactGenerator } from './defineGenerator.ts'
 export type { Middleware } from './defineMiddleware.ts'
 export type { Plugin } from './definePlugin.ts'
 export type { Kubb, KubbHooks } from './Kubb.ts'

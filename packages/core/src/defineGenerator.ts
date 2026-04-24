@@ -83,6 +83,37 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
 }
 
 /**
+ * A specialization of {@link Generator} for generators that use a renderer (e.g. the JSX
+ * renderer from `@kubb/renderer-jsx`).
+ *
+ * Unlike a plain `Generator`, a `ReactGenerator` always has a non-null `renderer` field.
+ * Use `TElement` to specify the element type produced by the renderer
+ * (e.g. `KubbReactElement` from `@kubb/renderer-jsx`).
+ *
+ * This type is assignable to `Generator<TOptions>` (the base type used in plugin
+ * `generators` options), so mixing `ReactGenerator` and plain `Generator` instances
+ * in the same array is fully type-safe.
+ *
+ * @example
+ * ```ts
+ * import { defineReactGenerator } from '@kubb/core'
+ * import { jsxRenderer } from '@kubb/renderer-jsx'
+ * import type { KubbReactElement } from '@kubb/renderer-jsx'
+ *
+ * export const typeGenerator = defineReactGenerator<PluginTs, KubbReactElement>({
+ *   name: 'typescript',
+ *   renderer: jsxRenderer,
+ *   schema(node, ctx) {
+ *     return <File ...><Type node={node} /></File>
+ *   },
+ * })
+ * ```
+ */
+export type ReactGenerator<TOptions extends PluginFactoryOptions = PluginFactoryOptions, TElement = unknown> = Generator<TOptions, TElement> & {
+  renderer: NonNullable<Generator<TOptions, TElement>['renderer']>
+}
+
+/**
  * Defines a generator. Returns the object as-is with correct `this` typings.
  * `applyHookResult` handles renderer elements and `File[]` uniformly using
  * the generator's declared `renderer` factory.
@@ -90,5 +121,36 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
 export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFactoryOptions, TElement = unknown>(
   generator: Generator<TOptions, TElement>,
 ): Generator<TOptions, TElement> {
+  return generator
+}
+
+/**
+ * Defines a generator that uses a renderer (e.g. the JSX renderer from `@kubb/renderer-jsx`).
+ *
+ * Like {@link defineGenerator}, this is an identity function — it returns the object unchanged.
+ * The difference is in the type signature: the input must include a non-null `renderer` field,
+ * and the return type is {@link ReactGenerator} rather than the wider {@link Generator}.
+ *
+ * Passing a `ReactGenerator` to a plugin's `generators` option is always safe because
+ * `ReactGenerator<TOptions, TElement>` is assignable to `Generator<TOptions>`.
+ *
+ * @example
+ * ```ts
+ * import { defineReactGenerator } from '@kubb/core'
+ * import { jsxRenderer } from '@kubb/renderer-jsx'
+ * import type { KubbReactElement } from '@kubb/renderer-jsx'
+ *
+ * export const typeGenerator = defineReactGenerator<PluginTs, KubbReactElement>({
+ *   name: 'typescript',
+ *   renderer: jsxRenderer,
+ *   schema(node, ctx) {
+ *     return <File ...><Type node={node} /></File>
+ *   },
+ * })
+ * ```
+ */
+export function defineReactGenerator<TOptions extends PluginFactoryOptions = PluginFactoryOptions, TElement = unknown>(
+  generator: ReactGenerator<TOptions, TElement>,
+): ReactGenerator<TOptions, TElement> {
   return generator
 }
