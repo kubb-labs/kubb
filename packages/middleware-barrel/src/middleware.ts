@@ -1,3 +1,4 @@
+import { resolve } from 'node:path'
 import { defineMiddleware } from '@kubb/core'
 import type { KubbBuildStartContext, NormalizedPlugin } from '@kubb/core'
 import './types.ts'
@@ -70,9 +71,11 @@ declare global {
  */
 export const middlewareBarrel = defineMiddleware({
   name: 'middleware-barrel',
-
   install(hooks) {
     let ctx: KubbBuildStartContext
+    // Track output paths of plugins with barrelType: false so the root barrel
+    // can exclude their files.
+    const excludedOutputPaths: string[] = []
 
     hooks.on('kubb:build:start', (buildCtx) => {
       ctx = buildCtx
@@ -88,7 +91,12 @@ export const middlewareBarrel = defineMiddleware({
       const rootOutput = ctx.config.output as { barrelType?: BarrelType | false }
       const barrelType = pluginOutput?.barrelType !== undefined ? pluginOutput.barrelType : (rootOutput.barrelType ?? 'all')
 
-      if (!barrelType) return
+      if (!barrelType) {
+        // Remember this plugin's output path so we can exclude it from the root barrel
+        const outputPath = resolve(ctx.config.root, ctx.config.output.path, normalizedPlugin.options.output.path)
+        excludedOutputPaths.push(outputPath)
+        return
+      }
 
       const barrelFiles = generatePerPluginBarrel({
         barrelType,
@@ -108,9 +116,18 @@ export const middlewareBarrel = defineMiddleware({
 
       if (!rootBarrelType) return
 
+      // Exclude files that belong to plugins with barrelType: false
+      const filteredFiles =
+        excludedOutputPaths.length > 0
+          ? files.filter((f) => {
+              const normalizedPath = f.path.replace(/\\/g, '/')
+              return !excludedOutputPaths.some((excluded) => normalizedPath.startsWith(excluded.replace(/\\/g, '/') + '/'))
+            })
+          : files
+
       const rootBarrelFiles = generateRootBarrel({
         barrelType: rootBarrelType,
-        files,
+        files: filteredFiles,
         config,
       })
 

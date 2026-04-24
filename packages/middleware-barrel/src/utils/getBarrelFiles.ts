@@ -2,7 +2,7 @@ import { createExport, createFile } from '@kubb/ast'
 import type { FileNode } from '@kubb/ast'
 import { BARREL_FILENAME } from '../constants.ts'
 import type { BarrelType } from '../types.ts'
-import { buildTree, type TreeNode } from './TreeNode.ts'
+import { buildTree, type BuildTree } from './buildTree.ts'
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx'])
 
@@ -27,7 +27,7 @@ function toRelativeModulePath(fromDir: string, filePath: string): string {
  * Only a single barrel file (at `treeNode.path`) is generated — sub-directory files are referenced
  * with their full relative path from `treeNode.path`.
  */
-function getBarrelFilesAll(treeNode: TreeNode, sourceFiles: ReadonlyArray<FileNode>): Array<FileNode> {
+function getBarrelFilesAll(treeNode: BuildTree, sourceFiles: ReadonlyArray<FileNode>): Array<FileNode> {
   // Collect all source file paths under this node (excluding barrel files themselves)
   const leafPaths = collectLeafPaths(treeNode).filter((p) => !p.endsWith(`/${BARREL_FILENAME}`))
 
@@ -62,7 +62,7 @@ function getBarrelFilesAll(treeNode: TreeNode, sourceFiles: ReadonlyArray<FileNo
  * Generates barrel `FileNode[]` for a given directory tree node using the `'named'` strategy:
  * each indexable source in each leaf file gets an individual named `export { name } from '...'`.
  */
-function getBarrelFilesNamed(treeNode: TreeNode, sourceFiles: ReadonlyArray<FileNode>): Array<FileNode> {
+function getBarrelFilesNamed(treeNode: BuildTree, sourceFiles: ReadonlyArray<FileNode>): Array<FileNode> {
   const leafPaths = collectLeafPaths(treeNode).filter((p) => !p.endsWith(`/${BARREL_FILENAME}`))
 
   if (leafPaths.length === 0) return []
@@ -87,13 +87,16 @@ function getBarrelFilesNamed(treeNode: TreeNode, sourceFiles: ReadonlyArray<File
       continue
     }
 
-    const names = indexableSources.map((s) => s.name as string)
-    exports.push(
-      createExport({
-        name: names,
-        path: toRelativeModulePath(treeNode.path, filePath),
-      }),
-    )
+    const valueNames = indexableSources.filter((s) => !s.isTypeOnly).map((s) => s.name as string)
+    const typeNames = indexableSources.filter((s) => s.isTypeOnly).map((s) => s.name as string)
+    const modulePath = toRelativeModulePath(treeNode.path, filePath)
+
+    if (valueNames.length > 0) {
+      exports.push(createExport({ name: valueNames, path: modulePath }))
+    }
+    if (typeNames.length > 0) {
+      exports.push(createExport({ name: typeNames, path: modulePath, isTypeOnly: true }))
+    }
   }
 
   if (exports.length === 0) return []
@@ -116,11 +119,11 @@ function getBarrelFilesNamed(treeNode: TreeNode, sourceFiles: ReadonlyArray<File
  *
  * Leaf barrels export directly from their files; parent barrels export from their sub-barrel files.
  */
-function getBarrelFilesPropagate(treeNode: TreeNode): Array<FileNode> {
+function getBarrelFilesPropagate(treeNode: BuildTree): Array<FileNode> {
   return collectPropagatedBarrels(treeNode)
 }
 
-function collectPropagatedBarrels(node: TreeNode): Array<FileNode> {
+function collectPropagatedBarrels(node: BuildTree): Array<FileNode> {
   const result: Array<FileNode> = []
   const barrelExports: ReturnType<typeof createExport>[] = []
 
@@ -158,7 +161,7 @@ function collectPropagatedBarrels(node: TreeNode): Array<FileNode> {
 /**
  * Collects all leaf (file) paths within a tree node recursively.
  */
-function collectLeafPaths(node: TreeNode): Array<string> {
+function collectLeafPaths(node: BuildTree): Array<string> {
   if (node.isFile) return [node.path]
   return node.children.flatMap((c) => collectLeafPaths(c))
 }
