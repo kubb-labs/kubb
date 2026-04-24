@@ -273,6 +273,11 @@ export type UnionSchemaNode = CompositeSchemaNodeBase & {
    * Discriminator property name from OpenAPI `discriminator.propertyName`.
    */
   discriminatorPropertyName?: string
+  /**
+   * Union kind from OpenAPI schema: 'oneOf' enforces exactly one member is valid,
+   * 'anyOf' allows any number of members to be valid.
+   */
+  unionKind?: 'oneOf' | 'anyOf'
 }
 
 /**

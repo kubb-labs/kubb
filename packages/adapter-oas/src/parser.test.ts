@@ -820,12 +820,39 @@ describe('parseSchema oneOf / anyOf', () => {
     expect(node.type).toBe('union')
   })
 
+  it('sets unionKind to oneOf when oneOf is present', () => {
+    const node = parseSchema(ctx, {
+      schema: { oneOf: [{ type: 'string' }, { type: 'number' }] },
+    })
+
+    expect(ast.narrowSchema(node, 'union')?.unionKind).toBe('oneOf')
+  })
+
   it('maps anyOf to a union node', () => {
     const node = parseSchema(ctx, {
       schema: { anyOf: [{ type: 'string' }, { type: 'number' }] },
     })
 
     expect(node.type).toBe('union')
+  })
+
+  it('sets unionKind to anyOf when only anyOf is present', () => {
+    const node = parseSchema(ctx, {
+      schema: { anyOf: [{ type: 'string' }, { type: 'number' }] },
+    })
+
+    expect(ast.narrowSchema(node, 'union')?.unionKind).toBe('anyOf')
+  })
+
+  it('prioritizes oneOf when both oneOf and anyOf are present', () => {
+    const node = parseSchema(ctx, {
+      schema: {
+        oneOf: [{ type: 'string' }],
+        anyOf: [{ type: 'number' }],
+      },
+    })
+
+    expect(ast.narrowSchema(node, 'union')?.unionKind).toBe('oneOf')
   })
 
   it('combines oneOf and anyOf members into a single union', () => {
