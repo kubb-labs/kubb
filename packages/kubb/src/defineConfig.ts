@@ -53,7 +53,7 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  * Helper for defining a Kubb configuration with built-in defaults.
  *
  * When no `adapter` is provided, `adapterOas()` is used automatically.
- * When no `parsers` are provided, `[parserTsx]` is used automatically.
+ * When no `parsers` are provided, `[parserTs, parserTsx]` is used automatically.
  *
  * Accepts either:
  * - A config object or array of configs
