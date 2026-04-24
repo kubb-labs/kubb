@@ -1,6 +1,6 @@
 {
   "name": "@kubb/agent",
-  "version": "5.0.0-alpha.56",
+  "version": "5.0.0-alpha.58",
   "description": "Agent server for Kubb, enabling HTTP-based access to code generation capabilities.",
   "keywords": [
     "agent",
@@ -64,9 +64,9 @@
     "@kubb/adapter-oas": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@types/ws": "^8.18.1",
-    "msw": "^2.13.4",
+    "msw": "^2.13.5",
     "nitropack": "^2.13.3",
-    "vite": "^8.0.9"
+    "vite": "^8.0.10"
   },
   "engines": {
     "node": ">=22"

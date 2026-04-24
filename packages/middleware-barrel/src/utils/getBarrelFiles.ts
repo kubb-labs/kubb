@@ -1,22 +1,23 @@
 import { createExport, createFile } from '@kubb/ast'
 import type { FileNode } from '@kubb/ast'
-import { BARREL_BASENAME, BARREL_FILENAME } from '../constants.ts'
+import { BARREL_FILENAME } from '../constants.ts'
 import type { BarrelType } from '../types.ts'
 import { buildTree, type TreeNode } from './TreeNode.ts'
 
+const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx'])
+
 /**
- * Derives a relative module specifier (no extension) from an absolute `filePath`
- * relative to an absolute `fromDir`.
+ * Derives a relative module specifier from an absolute `filePath` relative to an absolute `fromDir`.
+ * The source extension is preserved so that `@kubb/parser-ts` can apply the `extNames` mapping
+ * (e.g. `.ts` → `.js` for ESM output).
  *
  * @example
- * toRelativeModulePath('/src/gen/types', '/src/gen/types/pet.ts') // './pet'
- * toRelativeModulePath('/src/gen/types', '/src/gen/types/tags/tag.ts') // './tags/tag'
+ * toRelativeModulePath('/src/gen/types', '/src/gen/types/pet.ts') // './pet.ts'
+ * toRelativeModulePath('/src/gen/types', '/src/gen/types/tags/tag.ts') // './tags/tag.ts'
  */
 function toRelativeModulePath(fromDir: string, filePath: string): string {
   const relative = filePath.slice(fromDir.length).replace(/^[/\\]/g, '')
-  // Strip extension
-  const withoutExt = relative.replace(/\.[^/.]+$/, '')
-  return `./${withoutExt}`
+  return `./${relative}`
 }
 
 /**
@@ -26,18 +27,25 @@ function toRelativeModulePath(fromDir: string, filePath: string): string {
  * Only a single barrel file (at `treeNode.path`) is generated — sub-directory files are referenced
  * with their full relative path from `treeNode.path`.
  */
-function getBarrelFilesAll(treeNode: TreeNode, _sourceFiles: ReadonlyArray<FileNode>): Array<FileNode> {
+function getBarrelFilesAll(treeNode: TreeNode, sourceFiles: ReadonlyArray<FileNode>): Array<FileNode> {
   // Collect all source file paths under this node (excluding barrel files themselves)
   const leafPaths = collectLeafPaths(treeNode).filter((p) => !p.endsWith(`/${BARREL_FILENAME}`))
 
   if (leafPaths.length === 0) return []
 
   const barrelPath = `${treeNode.path}/${BARREL_FILENAME}`
-  const exports = leafPaths.map((filePath) =>
-    createExport({
-      path: toRelativeModulePath(treeNode.path, filePath),
-    }),
-  )
+  const exports: ReturnType<typeof createExport>[] = []
+
+  for (const filePath of leafPaths) {
+    const sourceFile = sourceFiles.find((f) => f.path === filePath)
+    // Skip files whose sources all have isIndexable: false (e.g. internal injected files)
+    if (sourceFile && sourceFile.sources.length > 0 && sourceFile.sources.every((s) => !s.isIndexable)) {
+      continue
+    }
+    exports.push(createExport({ path: toRelativeModulePath(treeNode.path, filePath) }))
+  }
+
+  if (exports.length === 0) return []
 
   return [
     createFile({
@@ -72,7 +80,9 @@ function getBarrelFilesNamed(treeNode: TreeNode, sourceFiles: ReadonlyArray<File
 
     const indexableSources = sourceFile.sources.filter((s) => s.isIndexable && s.name)
     if (indexableSources.length === 0) {
-      // No named exports: fall back to wildcard
+      // If the file has explicit sources but none are indexable, skip it entirely.
+      // Only fall back to wildcard when there are no sources at all (unknown exports).
+      if (sourceFile.sources.length > 0) continue
       exports.push(createExport({ path: toRelativeModulePath(treeNode.path, filePath) }))
       continue
     }
@@ -125,7 +135,7 @@ function collectPropagatedBarrels(node: TreeNode): Array<FileNode> {
       result.push(...subBarrels)
 
       // Export the sub-directory's barrel (not individual files)
-      const subBarrelPath = `${child.path}/${BARREL_BASENAME}`
+      const subBarrelPath = `${child.path}/${BARREL_FILENAME}`
       barrelExports.push(createExport({ path: toRelativeModulePath(node.path, subBarrelPath) }))
     }
   }
@@ -164,11 +174,15 @@ function collectLeafPaths(node: TreeNode): Array<string> {
  * @param barrelType Barrel generation strategy.
  */
 export function getBarrelFiles(outputPath: string, files: ReadonlyArray<FileNode>, barrelType: BarrelType): Array<FileNode> {
-  // Only include files that live inside this outputPath
+  // Only include files that live inside this outputPath and have a recognised source extension
   const relevantFiles = files.filter((f) => {
     const normalizedFilePath = f.path.replace(/\\/g, '/')
     const normalizedOutputPath = outputPath.replace(/\\/g, '/')
-    return normalizedFilePath.startsWith(normalizedOutputPath + '/') && !normalizedFilePath.endsWith(`/${BARREL_FILENAME}`)
+    if (!normalizedFilePath.startsWith(normalizedOutputPath + '/')) return false
+    if (normalizedFilePath.endsWith(`/${BARREL_FILENAME}`)) return false
+    const dotIndex = normalizedFilePath.lastIndexOf('.')
+    const ext = dotIndex === -1 ? '' : normalizedFilePath.slice(dotIndex)
+    return SOURCE_EXTENSIONS.has(ext)
   })
 
   if (relevantFiles.length === 0) return []
