@@ -360,6 +360,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/middleware-barrel':
+        specifier: workspace:*
+        version: link:../middleware-barrel
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts

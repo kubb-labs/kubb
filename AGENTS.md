@@ -28,7 +28,7 @@ packages/
 
 - **Monorepo** - Uses pnpm workspaces and Turborepo
 - **Module system** - ESM-only (`type: "module"`)
-- **Node version** - 20
+- **Node version** - 22
 - **Versioning** - Changesets
 - **CI/CD** - GitHub Actions
 

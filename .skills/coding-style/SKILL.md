@@ -48,7 +48,7 @@ Follow the PR checklist and run the commands above in the same order: **format â
 
 - **Monorepo**: Managed by pnpm workspaces and Turborepo
 - **Module system**: ESM-only (`type: "module"` across repo)
-- **Node version**: 20
+- **Node version**: 22
 - **Testing Library**: Vitest
 - **Versioning**: Changesets for versioning and publishing
 - **CI/CD**: GitHub Actions
