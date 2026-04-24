@@ -53,11 +53,11 @@
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
-  "peerDependencies": {
-    "@kubb/core": "workspace:*"
-  },
   "devDependencies": {
     "@internals/utils": "workspace:*"
+  },
+  "peerDependencies": {
+    "@kubb/core": "workspace:*"
   },
   "engines": {
     "node": ">=22"
