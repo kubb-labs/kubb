@@ -1,5 +1,13 @@
 # @kubb/cli
 
+## 5.0.0-alpha.62
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/adapter-oas@5.0.0-alpha.62
+  - @kubb/core@5.0.0-alpha.62
+
 ## 5.0.0-alpha.61
 
 ### Patch Changes
