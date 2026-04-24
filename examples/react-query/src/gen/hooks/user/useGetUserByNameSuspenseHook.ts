@@ -10,7 +10,7 @@ import type { Client, RequestConfig, ResponseErrorConfig } from '../../.kubb/fet
 import { fetch } from '../../.kubb/fetch.ts'
 import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/GetUserByName.ts'
 
-export const getUserByNameSuspenseQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] }) =>
+export const getUserByNameSuspenseQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] | undefined }) =>
   ['v5', { url: '/user/:username', params: { username: username } }] as const
 
 export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspenseQueryKey>
@@ -34,7 +34,7 @@ export async function getUserByNameSuspenseHook(
 }
 
 export function getUserByNameSuspenseQueryOptionsHook(
-  { username }: { username: GetUserByNamePathParams['username'] },
+  { username }: { username: GetUserByNamePathParams['username'] | undefined },
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = getUserByNameSuspenseQueryKey({ username })
@@ -42,7 +42,7 @@ export function getUserByNameSuspenseQueryOptionsHook(
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getUserByNameSuspenseHook({ username: username }, { ...config, signal: config.signal ?? signal })
+      return getUserByNameSuspenseHook({ username: username! }, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -52,7 +52,7 @@ export function getUserByNameSuspenseQueryOptionsHook(
  * {@link /user/:username}
  */
 export function useGetUserByNameSuspenseHook<TData = GetUserByNameQueryResponse, TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey>(
-  { username }: { username: GetUserByNamePathParams['username'] },
+  { username }: { username: GetUserByNamePathParams['username'] | undefined },
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryKey>> & {
       client?: QueryClient

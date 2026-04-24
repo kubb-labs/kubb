@@ -89,7 +89,11 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, page
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing, override: (item) => ({ ...item, type: `${item.type} | undefined` }) }),
+          children: getPathParams(typeSchemas.pathParams, {
+            typed: true,
+            casing: paramsCasing,
+            override: (item) => ({ ...item, type: `${item.type} | undefined` }),
+          }),
           default: isAllOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
         }
       : undefined,

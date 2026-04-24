@@ -27,7 +27,11 @@ type GetParamsProps = {
 
 function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
   if (paramsType === 'object') {
-    const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing, override: (item) => ({ ...item, type: `${item.type} | undefined` }) })
+    const pathParams = getPathParams(typeSchemas.pathParams, {
+      typed: true,
+      casing: paramsCasing,
+      override: (item) => ({ ...item, type: `${item.type} | undefined` }),
+    })
 
     const children = {
       ...pathParams,
@@ -73,7 +77,11 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing, override: (item) => ({ ...item, type: `${item.type} | undefined` }) }),
+          children: getPathParams(typeSchemas.pathParams, {
+            typed: true,
+            casing: paramsCasing,
+            override: (item) => ({ ...item, type: `${item.type} | undefined` }),
+          }),
           default: getDefaultValue(typeSchemas.pathParams?.schema),
         }
       : undefined,

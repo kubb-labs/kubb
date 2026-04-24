@@ -217,7 +217,7 @@ export function useFindPetsByTags<
   return query
 }
 
-export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId'] | undefined) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 
@@ -237,13 +237,13 @@ export async function getPetById(petId: GetPetByIdPathParams['petId'], config: P
   return res.data
 }
 
-export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'] | undefined, config: Partial<RequestConfig> & { client?: Client } = {}) {
   const queryKey = getPetByIdQueryKey(petId)
   return queryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryResponse, typeof queryKey>({
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getPetById(petId, { ...config, signal: config.signal ?? signal })
+      return getPetById(petId!, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -254,7 +254,7 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], con
  * {@link /pet/:petId}
  */
 export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetPetByIdQueryResponse, TQueryKey extends QueryKey = GetPetByIdQueryKey>(
-  petId: GetPetByIdPathParams['petId'],
+  petId: GetPetByIdPathParams['petId'] | undefined,
   options: {
     query?: Partial<QueryObserverOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
@@ -335,7 +335,8 @@ export function useGetInventory<TData = GetInventoryQueryResponse, TQueryData = 
   return query
 }
 
-export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
+export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId'] | undefined) =>
+  [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 
@@ -355,13 +356,13 @@ export async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], c
   return res.data
 }
 
-export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderId'] | undefined, config: Partial<RequestConfig> & { client?: Client } = {}) {
   const queryKey = getOrderByIdQueryKey(orderId)
   return queryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, GetOrderByIdQueryResponse, typeof queryKey>({
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getOrderById(orderId, { ...config, signal: config.signal ?? signal })
+      return getOrderById(orderId!, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -372,7 +373,7 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
  * {@link /store/order/:orderId}
  */
 export function useGetOrderById<TData = GetOrderByIdQueryResponse, TQueryData = GetOrderByIdQueryResponse, TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
-  orderId: GetOrderByIdPathParams['orderId'],
+  orderId: GetOrderByIdPathParams['orderId'] | undefined,
   options: {
     query?: Partial<QueryObserverOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
@@ -505,7 +506,8 @@ export function useLogoutUser<TData = LogoutUserQueryResponse, TQueryData = Logo
   return query
 }
 
-export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
+export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username'] | undefined) =>
+  [{ url: '/user/:username', params: { username: username } }] as const
 
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
 
@@ -524,13 +526,16 @@ export async function getUserByName(username: GetUserByNamePathParams['username'
   return res.data
 }
 
-export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function getUserByNameQueryOptions(
+  username: GetUserByNamePathParams['username'] | undefined,
+  config: Partial<RequestConfig> & { client?: Client } = {},
+) {
   const queryKey = getUserByNameQueryKey(username)
   return queryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryResponse, typeof queryKey>({
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getUserByName(username, { ...config, signal: config.signal ?? signal })
+      return getUserByName(username!, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -544,7 +549,7 @@ export function useGetUserByName<
   TQueryData = GetUserByNameQueryResponse,
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(
-  username: GetUserByNamePathParams['username'],
+  username: GetUserByNamePathParams['username'] | undefined,
   options: {
     query?: Partial<
       QueryObserverOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryData, TQueryKey>
@@ -694,7 +699,7 @@ export function useFindPetsByTagsSuspense<TData = FindPetsByTagsQueryResponse, T
   return query
 }
 
-export const getPetByIdSuspenseQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+export const getPetByIdSuspenseQueryKey = (petId: GetPetByIdPathParams['petId'] | undefined) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 
 export type GetPetByIdSuspenseQueryKey = ReturnType<typeof getPetByIdSuspenseQueryKey>
 
@@ -714,13 +719,13 @@ export async function getPetByIdSuspense(petId: GetPetByIdPathParams['petId'], c
   return res.data
 }
 
-export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petId'] | undefined, config: Partial<RequestConfig> & { client?: Client } = {}) {
   const queryKey = getPetByIdSuspenseQueryKey(petId)
   return queryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryResponse, typeof queryKey>({
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getPetByIdSuspense(petId, { ...config, signal: config.signal ?? signal })
+      return getPetByIdSuspense(petId!, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -731,7 +736,7 @@ export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petI
  * {@link /pet/:petId}
  */
 export function useGetPetByIdSuspense<TData = GetPetByIdQueryResponse, TQueryKey extends QueryKey = GetPetByIdSuspenseQueryKey>(
-  petId: GetPetByIdPathParams['petId'],
+  petId: GetPetByIdPathParams['petId'] | undefined,
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryKey>> & {
       client?: QueryClient
@@ -812,7 +817,7 @@ export function useGetInventorySuspense<TData = GetInventoryQueryResponse, TQuer
   return query
 }
 
-export const getOrderByIdSuspenseQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
+export const getOrderByIdSuspenseQueryKey = (orderId: GetOrderByIdPathParams['orderId'] | undefined) =>
   [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 
 export type GetOrderByIdSuspenseQueryKey = ReturnType<typeof getOrderByIdSuspenseQueryKey>
@@ -833,13 +838,16 @@ export async function getOrderByIdSuspense(orderId: GetOrderByIdPathParams['orde
   return res.data
 }
 
-export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function getOrderByIdSuspenseQueryOptions(
+  orderId: GetOrderByIdPathParams['orderId'] | undefined,
+  config: Partial<RequestConfig> & { client?: Client } = {},
+) {
   const queryKey = getOrderByIdSuspenseQueryKey(orderId)
   return queryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, GetOrderByIdQueryResponse, typeof queryKey>({
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getOrderByIdSuspense(orderId, { ...config, signal: config.signal ?? signal })
+      return getOrderByIdSuspense(orderId!, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -850,7 +858,7 @@ export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams
  * {@link /store/order/:orderId}
  */
 export function useGetOrderByIdSuspense<TData = GetOrderByIdQueryResponse, TQueryKey extends QueryKey = GetOrderByIdSuspenseQueryKey>(
-  orderId: GetOrderByIdPathParams['orderId'],
+  orderId: GetOrderByIdPathParams['orderId'] | undefined,
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, TData, TQueryKey>> & {
       client?: QueryClient
@@ -983,7 +991,7 @@ export function useLogoutUserSuspense<TData = LogoutUserQueryResponse, TQueryKey
   return query
 }
 
-export const getUserByNameSuspenseQueryKey = (username: GetUserByNamePathParams['username']) =>
+export const getUserByNameSuspenseQueryKey = (username: GetUserByNamePathParams['username'] | undefined) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 
 export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspenseQueryKey>
@@ -1003,13 +1011,16 @@ export async function getUserByNameSuspense(username: GetUserByNamePathParams['u
   return res.data
 }
 
-export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function getUserByNameSuspenseQueryOptions(
+  username: GetUserByNamePathParams['username'] | undefined,
+  config: Partial<RequestConfig> & { client?: Client } = {},
+) {
   const queryKey = getUserByNameSuspenseQueryKey(username)
   return queryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryResponse, typeof queryKey>({
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getUserByNameSuspense(username, { ...config, signal: config.signal ?? signal })
+      return getUserByNameSuspense(username!, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -1019,7 +1030,7 @@ export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathPar
  * {@link /user/:username}
  */
 export function useGetUserByNameSuspense<TData = GetUserByNameQueryResponse, TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey>(
-  username: GetUserByNamePathParams['username'],
+  username: GetUserByNamePathParams['username'] | undefined,
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryKey>> & {
       client?: QueryClient

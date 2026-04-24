@@ -3,7 +3,7 @@ import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from 
 import type { FindPetsByStatus400, FindPetsByStatusPathParams, FindPetsByStatusQueryResponse } from '../../../models/ts/petController/FindPetsByStatus.ts'
 import { findPetsByStatus } from '../../axios/petService/findPetsByStatus.ts'
 
-export const findPetsByStatusQueryKeySWR = ({ stepId }: { stepId: FindPetsByStatusPathParams['stepId'] }) =>
+export const findPetsByStatusQueryKeySWR = ({ stepId }: { stepId: FindPetsByStatusPathParams['stepId'] | undefined }) =>
   [{ url: '/pet/findByStatus/:step_id', params: { stepId: stepId } }] as const
 
 export type FindPetsByStatusQueryKeySWR = ReturnType<typeof findPetsByStatusQueryKeySWR>

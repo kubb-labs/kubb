@@ -8,7 +8,8 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
 import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/GetOrderById.ts'
 
-export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
+export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId'] | undefined) =>
+  [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 

@@ -9,13 +9,13 @@ import type {
 } from '../../../models/ts/userController/GetUserByName.ts'
 import { getUserByName } from '../../axios/userService/getUserByName.ts'
 
-export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] }) =>
+export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] | undefined }) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
 
 export function getUserByNameQueryOptions(
-  { username }: { username: GetUserByNamePathParams['username'] },
+  { username }: { username: GetUserByNamePathParams['username'] | undefined },
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = getUserByNameQueryKey({ username })
@@ -28,7 +28,7 @@ export function getUserByNameQueryOptions(
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getUserByName({ username: username }, { ...config, signal: config.signal ?? signal })
+      return getUserByName({ username: username! }, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -42,7 +42,7 @@ export function useGetUserByName<
   TQueryData = ResponseConfig<GetUserByNameQueryResponse>,
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(
-  { username }: { username: GetUserByNamePathParams['username'] },
+  { username }: { username: GetUserByNamePathParams['username'] | undefined },
   options: {
     query?: Partial<
       QueryObserverOptions<ResponseConfig<GetUserByNameQueryResponse>, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryData, TQueryKey>

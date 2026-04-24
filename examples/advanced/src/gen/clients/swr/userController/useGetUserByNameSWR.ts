@@ -8,7 +8,7 @@ import type {
 } from '../../../models/ts/userController/GetUserByName.ts'
 import { getUserByName } from '../../axios/userService/getUserByName.ts'
 
-export const getUserByNameQueryKeySWR = ({ username }: { username: GetUserByNamePathParams['username'] }) =>
+export const getUserByNameQueryKeySWR = ({ username }: { username: GetUserByNamePathParams['username'] | undefined }) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 
 export type GetUserByNameQueryKeySWR = ReturnType<typeof getUserByNameQueryKeySWR>

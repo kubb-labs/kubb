@@ -11,7 +11,7 @@ import type { MaybeRefOrGetter } from 'vue'
 import { toValue } from 'vue'
 import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/GetOrderById.ts'
 
-export const getOrderByIdQueryKey = ({ orderId }: { orderId: MaybeRefOrGetter<GetOrderByIdPathParams['orderId']> }) =>
+export const getOrderByIdQueryKey = ({ orderId }: { orderId: MaybeRefOrGetter<GetOrderByIdPathParams['orderId'] | undefined> }) =>
   [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
@@ -33,7 +33,7 @@ export async function getOrderById({ orderId }: { orderId: GetOrderByIdPathParam
 }
 
 export function getOrderByIdQueryOptions(
-  { orderId }: { orderId: MaybeRefOrGetter<GetOrderByIdPathParams['orderId']> },
+  { orderId }: { orderId: MaybeRefOrGetter<GetOrderByIdPathParams['orderId'] | undefined> },
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = getOrderByIdQueryKey({ orderId })
@@ -41,7 +41,7 @@ export function getOrderByIdQueryOptions(
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getOrderById(toValue({ orderId: toValue(orderId) }), { ...config, signal: config.signal ?? signal })
+      return getOrderById(toValue({ orderId: toValue(orderId)! }), { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -52,7 +52,7 @@ export function getOrderByIdQueryOptions(
  * {@link /store/order/:orderId}
  */
 export function useGetOrderById<TData = GetOrderByIdQueryResponse, TQueryData = GetOrderByIdQueryResponse, TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
-  { orderId }: { orderId: MaybeRefOrGetter<GetOrderByIdPathParams['orderId']> },
+  { orderId }: { orderId: MaybeRefOrGetter<GetOrderByIdPathParams['orderId'] | undefined> },
   options: {
     query?: Partial<UseQueryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient

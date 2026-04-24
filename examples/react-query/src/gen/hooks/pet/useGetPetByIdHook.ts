@@ -10,7 +10,7 @@ import type { Client, RequestConfig, ResponseErrorConfig } from '../../.kubb/fet
 import { fetch } from '../../.kubb/fetch.ts'
 import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/GetPetById.ts'
 
-export const getPetByIdQueryKey = ({ pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] }) =>
+export const getPetByIdQueryKey = ({ pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] | undefined }) =>
   ['v5', { url: '/pet/:pet_id', params: { pet_id: pet_id } }] as const
 
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
@@ -31,13 +31,16 @@ export async function getPetByIdHook({ pet_id }: { pet_id: GetPetByIdPathParams[
   return res.data
 }
 
-export function getPetByIdQueryOptionsHook({ pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] }, config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function getPetByIdQueryOptionsHook(
+  { pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] | undefined },
+  config: Partial<RequestConfig> & { client?: Client } = {},
+) {
   const queryKey = getPetByIdQueryKey({ pet_id })
   return queryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryResponse, typeof queryKey>({
     enabled: !!pet_id,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getPetByIdHook({ pet_id: pet_id }, { ...config, signal: config.signal ?? signal })
+      return getPetByIdHook({ pet_id: pet_id! }, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -48,7 +51,7 @@ export function getPetByIdQueryOptionsHook({ pet_id }: { pet_id: GetPetByIdPathP
  * {@link /pet/:pet_id}
  */
 export function useGetPetByIdHook<TData = GetPetByIdQueryResponse, TQueryData = GetPetByIdQueryResponse, TQueryKey extends QueryKey = GetPetByIdQueryKey>(
-  { pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] },
+  { pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] | undefined },
   options: {
     query?: Partial<QueryObserverOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient

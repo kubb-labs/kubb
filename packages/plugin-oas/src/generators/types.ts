@@ -64,6 +64,6 @@ export type SchemaProps<TOptions extends PluginFactoryOptions, TVersion extends 
   ? SchemaV2Props<TOptions>
   : SchemaV1Props<TOptions>
 
-export type Generator<TOptions extends PluginFactoryOptions, TVersion extends Version = Version> =
-  | CoreGenerator<TOptions, TVersion>
-  | ReactGenerator<TOptions, TVersion>
+export type Generator<TOptions extends PluginFactoryOptions, TVersion extends Version = Version> = TVersion extends Version
+  ? CoreGenerator<TOptions, TVersion> | ReactGenerator<TOptions, TVersion>
+  : never
