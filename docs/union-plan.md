@@ -74,9 +74,9 @@ const unionBase = {
 ### 3. Test Coverage
 
 Added comprehensive tests to verify:
-- `combinator='oneOf'` is set when only oneOf is present
-- `combinator='anyOf'` is set when only anyOf is present
-- oneOf is prioritized when both are present
+- `combinator='exclusive'` is set when only oneOf is present
+- `combinator='inclusive'` is set when only anyOf is present
+- exclusive (oneOf) is prioritized when both are present
 - oneOf without explicit discriminator is handled correctly
 
 ## Impact on Plugins
