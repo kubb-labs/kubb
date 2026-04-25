@@ -922,10 +922,7 @@ describe('parseSchema oneOf / anyOf', () => {
     // Test case from issue #14: oneOf should be preserved for validation
     const node = parseSchema(ctx, {
       schema: {
-        oneOf: [
-          { $ref: '#/components/schemas/TypeA' },
-          { $ref: '#/components/schemas/TypeB' },
-        ],
+        oneOf: [{ $ref: '#/components/schemas/TypeA' }, { $ref: '#/components/schemas/TypeB' }],
       },
     })
 
