@@ -15,6 +15,7 @@ export default defineConfig({
     '**/.next/**',
     '**/.output/**',
     '**/.nitro/**',
+    '**/CHANGELOG.md',
   ],
   rules: {
     'no-shadow-restricted-names': 'off',
