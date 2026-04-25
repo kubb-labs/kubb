@@ -59,17 +59,18 @@ declare global {
  * })
  * ```
  */
+
+let ctx: KubbBuildStartContext | undefined
+const excludedPrefixes = new Set<string>()
+
 export const middlewareBarrel = defineMiddleware({
   name: 'middleware-barrel',
-  install(hooks) {
-    let ctx: KubbBuildStartContext | undefined
-    const excludedPrefixes = new Set<string>()
-
-    hooks.on('kubb:build:start', (buildCtx) => {
+  hooks: {
+    'kubb:build:start'(buildCtx) {
       ctx = buildCtx
-    })
-
-    hooks.on('kubb:plugin:end', ({ plugin }) => {
+      excludedPrefixes.clear()
+    },
+    'kubb:plugin:end'({ plugin }) {
       if (!ctx) return
 
       const barrelType = plugin.options.output?.barrelType ?? ctx.config.output.barrelType ?? 'named'
@@ -89,9 +90,8 @@ export const middlewareBarrel = defineMiddleware({
       if (barrelFiles.length > 0) {
         ctx.upsertFile(...barrelFiles)
       }
-    })
-
-    hooks.on('kubb:plugins:end', ({ files, config, upsertFile }) => {
+    },
+    'kubb:plugins:end'({ files, config, upsertFile }) {
       const rootBarrelType = config.output.barrelType ?? 'named'
       if (!rootBarrelType) return
 
@@ -106,6 +106,6 @@ export const middlewareBarrel = defineMiddleware({
       if (rootBarrelFiles.length > 0) {
         upsertFile(...rootBarrelFiles)
       }
-    })
+    },
   },
 })

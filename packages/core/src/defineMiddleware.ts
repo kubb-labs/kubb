@@ -1,15 +1,10 @@
-import type { AsyncEventEmitter } from '@internals/utils'
 import type { KubbHooks } from './Kubb.ts'
 
 /**
  * A middleware observes and post-processes the build output produced by plugins.
- * It attaches listeners to the shared `hooks` emitter before the plugin execution loop
- * begins and reacts to lifecycle events (e.g. `kubb:plugin:end`, `kubb:build:end`) to
- * inject barrel files or perform other cross-cutting concerns.
- *
- * Middleware listeners are always registered **after** all plugin listeners, because
- * `createKubb` installs middleware only after the `PluginDriver` has registered every
- * plugin's hooks.  This means middleware hooks for any event always fire last.
+ * It declares event handlers under a `hooks` object which are registered on the
+ * shared emitter after all plugin hooks, so middleware handlers for any event
+ * always fire last.
  *
  * @example
  * ```ts
@@ -17,10 +12,10 @@ import type { KubbHooks } from './Kubb.ts'
  *
  * export const myMiddleware = defineMiddleware({
  *   name: 'my-middleware',
- *   install(hooks) {
- *     hooks.on('kubb:build:end', ({ files }) => {
+ *   hooks: {
+ *     'kubb:build:end'({ files }) {
  *       console.log(`Build complete with ${files.length} files`)
- *     })
+ *     },
  *   },
  * })
  * ```
@@ -31,10 +26,13 @@ export type Middleware = {
    */
   name: string
   /**
-   * Called during `createKubb` after `setup()` but before the plugin
-   * execution loop starts. Attach listeners to `hooks` here.
+   * Lifecycle event handlers for this middleware.
+   * Any event from the global `KubbHooks` map can be subscribed to here.
+   * Handlers are registered after all plugin handlers, so they always fire last.
    */
-  install(hooks: AsyncEventEmitter<KubbHooks>): void
+  hooks: {
+    [K in keyof KubbHooks]?: (...args: KubbHooks[K]) => void | Promise<void>
+  }
 }
 
 /**
@@ -46,10 +44,10 @@ export type Middleware = {
  * ```ts
  * export const myMiddleware = defineMiddleware({
  *   name: 'my-middleware',
- *   install(hooks) {
- *     hooks.on('kubb:build:end', ({ files }) => {
+ *   hooks: {
+ *     'kubb:build:end'({ files }) {
  *       console.log(`Build complete with ${files.length} files`)
- *     })
+ *     },
  *   },
  * })
  * ```

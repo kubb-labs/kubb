@@ -48,59 +48,55 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
 
 describe('defineMiddleware', () => {
   it('returns the middleware object unchanged', () => {
-    const install = vi.fn()
-    const middleware = defineMiddleware({ name: 'my-middleware', install })
+    const buildEnd = vi.fn()
+    const middleware = defineMiddleware({ name: 'my-middleware', hooks: { 'kubb:build:end': buildEnd } })
 
     expect(middleware.name).toBe('my-middleware')
-    expect(middleware.install).toBe(install)
+    expect(middleware.hooks['kubb:build:end']).toBe(buildEnd)
   })
 
   it('satisfies the Middleware type', () => {
     const middleware: Middleware = defineMiddleware({
       name: 'typed-middleware',
-      install(_hooks) {},
+      hooks: {},
     })
 
     expect(middleware.name).toBe('typed-middleware')
   })
 
-  it('install() receives an AsyncEventEmitter instance', () => {
-    const receivedHooks: unknown[] = []
+  it('hooks object is accessible on the middleware instance', () => {
+    const handler = vi.fn()
     const middleware = defineMiddleware({
       name: 'hooks-check',
-      install(hooks) {
-        receivedHooks.push(hooks)
+      hooks: {
+        'kubb:build:end': handler,
       },
     })
 
-    const hooks = new AsyncEventEmitter<KubbHooks>()
-    middleware.install(hooks)
-
-    expect(receivedHooks).toHaveLength(1)
-    expect(receivedHooks[0]).toBe(hooks)
+    expect(middleware.hooks['kubb:build:end']).toBe(handler)
   })
 })
 
 describe('middleware runtime integration with createKubb', () => {
-  it('install() is called during build', async () => {
-    const installMock = vi.fn()
-    const middleware = defineMiddleware({ name: 'test-mw', install: installMock })
+  it('hooks are registered during build', async () => {
+    const buildEndMock = vi.fn()
+    const middleware = defineMiddleware({ name: 'test-mw', hooks: { 'kubb:build:end': buildEndMock } })
 
     await createKubb(makeConfig({ middleware: [middleware] }), { hooks: new AsyncEventEmitter<KubbHooks>() }).build()
 
-    expect(installMock).toHaveBeenCalledOnce()
+    expect(buildEndMock).toHaveBeenCalledOnce()
   })
 
-  it('install() is called for each middleware in the array', async () => {
-    const install1 = vi.fn()
-    const install2 = vi.fn()
-    const mw1 = defineMiddleware({ name: 'mw-1', install: install1 })
-    const mw2 = defineMiddleware({ name: 'mw-2', install: install2 })
+  it('hooks are registered for each middleware in the array', async () => {
+    const handler1 = vi.fn()
+    const handler2 = vi.fn()
+    const mw1 = defineMiddleware({ name: 'mw-1', hooks: { 'kubb:build:end': handler1 } })
+    const mw2 = defineMiddleware({ name: 'mw-2', hooks: { 'kubb:build:end': handler2 } })
 
     await createKubb(makeConfig({ middleware: [mw1, mw2] }), { hooks: new AsyncEventEmitter<KubbHooks>() }).build()
 
-    expect(install1).toHaveBeenCalledOnce()
-    expect(install2).toHaveBeenCalledOnce()
+    expect(handler1).toHaveBeenCalledOnce()
+    expect(handler2).toHaveBeenCalledOnce()
   })
 
   it('no error when middleware array is omitted', async () => {
@@ -121,10 +117,10 @@ describe('middleware runtime integration with createKubb', () => {
 
     const middleware = defineMiddleware({
       name: 'ordering-mw',
-      install(hooks) {
-        hooks.on('kubb:plugin:setup', () => {
+      hooks: {
+        'kubb:plugin:setup'() {
           callOrder.push('middleware')
-        })
+        },
       },
     })
 
@@ -148,10 +144,10 @@ describe('middleware runtime integration with createKubb', () => {
 
     const middleware = defineMiddleware({
       name: 'build-end-observer',
-      install(hooks) {
-        hooks.on('kubb:build:end', ({ files }) => {
+      hooks: {
+        'kubb:build:end'({ files }) {
           capturedFiles.push(...files)
-        })
+        },
       },
     })
 
@@ -174,11 +170,11 @@ describe('middleware runtime integration with createKubb', () => {
 
     const middleware = defineMiddleware({
       name: 'plugins-end-injector',
-      install(hooks) {
-        hooks.on('kubb:plugins:end', ({ upsertFile }) => {
+      hooks: {
+        'kubb:plugins:end'({ upsertFile }) {
           pluginsEndFired = true
           upsertFile(injectedFile)
-        })
+        },
       },
     })
 
