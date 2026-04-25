@@ -820,12 +820,12 @@ describe('parseSchema oneOf / anyOf', () => {
     expect(node.type).toBe('union')
   })
 
-  it('sets combinator to exclusive when oneOf is present', () => {
+  it('sets mode to one when oneOf is present', () => {
     const node = parseSchema(ctx, {
       schema: { oneOf: [{ type: 'string' }, { type: 'number' }] },
     })
 
-    expect(ast.narrowSchema(node, 'union')?.combinator).toBe('exclusive')
+    expect(ast.narrowSchema(node, 'union')?.mode).toBe('one')
   })
 
   it('maps anyOf to a union node', () => {
@@ -836,15 +836,15 @@ describe('parseSchema oneOf / anyOf', () => {
     expect(node.type).toBe('union')
   })
 
-  it('sets combinator to inclusive when only anyOf is present', () => {
+  it('sets mode to any when only anyOf is present', () => {
     const node = parseSchema(ctx, {
       schema: { anyOf: [{ type: 'string' }, { type: 'number' }] },
     })
 
-    expect(ast.narrowSchema(node, 'union')?.combinator).toBe('inclusive')
+    expect(ast.narrowSchema(node, 'union')?.mode).toBe('any')
   })
 
-  it('prioritizes exclusive (oneOf) when both oneOf and anyOf are present', () => {
+  it('prioritizes one (oneOf) when both oneOf and anyOf are present', () => {
     const node = parseSchema(ctx, {
       schema: {
         oneOf: [{ type: 'string' }],
@@ -852,7 +852,7 @@ describe('parseSchema oneOf / anyOf', () => {
       },
     })
 
-    expect(ast.narrowSchema(node, 'union')?.combinator).toBe('exclusive')
+    expect(ast.narrowSchema(node, 'union')?.mode).toBe('one')
   })
 
   it('combines oneOf and anyOf members into a single union', () => {
@@ -928,7 +928,7 @@ describe('parseSchema oneOf / anyOf', () => {
 
     const unionNode = ast.narrowSchema(node, 'union')
     expect(unionNode?.type).toBe('union')
-    expect(unionNode?.combinator).toBe('exclusive')
+    expect(unionNode?.mode).toBe('one')
     expect(unionNode?.members).toHaveLength(2)
     expect(unionNode?.members?.[0]?.type).toBe('ref')
     expect(unionNode?.members?.[1]?.type).toBe('ref')

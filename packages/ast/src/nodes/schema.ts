@@ -274,10 +274,10 @@ export type UnionSchemaNode = CompositeSchemaNodeBase & {
    */
   discriminatorPropertyName?: string
   /**
-   * Union combinator: 'exclusive' means exactly one member must be valid (from `oneOf`),
-   * 'inclusive' means any number of members can be valid (from `anyOf`).
+   * Union match mode: 'one' means exactly one member must be valid (from `oneOf`),
+   * 'any' means any number of members can be valid (from `anyOf`).
    */
-  combinator?: 'exclusive' | 'inclusive'
+  mode?: 'one' | 'any'
 }
 
 /**

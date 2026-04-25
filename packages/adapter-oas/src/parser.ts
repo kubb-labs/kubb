@@ -242,11 +242,11 @@ function createSchemaParser(ctx: OasParserContext) {
     }
 
     const unionMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
-    const combinator: 'exclusive' | 'inclusive' = schema.oneOf ? 'exclusive' : 'inclusive'
+    const mode: 'one' | 'any' = schema.oneOf ? 'one' : 'any'
     const unionBase = {
       ...buildSchemaNode(schema, name, nullable, defaultValue),
       discriminatorPropertyName: isDiscriminator(schema) ? schema.discriminator.propertyName : undefined,
-      combinator,
+      mode,
     }
     const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
     const sharedPropertiesNode = schema.properties
