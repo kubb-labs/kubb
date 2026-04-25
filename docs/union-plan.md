@@ -45,13 +45,13 @@ const invalidData = {
 
 ### 1. AST Enhancement
 
-Added `unionKind` field to `UnionSchemaNode` in `packages/ast/src/nodes/schema.ts`:
+Added `combinator` field to `UnionSchemaNode` in `packages/ast/src/nodes/schema.ts`:
 
 ```typescript
 export type UnionSchemaNode = CompositeSchemaNodeBase & {
   type: 'union'
   discriminatorPropertyName?: string
-  unionKind?: 'exclusive' | 'inclusive'  // NEW: 'exclusive' = oneOf (exactly one), 'inclusive' = anyOf (any number)
+  combinator?: 'exclusive' | 'inclusive'  // NEW: 'exclusive' = oneOf (exactly one), 'inclusive' = anyOf (any number)
 }
 ```
 
@@ -59,23 +59,23 @@ export type UnionSchemaNode = CompositeSchemaNodeBase & {
 
 Modified `convertUnion()` in `packages/adapter-oas/src/parser.ts` to:
 - Determine the union kind from the schema
-- Set `unionKind` on the created union node
+- Set `combinator` on the created union node
 - Prioritize `exclusive` (oneOf) when both keywords are present
 
 ```typescript
-const unionKind: 'exclusive' | 'inclusive' = schema.oneOf ? 'exclusive' : 'inclusive'
+const combinator: 'exclusive' | 'inclusive' = schema.oneOf ? 'exclusive' : 'inclusive'
 const unionBase = {
   ...buildSchemaNode(schema, name, nullable, defaultValue),
   discriminatorPropertyName: isDiscriminator(schema) ? schema.discriminator.propertyName : undefined,
-  unionKind,  // NEW: Preserve union semantics
+  combinator,  // NEW: Preserve union semantics
 }
 ```
 
 ### 3. Test Coverage
 
 Added comprehensive tests to verify:
-- `unionKind='oneOf'` is set when only oneOf is present
-- `unionKind='anyOf'` is set when only anyOf is present
+- `combinator='oneOf'` is set when only oneOf is present
+- `combinator='anyOf'` is set when only anyOf is present
 - oneOf is prioritized when both are present
 - oneOf without explicit discriminator is handled correctly
 
@@ -83,11 +83,11 @@ Added comprehensive tests to verify:
 
 ### Zod Plugin (Example Usage)
 
-With `unionKind` available, the Zod plugin can now implement proper validation:
+With `combinator` available, the Zod plugin can now implement proper validation:
 
 ```typescript
 // In plugin-zod or similar
-if (unionNode.unionKind === 'exclusive') {
+if (unionNode.combinator === 'exclusive') {
   // Use z.union().refine() to enforce exactly one schema matches
   return z.union([schemaA, schemaB]).refine(
     (data) => {
@@ -99,7 +99,7 @@ if (unionNode.unionKind === 'exclusive') {
     },
     { message: 'Exactly one schema must be valid for oneOf' }
   )
-} else if (unionNode.unionKind === 'inclusive') {
+} else if (unionNode.combinator === 'inclusive') {
   // Use z.union() which allows any combination
   return z.union([schemaA, schemaB])
 }
@@ -107,38 +107,38 @@ if (unionNode.unionKind === 'exclusive') {
 
 ### Other Plugins
 
-Any plugin generating validators should check `unionKind` to determine validation semantics:
+Any plugin generating validators should check `combinator` to determine validation semantics:
 - **TypeScript Generator**: May use discriminated unions differently
 - **TypeScript Class Generator**: Can use sealed classes vs inheritance
 - **OpenAPI Generator**: Can include better documentation
 
 ## Backward Compatibility
 
-- `unionKind` is optional, defaulting to `undefined`
-- Existing plugins without `unionKind` awareness continue to work
+- `combinator` is optional, defaulting to `undefined`
+- Existing plugins without `combinator` awareness continue to work
 - The parser maintains all existing behavior except for the new field
 
 ## Files Modified
 
 1. **packages/ast/src/nodes/schema.ts**
-   - Added `unionKind` field to UnionSchemaNode type definition
+   - Added `combinator` field to UnionSchemaNode type definition
 
 2. **packages/adapter-oas/src/parser.ts**
-   - Updated `convertUnion()` to set `unionKind` based on schema
+   - Updated `convertUnion()` to set `combinator` based on schema
 
 3. **packages/adapter-oas/src/parser.test.ts**
-   - Added 5 new test cases for unionKind behavior
+   - Added 5 new test cases for combinator behavior
 
 ## Testing
 
 All existing tests pass (410+ tests in adapter-oas package):
 - Discriminator tests remain unaffected
-- New unionKind tests verify correct behavior
+- New combinator tests verify correct behavior
 - Integration tests ensure backward compatibility
 
 ## Future Enhancements
 
-1. **Plugin Documentation**: Update plugin development guide to cover unionKind usage
+1. **Plugin Documentation**: Update plugin development guide to cover combinator usage
 2. **Validation Utilities**: Add shared validation helpers in @kubb/ast for oneOf/anyOf enforcement
 3. **Error Messages**: Enhance error messages to distinguish between oneOf violations and anyOf violations
 4. **Performance**: Consider caching validation results for complex unions
