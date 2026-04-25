@@ -3,13 +3,14 @@ import type { FileNode } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { getBarrelFiles } from './getBarrelFiles.ts'
 
-function makeFile(path: string, sources: FileNode['sources'] = []): FileNode {
+function makeFile(path: string, sources: FileNode['sources'] = [], extra?: Partial<Parameters<typeof createFile>[0]>): FileNode {
   return createFile({
     path,
     baseName: path.split('/').pop() as `${string}.${string}`,
     sources,
     imports: [],
     exports: [],
+    ...extra,
   })
 }
 
@@ -24,6 +25,15 @@ function makeNonIndexableSource(name: string) {
 const ROOT = '/src/gen/types'
 
 describe('getBarrelFiles', () => {
+  it('barrel files never carry banner or footer, even when source files have them', () => {
+    const files = [makeFile(`${ROOT}/pet.ts`, [], { banner: "'use server'", footer: '// end' })]
+    const barrels = getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all' })
+
+    expect(barrels).toHaveLength(1)
+    expect(barrels[0]!.banner).toBeUndefined()
+    expect(barrels[0]!.footer).toBeUndefined()
+  })
+
   describe("strategy: 'all'", () => {
     it('generates wildcard exports for each file', () => {
       const files = [makeFile(`${ROOT}/pet.ts`), makeFile(`${ROOT}/user.ts`)]

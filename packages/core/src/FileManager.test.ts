@@ -2,13 +2,14 @@ import { createFile, createSource, createText } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { FileManager } from './FileManager.ts'
 
-function makeFile(path: string, sourceValue?: string) {
+function makeFile(path: string, sourceValue?: string, extra?: Partial<Parameters<typeof createFile>[0]>) {
   return createFile({
     path,
     baseName: path.split('/').pop() as `${string}.${string}`,
     sources: sourceValue ? [createSource({ nodes: [createText(sourceValue)] })] : [],
     imports: [],
     exports: [],
+    ...extra,
   })
 }
 
@@ -60,6 +61,34 @@ describe('FileManager', () => {
       manager.upsert(makeFile('/src/foo.ts', 'const b = 2'))
       expect(manager.files).toHaveLength(1)
       expect(manager.files[0]?.sources).toHaveLength(2)
+    })
+
+    it('incoming file banner overrides existing banner (barrel clears plugin banner)', () => {
+      const manager = new FileManager()
+      manager.add(makeFile('/src/index.ts', undefined, { banner: "'use server'" }))
+      manager.upsert(makeFile('/src/index.ts'))
+      expect(manager.files[0]?.banner).toBeUndefined()
+    })
+
+    it('incoming banner is applied when existing file has none', () => {
+      const manager = new FileManager()
+      manager.add(makeFile('/src/index.ts'))
+      manager.upsert(makeFile('/src/index.ts', undefined, { banner: "'use server'" }))
+      expect(manager.files[0]?.banner).toBe("'use server'")
+    })
+
+    it('preserves banner when both files carry the same banner', () => {
+      const manager = new FileManager()
+      manager.add(makeFile('/src/index.ts', undefined, { banner: "'use server'" }))
+      manager.upsert(makeFile('/src/index.ts', 'const x = 1', { banner: "'use server'" }))
+      expect(manager.files[0]?.banner).toBe("'use server'")
+    })
+
+    it('incoming file footer overrides existing footer', () => {
+      const manager = new FileManager()
+      manager.add(makeFile('/src/index.ts', undefined, { footer: '// end' }))
+      manager.upsert(makeFile('/src/index.ts'))
+      expect(manager.files[0]?.footer).toBeUndefined()
     })
   })
 
