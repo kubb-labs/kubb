@@ -191,19 +191,6 @@ export type Config<TInput = Input> = {
      */
     write?: boolean
     /**
-     * Storage backend for generated files.
-     * Defaults to `fsStorage()` — the built-in filesystem driver.
-     * Accepts any object implementing the {@link Storage} interface.
-     * Keys are root-relative paths (e.g. `src/gen/api/getPets.ts`).
-     * @default fsStorage()
-     * @example
-     * ```ts
-     * import { memoryStorage } from '@kubb/core'
-     * storage: memoryStorage()
-     * ```
-     */
-    storage?: Storage
-    /**
      * Specifies the formatting tool to be used.
      * - 'auto' automatically detects and uses oxfmt, biome, or prettier (in that order of preference).
      * - 'oxfmt' uses Oxfmt for code formatting.
@@ -244,6 +231,19 @@ export type Config<TInput = Input> = {
      */
     override?: boolean
   } & ExtractRegistryKey<Kubb.ConfigOptionsRegistry, 'output'>
+  /**
+   * Storage backend for generated files.
+   * Defaults to `fsStorage()` — the built-in filesystem driver.
+   * Accepts any object implementing the {@link Storage} interface.
+   * Keys are root-relative paths (e.g. `src/gen/api/getPets.ts`).
+   * @default fsStorage()
+   * @example
+   * ```ts
+   * import { memoryStorage } from '@kubb/core'
+   * storage: memoryStorage()
+   * ```
+   */
+  storage?: Storage
   /**
    * An array of Kubb plugins used for code generation.
    * Each plugin may declare additional configurable options.

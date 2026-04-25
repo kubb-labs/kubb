@@ -68,7 +68,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
       `  • Output: ${userConfig.output?.path || 'not specified'}`,
       `  • Plugins: ${userConfig.plugins?.length || 0}`,
       'Output Settings:',
-      `  • Storage: ${userConfig.output?.storage ? `custom(${userConfig.output.storage.name})` : userConfig.output?.write === false ? 'disabled' : 'filesystem (default)'}`,
+      `  • Storage: ${userConfig.storage ? `custom(${userConfig.storage.name})` : userConfig.output?.write === false ? 'disabled' : 'filesystem (default)'}`,
       `  • Formatter: ${userConfig.output?.format || 'none'}`,
       `  • Linter: ${userConfig.output?.lint || 'none'}`,
       'Environment:',
@@ -124,7 +124,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     plugins: userConfig.plugins as unknown as Config['plugins'],
   }
 
-  const storage: Storage | null = config.output.write === false ? null : (config.output.storage ?? fsStorage())
+  const storage: Storage | null = config.output.write === false ? null : (config.storage ?? fsStorage())
 
   if (config.output.clean) {
     await hooks.emit('kubb:debug', {
