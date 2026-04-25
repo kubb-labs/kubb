@@ -30,8 +30,8 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       return
     }
 
-    const middleware = options.config.middleware?.length ? options.config.middleware : [middlewareBarrel]
-    const hasBarrelMiddleware = middleware.includes(middlewareBarrel)
+    const middleware = options.config.middleware?.length ? options.config.middleware : [middlewareBarrel()]
+    const hasBarrelMiddleware = middleware.some((m) => m.name === 'middleware-barrel')
     const output = { ...options.config.output }
     if (hasBarrelMiddleware && output.barrelType === undefined) {
       output.barrelType = 'named'

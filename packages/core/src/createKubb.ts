@@ -12,7 +12,7 @@ import type { Kubb } from './Kubb.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.ts'
 import { fsStorage } from './storages/fsStorage.ts'
-import type { AdapterSource, Config, GeneratorContext, KubbHooks, NormalizedPlugin, Storage, UserConfig } from './types.ts'
+import type { AdapterSource, Config, GeneratorContext, KubbHooks, Middleware, NormalizedPlugin, Storage, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import { isInputPath } from './utils/isInputPath.ts'
 
@@ -141,11 +141,16 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
   // Register middleware hooks after all plugin hooks are registered.
   // Because AsyncEventEmitter calls listeners in registration order,
   // middleware hooks for any event fire after all plugin hooks for that event.
+  function registerMiddlewareHook<K extends keyof KubbHooks & string>(event: K, middlewareHooks: Middleware['hooks']) {
+    const handler = middlewareHooks[event]
+    if (handler) {
+      hooks.on(event, handler)
+    }
+  }
+
   for (const middleware of config.middleware ?? []) {
-    for (const [event, handler] of Object.entries(middleware.hooks) as Array<[keyof KubbHooks, ((...args: never[]) => void | Promise<void>) | undefined]>) {
-      if (handler) {
-        hooks.on(event, handler as never)
-      }
+    for (const event of Object.keys(middleware.hooks) as Array<keyof KubbHooks & string>) {
+      registerMiddlewareHook(event, middleware.hooks)
     }
   }
 

@@ -23,7 +23,7 @@ describe('defineConfig', () => {
     parsers: [],
     adapter: createMockedAdapter(),
     plugins: [plugin],
-    middleware: [middlewareBarrel],
+    middleware: [middlewareBarrel()],
   }
 
   test('applies default adapter when not set', () => {
@@ -58,7 +58,7 @@ describe('defineConfig', () => {
     const resolved = config as UserConfig
 
     expect(resolved.middleware).toHaveLength(1)
-    expect(resolved.middleware?.[0]).toBe(middlewareBarrel)
+    expect(resolved.middleware?.[0]?.name).toBe('middleware-barrel')
   })
 
   test("defaults output.barrelType to 'named' when not set", () => {
@@ -89,7 +89,7 @@ describe('defineConfig', () => {
   })
 
   test('preserves existing middleware when non-empty', () => {
-    const customMiddleware = { name: 'custom', install: () => {} }
+    const customMiddleware = { name: 'custom', hooks: {} }
     const config = defineConfig({
       root: '.',
       input: { path: 'spec.yaml' },
@@ -103,7 +103,7 @@ describe('defineConfig', () => {
   })
 
   test('does not default barrelType when middlewareBarrel is not part of middleware', () => {
-    const customMiddleware = { name: 'custom', install: () => {} }
+    const customMiddleware = { name: 'custom', hooks: {} }
     const config = defineConfig({
       root: '.',
       input: { path: 'spec.yaml' },
@@ -116,12 +116,12 @@ describe('defineConfig', () => {
   })
 
   test('defaults barrelType when middlewareBarrel is explicitly listed alongside others', () => {
-    const customMiddleware = { name: 'custom', install: () => {} }
+    const customMiddleware = { name: 'custom', hooks: {} }
     const config = defineConfig({
       root: '.',
       input: { path: 'spec.yaml' },
       output: { path: './gen' },
-      middleware: [customMiddleware, middlewareBarrel],
+      middleware: [customMiddleware, middlewareBarrel()],
     } as UserConfig)
     const resolved = config as UserConfig
 

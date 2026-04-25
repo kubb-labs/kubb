@@ -19,13 +19,13 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
  *
  * - `adapter` defaults to `adapterOas()`
  * - `parsers` defaults to `[parserTs, parserTsx]`
- * - `middleware` defaults to `[middlewareBarrel]`
+ * - `middleware` defaults to `[middlewareBarrel()]`
  * - `output.barrelType` defaults to `'named'` **only when `middlewareBarrel` is part of `middleware`**.
  *   When the user provides a custom middleware list without `middlewareBarrel`, `barrelType` is left untouched.
  */
 function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
-  const middleware = config.middleware?.length ? config.middleware : [middlewareBarrel]
-  const hasBarrelMiddleware = middleware.includes(middlewareBarrel)
+  const middleware = config.middleware?.length ? config.middleware : [middlewareBarrel()]
+  const hasBarrelMiddleware = middleware.some((m) => m.name === 'middleware-barrel')
 
   const output = { ...config.output }
   if (hasBarrelMiddleware && output.barrelType === undefined) {
