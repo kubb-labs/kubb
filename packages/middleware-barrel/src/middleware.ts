@@ -60,52 +60,56 @@ declare global {
  * ```
  */
 
-let ctx: KubbBuildStartContext | undefined
-const excludedPrefixes = new Set<string>()
+function createMiddlewareBarrel() {
+  let ctx: KubbBuildStartContext | undefined
+  const excludedPrefixes = new Set<string>()
 
-export const middlewareBarrel = defineMiddleware({
-  name: 'middleware-barrel',
-  hooks: {
-    'kubb:build:start'(buildCtx) {
-      ctx = buildCtx
-      excludedPrefixes.clear()
+  return defineMiddleware({
+    name: 'middleware-barrel',
+    hooks: {
+      'kubb:build:start'(buildCtx) {
+        ctx = buildCtx
+        excludedPrefixes.clear()
+      },
+      'kubb:plugin:end'({ plugin }) {
+        if (!ctx) return
+
+        const barrelType = plugin.options.output?.barrelType ?? ctx.config.output.barrelType ?? 'named'
+
+        if (!barrelType) {
+          excludedPrefixes.add(getPluginOutputPrefix(plugin, ctx.config))
+          return
+        }
+
+        const barrelFiles = getBarrelFiles({
+          outputPath: resolve(ctx.config.root, ctx.config.output.path, plugin.options.output.path),
+          files: ctx.files,
+          barrelType,
+          recursive: true,
+        })
+
+        if (barrelFiles.length > 0) {
+          ctx.upsertFile(...barrelFiles)
+        }
+      },
+      'kubb:plugins:end'({ files, config, upsertFile }) {
+        const rootBarrelType = config.output.barrelType ?? 'named'
+        if (!rootBarrelType) return
+
+        const filteredFiles = excludedPrefixes.size === 0 ? files : files.filter((f) => !isExcludedPath(f.path, excludedPrefixes))
+
+        const rootBarrelFiles = getBarrelFiles({
+          outputPath: resolve(config.root, config.output.path),
+          files: filteredFiles,
+          barrelType: rootBarrelType,
+        })
+
+        if (rootBarrelFiles.length > 0) {
+          upsertFile(...rootBarrelFiles)
+        }
+      },
     },
-    'kubb:plugin:end'({ plugin }) {
-      if (!ctx) return
+  })
+}
 
-      const barrelType = plugin.options.output?.barrelType ?? ctx.config.output.barrelType ?? 'named'
-
-      if (!barrelType) {
-        excludedPrefixes.add(getPluginOutputPrefix(plugin, ctx.config))
-        return
-      }
-
-      const barrelFiles = getBarrelFiles({
-        outputPath: resolve(ctx.config.root, ctx.config.output.path, plugin.options.output.path),
-        files: ctx.files,
-        barrelType,
-        recursive: true,
-      })
-
-      if (barrelFiles.length > 0) {
-        ctx.upsertFile(...barrelFiles)
-      }
-    },
-    'kubb:plugins:end'({ files, config, upsertFile }) {
-      const rootBarrelType = config.output.barrelType ?? 'named'
-      if (!rootBarrelType) return
-
-      const filteredFiles = excludedPrefixes.size === 0 ? files : files.filter((f) => !isExcludedPath(f.path, excludedPrefixes))
-
-      const rootBarrelFiles = getBarrelFiles({
-        outputPath: resolve(config.root, config.output.path),
-        files: filteredFiles,
-        barrelType: rootBarrelType,
-      })
-
-      if (rootBarrelFiles.length > 0) {
-        upsertFile(...rootBarrelFiles)
-      }
-    },
-  },
-})
+export const middlewareBarrel = createMiddlewareBarrel()
