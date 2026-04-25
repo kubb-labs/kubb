@@ -57,6 +57,7 @@
     "fix-cli-tty-column-error",
     "fix-defineconfig-entrypoint",
     "fix-discriminator-union-types",
+    "fix-middleware-barrel-banner-bleed",
     "fix-middleware-barrel-barrel-type-augmentation",
     "fix-middleware-barrel-generation",
     "fix-middleware-barrel-windows",
