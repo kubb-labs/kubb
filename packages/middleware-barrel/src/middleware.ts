@@ -59,47 +59,49 @@ declare global {
  * ```
  */
 
-const excludedPrefixes = new Set<string>()
+export const middlewareBarrel = defineMiddleware(() => {
+  const excludedPrefixes = new Set<string>()
 
-export const middlewareBarrel = defineMiddleware({
-  name: 'middleware-barrel',
-  hooks: {
-    'kubb:plugin:end'({ plugin, config, files, upsertFile }) {
-      const barrelType = plugin.options.output?.barrelType ?? config.output.barrelType ?? 'named'
+  return {
+    name: 'middleware-barrel',
+    hooks: {
+      'kubb:plugin:end'({ plugin, config, files, upsertFile }) {
+        const barrelType = plugin.options.output?.barrelType ?? config.output.barrelType ?? 'named'
 
-      if (!barrelType) {
-        excludedPrefixes.add(getPluginOutputPrefix(plugin, config))
-        return
-      }
+        if (!barrelType) {
+          excludedPrefixes.add(getPluginOutputPrefix(plugin, config))
+          return
+        }
 
-      const barrelFiles = getBarrelFiles({
-        outputPath: resolve(config.root, config.output.path, plugin.options.output.path),
-        files,
-        barrelType,
-        recursive: true,
-      })
+        const barrelFiles = getBarrelFiles({
+          outputPath: resolve(config.root, config.output.path, plugin.options.output.path),
+          files,
+          barrelType,
+          recursive: true,
+        })
 
-      if (barrelFiles.length > 0) {
-        upsertFile(...barrelFiles)
-      }
+        if (barrelFiles.length > 0) {
+          upsertFile(...barrelFiles)
+        }
+      },
+      'kubb:plugins:end'({ files, config, upsertFile }) {
+        const rootBarrelType = config.output.barrelType ?? 'named'
+
+        const filteredFiles = excludedPrefixes.size === 0 ? files : files.filter((f) => !isExcludedPath(f.path, excludedPrefixes))
+        excludedPrefixes.clear()
+
+        if (!rootBarrelType) return
+
+        const rootBarrelFiles = getBarrelFiles({
+          outputPath: resolve(config.root, config.output.path),
+          files: filteredFiles,
+          barrelType: rootBarrelType,
+        })
+
+        if (rootBarrelFiles.length > 0) {
+          upsertFile(...rootBarrelFiles)
+        }
+      },
     },
-    'kubb:plugins:end'({ files, config, upsertFile }) {
-      const rootBarrelType = config.output.barrelType ?? 'named'
-
-      const filteredFiles = excludedPrefixes.size === 0 ? files : files.filter((f) => !isExcludedPath(f.path, excludedPrefixes))
-      excludedPrefixes.clear()
-
-      if (!rootBarrelType) return
-
-      const rootBarrelFiles = getBarrelFiles({
-        outputPath: resolve(config.root, config.output.path),
-        files: filteredFiles,
-        barrelType: rootBarrelType,
-      })
-
-      if (rootBarrelFiles.length > 0) {
-        upsertFile(...rootBarrelFiles)
-      }
-    },
-  },
+  }
 })

@@ -36,11 +36,17 @@ export type Middleware = {
 }
 
 /**
- * Identity factory for middleware.
- * Returns the middleware object unchanged but provides a typed entry-point
- * to define middleware with proper inference.
+ * A middleware factory: a zero-argument function that returns a fresh `Middleware`
+ * instance each time it is called. Use this form when the middleware needs
+ * per-build state (e.g. a `Set` accumulator) so that each `createKubb` invocation
+ * gets its own isolated closure.
+ */
+export type MiddlewareFactory = () => Middleware
+
+/**
+ * Define middleware using either a plain object or a factory function.
  *
- * @example
+ * **Object form** – use when the middleware is stateless:
  * ```ts
  * export const myMiddleware = defineMiddleware({
  *   name: 'my-middleware',
@@ -51,7 +57,25 @@ export type Middleware = {
  *   },
  * })
  * ```
+ *
+ * **Factory form** – use when the middleware needs per-build state so that each
+ * `createKubb` invocation receives a fresh, isolated instance:
+ * ```ts
+ * export const myMiddleware = defineMiddleware(() => {
+ *   const seen = new Set<string>()
+ *   return {
+ *     name: 'my-middleware',
+ *     hooks: {
+ *       'kubb:plugin:end'({ plugin }) {
+ *         seen.add(plugin.name)
+ *       },
+ *     },
+ *   }
+ * })
+ * ```
  */
-export function defineMiddleware(middleware: Middleware): Middleware {
-  return middleware
+export function defineMiddleware(factory: MiddlewareFactory): MiddlewareFactory
+export function defineMiddleware(middleware: Middleware): Middleware
+export function defineMiddleware(input: Middleware | MiddlewareFactory): Middleware | MiddlewareFactory {
+  return input
 }

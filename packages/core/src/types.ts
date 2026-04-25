@@ -4,7 +4,7 @@ import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
-import type { Middleware } from './defineMiddleware.ts'
+import type { Middleware, MiddlewareFactory } from './defineMiddleware.ts'
 import type { Parser } from './defineParser.ts'
 import type { Plugin } from './definePlugin.ts'
 import type { KubbHooks } from './Kubb.ts'
@@ -266,7 +266,7 @@ export type Config<TInput = Input> = {
    * })
    * ```
    */
-  middleware?: Array<Middleware>
+  middleware?: Array<Middleware | MiddlewareFactory>
   /**
    * Project-wide renderer factory. All plugins and generators that do not declare their own
    * `renderer` ultimately fall back to this value.
@@ -604,7 +604,7 @@ export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Logger<
 
 export type { Storage } from './createStorage.ts'
 export type { Generator } from './defineGenerator.ts'
-export type { Middleware } from './defineMiddleware.ts'
+export type { Middleware, MiddlewareFactory } from './defineMiddleware.ts'
 export type { Plugin } from './definePlugin.ts'
 export type { Kubb, KubbHooks } from './Kubb.ts'
 
