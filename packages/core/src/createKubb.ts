@@ -142,7 +142,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
   // Because AsyncEventEmitter calls listeners in registration order,
   // middleware hooks for any event fire after all plugin hooks for that event.
   for (const middleware of config.middleware ?? []) {
-    for (const [event, handler] of Object.entries(middleware.hooks) as Array<[keyof typeof middleware.hooks, (...args: unknown[]) => unknown]>) {
+    for (const [event, handler] of Object.entries(middleware.hooks) as Array<[keyof KubbHooks, ((...args: never[]) => void | Promise<void>) | undefined]>) {
       if (handler) {
         hooks.on(event, handler as never)
       }
