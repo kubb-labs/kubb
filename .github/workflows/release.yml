@@ -55,6 +55,12 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+      - name: Format
+        run: pnpm run format
+
+      - name: Lint Fix
+        run: pnpm run lint:fix
+
       - name: Publish
         id: changesets
         uses: changesets/action@v1
