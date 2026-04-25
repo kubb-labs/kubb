@@ -1,7 +1,7 @@
 import { isPromise, type PossiblePromise } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
 import type { CLIOptions, UserConfig } from '@kubb/core'
-import { middlewareBarrel } from '@kubb/middleware-barrel'
+import { middlewareBarrel, middlewareBarrelName } from '@kubb/middleware-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 
 type AnyConfigResult = UserConfig<any> | Array<UserConfig<any>>
@@ -19,13 +19,13 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
  *
  * - `adapter` defaults to `adapterOas()`
  * - `parsers` defaults to `[parserTs, parserTsx]`
- * - `middleware` defaults to `[middlewareBarrel]`
+ * - `middleware` defaults to `[middlewareBarrel()]`
  * - `output.barrelType` defaults to `'named'` **only when `middlewareBarrel` is part of `middleware`**.
  *   When the user provides a custom middleware list without `middlewareBarrel`, `barrelType` is left untouched.
  */
 function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
-  const middleware = config.middleware?.length ? config.middleware : [middlewareBarrel]
-  const hasBarrelMiddleware = middleware.includes(middlewareBarrel)
+  const middleware = config.middleware?.length ? config.middleware : [middlewareBarrel()]
+  const hasBarrelMiddleware = middleware.some((m) => m.name === middlewareBarrelName)
 
   const output = { ...config.output }
   if (hasBarrelMiddleware && output.barrelType === undefined) {

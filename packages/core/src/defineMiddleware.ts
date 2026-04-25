@@ -1,29 +1,10 @@
-import type { AsyncEventEmitter } from '@internals/utils'
 import type { KubbHooks } from './Kubb.ts'
 
 /**
- * A middleware observes and post-processes the build output produced by plugins.
- * It attaches listeners to the shared `hooks` emitter before the plugin execution loop
- * begins and reacts to lifecycle events (e.g. `kubb:plugin:end`, `kubb:build:end`) to
- * inject barrel files or perform other cross-cutting concerns.
- *
- * Middleware listeners are always registered **after** all plugin listeners, because
- * `createKubb` installs middleware only after the `PluginDriver` has registered every
- * plugin's hooks.  This means middleware hooks for any event always fire last.
- *
- * @example
- * ```ts
- * import { defineMiddleware } from '@kubb/core'
- *
- * export const myMiddleware = defineMiddleware({
- *   name: 'my-middleware',
- *   install(hooks) {
- *     hooks.on('kubb:build:end', ({ files }) => {
- *       console.log(`Build complete with ${files.length} files`)
- *     })
- *   },
- * })
- * ```
+ * A middleware instance produced by calling a factory created with `defineMiddleware`.
+ * It declares event handlers under a `hooks` object which are registered on the
+ * shared emitter after all plugin hooks, so middleware handlers for any event
+ * always fire last.
  */
 export type Middleware = {
   /**
@@ -31,29 +12,55 @@ export type Middleware = {
    */
   name: string
   /**
-   * Called during `createKubb` after `setup()` but before the plugin
-   * execution loop starts. Attach listeners to `hooks` here.
+   * Lifecycle event handlers for this middleware.
+   * Any event from the global `KubbHooks` map can be subscribed to here.
+   * Handlers are registered after all plugin handlers, so they always fire last.
    */
-  install(hooks: AsyncEventEmitter<KubbHooks>): void
+  hooks: {
+    [K in keyof KubbHooks]?: (...args: KubbHooks[K]) => void | Promise<void>
+  }
 }
 
 /**
- * Identity factory for middleware.
- * Returns the middleware object unchanged but provides a typed entry-point
- * to define middleware with proper inference.
+ * Creates a middleware factory using the hook-style (`hooks:`) API.
+ *
+ * Mirrors `definePlugin`: the factory is called with optional options and returns a
+ * fresh `Middleware` instance. Placing per-build state (e.g. accumulators) inside the
+ * factory closure ensures each `createKubb` invocation gets its own isolated instance.
  *
  * @example
  * ```ts
- * export const myMiddleware = defineMiddleware({
- *   name: 'my-middleware',
- *   install(hooks) {
- *     hooks.on('kubb:build:end', ({ files }) => {
+ * // Stateless middleware
+ * export const logMiddleware = defineMiddleware(() => ({
+ *   name: 'log-middleware',
+ *   hooks: {
+ *     'kubb:build:end'({ files }) {
  *       console.log(`Build complete with ${files.length} files`)
- *     })
+ *     },
  *   },
+ * }))
+ *
+ * // Middleware with options and per-build state
+ * export const myMiddleware = defineMiddleware((options: { prefix: string } = { prefix: '' }) => {
+ *   const seen = new Set<string>()
+ *   return {
+ *     name: 'my-middleware',
+ *     hooks: {
+ *       'kubb:plugin:end'({ plugin }) {
+ *         seen.add(`${options.prefix}${plugin.name}`)
+ *       },
+ *     },
+ *   }
+ * })
+ *
+ * // Usage in kubb.config.ts:
+ * export default defineConfig({
+ *   middleware: [logMiddleware(), myMiddleware({ prefix: 'pfx:' })],
  * })
  * ```
  */
-export function defineMiddleware(middleware: Middleware): Middleware {
-  return middleware
+export function defineMiddleware<TOptions extends object = object>(
+  factory: (options: TOptions) => Middleware,
+): (options?: TOptions) => Middleware {
+  return (options) => factory(options ?? ({} as TOptions))
 }

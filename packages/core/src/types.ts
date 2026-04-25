@@ -828,6 +828,16 @@ export type KubbPluginEndContext = {
   duration: number
   success: boolean
   error?: Error
+  config: Config
+  /**
+   * Returns all files currently in the file manager (lazy snapshot).
+   * Includes files added by plugins that have already run.
+   */
+  readonly files: ReadonlyArray<FileNode>
+  /**
+   * Upsert one or more files into the file manager.
+   */
+  upsertFile: (...files: Array<FileNode>) => void
 }
 
 export type KubbHookStartContext = {

@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import { defineMiddleware } from '@kubb/core'
-import type { KubbBuildStartContext } from '@kubb/core'
+import type { Middleware } from '@kubb/core'
 import type { BarrelType } from './types.ts'
 import { getPluginOutputPrefix, isExcludedPath } from './utils/excludedPaths.ts'
 import { getBarrelFiles } from './utils/getBarrelFiles.ts'
@@ -55,57 +55,59 @@ declare global {
  *     pluginTs({ output: { path: 'types', barrelType: 'all' } }),
  *     pluginZod({ output: { path: 'schemas' } }),
  *   ],
- *   middleware: [middlewareBarrel],
+ *   middleware: [middlewareBarrel()],
  * })
  * ```
  */
-export const middlewareBarrel = defineMiddleware({
-  name: 'middleware-barrel',
-  install(hooks) {
-    let ctx: KubbBuildStartContext | undefined
-    const excludedPrefixes = new Set<string>()
 
-    hooks.on('kubb:build:start', (buildCtx) => {
-      ctx = buildCtx
-    })
+/**
+ * Stable string identifier for the barrel middleware.
+ */
+export const middlewareBarrelName = 'middleware-barrel' satisfies Middleware['name']
 
-    hooks.on('kubb:plugin:end', ({ plugin }) => {
-      if (!ctx) return
+export const middlewareBarrel = defineMiddleware(() => {
+  const excludedPrefixes = new Set<string>()
 
-      const barrelType = plugin.options.output?.barrelType ?? ctx.config.output.barrelType ?? 'named'
+  return {
+    name: middlewareBarrelName,
+    hooks: {
+      'kubb:plugin:end'({ plugin, config, files, upsertFile }) {
+        const barrelType = plugin.options.output?.barrelType ?? config.output.barrelType ?? 'named'
 
-      if (!barrelType) {
-        excludedPrefixes.add(getPluginOutputPrefix(plugin, ctx.config))
-        return
-      }
+        if (!barrelType) {
+          excludedPrefixes.add(getPluginOutputPrefix(plugin, config))
+          return
+        }
 
-      const barrelFiles = getBarrelFiles({
-        outputPath: resolve(ctx.config.root, ctx.config.output.path, plugin.options.output.path),
-        files: ctx.files,
-        barrelType,
-        recursive: true,
-      })
+        const barrelFiles = getBarrelFiles({
+          outputPath: resolve(config.root, config.output.path, plugin.options.output.path),
+          files,
+          barrelType,
+          recursive: true,
+        })
 
-      if (barrelFiles.length > 0) {
-        ctx.upsertFile(...barrelFiles)
-      }
-    })
+        if (barrelFiles.length > 0) {
+          upsertFile(...barrelFiles)
+        }
+      },
+      'kubb:plugins:end'({ files, config, upsertFile }) {
+        const rootBarrelType = config.output.barrelType ?? 'named'
 
-    hooks.on('kubb:plugins:end', ({ files, config, upsertFile }) => {
-      const rootBarrelType = config.output.barrelType ?? 'named'
-      if (!rootBarrelType) return
+        const filteredFiles = excludedPrefixes.size === 0 ? files : files.filter((f) => !isExcludedPath(f.path, excludedPrefixes))
+        excludedPrefixes.clear()
 
-      const filteredFiles = excludedPrefixes.size === 0 ? files : files.filter((f) => !isExcludedPath(f.path, excludedPrefixes))
+        if (!rootBarrelType) return
 
-      const rootBarrelFiles = getBarrelFiles({
-        outputPath: resolve(config.root, config.output.path),
-        files: filteredFiles,
-        barrelType: rootBarrelType,
-      })
+        const rootBarrelFiles = getBarrelFiles({
+          outputPath: resolve(config.root, config.output.path),
+          files: filteredFiles,
+          barrelType: rootBarrelType,
+        })
 
-      if (rootBarrelFiles.length > 0) {
-        upsertFile(...rootBarrelFiles)
-      }
-    })
-  },
+        if (rootBarrelFiles.length > 0) {
+          upsertFile(...rootBarrelFiles)
+        }
+      },
+    },
+  }
 })

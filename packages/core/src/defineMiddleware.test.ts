@@ -47,60 +47,107 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
 }
 
 describe('defineMiddleware', () => {
-  it('returns the middleware object unchanged', () => {
-    const install = vi.fn()
-    const middleware = defineMiddleware({ name: 'my-middleware', install })
+  it('returns a callable factory', () => {
+    const factory = defineMiddleware(() => ({ name: 'my-middleware', hooks: {} }))
 
-    expect(middleware.name).toBe('my-middleware')
-    expect(middleware.install).toBe(install)
+    expect(typeof factory).toBe('function')
   })
 
-  it('satisfies the Middleware type', () => {
-    const middleware: Middleware = defineMiddleware({
-      name: 'typed-middleware',
-      install(_hooks) {},
-    })
+  it('calling the factory produces a Middleware instance', () => {
+    const buildEnd = vi.fn()
+    const factory = defineMiddleware(() => ({ name: 'my-middleware', hooks: { 'kubb:build:end': buildEnd } }))
+    const middleware = factory()
+
+    expect(middleware.name).toBe('my-middleware')
+    expect(middleware.hooks['kubb:build:end']).toBe(buildEnd)
+  })
+
+  it('instance satisfies the Middleware type', () => {
+    const factory = defineMiddleware(() => ({ name: 'typed-middleware', hooks: {} }))
+    const middleware: Middleware = factory()
 
     expect(middleware.name).toBe('typed-middleware')
   })
 
-  it('install() receives an AsyncEventEmitter instance', () => {
-    const receivedHooks: unknown[] = []
-    const middleware = defineMiddleware({
-      name: 'hooks-check',
-      install(hooks) {
-        receivedHooks.push(hooks)
-      },
+  it('produces a fresh instance on each call', () => {
+    const factory = defineMiddleware(() => ({ name: 'fresh-mw', hooks: {} }))
+
+    const instance1 = factory()
+    const instance2 = factory()
+
+    expect(instance1.name).toBe('fresh-mw')
+    expect(instance2.name).toBe('fresh-mw')
+    expect(instance1).not.toBe(instance2)
+  })
+
+  it('passes options to the factory', () => {
+    type Opts = { prefix: string }
+    const factory = defineMiddleware((options: Opts) => ({
+      name: `mw-${options.prefix}`,
+      hooks: {},
+    }))
+
+    const middleware = factory({ prefix: 'test' })
+
+    expect(middleware.name).toBe('mw-test')
+  })
+
+  it('options default to empty object when omitted', () => {
+    const factory = defineMiddleware((_options: { prefix?: string } = {}) => ({
+      name: 'default-opts-mw',
+      hooks: {},
+    }))
+
+    const middleware = factory()
+
+    expect(middleware.name).toBe('default-opts-mw')
+  })
+
+  it('per-build state is isolated across calls', () => {
+    const factory = defineMiddleware(() => {
+      const seen = new Set<string>()
+      return {
+        name: 'stateful-mw',
+        hooks: {},
+        _seen: seen,
+      } as unknown as Middleware & { _seen: Set<string> }
     })
 
-    const hooks = new AsyncEventEmitter<KubbHooks>()
-    middleware.install(hooks)
+    const a = factory() as Middleware & { _seen: Set<string> }
+    const b = factory() as Middleware & { _seen: Set<string> }
 
-    expect(receivedHooks).toHaveLength(1)
-    expect(receivedHooks[0]).toBe(hooks)
+    a._seen.add('x')
+    expect(a._seen.has('x')).toBe(true)
+    expect(b._seen.has('x')).toBe(false)
+  })
+
+  it('factory return type is inferred as Middleware', () => {
+    const factory = defineMiddleware(() => ({ name: 'type-check', hooks: {} }))
+
+    expectTypeOf(factory()).toMatchTypeOf<Middleware>()
   })
 })
 
 describe('middleware runtime integration with createKubb', () => {
-  it('install() is called during build', async () => {
-    const installMock = vi.fn()
-    const middleware = defineMiddleware({ name: 'test-mw', install: installMock })
+  it('hooks are registered during build', async () => {
+    const buildEndMock = vi.fn()
+    const factory = defineMiddleware(() => ({ name: 'test-mw', hooks: { 'kubb:build:end': buildEndMock } }))
 
-    await createKubb(makeConfig({ middleware: [middleware] }), { hooks: new AsyncEventEmitter<KubbHooks>() }).build()
+    await createKubb(makeConfig({ middleware: [factory()] }), { hooks: new AsyncEventEmitter<KubbHooks>() }).build()
 
-    expect(installMock).toHaveBeenCalledOnce()
+    expect(buildEndMock).toHaveBeenCalledOnce()
   })
 
-  it('install() is called for each middleware in the array', async () => {
-    const install1 = vi.fn()
-    const install2 = vi.fn()
-    const mw1 = defineMiddleware({ name: 'mw-1', install: install1 })
-    const mw2 = defineMiddleware({ name: 'mw-2', install: install2 })
+  it('hooks are registered for each middleware in the array', async () => {
+    const handler1 = vi.fn()
+    const handler2 = vi.fn()
+    const mw1 = defineMiddleware(() => ({ name: 'mw-1', hooks: { 'kubb:build:end': handler1 } }))
+    const mw2 = defineMiddleware(() => ({ name: 'mw-2', hooks: { 'kubb:build:end': handler2 } }))
 
-    await createKubb(makeConfig({ middleware: [mw1, mw2] }), { hooks: new AsyncEventEmitter<KubbHooks>() }).build()
+    await createKubb(makeConfig({ middleware: [mw1(), mw2()] }), { hooks: new AsyncEventEmitter<KubbHooks>() }).build()
 
-    expect(install1).toHaveBeenCalledOnce()
-    expect(install2).toHaveBeenCalledOnce()
+    expect(handler1).toHaveBeenCalledOnce()
+    expect(handler2).toHaveBeenCalledOnce()
   })
 
   it('no error when middleware array is omitted', async () => {
@@ -119,14 +166,14 @@ describe('middleware runtime integration with createKubb', () => {
       },
     }))()
 
-    const middleware = defineMiddleware({
+    const middleware = defineMiddleware(() => ({
       name: 'ordering-mw',
-      install(hooks) {
-        hooks.on('kubb:plugin:setup', () => {
+      hooks: {
+        'kubb:plugin:setup'() {
           callOrder.push('middleware')
-        })
+        },
       },
-    })
+    }))()
 
     await createKubb(
       makeConfig({
@@ -146,14 +193,14 @@ describe('middleware runtime integration with createKubb', () => {
   it('middleware can observe kubb:build:end and access files', async () => {
     const capturedFiles: unknown[] = []
 
-    const middleware = defineMiddleware({
+    const middleware = defineMiddleware(() => ({
       name: 'build-end-observer',
-      install(hooks) {
-        hooks.on('kubb:build:end', ({ files }) => {
+      hooks: {
+        'kubb:build:end'({ files }) {
           capturedFiles.push(...files)
-        })
+        },
       },
-    })
+    }))()
 
     await createKubb(makeConfig({ middleware: [middleware] }), { hooks: new AsyncEventEmitter<KubbHooks>() }).build()
 
@@ -172,15 +219,15 @@ describe('middleware runtime integration with createKubb', () => {
 
     let pluginsEndFired = false
 
-    const middleware = defineMiddleware({
+    const middleware = defineMiddleware(() => ({
       name: 'plugins-end-injector',
-      install(hooks) {
-        hooks.on('kubb:plugins:end', ({ upsertFile }) => {
+      hooks: {
+        'kubb:plugins:end'({ upsertFile }) {
           pluginsEndFired = true
           upsertFile(injectedFile)
-        })
+        },
       },
-    })
+    }))()
 
     const { files } = await createKubb(makeConfig({ middleware: [middleware] }), { hooks: new AsyncEventEmitter<KubbHooks>() }).build()
 
