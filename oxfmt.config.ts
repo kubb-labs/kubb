@@ -19,5 +19,6 @@ export default defineConfig({
     '**/.next/**',
     '**/.output/**',
     '**/.nitro/**',
+    '**/CHANGELOG.md',
   ],
 })
