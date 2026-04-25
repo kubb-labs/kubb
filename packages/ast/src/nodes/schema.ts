@@ -273,6 +273,11 @@ export type UnionSchemaNode = CompositeSchemaNodeBase & {
    * Discriminator property name from OpenAPI `discriminator.propertyName`.
    */
   discriminatorPropertyName?: string
+  /**
+   * Logical strategy applied to union members: 'one' means exactly one member must be valid (from `oneOf`),
+   * 'any' means any number of members can be valid (from `anyOf`).
+   */
+  strategy?: 'one' | 'any'
 }
 
 /**

@@ -820,12 +820,39 @@ describe('parseSchema oneOf / anyOf', () => {
     expect(node.type).toBe('union')
   })
 
+  it('sets strategy to one when oneOf is present', () => {
+    const node = parseSchema(ctx, {
+      schema: { oneOf: [{ type: 'string' }, { type: 'number' }] },
+    })
+
+    expect(ast.narrowSchema(node, 'union')?.strategy).toBe('one')
+  })
+
   it('maps anyOf to a union node', () => {
     const node = parseSchema(ctx, {
       schema: { anyOf: [{ type: 'string' }, { type: 'number' }] },
     })
 
     expect(node.type).toBe('union')
+  })
+
+  it('sets strategy to any when only anyOf is present', () => {
+    const node = parseSchema(ctx, {
+      schema: { anyOf: [{ type: 'string' }, { type: 'number' }] },
+    })
+
+    expect(ast.narrowSchema(node, 'union')?.strategy).toBe('any')
+  })
+
+  it('prioritizes one (oneOf) when both oneOf and anyOf are present', () => {
+    const node = parseSchema(ctx, {
+      schema: {
+        oneOf: [{ type: 'string' }],
+        anyOf: [{ type: 'number' }],
+      },
+    })
+
+    expect(ast.narrowSchema(node, 'union')?.strategy).toBe('one')
   })
 
   it('combines oneOf and anyOf members into a single union', () => {
@@ -889,6 +916,22 @@ describe('parseSchema oneOf / anyOf', () => {
     const node = parseSchema(ctx, { schema: { oneOf: [{ type: 'string' }] } })
 
     expect(ast.narrowSchema(node, 'union')?.discriminatorPropertyName).toBeUndefined()
+  })
+
+  it('parses oneOf with object members without explicit discriminator', () => {
+    // Test case from issue #14: oneOf should be preserved for validation
+    const node = parseSchema(ctx, {
+      schema: {
+        oneOf: [{ $ref: '#/components/schemas/TypeA' }, { $ref: '#/components/schemas/TypeB' }],
+      },
+    })
+
+    const unionNode = ast.narrowSchema(node, 'union')
+    expect(unionNode?.type).toBe('union')
+    expect(unionNode?.strategy).toBe('one')
+    expect(unionNode?.members).toHaveLength(2)
+    expect(unionNode?.members?.[0]?.type).toBe('ref')
+    expect(unionNode?.members?.[1]?.type).toBe('ref')
   })
 
   it('intersects each member with sibling properties when properties are present', () => {
