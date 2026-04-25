@@ -1,24 +1,10 @@
 import type { KubbHooks } from './Kubb.ts'
 
 /**
- * A middleware observes and post-processes the build output produced by plugins.
+ * A middleware instance produced by calling a factory created with `defineMiddleware`.
  * It declares event handlers under a `hooks` object which are registered on the
  * shared emitter after all plugin hooks, so middleware handlers for any event
  * always fire last.
- *
- * @example
- * ```ts
- * import { defineMiddleware } from '@kubb/core'
- *
- * export const myMiddleware = defineMiddleware({
- *   name: 'my-middleware',
- *   hooks: {
- *     'kubb:build:end'({ files }) {
- *       console.log(`Build complete with ${files.length} files`)
- *     },
- *   },
- * })
- * ```
  */
 export type Middleware = {
   /**
@@ -36,46 +22,45 @@ export type Middleware = {
 }
 
 /**
- * A middleware factory: a zero-argument function that returns a fresh `Middleware`
- * instance each time it is called. Use this form when the middleware needs
- * per-build state (e.g. a `Set` accumulator) so that each `createKubb` invocation
- * gets its own isolated closure.
- */
-export type MiddlewareFactory = () => Middleware
-
-/**
- * Define middleware using either a plain object or a factory function.
+ * Creates a middleware factory using the hook-style (`hooks:`) API.
  *
- * **Object form** – use when the middleware is stateless:
+ * Mirrors `definePlugin`: the factory is called with optional options and returns a
+ * fresh `Middleware` instance. Placing per-build state (e.g. accumulators) inside the
+ * factory closure ensures each `createKubb` invocation gets its own isolated instance.
+ *
+ * @example
  * ```ts
- * export const myMiddleware = defineMiddleware({
- *   name: 'my-middleware',
+ * // Stateless middleware
+ * export const logMiddleware = defineMiddleware(() => ({
+ *   name: 'log-middleware',
  *   hooks: {
  *     'kubb:build:end'({ files }) {
  *       console.log(`Build complete with ${files.length} files`)
  *     },
  *   },
- * })
- * ```
+ * }))
  *
- * **Factory form** – use when the middleware needs per-build state so that each
- * `createKubb` invocation receives a fresh, isolated instance:
- * ```ts
- * export const myMiddleware = defineMiddleware(() => {
+ * // Middleware with options and per-build state
+ * export const myMiddleware = defineMiddleware((options: { prefix: string } = { prefix: '' }) => {
  *   const seen = new Set<string>()
  *   return {
  *     name: 'my-middleware',
  *     hooks: {
  *       'kubb:plugin:end'({ plugin }) {
- *         seen.add(plugin.name)
+ *         seen.add(`${options.prefix}${plugin.name}`)
  *       },
  *     },
  *   }
  * })
+ *
+ * // Usage in kubb.config.ts:
+ * export default defineConfig({
+ *   middleware: [logMiddleware(), myMiddleware({ prefix: 'pfx:' })],
+ * })
  * ```
  */
-export function defineMiddleware(factory: MiddlewareFactory): MiddlewareFactory
-export function defineMiddleware(middleware: Middleware): Middleware
-export function defineMiddleware(input: Middleware | MiddlewareFactory): Middleware | MiddlewareFactory {
-  return input
+export function defineMiddleware<TOptions extends object = object>(
+  factory: (options: TOptions) => Middleware,
+): (options?: TOptions) => Middleware {
+  return (options) => factory(options ?? ({} as TOptions))
 }

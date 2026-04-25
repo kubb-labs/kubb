@@ -54,7 +54,7 @@ declare global {
  *     pluginTs({ output: { path: 'types', barrelType: 'all' } }),
  *     pluginZod({ output: { path: 'schemas' } }),
  *   ],
- *   middleware: [middlewareBarrel],
+ *   middleware: [middlewareBarrel()],
  * })
  * ```
  */
