@@ -1,6 +1,5 @@
 import { resolve } from 'node:path'
 import { defineMiddleware } from '@kubb/core'
-import type { KubbBuildStartContext } from '@kubb/core'
 import type { BarrelType } from './types.ts'
 import { getPluginOutputPrefix, isExcludedPath } from './utils/excludedPaths.ts'
 import { getBarrelFiles } from './utils/getBarrelFiles.ts'
@@ -60,42 +59,37 @@ declare global {
  * ```
  */
 
-let ctx: KubbBuildStartContext | undefined
 const excludedPrefixes = new Set<string>()
 
 export const middlewareBarrel = defineMiddleware({
   name: 'middleware-barrel',
   hooks: {
-    'kubb:build:start'(buildCtx) {
-      ctx = buildCtx
-      excludedPrefixes.clear()
-    },
-    'kubb:plugin:end'({ plugin }) {
-      if (!ctx) return
-
-      const barrelType = plugin.options.output?.barrelType ?? ctx.config.output.barrelType ?? 'named'
+    'kubb:plugin:end'({ plugin, config, files, upsertFile }) {
+      const barrelType = plugin.options.output?.barrelType ?? config.output.barrelType ?? 'named'
 
       if (!barrelType) {
-        excludedPrefixes.add(getPluginOutputPrefix(plugin, ctx.config))
+        excludedPrefixes.add(getPluginOutputPrefix(plugin, config))
         return
       }
 
       const barrelFiles = getBarrelFiles({
-        outputPath: resolve(ctx.config.root, ctx.config.output.path, plugin.options.output.path),
-        files: ctx.files,
+        outputPath: resolve(config.root, config.output.path, plugin.options.output.path),
+        files,
         barrelType,
         recursive: true,
       })
 
       if (barrelFiles.length > 0) {
-        ctx.upsertFile(...barrelFiles)
+        upsertFile(...barrelFiles)
       }
     },
     'kubb:plugins:end'({ files, config, upsertFile }) {
       const rootBarrelType = config.output.barrelType ?? 'named'
-      if (!rootBarrelType) return
 
       const filteredFiles = excludedPrefixes.size === 0 ? files : files.filter((f) => !isExcludedPath(f.path, excludedPrefixes))
+      excludedPrefixes.clear()
+
+      if (!rootBarrelType) return
 
       const rootBarrelFiles = getBarrelFiles({
         outputPath: resolve(config.root, config.output.path),

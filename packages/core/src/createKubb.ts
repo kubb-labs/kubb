@@ -312,6 +312,11 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           plugin,
           duration,
           success: true,
+          config,
+          get files() {
+            return driver.fileManager.files
+          },
+          upsertFile: (...files) => driver.fileManager.upsert(...files),
         })
 
         await hooks.emit('kubb:debug', {
@@ -328,6 +333,11 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           duration,
           success: false,
           error,
+          config,
+          get files() {
+            return driver.fileManager.files
+          },
+          upsertFile: (...files) => driver.fileManager.upsert(...files),
         })
 
         await hooks.emit('kubb:debug', {
