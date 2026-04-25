@@ -14,7 +14,7 @@ function isMissingPathError(error: unknown): error is NodeJS.ErrnoException {
 /**
  * Built-in filesystem storage driver.
  *
- * This is the default storage when no `storage` option is configured in `output`.
+ * This is the default storage when no `storage` option is configured in the root config.
  * Keys are resolved against `process.cwd()`, so root-relative paths such as
  * `src/gen/api/getPets.ts` are written to the correct location without extra configuration.
  *
@@ -31,7 +31,8 @@ function isMissingPathError(error: unknown): error is NodeJS.ErrnoException {
  *
  * export default defineConfig({
  *   input:  { path: './petStore.yaml' },
- *   output: { path: './src/gen', storage: fsStorage() },
+ *   output: { path: './src/gen' },
+ *   storage: fsStorage(),
  * })
  * ```
  */

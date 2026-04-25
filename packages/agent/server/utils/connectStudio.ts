@@ -207,9 +207,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 ...config,
                 root,
                 input: inputOverride ?? config.input,
+                storage: effectiveWrite ? fsStorage() : memoryStorage(),
                 output: {
                   ...config.output,
-                  storage: effectiveWrite ? fsStorage() : memoryStorage(),
                 },
                 plugins,
               },

@@ -14,7 +14,8 @@ import { createStorage } from '../createStorage.ts'
  *
  * export default defineConfig({
  *   input:  { path: './petStore.yaml' },
- *   output: { path: './src/gen', storage: memoryStorage() },
+ *   output: { path: './src/gen' },
+ *   storage: memoryStorage(),
  * })
  * ```
  */
