@@ -23,6 +23,10 @@ function makeBarrel(dirPath: string, exports: Array<ExportNode>): FileNode {
     exports,
     sources: [],
     imports: [],
+    // Barrel files must never carry a banner or footer: they only re-export
+    // symbols and adding a directive like "use server" would break consumers.
+    banner: undefined,
+    footer: undefined,
   })
 }
 
