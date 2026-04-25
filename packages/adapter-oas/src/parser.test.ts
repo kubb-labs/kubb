@@ -820,12 +820,12 @@ describe('parseSchema oneOf / anyOf', () => {
     expect(node.type).toBe('union')
   })
 
-  it('sets unionKind to oneOf when oneOf is present', () => {
+  it('sets unionKind to exclusive when oneOf is present', () => {
     const node = parseSchema(ctx, {
       schema: { oneOf: [{ type: 'string' }, { type: 'number' }] },
     })
 
-    expect(ast.narrowSchema(node, 'union')?.unionKind).toBe('oneOf')
+    expect(ast.narrowSchema(node, 'union')?.unionKind).toBe('exclusive')
   })
 
   it('maps anyOf to a union node', () => {
@@ -836,15 +836,15 @@ describe('parseSchema oneOf / anyOf', () => {
     expect(node.type).toBe('union')
   })
 
-  it('sets unionKind to anyOf when only anyOf is present', () => {
+  it('sets unionKind to inclusive when only anyOf is present', () => {
     const node = parseSchema(ctx, {
       schema: { anyOf: [{ type: 'string' }, { type: 'number' }] },
     })
 
-    expect(ast.narrowSchema(node, 'union')?.unionKind).toBe('anyOf')
+    expect(ast.narrowSchema(node, 'union')?.unionKind).toBe('inclusive')
   })
 
-  it('prioritizes oneOf when both oneOf and anyOf are present', () => {
+  it('prioritizes exclusive (oneOf) when both oneOf and anyOf are present', () => {
     const node = parseSchema(ctx, {
       schema: {
         oneOf: [{ type: 'string' }],
@@ -852,7 +852,7 @@ describe('parseSchema oneOf / anyOf', () => {
       },
     })
 
-    expect(ast.narrowSchema(node, 'union')?.unionKind).toBe('oneOf')
+    expect(ast.narrowSchema(node, 'union')?.unionKind).toBe('exclusive')
   })
 
   it('combines oneOf and anyOf members into a single union', () => {
@@ -928,7 +928,7 @@ describe('parseSchema oneOf / anyOf', () => {
 
     const unionNode = ast.narrowSchema(node, 'union')
     expect(unionNode?.type).toBe('union')
-    expect(unionNode?.unionKind).toBe('oneOf')
+    expect(unionNode?.unionKind).toBe('exclusive')
     expect(unionNode?.members).toHaveLength(2)
     expect(unionNode?.members?.[0]?.type).toBe('ref')
     expect(unionNode?.members?.[1]?.type).toBe('ref')

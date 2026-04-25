@@ -51,7 +51,7 @@ Added `unionKind` field to `UnionSchemaNode` in `packages/ast/src/nodes/schema.t
 export type UnionSchemaNode = CompositeSchemaNodeBase & {
   type: 'union'
   discriminatorPropertyName?: string
-  unionKind?: 'oneOf' | 'anyOf'  // NEW: Preserves union keyword semantics
+  unionKind?: 'exclusive' | 'inclusive'  // NEW: 'exclusive' = oneOf (exactly one), 'inclusive' = anyOf (any number)
 }
 ```
 
@@ -60,10 +60,10 @@ export type UnionSchemaNode = CompositeSchemaNodeBase & {
 Modified `convertUnion()` in `packages/adapter-oas/src/parser.ts` to:
 - Determine the union kind from the schema
 - Set `unionKind` on the created union node
-- Prioritize `oneOf` when both keywords are present
+- Prioritize `exclusive` (oneOf) when both keywords are present
 
 ```typescript
-const unionKind: 'oneOf' | 'anyOf' = schema.oneOf ? 'oneOf' : 'anyOf'
+const unionKind: 'exclusive' | 'inclusive' = schema.oneOf ? 'exclusive' : 'inclusive'
 const unionBase = {
   ...buildSchemaNode(schema, name, nullable, defaultValue),
   discriminatorPropertyName: isDiscriminator(schema) ? schema.discriminator.propertyName : undefined,
@@ -87,7 +87,7 @@ With `unionKind` available, the Zod plugin can now implement proper validation:
 
 ```typescript
 // In plugin-zod or similar
-if (unionNode.unionKind === 'oneOf') {
+if (unionNode.unionKind === 'exclusive') {
   // Use z.union().refine() to enforce exactly one schema matches
   return z.union([schemaA, schemaB]).refine(
     (data) => {
@@ -99,7 +99,7 @@ if (unionNode.unionKind === 'oneOf') {
     },
     { message: 'Exactly one schema must be valid for oneOf' }
   )
-} else if (unionNode.unionKind === 'anyOf') {
+} else if (unionNode.unionKind === 'inclusive') {
   // Use z.union() which allows any combination
   return z.union([schemaA, schemaB])
 }
