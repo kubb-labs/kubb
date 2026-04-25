@@ -274,10 +274,10 @@ export type UnionSchemaNode = CompositeSchemaNodeBase & {
    */
   discriminatorPropertyName?: string
   /**
-   * Logical operator applied to union members: 'one' means exactly one member must be valid (from `oneOf`),
+   * Logical strategy applied to union members: 'one' means exactly one member must be valid (from `oneOf`),
    * 'any' means any number of members can be valid (from `anyOf`).
    */
-  operator?: 'one' | 'any'
+  strategy?: 'one' | 'any'
 }
 
 /**
