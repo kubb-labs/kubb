@@ -1,5 +1,6 @@
 import { resolve } from 'node:path'
 import { defineMiddleware } from '@kubb/core'
+import type { Middleware } from '@kubb/core'
 import type { BarrelType } from './types.ts'
 import { getPluginOutputPrefix, isExcludedPath } from './utils/excludedPaths.ts'
 import { getBarrelFiles } from './utils/getBarrelFiles.ts'
@@ -59,11 +60,16 @@ declare global {
  * ```
  */
 
+/**
+ * Stable string identifier for the barrel middleware.
+ */
+export const middlewareBarrelName = 'middleware-barrel' satisfies Middleware['name']
+
 export const middlewareBarrel = defineMiddleware(() => {
   const excludedPrefixes = new Set<string>()
 
   return {
-    name: 'middleware-barrel',
+    name: middlewareBarrelName,
     hooks: {
       'kubb:plugin:end'({ plugin, config, files, upsertFile }) {
         const barrelType = plugin.options.output?.barrelType ?? config.output.barrelType ?? 'named'

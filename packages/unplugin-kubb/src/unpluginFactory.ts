@@ -2,7 +2,7 @@ import process from 'node:process'
 import { AsyncEventEmitter } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
 import { type Config, createKubb, type KubbHooks } from '@kubb/core'
-import { middlewareBarrel } from '@kubb/middleware-barrel'
+import { middlewareBarrel, middlewareBarrelName } from '@kubb/middleware-barrel'
 import { parserTs } from '@kubb/parser-ts'
 import type { UnpluginFactory } from 'unplugin'
 import { version as unpluginVersion } from '../package.json'
@@ -31,7 +31,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     }
 
     const middleware = options.config.middleware?.length ? options.config.middleware : [middlewareBarrel()]
-    const hasBarrelMiddleware = middleware.some((m) => m.name === 'middleware-barrel')
+    const hasBarrelMiddleware = middleware.some((m) => m.name === middlewareBarrelName)
     const output = { ...options.config.output }
     if (hasBarrelMiddleware && output.barrelType === undefined) {
       output.barrelType = 'named'

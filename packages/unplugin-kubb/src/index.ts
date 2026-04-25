@@ -2,6 +2,7 @@ import { createUnplugin } from 'unplugin'
 import { unpluginFactory } from './unpluginFactory.ts'
 
 export type { BarrelType } from '@kubb/middleware-barrel'
+export { middlewareBarrelName } from '@kubb/middleware-barrel'
 export type { Options } from './types.ts'
 export { unpluginFactory } from './unpluginFactory.ts'
 
