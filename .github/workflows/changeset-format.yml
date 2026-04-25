@@ -1,0 +1,40 @@
+name: Format Changeset PR
+
+on:
+  pull_request:
+    paths:
+      - 'CHANGELOG.md'
+      - '.changeset/**'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  format:
+    name: Format and Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '22'
+
+      - name: Format
+        run: pnpm run format
+
+      - name: Lint Fix
+        run: pnpm run lint:fix
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore: format and lint fixes'
+          commit_user_name: 'github-actions[bot]'
+          commit_user_email: 'github-actions[bot]@users.noreply.github.com'
