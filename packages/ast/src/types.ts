@@ -67,4 +67,4 @@ export type { AsyncVisitor, CollectOptions, CollectVisitor, ParentOf, TransformO
 export type { Printer, PrinterFactoryOptions, PrinterPartial } from './printer.ts'
 export type { ScalarPrimitive } from './constants.ts'
 export type { OperationParamsResolver } from './utils.ts'
-export type {UserFileNode} from "./factory.ts"
+export type { UserFileNode } from './factory.ts'

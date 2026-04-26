@@ -648,9 +648,7 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
   /**
    * Inject a raw file into the build output, bypassing the normal generation pipeline.
    */
-  injectFile(
-    userFileNode: UserFileNode
-  ): void
+  injectFile(userFileNode: UserFileNode): void
   /**
    * Merge a partial config update into the current build configuration.
    */
