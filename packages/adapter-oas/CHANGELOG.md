@@ -1,5 +1,46 @@
 # @kubb/adapter-oas
 
+## 5.0.0-alpha.70
+
+### Patch Changes
+
+- [#3175](https://github.com/kubb-labs/kubb/pull/3175) [`1eba61b`](https://github.com/kubb-labs/kubb/commit/1eba61bf31553711273c7ff17e5a8577a9ba66f5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Preserve `oneOf` and `anyOf` semantics in union schema nodes.
+
+  ### Problem
+
+  The OAS adapter previously treated `oneOf` and `anyOf` schemas identically, combining their members into a single union type without distinguishing between them. This prevented plugins from implementing proper validation:
+
+  - `oneOf` requires exactly one schema to be valid
+  - `anyOf` allows any number of schemas to be valid
+
+  ### Solution
+
+  Add `strategy?: 'one' | 'any'` field to `UnionSchemaNode` to preserve which keyword was used in the original OpenAPI schema. This enables plugins (like Zod) to implement proper validation logic.
+
+  ### Changes
+
+  **@kubb/ast**
+
+  - Add optional `strategy` field to `UnionSchemaNode` type definition to track union semantics
+
+  **@kubb/adapter-oas**
+
+  - Update `convertUnion()` parser function to set `strategy` based on whether `oneOf` or `anyOf` is present
+  - Prioritize `'one'` (oneOf) when both keywords are present in the same schema
+  - Add comprehensive tests for `strategy` behavior
+
+  ### Impact
+
+  Plugins can now check `unionNode.strategy` to determine validation strategy:
+
+  - `'one'` (oneOf): Enforce exactly one member matches
+  - `'any'` (anyOf): Allow any number of members to match
+
+  Backward compatible - `strategy` is optional and defaults to `undefined`.
+
+- Updated dependencies [[`b710e97`](https://github.com/kubb-labs/kubb/commit/b710e97ef71758f2a0138b85099bfad966cf2f3b), [`649874b`](https://github.com/kubb-labs/kubb/commit/649874b2f1d05cec0160da62daef23579b400f66)]:
+  - @kubb/core@5.0.0-alpha.70
+
 ## 5.0.0-alpha.69
 
 ### Patch Changes
@@ -119,17 +160,17 @@
   **Before**
 
   ```ts
-  operation.requestBody?.schema
-  operation.requestBody?.contentType
-  operation.requestBody?.keysToOmit
+  operation.requestBody?.schema;
+  operation.requestBody?.contentType;
+  operation.requestBody?.keysToOmit;
   ```
 
   **After**
 
   ```ts
-  operation.requestBody?.content?.[0]?.schema
-  operation.requestBody?.content?.[0]?.contentType
-  operation.requestBody?.content?.[0]?.keysToOmit
+  operation.requestBody?.content?.[0]?.schema;
+  operation.requestBody?.content?.[0]?.contentType;
+  operation.requestBody?.content?.[0]?.keysToOmit;
   ```
 
   See `migration/requestBody-content.md` for a full migration guide.
@@ -435,6 +476,7 @@
 ### Patch Changes
 
 - [#2889](https://github.com/kubb-labs/kubb/pull/2889) [`2546c05`](https://github.com/kubb-labs/kubb/commit/2546c051d81e490709df9d8a834402ef546a8f1c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ### `@kubb/ast`
+
   - Reorganized schema helper modules into clearer categories:
     - `transformers.ts` for schema transformation helpers
     - `resolvers.ts` for lookup/derivation helpers
@@ -446,6 +488,7 @@
   - Removed deprecated alias exports for old names.
 
   ### `@kubb/adapter-oas`
+
   - Fixed named import shape regression in adapter import resolution.
   - `adapter.getImports(...)` now correctly returns `KubbFile.Import` entries with `name` as `string[]` (for example `['PetType']`), with added regression coverage.
 
@@ -498,6 +541,7 @@
 - [#2858](https://github.com/kubb-labs/kubb/pull/2858) [`975717e`](https://github.com/kubb-labs/kubb/commit/975717e2c8cf8d33f5d9d641be4bb164fd36f423) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix missing `@description` on request body type aliases.
 
   The OAS `requestBody.description` field (top-level on the request body object, distinct from the schema's own description) was silently dropped. It is now:
+
   - Added as `description?: string` to `OperationNode.requestBody` in `@kubb/ast`
   - Populated by `@kubb/adapter-oas` parser from `operation.schema.requestBody.description`
   - Used by `@kubb/plugin-ts` typeGenerator: `requestBody.description` takes precedence, falling back to `requestBody.schema.description`
@@ -513,6 +557,7 @@
 ### Minor Changes
 
 - [#2821](https://github.com/kubb-labs/kubb/pull/2821) [`f4105fe`](https://github.com/kubb-labs/kubb/commit/f4105fe44e46ec2846e665fd6079290e6d6ce6c6) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - **`@kubb/plugin-ts`**: When `legacy: true`, the type generator now fully matches the v4 output:
+
   - Grouped parameter types: `<OperationId>PathParams`, `<OperationId>QueryParams`, `<OperationId>HeaderParams`
   - No `<OperationId>RequestConfig` type emitted
   - Wrapper types (`Mutation`/`Query`) use `{ Response, Request?, QueryParams?, Errors }` shape
@@ -522,6 +567,7 @@
   Six `@deprecated` resolver methods added to `ResolverTs` for grouped parameter naming (`resolvePathParamsName`, `resolveQueryParamsName`, `resolveHeaderParamsName` and typed variants). Implemented only in `resolverTsLegacy`; will be removed in v6.
 
   **`@kubb/adapter-oas`**: `collisionDetection` is now part of the public API with a default of `true`.
+
   - `collisionDetection: true` (default) → full-path enum names, e.g. `OrderParamsStatusEnum`
   - `collisionDetection: false` → immediate-parent enum names with numeric deduplication, e.g. `ParamsStatusEnum`, `ParamsStatusEnum2`
 
