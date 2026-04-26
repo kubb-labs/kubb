@@ -161,8 +161,8 @@ export class PluginDriver {
           setOptions: (opts) => {
             normalizedPlugin.options = { ...normalizedPlugin.options, ...opts }
           },
-          injectFile: ({ sources = [], ...rest }) => {
-            this.fileManager.add(createFile({ imports: [], exports: [], sources, ...rest }))
+          injectFile: ({ sources = [], exports = [], ...rest }) => {
+            this.fileManager.add(createFile({ imports: [], exports, sources, ...rest }))
           },
         }
         return hooks['kubb:plugin:setup']!(pluginCtx)

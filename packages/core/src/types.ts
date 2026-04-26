@@ -651,6 +651,7 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
   injectFile(
     file: Pick<FileNode, 'baseName' | 'path'> & {
       sources?: FileNode['sources']
+      exports?: FileNode['exports']
     },
   ): void
   /**
