@@ -1,5 +1,12 @@
 # @kubb/renderer-jsx
 
+## 5.0.0-alpha.70
+
+### Patch Changes
+
+- Updated dependencies [[`1eba61b`](https://github.com/kubb-labs/kubb/commit/1eba61bf31553711273c7ff17e5a8577a9ba66f5)]:
+  - @kubb/ast@5.0.0-alpha.70
+
 ## 5.0.0-alpha.69
 
 ### Patch Changes

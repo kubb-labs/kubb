@@ -57,6 +57,7 @@
     "fix-cli-tty-column-error",
     "fix-defineconfig-entrypoint",
     "fix-discriminator-union-types",
+    "fix-middleware-barrel-banner-bleed",
     "fix-middleware-barrel-barrel-type-augmentation",
     "fix-middleware-barrel-generation",
     "fix-middleware-barrel-windows",
@@ -75,6 +76,7 @@
     "make-getplugin-typesafe",
     "move-plugins-to-own-repo",
     "node-22-minimum",
+    "preserve-union-kind-semantics",
     "refactor-middleware-barrel",
     "remove-deprecated-plugin-checks",
     "remove-legacy-plugin-types",
@@ -87,6 +89,7 @@
     "requestbody-content-array",
     "some-dodos-search",
     "sort-named-barrel-exports",
+    "support-filenode-exports-injectfile",
     "typescript-6-upgrade",
     "unplugin-default-middleware-barrel",
     "update-react-fabric-dependency"
