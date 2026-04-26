@@ -505,7 +505,7 @@ export function createSource(props: Omit<SourceNode, 'kind'>): SourceNode {
   return { ...props, kind: 'Source' }
 }
 
-type UserFileNode<TMeta extends object = object> = Omit<FileNode<TMeta>, 'kind' | 'id' | 'name' | 'extname' | 'imports' | 'exports' | 'sources'> &
+export type UserFileNode<TMeta extends object = object> = Omit<FileNode<TMeta>, 'kind' | 'id' | 'name' | 'extname' | 'imports' | 'exports' | 'sources'> &
   Pick<Partial<FileNode<TMeta>>, 'imports' | 'exports' | 'sources'>
 
 /**

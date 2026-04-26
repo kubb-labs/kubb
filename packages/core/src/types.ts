@@ -1,5 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { FileNode, HttpMethod, ImportNode, InputNode, Node, SchemaNode, Visitor } from '@kubb/ast'
+import type { FileNode, HttpMethod, ImportNode, InputNode, Node, SchemaNode, UserFileNode, Visitor } from '@kubb/ast'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
@@ -649,10 +649,7 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
    * Inject a raw file into the build output, bypassing the normal generation pipeline.
    */
   injectFile(
-    file: Pick<FileNode, 'baseName' | 'path'> & {
-      sources?: FileNode['sources']
-      exports?: FileNode['exports']
-    },
+    userFileNode: UserFileNode
   ): void
   /**
    * Merge a partial config update into the current build configuration.

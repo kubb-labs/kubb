@@ -64,7 +64,7 @@
     "@kubb/adapter-oas": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@types/ws": "^8.18.1",
-    "msw": "^2.13.5",
+    "msw": "^2.13.6",
     "nitropack": "^2.13.3",
     "vite": "^8.0.10"
   },
