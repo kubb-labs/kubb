@@ -59,8 +59,6 @@ export type Middleware = {
  * })
  * ```
  */
-export function defineMiddleware<TOptions extends object = object>(
-  factory: (options: TOptions) => Middleware,
-): (options?: TOptions) => Middleware {
+export function defineMiddleware<TOptions extends object = object>(factory: (options: TOptions) => Middleware): (options?: TOptions) => Middleware {
   return (options) => factory(options ?? ({} as TOptions))
 }
