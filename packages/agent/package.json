@@ -53,9 +53,9 @@
     "@kubb/core": "workspace:*",
     "@logtail/node": "^0.5.8",
     "consola": "^3.4.2",
-    "jiti": "^2.6.1",
     "remeda": "catalog:",
     "tinyexec": "catalog:",
+    "unrun": "^0.2.37",
     "unstorage": "^1.17.5",
     "ws": "^8.20.0"
   },

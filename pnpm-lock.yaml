@@ -147,15 +147,15 @@ importers:
       consola:
         specifier: ^3.4.2
         version: 3.4.2
-      jiti:
-        specifier: ^2.6.1
-        version: 2.6.1
       remeda:
         specifier: 'catalog:'
         version: 2.33.7
       tinyexec:
         specifier: 'catalog:'
         version: 1.1.1
+      unrun:
+        specifier: ^0.2.37
+        version: 0.2.37
       unstorage:
         specifier: ^1.17.5
         version: 1.17.5(db0@0.3.4)(ioredis@5.10.1)
@@ -211,12 +211,12 @@ importers:
       cosmiconfig:
         specifier: ^9.0.1
         version: 9.0.1(typescript@6.0.3)
-      jiti:
-        specifier: ^2.6.1
-        version: 2.6.1
       tinyexec:
         specifier: 'catalog:'
         version: 1.1.1
+      unrun:
+        specifier: ^0.2.37
+        version: 0.2.37
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
@@ -290,9 +290,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.29.0
         version: 1.29.0(zod@4.3.6)
-      jiti:
-        specifier: ^2.6.1
-        version: 2.6.1
+      unrun:
+        specifier: ^0.2.37
+        version: 0.2.37
       zod:
         specifier: ^4.3.6
         version: 4.3.6
