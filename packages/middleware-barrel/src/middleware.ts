@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { resolve } from 'node:path'
 import { defineMiddleware } from '@kubb/core'
 import type { Middleware } from '@kubb/core'
@@ -79,8 +80,14 @@ export const middlewareBarrel = defineMiddleware(() => {
           return
         }
 
+        const base = resolve(config.root, config.output.path)
+        const target = resolve(base, plugin.options.output.path)
+        const relative = path.relative(base, target)
+        if (relative.startsWith('..') || path.isAbsolute(relative)) {
+          throw new Error('Invalid output path')
+        }
         const barrelFiles = getBarrelFiles({
-          outputPath: resolve(config.root, config.output.path, plugin.options.output.path),
+          outputPath: target,
           files,
           barrelType,
           recursive: true,
