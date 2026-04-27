@@ -7,6 +7,7 @@ RUN npm install kubb @kubb/core @kubb/cli @kubb/adapter-oas @kubb/plugin-client 
                          @kubb/plugin-mcp @kubb/plugin-msw @kubb/plugin-oas @kubb/plugin-react-query @kubb/plugin-redoc \
                          @kubb/plugin-ts @kubb/plugin-vue-query \
                          @kubb/plugin-zod kubb unplugin-kubb
+RUN adduser -D -u 1000 appuser
 
 # Stage 2: distroless runtime (no shell required)
 # https://github.com/GoogleContainerTools/distroless/blob/main/nodejs/README.md
@@ -31,7 +32,11 @@ EXPOSE ${PORT}
 COPY --link .output ./.output
 COPY --from=installer /tmp /kubb/deps
 COPY --link data /kubb/agent/data
+COPY --from=installer /etc/passwd /etc/passwd
 
 ENV NODE_PATH=/kubb/deps/node_modules
+
+RUN chown -R 1000:1000 /kubb
+USER 1000
 
 CMD [ ".output/server/index.mjs" ]
