@@ -2,7 +2,6 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
 import type * as McpModule from '@kubb/mcp'
-import { jiti } from '../utils/jiti.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 
 type McpOptions = {
@@ -12,9 +11,7 @@ type McpOptions = {
 export async function runMcp({ version }: McpOptions): Promise<void> {
   let mod: typeof McpModule
   try {
-    mod = (await jiti.import('@kubb/mcp', {
-      default: true,
-    })) as typeof McpModule
+    mod = (await import('@kubb/mcp')) as typeof McpModule
   } catch (_e) {
     console.error(`Import of '@kubb/mcp' is required to start the MCP server`)
     process.exit(1)

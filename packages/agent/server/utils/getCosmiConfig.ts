@@ -1,7 +1,7 @@
 import path from 'node:path'
 import process from 'node:process'
 import type { PossibleConfig } from '@kubb/core'
-import { createJiti } from 'jiti'
+import { unrun } from 'unrun'
 import { logger } from '~/utils/logger.ts'
 
 export type CosmiconfigResult = {
@@ -10,32 +10,24 @@ export type CosmiconfigResult = {
   config: PossibleConfig
 }
 
-/**
- * Load a TypeScript or JavaScript Kubb config file using jiti for on-the-fly transpilation.
- * Supports JSX via `@kubb/renderer-jsx` and resolves the default export.
- */
 const tsLoader = async (configFile: string) => {
-  const jiti = createJiti(import.meta.url, {
-    jsx: {
-      runtime: 'automatic',
-      importSource: '@kubb/renderer-jsx',
+  const { module } = await unrun({
+    path: configFile,
+    inputOptions: {
+      transform: {
+        jsx: {
+          runtime: 'automatic',
+          importSource: '@kubb/renderer-jsx',
+        },
+      },
     },
-    sourceMaps: true,
-    interopDefault: true,
   })
 
-  const mod = await jiti.import(configFile, { default: true })
-
-  return mod as any
+  return module as any
 }
 
-/**
- * Load a Kubb config file from the given path, resolving relative paths against `process.cwd()`.
- * Supports both `.ts` and `.js` config files.
- */
 export async function getCosmiConfig(configPath: string): Promise<CosmiconfigResult> {
   try {
-    // Resolve relative paths to absolute
     const absolutePath = path.isAbsolute(configPath) ? configPath : path.resolve(process.cwd(), configPath)
 
     const mod = await tsLoader(absolutePath)
