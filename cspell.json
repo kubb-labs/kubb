@@ -93,6 +93,8 @@
     "unprovide",
     "jsxs",
     "oxfmtrc",
-    "oxlintrc"
+    "oxlintrc",
+    "unrun",
+    "rolldown"
   ]
 }
