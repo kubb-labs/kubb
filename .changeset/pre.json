@@ -86,6 +86,7 @@
     "rename-define-to-create",
     "rename-events-to-hooks",
     "rename-printer-type-exports",
+    "replace-jiti-with-unrun",
     "requestbody-content-array",
     "some-dodos-search",
     "sort-named-barrel-exports",

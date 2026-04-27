@@ -1,5 +1,15 @@
 # unplugin-kubb
 
+## 5.0.0-alpha.71
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/adapter-oas@5.0.0-alpha.71
+  - @kubb/core@5.0.0-alpha.71
+  - @kubb/middleware-barrel@5.0.0-alpha.71
+  - @kubb/parser-ts@5.0.0-alpha.71
+
 ## 5.0.0-alpha.70
 
 ### Patch Changes
