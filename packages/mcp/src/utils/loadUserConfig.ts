@@ -33,7 +33,14 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
       await notify(NotifyTypes.CONFIG_ERROR, msg)
       throw new Error(msg)
     }
-    const resolvedConfigPath = path.resolve(configPath)
+    const base = path.resolve(process.cwd())
+    const resolvedConfigPath = path.resolve(base, configPath)
+    const relative = path.relative(base, resolvedConfigPath)
+    if (relative.startsWith('..') || path.isAbsolute(relative)) {
+      const msg = 'Invalid config file path: must be within the current working directory'
+      await notify(NotifyTypes.CONFIG_ERROR, msg)
+      throw new Error(msg)
+    }
     cwd = path.dirname(resolvedConfigPath)
 
     try {
