@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import path from 'node:path'
 import type { Config } from '@kubb/core'
 import { unrun } from 'unrun'
@@ -25,8 +26,9 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
     const configFileNames = ['kubb.config.ts', 'kubb.config.mts', 'kubb.config.cts', 'kubb.config.js', 'kubb.config.cjs']
 
     for (const configFileName of configFileNames) {
+      const configFilePath = path.resolve(process.cwd(), configFileName)
+      if (!existsSync(configFilePath)) continue
       try {
-        const configFilePath = path.resolve(process.cwd(), configFileName)
         const { module } = await unrun({ path: configFilePath })
         userConfig = module as Config
         await notify(NotifyTypes.CONFIG_LOADED, `Loaded ${configFileName} from current directory`)

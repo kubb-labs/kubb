@@ -10,17 +10,19 @@ export type CosmiconfigResult = {
   config: PossibleConfig
 }
 
+const unrunInputOptions = {
+  transform: {
+    jsx: {
+      runtime: 'automatic' as const,
+      importSource: '@kubb/renderer-jsx',
+    },
+  },
+}
+
 const tsLoader = async (configFile: string) => {
   const { module } = await unrun({
     path: configFile,
-    inputOptions: {
-      transform: {
-        jsx: {
-          runtime: 'automatic',
-          importSource: '@kubb/renderer-jsx',
-        },
-      },
-    },
+    inputOptions: unrunInputOptions,
   })
 
   return module as any
