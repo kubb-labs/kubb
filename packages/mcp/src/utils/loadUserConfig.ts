@@ -2,15 +2,18 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import type { Config } from '@kubb/core'
 import { unrun } from 'unrun'
+import { ALLOWED_CONFIG_EXTENSIONS } from '../constants.ts'
 import { NotifyTypes } from '../types.ts'
 
 type NotifyFunction = (type: string, message: string, data?: Record<string, unknown>) => Promise<void>
 
-const ALLOWED_CONFIG_EXTENSIONS = new Set(['.ts', '.mts', '.cts', '.js', '.mjs', '.cjs'])
-
 const loadedModules = new Map<string, unknown>()
 
 async function loadModule(filePath: string): Promise<unknown> {
+  const ext = path.extname(filePath)
+  if (!ALLOWED_CONFIG_EXTENSIONS.has(ext)) {
+    throw new Error(`Invalid config file extension "${ext}". Allowed: ${[...ALLOWED_CONFIG_EXTENSIONS].join(', ')}`)
+  }
   if (loadedModules.has(filePath)) {
     return loadedModules.get(filePath)
   }
@@ -24,10 +27,6 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
   let cwd: string
 
   if (configPath) {
-    const ext = path.extname(configPath)
-    if (!ALLOWED_CONFIG_EXTENSIONS.has(ext)) {
-      throw new Error(`Invalid config file extension "${ext}". Allowed: ${[...ALLOWED_CONFIG_EXTENSIONS].join(', ')}`)
-    }
     const resolvedConfigPath = path.resolve(configPath)
     cwd = path.dirname(resolvedConfigPath)
 
