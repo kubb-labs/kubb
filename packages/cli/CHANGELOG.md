@@ -1,5 +1,18 @@
 # @kubb/cli
 
+## 5.0.0-alpha.71
+
+### Patch Changes
+
+- [#3182](https://github.com/kubb-labs/kubb/pull/3182) [`3df1a43`](https://github.com/kubb-labs/kubb/commit/3df1a438153ee2545f119926cbd2defc7c0ab32c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - feat: replace jiti with unrun for TypeScript config loading
+
+  Swap `jiti` for `unrun` (powered by rolldown/Oxc) across the cli, agent, and mcp packages.
+  unrun is ~7× faster on first load (19ms vs 138ms) with a smaller overall package footprint.
+
+- Updated dependencies []:
+  - @kubb/adapter-oas@5.0.0-alpha.71
+  - @kubb/core@5.0.0-alpha.71
+
 ## 5.0.0-alpha.70
 
 ### Patch Changes
