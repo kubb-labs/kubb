@@ -6,17 +6,28 @@ import { NotifyTypes } from '../types.ts'
 
 type NotifyFunction = (type: string, message: string, data?: Record<string, unknown>) => Promise<void>
 
+const loadedModules = new Map<string, unknown>()
+
+async function loadModule(filePath: string): Promise<unknown> {
+  if (loadedModules.has(filePath)) {
+    return loadedModules.get(filePath)
+  }
+  const { module } = await unrun({ path: filePath })
+  loadedModules.set(filePath, module)
+  return module
+}
+
 export async function loadUserConfig(configPath: string | undefined, { notify }: { notify: NotifyFunction }): Promise<{ userConfig: Config; cwd: string }> {
   let userConfig: Config | undefined
   let cwd: string
 
   if (configPath) {
-    cwd = path.dirname(path.resolve(configPath))
+    const resolvedConfigPath = path.resolve(configPath)
+    cwd = path.dirname(resolvedConfigPath)
 
     try {
-      const { module } = await unrun({ path: configPath })
-      userConfig = module as Config
-      await notify(NotifyTypes.CONFIG_LOADED, `Loaded config from ${configPath}`)
+      userConfig = (await loadModule(resolvedConfigPath)) as Config
+      await notify(NotifyTypes.CONFIG_LOADED, `Loaded config from ${resolvedConfigPath}`)
     } catch (error) {
       await notify(NotifyTypes.CONFIG_ERROR, `Failed to load config: ${error instanceof Error ? error.message : String(error)}`)
       throw new Error(`Failed to load config: ${error instanceof Error ? error.message : String(error)}`)
@@ -29,8 +40,7 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
       const configFilePath = path.resolve(process.cwd(), configFileName)
       if (!existsSync(configFilePath)) continue
       try {
-        const { module } = await unrun({ path: configFilePath })
-        userConfig = module as Config
+        userConfig = (await loadModule(configFilePath)) as Config
         await notify(NotifyTypes.CONFIG_LOADED, `Loaded ${configFileName} from current directory`)
         break
       } catch {
