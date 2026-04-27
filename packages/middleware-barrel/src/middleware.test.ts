@@ -146,7 +146,7 @@ describe('middlewareBarrel - path traversal security', () => {
     const base = resolve(config.root, config.output.path)
     const target = resolve(base, plugin.options.output.path)
     const rel = relative(base, target)
-    
+
     // On Unix, this will be a relative path, but we verify the security check logic
     // The actual behavior depends on the OS, but the security check should work
     if (rel.startsWith('..') || isAbsolute(rel)) {
@@ -169,20 +169,20 @@ describe('middlewareBarrel - path traversal security', () => {
   it('should validate that resolved path stays within base directory', () => {
     const config = makeConfig()
     const base = resolve(config.root, config.output.path)
-    
+
     // Test valid path
     const validPlugin = makePlugin('plugin-valid', 'types')
     const validTarget = resolve(base, validPlugin.options.output.path)
     const validRelative = relative(base, validTarget)
-    
+
     expect(validRelative.startsWith('..')).toBe(false)
     expect(isAbsolute(validRelative)).toBe(false)
-    
+
     // Test invalid path with traversal
     const invalidPlugin = makePlugin('plugin-invalid', '../../../etc')
     const invalidTarget = resolve(base, invalidPlugin.options.output.path)
     const invalidRelative = relative(base, invalidTarget)
-    
+
     expect(invalidRelative.startsWith('..')).toBe(true)
   })
 })
@@ -227,10 +227,7 @@ describe('middlewareBarrel - existing functionality', () => {
 
   it('should generate root barrel file in kubb:plugins:end hook', () => {
     const config = makeConfig()
-    const files = [
-      makeFile('/workspace/src/gen/types/pet.ts'),
-      makeFile('/workspace/src/gen/schemas/petSchema.ts'),
-    ]
+    const files = [makeFile('/workspace/src/gen/types/pet.ts'), makeFile('/workspace/src/gen/schemas/petSchema.ts')]
     const hooks = new AsyncEventEmitter<KubbHooks>()
     const upsertFile = vi.fn()
 
