@@ -24,11 +24,11 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
   let cwd: string
 
   if (configPath) {
-    const resolvedConfigPath = path.resolve(configPath)
-    const ext = path.extname(resolvedConfigPath)
+    const ext = path.extname(configPath)
     if (!ALLOWED_CONFIG_EXTENSIONS.has(ext)) {
       throw new Error(`Invalid config file extension "${ext}". Allowed: ${[...ALLOWED_CONFIG_EXTENSIONS].join(', ')}`)
     }
+    const resolvedConfigPath = path.resolve(configPath)
     cwd = path.dirname(resolvedConfigPath)
 
     try {
