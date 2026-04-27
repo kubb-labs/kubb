@@ -6,6 +6,8 @@ import { NotifyTypes } from '../types.ts'
 
 type NotifyFunction = (type: string, message: string, data?: Record<string, unknown>) => Promise<void>
 
+const ALLOWED_CONFIG_EXTENSIONS = new Set(['.ts', '.mts', '.cts', '.js', '.mjs', '.cjs'])
+
 const loadedModules = new Map<string, unknown>()
 
 async function loadModule(filePath: string): Promise<unknown> {
@@ -23,6 +25,10 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
 
   if (configPath) {
     const resolvedConfigPath = path.resolve(configPath)
+    const ext = path.extname(resolvedConfigPath)
+    if (!ALLOWED_CONFIG_EXTENSIONS.has(ext)) {
+      throw new Error(`Invalid config file extension "${ext}". Allowed: ${[...ALLOWED_CONFIG_EXTENSIONS].join(', ')}`)
+    }
     cwd = path.dirname(resolvedConfigPath)
 
     try {
