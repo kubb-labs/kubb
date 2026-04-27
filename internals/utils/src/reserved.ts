@@ -115,10 +115,8 @@ export function transformReservedWord(word: string): string {
  * ```
  */
 export function isValidVarName(name: string): boolean {
-  try {
-    new Function(`var ${name}`)
-  } catch {
+  if (!name || reservedWords.has(name as 'valueOf')) {
     return false
   }
-  return true
+  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(name)
 }
