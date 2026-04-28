@@ -110,6 +110,8 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     parsers: userConfig.parsers ?? [],
     adapter: userConfig.adapter,
     output: {
+      format: false,
+      lint: false,
       write: true,
       extension: DEFAULT_EXTENSION,
       defaultBanner: DEFAULT_BANNER,
