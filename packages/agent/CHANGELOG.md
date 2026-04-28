@@ -1,5 +1,13 @@
 # @kubb/agent
 
+## 5.0.0-alpha.73
+
+### Patch Changes
+
+- Updated dependencies [[`d8dd397`](https://github.com/kubb-labs/kubb/commit/d8dd39724f5372b31c91f9c4352d49b9c00f811d)]:
+  - @kubb/core@5.0.0-alpha.73
+  - @kubb/ast@5.0.0-alpha.73
+
 ## 5.0.0-alpha.72
 
 ### Patch Changes
