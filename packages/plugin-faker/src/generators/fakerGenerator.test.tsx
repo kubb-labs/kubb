@@ -125,6 +125,24 @@ describe('fakerGenerator schema', async () => {
       input: '../../mocks/selfReferencing.yaml',
       options: {},
     },
+    {
+      name: 'MutualRecursionPet',
+      path: 'Pet',
+      input: '../../mocks/mutualRecursion.yaml',
+      options: {},
+    },
+    {
+      name: 'MutualRecursionCat',
+      path: 'Cat',
+      input: '../../mocks/mutualRecursion.yaml',
+      options: {},
+    },
+    {
+      name: 'MutualRecursionDog',
+      path: 'Dog',
+      input: '../../mocks/mutualRecursion.yaml',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string

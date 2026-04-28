@@ -49,10 +49,16 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
   let fakerTextWithOverride = fakerText
 
   if (canOverride && isObject) {
-    fakerTextWithOverride = `{
+    if (fakerText.includes('...(data || {})')) {
+      // object handler already embedded data spread inside — just wrap with outer spread
+      // to materialise getters in insertion order (preserves faker seed determinism)
+      fakerTextWithOverride = `{ ...${fakerText} }`
+    } else {
+      fakerTextWithOverride = `{
   ...${fakerText},
   ...data || {}
 }`
+    }
   }
 
   if (canOverride && isTuple) fakerTextWithOverride = `data || ${fakerText}`

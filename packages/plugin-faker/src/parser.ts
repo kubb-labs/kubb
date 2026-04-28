@@ -194,6 +194,56 @@ export function joinItems(items: string[]): string {
   }
 }
 
+/**
+ * Returns true if any schema in the list contains a $ref that points to a type other
+ * than rootTypeName (i.e. an indirect / mutual ref rather than a direct self-ref).
+ * Recurses through array.items, union/and args, tuple items, and nested object properties.
+ */
+export function hasIndirectRef(
+  schemas: Schema[],
+  rootTypeName: string | undefined,
+): boolean {
+  return schemas.some((schema) => {
+    if (!("args" in schema)) {
+      return false;
+    }
+
+    switch (schema.keyword) {
+      case schemaKeywords.ref: {
+        return schema.args?.name !== rootTypeName;
+      }
+      case schemaKeywords.array: {
+        return hasIndirectRef(schema.args?.items ?? [], rootTypeName);
+      }
+      case schemaKeywords.union:
+      case schemaKeywords.and: {
+        return (
+          Array.isArray(schema.args) &&
+          hasIndirectRef(schema.args, rootTypeName)
+        );
+      }
+      case schemaKeywords.tuple: {
+        const items: Schema[] = Array.isArray(schema.args?.items)
+          ? schema.args.items
+          : schema.args?.items
+            ? [schema.args.items]
+            : [];
+        return hasIndirectRef(items, rootTypeName);
+      }
+      case schemaKeywords.object: {
+        const props = schema.args?.properties as
+          | Record<string, Schema[]>
+          | undefined;
+        if (!props) return false;
+        return Object.values(props).some((propSchemas) =>
+          hasIndirectRef(propSchemas, rootTypeName),
+        );
+      }
+    }
+    return false;
+  });
+}
+
 type ParserOptions = {
   typeName?: string
   rootTypeName?: string
@@ -318,11 +368,14 @@ export const parse = createParser<string, ParserOptions>({
     object(tree, options) {
       const { current, schema } = tree
 
-      const argsObject = Object.entries(current.args?.properties || {})
-        .filter((item) => {
-          const schema = item[1]
-          return schema && typeof schema.map === 'function'
-        })
+      const filteredEntries = Object.entries(current.args?.properties || {}).filter((item) => {
+        const schema = item[1]
+        return schema && typeof schema.map === 'function'
+      })
+
+      const anyIndirectRef = filteredEntries.some(([, schemas]) => hasIndirectRef(schemas, options.rootTypeName))
+
+      const argsObject = filteredEntries
         .map(([name, schemas]) => {
           const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
           const mappedName = nameSchema?.args || name
@@ -333,7 +386,7 @@ export const parse = createParser<string, ParserOptions>({
             return `"${name}": ${options.mapper?.[mappedName]}`
           }
 
-          return `"${name}": ${joinItems(
+          const parsed = joinItems(
             schemas
               .sort(schemaKeywordSorter)
               .map((it) =>
@@ -353,9 +406,20 @@ export const parse = createParser<string, ParserOptions>({
                 ),
               )
               .filter((x): x is string => Boolean(x)),
-          )}`
+          )
+
+          if (anyIndirectRef && hasIndirectRef(schemas, options.rootTypeName)) {
+            return `get "${name}"() { return ${parsed} }`
+          }
+
+          return `"${name}": ${parsed}`
         })
         .join(',')
+
+      if (anyIndirectRef && options.canOverride) {
+        const separator = argsObject.length > 0 ? ',' : ''
+        return `{${argsObject}${separator}...(data || {})}`
+      }
 
       return `{${argsObject}}`
     },
