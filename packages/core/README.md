@@ -51,14 +51,14 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 
 ## Features
 
-- Works with Node.js 22+.
-- Convert Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 to TypeScript types, API clients, React Query hooks, Zod validators, MSW mocks and more.
-- Plugin ecosystem to extend and compose beyond the built-in generators.
-- CLI support with progress bar and detailed logs.
+- Works with Node.js 22+ and TypeScript 6.
+- Convert Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 to TypeScript types, API clients, and more via the [plugin ecosystem](https://github.com/kubb-labs/kubb-plugins).
+- Extensible plugin and middleware system for customizing and composing code generation.
+- CLI support with interactive setup, progress bar, and detailed logs.
 - Model Context Protocol (MCP) server for AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible tools.
-- Debug tools with React DevTools.
-- Generates barrel files (index.ts).
-- And so much more ...
+- JSX-based renderer (`@kubb/renderer-jsx`) for building custom plugin output.
+- Barrel file generation via the `@kubb/middleware-barrel` middleware.
+- AI-powered code generation agent (`@kubb/agent`).
 
 ## Supporting Kubb
 
