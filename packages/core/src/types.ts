@@ -197,7 +197,7 @@ export type Config<TInput = Input> = {
      * - 'prettier' uses Prettier for code formatting.
      * - 'biome' uses Biome for code formatting.
      * - false disables code formatting.
-     * @default 'prettier'
+     * @default 'auto'
      */
     format?: 'auto' | 'prettier' | 'biome' | 'oxfmt' | false
     /**

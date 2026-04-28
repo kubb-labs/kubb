@@ -36,6 +36,12 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     if (hasBarrelMiddleware && output.barrelType === undefined) {
       output.barrelType = 'named'
     }
+    if (output.format === undefined) {
+      output.format = 'auto'
+    }
+    if (output.lint === undefined) {
+      output.lint = 'auto'
+    }
 
     const config = {
       ...options.config,
