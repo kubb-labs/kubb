@@ -34,10 +34,10 @@ function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
     output.barrelType = 'named'
   }
   if (output.format === undefined) {
-    output.format = 'auto'
+    output.format = false
   }
   if (output.lint === undefined) {
-    output.lint = 'auto'
+    output.lint = false
   }
 
   return {

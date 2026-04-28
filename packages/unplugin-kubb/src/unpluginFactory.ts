@@ -37,10 +37,10 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       output.barrelType = 'named'
     }
     if (output.format === undefined) {
-      output.format = 'auto'
+      output.format = false
     }
     if (output.lint === undefined) {
-      output.lint = 'auto'
+      output.lint = false
     }
 
     const config = {
