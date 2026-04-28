@@ -1,88 +1,249 @@
-# Contribution Guidelines
+# Contributing to Kubb
 
-When contributing to `Kubb`, whether on GitHub or in other community spaces:
+Thank you for your interest in contributing to Kubb! 🎉
+
+Whether you're fixing a bug, adding a feature, improving documentation, or just asking a question — every contribution is welcome. To make this a great experience for everyone, please read these guidelines before you get started.
+
+**Ground rules:**
 
 - Be respectful, civil, and open-minded.
-- Before opening a new pull request, try searching through the [issue tracker](https://github.com/kubb-labs/kubb/issues) for known issues or fixes.
-- If you want to make code changes based on your personal opinion(s), make sure you open an issue first describing the changes you want to make, and open a pull request only when your suggestions get approved by maintainers.
+- Before opening a new pull request, search the [issue tracker](https://github.com/kubb-labs/kubb/issues) for known issues or related work.
+- For opinion-driven changes (refactors, style changes, new APIs), open an issue first so it can be discussed before you invest time coding.
 
-## How to Contribute
+---
+
+## Table of Contents
+
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Fork and Clone](#fork-and-clone)
+  - [Install Dependencies](#install-dependencies)
+- [Development Workflow](#development-workflow)
+  - [Build](#build)
+  - [Testing](#testing)
+  - [Linting and Formatting](#linting-and-formatting)
+  - [Type Checking](#type-checking)
+  - [Spell Checking](#spell-checking)
+- [Submitting Changes](#submitting-changes)
+  - [Commit Conventions](#commit-conventions)
+  - [Changesets](#changesets)
+  - [Opening a Pull Request](#opening-a-pull-request)
+- [Credits](#credits)
+
+---
+
+## Tech Stack
+
+Kubb is a TypeScript-first, ESM-only monorepo. Here's what powers it:
+
+| Tool | Purpose |
+|---|---|
+| [TypeScript](https://www.typescriptlang.org/) | Primary language — strict mode, ESM only |
+| [pnpm](https://pnpm.io/) | Package manager with workspaces |
+| [Turborepo](https://turbo.build/) | Monorepo task runner and build caching |
+| [tsdown](https://github.com/sxzz/tsdown) | Package bundler and `.d.ts` generation |
+| [Vitest](https://vitest.dev/) | Unit and integration testing |
+| [oxlint](https://oxc.rs/docs/guide/usage/linter.html) | Fast JavaScript/TypeScript linter |
+| [oxfmt](https://github.com/nicolo-ribaudo/oxfmt) | Code formatter |
+| [CSpell](https://cspell.org/) | Spell checker for code and documentation |
+| [Changesets](https://github.com/changesets/changesets) | Versioning and changelog management |
+| [GitHub Actions](https://github.com/features/actions) | CI/CD pipelines |
+
+**Packages in this repo:**
+
+| Package | Description |
+|---|---|
+| `@kubb/core` | Core utilities and shared runtime |
+| `@kubb/kubb` | CLI, config, and build manager |
+| `@kubb/agent` | AI-assisted code generation agent |
+| `@kubb/ast` | AST helpers and types |
+| `@kubb/adapter-oas` | OpenAPI / Swagger adapter |
+| `@kubb/parser-ts` | TypeScript parser |
+| `@kubb/renderer-jsx` | JSX renderer for code components |
+| `@kubb/middleware-barrel` | Barrel file middleware |
+| `@kubb/unplugin-kubb` | Vite / Rollup / Webpack / esbuild integration |
+| `@kubb/mcp` | Model Context Protocol (MCP) server |
+| `@kubb/cli` | Command-line interface |
+
+---
+
+## Getting Started
 
 ### Prerequisites
 
-In order to not waste your time implementing a change that has already been declined, or is generally not needed, start by [opening an issue](https://github.com/kubb-labs/kubb/issues/new) describing the problem you would like to solve.
+- **Node.js** `>=22`
+- **pnpm** `>=10`
 
-### Setup your environment locally
+To avoid implementing a change that has already been declined, start by [opening an issue](https://github.com/kubb-labs/kubb/issues/new) to describe the problem you want to solve and wait for maintainer feedback.
 
-_Some commands will assume you have the GitHub CLI installed, if you haven't, consider [installing it](https://github.com/cli/cli#installation), but you can always use the Web UI if you prefer that instead._
+### Fork and Clone
 
-In order to contribute to this project, you will need to fork the repository:
-
-```bash
-gh repo fork kubb-labs/kubb
-```
-
-then, clone it to your local machine:
+Fork the repository on GitHub, then clone it locally:
 
 ```bash
-gh repo clone <your-github-name>/kubb
+# With the GitHub CLI (recommended)
+gh repo fork kubb-labs/kubb --clone
+
+# Or clone your fork manually
+git clone https://github.com/<your-github-name>/kubb.git
+cd kubb
 ```
 
-### Implement your changes
-
-This project includes several code quality tools to help maintain code standards:
-
-- **Linting**: Run `pnpm run lint` to check code style (uses Biome)
-- **Formatting**: Run `pnpm run format` to auto-format code
-- **Type checking**: Run `pnpm run typecheck` to verify TypeScript types
-- **Spell checking**: Run `pnpm run lint:spell` to check spelling in `.ts` and `.md` files (uses CSpell)
-- **Testing**: Run `pnpm run test` to run the test suite
-- **Performance benchmarks**: Run `pnpm run test:bench` to run performance benchmarks
-
-#### Spell Checking
-
-This project uses [CSpell](https://cspell.org/) to catch spelling errors in code and documentation. The configuration is in `cspell.json` and uses American English.
-
-If you encounter a spelling error:
-
-- For typos: Fix the spelling in your code
-- For technical terms, library names, or contributor names: Add them to the `words` array in `cspell.json`
-
-Common technical terms, framework names, and contributor names are already in the dictionary.
-
-#### Performance Testing
-
-Performance benchmarks are located in `tests/performance/` and test the code generation speed of various plugin combinations. These benchmarks help ensure performance doesn't regress over time.
-
-To run benchmarks:
+### Install Dependencies
 
 ```bash
-pnpm run test:bench
+pnpm install
 ```
 
-When making changes that might affect generation performance (e.g., changes to core build process, plugin generators, or file processing), consider running the benchmarks before and after your changes to verify there are no significant regressions.
+---
 
-See [tests/performance/README.md](tests/performance/README.md) for more details on adding new benchmarks.
+## Development Workflow
 
-When making commits, make sure to follow the [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) guidelines, i.e. prepending the message with `feat:`, `fix:`, `chore:`, `docs:`, etc... You can use `git status` to double check which files have not yet been staged for commit:
+### Build
+
+Build all packages (Turborepo will build them in the correct dependency order):
 
 ```bash
-git add <file> && git commit -m "feat/fix/chore/docs: commit message"
+pnpm build
 ```
 
-Next to [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) we also use [changesets](https://github.com/changesets/changesets). Run the following command and follow the steps in the CLI. You will be prompted to select the changed packages, select if the changes are major/minor/patch and a message that you want to add to generated changelog.
+To clean all build artifacts and start fresh:
 
 ```bash
-pnpm run changeset
-npx changeset
+pnpm clean
 ```
 
-### When you're done
+### Testing
 
-When all that's done, it's time to file a pull request to upstream:
+Run the full test suite:
 
-**NOTE**: All pull requests should target the `main` branch.
+```bash
+pnpm test
+```
+
+Run tests in watch mode during development:
+
+```bash
+pnpm test:watch
+```
+
+Run a specific test file or test name:
+
+```bash
+pnpm test "<test name or path>"
+```
+
+**Always add or update tests when changing behaviour.** If snapshot files are out of date, update them with:
+
+```bash
+pnpm test -u
+```
+
+### Linting and Formatting
+
+Check code style with the linter:
+
+```bash
+pnpm lint
+```
+
+Auto-fix linting issues:
+
+```bash
+pnpm lint:fix
+```
+
+Format all source files:
+
+```bash
+pnpm format
+```
+
+### Type Checking
+
+Run TypeScript type checking across all packages:
+
+```bash
+pnpm typecheck
+```
+
+After moving files or changing imports, always run both lint and typecheck together:
+
+```bash
+pnpm lint && pnpm typecheck
+```
+
+### Spell Checking
+
+This project uses [CSpell](https://cspell.org/) to catch spelling mistakes in code and documentation. Configuration lives in `cspell.json` (American English).
+
+```bash
+pnpm lint:spell
+```
+
+If you encounter a false positive:
+
+- **Typo** → fix the spelling in your code.
+- **Technical term, library name, or proper noun** → add it to the `words` array in `cspell.json`.
+
+---
+
+## Submitting Changes
+
+### Commit Conventions
+
+This project follows [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). Every commit message must be prefixed with a type:
+
+| Prefix | When to use |
+|---|---|
+| `feat:` | A new feature |
+| `fix:` | A bug fix |
+| `docs:` | Documentation only changes |
+| `chore:` | Build process, tooling, or dependency updates |
+| `refactor:` | Code change that is neither a fix nor a feature |
+| `test:` | Adding or updating tests |
+| `perf:` | A performance improvement |
+
+Example:
+
+```bash
+git add <file>
+git commit -m "feat: add support for OpenAPI 3.1 discriminator"
+```
+
+### Changesets
+
+Kubb uses [Changesets](https://github.com/changesets/changesets) to manage versions and generate changelogs. **Every pull request that changes package behaviour must include a changeset.**
+
+Run the interactive CLI and follow the prompts to select the affected packages, choose a semver bump (`major` / `minor` / `patch`), and write a short description:
+
+```bash
+pnpm changeset
+```
+
+This creates a new file inside `.changeset/`. Commit that file as part of your branch.
+
+### Opening a Pull Request
+
+1. Confirm the following commands all pass locally:
+
+   ```bash
+   pnpm format && pnpm lint
+   pnpm typecheck
+   pnpm test
+   ```
+
+2. Push your branch and open a pull request against `main`.
+3. Fill out the pull request template completely.
+4. Make sure a changeset is included (see above).
+5. Request a review from a maintainer if needed.
+6. Address any review feedback and wait for CI to go green.
+
+> **All pull requests must target the `main` branch.**
+
+---
 
 ## Credits
 
-This documented was inspired by the contributing guidelines for [create-t3-app](https://github.com/t3-oss/create-t3-app/blob/next/CONTRIBUTING.md).
+This document was inspired by the contributing guidelines for [create-t3-app](https://github.com/t3-oss/create-t3-app/blob/next/CONTRIBUTING.md).
