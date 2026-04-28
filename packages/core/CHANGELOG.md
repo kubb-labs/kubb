@@ -1,5 +1,31 @@
 # @kubb/core
 
+## 5.0.0-alpha.73
+
+### Patch Changes
+
+- [`d8dd397`](https://github.com/kubb-labs/kubb/commit/d8dd39724f5372b31c91f9c4352d49b9c00f811d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `output.format` and `output.lint` now default to `'auto'` instead of being disabled.
+
+  Both `defineConfig` (in the `kubb` package) and the `unplugin-kubb` factory now apply `'auto'` when neither field is explicitly set. With `'auto'`, Kubb detects the first available tool at runtime:
+
+  - **format**: oxfmt → biome → prettier (skips silently if none found)
+  - **lint**: oxlint → biome → eslint (skips silently if none found)
+
+  Set either field to `false` to opt out of the automatic behaviour:
+
+  ```ts
+  export default defineConfig({
+    output: {
+      format: false,
+      lint: false,
+    },
+  });
+  ```
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.73
+  - @kubb/renderer-jsx@5.0.0-alpha.73
+
 ## 5.0.0-alpha.72
 
 ### Patch Changes
