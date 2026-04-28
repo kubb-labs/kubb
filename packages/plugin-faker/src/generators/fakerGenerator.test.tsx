@@ -143,6 +143,12 @@ describe('fakerGenerator schema', async () => {
       input: '../../mocks/mutualRecursion.yaml',
       options: {},
     },
+    {
+      name: 'RecursiveExample',
+      path: 'Example',
+      input: '../../mocks/recursive.yaml',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string

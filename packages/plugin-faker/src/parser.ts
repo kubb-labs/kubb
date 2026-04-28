@@ -203,45 +203,50 @@ export function hasIndirectRef(
   schemas: Schema[],
   rootTypeName: string | undefined,
 ): boolean {
+  return hasIndirectRefInner(schemas, rootTypeName, new WeakSet())
+}
+
+function hasIndirectRefInner(
+  schemas: Schema[],
+  rootTypeName: string | undefined,
+  visited: WeakSet<Schema>,
+): boolean {
   return schemas.some((schema) => {
-    if (!("args" in schema)) {
-      return false;
+    if (!('args' in schema)) {
+      return false
     }
+    if (visited.has(schema)) {
+      return false
+    }
+    visited.add(schema)
 
     switch (schema.keyword) {
       case schemaKeywords.ref: {
-        return schema.args?.name !== rootTypeName;
+        return schema.args?.name !== rootTypeName
       }
       case schemaKeywords.array: {
-        return hasIndirectRef(schema.args?.items ?? [], rootTypeName);
+        return hasIndirectRefInner(schema.args?.items ?? [], rootTypeName, visited)
       }
       case schemaKeywords.union:
       case schemaKeywords.and: {
-        return (
-          Array.isArray(schema.args) &&
-          hasIndirectRef(schema.args, rootTypeName)
-        );
+        return Array.isArray(schema.args) && hasIndirectRefInner(schema.args, rootTypeName, visited)
       }
       case schemaKeywords.tuple: {
         const items: Schema[] = Array.isArray(schema.args?.items)
           ? schema.args.items
           : schema.args?.items
             ? [schema.args.items]
-            : [];
-        return hasIndirectRef(items, rootTypeName);
+            : []
+        return hasIndirectRefInner(items, rootTypeName, visited)
       }
       case schemaKeywords.object: {
-        const props = schema.args?.properties as
-          | Record<string, Schema[]>
-          | undefined;
-        if (!props) return false;
-        return Object.values(props).some((propSchemas) =>
-          hasIndirectRef(propSchemas, rootTypeName),
-        );
+        const props = schema.args?.properties as Record<string, Schema[]> | undefined
+        if (!props) return false
+        return Object.values(props).some((propSchemas) => hasIndirectRefInner(propSchemas, rootTypeName, visited))
       }
     }
-    return false;
-  });
+    return false
+  })
 }
 
 type ParserOptions = {
