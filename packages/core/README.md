@@ -58,7 +58,6 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 - Model Context Protocol (MCP) server for AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible tools.
 - JSX-based renderer (`@kubb/renderer-jsx`) for building custom plugin output.
 - Barrel file generation via the `@kubb/middleware-barrel` middleware.
-- AI-powered code generation agent (`@kubb/agent`).
 
 ## Supporting Kubb
 
