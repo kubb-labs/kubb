@@ -2,7 +2,7 @@ import path from 'node:path'
 import { resolve } from 'node:path'
 import { defineMiddleware } from '@kubb/core'
 import type { Middleware } from '@kubb/core'
-import type { BarrelType } from './types.ts'
+import type { BarrelType, RootBarrelType } from './types.ts'
 import { getPluginOutputPrefix, isExcludedPath } from './utils/excludedPaths.ts'
 import { getBarrelFiles } from './utils/getBarrelFiles.ts'
 
@@ -29,9 +29,11 @@ declare global {
          * Set to `false` to disable root barrel generation. Individual plugins can override
          * this via their own `output.barrelType`.
          *
+         * `'propagate'` is not available here — it only applies at the per-plugin level.
+         *
          * @default 'named'
          */
-        barrelType?: BarrelType | false
+        barrelType?: RootBarrelType | false
       }
     }
   }

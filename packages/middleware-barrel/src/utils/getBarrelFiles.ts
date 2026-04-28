@@ -170,7 +170,7 @@ function indexRelevantFiles(files: ReadonlyArray<FileNode>, outputPath: string):
   return { sourceFiles, paths }
 }
 
-export type GetBarrelFilesParams = {
+type GetBarrelFilesParams = {
   /**
    * Absolute directory the barrel(s) should be rooted at.
    * Only files living under this path are considered.
