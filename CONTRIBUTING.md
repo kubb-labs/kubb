@@ -1,88 +1,56 @@
-# Contribution Guidelines
+# Contributing to Kubb
 
-When contributing to `Kubb`, whether on GitHub or in other community spaces:
+Please read and follow our [Code of Conduct](./CODE_OF_CONDUCT.md).
 
-- Be respectful, civil, and open-minded.
-- Before opening a new pull request, try searching through the [issue tracker](https://github.com/kubb-labs/kubb/issues) for known issues or fixes.
-- If you want to make code changes based on your personal opinion(s), make sure you open an issue first describing the changes you want to make, and open a pull request only when your suggestions get approved by maintainers.
+* Be respectful and open-minded.
+* Search the [issue tracker](https://github.com/kubb-labs/kubb/issues) before opening a PR.
+* For opinion-driven changes, [open an issue](https://github.com/kubb-labs/kubb/issues/new) first.
 
-## How to Contribute
+## Tech Stack
 
-### Prerequisites
+| Tool | Purpose |
+|---|---|
+| [TypeScript](https://www.typescriptlang.org/) | Primary language — strict, ESM only |
+| [pnpm](https://pnpm.io/) | Package manager with workspaces |
+| [Turborepo](https://turbo.build/) | Monorepo task runner |
+| [tsdown](https://github.com/sxzz/tsdown) | Bundler and `.d.ts` generation |
+| [Vitest](https://vitest.dev/) | Testing |
+| [oxlint](https://oxc.rs/docs/guide/usage/linter.html) | Linter |
+| [oxfmt](https://github.com/nicolo-ribaudo/oxfmt) | Formatter |
+| [CSpell](https://cspell.org/) | Spell checker |
+| [Changesets](https://github.com/changesets/changesets) | Versioning and changelogs |
+| [GitHub Actions](https://github.com/features/actions) | CI/CD |
 
-In order to not waste your time implementing a change that has already been declined, or is generally not needed, start by [opening an issue](https://github.com/kubb-labs/kubb/issues/new) describing the problem you would like to solve.
+## Getting Started
 
-### Setup your environment locally
-
-_Some commands will assume you have the GitHub CLI installed, if you haven't, consider [installing it](https://github.com/cli/cli#installation), but you can always use the Web UI if you prefer that instead._
-
-In order to contribute to this project, you will need to fork the repository:
-
-```bash
-gh repo fork kubb-labs/kubb
-```
-
-then, clone it to your local machine:
-
-```bash
-gh repo clone <your-github-name>/kubb
-```
-
-### Implement your changes
-
-This project includes several code quality tools to help maintain code standards:
-
-- **Linting**: Run `pnpm run lint` to check code style (uses Biome)
-- **Formatting**: Run `pnpm run format` to auto-format code
-- **Type checking**: Run `pnpm run typecheck` to verify TypeScript types
-- **Spell checking**: Run `pnpm run lint:spell` to check spelling in `.ts` and `.md` files (uses CSpell)
-- **Testing**: Run `pnpm run test` to run the test suite
-- **Performance benchmarks**: Run `pnpm run test:bench` to run performance benchmarks
-
-#### Spell Checking
-
-This project uses [CSpell](https://cspell.org/) to catch spelling errors in code and documentation. The configuration is in `cspell.json` and uses American English.
-
-If you encounter a spelling error:
-
-- For typos: Fix the spelling in your code
-- For technical terms, library names, or contributor names: Add them to the `words` array in `cspell.json`
-
-Common technical terms, framework names, and contributor names are already in the dictionary.
-
-#### Performance Testing
-
-Performance benchmarks are located in `tests/performance/` and test the code generation speed of various plugin combinations. These benchmarks help ensure performance doesn't regress over time.
-
-To run benchmarks:
+**Requirements:** Node.js `>=22`, pnpm `>=10`
 
 ```bash
-pnpm run test:bench
+gh repo fork kubb-labs/kubb --clone
+cd kubb
+pnpm install
 ```
 
-When making changes that might affect generation performance (e.g., changes to core build process, plugin generators, or file processing), consider running the benchmarks before and after your changes to verify there are no significant regressions.
-
-See [tests/performance/README.md](tests/performance/README.md) for more details on adding new benchmarks.
-
-When making commits, make sure to follow the [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) guidelines, i.e. prepending the message with `feat:`, `fix:`, `chore:`, `docs:`, etc... You can use `git status` to double check which files have not yet been staged for commit:
+## Commands
 
 ```bash
-git add <file> && git commit -m "feat/fix/chore/docs: commit message"
+pnpm build          # Build all packages
+pnpm clean          # Remove build artifacts
+pnpm test           # Run tests
+pnpm test:watch     # Watch mode
+pnpm lint           # Lint
+pnpm lint:fix       # Lint and auto-fix
+pnpm format         # Format code
+pnpm typecheck      # Type-check all packages
+pnpm lint:spell     # Spell check
+pnpm changeset      # Create a changeset
 ```
 
-Next to [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) we also use [changesets](https://github.com/changesets/changesets). Run the following command and follow the steps in the CLI. You will be prompted to select the changed packages, select if the changes are major/minor/patch and a message that you want to add to generated changelog.
+## Submitting Changes
 
-```bash
-pnpm run changeset
-npx changeset
-```
+1. Run `pnpm format && pnpm lint && pnpm typecheck && pnpm test` locally.
+2. Use [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`, `perf:`.
+3. Run `pnpm changeset` and commit the generated file (required for any package change).
+4. Open a PR against `main` and fill out the template.
 
-### When you're done
-
-When all that's done, it's time to file a pull request to upstream:
-
-**NOTE**: All pull requests should target the `main` branch.
-
-## Credits
-
-This documented was inspired by the contributing guidelines for [create-t3-app](https://github.com/t3-oss/create-t3-app/blob/next/CONTRIBUTING.md).
+> Spell-check false positives: fix typos in code, or add technical terms/proper nouns to the `words` array in `cspell.json`.

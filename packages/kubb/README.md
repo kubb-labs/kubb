@@ -24,9 +24,13 @@
 
 ## Features
 
-<div align="center">
-  <img src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/features.png" alt="features"  height="auto" />
-</div>
+- Works with Node.js 22+ and TypeScript 6.
+- Convert Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 to TypeScript types, API clients, and more via the [plugin ecosystem](https://github.com/kubb-labs/kubb-plugins).
+- Extensible plugin and middleware system for customizing and composing code generation.
+- CLI support with interactive setup, progress bar, and detailed logs.
+- Model Context Protocol (MCP) server for AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible tools.
+- JSX-based renderer (`@kubb/renderer-jsx`) for building custom plugin output.
+- Barrel file generation via the `@kubb/middleware-barrel` middleware.
 
 ## Supporting Kubb
 

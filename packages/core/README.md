@@ -9,6 +9,10 @@
 [![License][license-src]][license-href]
 [![Sponsors][sponsors-src]][sponsors-href]
 
+### The meta framework for code generation
+
+**Stop writing glue code. Define your API once and Kubb generates types, clients, hooks, validators, mocks and more.**
+
 <h4>
 <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/main/examples/typescript" target="_blank">View Demo</a>
 <span> · </span>
@@ -47,14 +51,13 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 
 ## Features
 
-- Works with Node.js 20+.
-- Convert Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 to TypeScript, Zod, React-Query, ...
-- Plugin ecosystem to extend beyond the default plugins we provide.
-- CLI support with progress bar and detailed logs.
+- Works with Node.js 22+ and TypeScript 6.
+- Convert Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 to TypeScript types, API clients, and more via the [plugin ecosystem](https://github.com/kubb-labs/kubb-plugins).
+- Extensible plugin and middleware system for customizing and composing code generation.
+- CLI support with interactive setup, progress bar, and detailed logs.
 - Model Context Protocol (MCP) server for AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible tools.
-- Debug tools with React DevTools.
-- Generates barrel files (index.ts).
-- And so much more ...
+- JSX-based renderer (`@kubb/renderer-jsx`) for building custom plugin output.
+- Barrel file generation via the `@kubb/middleware-barrel` middleware.
 
 ## Supporting Kubb
 
