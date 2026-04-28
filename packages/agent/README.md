@@ -83,7 +83,7 @@ services:
       PORT: 80
       KUBB_AGENT_ROOT: /kubb/agent/data
       KUBB_AGENT_CONFIG: ./kubb.config.ts
-      KUBB_STUDIO_URL: https://studio.kubb.dev
+      KUBB_STUDIO_URL: https://kubb.studio
     volumes:
       - agent_kv:/kubb/agent/.kubb/data
     restart: unless-stopped

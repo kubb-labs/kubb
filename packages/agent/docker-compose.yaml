@@ -1,4 +1,4 @@
-# used by https://studio.kubb.dev/ to run the agent in sandbox mode
+# used by https://kubb.studio/ to run the agent in sandbox mode
 
 x-healthcheck-node: &healthcheck-node
   test: ['CMD', 'node', '-e', "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
@@ -18,7 +18,7 @@ services:
       KUBB_AGENT_ALLOW_WRITE: 'false'
       KUBB_AGENT_ALLOW_ALL: 'false'
       KUBB_AGENT_RETRY_TIMEOUT: '30000'
-      KUBB_STUDIO_URL: https://studio.kubb.dev
+      KUBB_STUDIO_URL: https://kubb.studio
     volumes:
       - agent_kv:/kubb/agent/.kubb/cache
     restart: unless-stopped
