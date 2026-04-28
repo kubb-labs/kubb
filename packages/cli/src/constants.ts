@@ -58,7 +58,7 @@ export const agentDefaults = {
 export const initDefaults = {
   inputPath: './openapi.yaml',
   outputPath: './src/gen',
-  plugins: ['plugin-oas', 'plugin-ts'],
+  plugins: ['plugin-ts'],
 } as const
 
 /**
@@ -67,7 +67,6 @@ export const initDefaults = {
  * `as const` keeps the object deeply immutable.
  */
 export const pluginDefaultConfigs = {
-  'plugin-oas': 'pluginOas()',
   'plugin-ts': `pluginTs({
       output: { path: 'models' },
     })`,
@@ -77,16 +76,7 @@ export const pluginDefaultConfigs = {
   'plugin-react-query': `pluginReactQuery({
       output: { path: 'hooks' },
     })`,
-  'plugin-solid-query': `pluginSolidQuery({
-      output: { path: 'hooks' },
-    })`,
-  'plugin-svelte-query': `pluginSvelteQuery({
-      output: { path: 'hooks' },
-    })`,
   'plugin-vue-query': `pluginVueQuery({
-      output: { path: 'hooks' },
-    })`,
-  'plugin-swr': `pluginSwr({
       output: { path: 'hooks' },
     })`,
   'plugin-zod': `pluginZod({
@@ -97,6 +87,15 @@ export const pluginDefaultConfigs = {
     })`,
   'plugin-msw': `pluginMsw({
       output: { path: 'msw' },
+    })`,
+  'plugin-cypress': `pluginCypress({
+      output: { path: 'cypress' },
+    })`,
+  'plugin-mcp': `pluginMcp({
+      output: { path: 'mcp' },
+    })`,
+  'plugin-redoc': `pluginRedoc({
+      output: { path: 'redoc' },
     })`,
 } as const satisfies Record<string, string>
 

@@ -14,67 +14,38 @@ type PluginOption = {
   hint?: string
   packageName: string
   importName: string
-  category: 'core' | 'typescript' | 'query' | 'validation' | 'testing' | 'mocking' | 'docs'
+  category: 'types' | 'client' | 'framework' | 'validation' | 'testing' | 'mocks' | 'documentation' | 'ai'
 }
 
 const availablePlugins: PluginOption[] = [
-  {
-    value: 'plugin-oas',
-    label: 'OpenAPI Parser',
-    hint: 'Required',
-    packageName: '@kubb/plugin-oas',
-    importName: 'pluginOas',
-    category: 'core',
-  },
   {
     value: 'plugin-ts',
     label: 'TypeScript',
     hint: 'Recommended',
     packageName: '@kubb/plugin-ts',
     importName: 'pluginTs',
-    category: 'typescript',
+    category: 'types',
   },
   {
     value: 'plugin-client',
     label: 'Client (Fetch/Axios)',
     packageName: '@kubb/plugin-client',
     importName: 'pluginClient',
-    category: 'typescript',
+    category: 'client',
   },
   {
     value: 'plugin-react-query',
     label: 'React Query / TanStack Query',
     packageName: '@kubb/plugin-react-query',
     importName: 'pluginReactQuery',
-    category: 'query',
-  },
-  {
-    value: 'plugin-solid-query',
-    label: 'Solid Query',
-    packageName: '@kubb/plugin-solid-query',
-    importName: 'pluginSolidQuery',
-    category: 'query',
-  },
-  {
-    value: 'plugin-svelte-query',
-    label: 'Svelte Query',
-    packageName: '@kubb/plugin-svelte-query',
-    importName: 'pluginSvelteQuery',
-    category: 'query',
+    category: 'framework',
   },
   {
     value: 'plugin-vue-query',
     label: 'Vue Query',
     packageName: '@kubb/plugin-vue-query',
     importName: 'pluginVueQuery',
-    category: 'query',
-  },
-  {
-    value: 'plugin-swr',
-    label: 'SWR',
-    packageName: '@kubb/plugin-swr',
-    importName: 'pluginSwr',
-    category: 'query',
+    category: 'framework',
   },
   {
     value: 'plugin-zod',
@@ -88,14 +59,14 @@ const availablePlugins: PluginOption[] = [
     label: 'Faker.js Mocks',
     packageName: '@kubb/plugin-faker',
     importName: 'pluginFaker',
-    category: 'mocking',
+    category: 'mocks',
   },
   {
     value: 'plugin-msw',
     label: 'MSW Handlers',
     packageName: '@kubb/plugin-msw',
     importName: 'pluginMsw',
-    category: 'mocking',
+    category: 'mocks',
   },
   {
     value: 'plugin-cypress',
@@ -105,11 +76,18 @@ const availablePlugins: PluginOption[] = [
     category: 'testing',
   },
   {
+    value: 'plugin-mcp',
+    label: 'MCP Server (AI / Model Context Protocol)',
+    packageName: '@kubb/plugin-mcp',
+    importName: 'pluginMcp',
+    category: 'ai',
+  },
+  {
     value: 'plugin-redoc',
     label: 'ReDoc Documentation',
     packageName: '@kubb/plugin-redoc',
     importName: 'pluginRedoc',
-    category: 'docs',
+    category: 'documentation',
   },
 ]
 
@@ -249,11 +227,6 @@ export async function runInit({ yes, version }: InitOptions): Promise<void> {
       }
 
       selectedPlugins = availablePlugins.filter((plugin) => (selectedPluginValues as string[]).includes(plugin.value))
-    }
-
-    // Ensure plugin-oas is always included
-    if (!selectedPlugins.find((p) => p.value === 'plugin-oas')) {
-      selectedPlugins.unshift(availablePlugins.find((p) => p.value === 'plugin-oas')!)
     }
 
     // Install packages
