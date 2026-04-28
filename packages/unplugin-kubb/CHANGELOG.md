@@ -1,5 +1,15 @@
 # unplugin-kubb
 
+## 5.0.0-alpha.72
+
+### Patch Changes
+
+- Updated dependencies [[`3ebc657`](https://github.com/kubb-labs/kubb/commit/3ebc65746eeab8a3483e823c8934ef59d81ba6e1)]:
+  - @kubb/middleware-barrel@5.0.0-alpha.72
+  - @kubb/core@5.0.0-alpha.72
+  - @kubb/adapter-oas@5.0.0-alpha.72
+  - @kubb/parser-ts@5.0.0-alpha.72
+
 ## 5.0.0-alpha.71
 
 ### Patch Changes
