@@ -44,6 +44,7 @@
     "auto-infer-primitive-field",
     "backend-refactor-dedupe",
     "barrel-middleware-recursive-subdirs",
+    "barrel-root-type-and-cli-v5-init",
     "clever-cases-deny",
     "cli-esm-bin-multi-runtime",
     "core-getmode-static-cleanup",
