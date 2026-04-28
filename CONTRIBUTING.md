@@ -1,5 +1,7 @@
 # Contributing to Kubb
 
+Please read and follow our [Code of Conduct](./CODE_OF_CONDUCT.md).
+
 - Be respectful and open-minded.
 - Search the [issue tracker](https://github.com/kubb-labs/kubb/issues) before opening a PR.
 - For opinion-driven changes, [open an issue](https://github.com/kubb-labs/kubb/issues/new) first.
