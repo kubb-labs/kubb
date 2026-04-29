@@ -1,19 +1,19 @@
 {
   "mode": "pre",
-  "tag": "alpha",
+  "tag": "beta",
   "initialVersions": {
-    "@kubb/adapter-oas": "4.36.1",
-    "@kubb/agent": "4.36.1",
-    "@kubb/ast": "4.36.1",
-    "@kubb/cli": "4.36.1",
-    "@kubb/core": "4.36.1",
-    "kubb": "4.36.1",
-    "@kubb/mcp": "4.36.1",
-    "@kubb/renderer-jsx": "4.36.1",
-    "unplugin-kubb": "5.0.7",
-    "@kubb/parser-ts": "5.0.0-alpha.30",
     "@internals/utils": "0.0.0",
-    "@kubb/middleware-barrel": "5.0.0-alpha.53"
+    "@kubb/adapter-oas": "5.0.0-alpha.74",
+    "@kubb/agent": "5.0.0-alpha.74",
+    "@kubb/ast": "5.0.0-alpha.74",
+    "@kubb/cli": "5.0.0-alpha.74",
+    "@kubb/core": "5.0.0-alpha.74",
+    "kubb": "5.0.0-alpha.74",
+    "@kubb/mcp": "5.0.0-alpha.74",
+    "@kubb/middleware-barrel": "5.0.0-alpha.74",
+    "@kubb/parser-ts": "5.0.0-alpha.74",
+    "@kubb/renderer-jsx": "5.0.0-alpha.74",
+    "unplugin-kubb": "5.0.0-alpha.74"
   },
   "changesets": [
     "add-adapter-document-field",
