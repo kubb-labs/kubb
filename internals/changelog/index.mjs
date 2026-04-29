@@ -4,33 +4,28 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
-const ROOT_CHANGELOG = path.join(ROOT, 'CHANGELOG.md')
-const CHANGESET_DIR = path.join(ROOT, '.changeset')
 
-const FRONTMATTER = `---
-title: Kubb Changelog - Release Notes & Updates
-description: Kubb changelog with release notes, bug fixes, new features, and breaking changes for all versions.
-outline: deep
----
-
-`
-
-const TYPE_ORDER = ['major', 'minor', 'patch']
-
-const TYPE_HEADERS = {
-  major: '### 💥 Breaking Changes',
-  minor: '### ✨ Features',
-  patch: '### 🐛 Bug Fixes',
+const DEFAULTS = {
+  rootChangelog: path.join(ROOT, 'CHANGELOG.md'),
+  changesetDir: path.join(ROOT, '.changeset'),
+  versionPackage: path.join(ROOT, 'packages/kubb/package.json'),
+  repo: 'kubb-labs/kubb',
+  typeOrder: ['major', 'minor', 'patch'],
+  typeHeaders: {
+    major: 'Breaking Changes',
+    minor: 'Features',
+    patch: 'Bug Fixes',
+  },
 }
 
-/** @type {Array<{type: string, packages: Record<string,string>|null, line: string}>} */
+/** @type {Array<{type: string, packages: Record<string,string>|null, line: string, options: Record<string, unknown>}>} */
 const pending = []
 
 /** Deduplicates calls — changesets invokes getReleaseLine once per package in the fixed group. */
 const seen = new Set()
 
-function parseChangesetPackages(id) {
-  const base = path.resolve(CHANGESET_DIR)
+function parseChangesetPackages({ id, changesetDir }) {
+  const base = path.resolve(changesetDir)
   const target = path.resolve(base, `${id}.md`)
   const relative = path.relative(base, target)
   if (relative.startsWith('..') || path.isAbsolute(relative)) return null
@@ -48,92 +43,151 @@ function parseChangesetPackages(id) {
   return Object.keys(packages).length ? packages : null
 }
 
-function buildBlock(version, byType) {
-  const sections = []
+/** Extracts the human-readable description from a changesets-github release line. */
+function extractDescription({ line }) {
+  const text = line.trim().replace(/^- /, '')
+  const idx = text.indexOf('! - ')
+  const desc = idx >= 0 ? text.slice(idx + 4) : text
+  return desc.trim()
+}
 
-  for (const type of TYPE_ORDER) {
-    if (!byType.has(type)) continue
+/** Extracts PR/commit reference markdown links from a changesets-github release line. */
+function extractRefs({ line }) {
+  const refs = []
+  const prMatch = line.match(/\[#(\d+)\]\((https:\/\/github\.com\/[^)]+)\)/)
+  if (prMatch) refs.push(`[#${prMatch[1]}](${prMatch[2]})`)
+  const shaMatch = line.match(/\[`([a-f0-9]{7,})`\]\((https:\/\/github\.com\/[^)]+)\)/)
+  if (shaMatch) refs.push(`[\`${shaMatch[1]}\`](${shaMatch[2]})`)
+  return refs
+}
 
-    const lines = [...byType.get(type)]
-      .sort(([a], [b]) => a.localeCompare(b))
-      .flatMap(([pkg, entries]) =>
-        entries
-          .map((entry) => {
-            const text = entry.trim().replace(/^- /, '')
-            return text ? `- **\`${pkg}\`** — ${text}` : null
-          })
-          .filter(Boolean),
-      )
+/** Extracts contributor handles like "@user" from a release line. */
+function extractContributors({ line }) {
+  const handles = new Set()
+  const re = /\[@([\w-]+)\]\(https:\/\/github\.com\/[\w-]+\)/g
+  let m
+  while ((m = re.exec(line)) !== null) handles.add(m[1])
+  return [...handles]
+}
 
-    if (lines.length) sections.push(`${TYPE_HEADERS[type]}\n\n${lines.join('\n')}`)
+function formatDate({ date = new Date() } = {}) {
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+function buildBlock({ version, byPackage, contributors, typeOrder, typeHeaders }) {
+  const lines = []
+  lines.push(`## v${version} — ${formatDate()}`)
+  lines.push('')
+
+  const sortedPackages = [...byPackage.keys()].sort((a, b) => a.localeCompare(b))
+
+  for (const pkg of sortedPackages) {
+    lines.push(`### ${pkg}`)
+    lines.push('')
+
+    const byType = byPackage.get(pkg)
+    for (const type of typeOrder) {
+      const entries = byType.get(type)
+      if (!entries || !entries.length) continue
+
+      lines.push(`#### ${typeHeaders[type]}`)
+      lines.push('')
+      for (const entry of entries) {
+        const refs = extractRefs({ line: entry })
+        const desc = extractDescription({ line: entry })
+        const suffix = refs.length ? ` (${refs.join(', ')})` : ''
+        lines.push(`- ${desc}${suffix}`)
+      }
+      lines.push('')
+    }
   }
 
-  return sections.length ? `## ${version}\n\n${sections.join('\n\n')}` : null
+  if (contributors.length) {
+    lines.push('### Contributors')
+    lines.push('')
+    lines.push('Thanks to everyone who contributed to this release:')
+    lines.push('')
+    lines.push(contributors.map((c) => `[@${c}](https://github.com/${c})`).join(', '))
+    lines.push('')
+  }
+
+  return lines.join('\n')
+}
+
+function aggregate({ entries }) {
+  /** @type {Map<string, Map<string, string[]>>} */
+  const byPackage = new Map()
+  const contributors = new Set()
+
+  for (const { type, packages, line } of entries) {
+    for (const c of extractContributors({ line })) contributors.add(c)
+
+    if (packages) {
+      for (const [pkg, pkgType] of Object.entries(packages)) {
+        if (!byPackage.has(pkg)) byPackage.set(pkg, new Map())
+        const byType = byPackage.get(pkg)
+        if (!byType.has(pkgType)) byType.set(pkgType, [])
+        byType.get(pkgType).push(line)
+      }
+    } else {
+      if (!byPackage.has('unknown')) byPackage.set('unknown', new Map())
+      const byType = byPackage.get('unknown')
+      if (!byType.has(type)) byType.set(type, [])
+      byType.get(type).push(line)
+    }
+  }
+
+  return { byPackage, contributors: [...contributors].sort() }
 }
 
 export function flush() {
   if (!pending.length) return
 
-  // Read the new version from a package.json — changeset version has already updated all packages
+  const { rootChangelog, versionPackage, typeOrder, typeHeaders } = {
+    ...DEFAULTS,
+    ...(pending[0]?.options ?? {}),
+  }
+
   let version
   try {
-    version = JSON.parse(fs.readFileSync(path.join(ROOT, 'packages/kubb/package.json'), 'utf8')).version
+    version = JSON.parse(fs.readFileSync(versionPackage, 'utf8')).version
   } catch {
     return
   }
   if (!version) return
 
-  // Build version → type → pkg → entries
-  const byType = new Map()
-  for (const { type, packages, line } of pending) {
-    if (packages) {
-      for (const [pkg, pkgType] of Object.entries(packages)) {
-        if (!byType.has(pkgType)) byType.set(pkgType, new Map())
-        const byPkg = byType.get(pkgType)
-        if (!byPkg.has(pkg)) byPkg.set(pkg, [])
-        byPkg.get(pkg).push(line)
-      }
-    } else {
-      if (!byType.has(type)) byType.set(type, new Map())
-      const byPkg = byType.get(type)
-      if (!byPkg.has('unknown')) byPkg.set('unknown', [])
-      byPkg.get('unknown').push(line)
-    }
-  }
+  const { byPackage, contributors } = aggregate({ entries: pending })
 
-  const existing = fs.existsSync(ROOT_CHANGELOG) ? fs.readFileSync(ROOT_CHANGELOG, 'utf8') : ''
-  const body = existing.startsWith('---') ? existing.replace(/^---[\s\S]*?---\n\n/, '') : existing
+  const existing = fs.existsSync(rootChangelog) ? fs.readFileSync(rootChangelog, 'utf8') : ''
+  const body = existing.startsWith('---') ? existing.replace(/^---[\s\S]*?---\n\n?/, '') : existing
 
-  if (body.includes(`\n## ${version}\n`) || body.startsWith(`## ${version}\n`)) return
+  if (new RegExp(`^##\\s+v?${version.replace(/[.+\-]/g, '\\$&')}\\b`, 'm').test(body)) return
 
-  const block = buildBlock(version, byType)
-  if (!block) return
-
-  const newBlocks = `${block}\n\n`
+  const block = buildBlock({ version, byPackage, contributors, typeOrder, typeHeaders })
 
   let newBody
   if (!body.trim()) {
-    newBody = `# Changelog\n\n${newBlocks}`
+    newBody = `# Changelog\n\n${block}\n`
   } else if (/^# .+\n/.test(body)) {
-    newBody = body.replace(/^(# .+\n)(\n)?/, `$1\n${newBlocks}`)
+    newBody = body.replace(/^(# .+\n)(\n)?/, `$1\n${block}\n`)
   } else {
-    newBody = `${newBlocks}${body}`
+    newBody = `${block}\n${body}`
   }
 
-  fs.writeFileSync(ROOT_CHANGELOG, `${FRONTMATTER}${newBody}`)
+  fs.writeFileSync(rootChangelog, newBody)
 }
 
 process.on('exit', flush)
 
-export async function getReleaseLine(changeset, type, options) {
+export async function getReleaseLine(changeset, type, options = {}) {
   const id = changeset.id
   if (seen.has(id)) return ''
   seen.add(id)
 
   const line = await changelogGithub.getReleaseLine(changeset, type, options)
-  const packages = parseChangesetPackages(id)
+  const packages = parseChangesetPackages({ id, changesetDir: options.changesetDir ?? DEFAULTS.changesetDir })
 
-  pending.push({ type, packages, line })
+  pending.push({ type, packages, line, options: { ...options, repo: options.repo ?? DEFAULTS.repo } })
 
   return ''
 }
