@@ -3,7 +3,7 @@
  *
  * - `'all'` — generates `export * from '...'` for every file
  * - `'named'` — generates `export { name1, name2 } from '...'` using each file's named exports
- * - `'propagate'` — generates intermediate barrel files for every sub-directory so consumers can import from any depth
+ * - `'propagate'` — generates an `index.ts` in every sub-directory, each re-exporting only what's directly inside it
  */
 export type BarrelType = 'all' | 'named' | 'propagate'
 
