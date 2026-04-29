@@ -3,14 +3,13 @@ import type React from 'react'
 import type { JSX, ReactNode } from 'react'
 
 /**
- * React reconciliation key type.
- * Used to uniquely identify elements in lists and conditional renders.
+ * Unique identifier for a React element in lists or conditional renders.
  */
 export type Key = string | number | bigint
 
 /**
- * All custom element names recognized by the Kubb JSX renderer.
- * Each name maps to a corresponding AST node type emitted during code generation.
+ * Custom element names recognized by the Kubb JSX renderer.
+ * Each name maps to a corresponding AST node type in the generated code.
  */
 export type ElementNames =
   | 'br'
@@ -36,16 +35,14 @@ type Node = {
 }
 
 /**
- * Allowed attribute value types stored on a {@link DOMElement}.
- * Corresponds to the range of prop values JSX components may pass to intrinsic elements.
+ * Allowed attribute value types for DOM elements.
  */
 export type DOMNodeAttribute = boolean | string | number | Record<string, unknown> | Array<unknown>
 
 type TextName = '#text'
 
 /**
- * A leaf DOM node that holds a raw text string.
- * Created by the renderer whenever a JSX expression produces a plain string child.
+ * Leaf DOM node containing raw text.
  */
 export type TextNode = {
   nodeName: TextName
@@ -53,9 +50,7 @@ export type TextNode = {
 } & Node
 
 /**
- * Discriminated union of all virtual DOM nodes.
- * Resolves to {@link TextNode} when `nodeName` is `'#text'`, or {@link DOMElement} for
- * any named Kubb element.
+ * Virtual DOM node — either a text node or a named element.
  */
 export type DOMNode<T = { nodeName: NodeNames }> = T extends {
   nodeName: infer U
@@ -68,8 +63,8 @@ export type DOMNode<T = { nodeName: NodeNames }> = T extends {
 type OutputTransformer = (s: string, index: number) => string
 
 /**
- * A named element node in the Kubb virtual DOM tree.
- * Holds attributes, child nodes, and optional lifecycle callbacks used by the renderer.
+ * Named element in the Kubb virtual DOM tree.
+ * Stores attributes, child nodes, and lifecycle callbacks for rendering.
  */
 export type DOMElement = {
   nodeName: ElementNames
@@ -94,36 +89,34 @@ export type DOMElement = {
 type NodeNames = ElementNames | TextName
 
 /**
- * React node type used throughout Kubb JSX components.
- * Alias for React's `ReactNode`.
+ * React node type for Kubb JSX components.
  */
 export type KubbReactNode = ReactNode
 
 /**
  * React element type returned by Kubb JSX components.
- * Alias for `JSX.Element`.
  */
 export type KubbReactElement = JSX.Element
 
 /**
- * Props for the `<kubb-jsx>` intrinsic element.
- * Embeds a raw JSX string verbatim in the generated source.
+ * Props for the `<kubb-jsx>` element.
+ * Embeds a raw JSX string verbatim in generated output.
  */
 export type KubbJsxProps = {
   children?: string
 }
 
 /**
- * Props for the `<kubb-text>` intrinsic element.
- * Wraps arbitrary React children as plain text in the output.
+ * Props for the `<kubb-text>` element.
+ * Wraps React children as plain text in the output.
  */
 export type KubbTextProps = {
   children?: KubbReactNode
 }
 
 /**
- * Props for the `<kubb-file>` intrinsic element.
- * Represents a generated file entry collected by the renderer.
+ * Props for the `<kubb-file>` element.
+ * Represents a generated file.
  */
 export type KubbFileProps = {
   id?: string
@@ -135,66 +128,65 @@ export type KubbFileProps = {
 }
 
 /**
- * Props for the `<kubb-source>` intrinsic element.
- * Marks a block of source text associated with the enclosing file.
+ * Props for the `<kubb-source>` element.
+ * Marks a block of source text associated with a file.
  */
 export type KubbSourceProps = Omit<SourceNode, 'kind'> & {
   children?: KubbReactNode
 }
 
 /**
- * Props for the `<kubb-import>` intrinsic element.
- * Declares an import entry for the enclosing file.
+ * Props for the `<kubb-import>` element.
+ * Declares an import statement in the generated file.
  */
 export type KubbImportProps = Omit<ImportNode, 'kind'> & {}
 
 /**
- * Props for the `<kubb-export>` intrinsic element.
- * Declares an export entry for the enclosing file.
+ * Props for the `<kubb-export>` element.
+ * Declares an export statement in the generated file.
  */
 export type KubbExportProps = Omit<ExportNode, 'kind'> & {}
 
 /**
- * Props for the `<kubb-function>` intrinsic element.
- * Describes a function declaration node in the generated output.
+ * Props for the `<kubb-function>` element.
+ * Generates a function declaration.
  */
 export type KubbFunctionProps = Omit<FunctionNode, 'kind'> & {
   children?: KubbReactNode
 }
 
 /**
- * Props for the `<kubb-arrow-function>` intrinsic element.
- * Describes an arrow function declaration node in the generated output.
+ * Props for the `<kubb-arrow-function>` element.
+ * Generates an arrow function declaration.
  */
 export type KubbArrowFunctionProps = Omit<ArrowFunctionNode, 'kind'> & {
   children?: KubbReactNode
 }
 
 /**
- * Props for the `<kubb-const>` intrinsic element.
- * Describes a constant declaration node in the generated output.
+ * Props for the `<kubb-const>` element.
+ * Generates a constant declaration.
  */
 export type KubbConstProps = Omit<ConstNode, 'kind'> & {
   children?: KubbReactNode
 }
 
 /**
- * Props for the `<kubb-type>` intrinsic element.
- * Describes a TypeScript type alias declaration node in the generated output.
+ * Props for the `<kubb-type>` element.
+ * Generates a TypeScript type alias declaration.
  */
 export type KubbTypeProps = Omit<TypeNode, 'kind'> & {
   children?: KubbReactNode
 }
 
 /**
- * Props forwarded to the HTML `<br>` element within intrinsic element declarations.
+ * Props for the HTML `<br>` element.
  */
 export type LineBreakProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLBRElement>, HTMLBRElement>
 
 /**
- * JSDoc block to attach to a generated declaration.
- *
- * Each string in `comments` becomes one line inside the emitted `/** … *\/` block.
+ * JSDoc comment block to attach to a generated declaration.
+ * Each string in `comments` becomes one line inside the `/** … *\/` block.
  *
  * @example
  * ```ts

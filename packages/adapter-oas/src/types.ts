@@ -18,19 +18,19 @@ import type { OpenAPIV3 } from 'openapi-types'
 export type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 
 /**
- * Content-type string used when selecting request/response schemas from a spec.
- *
- * Accepts `'application/json'` or any arbitrary media type string.
+ * Content-type string for selecting request/response schemas from an OpenAPI spec.
+ * Supports `'application/json'` or any other media type.
  *
  * @example
  * ```ts
- * const ct: contentType = 'application/vnd.api+json'
+ * const ct: ContentType = 'application/vnd.api+json'
  * ```
  */
 export type ContentType = 'application/json' | (string & {})
 
 /**
- * Augments `oas`'s `SchemaObject` with OAS 3.1 / JSON Schema fields the parser needs.
+ * Extended OpenAPI 3.0 schema object that includes OpenAPI 3.1 and JSON Schema fields.
+ * The parser uses these additional fields to handle newer spec versions.
  *
  * @example
  * ```ts
@@ -74,7 +74,7 @@ export type SchemaObject = OASSchemaObject & {
 }
 
 /**
- * Uppercase → lowercase HTTP method map, re-exported for backwards compatibility.
+ * Maps uppercase HTTP method names to lowercase for backwards compatibility.
  *
  * @example
  * ```ts
@@ -88,45 +88,43 @@ export const HttpMethods = Object.fromEntries(Object.entries(ast.httpMethods).ma
 >
 
 /**
- * Lowercase HTTP method string as used by the `oas` package (`'get' | 'post' | ...`).
+ * HTTP method as a lowercase string (`'get' | 'post' | ...`).
  */
 export type HttpMethod = Lowercase<ast.HttpMethod>
 
 /**
- * Normalized OpenAPI document type used throughout the adapter.
+ * Normalized OpenAPI document after parsing.
  */
 export type Document = OASDocument
 
 /**
- * Operation wrapper type returned by the `oas` package.
+ * API operation extracted from an OpenAPI document.
  */
 export type Operation = OASOperation
 
 /**
- * OpenAPI `discriminator` object attached to a `oneOf`/`anyOf` schema.
+ * Discriminator object for `oneOf`/`anyOf` schemas in OpenAPI.
  */
 export type DiscriminatorObject = OASDiscriminatorObject
 
 /**
- * OpenAPI `$ref` pointer object (`{ $ref: string }`).
+ * OpenAPI reference object pointing to a schema definition via `$ref`.
  */
 export type ReferenceObject = OpenAPIV3.ReferenceObject
 
 /**
- * OpenAPI response object type (may contain `content`, `description`, `headers`).
+ * OpenAPI response object from a spec that contains schema, status code, and headers.
  */
 export type ResponseObject = OASResponseObject
 
 /**
- * OpenAPI media type object that maps a content-type to a schema.
+ * OpenAPI media type object that maps a content-type string to its schema.
  */
 export type MediaTypeObject = OASMediaTypeObject
 
 /**
- * User-facing options for `adapterOas(...)`.
- *
- * Extends `ParserOptions` from `@kubb/ast` with adapter-specific controls
- * like spec validation and server URL selection.
+ * Configuration options for the OpenAPI adapter.
+ * Controls spec validation, content-type selection, and server URL resolution.
  *
  * @example
  * ```ts
@@ -176,7 +174,7 @@ export type AdapterOasOptions = {
 } & Partial<ast.ParserOptions>
 
 /**
- * Resolved adapter options available at runtime after defaults have been applied.
+ * Adapter options after defaults have been applied and schema name collisions resolved.
  */
 export type AdapterOasResolvedOptions = {
   validate: boolean

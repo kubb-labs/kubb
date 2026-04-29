@@ -13,10 +13,9 @@ import type { PluginDriver } from './PluginDriver.ts'
 export type { Renderer, RendererFactory } from './createRenderer.ts'
 
 /**
- * Safely extracts the type of key `K` from `T`, returning `{}` when `K` is not a key of `T`.
- * Used to implement optional interface augmentation for `Kubb.ConfigOptionsRegistry` and
- * `Kubb.PluginOptionsRegistry` so that middleware and plugin packages can extend core types
- * without requiring modifications to core.
+ * Safely extracts a type from a registry, returning `{}` if the key doesn't exist.
+ * Enables optional interface augmentation for `Kubb.ConfigOptionsRegistry` and `Kubb.PluginOptionsRegistry`
+ * without requiring changes to core.
  *
  * @internal
  */
@@ -24,14 +23,14 @@ type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {
 
 export type InputPath = {
   /**
-   * Specify your Swagger/OpenAPI file, either as an absolute path or a path relative to the root.
+   * Path to your Swagger/OpenAPI file, absolute or relative to the config file location.
    */
   path: string
 }
 
 export type InputData = {
   /**
-   * A `string` or `object` that contains your Swagger/OpenAPI data.
+   * Swagger/OpenAPI data as a string or object.
    */
   data: string | unknown
 }
@@ -39,19 +38,18 @@ export type InputData = {
 type Input = InputPath | InputData
 
 /**
- * The raw source passed to an adapter's `parse` function.
- * Mirrors the shape of `Config['input']` with paths already resolved to absolute.
+ * Source data passed to an adapter's `parse` function.
+ * Mirrors the config input shape with paths resolved to absolute.
  */
 export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown } | { type: 'paths'; paths: Array<string> }
 
 /**
- * Type parameters for an adapter definition.
+ * Generic type parameters for an adapter definition.
  *
- * Mirrors `PluginFactoryOptions` but scoped to the adapter lifecycle:
- * - `TName` — unique string identifier (e.g. `'oas'`, `'asyncapi'`)
- * - `TOptions` — raw user-facing options passed to the adapter factory
- * - `TResolvedOptions` — defaults applied; what the adapter stores as `options`
- * - `TDocument` — type of the raw source document exposed by the adapter after `parse()`
+ * - `TName` — unique identifier (e.g. `'oas'`, `'asyncapi'`)
+ * - `TOptions` — user-facing options passed to the adapter factory
+ * - `TResolvedOptions` — options after defaults applied
+ * - `TDocument` — type of the parsed source document
  */
 export type AdapterFactoryOptions<
   TName extends string = string,
@@ -66,56 +64,53 @@ export type AdapterFactoryOptions<
 }
 
 /**
- * An adapter converts a source file or data into a `@kubb/ast` `InputNode`.
+ * Adapter that converts input files or data into an `InputNode`.
  *
- * Adapters are the single entry-point for different schema formats
- * (OpenAPI, AsyncAPI, Drizzle, …) and produce the universal `InputNode`
- * that all Kubb plugins consume.
+ * Adapters parse different schema formats (OpenAPI, AsyncAPI, Drizzle, etc.) into Kubb's
+ * universal intermediate representation that all plugins consume.
  *
  * @example
  * ```ts
- * import { oasAdapter } from '@kubb/adapter-oas'
+ * import { adapterOas } from '@kubb/adapter-oas'
  *
  * export default defineConfig({
- *   adapter: adapterOas(),         // default — OpenAPI / Swagger
- *   input:   { path: './openapi.yaml' },
+ *   adapter: adapterOas(),
+ *   input: { path: './openapi.yaml' },
  *   plugins: [pluginTs(), pluginZod()],
  * })
  * ```
  */
 export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptions> = {
   /**
-   * Human-readable identifier, e.g. `'oas'`, `'drizzle'`, `'asyncapi'`.
+   * Human-readable adapter identifier (e.g. `'oas'`, `'asyncapi'`).
    */
   name: TOptions['name']
   /**
-   * Resolved options (after defaults have been applied).
+   * Resolved adapter options after defaults have been applied.
    */
   options: TOptions['resolvedOptions']
   /**
-   * The raw source document produced after the first `parse()` call.
-   * `undefined` before parsing; typed by the adapter's `TDocument` generic.
+   * Parsed source document after the first `parse()` call. `null` before parsing.
    */
   document: TOptions['document'] | null
   inputNode: InputNode | null
   /**
-   * Convert the raw source into a universal `InputNode`.
+   * Parse the source into a universal `InputNode`.
    */
   parse: (source: AdapterSource) => PossiblePromise<InputNode>
   /**
-   * Extracts `ImportNode` entries needed by a `SchemaNode` tree.
-   * Populated after the first `parse()` call. Returns an empty array before that.
+   * Extract `ImportNode` entries for a schema tree.
+   * Returns an empty array before the first `parse()` call.
    *
    * The `resolve` callback receives the collision-corrected schema name and must
-   * return the `{ name, path }` pair for the import, or `undefined` to skip it.
+   * return `{ name, path }` for the import, or `undefined` to skip it.
    */
   getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string }) => Array<ImportNode>
 }
 
 export type DevtoolsOptions = {
   /**
-   * Open the AST inspector view (`/ast`) in Kubb Studio.
-   * When `false`, opens the main Studio page instead.
+   * Open the AST inspector in Kubb Studio (`/ast`). Defaults to the main Studio page.
    * @default false
    */
   ast?: boolean
@@ -130,19 +125,17 @@ export type Config<TInput = Input> = {
    */
   name?: string
   /**
-   * The project root directory, which can be either an absolute path or a path relative to the location of your `kubb.config.ts` file.
+   * Project root directory, absolute or relative to the config file.
    * @default process.cwd()
    */
   root: string
   /**
-   * An array of parsers used to convert generated files to strings.
-   * Each parser handles specific file extensions (e.g. `.ts`, `.tsx`).
+   * Parsers that convert generated files to strings.
+   * Each parser handles specific extensions (e.g. `.ts`, `.tsx`).
+   * A fallback parser is appended for unhandled extensions.
+   * When omitted, defaults to `parserTs` from `@kubb/parser-ts`.
    *
-   * A catch-all fallback parser is always appended last for any unhandled extension.
-   *
-   * When omitted, `parserTs` from `@kubb/parser-ts` is used automatically as the
-   * default (requires `@kubb/parser-ts` to be installed as an optional dependency).
-   * @default [parserTs] — from `@kubb/parser-ts`
+   * @default [parserTs] from `@kubb/parser-ts`
    * @example
    * ```ts
    * import { parserTs, tsxParser } from '@kubb/parser-ts'
@@ -153,31 +146,27 @@ export type Config<TInput = Input> = {
    */
   parsers: Array<Parser>
   /**
-   * Adapter that converts the input file into a `@kubb/ast` `InputNode` — the universal
-   * intermediate representation consumed by all Kubb plugins.
-   *
-   * - Use `@kubb/adapter-oas` for OpenAPI / Swagger.
-   * - Use `@kubb/adapter-drizzle` or `@kubb/adapter-asyncapi` for other formats.
+   * Adapter that parses input files into the universal `InputNode` representation.
+   * Use `@kubb/adapter-oas` for OpenAPI/Swagger or `@kubb/adapter-asyncapi` for other formats.
    *
    * @example
    * ```ts
    * import { adapterOas } from '@kubb/adapter-oas'
    * export default defineConfig({
    *   adapter: adapterOas(),
-   *   input: { path: './petStore.yaml' },
+   *   input: { path: './petstore.yaml' },
    * })
    * ```
    */
   adapter: Adapter
   /**
    * Source file or data to generate code from.
-   * Use `input.path` for a file on disk or `input.data` for an inline string or object.
+   * Use `input.path` for a file path or `input.data` for inline data.
    */
   input: TInput
   output: {
     /**
-     * Output directory for generated files.
-     * Accepts an absolute path or a path relative to `root`.
+     * Output directory for generated files, absolute or relative to `root`.
      */
     path: string
     /**
@@ -191,51 +180,45 @@ export type Config<TInput = Input> = {
      */
     write?: boolean
     /**
-     * Specifies the formatting tool to be used.
-     * - 'auto' automatically detects and uses oxfmt, biome, or prettier (in that order of preference).
-     * - 'oxfmt' uses Oxfmt for code formatting.
-     * - 'prettier' uses Prettier for code formatting.
-     * - 'biome' uses Biome for code formatting.
-     * - false disables code formatting.
+     * Code formatter to apply to generated files.
+     * - `'auto'` — auto-detect oxfmt, biome, or prettier
+     * - `false` — skip formatting
      * @default false
      */
     format?: 'auto' | 'prettier' | 'biome' | 'oxfmt' | false
     /**
-     * Specifies the linter that should be used to analyze the code.
-     * - 'auto' automatically detects and uses oxlint, biome, or eslint (in that order of preference).
-     * - 'oxlint' uses Oxlint for linting.
-     * - 'eslint' uses ESLint for linting.
-     * - 'biome' uses Biome for linting.
-     * - false disables linting.
+     * Linter to analyze generated files.
+     * - `'auto'` — auto-detect oxlint, biome, or eslint
+     * - `false` — skip linting
      * @default false
      */
     lint?: 'auto' | 'eslint' | 'biome' | 'oxlint' | false
     /**
-     * Overrides the extension for generated imports and exports. By default, each plugin adds an extension.
-     * @default { '.ts': '.ts'}
+     * Override the file extension for generated imports and exports.
+     * Each plugin applies its own extension by default.
+     * @default { '.ts': '.ts' }
      */
     extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
     /**
-     * Adds a default banner to the start of every generated file indicating it was generated by Kubb.
-     * - 'simple' adds banner with link to Kubb.
-     * - 'full' adds source, title, description, and OpenAPI version.
-     * - false disables banner generation.
+     * Banner text to prepend to every generated file.
+     * - `'simple'` — banner with link to Kubb
+     * - `'full'` — banner with source, title, description, and API version
+     * - `false` — no banner
      * @default 'simple'
      */
     defaultBanner?: 'simple' | 'full' | false
     /**
-     * Whether to override existing external files if they already exist.
-     * When setting the option in the global configuration, all plugins inherit the same behavior by default.
-     * However, all plugins also have an `output.override` option, which can be used to override the behavior for a specific plugin.
+     * Override existing external files if they already exist.
+     * Plugins can override this with their own `output.override` option.
      * @default false
      */
     override?: boolean
   } & ExtractRegistryKey<Kubb.ConfigOptionsRegistry, 'output'>
   /**
-   * Storage backend for generated files.
-   * Defaults to `fsStorage()` — the built-in filesystem driver.
+   * Storage backend for generated files, defaults to `fsStorage()`.
    * Accepts any object implementing the {@link Storage} interface.
    * Keys are root-relative paths (e.g. `src/gen/api/getPets.ts`).
+   *
    * @default fsStorage()
    * @example
    * ```ts
@@ -245,33 +228,28 @@ export type Config<TInput = Input> = {
    */
   storage?: Storage
   /**
-   * An array of Kubb plugins used for code generation.
+   * Plugins used for code generation.
    * Each plugin may declare additional configurable options.
-   * If a plugin depends on another, an error is thrown when the dependency is missing.
-   * Use `dependencies` on the plugin to declare execution order.
+   * Dependencies are enforced — an error is thrown if a plugin's dependency is missing.
    */
   plugins: Array<Plugin>
   /**
-   * Middleware instances that observe and post-process the build output.
-   * Each middleware receives the `hooks` emitter and attaches its own listeners.
-   * Middleware listeners are always registered after all plugin listeners,
-   * so middleware hooks fire last for any given event.
+   * Middleware instances that observe and post-process build output.
+   * Middleware listeners fire after all plugin listeners for any given event.
    *
    * @example
    * ```ts
    * import { middlewareBarrel } from '@kubb/middleware-barrel'
    * export default defineConfig({
-   *   middleware: [middlewareBarrel],
+   *   middleware: [middlewareBarrel()],
    *   plugins: [pluginTs(), pluginZod()],
    * })
    * ```
    */
   middleware?: Array<Middleware>
   /**
-   * Project-wide renderer factory. All plugins and generators that do not declare their own
-   * `renderer` ultimately fall back to this value.
-   *
-   * The resolution chain is: `generator.renderer` → `plugin.renderer` → `config.renderer` → `undefined` (raw `FileNode[]` mode).
+   * Default renderer factory used by all plugins and generators.
+   * Resolution chain: `generator.renderer` → `plugin.renderer` → `config.renderer` → `undefined` (raw FileNode[] mode).
    *
    * @example
    * ```ts
@@ -284,7 +262,7 @@ export type Config<TInput = Input> = {
    */
   renderer?: RendererFactory
   /**
-   * Devtools configuration for Kubb Studio integration.
+   * Kubb Studio integration settings.
    */
   devtools?:
     | true
@@ -296,12 +274,12 @@ export type Config<TInput = Input> = {
         studioUrl?: typeof DEFAULT_STUDIO_URL | (string & {})
       }
   /**
-   * Hooks triggered when a specific action occurs in Kubb.
+   * Lifecycle hooks triggered during build.
    */
   hooks?: {
     /**
-     * Hook that triggers at the end of all executions.
-     * Useful for running Prettier or ESLint to format/lint your code.
+     * Hook that fires after all builds complete.
+     * Run Prettier, ESLint, or other tools to format/lint generated code.
      */
     done?: string | Array<string>
   }
@@ -310,7 +288,7 @@ export type Config<TInput = Input> = {
 // plugin
 
 /**
- * A type/string-pattern filter used for `include`, `exclude`, and `override` matching.
+ * Type/string pattern filter for include/exclude/override matching.
  */
 type PatternFilter = {
   type: string
@@ -318,18 +296,14 @@ type PatternFilter = {
 }
 
 /**
- * A pattern filter paired with partial option overrides to apply when the pattern matches.
+ * Pattern filter with partial option overrides applied when the pattern matches.
  */
 type PatternOverride<TOptions> = PatternFilter & {
   options: Omit<Partial<TOptions>, 'override'>
 }
 
 /**
- * Context passed to `resolver.resolveOptions` to apply include/exclude/override filtering
- * for a given operation or schema node.
- */
-/**
- * Resolves filtered options for a given operation or schema node.
+ * Context for resolving filtered options for a given operation or schema node.
  *
  * @internal
  */
@@ -343,9 +317,8 @@ export type ResolveOptionsContext<TOptions> = {
 /**
  * Base constraint for all plugin resolver objects.
  *
- * `default`, `resolveOptions`, `resolvePath`, and `resolveFile` are injected automatically
- * by `defineResolver` — plugin authors may override them but never need to implement them
- * from scratch.
+ * `default`, `resolveOptions`, `resolvePath`, `resolveFile`, `resolveBanner`, and `resolveFooter`
+ * are injected automatically by `defineResolver` — extend this type to add custom resolution methods.
  *
  * @example
  * ```ts
@@ -368,20 +341,20 @@ export type Resolver = {
 
 export type PluginFactoryOptions<
   /**
-   * Name to be used for the plugin.
+   * Unique plugin name.
    */
   TName extends string = string,
   /**
-   * Options of the plugin.
+   * User-facing plugin options.
    */
   TOptions extends object = object,
   /**
-   * Options of the plugin that can be used later on, see `options` inside your plugin config.
+   * Plugin options after defaults are applied.
    */
   TResolvedOptions extends object = TOptions,
   /**
-   * Resolver object that encapsulates the naming and path-resolution helpers used by this plugin.
-   * Use `defineResolver` to define the resolver object and export it alongside the plugin.
+   * Resolver that encapsulates naming and path-resolution helpers.
+   * Define with `defineResolver` and export alongside the plugin.
    */
   TResolver extends Resolver = Resolver,
 > = {
@@ -392,9 +365,9 @@ export type PluginFactoryOptions<
 }
 
 /**
- * Internal representation of a plugin after normalization.
- * Extends the user-facing `Plugin` with runtime fields populated during `kubb:plugin:setup`.
- * Not part of the public API — use `Plugin` for external-facing interactions.
+ * Normalized plugin after setup, with runtime fields populated.
+ * For internal use only — plugins use the public `Plugin` type externally.
+ *
  * @internal
  */
 export type NormalizedPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = Plugin<TOptions> & {
@@ -413,30 +386,26 @@ export type NormalizedPlugin<TOptions extends PluginFactoryOptions = PluginFacto
 }
 
 /**
- * Partial version of {@link Config} intended for user-facing config entry points.
- *
- * Fields that have sensible defaults (`root`, `plugins`, `parsers`, `adapter`) are optional.
+ * Partial `Config` for user-facing entry points with sensible defaults.
+ * `root`, `plugins`, `parsers`, and `adapter` are optional.
  */
 export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins' | 'parsers' | 'adapter'> & {
   /**
-   * The project root directory, which can be either an absolute path or a path relative to the location of your `kubb.config.ts` file.
+   * Project root directory, absolute or relative to the config file.
    * @default process.cwd()
    */
   root?: string
   /**
-   * An array of parsers used to convert generated files to strings.
-   * Each parser handles specific file extensions (e.g. `.ts`, `.tsx`).
-   *
-   * A catch-all fallback parser is always appended last for any unhandled extension.
+   * Parsers that convert generated files to strings.
+   * When omitted, `parserTs` from `@kubb/parser-ts` is used as default.
    */
   parsers?: Array<Parser>
   /**
-   * Adapter that converts the input file into a `@kubb/ast` `InputNode`.
+   * Adapter that parses input into the universal `InputNode` representation.
    */
   adapter?: Adapter
   /**
-   * An array of Kubb plugins used for code generation.
-   * Each entry is a hook-style plugin created with `definePlugin`.
+   * Plugins used for code generation.
    */
   plugins?: Array<Plugin>
 }
@@ -445,121 +414,114 @@ export type ResolveNameParams = {
   name: string
   pluginName?: string
   /**
-   * Specifies the type of entity being named.
-   * - `'file'` — customizes the name of the created file (camelCase).
-   * - `'function'` — customizes the exported function names (camelCase).
-   * - `'type'` — customizes TypeScript type names (PascalCase).
-   * - `'const'` — customizes variable names (camelCase).
+   * Entity type being named.
+   * - `'file'` — file name (camelCase)
+   * - `'function'` — exported function name (camelCase)
+   * - `'type'` — TypeScript type name (PascalCase)
+   * - `'const'` — variable name (camelCase)
    */
   type?: 'file' | 'function' | 'type' | 'const'
 }
 /**
- * Context object passed as the second argument to generator `schema`, `operation`, and
- * `operations` methods.
+ * Context object passed to generator `schema`, `operation`, and `operations` methods.
  *
- * Generators are only invoked from `runPluginAstHooks`, which already guards against a
- * missing adapter. This type reflects that guarantee — `ctx.adapter` and `ctx.inputNode`
- * are always defined, so no runtime checks or casts are needed inside generator bodies.
- *
- * `ctx.options` carries the per-node resolved options for `schema`/`operation` calls
- * (after exclude/include/override filtering) and the plugin-level options for `operations`.
+ * The adapter is always defined (guaranteed by `runPluginAstHooks`) so no runtime checks
+ * are needed. `ctx.options` carries resolved per-node options after exclude/include/override
+ * filtering for individual schema/operation calls, or plugin-level options for operations.
  */
 export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   config: Config
   /**
-   * Absolute path to the output directory for the current plugin.
-   * Shorthand for `path.resolve(config.root, config.output.path)`.
+   * Absolute path to the current plugin's output directory.
    */
   root: string
   /**
-   * Returns the output mode for the given output config.
-   * Returns `'single'` when `output.path` has a file extension, `'split'` otherwise.
+   * Determine output mode based on the output config.
+   * Returns `'single'` when `output.path` is a file, `'split'` for a directory.
    */
   getMode: (output: { path: string }) => 'single' | 'split'
   driver: PluginDriver
   /**
-   * Get a plugin by name. Returns the plugin typed via `Kubb.PluginRegistry` when
-   * the name is a registered key, otherwise returns the generic `Plugin`.
+   * Get a plugin by name, typed via `Kubb.PluginRegistry` when registered.
    */
   getPlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
   getPlugin(name: string): Plugin | undefined
   /**
-   * Like `getPlugin` but throws a descriptive error when the plugin is not found.
+   * Get a plugin by name, throws an error if not found.
    */
   requirePlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]>
   requirePlugin(name: string): Plugin
   /**
-   * Get a resolver by plugin name. Returns the resolver typed via `Kubb.PluginRegistry` when
-   * the name is a registered key, otherwise returns the generic `Resolver`.
+   * Get a resolver by plugin name, typed via `Kubb.PluginRegistry` when registered.
    */
   getResolver<TName extends keyof Kubb.PluginRegistry>(name: TName): Kubb.PluginRegistry[TName]['resolver']
   getResolver(name: string): Resolver
   /**
-   * Add files only when they do not exist yet.
+   * Add files only if they don't exist.
    */
   addFile: (...file: Array<FileNode>) => Promise<void>
   /**
-   * Merge multiple sources into the same output file.
+   * Merge sources into the same output file.
    */
   upsertFile: (...file: Array<FileNode>) => Promise<void>
   hooks: AsyncEventEmitter<KubbHooks>
   /**
-   * The current plugin.
+   * The current plugin instance.
    */
   plugin: Plugin<TOptions>
   /**
-   * Resolver for the current plugin.
+   * The current plugin's resolver.
    */
   resolver: TOptions['resolver']
   /**
-   * Composed transformer for the current plugin.
+   * The current plugin's transformer.
    */
   transformer: Visitor | undefined
   /**
-   * Emit a warning via the build event system.
+   * Emit a warning.
    */
   warn: (message: string) => void
   /**
-   * Emit an error via the build event system.
+   * Emit an error.
    */
   error: (error: string | Error) => void
   /**
-   * Emit an info message via the build event system.
+   * Emit an info message.
    */
   info: (message: string) => void
   /**
-   * Opens the Kubb Studio URL for the current `inputNode` in the default browser.
+   * Open the current input node in Kubb Studio.
    */
   openInStudio: (options?: DevtoolsOptions) => Promise<void>
   /**
-   * The adapter from `@kubb/ast`.
+   * The configured adapter instance.
    */
   adapter: Adapter
   /**
-   * The universal `@kubb/ast` `InputNode` produced by the configured adapter.
+   * The universal `InputNode` produced by the adapter.
    */
   inputNode: InputNode
   /**
-   * Per-node resolved options (after exclude/include/override filtering).
+   * Resolved options after exclude/include/override filtering.
    */
   options: TOptions['resolvedOptions']
 }
 /**
- * Configure generated file output location and behavior.
+ * Output configuration for generated files.
  */
 export type Output<_TOptions = unknown> = {
   /**
-   * Path to the output folder or file that will contain generated code.
+   * Output folder or file path for generated code.
    */
   path: string
   /**
-   * Text or function appended at the start of every generated file.
-   * When a function, receives the current `InputNode` and must return a string.
+   * Text or function prepended to every generated file.
+   * When a function, receives the current `InputNode` and returns a string.
    */
   banner?: string | ((node?: InputNode) => string)
   /**
-   * Text or function appended at the end of every generated file.
-   * When a function, receives the current `InputNode` and must return a string.
+   * Text or function appended to every generated file.
+   * When a function, receives the current `InputNode` and returns a string.
    */
   footer?: string | ((node?: InputNode) => string)
   /**
@@ -571,27 +533,28 @@ export type Output<_TOptions = unknown> = {
 
 export type Group = {
   /**
-   * Determines how files are grouped into subdirectories.
-   * - `'tag'` groups files by OpenAPI tags.
-   * - `'path'` groups files by OpenAPI paths.
+   * How to group files into subdirectories.
+   * - `'tag'` — group by OpenAPI tags
+   * - `'path'` — group by OpenAPI paths
    */
   type: 'tag' | 'path'
   /**
-   * Returns the subdirectory name for a given group value.
-   * Defaults to `${camelCase(group)}Controller` for tags and the first path segment for paths.
+   * Function that returns the subdirectory name for a group value.
+   * Defaults to `${camelCase(group)}Controller` for tags, first path segment for paths.
    */
   name?: (context: { group: string }) => string
 }
 
 export type LoggerOptions = {
   /**
+   * Log level for output verbosity.
    * @default 3
    */
   logLevel: (typeof logLevel)[keyof typeof logLevel]
 }
 
 /**
- * Shared context passed to all plugins, parsers, and other internals.
+ * Shared context passed to plugins, parsers, and other internals.
  */
 export type LoggerContext = AsyncEventEmitter<KubbHooks>
 
@@ -609,44 +572,35 @@ export type { Plugin } from './definePlugin.ts'
 export type { Kubb, KubbHooks } from './Kubb.ts'
 
 /**
- * Context passed to a hook-style plugin's `kubb:plugin:setup` handler.
- * Provides methods to register generators, configure the resolver, transformer,
- * and renderer, as well as access to the current build configuration.
+ * Context for hook-style plugin `kubb:plugin:setup` handler.
+ * Provides methods to register generators, configure resolvers, transformers, and renderers.
  */
 export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
-   * Register a generator on this plugin. Generators are invoked during the AST walk
-   * (schema/operation/operations) exactly like generators declared statically on `createPlugin`.
+   * Register a generator dynamically. Generators fire during the AST walk (schema/operation/operations)
+   * just like generators declared statically on `createPlugin`.
    */
   addGenerator<TElement = unknown>(generator: Generator<TFactory, TElement>): void
   /**
-   * Set or partially override the resolver for this plugin.
-   * The resolver controls file naming and path resolution for generated files.
-   *
-   * When `TFactory` is a concrete `PluginFactoryOptions` (e.g. `PluginClient`),
-   * the resolver parameter is typed to the plugin's own resolver type (e.g. `ResolverClient`).
+   * Set or override the resolver for this plugin.
+   * The resolver controls file naming and path resolution.
    */
   setResolver(resolver: Partial<TFactory['resolver']>): void
   /**
-   * Set the AST transformer (visitor) for this plugin.
-   * The transformer pre-processes nodes before they reach the generators.
+   * Set the AST transformer to pre-process nodes before they reach generators.
    */
   setTransformer(visitor: Visitor): void
   /**
-   * Set the renderer factory for this plugin.
-   * Used to process JSX elements returned by generators.
+   * Set the renderer factory to process JSX elements from generators.
    */
   setRenderer(renderer: RendererFactory): void
   /**
-   * Set the resolved options for the build loop. These options are merged into the
-   * normalized plugin's `options` object (which includes `output`, `exclude`, `override`).
-   *
-   * Call this in `kubb:plugin:setup` to provide the resolved options that generators
-   * and the build loop need (e.g., `enumType`, `optionalType`, `group`).
+   * Set resolved options merged into the normalized plugin's `options`.
+   * Call this in `kubb:plugin:setup` to provide options generators need.
    */
   setOptions(options: TFactory['resolvedOptions']): void
   /**
-   * Inject a raw file into the build output, bypassing the normal generation pipeline.
+   * Inject a raw file into the build output, bypassing the generation pipeline.
    */
   injectFile(userFileNode: UserFileNode): void
   /**
@@ -654,17 +608,17 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
    */
   updateConfig(config: Partial<Config>): void
   /**
-   * The resolved build configuration at the time of setup.
+   * The resolved build configuration at setup time.
    */
   config: Config
   /**
-   * The plugin's own options as passed by the user.
+   * The plugin's user-provided options.
    */
   options: TFactory['options']
 }
 
 /**
- * Context passed to a hook-style plugin's `kubb:build:start` handler.
+ * Context for hook-style plugin `kubb:build:start` handler.
  * Fires immediately before the plugin execution loop begins.
  */
 export type KubbBuildStartContext = {
@@ -672,15 +626,13 @@ export type KubbBuildStartContext = {
   adapter: Adapter
   inputNode: InputNode
   /**
-   * Get a plugin by name. Returns the plugin typed via `Kubb.PluginRegistry` when
-   * the name is a registered key, otherwise returns the generic `Plugin`.
+   * Get a plugin by name, typed via `Kubb.PluginRegistry` when registered.
    */
   getPlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
   getPlugin(name: string): Plugin | undefined
   /**
-   * Returns all files currently in the file manager.
-   * Call this lazily (e.g. inside a `kubb:plugin:end` listener) to see files added by plugins
-   * that have already run.
+   * Get all files currently in the file manager.
+   * Call this lazily (e.g. in `kubb:plugin:end`) to see files added by prior plugins.
    */
   readonly files: ReadonlyArray<FileNode>
   /**
@@ -692,27 +644,25 @@ export type KubbBuildStartContext = {
 }
 
 /**
- * Context passed to `kubb:plugins:end` handlers.
- * Fires after all plugins have run and per-plugin barrels have been written,
- * but BEFORE files are written to disk.
- * Middleware that needs to inject final files (e.g. a root barrel) should use this event.
+ * Context for `kubb:plugins:end` handlers.
+ * Fires after plugins run and per-plugin barrels are written, before final write to disk.
+ * Middleware that needs final files (e.g. root barrel) use this event.
  */
 export type KubbPluginsEndContext = {
   config: Config
   /**
-   * Returns all files currently in the file manager (lazy snapshot).
-   * Includes files added by plugins and per-plugin barrel middleware.
+   * All files currently in the file manager (lazy snapshot).
    */
   readonly files: ReadonlyArray<FileNode>
   /**
-   * Upsert one or more files into the file manager.
-   * Files added here will be included in the write pass that follows.
+   * Upsert files into the file manager.
+   * Files added here are included in the write pass.
    */
   upsertFile: (...files: Array<FileNode>) => void
 }
 
 /**
- * Context passed to a hook-style plugin's `kubb:build:end` handler.
+ * Context for hook-style plugin `kubb:build:end` handler.
  * Fires after all files have been written to disk.
  */
 export type KubbBuildEndContext = {
@@ -785,11 +735,11 @@ export type KubbFilesProcessingStartContext = {
 
 export type KubbFileProcessingUpdateContext = {
   /**
-   * Number of files processed so far.
+   * Number of files processed.
    */
   processed: number
   /**
-   * Total number of files to process.
+   * Total files to process.
    */
   total: number
   /**
@@ -805,8 +755,7 @@ export type KubbFileProcessingUpdateContext = {
    */
   file: FileNode
   /**
-   * Kubb configuration.
-   * Provides access to the current config during file processing.
+   * The current build configuration.
    */
   config: Config
 }
