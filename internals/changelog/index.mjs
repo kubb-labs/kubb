@@ -63,10 +63,12 @@ function buildBlock(version, byType) {
     const lines = [...byType.get(type)]
       .sort(([a], [b]) => a.localeCompare(b))
       .flatMap(([pkg, entries]) =>
-        entries.map(entry => {
-          const text = entry.trim().replace(/^- /, '')
-          return text ? `- **\`${pkg}\`** — ${text}` : null
-        }).filter(Boolean)
+        entries
+          .map((entry) => {
+            const text = entry.trim().replace(/^- /, '')
+            return text ? `- **\`${pkg}\`** — ${text}` : null
+          })
+          .filter(Boolean),
       )
 
     if (lines.length) sections.push(`${TYPE_HEADERS[type]}\n\n${lines.join('\n')}`)
@@ -129,4 +131,3 @@ export async function getReleaseLine(changeset, type, options) {
 export async function getDependencyReleaseLine() {
   return ''
 }
-
