@@ -184,7 +184,7 @@ type GetBarrelFilesParams = {
    * Re-export style used when emitting each barrel.
    * - `'all'` re-exports the whole module (`export * from './x'`)
    * - `'named'` re-exports only the indexable named symbols
-   * - `'propagate'` emits one barrel per directory and chains sub-barrels
+   * - `'propagate'` generates an `index.ts` in every sub-directory, each re-exporting only what's directly inside it
    */
   barrelType: BarrelType
   /**
