@@ -23,8 +23,8 @@ const TYPE_HEADERS = {
   patch: '### 🐛 Bug Fixes',
 }
 
-/** @type {Map<string, Map<string, Map<string, string[]>>>} version → type → pkg → entries */
-const pending = new Map()
+/** @type {Array<{type: string, packages: Record<string,string>|null, line: string}>} */
+const pending = []
 
 /** Deduplicates calls — changesets invokes getReleaseLine once per package in the fixed group. */
 const seen = new Set()
@@ -46,15 +46,6 @@ function parseChangesetPackages(id) {
   }
 
   return Object.keys(packages).length ? packages : null
-}
-
-function getEntries(version, type, pkg) {
-  if (!pending.has(version)) pending.set(version, new Map())
-  const byType = pending.get(version)
-  if (!byType.has(type)) byType.set(type, new Map())
-  const byPkg = byType.get(type)
-  if (!byPkg.has(pkg)) byPkg.set(pkg, [])
-  return byPkg.get(pkg)
 }
 
 function buildBlock(version, byType) {
@@ -81,19 +72,44 @@ function buildBlock(version, byType) {
 }
 
 export function flush() {
-  if (!pending.size) return
+  if (!pending.length) return
+
+  // Read the new version from a package.json — changeset version has already updated all packages
+  let version
+  try {
+    version = JSON.parse(fs.readFileSync(path.join(ROOT, 'packages/kubb/package.json'), 'utf8')).version
+  } catch {
+    return
+  }
+  if (!version) return
+
+  // Build version → type → pkg → entries
+  const byType = new Map()
+  for (const { type, packages, line } of pending) {
+    if (packages) {
+      for (const [pkg, pkgType] of Object.entries(packages)) {
+        if (!byType.has(pkgType)) byType.set(pkgType, new Map())
+        const byPkg = byType.get(pkgType)
+        if (!byPkg.has(pkg)) byPkg.set(pkg, [])
+        byPkg.get(pkg).push(line)
+      }
+    } else {
+      if (!byType.has(type)) byType.set(type, new Map())
+      const byPkg = byType.get(type)
+      if (!byPkg.has('unknown')) byPkg.set('unknown', [])
+      byPkg.get('unknown').push(line)
+    }
+  }
 
   const existing = fs.existsSync(ROOT_CHANGELOG) ? fs.readFileSync(ROOT_CHANGELOG, 'utf8') : ''
   const body = existing.startsWith('---') ? existing.replace(/^---[\s\S]*?---\n\n/, '') : existing
 
-  let newBlocks = ''
-  for (const [version, byType] of pending) {
-    if (body.includes(`\n## ${version}\n`) || body.startsWith(`## ${version}\n`)) continue
-    const block = buildBlock(version, byType)
-    if (block) newBlocks += `${block}\n\n`
-  }
+  if (body.includes(`\n## ${version}\n`) || body.startsWith(`## ${version}\n`)) return
 
-  if (!newBlocks) return
+  const block = buildBlock(version, byType)
+  if (!block) return
+
+  const newBlocks = `${block}\n\n`
 
   let newBody
   if (!body.trim()) {
@@ -110,23 +126,14 @@ export function flush() {
 process.on('exit', flush)
 
 export async function getReleaseLine(changeset, type, options) {
-  const version = changeset.releases[0]?.newVersion
-  if (!version) return ''
-
-  const key = `${changeset.id}:${version}`
-  if (seen.has(key)) return ''
-  seen.add(key)
+  const id = changeset.id
+  if (seen.has(id)) return ''
+  seen.add(id)
 
   const line = await changelogGithub.getReleaseLine(changeset, type, options)
-  const packages = parseChangesetPackages(changeset.id)
+  const packages = parseChangesetPackages(id)
 
-  if (packages) {
-    for (const [pkg, pkgType] of Object.entries(packages)) {
-      getEntries(version, pkgType, pkg).push(line)
-    }
-  } else {
-    getEntries(version, type, changeset.id).push(line)
-  }
+  pending.push({ type, packages, line })
 
   return ''
 }
