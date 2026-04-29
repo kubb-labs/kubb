@@ -8,10 +8,12 @@ type PluginFactory = (options: unknown) => Plugin
  * Works for any scoped or unscoped package, not just `@kubb/*`.
  *
  * @example
+ * ```ts
  * toExportName('@kubb/plugin-react-query') // 'pluginReactQuery'
  * toExportName('@kubb/plugin-ts')          // 'pluginTs'
  * toExportName('@my-org/my-plugin')        // 'myPlugin'
  * toExportName('my-custom-plugin')         // 'myCustomPlugin'
+ * ```
  */
 function toExportName(packageName: string): string {
   // Strip scope and any leading path segments, e.g. '@kubb/plugin-ts' → 'plugin-ts'
@@ -68,8 +70,10 @@ async function loadPluginFactory(packageName: string): Promise<PluginFactory> {
  * - `my-custom-plugin` → calls `myCustomPlugin(options)` (or `default`, or first export)
  *
  * @example
+ * ```ts
  * { name: '@kubb/plugin-react-query', options: { output: { path: './hooks' } } }
  * { name: 'my-custom-plugin', options: { output: { path: './custom' } } }
+ * ```
  */
 export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugins']>): Promise<Array<Plugin>> {
   return Promise.all(

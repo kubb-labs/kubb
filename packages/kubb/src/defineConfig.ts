@@ -69,10 +69,12 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  *   receiving the CLI options as argument
  *
  * @example
+ * ```ts
  * export default defineConfig(({ logLevel }) => ({
  *   root: 'src',
  *   plugins: [myPlugin()],
  * }))
+ * ```
  */
 export function defineConfig<TConfig extends ConfigInput>(config: TConfig): DefinedConfig<TConfig> {
   if (typeof config === 'function') {

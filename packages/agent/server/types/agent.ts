@@ -181,10 +181,12 @@ export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
 /**
  * Type guard to narrow SseEvent to a specific event type
  * @example
+ * ```ts
  * if (isDataMessage(msg, 'kubb:plugin:start')) {
  *   // msg.event.data is now typed as [plugin: { name: string }]
  *   const pluginName = msg.event.data[0].name
  * }
+ * ```
  */
 export function isDataMessage<T extends KubbHook>(msg: AgentMessage, type?: T): msg is DataMessage<T> {
   return msg.type === 'data' && (type ? msg.payload.type === type : true)

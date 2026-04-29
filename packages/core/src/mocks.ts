@@ -54,7 +54,7 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
  * Creates a minimal plugin mock for unit tests.
  *
  * @example
- * const plugin = createMockedPlugin<PluginTs>({ name: '@kubb/plugin-ts', options })
+ * `const plugin = createMockedPlugin<PluginTs>({ name: '@kubb/plugin-ts', options })`
  */
 export function createMockedPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(params: {
   name: TOptions['name']
@@ -109,8 +109,10 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
  * Renders a generator's `schema` method in a test context.
  *
  * @example
+ * ```ts
  * await renderGeneratorSchema(typeGenerator, node, { config, adapter, driver, plugin, options, resolver })
  * await matchFiles(driver.fileManager.files)
+ * ```
  */
 export async function renderGeneratorSchema<TOptions extends PluginFactoryOptions>(
   generator: Generator<TOptions>,
@@ -131,8 +133,10 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
  * Renders a generator's `operation` method in a test context.
  *
  * @example
+ * ```ts
  * await renderGeneratorOperation(typeGenerator, node, { config, adapter, driver, plugin, options, resolver })
  * await matchFiles(driver.fileManager.files)
+ * ```
  */
 export async function renderGeneratorOperation<TOptions extends PluginFactoryOptions>(
   generator: Generator<TOptions>,
@@ -153,8 +157,10 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
  * Renders a generator's `operations` method in a test context.
  *
  * @example
+ * ```ts
  * await renderGeneratorOperations(classClientGenerator, nodes, { config, adapter, driver, plugin, options, resolver })
  * await matchFiles(driver.fileManager.files)
+ * ```
  */
 export async function renderGeneratorOperations<TOptions extends PluginFactoryOptions>(
   generator: Generator<TOptions>,
