@@ -34,9 +34,17 @@ export type Storage = {
 }
 
 /**
- * Creates a storage factory. Call the returned function with optional options to get the storage instance.
+ * Factory for implementing custom storage backends that control where generated files are written.
+ *
+ * Takes a builder function `(options: TOptions) => Storage` and returns a factory `(options?: TOptions) => Storage`.
+ * Kubb provides filesystem and in-memory implementations out of the box.
+ *
+ * @note Call the returned factory with optional options to instantiate the storage adapter.
  *
  * @example
+ * ```ts
+ * import { createStorage } from '@kubb/core'
+ *
  * export const memoryStorage = createStorage(() => {
  *   const store = new Map<string, string>()
  *   return {
@@ -52,6 +60,10 @@ export type Storage = {
  *     async clear(base) { if (!base) store.clear() },
  *   }
  * })
+ *
+ * // Instantiate:
+ * const storage = memoryStorage()
+ * ```
  */
 export function createStorage<TOptions = Record<string, never>>(build: (options: TOptions) => Storage): (options?: TOptions) => Storage {
   return (options) => build(options ?? ({} as TOptions))

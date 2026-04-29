@@ -8,7 +8,7 @@ catalog:
   '@types/react-reconciler': 0.33.0
   '@size-limit/file': ^12.1.0
   'size-limit': ^12.1.0
-  'tinyexec': ^1.1.1
+  'tinyexec': ^1.1.2
   react: 19.2.5
   react-reconciler: 0.33.0
   p-limit: ^7.3.0

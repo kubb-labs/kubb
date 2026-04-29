@@ -22,14 +22,17 @@ export type Middleware = {
 }
 
 /**
- * Creates a middleware factory using the hook-style (`hooks:`) API.
+ * Creates a middleware factory using the hook-style `hooks` API.
  *
- * Mirrors `definePlugin`: the factory is called with optional options and returns a
- * fresh `Middleware` instance. Placing per-build state (e.g. accumulators) inside the
- * factory closure ensures each `createKubb` invocation gets its own isolated instance.
+ * Middleware handlers fire after all plugin handlers for any given event, making them ideal for post-processing, logging, and auditing.
+ * Per-build state (such as accumulators) belongs inside the factory closure so each `createKubb` invocation gets its own isolated instance.
+ *
+ * @note The factory can accept typed options. See examples for using options and per-build state patterns.
  *
  * @example
  * ```ts
+ * import { defineMiddleware } from '@kubb/core'
+ *
  * // Stateless middleware
  * export const logMiddleware = defineMiddleware(() => ({
  *   name: 'log-middleware',
@@ -41,21 +44,16 @@ export type Middleware = {
  * }))
  *
  * // Middleware with options and per-build state
- * export const myMiddleware = defineMiddleware((options: { prefix: string } = { prefix: '' }) => {
+ * export const prefixMiddleware = defineMiddleware((options: { prefix: string } = { prefix: '' }) => {
  *   const seen = new Set<string>()
  *   return {
- *     name: 'my-middleware',
+ *     name: 'prefix-middleware',
  *     hooks: {
  *       'kubb:plugin:end'({ plugin }) {
  *         seen.add(`${options.prefix}${plugin.name}`)
  *       },
  *     },
  *   }
- * })
- *
- * // Usage in kubb.config.ts:
- * export default defineConfig({
- *   middleware: [logMiddleware(), myMiddleware({ prefix: 'pfx:' })],
  * })
  * ```
  */

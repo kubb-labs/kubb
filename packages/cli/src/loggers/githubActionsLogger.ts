@@ -5,8 +5,7 @@ import { runHook } from '../utils/runHook.ts'
 import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils.ts'
 
 /**
- * GitHub Actions adapter for CI environments
- * Uses Github group annotations for collapsible sections
+ * GitHub Actions logger using group annotations for collapsible sections in CI.
  */
 export const githubActionsLogger = defineLogger({
   name: 'github-actions',

@@ -21,16 +21,40 @@ export type { Renderer, RendererFactory } from './createRenderer.ts'
  */
 type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {}
 
+/**
+ * Reference to an input file to generate code from.
+ *
+ * Specify an absolute path or a path relative to the config file location.
+ * The adapter will parse this file (e.g., OpenAPI YAML or JSON) into the universal AST.
+ */
 export type InputPath = {
   /**
    * Path to your Swagger/OpenAPI file, absolute or relative to the config file location.
+   *
+   * @example
+   * ```ts
+   * { path: './petstore.yaml' }
+   * { path: '/absolute/path/to/openapi.json' }
+   * ```
    */
   path: string
 }
 
+/**
+ * Inline input data to generate code from.
+ *
+ * Useful when you want to pass the specification directly instead of from a file.
+ * Can be a string (YAML/JSON) or a parsed object.
+ */
 export type InputData = {
   /**
-   * Swagger/OpenAPI data as a string or object.
+   * Swagger/OpenAPI data as a string (YAML/JSON) or a parsed object.
+   *
+   * @example
+   * ```ts
+   * { data: fs.readFileSync('./openapi.yaml', 'utf8') }
+   * { data: { openapi: '3.1.0', info: { ... } } }
+   * ```
    */
   data: string | unknown
 }
@@ -117,11 +141,27 @@ export type DevtoolsOptions = {
 }
 
 /**
+ * Build configuration for Kubb code generation.
+ *
+ * The Config is the main entry point for customizing how Kubb generates code. It specifies:
+ * - What to generate from (adapter + input)
+ * - Where to output generated code (output)
+ * - How to generate (plugins + middleware)
+ * - Runtime details (parsers, storage, renderer)
+ *
+ * See `UserConfig` for a relaxed version with sensible defaults.
+ *
  * @private
  */
 export type Config<TInput = Input> = {
   /**
-   * The name to display in the CLI output.
+   * Display name for this configuration in CLI output and logs.
+   * Useful when running multiple builds with `defineConfig` arrays.
+   *
+   * @example
+   * ```ts
+   * name: 'api-client'
+   * ```
    */
   name?: string
   /**
@@ -167,84 +207,171 @@ export type Config<TInput = Input> = {
   output: {
     /**
      * Output directory for generated files, absolute or relative to `root`.
+     *
+     * All generated files will be written under this directory. Subdirectories can be created
+     * by plugins based on grouping strategy (by tag, path, etc.).
+     *
+     * @example
+     * ```ts
+     * output: {
+     *   path: './src/gen',  // generates ./src/gen/api.ts, ./src/gen/types.ts, etc.
+     * }
+     * ```
      */
     path: string
     /**
-     * Clean the output directory before each build.
+     * Remove all files from the output directory before starting the build.
+     *
+     * Useful to ensure old generated files aren't mixed with new ones.
+     * Set to `true` for fresh builds, `false` to preserve manual edits in output dir.
+     *
+     * @default false
+     * @example
+     * ```ts
+     * clean: true  // wipes ./src/gen/* before generating
+     * ```
      */
     clean?: boolean
     /**
-     * Save files to the file system.
+     * Persists generated files to the file system.
+     *
      * @default true
-     * @deprecated Use `storage` to control where files are written.
+     * @deprecated Use `storage` option to control where files are written instead.
      */
     write?: boolean
     /**
-     * Code formatter to apply to generated files.
-     * - `'auto'` — auto-detect oxfmt, biome, or prettier
-     * - `false` — skip formatting
+     * Auto-format generated files after code generation completes.
+     *
+     * Applies a code formatter to all generated files. Use `'auto'` to detect which formatter
+     * is available on your system. Pass `false` to skip formatting (useful for CI or specific workflows).
+     *
      * @default false
+     * @example
+     * ```ts
+     * format: 'auto'        // auto-detect prettier, biome, or oxfmt
+     * format: 'prettier'    // force prettier
+     * format: false         // skip formatting
+     * ```
      */
     format?: 'auto' | 'prettier' | 'biome' | 'oxfmt' | false
     /**
-     * Linter to analyze generated files.
-     * - `'auto'` — auto-detect oxlint, biome, or eslint
-     * - `false` — skip linting
+     * Auto-lint generated files after code generation completes.
+     *
+     * Analyzes all generated files for style/correctness issues. Use `'auto'` to detect which linter
+     * is available on your system. Pass `false` to skip linting.
+     *
      * @default false
+     * @example
+     * ```ts
+     * lint: 'auto'      // auto-detect oxlint, biome, or eslint
+     * lint: 'eslint'    // force eslint
+     * lint: false       // skip linting
+     * ```
      */
     lint?: 'auto' | 'eslint' | 'biome' | 'oxlint' | false
     /**
-     * Override the file extension for generated imports and exports.
-     * Each plugin applies its own extension by default.
+     * Map file extensions to different output extensions.
+     *
+     * Useful when you want generated `.ts` imports to reference `.js` files or vice versa (e.g., for ESM dual packages).
+     * Keys are the original extension, values are the output extension. Use empty string `''` to omit extension.
+     *
      * @default { '.ts': '.ts' }
+     * @example
+     * ```ts
+     * extension: { '.ts': '.js' }      // generates import './api.js' instead of './api.ts'
+     * extension: { '.ts': '', '.tsx': '.jsx' }
+     * ```
      */
     extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
     /**
-     * Banner text to prepend to every generated file.
-     * - `'simple'` — banner with link to Kubb
-     * - `'full'` — banner with source, title, description, and API version
-     * - `false` — no banner
+     * Banner text prepended to every generated file.
+     *
+     * Useful for auto-generation notices or license headers. Choose a preset or write custom text.
+     * Use `'simple'` for a basic Kubb banner, `'full'` for detailed metadata, or `false` to omit.
+     *
      * @default 'simple'
+     * @example
+     * ```ts
+     * defaultBanner: 'simple'   // "This file was autogenerated by Kubb"
+     * defaultBanner: 'full'     // adds source, title, description, API version
+     * defaultBanner: false      // no banner
+     * ```
      */
     defaultBanner?: 'simple' | 'full' | false
     /**
-     * Override existing external files if they already exist.
-     * Plugins can override this with their own `output.override` option.
+     * When `true`, overwrites existing files. When `false`, skips generated files that already exist.
+     *
+     * Individual plugins can override this setting. This is useful for preventing accidental data loss
+     * when re-generating while you have local edits in the output folder.
+     *
      * @default false
+     * @example
+     * ```ts
+     * override: true   // regenerate everything, even existing files
+     * override: false  // skip files that already exist
+     * ```
      */
     override?: boolean
   } & ExtractRegistryKey<Kubb.ConfigOptionsRegistry, 'output'>
   /**
-   * Storage backend for generated files, defaults to `fsStorage()`.
-   * Accepts any object implementing the {@link Storage} interface.
-   * Keys are root-relative paths (e.g. `src/gen/api/getPets.ts`).
+   * Storage backend that controls where and how generated files are persisted.
+   *
+   * Defaults to `fsStorage()` which writes to the file system. Pass `memoryStorage()` to keep files in RAM,
+   * or implement a custom `Storage` interface to write to cloud storage, databases, or other backends.
    *
    * @default fsStorage()
    * @example
    * ```ts
    * import { memoryStorage } from '@kubb/core'
+   *
+   * // Keep generated files in memory (useful for testing, CI pipelines)
    * storage: memoryStorage()
+   *
+   * // Use custom S3 storage
+   * storage: myS3Storage()
    * ```
+   *
+   * @see {@link Storage} interface for implementing custom backends.
    */
   storage?: Storage
   /**
-   * Plugins used for code generation.
-   * Each plugin may declare additional configurable options.
-   * Dependencies are enforced — an error is thrown if a plugin's dependency is missing.
+   * Plugins that execute during the build to generate code and transform the AST.
+   *
+   * Each plugin processes the AST produced by the adapter and can emit files for different
+   * programming languages or formats (TypeScript, Zod schemas, Faker data, etc.).
+   * Dependencies are enforced — an error is thrown if a plugin requires another plugin that isn't registered.
+   *
+   * Plugins can declare their own options via `PluginFactoryOptions`. See plugin documentation for details.
+   *
+   * @example
+   * ```ts
+   * import { pluginTs } from '@kubb/plugin-ts'
+   * import { pluginZod } from '@kubb/plugin-zod'
+   *
+   * plugins: [
+   *   pluginTs({ output: { path: './src/gen' } }),
+   *   pluginZod({ output: { path: './src/gen' } }),
+   * ]
+   * ```
    */
   plugins: Array<Plugin>
   /**
-   * Middleware instances that observe and post-process build output.
-   * Middleware listeners fire after all plugin listeners for any given event.
+   * Middleware instances that observe build events and post-process generated code.
+   *
+   * Middleware fires AFTER all plugins for each event. Perfect for tasks like:
+   * - Auditing what was generated
+   * - Adding barrel/index files
+   * - Validating output
+   * - Running custom transformations
    *
    * @example
    * ```ts
    * import { middlewareBarrel } from '@kubb/middleware-barrel'
-   * export default defineConfig({
-   *   middleware: [middlewareBarrel()],
-   *   plugins: [pluginTs(), pluginZod()],
-   * })
+   *
+   * middleware: [middlewareBarrel()]
    * ```
+   *
+   * @see {@link defineMiddleware} to create custom middleware.
    */
   middleware?: Array<Middleware>
   /**
@@ -260,9 +387,34 @@ export type Config<TInput = Input> = {
    * })
    * ```
    */
+  /**
+   * Renderer that converts generated AST nodes to code strings.
+   *
+   * By default, Kubb uses the JSX renderer (`rendererJsx`). Pass a custom renderer to support
+   * different output formats (template engines, code generation DSLs, etc.).
+   *
+   * @default rendererJsx()  // from @kubb/renderer-jsx
+   * @example
+   * ```ts
+   * import { rendererJsx } from '@kubb/renderer-jsx'
+   * renderer: rendererJsx()
+   * ```
+   *
+   * @see {@link Renderer} to implement a custom renderer.
+   */
   renderer?: RendererFactory
   /**
-   * Kubb Studio integration settings.
+   * Kubb Studio cloud integration settings.
+   *
+   * Kubb Studio (https://studio.kubb.dev) is a web-based IDE for managing API specs and generated code.
+   * Set to `true` to enable with default settings, or pass an object to customize the Studio URL.
+   *
+   * @default false  // disabled by default
+   * @example
+   * ```ts
+   * devtools: true                                   // use default Kubb Studio
+   * devtools: { studioUrl: 'https://my-studio.dev' } // custom Studio instance
+   * ```
    */
   devtools?:
     | true
@@ -274,12 +426,33 @@ export type Config<TInput = Input> = {
         studioUrl?: typeof DEFAULT_STUDIO_URL | (string & {})
       }
   /**
-   * Lifecycle hooks triggered during build.
+   * Lifecycle hooks that execute during or after the build process.
+   *
+   * Hooks allow you to run external tools (prettier, eslint, custom scripts) based on build events.
+   * Currently supports the `done` hook which fires after all plugins and middleware complete.
+   *
+   * @example
+   * ```ts
+   * hooks: {
+   *   done: 'prettier --write "./src/gen"',      // auto-format generated files
+   *   // or multiple commands:
+   *   done: ['prettier --write "./src/gen"', 'eslint --fix "./src/gen"']
+   * }
+   * ```
    */
   hooks?: {
     /**
-     * Hook that fires after all builds complete.
-     * Run Prettier, ESLint, or other tools to format/lint generated code.
+     * Command(s) to run after all plugins and middleware complete generation.
+     *
+     * Useful for post-processing: formatting, linting, copying files, or custom validation.
+     * Pass a single command string or array of command strings to run sequentially.
+     * Commands are executed relative to the `root` directory.
+     *
+     * @example
+     * ```ts
+     * done: 'prettier --write "./src/gen"'
+     * done: ['prettier --write "./src/gen"', 'eslint --fix "./src/gen"']
+     * ```
      */
     done?: string | Array<string>
   }
@@ -387,25 +560,85 @@ export type NormalizedPlugin<TOptions extends PluginFactoryOptions = PluginFacto
 
 /**
  * Partial `Config` for user-facing entry points with sensible defaults.
- * `root`, `plugins`, `parsers`, and `adapter` are optional.
+ *
+ * `UserConfig` is what you pass to `defineConfig()`. It has optional `root`, `plugins`, `parsers`, and `adapter`
+ * fields (which fall back to sensible defaults). All other Config options are available, including `output`, `input`,
+ * `storage`, `middleware`, `renderer`, `devtools`, and `hooks`.
+ *
+ * @example
+ * ```ts
+ * export default defineConfig({
+ *   input: { path: './petstore.yaml' },
+ *   output: { path: './src/gen' },
+ *   plugins: [pluginTs(), pluginZod()],
+ * })
+ * ```
  */
 export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins' | 'parsers' | 'adapter'> & {
   /**
-   * Project root directory, absolute or relative to the config file.
+   * Project root directory, absolute or relative to the config file location.
+   *
+   * Used as the base path for `root`-relative paths (e.g., `output.path`, file paths in hooks).
+   *
    * @default process.cwd()
+   * @example
+   * ```ts
+   * root: '/home/user/my-project'
+   * root: './my-project'  // relative to config file
+   * ```
    */
   root?: string
   /**
-   * Parsers that convert generated files to strings.
-   * When omitted, `parserTs` from `@kubb/parser-ts` is used as default.
+   * Custom parsers that convert generated AST nodes to strings (TypeScript, JSON, markdown, etc.).
+   *
+   * Each parser handles a specific file type. By default, Kubb uses `parserTs` from `@kubb/parser-ts` for TypeScript files.
+   * Pass custom parsers to support additional languages or custom formats.
+   *
+   * @default [parserTs]  // from @kubb/parser-ts
+   * @example
+   * ```ts
+   * import { parserTs } from '@kubb/parser-ts'
+   * import { parserJsonSchema } from '@kubb/parser-json-schema'
+   *
+   * parsers: [parserTs(), parserJsonSchema()]
+   * ```
+   *
+   * @see {@link Parser} to implement a custom parser.
    */
   parsers?: Array<Parser>
   /**
-   * Adapter that parses input into the universal `InputNode` representation.
+   * Adapter that parses your API specification (OpenAPI, GraphQL, AsyncAPI, etc.) into Kubb's universal AST.
+   *
+   * The adapter bridge between your input format and Kubb's internal representation. By default, uses the OAS adapter.
+   * Pass an alternative adapter (or multiple configs with different adapters) to support different spec formats.
+   *
+   * @default new OasAdapter()  // from @kubb/adapter-oas
+   * @example
+   * ```ts
+   * import { Oas } from '@kubb/adapter-oas'
+   *
+   * adapter: new Oas({ apiVersion: '3.0.0' })
+   * ```
+   *
+   * @see {@link Adapter} to implement a custom adapter for GraphQL or other formats.
    */
   adapter?: Adapter
   /**
-   * Plugins used for code generation.
+   * Plugins that execute during the build to generate code and transform the AST.
+   *
+   * Each plugin processes the AST produced by the adapter and can emit files for different
+   * programming languages or formats (TypeScript, Zod schemas, Faker data, etc.).
+   *
+   * @default []  // no plugins (useful for setup/testing)
+   * @example
+   * ```ts
+   * plugins: [
+   *   pluginTs({ output: { path: './src/gen' } }),
+   *   pluginZod({ output: { path: './src/gen' } }),
+   * ]
+   * ```
+   *
+   * @see {@link definePlugin} to create a custom plugin.
    */
   plugins?: Array<Plugin>
 }
@@ -800,22 +1033,46 @@ export type KubbHookEndContext = {
 }
 
 type ByTag = {
+  /**
+   * Filter by OpenAPI `tags` field. Matches one or more tags assigned to operations.
+   */
   type: 'tag'
+  /**
+   * Tag name to match (case-sensitive). Can be a literal string or regex pattern.
+   */
   pattern: string | RegExp
 }
 
 type ByOperationId = {
+  /**
+   * Filter by OpenAPI `operationId` field. Each operation (GET, POST, etc.) has a unique identifier.
+   */
   type: 'operationId'
+  /**
+   * Operation ID to match (case-sensitive). Can be a literal string or regex pattern.
+   */
   pattern: string | RegExp
 }
 
 type ByPath = {
+  /**
+   * Filter by OpenAPI `path` (URL endpoint). Useful to group or filter by service segments like `/pets`, `/users`, etc.
+   */
   type: 'path'
+  /**
+   * URL path to match (case-sensitive). Can be a literal string or regex pattern. Matches against the full path.
+   */
   pattern: string | RegExp
 }
 
 type ByMethod = {
+  /**
+   * Filter by HTTP method: `'get'`, `'post'`, `'put'`, `'delete'`, `'patch'`, `'head'`, `'options'`.
+   */
   type: 'method'
+  /**
+   * HTTP method to match (case-insensitive when using string, or regex for dynamic matching).
+   */
   pattern: HttpMethod | RegExp
 }
 // TODO implement as alternative for ByMethod
@@ -825,30 +1082,82 @@ type ByMethod = {
 // }
 
 type BySchemaName = {
+  /**
+   * Filter by schema component name (TypeScript or JSON schema). Matches schemas in `#/components/schemas`.
+   */
   type: 'schemaName'
+  /**
+   * Schema name to match (case-sensitive). Can be a literal string or regex pattern.
+   */
   pattern: string | RegExp
 }
 
 type ByContentType = {
+  /**
+   * Filter by response or request content type: `'application/json'`, `'application/xml'`, etc.
+   */
   type: 'contentType'
+  /**
+   * Content type to match (case-sensitive). Can be a literal string or regex pattern.
+   */
   pattern: string | RegExp
 }
 
 /**
  * A pattern filter that prevents matching nodes from being generated.
- * Match by `tag`, `operationId`, `path`, `method`, `contentType`, or `schemaName`.
+ *
+ * Use to skip code generation for specific operations or schemas. For example, exclude deprecated endpoints
+ * or internal-only schemas. Can filter by tag, operationId, path, HTTP method, content type, or schema name.
+ *
+ * @example
+ * ```ts
+ * exclude: [
+ *   { type: 'tag', pattern: 'internal' },          // skip "internal" tag
+ *   { type: 'path', pattern: /^\/admin/ },          // skip all /admin endpoints
+ *   { type: 'operationId', pattern: 'deprecated_*' }  // skip operationIds matching pattern
+ * ]
+ * ```
  */
 export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName
 
 /**
  * A pattern filter that restricts generation to only matching nodes.
- * Match by `tag`, `operationId`, `path`, `method`, `contentType`, or `schemaName`.
+ *
+ * Use to generate code for a subset of operations or schemas. For example, only generate for a specific service
+ * tag or only for "production" endpoints. Can filter by tag, operationId, path, HTTP method, content type, or schema name.
+ *
+ * @example
+ * ```ts
+ * include: [
+ *   { type: 'tag', pattern: 'public' },        // generate only "public" tag
+ *   { type: 'path', pattern: /^\/api\/v1/ },   // generate only v1 endpoints
+ * ]
+ * ```
  */
 export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName
 
 /**
  * A pattern filter paired with partial option overrides applied when the pattern matches.
- * Match by `tag`, `operationId`, `path`, `method`, `schemaName`, or `contentType`.
+ *
+ * Use to customize generation for specific operations or schemas. For example, apply different output paths
+ * for different tags, or use custom resolver functions per operation. Can filter by tag, operationId, path,
+ * HTTP method, schema name, or content type.
+ *
+ * @example
+ * ```ts
+ * override: [
+ *   {
+ *     type: 'tag',
+ *     pattern: 'admin',
+ *     options: { output: { path: './src/gen/admin' } }  // admin APIs go to separate folder
+ *   },
+ *   {
+ *     type: 'operationId',
+ *     pattern: 'listPets',
+ *     options: { exclude: true }  // skip this specific operation
+ *   }
+ * ]
+ * ```
  */
 export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName | ByContentType) & {
   //TODO should be options: Omit<Partial<TOptions>, 'override'>

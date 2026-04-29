@@ -22,13 +22,17 @@ import { collect } from './visitor.ts'
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
 
 /**
- * Returns a merged schema view for a ref node, combining the resolved `node.schema`
- * (base from the referenced definition) with any usage-site sibling fields set directly
- * on the ref node (description, readOnly, nullable, deprecated, etc.).
+ * Merges a ref node with its resolved schema, giving usage-site fields precedence.
  *
- * Usage-site fields take precedence over the resolved schema's own fields when both are defined.
+ * Usage-site fields (`description`, `readOnly`, `nullable`, `deprecated`) on the ref node
+ * override the same fields in the resolved `node.schema`. Non-ref nodes are returned unchanged.
  *
- * For non-ref nodes the node itself is returned unchanged.
+ * @example
+ * ```ts
+ * // Ref with description override
+ * const ref = createSchema({ type: 'ref', ref: '#/components/schemas/Pet', description: 'A cute pet' })
+ * const merged = syncSchemaRef(ref)  // merges with resolved Pet schema
+ * ```
  */
 export function syncSchemaRef(node: SchemaNode): SchemaNode {
   const ref = narrowSchema(node, 'ref')
@@ -45,16 +49,10 @@ export function syncSchemaRef(node: SchemaNode): SchemaNode {
 }
 
 /**
- * Returns `true` when a schema is emitted as a plain `string` type.
+ * Type guard that returns `true` when a schema emits as a plain `string` type.
  *
- * - `string`, `uuid`, `email`, `url`, `datetime` are always plain strings.
- * - `date` and `time` are plain strings when their `representation` is `'string'` rather than `'date'`.
- *
- * @example
- * ```ts
- * isStringType(createSchema({ type: 'uuid' }))                          // true
- * isStringType(createSchema({ type: 'date', representation: 'date' }))  // false
- * ```
+ * Covers `string`, `uuid`, `email`, `url`, and `datetime` types. For `date` and `time`
+ * types, returns `true` only when `representation` is `'string'` rather than `'date'`.
  */
 export function isStringType(node: SchemaNode): boolean {
   if (plainStringTypes.has(node.type)) {
@@ -72,19 +70,9 @@ export function isStringType(node: SchemaNode): boolean {
 /**
  * Applies casing rules to parameter names and returns a new parameter array.
  *
- * The input array is not mutated.
- * If `casing` is not set, the original array is returned unchanged.
- *
- * Use this before passing parameters to schema builders so that property keys
- * in generated output match the desired casing while preserving
- * `OperationNode.parameters` for other consumers.
- *
- * @example
- * ```ts
- * const params = [createParameter({ name: 'pet_id', in: 'query', schema: createSchema({ type: 'string' }) })]
- * const cased = caseParams(params, 'camelcase')
- * // cased[0].name === 'petId'
- * ```
+ * Use this before passing parameters to schema builders so output property keys match
+ * the desired casing while preserving `OperationNode.parameters` for other consumers.
+ * The input array is not mutated. When `casing` is not set, the original array is returned unchanged.
  */
 export function caseParams(params: Array<ParameterNode>, casing: 'camelcase' | undefined): Array<ParameterNode> {
   if (!casing) {
@@ -305,20 +293,12 @@ function resolveParamsType({
 }
 
 /**
- * Converts an {@link OperationNode} into a {@link FunctionParametersNode}.
+ * Converts an `OperationNode` into function parameters for code generation.
  *
- * Centralizes the per-plugin `getParams()` pattern. Provide a `resolver` for
- * type resolution and `extraParams` for plugin-specific trailing parameters.
- *
- * @example
- * ```ts
- * const params = createOperationParams(node, {
- *   paramsType: 'inline',
- *   pathParamsType: 'inline',
- *   resolver: tsResolver,
- *   extraParams: [createFunctionParameter({ name: 'options', type: createParamsType({ variant: 'reference', name: 'Partial<RequestOptions>' }), default: '{}' })],
- * })
- * ```
+ * Centralizes parameter grouping logic for all plugins. Provide a `resolver` for type name resolution
+ * and `extraParams` for plugin-specific trailing parameters (e.g., `options` objects).
+ * Supports three grouping modes: `object` (single destructured param), `inline` (separate params),
+ * and `inlineSpread` (rest parameter). Use `CreateOperationParamsOptions` to fine-tune output.
  */
 export function createOperationParams(node: OperationNode, options: CreateOperationParamsOptions): FunctionParametersNode {
   const { paramsType, pathParamsType, paramsCasing, resolver, pathParamsDefault, extraParams = [], paramNames, typeWrapper } = options
@@ -599,9 +579,9 @@ function sortKey(node: { name?: string | Array<unknown>; isTypeOnly?: boolean; p
 }
 
 /**
- * Deduplicates an array of `SourceNode` objects.
- * Named sources are deduplicated by `name + isExportable + isTypeOnly`.
- * Unnamed sources are deduplicated by object reference.
+ * Deduplicates and merges `SourceNode` objects by `name + isExportable + isTypeOnly`.
+ *
+ * Unnamed sources are deduplicated by object reference. Returns a deduplicated array in original order.
  */
 export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
   const seen = new Map<string, SourceNode>()
@@ -613,8 +593,10 @@ export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
 }
 
 /**
- * Deduplicates and merges an array of `ExportNode` objects.
- * Exports with the same path and `isTypeOnly` flag have their names merged.
+ * Deduplicates and merges `ExportNode` objects by path and type.
+ *
+ * Named exports with the same path and `isTypeOnly` flag have their names merged into a single export.
+ * Non-array exports are deduplicated by exact identity. Returns a sorted, deduplicated array.
  */
 export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
   const result: Array<ExportNode> = []
@@ -658,9 +640,12 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
 }
 
 /**
- * Deduplicates and merges an array of `ImportNode` objects.
- * Filters out unused imports (names not referenced in `source` or re-exported).
- * Imports with the same path and `isTypeOnly` flag have their names merged.
+ * Deduplicates and merges `ImportNode` objects, filtering out unused imports.
+ *
+ * Retains imports that are referenced in `source` or re-exported. Imports with the same path and
+ * `isTypeOnly` flag have their names merged. Returns a sorted, deduplicated, filtered array.
+ *
+ * @note Use this when combining imports from multiple files to avoid duplicate declarations.
  */
 export function combineImports(imports: Array<ImportNode>, exports: Array<ExportNode>, source?: string): Array<ImportNode> {
   // Build a lookup of all exported names to retain imports that are re-exported
@@ -714,11 +699,10 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
 }
 
 /**
- * Recursively extracts all string content embedded in a {@link CodeNode} tree.
+ * Extracts all string content from a `CodeNode` tree recursively.
  *
- * Includes text node values, and string attribute fields (`params`, `generics`,
- * `returnType`, `type`) that may reference identifiers needing imports.
- * Used by `createFile` to build the full source string for import filtering.
+ * Collects text node values, identifier references in string fields (`params`, `generics`, `returnType`, `type`),
+ * and nested node content. Used internally to build the full source string for import filtering.
  */
 export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): string {
   if (!nodes?.length) return ''
@@ -743,9 +727,10 @@ export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): str
 }
 
 /**
- * Resolves the referenced schema name of a `ref` node, falling back through
- * `ref` → `name` → nested `schema.name`. Returns `undefined` for non-ref
- * nodes or when no name can be resolved.
+ * Resolves the schema name of a ref node, falling back through `ref` → `name` → nested `schema.name`.
+ *
+ * Returns `undefined` for non-ref nodes or when no name can be resolved. Use this to get a schema's
+ * identifier for type definitions or error messages.
  *
  * @example
  * ```ts
@@ -761,15 +746,12 @@ export function resolveRefName(node: SchemaNode | undefined): string | undefined
 }
 
 /**
- * Recursively collects every named schema referenced (transitively) from
- * `node` via `ref` edges. Refs are followed by name only — the resolved
- * `node.schema` of a ref is not traversed inline.
+ * Collects every named schema referenced (transitively) from a node via ref edges.
  *
- * @example
- * ```ts
- * const refs = collectReferencedSchemaNames(petSchema)
- * // => Set { 'Cat', 'Dog' }
- * ```
+ * Refs are followed by name only — the resolved `node.schema` is not traversed inline.
+ * Use this to determine schema dependencies, build reference graphs, or detect what schemas need to be emitted.
+ *
+ * @note Returns a Set of schema names for efficient membership testing.
  */
 export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: Set<string> = new Set()): Set<string> {
   if (!node) return out
@@ -787,26 +769,13 @@ export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: 
 }
 
 /**
- * Identifies every named schema that participates in a circular dependency
- * chain — including direct self-loops (e.g. `TreeNode → TreeNode`) and indirect
- * cycles spanning multiple schemas (e.g. `Pet → Cat → Pet`).
+ * Identifies all schemas that participate in circular dependency chains, including direct self-loops.
  *
- * The returned set contains schema names. Plugins that translate schemas into
- * a host language can use this to wrap recursive positions in a deferred
- * construct (lazy getter, `z.lazy(() => …)`, etc.) and avoid runtime stack
- * overflows when the generated code is executed.
+ * Returns a Set of schema names with circular dependencies. Use this to wrap recursive schema positions
+ * in deferred constructs (lazy getter, `z.lazy(() => …)`) to prevent infinite recursion when generated code runs.
+ * Refs are followed by name only, keeping the algorithm linear in the schema graph size.
  *
- * Refs are followed by name only — `node.schema` (the resolved referent) is
- * not traversed inline, which keeps the algorithm linear in the size of the
- * schema graph.
- *
- * @example
- * ```ts
- * const circular = findCircularSchemas(inputNode.schemas)
- * if (circular.has('Pet')) {
- *   // emit lazy wrapper for any property whose schema references Pet
- * }
- * ```
+ * @note Call this once on the full schema graph, then use `containsCircularRef()` to check individual schemas.
  */
 export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<string> {
   const graph = new Map<string, Set<string>>()
@@ -838,21 +807,12 @@ export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<str
 }
 
 /**
- * Returns true when `node` (or anything nested within it) carries a `ref`
- * whose resolved name belongs to `circularSchemas`.
+ * Type guard returning `true` when a schema or anything nested within it contains a ref to a circular schema.
  *
- * When `excludeName` is provided, refs to that name are ignored — useful
- * when self-references are already handled separately from cross-schema
- * cycles (e.g. the faker plugin emits `undefined as any` for direct
- * self-recursion but a lazy getter for indirect cycles).
+ * Use `excludeName` to ignore refs to specific schemas (useful when self-references are handled separately).
+ * Commonly used with `findCircularSchemas()` to detect where lazy wrappers are needed in code generation.
  *
- * @example
- * ```ts
- * const circular = findCircularSchemas(schemas)
- * if (containsCircularRef(property.schema, { circularSchemas: circular, excludeName: 'Pet' })) {
- *   // emit `get foo() { return fakeCat() }` instead of eager call
- * }
- * ```
+ * @note Returns `true` for the first matching circular ref found; use for fast dependency checks.
  */
 export function containsCircularRef(
   node: SchemaNode | undefined,

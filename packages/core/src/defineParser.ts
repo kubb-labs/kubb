@@ -21,10 +21,9 @@ export type Parser<TMeta extends object = any> = {
 }
 
 /**
- * Defines a parser with type safety.
+ * Defines a parser with type safety. Creates parsers that transform generated files to strings based on their extension.
  *
- * Use this function to create parsers that transform generated files to strings
- * based on their extension.
+ * @note Call the returned factory with optional options to instantiate the parser.
  *
  * @example
  * ```ts

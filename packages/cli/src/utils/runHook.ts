@@ -24,9 +24,7 @@ type RunHookOptions = {
 }
 
 /**
- * Execute a hook command, emit debug/hook:end events, and forward output to
- * an optional HookOutputSink.  All three logger adapters share this function
- * so the process-spawning logic lives in exactly one place.
+ * Executes a hook command, emits debug and completion events, and forwards output to an optional sink.
  */
 export async function runHook({ id, command, args, commandWithArgs, context, stream = false, sink }: RunHookOptions): Promise<void> {
   try {

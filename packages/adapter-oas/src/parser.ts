@@ -20,10 +20,10 @@ import {
 import type { ContentType, Document, Operation, ReferenceObject, SchemaObject } from './types.ts'
 
 /**
- * Construction-time context for the OAS parser.
+ * Parser context holding the raw OpenAPI document and optional content-type override.
  *
- * Holds the raw OpenAPI document and optional content-type override used when extracting
- * request/response schemas.
+ * Passed to schema and operation converters to access the full specification
+ * and handle content negotiation when multiple media types are available.
  */
 export type OasParserContext = {
   document: Document
@@ -31,8 +31,11 @@ export type OasParserContext = {
 }
 
 /**
- * Pre-computed per-schema context passed to every `convert*` branch handler.
- * Grouping these values avoids repeating the same derivations across all branches.
+ * Pre-computed per-schema context passed to every schema converter.
+ *
+ * Centralizes schema derivations (type resolution, defaults, options) to avoid repeated
+ * computation across all conversion branches. The `type` field is normalized from OAS 3.1
+ * multi-type arrays to a single string.
  */
 type SchemaContext = {
   schema: SchemaObject
@@ -48,9 +51,12 @@ type SchemaContext = {
 }
 
 /**
- * Normalize a malformed `{ type: 'array', enum: [...] }` schema by moving the
- * enum values into the items sub-schema. This pattern is technically invalid OAS
- * but appears in the wild and must be handled gracefully.
+ * Normalizes malformed `{ type: 'array', enum: [...] }` schemas by moving enum values into items.
+ *
+ * This pattern violates the OpenAPI spec but appears in real specs. The fix moves enum values
+ * from the array to its items sub-schema, making them valid for downstream processing.
+ *
+ * @note This is a defensive measure for robustness with non-compliant specs.
  */
 function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
   const isItemsObject = typeof schema.items === 'object' && !Array.isArray(schema.items)
@@ -64,10 +70,13 @@ function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
 }
 
 /**
- * Builds the internal converter functions for a given `OasParserContext`.
+ * Factory function that creates schema and operation converters for a given OpenAPI context.
  *
- * All `convert*` functions are defined as function declarations so they can freely
- * reference each other and `parseSchema` via JS hoisting (mutual recursion).
+ * Returns closures that share mutable state (`resolvingRefs` set for cycle detection).
+ * Each converter branch (`convertRef`, `convertAllOf`, etc.) mutually recursively calls `parseSchema`,
+ * made possible by hoisting of function declarations.
+ *
+ * @note Not exported; called internally by `parseOas()` and `parseSchema()`.
  */
 function createSchemaParser(ctx: OasParserContext) {
   const document = ctx.document
@@ -922,12 +931,18 @@ function createSchemaParser(ctx: OasParserContext) {
 }
 
 /**
- * Converts a single `SchemaObject` into a `SchemaNode`.
+ * Parses a single OpenAPI `SchemaObject` into a `SchemaNode`.
+ *
+ * Use this for targeted schema parsing when you don't need the full spec.
+ * For complete spec parsing, use `parseOas()` instead which handles operations and all schemas together.
+ *
+ * @note Circular schema references are tracked via internal state and resolve appropriately.
  *
  * @example
  * ```ts
+ * const document = yaml.parse(fs.readFileSync('openapi.yaml', 'utf8'))
  * const ctx = { document }
- * parseSchema(ctx, { schema: { type: 'string', format: 'uuid' } })
+ * const schema = parseSchema(ctx, { schema: { type: 'string', format: 'uuid' } })
  * ```
  */
 export function parseSchema(
@@ -939,16 +954,20 @@ export function parseSchema(
 }
 
 /**
- * Converts the entire OpenAPI spec into an `InputNode` (the top-level `@kubb/ast` tree).
+ * Parses an OpenAPI specification into Kubb's universal `InputNode` AST.
  *
- * This is the main entry point: `OpenAPI / Swagger → Kubb AST`.
- * No code is generated here — the resulting tree is spec-agnostic and consumed by
- * downstream plugins (`plugin-ts`, `plugin-zod`, …).
+ * This is the main entry point for `@kubb/adapter-oas`. It converts OpenAPI/Swagger specs into a spec-agnostic tree
+ * that downstream plugins (`plugin-ts`, `plugin-zod`, etc.) consume for code generation. No code is generated here —
+ * the tree is a pure data structure representing all schemas and operations.
+ *
+ * Returns the AST root and a `nameMapping` for resolving schema references.
  *
  * @example
  * ```ts
+ * import { parseOas } from '@kubb/adapter-oas'
+ *
  * const document = await parseFromConfig(config)
- * const root = parseOas(document, { dateType: 'date', contentType: 'application/json' })
+ * const { root, nameMapping } = parseOas(document, { dateType: 'date', contentType: 'application/json' })
  * ```
  */
 export function parseOas(

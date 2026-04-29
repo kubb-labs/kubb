@@ -7,8 +7,7 @@ import { runHook } from '../utils/runHook.ts'
 import { formatCommandWithArgs, formatMessage } from './utils.ts'
 
 /**
- * Plain console adapter for non-TTY environments
- * Simple console.log output with indentation
+ * Plain console adapter for non-TTY environments with simple `console.log` output.
  */
 export const plainLogger = defineLogger({
   name: 'plain',

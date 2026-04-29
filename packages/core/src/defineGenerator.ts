@@ -6,32 +6,25 @@ import type { GeneratorContext, PluginFactoryOptions } from './types.ts'
 export type { GeneratorContext } from './types.ts'
 
 /**
- * A generator is a named object with optional `schema`, `operation`, and `operations`
- * methods. Each method receives the AST node as the first argument and a typed
- * `ctx` object as the second, giving access to `ctx.config`, `ctx.resolver`,
- * `ctx.adapter`, `ctx.options`, `ctx.upsertFile`, etc.
+ * Declares a named generator unit that walks the AST and emits files.
  *
- * Generators that return renderer elements (e.g. JSX) must declare a `renderer`
- * factory so that core knows how to process the output without coupling core
- * to any specific renderer package.
+ * Each method (`schema`, `operation`, `operations`) is called for the matching node type.
+ * Each method returns `TElement | Array<FileNode> | void`. JSX-based generators require a `renderer` factory.
+ * Return `Array<FileNode>` directly or call `ctx.upsertFile()` manually and return `void` to bypass rendering.
  *
- * Return a renderer element, an array of `FileNode`, or `void` to handle file
- * writing manually via `ctx.upsertFile`.
+ * @note Generators are consumed by plugins and registered via `ctx.addGenerator()` in `kubb:plugin:setup`.
  *
  * @example
  * ```ts
+ * import { defineGenerator } from '@kubb/core'
  * import { jsxRenderer } from '@kubb/renderer-jsx'
  *
- * export const typeGenerator = defineGenerator<PluginTs>({
+ * export const typeGenerator = defineGenerator({
  *   name: 'typescript',
  *   renderer: jsxRenderer,
  *   schema(node, ctx) {
  *     const { adapter, resolver, root, options } = ctx
  *     return <File ...><Type node={node} resolver={resolver} /></File>
- *   },
- *   operation(node, ctx) {
- *     const { options } = ctx
- *     return <File ...><OperationType node={node} /></File>
  *   },
  * })
  * ```

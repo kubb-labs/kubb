@@ -40,12 +40,10 @@ declare global {
 }
 
 /**
- * Generates `index.ts` barrel files for each plugin's output directory and one root barrel
- * at `config.output.path/index.ts`.
+ * Generates `index.ts` barrel files for each plugin and a root barrel at `config.output.path/index.ts`.
  *
- * Plugins inherit `output.barrelType` from `config.output.barrelType` (which itself defaults to `'named'`).
- * Setting `barrelType: false` on a plugin disables its barrel and excludes the plugin's files from the
- * root barrel as well.
+ * Each plugin inherits `output.barrelType` from `config.output.barrelType` (defaults to `'named'`).
+ * Set `barrelType: false` on a plugin to disable its barrel and exclude it from the root barrel.
  *
  * @example
  * ```ts

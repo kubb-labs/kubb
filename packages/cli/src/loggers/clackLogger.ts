@@ -10,8 +10,7 @@ import { ClackWritable } from '../utils/Writables.ts'
 import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils.ts'
 
 /**
- * Clack adapter for local TTY environments
- * Provides a beautiful CLI UI with flat structure inspired by Claude's CLI patterns
+ * TTY logger with beautiful UI and progress indicators for local development.
  */
 export const clackLogger = defineLogger({
   name: 'clack',

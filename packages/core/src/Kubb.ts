@@ -30,49 +30,45 @@ import type {
 } from './types'
 
 /**
- * The instance returned by {@link createKubb}.
+ * Kubb code generation instance returned by {@link createKubb}.
+ *
+ * Use this when orchestrating multiple builds, inspecting plugin timings, or integrating Kubb into a larger toolchain.
+ * For a single one-off build, chain directly: `await createKubb(config).build()`.
  */
 export type Kubb = {
   /**
-   * The shared event emitter. Attach listeners here before calling `setup()` or `build()`.
+   * Shared event emitter for lifecycle and status events. Attach listeners before calling `setup()` or `build()`.
    */
   readonly hooks: AsyncEventEmitter<KubbHooks>
   /**
-   * Raw generated source, keyed by absolute file path.
-   * Populated after a successful `build()` or `safeBuild()` call.
+   * Generated source code keyed by absolute file path. Available after `build()` or `safeBuild()` completes.
    */
   readonly sources: Map<string, string>
   /**
-   * The plugin driver. Available after `setup()` has been called.
+   * Plugin driver managing all plugins. Available after `setup()` completes.
    */
   readonly driver: PluginDriver | undefined
   /**
-   * The resolved config with applied defaults. Available after `setup()` has been called.
+   * Resolved configuration with defaults applied. Available after `setup()` completes.
    */
   readonly config: Config | undefined
   /**
-   * Initializes all Kubb infrastructure: validates input, applies config defaults,
-   * runs the adapter, and creates the PluginDriver.
-   *
-   * Calling `build()` or `safeBuild()` without calling `setup()` first will
-   * automatically invoke `setup()` before proceeding.
+   * Resolves config and initializes the driver. `build()` calls this automatically.
    */
   setup(): Promise<void>
   /**
-   * Runs a full Kubb build and throws on any error or plugin failure.
-   * Automatically calls `setup()` if it has not been called yet.
+   * Runs the full pipeline and throws on any plugin error. Automatically calls `setup()` if needed.
    */
   build(): Promise<BuildOutput>
   /**
-   * Runs a full Kubb build and captures errors instead of throwing.
-   * Automatically calls `setup()` if it has not been called yet.
+   * Runs the full pipeline and captures errors in `BuildOutput` instead of throwing. Automatically calls `setup()` if needed.
    */
   safeBuild(): Promise<BuildOutput>
 }
 
 /**
- * Events emitted during the Kubb code generation lifecycle.
- * These events can be listened to for logging, progress tracking, and custom integrations.
+ * Lifecycle events emitted during Kubb code generation.
+ * Use these for logging, progress tracking, and custom integrations.
  *
  * @example
  * ```typescript
@@ -92,76 +88,74 @@ export type Kubb = {
  */
 export interface KubbHooks {
   /**
-   * Emitted at the beginning of the Kubb lifecycle, before any code generation starts.
+   * Fires at the start of the Kubb lifecycle, before code generation begins.
    */
   'kubb:lifecycle:start': [ctx: KubbLifecycleStartContext]
   /**
-   * Emitted at the end of the Kubb lifecycle, after all code generation is complete.
+   * Fires at the end of the Kubb lifecycle, after all code generation completes.
    */
   'kubb:lifecycle:end': []
 
   /**
-   * Emitted when configuration loading starts.
+   * Fires when configuration loading starts.
    */
   'kubb:config:start': []
   /**
-   * Emitted when configuration loading is complete.
+   * Fires when configuration loading completes.
    */
   'kubb:config:end': [ctx: KubbConfigEndContext]
 
   /**
-   * Emitted when code generation phase starts.
+   * Fires when code generation starts.
    */
   'kubb:generation:start': [ctx: KubbGenerationStartContext]
   /**
-   * Emitted when code generation phase completes.
+   * Fires when code generation completes.
    */
   'kubb:generation:end': [ctx: KubbGenerationEndContext]
   /**
-   * Emitted with a summary of the generation results.
-   * Contains summary lines, title, and success status.
+   * Fires with a generation summary including summary lines, title, and success status.
    */
   'kubb:generation:summary': [ctx: KubbGenerationSummaryContext]
 
   /**
-   * Emitted when code formatting starts (e.g., running Biome or Prettier).
+   * Fires when code formatting starts (e.g., Biome or Prettier).
    */
   'kubb:format:start': []
   /**
-   * Emitted when code formatting completes.
+   * Fires when code formatting completes.
    */
   'kubb:format:end': []
 
   /**
-   * Emitted when linting starts.
+   * Fires when linting starts.
    */
   'kubb:lint:start': []
   /**
-   * Emitted when linting completes.
+   * Fires when linting completes.
    */
   'kubb:lint:end': []
 
   /**
-   * Emitted when plugin hooks execution starts.
+   * Fires when plugin hooks execution starts.
    */
   'kubb:hooks:start': []
   /**
-   * Emitted when plugin hooks execution completes.
+   * Fires when plugin hooks execution completes.
    */
   'kubb:hooks:end': []
 
   /**
-   * Emitted when a single hook execution starts (e.g., format or lint).
-   * The callback should be invoked when the command completes.
+   * Fires when a single hook executes (e.g., format or lint). The callback is invoked when the command finishes.
    */
   'kubb:hook:start': [ctx: KubbHookStartContext]
   /**
-   * Emitted when a single hook execution completes.
+   * Fires when a single hook execution completes.
    */
   'kubb:hook:end': [ctx: KubbHookEndContext]
 
   /**
-   * Emitted when a new version of Kubb is available.
+   * Fires when a new Kubb version is available.
    */
   'kubb:version:new': [ctx: KubbVersionNewContext]
 
@@ -170,7 +164,7 @@ export interface KubbHooks {
    */
   'kubb:info': [ctx: KubbInfoContext]
   /**
-   * Error event. Emitted when an error occurs during code generation.
+   * Error event, fired when an error occurs during generation.
    */
   'kubb:error': [ctx: KubbErrorContext]
   /**
@@ -182,81 +176,60 @@ export interface KubbHooks {
    */
   'kubb:warn': [ctx: KubbWarnContext]
   /**
-   * Debug event for detailed logging.
-   * Contains timestamp, log messages, and optional filename.
+   * Debug event for detailed logging with timestamp and optional filename.
    */
   'kubb:debug': [ctx: KubbDebugContext]
 
   /**
-   * Emitted when file processing starts.
-   * Contains the list of files to be processed.
+   * Fires when file processing starts with the list of files to process.
    */
   'kubb:files:processing:start': [ctx: KubbFilesProcessingStartContext]
   /**
-   * Emitted for each file being processed, providing progress updates.
-   * Contains processed count, total count, percentage, and file details.
+   * Fires for each file with progress updates: processed count, total, percentage, and file details.
    */
   'kubb:file:processing:update': [ctx: KubbFileProcessingUpdateContext]
   /**
-   * Emitted when file processing completes.
-   * Contains the list of processed files.
+   * Fires when file processing completes with the list of processed files.
    */
   'kubb:files:processing:end': [ctx: KubbFilesProcessingEndContext]
 
   /**
-   * Emitted when a plugin starts executing.
+   * Fires when a plugin starts execution.
    */
   'kubb:plugin:start': [ctx: KubbPluginStartContext]
   /**
-   * Emitted when a plugin completes execution.
-   * Duration in ms.
+   * Fires when a plugin completes execution. Duration measured in milliseconds.
    */
   'kubb:plugin:end': [ctx: KubbPluginEndContext]
 
   /**
-   * Fired once — before any plugin's `buildStart` runs — so that hook-style plugins
-   * can register generators, configure resolvers/transformers/renderers, or inject
-   * extra files.  All `kubb:plugin:setup` handlers registered via `definePlugin` receive
-   * a plugin-specific context (with the correct `addGenerator` closure).
-   * External tooling can observe this event via `hooks.on('kubb:plugin:setup', …)`.
+   * Fires once before plugins execute — allowing plugins to register generators, configure resolvers/transformers/renderers, or inject files.
    */
   'kubb:plugin:setup': [ctx: KubbPluginSetupContext]
   /**
-   * Fired immediately before the plugin execution loop begins.
-   * The adapter has already parsed the source and `inputNode` is available.
+   * Fires before the plugin execution loop begins. The adapter has already parsed the source and `inputNode` is available.
    */
   'kubb:build:start': [ctx: KubbBuildStartContext]
   /**
-   * Fired after all plugins have run and all per-plugin barrels have been generated,
-   * but BEFORE files are written to disk.
-   * Use this event to inject final files (e.g. a root barrel) that must be persisted
-   * in the same write pass as the plugin output.
+   * Fires after all plugins run and per-plugin barrels generate, but before files write to disk.
+   * Use this to inject final files that must persist in the same write pass as plugin output.
    */
   'kubb:plugins:end': [ctx: KubbPluginsEndContext]
   /**
-   * Fired after all files have been written to disk.
+   * Fires after all files write to disk.
    */
   'kubb:build:end': [ctx: KubbBuildEndContext]
 
   /**
-   * Emitted for each schema node during the AST walk.
-   * Generator listeners registered via `addGenerator()` in `kubb:plugin:setup` respond to this event.
-   * The `ctx.plugin.name` identifies which plugin is driving the current walk.
-   * `ctx.options` carries the per-node resolved options (after exclude/include/override).
+   * Fires for each schema node during AST traversal. Generator listeners respond to this.
    */
   'kubb:generate:schema': [node: SchemaNode, ctx: GeneratorContext]
   /**
-   * Emitted for each operation node during the AST walk.
-   * Generator listeners registered via `addGenerator()` in `kubb:plugin:setup` respond to this event.
-   * The `ctx.plugin.name` identifies which plugin is driving the current walk.
-   * `ctx.options` carries the per-node resolved options (after exclude/include/override).
+   * Fires for each operation node during AST traversal. Generator listeners respond to this.
    */
   'kubb:generate:operation': [node: OperationNode, ctx: GeneratorContext]
   /**
-   * Emitted once after all operations have been walked, with the full collected array.
-   * Generator listeners with an `operations()` method respond to this event.
-   * The `ctx.plugin.name` identifies which plugin is driving the current walk.
-   * `ctx.options` carries the plugin-level resolved options for the batch call.
+   * Fires once after all operations traverse with the full collected array. Batch generator listeners respond to this.
    */
   'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext]
 }

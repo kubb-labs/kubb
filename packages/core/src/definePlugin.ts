@@ -54,23 +54,23 @@ export function isPlugin(plugin: unknown): plugin is Plugin {
 }
 
 /**
- * Creates a plugin factory using the hook-style (`hooks:`) API.
+ * Wraps a factory function and returns a typed `Plugin` with lifecycle handlers grouped under `hooks`.
  *
- * The returned factory is called with optional options and produces a `Plugin`
- * that coexists with plugins created via the legacy `createPlugin` API in the same
- * `kubb.config.ts`.
+ * Handlers live in a single `hooks` object (inspired by Astro integrations).
+ * All lifecycle events from `KubbHooks` are available for subscription.
  *
- * Lifecycle handlers are registered on the `PluginDriver`'s `AsyncEventEmitter`, enabling
- * both the plugin's own handlers and external tooling (CLI, devtools) to observe every event.
+ * @note For real plugins, use a `PluginFactoryOptions` type parameter to get type-safe context in `kubb:plugin:setup`.
+ * Plugin names should follow the convention `plugin-<feature>` (e.g., `plugin-react-query`, `plugin-zod`).
  *
  * @example
  * ```ts
- * // With PluginFactoryOptions (recommended for real plugins)
- * export const pluginTs = definePlugin<PluginTs>((options) => ({
+ * import { definePlugin } from '@kubb/core'
+ *
+ * export const pluginTs = definePlugin((options: { prefix?: string } = {}) => ({
  *   name: 'plugin-ts',
  *   hooks: {
  *     'kubb:plugin:setup'(ctx) {
- *       ctx.setResolver(resolverTs)  // typed as Partial<ResolverTs>
+ *       ctx.setResolver(resolverTs)
  *     },
  *   },
  * }))

@@ -9,10 +9,9 @@ import { dereferenceWithRef, resolveRef } from './refs.ts'
 import type { ContentType, Document, MediaTypeObject, Operation, ResponseObject, SchemaObject } from './types.ts'
 
 /**
- * Resolves `{variable}` placeholders in an OpenAPI server URL.
- *
- * Resolution order per variable: `overrides[key]` → `variable.default` → left unreplaced.
- * Throws when an override value is not in the variable's allowed `enum` list.
+ * Replaces `{variable}` placeholders in an OpenAPI server URL with provided values.
+ * Resolution order: `overrides[key]` → `variable.default` → left unreplaced.
+ * Throws if an override value is not in the variable's `enum` list.
  *
  * @example
  * ```ts
@@ -46,18 +45,16 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
 }
 
 /**
- * Looks up the Kubb `SchemaType` for a given OAS `format` string.
- * Returns `undefined` for formats not in `formatMap` (e.g. `int64`, `date-time`),
- * which are handled separately because their output depends on parser options.
+ * Returns the Kubb `SchemaType` for a given OAS `format` string, or `null` if not found.
+ * Formats not in `formatMap` (e.g., `int64`, `date-time`) are handled separately by parser options.
  */
 export function getSchemaType(format: string): ast.SchemaType | null {
   return formatMap[format as keyof typeof formatMap] ?? null
 }
 
 /**
- * Maps an OAS primitive type string to its `PrimitiveSchemaType` equivalent.
- * Numeric types (`number`, `integer`, `bigint`) are returned unchanged;
- * `boolean` maps to `'boolean'`; everything else defaults to `'string'`.
+ * Converts an OAS primitive type string to its `PrimitiveSchemaType` equivalent.
+ * Numeric types (`number`, `integer`, `bigint`) pass through unchanged. `boolean` maps to `'boolean'`. Everything else becomes `'string'`.
  */
 export function getPrimitiveType(type: string | undefined): ast.PrimitiveSchemaType {
   if (type === 'number' || type === 'integer' || type === 'bigint') return type
@@ -67,8 +64,7 @@ export function getPrimitiveType(type: string | undefined): ast.PrimitiveSchemaT
 }
 
 /**
- * Narrows a raw content-type string to the `MediaType` union recognized by Kubb.
- * Returns `undefined` for content types not present in `KNOWN_MEDIA_TYPES`.
+ * Narrows a content-type string to the `MediaType` union Kubb recognizes, or returns `null`.
  */
 export function getMediaType(contentType: string): ast.MediaType | null {
   return Object.values(ast.mediaTypes).includes(contentType as ast.MediaType) ? (contentType as ast.MediaType) : null
@@ -79,11 +75,9 @@ export type OperationsOptions = {
 }
 
 /**
- * Returns all resolved parameters for an operation, merging path-level and operation-level entries.
- *
- * Operation-level parameters take precedence over path-level ones with the same `in:name` key.
- * `$ref` parameters are resolved via `dereferenceWithRef` to restore backward compatibility
- * with `oas` v31+ which otherwise filters them out.
+ * Returns all parameters for an operation, merging path-level and operation-level entries.
+ * Operation-level parameters override path-level ones with the same `in:name` key.
+ * `$ref` parameters resolve via `dereferenceWithRef` for backward compatibility.
  *
  * @example
  * ```ts
@@ -184,7 +178,7 @@ export function getResponseSchema(document: Document, operation: Operation, stat
 }
 
 /**
- * Returns the request body schema for an operation, or `undefined` when absent.
+ * Returns the request body schema for an operation, or `null` when absent.
  *
  * @example
  * ```ts
@@ -217,9 +211,7 @@ export function getRequestSchema(document: Document, operation: Operation, optio
 type SchemaSourceMode = 'schemas' | 'responses' | 'requestBodies'
 
 /**
- * A schema annotated with the component section it came from and its original name.
- *
- * Used during cross-source name-collision resolution in `resolveNameCollisions`.
+ * A schema annotated with its component section source and original name. Used by `resolveNameCollisions` for cross-source collision resolution.
  */
 export type SchemaWithMetadata = {
   schema: SchemaObject

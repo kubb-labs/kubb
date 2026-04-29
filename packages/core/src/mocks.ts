@@ -7,7 +7,8 @@ import { applyHookResult } from './renderNode.ts'
 import type { Adapter, AdapterFactoryOptions, Config, Generator, GeneratorContext, NormalizedPlugin, PluginFactoryOptions } from './types.ts'
 
 /**
- * Creates a minimal `PluginDriver` mock suitable for unit tests.
+
+ * Creates a minimal `PluginDriver` mock for unit tests.
  */
 export function createMockedPluginDriver(options: { name?: string; plugin?: NormalizedPlugin; config?: Config } = {}): PluginDriver {
   return {
@@ -26,10 +27,9 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
 }
 
 /**
- * Creates a minimal `Adapter` mock suitable for unit tests.
- *
- * - `parse` returns an empty `InputNode` by default; override via `options.parse`.
- * - `getImports` returns `[]` by default (single-file mode, no cross-file imports).
+ * Creates a minimal `Adapter` mock for unit tests.
+ * `parse` returns an empty `InputNode` by default; override via `options.parse`.
+ * `getImports` returns `[]` by default.
  */
 export function createMockedAdapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptions>(
   options: {
@@ -51,7 +51,7 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
 }
 
 /**
- * Creates a minimal plugin mock suitable for unit tests.
+ * Creates a minimal plugin mock for unit tests.
  *
  * @example
  * const plugin = createMockedPlugin<PluginTs>({ name: '@kubb/plugin-ts', options })
