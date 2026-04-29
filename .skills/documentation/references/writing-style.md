@@ -1,6 +1,6 @@
 # Writing Style
 
-Sentence structure, voice, tone, and paragraph patterns for the Kubb ecosystem documentation.
+Sentence structure, voice, tone, and paragraph patterns for documentation.
 
 ## Guiding principle, Clarity over marketing
 
@@ -24,14 +24,14 @@ When describing a feature, option, or example use this short structure:
 
 ## Sentence Patterns
 
-Kubb documentation prefers short, subject-first sentences that state behavior or intent clearly. Aim for sentences under ~20–25 words and favor present tense and active voice.
+Documentation prefers short, subject-first sentences that state behavior or intent clearly. Aim for sentences under ~20–25 words and favor present tense and active voice.
 
 ### Subject-First Declarative (60%)
 
 Use to describe what the product, module, or plugin does. Keep the subject first and follow with a concise verb phrase.
 
 ```
-The kubb plugin generates TypeScript types from an OpenAPI schema.
+The plugin generates TypeScript types from a schema.
 The parser validates schema types during build.
 ```
 
@@ -41,7 +41,7 @@ Use for step-by-step commands or quick actions. Start with a verb and keep the o
 
 ```
 Run `pnpm changeset` to create a changeset.
-Add the plugin to `kubb.config.ts` and configure `pluginOas`.
+Add the plugin to the config file and configure the options.
 ```
 
 ### Contextual Openers (15%)
@@ -60,10 +60,10 @@ After installing the module, restart the server.
 Subject performs action. Prefer this.
 
 | Active (use)                    | Passive (avoid)                       |
-| ------------------------------- | ------------------------------------- |
+|---------------------------------|---------------------------------------|
 | The module creates a connection | A connection is created by the module |
 | You can override defaults       | Defaults can be overridden            |
-| Kubb handles Swagger validation | Swagger Validation is handled by Kubb |
+| The library handles validation  | Validation is handled by the library  |
 
 ### When Passive is OK (15%)
 
@@ -107,7 +107,7 @@ Stay consistent within sections.
 Define what it is, its purpose, key benefits:
 
 ```
-The Kubb CLI offers an easy way to monitor generation progress by invoking the core `build` command and showcasing its events in real time.
+The CLI offers an easy way to monitor generation progress by invoking the core `build` command and showcasing its events in real time.
 ```
 
 Avoid: "This page describes...", "In this guide...", "Let's explore..."
@@ -140,6 +140,7 @@ The plugin accepts several options that control its behavior.
 | leverage        | use         |
 | in order to     | to          |
 | due to the fact | because     |
+| —               | (rewrite the sentence to avoid it) |
 
 ## Common Mistakes
 

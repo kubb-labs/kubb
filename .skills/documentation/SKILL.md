@@ -5,7 +5,7 @@ description: Use when writing blog posts or documentation markdown files - provi
 
 # Documentation Skill
 
-This skill provides comprehensive guidelines for AI coding assistants working on Kubb documentation.
+This skill provides comprehensive guidelines for AI coding assistants working on documentation.
 
 ## When to Use
 
@@ -36,19 +36,19 @@ Brevity is still valued, but never at the cost of clarity or correctness.
 
 ## Available References
 
-| Reference                                                                                              | Purpose                                                  |
-| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------- |
-| **[../documentation/references/writing-style.md](./../documentation/references/writing-style.md)**     | Voice, tone, sentence structure                          |
-| **[../documentation/references/content-patterns.md](../documentation/references/content-patterns.md)** | Usage patterns, props structure, component patterns      |
-| **[../documentation/references/config-json.md](../documentation/references/config-json.md)**           | Navigation and sidebar configuration schema              |
+| Reference                                                                                              | Purpose                                         |
+|--------------------------------------------------------------------------------------------------------| ----------------------------------------------- |
+| **[../documentation/references/writing-style.md](./../documentation/references/writing-style.md)**     | Voice, tone, sentence structure                 |
+| **[../documentation/references/content-patterns.md](../documentation/references/content-patterns.md)** | Usage patterns, props structure, component patterns |
 | **[../documentation/references/seo-optimization.md](../documentation/references/seo-optimization.md)** | SEO best practices, titles, descriptions, keywords, FAQs |
+| **[../documentation/references/humanizer.md](../documentation/references/humanizer.md)**               | Remove AI writing patterns, add voice and specificity |
 
 **Load based on context:**
 
 - Writing prose → [../documentation/references/writing-style.md](../documentation/references/writing-style.md)
 - Props, options, usage patterns → [../documentation/references/content-patterns.md](../documentation/references/content-patterns.md)
-- Adding navigation or sections → [../documentation/references/config-json.md](../documentation/references/config-json.md)
 - Optimizing for search → [../documentation/references/seo-optimization.md](../documentation/references/seo-optimization.md)
+- Reviewing or editing finished prose → [../documentation/references/humanizer.md](../documentation/references/humanizer.md)
 
 ## Language and Tone
 
@@ -62,11 +62,11 @@ Brevity is still valued, but never at the cost of clarity or correctness.
 
 ### Writing Patterns
 
-| Pattern       | Example                                                    |
-| ------------- | ---------------------------------------------------------- |
-| Subject-first | "The `useFabric` composable handles Fabric related logic." |
-| Imperative    | "Add the following to `kubb.config.ts`."                   |
-| Contextual    | "When relying on TypeScript, configure..."                 |
+| Pattern       | Example                                                 |
+| ------------- |---------------------------------------------------------|
+| Subject-first | "The `useApp` composable handles Fabric related logic." |
+| Imperative    | "Add the following to `config.ts`."                |
+| Contextual    | "When relying on TypeScript, configure..."              |
 
 ### Modal Verbs
 
@@ -78,12 +78,12 @@ Brevity is still valued, but never at the cost of clarity or correctness.
 
 ### Component Patterns (WHEN to use)
 
-| Need              | Component                            |
-| ----------------- | ------------------------------------ |
-| Info aside        | `> [!NOTE]`                          |
-| Suggestion        | `> [!TIP]`                           |
-| Caution           | `> [!WARNING]`                       |
-| Required          | `> [!IMPORTANT]`                     |
+| Need              | Component                           |
+| ----------------- |-------------------------------------|
+| Info aside        | `> [!NOTE]`                         |
+| Suggestion        | `> [!TIP]`                          |
+| Caution           | `> [!WARNING]`                      |
+| Required          | `> [!IMPORTANT]`                    |
 | Multi-source code | `::: code-group` and ends with `:::` |
 
 ## Headings
@@ -106,24 +106,6 @@ Brevity is still valued, but never at the cost of clarity or correctness.
 - **Sizing**: Keep file sizes reasonable
 - **Naming**: Use descriptive names: `plugin-react-query-example.png`
 
-## Configuration (config.json)
-
-The `docs/config.json` file defines navigation and sidebar structure using the Kubb.dev schema.
-
-- **Schema**: `https://kubb.dev/schemas/config/schema.json`
-- **Required**: `sidebars` (array), `sidebar` (route mapping)
-- **Optional**: `nav` (navigation), `$schema` (validation)
-- **Link format**: Use absolute paths with trailing slash: `/getting-started/introduction/`
-- **Route mapping**: `/getting-started` maps to `gettingStarted` sidebar name
-
-When adding new sections:
-
-1. Define sidebar in `sidebars` array with unique `name`
-2. Add navigation items to `nav` array
-3. Map route prefix to sidebar name in `sidebar` object
-
-See [./references/config-json.md](./references/config-json.md) for complete schema reference.
-
 ## Checklist
 
 - [ ] Active voice (85%+)
@@ -131,4 +113,4 @@ See [./references/config-json.md](./references/config-json.md) for complete sche
 - [ ] 2-3 sentences per paragraph
 - [ ] Explanation before code
 - [ ] Validate frontmatter syntax
-- [ ] Update `config.json` when adding new pages/sections
+- [ ] Run humanizer pass: remove AI patterns, add voice and specific details

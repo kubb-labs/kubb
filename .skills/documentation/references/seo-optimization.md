@@ -98,10 +98,10 @@ Target actual search queries users would type:
 
 ### Internal Links
 
-Minimum 2-3 per page in "Related Documentation" or "Next Steps":
+Minimum 2-3 per page in "See Also" or "Next Steps":
 
 ```markdown
-## Related Documentation
+## See Also
 
 - [Link to related component/feature]
 - [Link to guide or tutorial]
