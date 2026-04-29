@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://kubb.dev/kubb" target="_blank" rel="noopener noreferrer">
+  <a href="https://kubb.dev" target="_blank" rel="noopener noreferrer">
     <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
   </a>
 
@@ -14,9 +14,7 @@
 **Stop writing glue code. Define your API once and Kubb generates types, clients, hooks, validators, mocks and more.**
 
 <h4>
-<a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/main/examples/typescript" target="_blank">View Demo</a>
-<span> · </span>
-<a href="https://kubb.dev/kubb" target="_blank">Documentation</a>
+<a href="https://kubb.dev" target="_blank">Documentation</a>
 <span> · </span>
 <a href="https://github.com/kubb-labs/kubb/issues/" target="_blank">Report Bug</a>
 <span> · </span>
@@ -25,6 +23,14 @@
 </div>
 
 <br />
+
+## Installation
+
+```bash
+npm install @kubb/core
+# or
+pnpm add @kubb/core
+```
 
 ## Quick Start
 
@@ -150,13 +156,6 @@ Kubb is an open source project with its ongoing development made possible entire
     </tr>
   </tbody>
 </table>
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
