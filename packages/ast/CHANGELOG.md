@@ -1,5 +1,11 @@
 # @kubb/ast
 
+## 5.0.0-alpha.74
+
+### Patch Changes
+
+- [`6d18865`](https://github.com/kubb-labs/kubb/commit/6d18865de00d58eebbe852a588fb57bdf67e987a) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Improve jsdocs
+
 ## 5.0.0-alpha.73
 
 ## 5.0.0-alpha.72
