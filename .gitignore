@@ -63,6 +63,9 @@ packages/ui/static/**
 **/mocks/helloWorld.js
 **/src/gen/mocks/excluded.ts
 
+# per-package changelogs (root CHANGELOG.md is the single source of truth)
+packages/*/CHANGELOG.md
+
 ## Nitro
 .output
 .nitro
