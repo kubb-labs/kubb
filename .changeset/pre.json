@@ -52,6 +52,7 @@
     "ctx-param-in-define-resolver",
     "eight-months-speak",
     "export-ast-namespace-from-core",
+    "first-beta-release",
     "fix-additional-properties-traversal",
     "fix-barrel-non-ts-and-non-indexable",
     "fix-boolean-const-enums",
