@@ -30,10 +30,13 @@ const pending = new Map()
 const seen = new Set()
 
 function parseChangesetPackages(id) {
-  const file = path.join(CHANGESET_DIR, `${id}.md`)
-  if (!fs.existsSync(file)) return null
+  const base = path.resolve(CHANGESET_DIR)
+  const target = path.resolve(base, `${id}.md`)
+  const relative = path.relative(base, target)
+  if (relative.startsWith('..') || path.isAbsolute(relative)) return null
+  if (!fs.existsSync(target)) return null
 
-  const match = fs.readFileSync(file, 'utf8').match(/^---\n([\s\S]*?)\n---/)
+  const match = fs.readFileSync(target, 'utf8').match(/^---\n([\s\S]*?)\n---/)
   if (!match) return null
 
   const packages = {}
