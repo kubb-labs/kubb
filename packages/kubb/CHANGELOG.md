@@ -1,5 +1,20 @@
 # kubb
 
+## 5.0.0-alpha.74
+
+### Patch Changes
+
+- [`6d18865`](https://github.com/kubb-labs/kubb/commit/6d18865de00d58eebbe852a588fb57bdf67e987a) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Improve jsdocs
+
+- Updated dependencies [[`6d18865`](https://github.com/kubb-labs/kubb/commit/6d18865de00d58eebbe852a588fb57bdf67e987a)]:
+  - @kubb/adapter-oas@5.0.0-alpha.74
+  - @kubb/agent@5.0.0-alpha.74
+  - @kubb/cli@5.0.0-alpha.74
+  - @kubb/core@5.0.0-alpha.74
+  - @kubb/mcp@5.0.0-alpha.74
+  - @kubb/middleware-barrel@5.0.0-alpha.74
+  - @kubb/parser-ts@5.0.0-alpha.74
+
 ## 5.0.0-alpha.73
 
 ### Minor Changes

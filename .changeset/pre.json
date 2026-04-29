@@ -93,6 +93,7 @@
     "some-dodos-search",
     "sort-named-barrel-exports",
     "support-filenode-exports-injectfile",
+    "true-ways-fetch",
     "typescript-6-upgrade",
     "unplugin-default-middleware-barrel",
     "update-react-fabric-dependency"
