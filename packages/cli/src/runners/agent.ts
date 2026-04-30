@@ -86,7 +86,13 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
     try {
       agentPkgUrl = import.meta.resolve('@kubb/agent/package.json')
     } catch (_e) {
-      console.error(`Import of '@kubb/agent' is required to start the Agent server`)
+      console.error(styleText('red', 'The @kubb/agent package is not installed.'))
+      console.error('')
+      console.error('Install it with:')
+      console.error(styleText('cyan', '  npm install @kubb/agent'))
+      console.error(styleText('cyan', '  # or'))
+      console.error(styleText('cyan', '  pnpm install @kubb/agent'))
+      console.error('')
       process.exit(1)
     }
     const agentPkgPath = fileURLToPath(agentPkgUrl)
