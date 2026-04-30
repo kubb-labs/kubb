@@ -13,7 +13,7 @@ import { ast } from '@kubb/core'
  */
 export const DEFAULT_PARSER_OPTIONS = {
   dateType: 'string',
-  integerType: 'number',
+  integerType: 'bigint',
   unknownType: 'any',
   emptySchemaType: 'any',
   enumSuffix: 'enum',

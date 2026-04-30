@@ -2352,18 +2352,18 @@ describe('parseSchema integer', () => {
     expect(node.type).toBe('integer')
   })
 
-  it('maps integer int64 to integer when integerType is number (default)', () => {
+  it('maps integer int64 to bigint when integerType is bigint (default)', () => {
     const node = parseSchema(ctx, {
       schema: { type: 'integer', format: 'int64' },
     })
 
-    expect(node.type).toBe('integer')
+    expect(node.type).toBe('bigint')
   })
 
-  it('maps format int64 without type to integer (format overrides type)', () => {
+  it('maps format int64 without type to bigint (format overrides type)', () => {
     const node = parseSchema(ctx, { schema: { format: 'int64' } })
 
-    expect(node.type).toBe('integer')
+    expect(node.type).toBe('bigint')
   })
 
   it('preserves nullable on integer', () => {
@@ -2887,13 +2887,13 @@ describe('parser options', () => {
   })
 
   describe('integerType', () => {
-    it('defaults to integer for int64 when integerType is not set', () => {
+    it('defaults to bigint for int64 when integerType is not set', () => {
       const ctx = { document: emptyDocument }
       const node = parseSchema(ctx, {
         schema: { type: 'integer', format: 'int64' },
       })
 
-      expect(node.type).toBe('integer')
+      expect(node.type).toBe('bigint')
     })
 
     it('integerType: number keeps int64 as integer', () => {
