@@ -16,6 +16,7 @@
     "unplugin-kubb": "5.0.0-alpha.74"
   },
   "changesets": [
+    "adapter-oas-integer-type-bigint-default",
     "add-adapter-document-field",
     "add-code-ast-nodes",
     "add-collision-detection-option",
@@ -59,6 +60,8 @@
     "fix-cli-tty-column-error",
     "fix-defineconfig-entrypoint",
     "fix-discriminator-union-types",
+    "fix-faker-import-alias-treeshake",
+    "fix-include-filter-schema-scoping",
     "fix-middleware-barrel-banner-bleed",
     "fix-middleware-barrel-barrel-type-augmentation",
     "fix-middleware-barrel-generation",
@@ -80,6 +83,7 @@
     "node-22-minimum",
     "output-format-lint-auto-default",
     "preserve-union-kind-semantics",
+    "refactor-barrel-config-api",
     "refactor-middleware-barrel",
     "remove-deprecated-plugin-checks",
     "remove-legacy-plugin-types",
