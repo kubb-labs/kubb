@@ -63,7 +63,7 @@ Specify what to export and optionally disable barrel file generation.
 | Required: | `false`                                    |
 |  Default: | `'named'`                                  |
 
-<!--@include: ./core/barrelTypes.md-->
+<!--@include: ../core/barrelTypes.md-->
 
 #### output.banner
 Add a banner comment at the top of every generated file.
@@ -82,13 +82,13 @@ Add a footer comment at the end of every generated file.
 | Required: | `false`                          |
 
 #### output.override
-<!--@include: ./core/outputOverride.md-->
+<!--@include: ../core/outputOverride.md-->
 
 ### contentType
-<!--@include: ./core/contentType.md-->
+<!--@include: ../core/contentType.md-->
 
 ### group
-<!--@include: ./core/group.md-->
+<!--@include: ../core/group.md-->
 
 #### group.type
 Specify the property to group files by.
@@ -98,7 +98,7 @@ Specify the property to group files by.
 |     Type: | `'tag'` |
 | Required: | `true`  |
 
-<!--@include: ./core/groupTypes.md-->
+<!--@include: ../core/groupTypes.md-->
 
 #### group.name
 
@@ -111,7 +111,7 @@ Return the name of a group based on the group name, this will be used for the fi
 |  Default: | `(ctx) => '${ctx.group}Controller'` |
 
 ### importPath
-<!--@include: ./plugin-client/importPath.md-->
+<!--@include: ./importPath.md-->
 
 ### operations
 Create `operations.ts` file with all operations grouped by methods.
@@ -123,7 +123,7 @@ Create `operations.ts` file with all operations grouped by methods.
 |  Default: | `false`   |
 
 ### dataReturnType
-<!--@include: ./plugin-client/dataReturnType.md-->
+<!--@include: ./dataReturnType.md-->
 
 ### urlType
 Export urls that are used by operation x
@@ -144,43 +144,43 @@ export function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
 ```
 
 ### paramsType
-<!--@include: ./plugin-client/paramsType.md-->
+<!--@include: ./paramsType.md-->
 
 ### paramsCasing
-<!--@include: ./plugin-client/paramsCasing.md-->
+<!--@include: ./paramsCasing.md-->
 
 ### pathParamsType
-<!--@include: ./plugin-client/pathParamsType.md-->
+<!--@include: ./pathParamsType.md-->
 
 ### parser
-<!--@include: ./plugin-client/parser.md-->
+<!--@include: ./parser.md-->
 
 ### client
-<!--@include: ./plugin-client/client.md-->
+<!--@include: ./client.md-->
 
 ### clientType <span class="new">new in 4.18.0</span>
-<!--@include: ./plugin-client/clientType.md-->
+<!--@include: ./clientType.md-->
 
 ### wrapper
-<!--@include: ./plugin-client/wrapper.md-->
+<!--@include: ./wrapper.md-->
 
 ### bundle
-<!--@include: ./plugin-client/bundle.md-->
+<!--@include: ./bundle.md-->
 
 ### baseURL
-<!--@include: ./plugin-client/baseURL.md-->
+<!--@include: ./baseURL.md-->
 
 ### include
-<!--@include: ./core/include.md-->
+<!--@include: ../core/include.md-->
 
 ### exclude
-<!--@include: ./core/exclude.md-->
+<!--@include: ../core/exclude.md-->
 
 ### override
-<!--@include: ./core/override.md-->
+<!--@include: ../core/override.md-->
 
 ### generators <img src="../public/icons/experimental.svg"/>
-<!--@include: ./core/generators.md-->
+<!--@include: ../core/generators.md-->
 
 |           |                                  |
 | --------: | :------------------------------- |
@@ -189,7 +189,7 @@ export function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
 
 
 ### transformers
-<!--@include: ./core/transformers.md-->
+<!--@include: ../core/transformers.md-->
 
 #### transformers.name
 Customize the names based on the type that is provided by the plugin.
