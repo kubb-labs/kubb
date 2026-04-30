@@ -1754,6 +1754,21 @@ describe('combineImports', () => {
   it('returns empty array for empty input', () => {
     expect(combineImports([], [], '')).toEqual([])
   })
+
+  it('keeps aliased named import when the local alias appears in the source', () => {
+    const imp = createImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' })
+    const result = combineImports([imp], [], 'const x = faker.string.uuid()')
+
+    expect(result).toHaveLength(1)
+    expect(result[0]!.path).toBe('@faker-js/faker')
+  })
+
+  it('filters out aliased named import when neither alias nor propertyName appears in the source', () => {
+    const imp = createImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' })
+    const result = combineImports([imp], [], 'const x = 1')
+
+    expect(result).toHaveLength(0)
+  })
 })
 
 describe('findCircularSchemas', () => {

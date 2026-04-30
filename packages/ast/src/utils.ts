@@ -669,7 +669,7 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
     let { name } = curr
 
     if (Array.isArray(name)) {
-      name = [...new Set(name)].filter((item) => (typeof item === 'string' ? isUsed(item) : isUsed(item.propertyName)))
+      name = [...new Set(name)].filter((item) => (typeof item === 'string' ? isUsed(item) : isUsed(item.name ?? item.propertyName)))
       if (!name.length) continue
 
       const key = pathTypeKey(path, isTypeOnly)
