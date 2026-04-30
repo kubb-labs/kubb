@@ -1,5 +1,45 @@
 # Changelog
 
+## v5.0.0-beta.3 — Apr 30, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Fixed `combineImports` producing duplicate object-named import specifiers.
+  
+  `Set`-based deduplication failed for object import names (e.g. `{ propertyName: 'fakerDE', name: 'faker' }`) because JavaScript compares objects by reference. When the same aliased specifier appeared in multiple `ImportNode`s for the same path, the merged result contained duplicate entries.
+  
+  The fix memoizes object import names inside `combineImports` so that identical `(propertyName, name)` pairs always reuse the same object reference, allowing `Set.add` to correctly recognise and skip duplicates. ([#3217](https://github.com/kubb-labs/kubb/pull/3217), [`4759c9c`](https://github.com/kubb-labs/kubb/commit/4759c9c2cc83e60a93c8dacec4fc9da18852e027))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Reduce default install size by moving `@kubb/agent` and `@kubb/mcp` to optional `peerDependencies`. The CLI never imports them at runtime — they expose their own `kubb-mcp` / agent entry points. Install them explicitly when needed:
+  
+  ```bash
+  npm i @kubb/mcp     # for the MCP server
+  npm i @kubb/agent   # for the HTTP agent
+  ``` ([#3215](https://github.com/kubb-labs/kubb/pull/3215), [`9ecce54`](https://github.com/kubb-labs/kubb/commit/9ecce5432a26a3e3e91addb2af3f76fb2554e621))
+
+### kubb
+
+#### Bug Fixes
+
+- Reduce default install size by moving `@kubb/agent` and `@kubb/mcp` to optional `peerDependencies`. The CLI never imports them at runtime — they expose their own `kubb-mcp` / agent entry points. Install them explicitly when needed:
+  
+  ```bash
+  npm i @kubb/mcp     # for the MCP server
+  npm i @kubb/agent   # for the HTTP agent
+  ``` ([#3215](https://github.com/kubb-labs/kubb/pull/3215), [`9ecce54`](https://github.com/kubb-labs/kubb/commit/9ecce5432a26a3e3e91addb2af3f76fb2554e621))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.2 — Apr 30, 2026
 
 ### @kubb/adapter-oas
