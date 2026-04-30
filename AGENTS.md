@@ -1,4 +1,4 @@
-# Kubb Codebase Guide
+# AGENTS.md
 
 Kubb is a code-generation toolkit for generating TypeScript, React-Query, Zod, Faker.js, MSW and more from OpenAPI specifications. It uses a plugin-based architecture with an Abstract Syntax Tree (AST) layer.
 
