@@ -1769,6 +1769,15 @@ describe('combineImports', () => {
 
     expect(result).toHaveLength(0)
   })
+
+  it('deduplicates object-named imports with the same propertyName and name from the same path', () => {
+    const a = createImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' })
+    const b = createImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' })
+    const result = combineImports([a, b], [], 'faker')
+
+    expect(result).toHaveLength(1)
+    expect(result[0]!.name).toHaveLength(1)
+  })
 })
 
 describe('findCircularSchemas', () => {
