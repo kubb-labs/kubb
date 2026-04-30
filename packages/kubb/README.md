@@ -27,9 +27,9 @@
 ## Installation
 
 ```bash
-npm install @kubb/core
+npm install kubb
 # or
-pnpm add @kubb/core
+pnpm add kubb
 ```
 
 ## Quick Start
