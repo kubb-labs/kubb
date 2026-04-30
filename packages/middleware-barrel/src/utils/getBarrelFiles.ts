@@ -87,7 +87,7 @@ const namedStrategy: LeafStrategy = ({ dirPath, leafPath, sourceFile }) => {
   return exports
 }
 
-const LEAF_STRATEGIES: ReadonlyMap<Exclude<BarrelType, 'propagate'>, LeafStrategy> = new Map([
+const LEAF_STRATEGIES: ReadonlyMap<BarrelType, LeafStrategy> = new Map([
   ['all', allStrategy],
   ['named', namedStrategy],
 ])
@@ -127,8 +127,9 @@ function walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolean
 
 /**
  * Recursive walk that emits one barrel per directory, re-exporting files and sub-barrels.
+ * Used when nested: true.
  */
-function walkPropagate(node: BuildTree, out: Array<FileNode>): void {
+function walkNested(node: BuildTree, out: Array<FileNode>): void {
   const exports: Array<ExportNode> = []
 
   for (const child of node.children) {
@@ -138,7 +139,7 @@ function walkPropagate(node: BuildTree, out: Array<FileNode>): void {
       continue
     }
 
-    walkPropagate(child, out)
+    walkNested(child, out)
     exports.push(createExport({ path: toRelativeModulePath(node.path, `${child.path}${BARREL_SUFFIX}`) }))
   }
 
@@ -181,15 +182,21 @@ type GetBarrelFilesParams = {
    */
   files: ReadonlyArray<FileNode>
   /**
-   * Re-export style used when emitting each barrel.
+   * Export strategy used when emitting each barrel.
    * - `'all'` re-exports the whole module (`export * from './x'`)
    * - `'named'` re-exports only the indexable named symbols
-   * - `'propagate'` generates an `index.ts` in every sub-directory, each re-exporting only what's directly inside it
    */
   barrelType: BarrelType
   /**
-   * Also generate a barrel for each sub-directory of `outputPath`.
-   * No effect for `barrelType: 'propagate'`, which always recurses.
+   * Generate an `index.ts` in every sub-directory, each re-exporting only what's directly inside it (hierarchical).
+   * When false, uses flat generation strategy with optional recursive subdirectory barrels.
+   *
+   * @default false
+   */
+  nested?: boolean
+  /**
+   * Also generate a barrel for each sub-directory when nested is false.
+   * No effect when nested is true (always generates hierarchical structure).
    *
    * @default false
    */
@@ -199,15 +206,16 @@ type GetBarrelFilesParams = {
 /**
  * Generates barrel `FileNode`s for the directory rooted at `outputPath`.
  */
-export function getBarrelFiles({ outputPath, files, barrelType, recursive = false }: GetBarrelFilesParams): Array<FileNode> {
+export function getBarrelFiles({ outputPath, files, barrelType, nested = false, recursive = false }: GetBarrelFilesParams): Array<FileNode> {
   const { sourceFiles, paths } = indexRelevantFiles(files, outputPath)
   if (paths.length === 0) return []
 
   const tree = buildTree(outputPath, paths)
   const result: Array<FileNode> = []
 
-  if (barrelType === 'propagate') {
-    walkPropagate(tree, result)
+  // Use nested walk for hierarchical barrel structure
+  if (nested) {
+    walkNested(tree, result)
     return result
   }
 

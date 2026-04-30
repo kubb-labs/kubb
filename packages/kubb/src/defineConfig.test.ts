@@ -18,7 +18,7 @@ describe('defineConfig', () => {
     output: {
       path: './src/gen',
       clean: true,
-      barrelType: 'named',
+      barrel: { type: 'named' },
     },
     parsers: [],
     adapter: createMockedAdapter(),
@@ -61,7 +61,7 @@ describe('defineConfig', () => {
     expect(resolved.middleware?.[0]?.name).toBe('middleware-barrel')
   })
 
-  test("defaults output.barrelType to 'named' when not set", () => {
+  test("defaults output.barrel to { type: 'named' } when not set", () => {
     const config = defineConfig({
       root: '.',
       input: { path: 'spec.yaml' },
@@ -69,23 +69,23 @@ describe('defineConfig', () => {
     } as UserConfig)
     const resolved = config as UserConfig
 
-    expect(resolved.output.barrelType).toBe('named')
+    expect(resolved.output.barrel).toEqual({ type: 'named' })
   })
 
-  test('preserves explicit output.barrelType (including false)', () => {
+  test('preserves explicit output.barrel (including false)', () => {
     const named = defineConfig({
       root: '.',
       input: { path: 'spec.yaml' },
-      output: { path: './gen', barrelType: 'all' },
+      output: { path: './gen', barrel: { type: 'all' } },
     } as UserConfig) as UserConfig
     const disabled = defineConfig({
       root: '.',
       input: { path: 'spec.yaml' },
-      output: { path: './gen', barrelType: false },
+      output: { path: './gen', barrel: false },
     } as UserConfig) as UserConfig
 
-    expect(named.output.barrelType).toBe('all')
-    expect(disabled.output.barrelType).toBe(false)
+    expect(named.output.barrel).toEqual({ type: 'all' })
+    expect(disabled.output.barrel).toBe(false)
   })
 
   test('preserves existing middleware when non-empty', () => {
@@ -102,7 +102,7 @@ describe('defineConfig', () => {
     expect(resolved.middleware?.[0]).toBe(customMiddleware)
   })
 
-  test('does not default barrelType when middlewareBarrel is not part of middleware', () => {
+  test('does not default barrel when middlewareBarrel is not part of middleware', () => {
     const customMiddleware = { name: 'custom', hooks: {} }
     const config = defineConfig({
       root: '.',
@@ -112,10 +112,10 @@ describe('defineConfig', () => {
     } as UserConfig)
     const resolved = config as UserConfig
 
-    expect(resolved.output.barrelType).toBeUndefined()
+    expect(resolved.output.barrel).toBeUndefined()
   })
 
-  test('defaults barrelType when middlewareBarrel is explicitly listed alongside others', () => {
+  test('defaults barrel when middlewareBarrel is explicitly listed alongside others', () => {
     const customMiddleware = { name: 'custom', hooks: {} }
     const config = defineConfig({
       root: '.',
@@ -125,7 +125,7 @@ describe('defineConfig', () => {
     } as UserConfig)
     const resolved = config as UserConfig
 
-    expect(resolved.output.barrelType).toBe('named')
+    expect(resolved.output.barrel).toEqual({ type: 'named' })
   })
 
   test('preserves existing adapter', () => {
