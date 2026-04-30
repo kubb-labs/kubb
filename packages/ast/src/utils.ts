@@ -832,20 +832,8 @@ export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>,
   }
 
   for (const op of operations) {
-    for (const param of op.parameters) {
-      visitSchema(param.schema)
-    }
-    if (op.requestBody?.content) {
-      for (const content of op.requestBody.content) {
-        if (content.schema) {
-          visitSchema(content.schema)
-        }
-      }
-    }
-    for (const response of op.responses) {
-      if (response.schema) {
-        visitSchema(response.schema)
-      }
+    for (const schema of collect<SchemaNode>(op, { depth: 'shallow', schema: (node) => node })) {
+      visitSchema(schema)
     }
   }
 
