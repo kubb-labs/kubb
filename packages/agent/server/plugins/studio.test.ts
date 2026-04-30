@@ -20,7 +20,7 @@ describe('Studio Plugin - Message Handling', () => {
         type: 'data',
         payload: {
           type: 'kubb:info',
-          data: ['message'],
+          data: [{ message: 'message' }],
           timestamp: Date.now(),
         },
       }
@@ -101,7 +101,7 @@ describe('Studio Plugin - Message Handling', () => {
         type: 'data',
         payload: {
           type: 'kubb:plugin:start',
-          data: [{ name: 'test-plugin' }],
+          data: [{ plugin: { name: 'test-plugin' } }],
           timestamp: 1234567890,
         },
       }
