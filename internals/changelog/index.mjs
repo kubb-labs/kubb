@@ -185,7 +185,14 @@ export async function getReleaseLine(changeset, type, options = {}) {
   seen.add(id)
 
   const line = await changelogGithub.getReleaseLine(changeset, type, options)
-  const packages = parseChangesetPackages({ id, changesetDir: options.changesetDir ?? DEFAULTS.changesetDir })
+  let packages = parseChangesetPackages({ id, changesetDir: options.changesetDir ?? DEFAULTS.changesetDir })
+
+  if (!packages && changeset.releases?.length) {
+    packages = {}
+    for (const release of changeset.releases) {
+      packages[release.name] = release.type
+    }
+  }
 
   pending.push({ type, packages, line, options: { ...options, repo: options.repo ?? DEFAULTS.repo } })
 

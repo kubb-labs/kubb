@@ -46,7 +46,7 @@
   - Better type safety with distinct `BarrelConfig` and `PluginBarrelConfig` types
   - `nested` parameter in `getBarrelFiles` for fine-grained control ([#3200](https://github.com/kubb-labs/kubb/pull/3200), [`3519370`](https://github.com/kubb-labs/kubb/commit/35193705080f85f60bbb20d4e525724a9f19a3c4))
 
-### unknown
+### @kubb/adapter-oas
 
 #### Features
 
