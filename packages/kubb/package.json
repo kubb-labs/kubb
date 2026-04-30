@@ -69,10 +69,8 @@
   },
   "dependencies": {
     "@kubb/adapter-oas": "workspace:*",
-    "@kubb/agent": "workspace:*",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/mcp": "workspace:*",
     "@kubb/middleware-barrel": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@kubb/renderer-jsx": "workspace:*"
@@ -80,6 +78,18 @@
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "@kubb/agent": "workspace:*",
+    "@kubb/mcp": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@kubb/agent": {
+      "optional": true
+    },
+    "@kubb/mcp": {
+      "optional": true
+    }
   },
   "size-limit": [
     {

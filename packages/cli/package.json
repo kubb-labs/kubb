@@ -74,9 +74,17 @@
   "devDependencies": {
     "@internals/utils": "workspace:*"
   },
-  "optionalDependencies": {
+  "peerDependencies": {
     "@kubb/agent": "workspace:*",
     "@kubb/mcp": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@kubb/agent": {
+      "optional": true
+    },
+    "@kubb/mcp": {
+      "optional": true
+    }
   },
   "size-limit": [
     {

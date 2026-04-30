@@ -13,7 +13,13 @@ export async function runMcp({ version }: McpOptions): Promise<void> {
   try {
     mod = (await import('@kubb/mcp')) as typeof McpModule
   } catch (_e) {
-    console.error(`Import of '@kubb/mcp' is required to start the MCP server`)
+    console.error(styleText('red', 'The @kubb/mcp package is not installed.'))
+    console.error('')
+    console.error('Install it with:')
+    console.error(styleText('cyan', '  npm install @kubb/mcp'))
+    console.error(styleText('cyan', '  # or'))
+    console.error(styleText('cyan', '  pnpm install @kubb/mcp'))
+    console.error('')
     process.exit(1)
   }
 
