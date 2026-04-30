@@ -191,6 +191,12 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
 /**
  * Walks the AST and dispatches nodes to a plugin's direct AST hooks
  * (`schema`, `operation`, `operations`).
+ *
+ * When `include` contains only operation-scoped filters (`tag`, `operationId`, `path`,
+ * `method`, `contentType`) and no `schemaName` filter, the function pre-computes the set
+ * of top-level schema names transitively reachable from the included operations and skips
+ * schemas that fall outside that set. This ensures that component schemas referenced
+ * exclusively by excluded operations are not generated.
  */
 async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorContext): Promise<void> {
   const { adapter, inputNode, resolver, driver } = context

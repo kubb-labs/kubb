@@ -751,7 +751,19 @@ export function resolveRefName(node: SchemaNode | undefined): string | undefined
  * Refs are followed by name only — the resolved `node.schema` is not traversed inline.
  * Use this to determine schema dependencies, build reference graphs, or detect what schemas need to be emitted.
  *
- * @note Returns a Set of schema names for efficient membership testing.
+ * @example Collect refs from a single schema
+ * ```ts
+ * const names = collectReferencedSchemaNames(petSchema)
+ * // → Set { 'Category', 'Tag' }
+ * ```
+ *
+ * @example Accumulate refs from multiple schemas into one set
+ * ```ts
+ * const out = new Set<string>()
+ * for (const schema of schemas) {
+ *   collectReferencedSchemaNames(schema, out)
+ * }
+ * ```
  */
 export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: Set<string> = new Set()): Set<string> {
   if (!node) return out
@@ -769,18 +781,31 @@ export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: 
 }
 
 /**
- * Collects all top-level schema names (by name) transitively used by a set of operations.
+ * Collects the names of all top-level schemas transitively used by a set of operations.
  *
  * An operation uses a schema when any of its parameters, request body content, or responses
- * reference it — directly or transitively through other named schemas.
+ * reference it — directly or indirectly through other named schemas.
+ * The walk is iterative and safe against reference cycles.
  *
- * Use this to determine which schemas from `components/schemas` are actually reachable
- * from a filtered set of operations, so unreferenced schemas can be skipped during generation.
+ * Use this together with `include` filters to determine which schemas from `components/schemas`
+ * are reachable from the allowed operations, so that schemas used only by excluded operations
+ * are not generated.
  *
- * @example
+ * @example Only generate schemas referenced by included operations
  * ```ts
- * const usedNames = collectUsedSchemaNames(includedOps, inputNode.schemas)
- * // only generate schemas whose name is in usedNames
+ * const includedOps = inputNode.operations.filter(op => resolver.resolveOptions(op, { options, include }) !== null)
+ * const allowed = collectUsedSchemaNames(includedOps, inputNode.schemas)
+ *
+ * for (const schema of inputNode.schemas) {
+ *   if (schema.name && !allowed.has(schema.name)) continue
+ *   // … generate schema
+ * }
+ * ```
+ *
+ * @example Check whether a specific schema is needed
+ * ```ts
+ * const allowed = collectUsedSchemaNames(includedOps, inputNode.schemas)
+ * allowed.has('OrderStatus') // false when no included operation references OrderStatus
  * ```
  */
 export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schemas: ReadonlyArray<SchemaNode>): Set<string> {
