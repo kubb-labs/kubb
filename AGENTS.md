@@ -1,28 +1,77 @@
-# AGENTS.md
+# Kubb Codebase Guide
 
-Kubb is a code-generation toolkit for generating client code from OpenAPI specifications. Plugins are maintained in a separate monorepo at [kubb-project/kubb-plugins](https://github.com/kubb-project/kubb-plugins).
+Kubb is a code-generation toolkit for generating TypeScript, React-Query, Zod, Faker.js, MSW and more from OpenAPI specifications. It uses a plugin-based architecture with an Abstract Syntax Tree (AST) layer.
 
-## Plugin Configuration
+## High-Level Architecture
 
-Plugins are configured using YAML schemas. Each plugin in the [kubb-plugins](https://github.com/kubb-project/kubb-plugins) repository includes a `plugin-*.yaml` file that defines its configuration structure.
-
-**Schema Reference**: See [schemas/plugins/README.md](./schemas/plugins/README.md) for plugin metadata and configuration details.
-
-**Example**: Plugin configuration from the kubb-plugins repository (e.g., `plugin-client.yaml`, `plugin-ts.yaml`) can be referenced to understand plugin options and usage patterns.
+Kubb consists of:
+- **Core engine** (`@kubb/core`) - Plugin system and code generation orchestration
+- **Adapters** (`@kubb/adapter-oas`) - Transform OpenAPI specs into an AST
+- **Renderers & Utilities** - Transform the AST into code
+- **CLI & HTTP interfaces** - Entry points for code generation
+- **MCP Server** - Model Context Protocol integration for AI assistants
 
 ## Folder Structure
+
+### Root Directories
+
+```
+kubb/
+├── packages/                # Npm packages and core modules
+├── schemas/                 # YAML schemas for configuration
+├── internals/               # Build tools and internal utilities
+├── docs/                    # Documentation and architecture guides
+├── configs/                 # Shared build and test configurations
+└── .skills/                 # Agent capabilities for Claude Code
+```
 
 ### Packages
 
 ```
 packages/
-├── core/                    # Core utilities and shared runtime
-├── kubb/                    # Core kubb package (CLI, config, manager)
-├── agent/                   # AI-assisted code generation agent
-├── parser-ts/               # TypeScript parser
-├── renderer-jsx/            # JSX renderer for components
-└── unplugin/                # Unplugin integration
+├── ast/                     # Spec-agnostic AST layer defining nodes, visitors, and factories
+├── core/                    # Core plugin system and code generation orchestration
+├── adapter-oas/             # OpenAPI/Swagger adapter (OAS → AST)
+├── kubb/                    # Main package, exports all public APIs
+├── cli/                     # Command-line interface
+├── agent/                   # Agent server for HTTP-based code generation
+├── mcp/                     # Model Context Protocol (MCP) server for AI assistants
+├── parser-ts/               # TypeScript parser for AST manipulation
+├── renderer-jsx/            # JSX renderer for component-based code generation
+├── middleware-barrel/       # Middleware for barrel export generation
+└── unplugin-kubb/           # Unplugin integration for build tools
 ```
+
+### Schemas
+
+```
+schemas/
+├── plugins/                 # Schema definitions for plugins (in kubb-plugins repo)
+├── adapters/                # Schema definitions for adapters
+├── parsers/                 # Schema definitions for parsers
+└── middlewares/             # Schema definitions for middlewares
+```
+
+### Internals
+
+```
+internals/
+├── changelog/               # Changelog generation utilities
+└── utils/                   # Shared build and utility functions
+```
+
+### Documentation
+
+```
+docs/
+└── architecture/            # Architecture documentation and guides
+```
+
+## Plugin Ecosystem
+
+Plugins are maintained in a separate monorepo at [kubb-project/kubb-plugins](https://github.com/kubb-project/kubb-plugins). Each plugin includes a `plugin-*.yaml` file (e.g., `plugin-client.yaml`, `plugin-ts.yaml`) that defines its configuration structure.
+
+**Schema Reference**: See [schemas/plugins/README.md](./schemas/plugins/README.md) for plugin metadata and configuration details.
 
 ## Repository Setup
 
