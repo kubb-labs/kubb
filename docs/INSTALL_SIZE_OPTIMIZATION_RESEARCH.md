@@ -75,19 +75,71 @@ This document analyzes opportunities to reduce the install size of the `kubb` pa
 
 **Alternatives Researched:**
 
-| Alternative | Size | Pros | Cons | Compatibility |
-|-------------|------|------|------|---------------|
-| `ajv` (1.0 MB) | 1.0 MB | Industry standard JSON Schema validator; smaller | Requires manual JSON Schema logic; doesn't include OpenAPI-specific rules | ⚠️ Partial — would need wrapper |
-| `openapi-validator` | ~66 KB | **95% smaller** than Redocly | Limited feature set; may not cover all Redocly validations | ❌ Unknown compatibility |
-| `swagger-parser` | ~22 KB | **99% smaller**; popular | May lack Redocly's advanced features & diagnostics | ❌ Needs verification |
+| Alternative | Size | Deps | Pros | Cons | Compatibility |
+|-------------|------|------|------|------|---------------|
+| `@apidevtools/swagger-parser` | **56 KB** | 6 | **96% smaller**; popular; battle-tested; supports Swagger 2.0 + OpenAPI 3.0 | Less feature-complete than Redocly's diagnostics | ✅ **Strong candidate** — already a transitive dep |
+| `@readme/openapi-parser` | 250 KB | 6 | **83% smaller**; built on swagger-parser; better error messages | Already a transitive dep (via `oas-normalize`) | ✅ **Strong candidate** — already in tree |
+| `@stoplight/spectral-core` | 205 KB | **21** | Strong validation rules; linter-style errors | **Different use case**: validates against rules, not for code generation; 21 dependencies; needs `@stoplight/spectral-rulesets` (4.5 MB!) for OpenAPI rules | ❌ Wrong tool — designed for linting, not parsing |
+| `@scalar/openapi-parser` | **2.4 MB** | 10 | Modern TypeScript; comprehensive | **Bigger than Redocly!**; heavy `@scalar/openapi-types` (399 KB), `@scalar/openapi-upgrader`, etc | ❌ Larger than current solution |
+| `ajv` | 1.0 MB | 4 | Industry standard JSON Schema validator | Requires manual OpenAPI-specific logic; doesn't include OpenAPI rules | ⚠️ Partial — would need wrapper |
+| `openapi-validator` | 66 KB | 10 | **96% smaller** | Limited feature set; unmaintained | ❌ Risky |
 
-**Assessment**: Redocly is deeply integrated into adapter-oas. Switching would require:
-1. Verifying all validation rules are equivalent
-2. Testing against real-world OpenAPI specs (OpenAPI 2.0, 3.0, 3.1)
-3. Ensuring error messages remain helpful
-4. Testing Swagger 2.0 conversion still works
+**Spectral Deep Dive (`@stoplight/spectral-core`):**
 
-**Risk Level**: 🔴 **HIGH** — Deep integration, spec compatibility unknown
+While Spectral is excellent for **OpenAPI linting/governance**, it's the **wrong tool for code generation**:
+- Designed to validate specs against **custom rule sets** (e.g., "all paths must have descriptions")
+- Pulls heavy deps: `nimma`, `lodash`, `jsonpath-plus`, `ajv-formats`, `expr-eval-fork`
+- Without `@stoplight/spectral-rulesets` (4.5 MB!), provides no OpenAPI-specific validation
+- Does **not** provide schema dereferencing/resolution (kubb's primary need)
+- Used by tools like Stoplight Studio, not parser-focused tools
+
+**Conclusion: Spectral is NOT a viable replacement.**
+
+**Scalar Deep Dive (`@scalar/openapi-parser`):**
+
+Scalar is a **modern TypeScript-first parser**, but at 2.4 MB it's actually **larger than Redocly**:
+- Pulls `@scalar/openapi-types` (399 KB), `@scalar/openapi-upgrader`, `@scalar/json-magic`
+- Better TypeScript ergonomics than Redocly
+- More comprehensive feature set
+- Active development with frequent updates
+
+**Conclusion: Scalar is NOT a size win — it's heavier than current solution.**
+
+**Best Candidates (in order):**
+
+1. **`@apidevtools/swagger-parser` (56 KB)** — The clear winner if features are sufficient
+   - Already in dep tree (transitively via `@readme/openapi-parser`)
+   - 96% size reduction vs Redocly
+   - Mature & maintained since 2014
+   - **Tradeoff**: Less detailed validation diagnostics
+
+2. **`@readme/openapi-parser` (250 KB)** — Middle ground
+   - Already in dep tree (via `oas-normalize`)
+   - 83% size reduction
+   - Better error messages than swagger-parser
+   - **Tradeoff**: Still less validation depth than Redocly
+
+**Migration Path (Hypothetical):**
+
+```javascript
+// Current (uses Redocly)
+import { bundleFromString, makeDocumentFromString } from '@redocly/openapi-core'
+const doc = await bundleFromString({ source: yamlContent, config })
+
+// Option A: swagger-parser (smallest)
+import SwaggerParser from '@apidevtools/swagger-parser'
+const doc = await SwaggerParser.dereference(yamlContent)
+
+// Option B: @readme/openapi-parser (already in tree)
+import { OpenAPIParser } from '@readme/openapi-parser'
+const doc = await OpenAPIParser.dereference(yamlContent)
+```
+
+**Risk Level**: 🟡 **MEDIUM** if using swagger-parser/readme-parser; 🔴 **HIGH** if using Spectral/Scalar
+
+**Estimated Savings**:
+- swagger-parser: **~1.4 MB** (1.5 MB → 56 KB)
+- readme-parser: **~1.25 MB** (1.5 MB → 250 KB; already in tree could mean 0 extra)
 
 ---
 
@@ -286,14 +338,16 @@ const mod = await import('kubb.config.ts')
 | @clack/prompts | prompts | 220 KB | 187 KB | **33 KB** | MEDIUM | Minor UX regression |
 | **Subtotal** | | | | **~152 KB** | | |
 
-### Tier 3: High Risk (Not Recommended)
-| Package | Issue | Current Size | Risk | Recommendation |
-|---------|-------|--------------|------|-----------------|
-| @redocly/openapi-core | Deep integration; no light alternative | 1.5 MB | 🔴 HIGH | **Keep** — only OpenAPI adapter in repo |
-| oas | Complex logic (refs, merging, queries) | 1.3 MB | 🔴 HIGH | **Keep** — core to parsing |
-| swagger2openapi | Swagger 2.0 support | 104 KB | 🔴 HIGH | **Keep** — required for legacy specs |
-| unrun | Lightest TS transpiler option | 43 KB | 🟢 VERY LOW | **Keep** — no viable alternative |
-| **Total** | | **~3.0 MB** | | Not worth risk/reward |
+### Tier 3: High Risk (Requires Heavy Refactor)
+| Package | Alternative | Current | Alternative | Savings | Risk | Recommendation |
+|---------|-------------|---------|-------------|---------|------|----------------|
+| @redocly/openapi-core | @apidevtools/swagger-parser | 1.5 MB | 56 KB | **~1.4 MB** | 🟡 MEDIUM-HIGH | **Worth investigating** if features suffice |
+| @redocly/openapi-core | @readme/openapi-parser | 1.5 MB | 250 KB (already in tree!) | **~1.25 MB** | 🟡 MEDIUM | **Best candidate** — already a transitive dep |
+| @redocly/openapi-core | @stoplight/spectral-core | 1.5 MB | 205 KB + 4.5 MB rulesets | ❌ Negative | 🔴 HIGH | **Reject** — wrong tool (linter, not parser) |
+| @redocly/openapi-core | @scalar/openapi-parser | 1.5 MB | 2.4 MB | ❌ Negative | 🔴 HIGH | **Reject** — bigger than current |
+| oas | Custom impl + swagger-parser | 1.3 MB | ~150 KB | **~1.15 MB** | 🔴 HIGH | Complex; needs JSON path/merging replacements |
+| swagger2openapi | swagger-parser handles it | 104 KB | 0 KB | **104 KB** | 🟡 MEDIUM | If swagger-parser replaces Redocly |
+| unrun | None viable | 43 KB | N/A | 0 KB | 🟢 LOW | **Keep** — no viable alternative |
 
 ---
 
@@ -350,15 +404,26 @@ npm i kubb
    - Saves 56 KB
    - **Action**: Test on Windows, macOS, Linux with large filesets
 
-### Long Term (🔴 Not Recommended)
-4. **Do NOT replace OpenAPI parsing libraries** (`@redocly/openapi-core`, `oas`)
-   - Only OpenAPI adapter in kubb monorepo
-   - Alternatives either too small (incomplete) or unavailable
-   - Risk outweighs 1-2 MB savings
+### Long Term (🟡 Worth Investigation)
+4. **Investigate replacing `@redocly/openapi-core` with `@apidevtools/swagger-parser` or `@readme/openapi-parser`**
+   - **swagger-parser**: ~1.4 MB savings (96% reduction); battle-tested since 2014
+   - **readme-parser**: ~1.25 MB savings (83% reduction); already a transitive dep!
+   - **Reject `@stoplight/spectral-core`**: It's a linter tool, not a parser; needs 4.5 MB ruleset; wrong fit
+   - **Reject `@scalar/openapi-parser`**: It's actually 2.4 MB — *bigger* than current Redocly
+   - **Action items**:
+     - Audit which Redocly features kubb actually uses (validation? bundling? dereferencing?)
+     - Spike: replace Redocly with swagger-parser in a feature branch
+     - Test against test suite (especially edge cases: $ref cycles, nested allOf, OpenAPI 3.1)
+     - Verify Swagger 2.0 → OpenAPI 3.0 conversion still works
 
 5. **Do NOT replace `unrun`** for TS config transpilation
    - Already the lightest option
    - No viable alternatives at same size
+
+### Rejected Alternatives (Researched but unsuitable)
+- **`@stoplight/spectral-core`** (205 KB + 21 deps + 4.5 MB rulesets): Wrong tool — designed for OpenAPI **linting** (validating against custom rules like "all paths must have descriptions"), not for parsing/dereferencing schemas for code generation. Pulls heavy deps (`nimma`, `lodash`, `jsonpath-plus`, `expr-eval-fork`).
+- **`@scalar/openapi-parser`** (2.4 MB + 10 deps): Modern TypeScript parser but **larger than current Redocly**. Pulls `@scalar/openapi-types` (399 KB), `@scalar/openapi-upgrader`, `@scalar/json-magic`, etc.
+- **`ajv` directly** (1.0 MB): Industry-standard JSON Schema validator but lacks OpenAPI-specific logic.
 
 ---
 
