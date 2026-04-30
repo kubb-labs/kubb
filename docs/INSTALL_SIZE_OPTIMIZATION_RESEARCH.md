@@ -14,6 +14,14 @@ This document analyzes opportunities to reduce the install size of the `kubb` pa
 - ✅ Added helpful error messages when optional packages are missing
 - **Savings**: ~7-13 MB for users not using agent/MCP features
 
+### Current Capabilities (must be preserved)
+- ✅ **Remote `$ref` schemas (filesystem + URL)** — Already supported via `@redocly/openapi-core`'s `bundle()` in `packages/adapter-oas/src/factory.ts:36-40`. Users can split OpenAPI specs across multiple files using `$ref: './schemas/Pet.yaml'` or `$ref: 'https://example.com/schemas/Pet.yaml'`.
+- ✅ **Swagger 2.0 input** — Auto-converted to OpenAPI 3.0 via `swagger2openapi`
+- ✅ **Multi-document input** — `mergeDocuments()` for combining multiple specs
+- ✅ **Inline data input** — Raw YAML/JSON strings or already-parsed objects
+
+**Any dependency replacement MUST preserve all of these features.**
+
 ---
 
 ## Dependency Audit
@@ -70,8 +78,39 @@ This document analyzes opportunities to reduce the install size of the `kubb` pa
 ### 1. **OpenAPI Parsing Alternatives**
 
 #### Current: `@redocly/openapi-core` (1.5 MB)
-**Purpose**: Validate and parse OpenAPI specs  
-**Used by**: `@kubb/adapter-oas`
+**Purpose**: Validate, parse, and **bundle** OpenAPI specs (resolves external `$ref`s)  
+**Used by**: `@kubb/adapter-oas` (`factory.ts:36-40`)
+
+#### ⚠️ Critical Requirement: Remote `$ref` Resolution
+
+The current `parseDocument()` uses Redocly's `bundle()` to resolve external references — both **filesystem** and **URL** refs. This enables users to split OpenAPI specs across multiple files:
+
+```yaml
+# openapi.yaml
+paths:
+  /pets:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/pet.yaml'  # filesystem ref
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: 'https://example.com/schemas/error.yaml'  # URL ref
+```
+
+**Any replacement MUST support:**
+- ✅ Filesystem `$ref` (relative paths to other YAML/JSON files)
+- ✅ URL `$ref` (HTTP/HTTPS to remote schemas)
+- ✅ Recursive ref resolution (refs that contain refs)
+- ✅ `$ref` cycles handling
+- ✅ Swagger 2.0 → OpenAPI 3.0 upconversion (via `swagger2openapi`)
+
+This is a **non-negotiable feature** — without it, users can't split specs across files.
 
 **Alternatives Researched:**
 
@@ -111,13 +150,29 @@ Scalar is a **modern TypeScript-first parser**, but at 2.4 MB it's actually **la
    - Already in dep tree (transitively via `@readme/openapi-parser`)
    - 96% size reduction vs Redocly
    - Mature & maintained since 2014
+   - ✅ **Supports remote `$ref` resolution** (filesystem + URL) via `@apidevtools/json-schema-ref-parser`
+   - ✅ Supports `dereference()` (inline all refs) and `bundle()` (keep refs in single file)
    - **Tradeoff**: Less detailed validation diagnostics
+   - **Note**: Does NOT include Swagger 2.0 conversion — would still need `swagger2openapi`
 
 2. **`@readme/openapi-parser` (250 KB)** — Middle ground
    - Already in dep tree (via `oas-normalize`)
    - 83% size reduction
    - Better error messages than swagger-parser
+   - ✅ **Supports remote `$ref` resolution** (built on `@apidevtools/json-schema-ref-parser`)
+   - ✅ Includes Swagger 2.0 → 3.0 upgrade
+   - ✅ Better validation than swagger-parser (uses `@readme/better-ajv-errors`)
    - **Tradeoff**: Still less validation depth than Redocly
+
+**Remote Ref Support Matrix:**
+
+| Library | Filesystem `$ref` | URL `$ref` | Swagger 2.0 Conv. | Bundle | Dereference |
+|---------|:-:|:-:|:-:|:-:|:-:|
+| `@redocly/openapi-core` (current) | ✅ | ✅ | ❌ (separate lib) | ✅ | ✅ |
+| `@apidevtools/swagger-parser` | ✅ | ✅ | ❌ (separate lib) | ✅ | ✅ |
+| `@readme/openapi-parser` | ✅ | ✅ | ✅ (built-in) | ✅ | ✅ |
+| `@stoplight/spectral-core` | ❌ (linter) | ❌ (linter) | ❌ | ❌ | Limited |
+| `@scalar/openapi-parser` | ✅ | ✅ | ✅ (upgrader) | ✅ | ✅ |
 
 **Migration Path (Hypothetical):**
 
@@ -405,16 +460,43 @@ npm i kubb
    - **Action**: Test on Windows, macOS, Linux with large filesets
 
 ### Long Term (🟡 Worth Investigation)
-4. **Investigate replacing `@redocly/openapi-core` with `@apidevtools/swagger-parser` or `@readme/openapi-parser`**
-   - **swagger-parser**: ~1.4 MB savings (96% reduction); battle-tested since 2014
-   - **readme-parser**: ~1.25 MB savings (83% reduction); already a transitive dep!
-   - **Reject `@stoplight/spectral-core`**: It's a linter tool, not a parser; needs 4.5 MB ruleset; wrong fit
-   - **Reject `@scalar/openapi-parser`**: It's actually 2.4 MB — *bigger* than current Redocly
-   - **Action items**:
-     - Audit which Redocly features kubb actually uses (validation? bundling? dereferencing?)
-     - Spike: replace Redocly with swagger-parser in a feature branch
-     - Test against test suite (especially edge cases: $ref cycles, nested allOf, OpenAPI 3.1)
-     - Verify Swagger 2.0 → OpenAPI 3.0 conversion still works
+4. **Investigate replacing `@redocly/openapi-core` with `@readme/openapi-parser`**
+   - **Best fit for kubb's requirements**: 
+     - ✅ Remote `$ref` resolution (filesystem + URL) — already works in current Redocly
+     - ✅ Swagger 2.0 → 3.0 upgrade (no separate `swagger2openapi` needed)
+     - ✅ Already a transitive dep via `oas-normalize`
+   - **Savings**: ~1.25 MB (83% reduction)
+   - **Could also drop `swagger2openapi` (104 KB)** if readme-parser handles conversion
+   - **Total potential savings**: ~1.35 MB
+
+5. **Alternatively: `@apidevtools/swagger-parser`** (smaller but needs separate Swagger 2.0 conversion)
+   - **Savings**: ~1.4 MB if Swagger 2.0 conversion via separate lib
+   - 96% size reduction
+   - Battle-tested since 2014
+   - **Tradeoff**: Need to keep `swagger2openapi` (104 KB) separate, so net savings ~1.3 MB
+
+6. **Critical: Preserve Remote `$ref` Resolution**
+   - kubb users CAN split specs across multiple files (filesystem) or reference remote schemas (URLs)
+   - This is enabled by Redocly's `bundle()` in `factory.ts:36-40`
+   - Both `@apidevtools/swagger-parser` and `@readme/openapi-parser` support this via `@apidevtools/json-schema-ref-parser`
+   - **Reject `@stoplight/spectral-core`**: Linter tool, doesn't dereference refs
+   - **Reject `@scalar/openapi-parser`**: 2.4 MB — bigger than current
+
+**Action items for Tier 3:**
+- Audit which Redocly features kubb actually uses (validation? bundling? dereferencing?)
+- Confirm `@readme/openapi-parser` handles all current test cases:
+  - ✅ Filesystem `$ref` resolution (relative + absolute paths)
+  - ✅ URL `$ref` resolution (HTTP/HTTPS)
+  - ✅ Recursive refs (refs containing refs)
+  - ✅ `$ref` cycle detection
+  - ✅ Swagger 2.0 input
+  - ✅ OpenAPI 3.0 input
+  - ✅ OpenAPI 3.1 input (with `webhooks`, `unevaluatedProperties`, etc.)
+  - ✅ Discriminator handling
+  - ✅ AllOf/OneOf/AnyOf merging
+- Spike: replace Redocly with readme-parser in a feature branch
+- Run full kubb test suite + integration tests
+- Benchmark parsing performance
 
 5. **Do NOT replace `unrun`** for TS config transpilation
    - Already the lightest option
