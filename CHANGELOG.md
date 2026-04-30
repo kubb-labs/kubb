@@ -1,5 +1,35 @@
 # Changelog
 
+## v5.0.0-beta.3 — Apr 30, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Reduce default install size by moving `@kubb/agent` and `@kubb/mcp` to optional `peerDependencies`. The CLI never imports them at runtime — they expose their own `kubb-mcp` / agent entry points. Install them explicitly when needed:
+  
+  ```bash
+  npm i @kubb/mcp     # for the MCP server
+  npm i @kubb/agent   # for the HTTP agent
+  ``` ([#3215](https://github.com/kubb-labs/kubb/pull/3215), [`9ecce54`](https://github.com/kubb-labs/kubb/commit/9ecce5432a26a3e3e91addb2af3f76fb2554e621))
+
+### kubb
+
+#### Bug Fixes
+
+- Reduce default install size by moving `@kubb/agent` and `@kubb/mcp` to optional `peerDependencies`. The CLI never imports them at runtime — they expose their own `kubb-mcp` / agent entry points. Install them explicitly when needed:
+  
+  ```bash
+  npm i @kubb/mcp     # for the MCP server
+  npm i @kubb/agent   # for the HTTP agent
+  ``` ([#3215](https://github.com/kubb-labs/kubb/pull/3215), [`9ecce54`](https://github.com/kubb-labs/kubb/commit/9ecce5432a26a3e3e91addb2af3f76fb2554e621))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.2 — Apr 30, 2026
 
 ### @kubb/adapter-oas

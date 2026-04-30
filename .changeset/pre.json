@@ -83,6 +83,7 @@
     "node-22-minimum",
     "output-format-lint-auto-default",
     "preserve-union-kind-semantics",
+    "reduce-kubb-install-size",
     "refactor-barrel-config-api",
     "refactor-middleware-barrel",
     "remove-deprecated-plugin-checks",
