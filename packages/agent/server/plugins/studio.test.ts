@@ -122,7 +122,7 @@ describe('Studio Plugin - Message Handling', () => {
           path: './dist',
           write: true,
           extension: '.ts',
-          barrelType: 'star',
+          barrel: { type: 'all' },
         },
         plugins: [],
       }
@@ -144,7 +144,7 @@ describe('Studio Plugin - Message Handling', () => {
           path: './dist',
           write: true,
           extension: '.ts',
-          barrelType: 'star',
+          barrel: { type: 'all' },
         },
         plugins: [],
       }
