@@ -65,7 +65,7 @@
     "@kubb/core": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "unrun": "^0.2.37",
-    "zod": "^4.3.6"
+    "zod": "^4.4.1"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
