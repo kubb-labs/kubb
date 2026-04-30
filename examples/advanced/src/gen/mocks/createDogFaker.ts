@@ -4,7 +4,13 @@ import { createImageFaker } from './createImageFaker.ts'
 
 export function createDogFaker(data?: Partial<Dog>): Dog {
   return {
-    ...{ type: faker.string.alpha({ length: 1 }), name: faker.string.alpha(), image: createImageFaker() },
-    ...(data || {}),
+    ...{
+      type: faker.string.alpha({ length: 1 }),
+      name: faker.string.alpha(),
+      get image() {
+        return createImageFaker()
+      },
+      ...(data || {}),
+    },
   }
 }
