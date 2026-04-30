@@ -1,39 +1,55 @@
 # Kubb v5 — @kubb/agent Changes for Studio Support
 
-This document covers the changes needed in the `@kubb/agent` package (`packages/agent/`) to fully support Kubb Studio's v5 migration. The agent is the process users run locally (`kubb agent start`) that connects to Studio via WebSocket and executes code generation on their machine.
+This document covers the changes needed in the `@kubb/agent` package (`packages/agent/`) to fully support Kubb Studio's v5 migration.
 
 ## Affected Files
 
 | File | Change |
 |------|--------|
-| `server/types/agent.ts` | Update `JSONKubbConfig` plugin options documentation; align `KubbHooks` subset with v5 event shapes |
-| `server/utils/resolvePlugins.ts` | Verify v5 plugin package names resolve correctly via dynamic import |
-| `server/utils/mergePlugins.ts` | Verify deep merge handles `barrel` object (not string) correctly |
-| `server/utils/ws.ts` | Already correct — confirm `setupEventsStream` event shapes match studio expectations |
-| `server/utils/connectStudio.ts` | Update `ConnectedMessage` config payload to reflect v5 config shape |
+| `server/types/agent.ts` | Extend `JSONKubbConfig` to expose adapter/middleware options; align `KubbHooks` data tuples |
+| `server/utils/resolvePlugins.ts` | Verify v5 plugin package names resolve; add `@kubb/renderer-jsx` warning |
+| `server/utils/mergePlugins.ts` | Verify deep merge handles `barrel` object and v5 plugin option shapes |
+| `server/utils/connectStudio.ts` | Pass `adapter`/`middleware` from disk config; add v4 `barrelType` deprecation warning |
+| `server/utils/generate.ts` | Pass `adapter` and `middleware` from merged config to `createKubb()` |
+| `server/utils/ws.ts` | Confirm `Map→Record` conversion; remove unnecessary `FileNode` double-cast |
 
 ---
 
-## Step 1 — Update `server/types/agent.ts`
+## Step 1 — Extend `server/types/agent.ts`
 
-### JSONKubbConfig — document v5 option shapes
+### Extended `JSONKubbConfig`
 
-The `plugins[].options` field is typed as `object`, which is permissive enough to accept both v4 and v5 formats. However the agent must correctly pass v5-shaped options to plugin factories. Ensure the inline documentation and any example schemas reflect the v5 barrel format:
+Currently `JSONKubbConfig` only carries `plugins` and `input`. In v5 the studio UI may want to configure top-level adapter settings (e.g. which server to use, content-type selection). Extend the type to support an optional `adapter` block:
 
 ```ts
-// v4 (no longer valid)
-{ name: '@kubb/plugin-ts', options: { barrelType: 'named' } }
+// Current
+export type JSONKubbConfig = {
+  plugins?: Array<{ name: string; options: object }>
+  input?: string  // sandbox only
+}
 
-// v5
-{ name: '@kubb/plugin-ts', options: { barrel: { type: 'named' } } }
+// Proposed v5 extension
+export type JSONKubbConfig = {
+  plugins?: Array<{ name: string; options: object }>
+  input?: string  // sandbox only
+  /** Adapter-level overrides sent from Studio UI */
+  adapter?: {
+    serverIndex?: number
+    serverVariables?: Record<string, string>
+    contentType?: string
+    validate?: boolean
+  }
+}
 ```
 
-### KubbHooks subset — align data shapes with ws.ts
+This allows Studio to expose server selection and content-type controls without touching the underlying `kubb.config.ts` on disk.
 
-The `KubbHooks` type defined locally in `server/types/agent.ts` is the subset of events forwarded to Studio. Cross-check its data tuple shapes against what `setupEventsStream()` in `ws.ts` actually emits to ensure the discriminated union stays accurate:
+### `KubbHooks` subset — align data shapes with `ws.ts`
 
-| Event | Expected `data` shape |
-|-------|-----------------------|
+Cross-check the locally defined `KubbHooks` event tuple shapes against what `setupEventsStream()` in `ws.ts` actually emits:
+
+| Event | `data` shape |
+|-------|--------------|
 | `kubb:plugin:start` | `[plugin: { name: string }]` |
 | `kubb:plugin:end` | `[plugin: { name: string }, meta: { duration: number; success: boolean }]` |
 | `kubb:files:processing:start` | `[{ total: number }]` |
@@ -48,72 +64,166 @@ The `KubbHooks` type defined locally in `server/types/agent.ts` is the subset of
 
 ---
 
-## Step 2 — Verify `server/utils/resolvePlugins.ts`
+## Step 2 — Update `server/utils/connectStudio.ts`
 
-`resolvePlugins` dynamically imports plugin packages by name and resolves the factory function using a camelCase heuristic (`@kubb/plugin-ts` → `pluginTs`). This mechanism is unchanged in v5, but verify:
+### Pass `adapter` and `middleware` from disk config
 
-1. **Plugin package names** — v5 plugins live in `kubb-labs/plugins` (a separate monorepo). Confirm user-installed plugin packages export their factory under the expected camelCase name:
-   - `@kubb/plugin-ts` → `pluginTs` ✓
-   - `@kubb/plugin-zod` → `pluginZod` ✓
-   - `@kubb/plugin-react-query` → `pluginReactQuery` ✓
-
-2. **Peer dependency** — `@kubb/renderer-jsx` is now a required peer of all v5 plugins. The agent itself does not import it, but users must install it alongside any plugin or generation will fail. Consider adding a startup warning if `@kubb/renderer-jsx` is not resolvable.
-
-3. **`toExportName` edge cases** — run the existing tests (`vitest`) against v5 plugin package names to confirm no naming edge cases regressed.
-
----
-
-## Step 3 — Verify `server/utils/mergePlugins.ts`
-
-`mergePlugins` deep-merges disk plugin options with studio-supplied options. In v5, the barrel configuration is an object instead of a string:
+When building the final config for `generate()`, the agent currently spreads the disk config and overrides `plugins`. In v5 the disk config may also carry `adapter`, `middleware`, and `parsers` fields that must be preserved:
 
 ```ts
-// Disk config (kubb.config.ts)
-pluginTs({ output: { barrel: { type: 'named' } } })
+// Current (incomplete for v5)
+const finalConfig = {
+  ...config,
+  root,
+  input: isSandbox ? { data: patch?.input ?? '' } : undefined,
+  storage: effectiveWrite ? fsStorage() : memoryStorage(),
+  plugins,
+}
 
-// Studio JSON override
-{ name: '@kubb/plugin-ts', options: { output: { barrel: { type: 'all' } } } }
-
-// Expected merge result
-{ output: { barrel: { type: 'all' } } }  // studio override wins
+// v5 — also pass adapter override from studio JSON
+const finalConfig = {
+  ...config,           // carries disk adapter, middleware, parsers
+  root,
+  input: isSandbox ? { data: patch?.input ?? '' } : undefined,
+  storage: effectiveWrite ? fsStorage() : memoryStorage(),
+  plugins,
+  // Merge adapter options from studio JSON if provided
+  adapter: patch?.adapter
+    ? mergeAdapterOptions(config.adapter, patch.adapter)
+    : config.adapter,
+}
 ```
 
-The existing deep merge (`remeda` or equivalent) handles nested object replacement correctly — confirm this with a focused test covering the `barrel` object shape. Also confirm `barrel: false` (opt-out) is preserved when the disk config sets it explicitly and studio does not override it.
+Implement a `mergeAdapterOptions(disk, studio)` helper that deep-merges studio overrides onto the disk adapter options.
 
----
+### Deprecation warning for v4 `barrelType`
 
-## Step 4 — Confirm `server/utils/ws.ts` (`setupEventsStream`)
-
-This function is already correct for v5 — it registers listeners on the `kubb:` prefixed hooks and forwards them to Studio as `DataMessage` frames. Two things to confirm:
-
-1. **`kubb:generation:end` sources conversion** — the handler converts `Map<string, string>` → `Record<string, string>` before sending. Confirm this runs before `JSON.stringify` so no Map object is sent raw over the wire.
-
-2. **`FileNode` cast** — the handler casts `files` to `FileNode[]` via `as unknown as FileNode[]`. If the v5 `safeBuild()` return type is already `FileNode[]`, remove the double cast to restore type safety.
-
----
-
-## Step 5 — Update `server/utils/connectStudio.ts` (ConnectedMessage)
-
-When the agent receives a `connect` command from Studio, it responds with a `ConnectedMessage` carrying the current disk config (for the Studio UI to display the existing plugin setup). After the v5 upgrade:
-
-- The `config` payload in `ConnectedMessage` must serialize `barrel` as an object, not a string
-- If the disk `kubb.config.ts` uses v5 format, this is automatic — no code change needed
-- If the disk config uses v4 format (`barrelType`), the agent should **not** silently transform it; the user should migrate their `kubb.config.ts` manually
-
-Add a startup validation step that checks the loaded config for v4-only fields (`barrelType`) and logs a deprecation warning:
+Add a startup check when loading the disk config:
 
 ```ts
-if (plugin.options?.barrelType !== undefined) {
-  logger.warn(`Plugin "${plugin.name}" uses deprecated "barrelType" option. Migrate to "barrel: { type }" for kubb v5.`)
+for (const plugin of config.plugins ?? []) {
+  if ((plugin.options as any)?.barrelType !== undefined) {
+    logger.warn(
+      `Plugin "${plugin.name}" uses deprecated "barrelType". Migrate to "barrel: { type }" for kubb v5.`
+    )
+  }
 }
 ```
 
 ---
 
+## Step 3 — Update `server/utils/generate.ts`
+
+The `createKubb()` call must forward the full v5 config including `adapter`, `middleware`, and `parsers`:
+
+```ts
+// v5 createKubb signature
+const kubb = createKubb({
+  ...finalConfig,
+  // adapter: adapterOas({ ... })  ← comes from disk config or studio override
+  // middleware: [middlewareBarrel()]  ← comes from disk config
+  // parsers: [parserTs]  ← comes from disk config (defaults applied by createKubb)
+}, { hooks })
+```
+
+No structural change is needed if `finalConfig` already spreads the disk config correctly (Step 2). Confirm that `createKubb` defaults the adapter to `adapterOas()` and parsers to `[parserTs]` when not provided — so sandbox mode (no disk config) still works without requiring an explicit adapter.
+
+---
+
+## Step 4 — Verify `server/utils/resolvePlugins.ts`
+
+1. **Plugin package names** — v5 plugins live in `kubb-labs/plugins`. Confirm camelCase heuristic resolves correctly:
+   - `@kubb/plugin-ts` → `pluginTs` ✓
+   - `@kubb/plugin-react-query` → `pluginReactQuery` ✓
+   - `@kubb/plugin-vue-query` → `pluginVueQuery` ✓
+   - `@kubb/plugin-mcp` → `pluginMcp` ✓
+
+2. **`@kubb/renderer-jsx` peer** — required by all v5 plugins but not imported by the agent. If it is not resolvable, emit a clear warning on startup:
+   ```ts
+   try { await import('@kubb/renderer-jsx') } catch {
+     logger.warn('Missing peer dependency @kubb/renderer-jsx — install it alongside kubb plugins.')
+   }
+   ```
+
+---
+
+## Step 5 — Verify `server/utils/mergePlugins.ts`
+
+Confirm the deep merge handles all v5 plugin option shapes correctly:
+
+| Option | v4 shape | v5 shape | Merge concern |
+|--------|----------|----------|---------------|
+| `barrel` | `barrelType: 'named'` (string) | `barrel: { type: 'named' }` (object) | Object replace, not string concat |
+| `barrel: false` | n/a | `barrel: false` | Must not be overwritten by disk default |
+| `coercion` (plugin-zod) | n/a | `{ dates?: boolean; strings?: boolean }` (object) | Object replace |
+| `infinite` (react/vue-query) | n/a | `{ queryParam, nextParam, initialPageParam }` or `false` | `false` opt-out must survive merge |
+| `query`/`mutation` | n/a | `{ methods, importPath }` or `false` | Same |
+| `client` | `{ importPath }` | `{ client, dataReturnType, baseURL, bundle, … }` | Object replace |
+
+Add focused tests for the `barrel: false`, `infinite: false`, `query: false`, and `mutation: false` opt-out cases to confirm they are not silently overwritten by a deep merge with a disk config that enables them.
+
+---
+
+## Step 6 — Confirm `server/utils/ws.ts`
+
+1. **`kubb:generation:end` sources** — confirm the `Map<string, string> → Record<string, string>` conversion runs before `JSON.stringify`.
+2. **`FileNode` cast** — if `safeBuild()` already returns `FileNode[]`, remove the `as unknown as FileNode[]` double-cast.
+
+---
+
+## V5 Full Config Format Reference
+
+For context, the disk `kubb.config.ts` the agent loads can now use any of these top-level fields:
+
+```ts
+import { defineConfig } from 'kubb'
+import { adapterOas } from '@kubb/adapter-oas'
+import { middlewareBarrel } from '@kubb/middleware-barrel'
+import { pluginTs } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  root: '.',
+  input: { path: './openapi.yaml' },
+  output: {
+    path: './src/gen',
+    clean: true,
+    format: 'prettier',          // 'auto' | 'prettier' | 'biome' | 'oxfmt' | false
+    lint: 'eslint',              // 'auto' | 'eslint' | 'biome' | 'oxlint' | false
+    barrel: { type: 'named' },  // root barrel; requires middlewareBarrel()
+  },
+  adapter: adapterOas({
+    validate: true,
+    serverIndex: 0,              // which server object to use
+    serverVariables: { env: 'prod' },
+    contentType: 'application/json',
+    discriminator: 'strict',     // 'strict' | 'inherit'
+    dateType: 'string',          // 'date' | 'string'
+    integerType: 'number',       // 'number' | 'bigint'  (v5 default is 'bigint')
+    unknownType: 'unknown',      // 'unknown' | 'any'
+    emptySchemaType: 'object',
+  }),
+  middleware: [middlewareBarrel()],  // generates index barrel files
+  plugins: [ pluginTs({ … }) ],
+  hooks: { done: 'prettier --write src/gen' },
+  devtools: { studioUrl: 'https://studio.kubb.dev' },
+})
+
+// defineConfig also accepts an array for multiple specs:
+export default defineConfig([
+  { name: 'v1', input: { path: './v1.yaml' }, … },
+  { name: 'v2', input: { path: './v2.yaml' }, … },
+])
+```
+
+**Agent impact:** when the disk config is an array, `loadConfig` returns the first entry. Consider adding support for a `name` selector so Studio can target a specific config in a multi-config setup.
+
+---
+
 ## Verification
 
-1. Run the agent test suite: `vitest run` inside `packages/agent/`
-2. Start the agent against a v5 `kubb.config.ts` and connect to Studio — confirm the `ConnectedMessage` arrives with correct v5 config shape
-3. Trigger generation from Studio — confirm all `kubb:` prefixed events stream correctly and `kubb:generation:end` delivers `FileNode[]` with `Record<string, string>` sources
-4. Test the `barrel: false` opt-out case in mergePlugins to confirm it is not overwritten by a deep merge
-5. Confirm a plugin installed without `@kubb/renderer-jsx` produces a clear error (not a silent failure)
+1. `vitest run` inside `packages/agent/` — all tests pass
+2. Start agent against a v5 `kubb.config.ts` with `adapter`, `middleware`, and multiple plugins — confirm `ConnectedMessage` carries the correct config shape
+3. Trigger generation from Studio — confirm all `kubb:` events stream and `kubb:generation:end` delivers `FileNode[]` with `Record<string, string>` sources
+4. Test `barrel: false`, `infinite: false`, and `query: false` opt-outs survive `mergePlugins`
+5. Confirm `@kubb/renderer-jsx` missing-peer warning appears when the package is not installed
+6. Confirm array `defineConfig` emits a clear warning/selection prompt rather than silently using index 0
