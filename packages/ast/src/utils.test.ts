@@ -1976,15 +1976,10 @@ describe('collectUsedSchemaNames', () => {
     ],
   })
 
-  it('collects schema names referenced by parameters and responses', () => {
+  it('collects schema names referenced by parameters and responses, and excludes unreachable schemas', () => {
     const result = collectUsedSchemaNames([getItemsOp], schemas)
 
     expect(result).toEqual(new Set(['ItemStatus', 'ItemsResponse']))
-  })
-
-  it('only includes schemas reachable from the provided operations', () => {
-    const result = collectUsedSchemaNames([getItemsOp], schemas)
-
     expect(result.has('OrderStatus')).toBe(false)
     expect(result.has('OrdersResponse')).toBe(false)
   })
