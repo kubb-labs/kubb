@@ -71,7 +71,19 @@ export const middlewareBarrel = defineMiddleware(() => {
     name: middlewareBarrelName,
     hooks: {
       'kubb:plugin:end'({ plugin, config, files, upsertFile }) {
-        const barrelConfig = plugin.options.output?.barrel ?? config.output.barrel ?? { type: 'named' }
+        const pluginBarrel = plugin.options.output?.barrel
+        const configBarrel = config.output.barrel
+        const defaultBarrel = { type: 'named' } as const
+
+        let barrelConfig: PluginBarrelConfig | false
+        if (pluginBarrel !== undefined) {
+          barrelConfig = pluginBarrel
+        } else if (configBarrel !== undefined) {
+          // Root config barrel doesn't have nested, so we add it
+          barrelConfig = configBarrel === false ? false : { ...configBarrel, nested: false }
+        } else {
+          barrelConfig = defaultBarrel
+        }
 
         if (barrelConfig === false) {
           excludedPrefixes.add(getPluginOutputPrefix(plugin, config))
