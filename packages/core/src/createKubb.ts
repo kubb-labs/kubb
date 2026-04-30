@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, URLPath } from '@internals/utils'
 import type { FileNode, OperationNode } from '@kubb/ast'
-import { transform, walk } from '@kubb/ast'
+import { collectUsedSchemaNames, transform, walk } from '@kubb/ast'
 import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -212,10 +212,30 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
     resolver: driver.getResolver(plugin.name),
   }
 
+  // When `include` has operation-based filters (tag, operationId, path, method, contentType)
+  // but no schema-level filters (schemaName), pre-compute the set of top-level schema names
+  // that are transitively referenced by the included operations. Schemas outside that set are
+  // skipped so that types belonging exclusively to excluded operations are not generated.
+  const operationFilterTypes = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
+  const hasOperationBasedIncludes = include?.some(({ type }) => operationFilterTypes.has(type)) ?? false
+  const hasSchemaNameIncludes = include?.some(({ type }) => type === 'schemaName') ?? false
+
+  let allowedSchemaNames: Set<string> | undefined
+  if (hasOperationBasedIncludes && !hasSchemaNameIncludes) {
+    const includedOps = inputNode.operations.filter((op) => resolver.resolveOptions(op, { options: plugin.options, exclude, include, override }) !== null)
+    allowedSchemaNames = collectUsedSchemaNames(includedOps, inputNode.schemas)
+  }
+
   await walk(inputNode, {
     depth: 'shallow',
     async schema(node) {
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
+
+      // Skip named top-level schemas that are not reachable from any included operation.
+      if (allowedSchemaNames !== undefined && transformedNode.name && !allowedSchemaNames.has(transformedNode.name)) {
+        return
+      }
+
       const options = resolver.resolveOptions(transformedNode, {
         options: plugin.options,
         exclude,

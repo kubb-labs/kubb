@@ -769,6 +769,65 @@ export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: 
 }
 
 /**
+ * Collects all top-level schema names (by name) transitively used by a set of operations.
+ *
+ * An operation uses a schema when any of its parameters, request body content, or responses
+ * reference it — directly or transitively through other named schemas.
+ *
+ * Use this to determine which schemas from `components/schemas` are actually reachable
+ * from a filtered set of operations, so unreferenced schemas can be skipped during generation.
+ *
+ * @example
+ * ```ts
+ * const usedNames = collectUsedSchemaNames(includedOps, inputNode.schemas)
+ * // only generate schemas whose name is in usedNames
+ * ```
+ */
+export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schemas: ReadonlyArray<SchemaNode>): Set<string> {
+  const schemaMap = new Map<string, SchemaNode>()
+  for (const schema of schemas) {
+    if (schema.name) {
+      schemaMap.set(schema.name, schema)
+    }
+  }
+
+  const result = new Set<string>()
+
+  function visitSchema(schema: SchemaNode): void {
+    const directRefs = collectReferencedSchemaNames(schema)
+    for (const name of directRefs) {
+      if (!result.has(name)) {
+        result.add(name)
+        const namedSchema = schemaMap.get(name)
+        if (namedSchema) {
+          visitSchema(namedSchema)
+        }
+      }
+    }
+  }
+
+  for (const op of operations) {
+    for (const param of op.parameters) {
+      visitSchema(param.schema)
+    }
+    if (op.requestBody?.content) {
+      for (const content of op.requestBody.content) {
+        if (content.schema) {
+          visitSchema(content.schema)
+        }
+      }
+    }
+    for (const response of op.responses) {
+      if (response.schema) {
+        visitSchema(response.schema)
+      }
+    }
+  }
+
+  return result
+}
+
+/**
  * Identifies all schemas that participate in circular dependency chains, including direct self-loops.
  *
  * Returns a Set of schema names with circular dependencies. Use this to wrap recursive schema positions
