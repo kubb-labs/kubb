@@ -165,10 +165,10 @@ describe('getBarrelFiles', () => {
     })
   })
 
-  describe("strategy: 'propagate'", () => {
+  describe('strategy: nested (nested: true)', () => {
     it('generates intermediate barrels for each subdirectory, root exports sub-index files', () => {
       const files = [makeFile(`${ROOT}/pets/listPets.ts`), makeFile(`${ROOT}/users/getUser.ts`)]
-      const barrels = getBarrelFiles({ outputPath: ROOT, files, barrelType: 'propagate' })
+      const barrels = getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all', nested: true })
 
       expect(barrels).toHaveLength(3)
       expect(barrels.find((b) => b.path === `${ROOT}/index.ts`)!.exports.map((e) => e.path)).toEqual(
@@ -178,7 +178,7 @@ describe('getBarrelFiles', () => {
     })
 
     it('returns empty when there are no files', () => {
-      const barrels = getBarrelFiles({ outputPath: ROOT, files: [], barrelType: 'propagate' })
+      const barrels = getBarrelFiles({ outputPath: ROOT, files: [], barrelType: 'all', nested: true })
       expect(barrels).toHaveLength(0)
     })
   })

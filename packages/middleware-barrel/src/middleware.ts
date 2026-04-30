@@ -2,7 +2,7 @@ import path from 'node:path'
 import { resolve } from 'node:path'
 import { defineMiddleware } from '@kubb/core'
 import type { Middleware } from '@kubb/core'
-import type { BarrelType, RootBarrelType } from './types.ts'
+import type { BarrelConfig, PluginBarrelConfig } from './types.ts'
 import { getPluginOutputPrefix, isExcludedPath } from './utils/excludedPaths.ts'
 import { getBarrelFiles } from './utils/getBarrelFiles.ts'
 
@@ -11,29 +11,27 @@ declare global {
     interface PluginOptionsRegistry {
       output: {
         /**
-         * Re-export style for this plugin's barrel file.
+         * Barrel configuration for this plugin's output.
          * Set to `false` to disable barrel generation for this plugin entirely; doing so also
          * excludes the plugin's files from the root barrel.
          *
-         * Falls back to `config.output.barrelType` when omitted.
+         * Falls back to `config.output.barrel` when omitted.
          *
-         * @default 'named'
+         * @default { type: 'named' }
          */
-        barrelType?: BarrelType | false
+        barrel?: PluginBarrelConfig | false
       }
     }
     interface ConfigOptionsRegistry {
       output: {
         /**
-         * Re-export style for the root barrel file at `config.output.path/index.ts`.
+         * Barrel configuration for the root barrel file at `config.output.path/index.ts`.
          * Set to `false` to disable root barrel generation. Individual plugins can override
-         * this via their own `output.barrelType`.
+         * this via their own `output.barrel`.
          *
-         * `'propagate'` is not available here — it only applies at the per-plugin level.
-         *
-         * @default 'named'
+         * @default { type: 'named' }
          */
-        barrelType?: RootBarrelType | false
+        barrel?: BarrelConfig | false
       }
     }
   }
@@ -42,8 +40,8 @@ declare global {
 /**
  * Generates `index.ts` barrel files for each plugin and a root barrel at `config.output.path/index.ts`.
  *
- * Each plugin inherits `output.barrelType` from `config.output.barrelType` (defaults to `'named'`).
- * Set `barrelType: false` on a plugin to disable its barrel and exclude it from the root barrel.
+ * Each plugin inherits `output.barrel` from `config.output.barrel` (defaults to `{ type: 'named' }`).
+ * Set `barrel: false` on a plugin to disable its barrel and exclude it from the root barrel.
  *
  * @example
  * ```ts
@@ -51,9 +49,9 @@ declare global {
  * import { middlewareBarrel } from '@kubb/middleware-barrel'
  *
  * export default defineConfig({
- *   output: { path: 'src/gen', barrelType: 'named' },
+ *   output: { path: 'src/gen', barrel: { type: 'named' } },
  *   plugins: [
- *     pluginTs({ output: { path: 'types', barrelType: 'all' } }),
+ *     pluginTs({ output: { path: 'types', barrel: { type: 'all' } } }),
  *     pluginZod({ output: { path: 'schemas' } }),
  *   ],
  *   middleware: [middlewareBarrel()],
@@ -73,12 +71,27 @@ export const middlewareBarrel = defineMiddleware(() => {
     name: middlewareBarrelName,
     hooks: {
       'kubb:plugin:end'({ plugin, config, files, upsertFile }) {
-        const barrelType = plugin.options.output?.barrelType ?? config.output.barrelType ?? 'named'
+        const pluginBarrel = plugin.options.output?.barrel
+        const configBarrel = config.output.barrel
+        const defaultBarrel = { type: 'named' } as const
 
-        if (!barrelType) {
+        let barrelConfig: PluginBarrelConfig | false
+        if (pluginBarrel !== undefined) {
+          barrelConfig = pluginBarrel
+        } else if (configBarrel !== undefined) {
+          // Root config barrel doesn't have nested, so we add it
+          barrelConfig = configBarrel === false ? false : { ...configBarrel, nested: false }
+        } else {
+          barrelConfig = defaultBarrel
+        }
+
+        if (barrelConfig === false) {
           excludedPrefixes.add(getPluginOutputPrefix(plugin, config))
           return
         }
+
+        const barrelType = barrelConfig.type
+        const nested = barrelConfig.nested ?? false
 
         const base = resolve(config.root, config.output.path)
         const target = resolve(base, plugin.options.output.path)
@@ -90,6 +103,7 @@ export const middlewareBarrel = defineMiddleware(() => {
           outputPath: target,
           files,
           barrelType,
+          nested,
           recursive: true,
         })
 
@@ -98,17 +112,19 @@ export const middlewareBarrel = defineMiddleware(() => {
         }
       },
       'kubb:plugins:end'({ files, config, upsertFile }) {
-        const rootBarrelType = config.output.barrelType ?? 'named'
+        const barrelConfig = config.output.barrel ?? { type: 'named' }
 
         const filteredFiles = excludedPrefixes.size === 0 ? files : files.filter((f) => !isExcludedPath(f.path, excludedPrefixes))
         excludedPrefixes.clear()
 
-        if (!rootBarrelType) return
+        if (barrelConfig === false) return
+
+        const barrelType = barrelConfig.type
 
         const rootBarrelFiles = getBarrelFiles({
           outputPath: resolve(config.root, config.output.path),
           files: filteredFiles,
-          barrelType: rootBarrelType,
+          barrelType,
         })
 
         if (rootBarrelFiles.length > 0) {

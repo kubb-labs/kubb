@@ -267,7 +267,7 @@ declare global {
      *   namespace Kubb {
      *     interface ConfigOptionsRegistry {
      *       output: {
-     *         barrelType?: import('./types.ts').BarrelType | false
+     *         barrel?: import('./types.ts').BarrelConfig | false
      *       }
      *     }
      *   }
@@ -288,7 +288,7 @@ declare global {
      *   namespace Kubb {
      *     interface PluginOptionsRegistry {
      *       output: {
-     *         barrelType?: import('./types.ts').BarrelType | false
+     *         barrel?: import('./types.ts').PluginBarrelConfig | false
      *       }
      *     }
      *   }

@@ -15,13 +15,13 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
     : NormalizeConfig<TConfig>
 
 /**
- * Applies default adapter, parsers, middleware, `output.barrelType`, `output.format`, and `output.lint` to a single user config when not set.
+ * Applies default adapter, parsers, middleware, `output.barrel`, `output.format`, and `output.lint` to a single user config when not set.
  *
  * - `adapter` defaults to `adapterOas()`
  * - `parsers` defaults to `[parserTs, parserTsx]`
  * - `middleware` defaults to `[middlewareBarrel()]`
- * - `output.barrelType` defaults to `'named'` **only when `middlewareBarrel` is part of `middleware`**.
- *   When the user provides a custom middleware list without `middlewareBarrel`, `barrelType` is left untouched.
+ * - `output.barrel` defaults to `{ type: 'named' }` **only when `middlewareBarrel` is part of `middleware`**.
+ *   When the user provides a custom middleware list without `middlewareBarrel`, `barrel` is left untouched.
  * - `output.format` defaults to `'auto'`
  * - `output.lint` defaults to `'auto'`
  */
@@ -30,8 +30,8 @@ function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
   const hasBarrelMiddleware = middleware.some((m) => m.name === middlewareBarrelName)
 
   const output = { ...config.output }
-  if (hasBarrelMiddleware && output.barrelType === undefined) {
-    output.barrelType = 'named'
+  if (hasBarrelMiddleware && output.barrel === undefined) {
+    output.barrel = { type: 'named' }
   }
   if (output.format === undefined) {
     output.format = false
