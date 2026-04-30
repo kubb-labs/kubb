@@ -1,5 +1,16 @@
 # @kubb/plugin-msw
 
+## 4.37.5
+
+### Patch Changes
+
+- Updated dependencies [[`a390935`](https://github.com/kubb-labs/kubb/commit/a3909357370290f9ad5b4c40ce77aa94599856a5)]:
+  - @kubb/plugin-faker@4.37.5
+  - @kubb/core@4.37.5
+  - @kubb/oas@4.37.5
+  - @kubb/plugin-oas@4.37.5
+  - @kubb/plugin-ts@4.37.5
+
 ## 4.37.4
 
 ### Patch Changes
