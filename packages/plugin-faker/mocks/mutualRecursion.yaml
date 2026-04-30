@@ -1,0 +1,50 @@
+openapi: 3.0.0
+info:
+  title: Mutual Recursion Test
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    Pet:
+      oneOf:
+        - $ref: '#/components/schemas/Cat'
+        - $ref: '#/components/schemas/Dog'
+      discriminator:
+        propertyName: __typename
+        mapping:
+          Cat: '#/components/schemas/Cat'
+          Dog: '#/components/schemas/Dog'
+    Cat:
+      type: object
+      required:
+        - id
+        - __typename
+      properties:
+        id:
+          type: integer
+          format: int64
+        __typename:
+          type: string
+          enum:
+            - Cat
+        archEnemy:
+          $ref: '#/components/schemas/Pet'
+    Dog:
+      type: object
+      required:
+        - id
+        - __typename
+      properties:
+        id:
+          type: integer
+          format: int64
+        __typename:
+          type: string
+          enum:
+            - Dog
+        archEnemy:
+          $ref: '#/components/schemas/Pet'
+        friends:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pet'

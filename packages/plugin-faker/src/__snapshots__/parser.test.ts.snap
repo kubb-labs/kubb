@@ -70,7 +70,7 @@ exports[`faker parse > 'objectObjectEnum' 1`] = `"{"prop1": {"prop2": faker.help
 
 exports[`faker parse > 'objectOptional' 1`] = `"{"firstName": faker.string.alpha({ length: 2 }),"address": faker.string.alpha()}"`;
 
-exports[`faker parse > 'objectWithNullableEnumRef' 1`] = `"{"category": createIssueCategory()}"`;
+exports[`faker parse > 'objectWithNullableEnumRef' 1`] = `"{get "category"() { return createIssueCategory() }}"`;
 
 exports[`faker parse > 'primitiveDate' 1`] = `"faker.date.anytime()"`;
 
