@@ -1936,9 +1936,7 @@ describe('collectUsedSchemaNames', () => {
   const itemsResponseSchema = createSchema({
     type: 'object',
     name: 'ItemsResponse',
-    properties: [
-      createProperty({ name: 'items', required: false, schema: createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }) }),
-    ],
+    properties: [createProperty({ name: 'items', required: false, schema: createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }) })],
   })
   const ordersResponseSchema = createSchema({ type: 'object', name: 'OrdersResponse', properties: [] })
 
@@ -1949,7 +1947,14 @@ describe('collectUsedSchemaNames', () => {
     method: 'GET',
     path: '/items',
     tags: ['items'],
-    parameters: [createParameter({ name: 'status', in: 'query', required: false, schema: createSchema({ type: 'ref', name: 'ItemStatus', ref: '#/components/schemas/ItemStatus' }) })],
+    parameters: [
+      createParameter({
+        name: 'status',
+        in: 'query',
+        required: false,
+        schema: createSchema({ type: 'ref', name: 'ItemStatus', ref: '#/components/schemas/ItemStatus' }),
+      }),
+    ],
     responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'ItemsResponse', ref: '#/components/schemas/ItemsResponse' }) })],
   })
 
@@ -1958,8 +1963,17 @@ describe('collectUsedSchemaNames', () => {
     method: 'GET',
     path: '/orders',
     tags: ['orders'],
-    parameters: [createParameter({ name: 'status', in: 'query', required: false, schema: createSchema({ type: 'ref', name: 'OrderStatus', ref: '#/components/schemas/OrderStatus' }) })],
-    responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'OrdersResponse', ref: '#/components/schemas/OrdersResponse' }) })],
+    parameters: [
+      createParameter({
+        name: 'status',
+        in: 'query',
+        required: false,
+        schema: createSchema({ type: 'ref', name: 'OrderStatus', ref: '#/components/schemas/OrderStatus' }),
+      }),
+    ],
+    responses: [
+      createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'OrdersResponse', ref: '#/components/schemas/OrdersResponse' }) }),
+    ],
   })
 
   it('collects schema names referenced by parameters and responses', () => {
@@ -2021,7 +2035,9 @@ describe('collectUsedSchemaNames', () => {
       parameters: [],
       requestBody: {
         required: true,
-        content: [{ contentType: 'application/json', schema: createSchema({ type: 'ref', name: 'CreateItemBody', ref: '#/components/schemas/CreateItemBody' }) }],
+        content: [
+          { contentType: 'application/json', schema: createSchema({ type: 'ref', name: 'CreateItemBody', ref: '#/components/schemas/CreateItemBody' }) },
+        ],
       },
       responses: [],
     })
