@@ -165,7 +165,7 @@ describe('getBarrelFiles', () => {
     })
   })
 
-  describe("strategy: nested (nested: true)", () => {
+  describe('strategy: nested (nested: true)', () => {
     it('generates intermediate barrels for each subdirectory, root exports sub-index files', () => {
       const files = [makeFile(`${ROOT}/pets/listPets.ts`), makeFile(`${ROOT}/users/getUser.ts`)]
       const barrels = getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all', nested: true })
