@@ -751,7 +751,19 @@ export function resolveRefName(node: SchemaNode | undefined): string | undefined
  * Refs are followed by name only — the resolved `node.schema` is not traversed inline.
  * Use this to determine schema dependencies, build reference graphs, or detect what schemas need to be emitted.
  *
- * @note Returns a Set of schema names for efficient membership testing.
+ * @example Collect refs from a single schema
+ * ```ts
+ * const names = collectReferencedSchemaNames(petSchema)
+ * // → Set { 'Category', 'Tag' }
+ * ```
+ *
+ * @example Accumulate refs from multiple schemas into one set
+ * ```ts
+ * const out = new Set<string>()
+ * for (const schema of schemas) {
+ *   collectReferencedSchemaNames(schema, out)
+ * }
+ * ```
  */
 export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: Set<string> = new Set()): Set<string> {
   if (!node) return out
@@ -766,6 +778,66 @@ export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: 
     },
   })
   return out
+}
+
+/**
+ * Collects the names of all top-level schemas transitively used by a set of operations.
+ *
+ * An operation uses a schema when any of its parameters, request body content, or responses
+ * reference it — directly or indirectly through other named schemas.
+ * The walk is iterative and safe against reference cycles.
+ *
+ * Use this together with `include` filters to determine which schemas from `components/schemas`
+ * are reachable from the allowed operations, so that schemas used only by excluded operations
+ * are not generated.
+ *
+ * @example Only generate schemas referenced by included operations
+ * ```ts
+ * const includedOps = inputNode.operations.filter(op => resolver.resolveOptions(op, { options, include }) !== null)
+ * const allowed = collectUsedSchemaNames(includedOps, inputNode.schemas)
+ *
+ * for (const schema of inputNode.schemas) {
+ *   if (schema.name && !allowed.has(schema.name)) continue
+ *   // … generate schema
+ * }
+ * ```
+ *
+ * @example Check whether a specific schema is needed
+ * ```ts
+ * const allowed = collectUsedSchemaNames(includedOps, inputNode.schemas)
+ * allowed.has('OrderStatus') // false when no included operation references OrderStatus
+ * ```
+ */
+export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schemas: ReadonlyArray<SchemaNode>): Set<string> {
+  const schemaMap = new Map<string, SchemaNode>()
+  for (const schema of schemas) {
+    if (schema.name) {
+      schemaMap.set(schema.name, schema)
+    }
+  }
+
+  const result = new Set<string>()
+
+  function visitSchema(schema: SchemaNode): void {
+    const directRefs = collectReferencedSchemaNames(schema)
+    for (const name of directRefs) {
+      if (!result.has(name)) {
+        result.add(name)
+        const namedSchema = schemaMap.get(name)
+        if (namedSchema) {
+          visitSchema(namedSchema)
+        }
+      }
+    }
+  }
+
+  for (const op of operations) {
+    for (const schema of collect<SchemaNode>(op, { depth: 'shallow', schema: (node) => node })) {
+      visitSchema(schema)
+    }
+  }
+
+  return result
 }
 
 /**

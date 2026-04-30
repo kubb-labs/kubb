@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { createFunctionParameter, createOperation, createParameter, createParamsType, createProperty, createSchema } from './factory.ts'
+import { createFunctionParameter, createOperation, createParameter, createParamsType, createProperty, createResponse, createSchema } from './factory.ts'
 import type { OperationNode, ParameterNode } from './types.ts'
 import type { OperationParamsResolver } from './utils.ts'
 import {
   caseParams,
   collectReferencedSchemaNames,
+  collectUsedSchemaNames,
   containsCircularRef,
   createDiscriminantNode,
   createOperationParams,
@@ -1926,5 +1927,118 @@ describe('containsCircularRef', () => {
     const schema = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' })
 
     expect(containsCircularRef(schema, { circularSchemas: new Set() })).toBe(false)
+  })
+})
+
+describe('collectUsedSchemaNames', () => {
+  const itemStatusSchema = createSchema({ type: 'enum', name: 'ItemStatus', enumValues: ['ACTIVE', 'INACTIVE'] })
+  const orderStatusSchema = createSchema({ type: 'enum', name: 'OrderStatus', enumValues: ['NEW', 'SHIPPED'] })
+  const itemsResponseSchema = createSchema({
+    type: 'object',
+    name: 'ItemsResponse',
+    properties: [createProperty({ name: 'items', required: false, schema: createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }) })],
+  })
+  const ordersResponseSchema = createSchema({ type: 'object', name: 'OrdersResponse', properties: [] })
+
+  const schemas = [itemStatusSchema, orderStatusSchema, itemsResponseSchema, ordersResponseSchema]
+
+  const getItemsOp = createOperation({
+    operationId: 'getItems',
+    method: 'GET',
+    path: '/items',
+    tags: ['items'],
+    parameters: [
+      createParameter({
+        name: 'status',
+        in: 'query',
+        required: false,
+        schema: createSchema({ type: 'ref', name: 'ItemStatus', ref: '#/components/schemas/ItemStatus' }),
+      }),
+    ],
+    responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'ItemsResponse', ref: '#/components/schemas/ItemsResponse' }) })],
+  })
+
+  const getOrdersOp = createOperation({
+    operationId: 'getOrders',
+    method: 'GET',
+    path: '/orders',
+    tags: ['orders'],
+    parameters: [
+      createParameter({
+        name: 'status',
+        in: 'query',
+        required: false,
+        schema: createSchema({ type: 'ref', name: 'OrderStatus', ref: '#/components/schemas/OrderStatus' }),
+      }),
+    ],
+    responses: [
+      createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'OrdersResponse', ref: '#/components/schemas/OrdersResponse' }) }),
+    ],
+  })
+
+  it('collects schema names referenced by parameters and responses, and excludes unreachable schemas', () => {
+    const result = collectUsedSchemaNames([getItemsOp], schemas)
+
+    expect(result).toEqual(new Set(['ItemStatus', 'ItemsResponse']))
+    expect(result.has('OrderStatus')).toBe(false)
+    expect(result.has('OrdersResponse')).toBe(false)
+  })
+
+  it('collects schema names from multiple operations', () => {
+    const result = collectUsedSchemaNames([getItemsOp, getOrdersOp], schemas)
+
+    expect(result).toEqual(new Set(['ItemStatus', 'ItemsResponse', 'OrderStatus', 'OrdersResponse']))
+  })
+
+  it('returns an empty set when the operations list is empty', () => {
+    expect(collectUsedSchemaNames([], schemas)).toEqual(new Set())
+  })
+
+  it('follows transitive schema references', () => {
+    const tagSchema = createSchema({ type: 'enum', name: 'Tag', enumValues: ['tech', 'health'] })
+    const itemSchema = createSchema({
+      type: 'object',
+      name: 'Item',
+      properties: [createProperty({ name: 'tag', required: false, schema: createSchema({ type: 'ref', name: 'Tag', ref: '#/components/schemas/Tag' }) })],
+    })
+    const responseSchema = createSchema({
+      type: 'object',
+      name: 'ItemDetail',
+      properties: [createProperty({ name: 'item', required: false, schema: createSchema({ type: 'ref', name: 'Item', ref: '#/components/schemas/Item' }) })],
+    })
+    const detailOp = createOperation({
+      operationId: 'getItemDetail',
+      method: 'GET',
+      path: '/items/{id}',
+      tags: ['items'],
+      parameters: [],
+      responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'ItemDetail', ref: '#/components/schemas/ItemDetail' }) })],
+    })
+
+    const result = collectUsedSchemaNames([detailOp], [tagSchema, itemSchema, responseSchema])
+
+    expect(result).toEqual(new Set(['ItemDetail', 'Item', 'Tag']))
+  })
+
+  it('collects schemas referenced in request body content', () => {
+    const bodySchema = createSchema({ type: 'object', name: 'CreateItemBody', properties: [] })
+    const createItemOp = createOperation({
+      operationId: 'createItem',
+      method: 'POST',
+      path: '/items',
+      tags: ['items'],
+      parameters: [],
+      requestBody: {
+        required: true,
+        content: [
+          { contentType: 'application/json', schema: createSchema({ type: 'ref', name: 'CreateItemBody', ref: '#/components/schemas/CreateItemBody' }) },
+        ],
+      },
+      responses: [],
+    })
+
+    const result = collectUsedSchemaNames([createItemOp], [bodySchema])
+
+    expect(result).toEqual(new Set(['CreateItemBody']))
   })
 })

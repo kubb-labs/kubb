@@ -33,6 +33,7 @@ export type * from './types.ts'
 export {
   caseParams,
   collectReferencedSchemaNames,
+  collectUsedSchemaNames,
   containsCircularRef,
   createDiscriminantNode,
   createOperationParams,
