@@ -652,6 +652,16 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   const exportedNames = new Set(exports.flatMap((e) => (Array.isArray(e.name) ? e.name : e.name ? [e.name] : [])))
   const isUsed = (importName: string): boolean => !source || source.includes(importName) || exportedNames.has(importName)
 
+  // Memoize object import names so the same logical (propertyName, name) pair always
+  // reuses the same object reference — Set-based deduplication then works correctly.
+  const importNameMemo = new Map<string, { propertyName: string; name?: string }>()
+  const canonicalizeName = (n: string | { propertyName: string; name?: string }): string | { propertyName: string; name?: string } => {
+    if (typeof n === 'string') return n
+    const key = `${n.propertyName}:${n.name ?? ''}`
+    if (!importNameMemo.has(key)) importNameMemo.set(key, n)
+    return importNameMemo.get(key)!
+  }
+
   const result: Array<ImportNode> = []
   // Accumulates array-named imports keyed by `path:isTypeOnly` for name-merging
   const namedByPath = new Map<string, ImportNode>()
@@ -669,7 +679,7 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
     let { name } = curr
 
     if (Array.isArray(name)) {
-      name = [...new Set(name)].filter((item) => (typeof item === 'string' ? isUsed(item) : isUsed(item.name ?? item.propertyName)))
+      name = [...new Set(name.map(canonicalizeName))].filter((item) => (typeof item === 'string' ? isUsed(item) : isUsed(item.name ?? item.propertyName)))
       if (!name.length) continue
 
       const key = pathTypeKey(path, isTypeOnly)
