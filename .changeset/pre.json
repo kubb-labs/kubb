@@ -16,6 +16,7 @@
     "unplugin-kubb": "5.0.0-alpha.74"
   },
   "changesets": [
+    "adapter-oas-integer-type-bigint-default",
     "add-adapter-document-field",
     "add-code-ast-nodes",
     "add-collision-detection-option",
@@ -80,6 +81,7 @@
     "node-22-minimum",
     "output-format-lint-auto-default",
     "preserve-union-kind-semantics",
+    "refactor-barrel-config-api",
     "refactor-middleware-barrel",
     "remove-deprecated-plugin-checks",
     "remove-legacy-plugin-types",
