@@ -50,6 +50,7 @@ Use the format `NNNN_short_slug.md` where `NNNN` is a zero-padded sequential num
 
 ## Records
 
-| ADR                                      | Title                         | Status   |
-| ---------------------------------------- | ----------------------------- | -------- |
-| [0001](./0001_include_filter.md)         | Include filter schema scoping | Accepted |
+| ADR                                                          | Title                                            | Status   |
+| ------------------------------------------------------------ | ------------------------------------------------ | -------- |
+| [0001](./0001_include_filter.md)                             | Include filter schema scoping                    | Accepted |
+| [0002](./0002_generic_agent_plugins_adapters.md)             | Generic agent for arbitrary plugins and adapters | Proposed |
