@@ -2,6 +2,22 @@
 
 This document covers the changes needed in the `@kubb/agent` package (`packages/agent/`) to fully support Kubb Studio's v5 migration.
 
+## Generic Agent Design
+
+The agent does not have any context about the options of a plugin or adapter. We ship default plugins and a default adapter (`@kubb/adapter-oas`), but the Kubb community can write their own plugins and adapters. Those third-party plugins and adapters must be secure and defined in the Docker image, which exposes what is possible to set as options in Kubb Studio.
+
+What we want is a **generic agent that can work with kubb with any plugins and any adapter** — without the agent itself knowing the specific option shapes ahead of time.
+
+### Implications for the agent
+
+- **No hard-coded plugin/adapter option types.** `JSONKubbConfig` should treat plugin and adapter `options` as opaque `object`/`unknown` blobs. The agent must not import plugin packages just to type their options.
+- **Discovery happens in the Docker image, not the agent.** The set of available plugins and adapters — and the JSON schema of their options that Studio renders forms from — is determined by what is installed in the Docker image. The agent only resolves and forwards what is already present.
+- **Trust boundary is the image.** Because the image author chose which plugins/adapters to install, anything the agent loads via `resolvePlugins`/`resolveAdapter` is implicitly trusted. The agent should not download or `npm install` plugins at runtime.
+- **Schema surfacing.** Each plugin/adapter ships its own option schema (e.g. via the `plugin-*.yaml` / `adapter-*.yaml` files in `schemas/`). Studio reads those schemas — served by the agent from the installed packages — to render UI. The agent's job is to enumerate installed plugins/adapters and serve their schemas, not to hard-code them.
+- **Forward, don't validate option contents.** The agent passes Studio's `options` blob straight to the plugin/adapter factory. Validation against the plugin's own schema is the plugin's responsibility, not the agent's.
+
+This generic design is the reason Step 1's `JSONKubbConfig.adapter` block stays minimal and open-ended, and the reason `resolvePlugins`/`resolveAdapter` work off package names alone rather than a curated allow-list.
+
 ## Affected Files
 
 | File | Change |
