@@ -1,43 +1,42 @@
-# Kubb v5 — @kubb/agent Changes for Studio Support
+# Kubb v5: agent changes for Studio support
 
 This document covers the changes needed in the `@kubb/agent` package (`packages/agent/`) to fully support Kubb Studio's v5 migration.
 
-## Generic Agent Design
+## Generic agent design
 
-The agent does not have any context about the options of a plugin or adapter. We ship default plugins and a default adapter (`@kubb/adapter-oas`), but the Kubb community can write their own plugins and adapters. Those third-party plugins and adapters must be secure and defined in the Docker image, which exposes what is possible to set as options in Kubb Studio.
+The agent has no built-in knowledge of plugin or adapter options. We ship default plugins and a default adapter (`@kubb/adapter-oas`); the Kubb community ships their own plugins and adapters. Whatever is installed in the Docker image is what Studio can configure. Anything outside the image is not loadable.
 
-What we want is a **generic agent that can work with kubb with any plugins and any adapter** — without the agent itself knowing the specific option shapes ahead of time.
+The goal is a single agent binary that works against any plugin and any adapter without per-plugin code in the agent itself.
 
-### Implications for the agent
+That goal pushes a few rules:
 
-- **No hard-coded plugin/adapter option types.** `JSONKubbConfig` should treat plugin and adapter `options` as opaque `object`/`unknown` blobs. The agent must not import plugin packages just to type their options.
-- **Discovery happens in the Docker image, not the agent.** The set of available plugins and adapters — and the JSON schema of their options that Studio renders forms from — is determined by what is installed in the Docker image. The agent only resolves and forwards what is already present.
-- **Trust boundary is the image.** Because the image author chose which plugins/adapters to install, anything the agent loads via `resolvePlugins`/`resolveAdapter` is implicitly trusted. The agent should not download or `npm install` plugins at runtime.
-- **Schema surfacing.** Each plugin/adapter ships its own option schema (e.g. via the `plugin-*.yaml` / `adapter-*.yaml` files in `schemas/`). Studio reads those schemas — served by the agent from the installed packages — to render UI. The agent's job is to enumerate installed plugins/adapters and serve their schemas, not to hard-code them.
-- **Forward, don't validate option contents.** The agent passes Studio's `options` blob straight to the plugin/adapter factory. Validation against the plugin's own schema is the plugin's responsibility, not the agent's.
+- `JSONKubbConfig` treats plugin and adapter `options` as opaque `object` blobs. The agent does not import plugin packages to type their options.
+- The set of available plugins and adapters is determined by what is installed in the Docker image. The agent enumerates installed packages at startup; it never installs them at runtime.
+- Each plugin and adapter ships its own option schema in `plugin-*.yaml` or `adapter-*.yaml` under `schemas/`. Studio reads those schemas (served by the agent from the installed packages) and renders the configuration UI from them.
+- The agent forwards Studio's `options` blob unchanged to the plugin or adapter factory. Validation against the plugin's schema is the plugin's responsibility.
 
-This generic design is the reason Step 1's `JSONKubbConfig.adapter` block stays minimal and open-ended, and the reason `resolvePlugins`/`resolveAdapter` work off package names alone rather than a curated allow-list.
+The trust boundary is the image. Operators who need a different plugin set rebuild and redeploy the image.
 
-See [ADR-0002](./adr/0002_kubb_agent.md) for the full decision record.
+See [ADR-0002](./adr/0002_kubb_agent.md) for the full decision record covering the agent ↔ Studio protocol, machine binding, permissions, sandbox mode, and the security model.
 
-## Affected Files
+## Affected files
 
 | File | Change |
 |------|--------|
-| `server/types/agent.ts` | Extend `JSONKubbConfig` to expose adapter/middleware options; align `KubbHooks` data tuples |
+| `server/types/agent.ts` | Extend `JSONKubbConfig` to expose adapter and middleware options; align `KubbHooks` data tuples |
 | `server/utils/resolvePlugins.ts` | Verify v5 plugin package names resolve; add `@kubb/renderer-jsx` warning |
 | `server/utils/mergePlugins.ts` | Verify deep merge handles `barrel` object and v5 plugin option shapes |
-| `server/utils/connectStudio.ts` | Pass `adapter`/`middleware` from disk config; add v4 `barrelType` deprecation warning |
+| `server/utils/connectStudio.ts` | Pass `adapter` and `middleware` from disk config; add v4 `barrelType` deprecation warning |
 | `server/utils/generate.ts` | Pass `adapter` and `middleware` from merged config to `createKubb()` |
-| `server/utils/ws.ts` | Confirm `Map→Record` conversion; remove unnecessary `FileNode` double-cast |
+| `server/utils/ws.ts` | Confirm `Map → Record` conversion; remove unnecessary `FileNode` double-cast |
 
 ---
 
-## Step 1 — Extend `server/types/agent.ts`
+## Step 1: Extend `server/types/agent.ts`
 
 ### Extended `JSONKubbConfig`
 
-Currently `JSONKubbConfig` only carries `plugins` and `input`. In v5 the studio UI may want to configure top-level adapter settings (e.g. which server to use, content-type selection). Extend the type to support an optional `adapter` block:
+`JSONKubbConfig` currently carries `plugins` and `input`. In v5 the Studio UI may want to override top-level adapter settings such as which server to use or which content type to select. Extend the type with an optional `adapter` block:
 
 ```ts
 // Current
@@ -60,12 +59,11 @@ export type JSONKubbConfig = {
 }
 ```
 
-This allows Studio to expose server selection and content-type controls without touching the underlying `kubb.config.ts` on disk.
+This lets Studio expose server selection and content-type controls without touching the underlying `kubb.config.ts` on disk.
 
-### `KubbHooks` subset — align data shapes with `ws.ts`
+### `KubbHooks` subset: align data shapes with `ws.ts`
 
-Cross-check the locally defined `KubbHooks` event tuple shapes against what `setupEventsStream()` in `ws.ts` actually emits.
-Each event carries a single `ctx` object, mirroring the `[ctx: KubbXxxContext]` style used in `@kubb/core`:
+Cross-check the locally defined `KubbHooks` event tuple shapes against what `setupEventsStream()` in `ws.ts` actually emits. Each event carries a single `ctx` object, mirroring the `[ctx: KubbXxxContext]` style used in `@kubb/core`:
 
 | Event | `data` shape |
 |-------|--------------|
@@ -83,7 +81,7 @@ Each event carries a single `ctx` object, mirroring the `[ctx: KubbXxxContext]` 
 
 ---
 
-## Step 2 — Update `server/utils/connectStudio.ts`
+## Step 2: Update `server/utils/connectStudio.ts`
 
 ### Pass `adapter` and `middleware` from disk config
 
@@ -99,7 +97,7 @@ const finalConfig = {
   plugins,
 }
 
-// v5 — also pass adapter override from studio JSON
+// v5: also pass adapter override from studio JSON
 const finalConfig = {
   ...config,           // carries disk adapter, middleware, parsers
   root,
@@ -113,7 +111,7 @@ const finalConfig = {
 }
 ```
 
-Implement a `mergeAdapterOptions(disk, studio)` helper that deep-merges studio overrides onto the disk adapter options.
+Implement a `mergeAdapterOptions(disk, studio)` helper that deep-merges Studio overrides onto the disk adapter options.
 
 ### Deprecation warning for v4 `barrelType`
 
@@ -131,7 +129,7 @@ for (const plugin of config.plugins ?? []) {
 
 ---
 
-## Step 3 — Update `server/utils/generate.ts`
+## Step 3: Update `server/utils/generate.ts`
 
 The `createKubb()` call must forward the full v5 config including `adapter`, `middleware`, and `parsers`:
 
@@ -139,34 +137,36 @@ The `createKubb()` call must forward the full v5 config including `adapter`, `mi
 // v5 createKubb signature
 const kubb = createKubb({
   ...finalConfig,
-  // adapter: adapterOas({ ... })  ← comes from disk config or studio override
-  // middleware: [middlewareBarrel()]  ← comes from disk config
-  // parsers: [parserTs]  ← comes from disk config (defaults applied by createKubb)
+  // adapter: adapterOas({ ... })   from disk config or studio override
+  // middleware: [middlewareBarrel()]   from disk config
+  // parsers: [parserTs]   from disk config (defaults applied by createKubb)
 }, { hooks })
 ```
 
-No structural change is needed if `finalConfig` already spreads the disk config correctly (Step 2). Confirm that `createKubb` defaults the adapter to `adapterOas()` and parsers to `[parserTs]` when not provided — so sandbox mode (no disk config) still works without requiring an explicit adapter.
+No structural change is needed if `finalConfig` already spreads the disk config correctly (Step 2). Confirm that `createKubb` defaults the adapter to `adapterOas()` and parsers to `[parserTs]` when not provided, so sandbox mode (no disk config) still works without an explicit adapter.
 
 ---
 
-## Step 4 — Verify `server/utils/resolvePlugins.ts`
+## Step 4: Verify `server/utils/resolvePlugins.ts`
 
-1. **Plugin package names** — v5 plugins live in `kubb-labs/plugins`. Confirm camelCase heuristic resolves correctly:
-   - `@kubb/plugin-ts` → `pluginTs` ✓
-   - `@kubb/plugin-react-query` → `pluginReactQuery` ✓
-   - `@kubb/plugin-vue-query` → `pluginVueQuery` ✓
-   - `@kubb/plugin-mcp` → `pluginMcp` ✓
+Plugin package name resolution. v5 plugins live in `kubb-labs/plugins`. Confirm the camelCase heuristic resolves correctly:
 
-2. **`@kubb/renderer-jsx` peer** — required by all v5 plugins but not imported by the agent. If it is not resolvable, emit a clear warning on startup:
-   ```ts
-   try { await import('@kubb/renderer-jsx') } catch {
-     logger.warn('Missing peer dependency @kubb/renderer-jsx — install it alongside kubb plugins.')
-   }
-   ```
+- `@kubb/plugin-ts` → `pluginTs`
+- `@kubb/plugin-react-query` → `pluginReactQuery`
+- `@kubb/plugin-vue-query` → `pluginVueQuery`
+- `@kubb/plugin-mcp` → `pluginMcp`
+
+`@kubb/renderer-jsx` peer dependency. All v5 plugins require it, but the agent does not import it directly. When it is not resolvable, emit a clear warning on startup:
+
+```ts
+try { await import('@kubb/renderer-jsx') } catch {
+  logger.warn('Missing peer dependency @kubb/renderer-jsx. Install it alongside kubb plugins.')
+}
+```
 
 ---
 
-## Step 5 — Verify `server/utils/mergePlugins.ts`
+## Step 5: Verify `server/utils/mergePlugins.ts`
 
 Confirm the deep merge handles all v5 plugin option shapes correctly:
 
@@ -176,23 +176,24 @@ Confirm the deep merge handles all v5 plugin option shapes correctly:
 | `barrel: false` | n/a | `barrel: false` | Must not be overwritten by disk default |
 | `coercion` (plugin-zod) | n/a | `{ dates?: boolean; strings?: boolean }` (object) | Object replace |
 | `infinite` (react/vue-query) | n/a | `{ queryParam, nextParam, initialPageParam }` or `false` | `false` opt-out must survive merge |
-| `query`/`mutation` | n/a | `{ methods, importPath }` or `false` | Same |
+| `query`/`mutation` | n/a | `{ methods, importPath }` or `false` | Same as `infinite` |
 | `client` | `{ importPath }` | `{ client, dataReturnType, baseURL, bundle, … }` | Object replace |
 
-Add focused tests for the `barrel: false`, `infinite: false`, `query: false`, and `mutation: false` opt-out cases to confirm they are not silently overwritten by a deep merge with a disk config that enables them.
+Add focused tests for the `barrel: false`, `infinite: false`, `query: false`, and `mutation: false` opt-out cases. Confirm they are not silently overwritten by a deep merge with a disk config that enables them.
 
 ---
 
-## Step 6 — Confirm `server/utils/ws.ts`
+## Step 6: Confirm `server/utils/ws.ts`
 
-1. **`kubb:generation:end` sources** — confirm the `Map<string, string> → Record<string, string>` conversion runs before `JSON.stringify`.
-2. **`FileNode` cast** — if `safeBuild()` already returns `FileNode[]`, remove the `as unknown as FileNode[]` double-cast.
+`kubb:generation:end` sources. Confirm the `Map<string, string> → Record<string, string>` conversion runs before `JSON.stringify`.
+
+`FileNode` cast. If `safeBuild()` already returns `FileNode[]`, remove the `as unknown as FileNode[]` double-cast.
 
 ---
 
-## V5 Full Config Format Reference
+## v5 full config reference
 
-For context, the disk `kubb.config.ts` the agent loads can now use any of these top-level fields:
+For context, the disk `kubb.config.ts` the agent loads can use any of these top-level fields in v5:
 
 ```ts
 import { defineConfig } from 'kubb'
@@ -208,7 +209,7 @@ export default defineConfig({
     clean: true,
     format: 'prettier',          // 'auto' | 'prettier' | 'biome' | 'oxfmt' | false
     lint: 'eslint',              // 'auto' | 'eslint' | 'biome' | 'oxlint' | false
-    barrel: { type: 'named' },  // root barrel; requires middlewareBarrel()
+    barrel: { type: 'named' },   // root barrel; requires middlewareBarrel()
   },
   adapter: adapterOas({
     validate: true,
@@ -222,27 +223,27 @@ export default defineConfig({
     emptySchemaType: 'object',
   }),
   middleware: [middlewareBarrel()],  // generates index barrel files
-  plugins: [ pluginTs({ … }) ],
+  plugins: [pluginTs({})],
   hooks: { done: 'prettier --write src/gen' },
   devtools: { studioUrl: 'https://studio.kubb.dev' },
 })
 
 // defineConfig also accepts an array for multiple specs:
 export default defineConfig([
-  { name: 'v1', input: { path: './v1.yaml' }, … },
-  { name: 'v2', input: { path: './v2.yaml' }, … },
+  { name: 'v1', input: { path: './v1.yaml' } },
+  { name: 'v2', input: { path: './v2.yaml' } },
 ])
 ```
 
-**Agent impact:** when the disk config is an array, `loadConfig` returns the first entry. Consider adding support for a `name` selector so Studio can target a specific config in a multi-config setup.
+Agent impact: when the disk config is an array, `loadConfig` returns the first entry. Consider adding a `name` selector so Studio can target a specific config in a multi-config setup.
 
 ---
 
 ## Verification
 
-1. `vitest run` inside `packages/agent/` — all tests pass
-2. Start agent against a v5 `kubb.config.ts` with `adapter`, `middleware`, and multiple plugins — confirm `ConnectedMessage` carries the correct config shape
-3. Trigger generation from Studio — confirm all `kubb:` events stream and `kubb:generation:end` delivers `FileNode[]` with `Record<string, string>` sources
-4. Test `barrel: false`, `infinite: false`, and `query: false` opt-outs survive `mergePlugins`
-5. Confirm `@kubb/renderer-jsx` missing-peer warning appears when the package is not installed
-6. Confirm array `defineConfig` emits a clear warning/selection prompt rather than silently using index 0
+1. Run `vitest run` inside `packages/agent/`. All tests pass.
+2. Start the agent against a v5 `kubb.config.ts` with `adapter`, `middleware`, and multiple plugins. Confirm `ConnectedMessage` carries the correct config shape.
+3. Trigger generation from Studio. Confirm all `kubb:` events stream and `kubb:generation:end` delivers `FileNode[]` with `Record<string, string>` sources.
+4. Test that `barrel: false`, `infinite: false`, and `query: false` opt-outs survive `mergePlugins`.
+5. Confirm the `@kubb/renderer-jsx` missing-peer warning appears when the package is not installed.
+6. Confirm an array `defineConfig` emits a clear warning or selection prompt rather than silently using index 0.
