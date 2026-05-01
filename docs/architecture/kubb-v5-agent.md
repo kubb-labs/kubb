@@ -46,21 +46,22 @@ This allows Studio to expose server selection and content-type controls without 
 
 ### `KubbHooks` subset — align data shapes with `ws.ts`
 
-Cross-check the locally defined `KubbHooks` event tuple shapes against what `setupEventsStream()` in `ws.ts` actually emits:
+Cross-check the locally defined `KubbHooks` event tuple shapes against what `setupEventsStream()` in `ws.ts` actually emits.
+Each event carries a single `ctx` object, mirroring the `[ctx: KubbXxxContext]` style used in `@kubb/core`:
 
 | Event | `data` shape |
 |-------|--------------|
-| `kubb:plugin:start` | `[plugin: { name: string }]` |
-| `kubb:plugin:end` | `[plugin: { name: string }, meta: { duration: number; success: boolean }]` |
-| `kubb:files:processing:start` | `[{ total: number }]` |
-| `kubb:file:processing:update` | `[{ file: string; processed: number; total: number; percentage: number }]` |
-| `kubb:files:processing:end` | `[{ total: number }]` |
-| `kubb:generation:start` | `[{ name?: string; plugins: number }]` |
-| `kubb:generation:end` | `[config: Config, files: FileNode[], sources: Record<string, string>]` |
-| `kubb:info` | `[message: string, info?: unknown]` |
-| `kubb:success` | `[message: string, info?: unknown]` |
-| `kubb:warn` | `[message: string, info?: unknown]` |
-| `kubb:error` | `[{ message: string; stack?: string }]` |
+| `kubb:plugin:start` | `[ctx: { plugin: { name: string } }]` |
+| `kubb:plugin:end` | `[ctx: { plugin: { name: string }; duration: number; success: boolean }]` |
+| `kubb:files:processing:start` | `[ctx: { total: number }]` |
+| `kubb:file:processing:update` | `[ctx: { file: string; processed: number; total: number; percentage: number }]` |
+| `kubb:files:processing:end` | `[ctx: { total: number }]` |
+| `kubb:generation:start` | `[ctx: { name?: string; plugins: number }]` |
+| `kubb:generation:end` | `[ctx: { config: Config; files: FileNode[]; sources: Record<string, string> }]` |
+| `kubb:info` | `[ctx: { message: string; info?: string }]` |
+| `kubb:success` | `[ctx: { message: string; info?: string }]` |
+| `kubb:warn` | `[ctx: { message: string; info?: string }]` |
+| `kubb:error` | `[ctx: { message: string; stack?: string }]` |
 
 ---
 
