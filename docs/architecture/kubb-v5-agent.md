@@ -49,17 +49,12 @@ export type JSONKubbConfig = {
 export type JSONKubbConfig = {
   plugins?: Array<{ name: string; options: object }>
   input?: string  // sandbox only
-  /** Adapter-level overrides sent from Studio UI */
-  adapter?: {
-    serverIndex?: number
-    serverVariables?: Record<string, string>
-    contentType?: string
-    validate?: boolean
-  }
+  /** Adapter-level overrides sent from Studio UI — treated as an opaque blob, same as plugin options */
+  adapter?: object
 }
 ```
 
-This lets Studio expose server selection and content-type controls without touching the underlying `kubb.config.ts` on disk.
+Adapter options are adapter-specific and unknown to the agent. The agent treats them as an opaque `object` blob (same approach as plugin `options`) and forwards them unchanged to the adapter factory. The adapter validates its own options against its schema.
 
 ### `KubbHooks` subset: align data shapes with `ws.ts`
 
@@ -97,21 +92,20 @@ const finalConfig = {
   plugins,
 }
 
-// v5: also pass adapter override from studio JSON
+// v5: preserve adapter, middleware, and parsers from disk config
 const finalConfig = {
   ...config,           // carries disk adapter, middleware, parsers
   root,
   input: isSandbox ? { data: patch?.input ?? '' } : undefined,
   storage: effectiveWrite ? fsStorage() : memoryStorage(),
   plugins,
-  // Merge adapter options from studio JSON if provided
-  adapter: patch?.adapter
-    ? mergeAdapterOptions(config.adapter, patch.adapter)
-    : config.adapter,
+  // Studio may send an opaque adapter options blob; forward it unchanged to createKubb.
+  // The adapter factory is responsible for validating and merging its own options.
+  ...(patch?.adapter != null && { adapter: patch.adapter }),
 }
 ```
 
-Implement a `mergeAdapterOptions(disk, studio)` helper that deep-merges Studio overrides onto the disk adapter options.
+The agent does not know the shape of adapter options. It forwards the Studio-supplied blob as-is, just as it does for plugin options.
 
 ### Deprecation warning for v4 `barrelType`
 
