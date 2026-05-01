@@ -18,7 +18,7 @@ What we want is a **generic agent that can work with kubb with any plugins and a
 
 This generic design is the reason Step 1's `JSONKubbConfig.adapter` block stays minimal and open-ended, and the reason `resolvePlugins`/`resolveAdapter` work off package names alone rather than a curated allow-list.
 
-See [ADR-0002](./adr/0002_generic_agent_plugins_adapters.md) for the full decision record.
+See [ADR-0002](./adr/0002_kubb_agent.md) for the full decision record.
 
 ## Affected Files
 

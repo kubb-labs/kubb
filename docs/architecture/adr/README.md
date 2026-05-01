@@ -53,4 +53,4 @@ Use the format `NNNN_short_slug.md` where `NNNN` is a zero-padded sequential num
 | ADR                                                          | Title                                            | Status   |
 | ------------------------------------------------------------ | ------------------------------------------------ | -------- |
 | [0001](./0001_include_filter.md)                             | Include filter schema scoping                    | Accepted |
-| [0002](./0002_generic_agent_plugins_adapters.md)             | Generic agent for arbitrary plugins and adapters | Proposed |
+| [0002](./0002_kubb_agent.md)                                 | Kubb Agent — generic, image-scoped, AI-ready code generation server | Proposed |
