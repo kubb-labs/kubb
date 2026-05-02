@@ -4,8 +4,13 @@
   "title": "Kubb Parser Metadata",
   "description": "Schema for individual Kubb parser metadata files",
   "type": "object",
-  "required": ["id", "name", "description", "category", "type", "npmPackage"],
+  "required": ["kind", "id", "name", "description", "category", "type", "npmPackage"],
   "properties": {
+    "kind": {
+      "type": "string",
+      "const": "parser",
+      "description": "Extension kind — always 'parser' for this schema."
+    },
     "id": {
       "type": "string",
       "description": "Unique identifier for the parser (e.g., 'parser-ts')",

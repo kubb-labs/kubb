@@ -4,8 +4,13 @@
   "title": "Kubb Adapter Metadata",
   "description": "Schema for individual Kubb adapter metadata files",
   "type": "object",
-  "required": ["id", "name", "description", "category", "type", "npmPackage"],
+  "required": ["kind", "id", "name", "description", "category", "type", "npmPackage"],
   "properties": {
+    "kind": {
+      "type": "string",
+      "const": "adapter",
+      "description": "Extension kind — always 'adapter' for this schema."
+    },
     "id": {
       "type": "string",
       "description": "Unique identifier for the adapter (e.g., 'adapter-oas')",
