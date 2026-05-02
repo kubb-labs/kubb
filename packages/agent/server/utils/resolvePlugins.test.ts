@@ -166,7 +166,10 @@ describe('resolveMiddlewares', () => {
     vi.doMock('my-middleware', () => ({ myMiddleware: mockCustom }))
     const { resolveMiddlewares: resolve } = await import('./resolvePlugins.ts')
 
-    const result = await resolve([{ name: '@kubb/middleware-barrel', options: {} }, { name: 'my-middleware', options: {} }])
+    const result = await resolve([
+      { name: '@kubb/middleware-barrel', options: {} },
+      { name: 'my-middleware', options: {} },
+    ])
 
     expect(result).toHaveLength(2)
   })

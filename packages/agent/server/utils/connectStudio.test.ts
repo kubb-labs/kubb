@@ -359,9 +359,7 @@ describe('connectToStudio', () => {
 
   it('falls back to disk config middleware when payload has no middleware', async () => {
     const diskMiddleware = { name: 'disk-middleware', hooks: {} }
-    vi.mocked(loadConfig).mockResolvedValueOnce(
-      makeConfig({ middleware: [diskMiddleware] }) as any,
-    )
+    vi.mocked(loadConfig).mockResolvedValueOnce(makeConfig({ middleware: [diskMiddleware] }) as any)
 
     const payload = { plugins: [] }
 
