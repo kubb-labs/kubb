@@ -22,7 +22,7 @@ Two questions need an answer:
 
 ### Prior art
 
-The VitePress nav in kubb.dev currently groups the four types under **"Modules"** — a term already in conflict with JavaScript module semantics. The word **"Integrations"** is taken in the same nav for bundler integrations (Vite, Nuxt, Astro, webpack).
+The kubb.dev docs nav currently groups the four types under **"Modules"** — a term already in conflict with JavaScript module semantics. The word **"Integrations"** is taken in the same nav for bundler integrations (Vite, Nuxt, Astro, webpack).
 
 ### Reference: VS Code extensions
 
@@ -38,7 +38,7 @@ Claude (Anthropic) follows the same pattern: MCP server packages are distributed
 
 The collective name for plugin, adapter, middleware, and parser is **extension**.
 
-- User-facing: the VitePress nav label changes from "Modules" to "Extensions".
+- User-facing: the docs nav label changes from "Modules" to "Extensions".
 - Third-party guidance: "create an extension" is the top-level instruction.
 - The four sub-types keep their individual names. "Extension" is the package-level concept.
 
