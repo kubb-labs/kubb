@@ -74,7 +74,7 @@ examples:
             input: { path: './petstore.yaml' },
             output: { path: './src/gen' },
           })
-      - name: "Generated output"
+      - name: 'Generated output'
         lang: typescript
         twoslash: false
         code: |-
@@ -103,7 +103,7 @@ examples:
             input: { path: './petstore.yaml' },
             output: { path: './src/gen', barrel: { type: 'all' } },
           })
-      - name: "Generated output"
+      - name: 'Generated output'
         lang: typescript
         twoslash: false
         code: |-
@@ -132,7 +132,7 @@ examples:
             input: { path: './petstore.yaml' },
             output: { path: './src/gen', barrel: { type: 'named', nested: true } },
           })
-      - name: "Generated output (chained structure)"
+      - name: 'Generated output (chained structure)'
         lang: typescript
         twoslash: false
         code: |-
