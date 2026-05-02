@@ -1,12 +1,17 @@
 ARG NODE_VERSION=22
+# Space-separated list of @kubb/* packages to pre-install.
+# Override at build time to add or remove packages:
+#   docker build --build-arg KUBB_PACKAGES="kubb @kubb/core @kubb/plugin-ts @kubb/middleware-barrel" .
+ARG KUBB_PACKAGES="kubb @kubb/core @kubb/cli @kubb/adapter-oas @kubb/plugin-client @kubb/plugin-cypress @kubb/plugin-faker \
+                         @kubb/plugin-mcp @kubb/plugin-msw @kubb/plugin-oas @kubb/plugin-react-query @kubb/plugin-redoc \
+                         @kubb/plugin-ts @kubb/plugin-vue-query \
+                         @kubb/plugin-zod @kubb/middleware-barrel unplugin-kubb"
 
 # Stage 1: install kubb peer dependencies using a shell-capable image
 FROM node:${NODE_VERSION}-alpine AS installer
+ARG KUBB_PACKAGES
 WORKDIR /tmp
-RUN npm install kubb @kubb/core @kubb/cli @kubb/adapter-oas @kubb/plugin-client @kubb/plugin-cypress @kubb/plugin-faker \
-                         @kubb/plugin-mcp @kubb/plugin-msw @kubb/plugin-oas @kubb/plugin-react-query @kubb/plugin-redoc \
-                         @kubb/plugin-ts @kubb/plugin-vue-query \
-                         @kubb/plugin-zod kubb unplugin-kubb
+RUN npm install ${KUBB_PACKAGES}
 RUN adduser -D -u 1000 appuser
 
 # Stage 2: distroless runtime (no shell required)
