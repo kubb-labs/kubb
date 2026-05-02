@@ -21,6 +21,11 @@ export type JSONKubbConfig = {
    * Only possible to set when agent type is 'sandbox'
    */
   input?: string
+  /**
+   * Adapter-level overrides sent from Studio UI — treated as an opaque blob, same as plugin options.
+   * The agent forwards this unchanged to the adapter factory, which validates its own options.
+   */
+  adapter?: object
 }
 
 /**

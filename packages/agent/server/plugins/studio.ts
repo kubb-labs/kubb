@@ -4,6 +4,7 @@ import type { AgentConnectResponse } from '~/types/agent.ts'
 import { createAgentSession, registerAgent } from '~/utils/api.ts'
 import { connectToStudio } from '~/utils/connectStudio.ts'
 import { logger } from '~/utils/logger.ts'
+import { checkPeerDependencies } from '~/utils/resolvePlugins.ts'
 import { resolveStudioRuntimeConfig } from '~/utils/runtimeConfig.ts'
 
 /**
@@ -44,6 +45,7 @@ export default defineNitroPlugin(async (nitro) => {
   const maskedToken = maskString(token)
 
   try {
+    await checkPeerDependencies()
     await registerAgent({ token, studioUrl, poolSize })
 
     const baseOptions = {

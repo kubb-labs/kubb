@@ -1,5 +1,5 @@
 import { formatMs, maskString, serializePluginOptions } from '@internals/utils'
-import { AsyncEventEmitter, fsStorage, type KubbHooks, memoryStorage } from '@kubb/core'
+import { AsyncEventEmitter, fsStorage, type Config, type KubbHooks, memoryStorage } from '@kubb/core'
 import type { NitroApp } from 'nitropack/types'
 import { version } from '~~/package.json'
 import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage, isPublishCommandMessage } from '../types/agent.ts'
@@ -27,6 +27,18 @@ export type ConnectToStudioOptions = {
   /** Pre-created session to use instead of calling createAgentSession. Only used on the first connect, not on reconnects. */
   initialSession?: AgentConnectResponse
   nitro: NitroApp
+}
+
+/**
+ * Emits logger warnings for deprecated v4 plugin options found in the loaded disk config.
+ * Currently detects: `barrelType` → `barrel: { type }` (kubb v5 migration).
+ */
+function warnDeprecatedPluginOptions(config: Config, sessionId: string): void {
+  for (const plugin of config.plugins ?? []) {
+    if ((plugin.options as Record<string, unknown>)?.barrelType !== undefined) {
+      logger.warn(`[${sessionId}] Plugin "${plugin.name}" uses deprecated "barrelType". Migrate to "barrel: { type }" for kubb v5.`)
+    }
+  }
 }
 
 /**
@@ -174,6 +186,8 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             currentSource = 'generate'
             const config = await loadConfig(resolvedConfigPath)
 
+            warnDeprecatedPluginOptions(config, maskedSessionId)
+
             // Message payload takes priority over previously saved studio config
             const storedConfig = data.payload ? null : await getLatestStudioConfigFromStorage({ sessionId }).catch(() => null)
             const patch = data.payload ?? storedConfig ?? undefined
@@ -212,6 +226,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                   ...config.output,
                 },
                 plugins,
+                // Studio may send an opaque adapter options blob; forward it unchanged to createKubb.
+                // The adapter factory is responsible for validating and merging its own options.
+                ...(patch?.adapter != null && { adapter: patch.adapter as Config['adapter'] }),
               },
               hooks,
             })
@@ -224,6 +241,8 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
           if (data.command === 'connect') {
             const config = await loadConfig(resolvedConfigPath)
+
+            warnDeprecatedPluginOptions(config, maskedSessionId)
 
             sendAgentMessage(ws, {
               type: 'connected',

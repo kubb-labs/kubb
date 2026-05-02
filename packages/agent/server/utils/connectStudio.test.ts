@@ -306,6 +306,68 @@ describe('connectToStudio', () => {
     expect(resolvePlugins).toHaveBeenCalledWith(payload.plugins)
   })
 
+  it('emits a barrelType deprecation warning when a plugin uses the deprecated option', async () => {
+    vi.mocked(loadConfig).mockResolvedValueOnce(
+      makeConfig({
+        plugins: [{ name: 'plugin-ts', options: { barrelType: 'named' } }],
+      }) as any,
+    )
+
+    await connectToStudio(options)
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'command', command: 'generate' }),
+    })
+
+    expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('deprecated "barrelType"'))
+  })
+
+  it('does not emit a barrelType warning when no plugin uses the deprecated option', async () => {
+    vi.mocked(loadConfig).mockResolvedValueOnce(
+      makeConfig({
+        plugins: [{ name: 'plugin-ts', options: { barrel: { type: 'named' } } }],
+      }) as any,
+    )
+
+    await connectToStudio(options)
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'command', command: 'generate' }),
+    })
+
+    expect(logger.warn).not.toHaveBeenCalledWith(expect.stringContaining('deprecated "barrelType"'))
+  })
+
+  it('forwards adapter from payload to the generate config', async () => {
+    const payload = { adapter: { serverIndex: 1 }, plugins: [] }
+
+    await connectToStudio(options)
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
+    })
+
+    expect(generate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        config: expect.objectContaining({ adapter: { serverIndex: 1 } }),
+      }),
+    )
+  })
+
+  it('does not override adapter in config when payload has no adapter', async () => {
+    const payload = { plugins: [] }
+
+    await connectToStudio(options)
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
+    })
+
+    // adapter should not be set to undefined — disk config adapter must survive
+    const call = vi.mocked(generate).mock.calls[0]?.[0]
+    expect(call?.config).not.toHaveProperty('adapter', undefined)
+  })
+
   // connect command
 
   it('sends a connected message with agent info on a connect command', async () => {

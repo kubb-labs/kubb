@@ -1,5 +1,6 @@
 import type { Plugin } from '@kubb/core'
 import type { JSONKubbConfig } from '~/types/agent.ts'
+import { logger } from './logger.ts'
 
 type PluginFactory = (options: unknown) => Plugin
 
@@ -82,4 +83,19 @@ export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugin
       return factory(options ?? {})
     }),
   )
+}
+
+/**
+ * Checks that required peer dependencies are resolvable and warns when they are not.
+ *
+ * `@kubb/renderer-jsx` is required by all v5 Kubb plugins but is not a direct dependency
+ * of the agent. Call this on agent startup so operators receive a clear diagnostic instead
+ * of a cryptic runtime error when a plugin is first used.
+ */
+export async function checkPeerDependencies(): Promise<void> {
+  try {
+    await import('@kubb/renderer-jsx')
+  } catch {
+    logger.warn('Missing peer dependency @kubb/renderer-jsx. Install it alongside kubb plugins.')
+  }
 }

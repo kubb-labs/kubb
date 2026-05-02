@@ -127,3 +127,39 @@ describe('resolvePlugins', () => {
     await expect(resolve([{ name: '@kubb/plugin-broken', options: {} }])).rejects.toThrow('does not export a callable factory')
   })
 })
+
+describe('checkPeerDependencies', () => {
+  beforeEach(() => {
+    vi.resetModules()
+  })
+
+  it('logs a warning when @kubb/renderer-jsx is not installed', async () => {
+    vi.doMock('./logger.ts', () => ({
+      logger: { warn: vi.fn(), info: vi.fn(), error: vi.fn(), success: vi.fn() },
+    }))
+    vi.doMock('@kubb/renderer-jsx', () => {
+      throw new Error('Cannot find module')
+    })
+
+    const { checkPeerDependencies } = await import('./resolvePlugins.ts')
+    const { logger } = await import('./logger.ts')
+
+    await checkPeerDependencies()
+
+    expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('@kubb/renderer-jsx'))
+  })
+
+  it('does not log a warning when @kubb/renderer-jsx is installed', async () => {
+    vi.doMock('./logger.ts', () => ({
+      logger: { warn: vi.fn(), info: vi.fn(), error: vi.fn(), success: vi.fn() },
+    }))
+    vi.doMock('@kubb/renderer-jsx', () => ({ default: {} }))
+
+    const { checkPeerDependencies } = await import('./resolvePlugins.ts')
+    const { logger } = await import('./logger.ts')
+
+    await checkPeerDependencies()
+
+    expect(logger.warn).not.toHaveBeenCalled()
+  })
+})
