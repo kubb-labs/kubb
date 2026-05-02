@@ -50,6 +50,7 @@ Use the format `NNNN_short_slug.md` where `NNNN` is a zero-padded sequential num
 
 ## Records
 
-| ADR                                      | Title                         | Status   |
-| ---------------------------------------- | ----------------------------- | -------- |
-| [0001](./0001_include_filter.md)         | Include filter schema scoping | Accepted |
+| ADR                                                          | Title                                            | Status   |
+| ------------------------------------------------------------ | ------------------------------------------------ | -------- |
+| [0001](./0001_include_filter.md)                             | Include filter schema scoping                    | Accepted |
+| [0002](./0002_kubb_agent.md)                                 | Kubb Agent architecture and security model       | Proposed |
