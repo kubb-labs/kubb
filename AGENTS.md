@@ -46,10 +46,11 @@ packages/
 
 ```
 schemas/
-├── plugins/                 # Schema definitions for plugins (in kubb-plugins repo)
-├── adapters/                # Schema definitions for adapters
-├── parsers/                 # Schema definitions for parsers
-└── middlewares/             # Schema definitions for middlewares
+├── extension.json           # Unified schema for all extension kinds (plugin/adapter/middleware/parser)
+├── plugins/                 # Registry schema (plugins.json) and README
+├── adapters/                # Registry schema (adapters.json) and README
+├── parsers/                 # Registry schema (parsers.json) and README
+└── middlewares/             # Registry schema (middlewares.json)
 ```
 
 ### Internals
@@ -69,9 +70,9 @@ docs/
 
 ## Plugin Ecosystem
 
-Plugins are maintained in a separate monorepo at [kubb-project/kubb-plugins](https://github.com/kubb-project/kubb-plugins). Each plugin includes a `plugin-*.yaml` file (e.g., `plugin-client.yaml`, `plugin-ts.yaml`) that defines its configuration structure.
+Plugins are maintained in a separate monorepo at [kubb-project/kubb-plugins](https://github.com/kubb-project/kubb-plugins). Each plugin package ships an `extension.yaml` file (e.g., `packages/plugin-client/extension.yaml`) that describes its kind, options, and metadata.
 
-**Schema Reference**: See [schemas/plugins/README.md](./schemas/plugins/README.md) for plugin metadata and configuration details.
+**Schema Reference**: See [schemas/README.md](./schemas/README.md) for the unified extension schema and authoring guide.
 
 ## Repository Setup
 
