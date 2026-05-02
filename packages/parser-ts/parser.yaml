@@ -1,0 +1,99 @@
+$schema: https://kubb.dev/schemas/parsers/parser.json
+id: parser-ts
+name: TypeScript
+description: TypeScript and TSX file parser for Kubb. Converts the universal AST to `.ts`/`.tsx` source code using the official TypeScript compiler.
+category: typescript
+type: official
+npmPackage: '@kubb/parser-ts'
+docsPath: /parsers/parser-ts
+repo: https://github.com/kubb-labs/kubb
+maintainers:
+  - name: Stijn Van Hulle
+    github: stijnvanhulle
+compatibility:
+  kubb: '>=5.0.0'
+  node: '>=22'
+tags:
+  - typescript
+  - tsx
+  - parser
+  - printer
+  - ast
+resources:
+  documentation: https://kubb.dev/parsers/parser-ts
+  repository: https://github.com/kubb-labs/kubb
+  issues: https://github.com/kubb-labs/kubb/issues
+  changelog: https://github.com/kubb-labs/kubb/blob/main/packages/parser-ts/CHANGELOG.md
+featured: true
+icon:
+  light: https://kubb.dev/feature/typescript.svg
+intro: |-
+  The TypeScript parser is the default file parser used by Kubb when no `parsers` option is set in `defineConfig`. It converts Kubb's universal AST into `.ts` and `.tsx` source code using the official [TypeScript compiler](https://www.typescriptlang.org/).
+
+  Two parser instances are exported:
+
+  - `parserTs` — handles `.ts` and `.js` files
+  - `parserTsx` — handles `.tsx` and `.jsx` files
+
+  Both are configured globally in `defineConfig` and apply to every file produced by every plugin.
+options:
+  - name: extname
+    type: "'.ts' | '.js' | '.tsx' | '.jsx' | string"
+    required: false
+    default: "'.ts'"
+    description: |-
+      File extension used when rewriting relative import paths. Set to `.js` for ESM-friendly emit, `.tsx` for React projects, or leave unset to keep TypeScript's default behaviour.
+
+      Extension rewriting is configured via `output.extension` in `defineConfig`, not as a parser argument.
+    codeBlock:
+      lang: typescript
+      title: kubb.config.ts
+      twoslash: false
+      code: |-
+        import { defineConfig } from 'kubb'
+        import { adapterOas } from '@kubb/adapter-oas'
+        import { parserTs } from '@kubb/parser-ts'
+
+        export default defineConfig({
+          input: { path: './petstore.yaml' },
+          output: { path: './src/gen', extension: { '.ts': '.js' } },
+          adapter: adapterOas(),
+          parsers: [parserTs],
+        })
+examples:
+  - name: TypeScript (default)
+    files:
+      - name: kubb.config.ts
+        lang: typescript
+        twoslash: false
+        code: |-
+          import { defineConfig } from 'kubb'
+          import { adapterOas } from '@kubb/adapter-oas'
+          import { parserTs } from '@kubb/parser-ts'
+
+          export default defineConfig({
+            input: { path: './petstore.yaml' },
+            output: { path: './src/gen' },
+            adapter: adapterOas(),
+            parsers: [parserTs],
+          })
+  - name: TSX (React)
+    files:
+      - name: kubb.config.ts
+        lang: typescript
+        twoslash: false
+        code: |-
+          import { defineConfig } from 'kubb'
+          import { adapterOas } from '@kubb/adapter-oas'
+          import { parserTsx } from '@kubb/parser-ts'
+
+          export default defineConfig({
+            input: { path: './petstore.yaml' },
+            output: { path: './src/gen' },
+            adapter: adapterOas(),
+            parsers: [parserTsx],
+          })
+notes:
+  - type: tip
+    body: |-
+      `parser-ts` is bundled with Kubb and used automatically when no `parsers` option is provided. You only need to install it explicitly when combining it with other parsers or providing a fully custom parsers list.

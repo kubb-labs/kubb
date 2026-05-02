@@ -20,6 +20,7 @@
   "files": [
     "src",
     "dist",
+    "parser.yaml",
     "!/**/**.test.**",
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"

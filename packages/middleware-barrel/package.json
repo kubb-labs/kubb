@@ -21,6 +21,7 @@
   "files": [
     "src",
     "dist",
+    "middleware.yaml",
     "*.d.ts",
     "*.d.cts",
     "!/**/**.test.**",
