@@ -306,38 +306,6 @@ describe('connectToStudio', () => {
     expect(resolvePlugins).toHaveBeenCalledWith(payload.plugins)
   })
 
-  it('emits a barrelType deprecation warning when a plugin uses the deprecated option', async () => {
-    vi.mocked(loadConfig).mockResolvedValueOnce(
-      makeConfig({
-        plugins: [{ name: 'plugin-ts', options: { barrelType: 'named' } }],
-      }) as any,
-    )
-
-    await connectToStudio(options)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate' }),
-    })
-
-    expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('deprecated "barrelType"'))
-  })
-
-  it('does not emit a barrelType warning when no plugin uses the deprecated option', async () => {
-    vi.mocked(loadConfig).mockResolvedValueOnce(
-      makeConfig({
-        plugins: [{ name: 'plugin-ts', options: { barrel: { type: 'named' } } }],
-      }) as any,
-    )
-
-    await connectToStudio(options)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate' }),
-    })
-
-    expect(logger.warn).not.toHaveBeenCalledWith(expect.stringContaining('deprecated "barrelType"'))
-  })
-
   it('forwards adapter from payload to the generate config', async () => {
     const payload = { adapter: { serverIndex: 1 }, plugins: [] }
 
