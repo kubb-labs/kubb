@@ -10,7 +10,7 @@
 
 The agent is a WebSocket client, not a public HTTP server. On startup it dials out to Studio and registers itself, opens a session, and waits for commands. The only inbound HTTP route the agent exposes is `GET /api/health` for container probes.
 
-This protocol shapes every decision below. AI assistants and CI pipelines that want to drive code generation do not call the agent directly. They go through Studio (or the separate `@kubb/mcp` package), and Studio fans the work out to a connected agent.
+This protocol shapes every decision below. AI assistants and CI pipelines that want to drive code generation do not call the agent directly. They go through Studio, and Studio fans the work out to a connected agent.
 
 Three problems pushed this ADR:
 
