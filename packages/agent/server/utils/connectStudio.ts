@@ -10,6 +10,7 @@ import { loadConfig } from './loadConfig.ts'
 import { logger } from './logger.ts'
 import { mergePlugins } from './mergePlugins.ts'
 import { publish } from './publish.ts'
+import { resolveMiddlewares } from './resolvePlugins.ts'
 import { setupHookListener } from './setupHookListener.ts'
 import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
 
@@ -178,6 +179,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             const storedConfig = data.payload ? null : await getLatestStudioConfigFromStorage({ sessionId }).catch(() => null)
             const patch = data.payload ?? storedConfig ?? undefined
             const plugins = await mergePlugins(config.plugins, patch?.plugins)
+            const middleware = patch?.middleware ? await resolveMiddlewares(patch.middleware) : config.middleware
 
             // In sandbox mode the caller may supply raw OpenAPI / Swagger spec
             // content inline (YAML or JSON string) via `payload.input`.
@@ -212,6 +214,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                   ...config.output,
                 },
                 plugins,
+                middleware,
                 // Studio may send an opaque adapter options blob; forward it unchanged to createKubb.
                 // The adapter factory is responsible for validating and merging its own options.
                 ...(patch?.adapter != null && { adapter: patch.adapter as typeof config.adapter }),
