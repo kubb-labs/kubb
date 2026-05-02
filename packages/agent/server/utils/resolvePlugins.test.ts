@@ -59,13 +59,13 @@ describe('resolvePlugins', () => {
       name: 'plugin-default-only',
       options,
     }))
-    vi.doMock('@kubb/plugin-default-only', () => ({
+    vi.doMock('@my-org/plugin-default-only', () => ({
       pluginDefaultOnly: undefined,
       default: mockDefault,
     }))
     const { resolvePlugins: resolve } = await import('./resolvePlugins.ts')
 
-    const result = await resolve([{ name: '@kubb/plugin-default-only', options: {} }])
+    const result = await resolve([{ name: '@my-org/plugin-default-only', options: {} }])
 
     expect(result).toHaveLength(1)
     expect(mockDefault).toHaveBeenCalledWith({})
@@ -73,32 +73,48 @@ describe('resolvePlugins', () => {
 
   it('falls back to first exported function for non-conventional single-export packages', async () => {
     const mockFactory = vi.fn((options: unknown) => ({
-      name: 'plugin-single-export',
+      name: 'my-plugin',
       options,
     }))
-    vi.doMock('@kubb/plugin-single-export', () => ({
-      pluginSingleExport: undefined,
+    vi.doMock('my-single-export-plugin', () => ({
+      mySingleExportPlugin: undefined,
       default: undefined,
       create: mockFactory,
     }))
     const { resolvePlugins: resolve } = await import('./resolvePlugins.ts')
 
-    const result = await resolve([{ name: '@kubb/plugin-single-export', options: { foo: 'bar' } }])
+    const result = await resolve([{ name: 'my-single-export-plugin', options: { foo: 'bar' } }])
 
     expect(result).toHaveLength(1)
     expect(mockFactory).toHaveBeenCalledWith({ foo: 'bar' })
   })
 
-  it('throws when a non-@kubb scoped package is requested', async () => {
+  it('resolves a non-kubb scoped package by its camelCase named export', async () => {
+    const mockFactory = vi.fn((options: unknown) => ({
+      name: 'my-plugin',
+      options,
+    }))
+    vi.doMock('@my-org/my-plugin', () => ({ myPlugin: mockFactory }))
     const { resolvePlugins: resolve } = await import('./resolvePlugins.ts')
 
-    await expect(resolve([{ name: '@my-org/my-plugin', options: {} }])).rejects.toThrow('not allowed')
+    const result = await resolve([{ name: '@my-org/my-plugin', options: {} }])
+
+    expect(result).toHaveLength(1)
+    expect(mockFactory).toHaveBeenCalledWith({})
   })
 
-  it('throws when an unscoped (third-party) package is requested', async () => {
+  it('resolves an unscoped package by its camelCase named export', async () => {
+    const mockFactory = vi.fn((options: unknown) => ({
+      name: 'my-custom-plugin',
+      options,
+    }))
+    vi.doMock('my-custom-plugin', () => ({ myCustomPlugin: mockFactory }))
     const { resolvePlugins: resolve } = await import('./resolvePlugins.ts')
 
-    await expect(resolve([{ name: 'my-custom-plugin', options: {} }])).rejects.toThrow('not allowed')
+    const result = await resolve([{ name: 'my-custom-plugin', options: {} }])
+
+    expect(result).toHaveLength(1)
+    expect(mockFactory).toHaveBeenCalledWith({})
   })
 
   it('throws when the module exists but exports no callable factory', async () => {
@@ -145,20 +161,14 @@ describe('resolveMiddlewares', () => {
 
   it('resolves multiple middlewares', async () => {
     const mockBarrel = vi.fn((_options: unknown) => ({ name: 'middleware-barrel', hooks: {} }))
-    const mockOther = vi.fn((_options: unknown) => ({ name: 'middleware-other', hooks: {} }))
+    const mockCustom = vi.fn((_options: unknown) => ({ name: 'my-middleware', hooks: {} }))
     vi.doMock('@kubb/middleware-barrel', () => ({ middlewareBarrel: mockBarrel }))
-    vi.doMock('@kubb/middleware-other', () => ({ middlewareOther: mockOther }))
+    vi.doMock('my-middleware', () => ({ myMiddleware: mockCustom }))
     const { resolveMiddlewares: resolve } = await import('./resolvePlugins.ts')
 
-    const result = await resolve([{ name: '@kubb/middleware-barrel', options: {} }, { name: '@kubb/middleware-other', options: {} }])
+    const result = await resolve([{ name: '@kubb/middleware-barrel', options: {} }, { name: 'my-middleware', options: {} }])
 
     expect(result).toHaveLength(2)
-  })
-
-  it('throws when a non-@kubb scoped middleware is requested', async () => {
-    const { resolveMiddlewares: resolve } = await import('./resolvePlugins.ts')
-
-    await expect(resolve([{ name: 'my-middleware' }])).rejects.toThrow('not allowed')
   })
 })
 

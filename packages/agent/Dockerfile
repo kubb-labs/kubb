@@ -1,7 +1,8 @@
 ARG NODE_VERSION=22
-# Space-separated list of @kubb/* packages to pre-install.
+# Space-separated list of packages to pre-install.
+# Both @kubb/* scoped and third-party packages are supported.
 # Override at build time to add or remove packages:
-#   docker build --build-arg KUBB_PACKAGES="kubb @kubb/core @kubb/plugin-ts @kubb/middleware-barrel" .
+#   docker build --build-arg KUBB_PACKAGES="kubb @kubb/core @kubb/plugin-ts @kubb/middleware-barrel my-custom-plugin" .
 ARG KUBB_PACKAGES="kubb @kubb/core @kubb/cli @kubb/adapter-oas @kubb/plugin-client @kubb/plugin-cypress @kubb/plugin-faker \
                          @kubb/plugin-mcp @kubb/plugin-msw @kubb/plugin-oas @kubb/plugin-react-query @kubb/plugin-redoc \
                          @kubb/plugin-ts @kubb/plugin-vue-query \

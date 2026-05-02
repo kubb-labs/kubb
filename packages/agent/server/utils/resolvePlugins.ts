@@ -26,25 +26,19 @@ function toExportName(packageName: string): string {
 /**
  * Dynamically imports a plugin package and returns its factory function.
  *
- * Only `@kubb/` scoped packages are allowed. Packages are pre-installed in the Docker
- * image at build time via the `KUBB_PACKAGES` build ARG — no runtime installation is
- * possible in the distroless container.
+ * Packages must be pre-installed in the Docker image at build time via the `KUBB_PACKAGES`
+ * build ARG — no runtime installation is possible in the distroless container. Both
+ * `@kubb/*` scoped and third-party packages are supported as long as they are included in
+ * the image.
  *
  * Resolution order (first callable wins):
  * 1. Named export matching the camelCase of the package base name (e.g. `pluginTs`)
  * 2. `default` export
  * 3. First function found among the module's exports (for single-export packages)
  *
- * @throws if the package is not `@kubb/` scoped, cannot be imported, or exports no callable factory.
+ * @throws if the package cannot be imported or exports no callable factory.
  */
 async function loadPluginFactory(packageName: string): Promise<Factory> {
-  if (!packageName.startsWith('@kubb/')) {
-    throw new Error(
-      `Package "${packageName}" is not allowed. Only @kubb/* scoped packages are supported. ` +
-        `Use the KUBB_PACKAGES Docker build arg to install additional @kubb/* packages.`,
-    )
-  }
-
   let mod: Record<string, unknown>
   try {
     mod = await import(packageName)
@@ -71,14 +65,15 @@ async function loadPluginFactory(packageName: string): Promise<Factory> {
  * Resolves each plugin entry by dynamically importing the plugin package and
  * calling its factory with the provided options.
  *
- * Only `@kubb/` scoped packages are supported. Plugin packages are pre-installed in the
- * Docker image at build time — use the `KUBB_PACKAGES` build ARG to control which ones
- * are available.
+ * Both `@kubb/*` scoped and third-party packages are supported. Packages must be
+ * pre-installed in the Docker image at build time — use the `KUBB_PACKAGES` build ARG
+ * to control which ones are available at runtime.
  *
  * @example
  * ```ts
  * { name: '@kubb/plugin-react-query', options: { output: { path: './hooks' } } }
  * { name: '@kubb/plugin-ts', options: { output: { path: './types' } } }
+ * { name: 'my-custom-plugin', options: { output: { path: './custom' } } }
  * ```
  */
 export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugins']>): Promise<Array<Plugin>> {
@@ -94,13 +89,14 @@ export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugin
  * Resolves each middleware entry by dynamically importing the middleware package and
  * calling its factory with the provided options.
  *
- * Only `@kubb/` scoped packages are supported. Middleware packages are pre-installed in the
- * Docker image at build time — use the `KUBB_PACKAGES` build ARG to control which ones
- * are available.
+ * Both `@kubb/*` scoped and third-party packages are supported. Packages must be
+ * pre-installed in the Docker image at build time — use the `KUBB_PACKAGES` build ARG
+ * to control which ones are available at runtime.
  *
  * @example
  * ```ts
  * { name: '@kubb/middleware-barrel', options: {} }
+ * { name: 'my-custom-middleware', options: {} }
  * ```
  */
 export async function resolveMiddlewares(middlewares: NonNullable<JSONKubbConfig['middleware']>): Promise<Array<Middleware>> {
