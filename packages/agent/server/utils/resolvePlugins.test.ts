@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { resolvePlugins } from './resolvePlugins.ts'
+import { resolveMiddlewares, resolvePlugins } from './resolvePlugins.ts'
 
 const mockPluginTs = vi.fn((options: unknown) => ({
   name: 'plugin-ts',
@@ -125,5 +125,88 @@ describe('resolvePlugins', () => {
     const { resolvePlugins: resolve } = await import('./resolvePlugins.ts')
 
     await expect(resolve([{ name: '@kubb/plugin-broken', options: {} }])).rejects.toThrow('does not export a callable factory')
+  })
+})
+
+describe('resolveMiddlewares', () => {
+  beforeEach(() => {
+    vi.resetModules()
+  })
+
+  it('throws when the middleware package cannot be imported', async () => {
+    await expect(resolveMiddlewares([{ name: '@kubb/middleware-missing' }])).rejects.toThrow('"@kubb/middleware-missing" could not be loaded')
+  })
+
+  it('resolves a @kubb middleware by its camelCase named export', async () => {
+    const mockMiddlewareBarrel = vi.fn((_options: unknown) => ({ name: 'middleware-barrel', hooks: {} }))
+    vi.doMock('@kubb/middleware-barrel', () => ({ middlewareBarrel: mockMiddlewareBarrel }))
+    const { resolveMiddlewares: resolve } = await import('./resolvePlugins.ts')
+
+    const result = await resolve([{ name: '@kubb/middleware-barrel', options: { root: './gen' } }])
+
+    expect(result).toHaveLength(1)
+    expect(mockMiddlewareBarrel).toHaveBeenCalledWith({ root: './gen' })
+  })
+
+  it('resolves middleware with undefined options using empty object', async () => {
+    const mockMiddlewareBarrel = vi.fn((_options: unknown) => ({ name: 'middleware-barrel', hooks: {} }))
+    vi.doMock('@kubb/middleware-barrel', () => ({ middlewareBarrel: mockMiddlewareBarrel }))
+    const { resolveMiddlewares: resolve } = await import('./resolvePlugins.ts')
+
+    const result = await resolve([{ name: '@kubb/middleware-barrel' }])
+
+    expect(result).toHaveLength(1)
+    expect(mockMiddlewareBarrel).toHaveBeenCalledWith({})
+  })
+
+  it('resolves multiple middlewares', async () => {
+    const mockBarrel = vi.fn((_options: unknown) => ({ name: 'middleware-barrel', hooks: {} }))
+    const mockCustom = vi.fn((_options: unknown) => ({ name: 'my-middleware', hooks: {} }))
+    vi.doMock('@kubb/middleware-barrel', () => ({ middlewareBarrel: mockBarrel }))
+    vi.doMock('my-middleware', () => ({ myMiddleware: mockCustom }))
+    const { resolveMiddlewares: resolve } = await import('./resolvePlugins.ts')
+
+    const result = await resolve([
+      { name: '@kubb/middleware-barrel', options: {} },
+      { name: 'my-middleware', options: {} },
+    ])
+
+    expect(result).toHaveLength(2)
+  })
+})
+
+describe('checkPeerDependencies', () => {
+  beforeEach(() => {
+    vi.resetModules()
+  })
+
+  it('logs a warning when @kubb/renderer-jsx is not installed', async () => {
+    vi.doMock('./logger.ts', () => ({
+      logger: { warn: vi.fn(), info: vi.fn(), error: vi.fn(), success: vi.fn() },
+    }))
+    vi.doMock('@kubb/renderer-jsx', () => {
+      throw new Error('Cannot find module')
+    })
+
+    const { checkPeerDependencies } = await import('./resolvePlugins.ts')
+    const { logger } = await import('./logger.ts')
+
+    await checkPeerDependencies()
+
+    expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('@kubb/renderer-jsx'))
+  })
+
+  it('does not log a warning when @kubb/renderer-jsx is installed', async () => {
+    vi.doMock('./logger.ts', () => ({
+      logger: { warn: vi.fn(), info: vi.fn(), error: vi.fn(), success: vi.fn() },
+    }))
+    vi.doMock('@kubb/renderer-jsx', () => ({ default: {} }))
+
+    const { checkPeerDependencies } = await import('./resolvePlugins.ts')
+    const { logger } = await import('./logger.ts')
+
+    await checkPeerDependencies()
+
+    expect(logger.warn).not.toHaveBeenCalled()
   })
 })

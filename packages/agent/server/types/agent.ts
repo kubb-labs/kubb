@@ -17,10 +17,24 @@ export type JSONKubbConfig = {
     options: object
   }>
   /**
+   * Middleware entries sent from Studio UI.
+   * Each entry is dynamically loaded by package name and instantiated with the provided options.
+   * Example: `{ name: '@kubb/middleware-barrel', options: {} }`
+   */
+  middleware?: Array<{
+    name: string
+    options?: object
+  }>
+  /**
    * Raw OpenAPI / Swagger spec content (YAML or JSON string).
    * Only possible to set when agent type is 'sandbox'
    */
   input?: string
+  /**
+   * Adapter-level overrides sent from Studio UI — treated as an opaque blob, same as plugin options.
+   * The agent forwards this unchanged to the adapter factory, which validates its own options.
+   */
+  adapter?: object
 }
 
 /**
