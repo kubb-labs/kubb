@@ -33,6 +33,7 @@
     "add-middleware-barrel",
     "add-middleware-support",
     "add-parser-options-type",
+    "add-per-package-yaml-metadata",
     "add-plugin-enforce-ordering",
     "add-renderer-jsx-package",
     "add-resolve-file-to-resolvers",
