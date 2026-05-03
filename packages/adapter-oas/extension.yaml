@@ -1,4 +1,5 @@
-$schema: https://kubb.dev/schemas/adapters/adapter.json
+$schema: https://kubb.dev/schemas/extension.json
+kind: adapter
 id: adapter-oas
 name: OpenAPI
 description: Parse and convert OpenAPI 2.0, 3.0, and 3.1 specifications into Kubb's universal AST with full support for discriminators, date types, and server configuration.
