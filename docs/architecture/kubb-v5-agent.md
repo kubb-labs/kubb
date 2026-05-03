@@ -17,7 +17,7 @@ That goal pushes a few rules:
 
 The trust boundary is the image. Operators who need a different plugin set rebuild and redeploy the image.
 
-See [ADR-0002](./adr/0002_kubb_agent.md) for the full decision record covering the agent ↔ Studio protocol, machine binding, permissions, sandbox mode, and the security model.
+See [ADR-0003](./adr/0003_kubb_agent.md) for the full decision record covering the agent ↔ Studio protocol, machine binding, permissions, sandbox mode, and the security model.
 
 ## Affected files
 
