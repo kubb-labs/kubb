@@ -6,46 +6,72 @@
 
 ## Context
 
-`@kubb/agent` is the long-running process that runs Kubb code generation on behalf of Kubb Studio. The agent runs locally or inside a Docker container on the operator's infrastructure. Studio runs as a hosted service at `https://studio.kubb.dev` (or a self-hosted instance).
+`@kubb/agent` is the long-running process that runs Kubb code generation on behalf of Kubb Studio. The agent runs locally or inside a Docker container on the operator's infrastructure. Studio runs as a hosted service at `https://studio.kubb.dev` or a self-hosted instance.
 
-The agent is a WebSocket client, not a public HTTP server. On startup it dials out to Studio and registers itself, opens a session, and waits for commands. The only inbound HTTP route the agent exposes is `GET /api/health` for container probes.
+The agent is a WebSocket client, not a public HTTP server. On startup it registers with Studio, opens one or more WebSocket sessions, and waits for commands. The only inbound HTTP route the agent exposes is `GET /api/health` for container probes.
 
-This protocol shapes every decision below. AI assistants and CI pipelines that want to drive code generation do not call the agent directly. They go through Studio, and Studio fans the work out to a connected agent.
+This shapes every decision below. AI assistants and CI pipelines that want to drive code generation go through Studio. Studio fans the work out to a connected agent.
 
 Three problems pushed this ADR:
 
 1. The v4 `JSONKubbConfig` partially typed plugin options, coupling the agent binary to first-party plugin versions and excluding community packages.
 2. There is no written record of where the trust boundary sits, even though the agent runs user-controlled code (plugins) on behalf of a remote orchestrator (Studio).
-3. The machine binding, sandbox isolation, and permissions model that already exist in code are not captured in any architecture document, so future contributors keep reinventing or weakening them.
+3. The machine binding, sandbox isolation, and permissions model that already exist in code are not captured in any architecture document, so contributors keep reinventing or weakening them.
 
-v5 widens the plugin surface (object-shaped `barrel`, opt-out `false` values, new `coercion`, `infinite`, `query`, and `mutation` blocks). That widening makes problem 1 worse and forces an architectural answer.
+v5 widens the plugin surface: object-shaped `barrel`, opt-out `false` values, and new `coercion`, `infinite`, `query`, and `mutation` blocks. That widening makes problem 1 worse and forces an architectural answer.
 
 ## Decision
 
-The Kubb Agent is a generic plugin host that connects out to Studio over an authenticated WebSocket, runs whatever plugins are installed in its image, and reports progress through a typed event stream. Trust flows from the operator who built the image to the agent process; permission flows from Studio to the agent through an explicit grant.
+The Kubb Agent is a generic plugin host. It connects to Studio over an authenticated WebSocket, runs whatever plugins are installed in its image, and reports progress through a typed event stream. Trust flows from the operator who built the image to the agent process. Permission flows from Studio to the agent through an explicit grant.
 
 ### Generic plugin and adapter handling
 
-`JSONKubbConfig.plugins[].options` and any future `JSONKubbConfig.adapter` block are typed as opaque `object` blobs. The agent does not import plugin or adapter packages to type or validate their options. `resolvePlugins` works off package names; option validation is the plugin's own responsibility.
+`JSONKubbConfig.plugins[].options` is typed as an opaque `object` blob. The agent does not import plugin or adapter packages to type-check or validate their options. Option validation is the plugin's own responsibility.
 
 ### Image as the capability boundary
 
-The set of available plugins and adapters is whatever is installed in the Docker image that runs the agent. The default image at `kubblabs/kubb-agent` ships first-party plugins; operators who need community plugins or custom adapters build their own image with those packages added. The agent never installs packages at runtime.
+The set of available plugins is whatever is installed in the Docker image that runs the agent. The default image ships first-party plugins; operators who need community plugins build their own image. The agent never installs packages at runtime.
 
-When Studio sends a `connect` command, the agent replies with a `ConnectedMessage` whose `payload.config` carries the loaded `JSONKubbConfig` (version, configPath, plugins, granted permissions). Studio reads that payload and renders the configuration UI from it. The agent does not expose a separate manifest endpoint; the `ConnectedMessage` payload is the manifest.
+When Studio sends a `connect` command, the agent replies with a `ConnectedMessage` whose `payload.config` carries the loaded `JSONKubbConfig` and granted permissions. Studio reads that payload and renders the configuration UI from it. The `ConnectedMessage` payload is the manifest; there is no separate endpoint for it.
+
+### Session pool
+
+On startup the agent creates a pool of WebSocket sessions (`KUBB_AGENT_POOL_SIZE`, default `1`). Each session gets its own isolated event emitter so lifecycle events from one generation run do not bleed into another. On session close the agent reconnects after `KUBB_AGENT_RETRY_TIMEOUT` milliseconds (default 30 000).
 
 ### Studio as the orchestrator and AI integration point
 
-The agent's outbound connection sequence is fixed:
+The agent's outbound connection sequence is:
 
 ```
-POST  {studioUrl}/api/agent/connect          (registers machineToken)
-POST  {studioUrl}/api/agent/session/create   (returns wsUrl, sessionId, isSandbox)
-WSS   {wsUrl}                                (bidirectional command/data stream)
-POST  {studioUrl}/api/agent/session/:id/disconnect  (on shutdown)
+POST  {studioUrl}/api/agent/connect                  (registers machineToken, reports pool size)
+POST  {studioUrl}/api/agent/session/create           (returns wsUrl, sessionId, isSandbox)
+WSS   {wsUrl}  Authorization: Bearer {token}         (bidirectional command/data stream)
+POST  {studioUrl}/api/agent/session/:id/disconnect   (on shutdown or error)
 ```
 
-Studio sends `command` messages (`generate`, `connect`, `publish`); the agent responds with `connected`, `data`, `ping`, and `kubb:error` messages. AI assistants integrate at the Studio level (or through `@kubb/mcp`), not by calling the agent directly. This keeps the agent's surface small and lets Studio enforce its own access controls before any work reaches the agent.
+Studio sends `command` messages (`generate`, `connect`, `publish`). The agent responds with `connected`, `data`, `ping`, `disconnect`, and `kubb:error` messages. AI assistants integrate at the Studio level or through `@kubb/mcp`, not by calling the agent directly. This keeps the agent's surface small and lets Studio enforce access controls before any work reaches the agent.
+
+### WebSocket event stream
+
+`setupEventsStream` subscribes to the agent-internal `AsyncEventEmitter<KubbHooks>` and forwards selected events to Studio as `DataMessage` frames. Each frame carries a `source` field (`generate` or `publish`) so Studio can distinguish concurrent streams.
+
+The forwarded events are:
+
+| Event | Payload |
+| ----- | ------- |
+| `kubb:plugin:start` | `[ctx: { plugin: { name: string } }]` |
+| `kubb:plugin:end` | `[ctx: { plugin: { name: string }; duration: number; success: boolean }]` |
+| `kubb:files:processing:start` | `[ctx: { total: number }]` |
+| `kubb:file:processing:update` | `[ctx: { file: string; processed: number; total: number; percentage: number }]` |
+| `kubb:files:processing:end` | `[ctx: { total: number }]` |
+| `kubb:generation:start` | `[ctx: { name?: string; plugins: number }]` |
+| `kubb:generation:end` | `[ctx: { config: Config; files: FileNode[]; sources: Record<string, string> }]` |
+| `kubb:info` | `[ctx: { message: string; info?: string }]` |
+| `kubb:success` | `[ctx: { message: string; info?: string }]` |
+| `kubb:warn` | `[ctx: { message: string; info?: string }]` |
+| `kubb:error` | `[ctx: { message: string; stack?: string }]` |
+
+The `sources` field in `kubb:generation:end` is converted from `Map<string, string>` to `Record<string, string>` before sending, since Maps are not JSON-serializable.
 
 ### Security model
 
@@ -53,11 +79,11 @@ The threat model assumes the agent runs user-controlled code (plugins) and proce
 
 #### Trust boundary at the image
 
-Only packages installed in the image at build time are loadable. The agent never runs `npm install` at runtime. Operators who want a different plugin set rebuild the image. The default `kubb.config.ts` lives at `/kubb/agent/data/kubb.config.ts` and is bind-mountable; `KUBB_AGENT_ROOT` constrains where relative paths may resolve.
+Only packages installed in the image at build time are loadable. The agent never runs `npm install` at runtime. Operators who want a different plugin set rebuild the image. The default `kubb.config.ts` lives at `/kubb/agent/data/kubb.config.ts` and is bind-mountable. `KUBB_AGENT_ROOT` constrains where relative config paths resolve.
 
 #### Authenticated outbound connection
 
-The agent connects to Studio with `KUBB_AGENT_TOKEN` as a bearer token. Without the token the agent does not connect. Each request also carries a `machineToken`: a SHA-256 of the host's network interfaces and hostname. Studio binds a token to the first machine it sees, and rejects later connections from a different machine token. A leaked `KUBB_AGENT_TOKEN` cannot be reused on another host without also matching the original `machineToken`.
+`KUBB_AGENT_TOKEN` is the bearer token for all requests to Studio. Without it the agent does not start. Each registration request also carries a `machineToken`: a SHA-256 hash of `KUBB_AGENT_SECRET`. If `KUBB_AGENT_SECRET` is not set, the agent generates a random fallback on startup and logs a warning. Studio binds a token to the first machine it sees and rejects later connections from a different `machineToken`. A leaked `KUBB_AGENT_TOKEN` cannot be reused on another host without also knowing the original `KUBB_AGENT_SECRET`.
 
 #### Permission grants from Studio
 
@@ -67,29 +93,32 @@ Permissions are explicit fields on the `connect` command and on `ConnectedMessag
 - `allowWrite`: lets the agent write generated files to disk; defaults to `false`.
 - `allowPublish`: lets Studio trigger a `publish` command (e.g. `npm publish`); defaults to `false`.
 
-The operator sets these via environment variables (`KUBB_AGENT_ALLOW_WRITE`, `KUBB_AGENT_ALLOW_ALL`). The agent echoes them back to Studio so the UI reflects current permissions. Studio cannot enable a permission the operator did not set.
+The operator sets these via environment variables (`KUBB_AGENT_ALLOW_ALL`, `KUBB_AGENT_ALLOW_WRITE`, `KUBB_AGENT_ALLOW_PUBLISH`). Setting `KUBB_AGENT_ALLOW_ALL=true` implies write and publish. The agent echoes the effective permissions back to Studio so the UI reflects what is currently allowed. Studio cannot enable a permission the operator did not set.
 
 #### Sandbox mode
 
 When Studio provisions a session for the shared Sandbox Agent, the session response carries `isSandbox: true`. In sandbox mode:
 
-- `output.write` is forced to `false`. Generated files never touch the host filesystem; they are streamed back over the WebSocket.
+- `allowAll`, `allowWrite`, and `allowPublish` are forced to `false` regardless of env vars. Generated files are never written to disk; they stream back over the WebSocket.
 - The `input` field on a `generate` payload is honored as inline OpenAPI content. Outside sandbox mode this field is silently ignored.
-- The agent runs in a shared Docker environment, so disk isolation is enforced regardless of what a generate payload requests.
 
-The asymmetry is intentional: the shared sandbox is a multi-user environment where any disk write would be a security incident. User-owned agents run on the operator's machine, where the operator decides whether disk writes are acceptable.
+The asymmetry is intentional. The shared sandbox is a multi-user environment where disk writes would be a security incident. User-owned agents run on the operator's machine, where the operator decides whether writes are acceptable.
 
-#### Bounded shell execution
+#### Session config cache
 
-Disk configs may declare `hooks.done` shell commands. Sandbox configs may not. When the agent receives a `publish` command, the publisher (currently `npm`) and an optional command override route through `publish.ts`, which only runs commands the operator has explicitly enabled.
+When a `generate` command arrives with a payload and `allowWrite` is enabled, the agent saves the `JSONKubbConfig` to Nitro's key-value storage under `configs:{sessionId}`. On the next `generate` command without a payload, the agent replays the most recently saved config. This lets Studio send a config once and re-trigger generation without re-sending the full payload.
 
 #### Session lifecycle and revocation
 
-Sessions expire after 24 hours. Studio re-validates the session on every incoming agent message and disconnects immediately on revocation. Cached session tokens live in `./.kubb/data` (or the `agent_kv` Docker volume) as hashed values, so the cache is non-reversible if the host is later compromised.
+Studio sends a `disconnect` message with `reason: 'expired'` or `reason: 'revoked'`. On `expired` the agent reconnects. On `revoked` the agent closes the session without reconnecting.
 
-#### Operational telemetry
+#### Keep-alive heartbeat
 
-The agent logs every step of the connect, generate, and disconnect flows to stdout. Operators forward stdout to whatever log infrastructure they use. An optional `KUBB_AGENT_HEARTBEAT_URL` pings an external healthcheck endpoint every 5 minutes; when unset, no telemetry leaves the agent process.
+The agent sends a WebSocket `ping` frame to Studio every `KUBB_AGENT_HEARTBEAT_INTERVAL` milliseconds (default 30 000). Studio replies with a `pong` frame. If the connection drops, the next unanswered ping triggers a reconnect.
+
+#### Operational logging
+
+The agent logs every step of the connect, generate, publish, and disconnect flows to stdout. Operators forward stdout to whatever log infrastructure they use. No telemetry leaves the process on its own.
 
 ## Rationale
 
@@ -97,30 +126,30 @@ Generic plugin handling decouples agent releases from plugin releases. A communi
 
 Pinning the trust boundary to the image keeps control with the operator. The operator picks what is in the image; what is in the image is what can run. Runtime installs would shift that control to whoever sends a request, which is the wrong direction for a process that may be driven by an LLM.
 
-Routing AI assistants through Studio (or `@kubb/mcp`) limits the agent's attack surface to a single outbound WebSocket. Studio already has session management, auth, and audit. Recreating those in the agent duplicates work and weakens the boundary.
+Routing AI assistants through Studio or `@kubb/mcp` limits the agent's attack surface to a single outbound WebSocket. Studio already has session management, auth, and audit. Recreating those in the agent duplicates work and weakens the boundary.
 
-The permissions model is deliberately env-var-controlled. Studio asks for what it wants, the operator decides what to allow, and the agent enforces the intersection. That ordering means a compromised Studio session cannot write to disk on a user-owned agent unless the operator also set `KUBB_AGENT_ALLOW_WRITE=true`.
+The permissions model is env-var-controlled. Studio asks for what it wants, the operator decides what to allow, and the agent enforces the intersection. A compromised Studio session cannot write to disk on a user-owned agent unless the operator also set `KUBB_AGENT_ALLOW_WRITE=true`.
 
-The machine binding makes a leaked token harder to exploit. The attacker also needs the original host's network fingerprint. That tradeoff is worth the occasional rebind when an agent moves machines.
+The machine binding makes a leaked token harder to exploit. The attacker also needs the original `KUBB_AGENT_SECRET`. That tradeoff is worth the occasional rebind when an agent moves machines.
 
 ## Consequences
 
 ### Positive
 
-- One `@kubb/agent` build works against any plugin and adapter combination, including community packages.
+- One `@kubb/agent` build works against any plugin combination, including community packages.
 - The trust boundary is named and lives in one place: the Docker image.
-- A leaked agent token is not enough to impersonate the agent; the attacker also needs the original host's `machineToken`.
+- A leaked `KUBB_AGENT_TOKEN` is not enough to impersonate the agent; the attacker also needs `KUBB_AGENT_SECRET`.
 - The sandbox agent is safe to share across users because disk writes are unconditionally disabled.
 - Permission grants flow from operator env vars, not from Studio commands. The operator stays in charge.
-- AI integrations have a single, documented entry point (Studio or MCP), and the agent stays a small, focused executor.
+- AI integrations have a single, documented entry point (Studio or MCP). The agent stays a small, focused executor.
 
 ### Negative
 
 - Adding a plugin requires rebuilding and redeploying the image. There is no hot-add.
-- The agent cannot give early type-level feedback on misconfigured plugin options. Errors surface when the factory runs.
+- The agent cannot give type-level feedback on misconfigured plugin options. Errors surface when the factory runs.
 - Plugins that ship without a YAML schema are not configurable from Studio's form UI.
 - Studio is on the critical path. An agent without Studio is a no-op.
-- Machine binding can surprise operators who move an agent to a new host. They must reset the cached session before the agent can reconnect.
+- Rotating `KUBB_AGENT_SECRET` changes the `machineToken` and requires re-registering with Studio.
 
 ## Considered options
 
