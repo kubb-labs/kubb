@@ -1,4 +1,4 @@
-# ADR-0002: Kubb Agent architecture and security model
+# ADR-0003: Kubb Agent architecture and security model
 
 | Status   | Authors        | Reviewers      | Issue                                                | Decision date |
 | -------- | -------------- | -------------- | ---------------------------------------------------- | ------------- |
@@ -14,7 +14,7 @@ This protocol shapes every decision below. AI assistants and CI pipelines that w
 
 Three problems pushed this ADR:
 
-1. The v4 `JSONKubbConfig` partially typed plugin options, coupling the agent binary to first-party plugin versions and locking out community packages.
+1. The v4 `JSONKubbConfig` partially typed plugin options, coupling the agent binary to first-party plugin versions and excluding community packages.
 2. There is no written record of where the trust boundary sits, even though the agent runs user-controlled code (plugins) on behalf of a remote orchestrator (Studio).
 3. The machine binding, sandbox isolation, and permissions model that already exist in code are not captured in any architecture document, so future contributors keep reinventing or weakening them.
 
@@ -49,7 +49,7 @@ Studio sends `command` messages (`generate`, `connect`, `publish`); the agent re
 
 ### Security model
 
-The threat model assumes the agent runs user-controlled code (plugins) and processes user-controlled data (OpenAPI specs, plugin options), and that commands may originate from a Studio session that was itself driven by an LLM. The controls below layer to keep a single broken layer from being catastrophic.
+The threat model assumes the agent runs user-controlled code (plugins) and processes user-controlled data (OpenAPI specs, plugin options), and that commands may originate from a Studio session driven by an LLM. The controls work in layers. If one breaks, the others hold.
 
 #### Trust boundary at the image
 
@@ -67,7 +67,7 @@ Permissions are explicit fields on the `connect` command and on `ConnectedMessag
 - `allowWrite`: lets the agent write generated files to disk; defaults to `false`.
 - `allowPublish`: lets Studio trigger a `publish` command (e.g. `npm publish`); defaults to `false`.
 
-These are set from environment variables (`KUBB_AGENT_ALLOW_WRITE`, `KUBB_AGENT_ALLOW_ALL`) at the operator's choice, then echoed back to Studio so the UI shows what is currently allowed. Studio cannot enable a permission that the operator did not grant via env var.
+The operator sets these via environment variables (`KUBB_AGENT_ALLOW_WRITE`, `KUBB_AGENT_ALLOW_ALL`). The agent echoes them back to Studio so the UI reflects current permissions. Studio cannot enable a permission the operator did not set.
 
 #### Sandbox mode
 
@@ -97,11 +97,11 @@ Generic plugin handling decouples agent releases from plugin releases. A communi
 
 Pinning the trust boundary to the image keeps control with the operator. The operator picks what is in the image; what is in the image is what can run. Runtime installs would shift that control to whoever sends a request, which is the wrong direction for a process that may be driven by an LLM.
 
-Routing AI assistants through Studio (or `@kubb/mcp`) instead of giving the agent its own public API keeps the agent's attack surface to a single outbound WebSocket. Studio already has session management, auth, and audit; recreating those in the agent would duplicate work and weaken the boundary.
+Routing AI assistants through Studio (or `@kubb/mcp`) limits the agent's attack surface to a single outbound WebSocket. Studio already has session management, auth, and audit. Recreating those in the agent duplicates work and weakens the boundary.
 
 The permissions model is deliberately env-var-controlled. Studio asks for what it wants, the operator decides what to allow, and the agent enforces the intersection. That ordering means a compromised Studio session cannot write to disk on a user-owned agent unless the operator also set `KUBB_AGENT_ALLOW_WRITE=true`.
 
-The machine binding adds one more failure mode for a leaked token, which is worth the small operational cost (rebinding when an agent moves machines).
+The machine binding makes a leaked token harder to exploit. The attacker also needs the original host's network fingerprint. That tradeoff is worth the occasional rebind when an agent moves machines.
 
 ## Consequences
 
