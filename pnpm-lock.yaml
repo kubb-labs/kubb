@@ -172,6 +172,9 @@ importers:
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts
+      '@kubb/renderer-jsx':
+        specifier: workspace:*
+        version: link:../renderer-jsx
       '@types/ws':
         specifier: ^8.18.1
         version: 8.18.1

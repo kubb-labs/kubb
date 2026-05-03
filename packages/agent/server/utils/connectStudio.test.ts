@@ -23,6 +23,7 @@ vi.mock('./setupHookListener.ts', () => ({
 
 vi.mock('./resolvePlugins.ts', () => ({
   resolvePlugins: vi.fn().mockReturnValue([]),
+  resolveMiddlewares: vi.fn().mockResolvedValue([]),
 }))
 
 vi.mock('./agentCache.ts', () => ({
@@ -50,7 +51,7 @@ import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
 import { loadConfig } from './loadConfig.ts'
 import { logger } from './logger.ts'
-import { resolvePlugins } from './resolvePlugins.ts'
+import { resolveMiddlewares, resolvePlugins } from './resolvePlugins.ts'
 import { createWebsocket, sendAgentMessage } from './ws.ts'
 
 // Shared test helpers
@@ -304,6 +305,76 @@ describe('connectToStudio', () => {
 
     // resolvePlugins is called with the payload plugins (not the stored ones)
     expect(resolvePlugins).toHaveBeenCalledWith(payload.plugins)
+  })
+
+  it('forwards adapter from payload to the generate config', async () => {
+    const payload = { adapter: { serverIndex: 1 }, plugins: [] }
+
+    await connectToStudio(options)
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
+    })
+
+    expect(generate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        config: expect.objectContaining({ adapter: { serverIndex: 1 } }),
+      }),
+    )
+  })
+
+  it('does not override adapter in config when payload has no adapter', async () => {
+    const payload = { plugins: [] }
+
+    await connectToStudio(options)
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
+    })
+
+    // adapter should not be set to undefined — disk config adapter must survive
+    const call = vi.mocked(generate).mock.calls[0]?.[0]
+    expect(call?.config).not.toHaveProperty('adapter', undefined)
+  })
+
+  it('resolves and forwards middleware from payload to the generate config', async () => {
+    const fakeMiddleware = { name: 'middleware-barrel', hooks: {} }
+    vi.mocked(resolveMiddlewares).mockResolvedValueOnce([fakeMiddleware] as any)
+
+    const payload = { plugins: [], middleware: [{ name: '@kubb/middleware-barrel', options: {} }] }
+
+    await connectToStudio(options)
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
+    })
+
+    expect(resolveMiddlewares).toHaveBeenCalledWith(payload.middleware)
+    expect(generate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        config: expect.objectContaining({ middleware: [fakeMiddleware] }),
+      }),
+    )
+  })
+
+  it('falls back to disk config middleware when payload has no middleware', async () => {
+    const diskMiddleware = { name: 'disk-middleware', hooks: {} }
+    vi.mocked(loadConfig).mockResolvedValueOnce(makeConfig({ middleware: [diskMiddleware] }) as any)
+
+    const payload = { plugins: [] }
+
+    await connectToStudio(options)
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
+    })
+
+    expect(resolveMiddlewares).not.toHaveBeenCalled()
+    expect(generate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        config: expect.objectContaining({ middleware: [diskMiddleware] }),
+      }),
+    )
   })
 
   // connect command

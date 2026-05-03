@@ -1,4 +1,3 @@
-import type { FileNode } from '@kubb/ast'
 import type { AsyncEventEmitter, KubbHooks } from '@kubb/core'
 import WebSocket from 'ws'
 import type { AgentMessage, DataMessagePayload } from '~/types/agent.ts'
@@ -139,7 +138,7 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
     })
     sendDataMessage({
       type: 'kubb:generation:end',
-      data: [{ config, files: files as unknown as FileNode[], sources: sourcesRecord }],
+      data: [{ config, files, sources: sourcesRecord }],
       timestamp: Date.now(),
     })
   })
