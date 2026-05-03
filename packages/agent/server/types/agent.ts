@@ -40,7 +40,7 @@ export type JSONKubbConfig = {
 /**
  * Typed events sent by the Kubb agent to Studio over WebSocket.
  * Mirrors the single-context-object tuple style of {@link KubbHooks} in `@kubb/core`,
- * using JSON-serialisable shapes (e.g. `sources` as a `Record` instead of `Map`,
+ * using JSON-serializable shapes (e.g. `sources` as a `Record` instead of `Map`,
  * `error` as `{ message; stack? }` instead of `Error`).
  */
 export type KubbHooks = {

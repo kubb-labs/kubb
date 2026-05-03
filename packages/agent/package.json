@@ -63,6 +63,7 @@
     "@internals/utils": "workspace:*",
     "@kubb/adapter-oas": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
+    "@kubb/renderer-jsx": "workspace:*",
     "@types/ws": "^8.18.1",
     "msw": "^2.14.2",
     "nitropack": "^2.13.4",
