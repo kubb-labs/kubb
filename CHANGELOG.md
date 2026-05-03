@@ -1,5 +1,81 @@
 # Changelog
 
+## v5.0.0-beta.4 — May 3, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Each package now ships an `extension.yaml` file with its npm release.
+  
+  - `adapter-oas` → `extension.yaml` (`kind: adapter`)
+  - `middleware-barrel` → `extension.yaml` (`kind: middleware`)
+  - `parser-ts` → `extension.yaml` (`kind: parser`)
+  
+  Each file is a self-contained extension manifest: it describes the package's options, examples, and resources, and references the unified `extension.json` schema for IDE validation. Third-party adapters, middlewares, and parsers follow the same pattern — one `extension.yaml` per package with the appropriate `kind` field. ([#3224](https://github.com/kubb-labs/kubb/pull/3224), [`0542031`](https://github.com/kubb-labs/kubb/commit/054203191e62b5035a1f731a1e1d2d13e1b174f0))
+
+### @kubb/core
+
+#### Features
+
+- Make `adapter` and `input` optional in `Config` and `UserConfig` to support plugin-only mode.
+  
+  When `adapter` is omitted, Kubb skips the spec parse phase and runs in plugin-only mode:
+  - `kubb:plugin:setup` fires normally — `injectFile` works as usual
+  - Files injected via `injectFile` are written through storage as usual
+  - `kubb:build:start` is **not** emitted (no `inputNode`)
+  - `kubb:generate:schema` / `kubb:generate:operation` are never emitted
+  
+  This enables scripts that use Kubb purely for its file-management layer without needing a dummy OpenAPI spec.
+  
+  ```ts
+  // before — a dummy spec was required even for file-injection-only scripts
+  export default defineConfig({
+    input: { path: './dummy.yaml' },
+    output: { path: '.' },
+    adapter: adapterOas(),
+    plugins: [myFilePlugin()],
+  })
+  
+  // after — adapter and input can be omitted entirely
+  export default defineConfig({
+    output: { path: '.' },
+    plugins: [myFilePlugin()],
+  })
+  ```
+  
+  When `adapter` is set but `input` is omitted, a clear runtime error is thrown: `[kubb] input is required when using an adapter`. ([#3226](https://github.com/kubb-labs/kubb/pull/3226), [`81fbfae`](https://github.com/kubb-labs/kubb/commit/81fbfae1347bd63e1f91b2aca1f9fb14d157f85f))
+
+### @kubb/middleware-barrel
+
+#### Features
+
+- Each package now ships an `extension.yaml` file with its npm release.
+  
+  - `adapter-oas` → `extension.yaml` (`kind: adapter`)
+  - `middleware-barrel` → `extension.yaml` (`kind: middleware`)
+  - `parser-ts` → `extension.yaml` (`kind: parser`)
+  
+  Each file is a self-contained extension manifest: it describes the package's options, examples, and resources, and references the unified `extension.json` schema for IDE validation. Third-party adapters, middlewares, and parsers follow the same pattern — one `extension.yaml` per package with the appropriate `kind` field. ([#3224](https://github.com/kubb-labs/kubb/pull/3224), [`0542031`](https://github.com/kubb-labs/kubb/commit/054203191e62b5035a1f731a1e1d2d13e1b174f0))
+
+### @kubb/parser-ts
+
+#### Features
+
+- Each package now ships an `extension.yaml` file with its npm release.
+  
+  - `adapter-oas` → `extension.yaml` (`kind: adapter`)
+  - `middleware-barrel` → `extension.yaml` (`kind: middleware`)
+  - `parser-ts` → `extension.yaml` (`kind: parser`)
+  
+  Each file is a self-contained extension manifest: it describes the package's options, examples, and resources, and references the unified `extension.json` schema for IDE validation. Third-party adapters, middlewares, and parsers follow the same pattern — one `extension.yaml` per package with the appropriate `kind` field. ([#3224](https://github.com/kubb-labs/kubb/pull/3224), [`0542031`](https://github.com/kubb-labs/kubb/commit/054203191e62b5035a1f731a1e1d2d13e1b174f0))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.3 — Apr 30, 2026
 
 ### @kubb/ast
