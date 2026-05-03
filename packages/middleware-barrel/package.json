@@ -21,6 +21,7 @@
   "files": [
     "src",
     "dist",
+    "extension.yaml",
     "*.d.ts",
     "*.d.cts",
     "!/**/**.test.**",
