@@ -46,11 +46,7 @@ packages/
 
 ```
 schemas/
-├── extension.json           # Unified schema for all extension kinds (plugin/adapter/middleware/parser)
-├── plugins/                 # Registry schema (plugins.json)
-├── adapters/                # Registry schema (adapters.json)
-├── parsers/                 # Registry schema (parsers.json)
-└── middlewares/             # Registry schema (middlewares.json)
+└── extension.json           # Unified schema for all extension kinds (plugin/adapter/middleware/parser)
 ```
 
 ### Internals
