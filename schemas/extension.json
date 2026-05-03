@@ -8,7 +8,6 @@
   "properties": {
     "kind": {
       "type": "string",
-      "enum": ["plugin", "adapter", "middleware", "parser"],
       "description": "Extension kind — what role this package plays in the Kubb pipeline."
     },
     "id": {
@@ -35,13 +34,7 @@
     },
     "category": {
       "type": "string",
-      "description": "Extension category for organisation and filtering.",
-      "enum": [
-        "ai", "client", "documentation", "framework", "mocks", "output",
-        "testing", "types", "validation",
-        "asyncapi", "graphql", "grpc", "json", "openapi",
-        "javascript", "typescript", "yaml", "other"
-      ]
+      "description": "Extension category for organisation and filtering."
     },
     "compatibility": {
       "$ref": "#/definitions/compatibility"
@@ -101,46 +94,40 @@
       "items": { "$ref": "#/definitions/calloutBlock" }
     }
   },
-  "if": {
-    "properties": { "kind": { "const": "plugin" } },
-    "required": ["kind"]
-  },
-  "then": {
-    "properties": {
-      "category": {
-        "enum": ["ai", "client", "documentation", "framework", "mocks", "testing", "types", "validation"]
-      }
-    },
-    "required": ["category"]
-  },
-  "else": {
-    "if": {
-      "properties": { "kind": { "const": "adapter" } },
-      "required": ["kind"]
-    },
-    "then": {
+  "oneOf": [
+    {
       "properties": {
+        "kind": { "const": "plugin" },
+        "category": {
+          "enum": ["ai", "client", "documentation", "framework", "mocks", "testing", "types", "validation"]
+        }
+      },
+      "required": ["category"]
+    },
+    {
+      "properties": {
+        "kind": { "const": "adapter" },
         "category": {
           "enum": ["asyncapi", "graphql", "grpc", "json", "openapi"]
         }
       },
       "required": ["category"]
     },
-    "else": {
-      "if": {
-        "properties": { "kind": { "const": "parser" } },
-        "required": ["kind"]
-      },
-      "then": {
-        "properties": {
-          "category": {
-            "enum": ["javascript", "json", "typescript", "yaml", "other"]
-          }
-        },
-        "required": ["category"]
+    {
+      "properties": {
+        "kind": { "const": "middleware" }
       }
+    },
+    {
+      "properties": {
+        "kind": { "const": "parser" },
+        "category": {
+          "enum": ["javascript", "json", "typescript", "yaml", "other"]
+        }
+      },
+      "required": ["category"]
     }
-  },
+  ],
   "definitions": {
     "calloutBlock": {
       "type": "object",
