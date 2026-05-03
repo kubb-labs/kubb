@@ -131,7 +131,7 @@ async function generate(options: GenerateProps): Promise<void> {
   const { input, hooks, logLevel } = options
 
   const hrStart = process.hrtime()
-  const inputPath = input ?? ('path' in options.config.input ? options.config.input.path : undefined)
+  const inputPath = input ?? (options.config.input && 'path' in options.config.input ? options.config.input.path : undefined)
 
   const config: Config = {
     ...options.config,

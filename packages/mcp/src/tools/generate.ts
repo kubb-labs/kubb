@@ -116,7 +116,7 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
       }
     }
 
-    const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
+    const inputPath = input ?? (userConfig.input && 'path' in userConfig.input ? userConfig.input.path : undefined)
 
     // Override config with CLI options
     const config: Config = {

@@ -246,8 +246,8 @@ describe('defineConfig', () => {
     const typedPathConfig: UserConfig<{ path: string }> = pathConfig
     const typedDataConfig: UserConfig<{ data: { openapi: string } }> = dataConfig
 
-    expect(typedPathConfig.input.path).toBe('spec.yaml')
-    expect(typedDataConfig.input.data).toEqual({ openapi: '3.1.0' })
+    expect(typedPathConfig.input!.path).toBe('spec.yaml')
+    expect(typedDataConfig.input!.data).toEqual({ openapi: '3.1.0' })
   })
 
   test('accepts named configs with hooks', () => {

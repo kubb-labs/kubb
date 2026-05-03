@@ -100,10 +100,6 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     }
   }
 
-  if (!userConfig.adapter) {
-    throw new Error('Adapter should be defined')
-  }
-
   const config: Config = {
     ...userConfig,
     root: userConfig.root || process.cwd(),
@@ -156,28 +152,26 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     }
   }
 
-  const adapter = config.adapter
-  if (!adapter) {
-    throw new Error('No adapter configured. Please provide an adapter in your kubb.config.ts.')
+  if (config.adapter) {
+    const source = inputToAdapterSource(config)
+
+    await hooks.emit('kubb:debug', {
+      date: new Date(),
+      logs: [`Running adapter: ${config.adapter.name}`],
+    })
+
+    driver.adapter = config.adapter
+    driver.inputNode = await config.adapter.parse(source)
+
+    await hooks.emit('kubb:debug', {
+      date: new Date(),
+      logs: [
+        `✓ Adapter '${config.adapter.name}' resolved InputNode`,
+        `  • Schemas: ${driver.inputNode.schemas.length}`,
+        `  • Operations: ${driver.inputNode.operations.length}`,
+      ],
+    })
   }
-  const source = inputToAdapterSource(config)
-
-  await hooks.emit('kubb:debug', {
-    date: new Date(),
-    logs: [`Running adapter: ${adapter.name}`],
-  })
-
-  driver.adapter = adapter
-  driver.inputNode = await adapter.parse(source)
-
-  await hooks.emit('kubb:debug', {
-    date: new Date(),
-    logs: [
-      `✓ Adapter '${adapter.name}' resolved InputNode`,
-      `  • Schemas: ${driver.inputNode.schemas.length}`,
-      `  • Operations: ${driver.inputNode.operations.length}`,
-    ],
-  })
 
   return {
     config,
@@ -494,22 +488,27 @@ async function build(setupResult: SetupResult): Promise<BuildOutput> {
 }
 
 function inputToAdapterSource(config: Config): AdapterSource {
-  if (Array.isArray(config.input)) {
+  const input = config.input
+  if (!input) {
+    throw new Error('[kubb] input is required when using an adapter. Provide input.path or input.data in your config.')
+  }
+
+  if (Array.isArray(input)) {
     return {
       type: 'paths',
-      paths: config.input.map((i) => (new URLPath(i.path).isURL ? i.path : resolve(config.root, i.path))),
+      paths: input.map((i) => (new URLPath(i.path).isURL ? i.path : resolve(config.root, i.path))),
     }
   }
 
-  if ('data' in config.input) {
-    return { type: 'data', data: config.input.data }
+  if ('data' in input) {
+    return { type: 'data', data: input.data }
   }
 
-  if (new URLPath(config.input.path).isURL) {
-    return { type: 'path', path: config.input.path }
+  if (new URLPath(input.path).isURL) {
+    return { type: 'path', path: input.path }
   }
 
-  const resolved = resolve(config.root, config.input.path)
+  const resolved = resolve(config.root, input.path)
   return { type: 'path', path: resolved }
 }
 
