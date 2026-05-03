@@ -189,6 +189,10 @@ export type Config<TInput = Input> = {
    * Adapter that parses input files into the universal `InputNode` representation.
    * Use `@kubb/adapter-oas` for OpenAPI/Swagger or `@kubb/adapter-asyncapi` for other formats.
    *
+   * When omitted, Kubb runs in plugin-only mode: `kubb:plugin:setup` fires and files
+   * injected via `injectFile` are written, but no AST walk occurs and generator hooks
+   * (`kubb:generate:schema`, `kubb:generate:operation`) are never emitted.
+   *
    * @example
    * ```ts
    * import { adapterOas } from '@kubb/adapter-oas'
@@ -198,12 +202,13 @@ export type Config<TInput = Input> = {
    * })
    * ```
    */
-  adapter: Adapter
+  adapter?: Adapter
   /**
    * Source file or data to generate code from.
    * Use `input.path` for a file path or `input.data` for inline data.
+   * Required when an adapter is configured; omit when running in plugin-only mode.
    */
-  input: TInput
+  input?: TInput
   output: {
     /**
      * Output directory for generated files, absolute or relative to `root`.
@@ -594,7 +599,7 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
    * Each parser handles a specific file type. By default, Kubb uses `parserTs` from `@kubb/parser-ts` for TypeScript files.
    * Pass custom parsers to support additional languages or custom formats.
    *
-   * @default [parserTs]  // from @kubb/parser-ts
+   * @default [parserTs]  // from `@kubb/parser-ts`
    * @example
    * ```ts
    * import { parserTs } from '@kubb/parser-ts'
@@ -609,15 +614,15 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
   /**
    * Adapter that parses your API specification (OpenAPI, GraphQL, AsyncAPI, etc.) into Kubb's universal AST.
    *
-   * The adapter bridge between your input format and Kubb's internal representation. By default, uses the OAS adapter.
-   * Pass an alternative adapter (or multiple configs with different adapters) to support different spec formats.
+   * Pass an adapter to support different spec formats. When omitted, Kubb runs in plugin-only mode —
+   * `kubb:plugin:setup` fires and `injectFile` works, but no AST walk occurs and generator hooks
+   * (`kubb:generate:schema`, `kubb:generate:operation`) are never emitted.
    *
-   * @default new OasAdapter()  // from @kubb/adapter-oas
    * @example
    * ```ts
-   * import { Oas } from '@kubb/adapter-oas'
+   * import { adapterOas } from '@kubb/adapter-oas'
    *
-   * adapter: new Oas({ apiVersion: '3.0.0' })
+   * adapter: adapterOas()
    * ```
    *
    * @see {@link Adapter} to implement a custom adapter for GraphQL or other formats.
