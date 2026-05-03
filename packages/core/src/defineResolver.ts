@@ -325,9 +325,9 @@ export function buildDefaultBanner({
       if (first && 'path' in first) {
         source = path.basename(first.path)
       }
-    } else if ('path' in config.input) {
+    } else if (config.input && 'path' in config.input) {
       source = path.basename(config.input.path)
-    } else if ('data' in config.input) {
+    } else if (config.input && 'data' in config.input) {
       source = 'text content'
     }
 
