@@ -21,7 +21,7 @@
   "files": [
     "src",
     "dist",
-    "adapter.yaml",
+    "extension.yaml",
     "!/**/**.test.**",
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"

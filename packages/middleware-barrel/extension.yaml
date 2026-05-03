@@ -1,4 +1,5 @@
-$schema: https://kubb.dev/schemas/middlewares/middleware.json
+$schema: https://kubb.dev/schemas/extension.json
+kind: middleware
 id: middleware-barrel
 name: Barrel
 description: Automatically generates barrel files (index.ts exports) for every plugin output directory. Ships with Kubb and is enabled by default.

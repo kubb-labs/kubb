@@ -1,4 +1,5 @@
-$schema: https://kubb.dev/schemas/parsers/parser.json
+$schema: https://kubb.dev/schemas/extension.json
+kind: parser
 id: parser-ts
 name: TypeScript
 description: TypeScript and TSX file parser for Kubb. Converts the universal AST to `.ts`/`.tsx` source code using the official TypeScript compiler.
