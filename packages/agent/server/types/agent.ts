@@ -17,35 +17,51 @@ export type JSONKubbConfig = {
     options: object
   }>
   /**
+   * Middleware entries sent from Studio UI.
+   * Each entry is dynamically loaded by package name and instantiated with the provided options.
+   * Example: `{ name: '@kubb/middleware-barrel', options: {} }`
+   */
+  middleware?: Array<{
+    name: string
+    options?: object
+  }>
+  /**
    * Raw OpenAPI / Swagger spec content (YAML or JSON string).
    * Only possible to set when agent type is 'sandbox'
    */
   input?: string
+  /**
+   * Adapter-level overrides sent from Studio UI — treated as an opaque blob, same as plugin options.
+   * The agent forwards this unchanged to the adapter factory, which validates its own options.
+   */
+  adapter?: object
 }
 
 /**
- * Typed events sent by the Kubb agent.
- * Follows the same tuple structure as {@link KubbHooks}.
+ * Typed events sent by the Kubb agent to Studio over WebSocket.
+ * Mirrors the single-context-object tuple style of {@link KubbHooks} in `@kubb/core`,
+ * using JSON-serializable shapes (e.g. `sources` as a `Record` instead of `Map`,
+ * `error` as `{ message; stack? }` instead of `Error`).
  */
 export type KubbHooks = {
-  'kubb:plugin:start': [plugin: { name: string }]
-  'kubb:plugin:end': [plugin: { name: string }, meta: { duration: number; success: boolean }]
-  'kubb:files:processing:start': [meta: { total: number }]
+  'kubb:plugin:start': [ctx: { plugin: { name: string } }]
+  'kubb:plugin:end': [ctx: { plugin: { name: string }; duration: number; success: boolean }]
+  'kubb:files:processing:start': [ctx: { total: number }]
   'kubb:file:processing:update': [
-    meta: {
+    ctx: {
       file: string
       processed: number
       total: number
       percentage: number
     },
   ]
-  'kubb:files:processing:end': [meta: { total: number }]
-  'kubb:info': [message: string, info?: string]
-  'kubb:success': [message: string, info?: string]
-  'kubb:warn': [message: string, info?: string]
-  'kubb:error': [error: { message: string; stack?: string }]
-  'kubb:generation:start': [config: { name?: string; plugins: number }]
-  'kubb:generation:end': [Config: Config, files: Array<FileNode>, sources: Record<string, string>]
+  'kubb:files:processing:end': [ctx: { total: number }]
+  'kubb:info': [ctx: { message: string; info?: string }]
+  'kubb:success': [ctx: { message: string; info?: string }]
+  'kubb:warn': [ctx: { message: string; info?: string }]
+  'kubb:error': [ctx: { message: string; stack?: string }]
+  'kubb:generation:start': [ctx: { name?: string; plugins: number }]
+  'kubb:generation:end': [ctx: { config: Config; files: Array<FileNode>; sources: Record<string, string> }]
   'kubb:lifecycle:end': []
 }
 

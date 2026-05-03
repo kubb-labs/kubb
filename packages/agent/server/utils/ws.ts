@@ -1,4 +1,3 @@
-import type { FileNode } from '@kubb/ast'
 import type { AsyncEventEmitter, KubbHooks } from '@kubb/core'
 import WebSocket from 'ws'
 import type { AgentMessage, DataMessagePayload } from '~/types/agent.ts'
@@ -50,7 +49,7 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
   hooks.on('kubb:plugin:start', (ctx) => {
     sendDataMessage({
       type: 'kubb:plugin:start',
-      data: [ctx.plugin],
+      data: [{ plugin: ctx.plugin }],
       timestamp: Date.now(),
     })
   })
@@ -58,7 +57,7 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
   hooks.on('kubb:plugin:end', (ctx) => {
     sendDataMessage({
       type: 'kubb:plugin:end',
-      data: [ctx.plugin, { duration: ctx.duration, success: ctx.success }],
+      data: [{ plugin: ctx.plugin, duration: ctx.duration, success: ctx.success }],
       timestamp: Date.now(),
     })
   })
@@ -97,7 +96,7 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
   hooks.on('kubb:info', ({ message, info }) => {
     sendDataMessage({
       type: 'kubb:info',
-      data: [message, info],
+      data: [{ message, info }],
       timestamp: Date.now(),
     })
   })
@@ -105,7 +104,7 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
   hooks.on('kubb:success', ({ message, info }) => {
     sendDataMessage({
       type: 'kubb:success',
-      data: [message, info],
+      data: [{ message, info }],
       timestamp: Date.now(),
     })
   })
@@ -113,7 +112,7 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
   hooks.on('kubb:warn', ({ message, info }) => {
     sendDataMessage({
       type: 'kubb:warn',
-      data: [message, info],
+      data: [{ message, info }],
       timestamp: Date.now(),
     })
   })
@@ -139,7 +138,7 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
     })
     sendDataMessage({
       type: 'kubb:generation:end',
-      data: [config, files as unknown as FileNode[], sourcesRecord],
+      data: [{ config, files, sources: sourcesRecord }],
       timestamp: Date.now(),
     })
   })
