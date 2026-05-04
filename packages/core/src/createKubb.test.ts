@@ -246,4 +246,20 @@ describe('createKubb', () => {
     expect(hooks.listenerCount('kubb:generate:operation')).toBe(0)
     expect(hooks.listenerCount('kubb:generate:operations')).toBe(0)
   })
+
+  it('does not throw when userConfig.plugins is undefined', async () => {
+    const userConfig: UserConfig = {
+      root: '.',
+      input: {
+        path: 'https://petstore3.swagger.io/api/v3/openapi.json',
+      },
+      output: {
+        path: './src/gen',
+      },
+      parsers: [],
+      adapter: createMockedAdapter(),
+    }
+
+    await expect(createKubb(userConfig).safeBuild()).resolves.not.toThrow()
+  })
 })

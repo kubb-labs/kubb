@@ -119,7 +119,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
           ...(typeof userConfig.devtools === 'boolean' ? {} : userConfig.devtools),
         }
       : undefined,
-    plugins: userConfig.plugins as unknown as Config['plugins'],
+    plugins: (userConfig.plugins ?? []) as unknown as Config['plugins'],
   }
 
   const storage: Storage | null = config.output.write === false ? null : (config.storage ?? fsStorage())
