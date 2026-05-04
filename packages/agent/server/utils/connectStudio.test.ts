@@ -52,7 +52,8 @@ import { generate } from './generate.ts'
 import { loadConfig } from './loadConfig.ts'
 import { logger } from './logger.ts'
 import { resolveMiddlewares, resolvePlugins } from './resolvePlugins.ts'
-import { createWebsocket, sendAgentMessage } from './ws.ts'
+import { setupHookListener } from './setupHookListener.ts'
+import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
 
 // Shared test helpers
 
@@ -335,6 +336,23 @@ describe('connectToStudio', () => {
     // adapter should not be set to undefined — disk config adapter must survive
     const call = vi.mocked(generate).mock.calls[0]?.[0]
     expect(call?.config).not.toHaveProperty('adapter', undefined)
+  })
+
+  it('uses an isolated hooks emitter for each generate command', async () => {
+    await connectToStudio(options)
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'command', command: 'generate', payload: { plugins: [] } }),
+    })
+
+    const connectionHooks = vi.mocked(setupEventsStream).mock.calls[0]?.[1]
+    const generationHooks = vi.mocked(setupEventsStream).mock.calls[1]?.[1]
+    const generateHooks = vi.mocked(generate).mock.calls[0]?.[0].hooks
+
+    expect(generationHooks).toBeDefined()
+    expect(generationHooks).not.toBe(connectionHooks)
+    expect(generateHooks).toBe(generationHooks)
+    expect(setupHookListener).toHaveBeenCalledWith(generationHooks, options.root)
   })
 
   it('resolves and forwards middleware from payload to the generate config', async () => {

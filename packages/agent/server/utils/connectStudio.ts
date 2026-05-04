@@ -204,6 +204,10 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               })
             }
 
+            const generationHooks = new AsyncEventEmitter<KubbHooks>()
+            setupHookListener(generationHooks, root)
+            setupEventsStream(ws, generationHooks, () => currentSource)
+
             await generate({
               config: {
                 ...config,
@@ -219,7 +223,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 // The adapter factory is responsible for validating and merging its own options.
                 ...(patch?.adapter != null && { adapter: patch.adapter as typeof config.adapter }),
               },
-              hooks,
+              hooks: generationHooks,
             })
 
             logger.success(`[${maskedSessionId}] Completed "${data.type}" from Studio`)
