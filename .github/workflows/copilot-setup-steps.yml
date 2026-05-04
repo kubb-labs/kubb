@@ -1,4 +1,4 @@
-name: 'Copilot Setup Steps'
+name: "Copilot Setup Steps"
 
 # Automatically run the setup steps when they are changed to allow for easy validation, and
 # allow manual testing through the repository's "Actions" tab
@@ -16,28 +16,17 @@ jobs:
   copilot-setup-steps:
     runs-on: ubuntu-latest
 
-    # Set the permissions to the lowest permissions possible needed for your steps.
-    # Copilot will be given its own token for its operations.
     permissions:
-      # If you want to clone the repository as part of your setup steps, for example to install dependencies, you'll need the `contents: read` permission. If you don't clone the repository in your setup steps, Copilot will do this for you automatically after the steps complete.
       contents: read
 
-    # You can define any steps you want, and they will run before the agent starts.
-    # If you do not check out your code, Copilot will do this for you.
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@main
         with:
           node-version: '22'
-
-      - name: Enable pnpm via corepack
-        run: corepack enable pnpm
-
-      - name: Install dependencies
-        run: pnpm install
 
       - name: Build
         run: pnpm run build
