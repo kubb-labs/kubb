@@ -51,8 +51,6 @@
   "dependencies": {
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/middleware-barrel": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
     "@logtail/node": "^0.5.8",
     "consola": "^3.4.2",
     "remeda": "catalog:",
@@ -64,6 +62,7 @@
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "@kubb/adapter-oas": "workspace:*",
+    "@kubb/parser-ts": "workspace:*",
     "@kubb/renderer-jsx": "workspace:*",
     "@types/ws": "^8.18.1",
     "msw": "^2.14.2",

@@ -141,12 +141,6 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/middleware-barrel':
-        specifier: workspace:*
-        version: link:../middleware-barrel
-      '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../parser-ts
       '@logtail/node':
         specifier: ^0.5.8
         version: 0.5.8
@@ -175,6 +169,9 @@ importers:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../adapter-oas
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
       '@kubb/renderer-jsx':
         specifier: workspace:*
         version: link:../renderer-jsx
