@@ -13,7 +13,6 @@ FROM node:${NODE_VERSION}-alpine AS installer
 ARG KUBB_PACKAGES
 WORKDIR /tmp
 RUN npm install --legacy-peer-deps ${KUBB_PACKAGES}
-RUN adduser -D -u 1000 appuser
 
 # Stage 2: distroless runtime (no shell required)
 # https://github.com/GoogleContainerTools/distroless/blob/main/nodejs/README.md
