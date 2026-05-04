@@ -1,5 +1,16 @@
 # Changelog
 
+## v5.0.0-beta.5 — May 4, 2026
+
+### @kubb/agent
+
+#### Bug Fixes
+
+- Add `@kubb/parser-ts` to the default `KUBB_PACKAGES` build ARG in the agent Dockerfile.
+  
+  `kubb.config.ts` files that import `@kubb/parser-ts` (e.g. to use `parserTs`) would fail at runtime inside the Docker container with `Cannot find package '@kubb/parser-ts'` because the package was not explicitly listed in the installer stage. It is now included alongside the other Kubb packages. ([#3233](https://github.com/kubb-labs/kubb/pull/3233), [`23d60be`](https://github.com/kubb-labs/kubb/commit/23d60bef6ac3d14100efd7b39de85f1b4cc23cce))
+- Fix Docker build failure on distroless image by replacing `RUN chown` (requires a shell) with `--chown` flags on `COPY` instructions. ([#3231](https://github.com/kubb-labs/kubb/pull/3231), [`2fe62b5`](https://github.com/kubb-labs/kubb/commit/2fe62b5d8ae26f14acb44fe072608a2945736cbf))
+
 ## v5.0.0-beta.4 — May 3, 2026
 
 ### @kubb/adapter-oas
