@@ -127,7 +127,7 @@
     "@nuxt/schema": "^4.4.4",
     "esbuild": "^0.28.0",
     "rolldown": "1.0.0-rc.16",
-    "rollup": "^4.60.2",
+    "rollup": "^4.60.3",
     "vite": "^8.0.10",
     "webpack": "^5.106.2"
   },

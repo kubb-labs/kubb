@@ -65,7 +65,7 @@
     "@kubb/parser-ts": "workspace:*",
     "@kubb/renderer-jsx": "workspace:*",
     "@types/ws": "^8.18.1",
-    "msw": "^2.14.2",
+    "msw": "^2.14.3",
     "nitropack": "^2.13.4",
     "vite": "^8.0.10"
   },
