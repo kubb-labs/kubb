@@ -1,5 +1,5 @@
 {
-  "extends": "./bundler.json",
+  "extends": "./configs/bundler.json",
   "compilerOptions": {
     "rootDir": ".",
     "types": ["bun-types"],
