@@ -45,11 +45,11 @@ function sendToBetterStack(level: LogLevel, tag: string, message?: string, ctx?:
     const fullMessage = message !== undefined ? `[${tag}] ${message}` : tag
     const context = toBetterStackContext(ctx)
     if (level === 'error') {
-      client.error(fullMessage, context).then(() => client.flush())
+      client.error(fullMessage, context).then(() => client.flush()).catch(() => {})
     } else if (level === 'warn') {
-      client.warn(fullMessage, context).then(() => client.flush())
+      client.warn(fullMessage, context).then(() => client.flush()).catch(() => {})
     } else {
-      client.info(fullMessage, context).then(() => client.flush())
+      client.info(fullMessage, context).then(() => client.flush()).catch(() => {})
     }
   } catch (_e) {
     // Never let BetterStack break the app
