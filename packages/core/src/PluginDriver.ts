@@ -138,6 +138,8 @@ export class PluginDriver {
   registerPluginHooks(hookPlugin: Plugin, normalizedPlugin: NormalizedPlugin): void {
     const { hooks } = hookPlugin
 
+    if (!hooks) return
+
     // kubb:plugin:setup gets special treatment: the globally emitted context is wrapped with
     // plugin-specific implementations so that addGenerator / setResolver / etc. target
     // this plugin's normalizedPlugin entry rather than being no-ops.

@@ -61,4 +61,14 @@ describe('PluginDriver', () => {
     expect(names.indexOf('pre')).toBeLessThan(names.indexOf('normal'))
     expect(names.indexOf('normal')).toBeLessThan(names.indexOf('post'))
   })
+
+  test('does not throw when a plugin has no hooks property', () => {
+    const pluginWithoutHooks = { name: 'no-hooks' } as unknown as Plugin
+    const cfg = {
+      ...config,
+      plugins: [pluginWithoutHooks],
+    } satisfies Config
+
+    expect(() => new PluginDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })).not.toThrow()
+  })
 })
