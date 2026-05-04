@@ -3,10 +3,10 @@ ARG NODE_VERSION=22
 # Both @kubb/* scoped and third-party packages are supported.
 # Override at build time to add or remove packages:
 #   docker build --build-arg KUBB_PACKAGES="kubb @kubb/core @kubb/plugin-ts @kubb/middleware-barrel my-custom-plugin" .
-ARG KUBB_PACKAGES="kubb @kubb/core @kubb/cli @kubb/adapter-oas @kubb/parser-ts @kubb/plugin-client @kubb/plugin-cypress @kubb/plugin-faker \
-                         @kubb/plugin-mcp @kubb/plugin-msw @kubb/plugin-oas @kubb/plugin-react-query @kubb/plugin-redoc \
-                         @kubb/plugin-ts @kubb/plugin-vue-query \
-                         @kubb/plugin-zod @kubb/middleware-barrel unplugin-kubb"
+ARG KUBB_PACKAGES="kubb@beta @kubb/core@beta @kubb/cli@beta @kubb/adapter-oas@beta @kubb/parser-ts@beta @kubb/plugin-client@beta @kubb/plugin-cypress@beta @kubb/plugin-faker@beta \
+                         @kubb/plugin-mcp@beta @kubb/plugin-msw@beta @kubb/plugin-oas@beta @kubb/plugin-react-query@beta @kubb/plugin-redoc@beta \
+                         @kubb/plugin-ts@beta @kubb/plugin-vue-query@beta \
+                         @kubb/plugin-zod@beta @kubb/middleware-barrel@beta unplugin-kubb@beta"
 
 # Stage 1: install kubb peer dependencies using a shell-capable image
 FROM node:${NODE_VERSION}-alpine AS installer
