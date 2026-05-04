@@ -18,6 +18,12 @@ catalogs:
     '@types/react-reconciler':
       specifier: 0.33.0
       version: 0.33.0
+    '@vitest/coverage-v8':
+      specifier: ^4.1.5
+      version: 4.1.5
+    '@vitest/ui':
+      specifier: ^4.1.5
+      version: 4.1.5
     p-limit:
       specifier: ^7.3.0
       version: 7.3.0
@@ -63,10 +69,10 @@ importers:
         specifier: 'catalog:'
         version: 25.6.0
       '@vitest/coverage-v8':
-        specifier: ^4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(vitest@4.1.5)
       '@vitest/ui':
-        specifier: ^4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(vitest@4.1.5)
       bun-types:
         specifier: ^1.3.13
