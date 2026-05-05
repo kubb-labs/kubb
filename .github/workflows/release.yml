@@ -15,7 +15,6 @@ permissions:
   actions: write
   contents: write
   id-token: write
-  models: read
   packages: write
   pull-requests: write
   issues: write
@@ -51,7 +50,7 @@ jobs:
         run: pnpm run test
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v6
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -63,23 +62,22 @@ jobs:
           publish: pnpm release
           commit: 'ci(changesets): version packages'
           setupGitUser: false
+          setupNpmrc: false
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish ${{ inputs.tag || 'canary' }}
         id: canary
         if: steps.changesets.outputs.published != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+          RELEASE_TAG: ${{ inputs.tag || 'canary' }}
         run: |
           git checkout main
           pnpm version:canary
-          pnpm release:canary --tag ${{ inputs.tag || 'canary' }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
+          pnpm release:canary --tag "$RELEASE_TAG"
 
   get-version:
     name: Get Published Version
@@ -91,7 +89,7 @@ jobs:
     steps:
       - name: Get version
         id: version
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           PUBLISHED_PACKAGES: ${{ needs.release.outputs.published_packages }}
         with:
@@ -108,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send a discord notification
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           PUBLISHED_PACKAGES: ${{ needs.release.outputs.published_packages }}

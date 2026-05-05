@@ -2,6 +2,8 @@ name: Labeler
 on:
   - pull_request_target
 
+permissions: {}
+
 jobs:
   labeler:
     permissions:

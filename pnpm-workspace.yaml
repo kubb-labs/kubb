@@ -2,6 +2,12 @@ packages:
   - packages/*
   - internals/*
 
+allowBuilds:
+  esbuild: true
+
+pmOnFail: warn
+minimumReleaseAge: 0
+
 catalog:
   '@types/node': ^22.x
   '@types/react': ^19.2.14
