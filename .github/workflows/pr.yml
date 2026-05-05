@@ -18,11 +18,13 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
+    env:
+      TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha }}
     steps:
       - name: Check out code
         uses: actions/checkout@v6
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Setup Toolchain
         uses: moonrepo/setup-toolchain@v0
@@ -33,7 +35,7 @@ jobs:
           node-version: '22'
 
       - name: Build
-        run: pnpm run build
+        run: pnpm turbo run build --affected
 
   typecheck:
     name: Typecheck
@@ -41,11 +43,13 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
     needs: build
+    env:
+      TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha }}
     steps:
       - name: Check out code
         uses: actions/checkout@v6
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Setup Toolchain
         uses: moonrepo/setup-toolchain@v0
@@ -56,10 +60,10 @@ jobs:
           node-version: '22'
 
       - name: Build
-        run: pnpm run build
+        run: pnpm turbo run build --affected
 
       - name: Typecheck
-        run: pnpm run typecheck
+        run: pnpm turbo run typecheck --affected
 
   tests:
     name: Tests
@@ -67,11 +71,13 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
     needs: build
+    env:
+      TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha }}
     steps:
       - name: Check out code
         uses: actions/checkout@v6
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Setup Toolchain
         uses: moonrepo/setup-toolchain@v0
