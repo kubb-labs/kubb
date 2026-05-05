@@ -47,7 +47,7 @@ jobs:
         run: pnpm run build
 
       - name: Test
-        run: pnpm test
+        run: pnpm exec vitest run --config ./configs/vitest.config.ts --coverage
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v6
