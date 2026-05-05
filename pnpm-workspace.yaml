@@ -3,7 +3,11 @@ packages:
   - internals/*
 
 allowBuilds:
+  '@parcel/watcher': true
+  core-js: true
+  es5-ext: true
   esbuild: true
+  msw: true
 
 pmOnFail: warn
 minimumReleaseAge: 0
