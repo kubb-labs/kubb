@@ -76,7 +76,7 @@ jobs:
         run: pnpm run build
 
       - name: Test
-        run: pnpm run test
+        run: pnpm test
 
       - name: Upload coverage reports to Codecov
         if: ${{ !cancelled() }}
