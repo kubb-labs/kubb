@@ -1,0 +1,7 @@
+projects:
+  - packages/*
+  - internals/utils
+vcs:
+  defaultBranch: main
+  provider: github
+telemetry: false

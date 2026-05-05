@@ -1,0 +1,8 @@
+node: {}
+
+pnpm: {}
+
+javascript:
+  packageManager: pnpm
+  inferTasksFromScripts: false
+  syncProjectWorkspaceDependencies: true

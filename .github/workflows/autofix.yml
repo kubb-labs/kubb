@@ -22,6 +22,9 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: Setup Toolchain
+        uses: moonrepo/setup-toolchain@v0
+
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:

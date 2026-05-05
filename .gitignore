@@ -69,3 +69,7 @@ packages/*/CHANGELOG.md
 ## Nitro
 .output
 .nitro
+
+# moon
+.moon/cache
+.moon/docker

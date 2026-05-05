@@ -1,0 +1,84 @@
+implicitInputs:
+- tsconfig.json
+- $NODE_ENV
+tasks:
+  build:
+    command: pnpm run build
+    deps:
+    - ^:build
+    inputs:
+    - src/**/*.ts
+    - server/**/*.ts
+    - src/**/*.tsx
+    - tsdown.config.ts
+    - nitro.config.ts
+    - package.json
+    - tsconfig.json
+    outputs:
+    - dist/**/*
+    - '*.d.ts'
+    - '*.d.cts'
+    - .output/**/*
+  clean:
+    command: pnpm run clean
+    deps:
+    - ^:clean
+    options:
+      cache: false
+      outputStyle: buffer
+  lint:
+    command: pnpm run lint
+    inputs:
+    - src/**/*.ts
+    - src/**/*.tsx
+    - package.json
+    options:
+      cache: false
+  lint.fix:
+    command: pnpm run lint:fix
+    inputs:
+    - src/**/*.ts
+    - src/**/*.tsx
+    - package.json
+    outputs:
+    - src/**/*
+    options:
+      cache: false
+      outputStyle: buffer
+  release:
+    command: pnpm run release
+    deps:
+    - ~:build
+  release.canary:
+    command: pnpm run release:canary
+    deps:
+    - ~:build
+  start:
+    command: pnpm run start
+    deps:
+    - ^:start
+    outputs:
+    - dist/**/*
+    options:
+      cache: false
+      persistent: true
+  test:
+    command: pnpm run test
+    deps:
+    - ^:build
+    inputs:
+    - src/**/*.ts
+    - src/**/*.tsx
+    - test/**/*.ts
+    - test/**/*.tsx
+    - vitest.config.ts
+    outputs:
+    - coverage/**/*
+  typecheck:
+    command: pnpm run typecheck
+    inputs:
+    - src/**/*.ts
+    - src/**/*.tsx
+    - tsconfig.json
+    options:
+      cache: false

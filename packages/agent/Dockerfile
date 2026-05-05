@@ -34,11 +34,11 @@ ENV NODE_ENV=production \
 
 EXPOSE ${PORT}
 
-COPY --link --chown=1000:1000 .output ./.output
+COPY --link --chown=1000:1000 dist ./dist
 COPY --chown=1000:1000 --from=installer /tmp/node_modules ./node_modules
 COPY --link --chown=1000:1000 data /kubb/agent/data
 COPY --from=installer /etc/passwd /etc/passwd
 
 USER 1000
 
-CMD [ ".output/server/index.mjs" ]
+CMD [ "dist/server/index.mjs" ]

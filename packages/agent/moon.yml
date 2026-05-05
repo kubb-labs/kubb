@@ -1,0 +1,12 @@
+tasks:
+  build:
+    command: pnpm run build
+    deps:
+      - ^:build
+    inputs:
+      - server/**/*.ts
+      - nitro.config.ts
+      - package.json
+      - tsconfig.json
+    outputs:
+      - dist/**/*

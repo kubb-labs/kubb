@@ -79,6 +79,9 @@ export default defineNitroConfig({
       base: './.kubb/cache',
     },
   },
+  output: {
+    dir: 'dist',
+  },
   debug: false,
   serveStatic: false,
   compatibilityDate: '2026-02-22',
@@ -92,7 +95,6 @@ export default defineNitroConfig({
     // large (~24 MB) CJS package required by @kubb/parser-ts and @kubb/plugin-ts.
     // Bundling it inline exhausts the default Node.js heap. Declaring it as a
     // rollup external ensures it is resolved from node_modules at runtime.
-    //
     // @kubb/renderer-jsx is also excluded here to match the externals config above.
     external: ['typescript', '@kubb/renderer-jsx'],
     output: {

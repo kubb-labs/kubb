@@ -17,9 +17,9 @@
     ]
   },
   "scripts": {
-    "build": "turbo run build --filter=./packages/*",
+    "build": "moon run :build",
     "changeset": "changeset",
-    "clean": "turbo run clean",
+    "clean": "moon run :clean",
     "format": "oxfmt -c oxfmt.config.ts packages internals configs",
     "graph": "npx nx graph ",
     "lint": "oxlint -c oxlint.config.ts ./packages",
@@ -27,10 +27,10 @@
     "lint:spell": "cspell \"**/*.{ts,md}\" --config ./cspell.json --no-progress",
     "release": "changeset publish",
     "release:canary": "changeset publish --no-git-tag",
-    "start": "turbo run start --filter=./packages/*",
+    "start": "moon run :start",
     "test": "vitest run --config ./configs/vitest.config.ts --coverage",
     "test:watch": "vitest --config ./configs/vitest.config.ts",
-    "typecheck": "turbo run typecheck --continue --filter='./packages/*'",
+    "typecheck": "moon run :typecheck",
     "upgrade": "npx taze -r -w --exclude pnpm",
     "version": "changeset version",
     "version:canary": "changeset version --snapshot canary"
@@ -38,6 +38,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.31.0",
+    "@moonrepo/cli": "^2.2.4",
     "@size-limit/file": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
@@ -50,7 +51,6 @@
     "taze": "^19.11.0",
     "ts-node": "^10.9.2",
     "tsdown": "catalog:",
-    "turbo": "^2.9.9",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
