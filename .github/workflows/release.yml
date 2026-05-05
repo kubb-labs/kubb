@@ -44,10 +44,10 @@ jobs:
           node-version: '22'
 
       - name: Build
-        run: pnpm run build
+        run: pnpm turbo run build
 
       - name: Test
-        run: pnpm run test
+        run: pnpm turbo run test
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v6
