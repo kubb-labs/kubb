@@ -13,7 +13,7 @@ pmOnFail: warn
 minimumReleaseAge: 0
 
 catalog:
-  '@types/node': ^22.x
+  '@types/node': ^22.19.17
   '@types/react': ^19.2.14
   '@types/react-reconciler': 0.33.0
   '@size-limit/file': ^12.1.0
@@ -29,4 +29,4 @@ catalog:
   '@vitest/coverage-v8': ^4.1.5
   '@vitest/ui': ^4.1.5
   oxfmt: ^0.47.0
-  oxlint: ^1.62.0
+  oxlint: ^1.63.0
