@@ -30,7 +30,7 @@
       "inputs": ["src/**/*.ts", "src/**/*.tsx", "package.json"],
       "cache": false
     },
-    "lint-fix": {
+    "lint:fix": {
       "outputs": ["src/**"],
       "inputs": ["src/**/*.ts", "src/**/*.tsx", "package.json"],
       "cache": false,
