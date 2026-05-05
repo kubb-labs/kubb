@@ -30,7 +30,7 @@ jobs:
           node-version: '22'
 
       - name: Build
-        run: pnpm turbo run build
+        run: pnpm run build
 
   typecheck:
     name: Typecheck
@@ -50,10 +50,10 @@ jobs:
           node-version: '22'
 
       - name: Build
-        run: pnpm turbo run build
+        run: pnpm run build
 
       - name: Typecheck
-        run: pnpm turbo run typecheck
+        run: pnpm run typecheck
 
   tests:
     name: Tests
@@ -73,10 +73,10 @@ jobs:
           node-version: '22'
 
       - name: Build
-        run: pnpm turbo run build
+        run: pnpm run build
 
       - name: Test
-        run: pnpm turbo run test
+        run: pnpm run test
 
       - name: Upload coverage reports to Codecov
         if: ${{ !cancelled() }}
@@ -103,7 +103,7 @@ jobs:
       - name: Linting
         env:
           NODE_OPTIONS: '--max_old_space_size=4096'
-        run: pnpm turbo run lint
+        run: pnpm run lint
 
   spellcheck:
     name: Spell Check
@@ -147,7 +147,7 @@ jobs:
           node-version: '22'
 
       - name: Build
-        run: pnpm turbo run build
+        run: pnpm run build
 
       - name: Publish preview packages
         run: pnpx pkg-pr-new publish --pnpm --owner=stijnvanhulle --repo=https://github.com/kubb-labs/kubb.git './packages/*'
