@@ -79,11 +79,11 @@ Sandbox mode still forces all permissions to `false` regardless of config or env
 
 ## Rationale
 
-**Config as the primary surface.** The kubb config is already where all project-level decisions live. Putting permissions there means a single file fully describes what the agent is allowed to do, without requiring the operator to memorise CLI flags or set env vars in deployment manifests.
+**Config as the primary surface.** The kubb config is already where all project-level decisions live. Putting permissions there means a single file fully describes what the agent is allowed to do, without requiring the operator to memorize CLI flags or set env vars in deployment manifests.
 
 **`KUBB_PERMISSION_*` over `KUBB_AGENT_ALLOW_*`.** The new prefix separates the _what_ (a permission) from the _who_ (the agent). As permissions are checked in other packages or contexts (e.g. future middleware or a CI runner), the env var name stays meaningful. The old `AGENT`-scoped names would become misleading outside the agent package.
 
-**Reserved vocabulary at type level.** Naming the future set now costs nothing and prevents bikeshedding later. `network`, `run`, and `env` match the Deno permissions model, which is widely understood by TypeScript practitioners.
+**Reserved vocabulary at type level.** Naming the future set now costs nothing and prevents naming debates later. `network`, `run`, and `env` match the Deno permissions model, which is widely understood by TypeScript practitioners.
 
 **OR semantics, not AND.** Permissions are capabilities, not restrictions. A permission set in the config means "this project needs this capability"; a permission set in the env means "this deployment allows this capability". An operator can give a blanket grant via env var without editing every config file, or lock down a specific config without touching deployment manifests.
 
