@@ -38,7 +38,7 @@ The threat model assumes the agent runs user-controlled code and processes user-
 
 1. **Image boundary** — only packages installed at image build time are loadable. `KUBB_AGENT_ROOT` constrains where config paths resolve.
 2. **Machine binding** — each registration carries a `machineToken` (SHA-256 of `KUBB_AGENT_SECRET`). Studio binds a token to the first machine it sees; a leaked `KUBB_AGENT_TOKEN` cannot be reused on a different host without also knowing `KUBB_AGENT_SECRET`.
-3. **Permission grants** — permissions (`filesystem`, `publish`, `all`) are set by the operator via `KUBB_PERMISSION_*` env vars or `kubb.config.ts` (see [ADR-0004](./0004_permissions.md)). Studio cannot exceed the permissions the operator set.
+3. **Permission grants** — permissions (`filesystem`, `publish`, `yolo`) are set by the operator via `KUBB_PERMISSION_*` env vars or `kubb.config.ts` (see [ADR-0004](./0004_permissions.md)). Studio cannot exceed the permissions the operator set.
 4. **Sandbox mode** — sessions provisioned as sandbox force all permissions to `false` regardless of env vars. Generated files stream back over the WebSocket and are never written to disk.
 
 ## Rationale

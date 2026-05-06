@@ -6,7 +6,7 @@
 
 ## Context
 
-ADR-0003 established three permission flags (`filesystem`, `publish`, `all`) that control what a connected Studio session may do on the operator's machine. Before this ADR, those flags were set only via env vars (`KUBB_AGENT_ALLOW_WRITE`, `KUBB_AGENT_ALLOW_PUBLISH`, `KUBB_AGENT_ALLOW_ALL`) or CLI flags.
+ADR-0003 established three permission flags (`filesystem`, `publish`, `yolo`) that control what a connected Studio session may do on the operator's machine. Before this ADR, those flags were set only via env vars (`KUBB_AGENT_ALLOW_WRITE`, `KUBB_AGENT_ALLOW_PUBLISH`, `KUBB_AGENT_ALLOW_ALL`) or CLI flags.
 
 Two problems emerged:
 
@@ -45,14 +45,14 @@ The old `KUBB_AGENT_ALLOW_*` env vars are replaced:
 | Old (removed)              | New                          |
 | -------------------------- | ---------------------------- |
 | `KUBB_AGENT_ALLOW_WRITE`   | `KUBB_PERMISSION_FILESYSTEM` |
-| `KUBB_AGENT_ALLOW_ALL`     | `KUBB_PERMISSION_ALL`        |
+| `KUBB_AGENT_ALLOW_ALL`     | `KUBB_PERMISSION_YOLO`       |
 | `KUBB_AGENT_ALLOW_PUBLISH` | `KUBB_PERMISSION_PUBLISH`    |
 
 ### Merge semantics
 
 ```
-filesystem = KUBB_PERMISSION_ALL || KUBB_PERMISSION_FILESYSTEM || config.permissions?.filesystem
-publish    = KUBB_PERMISSION_ALL || KUBB_PERMISSION_PUBLISH    || config.permissions?.publish
+filesystem = KUBB_PERMISSION_YOLO || KUBB_PERMISSION_FILESYSTEM || config.permissions?.filesystem
+publish    = KUBB_PERMISSION_YOLO || KUBB_PERMISSION_PUBLISH    || config.permissions?.publish
 ```
 
 Sandbox mode forces all permissions to `false` regardless of config or env (see ADR-0003).

@@ -90,7 +90,7 @@ describe('connectToStudio', () => {
       studioUrl: 'https://kubb.studio',
       configPath: 'kubb.config.ts',
       resolvedConfigPath: '/project/kubb.config.ts',
-      all: false,
+      yolo: false,
       filesystem: false,
       publish: false,
       root: '/project',
@@ -416,8 +416,8 @@ describe('connectToStudio', () => {
     )
   })
 
-  it('reflects filesystem and all separately in permissions on connect command', async () => {
-    await connectToStudio({ ...options, filesystem: true, all: false })
+  it('reflects filesystem and yolo separately in permissions on connect command', async () => {
+    await connectToStudio({ ...options, filesystem: true, yolo: false })
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'command', command: 'connect' }),
@@ -428,7 +428,7 @@ describe('connectToStudio', () => {
       expect.objectContaining({
         payload: expect.objectContaining({
           permissions: {
-            all: false,
+            yolo: false,
             filesystem: true,
             publish: false,
           },
@@ -437,8 +437,8 @@ describe('connectToStudio', () => {
     )
   })
 
-  it('reflects all=true in permissions when all is set', async () => {
-    await connectToStudio({ ...options, filesystem: true, all: true })
+  it('reflects yolo=true in permissions when yolo is set', async () => {
+    await connectToStudio({ ...options, filesystem: true, yolo: true })
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'command', command: 'connect' }),
@@ -449,7 +449,7 @@ describe('connectToStudio', () => {
       expect.objectContaining({
         payload: expect.objectContaining({
           permissions: {
-            all: true,
+            yolo: true,
             filesystem: true,
             publish: false,
           },
@@ -474,7 +474,7 @@ describe('connectToStudio', () => {
       expect.objectContaining({
         payload: expect.objectContaining({
           permissions: {
-            all: false,
+            yolo: false,
             filesystem: false,
             publish: false,
           },

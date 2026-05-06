@@ -19,7 +19,7 @@ export type ConnectToStudioOptions = {
   studioUrl: string
   configPath: string
   resolvedConfigPath: string
-  all: boolean
+  yolo: boolean
   filesystem: boolean
   publish: boolean
   root: string
@@ -40,7 +40,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     studioUrl,
     configPath,
     resolvedConfigPath,
-    all,
+    yolo,
     filesystem,
     publish,
     root,
@@ -73,7 +73,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     const maskedSessionId = maskString(sessionId)
 
     // Effective permissions: always disabled in sandbox mode
-    const effectiveAll = isSandbox ? false : all
+    const effectiveYolo = isSandbox ? false : yolo
     const effectiveFilesystem = isSandbox ? false : filesystem
     const effectivePublish = isSandbox ? false : publish
 
@@ -241,7 +241,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 version,
                 configPath,
                 permissions: {
-                  all: effectiveAll,
+                  yolo: effectiveYolo,
                   filesystem: effectiveFilesystem,
                   publish: effectivePublish,
                 },

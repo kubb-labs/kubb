@@ -91,7 +91,7 @@ export type CommandMessage =
       type: 'command'
       command: 'connect'
       permissions: {
-        all: boolean
+        yolo: boolean
         filesystem: boolean
         publish: boolean
       }
@@ -103,7 +103,7 @@ export type ConnectMessagePayload = {
   configPath: string
   config: JSONKubbConfig
   permissions: {
-    all: boolean
+    yolo: boolean
     filesystem: boolean
     publish: boolean
   }

@@ -31,7 +31,7 @@ export const command = defineCommand({
       description: 'Allow running publish commands (e.g. npm publish).',
       default: false,
     },
-    'permission.all': {
+    'permission.yolo': {
       type: 'boolean',
       description: 'Grant all permissions (implies --permission.filesystem and --permission.publish).',
       default: false,
@@ -47,7 +47,7 @@ export const command = defineCommand({
       permission: {
         filesystem: values['permission.filesystem'],
         publish: values['permission.publish'],
-        all: values['permission.all'],
+        yolo: values['permission.yolo'],
       },
       version,
     })

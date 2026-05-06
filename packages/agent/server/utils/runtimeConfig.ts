@@ -26,7 +26,7 @@ export type StudioRuntimeConfig = {
   retryInterval: number
   heartbeatInterval: number
   root: string
-  all: boolean
+  yolo: boolean
   filesystem: boolean
   publish: boolean
   poolSize: number
@@ -39,7 +39,7 @@ export type StudioRuntimeConfig = {
 export function resolveStudioRuntimeConfig(env: NodeJS.ProcessEnv = process.env, cwd: string = process.cwd()): StudioRuntimeConfig {
   const root = env.KUBB_AGENT_ROOT ?? cwd
   const configPath = env.KUBB_AGENT_CONFIG ?? agentDefaults.configPath
-  const all = parseBooleanEnv(env.KUBB_PERMISSION_ALL)
+  const yolo = parseBooleanEnv(env.KUBB_PERMISSION_YOLO)
 
   return {
     studioUrl: env.KUBB_STUDIO_URL ?? agentDefaults.studioUrl,
@@ -49,9 +49,9 @@ export function resolveStudioRuntimeConfig(env: NodeJS.ProcessEnv = process.env,
     retryInterval: parsePositiveIntegerEnv(env.KUBB_AGENT_RETRY_TIMEOUT, agentDefaults.retryIntervalMs),
     heartbeatInterval: parsePositiveIntegerEnv(env.KUBB_AGENT_HEARTBEAT_INTERVAL, agentDefaults.heartbeatIntervalMs),
     root,
-    all,
-    filesystem: all || parseBooleanEnv(env.KUBB_PERMISSION_FILESYSTEM),
-    publish: all || parseBooleanEnv(env.KUBB_PERMISSION_PUBLISH),
+    yolo,
+    filesystem: yolo || parseBooleanEnv(env.KUBB_PERMISSION_FILESYSTEM),
+    publish: yolo || parseBooleanEnv(env.KUBB_PERMISSION_PUBLISH),
     poolSize: parsePositiveIntegerEnv(env.KUBB_AGENT_POOL_SIZE, agentDefaults.poolSize),
     hasSecret: Boolean(env.KUBB_AGENT_SECRET),
   }

@@ -15,7 +15,7 @@ type AgentStartOptions = {
   permission: {
     filesystem: boolean
     publish: boolean
-    all: boolean
+    yolo: boolean
   }
   version: string
 }
@@ -24,7 +24,7 @@ type ResolvedAgentStartEnvironment = {
   port: string
   host: string
   filesystem: boolean
-  all: boolean
+  yolo: boolean
   agentConfigPath: string
   env: NodeJS.ProcessEnv
 }
@@ -35,9 +35,9 @@ type ResolvedAgentStartEnvironment = {
 function resolveAgentStartEnvironment({ port, host, configPath, permission }: Omit<AgentStartOptions, 'version'>): ResolvedAgentStartEnvironment {
   const resolvedPort = port ?? process.env.PORT ?? agentDefaults.port
   const resolvedHost = host !== agentDefaults.host ? host : (process.env.HOST ?? agentDefaults.host)
-  const resolvedAll = permission.all || process.env.KUBB_PERMISSION_ALL === 'true'
-  const resolvedFilesystem = resolvedAll || permission.filesystem || process.env.KUBB_PERMISSION_FILESYSTEM === 'true'
-  const resolvedPublish = resolvedAll || permission.publish || process.env.KUBB_PERMISSION_PUBLISH === 'true'
+  const resolvedYolo = permission.yolo || process.env.KUBB_PERMISSION_YOLO === 'true'
+  const resolvedFilesystem = resolvedYolo || permission.filesystem || process.env.KUBB_PERMISSION_FILESYSTEM === 'true'
+  const resolvedPublish = resolvedYolo || permission.publish || process.env.KUBB_PERMISSION_PUBLISH === 'true'
   const agentRoot = process.env.KUBB_AGENT_ROOT ?? process.cwd()
   const agentConfigPath = path.resolve(process.cwd(), configPath || process.env.KUBB_AGENT_CONFIG || agentDefaults.configFile)
 
@@ -45,7 +45,7 @@ function resolveAgentStartEnvironment({ port, host, configPath, permission }: Om
     port: resolvedPort,
     host: resolvedHost,
     filesystem: resolvedFilesystem,
-    all: resolvedAll,
+    yolo: resolvedYolo,
     agentConfigPath,
     env: {
       ...process.env,
@@ -55,7 +55,7 @@ function resolveAgentStartEnvironment({ port, host, configPath, permission }: Om
       KUBB_AGENT_CONFIG: agentConfigPath,
       KUBB_PERMISSION_FILESYSTEM: String(resolvedFilesystem),
       KUBB_PERMISSION_PUBLISH: String(resolvedPublish),
-      KUBB_PERMISSION_ALL: String(resolvedAll),
+      KUBB_PERMISSION_YOLO: String(resolvedYolo),
       KUBB_AGENT_TOKEN: process.env.KUBB_AGENT_TOKEN,
       KUBB_AGENT_RETRY_TIMEOUT: process.env.KUBB_AGENT_RETRY_TIMEOUT ?? agentDefaults.retryTimeout,
       KUBB_STUDIO_URL: process.env.KUBB_STUDIO_URL ?? agentDefaults.studioUrl,
@@ -120,8 +120,8 @@ export async function runAgentStart({ port, host, configPath, permission, versio
     clack.log.info(styleText('dim', `Config: ${resolvedEnv.agentConfigPath}`))
     clack.log.info(styleText('dim', `Host: ${resolvedEnv.host}`))
     clack.log.info(styleText('dim', `Port: ${resolvedEnv.port}`))
-    if (!resolvedEnv.filesystem && !resolvedEnv.all) {
-      clack.log.warn(styleText('yellow', 'Filesystem writes disabled. Use --permission.filesystem or --permission.all to enable.'))
+    if (!resolvedEnv.filesystem && !resolvedEnv.yolo) {
+      clack.log.warn(styleText('yellow', 'Filesystem writes disabled. Use --permission.filesystem or --permission.yolo to enable.'))
     }
 
     if (!(await isPortAvailable(numericPort, resolvedEnv.host))) {

@@ -101,7 +101,7 @@ declare global {
        * When `"true"`, grants all current permissions (implies `KUBB_PERMISSION_FILESYSTEM` and `KUBB_PERMISSION_PUBLISH`).
        * @default "false"
        */
-      KUBB_PERMISSION_ALL: string | undefined
+      KUBB_PERMISSION_YOLO: string | undefined
 
       /**
        * Reserved for a future release — allow the agent to fetch API specs from remote URLs.
