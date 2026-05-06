@@ -56,10 +56,18 @@ export default defineNitroConfig({
     // CJS module and does `require('ajv')` at runtime — which resolves via the
     // filesystem and fails because the package is incomplete. Copy the full package
     // from the real `ajv` installation after the build to fix that.
+    //
+    // jiti with JSX support requires `dist/babel.cjs` at runtime, but Nitro's module
+    // tracer only copies `dist/jiti.cjs`. Copy the full jiti package so `babel.cjs`
+    // is available when loading user config files in Docker/production.
     compiled(nitro) {
       const dest = resolve(nitro.options.output.serverDir, 'node_modules/ajv')
       const src = resolveAjvSrc()
       cpSync(src, dest, { recursive: true, force: true, dereference: true })
+
+      const jitiSrc = dirname(_require.resolve('jiti/package.json'))
+      const jitiDest = resolve(nitro.options.output.serverDir, 'node_modules/jiti')
+      cpSync(jitiSrc, jitiDest, { recursive: true, force: true, dereference: true })
     },
   },
   externals: {
