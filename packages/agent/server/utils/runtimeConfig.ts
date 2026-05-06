@@ -10,6 +10,16 @@ function parseBooleanEnv(value: string | undefined): boolean {
 }
 
 /**
+ * Resolves a permission flag by reading the canonical `KUBB_PERMISSION_*` env var first,
+ * then falling back to the deprecated `KUBB_AGENT_ALLOW_*` env var for backward compatibility.
+ */
+function resolvePermission(env: NodeJS.ProcessEnv, newKey: string, deprecatedKey: string): boolean {
+  if (env[newKey] !== undefined) return parseBooleanEnv(env[newKey])
+  if (env[deprecatedKey] !== undefined) return parseBooleanEnv(env[deprecatedKey])
+  return false
+}
+
+/**
  * Parses a positive integer from the environment and falls back when the value is absent or invalid.
  */
 function parsePositiveIntegerEnv(value: string | undefined, fallback: number): number {
@@ -39,7 +49,7 @@ export type StudioRuntimeConfig = {
 export function resolveStudioRuntimeConfig(env: NodeJS.ProcessEnv = process.env, cwd: string = process.cwd()): StudioRuntimeConfig {
   const root = env.KUBB_AGENT_ROOT ?? cwd
   const configPath = env.KUBB_AGENT_CONFIG ?? agentDefaults.configPath
-  const allowAll = parseBooleanEnv(env.KUBB_AGENT_ALLOW_ALL)
+  const allowAll = resolvePermission(env, 'KUBB_PERMISSION_ALL', 'KUBB_AGENT_ALLOW_ALL')
 
   return {
     studioUrl: env.KUBB_STUDIO_URL ?? agentDefaults.studioUrl,
@@ -50,8 +60,8 @@ export function resolveStudioRuntimeConfig(env: NodeJS.ProcessEnv = process.env,
     heartbeatInterval: parsePositiveIntegerEnv(env.KUBB_AGENT_HEARTBEAT_INTERVAL, agentDefaults.heartbeatIntervalMs),
     root,
     allowAll,
-    allowWrite: allowAll || parseBooleanEnv(env.KUBB_AGENT_ALLOW_WRITE),
-    allowPublish: allowAll || parseBooleanEnv(env.KUBB_AGENT_ALLOW_PUBLISH),
+    allowWrite: allowAll || resolvePermission(env, 'KUBB_PERMISSION_FILESYSTEM', 'KUBB_AGENT_ALLOW_WRITE'),
+    allowPublish: allowAll || resolvePermission(env, 'KUBB_PERMISSION_PUBLISH', 'KUBB_AGENT_ALLOW_PUBLISH'),
     poolSize: parsePositiveIntegerEnv(env.KUBB_AGENT_POOL_SIZE, agentDefaults.poolSize),
     hasSecret: Boolean(env.KUBB_AGENT_SECRET),
   }

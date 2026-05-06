@@ -461,6 +461,57 @@ export type Config<TInput = Input> = {
      */
     done?: string | Array<string>
   }
+  /**
+   * Permission flags for the Kubb agent server.
+   *
+   * These serve as defaults when the corresponding `KUBB_PERMISSION_*` environment variables
+   * are not set. Environment variables and CLI flags take precedence when explicitly enabled.
+   *
+   * Future permissions (`network`, `run`, `env`) are reserved and not yet enforced by the agent.
+   *
+   * @example
+   * ```ts
+   * permissions: {
+   *   filesystem: true,  // agent may write generated files to disk
+   *   publish: false,    // agent may not run publish commands
+   * }
+   * ```
+   */
+  permissions?: {
+    /**
+     * Allow the agent to write generated files to the filesystem.
+     * Maps to the `KUBB_PERMISSION_FILESYSTEM` environment variable.
+     * @default false
+     */
+    filesystem?: boolean
+    /**
+     * Allow the agent to run publish commands (e.g. `npm publish`).
+     * Maps to the `KUBB_PERMISSION_PUBLISH` environment variable.
+     * @default false
+     */
+    publish?: boolean
+    /**
+     * Allow the agent to fetch API specs and make outbound HTTP requests.
+     * Maps to the `KUBB_PERMISSION_NETWORK` environment variable.
+     * @default false
+     * @future Not yet enforced — reserved for a future release.
+     */
+    network?: boolean
+    /**
+     * Allow the agent to execute arbitrary shell commands beyond publish.
+     * Maps to the `KUBB_PERMISSION_RUN` environment variable.
+     * @default false
+     * @future Not yet enforced — reserved for a future release.
+     */
+    run?: boolean
+    /**
+     * Allow the agent to read environment variables from the host system.
+     * Maps to the `KUBB_PERMISSION_ENV` environment variable.
+     * @default false
+     * @future Not yet enforced — reserved for a future release.
+     */
+    env?: boolean
+  }
 }
 
 // plugin

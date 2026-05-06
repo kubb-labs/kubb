@@ -3,6 +3,7 @@ import { maskString } from '@internals/utils'
 import type { AgentConnectResponse } from '~/types/agent.ts'
 import { createAgentSession, registerAgent } from '~/utils/api.ts'
 import { connectToStudio } from '~/utils/connectStudio.ts'
+import { loadConfig } from '~/utils/loadConfig.ts'
 import { logger } from '~/utils/logger.ts'
 import { checkPeerDependencies } from '~/utils/resolvePlugins.ts'
 import { resolveStudioRuntimeConfig } from '~/utils/runtimeConfig.ts'
@@ -48,14 +49,26 @@ export default defineNitroPlugin(async (nitro) => {
     await checkPeerDependencies()
     await registerAgent({ token, studioUrl, poolSize })
 
+    let configPermissions: { filesystem?: boolean; publish?: boolean; network?: boolean; run?: boolean; env?: boolean } = {}
+    try {
+      const config = await loadConfig(resolvedConfigPath)
+      configPermissions = config.permissions ?? {}
+    } catch {
+      // Config may not exist yet or may not have permissions; fall back to runtime-only permissions
+    }
+
+    const mergedAllowWrite = allowWrite || configPermissions.filesystem === true
+    const mergedAllowPublish = allowPublish || configPermissions.publish === true
+    const mergedAllowAll = allowAll || (mergedAllowWrite && mergedAllowPublish)
+
     const baseOptions = {
       token,
       studioUrl,
       configPath,
       resolvedConfigPath,
-      allowAll,
-      allowWrite,
-      allowPublish,
+      allowAll: mergedAllowAll,
+      allowWrite: mergedAllowWrite,
+      allowPublish: mergedAllowPublish,
       root,
       retryInterval,
       heartbeatInterval,
