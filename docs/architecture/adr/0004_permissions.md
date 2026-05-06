@@ -6,7 +6,7 @@
 
 ## Context
 
-ADR-0003 established the agent's security model and documented three permission flags — `allowAll`, `allowWrite`, and `allowPublish` — that control what a connected Studio session may do on the operator's machine. Those flags are set exclusively via environment variables (`KUBB_AGENT_ALLOW_ALL`, `KUBB_AGENT_ALLOW_WRITE`, `KUBB_AGENT_ALLOW_PUBLISH`) or the matching CLI flags (`--allow-all`, `--allow-write`).
+ADR-0003 established the agent's security model and documented three permission flags — `allowAll`, `allowWrite`, and `allowPublish` — that control what a connected Studio session may do on the operator's machine. Those flags were set exclusively via environment variables (`KUBB_AGENT_ALLOW_ALL`, `KUBB_AGENT_ALLOW_WRITE`, `KUBB_AGENT_ALLOW_PUBLISH`) or the matching CLI flags (`--allow-all`, `--allow-write`).
 
 Three problems emerged as the agent moved toward production use:
 
@@ -96,7 +96,7 @@ Sandbox mode still forces all permissions to `false` regardless of config or env
 
 - Operators using `KUBB_AGENT_ALLOW_*` env vars must migrate to `KUBB_PERMISSION_*` when upgrading.
 - Reserved fields in the config type (`network`, `run`, `env`) are accepted by TypeScript but silently ignored by the agent until enforced, which could mislead operators who set them expecting immediate effect.
-- OR merge semantics mean there is no way to use the config to _restrict_ a permission that an env var grants. Operators who need strict restriction must rely solely on env vars and not set permissions in config.
+- OR merge semantics mean there is no way to use the config to restrict a permission that an env var grants. Operators who need strict restriction must rely solely on env vars and not set permissions in config.
 
 ## Considered options
 
@@ -114,7 +114,7 @@ Both surfaces exist. The config sets project intent; env vars set deployment-lev
 
 **Option D: Nested under `agent.permissions` rather than top-level `permissions`**
 
-The field would be `config.agent.permissions` to signal it is only relevant to the agent package. Rejected because it adds nesting for no practical gain — `Config` already has a `permissions` field shape that is unambiguous, and the field is not exclusive to the agent (future packages may check it).
+The field would be `config.agent.permissions` to signal it is only relevant to the agent package. Rejected because it adds nesting for no practical gain. `Config` already has a `permissions` field shape that is unambiguous, and the field is not exclusive to the agent (future packages may check it).
 
 ## Related ADRs
 

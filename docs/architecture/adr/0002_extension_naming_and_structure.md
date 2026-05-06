@@ -13,9 +13,9 @@ Kubb's extensibility system has four distinct types: `plugin`, `adapter`, `middl
 - `middleware`: post-processes `FileNode`s after all plugins complete (barrel files, manifests, etc.).
 - `parser`: converts `FileNode`s into final source strings based on file extension (`.ts`, `.tsx`).
 
-Despite their pipeline differences, all four types share an identical metadata structure: `id`, `name`, `description`, `npmPackage`, `compatibility`, `maintainers`, `resources`, `options`, `examples`, and so on. The four JSON schemas in `schemas/` are nearly identical; the only differences are the `category` enum values and the name of the `options` item definition.
+All four types share the same metadata structure despite their different pipeline roles: `id`, `name`, `description`, `npmPackage`, `compatibility`, `maintainers`, `resources`, `options`, `examples`, and so on. The four JSON schemas in `schemas/` are nearly identical; the only differences are the `category` enum values and the name of the `options` item definition.
 
-Two questions arise:
+This raises two questions:
 
 1. **Naming**: what is the collective term for all four types when talking to users, third-party authors, and docs?
 2. **Structure**: should a package ship one `extension.yaml` file (unified), or a type-specific file (`plugin.yaml`, `adapter.yaml`, etc.)?
@@ -24,13 +24,9 @@ Two questions arise:
 
 The kubb.dev docs nav currently groups the four types under "Modules", a term already in conflict with JavaScript module semantics. "Integrations" is taken in the same nav for bundler integrations (Vite, Nuxt, Astro, webpack).
 
-### Reference: VS Code extensions
-
 VS Code is the most relevant precedent. Every VS Code extension ships a single `package.json` manifest regardless of what it contributes. The `contributes` key holds sub-objects for each contribution type (`commands`, `languages`, `themes`, `debuggers`, etc.). VS Code validates all of this through one unified JSON Schema for `package.json`.
 
 Claude (Anthropic) follows the same pattern: MCP server packages are distributed as Desktop Extensions, one manifest per package.
-
----
 
 ## Decision
 
@@ -93,8 +89,6 @@ Each `extension.yaml` declares exactly one `kind`. A package that needs to contr
 
 A new `schemas/extension.json` validates all four extension types via a `oneOf` discriminated on `kind`. The existing type-specific schemas (`schemas/plugins/plugin.json`, etc.) remain for strict per-type validation and backward compatibility.
 
----
-
 ## Rationale
 
 ### Why "Extension" over other candidates
@@ -125,8 +119,6 @@ The existing `type` field already carries a clear meaning (authorship: `official
 
 Kubb packages already follow single-responsibility: `plugin-client` generates clients, `parser-ts` parses TypeScript, `adapter-oas` adapts OpenAPI. Multi-type packages would blur these boundaries, complicate the pipeline configuration, and make the `extension.yaml` schema harder to validate. If a new package genuinely needs two roles it is a sign it should be two packages.
 
----
-
 ## Consequences
 
 ### Positive
@@ -144,31 +136,19 @@ Kubb packages already follow single-responsibility: `plugin-client` generates cl
 - The `schemas/extension.json` schema requires a `oneOf` discriminator on `kind`, which is slightly more complex to author and validate than the current flat per-type schemas.
 - The `modules/` directory in kubb.dev becomes `extensions/`, which requires renaming the fetch pipeline scripts.
 
----
-
 ## Considered options
 
-### Option A: Single `extension.yaml` with unified schema (chosen)
+**Option A: Single `extension.yaml` with unified schema (chosen)**
 
-One file per package. A `kind` field discriminates the type. One `schemas/extension.json` validates all. Type-specific schemas remain as strict-validation aliases.
+One file per package. A `kind` field discriminates the type. One `schemas/extension.json` validates all. Type-specific schemas remain as strict-validation aliases. Matches VS Code and Claude patterns; simplest convention for third parties.
 
-Matches VS Code and Claude patterns. Simplest convention for third parties.
+**Option B: Type-specific files with a shared base schema**
 
-### Option B: Type-specific files with a shared base schema
+Keep `plugin.yaml`, `adapter.yaml`, `middleware.yaml`, `parser.yaml`. Add `schemas/base/extension.json` as a shared base that the four type schemas extend via `allOf`. The filename is self-documenting and there is no discriminator complexity, but it requires four conventions instead of one. Third-party authors must know the right filename before starting.
 
-Keep `plugin.yaml`, `adapter.yaml`, `middleware.yaml`, `parser.yaml`. Add `schemas/base/extension.json` as a shared base that the four type schemas extend via `allOf`.
+**Option C: `extension/` folder per package**
 
-Pro: filename is self-documenting; no discriminator complexity; already partially shipped.
-Con: four conventions instead of one; third-party authors must know the right filename before starting.
-
-### Option C: `extension/` folder per package
-
-Each package ships an `extension/` directory containing the manifest plus supplementary assets.
-
-Pro: extensible structure for future sub-files.
-Con: adds directory nesting overhead for what is currently a single file; no precedent in comparable ecosystems; discoverability requires listing a directory instead of checking for a file.
-
----
+Each package ships an `extension/` directory containing the manifest plus supplementary assets. The structure is extensible for future sub-files, but adds directory nesting overhead for what is currently a single file. There is no precedent in comparable ecosystems, and discoverability requires listing a directory instead of checking for a file.
 
 ## Related ADRs
 

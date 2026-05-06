@@ -18,7 +18,7 @@ Three problems pushed this ADR:
 2. There is no written record of where the trust boundary sits, even though the agent runs user-controlled code (plugins) on behalf of a remote orchestrator (Studio).
 3. The machine binding, sandbox isolation, and permissions model that already exist in code are not captured in any architecture document, so contributors keep reinventing or weakening them.
 
-v5 widens the plugin surface: object-shaped `barrel`, opt-out `false` values, and new `coercion`, `infinite`, `query`, and `mutation` blocks. That widening makes problem 1 worse and forces an architectural answer.
+v5 widens the plugin surface: object-shaped `barrel`, opt-out `false` values, and new `coercion`, `infinite`, `query`, and `mutation` blocks. That widening makes problem 1 worse and requires an architectural decision.
 
 ## Decision
 
@@ -93,7 +93,7 @@ Permissions are explicit fields on the `connect` command and on `ConnectedMessag
 - `allowWrite`: lets the agent write generated files to disk; defaults to `false`.
 - `allowPublish`: lets Studio trigger a `publish` command (e.g. `npm publish`); defaults to `false`.
 
-The operator sets these via environment variables (`KUBB_AGENT_ALLOW_ALL`, `KUBB_AGENT_ALLOW_WRITE`, `KUBB_AGENT_ALLOW_PUBLISH`). Setting `KUBB_AGENT_ALLOW_ALL=true` implies write and publish. The agent echoes the effective permissions back to Studio so the UI reflects what is currently allowed. Studio cannot enable a permission the operator did not set.
+The operator sets these via environment variables (`KUBB_PERMISSION_ALL`, `KUBB_PERMISSION_FILESYSTEM`, `KUBB_PERMISSION_PUBLISH`) or the `permissions` field in `kubb.config.ts` (see [ADR-0004](./0004_permissions.md)). Setting `KUBB_PERMISSION_ALL=true` grants write and publish. The agent echoes the effective permissions back to Studio so the UI reflects what is currently allowed. Studio cannot enable a permission the operator did not set.
 
 #### Sandbox mode
 
@@ -128,7 +128,7 @@ Pinning the trust boundary to the image keeps control with the operator. The ope
 
 Routing AI assistants through Studio or `@kubb/mcp` limits the agent's attack surface to a single outbound WebSocket. Studio already has session management, auth, and audit. Recreating those in the agent duplicates work and weakens the boundary.
 
-The permissions model is env-var-controlled. Studio asks for what it wants, the operator decides what to allow, and the agent enforces the intersection. A compromised Studio session cannot write to disk on a user-owned agent unless the operator also set `KUBB_AGENT_ALLOW_WRITE=true`.
+The permissions model is env-var-controlled. Studio asks for what it wants, the operator decides what to allow, and the agent enforces the intersection. A compromised Studio session cannot write to disk on a user-owned agent unless the operator also set `KUBB_PERMISSION_FILESYSTEM=true`.
 
 The machine binding makes a leaked token harder to exploit. The attacker also needs the original `KUBB_AGENT_SECRET`. That tradeoff is worth the occasional rebind when an agent moves machines.
 
@@ -175,4 +175,4 @@ An in-process LLM interprets natural-language requests and produces `kubb.config
 
 ## Related ADRs
 
-None.
+- [ADR-0004](./0004_permissions.md) — Permissions in `defineConfig` and `KUBB_PERMISSION_*` env vars

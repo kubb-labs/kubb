@@ -6,7 +6,7 @@
 
 ## Context
 
-OpenAPI specifications declare reusable schemas under `components/schemas`. Plugins such as `plugin-ts` walk both the top-level schema list and the operation list to decide what to generate. The `include` option controls which operations are generated, for example `include: [{ type: 'tag', pattern: 'items' }]` restricts output to operations tagged `items`.
+OpenAPI specifications declare reusable schemas under `components/schemas`. Plugins such as `plugin-ts` walk both the top-level schema list and the operation list to decide what to generate. The `include` option controls which operations are generated — for example, `include: [{ type: 'tag', pattern: 'items' }]` restricts output to operations tagged `items`.
 
 Before this change, `include` filters applied only to operations. Every top-level schema was generated regardless of whether an included operation referenced it. A user who filtered by tag still received types for schemas used exclusively by excluded operations.
 
@@ -18,7 +18,7 @@ When a plugin's `include` option contains at least one operation-scoped filter t
 
 The reachability computation lives in `collectUsedSchemaNames(operations, schemas)` exported from `@kubb/ast`. It follows parameters, request body content, and response schemas through the full `$ref` graph using the `collect()` helper from `visitor.ts`.
 
-When `include` also contains a `schemaName` filter, the scoping logic is disabled and `schemaName` rules apply through the existing resolver, preserving backward compatibility for mixed-filter configurations.
+When `include` also contains a `schemaName` filter, the scoping logic is disabled and `schemaName` rules apply through the existing resolver. This preserves backward compatibility for mixed-filter configurations.
 
 ## Rationale
 

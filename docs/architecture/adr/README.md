@@ -55,4 +55,4 @@ Use the format `NNNN_short_slug.md` where `NNNN` is a zero-padded sequential num
 | [0001](./0001_include_filter.md)                             | Include filter schema scoping                    | Accepted |
 | [0002](./0002_extension_naming_and_structure.md)             | Extension naming and structure                   | Proposed |
 | [0003](./0003_kubb_agent.md)                                 | Kubb Agent architecture and security model       | Proposed |
-| [0004](./0004_permissions_in_defineconfig.md)                | Permissions in defineConfig and KUBB_PERMISSION_* env vars | Proposed |
+| [0004](./0004_permissions.md)                                | Permissions in defineConfig and KUBB_PERMISSION_* env vars | Proposed |
