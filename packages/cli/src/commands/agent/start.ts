@@ -21,14 +21,19 @@ export const command = defineCommand({
       description: 'Host for the server',
       default: agentDefaults.host,
     },
-    'allow-write': {
+    'permission.filesystem': {
       type: 'boolean',
       description: 'Allow writing generated files to the filesystem. When not set, no files are written and the config patch is not persisted.',
       default: false,
     },
-    'allow-all': {
+    'permission.publish': {
       type: 'boolean',
-      description: 'Grant all permissions (implies --allow-write).',
+      description: 'Allow running publish commands (e.g. npm publish).',
+      default: false,
+    },
+    'permission.all': {
+      type: 'boolean',
+      description: 'Grant all permissions (implies --permission.filesystem and --permission.publish).',
       default: false,
     },
   },
@@ -39,8 +44,11 @@ export const command = defineCommand({
       port: values.port !== undefined ? values.port : undefined,
       host: values.host,
       configPath: values.config,
-      allowWrite: values['allow-write'],
-      allowAll: values['allow-all'],
+      permission: {
+        filesystem: values['permission.filesystem'],
+        publish: values['permission.publish'],
+        all: values['permission.all'],
+      },
       version,
     })
   },

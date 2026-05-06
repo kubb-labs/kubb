@@ -30,7 +30,7 @@ function getErrorMessage(error: unknown): string {
  * so each Studio user gets their own isolated WebSocket session.
  */
 export default defineNitroPlugin(async (nitro) => {
-  const { studioUrl, token, configPath, resolvedConfigPath, retryInterval, heartbeatInterval, root, allowAll, allowWrite, allowPublish, poolSize, hasSecret } =
+  const { studioUrl, token, configPath, resolvedConfigPath, retryInterval, heartbeatInterval, root, all, filesystem, publish, poolSize, hasSecret } =
     resolveStudioRuntimeConfig(process.env)
 
   if (!token) {
@@ -57,18 +57,18 @@ export default defineNitroPlugin(async (nitro) => {
       // Config may not exist yet or may not have permissions; fall back to runtime-only permissions
     }
 
-    const mergedAllowWrite = allowWrite || configPermissions.filesystem === true
-    const mergedAllowPublish = allowPublish || configPermissions.publish === true
-    const mergedAllowAll = allowAll || (mergedAllowWrite && mergedAllowPublish)
+    const mergedFilesystem = filesystem || configPermissions.filesystem === true
+    const mergedPublish = publish || configPermissions.publish === true
+    const mergedAll = all || (mergedFilesystem && mergedPublish)
 
     const baseOptions = {
       token,
       studioUrl,
       configPath,
       resolvedConfigPath,
-      allowAll: mergedAllowAll,
-      allowWrite: mergedAllowWrite,
-      allowPublish: mergedAllowPublish,
+      all: mergedAll,
+      filesystem: mergedFilesystem,
+      publish: mergedPublish,
       root,
       retryInterval,
       heartbeatInterval,

@@ -81,9 +81,9 @@ describe('Studio Plugin - Message Handling', () => {
           version: '4.24.0',
           configPath: 'kubb.config.ts',
           permissions: {
-            allowAll: true,
-            allowWrite: true,
-            allowPublish: false,
+            all: true,
+            filesystem: true,
+            publish: false,
           },
           config: {
             plugins: [{ name: '@kubb/plugin-ts', options: {} }],

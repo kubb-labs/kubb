@@ -19,9 +19,9 @@ export type ConnectToStudioOptions = {
   studioUrl: string
   configPath: string
   resolvedConfigPath: string
-  allowAll: boolean
-  allowWrite: boolean
-  allowPublish: boolean
+  all: boolean
+  filesystem: boolean
+  publish: boolean
   root: string
   retryInterval: number
   heartbeatInterval?: number
@@ -40,9 +40,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     studioUrl,
     configPath,
     resolvedConfigPath,
-    allowAll,
-    allowWrite,
-    allowPublish,
+    all,
+    filesystem,
+    publish,
     root,
     retryInterval,
     heartbeatInterval = 30_000,
@@ -73,9 +73,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     const maskedSessionId = maskString(sessionId)
 
     // Effective permissions: always disabled in sandbox mode
-    const effectiveAllowAll = isSandbox ? false : allowAll
-    const effectiveWrite = isSandbox ? false : allowWrite
-    const effectivePublish = isSandbox ? false : allowPublish
+    const effectiveAll = isSandbox ? false : all
+    const effectiveFilesystem = isSandbox ? false : filesystem
+    const effectivePublish = isSandbox ? false : publish
 
     // Tracks whether the studio server explicitly disconnected us (no reconnect needed)
     let serverDisconnected = false
@@ -187,7 +187,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             // file on disk — ignoring any payload-supplied input for security.
             const inputOverride = isSandbox ? { data: patch?.input ?? '' } : undefined
 
-            if (allowWrite && isSandbox) {
+            if (filesystem && isSandbox) {
               logger.warn(`[${maskedSessionId}] Agent is running in a sandbox environment, write will be disabled`)
             }
 
@@ -195,7 +195,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               logger.warn(`[${maskedSessionId}] Input override via payload is only supported in sandbox mode and will be ignored`)
             }
 
-            if (data.payload && effectiveWrite) {
+            if (data.payload && effectiveFilesystem) {
               await saveStudioConfigToStorage({
                 sessionId,
                 config: data.payload,
@@ -213,7 +213,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 ...config,
                 root,
                 input: inputOverride ?? config.input,
-                storage: effectiveWrite ? fsStorage() : memoryStorage(),
+                storage: effectiveFilesystem ? fsStorage() : memoryStorage(),
                 output: {
                   ...config.output,
                 },
@@ -241,9 +241,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 version,
                 configPath,
                 permissions: {
-                  allowAll: effectiveAllowAll,
-                  allowWrite: effectiveWrite,
-                  allowPublish: effectivePublish,
+                  all: effectiveAll,
+                  filesystem: effectiveFilesystem,
+                  publish: effectivePublish,
                 },
                 config: {
                   plugins: config.plugins.map((plugin) => ({
@@ -261,7 +261,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
           if (isPublishCommandMessage(data)) {
             if (!effectivePublish) {
-              logger.warn(`[${maskedSessionId}] Publish command rejected — KUBB_AGENT_ALLOW_PUBLISH is not enabled`)
+              logger.warn(`[${maskedSessionId}] Publish command rejected — KUBB_PERMISSION_PUBLISH is not enabled`)
               return
             }
 

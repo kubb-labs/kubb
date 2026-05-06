@@ -6,7 +6,7 @@
 
 ## Context
 
-OpenAPI specifications declare reusable schemas under `components/schemas`. Plugins such as `plugin-ts` walk both the top-level schema list and the operation list to decide what to generate. The `include` option controls which operations are generated — for example, `include: [{ type: 'tag', pattern: 'items' }]` restricts output to operations tagged `items`.
+OpenAPI specifications declare reusable schemas under `components/schemas`. Plugins such as `plugin-ts` walk both the top-level schema list and the operation list to decide what to generate. The `include` option controls which operations are generated, for example `include: [{ type: 'tag', pattern: 'items' }]` restricts output to operations tagged `items`.
 
 Before this change, `include` filters applied only to operations. Every top-level schema was generated regardless of whether an included operation referenced it. A user who filtered by tag still received types for schemas used exclusively by excluded operations.
 
@@ -24,7 +24,7 @@ When `include` also contains a `schemaName` filter, the scoping logic is disable
 
 Applying operation filters consistently to both operations and their referenced schemas matches what users expect when they write `include: [{ type: 'tag', pattern: 'items' }]`. Generating every component schema regardless of reachability undermines the intent of the `include` option.
 
-Extracting the reachability logic into a named, exported function keeps `runPluginAstHooks` readable and lets plugin authors build on the same traversal without reimplementing `$ref` graph walking.
+Centralizing the logic in `runPluginAstHooks` means every plugin benefits without changes. Extracting the reachability computation into `collectUsedSchemaNames` keeps the hook readable and lets plugin authors reuse the same `$ref` traversal.
 
 ## Consequences
 
@@ -32,18 +32,16 @@ Extracting the reachability logic into a named, exported function keeps `runPlug
 
 - Operation-scoped `include` now filters both operations and the schemas they reference, matching user intent.
 - `collectUsedSchemaNames` is exported from `@kubb/ast` as a `minor` release. Custom plugins can import it without reimplementing `$ref` traversal.
-- Transitive `$ref` traversal ensures shared schemas pulled in by an included operation are still generated.
 
 ### Negative
 
-- Top-level component schemas referenced only by excluded operations are now skipped. This changes generated output for users who relied on all schemas being generated alongside an operation-scoped `include`.
-- Users who need all schemas alongside an operation-scoped `include` must add an explicit `schemaName` filter to restore that behavior.
+- Top-level component schemas referenced only by excluded operations are now skipped. Users who relied on all schemas being generated alongside an operation-scoped `include` must add an explicit `schemaName` filter.
 
 ## Considered options
 
 **Option A: Pre-filter schemas in `runPluginAstHooks` (chosen)**
 
-Centralizing the logic in core means every plugin benefits without changes. The trade-off is that core gains knowledge of schema reachability.
+Every plugin benefits without changes. The trade-off is that core gains knowledge of schema reachability.
 
 **Option B: Filter inside each plugin's `resolveOptions`**
 

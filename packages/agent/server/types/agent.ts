@@ -91,9 +91,9 @@ export type CommandMessage =
       type: 'command'
       command: 'connect'
       permissions: {
-        allowAll: boolean
-        allowWrite: boolean
-        allowPublish: boolean
+        all: boolean
+        filesystem: boolean
+        publish: boolean
       }
     }
   | { type: 'command'; command: 'publish'; payload: PublishCommandPayload }
@@ -103,9 +103,9 @@ export type ConnectMessagePayload = {
   configPath: string
   config: JSONKubbConfig
   permissions: {
-    allowAll: boolean
-    allowWrite: boolean
-    allowPublish: boolean
+    all: boolean
+    filesystem: boolean
+    publish: boolean
   }
 }
 
