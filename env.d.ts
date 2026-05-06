@@ -104,28 +104,6 @@ declare global {
       KUBB_PERMISSION_YOLO: string | undefined
 
       /**
-       * Reserved for a future release — allow the agent to fetch API specs from remote URLs.
-       * @default "false"
-       * @future Not yet enforced.
-       */
-      KUBB_PERMISSION_NETWORK: string | undefined
-
-      /**
-       * Reserved for a future release — allow the agent to execute arbitrary shell commands.
-       * @default "false"
-       * @future Not yet enforced.
-       */
-      KUBB_PERMISSION_RUN: string | undefined
-
-      /**
-       * Reserved for a future release — allow the agent to read environment variables from the host.
-       * @default "false"
-       * @future Not yet enforced.
-       */
-      KUBB_PERMISSION_ENV: string | undefined
-
-
-      /**
        * Default shell command used when a publish is triggered without an explicit command in the WebSocket payload.
        * @default "npm publish"
        * @example "npm publish --access public"
