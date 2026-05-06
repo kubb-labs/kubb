@@ -26,14 +26,17 @@ describe('runValidate', () => {
     const validateDocument = vi.fn(async () => undefined)
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
-    vi.doMock('@kubb/adapter-oas', () => ({
-      parseDocument,
-      validateDocument,
-    }))
-
     const { runValidate } = await import('./validate.ts')
 
-    await runValidate({ input: 'spec.yaml', version: '1.0.0' })
+    await runValidate(
+      { input: 'spec.yaml', version: '1.0.0' },
+      {
+        loadValidateModule: async () => ({
+          parseDocument,
+          validateDocument,
+        }) as Awaited<ReturnType<typeof import('./validate.ts')['loadValidateModule']>>,
+      },
+    )
 
     expect(parseDocument).toHaveBeenCalledWith('spec.yaml')
     expect(validateDocument).toHaveBeenCalledWith({ openapi: '3.1.0' }, { throwOnError: true })
@@ -46,13 +49,18 @@ describe('runValidate', () => {
       throw new Error('process.exit')
     }) as never)
 
-    vi.doMock('@kubb/adapter-oas', () => {
-      throw new Error("Cannot find module '@kubb/adapter-oas'")
-    })
-
     const { runValidate } = await import('./validate.ts')
 
-    await expect(runValidate({ input: 'spec.yaml', version: '1.0.0' })).rejects.toThrow('process.exit')
+    await expect(
+      runValidate(
+        { input: 'spec.yaml', version: '1.0.0' },
+        {
+          loadValidateModule: async () => {
+            throw new Error("Cannot find module '@kubb/adapter-oas'")
+          },
+        },
+      ),
+    ).rejects.toThrow('process.exit')
 
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('The @kubb/adapter-oas package is not installed.'))
     expect(errorSpy).toHaveBeenCalledWith('Install it with:')

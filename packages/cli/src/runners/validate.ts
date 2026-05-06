@@ -9,11 +9,21 @@ type ValidateOptions = {
 }
 
 type ValidateModule = typeof import('@kubb/adapter-oas')
+type ValidateDependencies = {
+  loadValidateModule: () => Promise<ValidateModule>
+}
 
-export async function runValidate({ input, version }: ValidateOptions): Promise<void> {
+export function loadValidateModule(): Promise<ValidateModule> {
+  return import('@kubb/adapter-oas') as Promise<ValidateModule>
+}
+
+export async function runValidate(
+  { input, version }: ValidateOptions,
+  dependencies: ValidateDependencies = { loadValidateModule },
+): Promise<void> {
   const hrStart = process.hrtime()
   try {
-    const { parseDocument, validateDocument } = (await import('@kubb/adapter-oas')) as ValidateModule
+    const { parseDocument, validateDocument } = await dependencies.loadValidateModule()
     const document = await parseDocument(input)
     await validateDocument(document, { throwOnError: true })
 

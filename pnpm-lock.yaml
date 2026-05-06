@@ -217,9 +217,6 @@ importers:
       '@clack/prompts':
         specifier: ^1.3.0
         version: 1.3.0
-      '@kubb/adapter-oas':
-        specifier: workspace:*
-        version: link:../adapter-oas
       '@kubb/agent':
         specifier: workspace:*
         version: link:../agent
@@ -245,6 +242,9 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../adapter-oas
 
   packages/core:
     dependencies:
@@ -270,6 +270,9 @@ importers:
 
   packages/kubb:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../adapter-oas
       '@kubb/agent':
         specifier: workspace:*
         version: link:../agent
@@ -295,9 +298,6 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
-      '@kubb/adapter-oas':
-        specifier: workspace:*
-        version: link:../adapter-oas
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
