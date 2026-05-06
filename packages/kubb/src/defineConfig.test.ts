@@ -1,15 +1,10 @@
-import * as nodeModule from 'node:module'
 import type { CLIOptions, UserConfig } from '@kubb/core'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
 import { middlewareBarrel } from '@kubb/middleware-barrel'
-import { afterEach, describe, expect, test, vi } from 'vitest'
-import { defineConfig } from './defineConfig.ts'
+import { describe, expect, test } from 'vitest'
+import { applyDefaults, defineConfig } from './defineConfig.ts'
 
 describe('defineConfig', () => {
-  afterEach(() => {
-    vi.restoreAllMocks()
-  })
-
   const plugin = createMockedPlugin({
     name: 'plugin',
     options: undefined as any,
@@ -158,13 +153,10 @@ describe('defineConfig', () => {
         },
       },
     )
-
-    vi.spyOn(nodeModule, 'createRequire').mockReturnValue(requireMock)
-
-    const config = defineConfig({
+    const config = applyDefaults({
       output: { path: './gen' },
       plugins: [],
-    } as UserConfig)
+    } as UserConfig, requireMock)
     const resolved = config as UserConfig
 
     expect(resolved.adapter).toBeUndefined()
@@ -183,13 +175,11 @@ describe('defineConfig', () => {
       },
     )
 
-    vi.spyOn(nodeModule, 'createRequire').mockReturnValue(requireMock)
-
     expect(() =>
-      defineConfig({
+      applyDefaults({
         input: { path: 'spec.yaml' },
         output: { path: './gen' },
-      } as UserConfig),
+      } as UserConfig, requireMock),
     ).toThrowError('The @kubb/adapter-oas package is not installed.')
   })
 

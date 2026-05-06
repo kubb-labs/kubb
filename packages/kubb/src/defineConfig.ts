@@ -15,9 +15,11 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
     : NormalizeConfig<TConfig>
 type AdapterOasModule = typeof import('@kubb/adapter-oas')
 
-function resolveDefaultAdapter() {
-  const require = nodeModule.createRequire(import.meta.url)
+function createPackageRequire() {
+  return nodeModule.createRequire(new URL('../package.json', import.meta.url))
+}
 
+function resolveDefaultAdapter(require: NodeJS.Require = createPackageRequire()) {
   try {
     require.resolve('@kubb/adapter-oas')
   } catch {
@@ -40,10 +42,10 @@ function resolveDefaultAdapter() {
  * - `output.format` defaults to `'auto'`
  * - `output.lint` defaults to `'auto'`
  */
-function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
+export function applyDefaults<TInput>(config: UserConfig<TInput>, require: NodeJS.Require = createPackageRequire()): UserConfig<TInput> {
   const middleware = config.middleware?.length ? config.middleware : [middlewareBarrel()]
   const hasBarrelMiddleware = middleware.some((m) => m.name === middlewareBarrelName)
-  const adapter = config.adapter ?? resolveDefaultAdapter()
+  const adapter = config.adapter ?? resolveDefaultAdapter(require)
 
   const output = { ...config.output }
   if (hasBarrelMiddleware && output.barrel === undefined) {
@@ -70,7 +72,7 @@ function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
 
 function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<TInput>>): UserConfig<TInput> | Array<UserConfig<TInput>> {
   if (Array.isArray(config)) {
-    return config.map(applyDefaults)
+    return config.map((item) => applyDefaults(item))
   }
 
   return applyDefaults(config)
