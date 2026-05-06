@@ -2,7 +2,7 @@
  * Stable defaults used by the agent runtime when no environment overrides are provided.
  */
 export const agentDefaults = {
-  studioUrl: 'https://studio.kubb.dev',
+  studioUrl: 'https://kubb.studio',
   configPath: 'kubb.config.ts',
   retryIntervalMs: 30_000,
   heartbeatIntervalMs: 30_000,

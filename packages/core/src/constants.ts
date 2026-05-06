@@ -3,7 +3,7 @@ import type { FileNode } from '@kubb/ast'
 /**
  * Base URL for the Kubb Studio web app.
  */
-export const DEFAULT_STUDIO_URL = 'https://studio.kubb.dev' as const
+export const DEFAULT_STUDIO_URL = 'https://kubb.studio' as const
 
 /**
  * Maximum number of files processed in parallel by FileProcessor.

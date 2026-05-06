@@ -6,7 +6,7 @@
 
 ## Context
 
-`@kubb/agent` is the long-running process that runs Kubb code generation on behalf of Kubb Studio. The agent runs locally or inside a Docker container on the operator's infrastructure. Studio runs as a hosted service at `https://studio.kubb.dev` or a self-hosted instance.
+`@kubb/agent` is the long-running process that runs Kubb code generation on behalf of Kubb Studio. The agent runs locally or inside a Docker container on the operator's infrastructure. Studio runs as a hosted service at `https://kubb.studio` or a self-hosted instance.
 
 The agent is a WebSocket client, not a public HTTP server. On startup it registers with Studio, opens one or more WebSocket sessions, and waits for commands. The only inbound HTTP route the agent exposes is `GET /api/health` for container probes.
 

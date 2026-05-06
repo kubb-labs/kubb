@@ -45,7 +45,7 @@ export const agentDefaults = {
   host: 'localhost',
   configFile: KUBB_CONFIG_FILENAME,
   retryTimeout: '30000',
-  studioUrl: 'https://studio.kubb.dev',
+  studioUrl: 'https://kubb.studio',
   /**
    * Relative path from the @kubb/agent package root to the server entry.
    */

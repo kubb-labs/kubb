@@ -112,7 +112,7 @@ The `agent_kv` named volume persists the KV store (session cache, machine token)
 | `KUBB_AGENT_ROOT`          | `/kubb/agent` (Docker) / `cwd` | Root directory for resolving relative paths.                                                                        |
 | `PORT`                     | `3000`                         | Server port.                                                                                                        |
 | `HOST`                     | `0.0.0.0`                      | Server host.                                                                                                        |
-| `KUBB_STUDIO_URL`          | `https://studio.kubb.dev`      | Kubb Studio WebSocket URL.                                                                                          |
+| `KUBB_STUDIO_URL`          | `https://kubb.studio`      | Kubb Studio WebSocket URL.                                                                                          |
 | `KUBB_AGENT_TOKEN`         | _(empty)_                      | Authentication token for Studio. Required to connect.                                                               |
 | `KUBB_AGENT_ALLOW_WRITE`   | `false`                        | Set to `true` to allow writing generated files to disk.                                                             |
 | `KUBB_AGENT_ALLOW_ALL`     | `false`                        | Set to `true` to grant all permissions (implies `KUBB_AGENT_ALLOW_WRITE=true`).                                     |
@@ -132,7 +132,7 @@ PORT=3000
 KUBB_AGENT_ROOT=/path/to/your/project
 KUBB_AGENT_CONFIG=/path/to/your/project/kubb.config.ts
 KUBB_AGENT_TOKEN=your-token-here
-KUBB_STUDIO_URL=https://studio.kubb.dev
+KUBB_STUDIO_URL=https://kubb.studio
 ```
 
 2. **Run the agent:**

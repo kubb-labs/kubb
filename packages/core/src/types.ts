@@ -411,7 +411,7 @@ export type Config<TInput = Input> = {
   /**
    * Kubb Studio cloud integration settings.
    *
-   * Kubb Studio (https://studio.kubb.dev) is a web-based IDE for managing API specs and generated code.
+   * Kubb Studio (https://kubb.studio) is a web-based IDE for managing API specs and generated code.
    * Set to `true` to enable with default settings, or pass an object to customize the Studio URL.
    *
    * @default false  // disabled by default
@@ -426,7 +426,7 @@ export type Config<TInput = Input> = {
     | {
         /**
          * Override the Kubb Studio base URL.
-         * @default 'https://studio.kubb.dev'
+         * @default 'https://kubb.studio'
          */
         studioUrl?: typeof DEFAULT_STUDIO_URL | (string & {})
       }

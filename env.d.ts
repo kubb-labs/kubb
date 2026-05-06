@@ -114,7 +114,7 @@ declare global {
       /**
        * URL of the Kubb Studio instance the agent connects to.
        * Used as the base for WebSocket session URLs.
-       * @default "https://studio.kubb.dev"
+       * @default "https://kubb.studio"
        * @example "https://studio.example.com"
        */
       KUBB_STUDIO_URL: string
@@ -150,8 +150,84 @@ declare global {
        * @example "https://hc-ping.com/your-uuid-here"
        */
       KUBB_AGENT_HEARTBEAT_URL: string | undefined
+
+      /** Enables CI-specific behavior in tests and Playwright. */
+      CI: string | undefined
+
+      /** GitHub token used by docs generation for GitHub API requests. */
+      GITHUB_TOKEN: string | undefined
+
+      /**
+       * npm dist-tag used by kubb.dev generated install commands and package metadata.
+       * @default "beta"
+       */
+      KUBB_NPM_TAG: string | undefined
+
+      /**
+       * Allows kubb.dev repository fetching to continue when one upstream clone/update fails.
+       * @example "1"
+       */
+      KUBB_FETCH_ALLOW_PARTIAL: string | undefined
+
+      /** PostgreSQL connection string used by Kubb Studio in production. */
+      DATABASE_URL: string | undefined
+
+      /**
+       * Drizzle migrations directory used by Studio database setup.
+       * @default "./server/db/migrations/postgresql"
+       */
+      DATABASE_MIGRATION_FOLDER: string | undefined
+
+      /** Better Auth public base URL. */
+      BETTER_AUTH_URL: string | undefined
+
+      /** Better Auth session secret. */
+      BETTER_AUTH_SECRET: string | undefined
+
+      /** GitHub OAuth application client ID. */
+      GITHUB_CLIENT_ID: string | undefined
+
+      /** GitHub OAuth application client secret. */
+      GITHUB_CLIENT_SECRET: string | undefined
+
+      /** Shared Studio secret used to sign internal agent tokens. */
+      KUBB_STUDIO_SECRET: string | undefined
+
+      /** Enables Studio end-to-end test behavior. */
+      KUBB_STUDIO_E2E: string | undefined
+
+      /** Polar API access token. */
+      POLAR_ACCESS_TOKEN: string | undefined
+
+      /** Polar server environment. */
+      POLAR_SERVER: 'sandbox' | 'production' | undefined
+
+      /** Enables Polar license validation when set to "true". */
+      POLAR_VALIDATE_LICENSE: string | undefined
+
+      /** Polar organization ID used for license validation. */
+      POLAR_ORGANIZATION_ID: string | undefined
+
+      /** Polar webhook signing secret. */
+      POLAR_WEBHOOK_SECRET: string | undefined
+
+      /** Polar license key used by Studio license validation. */
+      KUBB_STUDIO_LICENSE: string | undefined
+
+      /** Polar product ID for the basic agent tier. */
+      POLAR_PRODUCT_ID_BASIC: string | undefined
+
+      /** Polar product ID for the pro agent tier. */
+      POLAR_PRODUCT_ID_PRO: string | undefined
+
+      /** Preset token used when creating a sandbox agent session. */
+      KUBB_AGENT_TOKEN_PRESET: string | undefined
     }
   }
+
+  declare const __POLAR__VALIDATE_LICENSE: string
+  declare const __POLAR__STUDIO_URL: string
+  declare const __POLAR__ORGANISATION_ID: string
 }
 
 export {}

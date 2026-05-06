@@ -87,7 +87,7 @@ describe('connectToStudio', () => {
 
     options = {
       token: 'my-token',
-      studioUrl: 'https://studio.kubb.dev',
+      studioUrl: 'https://kubb.studio',
       configPath: 'kubb.config.ts',
       resolvedConfigPath: '/project/kubb.config.ts',
       allowAll: false,
@@ -111,7 +111,7 @@ describe('connectToStudio', () => {
 
     expect(createAgentSession).toHaveBeenCalledWith({
       token: 'my-token',
-      studioUrl: 'https://studio.kubb.dev',
+      studioUrl: 'https://kubb.studio',
     })
   })
 
@@ -494,7 +494,7 @@ describe('connectToStudio', () => {
 
     expect(disconnect).toHaveBeenCalledWith({
       sessionId: 'session-abc',
-      studioUrl: 'https://studio.kubb.dev',
+      studioUrl: 'https://kubb.studio',
       token: 'my-token',
     })
   })

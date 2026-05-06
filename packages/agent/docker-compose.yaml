@@ -19,10 +19,10 @@ services:
       - .env
     environment:
       PORT: 80
-      KUBB_AGENT_ALLOW_WRITE: 'false'
-      KUBB_AGENT_ALLOW_ALL: 'false'
-      KUBB_AGENT_RETRY_TIMEOUT: '30000'
-      KUBB_STUDIO_URL: https://kubb.studio
+#      KUBB_AGENT_ALLOW_WRITE: 'false'
+#      KUBB_AGENT_ALLOW_ALL: 'false'
+#      KUBB_AGENT_RETRY_TIMEOUT: '30000'
+#      KUBB_STUDIO_URL: https://kubb.studio
     volumes:
       - agent_kv:/kubb/agent/.kubb/cache
     restart: unless-stopped

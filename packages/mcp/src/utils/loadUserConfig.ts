@@ -1,11 +1,19 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import type { Config } from '@kubb/core'
-import { unrun } from 'unrun'
+import { createJiti } from 'jiti'
 import { ALLOWED_CONFIG_EXTENSIONS } from '../constants.ts'
 import { NotifyTypes } from '../types.ts'
 
 type NotifyFunction = (type: string, message: string, data?: Record<string, unknown>) => Promise<void>
+
+const jiti = createJiti(import.meta.url, {
+  jsx: {
+    runtime: 'automatic',
+    importSource: '@kubb/renderer-jsx',
+  },
+  moduleCache: false,
+})
 
 const loadedModules = new Map<string, unknown>()
 
@@ -17,9 +25,9 @@ async function loadModule(filePath: string): Promise<unknown> {
   if (loadedModules.has(filePath)) {
     return loadedModules.get(filePath)
   }
-  const { module } = await unrun({ path: filePath })
-  loadedModules.set(filePath, module)
-  return module
+  const mod = await jiti.import(filePath, { default: true })
+  loadedModules.set(filePath, mod)
+  return mod
 }
 
 export async function loadUserConfig(configPath: string | undefined, { notify }: { notify: NotifyFunction }): Promise<{ userConfig: Config; cwd: string }> {

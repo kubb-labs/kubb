@@ -1,7 +1,7 @@
 import path from 'node:path'
 import process from 'node:process'
 import type { PossibleConfig } from '@kubb/core'
-import { unrun } from 'unrun'
+import { createJiti } from 'jiti'
 import { logger } from '~/utils/logger.ts'
 
 export type CosmiconfigResult = {
@@ -10,22 +10,16 @@ export type CosmiconfigResult = {
   config: PossibleConfig
 }
 
-const unrunInputOptions = {
-  transform: {
-    jsx: {
-      runtime: 'automatic' as const,
-      importSource: '@kubb/renderer-jsx',
-    },
+const jiti = createJiti(import.meta.url, {
+  jsx: {
+    runtime: 'automatic',
+    importSource: '@kubb/renderer-jsx',
   },
-}
+  moduleCache: false,
+})
 
 const tsLoader = async (configFile: string) => {
-  const { module } = await unrun({
-    path: configFile,
-    inputOptions: unrunInputOptions,
-  })
-
-  return module as any
+  return jiti.import(configFile, { default: true }) as any
 }
 
 export async function getCosmiConfig(configPath: string): Promise<CosmiconfigResult> {
