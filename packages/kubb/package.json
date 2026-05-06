@@ -68,7 +68,6 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/adapter-oas": "workspace:*",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/middleware-barrel": "workspace:*",
@@ -76,14 +75,19 @@
     "@kubb/renderer-jsx": "workspace:*"
   },
   "devDependencies": {
+    "@kubb/adapter-oas": "workspace:*",
     "@internals/utils": "workspace:*",
     "typescript": "catalog:"
   },
   "peerDependencies": {
+    "@kubb/adapter-oas": "workspace:*",
     "@kubb/agent": "workspace:*",
     "@kubb/mcp": "workspace:*"
   },
   "peerDependenciesMeta": {
+    "@kubb/adapter-oas": {
+      "optional": true
+    },
     "@kubb/agent": {
       "optional": true
     },

@@ -1,10 +1,15 @@
+import * as nodeModule from 'node:module'
 import type { CLIOptions, UserConfig } from '@kubb/core'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
 import { middlewareBarrel } from '@kubb/middleware-barrel'
-import { describe, expect, test } from 'vitest'
+import { afterEach, describe, expect, test, vi } from 'vitest'
 import { defineConfig } from './defineConfig.ts'
 
 describe('defineConfig', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   const plugin = createMockedPlugin({
     name: 'plugin',
     options: undefined as any,
@@ -139,6 +144,53 @@ describe('defineConfig', () => {
     const resolved = config as UserConfig
 
     expect(resolved.adapter).toBe(adapter)
+  })
+
+  test('keeps plugin-only configs working when @kubb/adapter-oas is not installed', () => {
+    const missingModuleError = new Error("Cannot find module '@kubb/adapter-oas'")
+    const requireMock = Object.assign(
+      (() => {
+        throw missingModuleError
+      }) as unknown as NodeJS.Require,
+      {
+        resolve: () => {
+          throw missingModuleError
+        },
+      },
+    )
+
+    vi.spyOn(nodeModule, 'createRequire').mockReturnValue(requireMock)
+
+    const config = defineConfig({
+      output: { path: './gen' },
+      plugins: [],
+    } as UserConfig)
+    const resolved = config as UserConfig
+
+    expect(resolved.adapter).toBeUndefined()
+  })
+
+  test('throws a helpful error when input is provided but @kubb/adapter-oas is not installed', () => {
+    const missingModuleError = new Error("Cannot find module '@kubb/adapter-oas'")
+    const requireMock = Object.assign(
+      (() => {
+        throw missingModuleError
+      }) as unknown as NodeJS.Require,
+      {
+        resolve: () => {
+          throw missingModuleError
+        },
+      },
+    )
+
+    vi.spyOn(nodeModule, 'createRequire').mockReturnValue(requireMock)
+
+    expect(() =>
+      defineConfig({
+        input: { path: 'spec.yaml' },
+        output: { path: './gen' },
+      } as UserConfig),
+    ).toThrowError('The @kubb/adapter-oas package is not installed.')
   })
 
   test('preserves existing parsers when non-empty', () => {

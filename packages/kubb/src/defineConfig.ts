@@ -1,5 +1,5 @@
+import * as nodeModule from 'node:module'
 import { isPromise, type PossiblePromise } from '@internals/utils'
-import { adapterOas } from '@kubb/adapter-oas'
 import type { CLIOptions, UserConfig } from '@kubb/core'
 import { middlewareBarrel, middlewareBarrelName } from '@kubb/middleware-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
@@ -13,11 +13,26 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
   : TConfig extends Promise<infer TResult>
     ? Promise<NormalizeConfig<TResult>>
     : NormalizeConfig<TConfig>
+type AdapterOasModule = typeof import('@kubb/adapter-oas')
+
+function resolveDefaultAdapter() {
+  const require = nodeModule.createRequire(import.meta.url)
+
+  try {
+    require.resolve('@kubb/adapter-oas')
+  } catch {
+    return undefined
+  }
+
+  const { adapterOas } = require('@kubb/adapter-oas') as AdapterOasModule
+
+  return adapterOas()
+}
 
 /**
  * Applies default adapter, parsers, middleware, `output.barrel`, `output.format`, and `output.lint` to a single user config when not set.
  *
- * - `adapter` defaults to `adapterOas()`
+ * - `adapter` defaults to `adapterOas()` when `@kubb/adapter-oas` is installed
  * - `parsers` defaults to `[parserTs, parserTsx]`
  * - `middleware` defaults to `[middlewareBarrel()]`
  * - `output.barrel` defaults to `{ type: 'named' }` **only when `middlewareBarrel` is part of `middleware`**.
@@ -28,6 +43,7 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
 function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
   const middleware = config.middleware?.length ? config.middleware : [middlewareBarrel()]
   const hasBarrelMiddleware = middleware.some((m) => m.name === middlewareBarrelName)
+  const adapter = config.adapter ?? resolveDefaultAdapter()
 
   const output = { ...config.output }
   if (hasBarrelMiddleware && output.barrel === undefined) {
@@ -39,10 +55,13 @@ function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
   if (output.lint === undefined) {
     output.lint = false
   }
+  if (config.input && !adapter) {
+    throw new Error('The @kubb/adapter-oas package is not installed. Install it to use the default adapter or set `adapter` explicitly.')
+  }
 
   return {
     ...config,
-    adapter: config.adapter ?? adapterOas(),
+    adapter,
     parsers: config.parsers?.length ? config.parsers : [parserTs, parserTsx],
     middleware,
     output,
@@ -60,7 +79,7 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
 /**
  * Helper for defining a Kubb configuration with built-in defaults.
  *
- * When no `adapter` is provided, `adapterOas()` is used automatically.
+ * When no `adapter` is provided, `adapterOas()` is used automatically when `@kubb/adapter-oas` is installed.
  * When no `parsers` are provided, `[parserTs, parserTsx]` is used automatically.
  *
  * Accepts either:
