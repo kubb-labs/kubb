@@ -28,7 +28,7 @@
     "release": "changeset publish",
     "release:canary": "changeset publish --no-git-tag",
     "start": "turbo run start --filter=./packages/*",
-    "test": "vitest run --config ./configs/vitest.config.ts --coverage",
+    "test": "vitest run --config ./configs/vitest.config.ts",
     "test:watch": "vitest --config ./configs/vitest.config.ts",
     "typecheck": "turbo run typecheck --continue --filter='./packages/*'",
     "upgrade": "npx taze -r -w --exclude pnpm",
