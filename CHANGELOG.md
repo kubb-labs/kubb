@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.6 — May 6, 2026
+
+### @kubb/agent
+
+#### Bug Fixes
+
+- fix(agent): copy full jiti package in nitro compiled hook so dist/babel.cjs is available in Docker ([`62fb218`](https://github.com/kubb-labs/kubb/commit/62fb218baff1829310a3f423fe8f829808159a4b))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.5 — May 6, 2026
 
 ### @kubb/agent
