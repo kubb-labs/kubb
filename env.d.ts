@@ -124,26 +124,6 @@ declare global {
        */
       KUBB_PERMISSION_ENV: string | undefined
 
-      /**
-       * @deprecated Use `KUBB_PERMISSION_FILESYSTEM` instead.
-       * When `"true"`, allows the agent to write generated files to disk alongside `kubb.config.ts`.
-       * @default "false"
-       */
-      KUBB_AGENT_ALLOW_WRITE: string | undefined
-
-      /**
-       * @deprecated Use `KUBB_PERMISSION_ALL` instead.
-       * When `"true"`, grants the agent all permissions (implies `KUBB_AGENT_ALLOW_WRITE`).
-       * @default "false"
-       */
-      KUBB_AGENT_ALLOW_ALL: string | undefined
-
-      /**
-       * @deprecated Use `KUBB_PERMISSION_PUBLISH` instead.
-       * When `"true"`, allows the agent to run the publish command (e.g. `npm publish`).
-       * @default "false"
-       */
-      KUBB_AGENT_ALLOW_PUBLISH: string | undefined
 
       /**
        * Default shell command used when a publish is triggered without an explicit command in the WebSocket payload.

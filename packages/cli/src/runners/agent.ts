@@ -32,9 +32,8 @@ type ResolvedAgentStartEnvironment = {
 function resolveAgentStartEnvironment({ port, host, configPath, allowWrite, allowAll }: Omit<AgentStartOptions, 'version'>): ResolvedAgentStartEnvironment {
   const resolvedPort = port ?? process.env.PORT ?? agentDefaults.port
   const resolvedHost = host !== agentDefaults.host ? host : (process.env.HOST ?? agentDefaults.host)
-  const resolvedAllowAll = allowAll || process.env.KUBB_PERMISSION_ALL === 'true' || process.env.KUBB_AGENT_ALLOW_ALL === 'true'
-  const resolvedAllowWrite =
-    resolvedAllowAll || allowWrite || process.env.KUBB_PERMISSION_FILESYSTEM === 'true' || process.env.KUBB_AGENT_ALLOW_WRITE === 'true'
+  const resolvedAllowAll = allowAll || process.env.KUBB_PERMISSION_ALL === 'true'
+  const resolvedAllowWrite = resolvedAllowAll || allowWrite || process.env.KUBB_PERMISSION_FILESYSTEM === 'true'
   const agentRoot = process.env.KUBB_AGENT_ROOT ?? process.cwd()
   const agentConfigPath = path.resolve(process.cwd(), configPath || process.env.KUBB_AGENT_CONFIG || agentDefaults.configFile)
 

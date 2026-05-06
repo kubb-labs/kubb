@@ -47,17 +47,15 @@ The shape is:
 
 Reserved fields are accepted by the type but not enforced by the agent yet. They exist so operators can write forward-compatible configs without waiting for a future type-system update.
 
-### 2. Renamed env vars under `KUBB_PERMISSION_*`
+### 2. Permission env vars under `KUBB_PERMISSION_*`
 
-The canonical env vars change from `KUBB_AGENT_ALLOW_*` to `KUBB_PERMISSION_[name]`:
+The old `KUBB_AGENT_ALLOW_*` env vars are replaced by `KUBB_PERMISSION_[name]`:
 
-| Old (deprecated)          | New                          |
-| ------------------------- | ---------------------------- |
-| `KUBB_AGENT_ALLOW_WRITE`  | `KUBB_PERMISSION_FILESYSTEM` |
-| `KUBB_AGENT_ALLOW_ALL`    | `KUBB_PERMISSION_ALL`        |
-| `KUBB_AGENT_ALLOW_PUBLISH`| `KUBB_PERMISSION_PUBLISH`    |
-
-The agent reads the new names first and falls back to the deprecated names. This keeps existing deployments working for one release cycle.
+| Old (removed)              | New                          |
+| -------------------------- | ---------------------------- |
+| `KUBB_AGENT_ALLOW_WRITE`   | `KUBB_PERMISSION_FILESYSTEM` |
+| `KUBB_AGENT_ALLOW_ALL`     | `KUBB_PERMISSION_ALL`        |
+| `KUBB_AGENT_ALLOW_PUBLISH` | `KUBB_PERMISSION_PUBLISH`    |
 
 ### 3. OR merge semantics
 
@@ -66,12 +64,10 @@ At startup the `studio` plugin loads the kubb config from `resolvedConfigPath` a
 ```
 effectiveFilesystem = KUBB_PERMISSION_ALL
                     || KUBB_PERMISSION_FILESYSTEM
-                    || KUBB_AGENT_ALLOW_WRITE (deprecated)
                     || config.permissions?.filesystem
 
 effectivePublish    = KUBB_PERMISSION_ALL
                     || KUBB_PERMISSION_PUBLISH
-                    || KUBB_AGENT_ALLOW_PUBLISH (deprecated)
                     || config.permissions?.publish
 ```
 
@@ -94,12 +90,11 @@ Sandbox mode still forces all permissions to `false` regardless of config or env
 - `kubb.config.ts` fully describes the required capabilities of a project without separate env var documentation.
 - The `KUBB_PERMISSION_*` namespace scales to any number of future permission types without ambiguity.
 - Reserved type fields mean forward-compatible configs are possible from day one.
-- Backward compat fallback means zero-downtime migration for existing deployments.
 - The sandbox override from ADR-0003 is unaffected; its guarantees are unchanged.
 
 ### Negative
 
-- The deprecated `KUBB_AGENT_ALLOW_*` env vars will be removed in a future major release, requiring a one-time migration for operators who use them directly.
+- Operators using `KUBB_AGENT_ALLOW_*` env vars must migrate to `KUBB_PERMISSION_*` when upgrading.
 - Reserved fields in the config type (`network`, `run`, `env`) are accepted by TypeScript but silently ignored by the agent until enforced, which could mislead operators who set them expecting immediate effect.
 - OR merge semantics mean there is no way to use the config to _restrict_ a permission that an env var grants. Operators who need strict restriction must rely solely on env vars and not set permissions in config.
 
@@ -115,7 +110,7 @@ Permissions live only in `kubb.config.ts`. Env vars and CLI flags are removed. R
 
 **Option C: Config + renamed env vars with OR semantics (chosen)**
 
-Both surfaces exist. The config sets project intent; env vars set deployment-level grants. OR semantics mean either source can enable a permission. Backward-compatible fallback keeps existing deployments working.
+Both surfaces exist. The config sets project intent; env vars set deployment-level grants. OR semantics mean either source can enable a permission.
 
 **Option D: Nested under `agent.permissions` rather than top-level `permissions`**
 
