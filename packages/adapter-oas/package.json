@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@redocly/openapi-core": "^2.30.3",
+    "@redocly/openapi-core": "^2.30.4",
     "oas": "^32.1.18",
     "oas-normalize": "^16.0.4",
     "swagger2openapi": "^7.0.8"

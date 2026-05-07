@@ -53,4 +53,6 @@ Use the format `NNNN_short_slug.md` where `NNNN` is a zero-padded sequential num
 | ADR                                                          | Title                                            | Status   |
 | ------------------------------------------------------------ | ------------------------------------------------ | -------- |
 | [0001](./0001_include_filter.md)                             | Include filter schema scoping                    | Accepted |
-| [0002](./0002_kubb_agent.md)                                 | Kubb Agent architecture and security model       | Proposed |
+| [0002](./0002_extension_naming_and_structure.md)             | Extension naming and structure                   | Proposed |
+| [0003](./0003_kubb_agent.md)                                 | Kubb Agent architecture and security model       | Proposed |
+| [0004](./0004_permissions.md)                                | Permissions as a shared middleware                         | Proposed |
