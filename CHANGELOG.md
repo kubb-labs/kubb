@@ -1,5 +1,52 @@
 # Changelog
 
+## v5.0.0-beta.6 — May 7, 2026
+
+### @kubb/adapter-oas
+
+#### Breaking Changes
+
+- **Breaking change for `@kubb/adapter-oas`**: Remove `parseDocument`, `parseFromConfig`, and `validateDocument` from the public API — these are implementation details that should not be exposed. Use `adapter.validate(input, options?)` instead for validation.
+  
+  **New feature for `@kubb/core`**: Add required `validate` method to the `Adapter<T>` type so all adapters must implement validation support.
+  
+  **Internal change for `@kubb/cli`**: Update the `kubb validate` command to use `adapterOas().validate()` instead of the removed standalone functions. ([#3249](https://github.com/kubb-labs/kubb/pull/3249), [`8a666d7`](https://github.com/kubb-labs/kubb/commit/8a666d76519017d0abe25ed35fbce87dbe311815))
+
+### @kubb/agent
+
+#### Bug Fixes
+
+- fix(agent): copy full jiti package in nitro compiled hook so dist/babel.cjs is available in Docker ([`62fb218`](https://github.com/kubb-labs/kubb/commit/62fb218baff1829310a3f423fe8f829808159a4b))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- **Breaking change for `@kubb/adapter-oas`**: Remove `parseDocument`, `parseFromConfig`, and `validateDocument` from the public API — these are implementation details that should not be exposed. Use `adapter.validate(input, options?)` instead for validation.
+  
+  **New feature for `@kubb/core`**: Add required `validate` method to the `Adapter<T>` type so all adapters must implement validation support.
+  
+  **Internal change for `@kubb/cli`**: Update the `kubb validate` command to use `adapterOas().validate()` instead of the removed standalone functions. ([#3249](https://github.com/kubb-labs/kubb/pull/3249), [`8a666d7`](https://github.com/kubb-labs/kubb/commit/8a666d76519017d0abe25ed35fbce87dbe311815))
+- Make `@kubb/adapter-oas` an optional peer dependency of `@kubb/cli` for the `kubb validate` command.
+  
+  The CLI now lazy-loads `@kubb/adapter-oas` only when validation runs and shows install guidance when that package is not available. ([#3247](https://github.com/kubb-labs/kubb/pull/3247), [`38f92e9`](https://github.com/kubb-labs/kubb/commit/38f92e97ea1af1cac2539edb9378d468c4c42588))
+
+### @kubb/core
+
+#### Features
+
+- **Breaking change for `@kubb/adapter-oas`**: Remove `parseDocument`, `parseFromConfig`, and `validateDocument` from the public API — these are implementation details that should not be exposed. Use `adapter.validate(input, options?)` instead for validation.
+  
+  **New feature for `@kubb/core`**: Add required `validate` method to the `Adapter<T>` type so all adapters must implement validation support.
+  
+  **Internal change for `@kubb/cli`**: Update the `kubb validate` command to use `adapterOas().validate()` instead of the removed standalone functions. ([#3249](https://github.com/kubb-labs/kubb/pull/3249), [`8a666d7`](https://github.com/kubb-labs/kubb/commit/8a666d76519017d0abe25ed35fbce87dbe311815))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.5 — May 6, 2026
 
 ### @kubb/agent
