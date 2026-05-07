@@ -130,6 +130,10 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * return `{ name, path }` for the import, or `undefined` to skip it.
    */
   getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string }) => Array<ImportNode>
+  /**
+   * Validate the document at the given path or URL.
+   */
+  validate: (input: string, options?: { throwOnError?: boolean }) => Promise<void>
 }
 
 export type DevtoolsOptions = {

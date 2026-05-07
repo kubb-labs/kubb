@@ -64,7 +64,6 @@
   },
   "dependencies": {
     "@clack/prompts": "^1.3.0",
-    "@kubb/adapter-oas": "workspace:*",
     "@kubb/core": "workspace:*",
     "chokidar": "^5.0.0",
     "cosmiconfig": "^9.0.1",
@@ -72,13 +71,18 @@
     "tinyexec": "catalog:"
   },
   "devDependencies": {
-    "@internals/utils": "workspace:*"
+    "@internals/utils": "workspace:*",
+    "@kubb/adapter-oas": "workspace:*"
   },
   "peerDependencies": {
+    "@kubb/adapter-oas": "workspace:*",
     "@kubb/agent": "workspace:*",
     "@kubb/mcp": "workspace:*"
   },
   "peerDependenciesMeta": {
+    "@kubb/adapter-oas": {
+      "optional": true
+    },
     "@kubb/agent": {
       "optional": true
     },
