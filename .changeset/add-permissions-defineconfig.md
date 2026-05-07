@@ -12,7 +12,6 @@ Add `permissions` to `defineConfig` and adopt `KUBB_PERMISSION_*` env vars with 
 export default defineConfig({
   permissions: {
     filesystem: 'write',  // allow writing generated files to disk
-    publish: 'none',      // do not run publish commands
   },
 })
 ```
@@ -25,7 +24,6 @@ export default defineConfig({
 |-----|-----|
 | `--allow-write` | `--permission.filesystem` |
 | `--allow-all` | `--permission.yolo` |
-| `--allow-publish` | `--permission.publish` |
 
 **Breaking:** `KUBB_AGENT_ALLOW_*` env vars are removed. Use `KUBB_PERMISSION_*` instead:
 
@@ -33,6 +31,5 @@ export default defineConfig({
 |---------------|-----|
 | `KUBB_AGENT_ALLOW_WRITE` | `KUBB_PERMISSION_FILESYSTEM` |
 | `KUBB_AGENT_ALLOW_ALL` | `KUBB_PERMISSION_YOLO` |
-| `KUBB_AGENT_ALLOW_PUBLISH` | `KUBB_PERMISSION_PUBLISH` |
 
 Env vars accept `"write"`, `"read"`, `"none"`, or `"true"` (treated as `"write"`).

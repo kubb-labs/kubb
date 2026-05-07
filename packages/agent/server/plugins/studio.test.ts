@@ -77,16 +77,15 @@ describe('Studio Plugin - Message Handling', () => {
     it('should serialize connected message with info response', () => {
       const message: AgentMessage = {
         type: 'connected',
-        payload: {
-          version: '4.24.0',
-          configPath: 'kubb.config.ts',
-          permissions: {
-            yolo: true,
-            filesystem: 'write',
-            publish: 'none',
-          },
-          config: {
-            plugins: [{ name: '@kubb/plugin-ts', options: {} }],
+          payload: {
+            version: '4.24.0',
+            configPath: 'kubb.config.ts',
+            permissions: {
+              yolo: true,
+              filesystem: 'write',
+            },
+            config: {
+              plugins: [{ name: '@kubb/plugin-ts', options: {} }],
           },
         },
       }

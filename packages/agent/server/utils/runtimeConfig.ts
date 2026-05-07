@@ -33,7 +33,6 @@ export type StudioRuntimeConfig = {
   root: string
   yolo: boolean
   filesystem: PermissionLevel
-  publish: PermissionLevel
   poolSize: number
   hasSecret: boolean
 }
@@ -56,7 +55,6 @@ export function resolveStudioRuntimeConfig(env: NodeJS.ProcessEnv = process.env,
     root,
     yolo,
     filesystem: yolo ? 'write' : parsePermissionEnv(env.KUBB_PERMISSION_FILESYSTEM),
-    publish: yolo ? 'write' : parsePermissionEnv(env.KUBB_PERMISSION_PUBLISH),
     poolSize: parsePositiveIntegerEnv(env.KUBB_AGENT_POOL_SIZE, agentDefaults.poolSize),
     hasSecret: Boolean(env.KUBB_AGENT_SECRET),
   }

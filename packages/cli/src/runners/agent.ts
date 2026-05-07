@@ -14,7 +14,6 @@ type AgentStartOptions = {
   configPath: string | undefined
   permission: {
     filesystem: boolean
-    publish: boolean
     yolo: boolean
   }
   version: string
@@ -49,7 +48,6 @@ function resolveAgentStartEnvironment({ port, host, configPath, permission }: Om
     : permission.filesystem
       ? 'write'
       : parsePermissionEnv(process.env.KUBB_PERMISSION_FILESYSTEM)
-  const resolvedPublish: PermissionLevel = resolvedYolo ? 'write' : permission.publish ? 'write' : parsePermissionEnv(process.env.KUBB_PERMISSION_PUBLISH)
   const agentRoot = process.env.KUBB_AGENT_ROOT ?? process.cwd()
   const agentConfigPath = path.resolve(process.cwd(), configPath || process.env.KUBB_AGENT_CONFIG || agentDefaults.configFile)
 
@@ -66,7 +64,6 @@ function resolveAgentStartEnvironment({ port, host, configPath, permission }: Om
       KUBB_AGENT_ROOT: agentRoot,
       KUBB_AGENT_CONFIG: agentConfigPath,
       KUBB_PERMISSION_FILESYSTEM: String(resolvedFilesystem),
-      KUBB_PERMISSION_PUBLISH: String(resolvedPublish),
       KUBB_PERMISSION_YOLO: String(resolvedYolo),
       KUBB_AGENT_TOKEN: process.env.KUBB_AGENT_TOKEN,
       KUBB_AGENT_RETRY_TIMEOUT: process.env.KUBB_AGENT_RETRY_TIMEOUT ?? agentDefaults.retryTimeout,

@@ -92,25 +92,10 @@ declare global {
       KUBB_PERMISSION_FILESYSTEM: string | undefined
 
       /**
-       * Permission level for running publish commands (e.g. `npm publish`).
-       * Accepts `"write"` or `"none"`. `"true"` is treated as `"write"`.
-       * Maps to `permissions.publish` in `defineConfig`.
-       * @default "none"
-       */
-      KUBB_PERMISSION_PUBLISH: string | undefined
-
-      /**
        * When `"true"`, grants `write` level to all active permissions.
        * @default "false"
        */
       KUBB_PERMISSION_YOLO: string | undefined
-
-      /**
-       * Default shell command used when a publish is triggered without an explicit command in the WebSocket payload.
-       * @default "npm publish"
-       * @example "npm publish --access public"
-       */
-      KUBB_AGENT_PUBLISH_COMMAND: string | undefined
 
       /**
        * URL of the Kubb Studio instance the agent connects to.

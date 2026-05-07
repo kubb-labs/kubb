@@ -26,14 +26,9 @@ export const command = defineCommand({
       description: 'Allow writing generated files to the filesystem. When not set, no files are written and the config patch is not persisted.',
       default: false,
     },
-    'permission.publish': {
-      type: 'boolean',
-      description: 'Allow running publish commands (e.g. npm publish).',
-      default: false,
-    },
     'permission.yolo': {
       type: 'boolean',
-      description: 'Grant all permissions (implies --permission.filesystem and --permission.publish).',
+      description: 'Grant all active permissions (currently implies --permission.filesystem).',
       default: false,
     },
   },
@@ -46,7 +41,6 @@ export const command = defineCommand({
       configPath: values.config,
       permission: {
         filesystem: values['permission.filesystem'],
-        publish: values['permission.publish'],
         yolo: values['permission.yolo'],
       },
       version,

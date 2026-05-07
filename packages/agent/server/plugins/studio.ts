@@ -34,7 +34,7 @@ function maxLevel(a: PermissionLevel | undefined, b: PermissionLevel | undefined
  * so each Studio user gets their own isolated WebSocket session.
  */
 export default defineNitroPlugin(async (nitro) => {
-  const { studioUrl, token, configPath, resolvedConfigPath, retryInterval, heartbeatInterval, root, yolo, filesystem, publish, poolSize, hasSecret } =
+  const { studioUrl, token, configPath, resolvedConfigPath, retryInterval, heartbeatInterval, root, yolo, filesystem, poolSize, hasSecret } =
     resolveStudioRuntimeConfig(process.env)
 
   if (!token) {
@@ -53,7 +53,7 @@ export default defineNitroPlugin(async (nitro) => {
     await checkPeerDependencies()
     await registerAgent({ token, studioUrl, poolSize })
 
-    let configPermissions: { filesystem?: PermissionLevel; publish?: PermissionLevel } = {}
+    let configPermissions: { filesystem?: PermissionLevel } = {}
     try {
       const config = await loadConfig(resolvedConfigPath)
       configPermissions = config.permissions ?? {}
@@ -62,8 +62,7 @@ export default defineNitroPlugin(async (nitro) => {
     }
 
     const mergedFilesystem = yolo ? 'write' : maxLevel(filesystem, configPermissions.filesystem)
-    const mergedPublish = yolo ? 'write' : maxLevel(publish, configPermissions.publish)
-    const mergedYolo = yolo || (mergedFilesystem === 'write' && mergedPublish === 'write')
+    const mergedYolo = yolo || mergedFilesystem === 'write'
 
     const baseOptions = {
       token,
@@ -72,7 +71,6 @@ export default defineNitroPlugin(async (nitro) => {
       resolvedConfigPath,
       yolo: mergedYolo,
       filesystem: mergedFilesystem,
-      publish: mergedPublish,
       root,
       retryInterval,
       heartbeatInterval,

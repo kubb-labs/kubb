@@ -6,7 +6,7 @@
 
 ## Context
 
-ADR-0003 established three permission flags (`filesystem`, `publish`, `yolo`) that control what a connected Studio session may do on the operator's machine. Before this ADR, those flags were only configurable via env vars (`KUBB_AGENT_ALLOW_WRITE`, `KUBB_AGENT_ALLOW_PUBLISH`, `KUBB_AGENT_ALLOW_ALL`) or CLI flags.
+ADR-0003 established operator-controlled permissions for Studio sessions. Before this ADR, the active runtime permissions were only configurable via env vars (`KUBB_AGENT_ALLOW_WRITE`, `KUBB_AGENT_ALLOW_ALL`) or CLI flags.
 
 Two problems emerged:
 
@@ -25,7 +25,6 @@ Each permission uses one of three levels: `none`, `read`, or `write`. Not every 
 export default defineConfig({
   permissions: {
     filesystem: 'write',  // write generated files to disk
-    publish: 'none',      // do not run publish commands
   },
 })
 ```
@@ -35,7 +34,7 @@ export default defineConfig({
 | Field        | Env var                       | Levels               | Status   | Notes                                                 |
 | ------------ | ----------------------------- | -------------------- | -------- | ----------------------------------------------------- |
 | `filesystem` | `KUBB_PERMISSION_FILESYSTEM`  | `none`, `read`, `write` | Active   | `write` = write generated files to disk              |
-| `publish`    | `KUBB_PERMISSION_PUBLISH`     | `none`, `write`      | Active   | Run publish commands (e.g. `npm publish`)             |
+| `publish`    | `KUBB_PERMISSION_PUBLISH`     | `none`, `write`      | Reserved | Future permission for publish workflows               |
 | `packages`   | `KUBB_PERMISSION_PACKAGES`    | `none`, `read`, `write` | Reserved | `read` = query registry; `write` = publish           |
 | `network`    | `KUBB_PERMISSION_NETWORK`     | `none`, `read`, `write` | Reserved | `read` = fetch specs; `write` = general outbound HTTP |
 | `run`        | `KUBB_PERMISSION_RUN`         | `none`, `write`      | Reserved | Execute shell commands                                |
@@ -55,15 +54,12 @@ The old `KUBB_AGENT_ALLOW_*` env vars are removed:
 | -------------------------- | ---------------------------- |
 | `KUBB_AGENT_ALLOW_WRITE`   | `KUBB_PERMISSION_FILESYSTEM` |
 | `KUBB_AGENT_ALLOW_ALL`     | `KUBB_PERMISSION_YOLO`       |
-| `KUBB_AGENT_ALLOW_PUBLISH` | `KUBB_PERMISSION_PUBLISH`    |
-
 ### Merge semantics
 
 The agent takes the highest level from env var and config using `max(a, b)` where `write > read > none`. `KUBB_PERMISSION_YOLO=true` grants `write` to all active permissions regardless of other settings.
 
 ```
 filesystem = yolo ? write : max(KUBB_PERMISSION_FILESYSTEM, config.permissions?.filesystem)
-publish    = yolo ? write : max(KUBB_PERMISSION_PUBLISH,    config.permissions?.publish)
 ```
 
 Sandbox sessions force all permissions to `none` regardless of config or env (see ADR-0003).
@@ -84,7 +80,7 @@ Levels (`none`, `read`, `write`) are borrowed from GitHub Actions' permission mo
 
 - `kubb.config.ts` fully describes the required capabilities without separate env var documentation.
 - The `KUBB_PERMISSION_*` namespace scales to future permission types without ambiguity.
-- Reserved fields let operators write forward-compatible configs today.
+- Reserved fields document forward-compatible names for future permissions.
 - Level-based permissions allow finer-grained grants as new capabilities are added.
 
 ### Negative

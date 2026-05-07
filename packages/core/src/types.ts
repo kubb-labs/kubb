@@ -472,15 +472,12 @@ export type Config<TInput = Input> = {
    * ```ts
    * permissions: {
    *   filesystem: 'write',  // agent may write generated files to disk
-   *   publish: 'none',      // agent may not run publish commands
    * }
    * ```
    */
   permissions?: {
     /** Write generated files to disk. Maps to `KUBB_PERMISSION_FILESYSTEM`. @default 'none' */
     filesystem?: PermissionLevel
-    /** Run publish commands (e.g. `npm publish`). Maps to `KUBB_PERMISSION_PUBLISH`. @default 'none' */
-    publish?: PermissionLevel
     /** Fetch API specs (read) or make general outbound HTTP calls (write). Maps to `KUBB_PERMISSION_NETWORK`. @future */
     network?: PermissionLevel
     /** Execute shell commands. Maps to `KUBB_PERMISSION_RUN`. @future */
