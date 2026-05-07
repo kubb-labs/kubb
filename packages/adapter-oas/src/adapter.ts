@@ -1,5 +1,4 @@
 import { ast, createAdapter } from '@kubb/core'
-import type { AdapterSource } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { applyDiscriminatorInheritance } from './discriminator.ts'
 import { parseDocument, parseFromConfig, validateDocument } from './factory.ts'
@@ -73,17 +72,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     get inputNode() {
       return inputNode
     },
-    async validate(input: string | AdapterSource | Document, options) {
-      let document: Document
-
-      if (typeof input === 'string') {
-        document = await parseDocument(input)
-      } else if ('type' in input) {
-        document = await parseFromConfig(input)
-      } else {
-        document = input
-      }
-
+    async validate(input, options) {
+      const document = await parseDocument(input)
       await validateDocument(document, options)
     },
     getImports(node, resolve) {
@@ -102,7 +92,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       const document = await parseFromConfig(source)
 
       if (validate) {
-        await this.validate?.(document)
+        await validateDocument(document)
       }
 
       const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
