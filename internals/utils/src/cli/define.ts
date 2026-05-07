@@ -44,6 +44,7 @@ export function defineCommand<O extends Record<string, OptionDefinition>>(def: {
   name: string
   description: string
   arguments?: string[]
+  examples?: string[]
   options?: O
   subCommands?: CommandDefinition[]
   run?: (args: { values: InferValues<O>; positionals: string[] }) => Promise<void>
