@@ -21,14 +21,14 @@ export const command = defineCommand({
       description: 'Host for the server',
       default: agentDefaults.host,
     },
-    'permission.filesystem': {
+    'allow-write': {
       type: 'boolean',
       description: 'Allow writing generated files to the filesystem. When not set, no files are written and the config patch is not persisted.',
       default: false,
     },
-    'permission.yolo': {
+    'allow-all': {
       type: 'boolean',
-      description: 'Grant all active permissions (currently implies --permission.filesystem).',
+      description: 'Grant all permissions (implies --allow-write).',
       default: false,
     },
   },
@@ -39,10 +39,8 @@ export const command = defineCommand({
       port: values.port !== undefined ? values.port : undefined,
       host: values.host,
       configPath: values.config,
-      permission: {
-        filesystem: values['permission.filesystem'],
-        yolo: values['permission.yolo'],
-      },
+      allowWrite: values['allow-write'],
+      allowAll: values['allow-all'],
       version,
     })
   },

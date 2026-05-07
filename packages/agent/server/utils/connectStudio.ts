@@ -2,26 +2,26 @@ import { formatMs, maskString, serializePluginOptions } from '@internals/utils'
 import { AsyncEventEmitter, fsStorage, type KubbHooks, memoryStorage } from '@kubb/core'
 import type { NitroApp } from 'nitropack/types'
 import { version } from '~~/package.json'
-import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage } from '../types/agent.ts'
+import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage, isPublishCommandMessage } from '../types/agent.ts'
 import { getLatestStudioConfigFromStorage, saveStudioConfigToStorage } from './agentCache.ts'
 import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
 import { loadConfig } from './loadConfig.ts'
 import { logger } from './logger.ts'
 import { mergePlugins } from './mergePlugins.ts'
+import { publish } from './publish.ts'
 import { resolveMiddlewares } from './resolvePlugins.ts'
 import { setupHookListener } from './setupHookListener.ts'
 import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
-
-type PermissionLevel = 'none' | 'read' | 'write'
 
 export type ConnectToStudioOptions = {
   token: string
   studioUrl: string
   configPath: string
   resolvedConfigPath: string
-  yolo: boolean
-  filesystem: PermissionLevel
+  allowAll: boolean
+  allowWrite: boolean
+  allowPublish: boolean
   root: string
   retryInterval: number
   heartbeatInterval?: number
@@ -35,12 +35,25 @@ export type ConnectToStudioOptions = {
  * Automatically reconnects after `retryInterval` ms on close or error.
  */
 export async function connectToStudio(options: ConnectToStudioOptions): Promise<void> {
-  const { token, studioUrl, configPath, resolvedConfigPath, yolo, filesystem, root, retryInterval, heartbeatInterval = 30_000, initialSession, nitro } = options
+  const {
+    token,
+    studioUrl,
+    configPath,
+    resolvedConfigPath,
+    allowAll,
+    allowWrite,
+    allowPublish,
+    root,
+    retryInterval,
+    heartbeatInterval = 30_000,
+    initialSession,
+    nitro,
+  } = options
 
   // Each connection gets its own isolated event emitter so generation events
   // from one session do not bleed into another session's WebSocket stream.
   const hooks = new AsyncEventEmitter<KubbHooks>()
-  let currentSource: 'generate' | undefined
+  let currentSource: 'generate' | 'publish' | undefined
 
   async function reconnect() {
     logger.info(`Retrying connection in ${formatMs(retryInterval)} to Kubb Studio ...`)
@@ -60,8 +73,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     const maskedSessionId = maskString(sessionId)
 
     // Effective permissions: always disabled in sandbox mode
-    const effectiveYolo = isSandbox ? false : yolo
-    const effectiveFilesystem: PermissionLevel = isSandbox ? 'none' : filesystem
+    const effectiveAllowAll = isSandbox ? false : allowAll
+    const effectiveWrite = isSandbox ? false : allowWrite
+    const effectivePublish = isSandbox ? false : allowPublish
 
     // Tracks whether the studio server explicitly disconnected us (no reconnect needed)
     let serverDisconnected = false
@@ -173,7 +187,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             // file on disk — ignoring any payload-supplied input for security.
             const inputOverride = isSandbox ? { data: patch?.input ?? '' } : undefined
 
-            if (filesystem !== 'none' && isSandbox) {
+            if (allowWrite && isSandbox) {
               logger.warn(`[${maskedSessionId}] Agent is running in a sandbox environment, write will be disabled`)
             }
 
@@ -181,7 +195,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               logger.warn(`[${maskedSessionId}] Input override via payload is only supported in sandbox mode and will be ignored`)
             }
 
-            if (data.payload && effectiveFilesystem === 'write') {
+            if (data.payload && effectiveWrite) {
               await saveStudioConfigToStorage({
                 sessionId,
                 config: data.payload,
@@ -199,7 +213,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 ...config,
                 root,
                 input: inputOverride ?? config.input,
-                storage: effectiveFilesystem === 'write' ? fsStorage() : memoryStorage(),
+                storage: effectiveWrite ? fsStorage() : memoryStorage(),
                 output: {
                   ...config.output,
                 },
@@ -227,8 +241,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 version,
                 configPath,
                 permissions: {
-                  yolo: effectiveYolo,
-                  filesystem: effectiveFilesystem,
+                  allowAll: effectiveAllowAll,
+                  allowWrite: effectiveWrite,
+                  allowPublish: effectivePublish,
                 },
                 config: {
                   plugins: config.plugins.map((plugin) => ({
@@ -240,6 +255,31 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             })
 
             logger.success(`[${maskedSessionId}] Completed "${data.type}" from Studio`)
+
+            return
+          }
+
+          if (isPublishCommandMessage(data)) {
+            if (!effectivePublish) {
+              logger.warn(`[${maskedSessionId}] Publish command rejected — KUBB_AGENT_ALLOW_PUBLISH is not enabled`)
+              return
+            }
+
+            currentSource = 'publish'
+            const config = await loadConfig(resolvedConfigPath)
+
+            // Command priority: WS payload → env var → default
+            const resolvedCommand = data.payload.command ?? process.env.KUBB_AGENT_PUBLISH_COMMAND ?? 'npm publish'
+
+            await publish({
+              command: resolvedCommand,
+              outputPath: config.output.path,
+              root,
+              hooks,
+            })
+
+            logger.success(`[${maskedSessionId}] Completed "${data.command}" from Studio`)
+            currentSource = undefined
 
             return
           }

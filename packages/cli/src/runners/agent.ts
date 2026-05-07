@@ -12,26 +12,16 @@ type AgentStartOptions = {
   port: string | undefined
   host: string
   configPath: string | undefined
-  permission: {
-    filesystem: boolean
-    yolo: boolean
-  }
+  allowWrite: boolean
+  allowAll: boolean
   version: string
-}
-
-type PermissionLevel = 'none' | 'read' | 'write'
-
-function parsePermissionEnv(value: string | undefined): PermissionLevel {
-  if (value === 'write' || value === 'true') return 'write'
-  if (value === 'read') return 'read'
-  return 'none'
 }
 
 type ResolvedAgentStartEnvironment = {
   port: string
   host: string
-  filesystem: PermissionLevel
-  yolo: boolean
+  allowWrite: boolean
+  allowAll: boolean
   agentConfigPath: string
   env: NodeJS.ProcessEnv
 }
@@ -39,23 +29,19 @@ type ResolvedAgentStartEnvironment = {
 /**
  * Resolves the environment passed to the detached agent process using CLI values first, then environment values, then CLI defaults.
  */
-function resolveAgentStartEnvironment({ port, host, configPath, permission }: Omit<AgentStartOptions, 'version'>): ResolvedAgentStartEnvironment {
+function resolveAgentStartEnvironment({ port, host, configPath, allowWrite, allowAll }: Omit<AgentStartOptions, 'version'>): ResolvedAgentStartEnvironment {
   const resolvedPort = port ?? process.env.PORT ?? agentDefaults.port
   const resolvedHost = host !== agentDefaults.host ? host : (process.env.HOST ?? agentDefaults.host)
-  const resolvedYolo = permission.yolo || process.env.KUBB_PERMISSION_YOLO === 'true'
-  const resolvedFilesystem: PermissionLevel = resolvedYolo
-    ? 'write'
-    : permission.filesystem
-      ? 'write'
-      : parsePermissionEnv(process.env.KUBB_PERMISSION_FILESYSTEM)
+  const resolvedAllowAll = allowAll || process.env.KUBB_AGENT_ALLOW_ALL === 'true'
+  const resolvedAllowWrite = resolvedAllowAll || allowWrite || process.env.KUBB_AGENT_ALLOW_WRITE === 'true'
   const agentRoot = process.env.KUBB_AGENT_ROOT ?? process.cwd()
   const agentConfigPath = path.resolve(process.cwd(), configPath || process.env.KUBB_AGENT_CONFIG || agentDefaults.configFile)
 
   return {
     port: resolvedPort,
     host: resolvedHost,
-    filesystem: resolvedFilesystem,
-    yolo: resolvedYolo,
+    allowWrite: resolvedAllowWrite,
+    allowAll: resolvedAllowAll,
     agentConfigPath,
     env: {
       ...process.env,
@@ -63,8 +49,8 @@ function resolveAgentStartEnvironment({ port, host, configPath, permission }: Om
       HOST: resolvedHost,
       KUBB_AGENT_ROOT: agentRoot,
       KUBB_AGENT_CONFIG: agentConfigPath,
-      KUBB_PERMISSION_FILESYSTEM: String(resolvedFilesystem),
-      KUBB_PERMISSION_YOLO: String(resolvedYolo),
+      KUBB_AGENT_ALLOW_WRITE: String(resolvedAllowWrite),
+      KUBB_AGENT_ALLOW_ALL: String(resolvedAllowAll),
       KUBB_AGENT_TOKEN: process.env.KUBB_AGENT_TOKEN,
       KUBB_AGENT_RETRY_TIMEOUT: process.env.KUBB_AGENT_RETRY_TIMEOUT ?? agentDefaults.retryTimeout,
       KUBB_STUDIO_URL: process.env.KUBB_STUDIO_URL ?? agentDefaults.studioUrl,
@@ -84,7 +70,7 @@ function isPortAvailable(port: number, host: string): Promise<boolean> {
   })
 }
 
-export async function runAgentStart({ port, host, configPath, permission, version }: AgentStartOptions): Promise<void> {
+export async function runAgentStart({ port, host, configPath, allowWrite, allowAll, version }: AgentStartOptions): Promise<void> {
   const hrStart = process.hrtime()
 
   try {
@@ -117,7 +103,8 @@ export async function runAgentStart({ port, host, configPath, permission, versio
       port,
       host,
       configPath,
-      permission,
+      allowWrite,
+      allowAll,
     })
     const numericPort = Number(resolvedEnv.port)
 
@@ -129,8 +116,8 @@ export async function runAgentStart({ port, host, configPath, permission, versio
     clack.log.info(styleText('dim', `Config: ${resolvedEnv.agentConfigPath}`))
     clack.log.info(styleText('dim', `Host: ${resolvedEnv.host}`))
     clack.log.info(styleText('dim', `Port: ${resolvedEnv.port}`))
-    if (resolvedEnv.filesystem === 'none' && !resolvedEnv.yolo) {
-      clack.log.warn(styleText('yellow', 'Filesystem writes disabled. Use --permission.filesystem or --permission.yolo to enable.'))
+    if (!resolvedEnv.allowWrite && !resolvedEnv.allowAll) {
+      clack.log.warn(styleText('yellow', 'Filesystem writes disabled. Use --allow-write or --allow-all to enable.'))
     }
 
     if (!(await isPortAvailable(numericPort, resolvedEnv.host))) {

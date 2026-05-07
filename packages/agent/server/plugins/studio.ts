@@ -3,12 +3,13 @@ import { maskString } from '@internals/utils'
 import type { AgentConnectResponse } from '~/types/agent.ts'
 import { createAgentSession, registerAgent } from '~/utils/api.ts'
 import { connectToStudio } from '~/utils/connectStudio.ts'
-import { loadConfig } from '~/utils/loadConfig.ts'
 import { logger } from '~/utils/logger.ts'
 import { checkPeerDependencies } from '~/utils/resolvePlugins.ts'
 import { resolveStudioRuntimeConfig } from '~/utils/runtimeConfig.ts'
-import { resolvePermissions } from './resolvePermissions.ts'
 
+/**
+ * Normalizes unknown thrown values into a logger-friendly message string.
+ */
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
@@ -28,7 +29,7 @@ function getErrorMessage(error: unknown): string {
  * so each Studio user gets their own isolated WebSocket session.
  */
 export default defineNitroPlugin(async (nitro) => {
-  const { studioUrl, token, configPath, resolvedConfigPath, retryInterval, heartbeatInterval, root, yolo, filesystem, poolSize, hasSecret } =
+  const { studioUrl, token, configPath, resolvedConfigPath, retryInterval, heartbeatInterval, root, allowAll, allowWrite, allowPublish, poolSize, hasSecret } =
     resolveStudioRuntimeConfig(process.env)
 
   if (!token) {
@@ -47,27 +48,14 @@ export default defineNitroPlugin(async (nitro) => {
     await checkPeerDependencies()
     await registerAgent({ token, studioUrl, poolSize })
 
-    let configPermissions: Parameters<typeof resolvePermissions>[0]['configPermissions'] = {}
-    try {
-      const config = await loadConfig(resolvedConfigPath)
-      configPermissions = ((config as Record<string, unknown>).permissions as Parameters<typeof resolvePermissions>[0]['configPermissions'] | undefined) ?? {}
-    } catch {
-      // Config may not exist yet or may not have permissions; fall back to runtime-only permissions
-    }
-
-    const resolvedPermissions = resolvePermissions({
-      runtimeYolo: yolo,
-      runtimeFilesystem: filesystem,
-      configPermissions,
-    })
-
     const baseOptions = {
       token,
       studioUrl,
       configPath,
       resolvedConfigPath,
-      yolo: resolvedPermissions.yolo,
-      filesystem: resolvedPermissions.filesystem,
+      allowAll,
+      allowWrite,
+      allowPublish,
       root,
       retryInterval,
       heartbeatInterval,

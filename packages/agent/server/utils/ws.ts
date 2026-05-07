@@ -38,7 +38,7 @@ export function sendAgentMessage(ws: WebSocket, message: AgentMessage): void {
 /**
  * Forwards selected Kubb lifecycle events to Studio as data messages for the active session.
  */
-export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHooks>, getSource?: () => 'generate' | undefined): void {
+export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHooks>, getSource?: () => 'generate' | 'publish' | undefined): void {
   function sendDataMessage(payload: DataMessagePayload) {
     sendAgentMessage(ws, {
       type: 'data',

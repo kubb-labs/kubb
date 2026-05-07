@@ -84,18 +84,32 @@ declare global {
       KUBB_AGENT_RETRY_TIMEOUT: string | undefined
 
       /**
-       * Permission level for writing generated files to disk.
-       * Accepts `"write"`, `"read"`, or `"none"`. `"true"` is treated as `"write"`.
-       * Maps to `permissions.filesystem` in `defineConfig`.
-       * @default "none"
-       */
-      KUBB_PERMISSION_FILESYSTEM: string | undefined
-
-      /**
-       * When `"true"`, grants `write` level to all active permissions.
+       * When `"true"`, allows the agent to write generated files to disk
+       * alongside `kubb.config.ts`.
        * @default "false"
        */
-      KUBB_PERMISSION_YOLO: string | undefined
+      KUBB_AGENT_ALLOW_WRITE: string | undefined
+
+      /**
+       * When `"true"`, grants the agent all permissions (implies
+       * `KUBB_AGENT_ALLOW_WRITE`).
+       * @default "false"
+       */
+      KUBB_AGENT_ALLOW_ALL: string | undefined
+
+      /**
+       * When `"true"`, allows the agent to run the publish command (e.g. `npm publish`).
+       * Implies the user has configured an `.npmrc` or equivalent credentials on the agent.
+       * @default "false"
+       */
+      KUBB_AGENT_ALLOW_PUBLISH: string | undefined
+
+      /**
+       * Default shell command used when a publish is triggered without an explicit command in the WebSocket payload.
+       * @default "npm publish"
+       * @example "npm publish --access public"
+       */
+      KUBB_AGENT_PUBLISH_COMMAND: string | undefined
 
       /**
        * URL of the Kubb Studio instance the agent connects to.
