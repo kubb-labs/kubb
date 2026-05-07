@@ -16,7 +16,7 @@ One approach to this problem is to feed a normalized, dereferenced representatio
 
 Kubb's AST is already that normalized representation. The `InputNode`, `OperationNode`, and `SchemaNode` types produced by `@kubb/adapter-oas` are fully resolved and free of `$ref` indirection. No new data layer is needed.
 
-Kubb already separates language-specific knowledge into parsers. `@kubb/parser-ts` and `@kubb/parser-tsx` know how to serialize TypeScript AST nodes for their respective file extensions, but nothing about the AST structure they receive. Skills files for AI generation belong at the same layer: with the language, not inside a shared execution engine.
+Kubb already separates language-specific knowledge into parsers. `@kubb/parser-ts` exports `parserTs` (`.ts`, `.js`) and `parserTsx` (`.tsx`, `.jsx`), each knowing how to serialize TypeScript AST nodes for its file extensions but nothing about the AST structure it receives. Skills files for AI generation belong at the same layer: with the language, not inside a shared execution engine.
 
 ## Decision
 
@@ -36,7 +36,7 @@ The renderer caches responses by a hash of the prompt. The cache lives under `.k
 
 Putting AI generation in a renderer keeps `defineGenerator` unchanged. The new capability is another renderer option alongside `jsxRenderer` and the direct `FileNode[]` return path. Any existing generator can use it.
 
-A language-agnostic renderer mirrors how parsers work. `@kubb/parser-ts` knows TypeScript serialization but nothing about what AST it receives. The AI renderer knows how to call a provider but nothing about the target language. The skills content travels with the generator, which is where it belongs.
+A language-agnostic renderer mirrors how parsers work. `parserTs` from `@kubb/parser-ts` knows TypeScript serialization but nothing about what AST it receives. The AI renderer knows how to call a provider but nothing about the target language. The skills content travels with the generator, which is where it belongs.
 
 `serializeOperation` is a separate utility so multiple generators can share the same normalized operation view without duplicating logic.
 
