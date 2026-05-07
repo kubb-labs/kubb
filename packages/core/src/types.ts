@@ -462,57 +462,36 @@ export type Config<TInput = Input> = {
     done?: string | Array<string>
   }
   /**
-   * Permission flags for the Kubb agent server.
+   * Permission grants for the Kubb agent server.
    *
-   * These serve as defaults when the corresponding `KUBB_PERMISSION_*` environment variables
-   * are not set. Environment variables and CLI flags take precedence when explicitly enabled.
-   *
-   * Future permissions (`network`, `run`, `env`) are reserved and not yet enforced by the agent.
+   * Each field accepts `'none'`, `'read'`, or `'write'`. The agent merges these with the
+   * corresponding `KUBB_PERMISSION_*` env vars using OR semantics — whichever grants more wins.
+   * Sandbox sessions always force all permissions to `'none'`.
    *
    * @example
    * ```ts
    * permissions: {
-   *   filesystem: true,  // agent may write generated files to disk
-   *   publish: false,    // agent may not run publish commands
+   *   filesystem: 'write',  // agent may write generated files to disk
+   *   publish: 'none',      // agent may not run publish commands
    * }
    * ```
    */
   permissions?: {
-    /**
-     * Allow the agent to write generated files to the filesystem.
-     * Maps to the `KUBB_PERMISSION_FILESYSTEM` environment variable.
-     * @default false
-     */
-    filesystem?: boolean
-    /**
-     * Allow the agent to run publish commands (e.g. `npm publish`).
-     * Maps to the `KUBB_PERMISSION_PUBLISH` environment variable.
-     * @default false
-     */
-    publish?: boolean
-    /**
-     * Allow the agent to fetch API specs and make outbound HTTP requests.
-     * Maps to the `KUBB_PERMISSION_NETWORK` environment variable.
-     * @default false
-     * @future Not yet enforced — reserved for a future release.
-     */
-    network?: boolean
-    /**
-     * Allow the agent to execute arbitrary shell commands beyond publish.
-     * Maps to the `KUBB_PERMISSION_RUN` environment variable.
-     * @default false
-     * @future Not yet enforced — reserved for a future release.
-     */
-    run?: boolean
-    /**
-     * Allow the agent to read environment variables from the host system.
-     * Maps to the `KUBB_PERMISSION_ENV` environment variable.
-     * @default false
-     * @future Not yet enforced — reserved for a future release.
-     */
-    env?: boolean
+    /** Write generated files to disk. Maps to `KUBB_PERMISSION_FILESYSTEM`. @default 'none' */
+    filesystem?: PermissionLevel
+    /** Run publish commands (e.g. `npm publish`). Maps to `KUBB_PERMISSION_PUBLISH`. @default 'none' */
+    publish?: PermissionLevel
+    /** Fetch API specs (read) or make general outbound HTTP calls (write). Maps to `KUBB_PERMISSION_NETWORK`. @future */
+    network?: PermissionLevel
+    /** Execute shell commands. Maps to `KUBB_PERMISSION_RUN`. @future */
+    run?: PermissionLevel
+    /** Read host environment variables. Maps to `KUBB_PERMISSION_ENV`. @future */
+    env?: PermissionLevel
   }
 }
+
+/** Permission level for a Kubb agent capability. `write > read > none`. */
+export type PermissionLevel = 'none' | 'read' | 'write'
 
 // plugin
 

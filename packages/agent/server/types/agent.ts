@@ -92,8 +92,8 @@ export type CommandMessage =
       command: 'connect'
       permissions: {
         yolo: boolean
-        filesystem: boolean
-        publish: boolean
+        filesystem: 'none' | 'read' | 'write'
+        publish: 'none' | 'read' | 'write'
       }
     }
   | { type: 'command'; command: 'publish'; payload: PublishCommandPayload }
@@ -104,8 +104,8 @@ export type ConnectMessagePayload = {
   config: JSONKubbConfig
   permissions: {
     yolo: boolean
-    filesystem: boolean
-    publish: boolean
+    filesystem: 'none' | 'read' | 'write'
+    publish: 'none' | 'read' | 'write'
   }
 }
 

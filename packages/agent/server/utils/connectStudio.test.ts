@@ -91,8 +91,8 @@ describe('connectToStudio', () => {
       configPath: 'kubb.config.ts',
       resolvedConfigPath: '/project/kubb.config.ts',
       yolo: false,
-      filesystem: false,
-      publish: false,
+      filesystem: 'none' as const,
+      publish: 'none' as const,
       root: '/project',
       retryInterval: 100,
       nitro: { hooks: { hook: vi.fn() } } as any,
@@ -177,10 +177,10 @@ describe('connectToStudio', () => {
     expect(resolvePlugins).toHaveBeenCalledWith(payload.plugins)
   })
 
-  it('disables write in sandbox mode even when filesystem is true', async () => {
+  it('disables write in sandbox mode even when filesystem is write', async () => {
     vi.mocked(createAgentSession).mockResolvedValue(makeSession({ isSandbox: true }))
 
-    await connectToStudio({ ...options, filesystem: true })
+    await connectToStudio({ ...options, filesystem: 'write' })
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'command', command: 'generate' }),
@@ -235,10 +235,10 @@ describe('connectToStudio', () => {
     )
   })
 
-  it('persists the payload to storage when filesystem is true and payload is provided', async () => {
+  it('persists the payload to storage when filesystem is write and payload is provided', async () => {
     const payload = { plugins: [] }
 
-    await connectToStudio({ ...options, filesystem: true })
+    await connectToStudio({ ...options, filesystem: 'write' })
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'command', command: 'generate', payload }),
@@ -251,7 +251,7 @@ describe('connectToStudio', () => {
   })
 
   it('does not persist studioConfig when there is no payload', async () => {
-    await connectToStudio({ ...options, filesystem: true })
+    await connectToStudio({ ...options, filesystem: 'write' })
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'command', command: 'generate' }),
@@ -260,10 +260,10 @@ describe('connectToStudio', () => {
     expect(saveStudioConfigToStorage).not.toHaveBeenCalled()
   })
 
-  it('does not persist studioConfig when filesystem is false', async () => {
+  it('does not persist studioConfig when filesystem is none', async () => {
     const payload = { plugins: [] }
 
-    await connectToStudio(options) // filesystem: false
+    await connectToStudio(options) // filesystem: 'none'
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'command', command: 'generate', payload }),
@@ -417,7 +417,7 @@ describe('connectToStudio', () => {
   })
 
   it('reflects filesystem and yolo separately in permissions on connect command', async () => {
-    await connectToStudio({ ...options, filesystem: true, yolo: false })
+    await connectToStudio({ ...options, filesystem: 'write', yolo: false })
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'command', command: 'connect' }),
@@ -429,8 +429,8 @@ describe('connectToStudio', () => {
         payload: expect.objectContaining({
           permissions: {
             yolo: false,
-            filesystem: true,
-            publish: false,
+            filesystem: 'write',
+            publish: 'none',
           },
         }),
       }),
@@ -438,7 +438,7 @@ describe('connectToStudio', () => {
   })
 
   it('reflects yolo=true in permissions when yolo is set', async () => {
-    await connectToStudio({ ...options, filesystem: true, yolo: true })
+    await connectToStudio({ ...options, filesystem: 'write', yolo: true })
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'command', command: 'connect' }),
@@ -450,20 +450,20 @@ describe('connectToStudio', () => {
         payload: expect.objectContaining({
           permissions: {
             yolo: true,
-            filesystem: true,
-            publish: false,
+            filesystem: 'write',
+            publish: 'none',
           },
         }),
       }),
     )
   })
 
-  it('reports zero permissions in sandbox mode regardless of filesystem', async () => {
+  it('reports none permissions in sandbox mode regardless of filesystem', async () => {
     vi.mocked(createAgentSession).mockResolvedValue(makeSession({ isSandbox: true }))
     const sandboxWs = new MockWebSocket()
     vi.mocked(createWebsocket).mockReturnValue(sandboxWs as any)
 
-    await connectToStudio({ ...options, filesystem: true })
+    await connectToStudio({ ...options, filesystem: 'write' })
 
     await sandboxWs.trigger('message', {
       data: JSON.stringify({ type: 'command', command: 'connect' }),
@@ -475,8 +475,8 @@ describe('connectToStudio', () => {
         payload: expect.objectContaining({
           permissions: {
             yolo: false,
-            filesystem: false,
-            publish: false,
+            filesystem: 'none',
+            publish: 'none',
           },
         }),
       }),

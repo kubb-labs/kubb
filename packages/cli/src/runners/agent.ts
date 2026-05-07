@@ -20,10 +20,18 @@ type AgentStartOptions = {
   version: string
 }
 
+type PermissionLevel = 'none' | 'read' | 'write'
+
+function parsePermissionEnv(value: string | undefined): PermissionLevel {
+  if (value === 'write' || value === 'true') return 'write'
+  if (value === 'read') return 'read'
+  return 'none'
+}
+
 type ResolvedAgentStartEnvironment = {
   port: string
   host: string
-  filesystem: boolean
+  filesystem: PermissionLevel
   yolo: boolean
   agentConfigPath: string
   env: NodeJS.ProcessEnv
@@ -36,8 +44,8 @@ function resolveAgentStartEnvironment({ port, host, configPath, permission }: Om
   const resolvedPort = port ?? process.env.PORT ?? agentDefaults.port
   const resolvedHost = host !== agentDefaults.host ? host : (process.env.HOST ?? agentDefaults.host)
   const resolvedYolo = permission.yolo || process.env.KUBB_PERMISSION_YOLO === 'true'
-  const resolvedFilesystem = resolvedYolo || permission.filesystem || process.env.KUBB_PERMISSION_FILESYSTEM === 'true'
-  const resolvedPublish = resolvedYolo || permission.publish || process.env.KUBB_PERMISSION_PUBLISH === 'true'
+  const resolvedFilesystem: PermissionLevel = resolvedYolo ? 'write' : permission.filesystem ? 'write' : parsePermissionEnv(process.env.KUBB_PERMISSION_FILESYSTEM)
+  const resolvedPublish: PermissionLevel = resolvedYolo ? 'write' : permission.publish ? 'write' : parsePermissionEnv(process.env.KUBB_PERMISSION_PUBLISH)
   const agentRoot = process.env.KUBB_AGENT_ROOT ?? process.cwd()
   const agentConfigPath = path.resolve(process.cwd(), configPath || process.env.KUBB_AGENT_CONFIG || agentDefaults.configFile)
 
@@ -120,7 +128,7 @@ export async function runAgentStart({ port, host, configPath, permission, versio
     clack.log.info(styleText('dim', `Config: ${resolvedEnv.agentConfigPath}`))
     clack.log.info(styleText('dim', `Host: ${resolvedEnv.host}`))
     clack.log.info(styleText('dim', `Port: ${resolvedEnv.port}`))
-    if (!resolvedEnv.filesystem && !resolvedEnv.yolo) {
+    if (resolvedEnv.filesystem === 'none' && !resolvedEnv.yolo) {
       clack.log.warn(styleText('yellow', 'Filesystem writes disabled. Use --permission.filesystem or --permission.yolo to enable.'))
     }
 

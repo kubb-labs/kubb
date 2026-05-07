@@ -4,20 +4,20 @@
 "@kubb/cli": patch
 ---
 
-Add `permissions` to `defineConfig` and adopt `KUBB_PERMISSION_*` env vars.
+Add `permissions` to `defineConfig` and adopt `KUBB_PERMISSION_*` env vars with level-based grants.
 
-**`@kubb/core`** — new optional `permissions` field on `Config`:
+**`@kubb/core`** — new optional `permissions` field on `Config`. Each permission accepts `'none'`, `'read'`, or `'write'`:
 
 ```ts
 export default defineConfig({
   permissions: {
-    filesystem: true,  // allow writing generated files to disk
-    publish: false,    // allow running publish commands
+    filesystem: 'write',  // allow writing generated files to disk
+    publish: 'none',      // do not run publish commands
   },
 })
 ```
 
-**`@kubb/agent`** — permissions are merged from `kubb.config.ts` and env vars at startup (OR semantics). Sandbox sessions always force all permissions to `false`.
+**`@kubb/agent`** — permissions are merged from `kubb.config.ts` and env vars at startup using the highest level from each source. Sandbox sessions always force all permissions to `'none'`.
 
 **`@kubb/cli`** — new CLI flags replace the old ones:
 
@@ -34,3 +34,5 @@ export default defineConfig({
 | `KUBB_AGENT_ALLOW_WRITE` | `KUBB_PERMISSION_FILESYSTEM` |
 | `KUBB_AGENT_ALLOW_ALL` | `KUBB_PERMISSION_YOLO` |
 | `KUBB_AGENT_ALLOW_PUBLISH` | `KUBB_PERMISSION_PUBLISH` |
+
+Env vars accept `"write"`, `"read"`, `"none"`, or `"true"` (treated as `"write"`).

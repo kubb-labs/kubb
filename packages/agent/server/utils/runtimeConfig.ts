@@ -2,11 +2,16 @@ import path from 'node:path'
 import process from 'node:process'
 import { agentDefaults } from '../constants.ts'
 
-/**
- * Parses a string environment flag using the agent's boolean convention.
- */
+type PermissionLevel = 'none' | 'read' | 'write'
+
 function parseBooleanEnv(value: string | undefined): boolean {
   return value === 'true'
+}
+
+function parsePermissionEnv(value: string | undefined): PermissionLevel {
+  if (value === 'write' || value === 'true') return 'write'
+  if (value === 'read') return 'read'
+  return 'none'
 }
 
 /**
@@ -27,8 +32,8 @@ export type StudioRuntimeConfig = {
   heartbeatInterval: number
   root: string
   yolo: boolean
-  filesystem: boolean
-  publish: boolean
+  filesystem: PermissionLevel
+  publish: PermissionLevel
   poolSize: number
   hasSecret: boolean
 }
@@ -50,8 +55,8 @@ export function resolveStudioRuntimeConfig(env: NodeJS.ProcessEnv = process.env,
     heartbeatInterval: parsePositiveIntegerEnv(env.KUBB_AGENT_HEARTBEAT_INTERVAL, agentDefaults.heartbeatIntervalMs),
     root,
     yolo,
-    filesystem: yolo || parseBooleanEnv(env.KUBB_PERMISSION_FILESYSTEM),
-    publish: yolo || parseBooleanEnv(env.KUBB_PERMISSION_PUBLISH),
+    filesystem: yolo ? 'write' : parsePermissionEnv(env.KUBB_PERMISSION_FILESYSTEM),
+    publish: yolo ? 'write' : parsePermissionEnv(env.KUBB_PERMISSION_PUBLISH),
     poolSize: parsePositiveIntegerEnv(env.KUBB_AGENT_POOL_SIZE, agentDefaults.poolSize),
     hasSecret: Boolean(env.KUBB_AGENT_SECRET),
   }

@@ -8,11 +8,15 @@ import { logger } from '~/utils/logger.ts'
 import { checkPeerDependencies } from '~/utils/resolvePlugins.ts'
 import { resolveStudioRuntimeConfig } from '~/utils/runtimeConfig.ts'
 
-/**
- * Normalizes unknown thrown values into a logger-friendly message string.
- */
+type PermissionLevel = 'none' | 'read' | 'write'
+
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
+}
+
+function maxLevel(a: PermissionLevel | undefined, b: PermissionLevel | undefined): PermissionLevel {
+  const order: Record<PermissionLevel, number> = { none: 0, read: 1, write: 2 }
+  return order[a ?? 'none'] >= order[b ?? 'none'] ? (a ?? 'none') : (b ?? 'none')
 }
 
 /**
@@ -49,7 +53,7 @@ export default defineNitroPlugin(async (nitro) => {
     await checkPeerDependencies()
     await registerAgent({ token, studioUrl, poolSize })
 
-    let configPermissions: { filesystem?: boolean; publish?: boolean; network?: boolean; run?: boolean; env?: boolean } = {}
+    let configPermissions: { filesystem?: PermissionLevel; publish?: PermissionLevel } = {}
     try {
       const config = await loadConfig(resolvedConfigPath)
       configPermissions = config.permissions ?? {}
@@ -57,9 +61,9 @@ export default defineNitroPlugin(async (nitro) => {
       // Config may not exist yet or may not have permissions; fall back to runtime-only permissions
     }
 
-    const mergedFilesystem = filesystem || configPermissions.filesystem === true
-    const mergedPublish = publish || configPermissions.publish === true
-    const mergedYolo = yolo || (mergedFilesystem && mergedPublish)
+    const mergedFilesystem = yolo ? 'write' : maxLevel(filesystem, configPermissions.filesystem)
+    const mergedPublish = yolo ? 'write' : maxLevel(publish, configPermissions.publish)
+    const mergedYolo = yolo || (mergedFilesystem === 'write' && mergedPublish === 'write')
 
     const baseOptions = {
       token,

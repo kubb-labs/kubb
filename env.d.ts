@@ -84,21 +84,23 @@ declare global {
       KUBB_AGENT_RETRY_TIMEOUT: string | undefined
 
       /**
-       * When `"true"`, allows the agent to write generated files to disk alongside `kubb.config.ts`.
+       * Permission level for writing generated files to disk.
+       * Accepts `"write"`, `"read"`, or `"none"`. `"true"` is treated as `"write"`.
        * Maps to `permissions.filesystem` in `defineConfig`.
-       * @default "false"
+       * @default "none"
        */
       KUBB_PERMISSION_FILESYSTEM: string | undefined
 
       /**
-       * When `"true"`, allows the agent to run publish commands (e.g. `npm publish`).
+       * Permission level for running publish commands (e.g. `npm publish`).
+       * Accepts `"write"` or `"none"`. `"true"` is treated as `"write"`.
        * Maps to `permissions.publish` in `defineConfig`.
-       * @default "false"
+       * @default "none"
        */
       KUBB_PERMISSION_PUBLISH: string | undefined
 
       /**
-       * When `"true"`, grants all current permissions (implies `KUBB_PERMISSION_FILESYSTEM` and `KUBB_PERMISSION_PUBLISH`).
+       * When `"true"`, grants `write` level to all active permissions.
        * @default "false"
        */
       KUBB_PERMISSION_YOLO: string | undefined

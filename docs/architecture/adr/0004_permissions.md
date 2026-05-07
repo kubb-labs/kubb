@@ -6,41 +6,50 @@
 
 ## Context
 
-ADR-0003 established three permission flags (`filesystem`, `publish`, `yolo`) that control what a connected Studio session may do on the operator's machine. Before this ADR, those flags were set only via env vars (`KUBB_AGENT_ALLOW_WRITE`, `KUBB_AGENT_ALLOW_PUBLISH`, `KUBB_AGENT_ALLOW_ALL`) or CLI flags.
+ADR-0003 established three permission flags (`filesystem`, `publish`, `yolo`) that control what a connected Studio session may do on the operator's machine. Before this ADR, those flags were only configurable via env vars (`KUBB_AGENT_ALLOW_WRITE`, `KUBB_AGENT_ALLOW_PUBLISH`, `KUBB_AGENT_ALLOW_ALL`) or CLI flags.
 
 Two problems emerged:
 
-1. **Config is not self-contained.** Operators must pass `--allow-write` on every `kubb agent start` or set env vars in every deployment manifest. The intent is not visible in `kubb.config.ts`.
-2. **The `KUBB_AGENT_ALLOW_*` namespace does not scale.** As the permission surface grows, adding more `KUBB_AGENT_ALLOW_*` variables ties permission semantics to one package and leaves no room for a consistent future vocabulary.
+1. The config is not self-contained. Operators must pass `--permission.filesystem` on every `kubb agent start` or set env vars in every deployment manifest.
+2. The `KUBB_AGENT_ALLOW_*` namespace does not scale. It ties permission semantics to one package and leaves no room for a consistent future vocabulary.
 
 ## Decision
 
-Permissions can be set in two places and are merged with OR semantics at startup.
+Permissions can be set in two places and are merged at startup.
 
 ### `permissions` field in `defineConfig`
+
+Each permission uses one of three levels: `none`, `read`, or `write`. Not every permission has a useful read state — those only support `none` and `write`.
 
 ```ts
 export default defineConfig({
   permissions: {
-    filesystem: true,  // write generated files to disk
-    publish: false,    // run publish commands
+    filesystem: 'write',  // write generated files to disk
+    publish: 'none',      // do not run publish commands
   },
 })
 ```
 
-| Field        | Env var                      | Status   | Description                             |
-| ------------ | ---------------------------- | -------- | --------------------------------------- |
-| `filesystem` | `KUBB_PERMISSION_FILESYSTEM` | Active   | Write generated files to disk           |
-| `publish`    | `KUBB_PERMISSION_PUBLISH`    | Active   | Run publish commands (e.g. `npm publish`) |
-| `network`    | `KUBB_PERMISSION_NETWORK`    | Reserved | Fetch API specs from remote URLs        |
-| `run`        | `KUBB_PERMISSION_RUN`        | Reserved | Execute arbitrary shell commands        |
-| `env`        | `KUBB_PERMISSION_ENV`        | Reserved | Read environment variables from the host |
+### Permission vocabulary
+
+| Field        | Env var                       | Levels               | Status   | Notes                                                 |
+| ------------ | ----------------------------- | -------------------- | -------- | ----------------------------------------------------- |
+| `filesystem` | `KUBB_PERMISSION_FILESYSTEM`  | `none`, `read`, `write` | Active   | `write` = write generated files to disk              |
+| `publish`    | `KUBB_PERMISSION_PUBLISH`     | `none`, `write`      | Active   | Run publish commands (e.g. `npm publish`)             |
+| `packages`   | `KUBB_PERMISSION_PACKAGES`    | `none`, `read`, `write` | Reserved | `read` = query registry; `write` = publish           |
+| `network`    | `KUBB_PERMISSION_NETWORK`     | `none`, `read`, `write` | Reserved | `read` = fetch specs; `write` = general outbound HTTP |
+| `run`        | `KUBB_PERMISSION_RUN`         | `none`, `write`      | Reserved | Execute shell commands                                |
+| `env`        | `KUBB_PERMISSION_ENV`         | `none`, `read`       | Reserved | Read host environment variables                       |
+| `git`        | `KUBB_PERMISSION_GIT`         | `none`, `read`, `write` | Reserved | `read` = inspect repo; `write` = commit, push, open PRs |
+| `id-token`   | `KUBB_PERMISSION_ID_TOKEN`    | `none`, `write`      | Reserved | Exchange an OIDC token for Studio auth                |
+| `checks`     | `KUBB_PERMISSION_CHECKS`      | `none`, `write`      | Reserved | Post generation results as CI check runs              |
+| `statuses`   | `KUBB_PERMISSION_STATUSES`    | `none`, `write`      | Reserved | Post commit statuses to GitHub                        |
 
 Reserved fields are accepted by the type but not enforced yet.
 
-### `KUBB_PERMISSION_*` env vars
+### Env var rename
 
-The old `KUBB_AGENT_ALLOW_*` env vars are replaced:
+The old `KUBB_AGENT_ALLOW_*` env vars are removed:
 
 | Old (removed)              | New                          |
 | -------------------------- | ---------------------------- |
@@ -50,20 +59,24 @@ The old `KUBB_AGENT_ALLOW_*` env vars are replaced:
 
 ### Merge semantics
 
+The agent takes the highest level from env var and config using `max(a, b)` where `write > read > none`. `KUBB_PERMISSION_YOLO=true` grants `write` to all active permissions regardless of other settings.
+
 ```
-filesystem = KUBB_PERMISSION_YOLO || KUBB_PERMISSION_FILESYSTEM || config.permissions?.filesystem
-publish    = KUBB_PERMISSION_YOLO || KUBB_PERMISSION_PUBLISH    || config.permissions?.publish
+filesystem = yolo ? write : max(KUBB_PERMISSION_FILESYSTEM, config.permissions?.filesystem)
+publish    = yolo ? write : max(KUBB_PERMISSION_PUBLISH,    config.permissions?.publish)
 ```
 
-Sandbox mode forces all permissions to `false` regardless of config or env (see ADR-0003).
+Sandbox sessions force all permissions to `none` regardless of config or env (see ADR-0003).
 
 ## Rationale
 
-Putting permissions in `kubb.config.ts` means the config is self-contained. Operators who always want filesystem writes enabled set it once in the file instead of passing a flag on every invocation.
+Putting permissions in `kubb.config.ts` makes the config self-contained. Operators who always want filesystem writes set it once in the file instead of passing a flag on every invocation.
 
-`KUBB_PERMISSION_*` separates the _what_ (a permission) from the _who_ (the agent). As permissions are checked in other contexts (future middleware, CI runners), the env var name stays meaningful. Reserved names prevent naming conflicts when new permissions are added.
+`KUBB_PERMISSION_*` separates the what (a permission) from the who (the agent). Reserved names prevent naming conflicts as the permission surface grows.
 
-OR semantics treat permissions as capabilities, not restrictions. Either the config or an env var can grant a permission. Operators who need a deployment-level grant use env vars; operators who want the config to document intent use `permissions`.
+OR semantics treat permissions as capabilities, not restrictions. Either the config or an env var can grant a permission.
+
+Levels (`none`, `read`, `write`) are borrowed from GitHub Actions' permission model. They let operators grant partial access — for example `network: 'read'` to allow spec fetching without opening general outbound HTTP.
 
 ## Consequences
 
@@ -72,6 +85,7 @@ OR semantics treat permissions as capabilities, not restrictions. Either the con
 - `kubb.config.ts` fully describes the required capabilities without separate env var documentation.
 - The `KUBB_PERMISSION_*` namespace scales to future permission types without ambiguity.
 - Reserved fields let operators write forward-compatible configs today.
+- Level-based permissions allow finer-grained grants as new capabilities are added.
 
 ### Negative
 
@@ -87,7 +101,7 @@ No config changes. Rejected because the config is not self-contained.
 
 **Option B: Config only**
 
-Env vars and CLI flags removed. Rejected because deployment-level overrides require being able to grant permissions without editing the config file.
+Env vars and CLI flags removed. Rejected because deployment-level overrides require granting permissions without editing the config file.
 
 **Option C: Config + renamed env vars with OR semantics (chosen)**
 
