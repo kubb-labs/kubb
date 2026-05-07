@@ -6,12 +6,7 @@ export const command = defineCommand({
   name: 'start',
   description:
     'Start the Kubb Agent HTTP server. Exposes a REST API that accepts a kubb.config.ts patch and returns generated code as a stream. Use --allow-write to also write files to disk.',
-  examples: [
-    'kubb agent start',
-    'kubb agent start --port 4000',
-    'kubb agent start --allow-write',
-    'kubb agent start --config ./kubb.config.ts --allow-all',
-  ],
+  examples: ['kubb agent start', 'kubb agent start --port 4000', 'kubb agent start --allow-write', 'kubb agent start --config ./kubb.config.ts --allow-all'],
   options: {
     config: {
       type: 'string',
