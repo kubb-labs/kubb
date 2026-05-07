@@ -132,9 +132,8 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
   getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string }) => Array<ImportNode>
   /**
    * Validate the document at the given path or URL.
-   * Adapters that support validation implement this method; others leave it `undefined`.
    */
-  validate?: (input: string, options?: { throwOnError?: boolean }) => Promise<void>
+  validate: (input: string, options?: { throwOnError?: boolean }) => Promise<void>
 }
 
 export type DevtoolsOptions = {
