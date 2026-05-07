@@ -15,11 +15,11 @@ Kubb's extensibility system has four distinct types: `plugin`, `adapter`, `middl
 
 All four types share the same metadata structure despite their different pipeline roles. The four JSON schemas in `schemas/` are nearly identical; the only differences are the `category` enum values and the name of the `options` item definition. This raises two questions: what is the collective term for all four types, and should a package ship one unified manifest file or a type-specific file?
 
-The kubb.dev docs nav currently groups the four types under "Modules", which conflicts with JavaScript module semantics. "Integrations" is already taken in the same nav for bundler integrations (Vite, Nuxt, Astro, webpack). VS Code is the most relevant precedent: every extension ships a single `package.json` manifest regardless of what it contributes, with a `contributes` key holding sub-objects for each contribution type.
+The term "modules" conflicts with JavaScript module semantics and does not describe the package-level role clearly. VS Code is the most relevant precedent: every extension ships a single `package.json` manifest regardless of what it contributes, with a `contributes` key holding sub-objects for each contribution type.
 
 ## Decision
 
-The collective name for plugin, adapter, middleware, and parser is **extension**. The docs nav label changes from "Modules" to "Extensions". The four sub-types keep their individual names; "extension" is the package-level concept.
+The collective name for plugin, adapter, middleware, and parser is **extension**. The four sub-types keep their individual names; "extension" is the package-level concept.
 
 Each package ships a single file named `extension.yaml` at the package root. A required `kind` field declares which type the extension is:
 
@@ -44,7 +44,7 @@ A new `schemas/extension.json` validates all four extension types via a `oneOf` 
 
 ## Rationale
 
-"Extension" matches dominant developer-tools vocabulary (VS Code, Chrome, Claude) and is unambiguous within the kubb ecosystem. All other candidates conflict with existing nav labels, JavaScript semantics, or carry the wrong connotation.
+"Extension" matches dominant developer-tools vocabulary (VS Code, Chrome, Claude) and is unambiguous within the kubb ecosystem. Other candidates conflict with JavaScript semantics or carry the wrong connotation.
 
 One `extension.yaml` with a `kind` field means third-party authors create one file and set one field. Tooling checks for one filename. Type-specific filenames (`plugin.yaml`, `adapter.yaml`) require authors to know the right name before starting and create four conventions instead of one.
 
@@ -63,7 +63,6 @@ The existing `type` field already means authorship (`official | community | 3rd-
 - Existing per-package files must be renamed to `extension.yaml` and their `$schema` URLs updated.
 - `package.json` `files` arrays need updating in all affected packages.
 - The `schemas/extension.json` schema requires a `oneOf` discriminator, which is slightly more complex than flat per-type schemas.
-- The `modules/` directory in kubb.dev becomes `extensions/`, requiring renaming the fetch pipeline scripts.
 
 ## Considered options
 
