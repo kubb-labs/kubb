@@ -13,6 +13,10 @@ vi.mock('./generate.ts', () => ({
   generate: vi.fn().mockResolvedValue(undefined),
 }))
 
+vi.mock('./publish.ts', () => ({
+  publish: vi.fn().mockResolvedValue(undefined),
+}))
+
 vi.mock('./loadConfig.ts', () => ({
   loadConfig: vi.fn(),
 }))
@@ -51,6 +55,7 @@ import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
 import { loadConfig } from './loadConfig.ts'
 import { logger } from './logger.ts'
+import { publish } from './publish.ts'
 import { resolveMiddlewares, resolvePlugins } from './resolvePlugins.ts'
 import { setupHookListener } from './setupHookListener.ts'
 import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
@@ -456,6 +461,25 @@ describe('connectToStudio', () => {
         }),
       }),
     )
+  })
+
+  it('calls publish with the resolved config output path on a publish command', async () => {
+    await connectToStudio({ ...options, publish: 'write' })
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({
+        type: 'command',
+        command: 'publish',
+        payload: { publisher: 'npm', command: 'npm publish --access public' },
+      }),
+    })
+
+    expect(publish).toHaveBeenCalledWith({
+      command: 'npm publish --access public',
+      outputPath: './gen',
+      root: '/project',
+      hooks: expect.anything(),
+    })
   })
 
   it('reports none permissions in sandbox mode regardless of filesystem', async () => {

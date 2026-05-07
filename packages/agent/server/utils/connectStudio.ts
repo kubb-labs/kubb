@@ -44,7 +44,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     resolvedConfigPath,
     yolo,
     filesystem,
-    publish,
+    publish: publishPermission,
     root,
     retryInterval,
     heartbeatInterval = 30_000,
@@ -77,7 +77,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     // Effective permissions: always disabled in sandbox mode
     const effectiveYolo = isSandbox ? false : yolo
     const effectiveFilesystem: PermissionLevel = isSandbox ? 'none' : filesystem
-    const effectivePublish: PermissionLevel = isSandbox ? 'none' : publish
+    const effectivePublish: PermissionLevel = isSandbox ? 'none' : publishPermission
 
     // Tracks whether the studio server explicitly disconnected us (no reconnect needed)
     let serverDisconnected = false
