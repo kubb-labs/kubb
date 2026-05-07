@@ -12,7 +12,7 @@ Today this covers TypeScript targets well: TypeScript types, Zod schemas, React 
 
 Adding a new target language requires a dedicated plugin with its own template system, naming conventions, and serialization logic. That plugin also needs to track API changes over time. Maintaining one plugin per language does not scale.
 
-WorkOS published an approach to this problem: feed a normalized, dereferenced representation of each API operation to an LLM, alongside a "skills file" that describes the naming conventions, error handling, and file structure expected for that language. The LLM translates the operation into idiomatic code. It does not decide what the API does; the spec fixes that.
+One approach to this problem is to feed a normalized, dereferenced representation of each API operation to an LLM, alongside a "skills file" that describes the naming conventions, error handling, and file structure expected for that language. The LLM translates the operation into idiomatic code. It does not decide what the API does; the spec fixes that.
 
 Kubb's AST is already that normalized representation. The `InputNode`, `OperationNode`, and `SchemaNode` types produced by `@kubb/adapter-oas` are fully resolved and free of `$ref` indirection. No new data layer is needed.
 
