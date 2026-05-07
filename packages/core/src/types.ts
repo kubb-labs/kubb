@@ -471,24 +471,37 @@ export type Config<TInput = Input> = {
    * @example
    * ```ts
    * permissions: {
-   *   filesystem: 'write',  // agent may write generated files to disk
+   *   yolo: true,
+   *   filesystem: 'none',   // override a specific permission
    * }
    * ```
    */
-  permissions?: {
-    /** Write generated files to disk. Maps to `KUBB_PERMISSION_FILESYSTEM`. @default 'none' */
-    filesystem?: PermissionLevel
-    /** Fetch API specs (read) or make general outbound HTTP calls (write). Maps to `KUBB_PERMISSION_NETWORK`. @future */
-    network?: PermissionLevel
-    /** Execute shell commands. Maps to `KUBB_PERMISSION_RUN`. @future */
-    run?: PermissionLevel
-    /** Read host environment variables. Maps to `KUBB_PERMISSION_ENV`. @future */
-    env?: PermissionLevel
-  }
+  permissions?: ConfigPermissions
 }
 
 /** Permission level for a Kubb agent capability. `write > read > none`. */
 export type PermissionLevel = 'none' | 'read' | 'write'
+
+type PermissionOverrides = {
+  /** Write generated files to disk. Maps to `KUBB_PERMISSION_FILESYSTEM`. @default 'none' */
+  filesystem?: PermissionLevel
+  /** Fetch API specs (read) or make general outbound HTTP calls (write). Maps to `KUBB_PERMISSION_NETWORK`. @future */
+  network?: PermissionLevel
+  /** Execute shell commands. Maps to `KUBB_PERMISSION_RUN`. @future */
+  run?: PermissionLevel
+  /** Read host environment variables. Maps to `KUBB_PERMISSION_ENV`. @future */
+  env?: PermissionLevel
+}
+
+export type ConfigPermissions =
+  | PermissionOverrides
+  | ({
+      /**
+       * Grant `write` to all active permissions by default.
+       * Individual permission fields can still override specific values.
+       */
+      yolo: true
+    } & PermissionOverrides)
 
 // plugin
 

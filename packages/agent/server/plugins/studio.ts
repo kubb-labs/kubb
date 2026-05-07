@@ -7,16 +7,10 @@ import { loadConfig } from '~/utils/loadConfig.ts'
 import { logger } from '~/utils/logger.ts'
 import { checkPeerDependencies } from '~/utils/resolvePlugins.ts'
 import { resolveStudioRuntimeConfig } from '~/utils/runtimeConfig.ts'
-
-type PermissionLevel = 'none' | 'read' | 'write'
+import { resolvePermissions } from './resolvePermissions.ts'
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
-}
-
-function maxLevel(a: PermissionLevel | undefined, b: PermissionLevel | undefined): PermissionLevel {
-  const order: Record<PermissionLevel, number> = { none: 0, read: 1, write: 2 }
-  return order[a ?? 'none'] >= order[b ?? 'none'] ? (a ?? 'none') : (b ?? 'none')
 }
 
 /**
@@ -53,7 +47,7 @@ export default defineNitroPlugin(async (nitro) => {
     await checkPeerDependencies()
     await registerAgent({ token, studioUrl, poolSize })
 
-    let configPermissions: { filesystem?: PermissionLevel } = {}
+    let configPermissions: Parameters<typeof resolvePermissions>[0]['configPermissions'] = {}
     try {
       const config = await loadConfig(resolvedConfigPath)
       configPermissions = config.permissions ?? {}
@@ -61,16 +55,19 @@ export default defineNitroPlugin(async (nitro) => {
       // Config may not exist yet or may not have permissions; fall back to runtime-only permissions
     }
 
-    const mergedFilesystem = yolo ? 'write' : maxLevel(filesystem, configPermissions.filesystem)
-    const mergedYolo = yolo || mergedFilesystem === 'write'
+    const resolvedPermissions = resolvePermissions({
+      runtimeYolo: yolo,
+      runtimeFilesystem: filesystem,
+      configPermissions,
+    })
 
     const baseOptions = {
       token,
       studioUrl,
       configPath,
       resolvedConfigPath,
-      yolo: mergedYolo,
-      filesystem: mergedFilesystem,
+      yolo: resolvedPermissions.yolo,
+      filesystem: resolvedPermissions.filesystem,
       root,
       retryInterval,
       heartbeatInterval,
