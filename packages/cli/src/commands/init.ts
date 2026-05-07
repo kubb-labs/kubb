@@ -3,7 +3,14 @@ import { version } from '../../package.json'
 
 export const command = defineCommand({
   name: 'init',
-  description: 'Initialize a new Kubb project with interactive setup',
+  description:
+    'Scaffold a kubb.config.ts and install plugins for code generation from an OpenAPI spec. Run without flags for interactive setup, or pass --input, --output, and --plugins to skip the prompts.',
+  examples: [
+    'kubb init',
+    'kubb init --yes',
+    'kubb init --input ./openapi.yaml --output ./src/gen --plugins plugin-ts,plugin-zod',
+    'kubb init --plugins plugin-ts,plugin-client,plugin-react-query',
+  ],
   options: {
     yes: {
       type: 'boolean',
@@ -11,10 +18,34 @@ export const command = defineCommand({
       short: 'y',
       default: false,
     },
+    input: {
+      type: 'string',
+      description: 'Path to the OpenAPI specification',
+      short: 'i',
+      hint: 'path',
+    },
+    output: {
+      type: 'string',
+      description: 'Output directory for generated files',
+      short: 'o',
+      hint: 'path',
+    },
+    plugins: {
+      type: 'string',
+      description:
+        'Comma-separated list of plugins to use (plugin-ts, plugin-client, plugin-react-query, plugin-vue-query, plugin-zod, plugin-faker, plugin-msw, plugin-cypress, plugin-mcp, plugin-redoc)',
+      hint: 'plugin-ts,plugin-zod,...',
+    },
   },
   async run({ values }) {
     const { runInit } = await import('../runners/init.ts')
 
-    await runInit({ yes: values.yes, version })
+    await runInit({
+      yes: values.yes,
+      version,
+      input: values.input,
+      output: values.output,
+      plugins: values.plugins,
+    })
   },
 })

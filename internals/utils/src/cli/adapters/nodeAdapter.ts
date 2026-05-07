@@ -76,7 +76,9 @@ async function runCommand(def: CommandDefinition, argv: string[], parentName?: s
 
 function printRootHelp(programName: string, version: string, defs: CommandDefinition[]): void {
   console.log(`\n${styleText('bold', 'Usage:')} ${programName} <command> [options]\n`)
-  console.log(`  Kubb generation — v${version}\n`)
+  console.log(`  Kubb v${version} — Generate TypeScript types, API clients, React Query hooks,`)
+  console.log(`  Zod schemas, and more from an OpenAPI specification.\n`)
+  console.log(`  Quick start: ${styleText('cyan', `${programName} init`)} to scaffold a config, then ${styleText('cyan', `${programName} generate`)} to run.\n`)
   console.log(styleText('bold', 'Commands:'))
   for (const def of defs) {
     console.log(`  ${styleText('cyan', def.name.padEnd(16))}${def.description}`)

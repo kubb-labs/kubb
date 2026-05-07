@@ -2,8 +2,10 @@ import { defineCommand } from '@internals/utils'
 
 export const command = defineCommand({
   name: 'generate',
-  description: "[input] Generate files based on a 'kubb.config.ts' file",
+  description:
+    'Generate TypeScript types, API clients, React Query hooks, Zod schemas, and more from an OpenAPI specification. Reads kubb.config.ts by default. Pass an OpenAPI file path as the first argument to override the input without editing the config.',
   arguments: ['[input]'],
+  examples: ['kubb generate', 'kubb generate ./openapi.yaml', 'kubb generate --config kubb.config.ts', 'kubb generate --watch'],
   options: {
     config: {
       type: 'string',
