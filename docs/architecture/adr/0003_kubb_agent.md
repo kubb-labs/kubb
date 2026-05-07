@@ -34,12 +34,12 @@ On startup the agent creates a pool of WebSocket sessions (`KUBB_AGENT_POOL_SIZE
 
 ### Security model
 
-The threat model assumes the agent runs user-controlled code and processes user-controlled data, and that commands may originate from an LLM-driven Studio session. Four controls layer the defense:
+The threat model assumes that the agent runs user-controlled code and processes user-controlled data, and that some commands may originate from an LLM-driven Studio session. Four controls provide layered defense:
 
 1. **Image boundary** — only packages installed at image build time are loadable. `KUBB_AGENT_ROOT` constrains where config paths resolve.
 2. **Machine binding** — each registration carries a `machineToken` (SHA-256 of `KUBB_AGENT_SECRET`). Studio binds a token to the first machine it sees; a leaked `KUBB_AGENT_TOKEN` cannot be reused on a different host without also knowing `KUBB_AGENT_SECRET`.
 3. **Permission grants** — active permissions (`filesystem`, `yolo`) are set by the operator via `KUBB_PERMISSION_*` env vars or `kubb.config.ts`. Future permission names are documented in [ADR-0004](./0004_permissions.md). Studio cannot exceed the permissions the operator set.
-4. **Sandbox mode** — sessions provisioned as sandbox force all permissions to `false` regardless of env vars. Generated files stream back over the WebSocket and are never written to disk.
+4. **Sandbox mode** — sessions provisioned as sandbox force all active permissions to `'none'` regardless of env vars. Generated files stream back over the WebSocket and are never written to disk.
 
 ## Rationale
 

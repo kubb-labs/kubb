@@ -464,9 +464,9 @@ export type Config<TInput = Input> = {
   /**
    * Permission grants for the Kubb agent server.
    *
-   * Each field accepts `'none'`, `'read'`, or `'write'`. The agent merges these with the
-   * corresponding `KUBB_PERMISSION_*` env vars using OR semantics — whichever grants more wins.
-   * Sandbox sessions always force all permissions to `'none'`.
+ * Active permission fields accept `'none'`, `'read'`, or `'write'`. The agent merges these with
+ * the corresponding `KUBB_PERMISSION_*` env vars using OR semantics — whichever grants more wins.
+ * Sandbox sessions always force all active permissions to `'none'`.
    *
    * @example
    * ```ts
@@ -485,12 +485,6 @@ export type PermissionLevel = 'none' | 'read' | 'write'
 type PermissionOverrides = {
   /** Write generated files to disk. Maps to `KUBB_PERMISSION_FILESYSTEM`. @default 'none' */
   filesystem?: PermissionLevel
-  /** Fetch API specs (read) or make general outbound HTTP calls (write). Maps to `KUBB_PERMISSION_NETWORK`. @future */
-  network?: PermissionLevel
-  /** Execute shell commands. Maps to `KUBB_PERMISSION_RUN`. @future */
-  run?: PermissionLevel
-  /** Read host environment variables. Maps to `KUBB_PERMISSION_ENV`. @future */
-  env?: PermissionLevel
 }
 
 export type ConfigPermissions =
