@@ -1276,10 +1276,6 @@ export type CLIOptions = {
    */
   config?: string
   /**
-   * Adapter selected from the CLI.
-   */
-  adapter?: 'oas'
-  /**
    * Enable watch mode for input files.
    */
   watch?: boolean

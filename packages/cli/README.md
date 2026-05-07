@@ -63,7 +63,6 @@ npx kubb generate
 Options:
 
 - `-c, --config <path>` - Path to the Kubb config file
-- `--adapter <adapter>` - Adapter to use for generation (`oas`)
 - `-l, --logLevel <level>` - Set log level (silent, info, verbose, debug)
 - `-w, --watch` - Watch mode based on the input file
 - `-d, --debug` - Enable debug mode
