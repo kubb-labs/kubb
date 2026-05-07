@@ -44,7 +44,11 @@ function resolveAgentStartEnvironment({ port, host, configPath, permission }: Om
   const resolvedPort = port ?? process.env.PORT ?? agentDefaults.port
   const resolvedHost = host !== agentDefaults.host ? host : (process.env.HOST ?? agentDefaults.host)
   const resolvedYolo = permission.yolo || process.env.KUBB_PERMISSION_YOLO === 'true'
-  const resolvedFilesystem: PermissionLevel = resolvedYolo ? 'write' : permission.filesystem ? 'write' : parsePermissionEnv(process.env.KUBB_PERMISSION_FILESYSTEM)
+  const resolvedFilesystem: PermissionLevel = resolvedYolo
+    ? 'write'
+    : permission.filesystem
+      ? 'write'
+      : parsePermissionEnv(process.env.KUBB_PERMISSION_FILESYSTEM)
   const resolvedPublish: PermissionLevel = resolvedYolo ? 'write' : permission.publish ? 'write' : parsePermissionEnv(process.env.KUBB_PERMISSION_PUBLISH)
   const agentRoot = process.env.KUBB_AGENT_ROOT ?? process.cwd()
   const agentConfigPath = path.resolve(process.cwd(), configPath || process.env.KUBB_AGENT_CONFIG || agentDefaults.configFile)
