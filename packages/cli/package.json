@@ -71,8 +71,8 @@
     "tinyexec": "catalog:"
   },
   "devDependencies": {
-    "@kubb/adapter-oas": "workspace:*",
-    "@internals/utils": "workspace:*"
+    "@internals/utils": "workspace:*",
+    "@kubb/adapter-oas": "workspace:*"
   },
   "peerDependencies": {
     "@kubb/adapter-oas": "workspace:*",

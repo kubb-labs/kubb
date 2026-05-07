@@ -17,10 +17,7 @@ export function loadValidateModule(): Promise<ValidateModule> {
   return import('@kubb/adapter-oas') as Promise<ValidateModule>
 }
 
-export async function runValidate(
-  { input, version }: ValidateOptions,
-  dependencies: ValidateDependencies = { loadValidateModule },
-): Promise<void> {
+export async function runValidate({ input, version }: ValidateOptions, dependencies: ValidateDependencies = { loadValidateModule }): Promise<void> {
   const hrStart = process.hrtime()
   try {
     const { parseDocument, validateDocument } = await dependencies.loadValidateModule()
