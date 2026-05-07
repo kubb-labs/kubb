@@ -32,10 +32,10 @@ describe('runValidate', () => {
       { input: 'spec.yaml', version: '1.0.0' },
       {
         loadValidateModule: async () =>
-          (({
+          ({
             parseDocument,
             validateDocument,
-          }) as unknown) as Awaited<ReturnType<(typeof import('./validate.ts'))['loadValidateModule']>>,
+          }) as unknown as Awaited<ReturnType<(typeof import('./validate.ts'))['loadValidateModule']>>,
       },
     )
 
