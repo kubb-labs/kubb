@@ -22,8 +22,7 @@ describe('runValidate', () => {
   })
 
   it('validates input when @kubb/adapter-oas is available', async () => {
-    const parseDocument = vi.fn(async () => ({ openapi: '3.1.0' }))
-    const validateDocument = vi.fn(async () => undefined)
+    const validate = vi.fn(async () => undefined)
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
     const { runValidate } = await import('./validate.ts')
@@ -33,14 +32,12 @@ describe('runValidate', () => {
       {
         loadValidateModule: async () =>
           ({
-            parseDocument,
-            validateDocument,
+            adapterOas: () => ({ validate }),
           }) as unknown as Awaited<ReturnType<(typeof import('./validate.ts'))['loadValidateModule']>>,
       },
     )
 
-    expect(parseDocument).toHaveBeenCalledWith('spec.yaml')
-    expect(validateDocument).toHaveBeenCalledWith({ openapi: '3.1.0' }, { throwOnError: true })
+    expect(validate).toHaveBeenCalledWith('spec.yaml', { throwOnError: true })
     expect(logSpy).toHaveBeenCalledWith('✅ Validation success')
   })
 

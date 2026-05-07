@@ -20,9 +20,9 @@ export function loadValidateModule(): Promise<ValidateModule> {
 export async function runValidate({ input, version }: ValidateOptions, dependencies: ValidateDependencies = { loadValidateModule }): Promise<void> {
   const hrStart = process.hrtime()
   try {
-    const { parseDocument, validateDocument } = await dependencies.loadValidateModule()
-    const document = await parseDocument(input)
-    await validateDocument(document, { throwOnError: true })
+    const { adapterOas } = await dependencies.loadValidateModule()
+    const adapter = adapterOas()
+    await adapter.validate!(input, { throwOnError: true })
 
     await sendTelemetry(
       buildTelemetryEvent({
