@@ -48,4 +48,12 @@ export function renderHelp(def: CommandDefinition, parentName?: string): void {
     console.log(`  ${flags}${opt.description}${defaultPart}`)
   }
   console.log()
+
+  if (schema.examples?.length) {
+    console.log(styleText('bold', 'Examples:'))
+    for (const ex of schema.examples) {
+      console.log(`  ${styleText('dim', ex)}`)
+    }
+    console.log()
+  }
 }

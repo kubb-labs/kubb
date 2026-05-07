@@ -43,6 +43,10 @@ export type CommandDefinition = {
    * Positional argument labels shown in usage line, e.g. `['[input]']`.
    */
   arguments?: string[]
+  /**
+   * Usage examples shown in help output and exposed to AI/MCP tools.
+   */
+  examples?: string[]
   options?: Record<string, OptionDefinition>
   subCommands?: CommandDefinition[]
   run?: (args: ParsedArgs) => Promise<void>
@@ -86,6 +90,7 @@ export type CommandSchema = {
   name: string
   description: string
   arguments?: string[]
+  examples?: string[]
   options: OptionSchema[]
   subCommands: CommandSchema[]
 }

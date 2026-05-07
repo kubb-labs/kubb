@@ -19,6 +19,7 @@ function serializeCommand(def: CommandDefinition): CommandSchema {
     name: def.name,
     description: def.description,
     arguments: def.arguments,
+    ...(def.examples?.length ? { examples: def.examples } : {}),
     options: serializeOptions(def.options ?? {}),
     subCommands: def.subCommands ? def.subCommands.map(serializeCommand) : [],
   }

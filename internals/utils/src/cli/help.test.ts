@@ -96,6 +96,21 @@ describe('renderHelp', () => {
     expect(output()).toContain('[input]')
   })
 
+  it('prints examples section when examples are provided', () => {
+    renderHelp({
+      name: 'generate',
+      description: 'Generate',
+      examples: ['kubb generate', 'kubb generate --watch'],
+    })
+    expect(output()).toContain('Examples:')
+    expect(output()).toContain('kubb generate --watch')
+  })
+
+  it('omits examples section when no examples provided', () => {
+    renderHelp({ name: 'generate', description: 'Generate' })
+    expect(output()).not.toContain('Examples:')
+  })
+
   it('omits the description block when description is empty', () => {
     renderHelp({ name: 'group', description: '' })
     expect(output()).toContain('group')

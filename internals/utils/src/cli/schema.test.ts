@@ -94,6 +94,16 @@ describe('getCommandSchema', () => {
     })
   })
 
+  it('includes examples when provided', () => {
+    const [schema] = getCommandSchema([{ name: 'build', description: 'Build', examples: ['kubb generate', 'kubb generate --watch'] }])
+    expect(schema?.examples).toEqual(['kubb generate', 'kubb generate --watch'])
+  })
+
+  it('omits examples when not provided', () => {
+    const [schema] = getCommandSchema([{ name: 'build', description: 'Build' }])
+    expect(schema).not.toHaveProperty('examples')
+  })
+
   it('serializes nested subCommands recursively', () => {
     const [schema] = getCommandSchema([
       {

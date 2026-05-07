@@ -128,9 +128,12 @@ function cancelAndExit(message = 'Operation cancelled.'): never {
 type InitOptions = {
   yes: boolean
   version: string
+  input?: string
+  output?: string
+  plugins?: string
 }
 
-export async function runInit({ yes, version }: InitOptions): Promise<void> {
+export async function runInit({ yes, version, input: inputFlag, output: outputFlag, plugins: pluginsFlag }: InitOptions): Promise<void> {
   const cwd = process.cwd()
 
   clack.intro(styleText('bgCyan', styleText('black', ' Kubb Init ')))
@@ -165,7 +168,10 @@ export async function runInit({ yes, version }: InitOptions): Promise<void> {
 
     // Prompt for OpenAPI spec path
     let inputPath: string
-    if (yes) {
+    if (inputFlag) {
+      inputPath = inputFlag
+      clack.log.info(`Using input path: ${styleText('cyan', inputPath)}`)
+    } else if (yes) {
       inputPath = initDefaults.inputPath
       clack.log.info(`Using input path: ${styleText('cyan', inputPath)}`)
     } else {
@@ -186,7 +192,10 @@ export async function runInit({ yes, version }: InitOptions): Promise<void> {
 
     // Prompt for output directory
     let outputPath: string
-    if (yes) {
+    if (outputFlag) {
+      outputPath = outputFlag
+      clack.log.info(`Using output path: ${styleText('cyan', outputPath)}`)
+    } else if (yes) {
       outputPath = initDefaults.outputPath
       clack.log.info(`Using output path: ${styleText('cyan', outputPath)}`)
     } else {
@@ -207,7 +216,16 @@ export async function runInit({ yes, version }: InitOptions): Promise<void> {
 
     // Plugin selection
     let selectedPlugins: PluginOption[]
-    if (yes) {
+    if (pluginsFlag) {
+      const requestedValues = pluginsFlag.split(',').map((v) => v.trim()).filter(Boolean)
+      selectedPlugins = availablePlugins.filter((plugin) => requestedValues.includes(plugin.value))
+      if (selectedPlugins.length === 0) {
+        selectedPlugins = availablePlugins.filter((plugin) => (initDefaults.plugins as readonly string[]).includes(plugin.value))
+        clack.log.warn(`No valid plugins found in --plugins value; falling back to default: ${styleText('cyan', selectedPlugins.map((p) => p.label).join(', '))}`)
+      } else {
+        clack.log.info(`Using plugins: ${styleText('cyan', selectedPlugins.map((p) => p.label).join(', '))}`)
+      }
+    } else if (yes) {
       selectedPlugins = availablePlugins.filter((plugin) => (initDefaults.plugins as readonly string[]).includes(plugin.value))
       clack.log.info(`Using plugins: ${styleText('cyan', selectedPlugins.map((p) => p.label).join(', '))}`)
     } else {
