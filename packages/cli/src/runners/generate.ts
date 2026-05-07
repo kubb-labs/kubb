@@ -5,7 +5,8 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { AsyncEventEmitter as AsyncEventEmitterClass, detectFormatter, detectLinter, executeIfOnline, formatters, linters, toError } from '@internals/utils'
-import { type CLIOptions, type Config, createKubb, isInputPath, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import type { Adapter, CLIOptions, Config, KubbHooks } from '@kubb/core'
+import { createKubb, isInputPath, logLevel as logLevelMap } from '@kubb/core'
 import { version } from '../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../constants.ts'
 import { setupLogger } from '../loggers/utils.ts'
@@ -15,6 +16,8 @@ import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 import { startWatcher } from '../utils/watcher.ts'
 
+export type GenerateAdapter = 'oas'
+
 type GenerateProps = {
   input?: string
   config: Config
@@ -23,6 +26,10 @@ type GenerateProps = {
 }
 
 type ToolMap = typeof formatters | typeof linters
+type GenerateAdapterModule = typeof import('@kubb/adapter-oas')
+type GenerateCommandDependencies = {
+  loadGenerateAdapter: (adapter: GenerateAdapter) => Promise<Adapter>
+}
 
 type RunToolPassOptions = {
   toolValue: string
@@ -275,11 +282,55 @@ async function generate(options: GenerateProps): Promise<void> {
 type GenerateCommandOptions = {
   input?: string
   configPath?: string
+  adapter?: GenerateAdapter
   logLevel: string
   watch: boolean
 }
 
-export async function runGenerateCommand({ input, configPath, logLevel: logLevelKey, watch }: GenerateCommandOptions): Promise<void> {
+export async function loadGenerateAdapter(adapter: GenerateAdapter): Promise<Adapter> {
+  switch (adapter) {
+    case 'oas':
+      try {
+        const { adapterOas } = (await import('@kubb/adapter-oas')) as GenerateAdapterModule
+
+        return adapterOas()
+      } catch (error) {
+        if (error instanceof Error && /@kubb\/adapter-oas/.test(error.message)) {
+          throw new Error(
+            [
+              'The @kubb/adapter-oas package is not installed.',
+              'Install it to use `kubb generate --adapter oas`:',
+              '  npm install @kubb/adapter-oas',
+              '  # or',
+              '  pnpm install @kubb/adapter-oas',
+            ].join('\n'),
+          )
+        }
+
+        throw error
+      }
+  }
+}
+
+export async function resolveGenerateConfig(
+  config: Config,
+  adapter: GenerateAdapter | undefined,
+  dependencies: GenerateCommandDependencies = { loadGenerateAdapter },
+): Promise<Config> {
+  if (!adapter) {
+    return config
+  }
+
+  return {
+    ...config,
+    adapter: await dependencies.loadGenerateAdapter(adapter),
+  }
+}
+
+export async function runGenerateCommand(
+  { input, configPath, adapter, logLevel: logLevelKey, watch }: GenerateCommandOptions,
+  dependencies: GenerateCommandDependencies = { loadGenerateAdapter },
+): Promise<void> {
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const hooks = new AsyncEventEmitterClass<KubbHooks>()
 
@@ -301,7 +352,7 @@ export async function runGenerateCommand({ input, configPath, logLevel: logLevel
 
   try {
     const result = await getCosmiConfig('kubb', configPath)
-    const configs = await getConfigs(result.config, { input } as CLIOptions)
+    const configs = await getConfigs(result.config, { adapter, config: configPath, input, logLevel: logLevelKey, watch } as CLIOptions)
 
     await hooks.emit('kubb:config:start')
     await hooks.emit('kubb:info', { message: 'Config loaded', info: path.relative(process.cwd(), result.filepath) })
@@ -311,17 +362,19 @@ export async function runGenerateCommand({ input, configPath, logLevel: logLevel
     await hooks.emit('kubb:lifecycle:start', { version })
 
     for (const config of configs) {
-      if (isInputPath(config) && watch) {
-        await startWatcher([input || config.input.path], async (paths) => {
+      const resolvedConfig = await resolveGenerateConfig(config, adapter, dependencies)
+
+      if (isInputPath(resolvedConfig) && watch) {
+        await startWatcher([input || resolvedConfig.input.path], async (paths) => {
           // remove to avoid duplicate listeners after each change
           hooks.removeAll()
 
-          await generate({ input, config, logLevel, hooks })
+          await generate({ input, config: resolvedConfig, logLevel, hooks })
 
           clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
         })
       } else {
-        await generate({ input, config, logLevel, hooks })
+        await generate({ input, config: resolvedConfig, logLevel, hooks })
       }
     }
 

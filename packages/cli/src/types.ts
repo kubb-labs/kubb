@@ -1,6 +1,19 @@
 export type QuiteFlag = '--help' | '-h' | '--version' | '-v'
 
-export type GenerateFlag = '--config' | '-c' | '--log-level' | '-l' | '--watch' | '-w' | '--debug' | '-d' | '--verbose' | '-v' | '--silent' | '-s'
+export type GenerateFlag =
+  | '--config'
+  | '-c'
+  | '--adapter'
+  | '--log-level'
+  | '-l'
+  | '--watch'
+  | '-w'
+  | '--debug'
+  | '-d'
+  | '--verbose'
+  | '-v'
+  | '--silent'
+  | '-s'
 
 export type ValidateFlag = '--input' | '-i'
 

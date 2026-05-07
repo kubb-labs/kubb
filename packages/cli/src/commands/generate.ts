@@ -10,6 +10,11 @@ export const command = defineCommand({
       description: 'Path to the Kubb config',
       short: 'c',
     },
+    adapter: {
+      type: 'string',
+      description: 'Adapter to use for generation',
+      enum: ['oas'],
+    },
     logLevel: {
       type: 'string',
       description: 'Info, silent, verbose or debug',
@@ -44,10 +49,12 @@ export const command = defineCommand({
     },
   },
   async run({ values, positionals }) {
+    const adapter = values.adapter === 'oas' ? 'oas' : undefined
     const logLevel = values.debug ? 'debug' : values.verbose ? 'verbose' : values.silent ? 'silent' : values.logLevel
     const { runGenerateCommand } = await import('../runners/generate.ts')
 
     await runGenerateCommand({
+      adapter,
       input: positionals[0],
       configPath: values.config,
       logLevel,
