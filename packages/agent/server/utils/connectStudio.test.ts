@@ -426,10 +426,10 @@ describe('connectToStudio', () => {
       mockWs,
       expect.objectContaining({
         payload: expect.objectContaining({
-            permissions: {
-              yolo: false,
-              filesystem: 'write',
-            },
+          permissions: {
+            yolo: false,
+            filesystem: 'write',
+          },
         }),
       }),
     )
@@ -446,10 +446,10 @@ describe('connectToStudio', () => {
       mockWs,
       expect.objectContaining({
         payload: expect.objectContaining({
-            permissions: {
-              yolo: true,
-              filesystem: 'write',
-            },
+          permissions: {
+            yolo: true,
+            filesystem: 'write',
+          },
         }),
       }),
     )
@@ -470,10 +470,10 @@ describe('connectToStudio', () => {
       sandboxWs,
       expect.objectContaining({
         payload: expect.objectContaining({
-            permissions: {
-              yolo: false,
-              filesystem: 'none',
-            },
+          permissions: {
+            yolo: false,
+            filesystem: 'none',
+          },
         }),
       }),
     )

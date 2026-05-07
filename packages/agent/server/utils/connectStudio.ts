@@ -35,19 +35,7 @@ export type ConnectToStudioOptions = {
  * Automatically reconnects after `retryInterval` ms on close or error.
  */
 export async function connectToStudio(options: ConnectToStudioOptions): Promise<void> {
-  const {
-    token,
-    studioUrl,
-    configPath,
-    resolvedConfigPath,
-    yolo,
-    filesystem,
-    root,
-    retryInterval,
-    heartbeatInterval = 30_000,
-    initialSession,
-    nitro,
-  } = options
+  const { token, studioUrl, configPath, resolvedConfigPath, yolo, filesystem, root, retryInterval, heartbeatInterval = 30_000, initialSession, nitro } = options
 
   // Each connection gets its own isolated event emitter so generation events
   // from one session do not bleed into another session's WebSocket stream.
