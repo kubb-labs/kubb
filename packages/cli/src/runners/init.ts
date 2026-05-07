@@ -217,11 +217,16 @@ export async function runInit({ yes, version, input: inputFlag, output: outputFl
     // Plugin selection
     let selectedPlugins: PluginOption[]
     if (pluginsFlag) {
-      const requestedValues = pluginsFlag.split(',').map((v) => v.trim()).filter(Boolean)
+      const requestedValues = pluginsFlag
+        .split(',')
+        .map((v) => v.trim())
+        .filter(Boolean)
       selectedPlugins = availablePlugins.filter((plugin) => requestedValues.includes(plugin.value))
       if (selectedPlugins.length === 0) {
         selectedPlugins = availablePlugins.filter((plugin) => (initDefaults.plugins as readonly string[]).includes(plugin.value))
-        clack.log.warn(`No valid plugins found in --plugins value; falling back to default: ${styleText('cyan', selectedPlugins.map((p) => p.label).join(', '))}`)
+        clack.log.warn(
+          `No valid plugins found in --plugins value; falling back to default: ${styleText('cyan', selectedPlugins.map((p) => p.label).join(', '))}`,
+        )
       } else {
         clack.log.info(`Using plugins: ${styleText('cyan', selectedPlugins.map((p) => p.label).join(', '))}`)
       }
