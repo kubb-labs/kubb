@@ -1,6 +1,6 @@
 export { adapterOas, adapterOasName } from './adapter.ts'
-export type { ParseOptions, ValidateDocumentOptions } from './factory.ts'
-export { mergeDocuments, parseDocument, parseFromConfig, validateDocument } from './factory.ts'
+export type { ValidateDocumentOptions } from './factory.ts'
+export { mergeDocuments } from './factory.ts'
 export type {
   AdapterOas,
   AdapterOasOptions,
