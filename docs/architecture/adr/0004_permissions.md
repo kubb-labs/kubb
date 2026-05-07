@@ -15,11 +15,13 @@ Two problems emerged:
 
 ## Decision
 
+Permissions belong to `@kubb/agent`, not `@kubb/core`. Core config handles code generation; permissions are an agent concern.
+
 Permissions can be set in two places and are merged at startup.
 
-### `permissions` field in `defineConfig`
+### `permissions` field in `kubb.config.ts`
 
-Each permission uses one of three levels: `none`, `read`, or `write`. Not every permission has a useful read state — those only support `none` and `write`.
+The `permissions` field is defined by `@kubb/agent`. The agent reads it from the config file at startup. Each permission uses one of three levels: `none`, `read`, or `write`. Not every permission has a useful read state — those only support `none` and `write`.
 
 ```ts
 export default defineConfig({

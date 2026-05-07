@@ -1,12 +1,11 @@
 ---
-"@kubb/core": minor
-"@kubb/agent": patch
+"@kubb/agent": minor
 "@kubb/cli": patch
 ---
 
-Add `permissions` to `defineConfig` and adopt `KUBB_PERMISSION_*` env vars with level-based grants.
+Add `permissions` to `kubb.config.ts` (via `@kubb/agent`) and adopt `KUBB_PERMISSION_*` env vars with level-based grants.
 
-**`@kubb/core`** — new optional `permissions` field on `Config`. Each permission accepts `'none'`, `'read'`, or `'write'`:
+**`@kubb/agent`** — reads a `permissions` field from `kubb.config.ts` at startup. Permissions belong to the agent, not `@kubb/core`. Each permission accepts `'none'`, `'read'`, or `'write'`:
 
 ```ts
 export default defineConfig({
@@ -16,7 +15,7 @@ export default defineConfig({
 })
 ```
 
-**`@kubb/agent`** — permissions are merged from `kubb.config.ts` and env vars at startup using the highest level from each source. Sandbox sessions always force all permissions to `'none'`.
+Permissions are merged from `kubb.config.ts` and env vars using the highest level from each source. Sandbox sessions always force all permissions to `'none'`.
 
 **`@kubb/cli`** — new CLI flags replace the old ones:
 

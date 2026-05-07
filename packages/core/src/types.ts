@@ -461,41 +461,7 @@ export type Config<TInput = Input> = {
      */
     done?: string | Array<string>
   }
-  /**
-   * Permission grants for the Kubb agent server.
-   *
- * Active permission fields accept `'none'`, `'read'`, or `'write'`. The agent merges these with
- * the corresponding `KUBB_PERMISSION_*` env vars using OR semantics — whichever grants more wins.
- * Sandbox sessions always force all active permissions to `'none'`.
-   *
-   * @example
-   * ```ts
-   * permissions: {
-   *   yolo: true,
-   *   filesystem: 'none',   // override a specific permission
-   * }
-   * ```
-   */
-  permissions?: ConfigPermissions
 }
-
-/** Permission level for a Kubb agent capability. `write > read > none`. */
-export type PermissionLevel = 'none' | 'read' | 'write'
-
-type PermissionOverrides = {
-  /** Write generated files to disk. Maps to `KUBB_PERMISSION_FILESYSTEM`. @default 'none' */
-  filesystem?: PermissionLevel
-}
-
-export type ConfigPermissions =
-  | PermissionOverrides
-  | ({
-      /**
-       * Grant `write` to all active permissions by default.
-       * Individual permission fields can still override specific values.
-       */
-      yolo: true
-    } & PermissionOverrides)
 
 // plugin
 

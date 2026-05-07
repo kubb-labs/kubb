@@ -50,7 +50,7 @@ export default defineNitroPlugin(async (nitro) => {
     let configPermissions: Parameters<typeof resolvePermissions>[0]['configPermissions'] = {}
     try {
       const config = await loadConfig(resolvedConfigPath)
-      configPermissions = config.permissions ?? {}
+      configPermissions = ((config as Record<string, unknown>).permissions as Parameters<typeof resolvePermissions>[0]['configPermissions'] | undefined) ?? {}
     } catch {
       // Config may not exist yet or may not have permissions; fall back to runtime-only permissions
     }
