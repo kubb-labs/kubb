@@ -1,4 +1,4 @@
-import { AsyncEventEmitter } from '@internals/utils'
+import { AsyncEventEmitter, toError } from '@internals/utils'
 import { type Config, createKubb, type KubbHooks } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
@@ -78,7 +78,7 @@ export const generateTool = defineTool(
         userConfig = configResult.userConfig
         cwd = configResult.cwd
 
-        if (Array.isArray(userConfig) && userConfig.length) {
+        if (Array.isArray(userConfig)) {
           throw new Error('Array type in kubb.config.ts is not supported in this tool. Please provide a single configuration object.')
         }
 
@@ -139,8 +139,8 @@ export const generateTool = defineTool(
 
       return tool.text(`Build completed successfully!\n\nGenerated ${files.length} files\n\n${messages.join('\n')}`)
     } catch (caughtError) {
-      const error = caughtError as Error
-      return tool.error(`Build error: ${error.message}\n${error.stack || ''}`)
+      const error = toError(caughtError)
+      return tool.error(`Build error: ${error.message}\n${error.stack ?? ''}`)
     }
   },
 )

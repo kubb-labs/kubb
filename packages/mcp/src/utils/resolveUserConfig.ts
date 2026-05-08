@@ -1,28 +1,13 @@
 import { isPromise } from '@internals/utils'
-import type { CLIOptions, Config } from '@kubb/core'
+import type { CLIOptions, Config, PossibleConfig } from '@kubb/core'
 
 export type ResolveUserConfigOptions = {
   configPath?: string
   logLevel?: string
 }
 
-/**
- * Resolve the config by handling function configs and returning the final configuration
- */
-export async function resolveUserConfig(config: Config, options: ResolveUserConfigOptions): Promise<Config> {
-  let kubbUserConfig = Promise.resolve(config) as Promise<Config>
-
-  if (typeof config === 'function') {
-    const possiblePromise = (config as any)({
-      logLevel: options.logLevel,
-      config: options.configPath,
-    } as CLIOptions)
-    if (isPromise(possiblePromise)) {
-      kubbUserConfig = possiblePromise
-    } else {
-      kubbUserConfig = Promise.resolve(possiblePromise)
-    }
-  }
-
-  return (await kubbUserConfig) as Config
+export async function resolveUserConfig(config: PossibleConfig<CLIOptions>, options: ResolveUserConfigOptions): Promise<Config> {
+  const result = typeof config === 'function' ? config({ logLevel: options.logLevel as CLIOptions['logLevel'], config: options.configPath }) : config
+  const resolved = isPromise(result) ? await result : result
+  return (Array.isArray(resolved) ? resolved[0] : resolved) as Config
 }

@@ -16,7 +16,7 @@ export const validateTool = defineTool(
       return tool.error('The validate tool requires @kubb/adapter-oas.\nInstall: npm install @kubb/adapter-oas')
     }
     try {
-      await mod.adapterOas().validate!(input, { throwOnError: true })
+      await mod.adapterOas().validate(input, { throwOnError: true })
       return tool.text(`Validation successful: ${input}`)
     } catch (err) {
       return tool.error(`Validation failed:\n${err instanceof Error ? err.message : String(err)}`)
