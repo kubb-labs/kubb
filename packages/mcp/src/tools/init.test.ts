@@ -5,7 +5,7 @@ describe('resolvePlugins', () => {
   it('defaults to plugin-ts when no flag is given', () => {
     const result = resolvePlugins(undefined)
     expect(result).toHaveLength(1)
-    expect(result[0].value).toBe('plugin-ts')
+    expect(result[0]!.value).toBe('plugin-ts')
   })
 
   it('returns matched plugins for a comma-separated list', () => {
@@ -21,12 +21,12 @@ describe('resolvePlugins', () => {
   it('falls back to plugin-ts for unrecognised plugins', () => {
     const result = resolvePlugins('plugin-does-not-exist')
     expect(result).toHaveLength(1)
-    expect(result[0].value).toBe('plugin-ts')
+    expect(result[0]!.value).toBe('plugin-ts')
   })
 
   it('ignores empty segments from trailing commas', () => {
     const result = resolvePlugins('plugin-ts,,')
     expect(result).toHaveLength(1)
-    expect(result[0].value).toBe('plugin-ts')
+    expect(result[0]!.value).toBe('plugin-ts')
   })
 })

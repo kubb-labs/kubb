@@ -1,12 +1,13 @@
-import { z } from 'zod'
+import * as v from 'valibot'
 
-export const generateSchema = z.object({
-  config: z
-    .string()
-    .optional()
-
-    .describe('Path to kubb.config file (supports .ts, .js, .cjs). If not provided, will look for kubb.config.{ts,js,cjs} in current directory'),
-  input: z.string().optional().describe('Path to OpenAPI/Swagger spec file (overrides config)'),
-  output: z.string().optional().describe('Output directory path (overrides config)'),
-  logLevel: z.enum(['silent', 'error', 'warn', 'info', 'verbose', 'debug']).optional().default('info').describe('Log level for build output'),
+export const generateSchema = v.object({
+  config: v.optional(
+    v.pipe(v.string(), v.description('Path to kubb.config file (supports .ts, .js, .cjs). If not provided, will look for kubb.config.{ts,js,cjs} in current directory')),
+  ),
+  input: v.optional(v.pipe(v.string(), v.description('Path to OpenAPI/Swagger spec file (overrides config)'))),
+  output: v.optional(v.pipe(v.string(), v.description('Output directory path (overrides config)'))),
+  logLevel: v.optional(
+    v.pipe(v.picklist(['silent', 'error', 'warn', 'info', 'verbose', 'debug']), v.description('Log level for build output')),
+    'info',
+  ),
 })

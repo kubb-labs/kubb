@@ -1,5 +1,5 @@
-import { z } from 'zod'
+import * as v from 'valibot'
 
-export const validateSchema = z.object({
-  input: z.string().describe('Path or URL to the OpenAPI/Swagger specification'),
+export const validateSchema = v.object({
+  input: v.pipe(v.string(), v.description('Path or URL to the OpenAPI/Swagger specification')),
 })

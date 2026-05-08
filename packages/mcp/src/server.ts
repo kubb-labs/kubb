@@ -1,6 +1,6 @@
 import http from 'node:http'
 import { createRequestListener } from '@remix-run/node-fetch-server'
-import { ZodJsonSchemaAdapter } from '@tmcp/adapter-zod'
+import { ValibotJsonSchemaAdapter } from '@tmcp/adapter-valibot'
 import { HttpTransport } from '@tmcp/transport-http'
 import { StdioTransport } from '@tmcp/transport-stdio'
 import { McpServer } from 'tmcp'
@@ -15,7 +15,7 @@ export type ServerOptions = {
 }
 
 export function createMcpServer() {
-  const server = new McpServer({ name: 'Kubb', version }, { adapter: new ZodJsonSchemaAdapter() })
+  const server = new McpServer({ name: 'Kubb', version }, { adapter: new ValibotJsonSchemaAdapter() })
   server.tools([generateTool, validateTool, initTool])
   return server
 }

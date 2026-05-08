@@ -2,7 +2,7 @@ import { AsyncEventEmitter } from '@internals/utils'
 import { type Config, createKubb, type KubbHooks } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
-import type { z } from 'zod'
+import type * as v from 'valibot'
 import { generateSchema } from '../schemas/generateSchema.ts'
 import { NotifyTypes } from '../types.ts'
 import { loadUserConfig } from '../utils/loadUserConfig.ts'
@@ -15,7 +15,7 @@ export const generateTool = defineTool(
     description: 'Generate OpenAPI spec helpers using Kubb configuration',
     schema: generateSchema,
   },
-  async function generate(schema: z.input<typeof generateSchema>) {
+  async function generate(schema: v.InferInput<typeof generateSchema>) {
     const { config: configPath, input, output, logLevel } = schema
 
     try {
