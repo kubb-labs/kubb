@@ -4,4 +4,7 @@ export default defineConfig({
   test: {
     dir: './src',
   },
+  resolve: {
+    tsconfigPaths: true,
+  },
 })
