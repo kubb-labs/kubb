@@ -1,10 +1,13 @@
 import http from 'node:http'
+import { createRequestListener } from '@remix-run/node-fetch-server'
 import { ZodJsonSchemaAdapter } from '@tmcp/adapter-zod'
 import { HttpTransport } from '@tmcp/transport-http'
 import { StdioTransport } from '@tmcp/transport-stdio'
 import { McpServer } from 'tmcp'
 import { version } from '../package.json'
-import { generateTool, initTool, validateTool } from './tools/index.ts'
+import { generateTool } from './tools/generate.ts'
+import { initTool } from './tools/init.ts'
+import { validateTool } from './tools/validate.ts'
 
 export type ServerOptions = {
   port?: number
@@ -21,32 +24,13 @@ export async function startServer({ port, host = 'localhost' }: ServerOptions = 
   const server = createMcpServer()
 
   if (port !== undefined) {
-    const transport = new HttpTransport(server)
-    const httpServer = http.createServer(async (req, res) => {
-      const chunks: Buffer[] = []
-      for await (const chunk of req) chunks.push(chunk as Buffer)
-      const fetchReq = new Request(`http://${req.headers.host ?? `${host}:${port}`}${req.url}`, {
-        method: req.method,
-        headers: req.headers as HeadersInit,
-        body: chunks.length ? Buffer.concat(chunks) : undefined,
-      })
-      const fetchRes = await transport.respond(fetchReq)
-      if (!fetchRes) {
-        res.writeHead(404)
-        res.end('Not Found')
-        return
-      }
-      res.writeHead(fetchRes.status, Object.fromEntries(fetchRes.headers))
-      if (fetchRes.body) {
-        const reader = fetchRes.body.getReader()
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-          res.write(value)
-        }
-      }
-      res.end()
-    })
+    const transport = new HttpTransport(server, { path: '/mcp' })
+    const httpServer = http.createServer(
+      createRequestListener(async (request) => {
+        const response = await transport.respond(request)
+        return response ?? new Response('Not Found', { status: 404 })
+      }),
+    )
     httpServer.listen(port, host, () => {
       console.log(`Kubb MCP server on http://${host}:${port}`)
     })

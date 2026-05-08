@@ -310,6 +310,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@remix-run/node-fetch-server':
+        specifier: ^0.13.0
+        version: 0.13.1
       '@tmcp/adapter-zod':
         specifier: ^0.1.7
         version: 0.1.7(tmcp@1.19.3(typescript@6.0.3))(zod@4.4.3)
@@ -1626,6 +1629,9 @@ packages:
   '@redocly/openapi-core@2.30.4':
     resolution: {integrity: sha512-23Mg0EPaczaxnbcLokUwY6fnzWhldc84XBvEMn4sOc6iV/TtroNmWx70WttT6Xs6dBUNeFUVZEI7MlKAmZRvcw==}
     engines: {node: '>=22.12.0 || >=20.19.0 <21.0.0', npm: '>=10'}
+
+  '@remix-run/node-fetch-server@0.13.1':
+    resolution: {integrity: sha512-dOL+A/C84EA47gO/ps52KGrVSiYy96512rwtbXmJfWKYFm1FbrbjA3jao1hcIfao+jwVNEaZ1kTMwFjiino+HQ==}
 
   '@rolldown/binding-android-arm64@1.0.0-rc.16':
     resolution: {integrity: sha512-rhY3k7Bsae9qQfOtph2Pm2jZEA+s8Gmjoz4hhmx70K9iMQ/ddeae+xhRQcM5IuVx5ry1+bGfkvMn7D6MJggVSA==}
@@ -6850,6 +6856,8 @@ snapshots:
       picomatch: 4.0.4
       pluralize: 8.0.0
       yaml-ast-parser: 0.0.43
+
+  '@remix-run/node-fetch-server@0.13.1': {}
 
   '@rolldown/binding-android-arm64@1.0.0-rc.16':
     optional: true

@@ -62,6 +62,8 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/adapter-oas": "workspace:*",
+    "@remix-run/node-fetch-server": "^0.13.0",
     "@kubb/core": "workspace:*",
     "@tmcp/adapter-zod": "^0.1.7",
     "@tmcp/transport-http": "^0.8.5",
@@ -75,13 +77,7 @@
     "@kubb/renderer-jsx": "workspace:*"
   },
   "peerDependencies": {
-    "@kubb/adapter-oas": "workspace:*",
     "@kubb/renderer-jsx": "workspace:*"
-  },
-  "peerDependenciesMeta": {
-    "@kubb/adapter-oas": {
-      "optional": true
-    }
   },
   "size-limit": [
     {
