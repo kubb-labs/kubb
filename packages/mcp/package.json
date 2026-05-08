@@ -73,6 +73,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@internals/shared": "workspace:*",
     "@internals/utils": "workspace:*",
     "@kubb/renderer-jsx": "workspace:*"
   },
