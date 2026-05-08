@@ -1,5 +1,4 @@
 import http from 'node:http'
-import process from 'node:process'
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import { ValibotJsonSchemaAdapter } from '@tmcp/adapter-valibot'
 import { HttpTransport } from '@tmcp/transport-http'
@@ -37,6 +36,6 @@ export async function startServer({ port, host = 'localhost' }: ServerOptions = 
     }),
   )
   httpServer.listen(port, host, () => {
-    process.stderr.write(`Kubb MCP server on http://${host}:${port}\n`)
+    console.log(`Kubb MCP server on http://${host}:${port}`)
   })
 }
