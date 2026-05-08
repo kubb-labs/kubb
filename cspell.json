@@ -96,6 +96,10 @@
     "oxlintrc",
     "unrun",
     "rolldown",
-    "distroless"
+    "distroless",
+    "tmcp",
+    "picklist",
+    "valibot",
+    "Valibot"
   ]
 }
