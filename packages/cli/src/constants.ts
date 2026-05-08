@@ -48,7 +48,6 @@ export const agentDefaults = {
   serverEntryPath: '.output/server/index.mjs',
 } as const
 
-
 /**
  * Color palette used by randomCliColor() for deterministic plugin name coloring.
  */
