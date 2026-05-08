@@ -158,7 +158,7 @@ export async function runInit({ yes, version, input: inputFlag, output: outputFl
     const configSpinner = clack.spinner()
     configSpinner.start(`Creating ${KUBB_CONFIG_FILENAME}`)
 
-    const configContent = generateConfigFile(selectedPlugins, inputPath, outputPath)
+    const configContent = generateConfigFile({ selectedPlugins, inputPath, outputPath })
     const configPath = path.join(cwd, KUBB_CONFIG_FILENAME)
 
     if (fs.existsSync(configPath)) {

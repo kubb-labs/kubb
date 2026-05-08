@@ -26,7 +26,7 @@ export const initTool = defineTool(
   },
   async ({ input = './openapi.yaml', output = './src/gen', plugins }) => {
     const selected = resolvePlugins(plugins)
-    const content = generateConfigFile(selected, input, output)
+    const content = generateConfigFile({ selectedPlugins: selected, inputPath: input, outputPath: output })
     const dest = path.join(process.cwd(), KUBB_CONFIG_FILENAME)
     fs.writeFileSync(dest, content, 'utf-8')
     const packageList = ['kubb', ...selected.map((p) => p.packageName)].join(' ')

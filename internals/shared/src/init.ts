@@ -1,7 +1,7 @@
 import { pluginDefaultConfigs } from './constants.ts'
 import type { PluginOption } from './types.ts'
 
-export function generateConfigFile(selectedPlugins: PluginOption[], inputPath: string, outputPath: string): string {
+export function generateConfigFile({ selectedPlugins, inputPath, outputPath }: { selectedPlugins: PluginOption[]; inputPath: string; outputPath: string }): string {
   const imports = selectedPlugins.map((plugin) => `import { ${plugin.importName} } from '${plugin.packageName}'`).join('\n')
 
   const pluginConfigs = selectedPlugins
