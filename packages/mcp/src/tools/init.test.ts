@@ -18,7 +18,7 @@ describe('resolvePlugins', () => {
     expect(result.map((p) => p.value)).toEqual(['plugin-ts', 'plugin-zod'])
   })
 
-  it('falls back to plugin-ts for unrecognised plugins', () => {
+  it('falls back to plugin-ts for unrecognized plugins', () => {
     const result = resolvePlugins('plugin-does-not-exist')
     expect(result).toHaveLength(1)
     expect(result[0]!.value).toBe('plugin-ts')
