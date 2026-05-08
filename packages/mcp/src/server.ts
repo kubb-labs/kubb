@@ -23,18 +23,19 @@ export function createMcpServer() {
 export async function startServer({ port, host = 'localhost' }: ServerOptions = {}) {
   const server = createMcpServer()
 
-  if (port !== undefined) {
-    const transport = new HttpTransport(server, { path: '/mcp' })
-    const httpServer = http.createServer(
-      createRequestListener(async (request) => {
-        const response = await transport.respond(request)
-        return response ?? new Response('Not Found', { status: 404 })
-      }),
-    )
-    httpServer.listen(port, host, () => {
-      console.log(`Kubb MCP server on http://${host}:${port}`)
-    })
-  } else {
+  if (port === undefined) {
     new StdioTransport(server).listen()
+    return
   }
+
+  const transport = new HttpTransport(server, { path: '/mcp' })
+  const httpServer = http.createServer(
+    createRequestListener(async (request) => {
+      const response = await transport.respond(request)
+      return response ?? new Response('Not Found', { status: 404 })
+    }),
+  )
+  httpServer.listen(port, host, () => {
+    console.log(`Kubb MCP server on http://${host}:${port}`)
+  })
 }

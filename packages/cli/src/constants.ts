@@ -1,5 +1,4 @@
 import { KUBB_CONFIG_FILENAME } from '@internals/shared'
-export { KUBB_CONFIG_FILENAME }
 
 /**
  * NPM registry endpoint used to check for @kubb/cli updates.
