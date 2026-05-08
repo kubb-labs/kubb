@@ -31,9 +31,6 @@ async function loadModule(filePath: string): Promise<unknown> {
 }
 
 export async function loadUserConfig(configPath: string | undefined, { notify }: { notify: NotifyFunction }): Promise<{ userConfig: Config; cwd: string }> {
-  let userConfig: Config | undefined
-  let cwd: string
-
   if (configPath) {
     const ext = path.extname(configPath)
     if (!ALLOWED_CONFIG_EXTENSIONS.has(ext)) {
@@ -49,37 +46,33 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
       await notify(NotifyTypes.CONFIG_ERROR, msg)
       throw new Error(msg)
     }
-    cwd = path.dirname(resolvedConfigPath)
-
+    const cwd = path.dirname(resolvedConfigPath)
     try {
-      userConfig = (await loadModule(resolvedConfigPath)) as Config
+      const userConfig = (await loadModule(resolvedConfigPath)) as Config
       await notify(NotifyTypes.CONFIG_LOADED, `Loaded config from ${resolvedConfigPath}`)
+      return { userConfig, cwd }
     } catch (error) {
-      await notify(NotifyTypes.CONFIG_ERROR, `Failed to load config: ${error instanceof Error ? error.message : String(error)}`)
-      throw new Error(`Failed to load config: ${error instanceof Error ? error.message : String(error)}`)
-    }
-  } else {
-    cwd = process.cwd()
-    const configFileNames = ['kubb.config.ts', 'kubb.config.mts', 'kubb.config.cts', 'kubb.config.js', 'kubb.config.cjs']
-
-    for (const configFileName of configFileNames) {
-      const configFilePath = path.resolve(process.cwd(), configFileName)
-      if (!existsSync(configFilePath)) continue
-      try {
-        userConfig = (await loadModule(configFilePath)) as Config
-        await notify(NotifyTypes.CONFIG_LOADED, `Loaded ${configFileName} from current directory`)
-        break
-      } catch {
-        // Continue trying next config file
-      }
-    }
-
-    if (!userConfig) {
-      await notify(NotifyTypes.CONFIG_ERROR, 'No config file found')
-
-      throw new Error(`No config file found. Please provide a config path or create one of: ${configFileNames.join(', ')}`)
+      const msg = `Failed to load config: ${error instanceof Error ? error.message : String(error)}`
+      await notify(NotifyTypes.CONFIG_ERROR, msg)
+      throw new Error(msg)
     }
   }
 
-  return { userConfig: userConfig!, cwd }
+  const cwd = process.cwd()
+  const configFileNames = ['kubb.config.ts', 'kubb.config.mts', 'kubb.config.cts', 'kubb.config.js', 'kubb.config.cjs']
+
+  for (const configFileName of configFileNames) {
+    const configFilePath = path.resolve(process.cwd(), configFileName)
+    if (!existsSync(configFilePath)) continue
+    try {
+      const userConfig = (await loadModule(configFilePath)) as Config
+      await notify(NotifyTypes.CONFIG_LOADED, `Loaded ${configFileName} from current directory`)
+      return { userConfig, cwd }
+    } catch (err) {
+      await notify(NotifyTypes.CONFIG_ERROR, `Failed to load ${configFileName}: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
+  await notify(NotifyTypes.CONFIG_ERROR, 'No config file found')
+  throw new Error(`No config file found. Please provide a config path or create one of: ${configFileNames.join(', ')}`)
 }
