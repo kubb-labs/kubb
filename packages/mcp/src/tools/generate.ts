@@ -1,41 +1,25 @@
 import { AsyncEventEmitter } from '@internals/utils'
 import { type Config, createKubb, type KubbHooks } from '@kubb/core'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types.d.ts'
+import { defineTool } from 'tmcp/tool'
+import { tool } from 'tmcp/utils'
 import type { z } from 'zod'
-import type { generateSchema } from '../schemas/generateSchema.ts'
+import { generateSchema } from '../schemas/generateSchema.ts'
 import { NotifyTypes } from '../types.ts'
 import { loadUserConfig } from '../utils/loadUserConfig.ts'
 import { resolveCwd } from '../utils/resolveCwd.ts'
 import { resolveUserConfig } from '../utils/resolveUserConfig.ts'
 
-interface NotificationHandler {
-  sendNotification(method: string, params: unknown): Promise<void>
-}
-
-/**
- * Build tool that generates code from OpenAPI specs using Kubb.
- * Sends real-time notifications of build progress and events.
- */
-export async function generate(schema: z.infer<typeof generateSchema>, handler: NotificationHandler): Promise<CallToolResult> {
+async function runGenerate(schema: z.input<typeof generateSchema>) {
   const { config: configPath, input, output, logLevel } = schema
 
   try {
     const hooks = new AsyncEventEmitter<KubbHooks>()
     const messages: string[] = []
 
-    // Helper to send notifications
-    const notify = async (type: string, message: string, data?: Record<string, unknown>) => {
+    const notify = async (type: string, message: string, _data?: Record<string, unknown>) => {
       messages.push(`${type}: ${message}`)
-
-      await handler.sendNotification('kubb/progress', {
-        type,
-        message,
-        timestamp: new Date().toISOString(),
-        ...data,
-      })
     }
 
-    // Capture events for output and send notifications
     hooks.on('kubb:info', async ({ message }: { message: string }) => {
       await notify(NotifyTypes.INFO, message)
     })
@@ -45,25 +29,21 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
     })
 
     hooks.on('kubb:error', async ({ error }: { error: Error }) => {
-      await notify(NotifyTypes.ERROR, error.message, { stack: error.stack })
+      await notify(NotifyTypes.ERROR, error.message)
     })
 
     hooks.on('kubb:warn', async ({ message }: { message: string }) => {
       await notify(NotifyTypes.WARN, message)
     })
 
-    // Plugin lifecycle events
     hooks.on('kubb:plugin:start', async ({ plugin }) => {
       await notify(NotifyTypes.PLUGIN_START, `Plugin starting: ${plugin.name}`)
     })
 
     hooks.on('kubb:plugin:end', async ({ plugin, duration }) => {
-      await notify(NotifyTypes.PLUGIN_END, `Plugin finished: ${plugin.name}`, {
-        duration,
-      })
+      await notify(NotifyTypes.PLUGIN_END, `Plugin finished: ${plugin.name}`, { duration })
     })
 
-    // File processing events
     hooks.on('kubb:files:processing:start', async () => {
       await notify(NotifyTypes.FILES_START, 'Starting file processing')
     })
@@ -76,7 +56,6 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
       await notify(NotifyTypes.FILES_END, 'File processing complete')
     })
 
-    // Generation events
     hooks.on('kubb:generation:start', async () => {
       await notify(NotifyTypes.GENERATION_START, 'Generation started')
     })
@@ -85,7 +64,6 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
       await notify(NotifyTypes.GENERATION_END, 'Generation ended')
     })
 
-    // Load and process configuration
     let userConfig: Config
     let cwd: string
 
@@ -105,20 +83,11 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
       await notify(NotifyTypes.CONFIG_ERROR, errorMessage)
-      return {
-        content: [
-          {
-            type: 'text',
-            text: errorMessage,
-          },
-        ],
-        isError: true,
-      }
+      return tool.error(errorMessage)
     }
 
     const inputPath = input ?? (userConfig.input && 'path' in userConfig.input ? userConfig.input.path : undefined)
 
-    // Override config with CLI options
     const config: Config = {
       ...userConfig,
       root: resolveCwd(userConfig, cwd),
@@ -136,11 +105,7 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
         : userConfig.output,
     }
 
-    await notify(NotifyTypes.CONFIG_READY, 'Configuration ready', {
-      root: config.root,
-    })
-
-    // Setup and build
+    await notify(NotifyTypes.CONFIG_READY, 'Configuration ready')
     await notify(NotifyTypes.SETUP_START, 'Setting up Kubb')
 
     const kubb = createKubb(config, { hooks })
@@ -152,59 +117,27 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
     await notify(NotifyTypes.BUILD_END, `Build complete - Generated ${files.length} files`)
 
     if (error || failedPlugins.size > 0) {
-      const allErrors: Error[] = [
-        error,
-        ...Array.from(failedPlugins)
-          .filter((it) => it.error)
-          .map((it) => it.error),
-      ].filter(Boolean)
+      const allErrors: Error[] = [error, ...Array.from(failedPlugins).filter((it) => it.error).map((it) => it.error)].filter(Boolean)
 
-      await notify(NotifyTypes.BUILD_FAILED, `Build failed with ${allErrors.length} error(s)`, {
-        errorCount: allErrors.length,
-        errors: allErrors.map((err) => err.message),
-      })
+      await notify(NotifyTypes.BUILD_FAILED, `Build failed with ${allErrors.length} error(s)`)
 
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `Build failed:\n${allErrors.map((err) => err.message).join('\n')}\n\n${messages.join('\n')}`,
-          },
-        ],
-        isError: true,
-      }
+      return tool.error(`Build failed:\n${allErrors.map((err) => err.message).join('\n')}\n\n${messages.join('\n')}`)
     }
 
-    await notify(NotifyTypes.BUILD_SUCCESS, `Build completed successfully - Generated ${files.length} files`, {
-      filesCount: files.length,
-    })
+    await notify(NotifyTypes.BUILD_SUCCESS, `Build completed successfully - Generated ${files.length} files`)
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: `Build completed successfully!\n\nGenerated ${files.length} files\n\n${messages.join('\n')}`,
-        },
-      ],
-    }
+    return tool.text(`Build completed successfully!\n\nGenerated ${files.length} files\n\n${messages.join('\n')}`)
   } catch (caughtError) {
     const error = caughtError as Error
-
-    await handler.sendNotification('kubb/progress', {
-      type: NotifyTypes.FATAL_ERROR,
-      message: error.message,
-      stack: error.stack,
-      timestamp: new Date().toISOString(),
-    })
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: `Build error: ${error.message}\n${error.stack || ''}`,
-        },
-      ],
-      isError: true,
-    }
+    return tool.error(`Build error: ${error.message}\n${error.stack || ''}`)
   }
 }
+
+export const generateTool = defineTool(
+  {
+    name: 'generate',
+    description: 'Generate OpenAPI spec helpers using Kubb configuration',
+    schema: generateSchema,
+  },
+  runGenerate,
+)

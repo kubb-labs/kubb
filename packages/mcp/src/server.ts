@@ -1,48 +1,56 @@
-import process from 'node:process'
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import http from 'node:http'
+import { ZodJsonSchemaAdapter } from '@tmcp/adapter-zod'
+import { HttpTransport } from '@tmcp/transport-http'
+import { StdioTransport } from '@tmcp/transport-stdio'
+import { McpServer } from 'tmcp'
 import { version } from '../package.json'
-import { generateSchema } from './schemas/generateSchema.ts'
-import { generate } from './tools/generate.ts'
+import { generateTool, initTool, validateTool } from './tools/index.ts'
 
-/**
- * Kubb MCP Server
- *
- * Provides tools for building OpenAPI specifications using Kubb.
- */
-export async function startServer() {
-  try {
-    const transport = new StdioServerTransport()
-    const server = new McpServer({
-      name: 'Kubb',
-      version,
-    })
+export type ServerOptions = {
+  port?: number
+  host?: string
+}
 
-    // Build tool - runs Kubb build using @kubb/core
-    // Wrapped to pass notification handler for real-time progress updates
-    server.tool('generate', 'Generate OpenAPI spec helpers using Kubb configuration', generateSchema.shape, async (args) => {
-      // Create notification handler that sends events back to the client
-      const notificationHandler = {
-        sendNotification: async (method: string, params: any) => {
-          try {
-            await transport.send({
-              jsonrpc: '2.0',
-              method,
-              params,
-            })
-          } catch (error) {
-            console.error('Failed to send notification:', error)
-          }
-        },
+export function createMcpServer() {
+  const server = new McpServer({ name: 'Kubb', version }, { adapter: new ZodJsonSchemaAdapter() })
+  server.tools([generateTool, validateTool, initTool])
+  return server
+}
+
+export async function startServer({ port, host = 'localhost' }: ServerOptions = {}) {
+  const server = createMcpServer()
+
+  if (port !== undefined) {
+    const transport = new HttpTransport(server)
+    const httpServer = http.createServer(async (req, res) => {
+      const chunks: Buffer[] = []
+      for await (const chunk of req) chunks.push(chunk as Buffer)
+      const fetchReq = new Request(`http://${req.headers.host ?? `${host}:${port}`}${req.url}`, {
+        method: req.method,
+        headers: req.headers as HeadersInit,
+        body: chunks.length ? Buffer.concat(chunks) : undefined,
+      })
+      const fetchRes = await transport.respond(fetchReq)
+      if (!fetchRes) {
+        res.writeHead(404)
+        res.end('Not Found')
+        return
       }
-
-      // Call build tool with notification handler
-      return generate(args, notificationHandler)
+      res.writeHead(fetchRes.status, Object.fromEntries(fetchRes.headers))
+      if (fetchRes.body) {
+        const reader = fetchRes.body.getReader()
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          res.write(value)
+        }
+      }
+      res.end()
     })
-
-    await server.connect(transport)
-  } catch (error) {
-    console.error('Failed to start MCP server:', error)
-    process.exit(1)
+    httpServer.listen(port, host, () => {
+      console.log(`Kubb MCP server on http://${host}:${port}`)
+    })
+  } else {
+    new StdioTransport(server).listen()
   }
 }
