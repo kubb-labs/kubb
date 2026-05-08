@@ -8,14 +8,13 @@ import { initSchema } from '../schemas/initSchema.ts'
 
 export function resolvePlugins(pluginsFlag: string | undefined): PluginOption[] {
   if (!pluginsFlag) {
-    return availablePlugins.filter((p) => p.value === 'plugin-ts')
+    return []
   }
   const requested = pluginsFlag
     .split(',')
     .map((v) => v.trim())
     .filter(Boolean)
-  const matched = availablePlugins.filter((p) => requested.includes(p.value))
-  return matched.length > 0 ? matched : availablePlugins.filter((p) => p.value === 'plugin-ts')
+  return availablePlugins.filter((p) => requested.includes(p.value))
 }
 
 export const initTool = defineTool(
