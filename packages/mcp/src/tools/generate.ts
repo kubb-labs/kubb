@@ -117,7 +117,12 @@ async function runGenerate(schema: z.input<typeof generateSchema>) {
     await notify(NotifyTypes.BUILD_END, `Build complete - Generated ${files.length} files`)
 
     if (error || failedPlugins.size > 0) {
-      const allErrors: Error[] = [error, ...Array.from(failedPlugins).filter((it) => it.error).map((it) => it.error)].filter(Boolean)
+      const allErrors: Error[] = [
+        error,
+        ...Array.from(failedPlugins)
+          .filter((it) => it.error)
+          .map((it) => it.error),
+      ].filter(Boolean)
 
       await notify(NotifyTypes.BUILD_FAILED, `Build failed with ${allErrors.length} error(s)`)
 

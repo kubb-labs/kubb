@@ -91,8 +91,6 @@ export const initTool = defineTool(
     const dest = path.join(process.cwd(), 'kubb.config.ts')
     fs.writeFileSync(dest, content, 'utf-8')
     const packageList = ['kubb', ...selected.map((p) => p.packageName)].join(' ')
-    return tool.text(
-      `Created kubb.config.ts\n\nInstall packages:\n  npm install ${packageList}\n\nThen run:\n  npx kubb generate`,
-    )
+    return tool.text(`Created kubb.config.ts\n\nInstall packages:\n  npm install ${packageList}\n\nThen run:\n  npx kubb generate`)
   },
 )

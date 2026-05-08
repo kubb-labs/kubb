@@ -70,11 +70,6 @@
     "tmcp": "^1.19.3",
     "zod": "^4.4.3"
   },
-  "peerDependenciesMeta": {
-    "@kubb/adapter-oas": {
-      "optional": true
-    }
-  },
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "@kubb/renderer-jsx": "workspace:*"
@@ -82,6 +77,11 @@
   "peerDependencies": {
     "@kubb/adapter-oas": "workspace:*",
     "@kubb/renderer-jsx": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@kubb/adapter-oas": {
+      "optional": true
+    }
   },
   "size-limit": [
     {
