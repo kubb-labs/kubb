@@ -63,8 +63,11 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@tmcp/adapter-zod": "^0.1.7",
+    "@tmcp/transport-http": "^0.8.5",
+    "@tmcp/transport-stdio": "^0.4.2",
     "jiti": "^2.7.0",
+    "tmcp": "^1.19.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -72,12 +75,18 @@
     "@kubb/renderer-jsx": "workspace:*"
   },
   "peerDependencies": {
+    "@kubb/adapter-oas": "workspace:*",
     "@kubb/renderer-jsx": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@kubb/adapter-oas": {
+      "optional": true
+    }
   },
   "size-limit": [
     {
       "path": "./dist/*.js",
-      "limit": "510 KiB",
+      "limit": "600 KiB",
       "gzip": true
     }
   ],
