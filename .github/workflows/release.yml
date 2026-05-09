@@ -63,23 +63,22 @@ jobs:
           publish: pnpm release
           commit: "ci(changesets): version packages"
           setupGitUser: false
+          setupNpmrc: false
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish ${{ inputs.tag || 'canary' }}
         id: canary
         if: steps.changesets.outputs.published != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+          RELEASE_TAG: ${{ inputs.tag || 'canary' }}
         run: |
           git checkout main
           pnpm version:canary
-          pnpm release:canary --tag ${{ inputs.tag || 'canary' }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
+          pnpm release:canary --tag "$RELEASE_TAG"
 
   get-version:
     name: Get Published Version
