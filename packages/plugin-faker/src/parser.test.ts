@@ -1,6 +1,6 @@
-import { schemas } from '@kubb/plugin-oas/mocks'
 import type { Schema } from '@kubb/plugin-oas'
 import { schemaKeywords } from '@kubb/plugin-oas'
+import { schemas } from '@kubb/plugin-oas/mocks'
 import { describe, expect, test } from 'vitest'
 import * as parserFaker from './parser.ts'
 
@@ -41,7 +41,10 @@ describe('hasIndirectRef', () => {
   })
 
   test('returns true for indirect ref nested inside an array', () => {
-    const refSchema: Schema = { keyword: schemaKeywords.ref, args: { name: 'createBar', $ref: '#/components/schemas/Bar', path: './Bar.ts' as any, isImportable: true } }
+    const refSchema: Schema = {
+      keyword: schemaKeywords.ref,
+      args: { name: 'createBar', $ref: '#/components/schemas/Bar', path: './Bar.ts' as any, isImportable: true },
+    }
     const input: Schema[] = [{ keyword: schemaKeywords.array, args: { items: [refSchema], min: undefined, max: undefined } }]
     expect(parserFaker.hasIndirectRef(input, 'createFoo')).toBe(true)
   })

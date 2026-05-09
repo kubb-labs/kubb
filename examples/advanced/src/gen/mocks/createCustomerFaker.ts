@@ -8,8 +8,10 @@ export function createCustomerFaker(data?: Partial<Customer>): Customer {
       id: faker.number.int(),
       username: faker.string.alpha(),
       params: { status: faker.helpers.arrayElement<any>(['working', 'idle']), type: faker.string.alpha() },
-      address: faker.helpers.multiple(() => createAddressFaker()),
+      get address() {
+        return faker.helpers.multiple(() => createAddressFaker())
+      },
+      ...(data || {}),
     },
-    ...(data || {}),
   }
 }

@@ -13,8 +13,10 @@ export function createCustomer(data?: Partial<Customer>): Customer {
     ...{
       id: faker.number.int(),
       username: faker.string.alpha(),
-      address: faker.helpers.multiple(() => createAddress()),
+      get address() {
+        return faker.helpers.multiple(() => createAddress())
+      },
+      ...(data || {}),
     },
-    ...(data || {}),
   }
 }

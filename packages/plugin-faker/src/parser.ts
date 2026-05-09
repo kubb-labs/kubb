@@ -199,18 +199,11 @@ export function joinItems(items: string[]): string {
  * than rootTypeName (i.e. an indirect / mutual ref rather than a direct self-ref).
  * Recurses through array.items, union/and args, tuple items, and nested object properties.
  */
-export function hasIndirectRef(
-  schemas: Schema[],
-  rootTypeName: string | undefined,
-): boolean {
+export function hasIndirectRef(schemas: Schema[], rootTypeName: string | undefined): boolean {
   return hasIndirectRefInner(schemas, rootTypeName, new WeakSet())
 }
 
-function hasIndirectRefInner(
-  schemas: Schema[],
-  rootTypeName: string | undefined,
-  visited: WeakSet<Schema>,
-): boolean {
+function hasIndirectRefInner(schemas: Schema[], rootTypeName: string | undefined, visited: WeakSet<Schema>): boolean {
   return schemas.some((schema) => {
     if (!('args' in schema)) {
       return false
@@ -232,11 +225,7 @@ function hasIndirectRefInner(
         return Array.isArray(schema.args) && hasIndirectRefInner(schema.args, rootTypeName, visited)
       }
       case schemaKeywords.tuple: {
-        const items: Schema[] = Array.isArray(schema.args?.items)
-          ? schema.args.items
-          : schema.args?.items
-            ? [schema.args.items]
-            : []
+        const items: Schema[] = Array.isArray(schema.args?.items) ? schema.args.items : schema.args?.items ? [schema.args.items] : []
         return hasIndirectRefInner(items, rootTypeName, visited)
       }
       case schemaKeywords.object: {
