@@ -53,13 +53,19 @@ describe('nodeAdapter', () => {
   })
 
   describe('argv stripping', () => {
-    it('strips leading node/script entries when argv[0] includes "node"', async () => {
+    it('strips leading node/script entries when argv[0] is node runtime', async () => {
       const runFn = vi.fn().mockResolvedValue(undefined)
       await nodeAdapter.run([makeCmd('generate', runFn)], ['/usr/bin/node', 'kubb.js', 'generate'], opts)
       expect(runFn).toHaveBeenCalled()
     })
 
-    it('does not strip when argv[0] does not include "node"', async () => {
+    it('strips leading bun/script entries when argv[0] is bun runtime', async () => {
+      const runFn = vi.fn().mockResolvedValue(undefined)
+      await nodeAdapter.run([makeCmd('generate', runFn)], ['/usr/local/bin/bun', 'kubb', 'generate'], opts)
+      expect(runFn).toHaveBeenCalled()
+    })
+
+    it('does not strip when argv[0] is not a known runtime binary', async () => {
       const runFn = vi.fn().mockResolvedValue(undefined)
       await nodeAdapter.run([makeCmd('generate', runFn)], ['generate'], opts)
       expect(runFn).toHaveBeenCalled()
