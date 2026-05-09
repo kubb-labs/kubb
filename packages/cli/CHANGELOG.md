@@ -1,5 +1,14 @@
 # @kubb/cli
 
+## 4.37.6
+
+### Patch Changes
+
+- [#3262](https://github.com/kubb-labs/kubb/pull/3262) [`36d035d`](https://github.com/kubb-labs/kubb/commit/36d035de863b1735412c3977078e5f1699134326) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix `bunx kubb ...` argument parsing by normalizing Bun runtime argv the same way as Node/Deno so commands resolve correctly.
+
+- Updated dependencies []:
+  - @kubb/core@4.37.6
+
 ## 4.37.5
 
 ### Patch Changes
