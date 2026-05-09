@@ -62,12 +62,18 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/adapter-oas": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@remix-run/node-fetch-server": "^0.13.0",
+    "@tmcp/adapter-valibot": "^0.1.5",
+    "@tmcp/transport-http": "^0.8.5",
+    "@tmcp/transport-stdio": "^0.4.2",
     "jiti": "^2.7.0",
-    "zod": "^4.4.3"
+    "tmcp": "^1.19.3",
+    "valibot": "^1.1.0"
   },
   "devDependencies": {
+    "@internals/shared": "workspace:*",
     "@internals/utils": "workspace:*",
     "@kubb/renderer-jsx": "workspace:*"
   },
@@ -77,7 +83,7 @@
   "size-limit": [
     {
       "path": "./dist/*.js",
-      "limit": "510 KiB",
+      "limit": "600 KiB",
       "gzip": true
     }
   ],

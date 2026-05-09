@@ -54,7 +54,8 @@ schemas/
 ```
 internals/
 ├── changelog/               # Changelog generation utilities
-└── utils/                   # Shared build and utility functions
+├── shared/                  # Kubb-specific shared logic (plugin catalogue, config generation)
+└── utils/                   # Domain-agnostic shared utilities (fs, string, async helpers)
 ```
 
 ### Documentation

@@ -1,9 +1,4 @@
-/**
- * Default filename for the Kubb configuration file.
- *
- * Used by the `init` command when scaffolding new projects and by the `agent` default config.
- */
-export const KUBB_CONFIG_FILENAME = 'kubb.config.ts' as const
+import { KUBB_CONFIG_FILENAME } from '@internals/shared'
 
 /**
  * NPM registry endpoint used to check for @kubb/cli updates.
@@ -51,53 +46,6 @@ export const agentDefaults = {
    */
   serverEntryPath: '.output/server/index.mjs',
 } as const
-
-/**
- * Default values used during interactive `init` scaffolding.
- */
-export const initDefaults = {
-  inputPath: './openapi.yaml',
-  outputPath: './src/gen',
-  plugins: ['plugin-ts'],
-} as const
-
-/**
- * Maps each plugin value to the default config snippet inserted by `init`.
- * The `satisfies` constraint ensures all values remain plain strings while
- * `as const` keeps the object deeply immutable.
- */
-export const pluginDefaultConfigs = {
-  'plugin-ts': `pluginTs({
-      output: { path: 'models' },
-    })`,
-  'plugin-client': `pluginClient({
-      output: { path: 'clients' },
-    })`,
-  'plugin-react-query': `pluginReactQuery({
-      output: { path: 'hooks' },
-    })`,
-  'plugin-vue-query': `pluginVueQuery({
-      output: { path: 'hooks' },
-    })`,
-  'plugin-zod': `pluginZod({
-      output: { path: 'zod' },
-    })`,
-  'plugin-faker': `pluginFaker({
-      output: { path: 'mocks' },
-    })`,
-  'plugin-msw': `pluginMsw({
-      output: { path: 'msw' },
-    })`,
-  'plugin-cypress': `pluginCypress({
-      output: { path: 'cypress' },
-    })`,
-  'plugin-mcp': `pluginMcp({
-      output: { path: 'mcp' },
-    })`,
-  'plugin-redoc': `pluginRedoc({
-      output: { path: 'redoc' },
-    })`,
-} as const satisfies Record<string, string>
 
 /**
  * Color palette used by randomCliColor() for deterministic plugin name coloring.

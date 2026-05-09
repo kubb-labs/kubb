@@ -6,9 +6,11 @@ import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 
 type McpOptions = {
   version: string
+  port?: string
+  host?: string
 }
 
-export async function runMcp({ version }: McpOptions): Promise<void> {
+export async function runMcp({ version, port, host }: McpOptions): Promise<void> {
   let mod: typeof McpModule
   try {
     mod = (await import('@kubb/mcp')) as typeof McpModule
@@ -28,7 +30,10 @@ export async function runMcp({ version }: McpOptions): Promise<void> {
   try {
     console.log('⏳ Starting MCP server...')
     console.warn(styleText('yellow', 'This feature is still under development — use with caution'))
-    run()
+    run(undefined, {
+      port: port !== undefined ? Number(port) : undefined,
+      host,
+    })
     await sendTelemetry(
       buildTelemetryEvent({
         command: 'mcp',
