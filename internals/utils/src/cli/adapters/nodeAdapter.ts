@@ -102,7 +102,11 @@ export const nodeAdapter = defineCLIAdapter({
   async run(defs: CommandDefinition[], argv: string[], opts: RunOptions): Promise<void> {
     const { programName, defaultCommandName, version } = opts
 
-    const args = argv.length >= 2 && argv[0]?.includes('node') ? argv.slice(2) : argv
+    // Strip the leading executable + script entries when process.argv is passed directly.
+    // Handles Node.js (/usr/bin/node), Bun (/usr/local/bin/bun), Deno, tsx, etc.
+    // All runtime executable paths contain a path separator; bare command names do not.
+    const firstArgIsExecutablePath = (argv[0]?.includes('/') || argv[0]?.includes('\\')) ?? false
+    const args = argv.length >= 2 && firstArgIsExecutablePath ? argv.slice(2) : argv
 
     if (args[0] === '--version' || args[0] === '-v') {
       console.log(version)
