@@ -1,5 +1,5 @@
 ---
-'@kubb/plugin-faker': patch
+'@kubb/cli': patch
 ---
 
-Fix faker parser handling for indirect references in nested schemas, including cyclic structures, to prevent recursion issues and generate safer mock object output.
+Fix `bunx kubb ...` argument parsing by normalizing Bun runtime argv the same way as Node/Deno so commands resolve correctly.
