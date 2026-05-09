@@ -8,11 +8,15 @@ export function createAddPetRequestFaker(data?: Partial<AddPetRequest>): AddPetR
     ...{
       id: faker.number.int(),
       name: faker.string.alpha(),
-      category: createCategoryFaker(),
+      get category() {
+        return createCategoryFaker()
+      },
       photoUrls: faker.helpers.multiple(() => faker.string.alpha()),
-      tags: faker.helpers.multiple(() => createTagTagFaker()),
+      get tags() {
+        return faker.helpers.multiple(() => createTagTagFaker())
+      },
       status: faker.helpers.arrayElement<any>(['working', 'idle']),
+      ...(data || {}),
     },
-    ...(data || {}),
   }
 }
