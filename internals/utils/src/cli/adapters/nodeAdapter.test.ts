@@ -66,10 +66,28 @@ describe('nodeAdapter', () => {
       expect(runFn).toHaveBeenCalled()
     })
 
-    it('does not strip when argv[0] does not include "node"', async () => {
+    it('strips leading bun/script entries when run via bunx', async () => {
+      const runFn = vi.fn().mockResolvedValue(undefined)
+      await nodeAdapter.run([makeCmd('generate', runFn)], ['/usr/local/bin/bun', 'kubb.js', 'generate'], opts)
+      expect(runFn).toHaveBeenCalled()
+    })
+
+    it('strips leading deno/script entries when run via deno', async () => {
+      const runFn = vi.fn().mockResolvedValue(undefined)
+      await nodeAdapter.run([makeCmd('generate', runFn)], ['/usr/bin/deno', 'kubb.js', 'generate'], opts)
+      expect(runFn).toHaveBeenCalled()
+    })
+
+    it('does not strip when argv[0] does not contain a path separator', async () => {
       const runFn = vi.fn().mockResolvedValue(undefined)
       await nodeAdapter.run([makeCmd('generate', runFn)], ['generate'], opts)
       expect(runFn).toHaveBeenCalled()
+    })
+
+    it('passes the OpenAPI input positional correctly when run via bunx', async () => {
+      const runFn = vi.fn().mockResolvedValue(undefined)
+      await nodeAdapter.run([makeCmd('generate', runFn)], ['/usr/local/bin/bun', 'kubb.js', 'generate', './openapi.yaml'], opts)
+      expect(runFn).toHaveBeenCalledWith(expect.objectContaining({ positionals: ['./openapi.yaml'] }))
     })
   })
 
