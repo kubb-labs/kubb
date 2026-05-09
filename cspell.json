@@ -96,6 +96,7 @@
     "oxlintrc",
     "unrun",
     "rolldown",
-    "distroless"
+    "distroless",
+    "bunx"
   ]
 }
