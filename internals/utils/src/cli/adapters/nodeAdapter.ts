@@ -5,6 +5,30 @@ import type { CommandDefinition, OptionType, ParsedArgs, RunOptions } from '../t
 
 type ParseOption = { type: OptionType; short?: string; default?: string | boolean }
 type ParseOptions = Record<string, ParseOption>
+const runtimeBinaries = new Set(['node', 'nodejs', 'bun', 'deno'])
+
+function normalizeArgv(argv: string[]): string[] {
+  if (argv.length < 2) {
+    return argv
+  }
+
+  const firstArg = argv[0]
+  if (!firstArg) {
+    return argv
+  }
+
+  const runtime = firstArg
+    .split(/[\\/]/)
+    .pop()
+    ?.toLowerCase()
+    .replace(/\.exe$/, '')
+
+  if (runtime && runtimeBinaries.has(runtime)) {
+    return argv.slice(2)
+  }
+
+  return argv
+}
 
 function buildParseOptions(def: CommandDefinition): ParseOptions {
   const result: ParseOptions = {
@@ -91,7 +115,7 @@ export const nodeAdapter = defineCLIAdapter({
   async run(defs: CommandDefinition[], argv: string[], opts: RunOptions): Promise<void> {
     const { programName, defaultCommandName, version } = opts
 
-    const args = argv.length >= 2 && argv[0]?.includes('node') ? argv.slice(2) : argv
+    const args = normalizeArgv(argv)
 
     if (args[0] === '--version' || args[0] === '-v') {
       console.log(version)
