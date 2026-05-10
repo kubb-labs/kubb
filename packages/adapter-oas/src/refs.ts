@@ -1,6 +1,8 @@
 import { isReference } from './guards.ts'
 import type { Document } from './types.ts'
 
+const refCache = new WeakMap<Document, Map<string, unknown | null>>()
+
 /**
  * Resolves a local JSON pointer reference from a document.
  *
@@ -15,12 +17,19 @@ import type { Document } from './types.ts'
 export function resolveRef<T = unknown>(document: Document, $ref: string): T | null {
   const origRef = $ref
   $ref = $ref.trim()
+  const documentCache = refCache.get(document)
+  if (documentCache?.has($ref)) {
+    return documentCache.get($ref) as T | null
+  }
+
   if ($ref === '') {
+    cacheRef(document, $ref, null)
     return null
   }
   if ($ref.startsWith('#')) {
     $ref = globalThis.decodeURIComponent($ref.substring(1))
   } else {
+    cacheRef(document, $ref, null)
     return null
   }
   const current = $ref
@@ -31,7 +40,14 @@ export function resolveRef<T = unknown>(document: Document, $ref: string): T | n
   if (!current) {
     throw new Error(`Could not find a definition for ${origRef}.`)
   }
+  cacheRef(document, origRef.trim(), current)
   return current as T
+}
+
+function cacheRef(document: Document, $ref: string, value: unknown | null): void {
+  const documentCache = refCache.get(document) ?? new Map<string, unknown | null>()
+  documentCache.set($ref, value)
+  refCache.set(document, documentCache)
 }
 
 /**

@@ -69,6 +69,40 @@ describe('buildAst', () => {
       expect(list?.items?.[0]?.type).toBe('ref')
     })
 
+    it('reuses parsed schemas for repeated refs', async () => {
+      const oas = await parseDocument({
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            Shared: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+              },
+            },
+            Repeated: {
+              type: 'object',
+              properties: {
+                first: { $ref: '#/components/schemas/Shared' },
+                second: { $ref: '#/components/schemas/Shared' },
+              },
+            },
+          },
+        },
+      })
+      const root = parseOas(oas).root
+      const repeated = ast.narrowSchema(
+        root.schemas.find((s) => s.name === 'Repeated'),
+        'object',
+      )
+      const first = ast.narrowSchema(repeated?.properties?.find((p) => p.name === 'first')?.schema, 'ref')
+      const second = ast.narrowSchema(repeated?.properties?.find((p) => p.name === 'second')?.schema, 'ref')
+
+      expect(first?.schema).toBe(second?.schema)
+    })
+
     it('converts enum schema', async () => {
       const oas = await buildMinimalOas()
       const root = parseOas(oas).root

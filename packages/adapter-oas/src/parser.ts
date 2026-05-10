@@ -88,6 +88,7 @@ function createSchemaParser(ctx: OasParserContext) {
    * recursion when schemas contain circular references (e.g. `Pet → parent → Pet`).
    */
   const resolvingRefs = new Set<string>()
+  const parsedRefCache = new Map<string, ast.SchemaNode>()
 
   /**
    * Converts a `$ref` schema into a `RefSchemaNode`.
@@ -101,15 +102,23 @@ function createSchemaParser(ctx: OasParserContext) {
     let resolvedSchema: ast.SchemaNode | undefined
     const refPath = schema.$ref
     if (refPath && !resolvingRefs.has(refPath)) {
-      try {
-        const referenced = resolveRef<SchemaObject>(document, refPath)
-        if (referenced) {
-          resolvingRefs.add(refPath)
-          resolvedSchema = parseSchema({ schema: referenced }, rawOptions)
-          resolvingRefs.delete(refPath)
+      if (parsedRefCache.has(refPath)) {
+        resolvedSchema = parsedRefCache.get(refPath)
+      } else {
+        try {
+          const referenced = resolveRef<SchemaObject>(document, refPath)
+          if (referenced) {
+            resolvingRefs.add(refPath)
+            try {
+              resolvedSchema = parseSchema({ schema: referenced }, rawOptions)
+              parsedRefCache.set(refPath, resolvedSchema)
+            } finally {
+              resolvingRefs.delete(refPath)
+            }
+          }
+        } catch {
+          // Ref cannot be resolved in this document (e.g. unit tests with minimal documents).
         }
-      } catch {
-        // Ref cannot be resolved in this document (e.g. unit tests with minimal documents).
       }
     }
 
