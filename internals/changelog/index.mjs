@@ -49,6 +49,11 @@ function formatDate() {
   return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
+/** Keeps each release line attached to a single package to avoid duplicates in fixed groups. */
+export function getPrimaryPackage(packages) {
+  return Object.entries(packages)[0]
+}
+
 function buildBlock({ version, byPackage, contributors, typeOrder, typeHeaders }) {
   const lines = [`## v${version} — ${formatDate()}`, '']
 
@@ -86,12 +91,14 @@ function aggregate(entries) {
   for (const { packages, line } of entries) {
     for (const c of extractContributors(line)) contributors.add(c)
 
-    for (const [pkg, pkgType] of Object.entries(packages)) {
-      if (!byPackage.has(pkg)) byPackage.set(pkg, new Map())
-      const byType = byPackage.get(pkg)
-      if (!byType.has(pkgType)) byType.set(pkgType, [])
-      byType.get(pkgType).push(line)
-    }
+    const primaryPackage = getPrimaryPackage(packages)
+    if (!primaryPackage) continue
+
+    const [pkg, pkgType] = primaryPackage
+    if (!byPackage.has(pkg)) byPackage.set(pkg, new Map())
+    const byType = byPackage.get(pkg)
+    if (!byType.has(pkgType)) byType.set(pkgType, [])
+    byType.get(pkgType).push(line)
   }
 
   return { byPackage, contributors: [...contributors].sort() }
