@@ -114,41 +114,31 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
     )
 
     // Plugin selection
+    const defaultPlugins = availablePlugins.filter((p) => (initDefaults.plugins as readonly string[]).includes(p.value))
+    const pluginLabel = (plugins: PluginOption[]) => styleText('cyan', plugins.map((p) => p.label).join(', '))
+
     let selectedPlugins: PluginOption[]
     if (pluginsFlag) {
-      const requestedValues = pluginsFlag
-        .split(',')
-        .map((v) => v.trim())
-        .filter(Boolean)
-      selectedPlugins = availablePlugins.filter((plugin) => requestedValues.includes(plugin.value))
+      const requested = pluginsFlag.split(',').map((v) => v.trim()).filter(Boolean)
+      selectedPlugins = availablePlugins.filter((p) => requested.includes(p.value))
       if (selectedPlugins.length === 0) {
-        selectedPlugins = availablePlugins.filter((plugin) => (initDefaults.plugins as readonly string[]).includes(plugin.value))
-        clack.log.warn(
-          `No valid plugins found in --plugins value; falling back to default: ${styleText('cyan', selectedPlugins.map((p) => p.label).join(', '))}`,
-        )
+        selectedPlugins = defaultPlugins
+        clack.log.warn(`No valid plugins found in --plugins value; falling back to default: ${pluginLabel(defaultPlugins)}`)
       } else {
-        clack.log.info(`Using plugins: ${styleText('cyan', selectedPlugins.map((p) => p.label).join(', '))}`)
+        clack.log.info(`Using plugins: ${pluginLabel(selectedPlugins)}`)
       }
     } else if (yes) {
-      selectedPlugins = availablePlugins.filter((plugin) => (initDefaults.plugins as readonly string[]).includes(plugin.value))
-      clack.log.info(`Using plugins: ${styleText('cyan', selectedPlugins.map((p) => p.label).join(', '))}`)
+      selectedPlugins = defaultPlugins
+      clack.log.info(`Using plugins: ${pluginLabel(defaultPlugins)}`)
     } else {
-      const selectedPluginValues = await clack.multiselect({
+      const values = await clack.multiselect({
         message: 'Select plugins to use:',
-        options: availablePlugins.map((plugin) => ({
-          value: plugin.value,
-          label: plugin.label,
-          hint: plugin.hint,
-        })),
+        options: availablePlugins.map(({ value, label, hint }) => ({ value, label, hint })),
         initialValues: [...initDefaults.plugins],
         required: true,
       })
-
-      if (clack.isCancel(selectedPluginValues)) {
-        cancelAndExit()
-      }
-
-      selectedPlugins = availablePlugins.filter((plugin) => (selectedPluginValues as string[]).includes(plugin.value))
+      if (clack.isCancel(values)) cancelAndExit()
+      selectedPlugins = availablePlugins.filter((p) => (values as string[]).includes(p.value))
     }
 
     // Install packages

@@ -43,6 +43,7 @@ type AgentStartOptions = {
  */
 export async function run({ port, host, configPath, allowWrite, allowAll, version }: AgentStartOptions): Promise<void> {
   const hrStart = process.hrtime()
+  const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status }))
 
   try {
     // Load .env file into process.env using Node.js built-in (v20.12.0+)
@@ -102,23 +103,9 @@ export async function run({ port, host, configPath, allowWrite, allowAll, versio
       cwd: process.cwd(),
     })
 
-    await sendTelemetry(
-      buildTelemetryEvent({
-        command: 'agent',
-        kubbVersion: version,
-        hrStart,
-        status: 'success',
-      }),
-    )
+    await report('success')
   } catch (error) {
-    await sendTelemetry(
-      buildTelemetryEvent({
-        command: 'agent',
-        kubbVersion: version,
-        hrStart,
-        status: 'failed',
-      }),
-    )
+    await report('failed')
     clack.log.error(styleText('red', 'Failed to start agent server'))
     clack.log.error(getErrorMessage(error))
     process.exit(1)

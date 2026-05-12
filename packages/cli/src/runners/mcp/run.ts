@@ -42,30 +42,14 @@ export async function run({ version, port, host }: McpOptions): Promise<void> {
 
   const { run: startMcpServer } = mod
   const hrStart = process.hrtime()
+  const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'mcp', kubbVersion: version, hrStart, status }))
   try {
     console.log(styleText('cyan', '⏳ Starting MCP server...'))
     console.warn(styleText('yellow', 'This feature is still under development, use with caution'))
-    await startMcpServer(undefined, {
-      port: port !== undefined ? Number(port) : undefined,
-      host,
-    })
-    await sendTelemetry(
-      buildTelemetryEvent({
-        command: 'mcp',
-        kubbVersion: version,
-        hrStart,
-        status: 'success',
-      }),
-    )
+    await startMcpServer(undefined, { port: port !== undefined ? Number(port) : undefined, host })
+    await report('success')
   } catch (error) {
-    await sendTelemetry(
-      buildTelemetryEvent({
-        command: 'mcp',
-        kubbVersion: version,
-        hrStart,
-        status: 'failed',
-      }),
-    )
+    await report('failed')
     console.error(getErrorMessage(error))
   }
 }

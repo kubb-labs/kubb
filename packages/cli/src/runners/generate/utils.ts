@@ -10,89 +10,61 @@ import type { HookSinkOptions } from '../../loggers/utils.ts'
 import { WATCHER_IGNORED_PATHS } from '../../constants.ts'
 
 type CosmiconfigResult = {
-  /**
-   * Absolute path to the resolved config file.
-   */
   filepath: string
-  /**
-   * `true` when the config file exists but exports no value.
-   */
   isEmpty?: boolean
-  /**
-   * Parsed and validated Kubb config object, or a factory function that returns one.
-   */
   config: PossibleConfig<CLIOptions>
 }
 
 const jiti = createJiti(import.meta.url, {
-  jsx: {
-    runtime: 'automatic',
-    importSource: '@kubb/renderer-jsx',
-  },
+  jsx: { runtime: 'automatic', importSource: '@kubb/renderer-jsx' },
   moduleCache: false,
 })
 
-const tsLoader = async (configFile: string) => {
-  return jiti.import(configFile, { default: true })
-}
+const tsLoader = (configFile: string) => jiti.import(configFile, { default: true })
 
-/**
- * Discovers and loads a Kubb config file using cosmiconfig.
- * Supports `.ts`, `.mts`, and `.cts` via jiti.
- * Pass `config` to load a specific file path, or omit to search from the current directory.
- */
-async function getCosmiConfig(moduleName: string, config?: string): Promise<CosmiconfigResult> {
-  let result: CosmiconfigResult
-  const searchPlaces = [
-    'package.json',
-    `.${moduleName}rc`,
-    `.${moduleName}rc.json`,
-    `.${moduleName}rc.yaml`,
-    `.${moduleName}rc.yml`,
+const MODULE_NAME = 'kubb'
 
-    `.${moduleName}rc.ts`,
-    `.${moduleName}rc.mts`,
-    `.${moduleName}rc.cts`,
-    `.${moduleName}rc.js`,
-    `.${moduleName}rc.mjs`,
-    `.${moduleName}rc.cjs`,
+const BASE_SEARCH_PLACES = [
+  'package.json',
+  `.${MODULE_NAME}rc`,
+  `.${MODULE_NAME}rc.json`,
+  `.${MODULE_NAME}rc.yaml`,
+  `.${MODULE_NAME}rc.yml`,
+  `.${MODULE_NAME}rc.ts`,
+  `.${MODULE_NAME}rc.mts`,
+  `.${MODULE_NAME}rc.cts`,
+  `.${MODULE_NAME}rc.js`,
+  `.${MODULE_NAME}rc.mjs`,
+  `.${MODULE_NAME}rc.cjs`,
+  `${MODULE_NAME}.config.ts`,
+  `${MODULE_NAME}.config.mts`,
+  `${MODULE_NAME}.config.cts`,
+  `${MODULE_NAME}.config.js`,
+  `${MODULE_NAME}.config.mjs`,
+  `${MODULE_NAME}.config.cjs`,
+]
 
-    `${moduleName}.config.ts`,
-    `${moduleName}.config.mts`,
-    `${moduleName}.config.cts`,
-    `${moduleName}.config.js`,
-    `${moduleName}.config.mjs`,
-    `${moduleName}.config.cjs`,
-  ]
-  const explorer = cosmiconfig(moduleName, {
+const SEARCH_PLACES = ['', '.config/', 'configs/'].flatMap((prefix) => BASE_SEARCH_PLACES.map((p) => `${prefix}${p}`))
+
+async function getCosmiConfig(configFile?: string): Promise<CosmiconfigResult> {
+  const explorer = cosmiconfig(MODULE_NAME, {
     cache: false,
-    searchPlaces: [
-      ...searchPlaces.map((searchPlace) => {
-        return `.config/${searchPlace}`
-      }),
-      ...searchPlaces.map((searchPlace) => {
-        return `configs/${searchPlace}`
-      }),
-      ...searchPlaces,
-    ],
-    loaders: {
-      '.ts': tsLoader,
-      '.mts': tsLoader,
-      '.cts': tsLoader,
-    },
+    searchPlaces: SEARCH_PLACES,
+    loaders: { '.ts': tsLoader, '.mts': tsLoader, '.cts': tsLoader },
   })
 
+  let result: CosmiconfigResult
   try {
-    result = config ? ((await explorer.load(config)) as CosmiconfigResult) : ((await explorer.search()) as CosmiconfigResult)
+    result = (configFile ? await explorer.load(configFile) : await explorer.search()) as CosmiconfigResult
   } catch (error) {
     throw new Error('Config failed loading', { cause: error })
   }
 
-  if (result?.isEmpty || !result || !result.config) {
+  if (!result?.config || result.isEmpty) {
     throw new Error('Config not defined, create a kubb.config.js or pass through your config with the option --config')
   }
 
-  return result as CosmiconfigResult
+  return result
 }
 
 type GetConfigsOptions = {
@@ -122,7 +94,7 @@ type GetConfigsResult = {
  * Every config in the result is guaranteed to have a `plugins` array.
  */
 export async function getConfigs({ configPath, input }: GetConfigsOptions): Promise<GetConfigsResult> {
-  const result = await getCosmiConfig('kubb', configPath)
+  const result = await getCosmiConfig(configPath)
   const resolved = await (typeof result.config === 'function' ? result.config({ input } as CLIOptions) : result.config)
   const userConfigs = Array.isArray(resolved) ? resolved : [resolved]
 
@@ -133,35 +105,20 @@ export async function getConfigs({ configPath, input }: GetConfigsOptions): Prom
 }
 
 type ExecuteHooksOptions = {
-  /**
-   * The `hooks` section from the Kubb config containing `done` commands to run.
-   */
   configHooks: NonNullable<Config['hooks']>
-  /**
-   * Event emitter used to broadcast hook lifecycle and log events.
-   */
   hooks: AsyncEventEmitter<KubbHooks>
-  /**
-   * Called once per hook command to build the output sink.
-   * Set up any logger UI (spinner, task log) inside this callback and return the output callbacks.
-   * When omitted, subprocess output is silently discarded.
-   */
   makeSink?: (commandWithArgs: string) => HookSinkOptions | undefined
 }
 
 /**
  * Runs the `done` hooks defined in a Kubb config in sequence.
- * Emits `kubb:hook:start` before each hook and delegates subprocess execution to the optional `makeSink` sink.
  */
 export async function executeHooks({ configHooks, hooks, makeSink }: ExecuteHooksOptions): Promise<void> {
   const commands = Array.isArray(configHooks.done) ? configHooks.done : [configHooks.done].filter(Boolean)
 
   for (const command of commands) {
     const [cmd, ...args] = tokenize(command)
-
-    if (!cmd) {
-      continue
-    }
+    if (!cmd) continue
 
     const hookId = createHash('sha256').update(command).digest('hex')
     const commandWithArgs = [cmd, ...args].join(' ')
@@ -169,15 +126,7 @@ export async function executeHooks({ configHooks, hooks, makeSink }: ExecuteHook
     await hooks.emit('kubb:hook:start', { id: hookId, command: cmd, args })
 
     const { stream = false, onLine, onStdout, onStderr } = makeSink?.(commandWithArgs) ?? {}
-    await runHook({
-      id: hookId,
-      command: cmd,
-      args,
-      commandWithArgs,
-      context: hooks,
-      stream,
-      sink: { onLine, onStdout, onStderr },
-    })
+    await runHook({ id: hookId, command: cmd, args, commandWithArgs, context: hooks, stream, sink: { onLine, onStdout, onStderr } })
   }
 }
 
@@ -191,10 +140,9 @@ type RunHookOptions = {
   sink?: HookSinkOptions
 }
 
-/**
- * Executes a hook command, emits debug and completion events, and forwards output to an optional sink.
- */
 async function runHook({ id, command, args, commandWithArgs, context, stream = false, sink }: RunHookOptions): Promise<void> {
+  const emitEnd = (success: boolean, error: Error | null) => context.emit('kubb:hook:end', { command, args, id, success, error })
+
   try {
     const proc = x(command, [...(args ?? [])], {
       nodeOptions: { detached: process.platform !== 'win32' },
@@ -208,55 +156,28 @@ async function runHook({ id, command, args, commandWithArgs, context, stream = f
     }
 
     const result = await proc
-
-    await context.emit('kubb:debug', {
-      date: new Date(),
-      logs: [result.stdout.trimEnd()],
-    })
-
+    await context.emit('kubb:debug', { date: new Date(), logs: [result.stdout.trimEnd()] })
     await context.emit('kubb:success', { message: `${styleText('dim', commandWithArgs)} successfully executed` })
-
-    await context.emit('kubb:hook:end', {
-      command,
-      args,
-      id,
-      success: true,
-      error: null,
-    })
+    await emitEnd(true, null)
   } catch (err) {
     if (!(err instanceof NonZeroExitError)) {
-      await context.emit('kubb:hook:end', {
-        command,
-        args,
-        id,
-        success: false,
-        error: toError(err),
-      })
-      await context.emit('kubb:error', { error: toError(err) })
+      const error = toError(err)
+      await emitEnd(false, error)
+      await context.emit('kubb:error', { error })
       return
     }
 
     const stderr = err.output?.stderr ?? ''
     const stdout = err.output?.stdout ?? ''
 
-    await context.emit('kubb:debug', {
-      date: new Date(),
-      logs: [stdout, stderr].filter(Boolean),
-    })
+    await context.emit('kubb:debug', { date: new Date(), logs: [stdout, stderr].filter(Boolean) })
 
     if (stderr) sink?.onStderr?.(stderr)
     if (stdout) sink?.onStdout?.(stdout)
 
-    const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
-
-    await context.emit('kubb:hook:end', {
-      command,
-      args,
-      id,
-      success: false,
-      error: errorMessage,
-    })
-    await context.emit('kubb:error', { error: errorMessage })
+    const error = new Error(`Hook execute failed: ${commandWithArgs}`)
+    await emitEnd(false, error)
+    await context.emit('kubb:error', { error })
   }
 }
 
@@ -275,13 +196,10 @@ export async function startWatcher(
   log: WatcherLog = { info: console.log, error: console.log },
 ): Promise<void> {
   const { watch } = await import('chokidar')
-  const watcher = watch(path, {
-    ignorePermissionErrors: true,
-    ignored: WATCHER_IGNORED_PATHS,
-  })
+  const watcher = watch(path, { ignorePermissionErrors: true, ignored: WATCHER_IGNORED_PATHS })
+
   watcher.on('all', async (type, file) => {
     log.info(styleText('yellow', styleText('bold', `Change detected: ${type} ${file}`)))
-
     try {
       await cb(path)
     } catch (_e) {
@@ -289,3 +207,4 @@ export async function startWatcher(
     }
   })
 }
+

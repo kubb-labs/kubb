@@ -35,6 +35,7 @@ export function loadValidateModule(): Promise<ValidateModule> {
  */
 export async function run({ input, version }: ValidateOptions, dependencies: ValidateDependencies = { loadValidateModule }): Promise<void> {
   const hrStart = process.hrtime()
+  const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'validate', kubbVersion: version, hrStart, status }))
   try {
     const { adapterOas } = await dependencies.loadValidateModule()
     const adapter = adapterOas()
@@ -42,25 +43,10 @@ export async function run({ input, version }: ValidateOptions, dependencies: Val
       throw new Error('The loaded adapter does not support validation.')
     }
     await adapter.validate(input, { throwOnError: true })
-
-    await sendTelemetry(
-      buildTelemetryEvent({
-        command: 'validate',
-        kubbVersion: version,
-        hrStart,
-        status: 'success',
-      }),
-    )
+    await report('success')
     console.log('✅ Validation success')
   } catch (error) {
-    await sendTelemetry(
-      buildTelemetryEvent({
-        command: 'validate',
-        kubbVersion: version,
-        hrStart,
-        status: 'failed',
-      }),
-    )
+    await report('failed')
     if (error instanceof Error && /@kubb\/adapter-oas/.test(error.message)) {
       console.error(styleText('red', 'The @kubb/adapter-oas package is not installed.'))
       console.error('')
