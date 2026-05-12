@@ -1,5 +1,37 @@
 # Changelog
 
+## v5.0.0-beta.8 — May 12, 2026
+
+### @kubb/parser-ts
+
+#### Bug Fixes
+
+- Extract utility functions from `parserTs.ts` into a dedicated `utils.ts` module for improved testability. No public API changes. ([`0558297`](https://github.com/kubb-labs/kubb/commit/0558297712facdcd821529d8cdc0dc160b405c90))
+
+### @kubb/renderer-jsx
+
+#### Breaking Changes
+
+- Remove `createRenderer` export from `@kubb/renderer-jsx`. Use `jsxRenderer()` directly to obtain a renderer instance instead.
+  
+  ```ts
+  // Before
+  import { createRenderer } from '@kubb/renderer-jsx'
+  const renderer = createRenderer()
+  
+  // After
+  import { jsxRenderer } from '@kubb/renderer-jsx'
+  const renderer = jsxRenderer()
+  ```
+  
+  `jsxRenderer` is now a plain factory function with no dependency on `@kubb/core`, which resolves the circular package dependency between `@kubb/renderer-jsx` and `@kubb/core`. ([`0558297`](https://github.com/kubb-labs/kubb/commit/0558297712facdcd821529d8cdc0dc160b405c90))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.7 — May 12, 2026
 
 ### @kubb/cli
