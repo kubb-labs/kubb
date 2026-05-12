@@ -171,7 +171,7 @@ type ResolverBuilder<T extends PluginFactoryOptions> = () => Omit<
   Partial<Pick<T['resolver'], 'default' | 'resolveOptions' | 'resolvePath' | 'resolveFile' | 'resolveBanner' | 'resolveFooter'>> & {
     name: string
     pluginName: T['name']
-  }
+  } & ThisType<T['resolver']>
 
 // String patterns are compiled lazily and cached — the same filter is reused for every node.
 const stringPatternCache = new Map<string, RegExp>()
