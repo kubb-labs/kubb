@@ -3,7 +3,7 @@ import { EventEmitter } from 'node:events'
 import fs from 'node:fs'
 import type { PackageManagerInfo } from '@internals/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { hasPackageJson, initPackageJson, installPackages } from './runners/init.ts'
+import { hasPackageJson, initPackageJson, installPackages } from './utils.ts'
 
 vi.mock('node:fs', () => ({
   default: { existsSync: vi.fn() },

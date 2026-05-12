@@ -4,12 +4,41 @@ import { canUseTTY, formatHrtime, isGitHubActions, randomCliColor } from '@inter
 import type { Config, Logger, LoggerContext, LoggerOptions, Plugin } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
-import type { HookSinkOptions } from '../utils.ts'
 import { clackLogger } from './clackLogger.ts'
 import { fileSystemLogger } from './fileSystemLogger.ts'
 import { githubActionsLogger } from './githubActionsLogger.ts'
 import { plainLogger } from './plainLogger.ts'
 import type { LoggerType } from './types.ts'
+
+/**
+ * Output sink for a hook subprocess, controlling how streamed lines and exit output are forwarded.
+ */
+type HookOutputSink = {
+  /**
+   * Called for each streamed stdout line while the hook runs.
+   */
+  onLine?: (line: string) => void
+  /**
+   * Called with stderr content after the hook exits with a non-zero code.
+   */
+  onStderr?: (text: string) => void
+  /**
+   * Called with stdout content after the hook exits with a non-zero code.
+   */
+  onStdout?: (text: string) => void
+}
+
+/**
+ * Output sink combined with stream control for a hook subprocess.
+ */
+export type HookSinkOptions = HookOutputSink & {
+  /**
+   * When `true`, streams process output line-by-line via `onLine`.
+   *
+   * @default false
+   */
+  stream?: boolean
+}
 
 /**
  * Factory called once per hook command to build the output sink and streaming flag.
@@ -21,7 +50,7 @@ export type HookSinkFactory = (commandWithArgs: string) => HookSinkOptions | und
  * Logger variant that may return a {@link HookSinkFactory} from `install`.
  * The factory is forwarded to hook execution so the logger controls subprocess output routing.
  */
-export type CLILogger = Logger<LoggerOptions, HookSinkFactory | void>
+type CLILogger = Logger<LoggerOptions, HookSinkFactory | void>
 
 /**
  * Optionally prefix a message with a [HH:MM:SS] timestamp when logLevel >= verbose.

@@ -2,7 +2,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
 import type * as McpModule from '@kubb/mcp'
-import { buildTelemetryEvent, sendTelemetry } from '../telemetry.ts'
+import { buildTelemetryEvent, sendTelemetry } from '../../telemetry.ts'
 
 type McpOptions = {
   /**
@@ -25,7 +25,7 @@ type McpOptions = {
  * Starts the Kubb MCP server using `@kubb/mcp`.
  * Exits the process with code 1 if `@kubb/mcp` is not installed.
  */
-export async function runMcp({ version, port, host }: McpOptions): Promise<void> {
+export async function run({ version, port, host }: McpOptions): Promise<void> {
   let mod: typeof McpModule
   try {
     mod = (await import('@kubb/mcp')) as typeof McpModule
@@ -40,12 +40,12 @@ export async function runMcp({ version, port, host }: McpOptions): Promise<void>
     process.exit(1)
   }
 
-  const { run } = mod
+  const { run: startMcpServer } = mod
   const hrStart = process.hrtime()
   try {
-    console.log('⏳ Starting MCP server...')
+    console.log(styleText('cyan', '⏳ Starting MCP server...'))
     console.warn(styleText('yellow', 'This feature is still under development, use with caution'))
-    run(undefined, {
+    await startMcpServer(undefined, {
       port: port !== undefined ? Number(port) : undefined,
       host,
     })

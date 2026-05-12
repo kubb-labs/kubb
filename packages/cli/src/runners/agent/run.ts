@@ -1,12 +1,12 @@
-import net from 'node:net'
 import path from 'node:path'
-import * as process from 'node:process'
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { spawnAsync } from '@internals/utils'
-import { agentDefaults } from '../constants.ts'
-import { buildTelemetryEvent, sendTelemetry } from '../telemetry.ts'
+import { spawnAsync, getErrorMessage } from '@internals/utils'
+import { agentDefaults } from '../../constants.ts'
+import { buildTelemetryEvent, sendTelemetry } from '../../telemetry.ts'
+import { isPortAvailable, resolveAgentStartEnvironment } from './utils.ts'
 
 type AgentStartOptions = {
   /**
@@ -37,82 +37,11 @@ type AgentStartOptions = {
   version: string
 }
 
-type ResolvedAgentStartEnvironment = {
-  /**
-   * Final port string after merging CLI flag, `PORT` env var, and the default.
-   */
-  port: string
-  /**
-   * Final hostname after merging CLI flag, `HOST` env var, and the default.
-   */
-  host: string
-  /**
-   * Effective write-permission flag, accounting for `allowAll` and `KUBB_AGENT_ALLOW_WRITE`.
-   */
-  allowWrite: boolean
-  /**
-   * Effective all-permissions flag, accounting for `KUBB_AGENT_ALLOW_ALL`.
-   */
-  allowAll: boolean
-  /**
-   * Absolute path to the Kubb config file passed to the agent subprocess.
-   */
-  agentConfigPath: string
-  /**
-   * Merged `process.env` object with all resolved agent environment variables applied.
-   */
-  env: NodeJS.ProcessEnv
-}
-
-/**
- * Resolves the environment passed to the detached agent process using CLI values first, then environment values, then CLI defaults.
- */
-function resolveAgentStartEnvironment({ port, host, configPath, allowWrite, allowAll }: Omit<AgentStartOptions, 'version'>): ResolvedAgentStartEnvironment {
-  const resolvedPort = port ?? process.env.PORT ?? agentDefaults.port
-  const resolvedHost = host !== agentDefaults.host ? host : (process.env.HOST ?? agentDefaults.host)
-  const resolvedAllowAll = allowAll || process.env.KUBB_AGENT_ALLOW_ALL === 'true'
-  const resolvedAllowWrite = resolvedAllowAll || allowWrite || process.env.KUBB_AGENT_ALLOW_WRITE === 'true'
-  const agentRoot = process.env.KUBB_AGENT_ROOT ?? process.cwd()
-  const agentConfigPath = path.resolve(process.cwd(), configPath || process.env.KUBB_AGENT_CONFIG || agentDefaults.configFile)
-
-  return {
-    port: resolvedPort,
-    host: resolvedHost,
-    allowWrite: resolvedAllowWrite,
-    allowAll: resolvedAllowAll,
-    agentConfigPath,
-    env: {
-      ...process.env,
-      PORT: resolvedPort,
-      HOST: resolvedHost,
-      KUBB_AGENT_ROOT: agentRoot,
-      KUBB_AGENT_CONFIG: agentConfigPath,
-      KUBB_AGENT_ALLOW_WRITE: String(resolvedAllowWrite),
-      KUBB_AGENT_ALLOW_ALL: String(resolvedAllowAll),
-      KUBB_AGENT_TOKEN: process.env.KUBB_AGENT_TOKEN,
-      KUBB_AGENT_RETRY_TIMEOUT: process.env.KUBB_AGENT_RETRY_TIMEOUT ?? agentDefaults.retryTimeout,
-      KUBB_STUDIO_URL: process.env.KUBB_STUDIO_URL ?? agentDefaults.studioUrl,
-    },
-  }
-}
-
-function isPortAvailable(port: number, host: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    const server = net.createServer()
-    server.once('error', () => resolve(false))
-    server.once('listening', () => {
-      server.close()
-      resolve(true)
-    })
-    server.listen(port, host)
-  })
-}
-
 /**
  * Spawns the Kubb Agent HTTP server as a Node.js subprocess.
  * Resolves config from CLI flags and environment variables, validates the port, and exits with code 1 on failure.
  */
-export async function runAgentStart({ port, host, configPath, allowWrite, allowAll, version }: AgentStartOptions): Promise<void> {
+export async function run({ port, host, configPath, allowWrite, allowAll, version }: AgentStartOptions): Promise<void> {
   const hrStart = process.hrtime()
 
   try {
@@ -191,7 +120,7 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
       }),
     )
     clack.log.error(styleText('red', 'Failed to start agent server'))
-    console.error(error)
+    clack.log.error(getErrorMessage(error))
     process.exit(1)
   }
 }

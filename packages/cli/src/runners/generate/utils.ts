@@ -6,7 +6,8 @@ import type { CLIOptions, Config, KubbHooks, PossibleConfig } from '@kubb/core'
 import { cosmiconfig } from 'cosmiconfig'
 import { createJiti } from 'jiti'
 import { NonZeroExitError, x } from 'tinyexec'
-import { WATCHER_IGNORED_PATHS } from './constants.ts'
+import type { HookSinkOptions } from '../../loggers/utils.ts'
+import { WATCHER_IGNORED_PATHS } from '../../constants.ts'
 
 type CosmiconfigResult = {
   /**
@@ -131,36 +132,6 @@ export async function getConfigs({ configPath, input }: GetConfigsOptions): Prom
   }
 }
 
-/**
- * Output sink for a hook subprocess, controlling how streamed lines and exit output are forwarded.
- */
-export type HookOutputSink = {
-  /**
-   * Called for each streamed stdout line while the hook runs.
-   */
-  onLine?: (line: string) => void
-  /**
-   * Called with stderr content after the hook exits with a non-zero code.
-   */
-  onStderr?: (text: string) => void
-  /**
-   * Called with stdout content after the hook exits with a non-zero code.
-   */
-  onStdout?: (text: string) => void
-}
-
-/**
- * Output sink combined with stream control for a hook subprocess.
- */
-export type HookSinkOptions = HookOutputSink & {
-  /**
-   * When `true`, streams process output line-by-line via `onLine`.
-   *
-   * @default false
-   */
-  stream?: boolean
-}
-
 type ExecuteHooksOptions = {
   /**
    * The `hooks` section from the Kubb config containing `done` commands to run.
@@ -217,7 +188,7 @@ type RunHookOptions = {
   commandWithArgs: string
   context: AsyncEventEmitter<KubbHooks>
   stream?: boolean
-  sink?: HookOutputSink
+  sink?: HookSinkOptions
 }
 
 /**
@@ -289,23 +260,32 @@ async function runHook({ id, command, args, commandWithArgs, context, stream = f
   }
 }
 
+type WatcherLog = {
+  info: (message: string) => void
+  error: (message: string) => void
+}
+
 /**
  * Starts a file watcher on the given paths and calls `cb` on any change.
  * Ignores `.git` and `node_modules` directories.
  */
-export async function startWatcher(path: string[], cb: (path: string[]) => Promise<void>): Promise<void> {
+export async function startWatcher(
+  path: string[],
+  cb: (path: string[]) => Promise<void>,
+  log: WatcherLog = { info: console.log, error: console.log },
+): Promise<void> {
   const { watch } = await import('chokidar')
   const watcher = watch(path, {
     ignorePermissionErrors: true,
     ignored: WATCHER_IGNORED_PATHS,
   })
   watcher.on('all', async (type, file) => {
-    console.log(styleText('yellow', styleText('bold', `Change detected: ${type} ${file}`)))
+    log.info(styleText('yellow', styleText('bold', `Change detected: ${type} ${file}`)))
 
     try {
       await cb(path)
     } catch (_e) {
-      console.log(styleText('red', 'Watcher failed'))
+      log.error(styleText('red', 'Watcher failed'))
     }
   })
 }

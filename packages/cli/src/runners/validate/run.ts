@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
-import { buildTelemetryEvent, sendTelemetry } from '../telemetry.ts'
+import { buildTelemetryEvent, sendTelemetry } from '../../telemetry.ts'
 
 type ValidateOptions = {
   /**
@@ -33,12 +33,15 @@ export function loadValidateModule(): Promise<ValidateModule> {
  * Validates an OpenAPI/Swagger file at `input` using `@kubb/adapter-oas`.
  * Exits the process with code 1 on validation failure or missing dependency.
  */
-export async function runValidate({ input, version }: ValidateOptions, dependencies: ValidateDependencies = { loadValidateModule }): Promise<void> {
+export async function run({ input, version }: ValidateOptions, dependencies: ValidateDependencies = { loadValidateModule }): Promise<void> {
   const hrStart = process.hrtime()
   try {
     const { adapterOas } = await dependencies.loadValidateModule()
     const adapter = adapterOas()
-    await adapter.validate!(input, { throwOnError: true })
+    if (!adapter.validate) {
+      throw new Error('The loaded adapter does not support validation.')
+    }
+    await adapter.validate(input, { throwOnError: true })
 
     await sendTelemetry(
       buildTelemetryEvent({

@@ -25,9 +25,9 @@ export const command = defineCommand({
     },
   },
   async run({ values }) {
-    const { runMcp } = await import('../runners/mcp.ts')
+    const { run } = await import('../runners/mcp/run.ts')
 
-    await runMcp({
+    await run({
       version,
       port: values.port,
       host: values.host,

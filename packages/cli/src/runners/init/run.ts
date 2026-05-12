@@ -3,41 +3,13 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import type { PackageManagerInfo, PackageManagerName } from '@internals/utils'
-import { detectPackageManager, spawnAsync } from '@internals/utils'
+import { detectPackageManager } from '@internals/utils'
 import { availablePlugins, generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, type PluginOption } from '@internals/shared'
+import { hasPackageJson, initPackageJson, installPackages } from './utils.ts'
 
 function cancelAndExit(message = 'Operation cancelled.'): never {
   clack.cancel(message)
   process.exit(0)
-}
-
-/**
- * Returns `true` when a `package.json` exists at `cwd`.
- */
-export function hasPackageJson(cwd: string = process.cwd()): boolean {
-  return fs.existsSync(path.join(cwd, 'package.json'))
-}
-
-/**
- * Initializes a new `package.json` at `cwd` using the detected package manager.
- */
-export async function initPackageJson(cwd: string, packageManager: PackageManagerInfo): Promise<void> {
-  const commands: Record<PackageManagerName, string[]> = {
-    npm: ['init', '-y'],
-    pnpm: ['init'],
-    yarn: ['init', '-y'],
-    bun: ['init', '-y'],
-  }
-
-  await spawnAsync(packageManager.name, commands[packageManager.name], { cwd })
-}
-
-/**
- * Installs the given packages at `cwd` using the detected package manager.
- */
-export async function installPackages(packages: string[], packageManager: PackageManagerInfo, cwd: string = process.cwd()): Promise<void> {
-  await spawnAsync(packageManager.name, [...packageManager.installCommand, ...packages], { cwd })
 }
 
 type InitOptions = {
@@ -68,14 +40,31 @@ type InitOptions = {
  * Detects the package manager, prompts for input/output paths and plugins, installs packages, and writes `kubb.config.ts`.
  * Pass `yes: true` to skip all prompts and use defaults.
  */
-export async function runInit({ yes, version, input: inputFlag, output: outputFlag, plugins: pluginsFlag }: InitOptions): Promise<void> {
+export async function run({ yes, version, input: inputFlag, output: outputFlag, plugins: pluginsFlag }: InitOptions): Promise<void> {
   const cwd = process.cwd()
 
   clack.intro(styleText('bgCyan', styleText('black', ' Kubb Init ')))
 
+  /**
+   * Returns `flag` when provided, the `defaultValue` when `yes` is set,
+   * or calls `prompt()` for interactive input. Exits on cancellation.
+   */
+  async function resolveOrPrompt<T>(flag: T | undefined, defaultValue: T, logLabel: string, prompt: () => Promise<T | symbol>): Promise<T> {
+    if (flag !== undefined) {
+      clack.log.info(`${logLabel}: ${styleText('cyan', String(flag))}`)
+      return flag
+    }
+    if (yes) {
+      clack.log.info(`${logLabel}: ${styleText('cyan', String(defaultValue))}`)
+      return defaultValue
+    }
+    const result = await prompt()
+    if (clack.isCancel(result)) cancelAndExit()
+    return result as T
+  }
+
   try {
-    // Check/create package.json
-    let packageManager: PackageManagerInfo
+    // Check/create package.json — detect package manager once after the block
     if (!hasPackageJson(cwd)) {
       if (!yes) {
         const shouldInit = await clack.confirm({
@@ -88,66 +77,41 @@ export async function runInit({ yes, version, input: inputFlag, output: outputFl
         }
       }
 
-      packageManager = detectPackageManager(cwd)
-
+      const packageManager = detectPackageManager(cwd)
       const spinner = clack.spinner()
       spinner.start(`Initializing package.json with ${packageManager.name}`)
-
       await initPackageJson(cwd, packageManager)
-
       spinner.stop(`Created package.json with ${packageManager.name}`)
-    } else {
-      packageManager = detectPackageManager(cwd)
+    }
+
+    const packageManager = detectPackageManager(cwd)
+    if (hasPackageJson(cwd)) {
       clack.log.info(`Detected package manager: ${styleText('cyan', packageManager.name)}`)
     }
 
     // Prompt for OpenAPI spec path
-    let inputPath: string
-    if (inputFlag) {
-      inputPath = inputFlag
-      clack.log.info(`Using input path: ${styleText('cyan', inputPath)}`)
-    } else if (yes) {
-      inputPath = initDefaults.inputPath
-      clack.log.info(`Using input path: ${styleText('cyan', inputPath)}`)
-    } else {
-      const inputPathResult = await clack.text({
+    const inputPath = await resolveOrPrompt(inputFlag, initDefaults.inputPath, 'Using input path', () =>
+      clack.text({
         message: 'Where is your OpenAPI specification located?',
         placeholder: initDefaults.inputPath,
         defaultValue: initDefaults.inputPath,
         validate: (value) => {
           if (!value) return 'Input path is required'
         },
-      })
-
-      if (clack.isCancel(inputPathResult)) {
-        cancelAndExit()
-      }
-      inputPath = inputPathResult as string
-    }
+      }),
+    )
 
     // Prompt for output directory
-    let outputPath: string
-    if (outputFlag) {
-      outputPath = outputFlag
-      clack.log.info(`Using output path: ${styleText('cyan', outputPath)}`)
-    } else if (yes) {
-      outputPath = initDefaults.outputPath
-      clack.log.info(`Using output path: ${styleText('cyan', outputPath)}`)
-    } else {
-      const outputPathResult = await clack.text({
+    const outputPath = await resolveOrPrompt(outputFlag, initDefaults.outputPath, 'Using output path', () =>
+      clack.text({
         message: 'Where should the generated files be output?',
         placeholder: initDefaults.outputPath,
         defaultValue: initDefaults.outputPath,
         validate: (value) => {
           if (!value) return 'Output path is required'
         },
-      })
-
-      if (clack.isCancel(outputPathResult)) {
-        cancelAndExit()
-      }
-      outputPath = outputPathResult as string
-    }
+      }),
+    )
 
     // Plugin selection
     let selectedPlugins: PluginOption[]
@@ -225,7 +189,7 @@ export async function runInit({ yes, version, input: inputFlag, output: outputFl
       configSpinner.start(`Overwriting ${KUBB_CONFIG_FILENAME}`)
     }
 
-    fs.writeFileSync(configPath, configContent, 'utf-8')
+    await fs.promises.writeFile(configPath, configContent, 'utf-8')
 
     configSpinner.stop(`Created ${KUBB_CONFIG_FILENAME}`)
 
@@ -238,7 +202,7 @@ export async function runInit({ yes, version, input: inputFlag, output: outputFl
         '\n' +
         styleText('cyan', '  2. Generate code with: npx kubb generate') +
         '\n' +
-        styleText('cyan', '     Or start a stream server with: npx kubb start') +
+        styleText('cyan', '     Or start a stream server with: npx kubb agent start') +
         '\n' +
         styleText('cyan', `  3. Find generated files in: ${outputPath}`) +
         '\n\n' +

@@ -6,12 +6,11 @@ import * as clack from '@clack/prompts'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { AsyncEventEmitter as AsyncEventEmitterClass, detectFormatter, detectLinter, executeIfOnline, formatters, linters, toError } from '@internals/utils'
 import { type Config, createKubb, isInputPath, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { version } from '../../package.json'
-import { KUBB_NPM_PACKAGE_URL } from '../constants.ts'
-import { setupLogger } from '../loggers/utils.ts'
-import type { HookSinkFactory } from '../loggers/utils.ts'
-import { buildTelemetryEvent, sendTelemetry } from '../telemetry.ts'
-import { executeHooks, getConfigs, startWatcher } from '../utils.ts'
+import { version } from '../../../package.json'
+import { KUBB_NPM_PACKAGE_URL } from '../../constants.ts'
+import { setupLogger, type HookSinkFactory } from '../../loggers/utils.ts'
+import { buildTelemetryEvent, sendTelemetry } from '../../telemetry.ts'
+import { executeHooks, getConfigs, startWatcher } from './utils.ts'
 
 type GenerateProps = {
   /**
@@ -205,6 +204,11 @@ async function generate(options: GenerateProps): Promise<void> {
 
   await hooks.emit('kubb:info', { message: 'Load summary' })
 
+  const telemetryPlugins = Array.from(driver.plugins.values(), (p) => ({
+    name: p.name,
+    options: p.options as Record<string, unknown>,
+  }))
+
   // Handle build failures (either from failed plugins or general errors)
 
   const hasFailures = failedPlugins.size > 0 || error
@@ -236,10 +240,7 @@ async function generate(options: GenerateProps): Promise<void> {
       buildTelemetryEvent({
         command: 'generate',
         kubbVersion: version,
-        plugins: Array.from(driver.plugins.values(), (p) => ({
-          name: p.name,
-          options: p.options as Record<string, unknown>,
-        })),
+        plugins: telemetryPlugins,
         hrStart,
         filesCreated: files.length,
         status: 'failed',
@@ -254,38 +255,31 @@ async function generate(options: GenerateProps): Promise<void> {
 
   const outputPath = path.resolve(config.root, config.output.path)
 
-  if (config.output.format) {
-    await runToolPass({
+  const toolPasses = [
+    config.output.format && {
       toolValue: config.output.format,
       detect: detectFormatter,
       toolMap: formatters,
       toolLabel: 'formatter',
       successPrefix: 'Formatting',
       noToolMessage: 'No formatter found (oxfmt, biome, or prettier). Skipping formatting.',
-      configName: config.name,
-      outputPath,
-      logLevel,
-      hooks,
       onStart: () => hooks.emit('kubb:format:start'),
       onEnd: () => hooks.emit('kubb:format:end'),
-    })
-  }
-
-  if (config.output.lint) {
-    await runToolPass({
+    },
+    config.output.lint && {
       toolValue: config.output.lint,
       detect: detectLinter,
       toolMap: linters,
       toolLabel: 'linter',
       successPrefix: 'Linting',
       noToolMessage: 'No linter found (oxlint, biome, or eslint). Skipping linting.',
-      configName: config.name,
-      outputPath,
-      logLevel,
-      hooks,
       onStart: () => hooks.emit('kubb:lint:start'),
       onEnd: () => hooks.emit('kubb:lint:end'),
-    })
+    },
+  ].filter(Boolean) as Omit<RunToolPassOptions, 'configName' | 'outputPath' | 'logLevel' | 'hooks'>[]
+
+  for (const pass of toolPasses) {
+    await runToolPass({ ...pass, configName: config.name, outputPath, logLevel, hooks })
   }
 
   if (config.hooks) {
@@ -305,19 +299,16 @@ async function generate(options: GenerateProps): Promise<void> {
     pluginTimings,
   })
 
-  const telemetryEvent = buildTelemetryEvent({
-    command: 'generate',
-    kubbVersion: version,
-    plugins: Array.from(driver.plugins.values(), (p) => ({
-      name: p.name,
-      options: p.options as Record<string, unknown>,
-    })),
-    hrStart,
-    filesCreated: files.length,
-    status: 'success',
-  })
-
-  await sendTelemetry(telemetryEvent)
+  await sendTelemetry(
+    buildTelemetryEvent({
+      command: 'generate',
+      kubbVersion: version,
+      plugins: telemetryPlugins,
+      hrStart,
+      filesCreated: files.length,
+      status: 'success',
+    }),
+  )
 }
 
 type GenerateCommandOptions = {
@@ -343,7 +334,7 @@ type GenerateCommandOptions = {
  * Runs the full Kubb generation lifecycle for the given CLI options.
  * Sets up the logger, checks for a newer version, loads configs, and calls `generate` for each config entry.
  */
-export async function runGenerateCommand({ input, configPath, logLevel: logLevelKey, watch }: GenerateCommandOptions): Promise<void> {
+export async function run({ input, configPath, logLevel: logLevelKey, watch }: GenerateCommandOptions): Promise<void> {
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const hooks = new AsyncEventEmitterClass<KubbHooks>()
 
@@ -375,14 +366,21 @@ export async function runGenerateCommand({ input, configPath, logLevel: logLevel
 
     for (const config of configs) {
       if (isInputPath(config) && watch) {
-        await startWatcher([input || config.input.path], async (paths) => {
-          // remove to avoid duplicate listeners after each change
-          hooks.removeAll()
+        await startWatcher(
+          [input || config.input.path],
+          async (paths) => {
+            // remove to avoid duplicate listeners after each change
+            hooks.removeAll()
 
-          await generate({ input, config, logLevel, hooks, makeSink })
+            await generate({ input, config, logLevel, hooks, makeSink })
 
-          clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
-        })
+            clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
+          },
+          {
+            info: (msg) => clack.log.info(msg),
+            error: (msg) => clack.log.error(msg),
+          },
+        )
       } else {
         await generate({ input, config, logLevel, hooks, makeSink })
       }
