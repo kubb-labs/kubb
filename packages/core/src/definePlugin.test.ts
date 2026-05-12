@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { definePlugin } from './definePlugin.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import type { Config, GeneratorContext, KubbHooks, KubbPluginSetupContext, Plugin, PluginFactoryOptions } from './types.ts'
-import {fsStorage} from "./storages/fsStorage.ts";
+import { fsStorage } from './storages/fsStorage.ts'
 
 type TestPluginOptions = PluginFactoryOptions<string, { tag: string }>
 type TestPluginOptionalOptions = PluginFactoryOptions<string, { tag?: string }>
@@ -52,7 +52,6 @@ describe('definePlugin', () => {
     const plugin = factory()
     expect(plugin.options).toEqual({})
   })
-
 })
 
 describe('PluginDriver — hook-style plugin registration', () => {

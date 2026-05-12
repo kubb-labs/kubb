@@ -102,10 +102,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
     const userConfig = config as Config
 
-    const kubb = createKubb(
-      userConfig,
-      { hooks },
-    )
+    const kubb = createKubb(userConfig, { hooks })
     await kubb.setup()
 
     const resolvedConfig = kubb.config ?? userConfig

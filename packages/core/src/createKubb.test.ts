@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
-import {fsStorage} from "./storages/fsStorage.ts";
+import { fsStorage } from './storages/fsStorage.ts'
 
 describe('createKubb', () => {
   const pluginMocks = {
