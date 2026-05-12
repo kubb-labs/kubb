@@ -18,8 +18,6 @@
 
 #### Bug Fixes
 
-- Align unplugin generation defaults with the main Kubb config flow and declare the middleware barrel AST runtime dependency. ([`2bf409c`](https://github.com/kubb-labs/kubb/commit/2bf409c5f47cb3db8e9d2d8a77d8166125f074c1))
-
 ### Contributors
 
 Thanks to everyone who contributed to this release:
