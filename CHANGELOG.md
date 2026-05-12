@@ -1,5 +1,31 @@
 # Changelog
 
+## v5.0.0-beta.7 — May 12, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Refactor CLI runners into per-command folders (`runners/generate/`, `runners/validate/`, `runners/agent/`, `runners/init/`, `runners/mcp/`), each with a dedicated `run.ts` and `utils.ts`. Fixes `import.meta.resolve` build warning in CJS output and corrects a faulty path-traversal guard in `hasPackageJson` that caused CI test failures. ([#3268](https://github.com/kubb-labs/kubb/pull/3268), [`5030b03`](https://github.com/kubb-labs/kubb/commit/5030b030f68cc6a56987ef2ff2a2bcbb295bebd6))
+
+### @kubb/middleware-barrel
+
+#### Bug Fixes
+
+- Align unplugin generation defaults with the main Kubb config flow and declare the middleware barrel AST runtime dependency. ([`2bf409c`](https://github.com/kubb-labs/kubb/commit/2bf409c5f47cb3db8e9d2d8a77d8166125f074c1))
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- Align unplugin generation defaults with the main Kubb config flow and declare the middleware barrel AST runtime dependency. ([`2bf409c`](https://github.com/kubb-labs/kubb/commit/2bf409c5f47cb3db8e9d2d8a77d8166125f074c1))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.6 — May 9, 2026
 
 ### @kubb/adapter-oas
