@@ -11,7 +11,7 @@ catalogs:
       version: 12.1.0
     '@types/node':
       specifier: ^22.19.19
-      version: 22.19.18
+      version: 22.19.19
     '@types/react':
       specifier: ^19.2.14
       version: 19.2.14
@@ -118,13 +118,13 @@ importers:
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
-        version: 22.19.18
+        version: 22.19.19
 
   internals/utils:
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
-        version: 22.19.18
+        version: 22.19.19
 
   packages/adapter-oas:
     dependencies:
@@ -216,7 +216,7 @@ importers:
         version: link:../../internals/utils
       '@types/node':
         specifier: 'catalog:'
-        version: 22.19.18
+        version: 22.19.19
 
   packages/cli:
     dependencies:
@@ -2274,9 +2274,6 @@ packages:
 
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
-
-  '@types/node@22.19.18':
-    resolution: {integrity: sha512-9v00a+dn2yWVsYDEunWC4g/TcRKVq3r8N5FuZp7u0SGrPvdN9c2yXI9bBuf5Fl0hNCb+QTIePTn5pJs2pwBOQQ==}
 
   '@types/node@22.19.19':
     resolution: {integrity: sha512-dyh/xO2Fh5bYrfWaaqGrRQQGkNdmYw6AmaAUvYeUMNTWQtvb796ikLdmTchRmOlOiIJ1TDXfWgVx1QkUlQ6Hew==}
@@ -7141,10 +7138,6 @@ snapshots:
   '@types/json-schema@7.0.15': {}
 
   '@types/node@12.20.55': {}
-
-  '@types/node@22.19.18':
-    dependencies:
-      undici-types: 6.21.0
 
   '@types/node@22.19.19':
     dependencies:
