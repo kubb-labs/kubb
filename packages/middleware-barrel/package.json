@@ -52,6 +52,9 @@
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
+  "dependencies": {
+    "@kubb/ast": "workspace:*"
+  },
   "devDependencies": {
     "@internals/utils": "workspace:*"
   },
