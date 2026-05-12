@@ -8,7 +8,13 @@ import { spawnAsync } from '@internals/utils'
  * Returns `true` when a `package.json` exists at `cwd`.
  */
 export function hasPackageJson(cwd: string = process.cwd()): boolean {
-  return fs.existsSync(path.join(cwd, 'package.json'))
+  const base = path.resolve(process.cwd())
+  const target = path.resolve(base, cwd)
+  const relative = path.relative(base, target)
+  if (relative.startsWith('..') || path.isAbsolute(relative)) {
+    throw new Error('Invalid path')
+  }
+  return fs.existsSync(path.join(target, 'package.json'))
 }
 
 /**
