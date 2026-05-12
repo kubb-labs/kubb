@@ -169,13 +169,13 @@ On startup the agent performs these steps before opening a WebSocket:
 
 ### Connection features
 
-| Feature | Description |
-| ------- | ----------- |
-| Automatic reconnection | Caches session tokens to speed up reconnects |
-| Real-time events | Streams generation progress and events |
-| Command handling | Receives `generate` and `connect` commands from Studio |
-| Graceful shutdown | Notifies Studio when disconnecting |
-| Session management | 24-hour session expiration with auto-refresh; Studio re-validates every incoming message and disconnects if the session is revoked or expired |
+| Feature                | Description                                                                                                                                   |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Automatic reconnection | Caches session tokens to speed up reconnects                                                                                                  |
+| Real-time events       | Streams generation progress and events                                                                                                        |
+| Command handling       | Receives `generate` and `connect` commands from Studio                                                                                        |
+| Graceful shutdown      | Notifies Studio when disconnecting                                                                                                            |
+| Session management     | 24-hour session expiration with auto-refresh; Studio re-validates every incoming message and disconnects if the session is revoked or expired |
 
 ### Session Caching
 

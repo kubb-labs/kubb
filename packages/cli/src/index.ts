@@ -20,7 +20,7 @@ function shouldShowTelemetryNotice(argv: Array<string>): boolean {
   if (!process.stdout.isTTY) {
     return false
   }
-  
+
   return true
 }
 

@@ -131,7 +131,6 @@ export async function getConfigs({ configPath, input }: GetConfigsOptions): Prom
   }
 }
 
-
 type ExecutingHooksProps = {
   /**
    * The `hooks` section from the Kubb config containing `done` commands to run.
@@ -181,7 +180,6 @@ export async function executeHooks({ configHooks, hooks }: ExecutingHooksProps):
     await hookEndPromise
   }
 }
-
 
 type HookOutputSink = {
   /**
@@ -298,7 +296,6 @@ export async function runHook({ id, command, args, commandWithArgs, context, str
   }
 }
 
-
 /**
  * Starts a file watcher on the given paths and calls `cb` on any change.
  * Ignores `.git` and `node_modules` directories.
@@ -319,4 +316,3 @@ export async function startWatcher(path: string[], cb: (path: string[]) => Promi
     }
   })
 }
-

@@ -3,7 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import type { PackageManagerInfo, PackageManagerName  } from '@internals/utils'
+import type { PackageManagerInfo, PackageManagerName } from '@internals/utils'
 import { detectPackageManager, spawnAsync } from '@internals/utils'
 import { availablePlugins, generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, type PluginOption } from '@internals/shared'
 
@@ -11,7 +11,6 @@ function cancelAndExit(message = 'Operation cancelled.'): never {
   clack.cancel(message)
   process.exit(0)
 }
-
 
 /**
  * Returns `true` when a `package.json` exists at `cwd`.
@@ -40,7 +39,6 @@ export async function initPackageJson(cwd: string, packageManager: PackageManage
 export async function installPackages(packages: string[], packageManager: PackageManagerInfo, cwd: string = process.cwd()): Promise<void> {
   await spawnAsync(packageManager.name, [...packageManager.installCommand, ...packages], { cwd })
 }
-
 
 type InitOptions = {
   /**

@@ -44,14 +44,12 @@ const renderer = createRenderer()
 await renderer.render(
   <File baseName="petStore.ts" path="src/gen/petStore.ts">
     <File.Source>
-      <Type name="Pet">
-        {'{ id: number; name: string }'}
-      </Type>
+      <Type name="Pet">{'{ id: number; name: string }'}</Type>
       <Function name="getPet" async>
-        {'return fetch(\'/pets\')'}
+        {"return fetch('/pets')"}
       </Function>
     </File.Source>
-  </File>
+  </File>,
 )
 
 const files = renderer.files
@@ -60,15 +58,15 @@ renderer.unmount()
 
 ## Built-in Components
 
-| Component | Description |
-| --------- | ----------- |
-| `<File>`  | Declares a generated output file with its path and optional imports/exports |
-| `<File.Source>` | The source content block inside a `<File>` |
-| `<Function>` | Generates a TypeScript function declaration |
-| `<Type>` | Generates a TypeScript type alias |
-| `<Const>` | Generates a `const` variable declaration |
-| `<Jsx>` | Renders JSX expressions inside generated output |
-| `<Root>` | Root container for the renderer tree |
+| Component       | Description                                                                 |
+| --------------- | --------------------------------------------------------------------------- |
+| `<File>`        | Declares a generated output file with its path and optional imports/exports |
+| `<File.Source>` | The source content block inside a `<File>`                                  |
+| `<Function>`    | Generates a TypeScript function declaration                                 |
+| `<Type>`        | Generates a TypeScript type alias                                           |
+| `<Const>`       | Generates a `const` variable declaration                                    |
+| `<Jsx>`         | Renders JSX expressions inside generated output                             |
+| `<Root>`        | Root container for the renderer tree                                        |
 
 ## API
 

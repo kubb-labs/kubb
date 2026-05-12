@@ -7,15 +7,14 @@ import { defineLogger, logLevel as logLevelMap } from '@kubb/core'
 import { getSummary } from './utils.ts'
 import { runHook } from '../utils.ts'
 import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils.ts'
-import {Writable} from "node:stream";
+import { Writable } from 'node:stream'
 import type { WritableOptions } from 'node:stream'
-
 
 /**
  * Node.js `Writable` stream that forwards each chunk to a clack `taskLog` message.
  * Used to pipe hook subprocess output into the clack task log UI.
  */
- class ClackWritable extends Writable {
+class ClackWritable extends Writable {
   taskLog: ReturnType<typeof clack.taskLog>
   constructor(taskLog: ReturnType<typeof clack.taskLog>, opts?: WritableOptions) {
     super(opts)
@@ -27,7 +26,6 @@ import type { WritableOptions } from 'node:stream'
     callback()
   }
 }
-
 
 /**
  * TTY logger with beautiful UI and progress indicators for local development.
