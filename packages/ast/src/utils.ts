@@ -139,14 +139,14 @@ export type OperationParamsResolver = {
    * @example Individual path parameter name
    * `resolver.resolveParamName(node, param) // → 'DeletePetPathPetId'`
    */
-  resolveParamName(node: OperationNode, param: ParameterNode): string
+  resolveParamName(this: OperationParamsResolver, node: OperationNode, param: ParameterNode): string
   /**
    * Resolves the request body type name.
    *
    * @example Request body type name
    * `resolver.resolveDataName(node) // → 'CreatePetData'`
    */
-  resolveDataName(node: OperationNode): string
+  resolveDataName(this: OperationParamsResolver, node: OperationNode): string
   /**
    * Resolves the grouped path parameters type name.
    * When the return value equals `resolveParamName`, no indexed access is emitted.
@@ -154,7 +154,7 @@ export type OperationParamsResolver = {
    * @example Grouped path params type name
    * `resolver.resolvePathParamsName(node, param) // → 'DeletePetPathParams'`
    */
-  resolvePathParamsName(node: OperationNode, param: ParameterNode): string
+  resolvePathParamsName(this: OperationParamsResolver, node: OperationNode, param: ParameterNode): string
   /**
    * Resolves the grouped query parameters type name.
    * When the return value equals `resolveParamName`, an inline struct type is emitted instead.
@@ -162,7 +162,7 @@ export type OperationParamsResolver = {
    * @example Grouped query params type name
    * `resolver.resolveQueryParamsName(node, param) // → 'FindPetsByStatusQueryParams'`
    */
-  resolveQueryParamsName(node: OperationNode, param: ParameterNode): string
+  resolveQueryParamsName(this: OperationParamsResolver, node: OperationNode, param: ParameterNode): string
   /**
    * Resolves the grouped header parameters type name.
    * When the return value equals `resolveParamName`, an inline struct type is emitted instead.
@@ -170,7 +170,7 @@ export type OperationParamsResolver = {
    * @example Grouped header params type name
    * `resolver.resolveHeaderParamsName(node, param) // → 'DeletePetHeaderParams'`
    */
-  resolveHeaderParamsName(node: OperationNode, param: ParameterNode): string
+  resolveHeaderParamsName(this: OperationParamsResolver, node: OperationNode, param: ParameterNode): string
 }
 
 /**
