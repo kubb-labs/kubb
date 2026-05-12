@@ -151,7 +151,6 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     async buildStart() {
       await runBuild(this as unknown as RollupContext)
     },
-
     vite: {},
   }
 }

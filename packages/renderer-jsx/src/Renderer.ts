@@ -155,9 +155,7 @@ export const Renderer = Reconciler({
   maySuspendCommit() {
     return false
   },
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   NotPendingTransition: undefined,
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   HostTransitionContext: createContext(null) as unknown as ReactContext<unknown>,
   resetFormInstance() {},
   requestPostPaintCallback() {},

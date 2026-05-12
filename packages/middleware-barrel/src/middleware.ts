@@ -3,8 +3,7 @@ import { resolve } from 'node:path'
 import { defineMiddleware } from '@kubb/core'
 import type { Middleware } from '@kubb/core'
 import type { BarrelConfig, PluginBarrelConfig } from './types.ts'
-import { getPluginOutputPrefix, isExcludedPath } from './utils/excludedPaths.ts'
-import { getBarrelFiles } from './utils/getBarrelFiles.ts'
+import { getBarrelFiles, getPluginOutputPrefix, isExcludedPath } from './utils.ts'
 
 declare global {
   namespace Kubb {

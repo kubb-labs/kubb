@@ -156,15 +156,4 @@ export class Runtime {
 
     this.resolveExitPromise()
   }
-
-  async waitUntilExit(): Promise<void> {
-    if (!this.exitPromise) {
-      this.exitPromise = new Promise((resolve, reject) => {
-        this.resolveExitPromise = resolve
-        this.rejectExitPromise = reject
-      })
-    }
-
-    return this.exitPromise
-  }
 }
