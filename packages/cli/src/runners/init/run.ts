@@ -119,7 +119,10 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
 
     let selectedPlugins: PluginOption[]
     if (pluginsFlag) {
-      const requested = pluginsFlag.split(',').map((v) => v.trim()).filter(Boolean)
+      const requested = pluginsFlag
+        .split(',')
+        .map((v) => v.trim())
+        .filter(Boolean)
       selectedPlugins = availablePlugins.filter((p) => requested.includes(p.value))
       if (selectedPlugins.length === 0) {
         selectedPlugins = defaultPlugins

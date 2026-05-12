@@ -41,12 +41,7 @@ type RunToolPassOptions = {
  * Registers a one-shot `kubb:hook:end` listener for `hookId` BEFORE the caller emits `kubb:hook:start`,
  * avoiding the race where a synchronous emitter fires end before the listener is attached.
  */
-function waitForHookEnd(
-  hooks: AsyncEventEmitter<KubbHooks>,
-  hookId: string,
-  onSuccess: () => Promise<void>,
-  fallbackErrorMessage: string,
-): Promise<void> {
+function waitForHookEnd(hooks: AsyncEventEmitter<KubbHooks>, hookId: string, onSuccess: () => Promise<void>, fallbackErrorMessage: string): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     const handler = (ctx: { id?: string; command: string; args?: readonly string[]; success: boolean; error: Error | null }) => {
       if (ctx.id !== hookId) return
@@ -61,7 +56,20 @@ function waitForHookEnd(
   })
 }
 
-async function runToolPass({ toolValue, detect, toolMap, toolLabel, successPrefix, noToolMessage, configName, outputPath, logLevel, hooks, onStart, onEnd }: RunToolPassOptions) {
+async function runToolPass({
+  toolValue,
+  detect,
+  toolMap,
+  toolLabel,
+  successPrefix,
+  noToolMessage,
+  configName,
+  outputPath,
+  logLevel,
+  hooks,
+  onStart,
+  onEnd,
+}: RunToolPassOptions) {
   await onStart()
 
   let resolvedTool = toolValue

@@ -207,4 +207,3 @@ export async function startWatcher(
     }
   })
 }
-
