@@ -1,6 +1,35 @@
+import { version as nodeVersion } from 'node:process'
+import { version as KubbVersion } from '../package.json'
+
 import type { FileNode } from '@kubb/ast'
 import type { RendererFactory } from './createRenderer.ts'
 import type { PluginDriver } from './PluginDriver.ts'
+import type { Config, InputPath, UserConfig } from './types'
+
+/**
+ * Returns a snapshot of the current runtime environment.
+ *
+ * Useful for attaching context to debug logs and error reports so that
+ * issues can be reproduced without manual information gathering.
+ */
+export function getDiagnosticInfo() {
+  return {
+    nodeVersion,
+    KubbVersion,
+    platform: process.platform,
+    arch: process.arch,
+    cwd: process.cwd(),
+  } as const
+}
+
+/**
+ * Type guard to check if a given config has an `input.path`.
+ */
+export function isInputPath(config: UserConfig | undefined): config is UserConfig<InputPath> & { input: InputPath }
+export function isInputPath(config: Config | undefined): config is Config<InputPath> & { input: InputPath }
+export function isInputPath(config: Config | UserConfig | undefined): config is (Config<InputPath> | UserConfig<InputPath>) & { input: InputPath } {
+  return typeof config?.input === 'object' && config.input !== null && 'path' in config.input
+}
 
 /**
  * Handles the return value of a plugin AST hook or generator method.

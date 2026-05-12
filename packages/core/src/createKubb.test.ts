@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
+import {fsStorage} from "./storages/fsStorage.ts";
 
 describe('createKubb', () => {
   const pluginMocks = {
@@ -41,6 +42,7 @@ describe('createKubb', () => {
     parsers: [],
     adapter: createMockedAdapter(),
     plugins: [plugin] as unknown as Array<Plugin>,
+    storage: fsStorage(),
   } satisfies Config
 
   afterEach(() => {
@@ -160,21 +162,6 @@ describe('createKubb', () => {
     await createKubb(config, { hooks }).build()
   })
 
-  it('should handle array input with warning', async () => {
-    const hooks = new AsyncEventEmitter<KubbHooks>()
-    const warnSpy = vi.fn()
-    hooks.on('kubb:warn', warnSpy)
-
-    const arrayConfig = {
-      ...config,
-      input: [{ path: 'test1.yaml' }, { path: 'test2.yaml' }],
-    } as unknown as Config
-
-    await createKubb(arrayConfig, { hooks }).build()
-
-    expect(warnSpy).toHaveBeenCalledWith({ message: 'This feature is still under development — use with caution' })
-  })
-
   test('safeBuild should return error instead of throwing', async () => {
     const throwingPlugin = definePlugin(() => ({
       name: 'throwingPlugin',
@@ -236,6 +223,7 @@ describe('createKubb', () => {
     const hookConfig = {
       ...config,
       plugins: [hookPlugin as unknown as Plugin],
+      storage: fsStorage(),
     } satisfies Config
 
     await createKubb(hookConfig, { hooks }).build()

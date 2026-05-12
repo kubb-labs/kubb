@@ -20,12 +20,9 @@ import type {
  * `default`, `resolveOptions`, `resolvePath`, `resolveFile`, `resolveBanner`, and `resolveFooter`
  * are optional — built-in fallbacks are injected when omitted.
  *
- * The builder receives `ctx` — a reference to the fully assembled resolver — so methods can
- * call sibling resolver methods without using `this`.  Because `ctx` is captured by the closure
- * and the resolver is populated after the builder runs, `ctx` correctly reflects any overrides
- * that were applied by the builder itself.
+ * Methods in the returned object can call sibling resolver methods via `this`.
  */
-type ResolverBuilder<T extends PluginFactoryOptions> = (ctx: T['resolver']) => Omit<
+type ResolverBuilder<T extends PluginFactoryOptions> = () => Omit<
   T['resolver'],
   'default' | 'resolveOptions' | 'resolvePath' | 'resolveFile' | 'resolveBanner' | 'resolveFooter' | 'name' | 'pluginName'
 > &
@@ -268,35 +265,35 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
  *
  * @example Resolve a schema file
  * ```ts
- * const file = defaultResolveFile(
+ * const file = defaultResolveFile.call(
+ *   resolver,
  *   { name: 'pet', extname: '.ts' },
  *   { root: '/src', output: { path: 'types' } },
- *   resolver,
  * )
  * // → { baseName: 'pet.ts', path: '/src/types/pet.ts', sources: [], ... }
  * ```
  *
  * @example Resolve an operation file with tag grouping
  * ```ts
- * const file = defaultResolveFile(
+ * const file = defaultResolveFile.call(
+ *   resolver,
  *   { name: 'listPets', extname: '.ts', tag: 'pets' },
  *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
- *   resolver,
  * )
  * // → { baseName: 'listPets.ts', path: '/src/types/petsController/listPets.ts', ... }
  * ```
  */
-export function defaultResolveFile({ name, extname, tag, path: groupPath }: ResolverFileParams, context: ResolverContext, ctx: Resolver): FileNode {
+export function defaultResolveFile(this: Resolver, { name, extname, tag, path: groupPath }: ResolverFileParams, context: ResolverContext): FileNode {
   const pathMode = PluginDriver.getMode(path.resolve(context.root, context.output.path))
-  const resolvedName = pathMode === 'single' ? '' : ctx.default(name, 'file')
+  const resolvedName = pathMode === 'single' ? '' : this.default(name, 'file')
   const baseName = `${resolvedName}${extname}` as FileNode['baseName']
-  const filePath = ctx.resolvePath({ baseName, pathMode, tag, path: groupPath }, context)
+  const filePath = this.resolvePath({ baseName, pathMode, tag, path: groupPath }, context)
 
   return createFile({
     path: filePath,
     baseName: path.basename(filePath) as `${string}.${string}`,
     meta: {
-      pluginName: ctx.pluginName,
+      pluginName: this.pluginName,
     },
     sources: [],
     imports: [],
@@ -459,25 +456,24 @@ export function defaultResolveFooter(node: InputNode | undefined, { output }: Re
  * - `resolvePath` — output path computation
  * - `resolveFile` — full `FileNode` construction
  *
- * The builder receives `ctx` — a reference to the assembled resolver — so methods can
- * call sibling resolver methods using `ctx` instead of `this`.
+ * Methods in the returned object can call sibling resolver methods via `this`.
  *
  * @example Basic resolver with naming helpers
  * ```ts
- * export const resolver = defineResolver<PluginTs>((ctx) => ({
+ * export const resolver = defineResolver<PluginTs>(() => ({
  *   name: 'default',
  *   resolveName(node) {
- *     return ctx.default(node.name, 'function')
+ *     return this.default(node.name, 'function')
  *   },
  *   resolveTypedName(node) {
- *     return ctx.default(node.name, 'type')
+ *     return this.default(node.name, 'type')
  *   },
  * }))
  * ```
  *
  * @example Override resolvePath for a custom output structure
  * ```ts
- * export const resolver = defineResolver<PluginTs>((_ctx) => ({
+ * export const resolver = defineResolver<PluginTs>(() => ({
  *   name: 'custom',
  *   resolvePath({ baseName }, { root, output }) {
  *     return path.resolve(root, output.path, 'generated', baseName)
@@ -485,37 +481,32 @@ export function defaultResolveFooter(node: InputNode | undefined, { output }: Re
  * }))
  * ```
  *
- * @example Use ctx.default inside a helper
+ * @example Use this.default inside a helper
  * ```ts
- * export const resolver = defineResolver<PluginTs>((ctx) => ({
+ * export const resolver = defineResolver<PluginTs>(() => ({
  *   name: 'default',
  *   resolveParamName(node, param) {
- *     return ctx.default(`${node.operationId} ${param.in} ${param.name}`, 'type')
+ *     return this.default(`${node.operationId} ${param.in} ${param.name}`, 'type')
  *   },
  * }))
  * ```
  */
 export function defineResolver<T extends PluginFactoryOptions>(build: ResolverBuilder<T>): T['resolver'] {
-  // Create the resolver shell first.  When `build(resolver)` executes below, `resolver` is
-  // still empty, but methods returned by the builder capture it by reference.  By the time
-  // those methods are actually called, `Object.assign` will have already populated all
-  // properties (including any overrides from the builder itself).
-  const resolver = {} as T['resolver']
+  // `resolver` is kept so the default `resolveFile` wrapper can reference the fully assembled
+  // object via `.call(resolver, ...)` at call-time, after the result is assigned below.
+  let resolver: T['resolver']
 
-  Object.assign(resolver, {
+  const result = {
     default: defaultResolver,
     resolveOptions: defaultResolveOptions,
     resolvePath: defaultResolvePath,
-    // Wire the default resolveFile implementation with a wrapper that passes resolver as ctx.
-    // Unlike other defaults which can be assigned directly, defaultResolveFile requires the
-    // resolver as its third parameter.
-    resolveFile: (params: ResolverFileParams, context: ResolverContext) => defaultResolveFile(params, context, resolver as Resolver),
+    resolveFile: (params: ResolverFileParams, context: ResolverContext) => defaultResolveFile.call(resolver as Resolver, params, context),
     resolveBanner: defaultResolveBanner,
     resolveFooter: defaultResolveFooter,
-    // Builder overrides are applied last.  Any method in the builder can call
-    // ctx.xxx() and will see the fully merged resolver (including its own overrides).
-    ...build(resolver),
-  })
+    ...build(),
+  } as T['resolver']
+
+  resolver = result
 
   return resolver
 }

@@ -44,16 +44,6 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
 }
 
 /**
- * Returns `true` when `plugin` is a hook-style plugin created with `definePlugin`.
- *
- * Used by `PluginDriver` to distinguish hook-style plugins from legacy `createPlugin` plugins
- * so it can normalize them and register their handlers on the `AsyncEventEmitter`.
- */
-export function isPlugin(plugin: unknown): plugin is Plugin {
-  return typeof plugin === 'object' && plugin !== null && 'hooks' in plugin
-}
-
-/**
  * Wraps a factory function and returns a typed `Plugin` with lifecycle handlers grouped under `hooks`.
  *
  * Handlers live in a single `hooks` object (inspired by Astro integrations).

@@ -4,12 +4,6 @@ import { join, resolve } from 'node:path'
 import { clean, write } from '@internals/utils'
 import { createStorage } from '../createStorage.ts'
 
-/**
- * Detects the filesystem error used to indicate that a path does not exist.
- */
-function isMissingPathError(error: unknown): error is NodeJS.ErrnoException {
-  return typeof error === 'object' && error !== null && 'code' in error && (error as NodeJS.ErrnoException).code === 'ENOENT'
-}
 
 /**
  * Built-in filesystem storage driver.
@@ -42,27 +36,15 @@ export const fsStorage = createStorage(() => ({
     try {
       await access(resolve(key))
       return true
-    } catch (error) {
-      if (isMissingPathError(error)) {
-        return false
-      }
-
-      throw new Error(`Failed to access storage item "${key}"`, {
-        cause: error as Error,
-      })
+    } catch (_error) {
+      return false
     }
   },
   async getItem(key: string) {
     try {
       return await readFile(resolve(key), 'utf8')
-    } catch (error) {
-      if (isMissingPathError(error)) {
-        return null
-      }
-
-      throw new Error(`Failed to read storage item "${key}"`, {
-        cause: error as Error,
-      })
+    } catch (_error) {
+      return null
     }
   },
   async setItem(key: string, value: string) {
@@ -81,14 +63,8 @@ export const fsStorage = createStorage(() => ({
         entries = (await readdir(dir, {
           withFileTypes: true,
         })) as Array<Dirent>
-      } catch (error) {
-        if (isMissingPathError(error)) {
-          return
-        }
-
-        throw new Error(`Failed to list storage keys under "${resolvedBase}"`, {
-          cause: error as Error,
-        })
+      } catch (_error) {
+        return
       }
       for (const entry of entries) {
         const rel = prefix ? `${prefix}/${entry.name}` : entry.name

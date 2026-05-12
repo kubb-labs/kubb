@@ -43,7 +43,7 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
     adapter: createMockedAdapter(),
     plugins: [],
     ...overrides,
-  }
+  } as Config
 }
 
 describe('defineMiddleware', () => {

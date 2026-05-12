@@ -3,6 +3,7 @@ import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, test } from 'vitest'
 import { PluginDriver } from './PluginDriver.ts'
 import type { Config, KubbHooks, Plugin } from './types.ts'
+import {fsStorage} from "./storages/fsStorage.ts";
 
 describe('PluginDriver', () => {
   const pluginA = {
@@ -32,6 +33,7 @@ describe('PluginDriver', () => {
     parsers: [],
     adapter: createMockedAdapter(),
     plugins: [pluginA, pluginB, pluginC] as unknown as Array<Plugin>,
+    storage: fsStorage(),
   } satisfies Config
   const pluginDriver = new PluginDriver(config, {
     hooks: new AsyncEventEmitter<KubbHooks>(),

@@ -2,9 +2,10 @@ import { AsyncEventEmitter } from '@internals/utils'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
-import { definePlugin, isPlugin } from './definePlugin.ts'
+import { definePlugin } from './definePlugin.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import type { Config, GeneratorContext, KubbHooks, KubbPluginSetupContext, Plugin, PluginFactoryOptions } from './types.ts'
+import {fsStorage} from "./storages/fsStorage.ts";
 
 type TestPluginOptions = PluginFactoryOptions<string, { tag: string }>
 type TestPluginOptionalOptions = PluginFactoryOptions<string, { tag?: string }>
@@ -52,13 +53,6 @@ describe('definePlugin', () => {
     expect(plugin.options).toEqual({})
   })
 
-  it('isPlugin returns true for definePlugin output', () => {
-    const plugin = definePlugin((_options) => ({
-      name: 'test',
-      hooks: {},
-    }))()
-    expect(isPlugin(plugin)).toBe(true)
-  })
 })
 
 describe('PluginDriver — hook-style plugin registration', () => {
@@ -69,6 +63,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
       output: { path: './src/gen', clean: true },
       parsers: [],
       adapter: createMockedAdapter(),
+      storage: fsStorage(),
       plugins,
     }
   }
@@ -291,6 +286,7 @@ describe('PluginDriver — generator event dispatch', () => {
       input: { path: './petStore.yaml' },
       output: { path: './src/gen', clean: true },
       parsers: [],
+      storage: fsStorage(),
       adapter: createMockedAdapter(),
       plugins,
     }

@@ -10,11 +10,10 @@ import type { Plugin } from './definePlugin.ts'
 import { FileProcessor } from './FileProcessor.ts'
 import type { Kubb } from './Kubb.ts'
 import { PluginDriver } from './PluginDriver.ts'
-import { applyHookResult } from './renderNode.ts'
+import { applyHookResult } from './utils.ts'
 import { fsStorage } from './storages/fsStorage.ts'
-import type { AdapterSource, Config, GeneratorContext, KubbHooks, Middleware, NormalizedPlugin, Storage, UserConfig } from './types.ts'
-import { getDiagnosticInfo } from './utils/diagnostics.ts'
-import { isInputPath } from './utils/isInputPath.ts'
+import type { AdapterSource, Config, GeneratorContext, KubbHooks, Middleware, NormalizedPlugin, UserConfig } from './types.ts'
+import { getDiagnosticInfo, isInputPath } from './utils.ts'
 
 type SetupOptions = {
   hooks?: AsyncEventEmitter<KubbHooks>
@@ -46,18 +45,36 @@ type SetupResult = {
   driver: PluginDriver
   sources: Map<string, string>
   config: Config
-  storage: Storage | null
 }
 
 async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promise<SetupResult> {
   const hooks = options.hooks ?? new AsyncEventEmitter<KubbHooks>()
-
+  const config: Config = {
+    ...userConfig,
+    root: userConfig.root || process.cwd(),
+    parsers: userConfig.parsers ?? [],
+    adapter: userConfig.adapter,
+    output: {
+      format: false,
+      lint: false,
+      extension: DEFAULT_EXTENSION,
+      defaultBanner: DEFAULT_BANNER,
+      ...userConfig.output,
+    },
+    storage: userConfig.storage ?? fsStorage(),
+    devtools: userConfig.devtools
+      ? {
+        studioUrl: DEFAULT_STUDIO_URL,
+        ...(typeof userConfig.devtools === 'boolean' ? {} : userConfig.devtools),
+      }
+      : undefined,
+    plugins: (userConfig.plugins ?? []) as unknown as Config['plugins'],
+  }
+  const driver = new PluginDriver(config, {
+    hooks,
+  })
   const sources: Map<string, string> = new Map<string, string>()
   const diagnosticInfo = getDiagnosticInfo()
-
-  if (Array.isArray(userConfig.input)) {
-    await hooks.emit('kubb:warn', { message: 'This feature is still under development — use with caution' })
-  }
 
   await hooks.emit('kubb:debug', {
     date: new Date(),
@@ -68,7 +85,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
       `  • Output: ${userConfig.output?.path || 'not specified'}`,
       `  • Plugins: ${userConfig.plugins?.length || 0}`,
       'Output Settings:',
-      `  • Storage: ${userConfig.storage ? `custom(${userConfig.storage.name})` : userConfig.output?.write === false ? 'disabled' : 'filesystem (default)'}`,
+      `  • Storage: ${config.storage.name}`,
       `  • Formatter: ${userConfig.output?.format || 'none'}`,
       `  • Linter: ${userConfig.output?.lint || 'none'}`,
       'Environment:',
@@ -100,41 +117,15 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     }
   }
 
-  const config: Config = {
-    ...userConfig,
-    root: userConfig.root || process.cwd(),
-    parsers: userConfig.parsers ?? [],
-    adapter: userConfig.adapter,
-    output: {
-      format: false,
-      lint: false,
-      write: true,
-      extension: DEFAULT_EXTENSION,
-      defaultBanner: DEFAULT_BANNER,
-      ...userConfig.output,
-    },
-    devtools: userConfig.devtools
-      ? {
-          studioUrl: DEFAULT_STUDIO_URL,
-          ...(typeof userConfig.devtools === 'boolean' ? {} : userConfig.devtools),
-        }
-      : undefined,
-    plugins: (userConfig.plugins ?? []) as unknown as Config['plugins'],
-  }
 
-  const storage: Storage | null = config.output.write === false ? null : (config.storage ?? fsStorage())
 
   if (config.output.clean) {
     await hooks.emit('kubb:debug', {
       date: new Date(),
       logs: ['Cleaning output directories', `  • Output: ${config.output.path}`],
     })
-    await storage?.clear(resolve(config.root, config.output.path))
+    await config.storage.clear(resolve(config.root, config.output.path))
   }
-
-  const driver = new PluginDriver(config, {
-    hooks,
-  })
 
   // Register middleware hooks after all plugin hooks are registered.
   // Because AsyncEventEmitter calls listeners in registration order,
@@ -178,7 +169,6 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     hooks,
     driver,
     sources,
-    storage,
   }
 }
 
@@ -197,7 +187,7 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
   const { exclude, include, override } = plugin.options
 
   if (!adapter || !inputNode) {
-    throw new Error(`[${plugin.name}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`)
+    throw new Error(`[${plugin.name}] No adapter found. Add an OAS adapter (e.g. adapterOas()) before this plugin in your Kubb config.`)
   }
 
   function resolveRenderer(gen: Generator): RendererFactory | undefined {
@@ -292,7 +282,7 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
 }
 
 async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
-  const { driver, hooks, sources, storage } = setupResult
+  const { driver, hooks, sources } = setupResult
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   const pluginTimings = new Map<string, number>()
@@ -322,7 +312,6 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         const timestamp = new Date()
 
         await hooks.emit('kubb:plugin:start', { plugin })
-
         await hooks.emit('kubb:debug', {
           date: timestamp,
           logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`],
@@ -410,6 +399,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
 
     await fileProcessor.run(files, {
       parsers: parsersMap,
+      mode: 'parallel',
       extension: config.output.extension,
       onStart: async (processingFiles) => {
         await hooks.emit('kubb:files:processing:start', { files: processingFiles })
@@ -424,7 +414,8 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           config,
         })
         if (source) {
-          await storage?.setItem(file.path, source)
+          await config.storage.setItem(file.path, source)
+
           sources.set(file.path, source)
         }
       },
@@ -493,13 +484,6 @@ function inputToAdapterSource(config: Config): AdapterSource {
     throw new Error('[kubb] input is required when using an adapter. Provide input.path or input.data in your config.')
   }
 
-  if (Array.isArray(input)) {
-    return {
-      type: 'paths',
-      paths: input.map((i) => (new URLPath(i.path).isURL ? i.path : resolve(config.root, i.path))),
-    }
-  }
-
   if ('data' in input) {
     return { type: 'data', data: input.data }
   }
@@ -509,6 +493,7 @@ function inputToAdapterSource(config: Config): AdapterSource {
   }
 
   const resolved = resolve(config.root, input.path)
+
   return { type: 'path', path: resolved }
 }
 

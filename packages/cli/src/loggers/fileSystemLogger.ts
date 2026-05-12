@@ -52,13 +52,15 @@ export const fileSystemLogger = defineLogger({
         }
 
         if (log.logs.length > 0) {
-          const timestamp = log.date.toLocaleString()
-          files[pathName].push(`[${timestamp}]\n${log.logs.join('\n')}`)
+          const prefix = `[${log.date.toLocaleString()}] `
+          const indent = ' '.repeat(prefix.length)
+          const [first, ...rest] = log.logs
+          files[pathName].push([prefix + first, ...rest.map((line) => indent + line)].join('\n'))
         }
       }
 
       for (const [fileName, logs] of Object.entries(files)) {
-        await write(fileName, logs.join('\n\n'))
+        await write(fileName, logs.join('\n'))
       }
 
       return Object.keys(files)
@@ -67,21 +69,21 @@ export const fileSystemLogger = defineLogger({
     context.on('kubb:info', ({ message, info }) => {
       state.cachedLogs.add({
         date: new Date(),
-        logs: [`ℹ ${message} ${info}`],
+        logs: [`ℹ ${[message, info].filter(Boolean).join(' ')}`],
       })
     })
 
     context.on('kubb:success', ({ message, info }) => {
       state.cachedLogs.add({
         date: new Date(),
-        logs: [`✓ ${message} ${info}`],
+        logs: [`✓ ${[message, info].filter(Boolean).join(' ')}`],
       })
     })
 
     context.on('kubb:warn', ({ message, info }) => {
       state.cachedLogs.add({
         date: new Date(),
-        logs: [`⚠ ${message} ${info}`],
+        logs: [`⚠ ${[message, info].filter(Boolean).join(' ')}`],
       })
     })
 
@@ -92,17 +94,18 @@ export const fileSystemLogger = defineLogger({
       })
     })
 
-    context.on('kubb:debug', (message) => {
+    context.on('kubb:debug', ({ date, fileName, logs }) => {
       state.cachedLogs.add({
-        date: new Date(),
-        logs: message.logs,
+        date,
+        fileName,
+        logs,
       })
     })
 
     context.on('kubb:plugin:start', ({ plugin }) => {
       state.cachedLogs.add({
         date: new Date(),
-        logs: [`Generating ${plugin.name}`],
+        logs: [`► Generating ${plugin.name}`],
       })
     })
 
@@ -111,14 +114,14 @@ export const fileSystemLogger = defineLogger({
 
       state.cachedLogs.add({
         date: new Date(),
-        logs: [success ? `${plugin.name} completed in ${durationStr}` : `${plugin.name} failed in ${durationStr}`],
+        logs: [success ? `✓ ${plugin.name} completed in ${durationStr}` : `✗ ${plugin.name} failed in ${durationStr}`],
       })
     })
 
     context.on('kubb:files:processing:start', ({ files }) => {
       state.cachedLogs.add({
         date: new Date(),
-        logs: [`Start ${files.length} writing:`, ...files.map((file) => file.path)],
+        logs: [`► Writing ${files.length} files`, ...files.map((file) => `  ${file.path}`)],
       })
     })
 

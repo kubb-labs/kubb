@@ -8,7 +8,7 @@ import type { Plugin } from './definePlugin.ts'
 import { defineResolver } from './defineResolver.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
-import { applyHookResult } from './renderNode.ts'
+import { applyHookResult } from './utils.ts'
 
 import type {
   Adapter,
@@ -191,6 +191,7 @@ export class PluginDriver {
    */
   async emitSetupHooks(): Promise<void> {
     const noop = () => {}
+
     await this.hooks.emit('kubb:plugin:setup', {
       config: this.config,
       options: {},
@@ -302,7 +303,7 @@ export class PluginDriver {
       return existingResolver
     }
 
-    const resolver = defineResolver<PluginFactoryOptions>((_ctx) => ({
+    const resolver = defineResolver<PluginFactoryOptions>(() => ({
       name: 'default',
       pluginName,
     }))

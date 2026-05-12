@@ -242,13 +242,6 @@ export type Config<TInput = Input> = {
      */
     clean?: boolean
     /**
-     * Persists generated files to the file system.
-     *
-     * @default true
-     * @deprecated Use `storage` option to control where files are written instead.
-     */
-    write?: boolean
-    /**
      * Auto-format generated files after code generation completes.
      *
      * Applies a code formatter to all generated files. Use `'auto'` to detect which formatter
@@ -342,7 +335,7 @@ export type Config<TInput = Input> = {
    *
    * @see {@link Storage} interface for implementing custom backends.
    */
-  storage?: Storage
+  storage: Storage
   /**
    * Plugins that execute during the build to generate code and transform the AST.
    *
@@ -583,7 +576,7 @@ export type NormalizedPlugin<TOptions extends PluginFactoryOptions = PluginFacto
  * })
  * ```
  */
-export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins' | 'parsers' | 'adapter'> & {
+export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins' | 'parsers' | 'adapter'| 'storage'> & {
   /**
    * Project root directory, absolute or relative to the config file location.
    *
@@ -650,6 +643,27 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
    * @see {@link definePlugin} to create a custom plugin.
    */
   plugins?: Array<Plugin>
+  /**
+   * Storage backend that controls where and how generated files are persisted.
+   *
+   * Defaults to `fsStorage()` which writes to the file system. Pass `memoryStorage()` to keep files in RAM,
+   * or implement a custom `Storage` interface to write to cloud storage, databases, or other backends.
+   *
+   * @default fsStorage()
+   * @example
+   * ```ts
+   * import { memoryStorage } from '@kubb/core'
+   *
+   * // Keep generated files in memory (useful for testing, CI pipelines)
+   * storage: memoryStorage()
+   *
+   * // Use custom S3 storage
+   * storage: myS3Storage()
+   * ```
+   *
+   * @see {@link Storage} interface for implementing custom backends.
+   */
+  storage?: Storage
 }
 
 export type ResolveNameParams = {
