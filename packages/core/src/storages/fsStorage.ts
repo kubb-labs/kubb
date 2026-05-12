@@ -4,7 +4,6 @@ import { join, resolve } from 'node:path'
 import { clean, write } from '@internals/utils'
 import { createStorage } from '../createStorage.ts'
 
-
 /**
  * Built-in filesystem storage driver.
  *

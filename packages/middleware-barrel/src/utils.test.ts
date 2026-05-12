@@ -54,18 +54,14 @@ describe('getBarrelFiles', () => {
     const files = [makeFile(`${ROOT}/pets/listPets.ts`), makeFile(`${ROOT}/users/getUser.ts`)]
     const barrels = getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all', nested: true })
 
-    expect(barrels.map((b) => b.path)).toEqual(
-      expect.arrayContaining([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/users/index.ts`]),
-    )
+    expect(barrels.map((b) => b.path)).toEqual(expect.arrayContaining([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/users/index.ts`]))
   })
 
   it('generates per-subdirectory barrels when recursive is true', () => {
     const files = [makeFile(`${ROOT}/pets/listPets.ts`), makeFile(`${ROOT}/users/getUser.ts`)]
     const barrels = getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all', recursive: true })
 
-    expect(barrels.map((b) => b.path)).toEqual(
-      expect.arrayContaining([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/users/index.ts`]),
-    )
+    expect(barrels.map((b) => b.path)).toEqual(expect.arrayContaining([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/users/index.ts`]))
   })
 })
 

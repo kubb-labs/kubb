@@ -385,7 +385,7 @@ export type Config<TInput = Input> = {
  * })
  * ```
  */
-export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins' | 'parsers' | 'adapter'| 'storage'> & {
+export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins' | 'parsers' | 'adapter' | 'storage'> & {
   /**
    * Project root directory, absolute or relative to the config file location.
    * @default process.cwd()
@@ -749,9 +749,9 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     storage: userConfig.storage ?? fsStorage(),
     devtools: userConfig.devtools
       ? {
-        studioUrl: DEFAULT_STUDIO_URL,
-        ...(typeof userConfig.devtools === 'boolean' ? {} : userConfig.devtools),
-      }
+          studioUrl: DEFAULT_STUDIO_URL,
+          ...(typeof userConfig.devtools === 'boolean' ? {} : userConfig.devtools),
+        }
       : undefined,
     plugins: (userConfig.plugins ?? []) as unknown as Config['plugins'],
   }
@@ -801,8 +801,6 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
       )
     }
   }
-
-
 
   if (config.output.clean) {
     await hooks.emit('kubb:debug', {
