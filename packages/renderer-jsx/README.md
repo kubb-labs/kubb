@@ -23,25 +23,13 @@ JSX-based renderer for Kubb. Provides a custom React runtime, reconciler, and bu
 
 ## Installation
 
-::: code-group
-
-```bash [bun]
+```bash
 bun add @kubb/renderer-jsx
-```
-
-```bash [pnpm]
+# or
 pnpm add @kubb/renderer-jsx
-```
-
-```bash [npm]
+# or
 npm install @kubb/renderer-jsx
 ```
-
-```bash [yarn]
-yarn add @kubb/renderer-jsx
-```
-
-:::
 
 ## Usage
 

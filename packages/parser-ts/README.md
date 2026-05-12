@@ -23,25 +23,13 @@ TypeScript and TSX source file parser for Kubb. Converts AST nodes and raw TypeS
 
 ## Installation
 
-::: code-group
-
-```bash [bun]
+```bash
 bun add @kubb/parser-ts
-```
-
-```bash [pnpm]
+# or
 pnpm add @kubb/parser-ts
-```
-
-```bash [npm]
+# or
 npm install @kubb/parser-ts
 ```
-
-```bash [yarn]
-yarn add @kubb/parser-ts
-```
-
-:::
 
 ## Usage
 

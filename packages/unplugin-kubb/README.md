@@ -25,25 +25,13 @@ Universal build integration for Kubb using [unplugin](https://github.com/unjs/un
 
 ## Installation
 
-::: code-group
-
-```bash [bun]
+```bash
 bun add -D unplugin-kubb @kubb/core
-```
-
-```bash [pnpm]
+# or
 pnpm add -D unplugin-kubb @kubb/core
-```
-
-```bash [npm]
+# or
 npm install -D unplugin-kubb @kubb/core
 ```
-
-```bash [yarn]
-yarn add -D unplugin-kubb @kubb/core
-```
-
-:::
 
 ```typescript
 import kubb from 'unplugin-kubb/vite'

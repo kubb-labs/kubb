@@ -23,25 +23,13 @@ OpenAPI and Swagger adapter for Kubb. Parses and validates Swagger 2.0, OpenAPI 
 
 ## Installation
 
-::: code-group
-
-```bash [bun]
+```bash
 bun add @kubb/adapter-oas
-```
-
-```bash [pnpm]
+# or
 pnpm add @kubb/adapter-oas
-```
-
-```bash [npm]
+# or
 npm install @kubb/adapter-oas
 ```
-
-```bash [yarn]
-yarn add @kubb/adapter-oas
-```
-
-:::
 
 ## Usage
 

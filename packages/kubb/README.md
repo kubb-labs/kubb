@@ -27,25 +27,13 @@ Point Kubb at an OpenAPI spec and it generates types, clients, hooks, validators
 
 ## Installation
 
-::: code-group
-
-```bash [bun]
+```bash
 bun add kubb
-```
-
-```bash [pnpm]
+# or
 pnpm add kubb
-```
-
-```bash [npm]
+# or
 npm install kubb
 ```
-
-```bash [yarn]
-yarn add kubb
-```
-
-:::
 
 ## Quick start
 

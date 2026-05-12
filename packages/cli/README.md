@@ -25,25 +25,13 @@ Official CLI for Kubb. Run `kubb generate` to transform OpenAPI/Swagger specs in
 
 ## Installation
 
-::: code-group
-
-```bash [bun]
+```bash
 bun add -D @kubb/cli
-```
-
-```bash [pnpm]
+# or
 pnpm add -D @kubb/cli
-```
-
-```bash [npm]
+# or
 npm install -D @kubb/cli
 ```
-
-```bash [yarn]
-yarn add -D @kubb/cli
-```
-
-:::
 
 ## Commands
 

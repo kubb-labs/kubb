@@ -27,25 +27,13 @@ Core engine for Kubb's plugin-based code generation system. Provides the plugin 
 
 ## Installation
 
-::: code-group
-
-```bash [bun]
+```bash
 bun add @kubb/core
-```
-
-```bash [pnpm]
+# or
 pnpm add @kubb/core
-```
-
-```bash [npm]
+# or
 npm install @kubb/core
 ```
-
-```bash [yarn]
-yarn add @kubb/core
-```
-
-:::
 
 ## Supporting Kubb
 

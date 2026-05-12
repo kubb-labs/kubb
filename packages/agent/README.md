@@ -25,25 +25,13 @@ HTTP agent server for Kubb, built on [Nitro](https://nitro.build). It exposes RE
 
 The agent server is installed as part of `@kubb/cli`:
 
-::: code-group
-
-```bash [bun]
+```bash
 bun add -D @kubb/cli
-```
-
-```bash [pnpm]
+# or
 pnpm add -D @kubb/cli
-```
-
-```bash [npm]
+# or
 npm install -D @kubb/cli
 ```
-
-```bash [yarn]
-yarn add -D @kubb/cli
-```
-
-:::
 
 ## Usage
 

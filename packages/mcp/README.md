@@ -27,25 +27,13 @@ The server exposes a `generate` tool that runs a full Kubb build from a `kubb.co
 
 Install as a dev dependency:
 
-::: code-group
-
-```bash [bun]
+```bash
 bun add -D @kubb/mcp
-```
-
-```bash [pnpm]
+# or
 pnpm add -D @kubb/mcp
+# or
+npm install -D @kubb/mcp
 ```
-
-```bash [npm]
-npm install --save-dev @kubb/mcp
-```
-
-```bash [yarn]
-yarn add -D @kubb/mcp
-```
-
-:::
 
 > [!IMPORTANT]
 > You also need to install `@kubb/cli` to use the `kubb mcp` command.

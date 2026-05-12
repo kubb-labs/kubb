@@ -23,25 +23,13 @@ Barrel-file middleware for Kubb. Automatically generates `index.ts` re-export fi
 
 ## Installation
 
-::: code-group
-
-```bash [bun]
+```bash
 bun add @kubb/middleware-barrel
-```
-
-```bash [pnpm]
+# or
 pnpm add @kubb/middleware-barrel
-```
-
-```bash [npm]
+# or
 npm install @kubb/middleware-barrel
 ```
-
-```bash [yarn]
-yarn add @kubb/middleware-barrel
-```
-
-:::
 
 ## Usage
 
