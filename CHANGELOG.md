@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.10 — May 12, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Resolve this for ast ([`7a6ba31`](https://github.com/kubb-labs/kubb/commit/7a6ba31b03dd4ccb313a37a273a153e85ce0ed44))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.9 — May 12, 2026
 
 ### @kubb/core
