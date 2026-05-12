@@ -11,6 +11,10 @@ allowBuilds:
 
 pmOnFail: warn
 minimumReleaseAge: 4320
+# Native platform bindings are always co-published with their parent package in the same release.
+# Excluding them avoids false-positive ERR_PNPM_NO_MATURE_MATCHING_VERSION errors.
+minimumReleaseAgeExclude:
+  - '@oxlint/*'
 
 catalog:
   '@types/node': ^22.19.19
