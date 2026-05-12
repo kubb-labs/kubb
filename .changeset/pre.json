@@ -51,6 +51,7 @@
     "barrel-root-type-and-cli-v5-init",
     "clever-cases-deny",
     "cli-esm-bin-multi-runtime",
+    "cli-runners-per-folder-refactor",
     "core-getmode-static-cleanup",
     "create-kubb-user-config-signature",
     "ctx-param-in-define-resolver",
