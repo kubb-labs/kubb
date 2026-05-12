@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@a71ab88377ae067bbf7af843528783c7b7913a95 # main
+        uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
         with:
           node-version: '22'
 
