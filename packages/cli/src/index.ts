@@ -2,7 +2,7 @@ import { styleText } from 'node:util'
 import { createCLI, isFlag } from '@internals/utils'
 import { version } from '../package.json'
 import { QUIET_FLAGS } from './constants.ts'
-import { isTelemetryDisabled } from './utils/telemetry.ts'
+import { isTelemetryDisabled } from './telemetry.ts'
 
 const cli = createCLI()
 

@@ -4,14 +4,24 @@ import { formatMs, write } from '@internals/utils'
 import { defineLogger } from '@kubb/core'
 
 type CachedEvent = {
+  /**
+   * Timestamp when this event was captured, used to derive the log filename.
+   */
   date: Date
+  /**
+   * Accumulated log lines for this event.
+   */
   logs: string[]
+  /**
+   * Optional override for the output filename inside `.kubb/`. When omitted, the filename is derived from `date`.
+   */
   fileName?: string
 }
 
 /**
  * FileSystem logger that captures debug events and writes them to `.kubb` directory files.
- * Note: Logs write on `lifecycle:end` or process exit. Cached logs may be lost if the process crashes before these events.
+ *
+ * @note Logs are written on `kubb:lifecycle:end` or process exit. Cached logs may be lost if the process crashes before either event.
  */
 export const fileSystemLogger = defineLogger({
   name: 'filesystem',

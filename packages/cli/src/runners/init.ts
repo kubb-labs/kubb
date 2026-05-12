@@ -3,24 +3,73 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import type { PackageManagerInfo } from '@internals/utils'
-import { detectPackageManager } from '@internals/utils'
+import type { PackageManagerInfo, PackageManagerName  } from '@internals/utils'
+import { detectPackageManager, spawnAsync } from '@internals/utils'
 import { availablePlugins, generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, type PluginOption } from '@internals/shared'
-import { hasPackageJson, initPackageJson, installPackages } from '../utils/packageManager.ts'
 
 function cancelAndExit(message = 'Operation cancelled.'): never {
   clack.cancel(message)
   process.exit(0)
 }
 
+
+/**
+ * Returns `true` when a `package.json` exists at `cwd`.
+ */
+export function hasPackageJson(cwd: string = process.cwd()): boolean {
+  return fs.existsSync(path.join(cwd, 'package.json'))
+}
+
+/**
+ * Initializes a new `package.json` at `cwd` using the detected package manager.
+ */
+export async function initPackageJson(cwd: string, packageManager: PackageManagerInfo): Promise<void> {
+  const commands: Record<PackageManagerName, string[]> = {
+    npm: ['init', '-y'],
+    pnpm: ['init'],
+    yarn: ['init', '-y'],
+    bun: ['init', '-y'],
+  }
+
+  await spawnAsync(packageManager.name, commands[packageManager.name], { cwd })
+}
+
+/**
+ * Installs the given packages at `cwd` using the detected package manager.
+ */
+export async function installPackages(packages: string[], packageManager: PackageManagerInfo, cwd: string = process.cwd()): Promise<void> {
+  await spawnAsync(packageManager.name, [...packageManager.installCommand, ...packages], { cwd })
+}
+
+
 type InitOptions = {
+  /**
+   * When `true`, skips all interactive prompts and uses default values.
+   */
   yes: boolean
+  /**
+   * Current `@kubb/cli` version string, shown in the outro and used for package installation.
+   */
   version: string
+  /**
+   * Input path flag value from `--input`. When provided, skips the input prompt.
+   */
   input?: string
+  /**
+   * Output directory flag value from `--output`. When provided, skips the output prompt.
+   */
   output?: string
+  /**
+   * Comma-separated plugin list from `--plugins`, e.g. `'plugin-ts,plugin-zod'`. When provided, skips the plugin selection prompt.
+   */
   plugins?: string
 }
 
+/**
+ * Runs the interactive Kubb scaffolding wizard.
+ * Detects the package manager, prompts for input/output paths and plugins, installs packages, and writes `kubb.config.ts`.
+ * Pass `yes: true` to skip all prompts and use defaults.
+ */
 export async function runInit({ yes, version, input: inputFlag, output: outputFlag, plugins: pluginsFlag }: InitOptions): Promise<void> {
   const cwd = process.cwd()
 

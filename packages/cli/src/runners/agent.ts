@@ -6,23 +6,61 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { spawnAsync } from '@internals/utils'
 import { agentDefaults } from '../constants.ts'
-import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
+import { buildTelemetryEvent, sendTelemetry } from '../telemetry.ts'
 
 type AgentStartOptions = {
+  /**
+   * TCP port for the HTTP server. When `undefined`, falls back to `PORT` env var or the default (`3000`).
+   */
   port: string | undefined
+  /**
+   * Hostname the HTTP server binds to.
+   *
+   * @default 'localhost'
+   */
   host: string
+  /**
+   * Explicit path to the Kubb config file. When `undefined`, falls back to `KUBB_AGENT_CONFIG` or the default filename.
+   */
   configPath: string | undefined
+  /**
+   * Grants the agent permission to write generated files to the filesystem.
+   */
   allowWrite: boolean
+  /**
+   * Grants all agent permissions, including filesystem writes. Implies `allowWrite`.
+   */
   allowAll: boolean
+  /**
+   * Current `@kubb/cli` version string, used for the telemetry payload.
+   */
   version: string
 }
 
 type ResolvedAgentStartEnvironment = {
+  /**
+   * Final port string after merging CLI flag, `PORT` env var, and the default.
+   */
   port: string
+  /**
+   * Final hostname after merging CLI flag, `HOST` env var, and the default.
+   */
   host: string
+  /**
+   * Effective write-permission flag, accounting for `allowAll` and `KUBB_AGENT_ALLOW_WRITE`.
+   */
   allowWrite: boolean
+  /**
+   * Effective all-permissions flag, accounting for `KUBB_AGENT_ALLOW_ALL`.
+   */
   allowAll: boolean
+  /**
+   * Absolute path to the Kubb config file passed to the agent subprocess.
+   */
   agentConfigPath: string
+  /**
+   * Merged `process.env` object with all resolved agent environment variables applied.
+   */
   env: NodeJS.ProcessEnv
 }
 
@@ -70,6 +108,10 @@ function isPortAvailable(port: number, host: string): Promise<boolean> {
   })
 }
 
+/**
+ * Spawns the Kubb Agent HTTP server as a Node.js subprocess.
+ * Resolves config from CLI flags and environment variables, validates the port, and exits with code 1 on failure.
+ */
 export async function runAgentStart({ port, host, configPath, allowWrite, allowAll, version }: AgentStartOptions): Promise<void> {
   const hrStart = process.hrtime()
 

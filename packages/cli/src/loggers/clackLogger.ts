@@ -4,10 +4,30 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { formatMs, formatMsWithColor, getIntro, toCause } from '@internals/utils'
 import { defineLogger, logLevel as logLevelMap } from '@kubb/core'
-import { getSummary } from '../utils/getSummary.ts'
-import { runHook } from '../utils/runHook.ts'
-import { ClackWritable } from '../utils/Writables.ts'
+import { getSummary } from './utils.ts'
+import { runHook } from '../utils.ts'
 import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils.ts'
+import {Writable} from "node:stream";
+import type { WritableOptions } from 'node:stream'
+
+
+/**
+ * Node.js `Writable` stream that forwards each chunk to a clack `taskLog` message.
+ * Used to pipe hook subprocess output into the clack task log UI.
+ */
+ class ClackWritable extends Writable {
+  taskLog: ReturnType<typeof clack.taskLog>
+  constructor(taskLog: ReturnType<typeof clack.taskLog>, opts?: WritableOptions) {
+    super(opts)
+
+    this.taskLog = taskLog
+  }
+  _write(chunk: Buffer, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
+    this.taskLog.message(`${styleText('dim', chunk.toString())}`)
+    callback()
+  }
+}
+
 
 /**
  * TTY logger with beautiful UI and progress indicators for local development.

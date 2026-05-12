@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
 import { executeIfOnline, isCIEnvironment } from '@internals/utils'
-import { OTLP_ENDPOINT } from '../constants.ts'
+import { OTLP_ENDPOINT } from './constants.ts'
 
 // OpenTelemetry OTLP JSON types
 // https://github.com/open-telemetry/opentelemetry-proto/blob/main/opentelemetry/proto/trace/v1/trace.proto
@@ -96,8 +96,17 @@ type OtlpExportTraceServiceRequest = {
   resourceSpans: OtlpResourceSpans[]
 }
 
+/**
+ * Anonymous plugin name and options snapshot sent with each telemetry event.
+ */
 export type TelemetryPlugin = {
+  /**
+   * Plugin name as registered in the Kubb config, e.g. `'@kubb/plugin-ts'`.
+   */
   name: string
+  /**
+   * Anonymised plugin options snapshot — values are included but cannot be traced back to the user.
+   */
   options: Record<string, unknown>
 }
 
@@ -114,16 +123,14 @@ type TelemetryEvent = {
 }
 
 /**
- * Detect whether the current process is running inside a CI environment.
- * Delegates to the canonical isCIEnvironment() from envDetection.
+ * Returns `true` when the current process runs inside a CI environment.
  */
 export function isCi(): boolean {
   return isCIEnvironment()
 }
 
 /**
- * Check if telemetry is disabled via DO_NOT_TRACK or KUBB_DISABLE_TELEMETRY.
- * Respects the standard DO_NOT_TRACK convention used across development tools.
+ * Returns `true` when telemetry is disabled via `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY`.
  */
 export function isTelemetryDisabled(): boolean {
   return (

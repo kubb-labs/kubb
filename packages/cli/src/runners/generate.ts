@@ -5,39 +5,82 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { AsyncEventEmitter as AsyncEventEmitterClass, detectFormatter, detectLinter, executeIfOnline, formatters, linters, toError } from '@internals/utils'
-import { type CLIOptions, type Config, createKubb, isInputPath, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { type Config, createKubb, isInputPath, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { version } from '../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../constants.ts'
 import { setupLogger } from '../loggers/utils.ts'
-import { executeHooks } from '../utils/executeHooks.ts'
-import { getConfigs } from '../utils/getConfig.ts'
-import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
-import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
-import { startWatcher } from '../utils/watcher.ts'
+import { buildTelemetryEvent, sendTelemetry } from '../telemetry.ts'
+import { executeHooks, getConfigs, startWatcher } from '../utils.ts'
 
 type GenerateProps = {
+  /**
+   * Optional input path override that replaces `config.input.path` for this run.
+   */
   input?: string
+  /**
+   * Resolved Kubb config for this generation entry.
+   */
   config: Config
+  /**
+   * Event emitter used to broadcast lifecycle and log events to registered loggers.
+   */
   hooks: AsyncEventEmitter<KubbHooks>
+  /**
+   * Numeric log level used to gate verbose or debug output.
+   */
   logLevel: number
 }
 
 type ToolMap = typeof formatters | typeof linters
 
 type RunToolPassOptions = {
+  /**
+   * Configured tool value from the Kubb config, e.g. `'auto'`, `'biome'`, or `'prettier'`.
+   */
   toolValue: string
+  /**
+   * Auto-detects the tool from the project. Returns `null` when none is found.
+   */
   detect: () => Promise<string | null>
+  /**
+   * Map of all known tools keyed by their identifier string.
+   */
   toolMap: ToolMap
-  /** Short noun used in "Auto-detected <toolLabel>:" message, e.g. "formatter" or "linter". */
+  /**
+   * Short noun used in the auto-detected message, e.g. `'formatter'` or `'linter'`.
+   */
   toolLabel: string
-  /** Verb prefix for the success message, e.g. "Formatting" or "Linting". */
+  /**
+   * Verb prefix for the success message, e.g. `'Formatting'` or `'Linting'`.
+   */
   successPrefix: string
+  /**
+   * Warning message emitted when auto-detection finds no usable tool.
+   */
   noToolMessage: string
+  /**
+   * `config.name` value used to derive a stable hash ID for the hook event pair.
+   */
   configName: string | undefined
+  /**
+   * Absolute path to the output directory passed to the tool command.
+   */
   outputPath: string
+  /**
+   * Numeric log level used to gate verbose output in success messages.
+   */
   logLevel: number
+  /**
+   * Event emitter used to broadcast tool lifecycle and log events.
+   */
   hooks: AsyncEventEmitter<KubbHooks>
+  /**
+   * Emits `kubb:format:start` or `kubb:lint:start` before the tool runs.
+   */
   onStart: () => Promise<void>
+  /**
+   * Emits `kubb:format:end` or `kubb:lint:end` after the tool finishes.
+   */
   onEnd: () => Promise<void>
 }
 
@@ -201,7 +244,7 @@ async function generate(options: GenerateProps): Promise<void> {
     process.exit(1)
   }
 
-  await hooks.emit('kubb:success', { message: 'Generation successfully', info: inputPath })
+  await hooks.emit('kubb:success', { message: 'Generation succeeded', info: inputPath })
   await hooks.emit('kubb:generation:end', { config, files, sources: kubb.sources })
 
   const outputPath = path.resolve(config.root, config.output.path)
@@ -273,12 +316,28 @@ async function generate(options: GenerateProps): Promise<void> {
 }
 
 type GenerateCommandOptions = {
+  /**
+   * Optional OpenAPI input path that overrides `config.input.path` for this run.
+   */
   input?: string
+  /**
+   * Explicit path to the Kubb config file. When omitted, cosmiconfig searches from the current directory.
+   */
   configPath?: string
+  /**
+   * Log level key string as passed from the CLI flag, e.g. `'info'`, `'verbose'`, or `'debug'`.
+   */
   logLevel: string
+  /**
+   * When `true`, starts a file watcher and re-runs generation on every change to the input file.
+   */
   watch: boolean
 }
 
+/**
+ * Runs the full Kubb generation lifecycle for the given CLI options.
+ * Sets up the logger, checks for a newer version, loads configs, and calls `generate` for each config entry.
+ */
 export async function runGenerateCommand({ input, configPath, logLevel: logLevelKey, watch }: GenerateCommandOptions): Promise<void> {
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const hooks = new AsyncEventEmitterClass<KubbHooks>()
@@ -300,12 +359,11 @@ export async function runGenerateCommand({ input, configPath, logLevel: logLevel
   })
 
   try {
-    const result = await getCosmiConfig('kubb', configPath)
-    const configs = await getConfigs(result.config, { input } as CLIOptions)
+    const { configs, configPath: resolvedConfigPath } = await getConfigs({ configPath, input })
 
     await hooks.emit('kubb:config:start')
-    await hooks.emit('kubb:info', { message: 'Config loaded', info: path.relative(process.cwd(), result.filepath) })
-    await hooks.emit('kubb:success', { message: 'Config loaded successfully', info: path.relative(process.cwd(), result.filepath) })
+    await hooks.emit('kubb:info', { message: 'Config loaded', info: path.relative(process.cwd(), resolvedConfigPath) })
+    await hooks.emit('kubb:success', { message: 'Config loaded successfully', info: path.relative(process.cwd(), resolvedConfigPath) })
     await hooks.emit('kubb:config:end', { configs })
 
     await hooks.emit('kubb:lifecycle:start', { version })

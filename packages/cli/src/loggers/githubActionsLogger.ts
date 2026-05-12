@@ -1,7 +1,7 @@
 import { styleText } from 'node:util'
 import { formatHrtime, formatMs, formatMsWithColor, toCause } from '@internals/utils'
 import { type Config, defineLogger, logLevel as logLevelMap } from '@kubb/core'
-import { runHook } from '../utils/runHook.ts'
+import { runHook } from '../utils.ts'
 import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils.ts'
 
 /**
