@@ -4,11 +4,24 @@ import { canUseTTY, formatHrtime, isGitHubActions, randomCliColor } from '@inter
 import type { Config, Logger, LoggerContext, LoggerOptions, Plugin } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
+import type { HookSinkOptions } from '../utils.ts'
 import { clackLogger } from './clackLogger.ts'
 import { fileSystemLogger } from './fileSystemLogger.ts'
 import { githubActionsLogger } from './githubActionsLogger.ts'
 import { plainLogger } from './plainLogger.ts'
 import type { LoggerType } from './types.ts'
+
+/**
+ * Factory called once per hook command to build the output sink and streaming flag.
+ * The function should set up any logger UI (e.g., spinner) and return callbacks that forward subprocess output to it.
+ */
+export type HookSinkFactory = (commandWithArgs: string) => HookSinkOptions | undefined
+
+/**
+ * Logger variant that may return a {@link HookSinkFactory} from `install`.
+ * The factory is forwarded to hook execution so the logger controls subprocess output routing.
+ */
+export type CLILogger = Logger<LoggerOptions, HookSinkFactory | void>
 
 /**
  * Optionally prefix a message with a [HH:MM:SS] timestamp when logLevel >= verbose.
@@ -100,29 +113,28 @@ function detectLogger(): LoggerType {
   return 'plain'
 }
 
-const logMapper = {
+const logMapper: Record<LoggerType, CLILogger> = {
   clack: clackLogger,
   plain: plainLogger,
   'github-actions': githubActionsLogger,
-} as const satisfies Record<LoggerType, Logger>
+}
 
-export async function setupLogger(context: LoggerContext, { logLevel }: LoggerOptions): Promise<void> {
+export async function setupLogger(context: LoggerContext, { logLevel }: LoggerOptions): Promise<HookSinkFactory | undefined> {
   const type = detectLogger()
 
-  const logger = logMapper[type] as Logger
+  const logger = logMapper[type]
 
   if (!logger) {
     throw new Error(`Unknown adapter type: ${type}`)
   }
 
-  // Install primary logger
-  const cleanup = await logger.install(context, { logLevel })
+  const makeSink = await logger.install(context, { logLevel })
 
   if (logLevel >= logLevelMap.debug) {
     await fileSystemLogger.install(context, { logLevel })
   }
 
-  return cleanup
+  return typeof makeSink === 'function' ? makeSink : undefined
 }
 
 type SummaryProps = {

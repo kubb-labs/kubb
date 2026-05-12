@@ -91,7 +91,6 @@ jobs:
           publish: pnpm release
           commit: 'ci(changesets): version packages'
           setupGitUser: false
-          setupNpmrc: false
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,7 +1,6 @@
 import { styleText } from 'node:util'
 import { formatHrtime, formatMs, formatMsWithColor, toCause } from '@internals/utils'
 import { type Config, defineLogger, logLevel as logLevelMap } from '@kubb/core'
-import { runHook } from '../utils.ts'
 import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils.ts'
 
 /**
@@ -307,34 +306,18 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('kubb:hook:start', async ({ id, command, args }) => {
-      const commandWithArgs = formatCommandWithArgs(command, args)
-      const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} started`)
-
-      if (logLevel > logLevelMap.silent) {
-        if (state.currentConfigs.length === 1) {
-          openGroup(`Hook ${commandWithArgs}`)
-        }
-        console.log(text)
-      }
-
-      // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
-      if (!id) {
+    context.on('kubb:hook:start', ({ command, args }) => {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
-      await runHook({
-        id,
-        command,
-        args,
-        commandWithArgs,
-        context,
-        sink: {
-          // GHA formats errors with the ::error:: annotation
-          onStdout: logLevel > logLevelMap.silent ? (s) => console.log(s) : undefined,
-          onStderr: logLevel > logLevelMap.silent ? (s) => console.error(`::error::${s}`) : undefined,
-        },
-      })
+      const commandWithArgs = formatCommandWithArgs(command, args)
+      const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} started`)
+
+      if (state.currentConfigs.length === 1) {
+        openGroup(`Hook ${commandWithArgs}`)
+      }
+      console.log(text)
     })
 
     context.on('kubb:hook:end', ({ command, args }) => {
@@ -374,6 +357,11 @@ export const githubActionsLogger = defineLogger({
 
     context.on('kubb:lifecycle:end', () => {
       reset()
+    })
+
+    return (_commandWithArgs: string) => ({
+      onStdout: logLevel > logLevelMap.silent ? (s: string) => console.log(s) : undefined,
+      onStderr: logLevel > logLevelMap.silent ? (s: string) => console.error(`::error::${s}`) : undefined,
     })
   },
 })

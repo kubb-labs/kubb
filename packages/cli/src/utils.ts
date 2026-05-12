@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { styleText } from 'node:util'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { toError, tokenize } from '@internals/utils'
-import type { CLIOptions, Config, KubbHookEndContext, KubbHooks, PossibleConfig } from '@kubb/core'
+import type { CLIOptions, Config, KubbHooks, PossibleConfig } from '@kubb/core'
 import { cosmiconfig } from 'cosmiconfig'
 import { createJiti } from 'jiti'
 import { NonZeroExitError, x } from 'tinyexec'
@@ -131,57 +131,10 @@ export async function getConfigs({ configPath, input }: GetConfigsOptions): Prom
   }
 }
 
-type ExecutingHooksProps = {
-  /**
-   * The `hooks` section from the Kubb config containing `done` commands to run.
-   */
-  configHooks: NonNullable<Config['hooks']>
-  /**
-   * Event emitter used to broadcast hook lifecycle and log events.
-   */
-  hooks: AsyncEventEmitter<KubbHooks>
-}
-
 /**
- * Runs the `done` hooks defined in a Kubb config in sequence.
- * Each command is tokenized, executed via `kubb:hook:start`, and awaited through `kubb:hook:end`.
+ * Output sink for a hook subprocess, controlling how streamed lines and exit output are forwarded.
  */
-export async function executeHooks({ configHooks, hooks }: ExecutingHooksProps): Promise<void> {
-  const commands = Array.isArray(configHooks.done) ? configHooks.done : [configHooks.done].filter(Boolean)
-
-  for (const command of commands) {
-    const [cmd, ...args] = tokenize(command)
-
-    if (!cmd) {
-      continue
-    }
-
-    const hookId = createHash('sha256').update(command).digest('hex')
-
-    // Wire up the hook:end listener BEFORE emitting hook:start to avoid the race condition
-    // where hook:end fires synchronously inside emit('kubb:hook:start') before the listener is registered.
-    const hookEndPromise = new Promise<void>((resolve, reject) => {
-      const handler = (ctx: KubbHookEndContext) => {
-        if (ctx.id !== hookId) return
-        hooks.off('kubb:hook:end', handler)
-        if (!ctx.success) {
-          reject(ctx.error ?? new Error(`Hook failed: ${command}`))
-          return
-        }
-        hooks
-          .emit('kubb:success', { message: `${styleText('dim', command)} successfully executed` })
-          .then(resolve)
-          .catch(reject)
-      }
-      hooks.on('kubb:hook:end', handler)
-    })
-
-    await hooks.emit('kubb:hook:start', { id: hookId, command: cmd, args })
-    await hookEndPromise
-  }
-}
-
-type HookOutputSink = {
+export type HookOutputSink = {
   /**
    * Called for each streamed stdout line while the hook runs.
    */
@@ -196,43 +149,81 @@ type HookOutputSink = {
   onStdout?: (text: string) => void
 }
 
-type RunHookOptions = {
+/**
+ * Output sink combined with stream control for a hook subprocess.
+ */
+export type HookSinkOptions = HookOutputSink & {
   /**
-   * Stable hash ID that links the matching `kubb:hook:start` and `kubb:hook:end` events.
-   */
-  id: string
-  /**
-   * Executable name to spawn, e.g. `'prettier'` or `'oxlint'`.
-   */
-  command: string
-  /**
-   * Arguments passed to the command.
-   */
-  args?: readonly string[]
-  /**
-   * Pre-formatted `command + args` string used in log messages.
-   */
-  commandWithArgs: string
-  /**
-   * Event emitter used to broadcast hook lifecycle and debug events.
-   */
-  context: AsyncEventEmitter<KubbHooks>
-  /**
-   * When `true`, streams process output line-by-line via `sink.onLine`.
+   * When `true`, streams process output line-by-line via `onLine`.
    *
    * @default false
    */
   stream?: boolean
+}
+
+type ExecuteHooksOptions = {
   /**
-   * Optional output sink for forwarding subprocess output to a logger.
+   * The `hooks` section from the Kubb config containing `done` commands to run.
    */
+  configHooks: NonNullable<Config['hooks']>
+  /**
+   * Event emitter used to broadcast hook lifecycle and log events.
+   */
+  hooks: AsyncEventEmitter<KubbHooks>
+  /**
+   * Called once per hook command to build the output sink.
+   * Set up any logger UI (spinner, task log) inside this callback and return the output callbacks.
+   * When omitted, subprocess output is silently discarded.
+   */
+  makeSink?: (commandWithArgs: string) => HookSinkOptions | undefined
+}
+
+/**
+ * Runs the `done` hooks defined in a Kubb config in sequence.
+ * Emits `kubb:hook:start` before each hook and delegates subprocess execution to the optional `makeSink` sink.
+ */
+export async function executeHooks({ configHooks, hooks, makeSink }: ExecuteHooksOptions): Promise<void> {
+  const commands = Array.isArray(configHooks.done) ? configHooks.done : [configHooks.done].filter(Boolean)
+
+  for (const command of commands) {
+    const [cmd, ...args] = tokenize(command)
+
+    if (!cmd) {
+      continue
+    }
+
+    const hookId = createHash('sha256').update(command).digest('hex')
+    const commandWithArgs = [cmd, ...args].join(' ')
+
+    await hooks.emit('kubb:hook:start', { id: hookId, command: cmd, args })
+
+    const { stream = false, onLine, onStdout, onStderr } = makeSink?.(commandWithArgs) ?? {}
+    await runHook({
+      id: hookId,
+      command: cmd,
+      args,
+      commandWithArgs,
+      context: hooks,
+      stream,
+      sink: { onLine, onStdout, onStderr },
+    })
+  }
+}
+
+type RunHookOptions = {
+  id: string
+  command: string
+  args?: readonly string[]
+  commandWithArgs: string
+  context: AsyncEventEmitter<KubbHooks>
+  stream?: boolean
   sink?: HookOutputSink
 }
 
 /**
  * Executes a hook command, emits debug and completion events, and forwards output to an optional sink.
  */
-export async function runHook({ id, command, args, commandWithArgs, context, stream = false, sink }: RunHookOptions): Promise<void> {
+async function runHook({ id, command, args, commandWithArgs, context, stream = false, sink }: RunHookOptions): Promise<void> {
   try {
     const proc = x(command, [...(args ?? [])], {
       nodeOptions: { detached: process.platform !== 'win32' },
@@ -251,6 +242,8 @@ export async function runHook({ id, command, args, commandWithArgs, context, str
       date: new Date(),
       logs: [result.stdout.trimEnd()],
     })
+
+    await context.emit('kubb:success', { message: `${styleText('dim', commandWithArgs)} successfully executed` })
 
     await context.emit('kubb:hook:end', {
       command,

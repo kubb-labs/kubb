@@ -9,6 +9,7 @@ import { type Config, createKubb, isInputPath, type KubbHooks, logLevel as logLe
 import { version } from '../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../constants.ts'
 import { setupLogger } from '../loggers/utils.ts'
+import type { HookSinkFactory } from '../loggers/utils.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../telemetry.ts'
 import { executeHooks, getConfigs, startWatcher } from '../utils.ts'
 
@@ -29,6 +30,10 @@ type GenerateProps = {
    * Numeric log level used to gate verbose or debug output.
    */
   logLevel: number
+  /**
+   * Hook sink factory returned by the logger, forwarded to hook execution to route subprocess output.
+   */
+  makeSink?: HookSinkFactory
 }
 
 type ToolMap = typeof formatters | typeof linters
@@ -171,7 +176,7 @@ async function runToolPass({
 }
 
 async function generate(options: GenerateProps): Promise<void> {
-  const { input, hooks, logLevel } = options
+  const { input, hooks, logLevel, makeSink } = options
 
   const hrStart = process.hrtime()
   const inputPath = input ?? (options.config.input && 'path' in options.config.input ? options.config.input.path : undefined)
@@ -285,7 +290,7 @@ async function generate(options: GenerateProps): Promise<void> {
 
   if (config.hooks) {
     await hooks.emit('kubb:hooks:start')
-    await executeHooks({ configHooks: config.hooks, hooks })
+    await executeHooks({ configHooks: config.hooks, hooks, makeSink })
 
     await hooks.emit('kubb:hooks:end')
   }
@@ -342,7 +347,7 @@ export async function runGenerateCommand({ input, configPath, logLevel: logLevel
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const hooks = new AsyncEventEmitterClass<KubbHooks>()
 
-  await setupLogger(hooks, { logLevel })
+  const makeSink = await setupLogger(hooks, { logLevel })
 
   await executeIfOnline(async () => {
     try {
@@ -374,12 +379,12 @@ export async function runGenerateCommand({ input, configPath, logLevel: logLevel
           // remove to avoid duplicate listeners after each change
           hooks.removeAll()
 
-          await generate({ input, config, logLevel, hooks })
+          await generate({ input, config, logLevel, hooks, makeSink })
 
           clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
         })
       } else {
-        await generate({ input, config, logLevel, hooks })
+        await generate({ input, config, logLevel, hooks, makeSink })
       }
     }
 
