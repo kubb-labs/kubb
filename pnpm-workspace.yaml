@@ -10,7 +10,7 @@ allowBuilds:
   msw: true
 
 pmOnFail: warn
-minimumReleaseAge: 0
+minimumReleaseAge: 1440
 
 catalog:
   '@types/node': ^22.19.19
