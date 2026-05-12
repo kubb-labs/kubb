@@ -56,16 +56,16 @@ export default defineConfig({
 
 ## Options
 
-| Option | Type | Default | Description |
-| ------ | ---- | ------- | ----------- |
+| Option | Type                              | Default   | Description                                 |
+| ------ | --------------------------------- | --------- | ------------------------------------------- |
 | `type` | `'all' \| 'named' \| 'propagate'` | `'named'` | Export style for the generated barrel files |
 
 ### Export types
 
-| Value | Output |
-| ----- | ------ |
-| `'all'` | `export * from './...'` — wildcard re-exports |
-| `'named'` | `export { ... } from './...'` — named re-exports, tree-shaking friendly |
+| Value         | Output                                                                          |
+| ------------- | ------------------------------------------------------------------------------- |
+| `'all'`       | `export * from './...'` — wildcard re-exports                                   |
+| `'named'`     | `export { ... } from './...'` — named re-exports, tree-shaking friendly         |
 | `'propagate'` | `export * from './...'` on index files only, propagating up through directories |
 
 ## How it works

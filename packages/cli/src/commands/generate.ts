@@ -47,9 +47,9 @@ export const command = defineCommand({
   },
   async run({ values, positionals }) {
     const logLevel = values.debug ? 'debug' : values.verbose ? 'verbose' : values.silent ? 'silent' : values.logLevel
-    const { runGenerateCommand } = await import('../runners/generate.ts')
+    const { run } = await import('../runners/generate/run.ts')
 
-    await runGenerateCommand({
+    await run({
       input: positionals[0],
       configPath: values.config,
       logLevel,

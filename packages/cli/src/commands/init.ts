@@ -38,9 +38,9 @@ export const command = defineCommand({
     },
   },
   async run({ values }) {
-    const { runInit } = await import('../runners/init.ts')
+    const { run } = await import('../runners/init/run.ts')
 
-    await runInit({
+    await run({
       yes: values.yes,
       version,
       input: values.input,

@@ -53,12 +53,12 @@ npx kubb init
 
 #### Options
 
-| Flag | Short | Type | Default | Description |
-| ---- | ----- | ---- | ------- | ----------- |
-| `--yes` | `-y` | boolean | `false` | Skip all prompts and use defaults |
-| `--input <path>` | `-i` | string | `./openapi.yaml` | Path to the OpenAPI specification |
-| `--output <path>` | `-o` | string | `./src/gen` | Output directory for generated files |
-| `--plugins <list>` | | string | | Comma-separated list of plugins to install |
+| Flag               | Short | Type    | Default          | Description                                |
+| ------------------ | ----- | ------- | ---------------- | ------------------------------------------ |
+| `--yes`            | `-y`  | boolean | `false`          | Skip all prompts and use defaults          |
+| `--input <path>`   | `-i`  | string  | `./openapi.yaml` | Path to the OpenAPI specification          |
+| `--output <path>`  | `-o`  | string  | `./src/gen`      | Output directory for generated files       |
+| `--plugins <list>` |       | string  |                  | Comma-separated list of plugins to install |
 
 Available plugin values for `--plugins`: `plugin-ts`, `plugin-client`, `plugin-react-query`, `plugin-vue-query`, `plugin-zod`, `plugin-faker`, `plugin-msw`, `plugin-cypress`, `plugin-mcp`, `plugin-redoc`.
 
@@ -99,15 +99,15 @@ npx kubb generate
 
 #### Options
 
-| Flag | Short | Type | Default | Description |
-| ---- | ----- | ---- | ------- | ----------- |
-| `[input]` | | string | | OpenAPI file path — overrides `input.path` in the config |
-| `--config <path>` | `-c` | string | | Path to the Kubb config file |
-| `--logLevel <level>` | `-l` | string | `info` | Log level: `silent`, `info`, `verbose`, or `debug` |
-| `--watch` | `-w` | boolean | `false` | Re-generate whenever the input file changes |
-| `--debug` | `-d` | boolean | `false` | Override log level to `debug` |
-| `--verbose` | `-v` | boolean | `false` | Override log level to `verbose` |
-| `--silent` | `-s` | boolean | `false` | Override log level to `silent` |
+| Flag                 | Short | Type    | Default | Description                                              |
+| -------------------- | ----- | ------- | ------- | -------------------------------------------------------- |
+| `[input]`            |       | string  |         | OpenAPI file path — overrides `input.path` in the config |
+| `--config <path>`    | `-c`  | string  |         | Path to the Kubb config file                             |
+| `--logLevel <level>` | `-l`  | string  | `info`  | Log level: `silent`, `info`, `verbose`, or `debug`       |
+| `--watch`            | `-w`  | boolean | `false` | Re-generate whenever the input file changes              |
+| `--debug`            | `-d`  | boolean | `false` | Override log level to `debug`                            |
+| `--verbose`          | `-v`  | boolean | `false` | Override log level to `verbose`                          |
+| `--silent`           | `-s`  | boolean | `false` | Override log level to `silent`                           |
 
 #### Examples
 
@@ -140,9 +140,9 @@ npx kubb validate --input <path-or-url>
 
 #### Options
 
-| Flag | Short | Type | Required | Description |
-| ---- | ----- | ---- | -------- | ----------- |
-| `--input <path>` | `-i` | string | ✅ | Path or URL to the OpenAPI/Swagger file to validate |
+| Flag             | Short | Type   | Required | Description                                         |
+| ---------------- | ----- | ------ | -------- | --------------------------------------------------- |
+| `--input <path>` | `-i`  | string | ✅       | Path or URL to the OpenAPI/Swagger file to validate |
 
 #### Examples
 
@@ -168,10 +168,10 @@ npx kubb mcp
 
 #### Options
 
-| Flag | Short | Type | Default | Description |
-| ---- | ----- | ---- | ------- | ----------- |
-| `--port <number>` | `-p` | string | | Port for HTTP MCP server (omit for stdio) |
-| `--host <hostname>` | | string | `localhost` | Hostname to bind to (HTTP mode only) |
+| Flag                | Short | Type   | Default     | Description                               |
+| ------------------- | ----- | ------ | ----------- | ----------------------------------------- |
+| `--port <number>`   | `-p`  | string |             | Port for HTTP MCP server (omit for stdio) |
+| `--host <hostname>` |       | string | `localhost` | Hostname to bind to (HTTP mode only)      |
 
 #### Examples
 
@@ -210,13 +210,13 @@ npx kubb agent start
 
 #### Options
 
-| Flag | Short | Type | Default | Description |
-| ---- | ----- | ---- | ------- | ----------- |
-| `--config <path>` | `-c` | string | | Path to the Kubb config file |
-| `--port <number>` | `-p` | string | `3000` | Port the HTTP server listens on |
-| `--host <hostname>` | | string | `0.0.0.0` | Hostname the HTTP server binds to |
-| `--allow-write` | | boolean | `false` | Write generated files to disk (otherwise output is streamed only) |
-| `--allow-all` | | boolean | `false` | Grant all permissions (implies `--allow-write`) |
+| Flag                | Short | Type    | Default   | Description                                                       |
+| ------------------- | ----- | ------- | --------- | ----------------------------------------------------------------- |
+| `--config <path>`   | `-c`  | string  |           | Path to the Kubb config file                                      |
+| `--port <number>`   | `-p`  | string  | `3000`    | Port the HTTP server listens on                                   |
+| `--host <hostname>` |       | string  | `0.0.0.0` | Hostname the HTTP server binds to                                 |
+| `--allow-write`     |       | boolean | `false`   | Write generated files to disk (otherwise output is streamed only) |
+| `--allow-all`       |       | boolean | `false`   | Grant all permissions (implies `--allow-write`)                   |
 
 #### Examples
 

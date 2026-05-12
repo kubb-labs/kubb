@@ -1,7 +1,7 @@
 {
   "name": "kubb",
   "version": "5.0.0-beta.6",
-  "description": "Meta-package and entry point for Kubb \u2014 a plugin-based code generation framework for OpenAPI. Includes defineConfig, all public APIs, and serves as the gateway to the entire Kubb ecosystem.",
+  "description": "Meta-package and entry point for Kubb — a plugin-based code generation framework for OpenAPI. Includes defineConfig, all public APIs, and serves as the gateway to the entire Kubb ecosystem.",
   "keywords": [
     "api-client",
     "code-generator",

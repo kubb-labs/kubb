@@ -36,9 +36,9 @@ export const command = defineCommand({
     },
   },
   async run({ values }) {
-    const { runAgentStart } = await import('../../runners/agent.ts')
+    const { run } = await import('../../runners/agent/run.ts')
 
-    await runAgentStart({
+    await run({
       port: values.port !== undefined ? values.port : undefined,
       host: values.host,
       configPath: values.config,

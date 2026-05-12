@@ -800,12 +800,12 @@ export type LoggerOptions = {
  */
 export type LoggerContext = AsyncEventEmitter<KubbHooks>
 
-export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
+export type Logger<TOptions extends LoggerOptions = LoggerOptions, TInstallReturn = void> = {
   name: string
-  install: (context: LoggerContext, options?: TOptions) => void | Promise<void>
+  install: (context: LoggerContext, options?: TOptions) => TInstallReturn | Promise<TInstallReturn>
 }
 
-export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Logger<TOptions>
+export type UserLogger<TOptions extends LoggerOptions = LoggerOptions, TInstallReturn = void> = Logger<TOptions, TInstallReturn>
 
 export type { Storage } from './createStorage.ts'
 export type { Generator } from './defineGenerator.ts'

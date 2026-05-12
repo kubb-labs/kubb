@@ -36,7 +36,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@a71ab88377ae067bbf7af843528783c7b7913a95 # main
+        uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
         with:
           node-version: '22'
 
@@ -75,7 +75,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Tools (turbo cache disabled; pnpm store cache is low-risk since no pull_request_target writes to base cache)
-        uses: kubb-labs/config/.github/setup@a71ab88377ae067bbf7af843528783c7b7913a95 # main
+        uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
         with:
           node-version: '22'
           cache: 'false'
@@ -91,7 +91,6 @@ jobs:
           publish: pnpm release
           commit: 'ci(changesets): version packages'
           setupGitUser: false
-          setupNpmrc: false
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

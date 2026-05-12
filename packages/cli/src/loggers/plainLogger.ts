@@ -2,8 +2,7 @@ import { relative } from 'node:path'
 import { formatMs, toCause } from '@internals/utils'
 import { defineLogger, logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_SEPARATOR } from '../constants.ts'
-import { getSummary } from '../utils/getSummary.ts'
-import { runHook } from '../utils/runHook.ts'
+import { getSummary } from './utils.ts'
 import { formatCommandWithArgs, formatMessage } from './utils.ts'
 
 /**
@@ -199,30 +198,15 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:hook:start', async ({ id, command, args }) => {
-      const commandWithArgs = formatCommandWithArgs(command, args)
-      const text = getMessage(`Hook ${commandWithArgs} started`)
-
-      if (logLevel > logLevelMap.silent) {
-        console.log(text)
-      }
-
-      // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
-      if (!id) {
+    context.on('kubb:hook:start', ({ command, args }) => {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
-      await runHook({
-        id,
-        command,
-        args,
-        commandWithArgs,
-        context,
-        sink: {
-          onStdout: logLevel > logLevelMap.silent ? (s) => console.log(s) : undefined,
-          onStderr: logLevel > logLevelMap.silent ? (s) => console.error(s) : undefined,
-        },
-      })
+      const commandWithArgs = formatCommandWithArgs(command, args)
+      const text = getMessage(`Hook ${commandWithArgs} started`)
+
+      console.log(text)
     })
 
     context.on('kubb:hook:end', ({ command, args }) => {
@@ -249,6 +233,11 @@ export const plainLogger = defineLogger({
       console.log(SUMMARY_SEPARATOR)
       console.log(summary.join('\n'))
       console.log(SUMMARY_SEPARATOR)
+    })
+
+    return (_commandWithArgs: string) => ({
+      onStdout: logLevel > logLevelMap.silent ? (s: string) => console.log(s) : undefined,
+      onStderr: logLevel > logLevelMap.silent ? (s: string) => console.error(s) : undefined,
     })
   },
 })

@@ -15,8 +15,8 @@ export const command = defineCommand({
     },
   },
   async run({ values }) {
-    const { runValidate } = await import('../runners/validate.ts')
+    const { run } = await import('../runners/validate/run.ts')
 
-    await runValidate({ input: values.input, version })
+    await run({ input: values.input, version })
   },
 })

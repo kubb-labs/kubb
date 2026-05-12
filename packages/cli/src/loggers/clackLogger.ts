@@ -4,10 +4,27 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { formatMs, formatMsWithColor, getIntro, toCause } from '@internals/utils'
 import { defineLogger, logLevel as logLevelMap } from '@kubb/core'
-import { getSummary } from '../utils/getSummary.ts'
-import { runHook } from '../utils/runHook.ts'
-import { ClackWritable } from '../utils/Writables.ts'
+import { getSummary } from './utils.ts'
 import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils.ts'
+import { Writable } from 'node:stream'
+import type { WritableOptions } from 'node:stream'
+
+/**
+ * Node.js `Writable` stream that forwards each chunk to a clack `taskLog` message.
+ * Used to pipe hook subprocess output into the clack task log UI.
+ */
+class ClackWritable extends Writable {
+  taskLog: ReturnType<typeof clack.taskLog>
+  constructor(taskLog: ReturnType<typeof clack.taskLog>, opts?: WritableOptions) {
+    super(opts)
+
+    this.taskLog = taskLog
+  }
+  _write(chunk: Buffer, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
+    this.taskLog.message(`${styleText('dim', chunk.toString())}`)
+    callback()
+  }
+}
 
 /**
  * TTY logger with beautiful UI and progress indicators for local development.
@@ -364,51 +381,15 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.outro(text)
     })
 
-    context.on('kubb:hook:start', async ({ id, command, args }) => {
+    context.on('kubb:hook:start', ({ command, args }) => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+
       const commandWithArgs = formatCommandWithArgs(command, args)
       const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} started`)
 
-      // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
-      if (!id) {
-        return
-      }
-
-      if (logLevel <= logLevelMap.silent) {
-        await runHook({
-          id,
-          command,
-          args,
-          commandWithArgs,
-          context,
-          sink: {
-            onStderr: (s) => console.error(s),
-            onStdout: (s) => console.log(s),
-          },
-        })
-        return
-      }
-
       clack.intro(text)
-
-      const logger = clack.taskLog({
-        title: getMessage(['Executing hook', logLevel >= logLevelMap.info ? styleText('dim', commandWithArgs) : undefined].filter(Boolean).join(' ')),
-      })
-
-      const writable = new ClackWritable(logger)
-
-      await runHook({
-        id,
-        command,
-        args,
-        commandWithArgs,
-        context,
-        stream: true,
-        sink: {
-          onLine: (line) => writable.write(line),
-          onStderr: (s) => logger.error(s),
-          onStdout: (s) => logger.message(s),
-        },
-      })
     })
 
     context.on('kubb:hook:end', ({ command, args }) => {
@@ -454,5 +435,26 @@ Run \`npm install -g @kubb/cli\` to update`,
     context.on('kubb:lifecycle:end', () => {
       reset()
     })
+
+    return (commandWithArgs: string) => {
+      if (logLevel <= logLevelMap.silent) {
+        return {
+          onStdout: (s: string) => console.log(s),
+          onStderr: (s: string) => console.error(s),
+        }
+      }
+
+      const logger = clack.taskLog({
+        title: getMessage(['Executing hook', logLevel >= logLevelMap.info ? styleText('dim', commandWithArgs) : undefined].filter(Boolean).join(' ')),
+      })
+      const writable = new ClackWritable(logger)
+
+      return {
+        stream: true,
+        onLine: (line: string) => writable.write(line),
+        onStdout: (s: string) => logger.message(s),
+        onStderr: (s: string) => logger.error(s),
+      }
+    }
   },
 })

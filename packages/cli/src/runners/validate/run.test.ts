@@ -5,7 +5,7 @@ vi.mock('@internals/utils', () => ({
   getErrorMessage: vi.fn((error: unknown) => (error instanceof Error ? error.message : String(error))),
 }))
 
-vi.mock('../utils/telemetry.ts', () => ({
+vi.mock('../../telemetry.ts', () => ({
   buildTelemetryEvent: vi.fn((payload: object) => payload),
   sendTelemetry: vi.fn(async () => undefined),
 }))
@@ -25,7 +25,7 @@ describe('runValidate', () => {
     const validate = vi.fn(async () => undefined)
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
-    const { runValidate } = await import('./validate.ts')
+    const { run: runValidate } = await import('./run.ts')
 
     await runValidate(
       { input: 'spec.yaml', version: '1.0.0' },
@@ -33,7 +33,7 @@ describe('runValidate', () => {
         loadValidateModule: async () =>
           ({
             adapterOas: () => ({ validate }),
-          }) as unknown as Awaited<ReturnType<(typeof import('./validate.ts'))['loadValidateModule']>>,
+          }) as unknown as Awaited<ReturnType<(typeof import('./run.ts'))['loadValidateModule']>>,
       },
     )
 
@@ -47,7 +47,7 @@ describe('runValidate', () => {
       throw new Error('process.exit')
     }) as never)
 
-    const { runValidate } = await import('./validate.ts')
+    const { run: runValidate } = await import('./run.ts')
 
     await expect(
       runValidate(
