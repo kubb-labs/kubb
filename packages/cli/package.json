@@ -1,20 +1,15 @@
 {
   "name": "@kubb/cli",
   "version": "5.0.0-beta.6",
-  "description": "Command-line interface for Kubb, enabling easy generation of TypeScript, React-Query, Zod, and other code from OpenAPI specifications.",
+  "description": "Official CLI for Kubb. Run kubb generate, kubb init, kubb validate, kubb mcp, and kubb agent to manage the full code generation lifecycle from OpenAPI/Swagger specs.",
   "keywords": [
     "cli",
     "code-generator",
     "codegen",
-    "command-line",
-    "command-line-tool",
     "kubb",
-    "oas",
     "openapi",
-    "plugins",
     "sdk-generator",
     "swagger",
-    "terminal",
     "typescript"
   ],
   "license": "MIT",

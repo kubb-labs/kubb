@@ -1,14 +1,12 @@
 {
   "name": "@kubb/middleware-barrel",
   "version": "5.0.0-beta.6",
-  "description": "Barrel-file generation middleware for Kubb. Generates index.ts barrel files for each plugin's output directory and a root index.ts after all plugins have run.",
+  "description": "Barrel-file middleware for Kubb. Automatically generates index.ts re-export files per plugin output directory and an optional root barrel after all plugins complete.",
   "keywords": [
     "barrel",
-    "code-generator",
     "codegen",
     "kubb",
     "middleware",
-    "openapi",
     "typescript"
   ],
   "license": "MIT",

@@ -21,13 +21,29 @@
 </h4>
 </div>
 
-Kubb plugin for Vite, webpack, esbuild, Rollup, Nuxt, Astro and Rspack.
+Universal build integration for Kubb using [unplugin](https://github.com/unjs/unplugin). Runs OpenAPI code generation as part of your build pipeline in Vite, Webpack, Rollup, esbuild, Rspack, Nuxt, and Astro.
 
-## Install
+## Installation
 
-```bash
-npm i -D unplugin-kubb @kubb/core
+::: code-group
+
+```bash [bun]
+bun add -D unplugin-kubb @kubb/core
 ```
+
+```bash [pnpm]
+pnpm add -D unplugin-kubb @kubb/core
+```
+
+```bash [npm]
+npm install -D unplugin-kubb @kubb/core
+```
+
+```bash [yarn]
+yarn add -D unplugin-kubb @kubb/core
+```
+
+:::
 
 ```typescript
 import kubb from 'unplugin-kubb/vite'
@@ -77,20 +93,6 @@ export default defineNuxtConfig({
 })
 ```
 
-> This module works for both Nuxt 2 and [Nuxt Vite](https://github.com/nuxt/vite)
-
-```typescript
-module.exports = {
-  configureWebpack: {
-    plugins: [
-      require('unplugin-kubb/webpack')({
-        /* options */
-      }),
-    ],
-  },
-}
-```
-
 ```typescript
 import { build } from 'esbuild'
 import kubb from 'unplugin-kubb/esbuild'
@@ -114,7 +116,7 @@ type Options = {
 
 ## Supporting Kubb
 
-Kubb uses an MIT-licensed open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
+Kubb is an MIT-licensed open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
 
 - [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
 

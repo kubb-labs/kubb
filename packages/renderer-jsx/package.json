@@ -1,19 +1,13 @@
 {
   "name": "@kubb/renderer-jsx",
   "version": "5.0.0-beta.6",
-  "description": "React integration for Kubb - JSX runtime and component-based code generation with React reconciler for building type-safe generators",
+  "description": "JSX-based renderer for Kubb. Provides a custom React runtime, reconciler, and built-in components (File, Function, Type, Const) for component-based, type-safe code generation.",
   "keywords": [
-    "code-generator",
     "codegen",
-    "component-generation",
-    "file-generation",
     "jsx",
     "jsx-runtime",
     "kubb",
-    "plugin-system",
-    "plugins",
     "react",
-    "react-reconciler",
     "typescript"
   ],
   "license": "MIT",

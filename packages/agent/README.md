@@ -1,33 +1,53 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo" width="200" />
-</p>
+<div align="center">
+  <h1>@kubb/agent</h1>
+  <a href="https://kubb.dev" target="_blank" rel="noopener noreferrer">
+    <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
+  </a>
 
-# @kubb/agent
+[![npm version][npm-version-src]][npm-version-href]
+[![npm downloads][npm-downloads-src]][npm-downloads-href]
+[![Coverage][coverage-src]][coverage-href]
+[![License][license-src]][license-href]
+[![Sponsors][sponsors-src]][sponsors-href]
 
-Kubb Agent Server — HTTP server for code generation powered by [Nitro](https://nitro.build) with WebSocket integration for real-time Studio communication.
+<h4>
+<a href="https://kubb.dev/" target="_blank">Documentation</a>
+<span> · </span>
+<a href="https://github.com/kubb-labs/kubb/issues/" target="_blank">Report Bug</a>
+<span> · </span>
+<a href="https://github.com/kubb-labs/kubb/issues/" target="_blank">Request Feature</a>
+</h4>
+</div>
 
-## Features
-
-- 🚀 Fast HTTP server built with [Nitro](https://nitro.build)
-- 📡 RESTful API endpoints for code generation
-- 🔧 Easy integration with Kubb configuration
-- 📊 Health and info endpoints
-- 🔗 Bidirectional WebSocket with Kubb Studio
-- 🖥️ Machine binding — token locked to the registered machine via stable `machineToken`
-- 💾 Automatic session caching for faster reconnects
-- ⚡ Production-ready
+HTTP agent server for Kubb, built on [Nitro](https://nitro.build). It exposes REST endpoints for triggering code generation, a health check, and a bidirectional WebSocket connection to Kubb Studio. Machine tokens are derived from the machine's network identity so they survive restarts. Sessions are cached locally to speed up reconnects.
 
 ## Installation
 
 The agent server is installed as part of `@kubb/cli`:
 
-```bash
+::: code-group
+
+```bash [bun]
+bun add -D @kubb/cli
+```
+
+```bash [pnpm]
 pnpm add -D @kubb/cli
 ```
 
+```bash [npm]
+npm install -D @kubb/cli
+```
+
+```bash [yarn]
+yarn add -D @kubb/cli
+```
+
+:::
+
 ## Usage
 
-### Via CLI (Recommended)
+### Via CLI
 
 Start the agent server using the Kubb CLI:
 
@@ -159,13 +179,15 @@ On startup the agent performs these steps before opening a WebSocket:
 2. **Create session** — calls `POST /api/agent/session/create` (includes `machineToken` for verification) and receives a WebSocket URL.
 3. **Connect** — opens a WebSocket to the returned URL using the `Authorization` header for authentication.
 
-### Connection Features
+### Connection features
 
-- **Automatic reconnection**: Caches session tokens to speed up reconnects
-- **Real-time events**: Streams generation progress and events
-- **Command handling**: Receives `generate` and `connect` commands from Studio
-- **Graceful shutdown**: Notifies Studio when disconnecting
-- **Session management**: 24-hour session expiration with auto-refresh; Studio re-validates session validity on every incoming agent message and disconnects immediately if revoked or expired
+| Feature | Description |
+| ------- | ----------- |
+| Automatic reconnection | Caches session tokens to speed up reconnects |
+| Real-time events | Streams generation progress and events |
+| Command handling | Receives `generate` and `connect` commands from Studio |
+| Graceful shutdown | Notifies Studio when disconnecting |
+| Session management | 24-hour session expiration with auto-refresh; Studio re-validates every incoming message and disconnects if the session is revoked or expired |
 
 ### Session Caching
 
@@ -324,3 +346,28 @@ npx kubb agent start
 ```
 
 You'll receive a stream of events as the code generation progresses.
+
+## Supporting Kubb
+
+Kubb is an open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
+
+- [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
+
+<p align="center">
+  <a href="https://github.com/sponsors/stijnvanhulle">
+    <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
+  </a>
+</p>
+
+<!-- Badges -->
+
+[npm-version-src]: https://img.shields.io/npm/v/@kubb/agent?flat&colorA=18181B&colorB=f58517
+[npm-version-href]: https://npmjs.com/package/@kubb/agent
+[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/agent?flat&colorA=18181B&colorB=f58517
+[npm-downloads-href]: https://npmjs.com/package/@kubb/agent
+[license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=18181B&colorB=f58517
+[license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
+[coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517
+[coverage-href]: https://www.npmjs.com/package/@kubb/agent
+[sponsors-src]: https://img.shields.io/github/sponsors/stijnvanhulle?style=flat&colorA=18181B&colorB=f58517
+[sponsors-href]: https://github.com/sponsors/stijnvanhulle/

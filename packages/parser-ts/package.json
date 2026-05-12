@@ -1,9 +1,8 @@
 {
   "name": "@kubb/parser-ts",
   "version": "5.0.0-beta.6",
-  "description": "TypeScript and TSX file parser for Kubb, converting generated files to strings using the TypeScript compiler.",
+  "description": "TypeScript and TSX source file parser for Kubb. Converts AST nodes and raw TypeScript code into formatted source strings using the TypeScript compiler API.",
   "keywords": [
-    "code-generator",
     "codegen",
     "kubb",
     "parser",

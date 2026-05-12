@@ -1,17 +1,17 @@
 {
   "name": "@kubb/agent",
   "version": "5.0.0-beta.6",
-  "description": "Agent server for Kubb, enabling HTTP-based access to code generation capabilities.",
+  "description": "HTTP agent server for Kubb. Exposes code generation via REST API and WebSocket with real-time Kubb Studio integration, machine binding, and Docker support.",
   "keywords": [
     "agent",
-    "code-generation",
     "codegen",
+    "docker",
     "http",
     "kubb",
     "openapi",
     "server",
-    "swagger",
-    "typescript"
+    "typescript",
+    "websocket"
   ],
   "license": "AGPL-3.0-or-later",
   "author": "stijnvanhulle",

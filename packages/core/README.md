@@ -1,4 +1,5 @@
 <div align="center">
+  <h1>@kubb/core</h1>
   <a href="https://kubb.dev" target="_blank" rel="noopener noreferrer">
     <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
   </a>
@@ -8,10 +9,6 @@
 [![Coverage][coverage-src]][coverage-href]
 [![License][license-src]][license-href]
 [![Sponsors][sponsors-src]][sponsors-href]
-
-### The meta framework for code generation
-
-**Stop writing glue code. Define your API once and Kubb generates types, clients, hooks, validators, mocks and more.**
 
 <h4>
 <a href="https://kubb.dev" target="_blank">Documentation</a>
@@ -24,46 +21,31 @@
 
 <br />
 
+Core engine for Kubb's plugin-based code generation system. Provides the plugin driver, file manager, `defineConfig`, `definePlugin`, `defineMiddleware`, and the build orchestration layer used by every Kubb plugin.
+
+> **Note:** Most users should install the [`kubb`](https://npmjs.com/package/kubb) meta-package instead of `@kubb/core` directly. Install `@kubb/core` only when building custom plugins or extending the Kubb internals.
+
 ## Installation
 
-```bash
-npm install @kubb/core
-# or
+::: code-group
+
+```bash [bun]
+bun add @kubb/core
+```
+
+```bash [pnpm]
 pnpm add @kubb/core
 ```
 
-## Quick Start
-
-Get started with Kubb in seconds:
-
-```bash
-npx kubb init
+```bash [npm]
+npm install @kubb/core
 ```
 
-The interactive setup will:
-
-- Create a `package.json` (if needed)
-- Guide you through plugin selection
-- Install packages automatically
-- Generate `kubb.config.ts`
-
-Then generate your code:
-
-```bash
-npx kubb generate
+```bash [yarn]
+yarn add @kubb/core
 ```
 
-See the [documentation](https://kubb.dev) for detailed usage and advanced features.
-
-## Features
-
-- Works with Node.js 22+ and TypeScript 6.
-- Convert Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 to TypeScript types, API clients, and more via the [plugin ecosystem](https://github.com/kubb-labs/kubb-plugins).
-- Extensible plugin and middleware system for customizing and composing code generation.
-- CLI support with interactive setup, progress bar, and detailed logs.
-- Model Context Protocol (MCP) server for AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible tools.
-- JSX-based renderer (`@kubb/renderer-jsx`) for building custom plugin output.
-- Barrel file generation via the `@kubb/middleware-barrel` middleware.
+:::
 
 ## Supporting Kubb
 
