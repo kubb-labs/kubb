@@ -50,11 +50,11 @@
     "taze": "^19.11.0",
     "ts-node": "^10.9.2",
     "tsdown": "catalog:",
-    "turbo": "^2.9.10",
+    "turbo": "^2.9.12",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
-  "packageManager": "pnpm@11.0.5",
+  "packageManager": "pnpm@11.1.0",
   "engines": {
     "node": ">=22",
     "pnpm": ">=11.0.0"
