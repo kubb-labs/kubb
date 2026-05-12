@@ -9,29 +9,29 @@ allowBuilds:
   esbuild: true
   msw: true
 
-minimumReleaseAge: 4320 # 72 hours, matches .npmrc min-package-age
-pmOnFail: warn
-resolutionMode: highest
-# Native platform bindings are always co-published with their parent package in the same release.
-# Excluding them avoids false-positive ERR_PNPM_NO_MATURE_MATCHING_VERSION errors.
-minimumReleaseAgeExclude:
-  - '@oxlint/*'
-
 catalog:
-  '@types/node': ^22.19.18
+  '@size-limit/file': ^12.1.0
+  '@types/node': ^22.19.19
   '@types/react': ^19.2.14
   '@types/react-reconciler': 0.33.0
-  '@size-limit/file': ^12.1.0
-  'size-limit': ^12.1.0
-  'tinyexec': ^1.1.2
-  react: 19.2.5
-  react-reconciler: 0.33.0
-  p-limit: ^7.3.0
-  remeda: ^2.34.0
-  tsdown: ^0.22.0
-  typescript: ^6.0.3
-  vitest: ^4.1.5
   '@vitest/coverage-v8': ^4.1.5
   '@vitest/ui': ^4.1.5
   oxfmt: ^0.47.0
   oxlint: ^1.63.0
+  p-limit: ^7.3.0
+  react: 19.2.5
+  react-reconciler: 0.33.0
+  remeda: ^2.34.0
+  'size-limit': ^12.1.0
+  'tinyexec': ^1.1.2
+  tsdown: ^0.22.0
+  typescript: ^6.0.3
+  vitest: ^4.1.5
+
+minimumReleaseAge: 4320 # 72 hours, matches .npmrc min-package-age
+# Native platform bindings are always co-published with their parent package in the same release.
+# Excluding them avoids false-positive ERR_PNPM_NO_MATURE_MATCHING_VERSION errors.
+minimumReleaseAgeExclude:
+  - "@types/*"
+pmOnFail: warn
+resolutionMode: highest
