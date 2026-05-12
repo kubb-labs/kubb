@@ -4,15 +4,15 @@ on:
   pull_request:
     types: [closed]
 
-permissions:
-  contents: write
+permissions: {}
 
 jobs:
   delete-branch:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Delete merged branch
         uses: actions/github-script@373c709c69115d41ff229c7e5df9f8788daa9553 # v9
         with:
           script: |

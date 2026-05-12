@@ -1,4 +1,13 @@
 name: Labeler
+# pull_request_target is required here so the labeler can write labels on fork PRs.
+# This usage is considered acceptable because:
+#   - No code is checked out or executed from the PR branch
+#   - No dependencies are installed (no pnpm/npm install)
+#   - No cache writes occur
+#   - permissions: {} at workflow level; only contents: read + pull-requests: write at job level
+#   - The action is pinned to a full commit SHA
+# If actions/labeler@pinned-sha is ever compromised, it can at most read repo
+# contents and write PR labels — it has no access to OIDC tokens or npm secrets.
 on:
   - pull_request_target
 

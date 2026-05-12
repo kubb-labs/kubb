@@ -8,13 +8,15 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   autofix:
     name: Lint and format
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     if: github.actor != 'github-actions[bot]' && github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Check out code
