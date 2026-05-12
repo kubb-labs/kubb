@@ -1,9 +1,97 @@
-import type { PossiblePromise } from '@internals/utils'
-import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
+import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
+import type { FileNode, InputNode, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
+import type { Adapter } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
-import type { GeneratorContext, PluginFactoryOptions } from './types.ts'
+import type { KubbHooks } from './types.ts'
+import type { PluginDriver } from './PluginDriver.ts'
+import type { Plugin, PluginFactoryOptions } from './definePlugin.ts'
+import type { Resolver } from './defineResolver.ts'
+import type { Config, DevtoolsOptions } from './types.ts'
 
-export type { GeneratorContext } from './types.ts'
+/**
+ * Context object passed to generator `schema`, `operation`, and `operations` methods.
+ *
+ * The adapter is always defined (guaranteed by `runPluginAstHooks`) so no runtime checks
+ * are needed. `ctx.options` carries resolved per-node options after exclude/include/override
+ * filtering for individual schema/operation calls, or plugin-level options for operations.
+ */
+export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
+  config: Config
+  /**
+   * Absolute path to the current plugin's output directory.
+   */
+  root: string
+  /**
+   * Determine output mode based on the output config.
+   * Returns `'single'` when `output.path` is a file, `'split'` for a directory.
+   */
+  getMode: (output: { path: string }) => 'single' | 'split'
+  driver: PluginDriver
+  /**
+   * Get a plugin by name, typed via `Kubb.PluginRegistry` when registered.
+   */
+  getPlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
+  getPlugin(name: string): Plugin | undefined
+  /**
+   * Get a plugin by name, throws an error if not found.
+   */
+  requirePlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]>
+  requirePlugin(name: string): Plugin
+  /**
+   * Get a resolver by plugin name, typed via `Kubb.PluginRegistry` when registered.
+   */
+  getResolver<TName extends keyof Kubb.PluginRegistry>(name: TName): Kubb.PluginRegistry[TName]['resolver']
+  getResolver(name: string): Resolver
+  /**
+   * Add files only if they don't exist.
+   */
+  addFile: (...file: Array<FileNode>) => Promise<void>
+  /**
+   * Merge sources into the same output file.
+   */
+  upsertFile: (...file: Array<FileNode>) => Promise<void>
+  hooks: AsyncEventEmitter<KubbHooks>
+  /**
+   * The current plugin instance.
+   */
+  plugin: Plugin<TOptions>
+  /**
+   * The current plugin's resolver.
+   */
+  resolver: TOptions['resolver']
+  /**
+   * The current plugin's transformer.
+   */
+  transformer: Visitor | undefined
+  /**
+   * Emit a warning.
+   */
+  warn: (message: string) => void
+  /**
+   * Emit an error.
+   */
+  error: (error: string | Error) => void
+  /**
+   * Emit an info message.
+   */
+  info: (message: string) => void
+  /**
+   * Open the current input node in Kubb Studio.
+   */
+  openInStudio: (options?: DevtoolsOptions) => Promise<void>
+  /**
+   * The configured adapter instance.
+   */
+  adapter: Adapter
+  /**
+   * The universal `InputNode` produced by the adapter.
+   */
+  inputNode: InputNode
+  /**
+   * Resolved options after exclude/include/override filtering.
+   */
+  options: TOptions['resolvedOptions']
+}
 
 /**
  * Declares a named generator unit that walks the AST and emits files.

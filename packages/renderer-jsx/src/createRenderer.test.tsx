@@ -3,11 +3,11 @@ import { Const } from './components/Const.tsx'
 import { File } from './components/File.tsx'
 import { Function } from './components/Function.tsx'
 import { Type } from './components/Type.tsx'
-import { createRenderer } from './createRenderer.tsx'
+import { jsxRenderer } from './createRenderer.tsx'
 
 describe('createRenderer', () => {
   it('should collect imports, exports, and typed source nodes from multiple files', async () => {
-    const renderer = createRenderer()
+    const renderer = jsxRenderer()
     await renderer.render(
       <>
         <File baseName="models.ts" path="src/models.ts">
@@ -49,7 +49,7 @@ describe('createRenderer', () => {
   })
 
   it('should propagate render errors', async () => {
-    const renderer = createRenderer()
+    const renderer = jsxRenderer()
     function BadComponent(): never {
       throw new Error('render error')
     }

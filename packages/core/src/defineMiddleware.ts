@@ -1,4 +1,4 @@
-import type { KubbHooks } from './Kubb.ts'
+import type { KubbHooks } from './types.ts'
 
 /**
  * A middleware instance produced by calling a factory created with `defineMiddleware`.

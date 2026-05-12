@@ -3,11 +3,10 @@ import { createExport, createFile } from '@kubb/ast'
 import type { ExportNode, FileNode, SourceNode } from '@kubb/ast'
 import type { Config, NormalizedPlugin } from '@kubb/core'
 import { type BuildTree, buildTree, toPosixPath } from '@internals/utils'
-import { BARREL_FILENAME } from './constants.ts'
 import type { BarrelType } from './types.ts'
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx'])
-const BARREL_SUFFIX = `/${BARREL_FILENAME}`
+const BARREL_SUFFIX = `/index.ts`
 
 function toRelativeModulePath(fromDir: string, filePath: string): string {
   return `./${filePath.slice(fromDir.length + 1)}`
@@ -19,7 +18,7 @@ function isBarrelPath(path: string): boolean {
 
 function makeBarrel(dirPath: string, exports: Array<ExportNode>): FileNode {
   return createFile({
-    baseName: BARREL_FILENAME,
+    baseName: 'index.ts',
     path: `${dirPath}${BARREL_SUFFIX}`,
     exports,
     sources: [],

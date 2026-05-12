@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { createRenderer } from '../createRenderer.tsx'
+import { jsxRenderer } from '../createRenderer.tsx'
 import { File } from './File.tsx'
 import { Type } from './Type.tsx'
 
 describe('Type', () => {
   it('should emit a Type node', async () => {
-    const renderer = createRenderer()
+    const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="types.ts" path="src/types.ts">
         <File.Source name="PetId" isExportable>
@@ -21,7 +21,7 @@ describe('Type', () => {
   })
 
   it('should throw when name does not start with an uppercase letter', () => {
-    const renderer = createRenderer()
+    const renderer = jsxRenderer()
     const renderPromise = renderer.render(
       <File baseName="types.ts" path="src/types.ts">
         <File.Source name="petId" isExportable>

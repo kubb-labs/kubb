@@ -1,4 +1,80 @@
-import type { Adapter, AdapterFactoryOptions } from './types.ts'
+import type { PossiblePromise } from '@internals/utils'
+import type { ImportNode, InputNode, SchemaNode } from '@kubb/ast'
+
+/**
+ * Source data passed to an adapter's `parse` function.
+ * Mirrors the config input shape with paths resolved to absolute.
+ */
+export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown } | { type: 'paths'; paths: Array<string> }
+
+/**
+ * Generic type parameters for an adapter definition.
+ *
+ * - `TName` — unique identifier (e.g. `'oas'`, `'asyncapi'`)
+ * - `TOptions` — user-facing options passed to the adapter factory
+ * - `TResolvedOptions` — options after defaults applied
+ * - `TDocument` — type of the parsed source document
+ */
+export type AdapterFactoryOptions<
+  TName extends string = string,
+  TOptions extends object = object,
+  TResolvedOptions extends object = TOptions,
+  TDocument = unknown,
+> = {
+  name: TName
+  options: TOptions
+  resolvedOptions: TResolvedOptions
+  document: TDocument
+}
+
+/**
+ * Adapter that converts input files or data into an `InputNode`.
+ *
+ * Adapters parse different schema formats (OpenAPI, AsyncAPI, Drizzle, etc.) into Kubb's
+ * universal intermediate representation that all plugins consume.
+ *
+ * @example
+ * ```ts
+ * import { adapterOas } from '@kubb/adapter-oas'
+ *
+ * export default defineConfig({
+ *   adapter: adapterOas(),
+ *   input: { path: './openapi.yaml' },
+ *   plugins: [pluginTs(), pluginZod()],
+ * })
+ * ```
+ */
+export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptions> = {
+  /**
+   * Human-readable adapter identifier (e.g. `'oas'`, `'asyncapi'`).
+   */
+  name: TOptions['name']
+  /**
+   * Resolved adapter options after defaults have been applied.
+   */
+  options: TOptions['resolvedOptions']
+  /**
+   * Parsed source document after the first `parse()` call. `null` before parsing.
+   */
+  document: TOptions['document'] | null
+  inputNode: InputNode | null
+  /**
+   * Parse the source into a universal `InputNode`.
+   */
+  parse: (source: AdapterSource) => PossiblePromise<InputNode>
+  /**
+   * Extract `ImportNode` entries for a schema tree.
+   * Returns an empty array before the first `parse()` call.
+   *
+   * The `resolve` callback receives the collision-corrected schema name and must
+   * return `{ name, path }` for the import, or `undefined` to skip it.
+   */
+  getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string }) => Array<ImportNode>
+  /**
+   * Validate the document at the given path or URL.
+   */
+  validate: (input: string, options?: { throwOnError?: boolean }) => Promise<void>
+}
 
 type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) => Adapter<T>
 

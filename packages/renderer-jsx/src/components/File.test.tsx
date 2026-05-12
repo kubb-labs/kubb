@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { createRenderer } from '../createRenderer.tsx'
+import { jsxRenderer } from '../createRenderer.tsx'
 import { File } from './File.tsx'
 
 describe('File.Source', () => {
   it('should register source block attributes', async () => {
-    const renderer = createRenderer()
+    const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="models.ts" path="src/models.ts">
         <File.Source name="Pet" isExportable isIndexable isTypeOnly>
@@ -24,7 +24,7 @@ describe('File.Source', () => {
 
 describe('File.Import', () => {
   it('should register import attributes', async () => {
-    const renderer = createRenderer()
+    const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="client.ts" path="src/client.ts">
         <File.Import name={['Pet']} path="./models/pet" isTypeOnly root="/src" />
@@ -42,7 +42,7 @@ describe('File.Import', () => {
 
 describe('File.Export', () => {
   it('should register export attributes', async () => {
-    const renderer = createRenderer()
+    const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="index.ts" path="src/index.ts">
         <File.Export name={['Pet']} path="./models/pet" isTypeOnly asAlias />

@@ -1,16 +1,13 @@
-import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { FileNode, HttpMethod, ImportNode, InputNode, Node, SchemaNode, UserFileNode, Visitor } from '@kubb/ast'
-import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
+import type { PossiblePromise } from '@internals/utils'
+import type { FileNode, HttpMethod, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
+import type { DEFAULT_STUDIO_URL } from './constants.ts'
+import type { Adapter } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
-import type { Generator } from './defineGenerator.ts'
+import type { GeneratorContext } from './defineGenerator.ts'
 import type { Middleware } from './defineMiddleware.ts'
 import type { Parser } from './defineParser.ts'
-import type { Plugin } from './definePlugin.ts'
-import type { KubbHooks } from './Kubb.ts'
-import type { PluginDriver } from './PluginDriver.ts'
-
-export type { Renderer, RendererFactory } from './createRenderer.ts'
+import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, Plugin } from './definePlugin.ts'
 
 /**
  * Safely extracts a type from a registry, returning `{}` if the key doesn't exist.
@@ -60,81 +57,6 @@ export type InputData = {
 }
 
 type Input = InputPath | InputData
-
-/**
- * Source data passed to an adapter's `parse` function.
- * Mirrors the config input shape with paths resolved to absolute.
- */
-export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown } | { type: 'paths'; paths: Array<string> }
-
-/**
- * Generic type parameters for an adapter definition.
- *
- * - `TName` — unique identifier (e.g. `'oas'`, `'asyncapi'`)
- * - `TOptions` — user-facing options passed to the adapter factory
- * - `TResolvedOptions` — options after defaults applied
- * - `TDocument` — type of the parsed source document
- */
-export type AdapterFactoryOptions<
-  TName extends string = string,
-  TOptions extends object = object,
-  TResolvedOptions extends object = TOptions,
-  TDocument = unknown,
-> = {
-  name: TName
-  options: TOptions
-  resolvedOptions: TResolvedOptions
-  document: TDocument
-}
-
-/**
- * Adapter that converts input files or data into an `InputNode`.
- *
- * Adapters parse different schema formats (OpenAPI, AsyncAPI, Drizzle, etc.) into Kubb's
- * universal intermediate representation that all plugins consume.
- *
- * @example
- * ```ts
- * import { adapterOas } from '@kubb/adapter-oas'
- *
- * export default defineConfig({
- *   adapter: adapterOas(),
- *   input: { path: './openapi.yaml' },
- *   plugins: [pluginTs(), pluginZod()],
- * })
- * ```
- */
-export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptions> = {
-  /**
-   * Human-readable adapter identifier (e.g. `'oas'`, `'asyncapi'`).
-   */
-  name: TOptions['name']
-  /**
-   * Resolved adapter options after defaults have been applied.
-   */
-  options: TOptions['resolvedOptions']
-  /**
-   * Parsed source document after the first `parse()` call. `null` before parsing.
-   */
-  document: TOptions['document'] | null
-  inputNode: InputNode | null
-  /**
-   * Parse the source into a universal `InputNode`.
-   */
-  parse: (source: AdapterSource) => PossiblePromise<InputNode>
-  /**
-   * Extract `ImportNode` entries for a schema tree.
-   * Returns an empty array before the first `parse()` call.
-   *
-   * The `resolve` callback receives the collision-corrected schema name and must
-   * return `{ name, path }` for the import, or `undefined` to skip it.
-   */
-  getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string }) => Array<ImportNode>
-  /**
-   * Validate the document at the given path or URL.
-   */
-  validate: (input: string, options?: { throwOnError?: boolean }) => Promise<void>
-}
 
 export type DevtoolsOptions = {
   /**
@@ -463,104 +385,6 @@ export type Config<TInput = Input> = {
 // plugin
 
 /**
- * Type/string pattern filter for include/exclude/override matching.
- */
-type PatternFilter = {
-  type: string
-  pattern: string | RegExp
-}
-
-/**
- * Pattern filter with partial option overrides applied when the pattern matches.
- */
-type PatternOverride<TOptions> = PatternFilter & {
-  options: Omit<Partial<TOptions>, 'override'>
-}
-
-/**
- * Context for resolving filtered options for a given operation or schema node.
- *
- * @internal
- */
-export type ResolveOptionsContext<TOptions> = {
-  options: TOptions
-  exclude?: Array<PatternFilter>
-  include?: Array<PatternFilter>
-  override?: Array<PatternOverride<TOptions>>
-}
-
-/**
- * Base constraint for all plugin resolver objects.
- *
- * `default`, `resolveOptions`, `resolvePath`, `resolveFile`, `resolveBanner`, and `resolveFooter`
- * are injected automatically by `defineResolver` — extend this type to add custom resolution methods.
- *
- * @example
- * ```ts
- * type MyResolver = Resolver & {
- *   resolveName(node: SchemaNode): string
- *   resolveTypedName(node: SchemaNode): string
- * }
- * ```
- */
-export type Resolver = {
-  name: string
-  pluginName: Plugin['name']
-  default(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
-  resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
-  resolvePath(params: ResolverPathParams, context: ResolverContext): string
-  resolveFile(params: ResolverFileParams, context: ResolverContext): FileNode
-  resolveBanner(node: InputNode | null, context: ResolveBannerContext): string | undefined
-  resolveFooter(node: InputNode | null, context: ResolveBannerContext): string | undefined
-}
-
-export type PluginFactoryOptions<
-  /**
-   * Unique plugin name.
-   */
-  TName extends string = string,
-  /**
-   * User-facing plugin options.
-   */
-  TOptions extends object = object,
-  /**
-   * Plugin options after defaults are applied.
-   */
-  TResolvedOptions extends object = TOptions,
-  /**
-   * Resolver that encapsulates naming and path-resolution helpers.
-   * Define with `defineResolver` and export alongside the plugin.
-   */
-  TResolver extends Resolver = Resolver,
-> = {
-  name: TName
-  options: TOptions
-  resolvedOptions: TResolvedOptions
-  resolver: TResolver
-}
-
-/**
- * Normalized plugin after setup, with runtime fields populated.
- * For internal use only — plugins use the public `Plugin` type externally.
- *
- * @internal
- */
-export type NormalizedPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = Plugin<TOptions> & {
-  options: TOptions['resolvedOptions'] & {
-    output: Output
-    include?: Array<Include>
-    exclude: Array<Exclude>
-    override: Array<Override<TOptions['resolvedOptions']>>
-  }
-  resolver: TOptions['resolver']
-  transformer?: Visitor
-  renderer?: RendererFactory
-  generators?: Array<Generator>
-  apply?: (config: Config) => boolean
-  version?: string
-}
-
-/**
  * Partial `Config` for user-facing entry points with sensible defaults.
  *
  * `UserConfig` is what you pass to `defineConfig()`. It has optional `root`, `plugins`, `parsers`, and `adapter`
@@ -666,102 +490,6 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
   storage?: Storage
 }
 
-export type ResolveNameParams = {
-  name: string
-  pluginName?: string
-  /**
-   * Entity type being named.
-   * - `'file'` — file name (camelCase)
-   * - `'function'` — exported function name (camelCase)
-   * - `'type'` — TypeScript type name (PascalCase)
-   * - `'const'` — variable name (camelCase)
-   */
-  type?: 'file' | 'function' | 'type' | 'const'
-}
-/**
- * Context object passed to generator `schema`, `operation`, and `operations` methods.
- *
- * The adapter is always defined (guaranteed by `runPluginAstHooks`) so no runtime checks
- * are needed. `ctx.options` carries resolved per-node options after exclude/include/override
- * filtering for individual schema/operation calls, or plugin-level options for operations.
- */
-export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
-  config: Config
-  /**
-   * Absolute path to the current plugin's output directory.
-   */
-  root: string
-  /**
-   * Determine output mode based on the output config.
-   * Returns `'single'` when `output.path` is a file, `'split'` for a directory.
-   */
-  getMode: (output: { path: string }) => 'single' | 'split'
-  driver: PluginDriver
-  /**
-   * Get a plugin by name, typed via `Kubb.PluginRegistry` when registered.
-   */
-  getPlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
-  getPlugin(name: string): Plugin | undefined
-  /**
-   * Get a plugin by name, throws an error if not found.
-   */
-  requirePlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]>
-  requirePlugin(name: string): Plugin
-  /**
-   * Get a resolver by plugin name, typed via `Kubb.PluginRegistry` when registered.
-   */
-  getResolver<TName extends keyof Kubb.PluginRegistry>(name: TName): Kubb.PluginRegistry[TName]['resolver']
-  getResolver(name: string): Resolver
-  /**
-   * Add files only if they don't exist.
-   */
-  addFile: (...file: Array<FileNode>) => Promise<void>
-  /**
-   * Merge sources into the same output file.
-   */
-  upsertFile: (...file: Array<FileNode>) => Promise<void>
-  hooks: AsyncEventEmitter<KubbHooks>
-  /**
-   * The current plugin instance.
-   */
-  plugin: Plugin<TOptions>
-  /**
-   * The current plugin's resolver.
-   */
-  resolver: TOptions['resolver']
-  /**
-   * The current plugin's transformer.
-   */
-  transformer: Visitor | undefined
-  /**
-   * Emit a warning.
-   */
-  warn: (message: string) => void
-  /**
-   * Emit an error.
-   */
-  error: (error: string | Error) => void
-  /**
-   * Emit an info message.
-   */
-  info: (message: string) => void
-  /**
-   * Open the current input node in Kubb Studio.
-   */
-  openInStudio: (options?: DevtoolsOptions) => Promise<void>
-  /**
-   * The configured adapter instance.
-   */
-  adapter: Adapter
-  /**
-   * The universal `InputNode` produced by the adapter.
-   */
-  inputNode: InputNode
-  /**
-   * Resolved options after exclude/include/override filtering.
-   */
-  options: TOptions['resolvedOptions']
-}
 /**
  * Output configuration for generated files.
  */
@@ -801,76 +529,237 @@ export type Group = {
   name?: (context: { group: string }) => string
 }
 
-export type LoggerOptions = {
+/**
+ * Lifecycle events emitted during Kubb code generation.
+ * Use these for logging, progress tracking, and custom integrations.
+ *
+ * @example
+ * ```typescript
+ * import type { AsyncEventEmitter } from '@internals/utils'
+ * import type { KubbHooks } from '@kubb/core'
+ *
+ * const hooks: AsyncEventEmitter<KubbHooks> = new AsyncEventEmitter()
+ *
+ * hooks.on('kubb:lifecycle:start', () => {
+ *   console.log('Starting Kubb generation')
+ * })
+ *
+ * hooks.on('kubb:plugin:end', ({ plugin, duration }) => {
+ *   console.log(`Plugin ${plugin.name} completed in ${duration}ms`)
+ * })
+ * ```
+ */
+export interface KubbHooks {
   /**
-   * Log level for output verbosity.
-   * @default 3
+   * Fires at the start of the Kubb lifecycle, before code generation begins.
    */
-  logLevel: (typeof logLevel)[keyof typeof logLevel]
+  'kubb:lifecycle:start': [ctx: KubbLifecycleStartContext]
+  /**
+   * Fires at the end of the Kubb lifecycle, after all code generation completes.
+   */
+  'kubb:lifecycle:end': []
+
+  /**
+   * Fires when configuration loading starts.
+   */
+  'kubb:config:start': []
+  /**
+   * Fires when configuration loading completes.
+   */
+  'kubb:config:end': [ctx: KubbConfigEndContext]
+
+  /**
+   * Fires when code generation starts.
+   */
+  'kubb:generation:start': [ctx: KubbGenerationStartContext]
+  /**
+   * Fires when code generation completes.
+   */
+  'kubb:generation:end': [ctx: KubbGenerationEndContext]
+  /**
+   * Fires with a generation summary including summary lines, title, and success status.
+   */
+  'kubb:generation:summary': [ctx: KubbGenerationSummaryContext]
+
+  /**
+   * Fires when code formatting starts (e.g., Biome or Prettier).
+   */
+  'kubb:format:start': []
+  /**
+   * Fires when code formatting completes.
+   */
+  'kubb:format:end': []
+
+  /**
+   * Fires when linting starts.
+   */
+  'kubb:lint:start': []
+  /**
+   * Fires when linting completes.
+   */
+  'kubb:lint:end': []
+
+  /**
+   * Fires when plugin hooks execution starts.
+   */
+  'kubb:hooks:start': []
+  /**
+   * Fires when plugin hooks execution completes.
+   */
+  'kubb:hooks:end': []
+
+  /**
+   * Fires when a single hook executes (e.g., format or lint). The callback is invoked when the command finishes.
+   */
+  'kubb:hook:start': [ctx: KubbHookStartContext]
+  /**
+   * Fires when a single hook execution completes.
+   */
+  'kubb:hook:end': [ctx: KubbHookEndContext]
+
+  /**
+   * Fires when a new Kubb version is available.
+   */
+  'kubb:version:new': [ctx: KubbVersionNewContext]
+
+  /**
+   * Informational message event.
+   */
+  'kubb:info': [ctx: KubbInfoContext]
+  /**
+   * Error event, fired when an error occurs during generation.
+   */
+  'kubb:error': [ctx: KubbErrorContext]
+  /**
+   * Success message event.
+   */
+  'kubb:success': [ctx: KubbSuccessContext]
+  /**
+   * Warning message event.
+   */
+  'kubb:warn': [ctx: KubbWarnContext]
+  /**
+   * Debug event for detailed logging with timestamp and optional filename.
+   */
+  'kubb:debug': [ctx: KubbDebugContext]
+
+  /**
+   * Fires when file processing starts with the list of files to process.
+   */
+  'kubb:files:processing:start': [ctx: KubbFilesProcessingStartContext]
+  /**
+   * Fires for each file with progress updates: processed count, total, percentage, and file details.
+   */
+  'kubb:file:processing:update': [ctx: KubbFileProcessingUpdateContext]
+  /**
+   * Fires when file processing completes with the list of processed files.
+   */
+  'kubb:files:processing:end': [ctx: KubbFilesProcessingEndContext]
+
+  /**
+   * Fires when a plugin starts execution.
+   */
+  'kubb:plugin:start': [ctx: KubbPluginStartContext]
+  /**
+   * Fires when a plugin completes execution. Duration measured in milliseconds.
+   */
+  'kubb:plugin:end': [ctx: KubbPluginEndContext]
+
+  /**
+   * Fires once before plugins execute — allowing plugins to register generators, configure resolvers/transformers/renderers, or inject files.
+   */
+  'kubb:plugin:setup': [ctx: KubbPluginSetupContext]
+  /**
+   * Fires before the plugin execution loop begins. The adapter has already parsed the source and `inputNode` is available.
+   */
+  'kubb:build:start': [ctx: KubbBuildStartContext]
+  /**
+   * Fires after all plugins run and per-plugin barrels generate, but before files write to disk.
+   * Use this to inject final files that must persist in the same write pass as plugin output.
+   */
+  'kubb:plugins:end': [ctx: KubbPluginsEndContext]
+  /**
+   * Fires after all files write to disk.
+   */
+  'kubb:build:end': [ctx: KubbBuildEndContext]
+
+  /**
+   * Fires for each schema node during AST traversal. Generator listeners respond to this.
+   */
+  'kubb:generate:schema': [node: SchemaNode, ctx: GeneratorContext]
+  /**
+   * Fires for each operation node during AST traversal. Generator listeners respond to this.
+   */
+  'kubb:generate:operation': [node: OperationNode, ctx: GeneratorContext]
+  /**
+   * Fires once after all operations traverse with the full collected array. Batch generator listeners respond to this.
+   */
+  'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext]
 }
 
-/**
- * Shared context passed to plugins, parsers, and other internals.
- */
-export type LoggerContext = AsyncEventEmitter<KubbHooks>
+declare global {
+  namespace Kubb {
+    /**
+     * Registry that maps plugin names to their `PluginFactoryOptions`.
+     * Augment this interface in each plugin's `types.ts` to enable automatic
+     * typing for `getPlugin` and `requirePlugin`.
+     *
+     * @example
+     * ```ts
+     * // packages/plugin-ts/src/types.ts
+     * declare global {
+     *   namespace Kubb {
+     *     interface PluginRegistry {
+     *       'plugin-ts': PluginTs
+     *     }
+     *   }
+     * }
+     * ```
+     */
+    interface PluginRegistry {}
 
-export type Logger<TOptions extends LoggerOptions = LoggerOptions, TInstallReturn = void> = {
-  name: string
-  install: (context: LoggerContext, options?: TOptions) => TInstallReturn | Promise<TInstallReturn>
-}
+    /**
+     * Extension point for root `Config['output']` options.
+     * Augment the `output` key in middleware or plugin packages to add extra fields
+     * to the global output configuration without touching core types.
+     *
+     * @example
+     * ```ts
+     * // packages/middleware-barrel/src/types.ts
+     * declare global {
+     *   namespace Kubb {
+     *     interface ConfigOptionsRegistry {
+     *       output: {
+     *         barrel?: import('./types.ts').BarrelConfig | false
+     *       }
+     *     }
+     *   }
+     * }
+     * ```
+     */
+    interface ConfigOptionsRegistry {}
 
-export type UserLogger<TOptions extends LoggerOptions = LoggerOptions, TInstallReturn = void> = Logger<TOptions, TInstallReturn>
-
-export type { Storage } from './createStorage.ts'
-export type { Generator } from './defineGenerator.ts'
-export type { Middleware } from './defineMiddleware.ts'
-export type { Plugin } from './definePlugin.ts'
-export type { Kubb, KubbHooks } from './Kubb.ts'
-
-/**
- * Context for hook-style plugin `kubb:plugin:setup` handler.
- * Provides methods to register generators, configure resolvers, transformers, and renderers.
- */
-export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
-  /**
-   * Register a generator dynamically. Generators fire during the AST walk (schema/operation/operations)
-   * just like generators declared statically on `createPlugin`.
-   */
-  addGenerator<TElement = unknown>(generator: Generator<TFactory, TElement>): void
-  /**
-   * Set or override the resolver for this plugin.
-   * The resolver controls file naming and path resolution.
-   */
-  setResolver(resolver: Partial<TFactory['resolver']>): void
-  /**
-   * Set the AST transformer to pre-process nodes before they reach generators.
-   */
-  setTransformer(visitor: Visitor): void
-  /**
-   * Set the renderer factory to process JSX elements from generators.
-   */
-  setRenderer(renderer: RendererFactory): void
-  /**
-   * Set resolved options merged into the normalized plugin's `options`.
-   * Call this in `kubb:plugin:setup` to provide options generators need.
-   */
-  setOptions(options: TFactory['resolvedOptions']): void
-  /**
-   * Inject a raw file into the build output, bypassing the generation pipeline.
-   */
-  injectFile(userFileNode: UserFileNode): void
-  /**
-   * Merge a partial config update into the current build configuration.
-   */
-  updateConfig(config: Partial<Config>): void
-  /**
-   * The resolved build configuration at setup time.
-   */
-  config: Config
-  /**
-   * The plugin's user-provided options.
-   */
-  options: TFactory['options']
+    /**
+     * Extension point for per-plugin `Output` options.
+     * Augment the `output` key in middleware or plugin packages to add extra fields
+     * to the per-plugin output configuration without touching core types.
+     *
+     * @example
+     * ```ts
+     * // packages/middleware-barrel/src/types.ts
+     * declare global {
+     *   namespace Kubb {
+     *     interface PluginOptionsRegistry {
+     *       output: {
+     *         barrel?: import('./types.ts').PluginBarrelConfig | false
+     *       }
+     *     }
+     *   }
+     * }
+     * ```
+     */
+    interface PluginOptionsRegistry {}
+  }
 }
 
 /**
@@ -1020,27 +909,6 @@ export type KubbFilesProcessingEndContext = {
   files: Array<FileNode>
 }
 
-export type KubbPluginStartContext = {
-  plugin: NormalizedPlugin
-}
-
-export type KubbPluginEndContext = {
-  plugin: NormalizedPlugin
-  duration: number
-  success: boolean
-  error?: Error
-  config: Config
-  /**
-   * Returns all files currently in the file manager (lazy snapshot).
-   * Includes files added by plugins that have already run.
-   */
-  readonly files: ReadonlyArray<FileNode>
-  /**
-   * Upsert one or more files into the file manager.
-   */
-  upsertFile: (...files: Array<FileNode>) => void
-}
-
 export type KubbHookStartContext = {
   id?: string
   command: string
@@ -1188,104 +1056,6 @@ export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | By
 }
 
 /**
- * File-specific parameters for `Resolver.resolvePath`.
- *
- * Pass alongside a `ResolverContext` to identify which file to resolve.
- * Provide `tag` for tag-based grouping or `path` for path-based grouping.
- *
- * @example
- * ```ts
- * resolver.resolvePath(
- *   { baseName: 'petTypes.ts', tag: 'pets' },
- *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
- * )
- * // → '/src/types/petsController/petTypes.ts'
- * ```
- */
-export type ResolverPathParams = {
-  baseName: FileNode['baseName']
-  pathMode?: 'single' | 'split'
-  /**
-   * Tag value used when `group.type === 'tag'`.
-   */
-  tag?: string
-  /**
-   * Path value used when `group.type === 'path'`.
-   */
-  path?: string
-}
-
-/**
- * Shared context passed as the second argument to `Resolver.resolvePath` and `Resolver.resolveFile`.
- *
- * Describes where on disk output is rooted, which output config is active, and the optional
- * grouping strategy that controls subdirectory layout.
- *
- * @example
- * ```ts
- * const context: ResolverContext = {
- *   root: config.root,
- *   output,
- *   group,
- * }
- * ```
- */
-export type ResolverContext = {
-  root: string
-  output: Output
-  group?: Group
-  /**
-   * Plugin name used to populate `meta.pluginName` on the resolved file.
-   */
-  pluginName?: string
-}
-
-/**
- * File-specific parameters for `Resolver.resolveFile`.
- *
- * Pass alongside a `ResolverContext` to fully describe the file to resolve.
- * `tag` and `path` are used only when a matching `group` is present in the context.
- *
- * @example
- * ```ts
- * resolver.resolveFile(
- *   { name: 'listPets', extname: '.ts', tag: 'pets' },
- *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
- * )
- * // → { baseName: 'listPets.ts', path: '/src/types/petsController/listPets.ts', ... }
- * ```
- */
-export type ResolverFileParams = {
-  name: string
-  extname: FileNode['extname']
-  /**
-   * Tag value used when `group.type === 'tag'`.
-   */
-  tag?: string
-  /**
-   * Path value used when `group.type === 'path'`.
-   */
-  path?: string
-}
-
-/**
- * Context passed to `Resolver.resolveBanner` and `Resolver.resolveFooter`.
- *
- * `output` is optional — not every plugin configures a banner/footer.
- * `config` carries the global Kubb config, used to derive the default Kubb banner.
- *
- * @example
- * ```ts
- * resolver.resolveBanner(inputNode, { output: { banner: '// generated' }, config })
- * // → '// generated'
- * ```
- */
-export type ResolveBannerContext = {
-  output?: Pick<Output, 'banner' | 'footer'>
-  config: Config
-}
-
-/**
  * CLI options derived from command-line flags.
  */
 export type CLIOptions = {
@@ -1315,5 +1085,13 @@ export type PossibleConfig<TCliOptions = undefined> =
   | PossiblePromise<Config | Config[]>
   | ((...args: [TCliOptions] extends [undefined] ? [] : [TCliOptions]) => PossiblePromise<Config | Config[]>)
 
-export type { BuildOutput } from './createKubb.ts'
+export type { Adapter, AdapterFactoryOptions, AdapterSource } from './createAdapter.ts'
+export type { BuildOutput, Kubb } from './createKubb.ts'
+export type { Renderer, RendererFactory } from './createRenderer.ts'
+export type { Storage } from './createStorage.ts'
+export type { Generator, GeneratorContext } from './defineGenerator.ts'
+export type { Logger, LoggerContext, LoggerOptions, UserLogger } from './defineLogger.ts'
+export type { Middleware } from './defineMiddleware.ts'
 export type { Parser } from './defineParser.ts'
+export type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, NormalizedPlugin, Plugin, PluginFactoryOptions } from './definePlugin.ts'
+export type { ResolveBannerContext, ResolveOptionsContext, Resolver, ResolverContext, ResolverFileParams, ResolverPathParams } from './defineResolver.ts'

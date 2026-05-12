@@ -1,4 +1,26 @@
-import type { Logger, LoggerOptions, UserLogger } from './types.ts'
+import type { AsyncEventEmitter } from '@internals/utils'
+import type { logLevel } from './constants.ts'
+import type { KubbHooks } from './types.ts'
+
+export type LoggerOptions = {
+  /**
+   * Log level for output verbosity.
+   * @default 3
+   */
+  logLevel: (typeof logLevel)[keyof typeof logLevel]
+}
+
+/**
+ * Shared context passed to plugins, parsers, and other internals.
+ */
+export type LoggerContext = AsyncEventEmitter<KubbHooks>
+
+export type Logger<TOptions extends LoggerOptions = LoggerOptions, TInstallReturn = void> = {
+  name: string
+  install: (context: LoggerContext, options?: TOptions) => TInstallReturn | Promise<TInstallReturn>
+}
+
+export type UserLogger<TOptions extends LoggerOptions = LoggerOptions, TInstallReturn = void> = Logger<TOptions, TInstallReturn>
 
 /**
  * Wraps a logger definition into a typed {@link Logger}.

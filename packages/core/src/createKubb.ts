@@ -8,12 +8,10 @@ import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { Plugin } from './definePlugin.ts'
 import { FileProcessor } from './FileProcessor.ts'
-import type { Kubb } from './Kubb.ts'
 import { PluginDriver } from './PluginDriver.ts'
-import { applyHookResult } from './utils.ts'
-import { fsStorage } from './storages/fsStorage.ts'
 import type { AdapterSource, Config, GeneratorContext, KubbHooks, Middleware, NormalizedPlugin, UserConfig } from './types.ts'
-import { getDiagnosticInfo, isInputPath } from './utils.ts'
+import { applyHookResult, getDiagnosticInfo, isInputPath } from './utils.ts'
+import { fsStorage } from './storages/fsStorage.ts'
 
 type SetupOptions = {
   hooks?: AsyncEventEmitter<KubbHooks>
@@ -38,6 +36,43 @@ export type BuildOutput = {
    * Raw generated source, keyed by absolute file path.
    */
   sources: Map<string, string>
+}
+
+/**
+ * Kubb code generation instance returned by {@link createKubb}.
+ *
+ * Use this when orchestrating multiple builds, inspecting plugin timings, or integrating Kubb into a larger toolchain.
+ * For a single one-off build, chain directly: `await createKubb(config).build()`.
+ */
+export type Kubb = {
+  /**
+   * Shared event emitter for lifecycle and status events. Attach listeners before calling `setup()` or `build()`.
+   */
+  readonly hooks: AsyncEventEmitter<KubbHooks>
+  /**
+   * Generated source code keyed by absolute file path. Available after `build()` or `safeBuild()` completes.
+   */
+  readonly sources: Map<string, string>
+  /**
+   * Plugin driver managing all plugins. Available after `setup()` completes.
+   */
+  readonly driver: PluginDriver | undefined
+  /**
+   * Resolved configuration with defaults applied. Available after `setup()` completes.
+   */
+  readonly config: Config | undefined
+  /**
+   * Resolves config and initializes the driver. `build()` calls this automatically.
+   */
+  setup(): Promise<void>
+  /**
+   * Runs the full pipeline and throws on any plugin error. Automatically calls `setup()` if needed.
+   */
+  build(): Promise<BuildOutput>
+  /**
+   * Runs the full pipeline and captures errors in `BuildOutput` instead of throwing. Automatically calls `setup()` if needed.
+   */
+  safeBuild(): Promise<BuildOutput>
 }
 
 type SetupResult = {

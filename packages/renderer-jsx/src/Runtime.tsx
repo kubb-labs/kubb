@@ -3,7 +3,7 @@ import type { FileNode } from '@kubb/ast'
 import { ConcurrentRoot } from 'react-reconciler/constants.js'
 import { Root } from './components/Root.tsx'
 import { createNode } from './dom.ts'
-import type { FiberRoot } from './Renderer.ts'
+import type { FiberRoot } from 'react-reconciler'
 import { Renderer } from './Renderer.ts'
 import type { DOMElement, KubbReactElement } from './types.ts'
 import { processFiles } from './utils.ts'
@@ -26,7 +26,7 @@ export class Runtime {
   readonly #container: FiberRoot
   readonly #rootNode: DOMElement
 
-  constructor(options: Options) {
+  constructor(options: Options = {}) {
     this.#options = options
     this.#rootNode = createNode('kubb-root')
     this.#rootNode.onRender = this.onRender

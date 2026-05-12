@@ -3,16 +3,158 @@ import { camelCase, pascalCase } from '@internals/utils'
 import type { FileNode, InputNode, Node, OperationNode, SchemaNode } from '@kubb/ast'
 import { createFile, isOperationNode, isSchemaNode } from '@kubb/ast'
 import { PluginDriver } from './PluginDriver.ts'
-import type {
-  Config,
-  PluginFactoryOptions,
-  ResolveBannerContext,
-  ResolveOptionsContext,
-  Resolver,
-  ResolverContext,
-  ResolverFileParams,
-  ResolverPathParams,
-} from './types.ts'
+import type { PluginFactoryOptions } from './definePlugin.ts'
+import type { Config, Group, Output } from './types.ts'
+
+/**
+ * Type/string pattern filter for include/exclude/override matching.
+ */
+type PatternFilter = {
+  type: string
+  pattern: string | RegExp
+}
+
+/**
+ * Pattern filter with partial option overrides applied when the pattern matches.
+ */
+type PatternOverride<TOptions> = PatternFilter & {
+  options: Omit<Partial<TOptions>, 'override'>
+}
+
+/**
+ * Context for resolving filtered options for a given operation or schema node.
+ *
+ * @internal
+ */
+export type ResolveOptionsContext<TOptions> = {
+  options: TOptions
+  exclude?: Array<PatternFilter>
+  include?: Array<PatternFilter>
+  override?: Array<PatternOverride<TOptions>>
+}
+
+/**
+ * Base constraint for all plugin resolver objects.
+ *
+ * `default`, `resolveOptions`, `resolvePath`, `resolveFile`, `resolveBanner`, and `resolveFooter`
+ * are injected automatically by `defineResolver` — extend this type to add custom resolution methods.
+ *
+ * @example
+ * ```ts
+ * type MyResolver = Resolver & {
+ *   resolveName(node: SchemaNode): string
+ *   resolveTypedName(node: SchemaNode): string
+ * }
+ * ```
+ */
+export type Resolver = {
+  name: string
+  pluginName: string
+  default(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
+  resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
+  resolvePath(params: ResolverPathParams, context: ResolverContext): string
+  resolveFile(params: ResolverFileParams, context: ResolverContext): FileNode
+  resolveBanner(node: InputNode | null, context: ResolveBannerContext): string | undefined
+  resolveFooter(node: InputNode | null, context: ResolveBannerContext): string | undefined
+}
+
+/**
+ * File-specific parameters for `Resolver.resolvePath`.
+ *
+ * Pass alongside a `ResolverContext` to identify which file to resolve.
+ * Provide `tag` for tag-based grouping or `path` for path-based grouping.
+ *
+ * @example
+ * ```ts
+ * resolver.resolvePath(
+ *   { baseName: 'petTypes.ts', tag: 'pets' },
+ *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
+ * )
+ * // → '/src/types/petsController/petTypes.ts'
+ * ```
+ */
+export type ResolverPathParams = {
+  baseName: FileNode['baseName']
+  pathMode?: 'single' | 'split'
+  /**
+   * Tag value used when `group.type === 'tag'`.
+   */
+  tag?: string
+  /**
+   * Path value used when `group.type === 'path'`.
+   */
+  path?: string
+}
+
+/**
+ * Shared context passed as the second argument to `Resolver.resolvePath` and `Resolver.resolveFile`.
+ *
+ * Describes where on disk output is rooted, which output config is active, and the optional
+ * grouping strategy that controls subdirectory layout.
+ *
+ * @example
+ * ```ts
+ * const context: ResolverContext = {
+ *   root: config.root,
+ *   output,
+ *   group,
+ * }
+ * ```
+ */
+export type ResolverContext = {
+  root: string
+  output: Output
+  group?: Group
+  /**
+   * Plugin name used to populate `meta.pluginName` on the resolved file.
+   */
+  pluginName?: string
+}
+
+/**
+ * File-specific parameters for `Resolver.resolveFile`.
+ *
+ * Pass alongside a `ResolverContext` to fully describe the file to resolve.
+ * `tag` and `path` are used only when a matching `group` is present in the context.
+ *
+ * @example
+ * ```ts
+ * resolver.resolveFile(
+ *   { name: 'listPets', extname: '.ts', tag: 'pets' },
+ *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
+ * )
+ * // → { baseName: 'listPets.ts', path: '/src/types/petsController/listPets.ts', ... }
+ * ```
+ */
+export type ResolverFileParams = {
+  name: string
+  extname: FileNode['extname']
+  /**
+   * Tag value used when `group.type === 'tag'`.
+   */
+  tag?: string
+  /**
+   * Path value used when `group.type === 'path'`.
+   */
+  path?: string
+}
+
+/**
+ * Context passed to `Resolver.resolveBanner` and `Resolver.resolveFooter`.
+ *
+ * `output` is optional — not every plugin configures a banner/footer.
+ * `config` carries the global Kubb config, used to derive the default Kubb banner.
+ *
+ * @example
+ * ```ts
+ * resolver.resolveBanner(inputNode, { output: { banner: '// generated' }, config })
+ * // → '// generated'
+ * ```
+ */
+export type ResolveBannerContext = {
+  output?: Pick<Output, 'banner' | 'footer'>
+  config: Config
+}
 
 /**
  * Builder type for the plugin-specific resolver fields.

@@ -6,14 +6,12 @@ import type { DOMElement, DOMNode, DOMNodeAttribute, TextNode } from './types.ts
  * The element has no attributes, no children, and no parent.
  */
 export const createNode = (nodeName: string): DOMElement => {
-  const node: DOMElement = {
+  return {
     nodeName: nodeName as DOMElement['nodeName'],
     attributes: new Map(),
     childNodes: [],
     parentNode: undefined,
   }
-
-  return node
 }
 
 /**

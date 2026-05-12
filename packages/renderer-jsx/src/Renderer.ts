@@ -178,5 +178,3 @@ export const Renderer = Reconciler({
     return null
   },
 })
-
-export type { FiberRoot } from 'react-reconciler'
