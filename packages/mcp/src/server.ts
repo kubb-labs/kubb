@@ -15,7 +15,7 @@ export type ServerOptions = {
 }
 
 export function createMcpServer() {
-  const server = new McpServer({ name: 'Kubb', version }, { adapter: new ValibotJsonSchemaAdapter() })
+  const server = new McpServer({ name: 'Kubb', version }, { adapter: new ValibotJsonSchemaAdapter(), capabilities: { tools: {} } })
   server.tools([generateTool, validateTool, initTool])
   return server
 }
