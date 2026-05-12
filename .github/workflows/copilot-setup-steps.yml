@@ -23,10 +23,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@main
+        uses: kubb-labs/config/.github/setup@a71ab88377ae067bbf7af843528783c7b7913a95 # main
         with:
           node-version: '22'
 

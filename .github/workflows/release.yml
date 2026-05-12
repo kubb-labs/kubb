@@ -11,35 +11,32 @@ on:
     paths:
       - '.changeset/**'
       - 'packages/**'
-permissions:
-  actions: write
-  contents: write
-  id-token: write
-  packages: write
-  pull-requests: write
-  issues: write
+
+# Deny all permissions at workflow level; each job declares only what it needs.
+# id-token: write is intentionally restricted to the publish job so that
+# build/test steps never have access to an OIDC token that could publish to npm.
+permissions: {}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  release:
-    name: Release
+  build-test:
+    name: Build and Test
     if: github.repository_owner == 'kubb-labs'
     timeout-minutes: 15
     runs-on: ubuntu-latest
-    outputs:
-      published_packages: ${{ steps.changesets.outputs.publishedPackages }}
-      published: ${{ steps.changesets.outputs.published }}
+    permissions:
+      contents: read
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@main
+        uses: kubb-labs/config/.github/setup@a71ab88377ae067bbf7af843528783c7b7913a95 # main
         with:
           node-version: '22'
 
@@ -50,13 +47,45 @@ jobs:
         run: pnpm test
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+  release:
+    name: Release
+    if: github.repository_owner == 'kubb-labs'
+    needs: [build-test]
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    # id-token: write is scoped to this job only, which runs after tests pass.
+    # The fresh install below avoids restoring a potentially poisoned pnpm cache.
+    permissions:
+      contents: write
+      id-token: write
+      packages: write
+      pull-requests: write
+      issues: write
+    outputs:
+      published_packages: ${{ steps.changesets.outputs.publishedPackages }}
+      published: ${{ steps.changesets.outputs.published }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Tools (turbo cache disabled; pnpm store cache is low-risk since no pull_request_target writes to base cache)
+        uses: kubb-labs/config/.github/setup@a71ab88377ae067bbf7af843528783c7b7913a95 # main
+        with:
+          node-version: '22'
+          cache: 'false'
+
+      - name: Build
+        run: pnpm run build
+
       - name: Publish
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
         if: ${{ github.event.inputs.tag == '' }}
         with:
           publish: pnpm release
@@ -84,12 +113,14 @@ jobs:
     if: needs.release.outputs.published == 'true'
     needs: [release]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       version: ${{ steps.version.outputs.result }}
     steps:
       - name: Get version
         id: version
-        uses: actions/github-script@v9
+        uses: actions/github-script@373c709c69115d41ff229c7e5df9f8788daa9553 # v9
         env:
           PUBLISHED_PACKAGES: ${{ needs.release.outputs.published_packages }}
         with:
@@ -104,9 +135,11 @@ jobs:
     if: needs.release.outputs.published == 'true'
     needs: [release]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Send a discord notification
-        uses: actions/github-script@v9
+        uses: actions/github-script@373c709c69115d41ff229c7e5df9f8788daa9553 # v9
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           PUBLISHED_PACKAGES: ${{ needs.release.outputs.published_packages }}
