@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.9 — May 12, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- add ThisType to resolver type ([`54e54b4`](https://github.com/kubb-labs/kubb/commit/54e54b449f71badb0af72f65c3686ffb2168aad5))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.8 — May 12, 2026
 
 ### @kubb/parser-ts
