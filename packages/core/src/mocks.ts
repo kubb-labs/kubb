@@ -2,8 +2,7 @@ import { resolve } from 'node:path'
 import type { FileNode, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
 import { transform } from '@kubb/ast'
 import { FileManager } from './FileManager.ts'
-import { PluginDriver } from './PluginDriver.ts'
-import { applyHookResult } from './utils.ts'
+import { applyHookResult, PluginDriver } from './PluginDriver.ts'
 import type { Adapter, AdapterFactoryOptions, Config, Generator, GeneratorContext, NormalizedPlugin, PluginFactoryOptions } from './types.ts'
 
 /**

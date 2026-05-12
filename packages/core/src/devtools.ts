@@ -1,7 +1,14 @@
 import type { InputNode } from '@kubb/ast'
 import { deflateSync, inflateSync } from 'fflate'
 import { x } from 'tinyexec'
-import type { DevtoolsOptions } from './types.ts'
+
+export type DevtoolsOptions = {
+  /**
+   * Open the AST inspector in Kubb Studio (`/ast`). Defaults to the main Studio page.
+   * @default false
+   */
+  ast?: boolean
+}
 
 /**
  * Encodes an `InputNode` as a compressed, URL-safe string.
