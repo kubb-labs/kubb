@@ -179,7 +179,7 @@ export function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
 ### override
 <!--@include: ../core/override.md-->
 
-### generators <img src="../public/icons/experimental.svg"/>
+### generators
 <!--@include: ../core/generators.md-->
 
 |           |                                  |
