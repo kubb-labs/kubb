@@ -105,7 +105,7 @@ export type TelemetryPlugin = {
    */
   name: string
   /**
-   * Anonymised plugin options snapshot — values are included but cannot be traced back to the user.
+   * anonymized plugin options snapshot — values are included but cannot be traced back to the user.
    */
   options: Record<string, unknown>
 }

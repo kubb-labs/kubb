@@ -1,6 +1,6 @@
+import { createRequire } from 'node:module'
 import path from 'node:path'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { spawnAsync, getErrorMessage } from '@internals/utils'
@@ -53,10 +53,11 @@ export async function run({ port, host, configPath, allowWrite, allowAll, versio
       // .env file may not exist; ignore
     }
 
-    // Resolve the @kubb/agent package path
-    let agentPkgUrl: string
+    // Resolve the @kubb/agent package path — createRequire is CJS/ESM compatible (import.meta.resolve is ESM-only)
+    const require = createRequire(import.meta.url)
+    let agentPkgPath: string
     try {
-      agentPkgUrl = import.meta.resolve('@kubb/agent/package.json')
+      agentPkgPath = require.resolve('@kubb/agent/package.json')
     } catch (_e) {
       console.error(styleText('red', 'The @kubb/agent package is not installed.'))
       console.error('')
@@ -67,7 +68,6 @@ export async function run({ port, host, configPath, allowWrite, allowAll, versio
       console.error('')
       process.exit(1)
     }
-    const agentPkgPath = fileURLToPath(agentPkgUrl)
     const agentDir = path.dirname(agentPkgPath)
     const serverPath = path.join(agentDir, agentDefaults.serverEntryPath)
 
