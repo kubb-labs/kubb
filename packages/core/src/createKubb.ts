@@ -1023,6 +1023,82 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   const pluginTimings = new Map<string, number>()
   const config = driver.config
+  const processedFiles = new Map<string, FileNode>()
+  const parsersMap = new Map<FileNode['extname'], Parser>()
+  for (const parser of config.parsers) {
+    if (parser.extNames) {
+      for (const extname of parser.extNames) {
+        parsersMap.set(extname, parser)
+      }
+    }
+  }
+  const fileProcessor = new FileProcessor()
+
+  function sortFiles(files: Array<FileNode>): Array<FileNode> {
+    return files.sort((a, b) => {
+      const lenDiff = a.path.length - b.path.length
+      if (lenDiff !== 0) return lenDiff
+      const aIsIndex = a.path.endsWith('/index.ts') || a.path === 'index.ts'
+      const bIsIndex = b.path.endsWith('/index.ts') || b.path === 'index.ts'
+      if (aIsIndex && !bIsIndex) return 1
+      if (!aIsIndex && bIsIndex) return -1
+      return 0
+    })
+  }
+
+  function getFilesSnapshot(): Array<FileNode> {
+    const files = new Map(processedFiles)
+    for (const file of driver.fileManager.files) {
+      files.set(file.path, file)
+    }
+    return sortFiles([...files.values()])
+  }
+
+  async function flushPendingFiles(): Promise<void> {
+    const files = driver.fileManager.files
+    if (files.length === 0) {
+      return
+    }
+
+    await hooks.emit('kubb:debug', {
+      date: new Date(),
+      logs: [`Writing ${files.length} files...`],
+    })
+
+    await fileProcessor.run(files, {
+      parsers: parsersMap,
+      mode: 'parallel',
+      extension: config.output.extension,
+      onStart: async (processingFiles) => {
+        await hooks.emit('kubb:files:processing:start', { files: processingFiles })
+      },
+      onUpdate: async ({ file, source, processed, total, percentage }) => {
+        await hooks.emit('kubb:file:processing:update', {
+          file,
+          source,
+          processed,
+          total,
+          percentage,
+          config,
+        })
+        if (source) {
+          await sources.setItem(file.path, source)
+        }
+      },
+      onEnd: async (processed) => {
+        await hooks.emit('kubb:files:processing:end', { files: processed })
+        await hooks.emit('kubb:debug', {
+          date: new Date(),
+          logs: [`✓ File write process completed for ${processed.length} files`],
+        })
+      },
+    })
+
+    for (const file of files) {
+      processedFiles.set(file.path, file)
+    }
+    driver.fileManager.clear()
+  }
 
   try {
     await driver.emitSetupHooks()
@@ -1031,13 +1107,13 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       await hooks.emit('kubb:build:start', {
         config,
         adapter: driver.adapter,
-        inputNode: driver.inputNode,
-        getPlugin: driver.getPlugin.bind(driver),
-        get files() {
-          return driver.fileManager.files
-        },
-        upsertFile: (...files) => driver.fileManager.upsert(...files),
-      })
+          inputNode: driver.inputNode,
+          getPlugin: driver.getPlugin.bind(driver),
+          get files() {
+            return getFilesSnapshot()
+          },
+          upsertFile: (...files) => driver.fileManager.upsert(...files),
+        })
     }
 
     for (const plugin of driver.plugins.values()) {
@@ -1066,10 +1142,12 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           success: true,
           config,
           get files() {
-            return driver.fileManager.files
+            return getFilesSnapshot()
           },
           upsertFile: (...files) => driver.fileManager.upsert(...files),
         })
+
+        await flushPendingFiles()
 
         await hooks.emit('kubb:debug', {
           date: new Date(),
@@ -1087,10 +1165,12 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           error,
           config,
           get files() {
-            return driver.fileManager.files
+            return getFilesSnapshot()
           },
           upsertFile: (...files) => driver.fileManager.upsert(...files),
         })
+
+        await flushPendingFiles()
 
         await hooks.emit('kubb:debug', {
           date: errorTimestamp,
@@ -1110,57 +1190,14 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     await hooks.emit('kubb:plugins:end', {
       config,
       get files() {
-        return driver.fileManager.files
+        return getFilesSnapshot()
       },
       upsertFile: (...files) => driver.fileManager.upsert(...files),
     })
 
-    const files = driver.fileManager.files
+    await flushPendingFiles()
 
-    const parsersMap = new Map<FileNode['extname'], Parser>()
-    for (const parser of config.parsers) {
-      if (parser.extNames) {
-        for (const extname of parser.extNames) {
-          parsersMap.set(extname, parser)
-        }
-      }
-    }
-
-    const fileProcessor = new FileProcessor()
-
-    await hooks.emit('kubb:debug', {
-      date: new Date(),
-      logs: [`Writing ${files.length} files...`],
-    })
-
-    await fileProcessor.run(files, {
-      parsers: parsersMap,
-      mode: 'parallel',
-      extension: config.output.extension,
-      onStart: async (processingFiles) => {
-        await hooks.emit('kubb:files:processing:start', { files: processingFiles })
-      },
-      onUpdate: async ({ file, source, processed, total, percentage }) => {
-        await hooks.emit('kubb:file:processing:update', {
-          file,
-          source,
-          processed,
-          total,
-          percentage,
-          config,
-        })
-        if (source) {
-          await sources.setItem(file.path, source)
-        }
-      },
-      onEnd: async (processedFiles) => {
-        await hooks.emit('kubb:files:processing:end', { files: processedFiles })
-        await hooks.emit('kubb:debug', {
-          date: new Date(),
-          logs: [`✓ File write process completed for ${processedFiles.length} files`],
-        })
-      },
-    })
+    const files = getFilesSnapshot()
 
     await hooks.emit('kubb:build:end', {
       files,

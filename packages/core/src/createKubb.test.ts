@@ -1,11 +1,12 @@
 import { AsyncEventEmitter } from '@internals/utils'
-import { createFile, createSource, createText } from '@kubb/ast'
+import { createFile, createSchema, createSource, createText } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
+import { memoryStorage } from './storages/memoryStorage.ts'
 
 describe('createKubb', () => {
   const pluginMocks = {
@@ -200,6 +201,47 @@ describe('createKubb', () => {
 
     expect(startSpy).toHaveBeenCalled()
     expect(endSpy).toHaveBeenCalled()
+  })
+
+  it('flushes generated files after each plugin', async () => {
+    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const batches: Array<number> = []
+    hooks.on('kubb:files:processing:start', ({ files }) => {
+      batches.push(files.length)
+    })
+
+    const makePlugin = (name: string, filePath: string) =>
+      definePlugin(() => ({
+        name,
+        hooks: {
+          'kubb:plugin:setup'(ctx) {
+            ctx.addGenerator({
+              name: `${name}-generator`,
+              schema() {
+                return [makeFile(filePath, `export const ${name.replaceAll('-', '_')} = null`)]
+              },
+            })
+          },
+        },
+      }))()
+
+    const streamingConfig = {
+      ...config,
+      storage: memoryStorage(),
+      adapter: createMockedAdapter({
+        parse: async () => ({
+          kind: 'Input' as const,
+          schemas: [createSchema({ name: 'Pet', type: 'string' })],
+          operations: [],
+        }),
+      }),
+      plugins: [makePlugin('plugin-one', '/workspace/src/gen/one.ts'), makePlugin('plugin-two', '/workspace/src/gen/two.ts')] as unknown as Array<Plugin>,
+    } satisfies Config
+
+    const { files } = await createKubb(streamingConfig, { hooks }).build()
+
+    expect(batches).toEqual([1, 1])
+    expect(files.map((file) => file.path)).toEqual(['/workspace/src/gen/one.ts', '/workspace/src/gen/two.ts'])
   })
 
   it('cleans up hook-style plugin listeners between builds on shared hooks', async () => {
