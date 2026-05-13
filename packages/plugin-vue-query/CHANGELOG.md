@@ -1,5 +1,31 @@
 # @kubb/plugin-vue-query
 
+## 4.37.7
+
+### Patch Changes
+
+- [#3278](https://github.com/kubb-labs/kubb/pull/3278) [`2552a8f`](https://github.com/kubb-labs/kubb/commit/2552a8f4f0afbc15ab3a9873c02de9e9b1c94629) Thanks [@DesselBane](https://github.com/DesselBane)! - Fixed `enabled` flag generation to correctly unwrap `MaybeRefOrGetter` path params.
+
+  Previously, the generator emitted `enabled: !!(petId)` — but since path params in Vue Query are typed as `MaybeRefOrGetter<T>`, the `!!` check was always `true` (a `Ref` object is always truthy), causing queries to fire even when the underlying value was `undefined`.
+
+  The generator now emits a reactive getter that applies `toValue` per param:
+
+  ```typescript
+  // Before
+  enabled: !!(petId),
+
+  // After
+  enabled: () => !!toValue(petId),
+  ```
+
+- Updated dependencies []:
+  - @kubb/core@4.37.7
+  - @kubb/oas@4.37.7
+  - @kubb/plugin-client@4.37.7
+  - @kubb/plugin-oas@4.37.7
+  - @kubb/plugin-ts@4.37.7
+  - @kubb/plugin-zod@4.37.7
+
 ## 4.37.6
 
 ### Patch Changes
