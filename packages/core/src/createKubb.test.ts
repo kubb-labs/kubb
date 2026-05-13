@@ -218,7 +218,15 @@ describe('createKubb', () => {
             ctx.addGenerator({
               name: `${name}-generator`,
               schema() {
-                return [makeFile(filePath, `export const ${name.replaceAll('-', '_')} = null`)]
+                return [
+                  createFile({
+                    path: filePath,
+                    baseName: filePath.split('/').pop() as `${string}.${string}`,
+                    sources: [createSource({ nodes: [createText(`export const ${name.replaceAll('-', '_')} = null`)] })],
+                    imports: [],
+                    exports: [],
+                  }),
+                ]
               },
             })
           },
