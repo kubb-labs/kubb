@@ -14,7 +14,6 @@ on:
 permissions:
   actions: write
   contents: write
-  id-token: write
   models: read
   packages: write
   pull-requests: write
@@ -65,7 +64,7 @@ jobs:
           setupGitUser: false
           setupNpmrc: false
         env:
-          NPM_CONFIG_PROVENANCE: true
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish ${{ inputs.tag || 'canary' }}
@@ -73,7 +72,7 @@ jobs:
         if: steps.changesets.outputs.published != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           RELEASE_TAG: ${{ inputs.tag || 'canary' }}
         run: |
           git checkout main
