@@ -48,13 +48,13 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
       hooks.emit('kubb:error', { error: err })
     })
 
-    await hooks.emit('kubb:generation:end', { config, files, sources: kubb.sources })
+    await hooks.emit('kubb:generation:end', { config, files, outputStorage: kubb.outputStorage })
 
     throw new Error('Generation failed')
   }
 
   await hooks.emit('kubb:success', { message: 'Generation successfully' })
-  await hooks.emit('kubb:generation:end', { config, files, sources: kubb.sources })
+  await hooks.emit('kubb:generation:end', { config, files, outputStorage: kubb.outputStorage })
 
   // formatting
   if (config.output.format) {

@@ -130,18 +130,18 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
     })
   })
 
-  hooks.on('kubb:generation:end', async ({ config, files, sources }) => {
+  hooks.on('kubb:generation:end', async ({ config, files, outputStorage }) => {
     const sourcesRecord: Record<string, string> = {}
 
-    for (const key of await sources.getKeys()) {
-      const value = await sources.getItem(key)
+    for (const key of await outputStorage.getKeys()) {
+      const value = await outputStorage.getItem(key)
       if (value !== null) {
         sourcesRecord[key] = value
       }
     }
     sendDataMessage({
       type: 'kubb:generation:end',
-      data: [{ config, files, sources: sourcesRecord }],
+      data: [{ config, files, outputStorage: sourcesRecord }],
       timestamp: Date.now(),
     })
   })

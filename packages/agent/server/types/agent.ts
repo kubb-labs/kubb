@@ -61,7 +61,7 @@ export type KubbHooks = {
   'kubb:warn': [ctx: { message: string; info?: string }]
   'kubb:error': [ctx: { message: string; stack?: string }]
   'kubb:generation:start': [ctx: { name?: string; plugins: number }]
-  'kubb:generation:end': [ctx: { config: Config; files: Array<FileNode>; sources: Record<string, string> }]
+  'kubb:generation:end': [ctx: { config: Config; files: Array<FileNode>; outputStorage: Record<string, string> }]
   'kubb:lifecycle:end': []
 }
 
