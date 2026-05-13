@@ -1,5 +1,12 @@
 # @kubb/core
 
+## 4.37.7
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@4.37.7
+
 ## 4.37.6
 
 ### Patch Changes
