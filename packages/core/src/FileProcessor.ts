@@ -1,5 +1,5 @@
 import type { CodeNode, FileNode } from '@kubb/ast'
-import { disposeFile, extractStringsFromNodes } from '@kubb/ast'
+import { extractStringsFromNodes } from '@kubb/ast'
 import pLimit from 'p-limit'
 import { PARALLEL_CONCURRENCY_LIMIT } from './constants.ts'
 import type { Parser } from './defineParser.ts'
@@ -24,6 +24,20 @@ function joinSources(file: FileNode): string {
     .map((item) => extractStringsFromNodes(item.nodes as Array<CodeNode>))
     .filter(Boolean)
     .join('\n\n')
+}
+
+/**
+ * Releases the heavy AST payload carried by a `FileNode` once it has been rendered.
+ *
+ * Preserves the outer `sources`/`imports`/`exports` array shapes and the wrapper-node
+ * metadata so consumers that inspect `file.sources.length` or `file.imports[i].name`
+ * still see the same structure. Only the verbose nested `CodeNode` arrays inside each
+ * `SourceNode` are released — this is the dominant retainer for large specs.
+ */
+function disposeFile(file: FileNode): void {
+  for (const source of file.sources) {
+    source.nodes = []
+  }
 }
 
 /**

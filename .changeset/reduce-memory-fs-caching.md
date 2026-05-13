@@ -18,7 +18,7 @@ const paths = await sources.getKeys()
 
 Two new helpers support the change:
 
-- `disposeFile(file)` (exported from `@kubb/ast`) — releases the heavy `CodeNode` payload carried inside each `SourceNode` once a `FileNode` has been rendered. The outer `sources` / `imports` / `exports` arrays and their wrapper-node metadata are preserved. `FileProcessor` now calls this after each file is written so the AST graph does not survive the entire build.
+- `disposeFile(file)` — releases the heavy `CodeNode` payload carried inside each `SourceNode` once a `FileNode` has been rendered. The outer `sources` / `imports` / `exports` arrays and their wrapper-node metadata are preserved. `FileProcessor` now calls this after each file is written so the AST graph does not survive the entire build.
 - `FileManager.dispose()` — clears the per-build FileNode cache. `PluginDriver.dispose()` calls it (and clears `inputNode`) at the end of every build so the parsed adapter graph is released once `kubb:build:end` has fired.
 
 Migration:

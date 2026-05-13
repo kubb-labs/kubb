@@ -745,20 +745,19 @@ type SetupResult = {
   hooks: AsyncEventEmitter<KubbHooks>
   driver: PluginDriver
   sources: Storage
-  sourcePaths: Set<string>
   config: Config
 }
 
 /**
- * Builds a read-only `Storage` view scoped to the file paths produced by the current build.
+ * Builds a `Storage` view scoped to the file paths produced by the current build.
  *
  * Reads delegate to the underlying `storage` (typically `fsStorage()`) so source bytes
  * stay where they were written instead of being held in an extra in-memory map.
- *
- * Mutating methods (`setItem`, `clear`) are intentional no-ops: the view is for
- * downstream consumers that want to read what was generated, not to mutate it.
+ * Writing via `setItem` stores the content in the underlying storage and registers the
+ * key so subsequent reads and `getKeys` are scoped to this build's output.
  */
-function createSourcesView(storage: Storage, paths: Set<string>): Storage {
+function createSourcesView(storage: Storage): Storage {
+  const paths = new Set<string>()
   return createStorage(() => ({
     name: `${storage.name}:sources`,
     async hasItem(key: string) {
@@ -767,8 +766,9 @@ function createSourcesView(storage: Storage, paths: Set<string>): Storage {
     async getItem(key: string) {
       return paths.has(key) ? storage.getItem(key) : null
     },
-    async setItem() {
-      // read-only view
+    async setItem(key: string, value: string) {
+      paths.add(key)
+      await storage.setItem(key, value)
     },
     async removeItem(key: string) {
       paths.delete(key)
@@ -779,7 +779,8 @@ function createSourcesView(storage: Storage, paths: Set<string>): Storage {
       return base ? keys.filter((k) => k.startsWith(base)) : keys
     },
     async clear() {
-      // read-only view
+      paths.clear()
+      await storage.clear()
     },
   }))()
 }
@@ -810,8 +811,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
   const driver = new PluginDriver(config, {
     hooks,
   })
-  const sourcePaths = new Set<string>()
-  const sources: Storage = createSourcesView(config.storage, sourcePaths)
+  const sources: Storage = createSourcesView(config.storage)
   const diagnosticInfo = getDiagnosticInfo()
 
   await hooks.emit('kubb:debug', {
@@ -905,7 +905,6 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     hooks,
     driver,
     sources,
-    sourcePaths,
   }
 }
 
@@ -1019,7 +1018,7 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
 }
 
 async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
-  const { driver, hooks, sources, sourcePaths } = setupResult
+  const { driver, hooks, sources } = setupResult
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   const pluginTimings = new Map<string, number>()
@@ -1151,8 +1150,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           config,
         })
         if (source) {
-          await config.storage.setItem(file.path, source)
-          sourcePaths.add(file.path)
+          await sources.setItem(file.path, source)
         }
       },
       onEnd: async (processedFiles) => {

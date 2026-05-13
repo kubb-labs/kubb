@@ -228,17 +228,3 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
    */
   footer?: string
 }
-
-/**
- * Releases the heavy AST payload carried by a `FileNode` once it has been rendered.
- *
- * Preserves the outer `sources`/`imports`/`exports` array shapes and the wrapper-node
- * metadata so consumers that inspect `file.sources.length` or `file.imports[i].name`
- * still see the same structure. Only the verbose nested `CodeNode` arrays inside each
- * `SourceNode` are released — this is the dominant retainer for large specs.
- */
-export function disposeFile(file: FileNode): void {
-  for (const source of file.sources) {
-    source.nodes = []
-  }
-}
