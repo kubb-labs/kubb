@@ -27,20 +27,6 @@ function joinSources(file: FileNode): string {
 }
 
 /**
- * Releases the heavy AST payload carried by a `FileNode` once it has been rendered.
- *
- * Preserves the outer `sources`/`imports`/`exports` array shapes and the wrapper-node
- * metadata so consumers that inspect `file.sources.length` or `file.imports[i].name`
- * still see the same structure. Only the verbose nested `CodeNode` arrays inside each
- * `SourceNode` are released — this is the dominant retainer for large specs.
- */
-function disposeFile(file: FileNode): void {
-  for (const source of file.sources) {
-    source.nodes = []
-  }
-}
-
-/**
  * Converts a single file to a string using the registered parsers.
  * Falls back to joining source values when no matching parser is found.
  *
@@ -88,7 +74,9 @@ export class FileProcessor {
       // now that the rendered string has been handed off. The FileNode shape
       // and wrapper metadata are preserved for any consumer that still inspects
       // the returned `BuildOutput.files`.
-      disposeFile(file)
+      for (const source of file.sources) {
+        source.nodes = []
+      }
     }
 
     if (mode === 'sequential') {
