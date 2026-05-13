@@ -76,6 +76,7 @@ jobs:
           NPM_CONFIG_PROVENANCE: true
           RELEASE_TAG: ${{ inputs.tag || 'canary' }}
         run: |
+          git checkout main
           pnpm version:canary
           pnpm release:canary --tag "$RELEASE_TAG"
 
