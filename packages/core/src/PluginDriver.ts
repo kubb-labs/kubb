@@ -284,6 +284,10 @@ export class PluginDriver {
     }
     this.#hookListeners.clear()
     this.#pluginsWithEventGenerators.clear()
+    // Release resolver closures — the driver is rebuilt for each build() call
+    // so there is no value in retaining these maps after disposal.
+    this.#resolvers.clear()
+    this.#defaultResolvers.clear()
     // Release the parsed adapter graph and the FileNode cache once the build
     // has finished; the returned `BuildOutput.files` array still references
     // any FileNodes the caller needs to inspect.

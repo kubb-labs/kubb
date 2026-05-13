@@ -775,8 +775,12 @@ function createSourcesView(storage: Storage): Storage {
       await storage.removeItem(key)
     },
     async getKeys(base?: string) {
-      const keys = [...paths]
-      return base ? keys.filter((k) => k.startsWith(base)) : keys
+      if (!base) return [...paths]
+      const result: Array<string> = []
+      for (const key of paths) {
+        if (key.startsWith(base)) result.push(key)
+      }
+      return result
     },
     async clear() {
       paths.clear()
@@ -1024,6 +1028,11 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   const pluginTimings = new Map<string, number>()
   const config = driver.config
   const processedFiles = new Map<string, FileNode>()
+  // Cached result of getFilesSnapshot(); invalidated at the start of every
+  // flushPendingFiles() call.  Re-using the same array for repeated .files
+  // getter accesses within the same event-emission cycle avoids rebuilding
+  // the merged Map + Array + sort N times per plugin.
+  let snapshotCache: Array<FileNode> | null = null
   const parsersMap = new Map<FileNode['extname'], Parser>()
   for (const parser of config.parsers) {
     if (parser.extNames) {
@@ -1047,14 +1056,19 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   }
 
   function getFilesSnapshot(): Array<FileNode> {
+    if (snapshotCache) return snapshotCache
     const files = new Map(processedFiles)
     for (const file of driver.fileManager.files) {
       files.set(file.path, file)
     }
-    return sortFiles([...files.values()])
+    snapshotCache = sortFiles([...files.values()])
+    return snapshotCache
   }
 
   async function flushPendingFiles(): Promise<void> {
+    // Invalidate the snapshot cache: processedFiles is about to grow and the
+    // fileManager will be cleared, so any cached snapshot is now stale.
+    snapshotCache = null
     const files = driver.fileManager.files
     if (files.length === 0) {
       return
@@ -1222,6 +1236,11 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       sources,
     }
   } finally {
+    // Release the Map's internal hash-table overhead.  The FileNode objects
+    // themselves are still alive via the BuildOutput.files array returned
+    // to the caller — clearing the map only frees the Map structure.
+    processedFiles.clear()
+    snapshotCache = null
     driver.dispose()
   }
 }
