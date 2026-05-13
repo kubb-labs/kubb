@@ -215,9 +215,9 @@ export function InfiniteQueryOptions({
       .filter(([, item]) => item && !item.optional && !item.default)
       .map(([key]) => key),
   )
-  const enabled = [...enabledParamNames].join(' && ')
+  const enabled = [...enabledParamNames].map((n) => `!!toValue(${n})`).join(' && ')
 
-  const enabledText = enabled ? `enabled: !!(${enabled}),` : ''
+  const enabledText = enabled ? `enabled: () => ${enabled},` : ''
 
   return (
     <File.Source name={name} isExportable isIndexable>
