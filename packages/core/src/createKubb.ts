@@ -576,10 +576,10 @@ export type KubbGenerationEndContext = {
    * Read-only `Storage` view of the output written during this build,
    * scoped to the keys produced by the current run.
    *
-   * Reading is async (`await outputStorage.getItem(path)`) — backed by the configured
+   * Reading is async (`await storage.getItem(path)`) — backed by the configured
    * `config.storage` (defaults to `fsStorage()`), so source bytes are not held in memory.
    */
-  outputStorage: Storage
+  storage: Storage
 }
 
 export type KubbGenerationSummaryContext = {
@@ -692,12 +692,12 @@ export type BuildOutput = {
   error?: Error
   /**
    * Read-only `Storage` view over the files written during this build.
-   * Use `await outputStorage.getItem(path)` to read a generated file's contents on demand.
+   * Use `await storage.getItem(path)` to read a generated file's contents on demand.
    *
    * Backed by `config.storage` (defaults to `fsStorage()`), so generated source bytes
    * stay on disk instead of being held in memory for the lifetime of the build.
    */
-  outputStorage: Storage
+  storage: Storage
 }
 
 /**
@@ -714,11 +714,11 @@ export type Kubb = {
   /**
    * Read-only `Storage` view of generated source. Available after `build()` or `safeBuild()` completes.
    *
-   * Read a file's contents on demand with `await kubb.outputStorage.getItem(path)`.
+   * Read a file's contents on demand with `await kubb.storage.getItem(path)`.
    * Backed by the configured `config.storage` (defaults to `fsStorage()`), so
    * source bytes are not held in memory for the lifetime of the build.
    */
-  readonly outputStorage: Storage
+  readonly storage: Storage
   /**
    * Plugin driver managing all plugins. Available after `setup()` completes.
    */
@@ -744,7 +744,7 @@ export type Kubb = {
 type SetupResult = {
   hooks: AsyncEventEmitter<KubbHooks>
   driver: PluginDriver
-  outputStorage: Storage
+  storage: Storage
   config: Config
 }
 
@@ -815,7 +815,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
   const driver = new PluginDriver(config, {
     hooks,
   })
-  const outputStorage: Storage = createSourcesView(config.storage)
+  const storage: Storage = createSourcesView(config.storage)
   const diagnosticInfo = getDiagnosticInfo()
 
   await hooks.emit('kubb:debug', {
@@ -908,7 +908,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     config,
     hooks,
     driver,
-    outputStorage,
+    storage,
   }
 }
 
@@ -1022,7 +1022,7 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
 }
 
 async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
-  const { driver, hooks, outputStorage } = setupResult
+  const { driver, hooks, storage } = setupResult
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   const pluginTimings = new Map<string, number>()
@@ -1096,7 +1096,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           config,
         })
         if (source) {
-          await outputStorage.setItem(file.path, source)
+          await storage.setItem(file.path, source)
         }
       },
       onEnd: async (processed) => {
@@ -1224,7 +1224,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       files,
       driver,
       pluginTimings,
-      outputStorage,
+      storage,
     }
   } catch (error) {
     return {
@@ -1233,7 +1233,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       driver,
       pluginTimings,
       error: error as Error,
-      outputStorage,
+      storage,
     }
   } finally {
     // Release the Map's internal hash-table overhead.  The FileNode objects
@@ -1246,7 +1246,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
 }
 
 async function build(setupResult: SetupResult): Promise<BuildOutput> {
-  const { files, driver, failedPlugins, pluginTimings, error, outputStorage } = await safeBuild(setupResult)
+  const { files, driver, failedPlugins, pluginTimings, error, storage } = await safeBuild(setupResult)
 
   if (error) {
     throw error
@@ -1264,7 +1264,7 @@ async function build(setupResult: SetupResult): Promise<BuildOutput> {
     driver,
     pluginTimings,
     error: undefined,
-    outputStorage,
+    storage,
   }
 }
 
@@ -1320,7 +1320,7 @@ type CreateKubbOptions = {
  * Creates a Kubb instance bound to a single config entry.
  *
  * Accepts a user-facing config shape and resolves it to a full {@link Config} during
- * `setup()`. The instance then holds shared state (`hooks`, `outputStorage`, `driver`, `config`)
+ * `setup()`. The instance then holds shared state (`hooks`, `storage`, `driver`, `config`)
  * across the `setup → build` lifecycle. Attach event listeners to `kubb.hooks` before
  * calling `setup()` or `build()`.
  *
@@ -1343,8 +1343,8 @@ export function createKubb(userConfig: UserConfig, options: CreateKubbOptions = 
     get hooks() {
       return hooks
     },
-    get outputStorage() {
-      return setupResult?.outputStorage ?? memoryStorage()
+    get storage() {
+      return setupResult?.storage ?? memoryStorage()
     },
     get driver() {
       return setupResult?.driver
