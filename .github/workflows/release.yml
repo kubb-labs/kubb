@@ -22,7 +22,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -51,7 +51,7 @@ jobs:
         run: pnpm run test
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v6
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -76,7 +76,6 @@ jobs:
           NPM_CONFIG_PROVENANCE: true
           RELEASE_TAG: ${{ inputs.tag || 'canary' }}
         run: |
-          git checkout main
           pnpm version:canary
           pnpm release:canary --tag "$RELEASE_TAG"
 
@@ -90,7 +89,7 @@ jobs:
     steps:
       - name: Get version
         id: version
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           PUBLISHED_PACKAGES: ${{ needs.release.outputs.published_packages }}
         with:
@@ -117,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send a discord notification
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           PUBLISHED_PACKAGES: ${{ needs.release.outputs.published_packages }}
