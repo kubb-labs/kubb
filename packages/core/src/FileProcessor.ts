@@ -1,5 +1,5 @@
 import type { CodeNode, FileNode } from '@kubb/ast'
-import { extractStringsFromNodes } from '@kubb/ast'
+import { disposeFile, extractStringsFromNodes } from '@kubb/ast'
 import pLimit from 'p-limit'
 import { PARALLEL_CONCURRENCY_LIMIT } from './constants.ts'
 import type { Parser } from './defineParser.ts'
@@ -69,6 +69,12 @@ export class FileProcessor {
         percentage,
         total,
       })
+
+      // Release the heavy AST payload (CodeNode trees inside each SourceNode)
+      // now that the rendered string has been handed off. The FileNode shape
+      // and wrapper metadata are preserved for any consumer that still inspects
+      // the returned `BuildOutput.files`.
+      disposeFile(file)
     }
 
     if (mode === 'sequential') {

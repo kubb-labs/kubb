@@ -8,7 +8,7 @@ import { version as KubbVersion } from '../package.json'
 import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Adapter, AdapterSource } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
-import type { Storage } from './createStorage.ts'
+import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext, Generator } from './defineGenerator.ts'
 import type { Middleware } from './defineMiddleware.ts'
 import type { Parser } from './defineParser.ts'
@@ -16,6 +16,7 @@ import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartConte
 import { FileProcessor } from './FileProcessor.ts'
 import { applyHookResult, PluginDriver } from './PluginDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
+import { memoryStorage } from './storages/memoryStorage.ts'
 
 /**
  * Safely extracts a type from a registry, returning `{}` if the key doesn't exist.
@@ -571,7 +572,14 @@ export type KubbGenerationStartContext = {
 export type KubbGenerationEndContext = {
   config: Config
   files: Array<FileNode>
-  sources: Map<string, string>
+  /**
+   * Read-only `Storage` view of the sources written during this build,
+   * scoped to the keys produced by the current run.
+   *
+   * Reading is async (`await sources.getItem(path)`) — backed by the configured
+   * `config.storage` (defaults to `fsStorage()`), so source bytes are not held in memory.
+   */
+  sources: Storage
 }
 
 export type KubbGenerationSummaryContext = {
@@ -683,9 +691,13 @@ export type BuildOutput = {
   pluginTimings: Map<string, number>
   error?: Error
   /**
-   * Raw generated source, keyed by absolute file path.
+   * Read-only `Storage` view over the files written during this build.
+   * Use `await sources.getItem(path)` to read a generated file's contents on demand.
+   *
+   * Backed by `config.storage` (defaults to `fsStorage()`), so generated source bytes
+   * stay on disk instead of being held in memory for the lifetime of the build.
    */
-  sources: Map<string, string>
+  sources: Storage
 }
 
 /**
@@ -700,9 +712,13 @@ export type Kubb = {
    */
   readonly hooks: AsyncEventEmitter<KubbHooks>
   /**
-   * Generated source code keyed by absolute file path. Available after `build()` or `safeBuild()` completes.
+   * Read-only `Storage` view of generated source. Available after `build()` or `safeBuild()` completes.
+   *
+   * Read a file's contents on demand with `await kubb.sources.getItem(path)`.
+   * Backed by the configured `config.storage` (defaults to `fsStorage()`), so
+   * source bytes are not held in memory for the lifetime of the build.
    */
-  readonly sources: Map<string, string>
+  readonly sources: Storage
   /**
    * Plugin driver managing all plugins. Available after `setup()` completes.
    */
@@ -728,8 +744,44 @@ export type Kubb = {
 type SetupResult = {
   hooks: AsyncEventEmitter<KubbHooks>
   driver: PluginDriver
-  sources: Map<string, string>
+  sources: Storage
+  sourcePaths: Set<string>
   config: Config
+}
+
+/**
+ * Builds a read-only `Storage` view scoped to the file paths produced by the current build.
+ *
+ * Reads delegate to the underlying `storage` (typically `fsStorage()`) so source bytes
+ * stay where they were written instead of being held in an extra in-memory map.
+ *
+ * Mutating methods (`setItem`, `clear`) are intentional no-ops: the view is for
+ * downstream consumers that want to read what was generated, not to mutate it.
+ */
+function createSourcesView(storage: Storage, paths: Set<string>): Storage {
+  return createStorage(() => ({
+    name: `${storage.name}:sources`,
+    async hasItem(key: string) {
+      return paths.has(key) && (await storage.hasItem(key))
+    },
+    async getItem(key: string) {
+      return paths.has(key) ? storage.getItem(key) : null
+    },
+    async setItem() {
+      // read-only view
+    },
+    async removeItem(key: string) {
+      paths.delete(key)
+      await storage.removeItem(key)
+    },
+    async getKeys(base?: string) {
+      const keys = [...paths]
+      return base ? keys.filter((k) => k.startsWith(base)) : keys
+    },
+    async clear() {
+      // read-only view
+    },
+  }))()
 }
 
 async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promise<SetupResult> {
@@ -758,7 +810,8 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
   const driver = new PluginDriver(config, {
     hooks,
   })
-  const sources: Map<string, string> = new Map<string, string>()
+  const sourcePaths = new Set<string>()
+  const sources: Storage = createSourcesView(config.storage, sourcePaths)
   const diagnosticInfo = getDiagnosticInfo()
 
   await hooks.emit('kubb:debug', {
@@ -852,6 +905,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     hooks,
     driver,
     sources,
+    sourcePaths,
   }
 }
 
@@ -965,7 +1019,7 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
 }
 
 async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
-  const { driver, hooks, sources } = setupResult
+  const { driver, hooks, sources, sourcePaths } = setupResult
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   const pluginTimings = new Map<string, number>()
@@ -1098,8 +1152,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         })
         if (source) {
           await config.storage.setItem(file.path, source)
-
-          sources.set(file.path, source)
+          sourcePaths.add(file.path)
         }
       },
       onEnd: async (processedFiles) => {
@@ -1237,7 +1290,7 @@ export function createKubb(userConfig: UserConfig, options: CreateKubbOptions = 
       return hooks
     },
     get sources() {
-      return setupResult?.sources ?? new Map()
+      return setupResult?.sources ?? memoryStorage()
     },
     get driver() {
       return setupResult?.driver

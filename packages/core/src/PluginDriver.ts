@@ -284,6 +284,11 @@ export class PluginDriver {
     }
     this.#hookListeners.clear()
     this.#pluginsWithEventGenerators.clear()
+    // Release the parsed adapter graph and the FileNode cache once the build
+    // has finished; the returned `BuildOutput.files` array still references
+    // any FileNodes the caller needs to inspect.
+    this.fileManager.dispose()
+    this.inputNode = undefined
   }
 
   #trackHookListener(event: keyof KubbHooks, handler: (...args: never[]) => void | Promise<void>): void {

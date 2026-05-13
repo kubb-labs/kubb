@@ -24,6 +24,7 @@ export {
   createType,
   syncOptionality,
 } from './factory.ts'
+export { disposeFile } from './nodes/file.ts'
 export { isInputNode, isOperationNode, isOutputNode, isSchemaNode, narrowSchema } from './guards.ts'
 export { createPrinterFactory, definePrinter } from './printer.ts'
 export { extractRefName } from './refs.ts'

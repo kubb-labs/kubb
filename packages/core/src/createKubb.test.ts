@@ -54,14 +54,14 @@ describe('createKubb', () => {
   })
 
   test('if build can run and return created files and the pluginDriver', async () => {
-    const { driver } = await createKubb(config, {
+    const { driver, files } = await createKubb(config, {
       hooks: new AsyncEventEmitter<KubbHooks>(),
     }).build()
 
-    expect(driver.fileManager.files).toBeDefined()
+    expect(files).toBeDefined()
     expect(driver).toBeDefined()
     // The plugin's buildStart already added the file during build
-    expect(driver.fileManager.files.some((f) => f.baseName === file.baseName)).toBe(true)
+    expect(files.some((f) => f.baseName === file.baseName)).toBe(true)
   })
 
   test('accepts a user config and resolves defaults during setup', async () => {
@@ -87,12 +87,12 @@ describe('createKubb', () => {
   })
 
   test('if build with one plugin is running the different hooks in the correct order', async () => {
-    const { driver } = await createKubb(config, {
+    const { files } = await createKubb(config, {
       hooks: new AsyncEventEmitter<KubbHooks>(),
     }).build()
 
     expect(
-      driver.fileManager.files.map((file) => ({
+      files.map((file) => ({
         ...file,
         id: undefined,
         path: undefined,
@@ -112,12 +112,7 @@ describe('createKubb', () => {
           "sources": [
             {
               "kind": "Source",
-              "nodes": [
-                {
-                  "kind": "Text",
-                  "value": "{ "hello": "world" }",
-                },
-              ],
+              "nodes": [],
             },
           ],
         },
