@@ -92,6 +92,14 @@ export class FileManager {
   }
 
   /**
+   * Releases all stored files. Called by the core after `kubb:build:end` to
+   * free the per-plugin FileNode caches for the rest of the process lifetime.
+   */
+  dispose(): void {
+    this.clear()
+  }
+
+  /**
    * All stored files, sorted by path length (shorter paths first).
    */
   get files(): Array<FileNode> {

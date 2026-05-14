@@ -8,7 +8,7 @@ import { version as KubbVersion } from '../package.json'
 import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Adapter, AdapterSource } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
-import type { Storage } from './createStorage.ts'
+import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext, Generator } from './defineGenerator.ts'
 import type { Middleware } from './defineMiddleware.ts'
 import type { Parser } from './defineParser.ts'
@@ -570,8 +570,25 @@ export type KubbGenerationStartContext = {
 
 export type KubbGenerationEndContext = {
   config: Config
-  files: Array<FileNode>
-  sources: Map<string, string>
+  /**
+   * Read-only view of the files Kubb wrote during this build.
+   *
+   * Keys are scoped to this run; files from earlier builds are not included.
+   * Reads go directly to `config.storage`, so nothing is buffered in memory.
+   *
+   * @example Read a generated file
+   * ```ts
+   * const code = await storage.getItem('/src/gen/pet.ts')
+   * ```
+   *
+   * @example Walk every generated file
+   * ```ts
+   * for (const path of await storage.getKeys()) {
+   *   const code = await storage.getItem(path)
+   * }
+   * ```
+   */
+  storage: Storage
 }
 
 export type KubbGenerationSummaryContext = {
@@ -683,9 +700,22 @@ export type BuildOutput = {
   pluginTimings: Map<string, number>
   error?: Error
   /**
-   * Raw generated source, keyed by absolute file path.
+   * Read-only view of every file written during this build.
+   *
+   * Keys are limited to this run. Reads go straight to `config.storage`,
+   * so nothing extra is held in memory.
+   *
+   * @example Read a generated file
+   * ```ts
+   * const code = await buildOutput.storage.getItem('/src/gen/pet.ts')
+   * ```
+   *
+   * @example List all generated file paths
+   * ```ts
+   * const paths = await buildOutput.storage.getKeys()
+   * ```
    */
-  sources: Map<string, string>
+  storage: Storage
 }
 
 /**
@@ -700,17 +730,34 @@ export type Kubb = {
    */
   readonly hooks: AsyncEventEmitter<KubbHooks>
   /**
-   * Generated source code keyed by absolute file path. Available after `build()` or `safeBuild()` completes.
+   * Read-only view of the files from the most recent `build()` or `safeBuild()` call.
+   * Only populated after the build completes.
+   *
+   * Keys are scoped to the current run. Reads go straight to `config.storage`,
+   * so nothing extra is held in memory.
+   *
+   * @example Read a generated file
+   * ```ts
+   * const { storage } = await kubb.safeBuild()
+   * const code = await storage.getItem('/src/gen/pet.ts')
+   * ```
+   *
+   * @example Walk every generated file
+   * ```ts
+   * for (const path of await kubb.storage.getKeys()) {
+   *   const code = await kubb.storage.getItem(path)
+   * }
+   * ```
    */
-  readonly sources: Map<string, string>
+  readonly storage: Storage
   /**
    * Plugin driver managing all plugins. Available after `setup()` completes.
    */
-  readonly driver: PluginDriver | undefined
+  readonly driver: PluginDriver
   /**
    * Resolved configuration with defaults applied. Available after `setup()` completes.
    */
-  readonly config: Config | undefined
+  readonly config: Config
   /**
    * Resolves config and initializes the driver. `build()` calls this automatically.
    */
@@ -728,8 +775,49 @@ export type Kubb = {
 type SetupResult = {
   hooks: AsyncEventEmitter<KubbHooks>
   driver: PluginDriver
-  sources: Map<string, string>
+  storage: Storage
   config: Config
+}
+
+/**
+ * Builds a `Storage` view scoped to the file paths produced by the current build.
+ *
+ * Reads delegate to the underlying `storage` (typically `fsStorage()`) so source bytes
+ * stay where they were written instead of being held in an extra in-memory map.
+ * Writing via `setItem` stores the content in the underlying storage and registers the
+ * key so subsequent reads and `getKeys` are scoped to this build's output.
+ */
+function createSourcesView(storage: Storage): Storage {
+  const paths = new Set<string>()
+  return createStorage(() => ({
+    name: `${storage.name}:sources`,
+    async hasItem(key: string) {
+      return paths.has(key) && (await storage.hasItem(key))
+    },
+    async getItem(key: string) {
+      return paths.has(key) ? storage.getItem(key) : null
+    },
+    async setItem(key: string, value: string) {
+      paths.add(key)
+      await storage.setItem(key, value)
+    },
+    async removeItem(key: string) {
+      paths.delete(key)
+      await storage.removeItem(key)
+    },
+    async getKeys(base?: string) {
+      if (!base) return [...paths]
+      const result: Array<string> = []
+      for (const key of paths) {
+        if (key.startsWith(base)) result.push(key)
+      }
+      return result
+    },
+    async clear() {
+      paths.clear()
+      await storage.clear()
+    },
+  }))()
 }
 
 async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promise<SetupResult> {
@@ -758,7 +846,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
   const driver = new PluginDriver(config, {
     hooks,
   })
-  const sources: Map<string, string> = new Map<string, string>()
+  const storage: Storage = createSourcesView(config.storage)
   const diagnosticInfo = getDiagnosticInfo()
 
   await hooks.emit('kubb:debug', {
@@ -851,7 +939,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     config,
     hooks,
     driver,
-    sources,
+    storage,
   }
 }
 
@@ -965,11 +1053,69 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
 }
 
 async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
-  const { driver, hooks, sources } = setupResult
+  const { driver, hooks, storage } = setupResult
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   const pluginTimings = new Map<string, number>()
   const config = driver.config
+  const writtenPaths = new Set<string>()
+  const parsersMap = new Map<FileNode['extname'], Parser>()
+  for (const parser of config.parsers) {
+    if (parser.extNames) {
+      for (const extname of parser.extNames) {
+        parsersMap.set(extname, parser)
+      }
+    }
+  }
+  const fileProcessor = new FileProcessor()
+
+  fileProcessor.events.on('start', async (processingFiles) => {
+    await hooks.emit('kubb:files:processing:start', { files: processingFiles })
+  })
+
+  fileProcessor.events.on('update', async ({ file, source, processed, total, percentage }) => {
+    await hooks.emit('kubb:file:processing:update', {
+      file,
+      source,
+      processed,
+      total,
+      percentage,
+      config,
+    })
+    if (source) {
+      await storage.setItem(file.path, source)
+    }
+  })
+
+  fileProcessor.events.on('end', async (processed) => {
+    await hooks.emit('kubb:files:processing:end', { files: processed })
+    await hooks.emit('kubb:debug', {
+      date: new Date(),
+      logs: [`✓ File write process completed for ${processed.length} files`],
+    })
+  })
+
+  async function flushPendingFiles(): Promise<void> {
+    const files = driver.fileManager.files.filter((f) => !writtenPaths.has(f.path))
+    if (files.length === 0) {
+      return
+    }
+
+    await hooks.emit('kubb:debug', {
+      date: new Date(),
+      logs: [`Writing ${files.length} files...`],
+    })
+
+    await fileProcessor.run(files, {
+      parsers: parsersMap,
+      mode: 'parallel',
+      extension: config.output.extension,
+    })
+
+    for (const file of files) {
+      writtenPaths.add(file.path)
+    }
+  }
 
   try {
     await driver.emitSetupHooks()
@@ -1018,6 +1164,8 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           upsertFile: (...files) => driver.fileManager.upsert(...files),
         })
 
+        await flushPendingFiles()
+
         await hooks.emit('kubb:debug', {
           date: new Date(),
           logs: [`✓ Plugin started successfully (${formatMs(duration)})`],
@@ -1038,6 +1186,8 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           },
           upsertFile: (...files) => driver.fileManager.upsert(...files),
         })
+
+        await flushPendingFiles()
 
         await hooks.emit('kubb:debug', {
           date: errorTimestamp,
@@ -1062,54 +1212,9 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       upsertFile: (...files) => driver.fileManager.upsert(...files),
     })
 
+    await flushPendingFiles()
+
     const files = driver.fileManager.files
-
-    const parsersMap = new Map<FileNode['extname'], Parser>()
-    for (const parser of config.parsers) {
-      if (parser.extNames) {
-        for (const extname of parser.extNames) {
-          parsersMap.set(extname, parser)
-        }
-      }
-    }
-
-    const fileProcessor = new FileProcessor()
-
-    await hooks.emit('kubb:debug', {
-      date: new Date(),
-      logs: [`Writing ${files.length} files...`],
-    })
-
-    await fileProcessor.run(files, {
-      parsers: parsersMap,
-      mode: 'parallel',
-      extension: config.output.extension,
-      onStart: async (processingFiles) => {
-        await hooks.emit('kubb:files:processing:start', { files: processingFiles })
-      },
-      onUpdate: async ({ file, source, processed, total, percentage }) => {
-        await hooks.emit('kubb:file:processing:update', {
-          file,
-          source,
-          processed,
-          total,
-          percentage,
-          config,
-        })
-        if (source) {
-          await config.storage.setItem(file.path, source)
-
-          sources.set(file.path, source)
-        }
-      },
-      onEnd: async (processedFiles) => {
-        await hooks.emit('kubb:files:processing:end', { files: processedFiles })
-        await hooks.emit('kubb:debug', {
-          date: new Date(),
-          logs: [`✓ File write process completed for ${processedFiles.length} files`],
-        })
-      },
-    })
 
     await hooks.emit('kubb:build:end', {
       files,
@@ -1122,7 +1227,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       files,
       driver,
       pluginTimings,
-      sources,
+      storage,
     }
   } catch (error) {
     return {
@@ -1131,7 +1236,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       driver,
       pluginTimings,
       error: error as Error,
-      sources,
+      storage,
     }
   } finally {
     driver.dispose()
@@ -1139,7 +1244,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
 }
 
 async function build(setupResult: SetupResult): Promise<BuildOutput> {
-  const { files, driver, failedPlugins, pluginTimings, error, sources } = await safeBuild(setupResult)
+  const { files, driver, failedPlugins, pluginTimings, error, storage } = await safeBuild(setupResult)
 
   if (error) {
     throw error
@@ -1157,7 +1262,7 @@ async function build(setupResult: SetupResult): Promise<BuildOutput> {
     driver,
     pluginTimings,
     error: undefined,
-    sources,
+    storage,
   }
 }
 
@@ -1213,7 +1318,7 @@ type CreateKubbOptions = {
  * Creates a Kubb instance bound to a single config entry.
  *
  * Accepts a user-facing config shape and resolves it to a full {@link Config} during
- * `setup()`. The instance then holds shared state (`hooks`, `sources`, `driver`, `config`)
+ * `setup()`. The instance then holds shared state (`hooks`, `storage`, `driver`, `config`)
  * across the `setup → build` lifecycle. Attach event listeners to `kubb.hooks` before
  * calling `setup()` or `build()`.
  *
@@ -1236,14 +1341,23 @@ export function createKubb(userConfig: UserConfig, options: CreateKubbOptions = 
     get hooks() {
       return hooks
     },
-    get sources() {
-      return setupResult?.sources ?? new Map()
+    get storage() {
+      if (!setupResult) {
+        throw new Error('[kubb] setup() must be called before accessing storage')
+      }
+      return setupResult.storage
     },
     get driver() {
-      return setupResult?.driver
+      if (!setupResult) {
+        throw new Error('[kubb] setup() must be called before accessing driver')
+      }
+      return setupResult.driver
     },
     get config() {
-      return setupResult?.config
+      if (!setupResult) {
+        throw new Error('[kubb] setup() must be called before accessing config')
+      }
+      return setupResult.config
     },
     async setup() {
       setupResult = await setup(userConfig, { hooks })

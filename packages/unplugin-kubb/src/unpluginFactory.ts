@@ -109,7 +109,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
     await hooks.emit('kubb:generation:start', { config: resolvedConfig })
 
-    const { error, failedPlugins, pluginTimings, files, sources } = await kubb.safeBuild()
+    const { error, failedPlugins, pluginTimings, files, storage } = await kubb.safeBuild()
 
     const hasFailures = failedPlugins.size > 0 || error
     if (hasFailures) {
@@ -126,7 +126,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       })
     }
 
-    await hooks.emit('kubb:generation:end', { config: resolvedConfig, files, sources })
+    await hooks.emit('kubb:generation:end', { config: resolvedConfig, storage })
     await hooks.emit('kubb:generation:summary', {
       config: resolvedConfig,
       failedPlugins,

@@ -7,8 +7,12 @@ export const DEFAULT_STUDIO_URL = 'https://kubb.studio' as const
 
 /**
  * Maximum number of files processed in parallel by FileProcessor.
+ *
+ * Capped at 16 to bound the number of CodeNode trees that are alive simultaneously
+ * during rendering; I/O latency is the real bottleneck so higher values offer no
+ * meaningful throughput improvement.
  */
-export const PARALLEL_CONCURRENCY_LIMIT = 100
+export const PARALLEL_CONCURRENCY_LIMIT = 16
 
 /**
  * Default banner style written at the top of every generated file.

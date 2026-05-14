@@ -284,6 +284,15 @@ export class PluginDriver {
     }
     this.#hookListeners.clear()
     this.#pluginsWithEventGenerators.clear()
+    // Release resolver closures — the driver is rebuilt for each build() call
+    // so there is no value in retaining these maps after disposal.
+    this.#resolvers.clear()
+    this.#defaultResolvers.clear()
+    // Release the parsed adapter graph and the FileNode cache once the build
+    // has finished; the returned `BuildOutput.files` array still references
+    // any FileNodes the caller needs to inspect.
+    this.fileManager.dispose()
+    this.inputNode = undefined
   }
 
   #trackHookListener(event: keyof KubbHooks, handler: (...args: never[]) => void | Promise<void>): void {
