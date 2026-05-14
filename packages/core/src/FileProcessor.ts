@@ -69,14 +69,6 @@ export class FileProcessor {
         percentage,
         total,
       })
-
-      // Release the heavy AST payload (CodeNode trees inside each SourceNode)
-      // now that the rendered string has been handed off. The FileNode shape
-      // and wrapper metadata are preserved for any consumer that still inspects
-      // the returned `BuildOutput.files`.
-      for (const source of file.sources) {
-        source.nodes = []
-      }
     }
 
     if (mode === 'sequential') {

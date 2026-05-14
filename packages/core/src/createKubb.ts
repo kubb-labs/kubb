@@ -1060,12 +1060,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   const pluginTimings = new Map<string, number>()
   const config = driver.config
-  const processedFiles = new Map<string, FileNode>()
-  // Cached result of getFilesSnapshot(); invalidated at the start of every
-  // flushPendingFiles() call.  Re-using the same array for repeated .files
-  // getter accesses within the same event-emission cycle avoids rebuilding
-  // the merged Map + Array + sort N times per plugin.
-  let snapshotCache: Array<FileNode> | null = null
+  const writtenPaths = new Set<string>()
   const parsersMap = new Map<FileNode['extname'], Parser>()
   for (const parser of config.parsers) {
     if (parser.extNames) {
@@ -1076,33 +1071,8 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   }
   const fileProcessor = new FileProcessor()
 
-  function sortFiles(files: Array<FileNode>): Array<FileNode> {
-    return files.sort((a, b) => {
-      const lenDiff = a.path.length - b.path.length
-      if (lenDiff !== 0) return lenDiff
-      const aIsIndex = a.path.endsWith('/index.ts') || a.path === 'index.ts'
-      const bIsIndex = b.path.endsWith('/index.ts') || b.path === 'index.ts'
-      if (aIsIndex && !bIsIndex) return 1
-      if (!aIsIndex && bIsIndex) return -1
-      return 0
-    })
-  }
-
-  function getFilesSnapshot(): Array<FileNode> {
-    if (snapshotCache) return snapshotCache
-    const files = new Map(processedFiles)
-    for (const file of driver.fileManager.files) {
-      files.set(file.path, file)
-    }
-    snapshotCache = sortFiles([...files.values()])
-    return snapshotCache
-  }
-
   async function flushPendingFiles(): Promise<void> {
-    // Invalidate the snapshot cache: processedFiles is about to grow and the
-    // fileManager will be cleared, so any cached snapshot is now stale.
-    snapshotCache = null
-    const files = driver.fileManager.files
+    const files = driver.fileManager.files.filter((f) => !writtenPaths.has(f.path))
     if (files.length === 0) {
       return
     }
@@ -1142,9 +1112,8 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     })
 
     for (const file of files) {
-      processedFiles.set(file.path, file)
+      writtenPaths.add(file.path)
     }
-    driver.fileManager.clear()
   }
 
   try {
@@ -1157,7 +1126,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         inputNode: driver.inputNode,
         getPlugin: driver.getPlugin.bind(driver),
         get files() {
-          return getFilesSnapshot()
+          return driver.fileManager.files
         },
         upsertFile: (...files) => driver.fileManager.upsert(...files),
       })
@@ -1189,7 +1158,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           success: true,
           config,
           get files() {
-            return getFilesSnapshot()
+            return driver.fileManager.files
           },
           upsertFile: (...files) => driver.fileManager.upsert(...files),
         })
@@ -1212,7 +1181,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           error,
           config,
           get files() {
-            return getFilesSnapshot()
+            return driver.fileManager.files
           },
           upsertFile: (...files) => driver.fileManager.upsert(...files),
         })
@@ -1237,14 +1206,14 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     await hooks.emit('kubb:plugins:end', {
       config,
       get files() {
-        return getFilesSnapshot()
+        return driver.fileManager.files
       },
       upsertFile: (...files) => driver.fileManager.upsert(...files),
     })
 
     await flushPendingFiles()
 
-    const files = getFilesSnapshot()
+    const files = driver.fileManager.files
 
     await hooks.emit('kubb:build:end', {
       files,
@@ -1269,11 +1238,6 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       storage,
     }
   } finally {
-    // Release the Map's internal hash-table overhead.  The FileNode objects
-    // themselves are still alive via the BuildOutput.files array returned
-    // to the caller — clearing the map only frees the Map structure.
-    processedFiles.clear()
-    snapshotCache = null
     driver.dispose()
   }
 }

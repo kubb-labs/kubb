@@ -113,7 +113,12 @@ describe('createKubb', () => {
           "sources": [
             {
               "kind": "Source",
-              "nodes": [],
+              "nodes": [
+                {
+                  "kind": "Text",
+                  "value": "{ "hello": "world" }",
+                },
+              ],
             },
           ],
         },

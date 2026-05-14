@@ -11,17 +11,14 @@ Reduce peak memory by leaning on the existing `Storage` abstraction.
 Read a generated source on demand with the existing `Storage` API:
 
 ```ts
-const { sources } = await kubb.safeBuild()
-const code = await sources.getItem('src/gen/api/getPets.ts')
-const paths = await sources.getKeys()
+const { storage } = await kubb.safeBuild()
+const code = await storage.getItem('src/gen/api/getPets.ts')
+const paths = await storage.getKeys()
 ```
 
-Two new helpers support the change:
-
-- `disposeFile(file)` — releases the heavy `CodeNode` payload carried inside each `SourceNode` once a `FileNode` has been rendered. The outer `sources` / `imports` / `exports` arrays and their wrapper-node metadata are preserved. `FileProcessor` now calls this after each file is written so the AST graph does not survive the entire build.
-- `FileManager.dispose()` — clears the per-build FileNode cache. `PluginDriver.dispose()` calls it (and clears `inputNode`) at the end of every build so the parsed adapter graph is released once `kubb:build:end` has fired.
+`FileManager.dispose()` — clears the per-build FileNode cache. `PluginDriver.dispose()` calls it (and clears `inputNode`) at the end of every build so the parsed adapter graph is released once `kubb:build:end` has fired.
 
 Migration:
 
-- Listeners of `kubb:generation:end` that previously called `sources.get(path)` synchronously must now `await sources.getItem(path)`.
-- Code that read `driver.fileManager.files` after a build returned should read `BuildOutput.files` instead. The returned array is unchanged, but the live FileManager cache is disposed when the build ends.
+- `BuildOutput.sources` → `BuildOutput.storage` (type changes from `Map<string, string>` to `Storage`).
+- Listeners of `kubb:generation:end` that previously called `sources.get(path)` synchronously must now `await storage.getItem(path)`.
