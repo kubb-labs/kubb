@@ -68,16 +68,14 @@ type CreateSchemaOutput<T extends CreateSchemaInput> = InferSchemaNode<T> & {
 /**
  * Creates an `InputNode` with stable defaults for `schemas` and `operations`.
  *
+ * Streaming adapters typically pass empty arrays here and expose their
+ * schemas/operations through `Adapter.source` instead, so the InputNode
+ * itself stays small and JSON-serializable.
+ *
  * @example
  * ```ts
  * const input = createInput()
  * // { kind: 'Input', schemas: [], operations: [] }
- * ```
- *
- * @example
- * ```ts
- * const input = createInput({ schemas: [petSchema] })
- * // keeps default operations: []
  * ```
  */
 export function createInput(overrides: Partial<Omit<InputNode, 'kind'>> = {}): InputNode {

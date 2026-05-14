@@ -3,7 +3,7 @@ import { version as nodeVersion } from 'node:process'
 import type { PossiblePromise } from '@internals/utils'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, URLPath } from '@internals/utils'
 import type { FileNode, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
-import { collectUsedSchemaNames, transform, walk } from '@kubb/ast'
+import { collect, collectReferencedSchemaNames, collectUsedSchemaNames, transform, walk } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
 import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Adapter, AdapterSource } from './createAdapter.ts'
@@ -531,7 +531,7 @@ export interface KubbHooks {
   'kubb:build:end': [ctx: KubbBuildEndContext]
   'kubb:generate:schema': [node: SchemaNode, ctx: GeneratorContext]
   'kubb:generate:operation': [node: OperationNode, ctx: GeneratorContext]
-  'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext]
+  'kubb:generate:operations': [nodes: AsyncIterable<OperationNode>, ctx: GeneratorContext]
 }
 
 export type KubbBuildStartContext = {
@@ -835,14 +835,17 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     })
 
     driver.adapter = config.adapter
-    driver.inputNode = await config.adapter.parse(source)
+    driver.inputNode = await config.adapter.parse(source, { storage: config.storage, root: config.root })
+
+    const schemaCount = config.adapter.source?.schemaCount ?? driver.inputNode.schemas.length
+    const operationCount = config.adapter.source?.operationCount ?? driver.inputNode.operations.length
 
     await hooks.emit('kubb:debug', {
       date: new Date(),
       logs: [
         `✓ Adapter '${config.adapter.name}' resolved InputNode`,
-        `  • Schemas: ${driver.inputNode.schemas.length}`,
-        `  • Operations: ${driver.inputNode.operations.length}`,
+        `  • Schemas: ${schemaCount}`,
+        `  • Operations: ${operationCount}`,
       ],
     })
   }
@@ -878,7 +881,12 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
   }
 
   const generators = plugin.generators ?? []
-  const collectedOperations: Array<OperationNode> = []
+  /**
+   * Operation ids matched by the per-operation walk above. Stored as ids
+   * (not full nodes) so peak memory stays bounded; the batch `operations`
+   * generator hook re-streams them via `inputNode.loadOperation`.
+   */
+  const matchedOperationIds: string[] = []
 
   const generatorContext = {
     ...context,
@@ -893,74 +901,132 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
   const hasOperationBasedIncludes = include?.some(({ type }) => operationFilterTypes.has(type)) ?? false
   const hasSchemaNameIncludes = include?.some(({ type }) => type === 'schemaName') ?? false
 
+  // Streaming source supplied by the adapter. When absent, fall back to the
+  // arrays on `inputNode` so adapters that materialize everything up front
+  // still work without an explicit source.
+  const source = adapter.source ?? null
+
   let allowedSchemaNames: Set<string> | undefined
   if (hasOperationBasedIncludes && !hasSchemaNameIncludes) {
-    const includedOps = inputNode.operations.filter((op) => resolver.resolveOptions(op, { options: plugin.options, exclude, include, override }) !== null)
-    allowedSchemaNames = collectUsedSchemaNames(includedOps, inputNode.schemas)
-  }
-
-  await walk(inputNode, {
-    depth: 'shallow',
-    async schema(node) {
-      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-
-      // Skip named top-level schemas that are not reachable from any included operation.
-      if (allowedSchemaNames !== undefined && transformedNode.name && !allowedSchemaNames.has(transformedNode.name)) {
-        return
+    if (source) {
+      // Stream operations to collect directly-used ref names, then BFS through
+      // a ref-name-only schema graph. Avoids materializing full schema bodies.
+      const directlyUsed = new Set<string>()
+      for await (const op of source.operations) {
+        if (resolver.resolveOptions(op, { options: plugin.options, exclude, include, override }) === null) continue
+        for (const schema of collect<SchemaNode>(op, { depth: 'shallow', schema: (node) => node })) {
+          for (const name of collectReferencedSchemaNames(schema)) directlyUsed.add(name)
+        }
       }
 
-      const options = resolver.resolveOptions(transformedNode, {
-        options: plugin.options,
-        exclude,
-        include,
-        override,
-      })
-      if (options === null) return
+      const refGraph = new Map<string, Set<string>>()
+      for await (const schema of source.schemas) {
+        if (!schema.name) continue
+        refGraph.set(schema.name, collectReferencedSchemaNames(schema))
+      }
+
+      allowedSchemaNames = new Set<string>()
+      const stack = [...directlyUsed]
+      while (stack.length > 0) {
+        const name = stack.pop()!
+        if (allowedSchemaNames.has(name)) continue
+        allowedSchemaNames.add(name)
+        const refs = refGraph.get(name)
+        if (refs) for (const r of refs) stack.push(r)
+      }
+    } else {
+      const includedOps = inputNode.operations.filter((op) => resolver.resolveOptions(op, { options: plugin.options, exclude, include, override }) !== null)
+      allowedSchemaNames = collectUsedSchemaNames(includedOps, inputNode.schemas)
+    }
+  }
+
+  async function emitSchema(node: SchemaNode): Promise<void> {
+    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
+
+    // Skip named top-level schemas that are not reachable from any included operation.
+    if (allowedSchemaNames !== undefined && transformedNode.name && !allowedSchemaNames.has(transformedNode.name)) {
+      return
+    }
+
+    const options = resolver.resolveOptions(transformedNode, {
+      options: plugin.options,
+      exclude,
+      include,
+      override,
+    })
+    if (options === null) return
+
+    const ctx = { ...generatorContext, options }
+
+    for (const gen of generators) {
+      if (!gen.schema) continue
+      const result = await gen.schema(transformedNode, ctx)
+      await applyHookResult(result, driver, resolveRenderer(gen))
+    }
+
+    await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
+  }
+
+  async function emitOperation(node: OperationNode): Promise<void> {
+    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
+    const options = resolver.resolveOptions(transformedNode, {
+      options: plugin.options,
+      exclude,
+      include,
+      override,
+    })
+    if (options !== null) {
+      if (transformedNode.operationId) {
+        matchedOperationIds.push(transformedNode.operationId)
+      }
 
       const ctx = { ...generatorContext, options }
 
       for (const gen of generators) {
-        if (!gen.schema) continue
-        const result = await gen.schema(transformedNode, ctx)
+        if (!gen.operation) continue
+        const result = await gen.operation(transformedNode, ctx)
         await applyHookResult(result, driver, resolveRenderer(gen))
       }
 
-      await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
-    },
-    async operation(node) {
-      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-      const options = resolver.resolveOptions(transformedNode, {
-        options: plugin.options,
-        exclude,
-        include,
-        override,
-      })
-      if (options !== null) {
-        collectedOperations.push(transformedNode)
+      await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
+    }
+  }
 
-        const ctx = { ...generatorContext, options }
+  if (source) {
+    for await (const schema of source.schemas) await emitSchema(schema)
+    for await (const operation of source.operations) await emitOperation(operation)
+  } else {
+    await walk(inputNode, {
+      depth: 'shallow',
+      async schema(node) {
+        await emitSchema(node)
+      },
+      async operation(node) {
+        await emitOperation(node)
+      },
+    })
+  }
 
-        for (const gen of generators) {
-          if (!gen.operation) continue
-          const result = await gen.operation(transformedNode, ctx)
-          await applyHookResult(result, driver, resolveRenderer(gen))
-        }
-
-        await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
-      }
-    },
-  })
-
-  if (collectedOperations.length > 0) {
+  if (matchedOperationIds.length > 0) {
     const ctx = { ...generatorContext, options: plugin.options }
+
+    const matchedOperations: AsyncIterable<OperationNode> = {
+      async *[Symbol.asyncIterator]() {
+        for (const id of matchedOperationIds) {
+          const op = source ? await source.loadOperation(id) : inputNode.operations.find((o) => o.operationId === id)
+          if (!op) continue
+          yield plugin.transformer ? transform(op, plugin.transformer) : op
+        }
+      },
+    }
 
     for (const gen of generators) {
       if (!gen.operations) continue
-      const result = await gen.operations(collectedOperations, ctx)
+      const result = await gen.operations(matchedOperations, ctx)
       await applyHookResult(result, driver, resolveRenderer(gen))
     }
 
-    await driver.hooks.emit('kubb:generate:operations', collectedOperations, ctx)
+    await driver.hooks.emit('kubb:generate:operations', matchedOperations, ctx)
   }
 }
 
@@ -1134,6 +1200,11 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       sources,
     }
   } finally {
+    // Let the adapter clean up any cache it persisted to `config.storage`.
+    // Errors are non-fatal — caches are tolerant of stale entries.
+    try {
+      await driver.adapter?.source?.dispose?.()
+    } catch {}
     driver.dispose()
   }
 }

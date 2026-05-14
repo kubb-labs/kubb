@@ -18,10 +18,10 @@ describe('applyDiscriminatorInheritance', () => {
       },
     })
 
-    const root = parseOas(oas).root
-    const result = applyDiscriminatorInheritance(root)
+    const { schemas } = parseOas(oas)
+    const result = applyDiscriminatorInheritance(schemas)
 
-    expect(result).toBe(root)
+    expect(result).toBe(schemas)
   })
 
   it('injects the discriminator enum into child object schemas', async () => {
@@ -47,9 +47,9 @@ describe('applyDiscriminatorInheritance', () => {
       },
     })
 
-    const root = applyDiscriminatorInheritance(parseOas(oas).root)
+    const root = applyDiscriminatorInheritance(parseOas(oas).schemas)
 
-    const dog = root.schemas.find((s) => s.name === 'Dog')
+    const dog = root.find((s) => s.name === 'Dog')
     expect(toSnapshot(ast.narrowSchema(dog, 'object'))).toMatchInlineSnapshot(`
       {
         "kind": "Schema",
@@ -85,7 +85,7 @@ describe('applyDiscriminatorInheritance', () => {
       }
     `)
 
-    const cat = root.schemas.find((s) => s.name === 'Cat')
+    const cat = root.find((s) => s.name === 'Cat')
     expect(toSnapshot(ast.narrowSchema(cat, 'object'))).toMatchInlineSnapshot(`
       {
         "kind": "Schema",
@@ -145,9 +145,9 @@ describe('applyDiscriminatorInheritance', () => {
       },
     })
 
-    const root = applyDiscriminatorInheritance(parseOas(oas).root)
+    const root = applyDiscriminatorInheritance(parseOas(oas).schemas)
 
-    const dog = root.schemas.find((s) => s.name === 'Dog')
+    const dog = root.find((s) => s.name === 'Dog')
     expect(toSnapshot(ast.narrowSchema(dog, 'object'))).toMatchInlineSnapshot(`
       {
         "kind": "Schema",
@@ -211,9 +211,9 @@ describe('applyDiscriminatorInheritance', () => {
       },
     })
 
-    const root = applyDiscriminatorInheritance(parseOas(oas).root)
+    const root = applyDiscriminatorInheritance(parseOas(oas).schemas)
 
-    const dog = root.schemas.find((s) => s.name === 'Dog')
+    const dog = root.find((s) => s.name === 'Dog')
     expect(toSnapshot(ast.narrowSchema(dog, 'object'))).toMatchInlineSnapshot(`
       {
         "kind": "Schema",
@@ -249,7 +249,7 @@ describe('applyDiscriminatorInheritance', () => {
       }
     `)
 
-    const cat = root.schemas.find((s) => s.name === 'Cat')
+    const cat = root.find((s) => s.name === 'Cat')
     expect(toSnapshot(ast.narrowSchema(cat, 'object'))).toMatchInlineSnapshot(`
       {
         "kind": "Schema",
@@ -309,9 +309,9 @@ describe('applyDiscriminatorInheritance', () => {
       },
     })
 
-    const root = applyDiscriminatorInheritance(parseOas(oas).root)
+    const root = applyDiscriminatorInheritance(parseOas(oas).schemas)
 
-    const unrelated = root.schemas.find((s) => s.name === 'UnrelatedSchema')
+    const unrelated = root.find((s) => s.name === 'UnrelatedSchema')
     expect(toSnapshot(ast.narrowSchema(unrelated, 'object'))).toMatchInlineSnapshot(`
       {
         "kind": "Schema",

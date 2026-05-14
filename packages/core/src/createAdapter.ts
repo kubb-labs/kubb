@@ -1,11 +1,80 @@
 import type { PossiblePromise } from '@internals/utils'
-import type { ImportNode, InputNode, SchemaNode } from '@kubb/ast'
+import type { ImportNode, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
+import type { Storage } from './createStorage.ts'
 
 /**
  * Source data passed to an adapter's `parse` function.
  * Mirrors the config input shape with paths resolved to absolute.
  */
 export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown } | { type: 'paths'; paths: Array<string> }
+
+/**
+ * Runtime context handed to {@link Adapter.parse}. Provides access to the
+ * shared `config.storage` (used for caching parsed nodes to disk) and the
+ * resolved project root so adapters can scope storage keys.
+ */
+export type AdapterParseContext = {
+  /**
+   * Storage shared with output file emission. Adapters that stream nodes must
+   * write under a reserved key prefix (e.g. `<root>/.kubb/.cache/...`).
+   */
+  storage: Storage
+  /**
+   * Absolute project root (`config.root`).
+   */
+  root: string
+}
+
+/**
+ * Streaming view over schemas and operations exposed by an adapter that
+ * persists nodes outside the `InputNode`. Implementations are free to read
+ * each node from disk on demand so peak memory stays bounded; consumers must
+ * never assume `Symbol.asyncIterator` is multi-shot — re-walks should rely on
+ * `loadSchema` / `loadOperation` or re-iterate via the returned iterables.
+ *
+ * Each yielded node is a plain `SchemaNode` / `OperationNode` (JSON-safe), so
+ * the AST primitives in `@kubb/ast` remain serializable.
+ */
+export type AdapterStreamSource = {
+  /**
+   * Streams every schema node in source order.
+   */
+  schemas: AsyncIterable<SchemaNode>
+  /**
+   * Streams every operation node in source order.
+   */
+  operations: AsyncIterable<OperationNode>
+  /**
+   * Stable schema names in source order.
+   */
+  schemaNames: ReadonlyArray<string>
+  /**
+   * Stable operation identifiers in source order.
+   */
+  operationIds: ReadonlyArray<string>
+  /**
+   * Total number of schemas.
+   */
+  schemaCount: number
+  /**
+   * Total number of operations.
+   */
+  operationCount: number
+  /**
+   * Random-access loader for a schema by name. Returns `undefined` when missing.
+   */
+  loadSchema(name: string): Promise<SchemaNode | undefined>
+  /**
+   * Random-access loader for an operation by id. Returns `undefined` when missing.
+   */
+  loadOperation(id: string): Promise<OperationNode | undefined>
+  /**
+   * Optional cleanup hook called by `createKubb` after the build completes.
+   * Adapters that persist nodes to `config.storage` should remove their own
+   * cache namespace here instead of clearing the whole `.kubb/.cache` tree.
+   */
+  dispose?(): Promise<void>
+}
 
 /**
  * Generic type parameters for an adapter definition.
@@ -59,9 +128,23 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
   document: TOptions['document'] | null
   inputNode: InputNode | null
   /**
-   * Parse the source into a universal `InputNode`.
+   * Streaming view over schemas / operations when the adapter persists nodes
+   * outside the `InputNode` (typically to `config.storage` under
+   * `.kubb/.cache`). When set, `createKubb` walks this source instead of
+   * iterating `inputNode.schemas` / `inputNode.operations` directly.
+   *
+   * `null` (or unset) means the adapter materialized everything into
+   * `inputNode` and there is no streaming view.
    */
-  parse: (source: AdapterSource) => PossiblePromise<InputNode>
+  source?: AdapterStreamSource | null
+  /**
+   * Parse the source into a universal `InputNode`.
+   *
+   * The optional `context` is supplied by `createKubb` and exposes
+   * `config.storage` so adapters can persist parsed schemas / operations to
+   * disk and expose them via `Adapter.source`.
+   */
+  parse: (source: AdapterSource, context?: AdapterParseContext) => PossiblePromise<InputNode>
   /**
    * Extract `ImportNode` entries for a schema tree.
    * Returns an empty array before the first `parse()` call.

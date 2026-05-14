@@ -954,26 +954,76 @@ export function parseSchema(
 }
 
 /**
+ * Sink invoked by {@link parseOasStreaming} for every parsed schema and operation.
+ * Adapters use this to persist nodes to storage without buffering the whole tree.
+ */
+export type ParseOasSink = {
+  onSchema(node: ast.SchemaNode): Promise<void> | void
+  onOperation(node: ast.OperationNode): Promise<void> | void
+}
+
+/**
+ * Streaming variant of {@link parseOas}. Emits each `SchemaNode` and `OperationNode`
+ * to `sink` as they are parsed instead of returning them in arrays. Use this when
+ * the document is large (e.g. Stripe) so peak memory stays bounded.
+ *
+ * Returns the `nameMapping` and the order in which schemas / operations were
+ * emitted so callers can reconstruct iteration order from storage.
+ */
+export async function parseOasStreaming(
+  document: Document,
+  options: Partial<ast.ParserOptions> & { contentType?: ContentType } = {},
+  sink: ParseOasSink,
+): Promise<{ nameMapping: Map<string, string>; schemaNames: string[]; operationIds: string[] }> {
+  const { contentType, ...parserOptions } = options
+  const mergedOptions: ast.ParserOptions = {
+    ...DEFAULT_PARSER_OPTIONS,
+    ...parserOptions,
+  }
+
+  const { schemas: schemaObjects, nameMapping } = getSchemas(document, {
+    contentType,
+  })
+  const { parseSchema: _parseSchema, parseOperation: _parseOperation } = createSchemaParser({ document, contentType })
+
+  const schemaNames: string[] = []
+  for (const [name, schema] of Object.entries(schemaObjects)) {
+    const node = _parseSchema({ schema, name }, mergedOptions)
+    await sink.onSchema(node)
+    schemaNames.push(name)
+  }
+
+  const baseOas = new BaseOas(document)
+  const paths = baseOas.getPaths()
+
+  const operationIds: string[] = []
+  let anonymousCounter = 0
+  for (const [, methods] of Object.entries(paths)) {
+    for (const [, operation] of Object.entries(methods)) {
+      if (!operation) continue
+      const node = _parseOperation(mergedOptions, operation)
+      await sink.onOperation(node)
+      operationIds.push(node.operationId ?? `__anonymous_${anonymousCounter++}`)
+    }
+  }
+
+  return { nameMapping, schemaNames, operationIds }
+}
+
+/**
  * Parses an OpenAPI specification into Kubb's universal `InputNode` AST.
  *
- * This is the main entry point for `@kubb/adapter-oas`. It converts OpenAPI/Swagger specs into a spec-agnostic tree
- * that downstream plugins (`plugin-ts`, `plugin-zod`, etc.) consume for code generation. No code is generated here —
- * the tree is a pure data structure representing all schemas and operations.
+ * Returns the AST root, the underlying `schemas` / `operations` arrays (for
+ * convenient random-access in tests and adapters that buffer in memory), and
+ * a `nameMapping` for resolving schema references.
  *
- * Returns the AST root and a `nameMapping` for resolving schema references.
- *
- * @example
- * ```ts
- * import { parseOas } from '@kubb/adapter-oas'
- *
- * const document = await parseFromConfig(config)
- * const { root, nameMapping } = parseOas(document, { dateType: 'date', contentType: 'application/json' })
- * ```
+ * Production code that cares about peak memory should call
+ * {@link parseOasStreaming} directly so nodes never sit in memory together.
  */
 export function parseOas(
   document: Document,
   options: Partial<ast.ParserOptions> & { contentType?: ContentType } = {},
-): { root: ast.InputNode; nameMapping: Map<string, string> } {
+): { root: ast.InputNode; nameMapping: Map<string, string>; schemas: ast.SchemaNode[]; operations: ast.OperationNode[] } {
   const { contentType, ...parserOptions } = options
   const mergedOptions: ast.ParserOptions = {
     ...DEFAULT_PARSER_OPTIONS,
@@ -998,5 +1048,5 @@ export function parseOas(
 
   const root = ast.createInput({ schemas, operations })
 
-  return { root, nameMapping }
+  return { root, nameMapping, schemas, operations }
 }

@@ -109,7 +109,7 @@ export async function mergeDocuments(pathOrApi: Array<string | Document>): Promi
  * const document = await parseFromConfig({ type: 'data', data: '{"openapi":"3.0.0",...}' })
  * ```
  */
-export function parseFromConfig(source: AdapterSource): Promise<Document> {
+export function parseFromConfig(source: AdapterSource, { bundle = true }: { bundle?: boolean } = {}): Promise<Document> {
   if (source.type === 'data') {
     if (typeof source.data === 'object') {
       return parseDocument(structuredClone(source.data) as Document)
@@ -124,10 +124,10 @@ export function parseFromConfig(source: AdapterSource): Promise<Document> {
 
   // type === 'path'
   if (new URLPath(source.path).isURL) {
-    return parseDocument(source.path)
+    return parseDocument(source.path, { canBundle: bundle })
   }
 
-  return parseDocument(path.resolve(path.dirname(source.path), source.path))
+  return parseDocument(path.resolve(path.dirname(source.path), source.path), { canBundle: bundle })
 }
 
 /**

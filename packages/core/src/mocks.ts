@@ -169,7 +169,12 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
   if (!generator.operations) return
   const context = createMockedPluginContext(opts)
   const transformedNodes = opts.plugin.transformer ? nodes.map((n) => transform(n, opts.plugin.transformer!)) : nodes
-  const result = await generator.operations(transformedNodes, {
+  const asyncNodes: AsyncIterable<OperationNode> = {
+    async *[Symbol.asyncIterator]() {
+      for (const node of transformedNodes) yield node
+    },
+  }
+  const result = await generator.operations(asyncNodes, {
     ...context,
     options: opts.options,
   })

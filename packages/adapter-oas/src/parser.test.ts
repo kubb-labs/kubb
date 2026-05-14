@@ -14,15 +14,15 @@ const emptyDocument: Document = {
 describe('buildAst', () => {
   it('returns an InputNode', async () => {
     const oas = await buildMinimalOas()
-    const root = parseOas(oas).root
+    const result = parseOas(oas)
 
-    expect(root.kind).toBe('Input')
+    expect(result.root.kind).toBe('Input')
   })
 
   describe('schemas', () => {
     it('converts named component schemas', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const names = root.schemas.map((s) => s.name)
 
       expect(names).toContain('Pet')
@@ -32,7 +32,7 @@ describe('buildAst', () => {
 
     it('converts object schema with properties', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const pet = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'Pet'),
         'object',
@@ -44,7 +44,7 @@ describe('buildAst', () => {
 
     it('marks required properties', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const pet = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'Pet'),
         'object',
@@ -58,7 +58,7 @@ describe('buildAst', () => {
 
     it('converts array schema', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const list = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'PetList'),
         'array',
@@ -71,7 +71,7 @@ describe('buildAst', () => {
 
     it('converts enum schema', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const status = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'Status'),
         'enum',
@@ -83,7 +83,7 @@ describe('buildAst', () => {
 
     it('converts oneOf to union', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const petOrError = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'PetOrError'),
         'union',
@@ -95,7 +95,7 @@ describe('buildAst', () => {
 
     it('converts allOf to intersection', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const fullPet = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'FullPet'),
         'intersection',
@@ -107,7 +107,7 @@ describe('buildAst', () => {
 
     it('flattens single-member allOf and propagates nullable', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const nullableString = root.schemas.find((s) => s.name === 'NullableString')
 
       // Should be flattened to 'string' — not an intersection
@@ -119,7 +119,7 @@ describe('buildAst', () => {
 
     it('flattens single-member allOf for nullable $ref', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const nullableRef = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'NullableRef'),
         'ref',
@@ -134,7 +134,7 @@ describe('buildAst', () => {
 
     it('maps format date-time to datetime SchemaType', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const fullPet = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'FullPet'),
         'intersection',
@@ -151,7 +151,7 @@ describe('buildAst', () => {
 
     it('maps format email to email SchemaType', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const fullPet = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'FullPet'),
         'intersection',
@@ -169,14 +169,14 @@ describe('buildAst', () => {
   describe('operations', () => {
     it('converts all operations', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
 
       expect(root.operations).toHaveLength(4)
     })
 
     it('sets operationId, method, path, tags', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const listPets = root.operations.find((op) => op.operationId === 'listPets')
 
       expect(listPets?.method).toBe('GET')
@@ -187,7 +187,7 @@ describe('buildAst', () => {
 
     it('sets deprecated flag', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const createPet = root.operations.find((op) => op.operationId === 'createPet')
 
       expect(createPet?.deprecated).toBe(true)
@@ -195,7 +195,7 @@ describe('buildAst', () => {
 
     it('uses uppercase HTTP method per RFC 9110', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       for (const op of root.operations) {
         expect(op.method).toBe(op.method.toUpperCase())
       }
@@ -203,7 +203,7 @@ describe('buildAst', () => {
 
     it('converts query parameters', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const listPets = root.operations.find((op) => op.operationId === 'listPets')
       const limit = listPets?.parameters.find((p) => p.name === 'limit')
 
@@ -214,7 +214,7 @@ describe('buildAst', () => {
 
     it('converts path parameters', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const getPet = root.operations.find((op) => op.operationId === 'getPetById')
       const petId = getPet?.parameters.find((p) => p.name === 'petId')
 
@@ -252,7 +252,7 @@ describe('buildAst', () => {
           },
         },
       })
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const op = root.operations.find((o) => o.operationId === 'getPetById')
       const petId = op?.parameters.find((p) => p.name === 'petId')
 
@@ -262,7 +262,7 @@ describe('buildAst', () => {
 
     it('converts requestBody', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const createPet = root.operations.find((op) => op.operationId === 'createPet')
 
       expect(createPet?.requestBody).toBeDefined()
@@ -271,7 +271,7 @@ describe('buildAst', () => {
 
     it('captures requestBody description', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const createPet = root.operations.find((op) => op.operationId === 'createPet')
 
       expect(createPet?.requestBody?.description).toBe('New pet to create')
@@ -279,7 +279,7 @@ describe('buildAst', () => {
 
     it('sets requestBody.required to true when spec has required: true', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const createPet = root.operations.find((op) => op.operationId === 'createPet')
 
       expect(createPet?.requestBody?.required).toBe(true)
@@ -288,7 +288,7 @@ describe('buildAst', () => {
 
     it('leaves requestBody.required undefined when spec omits required', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const patchPet = root.operations.find((op) => op.operationId === 'patchPet')
 
       expect(patchPet?.requestBody).toBeDefined()
@@ -298,7 +298,7 @@ describe('buildAst', () => {
 
     it('converts responses with statusCode and schema', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const listPets = root.operations.find((op) => op.operationId === 'listPets')
       const ok = listPets?.responses.find((r) => r.statusCode === '200')
 
@@ -308,7 +308,7 @@ describe('buildAst', () => {
 
     it('converts responses without a body schema', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const getPet = root.operations.find((op) => op.operationId === 'getPetById')
       const notFound = getPet?.responses.find((r) => r.statusCode === '404')
 
@@ -317,7 +317,7 @@ describe('buildAst', () => {
 
     it('sets mediaType on responses', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const listPets = root.operations.find((op) => op.operationId === 'listPets')
       const ok = listPets?.responses.find((r) => r.statusCode === '200')
 
@@ -326,7 +326,7 @@ describe('buildAst', () => {
 
     it('populates requestBody.content with a single entry when operation has one content type', async () => {
       const oas = await buildMinimalOas()
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const createPet = root.operations.find((op) => op.operationId === 'createPet')
 
       expect(createPet?.requestBody?.content).toHaveLength(1)
@@ -358,7 +358,7 @@ describe('buildAst', () => {
           },
         },
       })
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const upload = root.operations.find((op) => op.operationId === 'upload')
 
       expect(upload?.requestBody?.content).toHaveLength(2)
@@ -390,7 +390,7 @@ describe('buildAst', () => {
           },
         },
       })
-      const root = parseOas(oas).root
+      const root = parseOas(oas)
       const upload = root.operations.find((op) => op.operationId === 'upload')
 
       expect(upload?.requestBody?.content?.[0]?.contentType).toBe('application/json')
@@ -421,7 +421,7 @@ describe('buildAst', () => {
           },
         },
       })
-      const root = parseOas(oas, { contentType: 'multipart/form-data' }).root
+      const root = parseOas(oas, { contentType: 'multipart/form-data' })
       const upload = root.operations.find((op) => op.operationId === 'upload')
 
       expect(upload?.requestBody?.content).toHaveLength(1)
@@ -1105,7 +1105,7 @@ describe('parseSchema readOnly / writeOnly', () => {
 
   it('populates node.schema with the resolved ref schema when the document contains the definition', async () => {
     const oas = await buildMinimalOas()
-    const root = parseOas(oas).root
+    const root = parseOas(oas)
     const petList = ast.narrowSchema(
       root.schemas.find((s) => s.name === 'PetList'),
       'array',
@@ -1120,9 +1120,9 @@ describe('parseSchema readOnly / writeOnly', () => {
 
   it('syncSchemaRef merges usage-site sibling fields over the resolved schema', async () => {
     const oas = await buildMinimalOas()
-    const { root } = parseOas(oas)
+    const { schemas } = parseOas(oas)
     const petList = ast.narrowSchema(
-      root.schemas.find((s) => s.name === 'PetList'),
+      schemas.find((s) => s.name === 'PetList'),
       'array',
     )
     const petRef = petList?.items?.find((item) => item.type === 'ref')
@@ -3297,7 +3297,7 @@ describe('parseSchema circular allOf discriminator detection', () => {
       },
     })
 
-    const root = parseOas(oas).root
+    const root = parseOas(oas)
     const cat = root.schemas.find((s) => s.name === 'Cat')
 
     expect(cat).toBeDefined()
@@ -3337,7 +3337,7 @@ describe('parseSchema circular allOf discriminator detection', () => {
       },
     })
 
-    const root = parseOas(oas).root
+    const root = parseOas(oas)
 
     const cat = root.schemas.find((s) => s.name === 'Cat')
     expect(cat?.type).toBe('intersection')
@@ -3362,10 +3362,10 @@ describe('parseSchema circular allOf discriminator detection', () => {
 
 describe('buildAst', async () => {
   const oas = await buildMinimalOas()
-  const root = parseOas(oas).root
+  const root = parseOas(oas)
 
   it('produces an InputNode with expected schema and operation counts', () => {
-    expect(root.kind).toBe('Input')
+    expect(root.root.kind).toBe('Input')
     expect(root.schemas.length).toBeGreaterThan(0)
     expect(root.operations.length).toBeGreaterThan(0)
   })
@@ -3473,7 +3473,7 @@ describe('buildAst – header and cookie parameters', async () => {
     },
   })
 
-  const root = parseOas(oas).root
+  const root = parseOas(oas)
   const getItems = root.operations.find((o) => o.operationId === 'getItems')
 
   it('parses operation description', () => {
@@ -3539,7 +3539,7 @@ describe('buildAst – parameter description propagation', async () => {
     },
   })
 
-  const root = parseOas(oas).root
+  const root = parseOas(oas)
   const listPets = root.operations.find((o) => o.operationId === 'listPets')
 
   it('propagates parameter-level description to schema.description for query params', () => {
@@ -3576,7 +3576,7 @@ describe('buildAst – parameter description propagation', async () => {
         },
       },
     })
-    const root2 = parseOas(oasWithBoth).root
+    const root2 = parseOas(oasWithBoth)
     const getItems = root2.operations.find((o) => o.operationId === 'getItems')
     const q = getItems?.parameters.find((p) => p.name === 'q')
 
@@ -3658,7 +3658,7 @@ describe('parameter enum naming', () => {
         },
       },
     })
-    const root = parseOas(oas).root
+    const root = parseOas(oas)
     const op = root.operations.find((o) => o.operationId === 'listPets')
     const statusParam = op?.parameters.find((p) => p.name === 'status')
     const enumNode = ast.narrowSchema(statusParam?.schema, 'enum')

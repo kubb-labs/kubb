@@ -435,7 +435,11 @@ describe('PluginDriver — generator event dispatch', () => {
       inputNode: {},
       options: {},
     } as unknown as GeneratorContext
-    const fakeNodes = [{ kind: 'Operation', operationId: 'getPet' }] as unknown as Array<OperationNode>
+    const fakeNodes: AsyncIterable<OperationNode> = {
+      async *[Symbol.asyncIterator]() {
+        yield { kind: 'Operation', operationId: 'getPet' } as unknown as OperationNode
+      },
+    }
 
     await events.emit('kubb:generate:operations', fakeNodes, fakeCtx)
     expect(operationsMock).toHaveBeenCalledOnce()

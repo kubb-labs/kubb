@@ -143,6 +143,15 @@ export type AdapterOasOptions = {
    */
   validate?: boolean
   /**
+   * Bundle the source document through Redocly before parsing.
+   *
+   * When `false`, external `$ref`s are left as-is — only internal refs are
+   * resolved. Set this to `false` for very large specs (e.g. Stripe) where
+   * the bundling step dominates memory usage.
+   * @default true
+   */
+  bundle?: boolean
+  /**
    * Preferred content-type used when extracting request/response schemas.
    * Defaults to the first valid JSON media type found in the spec.
    */
@@ -178,6 +187,7 @@ export type AdapterOasOptions = {
  */
 export type AdapterOasResolvedOptions = {
   validate: boolean
+  bundle: boolean
   contentType: AdapterOasOptions['contentType']
   serverIndex: AdapterOasOptions['serverIndex']
   serverVariables: AdapterOasOptions['serverVariables']

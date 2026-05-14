@@ -35,6 +35,10 @@ export type InputMeta = {
  * Input AST node that contains all schemas and operations for one API document.
  * Produced by the adapter and consumed by all Kubb plugins.
  *
+ * `schemas` and `operations` are plain arrays of primitive nodes so the whole
+ * tree round-trips through `JSON.stringify`/`JSON.parse`. Streaming adapters
+ * leave them empty and expose nodes via `Adapter.source`.
+ *
  * @example
  * ```ts
  * const input: InputNode = {
@@ -50,11 +54,13 @@ export type InputNode = BaseNode & {
    */
   kind: 'Input'
   /**
-   * All schema nodes in the document.
+   * All schema nodes in the document. Empty when the adapter streams nodes
+   * via `Adapter.source` instead of materializing them up front.
    */
   schemas: Array<SchemaNode>
   /**
-   * All operation nodes in the document.
+   * All operation nodes in the document. Empty when the adapter streams nodes
+   * via `Adapter.source` instead of materializing them up front.
    */
   operations: Array<OperationNode>
   /**

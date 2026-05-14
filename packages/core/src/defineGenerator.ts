@@ -159,8 +159,13 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    * Called once after all operations have been walked.
    * `ctx` carries the plugin context with `adapter` and `inputNode` guaranteed present,
    * plus `ctx.options` with the plugin-level options for the batch call.
+   *
+   * `nodes` is an `AsyncIterable` so the runtime can stream operations from
+   * storage instead of buffering them all in memory. Generators that need
+   * random access should pull each operation from `ctx.inputNode.loadOperation`
+   * using `nodes` (or `inputNode.operationIds`) as the iteration order.
    */
-  operations?: (nodes: Array<OperationNode>, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
+  operations?: (nodes: AsyncIterable<OperationNode>, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
 }
 
 /**
