@@ -47,29 +47,34 @@ describe('FileProcessor', () => {
   })
 
   describe('run', () => {
-    it('calls onStart and onEnd with the full files list', async () => {
+    it('emits start and end events with the full files list', async () => {
       const processor = new FileProcessor()
       const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
       const onStart = vi.fn()
       const onEnd = vi.fn()
 
-      await processor.run(files, { onStart, onEnd })
+      processor.events.on('start', onStart)
+      processor.events.on('end', onEnd)
+
+      await processor.run(files)
 
       expect(onStart).toHaveBeenCalledWith(files)
       expect(onEnd).toHaveBeenCalledWith(files)
     })
 
-    it('calls onUpdate once per file', async () => {
+    it('emits update event once per file', async () => {
       const processor = new FileProcessor()
       const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
       const onUpdate = vi.fn()
 
-      await processor.run(files, { onUpdate })
+      processor.events.on('update', onUpdate)
+
+      await processor.run(files)
 
       expect(onUpdate).toHaveBeenCalledTimes(2)
     })
 
-    it('passes correct percentage and processed count to onUpdate', async () => {
+    it('passes correct percentage and processed count via update event', async () => {
       const processor = new FileProcessor()
       const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
       const updates: Array<{
@@ -78,11 +83,11 @@ describe('FileProcessor', () => {
         total: number
       }> = []
 
-      await processor.run(files, {
-        onUpdate: ({ processed, percentage, total }) => {
-          updates.push({ processed, percentage, total })
-        },
+      processor.events.on('update', ({ processed, percentage, total }) => {
+        updates.push({ processed, percentage, total })
       })
+
+      await processor.run(files)
 
       expect(updates[0]).toEqual({ processed: 1, percentage: 50, total: 2 })
       expect(updates[1]).toEqual({ processed: 2, percentage: 100, total: 2 })
@@ -100,11 +105,11 @@ describe('FileProcessor', () => {
       const order: Array<string> = []
       const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
 
-      await processor.run(files, {
-        onUpdate: ({ file }) => {
-          order.push(file.path)
-        },
+      processor.events.on('update', ({ file }) => {
+        order.push(file.path)
       })
+
+      await processor.run(files)
 
       expect(order).toEqual(['/src/a.ts', '/src/b.ts'])
     })
@@ -114,7 +119,9 @@ describe('FileProcessor', () => {
       const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
       const onUpdate = vi.fn()
 
-      await processor.run(files, { mode: 'parallel', onUpdate })
+      processor.events.on('update', onUpdate)
+
+      await processor.run(files, { mode: 'parallel' })
 
       expect(onUpdate).toHaveBeenCalledTimes(2)
     })
@@ -125,7 +132,11 @@ describe('FileProcessor', () => {
       const onEnd = vi.fn()
       const onUpdate = vi.fn()
 
-      const result = await processor.run([], { onStart, onEnd, onUpdate })
+      processor.events.on('start', onStart)
+      processor.events.on('end', onEnd)
+      processor.events.on('update', onUpdate)
+
+      const result = await processor.run([])
 
       expect(onStart).toHaveBeenCalledWith([])
       expect(onEnd).toHaveBeenCalledWith([])

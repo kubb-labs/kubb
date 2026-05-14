@@ -1,5 +1,6 @@
 import type { CodeNode, FileNode } from '@kubb/ast'
 import { extractStringsFromNodes } from '@kubb/ast'
+import { AsyncEventEmitter } from '@internals/utils'
 import pLimit from 'p-limit'
 import { PARALLEL_CONCURRENCY_LIMIT } from './constants.ts'
 import type { Parser } from './defineParser.ts'
@@ -14,9 +15,12 @@ type RunOptions = ParseOptions & {
    * @default 'sequential'
    */
   mode?: 'sequential' | 'parallel'
-  onStart?: (files: Array<FileNode>) => Promise<void> | void
-  onEnd?: (files: Array<FileNode>) => Promise<void> | void
-  onUpdate?: (params: { file: FileNode; source?: string; processed: number; total: number; percentage: number }) => Promise<void> | void
+}
+
+export type FileProcessorEvents = {
+  start: [files: Array<FileNode>]
+  update: [params: { file: FileNode; source?: string; processed: number; total: number; percentage: number }]
+  end: [files: Array<FileNode>]
 }
 
 function joinSources(file: FileNode): string {
@@ -33,6 +37,7 @@ function joinSources(file: FileNode): string {
  * @internal
  */
 export class FileProcessor {
+  readonly events = new AsyncEventEmitter<FileProcessorEvents>()
   readonly #limit = pLimit(PARALLEL_CONCURRENCY_LIMIT)
 
   async parse(file: FileNode, { parsers, extension }: ParseOptions = {}): Promise<string> {
@@ -51,8 +56,8 @@ export class FileProcessor {
     return parser.parse(file, { extname: parseExtName })
   }
 
-  async run(files: Array<FileNode>, { parsers, mode = 'sequential', extension, onStart, onEnd, onUpdate }: RunOptions = {}): Promise<Array<FileNode>> {
-    await onStart?.(files)
+  async run(files: Array<FileNode>, { parsers, mode = 'sequential', extension }: RunOptions = {}): Promise<Array<FileNode>> {
+    await this.events.emit('start', files)
 
     const total = files.length
     let processed = 0
@@ -62,7 +67,7 @@ export class FileProcessor {
       const currentProcessed = ++processed
       const percentage = (currentProcessed / total) * 100
 
-      await onUpdate?.({
+      await this.events.emit('update', {
         file,
         source,
         processed: currentProcessed,
@@ -79,7 +84,7 @@ export class FileProcessor {
       await Promise.all(files.map((file) => this.#limit(() => processOne(file))))
     }
 
-    await onEnd?.(files)
+    await this.events.emit('end', files)
 
     return files
   }

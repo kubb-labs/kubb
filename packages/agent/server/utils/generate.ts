@@ -29,7 +29,7 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
 
   await hooks.emit('kubb:info', { message: config.name ? `Build generation ${config.name}` : 'Build generation' })
 
-  const { files, failedPlugins, error } = await kubb.safeBuild()
+  const { failedPlugins, error } = await kubb.safeBuild()
 
   await hooks.emit('kubb:info', { message: 'Load summary' })
 
@@ -48,13 +48,13 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
       hooks.emit('kubb:error', { error: err })
     })
 
-    await hooks.emit('kubb:generation:end', { config, files, sources: kubb.sources })
+    await hooks.emit('kubb:generation:end', { config, storage: kubb.storage })
 
     throw new Error('Generation failed')
   }
 
   await hooks.emit('kubb:success', { message: 'Generation successfully' })
-  await hooks.emit('kubb:generation:end', { config, files, sources: kubb.sources })
+  await hooks.emit('kubb:generation:end', { config, storage: kubb.storage })
 
   // formatting
   if (config.output.format) {
