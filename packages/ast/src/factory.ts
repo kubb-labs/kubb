@@ -99,11 +99,7 @@ export function createInput(overrides: Partial<Omit<InputNode, 'kind'>> = {}): I
  * const node = createStreamInput(schemasIterable, operationsIterable, { title: 'My API' })
  * ```
  */
-export function createStreamInput(
-  schemas: AsyncIterable<SchemaNode>,
-  operations: AsyncIterable<OperationNode>,
-  meta?: InputMeta,
-): InputStreamNode {
+export function createStreamInput(schemas: AsyncIterable<SchemaNode>, operations: AsyncIterable<OperationNode>, meta?: InputMeta): InputStreamNode {
   return { kind: 'Input', schemas, operations, meta }
 }
 
