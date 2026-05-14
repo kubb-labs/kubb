@@ -16,7 +16,6 @@ import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartConte
 import { FileProcessor } from './FileProcessor.ts'
 import { applyHookResult, PluginDriver } from './PluginDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
-import { memoryStorage } from './storages/memoryStorage.ts'
 
 /**
  * Safely extracts a type from a registry, returning `{}` if the key doesn't exist.
@@ -754,11 +753,11 @@ export type Kubb = {
   /**
    * Plugin driver managing all plugins. Available after `setup()` completes.
    */
-  readonly driver: PluginDriver | undefined
+  readonly driver: PluginDriver
   /**
    * Resolved configuration with defaults applied. Available after `setup()` completes.
    */
-  readonly config: Config | undefined
+  readonly config: Config
   /**
    * Resolves config and initializes the driver. `build()` calls this automatically.
    */
@@ -1343,13 +1342,22 @@ export function createKubb(userConfig: UserConfig, options: CreateKubbOptions = 
       return hooks
     },
     get storage() {
-      return setupResult?.storage ?? memoryStorage()
+      if (!setupResult) {
+        throw new Error('[kubb] setup() must be called before accessing storage')
+      }
+      return setupResult.storage
     },
     get driver() {
-      return setupResult?.driver
+      if (!setupResult) {
+        throw new Error('[kubb] setup() must be called before accessing driver')
+      }
+      return setupResult.driver
     },
     get config() {
-      return setupResult?.config
+      if (!setupResult) {
+        throw new Error('[kubb] setup() must be called before accessing config')
+      }
+      return setupResult.config
     },
     async setup() {
       setupResult = await setup(userConfig, { hooks })
