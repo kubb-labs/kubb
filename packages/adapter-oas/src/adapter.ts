@@ -69,9 +69,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     get document() {
       return parsedDocument
     },
-    get inputNode() {
-      return inputNode
-    },
     async validate(input, options) {
       const document = await parseDocument(input)
       await validateDocument(document, options)
