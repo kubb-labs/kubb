@@ -12,7 +12,9 @@ import type {
   FunctionParameterNode,
   FunctionParametersNode,
   ImportNode,
+  InputMeta,
   InputNode,
+  InputStreamNode,
   JsxNode,
   ObjectSchemaNode,
   OperationNode,
@@ -87,6 +89,22 @@ export function createInput(overrides: Partial<Omit<InputNode, 'kind'>> = {}): I
     ...overrides,
     kind: 'Input',
   }
+}
+
+/**
+ * Creates an `InputStreamNode` from pre-built `AsyncIterable` sources.
+ *
+ * @example
+ * ```ts
+ * const node = createStreamInput(schemasIterable, operationsIterable, { title: 'My API' })
+ * ```
+ */
+export function createStreamInput(
+  schemas: AsyncIterable<SchemaNode>,
+  operations: AsyncIterable<OperationNode>,
+  meta?: InputMeta,
+): InputStreamNode {
+  return { kind: 'Input', schemas, operations, meta }
 }
 
 /**

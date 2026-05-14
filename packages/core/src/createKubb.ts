@@ -17,6 +17,9 @@ import { FileProcessor } from './FileProcessor.ts'
 import { applyHookResult, PluginDriver } from './PluginDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 
+/** Schema count above which the adapter's `stream()` is used instead of `parse()`. */
+const STREAM_SCHEMA_THRESHOLD = 100
+
 /**
  * Safely extracts a type from a registry, returning `{}` if the key doesn't exist.
  * Enables optional interface augmentation for `Kubb.ConfigOptionsRegistry` and `Kubb.PluginOptionsRegistry`
@@ -923,16 +926,45 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     })
 
     driver.adapter = config.adapter
-    driver.inputNode = await config.adapter.parse(source)
 
-    await hooks.emit('kubb:debug', {
-      date: new Date(),
-      logs: [
-        `✓ Adapter '${config.adapter.name}' resolved InputNode`,
-        `  • Schemas: ${driver.inputNode.schemas.length}`,
-        `  • Operations: ${driver.inputNode.operations.length}`,
-      ],
-    })
+    if (config.adapter.count && config.adapter.stream) {
+      const { schemas: schemaCount, operations: operationCount } = await config.adapter.count(source)
+
+      if (schemaCount > STREAM_SCHEMA_THRESHOLD) {
+        driver.inputStreamNode = await config.adapter.stream(source)
+
+        await hooks.emit('kubb:debug', {
+          date: new Date(),
+          logs: [
+            `✓ Adapter '${config.adapter.name}' streaming InputStreamNode`,
+            `  • Schemas: ${schemaCount} (threshold: ${STREAM_SCHEMA_THRESHOLD})`,
+            `  • Operations: ${operationCount}`,
+          ],
+        })
+      } else {
+        driver.inputNode = await config.adapter.parse(source)
+
+        await hooks.emit('kubb:debug', {
+          date: new Date(),
+          logs: [
+            `✓ Adapter '${config.adapter.name}' resolved InputNode`,
+            `  • Schemas: ${driver.inputNode.schemas.length}`,
+            `  • Operations: ${driver.inputNode.operations.length}`,
+          ],
+        })
+      }
+    } else {
+      driver.inputNode = await config.adapter.parse(source)
+
+      await hooks.emit('kubb:debug', {
+        date: new Date(),
+        logs: [
+          `✓ Adapter '${config.adapter.name}' resolved InputNode`,
+          `  • Schemas: ${driver.inputNode.schemas.length}`,
+          `  • Operations: ${driver.inputNode.operations.length}`,
+        ],
+      })
+    }
   }
 
   return {
@@ -956,8 +988,9 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
 async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorContext): Promise<void> {
   const { adapter, inputNode, resolver, driver } = context
   const { exclude, include, override } = plugin.options
+  const inputStreamNode = driver.inputStreamNode
 
-  if (!adapter || !inputNode) {
+  if (!adapter || (!inputNode && !inputStreamNode)) {
     throw new Error(`[${plugin.name}] No adapter found. Add an OAS adapter (e.g. adapterOas()) before this plugin in your Kubb config.`)
   }
 
@@ -973,6 +1006,50 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
     resolver: driver.getResolver(plugin.name),
   }
 
+  // ── STREAMING PATH ────────────────────────────────────────────────────────
+  if (inputStreamNode) {
+    for await (const node of inputStreamNode.schemas) {
+      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
+      const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
+      if (options === null) continue
+
+      const ctx = { ...generatorContext, options }
+      for (const gen of generators) {
+        if (!gen.schema) continue
+        const result = await gen.schema(transformedNode, ctx)
+        await applyHookResult(result, driver, resolveRenderer(gen))
+      }
+      await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
+    }
+
+    for await (const node of inputStreamNode.operations) {
+      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
+      const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
+      if (options === null) continue
+
+      collectedOperations.push(transformedNode)
+      const ctx = { ...generatorContext, options }
+      for (const gen of generators) {
+        if (!gen.operation) continue
+        const result = await gen.operation(transformedNode, ctx)
+        await applyHookResult(result, driver, resolveRenderer(gen))
+      }
+      await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
+    }
+
+    if (collectedOperations.length > 0) {
+      const ctx = { ...generatorContext, options: plugin.options }
+      for (const gen of generators) {
+        if (!gen.operations) continue
+        const result = await gen.operations(collectedOperations, ctx)
+        await applyHookResult(result, driver, resolveRenderer(gen))
+      }
+      await driver.hooks.emit('kubb:generate:operations', collectedOperations, ctx)
+    }
+    return
+  }
+
+  // ── BATCH PATH ────────────────────────────────────────────────────────────
   // When `include` has operation-based filters (tag, operationId, path, method, contentType)
   // but no schema-level filters (schemaName), pre-compute the set of top-level schema names
   // that are transitively referenced by the included operations. Schemas outside that set are
@@ -983,11 +1060,11 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
 
   let allowedSchemaNames: Set<string> | undefined
   if (hasOperationBasedIncludes && !hasSchemaNameIncludes) {
-    const includedOps = inputNode.operations.filter((op) => resolver.resolveOptions(op, { options: plugin.options, exclude, include, override }) !== null)
-    allowedSchemaNames = collectUsedSchemaNames(includedOps, inputNode.schemas)
+    const includedOps = inputNode!.operations.filter((op) => resolver.resolveOptions(op, { options: plugin.options, exclude, include, override }) !== null)
+    allowedSchemaNames = collectUsedSchemaNames(includedOps, inputNode!.schemas)
   }
 
-  await walk(inputNode, {
+  await walk(inputNode!, {
     depth: 'shallow',
     async schema(node) {
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
@@ -1120,11 +1197,11 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   try {
     await driver.emitSetupHooks()
 
-    if (driver.adapter && driver.inputNode) {
+    if (driver.adapter && (driver.inputNode || driver.inputStreamNode)) {
       await hooks.emit('kubb:build:start', {
         config,
         adapter: driver.adapter,
-        inputNode: driver.inputNode,
+        inputNode: driver.inputNode ?? { kind: 'Input', schemas: [], operations: [], meta: driver.inputStreamNode?.meta },
         getPlugin: driver.getPlugin.bind(driver),
         get files() {
           return driver.fileManager.files

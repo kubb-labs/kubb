@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import type { AsyncEventEmitter } from '@internals/utils'
-import type { FileNode, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
+import type { FileNode, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { createFile } from '@kubb/ast'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -55,6 +55,11 @@ export class PluginDriver {
    * the build pipeline after the adapter's `parse()` resolves.
    */
   inputNode: InputNode | undefined = undefined
+  /**
+   * Set when the adapter returns a streaming `InputStreamNode` (large specs).
+   * Mutually exclusive with `inputNode` — exactly one is set after adapter setup.
+   */
+  inputStreamNode: InputStreamNode | undefined = undefined
   adapter: Adapter | undefined = undefined
   #studioIsOpen = false
 
@@ -293,6 +298,7 @@ export class PluginDriver {
     // any FileNodes the caller needs to inspect.
     this.fileManager.dispose()
     this.inputNode = undefined
+    this.inputStreamNode = undefined
   }
 
   #trackHookListener(event: keyof KubbHooks, handler: (...args: never[]) => void | Promise<void>): void {

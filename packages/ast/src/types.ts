@@ -26,6 +26,7 @@ export type {
   ImportNode,
   InputMeta,
   InputNode,
+  InputStreamNode,
   IntersectionSchemaNode,
   Ipv4SchemaNode,
   Ipv6SchemaNode,

@@ -1,9 +1,10 @@
 import { ast, createAdapter } from '@kubb/core'
+import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { applyDiscriminatorInheritance } from './discriminator.ts'
 import { parseDocument, parseFromConfig, validateDocument } from './factory.ts'
-import { parseOas } from './parser.ts'
-import { resolveServerUrl } from './resolvers.ts'
+import { createSchemaParser, parseOas } from './parser.ts'
+import { getSchemas, resolveServerUrl } from './resolvers.ts'
 import type { AdapterOas, Document } from './types.ts'
 
 /**
@@ -125,6 +126,87 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       })
 
       return inputNode
+    },
+    async count(source) {
+      if (!parsedDocument) {
+        parsedDocument = await parseFromConfig(source)
+        if (validate) await validateDocument(parsedDocument)
+      }
+
+      const { schemas: schemaObjects } = getSchemas(parsedDocument, { contentType })
+      const baseOas = new BaseOas(parsedDocument)
+      const paths = baseOas.getPaths()
+      const operationCount = Object.values(paths).flatMap(Object.values).filter(Boolean).length
+
+      return { schemas: Object.keys(schemaObjects).length, operations: operationCount }
+    },
+    async stream(source) {
+      if (!parsedDocument) {
+        parsedDocument = await parseFromConfig(source)
+        if (validate) await validateDocument(parsedDocument)
+      }
+
+      const document = parsedDocument
+      const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
+      const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
+
+      const { schemas: schemaObjects, nameMapping: parsedNameMapping } = getSchemas(document, { contentType })
+      nameMapping = parsedNameMapping
+
+      const parserOptions: ast.ParserOptions = {
+        ...DEFAULT_PARSER_OPTIONS,
+        dateType,
+        integerType,
+        unknownType,
+        emptySchemaType,
+        enumSuffix,
+      }
+
+      // Each [Symbol.asyncIterator]() call returns a fresh generator so multiple
+      // plugins can do independent `for await` passes without shared state.
+      const schemasIterable: AsyncIterable<ast.SchemaNode> = {
+        [Symbol.asyncIterator]() {
+          return (async function* () {
+            const { parseSchema: _parseSchema } = createSchemaParser({ document, contentType })
+
+            if (discriminator === 'inherit') {
+              // applyDiscriminatorInheritance requires all schemas upfront — buffer then yield one-by-one.
+              const all = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, parserOptions))
+              const inherited = applyDiscriminatorInheritance(ast.createInput({ schemas: all, operations: [] }))
+              for (const node of inherited.schemas) yield node
+            } else {
+              for (const [name, schema] of Object.entries(schemaObjects)) {
+                yield _parseSchema({ schema, name }, parserOptions)
+              }
+            }
+          })()
+        },
+      }
+
+      const operationsIterable: AsyncIterable<ast.OperationNode> = {
+        [Symbol.asyncIterator]() {
+          return (async function* () {
+            const { parseOperation: _parseOperation } = createSchemaParser({ document, contentType })
+            const baseOas = new BaseOas(document)
+            const paths = baseOas.getPaths()
+
+            for (const methods of Object.values(paths)) {
+              for (const operation of Object.values(methods)) {
+                if (!operation) continue
+                const node = _parseOperation(parserOptions, operation)
+                if (node) yield node
+              }
+            }
+          })()
+        },
+      }
+
+      return ast.createStreamInput(schemasIterable, operationsIterable, {
+        title: document.info?.title,
+        description: document.info?.description,
+        version: document.info?.version,
+        baseURL,
+      })
     },
   }
 })
