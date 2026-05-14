@@ -1,11 +1,29 @@
 import type { PossiblePromise } from '@internals/utils'
 import type { ImportNode, InputNode, InputStreamNode, SchemaNode } from '@kubb/ast'
+import type { Storage } from './createStorage.ts'
+
+/**
+ * Optional disk-cache configuration threaded through from `createKubb` into adapter methods.
+ *
+ * Adapters read from / write to this cache to avoid re-parsing the same source document on
+ * every build. The storage backend is the one the user configured (`config.storage`), and
+ * keys are absolute paths under `<root>/.kubb/.cache/`.
+ */
+export type AdapterCache = {
+  /** Storage backend to use for reading and writing cache entries. */
+  storage: Storage
+  /** Absolute path to the cache directory, e.g. `/project/.kubb/.cache`. */
+  dir: string
+}
 
 /**
  * Source data passed to an adapter's `parse` function.
  * Mirrors the config input shape with paths resolved to absolute.
  */
-export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown } | { type: 'paths'; paths: Array<string> }
+export type AdapterSource =
+  | { type: 'path'; path: string; cache?: AdapterCache }
+  | { type: 'data'; data: string | unknown; cache?: AdapterCache }
+  | { type: 'paths'; paths: Array<string>; cache?: AdapterCache }
 
 /**
  * Generic type parameters for an adapter definition.

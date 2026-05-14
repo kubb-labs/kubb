@@ -6,7 +6,7 @@ import type { FileNode, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { collectUsedSchemaNames, transform, walk } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
 import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
-import type { Adapter, AdapterSource } from './createAdapter.ts'
+import type { Adapter, AdapterSource, AdapterCache } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext, Generator } from './defineGenerator.ts'
@@ -918,7 +918,11 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
   }
 
   if (config.adapter) {
-    const source = inputToAdapterSource(config)
+    const adapterCache: AdapterCache = {
+      storage: config.storage,
+      dir: resolve(config.root, '.kubb', '.cache'),
+    }
+    const source: AdapterSource = { ...inputToAdapterSource(config), cache: adapterCache }
 
     await hooks.emit('kubb:debug', {
       date: new Date(),

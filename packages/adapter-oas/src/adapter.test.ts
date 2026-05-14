@@ -1,4 +1,5 @@
 import { ast } from '@kubb/core'
+import type { AdapterCache } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { adapterOas } from './adapter.ts'
 
@@ -85,6 +86,60 @@ describe('adapterOas.stream', () => {
 
     expect(node.meta?.title).toBe('Test API')
     expect(node.meta?.version).toBe('1.0.0')
+  })
+})
+
+describe('adapterOas disk cache (count + stream)', () => {
+  function makeMemoryCache(): AdapterCache & { store: Map<string, string> } {
+    const store = new Map<string, string>()
+    return {
+      dir: '/test/.kubb/.cache',
+      store,
+      storage: {
+        name: 'memory',
+        async hasItem(key) { return store.has(key) },
+        async getItem(key) { return store.get(key) ?? null },
+        async setItem(key, value) { store.set(key, value) },
+        async removeItem(key) { store.delete(key) },
+        async getKeys() { return [...store.keys()] },
+        async clear() { store.clear() },
+      },
+    }
+  }
+
+  it('count() writes to cache on first call and skips parseFromConfig on second adapter instance', async () => {
+    const cache = makeMemoryCache()
+    const source = { type: 'data' as const, data: minimalSpec, cache }
+
+    const adapter1 = adapterOas({ validate: false })
+    await adapter1.count!(source)
+    expect(cache.store.size).toBe(1)
+
+    // A second adapter instance with the same cache should read from disk, not re-parse
+    const adapter2 = adapterOas({ validate: false })
+    const { schemas } = await adapter2.count!(source)
+    expect(schemas).toBe(2)
+  })
+
+  it('stream() writes to cache and second adapter instance reads it', async () => {
+    const cache = makeMemoryCache()
+    const source = { type: 'data' as const, data: minimalSpec, cache }
+
+    const adapter1 = adapterOas({ validate: false })
+    const node = await adapter1.stream!(source)
+    const schemas1: ast.SchemaNode[] = []
+    for await (const schema of node.schemas) schemas1.push(schema)
+
+    // Cache should have been written
+    expect(cache.store.size).toBe(1)
+
+    // Second adapter reads from cache — same schemas
+    const adapter2 = adapterOas({ validate: false })
+    const node2 = await adapter2.stream!(source)
+    const schemas2: ast.SchemaNode[] = []
+    for await (const schema of node2.schemas) schemas2.push(schema)
+
+    expect(schemas2.map((s) => s.name)).toEqual(schemas1.map((s) => s.name))
   })
 })
 
