@@ -1,35 +1,35 @@
-import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { beforeAll, bench, describe } from 'vitest'
-import { adapterOas } from './adapter.ts'
+import { bench, describe } from 'vitest'
+import { parseDocument } from './factory.ts'
+import { parseOas } from './parser.ts'
+import type { Document } from './types.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-describe('adapterOas.parse() performance', () => {
-  const stripePath = path.resolve(__dirname, '../schemas/stripe.json')
-  let stripeData: unknown
+// TODO: replace with stripe.json once the parser handles its circular-reference
+// expansion without exhausting heap (the full Stripe spec triggers exponential
+// sub-tree duplication because resolvingRefs only prevents recursion within a
+// single resolution chain, not repeated resolution of the same schema).
+const petStorePath = path.resolve(__dirname, '../../core/mocks/petStore.yaml')
 
-  beforeAll(async () => {
-    stripeData = JSON.parse(await fs.readFile(stripePath, 'utf-8'))
-  })
+let document: Document | undefined
 
+async function getDocument(): Promise<Document> {
+  if (!document) {
+    document = await parseDocument(petStorePath)
+  }
+  return document
+}
+
+describe('parseOas() performance', () => {
   bench(
-    'stripe spec — from file path',
+    'petStore spec',
     async () => {
-      const adapter = adapterOas({ validate: false })
-      await adapter.parse({ type: 'path', path: stripePath })
+      const doc = await getDocument()
+      parseOas(doc)
     },
-    { time: 10000 },
-  )
-
-  bench(
-    'stripe spec — from preloaded data',
-    async () => {
-      const adapter = adapterOas({ validate: false })
-      await adapter.parse({ type: 'data', data: stripeData })
-    },
-    { time: 10000 },
+    { iterations: 5, warmupIterations: 1 },
   )
 })
