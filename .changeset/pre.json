@@ -96,6 +96,8 @@
     "parser-ts-extract-utils",
     "preserve-union-kind-semantics",
     "reduce-kubb-install-size",
+    "reduce-memory-fs-caching",
+    "reduce-memory-snapshot-cache",
     "refactor-barrel-config-api",
     "refactor-middleware-barrel",
     "remove-deprecated-plugin-checks",
