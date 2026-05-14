@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename)
 // expansion without exhausting heap (the full Stripe spec triggers exponential
 // sub-tree duplication because resolvingRefs only prevents recursion within a
 // single resolution chain, not repeated resolution of the same schema).
-const petStorePath = path.resolve(__dirname, '../../core/mocks/petStore.yaml')
+const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
 
 let document: Document | undefined
 
