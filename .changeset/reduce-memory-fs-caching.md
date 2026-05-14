@@ -21,4 +21,6 @@ const paths = await storage.getKeys()
 Migration:
 
 - `BuildOutput.sources` → `BuildOutput.storage` (type changes from `Map<string, string>` to `Storage`).
+- `KubbGenerationEndContext.files` has been removed; use `await storage.getKeys()` to enumerate the generated file paths.
 - Listeners of `kubb:generation:end` that previously called `sources.get(path)` synchronously must now `await storage.getItem(path)`.
+- The `kubb:generation:end` WebSocket payload (agent) no longer includes `files`; file paths are available as `Object.keys(storage)`.

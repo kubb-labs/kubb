@@ -8,7 +8,6 @@
  * - Bidirectional: ErrorMessage, StatusMessage
  */
 
-import type { FileNode } from '@kubb/ast'
 import type { Config } from '@kubb/core'
 
 export type JSONKubbConfig = {
@@ -61,7 +60,7 @@ export type KubbHooks = {
   'kubb:warn': [ctx: { message: string; info?: string }]
   'kubb:error': [ctx: { message: string; stack?: string }]
   'kubb:generation:start': [ctx: { name?: string; plugins: number }]
-  'kubb:generation:end': [ctx: { config: Config; files: Array<FileNode>; storage: Record<string, string> }]
+  'kubb:generation:end': [ctx: { config: Config; storage: Record<string, string> }]
   'kubb:lifecycle:end': []
 }
 

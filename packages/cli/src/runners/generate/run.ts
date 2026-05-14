@@ -152,7 +152,7 @@ async function generate(options: GenerateProps): Promise<void> {
       await hooks.emit('kubb:error', { error: err })
     }
 
-    await hooks.emit('kubb:generation:end', { config, files, storage: kubb.storage })
+    await hooks.emit('kubb:generation:end', { config, storage: kubb.storage })
     await hooks.emit('kubb:generation:summary', {
       config,
       failedPlugins,
@@ -167,7 +167,7 @@ async function generate(options: GenerateProps): Promise<void> {
   }
 
   await hooks.emit('kubb:success', { message: 'Generation succeeded', info: inputPath })
-  await hooks.emit('kubb:generation:end', { config, files, storage: kubb.storage })
+  await hooks.emit('kubb:generation:end', { config, storage: kubb.storage })
 
   const outputPath = path.resolve(config.root, config.output.path)
 

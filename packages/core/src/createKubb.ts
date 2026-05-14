@@ -571,7 +571,6 @@ export type KubbGenerationStartContext = {
 
 export type KubbGenerationEndContext = {
   config: Config
-  files: Array<FileNode>
   /**
    * Read-only view of the files Kubb wrote during this build.
    *

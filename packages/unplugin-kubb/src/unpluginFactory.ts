@@ -126,7 +126,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       })
     }
 
-    await hooks.emit('kubb:generation:end', { config: resolvedConfig, files, storage })
+    await hooks.emit('kubb:generation:end', { config: resolvedConfig, storage })
     await hooks.emit('kubb:generation:summary', {
       config: resolvedConfig,
       failedPlugins,
