@@ -192,6 +192,54 @@ re-parse from source if the ref has been collected.
 
 ---
 
+## Disk cache for cross-build memory savings
+
+Streaming reduces **per-build** peak memory by holding one AST node at a time. Caching to disk reduces **cross-build** redundancy — the most expensive step (Redocly `bundle()` + `$ref` resolution) runs once and is reused on subsequent builds.
+
+### What is worth caching
+
+| Artifact | Serialisable | Rebuild cost | Cache verdict |
+|---|---|---|---|
+| `parsedDocument` (bundled OAS doc) | Yes — plain JSON | High (Redocly bundle, network/disk I/O, full `$ref` resolution) | **Cache (P1)** |
+| `nameMapping: Map<string,string>` | Yes — trivial `Object.fromEntries` | Low (linear scan of schema keys) | Cache alongside document |
+| `inputNode` (parsed SchemaNode/OperationNode arrays) | Yes — fully JSON-serialisable plain objects | Medium (depends on schema count) | **Cache (P2)** — only when streaming is not active |
+| `FileManager.#cache` (FileNode + rendered sources) | Yes — but sources already on disk | Zero (sources are the output, not input) | **Not worth caching** |
+
+All `SchemaNode`, `OperationNode`, and `FileNode` types are JSON-serialisable (no functions, Symbols, or circular references).
+
+### `parseFromConfig()` has no caching today
+
+Every build calls `parseFromConfig(source)` → Redocly `bundle()` unconditionally. There is no mtime check, no hash check, and no module-level cache. For remote specs this is an HTTP round-trip on every build.
+
+### Recommended approach
+
+Serialise `{ document, nameMapping }` as a single JSON blob, keyed by a SHA-256 hash of the source content (URL string or file bytes). Persist it via the existing `fsStorage` interface (same `setItem` / `getItem` API that stores generated output files today).
+
+Invalidation:
+- **File source**: compare file mtime; re-bundle if stale.
+- **URL source**: compare SHA-256 of downloaded bytes; re-bundle if hash changes.
+
+On cache hit, `parsedDocument` and `nameMapping` are deserialised from disk — Redocly `bundle()` is skipped entirely. The `_refCache` (`WeakMap`) is rebuilt lazily on first `$ref` access (normal behaviour after deserialisation).
+
+### Relationship to `InputStreamNode` streaming
+
+The two strategies are complementary, not alternatives:
+
+| Strategy | What it reduces | When |
+|---|---|---|
+| `InputStreamNode` streaming | Per-build peak heap (AST nodes in memory) | During a single build |
+| Disk cache for `parsedDocument` | Cross-build latency and cold-start memory | Between builds (watch mode, CI) |
+
+Both can be active simultaneously: cache hit → skip `bundle()` → stream schemas lazily → minimal heap.
+
+### Implementation files
+
+- `packages/adapter-oas/src/factory.ts` — add `getCachedDocument(source, storage)` / `setCachedDocument(source, doc, storage)`
+- `packages/adapter-oas/src/adapter.ts` — pass storage to `count()` / `stream()` / `parse()`; check cache before calling `parseFromConfig()`
+- `packages/core/src/createAdapter.ts` — thread `storage` into `AdapterSource` or `AdapterContext`
+
+---
+
 ## Considered options
 
 **Option A — Full lazy document loading**
