@@ -44,10 +44,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     emptySchemaType = unknownType || DEFAULT_PARSER_OPTIONS.emptySchemaType,
   } = options
 
-  // Let-binding so parse() can replace it with a simple reassignment (no clear+loop).
   let nameMapping = new Map<string, string>()
   let parsedDocument: Document | null
-  let inputNode: ast.InputNode | null
 
   return {
     name: adapterOasName,
@@ -111,7 +109,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       // Expose the raw document so consumers (e.g. plugin-redoc) can access it.
       parsedDocument = document
 
-      inputNode = ast.createInput({
+      const inputNode = ast.createInput({
         ...node,
         meta: {
           title: document.info?.title,
