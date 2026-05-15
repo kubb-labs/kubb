@@ -1,10 +1,65 @@
+import { createHash } from 'node:crypto'
+import { stat } from 'node:fs/promises'
 import { ast, createAdapter } from '@kubb/core'
+import type { AdapterSource } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { applyDiscriminatorInheritance } from './discriminator.ts'
 import { parseDocument, parseFromConfig, validateDocument } from './factory.ts'
 import { parseOas } from './parser.ts'
 import { resolveServerUrl } from './resolvers.ts'
 import type { AdapterOas, Document } from './types.ts'
+
+type DocumentCacheEntry = {
+  document: unknown
+  nameMappingEntries: Array<[string, string]>
+  mtime?: number
+}
+
+function sourceCacheFilename(source: AdapterSource): string {
+  const content = source.type === 'path' ? source.path : JSON.stringify(source.type === 'data' ? source.data : source)
+  return `${createHash('sha256').update(content).digest('hex')}.json`
+}
+
+async function readDocumentCache(source: AdapterSource): Promise<{ document: Document; nameMapping: Map<string, string> } | null> {
+  if (!source.cache) return null
+
+  const raw = await source.cache.getItem(sourceCacheFilename(source))
+  if (!raw) return null
+
+  try {
+    const entry = JSON.parse(raw) as DocumentCacheEntry
+
+    if (source.type === 'path' && entry.mtime !== undefined) {
+      const fileStat = await stat(source.path).catch(() => null)
+      if (!fileStat || fileStat.mtimeMs !== entry.mtime) return null
+    }
+
+    return {
+      document: entry.document as Document,
+      nameMapping: new Map(entry.nameMappingEntries),
+    }
+  } catch {
+    return null
+  }
+}
+
+async function writeDocumentCache(source: AdapterSource, document: Document, nameMapping: Map<string, string>): Promise<void> {
+  if (!source.cache) return
+
+  let mtime: number | undefined
+  if (source.type === 'path') {
+    const fileStat = await stat(source.path).catch(() => null)
+    mtime = fileStat?.mtimeMs
+  }
+
+  const entry: DocumentCacheEntry = {
+    document,
+    nameMappingEntries: [...nameMapping.entries()],
+    mtime,
+  }
+
+  await source.cache.setItem(sourceCacheFilename(source), JSON.stringify(entry))
+}
 
 /**
  * Stable string identifier for the OAS adapter used in Kubb's adapter registry.
@@ -84,10 +139,23 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       })
     },
     async parse(source) {
-      const document = await parseFromConfig(source)
+      let document: Document
+      let fromCache = false
 
-      if (validate) {
-        await validateDocument(document)
+      if (parsedDocument) {
+        document = parsedDocument
+        fromCache = true
+      } else {
+        const cached = await readDocumentCache(source)
+        if (cached) {
+          document = cached.document
+          nameMapping = cached.nameMapping
+          fromCache = true
+        } else {
+          document = await parseFromConfig(source)
+          if (validate) await validateDocument(document)
+        }
+        parsedDocument = document
       }
 
       const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
@@ -108,6 +176,10 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       nameMapping = parsedNameMapping
       // Expose the raw document so consumers (e.g. plugin-redoc) can access it.
       parsedDocument = document
+
+      if (!fromCache) {
+        await writeDocumentCache(source, document, nameMapping)
+      }
 
       const inputNode = ast.createInput({
         ...node,
