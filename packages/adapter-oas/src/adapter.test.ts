@@ -95,12 +95,24 @@ describe('adapterOas disk cache (count + stream)', () => {
     return {
       name: 'memory',
       store,
-      async hasItem(key) { return store.has(key) },
-      async getItem(key) { return store.get(key) ?? null },
-      async setItem(key, value) { store.set(key, value) },
-      async removeItem(key) { store.delete(key) },
-      async getKeys() { return [...store.keys()] },
-      async clear() { store.clear() },
+      async hasItem(key) {
+        return store.has(key)
+      },
+      async getItem(key) {
+        return store.get(key) ?? null
+      },
+      async setItem(key, value) {
+        store.set(key, value)
+      },
+      async removeItem(key) {
+        store.delete(key)
+      },
+      async getKeys() {
+        return [...store.keys()]
+      },
+      async clear() {
+        store.clear()
+      },
     }
   }
 
