@@ -534,7 +534,7 @@ export interface KubbHooks {
   'kubb:build:end': [ctx: KubbBuildEndContext]
   'kubb:generate:schema': [node: SchemaNode, ctx: GeneratorContext]
   'kubb:generate:operation': [node: OperationNode, ctx: GeneratorContext]
-  'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext]
+  'kubb:generate:operations': [nodes: AsyncIterable<OperationNode> | Array<OperationNode>, ctx: GeneratorContext]
 }
 
 export type KubbBuildStartContext = {
@@ -1021,7 +1021,6 @@ async function runStreamingFanOut(
     context: GeneratorContext
     generatorContext: GeneratorContext
     generators: Generator[]
-    collectedOperations: OperationNode[]
     hrStart: ReturnType<typeof process.hrtime>
     failed: boolean
     error: Error | undefined
@@ -1036,7 +1035,6 @@ async function runStreamingFanOut(
     context,
     generatorContext: { ...context, resolver: driver.getResolver(plugin.name) },
     generators: plugin.generators ?? [],
-    collectedOperations: [],
     hrStart,
     failed: false,
     error: undefined,
@@ -1072,13 +1070,12 @@ async function runStreamingFanOut(
     for (const state of states) {
       if (state.failed) continue
       try {
-        const { plugin, generatorContext, generators, collectedOperations, context } = state
+        const { plugin, generatorContext, generators, context } = state
         const { exclude, include, override } = plugin.options
         const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
         const options = context.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
         if (options === null) continue
 
-        collectedOperations.push(transformedNode)
         const ctx = { ...generatorContext, options }
         for (const gen of generators) {
           if (!gen.operation) continue
@@ -1097,16 +1094,14 @@ async function runStreamingFanOut(
   for (const state of states) {
     if (!state.failed) {
       try {
-        const { plugin, generatorContext, generators, collectedOperations } = state
-        if (collectedOperations.length > 0) {
-          const ctx = { ...generatorContext, options: plugin.options }
-          for (const gen of generators) {
-            if (!gen.operations) continue
-            const result = await gen.operations(collectedOperations, ctx)
-            await applyHookResult(result, driver, resolveRendererFor(gen, state))
-          }
-          await driver.hooks.emit('kubb:generate:operations', collectedOperations, ctx)
+        const { plugin, generatorContext, generators } = state
+        const ctx = { ...generatorContext, options: plugin.options }
+        for (const gen of generators) {
+          if (!gen.operations) continue
+          const result = await gen.operations(inputStreamNode.operations, ctx)
+          await applyHookResult(result, driver, resolveRendererFor(gen, state))
         }
+        await driver.hooks.emit('kubb:generate:operations', inputStreamNode.operations, ctx)
       } catch (caughtError) {
         state.failed = true
         state.error = caughtError as Error

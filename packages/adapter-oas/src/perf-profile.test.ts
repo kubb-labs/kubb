@@ -24,7 +24,6 @@ import { applyDiscriminatorInheritance } from './discriminator.ts'
 import { adapterOas } from './adapter.ts'
 import type { Document } from './types.ts'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import * as ast from '@kubb/ast'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -40,7 +39,6 @@ async function timed<T>(fn: () => Promise<T> | T): Promise<TimedResult<T>> {
 }
 
 function ms(n: number) { return `${n.toFixed(1)} ms` }
-function pct(n: number, total: number) { return `${((n / total) * 100).toFixed(1)}%` }
 
 // ── Results store ─────────────────────────────────────────────────────────────
 
@@ -60,7 +58,6 @@ function section(title: string) {
 describe('Phase 1 — Document loading (factory.ts / Redocly)', () => {
   it('times each loading step individually', async () => {
     const record = section('Phase 1: Document Loading (factory.ts)')
-    let document: Document
 
     // Step 1a: Redocly loadConfig
     const { ms: loadConfigMs } = await timed(() => loadConfig())
@@ -71,7 +68,8 @@ describe('Phase 1 — Document loading (factory.ts / Redocly)', () => {
       const config = await loadConfig()
       return bundle({ ref: bunqPath, config, base: bunqPath })
     })
-    record('bundle() — Redocly $ref resolver', bundleMs, `${Object.keys((bundleResult.bundle.parsed as Record<string,unknown>)?.['components']?.['schemas'] ?? {}).length} schemas resolved`)
+    const schemas = ((bundleResult.bundle.parsed as Record<string, unknown>)?.['components'] as Record<string, unknown>)?.['schemas'] as Record<string, unknown> | undefined
+    record('bundle() — Redocly $ref resolver', bundleMs, `${Object.keys(schemas ?? {}).length} schemas resolved`)
 
     // Step 1c: OASNormalize.load() on the bundled document
     const bundledDoc = bundleResult.bundle.parsed as Document
@@ -93,7 +91,6 @@ describe('Phase 1 — Document loading (factory.ts / Redocly)', () => {
     const adapter = adapterOas({ validate: false })
     const source: AdapterSource = { type: 'path', path: bunqPath }
     const { result: inputNode, ms: parseMs } = await timed(() => adapter.parse(source))
-    document = adapter.document!
     record('adapter.parse() [full, no cache]', parseMs, `${inputNode.schemas.length} SchemaNode, ${inputNode.operations.length} OperationNode`)
 
     console.log(`\n  bundle()=${ms(bundleMs)}  normalise()=${ms(normalizeMs)}  validate()=${ms(validateMs)}  parse()=${ms(parseMs)}`)
@@ -138,7 +135,7 @@ describe('Phase 3 — AST parsing (parser.ts)', () => {
 
     // Full parseOas()
     const { result: parseOasResult, ms: parseOasMs } = await timed(() =>
-      parseOas(document, { dateType: 'string', integerType: 'int', unknownType: 'unknown', emptySchemaType: 'unknown', enumSuffix: 'Enum' })
+      parseOas(document, { dateType: 'string', integerType: 'number', unknownType: 'unknown', emptySchemaType: 'unknown', enumSuffix: 'Enum' })
     )
     record('parseOas() — full', parseOasMs, `${parseOasResult.root.schemas.length} SchemaNode + ${parseOasResult.root.operations.length} OperationNode`)
 
@@ -330,8 +327,6 @@ describe('Phase 6 — Disk cache round-trip (adapter-oas/adapter.ts)', () => {
 // ── Summary table ─────────────────────────────────────────────────────────────
 
 afterAll(() => {
-  const totalMs = sections.flatMap(s => s.rows).reduce((acc, [, t]) => acc + parseFloat(t), 0)
-
   console.log('\n╔══════════════════════════════════════════════════════════════════════════════════╗')
   console.log('║              Per-Function Performance Profile — bunq (617 schemas)              ║')
   console.log('╚══════════════════════════════════════════════════════════════════════════════════╝')

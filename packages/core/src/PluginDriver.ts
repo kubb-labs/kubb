@@ -251,7 +251,7 @@ export class PluginDriver {
     }
 
     if (gen.operations) {
-      const operationsHandler = async (nodes: Array<OperationNode>, ctx: GeneratorContext) => {
+      const operationsHandler = async (nodes: AsyncIterable<OperationNode> | Array<OperationNode>, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operations!(nodes, ctx)
         await applyHookResult(result, this, resolveRenderer())
@@ -374,8 +374,13 @@ export class PluginDriver {
       upsertFile: async (...files: Array<FileNode>) => {
         driver.fileManager.upsert(...files)
       },
-      get inputNode(): InputNode | undefined {
-        return driver.inputNode
+      get inputNode(): InputNode {
+        return driver.inputNode ?? {
+          kind: 'Input' as const,
+          schemas: [],
+          operations: [],
+          meta: driver.inputStreamNode?.meta,
+        }
       },
       get adapter(): Adapter | undefined {
         return driver.adapter
