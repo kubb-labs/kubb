@@ -94,6 +94,7 @@
     "optional-cli-validate-adapter-peer",
     "output-format-lint-auto-default",
     "parser-ts-extract-utils",
+    "perf-ref-cache-storage",
     "preserve-union-kind-semantics",
     "reduce-kubb-install-size",
     "reduce-memory-fs-caching",
