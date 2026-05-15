@@ -992,7 +992,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
  * schemas that fall outside that set. This ensures that component schemas referenced
  * exclusively by excluded operations are not generated.
  */
-type StreamPluginEntry = {
+type PluginStreamEntry = {
   plugin: NormalizedPlugin
   context: GeneratorContext
   hrStart: ReturnType<typeof process.hrtime>
@@ -1009,9 +1009,9 @@ type StreamPluginEntry = {
  * Each plugin still gets independent `plugin:start` / `plugin:end` events and its own
  * timing, but the schema and operation nodes are parsed only once total.
  */
-async function runStreamingFanOut(
+async function runPluginStreamHooks(
   inputStreamNode: InputStreamNode,
-  entries: StreamPluginEntry[],
+  entries: PluginStreamEntry[],
   driver: PluginDriver,
   hooks: AsyncEventEmitter<KubbHooks>,
   config: Config,
@@ -1328,7 +1328,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       // ── STREAMING: fan-out single-pass ────────────────────────────────────
       // Emit plugin:start for all plugins up front, collect generator-plugins
       // for the fan-out pass, then handle non-generator plugins immediately.
-      const streamEntries: StreamPluginEntry[] = []
+      const streamPluginEntries: PluginStreamEntry[] = []
 
       for (const plugin of driver.plugins.values()) {
         const context = driver.getContext(plugin)
@@ -1341,7 +1341,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         })
 
         if (plugin.generators?.length || driver.hasRegisteredGenerators(plugin.name)) {
-          streamEntries.push({ plugin, context, hrStart })
+          streamPluginEntries.push({ plugin, context, hrStart })
         } else {
           // No generators: plugin ran via setup hooks; finish it now.
           const duration = getElapsedMs(hrStart)
@@ -1363,8 +1363,8 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         }
       }
 
-      if (streamEntries.length > 0) {
-        await runStreamingFanOut(inputStreamNode, streamEntries, driver, hooks, config, pluginTimings, failedPlugins, flushPendingFiles)
+      if (streamPluginEntries.length > 0) {
+        await runPluginStreamHooks(inputStreamNode, streamPluginEntries, driver, hooks, config, pluginTimings, failedPlugins, flushPendingFiles)
       }
     } else {
       // ── BATCH: existing per-plugin sequential loop ────────────────────────
