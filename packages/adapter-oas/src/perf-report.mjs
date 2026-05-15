@@ -31,7 +31,11 @@ async function sleep(ms) {
 }
 
 async function withMemory(fn) {
-  gc(); await sleep(100); gc(); await sleep(100); gc()
+  gc()
+  await sleep(100)
+  gc()
+  await sleep(100)
+  gc()
 
   const heapBefore = process.memoryUsage().heapUsed
   let peakHeap = heapBefore
@@ -105,7 +109,7 @@ async function measureSpec(label, source, runs = 3) {
 
   process.stderr.write(
     `  → batch median:    ${batch.durationMs.toFixed(0)} ms, +${batch.peakDeltaMB.toFixed(2)} MB\n` +
-    `  → streaming median: ${streaming.durationMs.toFixed(0)} ms, +${streaming.peakDeltaMB.toFixed(2)} MB\n`
+      `  → streaming median: ${streaming.durationMs.toFixed(0)} ms, +${streaming.peakDeltaMB.toFixed(2)} MB\n`,
   )
 
   return { label, schemas: batch.schemas, operations: batch.operations, batch, streaming }
@@ -117,7 +121,7 @@ function mdRow(...cols) {
 
 function pctChange(from, to) {
   if (Math.abs(from) < 0.01) return 'N/A'
-  const pct = ((to - from) / Math.abs(from) * 100).toFixed(0)
+  const pct = (((to - from) / Math.abs(from)) * 100).toFixed(0)
   return pct > 0 ? `+${pct}%` : `${pct}%`
 }
 
@@ -135,16 +139,26 @@ async function main() {
   const rows = [header, divider]
 
   for (const r of results) {
-    rows.push(mdRow(r.label, String(r.schemas), String(r.operations), '**batch**',
-      r.batch.peakDeltaMB.toFixed(2), r.batch.durationMs.toFixed(0), '—', '—'))
-    rows.push(mdRow('', '', '', 'streaming',
-      r.streaming.peakDeltaMB.toFixed(2), r.streaming.durationMs.toFixed(0),
-      pctChange(r.batch.peakDeltaMB, r.streaming.peakDeltaMB),
-      pctChange(r.batch.durationMs, r.streaming.durationMs)))
+    rows.push(mdRow(r.label, String(r.schemas), String(r.operations), '**batch**', r.batch.peakDeltaMB.toFixed(2), r.batch.durationMs.toFixed(0), '—', '—'))
+    rows.push(
+      mdRow(
+        '',
+        '',
+        '',
+        'streaming',
+        r.streaming.peakDeltaMB.toFixed(2),
+        r.streaming.durationMs.toFixed(0),
+        pctChange(r.batch.peakDeltaMB, r.streaming.peakDeltaMB),
+        pctChange(r.batch.durationMs, r.streaming.durationMs),
+      ),
+    )
   }
 
   console.log(rows.join('\n'))
   console.log(`\n_Measured ${new Date().toISOString().split('T')[0]} · Node.js ${process.version} · --expose-gc_\n`)
 }
 
-main().catch((e) => { console.error(e); process.exit(1) })
+main().catch((e) => {
+  console.error(e)
+  process.exit(1)
+})
