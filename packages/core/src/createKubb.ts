@@ -923,7 +923,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     })
 
     driver.adapter = config.adapter
-    driver.inputNode = await config.adapter.parse(source, config.storage)
+    driver.inputNode = await config.adapter.parse(source)
 
     await hooks.emit('kubb:debug', {
       date: new Date(),

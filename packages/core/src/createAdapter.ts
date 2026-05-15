@@ -1,6 +1,5 @@
 import type { PossiblePromise } from '@internals/utils'
 import type { ImportNode, InputNode, SchemaNode } from '@kubb/ast'
-import type { Storage } from './createStorage.ts'
 
 /**
  * Source data passed to an adapter's `parse` function.
@@ -60,11 +59,8 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
   document: TOptions['document'] | null
   /**
    * Parse the source into a universal `InputNode`.
-   *
-   * `storage` is `config.storage` from the root Kubb config — adapters may use it
-   * to cache the parsed document across builds (keyed under `.kubb/.cache/`).
    */
-  parse: (source: AdapterSource, storage?: Storage) => PossiblePromise<InputNode>
+  parse: (source: AdapterSource) => PossiblePromise<InputNode>
   /**
    * Extract `ImportNode` entries for a schema tree.
    * Returns an empty array before the first `parse()` call.
