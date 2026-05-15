@@ -1117,7 +1117,9 @@ async function runStreamingFanOut(
       success: !state.failed,
       ...(state.failed && state.error ? { error: state.error } : {}),
       config,
-      get files() { return driver.fileManager.files },
+      get files() {
+        return driver.fileManager.files
+      },
       upsertFile: (...files) => driver.fileManager.upsert(...files),
     })
 
