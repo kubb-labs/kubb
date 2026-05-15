@@ -19,7 +19,7 @@ Three fixes ship together and are all required for the Stripe spec to work withi
 | Fix | File | Impact |
 |-----|------|--------|
 | `$ref` memoization (`resolvedRefCache`) | `parser.ts` | Prevents exponential sub-tree expansion |
-| Fan-out single-pass (`runStreamingFanOut`) | `createKubb.ts` | Eliminates N-times re-parse for N plugins |
+| Fan-out single-pass (`runPluginStreamHooks`) | `createKubb.ts` | Eliminates N-times re-parse for N plugins |
 | Lazy discriminator patching | `discriminator.ts` + `adapter.ts` | Removes the pre-streaming buffer |
 
 ### Stripe spec results (1,385 schemas, 587 operations)
@@ -193,10 +193,10 @@ deserialised from disk. Caching the serialised `InputNode` would cut cache-hit t
 `createKubb` calls `count()` first. Specs with ≤ 100 schemas continue to use `parse()`.
 Specs with > 100 schemas use `stream()`.
 
-### ✅ Fan-out single-pass (`runStreamingFanOut`)
+### ✅ Fan-out single-pass (`runPluginStreamHooks`)
 
 The previous implementation iterated the stream once per plugin (N passes). The
-`runStreamingFanOut` function in `createKubb.ts` inverts the loop:
+`runPluginStreamHooks` function in `createKubb.ts` inverts the loop:
 
 ```ts
 for await (const node of inputStreamNode.schemas) {
@@ -221,18 +221,18 @@ is yielded. The buffer is gone.
 As described above — each referenced schema is expanded at most once per parser
 instance. This is the fix that makes Stripe viable.
 
-### ✅ `AsyncIterable<OperationNode>` in `gen.operations`
+### ✅ `Array<OperationNode>` in `gen.operations` (both paths)
 
-The `gen.operations` generator callback now accepts
-`AsyncIterable<OperationNode> | Array<OperationNode>`. All nine plugin generators
-that implement `gen.operations` are updated to call `collectOperations(nodes)`, which:
-
-- Returns the array unchanged when called with `Array<OperationNode>` (batch path, zero overhead).
-- Drains the iterable into an array when called with `AsyncIterable<OperationNode>` (streaming path).
+The `gen.operations` generator callback always receives `Array<OperationNode>` in
+both the batch and streaming paths. During streaming, `runPluginStreamHooks`
+accumulates operations in a `collectedOperations: OperationNode[]` array as it
+drains the `inputStreamNode.operations` iterable, then passes the completed array
+to `gen.operations`. This matches the batch path exactly — plugin generators require
+no changes to handle the two modes.
 
 ### ✅ Periodic file flush
 
-`runStreamingFanOut` calls `flushPendingFiles()` every 50 schemas, bounding the
+`runPluginStreamHooks` calls `flushPendingFiles()` every 50 schemas, bounding the
 number of rendered `FileNode` objects held in the file manager at any one time.
 
 ### ✅ Disk cache for `parsedDocument`
@@ -252,7 +252,7 @@ first parse. Subsequent builds read from the SHA-256 keyed cache entry and skip
 | `schemaObjects: Record<name, SchemaObject>` | Resident | Resident |
 | `resolvedRefCache: Map<string, SchemaNode>` | Not present | ~1 node per unique `$ref` |
 | **Parsed `SchemaNode[]`** | **All N simultaneously** | **One at a time per yield** |
-| **Parsed `OperationNode[]`** | **All M simultaneously** | **Drained once by `collectOperations()`** |
+| **Parsed `OperationNode[]`** | **All M simultaneously** | **Accumulated during fan-out, passed as `Array<OperationNode>`** |
 
 The `resolvedRefCache` trades a small fixed cost (one cached `SchemaNode` per unique
 `$ref` name, cleared after the generator completes) for eliminating exponential
@@ -290,8 +290,9 @@ All schema and operation nodes are allocated at once and remain pinned until
 | ⑩ after GC | +8 MB | Only document remains |
 
 Schema drain heap fluctuates between 16–32 MB as V8 GC reclaims yielded nodes before
-the next allocation. Operations drain peaks at 61 MB because `collectOperations()` buffers
-all 421 nodes simultaneously — this is a known limitation (see P1 roadmap item below).
+the next allocation. Operations drain peaks at 61 MB because `runPluginStreamHooks`
+accumulates all 421 `OperationNode` objects into an array before calling `gen.operations`
+— this is a known limitation (see P2 roadmap item below).
 
 ---
 
@@ -342,11 +343,12 @@ For large builds the accumulated rendered output can consume significant heap.
 
 ### P2 — Streaming `OperationNode` delivery
 
-**Problem:** `collectOperations()` drains all operations into an array before
-`gen.operations()` is called. For specs with many operations (Stripe: 587), this
-buffers the full set simultaneously.  
-**Fix:** Extend `gen.operations` to accept a true `AsyncIterable` and yield one
-`OperationNode` at a time, enabling per-operation processing without full materialisation.  
+**Problem:** `runPluginStreamHooks` accumulates all operation nodes into an array
+before calling `gen.operations()`. For specs with many operations (Stripe: 587),
+this buffers the full set simultaneously.  
+**Fix:** Pass an `AsyncIterable<OperationNode>` directly to `gen.operations` and
+update plugin generators to process operations one at a time without full
+materialisation.  
 **Note:** This requires generators to not need random access to the full operations list.
 
 ### P2 — Operations-first stream ordering
@@ -415,5 +417,4 @@ The full build completes in approximately 10 seconds within the 3 GB limit.
 - [ADR-0005: AsyncGenerator Streaming for Adapters](./architecture/adr/0005_stream_adapter.md)
 - `packages/adapter-oas/src/adapter.ts` — `count()`, `stream()`, `ensureDocument()`
 - `packages/adapter-oas/src/parser.ts` — `resolvedRefCache` in `createSchemaParser`
-- `packages/core/src/createKubb.ts` — `runStreamingFanOut`, `STREAM_SCHEMA_THRESHOLD`
-- `packages/core/src/collectOperations.ts` — `AsyncIterable | Array` helper
+- `packages/core/src/createKubb.ts` — `runPluginStreamHooks`, `STREAM_SCHEMA_THRESHOLD`
