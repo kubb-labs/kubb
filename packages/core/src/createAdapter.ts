@@ -3,21 +3,13 @@ import type { ImportNode, InputNode, InputStreamNode, SchemaNode } from '@kubb/a
 import type { Storage } from './createStorage.ts'
 
 /**
- * Storage backend scoped to the adapter's cache directory, passed through from `createKubb`.
- *
- * Adapters call `cache.getItem(hash)` / `cache.setItem(hash, json)` directly — key scoping
- * is handled by the core before the source reaches the adapter.
- */
-export type AdapterCache = Storage
-
-/**
  * Source data passed to an adapter's `parse` function.
  * Mirrors the config input shape with paths resolved to absolute.
  */
 export type AdapterSource =
-  | { type: 'path'; path: string; cache?: AdapterCache }
-  | { type: 'data'; data: string | unknown; cache?: AdapterCache }
-  | { type: 'paths'; paths: Array<string>; cache?: AdapterCache }
+  | { type: 'path'; path: string; cache?: Storage }
+  | { type: 'data'; data: string | unknown; cache?: Storage }
+  | { type: 'paths'; paths: Array<string>; cache?: Storage }
 
 /**
  * Generic type parameters for an adapter definition.
