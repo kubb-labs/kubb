@@ -6,7 +6,7 @@ import type { FileNode, InputNode, InputStreamNode, OperationNode, SchemaNode } 
 import { collectUsedSchemaNames, transform, walk } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
 import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
-import type { Adapter, AdapterSource, AdapterCache } from './createAdapter.ts'
+import type { Adapter, AdapterSource } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext, Generator } from './defineGenerator.ts'
@@ -19,6 +19,8 @@ import { fsStorage } from './storages/fsStorage.ts'
 
 /** Schema count above which the adapter's `stream()` is used instead of `parse()`. */
 const STREAM_SCHEMA_THRESHOLD = 100
+/** Flush generated files to disk every N schemas in streaming mode to bound in-memory file buffers. */
+const FLUSH_EVERY = 50
 
 /**
  * Safely extracts a type from a registry, returning `{}` if the key doesn't exist.
@@ -918,11 +920,17 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
   }
 
   if (config.adapter) {
-    const adapterCache: AdapterCache = {
-      storage: config.storage,
-      dir: resolve(config.root, '.kubb', '.cache'),
-    }
-    const source: AdapterSource = { ...inputToAdapterSource(config), cache: adapterCache }
+    const cacheDir = resolve(config.root, '.kubb', '.cache')
+    const cache = createStorage(() => ({
+      name: `${config.storage.name}:cache`,
+      hasItem: (key: string) => config.storage.hasItem(resolve(cacheDir, key)),
+      getItem: (key: string) => config.storage.getItem(resolve(cacheDir, key)),
+      setItem: (key: string, value: string) => config.storage.setItem(resolve(cacheDir, key), value),
+      removeItem: (key: string) => config.storage.removeItem(resolve(cacheDir, key)),
+      getKeys: (base?: string) => config.storage.getKeys(base ? resolve(cacheDir, base) : cacheDir),
+      clear: () => config.storage.clear(cacheDir),
+    }))()
+    const source: AdapterSource = { ...inputToAdapterSource(config), cache }
 
     await hooks.emit('kubb:debug', {
       date: new Date(),
@@ -1018,7 +1026,6 @@ async function runStreamingFanOut(
 ): Promise<void> {
   type PluginState = {
     plugin: NormalizedPlugin
-    context: GeneratorContext
     generatorContext: GeneratorContext
     generators: Generator[]
     hrStart: ReturnType<typeof process.hrtime>
@@ -1027,12 +1034,11 @@ async function runStreamingFanOut(
   }
 
   function resolveRendererFor(gen: Generator, state: PluginState): RendererFactory | undefined {
-    return gen.renderer === null ? undefined : (gen.renderer ?? state.plugin.renderer ?? state.context.config.renderer)
+    return gen.renderer === null ? undefined : (gen.renderer ?? state.plugin.renderer ?? state.generatorContext.config.renderer)
   }
 
   const states: PluginState[] = entries.map(({ plugin, context, hrStart }) => ({
     plugin,
-    context,
     generatorContext: { ...context, resolver: driver.getResolver(plugin.name) },
     generators: plugin.generators ?? [],
     hrStart,
@@ -1040,20 +1046,15 @@ async function runStreamingFanOut(
     error: undefined,
   }))
 
-  // Single pass over schemas — fan each node to all plugins.
-  // Files are flushed to disk every FLUSH_EVERY schemas to prevent the file
-  // manager from accumulating all rendered content in memory at once (critical
-  // for large specs like Stripe with 1 000+ schemas).
-  const FLUSH_EVERY = 50
   let schemasProcessed = 0
   for await (const node of inputStreamNode.schemas) {
     for (const state of states) {
       if (state.failed) continue
       try {
-        const { plugin, generatorContext, generators, context } = state
+        const { plugin, generatorContext, generators } = state
         const { exclude, include, override } = plugin.options
         const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-        const options = context.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
+        const options = generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
         if (options === null) continue
 
         const ctx = { ...generatorContext, options }
@@ -1074,15 +1075,14 @@ async function runStreamingFanOut(
     }
   }
 
-  // Single pass over operations — fan each node to all plugins
   for await (const node of inputStreamNode.operations) {
     for (const state of states) {
       if (state.failed) continue
       try {
-        const { plugin, generatorContext, generators, context } = state
+        const { plugin, generatorContext, generators } = state
         const { exclude, include, override } = plugin.options
         const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-        const options = context.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
+        const options = generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
         if (options === null) continue
 
         const ctx = { ...generatorContext, options }

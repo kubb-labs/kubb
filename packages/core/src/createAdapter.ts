@@ -3,18 +3,12 @@ import type { ImportNode, InputNode, InputStreamNode, SchemaNode } from '@kubb/a
 import type { Storage } from './createStorage.ts'
 
 /**
- * Optional disk-cache configuration threaded through from `createKubb` into adapter methods.
+ * Storage backend scoped to the adapter's cache directory, passed through from `createKubb`.
  *
- * Adapters read from / write to this cache to avoid re-parsing the same source document on
- * every build. The storage backend is the one the user configured (`config.storage`), and
- * keys are absolute paths under `<root>/.kubb/.cache/`.
+ * Adapters call `cache.getItem(hash)` / `cache.setItem(hash, json)` directly — key scoping
+ * is handled by the core before the source reaches the adapter.
  */
-export type AdapterCache = {
-  /** Storage backend to use for reading and writing cache entries. */
-  storage: Storage
-  /** Absolute path to the cache directory, e.g. `/project/.kubb/.cache`. */
-  dir: string
-}
+export type AdapterCache = Storage
 
 /**
  * Source data passed to an adapter's `parse` function.

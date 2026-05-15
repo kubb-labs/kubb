@@ -1,6 +1,5 @@
 import { createHash } from 'node:crypto'
 import { stat } from 'node:fs/promises'
-import { resolve } from 'node:path'
 import { ast, createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import BaseOas from 'oas'
@@ -26,8 +25,7 @@ function sourceCacheFilename(source: AdapterSource): string {
 async function readDocumentCache(source: AdapterSource): Promise<{ document: Document; nameMapping: Map<string, string> } | null> {
   if (!source.cache) return null
 
-  const key = resolve(source.cache.dir, sourceCacheFilename(source))
-  const raw = await source.cache.storage.getItem(key)
+  const raw = await source.cache.getItem(sourceCacheFilename(source))
   if (!raw) return null
 
   try {
@@ -50,9 +48,7 @@ async function readDocumentCache(source: AdapterSource): Promise<{ document: Doc
 async function writeDocumentCache(source: AdapterSource, document: Document, nameMapping: Map<string, string>): Promise<void> {
   if (!source.cache) return
 
-  const key = resolve(source.cache.dir, sourceCacheFilename(source))
   let mtime: number | undefined
-
   if (source.type === 'path') {
     const fileStat = await stat(source.path).catch(() => null)
     mtime = fileStat?.mtimeMs
@@ -64,7 +60,7 @@ async function writeDocumentCache(source: AdapterSource, document: Document, nam
     mtime,
   }
 
-  await source.cache.storage.setItem(key, JSON.stringify(entry))
+  await source.cache.setItem(sourceCacheFilename(source), JSON.stringify(entry))
 }
 
 /**
@@ -105,10 +101,10 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     emptySchemaType = unknownType || DEFAULT_PARSER_OPTIONS.emptySchemaType,
   } = options
 
-  // Let-binding so parse() can replace it with a simple reassignment (no clear+loop).
   let nameMapping = new Map<string, string>()
   let parsedDocument: Document | null = null
   let inputNode: ast.InputNode | null = null
+  let cachedSchemaObjects: ReturnType<typeof getSchemas>['schemas'] | null = null
 
   /** Load from memory → disk cache → fresh parse, in that order. */
   async function ensureDocument(source: AdapterSource): Promise<{ document: Document; fromCache: boolean }> {
@@ -204,18 +200,18 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     },
     async count(source) {
       const { document, fromCache } = await ensureDocument(source)
-      const { schemas: schemaObjects, nameMapping: freshNameMapping } = getSchemas(document, { contentType })
 
-      if (!fromCache) {
-        nameMapping = freshNameMapping
-        await writeDocumentCache(source, document, nameMapping)
+      if (!cachedSchemaObjects) {
+        const result = getSchemas(document, { contentType })
+        cachedSchemaObjects = result.schemas
+        nameMapping = result.nameMapping
+        if (!fromCache) await writeDocumentCache(source, document, nameMapping)
       }
 
       const baseOas = new BaseOas(document)
-      const paths = baseOas.getPaths()
-      const operationCount = Object.values(paths).flatMap(Object.values).filter(Boolean).length
+      const operationCount = Object.values(baseOas.getPaths()).flatMap(Object.values).filter(Boolean).length
 
-      return { schemas: Object.keys(schemaObjects).length, operations: operationCount }
+      return { schemas: Object.keys(cachedSchemaObjects).length, operations: operationCount }
     },
     async stream(source) {
       const { document, fromCache } = await ensureDocument(source)
@@ -223,12 +219,14 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
       const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
 
-      const { schemas: schemaObjects, nameMapping: parsedNameMapping } = getSchemas(document, { contentType })
-      nameMapping = parsedNameMapping
-
-      if (!fromCache) {
-        await writeDocumentCache(source, document, nameMapping)
+      if (!cachedSchemaObjects) {
+        const result = getSchemas(document, { contentType })
+        cachedSchemaObjects = result.schemas
+        nameMapping = result.nameMapping
+        if (!fromCache) await writeDocumentCache(source, document, nameMapping)
       }
+
+      const schemaObjects = cachedSchemaObjects as ReturnType<typeof getSchemas>['schemas']
 
       const parserOptions: ast.ParserOptions = {
         ...DEFAULT_PARSER_OPTIONS,
@@ -239,9 +237,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         enumSuffix,
       }
 
-      // Build discriminator child map by parsing ONLY discriminator-parent schemas
-      // (those with oneOf/anyOf + discriminatorPropertyName). This avoids buffering all
-      // schemas while still reusing the proven AST-based map builder.
       let discriminatorChildMap: Awaited<ReturnType<typeof buildDiscriminatorChildMap>> | null = null
       if (discriminator === 'inherit') {
         const { parseSchema: _preParser } = createSchemaParser({ document, contentType })
