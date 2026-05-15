@@ -58,8 +58,12 @@ describe('multi-plugin simulation (5 plugins)', () => {
       const inputNode = await adapter.parse(source)
       // walk N times (once per plugin)
       for (let i = 0; i < PLUGIN_COUNT; i++) {
-        for (const _schema of inputNode.schemas) { /* plugin processes */ }
-        for (const _op of inputNode.operations) { /* plugin processes */ }
+        for (const _schema of inputNode.schemas) {
+          /* plugin processes */
+        }
+        for (const _op of inputNode.operations) {
+          /* plugin processes */
+        }
       }
     })
     multiResults.push({ label: 'batch (1 parse + 5 walks)', r })
@@ -75,8 +79,12 @@ describe('multi-plugin simulation (5 plugins)', () => {
       // each plugin drains stream independently (re-parses AST nodes)
       for (let i = 0; i < PLUGIN_COUNT; i++) {
         const streamNode = await adapter.stream!(source)
-        for await (const _schema of streamNode.schemas) { /* plugin processes */ }
-        for await (const _op of streamNode.operations) { /* plugin processes */ }
+        for await (const _schema of streamNode.schemas) {
+          /* plugin processes */
+        }
+        for await (const _op of streamNode.operations) {
+          /* plugin processes */
+        }
       }
     })
     multiResults.push({ label: 'streaming (count + 5 stream drains)', r })
@@ -95,7 +103,11 @@ afterAll(() => {
   console.log('╚══════════════════════════════════════════════════════════╝\n')
   console.log(`| Metric              | Batch [main]    | Streaming [PR #3290] |`)
   console.log(`|---------------------|-----------------|----------------------|`)
-  console.log(`| Peak heap delta     | +${batch.r.deltaHeapMB.toFixed(2)} MB      | +${stream.r.deltaHeapMB.toFixed(2)} MB (${heapSavingPct.toFixed(0)}% less)  |`)
-  console.log(`| Total duration      | ${batch.r.durationMs.toFixed(0)} ms      | ${stream.r.durationMs.toFixed(0)} ms (${timeDiffPct > 0 ? '+' : ''}${timeDiffPct.toFixed(0)}%)  |`)
+  console.log(
+    `| Peak heap delta     | +${batch.r.deltaHeapMB.toFixed(2)} MB      | +${stream.r.deltaHeapMB.toFixed(2)} MB (${heapSavingPct.toFixed(0)}% less)  |`,
+  )
+  console.log(
+    `| Total duration      | ${batch.r.durationMs.toFixed(0)} ms      | ${stream.r.durationMs.toFixed(0)} ms (${timeDiffPct > 0 ? '+' : ''}${timeDiffPct.toFixed(0)}%)  |`,
+  )
   console.log()
 })

@@ -375,12 +375,14 @@ export class PluginDriver {
         driver.fileManager.upsert(...files)
       },
       get inputNode(): InputNode {
-        return driver.inputNode ?? {
-          kind: 'Input' as const,
-          schemas: [],
-          operations: [],
-          meta: driver.inputStreamNode?.meta,
-        }
+        return (
+          driver.inputNode ?? {
+            kind: 'Input' as const,
+            schemas: [],
+            operations: [],
+            meta: driver.inputStreamNode?.meta,
+          }
+        )
       },
       get adapter(): Adapter | undefined {
         return driver.adapter

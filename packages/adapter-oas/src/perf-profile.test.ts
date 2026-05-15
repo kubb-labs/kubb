@@ -38,7 +38,9 @@ async function timed<T>(fn: () => Promise<T> | T): Promise<TimedResult<T>> {
   return { result, ms: performance.now() - start }
 }
 
-function ms(n: number) { return `${n.toFixed(1)} ms` }
+function ms(n: number) {
+  return `${n.toFixed(1)} ms`
+}
 
 // ── Results store ─────────────────────────────────────────────────────────────
 
@@ -68,7 +70,9 @@ describe('Phase 1 — Document loading (factory.ts / Redocly)', () => {
       const config = await loadConfig()
       return bundle({ ref: bunqPath, config, base: bunqPath })
     })
-    const schemas = ((bundleResult.bundle.parsed as Record<string, unknown>)?.['components'] as Record<string, unknown>)?.['schemas'] as Record<string, unknown> | undefined
+    const schemas = ((bundleResult.bundle.parsed as Record<string, unknown>)?.['components'] as Record<string, unknown>)?.['schemas'] as
+      | Record<string, unknown>
+      | undefined
     record('bundle() — Redocly $ref resolver', bundleMs, `${Object.keys(schemas ?? {}).length} schemas resolved`)
 
     // Step 1c: OASNormalize.load() on the bundled document
@@ -82,7 +86,7 @@ describe('Phase 1 — Document loading (factory.ts / Redocly)', () => {
     // Step 1d: validateDocument (disabled in prod benchmarks but shows cost)
     const { ms: validateMs } = await timed(async () => {
       const n = new OASNormalize(bundledDoc, { enablePaths: true, colorizeErrors: true })
-      const loaded = await n.load() as Document
+      const loaded = (await n.load()) as Document
       return validateDocument(loaded, { throwOnError: false })
     })
     record('validateDocument()', validateMs, 'OAS schema validation (can be disabled)')
@@ -135,7 +139,7 @@ describe('Phase 3 — AST parsing (parser.ts)', () => {
 
     // Full parseOas()
     const { result: parseOasResult, ms: parseOasMs } = await timed(() =>
-      parseOas(document, { dateType: 'string', integerType: 'number', unknownType: 'unknown', emptySchemaType: 'unknown', enumSuffix: 'Enum' })
+      parseOas(document, { dateType: 'string', integerType: 'number', unknownType: 'unknown', emptySchemaType: 'unknown', enumSuffix: 'Enum' }),
     )
     record('parseOas() — full', parseOasMs, `${parseOasResult.root.schemas.length} SchemaNode + ${parseOasResult.root.operations.length} OperationNode`)
 
@@ -162,7 +166,9 @@ describe('Phase 3 — AST parsing (parser.ts)', () => {
     // Top 5 slowest schemas
     const top5 = [...perSchemaTimings].sort((a, b) => b.ms - a.ms).slice(0, 5)
     console.log(`\n  Top 5 slowest schemas:`)
-    for (const s of top5) { console.log(`    ${s.name.padEnd(50)} ${ms(s.ms)}`) }
+    for (const s of top5) {
+      console.log(`    ${s.name.padEnd(50)} ${ms(s.ms)}`)
+    }
 
     // Per-operation timing
     const baseOas = new BaseOas(document)
@@ -203,9 +209,13 @@ describe('Phase 4 — AST walking (@kubb/ast)', () => {
     const { ms: walkMs } = await timed(() =>
       walk(inputNode, {
         depth: 'shallow',
-        schema() { schemaCallbacks++ },
-        operation() { opCallbacks++ },
-      })
+        schema() {
+          schemaCallbacks++
+        },
+        operation() {
+          opCallbacks++
+        },
+      }),
     )
     record(`walk() — shallow, no-op callbacks`, walkMs, `${schemaCallbacks} schema + ${opCallbacks} op callbacks`)
 
@@ -218,15 +228,15 @@ describe('Phase 4 — AST walking (@kubb/ast)', () => {
           // Simulate what a plugin does: name check + options resolution
           if (node.name) workCallbacks++
         },
-        operation() { workCallbacks++ },
-      })
+        operation() {
+          workCallbacks++
+        },
+      }),
     )
     record('walk() — with realistic plugin callback', walkWorkMs, 'name-check + counter per node')
 
     // collectUsedSchemaNames() — schema reachability from operations
-    const { ms: collectMs } = await timed(() =>
-      collectUsedSchemaNames(inputNode.operations, inputNode.schemas)
-    )
+    const { ms: collectMs } = await timed(() => collectUsedSchemaNames(inputNode.operations, inputNode.schemas))
     record('collectUsedSchemaNames()', collectMs, 'reachability graph for operation-based include filters')
 
     console.log(`\n  walk(no-op)=${ms(walkMs)}  walk(work)=${ms(walkWorkMs)}  collectUsedSchemaNames=${ms(collectMs)}`)
@@ -272,7 +282,9 @@ describe('Phase 5 — Streaming path (adapter-oas/adapter.ts)', () => {
 
     const opDrainStart = performance.now()
     let opCount = 0
-    for await (const _op of streamNode.operations) { opCount++ }
+    for await (const _op of streamNode.operations) {
+      opCount++
+    }
     const opDrainMs = performance.now() - opDrainStart
 
     record('stream() schemas drain — total', schemaDrainMs, `${counts.schemas} schemas yielded`)
@@ -294,12 +306,24 @@ describe('Phase 6 — Disk cache round-trip (adapter-oas/adapter.ts)', () => {
       dir: '/tmp/kubb-perf-cache',
       storage: {
         name: 'memory',
-        async hasItem(k: string) { return store.has(k) },
-        async getItem(k: string) { return store.get(k) ?? null },
-        async setItem(k: string, v: string) { store.set(k, v) },
-        async removeItem(k: string) { store.delete(k) },
-        async getKeys() { return [...store.keys()] },
-        async clear() { store.clear() },
+        async hasItem(k: string) {
+          return store.has(k)
+        },
+        async getItem(k: string) {
+          return store.get(k) ?? null
+        },
+        async setItem(k: string, v: string) {
+          store.set(k, v)
+        },
+        async removeItem(k: string) {
+          store.delete(k)
+        },
+        async getKeys() {
+          return [...store.keys()]
+        },
+        async clear() {
+          store.clear()
+        },
       },
     }
     const source: AdapterSource = { type: 'path', path: bunqPath, cache }
@@ -320,7 +344,7 @@ describe('Phase 6 — Disk cache round-trip (adapter-oas/adapter.ts)', () => {
     const { ms: countCachedMs } = await timed(() => adapter3.count!(source))
     record('count() — cache hit', countCachedMs, 'no bundle, just count')
 
-    console.log(`\n  cold=${ms(coldMs)}  warm(cache-hit)=${ms(warmMs)}  speedup=${(coldMs/warmMs).toFixed(1)}×  count(cached)=${ms(countCachedMs)}`)
+    console.log(`\n  cold=${ms(coldMs)}  warm(cache-hit)=${ms(warmMs)}  speedup=${(coldMs / warmMs).toFixed(1)}×  count(cached)=${ms(countCachedMs)}`)
   }, 120_000)
 })
 

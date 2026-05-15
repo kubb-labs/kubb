@@ -25,9 +25,9 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const SPECS = [
-  { name: 'readme.io', file: 'readme.io.yaml', expectedSchemas: 4,   expectedOps: 31,  path: 'batch'     },
-  { name: 'twitter',   file: 'twitter.json',   expectedSchemas: 236,  expectedOps: 80,  path: 'streaming' },
-  { name: 'bunq',      file: 'bunq.json',      expectedSchemas: 617,  expectedOps: 421, path: 'streaming' },
+  { name: 'readme.io', file: 'readme.io.yaml', expectedSchemas: 4, expectedOps: 31, path: 'batch' },
+  { name: 'twitter', file: 'twitter.json', expectedSchemas: 236, expectedOps: 80, path: 'streaming' },
+  { name: 'bunq', file: 'bunq.json', expectedSchemas: 617, expectedOps: 421, path: 'streaming' },
 ] as const
 
 const STREAM_THRESHOLD = 100
@@ -49,7 +49,10 @@ type RunResult = {
 
 function forceGC(): void {
   const _gc = (globalThis as Record<string, unknown>)['gc']
-  if (typeof _gc === 'function') { (_gc as () => void)(); (_gc as () => void)() }
+  if (typeof _gc === 'function') {
+    ;(_gc as () => void)()
+    ;(_gc as () => void)()
+  }
 }
 
 type HeapResult = { deltaHeapMB: number; durationMs: number }
@@ -120,8 +123,12 @@ for (const spec of SPECS) {
         const adapter = adapterOas({ validate: false })
         await adapter.count!(source)
         const streamNode = await adapter.stream!(source)
-        for await (const _s of streamNode.schemas) { /* consume */ }
-        for await (const _o of streamNode.operations) { /* consume */ }
+        for await (const _s of streamNode.schemas) {
+          /* consume */
+        }
+        for await (const _o of streamNode.operations) {
+          /* consume */
+        }
       })
       console.log(`  [${spec.name}] stream: +${r.deltaHeapMB.toFixed(2)} MB  ${r.durationMs.toFixed(0)} ms`)
 
@@ -129,12 +136,8 @@ for (const spec of SPECS) {
       if (existing) {
         existing.streamDeltaMB = r.deltaHeapMB
         existing.streamMs = r.durationMs
-        existing.heapSavingPct = existing.batchDeltaMB > 0
-          ? ((existing.batchDeltaMB - r.deltaHeapMB) / existing.batchDeltaMB) * 100
-          : 0
-        existing.timeDiffPct = existing.batchMs > 0
-          ? ((r.durationMs - existing.batchMs) / existing.batchMs) * 100
-          : 0
+        existing.heapSavingPct = existing.batchDeltaMB > 0 ? ((existing.batchDeltaMB - r.deltaHeapMB) / existing.batchDeltaMB) * 100 : 0
+        existing.timeDiffPct = existing.batchMs > 0 ? ((r.durationMs - existing.batchMs) / existing.batchMs) * 100 : 0
       }
     }, 120_000)
   })
@@ -151,27 +154,27 @@ afterAll(() => {
 
   // Memory table
   console.log('── Memory (AST heap delta above baseline) ──')
-  console.log(`${'Spec'.padEnd(12)} ${'Schemas'.padStart(8)} ${'OAS path'.padEnd(12)} ${'Batch [main]'.padStart(14)} ${'Stream [PR]'.padStart(13)} ${'Saving'.padStart(12)}`)
+  console.log(
+    `${'Spec'.padEnd(12)} ${'Schemas'.padStart(8)} ${'OAS path'.padEnd(12)} ${'Batch [main]'.padStart(14)} ${'Stream [PR]'.padStart(13)} ${'Saving'.padStart(12)}`,
+  )
   console.log(`${'─'.repeat(12)} ${'─'.repeat(8)} ${'─'.repeat(12)} ${'─'.repeat(14)} ${'─'.repeat(13)} ${'─'.repeat(12)}`)
   for (const r of allResults) {
-    const saving = r.heapSavingPct >= 0
-      ? `-${r.heapSavingPct.toFixed(0)}%`
-      : `+${Math.abs(r.heapSavingPct).toFixed(0)}%`
+    const saving = r.heapSavingPct >= 0 ? `-${r.heapSavingPct.toFixed(0)}%` : `+${Math.abs(r.heapSavingPct).toFixed(0)}%`
     console.log(
-      `${r.spec.padEnd(12)} ${String(r.schemas).padStart(8)} ${r.path.padEnd(12)} ${('+' + r.batchDeltaMB.toFixed(2) + ' MB').padStart(14)} ${('+' + r.streamDeltaMB.toFixed(2) + ' MB').padStart(13)} ${saving.padStart(12)}`
+      `${r.spec.padEnd(12)} ${String(r.schemas).padStart(8)} ${r.path.padEnd(12)} ${('+' + r.batchDeltaMB.toFixed(2) + ' MB').padStart(14)} ${('+' + r.streamDeltaMB.toFixed(2) + ' MB').padStart(13)} ${saving.padStart(12)}`,
     )
   }
 
   // Timing table
   console.log('\n── Timing (1 plugin pass) ──')
-  console.log(`${'Spec'.padEnd(12)} ${'Schemas'.padStart(8)} ${'OAS path'.padEnd(12)} ${'Batch [main]'.padStart(14)} ${'Stream [PR]'.padStart(13)} ${'Overhead'.padStart(12)}`)
+  console.log(
+    `${'Spec'.padEnd(12)} ${'Schemas'.padStart(8)} ${'OAS path'.padEnd(12)} ${'Batch [main]'.padStart(14)} ${'Stream [PR]'.padStart(13)} ${'Overhead'.padStart(12)}`,
+  )
   console.log(`${'─'.repeat(12)} ${'─'.repeat(8)} ${'─'.repeat(12)} ${'─'.repeat(14)} ${'─'.repeat(13)} ${'─'.repeat(12)}`)
   for (const r of allResults) {
-    const diff = r.timeDiffPct >= 0
-      ? `+${r.timeDiffPct.toFixed(0)}%`
-      : `-${Math.abs(r.timeDiffPct).toFixed(0)}%`
+    const diff = r.timeDiffPct >= 0 ? `+${r.timeDiffPct.toFixed(0)}%` : `-${Math.abs(r.timeDiffPct).toFixed(0)}%`
     console.log(
-      `${r.spec.padEnd(12)} ${String(r.schemas).padStart(8)} ${r.path.padEnd(12)} ${(r.batchMs.toFixed(0) + ' ms').padStart(14)} ${(r.streamMs.toFixed(0) + ' ms').padStart(13)} ${diff.padStart(12)}`
+      `${r.spec.padEnd(12)} ${String(r.schemas).padStart(8)} ${r.path.padEnd(12)} ${(r.batchMs.toFixed(0) + ' ms').padStart(14)} ${(r.streamMs.toFixed(0) + ' ms').padStart(13)} ${diff.padStart(12)}`,
     )
   }
   console.log()

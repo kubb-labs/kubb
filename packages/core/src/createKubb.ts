@@ -1118,7 +1118,9 @@ async function runStreamingFanOut(
         success: false,
         error: state.error,
         config,
-        get files() { return driver.fileManager.files },
+        get files() {
+          return driver.fileManager.files
+        },
         upsertFile: (...files) => driver.fileManager.upsert(...files),
       })
       failedPlugins.add({ plugin: state.plugin, error: state.error })
@@ -1128,7 +1130,9 @@ async function runStreamingFanOut(
         duration,
         success: true,
         config,
-        get files() { return driver.fileManager.files },
+        get files() {
+          return driver.fileManager.files
+        },
         upsertFile: (...files) => driver.fileManager.upsert(...files),
       })
     }
@@ -1350,7 +1354,9 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
             duration,
             success: true,
             config,
-            get files() { return driver.fileManager.files },
+            get files() {
+              return driver.fileManager.files
+            },
             upsertFile: (...files) => driver.fileManager.upsert(...files),
           })
           await hooks.emit('kubb:debug', {
@@ -1361,16 +1367,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       }
 
       if (streamEntries.length > 0) {
-        await runStreamingFanOut(
-          inputStreamNode,
-          streamEntries,
-          driver,
-          hooks,
-          config,
-          pluginTimings,
-          failedPlugins,
-          flushPendingFiles,
-        )
+        await runStreamingFanOut(inputStreamNode, streamEntries, driver, hooks, config, pluginTimings, failedPlugins, flushPendingFiles)
       }
     } else {
       // ── BATCH: existing per-plugin sequential loop ────────────────────────

@@ -34,9 +34,7 @@
     "termsOfService": "http://bunq.com/terms-api/",
     "title": "bunq API",
     "version": "1.0",
-    "x-apisguru-categories": [
-      "financial"
-    ],
+    "x-apisguru-categories": ["financial"],
     "x-logo": {
       "url": "https://api.apis.guru/v2/cache/logo/https_twitter.com_bunq_profile_image.jpeg"
     },
@@ -561,9 +559,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "attachment-public"
-        ]
+        "tags": ["attachment-public"]
       }
     },
     "/attachment-public/{attachment-publicUUID}/content": {
@@ -632,9 +628,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "content"
-        ]
+        "tags": ["content"]
       }
     },
     "/attachment-public/{itemId}": {
@@ -700,9 +694,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "attachment-public"
-        ]
+        "tags": ["attachment-public"]
       }
     },
     "/avatar": {
@@ -770,9 +762,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "avatar"
-        ]
+        "tags": ["avatar"]
       }
     },
     "/avatar/{itemId}": {
@@ -838,9 +828,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "avatar"
-        ]
+        "tags": ["avatar"]
       }
     },
     "/device": {
@@ -900,9 +888,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "device"
-        ]
+        "tags": ["device"]
       }
     },
     "/device-server": {
@@ -962,9 +948,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "device-server"
-        ]
+        "tags": ["device-server"]
       },
       "post": {
         "description": "Create a new DeviceServer providing the installation token in the header and signing the request with the private part of the key you used to create the installation. The API Key that you are using will be bound to the IP address of the DeviceServer which you have created.<br/><br/>Using a Wildcard API Key gives you the freedom to make API calls even if the IP address has changed after the POST device-server.<br/><br/>Find out more at this link <a href=\"https:/bunq.com/en/apikey-dynamic-ip\" target=\"_blank\">https:/bunq.com/en/apikey-dynamic-ip</a>.",
@@ -1030,9 +1014,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "device-server"
-        ]
+        "tags": ["device-server"]
       }
     },
     "/device-server/{itemId}": {
@@ -1098,9 +1080,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "device-server"
-        ]
+        "tags": ["device-server"]
       }
     },
     "/device/{itemId}": {
@@ -1166,9 +1146,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "device"
-        ]
+        "tags": ["device"]
       }
     },
     "/installation": {
@@ -1228,9 +1206,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "installation"
-        ]
+        "tags": ["installation"]
       },
       "post": {
         "description": "This is the only API call that does not require you to use the \"X-Bunq-Client-Authentication\" and \"X-Bunq-Client-Signature\" headers.\n You provide the server with the public part of the key pair that you are going to use to create the value of the signature header for all future API calls. The server creates an installation for you. Store the Installation Token and ServerPublicKey from the response. This token is used in the \"X-Bunq-Client-Authentication\" header for the creation of a DeviceServer and SessionServer.",
@@ -1296,9 +1272,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "installation"
-        ]
+        "tags": ["installation"]
       }
     },
     "/installation/{installationID}/server-public-key": {
@@ -1367,9 +1341,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "server-public-key"
-        ]
+        "tags": ["server-public-key"]
       }
     },
     "/installation/{itemId}": {
@@ -1435,9 +1407,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "installation"
-        ]
+        "tags": ["installation"]
       }
     },
     "/payment-service-provider-credential": {
@@ -1505,9 +1475,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment-service-provider-credential"
-        ]
+        "tags": ["payment-service-provider-credential"]
       }
     },
     "/payment-service-provider-credential/{itemId}": {
@@ -1573,9 +1541,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment-service-provider-credential"
-        ]
+        "tags": ["payment-service-provider-credential"]
       }
     },
     "/place-lookup/{place-lookupID}/photo/{photoID}/content": {
@@ -1653,9 +1619,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "content"
-        ]
+        "tags": ["content"]
       }
     },
     "/sandbox-user-company": {
@@ -1723,9 +1687,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "sandbox-user-company"
-        ]
+        "tags": ["sandbox-user-company"]
       }
     },
     "/sandbox-user-person": {
@@ -1793,9 +1755,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "sandbox-user-person"
-        ]
+        "tags": ["sandbox-user-person"]
       }
     },
     "/server-error": {
@@ -1863,9 +1823,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "server-error"
-        ]
+        "tags": ["server-error"]
       }
     },
     "/session-server": {
@@ -1933,9 +1891,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "session-server"
-        ]
+        "tags": ["session-server"]
       }
     },
     "/session/{itemId}": {
@@ -2001,9 +1957,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "session"
-        ]
+        "tags": ["session"]
       }
     },
     "/user": {
@@ -2063,9 +2017,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "user"
-        ]
+        "tags": ["user"]
       }
     },
     "/user-company/{itemId}": {
@@ -2131,9 +2083,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "user-company"
-        ]
+        "tags": ["user-company"]
       },
       "put": {
         "description": "Modify a specific company's data.",
@@ -2208,9 +2158,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "user-company"
-        ]
+        "tags": ["user-company"]
       }
     },
     "/user-company/{user-companyID}/name": {
@@ -2279,9 +2227,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "name"
-        ]
+        "tags": ["name"]
       }
     },
     "/user-payment-service-provider/{itemId}": {
@@ -2347,9 +2293,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "user-payment-service-provider"
-        ]
+        "tags": ["user-payment-service-provider"]
       }
     },
     "/user-person/{itemId}": {
@@ -2415,9 +2359,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "user-person"
-        ]
+        "tags": ["user-person"]
       },
       "put": {
         "description": "Modify a specific person object's data.",
@@ -2492,9 +2434,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "user-person"
-        ]
+        "tags": ["user-person"]
       }
     },
     "/user/{itemId}": {
@@ -2560,9 +2500,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "user"
-        ]
+        "tags": ["user"]
       }
     },
     "/user/{userID}/attachment/{attachmentID}/content": {
@@ -2640,9 +2578,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "content"
-        ]
+        "tags": ["content"]
       }
     },
     "/user/{userID}/attachment/{itemId}": {
@@ -2717,9 +2653,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "attachment"
-        ]
+        "tags": ["attachment"]
       }
     },
     "/user/{userID}/billing-contract-subscription": {
@@ -2788,9 +2722,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "billing-contract-subscription"
-        ]
+        "tags": ["billing-contract-subscription"]
       }
     },
     "/user/{userID}/bunqme-fundraiser-profile": {
@@ -2859,9 +2791,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "bunqme-fundraiser-profile"
-        ]
+        "tags": ["bunqme-fundraiser-profile"]
       }
     },
     "/user/{userID}/bunqme-fundraiser-profile/{itemId}": {
@@ -2936,9 +2866,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "bunqme-fundraiser-profile"
-        ]
+        "tags": ["bunqme-fundraiser-profile"]
       }
     },
     "/user/{userID}/card": {
@@ -3007,9 +2935,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "card"
-        ]
+        "tags": ["card"]
       }
     },
     "/user/{userID}/card-batch": {
@@ -3086,9 +3012,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "card-batch"
-        ]
+        "tags": ["card-batch"]
       }
     },
     "/user/{userID}/card-batch-replace": {
@@ -3165,9 +3089,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "card-batch-replace"
-        ]
+        "tags": ["card-batch-replace"]
       }
     },
     "/user/{userID}/card-credit": {
@@ -3244,9 +3166,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "card-credit"
-        ]
+        "tags": ["card-credit"]
       }
     },
     "/user/{userID}/card-debit": {
@@ -3323,9 +3243,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "card-debit"
-        ]
+        "tags": ["card-debit"]
       }
     },
     "/user/{userID}/card-name": {
@@ -3394,9 +3312,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "card-name"
-        ]
+        "tags": ["card-name"]
       }
     },
     "/user/{userID}/card/{cardID}/export-statement-card": {
@@ -3474,9 +3390,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-statement-card"
-        ]
+        "tags": ["export-statement-card"]
       }
     },
     "/user/{userID}/card/{cardID}/export-statement-card-csv": {
@@ -3554,9 +3468,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-statement-card-csv"
-        ]
+        "tags": ["export-statement-card-csv"]
       },
       "post": {
         "description": "Used to serialize ExportStatementCardCsv",
@@ -3640,9 +3552,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-statement-card-csv"
-        ]
+        "tags": ["export-statement-card-csv"]
       }
     },
     "/user/{userID}/card/{cardID}/export-statement-card-csv/{itemId}": {
@@ -3726,9 +3636,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-statement-card-csv"
-        ]
+        "tags": ["export-statement-card-csv"]
       },
       "get": {
         "description": "Used to serialize ExportStatementCardCsv",
@@ -3810,9 +3718,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-statement-card-csv"
-        ]
+        "tags": ["export-statement-card-csv"]
       }
     },
     "/user/{userID}/card/{cardID}/export-statement-card-pdf": {
@@ -3890,9 +3796,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-statement-card-pdf"
-        ]
+        "tags": ["export-statement-card-pdf"]
       },
       "post": {
         "description": "Used to serialize ExportStatementCardPdf",
@@ -3976,9 +3880,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-statement-card-pdf"
-        ]
+        "tags": ["export-statement-card-pdf"]
       }
     },
     "/user/{userID}/card/{cardID}/export-statement-card-pdf/{itemId}": {
@@ -4062,9 +3964,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-statement-card-pdf"
-        ]
+        "tags": ["export-statement-card-pdf"]
       },
       "get": {
         "description": "Used to serialize ExportStatementCardPdf",
@@ -4146,9 +4046,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-statement-card-pdf"
-        ]
+        "tags": ["export-statement-card-pdf"]
       }
     },
     "/user/{userID}/card/{cardID}/export-statement-card/{export-statement-cardID}/content": {
@@ -4235,9 +4133,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "content"
-        ]
+        "tags": ["content"]
       }
     },
     "/user/{userID}/card/{cardID}/export-statement-card/{itemId}": {
@@ -4321,9 +4217,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-statement-card"
-        ]
+        "tags": ["export-statement-card"]
       }
     },
     "/user/{userID}/card/{cardID}/generated-cvc2": {
@@ -4401,9 +4295,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "generated-cvc2"
-        ]
+        "tags": ["generated-cvc2"]
       },
       "post": {
         "description": "Generate a new CVC2 code for a card.",
@@ -4487,9 +4379,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "generated-cvc2"
-        ]
+        "tags": ["generated-cvc2"]
       }
     },
     "/user/{userID}/card/{cardID}/generated-cvc2/{itemId}": {
@@ -4573,9 +4463,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "generated-cvc2"
-        ]
+        "tags": ["generated-cvc2"]
       },
       "put": {
         "description": "Endpoint for generating and retrieving a new CVC2 code.",
@@ -4668,9 +4556,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "generated-cvc2"
-        ]
+        "tags": ["generated-cvc2"]
       }
     },
     "/user/{userID}/card/{cardID}/replace": {
@@ -4756,9 +4642,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "replace"
-        ]
+        "tags": ["replace"]
       }
     },
     "/user/{userID}/card/{itemId}": {
@@ -4833,9 +4717,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "card"
-        ]
+        "tags": ["card"]
       },
       "put": {
         "description": "Update the card details. Allow to change pin code, status, limits, country permissions and the monetary account connected to the card. When the card has been received, it can be also activated through this endpoint.",
@@ -4919,9 +4801,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "card"
-        ]
+        "tags": ["card"]
       }
     },
     "/user/{userID}/certificate-pinned": {
@@ -4990,9 +4870,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "certificate-pinned"
-        ]
+        "tags": ["certificate-pinned"]
       },
       "post": {
         "description": "Pin the certificate chain.",
@@ -5067,9 +4945,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "certificate-pinned"
-        ]
+        "tags": ["certificate-pinned"]
       }
     },
     "/user/{userID}/certificate-pinned/{itemId}": {
@@ -5144,9 +5020,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "certificate-pinned"
-        ]
+        "tags": ["certificate-pinned"]
       },
       "get": {
         "description": "Get the pinned certificate chain with the specified ID.",
@@ -5219,9 +5093,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "certificate-pinned"
-        ]
+        "tags": ["certificate-pinned"]
       }
     },
     "/user/{userID}/challenge-request/{itemId}": {
@@ -5296,9 +5168,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "challenge-request"
-        ]
+        "tags": ["challenge-request"]
       },
       "put": {
         "description": "Endpoint for apps to fetch a challenge request.",
@@ -5382,9 +5252,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "challenge-request"
-        ]
+        "tags": ["challenge-request"]
       }
     },
     "/user/{userID}/chat-conversation/{chat-conversationID}/attachment/{attachmentID}/content": {
@@ -5471,9 +5339,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "content"
-        ]
+        "tags": ["content"]
       }
     },
     "/user/{userID}/company": {
@@ -5542,9 +5408,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "company"
-        ]
+        "tags": ["company"]
       },
       "post": {
         "description": "Create and manage companies.",
@@ -5619,9 +5483,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "company"
-        ]
+        "tags": ["company"]
       }
     },
     "/user/{userID}/company/{itemId}": {
@@ -5696,9 +5558,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "company"
-        ]
+        "tags": ["company"]
       },
       "put": {
         "description": "Create and manage companies.",
@@ -5782,9 +5642,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "company"
-        ]
+        "tags": ["company"]
       }
     },
     "/user/{userID}/confirmation-of-funds": {
@@ -5861,9 +5719,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "confirmation-of-funds"
-        ]
+        "tags": ["confirmation-of-funds"]
       }
     },
     "/user/{userID}/credential-password-ip": {
@@ -5932,9 +5788,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "credential-password-ip"
-        ]
+        "tags": ["credential-password-ip"]
       }
     },
     "/user/{userID}/credential-password-ip/{credential-password-ipID}/ip": {
@@ -6012,9 +5866,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "ip"
-        ]
+        "tags": ["ip"]
       },
       "post": {
         "description": "Manage the IPs which may be used for a credential of a user for server authentication.",
@@ -6098,9 +5950,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "ip"
-        ]
+        "tags": ["ip"]
       }
     },
     "/user/{userID}/credential-password-ip/{credential-password-ipID}/ip/{itemId}": {
@@ -6184,9 +6034,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "ip"
-        ]
+        "tags": ["ip"]
       },
       "put": {
         "description": "Manage the IPs which may be used for a credential of a user for server authentication.",
@@ -6279,9 +6127,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "ip"
-        ]
+        "tags": ["ip"]
       }
     },
     "/user/{userID}/credential-password-ip/{itemId}": {
@@ -6356,9 +6202,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "credential-password-ip"
-        ]
+        "tags": ["credential-password-ip"]
       }
     },
     "/user/{userID}/currency-cloud-beneficiary": {
@@ -6427,9 +6271,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "currency-cloud-beneficiary"
-        ]
+        "tags": ["currency-cloud-beneficiary"]
       },
       "post": {
         "description": "Endpoint to manage CurrencyCloud beneficiaries.",
@@ -6504,9 +6346,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "currency-cloud-beneficiary"
-        ]
+        "tags": ["currency-cloud-beneficiary"]
       }
     },
     "/user/{userID}/currency-cloud-beneficiary-requirement": {
@@ -6575,9 +6415,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "currency-cloud-beneficiary-requirement"
-        ]
+        "tags": ["currency-cloud-beneficiary-requirement"]
       }
     },
     "/user/{userID}/currency-cloud-beneficiary/{itemId}": {
@@ -6652,9 +6490,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "currency-cloud-beneficiary"
-        ]
+        "tags": ["currency-cloud-beneficiary"]
       }
     },
     "/user/{userID}/event": {
@@ -6723,9 +6559,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "event"
-        ]
+        "tags": ["event"]
       }
     },
     "/user/{userID}/event/{itemId}": {
@@ -6800,9 +6634,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "event"
-        ]
+        "tags": ["event"]
       }
     },
     "/user/{userID}/export-annual-overview": {
@@ -6871,9 +6703,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-annual-overview"
-        ]
+        "tags": ["export-annual-overview"]
       },
       "post": {
         "description": "Create a new annual overview for a specific year. An overview can be generated only for a past year.",
@@ -6948,9 +6778,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-annual-overview"
-        ]
+        "tags": ["export-annual-overview"]
       }
     },
     "/user/{userID}/export-annual-overview/{export-annual-overviewID}/content": {
@@ -7028,9 +6856,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "content"
-        ]
+        "tags": ["content"]
       }
     },
     "/user/{userID}/export-annual-overview/{itemId}": {
@@ -7105,9 +6931,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-annual-overview"
-        ]
+        "tags": ["export-annual-overview"]
       },
       "get": {
         "description": "Get an annual overview for a user by its id.",
@@ -7180,9 +7004,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-annual-overview"
-        ]
+        "tags": ["export-annual-overview"]
       }
     },
     "/user/{userID}/feature-announcement/{itemId}": {
@@ -7257,9 +7079,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "feature-announcement"
-        ]
+        "tags": ["feature-announcement"]
       }
     },
     "/user/{userID}/insight-preference-date": {
@@ -7328,9 +7148,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "insight-preference-date"
-        ]
+        "tags": ["insight-preference-date"]
       }
     },
     "/user/{userID}/insights": {
@@ -7399,9 +7217,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "insights"
-        ]
+        "tags": ["insights"]
       }
     },
     "/user/{userID}/insights-search": {
@@ -7470,9 +7286,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "insights-search"
-        ]
+        "tags": ["insights-search"]
       }
     },
     "/user/{userID}/invoice": {
@@ -7541,9 +7355,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "invoice"
-        ]
+        "tags": ["invoice"]
       }
     },
     "/user/{userID}/invoice/{invoiceID}/pdf-content": {
@@ -7621,9 +7433,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "pdf-content"
-        ]
+        "tags": ["pdf-content"]
       }
     },
     "/user/{userID}/invoice/{itemId}": {
@@ -7698,9 +7508,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "invoice"
-        ]
+        "tags": ["invoice"]
       }
     },
     "/user/{userID}/legal-name": {
@@ -7769,9 +7577,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "legal-name"
-        ]
+        "tags": ["legal-name"]
       }
     },
     "/user/{userID}/limit": {
@@ -7840,9 +7646,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "limit"
-        ]
+        "tags": ["limit"]
       }
     },
     "/user/{userID}/monetary-account": {
@@ -7911,9 +7715,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "monetary-account"
-        ]
+        "tags": ["monetary-account"]
       }
     },
     "/user/{userID}/monetary-account-bank": {
@@ -7982,9 +7784,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "monetary-account-bank"
-        ]
+        "tags": ["monetary-account-bank"]
       },
       "post": {
         "description": "Create new MonetaryAccountBank.",
@@ -8059,9 +7859,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "monetary-account-bank"
-        ]
+        "tags": ["monetary-account-bank"]
       }
     },
     "/user/{userID}/monetary-account-bank/{itemId}": {
@@ -8136,9 +7934,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "monetary-account-bank"
-        ]
+        "tags": ["monetary-account-bank"]
       },
       "put": {
         "description": "Update a specific existing MonetaryAccountBank.",
@@ -8222,9 +8018,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "monetary-account-bank"
-        ]
+        "tags": ["monetary-account-bank"]
       }
     },
     "/user/{userID}/monetary-account-external": {
@@ -8293,9 +8087,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "monetary-account-external"
-        ]
+        "tags": ["monetary-account-external"]
       }
     },
     "/user/{userID}/monetary-account-external/{itemId}": {
@@ -8370,9 +8162,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "monetary-account-external"
-        ]
+        "tags": ["monetary-account-external"]
       }
     },
     "/user/{userID}/monetary-account-joint": {
@@ -8441,9 +8231,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "monetary-account-joint"
-        ]
+        "tags": ["monetary-account-joint"]
       },
       "post": {
         "description": "The endpoint for joint monetary accounts.",
@@ -8518,9 +8306,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "monetary-account-joint"
-        ]
+        "tags": ["monetary-account-joint"]
       }
     },
     "/user/{userID}/monetary-account-joint/{itemId}": {
@@ -8595,9 +8381,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "monetary-account-joint"
-        ]
+        "tags": ["monetary-account-joint"]
       },
       "put": {
         "description": "The endpoint for joint monetary accounts.",
@@ -8681,9 +8465,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "monetary-account-joint"
-        ]
+        "tags": ["monetary-account-joint"]
       }
     },
     "/user/{userID}/monetary-account-savings": {
@@ -8752,9 +8534,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "monetary-account-savings"
-        ]
+        "tags": ["monetary-account-savings"]
       },
       "post": {
         "description": "Create new MonetaryAccountSavings.",
@@ -8829,9 +8609,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "monetary-account-savings"
-        ]
+        "tags": ["monetary-account-savings"]
       }
     },
     "/user/{userID}/monetary-account-savings/{itemId}": {
@@ -8906,9 +8684,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "monetary-account-savings"
-        ]
+        "tags": ["monetary-account-savings"]
       },
       "put": {
         "description": "Update a specific existing MonetaryAccountSavings.",
@@ -8992,9 +8768,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "monetary-account-savings"
-        ]
+        "tags": ["monetary-account-savings"]
       }
     },
     "/user/{userID}/monetary-account/{itemId}": {
@@ -9069,9 +8843,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "monetary-account"
-        ]
+        "tags": ["monetary-account"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/attachment": {
@@ -9157,9 +8929,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "attachment"
-        ]
+        "tags": ["attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/attachment/{attachmentID}/content": {
@@ -9246,9 +9016,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "content"
-        ]
+        "tags": ["content"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/bunqme-fundraiser-result/{bunqme-fundraiser-resultID}/note-attachment": {
@@ -9335,9 +9103,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "post": {
         "description": "Used to manage attachment notes.",
@@ -9430,9 +9196,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/bunqme-fundraiser-result/{bunqme-fundraiser-resultID}/note-attachment/{itemId}": {
@@ -9525,9 +9289,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "get": {
         "description": "Used to manage attachment notes.",
@@ -9618,9 +9380,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "put": {
         "description": "Used to manage attachment notes.",
@@ -9722,9 +9482,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/bunqme-fundraiser-result/{bunqme-fundraiser-resultID}/note-text": {
@@ -9811,9 +9569,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "post": {
         "description": "Used to manage text notes.",
@@ -9906,9 +9662,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/bunqme-fundraiser-result/{bunqme-fundraiser-resultID}/note-text/{itemId}": {
@@ -10001,9 +9755,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "get": {
         "description": "Used to manage text notes.",
@@ -10094,9 +9846,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "put": {
         "description": "Used to manage text notes.",
@@ -10198,9 +9948,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/bunqme-fundraiser-result/{itemId}": {
@@ -10284,9 +10032,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "bunqme-fundraiser-result"
-        ]
+        "tags": ["bunqme-fundraiser-result"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/bunqme-tab": {
@@ -10364,9 +10110,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "bunqme-tab"
-        ]
+        "tags": ["bunqme-tab"]
       },
       "post": {
         "description": "bunq.me tabs allows you to create a payment request and share the link through e-mail, chat, etc. Multiple persons are able to respond to the payment request and pay through bunq, iDeal or SOFORT.",
@@ -10450,9 +10194,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "bunqme-tab"
-        ]
+        "tags": ["bunqme-tab"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/bunqme-tab-result-response/{itemId}": {
@@ -10536,9 +10278,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "bunqme-tab-result-response"
-        ]
+        "tags": ["bunqme-tab-result-response"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/bunqme-tab/{itemId}": {
@@ -10622,9 +10362,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "bunqme-tab"
-        ]
+        "tags": ["bunqme-tab"]
       },
       "put": {
         "description": "bunq.me tabs allows you to create a payment request and share the link through e-mail, chat, etc. Multiple persons are able to respond to the payment request and pay through bunq, iDeal or SOFORT.",
@@ -10717,9 +10455,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "bunqme-tab"
-        ]
+        "tags": ["bunqme-tab"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/currency-cloud-payment-quote": {
@@ -10805,9 +10541,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "currency-cloud-payment-quote"
-        ]
+        "tags": ["currency-cloud-payment-quote"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/currency-conversion": {
@@ -10885,9 +10619,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "currency-conversion"
-        ]
+        "tags": ["currency-conversion"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/currency-conversion-quote": {
@@ -10973,9 +10705,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "currency-conversion-quote"
-        ]
+        "tags": ["currency-conversion-quote"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/currency-conversion-quote/{itemId}": {
@@ -11059,9 +10789,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "currency-conversion-quote"
-        ]
+        "tags": ["currency-conversion-quote"]
       },
       "put": {
         "description": "Endpoint to create a quote for currency conversions.",
@@ -11154,9 +10882,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "currency-conversion-quote"
-        ]
+        "tags": ["currency-conversion-quote"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/currency-conversion/{itemId}": {
@@ -11240,9 +10966,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "currency-conversion"
-        ]
+        "tags": ["currency-conversion"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/customer-statement": {
@@ -11320,9 +11044,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "customer-statement"
-        ]
+        "tags": ["customer-statement"]
       },
       "post": {
         "description": "Used to create new and read existing statement exports. Statement exports can be created in either CSV, MT940 or PDF file format.",
@@ -11406,9 +11128,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "customer-statement"
-        ]
+        "tags": ["customer-statement"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/customer-statement/{customer-statementID}/content": {
@@ -11495,9 +11215,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "content"
-        ]
+        "tags": ["content"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/customer-statement/{itemId}": {
@@ -11581,9 +11299,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "customer-statement"
-        ]
+        "tags": ["customer-statement"]
       },
       "get": {
         "description": "Used to create new and read existing statement exports. Statement exports can be created in either CSV, MT940 or PDF file format.",
@@ -11665,9 +11381,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "customer-statement"
-        ]
+        "tags": ["customer-statement"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/draft-payment": {
@@ -11745,9 +11459,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "draft-payment"
-        ]
+        "tags": ["draft-payment"]
       },
       "post": {
         "description": "Create a new DraftPayment.",
@@ -11831,9 +11543,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "draft-payment"
-        ]
+        "tags": ["draft-payment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/draft-payment/{draft-paymentID}/note-attachment": {
@@ -11920,9 +11630,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "post": {
         "description": "Used to manage attachment notes.",
@@ -12015,9 +11723,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/draft-payment/{draft-paymentID}/note-attachment/{itemId}": {
@@ -12110,9 +11816,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "get": {
         "description": "Used to manage attachment notes.",
@@ -12203,9 +11907,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "put": {
         "description": "Used to manage attachment notes.",
@@ -12307,9 +12009,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/draft-payment/{draft-paymentID}/note-text": {
@@ -12396,9 +12096,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "post": {
         "description": "Used to manage text notes.",
@@ -12491,9 +12189,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/draft-payment/{draft-paymentID}/note-text/{itemId}": {
@@ -12586,9 +12282,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "get": {
         "description": "Used to manage text notes.",
@@ -12679,9 +12373,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "put": {
         "description": "Used to manage text notes.",
@@ -12783,9 +12475,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/draft-payment/{itemId}": {
@@ -12869,9 +12559,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "draft-payment"
-        ]
+        "tags": ["draft-payment"]
       },
       "put": {
         "description": "Update a DraftPayment.",
@@ -12964,9 +12652,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "draft-payment"
-        ]
+        "tags": ["draft-payment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/event/{eventID}/statement": {
@@ -13061,9 +12747,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "statement"
-        ]
+        "tags": ["statement"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/event/{eventID}/statement/{itemId}": {
@@ -13156,9 +12840,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "statement"
-        ]
+        "tags": ["statement"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/event/{eventID}/statement/{statementID}/content": {
@@ -13254,9 +12936,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "content"
-        ]
+        "tags": ["content"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/export-rib": {
@@ -13334,9 +13014,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-rib"
-        ]
+        "tags": ["export-rib"]
       },
       "post": {
         "description": "Create a new RIB.",
@@ -13420,9 +13098,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-rib"
-        ]
+        "tags": ["export-rib"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/export-rib/{export-ribID}/content": {
@@ -13509,9 +13185,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "content"
-        ]
+        "tags": ["content"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/export-rib/{itemId}": {
@@ -13595,9 +13269,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-rib"
-        ]
+        "tags": ["export-rib"]
       },
       "get": {
         "description": "Get a RIB for a monetary account by its id.",
@@ -13679,9 +13351,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "export-rib"
-        ]
+        "tags": ["export-rib"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/ideal-merchant-transaction": {
@@ -13759,9 +13429,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "ideal-merchant-transaction"
-        ]
+        "tags": ["ideal-merchant-transaction"]
       },
       "post": {
         "description": "View for requesting iDEAL transactions and polling their status.",
@@ -13845,9 +13513,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "ideal-merchant-transaction"
-        ]
+        "tags": ["ideal-merchant-transaction"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/ideal-merchant-transaction/{ideal-merchant-transactionID}/note-attachment": {
@@ -13934,9 +13600,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "post": {
         "description": "Used to manage attachment notes.",
@@ -14029,9 +13693,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/ideal-merchant-transaction/{ideal-merchant-transactionID}/note-attachment/{itemId}": {
@@ -14124,9 +13786,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "get": {
         "description": "Used to manage attachment notes.",
@@ -14217,9 +13877,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "put": {
         "description": "Used to manage attachment notes.",
@@ -14321,9 +13979,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/ideal-merchant-transaction/{ideal-merchant-transactionID}/note-text": {
@@ -14410,9 +14066,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "post": {
         "description": "Used to manage text notes.",
@@ -14505,9 +14159,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/ideal-merchant-transaction/{ideal-merchant-transactionID}/note-text/{itemId}": {
@@ -14600,9 +14252,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "get": {
         "description": "Used to manage text notes.",
@@ -14693,9 +14343,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "put": {
         "description": "Used to manage text notes.",
@@ -14797,9 +14445,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/ideal-merchant-transaction/{itemId}": {
@@ -14883,9 +14529,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "ideal-merchant-transaction"
-        ]
+        "tags": ["ideal-merchant-transaction"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/invoice": {
@@ -14963,9 +14607,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "invoice"
-        ]
+        "tags": ["invoice"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/invoice/{itemId}": {
@@ -15049,9 +14691,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "invoice"
-        ]
+        "tags": ["invoice"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/mastercard-action": {
@@ -15129,9 +14769,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "mastercard-action"
-        ]
+        "tags": ["mastercard-action"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/mastercard-action/{itemId}": {
@@ -15215,9 +14853,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "mastercard-action"
-        ]
+        "tags": ["mastercard-action"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/mastercard-action/{mastercard-actionID}/note-attachment": {
@@ -15304,9 +14940,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "post": {
         "description": "Used to manage attachment notes.",
@@ -15399,9 +15033,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/mastercard-action/{mastercard-actionID}/note-attachment/{itemId}": {
@@ -15494,9 +15126,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "get": {
         "description": "Used to manage attachment notes.",
@@ -15587,9 +15217,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "put": {
         "description": "Used to manage attachment notes.",
@@ -15691,9 +15319,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/mastercard-action/{mastercard-actionID}/note-text": {
@@ -15780,9 +15406,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "post": {
         "description": "Used to manage text notes.",
@@ -15875,9 +15499,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/mastercard-action/{mastercard-actionID}/note-text/{itemId}": {
@@ -15970,9 +15592,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "get": {
         "description": "Used to manage text notes.",
@@ -16063,9 +15683,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "put": {
         "description": "Used to manage text notes.",
@@ -16167,9 +15785,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/mastercard-action/{mastercard-actionID}/payment": {
@@ -16256,9 +15872,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment"
-        ]
+        "tags": ["payment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/notification-filter-url": {
@@ -16336,9 +15950,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "notification-filter-url"
-        ]
+        "tags": ["notification-filter-url"]
       },
       "post": {
         "description": "Manage the url notification filters for a user.",
@@ -16422,9 +16034,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "notification-filter-url"
-        ]
+        "tags": ["notification-filter-url"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment": {
@@ -16502,9 +16112,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment"
-        ]
+        "tags": ["payment"]
       },
       "post": {
         "description": "Create a new Payment.",
@@ -16588,9 +16196,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment"
-        ]
+        "tags": ["payment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment-auto-allocate": {
@@ -16668,9 +16274,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment-auto-allocate"
-        ]
+        "tags": ["payment-auto-allocate"]
       },
       "post": {
         "description": "Manage a users automatic payment auto allocated settings.",
@@ -16754,9 +16358,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment-auto-allocate"
-        ]
+        "tags": ["payment-auto-allocate"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment-auto-allocate/{itemId}": {
@@ -16840,9 +16442,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment-auto-allocate"
-        ]
+        "tags": ["payment-auto-allocate"]
       },
       "get": {
         "description": "Manage a users automatic payment auto allocated settings.",
@@ -16924,9 +16524,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment-auto-allocate"
-        ]
+        "tags": ["payment-auto-allocate"]
       },
       "put": {
         "description": "Manage a users automatic payment auto allocated settings.",
@@ -17019,9 +16617,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment-auto-allocate"
-        ]
+        "tags": ["payment-auto-allocate"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment-auto-allocate/{payment-auto-allocateID}/definition": {
@@ -17108,9 +16704,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "definition"
-        ]
+        "tags": ["definition"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment-auto-allocate/{payment-auto-allocateID}/instance": {
@@ -17197,9 +16791,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "instance"
-        ]
+        "tags": ["instance"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment-auto-allocate/{payment-auto-allocateID}/instance/{itemId}": {
@@ -17292,9 +16884,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "instance"
-        ]
+        "tags": ["instance"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment-batch": {
@@ -17372,9 +16962,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment-batch"
-        ]
+        "tags": ["payment-batch"]
       },
       "post": {
         "description": "Create a payment batch by sending an array of single payment objects, that will become part of the batch.",
@@ -17458,9 +17046,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment-batch"
-        ]
+        "tags": ["payment-batch"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment-batch/{itemId}": {
@@ -17544,9 +17130,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment-batch"
-        ]
+        "tags": ["payment-batch"]
       },
       "put": {
         "description": "Revoke a bunq.to payment batch. The status of all the payments will be set to REVOKED.",
@@ -17639,9 +17223,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment-batch"
-        ]
+        "tags": ["payment-batch"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment-batch/{payment-batchID}/note-attachment": {
@@ -17728,9 +17310,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "post": {
         "description": "Used to manage attachment notes.",
@@ -17823,9 +17403,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment-batch/{payment-batchID}/note-attachment/{itemId}": {
@@ -17918,9 +17496,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "get": {
         "description": "Used to manage attachment notes.",
@@ -18011,9 +17587,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "put": {
         "description": "Used to manage attachment notes.",
@@ -18115,9 +17689,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment-batch/{payment-batchID}/note-text": {
@@ -18204,9 +17776,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "post": {
         "description": "Used to manage text notes.",
@@ -18299,9 +17869,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment-batch/{payment-batchID}/note-text/{itemId}": {
@@ -18394,9 +17962,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "get": {
         "description": "Used to manage text notes.",
@@ -18487,9 +18053,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "put": {
         "description": "Used to manage text notes.",
@@ -18591,9 +18155,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment/{itemId}": {
@@ -18677,9 +18239,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment"
-        ]
+        "tags": ["payment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment/{paymentID}/note-attachment": {
@@ -18766,9 +18326,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "post": {
         "description": "Used to manage attachment notes.",
@@ -18861,9 +18419,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment/{paymentID}/note-attachment/{itemId}": {
@@ -18956,9 +18512,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "get": {
         "description": "Used to manage attachment notes.",
@@ -19049,9 +18603,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "put": {
         "description": "Used to manage attachment notes.",
@@ -19153,9 +18705,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment/{paymentID}/note-text": {
@@ -19242,9 +18792,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "post": {
         "description": "Used to manage text notes.",
@@ -19337,9 +18885,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/payment/{paymentID}/note-text/{itemId}": {
@@ -19432,9 +18978,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "get": {
         "description": "Used to manage text notes.",
@@ -19525,9 +19069,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "put": {
         "description": "Used to manage text notes.",
@@ -19629,9 +19171,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-inquiry": {
@@ -19709,9 +19249,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "request-inquiry"
-        ]
+        "tags": ["request-inquiry"]
       },
       "post": {
         "description": "Create a new payment request.",
@@ -19795,9 +19333,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "request-inquiry"
-        ]
+        "tags": ["request-inquiry"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-inquiry-batch": {
@@ -19875,9 +19411,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "request-inquiry-batch"
-        ]
+        "tags": ["request-inquiry-batch"]
       },
       "post": {
         "description": "Create a request batch by sending an array of single request objects, that will become part of the batch.",
@@ -19961,9 +19495,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "request-inquiry-batch"
-        ]
+        "tags": ["request-inquiry-batch"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-inquiry-batch/{itemId}": {
@@ -20047,9 +19579,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "request-inquiry-batch"
-        ]
+        "tags": ["request-inquiry-batch"]
       },
       "put": {
         "description": "Revoke a request batch. The status of all the requests will be set to REVOKED.",
@@ -20142,9 +19672,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "request-inquiry-batch"
-        ]
+        "tags": ["request-inquiry-batch"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-inquiry-batch/{request-inquiry-batchID}/note-attachment": {
@@ -20231,9 +19759,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "post": {
         "description": "Used to manage attachment notes.",
@@ -20326,9 +19852,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-inquiry-batch/{request-inquiry-batchID}/note-attachment/{itemId}": {
@@ -20421,9 +19945,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "get": {
         "description": "Used to manage attachment notes.",
@@ -20514,9 +20036,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "put": {
         "description": "Used to manage attachment notes.",
@@ -20618,9 +20138,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-inquiry-batch/{request-inquiry-batchID}/note-text": {
@@ -20707,9 +20225,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "post": {
         "description": "Used to manage text notes.",
@@ -20802,9 +20318,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-inquiry-batch/{request-inquiry-batchID}/note-text/{itemId}": {
@@ -20897,9 +20411,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "get": {
         "description": "Used to manage text notes.",
@@ -20990,9 +20502,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "put": {
         "description": "Used to manage text notes.",
@@ -21094,9 +20604,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-inquiry/{itemId}": {
@@ -21180,9 +20688,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "request-inquiry"
-        ]
+        "tags": ["request-inquiry"]
       },
       "put": {
         "description": "Revoke a request for payment, by updating the status to REVOKED.",
@@ -21275,9 +20781,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "request-inquiry"
-        ]
+        "tags": ["request-inquiry"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-inquiry/{request-inquiryID}/note-attachment": {
@@ -21364,9 +20868,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "post": {
         "description": "Used to manage attachment notes.",
@@ -21459,9 +20961,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-inquiry/{request-inquiryID}/note-attachment/{itemId}": {
@@ -21554,9 +21054,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "get": {
         "description": "Used to manage attachment notes.",
@@ -21647,9 +21145,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "put": {
         "description": "Used to manage attachment notes.",
@@ -21751,9 +21247,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-inquiry/{request-inquiryID}/note-text": {
@@ -21840,9 +21334,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "post": {
         "description": "Used to manage text notes.",
@@ -21935,9 +21427,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-inquiry/{request-inquiryID}/note-text/{itemId}": {
@@ -22030,9 +21520,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "get": {
         "description": "Used to manage text notes.",
@@ -22123,9 +21611,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "put": {
         "description": "Used to manage text notes.",
@@ -22227,9 +21713,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-response": {
@@ -22307,9 +21791,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "request-response"
-        ]
+        "tags": ["request-response"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-response/{itemId}": {
@@ -22393,9 +21875,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "request-response"
-        ]
+        "tags": ["request-response"]
       },
       "put": {
         "description": "Update the status to accept or reject the RequestResponse.",
@@ -22488,9 +21968,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "request-response"
-        ]
+        "tags": ["request-response"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-response/{request-responseID}/note-attachment": {
@@ -22577,9 +22055,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "post": {
         "description": "Used to manage attachment notes.",
@@ -22672,9 +22148,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-response/{request-responseID}/note-attachment/{itemId}": {
@@ -22767,9 +22241,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "get": {
         "description": "Used to manage attachment notes.",
@@ -22860,9 +22332,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "put": {
         "description": "Used to manage attachment notes.",
@@ -22964,9 +22434,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-response/{request-responseID}/note-text": {
@@ -23053,9 +22521,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "post": {
         "description": "Used to manage text notes.",
@@ -23148,9 +22614,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/request-response/{request-responseID}/note-text/{itemId}": {
@@ -23243,9 +22707,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "get": {
         "description": "Used to manage text notes.",
@@ -23336,9 +22798,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "put": {
         "description": "Used to manage text notes.",
@@ -23440,9 +22900,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule": {
@@ -23520,9 +22978,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "schedule"
-        ]
+        "tags": ["schedule"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule-payment": {
@@ -23600,9 +23056,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "schedule-payment"
-        ]
+        "tags": ["schedule-payment"]
       },
       "post": {
         "description": "Endpoint for schedule payments.",
@@ -23686,9 +23140,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "schedule-payment"
-        ]
+        "tags": ["schedule-payment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule-payment-batch": {
@@ -23774,9 +23226,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "schedule-payment-batch"
-        ]
+        "tags": ["schedule-payment-batch"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule-payment-batch/{itemId}": {
@@ -23860,9 +23310,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "schedule-payment-batch"
-        ]
+        "tags": ["schedule-payment-batch"]
       },
       "get": {
         "description": "Endpoint for schedule payment batches.",
@@ -23944,9 +23392,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "schedule-payment-batch"
-        ]
+        "tags": ["schedule-payment-batch"]
       },
       "put": {
         "description": "Endpoint for schedule payment batches.",
@@ -24039,9 +23485,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "schedule-payment-batch"
-        ]
+        "tags": ["schedule-payment-batch"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule-payment-batch/{schedule-payment-batchID}/note-attachment": {
@@ -24128,9 +23572,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "post": {
         "description": "Used to manage attachment notes.",
@@ -24223,9 +23665,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule-payment-batch/{schedule-payment-batchID}/note-attachment/{itemId}": {
@@ -24318,9 +23758,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "get": {
         "description": "Used to manage attachment notes.",
@@ -24411,9 +23849,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "put": {
         "description": "Used to manage attachment notes.",
@@ -24515,9 +23951,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule-payment-batch/{schedule-payment-batchID}/note-text": {
@@ -24604,9 +24038,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "post": {
         "description": "Used to manage text notes.",
@@ -24699,9 +24131,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule-payment-batch/{schedule-payment-batchID}/note-text/{itemId}": {
@@ -24794,9 +24224,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "get": {
         "description": "Used to manage text notes.",
@@ -24887,9 +24315,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "put": {
         "description": "Used to manage text notes.",
@@ -24991,9 +24417,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule-payment/{itemId}": {
@@ -25077,9 +24501,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "schedule-payment"
-        ]
+        "tags": ["schedule-payment"]
       },
       "get": {
         "description": "Endpoint for schedule payments.",
@@ -25161,9 +24583,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "schedule-payment"
-        ]
+        "tags": ["schedule-payment"]
       },
       "put": {
         "description": "Endpoint for schedule payments.",
@@ -25256,9 +24676,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "schedule-payment"
-        ]
+        "tags": ["schedule-payment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule-payment/{schedule-paymentID}/note-attachment": {
@@ -25345,9 +24763,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "post": {
         "description": "Used to manage attachment notes.",
@@ -25440,9 +24856,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule-payment/{schedule-paymentID}/note-attachment/{itemId}": {
@@ -25535,9 +24949,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "get": {
         "description": "Used to manage attachment notes.",
@@ -25628,9 +25040,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "put": {
         "description": "Used to manage attachment notes.",
@@ -25732,9 +25142,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule-payment/{schedule-paymentID}/note-text": {
@@ -25821,9 +25229,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "post": {
         "description": "Used to manage text notes.",
@@ -25916,9 +25322,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule-payment/{schedule-paymentID}/note-text/{itemId}": {
@@ -26011,9 +25415,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "get": {
         "description": "Used to manage text notes.",
@@ -26104,9 +25506,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "put": {
         "description": "Used to manage text notes.",
@@ -26208,9 +25608,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule/{itemId}": {
@@ -26294,9 +25692,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "schedule"
-        ]
+        "tags": ["schedule"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule/{scheduleID}/schedule-instance": {
@@ -26383,9 +25779,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "schedule-instance"
-        ]
+        "tags": ["schedule-instance"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule/{scheduleID}/schedule-instance/{itemId}": {
@@ -26478,9 +25872,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "schedule-instance"
-        ]
+        "tags": ["schedule-instance"]
       },
       "put": {
         "description": "view for reading, updating and listing the scheduled instance.",
@@ -26582,9 +25974,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "schedule-instance"
-        ]
+        "tags": ["schedule-instance"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule/{scheduleID}/schedule-instance/{schedule-instanceID}/note-attachment": {
@@ -26680,9 +26070,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "post": {
         "description": "Used to manage attachment notes.",
@@ -26784,9 +26172,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule/{scheduleID}/schedule-instance/{schedule-instanceID}/note-attachment/{itemId}": {
@@ -26888,9 +26274,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "get": {
         "description": "Used to manage attachment notes.",
@@ -26990,9 +26374,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "put": {
         "description": "Used to manage attachment notes.",
@@ -27103,9 +26485,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule/{scheduleID}/schedule-instance/{schedule-instanceID}/note-text": {
@@ -27201,9 +26581,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "post": {
         "description": "Used to manage text notes.",
@@ -27305,9 +26683,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/schedule/{scheduleID}/schedule-instance/{schedule-instanceID}/note-text/{itemId}": {
@@ -27409,9 +26785,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "get": {
         "description": "Used to manage text notes.",
@@ -27511,9 +26885,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "put": {
         "description": "Used to manage text notes.",
@@ -27624,9 +26996,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/share-invite-monetary-account-inquiry": {
@@ -27704,9 +27074,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "share-invite-monetary-account-inquiry"
-        ]
+        "tags": ["share-invite-monetary-account-inquiry"]
       },
       "post": {
         "description": "[DEPRECATED - use /share-invite-monetary-account-response] Create a new share inquiry for a monetary account, specifying the permission the other bunq user will have on it.",
@@ -27790,9 +27158,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "share-invite-monetary-account-inquiry"
-        ]
+        "tags": ["share-invite-monetary-account-inquiry"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/share-invite-monetary-account-inquiry/{itemId}": {
@@ -27876,9 +27242,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "share-invite-monetary-account-inquiry"
-        ]
+        "tags": ["share-invite-monetary-account-inquiry"]
       },
       "put": {
         "description": "[DEPRECATED - use /share-invite-monetary-account-response] Update the details of a share. This includes updating status (revoking or cancelling it), granted permission and validity period of this share.",
@@ -27971,9 +27335,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "share-invite-monetary-account-inquiry"
-        ]
+        "tags": ["share-invite-monetary-account-inquiry"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/sofort-merchant-transaction": {
@@ -28051,9 +27413,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "sofort-merchant-transaction"
-        ]
+        "tags": ["sofort-merchant-transaction"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/sofort-merchant-transaction/{itemId}": {
@@ -28137,9 +27497,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "sofort-merchant-transaction"
-        ]
+        "tags": ["sofort-merchant-transaction"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/sofort-merchant-transaction/{sofort-merchant-transactionID}/note-attachment": {
@@ -28226,9 +27584,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "post": {
         "description": "Used to manage attachment notes.",
@@ -28321,9 +27677,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/sofort-merchant-transaction/{sofort-merchant-transactionID}/note-attachment/{itemId}": {
@@ -28416,9 +27770,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "get": {
         "description": "Used to manage attachment notes.",
@@ -28509,9 +27861,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "put": {
         "description": "Used to manage attachment notes.",
@@ -28613,9 +27963,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/sofort-merchant-transaction/{sofort-merchant-transactionID}/note-text": {
@@ -28702,9 +28050,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "post": {
         "description": "Used to manage text notes.",
@@ -28797,9 +28143,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/sofort-merchant-transaction/{sofort-merchant-transactionID}/note-text/{itemId}": {
@@ -28892,9 +28236,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "get": {
         "description": "Used to manage text notes.",
@@ -28985,9 +28327,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "put": {
         "description": "Used to manage text notes.",
@@ -29089,9 +28429,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/switch-service-payment/{itemId}": {
@@ -29175,9 +28513,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "switch-service-payment"
-        ]
+        "tags": ["switch-service-payment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/switch-service-payment/{switch-service-paymentID}/note-attachment": {
@@ -29264,9 +28600,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "post": {
         "description": "Used to manage attachment notes.",
@@ -29359,9 +28693,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/switch-service-payment/{switch-service-paymentID}/note-attachment/{itemId}": {
@@ -29454,9 +28786,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "get": {
         "description": "Used to manage attachment notes.",
@@ -29547,9 +28877,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "put": {
         "description": "Used to manage attachment notes.",
@@ -29651,9 +28979,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/switch-service-payment/{switch-service-paymentID}/note-text": {
@@ -29740,9 +29066,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "post": {
         "description": "Used to manage text notes.",
@@ -29835,9 +29159,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/switch-service-payment/{switch-service-paymentID}/note-text/{itemId}": {
@@ -29930,9 +29252,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "get": {
         "description": "Used to manage text notes.",
@@ -30023,9 +29343,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "put": {
         "description": "Used to manage text notes.",
@@ -30127,9 +29445,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/translink-transaction": {
@@ -30207,9 +29523,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "translink-transaction"
-        ]
+        "tags": ["translink-transaction"]
       },
       "post": {
         "description": "Used to create translink transactions.",
@@ -30293,9 +29607,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "translink-transaction"
-        ]
+        "tags": ["translink-transaction"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/translink-transaction/{itemId}": {
@@ -30379,9 +29691,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "translink-transaction"
-        ]
+        "tags": ["translink-transaction"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/whitelist-sdd": {
@@ -30459,9 +29769,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "whitelist-sdd"
-        ]
+        "tags": ["whitelist-sdd"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/whitelist-sdd/{itemId}": {
@@ -30545,9 +29853,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "whitelist-sdd"
-        ]
+        "tags": ["whitelist-sdd"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/whitelist/{whitelistID}/whitelist-result/{whitelist-resultID}/note-attachment": {
@@ -30643,9 +29949,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "post": {
         "description": "Used to manage attachment notes.",
@@ -30747,9 +30051,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/whitelist/{whitelistID}/whitelist-result/{whitelist-resultID}/note-attachment/{itemId}": {
@@ -30851,9 +30153,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "get": {
         "description": "Used to manage attachment notes.",
@@ -30953,9 +30253,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       },
       "put": {
         "description": "Used to manage attachment notes.",
@@ -31066,9 +30364,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-attachment"
-        ]
+        "tags": ["note-attachment"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/whitelist/{whitelistID}/whitelist-result/{whitelist-resultID}/note-text": {
@@ -31164,9 +30460,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "post": {
         "description": "Used to manage text notes.",
@@ -31268,9 +30562,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/monetary-account/{monetary-accountID}/whitelist/{whitelistID}/whitelist-result/{whitelist-resultID}/note-text/{itemId}": {
@@ -31372,9 +30664,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "get": {
         "description": "Used to manage text notes.",
@@ -31474,9 +30764,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       },
       "put": {
         "description": "Used to manage text notes.",
@@ -31587,9 +30875,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "note-text"
-        ]
+        "tags": ["note-text"]
       }
     },
     "/user/{userID}/notification-filter-email": {
@@ -31658,9 +30944,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "notification-filter-email"
-        ]
+        "tags": ["notification-filter-email"]
       },
       "post": {
         "description": "Manage the email notification filters for a user.",
@@ -31735,9 +31019,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "notification-filter-email"
-        ]
+        "tags": ["notification-filter-email"]
       }
     },
     "/user/{userID}/notification-filter-push": {
@@ -31806,9 +31088,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "notification-filter-push"
-        ]
+        "tags": ["notification-filter-push"]
       },
       "post": {
         "description": "Manage the push notification filters for a user.",
@@ -31883,9 +31163,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "notification-filter-push"
-        ]
+        "tags": ["notification-filter-push"]
       }
     },
     "/user/{userID}/notification-filter-url": {
@@ -31954,9 +31232,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "notification-filter-url"
-        ]
+        "tags": ["notification-filter-url"]
       },
       "post": {
         "description": "Manage the url notification filters for a user.",
@@ -32031,9 +31307,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "notification-filter-url"
-        ]
+        "tags": ["notification-filter-url"]
       }
     },
     "/user/{userID}/oauth-client": {
@@ -32102,9 +31376,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "oauth-client"
-        ]
+        "tags": ["oauth-client"]
       },
       "post": {
         "description": "Used for managing OAuth Clients.",
@@ -32179,9 +31451,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "oauth-client"
-        ]
+        "tags": ["oauth-client"]
       }
     },
     "/user/{userID}/oauth-client/{itemId}": {
@@ -32256,9 +31526,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "oauth-client"
-        ]
+        "tags": ["oauth-client"]
       },
       "put": {
         "description": "Used for managing OAuth Clients.",
@@ -32342,9 +31610,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "oauth-client"
-        ]
+        "tags": ["oauth-client"]
       }
     },
     "/user/{userID}/oauth-client/{oauth-clientID}/callback-url": {
@@ -32422,9 +31688,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "callback-url"
-        ]
+        "tags": ["callback-url"]
       },
       "post": {
         "description": "Used for managing OAuth Client Callback URLs.",
@@ -32508,9 +31772,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "callback-url"
-        ]
+        "tags": ["callback-url"]
       }
     },
     "/user/{userID}/oauth-client/{oauth-clientID}/callback-url/{itemId}": {
@@ -32594,9 +31856,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "callback-url"
-        ]
+        "tags": ["callback-url"]
       },
       "get": {
         "description": "Used for managing OAuth Client Callback URLs.",
@@ -32678,9 +31938,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "callback-url"
-        ]
+        "tags": ["callback-url"]
       },
       "put": {
         "description": "Used for managing OAuth Client Callback URLs.",
@@ -32773,9 +32031,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "callback-url"
-        ]
+        "tags": ["callback-url"]
       }
     },
     "/user/{userID}/payment-auto-allocate": {
@@ -32844,9 +32100,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment-auto-allocate"
-        ]
+        "tags": ["payment-auto-allocate"]
       }
     },
     "/user/{userID}/payment-service-provider-draft-payment": {
@@ -32915,9 +32169,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment-service-provider-draft-payment"
-        ]
+        "tags": ["payment-service-provider-draft-payment"]
       },
       "post": {
         "description": "Manage the PaymentServiceProviderDraftPayment's for a PISP.",
@@ -32992,9 +32244,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment-service-provider-draft-payment"
-        ]
+        "tags": ["payment-service-provider-draft-payment"]
       }
     },
     "/user/{userID}/payment-service-provider-draft-payment/{itemId}": {
@@ -33069,9 +32319,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment-service-provider-draft-payment"
-        ]
+        "tags": ["payment-service-provider-draft-payment"]
       },
       "put": {
         "description": "Manage the PaymentServiceProviderDraftPayment's for a PISP.",
@@ -33155,9 +32403,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "payment-service-provider-draft-payment"
-        ]
+        "tags": ["payment-service-provider-draft-payment"]
       }
     },
     "/user/{userID}/registry/{registryID}/registry-settlement": {
@@ -33235,9 +32481,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "registry-settlement"
-        ]
+        "tags": ["registry-settlement"]
       },
       "post": {
         "description": "Create a new Slice group settlement.",
@@ -33321,9 +32565,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "registry-settlement"
-        ]
+        "tags": ["registry-settlement"]
       }
     },
     "/user/{userID}/registry/{registryID}/registry-settlement/{itemId}": {
@@ -33407,9 +32649,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "registry-settlement"
-        ]
+        "tags": ["registry-settlement"]
       }
     },
     "/user/{userID}/reward": {
@@ -33478,9 +32718,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "reward"
-        ]
+        "tags": ["reward"]
       }
     },
     "/user/{userID}/reward-recipient": {
@@ -33549,9 +32787,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "reward-recipient"
-        ]
+        "tags": ["reward-recipient"]
       }
     },
     "/user/{userID}/reward-recipient/{itemId}": {
@@ -33626,9 +32862,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "reward-recipient"
-        ]
+        "tags": ["reward-recipient"]
       }
     },
     "/user/{userID}/reward-sender": {
@@ -33697,9 +32931,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "reward-sender"
-        ]
+        "tags": ["reward-sender"]
       }
     },
     "/user/{userID}/reward-sender/{itemId}": {
@@ -33774,9 +33006,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "reward-sender"
-        ]
+        "tags": ["reward-sender"]
       }
     },
     "/user/{userID}/reward/{itemId}": {
@@ -33851,9 +33081,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "reward"
-        ]
+        "tags": ["reward"]
       }
     },
     "/user/{userID}/schedule": {
@@ -33922,9 +33150,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "schedule"
-        ]
+        "tags": ["schedule"]
       }
     },
     "/user/{userID}/share-invite-monetary-account-response": {
@@ -33993,9 +33219,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "share-invite-monetary-account-response"
-        ]
+        "tags": ["share-invite-monetary-account-response"]
       }
     },
     "/user/{userID}/share-invite-monetary-account-response/{itemId}": {
@@ -34070,9 +33294,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "share-invite-monetary-account-response"
-        ]
+        "tags": ["share-invite-monetary-account-response"]
       },
       "put": {
         "description": "Accept or reject a share a user was invited to.",
@@ -34156,9 +33378,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "share-invite-monetary-account-response"
-        ]
+        "tags": ["share-invite-monetary-account-response"]
       }
     },
     "/user/{userID}/token-qr-request-ideal": {
@@ -34235,9 +33455,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "token-qr-request-ideal"
-        ]
+        "tags": ["token-qr-request-ideal"]
       }
     },
     "/user/{userID}/token-qr-request-sofort": {
@@ -34314,9 +33532,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "token-qr-request-sofort"
-        ]
+        "tags": ["token-qr-request-sofort"]
       }
     },
     "/user/{userID}/transferwise-currency": {
@@ -34385,9 +33601,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-currency"
-        ]
+        "tags": ["transferwise-currency"]
       }
     },
     "/user/{userID}/transferwise-quote": {
@@ -34464,9 +33678,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-quote"
-        ]
+        "tags": ["transferwise-quote"]
       }
     },
     "/user/{userID}/transferwise-quote-temporary": {
@@ -34543,9 +33755,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-quote-temporary"
-        ]
+        "tags": ["transferwise-quote-temporary"]
       }
     },
     "/user/{userID}/transferwise-quote-temporary/{itemId}": {
@@ -34620,9 +33830,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-quote-temporary"
-        ]
+        "tags": ["transferwise-quote-temporary"]
       }
     },
     "/user/{userID}/transferwise-quote/{itemId}": {
@@ -34697,9 +33905,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-quote"
-        ]
+        "tags": ["transferwise-quote"]
       }
     },
     "/user/{userID}/transferwise-quote/{transferwise-quoteID}/transferwise-recipient": {
@@ -34777,9 +33983,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-recipient"
-        ]
+        "tags": ["transferwise-recipient"]
       },
       "post": {
         "description": "Used to manage recipient accounts with Transferwise.",
@@ -34863,9 +34067,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-recipient"
-        ]
+        "tags": ["transferwise-recipient"]
       }
     },
     "/user/{userID}/transferwise-quote/{transferwise-quoteID}/transferwise-recipient-requirement": {
@@ -34943,9 +34145,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-recipient-requirement"
-        ]
+        "tags": ["transferwise-recipient-requirement"]
       },
       "post": {
         "description": "Used to determine the recipient account requirements for Transferwise transfers.",
@@ -35029,9 +34229,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-recipient-requirement"
-        ]
+        "tags": ["transferwise-recipient-requirement"]
       }
     },
     "/user/{userID}/transferwise-quote/{transferwise-quoteID}/transferwise-recipient/{itemId}": {
@@ -35115,9 +34313,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-recipient"
-        ]
+        "tags": ["transferwise-recipient"]
       },
       "get": {
         "description": "Used to manage recipient accounts with Transferwise.",
@@ -35199,9 +34395,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-recipient"
-        ]
+        "tags": ["transferwise-recipient"]
       }
     },
     "/user/{userID}/transferwise-quote/{transferwise-quoteID}/transferwise-transfer": {
@@ -35279,9 +34473,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-transfer"
-        ]
+        "tags": ["transferwise-transfer"]
       },
       "post": {
         "description": "Used to create Transferwise payments.",
@@ -35365,9 +34557,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-transfer"
-        ]
+        "tags": ["transferwise-transfer"]
       }
     },
     "/user/{userID}/transferwise-quote/{transferwise-quoteID}/transferwise-transfer-requirement": {
@@ -35453,9 +34643,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-transfer-requirement"
-        ]
+        "tags": ["transferwise-transfer-requirement"]
       }
     },
     "/user/{userID}/transferwise-quote/{transferwise-quoteID}/transferwise-transfer/{itemId}": {
@@ -35539,9 +34727,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-transfer"
-        ]
+        "tags": ["transferwise-transfer"]
       }
     },
     "/user/{userID}/transferwise-user": {
@@ -35610,9 +34796,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-user"
-        ]
+        "tags": ["transferwise-user"]
       },
       "post": {
         "description": "Used to manage Transferwise users.",
@@ -35687,9 +34871,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "transferwise-user"
-        ]
+        "tags": ["transferwise-user"]
       }
     },
     "/user/{userID}/tree-progress": {
@@ -35758,9 +34940,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "tree-progress"
-        ]
+        "tags": ["tree-progress"]
       }
     },
     "/user/{userID}/whitelist-sdd": {
@@ -35829,9 +35009,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "whitelist-sdd"
-        ]
+        "tags": ["whitelist-sdd"]
       }
     },
     "/user/{userID}/whitelist-sdd-one-off": {
@@ -35900,9 +35078,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "whitelist-sdd-one-off"
-        ]
+        "tags": ["whitelist-sdd-one-off"]
       },
       "post": {
         "description": "Create a new one off SDD whitelist entry.",
@@ -35977,9 +35153,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "whitelist-sdd-one-off"
-        ]
+        "tags": ["whitelist-sdd-one-off"]
       }
     },
     "/user/{userID}/whitelist-sdd-one-off/{itemId}": {
@@ -36054,9 +35228,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "whitelist-sdd-one-off"
-        ]
+        "tags": ["whitelist-sdd-one-off"]
       },
       "get": {
         "description": "Get a specific one off SDD whitelist entry.",
@@ -36129,9 +35301,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "whitelist-sdd-one-off"
-        ]
+        "tags": ["whitelist-sdd-one-off"]
       },
       "put": {
         "description": "Whitelist an one off SDD so that when another one off SDD from the creditor comes in, it is automatically accepted.",
@@ -36215,9 +35385,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "whitelist-sdd-one-off"
-        ]
+        "tags": ["whitelist-sdd-one-off"]
       }
     },
     "/user/{userID}/whitelist-sdd-recurring": {
@@ -36286,9 +35454,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "whitelist-sdd-recurring"
-        ]
+        "tags": ["whitelist-sdd-recurring"]
       },
       "post": {
         "description": "Create a new recurring SDD whitelist entry.",
@@ -36363,9 +35529,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "whitelist-sdd-recurring"
-        ]
+        "tags": ["whitelist-sdd-recurring"]
       }
     },
     "/user/{userID}/whitelist-sdd-recurring/{itemId}": {
@@ -36440,9 +35604,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "whitelist-sdd-recurring"
-        ]
+        "tags": ["whitelist-sdd-recurring"]
       },
       "get": {
         "description": "Get a specific recurring SDD whitelist entry.",
@@ -36515,9 +35677,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "whitelist-sdd-recurring"
-        ]
+        "tags": ["whitelist-sdd-recurring"]
       },
       "put": {
         "description": "Whitelist a recurring SDD so that when another recurrence comes in, it is automatically accepted.",
@@ -36601,9 +35761,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "whitelist-sdd-recurring"
-        ]
+        "tags": ["whitelist-sdd-recurring"]
       }
     },
     "/user/{userID}/whitelist-sdd/{itemId}": {
@@ -36678,9 +35836,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "whitelist-sdd"
-        ]
+        "tags": ["whitelist-sdd"]
       }
     }
   },
@@ -37930,9 +37086,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "bunqme_tab_entry"
-        ],
+        "required": ["bunqme_tab_entry"],
         "type": "object"
       },
       "BunqMeTabCreate": {
@@ -38316,9 +37470,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "cards"
-        ],
+        "required": ["cards"],
         "type": "object"
       },
       "CardBatchCreate": {
@@ -38379,9 +37531,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "type": "object"
       },
       "CardBatchReplace": {
@@ -38396,9 +37546,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "cards"
-        ],
+        "required": ["cards"],
         "type": "object"
       },
       "CardBatchReplaceCreate": {
@@ -38445,9 +37593,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "type": "object"
       },
       "CardCountryPermission": {
@@ -38534,12 +37680,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "second_line",
-          "name_on_card",
-          "type",
-          "product_type"
-        ],
+        "required": ["second_line", "name_on_card", "type", "product_type"],
         "type": "object"
       },
       "CardCreditCreate": {
@@ -38615,12 +37756,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "second_line",
-          "name_on_card",
-          "type",
-          "product_type"
-        ],
+        "required": ["second_line", "name_on_card", "type", "product_type"],
         "type": "object"
       },
       "CardDebitCreate": {
@@ -39251,9 +38387,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "certificate_chain"
-        ],
+        "required": ["certificate_chain"],
         "type": "object"
       },
       "CertificatePinnedCreate": {
@@ -39397,14 +38531,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "name",
-          "address_main",
-          "address_postal",
-          "country",
-          "legal_form",
-          "subscription_type"
-        ],
+        "required": ["name", "address_main", "address_postal", "country", "legal_form", "subscription_type"],
         "type": "object"
       },
       "CompanyCreate": {
@@ -39489,10 +38616,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "pointer_iban",
-          "amount"
-        ],
+        "required": ["pointer_iban", "amount"],
         "type": "object"
       },
       "ConfirmationOfFundsCreate": {
@@ -39549,14 +38673,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "name",
-          "country",
-          "currency",
-          "payment_type",
-          "legal_entity_type",
-          "all_field"
-        ],
+        "required": ["name", "country", "currency", "payment_type", "legal_entity_type", "all_field"],
         "type": "object"
       },
       "CurrencyCloudBeneficiaryCreate": {
@@ -39732,9 +38849,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "pointers"
-        ],
+        "required": ["pointers"],
         "type": "object"
       },
       "CurrencyCloudPaymentQuoteCreate": {
@@ -39872,12 +38987,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "amount",
-          "currency_source",
-          "currency_target",
-          "counterparty_alias"
-        ],
+        "required": ["amount", "currency_source", "currency_target", "counterparty_alias"],
         "type": "object"
       },
       "CurrencyConversionQuoteCreate": {
@@ -40252,10 +39362,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "description",
-          "secret"
-        ],
+        "required": ["description", "secret"],
         "type": "object"
       },
       "DeviceServerCreate": {
@@ -40388,10 +39495,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "entries",
-          "number_of_required_accepts"
-        ],
+        "required": ["entries", "number_of_required_accepts"],
         "type": "object"
       },
       "DraftPaymentAnchorObject": {
@@ -40979,9 +40083,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "year"
-        ],
+        "required": ["year"],
         "type": "object"
       },
       "ExportAnnualOverviewContentListing": {
@@ -41172,11 +40274,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "statement_format",
-          "date_start",
-          "date_end"
-        ],
+        "required": ["statement_format", "date_start", "date_end"],
         "type": "object"
       },
       "ExportStatementCardContentListing": {
@@ -41203,11 +40301,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "date_start",
-          "date_end",
-          "regional_format"
-        ],
+        "required": ["date_start", "date_end", "regional_format"],
         "type": "object"
       },
       "ExportStatementCardCsvCreate": {
@@ -41399,10 +40493,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "date_start",
-          "date_end"
-        ],
+        "required": ["date_start", "date_end"],
         "type": "object"
       },
       "ExportStatementCardPdfCreate": {
@@ -42259,9 +41350,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "client_public_key"
-        ],
+        "required": ["client_public_key"],
         "type": "object"
       },
       "InstallationCreate": {
@@ -42499,10 +41588,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "description",
-          "external_url"
-        ],
+        "required": ["description", "external_url"],
         "type": "object"
       },
       "InvoiceByUserListing": {
@@ -44185,9 +43271,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "status"
-        ],
+        "required": ["status"],
         "type": "object"
       },
       "MasterCardIdentityCheckChallengeRequestUserRead": {
@@ -44318,9 +43402,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "currency"
-        ],
+        "required": ["currency"],
         "type": "object"
       },
       "MonetaryAccountBankCreate": {
@@ -45185,9 +44267,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "provider"
-        ],
+        "required": ["provider"],
         "type": "object"
       },
       "MonetaryAccountJoint": {
@@ -45274,10 +44354,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "currency",
-          "all_co_owner"
-        ],
+        "required": ["currency", "all_co_owner"],
         "type": "object"
       },
       "MonetaryAccountJointCreate": {
@@ -46005,9 +45082,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "currency"
-        ],
+        "required": ["currency"],
         "type": "object"
       },
       "MonetaryAccountSavingsCreate": {
@@ -46390,9 +45465,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "attachment_id"
-        ],
+        "required": ["attachment_id"],
         "type": "object"
       },
       "NoteAttachmentBankSwitchServiceNetherlandsIncomingPaymentCreate": {
@@ -46527,9 +45600,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "attachment_id"
-        ],
+        "required": ["attachment_id"],
         "type": "object"
       },
       "NoteAttachmentBunqMeFundraiserResultCreate": {
@@ -46664,9 +45735,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "attachment_id"
-        ],
+        "required": ["attachment_id"],
         "type": "object"
       },
       "NoteAttachmentDraftPaymentCreate": {
@@ -46801,9 +45870,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "attachment_id"
-        ],
+        "required": ["attachment_id"],
         "type": "object"
       },
       "NoteAttachmentIdealMerchantTransactionCreate": {
@@ -46938,9 +46005,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "attachment_id"
-        ],
+        "required": ["attachment_id"],
         "type": "object"
       },
       "NoteAttachmentMasterCardActionCreate": {
@@ -47075,9 +46140,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "attachment_id"
-        ],
+        "required": ["attachment_id"],
         "type": "object"
       },
       "NoteAttachmentPaymentBatch": {
@@ -47095,9 +46158,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "attachment_id"
-        ],
+        "required": ["attachment_id"],
         "type": "object"
       },
       "NoteAttachmentPaymentBatchCreate": {
@@ -47349,9 +46410,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "attachment_id"
-        ],
+        "required": ["attachment_id"],
         "type": "object"
       },
       "NoteAttachmentRequestInquiryBatch": {
@@ -47369,9 +46428,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "attachment_id"
-        ],
+        "required": ["attachment_id"],
         "type": "object"
       },
       "NoteAttachmentRequestInquiryBatchCreate": {
@@ -47623,9 +46680,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "attachment_id"
-        ],
+        "required": ["attachment_id"],
         "type": "object"
       },
       "NoteAttachmentRequestResponseCreate": {
@@ -47760,9 +46815,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "attachment_id"
-        ],
+        "required": ["attachment_id"],
         "type": "object"
       },
       "NoteAttachmentScheduleInstanceCreate": {
@@ -47897,9 +46950,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "attachment_id"
-        ],
+        "required": ["attachment_id"],
         "type": "object"
       },
       "NoteAttachmentSchedulePaymentBatch": {
@@ -47917,9 +46968,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "attachment_id"
-        ],
+        "required": ["attachment_id"],
         "type": "object"
       },
       "NoteAttachmentSchedulePaymentBatchCreate": {
@@ -48171,9 +47220,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "attachment_id"
-        ],
+        "required": ["attachment_id"],
         "type": "object"
       },
       "NoteAttachmentSofortMerchantTransactionCreate": {
@@ -48308,9 +47355,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "attachment_id"
-        ],
+        "required": ["attachment_id"],
         "type": "object"
       },
       "NoteAttachmentWhitelistResultCreate": {
@@ -50272,9 +49317,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "url"
-        ],
+        "required": ["url"],
         "type": "object"
       },
       "OauthCallbackUrlCreate": {
@@ -50648,11 +49691,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "payment_id",
-          "type",
-          "definition"
-        ],
+        "required": ["payment_id", "type", "definition"],
         "type": "object"
       },
       "PaymentAutoAllocateCreate": {
@@ -50720,9 +49759,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "type"
-        ],
+        "required": ["type"],
         "type": "object"
       },
       "PaymentAutoAllocateDefinitionListing": {
@@ -51514,11 +50551,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "client_payment_service_provider_certificate",
-          "client_payment_service_provider_certificate_chain",
-          "client_public_key_signature"
-        ],
+        "required": ["client_payment_service_provider_certificate", "client_payment_service_provider_certificate_chain", "client_public_key_signature"],
         "type": "object"
       },
       "PaymentServiceProviderCredentialCreate": {
@@ -51627,13 +50660,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "sender_iban",
-          "counterparty_iban",
-          "counterparty_name",
-          "description",
-          "amount"
-        ],
+        "required": ["sender_iban", "counterparty_iban", "counterparty_name", "description", "amount"],
         "type": "object"
       },
       "PaymentServiceProviderDraftPaymentCreate": {
@@ -51752,9 +50779,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "ip"
-        ],
+        "required": ["ip"],
         "type": "object"
       },
       "PermittedIpCreate": {
@@ -52351,9 +51376,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "allow_bunqme"
-        ],
+        "required": ["allow_bunqme"],
         "type": "object"
       },
       "RequestInquiryBatch": {
@@ -54717,9 +53740,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "secret"
-        ],
+        "required": ["secret"],
         "type": "object"
       },
       "SessionServerCreate": {
@@ -55705,9 +54726,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "token"
-        ],
+        "required": ["token"],
         "type": "object"
       },
       "TokenQrRequestIdealCreate": {
@@ -55854,9 +54873,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "token"
-        ],
+        "required": ["token"],
         "type": "object"
       },
       "TokenQrRequestSofortCreate": {
@@ -55901,10 +54918,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "name_account_holder",
-          "type"
-        ],
+        "required": ["name_account_holder", "type"],
         "type": "object"
       },
       "TransferwiseAccountQuoteCreate": {
@@ -56034,10 +55048,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "name_account_holder",
-          "type"
-        ],
+        "required": ["name_account_holder", "type"],
         "type": "object"
       },
       "TransferwiseAccountRequirementCreate": {
@@ -56179,10 +55190,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "currency_source",
-          "currency_target"
-        ],
+        "required": ["currency_source", "currency_target"],
         "type": "object"
       },
       "TransferwiseQuoteCreate": {
@@ -56294,10 +55302,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "currency_source",
-          "currency_target"
-        ],
+        "required": ["currency_source", "currency_target"],
         "type": "object"
       },
       "TransferwiseQuoteTemporaryCreate": {
@@ -56395,10 +55400,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "key",
-          "value"
-        ],
+        "required": ["key", "value"],
         "type": "object"
       },
       "TransferwiseRequirementFieldGroup": {
@@ -56636,10 +55638,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "monetary_account_id",
-          "recipient_id"
-        ],
+        "required": ["monetary_account_id", "recipient_id"],
         "type": "object"
       },
       "TransferwiseTransferCreate": {
@@ -56848,9 +55847,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "recipient_id"
-        ],
+        "required": ["recipient_id"],
         "type": "object"
       },
       "TransferwiseTransferRequirementCreate": {
@@ -56959,12 +55956,7 @@
             "writeOnly": false
           }
         },
-        "required": [
-          "type",
-          "reference",
-          "description",
-          "payments"
-        ],
+        "required": ["type", "reference", "description", "payments"],
         "type": "object"
       },
       "TranslinkTransactionCreate": {
@@ -58914,10 +57906,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "monetary_account_paying_id",
-          "request_id"
-        ],
+        "required": ["monetary_account_paying_id", "request_id"],
         "type": "object"
       },
       "WhitelistSddOneOffCreate": {
@@ -59161,10 +58150,7 @@
             "writeOnly": true
           }
         },
-        "required": [
-          "monetary_account_paying_id",
-          "request_id"
-        ],
+        "required": ["monetary_account_paying_id", "request_id"],
         "type": "object"
       },
       "WhitelistSddRecurringCreate": {

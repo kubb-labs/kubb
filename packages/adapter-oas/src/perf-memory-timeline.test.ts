@@ -21,19 +21,24 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const SPECS = [
-  { name: 'readme.io',  file: 'readme.io.yaml', label: '4 schemas,  31 ops,  25 KB' },
-  { name: 'twitter',    file: 'twitter.json',    label: '236 schemas, 80 ops, 374 KB' },
-  { name: 'bunq',       file: 'bunq.json',       label: '617 schemas, 421 ops, 1902 KB' },
+  { name: 'readme.io', file: 'readme.io.yaml', label: '4 schemas,  31 ops,  25 KB' },
+  { name: 'twitter', file: 'twitter.json', label: '236 schemas, 80 ops, 374 KB' },
+  { name: 'bunq', file: 'bunq.json', label: '617 schemas, 421 ops, 1902 KB' },
 ] as const
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function forceGC(): void {
   const _gc = (globalThis as Record<string, unknown>)['gc']
-  if (typeof _gc === 'function') { (_gc as () => void)(); (_gc as () => void)() }
+  if (typeof _gc === 'function') {
+    ;(_gc as () => void)()
+    ;(_gc as () => void)()
+  }
 }
 
-function heapMB(): number { return process.memoryUsage().heapUsed / 1_048_576 }
+function heapMB(): number {
+  return process.memoryUsage().heapUsed / 1_048_576
+}
 
 async function settle(): Promise<void> {
   forceGC()
@@ -97,12 +102,14 @@ for (const spec of SPECS) {
       for (const _ of inputNodeRef.schemas) {
         schemaCount++
         if (schemaCount === Math.ceil(total * 0.25)) snap('④ 25% schemas walked')
-        if (schemaCount === Math.ceil(total * 0.50)) snap('⑤ 50% schemas walked')
+        if (schemaCount === Math.ceil(total * 0.5)) snap('⑤ 50% schemas walked')
         if (schemaCount === Math.ceil(total * 0.75)) snap('⑥ 75% schemas walked')
       }
       snap('⑦ 100% schemas walked — nodes still held')
 
-      for (const _ of inputNodeRef.operations) { /* walk ops */ }
+      for (const _ of inputNodeRef.operations) {
+        /* walk ops */
+      }
       snap('⑧ ops walked — all nodes still held (until dispose)')
 
       // Release the only reference so GC can collect
@@ -147,12 +154,14 @@ for (const spec of SPECS) {
         schemaCount++
         if (schemaCount === 1) snap('④ after 1st schema yielded')
         if (schemaCount === Math.ceil(total * 0.25)) snap(`⑤ after 25% schemas (${schemaCount}/${total})`)
-        if (schemaCount === Math.ceil(total * 0.50)) snap(`⑥ after 50% schemas (${schemaCount}/${total})`)
+        if (schemaCount === Math.ceil(total * 0.5)) snap(`⑥ after 50% schemas (${schemaCount}/${total})`)
         if (schemaCount === Math.ceil(total * 0.75)) snap(`⑦ after 75% schemas (${schemaCount}/${total})`)
       }
       snap(`⑧ after 100% schemas (${total} yielded)`)
 
-      for await (const _op of streamNode.operations) { /* walk */ }
+      for await (const _op of streamNode.operations) {
+        /* walk */
+      }
       snap('⑨ after ops drained')
 
       forceGC()

@@ -116,13 +116,25 @@ afterAll(() => {
   console.log('╚══════════════════════════════════════════════════════════════╝\n')
   console.log(`| Metric                 | Batch parse() [main]      | Streaming [PR #3290]      |`)
   console.log(`|------------------------|---------------------------|---------------------------|`)
-  console.log(`| Baseline heap          | ${String(batch.r.baselineHeapMB.toFixed(1) + ' MB').padEnd(25)} | ${String(stream.r.baselineHeapMB.toFixed(1) + ' MB').padEnd(25)} |`)
-  console.log(`| Peak heap              | ${String(batch.r.peakHeapMB.toFixed(1) + ' MB').padEnd(25)} | ${String(stream.r.peakHeapMB.toFixed(1) + ' MB').padEnd(25)} |`)
-  console.log(`| AST node heap delta    | ${String('+' + batch.r.deltaHeapMB.toFixed(2) + ' MB').padEnd(25)} | ${String('+' + stream.r.deltaHeapMB.toFixed(2) + ' MB').padEnd(25)} |`)
-  console.log(`| Duration (1 pass)      | ${String(batch.r.durationMs.toFixed(0) + ' ms').padEnd(25)} | ${String(stream.r.durationMs.toFixed(0) + ' ms').padEnd(25)} |`)
+  console.log(
+    `| Baseline heap          | ${String(batch.r.baselineHeapMB.toFixed(1) + ' MB').padEnd(25)} | ${String(stream.r.baselineHeapMB.toFixed(1) + ' MB').padEnd(25)} |`,
+  )
+  console.log(
+    `| Peak heap              | ${String(batch.r.peakHeapMB.toFixed(1) + ' MB').padEnd(25)} | ${String(stream.r.peakHeapMB.toFixed(1) + ' MB').padEnd(25)} |`,
+  )
+  console.log(
+    `| AST node heap delta    | ${String('+' + batch.r.deltaHeapMB.toFixed(2) + ' MB').padEnd(25)} | ${String('+' + stream.r.deltaHeapMB.toFixed(2) + ' MB').padEnd(25)} |`,
+  )
+  console.log(
+    `| Duration (1 pass)      | ${String(batch.r.durationMs.toFixed(0) + ' ms').padEnd(25)} | ${String(stream.r.durationMs.toFixed(0) + ' ms').padEnd(25)} |`,
+  )
   console.log(`|------------------------|---------------------------|---------------------------|`)
-  console.log(`| Heap saving            |                           | ${String('-' + heapSavingMB.toFixed(2) + ' MB (' + heapSavingPct.toFixed(0) + '% less)').padEnd(25)} |`)
-  console.log(`| Time overhead (1 pass) |                           | ${String((timeDiffMs > 0 ? '+' : '') + timeDiffMs.toFixed(0) + ' ms (' + (timeDiffPct > 0 ? '+' : '') + timeDiffPct.toFixed(0) + '%)').padEnd(25)} |`)
+  console.log(
+    `| Heap saving            |                           | ${String('-' + heapSavingMB.toFixed(2) + ' MB (' + heapSavingPct.toFixed(0) + '% less)').padEnd(25)} |`,
+  )
+  console.log(
+    `| Time overhead (1 pass) |                           | ${String((timeDiffMs > 0 ? '+' : '') + timeDiffMs.toFixed(0) + ' ms (' + (timeDiffPct > 0 ? '+' : '') + timeDiffPct.toFixed(0) + '%)').padEnd(25)} |`,
+  )
   console.log()
   console.log('Note: "1 plugin pass" = a single plugin iterating all schemas + ops.')
   console.log('Streaming re-parses on each plugin pass; batch holds nodes for all passes combined.')

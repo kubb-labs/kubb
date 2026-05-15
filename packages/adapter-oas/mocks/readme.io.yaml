@@ -831,7 +831,7 @@ components:
         category:
           description: >-
             Category ID of the page, which you can get through
-            https://docs.readme.com/developers/reference/categories#getcategory 
+            https://docs.readme.com/developers/reference/categories#getcategory
           type: string
         hidden:
           default: true
