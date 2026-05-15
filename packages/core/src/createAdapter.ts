@@ -6,10 +6,7 @@ import type { Storage } from './createStorage.ts'
  * Source data passed to an adapter's `parse` function.
  * Mirrors the config input shape with paths resolved to absolute.
  */
-export type AdapterSource =
-  | { type: 'path'; path: string; cache?: Storage }
-  | { type: 'data'; data: string | unknown; cache?: Storage }
-  | { type: 'paths'; paths: Array<string>; cache?: Storage }
+export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown } | { type: 'paths'; paths: Array<string> }
 
 /**
  * Generic type parameters for an adapter definition.
@@ -63,8 +60,11 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
   document: TOptions['document'] | null
   /**
    * Parse the source into a universal `InputNode`.
+   *
+   * `storage` is `config.storage` from the root Kubb config — adapters may use it
+   * to cache the parsed document across builds (keyed under `.kubb/.cache/`).
    */
-  parse: (source: AdapterSource) => PossiblePromise<InputNode>
+  parse: (source: AdapterSource, storage?: Storage) => PossiblePromise<InputNode>
   /**
    * Extract `ImportNode` entries for a schema tree.
    * Returns an empty array before the first `parse()` call.

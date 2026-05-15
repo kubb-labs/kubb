@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto'
 import { stat } from 'node:fs/promises'
+import { resolve } from 'node:path'
 import { ast, createAdapter } from '@kubb/core'
-import type { AdapterSource } from '@kubb/core'
+import type { AdapterSource, Storage } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { applyDiscriminatorInheritance } from './discriminator.ts'
 import { parseDocument, parseFromConfig, validateDocument } from './factory.ts'
@@ -15,15 +16,14 @@ type DocumentCacheEntry = {
   mtime?: number
 }
 
-function sourceCacheFilename(source: AdapterSource): string {
+function sourceCacheKey(source: AdapterSource): string {
   const content = source.type === 'path' ? source.path : JSON.stringify(source.type === 'data' ? source.data : source)
-  return `${createHash('sha256').update(content).digest('hex')}.json`
+  const hash = createHash('sha256').update(content).digest('hex')
+  return resolve(process.cwd(), '.kubb', '.cache', `${hash}.json`)
 }
 
-async function readDocumentCache(source: AdapterSource): Promise<{ document: Document; nameMapping: Map<string, string> } | null> {
-  if (!source.cache) return null
-
-  const raw = await source.cache.getItem(sourceCacheFilename(source))
+async function readDocumentCache(source: AdapterSource, storage: Storage): Promise<{ document: Document; nameMapping: Map<string, string> } | null> {
+  const raw = await storage.getItem(sourceCacheKey(source))
   if (!raw) return null
 
   try {
@@ -43,9 +43,7 @@ async function readDocumentCache(source: AdapterSource): Promise<{ document: Doc
   }
 }
 
-async function writeDocumentCache(source: AdapterSource, document: Document, nameMapping: Map<string, string>): Promise<void> {
-  if (!source.cache) return
-
+async function writeDocumentCache(source: AdapterSource, storage: Storage, document: Document, nameMapping: Map<string, string>): Promise<void> {
   let mtime: number | undefined
   if (source.type === 'path') {
     const fileStat = await stat(source.path).catch(() => null)
@@ -58,7 +56,7 @@ async function writeDocumentCache(source: AdapterSource, document: Document, nam
     mtime,
   }
 
-  await source.cache.setItem(sourceCacheFilename(source), JSON.stringify(entry))
+  await storage.setItem(sourceCacheKey(source), JSON.stringify(entry))
 }
 
 /**
@@ -138,7 +136,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         },
       })
     },
-    async parse(source) {
+    async parse(source, storage) {
       let document: Document
       let fromCache = false
 
@@ -146,7 +144,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         document = parsedDocument
         fromCache = true
       } else {
-        const cached = await readDocumentCache(source)
+        const cached = storage ? await readDocumentCache(source, storage) : null
         if (cached) {
           document = cached.document
           nameMapping = cached.nameMapping
@@ -177,8 +175,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       // Expose the raw document so consumers (e.g. plugin-redoc) can access it.
       parsedDocument = document
 
-      if (!fromCache) {
-        await writeDocumentCache(source, document, nameMapping)
+      if (!fromCache && storage) {
+        await writeDocumentCache(source, storage, document, nameMapping)
       }
 
       const inputNode = ast.createInput({

@@ -915,17 +915,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
   }
 
   if (config.adapter) {
-    const cacheDir = resolve(config.root, '.kubb', '.cache')
-    const cache = createStorage(() => ({
-      name: `${config.storage.name}:cache`,
-      hasItem: (key: string) => config.storage.hasItem(resolve(cacheDir, key)),
-      getItem: (key: string) => config.storage.getItem(resolve(cacheDir, key)),
-      setItem: (key: string, value: string) => config.storage.setItem(resolve(cacheDir, key), value),
-      removeItem: (key: string) => config.storage.removeItem(resolve(cacheDir, key)),
-      getKeys: (base?: string) => config.storage.getKeys(base ? resolve(cacheDir, base) : cacheDir),
-      clear: () => config.storage.clear(cacheDir),
-    }))()
-    const source: AdapterSource = { ...inputToAdapterSource(config), cache }
+    const source = inputToAdapterSource(config)
 
     await hooks.emit('kubb:debug', {
       date: new Date(),
@@ -933,7 +923,7 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     })
 
     driver.adapter = config.adapter
-    driver.inputNode = await config.adapter.parse(source)
+    driver.inputNode = await config.adapter.parse(source, config.storage)
 
     await hooks.emit('kubb:debug', {
       date: new Date(),
