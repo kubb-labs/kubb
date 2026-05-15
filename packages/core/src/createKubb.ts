@@ -17,7 +17,6 @@ import { FileProcessor } from './FileProcessor.ts'
 import { applyHookResult, PluginDriver } from './PluginDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 
-
 /**
  * Safely extracts a type from a registry, returning `{}` if the key doesn't exist.
  * Enables optional interface augmentation for `Kubb.ConfigOptionsRegistry` and `Kubb.PluginOptionsRegistry`
