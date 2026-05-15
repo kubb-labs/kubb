@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.12 — May 15, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- **Performance: memoize `$ref` resolution within `parse()`**
+  
+  `resolvedRefCache` — within a single `parse()` call, each `$ref` is now resolved at most once. Previously, a shared schema referenced from dozens of top-level schemas caused exponential sub-tree re-expansion. Stripe (~1 400 schemas) went from OOM at 8 GB to ~840 ms / ~15 MB. ([#3293](https://github.com/kubb-labs/kubb/pull/3293), [`3f5504b`](https://github.com/kubb-labs/kubb/commit/3f5504b689106063480f72fd1d18bca742613189))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.11 — May 14, 2026
 
 ### @kubb/ast
