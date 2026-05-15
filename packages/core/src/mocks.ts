@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import type { FileNode, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
+import type { FileNode, InputNode, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
 import { transform } from '@kubb/ast'
 import { FileManager } from './FileManager.ts'
 import { applyHookResult, PluginDriver } from './PluginDriver.ts'
@@ -34,16 +34,13 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
   options: {
     name?: TOptions['name']
     resolvedOptions?: TOptions['resolvedOptions']
-    inputNode?: Adapter<TOptions>['inputNode']
     parse?: Adapter<TOptions>['parse']
     getImports?: Adapter<TOptions>['getImports']
   } = {},
 ): Adapter<TOptions> {
-  const inputNode = options.inputNode ?? null
   return {
     name: (options.name ?? 'oas') as TOptions['name'],
     options: (options.resolvedOptions ?? {}) as TOptions['resolvedOptions'],
-    inputNode,
     parse: options.parse ?? (async () => ({ kind: 'Input' as const, schemas: [], operations: [] })),
     getImports: options.getImports ?? ((_node: SchemaNode, _resolve: (schemaName: string) => { name: string; path: string }) => []),
   } as Adapter<TOptions>
@@ -75,6 +72,7 @@ export function createMockedPlugin<TOptions extends PluginFactoryOptions = Plugi
 type RenderGeneratorOptions<TOptions extends PluginFactoryOptions> = {
   config: Config
   adapter: Adapter
+  inputNode?: InputNode
   driver: PluginDriver
   plugin: NormalizedPlugin<TOptions>
   options: TOptions['resolvedOptions']
@@ -93,7 +91,7 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     plugin: opts.plugin,
     driver: opts.driver,
     getResolver: (name: string) => opts.driver.getResolver(name),
-    inputNode: { kind: 'Input', schemas: [], operations: [] },
+    inputNode: opts.inputNode ?? { kind: 'Input', schemas: [], operations: [] },
     addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),
     upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
     hooks: opts.driver.hooks ?? ({} as never),

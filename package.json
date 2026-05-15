@@ -29,6 +29,7 @@
     "release:canary": "changeset publish --no-git-tag",
     "start": "turbo run start --filter=./packages/*",
     "test": "vitest run --config ./configs/vitest.config.ts",
+    "test:bench": "NODE_OPTIONS='--max_old_space_size=4096' vitest bench --config ./configs/vitest.bench.config.ts",
     "test:watch": "vitest --config ./configs/vitest.config.ts",
     "typecheck": "turbo run typecheck --continue --filter='./packages/*'",
     "upgrade": "npx taze -r -w --exclude pnpm --maturity-period 3",

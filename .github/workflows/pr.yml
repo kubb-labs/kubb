@@ -163,6 +163,31 @@ jobs:
       - name: Publish preview packages
         run: pnpx pkg-pr-new publish --pnpm --owner=stijnvanhulle --repo=https://github.com/kubb-labs/kubb.git './packages/*'
 
+  benchmarks:
+    name: Performance benchmarks (Vitest)
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    if: github.actor != 'github-actions[bot]'
+    needs: build
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
+        with:
+          node-version: '22'
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Run Vitest benchmarks
+        run: pnpm run test:bench
+
   dependency-diff:
     name: Dependency Diff
     timeout-minutes: 10

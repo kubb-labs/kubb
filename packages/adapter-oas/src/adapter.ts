@@ -105,10 +105,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     emptySchemaType = unknownType || DEFAULT_PARSER_OPTIONS.emptySchemaType,
   } = options
 
-  // Let-binding so parse() can replace it with a simple reassignment (no clear+loop).
   let nameMapping = new Map<string, string>()
   let parsedDocument: Document | null
-  let inputNode: ast.InputNode | null
 
   return {
     name: adapterOasName,
@@ -129,9 +127,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     },
     get document() {
       return parsedDocument
-    },
-    get inputNode() {
-      return inputNode
     },
     async validate(input, options) {
       const document = await parseDocument(input)
@@ -189,7 +184,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         await writeDocumentCache(source, document, nameMapping)
       }
 
-      inputNode = ast.createInput({
+      const inputNode = ast.createInput({
         ...node,
         meta: {
           title: document.info?.title,
