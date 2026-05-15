@@ -26,19 +26,34 @@ Three fixes ship together and are all required for the Stripe spec to work withi
 
 | Metric | Without PR | With PR |
 |--------|-----------|---------|
-| Schema drain (1 pass) | OOM at 8 GB | 98 ms, 107 MB heap |
+| Schema drain (1 pass) | OOM at 8 GB | 839 ms, +14.9 MB heap |
 | Peak RSS — full 7-plugin build | OOM | ~300 MB |
 | Full 7-plugin e2e duration | OOM | ~10 s |
 | Node heap limit required | > 8 GB | 3 GB (CI default) |
 
-### bunq spec results (617 schemas, 421 operations, single plugin)
+> **Note:** The ~15 MB heap delta is dominated by the raw Redocly-bundled JSON object
+> (`schemaObjects`), which both paths must hold in memory. The `resolvedRefCache` fix
+> is what makes this possible — without it, $ref expansion is combinatorially explosive
+> and the process OOMs. Streaming's memory advantage is most visible in multi-plugin
+> builds where the fan-out shares a single drain pass across all plugins (see fan-out
+> section below).
 
-| Metric | Batch — `main` | Streaming — PR | Change |
-|--------|----------------|----------------|--------|
-| AST heap delta | +9.25 MB | +2.93 MB | **−68%** |
-| Duration | 1,492 ms | 1,395 ms | −7% |
-| 5-plugin peak AST heap | +9.25 MB | ~0 MB | **−100%** (fan-out active) |
-| 5-plugin duration | 1,516 ms | ~1,400 ms | **~−7%** (fan-out active) |
+### Measured single-adapter results (median of 3 runs)
+
+| Spec | Schemas | Ops | Mode | Peak heap Δ (MB) | Duration (ms) |
+|:-----|--------:|----:|:-----|----------------:|-------------:|
+| petStore | 13 | 21 | **batch** | 0.00 | 20 |
+| petStore | 13 | 21 | streaming | 0.00 | 25 |
+| Stripe | 1,385 | 587 | **batch** | 14.94 | 839 |
+| Stripe | 1,385 | 587 | streaming | 14.90 | 856 |
+
+_Measured 2026-05-15 · Node.js v22.22.2 · `--expose-gc` · `validate: false`_
+
+The single-adapter heap delta is similar between modes because `schemaObjects` (the
+raw parsed JSON, pre-AST) is resident in both. The streaming benefit compounds in
+multi-plugin builds: where the batch path allocates N×1,385 `SchemaNode` objects across
+N sequential plugin passes, `runPluginStreamHooks` delivers each node once to all N
+plugins simultaneously, allowing yielded nodes to be GC'd between iterations.
 
 ---
 
