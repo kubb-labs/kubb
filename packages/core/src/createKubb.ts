@@ -1111,31 +1111,20 @@ async function runStreamingFanOut(
     const duration = getElapsedMs(state.hrStart)
     pluginTimings.set(state.plugin.name, duration)
 
+    await hooks.emit('kubb:plugin:end', {
+      plugin: state.plugin,
+      duration,
+      success: !state.failed,
+      ...(state.failed && state.error ? { error: state.error } : {}),
+      config,
+      get files() { return driver.fileManager.files },
+      upsertFile: (...files) => driver.fileManager.upsert(...files),
+    })
+
     if (state.failed && state.error) {
-      await hooks.emit('kubb:plugin:end', {
-        plugin: state.plugin,
-        duration,
-        success: false,
-        error: state.error,
-        config,
-        get files() {
-          return driver.fileManager.files
-        },
-        upsertFile: (...files) => driver.fileManager.upsert(...files),
-      })
       failedPlugins.add({ plugin: state.plugin, error: state.error })
-    } else {
-      await hooks.emit('kubb:plugin:end', {
-        plugin: state.plugin,
-        duration,
-        success: true,
-        config,
-        get files() {
-          return driver.fileManager.files
-        },
-        upsertFile: (...files) => driver.fileManager.upsert(...files),
-      })
     }
+
     await hooks.emit('kubb:debug', {
       date: new Date(),
       logs: [state.failed ? '✗ Plugin start failed' : `✓ Plugin started successfully (${formatMs(duration)})`],
@@ -1317,7 +1306,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       await hooks.emit('kubb:build:start', {
         config,
         adapter: driver.adapter,
-        inputNode: driver.inputNode ?? { kind: 'Input', schemas: [], operations: [], meta: driver.inputStreamNode?.meta },
+        inputNode: driver.effectiveInputNode,
         getPlugin: driver.getPlugin.bind(driver),
         get files() {
           return driver.fileManager.files

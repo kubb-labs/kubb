@@ -107,8 +107,25 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
   // Let-binding so parse() can replace it with a simple reassignment (no clear+loop).
   let nameMapping = new Map<string, string>()
-  let parsedDocument: Document | null
-  let inputNode: ast.InputNode | null
+  let parsedDocument: Document | null = null
+  let inputNode: ast.InputNode | null = null
+
+  /** Load from memory → disk cache → fresh parse, in that order. */
+  async function ensureDocument(source: AdapterSource): Promise<{ document: Document; fromCache: boolean }> {
+    if (parsedDocument) return { document: parsedDocument, fromCache: true }
+
+    const cached = await readDocumentCache(source)
+    if (cached) {
+      parsedDocument = cached.document
+      nameMapping = cached.nameMapping
+      return { document: parsedDocument, fromCache: true }
+    }
+
+    const fresh = await parseFromConfig(source)
+    if (validate) await validateDocument(fresh)
+    parsedDocument = fresh
+    return { document: fresh, fromCache: false }
+  }
 
   return {
     name: adapterOasName,
@@ -150,23 +167,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       })
     },
     async parse(source) {
-      let document: Document
-      let fromCache = false
-
-      if (parsedDocument) {
-        document = parsedDocument
-        fromCache = true
-      } else {
-        const cached = await readDocumentCache(source)
-        if (cached) {
-          document = cached.document
-          fromCache = true
-        } else {
-          document = await parseFromConfig(source)
-          if (validate) await validateDocument(document)
-        }
-        parsedDocument = document
-      }
+      const { document, fromCache } = await ensureDocument(source)
 
       const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
       const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
@@ -202,43 +203,23 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       return inputNode
     },
     async count(source) {
-      if (!parsedDocument) {
-        const cached = await readDocumentCache(source)
-        if (cached) {
-          parsedDocument = cached.document
-          nameMapping = cached.nameMapping
-        } else {
-          parsedDocument = await parseFromConfig(source)
-          if (validate) await validateDocument(parsedDocument)
-          const { nameMapping: freshNameMapping } = getSchemas(parsedDocument, { contentType })
-          nameMapping = freshNameMapping
-          await writeDocumentCache(source, parsedDocument, nameMapping)
-        }
+      const { document, fromCache } = await ensureDocument(source)
+      const { schemas: schemaObjects, nameMapping: freshNameMapping } = getSchemas(document, { contentType })
+
+      if (!fromCache) {
+        nameMapping = freshNameMapping
+        await writeDocumentCache(source, document, nameMapping)
       }
 
-      const { schemas: schemaObjects } = getSchemas(parsedDocument, { contentType })
-      const baseOas = new BaseOas(parsedDocument)
+      const baseOas = new BaseOas(document)
       const paths = baseOas.getPaths()
       const operationCount = Object.values(paths).flatMap(Object.values).filter(Boolean).length
 
       return { schemas: Object.keys(schemaObjects).length, operations: operationCount }
     },
     async stream(source) {
-      let fromCache = true
+      const { document, fromCache } = await ensureDocument(source)
 
-      if (!parsedDocument) {
-        const cached = await readDocumentCache(source)
-        if (cached) {
-          parsedDocument = cached.document
-          nameMapping = cached.nameMapping
-        } else {
-          parsedDocument = await parseFromConfig(source)
-          if (validate) await validateDocument(parsedDocument)
-          fromCache = false
-        }
-      }
-
-      const document = parsedDocument
       const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
       const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
 
