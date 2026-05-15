@@ -90,6 +90,20 @@ function createSchemaParser(ctx: OasParserContext) {
   const resolvingRefs = new Set<string>()
 
   /**
+   * Cache of already-resolved `$ref` schemas within this parser instance.
+   *
+   * Without this, the same referenced schema (e.g. `customer`) is fully re-expanded
+   * every time it appears as a `$ref` in a different parent schema. In heavily
+   * cross-referenced specs like Stripe (~1 400 schemas), this causes exponential
+   * blowup — `customer` alone may be referenced from dozens of top-level schemas,
+   * each triggering a fresh recursive expansion of its entire sub-tree.
+   *
+   * Memoising by `$ref` path reduces the overall work from O(2^depth) to O(N)
+   * where N is the number of unique schema names.
+   */
+  const resolvedRefCache = new Map<string, ast.SchemaNode | undefined>()
+
+  /**
    * Converts a `$ref` schema into a `RefSchemaNode`.
    *
    * The resolved schema is stored in `node.schema`. Usage-site sibling fields
@@ -101,15 +115,20 @@ function createSchemaParser(ctx: OasParserContext) {
     let resolvedSchema: ast.SchemaNode | undefined
     const refPath = schema.$ref
     if (refPath && !resolvingRefs.has(refPath)) {
-      try {
-        const referenced = resolveRef<SchemaObject>(document, refPath)
-        if (referenced) {
-          resolvingRefs.add(refPath)
-          resolvedSchema = parseSchema({ schema: referenced }, rawOptions)
-          resolvingRefs.delete(refPath)
+      if (resolvedRefCache.has(refPath)) {
+        resolvedSchema = resolvedRefCache.get(refPath)
+      } else {
+        try {
+          const referenced = resolveRef<SchemaObject>(document, refPath)
+          if (referenced) {
+            resolvingRefs.add(refPath)
+            resolvedSchema = parseSchema({ schema: referenced }, rawOptions)
+            resolvingRefs.delete(refPath)
+          }
+        } catch {
+          // Ref cannot be resolved in this document (e.g. unit tests with minimal documents).
         }
-      } catch {
-        // Ref cannot be resolved in this document (e.g. unit tests with minimal documents).
+        resolvedRefCache.set(refPath, resolvedSchema)
       }
     }
 
