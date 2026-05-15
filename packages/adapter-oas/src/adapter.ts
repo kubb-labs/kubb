@@ -103,7 +103,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
   let nameMapping = new Map<string, string>()
   let parsedDocument: Document | null = null
-  let inputNode: ast.InputNode | null = null
   let cachedSchemaObjects: ReturnType<typeof getSchemas>['schemas'] | null = null
 
   /** Load from memory → disk cache → fresh parse, in that order. */
@@ -142,9 +141,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     },
     get document() {
       return parsedDocument
-    },
-    get inputNode() {
-      return inputNode
     },
     async validate(input, options) {
       const document = await parseDocument(input)
@@ -186,7 +182,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         await writeDocumentCache(source, document, nameMapping)
       }
 
-      inputNode = ast.createInput({
+      const inputNode = ast.createInput({
         ...node,
         meta: {
           title: document.info?.title,
