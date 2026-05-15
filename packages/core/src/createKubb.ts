@@ -1040,7 +1040,12 @@ async function runStreamingFanOut(
     error: undefined,
   }))
 
-  // Single pass over schemas — fan each node to all plugins
+  // Single pass over schemas — fan each node to all plugins.
+  // Files are flushed to disk every FLUSH_EVERY schemas to prevent the file
+  // manager from accumulating all rendered content in memory at once (critical
+  // for large specs like Stripe with 1 000+ schemas).
+  const FLUSH_EVERY = 50
+  let schemasProcessed = 0
   for await (const node of inputStreamNode.schemas) {
     for (const state of states) {
       if (state.failed) continue
@@ -1062,6 +1067,10 @@ async function runStreamingFanOut(
         state.failed = true
         state.error = caughtError as Error
       }
+    }
+    schemasProcessed++
+    if (schemasProcessed % FLUSH_EVERY === 0) {
+      await flushPendingFiles()
     }
   }
 
