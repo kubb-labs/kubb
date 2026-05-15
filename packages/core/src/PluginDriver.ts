@@ -61,15 +61,6 @@ export class PluginDriver {
    */
   inputStreamNode: InputStreamNode | undefined = undefined
 
-  /**
-   * Returns `inputNode` when in batch mode, or a synthetic stub (empty arrays, meta
-   * forwarded from `inputStreamNode`) when in streaming mode. Always defined once the
-   * adapter has run — safe to pass to resolvers and hooks that only need metadata.
-   */
-  get effectiveInputNode(): InputNode {
-    return this.inputNode ?? { kind: 'Input' as const, schemas: [], operations: [], meta: this.inputStreamNode?.meta }
-  }
-
   adapter: Adapter | undefined = undefined
   #studioIsOpen = false
 
@@ -385,7 +376,7 @@ export class PluginDriver {
         driver.fileManager.upsert(...files)
       },
       get inputNode(): InputNode {
-        return driver.effectiveInputNode
+        return driver.inputNode ?? { kind: 'Input' as const, schemas: [], operations: [], meta: driver.inputStreamNode?.meta }
       },
       get adapter(): Adapter | undefined {
         return driver.adapter

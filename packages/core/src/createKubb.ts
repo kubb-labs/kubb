@@ -1314,7 +1314,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       await hooks.emit('kubb:build:start', {
         config,
         adapter: driver.adapter,
-        inputNode: driver.effectiveInputNode,
+        inputNode: driver.inputNode ?? { kind: 'Input' as const, schemas: [], operations: [], meta: driver.inputStreamNode?.meta },
         getPlugin: driver.getPlugin.bind(driver),
         get files() {
           return driver.fileManager.files
