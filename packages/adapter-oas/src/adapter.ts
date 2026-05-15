@@ -5,7 +5,7 @@ import { ast, createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { applyDiscriminatorInheritance } from './discriminator.ts'
+import { applyDiscriminatorInheritance, buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
 import { parseDocument, parseFromConfig, validateDocument } from './factory.ts'
 import { createSchemaParser, parseOas } from './parser.ts'
 import { getSchemas, resolveServerUrl } from './resolvers.ts'
@@ -258,22 +258,34 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         enumSuffix,
       }
 
+      // Build discriminator child map by parsing ONLY discriminator-parent schemas
+      // (those with oneOf/anyOf + discriminatorPropertyName). This avoids buffering all
+      // schemas while still reusing the proven AST-based map builder.
+      let discriminatorChildMap: Awaited<ReturnType<typeof buildDiscriminatorChildMap>> | null = null
+      if (discriminator === 'inherit') {
+        const { parseSchema: _preParser } = createSchemaParser({ document, contentType })
+        const parentNodes: ast.SchemaNode[] = []
+        for (const [name, schema] of Object.entries(schemaObjects)) {
+          if ((schema.oneOf ?? schema.anyOf) && schema.discriminator?.propertyName) {
+            parentNodes.push(_preParser({ schema, name }, parserOptions))
+          }
+        }
+        if (parentNodes.length > 0) {
+          discriminatorChildMap = buildDiscriminatorChildMap(parentNodes)
+        }
+      }
+
       // Each [Symbol.asyncIterator]() call returns a fresh generator so multiple
       // plugins can do independent `for await` passes without shared state.
       const schemasIterable: AsyncIterable<ast.SchemaNode> = {
         [Symbol.asyncIterator]() {
           return (async function* () {
             const { parseSchema: _parseSchema } = createSchemaParser({ document, contentType })
-
-            if (discriminator === 'inherit') {
-              // applyDiscriminatorInheritance requires all schemas upfront — buffer then yield one-by-one.
-              const all = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, parserOptions))
-              const inherited = applyDiscriminatorInheritance(ast.createInput({ schemas: all, operations: [] }))
-              for (const node of inherited.schemas) yield node
-            } else {
-              for (const [name, schema] of Object.entries(schemaObjects)) {
-                yield _parseSchema({ schema, name }, parserOptions)
-              }
+            for (const [name, schema] of Object.entries(schemaObjects)) {
+              let node = _parseSchema({ schema, name }, parserOptions)
+              const entry = discriminatorChildMap?.get(name)
+              if (entry) node = patchDiscriminatorNode(node, entry)
+              yield node
             }
           })()
         },
