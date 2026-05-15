@@ -531,7 +531,7 @@ export interface KubbHooks {
   'kubb:build:end': [ctx: KubbBuildEndContext]
   'kubb:generate:schema': [node: SchemaNode, ctx: GeneratorContext]
   'kubb:generate:operation': [node: OperationNode, ctx: GeneratorContext]
-  'kubb:generate:operations': [nodes: AsyncIterable<OperationNode> | Array<OperationNode>, ctx: GeneratorContext]
+  'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext]
 }
 
 export type KubbBuildStartContext = {
@@ -1070,7 +1070,9 @@ async function runStreamingFanOut(
     }
   }
 
+  const collectedOperations: OperationNode[] = []
   for await (const node of inputStreamNode.operations) {
+    collectedOperations.push(node)
     for (const state of states) {
       if (state.failed) continue
       try {
@@ -1102,10 +1104,10 @@ async function runStreamingFanOut(
         const ctx = { ...generatorContext, options: plugin.options }
         for (const gen of generators) {
           if (!gen.operations) continue
-          const result = await gen.operations(inputStreamNode.operations, ctx)
+          const result = await gen.operations(collectedOperations, ctx)
           await applyHookResult(result, driver, resolveRendererFor(gen, state))
         }
-        await driver.hooks.emit('kubb:generate:operations', inputStreamNode.operations, ctx)
+        await driver.hooks.emit('kubb:generate:operations', collectedOperations, ctx)
       } catch (caughtError) {
         state.failed = true
         state.error = caughtError as Error
