@@ -5,7 +5,7 @@ import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, URLPath 
 import type { FileNode, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { collectUsedSchemaNames, transform, walk } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
-import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
+import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL, FLUSH_EVERY, STREAM_SCHEMA_THRESHOLD } from './constants.ts'
 import type { Adapter, AdapterSource } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import { createStorage, type Storage } from './createStorage.ts'
@@ -17,10 +17,6 @@ import { FileProcessor } from './FileProcessor.ts'
 import { applyHookResult, PluginDriver } from './PluginDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 
-/** Schema count above which the adapter's `stream()` is used instead of `parse()`. */
-const STREAM_SCHEMA_THRESHOLD = 100
-/** Flush generated files to disk every N schemas in streaming mode to bound in-memory file buffers. */
-const FLUSH_EVERY = 50
 
 /**
  * Safely extracts a type from a registry, returning `{}` if the key doesn't exist.
