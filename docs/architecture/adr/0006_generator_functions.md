@@ -1,4 +1,4 @@
-# ADR-0005: Generator functions for lazy AST traversal
+# ADR-0006: Generator functions for lazy AST traversal
 
 | Status   | Authors        | Reviewers      | Issue | Decision date |
 | -------- | -------------- | -------------- | ----- | ------------- |
