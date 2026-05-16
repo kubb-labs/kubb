@@ -6,66 +6,61 @@
 
 ## Context
 
-Kubb processes large OpenAPI specifications. Stripe's public API, for example, declares over 1,400 component schemas and nearly 300 operations. During code generation, two phases dominate peak memory usage.
+Every value created in JavaScript lives on the heap. Arrays, sets, and objects are allocated there and held live until the garbage collector decides they are no longer reachable. V8 uses a generational GC: short-lived objects accumulate in the young generation (nursery). When too many objects are alive at once, the nursery overflows and a minor GC pause runs to recover memory. If objects survive long enough, they are promoted to the old generation, where reclaiming them requires a full major GC, a much more expensive operation.
 
-The first is schema sorting. `sortSchemas()` in `packages/adapter-oas/src/resolvers.ts` calls `collectRefs()` once per schema to build a dependency graph. `collectRefs()` is a recursive object walk that accumulates a `Set<string>` of referenced schema names, and the caller immediately converts it to an array with `Array.from()`. On a 1,400-schema spec this creates 1,400 intermediate `Set` and `Array` objects before topological sorting begins.
+In Kubb, the `collect()` function in `packages/ast/src/visitor.ts` and the `collectRefs()` function in `packages/adapter-oas/src/resolvers.ts` both perform recursive tree walks that accumulate results into arrays. On a large OpenAPI spec (Stripe declares over 1,400 component schemas), this means:
 
-The second is AST traversal. `collect()` in `packages/ast/src/visitor.ts` extracts typed values from an AST subtree. It is recursive: each call allocates a fresh `Array<T>`, pushes items from the current node and every child, and returns the full array. For a 1,400-schema AST with 5-10 levels of property nesting the call tree can create tens of thousands of short-lived arrays that all remain live during traversal, then become garbage at once, spiking GC pause times.
+- `collect()` allocates a fresh `Array<T>` at every recursion level. For a 1,400-schema AST with 5-10 levels of nesting, a single top-level call creates tens of thousands of intermediate arrays. All of them are live simultaneously during traversal because each frame waits for its children to finish before merging results. Once the call returns, the entire set becomes garbage at once, causing a spike in GC work.
+- `getChildren()` makes this worse. It previously returned a new spread array for every visited node, allocations discarded immediately after one loop iteration.
+- `collectRefs()` runs once per schema inside `sortSchemas()`. Each call builds a `Set<string>` and then converts it to an array with `Array.from()`, creating 1,400 intermediate set-plus-array pairs before topological sorting begins.
 
-`getChildren()`, the private function that produces a node's traversable children, makes this worse. For every `Input` node it returns `[...node.schemas, ...node.operations]`, and for every `Operation` node it spreads parameters, request body schemas, and responses into a new array. These allocations are discarded immediately after the `for...of` loop iterates them.
-
-The problems stack: `collect()` calls `getChildren()` at every recursion level, so a single top-level `collect()` call on a large spec produces O(nodes) `getChildren` arrays and O(nodes) per-level `collect` result arrays.
+The core issue is that recursive functions accumulate results by keeping every partial result alive on the call stack until the recursion unwinds. With `yield`, a generator suspends at each value and resumes only when the caller asks for the next one. The generator's local state is stored as a small heap object, but intermediate result arrays are never needed: items flow out one at a time.
 
 ## Decision
 
-`collect()` is refactored into two functions: `collectLazy()`, the exported generator that traverses the AST node by node, and `collect()`, the wrapper that materializes results with `Array.from(collectLazy(node, options))`. `getChildren()` is converted to a generator that `yield*`s children directly. `collectRefs()` is converted to a generator that `yield*`s `$ref` names as it walks the raw JSON object tree.
+`collectLazy()` is introduced as an exported `function*` that traverses the AST depth-first and `yield`s values one at a time. `collect()` becomes a thin wrapper: `Array.from(collectLazy(node, options))`. The array is built exactly once, at the call site that needs it.
 
-The public `collect()` signature stays identical: it still returns `Array<T>`. `collectLazy()` is exported alongside it for callers that can consume the traversal lazily without materializing a full array.
+`getChildren()` is converted to a `function*` that `yield*`s children directly into the caller's loop. No intermediate array is created per node.
 
-`containsCircularRef()` is rewritten to use `collectLazy()` with an early-exit loop. It previously called `collect()` and checked `.length > 0`, which traversed the entire subtree even after finding the first match. With a generator it stops at the first yielded value.
+`collectRefs()` is converted to a `function*` that `yield*`s `$ref` names as it walks the raw JSON object tree. `sortSchemas()` iterates it directly with `for...of`, eliminating the per-schema `Set` and `Array.from()` call.
+
+`containsCircularRef()` uses `collectLazy()` with an early-exit `for...of` loop that `break`s on the first match. The previous implementation called `collect()` and checked `.length > 0`, traversing the full subtree even when the answer was found at the first node.
+
+The public `collect()` signature is unchanged. `collectLazy()` is an additive export for callers that want to consume traversal lazily.
 
 ## Rationale
 
-Generators are pull-based: the caller drives iteration step by step, and nothing is produced until requested. That makes them a good match for recursive tree traversal, particularly when the caller wants to stop early.
+Generators eliminate the core problem without changing the algorithm. `yield v` replaces `results.push(v)` and `yield* collectLazy(child, opts)` replaces the merge loop. The code reads almost identically to the original.
 
-The two alternatives considered were stack-based iterative traversal and object pooling. Stack-based iteration eliminates recursion depth but requires maintaining a manual stack object, which is more code without better composability. Object pooling reduces allocations but requires careful ownership tracking, which is error-prone in a recursive setting where callers may hold references across calls. Generators get to near-zero allocations with code that reads almost identically to the original: `yield v` and `yield* collectLazy(child, opts)` replace `results.push(v)` and the inner `for...of` merge loop.
+Stack-based iteration (an explicit `while (stack.length)` loop) also avoids simultaneous live allocations, but requires maintaining a manual stack object and makes the traversal logic harder to follow. Generators preserve the natural recursive structure while solving the same heap problem.
 
-`collect()` stays backward compatible because it still returns `Array<T>`. `collectLazy()` is an additive export; no existing call site needs to change.
+Object pooling (reusing array instances across calls) reduces GC pressure without changing the algorithm, but requires callers to never hold references to returned arrays across calls. That constraint is impossible to enforce in a recursive setting and makes the API unsafe.
 
 ## Consequences
 
 ### Positive
 
-- Peak heap during a full `collect()` traversal drops from O(nodes) intermediate arrays to one final `Array.from()` allocation at the top level.
-- `getChildren()` no longer allocates a temporary array per visited node; children stream directly into the `for...of` body.
-- `containsCircularRef()` short-circuits on the first match, reducing traversal from O(subtree size) to O(depth-to-first-match) on average.
-- `collectRefs()` eliminates the `Array.from(Set)` call in `sortSchemas()` that previously ran once per schema.
-- Plugin authors who import `collectLazy()` from `@kubb/ast` can write their own lazy schema visitors without materializing intermediate arrays.
+- Peak heap during `collect()` traversal drops from O(nodes) simultaneous live arrays to one `Array.from()` allocation at the top.
+- `getChildren()` no longer allocates a temporary array per node; children flow directly into the `for...of` body.
+- `collectRefs()` removes the per-schema `Set` and `Array.from()` pair inside `sortSchemas()`.
+- `containsCircularRef()` stops at the first match instead of walking the full subtree.
+- `collectLazy()` is available as a public export for plugin authors who want lazy traversal without materializing a full array.
 
 ### Negative
 
-- Generator functions introduce a new mental model. Developers unfamiliar with `function*`, `yield`, and `yield*` may find the traversal code harder to follow initially.
-- `collect` stays synchronous while `walk()` remains async. This preserves the existing boundary but means the two traversal APIs diverge in style.
-- Whether the allocation reduction translates to measurable wall-clock improvement is unconfirmed. Modern V8 handles short-lived array allocations well, so profiling is needed before claiming a win.
+- `function*`, `yield`, and `yield*` are a new mental model for contributors who have not worked with generators before.
+- Whether the allocation reduction produces measurable wall-clock improvement depends on the GC behavior of the host V8 version and spec size. Profiling is needed to confirm a real-world win.
 
 ## Considered options
 
-### Option A: Private generator + public wrapper (chosen)
+### Option A: Generator with public lazy export (chosen)
 
-`collectLazy()` is the exported generator. `collect()` wraps it with `Array.from()`. No existing call site changes. The early-exit optimization in `containsCircularRef()` is the immediate behavioral win.
+`collectLazy()` is the exported `function*`. `collect()` wraps it with `Array.from()`. No existing call site changes. The early-exit in `containsCircularRef()` is the immediate behavioral win.
 
 ### Option B: Stack-based iterative traversal
 
-Replace recursion with an explicit `while (stack.length)` loop that pushes child nodes. This eliminates recursion stack depth and avoids generator frame overhead, but requires maintaining a manual stack object and increases code complexity without offering better composability than generators. Not chosen.
-
-### Option C: Object pooling
-
-Reuse `Array` instances across `collect()` calls by resetting and returning them to a pool after use. This reduces GC pressure without changing the algorithm, but requires careful ownership tracking: callers cannot hold references to returned arrays across calls, which is error-prone in a recursive setting. Not chosen.
-
-### Option D: Do nothing
-
-Acceptable for small specs. For enterprise-scale specs like Stripe, Kubernetes, and GitHub the allocation pressure is measurable. Not chosen.
+Replace recursion with an explicit `while (stack.length)` loop. This also avoids simultaneous live allocations and removes recursion depth from the call stack. It does not, however, compose as cleanly: `yield*` delegation is not available, so merging results from children requires manual bookkeeping. Not chosen.
 
 ## Related ADRs
 
-- [ADR-0001: Include filter schema scoping](./0001_include_filter.md) — `collectUsedSchemaNames()` is the main consumer of `collect()` in the include-filter path and benefits directly from the generator optimization.
+- [ADR-0001: Include filter schema scoping](./0001_include_filter.md): `collectUsedSchemaNames()` is the main consumer of `collect()` in the include-filter path and benefits directly from the generator optimization.
