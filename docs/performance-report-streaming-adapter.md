@@ -26,8 +26,9 @@ Three fixes ship together and are all required for the Stripe spec to work withi
 
 | Metric | Without PR | With PR |
 |--------|-----------|---------|
-| Full operation — single adapter | OOM at 8 GB | 1,067 ms, +15.9 MB heap |
-| AST phase only (doc pre-warmed) | OOM at 8 GB | 230 ms, < 1 MB AST heap |
+| Full operation — single adapter | OOM at 8 GB | 732 ms, +16.6 MB heap |
+| AST phase only (doc pre-warmed) | OOM at 8 GB | 144 ms, < 1 MB AST heap |
+| Streaming heap vs batch (full op) | — | **−17%** (13.84 vs 16.64 MB) |
 | Peak RSS — full 7-plugin build | OOM | ~300 MB |
 | Full 7-plugin e2e duration | OOM | ~10 s |
 | Node heap limit required | > 8 GB | 3 GB (CI default) |
@@ -36,40 +37,43 @@ Three fixes ship together and are all required for the Stripe spec to work withi
 
 #### Full operation (document loading + AST build)
 
-| Spec | Schemas | Ops | Mode | Peak heap Δ | Duration |
-|:-----|--------:|----:|:----|-----------:|--------:|
-| petStore | 13 | 21 | **batch** | 1.92 MB | 24 ms |
-| | | | streaming | 1.85 MB (**−4%**) | 24 ms |
-| Stripe | 1,385 | 587 | **batch** | 15.85 MB | 1,067 ms |
-| | | | streaming | 15.84 MB (**−0%**) | 1,122 ms (**+5%**) |
+| Spec | Schemas | Ops | Mode | Peak heap Δ | Duration | vs batch |
+|:-----|--------:|----:|:----|-----------:|--------:|--------:|
+| petStore | 13 | 21 | **batch** | 0.00 MB | 18 ms | — |
+| | | | streaming | 0.00 MB | 16 ms | −7% |
+| Stripe | 1,385 | 587 | **batch** | 16.64 MB | 732 ms | — |
+| | | | streaming | **13.84 MB** | **727 ms** | **−17% heap, −1% time** |
 
 #### AST phase only (document pre-warmed — isolates SchemaNode/OperationNode heap)
 
-| Spec | Mode | Peak heap Δ | Duration |
-|:-----|:----|-----------:|--------:|
-| petStore | **batch** | < 1 MB | 3 ms |
-| | streaming | < 1 MB | 3 ms |
-| Stripe | **batch** | < 1 MB | 230 ms |
-| | streaming | < 1 MB | 245 ms (**+7%**) |
+| Spec | Mode | Peak heap Δ | Duration | vs batch |
+|:-----|:----|-----------:|--------:|--------:|
+| petStore | **batch** | < 1 MB | 2 ms | — |
+| | streaming | < 1 MB | 2 ms | — |
+| Stripe | **batch** | < 1 MB | 144 ms | — |
+| | streaming | < 1 MB | 156 ms | +8% |
 
 _Median of 5 runs · 2026-05-16 · Node.js v22.22.2 · `--expose-gc` · `validate: false`_
 
 **What these numbers mean:**
 
-The full-operation heap delta (~16 MB) is dominated by the Redocly-bundled JSON object,
-which both paths load identically. The AST-phase measurement isolates SchemaNode /
-OperationNode allocations from document overhead: even 1,385 schemas and 587 operations
-produce less than 1 MB of retained AST heap — because `resolvedRefCache` shares
-`SchemaNode` instances across all `$ref` usages rather than cloning the subtree for
-each reference.
+The **−17% full-operation heap reduction** on Stripe comes from the streaming path
+allowing V8 to GC yielded `SchemaNode` objects between yields. The batch path pins all
+nodes until `parse()` returns; streaming releases each node to GC as the consumer
+moves to the next iteration.
 
-**Streaming's memory benefit is in multi-plugin fan-out, not single-adapter runs.**
-In a 7-plugin build, the batch path holds the full `InputNode` in memory for the
-duration of each plugin's sequential pass. `runPluginStreamHooks` delivers each node to
-all N plugins in a single pass: yielded nodes can be released to GC between iterations
-rather than being pinned until all N plugins have finished. For the operations batch
-(421 nodes for bunq, 587 for Stripe), the full array is still materialised before
-`gen.operations` is called — eliminating that buffer is a P2 roadmap item.
+The AST-phase-only rows show < 1 MB retained AST heap in both modes because
+`resolvedRefCache` shares `SchemaNode` instances across all `$ref` usages rather than
+cloning the subtree per reference. The full-operation delta (16.6 MB batch vs 13.8 MB
+streaming) reflects in-flight allocations during the parse pass, not retained nodes.
+
+**Streaming's benefit compounds in multi-plugin fan-out.** In a 7-plugin build, the
+batch path holds the full `InputNode` in memory for each plugin's sequential pass.
+`runPluginStreamHooks` delivers each node to all N plugins in a single pass: yielded
+nodes can be released to GC between iterations rather than being pinned until all N
+passes complete. For the operations batch (587 for Stripe), the full array is still
+materialised before `gen.operations` is called — eliminating that buffer is a P2
+roadmap item.
 
 ---
 
@@ -110,7 +114,7 @@ Each `$ref` path resolves exactly once per `createSchemaParser` instance. Subseq
 references to the same schema reuse the cached `SchemaNode`. Complexity drops from
 O(2^depth) to O(N) where N is the number of unique schema names.
 
-**Result:** 1,385 Stripe schemas parse in ~230 ms of AST time at < 1 MB of retained AST heap (from OOM at 8 GB). The full operation including Redocly document loading is ~1,070 ms at ~16 MB total heap delta.
+**Result:** 1,385 Stripe schemas parse in ~144 ms of AST time (document pre-warmed) at < 1 MB of retained AST heap — down from OOM at 8 GB. The full cold operation including Redocly document loading is ~732 ms at ~16 MB heap delta (batch) / ~13.8 MB (streaming, −17%).
 
 ---
 
