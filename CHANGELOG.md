@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.0.0-beta.14 — May 16, 2026
+
+### @kubb/ast
+
+#### Features
+
+- Use generator functions for lazy AST traversal.
+  
+  `collectLazy()` is now exported from `@kubb/ast`. It is a generator version of `collect()` that yields results one by one without materializing an intermediate array. `collect()` is unchanged and still returns `Array<T>`.
+  
+  `getChildren()` and `collectRefs()` are converted to generators internally, removing per-node temporary array allocations during traversal.
+  
+  `containsCircularRef()` uses `collectLazy()` with an early-exit loop and stops at the first matching circular ref instead of traversing the full subtree. ([#3301](https://github.com/kubb-labs/kubb/pull/3301), [`647207f`](https://github.com/kubb-labs/kubb/commit/647207f135ae95f3b5bfcb67815eeea46954cfb8))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.13 — May 16, 2026
 
 ### @kubb/cli

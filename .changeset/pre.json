@@ -20,6 +20,7 @@
     "adapter-oas-integer-type-bigint-default",
     "add-adapter-document-field",
     "add-code-ast-nodes",
+    "add-collect-lazy-generator",
     "add-collision-detection-option",
     "add-core-mocks-subpath",
     "add-create-operation-params",
