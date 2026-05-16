@@ -2,7 +2,7 @@
 
 | Status   | Authors        | Reviewers      | Issue | Decision date |
 | -------- | -------------- | -------------- | ----- | ------------- |
-| Proposed | @stijnvanhulle | @stijnvanhulle |       | 2026-05-16    |
+| Accepted | @stijnvanhulle | @stijnvanhulle |       | 2026-05-16    |
 
 ## Context
 
@@ -18,19 +18,19 @@ The problems stack: `collect()` calls `getChildren()` at every recursion level, 
 
 ## Decision
 
-`collect()` is split into a private generator `_collectGen()` and a public wrapper that materializes the generator into an array only at the top level. `getChildren()` is converted to a generator that `yield*`s children directly. `collectRefs()` is converted to a generator that `yield*`s `$ref` names as it walks the raw JSON object tree.
+`collect()` is refactored into two functions: `collectLazy()`, the exported generator that traverses the AST node by node, and `collect()`, the wrapper that materializes results with `Array.from(collectLazy(node, options))`. `getChildren()` is converted to a generator that `yield*`s children directly. `collectRefs()` is converted to a generator that `yield*`s `$ref` names as it walks the raw JSON object tree.
 
-The public `collect()` signature stays identical: it still returns `Array<T>`. A new `collectGen()` function is exported alongside it for callers that can consume the traversal lazily without materializing a full array.
+The public `collect()` signature stays identical: it still returns `Array<T>`. `collectLazy()` is exported alongside it for callers that can consume the traversal lazily without materializing a full array.
 
-`containsCircularRef()` is rewritten to use `collectGen()` with an early-exit loop. It currently calls `collect()` and checks `.length > 0`, which traverses the entire subtree even after finding the first match. With a generator it stops at the first yielded value.
+`containsCircularRef()` is rewritten to use `collectLazy()` with an early-exit loop. It previously called `collect()` and checked `.length > 0`, which traversed the entire subtree even after finding the first match. With a generator it stops at the first yielded value.
 
 ## Rationale
 
 Generators are pull-based: the caller drives iteration step by step, and nothing is produced until requested. That makes them a good match for recursive tree traversal, particularly when the caller wants to stop early.
 
-The two alternatives considered were stack-based iterative traversal and object pooling. Stack-based iteration eliminates recursion depth but requires maintaining a manual stack object, which is more code without better composability. Object pooling reduces allocations but requires careful ownership tracking, which is error-prone in a recursive setting where callers may hold references across calls. Generators get to near-zero allocations with code that reads almost identically to the original: `yield v` and `yield* recursiveCall(child)` replace `results.push(v)` and the inner `for...of` merge loop.
+The two alternatives considered were stack-based iterative traversal and object pooling. Stack-based iteration eliminates recursion depth but requires maintaining a manual stack object, which is more code without better composability. Object pooling reduces allocations but requires careful ownership tracking, which is error-prone in a recursive setting where callers may hold references across calls. Generators get to near-zero allocations with code that reads almost identically to the original: `yield v` and `yield* collectLazy(child, opts)` replace `results.push(v)` and the inner `for...of` merge loop.
 
-`collect()` stays backward compatible because it still returns `Array<T>`. The generator is an internal implementation detail until callers opt in via `collectGen()`.
+`collect()` stays backward compatible because it still returns `Array<T>`. `collectLazy()` is an additive export; no existing call site needs to change.
 
 ## Consequences
 
@@ -40,7 +40,7 @@ The two alternatives considered were stack-based iterative traversal and object 
 - `getChildren()` no longer allocates a temporary array per visited node; children stream directly into the `for...of` body.
 - `containsCircularRef()` short-circuits on the first match, reducing traversal from O(subtree size) to O(depth-to-first-match) on average.
 - `collectRefs()` eliminates the `Array.from(Set)` call in `sortSchemas()` that previously ran once per schema.
-- Plugin authors who import `collectGen()` from `@kubb/ast` can write their own lazy schema visitors without materializing intermediate arrays.
+- Plugin authors who import `collectLazy()` from `@kubb/ast` can write their own lazy schema visitors without materializing intermediate arrays.
 
 ### Negative
 
@@ -52,7 +52,7 @@ The two alternatives considered were stack-based iterative traversal and object 
 
 ### Option A: Private generator + public wrapper (chosen)
 
-`_collectGen()` is the recursive generator. `collect()` wraps it with `Array.from()`. `collectGen()` is exported as a new, additive API. No existing call site changes. The early-exit optimization in `containsCircularRef()` is the immediate behavioral win.
+`collectLazy()` is the exported generator. `collect()` wraps it with `Array.from()`. No existing call site changes. The early-exit optimization in `containsCircularRef()` is the immediate behavioral win.
 
 ### Option B: Stack-based iterative traversal
 
