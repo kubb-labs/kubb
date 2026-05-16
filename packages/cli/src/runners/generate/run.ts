@@ -33,6 +33,7 @@ type RunToolPassOptions = {
   outputPath: string
   logLevel: number
   hooks: AsyncEventEmitter<KubbHooks>
+  makeSink?: HookSinkFactory
   onStart: () => Promise<void>
   onEnd: () => Promise<void>
 }
@@ -67,6 +68,7 @@ async function runToolPass({
   outputPath,
   logLevel,
   hooks,
+  makeSink,
   onStart,
   onEnd,
 }: RunToolPassOptions) {
@@ -99,18 +101,21 @@ async function runToolPass({
 
     try {
       const hookArgs = toolConfig.args(outputPath)
+      const commandWithArgs = [toolConfig.command, ...hookArgs].join(' ')
       const hookEndPromise = waitForHookEnd(hooks, hookId, () => hooks.emit('kubb:success', { message: successMessage }), toolConfig.errorMessage)
 
       await hooks.emit('kubb:hook:start', { id: hookId, command: toolConfig.command, args: hookArgs })
+
+      const { stream = false, onLine, onStdout, onStderr } = makeSink?.(commandWithArgs, hookId) ?? {}
 
       runHook({
         id: hookId,
         command: toolConfig.command,
         args: hookArgs,
-        commandWithArgs: [toolConfig.command, ...hookArgs].join(' '),
+        commandWithArgs,
         context: hooks,
-        stream: false,
-        sink: {},
+        stream,
+        sink: { onLine, onStdout, onStderr },
       }).catch(() => {})
 
       await hookEndPromise
@@ -206,7 +211,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
   ].filter(Boolean) as Omit<RunToolPassOptions, 'configName' | 'outputPath' | 'logLevel' | 'hooks'>[]
 
   for (const pass of toolPasses) {
-    await runToolPass({ ...pass, configName: config.name, outputPath, logLevel, hooks })
+    await runToolPass({ ...pass, configName: config.name, outputPath, logLevel, hooks, makeSink })
   }
 
   if (config.hooks) {

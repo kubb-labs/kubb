@@ -235,7 +235,7 @@ export const plainLogger = defineLogger({
       console.log(SUMMARY_SEPARATOR)
     })
 
-    return (_commandWithArgs: string) => ({
+    return (_commandWithArgs: string, _hookId: string) => ({
       onStdout: logLevel > logLevelMap.silent ? (s: string) => console.log(s) : undefined,
       onStderr: logLevel > logLevelMap.silent ? (s: string) => console.error(s) : undefined,
     })

@@ -359,7 +359,7 @@ export const githubActionsLogger = defineLogger({
       reset()
     })
 
-    return (_commandWithArgs: string) => ({
+    return (_commandWithArgs: string, _hookId: string) => ({
       onStdout: logLevel > logLevelMap.silent ? (s: string) => console.log(s) : undefined,
       onStderr: logLevel > logLevelMap.silent ? (s: string) => console.error(`::error::${s}`) : undefined,
     })
