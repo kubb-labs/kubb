@@ -31,7 +31,11 @@ async function sleep(ms) {
 }
 
 async function withMemory(fn) {
-  gc(); await sleep(120); gc(); await sleep(120); gc()
+  gc()
+  await sleep(120)
+  gc()
+  await sleep(120)
+  gc()
 
   const heapBefore = process.memoryUsage().heapUsed
   let peakHeap = heapBefore
@@ -83,7 +87,8 @@ async function runStreamingAstOnly(source) {
   await adapter.count(source)
   return withMemory(async () => {
     const streamNode = await adapter.stream(source)
-    let schemas = 0; let operations = 0
+    let schemas = 0
+    let operations = 0
     for await (const _ of streamNode.schemas) schemas++
     for await (const _ of streamNode.operations) operations++
     return { schemas, operations }
@@ -117,9 +122,9 @@ async function measureSpec(label, source, runs = 5) {
 
     process.stderr.write(
       `  run ${i + 1}: batch=${b.durationMs.toFixed(0)}ms +${b.peakDeltaMB.toFixed(2)}MB` +
-      `  stream=${s.durationMs.toFixed(0)}ms +${s.peakDeltaMB.toFixed(2)}MB` +
-      `  batch-ast=${ba.durationMs.toFixed(0)}ms +${ba.peakDeltaMB.toFixed(2)}MB` +
-      `  stream-ast=${sa.durationMs.toFixed(0)}ms +${sa.peakDeltaMB.toFixed(2)}MB\n`
+        `  stream=${s.durationMs.toFixed(0)}ms +${s.peakDeltaMB.toFixed(2)}MB` +
+        `  batch-ast=${ba.durationMs.toFixed(0)}ms +${ba.peakDeltaMB.toFixed(2)}MB` +
+        `  stream-ast=${sa.durationMs.toFixed(0)}ms +${sa.peakDeltaMB.toFixed(2)}MB\n`,
     )
   }
 
@@ -128,16 +133,26 @@ async function measureSpec(label, source, runs = 5) {
     return sorted[Math.floor(sorted.length / 2)][key]
   }
 
-  const batch = { schemas: batchRuns[0].result.schemas, operations: batchRuns[0].result.operations, peakDeltaMB: median(batchRuns, 'peakDeltaMB'), durationMs: median(batchRuns, 'durationMs') }
-  const streaming = { schemas: streamRuns[0].result.schemas, operations: streamRuns[0].result.operations, peakDeltaMB: median(streamRuns, 'peakDeltaMB'), durationMs: median(streamRuns, 'durationMs') }
+  const batch = {
+    schemas: batchRuns[0].result.schemas,
+    operations: batchRuns[0].result.operations,
+    peakDeltaMB: median(batchRuns, 'peakDeltaMB'),
+    durationMs: median(batchRuns, 'durationMs'),
+  }
+  const streaming = {
+    schemas: streamRuns[0].result.schemas,
+    operations: streamRuns[0].result.operations,
+    peakDeltaMB: median(streamRuns, 'peakDeltaMB'),
+    durationMs: median(streamRuns, 'durationMs'),
+  }
   const batchAst = { peakDeltaMB: median(batchAstRuns, 'peakDeltaMB'), durationMs: median(batchAstRuns, 'durationMs') }
   const streamAst = { peakDeltaMB: median(streamAstRuns, 'peakDeltaMB'), durationMs: median(streamAstRuns, 'durationMs') }
 
   process.stderr.write(
     `  → medians: batch=${batch.durationMs.toFixed(0)}ms +${batch.peakDeltaMB.toFixed(2)}MB` +
-    `  stream=${streaming.durationMs.toFixed(0)}ms +${streaming.peakDeltaMB.toFixed(2)}MB\n` +
-    `  → ast-only: batch=${batchAst.durationMs.toFixed(0)}ms +${batchAst.peakDeltaMB.toFixed(2)}MB` +
-    `  stream=${streamAst.durationMs.toFixed(0)}ms +${streamAst.peakDeltaMB.toFixed(2)}MB\n`
+      `  stream=${streaming.durationMs.toFixed(0)}ms +${streaming.peakDeltaMB.toFixed(2)}MB\n` +
+      `  → ast-only: batch=${batchAst.durationMs.toFixed(0)}ms +${batchAst.peakDeltaMB.toFixed(2)}MB` +
+      `  stream=${streamAst.durationMs.toFixed(0)}ms +${streamAst.peakDeltaMB.toFixed(2)}MB\n`,
   )
 
   return { label, schemas: batch.schemas, operations: batch.operations, batch, streaming, batchAst, streamAst }
@@ -169,9 +184,18 @@ async function main() {
 
   for (const r of results) {
     rows.push(mdRow(r.label, String(r.schemas), String(r.operations), '**batch**', r.batch.peakDeltaMB.toFixed(2), r.batch.durationMs.toFixed(0), '—', '—'))
-    rows.push(mdRow('', '', '', 'streaming', r.streaming.peakDeltaMB.toFixed(2), r.streaming.durationMs.toFixed(0),
-      pctChange(r.batch.peakDeltaMB, r.streaming.peakDeltaMB),
-      pctChange(r.batch.durationMs, r.streaming.durationMs)))
+    rows.push(
+      mdRow(
+        '',
+        '',
+        '',
+        'streaming',
+        r.streaming.peakDeltaMB.toFixed(2),
+        r.streaming.durationMs.toFixed(0),
+        pctChange(r.batch.peakDeltaMB, r.streaming.peakDeltaMB),
+        pctChange(r.batch.durationMs, r.streaming.durationMs),
+      ),
+    )
   }
   console.log(rows.join('\n'))
 
@@ -182,13 +206,23 @@ async function main() {
 
   for (const r of results) {
     rows.push(mdRow(r.label, '**batch**', r.batchAst.peakDeltaMB.toFixed(2), r.batchAst.durationMs.toFixed(0), '—', '—'))
-    rows.push(mdRow('', 'streaming', r.streamAst.peakDeltaMB.toFixed(2), r.streamAst.durationMs.toFixed(0),
-      pctChange(r.batchAst.peakDeltaMB, r.streamAst.peakDeltaMB),
-      pctChange(r.batchAst.durationMs, r.streamAst.durationMs)))
+    rows.push(
+      mdRow(
+        '',
+        'streaming',
+        r.streamAst.peakDeltaMB.toFixed(2),
+        r.streamAst.durationMs.toFixed(0),
+        pctChange(r.batchAst.peakDeltaMB, r.streamAst.peakDeltaMB),
+        pctChange(r.batchAst.durationMs, r.streamAst.durationMs),
+      ),
+    )
   }
   console.log(rows.join('\n'))
 
   console.log(`\n_Measured ${new Date().toISOString().split('T')[0]} · Node.js ${process.version} · --expose-gc_\n`)
 }
 
-main().catch((e) => { console.error(e); process.exit(1) })
+main().catch((e) => {
+  console.error(e)
+  process.exit(1)
+})
