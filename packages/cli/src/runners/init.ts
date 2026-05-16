@@ -257,7 +257,15 @@ export async function runInit({ yes, version }: InitOptions): Promise<void> {
     }
 
     // Install packages
-    const packagesToInstall = ['@kubb/core', '@kubb/cli', '@kubb/agent', ...selectedPlugins.map((p) => p.packageName)]
+    // Pin @kubb/plugin-oas to its last published version (4.37.5) because it
+    // was deprecated and no longer receives releases, so npm cannot resolve a
+    // version matching the newer CLI/core packages (see https://github.com/kubb-labs/kubb/issues/3296).
+    const packagesToInstall = [
+      '@kubb/core',
+      '@kubb/cli',
+      '@kubb/agent',
+      ...selectedPlugins.map((p) => (p.value === 'plugin-oas' ? '@kubb/plugin-oas@4.37.5' : p.packageName)),
+    ]
 
     const spinner = clack.spinner()
     spinner.start(`Installing ${packagesToInstall.length} packages with ${packageManager.name}`)
