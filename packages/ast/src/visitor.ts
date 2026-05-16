@@ -540,7 +540,7 @@ export function transform(node: Node, options: TransformOptions): Node {
  * const values = collect(root, { depth: 'shallow', root: () => 'root' })
  * ```
  */
-function* _collectGen<T>(node: Node, options: CollectOptions<T>): Generator<T, void, undefined> {
+export function* collectLazy<T>(node: Node, options: CollectOptions<T>): Generator<T, void, undefined> {
   const { depth, parent, ...visitor } = options
   const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
 
@@ -583,14 +583,10 @@ function* _collectGen<T>(node: Node, options: CollectOptions<T>): Generator<T, v
   if (v !== undefined) yield v
 
   for (const child of getChildren(node, recurse)) {
-    yield* _collectGen(child, { ...options, parent: node })
+    yield* collectLazy(child, { ...options, parent: node })
   }
 }
 
 export function collect<T>(node: Node, options: CollectOptions<T>): Array<T> {
-  return Array.from(_collectGen(node, options))
-}
-
-export function collectGen<T>(node: Node, options: CollectOptions<T>): IterableIterator<T> {
-  return _collectGen(node, options)
+  return Array.from(collectLazy(node, options))
 }

@@ -17,7 +17,7 @@ import type {
 } from './nodes/index.ts'
 import type { SchemaType } from './nodes/schema.ts'
 import { extractRefName } from './refs.ts'
-import { collect, collectGen } from './visitor.ts'
+import { collect, collectLazy } from './visitor.ts'
 
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
 
@@ -842,7 +842,7 @@ export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>,
   }
 
   for (const op of operations) {
-    for (const schema of collectGen<SchemaNode>(op, { depth: 'shallow', schema: (node) => node })) {
+    for (const schema of collectLazy<SchemaNode>(op, { depth: 'shallow', schema: (node) => node })) {
       visitSchema(schema)
     }
   }
@@ -902,7 +902,7 @@ export function containsCircularRef(
 ): boolean {
   if (!node || circularSchemas.size === 0) return false
 
-  for (const _ of collectGen<true>(node, {
+  for (const _ of collectLazy<true>(node, {
     schema(child) {
       if (child.type !== 'ref') return undefined
       const name = resolveRefName(child)
