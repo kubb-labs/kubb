@@ -245,7 +245,7 @@ function createSchemaParser(ctx: OasParserContext) {
 
     return ast.createSchema({
       type: 'intersection',
-      members: [...ast.mergeAdjacentObjects(allOfMembers.slice(0, syntheticStart)), ...ast.mergeAdjacentObjects(allOfMembers.slice(syntheticStart))],
+      members: [...ast.mergeAdjacentObjectsLazy(allOfMembers.slice(0, syntheticStart)), ...ast.mergeAdjacentObjectsLazy(allOfMembers.slice(syntheticStart))],
       ...buildSchemaNode(schema, name, nullable, defaultValue),
     })
   }
@@ -886,17 +886,18 @@ function createSchemaParser(ctx: OasParserContext) {
 
     const requestBodyMeta = getRequestBodyMeta(operation)
 
-    const content = allContentTypes.flatMap((ct) => {
-      const schema = getRequestSchema(document, operation, { contentType: ct })
-      if (!schema) return []
-      return [
-        {
+    function* contentGen() {
+      for (const ct of allContentTypes) {
+        const schema = getRequestSchema(document, operation, { contentType: ct })
+        if (!schema) continue
+        yield {
           contentType: ct,
           schema: ast.syncOptionality(parseSchema({ schema }, options), requestBodyMeta.required),
           keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
-        },
-      ]
-    })
+        }
+      }
+    }
+    const content = Array.from(contentGen())
 
     const requestBody =
       content.length > 0 || requestBodyMeta.description
@@ -1009,11 +1010,14 @@ export function parseOas(
   const baseOas = new BaseOas(document)
   const paths = baseOas.getPaths()
 
-  const operations: Array<ast.OperationNode> = Object.entries(paths).flatMap(([_path, methods]) =>
-    Object.entries(methods)
-      .map(([, operation]) => (operation ? _parseOperation(mergedOptions, operation) : null))
-      .filter((op): op is ast.OperationNode => op !== null),
-  )
+  function* parseOperations(): Generator<ast.OperationNode, void, undefined> {
+    for (const [, methods] of Object.entries(paths)) {
+      for (const [, operation] of Object.entries(methods)) {
+        if (operation) yield _parseOperation(mergedOptions, operation)
+      }
+    }
+  }
+  const operations = Array.from(parseOperations())
 
   const root = ast.createInput({ schemas, operations })
 
