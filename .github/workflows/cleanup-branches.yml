@@ -13,7 +13,7 @@ jobs:
     permissions:
       contents: write
     steps:
-        uses: actions/github-script@373c709c69115d41ff229c7e5df9f8788daa9553 # v9
+      - uses: actions/github-script@373c709c69115d41ff229c7e5df9f8788daa9553 # v9
         with:
           script: |
             const branch = context.payload.pull_request.head.ref;
