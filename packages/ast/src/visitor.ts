@@ -265,39 +265,40 @@ export type CollectOptions<T> = CollectVisitor<T> & {
  * // returns parameters, requestBody schema (if present), and responses
  * ```
  */
-function getChildren(node: Node, recurse: boolean): Array<Node> {
+function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undefined> {
   switch (node.kind) {
     case 'Input':
-      return [...node.schemas, ...node.operations]
+      yield* node.schemas
+      yield* node.operations
+      break
     case 'Output':
-      return []
+      break
     case 'Operation':
-      return [...node.parameters, ...(node.requestBody?.content?.flatMap((c) => (c.schema ? [c.schema] : [])) ?? []), ...node.responses]
+      yield* node.parameters
+      if (node.requestBody?.content) {
+        for (const c of node.requestBody.content) {
+          if (c.schema) yield c.schema
+        }
+      }
+      yield* node.responses
+      break
     case 'Schema': {
-      const children: Array<Node> = []
-
-      if (!recurse) return []
-
-      if ('properties' in node && node.properties.length > 0) children.push(...node.properties)
-      if ('items' in node && node.items) children.push(...node.items)
-      if ('members' in node && node.members) children.push(...node.members)
-      if ('additionalProperties' in node && node.additionalProperties && node.additionalProperties !== true) children.push(node.additionalProperties)
-
-      return children
+      if (!recurse) break
+      if ('properties' in node && node.properties.length > 0) yield* node.properties
+      if ('items' in node && node.items) yield* node.items
+      if ('members' in node && node.members) yield* node.members
+      if ('additionalProperties' in node && node.additionalProperties && node.additionalProperties !== true) yield node.additionalProperties
+      break
     }
     case 'Property':
-      return [node.schema]
+      yield node.schema
+      break
     case 'Parameter':
-      return [node.schema]
+      yield node.schema
+      break
     case 'Response':
-      return node.schema ? [node.schema] : []
-    case 'FunctionParameter':
-    case 'ParameterGroup':
-    case 'FunctionParameters':
-    case 'Type':
-      return []
-    default:
-      return []
+      if (node.schema) yield node.schema
+      break
   }
 }
 
@@ -539,10 +540,9 @@ export function transform(node: Node, options: TransformOptions): Node {
  * const values = collect(root, { depth: 'shallow', root: () => 'root' })
  * ```
  */
-export function collect<T>(node: Node, options: CollectOptions<T>): Array<T> {
+function* _collectGen<T>(node: Node, options: CollectOptions<T>): Generator<T, void, undefined> {
   const { depth, parent, ...visitor } = options
   const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
-  const results: Array<T> = []
 
   let v: T | undefined
   switch (node.kind) {
@@ -580,13 +580,17 @@ export function collect<T>(node: Node, options: CollectOptions<T>): Array<T> {
     case 'FunctionParameters':
       break
   }
-  if (v !== undefined) results.push(v)
+  if (v !== undefined) yield v
 
   for (const child of getChildren(node, recurse)) {
-    for (const item of collect(child, { ...options, parent: node })) {
-      results.push(item)
-    }
+    yield* _collectGen(child, { ...options, parent: node })
   }
+}
 
-  return results
+export function collect<T>(node: Node, options: CollectOptions<T>): Array<T> {
+  return Array.from(_collectGen(node, options))
+}
+
+export function collectGen<T>(node: Node, options: CollectOptions<T>): IterableIterator<T> {
+  return _collectGen(node, options)
 }
