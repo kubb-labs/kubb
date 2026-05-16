@@ -1,5 +1,44 @@
 # Changelog
 
+## v5.0.0-beta.13 — May 16, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Fix multiple configs in `defineConfig` array stopping after the first failure.
+  
+  Two bugs caused only one schema to be processed when using `defineConfig` with an array of configs:
+  
+  1. **`@kubb/cli`**: `process.exit(1)` was called immediately when any config failed, killing the process before remaining configs could run. Each config is now processed independently; the process exits with code 1 after all configs complete if any failed.
+  
+  2. **`@kubb/core`**: Middleware hooks registered during `setup()` were never removed from the shared `hooks` instance between config runs, causing N middleware instances to fire for the N-th config and producing duplicate output. Middleware listeners are now tracked and removed via `SetupResult.dispose()` at the end of each build. ([#3297](https://github.com/kubb-labs/kubb/pull/3297), [`d66969f`](https://github.com/kubb-labs/kubb/commit/d66969f52bb22ea417d931dc608c885a733c086b))
+
+### @kubb/middleware-barrel
+
+#### Features
+
+- `getBarrelFiles` now returns a `Generator<FileNode>` instead of `Array<FileNode>`.
+  
+  Iterate with `for...of` or spread into an array to preserve existing behaviour:
+  
+  ```ts
+  // before
+  const files = getBarrelFiles({ ... })
+  
+  // after — iterate incrementally
+  for (const file of getBarrelFiles({ ... })) { ... }
+  
+  // after — spread to get an array
+  const files = [...getBarrelFiles({ ... })]
+  ``` ([#3294](https://github.com/kubb-labs/kubb/pull/3294), [`164881b`](https://github.com/kubb-labs/kubb/commit/164881b1cb18849b9f5491019971cf3f34c4f5ea))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.12 — May 15, 2026
 
 ### @kubb/adapter-oas
