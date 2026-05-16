@@ -117,7 +117,7 @@ async function runToolPass({
   }
 }
 
-async function generate(options: GenerateProps): Promise<void> {
+async function generate(options: GenerateProps): Promise<boolean> {
   const { input, hooks, logLevel, makeSink } = options
 
   const hrStart = process.hrtime()
@@ -163,7 +163,7 @@ async function generate(options: GenerateProps): Promise<void> {
     })
 
     await reportTelemetry('failed')
-    process.exit(1)
+    return false
   }
 
   await hooks.emit('kubb:success', { message: 'Generation succeeded', info: inputPath })
@@ -207,6 +207,7 @@ async function generate(options: GenerateProps): Promise<void> {
   await hooks.emit('kubb:generation:summary', { config, failedPlugins, filesCreated: files.length, status: 'success', hrStart, pluginTimings })
 
   await reportTelemetry('success')
+  return true
 }
 
 type GenerateCommandOptions = {
@@ -252,6 +253,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch }: G
     await hooks.emit('kubb:config:end', { configs })
     await hooks.emit('kubb:lifecycle:start', { version })
 
+    let anyFailed = false
     for (const config of configs) {
       if (isInputPath(config) && watch) {
         await startWatcher(
@@ -264,11 +266,21 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch }: G
           { info: (msg) => clack.log.info(msg), error: (msg) => clack.log.error(msg) },
         )
       } else {
-        await generate({ input, config, logLevel, hooks, makeSink })
+        try {
+          const succeeded = await generate({ input, config, logLevel, hooks, makeSink })
+          if (!succeeded) anyFailed = true
+        } catch (configError) {
+          await hooks.emit('kubb:error', { error: toError(configError) })
+          anyFailed = true
+        }
       }
     }
 
     await hooks.emit('kubb:lifecycle:end')
+
+    if (anyFailed) {
+      process.exit(1)
+    }
   } catch (error) {
     await hooks.emit('kubb:error', { error: toError(error) })
     process.exit(1)
