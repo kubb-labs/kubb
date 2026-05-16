@@ -10,7 +10,7 @@ import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../../constants.ts'
 import { setupLogger, type HookSinkFactory } from '../../loggers/utils.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../../telemetry.ts'
-import { executeHooks, getConfigs, startWatcher } from './utils.ts'
+import { executeHooks, getConfigs, runHook, startWatcher } from './utils.ts'
 
 type GenerateProps = {
   input?: string
@@ -98,9 +98,20 @@ async function runToolPass({
       .join(' ')
 
     try {
+      const hookArgs = toolConfig.args(outputPath)
       const hookEndPromise = waitForHookEnd(hooks, hookId, () => hooks.emit('kubb:success', { message: successMessage }), toolConfig.errorMessage)
 
-      await hooks.emit('kubb:hook:start', { id: hookId, command: toolConfig.command, args: toolConfig.args(outputPath) })
+      await hooks.emit('kubb:hook:start', { id: hookId, command: toolConfig.command, args: hookArgs })
+
+      runHook({
+        id: hookId,
+        command: toolConfig.command,
+        args: hookArgs,
+        commandWithArgs: [toolConfig.command, ...hookArgs].join(' '),
+        context: hooks,
+        stream: false,
+        sink: {},
+      }).catch(() => {})
 
       await hookEndPromise
     } catch (caughtError) {

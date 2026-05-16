@@ -140,7 +140,7 @@ type RunHookOptions = {
   sink?: HookSinkOptions
 }
 
-async function runHook({ id, command, args, commandWithArgs, context, stream = false, sink }: RunHookOptions): Promise<void> {
+export async function runHook({ id, command, args, commandWithArgs, context, stream = false, sink }: RunHookOptions): Promise<void> {
   const emitEnd = (success: boolean, error: Error | null) => context.emit('kubb:hook:end', { command, args, id, success, error })
 
   try {
