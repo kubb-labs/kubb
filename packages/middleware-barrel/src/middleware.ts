@@ -98,16 +98,8 @@ export const middlewareBarrel = defineMiddleware(() => {
         if (relative.startsWith('..') || path.isAbsolute(relative)) {
           throw new Error('Invalid output path')
         }
-        const barrelFiles = getBarrelFiles({
-          outputPath: target,
-          files,
-          barrelType,
-          nested,
-          recursive: true,
-        })
-
-        if (barrelFiles.length > 0) {
-          upsertFile(...barrelFiles)
+        for (const file of getBarrelFiles({ outputPath: target, files, barrelType, nested, recursive: true })) {
+          upsertFile(file)
         }
       },
       'kubb:plugins:end'({ files, config, upsertFile }) {
@@ -120,14 +112,8 @@ export const middlewareBarrel = defineMiddleware(() => {
 
         const barrelType = barrelConfig.type
 
-        const rootBarrelFiles = getBarrelFiles({
-          outputPath: resolve(config.root, config.output.path),
-          files: filteredFiles,
-          barrelType,
-        })
-
-        if (rootBarrelFiles.length > 0) {
-          upsertFile(...rootBarrelFiles)
+        for (const file of getBarrelFiles({ outputPath: resolve(config.root, config.output.path), files: filteredFiles, barrelType })) {
+          upsertFile(file)
         }
       },
     },

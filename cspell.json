@@ -101,6 +101,8 @@
     "picklist",
     "valibot",
     "Valibot",
-    "bunx"
+    "bunx",
+    "WeakMap",
+    "WeakSet"
   ]
 }
