@@ -25,6 +25,16 @@ export const DEFAULT_BANNER = 'simple' as const
 export const DEFAULT_EXTENSION: Record<FileNode['extname'], FileNode['extname'] | ''> = { '.ts': '.ts' }
 
 /**
+ * Schema count above which the adapter's `stream()` path is used instead of `parse()`.
+ */
+export const STREAM_SCHEMA_THRESHOLD = 100
+
+/**
+ * In streaming mode, flush generated files to disk every N schemas to bound in-memory file buffers.
+ */
+export const STREAM_FLUSH_EVERY = 50
+
+/**
  * Numeric log-level thresholds used internally to compare verbosity.
  *
  * Higher numbers are more verbose.

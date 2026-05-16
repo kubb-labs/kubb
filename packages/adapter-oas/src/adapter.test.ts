@@ -1,5 +1,5 @@
 import { ast } from '@kubb/core'
-import type { AdapterCache } from '@kubb/core'
+import type { Storage } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { adapterOas } from './adapter.ts'
 
@@ -90,31 +90,28 @@ describe('adapterOas.stream', () => {
 })
 
 describe('adapterOas disk cache (count + stream)', () => {
-  function makeMemoryCache(): AdapterCache & { store: Map<string, string> } {
+  function makeMemoryCache(): Storage & { store: Map<string, string> } {
     const store = new Map<string, string>()
     return {
-      dir: '/test/.kubb/.cache',
+      name: 'memory',
       store,
-      storage: {
-        name: 'memory',
-        async hasItem(key) {
-          return store.has(key)
-        },
-        async getItem(key) {
-          return store.get(key) ?? null
-        },
-        async setItem(key, value) {
-          store.set(key, value)
-        },
-        async removeItem(key) {
-          store.delete(key)
-        },
-        async getKeys() {
-          return [...store.keys()]
-        },
-        async clear() {
-          store.clear()
-        },
+      async hasItem(key) {
+        return store.has(key)
+      },
+      async getItem(key) {
+        return store.get(key) ?? null
+      },
+      async setItem(key, value) {
+        store.set(key, value)
+      },
+      async removeItem(key) {
+        store.delete(key)
+      },
+      async getKeys() {
+        return [...store.keys()]
+      },
+      async clear() {
+        store.clear()
       },
     }
   }

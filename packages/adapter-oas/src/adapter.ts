@@ -1,11 +1,10 @@
 import { createHash } from 'node:crypto'
 import { stat } from 'node:fs/promises'
-import { resolve } from 'node:path'
 import { ast, createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { applyDiscriminatorInheritance } from './discriminator.ts'
+import { applyDiscriminatorInheritance, buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
 import { parseDocument, parseFromConfig, validateDocument } from './factory.ts'
 import { createSchemaParser, parseOas } from './parser.ts'
 import { getSchemas, resolveServerUrl } from './resolvers.ts'
@@ -26,8 +25,7 @@ function sourceCacheFilename(source: AdapterSource): string {
 async function readDocumentCache(source: AdapterSource): Promise<{ document: Document; nameMapping: Map<string, string> } | null> {
   if (!source.cache) return null
 
-  const key = resolve(source.cache.dir, sourceCacheFilename(source))
-  const raw = await source.cache.storage.getItem(key)
+  const raw = await source.cache.getItem(sourceCacheFilename(source))
   if (!raw) return null
 
   try {
@@ -50,9 +48,7 @@ async function readDocumentCache(source: AdapterSource): Promise<{ document: Doc
 async function writeDocumentCache(source: AdapterSource, document: Document, nameMapping: Map<string, string>): Promise<void> {
   if (!source.cache) return
 
-  const key = resolve(source.cache.dir, sourceCacheFilename(source))
   let mtime: number | undefined
-
   if (source.type === 'path') {
     const fileStat = await stat(source.path).catch(() => null)
     mtime = fileStat?.mtimeMs
@@ -64,7 +60,7 @@ async function writeDocumentCache(source: AdapterSource, document: Document, nam
     mtime,
   }
 
-  await source.cache.storage.setItem(key, JSON.stringify(entry))
+  await source.cache.setItem(sourceCacheFilename(source), JSON.stringify(entry))
 }
 
 /**
@@ -106,7 +102,25 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   } = options
 
   let nameMapping = new Map<string, string>()
-  let parsedDocument: Document | null
+  let parsedDocument: Document | null = null
+  let cachedSchemaObjects: ReturnType<typeof getSchemas>['schemas'] | null = null
+
+  /** Load from memory → disk cache → fresh parse, in that order. */
+  async function ensureDocument(source: AdapterSource): Promise<{ document: Document; fromCache: boolean }> {
+    if (parsedDocument) return { document: parsedDocument, fromCache: true }
+
+    const cached = await readDocumentCache(source)
+    if (cached) {
+      parsedDocument = cached.document
+      nameMapping = cached.nameMapping
+      return { document: parsedDocument, fromCache: true }
+    }
+
+    const fresh = await parseFromConfig(source)
+    if (validate) await validateDocument(fresh)
+    parsedDocument = fresh
+    return { document: fresh, fromCache: false }
+  }
 
   return {
     name: adapterOasName,
@@ -145,23 +159,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       })
     },
     async parse(source) {
-      let document: Document
-      let fromCache = false
-
-      if (parsedDocument) {
-        document = parsedDocument
-        fromCache = true
-      } else {
-        const cached = await readDocumentCache(source)
-        if (cached) {
-          document = cached.document
-          fromCache = true
-        } else {
-          document = await parseFromConfig(source)
-          if (validate) await validateDocument(document)
-        }
-        parsedDocument = document
-      }
+      const { document, fromCache } = await ensureDocument(source)
 
       const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
       const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
@@ -197,52 +195,34 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       return inputNode
     },
     async count(source) {
-      if (!parsedDocument) {
-        const cached = await readDocumentCache(source)
-        if (cached) {
-          parsedDocument = cached.document
-          nameMapping = cached.nameMapping
-        } else {
-          parsedDocument = await parseFromConfig(source)
-          if (validate) await validateDocument(parsedDocument)
-          const { nameMapping: freshNameMapping } = getSchemas(parsedDocument, { contentType })
-          nameMapping = freshNameMapping
-          await writeDocumentCache(source, parsedDocument, nameMapping)
-        }
+      const { document, fromCache } = await ensureDocument(source)
+
+      if (!cachedSchemaObjects) {
+        const result = getSchemas(document, { contentType })
+        cachedSchemaObjects = result.schemas
+        nameMapping = result.nameMapping
+        if (!fromCache) await writeDocumentCache(source, document, nameMapping)
       }
 
-      const { schemas: schemaObjects } = getSchemas(parsedDocument, { contentType })
-      const baseOas = new BaseOas(parsedDocument)
-      const paths = baseOas.getPaths()
-      const operationCount = Object.values(paths).flatMap(Object.values).filter(Boolean).length
+      const baseOas = new BaseOas(document)
+      const operationCount = Object.values(baseOas.getPaths()).flatMap(Object.values).filter(Boolean).length
 
-      return { schemas: Object.keys(schemaObjects).length, operations: operationCount }
+      return { schemas: Object.keys(cachedSchemaObjects).length, operations: operationCount }
     },
     async stream(source) {
-      let fromCache = true
+      const { document, fromCache } = await ensureDocument(source)
 
-      if (!parsedDocument) {
-        const cached = await readDocumentCache(source)
-        if (cached) {
-          parsedDocument = cached.document
-          nameMapping = cached.nameMapping
-        } else {
-          parsedDocument = await parseFromConfig(source)
-          if (validate) await validateDocument(parsedDocument)
-          fromCache = false
-        }
-      }
-
-      const document = parsedDocument
       const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
       const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
 
-      const { schemas: schemaObjects, nameMapping: parsedNameMapping } = getSchemas(document, { contentType })
-      nameMapping = parsedNameMapping
-
-      if (!fromCache) {
-        await writeDocumentCache(source, document, nameMapping)
+      if (!cachedSchemaObjects) {
+        const result = getSchemas(document, { contentType })
+        cachedSchemaObjects = result.schemas
+        nameMapping = result.nameMapping
+        if (!fromCache) await writeDocumentCache(source, document, nameMapping)
       }
+
+      const schemaObjects = cachedSchemaObjects as ReturnType<typeof getSchemas>['schemas']
 
       const parserOptions: ast.ParserOptions = {
         ...DEFAULT_PARSER_OPTIONS,
@@ -253,22 +233,31 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         enumSuffix,
       }
 
+      let discriminatorChildMap: Awaited<ReturnType<typeof buildDiscriminatorChildMap>> | null = null
+      if (discriminator === 'inherit') {
+        const { parseSchema: _preParser } = createSchemaParser({ document, contentType })
+        const parentNodes: ast.SchemaNode[] = []
+        for (const [name, schema] of Object.entries(schemaObjects)) {
+          if ((schema.oneOf ?? schema.anyOf) && schema.discriminator?.propertyName) {
+            parentNodes.push(_preParser({ schema, name }, parserOptions))
+          }
+        }
+        if (parentNodes.length > 0) {
+          discriminatorChildMap = buildDiscriminatorChildMap(parentNodes)
+        }
+      }
+
       // Each [Symbol.asyncIterator]() call returns a fresh generator so multiple
       // plugins can do independent `for await` passes without shared state.
       const schemasIterable: AsyncIterable<ast.SchemaNode> = {
         [Symbol.asyncIterator]() {
           return (async function* () {
             const { parseSchema: _parseSchema } = createSchemaParser({ document, contentType })
-
-            if (discriminator === 'inherit') {
-              // applyDiscriminatorInheritance requires all schemas upfront — buffer then yield one-by-one.
-              const all = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, parserOptions))
-              const inherited = applyDiscriminatorInheritance(ast.createInput({ schemas: all, operations: [] }))
-              for (const node of inherited.schemas) yield node
-            } else {
-              for (const [name, schema] of Object.entries(schemaObjects)) {
-                yield _parseSchema({ schema, name }, parserOptions)
-              }
+            for (const [name, schema] of Object.entries(schemaObjects)) {
+              let node = _parseSchema({ schema, name }, parserOptions)
+              const entry = discriminatorChildMap?.get(name)
+              if (entry) node = patchDiscriminatorNode(node, entry)
+              yield node
             }
           })()
         },
