@@ -29,13 +29,13 @@ const ROOT = '/workspace/src/gen/types'
 
 describe('getBarrelFiles', () => {
   it('returns an empty array when there are no files under outputPath', () => {
-    const result = getBarrelFiles({ outputPath: ROOT, files: [], barrelType: 'all' })
+    const result = [...getBarrelFiles({ outputPath: ROOT, files: [], barrelType: 'all' })]
     expect(result).toHaveLength(0)
   })
 
   it('generates a single wildcard barrel for flat files with barrelType all', () => {
     const files = [makeFile(`${ROOT}/pet.ts`), makeFile(`${ROOT}/user.ts`)]
-    const barrels = getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all' })
+    const barrels = [...getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all' })]
 
     expect(barrels).toHaveLength(1)
     expect(barrels[0]!.path).toBe(`${ROOT}/index.ts`)
@@ -44,7 +44,7 @@ describe('getBarrelFiles', () => {
 
   it('generates named exports with barrelType named', () => {
     const files = [makeFile(`${ROOT}/pet.ts`, ['Pet', 'createPet'])]
-    const barrels = getBarrelFiles({ outputPath: ROOT, files, barrelType: 'named' })
+    const barrels = [...getBarrelFiles({ outputPath: ROOT, files, barrelType: 'named' })]
 
     expect(barrels).toHaveLength(1)
     expect(barrels[0]!.exports[0]?.name).toEqual(expect.arrayContaining(['Pet', 'createPet']))
@@ -52,14 +52,14 @@ describe('getBarrelFiles', () => {
 
   it('generates hierarchical barrels when nested is true', () => {
     const files = [makeFile(`${ROOT}/pets/listPets.ts`), makeFile(`${ROOT}/users/getUser.ts`)]
-    const barrels = getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all', nested: true })
+    const barrels = [...getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all', nested: true })]
 
     expect(barrels.map((b) => b.path)).toEqual(expect.arrayContaining([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/users/index.ts`]))
   })
 
   it('generates per-subdirectory barrels when recursive is true', () => {
     const files = [makeFile(`${ROOT}/pets/listPets.ts`), makeFile(`${ROOT}/users/getUser.ts`)]
-    const barrels = getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all', recursive: true })
+    const barrels = [...getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all', recursive: true })]
 
     expect(barrels.map((b) => b.path)).toEqual(expect.arrayContaining([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/users/index.ts`]))
   })

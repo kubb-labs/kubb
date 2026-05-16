@@ -5,14 +5,17 @@
 export type Context<T> = symbol & { readonly __type: T }
 
 /**
- * Context stack for tracking the current context values
+ * Context stack for tracking the current context values.
  *
- * Note: This uses a global Map for simplicity in code generation scenarios.
+ * WeakMap keyed by symbol so entries are GC-eligible once no external code
+ * holds a reference to the context key — important for long-running agent
+ * builds where plugins create and discard context keys across repeated runs.
+ *
  * For concurrent runtime execution, consider using AsyncLocalStorage or
  * instance-based context management.
  */
-const contextStack = new Map<symbol, unknown[]>()
-const contextDefaults = new Map<symbol, unknown>()
+const contextStack = new WeakMap<symbol, unknown[]>()
+const contextDefaults = new WeakMap<symbol, unknown>()
 
 /**
  * Provides a value to descendant components (Vue 3 style)
