@@ -8,13 +8,6 @@ type ParseOptions = {
   extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
 }
 
-type RunOptions = ParseOptions & {
-  /**
-   * @default 'sequential'
-   */
-  mode?: 'sequential' | 'parallel'
-}
-
 export type FileProcessorEvents = {
   start: [files: Array<FileNode>]
   update: [params: { file: FileNode; source?: string; processed: number; total: number; percentage: number }]
@@ -79,32 +72,11 @@ export class FileProcessor {
     }
   }
 
-  async run(files: Array<FileNode>, { parsers, mode = 'sequential', extension }: RunOptions = {}): Promise<Array<FileNode>> {
+  async run(files: Array<FileNode>, options: ParseOptions = {}): Promise<Array<FileNode>> {
     await this.events.emit('start', files)
 
-    const total = files.length
-    let processed = 0
-
-    const processOne = async (file: FileNode) => {
-      const source = await this.parse(file, { extension, parsers })
-      const currentProcessed = ++processed
-      const percentage = (currentProcessed / total) * 100
-
-      await this.events.emit('update', {
-        file,
-        source,
-        processed: currentProcessed,
-        percentage,
-        total,
-      })
-    }
-
-    if (mode === 'sequential') {
-      for (const file of files) {
-        await processOne(file)
-      }
-    } else {
-      await Promise.all(files.map((file) => processOne(file)))
+    for await (const { file, source, processed, total, percentage } of this.runStream(files, options)) {
+      await this.events.emit('update', { file, source, processed, percentage, total })
     }
 
     await this.events.emit('end', files)
