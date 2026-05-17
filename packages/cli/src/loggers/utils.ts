@@ -43,8 +43,11 @@ export type HookSinkOptions = HookOutputSink & {
 /**
  * Factory called once per hook command to build the output sink and streaming flag.
  * The function should set up any logger UI (e.g., spinner) and return callbacks that forward subprocess output to it.
+ *
+ * `hookId` is the same id passed to `kubb:hook:start` / `kubb:hook:end`, letting the logger
+ * correlate streamed output with the active UI element (e.g., a clack `taskLog`) it created in the start handler.
  */
-export type HookSinkFactory = (commandWithArgs: string) => HookSinkOptions | undefined
+export type HookSinkFactory = (commandWithArgs: string, hookId: string) => HookSinkOptions | undefined
 
 /**
  * Logger variant that may return a {@link HookSinkFactory} from `install`.

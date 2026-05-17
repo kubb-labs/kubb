@@ -107,7 +107,7 @@ export async function getConfigs({ configPath, input }: GetConfigsOptions): Prom
 type ExecuteHooksOptions = {
   configHooks: NonNullable<Config['hooks']>
   hooks: AsyncEventEmitter<KubbHooks>
-  makeSink?: (commandWithArgs: string) => HookSinkOptions | undefined
+  makeSink?: (commandWithArgs: string, hookId: string) => HookSinkOptions | undefined
 }
 
 /**
@@ -125,7 +125,7 @@ export async function executeHooks({ configHooks, hooks, makeSink }: ExecuteHook
 
     await hooks.emit('kubb:hook:start', { id: hookId, command: cmd, args })
 
-    const { stream = false, onLine, onStdout, onStderr } = makeSink?.(commandWithArgs) ?? {}
+    const { stream = false, onLine, onStdout, onStderr } = makeSink?.(commandWithArgs, hookId) ?? {}
     await runHook({ id: hookId, command: cmd, args, commandWithArgs, context: hooks, stream, sink: { onLine, onStdout, onStderr } })
   }
 }
