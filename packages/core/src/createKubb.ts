@@ -1081,32 +1081,6 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   }
   const fileProcessor = new FileProcessor()
 
-  fileProcessor.events.on('start', async (processingFiles) => {
-    await hooks.emit('kubb:files:processing:start', { files: processingFiles })
-  })
-
-  fileProcessor.events.on('update', async ({ file, source, processed, total, percentage }) => {
-    await hooks.emit('kubb:file:processing:update', {
-      file,
-      source,
-      processed,
-      total,
-      percentage,
-      config,
-    })
-    if (source) {
-      await storage.setItem(file.path, source)
-    }
-  })
-
-  fileProcessor.events.on('end', async (processed) => {
-    await hooks.emit('kubb:files:processing:end', { files: processed })
-    await hooks.emit('kubb:debug', {
-      date: new Date(),
-      logs: [`✓ File write process completed for ${processed.length} files`],
-    })
-  })
-
   async function flushPendingFiles(): Promise<void> {
     const files = driver.fileManager.files.filter((f) => !writtenPaths.has(f.path))
     if (files.length === 0) {
@@ -1118,15 +1092,24 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       logs: [`Writing ${files.length} files...`],
     })
 
-    await fileProcessor.run(files, {
-      parsers: parsersMap,
-      mode: 'parallel',
-      extension: config.output.extension,
-    })
+    await hooks.emit('kubb:files:processing:start', { files })
 
-    for (const file of files) {
+    for await (const { file, source, processed, total, percentage } of fileProcessor.runStream(files, {
+      parsers: parsersMap,
+      extension: config.output.extension,
+    })) {
+      await hooks.emit('kubb:file:processing:update', { file, source, processed, total, percentage, config })
+      if (source) {
+        await storage.setItem(file.path, source)
+      }
       writtenPaths.add(file.path)
     }
+
+    await hooks.emit('kubb:files:processing:end', { files })
+    await hooks.emit('kubb:debug', {
+      date: new Date(),
+      logs: [`✓ File write process completed for ${files.length} files`],
+    })
   }
 
   try {
