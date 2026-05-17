@@ -23,6 +23,14 @@ export type FileProcessorEvents = {
   end: [files: Array<FileNode>]
 }
 
+export type ParsedFile = {
+  file: FileNode
+  source: string
+  processed: number
+  total: number
+  percentage: number
+}
+
 function joinSources(file: FileNode): string {
   return file.sources
     .map((item) => extractStringsFromNodes(item.nodes as Array<CodeNode>))
@@ -54,6 +62,24 @@ export class FileProcessor {
     }
 
     return parser.parse(file, { extname: parseExtName })
+  }
+
+  /**
+   * Streams parsed files one at a time as each is processed.
+   *
+   * Unlike `run()`, files are yielded immediately after parsing rather than batched.
+   * Storage writes can begin as soon as the first file is ready, keeping peak
+   * memory proportional to one file at a time instead of the full batch.
+   */
+  async *runStream(files: ReadonlyArray<FileNode>, options: ParseOptions = {}): AsyncGenerator<ParsedFile> {
+    const total = files.length
+    let processed = 0
+
+    for (const file of files) {
+      const source = await this.parse(file, options)
+      processed++
+      yield { file, source, processed, total, percentage: (processed / total) * 100 }
+    }
   }
 
   async run(files: Array<FileNode>, { parsers, mode = 'sequential', extension }: RunOptions = {}): Promise<Array<FileNode>> {
