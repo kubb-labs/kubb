@@ -98,3 +98,27 @@ This list was compiled by:
 3. **Org type filtering** — Filtering GitHub `Organization` accounts from the results to identify companies vs individual users.
 
 > **Note:** Only public repositories are searchable. Many private company usage of Kubb won't appear in these results. The actual number of companies using Kubb is likely much higher.
+
+---
+
+## 🤖 Prompt for Updating This List
+
+Use the following prompt with a GitHub-connected AI assistant (e.g. GitHub Copilot) to regenerate or refresh this document:
+
+```
+Search GitHub for public repositories that use Kubb (look for `@kubb/core`, `@kubb/plugin-ts`, `@kubb/plugin-client`, `@kubb/plugin-react-query`, `@kubb/plugin-zod` in `package.json` files). For each result:
+
+1. Identify the owning organization or individual.
+2. Determine their Kubb version from the package.json (use `^`, `~`, or exact notation; `—` if not determinable).
+3. Only include entries with Kubb version >= 4.0.0 (skip version 1.x, 2.x, and 3.x).
+4. Classify each as: Enterprise/Scale-up, Startup/Tech Company, Web3/Blockchain, Education/Community, or Open Source Project/Team.
+5. Find a public contact email (press, info, support, or similar); fall back to "GitHub Issues (no public email)" if none found.
+
+Also review https://github.com/kubb-labs/kubb/stargazers for notable individual contributors affiliated with companies, applying the same version filter.
+
+Format the output as a Markdown file matching the structure of `companies-using-kubb.md` in the kubb-labs/kubb repository, including:
+- Grouped tables per category with columns: Organization, Description, Contact Email, Kubb Version, Repository, GitHub
+- A Notable Individual Contributors table
+- An updated Summary table with counts per category
+- Update the "Last updated" date at the top
+```
