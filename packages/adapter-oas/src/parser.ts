@@ -886,16 +886,17 @@ function createSchemaParser(ctx: OasParserContext) {
 
     const requestBodyMeta = getRequestBodyMeta(operation)
 
-    const content: Array<{ contentType: string; schema: ast.SchemaNode; keysToOmit: Array<string> | undefined }> = []
-    for (const ct of allContentTypes) {
+    const content = allContentTypes.flatMap((ct) => {
       const schema = getRequestSchema(document, operation, { contentType: ct })
-      if (!schema) continue
-      content.push({
-        contentType: ct,
-        schema: ast.syncOptionality(parseSchema({ schema }, options), requestBodyMeta.required),
-        keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
-      })
-    }
+      if (!schema) return []
+      return [
+        {
+          contentType: ct,
+          schema: ast.syncOptionality(parseSchema({ schema }, options), requestBodyMeta.required),
+          keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
+        },
+      ]
+    })
 
     const requestBody =
       content.length > 0 || requestBodyMeta.description
