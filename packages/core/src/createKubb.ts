@@ -1020,12 +1020,10 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
       const ctx = { ...generatorContext, options }
 
       await Promise.all(
-        generators
-          .filter((gen) => gen.schema)
-          .map(async (gen) => {
-            const result = await gen.schema!(transformedNode, ctx)
-            await applyHookResult(result, driver, resolveRenderer(gen))
-          }),
+        generators.map(async (gen) => {
+          if (!gen.schema) return
+          await applyHookResult(await gen.schema(transformedNode, ctx), driver, resolveRenderer(gen))
+        }),
       )
 
       await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
@@ -1044,12 +1042,10 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
         const ctx = { ...generatorContext, options }
 
         await Promise.all(
-          generators
-            .filter((gen) => gen.operation)
-            .map(async (gen) => {
-              const result = await gen.operation!(transformedNode, ctx)
-              await applyHookResult(result, driver, resolveRenderer(gen))
-            }),
+          generators.map(async (gen) => {
+            if (!gen.operation) return
+            await applyHookResult(await gen.operation(transformedNode, ctx), driver, resolveRenderer(gen))
+          }),
         )
 
         await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
