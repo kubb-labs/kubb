@@ -15,11 +15,9 @@
 
 | Organization | Description | Contact Email | Kubb Version | Repository | GitHub |
 |---|---|---|---|---|---|
-| **Automattic** | Company behind WordPress.com, WooCommerce, Tumblr & Gravatar | [press@automattic.com](mailto:press@automattic.com) | `^3.15.0` | [mcp-server-gravatar-remote](https://github.com/Automattic/mcp-server-gravatar-remote) | [@Automattic](https://github.com/Automattic) |
 | **Equinor** | Norwegian multinational energy company (formerly Statoil) | [post@equinor.com](mailto:post@equinor.com) | `^4.37.5` | [mercury](https://github.com/equinor/mercury) | [@equinor](https://github.com/equinor) |
 | **Xata** | Serverless database platform for modern development | [info@xata.io](mailto:info@xata.io) | `4.37.5` | [ts-sdk](https://github.com/xataio/ts-sdk) | [@xataio](https://github.com/xataio) |
 | **NYC Planning** | New York City Department of City Planning (government) | [press@planning.nyc.gov](mailto:press@planning.nyc.gov) | `^4.20.2` / `^4.5.11` | [ae-cp-map](https://github.com/NYCPlanning/ae-cp-map), [ae-zoning-api](https://github.com/NYCPlanning/ae-zoning-api), [ae-remix-template](https://github.com/NYCPlanning/ae-remix-template) | [@NYCPlanning](https://github.com/NYCPlanning) |
-| **Index Coop** | Decentralized Finance (DeFi) index protocol on Ethereum | [iclegal@indexcoop.com](mailto:iclegal@indexcoop.com) | `3.0.13` / `4.1.2` (mixed) | [index-app](https://github.com/IndexCoop/index-app) | [@IndexCoop](https://github.com/IndexCoop) |
 | **StuDocu** | Online study resource sharing platform | [support@studocu.com](mailto:support@studocu.com) | — | [Test-Analytics-Dashboard---Open-Source](https://github.com/StuDocu/Test-Analytics-Dashboard---Open-Source) | [@StuDocu](https://github.com/StuDocu) |
 | **NVDB Vegdata** | Norwegian Public Roads Administration — national road database | GitHub Issues (no public email) | `^4` | [nvdb-openapi-public](https://github.com/nvdb-vegdata/nvdb-openapi-public) | [@nvdb-vegdata](https://github.com/nvdb-vegdata) |
 
@@ -29,10 +27,6 @@
 |---|---|---|---|---|---|
 | **Aembit** | Workload Identity & Access Management (IAM) security company | [press@aembit.io](mailto:press@aembit.io) | `^4.7.4` | [get-credentials](https://github.com/Aembit/get-credentials) | [@Aembit](https://github.com/Aembit) |
 | **NumbersStation AI** | AI-powered data tools company | [info@numbersstation.ai](mailto:info@numbersstation.ai) | — | [widget](https://github.com/NumbersStationAI/widget) | [@NumbersStationAI](https://github.com/NumbersStationAI) |
-| **Naptha AI** | Decentralized AI agent infrastructure | [hello@naptha.ai](mailto:hello@naptha.ai) | `^3.5.0` | [naptchat](https://github.com/NapthaAI/naptchat) | [@NapthaAI](https://github.com/NapthaAI) |
-| **Dynamic Labs** | Web3 authentication & wallet infrastructure | [hello@dynamic.xyz](mailto:hello@dynamic.xyz) | `~2.21.2` | [mpc-node-server-demo](https://github.com/dynamic-labs-oss/mpc-node-server-demo) | [@dynamic-labs-oss](https://github.com/dynamic-labs-oss) |
-| **CloudCrafter** | Open-source cloud platform / infrastructure-as-code | [cloudcrafter@gmail.com](mailto:cloudcrafter@gmail.com) | `^3.7.0` | [CloudCrafter](https://github.com/cloudcrafter-oss/CloudCrafter) | [@cloudcrafter-oss](https://github.com/cloudcrafter-oss) |
-| **holaboss-ai** | AI startup building the holaOS platform | GitHub Issues (no public email) | `^3.18.3` | [holaOS](https://github.com/holaboss-ai/holaOS) | [@holaboss-ai](https://github.com/holaboss-ai) |
 | **Taco IDE** | Browser-based developer IDE | GitHub Issues (no public email) | — | [taco-ide](https://github.com/taco-ide/taco-ide) | [@taco-ide](https://github.com/taco-ide) |
 | **LenneTech** | German software & web development agency | [info@lenne.tech](mailto:info@lenne.tech) | `^4.37.5` | [nest-base](https://github.com/lenneTech/nest-base) | [@lenneTech](https://github.com/lenneTech) |
 | **Webpractik** | Russian web development agency | [pr@webpractik.ru](mailto:pr@webpractik.ru) | — | [nextjs-starter](https://github.com/webpractik/nextjs-starter) | [@webpractik](https://github.com/webpractik) |
@@ -47,9 +41,6 @@
 | Organization | Description | Contact Email | Kubb Version | Repository | GitHub |
 |---|---|---|---|---|---|
 | **Blockful** | Web3 governance tooling & protocol design | [contact@blockful.io](mailto:contact@blockful.io) | — | [anticapture](https://github.com/blockful/anticapture) | [@blockful](https://github.com/blockful) |
-| **Pinax Network** | Blockchain data streaming network for Antelope chains | [info@pinax.network](mailto:info@pinax.network) | `^2.23.3` | [antelope-transactions-api](https://github.com/pinax-network/antelope-transactions-api) | [@pinax-network](https://github.com/pinax-network) |
-| **LatticeBCLab** | Blockchain & DeFi laboratory | GitHub Issues (no public email) | `^3.18.2` | [tds-connector-ui](https://github.com/LatticeBCLab/tds-connector-ui) | [@LatticeBCLab](https://github.com/LatticeBCLab) |
-| **ligomoku** | Online Gomoku game platform | GitHub Issues (no public email) | `^2.28.4` | [gomoku](https://github.com/ligomoku/gomoku) | [@ligomoku](https://github.com/ligomoku) |
 
 ### Education & Community
 
@@ -65,9 +56,6 @@
 |---|---|---|---|---|---|
 | **BobaBoard** | Open source fan discussion & community platform | [contact@bobaboard.com](mailto:contact@bobaboard.com) | — | [boba-backend](https://github.com/BobaBoard/boba-backend) | [@BobaBoard](https://github.com/BobaBoard) |
 | **openresponses** | Open source Responses API project | GitHub Issues (no public email) | `^4.15.0` | [openresponses](https://github.com/openresponses/openresponses) | [@openresponses](https://github.com/openresponses) |
-| **Gatherloop** | Open source Point-of-Sale system | GitHub Issues (no public email) | `^2.19.6` | [gatherloop-pos](https://github.com/gatherloop/gatherloop-pos) | [@gatherloop](https://github.com/gatherloop) |
-| **Platform Kit Team** | Full-stack development starter kit | GitHub Issues (no public email) | `^2.19.6` | [platform-kit](https://github.com/Platform-Kit-Team/platform-kit) | [@Platform-Kit-Team](https://github.com/Platform-Kit-Team) |
-| **CampusCribs** | Campus housing platform for students | GitHub Issues (no public email) | `^3.10.8` | [campuscribs-frontend](https://github.com/CampusCribs/campuscribs-frontend) | [@CampusCribs](https://github.com/CampusCribs) |
 | **next-dev-team** | Development team maintaining multiple web projects | GitHub Issues (no public email) | `^4.12.15` | [next-gen](https://github.com/next-dev-team/next-gen), [hifi-flow](https://github.com/next-dev-team/hifi-flow) | [@next-dev-team](https://github.com/next-dev-team) |
 
 ---
@@ -78,7 +66,6 @@ Individual developers identified from package.json usage and the stargazers list
 
 | Developer | Affiliation / Context | Contact | Kubb Version | Notable Kubb Usage |
 |---|---|---|---|---|
-| [@SferaDev](https://github.com/SferaDev) | Vercel / open-source TypeScript tooling | [sferadev.com](https://sferadev.com) | `^3.18.3` | [openapi-clients](https://github.com/SferaDev/openapi-clients) — generates Vercel API clients |
 | [@belgattitude](https://github.com/belgattitude) | Senior developer & open-source contributor | GitHub profile | `4.37.5` | [flowblade](https://github.com/belgattitude/flowblade) — Next.js app example |
 | [@divyenduz](https://github.com/divyenduz) | Software engineer (Xata) | via [info@xata.io](mailto:info@xata.io) | — | [trackfootball](https://github.com/divyenduz/trackfootball) |
 | [@IanVS](https://github.com/IanVS) | Senior developer / Storybook maintainer | GitHub profile | — | Multiple Kubb bug reproductions / active tester |
@@ -86,7 +73,6 @@ Individual developers identified from package.json usage and the stargazers list
 | [@filipkastovsky](https://github.com/filipkastovsky) | Software engineer | GitHub profile | — | [paper](https://github.com/filipkastovsky/paper) |
 | [@movahedan](https://github.com/movahedan) | Frontend engineer | GitHub profile | `4.8.1` | [monitabits](https://github.com/movahedan/monitabits) — dedicated kubb package |
 | [@hyoretsu](https://github.com/hyoretsu) | Full-stack developer | GitHub profile | — | Multiple projects using Kubb |
-| [@dxloop](https://github.com/dxloop) | Developer | GitHub profile | `^2.23.2` | [koper](https://github.com/dxloop/koper) |
 
 ---
 
@@ -94,12 +80,12 @@ Individual developers identified from package.json usage and the stargazers list
 
 | Category | Count |
 |---|---|
-| Enterprise / Scale-ups | 7 |
-| Startups & Tech Companies | 15 |
-| Web3 / Blockchain | 4 |
+| Enterprise / Scale-ups | 5 |
+| Startups & Tech Companies | 10 |
+| Web3 / Blockchain | 1 |
 | Education & Community | 3 |
-| Open Source Projects & Teams | 6 |
-| **Total Organizations** | **35+** |
+| Open Source Projects & Teams | 3 |
+| **Total Organizations** | **22+** |
 
 ---
 
