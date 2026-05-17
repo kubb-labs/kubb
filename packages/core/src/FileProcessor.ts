@@ -1,8 +1,6 @@
 import type { CodeNode, FileNode } from '@kubb/ast'
 import { extractStringsFromNodes } from '@kubb/ast'
 import { AsyncEventEmitter } from '@internals/utils'
-import pLimit from 'p-limit'
-import { PARALLEL_CONCURRENCY_LIMIT } from './constants.ts'
 import type { Parser } from './defineParser.ts'
 
 type ParseOptions = {
@@ -46,7 +44,6 @@ function joinSources(file: FileNode): string {
  */
 export class FileProcessor {
   readonly events = new AsyncEventEmitter<FileProcessorEvents>()
-  readonly #limit = pLimit(PARALLEL_CONCURRENCY_LIMIT)
 
   async parse(file: FileNode, { parsers, extension }: ParseOptions = {}): Promise<string> {
     const parseExtName = extension?.[file.extname] || undefined
@@ -107,7 +104,7 @@ export class FileProcessor {
         await processOne(file)
       }
     } else {
-      await Promise.all(files.map((file) => this.#limit(() => processOne(file))))
+      await Promise.all(files.map((file) => processOne(file)))
     }
 
     await this.events.emit('end', files)

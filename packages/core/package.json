@@ -73,8 +73,7 @@
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
-    "@kubb/renderer-jsx": "workspace:*",
-    "p-limit": "catalog:"
+    "@kubb/renderer-jsx": "workspace:*"
   },
   "peerDependencies": {
     "@kubb/renderer-jsx": "workspace:*"
@@ -89,8 +88,5 @@
   "engines": {
     "node": ">=22"
   },
-  "inlinedDependencies": {
-    "p-limit": "7.3.0",
-    "yocto-queue": "1.2.2"
-  }
+  "inlinedDependencies": {}
 }
