@@ -74,25 +74,25 @@ export function setDiscriminatorEnum({
  * ```
  */
 export function* mergeAdjacentObjectsLazy(members: Iterable<SchemaNode>): Generator<SchemaNode, void, undefined> {
-  let carry: SchemaNode | undefined
+  let acc: SchemaNode | undefined
 
   for (const member of members) {
     const objectMember = narrowSchema(member, 'object')
-    if (objectMember && !objectMember.name && carry !== undefined) {
-      const carryObject = narrowSchema(carry, 'object')
-      if (carryObject && !carryObject.name) {
-        carry = createSchema({
-          ...carryObject,
-          properties: [...(carryObject.properties ?? []), ...(objectMember.properties ?? [])],
+    if (objectMember && !objectMember.name && acc !== undefined) {
+      const accObject = narrowSchema(acc, 'object')
+      if (accObject && !accObject.name) {
+        acc = createSchema({
+          ...accObject,
+          properties: [...(accObject.properties ?? []), ...(objectMember.properties ?? [])],
         })
         continue
       }
     }
-    if (carry !== undefined) yield carry
-    carry = member
+    if (acc !== undefined) yield acc
+    acc = member
   }
 
-  if (carry !== undefined) yield carry
+  if (acc !== undefined) yield acc
 }
 
 export function mergeAdjacentObjects(members: Array<SchemaNode>): Array<SchemaNode> {
