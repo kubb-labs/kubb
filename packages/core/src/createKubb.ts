@@ -977,6 +977,16 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
     return gen.renderer === null ? undefined : (gen.renderer ?? plugin.renderer ?? context.config.renderer)
   }
 
+  function pending<T>(
+    gen: Generator,
+    hook: ((node: T, ctx: GeneratorContext) => unknown) | undefined,
+    node: T,
+    ctx: GeneratorContext,
+  ): Promise<void> | undefined {
+    if (!hook) return
+    return Promise.resolve(hook(node, ctx)).then((result) => applyHookResult(result, driver, resolveRenderer(gen)))
+  }
+
   const generators = plugin.generators ?? []
   const collectedOperations: Array<OperationNode> = []
 
@@ -1019,12 +1029,7 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
 
       const ctx = { ...generatorContext, options }
 
-      await Promise.all(
-        generators.map(async (gen) => {
-          if (!gen.schema) return
-          await applyHookResult(await gen.schema(transformedNode, ctx), driver, resolveRenderer(gen))
-        }),
-      )
+      await Promise.all(generators.map((gen) => pending(gen, gen.schema, transformedNode, ctx)))
 
       await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
     },
@@ -1041,12 +1046,7 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
 
         const ctx = { ...generatorContext, options }
 
-        await Promise.all(
-          generators.map(async (gen) => {
-            if (!gen.operation) return
-            await applyHookResult(await gen.operation(transformedNode, ctx), driver, resolveRenderer(gen))
-          }),
-        )
+        await Promise.all(generators.map((gen) => pending(gen, gen.operation, transformedNode, ctx)))
 
         await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
       }
