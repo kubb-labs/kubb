@@ -87,6 +87,5 @@
   ],
   "engines": {
     "node": ">=22"
-  },
-  "inlinedDependencies": {}
+  }
 }

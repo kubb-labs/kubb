@@ -32,7 +32,7 @@ export type {
 } from './createKubb.ts'
 export type { Renderer, RendererFactory } from './createRenderer.ts'
 export type { Storage } from './createStorage.ts'
-export type { FileProcessorEvents } from './FileProcessor.ts'
+export type { FileProcessorEvents, ParsedFile } from './FileProcessor.ts'
 export type { Generator, GeneratorContext } from './defineGenerator.ts'
 export type { Logger, LoggerContext, LoggerOptions, UserLogger } from './defineLogger.ts'
 export type { Middleware } from './defineMiddleware.ts'
