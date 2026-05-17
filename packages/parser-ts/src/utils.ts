@@ -16,7 +16,7 @@ import {
 const { factory } = ts
 
 /**
- * Normalises a file-system path to POSIX separators and strips any leading `../` segment.
+ * Normalizes a file-system path to POSIX separators and strips any leading `../` segment.
  */
 export function slash(path: string): string {
   return normalize(path).replaceAll(WINDOWS_PATH_SEPARATOR, '/').replace(PARENT_DIRECTORY_PREFIX, '')

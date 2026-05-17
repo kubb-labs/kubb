@@ -15,18 +15,18 @@ export const FILE_EXTENSION_PATTERN = /\.[^/.]+$/
 export const WINDOWS_PATH_SEPARATOR = /\\/g
 
 /**
- * Matches `*\/` in free-form text so JSDoc bodies can neutralise premature
+ * Matches `*\/` in free-form text so JSDoc bodies can neutralize premature
  * comment terminators (`*\/` → `* /`).
  */
 export const JSDOC_TERMINATOR_PATTERN = /\*\//g
 
 /**
- * Matches carriage returns for normalising CRLF/CR line endings to LF.
+ * Matches carriage returns for normalizing CRLF/CR line endings to LF.
  */
 export const CARRIAGE_RETURN_PATTERN = /\r/g
 
 /**
- * Matches CRLF sequences used when normalising TypeScript printer output.
+ * Matches CRLF sequences used when normalizing TypeScript printer output.
  */
 export const CRLF_PATTERN = /\r\n/g
 

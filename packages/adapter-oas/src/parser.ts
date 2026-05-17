@@ -98,7 +98,7 @@ function createSchemaParser(ctx: OasParserContext) {
    * blowup — `customer` alone may be referenced from dozens of top-level schemas,
    * each triggering a fresh recursive expansion of its entire sub-tree.
    *
-   * Memoising by `$ref` path reduces the overall work from O(2^depth) to O(N)
+   * Memoizing by `$ref` path reduces the overall work from O(2^depth) to O(N)
    * where N is the number of unique schema names.
    */
   const resolvedRefCache = new Map<string, ast.SchemaNode | undefined>()
@@ -245,7 +245,7 @@ function createSchemaParser(ctx: OasParserContext) {
 
     return ast.createSchema({
       type: 'intersection',
-      members: [...ast.mergeAdjacentObjects(allOfMembers.slice(0, syntheticStart)), ...ast.mergeAdjacentObjects(allOfMembers.slice(syntheticStart))],
+      members: [...ast.mergeAdjacentObjectsLazy(allOfMembers.slice(0, syntheticStart)), ...ast.mergeAdjacentObjectsLazy(allOfMembers.slice(syntheticStart))],
       ...buildSchemaNode(schema, name, nullable, defaultValue),
     })
   }
@@ -1009,7 +1009,7 @@ export function parseOas(
   const baseOas = new BaseOas(document)
   const paths = baseOas.getPaths()
 
-  const operations: Array<ast.OperationNode> = Object.entries(paths).flatMap(([_path, methods]) =>
+  const operations: Array<ast.OperationNode> = Object.entries(paths).flatMap(([, methods]) =>
     Object.entries(methods)
       .map(([, operation]) => (operation ? _parseOperation(mergedOptions, operation) : null))
       .filter((op): op is ast.OperationNode => op !== null),

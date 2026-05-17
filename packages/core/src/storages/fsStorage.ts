@@ -53,10 +53,9 @@ export const fsStorage = createStorage(() => ({
     await rm(resolve(key), { force: true })
   },
   async getKeys(base?: string) {
-    const keys: Array<string> = []
     const resolvedBase = resolve(base ?? process.cwd())
 
-    async function walk(dir: string, prefix: string): Promise<void> {
+    async function* walk(dir: string, prefix: string): AsyncGenerator<string, void, undefined> {
       let entries: Array<Dirent>
       try {
         entries = (await readdir(dir, {
@@ -68,15 +67,17 @@ export const fsStorage = createStorage(() => ({
       for (const entry of entries) {
         const rel = prefix ? `${prefix}/${entry.name}` : entry.name
         if (entry.isDirectory()) {
-          await walk(join(dir, entry.name), rel)
+          yield* walk(join(dir, entry.name), rel)
         } else {
-          keys.push(rel)
+          yield rel
         }
       }
     }
 
-    await walk(resolvedBase, '')
-
+    const keys: Array<string> = []
+    for await (const key of walk(resolvedBase, '')) {
+      keys.push(key)
+    }
     return keys
   },
   async clear(base?: string) {
