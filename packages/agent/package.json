@@ -1,6 +1,6 @@
 {
   "name": "@kubb/agent",
-  "version": "5.0.0-beta.14",
+  "version": "5.0.0-beta.15",
   "description": "HTTP agent server for Kubb. Exposes code generation via REST API and WebSocket with real-time Kubb Studio integration, machine binding, and Docker support.",
   "keywords": [
     "agent",
@@ -67,7 +67,7 @@
     "@types/ws": "^8.18.1",
     "msw": "^2.14.6",
     "nitropack": "^2.13.4",
-    "vite": "^8.0.12"
+    "vite": "^8.0.13"
   },
   "engines": {
     "node": ">=22"

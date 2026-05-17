@@ -2,29 +2,10 @@ import { relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { formatMs, formatMsWithColor, getIntro, toCause } from '@internals/utils'
+import { formatMs, formatMsWithColor, getElapsedMs, getIntro, toCause } from '@internals/utils'
 import { defineLogger, logLevel as logLevelMap } from '@kubb/core'
 import { getSummary } from './utils.ts'
 import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils.ts'
-import { Writable } from 'node:stream'
-import type { WritableOptions } from 'node:stream'
-
-/**
- * Node.js `Writable` stream that forwards each chunk to a clack `taskLog` message.
- * Used to pipe hook subprocess output into the clack task log UI.
- */
-class ClackWritable extends Writable {
-  taskLog: ReturnType<typeof clack.taskLog>
-  constructor(taskLog: ReturnType<typeof clack.taskLog>, opts?: WritableOptions) {
-    super(opts)
-
-    this.taskLog = taskLog
-  }
-  _write(chunk: Buffer, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
-    this.taskLog.message(`${styleText('dim', chunk.toString())}`)
-    callback()
-  }
-}
 
 /**
  * TTY logger with beautiful UI and progress indicators for local development.
@@ -43,6 +24,7 @@ export const clackLogger = defineLogger({
       spinner: clack.spinner(),
       isSpinning: false,
       activeProgress: new Map<string, { interval?: NodeJS.Timeout; progressBar: clack.ProgressResult }>(),
+      activeHookLogs: new Map<string, { taskLog: ReturnType<typeof clack.taskLog>; hrStart: [number, number] }>(),
     }
 
     function reset() {
@@ -62,6 +44,7 @@ export const clackLogger = defineLogger({
       state.spinner = clack.spinner()
       state.isSpinning = false
       state.activeProgress.clear()
+      state.activeHookLogs.clear()
     }
 
     function showProgressStep() {
@@ -85,6 +68,9 @@ export const clackLogger = defineLogger({
     }
 
     function stopSpinner(text?: string) {
+      if (!state.isSpinning) {
+        return
+      }
       state.spinner.stop(text)
       state.isSpinning = false
     }
@@ -216,6 +202,10 @@ Run \`npm install -g @kubb/cli\` to update`,
       // Initialize progress tracking for this generation
       state.totalPlugins = config.plugins?.length ?? 0
 
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+
       const text = getMessage(['Generation started', config.name ? `for ${styleText('dim', config.name)}` : undefined].filter(Boolean).join(' '))
 
       clack.intro(text)
@@ -336,6 +326,8 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('kubb:generation:end', ({ config }) => {
+      stopSpinner()
+
       const text = getMessage(config.name ? `Generation completed for ${styleText('dim', config.name)}` : 'Generation completed')
 
       clack.outro(text)
@@ -346,19 +338,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
-      const text = getMessage('Format started')
-
-      clack.intro(text)
-    })
-
-    context.on('kubb:format:end', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      const text = getMessage('Format completed')
-
-      clack.outro(text)
+      clack.log.step(getMessage('Formatting'))
     })
 
     context.on('kubb:lint:start', () => {
@@ -366,41 +346,51 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
-      const text = getMessage('Lint started')
-
-      clack.intro(text)
+      clack.log.step(getMessage('Linting'))
     })
 
-    context.on('kubb:lint:end', () => {
+    context.on('kubb:hooks:start', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
 
-      const text = getMessage('Lint completed')
-
-      clack.outro(text)
+      clack.log.step(getMessage('Running hooks'))
     })
 
-    context.on('kubb:hook:start', ({ command, args }) => {
-      if (logLevel <= logLevelMap.silent) {
+    context.on('kubb:hook:start', ({ id, command, args }) => {
+      if (logLevel <= logLevelMap.silent || !id) {
         return
       }
+
+      stopSpinner()
 
       const commandWithArgs = formatCommandWithArgs(command, args)
-      const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} started`)
+      const title = getMessage(`Running ${styleText('dim', commandWithArgs)}`)
+      const taskLog = clack.taskLog({ title })
 
-      clack.intro(text)
+      state.activeHookLogs.set(id, { taskLog, hrStart: process.hrtime() })
     })
 
-    context.on('kubb:hook:end', ({ command, args }) => {
-      if (logLevel <= logLevelMap.silent) {
+    context.on('kubb:hook:end', ({ id, command, args, success, error }) => {
+      if (logLevel <= logLevelMap.silent || !id) {
         return
       }
 
-      const commandWithArgs = formatCommandWithArgs(command, args)
-      const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} successfully executed`)
+      const active = state.activeHookLogs.get(id)
+      if (!active) {
+        return
+      }
+      state.activeHookLogs.delete(id)
 
-      clack.outro(text)
+      const commandWithArgs = formatCommandWithArgs(command, args)
+      const duration = formatMsWithColor(getElapsedMs(active.hrStart))
+
+      if (success) {
+        active.taskLog.success(getMessage(`${styleText('dim', commandWithArgs)} completed in ${duration}`))
+      } else {
+        const reason = error?.message ? ` (${error.message})` : ''
+        active.taskLog.error(getMessage(`${styleText('dim', commandWithArgs)} failed${reason}`), { showLog: true })
+      }
     })
 
     context.on('kubb:generation:summary', ({ config, pluginTimings, failedPlugins, filesCreated, status, hrStart }) => {
@@ -436,7 +426,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       reset()
     })
 
-    return (commandWithArgs: string) => {
+    return (_commandWithArgs: string, hookId: string) => {
       if (logLevel <= logLevelMap.silent) {
         return {
           onStdout: (s: string) => console.log(s),
@@ -444,16 +434,18 @@ Run \`npm install -g @kubb/cli\` to update`,
         }
       }
 
-      const logger = clack.taskLog({
-        title: getMessage(['Executing hook', logLevel >= logLevelMap.info ? styleText('dim', commandWithArgs) : undefined].filter(Boolean).join(' ')),
-      })
-      const writable = new ClackWritable(logger)
+      const active = state.activeHookLogs.get(hookId)
+      if (!active) {
+        return undefined
+      }
+
+      const { taskLog } = active
 
       return {
         stream: true,
-        onLine: (line: string) => writable.write(line),
-        onStdout: (s: string) => logger.message(s),
-        onStderr: (s: string) => logger.error(s),
+        onLine: (line: string) => taskLog.message(styleText('dim', line)),
+        onStdout: (s: string) => taskLog.message(s),
+        onStderr: (s: string) => taskLog.message(styleText('red', s)),
       }
     }
   },

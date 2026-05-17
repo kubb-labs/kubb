@@ -1,5 +1,32 @@
 # Changelog
 
+## v5.0.0-beta.15 — May 17, 2026
+
+### @kubb/ast
+
+#### Features
+
+- Performance improvements for large OpenAPI specs.
+  
+  - **`@kubb/ast`**: Add `mergeAdjacentObjectsLazy` generator for lazy stateful merging of adjacent allOf object schemas. Memoize `collectReferencedSchemaNames` with a `WeakMap` so repeated callers pay the tree-walk cost only once per schema node.
+  - **`@kubb/core`**: Parallelize per-node generator dispatch with `Promise.all` so schema and operation generators run concurrently. Defer file writes to a single flush after all plugins complete instead of flushing after each plugin. Convert `fsStorage` directory walk to an async generator for streaming filesystem traversal.
+  - **`@kubb/adapter-oas`**: Replace `flatMap` content-type loop with a `for`/`push` pattern (7× faster for the typical 2–4 content-type case).
+  - **`@kubb/parser-ts`**: Fix British-English spellings in JSDoc comments (`normalising` → `normalizing`, `neutralise` → `neutralize`). ([#3305](https://github.com/kubb-labs/kubb/pull/3305), [`62f72dd`](https://github.com/kubb-labs/kubb/commit/62f72dde26cc2da6f77b24ca54c9ca74a32c577f))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Show live progress for formatter, linter, and custom hooks in the CLI.
+  
+  Previously, hook commands (linting, formatting, and custom `hooks.done`) ran with no visible indication of activity — the CLI showed only a "started" intro and a "completed" outro, with the actual execution blocking silently between them. The clack logger now renders a live `taskLog` per hook that streams the subprocess output while it runs, and finalizes with a duration on success or keeps the log open with the error on failure. ([#3306](https://github.com/kubb-labs/kubb/pull/3306), [`dfa488a`](https://github.com/kubb-labs/kubb/commit/dfa488a42d5fac355b2f3312e56aa084ffffe653))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.14 — May 16, 2026
 
 ### @kubb/ast
