@@ -73,27 +73,36 @@ export function setDiscriminatorEnum({
  * ])
  * ```
  */
-export function mergeAdjacentObjectsLazy(members: Iterable<SchemaNode>): Array<SchemaNode> {
-  return [...members].reduce<Array<SchemaNode>>((acc, member) => {
-    const objectMember = narrowSchema(member, 'object')
-    const last = acc.at(-1)
-    const lastObject = last !== undefined ? narrowSchema(last, 'object') : undefined
+export function* mergeAdjacentObjectsLazy(members: Iterable<SchemaNode>): Generator<SchemaNode, void, undefined> {
+  const items = [...members]
 
-    if (objectMember && !objectMember.name && lastObject && !lastObject.name) {
-      acc[acc.length - 1] = createSchema({
-        ...lastObject,
-        properties: [...(lastObject.properties ?? []), ...(objectMember.properties ?? [])],
-      })
-    } else {
-      acc.push(member)
+  for (let i = 0; i < items.length; ) {
+    const item = items[i]!
+    const objectNode = narrowSchema(item, 'object')
+
+    if (!objectNode || objectNode.name) {
+      yield item
+      i++
+      continue
     }
 
-    return acc
-  }, [])
+    let merged = objectNode
+    i++
+
+    while (i < items.length) {
+      const next = items[i]!
+      const nextObject = narrowSchema(next, 'object')
+      if (!nextObject || nextObject.name) break
+      merged = createSchema({ ...merged, properties: [...(merged.properties ?? []), ...(nextObject.properties ?? [])] })
+      i++
+    }
+
+    yield merged
+  }
 }
 
 export function mergeAdjacentObjects(members: Array<SchemaNode>): Array<SchemaNode> {
-  return mergeAdjacentObjectsLazy(members)
+  return [...mergeAdjacentObjectsLazy(members)]
 }
 
 /**
