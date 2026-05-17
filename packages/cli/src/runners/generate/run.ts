@@ -146,10 +146,12 @@ async function generate(options: GenerateProps): Promise<boolean> {
   } satisfies Config
 
   const kubb = createKubb(config, { hooks })
-  await kubb.setup()
 
   await hooks.emit('kubb:generation:start', { config })
   await hooks.emit('kubb:info', { message: config.name ? `Setup generation ${styleText('bold', config.name)}` : 'Setup generation', info: inputPath })
+
+  await kubb.setup()
+
   await hooks.emit('kubb:info', { message: config.name ? `Build generation ${styleText('bold', config.name)}` : 'Build generation', info: inputPath })
 
   const { files, failedPlugins, pluginTimings, error, driver } = await kubb.safeBuild()
@@ -257,17 +259,19 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch }: G
 
   const makeSink = await setupLogger(hooks, { logLevel })
 
+  await hooks.emit('kubb:lifecycle:start', { version })
+
   await checkForUpdate(hooks)
 
   try {
+    await hooks.emit('kubb:config:start')
+
     const { configs, configPath: resolvedConfigPath } = await getConfigs({ configPath, input })
     const relativeConfigPath = path.relative(process.cwd(), resolvedConfigPath)
 
-    await hooks.emit('kubb:config:start')
     await hooks.emit('kubb:info', { message: 'Config loaded', info: relativeConfigPath })
     await hooks.emit('kubb:success', { message: 'Config loaded successfully', info: relativeConfigPath })
     await hooks.emit('kubb:config:end', { configs })
-    await hooks.emit('kubb:lifecycle:start', { version })
 
     let anyFailed = false
     for (const config of configs) {

@@ -1,5 +1,6 @@
+import process from 'node:process'
 import { styleText } from 'node:util'
-import { formatHrtime, formatMs, formatMsWithColor, toCause } from '@internals/utils'
+import { formatHrtime, formatMs, formatMsWithColor, getElapsedMs, toCause } from '@internals/utils'
 import { type Config, defineLogger, logLevel as logLevelMap } from '@kubb/core'
 import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils.ts'
 
@@ -18,6 +19,7 @@ export const githubActionsLogger = defineLogger({
       processedFiles: 0,
       hrStart: process.hrtime(),
       currentConfigs: [] as Array<Config>,
+      hookStarts: new Map<string, [number, number]>(),
     }
 
     function reset() {
@@ -28,6 +30,7 @@ export const githubActionsLogger = defineLogger({
       state.processedFiles = 0
       state.hrStart = process.hrtime()
       state.currentConfigs = []
+      state.hookStarts.clear()
     }
 
     function showProgressStep() {
@@ -113,6 +116,10 @@ export const githubActionsLogger = defineLogger({
     context.on('kubb:lifecycle:start', ({ version }) => {
       console.log(styleText('yellow', `Kubb ${version} 🧩`))
       reset()
+    })
+
+    context.on('kubb:version:new', ({ currentVersion, latestVersion }) => {
+      console.log(`::notice::Update available for Kubb: v${currentVersion} → v${latestVersion}. Run \`npm install -g @kubb/cli\` to update.`)
     })
 
     context.on('kubb:config:start', () => {
@@ -306,9 +313,37 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('kubb:hook:start', ({ command, args }) => {
+    context.on('kubb:hooks:start', () => {
       if (logLevel <= logLevelMap.silent) {
         return
+      }
+
+      if (state.currentConfigs.length === 1) {
+        openGroup('Hooks')
+      }
+
+      console.log(getMessage('Hooks started'))
+    })
+
+    context.on('kubb:hooks:end', () => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+
+      console.log(getMessage('Hooks completed'))
+
+      if (state.currentConfigs.length === 1) {
+        closeGroup('Hooks')
+      }
+    })
+
+    context.on('kubb:hook:start', ({ id, command, args }) => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+
+      if (id) {
+        state.hookStarts.set(id, process.hrtime())
       }
 
       const commandWithArgs = formatCommandWithArgs(command, args)
@@ -320,15 +355,23 @@ export const githubActionsLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:hook:end', ({ command, args }) => {
+    context.on('kubb:hook:end', ({ id, command, args, success, error }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
 
-      const commandWithArgs = formatCommandWithArgs(command, args)
-      const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} completed`)
+      const hrStart = id ? state.hookStarts.get(id) : undefined
+      if (id) state.hookStarts.delete(id)
+      const durationStr = hrStart ? ` in ${formatMsWithColor(getElapsedMs(hrStart))}` : ''
 
-      console.log(text)
+      const commandWithArgs = formatCommandWithArgs(command, args)
+
+      if (success) {
+        console.log(getMessage(`${styleText('green', '✓')} Hook ${styleText('dim', commandWithArgs)} completed${durationStr}`))
+      } else {
+        const reason = error?.message ? ` (${error.message})` : ''
+        console.log(`::error::Hook ${commandWithArgs} failed${durationStr}${reason}`)
+      }
 
       if (state.currentConfigs.length === 1) {
         closeGroup(`Hook ${commandWithArgs}`)

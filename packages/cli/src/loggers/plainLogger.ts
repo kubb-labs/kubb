@@ -1,5 +1,6 @@
 import { relative } from 'node:path'
-import { formatMs, toCause } from '@internals/utils'
+import process from 'node:process'
+import { formatMs, getElapsedMs, toCause } from '@internals/utils'
 import { defineLogger, logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_SEPARATOR } from '../constants.ts'
 import { getSummary } from './utils.ts'
@@ -12,6 +13,7 @@ export const plainLogger = defineLogger({
   name: 'plain',
   install(context, options) {
     const logLevel = options?.logLevel ?? logLevelMap.info
+    const hookStarts = new Map<string, [number, number]>()
 
     function getMessage(message: string): string {
       return formatMessage(message, logLevel)
@@ -72,8 +74,16 @@ export const plainLogger = defineLogger({
       }
     })
 
-    context.on('kubb:lifecycle:start', () => {
-      console.log('Kubb CLI 🧩')
+    context.on('kubb:lifecycle:start', ({ version }) => {
+      console.log(`Kubb CLI v${version}`)
+    })
+
+    context.on('kubb:version:new', ({ currentVersion, latestVersion }) => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+
+      console.log(getMessage(`Update available: v${currentVersion} → v${latestVersion}. Run \`npm install -g @kubb/cli\` to update.`))
     })
 
     context.on('kubb:config:start', () => {
@@ -198,26 +208,52 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:hook:start', ({ command, args }) => {
+    context.on('kubb:hooks:start', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
 
-      const commandWithArgs = formatCommandWithArgs(command, args)
-      const text = getMessage(`Hook ${commandWithArgs} started`)
-
-      console.log(text)
+      console.log(getMessage('Hooks started'))
     })
 
-    context.on('kubb:hook:end', ({ command, args }) => {
+    context.on('kubb:hooks:end', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
 
-      const commandWithArgs = formatCommandWithArgs(command, args)
-      const text = getMessage(`Hook ${commandWithArgs} completed`)
+      console.log(getMessage('Hooks completed'))
+    })
 
-      console.log(text)
+    context.on('kubb:hook:start', ({ id, command, args }) => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+
+      if (id) {
+        hookStarts.set(id, process.hrtime())
+      }
+
+      const commandWithArgs = formatCommandWithArgs(command, args)
+      console.log(getMessage(`Hook ${commandWithArgs} started`))
+    })
+
+    context.on('kubb:hook:end', ({ id, command, args, success, error }) => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+
+      const hrStart = id ? hookStarts.get(id) : undefined
+      if (id) hookStarts.delete(id)
+      const durationStr = hrStart ? ` in ${formatMs(getElapsedMs(hrStart))}` : ''
+
+      const commandWithArgs = formatCommandWithArgs(command, args)
+
+      if (success) {
+        console.log(getMessage(`✓ Hook ${commandWithArgs} completed${durationStr}`))
+      } else {
+        const reason = error?.message ? ` (${error.message})` : ''
+        console.log(getMessage(`✗ Hook ${commandWithArgs} failed${durationStr}${reason}`))
+      }
     })
 
     context.on('kubb:generation:summary', ({ config, pluginTimings, status, hrStart, failedPlugins, filesCreated }) => {

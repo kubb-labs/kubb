@@ -202,6 +202,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       const text = getMessage(['Generation started', config.name ? `for ${styleText('dim', config.name)}` : undefined].filter(Boolean).join(' '))
 
       clack.intro(text)
+      startSpinner(getMessage('Setting up plugins'))
     })
 
     context.on('kubb:plugin:start', ({ plugin }) => {
@@ -332,8 +333,6 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.log.step(getMessage('Formatting'))
     })
 
-    context.on('kubb:format:end', () => {})
-
     context.on('kubb:lint:start', () => {
       if (logLevel <= logLevelMap.silent) {
         return
@@ -342,8 +341,6 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.log.step(getMessage('Linting'))
     })
 
-    context.on('kubb:lint:end', () => {})
-
     context.on('kubb:hooks:start', () => {
       if (logLevel <= logLevelMap.silent) {
         return
@@ -351,8 +348,6 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       clack.log.step(getMessage('Running hooks'))
     })
-
-    context.on('kubb:hooks:end', () => {})
 
     context.on('kubb:hook:start', ({ id, command, args }) => {
       if (logLevel <= logLevelMap.silent || !id) {
