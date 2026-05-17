@@ -1081,8 +1081,8 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   }
   const fileProcessor = new FileProcessor()
 
-  async function flushPendingFiles(): Promise<void> {
-    const files = driver.fileManager.files.filter((f) => !writtenPaths.has(f.path))
+  async function flushPendingFiles(snapshot?: ReadonlySet<string>): Promise<void> {
+    const files = driver.fileManager.files.filter((f) => !writtenPaths.has(f.path) && (!snapshot || !snapshot.has(f.path)))
     if (files.length === 0) {
       return
     }
@@ -1129,6 +1129,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     }
 
     for (const plugin of driver.plugins.values()) {
+      const snapshot = new Set(driver.fileManager.files.map((f) => f.path))
       const context = driver.getContext(plugin)
       const hrStart = process.hrtime()
 
@@ -1193,6 +1194,8 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
 
         failedPlugins.add({ plugin, error })
       }
+
+      await flushPendingFiles(snapshot)
     }
 
     await hooks.emit('kubb:plugins:end', {
