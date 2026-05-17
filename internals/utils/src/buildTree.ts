@@ -41,7 +41,8 @@ export function buildTree(rootPath: string, filePaths: ReadonlyArray<string>): B
   const normalizedRoot = toPosixPath(rootPath)
   const root: BuildTree = { path: normalizedRoot, children: [], isFile: false }
   // Per-directory child lookup avoids the O(N) `Array.find` scan during insertion.
-  const childIndex = new Map<BuildTree, Map<string, BuildTree>>()
+  // WeakMap keyed by object identity so directory nodes are GC-eligible once the tree is discarded.
+  const childIndex = new WeakMap<BuildTree, Map<string, BuildTree>>()
   childIndex.set(root, new Map())
 
   const rootPrefix = `${normalizedRoot}/`

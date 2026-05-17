@@ -777,6 +777,7 @@ type SetupResult = {
   driver: PluginDriver
   storage: Storage
   config: Config
+  dispose: () => void
 }
 
 /**
@@ -901,10 +902,15 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
   // Register middleware hooks after all plugin hooks are registered.
   // Because AsyncEventEmitter calls listeners in registration order,
   // middleware hooks for any event fire after all plugin hooks for that event.
+  // Handlers are tracked so they can be removed after each build (disposeMiddleware),
+  // preventing accumulation when multiple configs share the same hooks instance.
+  const middlewareListeners: Array<[keyof KubbHooks & string, (...args: never[]) => void | Promise<void>]> = []
+
   function registerMiddlewareHook<K extends keyof KubbHooks & string>(event: K, middlewareHooks: Middleware['hooks']) {
     const handler = middlewareHooks[event]
     if (handler) {
       hooks.on(event, handler)
+      middlewareListeners.push([event, handler as (...args: never[]) => void | Promise<void>])
     }
   }
 
@@ -979,6 +985,12 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     hooks,
     driver,
     storage,
+    dispose: () => {
+      driver.dispose()
+      for (const [event, handler] of middlewareListeners) {
+        hooks.off(event, handler as never)
+      }
+    },
   }
 }
 
@@ -1475,7 +1487,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       storage,
     }
   } finally {
-    driver.dispose()
+    setupResult.dispose()
   }
 }
 

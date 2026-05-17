@@ -10,7 +10,7 @@ import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../../constants.ts'
 import { setupLogger, type HookSinkFactory } from '../../loggers/utils.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../../telemetry.ts'
-import { executeHooks, getConfigs, startWatcher } from './utils.ts'
+import { executeHooks, getConfigs, runHook, startWatcher } from './utils.ts'
 
 type GenerateProps = {
   input?: string
@@ -98,9 +98,20 @@ async function runToolPass({
       .join(' ')
 
     try {
+      const hookArgs = toolConfig.args(outputPath)
       const hookEndPromise = waitForHookEnd(hooks, hookId, () => hooks.emit('kubb:success', { message: successMessage }), toolConfig.errorMessage)
 
-      await hooks.emit('kubb:hook:start', { id: hookId, command: toolConfig.command, args: toolConfig.args(outputPath) })
+      await hooks.emit('kubb:hook:start', { id: hookId, command: toolConfig.command, args: hookArgs })
+
+      runHook({
+        id: hookId,
+        command: toolConfig.command,
+        args: hookArgs,
+        commandWithArgs: [toolConfig.command, ...hookArgs].join(' '),
+        context: hooks,
+        stream: false,
+        sink: {},
+      }).catch(() => {})
 
       await hookEndPromise
     } catch (caughtError) {
@@ -117,7 +128,7 @@ async function runToolPass({
   }
 }
 
-async function generate(options: GenerateProps): Promise<void> {
+async function generate(options: GenerateProps): Promise<boolean> {
   const { input, hooks, logLevel, makeSink } = options
 
   const hrStart = process.hrtime()
@@ -163,7 +174,7 @@ async function generate(options: GenerateProps): Promise<void> {
     })
 
     await reportTelemetry('failed')
-    process.exit(1)
+    return false
   }
 
   await hooks.emit('kubb:success', { message: 'Generation succeeded', info: inputPath })
@@ -207,6 +218,7 @@ async function generate(options: GenerateProps): Promise<void> {
   await hooks.emit('kubb:generation:summary', { config, failedPlugins, filesCreated: files.length, status: 'success', hrStart, pluginTimings })
 
   await reportTelemetry('success')
+  return true
 }
 
 type GenerateCommandOptions = {
@@ -252,6 +264,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch }: G
     await hooks.emit('kubb:config:end', { configs })
     await hooks.emit('kubb:lifecycle:start', { version })
 
+    let anyFailed = false
     for (const config of configs) {
       if (isInputPath(config) && watch) {
         await startWatcher(
@@ -264,11 +277,21 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch }: G
           { info: (msg) => clack.log.info(msg), error: (msg) => clack.log.error(msg) },
         )
       } else {
-        await generate({ input, config, logLevel, hooks, makeSink })
+        try {
+          const succeeded = await generate({ input, config, logLevel, hooks, makeSink })
+          if (!succeeded) anyFailed = true
+        } catch (configError) {
+          await hooks.emit('kubb:error', { error: toError(configError) })
+          anyFailed = true
+        }
       }
     }
 
     await hooks.emit('kubb:lifecycle:end')
+
+    if (anyFailed) {
+      process.exit(1)
+    }
   } catch (error) {
     await hooks.emit('kubb:error', { error: toError(error) })
     process.exit(1)

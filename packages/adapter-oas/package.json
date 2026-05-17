@@ -1,6 +1,6 @@
 {
   "name": "@kubb/adapter-oas",
-  "version": "5.0.0-beta.12",
+  "version": "5.0.0-beta.14",
   "description": "OpenAPI and Swagger adapter for Kubb. Parses and validates OAS 2.0/3.x specifications into a @kubb/ast RootNode for downstream code generation plugins.",
   "keywords": [
     "adapter",
@@ -56,7 +56,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@redocly/openapi-core": "^2.30.4",
+    "@redocly/openapi-core": "^2.30.5",
     "oas": "^32.1.18",
     "oas-normalize": "^16.0.4",
     "swagger2openapi": "^7.0.8"

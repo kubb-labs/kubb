@@ -44,4 +44,4 @@ export {
   resolveRefName,
   syncSchemaRef,
 } from './utils.ts'
-export { collect, transform, walk } from './visitor.ts'
+export { collect, collectLazy, transform, walk } from './visitor.ts'
