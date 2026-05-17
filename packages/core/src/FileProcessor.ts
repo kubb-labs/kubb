@@ -61,7 +61,7 @@ export class FileProcessor {
    * Storage writes can begin as soon as the first file is ready, keeping peak
    * memory proportional to one file at a time instead of the full batch.
    */
-  async *runStream(files: ReadonlyArray<FileNode>, options: ParseOptions = {}): AsyncGenerator<ParsedFile> {
+  async *stream(files: ReadonlyArray<FileNode>, options: ParseOptions = {}): AsyncGenerator<ParsedFile> {
     const total = files.length
     let processed = 0
 
@@ -75,7 +75,7 @@ export class FileProcessor {
   async run(files: Array<FileNode>, options: ParseOptions = {}): Promise<Array<FileNode>> {
     await this.events.emit('start', files)
 
-    for await (const { file, source, processed, total, percentage } of this.runStream(files, options)) {
+    for await (const { file, source, processed, total, percentage } of this.stream(files, options)) {
       await this.events.emit('update', { file, source, processed, percentage, total })
     }
 
