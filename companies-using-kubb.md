@@ -5,7 +5,7 @@
 > Contact emails are provided for sponsorship outreach. Where no direct email was found publicly, the best available channel is noted.
 > Kubb versions are sourced directly from `package.json` files in each repository (`^` = compatible with, `~` = approximately, exact = pinned). `—` = could not be determined from public package.json.
 >
-> _Last updated: May 2026_
+> _Last updated: May 17, 2026_
 
 ---
 
@@ -49,6 +49,7 @@
 | **Tough Dev School** | Online programming school (Russian) | [support@tough-dev.school](mailto:support@tough-dev.school) | `^4.5.9` | [lms-frontend-v2](https://github.com/tough-dev-school/lms-frontend-v2) | [@tough-dev-school](https://github.com/tough-dev-school) |
 | **GenerateNU** | Northeastern University Generate — student tech organization | [generatenu.com](https://generatenu.com) (contact form) | `^4.20.1` | [toggo](https://github.com/GenerateNU/toggo), [inside-athletics](https://github.com/GenerateNU/inside-athletics) | [@GenerateNU](https://github.com/GenerateNU) |
 | **GeeksHacking** | Singapore developer community | [sponsor@geekshacking.com](mailto:sponsor@geekshacking.com) | `^4.37.5` | [portal](https://github.com/GeeksHacking/portal) | [@GeeksHacking](https://github.com/GeeksHacking) |
+| **bluds-sa** | Brazilian academic communication platform focused on accessibility for visually impaired users | GitHub Issues (no public email) | `^4.8.1` | [visus](https://github.com/bluds-sa/visus) | [@bluds-sa](https://github.com/bluds-sa) |
 
 ### Other Open Source Projects & Teams
 
@@ -57,6 +58,7 @@
 | **BobaBoard** | Open source fan discussion & community platform | [contact@bobaboard.com](mailto:contact@bobaboard.com) | — | [boba-backend](https://github.com/BobaBoard/boba-backend) | [@BobaBoard](https://github.com/BobaBoard) |
 | **openresponses** | Open source Responses API project | GitHub Issues (no public email) | `^4.15.0` | [openresponses](https://github.com/openresponses/openresponses) | [@openresponses](https://github.com/openresponses) |
 | **next-dev-team** | Development team maintaining multiple web projects | GitHub Issues (no public email) | `^4.12.15` | [next-gen](https://github.com/next-dev-team/next-gen), [hifi-flow](https://github.com/next-dev-team/hifi-flow) | [@next-dev-team](https://github.com/next-dev-team) |
+| **Anvoria** | Open source self-hosted developer tools (project management, authentication) | GitHub Issues (no public email) | `^4.15.0` | [authly](https://github.com/Anvoria/authly), [smithy](https://github.com/Anvoria/smithy) | [@Anvoria](https://github.com/Anvoria) |
 
 ---
 
@@ -83,9 +85,9 @@ Individual developers identified from package.json usage and the stargazers list
 | Enterprise / Scale-ups | 5 |
 | Startups & Tech Companies | 10 |
 | Web3 / Blockchain | 1 |
-| Education & Community | 3 |
-| Open Source Projects & Teams | 3 |
-| **Total Organizations** | **22+** |
+| Education & Community | 4 |
+| Open Source Projects & Teams | 4 |
+| **Total Organizations** | **24+** |
 
 ---
 
