@@ -775,18 +775,29 @@ export function resolveRefName(node: SchemaNode | undefined): string | undefined
  * }
  * ```
  */
+const _refNamesCache = new WeakMap<SchemaNode, Set<string>>()
+
 export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: Set<string> = new Set()): Set<string> {
   if (!node) return out
+
+  const cached = _refNamesCache.get(node)
+  if (cached) {
+    for (const name of cached) out.add(name)
+    return out
+  }
+
+  const fresh = new Set<string>()
   collect<void>(node, {
     schema(child) {
       if (child.type === 'ref') {
         const name = resolveRefName(child)
-
-        if (name) out.add(name)
+        if (name) fresh.add(name)
       }
       return undefined
     },
   })
+  _refNamesCache.set(node, fresh)
+  for (const name of fresh) out.add(name)
   return out
 }
 
