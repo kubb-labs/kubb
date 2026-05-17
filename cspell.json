@@ -103,6 +103,8 @@
     "Valibot",
     "bunx",
     "WeakMap",
-    "WeakSet"
+    "WeakSet",
+    "Lintable",
+    "lintable"
   ]
 }

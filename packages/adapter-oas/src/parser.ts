@@ -98,7 +98,7 @@ function createSchemaParser(ctx: OasParserContext) {
    * blowup — `customer` alone may be referenced from dozens of top-level schemas,
    * each triggering a fresh recursive expansion of its entire sub-tree.
    *
-   * Memoising by `$ref` path reduces the overall work from O(2^depth) to O(N)
+   * Memoizing by `$ref` path reduces the overall work from O(2^depth) to O(N)
    * where N is the number of unique schema names.
    */
   const resolvedRefCache = new Map<string, ast.SchemaNode | undefined>()
