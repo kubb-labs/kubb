@@ -68,6 +68,9 @@ export const clackLogger = defineLogger({
     }
 
     function stopSpinner(text?: string) {
+      if (!state.isSpinning) {
+        return
+      }
       state.spinner.stop(text)
       state.isSpinning = false
     }
@@ -206,7 +209,6 @@ Run \`npm install -g @kubb/cli\` to update`,
       const text = getMessage(['Generation started', config.name ? `for ${styleText('dim', config.name)}` : undefined].filter(Boolean).join(' '))
 
       clack.intro(text)
-      startSpinner(getMessage('Setting up plugins'))
     })
 
     context.on('kubb:plugin:start', ({ plugin }) => {
