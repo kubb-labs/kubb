@@ -1008,14 +1008,11 @@ export function parseOas(
   const baseOas = new BaseOas(document)
   const paths = baseOas.getPaths()
 
-  function* parseOperations(): Generator<ast.OperationNode, void, undefined> {
-    for (const [, methods] of Object.entries(paths)) {
-      for (const [, operation] of Object.entries(methods)) {
-        if (operation) yield _parseOperation(mergedOptions, operation)
-      }
-    }
-  }
-  const operations = Array.from(parseOperations())
+  const operations: Array<ast.OperationNode> = Object.entries(paths).flatMap(([, methods]) =>
+    Object.entries(methods)
+      .map(([, operation]) => (operation ? _parseOperation(mergedOptions, operation) : null))
+      .filter((op): op is ast.OperationNode => op !== null),
+  )
 
   const root = ast.createInput({ schemas, operations })
 
