@@ -1,5 +1,107 @@
 # Changelog
 
+## v5.0.0-beta.15 — May 17, 2026
+
+### @kubb/ast
+
+#### Features
+
+- Performance improvements for large OpenAPI specs.
+  
+  - **`@kubb/ast`**: Add `mergeAdjacentObjectsLazy` generator for lazy stateful merging of adjacent allOf object schemas. Memoize `collectReferencedSchemaNames` with a `WeakMap` so repeated callers pay the tree-walk cost only once per schema node.
+  - **`@kubb/core`**: Parallelize per-node generator dispatch with `Promise.all` so schema and operation generators run concurrently. Defer file writes to a single flush after all plugins complete instead of flushing after each plugin. Convert `fsStorage` directory walk to an async generator for streaming filesystem traversal.
+  - **`@kubb/adapter-oas`**: Replace `flatMap` content-type loop with a `for`/`push` pattern (7× faster for the typical 2–4 content-type case).
+  - **`@kubb/parser-ts`**: Fix British-English spellings in JSDoc comments (`normalising` → `normalizing`, `neutralise` → `neutralize`). ([#3305](https://github.com/kubb-labs/kubb/pull/3305), [`62f72dd`](https://github.com/kubb-labs/kubb/commit/62f72dde26cc2da6f77b24ca54c9ca74a32c577f))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Show live progress for formatter, linter, and custom hooks in the CLI.
+  
+  Previously, hook commands (linting, formatting, and custom `hooks.done`) ran with no visible indication of activity — the CLI showed only a "started" intro and a "completed" outro, with the actual execution blocking silently between them. The clack logger now renders a live `taskLog` per hook that streams the subprocess output while it runs, and finalizes with a duration on success or keeps the log open with the error on failure. ([#3306](https://github.com/kubb-labs/kubb/pull/3306), [`dfa488a`](https://github.com/kubb-labs/kubb/commit/dfa488a42d5fac355b2f3312e56aa084ffffe653))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.0-beta.14 — May 16, 2026
+
+### @kubb/ast
+
+#### Features
+
+- Use generator functions for lazy AST traversal.
+  
+  `collectLazy()` is now exported from `@kubb/ast`. It is a generator version of `collect()` that yields results one by one without materializing an intermediate array. `collect()` is unchanged and still returns `Array<T>`.
+  
+  `getChildren()` and `collectRefs()` are converted to generators internally, removing per-node temporary array allocations during traversal.
+  
+  `containsCircularRef()` uses `collectLazy()` with an early-exit loop and stops at the first matching circular ref instead of traversing the full subtree. ([#3301](https://github.com/kubb-labs/kubb/pull/3301), [`647207f`](https://github.com/kubb-labs/kubb/commit/647207f135ae95f3b5bfcb67815eeea46954cfb8))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.0-beta.13 — May 16, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Fix multiple configs in `defineConfig` array stopping after the first failure.
+  
+  Two bugs caused only one schema to be processed when using `defineConfig` with an array of configs:
+  
+  1. **`@kubb/cli`**: `process.exit(1)` was called immediately when any config failed, killing the process before remaining configs could run. Each config is now processed independently; the process exits with code 1 after all configs complete if any failed.
+  
+  2. **`@kubb/core`**: Middleware hooks registered during `setup()` were never removed from the shared `hooks` instance between config runs, causing N middleware instances to fire for the N-th config and producing duplicate output. Middleware listeners are now tracked and removed via `SetupResult.dispose()` at the end of each build. ([#3297](https://github.com/kubb-labs/kubb/pull/3297), [`d66969f`](https://github.com/kubb-labs/kubb/commit/d66969f52bb22ea417d931dc608c885a733c086b))
+
+### @kubb/middleware-barrel
+
+#### Features
+
+- `getBarrelFiles` now returns a `Generator<FileNode>` instead of `Array<FileNode>`.
+  
+  Iterate with `for...of` or spread into an array to preserve existing behaviour:
+  
+  ```ts
+  // before
+  const files = getBarrelFiles({ ... })
+  
+  // after — iterate incrementally
+  for (const file of getBarrelFiles({ ... })) { ... }
+  
+  // after — spread to get an array
+  const files = [...getBarrelFiles({ ... })]
+  ``` ([#3294](https://github.com/kubb-labs/kubb/pull/3294), [`164881b`](https://github.com/kubb-labs/kubb/commit/164881b1cb18849b9f5491019971cf3f34c4f5ea))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.0-beta.12 — May 15, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- **Performance: memoize `$ref` resolution within `parse()`**
+  
+  `resolvedRefCache` — within a single `parse()` call, each `$ref` is now resolved at most once. Previously, a shared schema referenced from dozens of top-level schemas caused exponential sub-tree re-expansion. Stripe (~1 400 schemas) went from OOM at 8 GB to ~840 ms / ~15 MB. ([#3293](https://github.com/kubb-labs/kubb/pull/3293), [`3f5504b`](https://github.com/kubb-labs/kubb/commit/3f5504b689106063480f72fd1d18bca742613189))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.11 — May 14, 2026
 
 ### @kubb/ast

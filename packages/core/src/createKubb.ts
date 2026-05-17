@@ -780,6 +780,7 @@ type SetupResult = {
   driver: PluginDriver
   storage: Storage
   config: Config
+  dispose: () => void
 }
 
 /**
@@ -904,10 +905,15 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
   // Register middleware hooks after all plugin hooks are registered.
   // Because AsyncEventEmitter calls listeners in registration order,
   // middleware hooks for any event fire after all plugin hooks for that event.
+  // Handlers are tracked so they can be removed after each build (disposeMiddleware),
+  // preventing accumulation when multiple configs share the same hooks instance.
+  const middlewareListeners: Array<[keyof KubbHooks & string, (...args: never[]) => void | Promise<void>]> = []
+
   function registerMiddlewareHook<K extends keyof KubbHooks & string>(event: K, middlewareHooks: Middleware['hooks']) {
     const handler = middlewareHooks[event]
     if (handler) {
       hooks.on(event, handler)
+      middlewareListeners.push([event, handler as (...args: never[]) => void | Promise<void>])
     }
   }
 
@@ -976,6 +982,12 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     hooks,
     driver,
     storage,
+    dispose: () => {
+      driver.dispose()
+      for (const [event, handler] of middlewareListeners) {
+        hooks.off(event, handler as never)
+      }
+    },
   }
 }
 
@@ -1088,11 +1100,11 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
 
       const ctx = { ...generatorContext, options }
 
-      for (const gen of generators) {
-        if (!gen.schema) continue
-        const result = await gen.schema(transformedNode, ctx)
-        await applyHookResult(result, driver, resolveRenderer(gen))
-      }
+      await Promise.all(
+        generators
+          .filter((gen) => gen.schema)
+          .map((gen) => Promise.resolve(gen.schema!(transformedNode, ctx)).then((result) => applyHookResult(result, driver, resolveRenderer(gen)))),
+      )
 
       await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
     },
@@ -1109,11 +1121,11 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
 
         const ctx = { ...generatorContext, options }
 
-        for (const gen of generators) {
-          if (!gen.operation) continue
-          const result = await gen.operation(transformedNode, ctx)
-          await applyHookResult(result, driver, resolveRenderer(gen))
-        }
+        await Promise.all(
+          generators
+            .filter((gen) => gen.operation)
+            .map((gen) => Promise.resolve(gen.operation!(transformedNode, ctx)).then((result) => applyHookResult(result, driver, resolveRenderer(gen)))),
+        )
 
         await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
       }
@@ -1245,8 +1257,6 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           upsertFile: (...files) => driver.fileManager.upsert(...files),
         })
 
-        await flushPendingFiles()
-
         await hooks.emit('kubb:debug', {
           date: new Date(),
           logs: [`✓ Plugin started successfully (${formatMs(duration)})`],
@@ -1267,8 +1277,6 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           },
           upsertFile: (...files) => driver.fileManager.upsert(...files),
         })
-
-        await flushPendingFiles()
 
         await hooks.emit('kubb:debug', {
           date: errorTimestamp,
@@ -1320,7 +1328,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       storage,
     }
   } finally {
-    driver.dispose()
+    setupResult.dispose()
   }
 }
 

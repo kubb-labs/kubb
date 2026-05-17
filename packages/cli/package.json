@@ -1,6 +1,6 @@
 {
   "name": "@kubb/cli",
-  "version": "5.0.0-beta.11",
+  "version": "5.0.0-beta.15",
   "description": "Official CLI for Kubb. Run kubb generate, kubb init, kubb validate, kubb mcp, and kubb agent to manage the full code generation lifecycle from OpenAPI/Swagger specs.",
   "keywords": [
     "cli",
@@ -58,7 +58,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@clack/prompts": "^1.3.0",
+    "@clack/prompts": "^1.4.0",
     "@kubb/core": "workspace:*",
     "chokidar": "^5.0.0",
     "cosmiconfig": "^9.0.1",

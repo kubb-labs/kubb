@@ -10,7 +10,7 @@ import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../../constants.ts'
 import { setupLogger, type HookSinkFactory } from '../../loggers/utils.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../../telemetry.ts'
-import { executeHooks, getConfigs, startWatcher } from './utils.ts'
+import { executeHooks, getConfigs, runHook, startWatcher } from './utils.ts'
 
 type GenerateProps = {
   input?: string
@@ -33,6 +33,7 @@ type RunToolPassOptions = {
   outputPath: string
   logLevel: number
   hooks: AsyncEventEmitter<KubbHooks>
+  makeSink?: HookSinkFactory
   onStart: () => Promise<void>
   onEnd: () => Promise<void>
 }
@@ -67,6 +68,7 @@ async function runToolPass({
   outputPath,
   logLevel,
   hooks,
+  makeSink,
   onStart,
   onEnd,
 }: RunToolPassOptions) {
@@ -98,9 +100,23 @@ async function runToolPass({
       .join(' ')
 
     try {
+      const hookArgs = toolConfig.args(outputPath)
+      const commandWithArgs = [toolConfig.command, ...hookArgs].join(' ')
       const hookEndPromise = waitForHookEnd(hooks, hookId, () => hooks.emit('kubb:success', { message: successMessage }), toolConfig.errorMessage)
 
-      await hooks.emit('kubb:hook:start', { id: hookId, command: toolConfig.command, args: toolConfig.args(outputPath) })
+      await hooks.emit('kubb:hook:start', { id: hookId, command: toolConfig.command, args: hookArgs })
+
+      const { stream = false, onLine, onStdout, onStderr } = makeSink?.(commandWithArgs, hookId) ?? {}
+
+      runHook({
+        id: hookId,
+        command: toolConfig.command,
+        args: hookArgs,
+        commandWithArgs,
+        context: hooks,
+        stream,
+        sink: { onLine, onStdout, onStderr },
+      }).catch(() => {})
 
       await hookEndPromise
     } catch (caughtError) {
@@ -117,7 +133,7 @@ async function runToolPass({
   }
 }
 
-async function generate(options: GenerateProps): Promise<void> {
+async function generate(options: GenerateProps): Promise<boolean> {
   const { input, hooks, logLevel, makeSink } = options
 
   const hrStart = process.hrtime()
@@ -130,10 +146,12 @@ async function generate(options: GenerateProps): Promise<void> {
   } satisfies Config
 
   const kubb = createKubb(config, { hooks })
-  await kubb.setup()
 
   await hooks.emit('kubb:generation:start', { config })
   await hooks.emit('kubb:info', { message: config.name ? `Setup generation ${styleText('bold', config.name)}` : 'Setup generation', info: inputPath })
+
+  await kubb.setup()
+
   await hooks.emit('kubb:info', { message: config.name ? `Build generation ${styleText('bold', config.name)}` : 'Build generation', info: inputPath })
 
   const { files, failedPlugins, pluginTimings, error, driver } = await kubb.safeBuild()
@@ -163,7 +181,7 @@ async function generate(options: GenerateProps): Promise<void> {
     })
 
     await reportTelemetry('failed')
-    process.exit(1)
+    return false
   }
 
   await hooks.emit('kubb:success', { message: 'Generation succeeded', info: inputPath })
@@ -195,7 +213,7 @@ async function generate(options: GenerateProps): Promise<void> {
   ].filter(Boolean) as Omit<RunToolPassOptions, 'configName' | 'outputPath' | 'logLevel' | 'hooks'>[]
 
   for (const pass of toolPasses) {
-    await runToolPass({ ...pass, configName: config.name, outputPath, logLevel, hooks })
+    await runToolPass({ ...pass, configName: config.name, outputPath, logLevel, hooks, makeSink })
   }
 
   if (config.hooks) {
@@ -207,6 +225,7 @@ async function generate(options: GenerateProps): Promise<void> {
   await hooks.emit('kubb:generation:summary', { config, failedPlugins, filesCreated: files.length, status: 'success', hrStart, pluginTimings })
 
   await reportTelemetry('success')
+  return true
 }
 
 type GenerateCommandOptions = {
@@ -240,35 +259,51 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch }: G
 
   const makeSink = await setupLogger(hooks, { logLevel })
 
+  await hooks.emit('kubb:lifecycle:start', { version })
+
   await checkForUpdate(hooks)
 
   try {
+    await hooks.emit('kubb:config:start')
+
     const { configs, configPath: resolvedConfigPath } = await getConfigs({ configPath, input })
     const relativeConfigPath = path.relative(process.cwd(), resolvedConfigPath)
 
-    await hooks.emit('kubb:config:start')
     await hooks.emit('kubb:info', { message: 'Config loaded', info: relativeConfigPath })
     await hooks.emit('kubb:success', { message: 'Config loaded successfully', info: relativeConfigPath })
     await hooks.emit('kubb:config:end', { configs })
-    await hooks.emit('kubb:lifecycle:start', { version })
 
+    let anyFailed = false
     for (const config of configs) {
       if (isInputPath(config) && watch) {
         await startWatcher(
           [input || config.input.path],
           async (paths) => {
-            hooks.removeAll()
+            // Don't removeAll() — that would also drop logger and lifecycle listeners.
+            // Plugin and middleware listeners are already disposed by safeBuild's
+            // setupResult.dispose() in its finally block, so re-running generate()
+            // on the same hooks emitter is safe.
             await generate({ input, config, logLevel, hooks, makeSink })
             clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
           },
           { info: (msg) => clack.log.info(msg), error: (msg) => clack.log.error(msg) },
         )
       } else {
-        await generate({ input, config, logLevel, hooks, makeSink })
+        try {
+          const succeeded = await generate({ input, config, logLevel, hooks, makeSink })
+          if (!succeeded) anyFailed = true
+        } catch (configError) {
+          await hooks.emit('kubb:error', { error: toError(configError) })
+          anyFailed = true
+        }
       }
     }
 
     await hooks.emit('kubb:lifecycle:end')
+
+    if (anyFailed) {
+      process.exit(1)
+    }
   } catch (error) {
     await hooks.emit('kubb:error', { error: toError(error) })
     process.exit(1)

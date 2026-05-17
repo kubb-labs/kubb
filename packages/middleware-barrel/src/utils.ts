@@ -99,9 +99,10 @@ type LeafWalkParams = {
 }
 
 /**
- * Post-order walk that emits a barrel per visited directory.
+ * Post-order walk that yields a barrel per visited directory.
+ * Returns the list of leaf file paths collected in this subtree (used by the parent call).
  */
-function walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolean, out: Array<FileNode>): Array<string> {
+function* walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolean): Generator<FileNode, string[]> {
   const subtreeLeaves: Array<string> = []
 
   for (const child of node.children) {
@@ -110,7 +111,7 @@ function walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolean
       continue
     }
 
-    const childLeaves = walkAllOrNamed(child, params, false, out)
+    const childLeaves = yield* walkAllOrNamed(child, params, false)
     for (const leaf of childLeaves) subtreeLeaves.push(leaf)
   }
 
@@ -119,17 +120,17 @@ function walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolean
   const exports = subtreeLeaves.flatMap((leafPath) => params.strategy({ dirPath: node.path, leafPath, sourceFile: params.sourceFiles.get(leafPath) }))
 
   if (exports.length > 0) {
-    out.push(makeBarrel(node.path, exports))
+    yield makeBarrel(node.path, exports)
   }
 
   return subtreeLeaves
 }
 
 /**
- * Recursive walk that emits one barrel per directory, re-exporting files and sub-barrels.
+ * Recursive walk that yields one barrel per directory, re-exporting files and sub-barrels.
  * Used when nested: true.
  */
-function walkNested(node: BuildTree, out: Array<FileNode>): void {
+function* walkNested(node: BuildTree): Generator<FileNode> {
   const exports: Array<ExportNode> = []
 
   for (const child of node.children) {
@@ -139,12 +140,12 @@ function walkNested(node: BuildTree, out: Array<FileNode>): void {
       continue
     }
 
-    walkNested(child, out)
+    yield* walkNested(child)
     exports.push(createExport({ path: toRelativeModulePath(node.path, `${child.path}${BARREL_SUFFIX}`) }))
   }
 
   if (exports.length > 0) {
-    out.push(makeBarrel(node.path, exports))
+    yield makeBarrel(node.path, exports)
   }
 }
 
@@ -204,26 +205,32 @@ type GetBarrelFilesParams = {
 }
 
 /**
- * Generates barrel `FileNode`s for the directory rooted at `outputPath`.
+ * Yields barrel `FileNode`s for the directory rooted at `outputPath`.
+ *
+ * @example
+ * ```ts
+ * for (const file of getBarrelFiles({ outputPath, files, barrelType })) {
+ *   upsertFile(file)
+ * }
+ * // or collect into an array
+ * const barrels = [...getBarrelFiles({ outputPath, files, barrelType })]
+ * ```
  */
-export function getBarrelFiles({ outputPath, files, barrelType, nested = false, recursive = false }: GetBarrelFilesParams): Array<FileNode> {
+export function* getBarrelFiles({ outputPath, files, barrelType, nested = false, recursive = false }: GetBarrelFilesParams): Generator<FileNode> {
   const { sourceFiles, paths } = indexRelevantFiles(files, outputPath)
-  if (paths.length === 0) return []
+  if (paths.length === 0) return
 
   const tree = buildTree(outputPath, paths)
-  const result: Array<FileNode> = []
 
-  // Use nested walk for hierarchical barrel structure
   if (nested) {
-    walkNested(tree, result)
-    return result
+    yield* walkNested(tree)
+    return
   }
 
   const strategy = LEAF_STRATEGIES.get(barrelType)
-  if (!strategy) return result
+  if (!strategy) return
 
-  walkAllOrNamed(tree, { sourceFiles, strategy, recursive }, true, result)
-  return result
+  yield* walkAllOrNamed(tree, { sourceFiles, strategy, recursive }, true)
 }
 
 /**

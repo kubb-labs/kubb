@@ -29,7 +29,7 @@ export { isInputNode, isOperationNode, isOutputNode, isSchemaNode, narrowSchema 
 export { createPrinterFactory, definePrinter } from './printer.ts'
 export { extractRefName } from './refs.ts'
 export { childName, collectImports, enumPropName, findDiscriminator } from './resolvers.ts'
-export { mergeAdjacentObjects, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
+export { mergeAdjacentObjects, mergeAdjacentObjectsLazy, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
 export type * from './types.ts'
 export {
   caseParams,
@@ -44,4 +44,4 @@ export {
   resolveRefName,
   syncSchemaRef,
 } from './utils.ts'
-export { collect, transform, walk } from './visitor.ts'
+export { collect, collectLazy, transform, walk } from './visitor.ts'

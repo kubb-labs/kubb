@@ -305,10 +305,10 @@ export function extractSchemaFromContent(content: Record<string, unknown> | unde
 /**
  * Walks a schema tree and collects the names of all `#/components/schemas/<name>` `$ref`s.
  */
-function collectRefs(schema: unknown, refs = new Set<string>()): Set<string> {
+function* collectRefs(schema: unknown): Generator<string, void, undefined> {
   if (Array.isArray(schema)) {
-    for (const item of schema) collectRefs(item, refs)
-    return refs
+    for (const item of schema) yield* collectRefs(item)
+    return
   }
 
   if (schema && typeof schema === 'object') {
@@ -317,15 +317,13 @@ function collectRefs(schema: unknown, refs = new Set<string>()): Set<string> {
       if (key === '$ref' && typeof value === 'string') {
         if (value.startsWith(SCHEMA_REF_PREFIX)) {
           const name = value.slice(SCHEMA_REF_PREFIX.length)
-          if (name) refs.add(name)
+          if (name) yield name
         }
       } else {
-        collectRefs(value, refs)
+        yield* collectRefs(value)
       }
     }
   }
-
-  return refs
 }
 
 /**
@@ -344,7 +342,7 @@ export function sortSchemas(schemas: Record<string, SchemaObject>): Record<strin
   const deps = new Map<string, string[]>()
 
   for (const [name, schema] of Object.entries(schemas)) {
-    deps.set(name, Array.from(collectRefs(schema)))
+    deps.set(name, [...new Set(collectRefs(schema))])
   }
 
   const sorted: string[] = []

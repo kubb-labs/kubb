@@ -75,7 +75,6 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * Parsed source document after the first `parse()` call. `null` before parsing.
    */
   document: TOptions['document'] | null
-  inputNode: InputNode | null
   /**
    * Parse the source into a universal `InputNode`.
    */

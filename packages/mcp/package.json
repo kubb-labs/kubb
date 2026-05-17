@@ -1,6 +1,6 @@
 {
   "name": "@kubb/mcp",
-  "version": "5.0.0-beta.11",
+  "version": "5.0.0-beta.15",
   "description": "MCP server for Kubb. Exposes code generation as a tool over the Model Context Protocol so AI assistants like Claude, Cursor, and other MCP-compatible clients can generate TypeScript types, clients, and more from OpenAPI specs.",
   "keywords": [
     "ai",
@@ -63,11 +63,11 @@
     "@kubb/adapter-oas": "workspace:*",
     "@kubb/core": "workspace:*",
     "@remix-run/node-fetch-server": "^0.13.1",
-    "@tmcp/adapter-valibot": "^0.1.5",
-    "@tmcp/transport-http": "^0.8.5",
-    "@tmcp/transport-stdio": "^0.4.2",
+    "@tmcp/adapter-valibot": "^0.1.6",
+    "@tmcp/transport-http": "^0.8.6",
+    "@tmcp/transport-stdio": "^0.4.3",
     "jiti": "^2.7.0",
-    "tmcp": "^1.19.3",
+    "tmcp": "^1.19.4",
     "valibot": "^1.4.0"
   },
   "devDependencies": {

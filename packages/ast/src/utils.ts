@@ -17,7 +17,7 @@ import type {
 } from './nodes/index.ts'
 import type { SchemaType } from './nodes/schema.ts'
 import { extractRefName } from './refs.ts'
-import { collect } from './visitor.ts'
+import { collect, collectLazy } from './visitor.ts'
 
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
 
@@ -775,18 +775,28 @@ export function resolveRefName(node: SchemaNode | undefined): string | undefined
  * }
  * ```
  */
-export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: Set<string> = new Set()): Set<string> {
-  if (!node) return out
+const schemaRefCache = new WeakMap<SchemaNode, ReadonlySet<string>>()
+
+function collectSchemaRefs(node: SchemaNode): ReadonlySet<string> {
+  const cached = schemaRefCache.get(node)
+  if (cached) return cached
+
+  const refs = new Set<string>()
   collect<void>(node, {
     schema(child) {
       if (child.type === 'ref') {
         const name = resolveRefName(child)
-
-        if (name) out.add(name)
+        if (name) refs.add(name)
       }
-      return undefined
     },
   })
+  schemaRefCache.set(node, refs)
+  return refs
+}
+
+export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: Set<string> = new Set()): Set<string> {
+  if (!node) return out
+  for (const name of collectSchemaRefs(node)) out.add(name)
   return out
 }
 
@@ -842,7 +852,7 @@ export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>,
   }
 
   for (const op of operations) {
-    for (const schema of collect<SchemaNode>(op, { depth: 'shallow', schema: (node) => node })) {
+    for (const schema of collectLazy<SchemaNode>(op, { depth: 'shallow', schema: (node) => node })) {
       visitSchema(schema)
     }
   }
@@ -902,14 +912,15 @@ export function containsCircularRef(
 ): boolean {
   if (!node || circularSchemas.size === 0) return false
 
-  const matches = collect<true>(node, {
+  for (const _ of collectLazy<true>(node, {
     schema(child) {
       if (child.type !== 'ref') return undefined
       const name = resolveRefName(child)
-
       return name && name !== excludeName && circularSchemas.has(name) ? true : undefined
     },
-  })
+  })) {
+    return true
+  }
 
-  return matches.length > 0
+  return false
 }
