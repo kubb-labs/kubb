@@ -1411,8 +1411,6 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
             upsertFile: (...files) => driver.fileManager.upsert(...files),
           })
 
-          await flushPendingFiles()
-
           await hooks.emit('kubb:debug', {
             date: new Date(),
             logs: [`✓ Plugin started successfully (${formatMs(duration)})`],
@@ -1433,8 +1431,6 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
             },
             upsertFile: (...files) => driver.fileManager.upsert(...files),
           })
-
-          await flushPendingFiles()
 
           await hooks.emit('kubb:debug', {
             date: errorTimestamp,
