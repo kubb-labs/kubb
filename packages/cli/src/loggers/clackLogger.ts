@@ -199,6 +199,10 @@ Run \`npm install -g @kubb/cli\` to update`,
       // Initialize progress tracking for this generation
       state.totalPlugins = config.plugins?.length ?? 0
 
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+
       const text = getMessage(['Generation started', config.name ? `for ${styleText('dim', config.name)}` : undefined].filter(Boolean).join(' '))
 
       clack.intro(text)
@@ -320,6 +324,8 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('kubb:generation:end', ({ config }) => {
+      stopSpinner()
+
       const text = getMessage(config.name ? `Generation completed for ${styleText('dim', config.name)}` : 'Generation completed')
 
       clack.outro(text)

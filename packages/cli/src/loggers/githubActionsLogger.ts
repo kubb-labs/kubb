@@ -20,9 +20,11 @@ export const githubActionsLogger = defineLogger({
       hrStart: process.hrtime(),
       currentConfigs: [] as Array<Config>,
       hookStarts: new Map<string, [number, number]>(),
+      openGroupDepth: 0,
     }
 
     function reset() {
+      closeAllGroups()
       state.totalPlugins = 0
       state.completedPlugins = 0
       state.failedPlugins = 0
@@ -50,10 +52,19 @@ export const githubActionsLogger = defineLogger({
 
     function openGroup(name: string) {
       console.log(`::group::${name}`)
+      state.openGroupDepth++
     }
 
     function closeGroup(_name: string) {
       console.log('::endgroup::')
+      if (state.openGroupDepth > 0) state.openGroupDepth--
+    }
+
+    function closeAllGroups() {
+      while (state.openGroupDepth > 0) {
+        console.log('::endgroup::')
+        state.openGroupDepth--
+      }
     }
 
     context.on('kubb:info', ({ message, info = '' }) => {
@@ -88,6 +99,10 @@ export const githubActionsLogger = defineLogger({
 
     context.on('kubb:error', ({ error }) => {
       const caused = toCause(error)
+
+      // Always release any unclosed groups so a thrown :start without a matching :end
+      // (e.g., when getConfigs or kubb.setup throws) doesn't leak an open section.
+      closeAllGroups()
 
       if (logLevel <= logLevelMap.silent) {
         return
