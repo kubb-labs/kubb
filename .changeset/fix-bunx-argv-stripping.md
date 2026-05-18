@@ -1,5 +1,5 @@
 ---
-'@internals/utils': patch
+'@kubb/cli': patch
 ---
 
 Fix `bunx kubb` (and other non-Node runtimes) incorrectly using the runtime executable path as the OpenAPI input.

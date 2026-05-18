@@ -2,4 +2,4 @@
 "@kubb/middleware-barrel": patch
 ---
 
-Cleanup logic to also use excluded
+Include excluded files in barrel cleanup logic.

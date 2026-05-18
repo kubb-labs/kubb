@@ -2,7 +2,6 @@
   "mode": "pre",
   "tag": "beta",
   "initialVersions": {
-    "@internals/utils": "0.0.0",
     "@kubb/adapter-oas": "5.0.0-alpha.74",
     "@kubb/agent": "5.0.0-alpha.74",
     "@kubb/ast": "5.0.0-alpha.74",
@@ -13,8 +12,7 @@
     "@kubb/middleware-barrel": "5.0.0-alpha.74",
     "@kubb/parser-ts": "5.0.0-alpha.74",
     "@kubb/renderer-jsx": "5.0.0-alpha.74",
-    "unplugin-kubb": "5.0.0-alpha.74",
-    "@internals/shared": "0.0.0"
+    "unplugin-kubb": "5.0.0-alpha.74"
   },
   "changesets": [
     "adapter-oas-integer-type-bigint-default",

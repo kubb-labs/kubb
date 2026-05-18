@@ -2,4 +2,4 @@
 "@kubb/core": patch
 ---
 
-add ThisType to resolver type
+Add `ThisType` to core resolver type.
