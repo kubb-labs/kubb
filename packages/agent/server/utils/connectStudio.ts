@@ -11,6 +11,7 @@ import { logger } from './logger.ts'
 import { mergePlugins } from './mergePlugins.ts'
 import { resolveMiddlewares } from './resolvePlugins.ts'
 import { setupHookListener } from './setupHookListener.ts'
+import type WebSocket from 'ws'
 import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
 
 export type ConnectToStudioOptions = {
@@ -87,6 +88,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
         ws.removeEventListener('open', onOpen)
         ws.removeEventListener('close', onClose)
         ws.removeEventListener('error', onError)
+        ws.removeEventListener('message', onMessage)
       } catch (_error: any) {}
     }
 
@@ -136,7 +138,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     setupEventsStream(ws, hooks)
 
-    ws.addEventListener('message', async (message) => {
+    const onMessage = async (message: WebSocket.MessageEvent) => {
       try {
         const data = JSON.parse(message.data as string) as AgentMessage
 
@@ -256,7 +258,8 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       } catch (error: any) {
         logger.error(`[${maskedSessionId}] [unhandledRejection] ${error?.message ?? error}`)
       }
-    })
+    }
+    ws.addEventListener('message', onMessage)
   } catch (error: any) {
     throw new Error(`[unhandledRejection] ${error?.message ?? error}`, {
       cause: error,

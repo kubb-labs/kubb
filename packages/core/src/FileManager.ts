@@ -99,6 +99,10 @@ export class FileManager {
     this.clear()
   }
 
+  [Symbol.dispose](): void {
+    this.dispose()
+  }
+
   /**
    * All stored files, sorted by path length (shorter paths first).
    */

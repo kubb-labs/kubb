@@ -38,4 +38,12 @@ export async function startServer({ port, host = 'localhost' }: ServerOptions = 
   httpServer.listen(port, host, () => {
     console.log(`Kubb MCP server on http://${host}:${port}`)
   })
+
+  const closeServer = () => httpServer.close()
+  process.once('SIGINT', closeServer)
+  process.once('SIGTERM', closeServer)
+  httpServer.once('close', () => {
+    process.off('SIGINT', closeServer)
+    process.off('SIGTERM', closeServer)
+  })
 }
