@@ -65,13 +65,8 @@ export const jsxRenderer = () => {
 export const jsxRendererSync = () => {
   const runtime = new SyncRuntime()
   return {
-    render(element: KubbReactElement): Promise<void> {
-      try {
-        runtime.render(element)
-        return Promise.resolve()
-      } catch (error) {
-        return Promise.reject(error)
-      }
+    async render(element: KubbReactElement): Promise<void> {
+      runtime.render(element)
     },
     get files() {
       return runtime.nodes
