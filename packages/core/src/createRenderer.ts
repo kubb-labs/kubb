@@ -15,6 +15,15 @@ export type Renderer<TElement = unknown> = {
   render(element: TElement): Promise<void>
   unmount(error?: Error | number | null): void
   readonly files: Array<FileNode>
+  /**
+   * Yields each {@link FileNode} as it is produced during rendering, without
+   * buffering the full result first. When present, core will prefer this over
+   * the `render` + `files` round-trip so that each file is handed to the
+   * `FileManager` as soon as it is ready.
+   *
+   * Only implement this when the renderer can produce files incrementally.
+   */
+  stream?(element: TElement): AsyncIterable<FileNode>
 }
 
 /**

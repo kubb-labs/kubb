@@ -467,7 +467,13 @@ export async function applyHookResult<TElement = unknown>(
   }
 
   const renderer = rendererFactory()
-  await renderer.render(result)
-  driver.fileManager.upsert(...renderer.files)
+  if (renderer.stream) {
+    for await (const file of renderer.stream(result)) {
+      driver.fileManager.upsert(file)
+    }
+  } else {
+    await renderer.render(result)
+    driver.fileManager.upsert(...renderer.files)
+  }
   renderer.unmount()
 }

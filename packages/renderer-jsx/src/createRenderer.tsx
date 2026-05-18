@@ -40,7 +40,7 @@ export const jsxRenderer = () => {
 }
 
 /**
- * Synchronous renderer factory for generators that produce JSX output.
+ * Slim renderer factory for generators that produce JSX output.
  *
  * Walks the JSX element tree in a single recursive pass — no React fiber, no
  * scheduler, no work loop. All components must be pure functions; hooks and
@@ -52,12 +52,12 @@ export const jsxRenderer = () => {
  *
  * @example Drop-in replacement
  * ```ts
- * import { jsxRendererSync } from '@kubb/renderer-jsx'
+ * import { jsxRendererSlim } from '@kubb/renderer-jsx'
  * import { defineGenerator } from '@kubb/core'
  *
  * export const myGenerator = defineGenerator<PluginTs>({
  *   name: 'my-generator',
- *   renderer: jsxRendererSync,
+ *   renderer: jsxRendererSlim,
  *   schema(node, options) {
  *     return <File baseName="output.ts" path="src/output.ts">...</File>
  *   },
@@ -66,13 +66,13 @@ export const jsxRenderer = () => {
  *
  * @example Streaming files one at a time
  * ```ts
- * const renderer = jsxRendererSync()
+ * const renderer = jsxRendererSlim()
  * for await (const file of renderer.stream(element)) {
  *   await writeFile(file)
  * }
  * ```
  */
-export const jsxRendererSync = () => {
+export const jsxRendererSlim = () => {
   const runtime = new SyncRuntime()
   return {
     render(element: KubbReactElement): Promise<void> {

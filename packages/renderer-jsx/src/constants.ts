@@ -26,10 +26,3 @@ export const nodeNames = new Set<ElementNames>([
   'indent',
   'dedent',
 ] as const)
-
-/**
- * Elements treated as leaves during `<kubb-file>` subtree traversal.
- * Import and export nodes never contain nested sources, so they are yielded
- * and not recursed into.
- */
-export const SOURCE_IGNORES = new Set<ElementNames>(['kubb-export', 'kubb-import'])
