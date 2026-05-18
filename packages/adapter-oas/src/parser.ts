@@ -76,9 +76,9 @@ function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
  * Each converter branch (`convertRef`, `convertAllOf`, etc.) mutually recursively calls `parseSchema`,
  * made possible by hoisting of function declarations.
  *
- * @note Not exported; called internally by `parseOas()` and `parseSchema()`.
+ * @internal
  */
-function createSchemaParser(ctx: OasParserContext) {
+export function createSchemaParser(ctx: OasParserContext) {
   const document = ctx.document
 
   // Branch handlers — each converts one OAS schema pattern to a SchemaNode.

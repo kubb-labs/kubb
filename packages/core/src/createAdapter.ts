@@ -1,5 +1,5 @@
 import type { PossiblePromise } from '@internals/utils'
-import type { ImportNode, InputNode, SchemaNode } from '@kubb/ast'
+import type { ImportNode, InputNode, InputStreamNode, SchemaNode } from '@kubb/ast'
 
 /**
  * Source data passed to an adapter's `parse` function.
@@ -73,6 +73,22 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * Validate the document at the given path or URL.
    */
   validate: (input: string, options?: { throwOnError?: boolean }) => Promise<void>
+  /**
+   * Lightweight pre-flight count of schemas and operations without parsing AST nodes.
+   * The adapter should cache the loaded document so subsequent `parse()` or `stream()` calls
+   * do not reload it.
+   *
+   * Used by the core to decide whether to use `parse()` or `stream()`.
+   */
+  count?: (source: AdapterSource) => Promise<{ schemas: number; operations: number }>
+  /**
+   * Memory-efficient streaming variant of `parse()`.
+   *
+   * Returns an `InputStreamNode` whose `schemas` and `operations` are `AsyncIterable`.
+   * Each `for await` loop creates a fresh parse pass over the cached in-memory document —
+   * no pre-built arrays are held in memory.
+   */
+  stream?: (source: AdapterSource) => Promise<InputStreamNode>
 }
 
 type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) => Adapter<T>

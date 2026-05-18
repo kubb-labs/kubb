@@ -10,6 +10,7 @@ export {
   createFunctionParameters,
   createImport,
   createInput,
+  createStreamInput,
   createJsx,
   createOperation,
   createOutput,

@@ -1,9 +1,11 @@
 import { ast, createAdapter } from '@kubb/core'
+import type { AdapterSource } from '@kubb/core'
+import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { applyDiscriminatorInheritance } from './discriminator.ts'
+import { applyDiscriminatorInheritance, buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
 import { parseDocument, parseFromConfig, validateDocument } from './factory.ts'
-import { parseOas } from './parser.ts'
-import { resolveServerUrl } from './resolvers.ts'
+import { createSchemaParser, parseOas } from './parser.ts'
+import { getSchemas, resolveServerUrl } from './resolvers.ts'
 import type { AdapterOas, Document } from './types.ts'
 
 /**
@@ -44,8 +46,40 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     emptySchemaType = unknownType || DEFAULT_PARSER_OPTIONS.emptySchemaType,
   } = options
 
+  const parserOptions: ast.ParserOptions = {
+    ...DEFAULT_PARSER_OPTIONS,
+    dateType,
+    integerType,
+    unknownType,
+    emptySchemaType,
+    enumSuffix,
+  }
+
   let nameMapping = new Map<string, string>()
-  let parsedDocument: Document | null
+  let parsedDocument: Document | null = null
+  let schemaObjects: ReturnType<typeof getSchemas>['schemas'] | null = null
+
+  function resolveBaseURL(document: Document): string | undefined {
+    const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
+    return server?.url ? resolveServerUrl(server, serverVariables) : undefined
+  }
+
+  async function ensureDocument(source: AdapterSource): Promise<Document> {
+    if (parsedDocument) return parsedDocument
+    const fresh = await parseFromConfig(source)
+    if (validate) await validateDocument(fresh)
+    parsedDocument = fresh
+    return fresh
+  }
+
+  async function ensureSchemas(document: Document): Promise<ReturnType<typeof getSchemas>['schemas']> {
+    if (!schemaObjects) {
+      const result = getSchemas(document, { contentType })
+      schemaObjects = result.schemas
+      nameMapping = result.nameMapping
+    }
+    return schemaObjects
+  }
 
   return {
     name: adapterOasName,
@@ -84,14 +118,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       })
     },
     async parse(source) {
-      const document = await parseFromConfig(source)
-
-      if (validate) {
-        await validateDocument(document)
-      }
-
-      const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
-      const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
+      const document = await ensureDocument(source)
 
       const { root: parsedRoot, nameMapping: parsedNameMapping } = parseOas(document, {
         contentType,
@@ -106,20 +133,84 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
       // This must happen after parseOas() because legacy enum remapping is finalized there.
       nameMapping = parsedNameMapping
-      // Expose the raw document so consumers (e.g. plugin-redoc) can access it.
-      parsedDocument = document
 
-      const inputNode = ast.createInput({
+      return ast.createInput({
         ...node,
         meta: {
           title: document.info?.title,
           description: document.info?.description,
           version: document.info?.version,
-          baseURL,
+          baseURL: resolveBaseURL(document),
         },
       })
+    },
+    async count(source) {
+      const document = await ensureDocument(source)
+      const schemas = await ensureSchemas(document)
 
-      return inputNode
+      const baseOas = new BaseOas(document)
+      const operationCount = Object.values(baseOas.getPaths()).flatMap(Object.values).filter(Boolean).length
+
+      return { schemas: Object.keys(schemas).length, operations: operationCount }
+    },
+    async stream(source) {
+      const document = await ensureDocument(source)
+      const schemas = await ensureSchemas(document)
+
+      let discriminatorChildMap: Awaited<ReturnType<typeof buildDiscriminatorChildMap>> | null = null
+      if (discriminator === 'inherit') {
+        const { parseSchema: _preParser } = createSchemaParser({ document, contentType })
+        const parentNodes: ast.SchemaNode[] = []
+        for (const [name, schema] of Object.entries(schemas)) {
+          if ((schema.oneOf ?? schema.anyOf) && schema.discriminator?.propertyName) {
+            parentNodes.push(_preParser({ schema, name }, parserOptions))
+          }
+        }
+        if (parentNodes.length > 0) {
+          discriminatorChildMap = buildDiscriminatorChildMap(parentNodes)
+        }
+      }
+
+      // Each [Symbol.asyncIterator]() call returns a fresh generator so multiple
+      // plugins can do independent `for await` passes without shared state.
+      const schemasIterable: AsyncIterable<ast.SchemaNode> = {
+        [Symbol.asyncIterator]() {
+          return (async function* () {
+            const { parseSchema: _parseSchema } = createSchemaParser({ document, contentType })
+            for (const [name, schema] of Object.entries(schemas)) {
+              let node = _parseSchema({ schema, name }, parserOptions)
+              const entry = discriminatorChildMap?.get(name)
+              if (entry) node = patchDiscriminatorNode(node, entry)
+              yield node
+            }
+          })()
+        },
+      }
+
+      const operationsIterable: AsyncIterable<ast.OperationNode> = {
+        [Symbol.asyncIterator]() {
+          return (async function* () {
+            const { parseOperation: _parseOperation } = createSchemaParser({ document, contentType })
+            const baseOas = new BaseOas(document)
+            const paths = baseOas.getPaths()
+
+            for (const methods of Object.values(paths)) {
+              for (const operation of Object.values(methods)) {
+                if (!operation) continue
+                const node = _parseOperation(parserOptions, operation)
+                if (node) yield node
+              }
+            }
+          })()
+        },
+      }
+
+      return ast.createStreamInput(schemasIterable, operationsIterable, {
+        title: document.info?.title,
+        description: document.info?.description,
+        version: document.info?.version,
+        baseURL: resolveBaseURL(document),
+      })
     },
   }
 })
