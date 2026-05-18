@@ -1,3 +1,4 @@
+import type { FileNode } from '@kubb/ast'
 import { Runtime } from './Runtime.tsx'
 import { SyncRuntime } from './SyncRuntime.tsx'
 import type { KubbReactElement } from './types.ts'
@@ -73,6 +74,23 @@ export const jsxRendererSync = () => {
     },
     get files() {
       return runtime.nodes
+    },
+    /**
+     * Stream {@link FileNode} objects one at a time as they are encountered
+     * during the tree walk, without collecting into an intermediate array first.
+     * Callers can begin processing each file before the full element tree is
+     * traversed — useful when rendering produces many files and downstream
+     * work (parsing, writing) should overlap with rendering.
+     *
+     * @example
+     * ```ts
+     * for await (const file of renderer.stream(element)) {
+     *   await writeFile(file)
+     * }
+     * ```
+     */
+    async *stream(element: KubbReactElement): AsyncGenerator<FileNode> {
+      yield* runtime.stream(element)
     },
     unmount(_error?: Error | number | null) {},
   }

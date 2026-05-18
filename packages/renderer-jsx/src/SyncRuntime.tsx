@@ -2,7 +2,7 @@ import type { FileNode } from '@kubb/ast'
 import React from 'react'
 import { appendChildNode, createNode, createTextNode, setAttribute } from './dom.ts'
 import type { DOMElement, DOMNodeAttribute, ElementNames, KubbReactElement } from './types.ts'
-import { processFiles } from './utils.ts'
+import { processFiles, streamFiles } from './utils.ts'
 
 type HostContext = {
   isFile: boolean
@@ -101,5 +101,14 @@ export class SyncRuntime {
     walk(element, this.#rootNode, ROOT_CONTEXT)
     this.nodes.push(...processFiles(this.#rootNode))
     this.#rootNode.childNodes = []
+  }
+
+  *stream(element: KubbReactElement): Generator<FileNode> {
+    try {
+      walk(element, this.#rootNode, ROOT_CONTEXT)
+      yield* streamFiles(this.#rootNode)
+    } finally {
+      this.#rootNode.childNodes = []
+    }
   }
 }

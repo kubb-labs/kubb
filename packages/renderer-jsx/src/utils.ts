@@ -257,3 +257,39 @@ export function processFiles(node: DOMElement): Array<FileNode> {
 
   return collected
 }
+
+/**
+ * Generator version of {@link processFiles}: yields each {@link FileNode} as it
+ * is encountered during the tree walk, without collecting into an intermediate array.
+ * Callers can begin processing each file before the rest of the tree is traversed.
+ */
+export function* streamFiles(node: DOMElement): Generator<FileNode> {
+  function* walk(current: DOMElement): Generator<FileNode> {
+    for (const child of current.childNodes) {
+      if (!child) {
+        continue
+      }
+
+      if (child.nodeName !== TEXT_NODE_NAME && child.nodeName !== 'kubb-file' && nodeNames.has(child.nodeName)) {
+        yield* walk(child)
+      }
+
+      if (child.nodeName === 'kubb-file') {
+        if (child.attributes['baseName'] !== undefined && child.attributes['path'] !== undefined) {
+          yield {
+            baseName: child.attributes['baseName'],
+            path: child.attributes['path'],
+            meta: child.attributes['meta'] || {},
+            footer: child.attributes['footer'],
+            banner: child.attributes['banner'],
+            sources: squashSourceNodes(child),
+            exports: squashExportNodes(child),
+            imports: squashImportNodes(child),
+          } as FileNode
+        }
+      }
+    }
+  }
+
+  yield* walk(node)
+}

@@ -144,6 +144,77 @@ describe('jsxRendererSync', () => {
     ).rejects.toThrow('sync render error')
   })
 
+  it('should stream files one at a time', async () => {
+    const renderer = jsxRendererSync()
+    const order: string[] = []
+
+    const element = (
+      <>
+        <File baseName="first.ts" path="src/first.ts">
+          <File.Source name="A" isExportable>
+            <Const export name="A">{'"first"'}</Const>
+          </File.Source>
+        </File>
+        <File baseName="second.ts" path="src/second.ts">
+          <File.Source name="B" isExportable>
+            <Const export name="B">{'"second"'}</Const>
+          </File.Source>
+        </File>
+      </>
+    )
+
+    for await (const file of renderer.stream(element)) {
+      order.push(file.baseName as string)
+    }
+
+    expect(order).toEqual(['first.ts', 'second.ts'])
+  })
+
+  it('should stream the same files as render produces', async () => {
+    const element = (
+      <>
+        <File baseName="models.ts" path="src/models.ts">
+          <File.Import name={['z']} path="zod" />
+          <File.Export name={['Pet']} path="./models" isTypeOnly />
+          <File.Source name="Pet" isExportable isIndexable isTypeOnly>
+            <Type export name="Pet">{'{ id: number; name: string }'}</Type>
+          </File.Source>
+        </File>
+        <File baseName="client.ts" path="src/client.ts">
+          <File.Source name="getPet" isExportable>
+            <Function export name="getPet" params="id: number" returnType="string">
+              {'return String(id)'}
+            </Function>
+          </File.Source>
+        </File>
+      </>
+    )
+
+    const streamRenderer = jsxRendererSync()
+    const streamed: unknown[] = []
+    for await (const file of streamRenderer.stream(element)) {
+      streamed.push(file)
+    }
+
+    const batchRenderer = jsxRendererSync()
+    await batchRenderer.render(element)
+
+    expect(streamed).toEqual(batchRenderer.files)
+  })
+
+  it('should propagate errors thrown during stream', async () => {
+    const renderer = jsxRendererSync()
+    function BadComponent(): never {
+      throw new Error('stream error')
+    }
+    const gen = renderer.stream(
+      <File baseName="bad.ts" path="src/bad.ts">
+        <BadComponent />
+      </File>,
+    )
+    await expect(gen.next()).rejects.toThrow('stream error')
+  })
+
   it('should accumulate files across multiple render calls', async () => {
     const renderer = jsxRendererSync()
 
