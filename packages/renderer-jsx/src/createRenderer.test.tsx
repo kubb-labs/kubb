@@ -150,7 +150,9 @@ describe('jsxRendererSync', () => {
     await renderer.render(
       <File baseName="first.ts" path="src/first.ts">
         <File.Source name="A" isExportable>
-          <Const export name="A">{'"first"'}</Const>
+          <Const export name="A">
+            {'"first"'}
+          </Const>
         </File.Source>
       </File>,
     )
@@ -158,7 +160,9 @@ describe('jsxRendererSync', () => {
     await renderer.render(
       <File baseName="second.ts" path="src/second.ts">
         <File.Source name="B" isExportable>
-          <Const export name="B">{'"second"'}</Const>
+          <Const export name="B">
+            {'"second"'}
+          </Const>
         </File.Source>
       </File>,
     )
