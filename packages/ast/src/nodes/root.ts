@@ -62,3 +62,27 @@ export type InputNode = BaseNode & {
    */
   meta?: InputMeta
 }
+
+/**
+ * Streaming variant of `InputNode` for memory-efficient processing of large API specs.
+ *
+ * `schemas` and `operations` are `AsyncIterable` rather than arrays — each `for await`
+ * loop creates a fresh parse pass from the cached in-memory document, so multiple
+ * consumers (plugins) can iterate independently without keeping all nodes in memory.
+ *
+ * @example
+ * ```ts
+ * for await (const schema of inputStreamNode.schemas) {
+ *   // only this one SchemaNode is live here; previous ones are GC-eligible
+ * }
+ * ```
+ */
+export type InputStreamNode = {
+  kind: 'Input'
+  /** Lazily parsed schema nodes. Each `for await` creates a fresh parse pass. */
+  schemas: AsyncIterable<SchemaNode>
+  /** Lazily parsed operation nodes. Each `for await` creates a fresh parse pass. */
+  operations: AsyncIterable<OperationNode>
+  /** Document metadata — available immediately, before the first yield. */
+  meta?: InputMeta
+}

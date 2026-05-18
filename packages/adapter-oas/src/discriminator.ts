@@ -6,24 +6,17 @@ type DiscriminatorTarget = {
 }
 
 /**
- * Injects discriminator enum values into child schemas so they know which value identifies them.
+ * Builds a map of child schema names → discriminator patch data by scanning the given
+ * top-level AST schema nodes for union schemas that carry a `discriminatorPropertyName`.
  *
- * Finds every union schema in `input.schemas` that has a `discriminatorPropertyName`, collects the
- * enum value each union member is mapped to, then adds (or replaces) that property on the matching
- * child object schema.
- *
- * Returns a new `InputNode` — the original is never mutated.
- *
- * @example
- * ```ts
- * const { root } = parseOas(document, options)
- * const next = applyDiscriminatorInheritance(root)
- * ```
+ * Extracted from `applyDiscriminatorInheritance` so the streaming path can call it on a
+ * small pre-parsed subset of schemas (only the discriminator parents) rather than on all
+ * schemas at once.
  */
-export function applyDiscriminatorInheritance(root: ast.InputNode): ast.InputNode {
+export function buildDiscriminatorChildMap(schemas: ast.SchemaNode[]): Map<string, DiscriminatorTarget> {
   const childMap = new Map<string, DiscriminatorTarget>()
 
-  for (const schema of root.schemas) {
+  for (const schema of schemas) {
     // Case 1: top-level schema is a union (oneOf/anyOf with discriminator)
     // Case 2: top-level schema is an intersection wrapping a union (oneOf/anyOf + shared properties)
     let unionNode = ast.narrowSchema(schema, 'union')
@@ -79,6 +72,46 @@ export function applyDiscriminatorInheritance(root: ast.InputNode): ast.InputNod
     }
   }
 
+  return childMap
+}
+
+/**
+ * Patches a single top-level `SchemaNode` with its discriminator entry (adds or replaces
+ * the discriminant property). Used by the streaming path to apply patches inline per yield
+ * without buffering all schemas.
+ */
+export function patchDiscriminatorNode(node: ast.SchemaNode, entry: { propertyName: string; enumValues: Array<string | number | boolean> }): ast.SchemaNode {
+  const objectNode = ast.narrowSchema(node, 'object')
+  if (!objectNode) return node
+
+  const { propertyName, enumValues } = entry
+  const enumSchema = ast.createSchema({ type: 'enum', enumValues })
+  const newProp = ast.createProperty({ name: propertyName, required: true, schema: enumSchema })
+
+  const existingIdx = objectNode.properties.findIndex((p) => p.name === propertyName)
+  const newProperties = existingIdx >= 0 ? objectNode.properties.map((p, i) => (i === existingIdx ? newProp : p)) : [...objectNode.properties, newProp]
+
+  return { ...objectNode, properties: newProperties }
+}
+
+/**
+ * Injects discriminator enum values into child schemas so they know which value identifies them.
+ *
+ * Finds every union schema in `input.schemas` that has a `discriminatorPropertyName`, collects the
+ * enum value each union member is mapped to, then adds (or replaces) that property on the matching
+ * child object schema.
+ *
+ * Returns a new `InputNode` — the original is never mutated.
+ *
+ * @example
+ * ```ts
+ * const { root } = parseOas(document, options)
+ * const next = applyDiscriminatorInheritance(root)
+ * ```
+ */
+export function applyDiscriminatorInheritance(root: ast.InputNode): ast.InputNode {
+  const childMap = buildDiscriminatorChildMap(root.schemas)
+
   if (childMap.size === 0) return root
 
   return ast.transform(root, {
@@ -88,21 +121,7 @@ export function applyDiscriminatorInheritance(root: ast.InputNode): ast.InputNod
       const entry = childMap.get(node.name)
       if (!entry) return
 
-      const objectNode = ast.narrowSchema(node, 'object')
-      if (!objectNode) return
-
-      const { propertyName, enumValues } = entry
-      const enumSchema = ast.createSchema({ type: 'enum', enumValues })
-      const newProp = ast.createProperty({
-        name: propertyName,
-        required: true,
-        schema: enumSchema,
-      })
-
-      const existingIdx = objectNode.properties.findIndex((p) => p.name === propertyName)
-      const newProperties = existingIdx >= 0 ? objectNode.properties.map((p, i) => (i === existingIdx ? newProp : p)) : [...objectNode.properties, newProp]
-
-      return { ...objectNode, properties: newProperties }
+      return patchDiscriminatorNode(node, entry)
     },
   })
 }
