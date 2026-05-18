@@ -12,7 +12,17 @@ import {
   createType,
 } from '@kubb/ast'
 import React from 'react'
-import { KUBB_ARROW_FUNCTION, KUBB_CONST, KUBB_EXPORT, KUBB_FILE, KUBB_FUNCTION, KUBB_IMPORT, KUBB_JSX, KUBB_SOURCE, KUBB_TYPE } from './constants.ts'
+import {
+  KUBB_ARROW_FUNCTION,
+  KUBB_CONST,
+  KUBB_EXPORT,
+  KUBB_FILE,
+  KUBB_FUNCTION,
+  KUBB_IMPORT,
+  KUBB_JSX,
+  KUBB_SOURCE,
+  KUBB_TYPE,
+} from './constants.ts'
 import type { KubbReactElement } from './types.ts'
 
 type OnText = (text: string) => void
@@ -24,7 +34,7 @@ type OnHost = (type: string, props: Record<string, unknown>) => void
  * every host element encountered. Pure function components are called
  * synchronously; hooks and class components are not supported.
  */
-function eachElement(element: unknown, onText: OnText, onHost: OnHost): void {
+function walkElement(element: unknown, onText: OnText, onHost: OnHost): void {
   if (element == null || typeof element === 'boolean') return
 
   if (typeof element === 'string' || typeof element === 'number' || typeof element === 'bigint') {
@@ -33,7 +43,7 @@ function eachElement(element: unknown, onText: OnText, onHost: OnHost): void {
   }
 
   if (Array.isArray(element)) {
-    for (const child of element) eachElement(child, onText, onHost)
+    for (const child of element) walkElement(child, onText, onHost)
     return
   }
 
@@ -43,36 +53,34 @@ function eachElement(element: unknown, onText: OnText, onHost: OnHost): void {
     const props = el.props as Record<string, unknown>
 
     if (type === React.Fragment) {
-      eachElement(props['children'], onText, onHost)
+      walkElement(props['children'], onText, onHost)
     } else if (typeof type === 'function') {
-      eachElement((type as (p: unknown) => unknown)(props), onText, onHost)
+      walkElement((type as (p: unknown) => unknown)(props), onText, onHost)
     } else if (typeof type === 'string') {
       onHost(type, props)
     }
   }
 }
 
-function bool(val: unknown): boolean {
+function toBool(val: unknown): boolean {
   return (val ?? false) as boolean
 }
 
-function getChildNodes(props: Record<string, unknown>): CodeNode[] {
+function childCodeNodes(props: Record<string, unknown>): CodeNode[] {
   const nodes: CodeNode[] = []
-  collectCode(props['children'], nodes)
+  walkCode(props['children'], nodes)
   return nodes
 }
 
-function collectCode(element: unknown, nodes: CodeNode[]): void {
-  eachElement(
+function walkCode(element: unknown, nodes: CodeNode[]): void {
+  walkElement(
     element,
-    (text) => {
-      if (text.trim()) nodes.push(createText(text))
-    },
-    (type, props) => onCodeHost(type, props, nodes),
+    (text) => { if (text.trim()) nodes.push(createText(text)) },
+    (type, props) => handleCodeNode(type, props, nodes),
   )
 }
 
-function onCodeHost(type: string, props: Record<string, unknown>, nodes: CodeNode[]): void {
+function handleCodeNode(type: string, props: Record<string, unknown>, nodes: CodeNode[]): void {
   if (type === 'br') {
     nodes.push(createBreak())
     return
@@ -80,13 +88,7 @@ function onCodeHost(type: string, props: Record<string, unknown>, nodes: CodeNod
 
   if (type === KUBB_JSX) {
     let value = ''
-    eachElement(
-      props['children'],
-      (t) => {
-        value += t
-      },
-      () => {},
-    )
+    walkElement(props['children'], (t) => { value += t }, () => {})
     if (value) nodes.push(createJsx(value))
     return
   }
@@ -102,7 +104,7 @@ function onCodeHost(type: string, props: Record<string, unknown>, nodes: CodeNod
         generics: props['generics'] as string | undefined,
         returnType: props['returnType'] as string | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | undefined,
-        nodes: getChildNodes(props),
+        nodes: childCodeNodes(props),
       }),
     )
     return
@@ -120,7 +122,7 @@ function onCodeHost(type: string, props: Record<string, unknown>, nodes: CodeNod
         returnType: props['returnType'] as string | undefined,
         singleLine: props['singleLine'] as boolean | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | undefined,
-        nodes: getChildNodes(props),
+        nodes: childCodeNodes(props),
       } as Omit<ArrowFunctionNode, 'kind'>),
     )
     return
@@ -134,7 +136,7 @@ function onCodeHost(type: string, props: Record<string, unknown>, nodes: CodeNod
         export: props['export'] as boolean | undefined,
         asConst: props['asConst'] as boolean | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | undefined,
-        nodes: getChildNodes(props),
+        nodes: childCodeNodes(props),
       }),
     )
     return
@@ -146,7 +148,7 @@ function onCodeHost(type: string, props: Record<string, unknown>, nodes: CodeNod
         name: props['name'] as string,
         export: props['export'] as boolean | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | undefined,
-        nodes: getChildNodes(props),
+        nodes: childCodeNodes(props),
       }),
     )
     return
@@ -155,12 +157,12 @@ function onCodeHost(type: string, props: Record<string, unknown>, nodes: CodeNod
 
 type FileChildren = { sources: SourceNode[]; exports: ExportNode[]; imports: ImportNode[] }
 
-function collectFileChildren(element: unknown): FileChildren {
+function parseFileChildren(element: unknown): FileChildren {
   const sources: SourceNode[] = []
   const exports: ExportNode[] = []
   const imports: ImportNode[] = []
 
-  eachElement(
+  walkElement(
     element,
     (text) => {
       if (text.trim()) {
@@ -172,10 +174,10 @@ function collectFileChildren(element: unknown): FileChildren {
         sources.push(
           createSource({
             name: props['name']?.toString(),
-            isTypeOnly: bool(props['isTypeOnly']),
-            isExportable: bool(props['isExportable']),
-            isIndexable: bool(props['isIndexable']),
-            nodes: getChildNodes(props),
+            isTypeOnly: toBool(props['isTypeOnly']),
+            isExportable: toBool(props['isExportable']),
+            isIndexable: toBool(props['isIndexable']),
+            nodes: childCodeNodes(props),
           }),
         )
         return
@@ -186,8 +188,8 @@ function collectFileChildren(element: unknown): FileChildren {
           createExport({
             name: props['name'] as ExportNode['name'],
             path: props['path'] as string,
-            isTypeOnly: bool(props['isTypeOnly']),
-            asAlias: bool(props['asAlias']),
+            isTypeOnly: toBool(props['isTypeOnly']),
+            asAlias: toBool(props['asAlias']),
           }),
         )
         return
@@ -199,14 +201,14 @@ function collectFileChildren(element: unknown): FileChildren {
             name: props['name'] as ImportNode['name'],
             path: props['path'] as string,
             root: props['root'] as string | undefined,
-            isTypeOnly: bool(props['isTypeOnly']),
-            isNameSpace: bool(props['isNameSpace']),
+            isTypeOnly: toBool(props['isTypeOnly']),
+            isNameSpace: toBool(props['isNameSpace']),
           }),
         )
         return
       }
 
-      const nested = collectFileChildren(props['children'])
+      const nested = parseFileChildren(props['children'])
       sources.push(...nested.sources)
       exports.push(...nested.exports)
       imports.push(...nested.imports)
@@ -221,7 +223,7 @@ function* walkFiles(element: unknown): Generator<FileNode> {
 
   function onHost(type: string, props: Record<string, unknown>): void {
     if (type === KUBB_FILE && props['baseName'] !== undefined && props['path'] !== undefined) {
-      const { sources, exports, imports } = collectFileChildren(props['children'])
+      const { sources, exports, imports } = parseFileChildren(props['children'])
       files.push({
         baseName: props['baseName'],
         path: props['path'],
@@ -233,11 +235,11 @@ function* walkFiles(element: unknown): Generator<FileNode> {
         imports,
       } as FileNode)
     } else {
-      eachElement(props['children'], () => {}, onHost)
+      walkElement(props['children'], () => {}, onHost)
     }
   }
 
-  eachElement(element, () => {}, onHost)
+  walkElement(element, () => {}, onHost)
   yield* files
 }
 

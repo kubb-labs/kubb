@@ -26,7 +26,7 @@ import {
 } from './constants.ts'
 import type { DOMElement, DOMNode } from './types.ts'
 
-function bool(val: unknown): boolean {
+function toBool(val: unknown): boolean {
   return (val ?? false) as boolean
 }
 
@@ -37,7 +37,7 @@ function bool(val: unknown): boolean {
  * `kubb-type`, and similar elements are converted into their respective {@link CodeNode}s.
  * Any unrecognized element names are silently skipped.
  */
-function collectChildNodes(element: DOMElement): CodeNode[] {
+function buildCodeNodes(element: DOMElement): CodeNode[] {
   const result: CodeNode[] = []
 
   for (const child of element.childNodes) {
@@ -64,7 +64,7 @@ function collectChildNodes(element: DOMElement): CodeNode[] {
             generics: attrs['generics'] as string | undefined,
             returnType: attrs['returnType'] as string | undefined,
             JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
-            nodes: collectChildNodes(child),
+            nodes: buildCodeNodes(child),
           }),
         )
         break
@@ -82,7 +82,7 @@ function collectChildNodes(element: DOMElement): CodeNode[] {
             returnType: attrs['returnType'] as string | undefined,
             singleLine: attrs['singleLine'] as boolean | undefined,
             JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
-            nodes: collectChildNodes(child),
+            nodes: buildCodeNodes(child),
           } as Omit<ArrowFunctionNode, 'kind'>),
         )
         break
@@ -96,7 +96,7 @@ function collectChildNodes(element: DOMElement): CodeNode[] {
             export: attrs['export'] as boolean | undefined,
             asConst: attrs['asConst'] as boolean | undefined,
             JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
-            nodes: collectChildNodes(child),
+            nodes: buildCodeNodes(child),
           }),
         )
         break
@@ -108,7 +108,7 @@ function collectChildNodes(element: DOMElement): CodeNode[] {
             name: attrs['name'] as string,
             export: attrs['export'] as boolean | undefined,
             JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
-            nodes: collectChildNodes(child),
+            nodes: buildCodeNodes(child),
           }),
         )
         break
@@ -134,17 +134,17 @@ function collectChildNodes(element: DOMElement): CodeNode[] {
  * their subtrees. Dispatch on `.kind` (`'Source'`, `'Export'`, `'Import'`) to
  * separate the results.
  */
-function* walkFileChildren(node: DOMElement): Generator<SourceNode | ExportNode | ImportNode> {
+function* walkFileEntries(node: DOMElement): Generator<SourceNode | ExportNode | ImportNode> {
   for (const child of node.childNodes) {
     if (!child || child.nodeName === TEXT_NODE_NAME) continue
 
     if (child.nodeName === KUBB_SOURCE) {
       yield createSource({
         name: child.attributes['name']?.toString(),
-        isTypeOnly: bool(child.attributes['isTypeOnly']),
-        isExportable: bool(child.attributes['isExportable']),
-        isIndexable: bool(child.attributes['isIndexable']),
-        nodes: collectChildNodes(child),
+        isTypeOnly: toBool(child.attributes['isTypeOnly']),
+        isExportable: toBool(child.attributes['isExportable']),
+        isIndexable: toBool(child.attributes['isIndexable']),
+        nodes: buildCodeNodes(child),
       })
       continue
     }
@@ -153,8 +153,8 @@ function* walkFileChildren(node: DOMElement): Generator<SourceNode | ExportNode 
       yield createExport({
         name: child.attributes['name'] as ExportNode['name'],
         path: child.attributes['path'] as string,
-        isTypeOnly: bool(child.attributes['isTypeOnly']),
-        asAlias: bool(child.attributes['asAlias']),
+        isTypeOnly: toBool(child.attributes['isTypeOnly']),
+        asAlias: toBool(child.attributes['asAlias']),
       })
       continue
     }
@@ -164,20 +164,20 @@ function* walkFileChildren(node: DOMElement): Generator<SourceNode | ExportNode 
         name: child.attributes['name'] as ImportNode['name'],
         path: child.attributes['path'] as string,
         root: child.attributes['root'] as string | undefined,
-        isTypeOnly: bool(child.attributes['isTypeOnly']),
-        isNameSpace: bool(child.attributes['isNameSpace']),
+        isTypeOnly: toBool(child.attributes['isTypeOnly']),
+        isNameSpace: toBool(child.attributes['isNameSpace']),
       })
       continue
     }
 
     if (nodeNames.has(child.nodeName)) {
-      yield* walkFileChildren(child)
+      yield* walkFileEntries(child)
     }
   }
 }
 
 /**
- * Runs a single {@link walkFileChildren} pass over a `<kubb-file>` DOM element
+ * Runs a single {@link walkFileEntries} pass over a `<kubb-file>` DOM element
  * and assembles the result into a {@link FileNode}, bucketing each yielded
  * node by its `.kind`.
  */
@@ -186,7 +186,7 @@ function buildFileNode(child: DOMElement): FileNode {
   const exports: ExportNode[] = []
   const imports: ImportNode[] = []
 
-  for (const node of walkFileChildren(child)) {
+  for (const node of walkFileEntries(child)) {
     if (node.kind === 'Source') sources.push(node)
     else if (node.kind === 'Export') exports.push(node)
     else imports.push(node)
