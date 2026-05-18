@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.17 — May 18, 2026
+
+### kubb
+
+#### Features
+
+- Add `@kubb/mcp` as a direct dependency so `kubb mcp` works out of the box without a separate install step. ([#3317](https://github.com/kubb-labs/kubb/pull/3317), [`4066e7a`](https://github.com/kubb-labs/kubb/commit/4066e7a776d4420960d487ab43a9c3e9851335ec))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.16 — May 18, 2026
 
 ### @kubb/core
