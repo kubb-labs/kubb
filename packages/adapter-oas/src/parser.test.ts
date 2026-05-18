@@ -619,11 +619,7 @@ describe('parseSchema format preservation', () => {
   })
 
   it('preserves format when dateType is false (falls through to string)', () => {
-    const node = parseSchema(
-      ctx,
-      { schema: { type: 'string', format: 'date-time' } },
-      { dateType: false },
-    )
+    const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: false })
 
     expect(node.type).toBe('string')
     expect(node.format).toBe('date-time')
