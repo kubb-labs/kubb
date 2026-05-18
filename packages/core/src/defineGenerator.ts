@@ -160,10 +160,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    * `ctx` carries the plugin context with `adapter` and `inputNode` guaranteed present,
    * plus `ctx.options` with the plugin-level options for the batch call.
    */
-  operations?: (
-    nodes: Array<OperationNode> | AsyncIterable<OperationNode>,
-    ctx: GeneratorContext<TOptions>,
-  ) => PossiblePromise<TElement | Array<FileNode> | void>
+  operations?: (nodes: Array<OperationNode>, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
 }
 
 /**
