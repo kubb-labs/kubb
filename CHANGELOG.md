@@ -1,5 +1,59 @@
 # Changelog
 
+## v5.0.0-beta.18 — May 18, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Add format property to SchemaNodeBase. ([#3315](https://github.com/kubb-labs/kubb/pull/3315), [`5d84bad`](https://github.com/kubb-labs/kubb/commit/5d84badfedb7100221a5d3a6e1a109a2f10c54b3))
+
+### @kubb/renderer-jsx
+
+#### Bug Fixes
+
+- JSX rendering is now 2–4× faster with `jsxRendererSync`
+  
+  Two new optimisations in `@kubb/renderer-jsx` cut render time significantly with no changes required to existing generators.
+  
+  **`jsxRendererSync`: React-free recursive renderer**
+  
+  A new `jsxRendererSync` factory replaces React's fiber scheduler with a lightweight recursive tree walk. Because all Kubb components are pure functions, the full React work loop is unnecessary overhead. Swap `jsxRenderer` for `jsxRendererSync` in any generator and it just gets faster:
+  
+  ```ts
+  import { jsxRendererSync } from '@kubb/renderer-jsx'
+  
+  export const myGenerator = defineGenerator({
+    renderer: jsxRendererSync, // was: jsxRenderer
+    // ...
+  })
+  ```
+  
+  Measured improvement on a 150-file schema: **12.9 ms → 5.6 ms**.
+  
+  **`jsxRendererSync().stream()`: process files as they are rendered**
+  
+  For generators that produce many files, the new `stream()` method yields each `FileNode` as soon as it is ready, before the rest of the element tree is processed, so downstream work can start immediately:
+  
+  ```ts
+  const renderer = jsxRendererSync()
+  for await (const file of renderer.stream(element)) {
+    await writeFile(file) // starts before the next file is rendered
+  }
+  ```
+  
+  **Lower memory use**
+  
+  Node attributes now use plain objects instead of `Map`, eliminating ~300 bytes of V8 overhead per virtual DOM node. The three separate tree walks previously done per file element (sources, exports, imports) are now a single generator pass.
+  
+  `jsxRenderer` is unchanged and all new APIs are purely additive. ([#3319](https://github.com/kubb-labs/kubb/pull/3319), [`6ab3a5e`](https://github.com/kubb-labs/kubb/commit/6ab3a5e97750e7a572a61ffadfb3ccb2ad2b0fe1))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@Ericlm](https://github.com/Ericlm), [@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.17 — May 18, 2026
 
 ### kubb
