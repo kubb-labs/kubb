@@ -12,17 +12,7 @@ import {
   createType,
 } from '@kubb/ast'
 import React from 'react'
-import {
-  KUBB_ARROW_FUNCTION,
-  KUBB_CONST,
-  KUBB_EXPORT,
-  KUBB_FILE,
-  KUBB_FUNCTION,
-  KUBB_IMPORT,
-  KUBB_JSX,
-  KUBB_SOURCE,
-  KUBB_TYPE,
-} from './constants.ts'
+import { KUBB_ARROW_FUNCTION, KUBB_CONST, KUBB_EXPORT, KUBB_FILE, KUBB_FUNCTION, KUBB_IMPORT, KUBB_JSX, KUBB_SOURCE, KUBB_TYPE } from './constants.ts'
 import type { KubbReactElement } from './types.ts'
 
 type OnText = (text: string) => void
@@ -75,7 +65,9 @@ function collectCodeNodes(props: Record<string, unknown>): CodeNode[] {
 function collectCode(element: unknown, nodes: CodeNode[]): void {
   walkElement(
     element,
-    (text) => { if (text.trim()) nodes.push(createText(text)) },
+    (text) => {
+      if (text.trim()) nodes.push(createText(text))
+    },
     (type, props) => resolveCodeNode(type, props, nodes),
   )
 }
@@ -88,7 +80,13 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Co
 
   if (type === KUBB_JSX) {
     let value = ''
-    walkElement(props['children'], (t) => { value += t }, () => {})
+    walkElement(
+      props['children'],
+      (t) => {
+        value += t
+      },
+      () => {},
+    )
     if (value) nodes.push(createJsx(value))
     return
   }
