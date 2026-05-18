@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 import { appendChildNode, createNode, createTextNode, setAttribute } from './dom.ts'
-import { processFiles } from './utils.ts'
+import { collectFiles } from './utils.ts'
 
 function makeFile(name = 'test.ts') {
   const root = createNode('kubb-root')
@@ -22,7 +22,7 @@ function makeSource(file: ReturnType<typeof createNode>, name = 'Src') {
   return source
 }
 
-describe('processFiles', () => {
+describe('collectFiles', () => {
   it('should collect source node attributes', () => {
     const { root, file } = makeFile()
     const source = createNode('kubb-source')
@@ -32,7 +32,7 @@ describe('processFiles', () => {
     setAttribute(source, 'isTypeOnly', false)
     appendChildNode(file, source)
 
-    const [result] = processFiles(root)
+    const [result] = collectFiles(root)
     assert(result)
     const node = result.sources[0]
     assert(node)
@@ -56,7 +56,7 @@ describe('processFiles', () => {
       appendChildNode(source, child)
     }
 
-    const [result] = processFiles(root)
+    const [result] = collectFiles(root)
     assert(result)
     const node = result.sources[0]
     assert(node?.nodes)
@@ -68,7 +68,7 @@ describe('processFiles', () => {
     const source = makeSource(file)
     appendChildNode(source, createNode('br'))
 
-    const [result] = processFiles(root)
+    const [result] = collectFiles(root)
     assert(result)
     const node = result.sources[0]
     assert(node?.nodes)
@@ -82,7 +82,7 @@ describe('processFiles', () => {
     appendChildNode(jsx, createTextNode('<div/>'))
     appendChildNode(source, jsx)
 
-    const [result] = processFiles(root)
+    const [result] = collectFiles(root)
     assert(result)
     const node = result.sources[0]
     assert(node?.nodes)
@@ -94,7 +94,7 @@ describe('processFiles', () => {
     const source = makeSource(file)
     appendChildNode(source, createNode('kubb-jsx'))
 
-    const [result] = processFiles(root)
+    const [result] = collectFiles(root)
     assert(result)
     const node = result.sources[0]
     assert(node?.nodes)
@@ -106,7 +106,7 @@ describe('processFiles', () => {
     const source = makeSource(file)
     appendChildNode(source, createTextNode('   '))
 
-    const [result] = processFiles(root)
+    const [result] = collectFiles(root)
     assert(result)
     const node = result.sources[0]
     assert(node?.nodes)
@@ -120,7 +120,7 @@ describe('processFiles', () => {
     makeSource(exportNode)
     appendChildNode(file, exportNode)
 
-    const [result] = processFiles(root)
+    const [result] = collectFiles(root)
     assert(result)
     expect(result.sources.length).toBe(0)
   })
@@ -134,7 +134,7 @@ describe('processFiles', () => {
     setAttribute(exportNode, 'asAlias', false)
     appendChildNode(file, exportNode)
 
-    const [result] = processFiles(root)
+    const [result] = collectFiles(root)
     assert(result)
     const node = result.exports[0]
     assert(node)
@@ -151,7 +151,7 @@ describe('processFiles', () => {
     setAttribute(importNode, 'isNameSpace', false)
     appendChildNode(file, importNode)
 
-    const [result] = processFiles(root)
+    const [result] = collectFiles(root)
     assert(result)
     const node = result.imports[0]
     assert(node)
@@ -191,7 +191,7 @@ describe('processFiles', () => {
 
     appendChildNode(root, file)
 
-    const [result] = processFiles(root)
+    const [result] = collectFiles(root)
     expect(result?.baseName).toBe('pet.ts')
     expect(result?.path).toBe('src/models/pet.ts')
     expect(result?.meta).toEqual({ tag: 'pet' })
@@ -211,7 +211,7 @@ describe('processFiles', () => {
     setAttribute(noPath, 'baseName', 'b.ts')
     appendChildNode(root, noPath)
 
-    expect(processFiles(root)).toEqual([])
+    expect(collectFiles(root)).toEqual([])
   })
 
   it('should traverse nested non-file elements to find files', () => {
@@ -224,7 +224,7 @@ describe('processFiles', () => {
     appendChildNode(app, file)
     appendChildNode(root, app)
 
-    const result = processFiles(root)
+    const result = collectFiles(root)
     expect(result.length).toBe(1)
     expect(result[0]?.baseName).toBe('nested.ts')
   })
