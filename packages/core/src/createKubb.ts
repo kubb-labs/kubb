@@ -1417,9 +1417,8 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
 
           failedPlugins.add({ plugin, error })
         }
+        await flushPendingFiles()
       }
-
-      await flushPendingFiles()
     }
 
     await hooks.emit('kubb:plugins:end', {
