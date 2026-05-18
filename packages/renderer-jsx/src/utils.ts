@@ -108,13 +108,13 @@ function collectChildNodes(element: DOMElement): Array<CodeNode> {
 }
 
 /**
- * Single-pass generator that walks the subtree of a `<kubb-file>` element and
- * yields every `<kubb-source>`, `<kubb-export>`, and `<kubb-import>` node.
+ * Yields every {@link SourceNode}, {@link ExportNode}, and {@link ImportNode}
+ * within a `<kubb-file>` subtree in a single tree walk.
  *
- * Replaces three separate tree walks (one per node type). Import and export
- * elements are leaf nodes — they are yielded and not recursed into, which also
- * naturally prevents source collection from descending into their subtrees
- * (equivalent to the old `SOURCE_IGNORES` guard).
+ * Import and export elements are leaf nodes — once yielded the walker does not
+ * recurse into them, which also prevents source collection from descending into
+ * their subtrees. Dispatch on `.kind` (`'Source'`, `'Export'`, `'Import'`) to
+ * separate the results.
  */
 function* walkFileChildren(node: DOMElement): Generator<SourceNode | ExportNode | ImportNode> {
   function* walk(current: DOMElement): Generator<SourceNode | ExportNode | ImportNode> {
@@ -164,6 +164,11 @@ function* walkFileChildren(node: DOMElement): Generator<SourceNode | ExportNode 
   yield* walk(node)
 }
 
+/**
+ * Runs a single {@link walkFileChildren} pass over a `<kubb-file>` DOM element
+ * and assembles the result into a {@link FileNode}, bucketing each yielded
+ * node by its `.kind`.
+ */
 function buildFileNode(child: DOMElement): FileNode {
   const sources: SourceNode[] = []
   const exports: ExportNode[] = []

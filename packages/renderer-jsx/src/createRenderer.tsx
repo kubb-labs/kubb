@@ -40,14 +40,17 @@ export const jsxRenderer = () => {
 }
 
 /**
- * A synchronous renderer factory for generators that produce JSX output.
+ * Synchronous renderer factory for generators that produce JSX output.
  *
- * Walks the JSX element tree recursively in a single pass without React's
- * fiber scheduler. All Kubb plugin components must be pure functions (no hooks,
- * no class components). Produces byte-for-byte identical output to `jsxRenderer`
- * while being approximately 2× faster.
+ * Walks the JSX element tree in a single recursive pass — no React fiber, no
+ * scheduler, no work loop. All components must be pure functions; hooks and
+ * class components are not supported. Drop-in replacement for {@link jsxRenderer}
+ * that produces identical output at approximately 2–4× the speed.
  *
- * @example
+ * Also exposes a `stream()` method for processing files one at a time as they
+ * are yielded, which allows downstream I/O to overlap with rendering.
+ *
+ * @example Drop-in replacement
  * ```ts
  * import { jsxRendererSync } from '@kubb/renderer-jsx'
  * import { defineGenerator } from '@kubb/core'
@@ -59,6 +62,14 @@ export const jsxRenderer = () => {
  *     return <File baseName="output.ts" path="src/output.ts">...</File>
  *   },
  * })
+ * ```
+ *
+ * @example Streaming files one at a time
+ * ```ts
+ * const renderer = jsxRendererSync()
+ * for await (const file of renderer.stream(element)) {
+ *   await writeFile(file)
+ * }
  * ```
  */
 export const jsxRendererSync = () => {
@@ -76,13 +87,12 @@ export const jsxRendererSync = () => {
       return runtime.nodes
     },
     /**
-     * Stream {@link FileNode} objects one at a time as they are encountered
-     * during the tree walk, without collecting into an intermediate array first.
-     * Callers can begin processing each file before the full element tree is
-     * traversed — useful when rendering produces many files and downstream
-     * work (parsing, writing) should overlap with rendering.
+     * Yields each {@link FileNode} as it is encountered during the tree walk,
+     * without collecting all files into an array first. Useful when a single
+     * render produces many files and downstream work (parsing, writing) should
+     * start before the full element tree is traversed.
      *
-     * @example
+     * @example Overlap rendering with file writing
      * ```ts
      * for await (const file of renderer.stream(element)) {
      *   await writeFile(file)

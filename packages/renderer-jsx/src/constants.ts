@@ -28,8 +28,8 @@ export const nodeNames = new Set<ElementNames>([
 ] as const)
 
 /**
- * Element names that are skipped when collecting `<kubb-source>` nodes from a
- * file subtree. Import and export nodes are leaf elements that never contain
- * nested sources, so their subtrees can be skipped safely.
+ * Elements treated as leaves during `<kubb-file>` subtree traversal.
+ * Import and export nodes never contain nested sources, so they are yielded
+ * and not recursed into.
  */
 export const SOURCE_IGNORES = new Set<ElementNames>(['kubb-export', 'kubb-import'])
