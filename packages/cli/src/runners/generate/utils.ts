@@ -198,8 +198,12 @@ export async function startWatcher(
   const { watch } = await import('chokidar')
   const watcher = watch(path, { ignorePermissionErrors: true, ignored: WATCHER_IGNORED_PATHS })
 
-  process.once('SIGINT', () => { watcher.close() })
-  process.once('SIGTERM', () => { watcher.close() })
+  process.once('SIGINT', () => {
+    watcher.close()
+  })
+  process.once('SIGTERM', () => {
+    watcher.close()
+  })
 
   watcher.on('all', async (type, file) => {
     log.info(styleText('yellow', styleText('bold', `Change detected: ${type} ${file}`)))
