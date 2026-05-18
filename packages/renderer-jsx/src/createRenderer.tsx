@@ -6,7 +6,7 @@ import type { KubbReactElement } from './types.ts'
 /**
  * Renderer factory for generators that produce JSX output.
  *
- * Pass as the `renderer` property of `defineGenerator` — core drives rendering
+ * Pass as the `renderer` property of `defineGenerator`. Core drives rendering
  * without a hard dependency on `@kubb/renderer-jsx`.
  *
  * @example
@@ -37,7 +37,7 @@ export const jsxRenderer = () => {
 }
 
 /**
- * Lightweight renderer factory — no React fiber, scheduler, or work loop.
+ * Lightweight renderer factory with no React fiber, scheduler, or work loop.
  *
  * Walks the JSX element tree in a single recursive pass. All components must be
  * pure functions; hooks and class components are not supported. Drop-in

@@ -111,7 +111,7 @@ function collectChildNodes(element: DOMElement): Array<CodeNode> {
  * Yields every {@link SourceNode}, {@link ExportNode}, and {@link ImportNode}
  * within a `<kubb-file>` subtree in a single tree walk.
  *
- * Import and export elements are leaf nodes — once yielded the walker does not
+ * Import and export elements are leaf nodes. Once yielded, the walker does not
  * recurse into them, which also prevents source collection from descending into
  * their subtrees. Dispatch on `.kind` (`'Source'`, `'Export'`, `'Import'`) to
  * separate the results.
@@ -196,7 +196,7 @@ function buildFileNode(child: DOMElement): FileNode {
  * Walk the virtual DOM tree rooted at `node` and convert every `<kubb-file>` element
  * into a {@link FileNode}, collecting its source blocks, imports, and exports.
  *
- * Returns the list of file nodes in document order. Nested files are supported —
+ * Returns the list of file nodes in document order. Nested files are supported;
  * the walker descends into non-file elements and recurses through them.
  */
 export function processFiles(node: DOMElement): Array<FileNode> {

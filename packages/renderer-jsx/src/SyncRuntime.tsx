@@ -269,7 +269,7 @@ function* walkFiles(element: unknown): Generator<FileNode> {
  * producing {@link FileNode} objects directly without an intermediate virtual
  * DOM. No React fiber, scheduler, or work loop is involved.
  *
- * All components must be pure functions — hooks and class components are not
+ * All components must be pure functions; hooks and class components are not
  * supported. Produces identical output to the React-backed {@link Runtime} at
  * approximately 2–4× the speed and a fraction of the allocations.
  */
@@ -281,8 +281,8 @@ export class SyncRuntime {
 
   /**
    * Walks `element` synchronously, converts every `<kubb-file>` subtree into
-   * a {@link FileNode} directly — no intermediate virtual DOM — and appends
-   * the results to {@link nodes}.
+   * a {@link FileNode} with no intermediate virtual DOM, and appends the results
+   * to {@link nodes}.
    */
   render(element: KubbReactElement): void {
     for (const file of walkFiles(element)) {

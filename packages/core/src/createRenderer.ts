@@ -3,8 +3,8 @@ import type { FileNode } from '@kubb/ast'
 /**
  * Minimal interface any Kubb renderer must satisfy.
  *
- * `TElement` is the type the renderer accepts — `KubbReactElement` for
- * `@kubb/renderer-jsx`, or a custom type for your own renderer. Defaults to
+ * `TElement` is the type the renderer accepts, for example `KubbReactElement`
+ * for `@kubb/renderer-jsx` or a custom type for your own renderer. Defaults to
  * `unknown` so generators that don't care about the element type work without
  * specifying it.
  */
