@@ -114,14 +114,14 @@ describe('FileProcessor', () => {
       expect(order).toEqual(['/src/a.ts', '/src/b.ts'])
     })
 
-    it('runs in parallel mode without errors', async () => {
+    it('runs without errors', async () => {
       const processor = new FileProcessor()
       const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
       const onUpdate = vi.fn()
 
       processor.events.on('update', onUpdate)
 
-      await processor.run(files, { mode: 'parallel' })
+      await processor.run(files)
 
       expect(onUpdate).toHaveBeenCalledTimes(2)
     })

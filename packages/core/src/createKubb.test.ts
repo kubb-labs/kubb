@@ -208,7 +208,7 @@ describe('createKubb', () => {
     expect(endSpy).toHaveBeenCalled()
   })
 
-  it('flushes all generated files in a single batch after all plugins complete', async () => {
+  it('flushes generated files per-plugin incrementally as each plugin completes', async () => {
     const hooks = new AsyncEventEmitter<KubbHooks>()
     const batches: Array<number> = []
     hooks.on('kubb:files:processing:start', ({ files }) => {
@@ -253,7 +253,7 @@ describe('createKubb', () => {
 
     const { files } = await createKubb(streamingConfig, { hooks }).build()
 
-    expect(batches).toEqual([2])
+    expect(batches).toEqual([1, 1])
     expect(files.map((file) => file.path)).toEqual(['/workspace/src/gen/one.ts', '/workspace/src/gen/two.ts'])
   })
 
