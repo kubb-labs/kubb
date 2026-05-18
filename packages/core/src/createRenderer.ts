@@ -3,46 +3,34 @@ import type { FileNode } from '@kubb/ast'
 /**
  * Minimal interface any Kubb renderer must satisfy.
  *
- * The generic `TElement` is the type of the element the renderer accepts —
- * e.g. `KubbReactElement` for `@kubb/renderer-jsx`, or a custom type for
- * your own renderer.  Defaults to `unknown` so that generators which do not
- * care about the element type continue to work without specifying it.
- *
- * This allows core to drive rendering without a hard dependency on
- * `@kubb/renderer-jsx` or any specific renderer implementation.
+ * `TElement` is the type the renderer accepts — `KubbReactElement` for
+ * `@kubb/renderer-jsx`, or a custom type for your own renderer. Defaults to
+ * `unknown` so generators that don't care about the element type work without
+ * specifying it.
  */
 export type Renderer<TElement = unknown> = {
   render(element: TElement): Promise<void>
   unmount(error?: Error | number | null): void
   readonly files: Array<FileNode>
   /**
-   * Yields each {@link FileNode} as it is produced during rendering, without
-   * buffering the full result first. When present, core will prefer this over
-   * the `render` + `files` round-trip so that each file is handed to the
-   * `FileManager` as soon as it is ready.
-   *
-   * Only implement this when the renderer can produce files incrementally.
+   * When present, core uses this instead of `render` + `files`, forwarding
+   * each file to `FileManager` as soon as it is ready.
    */
   stream?(element: TElement): AsyncIterable<FileNode>
 }
 
 /**
- * A factory function that produces a fresh {@link Renderer} per render.
+ * A factory function that produces a fresh {@link Renderer} per render cycle.
  *
  * Generators use this to declare which renderer handles their output.
  */
 export type RendererFactory<TElement = unknown> = () => Renderer<TElement>
 
 /**
- * Creates a renderer factory for use in generator definitions.
- *
- * Wrap your renderer factory function with this helper to register it as the
- * renderer for a generator. Core will call this factory once per render cycle
- * to obtain a fresh renderer instance.
+ * Wraps a renderer factory for use in generator definitions.
  *
  * @example
  * ```ts
- * // packages/renderer-jsx/src/index.ts
  * export const jsxRenderer = createRenderer(() => {
  *   const runtime = new Runtime()
  *   return {
@@ -50,14 +38,6 @@ export type RendererFactory<TElement = unknown> = () => Renderer<TElement>
  *     get files() { return runtime.nodes },
  *     unmount(error) { runtime.unmount(error) },
  *   }
- * })
- *
- * // packages/plugin-zod/src/generators/zodGenerator.tsx
- * import { jsxRenderer } from '@kubb/renderer-jsx'
- * export const zodGenerator = defineGenerator<PluginZod>({
- *   name: 'zod',
- *   renderer: jsxRenderer,
- *   schema(node, options) { return <File ...>...</File> },
  * })
  * ```
  */
