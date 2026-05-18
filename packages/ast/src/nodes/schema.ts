@@ -154,6 +154,10 @@ type SchemaNodeBase = BaseNode & {
    * For example, this is `'string'` for a `uuid` schema.
    */
   primitive?: PrimitiveSchemaType
+  /**
+   * Schema `format` value.
+   */
+  format?: string
 }
 
 /**

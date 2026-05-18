@@ -105,7 +105,7 @@ export const Renderer = Reconciler({
     return false
   },
   supportsMutation: true,
-  isPrimaryRenderer: true,
+  isPrimaryRenderer: false,
   supportsPersistence: false,
   supportsHydration: false,
   scheduleTimeout: setTimeout,
