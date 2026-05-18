@@ -64,8 +64,9 @@ function walk(element: unknown, parentNode: DOMElement, ctx: HostContext): void 
       const node = createNode(type as ElementNames)
       const nodeCtx = childContext(ctx, type as ElementNames)
 
-      for (const [key, value] of Object.entries(props)) {
+      for (const key in props) {
         if (key === 'children') continue
+        const value = props[key]
         if (value !== undefined) {
           setAttribute(node, key, value as DOMNodeAttribute)
         }

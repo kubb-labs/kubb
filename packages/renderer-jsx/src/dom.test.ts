@@ -8,7 +8,7 @@ describe('dom utilities', () => {
       const node = createNode('kubb-file')
 
       expect(node.nodeName).toBe('kubb-file')
-      expect(node.attributes).toBeInstanceOf(Map)
+      expect(node.attributes).toBeTypeOf('object')
       expect(node.childNodes).toEqual([])
       expect(node.parentNode).toBeUndefined()
     })
@@ -159,7 +159,7 @@ describe('dom utilities', () => {
 
       setAttribute(node, 'path', '/src/index.ts')
 
-      expect(node.attributes.get('path')).toBe('/src/index.ts')
+      expect(node.attributes['path']).toBe('/src/index.ts')
     })
 
     it('should update existing attribute', () => {
@@ -168,7 +168,7 @@ describe('dom utilities', () => {
       setAttribute(node, 'path', '/src/index.ts')
       setAttribute(node, 'path', '/src/app.ts')
 
-      expect(node.attributes.get('path')).toBe('/src/app.ts')
+      expect(node.attributes['path']).toBe('/src/app.ts')
     })
   })
 

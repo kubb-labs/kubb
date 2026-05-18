@@ -71,7 +71,7 @@ export type DOMElement = {
   /**
    * Key/value attributes passed as JSX props to this element.
    */
-  attributes: Map<string, DOMNodeAttribute>
+  attributes: Record<string, DOMNodeAttribute>
   /**
    * Ordered list of child nodes attached to this element.
    */

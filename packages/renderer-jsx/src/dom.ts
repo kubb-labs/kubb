@@ -8,7 +8,7 @@ import type { DOMElement, DOMNode, DOMNodeAttribute, TextNode } from './types.ts
 export const createNode = (nodeName: string): DOMElement => {
   return {
     nodeName: nodeName as DOMElement['nodeName'],
-    attributes: new Map(),
+    attributes: Object.create(null) as Record<string, DOMNodeAttribute>,
     childNodes: [],
     parentNode: undefined,
   }
@@ -72,7 +72,7 @@ export const removeChildNode = (node: DOMElement, removeNode: DOMNode): void => 
  * Set an attribute on `node`, storing it in the node's `attributes` map.
  */
 export const setAttribute = (node: DOMElement, key: string, value: DOMNodeAttribute): void => {
-  node.attributes.set(key, value)
+  node.attributes[key] = value
 }
 
 /**

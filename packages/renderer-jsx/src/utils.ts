@@ -46,14 +46,14 @@ function collectChildNodes(element: DOMElement): Array<CodeNode> {
       const attrs = child.attributes
       result.push(
         createFunction({
-          name: attrs.get('name') as string,
-          params: attrs.get('params') as string | undefined,
-          export: attrs.get('export') as boolean | undefined,
-          default: attrs.get('default') as boolean | undefined,
-          async: attrs.get('async') as boolean | undefined,
-          generics: attrs.get('generics') as string | undefined,
-          returnType: attrs.get('returnType') as string | undefined,
-          JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
+          name: attrs['name'] as string,
+          params: attrs['params'] as string | undefined,
+          export: attrs['export'] as boolean | undefined,
+          default: attrs['default'] as boolean | undefined,
+          async: attrs['async'] as boolean | undefined,
+          generics: attrs['generics'] as string | undefined,
+          returnType: attrs['returnType'] as string | undefined,
+          JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
           nodes: collectChildNodes(child),
         }),
       )
@@ -61,15 +61,15 @@ function collectChildNodes(element: DOMElement): Array<CodeNode> {
       const attrs = child.attributes
       result.push(
         createArrowFunction({
-          name: attrs.get('name') as string,
-          params: attrs.get('params') as string | undefined,
-          export: attrs.get('export') as boolean | undefined,
-          default: attrs.get('default') as boolean | undefined,
-          async: attrs.get('async') as boolean | undefined,
-          generics: attrs.get('generics') as string | undefined,
-          returnType: attrs.get('returnType') as string | undefined,
-          singleLine: attrs.get('singleLine') as boolean | undefined,
-          JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
+          name: attrs['name'] as string,
+          params: attrs['params'] as string | undefined,
+          export: attrs['export'] as boolean | undefined,
+          default: attrs['default'] as boolean | undefined,
+          async: attrs['async'] as boolean | undefined,
+          generics: attrs['generics'] as string | undefined,
+          returnType: attrs['returnType'] as string | undefined,
+          singleLine: attrs['singleLine'] as boolean | undefined,
+          JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
           nodes: collectChildNodes(child),
         } as Omit<ArrowFunctionNode, 'kind'>),
       )
@@ -77,11 +77,11 @@ function collectChildNodes(element: DOMElement): Array<CodeNode> {
       const attrs = child.attributes
       result.push(
         createConst({
-          name: attrs.get('name') as string,
-          type: attrs.get('type') as string | undefined,
-          export: attrs.get('export') as boolean | undefined,
-          asConst: attrs.get('asConst') as boolean | undefined,
-          JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
+          name: attrs['name'] as string,
+          type: attrs['type'] as string | undefined,
+          export: attrs['export'] as boolean | undefined,
+          asConst: attrs['asConst'] as boolean | undefined,
+          JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
           nodes: collectChildNodes(child),
         }),
       )
@@ -89,9 +89,9 @@ function collectChildNodes(element: DOMElement): Array<CodeNode> {
       const attrs = child.attributes
       result.push(
         createType({
-          name: attrs.get('name') as string,
-          export: attrs.get('export') as boolean | undefined,
-          JSDoc: attrs.get('JSDoc') as JSDocNode | undefined,
+          name: attrs['name'] as string,
+          export: attrs['export'] as boolean | undefined,
+          JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
           nodes: collectChildNodes(child),
         }),
       )
@@ -107,20 +107,14 @@ function collectChildNodes(element: DOMElement): Array<CodeNode> {
   return result
 }
 
+const SOURCE_IGNORES = new Set<ElementNames>(['kubb-export', 'kubb-import'])
+
 /**
- * Traverse `node` and collect all `<kubb-source>` elements into a `Set<SourceNode>`.
- *
- * Elements whose `nodeName` is in `ignores` are skipped entirely (including their subtrees).
- * This is used to collect source blocks from a file node while excluding import/export subtrees.
- *
- * @example Collect sources while ignoring export and import elements
- * ```ts
- * const sources = squashSourceNodes(fileElement, ['kubb-export', 'kubb-import'])
- * ```
+ * Traverse `node` and collect all `<kubb-source>` elements, excluding subtrees
+ * rooted at `<kubb-export>` or `<kubb-import>` elements.
  */
-function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>): Set<SourceNode> {
-  const ignoreSet = new Set(ignores)
-  const sources = new Set<SourceNode>()
+function squashSourceNodes(node: DOMElement): SourceNode[] {
+  const sources: SourceNode[] = []
 
   const walk = (current: DOMElement): void => {
     for (const child of current.childNodes) {
@@ -128,20 +122,20 @@ function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>): Set<
         continue
       }
 
-      if (child.nodeName !== TEXT_NODE_NAME && ignoreSet.has(child.nodeName)) {
+      if (child.nodeName !== TEXT_NODE_NAME && SOURCE_IGNORES.has(child.nodeName)) {
         continue
       }
 
       if (child.nodeName === 'kubb-source') {
-        const source = createSource({
-          name: child.attributes.get('name')?.toString(),
-          isTypeOnly: (child.attributes.get('isTypeOnly') ?? false) as boolean,
-          isExportable: (child.attributes.get('isExportable') ?? false) as boolean,
-          isIndexable: (child.attributes.get('isIndexable') ?? false) as boolean,
-          nodes: collectChildNodes(child),
-        })
-
-        sources.add(source)
+        sources.push(
+          createSource({
+            name: child.attributes['name']?.toString(),
+            isTypeOnly: (child.attributes['isTypeOnly'] ?? false) as boolean,
+            isExportable: (child.attributes['isExportable'] ?? false) as boolean,
+            isIndexable: (child.attributes['isIndexable'] ?? false) as boolean,
+            nodes: collectChildNodes(child),
+          }),
+        )
         continue
       }
 
@@ -156,10 +150,10 @@ function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>): Set<
 }
 
 /**
- * Traverse `node` and collect all `<kubb-export>` elements into a `Set<ExportNode>`.
+ * Traverse `node` and collect all `<kubb-export>` elements.
  */
-function squashExportNodes(node: DOMElement): Set<ExportNode> {
-  const exports = new Set<ExportNode>()
+function squashExportNodes(node: DOMElement): ExportNode[] {
+  const exports: ExportNode[] = []
 
   const walk = (current: DOMElement): void => {
     for (const child of current.childNodes) {
@@ -172,12 +166,12 @@ function squashExportNodes(node: DOMElement): Set<ExportNode> {
       }
 
       if (child.nodeName === 'kubb-export') {
-        exports.add(
+        exports.push(
           createExport({
-            name: child.attributes.get('name') as ExportNode['name'],
-            path: child.attributes.get('path') as string,
-            isTypeOnly: (child.attributes.get('isTypeOnly') ?? false) as boolean,
-            asAlias: (child.attributes.get('asAlias') ?? false) as boolean,
+            name: child.attributes['name'] as ExportNode['name'],
+            path: child.attributes['path'] as string,
+            isTypeOnly: (child.attributes['isTypeOnly'] ?? false) as boolean,
+            asAlias: (child.attributes['asAlias'] ?? false) as boolean,
           }),
         )
       }
@@ -189,10 +183,10 @@ function squashExportNodes(node: DOMElement): Set<ExportNode> {
 }
 
 /**
- * Traverse `node` and collect all `<kubb-import>` elements into a `Set<ImportNode>`.
+ * Traverse `node` and collect all `<kubb-import>` elements.
  */
-function squashImportNodes(node: DOMElement): Set<ImportNode> {
-  const imports = new Set<ImportNode>()
+function squashImportNodes(node: DOMElement): ImportNode[] {
+  const imports: ImportNode[] = []
 
   const walk = (current: DOMElement): void => {
     for (const child of current.childNodes) {
@@ -205,13 +199,13 @@ function squashImportNodes(node: DOMElement): Set<ImportNode> {
       }
 
       if (child.nodeName === 'kubb-import') {
-        imports.add(
+        imports.push(
           createImport({
-            name: child.attributes.get('name') as ImportNode['name'],
-            path: child.attributes.get('path') as string,
-            root: child.attributes.get('root') as string | undefined,
-            isTypeOnly: (child.attributes.get('isTypeOnly') ?? false) as boolean,
-            isNameSpace: (child.attributes.get('isNameSpace') ?? false) as boolean,
+            name: child.attributes['name'] as ImportNode['name'],
+            path: child.attributes['path'] as string,
+            root: child.attributes['root'] as string | undefined,
+            isTypeOnly: (child.attributes['isTypeOnly'] ?? false) as boolean,
+            isNameSpace: (child.attributes['isNameSpace'] ?? false) as boolean,
           }),
         )
       }
@@ -243,18 +237,16 @@ export function processFiles(node: DOMElement): Array<FileNode> {
       }
 
       if (child.nodeName === 'kubb-file') {
-        if (child.attributes.has('baseName') && child.attributes.has('path')) {
-          const sources = squashSourceNodes(child, ['kubb-export', 'kubb-import'])
-
+        if (child.attributes['baseName'] !== undefined && child.attributes['path'] !== undefined) {
           collected.push({
-            baseName: child.attributes.get('baseName'),
-            path: child.attributes.get('path'),
-            meta: child.attributes.get('meta') || {},
-            footer: child.attributes.get('footer'),
-            banner: child.attributes.get('banner'),
-            sources: [...sources],
-            exports: [...squashExportNodes(child)],
-            imports: [...squashImportNodes(child)],
+            baseName: child.attributes['baseName'],
+            path: child.attributes['path'],
+            meta: child.attributes['meta'] || {},
+            footer: child.attributes['footer'],
+            banner: child.attributes['banner'],
+            sources: squashSourceNodes(child),
+            exports: squashExportNodes(child),
+            imports: squashImportNodes(child),
           } as FileNode)
         }
       }
