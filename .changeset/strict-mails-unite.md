@@ -2,4 +2,4 @@
 "@kubb/ast": patch
 ---
 
-Resolve this for ast
+Fix `ThisType` augmentation in AST resolver type.

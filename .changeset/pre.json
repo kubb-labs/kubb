@@ -2,7 +2,6 @@
   "mode": "pre",
   "tag": "beta",
   "initialVersions": {
-    "@internals/utils": "0.0.0",
     "@kubb/adapter-oas": "5.0.0-alpha.74",
     "@kubb/agent": "5.0.0-alpha.74",
     "@kubb/ast": "5.0.0-alpha.74",
@@ -13,8 +12,7 @@
     "@kubb/middleware-barrel": "5.0.0-alpha.74",
     "@kubb/parser-ts": "5.0.0-alpha.74",
     "@kubb/renderer-jsx": "5.0.0-alpha.74",
-    "unplugin-kubb": "5.0.0-alpha.74",
-    "@internals/shared": "0.0.0"
+    "unplugin-kubb": "5.0.0-alpha.74"
   },
   "changesets": [
     "adapter-oas-integer-type-bigint-default",
@@ -43,6 +41,7 @@
     "add-resolve-file-to-resolvers",
     "add-resolve-options-helper",
     "add-resolver-and-transformer-helpers",
+    "add-symbol-dispose-resource-management",
     "add-type-helper-nodes",
     "agent-add-parser-ts-to-docker",
     "agent-dynamic-plugin-resolution",
@@ -56,6 +55,7 @@
     "clever-cases-deny",
     "cli-esm-bin-multi-runtime",
     "cli-runners-per-folder-refactor",
+    "cool-jokes-pump",
     "core-getmode-static-cleanup",
     "create-kubb-user-config-signature",
     "ctx-param-in-define-resolver",
@@ -101,6 +101,7 @@
     "parser-ts-extract-utils",
     "perf-generator-functions-optimization",
     "perf-ref-cache-storage",
+    "perf-renderer-jsx-legacyroot-sync",
     "preserve-union-kind-semantics",
     "reduce-kubb-install-size",
     "reduce-memory-fs-caching",
