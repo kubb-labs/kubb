@@ -2,7 +2,22 @@
   "extends": "./.nitro/types/tsconfig.json",
   "compilerOptions": {
     "types": ["bun-types", "../../reset.d.ts", "../../env.d.ts"],
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "#imports": ["./.nitro/types/nitro-imports"],
+      "~/*": ["./server/*"],
+      "@/*": ["./server/*"],
+      "~~/*": ["./*"],
+      "@@/*": ["./*"],
+      "@internals/utils": ["../../internals/utils/src/index.ts"],
+      "@internals/shared": ["../../internals/shared/src/index.ts"],
+      "@kubb/ast": ["../../packages/ast/src/index.ts"],
+      "@kubb/core": ["../../packages/core/src/index.ts"],
+      "@kubb/core/mocks": ["../../packages/core/src/mocks.ts"],
+      "@kubb/parser-ts": ["../../packages/parser-ts/src/index.ts"],
+      "@kubb/adapter-oas": ["../../packages/adapter-oas/src/index.ts"],
+      "@kubb/middleware-barrel": ["../../packages/middleware-barrel/src/index.ts"]
+    }
   },
   "exclude": ["./data/kubb.config.ts"]
 }
