@@ -302,6 +302,10 @@ export class PluginDriver {
     this.inputStreamNode = undefined
   }
 
+  [Symbol.dispose](): void {
+    this.dispose()
+  }
+
   #trackHookListener(event: keyof KubbHooks, handler: (...args: never[]) => void | Promise<void>): void {
     let handlers = this.#hookListeners.get(event)
     if (!handlers) {

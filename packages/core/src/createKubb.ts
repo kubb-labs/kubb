@@ -778,6 +778,7 @@ type SetupResult = {
   storage: Storage
   config: Config
   dispose: () => void
+  [Symbol.dispose](): void
 }
 
 /**
@@ -975,12 +976,15 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
     hooks,
     driver,
     storage,
-    dispose: () => {
-      driver.dispose()
-      for (const [event, handler] of middlewareListeners) {
-        hooks.off(event, handler as never)
-      }
-    },
+    dispose,
+    [Symbol.dispose]: dispose,
+  }
+
+  function dispose() {
+    driver.dispose()
+    for (const [event, handler] of middlewareListeners) {
+      hooks.off(event, handler as never)
+    }
   }
 }
 
@@ -1245,6 +1249,7 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
 }
 
 async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
+  using _cleanup = setupResult
   const { driver, hooks, storage } = setupResult
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
@@ -1455,8 +1460,6 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       error: error as Error,
       storage,
     }
-  } finally {
-    setupResult.dispose()
   }
 }
 
