@@ -121,6 +121,7 @@ describe('buildSchemaNode', () => {
       readOnly: true,
       writeOnly: false,
       example: 42,
+      format: 'email',
     }
     const node = buildSchemaNode(schema, 'myName', true, 'defaultVal')
 
@@ -134,6 +135,7 @@ describe('buildSchemaNode', () => {
       writeOnly: false,
       default: 'defaultVal',
       example: 42,
+      format: 'email',
     })
   })
 
@@ -144,6 +146,7 @@ describe('buildSchemaNode', () => {
     expect(node.nullable).toBeUndefined()
     expect(node.title).toBeUndefined()
     expect(node.default).toBeUndefined()
+    expect(node.format).toBeUndefined()
   })
 
   it('return type has name and nullable fields', () => {

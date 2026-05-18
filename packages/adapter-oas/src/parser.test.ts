@@ -588,6 +588,93 @@ describe('parseSchema contentMediaType (OAS 3.1)', () => {
   })
 })
 
+describe('parseSchema format preservation', () => {
+  const ctx = { document: emptyDocument }
+
+  it('preserves known format on uuid schema', () => {
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', format: 'uuid' },
+    })
+
+    expect(node.type).toBe('uuid')
+    expect(node.format).toBe('uuid')
+  })
+
+  it('preserves known format on email schema', () => {
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', format: 'email' },
+    })
+
+    expect(node.type).toBe('email')
+    expect(node.format).toBe('email')
+  })
+
+  it('preserves known format on datetime schema', () => {
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', format: 'date-time' },
+    })
+
+    expect(node.type).toBe('datetime')
+    expect(node.format).toBe('date-time')
+  })
+
+  it('preserves format when dateType is false (falls through to string)', () => {
+    const node = parseSchema(
+      ctx,
+      { schema: { type: 'string', format: 'date-time' } },
+      { dateType: false },
+    )
+
+    expect(node.type).toBe('string')
+    expect(node.format).toBe('date-time')
+  })
+
+  it('preserves unknown format on string schema', () => {
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', format: 'custom-format' },
+    })
+
+    expect(node.type).toBe('string')
+    expect(node.format).toBe('custom-format')
+  })
+
+  it('preserves unknown format with minLength constraint inference', () => {
+    const node = parseSchema(ctx, {
+      schema: { format: 'custom-format', minLength: 1 },
+    })
+
+    expect(node.type).toBe('string')
+    expect(node.format).toBe('custom-format')
+  })
+
+  it('preserves format on numeric schema', () => {
+    const node = parseSchema(ctx, {
+      schema: { type: 'number', format: 'double' },
+    })
+
+    expect(node.type).toBe('number')
+    expect(node.format).toBe('double')
+  })
+
+  it('preserves format on int64 schema (default integerType bigint)', () => {
+    const node = parseSchema(ctx, {
+      schema: { type: 'integer', format: 'int64' },
+    })
+
+    expect(node.type).toBe('bigint')
+    expect(node.format).toBe('int64')
+  })
+
+  it('preserves format on enum schema', () => {
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', format: 'custom-enum', enum: ['a', 'b'] },
+    })
+
+    expect(node.type).toBe('enum')
+    expect(node.format).toBe('custom-enum')
+  })
+})
+
 describe('parseSchema allOf', () => {
   const ctx = { document: emptyDocument }
 

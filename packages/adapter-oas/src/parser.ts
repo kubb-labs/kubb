@@ -169,6 +169,7 @@ function createSchemaParser(ctx: OasParserContext) {
         default: mergedDefault,
         example: schema.example ?? memberNode.example,
         pattern: schema.pattern ?? ('pattern' in memberNode ? memberNode.pattern : undefined),
+        format: schema.format ?? memberNode.format,
       } as ast.DistributiveOmit<ast.SchemaNode, 'kind'>)
     }
 
@@ -359,6 +360,7 @@ function createSchemaParser(ctx: OasParserContext) {
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
+        format: schema.format,
       })
     }
 
@@ -489,6 +491,7 @@ function createSchemaParser(ctx: OasParserContext) {
       writeOnly: schema.writeOnly,
       default: enumDefault,
       example: schema.example,
+      format: schema.format,
     }
 
     const extensionKey = enumExtensionKeys.find((key) => key in schema)
@@ -702,6 +705,7 @@ function createSchemaParser(ctx: OasParserContext) {
       description: schema.description,
       deprecated: schema.deprecated,
       nullable,
+      format: schema.format,
     })
   }
 
@@ -795,6 +799,7 @@ function createSchemaParser(ctx: OasParserContext) {
       name,
       title: schema.title,
       description: schema.description,
+      format: schema.format,
     })
   }
 
