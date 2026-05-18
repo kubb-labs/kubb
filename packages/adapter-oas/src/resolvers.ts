@@ -512,6 +512,7 @@ export function buildSchemaNode(schema: SchemaObject, name: string | null | unde
     writeOnly: schema.writeOnly,
     default: defaultValue,
     example: schema.example,
+    format: schema.format,
   } as const
 }
 
