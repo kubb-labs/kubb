@@ -1094,7 +1094,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
 
     await hooks.emit('kubb:files:processing:start', { files })
 
-    const stream = fileProcessor.runStream(files, { parsers: parsersMap, extension: config.output.extension })
+    const stream = fileProcessor.stream(files, { parsers: parsersMap, extension: config.output.extension })
 
     for await (const { file, source, processed, total, percentage } of stream) {
       await hooks.emit('kubb:file:processing:update', { file, source, processed, total, percentage, config })
