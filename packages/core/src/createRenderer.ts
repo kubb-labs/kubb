@@ -9,13 +9,25 @@ import type { FileNode } from '@kubb/ast'
  * specifying it.
  */
 export type Renderer<TElement = unknown> = {
+  /**
+   * Renders `element` and populates {@link files} with the resulting {@link FileNode} objects.
+   * Called once per render cycle; must resolve before {@link files} is read.
+   */
   render(element: TElement): Promise<void>
+  /**
+   * Tears down the renderer and releases any held resources.
+   * Pass an `Error` to signal a failure, a number for an exit code, or omit for a clean shutdown.
+   */
   unmount(error?: Error | number | null): void
+  /**
+   * Accumulated {@link FileNode} results produced by the last {@link render} call.
+   * Not populated when {@link stream} is implemented.
+   */
   readonly files: Array<FileNode>
   /**
-   * When present, core uses this instead of `render` + `files`, forwarding
-   * each file to `FileManager` as soon as it is ready. When this method is
-   * implemented, `files` will not be populated after rendering.
+   * When present, core calls this instead of {@link render} and {@link files},
+   * forwarding each file to `FileManager` as soon as it is ready.
+   * Implementing this method enables per-file streaming without buffering the full result set.
    */
   stream?(element: TElement): AsyncIterable<FileNode>
 }
