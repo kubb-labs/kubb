@@ -3,7 +3,7 @@ import { Const } from './components/Const.tsx'
 import { File } from './components/File.tsx'
 import { Function } from './components/Function.tsx'
 import { Type } from './components/Type.tsx'
-import { jsxRenderer, jsxRendererSlim } from './createRenderer.tsx'
+import { jsxRenderer, jsxRendererSync } from './createRenderer.tsx'
 
 describe('createRenderer', () => {
   it('should collect imports, exports, and typed source nodes from multiple files', async () => {
@@ -64,9 +64,9 @@ describe('createRenderer', () => {
   })
 })
 
-describe('jsxRendererSlim', () => {
+describe('jsxRendererSync', () => {
   it('should collect imports, exports, and typed source nodes from multiple files', async () => {
-    const renderer = jsxRendererSlim()
+    const renderer = jsxRendererSync()
     await renderer.render(
       <>
         <File baseName="models.ts" path="src/models.ts">
@@ -120,7 +120,7 @@ describe('jsxRendererSlim', () => {
       </>
     )
 
-    const syncRenderer = jsxRendererSlim()
+    const syncRenderer = jsxRendererSync()
     await syncRenderer.render(element)
 
     const reactRenderer = jsxRenderer()
@@ -131,7 +131,7 @@ describe('jsxRendererSlim', () => {
   })
 
   it('should propagate render errors', async () => {
-    const renderer = jsxRendererSlim()
+    const renderer = jsxRendererSync()
     function BadComponent(): never {
       throw new Error('sync render error')
     }
@@ -145,7 +145,7 @@ describe('jsxRendererSlim', () => {
   })
 
   it('should stream files one at a time', async () => {
-    const renderer = jsxRendererSlim()
+    const renderer = jsxRendererSync()
     const order: string[] = []
 
     const element = (
@@ -196,20 +196,20 @@ describe('jsxRendererSlim', () => {
       </>
     )
 
-    const streamRenderer = jsxRendererSlim()
+    const streamRenderer = jsxRendererSync()
     const streamed: unknown[] = []
     for await (const file of streamRenderer.stream(element)) {
       streamed.push(file)
     }
 
-    const batchRenderer = jsxRendererSlim()
+    const batchRenderer = jsxRendererSync()
     await batchRenderer.render(element)
 
     expect(streamed).toEqual(batchRenderer.files)
   })
 
   it('should propagate errors thrown during stream', async () => {
-    const renderer = jsxRendererSlim()
+    const renderer = jsxRendererSync()
     function BadComponent(): never {
       throw new Error('stream error')
     }
@@ -222,7 +222,7 @@ describe('jsxRendererSlim', () => {
   })
 
   it('should accumulate files across multiple render calls', async () => {
-    const renderer = jsxRendererSlim()
+    const renderer = jsxRendererSync()
 
     await renderer.render(
       <File baseName="first.ts" path="src/first.ts">

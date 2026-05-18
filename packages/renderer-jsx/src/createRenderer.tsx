@@ -45,10 +45,10 @@ export const jsxRenderer = () => {
  *
  * @example Drop-in replacement
  * ```ts
- * import { jsxRendererSlim } from '@kubb/renderer-jsx'
+ * import { jsxRendererSync } from '@kubb/renderer-jsx'
  *
  * export const myGenerator = defineGenerator<PluginTs>({
- *   renderer: jsxRendererSlim,
+ *   renderer: jsxRendererSync,
  *   schema(node, options) {
  *     return <File baseName="output.ts" path="src/output.ts">...</File>
  *   },
@@ -57,12 +57,12 @@ export const jsxRenderer = () => {
  *
  * @example Stream files as they are produced
  * ```ts
- * for await (const file of jsxRendererSlim().stream(element)) {
+ * for await (const file of jsxRendererSync().stream(element)) {
  *   await writeFile(file)
  * }
  * ```
  */
-export const jsxRendererSlim = () => {
+export const jsxRendererSync = () => {
   const runtime = new SyncRuntime()
   return {
     render(element: KubbReactElement): Promise<void> {
