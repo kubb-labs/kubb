@@ -12,57 +12,13 @@
 
 #### Bug Fixes
 
-- Add `Symbol.dispose` support and fix resource cleanup.
-  
-  `FileManager` and `PluginDriver` now implement `[Symbol.dispose]()`, making them compatible with TypeScript's `using` declaration. `safeBuild()` internally uses `using` instead of a `try/finally` block to guarantee `SetupResult` teardown on all exit paths.
-  
-  Three genuine resource leaks are also fixed:
-  
-  - **Watch mode**: the chokidar watcher is now closed on `SIGINT`/`SIGTERM` (previously the process would hang after Ctrl-C)
-  - **Studio WebSocket**: the `message` event listener is now removed in `cleanup()` alongside the other listeners
-  - **MCP HTTP server**: `SIGINT`/`SIGTERM` now trigger a graceful `server.close()`
-  
-  No API changes — all existing `dispose()` calls continue to work unchanged. ([#3321](https://github.com/kubb-labs/kubb/pull/3321), [`03ad8ce`](https://github.com/kubb-labs/kubb/commit/03ad8ce7757bdbe408ed291185424b2f2d9fe5ed))
+- Add `Symbol.dispose` support: `FileManager` and `PluginDriver` implement `[Symbol.dispose]()`. `safeBuild()` uses `using` instead of `try/finally`. Fix resource leaks: chokidar watcher closes on `SIGINT`/`SIGTERM`; Studio WebSocket `message` listener removed in `cleanup()`; MCP HTTP server closes gracefully on signal. ([#3321](https://github.com/kubb-labs/kubb/pull/3321), [`03ad8ce`](https://github.com/kubb-labs/kubb/commit/03ad8ce7757bdbe408ed291185424b2f2d9fe5ed))
 
 ### @kubb/renderer-jsx
 
 #### Bug Fixes
 
-- JSX rendering is now 2–4× faster with `jsxRendererSync`
-  
-  Two new optimisations in `@kubb/renderer-jsx` cut render time significantly with no changes required to existing generators.
-  
-  **`jsxRendererSync`: React-free recursive renderer**
-  
-  A new `jsxRendererSync` factory replaces React's fiber scheduler with a lightweight recursive tree walk. Because all Kubb components are pure functions, the full React work loop is unnecessary overhead. Swap `jsxRenderer` for `jsxRendererSync` in any generator and it just gets faster:
-  
-  ```ts
-  import { jsxRendererSync } from '@kubb/renderer-jsx'
-  
-  export const myGenerator = defineGenerator({
-    renderer: jsxRendererSync, // was: jsxRenderer
-    // ...
-  })
-  ```
-  
-  Measured improvement on a 150-file schema: **12.9 ms → 5.6 ms**.
-  
-  **`jsxRendererSync().stream()`: process files as they are rendered**
-  
-  For generators that produce many files, the new `stream()` method yields each `FileNode` as soon as it is ready, before the rest of the element tree is processed, so downstream work can start immediately:
-  
-  ```ts
-  const renderer = jsxRendererSync()
-  for await (const file of renderer.stream(element)) {
-    await writeFile(file) // starts before the next file is rendered
-  }
-  ```
-  
-  **Lower memory use**
-  
-  Node attributes now use plain objects instead of `Map`, eliminating ~300 bytes of V8 overhead per virtual DOM node. The three separate tree walks previously done per file element (sources, exports, imports) are now a single generator pass.
-  
-  `jsxRenderer` is unchanged and all new APIs are purely additive. ([#3319](https://github.com/kubb-labs/kubb/pull/3319), [`6ab3a5e`](https://github.com/kubb-labs/kubb/commit/6ab3a5e97750e7a572a61ffadfb3ccb2ad2b0fe1))
+- Add `jsxRendererSync` — a React-free recursive renderer 2–4× faster than `jsxRenderer`. Add `stream()` for incremental file processing. Node attributes use plain objects instead of `Map`. `jsxRenderer` is unchanged; all new APIs are additive. ([#3319](https://github.com/kubb-labs/kubb/pull/3319), [`6ab3a5e`](https://github.com/kubb-labs/kubb/commit/6ab3a5e97750e7a572a61ffadfb3ccb2ad2b0fe1))
 
 ### Contributors
 
