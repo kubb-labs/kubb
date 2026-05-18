@@ -12,7 +12,6 @@ ADR-0003 set up operator-controlled permissions for `@kubb/agent` Studio session
 | -------------------------- | --------------- | ------------------------------------------------------------ |
 | `KUBB_AGENT_ALLOW_WRITE`   | `--allow-write` | Allow the agent to write generated files to disk.            |
 | `KUBB_AGENT_ALLOW_ALL`     | `--allow-all`   | Grant every permission. Implies `KUBB_AGENT_ALLOW_WRITE`.    |
-| `KUBB_AGENT_ALLOW_PUBLISH` | —               | Allow the agent to run the publish command (e.g. `npm publish`). |
 
 `@kubb/core`'s `defineConfig` has no `permissions` field. Operators cannot declare intent inside `kubb.config.ts`. Every deployment has to set env vars or pass CLI flags on every invocation.
 
@@ -93,7 +92,6 @@ The mixed singular/plural is intentional. `--permissions` is plural because it s
 | -------------------------- | ------------------------------------ |
 | `KUBB_AGENT_ALLOW_WRITE`   | `KUBB_PERMISSION_FILESYSTEM=write`   |
 | `KUBB_AGENT_ALLOW_ALL`     | `KUBB_PERMISSIONS=write-all`         |
-| `KUBB_AGENT_ALLOW_PUBLISH` | `KUBB_PERMISSION_PUBLISH=write`      |
 | `--allow-write`            | `--permission.filesystem write`      |
 | `--allow-all`              | `--permissions write-all`            |
 
