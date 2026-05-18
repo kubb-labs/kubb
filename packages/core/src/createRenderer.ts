@@ -14,7 +14,8 @@ export type Renderer<TElement = unknown> = {
   readonly files: Array<FileNode>
   /**
    * When present, core uses this instead of `render` + `files`, forwarding
-   * each file to `FileManager` as soon as it is ready.
+   * each file to `FileManager` as soon as it is ready. When this method is
+   * implemented, `files` will not be populated after rendering.
    */
   stream?(element: TElement): AsyncIterable<FileNode>
 }

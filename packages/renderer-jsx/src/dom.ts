@@ -48,7 +48,6 @@ export const insertBeforeNode = (node: DOMElement, newChildNode: DOMNode, before
   const index = node.childNodes.indexOf(beforeChildNode)
   if (index >= 0) {
     node.childNodes.splice(index, 0, newChildNode)
-
     return
   }
 
@@ -79,25 +78,16 @@ export const setAttribute = (node: DOMElement, key: string, value: DOMNodeAttrib
  * Create a new {@link TextNode} with the given text value.
  */
 export const createTextNode = (text: string): TextNode => {
-  const node: TextNode = {
+  return {
     nodeName: TEXT_NODE_NAME,
     nodeValue: text,
     parentNode: undefined,
   }
-
-  setTextNodeValue(node, text)
-
-  return node
 }
 
 /**
  * Update the `nodeValue` of an existing {@link TextNode}.
- * Non-string values are coerced to strings via `String(text)`.
  */
 export const setTextNodeValue = (node: TextNode, text: string): void => {
-  if (typeof text !== 'string') {
-    text = String(text)
-  }
-
   node.nodeValue = text
 }

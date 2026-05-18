@@ -12,6 +12,17 @@ import {
   createType,
 } from '@kubb/ast'
 import React from 'react'
+import {
+  KUBB_ARROW_FUNCTION,
+  KUBB_CONST,
+  KUBB_EXPORT,
+  KUBB_FILE,
+  KUBB_FUNCTION,
+  KUBB_IMPORT,
+  KUBB_JSX,
+  KUBB_SOURCE,
+  KUBB_TYPE,
+} from './constants.ts'
 import type { KubbReactElement } from './types.ts'
 
 type OnText = (text: string) => void
@@ -23,11 +34,11 @@ type OnHost = (type: string, props: Record<string, unknown>) => void
  * every host element encountered. Pure function components are called
  * synchronously; hooks and class components are not supported.
  */
-function eachElement(element: unknown, onText: OnText | null, onHost: OnHost): void {
+function eachElement(element: unknown, onText: OnText, onHost: OnHost): void {
   if (element == null || typeof element === 'boolean') return
 
   if (typeof element === 'string' || typeof element === 'number' || typeof element === 'bigint') {
-    onText?.(String(element))
+    onText(String(element))
     return
   }
 
@@ -51,12 +62,20 @@ function eachElement(element: unknown, onText: OnText | null, onHost: OnHost): v
   }
 }
 
+function bool(val: unknown): boolean {
+  return (val ?? false) as boolean
+}
+
+function getChildNodes(props: Record<string, unknown>): CodeNode[] {
+  const nodes: CodeNode[] = []
+  collectCode(props['children'], nodes)
+  return nodes
+}
+
 function collectCode(element: unknown, nodes: CodeNode[]): void {
   eachElement(
     element,
-    (text) => {
-      if (text.trim()) nodes.push(createText(text))
-    },
+    (text) => { if (text.trim()) nodes.push(createText(text)) },
     (type, props) => onCodeHost(type, props, nodes),
   )
 }
@@ -67,22 +86,14 @@ function onCodeHost(type: string, props: Record<string, unknown>, nodes: CodeNod
     return
   }
 
-  if (type === 'kubb-jsx') {
+  if (type === KUBB_JSX) {
     let value = ''
-    eachElement(
-      props['children'],
-      (t) => {
-        value += t
-      },
-      () => {},
-    )
+    eachElement(props['children'], (t) => { value += t }, () => {})
     if (value) nodes.push(createJsx(value))
     return
   }
 
-  if (type === 'kubb-function') {
-    const childNodes: CodeNode[] = []
-    collectCode(props['children'], childNodes)
+  if (type === KUBB_FUNCTION) {
     nodes.push(
       createFunction({
         name: props['name'] as string,
@@ -93,15 +104,13 @@ function onCodeHost(type: string, props: Record<string, unknown>, nodes: CodeNod
         generics: props['generics'] as string | undefined,
         returnType: props['returnType'] as string | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | undefined,
-        nodes: childNodes,
+        nodes: getChildNodes(props),
       }),
     )
     return
   }
 
-  if (type === 'kubb-arrow-function') {
-    const childNodes: CodeNode[] = []
-    collectCode(props['children'], childNodes)
+  if (type === KUBB_ARROW_FUNCTION) {
     nodes.push(
       createArrowFunction({
         name: props['name'] as string,
@@ -113,15 +122,13 @@ function onCodeHost(type: string, props: Record<string, unknown>, nodes: CodeNod
         returnType: props['returnType'] as string | undefined,
         singleLine: props['singleLine'] as boolean | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | undefined,
-        nodes: childNodes,
+        nodes: getChildNodes(props),
       } as Omit<ArrowFunctionNode, 'kind'>),
     )
     return
   }
 
-  if (type === 'kubb-const') {
-    const childNodes: CodeNode[] = []
-    collectCode(props['children'], childNodes)
+  if (type === KUBB_CONST) {
     nodes.push(
       createConst({
         name: props['name'] as string,
@@ -129,28 +136,32 @@ function onCodeHost(type: string, props: Record<string, unknown>, nodes: CodeNod
         export: props['export'] as boolean | undefined,
         asConst: props['asConst'] as boolean | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | undefined,
-        nodes: childNodes,
+        nodes: getChildNodes(props),
       }),
     )
     return
   }
 
-  if (type === 'kubb-type') {
-    const childNodes: CodeNode[] = []
-    collectCode(props['children'], childNodes)
+  if (type === KUBB_TYPE) {
     nodes.push(
       createType({
         name: props['name'] as string,
         export: props['export'] as boolean | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | undefined,
-        nodes: childNodes,
+        nodes: getChildNodes(props),
       }),
     )
     return
   }
 }
 
-function collectFileChildren(element: unknown, sources: SourceNode[], exports: ExportNode[], imports: ImportNode[]): void {
+type FileChildren = { sources: SourceNode[]; exports: ExportNode[]; imports: ImportNode[] }
+
+function collectFileChildren(element: unknown): FileChildren {
+  const sources: SourceNode[] = []
+  const exports: ExportNode[] = []
+  const imports: ImportNode[] = []
+
   eachElement(
     element,
     (text) => {
@@ -159,99 +170,77 @@ function collectFileChildren(element: unknown, sources: SourceNode[], exports: E
       }
     },
     (type, props) => {
-      if (type === 'kubb-source') {
-        const nodes: CodeNode[] = []
-        collectCode(props['children'], nodes)
+      if (type === KUBB_SOURCE) {
         sources.push(
           createSource({
             name: props['name']?.toString(),
-            isTypeOnly: (props['isTypeOnly'] ?? false) as boolean,
-            isExportable: (props['isExportable'] ?? false) as boolean,
-            isIndexable: (props['isIndexable'] ?? false) as boolean,
-            nodes,
+            isTypeOnly: bool(props['isTypeOnly']),
+            isExportable: bool(props['isExportable']),
+            isIndexable: bool(props['isIndexable']),
+            nodes: getChildNodes(props),
           }),
         )
         return
       }
 
-      if (type === 'kubb-export') {
+      if (type === KUBB_EXPORT) {
         exports.push(
           createExport({
             name: props['name'] as ExportNode['name'],
             path: props['path'] as string,
-            isTypeOnly: (props['isTypeOnly'] ?? false) as boolean,
-            asAlias: (props['asAlias'] ?? false) as boolean,
+            isTypeOnly: bool(props['isTypeOnly']),
+            asAlias: bool(props['asAlias']),
           }),
         )
         return
       }
 
-      if (type === 'kubb-import') {
+      if (type === KUBB_IMPORT) {
         imports.push(
           createImport({
             name: props['name'] as ImportNode['name'],
             path: props['path'] as string,
             root: props['root'] as string | undefined,
-            isTypeOnly: (props['isTypeOnly'] ?? false) as boolean,
-            isNameSpace: (props['isNameSpace'] ?? false) as boolean,
+            isTypeOnly: bool(props['isTypeOnly']),
+            isNameSpace: bool(props['isNameSpace']),
           }),
         )
         return
       }
 
-      // Any other host element: recurse into its children to find sources/exports/imports
-      collectFileChildren(props['children'], sources, exports, imports)
+      const nested = collectFileChildren(props['children'])
+      sources.push(...nested.sources)
+      exports.push(...nested.exports)
+      imports.push(...nested.imports)
     },
   )
+
+  return { sources, exports, imports }
 }
 
 function* walkFiles(element: unknown): Generator<FileNode> {
-  if (element == null || typeof element === 'boolean') return
+  const files: FileNode[] = []
 
-  if (typeof element === 'string' || typeof element === 'number' || typeof element === 'bigint') return
-
-  if (Array.isArray(element)) {
-    for (const child of element) yield* walkFiles(child)
-    return
-  }
-
-  if (typeof element === 'object' && '$$typeof' in element) {
-    const el = element as unknown as React.ReactElement
-    const { type } = el
-    const props = el.props as Record<string, unknown>
-
-    if (type === React.Fragment) {
-      yield* walkFiles(props['children'])
-      return
-    }
-
-    if (typeof type === 'function') {
-      yield* walkFiles((type as (p: unknown) => unknown)(props))
-      return
-    }
-
-    if (typeof type === 'string') {
-      if (type === 'kubb-file' && props['baseName'] !== undefined && props['path'] !== undefined) {
-        const sources: SourceNode[] = []
-        const fileExports: ExportNode[] = []
-        const fileImports: ImportNode[] = []
-        collectFileChildren(props['children'], sources, fileExports, fileImports)
-        yield {
-          baseName: props['baseName'],
-          path: props['path'],
-          meta: props['meta'] || {},
-          footer: props['footer'],
-          banner: props['banner'],
-          sources,
-          exports: fileExports,
-          imports: fileImports,
-        } as FileNode
-        return
-      }
-      // Non-file host element: recurse into children to find nested files
-      yield* walkFiles(props['children'])
+  function onHost(type: string, props: Record<string, unknown>): void {
+    if (type === KUBB_FILE && props['baseName'] !== undefined && props['path'] !== undefined) {
+      const { sources, exports, imports } = collectFileChildren(props['children'])
+      files.push({
+        baseName: props['baseName'],
+        path: props['path'],
+        meta: props['meta'] || {},
+        footer: props['footer'],
+        banner: props['banner'],
+        sources,
+        exports,
+        imports,
+      } as FileNode)
+    } else {
+      eachElement(props['children'], () => {}, onHost)
     }
   }
+
+  eachElement(element, () => {}, onHost)
+  yield* files
 }
 
 /**
