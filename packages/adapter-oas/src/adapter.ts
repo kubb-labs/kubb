@@ -46,17 +46,39 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     emptySchemaType = unknownType || DEFAULT_PARSER_OPTIONS.emptySchemaType,
   } = options
 
+  const parserOptions: ast.ParserOptions = {
+    ...DEFAULT_PARSER_OPTIONS,
+    dateType,
+    integerType,
+    unknownType,
+    emptySchemaType,
+    enumSuffix,
+  }
+
   let nameMapping = new Map<string, string>()
   let parsedDocument: Document | null = null
-  let cachedSchemaObjects: ReturnType<typeof getSchemas>['schemas'] | null = null
+  let schemaObjects: ReturnType<typeof getSchemas>['schemas'] | null = null
+
+  function resolveBaseURL(document: Document): string | undefined {
+    const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
+    return server?.url ? resolveServerUrl(server, serverVariables) : undefined
+  }
 
   async function ensureDocument(source: AdapterSource): Promise<Document> {
     if (parsedDocument) return parsedDocument
-
     const fresh = await parseFromConfig(source)
     if (validate) await validateDocument(fresh)
     parsedDocument = fresh
     return fresh
+  }
+
+  async function ensureSchemas(document: Document): Promise<ReturnType<typeof getSchemas>['schemas']> {
+    if (!schemaObjects) {
+      const result = getSchemas(document, { contentType })
+      schemaObjects = result.schemas
+      nameMapping = result.nameMapping
+    }
+    return schemaObjects
   }
 
   return {
@@ -98,9 +120,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     async parse(source) {
       const document = await ensureDocument(source)
 
-      const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
-      const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
-
       const { root: parsedRoot, nameMapping: parsedNameMapping } = parseOas(document, {
         contentType,
         dateType,
@@ -115,60 +134,34 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       // This must happen after parseOas() because legacy enum remapping is finalized there.
       nameMapping = parsedNameMapping
 
-      const inputNode = ast.createInput({
+      return ast.createInput({
         ...node,
         meta: {
           title: document.info?.title,
           description: document.info?.description,
           version: document.info?.version,
-          baseURL,
+          baseURL: resolveBaseURL(document),
         },
       })
-
-      return inputNode
     },
     async count(source) {
       const document = await ensureDocument(source)
-
-      if (!cachedSchemaObjects) {
-        const result = getSchemas(document, { contentType })
-        cachedSchemaObjects = result.schemas
-        nameMapping = result.nameMapping
-      }
+      const schemas = await ensureSchemas(document)
 
       const baseOas = new BaseOas(document)
       const operationCount = Object.values(baseOas.getPaths()).flatMap(Object.values).filter(Boolean).length
 
-      return { schemas: Object.keys(cachedSchemaObjects).length, operations: operationCount }
+      return { schemas: Object.keys(schemas).length, operations: operationCount }
     },
     async stream(source) {
       const document = await ensureDocument(source)
-
-      const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
-      const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
-
-      if (!cachedSchemaObjects) {
-        const result = getSchemas(document, { contentType })
-        cachedSchemaObjects = result.schemas
-        nameMapping = result.nameMapping
-      }
-
-      const schemaObjects = cachedSchemaObjects as ReturnType<typeof getSchemas>['schemas']
-
-      const parserOptions: ast.ParserOptions = {
-        ...DEFAULT_PARSER_OPTIONS,
-        dateType,
-        integerType,
-        unknownType,
-        emptySchemaType,
-        enumSuffix,
-      }
+      const schemas = await ensureSchemas(document)
 
       let discriminatorChildMap: Awaited<ReturnType<typeof buildDiscriminatorChildMap>> | null = null
       if (discriminator === 'inherit') {
         const { parseSchema: _preParser } = createSchemaParser({ document, contentType })
         const parentNodes: ast.SchemaNode[] = []
-        for (const [name, schema] of Object.entries(schemaObjects)) {
+        for (const [name, schema] of Object.entries(schemas)) {
           if ((schema.oneOf ?? schema.anyOf) && schema.discriminator?.propertyName) {
             parentNodes.push(_preParser({ schema, name }, parserOptions))
           }
@@ -184,7 +177,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         [Symbol.asyncIterator]() {
           return (async function* () {
             const { parseSchema: _parseSchema } = createSchemaParser({ document, contentType })
-            for (const [name, schema] of Object.entries(schemaObjects)) {
+            for (const [name, schema] of Object.entries(schemas)) {
               let node = _parseSchema({ schema, name }, parserOptions)
               const entry = discriminatorChildMap?.get(name)
               if (entry) node = patchDiscriminatorNode(node, entry)
@@ -216,7 +209,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         title: document.info?.title,
         description: document.info?.description,
         version: document.info?.version,
-        baseURL,
+        baseURL: resolveBaseURL(document),
       })
     },
   }

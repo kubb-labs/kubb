@@ -5,6 +5,7 @@ import { bench, describe } from 'vitest'
 import { adapterOas } from './adapter.ts'
 import { parseDocument } from './factory.ts'
 import { parseOas } from './parser.ts'
+import { generateLargeSpec } from './generateLargeSpec.ts'
 import type { Document } from './types.ts'
 import type { AdapterSource } from '@kubb/core'
 
@@ -53,6 +54,61 @@ describe.skipIf(!hasStripe)('Stripe spec — batch vs streaming (1,385 schemas)'
       const adapter = adapterOas({ validate: false })
       await adapter.count!(stripeSource)
       const stream = await adapter.stream!(stripeSource)
+      for await (const _ of stream.schemas) {
+        /* drain */
+      }
+      for await (const _ of stream.operations) {
+        /* drain */
+      }
+    },
+    { iterations: 3, warmupIterations: 1 },
+  )
+})
+
+describe('large synthetic spec — batch vs streaming', () => {
+  const largeSource: AdapterSource = { type: 'data', data: generateLargeSpec(500) }
+  const xlargeSource: AdapterSource = { type: 'data', data: generateLargeSpec(1500) }
+
+  bench(
+    'batch 500 schemas — adapter.parse()',
+    async () => {
+      const adapter = adapterOas({ validate: false })
+      await adapter.parse(largeSource)
+    },
+    { iterations: 3, warmupIterations: 1 },
+  )
+
+  bench(
+    'streaming 500 schemas — adapter.count() + stream() drain',
+    async () => {
+      const adapter = adapterOas({ validate: false })
+      await adapter.count!(largeSource)
+      const stream = await adapter.stream!(largeSource)
+      for await (const _ of stream.schemas) {
+        /* drain */
+      }
+      for await (const _ of stream.operations) {
+        /* drain */
+      }
+    },
+    { iterations: 3, warmupIterations: 1 },
+  )
+
+  bench(
+    'batch 1500 schemas — adapter.parse()',
+    async () => {
+      const adapter = adapterOas({ validate: false })
+      await adapter.parse(xlargeSource)
+    },
+    { iterations: 3, warmupIterations: 1 },
+  )
+
+  bench(
+    'streaming 1500 schemas — adapter.count() + stream() drain',
+    async () => {
+      const adapter = adapterOas({ validate: false })
+      await adapter.count!(xlargeSource)
+      const stream = await adapter.stream!(xlargeSource)
       for await (const _ of stream.schemas) {
         /* drain */
       }
