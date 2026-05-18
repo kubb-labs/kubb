@@ -1419,7 +1419,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         }
       }
 
-      await flushPendingFiles(snapshot)
+      await flushPendingFiles()
     }
 
     await hooks.emit('kubb:plugins:end', {
