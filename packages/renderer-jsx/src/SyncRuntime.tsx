@@ -14,8 +14,6 @@ import {
 import React from 'react'
 import type { KubbReactElement } from './types.ts'
 
-// ── shared traversal ──────────────────────────────────────────────────────────
-
 type OnText = (text: string) => void
 type OnHost = (type: string, props: Record<string, unknown>) => void
 
@@ -52,8 +50,6 @@ function eachElement(element: unknown, onText: OnText | null, onHost: OnHost): v
     }
   }
 }
-
-// ── level 3 / 2: code-node collection (inside kubb-source or nested code elements) ──
 
 function collectCode(element: unknown, nodes: CodeNode[]): void {
   eachElement(
@@ -154,8 +150,6 @@ function onCodeHost(type: string, props: Record<string, unknown>, nodes: CodeNod
   }
 }
 
-// ── level 1: file-child collection (inside kubb-file) ────────────────────────
-
 function collectFileChildren(element: unknown, sources: SourceNode[], exports: ExportNode[], imports: ImportNode[]): void {
   eachElement(
     element,
@@ -211,8 +205,6 @@ function collectFileChildren(element: unknown, sources: SourceNode[], exports: E
   )
 }
 
-// ── level 0: top-level file walker ────────────────────────────────────────────
-
 function* walkFiles(element: unknown): Generator<FileNode> {
   if (element == null || typeof element === 'boolean') return
 
@@ -261,8 +253,6 @@ function* walkFiles(element: unknown): Generator<FileNode> {
     }
   }
 }
-
-// ── SyncRuntime ───────────────────────────────────────────────────────────────
 
 /**
  * Synchronous JSX renderer that walks the element tree in a single pass,
