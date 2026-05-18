@@ -56,9 +56,13 @@ function eachElement(element: unknown, onText: OnText | null, onHost: OnHost): v
 // ── level 3 / 2: code-node collection (inside kubb-source or nested code elements) ──
 
 function collectCode(element: unknown, nodes: CodeNode[]): void {
-  eachElement(element, (text) => {
-    if (text.trim()) nodes.push(createText(text))
-  }, (type, props) => onCodeHost(type, props, nodes))
+  eachElement(
+    element,
+    (text) => {
+      if (text.trim()) nodes.push(createText(text))
+    },
+    (type, props) => onCodeHost(type, props, nodes),
+  )
 }
 
 function onCodeHost(type: string, props: Record<string, unknown>, nodes: CodeNode[]): void {
@@ -69,7 +73,13 @@ function onCodeHost(type: string, props: Record<string, unknown>, nodes: CodeNod
 
   if (type === 'kubb-jsx') {
     let value = ''
-    eachElement(props['children'], (t) => { value += t }, () => {})
+    eachElement(
+      props['children'],
+      (t) => {
+        value += t
+      },
+      () => {},
+    )
     if (value) nodes.push(createJsx(value))
     return
   }
@@ -146,12 +156,7 @@ function onCodeHost(type: string, props: Record<string, unknown>, nodes: CodeNod
 
 // ── level 1: file-child collection (inside kubb-file) ────────────────────────
 
-function collectFileChildren(
-  element: unknown,
-  sources: SourceNode[],
-  exports: ExportNode[],
-  imports: ImportNode[],
-): void {
+function collectFileChildren(element: unknown, sources: SourceNode[], exports: ExportNode[], imports: ImportNode[]): void {
   eachElement(
     element,
     (text) => {
