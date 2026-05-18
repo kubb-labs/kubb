@@ -29,7 +29,7 @@ function getErrorMessage(error: unknown): string {
  * so each Studio user gets their own isolated WebSocket session.
  */
 export default defineNitroPlugin(async (nitro) => {
-  const { studioUrl, token, configPath, resolvedConfigPath, retryInterval, heartbeatInterval, root, allowAll, allowWrite, allowPublish, poolSize, hasSecret } =
+  const { studioUrl, token, configPath, resolvedConfigPath, retryInterval, heartbeatInterval, root, allowAll, allowWrite, poolSize, hasSecret } =
     resolveStudioRuntimeConfig(process.env)
 
   if (!token) {
@@ -55,7 +55,6 @@ export default defineNitroPlugin(async (nitro) => {
       resolvedConfigPath,
       allowAll,
       allowWrite,
-      allowPublish,
       root,
       retryInterval,
       heartbeatInterval,

@@ -92,7 +92,6 @@ describe('connectToStudio', () => {
       resolvedConfigPath: '/project/kubb.config.ts',
       allowAll: false,
       allowWrite: false,
-      allowPublish: false,
       root: '/project',
       retryInterval: 100,
       nitro: { hooks: { hook: vi.fn() } } as any,
@@ -430,7 +429,6 @@ describe('connectToStudio', () => {
           permissions: {
             allowAll: false,
             allowWrite: true,
-            allowPublish: false,
           },
         }),
       }),
@@ -451,7 +449,6 @@ describe('connectToStudio', () => {
           permissions: {
             allowAll: true,
             allowWrite: true,
-            allowPublish: false,
           },
         }),
       }),
@@ -476,7 +473,6 @@ describe('connectToStudio', () => {
           permissions: {
             allowAll: false,
             allowWrite: false,
-            allowPublish: false,
           },
         }),
       }),

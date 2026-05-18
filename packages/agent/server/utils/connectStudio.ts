@@ -2,14 +2,13 @@ import { formatMs, maskString, serializePluginOptions } from '@internals/utils'
 import { AsyncEventEmitter, fsStorage, type KubbHooks, memoryStorage } from '@kubb/core'
 import type { NitroApp } from 'nitropack/types'
 import { version } from '~~/package.json'
-import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage, isPublishCommandMessage } from '../types/agent.ts'
+import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage } from '../types/agent.ts'
 import { getLatestStudioConfigFromStorage, saveStudioConfigToStorage } from './agentCache.ts'
 import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
 import { loadConfig } from './loadConfig.ts'
 import { logger } from './logger.ts'
 import { mergePlugins } from './mergePlugins.ts'
-import { publish } from './publish.ts'
 import { resolveMiddlewares } from './resolvePlugins.ts'
 import { setupHookListener } from './setupHookListener.ts'
 import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
@@ -21,7 +20,6 @@ export type ConnectToStudioOptions = {
   resolvedConfigPath: string
   allowAll: boolean
   allowWrite: boolean
-  allowPublish: boolean
   root: string
   retryInterval: number
   heartbeatInterval?: number
@@ -42,7 +40,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     resolvedConfigPath,
     allowAll,
     allowWrite,
-    allowPublish,
     root,
     retryInterval,
     heartbeatInterval = 30_000,
@@ -53,7 +50,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
   // Each connection gets its own isolated event emitter so generation events
   // from one session do not bleed into another session's WebSocket stream.
   const hooks = new AsyncEventEmitter<KubbHooks>()
-  let currentSource: 'generate' | 'publish' | undefined
 
   async function reconnect() {
     logger.info(`Retrying connection in ${formatMs(retryInterval)} to Kubb Studio ...`)
@@ -75,7 +71,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     // Effective permissions: always disabled in sandbox mode
     const effectiveAllowAll = isSandbox ? false : allowAll
     const effectiveWrite = isSandbox ? false : allowWrite
-    const effectivePublish = isSandbox ? false : allowPublish
 
     // Tracks whether the studio server explicitly disconnected us (no reconnect needed)
     let serverDisconnected = false
@@ -139,7 +134,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     heartbeatTimer = setInterval(() => sendAgentMessage(ws, { type: 'ping' }), heartbeatInterval)
 
-    setupEventsStream(ws, hooks, () => currentSource)
+    setupEventsStream(ws, hooks)
 
     ws.addEventListener('message', async (message) => {
       try {
@@ -172,7 +167,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
         if (isCommandMessage(data)) {
           if (data.command === 'generate') {
-            currentSource = 'generate'
             const config = await loadConfig(resolvedConfigPath)
 
             // Message payload takes priority over previously saved studio config
@@ -206,7 +200,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
             const generationHooks = new AsyncEventEmitter<KubbHooks>()
             setupHookListener(generationHooks, root)
-            setupEventsStream(ws, generationHooks, () => currentSource)
+            setupEventsStream(ws, generationHooks)
 
             await generate({
               config: {
@@ -227,7 +221,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             })
 
             logger.success(`[${maskedSessionId}] Completed "${data.type}" from Studio`)
-            currentSource = undefined
 
             return
           }
@@ -243,7 +236,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 permissions: {
                   allowAll: effectiveAllowAll,
                   allowWrite: effectiveWrite,
-                  allowPublish: effectivePublish,
                 },
                 config: {
                   plugins: config.plugins.map((plugin) => ({
@@ -255,31 +247,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             })
 
             logger.success(`[${maskedSessionId}] Completed "${data.type}" from Studio`)
-
-            return
-          }
-
-          if (isPublishCommandMessage(data)) {
-            if (!effectivePublish) {
-              logger.warn(`[${maskedSessionId}] Publish command rejected — KUBB_AGENT_ALLOW_PUBLISH is not enabled`)
-              return
-            }
-
-            currentSource = 'publish'
-            const config = await loadConfig(resolvedConfigPath)
-
-            // Command priority: WS payload → env var → default
-            const resolvedCommand = data.payload.command ?? process.env.KUBB_AGENT_PUBLISH_COMMAND ?? 'npm publish'
-
-            await publish({
-              command: resolvedCommand,
-              outputPath: config.output.path,
-              root,
-              hooks,
-            })
-
-            logger.success(`[${maskedSessionId}] Completed "${data.command}" from Studio`)
-            currentSource = undefined
 
             return
           }
