@@ -12,7 +12,17 @@ import {
   createType,
 } from '@kubb/ast'
 import React from 'react'
-import { KUBB_ARROW_FUNCTION, KUBB_CONST, KUBB_EXPORT, KUBB_FILE, KUBB_FUNCTION, KUBB_IMPORT, KUBB_JSX, KUBB_SOURCE, KUBB_TYPE } from './constants.ts'
+import {
+  KUBB_ARROW_FUNCTION,
+  KUBB_CONST,
+  KUBB_EXPORT,
+  KUBB_FILE,
+  KUBB_FUNCTION,
+  KUBB_IMPORT,
+  KUBB_JSX,
+  KUBB_SOURCE,
+  KUBB_TYPE,
+} from './constants.ts'
 import type { KubbReactElement } from './types.ts'
 
 type OnText = (text: string) => void
@@ -56,23 +66,21 @@ function toBool(val: unknown): boolean {
   return (val ?? false) as boolean
 }
 
-function childCodeNodes(props: Record<string, unknown>): CodeNode[] {
+function collectCodeNodes(props: Record<string, unknown>): CodeNode[] {
   const nodes: CodeNode[] = []
-  walkCode(props['children'], nodes)
+  collectCode(props['children'], nodes)
   return nodes
 }
 
-function walkCode(element: unknown, nodes: CodeNode[]): void {
+function collectCode(element: unknown, nodes: CodeNode[]): void {
   walkElement(
     element,
-    (text) => {
-      if (text.trim()) nodes.push(createText(text))
-    },
-    (type, props) => handleCodeNode(type, props, nodes),
+    (text) => { if (text.trim()) nodes.push(createText(text)) },
+    (type, props) => resolveCodeNode(type, props, nodes),
   )
 }
 
-function handleCodeNode(type: string, props: Record<string, unknown>, nodes: CodeNode[]): void {
+function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: CodeNode[]): void {
   if (type === 'br') {
     nodes.push(createBreak())
     return
@@ -80,13 +88,7 @@ function handleCodeNode(type: string, props: Record<string, unknown>, nodes: Cod
 
   if (type === KUBB_JSX) {
     let value = ''
-    walkElement(
-      props['children'],
-      (t) => {
-        value += t
-      },
-      () => {},
-    )
+    walkElement(props['children'], (t) => { value += t }, () => {})
     if (value) nodes.push(createJsx(value))
     return
   }
@@ -102,7 +104,7 @@ function handleCodeNode(type: string, props: Record<string, unknown>, nodes: Cod
         generics: props['generics'] as string | undefined,
         returnType: props['returnType'] as string | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | undefined,
-        nodes: childCodeNodes(props),
+        nodes: collectCodeNodes(props),
       }),
     )
     return
@@ -120,7 +122,7 @@ function handleCodeNode(type: string, props: Record<string, unknown>, nodes: Cod
         returnType: props['returnType'] as string | undefined,
         singleLine: props['singleLine'] as boolean | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | undefined,
-        nodes: childCodeNodes(props),
+        nodes: collectCodeNodes(props),
       } as Omit<ArrowFunctionNode, 'kind'>),
     )
     return
@@ -134,7 +136,7 @@ function handleCodeNode(type: string, props: Record<string, unknown>, nodes: Cod
         export: props['export'] as boolean | undefined,
         asConst: props['asConst'] as boolean | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | undefined,
-        nodes: childCodeNodes(props),
+        nodes: collectCodeNodes(props),
       }),
     )
     return
@@ -146,7 +148,7 @@ function handleCodeNode(type: string, props: Record<string, unknown>, nodes: Cod
         name: props['name'] as string,
         export: props['export'] as boolean | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | undefined,
-        nodes: childCodeNodes(props),
+        nodes: collectCodeNodes(props),
       }),
     )
     return
@@ -155,7 +157,7 @@ function handleCodeNode(type: string, props: Record<string, unknown>, nodes: Cod
 
 type FileChildren = { sources: SourceNode[]; exports: ExportNode[]; imports: ImportNode[] }
 
-function parseFileChildren(element: unknown): FileChildren {
+function collectFileChildren(element: unknown): FileChildren {
   const sources: SourceNode[] = []
   const exports: ExportNode[] = []
   const imports: ImportNode[] = []
@@ -175,7 +177,7 @@ function parseFileChildren(element: unknown): FileChildren {
             isTypeOnly: toBool(props['isTypeOnly']),
             isExportable: toBool(props['isExportable']),
             isIndexable: toBool(props['isIndexable']),
-            nodes: childCodeNodes(props),
+            nodes: collectCodeNodes(props),
           }),
         )
         return
@@ -206,7 +208,7 @@ function parseFileChildren(element: unknown): FileChildren {
         return
       }
 
-      const nested = parseFileChildren(props['children'])
+      const nested = collectFileChildren(props['children'])
       sources.push(...nested.sources)
       exports.push(...nested.exports)
       imports.push(...nested.imports)
@@ -221,7 +223,7 @@ function* walkFiles(element: unknown): Generator<FileNode> {
 
   function onHost(type: string, props: Record<string, unknown>): void {
     if (type === KUBB_FILE && props['baseName'] !== undefined && props['path'] !== undefined) {
-      const { sources, exports, imports } = parseFileChildren(props['children'])
+      const { sources, exports, imports } = collectFileChildren(props['children'])
       files.push({
         baseName: props['baseName'],
         path: props['path'],

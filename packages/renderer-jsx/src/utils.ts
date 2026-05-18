@@ -37,7 +37,7 @@ function toBool(val: unknown): boolean {
  * `kubb-type`, and similar elements are converted into their respective {@link CodeNode}s.
  * Any unrecognized element names are silently skipped.
  */
-function buildCodeNodes(element: DOMElement): CodeNode[] {
+function collectCodeNodes(element: DOMElement): CodeNode[] {
   const result: CodeNode[] = []
 
   for (const child of element.childNodes) {
@@ -64,7 +64,7 @@ function buildCodeNodes(element: DOMElement): CodeNode[] {
             generics: attrs['generics'] as string | undefined,
             returnType: attrs['returnType'] as string | undefined,
             JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
-            nodes: buildCodeNodes(child),
+            nodes: collectCodeNodes(child),
           }),
         )
         break
@@ -82,7 +82,7 @@ function buildCodeNodes(element: DOMElement): CodeNode[] {
             returnType: attrs['returnType'] as string | undefined,
             singleLine: attrs['singleLine'] as boolean | undefined,
             JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
-            nodes: buildCodeNodes(child),
+            nodes: collectCodeNodes(child),
           } as Omit<ArrowFunctionNode, 'kind'>),
         )
         break
@@ -96,7 +96,7 @@ function buildCodeNodes(element: DOMElement): CodeNode[] {
             export: attrs['export'] as boolean | undefined,
             asConst: attrs['asConst'] as boolean | undefined,
             JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
-            nodes: buildCodeNodes(child),
+            nodes: collectCodeNodes(child),
           }),
         )
         break
@@ -108,7 +108,7 @@ function buildCodeNodes(element: DOMElement): CodeNode[] {
             name: attrs['name'] as string,
             export: attrs['export'] as boolean | undefined,
             JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
-            nodes: buildCodeNodes(child),
+            nodes: collectCodeNodes(child),
           }),
         )
         break
@@ -134,7 +134,7 @@ function buildCodeNodes(element: DOMElement): CodeNode[] {
  * their subtrees. Dispatch on `.kind` (`'Source'`, `'Export'`, `'Import'`) to
  * separate the results.
  */
-function* walkFileEntries(node: DOMElement): Generator<SourceNode | ExportNode | ImportNode> {
+function* collectFileEntries(node: DOMElement): Generator<SourceNode | ExportNode | ImportNode> {
   for (const child of node.childNodes) {
     if (!child || child.nodeName === TEXT_NODE_NAME) continue
 
@@ -144,7 +144,7 @@ function* walkFileEntries(node: DOMElement): Generator<SourceNode | ExportNode |
         isTypeOnly: toBool(child.attributes['isTypeOnly']),
         isExportable: toBool(child.attributes['isExportable']),
         isIndexable: toBool(child.attributes['isIndexable']),
-        nodes: buildCodeNodes(child),
+        nodes: collectCodeNodes(child),
       })
       continue
     }
@@ -171,22 +171,22 @@ function* walkFileEntries(node: DOMElement): Generator<SourceNode | ExportNode |
     }
 
     if (nodeNames.has(child.nodeName)) {
-      yield* walkFileEntries(child)
+      yield* collectFileEntries(child)
     }
   }
 }
 
 /**
- * Runs a single {@link walkFileEntries} pass over a `<kubb-file>` DOM element
+ * Runs a single {@link collectFileEntries} pass over a `<kubb-file>` DOM element
  * and assembles the result into a {@link FileNode}, bucketing each yielded
  * node by its `.kind`.
  */
-function buildFileNode(child: DOMElement): FileNode {
+function createFileNode(child: DOMElement): FileNode {
   const sources: SourceNode[] = []
   const exports: ExportNode[] = []
   const imports: ImportNode[] = []
 
-  for (const node of walkFileEntries(child)) {
+  for (const node of collectFileEntries(child)) {
     if (node.kind === 'Source') sources.push(node)
     else if (node.kind === 'Export') exports.push(node)
     else imports.push(node)
@@ -218,7 +218,7 @@ export function* streamFiles(node: DOMElement): Generator<FileNode> {
     }
 
     if (child.nodeName === KUBB_FILE && child.attributes['baseName'] !== undefined && child.attributes['path'] !== undefined) {
-      yield buildFileNode(child)
+      yield createFileNode(child)
     }
   }
 }
@@ -230,6 +230,6 @@ export function* streamFiles(node: DOMElement): Generator<FileNode> {
  * Returns the list of file nodes in document order. Nested files are supported;
  * the walker descends into non-file elements and recurses through them.
  */
-export function processFiles(node: DOMElement): FileNode[] {
+export function collectFiles(node: DOMElement): FileNode[] {
   return [...streamFiles(node)]
 }

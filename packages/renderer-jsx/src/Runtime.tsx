@@ -6,7 +6,7 @@ import { createNode } from './dom.ts'
 import type { FiberRoot } from 'react-reconciler'
 import { Renderer } from './Renderer.ts'
 import type { DOMElement, KubbReactElement } from './types.ts'
-import { processFiles } from './utils.ts'
+import { collectFiles } from './utils.ts'
 
 type Options = {
   /**
@@ -86,7 +86,7 @@ export class Runtime {
           return
         }
 
-        const files = processFiles(this.#rootNode)
+        const files = collectFiles(this.#rootNode)
 
         this.nodes.push(...files)
 
