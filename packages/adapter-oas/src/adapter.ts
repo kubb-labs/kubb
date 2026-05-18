@@ -1,5 +1,3 @@
-import { createHash } from 'node:crypto'
-import { stat } from 'node:fs/promises'
 import { ast, createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import BaseOas from 'oas'
@@ -9,59 +7,6 @@ import { parseDocument, parseFromConfig, validateDocument } from './factory.ts'
 import { createSchemaParser, parseOas } from './parser.ts'
 import { getSchemas, resolveServerUrl } from './resolvers.ts'
 import type { AdapterOas, Document } from './types.ts'
-
-type DocumentCacheEntry = {
-  document: unknown
-  nameMappingEntries: Array<[string, string]>
-  /** File mtime in milliseconds — used to invalidate `type: 'path'` sources. */
-  mtime?: number
-}
-
-function sourceCacheFilename(source: AdapterSource): string {
-  const content = source.type === 'path' ? source.path : JSON.stringify(source.type === 'data' ? source.data : source)
-  return `${createHash('sha256').update(content).digest('hex')}.json`
-}
-
-async function readDocumentCache(source: AdapterSource): Promise<{ document: Document; nameMapping: Map<string, string> } | null> {
-  if (!source.cache) return null
-
-  const raw = await source.cache.getItem(sourceCacheFilename(source))
-  if (!raw) return null
-
-  try {
-    const entry = JSON.parse(raw) as DocumentCacheEntry
-
-    if (source.type === 'path' && entry.mtime !== undefined) {
-      const fileStat = await stat(source.path).catch(() => null)
-      if (!fileStat || fileStat.mtimeMs !== entry.mtime) return null
-    }
-
-    return {
-      document: entry.document as Document,
-      nameMapping: new Map(entry.nameMappingEntries),
-    }
-  } catch {
-    return null
-  }
-}
-
-async function writeDocumentCache(source: AdapterSource, document: Document, nameMapping: Map<string, string>): Promise<void> {
-  if (!source.cache) return
-
-  let mtime: number | undefined
-  if (source.type === 'path') {
-    const fileStat = await stat(source.path).catch(() => null)
-    mtime = fileStat?.mtimeMs
-  }
-
-  const entry: DocumentCacheEntry = {
-    document,
-    nameMappingEntries: [...nameMapping.entries()],
-    mtime,
-  }
-
-  await source.cache.setItem(sourceCacheFilename(source), JSON.stringify(entry))
-}
 
 /**
  * Stable string identifier for the OAS adapter used in Kubb's adapter registry.
@@ -105,21 +50,13 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   let parsedDocument: Document | null = null
   let cachedSchemaObjects: ReturnType<typeof getSchemas>['schemas'] | null = null
 
-  /** Load from memory → disk cache → fresh parse, in that order. */
-  async function ensureDocument(source: AdapterSource): Promise<{ document: Document; fromCache: boolean }> {
-    if (parsedDocument) return { document: parsedDocument, fromCache: true }
-
-    const cached = await readDocumentCache(source)
-    if (cached) {
-      parsedDocument = cached.document
-      nameMapping = cached.nameMapping
-      return { document: parsedDocument, fromCache: true }
-    }
+  async function ensureDocument(source: AdapterSource): Promise<Document> {
+    if (parsedDocument) return parsedDocument
 
     const fresh = await parseFromConfig(source)
     if (validate) await validateDocument(fresh)
     parsedDocument = fresh
-    return { document: fresh, fromCache: false }
+    return fresh
   }
 
   return {
@@ -159,7 +96,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       })
     },
     async parse(source) {
-      const { document, fromCache } = await ensureDocument(source)
+      const document = await ensureDocument(source)
 
       const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
       const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
@@ -178,10 +115,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       // This must happen after parseOas() because legacy enum remapping is finalized there.
       nameMapping = parsedNameMapping
 
-      if (!fromCache) {
-        await writeDocumentCache(source, document, nameMapping)
-      }
-
       const inputNode = ast.createInput({
         ...node,
         meta: {
@@ -195,13 +128,12 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       return inputNode
     },
     async count(source) {
-      const { document, fromCache } = await ensureDocument(source)
+      const document = await ensureDocument(source)
 
       if (!cachedSchemaObjects) {
         const result = getSchemas(document, { contentType })
         cachedSchemaObjects = result.schemas
         nameMapping = result.nameMapping
-        if (!fromCache) await writeDocumentCache(source, document, nameMapping)
       }
 
       const baseOas = new BaseOas(document)
@@ -210,7 +142,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       return { schemas: Object.keys(cachedSchemaObjects).length, operations: operationCount }
     },
     async stream(source) {
-      const { document, fromCache } = await ensureDocument(source)
+      const document = await ensureDocument(source)
 
       const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
       const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
@@ -219,7 +151,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         const result = getSchemas(document, { contentType })
         cachedSchemaObjects = result.schemas
         nameMapping = result.nameMapping
-        if (!fromCache) await writeDocumentCache(source, document, nameMapping)
       }
 
       const schemaObjects = cachedSchemaObjects as ReturnType<typeof getSchemas>['schemas']
