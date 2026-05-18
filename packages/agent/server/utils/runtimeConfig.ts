@@ -28,7 +28,6 @@ export type StudioRuntimeConfig = {
   root: string
   allowAll: boolean
   allowWrite: boolean
-  allowPublish: boolean
   poolSize: number
   hasSecret: boolean
 }
@@ -51,7 +50,6 @@ export function resolveStudioRuntimeConfig(env: NodeJS.ProcessEnv = process.env,
     root,
     allowAll,
     allowWrite: allowAll || parseBooleanEnv(env.KUBB_AGENT_ALLOW_WRITE),
-    allowPublish: allowAll || parseBooleanEnv(env.KUBB_AGENT_ALLOW_PUBLISH),
     poolSize: parsePositiveIntegerEnv(env.KUBB_AGENT_POOL_SIZE, agentDefaults.poolSize),
     hasSecret: Boolean(env.KUBB_AGENT_SECRET),
   }
