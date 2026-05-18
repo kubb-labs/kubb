@@ -152,12 +152,16 @@ describe('jsxRendererSync', () => {
       <>
         <File baseName="first.ts" path="src/first.ts">
           <File.Source name="A" isExportable>
-            <Const export name="A">{'"first"'}</Const>
+            <Const export name="A">
+              {'"first"'}
+            </Const>
           </File.Source>
         </File>
         <File baseName="second.ts" path="src/second.ts">
           <File.Source name="B" isExportable>
-            <Const export name="B">{'"second"'}</Const>
+            <Const export name="B">
+              {'"second"'}
+            </Const>
           </File.Source>
         </File>
       </>
@@ -177,7 +181,9 @@ describe('jsxRendererSync', () => {
           <File.Import name={['z']} path="zod" />
           <File.Export name={['Pet']} path="./models" isTypeOnly />
           <File.Source name="Pet" isExportable isIndexable isTypeOnly>
-            <Type export name="Pet">{'{ id: number; name: string }'}</Type>
+            <Type export name="Pet">
+              {'{ id: number; name: string }'}
+            </Type>
           </File.Source>
         </File>
         <File baseName="client.ts" path="src/client.ts">
