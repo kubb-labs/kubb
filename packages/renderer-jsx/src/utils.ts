@@ -12,7 +12,7 @@ import {
   createType,
 } from '@kubb/ast'
 import { nodeNames, TEXT_NODE_NAME } from './constants.ts'
-import type { DOMElement, DOMNode, ElementNames } from './types.ts'
+import type { DOMElement, DOMNode } from './types.ts'
 
 /**
  * Collect the text and nested AST-node children of a single kubb-* element.
@@ -107,113 +107,84 @@ function collectChildNodes(element: DOMElement): Array<CodeNode> {
   return result
 }
 
-const SOURCE_IGNORES = new Set<ElementNames>(['kubb-export', 'kubb-import'])
-
 /**
- * Traverse `node` and collect all `<kubb-source>` elements, excluding subtrees
- * rooted at `<kubb-export>` or `<kubb-import>` elements.
+ * Single-pass generator that walks the subtree of a `<kubb-file>` element and
+ * yields every `<kubb-source>`, `<kubb-export>`, and `<kubb-import>` node.
+ *
+ * Replaces three separate tree walks (one per node type). Import and export
+ * elements are leaf nodes — they are yielded and not recursed into, which also
+ * naturally prevents source collection from descending into their subtrees
+ * (equivalent to the old `SOURCE_IGNORES` guard).
  */
-function squashSourceNodes(node: DOMElement): SourceNode[] {
-  const sources: SourceNode[] = []
-
-  const walk = (current: DOMElement): void => {
+function* walkFileChildren(node: DOMElement): Generator<SourceNode | ExportNode | ImportNode> {
+  function* walk(current: DOMElement): Generator<SourceNode | ExportNode | ImportNode> {
     for (const child of current.childNodes) {
-      if (!child) {
-        continue
-      }
-
-      if (child.nodeName !== TEXT_NODE_NAME && SOURCE_IGNORES.has(child.nodeName)) {
+      if (!child || child.nodeName === TEXT_NODE_NAME) {
         continue
       }
 
       if (child.nodeName === 'kubb-source') {
-        sources.push(
-          createSource({
-            name: child.attributes['name']?.toString(),
-            isTypeOnly: (child.attributes['isTypeOnly'] ?? false) as boolean,
-            isExportable: (child.attributes['isExportable'] ?? false) as boolean,
-            isIndexable: (child.attributes['isIndexable'] ?? false) as boolean,
-            nodes: collectChildNodes(child),
-          }),
-        )
+        yield createSource({
+          name: child.attributes['name']?.toString(),
+          isTypeOnly: (child.attributes['isTypeOnly'] ?? false) as boolean,
+          isExportable: (child.attributes['isExportable'] ?? false) as boolean,
+          isIndexable: (child.attributes['isIndexable'] ?? false) as boolean,
+          nodes: collectChildNodes(child),
+        })
         continue
-      }
-
-      if (child.nodeName !== TEXT_NODE_NAME && nodeNames.has(child.nodeName)) {
-        walk(child)
-      }
-    }
-  }
-
-  walk(node)
-  return sources
-}
-
-/**
- * Traverse `node` and collect all `<kubb-export>` elements.
- */
-function squashExportNodes(node: DOMElement): ExportNode[] {
-  const exports: ExportNode[] = []
-
-  const walk = (current: DOMElement): void => {
-    for (const child of current.childNodes) {
-      if (!child) {
-        continue
-      }
-
-      if (child.nodeName !== TEXT_NODE_NAME && nodeNames.has(child.nodeName)) {
-        walk(child)
       }
 
       if (child.nodeName === 'kubb-export') {
-        exports.push(
-          createExport({
-            name: child.attributes['name'] as ExportNode['name'],
-            path: child.attributes['path'] as string,
-            isTypeOnly: (child.attributes['isTypeOnly'] ?? false) as boolean,
-            asAlias: (child.attributes['asAlias'] ?? false) as boolean,
-          }),
-        )
-      }
-    }
-  }
-
-  walk(node)
-  return exports
-}
-
-/**
- * Traverse `node` and collect all `<kubb-import>` elements.
- */
-function squashImportNodes(node: DOMElement): ImportNode[] {
-  const imports: ImportNode[] = []
-
-  const walk = (current: DOMElement): void => {
-    for (const child of current.childNodes) {
-      if (!child) {
+        yield createExport({
+          name: child.attributes['name'] as ExportNode['name'],
+          path: child.attributes['path'] as string,
+          isTypeOnly: (child.attributes['isTypeOnly'] ?? false) as boolean,
+          asAlias: (child.attributes['asAlias'] ?? false) as boolean,
+        })
         continue
       }
 
-      if (child.nodeName !== TEXT_NODE_NAME && nodeNames.has(child.nodeName)) {
-        walk(child)
+      if (child.nodeName === 'kubb-import') {
+        yield createImport({
+          name: child.attributes['name'] as ImportNode['name'],
+          path: child.attributes['path'] as string,
+          root: child.attributes['root'] as string | undefined,
+          isTypeOnly: (child.attributes['isTypeOnly'] ?? false) as boolean,
+          isNameSpace: (child.attributes['isNameSpace'] ?? false) as boolean,
+        })
+        continue
       }
 
-      if (child.nodeName === 'kubb-import') {
-        imports.push(
-          createImport({
-            name: child.attributes['name'] as ImportNode['name'],
-            path: child.attributes['path'] as string,
-            root: child.attributes['root'] as string | undefined,
-            isTypeOnly: (child.attributes['isTypeOnly'] ?? false) as boolean,
-            isNameSpace: (child.attributes['isNameSpace'] ?? false) as boolean,
-          }),
-        )
+      if (nodeNames.has(child.nodeName)) {
+        yield* walk(child)
       }
     }
   }
 
-  walk(node)
-  return imports
+  yield* walk(node)
+}
+
+function buildFileNode(child: DOMElement): FileNode {
+  const sources: SourceNode[] = []
+  const exports: ExportNode[] = []
+  const imports: ImportNode[] = []
+
+  for (const node of walkFileChildren(child)) {
+    if (node.kind === 'Source') sources.push(node)
+    else if (node.kind === 'Export') exports.push(node)
+    else imports.push(node)
+  }
+
+  return {
+    baseName: child.attributes['baseName'],
+    path: child.attributes['path'],
+    meta: child.attributes['meta'] || {},
+    footer: child.attributes['footer'],
+    banner: child.attributes['banner'],
+    sources,
+    exports,
+    imports,
+  } as FileNode
 }
 
 /**
@@ -238,16 +209,7 @@ export function processFiles(node: DOMElement): Array<FileNode> {
 
       if (child.nodeName === 'kubb-file') {
         if (child.attributes['baseName'] !== undefined && child.attributes['path'] !== undefined) {
-          collected.push({
-            baseName: child.attributes['baseName'],
-            path: child.attributes['path'],
-            meta: child.attributes['meta'] || {},
-            footer: child.attributes['footer'],
-            banner: child.attributes['banner'],
-            sources: squashSourceNodes(child),
-            exports: squashExportNodes(child),
-            imports: squashImportNodes(child),
-          } as FileNode)
+          collected.push(buildFileNode(child))
         }
       }
     }
@@ -276,16 +238,7 @@ export function* streamFiles(node: DOMElement): Generator<FileNode> {
 
       if (child.nodeName === 'kubb-file') {
         if (child.attributes['baseName'] !== undefined && child.attributes['path'] !== undefined) {
-          yield {
-            baseName: child.attributes['baseName'],
-            path: child.attributes['path'],
-            meta: child.attributes['meta'] || {},
-            footer: child.attributes['footer'],
-            banner: child.attributes['banner'],
-            sources: squashSourceNodes(child),
-            exports: squashExportNodes(child),
-            imports: squashImportNodes(child),
-          } as FileNode
+          yield buildFileNode(child)
         }
       }
     }

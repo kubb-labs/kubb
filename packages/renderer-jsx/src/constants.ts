@@ -26,3 +26,10 @@ export const nodeNames = new Set<ElementNames>([
   'indent',
   'dedent',
 ] as const)
+
+/**
+ * Element names that are skipped when collecting `<kubb-source>` nodes from a
+ * file subtree. Import and export nodes are leaf elements that never contain
+ * nested sources, so their subtrees can be skipped safely.
+ */
+export const SOURCE_IGNORES = new Set<ElementNames>(['kubb-export', 'kubb-import'])
