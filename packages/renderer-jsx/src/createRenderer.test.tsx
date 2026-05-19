@@ -1,3 +1,4 @@
+import type { FileNode } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { Const } from './components/Const.tsx'
 import { File } from './components/File.tsx'
@@ -172,6 +173,56 @@ describe('jsxRendererSync', () => {
     }
 
     expect(order).toEqual(['first.ts', 'second.ts'])
+  })
+
+  it('should yield the first file before evaluating the second component', () => {
+    const callOrder: string[] = []
+
+    function First() {
+      callOrder.push('First called')
+      return (
+        <File baseName="first.ts" path="src/first.ts">
+          <File.Source name="A" isExportable>
+            <Const export name="A">
+              {'"first"'}
+            </Const>
+          </File.Source>
+        </File>
+      )
+    }
+
+    function Second() {
+      callOrder.push('Second called')
+      return (
+        <File baseName="second.ts" path="src/second.ts">
+          <File.Source name="B" isExportable>
+            <Const export name="B">
+              {'"second"'}
+            </Const>
+          </File.Source>
+        </File>
+      )
+    }
+
+    const renderer = jsxRendererSync()
+    const gen = renderer.stream(
+      <>
+        <First />
+        <Second />
+      </>,
+    )
+
+    const result1 = gen.next()
+    expect(result1.done).toBe(false)
+    expect((result1.value as FileNode).baseName).toBe('first.ts')
+    expect(callOrder).toEqual(['First called'])
+
+    const result2 = gen.next()
+    expect(result2.done).toBe(false)
+    expect((result2.value as FileNode).baseName).toBe('second.ts')
+    expect(callOrder).toEqual(['First called', 'Second called'])
+
+    expect(gen.next().done).toBe(true)
   })
 
   it('should stream the same files as render produces', async () => {
