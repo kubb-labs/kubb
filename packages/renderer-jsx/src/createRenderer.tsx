@@ -71,8 +71,10 @@ export const jsxRendererSync = () => {
     get files() {
       return runtime.nodes
     },
-    async *stream(element: KubbReactElement): AsyncGenerator<FileNode> {
-      yield* runtime.stream(element)
+    // Returning a synchronous iterable lets the core renderer consumer skip
+    // the per-file `for await` microtask.
+    stream(element: KubbReactElement): Generator<FileNode> {
+      return runtime.stream(element)
     },
     unmount(_error?: Error | number | null) {},
   }

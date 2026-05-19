@@ -27,9 +27,13 @@ export type Renderer<TElement = unknown> = {
   /**
    * When present, core calls this instead of {@link render} and {@link files},
    * forwarding each file to `FileManager` as soon as it is ready.
-   * Implementing this method enables per-file streaming without buffering the full result set.
+   *
+   * May return either a synchronous {@link Iterable} or an {@link AsyncIterable}.
+   * Synchronous iterables skip the per-yield microtask in the consumer hot path
+   * (used by `jsxRendererSync`); async iterables are used by renderers that need
+   * to await effects between files (used by `jsxRenderer`).
    */
-  stream?(element: TElement): AsyncIterable<FileNode>
+  stream?(element: TElement): Iterable<FileNode> | AsyncIterable<FileNode>
 }
 
 /**
