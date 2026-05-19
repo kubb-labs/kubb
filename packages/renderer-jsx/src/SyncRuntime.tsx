@@ -44,9 +44,13 @@ function walkElement(element: unknown, onText: OnText, onHost: OnHost): void {
 
     if (type === React.Fragment) {
       walkElement(props['children'], onText, onHost)
-    } else if (typeof type === 'function') {
+      return
+    }
+    if (typeof type === 'function') {
       walkElement((type as (p: unknown) => unknown)(props), onText, onHost)
-    } else if (typeof type === 'string') {
+      return
+    }
+    if (typeof type === 'string') {
       onHost(type, props)
     }
   }

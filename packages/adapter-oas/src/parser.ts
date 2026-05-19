@@ -561,18 +561,15 @@ export function createSchemaParser(ctx: OasParserContext) {
       : []
 
     const additionalProperties = schema.additionalProperties
-    let additionalPropertiesNode: ast.SchemaNode | boolean | undefined
-    if (additionalProperties === true) {
-      additionalPropertiesNode = true
-    } else if (additionalProperties && Object.keys(additionalProperties).length > 0) {
-      additionalPropertiesNode = parseSchema({ schema: additionalProperties as SchemaObject }, rawOptions)
-    } else if (additionalProperties === false) {
-      additionalPropertiesNode = false
-    } else if (additionalProperties) {
-      additionalPropertiesNode = ast.createSchema({
-        type: typeOptionMap.get(options.unknownType)!,
-      })
-    }
+    const additionalPropertiesNode: ast.SchemaNode | boolean | undefined = (() => {
+      if (additionalProperties === true) return true
+      if (additionalProperties === false) return false
+      if (additionalProperties && Object.keys(additionalProperties).length > 0) {
+        return parseSchema({ schema: additionalProperties as SchemaObject }, rawOptions)
+      }
+      if (additionalProperties) return ast.createSchema({ type: typeOptionMap.get(options.unknownType)! })
+      return undefined
+    })()
 
     const rawPatternProperties = 'patternProperties' in schema ? schema.patternProperties : undefined
 

@@ -117,23 +117,24 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
     const defaultPlugins = availablePlugins.filter((p) => (initDefaults.plugins as readonly string[]).includes(p.value))
     const pluginLabel = (plugins: PluginOption[]) => styleText('cyan', plugins.map((p) => p.label).join(', '))
 
-    let selectedPlugins: PluginOption[]
-    if (pluginsFlag) {
-      const requested = pluginsFlag
-        .split(',')
-        .map((v) => v.trim())
-        .filter(Boolean)
-      selectedPlugins = availablePlugins.filter((p) => requested.includes(p.value))
-      if (selectedPlugins.length === 0) {
-        selectedPlugins = defaultPlugins
-        clack.log.warn(`No valid plugins found in --plugins value; falling back to default: ${pluginLabel(defaultPlugins)}`)
-      } else {
-        clack.log.info(`Using plugins: ${pluginLabel(selectedPlugins)}`)
+    const selectedPlugins: PluginOption[] = await (async () => {
+      if (pluginsFlag) {
+        const requested = pluginsFlag
+          .split(',')
+          .map((v) => v.trim())
+          .filter(Boolean)
+        const plugins = availablePlugins.filter((p) => requested.includes(p.value))
+        if (plugins.length === 0) {
+          clack.log.warn(`No valid plugins found in --plugins value; falling back to default: ${pluginLabel(defaultPlugins)}`)
+          return defaultPlugins
+        }
+        clack.log.info(`Using plugins: ${pluginLabel(plugins)}`)
+        return plugins
       }
-    } else if (yes) {
-      selectedPlugins = defaultPlugins
-      clack.log.info(`Using plugins: ${pluginLabel(defaultPlugins)}`)
-    } else {
+      if (yes) {
+        clack.log.info(`Using plugins: ${pluginLabel(defaultPlugins)}`)
+        return defaultPlugins
+      }
       const values = await clack.multiselect({
         message: 'Select plugins to use:',
         options: availablePlugins.map(({ value, label, hint }) => ({ value, label, hint })),
@@ -141,8 +142,8 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
         required: true,
       })
       if (clack.isCancel(values)) cancelAndExit()
-      selectedPlugins = availablePlugins.filter((p) => (values as string[]).includes(p.value))
-    }
+      return availablePlugins.filter((p) => (values as string[]).includes(p.value))
+    })()
 
     // Install packages
     const packagesToInstall = ['kubb', ...selectedPlugins.map((p) => p.packageName)]
