@@ -1170,16 +1170,25 @@ type PluginState = {
  * Each plugin still gets independent `plugin:start` / `plugin:end` events and its own
  * timing, but the schema and operation nodes are parsed only once total.
  */
-async function runPluginStreamHooks(
-  inputStreamNode: InputStreamNode,
-  entries: PluginStreamEntry[],
-  driver: PluginDriver,
-  hooks: AsyncEventEmitter<KubbHooks>,
-  config: Config,
-  pluginTimings: Map<string, number>,
-  failedPlugins: Set<{ plugin: Plugin; error: Error }>,
-  flushPendingFiles: () => Promise<void>,
-): Promise<void> {
+async function runPluginStreamHooks({
+  inputStreamNode,
+  entries,
+  driver,
+  hooks,
+  config,
+  pluginTimings,
+  failedPlugins,
+  flushPendingFiles,
+}: {
+  inputStreamNode: InputStreamNode
+  entries: PluginStreamEntry[]
+  driver: PluginDriver
+  hooks: AsyncEventEmitter<KubbHooks>
+  config: Config
+  pluginTimings: Map<string, number>
+  failedPlugins: Set<{ plugin: Plugin; error: Error }>
+  flushPendingFiles: () => Promise<void>
+}): Promise<void> {
   function resolveRendererFor(gen: Generator, state: PluginState): RendererFactory | undefined {
     return gen.renderer === null ? undefined : (gen.renderer ?? state.plugin.renderer ?? state.generatorContext.config.renderer)
   }
@@ -1224,7 +1233,7 @@ async function runPluginStreamHooks(
 
         const raw = gen.schema(transformedNode, ctx)
         const result = isPromise(raw) ? await raw : raw
-        const applied = applyHookResult(result, driver, resolveRendererFor(gen, state))
+        const applied = applyHookResult({ result, driver, rendererFactory: resolveRendererFor(gen, state) })
 
         if (isPromise(applied)) await applied
       }
@@ -1260,7 +1269,7 @@ async function runPluginStreamHooks(
 
         const raw = gen.operation(transformedNode, ctx)
         const result = isPromise(raw) ? await raw : raw
-        const applied = applyHookResult(result, driver, resolveRendererFor(gen, state))
+        const applied = applyHookResult({ result, driver, rendererFactory: resolveRendererFor(gen, state) })
 
         if (isPromise(applied)) await applied
       }
@@ -1304,7 +1313,7 @@ async function runPluginStreamHooks(
         for (const gen of generators) {
           if (!gen.operations) continue
           const result = await gen.operations(collectedOperations, ctx)
-          await applyHookResult(result, driver, resolveRendererFor(gen, state))
+          await applyHookResult({ result, driver, rendererFactory: resolveRendererFor(gen, state) })
         }
 
         await hooks.emit('kubb:generate:operations', collectedOperations, ctx)
@@ -1411,7 +1420,7 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
           .filter((gen) => gen.schema)
           .map(async (gen) => {
             const result = await gen.schema!(transformedNode, ctx)
-            return applyHookResult(result, driver, resolveRenderer(gen))
+            return applyHookResult({ result, driver, rendererFactory: resolveRenderer(gen) })
           }),
       )
 
@@ -1435,7 +1444,7 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
             .filter((gen) => gen.operation)
             .map(async (gen) => {
               const result = await gen.operation!(transformedNode, ctx)
-              return applyHookResult(result, driver, resolveRenderer(gen))
+              return applyHookResult({ result, driver, rendererFactory: resolveRenderer(gen) })
             }),
         )
 
@@ -1450,7 +1459,7 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
     for (const gen of generators) {
       if (!gen.operations) continue
       const result = await gen.operations(collectedOperations, ctx)
-      await applyHookResult(result, driver, resolveRenderer(gen))
+      await applyHookResult({ result, driver, rendererFactory: resolveRenderer(gen) })
     }
 
     await driver.hooks.emit('kubb:generate:operations', collectedOperations, ctx)
@@ -1561,7 +1570,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       }
 
       if (streamPluginEntries.length > 0) {
-        await runPluginStreamHooks(inputStreamNode, streamPluginEntries, driver, hooks, config, pluginTimings, failedPlugins, flushPendingFiles)
+        await runPluginStreamHooks({ inputStreamNode, entries: streamPluginEntries, driver, hooks, config, pluginTimings, failedPlugins, flushPendingFiles })
       }
     } else {
       for (const plugin of driver.plugins.values()) {

@@ -269,44 +269,56 @@ function defaultResolver(name: string, type?: 'file' | 'function' | 'type' | 'co
  * // → { enumType: 'enum' } when operationId matches
  * ```
  */
+const RESOLVE_NULL = Symbol('null')
+const resolveOptionsCache = new WeakMap<object, WeakMap<Node, unknown>>()
+
 export function defaultResolveOptions<TOptions>(
   node: Node,
   { options, exclude = [], include, override = [] }: ResolveOptionsContext<TOptions>,
 ): TOptions | null {
-  if (isOperationNode(node)) {
-    const isExcluded = exclude.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))
-    if (isExcluded) {
-      return null
-    }
-
-    if (include && !include.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))) {
-      return null
-    }
-
-    const overrideOptions = override.find(({ type, pattern }) => matchesOperationPattern(node, type, pattern))?.options
-
-    return { ...options, ...overrideOptions }
+  const optionsKey = options as object
+  let byOptions = resolveOptionsCache.get(optionsKey)
+  if (byOptions) {
+    const cached = byOptions.get(node)
+    if (cached !== undefined) return cached === RESOLVE_NULL ? null : (cached as TOptions)
+  } else {
+    byOptions = new WeakMap()
+    resolveOptionsCache.set(optionsKey, byOptions)
   }
 
-  if (isSchemaNode(node)) {
-    if (exclude.some(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)) {
-      return null
-    }
+  let result: TOptions | null
 
-    if (include) {
+  if (isOperationNode(node)) {
+    if (exclude.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))) {
+      result = null
+    } else if (include && !include.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))) {
+      result = null
+    } else {
+      const overrideOptions = override.find(({ type, pattern }) => matchesOperationPattern(node, type, pattern))?.options
+      result = { ...options, ...overrideOptions }
+    }
+  } else if (isSchemaNode(node)) {
+    if (exclude.some(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)) {
+      result = null
+    } else if (include) {
       const results = include.map(({ type, pattern }) => matchesSchemaPattern(node, type, pattern))
       const applicable = results.filter((r) => r !== null)
       if (applicable.length > 0 && !applicable.includes(true)) {
-        return null
+        result = null
+      } else {
+        const overrideOptions = override.find(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)?.options
+        result = { ...options, ...overrideOptions }
       }
+    } else {
+      const overrideOptions = override.find(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)?.options
+      result = { ...options, ...overrideOptions }
     }
-
-    const overrideOptions = override.find(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)?.options
-
-    return { ...options, ...overrideOptions }
+  } else {
+    result = options
   }
 
-  return options
+  byOptions.set(node, result === null ? RESOLVE_NULL : result)
+  return result
 }
 
 /**

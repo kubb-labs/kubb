@@ -74,16 +74,27 @@ export function isStringType(node: SchemaNode): boolean {
  * the desired casing while preserving `OperationNode.parameters` for other consumers.
  * The input array is not mutated. When `casing` is not set, the original array is returned unchanged.
  */
+const caseParamsCache = new WeakMap<Array<ParameterNode>, Map<string, Array<ParameterNode>>>()
+
 export function caseParams(params: Array<ParameterNode>, casing: 'camelcase' | undefined): Array<ParameterNode> {
-  if (!casing) {
-    return params
+  if (!casing) return params
+
+  let byParams = caseParamsCache.get(params)
+  if (byParams) {
+    const cached = byParams.get(casing)
+    if (cached) return cached
+  } else {
+    byParams = new Map()
+    caseParamsCache.set(params, byParams)
   }
 
-  return params.map((param) => {
+  const result = params.map((param) => {
     const transformed = casing === 'camelcase' || !isValidVarName(param.name) ? camelCase(param.name) : param.name
-
     return { ...param, name: transformed }
   })
+
+  byParams.set(casing, result)
+  return result
 }
 
 /**
@@ -833,12 +844,21 @@ export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: 
  * allowed.has('OrderStatus') // false when no included operation references OrderStatus
  * ```
  */
+const usedSchemaNamesCache = new WeakMap<ReadonlyArray<OperationNode>, WeakMap<ReadonlyArray<SchemaNode>, Set<string>>>()
+
 export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schemas: ReadonlyArray<SchemaNode>): Set<string> {
+  let byOps = usedSchemaNamesCache.get(operations)
+  if (byOps) {
+    const cached = byOps.get(schemas)
+    if (cached) return cached
+  } else {
+    byOps = new WeakMap()
+    usedSchemaNamesCache.set(operations, byOps)
+  }
+
   const schemaMap = new Map<string, SchemaNode>()
   for (const schema of schemas) {
-    if (schema.name) {
-      schemaMap.set(schema.name, schema)
-    }
+    if (schema.name) schemaMap.set(schema.name, schema)
   }
 
   const result = new Set<string>()
@@ -849,9 +869,7 @@ export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>,
       if (!result.has(name)) {
         result.add(name)
         const namedSchema = schemaMap.get(name)
-        if (namedSchema) {
-          visitSchema(namedSchema)
-        }
+        if (namedSchema) visitSchema(namedSchema)
       }
     }
   }
@@ -862,8 +880,12 @@ export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>,
     }
   }
 
+  byOps.set(schemas, result)
   return result
 }
+
+const EMPTY_CIRCULAR_SET = new Set<string>()
+const circularSchemaCache = new WeakMap<ReadonlyArray<SchemaNode>, Set<string>>()
 
 /**
  * Identifies all schemas that participate in circular dependency chains, including direct self-loops.
@@ -908,20 +930,6 @@ export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<str
   circularSchemaCache.set(schemas, circular)
   return circular
 }
-
-/**
- * Shared empty result returned for empty inputs — saves allocating a fresh
- * `Set` for every plugin that calls `findCircularSchemas` in streaming mode
- * (where `inputNode.schemas` is always the synthetic empty array).
- */
-const EMPTY_CIRCULAR_SET = new Set<string>()
-
-/**
- * Build-scoped memoization keyed off the schemas array reference. When the
- * same array is passed multiple times (per-node, per-plugin in batch mode),
- * the second and subsequent calls return the cached result.
- */
-const circularSchemaCache = new WeakMap<ReadonlyArray<SchemaNode>, Set<string>>()
 
 /**
  * Type guard returning `true` when a schema or anything nested within it contains a ref to a circular schema.

@@ -60,13 +60,6 @@ export class PluginDriver {
    * Mutually exclusive with `inputNode` — exactly one is set after adapter setup.
    */
   inputStreamNode: InputStreamNode | undefined = undefined
-  /**
-   * Lazily-built empty input node returned to plugin contexts when only a
-   * stream is available. Cached so repeated `ctx.inputNode` reads from plugins
-   * return the same reference (useful for WeakMap-keyed caches).
-   */
-  syntheticInputNode: InputNode | undefined = undefined
-
   adapter: Adapter | undefined = undefined
   #studioIsOpen = false
 
@@ -239,7 +232,7 @@ export class PluginDriver {
       const schemaHandler = async (node: SchemaNode, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.schema!(node, ctx)
-        await applyHookResult(result, this, resolveRenderer())
+        await applyHookResult({ result, driver: this, rendererFactory: resolveRenderer() })
       }
 
       this.hooks.on('kubb:generate:schema', schemaHandler)
@@ -250,7 +243,7 @@ export class PluginDriver {
       const operationHandler = async (node: OperationNode, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operation!(node, ctx)
-        await applyHookResult(result, this, resolveRenderer())
+        await applyHookResult({ result, driver: this, rendererFactory: resolveRenderer() })
       }
 
       this.hooks.on('kubb:generate:operation', operationHandler)
@@ -261,7 +254,7 @@ export class PluginDriver {
       const operationsHandler = async (nodes: Array<OperationNode>, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operations!(nodes, ctx)
-        await applyHookResult(result, this, resolveRenderer())
+        await applyHookResult({ result, driver: this, rendererFactory: resolveRenderer() })
       }
 
       this.hooks.on('kubb:generate:operations', operationsHandler)
@@ -386,11 +379,8 @@ export class PluginDriver {
         driver.fileManager.upsert(...files)
       },
       get inputNode(): InputNode {
-        // Memoize the synthetic empty node so callers that read it once per
-        // schema/operation (e.g. for `inputNode.schemas`) see a stable reference
-        // and consumers like `findCircularSchemas` can key WeakMaps off it.
         if (driver.inputNode) return driver.inputNode
-        return (driver.syntheticInputNode ??= { kind: 'Input' as const, schemas: [], operations: [], meta: driver.inputStreamNode?.meta })
+        return { kind: 'Input' as const, schemas: [], operations: [], meta: driver.inputStreamNode?.meta }
       },
       get adapter(): Adapter | undefined {
         return driver.adapter
@@ -464,16 +454,19 @@ export class PluginDriver {
  * Pass a `rendererFactory` (e.g. `jsxRenderer` from `@kubb/renderer-jsx`) when the result
  * may be a renderer element. Generators that only return `Array<FileNode>` do not need one.
  */
-export function applyHookResult<TElement = unknown>(
-  result: TElement | Array<FileNode> | void,
-  driver: PluginDriver,
-  rendererFactory?: RendererFactory<TElement>,
-): void | Promise<void> {
+export function applyHookResult<TElement = unknown>({
+  result,
+  driver,
+  rendererFactory,
+}: {
+  result: TElement | Array<FileNode> | void
+  driver: PluginDriver
+  rendererFactory?: RendererFactory<TElement>
+}): void | Promise<void> {
   if (!result) return
 
   if (Array.isArray(result)) {
     driver.fileManager.upsert(...(result as Array<FileNode>))
-
     return
   }
 
@@ -487,17 +480,20 @@ export function applyHookResult<TElement = unknown>(
       driver.fileManager.upsert(file)
     }
     renderer.unmount()
-
     return
   }
-  return applyAsyncRender(renderer, result, driver)
+  return applyAsyncRender({ renderer, result, driver })
 }
 
-async function applyAsyncRender<TElement>(
-  renderer: { render(el: TElement): Promise<void>; files: ReadonlyArray<FileNode>; unmount(): void },
-  result: TElement,
-  driver: PluginDriver,
-): Promise<void> {
+async function applyAsyncRender<TElement>({
+  renderer,
+  result,
+  driver,
+}: {
+  renderer: { render(el: TElement): Promise<void>; files: ReadonlyArray<FileNode>; unmount(): void }
+  result: TElement
+  driver: PluginDriver
+}): Promise<void> {
   await renderer.render(result)
   driver.fileManager.upsert(...renderer.files)
   renderer.unmount()
