@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 import { version as nodeVersion } from 'node:process'
 import type { PossiblePromise } from '@internals/utils'
-import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, URLPath } from '@internals/utils'
+import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, URLPath, isPromise } from '@internals/utils'
 import type { FileNode, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { collectUsedSchemaNames, transform, walk } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
@@ -15,9 +15,6 @@ import type { Parser } from './defineParser.ts'
 import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, NormalizedPlugin, Plugin } from './definePlugin.ts'
 import { FileProcessor } from './FileProcessor.ts'
 
-function isPromise<T>(value: unknown): value is Promise<T> {
-  return value instanceof Promise
-}
 import { applyHookResult, PluginDriver } from './PluginDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 

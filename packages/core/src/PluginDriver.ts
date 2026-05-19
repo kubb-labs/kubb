@@ -482,26 +482,13 @@ export function applyHookResult<TElement = unknown>(
 
   const renderer = rendererFactory()
   if (renderer.stream) {
-    const stream = renderer.stream(result)
-    // Sync iterables avoid the per-yield microtask + Promise return. The JSX
-    // sync renderer takes this branch; async streams fall through.
-    if (Symbol.iterator in stream) {
-      for (const file of stream as Iterable<FileNode>) {
-        driver.fileManager.upsert(file)
-      }
-      renderer.unmount()
-      return
+    for (const file of renderer.stream(result)) {
+      driver.fileManager.upsert(file)
     }
-    return applyAsyncStream(stream as AsyncIterable<FileNode>, driver, renderer)
+    renderer.unmount()
+    return
   }
   return applyAsyncRender(renderer, result, driver)
-}
-
-async function applyAsyncStream(stream: AsyncIterable<FileNode>, driver: PluginDriver, renderer: { unmount(): void }): Promise<void> {
-  for await (const file of stream) {
-    driver.fileManager.upsert(file)
-  }
-  renderer.unmount()
 }
 
 async function applyAsyncRender<TElement>(

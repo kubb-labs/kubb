@@ -1,6 +1,6 @@
 import type { CodeNode, FileNode } from '@kubb/ast'
 import { extractStringsFromNodes } from '@kubb/ast'
-import { AsyncEventEmitter } from '@internals/utils'
+import {AsyncEventEmitter, isPromise} from '@internals/utils'
 import type { Parser } from './defineParser.ts'
 
 type ParseOptions = {
@@ -31,10 +31,6 @@ function joinSources(file: FileNode): string {
     if (s) parts.push(s)
   }
   return parts.join('\n\n')
-}
-
-function isPromise<T>(value: unknown): value is Promise<T> {
-  return value instanceof Promise
 }
 
 /**
