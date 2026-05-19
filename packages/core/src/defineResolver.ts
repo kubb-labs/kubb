@@ -269,8 +269,39 @@ function defaultResolver(name: string, type?: 'file' | 'function' | 'type' | 'co
  * // → { enumType: 'enum' } when operationId matches
  * ```
  */
-const RESOLVE_NULL = Symbol('null')
-const resolveOptionsCache = new WeakMap<object, WeakMap<Node, unknown>>()
+const resolveOptionsCache = new WeakMap<object, WeakMap<Node, { value: unknown }>>()
+
+function computeOptions<TOptions>(
+  node: Node,
+  options: TOptions,
+  exclude: Array<PatternFilter>,
+  include: Array<PatternFilter> | undefined,
+  override: Array<PatternOverride<TOptions>>,
+): TOptions | null {
+  if (isOperationNode(node)) {
+    if (exclude.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))) return null
+    if (include && !include.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))) return null
+
+    const overrideOptions = override.find(({ type, pattern }) => matchesOperationPattern(node, type, pattern))?.options
+
+    return { ...options, ...overrideOptions }
+  }
+
+  if (isSchemaNode(node)) {
+    if (exclude.some(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)) return null
+    if (include) {
+      const results = include.map(({ type, pattern }) => matchesSchemaPattern(node, type, pattern))
+      const applicable = results.filter((r) => r !== null)
+
+      if (applicable.length > 0 && !applicable.includes(true)) return null
+    }
+    const overrideOptions = override.find(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)?.options
+
+    return { ...options, ...overrideOptions }
+  }
+
+  return options
+}
 
 export function defaultResolveOptions<TOptions>(
   node: Node,
@@ -280,44 +311,17 @@ export function defaultResolveOptions<TOptions>(
   let byOptions = resolveOptionsCache.get(optionsKey)
   if (byOptions) {
     const cached = byOptions.get(node)
-    if (cached !== undefined) return cached === RESOLVE_NULL ? null : (cached as TOptions)
+    if (cached !== undefined) return cached.value as TOptions | null
+
   } else {
     byOptions = new WeakMap()
     resolveOptionsCache.set(optionsKey, byOptions)
   }
 
-  let result: TOptions | null
+  const result = computeOptions(node, options, exclude, include, override)
 
-  if (isOperationNode(node)) {
-    if (exclude.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))) {
-      result = null
-    } else if (include && !include.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))) {
-      result = null
-    } else {
-      const overrideOptions = override.find(({ type, pattern }) => matchesOperationPattern(node, type, pattern))?.options
-      result = { ...options, ...overrideOptions }
-    }
-  } else if (isSchemaNode(node)) {
-    if (exclude.some(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)) {
-      result = null
-    } else if (include) {
-      const results = include.map(({ type, pattern }) => matchesSchemaPattern(node, type, pattern))
-      const applicable = results.filter((r) => r !== null)
-      if (applicable.length > 0 && !applicable.includes(true)) {
-        result = null
-      } else {
-        const overrideOptions = override.find(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)?.options
-        result = { ...options, ...overrideOptions }
-      }
-    } else {
-      const overrideOptions = override.find(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)?.options
-      result = { ...options, ...overrideOptions }
-    }
-  } else {
-    result = options
-  }
+  byOptions.set(node, { value: result })
 
-  byOptions.set(node, result === null ? RESOLVE_NULL : result)
   return result
 }
 

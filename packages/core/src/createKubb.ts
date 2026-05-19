@@ -5,7 +5,7 @@ import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, URLPath,
 import type { FileNode, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { collectUsedSchemaNames, transform, walk } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
-import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL, STREAM_FLUSH_EVERY, STREAM_SCHEMA_THRESHOLD } from './constants.ts'
+import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL, STREAM_SCHEMA_THRESHOLD } from './constants.ts'
 import type { Adapter, AdapterSource } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import { createStorage, type Storage } from './createStorage.ts'
@@ -1178,7 +1178,6 @@ async function runPluginStreamHooks({
   config,
   pluginTimings,
   failedPlugins,
-  flushPendingFiles,
 }: {
   inputStreamNode: InputStreamNode
   entries: PluginStreamEntry[]
@@ -1187,7 +1186,6 @@ async function runPluginStreamHooks({
   config: Config
   pluginTimings: Map<string, number>
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
-  flushPendingFiles: () => Promise<void>
 }): Promise<void> {
   function resolveRendererFor(gen: Generator, state: PluginState): RendererFactory | undefined {
     return gen.renderer === null ? undefined : (gen.renderer ?? state.plugin.renderer ?? state.generatorContext.config.renderer)
@@ -1281,18 +1279,11 @@ async function runPluginStreamHooks({
     }
   }
 
-  let schemasProcessed = 0
   for await (const node of inputStreamNode.schemas) {
     // Plugins are dispatched concurrently; per-plugin work (the inner generator
     // loop) stays sequential so `FileManager.upsert` ordering for any single
     // plugin chain remains deterministic.
     await Promise.all(states.map((state) => dispatchSchema(state, node)))
-
-    schemasProcessed++
-
-    if (schemasProcessed % STREAM_FLUSH_EVERY === 0) {
-      await flushPendingFiles()
-    }
   }
 
   const collectedOperations: OperationNode[] = []
@@ -1348,7 +1339,6 @@ async function runPluginStreamHooks({
     })
   }
 
-  await flushPendingFiles()
 }
 
 /**
@@ -1434,22 +1424,22 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
         include,
         override,
       })
-      if (options !== null) {
-        collectedOperations.push(transformedNode)
+      if (options === null) return
 
-        const ctx = { ...generatorContext, options }
+      collectedOperations.push(transformedNode)
 
-        await Promise.all(
-          generators
-            .filter((gen) => gen.operation)
-            .map(async (gen) => {
-              const result = await gen.operation!(transformedNode, ctx)
-              return applyHookResult({ result, driver, rendererFactory: resolveRenderer(gen) })
-            }),
-        )
+      const ctx = { ...generatorContext, options }
 
-        await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
-      }
+      await Promise.all(
+        generators
+          .filter((gen) => gen.operation)
+          .map(async (gen) => {
+            const result = await gen.operation!(transformedNode, ctx)
+            return applyHookResult({ result, driver, rendererFactory: resolveRenderer(gen) })
+          }),
+      )
+
+      await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
     },
   })
 
@@ -1570,7 +1560,8 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       }
 
       if (streamPluginEntries.length > 0) {
-        await runPluginStreamHooks({ inputStreamNode, entries: streamPluginEntries, driver, hooks, config, pluginTimings, failedPlugins, flushPendingFiles })
+        await runPluginStreamHooks({ inputStreamNode, entries: streamPluginEntries, driver, hooks, config, pluginTimings, failedPlugins })
+        await flushPendingFiles()
       }
     } else {
       for (const plugin of driver.plugins.values()) {
