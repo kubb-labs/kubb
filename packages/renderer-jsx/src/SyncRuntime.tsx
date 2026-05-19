@@ -221,28 +221,48 @@ function collectFileChildren(element: unknown): FileChildren {
 }
 
 function* walkFiles(element: unknown): Generator<FileNode> {
-  const files: FileNode[] = []
+  if (element == null || typeof element === 'boolean') return
 
-  function onHost(type: string, props: Record<string, unknown>): void {
-    if (!(type === KUBB_FILE && props['baseName'] !== undefined && props['path'] !== undefined)) {
-      walkElement(props['children'], () => {}, onHost)
-      return
-    }
-    const { sources, exports, imports } = collectFileChildren(props['children'])
-    files.push({
-      baseName: props['baseName'],
-      path: props['path'],
-      meta: props['meta'] || {},
-      footer: props['footer'],
-      banner: props['banner'],
-      sources,
-      exports,
-      imports,
-    } as FileNode)
+  if (typeof element === 'string' || typeof element === 'number' || typeof element === 'bigint') return
+
+  if (Array.isArray(element)) {
+    for (const child of element) yield* walkFiles(child)
+    return
   }
 
-  walkElement(element, () => {}, onHost)
-  yield* files
+  if (typeof element === 'object' && '$$typeof' in element) {
+    const el = element as unknown as React.ReactElement
+    const { type } = el
+    const props = el.props as Record<string, unknown>
+
+    if (type === React.Fragment) {
+      yield* walkFiles(props['children'])
+      return
+    }
+
+    if (typeof type === 'function') {
+      yield* walkFiles((type as (p: unknown) => unknown)(props))
+      return
+    }
+
+    if (typeof type === 'string') {
+      if (type === KUBB_FILE && props['baseName'] !== undefined && props['path'] !== undefined) {
+        const { sources, exports, imports } = collectFileChildren(props['children'])
+        yield {
+          baseName: props['baseName'],
+          path: props['path'],
+          meta: props['meta'] || {},
+          footer: props['footer'],
+          banner: props['banner'],
+          sources,
+          exports,
+          imports,
+        } as FileNode
+      } else {
+        yield* walkFiles(props['children'])
+      }
+    }
+  }
 }
 
 /**
