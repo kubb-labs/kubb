@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import { version as nodeVersion } from 'node:process'
 import type { PossiblePromise } from '@internals/utils'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, URLPath, isPromise } from '@internals/utils'
-import type { FileNode, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
+import type { FileNode, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { collectUsedSchemaNames, transform, walk } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
 import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL, STREAM_SCHEMA_THRESHOLD } from './constants.ts'
@@ -1171,18 +1171,17 @@ type PluginState = {
  * timing, but the schema and operation nodes are parsed only once total.
  */
 async function runPluginStreamHooks({
-  inputStreamNode,
   entries,
   driver,
   pluginTimings,
   failedPlugins,
 }: {
-  inputStreamNode: InputStreamNode
   entries: PluginStreamEntry[]
   driver: PluginDriver
   pluginTimings: Map<string, number>
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
 }): Promise<void> {
+  const inputStreamNode = driver.inputStreamNode!
   function resolveRendererFor(gen: Generator, state: PluginState): RendererFactory | undefined {
     return gen.renderer === null ? undefined : (gen.renderer ?? state.plugin.renderer ?? state.generatorContext.config.renderer)
   }
@@ -1231,8 +1230,7 @@ async function runPluginStreamHooks({
 
         if (isPromise(applied)) await applied
       }
-      const emit = driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
-      if (emit) await emit
+      await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
     } catch (caughtError) {
       state.failed = true
       state.error = caughtError as Error
@@ -1267,8 +1265,7 @@ async function runPluginStreamHooks({
 
         if (isPromise(applied)) await applied
       }
-      const emit = driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
-      if (emit) await emit
+      await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
     } catch (caughtError) {
       state.failed = true
       state.error = caughtError as Error
@@ -1556,7 +1553,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       }
 
       if (streamPluginEntries.length > 0) {
-        await runPluginStreamHooks({ inputStreamNode, entries: streamPluginEntries, driver, pluginTimings, failedPlugins })
+        await runPluginStreamHooks({ entries: streamPluginEntries, driver, pluginTimings, failedPlugins })
         await flushPendingFiles()
       }
     } else {
