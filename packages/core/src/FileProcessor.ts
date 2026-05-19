@@ -33,8 +33,8 @@ function joinSources(file: FileNode): string {
   return parts.join('\n\n')
 }
 
-function isThenable<T>(value: unknown): value is PromiseLike<T> {
-  return typeof value === 'object' && value !== null && typeof (value as { then?: unknown }).then === 'function'
+function isPromise<T>(value: unknown): value is Promise<T> {
+  return value instanceof Promise
 }
 
 /**
@@ -49,7 +49,7 @@ export class FileProcessor {
   /**
    * Returns the parser's result as-is — synchronous parsers (e.g. the default
    * `parserTs`) return a string directly, async parsers return a Promise.
-   * The caller handles both via {@link isThenable}.
+   * The caller handles both via {@link isPromise}.
    */
   parse(file: FileNode, { parsers, extension }: ParseOptions = {}): string | Promise<string> {
     const parseExtName = extension?.[file.extname] || undefined
@@ -80,7 +80,7 @@ export class FileProcessor {
     let processed = 0
     for (const file of files) {
       const result = this.parse(file, options)
-      const source = isThenable<string>(result) ? await result : result
+      const source = isPromise<string>(result) ? await result : result
       processed++
       yield { file, source, processed, total, percentage: (processed / total) * 100 }
     }
@@ -99,7 +99,7 @@ export class FileProcessor {
     let processed = 0
     for (const file of files) {
       const result = this.parse(file, options)
-      if (isThenable<string>(result)) {
+      if (isPromise<string>(result)) {
         throw new Error(`FileProcessor.streamSync: parser for '${file.extname}' returned a Promise; use stream() for async parsers`)
       }
       processed++

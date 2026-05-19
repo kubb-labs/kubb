@@ -15,8 +15,8 @@ import type { Parser } from './defineParser.ts'
 import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, NormalizedPlugin, Plugin } from './definePlugin.ts'
 import { FileProcessor } from './FileProcessor.ts'
 
-function isThenable<T>(value: unknown): value is PromiseLike<T> {
-  return typeof value === 'object' && value !== null && typeof (value as { then?: unknown }).then === 'function'
+function isPromise<T>(value: unknown): value is Promise<T> {
+  return value instanceof Promise
 }
 import { applyHookResult, PluginDriver } from './PluginDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -1082,9 +1082,9 @@ async function runPluginStreamHooks(
       for (const gen of generators) {
         if (!gen.schema) continue
         const raw = gen.schema(transformedNode, ctx)
-        const result = isThenable(raw) ? await raw : raw
+        const result = isPromise(raw) ? await raw : raw
         const applied = applyHookResult(result, driver, resolveRendererFor(gen, state))
-        if (isThenable(applied)) await applied
+        if (isPromise(applied)) await applied
       }
       const emit = driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
       if (emit) await emit
@@ -1112,9 +1112,9 @@ async function runPluginStreamHooks(
       for (const gen of generators) {
         if (!gen.operation) continue
         const raw = gen.operation(transformedNode, ctx)
-        const result = isThenable(raw) ? await raw : raw
+        const result = isPromise(raw) ? await raw : raw
         const applied = applyHookResult(result, driver, resolveRendererFor(gen, state))
-        if (isThenable(applied)) await applied
+        if (isPromise(applied)) await applied
       }
       const emit = driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
       if (emit) await emit
