@@ -14,6 +14,10 @@ import type { Middleware } from './defineMiddleware.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, NormalizedPlugin, Plugin } from './definePlugin.ts'
 import { FileProcessor } from './FileProcessor.ts'
+
+function isThenable<T>(value: unknown): value is PromiseLike<T> {
+  return typeof value === 'object' && value !== null && typeof (value as { then?: unknown }).then === 'function'
+}
 import { applyHookResult, PluginDriver } from './PluginDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 
@@ -1077,10 +1081,13 @@ async function runPluginStreamHooks(
       const ctx = { ...generatorContext, options }
       for (const gen of generators) {
         if (!gen.schema) continue
-        const result = await gen.schema(transformedNode, ctx)
-        await applyHookResult(result, driver, resolveRendererFor(gen, state))
+        const raw = gen.schema(transformedNode, ctx)
+        const result = isThenable(raw) ? await raw : raw
+        const applied = applyHookResult(result, driver, resolveRendererFor(gen, state))
+        if (isThenable(applied)) await applied
       }
-      await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
+      const emit = driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
+      if (emit) await emit
     } catch (caughtError) {
       state.failed = true
       state.error = caughtError as Error
@@ -1104,10 +1111,13 @@ async function runPluginStreamHooks(
       const ctx = { ...generatorContext, options }
       for (const gen of generators) {
         if (!gen.operation) continue
-        const result = await gen.operation(transformedNode, ctx)
-        await applyHookResult(result, driver, resolveRendererFor(gen, state))
+        const raw = gen.operation(transformedNode, ctx)
+        const result = isThenable(raw) ? await raw : raw
+        const applied = applyHookResult(result, driver, resolveRendererFor(gen, state))
+        if (isThenable(applied)) await applied
       }
-      await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
+      const emit = driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
+      if (emit) await emit
     } catch (caughtError) {
       state.failed = true
       state.error = caughtError as Error

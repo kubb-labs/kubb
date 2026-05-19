@@ -464,11 +464,11 @@ export class PluginDriver {
  * Pass a `rendererFactory` (e.g. `jsxRenderer` from `@kubb/renderer-jsx`) when the result
  * may be a renderer element. Generators that only return `Array<FileNode>` do not need one.
  */
-export async function applyHookResult<TElement = unknown>(
+export function applyHookResult<TElement = unknown>(
   result: TElement | Array<FileNode> | void,
   driver: PluginDriver,
   rendererFactory?: RendererFactory<TElement>,
-): Promise<void> {
+): void | Promise<void> {
   if (!result) return
 
   if (Array.isArray(result)) {
@@ -483,20 +483,33 @@ export async function applyHookResult<TElement = unknown>(
   const renderer = rendererFactory()
   if (renderer.stream) {
     const stream = renderer.stream(result)
-    // Sync iterables avoid the per-yield microtask. The JSX sync renderer uses
-    // this path; async-iterable streams fall through to the `for await` loop.
+    // Sync iterables avoid the per-yield microtask + Promise return. The JSX
+    // sync renderer takes this branch; async streams fall through.
     if (Symbol.iterator in stream) {
       for (const file of stream as Iterable<FileNode>) {
         driver.fileManager.upsert(file)
       }
-    } else {
-      for await (const file of stream as AsyncIterable<FileNode>) {
-        driver.fileManager.upsert(file)
-      }
+      renderer.unmount()
+      return
     }
-  } else {
-    await renderer.render(result)
-    driver.fileManager.upsert(...renderer.files)
+    return applyAsyncStream(stream as AsyncIterable<FileNode>, driver, renderer)
   }
+  return applyAsyncRender(renderer, result, driver)
+}
+
+async function applyAsyncStream(stream: AsyncIterable<FileNode>, driver: PluginDriver, renderer: { unmount(): void }): Promise<void> {
+  for await (const file of stream) {
+    driver.fileManager.upsert(file)
+  }
+  renderer.unmount()
+}
+
+async function applyAsyncRender<TElement>(
+  renderer: { render(el: TElement): Promise<void>; files: ReadonlyArray<FileNode>; unmount(): void },
+  result: TElement,
+  driver: PluginDriver,
+): Promise<void> {
+  await renderer.render(result)
+  driver.fileManager.upsert(...renderer.files)
   renderer.unmount()
 }
