@@ -536,17 +536,7 @@ type ExportName = string | Array<ts.Identifier | string>
  * Output matches the TS printer with `omitTrailingSemicolon: true`. Covers every shape
  * produced by {@link createExport}.
  */
-export function emitExport({
-  path,
-  asAlias,
-  isTypeOnly = false,
-  name,
-}: {
-  path: string
-  asAlias?: boolean
-  isTypeOnly?: boolean
-  name?: ExportName
-}): string {
+export function emitExport({ path, asAlias, isTypeOnly = false, name }: { path: string; asAlias?: boolean; isTypeOnly?: boolean; name?: ExportName }): string {
   const typeKw = isTypeOnly ? 'type ' : ''
   const quoted = JSON.stringify(path)
 
