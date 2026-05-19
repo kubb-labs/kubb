@@ -312,7 +312,6 @@ export function defaultResolveOptions<TOptions>(
   if (byOptions) {
     const cached = byOptions.get(node)
     if (cached !== undefined) return cached.value as TOptions | null
-
   } else {
     byOptions = new WeakMap()
     resolveOptionsCache.set(optionsKey, byOptions)

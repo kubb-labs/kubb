@@ -1331,7 +1331,6 @@ async function runPluginStreamHooks({
       logs: [state.failed ? '✗ Plugin start failed' : `✓ Plugin started successfully (${formatMs(duration)})`],
     })
   }
-
 }
 
 /**
