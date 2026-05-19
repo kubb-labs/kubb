@@ -473,6 +473,7 @@ export function applyHookResult<TElement = unknown>(
 
   if (Array.isArray(result)) {
     driver.fileManager.upsert(...(result as Array<FileNode>))
+
     return
   }
 
@@ -486,6 +487,7 @@ export function applyHookResult<TElement = unknown>(
       driver.fileManager.upsert(file)
     }
     renderer.unmount()
+
     return
   }
   return applyAsyncRender(renderer, result, driver)

@@ -481,21 +481,16 @@ declare global {
 
 /**
  * Lifecycle events emitted during Kubb code generation.
- * Use these for logging, progress tracking, and custom integrations.
+ * Attach listeners before calling `setup()` or `build()` to observe and react to build progress.
  *
  * @example
- * ```typescript
- * import type { AsyncEventEmitter } from '@internals/utils'
- * import type { KubbHooks } from '@kubb/core'
- *
- * const hooks: AsyncEventEmitter<KubbHooks> = new AsyncEventEmitter()
- *
- * hooks.on('kubb:lifecycle:start', () => {
+ * ```ts
+ * kubb.hooks.on('kubb:lifecycle:start', () => {
  *   console.log('Starting Kubb generation')
  * })
  *
- * hooks.on('kubb:plugin:end', ({ plugin, duration }) => {
- *   console.log(`Plugin ${plugin.name} completed in ${duration}ms`)
+ * kubb.hooks.on('kubb:plugin:end', ({ plugin, duration }) => {
+ *   console.log(`${plugin.name} completed in ${duration}ms`)
  * })
  * ```
  */
@@ -536,51 +531,96 @@ export interface KubbHooks {
 }
 
 export type KubbBuildStartContext = {
+  /**
+   * Resolved configuration for this build.
+   */
   config: Config
+  /**
+   * Adapter that parsed the input into the universal AST.
+   */
   adapter: Adapter
+  /**
+   * Parsed input node. For streaming builds the node is a synthetic empty shell
+   * with only `meta` populated — use `kubb:generate:schema` / `kubb:generate:operation` to observe individual nodes.
+   */
   inputNode: InputNode
+  /**
+   * Looks up a registered plugin by name, typed by the plugin registry.
+   */
   getPlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
   getPlugin(name: string): Plugin | undefined
+  /**
+   * Snapshot of all files accumulated so far.
+   */
   readonly files: ReadonlyArray<FileNode>
+  /**
+   * Adds or merges one or more files into the file manager.
+   */
   upsertFile: (...files: Array<FileNode>) => void
 }
 
 export type KubbPluginsEndContext = {
+  /**
+   * Resolved configuration for this build.
+   */
   config: Config
+  /**
+   * Snapshot of all files accumulated across all plugins.
+   */
   readonly files: ReadonlyArray<FileNode>
+  /**
+   * Adds or merges one or more files into the file manager.
+   */
   upsertFile: (...files: Array<FileNode>) => void
 }
 
 export type KubbBuildEndContext = {
+  /**
+   * All files generated during this build.
+   */
   files: Array<FileNode>
+  /**
+   * Resolved configuration for this build.
+   */
   config: Config
+  /**
+   * Absolute path to the output directory.
+   */
   outputDir: string
 }
 
 export type KubbLifecycleStartContext = {
+  /**
+   * Current Kubb version string.
+   */
   version: string
 }
 
 export type KubbConfigEndContext = {
+  /**
+   * All resolved configs after defaults are applied.
+   */
   configs: Array<Config>
 }
 
 export type KubbGenerationStartContext = {
+  /**
+   * Resolved configuration for this generation run.
+   */
   config: Config
 }
 
 export type KubbGenerationEndContext = {
+  /**
+   * Resolved configuration for this generation run.
+   */
   config: Config
   /**
-   * Read-only view of the files Kubb wrote during this build.
-   *
-   * Keys are scoped to this run; files from earlier builds are not included.
-   * Reads go directly to `config.storage`, so nothing is buffered in memory.
+   * Read-only view of the files written during this build.
+   * Reads go directly to `config.storage` — nothing extra is held in memory.
    *
    * @example Read a generated file
-   * ```ts
-   * const code = await storage.getItem('/src/gen/pet.ts')
-   * ```
+   * `const code = await storage.getItem('/src/gen/pet.ts')`
    *
    * @example Walk every generated file
    * ```ts
@@ -593,73 +633,178 @@ export type KubbGenerationEndContext = {
 }
 
 export type KubbGenerationSummaryContext = {
+  /**
+   * Resolved configuration for this generation run.
+   */
   config: Config
+  /**
+   * Plugins that threw during generation, paired with their errors.
+   */
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
+  /**
+   * `'success'` when all plugins completed without errors, `'failed'` otherwise.
+   */
   status: 'success' | 'failed'
+  /**
+   * High-resolution start time from `process.hrtime()`.
+   */
   hrStart: [number, number]
+  /**
+   * Total number of files created during this run.
+   */
   filesCreated: number
+  /**
+   * Elapsed milliseconds per plugin, keyed by plugin name.
+   */
   pluginTimings?: Map<Plugin['name'], number>
 }
 
 export type KubbVersionNewContext = {
+  /**
+   * The installed Kubb version.
+   */
   currentVersion: string
+  /**
+   * The newest available version on npm.
+   */
   latestVersion: string
 }
 
 export type KubbInfoContext = {
+  /**
+   * Human-readable info message.
+   */
   message: string
+  /**
+   * Optional supplementary detail.
+   */
   info?: string
 }
 
 export type KubbErrorContext = {
+  /**
+   * The caught error.
+   */
   error: Error
+  /**
+   * Optional structured metadata for additional context.
+   */
   meta?: Record<string, unknown>
 }
 
 export type KubbSuccessContext = {
+  /**
+   * Human-readable success message.
+   */
   message: string
+  /**
+   * Optional supplementary detail.
+   */
   info?: string
 }
 
 export type KubbWarnContext = {
+  /**
+   * Human-readable warning message.
+   */
   message: string
+  /**
+   * Optional supplementary detail.
+   */
   info?: string
 }
 
 export type KubbDebugContext = {
+  /**
+   * Timestamp when the debug entry was created.
+   */
   date: Date
+  /**
+   * One or more log lines to emit.
+   */
   logs: Array<string>
+  /**
+   * Optional source file name associated with this entry.
+   */
   fileName?: string
 }
 
 export type KubbFilesProcessingStartContext = {
+  /**
+   * Files about to be serialised and written.
+   */
   files: Array<FileNode>
 }
 
 export type KubbFileProcessingUpdateContext = {
+  /**
+   * Number of files processed so far in this batch.
+   */
   processed: number
+  /**
+   * Total number of files in this batch.
+   */
   total: number
+  /**
+   * Completion percentage (`0`–`100`).
+   */
   percentage: number
+  /**
+   * Serialised file content, or `undefined` when the file produced no output.
+   */
   source?: string
+  /**
+   * The file that was just processed.
+   */
   file: FileNode
+  /**
+   * Resolved configuration for this build.
+   */
   config: Config
 }
 
 export type KubbFilesProcessingEndContext = {
+  /**
+   * All files that were serialised in this batch.
+   */
   files: Array<FileNode>
 }
 
 export type KubbHookStartContext = {
+  /**
+   * Optional identifier for correlating start/end events.
+   */
   id?: string
+  /**
+   * The shell command that is about to run.
+   */
   command: string
+  /**
+   * Parsed argument list, when available.
+   */
   args?: readonly string[]
 }
 
 export type KubbHookEndContext = {
+  /**
+   * Optional identifier matching the corresponding `kubb:hook:start` event.
+   */
   id?: string
+  /**
+   * The shell command that ran.
+   */
   command: string
+  /**
+   * Parsed argument list, when available.
+   */
   args?: readonly string[]
+  /**
+   * `true` when the command exited with code `0`.
+   */
   success: boolean
+  /**
+   * Error thrown by the command, or `null` on success.
+   */
   error: Error | null
 }
 
@@ -667,9 +812,19 @@ export type KubbHookEndContext = {
  * CLI options derived from command-line flags.
  */
 export type CLIOptions = {
+  /**
+   * Path to the Kubb config file.
+   */
   config?: string
+  /**
+   * Re-run generation whenever input files change.
+   */
   watch?: boolean
-  /** @default 'silent' */
+  /**
+   * Controls how much output the CLI prints.
+   *
+   * @default 'silent'
+   */
   logLevel?: 'silent' | 'info' | 'debug'
 }
 
@@ -690,31 +845,34 @@ type SetupOptions = {
  */
 export type BuildOutput = {
   /**
-   * Plugins that threw during installation, paired with the caught error.
+   * Plugins that threw during generation, paired with their errors.
    */
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
+  /**
+   * All files generated during this build.
+   */
   files: Array<FileNode>
+  /**
+   * The plugin driver that orchestrated this build.
+   */
   driver: PluginDriver
   /**
-   * Elapsed time in milliseconds for each plugin, keyed by plugin name.
+   * Elapsed milliseconds per plugin, keyed by plugin name.
    */
   pluginTimings: Map<string, number>
+  /**
+   * Top-level error when the build threw before completing, otherwise `undefined`.
+   */
   error?: Error
   /**
    * Read-only view of every file written during this build.
-   *
-   * Keys are limited to this run. Reads go straight to `config.storage`,
-   * so nothing extra is held in memory.
+   * Reads go straight to `config.storage` — nothing extra is held in memory.
    *
    * @example Read a generated file
-   * ```ts
-   * const code = await buildOutput.storage.getItem('/src/gen/pet.ts')
-   * ```
+   * `const code = await buildOutput.storage.getItem('/src/gen/pet.ts')`
    *
    * @example List all generated file paths
-   * ```ts
-   * const paths = await buildOutput.storage.getKeys()
-   * ```
+   * `const paths = await buildOutput.storage.getKeys()`
    */
   storage: Storage
 }
@@ -946,19 +1104,10 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
             `  • Operations: ${operationCount}`,
           ],
         })
-      } else {
-        driver.inputNode = await config.adapter.parse(source)
-
-        await hooks.emit('kubb:debug', {
-          date: new Date(),
-          logs: [
-            `✓ Adapter '${config.adapter.name}' resolved InputNode`,
-            `  • Schemas: ${driver.inputNode.schemas.length}`,
-            `  • Operations: ${driver.inputNode.operations.length}`,
-          ],
-        })
       }
-    } else {
+    }
+
+    if (!driver.inputStreamNode) {
       driver.inputNode = await config.adapter.parse(source)
 
       await hooks.emit('kubb:debug', {
@@ -989,16 +1138,6 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
   }
 }
 
-/**
- * Walks the AST and dispatches nodes to a plugin's direct AST hooks
- * (`schema`, `operation`, `operations`).
- *
- * When `include` contains only operation-scoped filters (`tag`, `operationId`, `path`,
- * `method`, `contentType`) and no `schemaName` filter, the function pre-computes the set
- * of top-level schema names transitively reachable from the included operations and skips
- * schemas that fall outside that set. This ensures that component schemas referenced
- * exclusively by excluded operations are not generated.
- */
 type PluginStreamEntry = {
   plugin: NormalizedPlugin
   context: GeneratorContext
@@ -1039,7 +1178,7 @@ async function runPluginStreamHooks(
   config: Config,
   pluginTimings: Map<string, number>,
   failedPlugins: Set<{ plugin: Plugin; error: Error }>,
-  flushPendingFiles: () => Promise<void>,
+  flushPendingFiles: () => Promise<void>
 ): Promise<void> {
   function resolveRendererFor(gen: Generator, state: PluginState): RendererFactory | undefined {
     return gen.renderer === null ? undefined : (gen.renderer ?? state.plugin.renderer ?? state.generatorContext.config.renderer)
@@ -1089,8 +1228,7 @@ async function runPluginStreamHooks(
 
         if (isPromise(applied)) await applied
       }
-      const emit = driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
-
+      const emit = hooks.emit('kubb:generate:schema', transformedNode, ctx)
       if (emit) await emit
     } catch (caughtError) {
       state.failed = true
@@ -1126,10 +1264,8 @@ async function runPluginStreamHooks(
 
         if (isPromise(applied)) await applied
       }
-      const emit = driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
-
+      const emit = hooks.emit('kubb:generate:operation', transformedNode, ctx)
       if (emit) await emit
-
     } catch (caughtError) {
       state.failed = true
       state.error = caughtError as Error
@@ -1171,8 +1307,7 @@ async function runPluginStreamHooks(
           await applyHookResult(result, driver, resolveRendererFor(gen, state))
         }
 
-        await driver.hooks.emit('kubb:generate:operations', collectedOperations, ctx)
-
+        await hooks.emit('kubb:generate:operations', collectedOperations, ctx)
       } catch (caughtError) {
         state.failed = true
         state.error = caughtError as Error
@@ -1207,6 +1342,16 @@ async function runPluginStreamHooks(
   await flushPendingFiles()
 }
 
+/**
+ * Walks the AST and dispatches nodes to a plugin's direct AST hooks
+ * (`schema`, `operation`, `operations`).
+ *
+ * When `include` contains only operation-scoped filters (`tag`, `operationId`, `path`,
+ * `method`, `contentType`) and no `schemaName` filter, the function pre-computes the set
+ * of top-level schema names transitively reachable from the included operations and skips
+ * schemas that fall outside that set. This ensures that component schemas referenced
+ * exclusively by excluded operations are not generated.
+ */
 async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorContext): Promise<void> {
   const { adapter, inputNode, resolver, driver } = context
   const { exclude, include, override } = plugin.options
@@ -1330,8 +1475,8 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   }
   const fileProcessor = new FileProcessor()
 
-  async function flushPendingFiles(snapshot?: ReadonlySet<string>): Promise<void> {
-    const files = driver.fileManager.files.filter((f) => !writtenPaths.has(f.path) && (!snapshot || !snapshot.has(f.path)))
+  async function flushPendingFiles(): Promise<void> {
+    const files = driver.fileManager.files.filter((f) => !writtenPaths.has(f.path))
     if (files.length === 0) {
       return
     }
