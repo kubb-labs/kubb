@@ -5,7 +5,7 @@
 > Contact emails are provided for sponsorship outreach. Where no direct email was found publicly, the best available channel is noted.
 > Kubb versions are sourced directly from `package.json` files in each repository (`^` = compatible with, `~` = approximately, exact = pinned). `—` = could not be determined from public package.json.
 >
-> _Last updated: May 17, 2026_
+> _Last updated: May 19, 2026_
 
 ---
 
@@ -17,6 +17,7 @@
 |---|---|---|---|---|---|
 | **Equinor** | Norwegian multinational energy company (formerly Statoil) | [post@equinor.com](mailto:post@equinor.com) | `^4.37.5` | [mercury](https://github.com/equinor/mercury) | [@equinor](https://github.com/equinor) |
 | **Xata** | Serverless database platform for modern development | [info@xata.io](mailto:info@xata.io) | `4.37.5` | [ts-sdk](https://github.com/xataio/ts-sdk) | [@xataio](https://github.com/xataio) |
+| **Automattic** | Company behind WordPress.com, WooCommerce, Jetpack, Tumblr & Gravatar — one of the world's largest open-source companies | [press@automattic.com](mailto:press@automattic.com) | `^3.15.0` | [mcp-server-gravatar-remote](https://github.com/Automattic/mcp-server-gravatar-remote) | [@Automattic](https://github.com/Automattic) |
 | **NYC Planning** | New York City Department of City Planning (government) | [press@planning.nyc.gov](mailto:press@planning.nyc.gov) | `^4.20.2` / `^4.5.11` | [ae-cp-map](https://github.com/NYCPlanning/ae-cp-map), [ae-zoning-api](https://github.com/NYCPlanning/ae-zoning-api), [ae-remix-template](https://github.com/NYCPlanning/ae-remix-template) | [@NYCPlanning](https://github.com/NYCPlanning) |
 | **StuDocu** | Online study resource sharing platform | [support@studocu.com](mailto:support@studocu.com) | — | [Test-Analytics-Dashboard---Open-Source](https://github.com/StuDocu/Test-Analytics-Dashboard---Open-Source) | [@StuDocu](https://github.com/StuDocu) |
 | **NVDB Vegdata** | Norwegian Public Roads Administration — national road database | GitHub Issues (no public email) | `^4` | [nvdb-openapi-public](https://github.com/nvdb-vegdata/nvdb-openapi-public) | [@nvdb-vegdata](https://github.com/nvdb-vegdata) |
@@ -26,6 +27,7 @@
 | Organization | Description | Contact Email | Kubb Version | Repository | GitHub |
 |---|---|---|---|---|---|
 | **Aembit** | Workload Identity & Access Management (IAM) security company | [press@aembit.io](mailto:press@aembit.io) | `^4.7.4` | [get-credentials](https://github.com/Aembit/get-credentials) | [@Aembit](https://github.com/Aembit) |
+| **Hola Boss AI** | AI agent desktop OS — persistent workstreams combining AI agents with human control, multi-workspace orchestration, and shared runtime environment | [admin@holaboss.ai](mailto:admin@holaboss.ai) | `^3.18.3` | [holaOS](https://github.com/holaboss-ai/holaOS) | [@holaboss-ai](https://github.com/holaboss-ai) |
 | **NumbersStation AI** | AI-powered data tools company | [info@numbersstation.ai](mailto:info@numbersstation.ai) | — | [widget](https://github.com/NumbersStationAI/widget) | [@NumbersStationAI](https://github.com/NumbersStationAI) |
 | **Taco IDE** | Browser-based developer IDE | GitHub Issues (no public email) | — | [taco-ide](https://github.com/taco-ide/taco-ide) | [@taco-ide](https://github.com/taco-ide) |
 | **LenneTech** | German software & web development agency | [info@lenne.tech](mailto:info@lenne.tech) | `^4.37.5` | [nest-base](https://github.com/lenneTech/nest-base) | [@lenneTech](https://github.com/lenneTech) |
@@ -69,6 +71,7 @@ Individual developers identified from package.json usage and the stargazers list
 | Developer | Affiliation / Context | Contact | Kubb Version | Notable Kubb Usage |
 |---|---|---|---|---|
 | [@belgattitude](https://github.com/belgattitude) | Senior developer & open-source contributor | GitHub profile | `4.37.5` | [flowblade](https://github.com/belgattitude/flowblade) — Next.js app example |
+| [@chrisdoc](https://github.com/chrisdoc) | Individual developer | GitHub profile | `^4.37.1` | [hevy-mcp](https://github.com/chrisdoc/hevy-mcp) — MCP server using full Kubb plugin suite (CLI, core, client, faker, oas, ts, zod) |
 | [@divyenduz](https://github.com/divyenduz) | Software engineer (Xata) | via [info@xata.io](mailto:info@xata.io) | — | [trackfootball](https://github.com/divyenduz/trackfootball) |
 | [@IanVS](https://github.com/IanVS) | Senior developer / Storybook maintainer | GitHub profile | — | Multiple Kubb bug reproductions / active tester |
 | [@joaomlneto](https://github.com/joaomlneto) | Researcher / developer | GitHub profile | — | [jitaspace](https://github.com/joaomlneto/jitaspace) — multi-package EVE Online client |
@@ -82,12 +85,12 @@ Individual developers identified from package.json usage and the stargazers list
 
 | Category | Count |
 |---|---|
-| Enterprise / Scale-ups | 5 |
-| Startups & Tech Companies | 10 |
+| Enterprise / Scale-ups | 6 |
+| Startups & Tech Companies | 11 |
 | Web3 / Blockchain | 1 |
 | Education & Community | 4 |
 | Open Source Projects & Teams | 4 |
-| **Total Organizations** | **24+** |
+| **Total Organizations** | **26+** |
 
 ---
 
