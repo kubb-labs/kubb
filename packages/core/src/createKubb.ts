@@ -1174,16 +1174,12 @@ async function runPluginStreamHooks({
   inputStreamNode,
   entries,
   driver,
-  hooks,
-  config,
   pluginTimings,
   failedPlugins,
 }: {
   inputStreamNode: InputStreamNode
   entries: PluginStreamEntry[]
   driver: PluginDriver
-  hooks: AsyncEventEmitter<KubbHooks>
-  config: Config
   pluginTimings: Map<string, number>
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
 }): Promise<void> {
@@ -1235,7 +1231,7 @@ async function runPluginStreamHooks({
 
         if (isPromise(applied)) await applied
       }
-      const emit = hooks.emit('kubb:generate:schema', transformedNode, ctx)
+      const emit = driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
       if (emit) await emit
     } catch (caughtError) {
       state.failed = true
@@ -1271,7 +1267,7 @@ async function runPluginStreamHooks({
 
         if (isPromise(applied)) await applied
       }
-      const emit = hooks.emit('kubb:generate:operation', transformedNode, ctx)
+      const emit = driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
       if (emit) await emit
     } catch (caughtError) {
       state.failed = true
@@ -1307,7 +1303,7 @@ async function runPluginStreamHooks({
           await applyHookResult({ result, driver, rendererFactory: resolveRendererFor(gen, state) })
         }
 
-        await hooks.emit('kubb:generate:operations', collectedOperations, ctx)
+        await driver.hooks.emit('kubb:generate:operations', collectedOperations, ctx)
       } catch (caughtError) {
         state.failed = true
         state.error = caughtError as Error
@@ -1317,12 +1313,12 @@ async function runPluginStreamHooks({
     const duration = getElapsedMs(state.hrStart)
     pluginTimings.set(state.plugin.name, duration)
 
-    await hooks.emit('kubb:plugin:end', {
+    await driver.hooks.emit('kubb:plugin:end', {
       plugin: state.plugin,
       duration,
       success: !state.failed,
       ...(state.failed && state.error ? { error: state.error } : {}),
-      config,
+      config: driver.config,
       get files() {
         return driver.fileManager.files
       },
@@ -1333,7 +1329,7 @@ async function runPluginStreamHooks({
       failedPlugins.add({ plugin: state.plugin, error: state.error })
     }
 
-    await hooks.emit('kubb:debug', {
+    await driver.hooks.emit('kubb:debug', {
       date: new Date(),
       logs: [state.failed ? '✗ Plugin start failed' : `✓ Plugin started successfully (${formatMs(duration)})`],
     })
@@ -1560,7 +1556,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       }
 
       if (streamPluginEntries.length > 0) {
-        await runPluginStreamHooks({ inputStreamNode, entries: streamPluginEntries, driver, hooks, config, pluginTimings, failedPlugins })
+        await runPluginStreamHooks({ inputStreamNode, entries: streamPluginEntries, driver, pluginTimings, failedPlugins })
         await flushPendingFiles()
       }
     } else {
