@@ -115,9 +115,7 @@ export function createSchemaParser(ctx: OasParserContext) {
     let resolvedSchema: ast.SchemaNode | undefined
     const refPath = schema.$ref
     if (refPath && !resolvingRefs.has(refPath)) {
-      if (resolvedRefCache.has(refPath)) {
-        resolvedSchema = resolvedRefCache.get(refPath)
-      } else {
+      if (!resolvedRefCache.has(refPath)) {
         try {
           const referenced = resolveRef<SchemaObject>(document, refPath)
           if (referenced) {
@@ -130,6 +128,7 @@ export function createSchemaParser(ctx: OasParserContext) {
         }
         resolvedRefCache.set(refPath, resolvedSchema)
       }
+      resolvedSchema = resolvedRefCache.get(refPath)
     }
 
     return ast.createSchema({
@@ -539,15 +538,17 @@ export function createSchemaParser(ctx: OasParserContext) {
 
           const resolvedChildName = ast.childName(name, propName)
           const propNode = parseSchema({ schema: resolvedPropSchema, name: resolvedChildName }, rawOptions)
-          let schemaNode = ast.setEnumName(propNode, name, propName, options.enumSuffix)
-
-          const tupleNode = ast.narrowSchema(schemaNode, 'tuple')
-          if (tupleNode?.items) {
-            const namedItems = tupleNode.items.map((item) => ast.setEnumName(item, name, propName, options.enumSuffix))
-            if (namedItems.some((item, i) => item !== tupleNode.items![i])) {
-              schemaNode = { ...tupleNode, items: namedItems }
+          const schemaNode = (() => {
+            const node = ast.setEnumName(propNode, name, propName, options.enumSuffix)
+            const tupleNode = ast.narrowSchema(node, 'tuple')
+            if (tupleNode?.items) {
+              const namedItems = tupleNode.items.map((item) => ast.setEnumName(item, name, propName, options.enumSuffix))
+              if (namedItems.some((item, i) => item !== tupleNode.items![i])) {
+                return { ...tupleNode, items: namedItems }
+              }
             }
-          }
+            return node
+          })()
 
           return ast.createProperty({
             name: propName,

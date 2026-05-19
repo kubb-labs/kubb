@@ -407,11 +407,7 @@ export function transform(node: Node, options: TransformOptions): Node {
 
   switch (node.kind) {
     case 'Input': {
-      let input = node
-      const replaced = visitor.input?.(input, {
-        parent: parent as ParentOf<InputNode>,
-      })
-      if (replaced) input = replaced
+      const input = visitor.input?.(node, { parent: parent as ParentOf<InputNode> }) ?? node
 
       return {
         ...input,
@@ -420,20 +416,11 @@ export function transform(node: Node, options: TransformOptions): Node {
       }
     }
     case 'Output': {
-      let output = node
-      const replaced = visitor.output?.(output, {
-        parent: parent as ParentOf<OutputNode>,
-      })
-      if (replaced) output = replaced
-
+      const output = visitor.output?.(node, { parent: parent as ParentOf<OutputNode> }) ?? node
       return output
     }
     case 'Operation': {
-      let op = node
-      const replaced = visitor.operation?.(op, {
-        parent: parent as ParentOf<OperationNode>,
-      })
-      if (replaced) op = replaced
+      const op = visitor.operation?.(node, { parent: parent as ParentOf<OperationNode> }) ?? node
 
       return {
         ...op,
@@ -451,11 +438,7 @@ export function transform(node: Node, options: TransformOptions): Node {
       }
     }
     case 'Schema': {
-      let schema = node
-      const replaced = visitor.schema?.(schema, {
-        parent: parent as ParentOf<SchemaNode>,
-      })
-      if (replaced) schema = replaced
+      const schema = visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> }) ?? node
 
       const childOptions = { ...options, parent: schema }
 
@@ -476,11 +459,7 @@ export function transform(node: Node, options: TransformOptions): Node {
       } as SchemaNode
     }
     case 'Property': {
-      let prop = node
-      const replaced = visitor.property?.(prop, {
-        parent: parent as ParentOf<PropertyNode>,
-      })
-      if (replaced) prop = replaced
+      const prop = visitor.property?.(node, { parent: parent as ParentOf<PropertyNode> }) ?? node
 
       return createProperty({
         ...prop,
@@ -488,11 +467,7 @@ export function transform(node: Node, options: TransformOptions): Node {
       })
     }
     case 'Parameter': {
-      let param = node
-      const replaced = visitor.parameter?.(param, {
-        parent: parent as ParentOf<ParameterNode>,
-      })
-      if (replaced) param = replaced
+      const param = visitor.parameter?.(node, { parent: parent as ParentOf<ParameterNode> }) ?? node
 
       return createParameter({
         ...param,
@@ -500,11 +475,7 @@ export function transform(node: Node, options: TransformOptions): Node {
       })
     }
     case 'Response': {
-      let response = node
-      const replaced = visitor.response?.(response, {
-        parent: parent as ParentOf<ResponseNode>,
-      })
-      if (replaced) response = replaced
+      const response = visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> }) ?? node
 
       return {
         ...response,

@@ -1208,17 +1208,12 @@ async function runPluginStreamHooks({
     try {
       const { plugin, generatorContext, generators } = state
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-      let options: typeof plugin.options | null
+      const { exclude, include, override } = plugin.options
+      const options: typeof plugin.options | null = state.optionsAreStatic
+        ? plugin.options
+        : generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
 
-      if (state.optionsAreStatic) {
-        options = plugin.options
-      } else {
-        const { exclude, include, override } = plugin.options
-
-        options = generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
-
-        if (options === null) return
-      }
+      if (options === null) return
 
       const ctx = { ...generatorContext, options }
       for (const gen of generators) {
@@ -1242,17 +1237,12 @@ async function runPluginStreamHooks({
     try {
       const { plugin, generatorContext, generators } = state
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-      let options: typeof plugin.options | null
+      const { exclude, include, override } = plugin.options
+      const options: typeof plugin.options | null = state.optionsAreStatic
+        ? plugin.options
+        : generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
 
-      if (state.optionsAreStatic) {
-        options = plugin.options
-      } else {
-        const { exclude, include, override } = plugin.options
-
-        options = generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
-
-        if (options === null) return
-      }
+      if (options === null) return
 
       const ctx = { ...generatorContext, options }
 
@@ -1371,11 +1361,11 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
   const hasOperationBasedIncludes = include?.some(({ type }) => operationFilterTypes.has(type)) ?? false
   const hasSchemaNameIncludes = include?.some(({ type }) => type === 'schemaName') ?? false
 
-  let allowedSchemaNames: Set<string> | undefined
-  if (hasOperationBasedIncludes && !hasSchemaNameIncludes) {
+  const allowedSchemaNames: Set<string> | undefined = (() => {
+    if (!hasOperationBasedIncludes || hasSchemaNameIncludes) return undefined
     const includedOps = inputNode!.operations.filter((op) => resolver.resolveOptions(op, { options: plugin.options, exclude, include, override }) !== null)
-    allowedSchemaNames = collectUsedSchemaNames(includedOps, inputNode!.schemas)
-  }
+    return collectUsedSchemaNames(includedOps, inputNode!.schemas)
+  })()
 
   await walk(inputNode!, {
     depth: 'shallow',
@@ -1530,25 +1520,25 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
 
         if (plugin.generators?.length || driver.hasRegisteredGenerators(plugin.name)) {
           streamPluginEntries.push({ plugin, context, hrStart })
-        } else {
-          // No generators: plugin ran via setup hooks; finish it now.
-          const duration = getElapsedMs(hrStart)
-          pluginTimings.set(plugin.name, duration)
-          await hooks.emit('kubb:plugin:end', {
-            plugin,
-            duration,
-            success: true,
-            config,
-            get files() {
-              return driver.fileManager.files
-            },
-            upsertFile: (...files) => driver.fileManager.upsert(...files),
-          })
-          await hooks.emit('kubb:debug', {
-            date: new Date(),
-            logs: [`✓ Plugin started successfully (${formatMs(duration)})`],
-          })
+          continue
         }
+        // No generators: plugin ran via setup hooks; finish it now.
+        const duration = getElapsedMs(hrStart)
+        pluginTimings.set(plugin.name, duration)
+        await hooks.emit('kubb:plugin:end', {
+          plugin,
+          duration,
+          success: true,
+          config,
+          get files() {
+            return driver.fileManager.files
+          },
+          upsertFile: (...files) => driver.fileManager.upsert(...files),
+        })
+        await hooks.emit('kubb:debug', {
+          date: new Date(),
+          logs: [`✓ Plugin started successfully (${formatMs(duration)})`],
+        })
       }
 
       if (streamPluginEntries.length > 0) {

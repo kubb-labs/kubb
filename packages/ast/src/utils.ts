@@ -80,13 +80,12 @@ export function caseParams(params: Array<ParameterNode>, casing: 'camelcase' | u
   if (!casing) return params
 
   let byParams = caseParamsCache.get(params)
-  if (byParams) {
-    const cached = byParams.get(casing)
-    if (cached) return cached
-  } else {
+  if (!byParams) {
     byParams = new Map()
     caseParamsCache.set(params, byParams)
   }
+  const cached = byParams.get(casing)
+  if (cached) return cached
 
   const result = params.map((param) => {
     const transformed = casing === 'camelcase' || !isValidVarName(param.name) ? camelCase(param.name) : param.name
@@ -848,13 +847,12 @@ const usedSchemaNamesCache = new WeakMap<ReadonlyArray<OperationNode>, WeakMap<R
 
 export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schemas: ReadonlyArray<SchemaNode>): Set<string> {
   let byOps = usedSchemaNamesCache.get(operations)
-  if (byOps) {
-    const cached = byOps.get(schemas)
-    if (cached) return cached
-  } else {
+  if (!byOps) {
     byOps = new WeakMap()
     usedSchemaNamesCache.set(operations, byOps)
   }
+  const cached = byOps.get(schemas)
+  if (cached) return cached
 
   const schemaMap = new Map<string, SchemaNode>()
   for (const schema of schemas) {

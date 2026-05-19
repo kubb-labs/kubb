@@ -314,13 +314,13 @@ function* collectRefs(schema: unknown): Generator<string, void, undefined> {
   if (schema && typeof schema === 'object') {
     for (const key in schema) {
       const value = (schema as Record<string, unknown>)[key]
-      if (key === '$ref' && typeof value === 'string') {
-        if (value.startsWith(SCHEMA_REF_PREFIX)) {
-          const name = value.slice(SCHEMA_REF_PREFIX.length)
-          if (name) yield name
-        }
-      } else {
+      if (!(key === '$ref' && typeof value === 'string')) {
         yield* collectRefs(value)
+        continue
+      }
+      if (value.startsWith(SCHEMA_REF_PREFIX)) {
+        const name = value.slice(SCHEMA_REF_PREFIX.length)
+        if (name) yield name
       }
     }
   }

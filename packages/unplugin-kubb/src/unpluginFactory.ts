@@ -68,11 +68,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
   async function runBuild(ctx: RollupContext) {
     if (!options?.config) {
-      if (ctx.error) {
-        ctx.error?.(`[${name}] Config is not set`)
-      } else {
-        console.error(`[${name}] Config is not set`)
-      }
+      ;(ctx.error ?? console.error)(`[${name}] Config is not set`)
       return
     }
 

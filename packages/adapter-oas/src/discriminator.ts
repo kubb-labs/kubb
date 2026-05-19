@@ -61,14 +61,11 @@ export function buildDiscriminatorChildMap(schemas: ast.SchemaNode[]): Map<strin
       if (!enumValues.length) continue
 
       const existing = childMap.get(refNode.name)
-      if (existing) {
-        existing.enumValues.push(...enumValues)
-      } else {
-        childMap.set(refNode.name, {
-          propertyName: discriminatorPropertyName,
-          enumValues: [...enumValues],
-        })
+      if (!existing) {
+        childMap.set(refNode.name, { propertyName: discriminatorPropertyName, enumValues: [...enumValues] })
+        continue
       }
+      existing.enumValues.push(...enumValues)
     }
   }
 

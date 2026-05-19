@@ -231,19 +231,9 @@ function matchesSchemaPattern(node: SchemaNode, type: string, pattern: string | 
  * - `camelCase` for everything else.
  */
 function defaultResolver(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
-  let resolvedName = camelCase(name)
-
-  if (type === 'file' || type === 'function') {
-    resolvedName = camelCase(name, {
-      isFile: type === 'file',
-    })
-  }
-
-  if (type === 'type') {
-    resolvedName = pascalCase(name)
-  }
-
-  return resolvedName
+  if (type === 'file' || type === 'function') return camelCase(name, { isFile: type === 'file' })
+  if (type === 'type') return pascalCase(name)
+  return camelCase(name)
 }
 
 /**
@@ -309,13 +299,12 @@ export function defaultResolveOptions<TOptions>(
 ): TOptions | null {
   const optionsKey = options as object
   let byOptions = resolveOptionsCache.get(optionsKey)
-  if (byOptions) {
-    const cached = byOptions.get(node)
-    if (cached !== undefined) return cached.value as TOptions | null
-  } else {
+  if (!byOptions) {
     byOptions = new WeakMap()
     resolveOptionsCache.set(optionsKey, byOptions)
   }
+  const cached = byOptions.get(node)
+  if (cached !== undefined) return cached.value as TOptions | null
 
   const result = computeOptions(node, options, exclude, include, override)
 
@@ -375,25 +364,24 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
     return path.resolve(root, output.path)
   }
 
-  let result: string
-
-  if (group && (groupPath || tag)) {
-    const groupValue = group.type === 'path' ? groupPath! : tag!
-    const defaultName =
-      group.type === 'tag'
-        ? ({ group: g }: { group: string }) => `${camelCase(g)}Controller`
-        : ({ group: g }: { group: string }) => {
-            // Strip traversal components (empty, '.', '..') before taking the first meaningful segment.
-            // When every segment is a traversal component (e.g. '../../') we fall back to '' so the
-            // file is placed directly in the output root — the boundary check below ensures safety.
-            const segment = g.split('/').filter((s) => s !== '' && s !== '.' && s !== '..')[0]
-            return segment ? camelCase(segment) : ''
-          }
-    const resolveName = group.name ?? defaultName
-    result = path.resolve(root, output.path, resolveName({ group: groupValue }), baseName)
-  } else {
-    result = path.resolve(root, output.path, baseName)
-  }
+  const result: string = (() => {
+    if (group && (groupPath || tag)) {
+      const groupValue = group.type === 'path' ? groupPath! : tag!
+      const defaultName =
+        group.type === 'tag'
+          ? ({ group: g }: { group: string }) => `${camelCase(g)}Controller`
+          : ({ group: g }: { group: string }) => {
+              // Strip traversal components (empty, '.', '..') before taking the first meaningful segment.
+              // When every segment is a traversal component (e.g. '../../') we fall back to '' so the
+              // file is placed directly in the output root — the boundary check below ensures safety.
+              const segment = g.split('/').filter((s) => s !== '' && s !== '.' && s !== '..')[0]
+              return segment ? camelCase(segment) : ''
+            }
+      const resolveName = group.name ?? defaultName
+      return path.resolve(root, output.path, resolveName({ group: groupValue }), baseName)
+    }
+    return path.resolve(root, output.path, baseName)
+  })()
 
   // Ensure the resolved path stays within the configured output directory.
   // This prevents path traversal from malicious OpenAPI specs or custom group.name functions.

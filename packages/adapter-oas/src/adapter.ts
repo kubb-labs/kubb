@@ -169,8 +169,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       const document = await ensureDocument(source)
       const schemas = await ensureSchemas(document)
 
-      let discriminatorChildMap: Awaited<ReturnType<typeof buildDiscriminatorChildMap>> | null = null
-      if (discriminator === 'inherit') {
+      const discriminatorChildMap: Awaited<ReturnType<typeof buildDiscriminatorChildMap>> | null = (() => {
+        if (discriminator !== 'inherit') return null
         const { parseSchema: _preParser } = ensureSchemaParser(document)
         const parentNodes: ast.SchemaNode[] = []
         for (const [name, schema] of Object.entries(schemas)) {
@@ -178,10 +178,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
             parentNodes.push(_preParser({ schema, name }, parserOptions))
           }
         }
-        if (parentNodes.length > 0) {
-          discriminatorChildMap = buildDiscriminatorChildMap(parentNodes)
-        }
-      }
+        return parentNodes.length > 0 ? buildDiscriminatorChildMap(parentNodes) : null
+      })()
 
       // Each [Symbol.asyncIterator]() call returns a fresh generator so multiple
       // plugins can do independent `for await` passes without shared state.
@@ -191,9 +189,9 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
           return (async function* () {
             const { parseSchema: _parseSchema } = ensureSchemaParser(document)
             for (const [name, schema] of Object.entries(schemas)) {
-              let node = _parseSchema({ schema, name }, parserOptions)
+              const parsedNode = _parseSchema({ schema, name }, parserOptions)
               const entry = discriminatorChildMap?.get(name)
-              if (entry) node = patchDiscriminatorNode(node, entry)
+              const node = entry ? patchDiscriminatorNode(parsedNode, entry) : parsedNode
               yield node
             }
           })()
