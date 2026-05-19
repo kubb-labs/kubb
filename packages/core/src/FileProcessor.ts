@@ -23,10 +23,14 @@ export type ParsedFile = {
 }
 
 function joinSources(file: FileNode): string {
-  return file.sources
-    .map((item) => extractStringsFromNodes(item.nodes as Array<CodeNode>))
-    .filter(Boolean)
-    .join('\n\n')
+  const sources = file.sources
+  if (sources.length === 0) return ''
+  const parts: string[] = []
+  for (const source of sources) {
+    const s = extractStringsFromNodes(source.nodes as Array<CodeNode>)
+    if (s) parts.push(s)
+  }
+  return parts.join('\n\n')
 }
 
 /**

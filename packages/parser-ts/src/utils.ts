@@ -62,7 +62,11 @@ export function resolveOutputPath(path: string, options: { extname?: string } | 
  */
 export function printNodes(nodes: Array<CodeNode> | undefined): string {
   if (!nodes || nodes.length === 0) return ''
-  return nodes.map(printCodeNode).join('\n')
+  const parts: string[] = []
+  for (const node of nodes) {
+    parts.push(printCodeNode(node))
+  }
+  return parts.join('\n')
 }
 
 /**
@@ -116,19 +120,37 @@ export function validateNodes(...nodes: ts.Node[]): void {
 }
 
 /**
+ * Module-scoped TypeScript printer instance. `ts.createPrinter()` is stateless across calls
+ * (it does not mutate the source file) so a single instance can be safely reused for every
+ * `print()` call. Hoisting it out of `print()` avoids re-running the printer initialization
+ * for each file's import/export section.
+ */
+const TS_PRINTER = ts.createPrinter({
+  omitTrailingSemicolon: true,
+  newLine: ts.NewLineKind.LineFeed,
+  removeComments: false,
+  noEmitHelpers: true,
+})
+
+/**
+ * Module-scoped source file used as the print target. `printList` only reads the source
+ * file's compiler options / language version; it never mutates it.
+ */
+const PRINT_SOURCE_FILE = ts.createSourceFile('print.tsx', '', ts.ScriptTarget.ES2022, true, ts.ScriptKind.TSX)
+
+// Pre-warm the printer at module load. The first `printList` call lazily initializes
+// the printer's internal string-builder and identifier tables; doing it once at import
+// time keeps that cost off the critical path for short-lived CLI builds.
+TS_PRINTER.printList(ts.ListFormat.MultiLine, factory.createNodeArray([]), PRINT_SOURCE_FILE)
+
+/**
  * Converts TypeScript/TSX AST nodes to a string using the TypeScript printer.
  */
 export function print(...elements: Array<ts.Node>): string {
-  const sourceFile = ts.createSourceFile('print.tsx', '', ts.ScriptTarget.ES2022, true, ts.ScriptKind.TSX)
+  const filtered = elements.filter(Boolean)
+  if (filtered.length === 0) return ''
 
-  const printer = ts.createPrinter({
-    omitTrailingSemicolon: true,
-    newLine: ts.NewLineKind.LineFeed,
-    removeComments: false,
-    noEmitHelpers: true,
-  })
-
-  const output = printer.printList(ts.ListFormat.MultiLine, factory.createNodeArray(elements.filter(Boolean)), sourceFile)
+  const output = TS_PRINTER.printList(ts.ListFormat.MultiLine, factory.createNodeArray(filtered), PRINT_SOURCE_FILE)
 
   return output.replace(CRLF_PATTERN, '\n')
 }
@@ -359,10 +381,13 @@ export function printCodeNode(node: CodeNode): string {
  * ```
  */
 export function printSource(node: SourceNode): string {
-  if (node.nodes && node.nodes.length > 0) {
-    return node.nodes.map(printCodeNode).join('\n')
+  const nodes = node.nodes
+  if (!nodes || nodes.length === 0) return ''
+  const parts: string[] = []
+  for (const child of nodes) {
+    parts.push(printCodeNode(child as CodeNode))
   }
-  return ''
+  return parts.join('\n')
 }
 
 export function createImport({

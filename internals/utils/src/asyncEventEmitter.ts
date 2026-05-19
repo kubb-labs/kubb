@@ -7,6 +7,12 @@ import { toError } from './errors.ts'
 type AsyncListener<TArgs extends unknown[]> = (...args: TArgs) => void | Promise<void>
 
 /**
+ * Shared resolved promise returned when no listeners are registered.
+ * Avoids allocating a fresh `Promise.resolve()` per emit on cold events.
+ */
+const RESOLVED: Promise<void> = Promise.resolve()
+
+/**
  * Typed `EventEmitter` that awaits all async listeners before resolving.
  * Wraps Node's `EventEmitter` with full TypeScript event-map inference.
  *
@@ -37,13 +43,21 @@ export class AsyncEventEmitter<TEvents extends { [K in keyof TEvents]: unknown[]
    * await emitter.emit('build', 'petstore')
    * ```
    */
-  async emit<TEventName extends keyof TEvents & string>(eventName: TEventName, ...eventArgs: TEvents[TEventName]): Promise<void> {
+  emit<TEventName extends keyof TEvents & string>(eventName: TEventName, ...eventArgs: TEvents[TEventName]): Promise<void> {
     const listeners = this.#emitter.listeners(eventName) as Array<AsyncListener<TEvents[TEventName]>>
 
     if (listeners.length === 0) {
-      return
+      return RESOLVED
     }
 
+    return this.#emitAll(eventName, listeners, eventArgs)
+  }
+
+  async #emitAll<TEventName extends keyof TEvents & string>(
+    eventName: TEventName,
+    listeners: Array<AsyncListener<TEvents[TEventName]>>,
+    eventArgs: TEvents[TEventName],
+  ): Promise<void> {
     for (const listener of listeners) {
       try {
         await listener(...eventArgs)
