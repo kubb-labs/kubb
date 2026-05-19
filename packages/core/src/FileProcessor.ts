@@ -66,7 +66,7 @@ export class FileProcessor {
     for (const file of files) {
       const source = this.parse(file, options)
       processed++
-      
+
       yield { file, source, processed, total, percentage: (processed / total) * 100 }
     }
   }
