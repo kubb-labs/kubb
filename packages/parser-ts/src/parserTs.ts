@@ -17,7 +17,7 @@ export { printArrowFunction, printCodeNode, printConst, printFunction, printJSDo
 export const parserTs: Parser = defineParser({
   name: 'typescript',
   extNames: ['.ts', '.js'],
-  async parse(file, options = { extname: '.ts' }) {
+  parse(file, options = { extname: '.ts' }) {
     const sourceParts: Array<string> = []
     for (const item of file.sources) {
       const sourceStr = printSource(item as SourceNode)
