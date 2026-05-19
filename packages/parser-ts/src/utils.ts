@@ -62,10 +62,13 @@ export function resolveOutputPath(path: string, options: { extname?: string } | 
  */
 export function printNodes(nodes: Array<CodeNode> | undefined): string {
   if (!nodes || nodes.length === 0) return ''
+
   const parts: string[] = []
+
   for (const node of nodes) {
     parts.push(printCodeNode(node))
   }
+
   return parts.join('\n')
 }
 
@@ -382,11 +385,14 @@ export function printCodeNode(node: CodeNode): string {
  */
 export function printSource(node: SourceNode): string {
   const nodes = node.nodes
+
   if (!nodes || nodes.length === 0) return ''
   const parts: string[] = []
+
   for (const child of nodes) {
     parts.push(printCodeNode(child as CodeNode))
   }
+
   return parts.join('\n')
 }
 

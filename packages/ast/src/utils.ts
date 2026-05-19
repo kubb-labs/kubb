@@ -723,13 +723,18 @@ export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): str
       if (node.kind === 'Text') return node.value
       if (node.kind === 'Break') return ''
       if (node.kind === 'Jsx') return node.value
+
       const parts: string[] = []
+
       if ('params' in node && node.params) parts.push(node.params)
       if ('generics' in node && node.generics) parts.push(Array.isArray(node.generics) ? node.generics.join(', ') : node.generics)
       if ('returnType' in node && node.returnType) parts.push(node.returnType)
       if ('type' in node && typeof node.type === 'string') parts.push(node.type)
+
       const nested = extractStringsFromNodes(node.nodes)
+
       if (nested) parts.push(nested)
+
       return parts.join('\n')
     })
     .filter(Boolean)
