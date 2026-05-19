@@ -1,6 +1,8 @@
 import { createArrowFunction, createConst, createFunction, createSource, createText, createType } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import {
+  emitExport,
+  emitImport,
   formatGenerics,
   formatReturnType,
   getRelativePath,
@@ -442,5 +444,65 @@ describe('printSource', () => {
   it('returns empty string when source has no nodes', () => {
     const node = createSource({})
     expect(printSource(node)).toBe('')
+  })
+})
+
+describe('emitImport', () => {
+  it('emits a default import', () => {
+    expect(emitImport({ name: 'Pet', path: './pet' })).toBe('import Pet from "./pet"')
+  })
+
+  it('emits a type-only default import', () => {
+    expect(emitImport({ name: 'Pet', path: './pet', isTypeOnly: true })).toBe('import type Pet from "./pet"')
+  })
+
+  it('emits a namespace import', () => {
+    expect(emitImport({ name: 'pet', path: './pet', isNameSpace: true })).toBe('import * as pet from "./pet"')
+  })
+
+  it('emits a type-only namespace import', () => {
+    expect(emitImport({ name: 'pet', path: './pet', isNameSpace: true, isTypeOnly: true })).toBe('import type * as pet from "./pet"')
+  })
+
+  it('emits named imports', () => {
+    expect(emitImport({ name: ['A', 'B'], path: './pet' })).toBe('import { A, B } from "./pet"')
+  })
+
+  it('emits a named import with alias', () => {
+    expect(emitImport({ name: [{ propertyName: 'A', name: 'B' }], path: './pet' })).toBe('import { A as B } from "./pet"')
+  })
+
+  it('emits a named import without alias when alias is omitted', () => {
+    expect(emitImport({ name: [{ propertyName: 'A' }], path: './pet' })).toBe('import { A } from "./pet"')
+  })
+
+  it('emits type-only named imports', () => {
+    expect(emitImport({ name: ['A', 'B'], path: './pet', isTypeOnly: true })).toBe('import type { A, B } from "./pet"')
+  })
+})
+
+describe('emitExport', () => {
+  it('emits a re-export-all', () => {
+    expect(emitExport({ path: './pet' })).toBe('export * from "./pet"')
+  })
+
+  it('emits a type-only re-export-all', () => {
+    expect(emitExport({ path: './pet', isTypeOnly: true })).toBe('export type * from "./pet"')
+  })
+
+  it('emits a namespaced re-export when asAlias is true', () => {
+    expect(emitExport({ path: './pet', name: 'pet', asAlias: true })).toBe('export * as pet from "./pet"')
+  })
+
+  it('prefixes a leading-digit alias with underscore', () => {
+    expect(emitExport({ path: './pet', name: '4pet', asAlias: true })).toBe('export * as _pet from "./pet"')
+  })
+
+  it('emits named re-exports', () => {
+    expect(emitExport({ path: './pet', name: ['A', 'B'] })).toBe('export { A, B } from "./pet"')
+  })
+
+  it('emits type-only named re-exports', () => {
+    expect(emitExport({ path: './pet', name: ['A'], isTypeOnly: true })).toBe('export type { A } from "./pet"')
   })
 })
