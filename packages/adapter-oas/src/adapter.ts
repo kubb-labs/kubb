@@ -58,6 +58,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   let nameMapping = new Map<string, string>()
   let parsedDocument: Document | null = null
   let schemaObjects: ReturnType<typeof getSchemas>['schemas'] | null = null
+  let baseOasInstance: BaseOas | null = null
+  let schemaParserInstance: ReturnType<typeof createSchemaParser> | null = null
 
   function resolveBaseURL(document: Document): string | undefined {
     const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
@@ -79,6 +81,16 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       nameMapping = result.nameMapping
     }
     return schemaObjects
+  }
+
+  function ensureBaseOas(document: Document): BaseOas {
+    if (!baseOasInstance) baseOasInstance = new BaseOas(document)
+    return baseOasInstance
+  }
+
+  function ensureSchemaParser(document: Document): ReturnType<typeof createSchemaParser> {
+    if (!schemaParserInstance) schemaParserInstance = createSchemaParser({ document, contentType })
+    return schemaParserInstance
   }
 
   return {
@@ -148,7 +160,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       const document = await ensureDocument(source)
       const schemas = await ensureSchemas(document)
 
-      const baseOas = new BaseOas(document)
+      const baseOas = ensureBaseOas(document)
       const operationCount = Object.values(baseOas.getPaths()).flatMap(Object.values).filter(Boolean).length
 
       return { schemas: Object.keys(schemas).length, operations: operationCount }
@@ -157,30 +169,29 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       const document = await ensureDocument(source)
       const schemas = await ensureSchemas(document)
 
-      let discriminatorChildMap: Awaited<ReturnType<typeof buildDiscriminatorChildMap>> | null = null
-      if (discriminator === 'inherit') {
-        const { parseSchema: _preParser } = createSchemaParser({ document, contentType })
+      const discriminatorChildMap: Awaited<ReturnType<typeof buildDiscriminatorChildMap>> | null = (() => {
+        if (discriminator !== 'inherit') return null
+        const { parseSchema: _preParser } = ensureSchemaParser(document)
         const parentNodes: ast.SchemaNode[] = []
         for (const [name, schema] of Object.entries(schemas)) {
           if ((schema.oneOf ?? schema.anyOf) && schema.discriminator?.propertyName) {
             parentNodes.push(_preParser({ schema, name }, parserOptions))
           }
         }
-        if (parentNodes.length > 0) {
-          discriminatorChildMap = buildDiscriminatorChildMap(parentNodes)
-        }
-      }
+        return parentNodes.length > 0 ? buildDiscriminatorChildMap(parentNodes) : null
+      })()
 
       // Each [Symbol.asyncIterator]() call returns a fresh generator so multiple
       // plugins can do independent `for await` passes without shared state.
+      // The underlying parser and BaseOas instance are cached at adapter scope.
       const schemasIterable: AsyncIterable<ast.SchemaNode> = {
         [Symbol.asyncIterator]() {
           return (async function* () {
-            const { parseSchema: _parseSchema } = createSchemaParser({ document, contentType })
+            const { parseSchema: _parseSchema } = ensureSchemaParser(document)
             for (const [name, schema] of Object.entries(schemas)) {
-              let node = _parseSchema({ schema, name }, parserOptions)
+              const parsedNode = _parseSchema({ schema, name }, parserOptions)
               const entry = discriminatorChildMap?.get(name)
-              if (entry) node = patchDiscriminatorNode(node, entry)
+              const node = entry ? patchDiscriminatorNode(parsedNode, entry) : parsedNode
               yield node
             }
           })()
@@ -190,8 +201,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       const operationsIterable: AsyncIterable<ast.OperationNode> = {
         [Symbol.asyncIterator]() {
           return (async function* () {
-            const { parseOperation: _parseOperation } = createSchemaParser({ document, contentType })
-            const baseOas = new BaseOas(document)
+            const { parseOperation: _parseOperation } = ensureSchemaParser(document)
+            const baseOas = ensureBaseOas(document)
             const paths = baseOas.getPaths()
 
             for (const methods of Object.values(paths)) {

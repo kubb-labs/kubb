@@ -27,9 +27,8 @@ export type Renderer<TElement = unknown> = {
   /**
    * When present, core calls this instead of {@link render} and {@link files},
    * forwarding each file to `FileManager` as soon as it is ready.
-   * Implementing this method enables per-file streaming without buffering the full result set.
    */
-  stream?(element: TElement): AsyncIterable<FileNode>
+  stream?(element: TElement): Iterable<FileNode>
 }
 
 /**

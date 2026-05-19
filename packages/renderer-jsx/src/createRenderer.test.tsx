@@ -208,7 +208,7 @@ describe('jsxRendererSync', () => {
     expect(streamed).toEqual(batchRenderer.files)
   })
 
-  it('should propagate errors thrown during stream', async () => {
+  it('should propagate errors thrown during stream', () => {
     const renderer = jsxRendererSync()
     function BadComponent(): never {
       throw new Error('stream error')
@@ -218,7 +218,7 @@ describe('jsxRendererSync', () => {
         <BadComponent />
       </File>,
     )
-    await expect(gen.next()).rejects.toThrow('stream error')
+    expect(() => gen.next()).toThrow('stream error')
   })
 
   it('should accumulate files across multiple render calls', async () => {

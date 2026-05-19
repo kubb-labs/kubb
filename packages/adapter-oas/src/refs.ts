@@ -20,11 +20,8 @@ export function resolveRef<T = unknown>(document: Document, $ref: string): T | n
   if ($ref === '') {
     return null
   }
-  if ($ref.startsWith('#')) {
-    $ref = globalThis.decodeURIComponent($ref.substring(1))
-  } else {
-    return null
-  }
+  if (!$ref.startsWith('#')) return null
+  $ref = globalThis.decodeURIComponent($ref.substring(1))
 
   let docCache = _refCache.get(document)
   if (!docCache) {

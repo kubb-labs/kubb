@@ -23,10 +23,14 @@ export type ParsedFile = {
 }
 
 function joinSources(file: FileNode): string {
-  return file.sources
-    .map((item) => extractStringsFromNodes(item.nodes as Array<CodeNode>))
-    .filter(Boolean)
-    .join('\n\n')
+  const sources = file.sources
+  if (sources.length === 0) return ''
+  const parts: string[] = []
+  for (const source of sources) {
+    const s = extractStringsFromNodes(source.nodes as Array<CodeNode>)
+    if (s) parts.push(s)
+  }
+  return parts.join('\n\n')
 }
 
 /**
@@ -38,7 +42,7 @@ function joinSources(file: FileNode): string {
 export class FileProcessor {
   readonly events = new AsyncEventEmitter<FileProcessorEvents>()
 
-  async parse(file: FileNode, { parsers, extension }: ParseOptions = {}): Promise<string> {
+  parse(file: FileNode, { parsers, extension }: ParseOptions = {}): string {
     const parseExtName = extension?.[file.extname] || undefined
 
     if (!parsers || !file.extname) {
@@ -54,20 +58,15 @@ export class FileProcessor {
     return parser.parse(file, { extname: parseExtName })
   }
 
-  /**
-   * Streams parsed files one at a time as each is processed.
-   *
-   * Unlike `run()`, files are yielded immediately after parsing rather than batched.
-   * Storage writes can begin as soon as the first file is ready, keeping peak
-   * memory proportional to one file at a time instead of the full batch.
-   */
-  async *stream(files: ReadonlyArray<FileNode>, options: ParseOptions = {}): AsyncGenerator<ParsedFile> {
+  *stream(files: ReadonlyArray<FileNode>, options: ParseOptions = {}): Generator<ParsedFile> {
     const total = files.length
-    let processed = 0
+    if (total === 0) return
 
+    let processed = 0
     for (const file of files) {
-      const source = await this.parse(file, options)
+      const source = this.parse(file, options)
       processed++
+
       yield { file, source, processed, total, percentage: (processed / total) * 100 }
     }
   }
@@ -75,7 +74,7 @@ export class FileProcessor {
   async run(files: Array<FileNode>, options: ParseOptions = {}): Promise<Array<FileNode>> {
     await this.events.emit('start', files)
 
-    for await (const { file, source, processed, total, percentage } of this.stream(files, options)) {
+    for (const { file, source, processed, total, percentage } of this.stream(files, options)) {
       await this.events.emit('update', { file, source, processed, percentage, total })
     }
 

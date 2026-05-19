@@ -74,15 +74,12 @@ export const middlewareBarrel = defineMiddleware(() => {
         const configBarrel = config.output.barrel
         const defaultBarrel = { type: 'named' } as const
 
-        let barrelConfig: PluginBarrelConfig | false
-        if (pluginBarrel !== undefined) {
-          barrelConfig = pluginBarrel
-        } else if (configBarrel !== undefined) {
-          // Root config barrel doesn't have nested, so we add it
-          barrelConfig = configBarrel === false ? false : { ...configBarrel, nested: false }
-        } else {
-          barrelConfig = defaultBarrel
-        }
+        // Root config barrel doesn't have nested, so we add it
+        const barrelConfig: PluginBarrelConfig | false = (() => {
+          if (pluginBarrel !== undefined) return pluginBarrel
+          if (configBarrel !== undefined) return configBarrel === false ? false : { ...configBarrel, nested: false }
+          return defaultBarrel
+        })()
 
         if (barrelConfig === false) {
           excludedPrefixes.add(getPluginOutputPrefix(plugin, config))

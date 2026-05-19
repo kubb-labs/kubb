@@ -115,9 +115,7 @@ export function createSchemaParser(ctx: OasParserContext) {
     let resolvedSchema: ast.SchemaNode | undefined
     const refPath = schema.$ref
     if (refPath && !resolvingRefs.has(refPath)) {
-      if (resolvedRefCache.has(refPath)) {
-        resolvedSchema = resolvedRefCache.get(refPath)
-      } else {
+      if (!resolvedRefCache.has(refPath)) {
         try {
           const referenced = resolveRef<SchemaObject>(document, refPath)
           if (referenced) {
@@ -130,6 +128,7 @@ export function createSchemaParser(ctx: OasParserContext) {
         }
         resolvedRefCache.set(refPath, resolvedSchema)
       }
+      resolvedSchema = resolvedRefCache.get(refPath)
     }
 
     return ast.createSchema({
@@ -539,15 +538,17 @@ export function createSchemaParser(ctx: OasParserContext) {
 
           const resolvedChildName = ast.childName(name, propName)
           const propNode = parseSchema({ schema: resolvedPropSchema, name: resolvedChildName }, rawOptions)
-          let schemaNode = ast.setEnumName(propNode, name, propName, options.enumSuffix)
-
-          const tupleNode = ast.narrowSchema(schemaNode, 'tuple')
-          if (tupleNode?.items) {
-            const namedItems = tupleNode.items.map((item) => ast.setEnumName(item, name, propName, options.enumSuffix))
-            if (namedItems.some((item, i) => item !== tupleNode.items![i])) {
-              schemaNode = { ...tupleNode, items: namedItems }
+          const schemaNode = (() => {
+            const node = ast.setEnumName(propNode, name, propName, options.enumSuffix)
+            const tupleNode = ast.narrowSchema(node, 'tuple')
+            if (tupleNode?.items) {
+              const namedItems = tupleNode.items.map((item) => ast.setEnumName(item, name, propName, options.enumSuffix))
+              if (namedItems.some((item, i) => item !== tupleNode.items![i])) {
+                return { ...tupleNode, items: namedItems }
+              }
             }
-          }
+            return node
+          })()
 
           return ast.createProperty({
             name: propName,
@@ -561,18 +562,15 @@ export function createSchemaParser(ctx: OasParserContext) {
       : []
 
     const additionalProperties = schema.additionalProperties
-    let additionalPropertiesNode: ast.SchemaNode | boolean | undefined
-    if (additionalProperties === true) {
-      additionalPropertiesNode = true
-    } else if (additionalProperties && Object.keys(additionalProperties).length > 0) {
-      additionalPropertiesNode = parseSchema({ schema: additionalProperties as SchemaObject }, rawOptions)
-    } else if (additionalProperties === false) {
-      additionalPropertiesNode = false
-    } else if (additionalProperties) {
-      additionalPropertiesNode = ast.createSchema({
-        type: typeOptionMap.get(options.unknownType)!,
-      })
-    }
+    const additionalPropertiesNode: ast.SchemaNode | boolean | undefined = (() => {
+      if (additionalProperties === true) return true
+      if (additionalProperties === false) return false
+      if (additionalProperties && Object.keys(additionalProperties).length > 0) {
+        return parseSchema({ schema: additionalProperties as SchemaObject }, rawOptions)
+      }
+      if (additionalProperties) return ast.createSchema({ type: typeOptionMap.get(options.unknownType)! })
+      return undefined
+    })()
 
     const rawPatternProperties = 'patternProperties' in schema ? schema.patternProperties : undefined
 

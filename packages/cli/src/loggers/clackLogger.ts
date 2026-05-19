@@ -84,9 +84,9 @@ export const clackLogger = defineLogger({
 
       if (state.isSpinning) {
         state.spinner.message(text)
-      } else {
-        clack.log.info(text)
+        return
       }
+      clack.log.info(text)
     })
 
     context.on('kubb:success', ({ message, info = '' }) => {
@@ -98,9 +98,9 @@ export const clackLogger = defineLogger({
 
       if (state.isSpinning) {
         stopSpinner(text)
-      } else {
-        clack.log.success(text)
+        return
       }
+      clack.log.success(text)
     })
 
     context.on('kubb:warn', ({ message, info }) => {
@@ -122,9 +122,9 @@ export const clackLogger = defineLogger({
 
       if (state.isSpinning) {
         stopSpinner(getMessage(text))
-      } else {
-        clack.log.error(getMessage(text))
+        return
       }
+      clack.log.error(getMessage(text))
 
       // Show stack trace in debug mode (first 3 frames)
       if (logLevel >= logLevelMap.debug && error.stack) {

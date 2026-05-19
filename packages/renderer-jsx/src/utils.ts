@@ -187,9 +187,15 @@ function createFileNode(child: DOMElement): FileNode {
   const imports: ImportNode[] = []
 
   for (const node of collectFileEntries(child)) {
-    if (node.kind === 'Source') sources.push(node)
-    else if (node.kind === 'Export') exports.push(node)
-    else imports.push(node)
+    if (node.kind === 'Source') {
+      sources.push(node)
+      continue
+    }
+    if (node.kind === 'Export') {
+      exports.push(node)
+      continue
+    }
+    imports.push(node)
   }
 
   return {

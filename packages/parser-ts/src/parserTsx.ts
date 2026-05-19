@@ -14,7 +14,7 @@ import { parserTs } from './parserTs.ts'
 export const parserTsx: Parser = defineParser({
   name: 'tsx',
   extNames: ['.tsx', '.jsx'],
-  async parse(file, options = { extname: '.tsx' }) {
+  parse(file, options = { extname: '.tsx' }) {
     return parserTs.parse(file, options)
   },
 })

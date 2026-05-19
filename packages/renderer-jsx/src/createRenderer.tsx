@@ -64,6 +64,7 @@ export const jsxRenderer = () => {
  */
 export const jsxRendererSync = () => {
   const runtime = new SyncRuntime()
+
   return {
     async render(element: KubbReactElement): Promise<void> {
       runtime.render(element)
@@ -71,8 +72,8 @@ export const jsxRendererSync = () => {
     get files() {
       return runtime.nodes
     },
-    async *stream(element: KubbReactElement): AsyncGenerator<FileNode> {
-      yield* runtime.stream(element)
+    stream(element: KubbReactElement): Generator<FileNode> {
+      return runtime.stream(element)
     },
     unmount(_error?: Error | number | null) {},
   }

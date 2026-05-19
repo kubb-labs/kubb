@@ -17,7 +17,7 @@ export type Parser<TMeta extends object = any> = {
   /**
    * Convert a resolved file to a string.
    */
-  parse(file: FileNode<TMeta>, options?: PrintOptions): Promise<string> | string
+  parse(file: FileNode<TMeta>, options?: PrintOptions): string
 }
 
 /**

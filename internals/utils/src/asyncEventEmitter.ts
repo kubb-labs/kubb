@@ -37,13 +37,21 @@ export class AsyncEventEmitter<TEvents extends { [K in keyof TEvents]: unknown[]
    * await emitter.emit('build', 'petstore')
    * ```
    */
-  async emit<TEventName extends keyof TEvents & string>(eventName: TEventName, ...eventArgs: TEvents[TEventName]): Promise<void> {
+  emit<TEventName extends keyof TEvents & string>(eventName: TEventName, ...eventArgs: TEvents[TEventName]): Promise<void> | void {
     const listeners = this.#emitter.listeners(eventName) as Array<AsyncListener<TEvents[TEventName]>>
 
     if (listeners.length === 0) {
       return
     }
 
+    return this.#emitAll(eventName, listeners, eventArgs)
+  }
+
+  async #emitAll<TEventName extends keyof TEvents & string>(
+    eventName: TEventName,
+    listeners: Array<AsyncListener<TEvents[TEventName]>>,
+    eventArgs: TEvents[TEventName],
+  ): Promise<void> {
     for (const listener of listeners) {
       try {
         await listener(...eventArgs)

@@ -123,7 +123,7 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
     ...context,
     options: opts.options,
   })
-  await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
+  await applyHookResult({ result, driver: opts.driver, rendererFactory: generator.renderer ?? undefined })
 }
 
 /**
@@ -147,7 +147,7 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
     ...context,
     options: opts.options,
   })
-  await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
+  await applyHookResult({ result, driver: opts.driver, rendererFactory: generator.renderer ?? undefined })
 }
 
 /**
@@ -171,5 +171,5 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
     ...context,
     options: opts.options,
   })
-  await applyHookResult(result, opts.driver, generator.renderer ?? undefined)
+  await applyHookResult({ result, driver: opts.driver, rendererFactory: generator.renderer ?? undefined })
 }

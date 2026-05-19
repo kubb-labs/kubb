@@ -231,19 +231,9 @@ function matchesSchemaPattern(node: SchemaNode, type: string, pattern: string | 
  * - `camelCase` for everything else.
  */
 function defaultResolver(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
-  let resolvedName = camelCase(name)
-
-  if (type === 'file' || type === 'function') {
-    resolvedName = camelCase(name, {
-      isFile: type === 'file',
-    })
-  }
-
-  if (type === 'type') {
-    resolvedName = pascalCase(name)
-  }
-
-  return resolvedName
+  if (type === 'file' || type === 'function') return camelCase(name, { isFile: type === 'file' })
+  if (type === 'type') return pascalCase(name)
+  return camelCase(name)
 }
 
 /**
@@ -269,19 +259,18 @@ function defaultResolver(name: string, type?: 'file' | 'function' | 'type' | 'co
  * // → { enumType: 'enum' } when operationId matches
  * ```
  */
-export function defaultResolveOptions<TOptions>(
+const resolveOptionsCache = new WeakMap<object, WeakMap<Node, { value: unknown }>>()
+
+function computeOptions<TOptions>(
   node: Node,
-  { options, exclude = [], include, override = [] }: ResolveOptionsContext<TOptions>,
+  options: TOptions,
+  exclude: Array<PatternFilter>,
+  include: Array<PatternFilter> | undefined,
+  override: Array<PatternOverride<TOptions>>,
 ): TOptions | null {
   if (isOperationNode(node)) {
-    const isExcluded = exclude.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))
-    if (isExcluded) {
-      return null
-    }
-
-    if (include && !include.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))) {
-      return null
-    }
+    if (exclude.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))) return null
+    if (include && !include.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))) return null
 
     const overrideOptions = override.find(({ type, pattern }) => matchesOperationPattern(node, type, pattern))?.options
 
@@ -289,24 +278,39 @@ export function defaultResolveOptions<TOptions>(
   }
 
   if (isSchemaNode(node)) {
-    if (exclude.some(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)) {
-      return null
-    }
-
+    if (exclude.some(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)) return null
     if (include) {
       const results = include.map(({ type, pattern }) => matchesSchemaPattern(node, type, pattern))
       const applicable = results.filter((r) => r !== null)
-      if (applicable.length > 0 && !applicable.includes(true)) {
-        return null
-      }
-    }
 
+      if (applicable.length > 0 && !applicable.includes(true)) return null
+    }
     const overrideOptions = override.find(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)?.options
 
     return { ...options, ...overrideOptions }
   }
 
   return options
+}
+
+export function defaultResolveOptions<TOptions>(
+  node: Node,
+  { options, exclude = [], include, override = [] }: ResolveOptionsContext<TOptions>,
+): TOptions | null {
+  const optionsKey = options as object
+  let byOptions = resolveOptionsCache.get(optionsKey)
+  if (!byOptions) {
+    byOptions = new WeakMap()
+    resolveOptionsCache.set(optionsKey, byOptions)
+  }
+  const cached = byOptions.get(node)
+  if (cached !== undefined) return cached.value as TOptions | null
+
+  const result = computeOptions(node, options, exclude, include, override)
+
+  byOptions.set(node, { value: result })
+
+  return result
 }
 
 /**
@@ -360,25 +364,24 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
     return path.resolve(root, output.path)
   }
 
-  let result: string
-
-  if (group && (groupPath || tag)) {
-    const groupValue = group.type === 'path' ? groupPath! : tag!
-    const defaultName =
-      group.type === 'tag'
-        ? ({ group: g }: { group: string }) => `${camelCase(g)}Controller`
-        : ({ group: g }: { group: string }) => {
-            // Strip traversal components (empty, '.', '..') before taking the first meaningful segment.
-            // When every segment is a traversal component (e.g. '../../') we fall back to '' so the
-            // file is placed directly in the output root — the boundary check below ensures safety.
-            const segment = g.split('/').filter((s) => s !== '' && s !== '.' && s !== '..')[0]
-            return segment ? camelCase(segment) : ''
-          }
-    const resolveName = group.name ?? defaultName
-    result = path.resolve(root, output.path, resolveName({ group: groupValue }), baseName)
-  } else {
-    result = path.resolve(root, output.path, baseName)
-  }
+  const result: string = (() => {
+    if (group && (groupPath || tag)) {
+      const groupValue = group.type === 'path' ? groupPath! : tag!
+      const defaultName =
+        group.type === 'tag'
+          ? ({ group: g }: { group: string }) => `${camelCase(g)}Controller`
+          : ({ group: g }: { group: string }) => {
+              // Strip traversal components (empty, '.', '..') before taking the first meaningful segment.
+              // When every segment is a traversal component (e.g. '../../') we fall back to '' so the
+              // file is placed directly in the output root — the boundary check below ensures safety.
+              const segment = g.split('/').filter((s) => s !== '' && s !== '.' && s !== '..')[0]
+              return segment ? camelCase(segment) : ''
+            }
+      const resolveName = group.name ?? defaultName
+      return path.resolve(root, output.path, resolveName({ group: groupValue }), baseName)
+    }
+    return path.resolve(root, output.path, baseName)
+  })()
 
   // Ensure the resolved path stays within the configured output directory.
   // This prevents path traversal from malicious OpenAPI specs or custom group.name functions.
@@ -458,17 +461,16 @@ export function buildDefaultBanner({
   config: Config
 }): string {
   try {
-    let source = ''
-    if (Array.isArray(config.input)) {
-      const first = config.input[0]
-      if (first && 'path' in first) {
-        source = path.basename(first.path)
+    const source = (() => {
+      if (Array.isArray(config.input)) {
+        const first = config.input[0]
+        if (first && 'path' in first) return path.basename(first.path)
+        return ''
       }
-    } else if (config.input && 'path' in config.input) {
-      source = path.basename(config.input.path)
-    } else if (config.input && 'data' in config.input) {
-      source = 'text content'
-    }
+      if (config.input && 'path' in config.input) return path.basename(config.input.path)
+      if (config.input && 'data' in config.input) return 'text content'
+      return ''
+    })()
 
     let banner = '/**\n* Generated by Kubb (https://kubb.dev/).\n* Do not edit manually.\n'
 
