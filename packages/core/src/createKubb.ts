@@ -1032,44 +1032,94 @@ async function runPluginStreamHooks(
     hrStart: ReturnType<typeof process.hrtime>
     failed: boolean
     error: Error | undefined
+    /**
+     * `true` when the plugin's options have no `include`, `exclude`, or `override`
+     * filters. The per-node `resolveOptions` call always returns the same `options`
+     * reference in that case, so the inner loop can skip it entirely.
+     */
+    optionsAreStatic: boolean
   }
 
   function resolveRendererFor(gen: Generator, state: PluginState): RendererFactory | undefined {
     return gen.renderer === null ? undefined : (gen.renderer ?? state.plugin.renderer ?? state.generatorContext.config.renderer)
   }
 
-  const states: PluginState[] = entries.map(({ plugin, context, hrStart }) => ({
-    plugin,
-    generatorContext: { ...context, resolver: driver.getResolver(plugin.name) },
-    generators: plugin.generators ?? [],
-    hrStart,
-    failed: false,
-    error: undefined,
-  }))
+  const states: PluginState[] = entries.map(({ plugin, context, hrStart }) => {
+    const { exclude, include, override } = plugin.options
+    const hasExclude = Array.isArray(exclude) && exclude.length > 0
+    const hasInclude = Array.isArray(include) && include.length > 0
+    const hasOverride = Array.isArray(override) && override.length > 0
+    return {
+      plugin,
+      generatorContext: { ...context, resolver: driver.getResolver(plugin.name) },
+      generators: plugin.generators ?? [],
+      hrStart,
+      failed: false,
+      error: undefined,
+      optionsAreStatic: !hasExclude && !hasInclude && !hasOverride,
+    }
+  })
+
+  async function dispatchSchema(state: PluginState, node: SchemaNode): Promise<void> {
+    if (state.failed) return
+    try {
+      const { plugin, generatorContext, generators } = state
+      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
+      let options: typeof plugin.options | null
+      if (state.optionsAreStatic) {
+        options = plugin.options
+      } else {
+        const { exclude, include, override } = plugin.options
+        options = generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
+        if (options === null) return
+      }
+
+      const ctx = { ...generatorContext, options }
+      for (const gen of generators) {
+        if (!gen.schema) continue
+        const result = await gen.schema(transformedNode, ctx)
+        await applyHookResult(result, driver, resolveRendererFor(gen, state))
+      }
+      await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
+    } catch (caughtError) {
+      state.failed = true
+      state.error = caughtError as Error
+    }
+  }
+
+  async function dispatchOperation(state: PluginState, node: OperationNode): Promise<void> {
+    if (state.failed) return
+    try {
+      const { plugin, generatorContext, generators } = state
+      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
+      let options: typeof plugin.options | null
+      if (state.optionsAreStatic) {
+        options = plugin.options
+      } else {
+        const { exclude, include, override } = plugin.options
+        options = generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
+        if (options === null) return
+      }
+
+      const ctx = { ...generatorContext, options }
+      for (const gen of generators) {
+        if (!gen.operation) continue
+        const result = await gen.operation(transformedNode, ctx)
+        await applyHookResult(result, driver, resolveRendererFor(gen, state))
+      }
+      await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
+    } catch (caughtError) {
+      state.failed = true
+      state.error = caughtError as Error
+    }
+  }
 
   let schemasProcessed = 0
   for await (const node of inputStreamNode.schemas) {
-    for (const state of states) {
-      if (state.failed) continue
-      try {
-        const { plugin, generatorContext, generators } = state
-        const { exclude, include, override } = plugin.options
-        const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-        const options = generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
-        if (options === null) continue
-
-        const ctx = { ...generatorContext, options }
-        for (const gen of generators) {
-          if (!gen.schema) continue
-          const result = await gen.schema(transformedNode, ctx)
-          await applyHookResult(result, driver, resolveRendererFor(gen, state))
-        }
-        await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
-      } catch (caughtError) {
-        state.failed = true
-        state.error = caughtError as Error
-      }
-    }
+    // Plugins are dispatched concurrently; per-plugin work (the inner generator
+    // loop) stays sequential so `FileManager.upsert` ordering for any single
+    // plugin chain remains deterministic.
+    await Promise.all(states.map((state) => dispatchSchema(state, node)))
     schemasProcessed++
     if (schemasProcessed % STREAM_FLUSH_EVERY === 0) {
       await flushPendingFiles()
@@ -1079,27 +1129,7 @@ async function runPluginStreamHooks(
   const collectedOperations: OperationNode[] = []
   for await (const node of inputStreamNode.operations) {
     collectedOperations.push(node)
-    for (const state of states) {
-      if (state.failed) continue
-      try {
-        const { plugin, generatorContext, generators } = state
-        const { exclude, include, override } = plugin.options
-        const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-        const options = generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
-        if (options === null) continue
-
-        const ctx = { ...generatorContext, options }
-        for (const gen of generators) {
-          if (!gen.operation) continue
-          const result = await gen.operation(transformedNode, ctx)
-          await applyHookResult(result, driver, resolveRendererFor(gen, state))
-        }
-        await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
-      } catch (caughtError) {
-        state.failed = true
-        state.error = caughtError as Error
-      }
-    }
+    await Promise.all(states.map((state) => dispatchOperation(state, node)))
   }
 
   // After stream: gen.operations for each plugin, then emit plugin:end
