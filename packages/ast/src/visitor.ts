@@ -266,39 +266,46 @@ export type CollectOptions<T> = CollectVisitor<T> & {
  * ```
  */
 function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undefined> {
-  switch (node.kind) {
-    case 'Input':
-      yield* node.schemas
-      yield* node.operations
-      break
-    case 'Output':
-      break
-    case 'Operation':
-      yield* node.parameters
-      if (node.requestBody?.content) {
-        for (const c of node.requestBody.content) {
-          if (c.schema) yield c.schema
-        }
+  if (node.kind === 'Input') {
+    yield* node.schemas
+    yield* node.operations
+
+    return
+  }
+  if (node.kind === 'Output') return
+  if (node.kind === 'Operation') {
+    yield* node.parameters
+    if (node.requestBody?.content) {
+      for (const c of node.requestBody.content) {
+        if (c.schema) yield c.schema
       }
-      yield* node.responses
-      break
-    case 'Schema': {
-      if (!recurse) break
-      if ('properties' in node && node.properties.length > 0) yield* node.properties
-      if ('items' in node && node.items) yield* node.items
-      if ('members' in node && node.members) yield* node.members
-      if ('additionalProperties' in node && node.additionalProperties && node.additionalProperties !== true) yield node.additionalProperties
-      break
     }
-    case 'Property':
-      yield node.schema
-      break
-    case 'Parameter':
-      yield node.schema
-      break
-    case 'Response':
-      if (node.schema) yield node.schema
-      break
+    yield* node.responses
+
+    return
+  }
+  if (node.kind === 'Schema') {
+    if (!recurse) return
+    if ('properties' in node && node.properties.length > 0) yield* node.properties
+    if ('items' in node && node.items) yield* node.items
+    if ('members' in node && node.members) yield* node.members
+    if ('additionalProperties' in node && node.additionalProperties && node.additionalProperties !== true) yield node.additionalProperties
+
+    return
+  }
+  if (node.kind === 'Property') {
+    yield node.schema
+
+    return
+  }
+  if (node.kind === 'Parameter') {
+    yield node.schema
+
+    return
+  }
+  if (node.kind === 'Response') {
+    if (node.schema) yield node.schema
+    return
   }
 }
 
@@ -338,11 +345,7 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
       await limit(() => visitor.output?.(node, { parent: parent as ParentOf<OutputNode> }))
       break
     case 'Operation':
-      await limit(() =>
-        visitor.operation?.(node, {
-          parent: parent as ParentOf<OperationNode>,
-        }),
-      )
+      await limit(() => visitor.operation?.(node, { parent: parent as ParentOf<OperationNode> }))
       break
     case 'Schema':
       await limit(() => visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> }))
@@ -351,18 +354,10 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
       await limit(() => visitor.property?.(node, { parent: parent as ParentOf<PropertyNode> }))
       break
     case 'Parameter':
-      await limit(() =>
-        visitor.parameter?.(node, {
-          parent: parent as ParentOf<ParameterNode>,
-        }),
-      )
+      await limit(() => visitor.parameter?.(node, { parent: parent as ParentOf<ParameterNode> }))
       break
     case 'Response':
       await limit(() => visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> }))
-      break
-    case 'FunctionParameter':
-    case 'ParameterGroup':
-    case 'FunctionParameters':
       break
   }
 
@@ -405,91 +400,89 @@ export function transform(node: Node, options: TransformOptions): Node {
   const { depth, parent, ...visitor } = options
   const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
 
-  switch (node.kind) {
-    case 'Input': {
-      const input = visitor.input?.(node, { parent: parent as ParentOf<InputNode> }) ?? node
+  if (node.kind === 'Input') {
+    const input = visitor.input?.(node, { parent: parent as ParentOf<InputNode> }) ?? node
 
-      return {
-        ...input,
-        schemas: input.schemas.map((s) => transform(s, { ...options, parent: input })),
-        operations: input.operations.map((op) => transform(op, { ...options, parent: input })),
-      }
+    return {
+      ...input,
+      schemas: input.schemas.map((s) => transform(s, { ...options, parent: input })),
+      operations: input.operations.map((op) => transform(op, { ...options, parent: input })),
     }
-    case 'Output': {
-      const output = visitor.output?.(node, { parent: parent as ParentOf<OutputNode> }) ?? node
-      return output
-    }
-    case 'Operation': {
-      const op = visitor.operation?.(node, { parent: parent as ParentOf<OperationNode> }) ?? node
-
-      return {
-        ...op,
-        parameters: op.parameters.map((p) => transform(p, { ...options, parent: op })),
-        requestBody: op.requestBody
-          ? {
-              ...op.requestBody,
-              content: op.requestBody.content?.map((c) => ({
-                ...c,
-                schema: c.schema ? transform(c.schema, { ...options, parent: op }) : undefined,
-              })),
-            }
-          : undefined,
-        responses: op.responses.map((r) => transform(r, { ...options, parent: op })),
-      }
-    }
-    case 'Schema': {
-      const schema = visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> }) ?? node
-
-      const childOptions = { ...options, parent: schema }
-
-      return {
-        ...schema,
-        ...('properties' in schema && recurse
-          ? {
-              properties: schema.properties.map((p) => transform(p, childOptions)),
-            }
-          : {}),
-        ...('items' in schema && recurse ? { items: schema.items?.map((i) => transform(i, childOptions)) } : {}),
-        ...('members' in schema && recurse ? { members: schema.members?.map((m) => transform(m, childOptions)) } : {}),
-        ...('additionalProperties' in schema && recurse && schema.additionalProperties && schema.additionalProperties !== true
-          ? {
-              additionalProperties: transform(schema.additionalProperties, childOptions),
-            }
-          : {}),
-      } as SchemaNode
-    }
-    case 'Property': {
-      const prop = visitor.property?.(node, { parent: parent as ParentOf<PropertyNode> }) ?? node
-
-      return createProperty({
-        ...prop,
-        schema: transform(prop.schema, { ...options, parent: prop }),
-      })
-    }
-    case 'Parameter': {
-      const param = visitor.parameter?.(node, { parent: parent as ParentOf<ParameterNode> }) ?? node
-
-      return createParameter({
-        ...param,
-        schema: transform(param.schema, { ...options, parent: param }),
-      })
-    }
-    case 'Response': {
-      const response = visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> }) ?? node
-
-      return {
-        ...response,
-        schema: transform(response.schema, { ...options, parent: response }),
-      }
-    }
-    case 'FunctionParameter':
-    case 'ParameterGroup':
-    case 'FunctionParameters':
-    case 'Type':
-      return node
-    default:
-      return node
   }
+
+  if (node.kind === 'Output') {
+    return visitor.output?.(node, { parent: parent as ParentOf<OutputNode> }) ?? node
+  }
+
+  if (node.kind === 'Operation') {
+    const op = visitor.operation?.(node, { parent: parent as ParentOf<OperationNode> }) ?? node
+
+    return {
+      ...op,
+      parameters: op.parameters.map((p) => transform(p, { ...options, parent: op })),
+      requestBody: op.requestBody
+        ? {
+            ...op.requestBody,
+            content: op.requestBody.content?.map((c) => ({
+              ...c,
+              schema: c.schema ? transform(c.schema, { ...options, parent: op }) : undefined,
+            })),
+          }
+        : undefined,
+      responses: op.responses.map((r) => transform(r, { ...options, parent: op })),
+    }
+  }
+
+  if (node.kind === 'Schema') {
+    const schema = visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> }) ?? node
+
+    const childOptions = { ...options, parent: schema }
+
+    return {
+      ...schema,
+      ...('properties' in schema && recurse
+        ? {
+            properties: schema.properties.map((p) => transform(p, childOptions)),
+          }
+        : {}),
+      ...('items' in schema && recurse ? { items: schema.items?.map((i) => transform(i, childOptions)) } : {}),
+      ...('members' in schema && recurse ? { members: schema.members?.map((m) => transform(m, childOptions)) } : {}),
+      ...('additionalProperties' in schema && recurse && schema.additionalProperties && schema.additionalProperties !== true
+        ? {
+            additionalProperties: transform(schema.additionalProperties, childOptions),
+          }
+        : {}),
+    } as SchemaNode
+  }
+
+  if (node.kind === 'Property') {
+    const prop = visitor.property?.(node, { parent: parent as ParentOf<PropertyNode> }) ?? node
+
+    return createProperty({
+      ...prop,
+      schema: transform(prop.schema, { ...options, parent: prop }),
+    })
+  }
+
+  if (node.kind === 'Parameter') {
+    const param = visitor.parameter?.(node, { parent: parent as ParentOf<ParameterNode> }) ?? node
+
+    return createParameter({
+      ...param,
+      schema: transform(param.schema, { ...options, parent: param }),
+    })
+  }
+
+  if (node.kind === 'Response') {
+    const response = visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> }) ?? node
+
+    return {
+      ...response,
+      schema: transform(response.schema, { ...options, parent: response }),
+    }
+  }
+
+  return node
 }
 /**
  * Runs a depth-first synchronous collection pass.
@@ -524,31 +517,19 @@ export function* collectLazy<T>(node: Node, options: CollectOptions<T>): Generat
       v = visitor.output?.(node, { parent: parent as ParentOf<OutputNode> })
       break
     case 'Operation':
-      v = visitor.operation?.(node, {
-        parent: parent as ParentOf<OperationNode>,
-      })
+      v = visitor.operation?.(node, { parent: parent as ParentOf<OperationNode> })
       break
     case 'Schema':
       v = visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> })
       break
     case 'Property':
-      v = visitor.property?.(node, {
-        parent: parent as ParentOf<PropertyNode>,
-      })
+      v = visitor.property?.(node, { parent: parent as ParentOf<PropertyNode> })
       break
     case 'Parameter':
-      v = visitor.parameter?.(node, {
-        parent: parent as ParentOf<ParameterNode>,
-      })
+      v = visitor.parameter?.(node, { parent: parent as ParentOf<ParameterNode> })
       break
     case 'Response':
-      v = visitor.response?.(node, {
-        parent: parent as ParentOf<ResponseNode>,
-      })
-      break
-    case 'FunctionParameter':
-    case 'ParameterGroup':
-    case 'FunctionParameters':
+      v = visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> })
       break
   }
   if (v !== undefined) yield v

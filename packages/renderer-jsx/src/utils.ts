@@ -43,82 +43,87 @@ function collectCodeNodes(element: DOMElement): CodeNode[] {
   for (const child of element.childNodes) {
     if (!child) continue
 
-    switch (child.nodeName) {
-      case TEXT_NODE_NAME: {
-        const text = (child as DOMNode<{ nodeName: '#text' }>).nodeValue
-        if (text && text.trim()) result.push(createText(text))
-        break
-      }
-      case 'br':
-        result.push(createBreak())
-        break
-      case KUBB_FUNCTION: {
-        const attrs = child.attributes
-        result.push(
-          createFunction({
-            name: attrs['name'] as string,
-            params: attrs['params'] as string | undefined,
-            export: attrs['export'] as boolean | undefined,
-            default: attrs['default'] as boolean | undefined,
-            async: attrs['async'] as boolean | undefined,
-            generics: attrs['generics'] as string | undefined,
-            returnType: attrs['returnType'] as string | undefined,
-            JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
-            nodes: collectCodeNodes(child),
-          }),
-        )
-        break
-      }
-      case KUBB_ARROW_FUNCTION: {
-        const attrs = child.attributes
-        result.push(
-          createArrowFunction({
-            name: attrs['name'] as string,
-            params: attrs['params'] as string | undefined,
-            export: attrs['export'] as boolean | undefined,
-            default: attrs['default'] as boolean | undefined,
-            async: attrs['async'] as boolean | undefined,
-            generics: attrs['generics'] as string | undefined,
-            returnType: attrs['returnType'] as string | undefined,
-            singleLine: attrs['singleLine'] as boolean | undefined,
-            JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
-            nodes: collectCodeNodes(child),
-          } as Omit<ArrowFunctionNode, 'kind'>),
-        )
-        break
-      }
-      case KUBB_CONST: {
-        const attrs = child.attributes
-        result.push(
-          createConst({
-            name: attrs['name'] as string,
-            type: attrs['type'] as string | undefined,
-            export: attrs['export'] as boolean | undefined,
-            asConst: attrs['asConst'] as boolean | undefined,
-            JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
-            nodes: collectCodeNodes(child),
-          }),
-        )
-        break
-      }
-      case KUBB_TYPE: {
-        const attrs = child.attributes
-        result.push(
-          createType({
-            name: attrs['name'] as string,
-            export: attrs['export'] as boolean | undefined,
-            JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
-            nodes: collectCodeNodes(child),
-          }),
-        )
-        break
-      }
-      case KUBB_JSX: {
-        const textChild = child.childNodes[0]
-        const value = textChild?.nodeName === TEXT_NODE_NAME ? (textChild as DOMNode<{ nodeName: '#text' }>).nodeValue : ''
-        if (value) result.push(createJsx(value))
-        break
-      }
+    if (child.nodeName === TEXT_NODE_NAME) {
+      const text = (child as DOMNode<{ nodeName: '#text' }>).nodeValue
+      if (text && text.trim()) result.push(createText(text))
+      continue
+    }
+
+    if (child.nodeName === 'br') {
+      result.push(createBreak())
+      continue
+    }
+
+    if (child.nodeName === KUBB_FUNCTION) {
+      const attrs = child.attributes
+      result.push(
+        createFunction({
+          name: attrs['name'] as string,
+          params: attrs['params'] as string | undefined,
+          export: attrs['export'] as boolean | undefined,
+          default: attrs['default'] as boolean | undefined,
+          async: attrs['async'] as boolean | undefined,
+          generics: attrs['generics'] as string | undefined,
+          returnType: attrs['returnType'] as string | undefined,
+          JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
+          nodes: collectCodeNodes(child),
+        }),
+      )
+      continue
+    }
+
+    if (child.nodeName === KUBB_ARROW_FUNCTION) {
+      const attrs = child.attributes
+      result.push(
+        createArrowFunction({
+          name: attrs['name'] as string,
+          params: attrs['params'] as string | undefined,
+          export: attrs['export'] as boolean | undefined,
+          default: attrs['default'] as boolean | undefined,
+          async: attrs['async'] as boolean | undefined,
+          generics: attrs['generics'] as string | undefined,
+          returnType: attrs['returnType'] as string | undefined,
+          singleLine: attrs['singleLine'] as boolean | undefined,
+          JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
+          nodes: collectCodeNodes(child),
+        } as Omit<ArrowFunctionNode, 'kind'>),
+      )
+      continue
+    }
+
+    if (child.nodeName === KUBB_CONST) {
+      const attrs = child.attributes
+      result.push(
+        createConst({
+          name: attrs['name'] as string,
+          type: attrs['type'] as string | undefined,
+          export: attrs['export'] as boolean | undefined,
+          asConst: attrs['asConst'] as boolean | undefined,
+          JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
+          nodes: collectCodeNodes(child),
+        }),
+      )
+      continue
+    }
+
+    if (child.nodeName === KUBB_TYPE) {
+      const attrs = child.attributes
+      result.push(
+        createType({
+          name: attrs['name'] as string,
+          export: attrs['export'] as boolean | undefined,
+          JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
+          nodes: collectCodeNodes(child),
+        }),
+      )
+      continue
+    }
+
+    if (child.nodeName === KUBB_JSX) {
+      const textChild = child.childNodes[0]
+      const value = textChild?.nodeName === TEXT_NODE_NAME ? (textChild as DOMNode<{ nodeName: '#text' }>).nodeValue : ''
+      if (value) result.push(createJsx(value))
+      continue
     }
   }
 

@@ -193,20 +193,12 @@ function testPattern(value: string, pattern: string | RegExp): boolean {
  * Checks if an operation matches a pattern for a given filter type (`tag`, `operationId`, `path`, `method`).
  */
 function matchesOperationPattern(node: OperationNode, type: string, pattern: string | RegExp): boolean {
-  switch (type) {
-    case 'tag':
-      return node.tags.some((tag) => testPattern(tag, pattern))
-    case 'operationId':
-      return testPattern(node.operationId, pattern)
-    case 'path':
-      return testPattern(node.path, pattern)
-    case 'method':
-      return testPattern(node.method.toLowerCase(), pattern)
-    case 'contentType':
-      return node.requestBody?.content?.some((c) => testPattern(c.contentType, pattern)) ?? false
-    default:
-      return false
-  }
+  if (type === 'tag') return node.tags.some((tag) => testPattern(tag, pattern))
+  if (type === 'operationId') return testPattern(node.operationId, pattern)
+  if (type === 'path') return testPattern(node.path, pattern)
+  if (type === 'method') return testPattern(node.method.toLowerCase(), pattern)
+  if (type === 'contentType') return node.requestBody?.content?.some((c) => testPattern(c.contentType, pattern)) ?? false
+  return false
 }
 
 /**
@@ -215,12 +207,8 @@ function matchesOperationPattern(node: OperationNode, type: string, pattern: str
  * Returns `null` when the filter type doesn't apply to schemas.
  */
 function matchesSchemaPattern(node: SchemaNode, type: string, pattern: string | RegExp): boolean | null {
-  switch (type) {
-    case 'schemaName':
-      return node.name ? testPattern(node.name, pattern) : false
-    default:
-      return null
-  }
+  if (type === 'schemaName') return node.name ? testPattern(node.name, pattern) : false
+  return null
 }
 
 /**

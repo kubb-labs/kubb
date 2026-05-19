@@ -353,22 +353,14 @@ export function printArrowFunction(node: ArrowFunctionNode): string {
  * ```
  */
 export function printCodeNode(node: CodeNode): string {
-  switch (node.kind) {
-    case 'Break':
-      return ''
-    case 'Text':
-      return (node as TextNode).value
-    case 'Jsx':
-      return (node as JsxNode).value
-    case 'Const':
-      return printConst(node)
-    case 'Type':
-      return printType(node)
-    case 'Function':
-      return printFunction(node)
-    case 'ArrowFunction':
-      return printArrowFunction(node)
-  }
+  if (node.kind === 'Break') return ''
+  if (node.kind === 'Text') return (node as TextNode).value
+  if (node.kind === 'Jsx') return (node as JsxNode).value
+  if (node.kind === 'Const') return printConst(node)
+  if (node.kind === 'Type') return printType(node)
+  if (node.kind === 'Function') return printFunction(node)
+  if (node.kind === 'ArrowFunction') return printArrowFunction(node)
+  return ''
 }
 
 /**
