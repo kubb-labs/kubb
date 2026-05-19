@@ -870,6 +870,11 @@ export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>,
  * @note Call this once on the full schema graph, then use `containsCircularRef()` to check individual schemas.
  */
 export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<string> {
+  if (schemas.length === 0) return EMPTY_CIRCULAR_SET
+
+  const cached = circularSchemaCache.get(schemas)
+  if (cached) return cached
+
   const graph = new Map<string, Set<string>>()
 
   for (const schema of schemas) {
@@ -895,8 +900,23 @@ export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<str
     }
   }
 
+  circularSchemaCache.set(schemas, circular)
   return circular
 }
+
+/**
+ * Shared empty result returned for empty inputs — saves allocating a fresh
+ * `Set` for every plugin that calls `findCircularSchemas` in streaming mode
+ * (where `inputNode.schemas` is always the synthetic empty array).
+ */
+const EMPTY_CIRCULAR_SET = new Set<string>()
+
+/**
+ * Build-scoped memoization keyed off the schemas array reference. When the
+ * same array is passed multiple times (per-node, per-plugin in batch mode),
+ * the second and subsequent calls return the cached result.
+ */
+const circularSchemaCache = new WeakMap<ReadonlyArray<SchemaNode>, Set<string>>()
 
 /**
  * Type guard returning `true` when a schema or anything nested within it contains a ref to a circular schema.

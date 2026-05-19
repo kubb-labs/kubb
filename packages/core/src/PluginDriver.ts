@@ -60,6 +60,12 @@ export class PluginDriver {
    * Mutually exclusive with `inputNode` — exactly one is set after adapter setup.
    */
   inputStreamNode: InputStreamNode | undefined = undefined
+  /**
+   * Lazily-built empty input node returned to plugin contexts when only a
+   * stream is available. Cached so repeated `ctx.inputNode` reads from plugins
+   * return the same reference (useful for WeakMap-keyed caches).
+   */
+  syntheticInputNode: InputNode | undefined = undefined
 
   adapter: Adapter | undefined = undefined
   #studioIsOpen = false
@@ -380,7 +386,11 @@ export class PluginDriver {
         driver.fileManager.upsert(...files)
       },
       get inputNode(): InputNode {
-        return driver.inputNode ?? { kind: 'Input' as const, schemas: [], operations: [], meta: driver.inputStreamNode?.meta }
+        // Memoize the synthetic empty node so callers that read it once per
+        // schema/operation (e.g. for `inputNode.schemas`) see a stable reference
+        // and consumers like `findCircularSchemas` can key WeakMaps off it.
+        if (driver.inputNode) return driver.inputNode
+        return (driver.syntheticInputNode ??= { kind: 'Input' as const, schemas: [], operations: [], meta: driver.inputStreamNode?.meta })
       },
       get adapter(): Adapter | undefined {
         return driver.adapter
