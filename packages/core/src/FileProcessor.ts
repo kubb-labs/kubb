@@ -3,13 +3,6 @@ import { extractStringsFromNodes } from '@kubb/ast'
 import { AsyncEventEmitter } from '@internals/utils'
 import type { Parser } from './defineParser.ts'
 
-/**
- * Hard cap on concurrent file parses. Each in-flight parse holds one parsed
- * source string (tens of KB on large specs); 4 in flight keeps peak memory
- * within ~+1 MB of the sequential baseline.
- */
-const CONCURRENCY = 4
-
 type ParseOptions = {
   parsers?: Map<FileNode['extname'], Parser>
   extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
@@ -40,6 +33,10 @@ function joinSources(file: FileNode): string {
   return parts.join('\n\n')
 }
 
+function isThenable<T>(value: unknown): value is PromiseLike<T> {
+  return typeof value === 'object' && value !== null && typeof (value as { then?: unknown }).then === 'function'
+}
+
 /**
  * Converts a single file to a string using the registered parsers.
  * Falls back to joining source values when no matching parser is found.
@@ -49,7 +46,12 @@ function joinSources(file: FileNode): string {
 export class FileProcessor {
   readonly events = new AsyncEventEmitter<FileProcessorEvents>()
 
-  async parse(file: FileNode, { parsers, extension }: ParseOptions = {}): Promise<string> {
+  /**
+   * Returns the parser's result as-is — synchronous parsers (e.g. the default
+   * `parserTs`) return a string directly, async parsers return a Promise.
+   * The caller handles both via {@link isThenable}.
+   */
+  parse(file: FileNode, { parsers, extension }: ParseOptions = {}): string | Promise<string> {
     const parseExtName = extension?.[file.extname] || undefined
 
     if (!parsers || !file.extname) {
@@ -66,38 +68,42 @@ export class FileProcessor {
   }
 
   /**
-   * Streams parsed files as each one finishes parsing.
-   *
-   * Up to {@link CONCURRENCY} files are parsed in parallel; results are yielded in
-   * completion order rather than input order so storage writes can begin as soon
-   * as the first file is ready. The concurrency cap keeps peak memory bounded —
-   * only a handful of in-flight parsed source strings exist at any moment.
+   * Streams parsed files in input order, yielding each as soon as the parser
+   * for that file resolves. Synchronous parsers (the common case for `.ts`
+   * output) flow through without any Promise wrapping; an async parser stalls
+   * just that file's await without a microtask cost on the rest.
    */
   async *stream(files: ReadonlyArray<FileNode>, options: ParseOptions = {}): AsyncGenerator<ParsedFile> {
     const total = files.length
     if (total === 0) return
 
-    const concurrency = Math.min(CONCURRENCY, total)
-    let next = 0
     let processed = 0
-    const inflight = new Map<number, Promise<{ idx: number; file: FileNode; source: string }>>()
-
-    const start = (idx: number): void => {
-      const file = files[idx]!
-      inflight.set(
-        idx,
-        this.parse(file, options).then((source) => ({ idx, file, source })),
-      )
-    }
-
-    for (let i = 0; i < concurrency; i++) start(next++)
-
-    while (inflight.size > 0) {
-      const { idx, file, source } = await Promise.race(inflight.values())
-      inflight.delete(idx)
+    for (const file of files) {
+      const result = this.parse(file, options)
+      const source = isThenable<string>(result) ? await result : result
       processed++
       yield { file, source, processed, total, percentage: (processed / total) * 100 }
-      if (next < total) start(next++)
+    }
+  }
+
+  /**
+   * Synchronous variant of {@link stream}. Iterating is a plain `for` loop and
+   * no microtask is paid per file. Throws if any registered parser is async
+   * (returns a Promise) — callers that may have async parsers should use the
+   * async {@link stream} instead.
+   */
+  *streamSync(files: ReadonlyArray<FileNode>, options: ParseOptions = {}): Generator<ParsedFile> {
+    const total = files.length
+    if (total === 0) return
+
+    let processed = 0
+    for (const file of files) {
+      const result = this.parse(file, options)
+      if (isThenable<string>(result)) {
+        throw new Error(`FileProcessor.streamSync: parser for '${file.extname}' returned a Promise; use stream() for async parsers`)
+      }
+      processed++
+      yield { file, source: result, processed, total, percentage: (processed / total) * 100 }
     }
   }
 
