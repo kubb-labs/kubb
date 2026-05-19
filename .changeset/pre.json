@@ -12,7 +12,9 @@
     "@kubb/middleware-barrel": "5.0.0-alpha.74",
     "@kubb/parser-ts": "5.0.0-alpha.74",
     "@kubb/renderer-jsx": "5.0.0-alpha.74",
-    "unplugin-kubb": "5.0.0-alpha.74"
+    "unplugin-kubb": "5.0.0-alpha.74",
+    "@internals/shared": "0.0.0",
+    "@internals/utils": "0.0.0"
   },
   "changesets": [
     "adapter-oas-integer-type-bigint-default",
@@ -100,6 +102,7 @@
     "output-format-lint-auto-default",
     "parser-ts-extract-utils",
     "perf-generator-functions-optimization",
+    "perf-optimize-stream-pipeline",
     "perf-ref-cache-storage",
     "perf-renderer-jsx-legacyroot-sync",
     "preserve-union-kind-semantics",
