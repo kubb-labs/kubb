@@ -1005,6 +1005,21 @@ type PluginStreamEntry = {
   hrStart: ReturnType<typeof process.hrtime>
 }
 
+type PluginState = {
+  plugin: NormalizedPlugin
+  generatorContext: GeneratorContext
+  generators: Generator[]
+  hrStart: ReturnType<typeof process.hrtime>
+  failed: boolean
+  error: Error | undefined
+  /**
+   * `true` when the plugin's options have no `include`, `exclude`, or `override`
+   * filters. The per-node `resolveOptions` call always returns the same `options`
+   * reference in that case, so the inner loop can skip it entirely.
+   */
+  optionsAreStatic: boolean
+}
+
 /**
  * Single-pass fan-out for streaming mode.
  *
@@ -1026,21 +1041,6 @@ async function runPluginStreamHooks(
   failedPlugins: Set<{ plugin: Plugin; error: Error }>,
   flushPendingFiles: () => Promise<void>,
 ): Promise<void> {
-  type PluginState = {
-    plugin: NormalizedPlugin
-    generatorContext: GeneratorContext
-    generators: Generator[]
-    hrStart: ReturnType<typeof process.hrtime>
-    failed: boolean
-    error: Error | undefined
-    /**
-     * `true` when the plugin's options have no `include`, `exclude`, or `override`
-     * filters. The per-node `resolveOptions` call always returns the same `options`
-     * reference in that case, so the inner loop can skip it entirely.
-     */
-    optionsAreStatic: boolean
-  }
-
   function resolveRendererFor(gen: Generator, state: PluginState): RendererFactory | undefined {
     return gen.renderer === null ? undefined : (gen.renderer ?? state.plugin.renderer ?? state.generatorContext.config.renderer)
   }
@@ -1063,27 +1063,34 @@ async function runPluginStreamHooks(
 
   async function dispatchSchema(state: PluginState, node: SchemaNode): Promise<void> {
     if (state.failed) return
+
     try {
       const { plugin, generatorContext, generators } = state
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
       let options: typeof plugin.options | null
+
       if (state.optionsAreStatic) {
         options = plugin.options
       } else {
         const { exclude, include, override } = plugin.options
+
         options = generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
+
         if (options === null) return
       }
 
       const ctx = { ...generatorContext, options }
       for (const gen of generators) {
         if (!gen.schema) continue
+
         const raw = gen.schema(transformedNode, ctx)
         const result = isPromise(raw) ? await raw : raw
         const applied = applyHookResult(result, driver, resolveRendererFor(gen, state))
+
         if (isPromise(applied)) await applied
       }
       const emit = driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
+
       if (emit) await emit
     } catch (caughtError) {
       state.failed = true
@@ -1097,24 +1104,32 @@ async function runPluginStreamHooks(
       const { plugin, generatorContext, generators } = state
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
       let options: typeof plugin.options | null
+
       if (state.optionsAreStatic) {
         options = plugin.options
       } else {
         const { exclude, include, override } = plugin.options
+
         options = generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
+
         if (options === null) return
       }
 
       const ctx = { ...generatorContext, options }
+
       for (const gen of generators) {
         if (!gen.operation) continue
+
         const raw = gen.operation(transformedNode, ctx)
         const result = isPromise(raw) ? await raw : raw
         const applied = applyHookResult(result, driver, resolveRendererFor(gen, state))
+
         if (isPromise(applied)) await applied
       }
       const emit = driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
+
       if (emit) await emit
+
     } catch (caughtError) {
       state.failed = true
       state.error = caughtError as Error
@@ -1127,15 +1142,19 @@ async function runPluginStreamHooks(
     // loop) stays sequential so `FileManager.upsert` ordering for any single
     // plugin chain remains deterministic.
     await Promise.all(states.map((state) => dispatchSchema(state, node)))
+
     schemasProcessed++
+
     if (schemasProcessed % STREAM_FLUSH_EVERY === 0) {
       await flushPendingFiles()
     }
   }
 
   const collectedOperations: OperationNode[] = []
+
   for await (const node of inputStreamNode.operations) {
     collectedOperations.push(node)
+
     await Promise.all(states.map((state) => dispatchOperation(state, node)))
   }
 
@@ -1145,12 +1164,15 @@ async function runPluginStreamHooks(
       try {
         const { plugin, generatorContext, generators } = state
         const ctx = { ...generatorContext, options: plugin.options }
+
         for (const gen of generators) {
           if (!gen.operations) continue
           const result = await gen.operations(collectedOperations, ctx)
           await applyHookResult(result, driver, resolveRendererFor(gen, state))
         }
+
         await driver.hooks.emit('kubb:generate:operations', collectedOperations, ctx)
+
       } catch (caughtError) {
         state.failed = true
         state.error = caughtError as Error
@@ -1205,7 +1227,6 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
     resolver: driver.getResolver(plugin.name),
   }
 
-  // ── BATCH PATH ────────────────────────────────────────────────────────────
   // When `include` has operation-based filters (tag, operationId, path, method, contentType)
   // but no schema-level filters (schemaName), pre-compute the set of top-level schema names
   // that are transitively referenced by the included operations. Schemas outside that set are
@@ -1357,7 +1378,6 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
 
     const inputStreamNode = driver.inputStreamNode
     if (inputStreamNode) {
-      // ── STREAMING: fan-out single-pass ────────────────────────────────────
       // Emit plugin:start for all plugins up front, collect generator-plugins
       // for the fan-out pass, then handle non-generator plugins immediately.
       const streamPluginEntries: PluginStreamEntry[] = []
@@ -1399,7 +1419,6 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         await runPluginStreamHooks(inputStreamNode, streamPluginEntries, driver, hooks, config, pluginTimings, failedPlugins, flushPendingFiles)
       }
     } else {
-      // ── BATCH: existing per-plugin sequential loop ────────────────────────
       for (const plugin of driver.plugins.values()) {
         const context = driver.getContext(plugin)
         const hrStart = process.hrtime()
