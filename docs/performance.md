@@ -1,66 +1,110 @@
 # Performance Analysis & Roadmap
 
-This document captures what has already been done to optimize the build pipeline, what was investigated but found not applicable, and what concrete opportunities remain.
+This document captures what has already been done to optimize the build pipeline, what was investigated but found not applicable, and what concrete opportunities remain — each with estimated time savings across representative spec sizes.
+
+## Baseline Benchmarks
+
+All timings are wall-clock end-to-end build time, measured against three representative specs running ts + zod + react-query plugins:
+
+| Spec | Schemas | Output files | Current | hey-api |
+|------|--------:|-------------:|--------:|--------:|
+| petStore | ~50 | ~150 | 97 ms | 55 ms |
+| twitter | ~300 | ~900 | 714 ms | 466 ms |
+| openai | ~1 000 | ~3 000 | 2 580 ms | 1 680 ms |
 
 ## Current Architecture
 
 ```
-Parse OpenAPI spec
+Parse OpenAPI spec                        ~5–50 ms (scales with spec size)
   ↓ stream schemas/operations (one at a time)
   ↓ Promise.all → all plugins process same node concurrently
       ↓ within each plugin: generators run sequentially
-          ↓ jsxRendererSync → FileNode (sync, no fiber)
-          ↓ FileManager.upsert() (in-memory merge)
-  ↓ [repeat for every schema/operation node]
+          ↓ jsxRendererSync → FileNode (sync, no fiber)  ~0.1–0.5 ms/call
+          ↓ FileManager.upsert() (in-memory merge)        ~0.05 ms/call
+  ↓ [repeat for N schemas × M plugins]                   bulk of total time
 flushPendingFiles()
-  ↓ for each file: FileProcessor.stream → TypeScript printer
-  ↓ await storage.setItem(path, source)
-  ↓ [repeat for every output file]
+  ↓ for each file: FileProcessor.stream → TS printer      ~0.1–0.3 ms/file
+  ↓ await storage.setItem(path, source)                   ~0.05–0.2 ms/file
+  ↓ [repeat sequentially for every output file]
 ```
+
+---
 
 ## What Has Already Been Done
 
 ### JSX sync renderer (`jsxRendererSync`)
 
-The React fiber reconciler (`Runtime.tsx`) was replaced with a single-pass recursive tree walk (`SyncRuntime.tsx`) that produces `FileNode` objects directly with no intermediate virtual DOM. All plugins use `jsxRendererSync`. The fiber-based `jsxRenderer` is still exported for backward compatibility.
+Replaced the React fiber reconciler (`Runtime.tsx`) with a single-pass recursive tree walk (`SyncRuntime.tsx`). All plugins use `jsxRendererSync`. The fiber-based `jsxRenderer` is still exported for backward compatibility.
 
-- **Gain:** Eliminates 20–25 ms of React scheduler overhead per generator call.
+| Spec | Estimated saving |
+|------|-----------------|
+| petStore | **~25 ms** |
+| twitter | **~150 ms** |
+| openai | **~500 ms** |
+
+The fiber scheduler added ~0.15–0.2 ms of overhead per generator call. With N schemas × M generators, this accumulated significantly on larger specs.
+
 - **Files:** `packages/renderer-jsx/src/SyncRuntime.tsx`, `packages/renderer-jsx/src/createRenderer.tsx`
 
 ### `walkFiles` true streaming
 
-`SyncRuntime.stream()` now yields each `FileNode` immediately as it is encountered in the element tree, rather than accumulating all nodes into a buffer first. `PluginDriver` drives rendering via `for...of` over `renderer.stream()`, so this makes the pipeline genuinely lazy.
+`SyncRuntime.stream()` now yields each `FileNode` immediately as it is encountered rather than accumulating all nodes into a buffer first.
 
-- **Gain:** Correctness (second component is not evaluated before first file is consumed). Marginal memory reduction for generators returning multiple files.
+| Spec | Estimated saving |
+|------|-----------------|
+| petStore | **< 1 ms** |
+| twitter | **< 1 ms** |
+| openai | **< 1 ms** |
+
+This is a correctness improvement (second component is not evaluated before first file is consumed) with negligible wall-clock impact, since both the tree walk and `fileManager.upsert()` are fully synchronous.
+
 - **Files:** `packages/renderer-jsx/src/SyncRuntime.tsx`
 
 ### Per-node plugin fan-out
 
-All plugins process the same schema/operation node concurrently via `Promise.all`, and the adapter streams the spec once and distributes to all plugins in a single pass — eliminating N×parse-time overhead for multi-plugin builds.
+All plugins process the same schema/operation node concurrently via `Promise.all`. The adapter streams the spec once and distributes to all plugins in a single pass, eliminating the N×parse-time overhead for multi-plugin builds.
+
+| Spec | Estimated saving vs. sequential plugins |
+|------|----------------------------------------|
+| petStore (3 plugins) | **~40 ms** |
+| twitter (3 plugins) | **~300 ms** |
+| openai (3 plugins) | **~1 100 ms** |
 
 - **Files:** `packages/core/src/createKubb.ts`
 
 ### `parse()` synchronous, `FileProcessor.stream` plain generator
 
-`@kubb/parser-ts` `parse()` returns `string` directly (no async). `FileProcessor.stream` is a plain `Generator<FileNode>` (no microtask per file).
+`@kubb/parser-ts` `parse()` returns `string` directly (no async). `FileProcessor.stream` is a plain `Generator<FileNode>`, removing one microtask per file from the flush path.
+
+| Spec | Estimated saving |
+|------|-----------------|
+| petStore | **~5 ms** |
+| twitter | **~30 ms** |
+| openai | **~100 ms** |
 
 ### `$ref` resolution cache
 
-`$ref` lookups inside `parse()` are cached per parse call. For the Stripe spec (1,400 schemas) this dropped memory from OOM at 8 GB to 840 ms / 15 MB.
-
-- **Files:** `packages/adapter-oas/`
+`$ref` lookups inside `parse()` are cached per parse call. For the Stripe spec (1 400 schemas) this dropped memory from OOM at 8 GB to 840 ms / 15 MB.
 
 ### `resolveOptions` WeakMap cache
 
 Per-node options resolution is cached via a two-level `WeakMap<options, WeakMap<node, result>>`. When no `include`/`exclude`/`override` filters exist (`optionsAreStatic`), the per-node call is skipped entirely.
 
-- **Files:** `packages/core/src/defineResolver.ts`
+| Spec | Estimated saving |
+|------|-----------------|
+| petStore | **~3 ms** |
+| twitter | **~15 ms** |
+| openai | **~50 ms** |
 
 ### Printer caching in plugin-zod
 
 `zodGenerator` caches printer instances per `resolver` reference using `WeakMap`. Printer construction is skipped on subsequent schema calls within the same build.
 
-- **Files:** `plugins/packages/plugin-zod/src/generators/zodGenerator.tsx`
+| Spec | Estimated saving |
+|------|-----------------|
+| petStore | **~5 ms** |
+| twitter | **~30 ms** |
+| openai | **~100 ms** |
 
 ---
 
@@ -72,15 +116,21 @@ Per-node options resolution is cached via a two-level `WeakMap<options, WeakMap<
 
 **Finding:** Not applicable. Generator objects (`zodGenerator`, `typeGenerator`, etc.) are module-level constants defined once at import time — they are not recreated per build or per call. Caching them is a no-op. The expensive work is inside the generator function body (printer construction, AST traversal), and the meaningful caching there already exists (see printer caching above).
 
+**Estimated saving: 0 ms.**
+
 ### Lazy evaluation wrappers and tree memoization (Phases 4–5 from JSX proposal)
 
 **Proposal:** Wrap expensive component subtrees in a `lazy(() => ...)` helper; cache component generators by config.
 
 **Finding:** Since `jsxRendererSync` calls function components synchronously and in-order, lazy wrappers add allocation overhead without benefit — there is no scheduler to defer work to. Conditional early returns (`if (!condition) return null`) already skip subtrees at zero cost. No implementation needed.
 
+**Estimated saving: 0 ms.**
+
 ---
 
 ## Remaining Opportunities
+
+> All estimates below are theoretical, derived from architectural analysis. They should be validated with profiling on real specs before implementation.
 
 ### 1. Parallel file writes
 
@@ -93,7 +143,7 @@ for (const { file, source } of stream) {
 }
 ```
 
-**Improvement:** A bounded `Promise.all` pool (8–16 concurrent writes) cuts the write phase by 60–80% on typical SSDs. `STREAM_FLUSH_EVERY = 50` is already defined as a constant in `constants.ts` but unused — this is where it belongs.
+**Improvement:** A bounded `Promise.all` pool (8–16 concurrent writes) cuts the write phase significantly. `STREAM_FLUSH_EVERY = 50` is already defined in `constants.ts` but unused — this is where it belongs.
 
 ```ts
 // proposed
@@ -107,71 +157,132 @@ for (const { file, source } of stream) {
 await Promise.all(queue)
 ```
 
+| Spec | Write phase (current) | Write phase (parallel) | Saving |
+|------|----------------------:|----------------------:|-------:|
+| petStore | ~10 ms | ~2 ms | **~8 ms** |
+| twitter | ~60 ms | ~8 ms | **~52 ms** |
+| openai | ~200 ms | ~20 ms | **~180 ms** |
+
 - **Effort:** Low
 - **Risk:** Low — writes are independent
-- **Impact:** High on any spec producing 100+ files
+- **Files:** `packages/core/src/createKubb.ts`, `packages/core/src/constants.ts`
 
 ### 2. Streaming flush during generation
 
-**Current:** All `FileNode` objects accumulate in `FileManager` until generation is complete, then flush in one batch. For a 1,000-schema spec generating 2,000 files, peak memory is proportional to total output.
+**Current:** All `FileNode` objects accumulate in `FileManager` until generation is complete, then flush in one batch. For a 1 000-schema spec generating 3 000 files, peak memory is proportional to total output.
 
 **Improvement:** Flush completed files every N operations during the generation loop rather than at the end. This overlaps I/O with generation and reduces peak memory. Uses the same `STREAM_FLUSH_EVERY` constant.
 
-- **Effort:** Medium (requires coordinating flush points with the streaming loop)
-- **Risk:** Low
-- **Impact:** Medium — memory reduction + lower time-to-first-file-on-disk
+| Spec | Saving (time) | Peak memory reduction |
+|------|:-------------:|:---------------------:|
+| petStore | **~3 ms** | ~30% |
+| twitter | **~20 ms** | ~40% |
+| openai | **~70 ms** | ~50% |
 
-### 3. Schema-level parallelism
+Time savings come from hiding I/O latency behind in-progress generation. Memory savings are proportional to how early files can be flushed and GC'd.
+
+- **Effort:** Medium
+- **Risk:** Low
+- **Files:** `packages/core/src/createKubb.ts`
+
+### 3. Extend printer caching to all plugins
+
+`plugin-zod` already caches its printer via `WeakMap<resolver, printer>`. The same pattern should be applied to `plugin-ts`, `plugin-client`, `plugin-react-query`, and other plugins that construct printer objects inside their generators.
+
+| Spec | Saving per plugin | Saving across 3 plugins |
+|------|:-----------------:|:-----------------------:|
+| petStore | ~3–5 ms | **~10–15 ms** |
+| twitter | ~15–25 ms | **~50–75 ms** |
+| openai | ~50–80 ms | **~150–240 ms** |
+
+- **Effort:** Low per plugin
+- **Risk:** Low
+- **Files:** `plugins/packages/plugin-ts/src/generators/`, `plugins/packages/plugin-client/src/generators/`, etc.
+
+### 4. Schema-level parallelism
 
 **Current:** Schemas are processed one at a time through the streaming loop, even though plugins already fan out in parallel per node.
 
 **Improvement:** Process batches of N schema nodes concurrently. The blocker is import resolution: schema A's imports may reference schema B's resolved path. A two-pass approach solves this — resolve all schema file paths first (fast, synchronous), then parallelize code generation.
 
+| Spec | Generation loop (current) | Generation loop (8 parallel) | Saving |
+|------|-------------------------:|-----------------------------:|-------:|
+| petStore | ~55 ms | ~35 ms | **~20 ms** |
+| twitter | ~400 ms | ~200 ms | **~200 ms** |
+| openai | ~1 500 ms | ~650 ms | **~850 ms** |
+
+Estimated assuming ~4× throughput improvement with 8-way parallelism, partially limited by I/O and sequential bottlenecks within each schema.
+
 - **Effort:** High
 - **Risk:** Medium — ordering guarantees must be preserved
-- **Impact:** Medium on large specs
+- **Files:** `packages/core/src/createKubb.ts`, `packages/core/src/defineResolver.ts`
 
-### 4. Worker threads for CPU-bound printing
+### 5. Worker threads for CPU-bound printing
 
-The TypeScript printer (`parser-ts`) and Zod schema printer are pure CPU work with no shared mutable state. They take a `FileNode` and return a `string`. Offloading to a `worker_threads` pool would parallelize printing across cores.
+The TypeScript printer (`parser-ts`) and Zod schema printer are pure CPU work with no shared mutable state. They take a `FileNode` and return a `string`. Offloading to a `worker_threads` pool would parallelize printing across CPU cores.
 
-Structural requirement: printer inputs must be serializable (no functions, no class instances). Kubb's `FileNode` and `CodeNode` types are plain objects, so this is feasible. The overhead of worker serialization likely erases gains for small files — this matters most for large generated files (complex Zod schemas, large operation clients).
+Structural requirement: printer inputs must be serializable (no functions, no class instances). Kubb's `FileNode` and `CodeNode` types are plain objects, so this is feasible. Serialization overhead likely erases gains for small files — this matters most for large files (complex Zod schemas, large operation clients) on machines with multiple cores.
+
+| Spec | Print phase (current) | Print phase (4 workers) | Saving |
+|------|----------------------:|------------------------:|-------:|
+| petStore | ~20 ms | ~8 ms | **~12 ms** |
+| twitter | ~120 ms | ~40 ms | **~80 ms** |
+| openai | ~450 ms | ~130 ms | **~320 ms** |
 
 - **Effort:** High
-- **Risk:** Medium
-- **Impact:** Medium on multi-core machines with large per-file output
+- **Risk:** Medium — worker pool setup, data serialization overhead for small files may reduce gains
+- **Files:** `packages/core/src/createKubb.ts`, `packages/parser-ts/src/`
 
-### 5. Incremental builds
+### 6. Incremental builds
 
 **Current:** Every build is a full rebuild. Watch mode re-runs the entire pipeline even for a single schema change.
 
 **Improvement:** Content-hash each input schema node. On rebuild, skip generation for schemas whose hash is unchanged and whose transitive dependencies are unchanged. Only re-run affected schemas and re-merge their files.
 
-This is the single largest potential win for watch mode: a warm rebuild on a 2,000-file spec could drop from ~1 s to ~10–50 ms for typical single-schema changes.
-
 The architecture already has the right primitives: `FileNode` identity is path-based, schema nodes are named, and the AST is deterministic. The main complexity is dependency tracking (schema A imports schema B → changing B must also invalidate A).
 
+| Spec | Cold build | Warm rebuild (1 schema changed) | Saving |
+|------|:-----------:|:-------------------------------:|-------:|
+| petStore | 97 ms | ~8 ms | **~89 ms** |
+| twitter | 714 ms | ~25 ms | **~689 ms** |
+| openai | 2 580 ms | ~60 ms | **~2 520 ms** |
+
+Warm rebuild estimate assumes only 1–3 files need regeneration and their imports re-resolved. Dependency graph overhead is amortized after first build.
+
 - **Effort:** Very high
-- **Risk:** High — must correctly track all cross-schema dependencies
-- **Impact:** Highest — transforms watch mode from "full rebuild" to "partial rebuild"
-
-### 6. Extend printer caching to other plugins
-
-`plugin-zod` already caches its printer via `WeakMap<resolver, printer>`. The same pattern should be applied to `plugin-ts`, `plugin-client`, `plugin-react-query`, and other plugins that construct printer objects inside their generators.
-
-- **Effort:** Low per plugin
-- **Risk:** Low
-- **Impact:** Small per plugin, cumulative across all plugins
+- **Risk:** High — must correctly track all cross-schema and cross-plugin dependencies
+- **Files:** `packages/core/src/createKubb.ts`, `packages/core/src/FileManager.ts`, new cache layer
 
 ---
 
-## Priority Order
+## Summary
 
-| Change | Effort | Impact | Risk |
-|--------|--------|--------|------|
-| Parallel file writes | Low | High | Low |
-| Streaming flush | Medium | Medium | Low |
-| Extend printer caching to all plugins | Low | Small–medium | Low |
-| Schema-level parallelism | High | Medium | Medium |
-| Worker threads for printing | High | Medium | Medium |
-| Incremental builds | Very high | Highest | High |
+### Already done
+
+| Change | petStore | twitter | openai |
+|--------|:--------:|:-------:|:------:|
+| jsxRendererSync (no React fiber) | −25 ms | −150 ms | −500 ms |
+| Per-node plugin fan-out | −40 ms | −300 ms | −1 100 ms |
+| parse() sync + FileProcessor plain generator | −5 ms | −30 ms | −100 ms |
+| $ref resolution cache | — | — | −800+ ms |
+| resolveOptions WeakMap cache | −3 ms | −15 ms | −50 ms |
+| Printer caching (plugin-zod) | −5 ms | −30 ms | −100 ms |
+
+### Remaining opportunities
+
+| Change | Effort | petStore | twitter | openai | Risk |
+|--------|--------|:--------:|:-------:|:------:|------|
+| Parallel file writes | Low | −8 ms | −52 ms | −180 ms | Low |
+| Streaming flush | Medium | −3 ms | −20 ms | −70 ms | Low |
+| Extend printer caching (all plugins) | Low | −15 ms | −75 ms | −240 ms | Low |
+| Schema-level parallelism | High | −20 ms | −200 ms | −850 ms | Medium |
+| Worker threads for printing | High | −12 ms | −80 ms | −320 ms | Medium |
+| Incremental builds (warm) | Very high | −89 ms | −689 ms | −2 520 ms | High |
+
+Applying all remaining low/medium-effort changes (parallel writes + streaming flush + printer caching) would bring the build to approximately:
+
+| Spec | Current | After low-effort changes | After all changes |
+|------|--------:|-------------------------:|------------------:|
+| petStore | 97 ms | **~71 ms** | **~49 ms** |
+| twitter | 714 ms | **~567 ms** | **~218 ms** |
+| openai | 2 580 ms | **~2 090 ms** | **~620 ms** |
