@@ -7,7 +7,7 @@
 
 Significantly reduce per-file overhead in the code-generation pipeline.
 
-- `@kubb/parser-ts` now reuses one `ts.createPrinter()` instance across all files (instead of one per file) and emits `import` / `export` statements as strings directly, bypassing the TypeScript compiler API on the hot path. New `emitImport` / `emitExport` helpers are exported alongside the existing `createImport` / `createExport` AST factories.
+- `@kubb/parser-ts` `parse` is now synchronous — returns `string` directly instead of `Promise<string> | string`. `FileProcessor.stream` is a plain `Generator` instead of `AsyncGenerator`, removing a microtask per file. The `emitImport` / `emitExport` string-emit helpers have been removed; import and export statements are generated through the TypeScript compiler API as before.
+- `@kubb/core` `Renderer.stream` now returns `Iterable<FileNode>` only — `AsyncIterable` support has been dropped. `Parser.parse` is typed as `string` (synchronous). Adapter initialisation consolidates the streaming / non-streaming branches, removing a duplicate debug-log path. `flushPendingFiles` removes a dead `snapshot` parameter.
 - `@kubb/adapter-oas` caches the underlying `BaseOas` instance and the schema parser at adapter scope so the schemas and operations iterables share one instance instead of rebuilding indexes per pass.
-- `@kubb/core` dispatches per-plugin schema/operation handlers concurrently via `Promise.all` while keeping each plugin's own generator chain sequential, parses output files with a bounded concurrency cap (4), and skips the per-node `resolveOptions` call when the plugin has no include/exclude/override filters.
-- `@kubb/renderer-jsx` `jsxRendererSync` now returns a synchronous iterable from `stream`, letting consumers skip the per-file microtask. `Renderer.stream` accepts either an `Iterable` or `AsyncIterable`.
+- `@kubb/renderer-jsx` `jsxRendererSync` returns a synchronous `Generator` from `stream`, letting consumers skip the per-file microtask.
