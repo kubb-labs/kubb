@@ -1,6 +1,6 @@
 import type { CodeNode, FileNode } from '@kubb/ast'
 import { extractStringsFromNodes } from '@kubb/ast'
-import {AsyncEventEmitter, isPromise} from '@internals/utils'
+import { AsyncEventEmitter, isPromise } from '@internals/utils'
 import type { Parser } from './defineParser.ts'
 
 type ParseOptions = {
