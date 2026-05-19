@@ -1178,7 +1178,7 @@ async function runPluginStreamHooks(
   config: Config,
   pluginTimings: Map<string, number>,
   failedPlugins: Set<{ plugin: Plugin; error: Error }>,
-  flushPendingFiles: () => Promise<void>
+  flushPendingFiles: () => Promise<void>,
 ): Promise<void> {
   function resolveRendererFor(gen: Generator, state: PluginState): RendererFactory | undefined {
     return gen.renderer === null ? undefined : (gen.renderer ?? state.plugin.renderer ?? state.generatorContext.config.renderer)
