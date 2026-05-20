@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.22 — May 20, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Make sure we can exclude/include operations ([`fa572bb`](https://github.com/kubb-labs/kubb/commit/fa572bb61a3a327e6dd86ca65eb060b5d94f0c14))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.21 — May 20, 2026
 
 ### @kubb/ast

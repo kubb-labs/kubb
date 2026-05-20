@@ -136,6 +136,7 @@
     "true-ways-fetch",
     "typescript-6-upgrade",
     "unplugin-default-middleware-barrel",
-    "update-react-fabric-dependency"
+    "update-react-fabric-dependency",
+    "vast-insects-type"
   ]
 }
