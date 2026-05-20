@@ -1,0 +1,24 @@
+packages/adapter-oas/src/adapter.ts
+  s_53db136595206e::t_63ab4b90ebd718 62
+  s_53db136595206e::t_a7ae1ddd292fe1 148-154
+packages/core/src/KubbDriver.ts
+  s_53db136595206e::t_31082da33ec827 106,109-110
+internals/utils/src/promise.ts
+  s_53db136595206e::t_3ae4aeefc581d9 203-213
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "0f1799b6e41461031d4ef6bae7f0fed9dde38607",
+  "prompts": {},
+  "sessions": {
+    "s_53db136595206e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a7e9ccc5-b9b8-4bdc-9c5b-86390b26c561",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
