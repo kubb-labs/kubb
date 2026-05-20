@@ -62,6 +62,22 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
     })
   })
 
+  hooks.on('kubb:build:start', ({ config, adapter }) => {
+    sendDataMessage({
+      type: 'kubb:build:start',
+      data: [{ config: { name: config.name }, adapter: { name: adapter.name } }],
+      timestamp: Date.now(),
+    })
+  })
+
+  hooks.on('kubb:build:end', ({ files, outputDir }) => {
+    sendDataMessage({
+      type: 'kubb:build:end',
+      data: [{ files: files.map((file) => ({ path: file.path, name: file.name })), outputDir }],
+      timestamp: Date.now(),
+    })
+  })
+
   hooks.on('kubb:files:processing:start', ({ files }) => {
     sendDataMessage({
       type: 'kubb:files:processing:start',
@@ -159,5 +175,40 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
       ],
       timestamp: Date.now(),
     })
+  })
+
+  hooks.on('kubb:generation:summary', ({ failedPlugins, status, hrStart, filesCreated }) => {
+    const [seconds, nanoseconds] = process.hrtime(hrStart)
+    const duration = Math.round(seconds * 1000 + nanoseconds / 1_000_000)
+
+    sendDataMessage({
+      type: 'kubb:generation:summary',
+      data: [{ duration, fileCount: filesCreated, failedPlugins: failedPlugins.size, status }],
+      timestamp: Date.now(),
+    })
+  })
+
+  hooks.on('kubb:lifecycle:start', () => {
+    sendDataMessage({ type: 'kubb:lifecycle:start', data: [], timestamp: Date.now() })
+  })
+
+  hooks.on('kubb:lifecycle:end', () => {
+    sendDataMessage({ type: 'kubb:lifecycle:end', data: [], timestamp: Date.now() })
+  })
+
+  hooks.on('kubb:format:start', () => {
+    sendDataMessage({ type: 'kubb:format:start', data: [], timestamp: Date.now() })
+  })
+
+  hooks.on('kubb:format:end', () => {
+    sendDataMessage({ type: 'kubb:format:end', data: [], timestamp: Date.now() })
+  })
+
+  hooks.on('kubb:lint:start', () => {
+    sendDataMessage({ type: 'kubb:lint:start', data: [], timestamp: Date.now() })
+  })
+
+  hooks.on('kubb:lint:end', () => {
+    sendDataMessage({ type: 'kubb:lint:end', data: [], timestamp: Date.now() })
   })
 }

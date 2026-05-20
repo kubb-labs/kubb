@@ -45,6 +45,8 @@ export type JSONKubbConfig = {
 export type KubbHooks = {
   'kubb:plugin:start': [ctx: { plugin: { name: string } }]
   'kubb:plugin:end': [ctx: { plugin: { name: string }; duration: number; success: boolean }]
+  'kubb:build:start': [ctx: { config: { name?: string }; adapter: { name: string } }]
+  'kubb:build:end': [ctx: { files: Array<{ path: string; name: string }>; outputDir: string }]
   'kubb:files:processing:start': [ctx: { total: number }]
   'kubb:files:processing:update': [
     ctx: {
@@ -63,7 +65,13 @@ export type KubbHooks = {
   'kubb:error': [ctx: { message: string; stack?: string }]
   'kubb:generation:start': [ctx: { name?: string; plugins: number }]
   'kubb:generation:end': [ctx: { config: Config; storage: Record<string, string> }]
+  'kubb:generation:summary': [ctx: { duration: number; fileCount: number; failedPlugins: number; status: 'success' | 'failed' }]
+  'kubb:lifecycle:start': []
   'kubb:lifecycle:end': []
+  'kubb:format:start': []
+  'kubb:format:end': []
+  'kubb:lint:start': []
+  'kubb:lint:end': []
 }
 
 export type KubbHook = keyof KubbHooks
