@@ -1,5 +1,5 @@
 import { extname } from 'node:path'
-import type { FileNode, HttpMethod, InputNode, UserFileNode, Visitor } from '@kubb/ast'
+import type { FileNode, HttpMethod, InputMeta, UserFileNode, Visitor } from '@kubb/ast'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Resolver } from './defineResolver.ts'
@@ -24,14 +24,14 @@ export type Output<_TOptions = unknown> = {
   path: string
   /**
    * Text or function prepended to every generated file.
-   * When a function, receives the current `InputNode` and returns a string.
+   * When a function, receives the document metadata and returns a string.
    */
-  banner?: string | ((node?: InputNode) => string)
+  banner?: string | ((meta?: InputMeta) => string)
   /**
    * Text or function appended to every generated file.
-   * When a function, receives the current `InputNode` and returns a string.
+   * When a function, receives the document metadata and returns a string.
    */
-  footer?: string | ((node?: InputNode) => string)
+  footer?: string | ((meta?: InputMeta) => string)
   /**
    * Whether to override existing external files if they already exist.
    * @default false
