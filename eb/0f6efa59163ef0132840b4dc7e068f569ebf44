@@ -1,0 +1,30 @@
+docs/architecture/always-stream.md
+  s_f786084865badb::t_f0532c30cdcd14 1-40,44,48,52,56,78-80,82-85,88-89,91,93-94,96-97,99-127,131-159,164-174,176-193
+  s_f786084865badb::t_61033e2bb5bb56 86-87,90,92,95,98
+  s_f786084865badb::t_8b4dd96690e675 41-43,45-47,49-51,53-55,57-77,81
+  s_f786084865badb::t_a806d356ef92d1 175
+  s_f786084865badb::t_1ac791f6002d58 128-130
+  s_f786084865badb::t_89aa85d303d48a 160-163
+packages/ast/src/nodes/root.ts
+  s_f786084865badb::t_5a982faf804687 6-8,12,17,21,25,29
+  s_f786084865badb::t_c2f7b6f3e765a6 82-85,87-90,92-94
+docs/performance.md
+  s_f786084865badb::t_f22ae50ca83540 236-256
+  s_f786084865badb::t_13dce62852a61f 298,303,307-309
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "eb0f6efa59163ef0132840b4dc7e068f569ebf44",
+  "prompts": {},
+  "sessions": {
+    "s_f786084865badb": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "c46178e7-6b87-48e3-8bf8-69fb8ec4f3d2",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
