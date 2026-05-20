@@ -1,6 +1,6 @@
 import { ast } from '@kubb/core'
 
-type DiscriminatorTarget = {
+export type DiscriminatorTarget = {
   propertyName: string
   enumValues: Array<string | number | boolean>
 }

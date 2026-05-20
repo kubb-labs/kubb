@@ -2,10 +2,10 @@ import { ast, createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { applyDiscriminatorInheritance, buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
 import { parseDocument, parseFromConfig, validateDocument } from './factory.ts'
-import { createSchemaParser, parseOas } from './parser.ts'
-import { getSchemas, resolveServerUrl } from './resolvers.ts'
+import { createSchemaParser } from './parser.ts'
+import { getSchemas } from './resolvers.ts'
+import { createInputStream, preScan, resolveBaseUrl } from './stream.ts'
 import type { AdapterOas, Document } from './types.ts'
 
 /**
@@ -60,11 +60,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   let schemaObjects: ReturnType<typeof getSchemas>['schemas'] | null = null
   let baseOasInstance: BaseOas | null = null
   let schemaParserInstance: ReturnType<typeof createSchemaParser> | null = null
-
-  function resolveBaseURL(document: Document): string | undefined {
-    const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
-    return server?.url ? resolveServerUrl(server, serverVariables) : undefined
-  }
+  let preScanCache: ReturnType<typeof preScan> | null = null
 
   async function ensureDocument(source: AdapterSource): Promise<Document> {
     if (parsedDocument) return parsedDocument
@@ -91,6 +87,37 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   function ensureSchemaParser(document: Document): ReturnType<typeof createSchemaParser> {
     if (!schemaParserInstance) schemaParserInstance = createSchemaParser({ document, contentType })
     return schemaParserInstance
+  }
+
+  function ensurePreScan(schemas: ReturnType<typeof getSchemas>['schemas'], parseSchema: ReturnType<typeof createSchemaParser>['parseSchema']): ReturnType<typeof preScan> {
+    if (!preScanCache) preScanCache = preScan({ schemas, parseSchema, parserOptions, discriminator })
+
+    return preScanCache
+  }
+
+  async function createStream(source: AdapterSource): Promise<ast.InputStreamNode> {
+    const document = await ensureDocument(source)
+    const schemas = await ensureSchemas(document)
+    const { parseSchema, parseOperation } = ensureSchemaParser(document)
+    const { refAliasMap, enumNames, circularNames, discriminatorChildMap } = ensurePreScan(schemas, parseSchema)
+
+    return createInputStream({
+      schemas,
+      parseSchema,
+      parseOperation,
+      baseOas: ensureBaseOas(document),
+      parserOptions,
+      refAliasMap,
+      discriminatorChildMap,
+      meta: {
+        title: document.info?.title,
+        description: document.info?.description,
+        version: document.info?.version,
+        baseURL: resolveBaseUrl({ document, serverIndex, serverVariables }),
+        circularNames,
+        enumNames,
+      },
+    })
   }
 
   return {
@@ -130,118 +157,15 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       })
     },
     async parse(source) {
-      const document = await ensureDocument(source)
+      const streamNode = await createStream(source)
+      const schemas: ast.SchemaNode[] = []
+      const operations: ast.OperationNode[] = []
 
-      const { root: parsedRoot, nameMapping: parsedNameMapping } = parseOas(document, {
-        contentType,
-        dateType,
-        integerType,
-        unknownType,
-        emptySchemaType,
-        enumSuffix,
-      })
+      for await (const schema of streamNode.schemas) schemas.push(schema)
+      for await (const operation of streamNode.operations) operations.push(operation)
 
-      const node = discriminator === 'inherit' ? applyDiscriminatorInheritance(parsedRoot) : parsedRoot
-
-      // This must happen after parseOas() because legacy enum remapping is finalized there.
-      nameMapping = parsedNameMapping
-
-      const circularNames = [...ast.findCircularSchemas(node.schemas)]
-      const enumNames = node.schemas.filter((s) => ast.narrowSchema(s, ast.schemaTypes.enum) && s.name).map((s) => s.name!)
-
-      return ast.createInput({
-        ...node,
-        meta: {
-          title: document.info?.title,
-          description: document.info?.description,
-          version: document.info?.version,
-          baseURL: resolveBaseURL(document),
-          circularNames,
-          enumNames,
-        },
-      })
+      return ast.createInput({ schemas, operations, meta: streamNode.meta })
     },
-    async stream(source) {
-      const document = await ensureDocument(source)
-      const schemas = await ensureSchemas(document)
-
-      // Pre-scan: parse every schema once to build three lookup structures:
-      //   preScanMap  — name→node for ref resolution during yield (kept alive for streaming lifetime)
-      //   circularNames — names of schemas in circular chains (stored on InputMeta)
-      //   enumNames     — names of enum schemas (stored on InputMeta)
-      //   discriminatorChildMap — discriminator targets for inherit mode
-      const { parseSchema: _preParser } = ensureSchemaParser(document)
-      const preScanMap = new Map<string, ast.SchemaNode>()
-      const enumNames: string[] = []
-      const discriminatorParentNodes: ast.SchemaNode[] = []
-
-      for (const [name, schema] of Object.entries(schemas)) {
-        const node = _preParser({ schema, name }, parserOptions)
-        preScanMap.set(name, node)
-        if (ast.narrowSchema(node, ast.schemaTypes.enum) && node.name) {
-          enumNames.push(node.name)
-        }
-        if (discriminator === 'inherit' && (schema.oneOf ?? schema.anyOf) && schema.discriminator?.propertyName) {
-          discriminatorParentNodes.push(node)
-        }
-      }
-
-      const circularNames = [...ast.findCircularSchemas([...preScanMap.values()])]
-      const discriminatorChildMap = discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
-
-      // Each [Symbol.asyncIterator]() call returns a fresh generator so multiple
-      // plugins can do independent `for await` passes without shared state.
-      // The underlying parser and BaseOas instance are cached at adapter scope.
-      const schemasIterable: AsyncIterable<ast.SchemaNode> = {
-        [Symbol.asyncIterator]() {
-          return (async function* () {
-            const { parseSchema: _parseSchema } = ensureSchemaParser(document)
-            for (const [name, schema] of Object.entries(schemas)) {
-              const parsedNode = _parseSchema({ schema, name }, parserOptions)
-              const entry = discriminatorChildMap?.get(name)
-              const patched = entry ? patchDiscriminatorNode(parsedNode, entry) : parsedNode
-              // Inline top-level $ref aliases so generators always receive a
-              // fully-defined node. The preScanMap holds all pre-parsed nodes and
-              // stays alive for the streaming lifetime (same pattern as discriminatorChildMap).
-              const node = (() => {
-                if (patched.type === 'ref' && patched.name && patched.name !== name) {
-                  const resolved = preScanMap.get(patched.name)
-                  if (resolved) return { ...resolved, name }
-                }
-                return patched
-              })()
-              yield node
-            }
-          })()
-        },
-      }
-
-      const operationsIterable: AsyncIterable<ast.OperationNode> = {
-        [Symbol.asyncIterator]() {
-          return (async function* () {
-            const { parseOperation: _parseOperation } = ensureSchemaParser(document)
-            const baseOas = ensureBaseOas(document)
-            const paths = baseOas.getPaths()
-
-            for (const methods of Object.values(paths)) {
-              for (const operation of Object.values(methods)) {
-                if (!operation) continue
-                const node = _parseOperation(parserOptions, operation)
-                if (node) yield node
-              }
-            }
-          })()
-        },
-      }
-
-      return ast.createStreamInput(schemasIterable, operationsIterable, {
-        title: document.info?.title,
-        description: document.info?.description,
-        version: document.info?.version,
-        baseURL: resolveBaseURL(document),
-        circularNames,
-        enumNames,
-      })
-    },
+    stream: createStream,
   }
 })
