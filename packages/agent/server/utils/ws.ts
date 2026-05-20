@@ -73,12 +73,16 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
   hooks.on('kubb:files:processing:update', ({ files }) => {
     sendDataMessage({
       type: 'kubb:files:processing:update',
-      data: files.map((ctx) => ({
-        file: ctx.file.path,
-        processed: ctx.processed,
-        total: ctx.total,
-        percentage: ctx.percentage,
-      })),
+      data: [
+        {
+          files: files.map((ctx) => ({
+            file: ctx.file.path,
+            processed: ctx.processed,
+            total: ctx.total,
+            percentage: ctx.percentage,
+          })),
+        },
+      ],
       timestamp: Date.now(),
     })
   })
