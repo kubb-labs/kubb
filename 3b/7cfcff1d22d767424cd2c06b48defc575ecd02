@@ -1,0 +1,21 @@
+plans/perf-followups.md
+  s_53db136595206e::t_4f9e0b868c50b3 161
+cspell.json
+  s_53db136595206e::t_f1958e14504525 30-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "3b7cfcff1d22d767424cd2c06b48defc575ecd02",
+  "prompts": {},
+  "sessions": {
+    "s_53db136595206e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a7e9ccc5-b9b8-4bdc-9c5b-86390b26c561",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
