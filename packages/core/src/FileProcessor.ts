@@ -83,7 +83,14 @@ export class FileProcessor {
     return files
   }
 
-  [Symbol.dispose](): void {
+  /**
+   * Clears all registered event listeners.
+   */
+  dispose(): void {
     this.events.removeAll()
+  }
+
+  [Symbol.dispose](): void {
+    this.dispose()
   }
 }

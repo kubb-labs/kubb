@@ -1065,8 +1065,12 @@ export class Kubb {
     return { failedPlugins, files: driver.fileManager.files, driver, pluginTimings, storage, ...(error ? { error } : {}) }
   }
 
-  [Symbol.dispose](): void {
+  dispose(): void {
     this.#driver?.dispose()
+  }
+
+  [Symbol.dispose](): void {
+    this.dispose()
   }
 
   #configLogs(config: Config): Array<string> {
