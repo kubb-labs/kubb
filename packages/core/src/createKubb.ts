@@ -1077,6 +1077,8 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
   }
 }
 
+type GeneratorEntry = { plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }
+
 async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   using _cleanup = setupResult
   const { driver, hooks, storage } = setupResult
@@ -1150,18 +1152,11 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   }
 
   /**
-   * Single-pass fan-out for streaming mode.
-   *
-   * Iterates `inputNode.schemas` and `.operations` exactly once, distributing each
-   * node to every plugin in parallel. This replaces the N-pass-per-plugin pattern (where
-   * each plugin got its own `for await` iterator) with a single parse pass fanned to all
-   * plugins — eliminating the N×parse-time overhead for multi-plugin builds.
-   *
-   * Each plugin still gets independent `plugin:start` / `plugin:end` events and its own
-   * timing, but the schema and operation nodes are parsed only once total.
+   * Single-pass fan-out: iterates all schemas and operations once, distributing each node
+   * to every generator-plugin in parallel. This replaces the N-pass-per-plugin pattern
+   * (each plugin getting its own iterator) with one parse pass fanned to all plugins,
+   * eliminating the N×parse-time overhead for multi-plugin builds.
    */
-  type GeneratorEntry = { plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }
-
   async function runPlugins(entries: Array<GeneratorEntry>): Promise<void> {
     type PluginState = {
       plugin: NormalizedPlugin
@@ -1184,7 +1179,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       allowedSchemaNames: Set<string> | undefined
     }
 
-    const inputNode = driver.inputNode!
+    const { schemas, operations } = driver.inputNode!
     const operationFilterTypes = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
     const states: PluginState[] = entries.map(({ plugin, context, hrStart }) => {
       const { exclude, include, override } = plugin.options
@@ -1212,18 +1207,18 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     })
 
     if (pruningStates.length > 0) {
-      // Trade-off: materialise all schemas into memory for one full pass to compute
+      // Trade-off: materialize all schemas into memory for one full pass to compute
       // the reachable-schema sets. This is done at most once per build regardless of
       // how many pruning plugins are active, because each AsyncIterable yields a fresh
       // iterator — consuming it here does not affect the main dispatch passes below.
       const allSchemas: SchemaNode[] = []
-      for await (const schema of inputNode.schemas) {
+      for await (const schema of schemas) {
         allSchemas.push(schema)
       }
 
       // Collect included operations per pruning plugin.
       const includedOpsByState = new Map<PluginState, OperationNode[]>(pruningStates.map((s) => [s, []]))
-      for await (const operation of inputNode.operations) {
+      for await (const operation of operations) {
         for (const state of pruningStates) {
           const { exclude, include, override } = state.plugin.options
           const options = state.generatorContext.resolver.resolveOptions(operation, { options: state.plugin.options, exclude, include, override })
@@ -1310,7 +1305,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     // Batch schemas: SCHEMA_PARALLEL nodes dispatched across all plugins concurrently.
     // Per-plugin work inside dispatchSchema stays sequential so FileManager.upsert
     // ordering for any single plugin chain remains deterministic.
-    await forBatches(inputNode.schemas, (nodes) => Promise.all(nodes.flatMap((n) => states.map((state) => dispatchSchema(state, n)))), {
+    await forBatches(schemas, (nodes) => Promise.all(nodes.flatMap((n) => states.map((state) => dispatchSchema(state, n)))), {
       concurrency: SCHEMA_PARALLEL,
       flush: flushPendingFiles,
     })
@@ -1318,7 +1313,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     const collectedOperations: OperationNode[] = []
 
     await forBatches(
-      inputNode.operations,
+      operations,
       (nodes) => {
         collectedOperations.push(...nodes)
         return Promise.all(nodes.flatMap((n) => states.map((state) => dispatchOperation(state, n))))
@@ -1404,7 +1399,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         continue
       }
 
-      if (plugin.generators?.length || driver.hasRegisteredGenerators(plugin.name)) {
+      if (plugin.generators?.length || driver.hasEventGenerators(plugin.name)) {
         generatorPlugins.push({ plugin, context, hrStart })
         continue
       }

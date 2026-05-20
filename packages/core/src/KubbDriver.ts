@@ -1,8 +1,7 @@
 import { resolve } from 'node:path'
 import { arrayToAsyncIterable, type AsyncEventEmitter, URLPath } from '@internals/utils'
-import { createStreamInput } from '@kubb/ast'
+import { createFile, createStreamInput } from '@kubb/ast'
 import type { FileNode, InputMeta, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
-import { createFile } from '@kubb/ast'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Plugin } from './definePlugin.ts'
@@ -25,8 +24,6 @@ import type {
   PluginFactoryOptions,
   Resolver,
 } from './types.ts'
-
-// inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
 type Options = {
   hooks: AsyncEventEmitter<KubbHooks>
@@ -60,26 +57,26 @@ export class KubbDriver {
   inputNode: InputStreamNode | undefined = undefined
   adapter: Adapter | undefined = undefined
   /**
-   * The raw adapter source (path or buffer), retained after the build so that
-   * `openInStudio` can call `adapter.parse()` lazily without re-reading the file.
-   * Intentionally outlives the build; cleared by `dispose()`.
+   * Studio session state, kept together so `dispose()` can reset it atomically.
+   *
+   * - `source` holds the raw adapter source so `adapter.parse()` can be called lazily.
+   *   Intentionally outlives the build; cleared by `dispose()`.
+   * - `isOpen` prevents opening the studio more than once per build.
+   * - `inputNode` caches the parse promise so `adapter.parse()` is called at most once
+   *   per studio session, even when `openInStudio()` is called multiple times.
    */
-  #adapterSource: AdapterSource | undefined = undefined
-  /**
-   * Cached promise for the eagerly-parsed `InputNode` used by `openInStudio`.
-   * Initialised on first call; subsequent calls reuse the same parse result.
-   * Wrapped in `Promise.resolve` so `adapter.parse` sync returns are handled uniformly.
-   */
-  #studioInputNode: Promise<InputNode> | undefined
+  #studio: { source: AdapterSource | undefined; isOpen: boolean; inputNode: Promise<InputNode> | undefined } = {
+    source: undefined,
+    isOpen: false,
+    inputNode: undefined,
+  }
 
   // Register middleware hooks after all plugin hooks are registered.
   // Because AsyncEventEmitter calls listeners in registration order,
   // middleware hooks for any event fire after all plugin hooks for that event.
   // Handlers are tracked so they can be removed after each build (disposeMiddleware),
   // preventing accumulation when multiple configs share the same hooks instance.
-  middlewareListeners: Array<[keyof KubbHooks & string, (...args: never[]) => void | Promise<void>]> = []
-
-  #studioIsOpen = false
+  #middlewareListeners: Array<[keyof KubbHooks & string, (...args: never[]) => void | Promise<void>]> = []
 
   /**
    * Central file store for all generated files.
@@ -94,7 +91,7 @@ export class KubbDriver {
    * Tracks which plugins have generators registered via `addGenerator()` (event-based path).
    * Used by the build loop to decide whether to emit generator events for a given plugin.
    */
-  readonly #pluginsWithEventGenerators = new Set<string>()
+  readonly #eventGeneratorPlugins = new Set<string>()
   readonly #resolvers = new Map<string, Resolver>()
   readonly #defaultResolvers = new Map<string, Resolver>()
   readonly #hookListeners = new Map<keyof KubbHooks, Set<(...args: never[]) => void | Promise<void>>>()
@@ -171,14 +168,14 @@ export class KubbDriver {
 
   async #registerAdapter(adapter: Adapter) {
     const source = inputToAdapterSource(this.config)
-    this.#adapterSource = source
+    this.#studio.source = source
 
     if (adapter.stream) {
       this.inputNode = await adapter.stream(source)
 
       await this.hooks.emit('kubb:debug', {
         date: new Date(),
-        logs: [`✓ Adapter '${adapter.name}' streaming InputStreamNode`],
+        logs: [`✓ Adapter '${adapter.name}' producing input stream`],
       })
     } else {
       // Adapter does not implement stream() — eagerly parse and wrap in a
@@ -205,7 +202,7 @@ export class KubbDriver {
     }
 
     this.hooks.on(event, handler)
-    this.middlewareListeners.push([event, handler as (...args: never[]) => void | Promise<void>])
+    this.#middlewareListeners.push([event, handler as (...args: never[]) => void | Promise<void>])
   }
 
   /**
@@ -346,7 +343,7 @@ export class KubbDriver {
       this.#trackHookListener('kubb:generate:operations', operationsHandler as (...args: never[]) => void | Promise<void>)
     }
 
-    this.#pluginsWithEventGenerators.add(pluginName)
+    this.#eventGeneratorPlugins.add(pluginName)
   }
 
   /**
@@ -356,8 +353,8 @@ export class KubbDriver {
    * Used by the build loop to decide whether to walk the AST and emit generator events
    * for a plugin that has no static `plugin.generators`.
    */
-  hasRegisteredGenerators(pluginName: string): boolean {
-    return this.#pluginsWithEventGenerators.has(pluginName)
+  hasEventGenerators(pluginName: string): boolean {
+    return this.#eventGeneratorPlugins.has(pluginName)
   }
 
   /**
@@ -374,7 +371,7 @@ export class KubbDriver {
     }
 
     this.#hookListeners.clear()
-    this.#pluginsWithEventGenerators.clear()
+    this.#eventGeneratorPlugins.clear()
     // Release resolver closures — the driver is rebuilt for each build() call
     // so there is no value in retaining these maps after disposal.
     this.#resolvers.clear()
@@ -384,10 +381,9 @@ export class KubbDriver {
     // any FileNodes the caller needs to inspect.
     this.fileManager.dispose()
     this.inputNode = undefined
-    this.#adapterSource = undefined
-    this.#studioInputNode = undefined
+    this.#studio = { source: undefined, isOpen: false, inputNode: undefined }
 
-    for (const [event, handler] of this.middlewareListeners) {
+    for (const [event, handler] of this.#middlewareListeners) {
       this.hooks.off(event, handler as never)
     }
   }
@@ -491,7 +487,7 @@ export class KubbDriver {
         driver.hooks.emit('kubb:info', { message })
       },
       async openInStudio(options?: DevtoolsOptions) {
-        if (!driver.config.devtools || driver.#studioIsOpen) {
+        if (!driver.config.devtools || driver.#studio.isOpen) {
           return
         }
 
@@ -499,15 +495,15 @@ export class KubbDriver {
           throw new Error('Devtools must be an object')
         }
 
-        if (!driver.adapter || !driver.#adapterSource) {
+        if (!driver.adapter || !driver.#studio.source) {
           throw new Error('adapter is not defined, make sure you have set the parser in kubb.config.ts')
         }
 
-        driver.#studioIsOpen = true
+        driver.#studio.isOpen = true
 
         const studioUrl = driver.config.devtools?.studioUrl ?? DEFAULT_STUDIO_URL
-        driver.#studioInputNode ??= Promise.resolve(driver.adapter.parse(driver.#adapterSource))
-        const inputNode = await driver.#studioInputNode
+        driver.#studio.inputNode ??= Promise.resolve(driver.adapter.parse(driver.#studio.source))
+        const inputNode = await driver.#studio.inputNode
 
         return openInStudioFn(inputNode, studioUrl, options)
       },

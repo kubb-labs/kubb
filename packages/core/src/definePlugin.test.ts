@@ -130,12 +130,12 @@ describe('PluginDriver — hook-style plugin registration', () => {
     await driver.setup()
 
     // Before emit — no generators yet
-    expect(driver.hasRegisteredGenerators('hook-plugin')).toBe(false)
+    expect(driver.hasEventGenerators('hook-plugin')).toBe(false)
 
     await driver.emitSetupHooks()
 
     // After emit — generator is registered via the event-based path
-    expect(driver.hasRegisteredGenerators('hook-plugin')).toBe(true)
+    expect(driver.hasEventGenerators('hook-plugin')).toBe(true)
     // Generators registered via addGenerator() do NOT populate plugin.generators —
     // they are wired as listeners on kubb:generate:* events instead.
     expect(driver.plugins.get('hook-plugin')?.generators ?? []).toHaveLength(0)
@@ -366,7 +366,7 @@ describe('PluginDriver — generator event dispatch', () => {
     expect(schemaMock).not.toHaveBeenCalled()
   })
 
-  it('hasRegisteredGenerators() returns false before setup and true after', async () => {
+  it('hasEventGenerators() returns false before setup and true after', async () => {
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
       hooks: {
@@ -382,9 +382,9 @@ describe('PluginDriver — generator event dispatch', () => {
     })
     await driver.setup()
 
-    expect(driver.hasRegisteredGenerators('hook-plugin')).toBe(false)
+    expect(driver.hasEventGenerators('hook-plugin')).toBe(false)
     await driver.emitSetupHooks()
-    expect(driver.hasRegisteredGenerators('hook-plugin')).toBe(true)
+    expect(driver.hasEventGenerators('hook-plugin')).toBe(true)
   })
 
   it('registerGenerator() registers kubb:generate:operation listener', async () => {
