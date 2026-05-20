@@ -22,8 +22,8 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
  * - `middleware` defaults to `[middlewareBarrel()]`
  * - `output.barrel` defaults to `{ type: 'named' }` **only when `middlewareBarrel` is part of `middleware`**.
  *   When the user provides a custom middleware list without `middlewareBarrel`, `barrel` is left untouched.
- * - `output.format` defaults to `'auto'`
- * - `output.lint` defaults to `'auto'`
+ * - `output.format` defaults to `false`
+ * - `output.lint` defaults to `false`
  */
 function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
   const middleware = config.middleware?.length ? config.middleware : [middlewareBarrel()]

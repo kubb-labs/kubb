@@ -76,6 +76,14 @@ type GetConfigsOptions = {
    * Optional OpenAPI input path that overrides `config.input.path` for this run.
    */
   input?: string
+  /**
+   * Watch flag forwarded to the user's `defineConfig` function.
+   */
+  watch?: boolean
+  /**
+   * Log level forwarded to the user's `defineConfig` function.
+   */
+  logLevel?: CLIOptions['logLevel']
 }
 
 type GetConfigsResult = {
@@ -93,9 +101,10 @@ type GetConfigsResult = {
  * Discovers the Kubb config via cosmiconfig and resolves it into a normalized array of configs.
  * Every config in the result is guaranteed to have a `plugins` array.
  */
-export async function getConfigs({ configPath, input }: GetConfigsOptions): Promise<GetConfigsResult> {
+export async function getConfigs({ configPath, input, watch, logLevel }: GetConfigsOptions): Promise<GetConfigsResult> {
   const result = await getCosmiConfig(configPath)
-  const resolved = await (typeof result.config === 'function' ? result.config({ input } as CLIOptions) : result.config)
+  const cli: CLIOptions = { config: configPath, input, watch, logLevel }
+  const resolved = await (typeof result.config === 'function' ? result.config(cli) : result.config)
   const userConfigs = Array.isArray(resolved) ? resolved : [resolved]
 
   return {
