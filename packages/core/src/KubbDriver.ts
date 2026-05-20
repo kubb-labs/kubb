@@ -12,7 +12,7 @@ import { defineResolver } from './defineResolver.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
 import { FileProcessor } from './FileProcessor.ts'
-import type { RendererFactory } from './createRenderer.ts'
+import type { Renderer, RendererFactory } from './createRenderer.ts'
 
 import type {
   Adapter,
@@ -376,11 +376,17 @@ export class KubbDriver {
       }
     }
 
+    const pendingFiles = new Map<string, FileNode>()
+    this.fileManager.setOnUpsert((file) => {
+      pendingFiles.set(file.path, file)
+    })
+
     try {
 
     const flushPending = async (): Promise<void> => {
-      const files = this.fileManager.consumePending()
-      if (files.length === 0) return
+      if (pendingFiles.size === 0) return
+      const files = [...pendingFiles.values()]
+      pendingFiles.clear()
 
       await hooks.emit('kubb:debug', { date: new Date(), logs: [`Writing ${files.length} files...`] })
       await hooks.emit('kubb:files:processing:start', { files })
@@ -472,6 +478,8 @@ export class KubbDriver {
       return { failedPlugins, pluginTimings }
     } catch (caughtError) {
       return { failedPlugins, pluginTimings, error: caughtError as Error }
+    } finally {
+      this.fileManager.setOnUpsert(undefined)
     }
   }
 
@@ -881,8 +889,8 @@ export function applyHookResult<TElement = unknown>({
 
   const renderer = rendererFactory()
   if (renderer.stream) {
-    using _renderer = { [Symbol.dispose]: () => renderer.unmount() }
-    for (const file of renderer.stream(result)) {
+    using r = renderer
+    for (const file of r.stream!(result)) {
       driver.fileManager.upsert(file)
     }
     return
@@ -895,13 +903,13 @@ async function applyAsyncRender<TElement>({
   result,
   driver,
 }: {
-  renderer: { render(el: TElement): Promise<void>; files: ReadonlyArray<FileNode>; unmount(): void }
+  renderer: Renderer<TElement>
   result: TElement
   driver: KubbDriver
 }): Promise<void> {
-  await using _renderer = { [Symbol.asyncDispose]: async () => renderer.unmount() }
-  await renderer.render(result)
-  driver.fileManager.upsert(...renderer.files)
+  using r = renderer
+  await r.render(result)
+  driver.fileManager.upsert(...r.files)
 }
 
 function inputToAdapterSource(config: Config): AdapterSource {

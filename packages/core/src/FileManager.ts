@@ -15,10 +15,6 @@ function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNod
   }
 }
 
-/**
- * Collapses a list of files so that duplicates sharing the same `path` are merged
- * in arrival order. Keeps the original order of first occurrence.
- */
 function mergeFilesByPath(files: ReadonlyArray<FileNode>): Map<string, FileNode> {
   const merged = new Map<string, FileNode>()
   for (const file of files) {
@@ -28,55 +24,92 @@ function mergeFilesByPath(files: ReadonlyArray<FileNode>): Map<string, FileNode>
   return merged
 }
 
+function isIndexPath(path: string): boolean {
+  return path.endsWith('/index.ts') || path === 'index.ts'
+}
+
+// Sort order: shortest path first; within a length bucket, index.ts barrels last.
+function compareFiles(a: FileNode, b: FileNode): number {
+  const lenDiff = a.path.length - b.path.length
+  if (lenDiff !== 0) return lenDiff
+  const aIsIndex = isIndexPath(a.path)
+  const bIsIndex = isIndexPath(b.path)
+  if (aIsIndex && !bIsIndex) return 1
+  if (!aIsIndex && bIsIndex) return -1
+  return 0
+}
+
+function binaryInsert(sorted: Array<FileNode>, file: FileNode): void {
+  let lo = 0
+  let hi = sorted.length
+  while (lo < hi) {
+    const mid = (lo + hi) >>> 1
+    if (compareFiles(sorted[mid]!, file) <= 0) lo = mid + 1
+    else hi = mid
+  }
+  sorted.splice(lo, 0, file)
+}
+
 /**
- * In-memory file store for generated files.
- *
- * Files with the same `path` are merged — sources, imports, and exports are concatenated.
- * The `files` getter returns all stored files sorted by path length (shortest first).
+ * In-memory file store for generated files. Files sharing a `path` are merged
+ * (sources/imports/exports concatenated). The `files` getter is sorted by
+ * path length (barrel `index.ts` last within a bucket).
  *
  * @example
  * ```ts
- * import { FileManager } from '@kubb/core'
- *
  * const manager = new FileManager()
  * manager.upsert(myFile)
- * console.log(manager.files) // all stored files
+ * manager.files // sorted view
  * ```
  */
 export class FileManager {
   readonly #cache = new Map<string, FileNode>()
-  #filesCache: Array<FileNode> | null = null
-  readonly #pending = new Map<string, FileNode>()
+  // Sorted view maintained incrementally on insert / replace / delete so the
+  // `files` getter is O(1) and no full re-sort runs between upserts. Reassigned
+  // (not mutated in place) on clear so that callers holding a reference from a
+  // previous getter call keep their snapshot — the post-build `dispose()` must
+  // not silently empty an array the consumer already returned.
+  #sorted: Array<FileNode> = []
+  #onUpsert: ((file: FileNode) => void) | undefined
 
   /**
-   * Adds one or more files. Incoming files with the same path are merged
-   * (sources/imports/exports concatenated), but existing cache entries are
-   * replaced — use {@link upsert} when you want to merge into the cache too.
+   * Registers a callback invoked with the resolved {@link FileNode} on every
+   * `add` / `upsert`. Used by the build loop to track newly written files
+   * without keeping its own scan-based diff. Single subscriber by design —
+   * setting again replaces the previous callback. Pass `undefined` to detach.
    */
+  setOnUpsert(callback: ((file: FileNode) => void) | undefined): void {
+    this.#onUpsert = callback
+  }
+
   add(...files: Array<FileNode>): Array<FileNode> {
     return this.#store(files, false)
   }
 
-  /**
-   * Adds or merges one or more files.
-   * If a file with the same path already exists in the cache, its
-   * sources/imports/exports are merged into the incoming file.
-   */
   upsert(...files: Array<FileNode>): Array<FileNode> {
     return this.#store(files, true)
   }
 
   #store(files: ReadonlyArray<FileNode>, mergeExisting: boolean): Array<FileNode> {
-    const resolvedFiles: Array<FileNode> = []
+    const resolved: Array<FileNode> = []
     for (const file of mergeFilesByPath(files).values()) {
-      const existing = mergeExisting ? this.#cache.get(file.path) : undefined
-      const resolvedFile = createFile(existing ? mergeFile(existing, file) : file)
-      this.#cache.set(resolvedFile.path, resolvedFile)
-      this.#pending.set(resolvedFile.path, resolvedFile)
-      resolvedFiles.push(resolvedFile)
+      const existing = this.#cache.get(file.path)
+      const merged = createFile(existing && mergeExisting ? mergeFile(existing, file) : file)
+      this.#cache.set(merged.path, merged)
+
+      if (existing) {
+        // Same path → same sort position; replace in place rather than re-sort.
+        const idx = this.#sorted.indexOf(existing)
+        if (idx !== -1) this.#sorted[idx] = merged
+        else binaryInsert(this.#sorted, merged)
+      } else {
+        binaryInsert(this.#sorted, merged)
+      }
+
+      resolved.push(merged)
+      this.#onUpsert?.(merged)
     }
-    this.#filesCache = null
-    return resolvedFiles
+    return resolved
   }
 
   getByPath(path: string): FileNode | null {
@@ -84,34 +117,24 @@ export class FileManager {
   }
 
   deleteByPath(path: string): void {
+    const existing = this.#cache.get(path)
+    if (!existing) return
     this.#cache.delete(path)
-    this.#pending.delete(path)
-    this.#filesCache = null
+    const idx = this.#sorted.indexOf(existing)
+    if (idx !== -1) this.#sorted.splice(idx, 1)
   }
 
   clear(): void {
     this.#cache.clear()
-    this.#pending.clear()
-    this.#filesCache = null
+    this.#sorted = []
   }
 
   /**
-   * Returns files added or merged since the previous call and marks them as drained.
-   * Single-consumer: only one drain caller (the build loop) per FileManager instance.
-   */
-  consumePending(): Array<FileNode> {
-    if (this.#pending.size === 0) return []
-    const out = [...this.#pending.values()]
-    this.#pending.clear()
-    return out
-  }
-
-  /**
-   * Releases all stored files. Called by the core after `kubb:build:end` to
-   * free the per-plugin FileNode caches for the rest of the process lifetime.
+   * Releases all stored files. Called by the core after `kubb:build:end`.
    */
   dispose(): void {
     this.clear()
+    this.#onUpsert = undefined
   }
 
   [Symbol.dispose](): void {
@@ -119,24 +142,10 @@ export class FileManager {
   }
 
   /**
-   * All stored files, sorted by path length (shorter paths first).
+   * All stored files in stable sort order (shortest path first, barrel files
+   * last within a length bucket). Returns a live view — do not mutate.
    */
   get files(): Array<FileNode> {
-    if (this.#filesCache) {
-      return this.#filesCache
-    }
-
-    this.#filesCache = [...this.#cache.values()].sort((a, b) => {
-      const lenDiff = a.path.length - b.path.length
-      if (lenDiff !== 0) return lenDiff
-      // Within the same length bucket, index.ts barrel files go last so other
-      // files are always processed before their barrel file.
-      const aIsIndex = a.path.endsWith('/index.ts') || a.path === 'index.ts'
-      const bIsIndex = b.path.endsWith('/index.ts') || b.path === 'index.ts'
-      if (aIsIndex && !bIsIndex) return 1
-      if (!aIsIndex && bIsIndex) return -1
-      return 0
-    })
-    return this.#filesCache
+    return this.#sorted
   }
 }

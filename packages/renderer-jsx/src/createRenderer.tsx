@@ -33,6 +33,9 @@ export const jsxRenderer = () => {
     unmount(error?: Error | number | null) {
       runtime.unmount(error)
     },
+    [Symbol.dispose]() {
+      runtime.unmount()
+    },
   }
 }
 
@@ -76,5 +79,6 @@ export const jsxRendererSync = () => {
       return runtime.stream(element)
     },
     unmount(_error?: Error | number | null) {},
+    [Symbol.dispose]() {},
   }
 }

@@ -29,6 +29,11 @@ export type Renderer<TElement = unknown> = {
    * forwarding each file to `FileManager` as soon as it is ready.
    */
   stream?(element: TElement): Iterable<FileNode>
+  /**
+   * Disposer hook so renderers participate in `using` blocks: `using r = rendererFactory()`
+   * guarantees `unmount()` runs on every exit path, including thrown errors.
+   */
+  [Symbol.dispose](): void
 }
 
 /**
