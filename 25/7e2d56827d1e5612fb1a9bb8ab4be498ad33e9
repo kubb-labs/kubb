@@ -1,0 +1,21 @@
+.changeset/kubb-driver-streaming-cleanup.md
+  s_4277a4ed036ec5::t_db54b85ff09ced 12
+.changeset/always-stream-oas-adapter.md
+  s_4277a4ed036ec5::t_83b486861391a0 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "257e2d56827d1e5612fb1a9bb8ab4be498ad33e9",
+  "prompts": {},
+  "sessions": {
+    "s_4277a4ed036ec5": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "6adeac69-d5d0-45fb-a4b4-685ed2e13474",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
