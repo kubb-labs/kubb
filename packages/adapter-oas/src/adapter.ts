@@ -161,15 +161,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         },
       })
     },
-    async count(source) {
-      const document = await ensureDocument(source)
-      const schemas = await ensureSchemas(document)
-
-      const baseOas = ensureBaseOas(document)
-      const operationCount = Object.values(baseOas.getPaths()).flatMap(Object.values).filter(Boolean).length
-
-      return { schemas: Object.keys(schemas).length, operations: operationCount }
-    },
     async stream(source) {
       const document = await ensureDocument(source)
       const schemas = await ensureSchemas(document)

@@ -1152,7 +1152,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   /**
    * Single-pass fan-out for streaming mode.
    *
-   * Iterates `inputStreamNode.schemas` and `.operations` exactly once, distributing each
+   * Iterates `inputNode.schemas` and `.operations` exactly once, distributing each
    * node to every plugin in parallel. This replaces the N-pass-per-plugin pattern (where
    * each plugin got its own `for await` iterator) with a single parse pass fanned to all
    * plugins — eliminating the N×parse-time overhead for multi-plugin builds.
@@ -1160,9 +1160,9 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
    * Each plugin still gets independent `plugin:start` / `plugin:end` events and its own
    * timing, but the schema and operation nodes are parsed only once total.
    */
-  type StreamEntry = { plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }
+  type GeneratorEntry = { plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }
 
-  async function runStreamPlugins(entries: Array<StreamEntry>): Promise<void> {
+  async function runPlugins(entries: Array<GeneratorEntry>): Promise<void> {
     type PluginState = {
       plugin: NormalizedPlugin
       generatorContext: GeneratorContext
@@ -1184,7 +1184,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       allowedSchemaNames: Set<string> | undefined
     }
 
-    const inputStreamNode = driver.inputStreamNode!
+    const inputNode = driver.inputNode!
     const operationFilterTypes = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
     const states: PluginState[] = entries.map(({ plugin, context, hrStart }) => {
       const { exclude, include, override } = plugin.options
@@ -1217,13 +1217,13 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       // how many pruning plugins are active, because each AsyncIterable yields a fresh
       // iterator — consuming it here does not affect the main dispatch passes below.
       const allSchemas: SchemaNode[] = []
-      for await (const schema of inputStreamNode.schemas) {
+      for await (const schema of inputNode.schemas) {
         allSchemas.push(schema)
       }
 
       // Collect included operations per pruning plugin.
       const includedOpsByState = new Map<PluginState, OperationNode[]>(pruningStates.map((s) => [s, []]))
-      for await (const operation of inputStreamNode.operations) {
+      for await (const operation of inputNode.operations) {
         for (const state of pruningStates) {
           const { exclude, include, override } = state.plugin.options
           const options = state.generatorContext.resolver.resolveOptions(operation, { options: state.plugin.options, exclude, include, override })
@@ -1310,7 +1310,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     // Batch schemas: SCHEMA_PARALLEL nodes dispatched across all plugins concurrently.
     // Per-plugin work inside dispatchSchema stays sequential so FileManager.upsert
     // ordering for any single plugin chain remains deterministic.
-    await forBatches(inputStreamNode.schemas, (nodes) => Promise.all(nodes.flatMap((n) => states.map((state) => dispatchSchema(state, n)))), {
+    await forBatches(inputNode.schemas, (nodes) => Promise.all(nodes.flatMap((n) => states.map((state) => dispatchSchema(state, n)))), {
       concurrency: SCHEMA_PARALLEL,
       flush: flushPendingFiles,
     })
@@ -1318,7 +1318,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     const collectedOperations: OperationNode[] = []
 
     await forBatches(
-      inputStreamNode.operations,
+      inputNode.operations,
       (nodes) => {
         collectedOperations.push(...nodes)
         return Promise.all(nodes.flatMap((n) => states.map((state) => dispatchOperation(state, n))))
@@ -1367,11 +1367,11 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   try {
     await driver.emitSetupHooks()
 
-    if (driver.adapter && driver.inputStreamNode) {
+    if (driver.adapter && driver.inputNode) {
       await hooks.emit('kubb:build:start', {
         config,
         adapter: driver.adapter,
-        meta: driver.inputStreamNode.meta,
+        meta: driver.inputNode.meta,
         getPlugin: driver.getPlugin.bind(driver),
         get files() {
           return driver.fileManager.files
@@ -1383,7 +1383,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     // Always run the plugin lifecycle so middleware hooks (kubb:plugin:start,
     // kubb:plugin:end) fire even when no adapter is configured.
     // Generator-plugins are collected for the stream fan-out pass below.
-    const streamPluginEntries: Array<StreamEntry> = []
+    const generatorPlugins: Array<GeneratorEntry> = []
 
     for (const plugin of driver.plugins.values()) {
       const context = driver.getContext(plugin)
@@ -1405,7 +1405,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       }
 
       if (plugin.generators?.length || driver.hasRegisteredGenerators(plugin.name)) {
-        streamPluginEntries.push({ plugin, context, hrStart })
+        generatorPlugins.push({ plugin, context, hrStart })
         continue
       }
       // No generators: plugin ran via setup hooks; finish it now.
@@ -1427,14 +1427,14 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       })
     }
 
-    if (streamPluginEntries.length > 0) {
-      if (driver.inputStreamNode) {
+    if (generatorPlugins.length > 0) {
+      if (driver.inputNode) {
         // Normal path: fan-out schemas and operations to all generator-plugins in one pass.
-        await withDrain(() => runStreamPlugins(streamPluginEntries), flushPendingFiles)
+        await withDrain(() => runPlugins(generatorPlugins), flushPendingFiles)
       } else {
         // No adapter configured — generator-plugins have nothing to process.
         // Still emit plugin:end so middleware hooks (e.g. barrel) complete their lifecycle.
-        for (const { plugin, hrStart } of streamPluginEntries) {
+        for (const { plugin, hrStart } of generatorPlugins) {
           const duration = getElapsedMs(hrStart)
           pluginTimings.set(plugin.name, duration)
           await hooks.emit('kubb:plugin:end', {

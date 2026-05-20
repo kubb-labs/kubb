@@ -48,10 +48,9 @@ describe.skipIf(!hasStripe)('Stripe spec — batch vs streaming (1,385 schemas)'
   )
 
   bench(
-    'streaming — adapter.count() + stream() drain',
+    'streaming — adapter.stream() drain',
     async () => {
       const adapter = adapterOas({ validate: false })
-      await adapter.count!(stripeSource)
       const stream = await adapter.stream!(stripeSource)
       for await (const _ of stream.schemas) {
         /* drain */

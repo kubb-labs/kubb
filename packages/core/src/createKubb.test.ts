@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
-import { SCHEMA_PARALLEL, STREAM_FLUSH_EVERY, STREAM_SCHEMA_THRESHOLD } from './constants.ts'
+import { SCHEMA_PARALLEL, STREAM_FLUSH_EVERY } from './constants.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 
@@ -387,7 +387,7 @@ describe('createKubb', () => {
       expect(receivedOrder).toEqual(operations.map((o) => o.operationId))
     })
 
-    it('processes schemas in the streaming path (inputStreamNode) across batches', async () => {
+    it('processes schemas from adapter.stream() across batches', async () => {
       const count = SCHEMA_PARALLEL * 2 + 1
       const schemas = Array.from({ length: count }, (_, i) => createSchema({ name: `StreamSchema${i}`, type: 'string' }))
       const generatedPaths: string[] = []
@@ -401,7 +401,6 @@ describe('createKubb', () => {
         parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as string[], enumNames: [] as string[] }, schemas: [], operations: [] }),
       })
       Object.assign(streamAdapter, {
-        count: async () => ({ schemas: STREAM_SCHEMA_THRESHOLD + 1, operations: 0 }),
         stream: async () => createStreamInput(asyncSchemas(), asyncOps()),
       })
 

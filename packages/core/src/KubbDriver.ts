@@ -57,7 +57,7 @@ export class KubbDriver {
    * The streaming `InputStreamNode` produced by the adapter.
    * Always set after adapter setup — parse-only adapters are wrapped automatically.
    */
-  inputStreamNode: InputStreamNode | undefined = undefined
+  inputNode: InputStreamNode | undefined = undefined
   adapter: Adapter | undefined = undefined
   /**
    * The raw adapter source (path or buffer), retained after the build so that
@@ -174,7 +174,7 @@ export class KubbDriver {
     this.#adapterSource = source
 
     if (adapter.stream) {
-      this.inputStreamNode = await adapter.stream(source)
+      this.inputNode = await adapter.stream(source)
 
       await this.hooks.emit('kubb:debug', {
         date: new Date(),
@@ -184,7 +184,7 @@ export class KubbDriver {
       // Adapter does not implement stream() — eagerly parse and wrap in a
       // reusable AsyncIterable so the rest of the pipeline stays stream-only.
       const inputNode = await adapter.parse(source)
-      this.inputStreamNode = createStreamInput(arrayToAsyncIterable(inputNode.schemas), arrayToAsyncIterable(inputNode.operations), inputNode.meta)
+      this.inputNode = createStreamInput(arrayToAsyncIterable(inputNode.schemas), arrayToAsyncIterable(inputNode.operations), inputNode.meta)
 
       await this.hooks.emit('kubb:debug', {
         date: new Date(),
@@ -383,7 +383,7 @@ export class KubbDriver {
     // has finished; the returned `BuildOutput.files` array still references
     // any FileNodes the caller needs to inspect.
     this.fileManager.dispose()
-    this.inputStreamNode = undefined
+    this.inputNode = undefined
     this.#adapterSource = undefined
     this.#studioInputNode = undefined
 
@@ -470,7 +470,7 @@ export class KubbDriver {
         driver.fileManager.upsert(...files)
       },
       get meta(): InputMeta {
-        return driver.inputStreamNode?.meta ?? { circularNames: [], enumNames: [] }
+        return driver.inputNode?.meta ?? { circularNames: [], enumNames: [] }
       },
       get adapter(): Adapter | undefined {
         return driver.adapter
