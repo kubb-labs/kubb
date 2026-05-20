@@ -146,6 +146,9 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       // This must happen after parseOas() because legacy enum remapping is finalized there.
       nameMapping = parsedNameMapping
 
+      const circularNames = [...ast.findCircularSchemas(node.schemas)]
+      const enumNames = node.schemas.filter((s) => ast.narrowSchema(s, ast.schemaTypes.enum) && s.name).map((s) => s.name!)
+
       return ast.createInput({
         ...node,
         meta: {
@@ -153,6 +156,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
           description: document.info?.description,
           version: document.info?.version,
           baseURL: resolveBaseURL(document),
+          circularNames,
+          enumNames,
         },
       })
     },
@@ -169,17 +174,27 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       const document = await ensureDocument(source)
       const schemas = await ensureSchemas(document)
 
-      const discriminatorChildMap: Awaited<ReturnType<typeof buildDiscriminatorChildMap>> | null = (() => {
-        if (discriminator !== 'inherit') return null
-        const { parseSchema: _preParser } = ensureSchemaParser(document)
-        const parentNodes: ast.SchemaNode[] = []
-        for (const [name, schema] of Object.entries(schemas)) {
-          if ((schema.oneOf ?? schema.anyOf) && schema.discriminator?.propertyName) {
-            parentNodes.push(_preParser({ schema, name }, parserOptions))
-          }
+      // Pre-scan: parse every schema once to build the discriminator child map,
+      // compute circular reference names, and collect enum names. The parsed nodes
+      // are discarded after this block — only the derived name arrays survive.
+      const { parseSchema: _preParser } = ensureSchemaParser(document)
+      const preScanNodes: ast.SchemaNode[] = []
+      const enumNames: string[] = []
+      const discriminatorParentNodes: ast.SchemaNode[] = []
+
+      for (const [name, schema] of Object.entries(schemas)) {
+        const node = _preParser({ schema, name }, parserOptions)
+        preScanNodes.push(node)
+        if (ast.narrowSchema(node, ast.schemaTypes.enum) && node.name) {
+          enumNames.push(node.name)
         }
-        return parentNodes.length > 0 ? buildDiscriminatorChildMap(parentNodes) : null
-      })()
+        if (discriminator === 'inherit' && (schema.oneOf ?? schema.anyOf) && schema.discriminator?.propertyName) {
+          discriminatorParentNodes.push(node)
+        }
+      }
+
+      const circularNames = [...ast.findCircularSchemas(preScanNodes)]
+      const discriminatorChildMap = discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 
       // Each [Symbol.asyncIterator]() call returns a fresh generator so multiple
       // plugins can do independent `for await` passes without shared state.
@@ -221,6 +236,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         description: document.info?.description,
         version: document.info?.version,
         baseURL: resolveBaseURL(document),
+        circularNames,
+        enumNames,
       })
     },
   }
