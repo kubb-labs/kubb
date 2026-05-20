@@ -233,7 +233,27 @@ Structural requirement: printer inputs must be serializable (no functions, no cl
 - **Risk:** Medium — worker pool setup, data serialization overhead for small files may reduce gains
 - **Files:** `packages/core/src/createKubb.ts`, `packages/parser-ts/src/`
 
-### 6. Incremental builds
+### 6. Unify to always-stream (remove dual code paths)
+
+**Current:** Two mutually exclusive execution paths exist gated by `STREAM_SCHEMA_THRESHOLD = 100` schemas. Below the threshold, `adapter.parse()` loads all nodes into memory and `runAstPlugin()` processes plugins sequentially. Above it, `adapter.stream()` yields nodes lazily and `runStreamPlugins()` fans each node to all plugins concurrently. The `count()` pre-scan adds redundant parsing overhead whenever the adapter supports streaming.
+
+**Improvement:** Always use the streaming path. Enrich `InputMeta` with pre-computed data (`circularSchemas`, `enumSchemaNames`, `schemasByName`, `document`) so plugins no longer need `inputNode.schemas`. Replace `context.inputNode` with `context.meta` in generators. Remove `runAstPlugin()`, `inputNode`, and `STREAM_SCHEMA_THRESHOLD` entirely.
+
+This eliminates the `count()` pre-scan for specs above the threshold (saves one full document parse), removes ~90 lines of duplicate orchestration code, and ensures all specs benefit from the single-pass fan-out optimization regardless of size.
+
+| Spec | Saving (remove count pre-scan) | Code reduction |
+|------|:------------------------------:|:--------------:|
+| petStore | **~5 ms** | ~90 lines removed |
+| twitter | **~15 ms** | same |
+| openai | **~40 ms** | same |
+
+Time savings apply only to specs that currently trigger the streaming path (>100 schemas). For smaller specs, the benefit is architectural: one code path to maintain, consistent plugin execution order, and future optimizations only need to land once.
+
+- **Effort:** Medium (6 phases, see [architecture/always-stream.md](architecture/always-stream.md))
+- **Risk:** Low — phased rollout, each phase is independently shippable
+- **Files:** `packages/ast/src/nodes/root.ts`, `packages/core/src/KubbDriver.ts`, `packages/core/src/createKubb.ts`, `packages/core/src/defineGenerator.ts`, `packages/core/src/defineResolver.ts`, `packages/adapter-oas/src/adapter.ts`
+
+### 7. Incremental builds
 
 **Current:** Every build is a full rebuild. Watch mode re-runs the entire pipeline even for a single schema change.
 
@@ -275,14 +295,15 @@ Warm rebuild estimate assumes only 1–3 files need regeneration and their impor
 | Parallel file writes | Low | −8 ms | −52 ms | −180 ms | Low |
 | Streaming flush | Medium | −3 ms | −20 ms | −70 ms | Low |
 | Extend printer caching (all plugins) | Low | −15 ms | −75 ms | −240 ms | Low |
+| Unify to always-stream | Medium | −5 ms | −15 ms | −40 ms | Low |
 | Schema-level parallelism | High | −20 ms | −200 ms | −850 ms | Medium |
 | Worker threads for printing | High | −12 ms | −80 ms | −320 ms | Medium |
 | Incremental builds (warm) | Very high | −89 ms | −689 ms | −2 520 ms | High |
 
-Applying all remaining low/medium-effort changes (parallel writes + streaming flush + printer caching) would bring the build to approximately:
+Applying all remaining low/medium-effort changes (parallel writes + streaming flush + printer caching + always-stream) would bring the build to approximately:
 
 | Spec | Current | After low-effort changes | After all changes |
 |------|--------:|-------------------------:|------------------:|
-| petStore | 97 ms | **~71 ms** | **~49 ms** |
-| twitter | 714 ms | **~567 ms** | **~218 ms** |
-| openai | 2 580 ms | **~2 090 ms** | **~620 ms** |
+| petStore | 97 ms | **~66 ms** | **~44 ms** |
+| twitter | 714 ms | **~552 ms** | **~203 ms** |
+| openai | 2 580 ms | **~2 050 ms** | **~580 ms** |
