@@ -145,9 +145,10 @@ export type FunctionNode = BaseNode & {
   async?: boolean
   /**
    * TypeScript generic type parameters.
+   * `null` means intentionally no generics (e.g. from a resolver that returned null).
    * @example ['T', 'U extends string']
    */
-  generics?: string | string[]
+  generics?: string | string[] | null
   /**
    * Return type annotation.
    * `null` means intentionally no annotation (e.g. from a resolver that returned null).
@@ -208,9 +209,10 @@ export type ArrowFunctionNode = BaseNode & {
   async?: boolean
   /**
    * TypeScript generic type parameters.
+   * `null` means intentionally no generics (e.g. from a resolver that returned null).
    * @example ['T', 'U extends string']
    */
-  generics?: string | string[]
+  generics?: string | string[] | null
   /**
    * Return type annotation.
    * `null` means intentionally no annotation (e.g. from a resolver that returned null).

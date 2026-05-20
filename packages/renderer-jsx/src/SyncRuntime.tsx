@@ -103,7 +103,7 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Co
         export: props['export'] as boolean | undefined,
         default: props['default'] as boolean | undefined,
         async: props['async'] as boolean | undefined,
-        generics: props['generics'] as string | undefined,
+        generics: props['generics'] as string | string[] | null | undefined,
         returnType: props['returnType'] as string | null | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | undefined,
         nodes: collectCodeNodes(props),

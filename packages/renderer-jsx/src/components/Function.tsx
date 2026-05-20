@@ -40,6 +40,7 @@ type Props = {
   /**
    * TypeScript generic type parameters written verbatim between `<` and `>`.
    * Pass an array to emit multiple parameters separated by commas.
+   * Pass `null` to explicitly signal "no generics" when the value comes from a resolver.
    *
    * @example Single generic
    * `generics: 'TData'`
@@ -47,7 +48,7 @@ type Props = {
    * @example Multiple generics
    * `generics: ['TData', 'TError = unknown']`
    */
-  generics?: string | string[]
+  generics?: string | string[] | null
   /**
    * TypeScript return type annotation written verbatim after `:`.
    * When `async` is `true`, the value is automatically wrapped in `Promise<…>`.
