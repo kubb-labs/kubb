@@ -392,7 +392,9 @@ export class KubbDriver {
 
         const items = [...this.#fileProcessor.stream(files, { parsers: parsersMap, extension: config.output.extension })]
 
-        await hooks.emit('kubb:files:processing:update', { files: items.map(({ file, source, processed, total, percentage }) => ({ file, source, processed, total, percentage, config })) })
+        await hooks.emit('kubb:files:processing:update', {
+          files: items.map(({ file, source, processed, total, percentage }) => ({ file, source, processed, total, percentage, config })),
+        })
 
         const queue: Array<Promise<void>> = []
         for (const { file, source } of items) {
