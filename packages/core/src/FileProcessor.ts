@@ -82,4 +82,8 @@ export class FileProcessor {
 
     return files
   }
+
+  [Symbol.dispose](): void {
+    this.events.removeAll()
+  }
 }

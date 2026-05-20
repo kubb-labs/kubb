@@ -46,6 +46,7 @@ function mergeFilesByPath(files: ReadonlyArray<FileNode>): Map<string, FileNode>
 export class FileManager {
   readonly #cache = new Map<string, FileNode>()
   #filesCache: Array<FileNode> | null = null
+  readonly #pending = new Map<string, FileNode>()
 
   /**
    * Adds one or more files. Incoming files with the same path are merged
@@ -71,6 +72,7 @@ export class FileManager {
       const existing = mergeExisting ? this.#cache.get(file.path) : undefined
       const resolvedFile = createFile(existing ? mergeFile(existing, file) : file)
       this.#cache.set(resolvedFile.path, resolvedFile)
+      this.#pending.set(resolvedFile.path, resolvedFile)
       resolvedFiles.push(resolvedFile)
     }
     this.#filesCache = null
@@ -83,12 +85,25 @@ export class FileManager {
 
   deleteByPath(path: string): void {
     this.#cache.delete(path)
+    this.#pending.delete(path)
     this.#filesCache = null
   }
 
   clear(): void {
     this.#cache.clear()
+    this.#pending.clear()
     this.#filesCache = null
+  }
+
+  /**
+   * Returns files added or merged since the previous call and marks them as drained.
+   * Single-consumer: only one drain caller (the build loop) per FileManager instance.
+   */
+  consumePending(): Array<FileNode> {
+    if (this.#pending.size === 0) return []
+    const out = [...this.#pending.values()]
+    this.#pending.clear()
+    return out
   }
 
   /**
