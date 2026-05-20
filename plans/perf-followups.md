@@ -158,7 +158,7 @@ These were considered and rejected:
 - **Converting `fsStorage` / `memoryStorage` to classes** — the factory pattern is what enables swappable backends. Would force a breaking API change (`new MemoryStorage()` instead of `memoryStorage()`).
 - **Pruning pre-scan memory** (`#runGenerators` `allSchemas`) — the comment in the code already explains why this is a known trade-off. Schema reachability can't be computed without the full graph in memory.
 - **Parallel `forBatches(schemas, …)` + `forBatches(operations, …)`** — tried once, reverted. Races on shared `flushPending` + `FileProcessor.events`. Real correctness bug, not just a perf question.
-- **Tracking `kubb:plugin:end` payload allocation overhead** — each emit creates a fresh `{ get files(), upsertFile, … }`. Tiny per-plugin allocation; dedup'd via `#filesPayload()`. Not worth further reduction.
+- **Tracking `kubb:plugin:end` payload allocation overhead** — each emit creates a fresh `{ get files(), upsertFile, … }`. Tiny per-plugin allocation; already deduplicated via `#filesPayload()`. Not worth further reduction.
 
 ## Verification approach
 
