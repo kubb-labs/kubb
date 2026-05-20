@@ -132,3 +132,24 @@ export function isPromiseFulfilledResult<T = unknown>(result: PromiseSettledResu
 export function isPromiseRejectedResult<T>(result: PromiseSettledResult<unknown>): result is Omit<PromiseRejectedResult, 'reason'> & { reason: T } {
   return result.status === 'rejected'
 }
+
+/**
+ * Wraps a plain array in a reusable `AsyncIterable`.
+ * Each `[Symbol.asyncIterator]()` call returns a fresh generator so the
+ * iterable can be consumed multiple times (e.g. once per plugin pre-scan).
+ *
+ * @example
+ * ```ts
+ * const stream = arrayToAsyncIterable([1, 2, 3])
+ * for await (const n of stream) console.log(n) // 1, 2, 3
+ * ```
+ */
+export function arrayToAsyncIterable<T>(arr: readonly T[]): AsyncIterable<T> {
+  return {
+    [Symbol.asyncIterator]() {
+      return (async function* () {
+        yield* arr
+      })()
+    },
+  }
+}

@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { type AsyncEventEmitter, URLPath } from '@internals/utils'
+import { arrayToAsyncIterable, type AsyncEventEmitter, URLPath } from '@internals/utils'
 import { createStreamInput } from '@kubb/ast'
 import type { FileNode, InputMeta, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { createFile } from '@kubb/ast'
@@ -598,17 +598,3 @@ function inputToAdapterSource(config: Config): AdapterSource {
   return { type: 'path', path: resolved }
 }
 
-/**
- * Wraps a plain array in a reusable `AsyncIterable`.
- * Each `[Symbol.asyncIterator]()` call returns a fresh generator so the
- * iterable can be consumed multiple times (e.g. once per plugin pre-scan).
- */
-function arrayToAsyncIterable<T>(arr: readonly T[]): AsyncIterable<T> {
-  return {
-    [Symbol.asyncIterator]() {
-      return (async function* () {
-        yield* arr
-      })()
-    },
-  }
-}

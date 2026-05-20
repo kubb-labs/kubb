@@ -1385,56 +1385,58 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         },
         upsertFile: (...files) => driver.fileManager.upsert(...files),
       })
+    }
 
-      // Emit plugin:start for all plugins up front, collect generator-plugins
-      // for the fan-out pass, then handle non-generator plugins immediately.
-      const streamPluginEntries: Array<{ plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }> = []
+    // Always run the plugin lifecycle so middleware hooks (kubb:plugin:start,
+    // kubb:plugin:end) fire even when no adapter is configured.
+    // Generator-plugins are collected for the stream fan-out pass below.
+    const streamPluginEntries: Array<{ plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }> = []
 
-      for (const plugin of driver.plugins.values()) {
-        const context = driver.getContext(plugin)
-        const hrStart = process.hrtime()
+    for (const plugin of driver.plugins.values()) {
+      const context = driver.getContext(plugin)
+      const hrStart = process.hrtime()
 
-        try {
-          await hooks.emit('kubb:plugin:start', { plugin })
-          await hooks.emit('kubb:debug', {
-            date: new Date(),
-            logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`],
-          })
-        } catch (caughtError) {
-          const error = caughtError as Error
-          const duration = getElapsedMs(hrStart)
-          pluginTimings.set(plugin.name, duration)
-          await hooks.emit('kubb:plugin:end', { plugin, duration, success: false, error, config, get files() { return driver.fileManager.files }, upsertFile: (...files) => driver.fileManager.upsert(...files) })
-          failedPlugins.add({ plugin, error })
-          continue
-        }
-
-        if (plugin.generators?.length || driver.hasRegisteredGenerators(plugin.name)) {
-          streamPluginEntries.push({ plugin, context, hrStart })
-          continue
-        }
-        // No generators: plugin ran via setup hooks; finish it now.
-        const duration = getElapsedMs(hrStart)
-        pluginTimings.set(plugin.name, duration)
-        await hooks.emit('kubb:plugin:end', {
-          plugin,
-          duration,
-          success: true,
-          config,
-          get files() {
-            return driver.fileManager.files
-          },
-          upsertFile: (...files) => driver.fileManager.upsert(...files),
-        })
+      try {
+        await hooks.emit('kubb:plugin:start', { plugin })
         await hooks.emit('kubb:debug', {
           date: new Date(),
-          logs: [`✓ Plugin started successfully (${formatMs(duration)})`],
+          logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`],
         })
+      } catch (caughtError) {
+        const error = caughtError as Error
+        const duration = getElapsedMs(hrStart)
+        pluginTimings.set(plugin.name, duration)
+        await hooks.emit('kubb:plugin:end', { plugin, duration, success: false, error, config, get files() { return driver.fileManager.files }, upsertFile: (...files) => driver.fileManager.upsert(...files) })
+        failedPlugins.add({ plugin, error })
+        continue
       }
 
-      if (streamPluginEntries.length > 0) {
-        await withDrain(() => runStreamPlugins(streamPluginEntries), flushPendingFiles)
+      if (plugin.generators?.length || driver.hasRegisteredGenerators(plugin.name)) {
+        streamPluginEntries.push({ plugin, context, hrStart })
+        continue
       }
+      // No generators: plugin ran via setup hooks; finish it now.
+      const duration = getElapsedMs(hrStart)
+      pluginTimings.set(plugin.name, duration)
+      await hooks.emit('kubb:plugin:end', {
+        plugin,
+        duration,
+        success: true,
+        config,
+        get files() {
+          return driver.fileManager.files
+        },
+        upsertFile: (...files) => driver.fileManager.upsert(...files),
+      })
+      await hooks.emit('kubb:debug', {
+        date: new Date(),
+        logs: [`✓ Plugin started successfully (${formatMs(duration)})`],
+      })
+    }
+
+    // Generator-plugins require an input stream; skip the fan-out if none is available.
+    if (streamPluginEntries.length > 0 && driver.inputStreamNode) {
+      await withDrain(() => runStreamPlugins(streamPluginEntries), flushPendingFiles)
     }
 
     await hooks.emit('kubb:plugins:end', {
