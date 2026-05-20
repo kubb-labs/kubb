@@ -1,0 +1,37 @@
+packages/core/src/createKubb.ts
+  s_f786084865badb::t_5b3769ec2b3c00 1155-1158
+  s_f786084865badb::t_79635bbb21f917 1182
+  s_f786084865badb::t_2f0bb2c322e68a 1402
+  s_f786084865badb::t_0d2e7d932114cd 1080-1081
+  s_f786084865badb::t_b826f860d52469 1210
+  s_f786084865badb::t_9642ffb20fb55b 1215,1221,1308,1316
+packages/core/src/KubbDriver.ts
+  s_f786084865badb::t_8130b145154e90 62-63,68-72
+  s_f786084865badb::t_2f0bb2c322e68a 94,346,356-357,374
+  s_f786084865badb::t_d5abdda4b3eab6 178
+  s_f786084865badb::t_14d6d87e6ad9e4 171,498,505
+  s_f786084865badb::t_92487117c1bc8a 384
+  s_f786084865badb::t_0343c80fa3065b 490,502,506
+  s_f786084865badb::t_4a09ec6711002e 60-61,64-65
+  s_f786084865badb::t_ff802425fa875d 66
+  s_f786084865badb::t_15f47c93288449 79,205,386
+  s_f786084865badb::t_56ac5b47d49b0f 3
+packages/core/src/definePlugin.test.ts
+  s_f786084865badb::t_8756a56ffdc73f 133,138,369,385,387
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "bd9f00a37733034e88687192a83761e6804c07ca",
+  "prompts": {},
+  "sessions": {
+    "s_f786084865badb": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "c46178e7-6b87-48e3-8bf8-69fb8ec4f3d2",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
