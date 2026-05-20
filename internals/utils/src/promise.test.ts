@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { forBatches, isPromise, isPromiseFulfilledResult, isPromiseRejectedResult, withDrain } from './promise.ts'
+import { forBatches, isPromise, isPromiseFulfilledResult, isPromiseRejectedResult, memoize, once, withDrain } from './promise.ts'
 
 describe('promise utilities', () => {
   describe('isPromise', () => {
@@ -94,7 +94,7 @@ describe('forBatches', () => {
       expect(process).not.toHaveBeenCalled()
     })
 
-    it('calls flush after accumulated count crosses flushInterval', async () => {
+    it('calls flush after every batch', async () => {
       const flushed: number[] = []
       let processed = 0
       await forBatches(
@@ -107,19 +107,15 @@ describe('forBatches', () => {
           flush: async () => {
             flushed.push(processed)
           },
-          flushInterval: 5,
         },
       )
-      // flushInterval=5: crosses at 6 (after batch [3,4,5]), crosses at 12 (after batch [9,10,11])
 
-      expect(flushed.length).toBe(2)
-      expect(flushed[0]).toBeGreaterThanOrEqual(5)
-      expect(flushed[1]).toBeGreaterThanOrEqual(10)
+      expect(flushed).toEqual([3, 6, 9, 12])
     })
 
-    it('does not call flush when total count never reaches flushInterval', async () => {
+    it('does not call flush when source is empty', async () => {
       const flush = vi.fn()
-      await forBatches([1, 2, 3], async () => {}, { concurrency: 2, flush, flushInterval: 10 })
+      await forBatches([], async () => {}, { concurrency: 2, flush })
 
       expect(flush).not.toHaveBeenCalled()
     })
@@ -163,7 +159,7 @@ describe('forBatches', () => {
       expect(process).not.toHaveBeenCalled()
     })
 
-    it('calls flush after accumulated count crosses flushInterval', async () => {
+    it('calls flush after every batch (including the trailing partial batch)', async () => {
       const flushed: number[] = []
       let processed = 0
       await forBatches(
@@ -172,21 +168,19 @@ describe('forBatches', () => {
           processed += batch.length
         },
         {
-          concurrency: 3,
+          concurrency: 5,
           flush: async () => {
             flushed.push(processed)
           },
-          flushInterval: 5,
         },
       )
 
-      expect(flushed.length).toBe(2)
-      expect(flushed[0]).toBeGreaterThanOrEqual(5)
+      expect(flushed).toEqual([5, 10, 12])
     })
 
-    it('does not call flush when total count never reaches flushInterval', async () => {
+    it('does not call flush when source is empty', async () => {
       const flush = vi.fn()
-      await forBatches(generate([1, 2, 3]), async () => {}, { concurrency: 2, flush, flushInterval: 10 })
+      await forBatches(generate([]), async () => {}, { concurrency: 2, flush })
 
       expect(flush).not.toHaveBeenCalled()
     })
@@ -221,5 +215,95 @@ describe('withDrain', () => {
       /* work does not flush */
     }, flush)
     expect(flush).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('memoize', () => {
+  it('caches by key using a Map (primitive keys)', () => {
+    const factory = vi.fn((n: number) => n * 2)
+    const fn = memoize(new Map<number, number>(), factory)
+
+    expect(fn(3)).toBe(6)
+    expect(fn(3)).toBe(6)
+    expect(fn(4)).toBe(8)
+    expect(factory).toHaveBeenCalledTimes(2)
+  })
+
+  it('caches by key using a WeakMap (object keys)', () => {
+    const factory = vi.fn((obj: { v: number }) => obj.v * 10)
+    const fn = memoize(new WeakMap(), factory)
+
+    const a = { v: 1 }
+    const b = { v: 2 }
+
+    expect(fn(a)).toBe(10)
+    expect(fn(a)).toBe(10)
+    expect(fn(b)).toBe(20)
+    expect(factory).toHaveBeenCalledTimes(2)
+  })
+
+  it('clears correctly when the backing store is cleared', () => {
+    const factory = vi.fn((k: string) => k.toUpperCase())
+    const store = new Map<string, string>()
+    const fn = memoize(store, factory)
+
+    expect(fn('a')).toBe('A')
+    store.clear()
+    expect(fn('a')).toBe('A')
+    expect(factory).toHaveBeenCalledTimes(2)
+  })
+
+  it('supports two-level nesting (object + primitive key)', () => {
+    const innerFactory = vi.fn((k: string) => k)
+    const outerFactory = vi.fn((_obj: object) => memoize(new Map<string, string>(), innerFactory))
+    const fn = memoize(new WeakMap(), outerFactory)
+
+    const key = {}
+    fn(key)!('a')
+    fn(key)!('a')
+    fn(key)!('b')
+
+    expect(outerFactory).toHaveBeenCalledTimes(1)
+    expect(innerFactory).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('once', () => {
+  it('invokes the factory only on the first call and caches the result', () => {
+    const factory = vi.fn((n: number) => n * 2)
+    const fn = once(factory)
+
+    expect(fn(1)).toBe(2)
+    expect(fn(99)).toBe(2)
+    expect(fn(123)).toBe(2)
+    expect(factory).toHaveBeenCalledTimes(1)
+    expect(factory).toHaveBeenCalledWith(1)
+  })
+
+  it('shares one in-flight promise between concurrent async callers', async () => {
+    let resolved = 0
+    const factory = vi.fn(async () => {
+      await Promise.resolve()
+      return ++resolved
+    })
+    const fn = once(factory)
+
+    const [a, b, c] = await Promise.all([fn(), fn(), fn()])
+    expect(a).toBe(1)
+    expect(b).toBe(1)
+    expect(c).toBe(1)
+    expect(factory).toHaveBeenCalledTimes(1)
+  })
+
+  it('caches a rejected promise so subsequent callers receive the same error', async () => {
+    const error = new Error('boom')
+    const factory = vi.fn(async () => {
+      throw error
+    })
+    const fn = once(factory)
+
+    await expect(fn()).rejects.toBe(error)
+    await expect(fn()).rejects.toBe(error)
+    expect(factory).toHaveBeenCalledTimes(1)
   })
 })

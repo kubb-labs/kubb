@@ -31,6 +31,16 @@ export type OasParserContext = {
 }
 
 /**
+ * The object returned by {@link createSchemaParser}.
+ * Contains parser functions bound to a specific document.
+ */
+export type SchemaParser = {
+  parseSchema: (entry: { schema: SchemaObject; name?: string | null }, options?: Partial<ast.ParserOptions>) => ast.SchemaNode
+  parseOperation: (options: ast.ParserOptions, operation: Operation) => ast.OperationNode
+  parseParameter: (options: ast.ParserOptions, param: Record<string, unknown>) => ast.ParameterNode
+}
+
+/**
  * Pre-computed per-schema context passed to every schema converter.
  *
  * Centralizes schema derivations (type resolution, defaults, options) to avoid repeated

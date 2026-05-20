@@ -28,19 +28,9 @@ const minimalSpec = {
   },
 } as const
 
-describe('adapterOas.count', () => {
-  it('returns schema and operation counts without parsing AST nodes', async () => {
-    const adapter = adapterOas({ validate: false })
-    const { schemas, operations } = await adapter.count!({ type: 'data', data: minimalSpec })
-    expect(schemas).toBe(2)
-    expect(operations).toBe(1)
-  })
-})
-
 describe('adapterOas.stream', () => {
   it('yields each schema lazily via for await', async () => {
     const adapter = adapterOas({ validate: false })
-    await adapter.count!({ type: 'data', data: minimalSpec })
 
     const node = await adapter.stream!({ type: 'data', data: minimalSpec })
     const schemas: ast.SchemaNode[] = []

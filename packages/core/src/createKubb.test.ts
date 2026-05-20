@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
-import { SCHEMA_PARALLEL, STREAM_FLUSH_EVERY, STREAM_SCHEMA_THRESHOLD } from './constants.ts'
+import { SCHEMA_PARALLEL, STREAM_FLUSH_EVERY } from './constants.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 
@@ -209,7 +209,7 @@ describe('createKubb', () => {
     expect(endSpy).toHaveBeenCalled()
   })
 
-  it('flushes generated files per-plugin incrementally as each plugin completes', async () => {
+  it('flushes generated files after each schema batch across all active plugins', async () => {
     const hooks = new AsyncEventEmitter<KubbHooks>()
     const batches: Array<number> = []
     hooks.on('kubb:files:processing:start', ({ files }) => {
@@ -245,6 +245,7 @@ describe('createKubb', () => {
       adapter: createMockedAdapter({
         parse: async () => ({
           kind: 'Input' as const,
+          meta: { circularNames: [] as string[], enumNames: [] as string[] },
           schemas: [createSchema({ name: 'Pet', type: 'string' })],
           operations: [],
         }),
@@ -254,7 +255,9 @@ describe('createKubb', () => {
 
     const { files } = await createKubb(streamingConfig, { hooks }).build()
 
-    expect(batches).toEqual([1, 1])
+    // In the always-stream path all plugins fan-out together: both files are
+    // produced in the same batch and flushed as a single event.
+    expect(batches).toEqual([2])
     expect(files.map((file) => file.path)).toEqual(['/workspace/src/gen/one.ts', '/workspace/src/gen/two.ts'])
   })
 
@@ -338,7 +341,9 @@ describe('createKubb', () => {
         {
           ...config,
           storage: memoryStorage(),
-          adapter: createMockedAdapter({ parse: async () => ({ kind: 'Input', schemas, operations: [] }) }),
+          adapter: createMockedAdapter({
+            parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as string[], enumNames: [] as string[] }, schemas, operations: [] }),
+          }),
           plugins: [makeBatchPlugin(generatedPaths) as unknown as Plugin],
         },
         { hooks: new AsyncEventEmitter<KubbHooks>() },
@@ -375,7 +380,9 @@ describe('createKubb', () => {
         {
           ...config,
           storage: memoryStorage(),
-          adapter: createMockedAdapter({ parse: async () => ({ kind: 'Input', schemas: [], operations }) }),
+          adapter: createMockedAdapter({
+            parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as string[], enumNames: [] as string[] }, schemas: [], operations }),
+          }),
           plugins: [orderPlugin as unknown as Plugin],
         },
         { hooks: new AsyncEventEmitter<KubbHooks>() },
@@ -384,7 +391,7 @@ describe('createKubb', () => {
       expect(receivedOrder).toEqual(operations.map((o) => o.operationId))
     })
 
-    it('processes schemas in the streaming path (inputStreamNode) across batches', async () => {
+    it('processes schemas from adapter.stream() across batches', async () => {
       const count = SCHEMA_PARALLEL * 2 + 1
       const schemas = Array.from({ length: count }, (_, i) => createSchema({ name: `StreamSchema${i}`, type: 'string' }))
       const generatedPaths: string[] = []
@@ -395,10 +402,9 @@ describe('createKubb', () => {
       async function* asyncOps() {}
 
       const streamAdapter = createMockedAdapter({
-        parse: async () => ({ kind: 'Input' as const, schemas: [], operations: [] }),
+        parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as string[], enumNames: [] as string[] }, schemas: [], operations: [] }),
       })
       Object.assign(streamAdapter, {
-        count: async () => ({ schemas: STREAM_SCHEMA_THRESHOLD + 1, operations: 0 }),
         stream: async () => createStreamInput(asyncSchemas(), asyncOps()),
       })
 
@@ -453,7 +459,9 @@ describe('createKubb', () => {
         {
           ...config,
           storage: memoryStorage(),
-          adapter: createMockedAdapter({ parse: async () => ({ kind: 'Input', schemas, operations: [] }) }),
+          adapter: createMockedAdapter({
+            parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as string[], enumNames: [] as string[] }, schemas, operations: [] }),
+          }),
           plugins: [flushPlugin as unknown as Plugin],
         },
         { hooks },

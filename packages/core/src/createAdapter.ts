@@ -74,14 +74,6 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    */
   validate: (input: string, options?: { throwOnError?: boolean }) => Promise<void>
   /**
-   * Lightweight pre-flight count of schemas and operations without parsing AST nodes.
-   * The adapter should cache the loaded document so subsequent `parse()` or `stream()` calls
-   * do not reload it.
-   *
-   * Used by the core to decide whether to use `parse()` or `stream()`.
-   */
-  count?: (source: AdapterSource) => Promise<{ schemas: number; operations: number }>
-  /**
    * Memory-efficient streaming variant of `parse()`.
    *
    * Returns an `InputStreamNode` whose `schemas` and `operations` are `AsyncIterable`.

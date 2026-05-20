@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import { version as nodeVersion } from 'node:process'
 import type { PossiblePromise } from '@internals/utils'
 import { AsyncEventEmitter, BuildError, exists, forBatches, formatMs, getElapsedMs, URLPath, isPromise, withDrain } from '@internals/utils'
-import type { FileNode, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
+import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import { collectUsedSchemaNames, transform } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
 import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL, SCHEMA_PARALLEL, STREAM_FLUSH_EVERY } from './constants.ts'
@@ -113,7 +113,7 @@ export type Config<TInput = Input> = {
    */
   parsers: Array<Parser>
   /**
-   * Adapter that parses input files into the universal `InputNode` representation.
+   * Adapter that parses input files into the universal AST representation.
    * Use `@kubb/adapter-oas` for OpenAPI/Swagger or `@kubb/adapter-asyncapi` for other formats.
    *
    * When omitted, Kubb runs in plugin-only mode: `kubb:plugin:setup` fires and files
@@ -540,10 +540,10 @@ export type KubbBuildStartContext = {
    */
   adapter: Adapter
   /**
-   * Parsed input node. For streaming builds the node is a synthetic empty shell
-   * with only `meta` populated — use `kubb:generate:schema` / `kubb:generate:operation` to observe individual nodes.
+   * Metadata about the parsed document (title, version, base URL, circular schema names, enum names).
+   * To observe individual schemas and operations use the `kubb:generate:schema` / `kubb:generate:operation` hooks.
    */
-  inputNode: InputNode
+  meta: InputMeta | undefined
   /**
    * Looks up a registered plugin by name, typed by the plugin registry.
    */
@@ -1077,6 +1077,8 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
   }
 }
 
+type GeneratorEntry = { plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }
+
 async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   using _cleanup = setupResult
   const { driver, hooks, storage } = setupResult
@@ -1150,19 +1152,12 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   }
 
   /**
-   * Single-pass fan-out for streaming mode.
-   *
-   * Iterates `inputStreamNode.schemas` and `.operations` exactly once, distributing each
-   * node to every plugin in parallel. This replaces the N-pass-per-plugin pattern (where
-   * each plugin got its own `for await` iterator) with a single parse pass fanned to all
-   * plugins — eliminating the N×parse-time overhead for multi-plugin builds.
-   *
-   * Each plugin still gets independent `plugin:start` / `plugin:end` events and its own
-   * timing, but the schema and operation nodes are parsed only once total.
+   * Single-pass fan-out: iterates all schemas and operations once, distributing each node
+   * to every generator-plugin in parallel. This replaces the N-pass-per-plugin pattern
+   * (each plugin getting its own iterator) with one parse pass fanned to all plugins,
+   * eliminating the N×parse-time overhead for multi-plugin builds.
    */
-  async function runStreamPlugins(
-    entries: Array<{ plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }>,
-  ): Promise<void> {
+  async function runPlugins(entries: Array<GeneratorEntry>): Promise<void> {
     type PluginState = {
       plugin: NormalizedPlugin
       generatorContext: GeneratorContext
@@ -1176,9 +1171,16 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
        * reference in that case, so the inner loop can skip it entirely.
        */
       optionsAreStatic: boolean
+      /**
+       * Set when the plugin has operation-based includes (tag, operationId, path, method, contentType)
+       * but no schemaName includes. Schema nodes whose name is not in this set are skipped,
+       * matching the pruning behavior of the eager path.
+       */
+      allowedSchemaNames: Set<string> | undefined
     }
 
-    const inputStreamNode = driver.inputStreamNode!
+    const { schemas, operations } = driver.inputNode!
+    const operationFilterTypes = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
     const states: PluginState[] = entries.map(({ plugin, context, hrStart }) => {
       const { exclude, include, override } = plugin.options
       const hasExclude = Array.isArray(exclude) && exclude.length > 0
@@ -1192,8 +1194,45 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         failed: false,
         error: undefined,
         optionsAreStatic: !hasExclude && !hasInclude && !hasOverride,
+        allowedSchemaNames: undefined,
       }
     })
+
+    // Pre-scan: compute allowedSchemaNames for plugins that use operation-based includes
+    // without schemaName filters. Each AsyncIterable yields a fresh iterator on every call,
+    // so consuming them here does not affect the main dispatch passes below.
+    const pruningStates = states.filter(({ plugin }) => {
+      const { include } = plugin.options
+      return (include?.some(({ type }) => operationFilterTypes.has(type)) ?? false) && !(include?.some(({ type }) => type === 'schemaName') ?? false)
+    })
+
+    if (pruningStates.length > 0) {
+      // Known trade-off: computing the reachable-schema set for operation-based includes
+      // requires the full schema graph in memory at once — there is no way to determine
+      // transitive reachability from a single schema node in isolation.
+      // `allSchemas` is released as soon as this block exits; it is never held past
+      // the pruning pre-scan. The main dispatch passes below each get their own
+      // fresh iterator from the AsyncIterable, so this consumption does not affect them.
+      const allSchemas: SchemaNode[] = []
+      for await (const schema of schemas) {
+        allSchemas.push(schema)
+      }
+
+      // Collect the included operations for each pruning plugin in one shared pass.
+      const includedOpsByState = new Map<PluginState, OperationNode[]>(pruningStates.map((s) => [s, []]))
+      for await (const operation of operations) {
+        for (const state of pruningStates) {
+          const { exclude, include, override } = state.plugin.options
+          const options = state.generatorContext.resolver.resolveOptions(operation, { options: state.plugin.options, exclude, include, override })
+          if (options !== null) includedOpsByState.get(state)?.push(operation)
+        }
+      }
+
+      // Derive the allowed schema name set per pruning plugin.
+      for (const state of pruningStates) {
+        state.allowedSchemaNames = collectUsedSchemaNames(includedOpsByState.get(state) ?? [], allSchemas)
+      }
+    }
 
     function resolveRendererFor(gen: Generator, state: PluginState): RendererFactory | undefined {
       return gen.renderer === null ? undefined : (gen.renderer ?? state.plugin.renderer ?? state.generatorContext.config.renderer)
@@ -1206,6 +1245,12 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         const { plugin, generatorContext, generators } = state
 
         const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
+
+        // Skip named top-level schemas not reachable from any included operation.
+        if (state.allowedSchemaNames !== undefined && transformedNode.name && !state.allowedSchemaNames.has(transformedNode.name)) {
+          return
+        }
+
         const { exclude, include, override } = plugin.options
         const options = state.optionsAreStatic
           ? plugin.options
@@ -1262,7 +1307,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     // Batch schemas: SCHEMA_PARALLEL nodes dispatched across all plugins concurrently.
     // Per-plugin work inside dispatchSchema stays sequential so FileManager.upsert
     // ordering for any single plugin chain remains deterministic.
-    await forBatches(inputStreamNode.schemas, (nodes) => Promise.all(nodes.flatMap((n) => states.map((state) => dispatchSchema(state, n)))), {
+    await forBatches(schemas, (nodes) => Promise.all(nodes.flatMap((n) => states.map((state) => dispatchSchema(state, n)))), {
       concurrency: SCHEMA_PARALLEL,
       flush: flushPendingFiles,
     })
@@ -1270,7 +1315,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     const collectedOperations: OperationNode[] = []
 
     await forBatches(
-      inputStreamNode.operations,
+      operations,
       (nodes) => {
         collectedOperations.push(...nodes)
         return Promise.all(nodes.flatMap((n) => states.map((state) => dispatchOperation(state, n))))
@@ -1316,112 +1361,14 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     }
   }
 
-  /**
-   * Walks the AST and dispatches nodes to a plugin's direct AST hooks
-   * (`schema`, `operation`, `operations`).
-   *
-   * When `include` contains only operation-scoped filters (`tag`, `operationId`, `path`,
-   * `method`, `contentType`) and no `schemaName` filter, the function pre-computes the set
-   * of top-level schema names transitively reachable from the included operations and skips
-   * schemas that fall outside that set. This ensures that component schemas referenced
-   * exclusively by excluded operations are not generated.
-   */
-  async function runAstPlugin(plugin: NormalizedPlugin, context: GeneratorContext): Promise<void> {
-    const { adapter, inputNode, resolver } = context
-    const { exclude, include, override } = plugin.options
-
-    if (!adapter || !inputNode) {
-      throw new Error(`[${plugin.name}] No adapter found. Add an OAS adapter (e.g. adapterOas()) before this plugin in your Kubb config.`)
-    }
-
-    const generators = plugin.generators ?? []
-    const collectedOperations: Array<OperationNode> = []
-    const generatorContext = {
-      ...context,
-      resolver: driver.getResolver(plugin.name),
-    }
-    // When `include` has operation-based filters (tag, operationId, path, method, contentType)
-    // but no schema-level filters (schemaName), pre-compute the set of top-level schema names
-    // that are transitively referenced by the included operations. Schemas outside that set are
-    // skipped so that types belonging exclusively to excluded operations are not generated.
-    const operationFilterTypes = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
-    const hasOperationBasedIncludes = include?.some(({ type }) => operationFilterTypes.has(type)) ?? false
-    const hasSchemaNameIncludes = include?.some(({ type }) => type === 'schemaName') ?? false
-    const allowedSchemaNames: Set<string> | undefined = (() => {
-      if (!hasOperationBasedIncludes || hasSchemaNameIncludes) return undefined
-      const includedOps = inputNode!.operations.filter((op) => resolver.resolveOptions(op, { options: plugin.options, exclude, include, override }) !== null)
-      return collectUsedSchemaNames(includedOps, inputNode!.schemas)
-    })()
-
-    function resolveRenderer(gen: Generator): RendererFactory | undefined {
-      return gen.renderer === null ? undefined : (gen.renderer ?? plugin.renderer ?? context.config.renderer)
-    }
-
-    async function processSchema(node: SchemaNode): Promise<void> {
-      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-
-      // Skip named top-level schemas not reachable from any included operation.
-      if (allowedSchemaNames !== undefined && transformedNode.name && !allowedSchemaNames.has(transformedNode.name)) {
-        return
-      }
-
-      const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
-      if (options === null) return
-
-      const ctx = { ...generatorContext, options }
-
-      await Promise.all(
-        generators
-          .filter((gen) => gen.schema)
-          .map(async (gen) => {
-            const result = await gen.schema!(transformedNode, ctx)
-            return applyHookResult({ result, driver, rendererFactory: resolveRenderer(gen) })
-          }),
-      )
-
-      await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
-    }
-
-    async function processOperation(node: OperationNode): Promise<void> {
-      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-
-      const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
-      if (options === null) return
-
-      collectedOperations.push(transformedNode)
-
-      const ctx = { ...generatorContext, options }
-
-      await Promise.all(
-        generators
-          .filter((gen) => gen.operation)
-          .map(async (gen) => {
-            const result = await gen.operation!(transformedNode, ctx)
-            return applyHookResult({ result, driver, rendererFactory: resolveRenderer(gen) })
-          }),
-      )
-
-      await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
-    }
-
-    // Process schemas and operations in parallel batches; preserve insertion order for collectedOperations.
-    await forBatches(inputNode.schemas, (batch) => Promise.all(batch.map(processSchema)), { concurrency: SCHEMA_PARALLEL, flush: flushPendingFiles })
-    await forBatches(inputNode.operations, (batch) => Promise.all(batch.map(processOperation)), { concurrency: SCHEMA_PARALLEL, flush: flushPendingFiles })
-
-    if (collectedOperations.length > 0) {
-      const ctx = { ...generatorContext, options: plugin.options }
-      await dispatchOperationsToGenerators(generators, collectedOperations, ctx, resolveRenderer)
-    }
-  }
-
   try {
     await driver.emitSetupHooks()
 
-    if (driver.adapter && (driver.inputNode || driver.inputStreamNode)) {
+    if (driver.adapter && driver.inputNode) {
       await hooks.emit('kubb:build:start', {
         config,
         adapter: driver.adapter,
-        inputNode: driver.inputNode ?? { kind: 'Input' as const, schemas: [], operations: [], meta: driver.inputStreamNode?.meta },
+        meta: driver.inputNode.meta,
         getPlugin: driver.getPlugin.bind(driver),
         get files() {
           return driver.fileManager.files
@@ -1430,69 +1377,73 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       })
     }
 
-    const inputStreamNode = driver.inputStreamNode
-    if (inputStreamNode) {
-      // Emit plugin:start for all plugins up front, collect generator-plugins
-      // for the fan-out pass, then handle non-generator plugins immediately.
-      const streamPluginEntries: Array<{ plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }> = []
+    // Always run the plugin lifecycle so middleware hooks (kubb:plugin:start,
+    // kubb:plugin:end) fire even when no adapter is configured.
+    // Generator-plugins are collected for the stream fan-out pass below.
+    const generatorPlugins: Array<GeneratorEntry> = []
 
-      for (const plugin of driver.plugins.values()) {
-        const context = driver.getContext(plugin)
-        const hrStart = process.hrtime()
+    for (const plugin of driver.plugins.values()) {
+      const context = driver.getContext(plugin)
+      const hrStart = process.hrtime()
 
+      try {
         await hooks.emit('kubb:plugin:start', { plugin })
         await hooks.emit('kubb:debug', {
           date: new Date(),
           logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`],
         })
-
-        if (plugin.generators?.length || driver.hasRegisteredGenerators(plugin.name)) {
-          streamPluginEntries.push({ plugin, context, hrStart })
-          continue
-        }
-        // No generators: plugin ran via setup hooks; finish it now.
+      } catch (caughtError) {
+        const error = caughtError as Error
         const duration = getElapsedMs(hrStart)
         pluginTimings.set(plugin.name, duration)
         await hooks.emit('kubb:plugin:end', {
           plugin,
           duration,
-          success: true,
+          success: false,
+          error,
           config,
           get files() {
             return driver.fileManager.files
           },
           upsertFile: (...files) => driver.fileManager.upsert(...files),
         })
-        await hooks.emit('kubb:debug', {
-          date: new Date(),
-          logs: [`✓ Plugin started successfully (${formatMs(duration)})`],
-        })
+        failedPlugins.add({ plugin, error })
+        continue
       }
 
-      if (streamPluginEntries.length > 0) {
-        await withDrain(() => runStreamPlugins(streamPluginEntries), flushPendingFiles)
+      if (plugin.generators?.length || driver.hasEventGenerators(plugin.name)) {
+        generatorPlugins.push({ plugin, context, hrStart })
+        continue
       }
-    } else {
-      for (const plugin of driver.plugins.values()) {
-        const context = driver.getContext(plugin)
-        const hrStart = process.hrtime()
+      // No generators: plugin ran via setup hooks; finish it now.
+      const duration = getElapsedMs(hrStart)
+      pluginTimings.set(plugin.name, duration)
+      await hooks.emit('kubb:plugin:end', {
+        plugin,
+        duration,
+        success: true,
+        config,
+        get files() {
+          return driver.fileManager.files
+        },
+        upsertFile: (...files) => driver.fileManager.upsert(...files),
+      })
+      await hooks.emit('kubb:debug', {
+        date: new Date(),
+        logs: [`✓ Plugin started successfully (${formatMs(duration)})`],
+      })
+    }
 
-        try {
-          const timestamp = new Date()
-
-          await hooks.emit('kubb:plugin:start', { plugin })
-          await hooks.emit('kubb:debug', {
-            date: timestamp,
-            logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`],
-          })
-
-          if (plugin.generators?.length || driver.hasRegisteredGenerators(plugin.name)) {
-            await runAstPlugin(plugin, context)
-          }
-
+    if (generatorPlugins.length > 0) {
+      if (driver.inputNode) {
+        // Normal path: fan-out schemas and operations to all generator-plugins in one pass.
+        await withDrain(() => runPlugins(generatorPlugins), flushPendingFiles)
+      } else {
+        // No adapter configured — generator-plugins have nothing to process.
+        // Still emit plugin:end so middleware hooks (e.g. barrel) complete their lifecycle.
+        for (const { plugin, hrStart } of generatorPlugins) {
           const duration = getElapsedMs(hrStart)
           pluginTimings.set(plugin.name, duration)
-
           await hooks.emit('kubb:plugin:end', {
             plugin,
             duration,
@@ -1503,42 +1454,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
             },
             upsertFile: (...files) => driver.fileManager.upsert(...files),
           })
-
-          await hooks.emit('kubb:debug', {
-            date: new Date(),
-            logs: [`✓ Plugin started successfully (${formatMs(duration)})`],
-          })
-        } catch (caughtError) {
-          const error = caughtError as Error
-          const errorTimestamp = new Date()
-          const duration = getElapsedMs(hrStart)
-
-          await hooks.emit('kubb:plugin:end', {
-            plugin,
-            duration,
-            success: false,
-            error,
-            config,
-            get files() {
-              return driver.fileManager.files
-            },
-            upsertFile: (...files) => driver.fileManager.upsert(...files),
-          })
-
-          await hooks.emit('kubb:debug', {
-            date: errorTimestamp,
-            logs: [
-              '✗ Plugin start failed',
-              `  • Plugin Name: ${plugin.name}`,
-              `  • Error: ${error.constructor.name} - ${error.message}`,
-              '  • Stack Trace:',
-              error.stack || 'No stack trace available',
-            ],
-          })
-
-          failedPlugins.add({ plugin, error })
         }
-        await flushPendingFiles()
       }
     }
 

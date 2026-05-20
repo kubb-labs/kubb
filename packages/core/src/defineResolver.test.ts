@@ -1,5 +1,5 @@
 import { camelCase } from '@internals/utils'
-import type { InputNode } from '@kubb/ast'
+import type { InputMeta } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { defaultResolveBanner, defaultResolveFile, defaultResolveFooter, defaultResolvePath, defineResolver } from './defineResolver.ts'
 import type { Config, Resolver, ResolverContext } from './types.ts'
@@ -279,26 +279,18 @@ describe('defaultResolveBanner', () => {
     expect(result).toBe('// custom banner')
   })
 
-  it('user function banner overrides the Kubb default when node is provided', () => {
-    const node = {
-      meta: { title: 'Petstore', description: 'Test API', version: '1.0.0' },
-    }
-    const result = defaultResolveBanner(node as unknown as InputNode, {
+  it('user function banner overrides the Kubb default when meta is provided', () => {
+    const meta: InputMeta = { title: 'Petstore', description: 'Test API', version: '1.0.0', circularNames: [], enumNames: [] }
+    const result = defaultResolveBanner(meta, {
       config: mockConfig,
-      output: { banner: (n?: InputNode) => `// title: ${n?.meta?.title}` },
+      output: { banner: (m?: InputMeta) => `// title: ${m?.title}` },
     })
     expect(result).toBe('// title: Petstore')
   })
 
-  it('includes node title and version (but not description) in the Kubb banner when node is provided', () => {
-    const node = {
-      meta: {
-        title: 'Pet API',
-        description: 'A very long description',
-        version: '2.0.0',
-      },
-    }
-    const result = defaultResolveBanner(node as unknown as InputNode, {
+  it('includes meta title and version (but not description) in the Kubb banner when meta is provided', () => {
+    const meta: InputMeta = { title: 'Pet API', description: 'A very long description', version: '2.0.0', circularNames: [], enumNames: [] }
+    const result = defaultResolveBanner(meta, {
       config: mockConfig,
     })
     expect(result).toContain('Pet API')
@@ -321,22 +313,20 @@ describe('defaultResolveFooter', () => {
     expect(result).toBe('// end of file')
   })
 
-  it('calls output.footer function with node when node is provided', () => {
-    const node = { title: 'Petstore' }
-    const result = defaultResolveFooter(node as unknown as InputNode, {
+  it('calls output.footer function with meta when meta is provided', () => {
+    const meta: InputMeta = { title: 'Petstore', circularNames: [], enumNames: [] }
+    const result = defaultResolveFooter(meta, {
       config: mockConfig,
-      output: {
-        footer: (n?: InputNode) => `// footer for ${(n as (InputNode & { title?: string }) | undefined)?.title}`,
-      },
+      output: { footer: (m?: InputMeta) => `// footer for ${m?.title}` },
     })
     expect(result).toBe('// footer for Petstore')
   })
 
-  it('returns undefined when output.footer is a function but node is undefined', () => {
+  it('calls output.footer function with undefined when meta is undefined', () => {
     const result = defaultResolveFooter(undefined, {
       config: mockConfig,
-      output: { footer: (_n?: InputNode) => '// called' },
+      output: { footer: (_m?: InputMeta) => '// called' },
     })
-    expect(result).toBeUndefined()
+    expect(result).toBe('// called')
   })
 })
