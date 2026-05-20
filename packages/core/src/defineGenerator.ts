@@ -146,19 +146,19 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
   renderer?: RendererFactory<TElement> | null
   /**
    * Called for each schema node in the AST walk.
-   * `ctx` carries the plugin context with `adapter` and `inputNode` guaranteed present,
+   * `ctx` carries the plugin context with `adapter` and `meta` (document metadata),
    * plus `ctx.options` with the per-node resolved options (after exclude/include/override).
    */
   schema?: (node: SchemaNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
   /**
    * Called for each operation node in the AST walk.
-   * `ctx` carries the plugin context with `adapter` and `inputNode` guaranteed present,
+   * `ctx` carries the plugin context with `adapter` and `meta` (document metadata),
    * plus `ctx.options` with the per-node resolved options (after exclude/include/override).
    */
   operation?: (node: OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
   /**
    * Called once after all operations have been walked.
-   * `ctx` carries the plugin context with `adapter` and `inputNode` guaranteed present,
+   * `ctx` carries the plugin context with `adapter` and `meta` (document metadata),
    * plus `ctx.options` with the plugin-level options for the batch call.
    */
   operations?: (nodes: Array<OperationNode>, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>

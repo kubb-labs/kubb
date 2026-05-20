@@ -323,7 +323,6 @@ describe('PluginDriver — generator event dispatch', () => {
     const fakeCtx = {
       plugin: fakePlugin,
       adapter: {},
-      inputNode: {},
     } as unknown as GeneratorContext
     const fakeNode = { kind: 'Schema', name: 'Pet' } as unknown as SchemaNode
 
@@ -357,7 +356,6 @@ describe('PluginDriver — generator event dispatch', () => {
     const fakeCtx = {
       plugin: otherPlugin,
       adapter: {},
-      inputNode: {},
     } as unknown as GeneratorContext
     const fakeNode = { kind: 'Schema', name: 'Pet' } as unknown as SchemaNode
 
@@ -411,7 +409,6 @@ describe('PluginDriver — generator event dispatch', () => {
     const fakeCtx = {
       plugin: fakePlugin,
       adapter: {},
-      inputNode: {},
     } as unknown as GeneratorContext
     const fakeNode = {
       kind: 'Operation',
@@ -447,7 +444,6 @@ describe('PluginDriver — generator event dispatch', () => {
     const fakeCtx = {
       plugin: fakePlugin,
       adapter: {},
-      inputNode: {},
       options: {},
     } as unknown as GeneratorContext
     const fakeNodes = [{ kind: 'Operation', operationId: 'getPet' }] as unknown as Array<OperationNode>
@@ -488,7 +484,6 @@ describe('PluginDriver — generator event dispatch', () => {
     const fakeCtx = {
       ...driver.getContext(fakePlugin),
       adapter: {},
-      inputNode: {},
     } as unknown as GeneratorContext
     const fakeNode = { kind: 'Schema', name: 'Pet' } as unknown as SchemaNode
 

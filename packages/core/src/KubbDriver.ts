@@ -1,8 +1,9 @@
 import { resolve } from 'node:path'
 import { type AsyncEventEmitter, URLPath } from '@internals/utils'
-import type { FileNode, InputMeta, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
+import { createStreamInput } from '@kubb/ast'
+import type { FileNode, InputMeta, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { createFile } from '@kubb/ast'
-import { DEFAULT_STUDIO_URL, STREAM_SCHEMA_THRESHOLD } from './constants.ts'
+import { DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Plugin } from './definePlugin.ts'
 import { getMode } from './definePlugin.ts'
@@ -53,19 +54,13 @@ export class KubbDriver {
   }
 
   /**
-   * The universal `@kubb/ast` `InputNode` produced by the adapter, set by
-   * the build pipeline after the adapter's `parse()` resolves.
-   */
-  inputNode: InputNode | undefined = undefined
-  /**
-   * Set when the adapter returns a streaming `InputStreamNode` (large specs).
-   * Mutually exclusive with `inputNode` — exactly one is set after adapter setup.
+   * The streaming `InputStreamNode` produced by the adapter.
+   * Always set after adapter setup — parse-only adapters are wrapped automatically.
    */
   inputStreamNode: InputStreamNode | undefined = undefined
   adapter: Adapter | undefined = undefined
   /**
-   * The adapter source, stored so `openInStudio` can call `adapter.parse()`
-   * lazily when the streaming path was used and `inputNode` was not eagerly populated.
+   * The adapter source, stored so `openInStudio` can call `adapter.parse()` lazily.
    */
   #adapterSource: AdapterSource | undefined = undefined
 
@@ -170,32 +165,25 @@ export class KubbDriver {
     const source = inputToAdapterSource(this.config)
     this.#adapterSource = source
 
-    if (adapter.count && adapter.stream) {
-      const { schemas: schemaCount, operations: operationCount } = await adapter.count(source)
+    if (adapter.stream) {
+      this.inputStreamNode = await adapter.stream(source)
 
-      if (schemaCount > STREAM_SCHEMA_THRESHOLD) {
-        this.inputStreamNode = await adapter.stream(source)
-
-        await this.hooks.emit('kubb:debug', {
-          date: new Date(),
-          logs: [
-            `✓ Adapter '${adapter.name}' streaming InputStreamNode`,
-            `  • Schemas: ${schemaCount} (threshold: ${STREAM_SCHEMA_THRESHOLD})`,
-            `  • Operations: ${operationCount}`,
-          ],
-        })
-      }
-    }
-
-    if (!this.inputStreamNode) {
-      this.inputNode = await adapter.parse(source)
+      await this.hooks.emit('kubb:debug', {
+        date: new Date(),
+        logs: [`✓ Adapter '${adapter.name}' streaming InputStreamNode`],
+      })
+    } else {
+      // Adapter does not implement stream() — eagerly parse and wrap in a
+      // reusable AsyncIterable so the rest of the pipeline stays stream-only.
+      const inputNode = await adapter.parse(source)
+      this.inputStreamNode = createStreamInput(arrayToAsyncIterable(inputNode.schemas), arrayToAsyncIterable(inputNode.operations), inputNode.meta)
 
       await this.hooks.emit('kubb:debug', {
         date: new Date(),
         logs: [
-          `✓ Adapter '${adapter.name}' resolved InputNode`,
-          `  • Schemas: ${this.inputNode.schemas.length}`,
-          `  • Operations: ${this.inputNode.operations.length}`,
+          `✓ Adapter '${adapter.name}' resolved InputNode (wrapped as stream)`,
+          `  • Schemas: ${inputNode.schemas.length}`,
+          `  • Operations: ${inputNode.operations.length}`,
         ],
       })
     }
@@ -387,7 +375,6 @@ export class KubbDriver {
     // has finished; the returned `BuildOutput.files` array still references
     // any FileNodes the caller needs to inspect.
     this.fileManager.dispose()
-    this.inputNode = undefined
     this.inputStreamNode = undefined
     this.#adapterSource = undefined
 
@@ -474,7 +461,7 @@ export class KubbDriver {
         driver.fileManager.upsert(...files)
       },
       get meta(): InputMeta {
-        return driver.inputNode?.meta ?? driver.inputStreamNode?.meta ?? { circularNames: [], enumNames: [] }
+        return driver.inputStreamNode?.meta ?? { circularNames: [], enumNames: [] }
       },
       get adapter(): Adapter | undefined {
         return driver.adapter
@@ -510,8 +497,7 @@ export class KubbDriver {
         driver.#studioIsOpen = true
 
         const studioUrl = driver.config.devtools?.studioUrl ?? DEFAULT_STUDIO_URL
-        // When the streaming path was taken, `inputNode` is not populated; parse lazily.
-        const inputNode = driver.inputNode ?? (await driver.adapter.parse(driver.#adapterSource))
+        const inputNode = await driver.adapter.parse(driver.#adapterSource)
 
         return openInStudioFn(inputNode, studioUrl, options)
       },
@@ -610,4 +596,19 @@ function inputToAdapterSource(config: Config): AdapterSource {
   const resolved = resolve(config.root, input.path)
 
   return { type: 'path', path: resolved }
+}
+
+/**
+ * Wraps a plain array in a reusable `AsyncIterable`.
+ * Each `[Symbol.asyncIterator]()` call returns a fresh generator so the
+ * iterable can be consumed multiple times (e.g. once per plugin pre-scan).
+ */
+function arrayToAsyncIterable<T>(arr: readonly T[]): AsyncIterable<T> {
+  return {
+    [Symbol.asyncIterator]() {
+      return (async function* () {
+        yield* arr
+      })()
+    },
+  }
 }

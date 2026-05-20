@@ -828,10 +828,10 @@ export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: 
  *
  * @example Only generate schemas referenced by included operations
  * ```ts
- * const includedOps = inputNode.operations.filter(op => resolver.resolveOptions(op, { options, include }) !== null)
- * const allowed = collectUsedSchemaNames(includedOps, inputNode.schemas)
+ * const includedOps = operations.filter(op => resolver.resolveOptions(op, { options, include }) !== null)
+ * const allowed = collectUsedSchemaNames(includedOps, schemas)
  *
- * for (const schema of inputNode.schemas) {
+ * for (const schema of schemas) {
  *   if (schema.name && !allowed.has(schema.name)) continue
  *   // … generate schema
  * }
@@ -839,7 +839,7 @@ export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: 
  *
  * @example Check whether a specific schema is needed
  * ```ts
- * const allowed = collectUsedSchemaNames(includedOps, inputNode.schemas)
+ * const allowed = collectUsedSchemaNames(includedOps, schemas)
  * allowed.has('OrderStatus') // false when no included operation references OrderStatus
  * ```
  */

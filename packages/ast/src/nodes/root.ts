@@ -46,7 +46,7 @@ export type InputMeta = {
   /**
    * Names of schemas whose type is `enum`.
    * Computed once during the adapter pre-scan — use this instead of filtering
-   * `inputNode.schemas` per generator call.
+   * schemas per generator call.
    *
    * @example Check if a referenced schema is an enum
    * `const isEnum = meta.enumNames.includes(schemaName)`

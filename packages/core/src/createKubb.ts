@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import { version as nodeVersion } from 'node:process'
 import type { PossiblePromise } from '@internals/utils'
 import { AsyncEventEmitter, BuildError, exists, forBatches, formatMs, getElapsedMs, URLPath, isPromise, withDrain } from '@internals/utils'
-import type { FileNode, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
+import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import { collectUsedSchemaNames, transform } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
 import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL, SCHEMA_PARALLEL, STREAM_FLUSH_EVERY } from './constants.ts'
@@ -113,7 +113,7 @@ export type Config<TInput = Input> = {
    */
   parsers: Array<Parser>
   /**
-   * Adapter that parses input files into the universal `InputNode` representation.
+   * Adapter that parses input files into the universal AST representation.
    * Use `@kubb/adapter-oas` for OpenAPI/Swagger or `@kubb/adapter-asyncapi` for other formats.
    *
    * When omitted, Kubb runs in plugin-only mode: `kubb:plugin:setup` fires and files
@@ -540,10 +540,10 @@ export type KubbBuildStartContext = {
    */
   adapter: Adapter
   /**
-   * Parsed input node. For streaming builds the node is a synthetic empty shell
-   * with only `meta` populated — use `kubb:generate:schema` / `kubb:generate:operation` to observe individual nodes.
+   * Metadata about the parsed document (title, version, base URL, circular schema names, enum names).
+   * To observe individual schemas and operations use the `kubb:generate:schema` / `kubb:generate:operation` hooks.
    */
-  inputNode: InputNode
+  meta: InputMeta | undefined
   /**
    * Looks up a registered plugin by name, typed by the plugin registry.
    */
@@ -1179,7 +1179,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       /**
        * Set when the plugin has operation-based includes (tag, operationId, path, method, contentType)
        * but no schemaName includes. Schema nodes whose name is not in this set are skipped,
-       * matching the pruning behavior of the eager `runAstPlugin` path.
+       * matching the pruning behavior of the eager path.
        */
       allowedSchemaNames: Set<string> | undefined
     }
@@ -1371,113 +1371,21 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
    * schemas that fall outside that set. This ensures that component schemas referenced
    * exclusively by excluded operations are not generated.
    */
-  async function runAstPlugin(plugin: NormalizedPlugin, context: GeneratorContext): Promise<void> {
-    const { adapter, resolver } = context
-    const inputNode = driver.inputNode
-    const { exclude, include, override } = plugin.options
-
-    if (!adapter || !inputNode) {
-      throw new Error(`[${plugin.name}] No adapter found. Add an OAS adapter (e.g. adapterOas()) before this plugin in your Kubb config.`)
-    }
-
-    const generators = plugin.generators ?? []
-    const collectedOperations: Array<OperationNode> = []
-    const generatorContext = {
-      ...context,
-      resolver: driver.getResolver(plugin.name),
-    }
-    // When `include` has operation-based filters (tag, operationId, path, method, contentType)
-    // but no schema-level filters (schemaName), pre-compute the set of top-level schema names
-    // that are transitively referenced by the included operations. Schemas outside that set are
-    // skipped so that types belonging exclusively to excluded operations are not generated.
-    const operationFilterTypes = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
-    const hasOperationBasedIncludes = include?.some(({ type }) => operationFilterTypes.has(type)) ?? false
-    const hasSchemaNameIncludes = include?.some(({ type }) => type === 'schemaName') ?? false
-    const allowedSchemaNames: Set<string> | undefined = (() => {
-      if (!hasOperationBasedIncludes || hasSchemaNameIncludes) return undefined
-      const includedOps = inputNode!.operations.filter((op) => resolver.resolveOptions(op, { options: plugin.options, exclude, include, override }) !== null)
-      return collectUsedSchemaNames(includedOps, inputNode!.schemas)
-    })()
-
-    function resolveRenderer(gen: Generator): RendererFactory | undefined {
-      return gen.renderer === null ? undefined : (gen.renderer ?? plugin.renderer ?? context.config.renderer)
-    }
-
-    async function processSchema(node: SchemaNode): Promise<void> {
-      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-
-      // Skip named top-level schemas not reachable from any included operation.
-      if (allowedSchemaNames !== undefined && transformedNode.name && !allowedSchemaNames.has(transformedNode.name)) {
-        return
-      }
-
-      const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
-      if (options === null) return
-
-      const ctx = { ...generatorContext, options }
-
-      await Promise.all(
-        generators
-          .filter((gen) => gen.schema)
-          .map(async (gen) => {
-            const result = await gen.schema!(transformedNode, ctx)
-            return applyHookResult({ result, driver, rendererFactory: resolveRenderer(gen) })
-          }),
-      )
-
-      await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
-    }
-
-    async function processOperation(node: OperationNode): Promise<void> {
-      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-
-      const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
-      if (options === null) return
-
-      collectedOperations.push(transformedNode)
-
-      const ctx = { ...generatorContext, options }
-
-      await Promise.all(
-        generators
-          .filter((gen) => gen.operation)
-          .map(async (gen) => {
-            const result = await gen.operation!(transformedNode, ctx)
-            return applyHookResult({ result, driver, rendererFactory: resolveRenderer(gen) })
-          }),
-      )
-
-      await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
-    }
-
-    // Process schemas and operations in parallel batches; preserve insertion order for collectedOperations.
-    await forBatches(inputNode.schemas, (batch) => Promise.all(batch.map(processSchema)), { concurrency: SCHEMA_PARALLEL, flush: flushPendingFiles })
-    await forBatches(inputNode.operations, (batch) => Promise.all(batch.map(processOperation)), { concurrency: SCHEMA_PARALLEL, flush: flushPendingFiles })
-
-    if (collectedOperations.length > 0) {
-      const ctx = { ...generatorContext, options: plugin.options }
-      await dispatchOperationsToGenerators(generators, collectedOperations, ctx, resolveRenderer)
-    }
-  }
-
   try {
     await driver.emitSetupHooks()
 
-    if (driver.adapter && (driver.inputNode || driver.inputStreamNode)) {
+    if (driver.adapter && driver.inputStreamNode) {
       await hooks.emit('kubb:build:start', {
         config,
         adapter: driver.adapter,
-        inputNode: driver.inputNode ?? { kind: 'Input' as const, schemas: [], operations: [], meta: driver.inputStreamNode?.meta },
+        meta: driver.inputStreamNode.meta,
         getPlugin: driver.getPlugin.bind(driver),
         get files() {
           return driver.fileManager.files
         },
         upsertFile: (...files) => driver.fileManager.upsert(...files),
       })
-    }
 
-    const inputStreamNode = driver.inputStreamNode
-    if (inputStreamNode) {
       // Emit plugin:start for all plugins up front, collect generator-plugins
       // for the fan-out pass, then handle non-generator plugins immediately.
       const streamPluginEntries: Array<{ plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }> = []
@@ -1486,11 +1394,20 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         const context = driver.getContext(plugin)
         const hrStart = process.hrtime()
 
-        await hooks.emit('kubb:plugin:start', { plugin })
-        await hooks.emit('kubb:debug', {
-          date: new Date(),
-          logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`],
-        })
+        try {
+          await hooks.emit('kubb:plugin:start', { plugin })
+          await hooks.emit('kubb:debug', {
+            date: new Date(),
+            logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`],
+          })
+        } catch (caughtError) {
+          const error = caughtError as Error
+          const duration = getElapsedMs(hrStart)
+          pluginTimings.set(plugin.name, duration)
+          await hooks.emit('kubb:plugin:end', { plugin, duration, success: false, error, config, get files() { return driver.fileManager.files }, upsertFile: (...files) => driver.fileManager.upsert(...files) })
+          failedPlugins.add({ plugin, error })
+          continue
+        }
 
         if (plugin.generators?.length || driver.hasRegisteredGenerators(plugin.name)) {
           streamPluginEntries.push({ plugin, context, hrStart })
@@ -1517,74 +1434,6 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
 
       if (streamPluginEntries.length > 0) {
         await withDrain(() => runStreamPlugins(streamPluginEntries), flushPendingFiles)
-      }
-    } else {
-      for (const plugin of driver.plugins.values()) {
-        const context = driver.getContext(plugin)
-        const hrStart = process.hrtime()
-
-        try {
-          const timestamp = new Date()
-
-          await hooks.emit('kubb:plugin:start', { plugin })
-          await hooks.emit('kubb:debug', {
-            date: timestamp,
-            logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`],
-          })
-
-          if (plugin.generators?.length || driver.hasRegisteredGenerators(plugin.name)) {
-            await runAstPlugin(plugin, context)
-          }
-
-          const duration = getElapsedMs(hrStart)
-          pluginTimings.set(plugin.name, duration)
-
-          await hooks.emit('kubb:plugin:end', {
-            plugin,
-            duration,
-            success: true,
-            config,
-            get files() {
-              return driver.fileManager.files
-            },
-            upsertFile: (...files) => driver.fileManager.upsert(...files),
-          })
-
-          await hooks.emit('kubb:debug', {
-            date: new Date(),
-            logs: [`✓ Plugin started successfully (${formatMs(duration)})`],
-          })
-        } catch (caughtError) {
-          const error = caughtError as Error
-          const errorTimestamp = new Date()
-          const duration = getElapsedMs(hrStart)
-
-          await hooks.emit('kubb:plugin:end', {
-            plugin,
-            duration,
-            success: false,
-            error,
-            config,
-            get files() {
-              return driver.fileManager.files
-            },
-            upsertFile: (...files) => driver.fileManager.upsert(...files),
-          })
-
-          await hooks.emit('kubb:debug', {
-            date: errorTimestamp,
-            logs: [
-              '✗ Plugin start failed',
-              `  • Plugin Name: ${plugin.name}`,
-              `  • Error: ${error.constructor.name} - ${error.message}`,
-              '  • Stack Trace:',
-              error.stack || 'No stack trace available',
-            ],
-          })
-
-          failedPlugins.add({ plugin, error })
-        }
-        await flushPendingFiles()
       }
     }
 

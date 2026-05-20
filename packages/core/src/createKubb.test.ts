@@ -209,7 +209,7 @@ describe('createKubb', () => {
     expect(endSpy).toHaveBeenCalled()
   })
 
-  it('flushes generated files per-plugin incrementally as each plugin completes', async () => {
+  it('flushes generated files after each schema batch across all active plugins', async () => {
     const hooks = new AsyncEventEmitter<KubbHooks>()
     const batches: Array<number> = []
     hooks.on('kubb:files:processing:start', ({ files }) => {
@@ -254,7 +254,9 @@ describe('createKubb', () => {
 
     const { files } = await createKubb(streamingConfig, { hooks }).build()
 
-    expect(batches).toEqual([1, 1])
+    // In the always-stream path all plugins fan-out together: both files are
+    // produced in the same batch and flushed as a single event.
+    expect(batches).toEqual([2])
     expect(files.map((file) => file.path)).toEqual(['/workspace/src/gen/one.ts', '/workspace/src/gen/two.ts'])
   })
 
