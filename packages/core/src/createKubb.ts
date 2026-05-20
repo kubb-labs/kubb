@@ -1327,7 +1327,8 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
    * exclusively by excluded operations are not generated.
    */
   async function runAstPlugin(plugin: NormalizedPlugin, context: GeneratorContext): Promise<void> {
-    const { adapter, inputNode, resolver } = context
+    const { adapter, resolver } = context
+    const inputNode = driver.inputNode
     const { exclude, include, override } = plugin.options
 
     if (!adapter || !inputNode) {

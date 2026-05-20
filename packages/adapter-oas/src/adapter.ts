@@ -174,17 +174,19 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       const document = await ensureDocument(source)
       const schemas = await ensureSchemas(document)
 
-      // Pre-scan: parse every schema once to build the discriminator child map,
-      // compute circular reference names, and collect enum names. The parsed nodes
-      // are discarded after this block — only the derived name arrays survive.
+      // Pre-scan: parse every schema once to build three lookup structures:
+      //   preScanMap  — name→node for ref resolution during yield (kept alive for streaming lifetime)
+      //   circularNames — names of schemas in circular chains (stored on InputMeta)
+      //   enumNames     — names of enum schemas (stored on InputMeta)
+      //   discriminatorChildMap — discriminator targets for inherit mode
       const { parseSchema: _preParser } = ensureSchemaParser(document)
-      const preScanNodes: ast.SchemaNode[] = []
+      const preScanMap = new Map<string, ast.SchemaNode>()
       const enumNames: string[] = []
       const discriminatorParentNodes: ast.SchemaNode[] = []
 
       for (const [name, schema] of Object.entries(schemas)) {
         const node = _preParser({ schema, name }, parserOptions)
-        preScanNodes.push(node)
+        preScanMap.set(name, node)
         if (ast.narrowSchema(node, ast.schemaTypes.enum) && node.name) {
           enumNames.push(node.name)
         }
@@ -193,7 +195,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         }
       }
 
-      const circularNames = [...ast.findCircularSchemas(preScanNodes)]
+      const circularNames = [...ast.findCircularSchemas([...preScanMap.values()])]
       const discriminatorChildMap = discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 
       // Each [Symbol.asyncIterator]() call returns a fresh generator so multiple
@@ -206,7 +208,17 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
             for (const [name, schema] of Object.entries(schemas)) {
               const parsedNode = _parseSchema({ schema, name }, parserOptions)
               const entry = discriminatorChildMap?.get(name)
-              const node = entry ? patchDiscriminatorNode(parsedNode, entry) : parsedNode
+              const patched = entry ? patchDiscriminatorNode(parsedNode, entry) : parsedNode
+              // Inline top-level $ref aliases so generators always receive a
+              // fully-defined node. The preScanMap holds all pre-parsed nodes and
+              // stays alive for the streaming lifetime (same pattern as discriminatorChildMap).
+              const node = (() => {
+                if (patched.type === 'ref' && patched.name && patched.name !== name) {
+                  const resolved = preScanMap.get(patched.name)
+                  if (resolved) return { ...resolved, name }
+                }
+                return patched
+              })()
               yield node
             }
           })()

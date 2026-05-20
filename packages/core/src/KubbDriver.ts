@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import { type AsyncEventEmitter, URLPath } from '@internals/utils'
-import type { FileNode, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
+import type { FileNode, InputMeta, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { createFile } from '@kubb/ast'
 import { DEFAULT_STUDIO_URL, STREAM_SCHEMA_THRESHOLD } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -466,9 +466,8 @@ export class KubbDriver {
       upsertFile: async (...files: Array<FileNode>) => {
         driver.fileManager.upsert(...files)
       },
-      get inputNode(): InputNode {
-        if (driver.inputNode) return driver.inputNode
-        return { kind: 'Input' as const, schemas: [], operations: [], meta: driver.inputStreamNode?.meta }
+      get meta(): InputMeta {
+        return driver.inputNode?.meta ?? driver.inputStreamNode?.meta ?? { circularNames: [], enumNames: [] }
       },
       get adapter(): Adapter | undefined {
         return driver.adapter

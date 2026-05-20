@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import type { FileNode, InputNode, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
+import type { FileNode, InputMeta, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
 import { transform } from '@kubb/ast'
 import { FileManager } from './FileManager.ts'
 import { applyHookResult, KubbDriver } from './KubbDriver.ts'
@@ -72,7 +72,7 @@ export function createMockedPlugin<TOptions extends PluginFactoryOptions = Plugi
 type RenderGeneratorOptions<TOptions extends PluginFactoryOptions> = {
   config: Config
   adapter: Adapter
-  inputNode?: InputNode
+  meta?: InputMeta
   driver: KubbDriver
   plugin: NormalizedPlugin<TOptions>
   options: TOptions['resolvedOptions']
@@ -91,7 +91,7 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     plugin: opts.plugin,
     driver: opts.driver,
     getResolver: (name: string) => opts.driver.getResolver(name),
-    inputNode: opts.inputNode ?? { kind: 'Input', schemas: [], operations: [] },
+    meta: opts.meta ?? { circularNames: [], enumNames: [] },
     addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),
     upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
     hooks: opts.driver.hooks ?? ({} as never),

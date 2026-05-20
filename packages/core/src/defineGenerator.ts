@@ -1,5 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { FileNode, InputNode, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
+import type { FileNode, InputMeta, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
 import type { Adapter } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { KubbHooks } from './types.ts'
@@ -84,9 +84,10 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    */
   adapter: Adapter
   /**
-   * The universal `InputNode` produced by the adapter.
+   * Document metadata from the adapter — title, version, base URL, and pre-computed
+   * schema index fields (`circularNames`, `enumNames`).
    */
-  inputNode: InputNode
+  meta: InputMeta
   /**
    * Resolved options after exclude/include/override filtering.
    */
