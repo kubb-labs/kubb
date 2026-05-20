@@ -245,6 +245,7 @@ describe('createKubb', () => {
       adapter: createMockedAdapter({
         parse: async () => ({
           kind: 'Input' as const,
+          meta: { circularNames: [] as string[], enumNames: [] as string[] },
           schemas: [createSchema({ name: 'Pet', type: 'string' })],
           operations: [],
         }),
@@ -340,7 +341,7 @@ describe('createKubb', () => {
         {
           ...config,
           storage: memoryStorage(),
-          adapter: createMockedAdapter({ parse: async () => ({ kind: 'Input', schemas, operations: [] }) }),
+          adapter: createMockedAdapter({ parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as string[], enumNames: [] as string[] }, schemas, operations: [] }) }),
           plugins: [makeBatchPlugin(generatedPaths) as unknown as Plugin],
         },
         { hooks: new AsyncEventEmitter<KubbHooks>() },
@@ -377,7 +378,7 @@ describe('createKubb', () => {
         {
           ...config,
           storage: memoryStorage(),
-          adapter: createMockedAdapter({ parse: async () => ({ kind: 'Input', schemas: [], operations }) }),
+          adapter: createMockedAdapter({ parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as string[], enumNames: [] as string[] }, schemas: [], operations }) }),
           plugins: [orderPlugin as unknown as Plugin],
         },
         { hooks: new AsyncEventEmitter<KubbHooks>() },
@@ -397,7 +398,7 @@ describe('createKubb', () => {
       async function* asyncOps() {}
 
       const streamAdapter = createMockedAdapter({
-        parse: async () => ({ kind: 'Input' as const, schemas: [], operations: [] }),
+        parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as string[], enumNames: [] as string[] }, schemas: [], operations: [] }),
       })
       Object.assign(streamAdapter, {
         count: async () => ({ schemas: STREAM_SCHEMA_THRESHOLD + 1, operations: 0 }),
@@ -453,7 +454,7 @@ describe('createKubb', () => {
         {
           ...config,
           storage: memoryStorage(),
-          adapter: createMockedAdapter({ parse: async () => ({ kind: 'Input', schemas, operations: [] }) }),
+          adapter: createMockedAdapter({ parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as string[], enumNames: [] as string[] }, schemas, operations: [] }) }),
           plugins: [flushPlugin as unknown as Plugin],
         },
         { hooks },

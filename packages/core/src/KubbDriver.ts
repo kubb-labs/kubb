@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 import { arrayToAsyncIterable, type AsyncEventEmitter, URLPath } from '@internals/utils'
 import { createStreamInput } from '@kubb/ast'
-import type { FileNode, InputMeta, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
+import type { FileNode, InputMeta, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { createFile } from '@kubb/ast'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -60,9 +60,17 @@ export class KubbDriver {
   inputStreamNode: InputStreamNode | undefined = undefined
   adapter: Adapter | undefined = undefined
   /**
-   * The adapter source, stored so `openInStudio` can call `adapter.parse()` lazily.
+   * The raw adapter source (path or buffer), retained after the build so that
+   * `openInStudio` can call `adapter.parse()` lazily without re-reading the file.
+   * Intentionally outlives the build; cleared by `dispose()`.
    */
   #adapterSource: AdapterSource | undefined = undefined
+  /**
+   * Cached promise for the eagerly-parsed `InputNode` used by `openInStudio`.
+   * Initialised on first call; subsequent calls reuse the same parse result.
+   * Wrapped in `Promise.resolve` so `adapter.parse` sync returns are handled uniformly.
+   */
+  #studioInputNode: Promise<InputNode> | undefined
 
   // Register middleware hooks after all plugin hooks are registered.
   // Because AsyncEventEmitter calls listeners in registration order,
@@ -377,6 +385,7 @@ export class KubbDriver {
     this.fileManager.dispose()
     this.inputStreamNode = undefined
     this.#adapterSource = undefined
+    this.#studioInputNode = undefined
 
     for (const [event, handler] of this.middlewareListeners) {
       this.hooks.off(event, handler as never)
@@ -497,7 +506,8 @@ export class KubbDriver {
         driver.#studioIsOpen = true
 
         const studioUrl = driver.config.devtools?.studioUrl ?? DEFAULT_STUDIO_URL
-        const inputNode = await driver.adapter.parse(driver.#adapterSource)
+        driver.#studioInputNode ??= Promise.resolve(driver.adapter.parse(driver.#adapterSource))
+        const inputNode = await driver.#studioInputNode
 
         return openInStudioFn(inputNode, studioUrl, options)
       },

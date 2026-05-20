@@ -1160,9 +1160,9 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
    * Each plugin still gets independent `plugin:start` / `plugin:end` events and its own
    * timing, but the schema and operation nodes are parsed only once total.
    */
-  async function runStreamPlugins(
-    entries: Array<{ plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }>,
-  ): Promise<void> {
+  type StreamEntry = { plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }
+
+  async function runStreamPlugins(entries: Array<StreamEntry>): Promise<void> {
     type PluginState = {
       plugin: NormalizedPlugin
       generatorContext: GeneratorContext
@@ -1212,7 +1212,10 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     })
 
     if (pruningStates.length > 0) {
-      // Collect all schemas for transitive reference walking.
+      // Trade-off: materialise all schemas into memory for one full pass to compute
+      // the reachable-schema sets. This is done at most once per build regardless of
+      // how many pruning plugins are active, because each AsyncIterable yields a fresh
+      // iterator — consuming it here does not affect the main dispatch passes below.
       const allSchemas: SchemaNode[] = []
       for await (const schema of inputStreamNode.schemas) {
         allSchemas.push(schema)
@@ -1361,16 +1364,6 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     }
   }
 
-  /**
-   * Walks the AST and dispatches nodes to a plugin's direct AST hooks
-   * (`schema`, `operation`, `operations`).
-   *
-   * When `include` contains only operation-scoped filters (`tag`, `operationId`, `path`,
-   * `method`, `contentType`) and no `schemaName` filter, the function pre-computes the set
-   * of top-level schema names transitively reachable from the included operations and skips
-   * schemas that fall outside that set. This ensures that component schemas referenced
-   * exclusively by excluded operations are not generated.
-   */
   try {
     await driver.emitSetupHooks()
 
@@ -1390,7 +1383,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     // Always run the plugin lifecycle so middleware hooks (kubb:plugin:start,
     // kubb:plugin:end) fire even when no adapter is configured.
     // Generator-plugins are collected for the stream fan-out pass below.
-    const streamPluginEntries: Array<{ plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }> = []
+    const streamPluginEntries: Array<StreamEntry> = []
 
     for (const plugin of driver.plugins.values()) {
       const context = driver.getContext(plugin)
@@ -1434,9 +1427,28 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       })
     }
 
-    // Generator-plugins require an input stream; skip the fan-out if none is available.
-    if (streamPluginEntries.length > 0 && driver.inputStreamNode) {
-      await withDrain(() => runStreamPlugins(streamPluginEntries), flushPendingFiles)
+    if (streamPluginEntries.length > 0) {
+      if (driver.inputStreamNode) {
+        // Normal path: fan-out schemas and operations to all generator-plugins in one pass.
+        await withDrain(() => runStreamPlugins(streamPluginEntries), flushPendingFiles)
+      } else {
+        // No adapter configured — generator-plugins have nothing to process.
+        // Still emit plugin:end so middleware hooks (e.g. barrel) complete their lifecycle.
+        for (const { plugin, hrStart } of streamPluginEntries) {
+          const duration = getElapsedMs(hrStart)
+          pluginTimings.set(plugin.name, duration)
+          await hooks.emit('kubb:plugin:end', {
+            plugin,
+            duration,
+            success: true,
+            config,
+            get files() {
+              return driver.fileManager.files
+            },
+            upsertFile: (...files) => driver.fileManager.upsert(...files),
+          })
+        }
+      }
     }
 
     await hooks.emit('kubb:plugins:end', {

@@ -81,9 +81,9 @@ export type InputNode = BaseNode & {
    */
   operations: Array<OperationNode>
   /**
-   * Optional document metadata populated by the adapter.
+   * Document metadata populated by the adapter.
    */
-  meta?: InputMeta
+  meta: InputMeta
 }
 
 /**
