@@ -16,9 +16,14 @@ export const DEFAULT_BANNER = 'simple' as const
 export const DEFAULT_EXTENSION: Record<FileNode['extname'], FileNode['extname'] | ''> = { '.ts': '.ts' }
 
 /**
- * Schema count above which the adapter's `stream()` path is used instead of `parse()`.
+ * Number of file writes to batch in parallel during `flushPendingFiles`.
  */
-export const STREAM_SCHEMA_THRESHOLD = 100
+export const STREAM_FLUSH_EVERY = 50
+
+/**
+ * Number of schema/operation nodes to dispatch concurrently during generation.
+ */
+export const SCHEMA_PARALLEL = 8
 
 /**
  * Numeric log-level thresholds used internally to compare verbosity.

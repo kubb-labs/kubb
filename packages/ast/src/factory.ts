@@ -86,6 +86,7 @@ export function createInput(overrides: Partial<Omit<InputNode, 'kind'>> = {}): I
   return {
     schemas: [],
     operations: [],
+    meta: { circularNames: [], enumNames: [] },
     ...overrides,
     kind: 'Input',
   }

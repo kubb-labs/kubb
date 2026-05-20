@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
-import type { AsyncEventEmitter } from '@internals/utils'
-import type { FileNode, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
-import { createFile } from '@kubb/ast'
+import { arrayToAsyncIterable, type AsyncEventEmitter, memoize, URLPath } from '@internals/utils'
+import { createFile, createStreamInput } from '@kubb/ast'
+import type { FileNode, InputMeta, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Plugin } from './definePlugin.ts'
@@ -13,17 +13,17 @@ import type { RendererFactory } from './createRenderer.ts'
 
 import type {
   Adapter,
+  AdapterSource,
   Config,
   DevtoolsOptions,
   GeneratorContext,
   KubbHooks,
   KubbPluginSetupContext,
+  Middleware,
   NormalizedPlugin,
   PluginFactoryOptions,
   Resolver,
 } from './types.ts'
-
-// inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
 type Options = {
   hooks: AsyncEventEmitter<KubbHooks>
@@ -33,7 +33,7 @@ function enforceOrder(enforce: 'pre' | 'post' | undefined): number {
   return enforce === 'pre' ? -1 : enforce === 'post' ? 1 : 0
 }
 
-export class PluginDriver {
+export class KubbDriver {
   readonly config: Config
   readonly options: Options
 
@@ -42,8 +42,8 @@ export class PluginDriver {
    *
    * @example
    * ```ts
-   * PluginDriver.getMode('src/gen/types.ts')  // 'single'
-   * PluginDriver.getMode('src/gen/types')     // 'split'
+   * KubbDriver.getMode('src/gen/types.ts')  // 'single'
+   * KubbDriver.getMode('src/gen/types')     // 'split'
    * ```
    */
   static getMode(fileOrFolder: string | undefined | null): 'single' | 'split' {
@@ -51,17 +51,32 @@ export class PluginDriver {
   }
 
   /**
-   * The universal `@kubb/ast` `InputNode` produced by the adapter, set by
-   * the build pipeline after the adapter's `parse()` resolves.
+   * The streaming `InputStreamNode` produced by the adapter.
+   * Always set after adapter setup — parse-only adapters are wrapped automatically.
    */
-  inputNode: InputNode | undefined = undefined
-  /**
-   * Set when the adapter returns a streaming `InputStreamNode` (large specs).
-   * Mutually exclusive with `inputNode` — exactly one is set after adapter setup.
-   */
-  inputStreamNode: InputStreamNode | undefined = undefined
+  inputNode: InputStreamNode | undefined = undefined
   adapter: Adapter | undefined = undefined
-  #studioIsOpen = false
+  /**
+   * Studio session state, kept together so `dispose()` can reset it atomically.
+   *
+   * - `source` holds the raw adapter source so `adapter.parse()` can be called lazily.
+   *   Intentionally outlives the build; cleared by `dispose()`.
+   * - `isOpen` prevents opening the studio more than once per build.
+   * - `inputNode` caches the parse promise so `adapter.parse()` is called at most once
+   *   per studio session, even when `openInStudio()` is called multiple times.
+   */
+  #studio: { source: AdapterSource | undefined; isOpen: boolean; inputNode: Promise<InputNode> | undefined } = {
+    source: undefined,
+    isOpen: false,
+    inputNode: undefined,
+  }
+
+  // Register middleware hooks after all plugin hooks are registered.
+  // Because AsyncEventEmitter calls listeners in registration order,
+  // middleware hooks for any event fire after all plugin hooks for that event.
+  // Handlers are tracked so they can be removed after each build (disposeMiddleware),
+  // preventing accumulation when multiple configs share the same hooks instance.
+  #middlewareListeners: Array<[keyof KubbHooks & string, (...args: never[]) => void | Promise<void>]> = []
 
   /**
    * Central file store for all generated files.
@@ -76,7 +91,7 @@ export class PluginDriver {
    * Tracks which plugins have generators registered via `addGenerator()` (event-based path).
    * Used by the build loop to decide whether to emit generator events for a given plugin.
    */
-  readonly #pluginsWithEventGenerators = new Set<string>()
+  readonly #eventGeneratorPlugins = new Set<string>()
   readonly #resolvers = new Map<string, Resolver>()
   readonly #defaultResolvers = new Map<string, Resolver>()
   readonly #hookListeners = new Map<keyof KubbHooks, Set<(...args: never[]) => void | Promise<void>>>()
@@ -84,23 +99,38 @@ export class PluginDriver {
   constructor(config: Config, options: Options) {
     this.config = config
     this.options = options
-    config.plugins
-      .map((rawPlugin) => this.#normalizePlugin(rawPlugin as Plugin))
-      .filter((plugin) => {
-        if (typeof plugin.apply === 'function') {
-          return plugin.apply(config)
+    this.adapter = config.adapter
+  }
+
+  async setup() {
+    const normalized: NormalizedPlugin[] = this.config.plugins.map((rawPlugin) => this.#normalizePlugin(rawPlugin as Plugin))
+
+    normalized.sort((a, b) => {
+      if (b.dependencies?.includes(a.name)) return -1
+      if (a.dependencies?.includes(b.name)) return 1
+
+      return enforceOrder(a.enforce) - enforceOrder(b.enforce)
+    })
+
+    for (const plugin of normalized) {
+      if (plugin.apply) {
+        plugin.apply(this.config)
+      }
+
+      this.#registerPlugin(plugin)
+      this.plugins.set(plugin.name, plugin)
+    }
+
+    if (this.config.middleware) {
+      for (const middleware of this.config.middleware) {
+        for (const event of Object.keys(middleware.hooks) as Array<keyof KubbHooks & string>) {
+          this.#registerMiddleware(event, middleware.hooks)
         }
-        return true
-      })
-      .sort((a, b) => {
-        if (b.dependencies?.includes(a.name)) return -1
-        if (a.dependencies?.includes(b.name)) return 1
-        // enforce: 'pre' plugins run first, 'post' plugins run last
-        return enforceOrder(a.enforce) - enforceOrder(b.enforce)
-      })
-      .forEach((plugin) => {
-        this.plugins.set(plugin.name, plugin)
-      })
+      }
+    }
+    if (this.config.adapter) {
+      await this.#registerAdapter(this.config.adapter)
+    }
   }
 
   get hooks() {
@@ -111,16 +141,59 @@ export class PluginDriver {
    * Creates an `NormalizedPlugin` from a hook-style plugin and registers
    * its lifecycle handlers on the `AsyncEventEmitter`.
    */
-  #normalizePlugin(hookPlugin: Plugin): NormalizedPlugin {
-    const normalizedPlugin = {
-      name: hookPlugin.name,
-      dependencies: hookPlugin.dependencies,
-      enforce: hookPlugin.enforce,
-      options: { output: { path: '.' }, exclude: [], override: [] },
-    } as unknown as NormalizedPlugin
+  #normalizePlugin(plugin: Plugin): NormalizedPlugin {
+    const normalized: NormalizedPlugin = {
+      name: plugin.name,
+      dependencies: plugin.dependencies,
+      enforce: plugin.enforce,
+      hooks: plugin.hooks,
+      options: plugin.options ?? { output: { path: '.' }, exclude: [], override: [] },
+    } as NormalizedPlugin
 
-    this.registerPluginHooks(hookPlugin, normalizedPlugin)
-    return normalizedPlugin
+    if ('apply' in plugin && typeof plugin.apply === 'function') {
+      normalized.apply = plugin.apply as (config: Config) => boolean
+    }
+
+    return normalized
+  }
+
+  async #registerAdapter(adapter: Adapter) {
+    const source = inputToAdapterSource(this.config)
+    this.#studio.source = source
+
+    if (adapter.stream) {
+      this.inputNode = await adapter.stream(source)
+
+      await this.hooks.emit('kubb:debug', {
+        date: new Date(),
+        logs: [`✓ Adapter '${adapter.name}' producing input stream`],
+      })
+    } else {
+      // Adapter does not implement stream() — eagerly parse and wrap in a
+      // reusable AsyncIterable so the rest of the pipeline stays stream-only.
+      const inputNode = await adapter.parse(source)
+      this.inputNode = createStreamInput(arrayToAsyncIterable(inputNode.schemas), arrayToAsyncIterable(inputNode.operations), inputNode.meta)
+
+      await this.hooks.emit('kubb:debug', {
+        date: new Date(),
+        logs: [
+          `✓ Adapter '${adapter.name}' resolved InputNode (wrapped as stream)`,
+          `  • Schemas: ${inputNode.schemas.length}`,
+          `  • Operations: ${inputNode.operations.length}`,
+        ],
+      })
+    }
+  }
+
+  #registerMiddleware<K extends keyof KubbHooks & string>(event: K, middlewareHooks: Middleware['hooks']) {
+    const handler = middlewareHooks[event]
+
+    if (!handler) {
+      return
+    }
+
+    this.hooks.on(event, handler)
+    this.#middlewareListeners.push([event, handler as (...args: never[]) => void | Promise<void>])
   }
 
   /**
@@ -138,8 +211,8 @@ export class PluginDriver {
    *
    * @internal
    */
-  registerPluginHooks(hookPlugin: Plugin, normalizedPlugin: NormalizedPlugin): void {
-    const { hooks } = hookPlugin
+  #registerPlugin(plugin: NormalizedPlugin): void {
+    const { hooks } = plugin
 
     if (!hooks) return
 
@@ -150,21 +223,21 @@ export class PluginDriver {
       const setupHandler = (globalCtx: KubbPluginSetupContext) => {
         const pluginCtx: KubbPluginSetupContext = {
           ...globalCtx,
-          options: hookPlugin.options ?? {},
+          options: plugin.options ?? {},
           addGenerator: (gen) => {
-            this.registerGenerator(normalizedPlugin.name, gen)
+            this.registerGenerator(plugin.name, gen)
           },
           setResolver: (resolver) => {
-            this.setPluginResolver(normalizedPlugin.name, resolver)
+            this.setPluginResolver(plugin.name, resolver)
           },
           setTransformer: (visitor) => {
-            normalizedPlugin.transformer = visitor
+            plugin.transformer = visitor
           },
           setRenderer: (renderer) => {
-            normalizedPlugin.renderer = renderer
+            plugin.renderer = renderer
           },
           setOptions: (opts) => {
-            normalizedPlugin.options = { ...normalizedPlugin.options, ...opts }
+            plugin.options = { ...plugin.options, ...opts }
           },
           injectFile: (userFileNode) => {
             this.fileManager.add(createFile(userFileNode))
@@ -261,7 +334,7 @@ export class PluginDriver {
       this.#trackHookListener('kubb:generate:operations', operationsHandler as (...args: never[]) => void | Promise<void>)
     }
 
-    this.#pluginsWithEventGenerators.add(pluginName)
+    this.#eventGeneratorPlugins.add(pluginName)
   }
 
   /**
@@ -271,8 +344,8 @@ export class PluginDriver {
    * Used by the build loop to decide whether to walk the AST and emit generator events
    * for a plugin that has no static `plugin.generators`.
    */
-  hasRegisteredGenerators(pluginName: string): boolean {
-    return this.#pluginsWithEventGenerators.has(pluginName)
+  hasEventGenerators(pluginName: string): boolean {
+    return this.#eventGeneratorPlugins.has(pluginName)
   }
 
   /**
@@ -287,18 +360,23 @@ export class PluginDriver {
         this.hooks.off(event, handler as never)
       }
     }
+
     this.#hookListeners.clear()
-    this.#pluginsWithEventGenerators.clear()
+    this.#eventGeneratorPlugins.clear()
     // Release resolver closures — the driver is rebuilt for each build() call
     // so there is no value in retaining these maps after disposal.
     this.#resolvers.clear()
     this.#defaultResolvers.clear()
-    // Release the parsed adapter graph and the FileNode cache once the build
-    // has finished; the returned `BuildOutput.files` array still references
-    // any FileNodes the caller needs to inspect.
+    // Release the FileNode cache, parsed adapter graph, and studio state so
+    // memory is reclaimed between builds. The returned `BuildOutput.files`
+    // array still references any FileNodes the caller needs to inspect.
     this.fileManager.dispose()
     this.inputNode = undefined
-    this.inputStreamNode = undefined
+    this.#studio = { source: undefined, isOpen: false, inputNode: undefined }
+
+    for (const [event, handler] of this.#middlewareListeners) {
+      this.hooks.off(event, handler as never)
+    }
   }
 
   [Symbol.dispose](): void {
@@ -314,19 +392,10 @@ export class PluginDriver {
     handlers.add(handler)
   }
 
-  #createDefaultResolver(pluginName: string): Resolver {
-    const existingResolver = this.#defaultResolvers.get(pluginName)
-    if (existingResolver) {
-      return existingResolver
-    }
-
-    const resolver = defineResolver<PluginFactoryOptions>(() => ({
-      name: 'default',
-      pluginName,
-    }))
-    this.#defaultResolvers.set(pluginName, resolver)
-    return resolver
-  }
+  #getDefaultResolver = memoize(
+    this.#defaultResolvers,
+    (pluginName: string): Resolver => defineResolver<PluginFactoryOptions>(() => ({ name: 'default', pluginName })),
+  )
 
   /**
    * Merges `partial` with the plugin's default resolver and stores the result.
@@ -334,7 +403,7 @@ export class PluginDriver {
    * get the up-to-date resolver without going through `getResolver()`.
    */
   setPluginResolver(pluginName: string, partial: Partial<Resolver>): void {
-    const defaultResolver = this.#createDefaultResolver(pluginName)
+    const defaultResolver = this.#getDefaultResolver(pluginName)
     const merged = { ...defaultResolver, ...partial }
     this.#resolvers.set(pluginName, merged)
     const plugin = this.plugins.get(pluginName)
@@ -352,19 +421,19 @@ export class PluginDriver {
   getResolver<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Kubb.PluginRegistry[TName]['resolver']
   getResolver<TResolver extends Resolver = Resolver>(pluginName: string): TResolver
   getResolver(pluginName: string): Resolver {
-    return this.#resolvers.get(pluginName) ?? this.plugins.get(pluginName)?.resolver ?? this.#createDefaultResolver(pluginName)
+    return this.#resolvers.get(pluginName) ?? this.plugins.get(pluginName)?.resolver ?? this.#getDefaultResolver(pluginName)
   }
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): GeneratorContext<TOptions> & Record<string, unknown> {
     const driver = this
 
-    const baseContext = {
+    return {
       config: driver.config,
       get root(): string {
         return resolve(driver.config.root, driver.config.output.path)
       },
       getMode(output: { path: string }): 'single' | 'split' {
-        return PluginDriver.getMode(resolve(driver.config.root, driver.config.output.path, output.path))
+        return KubbDriver.getMode(resolve(driver.config.root, driver.config.output.path, output.path))
       },
       hooks: driver.hooks,
       plugin,
@@ -378,9 +447,8 @@ export class PluginDriver {
       upsertFile: async (...files: Array<FileNode>) => {
         driver.fileManager.upsert(...files)
       },
-      get inputNode(): InputNode {
-        if (driver.inputNode) return driver.inputNode
-        return { kind: 'Input' as const, schemas: [], operations: [], meta: driver.inputStreamNode?.meta }
+      get meta(): InputMeta {
+        return driver.inputNode?.meta ?? { circularNames: [], enumNames: [] }
       },
       get adapter(): Adapter | undefined {
         return driver.adapter
@@ -400,8 +468,8 @@ export class PluginDriver {
       info(message: string) {
         driver.hooks.emit('kubb:info', { message })
       },
-      openInStudio(options?: DevtoolsOptions) {
-        if (!driver.config.devtools || driver.#studioIsOpen) {
+      async openInStudio(options?: DevtoolsOptions) {
+        if (!driver.config.devtools || driver.#studio.isOpen) {
           return
         }
 
@@ -409,19 +477,19 @@ export class PluginDriver {
           throw new Error('Devtools must be an object')
         }
 
-        if (!driver.inputNode || !driver.adapter) {
+        if (!driver.adapter || !driver.#studio.source) {
           throw new Error('adapter is not defined, make sure you have set the parser in kubb.config.ts')
         }
 
-        driver.#studioIsOpen = true
+        driver.#studio.isOpen = true
 
         const studioUrl = driver.config.devtools?.studioUrl ?? DEFAULT_STUDIO_URL
+        driver.#studio.inputNode ??= Promise.resolve(driver.adapter.parse(driver.#studio.source))
+        const inputNode = await driver.#studio.inputNode
 
-        return openInStudioFn(driver.inputNode, studioUrl, options)
+        return openInStudioFn(inputNode, studioUrl, options)
       },
     } as unknown as GeneratorContext<TOptions>
-
-    return baseContext
   }
 
   getPlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
@@ -460,7 +528,7 @@ export function applyHookResult<TElement = unknown>({
   rendererFactory,
 }: {
   result: TElement | Array<FileNode> | void
-  driver: PluginDriver
+  driver: KubbDriver
   rendererFactory?: RendererFactory<TElement>
 }): void | Promise<void> {
   if (!result) return
@@ -492,9 +560,28 @@ async function applyAsyncRender<TElement>({
 }: {
   renderer: { render(el: TElement): Promise<void>; files: ReadonlyArray<FileNode>; unmount(): void }
   result: TElement
-  driver: PluginDriver
+  driver: KubbDriver
 }): Promise<void> {
   await renderer.render(result)
   driver.fileManager.upsert(...renderer.files)
   renderer.unmount()
+}
+
+function inputToAdapterSource(config: Config): AdapterSource {
+  const input = config.input
+  if (!input) {
+    throw new Error('[kubb] input is required when using an adapter. Provide input.path or input.data in your config.')
+  }
+
+  if ('data' in input) {
+    return { type: 'data', data: input.data }
+  }
+
+  if (new URLPath(input.path).isURL) {
+    return { type: 'path', path: input.path }
+  }
+
+  const resolved = resolve(config.root, input.path)
+
+  return { type: 'path', path: resolved }
 }

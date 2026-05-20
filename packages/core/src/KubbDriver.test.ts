@@ -1,7 +1,7 @@
 import { AsyncEventEmitter } from '@internals/utils'
 import { createMockedAdapter } from '@kubb/core/mocks'
-import { afterEach, describe, expect, test } from 'vitest'
-import { PluginDriver } from './PluginDriver.ts'
+import { afterEach, beforeEach, describe, expect, test } from 'vitest'
+import { KubbDriver } from './KubbDriver.ts'
 import type { Config, KubbHooks, Plugin } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 
@@ -35,18 +35,24 @@ describe('PluginDriver', () => {
     plugins: [pluginA, pluginB, pluginC] as unknown as Array<Plugin>,
     storage: fsStorage(),
   } satisfies Config
-  const pluginDriver = new PluginDriver(config, {
-    hooks: new AsyncEventEmitter<KubbHooks>(),
+  let pluginDriver: KubbDriver
+
+  beforeEach(async () => {
+    pluginDriver = new KubbDriver(config, {
+      hooks: new AsyncEventEmitter<KubbHooks>(),
+    })
+    await pluginDriver.setup()
   })
 
   afterEach(() => {
     pluginDriver.hooks.removeAll()
   })
+
   test('if pluginDriver can be created', () => {
     expect(pluginDriver.plugins.size).toBe(config.plugins.length)
   })
 
-  test('enforce: pre plugins run before normal and post plugins', () => {
+  test('enforce: pre plugins run before normal and post plugins', async () => {
     const prePlugin = { name: 'pre', enforce: 'pre' as const, hooks: {} }
     const normalPlugin = { name: 'normal', hooks: {} }
     const postPlugin = { name: 'post', enforce: 'post' as const, hooks: {} }
@@ -57,20 +63,22 @@ describe('PluginDriver', () => {
       plugins: [postPlugin, normalPlugin, prePlugin] as unknown as Array<Plugin>,
     } satisfies Config
 
-    const driver = new PluginDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })
+    const driver = new KubbDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })
+    await driver.setup()
     const names = [...driver.plugins.keys()]
 
     expect(names.indexOf('pre')).toBeLessThan(names.indexOf('normal'))
     expect(names.indexOf('normal')).toBeLessThan(names.indexOf('post'))
   })
 
-  test('does not throw when a plugin has no hooks property', () => {
+  test('does not throw when a plugin has no hooks property', async () => {
     const pluginWithoutHooks = { name: 'no-hooks' } as unknown as Plugin
     const cfg = {
       ...config,
       plugins: [pluginWithoutHooks],
     } satisfies Config
 
-    expect(() => new PluginDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })).not.toThrow()
+    const driver = new KubbDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })
+    await expect(driver.setup()).resolves.not.toThrow()
   })
 })

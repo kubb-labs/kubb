@@ -1,15 +1,15 @@
 import { resolve } from 'node:path'
-import type { FileNode, InputNode, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
+import type { FileNode, InputMeta, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
 import { transform } from '@kubb/ast'
 import { FileManager } from './FileManager.ts'
-import { applyHookResult, PluginDriver } from './PluginDriver.ts'
+import { applyHookResult, KubbDriver } from './KubbDriver.ts'
 import type { Adapter, AdapterFactoryOptions, Config, Generator, GeneratorContext, NormalizedPlugin, PluginFactoryOptions } from './types.ts'
 
 /**
 
  * Creates a minimal `PluginDriver` mock for unit tests.
  */
-export function createMockedPluginDriver(options: { name?: string; plugin?: NormalizedPlugin; config?: Config } = {}): PluginDriver {
+export function createMockedPluginDriver(options: { name?: string; plugin?: NormalizedPlugin; config?: Config } = {}): KubbDriver {
   return {
     config: options?.config ?? {
       root: '.',
@@ -22,7 +22,7 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
     },
     getResolver: (_pluginName: string) => options?.plugin?.resolver,
     fileManager: new FileManager(),
-  } as unknown as PluginDriver
+  } as unknown as KubbDriver
 }
 
 /**
@@ -72,8 +72,8 @@ export function createMockedPlugin<TOptions extends PluginFactoryOptions = Plugi
 type RenderGeneratorOptions<TOptions extends PluginFactoryOptions> = {
   config: Config
   adapter: Adapter
-  inputNode?: InputNode
-  driver: PluginDriver
+  meta?: InputMeta
+  driver: KubbDriver
   plugin: NormalizedPlugin<TOptions>
   options: TOptions['resolvedOptions']
   resolver: TOptions['resolver']
@@ -85,13 +85,13 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
   return {
     config: opts.config,
     root,
-    getMode: (output: { path: string }) => PluginDriver.getMode(resolve(root, output.path)),
+    getMode: (output: { path: string }) => KubbDriver.getMode(resolve(root, output.path)),
     adapter: opts.adapter,
     resolver: opts.resolver,
     plugin: opts.plugin,
     driver: opts.driver,
     getResolver: (name: string) => opts.driver.getResolver(name),
-    inputNode: opts.inputNode ?? { kind: 'Input', schemas: [], operations: [] },
+    meta: opts.meta ?? { circularNames: [], enumNames: [] },
     addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),
     upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
     hooks: opts.driver.hooks ?? ({} as never),

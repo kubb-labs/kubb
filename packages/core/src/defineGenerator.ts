@@ -1,9 +1,9 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { FileNode, InputNode, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
+import type { FileNode, InputMeta, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
 import type { Adapter } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { KubbHooks } from './types.ts'
-import type { PluginDriver } from './PluginDriver.ts'
+import type { KubbDriver } from './KubbDriver.ts'
 import type { Plugin, PluginFactoryOptions } from './definePlugin.ts'
 import type { Resolver } from './defineResolver.ts'
 import type { Config, DevtoolsOptions } from './types.ts'
@@ -26,7 +26,7 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    * Returns `'single'` when `output.path` is a file, `'split'` for a directory.
    */
   getMode: (output: { path: string }) => 'single' | 'split'
-  driver: PluginDriver
+  driver: KubbDriver
   /**
    * Get a plugin by name, typed via `Kubb.PluginRegistry` when registered.
    */
@@ -84,9 +84,10 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    */
   adapter: Adapter
   /**
-   * The universal `InputNode` produced by the adapter.
+   * Document metadata from the adapter — title, version, base URL, and pre-computed
+   * schema index fields (`circularNames`, `enumNames`).
    */
-  inputNode: InputNode
+  meta: InputMeta
   /**
    * Resolved options after exclude/include/override filtering.
    */
@@ -145,19 +146,19 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
   renderer?: RendererFactory<TElement> | null
   /**
    * Called for each schema node in the AST walk.
-   * `ctx` carries the plugin context with `adapter` and `inputNode` guaranteed present,
+   * `ctx` carries the plugin context with `adapter` and `meta` (document metadata),
    * plus `ctx.options` with the per-node resolved options (after exclude/include/override).
    */
   schema?: (node: SchemaNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
   /**
    * Called for each operation node in the AST walk.
-   * `ctx` carries the plugin context with `adapter` and `inputNode` guaranteed present,
+   * `ctx` carries the plugin context with `adapter` and `meta` (document metadata),
    * plus `ctx.options` with the per-node resolved options (after exclude/include/override).
    */
   operation?: (node: OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
   /**
    * Called once after all operations have been walked.
-   * `ctx` carries the plugin context with `adapter` and `inputNode` guaranteed present,
+   * `ctx` carries the plugin context with `adapter` and `meta` (document metadata),
    * plus `ctx.options` with the plugin-level options for the batch call.
    */
   operations?: (nodes: Array<OperationNode>, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
