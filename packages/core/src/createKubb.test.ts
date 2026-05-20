@@ -352,7 +352,7 @@ describe('createKubb', () => {
     it('preserves operation insertion order for collectedOperations across batches', async () => {
       const opCount = SCHEMA_PARALLEL * 2 + 3
       const operations = Array.from({ length: opCount }, (_, i) =>
-        createOperation({ name: `op${i}`, method: 'get', path: `/path${i}`, parameters: [], responses: [], tags: [] }),
+        createOperation({ operationId: `op${i}`, method: 'GET', path: `/path${i}`, parameters: [], responses: [], tags: [] }),
       )
       const receivedOrder: string[] = []
 
@@ -363,7 +363,7 @@ describe('createKubb', () => {
             ctx.addGenerator({
               name: 'order-gen',
               operations(nodes) {
-                receivedOrder.push(...nodes.map((n) => n.name))
+                receivedOrder.push(...nodes.map((n) => n.operationId))
                 return []
               },
             })
@@ -381,7 +381,7 @@ describe('createKubb', () => {
         { hooks: new AsyncEventEmitter<KubbHooks>() },
       ).build()
 
-      expect(receivedOrder).toEqual(operations.map((o) => o.name))
+      expect(receivedOrder).toEqual(operations.map((o) => o.operationId))
     })
 
     it('processes schemas in the streaming path (inputStreamNode) across batches', async () => {
@@ -423,7 +423,7 @@ describe('createKubb', () => {
       const schemas = Array.from({ length: count }, (_, i) => createSchema({ name: `FlushSchema${i}`, type: 'string' }))
       const hooks = new AsyncEventEmitter<KubbHooks>()
       const flushEvents: number[] = []
-      hooks.on('kubb:files:processing:start', ({ files }) => flushEvents.push(files.length))
+      hooks.on('kubb:files:processing:start', ({ files }) => { flushEvents.push(files.length) })
 
       const flushPlugin = definePlugin(() => ({
         name: 'flush-plugin',
