@@ -1,0 +1,43 @@
+internals/utils/src/promise.ts
+  s_4277a4ed036ec5::t_ace4f40843efe2 169-213
+packages/core/src/KubbDriver.ts
+  s_4277a4ed036ec5::t_2148ec4387e107 432
+  s_4277a4ed036ec5::t_ebebbd0bb6a88b 2
+  s_4277a4ed036ec5::t_267c82b7175811 404-406
+  s_4277a4ed036ec5::t_4d8c1cb4fd26cb 414
+internals/utils/src/promise.test.ts
+  s_4277a4ed036ec5::t_aa8e14e65b3595 2
+  s_4277a4ed036ec5::t_9d2cc6ed3667da 221-261,265-270
+packages/ast/src/utils.ts
+  s_4277a4ed036ec5::t_9fae2ddf4356ac 835
+  s_4277a4ed036ec5::t_4052cd832eda20 867
+  s_4277a4ed036ec5::t_9b48a72cf9b7e4 79,81-86
+  s_4277a4ed036ec5::t_3215c9fa6dae12 787,798
+  s_4277a4ed036ec5::t_595d35bb69d5ab 77,90
+  s_4277a4ed036ec5::t_813d7c0896fa99 834,836,839
+  s_4277a4ed036ec5::t_20871b71134d0f 868
+  s_4277a4ed036ec5::t_977db733de4e44 78,80
+  s_4277a4ed036ec5::t_b09db444ace1a1 873
+  s_4277a4ed036ec5::t_9468bebc590ebc 837
+  s_4277a4ed036ec5::t_91ff7db690e865 913
+  s_4277a4ed036ec5::t_d2397530ea66c4 900-912
+  s_4277a4ed036ec5::t_517fb7fa165f6c 1
+internals/utils/src/index.ts
+  s_4277a4ed036ec5::t_39dab3f83b239d 21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "37a474e564fb88a8e8f44ed22ba0e13aa27385ce",
+  "prompts": {},
+  "sessions": {
+    "s_4277a4ed036ec5": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "6adeac69-d5d0-45fb-a4b4-685ed2e13474",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
