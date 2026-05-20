@@ -382,98 +382,94 @@ export class KubbDriver {
     })
 
     try {
+      const flushPending = async (): Promise<void> => {
+        if (pendingFiles.size === 0) return
+        const files = [...pendingFiles.values()]
+        pendingFiles.clear()
 
-    const flushPending = async (): Promise<void> => {
-      if (pendingFiles.size === 0) return
-      const files = [...pendingFiles.values()]
-      pendingFiles.clear()
+        await hooks.emit('kubb:debug', { date: new Date(), logs: [`Writing ${files.length} files...`] })
+        await hooks.emit('kubb:files:processing:start', { files })
 
-      await hooks.emit('kubb:debug', { date: new Date(), logs: [`Writing ${files.length} files...`] })
-      await hooks.emit('kubb:files:processing:start', { files })
+        const stream = fileProcessor.stream(files, { parsers: parsersMap, extension: config.output.extension })
+        const queue: Array<Promise<void>> = []
+        for (const { file, source, processed, total, percentage } of stream) {
+          queue.push(
+            (async () => {
+              await hooks.emit('kubb:file:processing:update', { file, source, processed, total, percentage, config })
+              if (source) await storage.setItem(file.path, source)
+            })(),
+          )
+          if (queue.length >= STREAM_FLUSH_EVERY) await Promise.all(queue.splice(0))
+        }
+        await Promise.all(queue)
 
-      const stream = fileProcessor.stream(files, { parsers: parsersMap, extension: config.output.extension })
-      const queue: Array<Promise<void>> = []
-      for (const { file, source, processed, total, percentage } of stream) {
-        queue.push(
-          (async () => {
-            await hooks.emit('kubb:file:processing:update', { file, source, processed, total, percentage, config })
-            if (source) await storage.setItem(file.path, source)
-          })(),
+        await hooks.emit('kubb:files:processing:end', { files })
+        await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ File write process completed for ${files.length} files`] })
+      }
+
+      await this.emitSetupHooks()
+
+      if (this.adapter && this.inputNode) {
+        await hooks.emit(
+          'kubb:build:start',
+          Object.assign({ config, adapter: this.adapter, meta: this.inputNode.meta, getPlugin: this.getPlugin.bind(this) }, this.#filesPayload()),
         )
-        if (queue.length >= STREAM_FLUSH_EVERY) await Promise.all(queue.splice(0))
-      }
-      await Promise.all(queue)
-
-      await hooks.emit('kubb:files:processing:end', { files })
-      await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ File write process completed for ${files.length} files`] })
-    }
-
-    await this.emitSetupHooks()
-
-    if (this.adapter && this.inputNode) {
-      await hooks.emit(
-        'kubb:build:start',
-        Object.assign(
-          { config, adapter: this.adapter, meta: this.inputNode.meta, getPlugin: this.getPlugin.bind(this) },
-          this.#filesPayload(),
-        ),
-      )
-    }
-
-    const generatorPlugins: Array<{ plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }> = []
-
-    for (const plugin of this.plugins.values()) {
-      const context = this.getContext(plugin)
-      const hrStart = process.hrtime()
-
-      try {
-        await hooks.emit('kubb:plugin:start', { plugin })
-        await hooks.emit('kubb:debug', { date: new Date(), logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`] })
-      } catch (caughtError) {
-        const error = caughtError as Error
-        const duration = getElapsedMs(hrStart)
-        pluginTimings.set(plugin.name, duration)
-        await this.#emitPluginEnd({ plugin, duration, success: false, error })
-        failedPlugins.add({ plugin, error })
-        continue
       }
 
-      if (plugin.generators?.length || this.hasEventGenerators(plugin.name)) {
-        generatorPlugins.push({ plugin, context, hrStart })
-        continue
-      }
+      const generatorPlugins: Array<{ plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }> = []
 
-      const duration = getElapsedMs(hrStart)
-      pluginTimings.set(plugin.name, duration)
-      await this.#emitPluginEnd({ plugin, duration, success: true })
-      await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ Plugin started successfully (${formatMs(duration)})`] })
-    }
+      for (const plugin of this.plugins.values()) {
+        const context = this.getContext(plugin)
+        const hrStart = process.hrtime()
 
-    if (generatorPlugins.length > 0) {
-      if (this.inputNode) {
-        const { timings, failed } = await this.#runGenerators(generatorPlugins, flushPending)
-        // Drain any files written after the last batch's flush.
-        await flushPending()
-        for (const [name, duration] of timings) pluginTimings.set(name, duration)
-        for (const entry of failed) failedPlugins.add(entry)
-      } else {
-        // No adapter input: generator-plugins have nothing to dispatch, but still
-        // need their `kubb:plugin:end` so middleware (e.g. barrel) completes.
-        for (const { plugin, hrStart } of generatorPlugins) {
+        try {
+          await hooks.emit('kubb:plugin:start', { plugin })
+          await hooks.emit('kubb:debug', { date: new Date(), logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`] })
+        } catch (caughtError) {
+          const error = caughtError as Error
           const duration = getElapsedMs(hrStart)
           pluginTimings.set(plugin.name, duration)
-          await this.#emitPluginEnd({ plugin, duration, success: true })
+          await this.#emitPluginEnd({ plugin, duration, success: false, error })
+          failedPlugins.add({ plugin, error })
+          continue
+        }
+
+        if (plugin.generators?.length || this.hasEventGenerators(plugin.name)) {
+          generatorPlugins.push({ plugin, context, hrStart })
+          continue
+        }
+
+        const duration = getElapsedMs(hrStart)
+        pluginTimings.set(plugin.name, duration)
+        await this.#emitPluginEnd({ plugin, duration, success: true })
+        await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ Plugin started successfully (${formatMs(duration)})`] })
+      }
+
+      if (generatorPlugins.length > 0) {
+        if (this.inputNode) {
+          const { timings, failed } = await this.#runGenerators(generatorPlugins, flushPending)
+          // Drain any files written after the last batch's flush.
+          await flushPending()
+          for (const [name, duration] of timings) pluginTimings.set(name, duration)
+          for (const entry of failed) failedPlugins.add(entry)
+        } else {
+          // No adapter input: generator-plugins have nothing to dispatch, but still
+          // need their `kubb:plugin:end` so middleware (e.g. barrel) completes.
+          for (const { plugin, hrStart } of generatorPlugins) {
+            const duration = getElapsedMs(hrStart)
+            pluginTimings.set(plugin.name, duration)
+            await this.#emitPluginEnd({ plugin, duration, success: true })
+          }
         }
       }
-    }
 
-    await hooks.emit('kubb:plugins:end', Object.assign({ config }, this.#filesPayload()))
+      await hooks.emit('kubb:plugins:end', Object.assign({ config }, this.#filesPayload()))
 
-    await flushPending()
+      await flushPending()
 
-    const files = this.fileManager.files
+      const files = this.fileManager.files
 
-    await hooks.emit('kubb:build:end', { files, config, outputDir: resolve(config.root, config.output.path) })
+      await hooks.emit('kubb:build:end', { files, config, outputDir: resolve(config.root, config.output.path) })
 
       return { failedPlugins, pluginTimings }
     } catch (caughtError) {
@@ -496,17 +492,7 @@ export class KubbDriver {
     }
   }
 
-  #emitPluginEnd({
-    plugin,
-    duration,
-    success,
-    error,
-  }: {
-    plugin: NormalizedPlugin
-    duration: number
-    success: boolean
-    error?: Error
-  }): Promise<void> | void {
+  #emitPluginEnd({ plugin, duration, success, error }: { plugin: NormalizedPlugin; duration: number; success: boolean; error?: Error }): Promise<void> | void {
     return this.hooks.emit(
       'kubb:plugin:end',
       Object.assign({ plugin, duration, success, ...(error ? { error } : {}), config: this.config }, this.#filesPayload()),
@@ -640,8 +626,7 @@ export class KubbDriver {
     // Skip building the aggregated operations array when nothing consumes it.
     // Saves an N-sized allocation that lives until the build ends, on the common
     // path where plugins only define per-node `gen.operation`.
-    const needsCollectedOperations =
-      this.hooks.listenerCount('kubb:generate:operations') > 0 || states.some((s) => s.generators.some((g) => !!g.operations))
+    const needsCollectedOperations = this.hooks.listenerCount('kubb:generate:operations') > 0 || states.some((s) => s.generators.some((g) => !!g.operations))
     const collectedOperations: OperationNode[] = needsCollectedOperations ? [] : (undefined as never)
 
     // Run schemas before operations: the two passes share `flushPending` and the
@@ -898,15 +883,7 @@ export function applyHookResult<TElement = unknown>({
   return applyAsyncRender({ renderer, result, driver })
 }
 
-async function applyAsyncRender<TElement>({
-  renderer,
-  result,
-  driver,
-}: {
-  renderer: Renderer<TElement>
-  result: TElement
-  driver: KubbDriver
-}): Promise<void> {
+async function applyAsyncRender<TElement>({ renderer, result, driver }: { renderer: Renderer<TElement>; result: TElement; driver: KubbDriver }): Promise<void> {
   using r = renderer
   await r.render(result)
   driver.fileManager.upsert(...r.files)
