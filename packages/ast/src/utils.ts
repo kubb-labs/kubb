@@ -556,15 +556,15 @@ function sourceKey(source: SourceNode): string {
   return `${nameKey}:${source.isExportable ?? false}:${source.isTypeOnly ?? false}`
 }
 
-function pathTypeKey(path: string, isTypeOnly: boolean | undefined): string {
+function pathTypeKey(path: string, isTypeOnly: boolean | null | undefined): string {
   return `${path}:${isTypeOnly ?? false}`
 }
 
-function exportKey(path: string, name: string | undefined, isTypeOnly: boolean | undefined, asAlias: boolean | undefined): string {
+function exportKey(path: string, name: string | null | undefined, isTypeOnly: boolean | null | undefined, asAlias: boolean | null | undefined): string {
   return `${path}:${name ?? ''}:${isTypeOnly ?? false}:${asAlias ?? ''}`
 }
 
-function importKey(path: string, name: string | undefined, isTypeOnly: boolean | undefined): string {
+function importKey(path: string, name: string | null | undefined, isTypeOnly: boolean | null | undefined): string {
   return `${path}:${name ?? ''}:${isTypeOnly ?? false}`
 }
 
@@ -572,7 +572,7 @@ function importKey(path: string, name: string | undefined, isTypeOnly: boolean |
  * Computes a multi-level sort key for exports and imports:
  * non-array names first (wildcards/namespace aliases); type-only before value; alphabetical path; unnamed before named.
  */
-function sortKey(node: { name?: string | Array<unknown>; isTypeOnly?: boolean; path: string }): string {
+function sortKey(node: { name?: string | Array<unknown> | null; isTypeOnly?: boolean | null; path: string }): string {
   const isArray = Array.isArray(node.name) ? '1' : '0'
   const typeOnly = node.isTypeOnly ? '0' : '1'
   const hasName = node.name != null ? '1' : '0'

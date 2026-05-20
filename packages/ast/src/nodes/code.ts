@@ -36,22 +36,21 @@ export type ConstNode = BaseNode & {
    * Whether the declaration should be exported.
    * @default false
    */
-  export?: boolean
+  export?: boolean | null
   /**
    * Optional explicit type annotation.
-   * `null` means intentionally no annotation (e.g. from a resolver that returned null).
    * @example 'Pet'
    */
   type?: string | null
   /**
    * JSDoc documentation metadata.
    */
-  JSDoc?: JSDocNode
+  JSDoc?: JSDocNode | null
   /**
    * Whether to append `as const` to the declaration.
    * @default false
    */
-  asConst?: boolean
+  asConst?: boolean | null
   /**
    * Child nodes representing the value of the constant (children of the `Const` component).
    * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
@@ -84,11 +83,11 @@ export type TypeNode = BaseNode & {
    * Whether the declaration should be exported.
    * @default false
    */
-  export?: boolean
+  export?: boolean | null
   /**
    * JSDoc documentation metadata.
    */
-  JSDoc?: JSDocNode
+  JSDoc?: JSDocNode | null
   /**
    * Child nodes representing the type body (children of the `Type` component).
    * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
@@ -127,37 +126,35 @@ export type FunctionNode = BaseNode & {
    * Whether the function is a default export.
    * @default false
    */
-  default?: boolean
+  default?: boolean | null
   /**
    * Function parameter list rendered as a string (e.g. from `FunctionParams.toConstructor()`).
-   * `null` means intentionally no parameters (e.g. from a resolver that returned null).
    */
   params?: string | null
   /**
    * Whether the function should be exported.
    * @default false
    */
-  export?: boolean
+  export?: boolean | null
   /**
    * Whether the function is async. When `true`, the return type is wrapped in `Promise<>`.
    * @default false
    */
-  async?: boolean
+  async?: boolean | null
   /**
    * TypeScript generic type parameters.
    * @example ['T', 'U extends string']
    */
-  generics?: string | string[]
+  generics?: string | string[] | null
   /**
    * Return type annotation.
-   * `null` means intentionally no annotation (e.g. from a resolver that returned null).
    * @example 'Pet'
    */
   returnType?: string | null
   /**
    * JSDoc documentation metadata.
    */
-  JSDoc?: JSDocNode
+  JSDoc?: JSDocNode | null
   /**
    * Child nodes representing the function body (children of the `Function` component).
    * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
@@ -190,42 +187,40 @@ export type ArrowFunctionNode = BaseNode & {
    * Whether the function is a default export.
    * @default false
    */
-  default?: boolean
+  default?: boolean | null
   /**
    * Function parameter list rendered as a string (e.g. from `FunctionParams.toConstructor()`).
-   * `null` means intentionally no parameters (e.g. from a resolver that returned null).
    */
   params?: string | null
   /**
    * Whether the arrow function should be exported.
    * @default false
    */
-  export?: boolean
+  export?: boolean | null
   /**
    * Whether the arrow function is async. When `true`, the return type is wrapped in `Promise<>`.
    * @default false
    */
-  async?: boolean
+  async?: boolean | null
   /**
    * TypeScript generic type parameters.
    * @example ['T', 'U extends string']
    */
-  generics?: string | string[]
+  generics?: string | string[] | null
   /**
    * Return type annotation.
-   * `null` means intentionally no annotation (e.g. from a resolver that returned null).
    * @example 'Pet'
    */
   returnType?: string | null
   /**
    * JSDoc documentation metadata.
    */
-  JSDoc?: JSDocNode
+  JSDoc?: JSDocNode | null
   /**
    * Render the arrow function body as a single-line expression.
    * @default false
    */
-  singleLine?: boolean
+  singleLine?: boolean | null
   /**
    * Child nodes representing the function body (children of the `Function.Arrow` component).
    * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.

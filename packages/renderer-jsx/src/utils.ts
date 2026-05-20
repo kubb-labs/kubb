@@ -60,12 +60,12 @@ function collectCodeNodes(element: DOMElement): CodeNode[] {
         createFunction({
           name: attrs['name'] as string,
           params: attrs['params'] as string | null | undefined,
-          export: attrs['export'] as boolean | undefined,
-          default: attrs['default'] as boolean | undefined,
-          async: attrs['async'] as boolean | undefined,
-          generics: attrs['generics'] as string | undefined,
+          export: attrs['export'] as boolean | null | undefined,
+          default: attrs['default'] as boolean | null | undefined,
+          async: attrs['async'] as boolean | null | undefined,
+          generics: attrs['generics'] as string | string[] | null | undefined,
           returnType: attrs['returnType'] as string | null | undefined,
-          JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
+          JSDoc: attrs['JSDoc'] as JSDocNode | null | undefined,
           nodes: collectCodeNodes(child),
         }),
       )
@@ -78,13 +78,13 @@ function collectCodeNodes(element: DOMElement): CodeNode[] {
         createArrowFunction({
           name: attrs['name'] as string,
           params: attrs['params'] as string | null | undefined,
-          export: attrs['export'] as boolean | undefined,
-          default: attrs['default'] as boolean | undefined,
-          async: attrs['async'] as boolean | undefined,
-          generics: attrs['generics'] as string | undefined,
+          export: attrs['export'] as boolean | null | undefined,
+          default: attrs['default'] as boolean | null | undefined,
+          async: attrs['async'] as boolean | null | undefined,
+          generics: attrs['generics'] as string | string[] | null | undefined,
           returnType: attrs['returnType'] as string | null | undefined,
-          singleLine: attrs['singleLine'] as boolean | undefined,
-          JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
+          singleLine: attrs['singleLine'] as boolean | null | undefined,
+          JSDoc: attrs['JSDoc'] as JSDocNode | null | undefined,
           nodes: collectCodeNodes(child),
         } as Omit<ArrowFunctionNode, 'kind'>),
       )
@@ -97,9 +97,9 @@ function collectCodeNodes(element: DOMElement): CodeNode[] {
         createConst({
           name: attrs['name'] as string,
           type: attrs['type'] as string | null | undefined,
-          export: attrs['export'] as boolean | undefined,
-          asConst: attrs['asConst'] as boolean | undefined,
-          JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
+          export: attrs['export'] as boolean | null | undefined,
+          asConst: attrs['asConst'] as boolean | null | undefined,
+          JSDoc: attrs['JSDoc'] as JSDocNode | null | undefined,
           nodes: collectCodeNodes(child),
         }),
       )
@@ -111,8 +111,8 @@ function collectCodeNodes(element: DOMElement): CodeNode[] {
       result.push(
         createType({
           name: attrs['name'] as string,
-          export: attrs['export'] as boolean | undefined,
-          JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
+          export: attrs['export'] as boolean | null | undefined,
+          JSDoc: attrs['JSDoc'] as JSDocNode | null | undefined,
           nodes: collectCodeNodes(child),
         }),
       )
@@ -168,7 +168,7 @@ function* collectFileEntries(node: DOMElement): Generator<SourceNode | ExportNod
       yield createImport({
         name: child.attributes['name'] as ImportNode['name'],
         path: child.attributes['path'] as string,
-        root: child.attributes['root'] as string | undefined,
+        root: child.attributes['root'] as string | null | undefined,
         isTypeOnly: toBool(child.attributes['isTypeOnly']),
         isNameSpace: toBool(child.attributes['isNameSpace']),
       })

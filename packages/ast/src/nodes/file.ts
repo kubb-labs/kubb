@@ -50,18 +50,18 @@ export type ImportNode = BaseNode & {
    * - `false` generates `import { Type } from './path'`
    * @default false
    */
-  isTypeOnly?: boolean
+  isTypeOnly?: boolean | null
   /**
    * Import entire module as namespace.
    * - `true` generates `import * as Name from './path'`
    * - `false` generates standard import
    * @default false
    */
-  isNameSpace?: boolean
+  isNameSpace?: boolean | null
   /**
    * When set, the import path is resolved relative to this root.
    */
-  root?: string
+  root?: string | null
 }
 
 /**
@@ -94,7 +94,7 @@ export type ExportNode = BaseNode & {
    * @example ['useState']
    * @example 'React'
    */
-  name?: string | Array<string>
+  name?: string | Array<string> | null
   /**
    * Path for the export.
    * @example '@kubb/core'
@@ -106,14 +106,14 @@ export type ExportNode = BaseNode & {
    * - `false` generates `export { Type } from './path'`
    * @default false
    */
-  isTypeOnly?: boolean
+  isTypeOnly?: boolean | null
   /**
    * Export as an aliased namespace.
    * - `true` generates `export * as aliasName from './path'`
    * - `false` generates a standard export
    * @default false
    */
-  asAlias?: boolean
+  asAlias?: boolean | null
 }
 
 /**
@@ -134,22 +134,22 @@ export type SourceNode = BaseNode & {
   /**
    * Optional name identifying this source (used for deduplication and barrel generation).
    */
-  name?: string
+  name?: string | null
   /**
    * Mark this source as a type-only export.
    * @default false
    */
-  isTypeOnly?: boolean
+  isTypeOnly?: boolean | null
   /**
    * Include `export` keyword in the generated source.
    * @default false
    */
-  isExportable?: boolean
+  isExportable?: boolean | null
   /**
    * Include this source in barrel/index file generation.
    * @default false
    */
-  isIndexable?: boolean
+  isIndexable?: boolean | null
   /**
    * Structured child nodes representing the content of this source fragment, in DOM order.
    * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.

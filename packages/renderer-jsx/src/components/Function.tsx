@@ -14,10 +14,9 @@ type Props = {
    * Requires `export` to also be `true`.
    * @default false
    */
-  default?: boolean
+  default?: boolean | null
   /**
    * Parameter list written verbatim between the function's parentheses.
-   * Pass `null` to explicitly signal "no parameters" when the value comes from a resolver.
    *
    * @example
    * `params: 'petId: string, options?: RequestOptions'`
@@ -29,14 +28,14 @@ type Props = {
    * - `false` generates `function name(…) { … }`
    * @default false
    */
-  export?: boolean
+  export?: boolean | null
   /**
    * Emit the `async` keyword, making this an async function.
    * The return type is automatically wrapped in `Promise<returnType>` when both
    * `async` and `returnType` are set.
    * @default false
    */
-  async?: boolean
+  async?: boolean | null
   /**
    * TypeScript generic type parameters written verbatim between `<` and `>`.
    * Pass an array to emit multiple parameters separated by commas.
@@ -47,11 +46,10 @@ type Props = {
    * @example Multiple generics
    * `generics: ['TData', 'TError = unknown']`
    */
-  generics?: string | string[]
+  generics?: string | string[] | null
   /**
    * TypeScript return type annotation written verbatim after `:`.
    * When `async` is `true`, the value is automatically wrapped in `Promise<…>`.
-   * Pass `null` to explicitly signal "no return type" when the value comes from a resolver.
    *
    * @example
    * `returnType: 'Pet'`
@@ -61,7 +59,7 @@ type Props = {
    * JSDoc block to prepend to the function declaration.
    * Each entry in `comments` becomes one line inside the emitted `/** … *\/` block.
    */
-  JSDoc?: JSDoc
+  JSDoc?: JSDoc | null
   /**
    * Child nodes rendered as the body of the function.
    */
@@ -112,7 +110,7 @@ type ArrowFunctionProps = Props & {
    * - `false` generates `const name = (…) => { … }`
    * @default false
    */
-  singleLine?: boolean
+  singleLine?: boolean | null
 }
 
 /**

@@ -16,12 +16,12 @@ type TypeProps = {
    * - `false` generates `type Name = …`
    * @default false
    */
-  export?: boolean
+  export?: boolean | null
   /**
    * JSDoc block to prepend to the type alias declaration.
    * Each entry in `comments` becomes one line inside the emitted `/** … *\/` block.
    */
-  JSDoc?: JSDoc
+  JSDoc?: JSDoc | null
   /**
    * Child nodes rendered as the type expression on the right-hand side of the alias.
    */

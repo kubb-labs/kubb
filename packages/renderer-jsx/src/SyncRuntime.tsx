@@ -100,12 +100,12 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Co
       createFunction({
         name: props['name'] as string,
         params: props['params'] as string | null | undefined,
-        export: props['export'] as boolean | undefined,
-        default: props['default'] as boolean | undefined,
-        async: props['async'] as boolean | undefined,
-        generics: props['generics'] as string | undefined,
+        export: props['export'] as boolean | null | undefined,
+        default: props['default'] as boolean | null | undefined,
+        async: props['async'] as boolean | null | undefined,
+        generics: props['generics'] as string | string[] | null | undefined,
         returnType: props['returnType'] as string | null | undefined,
-        JSDoc: props['JSDoc'] as JSDocNode | undefined,
+        JSDoc: props['JSDoc'] as JSDocNode | null | undefined,
         nodes: collectCodeNodes(props),
       }),
     )
@@ -117,13 +117,13 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Co
       createArrowFunction({
         name: props['name'] as string,
         params: props['params'] as string | null | undefined,
-        export: props['export'] as boolean | undefined,
-        default: props['default'] as boolean | undefined,
-        async: props['async'] as boolean | undefined,
-        generics: props['generics'] as string | undefined,
+        export: props['export'] as boolean | null | undefined,
+        default: props['default'] as boolean | null | undefined,
+        async: props['async'] as boolean | null | undefined,
+        generics: props['generics'] as string | string[] | null | undefined,
         returnType: props['returnType'] as string | null | undefined,
-        singleLine: props['singleLine'] as boolean | undefined,
-        JSDoc: props['JSDoc'] as JSDocNode | undefined,
+        singleLine: props['singleLine'] as boolean | null | undefined,
+        JSDoc: props['JSDoc'] as JSDocNode | null | undefined,
         nodes: collectCodeNodes(props),
       } as Omit<ArrowFunctionNode, 'kind'>),
     )
@@ -135,9 +135,9 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Co
       createConst({
         name: props['name'] as string,
         type: props['type'] as string | null | undefined,
-        export: props['export'] as boolean | undefined,
-        asConst: props['asConst'] as boolean | undefined,
-        JSDoc: props['JSDoc'] as JSDocNode | undefined,
+        export: props['export'] as boolean | null | undefined,
+        asConst: props['asConst'] as boolean | null | undefined,
+        JSDoc: props['JSDoc'] as JSDocNode | null | undefined,
         nodes: collectCodeNodes(props),
       }),
     )
@@ -148,8 +148,8 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Co
     nodes.push(
       createType({
         name: props['name'] as string,
-        export: props['export'] as boolean | undefined,
-        JSDoc: props['JSDoc'] as JSDocNode | undefined,
+        export: props['export'] as boolean | null | undefined,
+        JSDoc: props['JSDoc'] as JSDocNode | null | undefined,
         nodes: collectCodeNodes(props),
       }),
     )
@@ -202,7 +202,7 @@ function collectFileChildren(element: unknown): FileChildren {
           createImport({
             name: props['name'] as ImportNode['name'],
             path: props['path'] as string,
-            root: props['root'] as string | undefined,
+            root: props['root'] as string | null | undefined,
             isTypeOnly: toBool(props['isTypeOnly']),
             isNameSpace: toBool(props['isNameSpace']),
           }),

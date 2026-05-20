@@ -97,7 +97,7 @@ export function formatGenerics(generics: FunctionNode['generics'] | ArrowFunctio
  * Renders the return-type suffix (`: T` or `: Promise<T>` when `isAsync` is true).
  * Returns an empty string when no return type is provided.
  */
-export function formatReturnType(returnType: string | null | undefined, isAsync: boolean | undefined): string {
+export function formatReturnType(returnType: string | null | undefined, isAsync: boolean | null | undefined): string {
   if (!returnType) return ''
   return isAsync ? `: Promise<${returnType}>` : `: ${returnType}`
 }
@@ -392,17 +392,19 @@ export function createImport({
   name,
   path,
   root,
-  isTypeOnly = false,
-  isNameSpace = false,
+  isTypeOnly: isTypeOnlyRaw = false,
+  isNameSpace: isNameSpaceRaw = false,
 }: {
   name: string | Array<string | { propertyName: string; name?: string }>
   path: string
-  root?: string
+  root?: string | null
   /** @default false */
-  isTypeOnly?: boolean
+  isTypeOnly?: boolean | null
   /** @default false */
-  isNameSpace?: boolean
+  isNameSpace?: boolean | null
 }): ts.ImportDeclaration {
+  const isTypeOnly = isTypeOnlyRaw ?? false
+  const isNameSpace = isNameSpaceRaw ?? false
   const resolvePath = root ? getRelativePath(root, path) : path
 
   if (!Array.isArray(name)) {
@@ -441,17 +443,19 @@ export function createImport({
 
 export function createExport({
   path,
-  asAlias,
-  isTypeOnly = false,
+  asAlias: asAliasRaw,
+  isTypeOnly: isTypeOnlyRaw = false,
   name,
 }: {
   path: string
   /** @default false */
-  asAlias?: boolean
+  asAlias?: boolean | null
   /** @default false */
-  isTypeOnly?: boolean
-  name?: string | Array<ts.Identifier | string>
+  isTypeOnly?: boolean | null
+  name?: string | Array<ts.Identifier | string> | null
 }): ts.ExportDeclaration {
+  const asAlias = asAliasRaw ?? false
+  const isTypeOnly = isTypeOnlyRaw ?? false
   if (name && !Array.isArray(name) && !asAlias) {
     console.warn(`When using name as string, asAlias should be true: ${name}`)
   }

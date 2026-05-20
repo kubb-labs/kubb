@@ -27,7 +27,7 @@ type BasePropsWithoutBaseName = {
    * Fully qualified path to the generated file.
    * Optional when `baseName` is omitted — the component renders its children inline.
    */
-  path?: string
+  path?: string | null
 }
 
 type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
@@ -38,7 +38,7 @@ type Props<TMeta> = BaseProps & {
    * Arbitrary metadata attached to the file node.
    * Used by plugins for barrel generation and custom post-processing.
    */
-  meta?: TMeta
+  meta?: TMeta | null
   /**
    * Text prepended to the generated file content before any source blocks.
    * Accepts `null` so `resolver.resolveBanner()` results can be passed directly.
