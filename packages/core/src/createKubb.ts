@@ -1175,11 +1175,13 @@ async function runPluginStreamHooks({
   driver,
   pluginTimings,
   failedPlugins,
+  onFlush,
 }: {
   entries: PluginStreamEntry[]
   driver: PluginDriver
   pluginTimings: Map<string, number>
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
+  onFlush?: () => Promise<void>
 }): Promise<void> {
   const inputStreamNode = driver.inputStreamNode!
   function resolveRendererFor(gen: Generator, state: PluginState): RendererFactory | undefined {
@@ -1262,11 +1264,16 @@ async function runPluginStreamHooks({
     }
   }
 
+  let nodeCount = 0
+
   for await (const node of inputStreamNode.schemas) {
     // Plugins are dispatched concurrently; per-plugin work (the inner generator
     // loop) stays sequential so `FileManager.upsert` ordering for any single
     // plugin chain remains deterministic.
     await Promise.all(states.map((state) => dispatchSchema(state, node)))
+    if (onFlush && ++nodeCount % STREAM_FLUSH_EVERY === 0) {
+      await onFlush()
+    }
   }
 
   const collectedOperations: OperationNode[] = []
@@ -1275,6 +1282,9 @@ async function runPluginStreamHooks({
     collectedOperations.push(node)
 
     await Promise.all(states.map((state) => dispatchOperation(state, node)))
+    if (onFlush && ++nodeCount % STREAM_FLUSH_EVERY === 0) {
+      await onFlush()
+    }
   }
 
   // After stream: gen.operations for each plugin, then emit plugin:end
@@ -1333,7 +1343,7 @@ async function runPluginStreamHooks({
  * schemas that fall outside that set. This ensures that component schemas referenced
  * exclusively by excluded operations are not generated.
  */
-async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorContext): Promise<void> {
+async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorContext, onFlush?: () => Promise<void>): Promise<void> {
   const { adapter, inputNode, resolver, driver } = context
   const { exclude, include, override } = plugin.options
 
@@ -1367,6 +1377,8 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
     return collectUsedSchemaNames(includedOps, inputNode!.schemas)
   })()
 
+  let nodeCount = 0
+
   await walk(inputNode!, {
     depth: 'shallow',
     async schema(node) {
@@ -1397,6 +1409,10 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
       )
 
       await driver.hooks.emit('kubb:generate:schema', transformedNode, ctx)
+
+      if (onFlush && ++nodeCount % STREAM_FLUSH_EVERY === 0) {
+        await onFlush()
+      }
     },
     async operation(node) {
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
@@ -1422,6 +1438,10 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
       )
 
       await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
+
+      if (onFlush && ++nodeCount % STREAM_FLUSH_EVERY === 0) {
+        await onFlush()
+      }
     },
   })
 
@@ -1551,7 +1571,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
       }
 
       if (streamPluginEntries.length > 0) {
-        await runPluginStreamHooks({ entries: streamPluginEntries, driver, pluginTimings, failedPlugins })
+        await runPluginStreamHooks({ entries: streamPluginEntries, driver, pluginTimings, failedPlugins, onFlush: flushPendingFiles })
         await flushPendingFiles()
       }
     } else {
@@ -1569,7 +1589,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
           })
 
           if (plugin.generators?.length || driver.hasRegisteredGenerators(plugin.name)) {
-            await runPluginAstHooks(plugin, context)
+            await runPluginAstHooks(plugin, context, flushPendingFiles)
           }
 
           const duration = getElapsedMs(hrStart)
