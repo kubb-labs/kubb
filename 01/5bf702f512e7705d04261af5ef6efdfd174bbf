@@ -1,0 +1,23 @@
+packages/ast/src/nodes/root.ts
+  s_f786084865badb::t_9a5bb630d06a1a 8-10,14,34-54
+packages/adapter-oas/src/adapter.ts
+  s_f786084865badb::t_7f255c321c04f0 149-151,159-160
+  s_f786084865badb::t_d4285a977e54e4 177-192,194-197
+  s_f786084865badb::t_eab59e18babc61 239-240
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "015bf702f512e7705d04261af5ef6efdfd174bbf",
+  "prompts": {},
+  "sessions": {
+    "s_f786084865badb": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "c46178e7-6b87-48e3-8bf8-69fb8ec4f3d2",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
