@@ -58,21 +58,42 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
 }
 
 /**
- * Helper for defining a Kubb configuration with built-in defaults.
+ * Defines a Kubb build configuration and applies sensible defaults so the
+ * minimal config stays small.
  *
- * When no `adapter` is provided, `adapterOas()` is used automatically.
- * When no `parsers` are provided, `[parserTs, parserTsx]` is used automatically.
+ * Defaults applied when omitted:
+ * - `adapter` → `adapterOas()` (OpenAPI 2.0/3.0/3.1).
+ * - `parsers` → `[parserTs, parserTsx]`.
+ * - `middleware` → `[middlewareBarrel()]`.
+ * - `output.barrel` → `{ type: 'named' }` only when `middlewareBarrel` is
+ *   in the middleware list.
+ * - `output.format` and `output.lint` → `false`.
  *
- * Accepts either:
- * - A config object or array of configs
- * - A function returning the config(s), optionally async,
- *   receiving the CLI options as argument
+ * Accepts a config object, an array of configs, a Promise resolving to one,
+ * or a function that receives the parsed CLI options and returns any of the
+ * above. The return type is preserved so async/array variants stay typed.
  *
  * @example
  * ```ts
+ * import { defineConfig } from 'kubb'
+ * import { pluginTs } from '@kubb/plugin-ts'
+ *
+ * export default defineConfig({
+ *   input: { path: './petStore.yaml' },
+ *   output: { path: './src/gen' },
+ *   plugins: [pluginTs()],
+ * })
+ * ```
+ *
+ * @example Function form with CLI options
+ * ```ts
+ * import { defineConfig } from 'kubb'
+ *
  * export default defineConfig(({ logLevel }) => ({
- *   root: 'src',
- *   plugins: [myPlugin()],
+ *   input: { path: './petStore.yaml' },
+ *   output: { path: './src/gen' },
+ *   logger: { logLevel: logLevel ?? 'info' },
+ *   plugins: [],
  * }))
  * ```
  */

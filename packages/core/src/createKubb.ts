@@ -90,22 +90,25 @@ export type Config<TInput = Input> = {
    */
   name?: string
   /**
-   * Project root directory, absolute or relative to the config file.
-   * @default process.cwd()
+   * Project root directory, absolute or relative to the config file. Already
+   * resolved on the `Config` instance — see `UserConfig` for the optional
+   * form that defaults to `process.cwd()`.
    */
   root: string
   /**
-   * Parsers that convert generated files to strings.
-   * Each parser handles specific extensions (e.g. `.ts`, `.tsx`).
-   * A fallback parser is appended for unhandled extensions.
-   * When omitted, defaults to `parserTs` from `@kubb/parser-ts`.
+   * Parsers that convert generated files into strings. Each parser handles a
+   * set of file extensions; a fallback parser handles anything else.
    *
-   * @default [parserTs] from `@kubb/parser-ts`
+   * Already resolved on the `Config` instance — see `UserConfig` for the
+   * optional form that defaults to `[parserTs, parserTsx]`.
+   *
    * @example
    * ```ts
-   * import { parserTs, tsxParser } from '@kubb/parser-ts'
+   * import { defineConfig } from 'kubb'
+   * import { parserTs, parserTsx } from '@kubb/parser-ts'
+   *
    * export default defineConfig({
-   *   parsers: [parserTs, tsxParser],
+   *   parsers: [parserTs, parserTsx],
    * })
    * ```
    */
@@ -1108,8 +1111,24 @@ export class Kubb {
 }
 
 /**
- * Factory for {@link Kubb}. Equivalent to `new Kubb(userConfig, options)` and kept
- * as the canonical public entry point.
+ * Constructs a {@link Kubb} build orchestrator from a user config. Equivalent
+ * to `new Kubb(userConfig, options)` and the canonical public entry point.
+ *
+ * @example
+ * ```ts
+ * import { createKubb } from '@kubb/core'
+ * import { adapterOas } from '@kubb/adapter-oas'
+ * import { pluginTs } from '@kubb/plugin-ts'
+ *
+ * const kubb = createKubb({
+ *   input: { path: './petStore.yaml' },
+ *   output: { path: './src/gen' },
+ *   adapter: adapterOas(),
+ *   plugins: [pluginTs()],
+ * })
+ *
+ * await kubb.build()
+ * ```
  */
 export function createKubb(userConfig: UserConfig, options: CreateKubbOptions = {}): Kubb {
   return new Kubb(userConfig, options)

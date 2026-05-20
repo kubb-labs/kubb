@@ -48,17 +48,37 @@ export type Renderer<TElement = unknown> = {
 export type RendererFactory<TElement = unknown> = () => Renderer<TElement>
 
 /**
- * Wraps a renderer factory for use in generator definitions.
+ * Defines a renderer factory. Renderers turn the generator's return value
+ * (JSX, a template string, a tree of any shape) into `FileNode`s that get
+ * written to disk.
  *
- * @example
+ * Use this to support output formats beyond JSX — for instance, a Handlebars
+ * renderer, a string-template renderer, or a renderer that writes binary
+ * files. Plugins and generators pick the renderer to use via the `renderer`
+ * field on `defineGenerator`.
+ *
+ * @example A minimal renderer that wraps a custom runtime
  * ```ts
- * export const jsxRenderer = createRenderer(() => {
- *   const runtime = new Runtime()
+ * import { createRenderer } from '@kubb/core'
+ *
+ * export const myRenderer = createRenderer(() => {
+ *   const runtime = new MyRuntime()
  *   return {
- *     async render(element) { await runtime.render(element) },
- *     get files() { return runtime.nodes },
- *     dispose() { runtime.unmount() },
- *     unmount(error) { runtime.unmount(error) },
+ *     async render(element) {
+ *       await runtime.render(element)
+ *     },
+ *     get files() {
+ *       return runtime.files
+ *     },
+ *     dispose() {
+ *       runtime.dispose()
+ *     },
+ *     unmount(error) {
+ *       runtime.dispose(error)
+ *     },
+ *     [Symbol.dispose]() {
+ *       this.dispose()
+ *     },
  *   }
  * })
  * ```

@@ -148,22 +148,27 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
   print?: (this: PrinterHandlerContext<T['output'], T['options']>, node: SchemaNode) => T['printOutput'] | null
 }
 /**
- * Creates a schema printer factory.
- *
- * This function wraps a builder and makes options optional at call sites.
+ * Defines a schema printer: a function that takes a `SchemaNode` and emits
+ * code in your target language. Each plugin that produces code from schemas
+ * (TypeScript types, Zod schemas, Faker factories) ships a printer built
+ * with this helper.
  *
  * The builder receives resolved options and returns:
- * - `name` — a unique identifier for the printer
- * - `options` — options stored on the returned printer instance
- * - `nodes` — a map of `SchemaType` → handler functions that convert a `SchemaNode` to `TOutput`
- * - `print` _(optional)_ — top-level override exposed as `printer.print`
- *   - Inside this function, use `this.transform(node)` to dispatch to the `nodes` map
- *   - This keeps recursion safe and avoids self-calls
  *
- * When no `print` override is provided, `printer.print` falls back to `printer.transform` (the node-level dispatcher).
+ * - `name` — unique identifier for the printer.
+ * - `options` — stored on the returned printer instance.
+ * - `nodes` — map of `SchemaType` → handler. Handlers return the rendered
+ *   output (a string, a TypeScript AST node, ...) for that schema type.
+ * - `print` (optional) — top-level override exposed as `printer.print`.
+ *   Use `this.transform(node)` inside it to dispatch to `nodes` recursively.
  *
- * @example Basic usage — Zod schema printer
+ * Without a `print` override, `printer.print` falls back to `printer.transform`
+ * (the node-level dispatcher).
+ *
+ * @example Tiny Zod printer
  * ```ts
+ * import { definePrinter, type PrinterFactoryOptions } from '@kubb/ast'
+ *
  * type PrinterZod = PrinterFactoryOptions<'zod', { strict?: boolean }, string>
  *
  * export const zodPrinter = definePrinter<PrinterZod>((options) => ({
@@ -172,7 +177,9 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  *   nodes: {
  *     string: () => 'z.string()',
  *     object(node) {
- *       const props = node.properties.map(p => `${p.name}: ${this.transform(p.schema)}`).join(', ')
+ *       const props = node.properties
+ *         .map((p) => `${p.name}: ${this.transform(p.schema)}`)
+ *         .join(', ')
  *       return `z.object({ ${props} })`
  *     },
  *   },

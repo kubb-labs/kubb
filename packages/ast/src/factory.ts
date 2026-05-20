@@ -33,10 +33,13 @@ import type {
 import { combineExports, combineImports, combineSources, extractStringsFromNodes } from './utils.ts'
 
 /**
- * Syncs property/parameter schema optionality flags from `required` and `schema.nullable`.
+ * Updates a schema's `optional` and `nullish` flags from a parent's `required`
+ * value and the schema's own `nullable`. Mirrors how OpenAPI parameters and
+ * object properties combine "required" and "nullable" into a single AST.
  *
- * - `optional` is set for non-required, non-nullable schemas.
- * - `nullish` is set for non-required, nullable schemas.
+ * - Non-required + non-nullable → `optional: true`.
+ * - Non-required + nullable → `nullish: true`.
+ * - Required → both flags cleared.
  */
 export function syncOptionality(schema: SchemaNode, required: boolean): SchemaNode {
   const nullable = schema.nullable ?? false
