@@ -89,10 +89,9 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  * ```ts
  * import { defineConfig } from 'kubb'
  *
- * export default defineConfig(({ logLevel }) => ({
- *   input: { path: './petStore.yaml' },
+ * export default defineConfig(({ input }) => ({
+ *   input: { path: input ?? './petStore.yaml' },
  *   output: { path: './src/gen' },
- *   logger: { logLevel: logLevel ?? 'info' },
  *   plugins: [],
  * }))
  * ```

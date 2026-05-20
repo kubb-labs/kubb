@@ -8,7 +8,7 @@ import type { KubbHooks } from './types.ts'
 export type LoggerOptions = {
   /**
    * Output verbosity. Use the `logLevel` constants exported from `@kubb/core`
-   * (`silent`, `info`, `verbose`, `debug`).
+   * (`silent`, `error`, `warn`, `info`, `verbose`, `debug`).
    */
   logLevel: (typeof logLevel)[keyof typeof logLevel]
 }
@@ -32,7 +32,7 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions, TInstallRetur
   /**
    * Called once per build with the shared event emitter. Subscribe to events
    * here. The return value (if any) is forwarded to whoever installed the
-   * logger — handy for sink factories.
+   * logger, which is handy for sink factories.
    */
   install: (context: LoggerContext, options?: TOptions) => TInstallReturn | Promise<TInstallReturn>
 }
@@ -41,8 +41,8 @@ export type UserLogger<TOptions extends LoggerOptions = LoggerOptions, TInstallR
 
 /**
  * Defines a typed logger. Use the second type parameter to declare a return
- * value from `install` — handy when the logger exposes a sink factory or
- * cleanup callback to the caller.
+ * value from `install`, which is handy when the logger exposes a sink factory
+ * or cleanup callback to the caller.
  *
  * @example Basic logger
  * ```ts
@@ -51,8 +51,8 @@ export type UserLogger<TOptions extends LoggerOptions = LoggerOptions, TInstallR
  * export const myLogger = defineLogger({
  *   name: 'my-logger',
  *   install(context) {
- *     context.on('kubb:info', (message) => console.log('ℹ', message))
- *     context.on('kubb:error', (error) => console.error('✗', error.message))
+ *     context.on('kubb:info', ({ message }) => console.log('ℹ', message))
+ *     context.on('kubb:error', ({ error }) => console.error('✗', error.message))
  *   },
  * })
  * ```

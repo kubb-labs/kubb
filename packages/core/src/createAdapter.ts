@@ -5,19 +5,19 @@ import type { ImportNode, InputNode, InputStreamNode, SchemaNode } from '@kubb/a
  * Source data handed to an adapter's `parse` function. Mirrors the config
  * input shape with paths resolved to absolute.
  *
- * - `{ type: 'path' }` — single file on disk.
- * - `{ type: 'paths' }` — multiple files (e.g. split spec).
- * - `{ type: 'data' }` — raw string or parsed object provided inline.
+ * - `{ type: 'path' }`: single file on disk.
+ * - `{ type: 'paths' }`: multiple files (e.g. split spec).
+ * - `{ type: 'data' }`: raw string or parsed object provided inline.
  */
 export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown } | { type: 'paths'; paths: Array<string> }
 
 /**
  * Generic parameters used by `createAdapter` and the resulting `Adapter` type.
  *
- * - `TName` — unique adapter identifier (`'oas'`, `'asyncapi'`, ...).
- * - `TOptions` — user-facing options accepted by the adapter factory.
- * - `TResolvedOptions` — options after defaults are applied.
- * - `TDocument` — type of the parsed source document.
+ * - `TName`: unique adapter identifier (`'oas'`, `'asyncapi'`, ...).
+ * - `TOptions`: user-facing options accepted by the adapter factory.
+ * - `TResolvedOptions`: options after defaults are applied.
+ * - `TDocument`: type of the parsed source document.
  */
 export type AdapterFactoryOptions<
   TName extends string = string,
@@ -85,8 +85,8 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * Memory-efficient streaming variant of `parse()`.
    *
    * Returns an `InputStreamNode` whose `schemas` and `operations` are `AsyncIterable`.
-   * Each `for await` loop creates a fresh parse pass over the cached in-memory document —
-   * no pre-built arrays are held in memory.
+   * Each `for await` loop creates a fresh parse pass over the cached in-memory document.
+   * No pre-built arrays are held in memory.
    */
   stream?: (source: AdapterSource) => Promise<InputStreamNode>
 }
@@ -99,12 +99,12 @@ type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) =
  * domain-specific schema. Built-in adapters: `@kubb/adapter-oas` for
  * OpenAPI/Swagger documents.
  *
- * Adapters must return an `InputNode` from `parse` — that node is what every
+ * Adapters must return an `InputNode` from `parse`. That node is what every
  * plugin in the build consumes.
  *
  * @example
  * ```ts
- * import { createAdapter, ast } from '@kubb/core'
+ * import { createAdapter, ast, type AdapterFactoryOptions } from '@kubb/core'
  *
  * type MyAdapter = AdapterFactoryOptions<'my-adapter', { validate?: boolean }>
  *
@@ -112,12 +112,14 @@ type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) =
  *   name: 'my-adapter',
  *   options,
  *   document: null,
- *   async parse(source) {
+ *   async parse(_source) {
  *     // Convert `source` (path or inline data) into an InputNode.
  *     return ast.createInput()
  *   },
  *   getImports: () => [],
- *   validate: async () => {},
+ *   async validate() {
+ *     // Throw or call ctx.error here when the spec is invalid.
+ *   },
  * }))
  * ```
  */

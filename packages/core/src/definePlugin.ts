@@ -379,10 +379,10 @@ export function definePlugin<TFactory extends PluginFactoryOptions = PluginFacto
  * Detects whether an output path points at a single file (`'single'`) or a
  * directory (`'split'`). Decided purely from the presence of a file extension.
  *
- * @example
+ * @example Directory
  * `getMode('./types') // 'split'`
  *
- * @example
+ * @example Single file
  * `getMode('./api.ts') // 'single'`
  */
 export function getMode(fileOrFolder: string | undefined | null): 'single' | 'split' {

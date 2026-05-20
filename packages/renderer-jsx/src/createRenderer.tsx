@@ -6,8 +6,8 @@ import type { KubbReactElement } from './types.ts'
 /**
  * Renderer factory that turns the JSX produced by a generator into
  * `FileNode`s using React's reconciler under the hood. Pass as the `renderer`
- * property on `defineGenerator`. Kubb core stays generic — no hard dependency
- * on `@kubb/renderer-jsx`.
+ * property on `defineGenerator`. Kubb core stays generic, with no hard
+ * dependency on `@kubb/renderer-jsx`.
  *
  * Use this when generators rely on React features (hooks, suspense, context).
  * For pure-function components, see {@link jsxRendererSync} for ~2-4× faster

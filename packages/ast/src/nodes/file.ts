@@ -181,7 +181,7 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
   kind: 'File'
   /**
    * Unique identifier derived from a SHA256 hash of the file path. Computed
-   * by `createFile` — callers do not need to provide it.
+   * by `createFile`; callers do not need to provide it.
    */
   id: string
   /**

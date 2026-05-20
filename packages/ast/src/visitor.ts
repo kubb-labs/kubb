@@ -326,7 +326,7 @@ function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undef
 
 /**
  * Async depth-first traversal for side effects. Visitor return values are
- * ignored — use `transform` when you want to rewrite nodes.
+ * ignored. Use `transform` when you want to rewrite nodes.
  *
  * Sibling nodes at each depth run concurrently up to `options.concurrency`
  * (defaults to `WALK_CONCURRENCY`). Higher values overlap I/O-bound visitor
@@ -388,7 +388,7 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
  * Synchronous depth-first transform. Each visitor callback gets a chance to
  * return a replacement node; `undefined` keeps the original.
  *
- * The transform is immutable — the original tree is not mutated; a new tree
+ * The transform is immutable. The original tree is not mutated; a new tree
  * is returned. Use `depth: 'shallow'` to skip recursion into children.
  *
  * @example Prefix every operationId
