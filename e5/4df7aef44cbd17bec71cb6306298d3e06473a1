@@ -1,0 +1,28 @@
+packages/adapter-oas/src/adapter.bench.ts
+  s_f786084865badb::t_03f2ce3b03dfe3 51
+packages/core/src/createKubb.test.ts
+  s_f786084865badb::t_ccb526a94f76db 390
+  s_f786084865badb::t_b37c38c70aaa2a 8
+packages/core/src/createKubb.ts
+  s_f786084865badb::t_8ccf6fb14182d6 1187,1370,1374,1431
+  s_f786084865badb::t_e043fa25b1629a 1163,1165,1386,1408,1430,1433,1437
+  s_f786084865badb::t_fd39e399f247c5 1155,1220,1226,1313,1321
+packages/core/src/KubbDriver.ts
+  s_f786084865badb::t_8ccf6fb14182d6 60,177,187,386,473
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "e54df7aef44cbd17bec71cb6306298d3e06473a1",
+  "prompts": {},
+  "sessions": {
+    "s_f786084865badb": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "c46178e7-6b87-48e3-8bf8-69fb8ec4f3d2",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
