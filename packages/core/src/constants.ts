@@ -26,6 +26,11 @@ export const STREAM_SCHEMA_THRESHOLD = 100
 export const STREAM_FLUSH_EVERY = 50
 
 /**
+ * Number of schema/operation nodes to dispatch concurrently during generation.
+ */
+export const SCHEMA_PARALLEL = 8
+
+/**
  * Numeric log-level thresholds used internally to compare verbosity.
  *
  * Higher numbers are more verbose.
