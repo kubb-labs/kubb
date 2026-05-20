@@ -14,6 +14,7 @@ on:
 permissions:
   actions: write
   contents: write
+  id-token: write
   models: read
   packages: write
   pull-requests: write
@@ -65,6 +66,7 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish ${{ inputs.tag || 'canary' }}
@@ -73,6 +75,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
           RELEASE_TAG: ${{ inputs.tag || 'canary' }}
         run: |
           git checkout main
