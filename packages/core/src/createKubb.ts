@@ -1086,7 +1086,12 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   const pluginTimings = new Map<string, number>()
   const config = driver.config
-  const writtenPaths = new Set<string>()
+  // Tracks the exact FileNode reference last written for each path. Each
+  // FileManager.upsert produces a new FileNode via createFile, so reference
+  // identity reliably detects when a file's content has changed since the
+  // last flush — required for single-file mode where schemas and operations
+  // both merge into the same path across multiple streaming flushes.
+  const writtenFiles = new Map<string, FileNode>()
   const parsersMap = new Map<FileNode['extname'], Parser>()
   const fileProcessor = new FileProcessor()
 
@@ -1099,7 +1104,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
   }
 
   async function flushPendingFiles(): Promise<void> {
-    const files = driver.fileManager.files.filter((f) => !writtenPaths.has(f.path))
+    const files = driver.fileManager.files.filter((f) => writtenFiles.get(f.path) !== f)
     if (files.length === 0) {
       return
     }
@@ -1115,7 +1120,7 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
 
     const queue: Array<Promise<void>> = []
     for (const { file, source, processed, total, percentage } of stream) {
-      writtenPaths.add(file.path)
+      writtenFiles.set(file.path, file)
       queue.push(
         (async () => {
           await hooks.emit('kubb:file:processing:update', { file, source, processed, total, percentage, config })
@@ -1328,7 +1333,18 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         try {
           const { plugin, generatorContext, generators } = state
           const ctx = { ...generatorContext, options: plugin.options }
-          await dispatchOperationsToGenerators(generators, collectedOperations, ctx, (gen) => resolveRendererFor(gen, state))
+          // Filter operations to those this plugin would have dispatched to gen.operation():
+          // excludes/includes/overrides that resolve to null in dispatchOperation must also be
+          // hidden from the batch gen.operations() hook, or grouped/barrel generators emit
+          // references to operation files that the individual hook intentionally skipped.
+          const pluginOperations = state.optionsAreStatic
+            ? collectedOperations
+            : collectedOperations.filter((node) => {
+                const transformed = plugin.transformer ? transform(node, plugin.transformer) : node
+                const { exclude, include, override } = plugin.options
+                return generatorContext.resolver.resolveOptions(transformed, { options: plugin.options, exclude, include, override }) !== null
+              })
+          await dispatchOperationsToGenerators(generators, pluginOperations, ctx, (gen) => resolveRendererFor(gen, state))
         } catch (caughtError) {
           state.failed = true
           state.error = caughtError as Error
