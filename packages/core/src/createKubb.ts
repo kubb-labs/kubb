@@ -1396,7 +1396,17 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         const error = caughtError as Error
         const duration = getElapsedMs(hrStart)
         pluginTimings.set(plugin.name, duration)
-        await hooks.emit('kubb:plugin:end', { plugin, duration, success: false, error, config, get files() { return driver.fileManager.files }, upsertFile: (...files) => driver.fileManager.upsert(...files) })
+        await hooks.emit('kubb:plugin:end', {
+          plugin,
+          duration,
+          success: false,
+          error,
+          config,
+          get files() {
+            return driver.fileManager.files
+          },
+          upsertFile: (...files) => driver.fileManager.upsert(...files),
+        })
         failedPlugins.add({ plugin, error })
         continue
       }

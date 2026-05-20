@@ -606,4 +606,3 @@ function inputToAdapterSource(config: Config): AdapterSource {
 
   return { type: 'path', path: resolved }
 }
-

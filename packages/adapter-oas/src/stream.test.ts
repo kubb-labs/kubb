@@ -264,4 +264,3 @@ describe('createInputStream', () => {
     `)
   })
 })
-

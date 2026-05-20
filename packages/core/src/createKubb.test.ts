@@ -341,7 +341,9 @@ describe('createKubb', () => {
         {
           ...config,
           storage: memoryStorage(),
-          adapter: createMockedAdapter({ parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as string[], enumNames: [] as string[] }, schemas, operations: [] }) }),
+          adapter: createMockedAdapter({
+            parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as string[], enumNames: [] as string[] }, schemas, operations: [] }),
+          }),
           plugins: [makeBatchPlugin(generatedPaths) as unknown as Plugin],
         },
         { hooks: new AsyncEventEmitter<KubbHooks>() },
@@ -378,7 +380,9 @@ describe('createKubb', () => {
         {
           ...config,
           storage: memoryStorage(),
-          adapter: createMockedAdapter({ parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as string[], enumNames: [] as string[] }, schemas: [], operations }) }),
+          adapter: createMockedAdapter({
+            parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as string[], enumNames: [] as string[] }, schemas: [], operations }),
+          }),
           plugins: [orderPlugin as unknown as Plugin],
         },
         { hooks: new AsyncEventEmitter<KubbHooks>() },
@@ -453,7 +457,9 @@ describe('createKubb', () => {
         {
           ...config,
           storage: memoryStorage(),
-          adapter: createMockedAdapter({ parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as string[], enumNames: [] as string[] }, schemas, operations: [] }) }),
+          adapter: createMockedAdapter({
+            parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as string[], enumNames: [] as string[] }, schemas, operations: [] }),
+          }),
           plugins: [flushPlugin as unknown as Plugin],
         },
         { hooks },

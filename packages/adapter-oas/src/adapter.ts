@@ -107,8 +107,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     const { parseSchema, parseOperation } = ensureSchemaParser()
     const { refAliasMap, enumNames, circularNames, discriminatorChildMap } = ensurePreScan()
 
-    if(!schemas){
-      throw new Error("Schemas are not defined")
+    if (!schemas) {
+      throw new Error('Schemas are not defined')
     }
 
     return createInputStream({
