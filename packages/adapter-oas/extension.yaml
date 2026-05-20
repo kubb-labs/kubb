@@ -96,7 +96,7 @@ options:
               servers:
                 - url: http://petstore.swagger.io/api
                 - url: http://localhost:3000
-      - name: "Use the production server"
+      - name: 'Use the production server'
         files:
           - lang: typescript
             twoslash: false
@@ -110,7 +110,7 @@ options:
                 adapter: adapterOas({ serverIndex: 0 }),
                 plugins: [],
               })
-      - name: "Use the localhost server"
+      - name: 'Use the localhost server'
         files:
           - lang: typescript
             twoslash: false
