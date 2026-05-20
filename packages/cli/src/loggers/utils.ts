@@ -47,7 +47,7 @@ export type HookSinkOptions = HookOutputSink & {
  * `hookId` is the same id passed to `kubb:hook:start` / `kubb:hook:end`, letting the logger
  * correlate streamed output with the active UI element (e.g., a clack `taskLog`) it created in the start handler.
  */
-export type HookSinkFactory = (commandWithArgs: string, hookId: string) => HookSinkOptions | undefined
+export type HookSinkFactory = (commandWithArgs: string, hookId: string) => HookSinkOptions | null
 
 /**
  * Logger variant that may return a {@link HookSinkFactory} from `install`.
@@ -151,7 +151,7 @@ const logMapper: Record<LoggerType, CLILogger> = {
   'github-actions': githubActionsLogger,
 }
 
-export async function setupLogger(context: LoggerContext, { logLevel }: LoggerOptions): Promise<HookSinkFactory | undefined> {
+export async function setupLogger(context: LoggerContext, { logLevel }: LoggerOptions): Promise<HookSinkFactory | null> {
   const type = detectLogger()
 
   const logger = logMapper[type]
@@ -166,7 +166,7 @@ export async function setupLogger(context: LoggerContext, { logLevel }: LoggerOp
     await fileSystemLogger.install(context, { logLevel })
   }
 
-  return typeof makeSink === 'function' ? makeSink : undefined
+  return typeof makeSink === 'function' ? makeSink : null
 }
 
 type SummaryProps = {

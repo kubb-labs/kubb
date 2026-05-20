@@ -33,7 +33,7 @@ function makeBarrel(dirPath: string, exports: Array<ExportNode>): FileNode {
 type LeafContext = {
   dirPath: string
   leafPath: string
-  sourceFile: FileNode | undefined
+  sourceFile: FileNode | null
 }
 
 type LeafStrategy = (ctx: LeafContext) => Array<ExportNode>
@@ -117,7 +117,7 @@ function* walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolea
 
   if (!isRoot && !params.recursive) return subtreeLeaves
 
-  const exports = subtreeLeaves.flatMap((leafPath) => params.strategy({ dirPath: node.path, leafPath, sourceFile: params.sourceFiles.get(leafPath) }))
+  const exports = subtreeLeaves.flatMap((leafPath) => params.strategy({ dirPath: node.path, leafPath, sourceFile: params.sourceFiles.get(leafPath) ?? null }))
 
   if (exports.length > 0) {
     yield makeBarrel(node.path, exports)

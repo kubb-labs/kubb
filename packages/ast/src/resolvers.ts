@@ -27,17 +27,17 @@ export function collectImports<TImport>({
 }: {
   node: SchemaNode
   nameMapping: Map<string, string>
-  resolve: (schemaName: string) => TImport | undefined
+  resolve: (schemaName: string) => TImport | null
 }): Array<TImport> {
   return collect<TImport>(node, {
-    schema(schemaNode): TImport | undefined {
+    schema(schemaNode): TImport | null {
       const schemaRef = narrowSchema(schemaNode, 'ref')
-      if (!schemaRef?.ref) return
+      if (!schemaRef?.ref) return null
 
       const rawName = extractRefName(schemaRef.ref)
       const schemaName = nameMapping.get(rawName) ?? rawName
       const result = resolve(schemaName)
-      if (!result) return
+      if (!result) return null
 
       return result
     },

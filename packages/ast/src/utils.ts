@@ -394,7 +394,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
   } else {
     if (pathParams.length) {
       if (pathParamsType === 'inlineSpread') {
-        const spreadType = resolver?.resolvePathParamsName(node, pathParams[0]!) ?? undefined
+        const spreadType = resolver?.resolvePathParamsName(node, pathParams[0]!)
         params.push(
           createFunctionParameter({
             name: pathName,
@@ -476,7 +476,7 @@ function buildGroupParam({
   name: string
   node: OperationNode
   params: Array<ParameterNode>
-  groupType: ParamGroupType | undefined
+  groupType: ParamGroupType | null | undefined
   resolver: OperationParamsResolver | undefined
   wrapType: (type: string) => ParamsTypeNode
 }): Array<FunctionParameterNode> {
@@ -498,7 +498,7 @@ function buildGroupParam({
 
 /**
  * Derives a {@link ParamGroupType} from the resolver's group method.
- * Returns `undefined` when the group name equals the individual param name (no real group).
+ * Returns `null` when the group name equals the individual param name (no real group).
  */
 function resolveGroupType({
   node,
@@ -510,14 +510,14 @@ function resolveGroupType({
   params: Array<ParameterNode>
   groupMethod: (_node: OperationNode, _param: ParameterNode) => string
   resolver: OperationParamsResolver
-}): ParamGroupType | undefined {
+}): ParamGroupType | null {
   if (!params.length) {
-    return undefined
+    return null
   }
   const firstParam = params[0]!
   const groupName = groupMethod.call(resolver, node, firstParam)
   if (groupName === resolver.resolveParamName(node, firstParam)) {
-    return undefined
+    return null
   }
   const allOptional = params.every((p) => !p.required)
   return {
@@ -746,7 +746,7 @@ export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): str
 /**
  * Resolves the schema name of a ref node, falling back through `ref` → `name` → nested `schema.name`.
  *
- * Returns `undefined` for non-ref nodes or when no name can be resolved. Use this to get a schema's
+ * Returns `null` for non-ref nodes or when no name can be resolved. Use this to get a schema's
  * identifier for type definitions or error messages.
  *
  * @example
@@ -755,11 +755,11 @@ export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): str
  * // => 'Pet'
  * ```
  */
-export function resolveRefName(node: SchemaNode | undefined): string | undefined {
-  if (!node || node.type !== 'ref') return undefined
-  if (node.ref) return extractRefName(node.ref) ?? node.name ?? node.schema?.name ?? undefined
+export function resolveRefName(node: SchemaNode | undefined): string | null {
+  if (!node || node.type !== 'ref') return null
+  if (node.ref) return extractRefName(node.ref) ?? node.name ?? node.schema?.name ?? null
 
-  return node.name ?? node.schema?.name ?? undefined
+  return node.name ?? node.schema?.name ?? null
 }
 
 /**
@@ -926,9 +926,9 @@ export function containsCircularRef(
 
   for (const _ of collectLazy<true>(node, {
     schema(child) {
-      if (child.type !== 'ref') return undefined
+      if (child.type !== 'ref') return null
       const name = resolveRefName(child)
-      return name && name !== excludeName && circularSchemas.has(name) ? true : undefined
+      return name && name !== excludeName && circularSchemas.has(name) ? true : null
     },
   })) {
     return true

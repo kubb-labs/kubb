@@ -111,7 +111,7 @@ export function createSchemaParser(ctx: OasParserContext) {
    * Memoizing by `$ref` path reduces the overall work from O(2^depth) to O(N)
    * where N is the number of unique schema names.
    */
-  const resolvedRefCache = new Map<string, ast.SchemaNode | undefined>()
+  const resolvedRefCache = new Map<string, ast.SchemaNode | null>()
 
   /**
    * Converts a `$ref` schema into a `RefSchemaNode`.
@@ -122,7 +122,7 @@ export function createSchemaParser(ctx: OasParserContext) {
    * Circular refs are detected via `resolvingRefs` and leave `schema` as `undefined`.
    */
   function convertRef({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): ast.SchemaNode {
-    let resolvedSchema: ast.SchemaNode | undefined
+    let resolvedSchema: ast.SchemaNode | null = null
     const refPath = schema.$ref
     if (refPath && !resolvingRefs.has(refPath)) {
       if (!resolvedRefCache.has(refPath)) {
@@ -138,7 +138,7 @@ export function createSchemaParser(ctx: OasParserContext) {
         }
         resolvedRefCache.set(refPath, resolvedSchema)
       }
-      resolvedSchema = resolvedRefCache.get(refPath)
+      resolvedSchema = resolvedRefCache.get(refPath) ?? null
     }
 
     return ast.createSchema({
@@ -646,7 +646,7 @@ export function createSchemaParser(ctx: OasParserContext) {
    */
   function convertArray({ schema, name, nullable, defaultValue, rawOptions, options }: SchemaContext): ast.SchemaNode {
     const rawItems = schema.items as SchemaObject | undefined
-    const itemName = rawItems?.enum?.length && name ? ast.enumPropName(undefined, name, options.enumSuffix) : undefined
+    const itemName = rawItems?.enum?.length && name ? ast.enumPropName(null, name, options.enumSuffix) : undefined
     const items = rawItems ? [parseSchema({ schema: rawItems, name: itemName }, rawOptions)] : []
 
     return ast.createSchema({
@@ -871,8 +871,8 @@ export function createSchemaParser(ctx: OasParserContext) {
    * Collects property names whose schema has a truthy boolean flag (`readOnly` or `writeOnly`).
    * `$ref` entries are skipped since their flags live on the dereferenced target.
    */
-  function collectPropertyKeysByFlag(schema: SchemaObject | null, flag: 'readOnly' | 'writeOnly'): string[] | undefined {
-    if (!schema?.properties) return undefined
+  function collectPropertyKeysByFlag(schema: SchemaObject | null, flag: 'readOnly' | 'writeOnly'): string[] | null {
+    if (!schema?.properties) return null
 
     const keys: string[] = []
     for (const key in schema.properties) {
@@ -881,7 +881,7 @@ export function createSchemaParser(ctx: OasParserContext) {
         keys.push(key)
       }
     }
-    return keys.length ? keys : undefined
+    return keys.length ? keys : null
   }
 
   /**

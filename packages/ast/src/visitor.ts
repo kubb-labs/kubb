@@ -176,13 +176,13 @@ export type AsyncVisitor = {
  * ```
  */
 export type CollectVisitor<T> = {
-  input?(node: InputNode, context: VisitorContext<InputNode>): T | undefined
-  output?(node: OutputNode, context: VisitorContext<OutputNode>): T | undefined
-  operation?(node: OperationNode, context: VisitorContext<OperationNode>): T | undefined
-  schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): T | undefined
-  property?(node: PropertyNode, context: VisitorContext<PropertyNode>): T | undefined
-  parameter?(node: ParameterNode, context: VisitorContext<ParameterNode>): T | undefined
-  response?(node: ResponseNode, context: VisitorContext<ResponseNode>): T | undefined
+  input?(node: InputNode, context: VisitorContext<InputNode>): T | null | undefined
+  output?(node: OutputNode, context: VisitorContext<OutputNode>): T | null | undefined
+  operation?(node: OperationNode, context: VisitorContext<OperationNode>): T | null | undefined
+  schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): T | null | undefined
+  property?(node: PropertyNode, context: VisitorContext<PropertyNode>): T | null | undefined
+  parameter?(node: ParameterNode, context: VisitorContext<ParameterNode>): T | null | undefined
+  response?(node: ResponseNode, context: VisitorContext<ResponseNode>): T | null | undefined
 }
 
 /**
@@ -487,7 +487,7 @@ export function transform(node: Node, options: TransformOptions): Node {
 /**
  * Runs a depth-first synchronous collection pass.
  *
- * Non-`undefined` values returned by visitor callbacks are appended to the result.
+ * Non-`null` values returned by visitor callbacks are appended to the result.
  *
  * @example
  * ```ts
@@ -508,7 +508,7 @@ export function* collectLazy<T>(node: Node, options: CollectOptions<T>): Generat
   const { depth, parent, ...visitor } = options
   const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
 
-  let v: T | undefined
+  let v: T | null | undefined
   switch (node.kind) {
     case 'Input':
       v = visitor.input?.(node, { parent: parent as ParentOf<InputNode> })
@@ -532,7 +532,7 @@ export function* collectLazy<T>(node: Node, options: CollectOptions<T>): Generat
       v = visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> })
       break
   }
-  if (v !== undefined) yield v
+  if (v != null) yield v
 
   for (const child of getChildren(node, recurse)) {
     yield* collectLazy(child, { ...options, parent: node })

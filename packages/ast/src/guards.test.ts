@@ -187,23 +187,23 @@ describe('narrowSchema', () => {
     expect(result?.type).toBe('object')
   })
 
-  it('returns undefined when type does not match', () => {
-    expect(narrowSchema(createSchema({ type: 'string' }), 'object')).toBeUndefined()
+  it('returns null when type does not match', () => {
+    expect(narrowSchema(createSchema({ type: 'string' }), 'object')).toBeNull()
   })
 
-  it('returns undefined when node is undefined', () => {
-    expect(narrowSchema(undefined, 'string')).toBeUndefined()
+  it('returns null when node is undefined', () => {
+    expect(narrowSchema(undefined, 'string')).toBeNull()
   })
 
-  it('narrows return type to ObjectSchemaNode | undefined for "object"', () => {
-    expectTypeOf(narrowSchema(createSchema({ type: 'object' }), 'object')).toEqualTypeOf<ObjectSchemaNode | undefined>()
+  it('narrows return type to ObjectSchemaNode | null for "object"', () => {
+    expectTypeOf(narrowSchema(createSchema({ type: 'object' }), 'object')).toEqualTypeOf<ObjectSchemaNode | null>()
   })
 
-  it('narrows return type to StringSchemaNode | undefined for "string"', () => {
-    expectTypeOf(narrowSchema(createSchema({ type: 'string' }), 'string')).toEqualTypeOf<StringSchemaNode | undefined>()
+  it('narrows return type to StringSchemaNode | null for "string"', () => {
+    expectTypeOf(narrowSchema(createSchema({ type: 'string' }), 'string')).toEqualTypeOf<StringSchemaNode | null>()
   })
 
-  it('narrows return type to UnionSchemaNode | undefined for "union"', () => {
-    expectTypeOf(narrowSchema(createSchema({ type: 'union' }), 'union')).toEqualTypeOf<UnionSchemaNode | undefined>()
+  it('narrows return type to UnionSchemaNode | null for "union"', () => {
+    expectTypeOf(narrowSchema(createSchema({ type: 'union' }), 'union')).toEqualTypeOf<UnionSchemaNode | null>()
   })
 })

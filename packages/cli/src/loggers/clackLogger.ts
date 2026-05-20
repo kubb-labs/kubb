@@ -286,23 +286,20 @@ Run \`npm install -g @kubb/cli\` to update`,
       state.activeProgress.set('files', { progressBar })
     })
 
-    context.on('kubb:file:processing:update', ({ file, config }) => {
+    context.on('kubb:files:processing:update', ({ files }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
 
       stopSpinner()
 
-      state.processedFiles++
-
-      const text = `Writing ${relative(config.root, file.path)}`
       const active = state.activeProgress.get('files')
-
-      if (!active) {
-        return
+      for (const { file, config } of files) {
+        state.processedFiles++
+        if (active) {
+          active.progressBar.advance(undefined, `Writing ${relative(config.root, file.path)}`)
+        }
       }
-
-      active.progressBar.advance(undefined, text)
     })
     context.on('kubb:files:processing:end', () => {
       if (logLevel <= logLevelMap.silent) {
@@ -436,7 +433,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       const active = state.activeHookLogs.get(hookId)
       if (!active) {
-        return undefined
+        return null
       }
 
       const { taskLog } = active

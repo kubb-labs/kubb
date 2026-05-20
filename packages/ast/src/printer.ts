@@ -18,7 +18,7 @@ export type PrinterHandlerContext<TOutput, TOptions extends object> = {
    * Recursively transform a nested `SchemaNode` to `TOutput` using the node-level handlers.
    * Use `this.transform` inside `nodes` handlers and inside the `print` override.
    */
-  transform: (node: SchemaNode) => TOutput | null | undefined
+  transform: (node: SchemaNode) => TOutput | null
   /**
    * Options for this printer instance.
    */
@@ -40,7 +40,7 @@ export type PrinterHandlerContext<TOutput, TOptions extends object> = {
 export type PrinterHandler<TOutput, TOptions extends object, T extends SchemaType = SchemaType> = (
   this: PrinterHandlerContext<TOutput, TOptions>,
   node: SchemaNodeByType[T],
-) => TOutput | null | undefined
+) => TOutput | null
 
 /**
  * Partial map of per-node-type handler overrides for a printer.
@@ -108,13 +108,13 @@ export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
    * Always dispatches through the `nodes` map; never calls the `print` override.
    * Use this when you need the raw output (e.g. `ts.TypeNode`) without declaration wrapping.
    */
-  transform: (node: SchemaNode) => T['output'] | null | undefined
+  transform: (node: SchemaNode) => T['output'] | null
   /**
    * Public printer. If the builder provides a root-level `print`, this calls that
    * higher-level function (which may produce full declarations).
    * Otherwise, falls back to the node-level dispatcher.
    */
-  print: (node: SchemaNode) => T['printOutput'] | null | undefined
+  print: (node: SchemaNode) => T['printOutput'] | null
 }
 
 /**
@@ -147,7 +147,6 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
    */
   print?: (this: PrinterHandlerContext<T['output'], T['options']>, node: SchemaNode) => T['printOutput'] | null
 }
-
 /**
  * Creates a schema printer factory.
  *
@@ -194,7 +193,7 @@ export function definePrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
  * )
  * ```
  */
-export function createPrinterFactory<TNode, TKey extends string, TNodeByKey extends Partial<Record<TKey, TNode>>>(getKey: (node: TNode) => TKey | undefined) {
+export function createPrinterFactory<TNode, TKey extends string, TNodeByKey extends Partial<Record<TKey, TNode>>>(getKey: (node: TNode) => TKey | null) {
   return function <T extends PrinterFactoryOptions>(
     build: (options: T['options']) => {
       name: T['name']
@@ -202,40 +201,40 @@ export function createPrinterFactory<TNode, TKey extends string, TNodeByKey exte
       nodes: Partial<{
         [K in TKey]: (
           this: {
-            transform: (node: TNode) => T['output'] | null | undefined
+            transform: (node: TNode) => T['output'] | null
             options: T['options']
           },
           node: TNodeByKey[K],
-        ) => T['output'] | null | undefined
+        ) => T['output'] | null
       }>
       print?: (
         this: {
-          transform: (node: TNode) => T['output'] | null | undefined
+          transform: (node: TNode) => T['output'] | null
           options: T['options']
         },
         node: TNode,
-      ) => T['printOutput'] | null | undefined
+      ) => T['printOutput'] | null
     },
   ): (options?: T['options']) => {
     name: T['name']
     options: T['options']
-    transform: (node: TNode) => T['output'] | null | undefined
-    print: (node: TNode) => T['printOutput'] | null | undefined
+    transform: (node: TNode) => T['output'] | null
+    print: (node: TNode) => T['printOutput'] | null
   } {
     return (options) => {
       const { name, options: resolvedOptions, nodes, print: printOverride } = build(options ?? ({} as T['options']))
 
       const context = {
         options: resolvedOptions,
-        transform: (node: TNode): T['output'] | null | undefined => {
+        transform: (node: TNode): T['output'] | null => {
           const key = getKey(node)
-          if (key === undefined) return null
+          if (key === null) return null
 
           const handler = nodes[key]
 
           if (!handler) return null
 
-          return (handler as (this: typeof context, node: TNode) => T['output'] | null | undefined).call(context, node)
+          return (handler as (this: typeof context, node: TNode) => T['output'] | null).call(context, node)
         },
       }
 
@@ -243,7 +242,7 @@ export function createPrinterFactory<TNode, TKey extends string, TNodeByKey exte
         name,
         options: resolvedOptions,
         transform: context.transform,
-        print: (printOverride ? printOverride.bind(context) : context.transform) as (node: TNode) => T['printOutput'] | null | undefined,
+        print: (printOverride ? printOverride.bind(context) : context.transform) as (node: TNode) => T['printOutput'] | null,
       }
     }
   }

@@ -54,8 +54,8 @@ export const generateTool = defineTool(
         await notify(NotifyTypes.FILES_START, 'Starting file processing')
       })
 
-      hooks.on('kubb:file:processing:update', async ({ file }: { file: { name: string } }) => {
-        await notify(NotifyTypes.FILE_UPDATE, `Processing file: ${file.name}`)
+      hooks.on('kubb:files:processing:update', async ({ files }: { files: Array<{ file: { name: string } }> }) => {
+        await notify(NotifyTypes.FILES_UPDATE, `Processing ${files.length} files`)
       })
 
       hooks.on('kubb:files:processing:end', async () => {

@@ -29,13 +29,13 @@ describe('findDiscriminator', () => {
       mapping: { cat: '#/components/schemas/Cat' },
       ref: '#/components/schemas/Dog',
     },
-  ])('returns undefined when $label', ({ mapping, ref }) => {
+  ])('returns null when $label', ({ mapping, ref }) => {
     expect(findDiscriminator(mapping, ref)).toBeNull()
   })
 })
 
 describe('childName', () => {
-  it('returns undefined when parentName is undefined', () => {
+  it('returns null when parentName is undefined', () => {
     expect(childName(undefined, 'params')).toBeNull()
   })
 

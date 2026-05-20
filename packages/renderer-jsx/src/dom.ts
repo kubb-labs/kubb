@@ -10,7 +10,7 @@ export const createNode = (nodeName: string): DOMElement => {
     nodeName: nodeName as DOMElement['nodeName'],
     attributes: Object.create(null) as Record<string, DOMNodeAttribute>,
     childNodes: [],
-    parentNode: undefined,
+    parentNode: null,
   }
 }
 
@@ -59,7 +59,7 @@ export const insertBeforeNode = (node: DOMElement, newChildNode: DOMNode, before
  * Does nothing if `removeNode` is not a direct child of `node`.
  */
 export const removeChildNode = (node: DOMElement, removeNode: DOMNode): void => {
-  removeNode.parentNode = undefined
+  removeNode.parentNode = null
 
   const index = node.childNodes.indexOf(removeNode)
   if (index >= 0) {
@@ -81,7 +81,7 @@ export const createTextNode = (text: string): TextNode => {
   return {
     nodeName: TEXT_NODE_NAME,
     nodeValue: text,
-    parentNode: undefined,
+    parentNode: null,
   }
 }
 

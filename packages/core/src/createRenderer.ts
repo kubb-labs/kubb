@@ -20,6 +20,10 @@ export type Renderer<TElement = unknown> = {
    */
   unmount(error?: Error | number | null): void
   /**
+   * Releases any held resources. `[Symbol.dispose]` delegates here.
+   */
+  dispose(): void
+  /**
    * Accumulated {@link FileNode} results produced by the last {@link render} call.
    * Not populated when {@link stream} is implemented.
    */
@@ -29,6 +33,11 @@ export type Renderer<TElement = unknown> = {
    * forwarding each file to `FileManager` as soon as it is ready.
    */
   stream?(element: TElement): Iterable<FileNode>
+  /**
+   * Disposer hook so renderers participate in `using` blocks: `using r = rendererFactory()`
+   * guarantees {@link dispose} runs on every exit path, including thrown errors.
+   */
+  [Symbol.dispose](): void
 }
 
 /**
@@ -48,6 +57,7 @@ export type RendererFactory<TElement = unknown> = () => Renderer<TElement>
  *   return {
  *     async render(element) { await runtime.render(element) },
  *     get files() { return runtime.nodes },
+ *     dispose() { runtime.unmount() },
  *     unmount(error) { runtime.unmount(error) },
  *   }
  * })

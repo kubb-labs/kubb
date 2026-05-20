@@ -45,13 +45,15 @@ export function buildRefMap(input: InputNode): RefMap {
 /**
  * Resolves a schema by name from a `RefMap`.
  *
+ * Returns `null` when the ref is not found.
+ *
  * @example
  * ```ts
  * const petSchema = resolveRef(refMap, 'Pet')
  * ```
  */
-export function resolveRef(refMap: RefMap, ref: string): SchemaNode | undefined {
-  return refMap.get(ref)
+export function resolveRef(refMap: RefMap, ref: string): SchemaNode | null {
+  return refMap.get(ref) ?? null
 }
 
 /**

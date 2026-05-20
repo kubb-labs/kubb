@@ -52,16 +52,16 @@ describe('resolveBaseUrl', () => {
     expect(url).toMatchInlineSnapshot(`"https://api.example.com/v1"`)
   })
 
-  it('returns undefined when no serverIndex is provided', async () => {
+  it('returns null when no serverIndex is provided', async () => {
     const document = await parseFromConfig({ type: 'data', data: minimalSpec })
     const url = resolveBaseUrl({ document })
-    expect(url).toMatchInlineSnapshot(`undefined`)
+    expect(url).toMatchInlineSnapshot(`null`)
   })
 
-  it('returns undefined when serverIndex is out of range', async () => {
+  it('returns null when serverIndex is out of range', async () => {
     const document = await parseFromConfig({ type: 'data', data: minimalSpec })
     const url = resolveBaseUrl({ document, serverIndex: 99 })
-    expect(url).toMatchInlineSnapshot(`undefined`)
+    expect(url).toMatchInlineSnapshot(`null`)
   })
 })
 

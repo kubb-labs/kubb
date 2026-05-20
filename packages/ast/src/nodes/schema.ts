@@ -368,8 +368,9 @@ export type RefSchemaNode = SchemaNodeBase & {
   type: 'ref'
   /**
    * Referenced schema name.
+   * `null` means Kubb has processed this and determined there is no applicable name.
    */
-  name?: string
+  name?: string | null
   /**
    * Original `$ref` path, for example, `#/components/schemas/Order`.
    * Used to resolve names later.
@@ -382,12 +383,13 @@ export type RefSchemaNode = SchemaNodeBase & {
   /**
    * The fully-parsed schema that this ref resolves to.
    * Populated during OAS parsing when the referenced definition can be resolved.
-   * `undefined` when the ref cannot be resolved or is part of a circular chain.
+   * `null` when the ref cannot be resolved or is part of a circular chain.
+   * `undefined` when resolution has not been attempted.
    *
    * Useful for inspecting the referenced schema's structure (e.g. `primitive`, `properties`)
    * without following the reference manually.
    */
-  schema?: SchemaNode
+  schema?: SchemaNode | null
 }
 
 /**

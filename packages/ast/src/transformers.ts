@@ -150,7 +150,7 @@ export function setEnumName(propNode: SchemaNode, parentName: string | null | un
   const enumNode = narrowSchema(propNode, 'enum')
 
   if (enumNode?.primitive === 'boolean') {
-    return { ...propNode, name: undefined }
+    return { ...propNode, name: null }
   }
 
   if (enumNode) {

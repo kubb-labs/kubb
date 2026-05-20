@@ -30,8 +30,14 @@ export const jsxRenderer = () => {
     get files() {
       return runtime.nodes
     },
+    dispose() {
+      runtime.unmount()
+    },
     unmount(error?: Error | number | null) {
       runtime.unmount(error)
+    },
+    [Symbol.dispose]() {
+      this.dispose()
     },
   }
 }
@@ -75,6 +81,10 @@ export const jsxRendererSync = () => {
     stream(element: KubbReactElement): Generator<FileNode> {
       return runtime.stream(element)
     },
+    dispose() {},
     unmount(_error?: Error | number | null) {},
+    [Symbol.dispose]() {
+      this.dispose()
+    },
   }
 }

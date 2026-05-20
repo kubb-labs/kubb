@@ -1131,7 +1131,7 @@ describe('parseSchema const (OAS 3.1)', () => {
     const isHappyProp = objectNode?.properties.find((p) => p.name === 'isHappy')
     const isHappyEnum = ast.narrowSchema(isHappyProp?.schema, 'enum')
 
-    expect(isHappyEnum?.name).toBeUndefined()
+    expect(isHappyEnum?.name).toBeNull()
     expect(isHappyEnum?.enumValues).toEqual([false])
   })
 })

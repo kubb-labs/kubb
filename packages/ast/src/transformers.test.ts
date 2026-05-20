@@ -433,7 +433,7 @@ describe('setEnumName()', () => {
     })
     const result = setEnumName(node, 'Order', 'enabled', 'enum')
 
-    expect(result.name).toBeUndefined()
+    expect(result.name).toBeNull()
   })
 
   it('passes through non-enum nodes unchanged', () => {

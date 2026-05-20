@@ -20,11 +20,11 @@ import type {
  * @example
  * ```ts
  * const schema = createSchema({ type: 'string' })
- * const stringNode = narrowSchema(schema, 'string') // StringSchemaNode | undefined
+ * const stringNode = narrowSchema(schema, 'string') // StringSchemaNode | null
  * ```
  */
-export function narrowSchema<T extends SchemaNode['type']>(node: SchemaNode | undefined, type: T): SchemaNodeByType[T] | undefined {
-  return node?.type === type ? (node as SchemaNodeByType[T]) : undefined
+export function narrowSchema<T extends SchemaNode['type']>(node: SchemaNode | undefined, type: T): SchemaNodeByType[T] | null {
+  return node?.type === type ? (node as SchemaNodeByType[T]) : null
 }
 
 function isKind<T extends Node>(kind: NodeKind) {

@@ -1883,9 +1883,9 @@ describe('resolveRefName', () => {
     expect(resolveRefName(ref)).toBe('Pet')
   })
 
-  it('returns undefined for non-ref nodes', () => {
-    expect(resolveRefName(createSchema({ type: 'string' }))).toBeUndefined()
-    expect(resolveRefName(undefined)).toBeUndefined()
+  it('returns null for non-ref nodes', () => {
+    expect(resolveRefName(createSchema({ type: 'string' }))).toBeNull()
+    expect(resolveRefName(undefined)).toBeNull()
   })
 })
 

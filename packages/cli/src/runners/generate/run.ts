@@ -17,7 +17,7 @@ type GenerateProps = {
   config: Config
   hooks: AsyncEventEmitter<KubbHooks>
   logLevel: number
-  makeSink?: HookSinkFactory
+  makeSink?: HookSinkFactory | null
 }
 
 type ToolMap = typeof formatters | typeof linters
@@ -33,7 +33,7 @@ type RunToolPassOptions = {
   outputPath: string
   logLevel: number
   hooks: AsyncEventEmitter<KubbHooks>
-  makeSink?: HookSinkFactory
+  makeSink?: HookSinkFactory | null
   onStart: () => Promise<void>
   onEnd: () => Promise<void>
 }
