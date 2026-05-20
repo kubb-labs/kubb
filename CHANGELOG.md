@@ -1,5 +1,49 @@
 # Changelog
 
+## v5.0.0-beta.20 — May 20, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- All OpenAPI specs now go through the streaming path, removing the size-based threshold that previously switched between eager and lazy parsing.
+  
+  The adapter's internal streaming logic is extracted into a dedicated `stream.ts` module (`preScan`, `createInputStream`, `resolveBaseUrl`) so it can be tested in isolation without going through the full adapter pipeline.
+  
+  `preScan` and the other internal `ensure*` helpers each run at most once per adapter instance. Concurrent callers (e.g. `stream()` and `parse()` called simultaneously) share the same in-flight work and cannot trigger duplicate parses or validation passes. ([#3331](https://github.com/kubb-labs/kubb/pull/3331), [`fd3a585`](https://github.com/kubb-labs/kubb/commit/fd3a585d5fd1052177d999d7ce030412b76b2bf1))
+
+### @kubb/ast
+
+#### Features
+
+- `InputMeta` gains two pre-computed fields that plugins previously had to derive themselves by iterating the full schema list.
+  
+  - `circularNames` — names of schemas that participate in a circular reference chain. Replaces calling `ast.findCircularSchemas(inputNode.schemas)` inside each plugin.
+  - `enumNames` — names of every enum schema in the document. Replaces filtering the schema stream by type.
+  
+  Both fields are plain `readonly string[]` arrays, keeping `InputMeta` fully JSON-serializable.
+  
+  `GeneratorContext` now exposes `meta: InputMeta` instead of `inputNode: InputNode`. Plugins that previously destructured `inputNode` to access circular or enum information should switch to `ctx.meta.circularNames` and `ctx.meta.enumNames`. ([#3331](https://github.com/kubb-labs/kubb/pull/3331), [`fd3a585`](https://github.com/kubb-labs/kubb/commit/fd3a585d5fd1052177d999d7ce030412b76b2bf1))
+
+### @kubb/core
+
+#### Features
+
+- `KubbDriver` and `createKubb` are cleaned up around the always-stream architecture.
+  
+  - `STREAM_SCHEMA_THRESHOLD` constant is removed. All builds now go through the streaming code path regardless of spec size.
+  - Studio-related state (`source`, `isOpen`, `inputNode`) is consolidated into a single `#studio` object on `KubbDriver` instead of three separate private fields.
+  - `runAstPlugin` is removed from `createKubb`. `runPlugins` is the only plugin runner now.
+  - Plugin lifecycle events (`kubb:plugin:start`, `kubb:plugin:end`) fire for every plugin, including those without an adapter configured.
+  - `middlewareListeners`, `#eventGeneratorPlugins`, and `hasEventGenerators` replace the previous public `middlewareListeners`, `#pluginsWithEventGenerators`, and `hasRegisteredGenerators` for naming consistency.
+  - `forBatches` no longer accepts a `flushInterval` option. The `flush` callback now runs after every batch; callers that need coalescing should do so inside their own `flush` implementation. ([#3331](https://github.com/kubb-labs/kubb/pull/3331), [`fd3a585`](https://github.com/kubb-labs/kubb/commit/fd3a585d5fd1052177d999d7ce030412b76b2bf1))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.19 — May 19, 2026
 
 ### @kubb/core
