@@ -44,7 +44,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Tools (turbo cache disabled; pnpm store cache is low-risk since no pull_request_target writes to base cache)
+      - name: Setup Tools
         uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
         with:
           node-version: '22'
