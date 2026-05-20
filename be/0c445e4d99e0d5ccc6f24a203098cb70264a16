@@ -1,0 +1,19 @@
+packages/agent/server/utils/ws.ts
+  s_8804897e561d77::t_463ed2a2cf83c7 76-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "be0c445e4d99e0d5ccc6f24a203098cb70264a16",
+  "prompts": {},
+  "sessions": {
+    "s_8804897e561d77": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5586dd70-4ae6-4aaf-a139-cd0e16e24341",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
