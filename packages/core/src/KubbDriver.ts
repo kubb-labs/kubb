@@ -656,12 +656,24 @@ export class KubbDriver {
         try {
           const { plugin, generatorContext, generators } = state
           const ctx = { ...generatorContext, options: plugin.options }
+          // Filter to operations this plugin would have dispatched to gen.operation():
+          // excludes/includes/overrides that resolve to null in dispatchOperation must also
+          // be hidden from the batched gen.operations() hook, otherwise grouped/barrel
+          // generators emit references to operation files that the per-op hook intentionally skipped.
+          const pluginOperations = state.optionsAreStatic
+            ? collectedOperations
+            : collectedOperations.filter((node) => {
+                const transformed = plugin.transformer ? transform(node, plugin.transformer) : node
+                const { exclude, include, override } = plugin.options
+
+                return generatorContext.resolver.resolveOptions(transformed, { options: plugin.options, exclude, include, override }) !== null
+              })
           for (const gen of generators) {
             if (!gen.operations) continue
-            const result = await gen.operations(collectedOperations, ctx)
+            const result = await gen.operations(pluginOperations, ctx)
             await applyHookResult({ result, driver, rendererFactory: resolveRendererFor(gen, state) })
           }
-          await this.hooks.emit('kubb:generate:operations', collectedOperations, ctx)
+          await this.hooks.emit('kubb:generate:operations', pluginOperations, ctx)
         } catch (caughtError) {
           state.failed = true
           state.error = caughtError as Error

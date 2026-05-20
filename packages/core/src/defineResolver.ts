@@ -54,8 +54,8 @@ export type Resolver = {
   resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
   resolvePath(params: ResolverPathParams, context: ResolverContext): string
   resolveFile(params: ResolverFileParams, context: ResolverContext): FileNode
-  resolveBanner(meta: InputMeta | undefined, context: ResolveBannerContext): string | null
-  resolveFooter(meta: InputMeta | undefined, context: ResolveBannerContext): string | null
+  resolveBanner(meta: InputMeta | undefined, context: ResolveBannerContext): string | undefined
+  resolveFooter(meta: InputMeta | undefined, context: ResolveBannerContext): string | undefined
 }
 
 /**
@@ -527,7 +527,7 @@ export function buildDefaultBanner({
  * // → null
  * ```
  */
-export function defaultResolveBanner(meta: InputMeta | undefined, { output, config }: ResolveBannerContext): string | null {
+export function defaultResolveBanner(meta: InputMeta | undefined, { output, config }: ResolveBannerContext): string | undefined {
   if (typeof output?.banner === 'function') {
     return output.banner(meta)
   }
@@ -537,7 +537,7 @@ export function defaultResolveBanner(meta: InputMeta | undefined, { output, conf
   }
 
   if (config.output.defaultBanner === false) {
-    return null
+    return undefined
   }
 
   return buildDefaultBanner({
@@ -566,14 +566,14 @@ export function defaultResolveBanner(meta: InputMeta | undefined, { output, conf
  * // → '// Pet Store'
  * ```
  */
-export function defaultResolveFooter(meta: InputMeta | undefined, { output }: ResolveBannerContext): string | null {
+export function defaultResolveFooter(meta: InputMeta | undefined, { output }: ResolveBannerContext): string | undefined {
   if (typeof output?.footer === 'function') {
     return output.footer(meta)
   }
   if (typeof output?.footer === 'string') {
     return output.footer
   }
-  return null
+  return undefined
 }
 
 /**

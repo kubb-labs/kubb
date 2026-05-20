@@ -75,7 +75,7 @@ export class FileManager {
 
     for (const file of batch) {
       const existing = this.#cache.get(file.path)
-      const merged = existing && mergeExisting ? createFile(mergeFile(existing, file)) : file
+      const merged = existing && mergeExisting ? createFile(mergeFile(existing, file)) : createFile(file)
       this.#cache.set(merged.path, merged)
       resolved.push(merged)
       this.#onUpsert?.(merged)
