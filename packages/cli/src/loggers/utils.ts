@@ -53,7 +53,7 @@ export type HookSinkFactory = (commandWithArgs: string, hookId: string) => HookS
  * Logger variant that may return a {@link HookSinkFactory} from `install`.
  * The factory is forwarded to hook execution so the logger controls subprocess output routing.
  */
-type CLILogger = Logger<LoggerOptions, HookSinkFactory | void>
+type CLILogger = Logger<LoggerOptions, HookSinkFactory | undefined | null>
 
 /**
  * Optionally prefix a message with a [HH:MM:SS] timestamp when logLevel >= verbose.

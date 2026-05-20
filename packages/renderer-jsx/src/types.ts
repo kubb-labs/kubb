@@ -36,8 +36,9 @@ type Node = {
 
 /**
  * Allowed attribute value types for DOM elements.
+ * `null` signals intentionally empty — the prop was explicitly cleared.
  */
-export type DOMNodeAttribute = boolean | string | number | Record<string, unknown> | Array<unknown>
+export type DOMNodeAttribute = boolean | string | number | null | Record<string, unknown> | Array<unknown>
 
 type TextName = '#text'
 

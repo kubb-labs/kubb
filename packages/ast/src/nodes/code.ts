@@ -39,9 +39,10 @@ export type ConstNode = BaseNode & {
   export?: boolean
   /**
    * Optional explicit type annotation.
+   * `null` means intentionally no annotation (e.g. from a resolver that returned null).
    * @example 'Pet'
    */
-  type?: string
+  type?: string | null
   /**
    * JSDoc documentation metadata.
    */
@@ -129,8 +130,9 @@ export type FunctionNode = BaseNode & {
   default?: boolean
   /**
    * Function parameter list rendered as a string (e.g. from `FunctionParams.toConstructor()`).
+   * `null` means intentionally no parameters (e.g. from a resolver that returned null).
    */
-  params?: string
+  params?: string | null
   /**
    * Whether the function should be exported.
    * @default false
@@ -148,9 +150,10 @@ export type FunctionNode = BaseNode & {
   generics?: string | string[]
   /**
    * Return type annotation.
+   * `null` means intentionally no annotation (e.g. from a resolver that returned null).
    * @example 'Pet'
    */
-  returnType?: string
+  returnType?: string | null
   /**
    * JSDoc documentation metadata.
    */
@@ -190,8 +193,9 @@ export type ArrowFunctionNode = BaseNode & {
   default?: boolean
   /**
    * Function parameter list rendered as a string (e.g. from `FunctionParams.toConstructor()`).
+   * `null` means intentionally no parameters (e.g. from a resolver that returned null).
    */
-  params?: string
+  params?: string | null
   /**
    * Whether the arrow function should be exported.
    * @default false
@@ -209,9 +213,10 @@ export type ArrowFunctionNode = BaseNode & {
   generics?: string | string[]
   /**
    * Return type annotation.
+   * `null` means intentionally no annotation (e.g. from a resolver that returned null).
    * @example 'Pet'
    */
-  returnType?: string
+  returnType?: string | null
   /**
    * JSDoc documentation metadata.
    */

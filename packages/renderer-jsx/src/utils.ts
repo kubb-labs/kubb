@@ -59,12 +59,12 @@ function collectCodeNodes(element: DOMElement): CodeNode[] {
       result.push(
         createFunction({
           name: attrs['name'] as string,
-          params: attrs['params'] as string | undefined,
+          params: attrs['params'] as string | null | undefined,
           export: attrs['export'] as boolean | undefined,
           default: attrs['default'] as boolean | undefined,
           async: attrs['async'] as boolean | undefined,
           generics: attrs['generics'] as string | undefined,
-          returnType: attrs['returnType'] as string | undefined,
+          returnType: attrs['returnType'] as string | null | undefined,
           JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
           nodes: collectCodeNodes(child),
         }),
@@ -77,12 +77,12 @@ function collectCodeNodes(element: DOMElement): CodeNode[] {
       result.push(
         createArrowFunction({
           name: attrs['name'] as string,
-          params: attrs['params'] as string | undefined,
+          params: attrs['params'] as string | null | undefined,
           export: attrs['export'] as boolean | undefined,
           default: attrs['default'] as boolean | undefined,
           async: attrs['async'] as boolean | undefined,
           generics: attrs['generics'] as string | undefined,
-          returnType: attrs['returnType'] as string | undefined,
+          returnType: attrs['returnType'] as string | null | undefined,
           singleLine: attrs['singleLine'] as boolean | undefined,
           JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
           nodes: collectCodeNodes(child),
@@ -96,7 +96,7 @@ function collectCodeNodes(element: DOMElement): CodeNode[] {
       result.push(
         createConst({
           name: attrs['name'] as string,
-          type: attrs['type'] as string | undefined,
+          type: attrs['type'] as string | null | undefined,
           export: attrs['export'] as boolean | undefined,
           asConst: attrs['asConst'] as boolean | undefined,
           JSDoc: attrs['JSDoc'] as JSDocNode | undefined,

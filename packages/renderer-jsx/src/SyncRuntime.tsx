@@ -99,12 +99,12 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Co
     nodes.push(
       createFunction({
         name: props['name'] as string,
-        params: props['params'] as string | undefined,
+        params: props['params'] as string | null | undefined,
         export: props['export'] as boolean | undefined,
         default: props['default'] as boolean | undefined,
         async: props['async'] as boolean | undefined,
         generics: props['generics'] as string | undefined,
-        returnType: props['returnType'] as string | undefined,
+        returnType: props['returnType'] as string | null | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | undefined,
         nodes: collectCodeNodes(props),
       }),
@@ -116,12 +116,12 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Co
     nodes.push(
       createArrowFunction({
         name: props['name'] as string,
-        params: props['params'] as string | undefined,
+        params: props['params'] as string | null | undefined,
         export: props['export'] as boolean | undefined,
         default: props['default'] as boolean | undefined,
         async: props['async'] as boolean | undefined,
         generics: props['generics'] as string | undefined,
-        returnType: props['returnType'] as string | undefined,
+        returnType: props['returnType'] as string | null | undefined,
         singleLine: props['singleLine'] as boolean | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | undefined,
         nodes: collectCodeNodes(props),
@@ -134,7 +134,7 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Co
     nodes.push(
       createConst({
         name: props['name'] as string,
-        type: props['type'] as string | undefined,
+        type: props['type'] as string | null | undefined,
         export: props['export'] as boolean | undefined,
         asConst: props['asConst'] as boolean | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | undefined,

@@ -98,8 +98,8 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
  * Declares a named generator unit that walks the AST and emits files.
  *
  * Each method (`schema`, `operation`, `operations`) is called for the matching node type.
- * Each method returns `TElement | Array<FileNode> | void`. JSX-based generators require a `renderer` factory.
- * Return `Array<FileNode>` directly or call `ctx.upsertFile()` manually and return `void` to bypass rendering.
+ * Each method returns `TElement | Array<FileNode> | undefined | null`. JSX-based generators require a `renderer` factory.
+ * Return `Array<FileNode>` directly or call `ctx.upsertFile()` manually and return `undefined` or `null` to bypass rendering.
  *
  * @note Generators are consumed by plugins and registered via `ctx.addGenerator()` in `kubb:plugin:setup`.
  *

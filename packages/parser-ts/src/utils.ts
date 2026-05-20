@@ -97,7 +97,7 @@ export function formatGenerics(generics: FunctionNode['generics'] | ArrowFunctio
  * Renders the return-type suffix (`: T` or `: Promise<T>` when `isAsync` is true).
  * Returns an empty string when no return type is provided.
  */
-export function formatReturnType(returnType: string | undefined, isAsync: boolean | undefined): string {
+export function formatReturnType(returnType: string | null | undefined, isAsync: boolean | undefined): string {
   if (!returnType) return ''
   return isAsync ? `: Promise<${returnType}>` : `: ${returnType}`
 }

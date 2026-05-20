@@ -17,11 +17,12 @@ type Props = {
   default?: boolean
   /**
    * Parameter list written verbatim between the function's parentheses.
+   * Pass `null` to explicitly signal "no parameters" when the value comes from a resolver.
    *
    * @example
    * `params: 'petId: string, options?: RequestOptions'`
    */
-  params?: string
+  params?: string | null
   /**
    * Emit the `export` keyword before the function declaration.
    * - `true` generates `export function name(…) { … }`
@@ -50,11 +51,12 @@ type Props = {
   /**
    * TypeScript return type annotation written verbatim after `:`.
    * When `async` is `true`, the value is automatically wrapped in `Promise<…>`.
+   * Pass `null` to explicitly signal "no return type" when the value comes from a resolver.
    *
    * @example
    * `returnType: 'Pet'`
    */
-  returnType?: string
+  returnType?: string | null
   /**
    * JSDoc block to prepend to the function declaration.
    * Each entry in `comments` becomes one line inside the emitted `/** … *\/` block.
