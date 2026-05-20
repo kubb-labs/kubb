@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { forBatches, isPromise, isPromiseFulfilledResult, isPromiseRejectedResult } from './promise.ts'
+import { forBatches, isPromise, isPromiseFulfilledResult, isPromiseRejectedResult, withDrain } from './promise.ts'
 
 describe('promise utilities', () => {
   describe('isPromise', () => {
@@ -150,5 +150,32 @@ describe('forBatches', () => {
 
       expect(flush).not.toHaveBeenCalled()
     })
+  })
+})
+
+describe('withDrain', () => {
+  it('passes flush to work and calls it again after work completes', async () => {
+    const calls: string[] = []
+    const flush = async () => { calls.push('flush') }
+
+    await withDrain(async (f) => {
+      calls.push('work-start')
+      await f()
+      calls.push('work-end')
+    }, flush)
+
+    expect(calls).toEqual(['work-start', 'flush', 'work-end', 'flush'])
+  })
+
+  it('calls flush even when work never calls it', async () => {
+    const flush = vi.fn()
+    await withDrain(async () => {}, flush)
+    expect(flush).toHaveBeenCalledTimes(1)
+  })
+
+  it('calls flush exactly once after work when work calls it zero times', async () => {
+    const flush = vi.fn()
+    await withDrain(async (_f) => { /* work does not flush */ }, flush)
+    expect(flush).toHaveBeenCalledTimes(1)
   })
 })

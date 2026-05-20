@@ -69,6 +69,26 @@ export async function forBatches<T>(
   }
 }
 
+/**
+ * Runs `work`, passing `flush` as its periodic-flush callback, then calls
+ * `flush` once more to drain any items that did not cross a flush boundary.
+ *
+ * @example
+ * ```ts
+ * await withDrain(
+ *   (flush) => processItems(items, { flush }),
+ *   () => writeRemainingFiles(),
+ * )
+ * ```
+ */
+export async function withDrain(
+  work: (flush: () => Promise<void>) => Promise<void>,
+  flush: () => Promise<void>,
+): Promise<void> {
+  await work(flush)
+  await flush()
+}
+
 /** A value that may already be resolved or still pending.
  *
  * @example
