@@ -1,0 +1,24 @@
+packages/core/src/createKubb.ts
+  s_4031e79c86a530::t_cab358518425a8 1178,1184
+  s_4031e79c86a530::t_984a2266358744 1380-1381,1412-1415,1441-1444
+  s_4031e79c86a530::t_32820ebefaad8c 1592
+  s_4031e79c86a530::t_9527a1697fb9fa 1267-1268,1274-1276,1285-1287
+  s_4031e79c86a530::t_4e463bb8800db0 1346
+  s_4031e79c86a530::t_739464616375f2 1574
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "a760217aa0d698957a3e7f807f736b536d39c864",
+  "prompts": {},
+  "sessions": {
+    "s_4031e79c86a530": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1784c35f-c337-425b-a8e8-975c933d06d1",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
