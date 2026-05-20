@@ -1176,9 +1176,16 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
        * reference in that case, so the inner loop can skip it entirely.
        */
       optionsAreStatic: boolean
+      /**
+       * Set when the plugin has operation-based includes (tag, operationId, path, method, contentType)
+       * but no schemaName includes. Schema nodes whose name is not in this set are skipped,
+       * matching the pruning behavior of the eager `runAstPlugin` path.
+       */
+      allowedSchemaNames: Set<string> | undefined
     }
 
     const inputStreamNode = driver.inputStreamNode!
+    const operationFilterTypes = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
     const states: PluginState[] = entries.map(({ plugin, context, hrStart }) => {
       const { exclude, include, override } = plugin.options
       const hasExclude = Array.isArray(exclude) && exclude.length > 0
@@ -1192,8 +1199,40 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         failed: false,
         error: undefined,
         optionsAreStatic: !hasExclude && !hasInclude && !hasOverride,
+        allowedSchemaNames: undefined,
       }
     })
+
+    // Pre-scan: compute allowedSchemaNames for plugins that use operation-based includes
+    // without schemaName filters. Each AsyncIterable yields a fresh iterator on every call,
+    // so consuming them here does not affect the main dispatch passes below.
+    const pruningStates = states.filter(({ plugin }) => {
+      const { include } = plugin.options
+      return (include?.some(({ type }) => operationFilterTypes.has(type)) ?? false) && !(include?.some(({ type }) => type === 'schemaName') ?? false)
+    })
+
+    if (pruningStates.length > 0) {
+      // Collect all schemas for transitive reference walking.
+      const allSchemas: SchemaNode[] = []
+      for await (const schema of inputStreamNode.schemas) {
+        allSchemas.push(schema)
+      }
+
+      // Collect included operations per pruning plugin.
+      const includedOpsByState = new Map<PluginState, OperationNode[]>(pruningStates.map((s) => [s, []]))
+      for await (const operation of inputStreamNode.operations) {
+        for (const state of pruningStates) {
+          const { exclude, include, override } = state.plugin.options
+          const options = state.generatorContext.resolver.resolveOptions(operation, { options: state.plugin.options, exclude, include, override })
+          if (options !== null) includedOpsByState.get(state)!.push(operation)
+        }
+      }
+
+      // Derive the allowed schema name set per pruning plugin.
+      for (const state of pruningStates) {
+        state.allowedSchemaNames = collectUsedSchemaNames(includedOpsByState.get(state)!, allSchemas)
+      }
+    }
 
     function resolveRendererFor(gen: Generator, state: PluginState): RendererFactory | undefined {
       return gen.renderer === null ? undefined : (gen.renderer ?? state.plugin.renderer ?? state.generatorContext.config.renderer)
@@ -1206,6 +1245,12 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
         const { plugin, generatorContext, generators } = state
 
         const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
+
+        // Skip named top-level schemas not reachable from any included operation.
+        if (state.allowedSchemaNames !== undefined && transformedNode.name && !state.allowedSchemaNames.has(transformedNode.name)) {
+          return
+        }
+
         const { exclude, include, override } = plugin.options
         const options = state.optionsAreStatic
           ? plugin.options
