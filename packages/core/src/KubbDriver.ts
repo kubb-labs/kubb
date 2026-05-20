@@ -103,20 +103,11 @@ export class KubbDriver {
   }
 
   async setup() {
-    const normalized: NormalizedPlugin[] = []
-    const depSets = new Map<string, Set<string>>()
-
-    for (const rawPlugin of this.config.plugins) {
-      const plugin = this.#normalizePlugin(rawPlugin as Plugin)
-      normalized.push(plugin)
-      if (plugin.dependencies?.length) {
-        depSets.set(plugin.name, new Set(plugin.dependencies))
-      }
-    }
+    const normalized: NormalizedPlugin[] = this.config.plugins.map((rawPlugin) => this.#normalizePlugin(rawPlugin as Plugin))
 
     normalized.sort((a, b) => {
-      if (depSets.get(b.name)?.has(a.name)) return -1
-      if (depSets.get(a.name)?.has(b.name)) return 1
+      if (b.dependencies?.includes(a.name)) return -1
+      if (a.dependencies?.includes(b.name)) return 1
 
       return enforceOrder(a.enforce) - enforceOrder(b.enforce)
     })

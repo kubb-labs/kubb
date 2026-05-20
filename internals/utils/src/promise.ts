@@ -133,17 +133,6 @@ export function isPromiseRejectedResult<T>(result: PromiseSettledResult<unknown>
 }
 
 /**
- * Wraps a plain array in a reusable `AsyncIterable`.
- * Each `[Symbol.asyncIterator]()` call returns a fresh generator so the
- * iterable can be consumed multiple times (e.g. once per plugin pre-scan).
- *
- * @example
- * ```ts
- * const stream = arrayToAsyncIterable([1, 2, 3])
- * for await (const n of stream) console.log(n) // 1, 2, 3
- * ```
- */
-/**
  * Returns a wrapper that caches the result of the first invocation and replays
  * it for every subsequent call, ignoring later arguments.
  *
@@ -211,6 +200,17 @@ export function memoize<TKey, TValue>(store: Store<TKey, TValue>, factory: (key:
   }
 }
 
+/**
+ * Wraps a plain array in a reusable `AsyncIterable`.
+ * Each `[Symbol.asyncIterator]()` call returns a fresh generator so the
+ * iterable can be consumed multiple times (e.g. once per plugin pre-scan).
+ *
+ * @example
+ * ```ts
+ * const stream = arrayToAsyncIterable([1, 2, 3])
+ * for await (const n of stream) console.log(n) // 1, 2, 3
+ * ```
+ */
 export function arrayToAsyncIterable<T>(arr: readonly T[]): AsyncIterable<T> {
   return {
     [Symbol.asyncIterator]() {

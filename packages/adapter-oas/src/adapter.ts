@@ -59,10 +59,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   let nameMapping = new Map<string, string>()
   let parsedDocument: Document | null = null
 
-  // All `ensure*` factories below are wrapped in `once` so they execute exactly
-  // once per adapter instance. For async factories this also collapses concurrent
-  // callers — e.g. a build calling `stream()` while `openInStudio()` calls
-  // `parse()` — onto the same in-flight promise instead of racing.
+  // `once` collapses concurrent callers (e.g. a build's `stream()` racing with `openInStudio()`'s `parse()`) onto one in-flight promise.
   const ensureDocument = once(async (source: AdapterSource): Promise<Document> => {
     const fresh = await parseFromConfig(source)
     if (validate) await validateDocument(fresh)
@@ -147,11 +144,14 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     },
     async parse(source) {
       const streamNode = await createStream(source)
-      const schemas: ast.SchemaNode[] = []
-      const operations: ast.OperationNode[] = []
 
-      for await (const schema of streamNode.schemas) schemas.push(schema)
-      for await (const operation of streamNode.operations) operations.push(operation)
+      const collect = async <T>(iter: AsyncIterable<T>): Promise<T[]> => {
+        const out: T[] = []
+        for await (const item of iter) out.push(item)
+        return out
+      }
+
+      const [schemas, operations] = await Promise.all([collect(streamNode.schemas), collect(streamNode.operations)])
 
       return ast.createInput({ schemas, operations, meta: streamNode.meta })
     },
