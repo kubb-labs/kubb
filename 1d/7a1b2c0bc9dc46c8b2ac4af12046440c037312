@@ -1,0 +1,24 @@
+packages/core/src/KubbDriver.ts
+  s_f786084865badb::t_f890b189401dd4 506,513,516
+  s_f786084865badb::t_7a6fa6bde39754 67,70
+  s_f786084865badb::t_d605044725490a 497,514
+  s_f786084865badb::t_eaa2a1404cd53e 66,68-69
+  s_f786084865badb::t_9cf204cac45608 171
+  s_f786084865badb::t_65cee6f1179ae0 392
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "1d7a1b2c0bc9dc46c8b2ac4af12046440c037312",
+  "prompts": {},
+  "sessions": {
+    "s_f786084865badb": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "c46178e7-6b87-48e3-8bf8-69fb8ec4f3d2",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
