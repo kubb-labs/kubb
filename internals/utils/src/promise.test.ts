@@ -63,14 +63,26 @@ describe('forBatches', () => {
   describe('array source', () => {
     it('calls process with batches of the requested concurrency', async () => {
       const batches: number[][] = []
-      await forBatches([1, 2, 3, 4, 5], async (batch) => { batches.push(batch) }, { concurrency: 2 })
+      await forBatches(
+        [1, 2, 3, 4, 5],
+        async (batch) => {
+          batches.push(batch)
+        },
+        { concurrency: 2 },
+      )
 
       expect(batches).toEqual([[1, 2], [3, 4], [5]])
     })
 
     it('passes all items when count is less than concurrency', async () => {
       const batches: number[][] = []
-      await forBatches([1, 2], async (batch) => { batches.push(batch) }, { concurrency: 10 })
+      await forBatches(
+        [1, 2],
+        async (batch) => {
+          batches.push(batch)
+        },
+        { concurrency: 10 },
+      )
 
       expect(batches).toEqual([[1, 2]])
     })
@@ -87,8 +99,16 @@ describe('forBatches', () => {
       let processed = 0
       await forBatches(
         Array.from({ length: 12 }, (_, i) => i),
-        async (batch) => { processed += batch.length },
-        { concurrency: 3, flush: async () => { flushed.push(processed) }, flushInterval: 5 },
+        async (batch) => {
+          processed += batch.length
+        },
+        {
+          concurrency: 3,
+          flush: async () => {
+            flushed.push(processed)
+          },
+          flushInterval: 5,
+        },
       )
       // flushInterval=5: crosses at 6 (after batch [3,4,5]), crosses at 12 (after batch [9,10,11])
 
@@ -112,14 +132,26 @@ describe('forBatches', () => {
 
     it('calls process with batches of the requested concurrency', async () => {
       const batches: number[][] = []
-      await forBatches(generate([1, 2, 3, 4, 5]), async (batch) => { batches.push(batch) }, { concurrency: 2 })
+      await forBatches(
+        generate([1, 2, 3, 4, 5]),
+        async (batch) => {
+          batches.push(batch)
+        },
+        { concurrency: 2 },
+      )
 
       expect(batches).toEqual([[1, 2], [3, 4], [5]])
     })
 
     it('passes all items when count is less than concurrency', async () => {
       const batches: number[][] = []
-      await forBatches(generate([1, 2]), async (batch) => { batches.push(batch) }, { concurrency: 10 })
+      await forBatches(
+        generate([1, 2]),
+        async (batch) => {
+          batches.push(batch)
+        },
+        { concurrency: 10 },
+      )
 
       expect(batches).toEqual([[1, 2]])
     })
@@ -136,8 +168,16 @@ describe('forBatches', () => {
       let processed = 0
       await forBatches(
         generate(Array.from({ length: 12 }, (_, i) => i)),
-        async (batch) => { processed += batch.length },
-        { concurrency: 3, flush: async () => { flushed.push(processed) }, flushInterval: 5 },
+        async (batch) => {
+          processed += batch.length
+        },
+        {
+          concurrency: 3,
+          flush: async () => {
+            flushed.push(processed)
+          },
+          flushInterval: 5,
+        },
       )
 
       expect(flushed.length).toBe(2)
@@ -156,7 +196,9 @@ describe('forBatches', () => {
 describe('withDrain', () => {
   it('passes flush to work and calls it again after work completes', async () => {
     const calls: string[] = []
-    const flush = async () => { calls.push('flush') }
+    const flush = async () => {
+      calls.push('flush')
+    }
 
     await withDrain(async (f) => {
       calls.push('work-start')
@@ -175,7 +217,9 @@ describe('withDrain', () => {
 
   it('calls flush exactly once after work when work calls it zero times', async () => {
     const flush = vi.fn()
-    await withDrain(async (_f) => { /* work does not flush */ }, flush)
+    await withDrain(async (_f) => {
+      /* work does not flush */
+    }, flush)
     expect(flush).toHaveBeenCalledTimes(1)
   })
 })

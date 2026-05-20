@@ -81,10 +81,7 @@ export async function forBatches<T>(
  * )
  * ```
  */
-export async function withDrain(
-  work: (flush: () => Promise<void>) => Promise<void>,
-  flush: () => Promise<void>,
-): Promise<void> {
+export async function withDrain(work: (flush: () => Promise<void>) => Promise<void>, flush: () => Promise<void>): Promise<void> {
   await work(flush)
   await flush()
 }

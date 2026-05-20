@@ -1,8 +1,8 @@
 import { resolve } from 'node:path'
-import {type AsyncEventEmitter, URLPath} from '@internals/utils'
+import { type AsyncEventEmitter, URLPath } from '@internals/utils'
 import type { FileNode, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { createFile } from '@kubb/ast'
-import {DEFAULT_STUDIO_URL, STREAM_SCHEMA_THRESHOLD} from './constants.ts'
+import { DEFAULT_STUDIO_URL, STREAM_SCHEMA_THRESHOLD } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Plugin } from './definePlugin.ts'
 import { getMode } from './definePlugin.ts'
@@ -12,12 +12,14 @@ import { FileManager } from './FileManager.ts'
 import type { RendererFactory } from './createRenderer.ts'
 
 import type {
-  Adapter, AdapterSource,
+  Adapter,
+  AdapterSource,
   Config,
   DevtoolsOptions,
   GeneratorContext,
   KubbHooks,
-  KubbPluginSetupContext, Middleware,
+  KubbPluginSetupContext,
+  Middleware,
   NormalizedPlugin,
   PluginFactoryOptions,
   Resolver,
@@ -95,8 +97,7 @@ export class KubbDriver {
     this.adapter = config.adapter
   }
 
-  async setup(){
-
+  async setup() {
     const normalized: NormalizedPlugin[] = []
     const depSets = new Map<string, Set<string>>()
 
@@ -116,16 +117,15 @@ export class KubbDriver {
     })
 
     for (const plugin of normalized) {
-      if(plugin.apply){
+      if (plugin.apply) {
         plugin.apply(this.config)
       }
 
       this.#registerPlugin(plugin)
       this.plugins.set(plugin.name, plugin)
-
     }
 
-    if(this.config.middleware){
+    if (this.config.middleware) {
       for (const middleware of this.config.middleware) {
         for (const event of Object.keys(middleware.hooks) as Array<keyof KubbHooks & string>) {
           this.#registerMiddleware(event, middleware.hooks)
@@ -161,9 +161,8 @@ export class KubbDriver {
     return normalized
   }
 
-  async #registerAdapter(adapter: Adapter){
+  async #registerAdapter(adapter: Adapter) {
     const source = inputToAdapterSource(this.config)
-
 
     if (adapter.count && adapter.stream) {
       const { schemas: schemaCount, operations: operationCount } = await adapter.count(source)
@@ -200,7 +199,7 @@ export class KubbDriver {
     const handler = middlewareHooks[event]
 
     if (!handler) {
-     return
+      return
     }
 
     this.hooks.on(event, handler)
@@ -509,7 +508,6 @@ export class KubbDriver {
         return openInStudioFn(driver.inputNode, studioUrl, options)
       },
     } as unknown as GeneratorContext<TOptions>
-
   }
 
   getPlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined

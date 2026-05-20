@@ -5,7 +5,7 @@ import { AsyncEventEmitter, BuildError, exists, forBatches, formatMs, getElapsed
 import type { FileNode, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { collectUsedSchemaNames, transform } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
-import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL, SCHEMA_PARALLEL, STREAM_FLUSH_EVERY,} from './constants.ts'
+import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL, SCHEMA_PARALLEL, STREAM_FLUSH_EVERY } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import { createStorage, type Storage } from './createStorage.ts'
@@ -1063,7 +1063,6 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
 
   await driver.setup()
 
-
   return {
     config,
     hooks,
@@ -1161,7 +1160,9 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
    * Each plugin still gets independent `plugin:start` / `plugin:end` events and its own
    * timing, but the schema and operation nodes are parsed only once total.
    */
-  async function runStreamPlugins(entries: Array<{ plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }>): Promise<void> {
+  async function runStreamPlugins(
+    entries: Array<{ plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }>,
+  ): Promise<void> {
     type PluginState = {
       plugin: NormalizedPlugin
       generatorContext: GeneratorContext
@@ -1261,11 +1262,10 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     // Batch schemas: SCHEMA_PARALLEL nodes dispatched across all plugins concurrently.
     // Per-plugin work inside dispatchSchema stays sequential so FileManager.upsert
     // ordering for any single plugin chain remains deterministic.
-    await forBatches(
-      inputStreamNode.schemas,
-      (nodes) => Promise.all(nodes.flatMap((n) => states.map((state) => dispatchSchema(state, n)))),
-      { concurrency: SCHEMA_PARALLEL, flush: flushPendingFiles },
-    )
+    await forBatches(inputStreamNode.schemas, (nodes) => Promise.all(nodes.flatMap((n) => states.map((state) => dispatchSchema(state, n)))), {
+      concurrency: SCHEMA_PARALLEL,
+      flush: flushPendingFiles,
+    })
 
     const collectedOperations: OperationNode[] = []
 
@@ -1626,8 +1626,6 @@ export function isInputPath(config: Config | undefined): config is Config<InputP
 export function isInputPath(config: Config | UserConfig | undefined): config is (Config<InputPath> | UserConfig<InputPath>) & { input: InputPath } {
   return typeof config?.input === 'object' && config.input !== null && 'path' in config.input
 }
-
-
 
 type CreateKubbOptions = {
   hooks?: AsyncEventEmitter<KubbHooks>
