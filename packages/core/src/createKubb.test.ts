@@ -423,7 +423,9 @@ describe('createKubb', () => {
       const schemas = Array.from({ length: count }, (_, i) => createSchema({ name: `FlushSchema${i}`, type: 'string' }))
       const hooks = new AsyncEventEmitter<KubbHooks>()
       const flushEvents: number[] = []
-      hooks.on('kubb:files:processing:start', ({ files }) => { flushEvents.push(files.length) })
+      hooks.on('kubb:files:processing:start', ({ files }) => {
+        flushEvents.push(files.length)
+      })
 
       const flushPlugin = definePlugin(() => ({
         name: 'flush-plugin',
