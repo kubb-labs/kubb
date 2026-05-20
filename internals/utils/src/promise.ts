@@ -1,30 +1,40 @@
-function* chunks<T>(arr: readonly T[], size: number) {
-  let offset = 0
-  while (offset < arr.length) {
-    yield arr.slice(offset, (offset += size))
+function* chunks<T>(arr: readonly T[], size: number): Generator<T[]> {
+  for (let i = 0; i < arr.length; i += size) {
+    yield arr.slice(i, i + size)
   }
 }
 
 export type ForBatchesOptions = {
-  /** Number of items dispatched concurrently per batch. */
+  /**
+   * Maximum batch size handed to `process`.
+   * Parallel dispatch within a batch is the caller's responsibility
+   * (typically via `Promise.all(batch.map(...))`).
+   */
   concurrency: number
-  /** Called after any batch that pushes the running total past a multiple of `flushInterval`. */
+  /**
+   * Called after every batch.
+   *
+   * Use a cheap, idempotent callback (e.g. one that short-circuits when there
+   * is nothing new to do). The helper does not coalesce calls — if you need
+   * throttling, do it inside `flush` itself.
+   */
   flush?: () => Promise<void>
-  /** Minimum items to accumulate between `flush` calls. Defaults to 50. */
-  flushInterval?: number
 }
 
 /**
- * Processes `source` in parallel batches, calling `options.flush` periodically.
+ * Slices `source` into batches of `concurrency` items and awaits `process` for each batch.
  * Accepts both plain arrays (sync) and `AsyncIterable` (streaming).
+ *
+ * `process` controls whether items inside a batch run in parallel; this helper only
+ * controls batch size and per-batch flushing.
  *
  * @example
  * ```ts
- * // array source
+ * // parallel dispatch inside each batch
  * await forBatches(schemas, (batch) => Promise.all(batch.map(process)), { concurrency: 8 })
  *
- * // async iterable with periodic flush
- * await forBatches(stream.schemas, (batch) => dispatch(batch), { concurrency: 8, flush, flushInterval: 50 })
+ * // async iterable with a flush after every batch
+ * await forBatches(stream.schemas, (batch) => dispatch(batch), { concurrency: 8, flush })
  * ```
  */
 export async function forBatches<T>(
@@ -32,40 +42,29 @@ export async function forBatches<T>(
   process: (batch: T[]) => Promise<unknown>,
   options: ForBatchesOptions,
 ): Promise<void> {
-  const { concurrency, flush, flushInterval = 50 } = options
-  let count = 0
-  let lastFlushAt = 0
-
-  async function maybeFlush(): Promise<void> {
-    if (flush && count - lastFlushAt >= flushInterval) {
-      lastFlushAt = count
-      await flush()
-    }
-  }
+  const { concurrency, flush } = options
 
   if (Array.isArray(source)) {
     for (const batch of chunks(source, concurrency)) {
       await process(batch)
-      count += batch.length
-      await maybeFlush()
+      if (flush) await flush()
     }
-  } else {
-    const batch: T[] = []
-    for await (const item of source) {
-      batch.push(item)
-      if (batch.length >= concurrency) {
-        const nodes = batch.splice(0)
-        await process(nodes)
-        count += nodes.length
-        await maybeFlush()
-      }
+    return
+  }
+
+  const batch: T[] = []
+  for await (const item of source) {
+    batch.push(item)
+    if (batch.length >= concurrency) {
+      await process(batch.splice(0))
+
+      if (flush) await flush()
     }
-    if (batch.length > 0) {
-      const nodes = batch.splice(0)
-      await process(nodes)
-      count += nodes.length
-      await maybeFlush()
-    }
+  }
+  if (batch.length > 0) {
+    await process(batch.splice(0))
+
+    if (flush) await flush()
   }
 }
 
@@ -144,6 +143,29 @@ export function isPromiseRejectedResult<T>(result: PromiseSettledResult<unknown>
  * for await (const n of stream) console.log(n) // 1, 2, 3
  * ```
  */
+/**
+ * Returns a wrapper that caches the result of the first invocation and replays
+ * it for every subsequent call, ignoring later arguments.
+ *
+ * Works for sync and async factories — for async, the cached value is the
+ * promise itself, so concurrent callers share one in-flight execution and
+ * cannot race each other.
+ *
+ * @example
+ * ```ts
+ * const loadDocument = once(async (path: string) => parse(await readFile(path)))
+ * const a = loadDocument('./a.yaml') // parses
+ * const b = loadDocument('./b.yaml') // returns the cached promise from the first call
+ * ```
+ */
+export function once<TArgs extends unknown[], TReturn>(factory: (...args: TArgs) => TReturn): (...args: TArgs) => TReturn {
+  let cache: { value: TReturn } | undefined
+  return (...args: TArgs): TReturn => {
+    if (!cache) cache = { value: factory(...args) }
+    return cache.value
+  }
+}
+
 export function arrayToAsyncIterable<T>(arr: readonly T[]): AsyncIterable<T> {
   return {
     [Symbol.asyncIterator]() {

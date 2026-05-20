@@ -42,8 +42,8 @@ export class KubbDriver {
    *
    * @example
    * ```ts
-   * PluginDriver.getMode('src/gen/types.ts')  // 'single'
-   * PluginDriver.getMode('src/gen/types')     // 'split'
+   * KubbDriver.getMode('src/gen/types.ts')  // 'single'
+   * KubbDriver.getMode('src/gen/types')     // 'split'
    * ```
    */
   static getMode(fileOrFolder: string | undefined | null): 'single' | 'split' {
@@ -376,13 +376,10 @@ export class KubbDriver {
     // so there is no value in retaining these maps after disposal.
     this.#resolvers.clear()
     this.#defaultResolvers.clear()
-    // Release the parsed adapter graph and the FileNode cache once the build
-    // has finished; the returned `BuildOutput.files` array still references
-    // any FileNodes the caller needs to inspect.
+    // Release the FileNode cache, parsed adapter graph, and studio state so
+    // memory is reclaimed between builds. The returned `BuildOutput.files`
+    // array still references any FileNodes the caller needs to inspect.
     this.fileManager.dispose()
-    // Release the parsed adapter graph and studio state so memory is reclaimed
-    // between builds. The returned BuildOutput.files still holds any FileNodes
-    // the caller needs to inspect.
     this.inputNode = undefined
     this.#studio = { source: undefined, isOpen: false, inputNode: undefined }
 

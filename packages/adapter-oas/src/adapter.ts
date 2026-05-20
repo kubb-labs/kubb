@@ -1,14 +1,12 @@
+import { once } from '@internals/utils'
 import { ast, createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { parseDocument, parseFromConfig, validateDocument } from './factory.ts'
 import { createSchemaParser } from './parser.ts'
-import type { SchemaParser } from './parser.ts'
 import { getSchemas } from './resolvers.ts'
-import type { GetSchemasResult } from './resolvers.ts'
 import { createInputStream, preScan, resolveBaseUrl } from './stream.ts'
-import type { PreScanResult } from './stream.ts'
 import type { AdapterOas, Document } from './types.ts'
 
 /**
@@ -60,56 +58,37 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
   let nameMapping = new Map<string, string>()
   let parsedDocument: Document | null = null
-  let schemas: GetSchemasResult['schemas'] | null = null
-  let baseOasInstance: BaseOas | null = null
-  let schemaParserInstance: SchemaParser | null = null
-  let preScanCache: PreScanResult | null = null
 
-  async function ensureDocument(source: AdapterSource): Promise<Document> {
-    if (parsedDocument) return parsedDocument
+  // All `ensure*` factories below are wrapped in `once` so they execute exactly
+  // once per adapter instance. For async factories this also collapses concurrent
+  // callers — e.g. a build calling `stream()` while `openInStudio()` calls
+  // `parse()` — onto the same in-flight promise instead of racing.
+  const ensureDocument = once(async (source: AdapterSource): Promise<Document> => {
     const fresh = await parseFromConfig(source)
     if (validate) await validateDocument(fresh)
     parsedDocument = fresh
     return fresh
-  }
+  })
 
-  async function ensureSchemas(document: Document): Promise<GetSchemasResult['schemas']> {
-    if (!schemas) {
-      const result = getSchemas(document, { contentType })
-      schemas = result.schemas
-      nameMapping = result.nameMapping
-    }
+  const ensureSchemas = once(async (document: Document) => {
+    const result = getSchemas(document, { contentType })
+    nameMapping = result.nameMapping
+    return result.schemas
+  })
 
-    return schemas
-  }
+  const ensureBaseOas = once((document: Document) => new BaseOas(document))
 
-  function ensureBaseOas(document: Document): BaseOas {
-    if (!baseOasInstance) baseOasInstance = new BaseOas(document)
+  const ensureSchemaParser = once((document: Document) => createSchemaParser({ document, contentType }))
 
-    return baseOasInstance
-  }
-
-  function ensureSchemaParser(): SchemaParser {
-    if (!schemaParserInstance) schemaParserInstance = createSchemaParser({ document: parsedDocument!, contentType })
-
-    return schemaParserInstance
-  }
-
-  function ensurePreScan(): PreScanResult {
-    if (!preScanCache) preScanCache = preScan({ schemas: schemas!, parseSchema: schemaParserInstance!.parseSchema, parserOptions, discriminator })
-
-    return preScanCache
-  }
+  const ensurePreScan = once((schemas: Awaited<ReturnType<typeof ensureSchemas>>, parseSchema: ReturnType<typeof ensureSchemaParser>['parseSchema']) =>
+    preScan({ schemas, parseSchema, parserOptions, discriminator }),
+  )
 
   async function createStream(source: AdapterSource): Promise<ast.InputStreamNode> {
     const document = await ensureDocument(source)
-    await ensureSchemas(document)
-    const { parseSchema, parseOperation } = ensureSchemaParser()
-    const { refAliasMap, enumNames, circularNames, discriminatorChildMap } = ensurePreScan()
-
-    if (!schemas) {
-      throw new Error('Schemas are not defined')
-    }
+    const schemas = await ensureSchemas(document)
+    const { parseSchema, parseOperation } = ensureSchemaParser(document)
+    const { refAliasMap, enumNames, circularNames, discriminatorChildMap } = ensurePreScan(schemas, parseSchema)
 
     return createInputStream({
       schemas,
