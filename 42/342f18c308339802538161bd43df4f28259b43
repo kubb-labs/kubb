@@ -1,0 +1,19 @@
+.changeset/null-undefined-standardization.md
+  s_0ec3ee5562e1d4::t_bc7e4709229fdc 1-50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "42342f18c308339802538161bd43df4f28259b43",
+  "prompts": {},
+  "sessions": {
+    "s_0ec3ee5562e1d4": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ea4443ee-9d0b-432f-8c8c-9baedd14db7d",
+        "model": "composer-2.5-fast"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
