@@ -63,6 +63,11 @@ export class KubbDriver {
    */
   inputStreamNode: InputStreamNode | undefined = undefined
   adapter: Adapter | undefined = undefined
+  /**
+   * The adapter source, stored so `openInStudio` can call `adapter.parse()`
+   * lazily when the streaming path was used and `inputNode` was not eagerly populated.
+   */
+  #adapterSource: AdapterSource | undefined = undefined
 
   // Register middleware hooks after all plugin hooks are registered.
   // Because AsyncEventEmitter calls listeners in registration order,
@@ -163,6 +168,7 @@ export class KubbDriver {
 
   async #registerAdapter(adapter: Adapter) {
     const source = inputToAdapterSource(this.config)
+    this.#adapterSource = source
 
     if (adapter.count && adapter.stream) {
       const { schemas: schemaCount, operations: operationCount } = await adapter.count(source)
@@ -383,6 +389,7 @@ export class KubbDriver {
     this.fileManager.dispose()
     this.inputNode = undefined
     this.inputStreamNode = undefined
+    this.#adapterSource = undefined
 
     for (const [event, handler] of this.middlewareListeners) {
       this.hooks.off(event, handler as never)
@@ -487,7 +494,7 @@ export class KubbDriver {
       info(message: string) {
         driver.hooks.emit('kubb:info', { message })
       },
-      openInStudio(options?: DevtoolsOptions) {
+      async openInStudio(options?: DevtoolsOptions) {
         if (!driver.config.devtools || driver.#studioIsOpen) {
           return
         }
@@ -496,15 +503,17 @@ export class KubbDriver {
           throw new Error('Devtools must be an object')
         }
 
-        if (!driver.inputNode || !driver.adapter) {
+        if (!driver.adapter || !driver.#adapterSource) {
           throw new Error('adapter is not defined, make sure you have set the parser in kubb.config.ts')
         }
 
         driver.#studioIsOpen = true
 
         const studioUrl = driver.config.devtools?.studioUrl ?? DEFAULT_STUDIO_URL
+        // When the streaming path was taken, `inputNode` is not populated; parse lazily.
+        const inputNode = driver.inputNode ?? (await driver.adapter.parse(driver.#adapterSource))
 
-        return openInStudioFn(driver.inputNode, studioUrl, options)
+        return openInStudioFn(inputNode, studioUrl, options)
       },
     } as unknown as GeneratorContext<TOptions>
   }
