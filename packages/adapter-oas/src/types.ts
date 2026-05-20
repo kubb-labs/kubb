@@ -123,8 +123,9 @@ export type ResponseObject = OASResponseObject
 export type MediaTypeObject = OASMediaTypeObject
 
 /**
- * Configuration options for the OpenAPI adapter.
- * Controls spec validation, content-type selection, and server URL resolution.
+ * Configuration options for the OpenAPI adapter. Controls spec validation,
+ * content-type selection, server URL resolution, and how types are derived
+ * from the spec.
  *
  * @example
  * ```ts
@@ -138,23 +139,28 @@ export type MediaTypeObject = OASMediaTypeObject
  */
 export type AdapterOasOptions = {
   /**
-   * Validate the OpenAPI spec before parsing.
+   * Validate the OpenAPI spec with `@readme/openapi-parser` before parsing.
+   * Set to `false` only when you have a known-invalid spec you still want to
+   * generate from.
+   *
    * @default true
    */
   validate?: boolean
   /**
-   * Preferred content-type used when extracting request/response schemas.
-   * Defaults to the first valid JSON media type found in the spec.
+   * Preferred media type when an operation defines several. Defaults to the
+   * first JSON-compatible media type found in the spec.
    */
   contentType?: ContentType
   /**
-   * Index into `oas.api.servers` for computing `baseURL`.
-   * `0` → first server, `1` → second server. Omit to leave `baseURL` undefined.
+   * Index into the `servers` array from your OpenAPI spec. Used to compute the
+   * base URL for plugins that need it. Most projects pick `0` for the primary
+   * server. Omit to leave `baseURL` undefined.
    */
   serverIndex?: number
   /**
    * Override values for `{variable}` placeholders in the selected server URL.
-   * Only used when `serverIndex` is set.
+   * Only used when `serverIndex` is set. Variables you do not provide use
+   * their `default` value from the spec.
    *
    * @example
    * ```ts
@@ -165,9 +171,13 @@ export type AdapterOasOptions = {
    */
   serverVariables?: Record<string, string>
   /**
-   * How the discriminator field is interpreted.
-   * - `'strict'`  — uses `oneOf` schemas as written in the spec.
-   * - `'inherit'` — propagates discriminator values into child schemas from `discriminator.mapping`.
+   * How the `discriminator` field on `oneOf`/`anyOf` schemas is interpreted.
+   * - `'strict'` — child schemas stay exactly as written; the discriminator
+   *   narrows types at the call site but child shapes are not modified.
+   * - `'inherit'` — Kubb propagates the discriminator property as a literal
+   *   value into each child schema, so each branch's discriminator field is
+   *   precisely typed.
+   *
    * @default 'strict'
    */
   discriminator?: 'strict' | 'inherit'

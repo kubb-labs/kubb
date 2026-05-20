@@ -2,7 +2,7 @@ $schema: https://kubb.dev/schemas/extension.json
 kind: parser
 id: parser-ts
 name: TypeScript
-description: TypeScript and TSX file parser for Kubb. Converts the universal AST to `.ts`/`.tsx` source code using the official TypeScript compiler.
+description: Default file parser for Kubb. Converts the universal AST to `.ts`/`.tsx` source using the official TypeScript compiler.
 category: typescript
 type: official
 npmPackage: '@kubb/parser-ts'
@@ -29,23 +29,23 @@ featured: true
 icon:
   light: https://kubb.dev/feature/typescript.svg
 intro: |-
-  The TypeScript parser is the default file parser used by Kubb when no `parsers` option is set in `defineConfig`. It converts Kubb's universal AST into `.ts` and `.tsx` source code using the official [TypeScript compiler](https://www.typescriptlang.org/).
+  `@kubb/parser-ts` is the default file parser used by Kubb when no `parsers` option is provided in `defineConfig`. It takes the universal AST produced by your adapter and prints `.ts`/`.tsx` source code using the official [TypeScript compiler](https://www.typescriptlang.org/).
 
   Two parser instances are exported:
 
-  - `parserTs` — handles `.ts` and `.js` files
-  - `parserTsx` — handles `.tsx` and `.jsx` files
+  - `parserTs` — handles `.ts` and `.js` files.
+  - `parserTsx` — handles `.tsx` and `.jsx` files. Use this for React projects so JSX in generated components is preserved.
 
-  Both are configured globally in `defineConfig` and apply to every file produced by every plugin.
+  Configure once on `defineConfig`. The choice applies to every file every plugin produces.
 options:
   - name: extname
     type: "'.ts' | '.js' | '.tsx' | '.jsx' | string"
     required: false
     default: "'.ts'"
     description: |-
-      File extension used when rewriting relative import paths. Set to `.js` for ESM-friendly emit, `.tsx` for React projects, or leave unset to keep TypeScript's default behaviour.
+      File extension the parser writes when emitting code. Pick `.js` for an ESM-friendly emit you can publish to npm, `.tsx` for React projects, or leave unset for the standard TypeScript default.
 
-      Extension rewriting is configured via `output.extension` in `defineConfig`, not as a parser argument.
+      For rewriting relative import specifiers (`./foo` → `./foo.js`), set `output.extension` on `defineConfig` — not on the parser itself.
     codeBlock:
       lang: typescript
       title: kubb.config.ts
@@ -56,10 +56,11 @@ options:
         import { parserTs } from '@kubb/parser-ts'
 
         export default defineConfig({
-          input: { path: './petstore.yaml' },
+          input: { path: './petStore.yaml' },
           output: { path: './src/gen', extension: { '.ts': '.js' } },
           adapter: adapterOas(),
           parsers: [parserTs],
+          plugins: [],
         })
 examples:
   - name: TypeScript (default)
@@ -73,10 +74,11 @@ examples:
           import { parserTs } from '@kubb/parser-ts'
 
           export default defineConfig({
-            input: { path: './petstore.yaml' },
+            input: { path: './petStore.yaml' },
             output: { path: './src/gen' },
             adapter: adapterOas(),
             parsers: [parserTs],
+            plugins: [],
           })
   - name: TSX (React)
     files:
@@ -89,12 +91,13 @@ examples:
           import { parserTsx } from '@kubb/parser-ts'
 
           export default defineConfig({
-            input: { path: './petstore.yaml' },
+            input: { path: './petStore.yaml' },
             output: { path: './src/gen' },
             adapter: adapterOas(),
             parsers: [parserTsx],
+            plugins: [],
           })
 notes:
   - type: tip
     body: |-
-      `parser-ts` is bundled with Kubb and used automatically when no `parsers` option is provided. You only need to install it explicitly when combining it with other parsers or providing a fully custom parsers list.
+      `parser-ts` is bundled with Kubb and used automatically when no `parsers` option is set. Install it explicitly only when you need to combine it with other parsers or provide a fully custom parser list.

@@ -20,15 +20,25 @@ import type {
  */
 export type ParserOptions = {
   /**
-   * How `format: 'date-time'` schemas are represented. `false` falls through to a plain string.
+   * How `format: 'date-time'` schemas are represented downstream.
+   * - `false` falls through to a plain `string` (no validation).
+   * - `'string'` emits a datetime string node.
+   * - `'stringOffset'` emits a datetime node with timezone offset.
+   * - `'stringLocal'` emits a local datetime node.
+   * - `'date'` emits a `date` node (JavaScript `Date` object).
    */
   dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
   /**
-   * Whether `type: 'integer'` and `format: 'int64'` produce `number` or `bigint` nodes.
+   * How `type: 'integer'` (and `format: 'int64'`) maps to TypeScript.
+   * - `'number'` fits most JSON APIs; loses precision above `Number.MAX_SAFE_INTEGER`.
+   * - `'bigint'` is exact for 64-bit IDs, but does not round-trip through JSON.
+   *
+   * @default 'number'
    */
   integerType?: 'number' | 'bigint'
   /**
-   * AST type used when no schema type can be inferred.
+   * AST type used when a schema's type cannot be inferred from the spec
+   * (`additionalProperties: true`, missing `type`, ...).
    */
   unknownType: 'any' | 'unknown' | 'void'
   /**
@@ -36,7 +46,8 @@ export type ParserOptions = {
    */
   emptySchemaType: 'any' | 'unknown' | 'void'
   /**
-   * Suffix appended to derived enum names when building property schema names.
+   * Suffix appended to derived enum names when Kubb has to invent one
+   * (typically for inline enums on object properties).
    */
   enumSuffix: 'enum' | (string & {})
 }
