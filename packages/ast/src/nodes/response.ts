@@ -39,5 +39,5 @@ export type ResponseNode = BaseNode & {
    * Property keys to exclude from the generated type via `Omit<Type, Keys>`.
    * Set when a referenced schema has `writeOnly` fields that should not appear in response types.
    */
-  keysToOmit?: Array<string>
+  keysToOmit?: Array<string> | null
 }

@@ -44,8 +44,8 @@ export function buildDiscriminatorChildMap(schemas: ast.SchemaNode[]): Map<strin
       const intersectionNode = ast.narrowSchema(member, 'intersection')
       if (!intersectionNode?.members) continue
 
-      let refNode: SchemaNodeByType['ref'] | undefined
-      let objNode: SchemaNodeByType['object'] | undefined
+      let refNode: SchemaNodeByType['ref'] | null = null
+      let objNode: SchemaNodeByType['object'] | null = null
 
       for (const m of intersectionNode.members) {
         refNode ??= ast.narrowSchema(m, 'ref')
@@ -55,7 +55,7 @@ export function buildDiscriminatorChildMap(schemas: ast.SchemaNode[]): Map<strin
       if (!refNode?.name || !objNode) continue
 
       const prop = objNode.properties.find((p) => p.name === discriminatorPropertyName)
-      const enumNode = prop ? ast.narrowSchema(prop.schema, 'enum') : undefined
+      const enumNode = prop ? ast.narrowSchema(prop.schema, 'enum') : null
       if (!enumNode?.enumValues?.length) continue
 
       const enumValues = enumNode.enumValues.filter((v): v is string | number | boolean => v !== null)

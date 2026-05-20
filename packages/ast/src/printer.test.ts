@@ -138,6 +138,6 @@ describe('definePrinter', () => {
 
     expectTypeOf(printer.name).toEqualTypeOf<'zod'>()
     expectTypeOf(printer.options).toEqualTypeOf<object>()
-    expectTypeOf(printer.print(createSchema({ type: 'string' }))).toEqualTypeOf<string | null | undefined>()
+    expectTypeOf(printer.print(createSchema({ type: 'string' }))).toEqualTypeOf<string | null>()
   })
 })

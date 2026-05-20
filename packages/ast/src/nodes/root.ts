@@ -30,7 +30,7 @@ export type InputMeta = {
   /**
    * Resolved base URL from the first matching server entry in the source document.
    */
-  baseURL?: string
+  baseURL?: string | null
   /**
    * Names of schemas that participate in a circular reference chain.
    * Computed once during the adapter pre-scan — use this instead of calling

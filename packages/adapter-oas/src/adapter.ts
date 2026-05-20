@@ -136,7 +136,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         nameMapping,
         resolve: (schemaName) => {
           const result = resolve(schemaName)
-          if (!result) return
+          if (!result) return null
 
           return ast.createImport({ name: [result.name], path: result.path })
         },

@@ -30,7 +30,7 @@ export type ElementNames =
   | 'kubb-app'
 
 type Node = {
-  parentNode: DOMElement | undefined
+  parentNode: DOMElement | null
   internal_static?: boolean
 }
 

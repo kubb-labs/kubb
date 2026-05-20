@@ -101,7 +101,7 @@ export type OperationNode = BaseNode & {
        * Property keys to exclude from the generated request body type via `Omit<Type, Keys>`.
        * Set when a referenced schema has `readOnly` fields that should be omitted in request types.
        */
-      keysToOmit?: Array<string>
+      keysToOmit?: Array<string> | null
     }>
   }
   /**

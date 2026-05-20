@@ -50,10 +50,10 @@ describe('resolveRef', () => {
     },
   )
 
-  it('returns undefined for unknown refs', () => {
+  it('returns null for unknown refs', () => {
     const map = buildRefMap(buildFixture())
 
-    expect(resolveRef(map, 'Unknown')).toBeUndefined()
+    expect(resolveRef(map, 'Unknown')).toBeNull()
   })
 })
 

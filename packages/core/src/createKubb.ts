@@ -987,9 +987,9 @@ type CreateKubbOptions = {
 export class Kubb {
   readonly hooks: AsyncEventEmitter<KubbHooks>
   readonly #userConfig: UserConfig
-  #config: Config | undefined
-  #driver: KubbDriver | undefined
-  #storage: Storage | undefined
+  #config: Config | null = null
+  #driver: KubbDriver | null = null
+  #storage: Storage | null = null
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
     this.#userConfig = userConfig

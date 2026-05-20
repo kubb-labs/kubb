@@ -59,8 +59,8 @@ export class KubbDriver {
    * The streaming `InputStreamNode` produced by the adapter.
    * Always set after adapter setup — parse-only adapters are wrapped automatically.
    */
-  inputNode: InputStreamNode | undefined = undefined
-  adapter: Adapter | undefined = undefined
+  inputNode: InputStreamNode | null = null
+  adapter: Adapter | null = null
   /**
    * Studio session state, kept together so `dispose()` can reset it atomically.
    *
@@ -70,10 +70,10 @@ export class KubbDriver {
    * - `inputNode` caches the parse promise so `adapter.parse()` is called at most once
    *   per studio session, even when `openInStudio()` is called multiple times.
    */
-  #studio: { source: AdapterSource | undefined; isOpen: boolean; inputNode: Promise<InputNode> | undefined } = {
-    source: undefined,
+  #studio: { source: AdapterSource | null; isOpen: boolean; inputNode: Promise<InputNode> | null } = {
+    source: null,
     isOpen: false,
-    inputNode: undefined,
+    inputNode: null,
   }
 
   // Register middleware hooks after all plugin hooks are registered.
@@ -105,7 +105,7 @@ export class KubbDriver {
   constructor(config: Config, options: Options) {
     this.config = config
     this.options = options
-    this.adapter = config.adapter
+    this.adapter = config.adapter ?? null
   }
 
   async setup() {
@@ -477,7 +477,7 @@ export class KubbDriver {
     } catch (caughtError) {
       return { failedPlugins, pluginTimings, error: caughtError as Error }
     } finally {
-      this.fileManager.setOnUpsert(undefined)
+      this.fileManager.setOnUpsert(null)
     }
   }
 
@@ -513,9 +513,9 @@ export class KubbDriver {
       generators: Generator[]
       hrStart: ReturnType<typeof process.hrtime>
       failed: boolean
-      error: Error | undefined
+      error: Error | null
       optionsAreStatic: boolean
-      allowedSchemaNames: Set<string> | undefined
+      allowedSchemaNames: Set<string> | null
     }
 
     const driver = this
@@ -531,9 +531,9 @@ export class KubbDriver {
         generators: plugin.generators ?? [],
         hrStart,
         failed: false,
-        error: undefined,
+        error: null,
         optionsAreStatic: !hasExclude && !hasInclude && !hasOverride,
-        allowedSchemaNames: undefined,
+        allowedSchemaNames: null,
       }
     })
 
@@ -577,7 +577,7 @@ export class KubbDriver {
         const { plugin, generatorContext, generators } = state
         const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
-        if (state.allowedSchemaNames !== undefined && transformedNode.name && !state.allowedSchemaNames.has(transformedNode.name)) {
+        if (state.allowedSchemaNames !== null && transformedNode.name && !state.allowedSchemaNames.has(transformedNode.name)) {
           return
         }
 
@@ -670,7 +670,7 @@ export class KubbDriver {
 
       const duration = getElapsedMs(state.hrStart)
       timings.set(state.plugin.name, duration)
-      await this.#emitPluginEnd({ plugin: state.plugin, duration, success: !state.failed, error: state.failed ? state.error : undefined })
+      await this.#emitPluginEnd({ plugin: state.plugin, duration, success: !state.failed, error: state.failed && state.error ? state.error : undefined })
 
       if (state.failed && state.error) failed.add({ plugin: state.plugin, error: state.error })
 
@@ -707,8 +707,8 @@ export class KubbDriver {
     // array still references any FileNodes the caller needs to inspect.
     this.fileManager.dispose()
     this.#fileProcessor.dispose()
-    this.inputNode = undefined
-    this.#studio = { source: undefined, isOpen: false, inputNode: undefined }
+    this.inputNode = null
+    this.#studio = { source: null, isOpen: false, inputNode: null }
 
     for (const [event, handler] of this.#middlewareListeners) {
       this.hooks.off(event, handler as never)
@@ -786,7 +786,7 @@ export class KubbDriver {
       get meta(): InputMeta {
         return driver.inputNode?.meta ?? { circularNames: [], enumNames: [] }
       },
-      get adapter(): Adapter | undefined {
+      get adapter(): Adapter | null {
         return driver.adapter
       },
       get resolver() {
@@ -865,7 +865,7 @@ export function applyHookResult<TElement = unknown>({
 }: {
   result: TElement | Array<FileNode> | void
   driver: KubbDriver
-  rendererFactory?: RendererFactory<TElement>
+  rendererFactory?: RendererFactory<TElement> | null
 }): void | Promise<void> {
   if (!result) return
 

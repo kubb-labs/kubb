@@ -433,7 +433,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       const active = state.activeHookLogs.get(hookId)
       if (!active) {
-        return undefined
+        return null
       }
 
       const { taskLog } = active

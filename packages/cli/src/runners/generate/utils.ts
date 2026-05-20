@@ -6,7 +6,7 @@ import type { CLIOptions, Config, KubbHooks, PossibleConfig } from '@kubb/core'
 import { cosmiconfig } from 'cosmiconfig'
 import { createJiti } from 'jiti'
 import { NonZeroExitError, x } from 'tinyexec'
-import type { HookSinkOptions } from '../../loggers/utils.ts'
+import type { HookSinkFactory, HookSinkOptions } from '../../loggers/utils.ts'
 import { WATCHER_IGNORED_PATHS } from '../../constants.ts'
 
 type CosmiconfigResult = {
@@ -107,7 +107,7 @@ export async function getConfigs({ configPath, input }: GetConfigsOptions): Prom
 type ExecuteHooksOptions = {
   configHooks: NonNullable<Config['hooks']>
   hooks: AsyncEventEmitter<KubbHooks>
-  makeSink?: (commandWithArgs: string, hookId: string) => HookSinkOptions | undefined
+  makeSink?: HookSinkFactory | null
 }
 
 /**

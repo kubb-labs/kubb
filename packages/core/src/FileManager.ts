@@ -49,15 +49,15 @@ export class FileManager {
   // keep their snapshot — `dispose()` must not silently empty an array the
   // consumer already holds.
   #sorted: Array<FileNode> | null = null
-  #onUpsert: ((file: FileNode) => void) | undefined
+  #onUpsert: ((file: FileNode) => void) | null = null
 
   /**
    * Registers a callback invoked with the resolved {@link FileNode} on every
    * `add` / `upsert`. Used by the build loop to track newly written files
    * without keeping its own scan-based diff. Single subscriber by design —
-   * setting again replaces the previous callback. Pass `undefined` to detach.
+   * setting again replaces the previous callback. Pass `null` to detach.
    */
-  setOnUpsert(callback: ((file: FileNode) => void) | undefined): void {
+  setOnUpsert(callback: ((file: FileNode) => void) | null): void {
     this.#onUpsert = callback
   }
 
@@ -115,7 +115,7 @@ export class FileManager {
    */
   dispose(): void {
     this.clear()
-    this.#onUpsert = undefined
+    this.#onUpsert = null
   }
 
   [Symbol.dispose](): void {

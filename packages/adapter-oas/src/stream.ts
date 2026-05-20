@@ -17,7 +17,7 @@ export type PreScanResult = {
  * Reads the server URL from the document's `servers` array at `serverIndex`,
  * interpolating any `serverVariables` into the URL template.
  *
- * Returns `undefined` when `serverIndex` is omitted or out of range.
+ * Returns `null` when `serverIndex` is omitted or out of range.
  *
  * @example Resolve the first server
  * `resolveBaseUrl({ document, serverIndex: 0 })`
@@ -33,9 +33,9 @@ export function resolveBaseUrl({
   document: Document
   serverIndex?: number
   serverVariables?: Record<string, string>
-}): string | undefined {
+}): string | null {
   const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
-  return server?.url ? resolveServerUrl(server, serverVariables) : undefined
+  return server?.url ? resolveServerUrl(server, serverVariables) : null
 }
 
 /**

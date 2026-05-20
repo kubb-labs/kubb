@@ -10,7 +10,7 @@ describe('dom utilities', () => {
       expect(node.nodeName).toBe('kubb-file')
       expect(node.attributes).toBeTypeOf('object')
       expect(node.childNodes).toEqual([])
-      expect(node.parentNode).toBeUndefined()
+      expect(node.parentNode).toBeNull()
     })
   })
 
@@ -20,7 +20,7 @@ describe('dom utilities', () => {
 
       expect(textNode.nodeName).toBe('#text')
       expect(textNode.nodeValue).toBe('hello world')
-      expect(textNode.parentNode).toBeUndefined()
+      expect(textNode.parentNode).toBeNull()
     })
 
     it('should convert non-string values to string', () => {
@@ -78,7 +78,7 @@ describe('dom utilities', () => {
       appendChildNode(textNode, child)
 
       expect(textNode.nodeName).toBe('#text')
-      expect(child.parentNode).toBeUndefined()
+      expect(child.parentNode).toBeNull()
     })
   })
 
@@ -140,7 +140,7 @@ describe('dom utilities', () => {
       removeChildNode(parent, child)
 
       expect(parent.childNodes).not.toContain(child)
-      expect(child.parentNode).toBeUndefined()
+      expect(child.parentNode).toBeNull()
     })
 
     it('should handle removing non-existent child gracefully', () => {

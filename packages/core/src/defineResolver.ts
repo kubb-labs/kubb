@@ -54,8 +54,8 @@ export type Resolver = {
   resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
   resolvePath(params: ResolverPathParams, context: ResolverContext): string
   resolveFile(params: ResolverFileParams, context: ResolverContext): FileNode
-  resolveBanner(meta: InputMeta | undefined, context: ResolveBannerContext): string | undefined
-  resolveFooter(meta: InputMeta | undefined, context: ResolveBannerContext): string | undefined
+  resolveBanner(meta: InputMeta | undefined, context: ResolveBannerContext): string | null
+  resolveFooter(meta: InputMeta | undefined, context: ResolveBannerContext): string | null
 }
 
 /**
@@ -524,10 +524,10 @@ export function buildDefaultBanner({
  * @example Disabled default banner
  * ```ts
  * defaultResolveBanner(undefined, { config: { output: { defaultBanner: false }, ...config } })
- * // → undefined
+ * // → null
  * ```
  */
-export function defaultResolveBanner(meta: InputMeta | undefined, { output, config }: ResolveBannerContext): string | undefined {
+export function defaultResolveBanner(meta: InputMeta | undefined, { output, config }: ResolveBannerContext): string | null {
   if (typeof output?.banner === 'function') {
     return output.banner(meta)
   }
@@ -537,7 +537,7 @@ export function defaultResolveBanner(meta: InputMeta | undefined, { output, conf
   }
 
   if (config.output.defaultBanner === false) {
-    return undefined
+    return null
   }
 
   return buildDefaultBanner({
@@ -566,14 +566,14 @@ export function defaultResolveBanner(meta: InputMeta | undefined, { output, conf
  * // → '// Pet Store'
  * ```
  */
-export function defaultResolveFooter(meta: InputMeta | undefined, { output }: ResolveBannerContext): string | undefined {
+export function defaultResolveFooter(meta: InputMeta | undefined, { output }: ResolveBannerContext): string | null {
   if (typeof output?.footer === 'function') {
     return output.footer(meta)
   }
   if (typeof output?.footer === 'string') {
     return output.footer
   }
-  return undefined
+  return null
 }
 
 /**
