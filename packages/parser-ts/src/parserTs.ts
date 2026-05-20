@@ -9,10 +9,28 @@ export { createExport, createImport, print, safePrint, validateNodes } from './u
 export { printArrowFunction, printCodeNode, printConst, printFunction, printJSDoc, printSource, printType } from './utils.ts'
 
 /**
- * Parser that converts `.ts` and `.js` files to strings using the TypeScript
- * compiler. Handles import/export statement generation from file metadata.
+ * Default Kubb parser for `.ts` and `.js` files. Takes the universal AST
+ * produced by an adapter and prints it as TypeScript source using the official
+ * TypeScript compiler. Imports and exports are rewritten based on each file's
+ * metadata.
  *
- * @default Used automatically when no `parsers` option is set in `defineConfig`.
+ * Used automatically when no `parsers` option is set on `defineConfig`. Use
+ * `parserTsx` instead for React projects that emit JSX.
+ *
+ * @example
+ * ```ts
+ * import { defineConfig } from 'kubb'
+ * import { adapterOas } from '@kubb/adapter-oas'
+ * import { parserTs } from '@kubb/parser-ts'
+ *
+ * export default defineConfig({
+ *   input: { path: './petStore.yaml' },
+ *   output: { path: './src/gen' },
+ *   adapter: adapterOas(),
+ *   parsers: [parserTs],
+ *   plugins: [],
+ * })
+ * ```
  */
 export const parserTs: Parser = defineParser({
   name: 'typescript',

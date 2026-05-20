@@ -37,17 +37,29 @@ declare global {
 }
 
 /**
- * Generates `index.ts` barrel files for each plugin and a root barrel at `config.output.path/index.ts`.
+ * Canonical middleware name for `@kubb/middleware-barrel`. Used for driver
+ * lookups.
+ */
+export const middlewareBarrelName = 'middleware-barrel' satisfies Middleware['name']
+
+/**
+ * Generates an `index.ts` for every plugin output directory and one root
+ * barrel at `config.output.path/index.ts` after the build completes. Ships
+ * with Kubb and is registered by default in `defineConfig`.
  *
- * Each plugin inherits `output.barrel` from `config.output.barrel` (defaults to `{ type: 'named' }`).
- * Set `barrel: false` on a plugin to disable its barrel and exclude it from the root barrel.
+ * Each plugin inherits `output.barrel` from `config.output.barrel` (which
+ * defaults to `{ type: 'named' }`). Set `barrel: false` on a plugin to skip
+ * its barrel and also exclude its files from the root barrel.
  *
  * @example
  * ```ts
  * import { defineConfig } from '@kubb/core'
  * import { middlewareBarrel } from '@kubb/middleware-barrel'
+ * import { pluginTs } from '@kubb/plugin-ts'
+ * import { pluginZod } from '@kubb/plugin-zod'
  *
  * export default defineConfig({
+ *   input: { path: './petStore.yaml' },
  *   output: { path: 'src/gen', barrel: { type: 'named' } },
  *   plugins: [
  *     pluginTs({ output: { path: 'types', barrel: { type: 'all' } } }),
@@ -57,12 +69,6 @@ declare global {
  * })
  * ```
  */
-
-/**
- * Stable string identifier for the barrel middleware.
- */
-export const middlewareBarrelName = 'middleware-barrel' satisfies Middleware['name']
-
 export const middlewareBarrel = defineMiddleware(() => {
   const excludedPrefixes = new Set<string>()
 
