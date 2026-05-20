@@ -1,0 +1,137 @@
+packages/ast/src/utils.ts
+  s_0ec3ee5562e1d4::t_d5e22040857b97 397
+  s_0ec3ee5562e1d4::t_95b2f7033b906c 501,513,515,520
+  s_0ec3ee5562e1d4::t_47d3bfbc4d3473 749,758-760,762
+  s_0ec3ee5562e1d4::t_fc21551665346e 479
+  s_0ec3ee5562e1d4::t_fb677fdff70ca2 929,931
+packages/core/src/defineResolver.test.ts
+  s_0ec3ee5562e1d4::t_d5b8a145f99c66 303,305
+  s_0ec3ee5562e1d4::t_bbbf0b7c2be3ce 265,271
+packages/ast/src/guards.test.ts
+  s_0ec3ee5562e1d4::t_70c8083734c835 190-191,194-195,198-199,202-203,206-207
+packages/ast/src/resolvers.ts
+  s_0ec3ee5562e1d4::t_57cbe154bae97a 30,33,35,40
+packages/core/src/createKubb.ts
+  s_0ec3ee5562e1d4::t_4f3d7fabf939df 990-992
+packages/adapter-oas/src/discriminator.ts
+  s_0ec3ee5562e1d4::t_d55f57cfee8d48 47-48,58
+packages/adapter-oas/src/stream.ts
+  s_0ec3ee5562e1d4::t_59822c208775e8 36,38
+  s_0ec3ee5562e1d4::t_35690203797230 20
+packages/ast/src/utils.test.ts
+  s_0ec3ee5562e1d4::t_a99644b43ee98e 1886-1888
+packages/ast/src/nodes/response.ts
+  s_0ec3ee5562e1d4::t_4f4f21c4ba13f9 42
+packages/ast/src/refs.test.ts
+  s_0ec3ee5562e1d4::t_e1d5bd359f05f9 53,56
+packages/ast/src/nodes/root.ts
+  s_0ec3ee5562e1d4::t_9f64fcc61eebd4 33
+packages/adapter-oas/src/adapter.ts
+  s_0ec3ee5562e1d4::t_beb5d94672a40e 139
+packages/middleware-barrel/src/utils.ts
+  s_0ec3ee5562e1d4::t_9ee3d6c066e6b5 36
+  s_0ec3ee5562e1d4::t_027e2bf21aba5f 120
+packages/ast/src/printer.ts
+  s_0ec3ee5562e1d4::t_6804b55f454297 196
+  s_0ec3ee5562e1d4::t_3b5cc9f04a48a0 43
+  s_0ec3ee5562e1d4::t_489d02508a48f8 21
+  s_0ec3ee5562e1d4::t_8398e9d6b96be3 231
+  s_0ec3ee5562e1d4::t_de3ef4718a2cff 111,117
+  s_0ec3ee5562e1d4::t_bdf516906185f3 204,208,212,216,221-222,229,237,245
+packages/renderer-jsx/src/dom.test.ts
+  s_0ec3ee5562e1d4::t_757a697b68b94e 23
+  s_0ec3ee5562e1d4::t_c35d6277e140de 81
+  s_0ec3ee5562e1d4::t_85c8285358f9a7 143
+  s_0ec3ee5562e1d4::t_2838fd39684431 13
+packages/cli/src/runners/generate/run.ts
+  s_0ec3ee5562e1d4::t_f853c4826932fc 20,36
+packages/core/src/defineResolver.ts
+  s_0ec3ee5562e1d4::t_22c5ee190b728f 57-58
+  s_0ec3ee5562e1d4::t_7ded352cafed3a 527,530,540
+  s_0ec3ee5562e1d4::t_aed87f1dce7aa1 569,576
+packages/cli/src/loggers/utils.ts
+  s_0ec3ee5562e1d4::t_b5f84ab48b6258 169
+  s_0ec3ee5562e1d4::t_5cf2c50ffa4835 154
+  s_0ec3ee5562e1d4::t_c53a59ce4d33b2 50
+packages/ast/src/visitor.ts
+  s_0ec3ee5562e1d4::t_9d185a60a20760 490
+  s_0ec3ee5562e1d4::t_4ad829d6b4fcfc 511,535
+  s_0ec3ee5562e1d4::t_52109e44090591 179-185
+packages/adapter-oas/src/parser.test.ts
+  s_0ec3ee5562e1d4::t_80a51aa343aa09 1134
+packages/cli/src/loggers/clackLogger.ts
+  s_0ec3ee5562e1d4::t_e09120937a0461 436
+packages/cli/src/runners/generate/utils.ts
+  s_0ec3ee5562e1d4::t_9617bfd4dc129d 9
+  s_0ec3ee5562e1d4::t_e46497fbaf2161 110
+packages/core/src/mocks.ts
+  s_0ec3ee5562e1d4::t_a0ea7f8f6f8643 150
+  s_0ec3ee5562e1d4::t_a56dcc3257adab 126
+  s_0ec3ee5562e1d4::t_4afcd181eae16d 174
+packages/adapter-oas/src/stream.test.ts
+  s_0ec3ee5562e1d4::t_9eb4de16c4ba1d 55,58,61,64
+packages/ast/src/nodes/operation.ts
+  s_0ec3ee5562e1d4::t_c84ea17437e10b 104
+packages/ast/src/transformers.test.ts
+  s_0ec3ee5562e1d4::t_6dfcbfc42ca333 436
+packages/ast/src/nodes/schema.ts
+  s_0ec3ee5562e1d4::t_43688f27419758 371,373
+  s_0ec3ee5562e1d4::t_5bfe6acf8003ec 386-387,392
+packages/core/src/KubbDriver.ts
+  s_0ec3ee5562e1d4::t_fdaf754663c803 536
+  s_0ec3ee5562e1d4::t_268378b24f9c81 480
+  s_0ec3ee5562e1d4::t_34afd1f3cce118 73-74,76
+  s_0ec3ee5562e1d4::t_6c4eb65f9fe314 580
+  s_0ec3ee5562e1d4::t_e00f5cf07c389d 673
+  s_0ec3ee5562e1d4::t_9056a00fb12787 518
+  s_0ec3ee5562e1d4::t_c734541217cbfd 62-63
+  s_0ec3ee5562e1d4::t_e318cb7d1086ba 516
+  s_0ec3ee5562e1d4::t_9482be9d4e5725 789
+  s_0ec3ee5562e1d4::t_887b517ca8e491 534
+  s_0ec3ee5562e1d4::t_498c136b0b1e65 108
+  s_0ec3ee5562e1d4::t_4c6806b171e7f4 710
+  s_0ec3ee5562e1d4::t_514c8d8cbd9fd3 711
+  s_0ec3ee5562e1d4::t_22f02774b46ec4 868
+packages/ast/src/transformers.ts
+  s_0ec3ee5562e1d4::t_eb8f2283b54f3e 153
+packages/renderer-jsx/src/dom.ts
+  s_0ec3ee5562e1d4::t_ebfab26c565c3d 84
+  s_0ec3ee5562e1d4::t_02bace882e03f1 62
+  s_0ec3ee5562e1d4::t_95e4c7d5535b75 13
+packages/renderer-jsx/src/types.ts
+  s_0ec3ee5562e1d4::t_1f5178486505b2 33
+packages/ast/src/guards.ts
+  s_0ec3ee5562e1d4::t_aecedf59a6f252 23,26-27
+packages/ast/src/refs.ts
+  s_0ec3ee5562e1d4::t_005961e06a7083 48-49,55-56
+packages/ast/src/resolvers.test.ts
+  s_0ec3ee5562e1d4::t_3e47f16bd2ad68 38
+  s_0ec3ee5562e1d4::t_84873fd7252fe4 32
+packages/adapter-oas/src/parser.ts
+  s_0ec3ee5562e1d4::t_cd324f9857402d 141
+  s_0ec3ee5562e1d4::t_6acacbf7e21adf 114
+  s_0ec3ee5562e1d4::t_8f4c0f0418ef05 649
+  s_0ec3ee5562e1d4::t_d86b8bf642b079 125
+  s_0ec3ee5562e1d4::t_6aff19872a973d 874-875,884
+packages/ast/src/printer.test.ts
+  s_0ec3ee5562e1d4::t_54bedf80034001 141
+packages/core/src/FileManager.ts
+  s_0ec3ee5562e1d4::t_bd11c31c72281b 52,58,60
+  s_0ec3ee5562e1d4::t_fad269bbb2203f 118
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "31b60e483c63cae3e1c6700b77b25a69cc043a78",
+  "prompts": {},
+  "sessions": {
+    "s_0ec3ee5562e1d4": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ea4443ee-9d0b-432f-8c8c-9baedd14db7d",
+        "model": "composer-2.5-fast"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
