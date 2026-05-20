@@ -14,7 +14,7 @@ type Props = {
    * Requires `export` to also be `true`.
    * @default false
    */
-  default?: boolean
+  default?: boolean | null
   /**
    * Parameter list written verbatim between the function's parentheses.
    *
@@ -28,14 +28,14 @@ type Props = {
    * - `false` generates `function name(…) { … }`
    * @default false
    */
-  export?: boolean
+  export?: boolean | null
   /**
    * Emit the `async` keyword, making this an async function.
    * The return type is automatically wrapped in `Promise<returnType>` when both
    * `async` and `returnType` are set.
    * @default false
    */
-  async?: boolean
+  async?: boolean | null
   /**
    * TypeScript generic type parameters written verbatim between `<` and `>`.
    * Pass an array to emit multiple parameters separated by commas.
@@ -110,7 +110,7 @@ type ArrowFunctionProps = Props & {
    * - `false` generates `const name = (…) => { … }`
    * @default false
    */
-  singleLine?: boolean
+  singleLine?: boolean | null
 }
 
 /**

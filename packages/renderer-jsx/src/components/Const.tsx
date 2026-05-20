@@ -15,7 +15,7 @@ type ConstProps = {
    * - `false` generates `const name = …`
    * @default false
    */
-  export?: boolean
+  export?: boolean | null
   /**
    * TypeScript type annotation for the constant, written verbatim after `const name:`.
    *
@@ -34,7 +34,7 @@ type ConstProps = {
    * - `false` generates `const name = …`
    * @default false
    */
-  asConst?: boolean
+  asConst?: boolean | null
   /**
    * Child nodes rendered as the initialiser expression of the constant.
    */

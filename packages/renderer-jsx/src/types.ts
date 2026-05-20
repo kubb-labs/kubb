@@ -120,12 +120,12 @@ export type KubbTextProps = {
  * Represents a generated file.
  */
 export type KubbFileProps = {
-  id?: string
+  id?: string | null
   children?: KubbReactNode
   baseName: string
   path: string
-  override?: boolean
-  meta?: FileNode['meta']
+  override?: boolean | null
+  meta?: FileNode['meta'] | null
 }
 
 /**

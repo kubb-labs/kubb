@@ -44,7 +44,7 @@ export const parserTs: Parser = defineParser({
     for (const item of (file as FileNode).exports) {
       exportNodes.push(
         createExport({
-          name: item.name as string | Array<ts.Identifier | string> | undefined,
+          name: item.name as string | Array<ts.Identifier | string> | null | undefined,
           path: resolveOutputPath(item.path, options, true),
           isTypeOnly: item.isTypeOnly,
           asAlias: item.asAlias,
