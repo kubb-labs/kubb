@@ -1,0 +1,20 @@
+packages/core/src/createKubb.ts
+  s_f786084865badb::t_590d06b0c6e439 1179-1181,1183-1184,1188,1202,1206-1235
+  s_f786084865badb::t_fee89d05d673c4 1248-1253
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "90dcd3fc60d55bc85818ad7a9f6664ae6441d944",
+  "prompts": {},
+  "sessions": {
+    "s_f786084865badb": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "c46178e7-6b87-48e3-8bf8-69fb8ec4f3d2",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
