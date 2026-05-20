@@ -1,0 +1,52 @@
+packages/adapter-oas/src/adapter.ts
+  s_f786084865badb::t_26ad948b5e8a7a 7
+  s_f786084865badb::t_6a15ad07bc4804 99-100,103,119-122
+  s_f786084865badb::t_aab84990e59a63 105-115,117-118
+  s_f786084865badb::t_89b4f13bb4d1f7 161-162,164-165,167
+  s_f786084865badb::t_4b9f695558753d 98,104,116
+  s_f786084865badb::t_ba4a6568f3cc0c 63,92-97,101-102
+  s_f786084865badb::t_6c19201ab4defa 6,8
+  s_f786084865badb::t_76a532e4a0380c 160,169
+packages/adapter-oas/src/discriminator.ts
+  s_f786084865badb::t_f5059d52628860 3
+.changeset/kubb-driver-streaming-cleanup.md
+  s_f786084865badb::t_061ae1159f8dde 1-11
+packages/adapter-oas/src/stream.ts
+  s_f786084865badb::t_d28bb227b4d60f 1-4,6,8,10-16,44,66-103,105,120,122-169
+  s_f786084865badb::t_ad5c0659f47d05 5,24,27-42,121
+  s_f786084865badb::t_21f45c86973795 7
+  s_f786084865badb::t_5e28bfe144d3b8 9
+  s_f786084865badb::t_2d0c078daf0001 17-23,25-26,43,45-65,104,106-119
+.changeset/always-stream-oas-adapter.md
+  s_f786084865badb::t_7f08416dee3610 1-9
+packages/adapter-oas/src/stream.test.ts
+  s_f786084865badb::t_5e777883228ab5 129
+  s_f786084865badb::t_e7ee97abc5afbf 3
+  s_f786084865badb::t_3cf74e58a9dccc 1-2,4-6,8-46,48-52,54-58,60-69,72-75,80-83,90-92,99-109,117-119,122-128,130-145,147-152,155-174,181-186,188-210,212-232,234-251,264-266
+  s_f786084865badb::t_5d174f701bb528 153-154
+  s_f786084865badb::t_31b24b5fc2d4c7 211
+  s_f786084865badb::t_6960fb9ca507a3 233
+  s_f786084865badb::t_2055fa07ddf6c3 146
+  s_f786084865badb::t_dceb1aaec74bd7 187
+  s_f786084865badb::t_3c1fde2f98aa72 7
+  s_f786084865badb::t_5c51400e3fa013 76-79
+  s_f786084865badb::t_6e8102236b202d 47,53,59,70-71,84-89,93-98,110-116,120-121,175-180,252-263
+.changeset/input-meta-circular-enum-names.md
+  s_f786084865badb::t_1634020e8193f2 1-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "9b195c2445c1fdbb462aaa2034edac3cdc82792a",
+  "prompts": {},
+  "sessions": {
+    "s_f786084865badb": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "c46178e7-6b87-48e3-8bf8-69fb8ec4f3d2",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
