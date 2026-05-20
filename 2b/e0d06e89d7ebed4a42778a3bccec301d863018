@@ -1,0 +1,52 @@
+packages/core/src/FileManager.ts
+  s_0ec3ee5562e1d4::t_7ccf549ac1fd67 105,110
+  s_0ec3ee5562e1d4::t_de74386c22c9dd 84,90
+  s_0ec3ee5562e1d4::t_00fa63e8f07dcd 75-76,83,88-89,91-96
+  s_0ec3ee5562e1d4::t_abe15be3309b8d 12-14
+  s_0ec3ee5562e1d4::t_0dfdbe1714ca87 78
+  s_0ec3ee5562e1d4::t_331b8fd5a9eff1 47-51
+  s_0ec3ee5562e1d4::t_e1407b8324085d 104,127
+  s_0ec3ee5562e1d4::t_fad6c843c75bfa 73
+  s_0ec3ee5562e1d4::t_0f92d16f16fd10 130
+plans/studio-event-parity.md
+  s_0ec3ee5562e1d4::t_333be7bd2393e1 1-155
+packages/agent/server/utils/ws.ts
+  s_0ec3ee5562e1d4::t_963d614afd5fd3 73,75-81
+packages/core/src/types.ts
+  s_0ec3ee5562e1d4::t_f4e76e481facbb 15,18
+packages/cli/src/loggers/githubActionsLogger.ts
+  s_0ec3ee5562e1d4::t_8705158ebe6590 259,264
+packages/core/src/KubbDriver.ts
+  s_0ec3ee5562e1d4::t_5a10a592d94c96 393-394,396,398-402
+  s_0ec3ee5562e1d4::t_ac0e7e5da8d3ac 395
+packages/agent/server/types/agent.ts
+  s_0ec3ee5562e1d4::t_84f6316701bed5 49,51-56
+packages/core/src/createKubb.ts
+  s_0ec3ee5562e1d4::t_9889274c95f507 737,764-768
+  s_0ec3ee5562e1d4::t_09f20b70ebbfc9 518
+packages/mcp/src/tools/generate.ts
+  s_0ec3ee5562e1d4::t_3112849801132e 57
+  s_0ec3ee5562e1d4::t_18ff40a8444621 58
+packages/mcp/src/types.ts
+  s_0ec3ee5562e1d4::t_b1b8d6460ce809 9
+packages/cli/src/loggers/clackLogger.ts
+  s_0ec3ee5562e1d4::t_1663a8fc51ba68 289,297-301
+packages/cli/src/loggers/plainLogger.ts
+  s_0ec3ee5562e1d4::t_fb9cf12101473e 145,150-152
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "2be0d06e89d7ebed4a42778a3bccec301d863018",
+  "prompts": {},
+  "sessions": {
+    "s_0ec3ee5562e1d4": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ea4443ee-9d0b-432f-8c8c-9baedd14db7d",
+        "model": "composer-2.5-fast"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
