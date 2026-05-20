@@ -834,10 +834,6 @@ export type PossibleConfig<TCliOptions = undefined> =
   | PossiblePromise<Config | Config[]>
   | ((...args: [TCliOptions] extends [undefined] ? [] : [TCliOptions]) => PossiblePromise<Config | Config[]>)
 
-type SetupOptions = {
-  hooks?: AsyncEventEmitter<KubbHooks>
-}
-
 /**
  * Full output produced by a successful or failed build.
  */
@@ -876,75 +872,10 @@ export type BuildOutput = {
 }
 
 /**
- * Kubb code generation instance returned by {@link createKubb}.
- *
- * Use this when orchestrating multiple builds, inspecting plugin timings, or integrating Kubb into a larger toolchain.
- * For a single one-off build, chain directly: `await createKubb(config).build()`.
- */
-export type Kubb = {
-  /**
-   * Shared event emitter for lifecycle and status events. Attach listeners before calling `setup()` or `build()`.
-   */
-  readonly hooks: AsyncEventEmitter<KubbHooks>
-  /**
-   * Read-only view of the files from the most recent `build()` or `safeBuild()` call.
-   * Only populated after the build completes.
-   *
-   * Keys are scoped to the current run. Reads go straight to `config.storage`,
-   * so nothing extra is held in memory.
-   *
-   * @example Read a generated file
-   * ```ts
-   * const { storage } = await kubb.safeBuild()
-   * const code = await storage.getItem('/src/gen/pet.ts')
-   * ```
-   *
-   * @example Walk every generated file
-   * ```ts
-   * for (const path of await kubb.storage.getKeys()) {
-   *   const code = await kubb.storage.getItem(path)
-   * }
-   * ```
-   */
-  readonly storage: Storage
-  /**
-   * Plugin driver managing all plugins. Available after `setup()` completes.
-   */
-  readonly driver: KubbDriver
-  /**
-   * Resolved configuration with defaults applied. Available after `setup()` completes.
-   */
-  readonly config: Config
-  /**
-   * Resolves config and initializes the driver. `build()` calls this automatically.
-   */
-  setup(): Promise<void>
-  /**
-   * Runs the full pipeline and throws on any plugin error. Automatically calls `setup()` if needed.
-   */
-  build(): Promise<BuildOutput>
-  /**
-   * Runs the full pipeline and captures errors in `BuildOutput` instead of throwing. Automatically calls `setup()` if needed.
-   */
-  safeBuild(): Promise<BuildOutput>
-}
-
-type SetupResult = {
-  hooks: AsyncEventEmitter<KubbHooks>
-  driver: KubbDriver
-  storage: Storage
-  config: Config
-  dispose: () => void
-  [Symbol.dispose](): void
-}
-
-/**
  * Builds a `Storage` view scoped to the file paths produced by the current build.
- *
- * Reads delegate to the underlying `storage` (typically `fsStorage()`) so source bytes
- * stay where they were written instead of being held in an extra in-memory map.
- * Writing via `setItem` stores the content in the underlying storage and registers the
- * key so subsequent reads and `getKeys` are scoped to this build's output.
+ * Reads delegate to the underlying `storage` so source bytes stay where they were
+ * written; writes register the key so subsequent reads and `getKeys` are scoped
+ * to this build's output.
  */
 function createSourcesView(storage: Storage): Storage {
   const paths = new Set<string>()
@@ -980,9 +911,8 @@ function createSourcesView(storage: Storage): Storage {
   }))()
 }
 
-async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promise<SetupResult> {
-  const hooks = options.hooks ?? new AsyncEventEmitter<KubbHooks>()
-  const config: Config = {
+function resolveConfig(userConfig: UserConfig): Config {
+  return {
     ...userConfig,
     root: userConfig.root || process.cwd(),
     parsers: userConfig.parsers ?? [],
@@ -1001,108 +931,6 @@ async function setup(userConfig: UserConfig, options: SetupOptions = {}): Promis
         }
       : undefined,
     plugins: (userConfig.plugins ?? []) as unknown as Config['plugins'],
-  }
-  const driver = new KubbDriver(config, {
-    hooks,
-  })
-  const storage = createSourcesView(config.storage)
-  const diagnosticInfo = getDiagnosticInfo()
-
-  await hooks.emit('kubb:debug', {
-    date: new Date(),
-    logs: [
-      'Configuration:',
-      `  • Name: ${userConfig.name || 'unnamed'}`,
-      `  • Root: ${userConfig.root || process.cwd()}`,
-      `  • Output: ${userConfig.output?.path || 'not specified'}`,
-      `  • Plugins: ${userConfig.plugins?.length || 0}`,
-      'Output Settings:',
-      `  • Storage: ${config.storage.name}`,
-      `  • Formatter: ${userConfig.output?.format || 'none'}`,
-      `  • Linter: ${userConfig.output?.lint || 'none'}`,
-      `Running adapter: ${config.adapter?.name || 'none'}`,
-      'Environment:',
-      Object.entries(diagnosticInfo)
-        .map(([key, value]) => `  • ${key}: ${value}`)
-        .join('\n'),
-    ],
-  })
-
-  try {
-    if (isInputPath(userConfig) && !new URLPath(userConfig.input.path).isURL) {
-      await exists(userConfig.input.path)
-
-      await hooks.emit('kubb:debug', {
-        date: new Date(),
-        logs: [`✓ Input file validated: ${userConfig.input.path}`],
-      })
-    }
-  } catch (caughtError) {
-    if (isInputPath(userConfig)) {
-      const error = caughtError as Error
-
-      throw new Error(
-        `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${userConfig.input.path}`,
-        {
-          cause: error,
-        },
-      )
-    }
-  }
-
-  if (config.output.clean) {
-    await hooks.emit('kubb:debug', {
-      date: new Date(),
-      logs: ['Cleaning output directories', `  • Output: ${config.output.path}`],
-    })
-
-    await config.storage.clear(resolve(config.root, config.output.path))
-  }
-
-  await driver.setup()
-
-  return {
-    config,
-    hooks,
-    driver,
-    storage,
-    dispose,
-    [Symbol.dispose]: dispose,
-  }
-
-  function dispose() {
-    driver.dispose()
-  }
-}
-
-async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
-  using cleanup = setupResult
-  const { driver, storage } = cleanup
-
-  const { failedPlugins, pluginTimings, error } = await driver.run({ storage })
-  return { failedPlugins, files: driver.fileManager.files, driver, pluginTimings, storage, ...(error ? { error } : {}) }
-}
-
-async function build(setupResult: SetupResult): Promise<BuildOutput> {
-  const { files, driver, failedPlugins, pluginTimings, error, storage } = await safeBuild(setupResult)
-
-  if (error) {
-    throw error
-  }
-
-  if (failedPlugins.size > 0) {
-    const errors = [...failedPlugins].map(({ error }) => error)
-
-    throw new BuildError(`Build Error with ${failedPlugins.size} failed plugins`, { errors })
-  }
-
-  return {
-    failedPlugins,
-    files,
-    driver,
-    pluginTimings,
-    error: undefined,
-    storage,
   }
 }
 
@@ -1136,66 +964,137 @@ type CreateKubbOptions = {
 }
 
 /**
- * Creates a Kubb instance bound to a single config entry.
+ * Kubb code-generation instance bound to a single config entry. Resolves the user
+ * config during `setup()` and shares `hooks`, `storage`, `driver`, and `config` across
+ * the `setup → build` lifecycle.
  *
- * Accepts a user-facing config shape and resolves it to a full {@link Config} during
- * `setup()`. The instance then holds shared state (`hooks`, `storage`, `driver`, `config`)
- * across the `setup → build` lifecycle. Attach event listeners to `kubb.hooks` before
- * calling `setup()` or `build()`.
+ * Attach event listeners to `.hooks` before calling `setup()` or `build()`.
  *
  * @example
  * ```ts
  * const kubb = createKubb(userConfig)
- *
- * kubb.hooks.on('kubb:plugin:end', ({ plugin, duration }) => {
- *   console.log(`${plugin.name} completed in ${duration}ms`)
- * })
- *
+ * kubb.hooks.on('kubb:plugin:end', ({ plugin, duration }) => console.log(plugin.name, duration))
  * const { files, failedPlugins } = await kubb.safeBuild()
  * ```
  */
-export function createKubb(userConfig: UserConfig, options: CreateKubbOptions = {}): Kubb {
-  const hooks = options.hooks ?? new AsyncEventEmitter<KubbHooks>()
-  let setupResult: SetupResult | undefined
+export class Kubb {
+  readonly hooks: AsyncEventEmitter<KubbHooks>
+  readonly #userConfig: UserConfig
+  #config: Config | undefined
+  #driver: KubbDriver | undefined
+  #storage: Storage | undefined
 
-  const instance: Kubb = {
-    get hooks() {
-      return hooks
-    },
-    get storage() {
-      if (!setupResult) {
-        throw new Error('[kubb] setup() must be called before accessing storage')
-      }
-      return setupResult.storage
-    },
-    get driver() {
-      if (!setupResult) {
-        throw new Error('[kubb] setup() must be called before accessing driver')
-      }
-      return setupResult.driver
-    },
-    get config() {
-      if (!setupResult) {
-        throw new Error('[kubb] setup() must be called before accessing config')
-      }
-      return setupResult.config
-    },
-    async setup() {
-      setupResult = await setup(userConfig, { hooks })
-    },
-    async build() {
-      if (!setupResult) {
-        await instance.setup()
-      }
-      return build(setupResult!)
-    },
-    async safeBuild() {
-      if (!setupResult) {
-        await instance.setup()
-      }
-      return safeBuild(setupResult!)
-    },
+  constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
+    this.#userConfig = userConfig
+    this.hooks = options.hooks ?? new AsyncEventEmitter<KubbHooks>()
   }
 
-  return instance
+  get storage(): Storage {
+    if (!this.#storage) throw new Error('[kubb] setup() must be called before accessing storage')
+    return this.#storage
+  }
+
+  get driver(): KubbDriver {
+    if (!this.#driver) throw new Error('[kubb] setup() must be called before accessing driver')
+    return this.#driver
+  }
+
+  get config(): Config {
+    if (!this.#config) throw new Error('[kubb] setup() must be called before accessing config')
+    return this.#config
+  }
+
+  /**
+   * Resolves config and initializes the driver. `build()` calls this automatically.
+   */
+  async setup(): Promise<void> {
+    const config = resolveConfig(this.#userConfig)
+    const driver = new KubbDriver(config, { hooks: this.hooks })
+    const storage = createSourcesView(config.storage)
+
+    await this.hooks.emit('kubb:debug', { date: new Date(), logs: this.#configLogs(config) })
+
+    if (isInputPath(this.#userConfig) && !new URLPath(this.#userConfig.input.path).isURL) {
+      try {
+        await exists(this.#userConfig.input.path)
+        await this.hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ Input file validated: ${this.#userConfig.input.path}`] })
+      } catch (caughtError) {
+        throw new Error(
+          `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${this.#userConfig.input.path}`,
+          { cause: caughtError as Error },
+        )
+      }
+    }
+
+    if (config.output.clean) {
+      await this.hooks.emit('kubb:debug', { date: new Date(), logs: ['Cleaning output directories', `  • Output: ${config.output.path}`] })
+      await config.storage.clear(resolve(config.root, config.output.path))
+    }
+
+    await driver.setup()
+
+    this.#config = config
+    this.#driver = driver
+    this.#storage = storage
+  }
+
+  /**
+   * Runs the full pipeline and throws on any plugin error.
+   * Automatically calls `setup()` if needed.
+   */
+  async build(): Promise<BuildOutput> {
+    const out = await this.safeBuild()
+    if (out.error) throw out.error
+    if (out.failedPlugins.size > 0) {
+      const errors = [...out.failedPlugins].map(({ error }) => error)
+      throw new BuildError(`Build Error with ${out.failedPlugins.size} failed plugins`, { errors })
+    }
+    return out
+  }
+
+  /**
+   * Runs the full pipeline and captures errors in `BuildOutput` instead of throwing.
+   * Automatically calls `setup()` if needed.
+   */
+  async safeBuild(): Promise<BuildOutput> {
+    if (!this.#driver) await this.setup()
+    using cleanup = this
+    const driver = cleanup.driver
+    const storage = cleanup.storage
+    const { failedPlugins, pluginTimings, error } = await driver.run({ storage })
+    return { failedPlugins, files: driver.fileManager.files, driver, pluginTimings, storage, ...(error ? { error } : {}) }
+  }
+
+  [Symbol.dispose](): void {
+    this.#driver?.dispose()
+  }
+
+  #configLogs(config: Config): Array<string> {
+    const u = this.#userConfig
+    const diag = getDiagnosticInfo()
+    return [
+      'Configuration:',
+      `  • Name: ${u.name || 'unnamed'}`,
+      `  • Root: ${u.root || process.cwd()}`,
+      `  • Output: ${u.output?.path || 'not specified'}`,
+      `  • Plugins: ${u.plugins?.length || 0}`,
+      'Output Settings:',
+      `  • Storage: ${config.storage.name}`,
+      `  • Formatter: ${u.output?.format || 'none'}`,
+      `  • Linter: ${u.output?.lint || 'none'}`,
+      `Running adapter: ${config.adapter?.name || 'none'}`,
+      'Environment:',
+      Object.entries(diag)
+        .map(([key, value]) => `  • ${key}: ${value}`)
+        .join('\n'),
+    ]
+  }
+}
+
+/**
+ * Factory for {@link Kubb}. Equivalent to `new Kubb(userConfig, options)` and kept
+ * as the canonical public entry point.
+ */
+export function createKubb(userConfig: UserConfig, options: CreateKubbOptions = {}): Kubb {
+  return new Kubb(userConfig, options)
 }
