@@ -1,5 +1,14 @@
 # @kubb/core
 
+## 4.37.8
+
+### Patch Changes
+
+- [#3339](https://github.com/kubb-labs/kubb/pull/3339) [`ab54022`](https://github.com/kubb-labs/kubb/commit/ab54022720fc494f9a033adf5d6bd502891d28fa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Re-enable npm provenance for published packages. Restores `NPM_CONFIG_PROVENANCE: true` and the `id-token: write` permission in the release workflow so subsequent v4 releases are published with provenance attestations again.
+
+- Updated dependencies []:
+  - @kubb/ast@4.37.8
+
 ## 4.37.7
 
 ### Patch Changes
