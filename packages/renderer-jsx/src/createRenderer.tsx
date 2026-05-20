@@ -4,19 +4,29 @@ import { SyncRuntime } from './SyncRuntime.tsx'
 import type { KubbReactElement } from './types.ts'
 
 /**
- * Renderer factory for generators that produce JSX output.
+ * Renderer factory that turns the JSX produced by a generator into
+ * `FileNode`s using React's reconciler under the hood. Pass as the `renderer`
+ * property on `defineGenerator`. Kubb core stays generic — no hard dependency
+ * on `@kubb/renderer-jsx`.
  *
- * Pass as the `renderer` property of `defineGenerator`. Core drives rendering
- * without a hard dependency on `@kubb/renderer-jsx`.
+ * Use this when generators rely on React features (hooks, suspense, context).
+ * For pure-function components, see {@link jsxRendererSync} for ~2-4× faster
+ * rendering.
  *
- * @example
- * ```ts
+ * @example Wire up a JSX generator
+ * ```tsx
+ * import { defineGenerator } from '@kubb/core'
  * import { jsxRenderer } from '@kubb/renderer-jsx'
  *
  * export const myGenerator = defineGenerator<PluginTs>({
+ *   name: 'types',
  *   renderer: jsxRenderer,
- *   schema(node, options) {
- *     return <File baseName="output.ts" path="src/output.ts">...</File>
+ *   schema(node, ctx) {
+ *     return (
+ *       <File baseName="output.ts" path={`${ctx.root}/output.ts`}>
+ *         <Type node={node} resolver={ctx.resolver} />
+ *       </File>
+ *     )
  *   },
  * })
  * ```
@@ -43,28 +53,40 @@ export const jsxRenderer = () => {
 }
 
 /**
- * Lightweight renderer factory with no React fiber, scheduler, or work loop.
+ * Lightweight renderer that walks the JSX tree in a single recursive pass —
+ * no React reconciler, no scheduler. Drop-in replacement for
+ * {@link jsxRenderer} at roughly 2–4× the throughput.
  *
- * Walks the JSX element tree in a single recursive pass. All components must be
- * pure functions; hooks and class components are not supported. Drop-in
- * replacement for {@link jsxRenderer} at approximately 2–4× the speed.
+ * Constraints: every component must be a pure function. Hooks, suspense, and
+ * class components are not supported.
  *
- * @example Drop-in replacement
- * ```ts
+ * Use this for generators that produce large amounts of output and do not need
+ * React's runtime features. It also exposes `stream()` for incremental file
+ * emission.
+ *
+ * @example Drop-in faster renderer
+ * ```tsx
+ * import { defineGenerator } from '@kubb/core'
  * import { jsxRendererSync } from '@kubb/renderer-jsx'
  *
  * export const myGenerator = defineGenerator<PluginTs>({
+ *   name: 'types',
  *   renderer: jsxRendererSync,
- *   schema(node, options) {
- *     return <File baseName="output.ts" path="src/output.ts">...</File>
+ *   schema(node, ctx) {
+ *     return (
+ *       <File baseName="output.ts" path={`${ctx.root}/output.ts`}>
+ *         <Type node={node} resolver={ctx.resolver} />
+ *       </File>
+ *     )
  *   },
  * })
  * ```
  *
  * @example Stream files as they are produced
- * ```ts
- * for await (const file of jsxRendererSync().stream(element)) {
- *   await writeFile(file)
+ * ```tsx
+ * const renderer = jsxRendererSync()
+ * for (const file of renderer.stream(element)) {
+ *   await writeFile(file.path, file.sources[0])
  * }
  * ```
  */

@@ -1108,8 +1108,24 @@ export class Kubb {
 }
 
 /**
- * Factory for {@link Kubb}. Equivalent to `new Kubb(userConfig, options)` and kept
- * as the canonical public entry point.
+ * Constructs a {@link Kubb} build orchestrator from a user config. Equivalent
+ * to `new Kubb(userConfig, options)` and the canonical public entry point.
+ *
+ * @example
+ * ```ts
+ * import { createKubb } from '@kubb/core'
+ * import { adapterOas } from '@kubb/adapter-oas'
+ * import { pluginTs } from '@kubb/plugin-ts'
+ *
+ * const kubb = createKubb({
+ *   input: { path: './petStore.yaml' },
+ *   output: { path: './src/gen' },
+ *   adapter: adapterOas(),
+ *   plugins: [pluginTs()],
+ * })
+ *
+ * await kubb.build()
+ * ```
  */
 export function createKubb(userConfig: UserConfig, options: CreateKubbOptions = {}): Kubb {
   return new Kubb(userConfig, options)

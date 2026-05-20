@@ -2,18 +2,22 @@ import type { PossiblePromise } from '@internals/utils'
 import type { ImportNode, InputNode, InputStreamNode, SchemaNode } from '@kubb/ast'
 
 /**
- * Source data passed to an adapter's `parse` function.
- * Mirrors the config input shape with paths resolved to absolute.
+ * Source data handed to an adapter's `parse` function. Mirrors the config
+ * input shape with paths resolved to absolute.
+ *
+ * - `{ type: 'path' }` — single file on disk.
+ * - `{ type: 'paths' }` — multiple files (e.g. split spec).
+ * - `{ type: 'data' }` — raw string or parsed object provided inline.
  */
 export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown } | { type: 'paths'; paths: Array<string> }
 
 /**
- * Generic type parameters for an adapter definition.
+ * Generic parameters used by `createAdapter` and the resulting `Adapter` type.
  *
- * - `TName` — unique identifier (e.g. `'oas'`, `'asyncapi'`)
- * - `TOptions` — user-facing options passed to the adapter factory
- * - `TResolvedOptions` — options after defaults applied
- * - `TDocument` — type of the parsed source document
+ * - `TName` — unique adapter identifier (`'oas'`, `'asyncapi'`, ...).
+ * - `TOptions` — user-facing options accepted by the adapter factory.
+ * - `TResolvedOptions` — options after defaults are applied.
+ * - `TDocument` — type of the parsed source document.
  */
 export type AdapterFactoryOptions<
   TName extends string = string,
@@ -28,19 +32,23 @@ export type AdapterFactoryOptions<
 }
 
 /**
- * Adapter that converts input files or data into an `InputNode`.
+ * Converts input files or inline data into Kubb's universal AST `InputNode`.
  *
- * Adapters parse different schema formats (OpenAPI, AsyncAPI, Drizzle, etc.) into Kubb's
- * universal intermediate representation that all plugins consume.
+ * Adapters live between the spec format and the plugins. The built-in
+ * `@kubb/adapter-oas` handles OpenAPI 2.0, 3.0, and 3.1; custom adapters can
+ * support GraphQL, gRPC, AsyncAPI, or any domain-specific schema language.
  *
  * @example
  * ```ts
+ * import { defineConfig } from 'kubb'
  * import { adapterOas } from '@kubb/adapter-oas'
+ * import { pluginTs } from '@kubb/plugin-ts'
  *
  * export default defineConfig({
+ *   input: { path: './petStore.yaml' },
+ *   output: { path: './src/gen' },
  *   adapter: adapterOas(),
- *   input: { path: './openapi.yaml' },
- *   plugins: [pluginTs(), pluginZod()],
+ *   plugins: [pluginTs()],
  * })
  * ```
  */
@@ -86,28 +94,31 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
 type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) => Adapter<T>
 
 /**
- * Factory for implementing custom adapters that translate non-OpenAPI specs into Kubb's AST.
+ * Defines a custom adapter that translates a spec format into Kubb's universal
+ * AST. Use this when you need to consume GraphQL, gRPC, AsyncAPI, or another
+ * domain-specific schema. Built-in adapters: `@kubb/adapter-oas` for
+ * OpenAPI/Swagger documents.
  *
- * Use this to support GraphQL schemas, gRPC definitions, AsyncAPI, or custom domain-specific languages.
- * Built-in adapters include `@kubb/adapter-oas` for OpenAPI and Swagger documents.
- *
- * @note Adapters must parse their input format to Kubb's `InputNode` structure.
+ * Adapters must return an `InputNode` from `parse` — that node is what every
+ * plugin in the build consumes.
  *
  * @example
  * ```ts
- * export const myAdapter = createAdapter<MyAdapter>((options) => {
- *   return {
- *     name: 'my-adapter',
- *     options,
- *     async parse(source) {
- *       // Transform source format to InputNode
- *       return { ... }
- *     },
- *   }
- * })
+ * import { createAdapter, ast } from '@kubb/core'
  *
- * // Instantiate:
- * const adapter = myAdapter({ validate: true })
+ * type MyAdapter = AdapterFactoryOptions<'my-adapter', { validate?: boolean }>
+ *
+ * export const myAdapter = createAdapter<MyAdapter>((options) => ({
+ *   name: 'my-adapter',
+ *   options,
+ *   document: null,
+ *   async parse(source) {
+ *     // Convert `source` (path or inline data) into an InputNode.
+ *     return ast.createInput()
+ *   },
+ *   getImports: () => [],
+ *   validate: async () => {},
+ * }))
  * ```
  */
 export function createAdapter<T extends AdapterFactoryOptions = AdapterFactoryOptions>(build: AdapterBuilder<T>): (options?: T['options']) => Adapter<T> {

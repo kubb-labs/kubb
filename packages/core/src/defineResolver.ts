@@ -577,46 +577,41 @@ export function defaultResolveFooter(meta: InputMeta | undefined, { output }: Re
 }
 
 /**
- * Defines a resolver for a plugin, injecting built-in defaults for name casing,
- * include/exclude/override filtering, path resolution, and file construction.
+ * Defines a plugin resolver — the object that decides what every generated
+ * symbol and file path is called. Built-in defaults handle name casing,
+ * include/exclude/override filtering, output path computation, and file
+ * construction; supply your own to override any of them:
  *
- * All four defaults can be overridden by providing them in the builder function:
- * - `default` — name casing strategy (camelCase / PascalCase)
- * - `resolveOptions` — include/exclude/override filtering
- * - `resolvePath` — output path computation
- * - `resolveFile` — full `FileNode` construction
+ * - `default` — name casing strategy (camelCase / PascalCase).
+ * - `resolveOptions` — include/exclude/override filtering.
+ * - `resolvePath` — output path computation.
+ * - `resolveFile` — full `FileNode` construction.
+ * - `resolveBanner` / `resolveFooter` — top/bottom-of-file text.
  *
- * Methods in the returned object can call sibling resolver methods via `this`.
+ * Methods in the returned object can call sibling resolver methods via `this`,
+ * which keeps custom rules small (`this.default(name, 'type')` to delegate).
  *
  * @example Basic resolver with naming helpers
  * ```ts
- * export const resolver = defineResolver<PluginTs>(() => ({
+ * export const resolverTs = defineResolver<PluginTs>(() => ({
  *   name: 'default',
- *   resolveName(node) {
- *     return this.default(node.name, 'function')
+ *   resolveName(name) {
+ *     return this.default(name, 'function')
  *   },
- *   resolveTypedName(node) {
- *     return this.default(node.name, 'type')
+ *   resolveTypeName(name) {
+ *     return this.default(name, 'type')
  *   },
  * }))
  * ```
  *
- * @example Override resolvePath for a custom output structure
+ * @example Custom output path
  * ```ts
- * export const resolver = defineResolver<PluginTs>(() => ({
+ * import path from 'node:path'
+ *
+ * export const resolverTs = defineResolver<PluginTs>(() => ({
  *   name: 'custom',
  *   resolvePath({ baseName }, { root, output }) {
  *     return path.resolve(root, output.path, 'generated', baseName)
- *   },
- * }))
- * ```
- *
- * @example Use this.default inside a helper
- * ```ts
- * export const resolver = defineResolver<PluginTs>(() => ({
- *   name: 'default',
- *   resolveParamName(node, param) {
- *     return this.default(`${node.operationId} ${param.in} ${param.name}`, 'type')
  *   },
  * }))
  * ```

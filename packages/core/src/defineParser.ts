@@ -4,37 +4,45 @@ type PrintOptions = {
   extname?: FileNode['extname']
 }
 
+/**
+ * Converts a resolved {@link FileNode} into the final source string that gets
+ * written to disk. Kubb ships with TypeScript and TSX parsers; add your own
+ * for new file types (JSON, Markdown, ...).
+ */
 export type Parser<TMeta extends object = any> = {
+  /**
+   * Display name used in diagnostics and the parser registry.
+   */
   name: string
   /**
-   * File extensions this parser handles.
-   * Use `undefined` to create a catch-all fallback parser.
+   * File extensions this parser handles. Set to `undefined` to define a
+   * catch-all fallback used when no other parser claims the extension.
    *
-   * @example Handled extensions
+   * @example
    * `['.ts', '.js']`
    */
   extNames: Array<FileNode['extname']> | undefined
   /**
-   * Convert a resolved file to a string.
+   * Serialise the file's AST into source code.
    */
   parse(file: FileNode<TMeta>, options?: PrintOptions): string
 }
 
 /**
- * Defines a parser with type safety. Creates parsers that transform generated files to strings based on their extension.
- *
- * @note Call the returned factory with optional options to instantiate the parser.
+ * Defines a parser with type-safe `this`. Used to register handlers for new
+ * file extensions or to plug a non-TypeScript output into the build.
  *
  * @example
  * ```ts
- * import { defineParser } from '@kubb/core'
+ * import { defineParser, ast } from '@kubb/core'
  *
  * export const jsonParser = defineParser({
  *   name: 'json',
  *   extNames: ['.json'],
  *   parse(file) {
- *     const { extractStringsFromNodes } = await import('@kubb/ast')
- *     return file.sources.map((s) => extractStringsFromNodes(s.nodes ?? [])).join('\n')
+ *     return file.sources
+ *       .map((source) => ast.extractStringsFromNodes(source.nodes ?? []))
+ *       .join('\n')
  *   },
  * })
  * ```

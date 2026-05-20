@@ -15,40 +15,49 @@ import type { Config, KubbHooks } from './types.ts'
 type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {}
 
 /**
- * Output configuration for generated files.
+ * Output configuration shared by every plugin. Each plugin extends this with
+ * its own keys via the `Kubb.PluginOptionsRegistry.output` interface merge.
  */
 export type Output<_TOptions = unknown> = {
   /**
-   * Output folder or file path for generated code.
+   * Folder (or single file) where the plugin writes its generated code.
+   * Resolved against the global `output.path` set on `defineConfig`.
    */
   path: string
   /**
-   * Text or function prepended to every generated file.
-   * When a function, receives the document metadata and returns a string.
+   * Text prepended to every generated file. Useful for license headers,
+   * lint disables, or `@ts-nocheck` directives. Pass a function to compute
+   * the banner from the file's `InputMeta`.
    */
   banner?: string | ((meta?: InputMeta) => string)
   /**
-   * Text or function appended to every generated file.
-   * When a function, receives the document metadata and returns a string.
+   * Text appended at the end of every generated file. Mirror of `banner`.
+   * Pass a function to compute the footer from the file's `InputMeta`.
    */
   footer?: string | ((meta?: InputMeta) => string)
   /**
-   * Whether to override existing external files if they already exist.
+   * Allows the plugin to overwrite hand-written files at the same path.
+   * Defaults to `false` to protect manual edits.
+   *
    * @default false
    */
   override?: boolean
 } & ExtractRegistryKey<Kubb.PluginOptionsRegistry, 'output'>
 
+/**
+ * Groups generated files into subdirectories based on an OpenAPI tag or path
+ * segment.
+ */
 export type Group = {
   /**
-   * How to group files into subdirectories.
-   * - `'tag'` — group by OpenAPI tags
-   * - `'path'` — group by OpenAPI paths
+   * Property used to assign each operation to a group.
+   * - `'tag'` — uses the first tag (`operation.getTags().at(0)?.name`).
+   * - `'path'` — uses the first segment of the operation's URL.
    */
   type: 'tag' | 'path'
   /**
-   * Function that returns the subdirectory name for a group value.
-   * Defaults to `${camelCase(group)}Controller` for tags, first path segment for paths.
+   * Returns the subdirectory name from the group key. Defaults to
+   * `${camelCase(group)}Controller` for tags, or the first path segment.
    */
   name?: (context: { group: string }) => string
 }
@@ -125,44 +134,41 @@ type ByContentType = {
 }
 
 /**
- * A pattern filter that prevents matching nodes from being generated.
- *
- * Use to skip code generation for specific operations or schemas. For example, exclude deprecated endpoints
- * or internal-only schemas. Can filter by tag, operationId, path, HTTP method, content type, or schema name.
+ * Filter that skips matching operations or schemas during generation. Use it
+ * to drop deprecated endpoints, internal-only schemas, or anything you do
+ * not want code generated for.
  *
  * @example
  * ```ts
  * exclude: [
- *   { type: 'tag', pattern: 'internal' },          // skip "internal" tag
- *   { type: 'path', pattern: /^\/admin/ },          // skip all /admin endpoints
- *   { type: 'operationId', pattern: 'deprecated_*' }  // skip operationIds matching pattern
+ *   { type: 'tag', pattern: 'internal' },
+ *   { type: 'path', pattern: /^\/admin/ },
+ *   { type: 'operationId', pattern: /^deprecated_/ },
  * ]
  * ```
  */
 export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName
 
 /**
- * A pattern filter that restricts generation to only matching nodes.
- *
- * Use to generate code for a subset of operations or schemas. For example, only generate for a specific service
- * tag or only for "production" endpoints. Can filter by tag, operationId, path, HTTP method, content type, or schema name.
+ * Filter that restricts generation to operations or schemas matching at least
+ * one entry. Useful for partial builds (one tag, one API version).
  *
  * @example
  * ```ts
  * include: [
- *   { type: 'tag', pattern: 'public' },        // generate only "public" tag
- *   { type: 'path', pattern: /^\/api\/v1/ },   // generate only v1 endpoints
+ *   { type: 'tag', pattern: 'public' },
+ *   { type: 'path', pattern: /^\/api\/v1/ },
  * ]
  * ```
  */
 export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName
 
 /**
- * A pattern filter paired with partial option overrides applied when the pattern matches.
+ * Filter paired with a partial options object. When the filter matches, the
+ * options are merged on top of the plugin defaults for that operation only.
+ * Useful for "this one tag goes to a different folder" rules.
  *
- * Use to customize generation for specific operations or schemas. For example, apply different output paths
- * for different tags, or use custom resolver functions per operation. Can filter by tag, operationId, path,
- * HTTP method, schema name, or content type.
+ * Entries are evaluated top to bottom; the first matching entry wins.
  *
  * @example
  * ```ts
@@ -170,13 +176,13 @@ export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType 
  *   {
  *     type: 'tag',
  *     pattern: 'admin',
- *     options: { output: { path: './src/gen/admin' } }  // admin APIs go to separate folder
+ *     options: { output: { path: './src/gen/admin' } },
  *   },
  *   {
  *     type: 'operationId',
  *     pattern: 'listPets',
- *     options: { exclude: true }  // skip this specific operation
- *   }
+ *     options: { enumType: 'literal' },
+ *   },
  * ]
  * ```
  */
@@ -341,13 +347,13 @@ export type KubbPluginEndContext = {
 }
 
 /**
- * Wraps a factory function and returns a typed `Plugin` with lifecycle handlers grouped under `hooks`.
+ * Wraps a plugin factory and returns a function that accepts user options and
+ * yields a fully typed `Plugin`. Lifecycle handlers go inside a single
+ * `hooks` object (inspired by Astro integrations).
  *
- * Handlers live in a single `hooks` object (inspired by Astro integrations).
- * All lifecycle events from `KubbHooks` are available for subscription.
- *
- * @note For real plugins, use a `PluginFactoryOptions` type parameter to get type-safe context in `kubb:plugin:setup`.
- * Plugin names should follow the convention `plugin-<feature>` (e.g., `plugin-react-query`, `plugin-zod`).
+ * Pass a `PluginFactoryOptions` type parameter to get a typed `ctx` inside
+ * `kubb:plugin:setup`. Plugin names should follow the `plugin-<feature>`
+ * convention (`plugin-react-query`, `plugin-zod`, ...).
  *
  * @example
  * ```ts
@@ -370,8 +376,14 @@ export function definePlugin<TFactory extends PluginFactoryOptions = PluginFacto
 }
 
 /**
- * Returns `'single'` when `fileOrFolder` has a file extension, `'split'` otherwise.
- * Used to determine whether an output path targets a single file or a directory.
+ * Detects whether an output path points at a single file (`'single'`) or a
+ * directory (`'split'`). Decided purely from the presence of a file extension.
+ *
+ * @example
+ * `getMode('./types') // 'split'`
+ *
+ * @example
+ * `getMode('./api.ts') // 'single'`
  */
 export function getMode(fileOrFolder: string | undefined | null): 'single' | 'split' {
   if (!fileOrFolder) return 'split'

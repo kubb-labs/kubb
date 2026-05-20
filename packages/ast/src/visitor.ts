@@ -115,13 +115,28 @@ export type VisitorContext<T extends Node = Node> = {
 }
 
 /**
- * Synchronous visitor used by `transform`.
+ * Synchronous visitor consumed by `transform`. Each optional callback runs
+ * for the matching node type. Return a new node to replace it, or `undefined`
+ * to leave it untouched.
  *
- * @example
+ * Plugins typically expose `transformer` so users can supply a `Visitor` that
+ * rewrites operation IDs, drops descriptions, or otherwise tweaks the AST
+ * before printing.
+ *
+ * @example Prefix every operationId
  * ```ts
  * const visitor: Visitor = {
  *   operation(node) {
- *     return { ...node, operationId: `x_${node.operationId}` }
+ *     return { ...node, operationId: `api_${node.operationId}` }
+ *   },
+ * }
+ * ```
+ *
+ * @example Strip schema descriptions
+ * ```ts
+ * const visitor: Visitor = {
+ *   schema(node) {
+ *     return { ...node, description: undefined }
  *   },
  * }
  * ```
@@ -310,11 +325,14 @@ function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undef
 }
 
 /**
- * Depth-first traversal for side effects. Visitor return values are ignored.
- * Sibling nodes at each level are visited concurrently up to `options.concurrency`
- * (default: `WALK_CONCURRENCY`).
+ * Async depth-first traversal for side effects. Visitor return values are
+ * ignored — use `transform` when you want to rewrite nodes.
  *
- * @example
+ * Sibling nodes at each depth run concurrently up to `options.concurrency`
+ * (defaults to `WALK_CONCURRENCY`). Higher values overlap I/O-bound visitor
+ * work; lower values reduce memory pressure.
+ *
+ * @example Log every operation
  * ```ts
  * await walk(root, {
  *   operation(node) {
@@ -323,10 +341,9 @@ function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undef
  * })
  * ```
  *
- * @example
+ * @example Only visit the root node
  * ```ts
- * // Visit only the current node
- * await walk(root, { depth: 'shallow', root: () => {} })
+ * await walk(root, { depth: 'shallow', input: () => {} })
  * ```
  */
 export async function walk(node: Node, options: WalkOptions): Promise<void> {
@@ -368,12 +385,13 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
 }
 
 /**
- * Runs a depth-first immutable transform.
+ * Synchronous depth-first transform. Each visitor callback gets a chance to
+ * return a replacement node; `undefined` keeps the original.
  *
- * If a visitor returns a node, it replaces the current node.
- * If it returns `undefined`, the current node stays the same.
+ * The transform is immutable — the original tree is not mutated; a new tree
+ * is returned. Use `depth: 'shallow'` to skip recursion into children.
  *
- * @example
+ * @example Prefix every operationId
  * ```ts
  * const next = transform(root, {
  *   operation(node) {
@@ -382,10 +400,12 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
  * })
  * ```
  *
- * @example
+ * @example Replace only the root node
  * ```ts
- * // Shallow mode: only transform the input node
- * const next = transform(root, { depth: 'shallow', root: (node) => node })
+ * const next = transform(root, {
+ *   depth: 'shallow',
+ *   input: (node) => ({ ...node, meta: { ...node.meta, title: 'Rewritten' } }),
+ * })
  * ```
  */
 export function transform(node: InputNode, options: TransformOptions): InputNode
@@ -485,23 +505,19 @@ export function transform(node: Node, options: TransformOptions): Node {
   return node
 }
 /**
- * Runs a depth-first synchronous collection pass.
+ * Lazy depth-first collection pass. Yields every non-null value returned by
+ * the visitor callbacks. Use `collect` for the eager array form.
  *
- * Non-`null` values returned by visitor callbacks are appended to the result.
- *
- * @example
+ * @example Collect every operationId
  * ```ts
- * const ids = collect(root, {
+ * const ids: string[] = []
+ * for (const id of collectLazy<string>(root, {
  *   operation(node) {
  *     return node.operationId
  *   },
- * })
- * ```
- *
- * @example
- * ```ts
- * // Collect from only the current node
- * const values = collect(root, { depth: 'shallow', root: () => 'root' })
+ * })) {
+ *   ids.push(id)
+ * }
  * ```
  */
 export function* collectLazy<T>(node: Node, options: CollectOptions<T>): Generator<T, void, undefined> {
@@ -539,6 +555,19 @@ export function* collectLazy<T>(node: Node, options: CollectOptions<T>): Generat
   }
 }
 
+/**
+ * Eager depth-first collection pass. Returns an array of every non-null value
+ * the visitor callbacks return.
+ *
+ * @example Collect every operationId
+ * ```ts
+ * const ids = collect<string>(root, {
+ *   operation(node) {
+ *     return node.operationId
+ *   },
+ * })
+ * ```
+ */
 export function collect<T>(node: Node, options: CollectOptions<T>): Array<T> {
   return Array.from(collectLazy(node, options))
 }

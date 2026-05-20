@@ -165,9 +165,32 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
 }
 
 /**
- * Defines a generator. Returns the object as-is with correct `this` typings.
- * `applyHookResult` handles renderer elements and `File[]` uniformly using
- * the generator's declared `renderer` factory.
+ * Defines a generator: a unit of work that runs during the plugin's AST walk
+ * and produces files. Plugins register generators via `ctx.addGenerator()`
+ * inside `kubb:plugin:setup`.
+ *
+ * The returned object is the input as-is, but with `this` types preserved so
+ * `schema`/`operation`/`operations` methods are correctly typed against the
+ * plugin's `PluginFactoryOptions`. Renderer elements and `FileNode[]` returns
+ * are both handled by the runtime — pick whichever style fits.
+ *
+ * @example JSX-based schema generator
+ * ```tsx
+ * import { defineGenerator } from '@kubb/core'
+ * import { jsxRenderer } from '@kubb/renderer-jsx'
+ *
+ * export const typeGenerator = defineGenerator({
+ *   name: 'typescript',
+ *   renderer: jsxRenderer,
+ *   schema(node, ctx) {
+ *     return (
+ *       <File path={`${ctx.root}/${node.name}.ts`}>
+ *         <Type node={node} resolver={ctx.resolver} />
+ *       </File>
+ *     )
+ *   },
+ * })
+ * ```
  */
 export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFactoryOptions, TElement = unknown>(
   generator: Generator<TOptions, TElement>,
