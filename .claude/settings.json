@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm typecheck *)",
+      "Bash(pnpm --filter * typecheck *)",
+      "Bash(pnpm --filter * exec tsc *)",
+      "Bash(pnpm test --run *)",
+      "Bash(pnpm test *)",
+      "Bash(pnpm test:bench *)",
+      "Bash(pnpm lint *)",
+      "Bash(pnpm lint:fix *)",
+      "Bash(pnpm lint:spell *)",
+      "Bash(pnpm format *)",
+      "Bash(pnpm generate *)",
+      "Bash(pnpm clean *)",
+      "Bash(pnpm graph *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run typecheck *)"
+    ]
+  }
+}
