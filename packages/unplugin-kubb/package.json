@@ -1,6 +1,6 @@
 {
   "name": "unplugin-kubb",
-  "version": "5.0.0-beta.19",
+  "version": "5.0.0-beta.20",
   "description": "Universal build integration for Kubb using unplugin. Plug OpenAPI code generation into Vite, Webpack, Rollup, esbuild, Rspack, Nuxt, and Astro as part of your regular build pipeline.",
   "keywords": [
     "astro",
