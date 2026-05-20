@@ -166,6 +166,51 @@ export function once<TArgs extends unknown[], TReturn>(factory: (...args: TArgs)
   }
 }
 
+type Store<TKey, TValue> = {
+  has(key: TKey): boolean
+  get(key: TKey): TValue | undefined
+  set(key: TKey, value: TValue): unknown
+}
+
+/**
+ * Wraps `factory` with a keyed cache backed by the provided store.
+ *
+ * Pass a `WeakMap` for object keys (results are GC-eligible when the key is
+ * collected) or a `Map` for primitive keys. For multi-argument functions,
+ * nest two `memoize` calls — the outer keyed by the first argument, the
+ * inner (created once per outer miss) keyed by the second.
+ *
+ * Because the cache is owned by the caller, it can be shared, inspected, or
+ * cleared independently of the memoized function.
+ *
+ * @example Single WeakMap key
+ * ```ts
+ * const cache = new WeakMap<SchemaNode, Set<string>>()
+ * const getRefs = memoize(cache, (node) => collectRefs(node))
+ * ```
+ *
+ * @example Single Map key (primitive)
+ * ```ts
+ * const cache = new Map<string, Resolver>()
+ * const getResolver = memoize(cache, (name) => buildResolver(name))
+ * ```
+ *
+ * @example Two-level (object + primitive)
+ * ```ts
+ * const outer = new WeakMap<Params[], Map<string, Params[]>>()
+ * const fn = memoize(outer, (params) => memoize(new Map(), (key) => transform(params, key)))
+ * fn(params)('camelcase')
+ * ```
+ */
+export function memoize<TKey, TValue>(store: Store<TKey, TValue>, factory: (key: TKey) => TValue): (key: TKey) => TValue {
+  return (key: TKey): TValue => {
+    if (store.has(key)) return store.get(key)!
+    const value = factory(key)
+    store.set(key, value)
+    return value
+  }
+}
+
 export function arrayToAsyncIterable<T>(arr: readonly T[]): AsyncIterable<T> {
   return {
     [Symbol.asyncIterator]() {

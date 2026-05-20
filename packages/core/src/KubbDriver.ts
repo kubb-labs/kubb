@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { arrayToAsyncIterable, type AsyncEventEmitter, URLPath } from '@internals/utils'
+import { arrayToAsyncIterable, type AsyncEventEmitter, memoize, URLPath } from '@internals/utils'
 import { createFile, createStreamInput } from '@kubb/ast'
 import type { FileNode, InputMeta, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
@@ -401,19 +401,9 @@ export class KubbDriver {
     handlers.add(handler)
   }
 
-  #createDefaultResolver(pluginName: string): Resolver {
-    const existingResolver = this.#defaultResolvers.get(pluginName)
-    if (existingResolver) {
-      return existingResolver
-    }
-
-    const resolver = defineResolver<PluginFactoryOptions>(() => ({
-      name: 'default',
-      pluginName,
-    }))
-    this.#defaultResolvers.set(pluginName, resolver)
-    return resolver
-  }
+  #getDefaultResolver = memoize(this.#defaultResolvers, (pluginName: string): Resolver =>
+    defineResolver<PluginFactoryOptions>(() => ({ name: 'default', pluginName })),
+  )
 
   /**
    * Merges `partial` with the plugin's default resolver and stores the result.
@@ -421,7 +411,7 @@ export class KubbDriver {
    * get the up-to-date resolver without going through `getResolver()`.
    */
   setPluginResolver(pluginName: string, partial: Partial<Resolver>): void {
-    const defaultResolver = this.#createDefaultResolver(pluginName)
+    const defaultResolver = this.#getDefaultResolver(pluginName)
     const merged = { ...defaultResolver, ...partial }
     this.#resolvers.set(pluginName, merged)
     const plugin = this.plugins.get(pluginName)
@@ -439,7 +429,7 @@ export class KubbDriver {
   getResolver<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Kubb.PluginRegistry[TName]['resolver']
   getResolver<TResolver extends Resolver = Resolver>(pluginName: string): TResolver
   getResolver(pluginName: string): Resolver {
-    return this.#resolvers.get(pluginName) ?? this.plugins.get(pluginName)?.resolver ?? this.#createDefaultResolver(pluginName)
+    return this.#resolvers.get(pluginName) ?? this.plugins.get(pluginName)?.resolver ?? this.#getDefaultResolver(pluginName)
   }
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): GeneratorContext<TOptions> & Record<string, unknown> {

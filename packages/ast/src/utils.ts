@@ -1,4 +1,4 @@
-import { camelCase, isValidVarName } from '@internals/utils'
+import { camelCase, isValidVarName, memoize } from '@internals/utils'
 
 import { createFunctionParameter, createFunctionParameters, createParameterGroup, createParamsType, createProperty, createSchema } from './factory.ts'
 import { narrowSchema } from './guards.ts'
@@ -74,26 +74,20 @@ export function isStringType(node: SchemaNode): boolean {
  * the desired casing while preserving `OperationNode.parameters` for other consumers.
  * The input array is not mutated. When `casing` is not set, the original array is returned unchanged.
  */
-const caseParamsCache = new WeakMap<Array<ParameterNode>, Map<string, Array<ParameterNode>>>()
+const caseParamsMemo = memoize(
+  new WeakMap<Array<ParameterNode>, (casing: string) => Array<ParameterNode>>(),
+  (params) =>
+    memoize(new Map<string, Array<ParameterNode>>(), (casing: string) =>
+      params.map((param) => {
+        const transformed = casing === 'camelcase' || !isValidVarName(param.name) ? camelCase(param.name) : param.name
+        return { ...param, name: transformed }
+      }),
+    ),
+)
 
 export function caseParams(params: Array<ParameterNode>, casing: 'camelcase' | undefined): Array<ParameterNode> {
   if (!casing) return params
-
-  let byParams = caseParamsCache.get(params)
-  if (!byParams) {
-    byParams = new Map()
-    caseParamsCache.set(params, byParams)
-  }
-  const cached = byParams.get(casing)
-  if (cached) return cached
-
-  const result = params.map((param) => {
-    const transformed = casing === 'camelcase' || !isValidVarName(param.name) ? camelCase(param.name) : param.name
-    return { ...param, name: transformed }
-  })
-
-  byParams.set(casing, result)
-  return result
+  return caseParamsMemo(params)(casing)
 }
 
 /**
@@ -790,12 +784,7 @@ export function resolveRefName(node: SchemaNode | undefined): string | undefined
  * }
  * ```
  */
-const schemaRefCache = new WeakMap<SchemaNode, ReadonlySet<string>>()
-
-function collectSchemaRefs(node: SchemaNode): ReadonlySet<string> {
-  const cached = schemaRefCache.get(node)
-  if (cached) return cached
-
+const collectSchemaRefs = memoize(new WeakMap<SchemaNode, ReadonlySet<string>>(), (node: SchemaNode): ReadonlySet<string> => {
   const refs = new Set<string>()
   collect<void>(node, {
     schema(child) {
@@ -805,9 +794,8 @@ function collectSchemaRefs(node: SchemaNode): ReadonlySet<string> {
       }
     },
   })
-  schemaRefCache.set(node, refs)
   return refs
-}
+})
 
 export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: Set<string> = new Set()): Set<string> {
   if (!node) return out
@@ -843,17 +831,12 @@ export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: 
  * allowed.has('OrderStatus') // false when no included operation references OrderStatus
  * ```
  */
-const usedSchemaNamesCache = new WeakMap<ReadonlyArray<OperationNode>, WeakMap<ReadonlyArray<SchemaNode>, Set<string>>>()
+const collectUsedSchemaNamesMemo = memoize(
+  new WeakMap<ReadonlyArray<OperationNode>, (schemas: ReadonlyArray<SchemaNode>) => Set<string>>(),
+  (ops) => memoize(new WeakMap<ReadonlyArray<SchemaNode>, Set<string>>(), (schemas) => computeUsedSchemaNames(ops, schemas)),
+)
 
-export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schemas: ReadonlyArray<SchemaNode>): Set<string> {
-  let byOps = usedSchemaNamesCache.get(operations)
-  if (!byOps) {
-    byOps = new WeakMap()
-    usedSchemaNamesCache.set(operations, byOps)
-  }
-  const cached = byOps.get(schemas)
-  if (cached) return cached
-
+function computeUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schemas: ReadonlyArray<SchemaNode>): Set<string> {
   const schemaMap = new Map<string, SchemaNode>()
   for (const schema of schemas) {
     if (schema.name) schemaMap.set(schema.name, schema)
@@ -878,28 +861,16 @@ export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>,
     }
   }
 
-  byOps.set(schemas, result)
   return result
 }
 
+export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schemas: ReadonlyArray<SchemaNode>): Set<string> {
+  return collectUsedSchemaNamesMemo(operations)(schemas)
+}
+
 const EMPTY_CIRCULAR_SET = new Set<string>()
-const circularSchemaCache = new WeakMap<ReadonlyArray<SchemaNode>, Set<string>>()
 
-/**
- * Identifies all schemas that participate in circular dependency chains, including direct self-loops.
- *
- * Returns a Set of schema names with circular dependencies. Use this to wrap recursive schema positions
- * in deferred constructs (lazy getter, `z.lazy(() => …)`) to prevent infinite recursion when generated code runs.
- * Refs are followed by name only, keeping the algorithm linear in the schema graph size.
- *
- * @note Call this once on the full schema graph, then use `containsCircularRef()` to check individual schemas.
- */
-export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<string> {
-  if (schemas.length === 0) return EMPTY_CIRCULAR_SET
-
-  const cached = circularSchemaCache.get(schemas)
-  if (cached) return cached
-
+const findCircularSchemasMemo = memoize(new WeakMap<ReadonlyArray<SchemaNode>, Set<string>>(), (schemas: ReadonlyArray<SchemaNode>): Set<string> => {
   const graph = new Map<string, Set<string>>()
 
   for (const schema of schemas) {
@@ -925,8 +896,21 @@ export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<str
     }
   }
 
-  circularSchemaCache.set(schemas, circular)
   return circular
+})
+
+/**
+ * Identifies all schemas that participate in circular dependency chains, including direct self-loops.
+ *
+ * Returns a Set of schema names with circular dependencies. Use this to wrap recursive schema positions
+ * in deferred constructs (lazy getter, `z.lazy(() => …)`) to prevent infinite recursion when generated code runs.
+ * Refs are followed by name only, keeping the algorithm linear in the schema graph size.
+ *
+ * @note Call this once on the full schema graph, then use `containsCircularRef()` to check individual schemas.
+ */
+export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<string> {
+  if (schemas.length === 0) return EMPTY_CIRCULAR_SET
+  return findCircularSchemasMemo(schemas)
 }
 
 /**
