@@ -149,19 +149,19 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    * `ctx` carries the plugin context with `adapter` and `meta` (document metadata),
    * plus `ctx.options` with the per-node resolved options (after exclude/include/override).
    */
-  schema?: (node: SchemaNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
+  schema?: (node: SchemaNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | undefined | null>
   /**
    * Called for each operation node in the AST walk.
    * `ctx` carries the plugin context with `adapter` and `meta` (document metadata),
    * plus `ctx.options` with the per-node resolved options (after exclude/include/override).
    */
-  operation?: (node: OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
+  operation?: (node: OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | undefined | null>
   /**
    * Called once after all operations have been walked.
    * `ctx` carries the plugin context with `adapter` and `meta` (document metadata),
    * plus `ctx.options` with the plugin-level options for the batch call.
    */
-  operations?: (nodes: Array<OperationNode>, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | void>
+  operations?: (nodes: Array<OperationNode>, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | undefined | null>
 }
 
 /**

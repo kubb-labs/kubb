@@ -127,13 +127,13 @@ export type VisitorContext<T extends Node = Node> = {
  * ```
  */
 export type Visitor = {
-  input?(node: InputNode, context: VisitorContext<InputNode>): void | InputNode
-  output?(node: OutputNode, context: VisitorContext<OutputNode>): void | OutputNode
-  operation?(node: OperationNode, context: VisitorContext<OperationNode>): void | OperationNode
-  schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): void | SchemaNode
-  property?(node: PropertyNode, context: VisitorContext<PropertyNode>): void | PropertyNode
-  parameter?(node: ParameterNode, context: VisitorContext<ParameterNode>): void | ParameterNode
-  response?(node: ResponseNode, context: VisitorContext<ResponseNode>): void | ResponseNode
+  input?(node: InputNode, context: VisitorContext<InputNode>): undefined | null | InputNode
+  output?(node: OutputNode, context: VisitorContext<OutputNode>): undefined | null | OutputNode
+  operation?(node: OperationNode, context: VisitorContext<OperationNode>): undefined | null | OperationNode
+  schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): undefined | null | SchemaNode
+  property?(node: PropertyNode, context: VisitorContext<PropertyNode>): undefined | null | PropertyNode
+  parameter?(node: ParameterNode, context: VisitorContext<ParameterNode>): undefined | null | ParameterNode
+  response?(node: ResponseNode, context: VisitorContext<ResponseNode>): undefined | null | ResponseNode
 }
 
 /**

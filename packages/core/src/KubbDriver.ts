@@ -875,7 +875,7 @@ export function applyHookResult<TElement = unknown>({
   driver,
   rendererFactory,
 }: {
-  result: TElement | Array<FileNode> | void
+  result: TElement | Array<FileNode> | undefined | null
   driver: KubbDriver
   rendererFactory?: RendererFactory<TElement> | null
 }): void | Promise<void> {
