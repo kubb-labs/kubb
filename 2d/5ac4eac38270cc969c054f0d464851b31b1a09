@@ -1,0 +1,60 @@
+packages/core/src/definePlugin.ts
+  s_f786084865badb::t_204e180fc61cbc 2
+  s_f786084865badb::t_f25e70c9313463 27,29,32,34
+packages/core/src/defineResolver.ts
+  s_f786084865badb::t_4487106d3adc57 553,563,565
+  s_f786084865badb::t_97ced1c6843477 569,571
+  s_f786084865badb::t_368ee9bb120fa4 150
+  s_f786084865badb::t_b2b267bb732e48 57-58
+  s_f786084865badb::t_a4007d06485b7f 3
+  s_f786084865badb::t_e7917814352953 499,501,512,514,520
+  s_f786084865badb::t_c8375d2ef817cb 530,532,544-545
+packages/core/src/definePlugin.test.ts
+  s_539fad2ccd9945::t_ff07fd861dfb18 130
+  s_539fad2ccd9945::t_9c026d4aa3888d 443
+  s_539fad2ccd9945::t_cfa22a3b7ddf56 219
+  s_539fad2ccd9945::t_dec8607efdcd9c 237
+  s_539fad2ccd9945::t_0ed9232209b900 278-279
+  s_539fad2ccd9945::t_a6da17a44817b2 70,79
+  s_539fad2ccd9945::t_de26ec7a547283 110-111
+  s_539fad2ccd9945::t_c3567ccd064522 84,94-95
+  s_539fad2ccd9945::t_226563a64a89e9 385
+  s_539fad2ccd9945::t_b078c7c3648467 484
+  s_539fad2ccd9945::t_9586b5d6ff6bc6 407
+  s_539fad2ccd9945::t_fd79b41ba62b47 319
+  s_539fad2ccd9945::t_5d46859f791316 261
+  s_539fad2ccd9945::t_9de30d4e6f19f8 157,160
+  s_539fad2ccd9945::t_e210dc4eda3f03 185
+  s_539fad2ccd9945::t_ef6fac42473eaa 352
+packages/core/src/defineResolver.test.ts
+  s_f786084865badb::t_051cd655994d22 2
+  s_f786084865badb::t_93df57f541a905 282-284,286,291-293
+  s_f786084865badb::t_4d4bf9ac10ba87 316-318,320,325,328,330
+packages/core/src/KubbDriver.test.ts
+  s_539fad2ccd9945::t_d34798ae00de03 3
+  s_539fad2ccd9945::t_ae74eb0e3cd3b3 38-44,50,55,67,74,81-82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "2d5ac4eac38270cc969c054f0d464851b31b1a09",
+  "prompts": {},
+  "sessions": {
+    "s_539fad2ccd9945": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "9b6d2431-66bf-453f-86ed-bea3d52ca365",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    },
+    "s_f786084865badb": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "c46178e7-6b87-48e3-8bf8-69fb8ec4f3d2",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
