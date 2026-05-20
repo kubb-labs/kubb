@@ -577,10 +577,10 @@ export function defaultResolveFooter(meta: InputMeta | undefined, { output }: Re
 }
 
 /**
- * Defines a plugin resolver — the object that decides what every generated
- * symbol and file path is called. Built-in defaults handle name casing,
- * include/exclude/override filtering, output path computation, and file
- * construction; supply your own to override any of them:
+ * Defines a plugin resolver. The resolver is the object that decides what
+ * every generated symbol and file path is called. Built-in defaults handle
+ * name casing, include/exclude/override filtering, output path computation,
+ * and file construction. Supply your own to override any of them:
  *
  * - `default` — name casing strategy (camelCase / PascalCase).
  * - `resolveOptions` — include/exclude/override filtering.
