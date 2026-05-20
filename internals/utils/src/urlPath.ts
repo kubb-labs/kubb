@@ -168,10 +168,10 @@ export class URLPath {
    * new URLPath('/pet/{petId}').toTemplateString() // '`/pet/${petId}`'
    */
   toTemplateString({
-    prefix = '',
+    prefix,
     replacer,
   }: {
-    prefix?: string
+    prefix?: string | null
     replacer?: (pathParam: string) => string
   } = {}): string {
     const parts = this.path.split(/\{([^}]+)\}/)
@@ -183,7 +183,7 @@ export class URLPath {
       })
       .join('')
 
-    return `\`${prefix}${result}\``
+    return `\`${prefix ?? ''}${result}\``
   }
 
   /**
