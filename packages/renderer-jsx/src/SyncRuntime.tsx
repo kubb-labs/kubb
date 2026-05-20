@@ -105,7 +105,7 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Co
         async: props['async'] as boolean | undefined,
         generics: props['generics'] as string | string[] | null | undefined,
         returnType: props['returnType'] as string | null | undefined,
-        JSDoc: props['JSDoc'] as JSDocNode | undefined,
+        JSDoc: props['JSDoc'] as JSDocNode | null | undefined,
         nodes: collectCodeNodes(props),
       }),
     )
@@ -123,7 +123,7 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Co
         generics: props['generics'] as string | undefined,
         returnType: props['returnType'] as string | null | undefined,
         singleLine: props['singleLine'] as boolean | undefined,
-        JSDoc: props['JSDoc'] as JSDocNode | undefined,
+        JSDoc: props['JSDoc'] as JSDocNode | null | undefined,
         nodes: collectCodeNodes(props),
       } as Omit<ArrowFunctionNode, 'kind'>),
     )
@@ -137,7 +137,7 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Co
         type: props['type'] as string | null | undefined,
         export: props['export'] as boolean | undefined,
         asConst: props['asConst'] as boolean | undefined,
-        JSDoc: props['JSDoc'] as JSDocNode | undefined,
+        JSDoc: props['JSDoc'] as JSDocNode | null | undefined,
         nodes: collectCodeNodes(props),
       }),
     )
@@ -149,7 +149,7 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Co
       createType({
         name: props['name'] as string,
         export: props['export'] as boolean | undefined,
-        JSDoc: props['JSDoc'] as JSDocNode | undefined,
+        JSDoc: props['JSDoc'] as JSDocNode | null | undefined,
         nodes: collectCodeNodes(props),
       }),
     )

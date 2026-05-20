@@ -18,7 +18,6 @@ type ConstProps = {
   export?: boolean
   /**
    * TypeScript type annotation for the constant, written verbatim after `const name:`.
-   * Pass `null` to explicitly signal "no type annotation" when the value comes from a resolver.
    *
    * @example
    * `type: 'Pet'` → `const pet: Pet = …`
@@ -28,7 +27,7 @@ type ConstProps = {
    * JSDoc block to prepend to the constant declaration.
    * Each entry in `comments` becomes one line inside the emitted `/** … *\/` block.
    */
-  JSDoc?: JSDoc
+  JSDoc?: JSDoc | null
   /**
    * Append `as const` after the initialiser, enabling TypeScript const assertions.
    * - `true` generates `const name = … as const`

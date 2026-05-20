@@ -65,7 +65,7 @@ function collectCodeNodes(element: DOMElement): CodeNode[] {
           async: attrs['async'] as boolean | undefined,
           generics: attrs['generics'] as string | string[] | null | undefined,
           returnType: attrs['returnType'] as string | null | undefined,
-          JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
+          JSDoc: attrs['JSDoc'] as JSDocNode | null | undefined,
           nodes: collectCodeNodes(child),
         }),
       )
@@ -84,7 +84,7 @@ function collectCodeNodes(element: DOMElement): CodeNode[] {
           generics: attrs['generics'] as string | string[] | null | undefined,
           returnType: attrs['returnType'] as string | null | undefined,
           singleLine: attrs['singleLine'] as boolean | undefined,
-          JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
+          JSDoc: attrs['JSDoc'] as JSDocNode | null | undefined,
           nodes: collectCodeNodes(child),
         } as Omit<ArrowFunctionNode, 'kind'>),
       )
@@ -99,7 +99,7 @@ function collectCodeNodes(element: DOMElement): CodeNode[] {
           type: attrs['type'] as string | null | undefined,
           export: attrs['export'] as boolean | undefined,
           asConst: attrs['asConst'] as boolean | undefined,
-          JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
+          JSDoc: attrs['JSDoc'] as JSDocNode | null | undefined,
           nodes: collectCodeNodes(child),
         }),
       )
@@ -112,7 +112,7 @@ function collectCodeNodes(element: DOMElement): CodeNode[] {
         createType({
           name: attrs['name'] as string,
           export: attrs['export'] as boolean | undefined,
-          JSDoc: attrs['JSDoc'] as JSDocNode | undefined,
+          JSDoc: attrs['JSDoc'] as JSDocNode | null | undefined,
           nodes: collectCodeNodes(child),
         }),
       )

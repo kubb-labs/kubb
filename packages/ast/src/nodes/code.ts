@@ -39,14 +39,13 @@ export type ConstNode = BaseNode & {
   export?: boolean
   /**
    * Optional explicit type annotation.
-   * `null` means intentionally no annotation (e.g. from a resolver that returned null).
    * @example 'Pet'
    */
   type?: string | null
   /**
    * JSDoc documentation metadata.
    */
-  JSDoc?: JSDocNode
+  JSDoc?: JSDocNode | null
   /**
    * Whether to append `as const` to the declaration.
    * @default false
@@ -88,7 +87,7 @@ export type TypeNode = BaseNode & {
   /**
    * JSDoc documentation metadata.
    */
-  JSDoc?: JSDocNode
+  JSDoc?: JSDocNode | null
   /**
    * Child nodes representing the type body (children of the `Type` component).
    * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
@@ -130,7 +129,6 @@ export type FunctionNode = BaseNode & {
   default?: boolean
   /**
    * Function parameter list rendered as a string (e.g. from `FunctionParams.toConstructor()`).
-   * `null` means intentionally no parameters (e.g. from a resolver that returned null).
    */
   params?: string | null
   /**
@@ -145,20 +143,18 @@ export type FunctionNode = BaseNode & {
   async?: boolean
   /**
    * TypeScript generic type parameters.
-   * `null` means intentionally no generics (e.g. from a resolver that returned null).
    * @example ['T', 'U extends string']
    */
   generics?: string | string[] | null
   /**
    * Return type annotation.
-   * `null` means intentionally no annotation (e.g. from a resolver that returned null).
    * @example 'Pet'
    */
   returnType?: string | null
   /**
    * JSDoc documentation metadata.
    */
-  JSDoc?: JSDocNode
+  JSDoc?: JSDocNode | null
   /**
    * Child nodes representing the function body (children of the `Function` component).
    * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
@@ -194,7 +190,6 @@ export type ArrowFunctionNode = BaseNode & {
   default?: boolean
   /**
    * Function parameter list rendered as a string (e.g. from `FunctionParams.toConstructor()`).
-   * `null` means intentionally no parameters (e.g. from a resolver that returned null).
    */
   params?: string | null
   /**
@@ -209,20 +204,18 @@ export type ArrowFunctionNode = BaseNode & {
   async?: boolean
   /**
    * TypeScript generic type parameters.
-   * `null` means intentionally no generics (e.g. from a resolver that returned null).
    * @example ['T', 'U extends string']
    */
   generics?: string | string[] | null
   /**
    * Return type annotation.
-   * `null` means intentionally no annotation (e.g. from a resolver that returned null).
    * @example 'Pet'
    */
   returnType?: string | null
   /**
    * JSDoc documentation metadata.
    */
-  JSDoc?: JSDocNode
+  JSDoc?: JSDocNode | null
   /**
    * Render the arrow function body as a single-line expression.
    * @default false
