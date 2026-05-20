@@ -154,13 +154,13 @@ type MaybePromise<T> = T | Promise<T>
  * ```
  */
 export type AsyncVisitor = {
-  input?(node: InputNode, context: VisitorContext<InputNode>): MaybePromise<undefined | null |InputNode>
-  output?(node: OutputNode, context: VisitorContext<OutputNode>): MaybePromise<undefined | null |OutputNode>
-  operation?(node: OperationNode, context: VisitorContext<OperationNode>): MaybePromise<undefined | null |OperationNode>
-  schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): MaybePromise<undefined | null |SchemaNode>
-  property?(node: PropertyNode, context: VisitorContext<PropertyNode>): MaybePromise<undefined | null |PropertyNode>
-  parameter?(node: ParameterNode, context: VisitorContext<ParameterNode>): MaybePromise<undefined | null |ParameterNode>
-  response?(node: ResponseNode, context: VisitorContext<ResponseNode>): MaybePromise<undefined | null |ResponseNode>
+  input?(node: InputNode, context: VisitorContext<InputNode>): MaybePromise<undefined | null | InputNode>
+  output?(node: OutputNode, context: VisitorContext<OutputNode>): MaybePromise<undefined | null | OutputNode>
+  operation?(node: OperationNode, context: VisitorContext<OperationNode>): MaybePromise<undefined | null | OperationNode>
+  schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): MaybePromise<undefined | null | SchemaNode>
+  property?(node: PropertyNode, context: VisitorContext<PropertyNode>): MaybePromise<undefined | null | PropertyNode>
+  parameter?(node: ParameterNode, context: VisitorContext<ParameterNode>): MaybePromise<undefined | null | ParameterNode>
+  response?(node: ResponseNode, context: VisitorContext<ResponseNode>): MaybePromise<undefined | null | ResponseNode>
 }
 
 /**
