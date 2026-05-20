@@ -21,6 +21,11 @@ export const DEFAULT_EXTENSION: Record<FileNode['extname'], FileNode['extname'] 
 export const STREAM_SCHEMA_THRESHOLD = 100
 
 /**
+ * Number of file writes to batch in parallel during `flushPendingFiles`.
+ */
+export const STREAM_FLUSH_EVERY = 50
+
+/**
  * Numeric log-level thresholds used internally to compare verbosity.
  *
  * Higher numbers are more verbose.

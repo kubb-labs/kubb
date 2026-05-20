@@ -5,7 +5,7 @@ import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, URLPath,
 import type { FileNode, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { collectUsedSchemaNames, transform, walk } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
-import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL, STREAM_SCHEMA_THRESHOLD } from './constants.ts'
+import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL, STREAM_FLUSH_EVERY, STREAM_SCHEMA_THRESHOLD } from './constants.ts'
 import type { Adapter, AdapterSource } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import { createStorage, type Storage } from './createStorage.ts'
@@ -1471,13 +1471,22 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
 
     const stream = fileProcessor.stream(files, { parsers: parsersMap, extension: config.output.extension })
 
+    const queue: Array<Promise<void>> = []
     for (const { file, source, processed, total, percentage } of stream) {
-      await hooks.emit('kubb:file:processing:update', { file, source, processed, total, percentage, config })
-      if (source) {
-        await storage.setItem(file.path, source)
-      }
       writtenPaths.add(file.path)
+      queue.push(
+        (async () => {
+          await hooks.emit('kubb:file:processing:update', { file, source, processed, total, percentage, config })
+          if (source) {
+            await storage.setItem(file.path, source)
+          }
+        })(),
+      )
+      if (queue.length >= STREAM_FLUSH_EVERY) {
+        await Promise.all(queue.splice(0))
+      }
     }
+    await Promise.all(queue)
 
     await hooks.emit('kubb:files:processing:end', { files })
     await hooks.emit('kubb:debug', {
