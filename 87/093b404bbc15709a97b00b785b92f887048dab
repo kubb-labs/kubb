@@ -1,0 +1,19 @@
+.changeset/improve-kubb-driver.md
+  s_0ec3ee5562e1d4::t_3d6889d42cc0ba 1-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "87093b404bbc15709a97b00b785b92f887048dab",
+  "prompts": {},
+  "sessions": {
+    "s_0ec3ee5562e1d4": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ea4443ee-9d0b-432f-8c8c-9baedd14db7d",
+        "model": "composer-2.5-fast"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
