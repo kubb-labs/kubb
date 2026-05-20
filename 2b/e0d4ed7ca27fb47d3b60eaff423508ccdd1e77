@@ -1,0 +1,35 @@
+internals/utils/src/index.ts
+  s_4277a4ed036ec5::t_f74b0e19a71b8e 21
+packages/core/src/KubbDriver.ts
+  s_4277a4ed036ec5::t_32bbe775b2de2a 379-381
+  s_4277a4ed036ec5::t_98de4f37828e18 45-46
+internals/utils/src/promise.ts
+  s_4277a4ed036ec5::t_588f8051060ee1 1-3,15-19,29,36-37,45,50,52-61,64-67
+  s_4277a4ed036ec5::t_90ff4f49660724 146-168
+  s_4277a4ed036ec5::t_4761a2ea56a865 8-12,25,28,30,33
+internals/utils/src/promise.test.ts
+  s_4277a4ed036ec5::t_185e534b4ef19d 97,113,116,118
+  s_4277a4ed036ec5::t_0a8785bf35982a 2
+  s_4277a4ed036ec5::t_de5fbd9a25d519 162,171,178,181,183
+  s_4277a4ed036ec5::t_add670275a29d3 220-259
+packages/adapter-oas/src/adapter.ts
+  s_4277a4ed036ec5::t_37e0acb94b8749 1
+  s_4277a4ed036ec5::t_5356f6ad3f941e 62-66,71,73-77,79,81,83-85
+  s_4277a4ed036ec5::t_4ee98ddf9d28c0 89-91
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "2be0d4ed7ca27fb47d3b60eaff423508ccdd1e77",
+  "prompts": {},
+  "sessions": {
+    "s_4277a4ed036ec5": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "6adeac69-d5d0-45fb-a4b4-685ed2e13474",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
