@@ -4,8 +4,11 @@ import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { parseDocument, parseFromConfig, validateDocument } from './factory.ts'
 import { createSchemaParser } from './parser.ts'
+import type { SchemaParser } from './parser.ts'
 import { getSchemas } from './resolvers.ts'
+import type { GetSchemasResult } from './resolvers.ts'
 import { createInputStream, preScan, resolveBaseUrl } from './stream.ts'
+import type { PreScanResult } from './stream.ts'
 import type { AdapterOas, Document } from './types.ts'
 
 /**
@@ -57,10 +60,10 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
   let nameMapping = new Map<string, string>()
   let parsedDocument: Document | null = null
-  let schemaObjects: ReturnType<typeof getSchemas>['schemas'] | null = null
+  let schemas: GetSchemasResult['schemas'] | null = null
   let baseOasInstance: BaseOas | null = null
-  let schemaParserInstance: ReturnType<typeof createSchemaParser> | null = null
-  let preScanCache: ReturnType<typeof preScan> | null = null
+  let schemaParserInstance: SchemaParser | null = null
+  let preScanCache: PreScanResult | null = null
 
   async function ensureDocument(source: AdapterSource): Promise<Document> {
     if (parsedDocument) return parsedDocument
@@ -70,36 +73,43 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     return fresh
   }
 
-  async function ensureSchemas(document: Document): Promise<ReturnType<typeof getSchemas>['schemas']> {
-    if (!schemaObjects) {
+  async function ensureSchemas(document: Document): Promise<GetSchemasResult['schemas']> {
+    if (!schemas) {
       const result = getSchemas(document, { contentType })
-      schemaObjects = result.schemas
+      schemas = result.schemas
       nameMapping = result.nameMapping
     }
-    return schemaObjects
+
+    return schemas
   }
 
   function ensureBaseOas(document: Document): BaseOas {
     if (!baseOasInstance) baseOasInstance = new BaseOas(document)
+
     return baseOasInstance
   }
 
-  function ensureSchemaParser(document: Document): ReturnType<typeof createSchemaParser> {
-    if (!schemaParserInstance) schemaParserInstance = createSchemaParser({ document, contentType })
+  function ensureSchemaParser(): SchemaParser {
+    if (!schemaParserInstance) schemaParserInstance = createSchemaParser({ document: parsedDocument!, contentType })
+
     return schemaParserInstance
   }
 
-  function ensurePreScan(schemas: ReturnType<typeof getSchemas>['schemas'], parseSchema: ReturnType<typeof createSchemaParser>['parseSchema']): ReturnType<typeof preScan> {
-    if (!preScanCache) preScanCache = preScan({ schemas, parseSchema, parserOptions, discriminator })
+  function ensurePreScan(): PreScanResult {
+    if (!preScanCache) preScanCache = preScan({ schemas: schemas!, parseSchema: schemaParserInstance!.parseSchema, parserOptions, discriminator })
 
     return preScanCache
   }
 
   async function createStream(source: AdapterSource): Promise<ast.InputStreamNode> {
     const document = await ensureDocument(source)
-    const schemas = await ensureSchemas(document)
-    const { parseSchema, parseOperation } = ensureSchemaParser(document)
-    const { refAliasMap, enumNames, circularNames, discriminatorChildMap } = ensurePreScan(schemas, parseSchema)
+    await ensureSchemas(document)
+    const { parseSchema, parseOperation } = ensureSchemaParser()
+    const { refAliasMap, enumNames, circularNames, discriminatorChildMap } = ensurePreScan()
+
+    if(!schemas){
+      throw new Error("Schemas are not defined")
+    }
 
     return createInputStream({
       schemas,

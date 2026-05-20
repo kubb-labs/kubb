@@ -1,12 +1,12 @@
 import { ast } from '@kubb/core'
-import BaseOas from 'oas'
+import type BaseOas from 'oas'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
-import { createSchemaParser } from './parser.ts'
+import type { SchemaParser } from './parser.ts'
 import { resolveServerUrl } from './resolvers.ts'
 import type { DiscriminatorTarget } from './discriminator.ts'
 import type { AdapterOas, Document, SchemaObject } from './types.ts'
 
-type PreScanResult = {
+export type PreScanResult = {
   refAliasMap: Map<string, ast.SchemaNode>
   enumNames: string[]
   circularNames: string[]
@@ -35,7 +35,6 @@ export function resolveBaseUrl({
   serverVariables?: Record<string, string>
 }): string | undefined {
   const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
-
   return server?.url ? resolveServerUrl(server, serverVariables) : undefined
 }
 
@@ -129,8 +128,8 @@ export function createInputStream({
   meta,
 }: {
   schemas: Record<string, SchemaObject>
-  parseSchema: ReturnType<typeof createSchemaParser>['parseSchema']
-  parseOperation: ReturnType<typeof createSchemaParser>['parseOperation']
+  parseSchema: SchemaParser['parseSchema']
+  parseOperation: SchemaParser['parseOperation']
   baseOas: BaseOas
   parserOptions: ast.ParserOptions
   refAliasMap: Map<string, ast.SchemaNode>
@@ -141,10 +140,17 @@ export function createInputStream({
     [Symbol.asyncIterator]() {
       return (async function* () {
         for (const [name, schema] of Object.entries(schemas)) {
-          const parsed = parseSchema({ schema, name }, parserOptions)
-          const patched = discriminatorChildMap?.get(name) ? patchDiscriminatorNode(parsed, discriminatorChildMap.get(name)!) : parsed
+          // Inline ref aliases: replace the alias entry with its target's parsed node
+          // (keeping the alias name). Skip the first parse entirely for alias entries
+          // since that result is never used.
           const alias = refAliasMap.get(name)
-          const node = alias?.name && schemas[alias.name] ? { ...parseSchema({ schema: schemas[alias.name]!, name: alias.name }, parserOptions), name } : patched
+          if (alias?.name && schemas[alias.name]) {
+            yield { ...parseSchema({ schema: schemas[alias.name]!, name: alias.name }, parserOptions), name }
+            continue
+          }
+
+          const parsed = parseSchema({ schema, name }, parserOptions)
+          const node = discriminatorChildMap?.get(name) ? patchDiscriminatorNode(parsed, discriminatorChildMap.get(name)!) : parsed
           yield node
         }
       })()

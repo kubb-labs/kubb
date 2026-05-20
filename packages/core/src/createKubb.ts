@@ -1207,28 +1207,30 @@ async function safeBuild(setupResult: SetupResult): Promise<BuildOutput> {
     })
 
     if (pruningStates.length > 0) {
-      // Trade-off: materialize all schemas into memory for one full pass to compute
-      // the reachable-schema sets. This is done at most once per build regardless of
-      // how many pruning plugins are active, because each AsyncIterable yields a fresh
-      // iterator — consuming it here does not affect the main dispatch passes below.
+      // Known trade-off: computing the reachable-schema set for operation-based includes
+      // requires the full schema graph in memory at once — there is no way to determine
+      // transitive reachability from a single schema node in isolation.
+      // `allSchemas` is released as soon as this block exits; it is never held past
+      // the pruning pre-scan. The main dispatch passes below each get their own
+      // fresh iterator from the AsyncIterable, so this consumption does not affect them.
       const allSchemas: SchemaNode[] = []
       for await (const schema of schemas) {
         allSchemas.push(schema)
       }
 
-      // Collect included operations per pruning plugin.
+      // Collect the included operations for each pruning plugin in one shared pass.
       const includedOpsByState = new Map<PluginState, OperationNode[]>(pruningStates.map((s) => [s, []]))
       for await (const operation of operations) {
         for (const state of pruningStates) {
           const { exclude, include, override } = state.plugin.options
           const options = state.generatorContext.resolver.resolveOptions(operation, { options: state.plugin.options, exclude, include, override })
-          if (options !== null) includedOpsByState.get(state)!.push(operation)
+          if (options !== null) includedOpsByState.get(state)?.push(operation)
         }
       }
 
       // Derive the allowed schema name set per pruning plugin.
       for (const state of pruningStates) {
-        state.allowedSchemaNames = collectUsedSchemaNames(includedOpsByState.get(state)!, allSchemas)
+        state.allowedSchemaNames = collectUsedSchemaNames(includedOpsByState.get(state) ?? [], allSchemas)
       }
     }
 

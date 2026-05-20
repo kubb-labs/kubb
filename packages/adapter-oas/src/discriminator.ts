@@ -1,4 +1,5 @@
 import { ast } from '@kubb/core'
+import type { SchemaNodeByType } from '@kubb/ast'
 
 export type DiscriminatorTarget = {
   propertyName: string
@@ -43,8 +44,8 @@ export function buildDiscriminatorChildMap(schemas: ast.SchemaNode[]): Map<strin
       const intersectionNode = ast.narrowSchema(member, 'intersection')
       if (!intersectionNode?.members) continue
 
-      let refNode: ReturnType<typeof ast.narrowSchema<'ref'>> | undefined
-      let objNode: ReturnType<typeof ast.narrowSchema<'object'>> | undefined
+      let refNode: SchemaNodeByType['ref'] | undefined
+      let objNode: SchemaNodeByType['object'] | undefined
 
       for (const m of intersectionNode.members) {
         refNode ??= ast.narrowSchema(m, 'ref')

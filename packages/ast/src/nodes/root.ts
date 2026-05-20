@@ -36,6 +36,9 @@ export type InputMeta = {
    * Computed once during the adapter pre-scan — use this instead of calling
    * `findCircularSchemas` per generator call.
    *
+   * Convert to a `Set` once at the start of a generator, not per-schema,
+   * to keep lookup O(1) without repeated allocations.
+   *
    * @example Wrap a circular schema in z.lazy()
    * ```ts
    * const circular = new Set(meta.circularNames)
@@ -48,8 +51,12 @@ export type InputMeta = {
    * Computed once during the adapter pre-scan — use this instead of filtering
    * schemas per generator call.
    *
+   * Convert to a `Set` once at the start of a generator when you need repeated
+   * membership checks, rather than calling `.includes()` per schema.
+   *
    * @example Check if a referenced schema is an enum
-   * `const isEnum = meta.enumNames.includes(schemaName)`
+   * `const enums = new Set(meta.enumNames)`
+   * `const isEnum = enums.has(schemaName)`
    */
   enumNames: readonly string[]
 }

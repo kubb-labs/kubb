@@ -40,6 +40,11 @@ const minimalSpec = {
 
 const parserOptions = { ...DEFAULT_PARSER_OPTIONS }
 
+// Typed schema fixtures — avoids `as unknown as SchemaObject` casts throughout tests.
+const petSchema: SchemaObject = { type: 'object', properties: { id: { type: 'string' }, name: { type: 'string' } }, required: ['id'] }
+const categorySchema: SchemaObject = { type: 'object', properties: { id: { type: 'integer' } } }
+const statusSchema: SchemaObject = { type: 'string', enum: ['active', 'inactive'] }
+
 describe('resolveBaseUrl', () => {
   it('returns the server URL at the given index', async () => {
     const document = await parseFromConfig({ type: 'data', data: minimalSpec })
@@ -62,8 +67,8 @@ describe('resolveBaseUrl', () => {
 
 describe('preScan', () => {
   const schemas: Record<string, SchemaObject> = {
-    Pet: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
-    Status: { type: 'string', enum: ['active', 'inactive'] },
+    Pet: petSchema,
+    Status: statusSchema,
     PetAlias: { $ref: '#/components/schemas/Pet' },
   }
 
@@ -126,7 +131,7 @@ describe('createInputStream', () => {
   it('yields schemas lazily via for await', async () => {
     const document = await parseFromConfig({ type: 'data', data: minimalSpec })
     const { parseSchema, parseOperation } = createSchemaParser({ document })
-    const schemas = { Pet: minimalSpec.components.schemas.Pet as unknown as SchemaObject }
+    const schemas = { Pet: petSchema }
 
     const node = createInputStream({
       schemas,
@@ -149,10 +154,7 @@ describe('createInputStream', () => {
   it('each for await creates an independent pass', async () => {
     const document = await parseFromConfig({ type: 'data', data: minimalSpec })
     const { parseSchema, parseOperation } = createSchemaParser({ document })
-    const schemas = {
-      Pet: minimalSpec.components.schemas.Pet as unknown as SchemaObject,
-      Category: minimalSpec.components.schemas.Category as unknown as SchemaObject,
-    }
+    const schemas = { Pet: petSchema, Category: categorySchema }
 
     const node = createInputStream({
       schemas,
@@ -180,14 +182,13 @@ describe('createInputStream', () => {
     `)
   })
 
-  it('inlines $ref alias schemas using refAliasMap', async () => {
+  it('resolves $ref alias schemas using refAliasMap', async () => {
     const document = await parseFromConfig({ type: 'data', data: minimalSpec })
     const { parseSchema, parseOperation } = createSchemaParser({ document })
 
-    const petSchema = minimalSpec.components.schemas.Pet as unknown as SchemaObject
     const schemas: Record<string, SchemaObject> = {
       Pet: petSchema,
-      PetAlias: { $ref: '#/components/schemas/Pet' } as unknown as SchemaObject,
+      PetAlias: { $ref: '#/components/schemas/Pet' },
     }
 
     const aliasNode = ast.createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' })

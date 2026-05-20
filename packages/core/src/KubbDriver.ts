@@ -380,6 +380,9 @@ export class KubbDriver {
     // has finished; the returned `BuildOutput.files` array still references
     // any FileNodes the caller needs to inspect.
     this.fileManager.dispose()
+    // Release the parsed adapter graph and studio state so memory is reclaimed
+    // between builds. The returned BuildOutput.files still holds any FileNodes
+    // the caller needs to inspect.
     this.inputNode = undefined
     this.#studio = { source: undefined, isOpen: false, inputNode: undefined }
 
