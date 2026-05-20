@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 import { version as nodeVersion } from 'node:process'
 import type { PossiblePromise } from '@internals/utils'
-import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, URLPath, isPromise } from '@internals/utils'
+import { AsyncEventEmitter, BuildError, exists, forBatches, formatMs, getElapsedMs, URLPath, isPromise } from '@internals/utils'
 import type { FileNode, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { collectUsedSchemaNames, transform } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
@@ -1170,13 +1170,6 @@ type PluginState = {
  * Each plugin still gets independent `plugin:start` / `plugin:end` events and its own
  * timing, but the schema and operation nodes are parsed only once total.
  */
-function* chunks<T>(arr: readonly T[], size: number) {
-  let offset = 0
-  while (offset < arr.length) {
-    yield arr.slice(offset, (offset += size))
-  }
-}
-
 async function runPluginStreamHooks({
   entries,
   driver,
@@ -1271,52 +1264,25 @@ async function runPluginStreamHooks({
     }
   }
 
-  let nodeCount = 0
-  let lastFlushAt = 0
-
-  async function maybeFlush(): Promise<void> {
-    if (onFlush && nodeCount - lastFlushAt >= STREAM_FLUSH_EVERY) {
-      lastFlushAt = nodeCount
-      await onFlush()
-    }
-  }
-
   // Batch schemas: SCHEMA_PARALLEL nodes dispatched across all plugins concurrently.
   // Per-plugin work inside dispatchSchema stays sequential so FileManager.upsert
   // ordering for any single plugin chain remains deterministic.
-  const schemaBatch: SchemaNode[] = []
-
-  async function drainSchemas(): Promise<void> {
-    if (schemaBatch.length === 0) return
-    const nodes = schemaBatch.splice(0)
-    await Promise.all(nodes.flatMap((n) => states.map((state) => dispatchSchema(state, n))))
-    nodeCount += nodes.length
-    await maybeFlush()
-  }
-
-  for await (const node of inputStreamNode.schemas) {
-    schemaBatch.push(node)
-    if (schemaBatch.length >= SCHEMA_PARALLEL) await drainSchemas()
-  }
-  await drainSchemas()
+  await forBatches(
+    inputStreamNode.schemas,
+    (nodes) => Promise.all(nodes.flatMap((n) => states.map((state) => dispatchSchema(state, n)))),
+    { concurrency: SCHEMA_PARALLEL, flush: onFlush },
+  )
 
   const collectedOperations: OperationNode[] = []
-  const operationBatch: OperationNode[] = []
 
-  async function drainOperations(): Promise<void> {
-    if (operationBatch.length === 0) return
-    const nodes = operationBatch.splice(0)
-    collectedOperations.push(...nodes)
-    await Promise.all(nodes.flatMap((n) => states.map((state) => dispatchOperation(state, n))))
-    nodeCount += nodes.length
-    await maybeFlush()
-  }
-
-  for await (const node of inputStreamNode.operations) {
-    operationBatch.push(node)
-    if (operationBatch.length >= SCHEMA_PARALLEL) await drainOperations()
-  }
-  await drainOperations()
+  await forBatches(
+    inputStreamNode.operations,
+    (nodes) => {
+      collectedOperations.push(...nodes)
+      return Promise.all(nodes.flatMap((n) => states.map((state) => dispatchOperation(state, n))))
+    },
+    { concurrency: SCHEMA_PARALLEL, flush: onFlush },
+  )
 
   // After stream: gen.operations for each plugin, then emit plugin:end
   for (const state of states) {
@@ -1408,16 +1374,6 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
     return collectUsedSchemaNames(includedOps, inputNode!.schemas)
   })()
 
-  let nodeCount = 0
-  let lastFlushAt = 0
-
-  async function maybeFlush(): Promise<void> {
-    if (onFlush && nodeCount - lastFlushAt >= STREAM_FLUSH_EVERY) {
-      lastFlushAt = nodeCount
-      await onFlush()
-    }
-  }
-
   async function processSchema(node: SchemaNode): Promise<void> {
     const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
@@ -1464,19 +1420,9 @@ async function runPluginAstHooks(plugin: NormalizedPlugin, context: GeneratorCon
     await driver.hooks.emit('kubb:generate:operation', transformedNode, ctx)
   }
 
-  // Process schemas in parallel batches of SCHEMA_PARALLEL.
-  for (const batch of chunks(inputNode.schemas, SCHEMA_PARALLEL)) {
-    await Promise.all(batch.map(processSchema))
-    nodeCount += batch.length
-    await maybeFlush()
-  }
-
-  // Process operations in parallel batches; preserve insertion order for collectedOperations.
-  for (const batch of chunks(inputNode.operations, SCHEMA_PARALLEL)) {
-    await Promise.all(batch.map(processOperation))
-    nodeCount += batch.length
-    await maybeFlush()
-  }
+  // Process schemas and operations in parallel batches; preserve insertion order for collectedOperations.
+  await forBatches(inputNode.schemas, (batch) => Promise.all(batch.map(processSchema)), { concurrency: SCHEMA_PARALLEL, flush: onFlush })
+  await forBatches(inputNode.operations, (batch) => Promise.all(batch.map(processOperation)), { concurrency: SCHEMA_PARALLEL, flush: onFlush })
 
   if (collectedOperations.length > 0) {
     const ctx = { ...generatorContext, options: plugin.options }

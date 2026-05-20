@@ -1,10 +1,11 @@
 import { AsyncEventEmitter } from '@internals/utils'
-import { createFile, createSchema, createSource, createText } from '@kubb/ast'
+import { createFile, createOperation, createSchema, createSource, createStreamInput, createText } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
+import { SCHEMA_PARALLEL, STREAM_FLUSH_EVERY, STREAM_SCHEMA_THRESHOLD } from './constants.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 
@@ -299,5 +300,211 @@ describe('createKubb', () => {
     }
 
     await expect(createKubb(userConfig).safeBuild()).resolves.not.toThrow()
+  })
+
+  describe('schema-level parallelism', () => {
+    function makeBatchPlugin(generatedPaths: string[]) {
+      return definePlugin(() => ({
+        name: 'batch-plugin',
+        hooks: {
+          'kubb:plugin:setup'(ctx) {
+            ctx.addGenerator({
+              name: 'batch-gen',
+              schema(node) {
+                const path = `/gen/${node.name}.ts`
+                generatedPaths.push(path)
+                return [
+                  createFile({
+                    path,
+                    baseName: `${node.name}.ts` as `${string}.ts`,
+                    sources: [createSource({ nodes: [createText(`export const x = null`)] })],
+                    imports: [],
+                    exports: [],
+                  }),
+                ]
+              },
+            })
+          },
+        },
+      }))()
+    }
+
+    it('generates all files when schema count exceeds SCHEMA_PARALLEL', async () => {
+      const count = SCHEMA_PARALLEL * 3 + 1
+      const schemas = Array.from({ length: count }, (_, i) => createSchema({ name: `Schema${i}`, type: 'string' }))
+      const generatedPaths: string[] = []
+
+      const { files } = await createKubb(
+        {
+          ...config,
+          storage: memoryStorage(),
+          adapter: createMockedAdapter({ parse: async () => ({ kind: 'Input', schemas, operations: [] }) }),
+          plugins: [makeBatchPlugin(generatedPaths) as unknown as Plugin],
+        },
+        { hooks: new AsyncEventEmitter<KubbHooks>() },
+      ).build()
+
+      expect(files).toHaveLength(count)
+      expect(generatedPaths).toHaveLength(count)
+      expect(generatedPaths).toEqual(schemas.map((s) => `/gen/${s.name}.ts`))
+    })
+
+    it('preserves operation insertion order for collectedOperations across batches', async () => {
+      const opCount = SCHEMA_PARALLEL * 2 + 3
+      const operations = Array.from({ length: opCount }, (_, i) =>
+        createOperation({ name: `op${i}`, method: 'get', path: `/path${i}`, parameters: [], responses: [], tags: [] }),
+      )
+      const receivedOrder: string[] = []
+
+      const orderPlugin = definePlugin(() => ({
+        name: 'order-plugin',
+        hooks: {
+          'kubb:plugin:setup'(ctx) {
+            ctx.addGenerator({
+              name: 'order-gen',
+              operations(nodes) {
+                receivedOrder.push(...nodes.map((n) => n.name))
+                return []
+              },
+            })
+          },
+        },
+      }))()
+
+      await createKubb(
+        {
+          ...config,
+          storage: memoryStorage(),
+          adapter: createMockedAdapter({ parse: async () => ({ kind: 'Input', schemas: [], operations }) }),
+          plugins: [orderPlugin as unknown as Plugin],
+        },
+        { hooks: new AsyncEventEmitter<KubbHooks>() },
+      ).build()
+
+      expect(receivedOrder).toEqual(operations.map((o) => o.name))
+    })
+
+    it('processes schemas in the streaming path (inputStreamNode) across batches', async () => {
+      const count = SCHEMA_PARALLEL * 2 + 1
+      const schemas = Array.from({ length: count }, (_, i) => createSchema({ name: `StreamSchema${i}`, type: 'string' }))
+      const generatedPaths: string[] = []
+
+      async function* asyncSchemas() {
+        for (const s of schemas) yield s
+      }
+      async function* asyncOps() {}
+
+      const streamAdapter = createMockedAdapter({
+        parse: async () => ({ kind: 'Input' as const, schemas: [], operations: [] }),
+      })
+      Object.assign(streamAdapter, {
+        count: async () => ({ schemas: STREAM_SCHEMA_THRESHOLD + 1, operations: 0 }),
+        stream: async () => createStreamInput(asyncSchemas(), asyncOps()),
+      })
+
+      const { files } = await createKubb(
+        {
+          ...config,
+          storage: memoryStorage(),
+          adapter: streamAdapter,
+          plugins: [makeBatchPlugin(generatedPaths) as unknown as Plugin],
+        },
+        { hooks: new AsyncEventEmitter<KubbHooks>() },
+      ).build()
+
+      expect(files).toHaveLength(count)
+      expect(generatedPaths).toHaveLength(count)
+    })
+  })
+
+  describe('streaming flush during generation', () => {
+    it('flushes files mid-generation when schema count exceeds STREAM_FLUSH_EVERY', async () => {
+      const count = STREAM_FLUSH_EVERY + 10
+      const schemas = Array.from({ length: count }, (_, i) => createSchema({ name: `FlushSchema${i}`, type: 'string' }))
+      const hooks = new AsyncEventEmitter<KubbHooks>()
+      const flushEvents: number[] = []
+      hooks.on('kubb:files:processing:start', ({ files }) => flushEvents.push(files.length))
+
+      const flushPlugin = definePlugin(() => ({
+        name: 'flush-plugin',
+        hooks: {
+          'kubb:plugin:setup'(ctx) {
+            ctx.addGenerator({
+              name: 'flush-gen',
+              schema(node) {
+                return [
+                  createFile({
+                    path: `/gen/${node.name}.ts`,
+                    baseName: `${node.name}.ts` as `${string}.ts`,
+                    sources: [createSource({ nodes: [createText('export const x = null')] })],
+                    imports: [],
+                    exports: [],
+                  }),
+                ]
+              },
+            })
+          },
+        },
+      }))()
+
+      const { files } = await createKubb(
+        {
+          ...config,
+          storage: memoryStorage(),
+          adapter: createMockedAdapter({ parse: async () => ({ kind: 'Input', schemas, operations: [] }) }),
+          plugins: [flushPlugin as unknown as Plugin],
+        },
+        { hooks },
+      ).build()
+
+      expect(files).toHaveLength(count)
+      expect(flushEvents.length).toBeGreaterThanOrEqual(2)
+    })
+  })
+
+  describe('parallel file writes', () => {
+    it('writes all files correctly when flush batch exceeds STREAM_FLUSH_EVERY', async () => {
+      const fileCount = STREAM_FLUSH_EVERY * 2 + 5
+      const writtenPaths: string[] = []
+      const storage = memoryStorage()
+      const originalSetItem = storage.setItem.bind(storage)
+      storage.setItem = async (key, value) => {
+        writtenPaths.push(key)
+        return originalSetItem(key, value)
+      }
+
+      const plugin = definePlugin(() => ({
+        name: 'write-plugin',
+        hooks: {
+          'kubb:plugin:setup'(ctx) {
+            for (let i = 0; i < fileCount; i++) {
+              ctx.injectFile(
+                createFile({
+                  path: `/gen/file${i}.ts`,
+                  baseName: `file${i}.ts` as `${string}.ts`,
+                  sources: [createSource({ nodes: [createText(`export const v${i} = ${i}`)] })],
+                  imports: [],
+                  exports: [],
+                }),
+              )
+            }
+          },
+        },
+      }))()
+
+      const { files } = await createKubb(
+        {
+          ...config,
+          storage,
+          adapter: createMockedAdapter(),
+          plugins: [plugin as unknown as Plugin],
+        },
+        { hooks: new AsyncEventEmitter<KubbHooks>() },
+      ).build()
+
+      expect(files).toHaveLength(fileCount)
+      expect(writtenPaths).toHaveLength(fileCount)
+      expect(new Set(writtenPaths).size).toBe(fileCount)
+    })
   })
 })
