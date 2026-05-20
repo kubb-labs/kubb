@@ -89,6 +89,7 @@ export class KubbDriver {
    * add files; this property gives direct read/write access when needed.
    */
   readonly fileManager = new FileManager()
+  readonly #fileProcessor = new FileProcessor()
 
   readonly plugins = new Map<string, NormalizedPlugin>()
 
@@ -368,7 +369,6 @@ export class KubbDriver {
     const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
     const pluginTimings = new Map<string, number>()
     const parsersMap = new Map<FileNode['extname'], Parser>()
-    using fileProcessor = new FileProcessor()
 
     for (const parser of config.parsers) {
       if (parser.extNames) {
@@ -390,7 +390,7 @@ export class KubbDriver {
         await hooks.emit('kubb:debug', { date: new Date(), logs: [`Writing ${files.length} files...`] })
         await hooks.emit('kubb:files:processing:start', { files })
 
-        const stream = fileProcessor.stream(files, { parsers: parsersMap, extension: config.output.extension })
+        const stream = this.#fileProcessor.stream(files, { parsers: parsersMap, extension: config.output.extension })
         const queue: Array<Promise<void>> = []
         for (const { file, source, processed, total, percentage } of stream) {
           queue.push(
@@ -535,6 +535,9 @@ export class KubbDriver {
       }
     })
 
+    const emitsSchemaHook = this.hooks.listenerCount('kubb:generate:schema') > 0
+    const emitsOperationHook = this.hooks.listenerCount('kubb:generate:operation') > 0
+
     // Pre-scan: plugins with operation-based includes (but no schemaName include) need
     // the reachable schema set. This requires the full schema graph in memory at once —
     // transitive reachability can't be derived from a single node. `allSchemas` is
@@ -590,7 +593,7 @@ export class KubbDriver {
           const applied = applyHookResult({ result, driver, rendererFactory: resolveRendererFor(gen, state) })
           if (isPromise(applied)) await applied
         }
-        await this.hooks.emit('kubb:generate:schema', transformedNode, ctx)
+        if (emitsSchemaHook) await this.hooks.emit('kubb:generate:schema', transformedNode, ctx)
       } catch (caughtError) {
         state.failed = true
         state.error = caughtError as Error
@@ -616,7 +619,7 @@ export class KubbDriver {
           const applied = applyHookResult({ result, driver, rendererFactory: resolveRendererFor(gen, state) })
           if (isPromise(applied)) await applied
         }
-        await this.hooks.emit('kubb:generate:operation', transformedNode, ctx)
+        if (emitsOperationHook) await this.hooks.emit('kubb:generate:operation', transformedNode, ctx)
       } catch (caughtError) {
         state.failed = true
         state.error = caughtError as Error
@@ -701,6 +704,7 @@ export class KubbDriver {
     // memory is reclaimed between builds. The returned `BuildOutput.files`
     // array still references any FileNodes the caller needs to inspect.
     this.fileManager.dispose()
+    this.#fileProcessor.dispose()
     this.inputNode = undefined
     this.#studio = { source: undefined, isOpen: false, inputNode: undefined }
 
