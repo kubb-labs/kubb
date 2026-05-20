@@ -3,7 +3,7 @@ import type { FileNode, InputNode, OperationNode, SchemaNode, Visitor } from '@k
 import type { Adapter } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { KubbHooks } from './types.ts'
-import type { PluginDriver } from './PluginDriver.ts'
+import type { KubbDriver } from './KubbDriver.ts'
 import type { Plugin, PluginFactoryOptions } from './definePlugin.ts'
 import type { Resolver } from './defineResolver.ts'
 import type { Config, DevtoolsOptions } from './types.ts'
@@ -26,7 +26,7 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    * Returns `'single'` when `output.path` is a file, `'split'` for a directory.
    */
   getMode: (output: { path: string }) => 'single' | 'split'
-  driver: PluginDriver
+  driver: KubbDriver
   /**
    * Get a plugin by name, typed via `Kubb.PluginRegistry` when registered.
    */

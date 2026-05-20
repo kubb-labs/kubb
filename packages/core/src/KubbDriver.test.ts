@@ -1,7 +1,7 @@
 import { AsyncEventEmitter } from '@internals/utils'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, test } from 'vitest'
-import { PluginDriver } from './PluginDriver.ts'
+import { KubbDriver } from './KubbDriver.ts'
 import type { Config, KubbHooks, Plugin } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 
@@ -35,7 +35,7 @@ describe('PluginDriver', () => {
     plugins: [pluginA, pluginB, pluginC] as unknown as Array<Plugin>,
     storage: fsStorage(),
   } satisfies Config
-  const pluginDriver = new PluginDriver(config, {
+  const pluginDriver = new KubbDriver(config, {
     hooks: new AsyncEventEmitter<KubbHooks>(),
   })
 
@@ -57,7 +57,7 @@ describe('PluginDriver', () => {
       plugins: [postPlugin, normalPlugin, prePlugin] as unknown as Array<Plugin>,
     } satisfies Config
 
-    const driver = new PluginDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })
+    const driver = new KubbDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })
     const names = [...driver.plugins.keys()]
 
     expect(names.indexOf('pre')).toBeLessThan(names.indexOf('normal'))
@@ -71,6 +71,6 @@ describe('PluginDriver', () => {
       plugins: [pluginWithoutHooks],
     } satisfies Config
 
-    expect(() => new PluginDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })).not.toThrow()
+    expect(() => new KubbDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })).not.toThrow()
   })
 })

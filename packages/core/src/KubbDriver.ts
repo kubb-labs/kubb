@@ -1,8 +1,8 @@
 import { resolve } from 'node:path'
-import type { AsyncEventEmitter } from '@internals/utils'
+import {type AsyncEventEmitter, URLPath} from '@internals/utils'
 import type { FileNode, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { createFile } from '@kubb/ast'
-import { DEFAULT_STUDIO_URL } from './constants.ts'
+import {DEFAULT_STUDIO_URL, STREAM_SCHEMA_THRESHOLD} from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Plugin } from './definePlugin.ts'
 import { getMode } from './definePlugin.ts'
@@ -12,12 +12,12 @@ import { FileManager } from './FileManager.ts'
 import type { RendererFactory } from './createRenderer.ts'
 
 import type {
-  Adapter,
+  Adapter, AdapterSource,
   Config,
   DevtoolsOptions,
   GeneratorContext,
   KubbHooks,
-  KubbPluginSetupContext,
+  KubbPluginSetupContext, Middleware,
   NormalizedPlugin,
   PluginFactoryOptions,
   Resolver,
@@ -33,7 +33,7 @@ function enforceOrder(enforce: 'pre' | 'post' | undefined): number {
   return enforce === 'pre' ? -1 : enforce === 'post' ? 1 : 0
 }
 
-export class PluginDriver {
+export class KubbDriver {
   readonly config: Config
   readonly options: Options
 
@@ -61,6 +61,14 @@ export class PluginDriver {
    */
   inputStreamNode: InputStreamNode | undefined = undefined
   adapter: Adapter | undefined = undefined
+
+  // Register middleware hooks after all plugin hooks are registered.
+  // Because AsyncEventEmitter calls listeners in registration order,
+  // middleware hooks for any event fire after all plugin hooks for that event.
+  // Handlers are tracked so they can be removed after each build (disposeMiddleware),
+  // preventing accumulation when multiple configs share the same hooks instance.
+  middlewareListeners: Array<[keyof KubbHooks & string, (...args: never[]) => void | Promise<void>]> = []
+
   #studioIsOpen = false
 
   /**
@@ -84,23 +92,49 @@ export class PluginDriver {
   constructor(config: Config, options: Options) {
     this.config = config
     this.options = options
-    config.plugins
-      .map((rawPlugin) => this.#normalizePlugin(rawPlugin as Plugin))
-      .filter((plugin) => {
-        if (typeof plugin.apply === 'function') {
-          return plugin.apply(config)
+    this.adapter = config.adapter
+  }
+
+  async setup(){
+
+    const normalized: NormalizedPlugin[] = []
+    const depSets = new Map<string, Set<string>>()
+
+    for (const rawPlugin of this.config.plugins) {
+      const plugin = this.#normalizePlugin(rawPlugin as Plugin)
+      normalized.push(plugin)
+      if (plugin.dependencies?.length) {
+        depSets.set(plugin.name, new Set(plugin.dependencies))
+      }
+    }
+
+    normalized.sort((a, b) => {
+      if (depSets.get(b.name)?.has(a.name)) return -1
+      if (depSets.get(a.name)?.has(b.name)) return 1
+
+      return enforceOrder(a.enforce) - enforceOrder(b.enforce)
+    })
+
+    for (const plugin of normalized) {
+      if(plugin.apply){
+        plugin.apply(this.config)
+      }
+
+      this.#registerPlugin(plugin)
+      this.plugins.set(plugin.name, plugin)
+
+    }
+
+    if(this.config.middleware){
+      for (const middleware of this.config.middleware) {
+        for (const event of Object.keys(middleware.hooks) as Array<keyof KubbHooks & string>) {
+          this.#registerMiddleware(event, middleware.hooks)
         }
-        return true
-      })
-      .sort((a, b) => {
-        if (b.dependencies?.includes(a.name)) return -1
-        if (a.dependencies?.includes(b.name)) return 1
-        // enforce: 'pre' plugins run first, 'post' plugins run last
-        return enforceOrder(a.enforce) - enforceOrder(b.enforce)
-      })
-      .forEach((plugin) => {
-        this.plugins.set(plugin.name, plugin)
-      })
+      }
+    }
+    if (this.config.adapter) {
+      await this.#registerAdapter(this.config.adapter)
+    }
   }
 
   get hooks() {
@@ -111,16 +145,66 @@ export class PluginDriver {
    * Creates an `NormalizedPlugin` from a hook-style plugin and registers
    * its lifecycle handlers on the `AsyncEventEmitter`.
    */
-  #normalizePlugin(hookPlugin: Plugin): NormalizedPlugin {
-    const normalizedPlugin = {
-      name: hookPlugin.name,
-      dependencies: hookPlugin.dependencies,
-      enforce: hookPlugin.enforce,
-      options: { output: { path: '.' }, exclude: [], override: [] },
-    } as unknown as NormalizedPlugin
+  #normalizePlugin(plugin: Plugin): NormalizedPlugin {
+    const normalized: NormalizedPlugin = {
+      name: plugin.name,
+      dependencies: plugin.dependencies,
+      enforce: plugin.enforce,
+      hooks: plugin.hooks,
+      options: plugin.options ?? { output: { path: '.' }, exclude: [], override: [] },
+    } as NormalizedPlugin
 
-    this.registerPluginHooks(hookPlugin, normalizedPlugin)
-    return normalizedPlugin
+    if ('apply' in plugin && typeof plugin.apply === 'function') {
+      normalized.apply = plugin.apply as (config: Config) => boolean
+    }
+
+    return normalized
+  }
+
+  async #registerAdapter(adapter: Adapter){
+    const source = inputToAdapterSource(this.config)
+
+
+    if (adapter.count && adapter.stream) {
+      const { schemas: schemaCount, operations: operationCount } = await adapter.count(source)
+
+      if (schemaCount > STREAM_SCHEMA_THRESHOLD) {
+        this.inputStreamNode = await adapter.stream(source)
+
+        await this.hooks.emit('kubb:debug', {
+          date: new Date(),
+          logs: [
+            `✓ Adapter '${adapter.name}' streaming InputStreamNode`,
+            `  • Schemas: ${schemaCount} (threshold: ${STREAM_SCHEMA_THRESHOLD})`,
+            `  • Operations: ${operationCount}`,
+          ],
+        })
+      }
+    }
+
+    if (!this.inputStreamNode) {
+      this.inputNode = await adapter.parse(source)
+
+      await this.hooks.emit('kubb:debug', {
+        date: new Date(),
+        logs: [
+          `✓ Adapter '${adapter.name}' resolved InputNode`,
+          `  • Schemas: ${this.inputNode.schemas.length}`,
+          `  • Operations: ${this.inputNode.operations.length}`,
+        ],
+      })
+    }
+  }
+
+  #registerMiddleware<K extends keyof KubbHooks & string>(event: K, middlewareHooks: Middleware['hooks']) {
+    const handler = middlewareHooks[event]
+
+    if (!handler) {
+     return
+    }
+
+    this.hooks.on(event, handler)
+    this.middlewareListeners.push([event, handler as (...args: never[]) => void | Promise<void>])
   }
 
   /**
@@ -138,8 +222,8 @@ export class PluginDriver {
    *
    * @internal
    */
-  registerPluginHooks(hookPlugin: Plugin, normalizedPlugin: NormalizedPlugin): void {
-    const { hooks } = hookPlugin
+  #registerPlugin(plugin: NormalizedPlugin): void {
+    const { hooks } = plugin
 
     if (!hooks) return
 
@@ -150,21 +234,21 @@ export class PluginDriver {
       const setupHandler = (globalCtx: KubbPluginSetupContext) => {
         const pluginCtx: KubbPluginSetupContext = {
           ...globalCtx,
-          options: hookPlugin.options ?? {},
+          options: plugin.options ?? {},
           addGenerator: (gen) => {
-            this.registerGenerator(normalizedPlugin.name, gen)
+            this.registerGenerator(plugin.name, gen)
           },
           setResolver: (resolver) => {
-            this.setPluginResolver(normalizedPlugin.name, resolver)
+            this.setPluginResolver(plugin.name, resolver)
           },
           setTransformer: (visitor) => {
-            normalizedPlugin.transformer = visitor
+            plugin.transformer = visitor
           },
           setRenderer: (renderer) => {
-            normalizedPlugin.renderer = renderer
+            plugin.renderer = renderer
           },
           setOptions: (opts) => {
-            normalizedPlugin.options = { ...normalizedPlugin.options, ...opts }
+            plugin.options = { ...plugin.options, ...opts }
           },
           injectFile: (userFileNode) => {
             this.fileManager.add(createFile(userFileNode))
@@ -287,6 +371,7 @@ export class PluginDriver {
         this.hooks.off(event, handler as never)
       }
     }
+
     this.#hookListeners.clear()
     this.#pluginsWithEventGenerators.clear()
     // Release resolver closures — the driver is rebuilt for each build() call
@@ -299,6 +384,10 @@ export class PluginDriver {
     this.fileManager.dispose()
     this.inputNode = undefined
     this.inputStreamNode = undefined
+
+    for (const [event, handler] of this.middlewareListeners) {
+      this.hooks.off(event, handler as never)
+    }
   }
 
   [Symbol.dispose](): void {
@@ -358,13 +447,13 @@ export class PluginDriver {
   getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): GeneratorContext<TOptions> & Record<string, unknown> {
     const driver = this
 
-    const baseContext = {
+    return {
       config: driver.config,
       get root(): string {
         return resolve(driver.config.root, driver.config.output.path)
       },
       getMode(output: { path: string }): 'single' | 'split' {
-        return PluginDriver.getMode(resolve(driver.config.root, driver.config.output.path, output.path))
+        return KubbDriver.getMode(resolve(driver.config.root, driver.config.output.path, output.path))
       },
       hooks: driver.hooks,
       plugin,
@@ -421,7 +510,6 @@ export class PluginDriver {
       },
     } as unknown as GeneratorContext<TOptions>
 
-    return baseContext
   }
 
   getPlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
@@ -460,7 +548,7 @@ export function applyHookResult<TElement = unknown>({
   rendererFactory,
 }: {
   result: TElement | Array<FileNode> | void
-  driver: PluginDriver
+  driver: KubbDriver
   rendererFactory?: RendererFactory<TElement>
 }): void | Promise<void> {
   if (!result) return
@@ -492,9 +580,28 @@ async function applyAsyncRender<TElement>({
 }: {
   renderer: { render(el: TElement): Promise<void>; files: ReadonlyArray<FileNode>; unmount(): void }
   result: TElement
-  driver: PluginDriver
+  driver: KubbDriver
 }): Promise<void> {
   await renderer.render(result)
   driver.fileManager.upsert(...renderer.files)
   renderer.unmount()
+}
+
+function inputToAdapterSource(config: Config): AdapterSource {
+  const input = config.input
+  if (!input) {
+    throw new Error('[kubb] input is required when using an adapter. Provide input.path or input.data in your config.')
+  }
+
+  if ('data' in input) {
+    return { type: 'data', data: input.data }
+  }
+
+  if (new URLPath(input.path).isURL) {
+    return { type: 'path', path: input.path }
+  }
+
+  const resolved = resolve(config.root, input.path)
+
+  return { type: 'path', path: resolved }
 }
