@@ -5,7 +5,7 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { AsyncEventEmitter as AsyncEventEmitterClass, detectFormatter, detectLinter, executeIfOnline, formatters, linters, toError } from '@internals/utils'
-import { type Config, createKubb, isInputPath, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { type CLIOptions, type Config, createKubb, isInputPath, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../../constants.ts'
 import { setupLogger, type HookSinkFactory } from '../../loggers/utils.ts'
@@ -271,7 +271,12 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch }: G
   try {
     await hooks.emit('kubb:config:start')
 
-    const { configs, configPath: resolvedConfigPath } = await getConfigs({ configPath, input })
+    const { configs, configPath: resolvedConfigPath } = await getConfigs({
+      configPath,
+      input,
+      watch,
+      logLevel: logLevelKey as CLIOptions['logLevel'],
+    })
     const relativeConfigPath = path.relative(process.cwd(), resolvedConfigPath)
 
     await hooks.emit('kubb:info', { message: 'Config loaded', info: relativeConfigPath })

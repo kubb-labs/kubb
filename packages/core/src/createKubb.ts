@@ -822,15 +822,20 @@ export type CLIOptions = {
    */
   config?: string
   /**
+   * OpenAPI input path passed as the positional argument to `kubb generate`.
+   * Overrides `config.input.path` when set.
+   */
+  input?: string
+  /**
    * Re-run generation whenever input files change.
    */
   watch?: boolean
   /**
    * Controls how much output the CLI prints.
    *
-   * @default 'silent'
+   * @default 'info'
    */
-  logLevel?: 'silent' | 'info' | 'debug'
+  logLevel?: 'silent' | 'info' | 'verbose' | 'debug'
 }
 
 /**
