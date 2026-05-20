@@ -10,15 +10,18 @@ import { createInputStream, preScan, resolveBaseUrl } from './stream.ts'
 import type { AdapterOas, Document } from './types.ts'
 
 /**
- * Stable string identifier for the OAS adapter used in Kubb's adapter registry.
+ * Canonical adapter name for `@kubb/adapter-oas`. Used for driver lookups.
  */
 export const adapterOasName = 'oas' satisfies AdapterOas['name']
 
 /**
- * Creates the default OpenAPI / Swagger adapter for Kubb.
+ * Default Kubb adapter for OpenAPI 2.0, 3.0, and 3.1 specifications. Reads the
+ * file at `input.path`, validates it, resolves the base URL, and converts every
+ * schema and operation into the universal AST that every downstream plugin
+ * consumes.
  *
- * Parses the spec, optionally validates it, resolves the base URL, and converts
- * everything into an `InputNode` that downstream plugins consume.
+ * Configure once on `defineConfig`. The adapter's choices (date representation,
+ * integer width, server URL) apply to every plugin in the build.
  *
  * @example
  * ```ts
@@ -27,8 +30,13 @@ export const adapterOasName = 'oas' satisfies AdapterOas['name']
  * import { pluginTs } from '@kubb/plugin-ts'
  *
  * export default defineConfig({
- *   adapter: adapterOas({ dateType: 'date', serverIndex: 0 }),
- *   input: { path: './openapi.yaml' },
+ *   input: { path: './petStore.yaml' },
+ *   output: { path: './src/gen' },
+ *   adapter: adapterOas({
+ *     serverIndex: 0,
+ *     discriminator: 'inherit',
+ *     dateType: 'date',
+ *   }),
  *   plugins: [pluginTs()],
  * })
  * ```

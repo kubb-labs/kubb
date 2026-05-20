@@ -2,7 +2,7 @@ $schema: https://kubb.dev/schemas/extension.json
 kind: adapter
 id: adapter-oas
 name: OpenAPI
-description: Parse and convert OpenAPI 2.0, 3.0, and 3.1 specifications into Kubb's universal AST with full support for discriminators, date types, and server configuration.
+description: Parse and convert OpenAPI 2.0, 3.0, and 3.1 specifications into Kubb's universal AST. Handles discriminators, date formats, and server URL resolution.
 category: openapi
 type: official
 npmPackage: '@kubb/adapter-oas'
@@ -29,63 +29,112 @@ featured: true
 icon:
   light: https://kubb.dev/feature/openapi.svg
 intro: |-
-  The OpenAPI adapter parses and converts your OpenAPI specification into Kubb's internal AST (Abstract Syntax Tree), which all downstream plugins consume.
+  The OpenAPI adapter is the bridge between your spec and every Kubb plugin. It reads the file at `input.path`, validates it, and converts every schema and operation into Kubb's universal AST that downstream plugins consume.
 
-  The adapter is configured once in `defineConfig` and applies globally to all plugins.
+  Configure it once on `defineConfig`. Its choices (date representation, integer width, server URL) apply to every plugin in the build.
 options:
   - name: validate
     type: boolean
     required: false
     default: 'true'
-    description: Validate the OpenAPI spec before parsing using `@readme/openapi-parser`.
+    description: |
+      Validates the OpenAPI spec with `@readme/openapi-parser` before parsing. Set to `false` only when you have a known-invalid spec that you still want to generate from.
+    examples:
+      - name: kubb.config.ts
+        files:
+          - lang: typescript
+            twoslash: false
+            code: |
+              import { defineConfig } from 'kubb'
+              import { adapterOas } from '@kubb/adapter-oas'
+
+              export default defineConfig({
+                input: { path: './petStore.yaml' },
+                output: { path: './src/gen' },
+                adapter: adapterOas({ validate: false }),
+                plugins: [],
+              })
+
   - name: contentType
     type: "'application/json' | string"
     required: false
-    description: Preferred content-type used when extracting request/response schemas from the spec. Defaults to the first valid JSON media type found in the spec.
+    description: |
+      Preferred media type when extracting request and response schemas. Operations with multiple media types fall back to this one.
+
+      Defaults to the first JSON-compatible media type found in the spec (`application/json`, `application/vnd.api+json`, any `*+json`).
     codeBlock:
       lang: typescript
       title: kubb.config.ts
       twoslash: false
       code: |-
+        import { defineConfig } from 'kubb'
         import { adapterOas } from '@kubb/adapter-oas'
 
-        adapterOas({ contentType: 'application/vnd.api+json' })
+        export default defineConfig({
+          input: { path: './petStore.yaml' },
+          output: { path: './src/gen' },
+          adapter: adapterOas({ contentType: 'application/vnd.api+json' }),
+          plugins: [],
+        })
+
   - name: serverIndex
     type: number
     required: false
-    description: Index into the `servers` array from your OpenAPI spec for computing `baseURL`.
-    tip: Defining the server here will make it possible to use that endpoint as `baseURL` in other plugins.
+    description: |
+      Index into the `servers` array from your OpenAPI spec, used to compute the base URL for plugins that need it (`@kubb/plugin-client`, `@kubb/plugin-msw`, ...).
+
+      Most projects pick `0` for the primary server. Use higher indices to point at staging or localhost when your spec defines multiple environments.
+    tip: |
+      Plugins read `baseURL` from this server unless they override it explicitly.
     examples:
-      - name: OpenAPI
+      - name: OpenAPI spec
         files:
           - lang: yaml
+            twoslash: false
             code: |-
               openapi: 3.0.3
               servers:
                 - url: http://petstore.swagger.io/api
                 - url: http://localhost:3000
-      - name: serverIndex 0
+      - name: 'Use the production server'
         files:
           - lang: typescript
+            twoslash: false
             code: |-
+              import { defineConfig } from 'kubb'
               import { adapterOas } from '@kubb/adapter-oas'
 
-              adapterOas({ serverIndex: 0 })
-      - name: serverIndex 1
+              export default defineConfig({
+                input: { path: './petStore.yaml' },
+                output: { path: './src/gen' },
+                adapter: adapterOas({ serverIndex: 0 }),
+                plugins: [],
+              })
+      - name: 'Use the localhost server'
         files:
           - lang: typescript
+            twoslash: false
             code: |-
+              import { defineConfig } from 'kubb'
               import { adapterOas } from '@kubb/adapter-oas'
 
-              adapterOas({ serverIndex: 1 })
+              export default defineConfig({
+                input: { path: './petStore.yaml' },
+                output: { path: './src/gen' },
+                adapter: adapterOas({ serverIndex: 1 }),
+                plugins: [],
+              })
+
   - name: serverVariables
     type: Record<string, string>
     required: false
-    description: Override values for `{variable}` placeholders in the selected server URL. Only used when `serverIndex` is set. Variables not provided fall back to their `default` value from the spec.
+    description: |
+      Values substituted into `{variable}` placeholders in the selected server URL. Only used when `serverIndex` is set. Variables you do not provide use their `default` value from the spec.
     examples:
-      - name: OpenAPI
+      - name: OpenAPI spec
         files:
           - lang: yaml
+            twoslash: false
             code: |-
               openapi: 3.0.3
               servers:
@@ -97,28 +146,41 @@ options:
       - name: kubb.config.ts
         files:
           - lang: typescript
+            twoslash: false
             code: |-
+              import { defineConfig } from 'kubb'
               import { adapterOas } from '@kubb/adapter-oas'
 
-              adapterOas({
-                serverIndex: 0,
-                serverVariables: { env: 'prod' },
+              export default defineConfig({
+                input: { path: './petStore.yaml' },
+                output: { path: './src/gen' },
+                adapter: adapterOas({
+                  serverIndex: 0,
+                  serverVariables: { env: 'prod' },
+                }),
+                plugins: [],
               })
-              // Results in baseURL: https://api.prod.example.com
+              // baseURL becomes: https://api.prod.example.com
+
   - name: discriminator
     type: "'strict' | 'inherit'"
     required: false
     default: "'strict'"
-    description: How the discriminator field is interpreted when processing `oneOf`/`anyOf` schemas.
+    description: |
+      How `discriminator` fields on `oneOf`/`anyOf` schemas are interpreted.
+
+      - `'strict'` (default) — child schemas stay exactly as written. The discriminator narrows types at the call site but child shapes are not modified.
+      - `'inherit'` — Kubb propagates the discriminator property with the appropriate literal value into each child schema, so each branch's `type` field is precisely typed.
     details:
       - title: strict
-        body: Uses `oneOf` schemas as written in the spec. The discriminator is used for type narrowing but child schemas are not modified.
+        body: 'Child schemas are emitted verbatim. The discriminator property has whatever type the OpenAPI spec gave it.'
       - title: inherit
-        body: Propagates the discriminator property with appropriate enum values into each child schema, ensuring type safety and enabling better code generation.
+        body: "Each child schema gets the discriminator value as a literal (`type: 'cat'`, `type: 'dog'`). Catches more bugs at compile time."
     examples:
-      - name: OpenAPI
+      - name: OpenAPI spec
         files:
           - lang: yaml
+            twoslash: false
             code: |-
               openapi: 3.0.3
               components:
@@ -148,9 +210,10 @@ options:
                         type: string
                       name:
                         type: string
-      - name: strict
+      - name: "'strict' (default)"
         files:
           - lang: typescript
+            twoslash: false
             code: |-
               export type Cat = {
                 type: string
@@ -163,9 +226,10 @@ options:
               }
 
               export type Animal = Cat | Dog
-      - name: inherit
+      - name: "'inherit'"
         files:
           - lang: typescript
+            twoslash: false
             code: |-
               export type Cat = {
                 type: 'cat'
@@ -178,62 +242,70 @@ options:
               }
 
               export type Animal = Cat | Dog
+
   - name: dateType
     type: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
     required: false
     default: "'string'"
-    description: "How `format: 'date-time'` schemas are represented in the generated AST and downstream output."
-    details:
-      - title: 'false'
-        body: Falls through to a plain `string` type.
-      - title: "'string'"
-        body: Emits a datetime string node (e.g. `z.string().datetime()`).
-      - title: "'stringOffset'"
-        body: 'Emits a datetime node with timezone offset (`{ offset: true }`).'
-      - title: "'stringLocal'"
-        body: 'Emits a local datetime node (`{ local: true }`).'
-      - title: "'date'"
-        body: Emits a `date` node (JavaScript `Date` object).
+    description: |
+      How `format: date-time` schemas are represented downstream.
+
+      - `false` — fall through to a plain `string` (no validation).
+      - `'string'` (default) — datetime string (`z.string().datetime()`, ISO 8601).
+      - `'stringOffset'` — datetime string with timezone offset.
+      - `'stringLocal'` — local datetime string (no timezone).
+      - `'date'` — JavaScript `Date` object. Best for client code; requires JSON parsing to revive.
     examples:
       - name: 'false'
         files:
           - lang: typescript
+            twoslash: false
             code: |-
               // format: date-time → plain string
               type CreatedAt = string
       - name: "'string' (default)"
         files:
           - lang: typescript
+            twoslash: false
             code: |-
-              // format: date-time → datetime string
-              type CreatedAt = string // validated as ISO 8601 datetime
+              // format: date-time → ISO 8601 datetime string
+              type CreatedAt = string
       - name: "'stringOffset'"
         files:
           - lang: typescript
+            twoslash: false
             code: |-
-              // format: date-time → datetime string with offset
-              type CreatedAt = string // validated as ISO 8601 datetime with offset
+              // format: date-time → ISO 8601 datetime with offset
+              type CreatedAt = string
       - name: "'stringLocal'"
         files:
           - lang: typescript
+            twoslash: false
             code: |-
-              // format: date-time → local datetime string
-              type CreatedAt = string // validated as local ISO 8601 datetime
+              // format: date-time → local ISO 8601 datetime
+              type CreatedAt = string
       - name: "'date'"
         files:
           - lang: typescript
+            twoslash: false
             code: |-
               // format: date-time → JavaScript Date
               type CreatedAt = Date
+
   - name: integerType
     type: "'number' | 'bigint'"
     required: false
-    default: "'bigint'"
-    description: "Whether `type: 'integer'` and `format: 'int64'` produce `number` or `bigint` nodes."
+    default: "'number'"
+    description: |
+      How `type: integer` (and `format: int64`) maps to TypeScript.
+
+      - `'number'` (default) — fits most JSON APIs; loses precision above `Number.MAX_SAFE_INTEGER`.
+      - `'bigint'` — exact for 64-bit IDs, but `JSON.stringify`/`JSON.parse` cannot round-trip it. Use only when you also handle bigint serialization explicitly.
     examples:
       - name: "'number' (default)"
         files:
           - lang: typescript
+            twoslash: false
             code: |-
               type Pet = {
                 id: number
@@ -241,19 +313,25 @@ options:
       - name: "'bigint'"
         files:
           - lang: typescript
+            twoslash: false
             code: |-
               type Pet = {
                 id: bigint
               }
+
   - name: unknownType
     type: "'any' | 'unknown' | 'void'"
     required: false
     default: "'any'"
-    description: AST type used when no schema type can be inferred from the OpenAPI spec.
+    description: |
+      AST type used when a schema's type cannot be inferred from the spec (`additionalProperties: true`, missing `type`, etc.).
+
+      Pick `'unknown'` to force callers to narrow before using the value. `'any'` is the loosest; `'void'` is rarely useful but matches some legacy APIs.
     examples:
       - name: "'any' (default)"
         files:
           - lang: typescript
+            twoslash: false
             code: |-
               type Pet = {
                 extra: any
@@ -261,6 +339,7 @@ options:
       - name: "'unknown'"
         files:
           - lang: typescript
+            twoslash: false
             code: |-
               type Pet = {
                 extra: unknown
@@ -268,65 +347,73 @@ options:
       - name: "'void'"
         files:
           - lang: typescript
+            twoslash: false
             code: |-
               type Pet = {
                 extra: void
               }
+
   - name: emptySchemaType
     type: "'any' | 'unknown' | 'void'"
     required: false
     default: unknownType | 'any'
-    description: AST type used for completely empty schemas (`{}`).
-    tip: When not set, `emptySchemaType` falls back to the value of `unknownType`. Set it explicitly only when you want a different type for empty schemas than for unresolvable ones.
+    description: |
+      AST type used for fully empty schemas (`{}`). Defaults to the value of `unknownType`. Override only when empty schemas should be treated differently from unresolvable ones.
+    tip: |
+      A common pattern: `unknownType: 'unknown'` for safety, `emptySchemaType: 'any'` to keep empty 204 response bodies frictionless to use.
     examples:
       - name: "'any' (default)"
         files:
           - lang: typescript
+            twoslash: false
             code: |-
               // empty schema {} → any
               type EmptyModel = any
       - name: "'unknown'"
         files:
           - lang: typescript
+            twoslash: false
             code: |-
               // empty schema {} → unknown
               type EmptyModel = unknown
+
   - name: enumSuffix
     type: string
     required: false
     default: "'enum'"
-    description: Suffix appended to derived enum names when building nested property schema names.
+    description: |
+      Suffix appended to derived enum names when Kubb has to invent one (typically for inline enums on object properties).
+
+      Inline enums on a `status` property would be named `statusEnum` with the default. Change this to align with your project's naming convention.
     examples:
       - name: "'enum' (default)"
         files:
           - lang: typescript
+            twoslash: false
             code: |-
-              // property `status` with inline enum values
+              // Property `status` with inline enum values
               const statusEnum = { available: 'available', pending: 'pending' } as const
               type StatusEnum = (typeof statusEnum)[keyof typeof statusEnum]
       - name: "'type'"
         files:
           - lang: typescript
+            twoslash: false
             code: |-
-              // enumSuffix: 'type'
               const statusType = { available: 'available', pending: 'pending' } as const
               type StatusType = (typeof statusType)[keyof typeof statusType]
 examples:
   - name: kubb.config.ts
     files:
       - lang: typescript
+        twoslash: false
         code: |-
           import { defineConfig } from 'kubb'
           import { adapterOas } from '@kubb/adapter-oas'
           import { pluginTs } from '@kubb/plugin-ts'
 
           export default defineConfig({
-            input: {
-              path: './petStore.yaml',
-            },
-            output: {
-              path: './src/gen',
-            },
+            input: { path: './petStore.yaml' },
+            output: { path: './src/gen' },
             adapter: adapterOas({
               validate: true,
               serverIndex: 0,

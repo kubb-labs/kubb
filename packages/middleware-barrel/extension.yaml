@@ -2,7 +2,7 @@ $schema: https://kubb.dev/schemas/extension.json
 kind: middleware
 id: middleware-barrel
 name: Barrel
-description: Automatically generates barrel files (index.ts exports) for every plugin output directory. Ships with Kubb and is enabled by default.
+description: Generates `index.ts` re-export files for every plugin output and one root barrel. Ships with Kubb and is enabled by default.
 category: output
 type: official
 npmPackage: '@kubb/middleware-barrel'
@@ -26,9 +26,9 @@ resources:
   changelog: https://github.com/kubb-labs/kubb/blob/main/packages/middleware-barrel/CHANGELOG.md
 featured: true
 intro: |-
-  The barrel middleware automatically generates `index.ts` (and `index.js`) re-export files for every plugin output directory **and** a root barrel at `config.output.path/index.ts` after the build finishes.
+  `@kubb/middleware-barrel` generates an `index.ts` for every plugin output directory and one root barrel at `output.path/index.ts` after the build completes. The result is a single import surface for every consumer — `import { Pet, usePetByIdQuery, petMock } from './gen'`.
 
-  It ships with Kubb and is registered as a default middleware in `defineConfig`, so you get barrel files out of the box with no extra configuration. When `middlewareBarrel` is part of `config.middleware`, `defineConfig` also applies a default `output.barrel` of `{ type: 'named' }`. Custom middleware lists that omit `middlewareBarrel` leave `barrel` untouched.
+  The middleware ships with Kubb and is registered by default in `defineConfig`, so barrels appear out of the box with no extra configuration. When `middlewareBarrel` is part of `config.middleware`, `defineConfig` also applies a default `output.barrel` of `{ type: 'named' }`. Custom middleware lists that omit `middlewareBarrel` leave `barrel` untouched.
 
   Plugins inherit `output.barrel` from `config.output.barrel` when their own value is omitted. Setting `barrel: false` on a plugin disables that plugin's barrel **and** excludes its files from the root barrel.
 options:
@@ -37,18 +37,20 @@ options:
     required: false
     default: "{ type: 'named' }"
     description: |-
-      Re-export style for the generated barrel files. Configured via `output.barrel` in `defineConfig` (root level) or per plugin via the plugin's own `output.barrel`. This is not a middleware argument.
+      Re-export style used for every generated barrel file. Set via `output.barrel` in `defineConfig` (applies to all plugins and the root barrel) or per plugin via that plugin's own `output.barrel`. It is not an argument to the middleware itself.
 
       At the config level:
-      - `{ type: 'all' }` — `export * from '...'` for every generated file
-      - `{ type: 'named' }` — `export { name1, name2 } from '...'` using each file's named exports
-      - `false` — disables barrel generation entirely
 
-      At the plugin level, the `nested` flag is also available:
-      - `{ type: 'named', nested: true }` — generates a barrel for every directory, re-exporting only direct children, creating a chain for imports from any depth
-      - `false` — disables barrel generation for that plugin and excludes its files from the root barrel
+      - `{ type: 'all' }` — `export * from '...'` for every generated file.
+      - `{ type: 'named' }` — `export { Foo, Bar } from '...'` using each file's named exports.
+      - `false` — disables barrel generation entirely.
 
-      The `{ type: 'named' }` default is applied automatically by `defineConfig` only when `middlewareBarrel` is part of `config.middleware`.
+      At the plugin level you also get `nested`:
+
+      - `{ type: 'named', nested: true }` — generates a barrel for every subdirectory, re-exporting only direct children. Lets callers import from any depth.
+      - `false` — disables the plugin's barrel and removes its files from the root barrel.
+
+      The `{ type: 'named' }` default kicks in only when `middlewareBarrel` is part of `config.middleware`.
     codeBlock:
       lang: typescript
       title: kubb.config.ts
@@ -58,12 +60,13 @@ options:
         import { middlewareBarrel } from '@kubb/middleware-barrel'
 
         export default defineConfig({
-          input: { path: './petstore.yaml' },
+          input: { path: './petStore.yaml' },
           output: { path: './src/gen', barrel: { type: 'named' } },
           middleware: [middlewareBarrel()],
+          plugins: [],
         })
 examples:
-  - name: "barrel: { type: 'named' } (default)"
+  - name: "{ type: 'named' } (default)"
     files:
       - name: kubb.config.ts
         lang: typescript
@@ -72,10 +75,11 @@ examples:
           import { defineConfig } from 'kubb'
 
           export default defineConfig({
-            input: { path: './petstore.yaml' },
+            input: { path: './petStore.yaml' },
             output: { path: './src/gen' },
+            plugins: [],
           })
-      - name: 'Generated output'
+      - name: Generated output
         lang: typescript
         twoslash: false
         code: |-
@@ -92,7 +96,7 @@ examples:
 
           // src/gen/api/types/index.ts
           export { User } from './User'
-  - name: "barrel: { type: 'all' }"
+  - name: "{ type: 'all' }"
     files:
       - name: kubb.config.ts
         lang: typescript
@@ -101,10 +105,11 @@ examples:
           import { defineConfig } from 'kubb'
 
           export default defineConfig({
-            input: { path: './petstore.yaml' },
+            input: { path: './petStore.yaml' },
             output: { path: './src/gen', barrel: { type: 'all' } },
+            plugins: [],
           })
-      - name: 'Generated output'
+      - name: Generated output
         lang: typescript
         twoslash: false
         code: |-
@@ -121,7 +126,7 @@ examples:
 
           // src/gen/api/types/index.ts
           export * from './User'
-  - name: "barrel: { type: 'named', nested: true }"
+  - name: "{ type: 'named', nested: true }"
     files:
       - name: kubb.config.ts
         lang: typescript
@@ -130,10 +135,11 @@ examples:
           import { defineConfig } from 'kubb'
 
           export default defineConfig({
-            input: { path: './petstore.yaml' },
+            input: { path: './petStore.yaml' },
             output: { path: './src/gen', barrel: { type: 'named', nested: true } },
+            plugins: [],
           })
-      - name: 'Generated output (chained structure)'
+      - name: Generated output (chained structure)
         lang: typescript
         twoslash: false
         code: |-
@@ -148,7 +154,7 @@ examples:
 
           // src/gen/api/types/index.ts (exports files)
           export * from './User'
-  - name: Disable barrel for a single plugin
+  - name: Disable the barrel for a single plugin
     files:
       - name: kubb.config.ts
         lang: typescript
@@ -158,17 +164,17 @@ examples:
           import { pluginTs } from '@kubb/plugin-ts'
           import { pluginZod } from '@kubb/plugin-zod'
 
-          // pluginZod opts out: no zod/index.ts is created
+          // pluginZod opts out: no zod/index.ts is created,
           // and zod files are excluded from the root index.ts.
           export default defineConfig({
-            input: { path: './petstore.yaml' },
+            input: { path: './petStore.yaml' },
             output: { path: './src/gen' },
             plugins: [
               pluginTs(),
               pluginZod({ output: { barrel: false } }),
             ],
           })
-  - name: Disable the root barrel only
+  - name: Disable only the root barrel
     files:
       - name: kubb.config.ts
         lang: typescript
@@ -177,15 +183,16 @@ examples:
           import { defineConfig } from 'kubb'
 
           // No root index.ts is generated, but each plugin
-          // still gets its own barrel using its inherited barrel config.
+          // still gets its own barrel using its inherited config.
           export default defineConfig({
-            input: { path: './petstore.yaml' },
+            input: { path: './petStore.yaml' },
             output: { path: './src/gen', barrel: false },
+            plugins: [],
           })
 notes:
   - type: tip
     body: |-
-      `middleware-barrel` is bundled with Kubb and enabled automatically when no `middleware` option is provided. You only need to install it explicitly when customising the barrel behaviour alongside other middlewares.
+      `middleware-barrel` ships with Kubb and is enabled automatically when no `middleware` option is provided. Install it explicitly only when customising barrel behaviour alongside other middlewares.
   - type: note
     body: |-
-      `output.barrel` is only auto-defaulted to `{ type: 'named' }` when `middlewareBarrel` is part of `config.middleware`. If you provide a custom middleware list without it, set `output.barrel` yourself if you still want a barrel.
+      `output.barrel` is auto-defaulted to `{ type: 'named' }` only when `middlewareBarrel` is part of `config.middleware`. With a custom middleware list that omits it, set `output.barrel` yourself if you still want a barrel.
