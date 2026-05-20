@@ -74,15 +74,13 @@ export function isStringType(node: SchemaNode): boolean {
  * the desired casing while preserving `OperationNode.parameters` for other consumers.
  * The input array is not mutated. When `casing` is not set, the original array is returned unchanged.
  */
-const caseParamsMemo = memoize(
-  new WeakMap<Array<ParameterNode>, (casing: string) => Array<ParameterNode>>(),
-  (params) =>
-    memoize(new Map<string, Array<ParameterNode>>(), (casing: string) =>
-      params.map((param) => {
-        const transformed = casing === 'camelcase' || !isValidVarName(param.name) ? camelCase(param.name) : param.name
-        return { ...param, name: transformed }
-      }),
-    ),
+const caseParamsMemo = memoize(new WeakMap<Array<ParameterNode>, (casing: string) => Array<ParameterNode>>(), (params) =>
+  memoize(new Map<string, Array<ParameterNode>>(), (casing: string) =>
+    params.map((param) => {
+      const transformed = casing === 'camelcase' || !isValidVarName(param.name) ? camelCase(param.name) : param.name
+      return { ...param, name: transformed }
+    }),
+  ),
 )
 
 export function caseParams(params: Array<ParameterNode>, casing: 'camelcase' | undefined): Array<ParameterNode> {
@@ -831,9 +829,8 @@ export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: 
  * allowed.has('OrderStatus') // false when no included operation references OrderStatus
  * ```
  */
-const collectUsedSchemaNamesMemo = memoize(
-  new WeakMap<ReadonlyArray<OperationNode>, (schemas: ReadonlyArray<SchemaNode>) => Set<string>>(),
-  (ops) => memoize(new WeakMap<ReadonlyArray<SchemaNode>, Set<string>>(), (schemas) => computeUsedSchemaNames(ops, schemas)),
+const collectUsedSchemaNamesMemo = memoize(new WeakMap<ReadonlyArray<OperationNode>, (schemas: ReadonlyArray<SchemaNode>) => Set<string>>(), (ops) =>
+  memoize(new WeakMap<ReadonlyArray<SchemaNode>, Set<string>>(), (schemas) => computeUsedSchemaNames(ops, schemas)),
 )
 
 function computeUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schemas: ReadonlyArray<SchemaNode>): Set<string> {

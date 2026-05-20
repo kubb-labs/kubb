@@ -401,8 +401,9 @@ export class KubbDriver {
     handlers.add(handler)
   }
 
-  #getDefaultResolver = memoize(this.#defaultResolvers, (pluginName: string): Resolver =>
-    defineResolver<PluginFactoryOptions>(() => ({ name: 'default', pluginName })),
+  #getDefaultResolver = memoize(
+    this.#defaultResolvers,
+    (pluginName: string): Resolver => defineResolver<PluginFactoryOptions>(() => ({ name: 'default', pluginName })),
   )
 
   /**
