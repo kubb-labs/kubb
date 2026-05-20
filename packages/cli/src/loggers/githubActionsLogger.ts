@@ -256,12 +256,12 @@ export const githubActionsLogger = defineLogger({
       showProgressStep()
     })
 
-    context.on('kubb:file:processing:update', () => {
+    context.on('kubb:files:processing:update', ({ files }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
 
-      state.processedFiles++
+      state.processedFiles += files.length
     })
 
     context.on('kubb:generation:end', ({ config }) => {

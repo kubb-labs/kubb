@@ -142,14 +142,14 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:file:processing:update', ({ file, config }) => {
+    context.on('kubb:files:processing:update', ({ files }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
 
-      const text = getMessage(`Writing ${relative(config.root, file.path)}`)
-
-      console.log(text)
+      for (const { file, config } of files) {
+        console.log(getMessage(`Writing ${relative(config.root, file.path)}`))
+      }
     })
 
     context.on('kubb:files:processing:end', () => {

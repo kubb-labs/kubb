@@ -390,16 +390,16 @@ export class KubbDriver {
         await hooks.emit('kubb:debug', { date: new Date(), logs: [`Writing ${files.length} files...`] })
         await hooks.emit('kubb:files:processing:start', { files })
 
-        const stream = this.#fileProcessor.stream(files, { parsers: parsersMap, extension: config.output.extension })
+        const items = [...this.#fileProcessor.stream(files, { parsers: parsersMap, extension: config.output.extension })]
+
+        await hooks.emit('kubb:files:processing:update', { files: items.map(({ file, source, processed, total, percentage }) => ({ file, source, processed, total, percentage, config })) })
+
         const queue: Array<Promise<void>> = []
-        for (const { file, source, processed, total, percentage } of stream) {
-          queue.push(
-            (async () => {
-              await hooks.emit('kubb:file:processing:update', { file, source, processed, total, percentage, config })
-              if (source) await storage.setItem(file.path, source)
-            })(),
-          )
-          if (queue.length >= STREAM_FLUSH_EVERY) await Promise.all(queue.splice(0))
+        for (const { file, source } of items) {
+          if (source) {
+            queue.push(storage.setItem(file.path, source))
+            if (queue.length >= STREAM_FLUSH_EVERY) await Promise.all(queue.splice(0))
+          }
         }
         await Promise.all(queue)
 

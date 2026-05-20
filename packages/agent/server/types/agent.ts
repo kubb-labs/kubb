@@ -46,12 +46,14 @@ export type KubbHooks = {
   'kubb:plugin:start': [ctx: { plugin: { name: string } }]
   'kubb:plugin:end': [ctx: { plugin: { name: string }; duration: number; success: boolean }]
   'kubb:files:processing:start': [ctx: { total: number }]
-  'kubb:file:processing:update': [
+  'kubb:files:processing:update': [
     ctx: {
-      file: string
-      processed: number
-      total: number
-      percentage: number
+      files: Array<{
+        file: string
+        processed: number
+        total: number
+        percentage: number
+      }>
     },
   ]
   'kubb:files:processing:end': [ctx: { total: number }]

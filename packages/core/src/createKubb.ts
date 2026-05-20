@@ -515,7 +515,7 @@ export interface KubbHooks {
   'kubb:warn': [ctx: KubbWarnContext]
   'kubb:debug': [ctx: KubbDebugContext]
   'kubb:files:processing:start': [ctx: KubbFilesProcessingStartContext]
-  'kubb:file:processing:update': [ctx: KubbFileProcessingUpdateContext]
+  'kubb:files:processing:update': [ctx: KubbFilesProcessingUpdateContext]
   'kubb:files:processing:end': [ctx: KubbFilesProcessingEndContext]
   'kubb:plugin:start': [ctx: KubbPluginStartContext]
   'kubb:plugin:end': [ctx: KubbPluginEndContext]
@@ -734,7 +734,7 @@ export type KubbFilesProcessingStartContext = {
   files: Array<FileNode>
 }
 
-export type KubbFileProcessingUpdateContext = {
+export type KubbFileProcessingUpdate = {
   /**
    * Number of files processed so far in this batch.
    */
@@ -759,6 +759,13 @@ export type KubbFileProcessingUpdateContext = {
    * Resolved configuration for this build.
    */
   config: Config
+}
+
+export type KubbFilesProcessingUpdateContext = {
+  /**
+   * All files processed in this flush chunk.
+   */
+  files: Array<KubbFileProcessingUpdate>
 }
 
 export type KubbFilesProcessingEndContext = {

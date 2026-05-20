@@ -9,19 +9,10 @@ function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNod
     // at the same path.
     banner: b.banner,
     footer: b.footer,
-    sources: [...(a.sources || []), ...(b.sources || [])],
-    imports: [...(a.imports || []), ...(b.imports || [])],
-    exports: [...(a.exports || []), ...(b.exports || [])],
+    sources: a.sources.length ? (b.sources.length ? [...a.sources, ...b.sources] : a.sources) : b.sources,
+    imports: a.imports.length ? (b.imports.length ? [...a.imports, ...b.imports] : a.imports) : b.imports,
+    exports: a.exports.length ? (b.exports.length ? [...a.exports, ...b.exports] : a.exports) : b.exports,
   }
-}
-
-function mergeFilesByPath(files: ReadonlyArray<FileNode>): Map<string, FileNode> {
-  const merged = new Map<string, FileNode>()
-  for (const file of files) {
-    const existing = merged.get(file.path)
-    merged.set(file.path, existing ? mergeFile(existing, file) : file)
-  }
-  return merged
 }
 
 function isIndexPath(path: string): boolean {
@@ -39,17 +30,6 @@ function compareFiles(a: FileNode, b: FileNode): number {
   return 0
 }
 
-function binaryInsert(sorted: Array<FileNode>, file: FileNode): void {
-  let lo = 0
-  let hi = sorted.length
-  while (lo < hi) {
-    const mid = (lo + hi) >>> 1
-    if (compareFiles(sorted[mid]!, file) <= 0) lo = mid + 1
-    else hi = mid
-  }
-  sorted.splice(lo, 0, file)
-}
-
 /**
  * In-memory file store for generated files. Files sharing a `path` are merged
  * (sources/imports/exports concatenated). The `files` getter is sorted by
@@ -64,12 +44,11 @@ function binaryInsert(sorted: Array<FileNode>, file: FileNode): void {
  */
 export class FileManager {
   readonly #cache = new Map<string, FileNode>()
-  // Sorted view maintained incrementally on insert / replace / delete so the
-  // `files` getter is O(1) and no full re-sort runs between upserts. Reassigned
-  // (not mutated in place) on clear so that callers holding a reference from a
-  // previous getter call keep their snapshot — the post-build `dispose()` must
-  // not silently empty an array the consumer already returned.
-  #sorted: Array<FileNode> = []
+  // Cached sorted view; null means stale and rebuilt lazily on next `files` read.
+  // Nulled (not mutated) on every write so callers holding a prior reference
+  // keep their snapshot — `dispose()` must not silently empty an array the
+  // consumer already holds.
+  #sorted: Array<FileNode> | null = null
   #onUpsert: ((file: FileNode) => void) | undefined
 
   /**
@@ -91,25 +70,30 @@ export class FileManager {
   }
 
   #store(files: ReadonlyArray<FileNode>, mergeExisting: boolean): Array<FileNode> {
+    const batch = files.length > 1 ? this.#dedupe(files) : files
     const resolved: Array<FileNode> = []
-    for (const file of mergeFilesByPath(files).values()) {
+
+    for (const file of batch) {
       const existing = this.#cache.get(file.path)
-      const merged = createFile(existing && mergeExisting ? mergeFile(existing, file) : file)
+      const merged = existing && mergeExisting ? createFile(mergeFile(existing, file)) : file
       this.#cache.set(merged.path, merged)
-
-      if (existing) {
-        // Same path → same sort position; replace in place rather than re-sort.
-        const idx = this.#sorted.indexOf(existing)
-        if (idx !== -1) this.#sorted[idx] = merged
-        else binaryInsert(this.#sorted, merged)
-      } else {
-        binaryInsert(this.#sorted, merged)
-      }
-
       resolved.push(merged)
       this.#onUpsert?.(merged)
     }
+
+    if (resolved.length > 0) this.#sorted = null
     return resolved
+  }
+
+  // Merges same-path entries within a batch so the cache update loop stays
+  // uniform. Only called for multi-file batches.
+  #dedupe(files: ReadonlyArray<FileNode>): Array<FileNode> {
+    const seen = new Map<string, FileNode>()
+    for (const file of files) {
+      const prev = seen.get(file.path)
+      seen.set(file.path, prev ? mergeFile(prev, file) : file)
+    }
+    return [...seen.values()]
   }
 
   getByPath(path: string): FileNode | null {
@@ -117,16 +101,13 @@ export class FileManager {
   }
 
   deleteByPath(path: string): void {
-    const existing = this.#cache.get(path)
-    if (!existing) return
-    this.#cache.delete(path)
-    const idx = this.#sorted.indexOf(existing)
-    if (idx !== -1) this.#sorted.splice(idx, 1)
+    if (!this.#cache.delete(path)) return
+    this.#sorted = null
   }
 
   clear(): void {
     this.#cache.clear()
-    this.#sorted = []
+    this.#sorted = null
   }
 
   /**
@@ -143,9 +124,9 @@ export class FileManager {
 
   /**
    * All stored files in stable sort order (shortest path first, barrel files
-   * last within a length bucket). Returns a live view — do not mutate.
+   * last within a length bucket). Returns a cached view — do not mutate.
    */
   get files(): Array<FileNode> {
-    return this.#sorted
+    return (this.#sorted ??= [...this.#cache.values()].sort(compareFiles))
   }
 }
