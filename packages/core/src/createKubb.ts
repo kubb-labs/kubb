@@ -90,22 +90,25 @@ export type Config<TInput = Input> = {
    */
   name?: string
   /**
-   * Project root directory, absolute or relative to the config file.
-   * @default process.cwd()
+   * Project root directory, absolute or relative to the config file. Already
+   * resolved on the `Config` instance — see `UserConfig` for the optional
+   * form that defaults to `process.cwd()`.
    */
   root: string
   /**
-   * Parsers that convert generated files to strings.
-   * Each parser handles specific extensions (e.g. `.ts`, `.tsx`).
-   * A fallback parser is appended for unhandled extensions.
-   * When omitted, defaults to `parserTs` from `@kubb/parser-ts`.
+   * Parsers that convert generated files into strings. Each parser handles a
+   * set of file extensions; a fallback parser handles anything else.
    *
-   * @default [parserTs] from `@kubb/parser-ts`
+   * Already resolved on the `Config` instance — see `UserConfig` for the
+   * optional form that defaults to `[parserTs, parserTsx]`.
+   *
    * @example
    * ```ts
-   * import { parserTs, tsxParser } from '@kubb/parser-ts'
+   * import { defineConfig } from 'kubb'
+   * import { parserTs, parserTsx } from '@kubb/parser-ts'
+   *
    * export default defineConfig({
-   *   parsers: [parserTs, tsxParser],
+   *   parsers: [parserTs, parserTsx],
    * })
    * ```
    */
