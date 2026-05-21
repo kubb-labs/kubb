@@ -1,6 +1,6 @@
 {
   "name": "@kubb/renderer-jsx",
-  "version": "5.0.0-beta.23",
+  "version": "5.0.0-beta.24",
   "description": "JSX-based renderer for Kubb. Provides a custom React runtime, reconciler, and built-in components (File, Function, Type, Const) for component-based, type-safe code generation.",
   "keywords": [
     "codegen",

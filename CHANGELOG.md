@@ -1,5 +1,23 @@
 # Changelog
 
+## v5.0.0-beta.24 — May 21, 2026
+
+### @kubb/core
+
+#### Features
+
+- Expose `print` on `parserTs` and `parserTsx`, slim `@kubb/parser-ts` public API to just those two parsers.
+  
+  `Parser` (from `@kubb/core`) now requires a `print(...nodes): string` method that renders compiler AST nodes for the parser's language. The TypeScript and TSX parsers implement it via `parserTs.print(...)` / `parserTsx.print(...)`.
+  
+  `@kubb/parser-ts` no longer re-exports the standalone helpers `print`, `safePrint`, `createImport`, `createExport`, or `validateNodes`. Plugins that depended on `print` / `safePrint` should call `parserTs.print(...)` instead. Custom parsers built with `defineParser` need to add a `print` implementation matching their AST node shape. ([#3356](https://github.com/kubb-labs/kubb/pull/3356), [`69e8c5a`](https://github.com/kubb-labs/kubb/commit/69e8c5a3c127c6beb7e90cd6c2e7d076cb65f858))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.23 — May 21, 2026
 
 ### @kubb/agent
