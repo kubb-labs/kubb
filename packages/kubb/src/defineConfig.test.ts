@@ -26,6 +26,27 @@ describe('defineConfig', () => {
     middleware: [middlewareBarrel()],
   }
 
+  test('defaults root to process.cwd() when not set', () => {
+    const config = defineConfig({
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+    } as UserConfig)
+    const resolved = config as UserConfig
+
+    expect(resolved.root).toBe(process.cwd())
+  })
+
+  test('preserves an explicit root', () => {
+    const config = defineConfig({
+      root: '/custom/root',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+    } as UserConfig)
+    const resolved = config as UserConfig
+
+    expect(resolved.root).toBe('/custom/root')
+  })
+
   test('applies default adapter when not set', () => {
     const config = defineConfig({
       root: '.',
