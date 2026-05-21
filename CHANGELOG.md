@@ -1,5 +1,46 @@
 # Changelog
 
+## v5.0.0-beta.23 — May 21, 2026
+
+### @kubb/agent
+
+#### Features
+
+- Forward additional Kubb lifecycle events to Studio for full event parity with `@kubb/core`.
+  
+  The agent now relays `kubb:lifecycle:start`, `kubb:lifecycle:end`, `kubb:build:start`, `kubb:build:end`, `kubb:format:start`, `kubb:format:end`, `kubb:lint:start`, `kubb:lint:end`, and `kubb:generation:summary` over the Studio WebSocket. Studio can now render a complete build timeline (per-config build span, format/lint phases) and final generation summary (duration, file count, failed plugins). ([#3344](https://github.com/kubb-labs/kubb/pull/3344), [`4476049`](https://github.com/kubb-labs/kubb/commit/4476049b22db37fc33dc1dc281fedbe2fcaa36c1))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Pass the full CLI options to user-defined config functions.
+  
+  `defineConfig(({ watch, logLevel, config }) => ...)` now actually receives `watch`, `logLevel`, and `config` at runtime. Previously the CLI runner cast `{ input }` to `CLIOptions`, so the other fields were silently `undefined` even though the type promised otherwise.
+  
+  `CLIOptions.input` is now a documented field (so the cast disappears) and `CLIOptions.logLevel` adds the missing `'verbose'` value to match the CLI's `--logLevel` flag.
+  
+  ```ts
+  // Now works as expected
+  export default defineConfig(({ watch }) => ({
+    input: { path: './petStore.yaml' },
+    output: { path: './src/gen', clean: !watch },
+  }))
+  ``` ([#3346](https://github.com/kubb-labs/kubb/pull/3346), [`aa8aad3`](https://github.com/kubb-labs/kubb/commit/aa8aad31bf902dc83acf2f2e316d1a4e0b3c8d8c))
+
+### kubb
+
+#### Bug Fixes
+
+- Correct the JSDoc on `defineConfig`: `output.format` and `output.lint` default to `false`, not `'auto'`. The code already applies `false` when the user does not set either option; only the comment was wrong. ([#3346](https://github.com/kubb-labs/kubb/pull/3346), [`aa8aad3`](https://github.com/kubb-labs/kubb/commit/aa8aad31bf902dc83acf2f2e316d1a4e0b3c8d8c))
+- `defineConfig` now defaults `root` to `process.cwd()` when omitted. This fixes `The "paths[0]" argument must be of type string. Received undefined` thrown after successful generation when `kubb.config.ts` did not define `root` (the CLI then called `path.resolve(config.root, …)` on the un-normalized config). `@kubb/core`'s internal `resolveConfig` already defaulted `root` for the driver, so generation itself succeeded — the error fired in the CLI's post-generation `outputPath` resolution. ([#3352](https://github.com/kubb-labs/kubb/pull/3352), [`49a60c8`](https://github.com/kubb-labs/kubb/commit/49a60c8cd8051f54ad32fc75a3a62bd6a616725b))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.22 — May 20, 2026
 
 ### @kubb/core
