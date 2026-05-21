@@ -1,4 +1,3 @@
-import process from 'node:process'
 import type { CLIOptions, UserConfig } from '@kubb/core'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
 import { middlewareBarrel } from '@kubb/middleware-barrel'
