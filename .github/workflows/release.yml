@@ -50,6 +50,12 @@ jobs:
           node-version: '22'
           cache: 'false'
 
+      - name: Reinstall dependencies (release hardening)
+        # Defense-in-depth: re-install so the release build does not implicitly
+        # trust a pnpm store restored from cache by the composite Setup Tools
+        # step. Lockfile integrity hashes still gate content.
+        run: pnpm install --frozen-lockfile --force
+
       - name: Build
         run: pnpm run build
 

@@ -14,6 +14,9 @@ permissions: {}
 jobs:
   build-agents-md:
     runs-on: ubuntu-latest
+    # Skip fork PRs: they cannot push the resulting PR anyway, and we don't want
+    # to run a third-party action against fork-controlled .skills content.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     permissions:
       contents: write
       pull-requests: write
