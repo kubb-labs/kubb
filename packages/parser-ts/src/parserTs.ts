@@ -1,12 +1,7 @@
 import type { FileNode, SourceNode } from '@kubb/ast'
-import type { Parser } from '@kubb/core'
 import { defineParser } from '@kubb/core'
 import type * as ts from 'typescript'
 import { createExport, createImport, getRelativePath, print, printSource, resolveOutputPath } from './utils.ts'
-
-export { createExport, createImport, print, safePrint, validateNodes } from './utils.ts'
-
-export { printArrowFunction, printCodeNode, printConst, printFunction, printJSDoc, printSource, printType } from './utils.ts'
 
 /**
  * Default Kubb parser for `.ts` and `.js` files. Takes the universal AST
@@ -32,9 +27,12 @@ export { printArrowFunction, printCodeNode, printConst, printFunction, printJSDo
  * })
  * ```
  */
-export const parserTs: Parser = defineParser({
+export const parserTs = defineParser({
   name: 'typescript',
   extNames: ['.ts', '.js'],
+  print(...nodes: ts.Node[]) {
+    return print(...nodes)
+  },
   parse(file, options = { extname: '.ts' }) {
     const sourceParts: Array<string> = []
     for (const item of file.sources) {

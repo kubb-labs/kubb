@@ -38,6 +38,7 @@ describe('FileProcessor', () => {
         extNames: ['.ts' as const],
         install: vi.fn(),
         parse: mockParse,
+        print: vi.fn().mockReturnValue(''),
       }
       const parsers = new Map([['.ts' as const, parser]])
       const result = await processor.parse(file, { parsers })
