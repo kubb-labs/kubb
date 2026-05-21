@@ -9,7 +9,7 @@ type PrintOptions = {
  * written to disk. Kubb ships with TypeScript and TSX parsers; add your own
  * for new file types (JSON, Markdown, ...).
  */
-export type Parser<TMeta extends object = any> = {
+export type Parser<TMeta extends object = any, TNode = unknown> = {
   /**
    * Display name used in diagnostics and the parser registry.
    */
@@ -26,6 +26,12 @@ export type Parser<TMeta extends object = any> = {
    * Serialise the file's AST into source code.
    */
   parse(file: FileNode<TMeta>, options?: PrintOptions): string
+  /**
+   * Render compiler AST nodes for this parser's language into source text.
+   * Plugins call this to format the nodes they assemble before handing them
+   * back to the parser as `FileNode.sources`.
+   */
+  print(...nodes: TNode[]): string
 }
 
 /**
@@ -44,9 +50,12 @@ export type Parser<TMeta extends object = any> = {
  *       .map((source) => ast.extractStringsFromNodes(source.nodes ?? []))
  *       .join('\n')
  *   },
+ *   print(...nodes) {
+ *     return nodes.map(String).join('\n')
+ *   },
  * })
  * ```
  */
-export function defineParser<TMeta extends object = any>(parser: Parser<TMeta>): Parser<TMeta> {
+export function defineParser<T extends Parser>(parser: T): T {
   return parser
 }

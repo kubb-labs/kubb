@@ -103,26 +103,6 @@ export function formatReturnType(returnType: string | null | undefined, isAsync:
 }
 
 /**
- * Validates TypeScript AST nodes before printing.
- * Throws an error if any node has SyntaxKind.Unknown which would cause the
- * TypeScript printer to crash.
- */
-export function validateNodes(...nodes: ts.Node[]): void {
-  for (const node of nodes) {
-    if (!node) {
-      throw new Error('Attempted to print undefined or null TypeScript node')
-    }
-    if (node.kind === ts.SyntaxKind.Unknown) {
-      throw new Error(
-        'Invalid TypeScript AST node detected with SyntaxKind.Unknown. ' +
-          'This typically indicates a schema pattern that could not be properly converted to TypeScript. ' +
-          `Node: ${JSON.stringify(node, null, 2)}`,
-      )
-    }
-  }
-}
-
-/**
  * Module-scoped TypeScript printer instance. `ts.createPrinter()` is stateless across calls
  * (it does not mutate the source file) so a single instance can be safely reused for every
  * `print()` call. Hoisting it out of `print()` avoids re-running the printer initialization
@@ -156,14 +136,6 @@ export function print(...elements: Array<ts.Node>): string {
   const output = TS_PRINTER.printList(ts.ListFormat.MultiLine, factory.createNodeArray(filtered), PRINT_SOURCE_FILE)
 
   return output.replace(CRLF_PATTERN, '\n')
-}
-
-/**
- * Like `print` but validates nodes first to surface issues early.
- */
-export function safePrint(...elements: Array<ts.Node>): string {
-  validateNodes(...elements)
-  return print(...elements)
 }
 
 /**

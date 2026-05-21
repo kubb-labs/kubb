@@ -34,11 +34,23 @@ npm install @kubb/parser-ts
 ## Usage
 
 ```typescript
-import { print, createImport, createExport } from '@kubb/parser-ts'
+import { defineConfig } from 'kubb'
+import { parserTs, parserTsx } from '@kubb/parser-ts'
+
+export default defineConfig({
+  input: { path: './petstore.yaml' },
+  output: { path: './src/gen' },
+  parsers: [parserTs, parserTsx],
+})
+```
+
+To render compiler AST nodes to source text from inside a plugin, call `print` on the parser instance:
+
+```typescript
+import { parserTs } from '@kubb/parser-ts'
 import ts from 'typescript'
 
-// Print a TypeScript source file from compiler AST nodes
-const source = print([
+const source = parserTs.print(
   ts.factory.createVariableStatement(
     [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
     ts.factory.createVariableDeclarationList(
@@ -46,45 +58,22 @@ const source = print([
       ts.NodeFlags.Const,
     ),
   ),
-])
+)
 // → export const hello = 'world'
-
-// Create an import declaration
-const importNode = createImport({ name: 'axios', path: 'axios' })
-
-// Create an export declaration
-const exportNode = createExport({ name: 'MyType', path: './types' })
 ```
 
 ## API
 
-### `print(nodes, options?)`
-
-Converts an array of TypeScript compiler `Node` instances into a formatted source string. Returns the printed source code.
-
-### `safePrint(nodes, options?)`
-
-Same as `print` but catches formatting errors and returns the unformatted output as a fallback.
-
 ### `parserTs`
 
-Parser instance for `.ts` files. Use with Kubb's file system to emit TypeScript source files.
+Parser instance for `.ts` and `.js` files. Pass to `defineConfig({ parsers: [...] })` to emit TypeScript source files.
+
+- `parserTs.parse(file, options?)` — serialise a `FileNode` to TypeScript source.
+- `parserTs.print(...nodes)` — convert TypeScript compiler `Node` instances to a formatted source string.
 
 ### `parserTsx`
 
-Parser instance for `.tsx` files. Use with Kubb's file system to emit TSX source files.
-
-### `createImport(options)`
-
-Factory helper that creates a TypeScript `ImportDeclaration` node.
-
-### `createExport(options)`
-
-Factory helper that creates a TypeScript `ExportDeclaration` node.
-
-### `validateNodes(nodes)`
-
-Validates an array of TypeScript AST nodes for correctness before printing.
+Parser instance for `.tsx` and `.jsx` files. Same API as `parserTs` with JSX support.
 
 ## Supporting Kubb
 
