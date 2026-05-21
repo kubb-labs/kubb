@@ -1,0 +1,8 @@
+# Workflow and composite action changes are the highest-impact attack surface
+# for a supply-chain compromise; require explicit owner review on every change.
+# Enforcement also requires branch protection: "Require review from Code Owners"
+# on the main branch.
+
+.github/workflows/  @stijnvanhulle
+.github/actions/    @stijnvanhulle
+.github/CODEOWNERS  @stijnvanhulle
