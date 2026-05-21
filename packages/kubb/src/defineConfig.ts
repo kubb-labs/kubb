@@ -1,3 +1,4 @@
+import process from 'node:process'
 import { isPromise, type PossiblePromise } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
 import type { CLIOptions, UserConfig } from '@kubb/core'
@@ -15,8 +16,9 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
     : NormalizeConfig<TConfig>
 
 /**
- * Applies default adapter, parsers, middleware, `output.barrel`, `output.format`, and `output.lint` to a single user config when not set.
+ * Applies default `root`, adapter, parsers, middleware, `output.barrel`, `output.format`, and `output.lint` to a single user config when not set.
  *
+ * - `root` defaults to `process.cwd()`
  * - `adapter` defaults to `adapterOas()`
  * - `parsers` defaults to `[parserTs, parserTsx]`
  * - `middleware` defaults to `[middlewareBarrel()]`
@@ -42,6 +44,7 @@ function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
 
   return {
     ...config,
+    root: config.root || process.cwd(),
     adapter: config.adapter ?? adapterOas(),
     parsers: config.parsers?.length ? config.parsers : [parserTs, parserTsx],
     middleware,

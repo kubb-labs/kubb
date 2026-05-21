@@ -1,5 +1,4 @@
 import { createHash } from 'node:crypto'
-import process from 'node:process'
 import { styleText } from 'node:util'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { toError, tokenize } from '@internals/utils'
@@ -110,14 +109,7 @@ export async function getConfigs({ configPath, input, watch, logLevel }: GetConf
 
   return {
     configPath: result.filepath,
-    configs: userConfigs.map(
-      (item) =>
-        ({
-          ...item,
-          root: item.root || process.cwd(),
-          plugins: item.plugins ?? [],
-        }) as Config,
-    ),
+    configs: userConfigs.map((item) => ({ ...item, plugins: item.plugins ?? [] }) as Config),
   }
 }
 
