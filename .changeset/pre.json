@@ -110,6 +110,7 @@
     "optional-cli-validate-adapter-peer",
     "output-format-lint-auto-default",
     "parser-ts-extract-utils",
+    "parser-ts-print-on-parser",
     "perf-generator-functions-optimization",
     "perf-optimize-stream-pipeline",
     "perf-ref-cache-storage",
