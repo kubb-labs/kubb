@@ -1,0 +1,57 @@
+import type { CodeNode } from '@kubb/ast'
+import { extractStringsFromNodes } from '@kubb/ast'
+import { defineParser } from '@kubb/core'
+import { print, type PrintInput } from './utils.ts'
+
+/**
+ * Metadata accepted by `parserMd`. Set `frontmatter` on a `<File meta={…}>` to
+ * have the parser prepend the corresponding YAML envelope.
+ */
+export type MdMeta = {
+  frontmatter?: Record<string, unknown> | null
+}
+
+/**
+ * Kubb parser for `.md` and `.markdown` files. Joins source blocks as plain
+ * markdown (separated by blank lines) and, when `file.meta.frontmatter` is set,
+ * prepends a YAML frontmatter envelope produced by `parserMd.print`.
+ *
+ * Add to the `parsers` array on `defineConfig` to opt in. `parserTs` keeps
+ * handling `.ts`/`.js` files, `parserMd` claims `.md`/`.markdown`.
+ *
+ * @example
+ * ```ts
+ * import { defineConfig } from 'kubb'
+ * import { adapterOas } from '@kubb/adapter-oas'
+ * import { parserMd } from '@kubb/parser-md'
+ *
+ * export default defineConfig({
+ *   input: { path: './petStore.yaml' },
+ *   output: { path: './src/gen' },
+ *   adapter: adapterOas(),
+ *   parsers: [parserMd],
+ *   plugins: [],
+ * })
+ * ```
+ */
+export const parserMd = defineParser({
+  name: 'markdown',
+  extNames: ['.md', '.markdown'],
+  print(...parts: PrintInput[]) {
+    return print(...parts)
+  },
+  parse(file) {
+    const sourceParts: string[] = []
+    for (const source of file.sources) {
+      const text = extractStringsFromNodes(source.nodes as Array<CodeNode>)
+      if (text) sourceParts.push(text.trimEnd())
+    }
+    const body = sourceParts.join('\n\n')
+
+    const meta = file.meta as MdMeta | undefined
+    const frontmatter = print(meta?.frontmatter ?? undefined)
+
+    const parts = [file.banner, frontmatter, body, file.footer].filter((segment): segment is string => Boolean(segment)).map((segment) => segment.trimEnd())
+    return parts.join('\n\n')
+  },
+})

@@ -25,6 +25,7 @@ catalog:
   tsdown: ^0.22.0
   typescript: ^6.0.3
   vitest: ^4.1.6
+  yaml: ^2.8.1
 minimumReleaseAge: 4320 # 72 hours, matches .npmrc min-package-age
 # Native platform bindings are always co-published with their parent package in the same release.
 # Excluding them avoids false-positive ERR_PNPM_NO_MATURE_MATCHING_VERSION errors.
