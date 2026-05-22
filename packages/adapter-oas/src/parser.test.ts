@@ -2656,6 +2656,67 @@ describe('parseSchema array', () => {
     expect(status?.name).toBe('AccountLoginsResponseDataStatusEnum')
   })
 
+  it('qualifies inline enums inside single-member allOf with the parent name', () => {
+    const node = parseSchema(ctx, {
+      schema: {
+        allOf: [
+          {
+            type: 'object',
+            properties: {
+              last_login: {
+                type: 'object',
+                nullable: true,
+                properties: {
+                  status: { type: 'string', enum: ['ok', 'failed'] },
+                },
+              },
+            },
+          },
+        ],
+      },
+      name: 'GetUser200',
+    })
+    const ll = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'last_login')?.schema
+    const status = ast.narrowSchema(ll, 'object')?.properties?.[0]?.schema
+
+    expect(status?.name).toBe('GetUser200LastLoginStatusEnum')
+  })
+
+  it('qualifies inline enums inside multi-member allOf with the parent name', () => {
+    const node = parseSchema(ctx, {
+      schema: {
+        allOf: [
+          { type: 'object', properties: { page: { type: 'integer' } } },
+          {
+            properties: {
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    status: { type: 'string', enum: ['pending', 'done'] },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+      name: 'GetTransfers200',
+    })
+    const intersection = ast.narrowSchema(node, 'intersection') ?? ast.narrowSchema(node, 'object')
+    // Find any deeply-nested status enum to verify its name
+    const enums = ast.collect(node, {
+      schema(n) {
+        return ast.narrowSchema(n, 'enum') ?? undefined
+      },
+    })
+    const status = enums.find((e) => e.name?.includes('Status'))
+
+    expect(intersection).toBeDefined()
+    expect(status?.name).toBe('GetTransfers200DataStatusEnum')
+  })
+
   it('preserves nullable on array', () => {
     const node = parseSchema(ctx, {
       schema: { type: 'array', nullable: true },

@@ -1,4 +1,4 @@
-import { URLPath } from '@internals/utils'
+import { pascalCase, URLPath } from '@internals/utils'
 import { ast } from '@kubb/core'
 import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, SCHEMA_REF_PREFIX, typeOptionMap } from './constants.ts'
@@ -161,7 +161,7 @@ export function createSchemaParser(ctx: OasParserContext) {
       schema.additionalProperties === undefined
     ) {
       const [memberSchema] = schema.allOf as Array<SchemaObject | ReferenceObject>
-      const memberNode = parseSchema({ schema: memberSchema! as SchemaObject, name: null }, rawOptions)
+      const memberNode = parseSchema({ schema: memberSchema! as SchemaObject, name }, rawOptions)
       const { kind: _kind, ...memberNodeProps } = memberNode
       const mergedNullable = nullable || memberNode.nullable || undefined
       const mergedDefault = schema.default === null && mergedNullable ? undefined : (schema.default ?? memberNode.default)
@@ -208,7 +208,7 @@ export function createSchemaParser(ctx: OasParserContext) {
         }
         return true
       })
-      .map((s) => parseSchema({ schema: s as SchemaObject }, rawOptions))
+      .map((s) => parseSchema({ schema: s as SchemaObject, name }, rawOptions))
 
     const syntheticStart = allOfMembers.length
 
@@ -301,7 +301,7 @@ export function createSchemaParser(ctx: OasParserContext) {
       const members = unionMembers.map((s) => {
         const ref = isReference(s) ? s.$ref : undefined
         const discriminatorValue = ast.findDiscriminator(discriminator?.mapping, ref)
-        const memberNode = parseSchema({ schema: s as SchemaObject }, rawOptions)
+        const memberNode = parseSchema({ schema: s as SchemaObject, name }, rawOptions)
 
         if (!discriminatorValue || !discriminator) {
           return memberNode
@@ -351,7 +351,7 @@ export function createSchemaParser(ctx: OasParserContext) {
     return ast.createSchema({
       type: 'union',
       ...unionBase,
-      members: ast.simplifyUnion(unionMembers.map((s) => parseSchema({ schema: s as SchemaObject }, rawOptions))),
+      members: ast.simplifyUnion(unionMembers.map((s) => parseSchema({ schema: s as SchemaObject, name }, rawOptions))),
     })
   }
 
@@ -888,6 +888,8 @@ export function createSchemaParser(ctx: OasParserContext) {
    * Converts an OAS `Operation` into an `OperationNode`.
    */
   function parseOperation(options: ast.ParserOptions, operation: Operation): ast.OperationNode {
+    const operationId = operation.getOperationId()
+    const operationName = operationId ? pascalCase(operationId) : undefined
     const parameters: Array<ast.ParameterNode> = getParameters(document, operation).map((param) =>
       parseParameter(options, param as unknown as Record<string, unknown>),
     )
@@ -898,6 +900,7 @@ export function createSchemaParser(ctx: OasParserContext) {
     const allContentTypes = ctx.contentType ? [ctx.contentType] : getRequestBodyContentTypes(document, operation)
 
     const requestBodyMeta = getRequestBodyMeta(operation)
+    const requestBodyName = operationName ? `${operationName}Request` : undefined
 
     const content = allContentTypes.flatMap((ct) => {
       const schema = getRequestSchema(document, operation, { contentType: ct })
@@ -905,7 +908,7 @@ export function createSchemaParser(ctx: OasParserContext) {
       return [
         {
           contentType: ct,
-          schema: ast.syncOptionality(parseSchema({ schema }, options), requestBodyMeta.required),
+          schema: ast.syncOptionality(parseSchema({ schema, name: requestBodyName }, options), requestBodyMeta.required),
           keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
         },
       ]
@@ -924,9 +927,10 @@ export function createSchemaParser(ctx: OasParserContext) {
       const responseObj = operation.getResponseByStatusCode(statusCode)
       const responseSchema = getResponseSchema(document, operation, statusCode, { contentType: ctx.contentType })
 
+      const responseName = operationName ? `${operationName}${statusCode}` : undefined
       const schema =
         responseSchema && Object.keys(responseSchema).length > 0
-          ? parseSchema({ schema: responseSchema }, options)
+          ? parseSchema({ schema: responseSchema, name: responseName }, options)
           : ast.createSchema({
               type: typeOptionMap.get(options.emptySchemaType)!,
             })
@@ -946,7 +950,7 @@ export function createSchemaParser(ctx: OasParserContext) {
     const urlPath = new URLPath(operation.path)
 
     return ast.createOperation({
-      operationId: operation.getOperationId(),
+      operationId,
       method: operation.method.toUpperCase() as ast.HttpMethod,
       path: urlPath.path,
       tags: operation.getTags().map((tag) => tag.name),
