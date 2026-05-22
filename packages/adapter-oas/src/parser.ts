@@ -233,6 +233,7 @@ export function createSchemaParser(ctx: OasParserContext) {
                       properties: { [key]: resolved.properties[key] },
                       required: [key],
                     } as SchemaObject,
+                    name,
                   },
                   rawOptions,
                 ),
@@ -246,6 +247,9 @@ export function createSchemaParser(ctx: OasParserContext) {
 
     if (schema.properties) {
       const { allOf: _allOf, ...schemaWithoutAllOf } = schema
+      // Don't pass `name` here — the result must stay anonymous so it can be merged with the
+      // adjacent synthetic object in `mergeAdjacentObjectsLazy`. Nested enum qualification
+      // happens upstream via `convertObject`'s `setEnumName` propagation.
       allOfMembers.push(parseSchema({ schema: schemaWithoutAllOf }, rawOptions))
     }
 
@@ -814,15 +818,17 @@ export function createSchemaParser(ctx: OasParserContext) {
   /**
    * Converts a dereferenced OAS parameter object into a `ParameterNode`.
    */
-  function parseParameter(options: ast.ParserOptions, param: Record<string, unknown>): ast.ParameterNode {
+  function parseParameter(options: ast.ParserOptions, param: Record<string, unknown>, parentName?: string): ast.ParameterNode {
     const required = (param['required'] as boolean | undefined) ?? false
+    const paramName = param['name'] as string
+    const schemaName = parentName && paramName ? pascalCase(`${parentName} ${paramName}`) : undefined
 
     const schema: ast.SchemaNode = param['schema']
-      ? parseSchema({ schema: param['schema'] as SchemaObject }, options)
+      ? parseSchema({ schema: param['schema'] as SchemaObject, name: schemaName }, options)
       : ast.createSchema({ type: typeOptionMap.get(options.unknownType)! })
 
     return ast.createParameter({
-      name: param['name'] as string,
+      name: paramName,
       in: param['in'] as ast.ParameterLocation,
       schema: {
         ...schema,
@@ -891,7 +897,7 @@ export function createSchemaParser(ctx: OasParserContext) {
     const operationId = operation.getOperationId()
     const operationName = operationId ? pascalCase(operationId) : undefined
     const parameters: Array<ast.ParameterNode> = getParameters(document, operation).map((param) =>
-      parseParameter(options, param as unknown as Record<string, unknown>),
+      parseParameter(options, param as unknown as Record<string, unknown>, operationName),
     )
 
     // Determine which content types to include in requestBody.content.
@@ -927,7 +933,10 @@ export function createSchemaParser(ctx: OasParserContext) {
       const responseObj = operation.getResponseByStatusCode(statusCode)
       const responseSchema = getResponseSchema(document, operation, statusCode, { contentType: ctx.contentType })
 
-      const responseName = operationName ? `${operationName}${statusCode}` : undefined
+      // Use `Status<code>` (matching plugin-ts's resolveResponseStatusName convention) so the
+      // qualified names for nested enums don't collide with top-level component schemas that
+      // happen to be named `<operation><statusCode>` (e.g. `GetMaintenance200`).
+      const responseName = operationName ? `${operationName}Status${statusCode}` : undefined
       const schema =
         responseSchema && Object.keys(responseSchema).length > 0
           ? parseSchema({ schema: responseSchema, name: responseName }, options)

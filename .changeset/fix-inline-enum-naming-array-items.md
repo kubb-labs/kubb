@@ -2,15 +2,12 @@
 "@kubb/adapter-oas": patch
 ---
 
-Qualify inline enums with the parent name across more parse paths. Previously only direct object properties got qualified names — enums nested inside array items, allOf members (single and multi), oneOf/anyOf members, union members, response bodies, and request bodies all fell back to bare `{Prop}Enum` names, causing duplicate-identifier collisions in the generated barrel (e.g. ~700 `statusEnum` re-exports across `data[].status` properties in different operations).
+Eliminate the remaining inline-enum naming collisions surfaced by the Linode SDK reproduction (`bnussman-akamai/compute-sdk-poc`). Builds on kubb-labs/kubb#3362 / #3364:
 
-Now `parseSchema` propagates the parent name through:
+- `parseSchema` now propagates the parent name through every call site that previously dropped it: array items (`convertArray`), `allOf` members (single, multi, and synthetic required-key + outer-properties), `oneOf` / `anyOf` member schemas, union members, operation responses (`{operationId}Status{statusCode}`), request bodies (`{operationId}Request`), and parameters (`{operationId}{ParamName}`).
+- Operation response schemas now use `Status<code>` (matching plugin-ts's `resolveResponseStatusName` convention) so qualified enum names don't collide with top-level component schemas named `<operation><statusCode>` (e.g. `GetMaintenance200`).
+- Two test expectations updated to reflect the new contracts:
+  - Parameter top-level enums now carry a parser-level name (qualified with operation + param name) so plugin-generated downstream identifiers stay collision-free.
+  - The synthetic injected-required-key member inside an `allOf` is now named so its nested enums qualify correctly; it consequently shows up as a separate intersection member instead of being adjacent-merged.
 
-- array items (`convertArray`)
-- `allOf` member schemas (both single-member fast path and multi-member combination)
-- `oneOf` / `anyOf` member schemas with a shared discriminator
-- union members
-- operation responses (`{operationId}{statusCode}`)
-- operation request bodies (`{operationId}Request`)
-
-Inline enums emerge with qualified names like `GetUsers200DataLastLoginStatusEnum` instead of the bare `StatusEnum`. Reported in kubb-labs/kubb#3362.
+Reduces duplicate-identifier errors in the Linode reproduction from 738 to 0.
