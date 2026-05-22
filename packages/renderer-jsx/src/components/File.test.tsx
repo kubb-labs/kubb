@@ -13,11 +13,21 @@ describe('File.Source', () => {
       </File>,
     )
 
-    const source = renderer.files[0]?.sources[0]
-    expect(source?.name).toBe('Pet')
-    expect(source?.isExportable).toBe(true)
-    expect(source?.isIndexable).toBe(true)
-    expect(source?.isTypeOnly).toBe(true)
+    expect(renderer.files[0]?.sources[0]).toMatchInlineSnapshot(`
+      {
+        "isExportable": true,
+        "isIndexable": true,
+        "isTypeOnly": true,
+        "kind": "Source",
+        "name": "Pet",
+        "nodes": [
+          {
+            "kind": "Text",
+            "value": "export type Pet = { id: number }",
+          },
+        ],
+      }
+    `)
     renderer.unmount()
   })
 })
@@ -32,10 +42,18 @@ describe('File.Import', () => {
       </File>,
     )
 
-    const imp = renderer.files[0]?.imports[0]
-    expect(imp?.path).toBe('./models/pet')
-    expect(imp?.isTypeOnly).toBe(true)
-    expect(imp?.root).toBe('/src')
+    expect(renderer.files[0]?.imports[0]).toMatchInlineSnapshot(`
+      {
+        "isNameSpace": false,
+        "isTypeOnly": true,
+        "kind": "Import",
+        "name": [
+          "Pet",
+        ],
+        "path": "./models/pet",
+        "root": "/src",
+      }
+    `)
     renderer.unmount()
   })
 })
@@ -50,10 +68,17 @@ describe('File.Export', () => {
       </File>,
     )
 
-    const exp = renderer.files[0]?.exports[0]
-    expect(exp?.path).toBe('./models/pet')
-    expect(exp?.isTypeOnly).toBe(true)
-    expect(exp?.asAlias).toBe(true)
+    expect(renderer.files[0]?.exports[0]).toMatchInlineSnapshot(`
+      {
+        "asAlias": true,
+        "isTypeOnly": true,
+        "kind": "Export",
+        "name": [
+          "Pet",
+        ],
+        "path": "./models/pet",
+      }
+    `)
     renderer.unmount()
   })
 })

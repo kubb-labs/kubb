@@ -12,7 +12,11 @@ describe('CodeBlock', () => {
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toBe('```typescript\nconst pet = { id: 1 }\n```')
+    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
+      "\`\`\`typescript
+      const pet = { id: 1 }
+      \`\`\`"
+    `)
     renderer.unmount()
   })
 
@@ -24,7 +28,11 @@ describe('CodeBlock', () => {
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toBe('```\necho hi\n```')
+    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
+      "\`\`\`
+      echo hi
+      \`\`\`"
+    `)
     renderer.unmount()
   })
 })

@@ -12,7 +12,10 @@ describe('List', () => {
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toBe('- Add the parser\n- Render the page')
+    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
+      "- Add the parser
+      - Render the page"
+    `)
     renderer.unmount()
   })
 
@@ -24,7 +27,10 @@ describe('List', () => {
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toBe('1. First\n2. Second')
+    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
+      "1. First
+      2. Second"
+    `)
     renderer.unmount()
   })
 })

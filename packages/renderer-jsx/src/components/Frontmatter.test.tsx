@@ -12,7 +12,14 @@ describe('Frontmatter', () => {
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toBe('---\ntitle: Hi\ntags:\n  - a\n  - b\n---')
+    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
+      "---
+      title: Hi
+      tags:
+        - a
+        - b
+      ---"
+    `)
     renderer.unmount()
   })
 })

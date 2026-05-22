@@ -12,7 +12,9 @@ describe('Paragraph', () => {
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toBe('A pet object with `id` and `name` fields.')
+    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(
+      `"A pet object with \`id\` and \`name\` fields."`,
+    )
     renderer.unmount()
   })
 })

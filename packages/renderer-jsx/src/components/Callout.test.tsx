@@ -12,9 +12,10 @@ describe('Callout', () => {
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toBe(
-      '> [!TIP]\n> Run `kubb start --watch` to keep the generator hot.',
-    )
+    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
+      "> [!TIP]
+      > Run \`kubb start --watch\` to keep the generator hot."
+    `)
     renderer.unmount()
   })
 
@@ -28,7 +29,11 @@ describe('Callout', () => {
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toBe('> [!WARNING] Heads up\n> body line 1\n> line 2')
+    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
+      "> [!WARNING] Heads up
+      > body line 1
+      > line 2"
+    `)
     renderer.unmount()
   })
 
@@ -40,25 +45,87 @@ describe('Callout', () => {
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toBe('> [!NOTE]\n> first paragraph\n>\n> second paragraph')
+    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
+      "> [!NOTE]
+      > first paragraph
+      >
+      > second paragraph"
+    `)
     renderer.unmount()
   })
 
-  it.each([
-    ['tip', 'TIP'],
-    ['note', 'NOTE'],
-    ['important', 'IMPORTANT'],
-    ['warning', 'WARNING'],
-    ['caution', 'CAUTION'],
-  ] as const)('uses the %s label for type %s', async (type, label) => {
+  it('uses the TIP label for type tip', async () => {
     const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="post.md" path="src/post.md">
-        <Callout type={type}>body</Callout>
+        <Callout type="tip">body</Callout>
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toBe(`> [!${label}]\n> body`)
+    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
+      "> [!TIP]
+      > body"
+    `)
+    renderer.unmount()
+  })
+
+  it('uses the NOTE label for type note', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="post.md" path="src/post.md">
+        <Callout type="note">body</Callout>
+      </File>,
+    )
+
+    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
+      "> [!NOTE]
+      > body"
+    `)
+    renderer.unmount()
+  })
+
+  it('uses the IMPORTANT label for type important', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="post.md" path="src/post.md">
+        <Callout type="important">body</Callout>
+      </File>,
+    )
+
+    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
+      "> [!IMPORTANT]
+      > body"
+    `)
+    renderer.unmount()
+  })
+
+  it('uses the WARNING label for type warning', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="post.md" path="src/post.md">
+        <Callout type="warning">body</Callout>
+      </File>,
+    )
+
+    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
+      "> [!WARNING]
+      > body"
+    `)
+    renderer.unmount()
+  })
+
+  it('uses the CAUTION label for type caution', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="post.md" path="src/post.md">
+        <Callout type="caution">body</Callout>
+      </File>,
+    )
+
+    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
+      "> [!CAUTION]
+      > body"
+    `)
     renderer.unmount()
   })
 })

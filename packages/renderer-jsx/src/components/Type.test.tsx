@@ -16,7 +16,20 @@ describe('Type', () => {
       </File>,
     )
 
-    expect(renderer.files[0]?.sources[0]?.nodes?.[0]?.kind).toBe('Type')
+    expect(renderer.files[0]?.sources[0]?.nodes?.[0]).toMatchInlineSnapshot(`
+      {
+        "JSDoc": undefined,
+        "export": true,
+        "kind": "Type",
+        "name": "PetId",
+        "nodes": [
+          {
+            "kind": "Text",
+            "value": "string | number",
+          },
+        ],
+      }
+    `)
     renderer.unmount()
   })
 
