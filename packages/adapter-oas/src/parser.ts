@@ -646,7 +646,7 @@ export function createSchemaParser(ctx: OasParserContext) {
    */
   function convertArray({ schema, name, nullable, defaultValue, rawOptions, options }: SchemaContext): ast.SchemaNode {
     const rawItems = schema.items as SchemaObject | undefined
-    const itemName = rawItems?.enum?.length && name ? ast.enumPropName(null, name, options.enumSuffix) : undefined
+    const itemName = rawItems?.enum?.length && name ? ast.enumPropName(null, name, options.enumSuffix) : name
     const items = rawItems ? [parseSchema({ schema: rawItems, name: itemName }, rawOptions)] : []
 
     return ast.createSchema({

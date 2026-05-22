@@ -2630,6 +2630,32 @@ describe('parseSchema array', () => {
     expect(narrowed?.unique).toBeUndefined()
   })
 
+  it('qualifies inline enums on object array items with the array parent name', () => {
+    const node = parseSchema(ctx, {
+      schema: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                status: { type: 'string', enum: ['ok', 'failed'] },
+              },
+            },
+          },
+        },
+      },
+      name: 'AccountLoginsResponse',
+    })
+    const obj = ast.narrowSchema(node, 'object')
+    const data = obj?.properties?.[0]?.schema
+    const items = ast.narrowSchema(data, 'array')?.items?.[0]
+    const status = ast.narrowSchema(items, 'object')?.properties?.[0]?.schema
+
+    expect(status?.name).toBe('AccountLoginsResponseDataStatusEnum')
+  })
+
   it('preserves nullable on array', () => {
     const node = parseSchema(ctx, {
       schema: { type: 'array', nullable: true },
