@@ -220,6 +220,29 @@ function collectFileChildren(element: unknown): FileChildren {
   return { sources, exports, imports }
 }
 
+/**
+ * Walks a JSX subtree synchronously and yields every `<File>`-derived
+ * `FileNode` it produces. Use when you want generator semantics without
+ * the {@link SyncRuntime} lifecycle — pass the result straight to a
+ * parser's `parse(file)`.
+ *
+ * @example Render one file inline and serialise it
+ * ```tsx
+ * import { File, streamFiles } from '@kubb/renderer-jsx'
+ * import { parserMd } from '@kubb/parser-md'
+ *
+ * const file = streamFiles(
+ *   <File baseName="post.md" path="post.md">
+ *     <Frontmatter data={{ title: 'Hi' }} />
+ *   </File>,
+ * ).next().value
+ * const markdown = file ? parserMd.parse(file) : ''
+ * ```
+ */
+export function* streamFiles(element: KubbReactElement): Generator<FileNode> {
+  yield* walkFiles(element)
+}
+
 function* walkFiles(element: unknown): Generator<FileNode> {
   if (element == null || typeof element === 'boolean') return
 
