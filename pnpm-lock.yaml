@@ -294,6 +294,9 @@ importers:
       '@kubb/middleware-barrel':
         specifier: workspace:*
         version: link:../middleware-barrel
+      '@kubb/parser-md':
+        specifier: workspace:*
+        version: link:../parser-md
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts

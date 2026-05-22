@@ -3,6 +3,7 @@ import { adapterOas } from '@kubb/adapter-oas'
 import type { CLIOptions, UserConfig } from '@kubb/core'
 import { middlewareBarrel, middlewareBarrelName } from '@kubb/middleware-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
+import { parserMd } from '@kubb/parser-md'
 
 type AnyConfigResult = UserConfig<any> | Array<UserConfig<any>>
 type ConfigInput = AnyConfigResult | Promise<AnyConfigResult> | ((cli: CLIOptions) => PossiblePromise<AnyConfigResult>)
@@ -45,7 +46,7 @@ function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
     ...config,
     root: config.root || process.cwd(),
     adapter: config.adapter ?? adapterOas(),
-    parsers: config.parsers?.length ? config.parsers : [parserTs, parserTsx],
+    parsers: config.parsers?.length ? config.parsers : [parserTs, parserTsx, parserMd],
     middleware,
     output,
   }
