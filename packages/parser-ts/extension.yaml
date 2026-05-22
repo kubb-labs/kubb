@@ -29,23 +29,21 @@ featured: true
 icon:
   light: https://kubb.dev/feature/typescript.svg
 intro: |-
-  `@kubb/parser-ts` is the default file parser used by Kubb when no `parsers` option is provided in `defineConfig`. It takes the universal AST produced by your adapter and prints `.ts`/`.tsx` source code using the official [TypeScript compiler](https://www.typescriptlang.org/).
+  `@kubb/parser-ts` takes the `FileNode` staged by your plugins and prints it as TypeScript source using the official [TypeScript compiler](https://www.typescriptlang.org/). It resolves import paths, deduplicates declarations, prints JSDoc, and rewrites extensions based on `output.extension`.
 
-  Two parser instances are exported:
+  Two parsers are exported:
 
   - `parserTs` — handles `.ts` and `.js` files.
   - `parserTsx` — handles `.tsx` and `.jsx` files. Use this for React projects so JSX in generated components is preserved.
-
-  Configure once on `defineConfig`. The choice applies to every file every plugin produces.
 options:
   - name: extname
     type: "'.ts' | '.js' | '.tsx' | '.jsx' | string"
     required: false
     default: "'.ts'"
     description: |-
-      File extension the parser writes when emitting code. Pick `.js` for an ESM-friendly emit you can publish to npm, `.tsx` for React projects, or leave unset for the standard TypeScript default.
+      Controls which extension is written into the generated import specifiers. Set `.js` for ESM-compatible output, `.tsx` for React projects. Leave unset for the TypeScript default.
 
-      For rewriting relative import specifiers (`./foo` → `./foo.js`), set `output.extension` on `defineConfig` — not on the parser itself.
+      To rewrite extensions in the generated source (e.g. `./foo` → `./foo.js`), use `output.extension` in `defineConfig`, not this option.
     codeBlock:
       lang: typescript
       title: kubb.config.ts
@@ -100,4 +98,4 @@ examples:
 notes:
   - type: tip
     body: |-
-      `parser-ts` is bundled with Kubb and used automatically when no `parsers` option is set. Install it explicitly only when you need to combine it with other parsers or provide a fully custom parser list.
+      `@kubb/parser-ts` is bundled with Kubb and used automatically when no `parsers` option is set. Install it explicitly only when combining it with other parsers or providing a fully custom parser list.

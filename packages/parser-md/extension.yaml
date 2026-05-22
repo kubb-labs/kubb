@@ -27,11 +27,29 @@ resources:
   changelog: https://github.com/kubb-labs/kubb/blob/main/packages/parser-md/CHANGELOG.md
 featured: false
 intro: |-
-  `@kubb/parser-md` emits `.md` and `.markdown` files. Source blocks pass through as plain markdown, joined by blank lines. Call `parserMd.print` on the parser instance to convert a metadata object into a YAML frontmatter envelope (`---\n…\n---`).
+  `@kubb/parser-md` lets Kubb emit `.md` and `.markdown` files. Register it alongside `parserTs` and any plugin that writes a markdown source will have its output serialized automatically.
 
-  Use it when a plugin needs to generate documentation alongside the TypeScript output — README sections, changelog excerpts, MDX-flavoured pages — without hand-rolling a frontmatter string builder.
-
-  Configure on `defineConfig({ parsers: [parserMd] })`. The parser claims `.md` and `.markdown`; pair it with `parserTs` so the same generator can emit both `.ts` and `.md` files in a single run.
+  The parser joins source blocks with blank lines. When `file.meta.frontmatter` is set, it prepends the YAML envelope — no separate `yaml` dependency needed. Pair it with `parserTs` when a generator emits both TypeScript and documentation files side by side.
+options:
+  - name: frontmatter
+    type: 'Record<string, unknown> | null'
+    required: false
+    default: 'undefined'
+    description: |-
+      Set `frontmatter` on `file.meta` inside a plugin to have the parser prepend a YAML frontmatter block. Any serializable key-value object works.
+    codeBlock:
+      lang: typescript
+      title: plugin example
+      twoslash: false
+      code: |-
+        createFile({
+          baseName: 'README.md',
+          path: `${config.output.path}/README.md`,
+          meta: {
+            frontmatter: { title: 'API Reference', layout: 'doc' },
+          },
+          sources: [...],
+        })
 examples:
   - name: Standalone markdown
     files:
