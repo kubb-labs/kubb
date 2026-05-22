@@ -67,6 +67,7 @@
     "create-kubb-user-config-signature",
     "ctx-param-in-define-resolver",
     "define-config-defaults-jsdoc",
+    "enforce-array-type-syntax",
     "export-ast-namespace-from-core",
     "fiery-books-report",
     "fix-additional-properties-traversal",
