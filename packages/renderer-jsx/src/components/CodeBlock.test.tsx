@@ -1,13 +1,30 @@
 import { describe, expect, it } from 'vitest'
+import { jsxRenderer } from '../createRenderer.tsx'
 import { CodeBlock } from './CodeBlock.tsx'
-import { renderToText } from './_testUtils.tsx'
+import { File } from './File.tsx'
 
 describe('CodeBlock', () => {
   it('wraps children in fenced code with a language tag', async () => {
-    expect(await renderToText(<CodeBlock lang="typescript">{'const pet = { id: 1 }'}</CodeBlock>)).toBe('```typescript\nconst pet = { id: 1 }\n```')
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="post.md" path="src/post.md">
+        <CodeBlock lang="typescript">{'const pet = { id: 1 }'}</CodeBlock>
+      </File>,
+    )
+
+    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toBe('```typescript\nconst pet = { id: 1 }\n```')
+    renderer.unmount()
   })
 
   it('omits the language tag when none is provided', async () => {
-    expect(await renderToText(<CodeBlock>{'echo hi'}</CodeBlock>)).toBe('```\necho hi\n```')
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="post.md" path="src/post.md">
+        <CodeBlock>{'echo hi'}</CodeBlock>
+      </File>,
+    )
+
+    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toBe('```\necho hi\n```')
+    renderer.unmount()
   })
 })
