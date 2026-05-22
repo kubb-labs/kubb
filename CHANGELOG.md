@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.25 — May 22, 2026
+
+### @kubb/parser-md
+
+#### Features
+
+- Add `@kubb/parser-md` for emitting `.md` and `.markdown` files. The parser exposes `parserMd.print` for serialising frontmatter objects to YAML envelopes and reads `file.meta.frontmatter` to prepend frontmatter automatically.
+  
+  Add markdown components to `@kubb/renderer-jsx` — `Frontmatter`, `Heading`, `Paragraph`, `CodeBlock`, `List`, `Callout` — for authoring `.md` files declaratively in JSX. `Callout` emits GitHub-style alert syntax (`> [!TIP]`) portable across GitHub, GitLab, VitePress, Obsidian, and MDX. ([#3358](https://github.com/kubb-labs/kubb/pull/3358), [`8154649`](https://github.com/kubb-labs/kubb/commit/81546491644a69fab7948e3000a196460e0137af))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.24 — May 21, 2026
 
 ### @kubb/core

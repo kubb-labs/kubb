@@ -14,7 +14,8 @@
     "@kubb/renderer-jsx": "5.0.0-alpha.74",
     "unplugin-kubb": "5.0.0-alpha.74",
     "@internals/shared": "0.0.0",
-    "@internals/utils": "0.0.0"
+    "@internals/utils": "0.0.0",
+    "@kubb/parser-md": "5.0.0-beta.24"
   },
   "changesets": [
     "adapter-oas-integer-type-bigint-default",
@@ -33,6 +34,7 @@
     "add-generator-run-helpers",
     "add-kubb-event-prefix",
     "add-kubb-mcp-dependency",
+    "add-md-parser-and-components",
     "add-middleware-barrel-tests",
     "add-middleware-barrel",
     "add-middleware-support",
