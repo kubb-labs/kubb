@@ -342,7 +342,12 @@ describe('createKubb', () => {
           ...config,
           storage: memoryStorage(),
           adapter: createMockedAdapter({
-            parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> }, schemas, operations: [] }),
+            parse: async () => ({
+              kind: 'Input' as const,
+              meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
+              schemas,
+              operations: [],
+            }),
           }),
           plugins: [makeBatchPlugin(generatedPaths) as unknown as Plugin],
         },
@@ -381,7 +386,12 @@ describe('createKubb', () => {
           ...config,
           storage: memoryStorage(),
           adapter: createMockedAdapter({
-            parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> }, schemas: [], operations }),
+            parse: async () => ({
+              kind: 'Input' as const,
+              meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
+              schemas: [],
+              operations,
+            }),
           }),
           plugins: [orderPlugin as unknown as Plugin],
         },
@@ -402,7 +412,12 @@ describe('createKubb', () => {
       async function* asyncOps() {}
 
       const streamAdapter = createMockedAdapter({
-        parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> }, schemas: [], operations: [] }),
+        parse: async () => ({
+          kind: 'Input' as const,
+          meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
+          schemas: [],
+          operations: [],
+        }),
       })
       Object.assign(streamAdapter, {
         stream: async () => createStreamInput(asyncSchemas(), asyncOps()),
@@ -460,7 +475,12 @@ describe('createKubb', () => {
           ...config,
           storage: memoryStorage(),
           adapter: createMockedAdapter({
-            parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> }, schemas, operations: [] }),
+            parse: async () => ({
+              kind: 'Input' as const,
+              meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
+              schemas,
+              operations: [],
+            }),
           }),
           plugins: [flushPlugin as unknown as Plugin],
         },
