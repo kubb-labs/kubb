@@ -1,13 +1,13 @@
-import { createFile, createSource, createText } from '@kubb/ast'
+import { ast } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { parserMd } from './parserMd.ts'
 
 describe('parserMd', () => {
   it('joins markdown source blocks separated by blank lines', () => {
-    const file = createFile({
+    const file = ast.createFile({
       baseName: 'post.md',
       path: '/post.md',
-      sources: [createSource({ nodes: [createText('# Hello')] }), createSource({ nodes: [createText('Body paragraph.')] })],
+      sources: [ast.createSource({ nodes: [ast.createText('# Hello')] }), ast.createSource({ nodes: [ast.createText('Body paragraph.')] })],
       imports: [],
       exports: [],
     })
@@ -16,11 +16,11 @@ describe('parserMd', () => {
   })
 
   it('emits frontmatter from file meta', () => {
-    const file = createFile<{ frontmatter?: Record<string, unknown> }>({
+    const file = ast.createFile<{ frontmatter?: Record<string, unknown> }>({
       baseName: 'post.md',
       path: '/post.md',
       meta: { frontmatter: { title: 'Hi', tags: ['a', 'b'] } },
-      sources: [createSource({ nodes: [createText('Body.')] })],
+      sources: [ast.createSource({ nodes: [ast.createText('Body.')] })],
       imports: [],
       exports: [],
     })
@@ -29,10 +29,10 @@ describe('parserMd', () => {
   })
 
   it('omits frontmatter when meta is empty', () => {
-    const file = createFile({
+    const file = ast.createFile({
       baseName: 'post.md',
       path: '/post.md',
-      sources: [createSource({ nodes: [createText('Body only.')] })],
+      sources: [ast.createSource({ nodes: [ast.createText('Body only.')] })],
       imports: [],
       exports: [],
     })
@@ -41,12 +41,12 @@ describe('parserMd', () => {
   })
 
   it('respects banner and footer', () => {
-    const file = createFile({
+    const file = ast.createFile({
       baseName: 'post.md',
       path: '/post.md',
       banner: '<!-- generated -->',
       footer: '<!-- end -->',
-      sources: [createSource({ nodes: [createText('Body.')] })],
+      sources: [ast.createSource({ nodes: [ast.createText('Body.')] })],
       imports: [],
       exports: [],
     })
@@ -55,7 +55,7 @@ describe('parserMd', () => {
   })
 
   it('returns empty string when nothing to render', () => {
-    const file = createFile({
+    const file = ast.createFile({
       baseName: 'post.md',
       path: '/post.md',
       sources: [],
