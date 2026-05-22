@@ -54,6 +54,9 @@ catalogs:
     vitest:
       specifier: ^4.1.6
       version: 4.1.6
+    yaml:
+      specifier: ^2.8.1
+      version: 2.9.0
 
 importers:
 
@@ -358,6 +361,22 @@ importers:
         specifier: workspace:*
         version: link:../../internals/utils
 
+  packages/parser-md:
+    dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
+      yaml:
+        specifier: 'catalog:'
+        version: 2.9.0
+    devDependencies:
+      '@internals/utils':
+        specifier: workspace:*
+        version: link:../../internals/utils
+
   packages/parser-ts:
     dependencies:
       '@kubb/core':
@@ -379,6 +398,9 @@ importers:
       '@kubb/ast':
         specifier: workspace:*
         version: link:../ast
+      yaml:
+        specifier: 'catalog:'
+        version: 2.9.0
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
@@ -5627,11 +5649,6 @@ packages:
     resolution: {integrity: sha512-vIYeF1u3CjlhAFekPPAk2h/Kv4T3mAkMox5OymRiJQB0spDP10LHvt+K7G9Ny6NuuMAb25/6n1qyUjAcGNf/AA==}
     engines: {node: '>= 6'}
 
-  yaml@2.8.4:
-    resolution: {integrity: sha512-ml/JPOj9fOQK8RNnWojA67GbZ0ApXAUlN2UQclwv2eVgTgn7O9gg9o7paZWKMp4g0H3nTLtS9LVzhkpOFIKzog==}
-    engines: {node: '>= 14.6'}
-    hasBin: true
-
   yaml@2.9.0:
     resolution: {integrity: sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA==}
     engines: {node: '>= 14.6'}
@@ -8008,7 +8025,7 @@ snapshots:
       '@cspell/cspell-types': 10.0.0
       comment-json: 4.6.2
       smol-toml: 1.6.1
-      yaml: 2.8.4
+      yaml: 2.9.0
 
   cspell-dictionary@10.0.0:
     dependencies:
@@ -9678,7 +9695,7 @@ snapshots:
 
   pnpm-workspace-yaml@1.6.0:
     dependencies:
-      yaml: 2.8.4
+      yaml: 2.9.0
 
   postcss@8.5.14:
     dependencies:
@@ -10719,8 +10736,6 @@ snapshots:
   yaml-ast-parser@0.0.43: {}
 
   yaml@1.10.3: {}
-
-  yaml@2.8.4: {}
 
   yaml@2.9.0: {}
 
