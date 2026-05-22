@@ -68,7 +68,7 @@ describe('parserMd', () => {
 })
 
 describe('parserMd.print', () => {
-  it('serialises a plain object as a YAML frontmatter envelope', () => {
+  it('serialise a plain object as a YAML frontmatter envelope', () => {
     expect(parserMd.print({ title: 'Hi' })).toBe('---\ntitle: Hi\n---')
   })
 
