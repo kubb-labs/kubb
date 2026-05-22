@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.26 — May 22, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Enforce `Array<T>` syntax (over `T[]`) via the oxlint `typescript/array-type` rule. Internal-only change; no runtime or API impact. ([#3360](https://github.com/kubb-labs/kubb/pull/3360), [`ab0abb1`](https://github.com/kubb-labs/kubb/commit/ab0abb1cb23ea4c4b937d0bb0329c6eb1994a55b))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.25 — May 22, 2026
 
 ### @kubb/parser-md
