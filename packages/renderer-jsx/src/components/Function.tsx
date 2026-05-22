@@ -46,7 +46,7 @@ type Props = {
    * @example Multiple generics
    * `generics: ['TData', 'TError = unknown']`
    */
-  generics?: string | string[] | null
+  generics?: string | Array<string> | null
   /**
    * TypeScript return type annotation written verbatim after `:`.
    * When `async` is `true`, the value is automatically wrapped in `Promise<…>`.

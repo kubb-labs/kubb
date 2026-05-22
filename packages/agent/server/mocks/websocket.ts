@@ -3,7 +3,7 @@
  * Stores event listeners and supports async-safe triggering.
  */
 export class MockWebSocket {
-  private listeners = new Map<string, Array<(...args: any[]) => any>>()
+  private listeners = new Map<string, Array<(...args: Array<any>) => any>>()
 
   /** Simulates the OPEN ready state so sendAgentMessage does not bail early. */
   public readyState = 1
@@ -11,12 +11,12 @@ export class MockWebSocket {
   /** Tracks whether close() has been called */
   public closed = false
 
-  addEventListener(event: string, cb: (...args: any[]) => any): void {
+  addEventListener(event: string, cb: (...args: Array<any>) => any): void {
     if (!this.listeners.has(event)) this.listeners.set(event, [])
     this.listeners.get(event)!.push(cb)
   }
 
-  removeEventListener(event: string, cb: (...args: any[]) => any): void {
+  removeEventListener(event: string, cb: (...args: Array<any>) => any): void {
     const list = this.listeners.get(event)
     if (list) {
       const idx = list.indexOf(cb)

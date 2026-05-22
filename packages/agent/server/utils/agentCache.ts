@@ -3,7 +3,7 @@ import type { JSONKubbConfig } from '~/types/agent.ts'
 type Config = { config: JSONKubbConfig; storedAt: string }
 
 function getStorage() {
-  return useStorage<Config[]>('kubb')
+  return useStorage<Array<Config>>('kubb')
 }
 
 /**

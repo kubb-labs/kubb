@@ -37,8 +37,8 @@ function toBool(val: unknown): boolean {
  * `kubb-type`, and similar elements are converted into their respective {@link CodeNode}s.
  * Any unrecognized element names are silently skipped.
  */
-function collectCodeNodes(element: DOMElement): CodeNode[] {
-  const result: CodeNode[] = []
+function collectCodeNodes(element: DOMElement): Array<CodeNode> {
+  const result: Array<CodeNode> = []
 
   for (const child of element.childNodes) {
     if (!child) continue
@@ -63,7 +63,7 @@ function collectCodeNodes(element: DOMElement): CodeNode[] {
           export: attrs['export'] as boolean | null | undefined,
           default: attrs['default'] as boolean | null | undefined,
           async: attrs['async'] as boolean | null | undefined,
-          generics: attrs['generics'] as string | string[] | null | undefined,
+          generics: attrs['generics'] as string | Array<string> | null | undefined,
           returnType: attrs['returnType'] as string | null | undefined,
           JSDoc: attrs['JSDoc'] as JSDocNode | null | undefined,
           nodes: collectCodeNodes(child),
@@ -81,7 +81,7 @@ function collectCodeNodes(element: DOMElement): CodeNode[] {
           export: attrs['export'] as boolean | null | undefined,
           default: attrs['default'] as boolean | null | undefined,
           async: attrs['async'] as boolean | null | undefined,
-          generics: attrs['generics'] as string | string[] | null | undefined,
+          generics: attrs['generics'] as string | Array<string> | null | undefined,
           returnType: attrs['returnType'] as string | null | undefined,
           singleLine: attrs['singleLine'] as boolean | null | undefined,
           JSDoc: attrs['JSDoc'] as JSDocNode | null | undefined,
@@ -187,9 +187,9 @@ function* collectFileEntries(node: DOMElement): Generator<SourceNode | ExportNod
  * node by its `.kind`.
  */
 function createFileNode(child: DOMElement): FileNode {
-  const sources: SourceNode[] = []
-  const exports: ExportNode[] = []
-  const imports: ImportNode[] = []
+  const sources: Array<SourceNode> = []
+  const exports: Array<ExportNode> = []
+  const imports: Array<ImportNode> = []
 
   for (const node of collectFileEntries(child)) {
     if (node.kind === 'Source') {
@@ -241,6 +241,6 @@ export function* streamFiles(node: DOMElement): Generator<FileNode> {
  * Returns the list of file nodes in document order. Nested files are supported;
  * the walker descends into non-file elements and recurses through them.
  */
-export function collectFiles(node: DOMElement): FileNode[] {
+export function collectFiles(node: DOMElement): Array<FileNode> {
   return [...streamFiles(node)]
 }

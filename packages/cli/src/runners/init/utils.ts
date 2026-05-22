@@ -15,7 +15,7 @@ export function hasPackageJson(cwd: string = process.cwd()): boolean {
  * Initializes a new `package.json` at `cwd` using the detected package manager.
  */
 export async function initPackageJson(cwd: string, packageManager: PackageManagerInfo): Promise<void> {
-  const commands: Record<PackageManagerName, string[]> = {
+  const commands: Record<PackageManagerName, Array<string>> = {
     npm: ['init', '-y'],
     pnpm: ['init'],
     yarn: ['init', '-y'],
@@ -28,6 +28,6 @@ export async function initPackageJson(cwd: string, packageManager: PackageManage
 /**
  * Installs the given packages at `cwd` using the detected package manager.
  */
-export async function installPackages(packages: string[], packageManager: PackageManagerInfo, cwd: string = process.cwd()): Promise<void> {
+export async function installPackages(packages: Array<string>, packageManager: PackageManagerInfo, cwd: string = process.cwd()): Promise<void> {
   await spawnAsync(packageManager.name, [...packageManager.installCommand, ...packages], { cwd })
 }

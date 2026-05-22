@@ -20,7 +20,7 @@ export const generateTool = defineTool(
 
     try {
       const hooks = new AsyncEventEmitter<KubbHooks>()
-      const messages: string[] = []
+      const messages: Array<string> = []
 
       const notify = async (type: string, message: string, _data?: Record<string, unknown>) => {
         messages.push(`${type}: ${message}`)
@@ -123,7 +123,7 @@ export const generateTool = defineTool(
       await notify(NotifyTypes.BUILD_END, `Build complete - Generated ${files.length} files`)
 
       if (error || failedPlugins.size > 0) {
-        const allErrors: Error[] = [
+        const allErrors: Array<Error> = [
           error,
           ...Array.from(failedPlugins)
             .filter((it) => it.error)

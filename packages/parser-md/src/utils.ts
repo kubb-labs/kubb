@@ -35,7 +35,7 @@ export function printFrontmatter(data: Record<string, unknown> | null | undefine
  * ```
  */
 export function print(...parts: Array<PrintInput | null | undefined>): string {
-  const rendered: string[] = []
+  const rendered: Array<string> = []
   for (const part of parts) {
     if (part === null || part === undefined || part === '') continue
     const text = typeof part === 'string' ? part : printFrontmatter(part)

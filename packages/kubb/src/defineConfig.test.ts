@@ -205,7 +205,7 @@ describe('defineConfig', () => {
 
   test('handles function array config', async () => {
     const fn = defineConfig(() => [{ ...baseConfig }])
-    const typedFn: (cli: CLIOptions) => Promise<UserConfig[]> = fn
+    const typedFn: (cli: CLIOptions) => Promise<Array<UserConfig>> = fn
 
     expect(typeof typedFn).toBe('function')
     const result = await fn({})
@@ -215,7 +215,7 @@ describe('defineConfig', () => {
 
   test('handles async function array config', async () => {
     const fn = defineConfig(async () => [{ ...baseConfig }])
-    const typedFn: (cli: CLIOptions) => Promise<UserConfig[]> = fn
+    const typedFn: (cli: CLIOptions) => Promise<Array<UserConfig>> = fn
 
     expect(typeof typedFn).toBe('function')
     const result = await fn({})

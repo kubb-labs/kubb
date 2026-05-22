@@ -60,13 +60,13 @@ function toBool(val: unknown): boolean {
   return (val ?? false) as boolean
 }
 
-function collectCodeNodes(props: Record<string, unknown>): CodeNode[] {
-  const nodes: CodeNode[] = []
+function collectCodeNodes(props: Record<string, unknown>): Array<CodeNode> {
+  const nodes: Array<CodeNode> = []
   collectCode(props['children'], nodes)
   return nodes
 }
 
-function collectCode(element: unknown, nodes: CodeNode[]): void {
+function collectCode(element: unknown, nodes: Array<CodeNode>): void {
   walkElement(
     element,
     (text) => {
@@ -76,7 +76,7 @@ function collectCode(element: unknown, nodes: CodeNode[]): void {
   )
 }
 
-function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: CodeNode[]): void {
+function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Array<CodeNode>): void {
   if (type === 'br') {
     nodes.push(createBreak())
     return
@@ -103,7 +103,7 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Co
         export: props['export'] as boolean | null | undefined,
         default: props['default'] as boolean | null | undefined,
         async: props['async'] as boolean | null | undefined,
-        generics: props['generics'] as string | string[] | null | undefined,
+        generics: props['generics'] as string | Array<string> | null | undefined,
         returnType: props['returnType'] as string | null | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | null | undefined,
         nodes: collectCodeNodes(props),
@@ -120,7 +120,7 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Co
         export: props['export'] as boolean | null | undefined,
         default: props['default'] as boolean | null | undefined,
         async: props['async'] as boolean | null | undefined,
-        generics: props['generics'] as string | string[] | null | undefined,
+        generics: props['generics'] as string | Array<string> | null | undefined,
         returnType: props['returnType'] as string | null | undefined,
         singleLine: props['singleLine'] as boolean | null | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | null | undefined,
@@ -157,12 +157,12 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Co
   }
 }
 
-type FileChildren = { sources: SourceNode[]; exports: ExportNode[]; imports: ImportNode[] }
+type FileChildren = { sources: Array<SourceNode>; exports: Array<ExportNode>; imports: Array<ImportNode> }
 
 function collectFileChildren(element: unknown): FileChildren {
-  const sources: SourceNode[] = []
-  const exports: ExportNode[] = []
-  const imports: ImportNode[] = []
+  const sources: Array<SourceNode> = []
+  const exports: Array<ExportNode> = []
+  const imports: Array<ImportNode> = []
 
   walkElement(
     element,
@@ -278,7 +278,7 @@ export class SyncRuntime {
   /**
    * Accumulated {@link FileNode} results from every {@link render} call.
    */
-  nodes: FileNode[] = []
+  nodes: Array<FileNode> = []
 
   /**
    * Walks `element` synchronously, converts every `<kubb-file>` subtree into

@@ -30,7 +30,7 @@ import { createExport, createImport, getRelativePath, print, printSource, resolv
 export const parserTs = defineParser({
   name: 'typescript',
   extNames: ['.ts', '.js'],
-  print(...nodes: ts.Node[]) {
+  print(...nodes: Array<ts.Node>) {
     return print(...nodes)
   },
   parse(file, options = { extname: '.ts' }) {

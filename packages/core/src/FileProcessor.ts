@@ -25,7 +25,7 @@ export type ParsedFile = {
 function joinSources(file: FileNode): string {
   const sources = file.sources
   if (sources.length === 0) return ''
-  const parts: string[] = []
+  const parts: Array<string> = []
   for (const source of sources) {
     const s = extractStringsFromNodes(source.nodes as Array<CodeNode>)
     if (s) parts.push(s)

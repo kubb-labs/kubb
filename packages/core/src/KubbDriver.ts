@@ -81,7 +81,7 @@ export class KubbDriver {
   // middleware hooks for any event fire after all plugin hooks for that event.
   // Handlers are tracked so they can be removed after each build (disposeMiddleware),
   // preventing accumulation when multiple configs share the same hooks instance.
-  #middlewareListeners: Array<[keyof KubbHooks & string, (...args: never[]) => void | Promise<void>]> = []
+  #middlewareListeners: Array<[keyof KubbHooks & string, (...args: Array<never>) => void | Promise<void>]> = []
 
   /**
    * Central file store for all generated files.
@@ -100,7 +100,7 @@ export class KubbDriver {
   readonly #eventGeneratorPlugins = new Set<string>()
   readonly #resolvers = new Map<string, Resolver>()
   readonly #defaultResolvers = new Map<string, Resolver>()
-  readonly #hookListeners = new Map<keyof KubbHooks, Set<(...args: never[]) => void | Promise<void>>>()
+  readonly #hookListeners = new Map<keyof KubbHooks, Set<(...args: Array<never>) => void | Promise<void>>>()
 
   constructor(config: Config, options: Options) {
     this.config = config
@@ -109,7 +109,7 @@ export class KubbDriver {
   }
 
   async setup() {
-    const normalized: NormalizedPlugin[] = this.config.plugins.map((rawPlugin) => this.#normalizePlugin(rawPlugin as Plugin))
+    const normalized: Array<NormalizedPlugin> = this.config.plugins.map((rawPlugin) => this.#normalizePlugin(rawPlugin as Plugin))
 
     normalized.sort((a, b) => {
       if (b.dependencies?.includes(a.name)) return -1
@@ -199,7 +199,7 @@ export class KubbDriver {
     }
 
     this.hooks.on(event, handler)
-    this.#middlewareListeners.push([event, handler as (...args: never[]) => void | Promise<void>])
+    this.#middlewareListeners.push([event, handler as (...args: Array<never>) => void | Promise<void>])
   }
 
   /**
@@ -253,15 +253,15 @@ export class KubbDriver {
       }
 
       this.hooks.on('kubb:plugin:setup', setupHandler)
-      this.#trackHookListener('kubb:plugin:setup', setupHandler as (...args: never[]) => void | Promise<void>)
+      this.#trackHookListener('kubb:plugin:setup', setupHandler as (...args: Array<never>) => void | Promise<void>)
     }
 
     // All other hooks are registered as direct pass-through listeners on the shared emitter.
-    for (const [event, handler] of Object.entries(hooks) as Array<[keyof KubbHooks, ((...args: never[]) => void | Promise<void>) | undefined]>) {
+    for (const [event, handler] of Object.entries(hooks) as Array<[keyof KubbHooks, ((...args: Array<never>) => void | Promise<void>) | undefined]>) {
       if (event === 'kubb:plugin:setup' || !handler) continue
 
       this.hooks.on(event, handler as never)
-      this.#trackHookListener(event, handler as (...args: never[]) => void | Promise<void>)
+      this.#trackHookListener(event, handler as (...args: Array<never>) => void | Promise<void>)
     }
   }
 
@@ -315,7 +315,7 @@ export class KubbDriver {
       }
 
       this.hooks.on('kubb:generate:schema', schemaHandler)
-      this.#trackHookListener('kubb:generate:schema', schemaHandler as (...args: never[]) => void | Promise<void>)
+      this.#trackHookListener('kubb:generate:schema', schemaHandler as (...args: Array<never>) => void | Promise<void>)
     }
 
     if (gen.operation) {
@@ -326,7 +326,7 @@ export class KubbDriver {
       }
 
       this.hooks.on('kubb:generate:operation', operationHandler)
-      this.#trackHookListener('kubb:generate:operation', operationHandler as (...args: never[]) => void | Promise<void>)
+      this.#trackHookListener('kubb:generate:operation', operationHandler as (...args: Array<never>) => void | Promise<void>)
     }
 
     if (gen.operations) {
@@ -337,7 +337,7 @@ export class KubbDriver {
       }
 
       this.hooks.on('kubb:generate:operations', operationsHandler)
-      this.#trackHookListener('kubb:generate:operations', operationsHandler as (...args: never[]) => void | Promise<void>)
+      this.#trackHookListener('kubb:generate:operations', operationsHandler as (...args: Array<never>) => void | Promise<void>)
     }
 
     this.#eventGeneratorPlugins.add(pluginName)
@@ -510,7 +510,7 @@ export class KubbDriver {
     type PluginState = {
       plugin: NormalizedPlugin
       generatorContext: GeneratorContext
-      generators: Generator[]
+      generators: Array<Generator>
       hrStart: ReturnType<typeof process.hrtime>
       failed: boolean
       error: Error | null
@@ -520,7 +520,7 @@ export class KubbDriver {
 
     const driver = this
     const { schemas, operations } = this.inputNode!
-    const states: PluginState[] = entries.map(({ plugin, context, hrStart }) => {
+    const states: Array<PluginState> = entries.map(({ plugin, context, hrStart }) => {
       const { exclude, include, override } = plugin.options
       const hasExclude = Array.isArray(exclude) && exclude.length > 0
       const hasInclude = Array.isArray(include) && include.length > 0
@@ -550,10 +550,10 @@ export class KubbDriver {
     })
 
     if (pruningStates.length > 0) {
-      const allSchemas: SchemaNode[] = []
+      const allSchemas: Array<SchemaNode> = []
       for await (const schema of schemas) allSchemas.push(schema)
 
-      const includedOpsByState = new Map<PluginState, OperationNode[]>(pruningStates.map((s) => [s, []]))
+      const includedOpsByState = new Map<PluginState, Array<OperationNode>>(pruningStates.map((s) => [s, []]))
       for await (const operation of operations) {
         for (const state of pruningStates) {
           const { exclude, include, override } = state.plugin.options
@@ -632,7 +632,7 @@ export class KubbDriver {
     // Saves an N-sized allocation that lives until the build ends, on the common
     // path where plugins only define per-node `gen.operation`.
     const needsCollectedOperations = this.hooks.listenerCount('kubb:generate:operations') > 0 || states.some((s) => s.generators.some((g) => !!g.operations))
-    const collectedOperations: OperationNode[] = needsCollectedOperations ? [] : (undefined as never)
+    const collectedOperations: Array<OperationNode> = needsCollectedOperations ? [] : (undefined as never)
 
     // Run schemas before operations: the two passes share `flushPending` and the
     // FileProcessor's event emitter, so running them concurrently would interleave
@@ -731,7 +731,7 @@ export class KubbDriver {
     this.dispose()
   }
 
-  #trackHookListener(event: keyof KubbHooks, handler: (...args: never[]) => void | Promise<void>): void {
+  #trackHookListener(event: keyof KubbHooks, handler: (...args: Array<never>) => void | Promise<void>): void {
     let handlers = this.#hookListeners.get(event)
     if (!handlers) {
       handlers = new Set()

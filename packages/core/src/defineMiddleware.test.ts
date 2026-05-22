@@ -155,7 +155,7 @@ describe('middleware runtime integration with createKubb', () => {
   })
 
   it('middleware listeners fire after plugin listeners for the same event', async () => {
-    const callOrder: string[] = []
+    const callOrder: Array<string> = []
 
     const plugin = definePlugin(() => ({
       name: 'ordering-plugin',
@@ -191,7 +191,7 @@ describe('middleware runtime integration with createKubb', () => {
   })
 
   it('middleware can observe kubb:build:end and access files', async () => {
-    const capturedFiles: unknown[] = []
+    const capturedFiles: Array<unknown> = []
 
     const middleware = defineMiddleware(() => ({
       name: 'build-end-observer',

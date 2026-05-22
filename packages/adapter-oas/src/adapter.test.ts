@@ -33,7 +33,7 @@ describe('adapterOas.stream', () => {
     const adapter = adapterOas({ validate: false })
 
     const node = await adapter.stream!({ type: 'data', data: minimalSpec })
-    const schemas: ast.SchemaNode[] = []
+    const schemas: Array<ast.SchemaNode> = []
     for await (const schema of node.schemas) {
       schemas.push(schema)
     }
@@ -46,10 +46,10 @@ describe('adapterOas.stream', () => {
     const adapter = adapterOas({ validate: false })
     const node = await adapter.stream!({ type: 'data', data: minimalSpec })
 
-    const first: ast.SchemaNode[] = []
+    const first: Array<ast.SchemaNode> = []
     for await (const schema of node.schemas) first.push(schema)
 
-    const second: ast.SchemaNode[] = []
+    const second: Array<ast.SchemaNode> = []
     for await (const schema of node.schemas) second.push(schema)
 
     expect(second.length).toBe(first.length)
@@ -60,7 +60,7 @@ describe('adapterOas.stream', () => {
     const adapter = adapterOas({ validate: false })
     const node = await adapter.stream!({ type: 'data', data: minimalSpec })
 
-    const operations: ast.OperationNode[] = []
+    const operations: Array<ast.OperationNode> = []
     for await (const op of node.operations) {
       operations.push(op)
     }

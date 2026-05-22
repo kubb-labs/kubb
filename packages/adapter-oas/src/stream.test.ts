@@ -144,7 +144,7 @@ describe('createInputStream', () => {
       meta: { circularNames: [], enumNames: [] },
     })
 
-    const collected: ast.SchemaNode[] = []
+    const collected: Array<ast.SchemaNode> = []
     for await (const schema of node.schemas) collected.push(schema)
 
     expect(collected).toHaveLength(1)
@@ -167,10 +167,10 @@ describe('createInputStream', () => {
       meta: { circularNames: [], enumNames: [] },
     })
 
-    const first: string[] = []
+    const first: Array<string> = []
     for await (const s of node.schemas) first.push(s.name ?? '')
 
-    const second: string[] = []
+    const second: Array<string> = []
     for await (const s of node.schemas) second.push(s.name ?? '')
 
     expect(second).toEqual(first)
@@ -205,7 +205,7 @@ describe('createInputStream', () => {
       meta: { circularNames: [], enumNames: [] },
     })
 
-    const collected: ast.SchemaNode[] = []
+    const collected: Array<ast.SchemaNode> = []
     for await (const s of node.schemas) collected.push(s)
 
     const alias = collected.find((s) => s.name === 'PetAlias')
@@ -227,7 +227,7 @@ describe('createInputStream', () => {
       meta: { circularNames: [], enumNames: [] },
     })
 
-    const operations: ast.OperationNode[] = []
+    const operations: Array<ast.OperationNode> = []
     for await (const op of node.operations) operations.push(op)
 
     expect(operations).toHaveLength(1)

@@ -13,8 +13,8 @@ type OtlpBoolValue = { boolValue: boolean }
 type OtlpIntValue = { intValue: number }
 type OtlpDoubleValue = { doubleValue: number }
 type OtlpBytesValue = { bytesValue: string }
-type OtlpArrayValue = { arrayValue: { values: OtlpAnyValue[] } }
-type OtlpKvListValue = { kvlistValue: { values: OtlpKeyValue[] } }
+type OtlpArrayValue = { arrayValue: { values: Array<OtlpAnyValue> } }
+type OtlpKvListValue = { kvlistValue: { values: Array<OtlpKeyValue> } }
 
 type OtlpAnyValue = OtlpStringValue | OtlpBoolValue | OtlpIntValue | OtlpDoubleValue | OtlpBytesValue | OtlpArrayValue | OtlpKvListValue
 
@@ -24,14 +24,14 @@ type OtlpKeyValue = {
 }
 
 type OtlpResource = {
-  attributes: OtlpKeyValue[]
+  attributes: Array<OtlpKeyValue>
   droppedAttributesCount?: number
 }
 
 type OtlpInstrumentationScope = {
   name: string
   version?: string
-  attributes?: OtlpKeyValue[]
+  attributes?: Array<OtlpKeyValue>
   droppedAttributesCount?: number
 }
 
@@ -55,11 +55,11 @@ type OtlpSpan = {
   kind: OtlpSpanKind
   startTimeUnixNano: string
   endTimeUnixNano: string
-  attributes?: OtlpKeyValue[]
+  attributes?: Array<OtlpKeyValue>
   droppedAttributesCount?: number
-  events?: OtlpSpanEvent[]
+  events?: Array<OtlpSpanEvent>
   droppedEventsCount?: number
-  links?: OtlpSpanLink[]
+  links?: Array<OtlpSpanLink>
   droppedLinksCount?: number
   status?: OtlpStatus
 }
@@ -67,7 +67,7 @@ type OtlpSpan = {
 type OtlpSpanEvent = {
   timeUnixNano: string
   name: string
-  attributes?: OtlpKeyValue[]
+  attributes?: Array<OtlpKeyValue>
   droppedAttributesCount?: number
 }
 
@@ -75,25 +75,25 @@ type OtlpSpanLink = {
   traceId: string
   spanId: string
   traceState?: string
-  attributes?: OtlpKeyValue[]
+  attributes?: Array<OtlpKeyValue>
   droppedAttributesCount?: number
 }
 
 type OtlpScopeSpans = {
   scope: OtlpInstrumentationScope
-  spans: OtlpSpan[]
+  spans: Array<OtlpSpan>
   schemaUrl?: string
 }
 
 type OtlpResourceSpans = {
   resource: OtlpResource
-  scopeSpans: OtlpScopeSpans[]
+  scopeSpans: Array<OtlpScopeSpans>
   schemaUrl?: string
 }
 
 /** Root payload sent to POST /v1/traces */
 type OtlpExportTraceServiceRequest = {
-  resourceSpans: OtlpResourceSpans[]
+  resourceSpans: Array<OtlpResourceSpans>
 }
 
 /**
@@ -116,7 +116,7 @@ type TelemetryEvent = {
   nodeVersion: string
   platform: string
   ci: boolean
-  plugins: TelemetryPlugin[]
+  plugins: Array<TelemetryPlugin>
   duration: number
   filesCreated: number
   status: 'success' | 'failed'
@@ -151,7 +151,7 @@ export function buildOtlpPayload(event: TelemetryEvent): OtlpExportTraceServiceR
   const endTimeNs = BigInt(Date.now()) * 1_000_000n
   const startTimeNs = endTimeNs - BigInt(event.duration) * 1_000_000n
 
-  const attributes: OtlpKeyValue[] = [
+  const attributes: Array<OtlpKeyValue> = [
     { key: 'kubb.command', value: { stringValue: event.command } },
     { key: 'kubb.version', value: { stringValue: event.kubbVersion } },
     { key: 'kubb.node_version', value: { stringValue: event.nodeVersion } },
@@ -258,7 +258,7 @@ export async function sendTelemetry(event: TelemetryEvent): Promise<void> {
 export function buildTelemetryEvent(options: {
   command: 'generate' | 'mcp' | 'validate' | 'agent'
   kubbVersion: string
-  plugins?: TelemetryPlugin[]
+  plugins?: Array<TelemetryPlugin>
   hrStart: [number, number]
   filesCreated?: number
   status: 'success' | 'failed'

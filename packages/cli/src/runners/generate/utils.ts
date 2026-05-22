@@ -142,7 +142,7 @@ export async function executeHooks({ configHooks, hooks, makeSink }: ExecuteHook
 type RunHookOptions = {
   id: string
   command: string
-  args?: readonly string[]
+  args?: ReadonlyArray<string>
   commandWithArgs: string
   context: AsyncEventEmitter<KubbHooks>
   stream?: boolean
@@ -200,8 +200,8 @@ type WatcherLog = {
  * Ignores `.git` and `node_modules` directories.
  */
 export async function startWatcher(
-  path: string[],
-  cb: (path: string[]) => Promise<void>,
+  path: Array<string>,
+  cb: (path: Array<string>) => Promise<void>,
   log: WatcherLog = { info: console.log, error: console.log },
 ): Promise<void> {
   const { watch } = await import('chokidar')

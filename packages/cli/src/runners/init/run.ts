@@ -114,10 +114,10 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
     )
 
     // Plugin selection
-    const defaultPlugins = availablePlugins.filter((p) => (initDefaults.plugins as readonly string[]).includes(p.value))
-    const pluginLabel = (plugins: PluginOption[]) => styleText('cyan', plugins.map((p) => p.label).join(', '))
+    const defaultPlugins = availablePlugins.filter((p) => (initDefaults.plugins as ReadonlyArray<string>).includes(p.value))
+    const pluginLabel = (plugins: Array<PluginOption>) => styleText('cyan', plugins.map((p) => p.label).join(', '))
 
-    const selectedPlugins: PluginOption[] = await (async () => {
+    const selectedPlugins: Array<PluginOption> = await (async () => {
       if (pluginsFlag) {
         const requested = pluginsFlag
           .split(',')
@@ -142,7 +142,7 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
         required: true,
       })
       if (clack.isCancel(values)) cancelAndExit()
-      return availablePlugins.filter((p) => (values as string[]).includes(p.value))
+      return availablePlugins.filter((p) => (values as Array<string>).includes(p.value))
     })()
 
     // Install packages

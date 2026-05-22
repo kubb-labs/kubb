@@ -51,7 +51,7 @@ describe('isTelemetryDisabled', () => {
 describe('buildTelemetryEvent', () => {
   it('should build a telemetry event with safe anonymous data only', () => {
     const hrStart = process.hrtime()
-    const plugins: TelemetryPlugin[] = [
+    const plugins: Array<TelemetryPlugin> = [
       { name: 'plugin-ts', options: { output: { path: 'types' } } },
       { name: 'plugin-client', options: { output: { path: 'clients' } } },
     ]

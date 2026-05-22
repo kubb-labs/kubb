@@ -86,7 +86,7 @@ export type OperationsOptions = {
  * ```
  */
 export function getParameters(document: Document, operation: Operation): Array<ParameterObject> {
-  const resolveParams = (params: unknown[]): Array<ParameterObject> =>
+  const resolveParams = (params: Array<unknown>): Array<ParameterObject> =>
     params.map((p) => dereferenceWithRef(document, p)).filter((p): p is ParameterObject => !!p && typeof p === 'object' && 'in' in p && 'name' in p)
 
   const operationParams = resolveParams(operation.schema?.parameters || [])
@@ -108,7 +108,7 @@ export function getParameters(document: Document, operation: Operation): Array<P
   return Array.from(paramMap.values())
 }
 
-function getResponseBody(responseBody: boolean | ResponseObject, contentType?: string): MediaTypeObject | false | [string, MediaTypeObject, ...string[]] {
+function getResponseBody(responseBody: boolean | ResponseObject, contentType?: string): MediaTypeObject | false | [string, MediaTypeObject, ...Array<string>] {
   if (!responseBody) return false
   if (isReference(responseBody)) return false
 
@@ -260,7 +260,7 @@ function hasStructuralKeywords(fragment: SchemaObject): boolean {
 export function flattenSchema(schema: SchemaObject | null): SchemaObject | null {
   if (!schema?.allOf || schema.allOf.length === 0) return schema ?? null
 
-  const allOfFragments = schema.allOf as SchemaObject[]
+  const allOfFragments = schema.allOf as Array<SchemaObject>
   if (allOfFragments.some((item) => isRef(item))) return schema
   if (allOfFragments.some(hasStructuralKeywords)) return schema
 
@@ -339,13 +339,13 @@ function* collectRefs(schema: unknown): Generator<string, void, undefined> {
  * ```
  */
 export function sortSchemas(schemas: Record<string, SchemaObject>): Record<string, SchemaObject> {
-  const deps = new Map<string, string[]>()
+  const deps = new Map<string, Array<string>>()
 
   for (const [name, schema] of Object.entries(schemas)) {
     deps.set(name, [...new Set(collectRefs(schema))])
   }
 
-  const sorted: string[] = []
+  const sorted: Array<string> = []
   const visited = new Set<string>()
 
   function visit(name: string, stack: Set<string>) {
@@ -402,7 +402,7 @@ function resolveSchemaRef(document: Document, schema: SchemaObject): SchemaObjec
 export function getSchemas(document: Document, { contentType }: GetSchemasOptions): GetSchemasResult {
   const components = document.components
 
-  const candidates: SchemaWithMetadata[] = [
+  const candidates: Array<SchemaWithMetadata> = [
     ...Object.entries((components?.schemas as Record<string, SchemaObject>) ?? {}).map(([name, schema]) => ({
       schema: resolveSchemaRef(document, schema),
       source: 'schemas' as const,
@@ -424,7 +424,7 @@ export function getSchemas(document: Document, { contentType }: GetSchemasOption
     ),
   ]
 
-  const normalizedNames = new Map<string, SchemaWithMetadata[]>()
+  const normalizedNames = new Map<string, Array<SchemaWithMetadata>>()
   for (const item of candidates) {
     const key = pascalCase(item.originalName)
     const bucket = normalizedNames.get(key) ?? []
@@ -529,7 +529,7 @@ export function buildSchemaNode(schema: SchemaObject, name: string | null | unde
  * // ['application/json', 'multipart/form-data']
  * ```
  */
-export function getRequestBodyContentTypes(document: Document, operation: Operation): string[] {
+export function getRequestBodyContentTypes(document: Document, operation: Operation): Array<string> {
   if (operation.schema.requestBody) {
     operation.schema.requestBody = dereferenceWithRef(document, operation.schema.requestBody)
   }

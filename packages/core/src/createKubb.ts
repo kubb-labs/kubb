@@ -790,7 +790,7 @@ export type KubbHookStartContext = {
   /**
    * Parsed argument list, when available.
    */
-  args?: readonly string[]
+  args?: ReadonlyArray<string>
 }
 
 export type KubbHookEndContext = {
@@ -805,7 +805,7 @@ export type KubbHookEndContext = {
   /**
    * Parsed argument list, when available.
    */
-  args?: readonly string[]
+  args?: ReadonlyArray<string>
   /**
    * `true` when the command exited with code `0`.
    */
@@ -846,8 +846,8 @@ export type CLIOptions = {
  * Accepts `Config`/`Config[]`/promise or a factory (optionally receiving `TCliOptions`.
  */
 export type PossibleConfig<TCliOptions = undefined> =
-  | PossiblePromise<Config | Config[]>
-  | ((...args: [TCliOptions] extends [undefined] ? [] : [TCliOptions]) => PossiblePromise<Config | Config[]>)
+  | PossiblePromise<Config | Array<Config>>
+  | ((...args: [TCliOptions] extends [undefined] ? [] : [TCliOptions]) => PossiblePromise<Config | Array<Config>>)
 
 /**
  * Full output produced by a successful or failed build.

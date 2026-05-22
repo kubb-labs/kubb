@@ -1416,7 +1416,7 @@ describe('parseSchema object properties', () => {
         type: 'object',
         // OAS 2.0 allows `required: true` (boolean) on individual properties.
         // Cast simulates an OAS 2.0 spec parsed at runtime where the type diverges from the TS definition.
-        required: true as unknown as string[],
+        required: true as unknown as Array<string>,
         properties: { id: { type: 'integer' }, tag: { type: 'string' } },
       },
     })
