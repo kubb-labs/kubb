@@ -28,6 +28,7 @@ export default defineConfig({
     'no-else-return': 'error',
     'default-param-last': 'error',
     'prefer-exponentiation-operator': 'error',
+    'typescript/array-type': ['error', { default: 'generic' }],
     'typescript/consistent-type-imports': ['error', { disallowTypeAnnotations: false }],
     'typescript/no-inferrable-types': 'error',
     'typescript/prefer-function-type': 'error',

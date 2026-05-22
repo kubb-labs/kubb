@@ -31,7 +31,7 @@ export type Parser<TMeta extends object = any, TNode = unknown> = {
    * Plugins call this to format the nodes they assemble before handing them
    * back to the parser as `FileNode.sources`.
    */
-  print(...nodes: TNode[]): string
+  print(...nodes: Array<TNode>): string
 }
 
 /**

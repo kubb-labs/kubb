@@ -46,7 +46,7 @@ describe('packageManager', () => {
   })
 
   describe('initPackageJson', () => {
-    it.each<{ pm: PackageManagerInfo; expectedArgs: string[] }>([
+    it.each<{ pm: PackageManagerInfo; expectedArgs: Array<string> }>([
       {
         pm: {
           name: 'npm',

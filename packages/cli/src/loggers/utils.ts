@@ -104,7 +104,7 @@ type ProgressState = {
  * Returns null when there is nothing to display.
  */
 export function buildProgressLine(state: ProgressState): string | null {
-  const parts: string[] = []
+  const parts: Array<string> = []
   const duration = formatHrtime(state.hrStart)
 
   if (state.totalPlugins > 0) {
@@ -131,7 +131,7 @@ export function buildProgressLine(state: ProgressState): string | null {
  * Join a command and its optional args into a single display string.
  * e.g. ("prettier", ["--write", "."]) → "prettier --write ."
  */
-export function formatCommandWithArgs(command: string, args?: readonly string[]): string {
+export function formatCommandWithArgs(command: string, args?: ReadonlyArray<string>): string {
   return args?.length ? `${command} ${args.join(' ')}` : command
 }
 
@@ -200,7 +200,7 @@ type SummaryProps = {
  * Builds the generation summary lines rendered in the end-of-run box.
  * Returns an array of styled strings, one per summary row.
  */
-export function getSummary({ failedPlugins, filesCreated, status, hrStart, config, pluginTimings }: SummaryProps): string[] {
+export function getSummary({ failedPlugins, filesCreated, status, hrStart, config, pluginTimings }: SummaryProps): Array<string> {
   const duration = formatHrtime(hrStart)
 
   const pluginsCount = config.plugins?.length ?? 0
@@ -226,7 +226,7 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
   }
   const maxLength = Math.max(0, ...[...Object.values(labels), ...(pluginTimings ? Array.from(pluginTimings.keys()) : [])].map((s) => s.length))
 
-  const summaryLines: string[] = []
+  const summaryLines: Array<string> = []
   summaryLines.push(`${labels.plugins.padEnd(maxLength + 2)} ${meta.plugins}`)
 
   if (meta.pluginsFailed) {

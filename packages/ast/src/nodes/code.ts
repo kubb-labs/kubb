@@ -145,7 +145,7 @@ export type FunctionNode = BaseNode & {
    * TypeScript generic type parameters.
    * @example ['T', 'U extends string']
    */
-  generics?: string | string[] | null
+  generics?: string | Array<string> | null
   /**
    * Return type annotation.
    * @example 'Pet'
@@ -206,7 +206,7 @@ export type ArrowFunctionNode = BaseNode & {
    * TypeScript generic type parameters.
    * @example ['T', 'U extends string']
    */
-  generics?: string | string[] | null
+  generics?: string | Array<string> | null
   /**
    * Return type annotation.
    * @example 'Pet'

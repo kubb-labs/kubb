@@ -6,7 +6,7 @@ import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import { initSchema } from '../schemas/initSchema.ts'
 
-export function resolvePlugins(pluginsFlag: string | undefined): PluginOption[] {
+export function resolvePlugins(pluginsFlag: string | undefined): Array<PluginOption> {
   if (!pluginsFlag) {
     return []
   }

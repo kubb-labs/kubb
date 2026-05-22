@@ -36,11 +36,11 @@ export type MdMeta = {
 export const parserMd = defineParser({
   name: 'markdown',
   extNames: ['.md', '.markdown'],
-  print(...parts: PrintInput[]) {
+  print(...parts: Array<PrintInput>) {
     return print(...parts)
   },
   parse(file) {
-    const sourceParts: string[] = []
+    const sourceParts: Array<string> = []
     for (const source of file.sources) {
       const text = ast.extractStringsFromNodes(source.nodes as Array<ast.CodeNode>)
       if (text) sourceParts.push(text.trimEnd())

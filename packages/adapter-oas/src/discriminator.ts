@@ -14,7 +14,7 @@ export type DiscriminatorTarget = {
  * small pre-parsed subset of schemas (only the discriminator parents) rather than on all
  * schemas at once.
  */
-export function buildDiscriminatorChildMap(schemas: ast.SchemaNode[]): Map<string, DiscriminatorTarget> {
+export function buildDiscriminatorChildMap(schemas: Array<ast.SchemaNode>): Map<string, DiscriminatorTarget> {
   const childMap = new Map<string, DiscriminatorTarget>()
 
   for (const schema of schemas) {

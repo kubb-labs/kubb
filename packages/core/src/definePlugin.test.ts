@@ -142,7 +142,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
   })
 
   it('options passed to definePlugin are forwarded via ctx.options', async () => {
-    const capturedOptions: unknown[] = []
+    const capturedOptions: Array<unknown> = []
     const hookPlugin = definePlugin<TestPluginOptions>((options) => ({
       name: 'hook-plugin',
       options,

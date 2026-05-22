@@ -726,7 +726,7 @@ export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): str
       if (node.kind === 'Break') return ''
       if (node.kind === 'Jsx') return node.value
 
-      const parts: string[] = []
+      const parts: Array<string> = []
 
       if ('params' in node && node.params) parts.push(node.params)
       if ('generics' in node && node.generics) parts.push(Array.isArray(node.generics) ? node.generics.join(', ') : node.generics)
@@ -878,7 +878,7 @@ const findCircularSchemasMemo = memoize(new WeakMap<ReadonlyArray<SchemaNode>, S
   const circular = new Set<string>()
   for (const start of graph.keys()) {
     const visited = new Set<string>()
-    const stack: string[] = [...(graph.get(start) ?? [])]
+    const stack: Array<string> = [...(graph.get(start) ?? [])]
     while (stack.length > 0) {
       const node = stack.pop()!
       if (node === start) {

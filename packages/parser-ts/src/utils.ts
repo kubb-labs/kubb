@@ -63,7 +63,7 @@ export function resolveOutputPath(path: string, options: { extname?: string } | 
 export function printNodes(nodes: Array<CodeNode> | undefined): string {
   if (!nodes || nodes.length === 0) return ''
 
-  const parts: string[] = []
+  const parts: Array<string> = []
 
   for (const node of nodes) {
     parts.push(printCodeNode(node))
@@ -187,7 +187,7 @@ export function printConst(node: ConstNode): string {
   const jsDocStr = JSDoc ? printJSDoc(JSDoc) : ''
   const body = printNodes(nodes)
 
-  const parts: string[] = []
+  const parts: Array<string> = []
   if (canExport) parts.push('export ')
   parts.push('const ')
   parts.push(name)
@@ -219,7 +219,7 @@ export function printType(node: TypeNode): string {
   const jsDocStr = JSDoc ? printJSDoc(JSDoc) : ''
   const body = printNodes(nodes)
 
-  const parts: string[] = []
+  const parts: Array<string> = []
   if (canExport) parts.push('export ')
   parts.push('type ')
   parts.push(name)
@@ -254,7 +254,7 @@ export function printFunction(node: FunctionNode): string {
   const body = printNodes(nodes)
   const indented = body ? indentLines(body) : ''
 
-  const parts: string[] = []
+  const parts: Array<string> = []
   if (canExport) parts.push('export ')
   if (isDefault) parts.push('default ')
   if (isAsync) parts.push('async ')
@@ -297,7 +297,7 @@ export function printArrowFunction(node: ArrowFunctionNode): string {
   const body = printNodes(nodes)
   const arrowBody = singleLine ? ` => ${body}` : body ? ` => {\n${indentLines(body)}\n}` : ' => {}'
 
-  const parts: string[] = []
+  const parts: Array<string> = []
   if (canExport) parts.push('export ')
   if (isDefault) parts.push('default ')
   parts.push('const ')
@@ -351,7 +351,7 @@ export function printSource(node: SourceNode): string {
   const nodes = node.nodes
 
   if (!nodes || nodes.length === 0) return ''
-  const parts: string[] = []
+  const parts: Array<string> = []
 
   for (const child of nodes) {
     parts.push(printCodeNode(child as CodeNode))

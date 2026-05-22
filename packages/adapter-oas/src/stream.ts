@@ -8,8 +8,8 @@ import type { AdapterOas, Document, SchemaObject } from './types.ts'
 
 export type PreScanResult = {
   refAliasMap: Map<string, ast.SchemaNode>
-  enumNames: string[]
-  circularNames: string[]
+  enumNames: Array<string>
+  circularNames: Array<string>
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
 }
 
@@ -74,10 +74,10 @@ export function preScan({
   parserOptions: ast.ParserOptions
   discriminator: AdapterOas['options']['discriminator']
 }): PreScanResult {
-  const allNodes: ast.SchemaNode[] = []
+  const allNodes: Array<ast.SchemaNode> = []
   const refAliasMap = new Map<string, ast.SchemaNode>()
-  const enumNames: string[] = []
-  const discriminatorParentNodes: ast.SchemaNode[] = []
+  const enumNames: Array<string> = []
+  const discriminatorParentNodes: Array<ast.SchemaNode> = []
 
   for (const [name, schema] of Object.entries(schemas)) {
     const node = parseSchema({ schema, name }, parserOptions)

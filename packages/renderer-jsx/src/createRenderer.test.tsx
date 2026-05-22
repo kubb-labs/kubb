@@ -147,7 +147,7 @@ describe('jsxRendererSync', () => {
 
   it('should stream files one at a time', async () => {
     const renderer = jsxRendererSync()
-    const order: string[] = []
+    const order: Array<string> = []
 
     const element = (
       <>
@@ -176,7 +176,7 @@ describe('jsxRendererSync', () => {
   })
 
   it('should yield the first file before evaluating the second component', () => {
-    const callOrder: string[] = []
+    const callOrder: Array<string> = []
 
     function First() {
       callOrder.push('First called')
@@ -248,7 +248,7 @@ describe('jsxRendererSync', () => {
     )
 
     const streamRenderer = jsxRendererSync()
-    const streamed: unknown[] = []
+    const streamed: Array<unknown> = []
     for await (const file of streamRenderer.stream(element)) {
       streamed.push(file)
     }

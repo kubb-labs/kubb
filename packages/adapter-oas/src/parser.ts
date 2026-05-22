@@ -770,7 +770,7 @@ export function createSchemaParser(ctx: OasParserContext) {
     }
 
     if (Array.isArray(schema.type) && schema.type.length > 1) {
-      const nonNullTypes = schema.type.filter((t) => t !== 'null') as string[]
+      const nonNullTypes = schema.type.filter((t) => t !== 'null') as Array<string>
       const arrayNullable = schema.type.includes('null') || nullable || undefined
 
       if (nonNullTypes.length > 1) {
@@ -871,10 +871,10 @@ export function createSchemaParser(ctx: OasParserContext) {
    * Collects property names whose schema has a truthy boolean flag (`readOnly` or `writeOnly`).
    * `$ref` entries are skipped since their flags live on the dereferenced target.
    */
-  function collectPropertyKeysByFlag(schema: SchemaObject | null, flag: 'readOnly' | 'writeOnly'): string[] | null {
+  function collectPropertyKeysByFlag(schema: SchemaObject | null, flag: 'readOnly' | 'writeOnly'): Array<string> | null {
     if (!schema?.properties) return null
 
-    const keys: string[] = []
+    const keys: Array<string> = []
     for (const key in schema.properties) {
       const prop = schema.properties[key]
       if (prop && !isReference(prop) && (prop as Record<string, unknown>)[flag]) {

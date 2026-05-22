@@ -153,8 +153,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     async parse(source) {
       const streamNode = await createStream(source)
 
-      const collect = async <T>(iter: AsyncIterable<T>): Promise<T[]> => {
-        const out: T[] = []
+      const collect = async <T>(iter: AsyncIterable<T>): Promise<Array<T>> => {
+        const out: Array<T> = []
         for await (const item of iter) out.push(item)
         return out
       }

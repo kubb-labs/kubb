@@ -102,7 +102,7 @@ type LeafWalkParams = {
  * Post-order walk that yields a barrel per visited directory.
  * Returns the list of leaf file paths collected in this subtree (used by the parent call).
  */
-function* walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolean): Generator<FileNode, string[]> {
+function* walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolean): Generator<FileNode, Array<string>> {
   const subtreeLeaves: Array<string> = []
 
   for (const child of node.children) {

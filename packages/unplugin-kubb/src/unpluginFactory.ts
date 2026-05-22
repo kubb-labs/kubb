@@ -110,7 +110,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     const hasFailures = failedPlugins.size > 0 || error
     if (hasFailures) {
       // Collect all errors from failed plugins and general error
-      const allErrors: Error[] = [
+      const allErrors: Array<Error> = [
         error,
         ...Array.from(failedPlugins)
           .filter((it) => it.error)

@@ -76,7 +76,7 @@ export type DOMElement = {
   /**
    * Ordered list of child nodes attached to this element.
    */
-  childNodes: DOMNode[]
+  childNodes: Array<DOMNode>
   internal_transform?: OutputTransformer
 
   // Internal properties

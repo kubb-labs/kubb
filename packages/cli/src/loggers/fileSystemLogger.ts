@@ -11,7 +11,7 @@ type CachedEvent = {
   /**
    * Accumulated log lines for this event.
    */
-  logs: string[]
+  logs: Array<string>
   /**
    * Optional override for the output filename inside `.kubb/`. When omitted, the filename is derived from `date`.
    */
@@ -41,7 +41,7 @@ export const fileSystemLogger = defineLogger({
         return []
       }
 
-      const files: Record<string, string[]> = {}
+      const files: Record<string, Array<string>> = {}
 
       for (const log of state.cachedLogs) {
         const baseName = log.fileName || `${['kubb', name, state.startDate].filter(Boolean).join('-')}.log`

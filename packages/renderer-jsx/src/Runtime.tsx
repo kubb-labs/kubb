@@ -22,7 +22,7 @@ export class Runtime {
 
   exitPromise?: Promise<void>
 
-  nodes: FileNode[] = []
+  nodes: Array<FileNode> = []
   readonly #container: FiberRoot
   readonly #rootNode: DOMElement
 

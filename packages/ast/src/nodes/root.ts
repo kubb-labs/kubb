@@ -45,7 +45,7 @@ export type InputMeta = {
    * if (circular.has(schema.name)) { ... }
    * ```
    */
-  circularNames: readonly string[]
+  circularNames: ReadonlyArray<string>
   /**
    * Names of schemas whose type is `enum`.
    * Computed once during the adapter pre-scan — use this instead of filtering
@@ -58,7 +58,7 @@ export type InputMeta = {
    * `const enums = new Set(meta.enumNames)`
    * `const isEnum = enums.has(schemaName)`
    */
-  enumNames: readonly string[]
+  enumNames: ReadonlyArray<string>
 }
 
 /**

@@ -49,7 +49,7 @@ function waitForHookEnd(
   fallbackErrorMessage: string,
 ): Promise<void> {
   return new Promise<void>((resolve, reject) => {
-    const handler = (ctx: { id?: string; command: string; args?: readonly string[]; success: boolean; error: Error | null }) => {
+    const handler = (ctx: { id?: string; command: string; args?: ReadonlyArray<string>; success: boolean; error: Error | null }) => {
       if (ctx.id !== hookId) return
       hooks.off('kubb:hook:end', handler)
       if (!ctx.success) {
@@ -169,7 +169,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
     sendTelemetry(buildTelemetryEvent({ command: 'generate', kubbVersion: version, plugins: telemetryPlugins, hrStart, filesCreated: files.length, status }))
 
   if (failedPlugins.size > 0 || error) {
-    const allErrors = [error, ...Array.from(failedPlugins, (it) => it.error)].filter(Boolean) as Error[]
+    const allErrors = [error, ...Array.from(failedPlugins, (it) => it.error)].filter(Boolean) as Array<Error>
 
     for (const err of allErrors) {
       await hooks.emit('kubb:error', { error: err })
@@ -215,7 +215,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
       onStart: () => hooks.emit('kubb:lint:start'),
       onEnd: () => hooks.emit('kubb:lint:end'),
     },
-  ].filter(Boolean) as Omit<RunToolPassOptions, 'configName' | 'outputPath' | 'logLevel' | 'hooks'>[]
+  ].filter(Boolean) as Array<Omit<RunToolPassOptions, 'configName' | 'outputPath' | 'logLevel' | 'hooks'>>
 
   for (const pass of toolPasses) {
     await runToolPass({ ...pass, configName: config.name, outputPath, logLevel, hooks, makeSink })

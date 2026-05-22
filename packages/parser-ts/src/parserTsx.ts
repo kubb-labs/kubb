@@ -28,7 +28,7 @@ import { print } from './utils.ts'
 export const parserTsx = defineParser({
   name: 'tsx',
   extNames: ['.tsx', '.jsx'],
-  print(...nodes: ts.Node[]) {
+  print(...nodes: Array<ts.Node>) {
     return print(...nodes)
   },
   parse(file, options = { extname: '.tsx' }) {

@@ -77,7 +77,7 @@ type ResolveDateTimeNode<TDateType extends ParserOptions['dateType']> = DateTime
 type SchemaNodeMap<TDateType extends ParserOptions['dateType'] = 'string'> = [
   [{ $ref: string }, RefSchemaNode],
   [{ allOf: ReadonlyArray<unknown>; properties: object }, IntersectionSchemaNode],
-  [{ allOf: readonly [unknown, unknown, ...unknown[]] }, IntersectionSchemaNode],
+  [{ allOf: readonly [unknown, unknown, ...Array<unknown>] }, IntersectionSchemaNode],
   [{ allOf: ReadonlyArray<unknown> }, SchemaNode],
   [{ oneOf: ReadonlyArray<unknown> }, UnionSchemaNode],
   [{ anyOf: ReadonlyArray<unknown> }, UnionSchemaNode],
