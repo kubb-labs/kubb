@@ -2,8 +2,6 @@
 "@kubb/adapter-oas": patch
 ---
 
-Eliminate the remaining inline-enum naming collisions surfaced by the Linode SDK reproduction (`bnussman-akamai/compute-sdk-poc`). Builds on kubb-labs/kubb#3362 / #3364:
-
 - `parseSchema` now propagates the parent name through every call site that previously dropped it: array items (`convertArray`), `allOf` members (single, multi, and synthetic required-key + outer-properties), `oneOf` / `anyOf` member schemas, union members, operation responses (`{operationId}Status{statusCode}`), request bodies (`{operationId}Request`), and parameters (`{operationId}{ParamName}`).
 - Operation response schemas now use `Status<code>` (matching plugin-ts's `resolveResponseStatusName` convention) so qualified enum names don't collide with top-level component schemas named `<operation><statusCode>` (e.g. `GetMaintenance200`).
 - Two test expectations updated to reflect the new contracts:
