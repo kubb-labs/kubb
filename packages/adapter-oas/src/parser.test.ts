@@ -2658,6 +2658,34 @@ describe('parseSchema array', () => {
     expect(status?.name).toBe('AccountLoginsResponseDataStatusEnum')
   })
 
+  // Regression for kubb-labs/plugins#132: an array whose items are an object with a nested enum
+  // property must keep the object as its items — the enum must not replace the object structure.
+  it('keeps array items as an object when the object has a nested enum property', () => {
+    const node = parseSchema(ctx, {
+      schema: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'number' },
+            type: { type: 'string', enum: ['area', 'density', 'length'] },
+            value: { type: 'string' },
+          },
+          required: ['id', 'type', 'value'],
+        },
+      },
+      name: 'GetPreferencesUnitsStatus200',
+    })
+    const array = ast.narrowSchema(node, 'array')
+    const items = array?.items?.[0]
+    const object = ast.narrowSchema(items, 'object')
+
+    expect(array?.type).toBe('array')
+    expect(object?.type).toBe('object')
+    expect(object?.properties?.map((p) => p.name)).toEqual(['id', 'type', 'value'])
+    expect(ast.narrowSchema(object?.properties?.find((p) => p.name === 'type')?.schema, 'enum')?.enumValues).toEqual(['area', 'density', 'length'])
+  })
+
   it('qualifies inline enums inside single-member allOf with the parent name', () => {
     const node = parseSchema(ctx, {
       schema: {
