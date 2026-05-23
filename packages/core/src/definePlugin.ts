@@ -1,8 +1,8 @@
 import { extname } from 'node:path'
-import type { FileNode, HttpMethod, InputMeta, UserFileNode, Visitor } from '@kubb/ast'
+import type { FileNode, HttpMethod, UserFileNode, Visitor } from '@kubb/ast'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Generator } from './defineGenerator.ts'
-import type { Resolver } from './defineResolver.ts'
+import type { BannerMeta, Resolver } from './defineResolver.ts'
 import type { Config, KubbHooks } from './types.ts'
 
 /**
@@ -26,15 +26,22 @@ export type Output<_TOptions = unknown> = {
   path: string
   /**
    * Text prepended to every generated file. Useful for license headers,
-   * lint disables, or `@ts-nocheck` directives. Pass a function to compute
-   * the banner from the file's `InputMeta`.
+   * lint disables, or `@ts-nocheck` directives.
+   *
+   * A string is applied to every file (including barrel and aggregation re-export files).
+   * Pass a function to compute the banner from the file's `BannerMeta` — document metadata
+   * plus per-file context (`isBarrel`, `isAggregation`, `filePath`, `baseName`) — so you can
+   * skip the banner on specific files.
+   *
+   * @example Add a directive to source files but not re-export files
+   * `banner: (meta) => (meta.isBarrel || meta.isAggregation) ? '' : "'use server'"`
    */
-  banner?: string | ((meta?: InputMeta) => string)
+  banner?: string | ((meta: BannerMeta) => string)
   /**
    * Text appended at the end of every generated file. Mirror of `banner`.
-   * Pass a function to compute the footer from the file's `InputMeta`.
+   * Pass a function to compute the footer from the file's `BannerMeta`.
    */
-  footer?: string | ((meta?: InputMeta) => string)
+  footer?: string | ((meta: BannerMeta) => string)
   /**
    * Allows the plugin to overwrite hand-written files at the same path.
    * Defaults to `false` to protect manual edits.

@@ -14,12 +14,12 @@ function makeFile(filePath: string, name: string) {
   })
 }
 
-function makePlugin(name: string, outputPath: string, filePath: string, exportName: string) {
+function makePlugin(name: string, outputPath: string, filePath: string, exportName: string, output?: Record<string, unknown>) {
   return definePlugin(() => ({
     name,
     hooks: {
       'kubb:plugin:setup'(ctx) {
-        ctx.setOptions({ output: { path: outputPath } })
+        ctx.setOptions({ output: { path: outputPath, ...output } })
         ctx.injectFile(makeFile(filePath, exportName))
       },
     },
@@ -56,5 +56,67 @@ describe('middlewareBarrel', () => {
     expect(files.find((file) => file.path === '/workspace/src/gen/index.ts')?.exports.flatMap((item) => item.name ?? [])).toEqual(
       expect.arrayContaining(['Pet', 'PetSchema']),
     )
+  })
+
+  it('leaves barrels banner-free by default', async () => {
+    const storage = memoryStorage()
+    const config = {
+      root: '/workspace',
+      output: { path: 'src/gen', barrel: { type: 'named' } },
+      parsers: [],
+      plugins: [makePlugin('plugin-types', 'types', '/workspace/src/gen/types/pet.ts', 'Pet')] as unknown as Array<Plugin>,
+      middleware: [middlewareBarrel()],
+      storage,
+    } satisfies Config
+
+    const { files } = await createKubb(config).build()
+    const barrel = files.find((file) => file.path === '/workspace/src/gen/types/index.ts')
+
+    expect(barrel?.banner).toBeUndefined()
+    expect(barrel?.footer).toBeUndefined()
+  })
+
+  it('applies a configured plugin banner/footer to its barrel', async () => {
+    const storage = memoryStorage()
+    const config = {
+      root: '/workspace',
+      output: { path: 'src/gen', barrel: { type: 'named' } },
+      parsers: [],
+      plugins: [
+        makePlugin('plugin-types', 'types', '/workspace/src/gen/types/pet.ts', 'Pet', {
+          banner: '// header',
+          footer: '// footer',
+        }),
+      ] as unknown as Array<Plugin>,
+      middleware: [middlewareBarrel()],
+      storage,
+    } satisfies Config
+
+    const { files } = await createKubb(config).build()
+    const barrel = files.find((file) => file.path === '/workspace/src/gen/types/index.ts')
+
+    expect(barrel?.banner).toBe('// header')
+    expect(barrel?.footer).toBe('// footer')
+  })
+
+  it('passes isBarrel to a banner function so it can skip re-export files', async () => {
+    const storage = memoryStorage()
+    const config = {
+      root: '/workspace',
+      output: { path: 'src/gen', barrel: { type: 'named' } },
+      parsers: [],
+      plugins: [
+        makePlugin('plugin-types', 'types', '/workspace/src/gen/types/pet.ts', 'Pet', {
+          banner: (meta: { isBarrel: boolean }) => (meta.isBarrel ? '' : "'use server'"),
+        }),
+      ] as unknown as Array<Plugin>,
+      middleware: [middlewareBarrel()],
+      storage,
+    } satisfies Config
+
+    const { files } = await createKubb(config).build()
+    const barrel = files.find((file) => file.path === '/workspace/src/gen/types/index.ts')
+
+    expect(barrel?.banner).toBe('')
   })
 })
