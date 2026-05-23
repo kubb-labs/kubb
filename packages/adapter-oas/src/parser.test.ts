@@ -2898,9 +2898,8 @@ describe('parseSchema array', () => {
         : []
 
     const component = root.schemas.find((s) => s.name === 'GetMaintenance200')
-    const responseSchema = root.operations
-      .find((op) => op.operationId === 'getMaintenance')
-      ?.responses.find((r) => r.statusCode === '200')?.content?.[0]?.schema
+    const responseSchema = root.operations.find((op) => op.operationId === 'getMaintenance')?.responses.find((r) => r.statusCode === '200')
+      ?.content?.[0]?.schema
 
     const componentEnums = collectEnumNames(component)
     const responseEnums = collectEnumNames(responseSchema)
