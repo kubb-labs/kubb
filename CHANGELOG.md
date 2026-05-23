@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.28 — May 23, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Keep a default import when a used named import from the same module path is retained.
+  
+  Previously, when operations were grouped into a single file, a used default import (such as a generated `client` runtime) could be dropped during the merge because its binding was not found in the reconstructed source string, producing references to an undefined value. `combineImports` now retains a default import whenever a used named/type import from the same path survives. ([#3367](https://github.com/kubb-labs/kubb/pull/3367), [`a15e7f7`](https://github.com/kubb-labs/kubb/commit/a15e7f76487e16407d0738c8dd8202b0bdc458c6))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.27 — May 23, 2026
 
 ### @kubb/adapter-oas
