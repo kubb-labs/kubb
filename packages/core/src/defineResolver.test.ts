@@ -297,6 +297,47 @@ describe('defaultResolveBanner', () => {
     expect(result).toContain('2.0.0')
     expect(result).not.toContain('A very long description')
   })
+
+  it('function banner receives per-file context and can skip aggregation files', () => {
+    const banner = (m: { isBarrel: boolean; isAggregation: boolean }) => (m.isBarrel || m.isAggregation ? '' : "'use server'")
+
+    const aggregation = defaultResolveBanner(undefined, {
+      config: mockConfig,
+      output: { banner },
+      file: { path: 'src/gen/clients/stocks/stocks.ts', baseName: 'stocks.ts', isAggregation: true },
+    })
+    const barrel = defaultResolveBanner(undefined, {
+      config: mockConfig,
+      output: { banner },
+      file: { path: 'src/gen/clients/index.ts', baseName: 'index.ts', isBarrel: true },
+    })
+    const source = defaultResolveBanner(undefined, {
+      config: mockConfig,
+      output: { banner },
+      file: { path: 'src/gen/clients/getStock.ts', baseName: 'getStock.ts' },
+    })
+
+    expect(aggregation).toBe('')
+    expect(barrel).toBe('')
+    expect(source).toBe("'use server'")
+  })
+
+  it('function banner receives filePath and baseName from the file context', () => {
+    const result = defaultResolveBanner(undefined, {
+      config: mockConfig,
+      output: { banner: (m) => `// ${m.baseName} @ ${m.filePath}` },
+      file: { path: 'a/b.ts', baseName: 'b.ts' },
+    })
+    expect(result).toBe('// b.ts @ a/b.ts')
+  })
+
+  it('per-file fields default to false/empty when no file context is provided', () => {
+    const result = defaultResolveBanner(undefined, {
+      config: mockConfig,
+      output: { banner: (m) => `${m.isBarrel}-${m.isAggregation}-[${m.filePath}]-[${m.baseName}]` },
+    })
+    expect(result).toBe('false-false-[]-[]')
+  })
 })
 
 describe('defaultResolveFooter', () => {
@@ -328,5 +369,14 @@ describe('defaultResolveFooter', () => {
       output: { footer: (_m?: InputMeta) => '// called' },
     })
     expect(result).toBe('// called')
+  })
+
+  it('function footer receives per-file context', () => {
+    const result = defaultResolveFooter(undefined, {
+      config: mockConfig,
+      output: { footer: (m) => (m.isBarrel ? '// barrel' : `// ${m.baseName}`) },
+      file: { path: 'src/gen/index.ts', baseName: 'index.ts', isBarrel: true },
+    })
+    expect(result).toBe('// barrel')
   })
 })

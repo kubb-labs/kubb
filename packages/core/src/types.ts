@@ -40,4 +40,13 @@ export type { Middleware } from './defineMiddleware.ts'
 export type { Parser } from './defineParser.ts'
 export type { Exclude, Group, Include, Output, Override } from './definePlugin.ts'
 export type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, NormalizedPlugin, Plugin, PluginFactoryOptions } from './definePlugin.ts'
-export type { ResolveBannerContext, ResolveOptionsContext, Resolver, ResolverContext, ResolverFileParams, ResolverPathParams } from './defineResolver.ts'
+export type {
+  BannerMeta,
+  ResolveBannerContext,
+  ResolveBannerFile,
+  ResolveOptionsContext,
+  Resolver,
+  ResolverContext,
+  ResolverFileParams,
+  ResolverPathParams,
+} from './defineResolver.ts'

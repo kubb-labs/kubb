@@ -4,9 +4,9 @@ import { createFile } from '@kubb/ast'
 function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNode<TMeta>): FileNode<TMeta> {
   return {
     ...a,
-    // Incoming file (b) takes precedence for banner/footer so that barrel files,
-    // which never carry a banner, can clear banners set by plugin-generated files
-    // at the same path.
+    // Incoming file (b) takes precedence for banner/footer so a barrel file (whose
+    // banner/footer the barrel middleware resolves last) wins over a plugin-generated
+    // file at the same path.
     banner: b.banner,
     footer: b.footer,
     sources: a.sources.length ? (b.sources.length ? [...a.sources, ...b.sources] : a.sources) : b.sources,
