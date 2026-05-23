@@ -1,5 +1,23 @@
 # Changelog
 
+## v5.0.0-beta.27 — May 23, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- - `parseSchema` now propagates the parent name through every call site that previously dropped it: array items (`convertArray`), `allOf` members (single, multi, and synthetic required-key + outer-properties), `oneOf` / `anyOf` member schemas, union members, operation responses (`{operationId}Status{statusCode}`), request bodies (`{operationId}Request`), and parameters (`{operationId}{ParamName}`).
+  - Operation response schemas now use `Status<code>` (matching plugin-ts's `resolveResponseStatusName` convention) so qualified enum names don't collide with top-level component schemas named `<operation><statusCode>` (e.g. `GetMaintenance200`).
+  - Two test expectations updated to reflect the new contracts:
+    - Parameter top-level enums now carry a parser-level name (qualified with operation + param name) so plugin-generated downstream identifiers stay collision-free.
+    - The synthetic injected-required-key member inside an `allOf` is now named so its nested enums qualify correctly; it consequently shows up as a separate intersection member instead of being adjacent-merged. ([#3363](https://github.com/kubb-labs/kubb/pull/3363), [`2cb22fe`](https://github.com/kubb-labs/kubb/commit/2cb22fea5e818f6cf96836e43bdebf9cef64981e))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.26 — May 22, 2026
 
 ### @kubb/adapter-oas
