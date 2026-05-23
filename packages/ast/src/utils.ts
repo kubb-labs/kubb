@@ -664,6 +664,17 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
     return importNameMemo.get(key)!
   }
 
+  // Paths that keep at least one used named import. A default import from such a path is retained
+  // even when its binding can't be found in `source` — e.g. a generated `client` default import
+  // alongside `import type { Client } from <same path>`, where merged grouped output omits the body.
+  const pathsWithUsedNamedImport = new Set<string>()
+  for (const node of imports) {
+    if (!Array.isArray(node.name)) continue
+    if (node.name.some((item) => (typeof item === 'string' ? isUsed(item) : isUsed(item.name ?? item.propertyName)))) {
+      pathsWithUsedNamedImport.add(node.path)
+    }
+  }
+
   const result: Array<ImportNode> = []
   // Accumulates array-named imports keyed by `path:isTypeOnly` for name-merging
   const namedByPath = new Map<string, ImportNode>()
@@ -697,7 +708,7 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
         namedByPath.set(key, newItem)
       }
     } else {
-      if (name && !isUsed(name)) continue
+      if (name && !isUsed(name) && !pathsWithUsedNamedImport.has(path)) continue
 
       const key = importKey(path, name, isTypeOnly)
       if (!seen.has(key)) {

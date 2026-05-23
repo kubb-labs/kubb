@@ -1778,6 +1778,24 @@ describe('combineImports', () => {
     expect(result).toHaveLength(1)
     expect(result[0]!.name).toHaveLength(1)
   })
+
+  it('keeps a default import when a used named import from the same path is retained', () => {
+    const client = createImport({ name: 'client', path: '@kubb/plugin-client/clients/axios' })
+    const types = createImport({ name: ['Client', 'RequestConfig'], path: '@kubb/plugin-client/clients/axios', isTypeOnly: true })
+    // The merged grouped source omits the function body, so `client` is absent — but `Client` is referenced.
+    const result = combineImports([client, types], [], 'Partial<RequestConfig> & { client?: Client }')
+
+    expect(result.some((i) => i.name === 'client')).toBe(true)
+    expect(result.some((i) => Array.isArray(i.name) && i.name.includes('Client'))).toBe(true)
+  })
+
+  it('still drops a default import when no named import from the same path is used', () => {
+    const client = createImport({ name: 'client', path: '@kubb/plugin-client/clients/axios' })
+    const types = createImport({ name: ['Client'], path: '@kubb/plugin-client/clients/axios', isTypeOnly: true })
+    const result = combineImports([client, types], [], 'const x = 1')
+
+    expect(result).toHaveLength(0)
+  })
 })
 
 describe('findCircularSchemas', () => {

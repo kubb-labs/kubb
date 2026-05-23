@@ -1,4 +1,4 @@
-import { createFile, createSource, createText } from '@kubb/ast'
+import { createFile, createImport, createSource, createText } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { FileManager } from './FileManager.ts'
 
@@ -32,6 +32,24 @@ describe('FileManager', () => {
       manager.add(makeFile('/src/foo.ts', 'const a = 1'), makeFile('/src/foo.ts', 'const b = 2'))
       expect(manager.files).toHaveLength(1)
       expect(manager.files[0]?.sources).toHaveLength(2)
+    })
+
+    it('keeps a default client import when grouped sources omit its body usage', () => {
+      const manager = new FileManager()
+      const clientPath = '@kubb/plugin-client/clients/axios'
+      // Source references the type imports (Client/RequestConfig) but not the lowercase `client`
+      // binding — mirroring grouped output where the function body that uses `client` is omitted.
+      const make = (op: string) =>
+        makeFile(`/src/clients/pet.ts`, `export declare function ${op}(): RequestConfig<Client>`, {
+          imports: [
+            createImport({ name: 'client', path: clientPath }),
+            createImport({ name: ['Client', 'RequestConfig'], path: clientPath, isTypeOnly: true }),
+          ],
+        })
+      manager.add(make('getOrderById'), make('getPetById'))
+
+      const imports = manager.files[0]?.imports ?? []
+      expect(imports.some((i) => i.name === 'client')).toBe(true)
     })
 
     it('stores multiple distinct files', () => {
