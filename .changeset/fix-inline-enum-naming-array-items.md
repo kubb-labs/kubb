@@ -8,4 +8,3 @@
   - Parameter top-level enums now carry a parser-level name (qualified with operation + param name) so plugin-generated downstream identifiers stay collision-free.
   - The synthetic injected-required-key member inside an `allOf` is now named so its nested enums qualify correctly; it consequently shows up as a separate intersection member instead of being adjacent-merged.
 
-Reduces duplicate-identifier errors in the Linode reproduction from 738 to 0.
