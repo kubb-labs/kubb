@@ -2719,6 +2719,94 @@ describe('parseSchema array', () => {
     expect(status?.name).toBe('GetTransfers200DataStatusEnum')
   })
 
+  // Regression for kubb-labs/kubb#3364: an operation response with the same shape as a
+  // top-level component named `<Op><code>` must not produce colliding enum identifiers.
+  // The operation path qualifies with `Status<code>` so its enums stay distinct from the
+  // component's, avoiding the `TS2300: Duplicate identifier` re-export in the barrel.
+  it('does not collide operation-response enums with a same-named component schema (#3364)', async () => {
+    const oas = await parseDocument({
+      openapi: '3.0.3',
+      info: { title: 'Test', version: '1.0.0' },
+      components: {
+        schemas: {
+          GetMaintenance200: {
+            type: 'object',
+            properties: {
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    status: { type: 'string', enum: ['ok', 'failed'] },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      paths: {
+        '/maintenance': {
+          get: {
+            operationId: 'getMaintenance',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    // Inline (structurally equivalent to the component above) so the operation
+                    // file emits its own copy of the nested enum under the response name.
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        data: {
+                          type: 'array',
+                          items: {
+                            type: 'object',
+                            properties: {
+                              status: { type: 'string', enum: ['ok', 'failed'] },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const root = parseOas(oas).root
+
+    const collectEnumNames = (node: ast.SchemaNode | null | undefined): Array<string> =>
+      node
+        ? ast
+            .collect(node, {
+              schema(n) {
+                return ast.narrowSchema(n, 'enum') ?? undefined
+              },
+            })
+            .map((e) => e.name)
+            .filter((name): name is string => !!name)
+        : []
+
+    const component = root.schemas.find((s) => s.name === 'GetMaintenance200')
+    const responseSchema = root.operations.find((op) => op.operationId === 'getMaintenance')?.responses.find((r) => r.statusCode === '200')?.schema
+
+    const componentEnums = collectEnumNames(component)
+    const responseEnums = collectEnumNames(responseSchema)
+
+    // Schema path keeps the component-qualified name…
+    expect(componentEnums).toContain('GetMaintenance200DataStatusEnum')
+    // …while the operation response path qualifies with `Status<code>` so it cannot collide.
+    expect(responseEnums).toContain('GetMaintenanceStatus200DataStatusEnum')
+
+    // The core #3364 guarantee: no enum identifier is emitted by both file owners.
+    expect(componentEnums.filter((name) => responseEnums.includes(name))).toEqual([])
+  })
+
   it('preserves nullable on array', () => {
     const node = parseSchema(ctx, {
       schema: { type: 'array', nullable: true },
