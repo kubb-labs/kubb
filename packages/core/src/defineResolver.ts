@@ -217,7 +217,7 @@ export type ResolveBannerContext = {
  * `banner`/`footer` function. Missing fields default to empty/`false` so the object shape
  * is stable even when a caller (e.g. the barrel middleware) has no document metadata.
  */
-function buildBannerMeta(meta: InputMeta | undefined, file: ResolveBannerFile | undefined): BannerMeta {
+function buildBannerMeta({ meta, file }: { meta: InputMeta | undefined; file: ResolveBannerFile | undefined }): BannerMeta {
   return {
     title: meta?.title,
     description: meta?.description,
@@ -611,7 +611,7 @@ export function buildDefaultBanner({
  */
 export function defaultResolveBanner(meta: InputMeta | undefined, { output, config, file }: ResolveBannerContext): string | null {
   if (typeof output?.banner === 'function') {
-    return output.banner(buildBannerMeta(meta, file))
+    return output.banner(buildBannerMeta({ meta, file }))
   }
 
   if (typeof output?.banner === 'string') {
@@ -650,7 +650,7 @@ export function defaultResolveBanner(meta: InputMeta | undefined, { output, conf
  */
 export function defaultResolveFooter(meta: InputMeta | undefined, { output, file }: ResolveBannerContext): string | null {
   if (typeof output?.footer === 'function') {
-    return output.footer(buildBannerMeta(meta, file))
+    return output.footer(buildBannerMeta({ meta, file }))
   }
   if (typeof output?.footer === 'string') {
     return output.footer

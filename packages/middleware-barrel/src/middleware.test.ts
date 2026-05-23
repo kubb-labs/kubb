@@ -14,12 +14,25 @@ function makeFile(filePath: string, name: string) {
   })
 }
 
-function makePlugin(name: string, outputPath: string, filePath: string, exportName: string, output?: Record<string, unknown>) {
+function makePlugin({
+  name,
+  outputPath,
+  filePath,
+  exportName,
+  output,
+}: {
+  name: string
+  outputPath: string
+  filePath: string
+  exportName: string
+  output?: Record<string, unknown>
+}) {
   return definePlugin(() => ({
     name,
     hooks: {
       'kubb:plugin:setup'(ctx) {
         ctx.setOptions({ output: { path: outputPath, ...output } })
+        ctx.setResolver({})
         ctx.injectFile(makeFile(filePath, exportName))
       },
     },
@@ -34,8 +47,8 @@ describe('middlewareBarrel', () => {
       output: { path: 'src/gen', barrel: { type: 'named' } },
       parsers: [],
       plugins: [
-        makePlugin('plugin-types', 'types', '/workspace/src/gen/types/pet.ts', 'Pet'),
-        makePlugin('plugin-schemas', 'schemas', '/workspace/src/gen/schemas/petSchema.ts', 'PetSchema'),
+        makePlugin({ name: 'plugin-types', outputPath: 'types', filePath: '/workspace/src/gen/types/pet.ts', exportName: 'Pet' }),
+        makePlugin({ name: 'plugin-schemas', outputPath: 'schemas', filePath: '/workspace/src/gen/schemas/petSchema.ts', exportName: 'PetSchema' }),
       ] as unknown as Array<Plugin>,
       middleware: [middlewareBarrel()],
       storage,
@@ -64,7 +77,9 @@ describe('middlewareBarrel', () => {
       root: '/workspace',
       output: { path: 'src/gen', barrel: { type: 'named' } },
       parsers: [],
-      plugins: [makePlugin('plugin-types', 'types', '/workspace/src/gen/types/pet.ts', 'Pet')] as unknown as Array<Plugin>,
+      plugins: [
+        makePlugin({ name: 'plugin-types', outputPath: 'types', filePath: '/workspace/src/gen/types/pet.ts', exportName: 'Pet' }),
+      ] as unknown as Array<Plugin>,
       middleware: [middlewareBarrel()],
       storage,
     } satisfies Config
@@ -83,9 +98,12 @@ describe('middlewareBarrel', () => {
       output: { path: 'src/gen', barrel: { type: 'named' } },
       parsers: [],
       plugins: [
-        makePlugin('plugin-types', 'types', '/workspace/src/gen/types/pet.ts', 'Pet', {
-          banner: '// header',
-          footer: '// footer',
+        makePlugin({
+          name: 'plugin-types',
+          outputPath: 'types',
+          filePath: '/workspace/src/gen/types/pet.ts',
+          exportName: 'Pet',
+          output: { banner: '// header', footer: '// footer' },
         }),
       ] as unknown as Array<Plugin>,
       middleware: [middlewareBarrel()],
@@ -106,8 +124,12 @@ describe('middlewareBarrel', () => {
       output: { path: 'src/gen', barrel: { type: 'named' } },
       parsers: [],
       plugins: [
-        makePlugin('plugin-types', 'types', '/workspace/src/gen/types/pet.ts', 'Pet', {
-          banner: (meta: { isBarrel: boolean }) => (meta.isBarrel ? '' : "'use server'"),
+        makePlugin({
+          name: 'plugin-types',
+          outputPath: 'types',
+          filePath: '/workspace/src/gen/types/pet.ts',
+          exportName: 'Pet',
+          output: { banner: (meta: { isBarrel: boolean }) => (meta.isBarrel ? '' : "'use server'") },
         }),
       ] as unknown as Array<Plugin>,
       middleware: [middlewareBarrel()],
