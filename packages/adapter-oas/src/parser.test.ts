@@ -861,13 +861,17 @@ describe('parseSchema allOf', () => {
     expect(propNames).toContain('bar')
   })
 
-  it('merges synthetic object members (injected required-key + outer properties) into a single object', () => {
+  it('keeps synthetic object members (injected required-key + outer properties) intact for enum naming', () => {
     // Models the FullAddress pattern:
     //   allOf: [$ref Address]  ← typically a $ref, but here tested with an inline anonymous object
     //   properties: { streetName }
     //   required: [streetName, streetNumber]  ← streetNumber resolved from Address
-    // allOf-derived portion: 1 anonymous object (streetNumber)
-    // synthetic portion: injected required-key (streetNumber) + outer properties (streetName) → merged into 1
+    //
+    // The injected required-key member is now parsed under the parent name (`FullAddress`)
+    // so nested enums inside it qualify correctly (e.g. `FullAddressStreetNumberEnum`).
+    // That makes the synthetic member non-anonymous, so the lazy adjacent-merge skips it —
+    // we keep the three members instead of two. The resulting TypeScript intersection is
+    // equivalent at the type level.
     const node = parseSchema(ctx, {
       name: 'FullAddress',
       schema: {
@@ -882,13 +886,11 @@ describe('parseSchema allOf', () => {
       },
     })
 
-    // allOf member (not merged — single element) + one merged synthetic object (streetNumber + streetName)
-    const narrowed617 = ast.narrowSchema(node, 'intersection')
-    expect(narrowed617?.members).toHaveLength(2)
-    const merged617 = ast.narrowSchema(narrowed617?.members?.[1], 'object')
-    const propNames617 = merged617?.properties?.map((p) => p.name)
-    expect(propNames617).toContain('streetNumber')
-    expect(propNames617).toContain('streetName')
+    const intersection = ast.narrowSchema(node, 'intersection')
+    expect(intersection?.members).toHaveLength(3)
+    const propNames = intersection?.members?.flatMap((m) => ast.narrowSchema(m, 'object')?.properties?.map((p) => p.name) ?? [])
+    expect(propNames).toContain('streetNumber')
+    expect(propNames).toContain('streetName')
   })
 })
 
@@ -2630,6 +2632,93 @@ describe('parseSchema array', () => {
     expect(narrowed?.unique).toBeUndefined()
   })
 
+  it('qualifies inline enums on object array items with the array parent name', () => {
+    const node = parseSchema(ctx, {
+      schema: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                status: { type: 'string', enum: ['ok', 'failed'] },
+              },
+            },
+          },
+        },
+      },
+      name: 'AccountLoginsResponse',
+    })
+    const obj = ast.narrowSchema(node, 'object')
+    const data = obj?.properties?.[0]?.schema
+    const items = ast.narrowSchema(data, 'array')?.items?.[0]
+    const status = ast.narrowSchema(items, 'object')?.properties?.[0]?.schema
+
+    expect(status?.name).toBe('AccountLoginsResponseDataStatusEnum')
+  })
+
+  it('qualifies inline enums inside single-member allOf with the parent name', () => {
+    const node = parseSchema(ctx, {
+      schema: {
+        allOf: [
+          {
+            type: 'object',
+            properties: {
+              last_login: {
+                type: 'object',
+                nullable: true,
+                properties: {
+                  status: { type: 'string', enum: ['ok', 'failed'] },
+                },
+              },
+            },
+          },
+        ],
+      },
+      name: 'GetUser200',
+    })
+    const ll = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'last_login')?.schema
+    const status = ast.narrowSchema(ll, 'object')?.properties?.[0]?.schema
+
+    expect(status?.name).toBe('GetUser200LastLoginStatusEnum')
+  })
+
+  it('qualifies inline enums inside multi-member allOf with the parent name', () => {
+    const node = parseSchema(ctx, {
+      schema: {
+        allOf: [
+          { type: 'object', properties: { page: { type: 'integer' } } },
+          {
+            properties: {
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    status: { type: 'string', enum: ['pending', 'done'] },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+      name: 'GetTransfers200',
+    })
+    const intersection = ast.narrowSchema(node, 'intersection') ?? ast.narrowSchema(node, 'object')
+    // Find any deeply-nested status enum to verify its name
+    const enums = ast.collect(node, {
+      schema(n) {
+        return ast.narrowSchema(n, 'enum') ?? undefined
+      },
+    })
+    const status = enums.find((e) => e.name?.includes('Status'))
+
+    expect(intersection).toBeDefined()
+    expect(status?.name).toBe('GetTransfers200DataStatusEnum')
+  })
+
   it('preserves nullable on array', () => {
     const node = parseSchema(ctx, {
       schema: { type: 'array', nullable: true },
@@ -3716,7 +3805,7 @@ describe('unknownType / emptySchemaType → SchemaNode type', () => {
 })
 
 describe('parameter enum naming', () => {
-  it('parameter enum schemas are unnamed at the parser level (naming happens in plugin)', async () => {
+  it('parameter enum schemas are qualified with `<operationName><ParamName>` so nested enums collide-free across operations', async () => {
     const oas = await parseDocument({
       openapi: '3.0.3',
       info: { title: 'Test', version: '1.0.0' },
@@ -3746,8 +3835,7 @@ describe('parameter enum naming', () => {
     const statusParam = op?.parameters.find((p) => p.name === 'status')
     const enumNode = ast.narrowSchema(statusParam?.schema, 'enum')
 
-    // Parser does not assign names to parameter enums — that's the plugin's job
-    expect(enumNode?.name).toBeUndefined()
+    expect(enumNode?.name).toBe('ListPetsStatus')
     expect(enumNode?.enumValues).toEqual(['available', 'pending', 'sold'])
     expect(enumNode?.default).toBe('available')
   })
