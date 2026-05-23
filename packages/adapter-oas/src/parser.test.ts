@@ -427,6 +427,83 @@ describe('buildAst', () => {
       expect(upload?.requestBody?.content).toHaveLength(1)
       expect(upload?.requestBody?.content?.[0]?.contentType).toBe('multipart/form-data')
     })
+
+    it('populates response.content with a single entry when the response has one content type', async () => {
+      const oas = await buildMinimalOas()
+      const root = parseOas(oas).root
+      const listPets = root.operations.find((op) => op.operationId === 'listPets')
+      const ok = listPets?.responses.find((r) => r.statusCode === '200')
+
+      expect(ok?.content).toHaveLength(1)
+      expect(ok?.content?.[0]?.contentType).toBe('application/json')
+    })
+
+    it('populates response.content with all entries when the response has multiple content types', async () => {
+      const oas = await parseDocument({
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/pets/{petId}': {
+            get: {
+              operationId: 'getPetById',
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: { type: 'object', properties: { name: { type: 'string' } } },
+                    },
+                    'application/xml': {
+                      schema: { type: 'object', properties: { name: { type: 'string' } } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      const root = parseOas(oas).root
+      const getPetById = root.operations.find((op) => op.operationId === 'getPetById')
+      const ok = getPetById?.responses.find((r) => r.statusCode === '200')
+
+      expect(ok?.content).toHaveLength(2)
+      expect(ok?.content?.[0]?.contentType).toBe('application/json')
+      expect(ok?.content?.[1]?.contentType).toBe('application/xml')
+    })
+
+    it('when contentType is set, response.content contains only that content type', async () => {
+      const oas = await parseDocument({
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/pets/{petId}': {
+            get: {
+              operationId: 'getPetById',
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: { type: 'object', properties: { name: { type: 'string' } } },
+                    },
+                    'application/xml': {
+                      schema: { type: 'object', properties: { name: { type: 'string' } } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      const root = parseOas(oas, { contentType: 'application/xml' }).root
+      const getPetById = root.operations.find((op) => op.operationId === 'getPetById')
+      const ok = getPetById?.responses.find((r) => r.statusCode === '200')
+
+      expect(ok?.content).toHaveLength(1)
+      expect(ok?.content?.[0]?.contentType).toBe('application/xml')
+    })
   })
 })
 

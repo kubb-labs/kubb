@@ -13,6 +13,7 @@ import {
   getPrimitiveType,
   getRequestBodyContentTypes,
   getRequestSchema,
+  getResponseBodyContentTypes,
   getResponseSchema,
   getSchemas,
   getSchemaType,
@@ -947,11 +948,27 @@ export function createSchemaParser(ctx: OasParserContext) {
       const { description, content } = getResponseMeta(responseObj)
       const mediaType = content ? getMediaType(Object.keys(content)[0] ?? '') : getMediaType(operation.contentType ?? '')
 
+      // Build one entry per declared response content type so plugins can union the variants.
+      // When a global contentType is configured, restrict to that single type (mirrors requestBody).
+      const responseContentTypes = ctx.contentType ? [ctx.contentType] : getResponseBodyContentTypes(document, operation, statusCode)
+      const responseContent = responseContentTypes.flatMap((ct) => {
+        const ctSchema = getResponseSchema(document, operation, statusCode, { contentType: ct })
+        if (!ctSchema || Object.keys(ctSchema).length === 0) return []
+        return [
+          {
+            contentType: ct,
+            schema: parseSchema({ schema: ctSchema, name: responseName }, options),
+            keysToOmit: collectPropertyKeysByFlag(ctSchema, 'writeOnly'),
+          },
+        ]
+      })
+
       return ast.createResponse({
         statusCode: statusCode as ast.StatusCode,
         description,
         schema,
         mediaType,
+        content: responseContent.length > 0 ? responseContent : undefined,
         keysToOmit: collectPropertyKeysByFlag(responseSchema, 'writeOnly'),
       })
     })
