@@ -111,6 +111,7 @@
     "make-getplugin-typesafe",
     "migrate-mcp-to-tmcp",
     "move-plugins-to-own-repo",
+    "multi-content-type-response",
     "node-22-minimum",
     "null-undefined-standardization",
     "optional-cli-validate-adapter-peer",
