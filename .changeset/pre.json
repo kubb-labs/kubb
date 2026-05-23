@@ -82,6 +82,7 @@
     "fix-discriminator-union-types",
     "fix-faker-import-alias-treeshake",
     "fix-include-filter-schema-scoping",
+    "fix-inline-enum-naming-array-items",
     "fix-middleware-barrel-banner-bleed",
     "fix-middleware-barrel-barrel-type-augmentation",
     "fix-middleware-barrel-generation",
