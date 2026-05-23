@@ -319,7 +319,11 @@ function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undef
     return
   }
   if (node.kind === 'Response') {
-    if (node.schema) yield node.schema
+    if (node.content) {
+      for (const c of node.content) {
+        if (c.schema) yield c.schema
+      }
+    }
     return
   }
 }
@@ -498,7 +502,10 @@ export function transform(node: Node, options: TransformOptions): Node {
 
     return {
       ...response,
-      schema: transform(response.schema, { ...options, parent: response }),
+      content: response.content?.map((entry) => ({
+        ...entry,
+        schema: entry.schema ? transform(entry.schema, { ...options, parent: response }) : entry.schema,
+      })),
     }
   }
 

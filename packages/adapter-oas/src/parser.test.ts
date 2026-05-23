@@ -303,7 +303,7 @@ describe('buildAst', () => {
       const ok = listPets?.responses.find((r) => r.statusCode === '200')
 
       expect(ok?.description).toBe('A list of pets')
-      expect(ok?.schema?.type).toBe('ref')
+      expect(ok?.content?.[0]?.schema?.type).toBe('ref')
     })
 
     it('converts responses without a body schema', async () => {
@@ -321,7 +321,7 @@ describe('buildAst', () => {
       const listPets = root.operations.find((op) => op.operationId === 'listPets')
       const ok = listPets?.responses.find((r) => r.statusCode === '200')
 
-      expect(ok?.mediaType).toBe('application/json')
+      expect(ok?.content?.[0]?.contentType).toBe('application/json')
     })
 
     it('populates requestBody.content with a single entry when operation has one content type', async () => {
@@ -2898,7 +2898,9 @@ describe('parseSchema array', () => {
         : []
 
     const component = root.schemas.find((s) => s.name === 'GetMaintenance200')
-    const responseSchema = root.operations.find((op) => op.operationId === 'getMaintenance')?.responses.find((r) => r.statusCode === '200')?.schema
+    const responseSchema = root.operations
+      .find((op) => op.operationId === 'getMaintenance')
+      ?.responses.find((r) => r.statusCode === '200')?.content?.[0]?.schema
 
     const componentEnums = collectEnumNames(component)
     const responseEnums = collectEnumNames(responseSchema)
