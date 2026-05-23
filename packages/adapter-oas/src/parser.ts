@@ -8,11 +8,11 @@ import {
   buildSchemaNode,
   flattenSchema,
   getDateType,
-  getMediaType,
   getParameters,
   getPrimitiveType,
   getRequestBodyContentTypes,
   getRequestSchema,
+  getResponseBodyContentTypes,
   getResponseSchema,
   getSchemas,
   getSchemaType,
@@ -931,28 +931,37 @@ export function createSchemaParser(ctx: OasParserContext) {
 
     const responses: Array<ast.ResponseNode> = operation.getResponseStatusCodes().map((statusCode) => {
       const responseObj = operation.getResponseByStatusCode(statusCode)
-      const responseSchema = getResponseSchema(document, operation, statusCode, { contentType: ctx.contentType })
 
       // Use `Status<code>` (matching plugin-ts's resolveResponseStatusName convention) so the
       // qualified names for nested enums don't collide with top-level component schemas that
       // happen to be named `<operation><statusCode>` (e.g. `GetMaintenance200`).
       const responseName = operationName ? `${operationName}Status${statusCode}` : undefined
-      const schema =
-        responseSchema && Object.keys(responseSchema).length > 0
-          ? parseSchema({ schema: responseSchema, name: responseName }, options)
-          : ast.createSchema({
-              type: typeOptionMap.get(options.emptySchemaType)!,
-            })
+      const { description } = getResponseMeta(responseObj)
 
-      const { description, content } = getResponseMeta(responseObj)
-      const mediaType = content ? getMediaType(Object.keys(content)[0] ?? '') : getMediaType(operation.contentType ?? '')
+      const parseEntrySchema = (contentType?: string) => {
+        const raw = getResponseSchema(document, operation, statusCode, { contentType })
+        const node =
+          raw && Object.keys(raw).length > 0
+            ? parseSchema({ schema: raw, name: responseName }, options)
+            : ast.createSchema({ type: typeOptionMap.get(options.emptySchemaType)! })
+        return { schema: node, keysToOmit: collectPropertyKeysByFlag(raw, 'writeOnly') }
+      }
+
+      // Build one entry per declared response content type so plugins can union the variants.
+      // When a global contentType is configured, restrict to that single type (mirrors requestBody).
+      const responseContentTypes = ctx.contentType ? [ctx.contentType] : getResponseBodyContentTypes(document, operation, statusCode)
+      const content = responseContentTypes.map((contentType) => ({ contentType, ...parseEntrySchema(contentType) }))
+
+      // Body-less responses keep a single fallback entry so the response still resolves to a
+      // (void/any) schema, matching how `requestBody` only carries schemas inside `content`.
+      if (content.length === 0) {
+        content.push({ contentType: operation.contentType || 'application/json', ...parseEntrySchema(ctx.contentType) })
+      }
 
       return ast.createResponse({
         statusCode: statusCode as ast.StatusCode,
         description,
-        schema,
-        mediaType,
-        keysToOmit: collectPropertyKeysByFlag(responseSchema, 'writeOnly'),
+        content,
       })
     })
 

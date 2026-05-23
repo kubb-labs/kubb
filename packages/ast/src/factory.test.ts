@@ -188,15 +188,30 @@ describe('createResponse', () => {
     expect(node.statusCode).toBe('200')
   })
 
-  it('accepts a schema and description', () => {
+  it('normalizes a legacy schema into a single content entry', () => {
     const node = createResponse({
       statusCode: '200',
       schema: createSchema({ type: 'object' }),
+      mediaType: 'application/json',
       description: 'Success',
     })
 
-    expect(node.schema?.type).toBe('object')
+    expect(node.content?.[0]?.contentType).toBe('application/json')
+    expect(node.content?.[0]?.schema?.type).toBe('object')
     expect(node.description).toBe('Success')
+  })
+
+  it('accepts an explicit content array', () => {
+    const node = createResponse({
+      statusCode: '200',
+      content: [
+        { contentType: 'application/json', schema: createSchema({ type: 'object' }) },
+        { contentType: 'application/xml', schema: createSchema({ type: 'string' }) },
+      ],
+    })
+
+    expect(node.content).toHaveLength(2)
+    expect(node.content?.[1]?.contentType).toBe('application/xml')
   })
 })
 

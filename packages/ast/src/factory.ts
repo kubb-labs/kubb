@@ -322,21 +322,32 @@ export function createParameter(
 /**
  * Creates a `ResponseNode`.
  *
+ * Response body schemas live inside `content`. For convenience a single legacy `schema`
+ * (with optional `mediaType`/`keysToOmit`) is normalized into one `content` entry, so the same
+ * schema is never stored both at the node root and inside `content`.
+ *
  * @example
  * ```ts
  * const response = createResponse({
  *   statusCode: '200',
- *   description: 'Success',
- *   schema: createSchema({ type: 'object', properties: [] }),
+ *   content: [{ contentType: 'application/json', schema: createSchema({ type: 'object', properties: [] }) }],
  * })
  * ```
  */
 export function createResponse(
-  props: Pick<ResponseNode, 'statusCode' | 'schema'> & Partial<Omit<ResponseNode, 'kind' | 'statusCode' | 'schema'>>,
+  props: Pick<ResponseNode, 'statusCode'> &
+    Partial<Omit<ResponseNode, 'kind' | 'statusCode'>> & {
+      schema?: SchemaNode
+      mediaType?: string | null
+      keysToOmit?: Array<string> | null
+    },
 ): ResponseNode {
+  const { schema, mediaType, keysToOmit, content, ...rest } = props
+
   return {
-    ...props,
+    ...rest,
     kind: 'Response',
+    content: content ?? (schema ? [{ contentType: mediaType ?? 'application/json', schema, keysToOmit: keysToOmit ?? null }] : undefined),
   }
 }
 

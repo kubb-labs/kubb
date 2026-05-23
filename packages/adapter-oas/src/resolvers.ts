@@ -541,3 +541,33 @@ export function getRequestBodyContentTypes(document: Document, operation: Operat
   // Do not bail out on isReference — the content is already present on the merged object.
   return body.content ? Object.keys(body.content) : []
 }
+
+/**
+ * Returns all response content type keys for an operation at a given status code.
+ *
+ * Response `$ref`s are resolved in-place first — the same mutation `getResponseSchema` performs —
+ * so the returned list reflects the available content types even for referenced responses.
+ *
+ * @example
+ * ```ts
+ * getResponseBodyContentTypes(document, operation, 200)
+ * // ['application/json', 'application/xml']
+ * ```
+ */
+export function getResponseBodyContentTypes(document: Document, operation: Operation, statusCode: string | number): Array<string> {
+  if (operation.schema.responses) {
+    const responses = operation.schema.responses
+    for (const key in responses) {
+      const schema = responses[key]
+      if (schema && isReference(schema)) {
+        responses[key] = resolveRef<any>(document, schema.$ref)
+      }
+    }
+  }
+
+  const responseObj = operation.getResponseByStatusCode(statusCode)
+  if (!responseObj || typeof responseObj !== 'object' || isReference(responseObj)) return []
+
+  const body = responseObj as { content?: Record<string, unknown> }
+  return body.content ? Object.keys(body.content) : []
+}
