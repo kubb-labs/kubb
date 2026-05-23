@@ -81,6 +81,7 @@
     "fix-defineconfig-entrypoint",
     "fix-discriminator-union-types",
     "fix-faker-import-alias-treeshake",
+    "fix-grouped-default-import-drop",
     "fix-include-filter-schema-scoping",
     "fix-inline-enum-naming-array-items",
     "fix-middleware-barrel-banner-bleed",
