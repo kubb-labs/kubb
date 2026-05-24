@@ -27,6 +27,7 @@ export {
   createText,
   createType,
   syncOptionality,
+  update,
 } from './factory.ts'
 export { isInputNode, isOperationNode, isOutputNode, isSchemaNode, narrowSchema } from './guards.ts'
 export { createPrinterFactory, definePrinter } from './printer.ts'
