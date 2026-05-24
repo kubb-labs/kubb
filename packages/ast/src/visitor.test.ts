@@ -1,6 +1,7 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { createProperty, createSchema } from './factory.ts'
 import { buildSampleTree } from './mocks.ts'
+import type { ContentNode } from './nodes/content.ts'
 import type { OperationNode } from './nodes/operation.ts'
 import type { ParameterNode } from './nodes/parameter.ts'
 import type { PropertyNode } from './nodes/property.ts'
@@ -466,7 +467,7 @@ describe('ParentOf — type inference', () => {
   })
 
   it('SchemaNode parent is a union of possible parents', () => {
-    expectTypeOf<ParentOf<SchemaNode>>().toEqualTypeOf<InputNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode>()
+    expectTypeOf<ParentOf<SchemaNode>>().toEqualTypeOf<InputNode | ContentNode | SchemaNode | PropertyNode | ParameterNode>()
   })
 
   it('VisitorContext narrows parent for PropertyNode', () => {
@@ -490,7 +491,7 @@ describe('ParentOf — type inference', () => {
         expectTypeOf(context.parent).toEqualTypeOf<InputNode | undefined>()
       },
       schema(_schema, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<InputNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode | undefined>()
+        expectTypeOf(context.parent).toEqualTypeOf<InputNode | ContentNode | SchemaNode | PropertyNode | ParameterNode | undefined>()
       },
       parameter(_param, context) {
         expectTypeOf(context.parent).toEqualTypeOf<OperationNode | undefined>()
@@ -525,7 +526,7 @@ describe('ParentOf — type inference', () => {
         return 'test'
       },
       schema(_schema, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<InputNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode | undefined>()
+        expectTypeOf(context.parent).toEqualTypeOf<InputNode | ContentNode | SchemaNode | PropertyNode | ParameterNode | undefined>()
         return 'test'
       },
     })

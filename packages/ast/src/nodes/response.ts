@@ -1,6 +1,6 @@
 import type { BaseNode } from './base.ts'
+import type { ContentNode } from './content.ts'
 import type { StatusCode } from './http.ts'
-import type { SchemaNode } from './schema.ts'
 
 /**
  * AST node representing one operation response variant.
@@ -46,19 +46,5 @@ export type ResponseNode = BaseNode & {
    * response.content[1].contentType // 'application/xml'
    * ```
    */
-  content?: Array<{
-    /**
-     * The content type for this entry (e.g. `'application/json'`).
-     */
-    contentType: string
-    /**
-     * Response body schema for this content type.
-     */
-    schema?: SchemaNode
-    /**
-     * Property keys to exclude from the generated type via `Omit<Type, Keys>`.
-     * Set when a referenced schema has `writeOnly` fields that should not appear in response types.
-     */
-    keysToOmit?: Array<string> | null
-  }>
+  content?: Array<ContentNode>
 }
