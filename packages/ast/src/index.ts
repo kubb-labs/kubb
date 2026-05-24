@@ -1,4 +1,6 @@
 export { httpMethods, isScalarPrimitive, mediaTypes, nodeKinds, schemaTypes } from './constants.ts'
+export { dispatch } from './dispatch.ts'
+export type { DispatchRule } from './dispatch.ts'
 export {
   createArrowFunction,
   createBreak,

@@ -61,6 +61,13 @@ type SchemaContext = {
 }
 
 /**
+ * One entry in this adapter's schema-dispatch table — a {@link ast.DispatchRule} specialized
+ * to OAS schema context and Kubb `SchemaNode` output. See {@link ast.dispatch} for the contract
+ * a future adapter (e.g. AsyncAPI) follows: define a context type and an ordered rules table.
+ */
+type SchemaRule = ast.DispatchRule<SchemaContext, ast.SchemaNode>
+
+/**
  * Normalizes malformed `{ type: 'array', enum: [...] }` schemas by moving enum values into items.
  *
  * This pattern violates the OpenAPI spec but appears in real specs. The fix moves enum values
@@ -722,11 +729,85 @@ export function createSchemaParser(ctx: OasParserContext) {
   }
 
   /**
+   * Converts a binary string schema (`type: 'string'`, `contentMediaType: 'application/octet-stream'`)
+   * into a `blob` node.
+   */
+  function convertBlob({ schema, name, nullable, defaultValue }: SchemaContext): ast.SchemaNode {
+    return ast.createSchema({
+      type: 'blob',
+      primitive: 'string',
+      ...buildSchemaNode(schema, name, nullable, defaultValue),
+    })
+  }
+
+  /**
+   * Converts an OAS 3.1 multi-type array (e.g. `type: ['string', 'number']`) into a `UnionSchemaNode`.
+   *
+   * Returns `null` when only one non-`null` type remains (e.g. `['string', 'null']`), so `parseSchema`
+   * falls through and handles it as that single type with nullability already folded in.
+   */
+  function convertMultiType({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): ast.SchemaNode | null {
+    const types = schema.type as Array<string>
+    const nonNullTypes = types.filter((t) => t !== 'null')
+    if (nonNullTypes.length <= 1) return null
+
+    const arrayNullable = types.includes('null') || nullable || undefined
+    return ast.createSchema({
+      type: 'union',
+      members: nonNullTypes.map((t) => parseSchema({ schema: { ...schema, type: t } as SchemaObject, name }, rawOptions)),
+      ...buildSchemaNode(schema, name, arrayNullable, defaultValue),
+    })
+  }
+
+  /**
+   * Ordered schema-dispatch table. Order is significant: composition keywords (`$ref`, `allOf`,
+   * `oneOf`/`anyOf`) take precedence over `const`/`format`, which take precedence over the plain
+   * `type`. The first matching rule that produces a node wins; see {@link SchemaRule} for the
+   * match/convert/fall-through contract.
+   */
+  const schemaRules: Array<SchemaRule> = [
+    { name: 'ref', match: ({ schema }) => isReference(schema), convert: convertRef },
+    { name: 'allOf', match: ({ schema }) => !!schema.allOf?.length, convert: convertAllOf },
+    { name: 'union', match: ({ schema }) => !!(schema.oneOf?.length || schema.anyOf?.length), convert: convertUnion },
+    { name: 'const', match: ({ schema }) => 'const' in schema && schema.const !== undefined, convert: convertConst },
+    { name: 'format', match: ({ schema }) => !!schema.format, convert: convertFormat },
+    {
+      name: 'blob',
+      match: ({ schema }) => schema.type === 'string' && schema.contentMediaType === 'application/octet-stream',
+      convert: convertBlob,
+    },
+    { name: 'multi-type', match: ({ schema }) => Array.isArray(schema.type) && schema.type.length > 1, convert: convertMultiType },
+    {
+      name: 'constrained-string',
+      match: ({ schema, type }) => !type && (schema.minLength !== undefined || schema.maxLength !== undefined || schema.pattern !== undefined),
+      convert: convertString,
+    },
+    {
+      name: 'constrained-number',
+      match: ({ schema, type }) => !type && (schema.minimum !== undefined || schema.maximum !== undefined),
+      convert: (ctx) => convertNumeric(ctx, 'number'),
+    },
+    { name: 'enum', match: ({ schema }) => !!schema.enum?.length, convert: convertEnum },
+    {
+      name: 'object',
+      match: ({ schema, type }) => type === 'object' || !!schema.properties || !!schema.additionalProperties || 'patternProperties' in schema,
+      convert: convertObject,
+    },
+    { name: 'tuple', match: ({ schema }) => 'prefixItems' in schema, convert: convertTuple },
+    { name: 'array', match: ({ schema, type }) => type === 'array' || 'items' in schema, convert: convertArray },
+    { name: 'string', match: ({ type }) => type === 'string', convert: convertString },
+    { name: 'number', match: ({ type }) => type === 'number', convert: (ctx) => convertNumeric(ctx, 'number') },
+    { name: 'integer', match: ({ type }) => type === 'integer', convert: (ctx) => convertNumeric(ctx, 'integer') },
+    { name: 'boolean', match: ({ type }) => type === 'boolean', convert: convertBoolean },
+    { name: 'null', match: ({ type }) => type === 'null', convert: convertNull },
+  ]
+
+  /**
    * Central dispatcher that converts an OAS `SchemaObject` into a `SchemaNode`.
    *
-   * Dispatch order (first match wins): `$ref` → `allOf` → `oneOf`/`anyOf` → `const` → `format`
-   * → octet-stream blob → multi-type array → constraint-inferred type → `enum` → object/array/tuple/scalar
-   * → empty-schema fallback (`emptySchemaType` option).
+   * Builds the per-schema context, then runs it through the ordered {@link schemaRules} table
+   * via {@link ast.dispatch}. When no rule produces a node, falls back to the configured
+   * `emptySchemaType`.
    */
   function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }, rawOptions?: Partial<ast.ParserOptions>): ast.SchemaNode {
     const options: ast.ParserOptions = {
@@ -742,7 +823,7 @@ export function createSchemaParser(ctx: OasParserContext) {
     const defaultValue = schema.default === null && nullable ? undefined : schema.default
     const type = Array.isArray(schema.type) ? schema.type[0] : schema.type
 
-    const ctx: SchemaContext = {
+    const schemaCtx: SchemaContext = {
       schema,
       name,
       nullable,
@@ -752,58 +833,8 @@ export function createSchemaParser(ctx: OasParserContext) {
       options,
     }
 
-    if (isReference(schema)) return convertRef(ctx)
-
-    if (schema.allOf?.length) return convertAllOf(ctx)
-    const unionMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
-    if (unionMembers.length) return convertUnion(ctx)
-
-    if ('const' in schema && schema.const !== undefined) return convertConst(ctx)
-
-    if (schema.format) {
-      const formatResult = convertFormat(ctx)
-      if (formatResult) return formatResult
-    }
-
-    if (schema.type === 'string' && schema.contentMediaType === 'application/octet-stream') {
-      return ast.createSchema({
-        type: 'blob',
-        primitive: 'string',
-        ...buildSchemaNode(schema, name, nullable, defaultValue),
-      })
-    }
-
-    if (Array.isArray(schema.type) && schema.type.length > 1) {
-      const nonNullTypes = schema.type.filter((t) => t !== 'null') as Array<string>
-      const arrayNullable = schema.type.includes('null') || nullable || undefined
-
-      if (nonNullTypes.length > 1) {
-        return ast.createSchema({
-          type: 'union',
-          members: nonNullTypes.map((t) => parseSchema({ schema: { ...schema, type: t } as SchemaObject, name }, rawOptions)),
-          ...buildSchemaNode(schema, name, arrayNullable, defaultValue),
-        })
-      }
-    }
-
-    if (!type) {
-      if (schema.minLength !== undefined || schema.maxLength !== undefined || schema.pattern !== undefined) {
-        return convertString(ctx)
-      }
-      if (schema.minimum !== undefined || schema.maximum !== undefined) {
-        return convertNumeric(ctx, 'number')
-      }
-    }
-
-    if (schema.enum?.length) return convertEnum(ctx)
-    if (type === 'object' || schema.properties || schema.additionalProperties || 'patternProperties' in schema) return convertObject(ctx)
-    if ('prefixItems' in schema) return convertTuple(ctx)
-    if (type === 'array' || 'items' in schema) return convertArray(ctx)
-    if (type === 'string') return convertString(ctx)
-    if (type === 'number') return convertNumeric(ctx, 'number')
-    if (type === 'integer') return convertNumeric(ctx, 'integer')
-    if (type === 'boolean') return convertBoolean(ctx)
-    if (type === 'null') return convertNull(ctx)
+    const node = ast.dispatch(schemaRules, schemaCtx)
+    if (node) return node
 
     const emptyType = typeOptionMap.get(options.emptySchemaType)!
     return ast.createSchema({
