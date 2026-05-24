@@ -22,7 +22,7 @@ import type { SchemaObject } from './types.ts'
  * const parser = createSchemaParser(context, oasDialect) // explicit
  * ```
  */
-export const oasDialect = ast.defineDialect({
+export const oasDialect = ast.defineSchemaDialect({
   name: 'oas',
   isNullable,
   isReference,

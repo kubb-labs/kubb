@@ -47,7 +47,7 @@ export type SchemaDialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TS
  *
  * @example
  * ```ts
- * export const oasDialect = defineDialect<OasDialect>({
+ * export const oasDialect = defineSchemaDialect({
  *   name: 'oas',
  *   isNullable,
  *   isReference,
@@ -57,7 +57,7 @@ export type SchemaDialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TS
  * })
  * ```
  */
-export function defineDialect<TSchema, TRef, TDiscriminated, TDocument>(
+export function defineSchemaDialect<TSchema, TRef, TDiscriminated, TDocument>(
   dialect: SchemaDialect<TSchema, TRef, TDiscriminated, TDocument>,
 ): SchemaDialect<TSchema, TRef, TDiscriminated, TDocument> {
   return dialect
