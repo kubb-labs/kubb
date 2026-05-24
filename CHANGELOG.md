@@ -1,5 +1,29 @@
 # Changelog
 
+## v5.0.0-beta.29 — May 23, 2026
+
+### @kubb/ast
+
+#### Features
+
+- Add multiple response content type support to the AST and OpenAPI parser.
+  
+  `ResponseNode` now mirrors `requestBody`: the response body schemas live exclusively inside a
+  `content` array (one entry per content type), instead of a single root-level `schema`/`mediaType`.
+  This removes the duplicated schema that previously sat both on the node root and inside `content`.
+  The OpenAPI parser populates every content type declared for a status code; body-less responses
+  keep a single `content` entry whose schema is the empty/`void` placeholder. When the adapter
+  `contentType` option is set, only that content type is kept.
+  
+  For convenience `createResponse` still accepts a single `schema` (with optional `mediaType`),
+  normalizing it into one `content` entry, so existing callers keep working. ([#3373](https://github.com/kubb-labs/kubb/pull/3373), [`d70b887`](https://github.com/kubb-labs/kubb/commit/d70b8871e6410ddf00c53ad660774a01146c951e))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.28 — May 23, 2026
 
 ### @kubb/ast
