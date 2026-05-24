@@ -1,7 +1,7 @@
 import type { VisitorDepth } from './constants.ts'
 import { visitorDepths, WALK_CONCURRENCY } from './constants.ts'
 import { createParameter, createProperty } from './factory.ts'
-import type { InputNode, Node, OperationNode, OutputNode, ParameterNode, PropertyNode, ResponseNode, SchemaNode } from './nodes/index.ts'
+import type { InputNode, Node, NodeKind, OperationNode, OutputNode, ParameterNode, PropertyNode, ResponseNode, SchemaNode } from './nodes/index.ts'
 
 /**
  * Creates a small async concurrency limiter.
@@ -329,6 +329,39 @@ function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undef
 }
 
 /**
+ * Maps a node `kind` to the matching visitor callback name. Only the seven
+ * traversable node kinds have an entry; every other kind resolves to
+ * `undefined` and is skipped.
+ */
+const VISITOR_KEY_BY_KIND: Partial<Record<NodeKind, keyof Visitor>> = {
+  Input: 'input',
+  Output: 'output',
+  Operation: 'operation',
+  Schema: 'schema',
+  Property: 'property',
+  Parameter: 'parameter',
+  Response: 'response',
+}
+
+/**
+ * Invokes the visitor callback that matches `node.kind`, passing the traversal
+ * context. Returns the callback's result (a replacement node, a collected
+ * value, or `undefined` when no callback is registered for the kind).
+ *
+ * Shared by `walk`, `transform`, and `collectLazy` so node-kind dispatch lives
+ * in one place. `TResult` is the caller's expected return: the same node type
+ * for `transform`, the collected value type for `collectLazy`, ignored for `walk`.
+ */
+function applyVisitor<TResult>(node: Node, visitor: Visitor | AsyncVisitor | CollectVisitor<unknown>, parent: Node | undefined): TResult | null | undefined {
+  const key = VISITOR_KEY_BY_KIND[node.kind]
+  if (!key) return undefined
+
+  const fn = visitor[key] as ((node: Node, context: VisitorContext) => TResult | null | undefined) | undefined
+
+  return fn?.(node, { parent })
+}
+
+/**
  * Async depth-first traversal for side effects. Visitor return values are
  * ignored. Use `transform` when you want to rewrite nodes.
  *
@@ -358,29 +391,7 @@ export async function walk(node: Node, options: WalkOptions): Promise<void> {
 }
 
 async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit: LimitFn, parent: Node | undefined): Promise<void> {
-  switch (node.kind) {
-    case 'Input':
-      await limit(() => visitor.input?.(node, { parent: parent as ParentOf<InputNode> }))
-      break
-    case 'Output':
-      await limit(() => visitor.output?.(node, { parent: parent as ParentOf<OutputNode> }))
-      break
-    case 'Operation':
-      await limit(() => visitor.operation?.(node, { parent: parent as ParentOf<OperationNode> }))
-      break
-    case 'Schema':
-      await limit(() => visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> }))
-      break
-    case 'Property':
-      await limit(() => visitor.property?.(node, { parent: parent as ParentOf<PropertyNode> }))
-      break
-    case 'Parameter':
-      await limit(() => visitor.parameter?.(node, { parent: parent as ParentOf<ParameterNode> }))
-      break
-    case 'Response':
-      await limit(() => visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> }))
-      break
-  }
+  await limit(() => applyVisitor(node, visitor, parent))
 
   const children = getChildren(node, recurse)
   for (const child of children) {
@@ -425,7 +436,7 @@ export function transform(node: Node, options: TransformOptions): Node {
   const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
 
   if (node.kind === 'Input') {
-    const input = visitor.input?.(node, { parent: parent as ParentOf<InputNode> }) ?? node
+    const input = applyVisitor<InputNode>(node, visitor, parent) ?? node
 
     return {
       ...input,
@@ -435,11 +446,11 @@ export function transform(node: Node, options: TransformOptions): Node {
   }
 
   if (node.kind === 'Output') {
-    return visitor.output?.(node, { parent: parent as ParentOf<OutputNode> }) ?? node
+    return applyVisitor<OutputNode>(node, visitor, parent) ?? node
   }
 
   if (node.kind === 'Operation') {
-    const op = visitor.operation?.(node, { parent: parent as ParentOf<OperationNode> }) ?? node
+    const op = applyVisitor<OperationNode>(node, visitor, parent) ?? node
 
     return {
       ...op,
@@ -458,7 +469,7 @@ export function transform(node: Node, options: TransformOptions): Node {
   }
 
   if (node.kind === 'Schema') {
-    const schema = visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> }) ?? node
+    const schema = applyVisitor<SchemaNode>(node, visitor, parent) ?? node
 
     const childOptions = { ...options, parent: schema }
 
@@ -480,7 +491,7 @@ export function transform(node: Node, options: TransformOptions): Node {
   }
 
   if (node.kind === 'Property') {
-    const prop = visitor.property?.(node, { parent: parent as ParentOf<PropertyNode> }) ?? node
+    const prop = applyVisitor<PropertyNode>(node, visitor, parent) ?? node
 
     return createProperty({
       ...prop,
@@ -489,7 +500,7 @@ export function transform(node: Node, options: TransformOptions): Node {
   }
 
   if (node.kind === 'Parameter') {
-    const param = visitor.parameter?.(node, { parent: parent as ParentOf<ParameterNode> }) ?? node
+    const param = applyVisitor<ParameterNode>(node, visitor, parent) ?? node
 
     return createParameter({
       ...param,
@@ -498,7 +509,7 @@ export function transform(node: Node, options: TransformOptions): Node {
   }
 
   if (node.kind === 'Response') {
-    const response = visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> }) ?? node
+    const response = applyVisitor<ResponseNode>(node, visitor, parent) ?? node
 
     return {
       ...response,
@@ -531,30 +542,7 @@ export function* collectLazy<T>(node: Node, options: CollectOptions<T>): Generat
   const { depth, parent, ...visitor } = options
   const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
 
-  let v: T | null | undefined
-  switch (node.kind) {
-    case 'Input':
-      v = visitor.input?.(node, { parent: parent as ParentOf<InputNode> })
-      break
-    case 'Output':
-      v = visitor.output?.(node, { parent: parent as ParentOf<OutputNode> })
-      break
-    case 'Operation':
-      v = visitor.operation?.(node, { parent: parent as ParentOf<OperationNode> })
-      break
-    case 'Schema':
-      v = visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> })
-      break
-    case 'Property':
-      v = visitor.property?.(node, { parent: parent as ParentOf<PropertyNode> })
-      break
-    case 'Parameter':
-      v = visitor.parameter?.(node, { parent: parent as ParentOf<ParameterNode> })
-      break
-    case 'Response':
-      v = visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> })
-      break
-  }
+  const v = applyVisitor<T>(node, visitor, parent)
   if (v != null) yield v
 
   for (const child of getChildren(node, recurse)) {

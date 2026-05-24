@@ -1,10 +1,9 @@
 import { relative } from 'node:path'
-import process from 'node:process'
-import { formatMs, getElapsedMs, toCause } from '@internals/utils'
+import { formatMs, toCause } from '@internals/utils'
 import { defineLogger, logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_SEPARATOR } from '../constants.ts'
 import { getSummary } from './utils.ts'
-import { formatCommandWithArgs, formatMessage } from './utils.ts'
+import { createHookTimer, formatCommandWithArgs, formatMessage } from './utils.ts'
 
 /**
  * Plain console adapter for non-TTY environments with simple `console.log` output.
@@ -13,7 +12,7 @@ export const plainLogger = defineLogger({
   name: 'plain',
   install(context, options) {
     const logLevel = options?.logLevel ?? logLevelMap.info
-    const hookStarts = new Map<string, [number, number]>()
+    const hookTimer = createHookTimer()
 
     function getMessage(message: string): string {
       return formatMessage(message, logLevel)
@@ -230,7 +229,7 @@ export const plainLogger = defineLogger({
       }
 
       if (id) {
-        hookStarts.set(id, process.hrtime())
+        hookTimer.start(id)
       }
 
       const commandWithArgs = formatCommandWithArgs(command, args)
@@ -242,9 +241,8 @@ export const plainLogger = defineLogger({
         return
       }
 
-      const hrStart = id ? hookStarts.get(id) : undefined
-      if (id) hookStarts.delete(id)
-      const durationStr = hrStart ? ` in ${formatMs(getElapsedMs(hrStart))}` : ''
+      const ms = id ? hookTimer.end(id) : undefined
+      const durationStr = ms !== undefined ? ` in ${formatMs(ms)}` : ''
 
       const commandWithArgs = formatCommandWithArgs(command, args)
 

@@ -1,8 +1,15 @@
-import process from 'node:process'
 import { styleText } from 'node:util'
-import { formatHrtime, formatMs, formatMsWithColor, getElapsedMs, toCause } from '@internals/utils'
+import { formatHrtime, formatMs, formatMsWithColor, toCause } from '@internals/utils'
 import { type Config, defineLogger, logLevel as logLevelMap } from '@kubb/core'
-import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils.ts'
+import {
+  buildProgressLine,
+  createHookTimer,
+  createProgressCounters,
+  formatCommandWithArgs,
+  formatMessage,
+  recordPluginResult,
+  resetProgressCounters,
+} from './utils.ts'
 
 /**
  * GitHub Actions logger using group annotations for collapsible sections in CI.
@@ -12,27 +19,17 @@ export const githubActionsLogger = defineLogger({
   install(context, options) {
     const logLevel = options?.logLevel ?? logLevelMap.info
     const state = {
-      totalPlugins: 0,
-      completedPlugins: 0,
-      failedPlugins: 0,
-      totalFiles: 0,
-      processedFiles: 0,
-      hrStart: process.hrtime(),
+      ...createProgressCounters(),
       currentConfigs: [] as Array<Config>,
-      hookStarts: new Map<string, [number, number]>(),
       openGroupDepth: 0,
     }
+    const hookTimer = createHookTimer()
 
     function reset() {
       closeAllGroups()
-      state.totalPlugins = 0
-      state.completedPlugins = 0
-      state.failedPlugins = 0
-      state.totalFiles = 0
-      state.processedFiles = 0
-      state.hrStart = process.hrtime()
+      resetProgressCounters(state)
       state.currentConfigs = []
-      state.hookStarts.clear()
+      hookTimer.clear()
     }
 
     function showProgressStep() {
@@ -198,11 +195,7 @@ export const githubActionsLogger = defineLogger({
         return
       }
 
-      if (success) {
-        state.completedPlugins++
-      } else {
-        state.failedPlugins++
-      }
+      recordPluginResult(state, success)
 
       const durationStr = formatMsWithColor(duration)
       const text = getMessage(
@@ -358,7 +351,7 @@ export const githubActionsLogger = defineLogger({
       }
 
       if (id) {
-        state.hookStarts.set(id, process.hrtime())
+        hookTimer.start(id)
       }
 
       const commandWithArgs = formatCommandWithArgs(command, args)
@@ -375,9 +368,8 @@ export const githubActionsLogger = defineLogger({
         return
       }
 
-      const hrStart = id ? state.hookStarts.get(id) : undefined
-      if (id) state.hookStarts.delete(id)
-      const durationStr = hrStart ? ` in ${formatMsWithColor(getElapsedMs(hrStart))}` : ''
+      const ms = id ? hookTimer.end(id) : undefined
+      const durationStr = ms !== undefined ? ` in ${formatMsWithColor(ms)}` : ''
 
       const commandWithArgs = formatCommandWithArgs(command, args)
 

@@ -595,6 +595,17 @@ export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
 }
 
 /**
+ * Merges `incoming` names into `existing`, preserving order and dropping duplicates.
+ *
+ * Shared by `combineExports` and `combineImports` for the same-path name-merge case.
+ */
+function mergeNameArrays<TName>(existing: Array<TName>, incoming: Array<TName>): Array<TName> {
+  const merged = new Set(existing)
+  for (const name of incoming) merged.add(name)
+  return [...merged]
+}
+
+/**
  * Deduplicates and merges `ExportNode` objects by path and type.
  *
  * Named exports with the same path and `isTypeOnly` flag have their names merged into a single export.
@@ -621,9 +632,7 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
       const existing = namedByPath.get(key)
 
       if (existing && Array.isArray(existing.name)) {
-        const merged = new Set(existing.name)
-        for (const n of name) merged.add(n)
-        existing.name = [...merged]
+        existing.name = mergeNameArrays(existing.name, name)
       } else {
         const newItem: ExportNode = { ...curr, name: [...new Set(name)] }
         result.push(newItem)
@@ -699,9 +708,7 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
       const existing = namedByPath.get(key)
 
       if (existing && Array.isArray(existing.name)) {
-        const merged = new Set(existing.name)
-        for (const n of name) merged.add(n)
-        existing.name = [...merged]
+        existing.name = mergeNameArrays(existing.name, name)
       } else {
         const newItem: ImportNode = { ...curr, name }
         result.push(newItem)

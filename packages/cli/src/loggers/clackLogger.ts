@@ -5,7 +5,7 @@ import * as clack from '@clack/prompts'
 import { formatMs, formatMsWithColor, getElapsedMs, getIntro, toCause } from '@internals/utils'
 import { defineLogger, logLevel as logLevelMap } from '@kubb/core'
 import { getSummary } from './utils.ts'
-import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils.ts'
+import { buildProgressLine, createProgressCounters, formatCommandWithArgs, formatMessage, recordPluginResult, resetProgressCounters } from './utils.ts'
 
 /**
  * TTY logger with beautiful UI and progress indicators for local development.
@@ -15,12 +15,7 @@ export const clackLogger = defineLogger({
   install(context, options) {
     const logLevel = options?.logLevel ?? logLevelMap.info
     const state = {
-      totalPlugins: 0,
-      completedPlugins: 0,
-      failedPlugins: 0,
-      totalFiles: 0,
-      processedFiles: 0,
-      hrStart: process.hrtime(),
+      ...createProgressCounters(),
       spinner: clack.spinner(),
       isSpinning: false,
       activeProgress: new Map<string, { interval?: NodeJS.Timeout; progressBar: clack.ProgressResult }>(),
@@ -35,12 +30,7 @@ export const clackLogger = defineLogger({
         active.progressBar?.stop()
       }
 
-      state.totalPlugins = 0
-      state.completedPlugins = 0
-      state.failedPlugins = 0
-      state.totalFiles = 0
-      state.processedFiles = 0
-      state.hrStart = process.hrtime()
+      resetProgressCounters(state)
       state.spinner = clack.spinner()
       state.isSpinning = false
       state.activeProgress.clear()
@@ -244,11 +234,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       clearInterval(active.interval)
 
-      if (success) {
-        state.completedPlugins++
-      } else {
-        state.failedPlugins++
-      }
+      recordPluginResult(state, success)
 
       const durationStr = formatMsWithColor(duration)
       const text = getMessage(
