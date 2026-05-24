@@ -1,5 +1,33 @@
 # Changelog
 
+## v5.0.0-beta.30 — May 24, 2026
+
+### @kubb/ast
+
+#### Features
+
+- Adopt a Babel-style traversal architecture in `@kubb/ast`, keeping the node model uniform and minimal.
+  
+  - Request-body and response content entries are now first-class nodes (`ContentNode`), and the request body is a `RequestBodyNode`, so every child slot in the tree is a node rather than an anonymous wrapper object.
+  - A single `VISITOR_KEYS`-style child-field registry now drives both `walk`/`collect` traversal and the immutable `transform`, replacing the per-kind hand-written tree-shape logic that previously lived in two places.
+  - Adds builders `createContent` and `createRequestBody`; `createOperation`/`createResponse` apply them automatically, so adapters and existing call sites need no changes.
+  
+  Note: a schema reached through a request/response body now reports its `parent` as the enclosing `ContentNode` (previously the `OperationNode`/`ResponseNode`). ([#3375](https://github.com/kubb-labs/kubb/pull/3375), [`c5f5227`](https://github.com/kubb-labs/kubb/commit/c5f522704ea4d412bbfe7c0da7bb49e8bb3a4e5c))
+
+#### Bug Fixes
+
+- Reduce internal complexity in the AST, core, and CLI packages to make them easier to work with and debug. No public API or generated output changes.
+  
+  - `@kubb/ast`: `walk`, `transform`, and `collectLazy` now share a single node-kind dispatch helper instead of three duplicated `switch` statements, and `combineExports`/`combineImports` share a name-merge helper.
+  - `@kubb/core`: the schema and operation generator passes in `KubbDriver` are unified into one dispatch function.
+  - `@kubb/cli`: the clack, GitHub Actions, and plain loggers share progress-counter and hook-timing helpers. ([#3375](https://github.com/kubb-labs/kubb/pull/3375), [`de7a15c`](https://github.com/kubb-labs/kubb/commit/de7a15c1ab4bbc57836dd8073402f46f93dc5341))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.29 — May 23, 2026
 
 ### @kubb/ast
