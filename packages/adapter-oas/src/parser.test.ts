@@ -1,8 +1,9 @@
 import { ast } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
+import { oasDialect, type SchemaDialect } from './dialect.ts'
 import { parseDocument } from './factory.ts'
-import { parseOas, parseSchema } from './parser.ts'
+import { createSchemaParser, parseOas, parseSchema } from './parser.ts'
 import type { Document, SchemaObject } from './types.ts'
 
 const emptyDocument: Document = {
@@ -4149,5 +4150,33 @@ describe('enum naming', () => {
     const enumNode = ast.narrowSchema(arrayNode?.items?.[0], 'enum')
 
     expect(enumNode?.name).toBe('ItemTagsEnum')
+  })
+})
+
+describe('SchemaDialect seam', () => {
+  const ctx = { document: emptyDocument }
+
+  it('routes nullability through the dialect', () => {
+    const schema: SchemaObject = { type: 'string', nullable: true }
+
+    // The default OAS dialect honors `nullable: true`.
+    expect(parseSchema(ctx, { schema }).nullable).toBe(true)
+
+    // A dialect that never treats schemas as nullable drops the flag.
+    const nonNullable: SchemaDialect = { ...oasDialect, name: 'test', isNullable: () => false }
+    const node = createSchemaParser(ctx, nonNullable).parseSchema({ schema })
+    expect(node.nullable).toBeUndefined()
+  })
+
+  it('routes binary detection through the dialect', () => {
+    const schema: SchemaObject = { type: 'string', contentMediaType: 'application/octet-stream' }
+
+    // The default OAS dialect maps octet-stream strings to `blob`.
+    expect(parseSchema(ctx, { schema }).type).toBe('blob')
+
+    // A dialect that reports nothing as binary falls through to `string`.
+    const noBinary: SchemaDialect = { ...oasDialect, name: 'test', isBinary: () => false }
+    const node = createSchemaParser(ctx, noBinary).parseSchema({ schema })
+    expect(node.type).toBe('string')
   })
 })
