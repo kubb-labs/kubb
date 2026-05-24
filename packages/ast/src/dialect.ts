@@ -12,6 +12,14 @@
  * converters narrow the schema after a check; the type parameters carry those
  * narrowed types through.
  *
+ * Scope: this is the seam for the **JSON Schema family** — OpenAPI, AsyncAPI, and
+ * plain JSON Schema all share `$ref`, `allOf`/`oneOf`, `enum`, and `format`, and
+ * differ only in these few decisions. A spec built on a different type system
+ * (e.g. GraphQL, with non-null wrappers, interfaces, and named-type references
+ * instead of `$ref`) does not implement a `SchemaDialect`; it reuses the universal
+ * layer directly — the `Adapter` port, the AST factories, and {@link dispatch}
+ * with its own rule table — to emit the same nodes.
+ *
  * @typeParam TSchema - The adapter's schema object type (e.g. an OpenAPI `SchemaObject`).
  * @typeParam TRef - The narrowed `$ref` pointer type `isReference` proves.
  * @typeParam TDiscriminated - The narrowed discriminated-schema type `isDiscriminator` proves.
