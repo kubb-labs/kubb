@@ -577,7 +577,7 @@ export class KubbDriver {
     const dispatchNode = async <TNode extends SchemaNode | OperationNode>(
       state: PluginState,
       node: TNode,
-      cfg: {
+      dispatch: {
         method: 'schema' | 'operation'
         checkAllowedNames: boolean
         emit: ((node: TNode, ctx: GeneratorContext) => Promise<void> | void) | null
@@ -589,7 +589,7 @@ export class KubbDriver {
         const transformedNode: TNode = plugin.transformer ? (transform(node, plugin.transformer) as TNode) : node
 
         if (
-          cfg.checkAllowedNames &&
+          dispatch.checkAllowedNames &&
           state.allowedSchemaNames !== null &&
           'name' in transformedNode &&
           transformedNode.name &&
@@ -606,14 +606,14 @@ export class KubbDriver {
 
         const ctx = { ...generatorContext, options }
         for (const gen of generators) {
-          const generate = gen[cfg.method] as ((node: TNode, ctx: GeneratorContext) => unknown) | undefined
+          const generate = gen[dispatch.method] as ((node: TNode, ctx: GeneratorContext) => unknown) | undefined
           if (!generate) continue
           const raw = generate(transformedNode, ctx)
           const result = isPromise(raw) ? await raw : raw
           const applied = applyHookResult({ result, driver, rendererFactory: resolveRendererFor(gen, state) })
           if (isPromise(applied)) await applied
         }
-        if (cfg.emit) await cfg.emit(transformedNode, ctx)
+        if (dispatch.emit) await dispatch.emit(transformedNode, ctx)
       } catch (caughtError) {
         state.failed = true
         state.error = caughtError as Error
