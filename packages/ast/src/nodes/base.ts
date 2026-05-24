@@ -14,6 +14,8 @@ export type NodeKind =
   | 'Property'
   | 'Parameter'
   | 'Response'
+  | 'RequestBody'
+  | 'Content'
   | 'FunctionParameter'
   | 'ParameterGroup'
   | 'FunctionParameters'

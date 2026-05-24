@@ -1,8 +1,15 @@
-import process from 'node:process'
 import { styleText } from 'node:util'
-import { formatHrtime, formatMs, formatMsWithColor, getElapsedMs, toCause } from '@internals/utils'
-import { type Config, defineLogger, logLevel as logLevelMap } from '@kubb/core'
-import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils.ts'
+import { formatHrtime, formatMs, formatMsWithColor, toCause } from '@internals/utils'
+import { type Config, defineLogger, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import {
+  buildProgressLine,
+  createHookTimer,
+  createProgressCounters,
+  formatCommandWithArgs,
+  formatMessage,
+  recordPluginResult,
+  resetProgressCounters,
+} from './utils.ts'
 
 /**
  * GitHub Actions logger using group annotations for collapsible sections in CI.
@@ -12,27 +19,17 @@ export const githubActionsLogger = defineLogger({
   install(context, options) {
     const logLevel = options?.logLevel ?? logLevelMap.info
     const state = {
-      totalPlugins: 0,
-      completedPlugins: 0,
-      failedPlugins: 0,
-      totalFiles: 0,
-      processedFiles: 0,
-      hrStart: process.hrtime(),
+      ...createProgressCounters(),
       currentConfigs: [] as Array<Config>,
-      hookStarts: new Map<string, [number, number]>(),
       openGroupDepth: 0,
     }
+    const hookTimer = createHookTimer()
 
     function reset() {
       closeAllGroups()
-      state.totalPlugins = 0
-      state.completedPlugins = 0
-      state.failedPlugins = 0
-      state.totalFiles = 0
-      state.processedFiles = 0
-      state.hrStart = process.hrtime()
+      resetProgressCounters(state)
       state.currentConfigs = []
-      state.hookStarts.clear()
+      hookTimer.clear()
     }
 
     function showProgressStep() {
@@ -65,6 +62,32 @@ export const githubActionsLogger = defineLogger({
         console.log('::endgroup::')
         state.openGroupDepth--
       }
+    }
+
+    // Opens a group (only for single-config runs) then logs the step message.
+    function onGroupStart<E extends keyof KubbHooks>(event: E, message: string, group: string): void {
+      context.on(event, () => {
+        if (logLevel <= logLevelMap.silent) {
+          return
+        }
+        if (state.currentConfigs.length === 1) {
+          openGroup(group)
+        }
+        console.log(getMessage(message))
+      })
+    }
+
+    // Logs the step message then closes the matching group (single-config runs).
+    function onGroupEnd<E extends keyof KubbHooks>(event: E, message: string, group: string): void {
+      context.on(event, () => {
+        if (logLevel <= logLevelMap.silent) {
+          return
+        }
+        console.log(getMessage(message))
+        if (state.currentConfigs.length === 1) {
+          closeGroup(group)
+        }
+      })
     }
 
     context.on('kubb:info', ({ message, info = '' }) => {
@@ -198,11 +221,7 @@ export const githubActionsLogger = defineLogger({
         return
       }
 
-      if (success) {
-        state.completedPlugins++
-      } else {
-        state.failedPlugins++
-      }
+      recordPluginResult(state, success)
 
       const durationStr = formatMsWithColor(duration)
       const text = getMessage(
@@ -272,85 +291,12 @@ export const githubActionsLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:format:start', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      const text = getMessage('Format started')
-
-      if (state.currentConfigs.length === 1) {
-        openGroup('Formatting')
-      }
-
-      console.log(text)
-    })
-
-    context.on('kubb:format:end', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      const text = getMessage('Format completed')
-
-      console.log(text)
-
-      if (state.currentConfigs.length === 1) {
-        closeGroup('Formatting')
-      }
-    })
-
-    context.on('kubb:lint:start', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      const text = getMessage('Lint started')
-
-      if (state.currentConfigs.length === 1) {
-        openGroup('Linting')
-      }
-
-      console.log(text)
-    })
-
-    context.on('kubb:lint:end', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      const text = getMessage('Lint completed')
-
-      console.log(text)
-
-      if (state.currentConfigs.length === 1) {
-        closeGroup('Linting')
-      }
-    })
-
-    context.on('kubb:hooks:start', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      if (state.currentConfigs.length === 1) {
-        openGroup('Hooks')
-      }
-
-      console.log(getMessage('Hooks started'))
-    })
-
-    context.on('kubb:hooks:end', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      console.log(getMessage('Hooks completed'))
-
-      if (state.currentConfigs.length === 1) {
-        closeGroup('Hooks')
-      }
-    })
+    onGroupStart('kubb:format:start', 'Format started', 'Formatting')
+    onGroupEnd('kubb:format:end', 'Format completed', 'Formatting')
+    onGroupStart('kubb:lint:start', 'Lint started', 'Linting')
+    onGroupEnd('kubb:lint:end', 'Lint completed', 'Linting')
+    onGroupStart('kubb:hooks:start', 'Hooks started', 'Hooks')
+    onGroupEnd('kubb:hooks:end', 'Hooks completed', 'Hooks')
 
     context.on('kubb:hook:start', ({ id, command, args }) => {
       if (logLevel <= logLevelMap.silent) {
@@ -358,7 +304,7 @@ export const githubActionsLogger = defineLogger({
       }
 
       if (id) {
-        state.hookStarts.set(id, process.hrtime())
+        hookTimer.start(id)
       }
 
       const commandWithArgs = formatCommandWithArgs(command, args)
@@ -375,9 +321,8 @@ export const githubActionsLogger = defineLogger({
         return
       }
 
-      const hrStart = id ? state.hookStarts.get(id) : undefined
-      if (id) state.hookStarts.delete(id)
-      const durationStr = hrStart ? ` in ${formatMsWithColor(getElapsedMs(hrStart))}` : ''
+      const ms = id ? hookTimer.end(id) : undefined
+      const durationStr = ms !== undefined ? ` in ${formatMsWithColor(ms)}` : ''
 
       const commandWithArgs = formatCommandWithArgs(command, args)
 

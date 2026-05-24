@@ -6,6 +6,7 @@ import type {
   ArrowFunctionNode,
   BreakNode,
   ConstNode,
+  ContentNode,
   ExportNode,
   FileNode,
   FunctionNode,
@@ -24,6 +25,7 @@ import type {
   ParamsTypeNode,
   PrimitiveSchemaType,
   PropertyNode,
+  RequestBodyNode,
   ResponseNode,
   SchemaNode,
   SourceNode,
@@ -152,15 +154,54 @@ export function createOutput(overrides: Partial<Omit<OutputNode, 'kind'>> = {}):
  * })
  * ```
  */
+/**
+ * Loosely-typed content entry accepted by the builders, normalized into a {@link ContentNode}.
+ */
+type UserContent = Omit<ContentNode, 'kind'>
+
+/**
+ * Creates a `ContentNode` for a single request-body or response content type.
+ */
+export function createContent(props: UserContent): ContentNode {
+  return {
+    ...props,
+    kind: 'Content',
+  }
+}
+
+/**
+ * Loosely-typed request body accepted by `createOperation`, normalized into a {@link RequestBodyNode}.
+ */
+type UserRequestBody = Omit<RequestBodyNode, 'kind' | 'content'> & {
+  content?: Array<UserContent>
+}
+
+/**
+ * Creates a `RequestBodyNode`, normalizing each content entry into a `ContentNode`.
+ */
+export function createRequestBody(props: UserRequestBody): RequestBodyNode {
+  return {
+    ...props,
+    kind: 'RequestBody',
+    content: props.content?.map(createContent),
+  }
+}
+
 export function createOperation(
-  props: Pick<OperationNode, 'operationId' | 'method' | 'path'> & Partial<Omit<OperationNode, 'kind' | 'operationId' | 'method' | 'path'>>,
+  props: Pick<OperationNode, 'operationId' | 'method' | 'path'> &
+    Partial<Omit<OperationNode, 'kind' | 'operationId' | 'method' | 'path' | 'requestBody'>> & {
+      requestBody?: UserRequestBody
+    },
 ): OperationNode {
+  const { requestBody, ...rest } = props
+
   return {
     tags: [],
     parameters: [],
     responses: [],
-    ...props,
+    ...rest,
     kind: 'Operation',
+    requestBody: requestBody ? createRequestBody(requestBody) : undefined,
   }
 }
 
@@ -336,18 +377,20 @@ export function createParameter(
  */
 export function createResponse(
   props: Pick<ResponseNode, 'statusCode'> &
-    Partial<Omit<ResponseNode, 'kind' | 'statusCode'>> & {
+    Partial<Omit<ResponseNode, 'kind' | 'statusCode' | 'content'>> & {
+      content?: Array<UserContent>
       schema?: SchemaNode
       mediaType?: string | null
       keysToOmit?: Array<string> | null
     },
 ): ResponseNode {
   const { schema, mediaType, keysToOmit, content, ...rest } = props
+  const entries = content ?? (schema ? [{ contentType: mediaType ?? 'application/json', schema, keysToOmit: keysToOmit ?? null }] : undefined)
 
   return {
     ...rest,
     kind: 'Response',
-    content: content ?? (schema ? [{ contentType: mediaType ?? 'application/json', schema, keysToOmit: keysToOmit ?? null }] : undefined),
+    content: entries?.map(createContent),
   }
 }
 

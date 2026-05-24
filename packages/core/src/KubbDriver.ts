@@ -571,13 +571,30 @@ export class KubbDriver {
     const resolveRendererFor = (gen: Generator, state: PluginState): RendererFactory | undefined =>
       gen.renderer === null ? undefined : (gen.renderer ?? state.plugin.renderer ?? state.generatorContext.config.renderer)
 
-    const dispatchSchema = async (state: PluginState, node: SchemaNode): Promise<void> => {
+    // Schema and operation passes share this body. They differ only in which
+    // generator method runs, which hook is emitted, and the schema-only
+    // `allowedSchemaNames` prune (operations don't carry that constraint).
+    const dispatchNode = async <TNode extends SchemaNode | OperationNode>(
+      state: PluginState,
+      node: TNode,
+      dispatch: {
+        method: 'schema' | 'operation'
+        checkAllowedNames: boolean
+        emit: ((node: TNode, ctx: GeneratorContext) => Promise<void> | void) | null
+      },
+    ): Promise<void> => {
       if (state.failed) return
       try {
         const { plugin, generatorContext, generators } = state
-        const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
+        const transformedNode: TNode = plugin.transformer ? (transform(node, plugin.transformer) as TNode) : node
 
-        if (state.allowedSchemaNames !== null && transformedNode.name && !state.allowedSchemaNames.has(transformedNode.name)) {
+        if (
+          dispatch.checkAllowedNames &&
+          state.allowedSchemaNames !== null &&
+          'name' in transformedNode &&
+          transformedNode.name &&
+          !state.allowedSchemaNames.has(transformedNode.name)
+        ) {
           return
         }
 
@@ -589,44 +606,30 @@ export class KubbDriver {
 
         const ctx = { ...generatorContext, options }
         for (const gen of generators) {
-          if (!gen.schema) continue
-          const raw = gen.schema(transformedNode, ctx)
+          const generate = gen[dispatch.method] as ((node: TNode, ctx: GeneratorContext) => unknown) | undefined
+          if (!generate) continue
+          const raw = generate(transformedNode, ctx)
           const result = isPromise(raw) ? await raw : raw
           const applied = applyHookResult({ result, driver, rendererFactory: resolveRendererFor(gen, state) })
           if (isPromise(applied)) await applied
         }
-        if (emitsSchemaHook) await this.hooks.emit('kubb:generate:schema', transformedNode, ctx)
+        if (dispatch.emit) await dispatch.emit(transformedNode, ctx)
       } catch (caughtError) {
         state.failed = true
         state.error = caughtError as Error
       }
     }
 
-    const dispatchOperation = async (state: PluginState, node: OperationNode): Promise<void> => {
-      if (state.failed) return
-      try {
-        const { plugin, generatorContext, generators } = state
-        const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-        const { exclude, include, override } = plugin.options
-        const options = state.optionsAreStatic
-          ? plugin.options
-          : generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
-        if (options === null) return
-
-        const ctx = { ...generatorContext, options }
-        for (const gen of generators) {
-          if (!gen.operation) continue
-          const raw = gen.operation(transformedNode, ctx)
-          const result = isPromise(raw) ? await raw : raw
-          const applied = applyHookResult({ result, driver, rendererFactory: resolveRendererFor(gen, state) })
-          if (isPromise(applied)) await applied
-        }
-        if (emitsOperationHook) await this.hooks.emit('kubb:generate:operation', transformedNode, ctx)
-      } catch (caughtError) {
-        state.failed = true
-        state.error = caughtError as Error
-      }
-    }
+    const schemaDispatch = {
+      method: 'schema',
+      checkAllowedNames: true,
+      emit: emitsSchemaHook ? (node: SchemaNode, ctx: GeneratorContext) => this.hooks.emit('kubb:generate:schema', node, ctx) : null,
+    } as const
+    const operationDispatch = {
+      method: 'operation',
+      checkAllowedNames: false,
+      emit: emitsOperationHook ? (node: OperationNode, ctx: GeneratorContext) => this.hooks.emit('kubb:generate:operation', node, ctx) : null,
+    } as const
 
     // Skip building the aggregated operations array when nothing consumes it.
     // Saves an N-sized allocation that lives until the build ends, on the common
@@ -637,7 +640,7 @@ export class KubbDriver {
     // Run schemas before operations: the two passes share `flushPending` and the
     // FileProcessor's event emitter, so running them concurrently would interleave
     // `kubb:files:processing:start|end` events and race on the shared dirty list.
-    await forBatches(schemas, (nodes) => Promise.all(nodes.flatMap((n) => states.map((state) => dispatchSchema(state, n)))), {
+    await forBatches(schemas, (nodes) => Promise.all(nodes.flatMap((n) => states.map((state) => dispatchNode(state, n, schemaDispatch)))), {
       concurrency: SCHEMA_PARALLEL,
       flush: flushPending,
     })
@@ -646,7 +649,7 @@ export class KubbDriver {
       operations,
       (nodes) => {
         if (needsCollectedOperations) collectedOperations.push(...nodes)
-        return Promise.all(nodes.flatMap((n) => states.map((state) => dispatchOperation(state, n))))
+        return Promise.all(nodes.flatMap((n) => states.map((state) => dispatchNode(state, n, operationDispatch))))
       },
       { concurrency: SCHEMA_PARALLEL, flush: flushPending },
     )

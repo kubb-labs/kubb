@@ -1,6 +1,7 @@
 import path from 'node:path'
+import process from 'node:process'
 import { styleText } from 'node:util'
-import { canUseTTY, formatHrtime, isGitHubActions, randomCliColor } from '@internals/utils'
+import { canUseTTY, formatHrtime, getElapsedMs, isGitHubActions, randomCliColor } from '@internals/utils'
 import type { Config, Logger, LoggerContext, LoggerOptions, Plugin } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
@@ -125,6 +126,80 @@ export function buildProgressLine(state: ProgressState): string | null {
 
   parts.push(`${styleText('green', duration)} elapsed`)
   return parts.join(styleText('dim', ' | '))
+}
+
+/**
+ * Creates the per-run progress counters shared by the clack and GitHub Actions loggers.
+ */
+export function createProgressCounters(): ProgressState {
+  return {
+    totalPlugins: 0,
+    completedPlugins: 0,
+    failedPlugins: 0,
+    totalFiles: 0,
+    processedFiles: 0,
+    hrStart: process.hrtime(),
+  }
+}
+
+/**
+ * Resets the progress counters in place at the start/end of a generation run.
+ */
+export function resetProgressCounters(state: ProgressState): void {
+  state.totalPlugins = 0
+  state.completedPlugins = 0
+  state.failedPlugins = 0
+  state.totalFiles = 0
+  state.processedFiles = 0
+  state.hrStart = process.hrtime()
+}
+
+/**
+ * Records a finished plugin against the progress counters.
+ */
+export function recordPluginResult(state: ProgressState, success: boolean): void {
+  if (success) {
+    state.completedPlugins++
+  } else {
+    state.failedPlugins++
+  }
+}
+
+/**
+ * Tracks per-hook start times so a logger can report a hook's elapsed duration.
+ * Used by the loggers that key timing by hook `id` (GitHub Actions, plain).
+ */
+export type HookTimer = {
+  start(id: string): void
+  /**
+   * Returns the elapsed milliseconds since `start(id)`, or `undefined` when no start was recorded.
+   */
+  end(id: string): number | undefined
+  clear(): void
+}
+
+/**
+ * Creates a {@link HookTimer} backed by a private `id → hrtime` map.
+ */
+export function createHookTimer(): HookTimer {
+  const starts = new Map<string, [number, number]>()
+
+  return {
+    start(id: string): void {
+      starts.set(id, process.hrtime())
+    },
+    end(id: string): number | undefined {
+      const hrStart = starts.get(id)
+      if (!hrStart) {
+        return undefined
+      }
+      starts.delete(id)
+      return getElapsedMs(hrStart)
+    },
+    clear(): void {
+      starts.clear()
+    },
+  }
 }
 
 /**

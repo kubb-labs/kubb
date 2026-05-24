@@ -1,7 +1,19 @@
 import type { VisitorDepth } from './constants.ts'
 import { visitorDepths, WALK_CONCURRENCY } from './constants.ts'
 import { createParameter, createProperty } from './factory.ts'
-import type { InputNode, Node, OperationNode, OutputNode, ParameterNode, PropertyNode, ResponseNode, SchemaNode } from './nodes/index.ts'
+import type {
+  ContentNode,
+  InputNode,
+  Node,
+  NodeKind,
+  OperationNode,
+  OutputNode,
+  ParameterNode,
+  PropertyNode,
+  RequestBodyNode,
+  ResponseNode,
+  SchemaNode,
+} from './nodes/index.ts'
 
 /**
  * Creates a small async concurrency limiter.
@@ -54,7 +66,9 @@ type ParentNodeMap = [
   [InputNode, undefined],
   [OutputNode, undefined],
   [OperationNode, InputNode],
-  [SchemaNode, InputNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode],
+  [RequestBodyNode, OperationNode],
+  [ContentNode, RequestBodyNode | ResponseNode],
+  [SchemaNode, InputNode | ContentNode | SchemaNode | PropertyNode | ParameterNode],
   [PropertyNode, SchemaNode],
   [ParameterNode, OperationNode],
   [ResponseNode, OperationNode],
@@ -268,64 +282,91 @@ export type CollectOptions<T> = CollectVisitor<T> & {
 }
 
 /**
- * Returns the immediate traversable children of `node`.
+ * Child node fields per node kind, in traversal order (Babel's `VISITOR_KEYS`).
  *
- * For `Schema` nodes, children (`properties`, `items`, `members`, and non-boolean
- * `additionalProperties`) are only included
- * when `recurse` is `true`; shallow mode skips them.
+ * Each listed property holds a child node, an array of child nodes, or — for
+ * `additionalProperties` — a node or the literal `true` (skipped). Every value
+ * in a child slot is a node, so one table drives both `getChildren` and `transform`.
+ */
+const VISITOR_KEYS = {
+  Input: ['schemas', 'operations'],
+  Operation: ['parameters', 'requestBody', 'responses'],
+  RequestBody: ['content'],
+  Content: ['schema'],
+  Response: ['content'],
+  Schema: ['properties', 'items', 'members', 'additionalProperties'],
+  Property: ['schema'],
+  Parameter: ['schema'],
+} as const satisfies Partial<Record<NodeKind, ReadonlyArray<string>>>
+
+const visitorKeysByKind = VISITOR_KEYS as Record<string, ReadonlyArray<string> | undefined>
+
+/**
+ * Returns `true` when `value` is an AST node (an object carrying a `kind`).
+ */
+function isNode(value: unknown): value is Node {
+  return typeof value === 'object' && value !== null && 'kind' in value
+}
+
+/**
+ * Returns the immediate traversable children of `node` based on {@link VISITOR_KEYS}.
+ *
+ * `Schema` children are only included when `recurse` is `true`; shallow mode skips them.
  *
  * @example
  * ```ts
  * const children = getChildren(operationNode, true)
- * // returns parameters, requestBody schema (if present), and responses
+ * // returns parameters, the request body, and responses
  * ```
  */
 function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undefined> {
-  if (node.kind === 'Input') {
-    yield* node.schemas
-    yield* node.operations
+  if (node.kind === 'Schema' && !recurse) return
 
-    return
-  }
-  if (node.kind === 'Output') return
-  if (node.kind === 'Operation') {
-    yield* node.parameters
-    if (node.requestBody?.content) {
-      for (const c of node.requestBody.content) {
-        if (c.schema) yield c.schema
-      }
+  const keys = visitorKeysByKind[node.kind]
+  if (!keys) return
+
+  const record = node as unknown as Record<string, unknown>
+  for (const key of keys) {
+    const value = record[key]
+    if (Array.isArray(value)) {
+      for (const item of value) if (isNode(item)) yield item
+    } else if (isNode(value)) {
+      yield value
     }
-    yield* node.responses
+  }
+}
 
-    return
-  }
-  if (node.kind === 'Schema') {
-    if (!recurse) return
-    if ('properties' in node && node.properties.length > 0) yield* node.properties
-    if ('items' in node && node.items) yield* node.items
-    if ('members' in node && node.members) yield* node.members
-    if ('additionalProperties' in node && node.additionalProperties && node.additionalProperties !== true) yield node.additionalProperties
+/**
+ * Maps a node `kind` to the matching visitor callback name. Only the seven
+ * traversable node kinds have an entry; every other kind resolves to
+ * `undefined` and is skipped.
+ */
+const VISITOR_KEY_BY_KIND: Partial<Record<NodeKind, keyof Visitor>> = {
+  Input: 'input',
+  Output: 'output',
+  Operation: 'operation',
+  Schema: 'schema',
+  Property: 'property',
+  Parameter: 'parameter',
+  Response: 'response',
+}
 
-    return
-  }
-  if (node.kind === 'Property') {
-    yield node.schema
+/**
+ * Invokes the visitor callback that matches `node.kind`, passing the traversal
+ * context. Returns the callback's result (a replacement node, a collected
+ * value, or `undefined` when no callback is registered for the kind).
+ *
+ * Shared by `walk`, `transform`, and `collectLazy` so node-kind dispatch lives
+ * in one place. `TResult` is the caller's expected return: the same node type
+ * for `transform`, the collected value type for `collectLazy`, ignored for `walk`.
+ */
+function applyVisitor<TResult>(node: Node, visitor: Visitor | AsyncVisitor | CollectVisitor<unknown>, parent: Node | undefined): TResult | null | undefined {
+  const key = VISITOR_KEY_BY_KIND[node.kind]
+  if (!key) return undefined
 
-    return
-  }
-  if (node.kind === 'Parameter') {
-    yield node.schema
+  const fn = visitor[key] as ((node: Node, context: VisitorContext) => TResult | null | undefined) | undefined
 
-    return
-  }
-  if (node.kind === 'Response') {
-    if (node.content) {
-      for (const c of node.content) {
-        if (c.schema) yield c.schema
-      }
-    }
-    return
-  }
+  return fn?.(node, { parent })
 }
 
 /**
@@ -358,29 +399,7 @@ export async function walk(node: Node, options: WalkOptions): Promise<void> {
 }
 
 async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit: LimitFn, parent: Node | undefined): Promise<void> {
-  switch (node.kind) {
-    case 'Input':
-      await limit(() => visitor.input?.(node, { parent: parent as ParentOf<InputNode> }))
-      break
-    case 'Output':
-      await limit(() => visitor.output?.(node, { parent: parent as ParentOf<OutputNode> }))
-      break
-    case 'Operation':
-      await limit(() => visitor.operation?.(node, { parent: parent as ParentOf<OperationNode> }))
-      break
-    case 'Schema':
-      await limit(() => visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> }))
-      break
-    case 'Property':
-      await limit(() => visitor.property?.(node, { parent: parent as ParentOf<PropertyNode> }))
-      break
-    case 'Parameter':
-      await limit(() => visitor.parameter?.(node, { parent: parent as ParentOf<ParameterNode> }))
-      break
-    case 'Response':
-      await limit(() => visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> }))
-      break
-  }
+  await limit(() => applyVisitor(node, visitor, parent))
 
   const children = getChildren(node, recurse)
   for (const child of children) {
@@ -424,92 +443,49 @@ export function transform(node: Node, options: TransformOptions): Node {
   const { depth, parent, ...visitor } = options
   const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
 
-  if (node.kind === 'Input') {
-    const input = visitor.input?.(node, { parent: parent as ParentOf<InputNode> }) ?? node
+  const next = applyVisitor<Node>(node, visitor, parent) ?? node
+  const rebuilt = transformChildren(next, options, recurse)
 
-    return {
-      ...input,
-      schemas: input.schemas.map((s) => transform(s, { ...options, parent: input })),
-      operations: input.operations.map((op) => transform(op, { ...options, parent: input })),
+  const finalize = nodeFinalizers[rebuilt.kind]
+  return finalize ? finalize(rebuilt) : rebuilt
+}
+
+/**
+ * Per-kind builders rerun after children are rebuilt. `Property`/`Parameter`
+ * resync schema optionality against their `required` flag once the schema may
+ * have changed.
+ */
+const nodeFinalizers: Partial<Record<NodeKind, (node: Node) => Node>> = {
+  Property: (node) => createProperty(node as PropertyNode),
+  Parameter: (node) => createParameter(node as ParameterNode),
+}
+
+/**
+ * Immutably rebuilds a node's children using {@link VISITOR_KEYS}, transforming
+ * each child node and leaving non-node values (e.g. `additionalProperties: true`) intact.
+ * `Schema` children are skipped in shallow mode.
+ */
+function transformChildren(node: Node, options: TransformOptions, recurse: boolean): Node {
+  if (node.kind === 'Schema' && !recurse) return node
+
+  const keys = visitorKeysByKind[node.kind]
+  if (!keys) return node
+
+  const record = node as unknown as Record<string, unknown>
+  const childOptions = { ...options, parent: node }
+  const updates: Record<string, unknown> = {}
+
+  for (const key of keys) {
+    if (!(key in record)) continue
+    const value = record[key]
+    if (Array.isArray(value)) {
+      updates[key] = value.map((item) => (isNode(item) ? transform(item, childOptions) : item))
+    } else if (isNode(value)) {
+      updates[key] = transform(value, childOptions)
     }
   }
 
-  if (node.kind === 'Output') {
-    return visitor.output?.(node, { parent: parent as ParentOf<OutputNode> }) ?? node
-  }
-
-  if (node.kind === 'Operation') {
-    const op = visitor.operation?.(node, { parent: parent as ParentOf<OperationNode> }) ?? node
-
-    return {
-      ...op,
-      parameters: op.parameters.map((p) => transform(p, { ...options, parent: op })),
-      requestBody: op.requestBody
-        ? {
-            ...op.requestBody,
-            content: op.requestBody.content?.map((c) => ({
-              ...c,
-              schema: c.schema ? transform(c.schema, { ...options, parent: op }) : undefined,
-            })),
-          }
-        : undefined,
-      responses: op.responses.map((r) => transform(r, { ...options, parent: op })),
-    }
-  }
-
-  if (node.kind === 'Schema') {
-    const schema = visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> }) ?? node
-
-    const childOptions = { ...options, parent: schema }
-
-    return {
-      ...schema,
-      ...('properties' in schema && recurse
-        ? {
-            properties: schema.properties.map((p) => transform(p, childOptions)),
-          }
-        : {}),
-      ...('items' in schema && recurse ? { items: schema.items?.map((i) => transform(i, childOptions)) } : {}),
-      ...('members' in schema && recurse ? { members: schema.members?.map((m) => transform(m, childOptions)) } : {}),
-      ...('additionalProperties' in schema && recurse && schema.additionalProperties && schema.additionalProperties !== true
-        ? {
-            additionalProperties: transform(schema.additionalProperties, childOptions),
-          }
-        : {}),
-    } as SchemaNode
-  }
-
-  if (node.kind === 'Property') {
-    const prop = visitor.property?.(node, { parent: parent as ParentOf<PropertyNode> }) ?? node
-
-    return createProperty({
-      ...prop,
-      schema: transform(prop.schema, { ...options, parent: prop }),
-    })
-  }
-
-  if (node.kind === 'Parameter') {
-    const param = visitor.parameter?.(node, { parent: parent as ParentOf<ParameterNode> }) ?? node
-
-    return createParameter({
-      ...param,
-      schema: transform(param.schema, { ...options, parent: param }),
-    })
-  }
-
-  if (node.kind === 'Response') {
-    const response = visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> }) ?? node
-
-    return {
-      ...response,
-      content: response.content?.map((entry) => ({
-        ...entry,
-        schema: entry.schema ? transform(entry.schema, { ...options, parent: response }) : entry.schema,
-      })),
-    }
-  }
-
-  return node
+  return { ...node, ...updates } as Node
 }
 /**
  * Lazy depth-first collection pass. Yields every non-null value returned by
@@ -531,30 +507,7 @@ export function* collectLazy<T>(node: Node, options: CollectOptions<T>): Generat
   const { depth, parent, ...visitor } = options
   const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
 
-  let v: T | null | undefined
-  switch (node.kind) {
-    case 'Input':
-      v = visitor.input?.(node, { parent: parent as ParentOf<InputNode> })
-      break
-    case 'Output':
-      v = visitor.output?.(node, { parent: parent as ParentOf<OutputNode> })
-      break
-    case 'Operation':
-      v = visitor.operation?.(node, { parent: parent as ParentOf<OperationNode> })
-      break
-    case 'Schema':
-      v = visitor.schema?.(node, { parent: parent as ParentOf<SchemaNode> })
-      break
-    case 'Property':
-      v = visitor.property?.(node, { parent: parent as ParentOf<PropertyNode> })
-      break
-    case 'Parameter':
-      v = visitor.parameter?.(node, { parent: parent as ParentOf<ParameterNode> })
-      break
-    case 'Response':
-      v = visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> })
-      break
-  }
+  const v = applyVisitor<T>(node, visitor, parent)
   if (v != null) yield v
 
   for (const child of getChildren(node, recurse)) {

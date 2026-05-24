@@ -1,10 +1,9 @@
 import { relative } from 'node:path'
-import process from 'node:process'
-import { formatMs, getElapsedMs, toCause } from '@internals/utils'
-import { defineLogger, logLevel as logLevelMap } from '@kubb/core'
+import { formatMs, toCause } from '@internals/utils'
+import { defineLogger, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_SEPARATOR } from '../constants.ts'
 import { getSummary } from './utils.ts'
-import { formatCommandWithArgs, formatMessage } from './utils.ts'
+import { createHookTimer, formatCommandWithArgs, formatMessage } from './utils.ts'
 
 /**
  * Plain console adapter for non-TTY environments with simple `console.log` output.
@@ -13,10 +12,20 @@ export const plainLogger = defineLogger({
   name: 'plain',
   install(context, options) {
     const logLevel = options?.logLevel ?? logLevelMap.info
-    const hookStarts = new Map<string, [number, number]>()
+    const hookTimer = createHookTimer()
 
     function getMessage(message: string): string {
       return formatMessage(message, logLevel)
+    }
+
+    // Registers a handler that logs a fixed message, skipped at silent level.
+    function onStep<E extends keyof KubbHooks>(event: E, message: string): void {
+      context.on(event, () => {
+        if (logLevel <= logLevelMap.silent) {
+          return
+        }
+        console.log(getMessage(message))
+      })
     }
 
     context.on('kubb:info', ({ message, info }) => {
@@ -86,25 +95,8 @@ export const plainLogger = defineLogger({
       console.log(getMessage(`Update available: v${currentVersion} → v${latestVersion}. Run \`npm install -g @kubb/cli\` to update.`))
     })
 
-    context.on('kubb:config:start', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      const text = getMessage('Configuration started')
-
-      console.log(text)
-    })
-
-    context.on('kubb:config:end', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      const text = getMessage('Configuration completed')
-
-      console.log(text)
-    })
+    onStep('kubb:config:start', 'Configuration started')
+    onStep('kubb:config:end', 'Configuration completed')
 
     context.on('kubb:generation:start', () => {
       const text = getMessage('Generation started')
@@ -168,61 +160,12 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:format:start', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      const text = getMessage('Format started')
-
-      console.log(text)
-    })
-
-    context.on('kubb:format:end', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      const text = getMessage('Format completed')
-
-      console.log(text)
-    })
-
-    context.on('kubb:lint:start', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      const text = getMessage('Lint started')
-
-      console.log(text)
-    })
-
-    context.on('kubb:lint:end', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      const text = getMessage('Lint completed')
-
-      console.log(text)
-    })
-
-    context.on('kubb:hooks:start', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      console.log(getMessage('Hooks started'))
-    })
-
-    context.on('kubb:hooks:end', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      console.log(getMessage('Hooks completed'))
-    })
+    onStep('kubb:format:start', 'Format started')
+    onStep('kubb:format:end', 'Format completed')
+    onStep('kubb:lint:start', 'Lint started')
+    onStep('kubb:lint:end', 'Lint completed')
+    onStep('kubb:hooks:start', 'Hooks started')
+    onStep('kubb:hooks:end', 'Hooks completed')
 
     context.on('kubb:hook:start', ({ id, command, args }) => {
       if (logLevel <= logLevelMap.silent) {
@@ -230,7 +173,7 @@ export const plainLogger = defineLogger({
       }
 
       if (id) {
-        hookStarts.set(id, process.hrtime())
+        hookTimer.start(id)
       }
 
       const commandWithArgs = formatCommandWithArgs(command, args)
@@ -242,9 +185,8 @@ export const plainLogger = defineLogger({
         return
       }
 
-      const hrStart = id ? hookStarts.get(id) : undefined
-      if (id) hookStarts.delete(id)
-      const durationStr = hrStart ? ` in ${formatMs(getElapsedMs(hrStart))}` : ''
+      const ms = id ? hookTimer.end(id) : undefined
+      const durationStr = ms !== undefined ? ` in ${formatMs(ms)}` : ''
 
       const commandWithArgs = formatCommandWithArgs(command, args)
 
