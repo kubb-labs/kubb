@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { formatMs, formatMsWithColor, getElapsedMs, getIntro, toCause } from '@internals/utils'
-import { defineLogger, logLevel as logLevelMap } from '@kubb/core'
+import { defineLogger, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { getSummary } from './utils.ts'
 import { buildProgressLine, createProgressCounters, formatCommandWithArgs, formatMessage, recordPluginResult, resetProgressCounters } from './utils.ts'
 
@@ -50,6 +50,16 @@ export const clackLogger = defineLogger({
 
     function getMessage(message: string): string {
       return formatMessage(message, logLevel)
+    }
+
+    // Registers a handler that prints a fixed step message, skipped at silent level.
+    function onStep<E extends keyof KubbHooks>(event: E, message: string): void {
+      context.on(event, () => {
+        if (logLevel <= logLevelMap.silent) {
+          return
+        }
+        clack.log.step(getMessage(message))
+      })
     }
 
     function startSpinner(text?: string) {
@@ -316,29 +326,9 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.outro(text)
     })
 
-    context.on('kubb:format:start', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      clack.log.step(getMessage('Formatting'))
-    })
-
-    context.on('kubb:lint:start', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      clack.log.step(getMessage('Linting'))
-    })
-
-    context.on('kubb:hooks:start', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      clack.log.step(getMessage('Running hooks'))
-    })
+    onStep('kubb:format:start', 'Formatting')
+    onStep('kubb:lint:start', 'Linting')
+    onStep('kubb:hooks:start', 'Running hooks')
 
     context.on('kubb:hook:start', ({ id, command, args }) => {
       if (logLevel <= logLevelMap.silent || !id) {
