@@ -20,6 +20,8 @@ export const nodeKinds = {
   input: 'Input',
   output: 'Output',
   operation: 'Operation',
+  workflow: 'Workflow',
+  step: 'Step',
   schema: 'Schema',
   property: 'Property',
   parameter: 'Parameter',

@@ -1,6 +1,7 @@
 import type { BaseNode } from './base.ts'
 import type { OperationNode } from './operation.ts'
 import type { SchemaNode } from './schema.ts'
+import type { WorkflowNode } from './workflow.ts'
 
 /**
  * Metadata for an API document, populated by the adapter and available to every generator.
@@ -88,6 +89,11 @@ export type InputNode = BaseNode & {
    */
   operations: Array<OperationNode>
   /**
+   * Workflow nodes in the document. Present only for specs that describe workflows
+   * (e.g. Arazzo); absent for plain schema/operation specs.
+   */
+  workflows?: Array<WorkflowNode>
+  /**
    * Document metadata populated by the adapter.
    */
   meta: InputMeta
@@ -119,6 +125,10 @@ export type InputStreamNode = {
    * multiple plugins can iterate independently without sharing state.
    */
   operations: AsyncIterable<OperationNode>
+  /**
+   * Lazily parsed workflow nodes, when the spec describes workflows.
+   */
+  workflows?: AsyncIterable<WorkflowNode>
   /**
    * Document metadata available immediately, before the first yielded node.
    */

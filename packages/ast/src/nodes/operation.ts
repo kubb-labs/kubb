@@ -6,6 +6,18 @@ import type { ResponseNode } from './response.ts'
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE'
 
 /**
+ * Transport / spec family an operation belongs to. Open-ended so adapters can use
+ * their own value; the listed members cover the common cases.
+ */
+export type OperationProtocol = 'http' | 'ws' | 'kafka' | 'amqp' | 'mqtt' | 'graphql' | (string & {})
+
+/**
+ * Generic operation verb for specs without an HTTP method — AsyncAPI pub/sub
+ * (`send`/`receive`) and GraphQL roots (`query`/`mutation`/`subscription`).
+ */
+export type OperationAction = 'send' | 'receive' | 'query' | 'mutation' | 'subscription' | (string & {})
+
+/**
  * AST node representing an operation request body.
  *
  * Body schemas live exclusively inside the `content` array (one entry per content type),
@@ -71,14 +83,29 @@ export type OperationNode = BaseNode & {
    */
   operationId: string
   /**
-   * HTTP Method like 'GET'
+   * HTTP method like `'GET'`. Optional — only HTTP/REST specs (OpenAPI) set it;
+   * other specs use {@link OperationNode.action} instead.
    */
-  method: HttpMethod
+  method?: HttpMethod
   /**
-   * OpenAPI-style path string, for example `/pets/{petId}`.
-   * Path parameters retain the `{param}` notation from the original spec.
+   * OpenAPI-style path string, for example `/pets/{petId}`, with `{param}` notation
+   * preserved. Optional — only HTTP/REST specs set it.
    */
-  path: string
+  path?: string
+  /**
+   * Transport / spec family (e.g. `'http'`, `'graphql'`, `'kafka'`). Lets a plugin
+   * branch on the source spec without assuming HTTP.
+   */
+  protocol?: OperationProtocol
+  /**
+   * Generic verb for non-HTTP specs — AsyncAPI `send`/`receive`, GraphQL
+   * `query`/`mutation`/`subscription`.
+   */
+  action?: OperationAction
+  /**
+   * Channel address (AsyncAPI) or generic target the operation acts on.
+   */
+  channel?: string
   /**
    * Group labels for the operation.
    * Usually copied from OpenAPI `tags`.

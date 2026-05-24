@@ -271,8 +271,8 @@ function testPattern(value: string, pattern: string | RegExp): boolean {
 function matchesOperationPattern(node: OperationNode, type: string, pattern: string | RegExp): boolean {
   if (type === 'tag') return node.tags.some((tag) => testPattern(tag, pattern))
   if (type === 'operationId') return testPattern(node.operationId, pattern)
-  if (type === 'path') return testPattern(node.path, pattern)
-  if (type === 'method') return testPattern(node.method.toLowerCase(), pattern)
+  if (type === 'path') return node.path !== undefined && testPattern(node.path, pattern)
+  if (type === 'method') return node.method !== undefined && testPattern(node.method.toLowerCase(), pattern)
   if (type === 'contentType') return node.requestBody?.content?.some((c) => testPattern(c.contentType, pattern)) ?? false
   return false
 }

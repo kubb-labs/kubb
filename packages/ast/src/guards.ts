@@ -12,6 +12,8 @@ import type {
   ResponseNode,
   SchemaNode,
   SchemaNodeByType,
+  StepNode,
+  WorkflowNode,
 } from './nodes/index.ts'
 
 /**
@@ -66,6 +68,16 @@ export const isOutputNode = isKind<OutputNode>('Output')
  * ```
  */
 export const isOperationNode = isKind<OperationNode>('Operation')
+
+/**
+ * Returns `true` when the input is a `WorkflowNode`.
+ */
+export const isWorkflowNode = isKind<WorkflowNode>('Workflow')
+
+/**
+ * Returns `true` when the input is a `StepNode`.
+ */
+export const isStepNode = isKind<StepNode>('Step')
 
 /**
  * Returns `true` when the input is a `SchemaNode`.

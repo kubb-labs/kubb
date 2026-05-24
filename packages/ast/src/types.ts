@@ -39,7 +39,9 @@ export type {
   NodeKind,
   NumberSchemaNode,
   ObjectSchemaNode,
+  OperationAction,
   OperationNode,
+  OperationProtocol,
   OutputNode,
   ParameterGroupNode,
   ParameterLocation,
@@ -57,6 +59,7 @@ export type {
   SourceNode,
   SpecialSchemaType,
   StatusCode,
+  StepNode,
   StringSchemaNode,
   TextNode,
   TimeSchemaNode,
@@ -64,6 +67,7 @@ export type {
   TypeNode,
   UnionSchemaNode,
   UrlSchemaNode,
+  WorkflowNode,
 } from './nodes/index.ts'
 export type { RefMap } from './refs.ts'
 export type { AsyncVisitor, CollectOptions, CollectVisitor, ParentOf, TransformOptions, Visitor, VisitorContext, WalkOptions } from './visitor.ts'

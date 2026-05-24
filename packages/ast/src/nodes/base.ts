@@ -10,6 +10,8 @@ export type NodeKind =
   | 'Input'
   | 'Output'
   | 'Operation'
+  | 'Workflow'
+  | 'Step'
   | 'Schema'
   | 'Property'
   | 'Parameter'
