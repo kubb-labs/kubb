@@ -2,7 +2,7 @@ import { pascalCase, URLPath } from '@internals/utils'
 import { ast } from '@kubb/core'
 import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, SCHEMA_REF_PREFIX, typeOptionMap } from './constants.ts'
-import { oasDialect, type SchemaDialect } from './dialect.ts'
+import { oasDialect, type OasDialect } from './dialect.ts'
 import {
   buildSchemaNode,
   flattenSchema,
@@ -94,7 +94,7 @@ function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
  *
  * @internal
  */
-export function createSchemaParser(ctx: OasParserContext, dialect: SchemaDialect = oasDialect) {
+export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = oasDialect) {
   const document = ctx.document
 
   // Branch handlers — each converts one OAS schema pattern to a SchemaNode.

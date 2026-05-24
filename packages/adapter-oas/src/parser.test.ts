@@ -1,7 +1,7 @@
 import { ast } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
-import { oasDialect, type SchemaDialect } from './dialect.ts'
+import { oasDialect, type OasDialect } from './dialect.ts'
 import { parseDocument } from './factory.ts'
 import { createSchemaParser, parseOas, parseSchema } from './parser.ts'
 import type { Document, SchemaObject } from './types.ts'
@@ -4163,7 +4163,7 @@ describe('SchemaDialect seam', () => {
     expect(parseSchema(ctx, { schema }).nullable).toBe(true)
 
     // A dialect that never treats schemas as nullable drops the flag.
-    const nonNullable: SchemaDialect = { ...oasDialect, name: 'test', isNullable: () => false }
+    const nonNullable: OasDialect = { ...oasDialect, name: 'test', isNullable: () => false }
     const node = createSchemaParser(ctx, nonNullable).parseSchema({ schema })
     expect(node.nullable).toBeUndefined()
   })
@@ -4175,7 +4175,7 @@ describe('SchemaDialect seam', () => {
     expect(parseSchema(ctx, { schema }).type).toBe('blob')
 
     // A dialect that reports nothing as binary falls through to `string`.
-    const noBinary: SchemaDialect = { ...oasDialect, name: 'test', isBinary: () => false }
+    const noBinary: OasDialect = { ...oasDialect, name: 'test', isBinary: () => false }
     const node = createSchemaParser(ctx, noBinary).parseSchema({ schema })
     expect(node.type).toBe('string')
   })

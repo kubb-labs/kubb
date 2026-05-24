@@ -1,4 +1,5 @@
 export { httpMethods, isScalarPrimitive, mediaTypes, nodeKinds, schemaTypes } from './constants.ts'
+export { defineDialect } from './dialect.ts'
 export { dispatch } from './dispatch.ts'
 export {
   createArrowFunction,
