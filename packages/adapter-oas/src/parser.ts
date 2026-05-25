@@ -999,6 +999,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
 
     return ast.createOperation({
       operationId,
+      protocol: 'http',
       method: operation.method.toUpperCase() as ast.HttpMethod,
       path: urlPath.path,
       tags: operation.getTags().map((tag) => tag.name),

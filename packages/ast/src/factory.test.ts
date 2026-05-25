@@ -20,7 +20,8 @@ import {
   createText,
   createType,
 } from './factory.ts'
-import type { ArrowFunctionNode, ConstNode, FileNode, FunctionNode, ObjectSchemaNode, StringSchemaNode, TypeNode } from './nodes/index.ts'
+import { isHttpOperationNode } from './guards.ts'
+import type { ArrowFunctionNode, ConstNode, FileNode, FunctionNode, ObjectSchemaNode, OperationNode, StringSchemaNode, TypeNode } from './nodes/index.ts'
 
 describe('createInput', () => {
   it('creates an InputNode with default empty arrays', () => {
@@ -59,9 +60,13 @@ describe('createOperation', () => {
     expect(node.operationId).toBe('getPets')
     expect(node.method).toBe('GET')
     expect(node.path).toBe('/pets')
+    expect(node.protocol).toBe('http')
     expect(node.tags).toEqual([])
     expect(node.parameters).toEqual([])
     expect(node.responses).toEqual([])
+
+    expectTypeOf(node.method).toEqualTypeOf<'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE'>()
+    expectTypeOf(node.path).toEqualTypeOf<string>()
   })
 
   it('accepts optional fields', () => {
@@ -79,12 +84,23 @@ describe('createOperation', () => {
     expect(node.tags).toEqual(['pets'])
   })
 
-  it('builds an operation without HTTP method/path', () => {
-    const node = createOperation({ operationId: 'onPetAdded', protocol: 'http' })
+  it('builds a generic operation without HTTP method/path', () => {
+    const node = createOperation({ operationId: 'onPetAdded' })
 
     expect(node.method).toBeUndefined()
     expect(node.path).toBeUndefined()
-    expect(node.protocol).toBe('http')
+    expect(node.protocol).toBeUndefined()
+  })
+
+  it('narrows an HTTP operation with isHttpOperationNode', () => {
+    const node: OperationNode = createOperation({ operationId: 'getPets', method: 'GET', path: '/pets' })
+
+    expect(isHttpOperationNode(node)).toBe(true)
+
+    if (isHttpOperationNode(node)) {
+      expectTypeOf(node.method).toEqualTypeOf<'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE'>()
+      expectTypeOf(node.path).toEqualTypeOf<string>()
+    }
   })
 })
 

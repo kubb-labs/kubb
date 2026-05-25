@@ -182,6 +182,7 @@ describe('buildAst', () => {
 
       expect(listPets?.method).toBe('GET')
       expect(listPets?.path).toBe('/pets')
+      expect(listPets?.protocol).toBe('http')
       expect(listPets?.tags).toContain('pets')
       expect(listPets?.summary).toBe('List all pets')
     })
