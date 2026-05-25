@@ -94,6 +94,17 @@ describe('buildAst', () => {
       expect(petOrError?.members).toHaveLength(2)
     })
 
+    it('parses a drf-spectacular NullEnum component as a null node', () => {
+      const root = parseOas({
+        openapi: '3.0.3',
+        info: { title: '', version: '' },
+        paths: {},
+        components: { schemas: { NullEnum: { enum: [null] } } },
+      } as unknown as Document).root
+
+      expect(root.schemas.find((s) => s.name === 'NullEnum')?.type).toBe('null')
+    })
+
     it('converts allOf to intersection', async () => {
       const oas = await buildMinimalOas()
       const root = parseOas(oas).root
@@ -2169,10 +2180,35 @@ describe('parseSchema enum', () => {
     expect(narrowed?.enumValues).toEqual(['a', 'b'])
   })
 
-  it('sets nullable from null in enum even when nullable is not set on schema', () => {
-    const node = parseSchema(ctx, { schema: { enum: [null] } })
+  // drf-spectacular splits blank/null choices into `BlankEnum` ({ enum: [''] }) and
+  // `NullEnum` ({ enum: [null] }) components, combined with the real enum via `oneOf`.
+  it('treats a null-only enum (NullEnum) as a null node', () => {
+    expect(parseSchema(ctx, { schema: { enum: [null] } }).type).toBe('null')
+  })
+
+  it('treats a typed null-only enum as a null node', () => {
+    expect(parseSchema(ctx, { schema: { type: 'string', enum: [null] } }).type).toBe('null')
+  })
+
+  it('keeps a blank-only enum (BlankEnum) as a single "" member', () => {
+    const node = parseSchema(ctx, { schema: { enum: [''] } })
+
+    expect(ast.narrowSchema(node, 'enum')?.enumValues).toEqual([''])
+  })
+
+  it('keeps blank and null together as a nullable "" enum', () => {
+    const node = parseSchema(ctx, { schema: { enum: ['', null] } })
 
     expect(node.nullable).toBe(true)
+    expect(ast.narrowSchema(node, 'enum')?.enumValues).toEqual([''])
+  })
+
+  it('parses the oneOf [enum, BlankEnum, NullEnum] pattern into a valid union', () => {
+    const node = parseSchema(ctx, {
+      schema: { oneOf: [{ type: 'string', enum: ['active', 'inactive'] }, { enum: [''] }, { enum: [null] }] },
+    })
+
+    expect(ast.narrowSchema(node, 'union')?.members?.map((m) => m.type)).toEqual(['enum', 'enum', 'null'])
   })
 
   it('sets enumNullable from schema nullable combined with null in enum', () => {
