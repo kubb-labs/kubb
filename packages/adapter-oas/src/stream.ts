@@ -23,7 +23,7 @@ export type PreScanResult = {
  * skipped to avoid hoisting recursive structures. Inline shapes reuse their context-derived
  * name (collision-resolved against existing component names); shapes without a name stay inline.
  */
-function buildDedupePlan({
+function createDedupePlan({
   schemaNodes,
   operationNodes,
   schemaNames,
@@ -162,7 +162,7 @@ export function preScan({
       }
     }
 
-    dedupePlan = buildDedupePlan({ schemaNodes: allNodes, operationNodes, schemaNames: Object.keys(schemas), circularNames })
+    dedupePlan = createDedupePlan({ schemaNodes: allNodes, operationNodes, schemaNames: Object.keys(schemas), circularNames })
 
     for (const definition of dedupePlan.hoisted) {
       if (definition.type === 'enum' && definition.name) enumNames.push(definition.name)

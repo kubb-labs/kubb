@@ -67,11 +67,11 @@ export type BuildDedupePlanOptions = {
 }
 
 /**
- * Fields excluded from the structural signature: documentation that does not affect
- * the shape, plus usage-slot flags (`optional`/`nullish`) that belong to the property,
- * not the type. `nullable` stays in the signature because it changes the type.
+ * The shape-affecting flags shared by every node kind: base primitive, format, and `nullable`.
+ * Documentation and usage-slot flags (`optional`/`nullish`/`readOnly`/`writeOnly`) are
+ * intentionally excluded — they describe the property slot, not the type.
  */
-function flagSignature(node: SchemaNode): string {
+function flagsDescriptor(node: SchemaNode): string {
   return `${node.primitive ?? ''};${node.format ?? ''};${node.nullable ? 1 : 0}`
 }
 
@@ -80,38 +80,43 @@ function refTargetName(node: Extract<SchemaNode, { type: 'ref' }>): string {
   return node.name ?? ''
 }
 
-function buildSignature(node: SchemaNode, cache: Map<SchemaNode, string>): string {
-  const flags = flagSignature(node)
+/**
+ * Builds the local, shape-only descriptor for a node: its kind, flags, constraints, and its
+ * children's signatures. {@link signatureOf} hashes this string; children contribute their
+ * fixed-length signature rather than their own full descriptor, which keeps the result bounded.
+ */
+function describeShape(node: SchemaNode, signatures: Map<SchemaNode, string>): string {
+  const flags = flagsDescriptor(node)
 
   switch (node.type) {
     case 'object': {
-      const props = (node.properties ?? []).map((prop) => `${prop.name}${prop.required ? '!' : '?'}${signatureOf(prop.schema, cache)}`).join(',')
+      const props = (node.properties ?? []).map((prop) => `${prop.name}${prop.required ? '!' : '?'}${signatureOf(prop.schema, signatures)}`).join(',')
       let additional = ''
       if (typeof node.additionalProperties === 'boolean') {
         additional = `ab:${node.additionalProperties}`
       } else if (node.additionalProperties) {
-        additional = `as:${signatureOf(node.additionalProperties, cache)}`
+        additional = `as:${signatureOf(node.additionalProperties, signatures)}`
       }
       const pattern = node.patternProperties
         ? Object.keys(node.patternProperties)
             .sort()
-            .map((key) => `${key}=${signatureOf(node.patternProperties![key]!, cache)}`)
+            .map((key) => `${key}=${signatureOf(node.patternProperties![key]!, signatures)}`)
             .join(',')
         : ''
       return `object|${flags}|p[${props}]|${additional}|pp[${pattern}]|mn:${node.minProperties ?? ''}|mx:${node.maxProperties ?? ''}`
     }
     case 'array':
     case 'tuple': {
-      const items = (node.items ?? []).map((item) => signatureOf(item, cache)).join(',')
-      const rest = node.rest ? signatureOf(node.rest, cache) : ''
+      const items = (node.items ?? []).map((item) => signatureOf(item, signatures)).join(',')
+      const rest = node.rest ? signatureOf(node.rest, signatures) : ''
       return `${node.type}|${flags}|i[${items}]|r:${rest}|mn:${node.min ?? ''}|mx:${node.max ?? ''}|u:${node.unique ? 1 : 0}`
     }
     case 'union': {
-      const members = (node.members ?? []).map((member) => signatureOf(member, cache)).join(',')
+      const members = (node.members ?? []).map((member) => signatureOf(member, signatures)).join(',')
       return `union|${flags}|s:${node.strategy ?? ''}|d:${node.discriminatorPropertyName ?? ''}|m[${members}]`
     }
     case 'intersection': {
-      const members = (node.members ?? []).map((member) => signatureOf(member, cache)).join(',')
+      const members = (node.members ?? []).map((member) => signatureOf(member, signatures)).join(',')
       return `intersection|${flags}|m[${members}]`
     }
     case 'enum': {
@@ -147,18 +152,18 @@ function buildSignature(node: SchemaNode, cache: Map<SchemaNode, string>): strin
 }
 
 /**
- * Hash-consing: each node's signature is a fixed-length digest of its local shape plus
- * its children's digests (a Merkle hash). Children contribute their 64-char hash instead
- * of their full nested string, so a signature stays bounded regardless of subtree depth,
- * and the digest is identical across calls because it depends only on content — never on
- * traversal order. This keeps the keys built during planning consistent with the ones
- * recomputed later during streaming.
+ * Hash-consing: each node's signature is a fixed-length digest of its local shape plus its
+ * children's digests (a Merkle hash). Children contribute their 64-char hash instead of their
+ * full nested descriptor, so a signature stays bounded regardless of subtree depth, and the
+ * digest is identical across calls because it depends only on content — never on traversal
+ * order. This keeps the keys built during planning consistent with the ones recomputed later
+ * during streaming. `signatures` memoizes node → digest within a single computation.
  */
-function signatureOf(node: SchemaNode, cache: Map<SchemaNode, string>): string {
-  const cached = cache.get(node)
+function signatureOf(node: SchemaNode, signatures: Map<SchemaNode, string>): string {
+  const cached = signatures.get(node)
   if (cached !== undefined) return cached
-  const signature = createHash('sha256').update(buildSignature(node, cache)).digest('hex')
-  cache.set(node, signature)
+  const signature = createHash('sha256').update(describeShape(node, signatures)).digest('hex')
+  signatures.set(node, signature)
   return signature
 }
 
@@ -197,7 +202,7 @@ export function isSchemaEqual(a: SchemaNode, b: SchemaNode): boolean {
  * Builds the shared `ref` replacement for a duplicate occurrence, carrying the
  * usage-slot and documentation fields that are not part of the canonical type.
  */
-function makeRef(node: SchemaNode, canonical: DedupeCanonical): SchemaNode {
+function createRefNode(node: SchemaNode, canonical: DedupeCanonical): SchemaNode {
   return createSchema({
     type: 'ref',
     name: canonical.name,
@@ -231,18 +236,18 @@ export function applyDedupe(node: OperationNode, canonicalBySignature: ReadonlyM
 export function applyDedupe(node: Node, canonicalBySignature: ReadonlyMap<string, DedupeCanonical>, skipRootMatch = false): Node {
   if (canonicalBySignature.size === 0) return node
 
-  const cache = new Map<SchemaNode, string>()
+  const signatures = new Map<SchemaNode, string>()
   const root = node
 
   return transform(node, {
     schema(schemaNode) {
-      const signature = signatureOf(schemaNode, cache)
+      const signature = signatureOf(schemaNode, signatures)
       if (skipRootMatch && schemaNode === root) return undefined
 
       const canonical = canonicalBySignature.get(signature)
       if (!canonical) return undefined
 
-      return makeRef(schemaNode, canonical)
+      return createRefNode(schemaNode, canonical)
     },
   })
 }
@@ -275,7 +280,7 @@ function cleanDefinition(node: SchemaNode, name: string): SchemaNode {
 export function buildDedupePlan(roots: ReadonlyArray<Node>, options: BuildDedupePlanOptions): DedupePlan {
   const { isCandidate, nameFor, refFor, minOccurrences = 2, skip } = options
 
-  const sigCache = new Map<SchemaNode, string>()
+  const signatures = new Map<SchemaNode, string>()
   const topLevelNodes = new Set<SchemaNode>()
 
   type Group = {
@@ -286,7 +291,7 @@ export function buildDedupePlan(roots: ReadonlyArray<Node>, options: BuildDedupe
   const groups = new Map<string, Group>()
 
   function record(schemaNode: SchemaNode): void {
-    const signature = signatureOf(schemaNode, sigCache)
+    const signature = signatureOf(schemaNode, signatures)
     if (!isCandidate(schemaNode) || skip?.(schemaNode)) return
 
     const isTopLevel = topLevelNodes.has(schemaNode) && !!schemaNode.name
@@ -307,7 +312,7 @@ export function buildDedupePlan(roots: ReadonlyArray<Node>, options: BuildDedupe
   }
 
   const canonicalBySignature = new Map<string, DedupeCanonical>()
-  const hoistedSignatures: Array<string> = []
+  const pendingHoists: Array<{ name: string; representative: SchemaNode }> = []
 
   for (const [signature, group] of groups) {
     if (group.count < minOccurrences) continue
@@ -321,16 +326,12 @@ export function buildDedupePlan(roots: ReadonlyArray<Node>, options: BuildDedupe
     if (!name) continue
 
     canonicalBySignature.set(signature, { name, ref: refFor(name) })
-    hoistedSignatures.push(signature)
+    pendingHoists.push({ name, representative: group.representative })
   }
 
-  const hoisted: Array<SchemaNode> = []
-  for (const signature of hoistedSignatures) {
-    const canonical = canonicalBySignature.get(signature)!
-    const representative = groups.get(signature)!.representative
-    const body = applyDedupe(representative, canonicalBySignature, true)
-    hoisted.push(cleanDefinition(body, canonical.name))
-  }
+  // Build hoisted definitions only after every canonical name is known, so nested
+  // duplicates inside a definition also resolve to refs.
+  const hoisted = pendingHoists.map(({ name, representative }) => cleanDefinition(applyDedupe(representative, canonicalBySignature, true), name))
 
   return { canonicalBySignature, hoisted }
 }
