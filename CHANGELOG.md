@@ -1,5 +1,42 @@
 # Changelog
 
+## v5.0.0-beta.30 — May 25, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Isolate the OpenAPI-specific schema decisions (nullability, `$ref` detection and resolution, discriminator, binary) behind a single `SchemaDialect` passed into `createSchemaParser`. The converter pipeline and dispatch rules are now dialect-driven with the OAS dialect as the default, so the spec-specific surface lives in one documented place — the seam a future adapter (e.g. AsyncAPI) targets. No change to generated output. ([#3377](https://github.com/kubb-labs/kubb/pull/3377), [`287a42a`](https://github.com/kubb-labs/kubb/commit/287a42a5c51a1b03ac19aff04f18f4c534739f1a))
+
+### @kubb/ast
+
+#### Features
+
+- Add a generic `dispatch` helper and `DispatchRule` type to `@kubb/ast`: an ordered match/convert table that maps source-spec shapes onto Kubb AST nodes. `@kubb/adapter-oas` now builds its OAS schema parser on top of it, replacing the long `parseSchema` if/else chain with a declarative `schemaRules` table. The mechanism is spec-agnostic, so future adapters (e.g. AsyncAPI) can reuse the same traversal by defining their own context type and rules. No change to generated output. ([#3377](https://github.com/kubb-labs/kubb/pull/3377), [`f657504`](https://github.com/kubb-labs/kubb/commit/f657504c01f9606dc39c76f1eeb87c11a6b00247))
+- Promote the schema dialect to `@kubb/ast` as a first-class, spec-agnostic contract: add a generic, guard-preserving `SchemaDialect<TSchema, TRef, TDiscriminated, TDocument>` type and a `defineSchemaDialect` helper, alongside `dispatch`. `@kubb/adapter-oas` now builds `oasDialect` with `ast.defineSchemaDialect`, so the JSON-Schema-family seam (nullability, `$ref`, discriminator, binary, ref resolution) is shared across adapters — an AsyncAPI adapter supplies its own dialect and reuses the converter pipeline and dispatch rules. No change to generated output. ([#3377](https://github.com/kubb-labs/kubb/pull/3377), [`829a8ef`](https://github.com/kubb-labs/kubb/commit/829a8ef374a835dc015c1ccca564aa52dec8b011))
+- Adopt a Babel-style traversal architecture in `@kubb/ast`, keeping the node model uniform and minimal.
+  
+  - Request-body and response content entries are now first-class nodes (`ContentNode`), and the request body is a `RequestBodyNode`, so every child slot in the tree is a node rather than an anonymous wrapper object.
+  - A single `VISITOR_KEYS`-style child-field registry now drives both `walk`/`collect` traversal and the immutable `transform`, replacing the per-kind hand-written tree-shape logic that previously lived in two places.
+  - Adds builders `createContent` and `createRequestBody`; `createOperation`/`createResponse` apply them automatically, so adapters and existing call sites need no changes.
+  
+  Note: a schema reached through a request/response body now reports its `parent` as the enclosing `ContentNode` (previously the `OperationNode`/`ResponseNode`). ([#3375](https://github.com/kubb-labs/kubb/pull/3375), [`c5f5227`](https://github.com/kubb-labs/kubb/commit/c5f522704ea4d412bbfe7c0da7bb49e8bb3a4e5c))
+- `transform` now preserves identity (structural sharing): when a pass leaves a node and all its descendants unchanged it returns the same reference instead of reallocating the subtree. No-op rewrites become free and callers can detect "nothing changed" by reference, which keeps caches valid and cuts allocations on large specs. Adds an `update(node, changes)` factory — an identity-preserving shallow update, the analogue of the TypeScript compiler's `factory.updateX`. ([#3377](https://github.com/kubb-labs/kubb/pull/3377), [`29b83a8`](https://github.com/kubb-labs/kubb/commit/29b83a81af6f8304820e74b707814ae54cae6293))
+
+#### Bug Fixes
+
+- Reduce internal complexity in the AST, core, and CLI packages to make them easier to work with and debug. No public API or generated output changes.
+  
+  - `@kubb/ast`: `walk`, `transform`, and `collectLazy` now share a single node-kind dispatch helper instead of three duplicated `switch` statements, and `combineExports`/`combineImports` share a name-merge helper.
+  - `@kubb/core`: the schema and operation generator passes in `KubbDriver` are unified into one dispatch function.
+  - `@kubb/cli`: the clack, GitHub Actions, and plain loggers share progress-counter and hook-timing helpers. ([#3375](https://github.com/kubb-labs/kubb/pull/3375), [`de7a15c`](https://github.com/kubb-labs/kubb/commit/de7a15c1ab4bbc57836dd8073402f46f93dc5341))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.29 — May 23, 2026
 
 ### @kubb/ast
