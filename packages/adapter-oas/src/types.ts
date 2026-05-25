@@ -181,6 +181,18 @@ export type AdapterOasOptions = {
    * @default 'strict'
    */
   discriminator?: 'strict' | 'inherit'
+  /**
+   * Collapse structurally identical schemas and enums into a single shared definition.
+   *
+   * Duplicated inline shapes (especially enums repeated across many properties) are hoisted
+   * into one named schema; every other occurrence — and any structurally identical top-level
+   * component — becomes a `ref` to it. Equality is shape-only: documentation such as
+   * `description` and `example` is ignored. Enabling this buffers extra lookup data during the
+   * pre-scan but keeps the streaming parse; leave it off for byte-for-byte identical output.
+   *
+   * @default false
+   */
+  dedupe?: boolean
 } & Partial<ast.ParserOptions>
 
 /**
@@ -192,6 +204,7 @@ export type AdapterOasResolvedOptions = {
   serverIndex: AdapterOasOptions['serverIndex']
   serverVariables: AdapterOasOptions['serverVariables']
   discriminator: NonNullable<AdapterOasOptions['discriminator']>
+  dedupe: NonNullable<AdapterOasOptions['dedupe']>
   dateType: NonNullable<AdapterOasOptions['dateType']>
   integerType: NonNullable<AdapterOasOptions['integerType']>
   unknownType: NonNullable<AdapterOasOptions['unknownType']>

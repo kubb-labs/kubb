@@ -48,6 +48,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     serverIndex,
     serverVariables,
     discriminator = 'strict',
+    dedupe = false,
     dateType = DEFAULT_PARSER_OPTIONS.dateType,
     integerType = DEFAULT_PARSER_OPTIONS.integerType,
     unknownType = DEFAULT_PARSER_OPTIONS.unknownType,
@@ -85,24 +86,31 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
   const ensureSchemaParser = once((document: Document) => createSchemaParser({ document, contentType }))
 
-  const ensurePreScan = once((schemas: Awaited<ReturnType<typeof ensureSchemas>>, parseSchema: ReturnType<typeof ensureSchemaParser>['parseSchema']) =>
-    preScan({ schemas, parseSchema, parserOptions, discriminator }),
+  const ensurePreScan = once(
+    (
+      schemas: Awaited<ReturnType<typeof ensureSchemas>>,
+      parseSchema: ReturnType<typeof ensureSchemaParser>['parseSchema'],
+      parseOperation: ReturnType<typeof ensureSchemaParser>['parseOperation'],
+      baseOas: ReturnType<typeof ensureBaseOas>,
+    ) => preScan({ schemas, parseSchema, parseOperation, baseOas, parserOptions, discriminator, dedupe }),
   )
 
   async function createStream(source: AdapterSource): Promise<ast.InputStreamNode> {
     const document = await ensureDocument(source)
     const schemas = await ensureSchemas(document)
     const { parseSchema, parseOperation } = ensureSchemaParser(document)
-    const { refAliasMap, enumNames, circularNames, discriminatorChildMap } = ensurePreScan(schemas, parseSchema)
+    const baseOas = ensureBaseOas(document)
+    const { refAliasMap, enumNames, circularNames, discriminatorChildMap, dedupePlan } = ensurePreScan(schemas, parseSchema, parseOperation, baseOas)
 
     return createInputStream({
       schemas,
       parseSchema,
       parseOperation,
-      baseOas: ensureBaseOas(document),
+      baseOas,
       parserOptions,
       refAliasMap,
       discriminatorChildMap,
+      dedupePlan,
       meta: {
         title: document.info?.title,
         description: document.info?.description,
@@ -123,6 +131,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         serverIndex,
         serverVariables,
         discriminator,
+        dedupe,
         dateType,
         integerType,
         unknownType,

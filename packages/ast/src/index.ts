@@ -1,4 +1,5 @@
 export { httpMethods, isScalarPrimitive, mediaTypes, nodeKinds, schemaTypes } from './constants.ts'
+export { applyDedupe, buildDedupePlan, isSchemaEqual, schemaSignature } from './dedupe.ts'
 export { defineSchemaDialect } from './dialect.ts'
 export { dispatch } from './dispatch.ts'
 export {

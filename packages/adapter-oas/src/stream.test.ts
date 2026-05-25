@@ -72,6 +72,10 @@ describe('preScan', () => {
     PetAlias: { $ref: '#/components/schemas/Pet' },
   }
 
+  const baseOas = new BaseOas(minimalSpec as never)
+  // dedupe is off in these cases, so parseOperation is never invoked.
+  const noopParseOperation = (() => null) as unknown as Parameters<typeof preScan>[0]['parseOperation']
+
   // The real parser sets `name` to the referenced schema name (not the alias key).
   // That is how `node.name !== name` detects top-level $ref aliases.
   const makeParseSchema =
@@ -86,7 +90,15 @@ describe('preScan', () => {
     }
 
   it('collects enum schema names', () => {
-    const { enumNames } = preScan({ schemas, parseSchema: makeParseSchema(), parserOptions, discriminator: 'strict' })
+    const { enumNames } = preScan({
+      schemas,
+      parseSchema: makeParseSchema(),
+      parseOperation: noopParseOperation,
+      baseOas,
+      parserOptions,
+      discriminator: 'strict',
+      dedupe: false,
+    })
     expect(enumNames).toMatchInlineSnapshot(`
       [
         "Status",
@@ -95,7 +107,15 @@ describe('preScan', () => {
   })
 
   it('builds refAliasMap for pure $ref alias schemas only', () => {
-    const { refAliasMap } = preScan({ schemas, parseSchema: makeParseSchema(), parserOptions, discriminator: 'strict' })
+    const { refAliasMap } = preScan({
+      schemas,
+      parseSchema: makeParseSchema(),
+      parseOperation: noopParseOperation,
+      baseOas,
+      parserOptions,
+      discriminator: 'strict',
+      dedupe: false,
+    })
     expect([...refAliasMap.keys()]).toMatchInlineSnapshot(`
       [
         "PetAlias",
@@ -112,7 +132,15 @@ describe('preScan', () => {
       Dog: { type: 'object', properties: { enemy: { $ref: '#/components/schemas/Cat' } } },
     }
 
-    const { circularNames } = preScan({ schemas: circularSchemas, parseSchema, parserOptions, discriminator: 'strict' })
+    const { circularNames } = preScan({
+      schemas: circularSchemas,
+      parseSchema,
+      parseOperation: noopParseOperation,
+      baseOas,
+      parserOptions,
+      discriminator: 'strict',
+      dedupe: false,
+    })
     expect(circularNames).toMatchInlineSnapshot(`
       [
         "Cat",
@@ -122,7 +150,15 @@ describe('preScan', () => {
   })
 
   it('returns null discriminatorChildMap when discriminator is strict', () => {
-    const { discriminatorChildMap } = preScan({ schemas, parseSchema: makeParseSchema(), parserOptions, discriminator: 'strict' })
+    const { discriminatorChildMap } = preScan({
+      schemas,
+      parseSchema: makeParseSchema(),
+      parseOperation: noopParseOperation,
+      baseOas,
+      parserOptions,
+      discriminator: 'strict',
+      dedupe: false,
+    })
     expect(discriminatorChildMap).toMatchInlineSnapshot(`null`)
   })
 })
@@ -141,6 +177,7 @@ describe('createInputStream', () => {
       parserOptions,
       refAliasMap: new Map(),
       discriminatorChildMap: null,
+      dedupePlan: null,
       meta: { circularNames: [], enumNames: [] },
     })
 
@@ -164,6 +201,7 @@ describe('createInputStream', () => {
       parserOptions,
       refAliasMap: new Map(),
       discriminatorChildMap: null,
+      dedupePlan: null,
       meta: { circularNames: [], enumNames: [] },
     })
 
@@ -202,6 +240,7 @@ describe('createInputStream', () => {
       parserOptions,
       refAliasMap,
       discriminatorChildMap: null,
+      dedupePlan: null,
       meta: { circularNames: [], enumNames: [] },
     })
 
@@ -224,6 +263,7 @@ describe('createInputStream', () => {
       parserOptions,
       refAliasMap: new Map(),
       discriminatorChildMap: null,
+      dedupePlan: null,
       meta: { circularNames: [], enumNames: [] },
     })
 
@@ -247,6 +287,7 @@ describe('createInputStream', () => {
       parserOptions,
       refAliasMap: new Map(),
       discriminatorChildMap: null,
+      dedupePlan: null,
       meta,
     })
 
