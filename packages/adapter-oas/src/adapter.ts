@@ -48,7 +48,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     serverIndex,
     serverVariables,
     discriminator = 'strict',
-    dedupe = false,
+    dedupe = true,
     dateType = DEFAULT_PARSER_OPTIONS.dateType,
     integerType = DEFAULT_PARSER_OPTIONS.integerType,
     unknownType = DEFAULT_PARSER_OPTIONS.unknownType,

@@ -165,8 +165,8 @@ describe('adapterOas dedupe', () => {
     return ast.narrowSchema(schema, 'object')?.properties.find((prop) => prop.name === propName)?.schema
   }
 
-  it('leaves output unchanged when dedupe is off', async () => {
-    const adapter = adapterOas({ validate: false })
+  it('leaves output unchanged when dedupe is disabled', async () => {
+    const adapter = adapterOas({ validate: false, dedupe: false })
     const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: dedupeSpec }))
 
     expect(schemas.map((schema) => schema.name)).toEqual(['Pet', 'Order', 'Cat', 'Dog'])
@@ -177,6 +177,14 @@ describe('adapterOas dedupe', () => {
       )?.type,
     ).toBe('enum')
     expect(schemas.find((schema) => schema.name === 'Dog')?.type).toBe('object')
+  })
+
+  it('dedupes by default when no option is passed', async () => {
+    const adapter = adapterOas({ validate: false })
+    const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: dedupeSpec }))
+
+    expect(schemas.filter((schema) => schema.type === 'enum')).toHaveLength(1)
+    expect(schemas.find((schema) => schema.name === 'Dog')?.type).toBe('ref')
   })
 
   it('hoists a duplicated enum into one shared schema and refs every occurrence', async () => {

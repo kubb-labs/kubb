@@ -187,10 +187,10 @@ export type AdapterOasOptions = {
    * Duplicated inline shapes (especially enums repeated across many properties) are hoisted
    * into one named schema; every other occurrence — and any structurally identical top-level
    * component — becomes a `ref` to it. Equality is shape-only: documentation such as
-   * `description` and `example` is ignored. Enabling this buffers extra lookup data during the
-   * pre-scan but keeps the streaming parse; leave it off for byte-for-byte identical output.
+   * `description` and `example` is ignored. Enabled by default; set to `false` to keep every
+   * occurrence inline and produce byte-for-byte identical output to earlier versions.
    *
-   * @default false
+   * @default true
    */
   dedupe?: boolean
 } & Partial<ast.ParserOptions>
