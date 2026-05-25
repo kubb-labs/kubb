@@ -94,45 +94,15 @@ describe('buildAst', () => {
       expect(petOrError?.members).toHaveLength(2)
     })
 
-    it('parses the drf-spectacular NullEnum / BlankEnum component pattern', () => {
-      const document = {
+    it('parses a drf-spectacular NullEnum component as a null node', () => {
+      const root = parseOas({
         openapi: '3.0.3',
-        info: { title: 'drf', version: '1.0.0' },
+        info: { title: '', version: '' },
         paths: {},
-        components: {
-          schemas: {
-            StatusEnum: { type: 'string', enum: ['active', 'inactive'] },
-            BlankEnum: { enum: [''] },
-            NullEnum: { enum: [null] },
-            Widget: {
-              type: 'object',
-              properties: {
-                status: {
-                  oneOf: [{ $ref: '#/components/schemas/StatusEnum' }, { $ref: '#/components/schemas/BlankEnum' }, { $ref: '#/components/schemas/NullEnum' }],
-                },
-              },
-            },
-          },
-        },
-      } as unknown as Document
-      const root = parseOas(document).root
+        components: { schemas: { NullEnum: { enum: [null] } } },
+      } as unknown as Document).root
 
-      // NullEnum collapses to a `null` node, never an empty enum.
       expect(root.schemas.find((s) => s.name === 'NullEnum')?.type).toBe('null')
-      // BlankEnum stays a single '' enum member.
-      expect(
-        ast.narrowSchema(
-          root.schemas.find((s) => s.name === 'BlankEnum'),
-          'enum',
-        )?.enumValues,
-      ).toEqual([''])
-
-      const widget = ast.narrowSchema(
-        root.schemas.find((s) => s.name === 'Widget'),
-        'object',
-      )
-      const status = widget?.properties?.find((p) => p.name === 'status')?.schema
-      expect(ast.narrowSchema(status, 'union')?.members?.map((m) => m.type)).toEqual(['ref', 'ref', 'ref'])
     })
 
     it('converts allOf to intersection', async () => {
@@ -2210,23 +2180,35 @@ describe('parseSchema enum', () => {
     expect(narrowed?.enumValues).toEqual(['a', 'b'])
   })
 
-  it('treats an enum of only null (drf-spectacular NullEnum) as a null node', () => {
-    const node = parseSchema(ctx, { schema: { enum: [null] } })
-
-    expect(node.type).toBe('null')
+  // drf-spectacular splits blank/null choices into `BlankEnum` ({ enum: [''] }) and
+  // `NullEnum` ({ enum: [null] }) components, combined with the real enum via `oneOf`.
+  it('treats a null-only enum (NullEnum) as a null node', () => {
+    expect(parseSchema(ctx, { schema: { enum: [null] } }).type).toBe('null')
   })
 
-  it('parses the drf-spectacular oneOf [enum, BlankEnum, NullEnum] pattern into a valid union', () => {
+  it('treats a typed null-only enum as a null node', () => {
+    expect(parseSchema(ctx, { schema: { type: 'string', enum: [null] } }).type).toBe('null')
+  })
+
+  it('keeps a blank-only enum (BlankEnum) as a single "" member', () => {
+    const node = parseSchema(ctx, { schema: { enum: [''] } })
+
+    expect(ast.narrowSchema(node, 'enum')?.enumValues).toEqual([''])
+  })
+
+  it('keeps blank and null together as a nullable "" enum', () => {
+    const node = parseSchema(ctx, { schema: { enum: ['', null] } })
+
+    expect(node.nullable).toBe(true)
+    expect(ast.narrowSchema(node, 'enum')?.enumValues).toEqual([''])
+  })
+
+  it('parses the oneOf [enum, BlankEnum, NullEnum] pattern into a valid union', () => {
     const node = parseSchema(ctx, {
-      schema: {
-        oneOf: [{ type: 'string', enum: ['active', 'inactive'] }, { enum: [''] }, { enum: [null] }],
-      },
+      schema: { oneOf: [{ type: 'string', enum: ['active', 'inactive'] }, { enum: [''] }, { enum: [null] }] },
     })
 
-    const members = ast.narrowSchema(node, 'union')?.members ?? []
-    expect(members.map((m) => m.type)).toEqual(['enum', 'enum', 'null'])
-    // BlankEnum stays a single '' member; NullEnum becomes null (not an empty enum).
-    expect(ast.narrowSchema(members[1]!, 'enum')?.enumValues).toEqual([''])
+    expect(ast.narrowSchema(node, 'union')?.members?.map((m) => m.type)).toEqual(['enum', 'enum', 'null'])
   })
 
   it('sets enumNullable from schema nullable combined with null in enum', () => {

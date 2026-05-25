@@ -496,7 +496,8 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     const filteredValues = (nullInEnum ? schema.enum!.filter((v) => v !== null) : schema.enum!) as Array<string | number | boolean>
 
     // drf-spectacular `NullEnum` ({ enum: [null] }) is just `null`; an empty enum node would
-    // render as `never` (plugin-ts) / invalid `z.enum([])` (plugin-zod) and drop the nullability.
+    // render as `never` (plugin-ts) / invalid `z.enum([])` (plugin-zod). Mirror the `const: null`
+    // branch so it renders as a clean `null` (not `z.null().nullable()`).
     if (nullInEnum && filteredValues.length === 0) {
       return ast.createSchema({
         type: 'null',
@@ -505,7 +506,6 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
-        nullable: true,
         format: schema.format,
       })
     }
