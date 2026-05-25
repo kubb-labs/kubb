@@ -1,6 +1,7 @@
 import type {
   FunctionParameterNode,
   FunctionParametersNode,
+  HttpOperationNode,
   InputNode,
   Node,
   NodeKind,
@@ -66,6 +67,20 @@ export const isOutputNode = isKind<OutputNode>('Output')
  * ```
  */
 export const isOperationNode = isKind<OperationNode>('Operation')
+
+/**
+ * Narrows an `OperationNode` to an `HttpOperationNode`, guaranteeing `method` and `path`.
+ *
+ * @example
+ * ```ts
+ * if (isHttpOperationNode(node)) {
+ *   console.log(node.method, node.path)
+ * }
+ * ```
+ */
+export function isHttpOperationNode(node: OperationNode): node is HttpOperationNode {
+  return node.protocol === 'http' || (node.method !== undefined && node.path !== undefined)
+}
 
 /**
  * Returns `true` when the input is a `SchemaNode`.

@@ -51,22 +51,9 @@ export type RequestBodyNode = BaseNode & {
 }
 
 /**
- * AST node representing one API operation.
- *
- * @example
- * ```ts
- * const operation: OperationNode = {
- *   kind: 'Operation',
- *   operationId: 'listPets',
- *   method: 'GET',
- *   path: '/pets',
- *   tags: [],
- *   parameters: [],
- *   responses: [],
- * }
- * ```
+ * Fields shared by every operation, regardless of transport.
  */
-export type OperationNode = BaseNode & {
+export type OperationNodeBase = BaseNode & {
   /**
    * Node kind.
    */
@@ -75,19 +62,6 @@ export type OperationNode = BaseNode & {
    * Operation identifier, usually from OpenAPI `operationId`.
    */
   operationId: string
-  /**
-   * HTTP method like `'GET'`. Optional — only HTTP/REST specs (OpenAPI) set it.
-   */
-  method?: HttpMethod
-  /**
-   * OpenAPI-style path string, for example `/pets/{petId}`, with `{param}` notation
-   * preserved. Optional — only HTTP/REST specs set it.
-   */
-  path?: string
-  /**
-   * Transport the operation belongs to.
-   */
-  protocol?: OperationProtocol
   /**
    * Group labels for the operation.
    * Usually copied from OpenAPI `tags`.
@@ -118,3 +92,56 @@ export type OperationNode = BaseNode & {
    */
   responses: Array<ResponseNode>
 }
+
+/**
+ * Operation served over HTTP/REST (OpenAPI). `method` and `path` are guaranteed.
+ *
+ * @example
+ * ```ts
+ * const operation: HttpOperationNode = {
+ *   kind: 'Operation',
+ *   operationId: 'listPets',
+ *   protocol: 'http',
+ *   method: 'GET',
+ *   path: '/pets',
+ *   tags: [],
+ *   parameters: [],
+ *   responses: [],
+ * }
+ * ```
+ */
+export type HttpOperationNode = OperationNodeBase & {
+  /**
+   * Transport the operation belongs to.
+   */
+  protocol?: 'http'
+  /**
+   * HTTP method like `'GET'`.
+   */
+  method: HttpMethod
+  /**
+   * OpenAPI-style path string, for example `/pets/{petId}`, with `{param}` notation preserved.
+   */
+  path: string
+}
+
+/**
+ * Operation for a non-HTTP transport. HTTP-only fields are forbidden.
+ */
+export type GenericOperationNode = OperationNodeBase & {
+  /**
+   * Transport the operation belongs to.
+   */
+  protocol?: Exclude<OperationProtocol, 'http'>
+  method?: never
+  path?: never
+}
+
+/**
+ * AST node representing one API operation.
+ *
+ * Discriminated on `protocol`: an {@link HttpOperationNode} (`protocol: 'http'`) guarantees
+ * `method` and `path`, while a {@link GenericOperationNode} omits them. Narrow with
+ * `isHttpOperationNode(node)` or `node.protocol === 'http'` before reading `method`/`path`.
+ */
+export type OperationNode = HttpOperationNode | GenericOperationNode

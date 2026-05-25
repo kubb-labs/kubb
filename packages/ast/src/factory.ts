@@ -12,6 +12,8 @@ import type {
   FunctionNode,
   FunctionParameterNode,
   FunctionParametersNode,
+  GenericOperationNode,
+  HttpOperationNode,
   ImportNode,
   InputMeta,
   InputNode,
@@ -215,21 +217,36 @@ export function createRequestBody(props: UserRequestBody): RequestBodyNode {
 }
 
 export function createOperation(
-  props: Pick<OperationNode, 'operationId'> &
-    Partial<Omit<OperationNode, 'kind' | 'operationId' | 'requestBody'>> & {
+  props: Pick<HttpOperationNode, 'operationId' | 'method' | 'path'> &
+    Partial<Omit<HttpOperationNode, 'kind' | 'operationId' | 'method' | 'path' | 'requestBody'>> & {
       requestBody?: UserRequestBody
     },
-): OperationNode {
+): HttpOperationNode
+export function createOperation(
+  props: Pick<GenericOperationNode, 'operationId'> &
+    Partial<Omit<GenericOperationNode, 'kind' | 'operationId' | 'requestBody'>> & {
+      requestBody?: UserRequestBody
+    },
+): GenericOperationNode
+export function createOperation(props: {
+  operationId: string
+  method?: HttpOperationNode['method']
+  path?: HttpOperationNode['path']
+  requestBody?: UserRequestBody
+  [key: string]: unknown
+}): OperationNode {
   const { requestBody, ...rest } = props
+  const isHttp = rest.method !== undefined && rest.path !== undefined
 
   return {
     tags: [],
     parameters: [],
     responses: [],
     ...rest,
+    ...(isHttp ? { protocol: 'http' } : {}),
     kind: 'Operation',
     requestBody: requestBody ? createRequestBody(requestBody) : undefined,
-  }
+  } as OperationNode
 }
 
 /**

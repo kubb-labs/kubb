@@ -13,6 +13,7 @@ import {
 import {
   isFunctionParameterNode,
   isFunctionParametersNode,
+  isHttpOperationNode,
   isInputNode,
   isOperationNode,
   isParameterGroupNode,
@@ -23,7 +24,7 @@ import {
   narrowSchema,
 } from './guards.ts'
 import type { Node } from './nodes/index.ts'
-import type { OperationNode } from './nodes/operation.ts'
+import type { HttpMethod, OperationNode } from './nodes/operation.ts'
 import type { ParameterNode } from './nodes/parameter.ts'
 import type { PropertyNode } from './nodes/property.ts'
 import type { ResponseNode } from './nodes/response.ts'
@@ -60,7 +61,23 @@ describe('isOperationNode', () => {
       path: '/',
     })
     if (isOperationNode(node)) {
-      expectTypeOf(node).toEqualTypeOf<OperationNode>()
+      expectTypeOf(node).toMatchTypeOf<OperationNode>()
+    }
+  })
+})
+
+describe('isHttpOperationNode', () => {
+  it('returns true for an HTTP operation', () => {
+    expect(isHttpOperationNode(createOperation({ operationId: 'op', method: 'GET', path: '/' }))).toBe(true)
+  })
+  it('returns false for a generic operation without method/path', () => {
+    expect(isHttpOperationNode(createOperation({ operationId: 'op' }))).toBe(false)
+  })
+  it('narrows method/path to non-nullable in a conditional', () => {
+    const node: OperationNode = createOperation({ operationId: 'op', method: 'GET', path: '/' })
+    if (isHttpOperationNode(node)) {
+      expectTypeOf(node.method).toEqualTypeOf<HttpMethod>()
+      expectTypeOf(node.path).toEqualTypeOf<string>()
     }
   })
 })
