@@ -17,6 +17,7 @@ import type {
   InputNode,
   InputStreamNode,
   JsxNode,
+  Node,
   ObjectSchemaNode,
   OperationNode,
   OutputNode,
@@ -65,6 +66,32 @@ export function syncOptionality(schema: SchemaNode, required: boolean): SchemaNo
  * ```
  */
 export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
+
+/**
+ * Identity-preserving node update: returns `node` unchanged when every field in
+ * `changes` already equals (by reference) the current value, otherwise a new node
+ * with the changes applied.
+ *
+ * Mirrors the TypeScript compiler's `factory.updateX` contract — pair it with the
+ * structural sharing in {@link transform} so a no-op rewrite doesn't allocate and
+ * downstream passes can detect "nothing changed" by identity. Comparison is
+ * shallow: a structurally-equal but newly-allocated array/object counts as a change.
+ *
+ * @example
+ * ```ts
+ * update(node, { name: node.name })        // -> same `node` reference
+ * update(node, { name: 'renamed' })        // -> new node, `name` replaced
+ * ```
+ */
+export function update<T extends Node>(node: T, changes: Partial<T>): T {
+  for (const key in changes) {
+    if (changes[key] !== node[key as keyof T]) {
+      return { ...node, ...changes }
+    }
+  }
+
+  return node
+}
 
 type CreateSchemaObjectInput = Omit<ObjectSchemaNode, 'kind' | 'properties' | 'primitive'> & { properties?: Array<PropertyNode>; primitive?: 'object' }
 type CreateSchemaInput = CreateSchemaObjectInput | DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>

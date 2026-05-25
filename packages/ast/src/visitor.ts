@@ -443,8 +443,13 @@ export function transform(node: Node, options: TransformOptions): Node {
   const { depth, parent, ...visitor } = options
   const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
 
-  const next = applyVisitor<Node>(node, visitor, parent) ?? node
-  const rebuilt = transformChildren(next, options, recurse)
+  const visited = applyVisitor<Node>(node, visitor, parent) ?? node
+  const rebuilt = transformChildren(visited, options, recurse)
+
+  // Structural sharing: when the visitor and child rebuild both left this node
+  // untouched, return the original reference so callers can detect "nothing
+  // changed" by identity and ancestors can avoid reallocating.
+  if (rebuilt === node) return node
 
   const finalize = nodeFinalizers[rebuilt.kind]
   return finalize ? finalize(rebuilt) : rebuilt
@@ -473,19 +478,27 @@ function transformChildren(node: Node, options: TransformOptions, recurse: boole
 
   const record = node as unknown as Record<string, unknown>
   const childOptions = { ...options, parent: node }
-  const updates: Record<string, unknown> = {}
+  let updates: Record<string, unknown> | undefined
 
   for (const key of keys) {
     if (!(key in record)) continue
     const value = record[key]
     if (Array.isArray(value)) {
-      updates[key] = value.map((item) => (isNode(item) ? transform(item, childOptions) : item))
+      let changed = false
+      const mapped = value.map((item) => {
+        if (!isNode(item)) return item
+        const next = transform(item, childOptions)
+        if (next !== item) changed = true
+        return next
+      })
+      if (changed) (updates ??= {})[key] = mapped
     } else if (isNode(value)) {
-      updates[key] = transform(value, childOptions)
+      const next = transform(value, childOptions)
+      if (next !== value) (updates ??= {})[key] = next
     }
   }
 
-  return { ...node, ...updates } as Node
+  return updates ? ({ ...node, ...updates } as Node) : node
 }
 /**
  * Lazy depth-first collection pass. Yields every non-null value returned by

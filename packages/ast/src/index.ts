@@ -1,4 +1,6 @@
 export { httpMethods, isScalarPrimitive, mediaTypes, nodeKinds, schemaTypes } from './constants.ts'
+export { defineSchemaDialect } from './dialect.ts'
+export { dispatch } from './dispatch.ts'
 export {
   createArrowFunction,
   createBreak,
@@ -26,6 +28,7 @@ export {
   createText,
   createType,
   syncOptionality,
+  update,
 } from './factory.ts'
 export { isInputNode, isOperationNode, isOutputNode, isSchemaNode, narrowSchema } from './guards.ts'
 export { createPrinterFactory, definePrinter } from './printer.ts'

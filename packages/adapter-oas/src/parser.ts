@@ -2,8 +2,7 @@ import { pascalCase, URLPath } from '@internals/utils'
 import { ast } from '@kubb/core'
 import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, SCHEMA_REF_PREFIX, typeOptionMap } from './constants.ts'
-import { isDiscriminator, isNullable, isReference } from './guards.ts'
-import { resolveRef } from './refs.ts'
+import { oasDialect, type OasDialect } from './dialect.ts'
 import {
   buildSchemaNode,
   flattenSchema,
@@ -61,6 +60,13 @@ type SchemaContext = {
 }
 
 /**
+ * One entry in this adapter's schema-dispatch table — a {@link ast.DispatchRule} specialized
+ * to OAS schema context and Kubb `SchemaNode` output. See {@link ast.dispatch} for the contract
+ * a future adapter (e.g. AsyncAPI) follows: define a context type and an ordered rules table.
+ */
+type SchemaRule = ast.DispatchRule<SchemaContext, ast.SchemaNode>
+
+/**
  * Normalizes malformed `{ type: 'array', enum: [...] }` schemas by moving enum values into items.
  *
  * This pattern violates the OpenAPI spec but appears in real specs. The fix moves enum values
@@ -88,7 +94,7 @@ function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
  *
  * @internal
  */
-export function createSchemaParser(ctx: OasParserContext) {
+export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = oasDialect) {
   const document = ctx.document
 
   // Branch handlers — each converts one OAS schema pattern to a SchemaNode.
@@ -127,7 +133,7 @@ export function createSchemaParser(ctx: OasParserContext) {
     if (refPath && !resolvingRefs.has(refPath)) {
       if (!resolvedRefCache.has(refPath)) {
         try {
-          const referenced = resolveRef<SchemaObject>(document, refPath)
+          const referenced = dialect.resolveRef<SchemaObject>(document, refPath)
           if (referenced) {
             resolvingRefs.add(refPath)
             resolvedSchema = parseSchema({ schema: referenced }, rawOptions)
@@ -188,13 +194,13 @@ export function createSchemaParser(ctx: OasParserContext) {
     }> = []
     const allOfMembers: Array<ast.SchemaNode> = (schema.allOf as Array<SchemaObject | ReferenceObject>)
       .filter((item) => {
-        if (!isReference(item) || !name) return true
-        const deref = resolveRef<SchemaObject>(document, item.$ref)
-        if (!deref || !isDiscriminator(deref)) return true
+        if (!dialect.isReference(item) || !name) return true
+        const deref = dialect.resolveRef<SchemaObject>(document, item.$ref)
+        if (!deref || !dialect.isDiscriminator(deref)) return true
         const parentUnion = deref.oneOf ?? deref.anyOf
         if (!parentUnion) return true
         const childRef = `${SCHEMA_REF_PREFIX}${name}`
-        const inOneOf = parentUnion.some((oneOfItem) => isReference(oneOfItem) && oneOfItem.$ref === childRef)
+        const inOneOf = parentUnion.some((oneOfItem) => dialect.isReference(oneOfItem) && oneOfItem.$ref === childRef)
         const inMapping = Object.values(deref.discriminator.mapping ?? {}).some((v) => v === childRef)
         if (inOneOf || inMapping) {
           const discriminatorValue = ast.findDiscriminator(deref.discriminator.mapping, childRef)
@@ -218,9 +224,9 @@ export function createSchemaParser(ctx: OasParserContext) {
 
       if (missingRequired.length) {
         const resolvedMembers = (schema.allOf as Array<SchemaObject | ReferenceObject>).flatMap((item) => {
-          if (!isReference(item)) return [item as SchemaObject]
-          const deref = resolveRef<SchemaObject>(document, item.$ref)
-          return deref && !isReference(deref) ? [deref] : []
+          if (!dialect.isReference(item)) return [item as SchemaObject]
+          const deref = dialect.resolveRef<SchemaObject>(document, item.$ref)
+          return deref && !dialect.isReference(deref) ? [deref] : []
         })
 
         for (const key of missingRequired) {
@@ -287,10 +293,10 @@ export function createSchemaParser(ctx: OasParserContext) {
     const strategy: 'one' | 'any' = schema.oneOf ? 'one' : 'any'
     const unionBase = {
       ...buildSchemaNode(schema, name, nullable, defaultValue),
-      discriminatorPropertyName: isDiscriminator(schema) ? schema.discriminator.propertyName : undefined,
+      discriminatorPropertyName: dialect.isDiscriminator(schema) ? schema.discriminator.propertyName : undefined,
       strategy,
     }
-    const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
+    const discriminator = dialect.isDiscriminator(schema) ? schema.discriminator : undefined
     const sharedPropertiesNode = schema.properties
       ? (() => {
           const { oneOf: _oneOf, anyOf: _anyOf, ...schemaWithoutUnion } = schema
@@ -303,7 +309,7 @@ export function createSchemaParser(ctx: OasParserContext) {
 
     if (sharedPropertiesNode || discriminator?.mapping) {
       const members = unionMembers.map((s) => {
-        const ref = isReference(s) ? s.$ref : undefined
+        const ref = dialect.isReference(s) ? s.$ref : undefined
         const discriminatorValue = ast.findDiscriminator(discriminator?.mapping, ref)
         const memberNode = parseSchema({ schema: s as SchemaObject, name }, rawOptions)
 
@@ -548,7 +554,7 @@ export function createSchemaParser(ctx: OasParserContext) {
       ? Object.entries(schema.properties).map(([propName, propSchema]) => {
           const required = Array.isArray(schema.required) ? schema.required.includes(propName) : !!schema.required
           const resolvedPropSchema = propSchema as SchemaObject
-          const propNullable = isNullable(resolvedPropSchema)
+          const propNullable = dialect.isNullable(resolvedPropSchema)
 
           const resolvedChildName = ast.childName(name, propName)
           const propNode = parseSchema({ schema: resolvedPropSchema, name: resolvedChildName }, rawOptions)
@@ -612,7 +618,7 @@ export function createSchemaParser(ctx: OasParserContext) {
       ...buildSchemaNode(schema, name, nullable, defaultValue),
     })
 
-    if (isDiscriminator(schema) && schema.discriminator.mapping) {
+    if (dialect.isDiscriminator(schema) && schema.discriminator.mapping) {
       const discPropName = schema.discriminator.propertyName
       const values = Object.keys(schema.discriminator.mapping)
       const enumName = name ? ast.enumPropName(name, discPropName, options.enumSuffix) : undefined
@@ -722,11 +728,85 @@ export function createSchemaParser(ctx: OasParserContext) {
   }
 
   /**
+   * Converts a binary string schema (`type: 'string'`, `contentMediaType: 'application/octet-stream'`)
+   * into a `blob` node.
+   */
+  function convertBlob({ schema, name, nullable, defaultValue }: SchemaContext): ast.SchemaNode {
+    return ast.createSchema({
+      type: 'blob',
+      primitive: 'string',
+      ...buildSchemaNode(schema, name, nullable, defaultValue),
+    })
+  }
+
+  /**
+   * Converts an OAS 3.1 multi-type array (e.g. `type: ['string', 'number']`) into a `UnionSchemaNode`.
+   *
+   * Returns `null` when only one non-`null` type remains (e.g. `['string', 'null']`), so `parseSchema`
+   * falls through and handles it as that single type with nullability already folded in.
+   */
+  function convertMultiType({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): ast.SchemaNode | null {
+    const types = schema.type as Array<string>
+    const nonNullTypes = types.filter((t) => t !== 'null')
+    if (nonNullTypes.length <= 1) return null
+
+    const arrayNullable = types.includes('null') || nullable || undefined
+    return ast.createSchema({
+      type: 'union',
+      members: nonNullTypes.map((t) => parseSchema({ schema: { ...schema, type: t } as SchemaObject, name }, rawOptions)),
+      ...buildSchemaNode(schema, name, arrayNullable, defaultValue),
+    })
+  }
+
+  /**
+   * Ordered schema-dispatch table. Order is significant: composition keywords (`$ref`, `allOf`,
+   * `oneOf`/`anyOf`) take precedence over `const`/`format`, which take precedence over the plain
+   * `type`. The first matching rule that produces a node wins; see {@link SchemaRule} for the
+   * match/convert/fall-through contract.
+   */
+  const schemaRules: Array<SchemaRule> = [
+    { name: 'ref', match: ({ schema }) => dialect.isReference(schema), convert: convertRef },
+    { name: 'allOf', match: ({ schema }) => !!schema.allOf?.length, convert: convertAllOf },
+    { name: 'union', match: ({ schema }) => !!(schema.oneOf?.length || schema.anyOf?.length), convert: convertUnion },
+    { name: 'const', match: ({ schema }) => 'const' in schema && schema.const !== undefined, convert: convertConst },
+    { name: 'format', match: ({ schema }) => !!schema.format, convert: convertFormat },
+    {
+      name: 'blob',
+      match: ({ schema }) => dialect.isBinary(schema),
+      convert: convertBlob,
+    },
+    { name: 'multi-type', match: ({ schema }) => Array.isArray(schema.type) && schema.type.length > 1, convert: convertMultiType },
+    {
+      name: 'constrained-string',
+      match: ({ schema, type }) => !type && (schema.minLength !== undefined || schema.maxLength !== undefined || schema.pattern !== undefined),
+      convert: convertString,
+    },
+    {
+      name: 'constrained-number',
+      match: ({ schema, type }) => !type && (schema.minimum !== undefined || schema.maximum !== undefined),
+      convert: (ctx) => convertNumeric(ctx, 'number'),
+    },
+    { name: 'enum', match: ({ schema }) => !!schema.enum?.length, convert: convertEnum },
+    {
+      name: 'object',
+      match: ({ schema, type }) => type === 'object' || !!schema.properties || !!schema.additionalProperties || 'patternProperties' in schema,
+      convert: convertObject,
+    },
+    { name: 'tuple', match: ({ schema }) => 'prefixItems' in schema, convert: convertTuple },
+    { name: 'array', match: ({ schema, type }) => type === 'array' || 'items' in schema, convert: convertArray },
+    { name: 'string', match: ({ type }) => type === 'string', convert: convertString },
+    { name: 'number', match: ({ type }) => type === 'number', convert: (ctx) => convertNumeric(ctx, 'number') },
+    { name: 'integer', match: ({ type }) => type === 'integer', convert: (ctx) => convertNumeric(ctx, 'integer') },
+    { name: 'boolean', match: ({ type }) => type === 'boolean', convert: convertBoolean },
+    { name: 'null', match: ({ type }) => type === 'null', convert: convertNull },
+  ]
+
+  /**
    * Central dispatcher that converts an OAS `SchemaObject` into a `SchemaNode`.
    *
-   * Dispatch order (first match wins): `$ref` → `allOf` → `oneOf`/`anyOf` → `const` → `format`
-   * → octet-stream blob → multi-type array → constraint-inferred type → `enum` → object/array/tuple/scalar
-   * → empty-schema fallback (`emptySchemaType` option).
+   * Builds the per-schema context, then runs it through the ordered {@link schemaRules} table
+   * via {@link ast.dispatch}. When no rule produces a node, falls back to the configured
+   * `emptySchemaType`.
    */
   function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }, rawOptions?: Partial<ast.ParserOptions>): ast.SchemaNode {
     const options: ast.ParserOptions = {
@@ -738,11 +818,11 @@ export function createSchemaParser(ctx: OasParserContext) {
       return parseSchema({ schema: flattenedSchema, name }, rawOptions)
     }
 
-    const nullable = isNullable(schema) || undefined
+    const nullable = dialect.isNullable(schema) || undefined
     const defaultValue = schema.default === null && nullable ? undefined : schema.default
     const type = Array.isArray(schema.type) ? schema.type[0] : schema.type
 
-    const ctx: SchemaContext = {
+    const schemaCtx: SchemaContext = {
       schema,
       name,
       nullable,
@@ -752,58 +832,8 @@ export function createSchemaParser(ctx: OasParserContext) {
       options,
     }
 
-    if (isReference(schema)) return convertRef(ctx)
-
-    if (schema.allOf?.length) return convertAllOf(ctx)
-    const unionMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
-    if (unionMembers.length) return convertUnion(ctx)
-
-    if ('const' in schema && schema.const !== undefined) return convertConst(ctx)
-
-    if (schema.format) {
-      const formatResult = convertFormat(ctx)
-      if (formatResult) return formatResult
-    }
-
-    if (schema.type === 'string' && schema.contentMediaType === 'application/octet-stream') {
-      return ast.createSchema({
-        type: 'blob',
-        primitive: 'string',
-        ...buildSchemaNode(schema, name, nullable, defaultValue),
-      })
-    }
-
-    if (Array.isArray(schema.type) && schema.type.length > 1) {
-      const nonNullTypes = schema.type.filter((t) => t !== 'null') as Array<string>
-      const arrayNullable = schema.type.includes('null') || nullable || undefined
-
-      if (nonNullTypes.length > 1) {
-        return ast.createSchema({
-          type: 'union',
-          members: nonNullTypes.map((t) => parseSchema({ schema: { ...schema, type: t } as SchemaObject, name }, rawOptions)),
-          ...buildSchemaNode(schema, name, arrayNullable, defaultValue),
-        })
-      }
-    }
-
-    if (!type) {
-      if (schema.minLength !== undefined || schema.maxLength !== undefined || schema.pattern !== undefined) {
-        return convertString(ctx)
-      }
-      if (schema.minimum !== undefined || schema.maximum !== undefined) {
-        return convertNumeric(ctx, 'number')
-      }
-    }
-
-    if (schema.enum?.length) return convertEnum(ctx)
-    if (type === 'object' || schema.properties || schema.additionalProperties || 'patternProperties' in schema) return convertObject(ctx)
-    if ('prefixItems' in schema) return convertTuple(ctx)
-    if (type === 'array' || 'items' in schema) return convertArray(ctx)
-    if (type === 'string') return convertString(ctx)
-    if (type === 'number') return convertNumeric(ctx, 'number')
-    if (type === 'integer') return convertNumeric(ctx, 'integer')
-    if (type === 'boolean') return convertBoolean(ctx)
-    if (type === 'null') return convertNull(ctx)
+    const node = ast.dispatch(schemaRules, schemaCtx)
+    if (node) return node
 
     const emptyType = typeOptionMap.get(options.emptySchemaType)!
     return ast.createSchema({
@@ -883,7 +913,7 @@ export function createSchemaParser(ctx: OasParserContext) {
     const keys: Array<string> = []
     for (const key in schema.properties) {
       const prop = schema.properties[key]
-      if (prop && !isReference(prop) && (prop as Record<string, unknown>)[flag]) {
+      if (prop && !dialect.isReference(prop) && (prop as Record<string, unknown>)[flag]) {
         keys.push(key)
       }
     }

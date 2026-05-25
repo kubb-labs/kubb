@@ -1,4 +1,6 @@
 export type { VisitorDepth } from './constants.ts'
+export type { SchemaDialect } from './dialect.ts'
+export type { DispatchRule } from './dispatch.ts'
 export type { DistributiveOmit } from './factory.ts'
 export type { InferSchema, InferSchemaNode, ParserOptions } from './infer.ts'
 export type {

@@ -125,12 +125,30 @@ describe('walk', () => {
 })
 
 describe('transform', () => {
-  it('returns a new tree without mutating the original', () => {
+  it('preserves identity when nothing changes (structural sharing)', () => {
     const root = buildSampleTree()
-    const result = transform(root, {})
 
+    // A no-op transform returns the exact same reference.
+    expect(transform(root, {})).toBe(root)
+    // Visitors that return their input unchanged are also no-ops.
+    expect(transform(root, { schema: (schema) => schema, operation: (operation) => operation })).toBe(root)
+  })
+
+  it('reuses untouched subtrees when only one branch changes', () => {
+    const root = buildSampleTree()
+    const result = transform(root, {
+      operation(op): OperationNode {
+        return { ...op, operationId: `api_${op.operationId}` }
+      },
+    })
+
+    // The root and the operations branch are rebuilt...
     expect(result).not.toBe(root)
-    expect(result.kind).toBe('Input')
+    expect(result.operations).not.toBe(root.operations)
+    expect(result.operations[0]?.operationId).toBe('api_getPetById')
+    // ...but the untouched schemas branch keeps its references.
+    expect(result.schemas).toBe(root.schemas)
+    expect(result.schemas[0]).toBe(root.schemas[0])
   })
 
   it('return type matches input type via overloads', () => {
