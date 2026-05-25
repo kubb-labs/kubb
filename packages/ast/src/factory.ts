@@ -215,8 +215,8 @@ export function createRequestBody(props: UserRequestBody): RequestBodyNode {
 }
 
 export function createOperation(
-  props: Pick<OperationNode, 'operationId' | 'method' | 'path'> &
-    Partial<Omit<OperationNode, 'kind' | 'operationId' | 'method' | 'path' | 'requestBody'>> & {
+  props: Pick<OperationNode, 'operationId'> &
+    Partial<Omit<OperationNode, 'kind' | 'operationId' | 'requestBody'>> & {
       requestBody?: UserRequestBody
     },
 ): OperationNode {

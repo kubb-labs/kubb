@@ -6,6 +6,11 @@ import type { ResponseNode } from './response.ts'
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE'
 
 /**
+ * Transport an operation belongs to.
+ */
+export type OperationProtocol = 'http'
+
+/**
  * AST node representing an operation request body.
  *
  * Body schemas live exclusively inside the `content` array (one entry per content type),
@@ -71,14 +76,18 @@ export type OperationNode = BaseNode & {
    */
   operationId: string
   /**
-   * HTTP Method like 'GET'
+   * HTTP method like `'GET'`. Optional — only HTTP/REST specs (OpenAPI) set it.
    */
-  method: HttpMethod
+  method?: HttpMethod
   /**
-   * OpenAPI-style path string, for example `/pets/{petId}`.
-   * Path parameters retain the `{param}` notation from the original spec.
+   * OpenAPI-style path string, for example `/pets/{petId}`, with `{param}` notation
+   * preserved. Optional — only HTTP/REST specs set it.
    */
-  path: string
+  path?: string
+  /**
+   * Transport the operation belongs to.
+   */
+  protocol?: OperationProtocol
   /**
    * Group labels for the operation.
    * Usually copied from OpenAPI `tags`.

@@ -78,6 +78,14 @@ describe('createOperation', () => {
     expect(node.deprecated).toBe(true)
     expect(node.tags).toEqual(['pets'])
   })
+
+  it('builds an operation without HTTP method/path', () => {
+    const node = createOperation({ operationId: 'onPetAdded', protocol: 'http' })
+
+    expect(node.method).toBeUndefined()
+    expect(node.path).toBeUndefined()
+    expect(node.protocol).toBe('http')
+  })
 })
 
 describe('createSchema', () => {

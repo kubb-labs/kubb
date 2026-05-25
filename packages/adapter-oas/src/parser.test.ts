@@ -198,7 +198,7 @@ describe('buildAst', () => {
       const oas = await buildMinimalOas()
       const root = parseOas(oas).root
       for (const op of root.operations) {
-        expect(op.method).toBe(op.method.toUpperCase())
+        expect(op.method).toBe(op.method?.toUpperCase())
       }
     })
 

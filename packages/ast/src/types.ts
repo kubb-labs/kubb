@@ -40,6 +40,7 @@ export type {
   NumberSchemaNode,
   ObjectSchemaNode,
   OperationNode,
+  OperationProtocol,
   OutputNode,
   ParameterGroupNode,
   ParameterLocation,
