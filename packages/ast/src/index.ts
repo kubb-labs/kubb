@@ -25,14 +25,12 @@ export {
   createResponse,
   createSchema,
   createSource,
-  createStep,
   createText,
   createType,
-  createWorkflow,
   syncOptionality,
   update,
 } from './factory.ts'
-export { isInputNode, isOperationNode, isOutputNode, isSchemaNode, isStepNode, isWorkflowNode, narrowSchema } from './guards.ts'
+export { isInputNode, isOperationNode, isOutputNode, isSchemaNode, narrowSchema } from './guards.ts'
 export { createPrinterFactory, definePrinter } from './printer.ts'
 export { extractRefName } from './refs.ts'
 export { childName, collectImports, enumPropName, findDiscriminator } from './resolvers.ts'

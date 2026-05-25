@@ -13,8 +13,6 @@ import type {
   RequestBodyNode,
   ResponseNode,
   SchemaNode,
-  StepNode,
-  WorkflowNode,
 } from './nodes/index.ts'
 
 /**
@@ -161,8 +159,6 @@ export type Visitor = {
   input?(node: InputNode, context: VisitorContext<InputNode>): undefined | null | InputNode
   output?(node: OutputNode, context: VisitorContext<OutputNode>): undefined | null | OutputNode
   operation?(node: OperationNode, context: VisitorContext<OperationNode>): undefined | null | OperationNode
-  workflow?(node: WorkflowNode, context: VisitorContext<WorkflowNode>): undefined | null | WorkflowNode
-  step?(node: StepNode, context: VisitorContext<StepNode>): undefined | null | StepNode
   schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): undefined | null | SchemaNode
   property?(node: PropertyNode, context: VisitorContext<PropertyNode>): undefined | null | PropertyNode
   parameter?(node: ParameterNode, context: VisitorContext<ParameterNode>): undefined | null | ParameterNode
@@ -190,8 +186,6 @@ export type AsyncVisitor = {
   input?(node: InputNode, context: VisitorContext<InputNode>): MaybePromise<undefined | null | InputNode>
   output?(node: OutputNode, context: VisitorContext<OutputNode>): MaybePromise<undefined | null | OutputNode>
   operation?(node: OperationNode, context: VisitorContext<OperationNode>): MaybePromise<undefined | null | OperationNode>
-  workflow?(node: WorkflowNode, context: VisitorContext<WorkflowNode>): MaybePromise<undefined | null | WorkflowNode>
-  step?(node: StepNode, context: VisitorContext<StepNode>): MaybePromise<undefined | null | StepNode>
   schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): MaybePromise<undefined | null | SchemaNode>
   property?(node: PropertyNode, context: VisitorContext<PropertyNode>): MaybePromise<undefined | null | PropertyNode>
   parameter?(node: ParameterNode, context: VisitorContext<ParameterNode>): MaybePromise<undefined | null | ParameterNode>
@@ -214,8 +208,6 @@ export type CollectVisitor<T> = {
   input?(node: InputNode, context: VisitorContext<InputNode>): T | null | undefined
   output?(node: OutputNode, context: VisitorContext<OutputNode>): T | null | undefined
   operation?(node: OperationNode, context: VisitorContext<OperationNode>): T | null | undefined
-  workflow?(node: WorkflowNode, context: VisitorContext<WorkflowNode>): T | null | undefined
-  step?(node: StepNode, context: VisitorContext<StepNode>): T | null | undefined
   schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): T | null | undefined
   property?(node: PropertyNode, context: VisitorContext<PropertyNode>): T | null | undefined
   parameter?(node: ParameterNode, context: VisitorContext<ParameterNode>): T | null | undefined
@@ -297,10 +289,8 @@ export type CollectOptions<T> = CollectVisitor<T> & {
  * in a child slot is a node, so one table drives both `getChildren` and `transform`.
  */
 const VISITOR_KEYS = {
-  Input: ['schemas', 'operations', 'workflows'],
+  Input: ['schemas', 'operations'],
   Operation: ['parameters', 'requestBody', 'responses'],
-  Workflow: ['inputs', 'steps'],
-  Step: ['parameters'],
   RequestBody: ['content'],
   Content: ['schema'],
   Response: ['content'],
@@ -355,8 +345,6 @@ const VISITOR_KEY_BY_KIND: Partial<Record<NodeKind, keyof Visitor>> = {
   Input: 'input',
   Output: 'output',
   Operation: 'operation',
-  Workflow: 'workflow',
-  Step: 'step',
   Schema: 'schema',
   Property: 'property',
   Parameter: 'parameter',

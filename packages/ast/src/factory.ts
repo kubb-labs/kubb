@@ -30,10 +30,8 @@ import type {
   ResponseNode,
   SchemaNode,
   SourceNode,
-  StepNode,
   TextNode,
   TypeNode,
-  WorkflowNode,
 } from './nodes/index.ts'
 import { combineExports, combineImports, combineSources, extractStringsFromNodes } from './utils.ts'
 
@@ -232,30 +230,6 @@ export function createOperation(
     kind: 'Operation',
     requestBody: requestBody ? createRequestBody(requestBody) : undefined,
   }
-}
-
-/**
- * Creates a `StepNode` for a workflow.
- *
- * @example
- * ```ts
- * const step = createStep({ stepId: 'createPet', operationId: 'addPet' })
- * ```
- */
-export function createStep(props: Pick<StepNode, 'stepId'> & Partial<Omit<StepNode, 'kind' | 'stepId'>>): StepNode {
-  return { ...props, kind: 'Step' }
-}
-
-/**
- * Creates a `WorkflowNode` with a stable default for `steps`.
- *
- * @example
- * ```ts
- * const workflow = createWorkflow({ workflowId: 'adoptAPet', steps: [createStep({ stepId: 'createPet' })] })
- * ```
- */
-export function createWorkflow(props: Pick<WorkflowNode, 'workflowId'> & Partial<Omit<WorkflowNode, 'kind' | 'workflowId'>>): WorkflowNode {
-  return { steps: [], ...props, kind: 'Workflow' }
 }
 
 /**
