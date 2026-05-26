@@ -2,17 +2,16 @@
 
 ## Context
 
-This roadmap is the output of a robustness audit. I reviewed ~4 months of real-world bug reports
-and feature requests filed against OpenAPI → TypeScript code generators, grouped them into
-recurring themes, and checked each theme against kubb's current capabilities (core in this repo,
-plugins in the `kubb-labs/plugins` repo).
+This roadmap is a prioritized backlog of correctness fixes and feature work for kubb. Each item
+describes a real OpenAPI shape that kubb handles wrongly, incompletely, or not at all today, plus
+recurring feature gaps. Items are grouped by theme and include the current behavior, the proposed
+approach, the affected code, a before/after example, and acceptance criteria so each can be picked
+up independently.
 
-The goal: find places where a real-world OpenAPI spec would produce wrong, incomplete, or missing
-output from kubb today, plus feature gaps users repeatedly ask for. Each item below is a problem
-kubb either does not handle or handles only partially. This is a backlog with the relevant code
-locations so each item can be picked up independently.
-
-Paths prefixed `(plugins)` live in the `kubb-labs/plugins` repo; all other paths are in this repo.
+Paths prefixed `(plugins)` live in the `kubb-labs/plugins` repo; all other paths are in this repo
+(`kubb-labs/kubb`). Generation flows OpenAPI → `@kubb/adapter-oas` (parse to AST) →
+`@kubb/ast` nodes → plugins (`@kubb/plugin-*`) generators/printers → files. Most correctness
+issues are best fixed at the adapter/AST layer so every plugin benefits.
 
 Severity legend: **P0** correctness bug (emits wrong or non-compiling code) · **P1** notable gap ·
 **P2** DX/feature enhancement.
@@ -21,20 +20,20 @@ Severity legend: **P0** correctness bug (emits wrong or non-compiling code) · *
 
 ## Theme 1 — Parameter serialization styles (P0, biggest gap)
 
-**Problem.** The OpenAPI `style` / `explode` fields on parameters (`deepObject`, `form`,
-`spaceDelimited`, `pipeDelimited`, `simple`) are parsed but dropped — `ParameterNode` stores
-only `name`, `in`, `schema`, `required`. Clients serialize every param as a plain query string,
-so `deepObject` object params and array-style params generate wrong request URLs. Dot-notation /
-nested query params are also generated incorrectly.
+**Current behavior.** `ParameterNode` (`packages/ast/src/nodes/parameter.ts`) stores only `name`,
+`in`, `schema`, and `required`. The adapter reads parameters in `parseParameter`
+(`packages/adapter-oas/src/parser.ts`) but discards the OpenAPI `style` and `explode` fields.
+Client plugins therefore serialize every parameter as a plain `key=value` query entry. Object
+parameters and array parameters that rely on a non-default style produce incorrect request URLs.
 
-**Where.**
-- `packages/ast/src/nodes/parameter.ts` — add `style` / `explode` to the node.
-- `packages/adapter-oas/src/parser.ts` (`parseParameter`) — capture `style`/`explode`.
-- `(plugins) packages/plugin-client/src/utils.ts` — emit per-style serialization
-  (and shared helper in `(plugins) internals/shared/src/params.ts`).
-
-**Outcome.** Correct query/path serialization for object and array params; nested/dot-notation
-params handled.
+**Proposed approach.**
+1. Extend `ParameterNode` with optional `style` (`'form' | 'spaceDelimited' | 'pipeDelimited' |
+   'deepObject' | 'simple' | 'label' | 'matrix'`) and `explode: boolean`, defaulting per the
+   OpenAPI spec (query/cookie → `form`+`explode:true`; path/header → `simple`+`explode:false`).
+2. Capture both in `parseParameter`.
+3. Add a shared serializer in `(plugins) internals/shared/src/params.ts` that turns a
+   `(name, value, style, explode)` tuple into the correct query/path fragments, and call it from
+   `(plugins) packages/plugin-client/src/utils.ts` when building the request.
 
 **Example.** Spec:
 ```yaml
@@ -44,7 +43,7 @@ params handled.
   explode: true
   schema: { type: object, properties: { tag: { type: string }, page: { type: integer } } }
 ```
-Current output (wrong — flattens/JSON-stringifies):
+Current output (wrong — flattens / stringifies the object):
 ```ts
 // ?filter=[object Object]   (or filter={"tag":"x","page":1})
 client.get('/pets', { params: { filter } })
@@ -54,212 +53,206 @@ Expected output:
 // ?filter[tag]=x&filter[page]=1
 client.get('/pets', { params: { 'filter[tag]': filter.tag, 'filter[page]': filter.page } })
 ```
-And for `style: pipeDelimited` arrays → `?ids=1|2|3`; `spaceDelimited` → `?ids=1%202%203`.
+Array styles to cover: `form`+`explode:false` → `?ids=1,2,3`; `pipeDelimited` → `?ids=1|2|3`;
+`spaceDelimited` → `?ids=1%202%203`; `simple` path param → `/items/1,2,3`.
+
+**Acceptance criteria.** A fixture exercising each style generates the matching URL; a unit test
+asserts the serialized request (not only the snapshot); existing default-style output is unchanged.
 
 ---
 
 ## Theme 2 — Validation-schema (zod) correctness (P0/P1)
 
-Several spec shapes produce broken or non-compiling zod output today.
+The zod plugin emits broken or non-compiling output for several common schema shapes.
 
-- **Enum + `default`** (P0): enum defaults can emit non-assignable code; the enum handler does
-  not consistently reconcile `default()` with `z.enum([...])`.
-  `(plugins) packages/plugin-zod/src/printers/printerZod.ts` (~L189-202, L260).
-- **Nullable enum drops `null`** (P1): confirm null survives end-to-end from
-  `convertEnum` in `packages/adapter-oas/src/parser.ts` through the zod printer.
-- **Empty-object alternative in `anyOf`/`oneOf`** (P1): empty schema in a union should not
-  collapse the union to an invalid/over-permissive schema. Union handling in `parser.ts` +
-  `emptySchemaType`.
-- **Regex with unicode flags** (P1): pattern strings carrying `/u` (or named groups) are emitted
-  raw without flag extraction. `(plugins) packages/plugin-zod/src/utils.ts` (~L221,
-  `toRegExpString`).
-
-**Examples.**
-
-Enum + `default` — spec `{ type: string, enum: [a, b], default: a }`:
+### 2a. Enum with a `default` value (P0)
+**Current.** The enum handler in `(plugins) packages/plugin-zod/src/printers/printerZod.ts`
+(~L189-202) emits `z.enum([...])`, and the `default` modifier (~L260) appends `.default(value)`.
+For string enums the default is emitted without quoting in some paths, producing a reference to an
+undefined identifier.
+**Fix.** Quote/serialize the default as a literal that matches the enum member type.
 ```ts
-// current (non-assignable / invalid): z.enum(["a","b"]).default(a)   // `a` is undefined
-// expected:
-z.enum(["a", "b"]).default("a")
+// spec: { type: string, enum: [a, b], default: a }
+// current: z.enum(["a","b"]).default(a)     // `a` is not defined
+// expected: z.enum(["a","b"]).default("a")
 ```
 
-Nullable enum — spec `{ type: [string, "null"], enum: [a, b, null] }`:
+### 2b. Nullable enum drops `null` (P1)
+**Current.** `convertEnum` (`packages/adapter-oas/src/parser.ts`) strips `null` out of the value
+list; if the schema is also nullable, the emitted schema loses the `null` branch.
+**Fix.** When `null` appears in the enum or the type union includes `"null"`, retain it and append
+`.nullable()` (or include `z.null()` in a union).
 ```ts
-// current (drops null): z.enum(["a","b"])
-// expected:
-z.enum(["a", "b"]).nullable()   // null preserved
+// spec: { type: [string,"null"], enum: [a, b, null] }
+// current: z.enum(["a","b"])
+// expected: z.enum(["a","b"]).nullable()
 ```
 
-Empty-object alternative — spec `anyOf: [ { type: object, properties: {...} }, {} ]`:
+### 2c. Empty-object alternative in `anyOf`/`oneOf` (P1)
+**Current.** An empty schema (`{}`) inside a union collapses the union to an over-permissive or
+invalid result.
+**Fix.** Map the empty branch to the configured `emptySchemaType` and keep the union intact.
 ```ts
-// current (union collapses to invalid/over-permissive)
-// expected: empty schema becomes the configured emptySchemaType, union stays intact
-z.union([z.object({ /* ... */ }), z.any()])
+// spec: anyOf: [ { type: object, properties: {...} }, {} ]
+// expected: z.union([z.object({ /* ... */ }), z.any()])
 ```
 
-Unicode regex — spec `{ type: string, pattern: "\\p{L}+", x-flags: "u" }`:
+### 2d. Regex with unicode flags (P1)
+**Current.** Pattern strings are emitted raw via `toRegExpString`
+(`(plugins) packages/plugin-zod/src/utils.ts` ~L221); patterns using unicode property escapes
+(`\p{...}`) throw at runtime because the `u` flag is missing.
+**Fix.** Detect unicode constructs (or read a flags hint) and emit the `u` flag.
 ```ts
-// current (no flag → throws at runtime for \p): z.string().regex(/\p{L}+/)
-// expected:
-z.string().regex(/\p{L}+/u)
+// spec: { type: string, pattern: "\\p{L}+" }
+// current: z.string().regex(/\p{L}+/)   // throws: invalid escape
+// expected: z.string().regex(/\p{L}+/u)
 ```
 
-**Outcome.** Generated zod schemas compile and validate correctly for enums, nullable enums,
-union-with-empty-object, and unicode patterns.
+**Acceptance criteria.** A fixture per sub-item; generated schemas type-check and validate the
+intended inputs/outputs; snapshots updated.
 
 ---
 
 ## Theme 3 — TypeScript output robustness (P1)
 
-- **Stable / deterministic ordering**: output ordering currently follows spec/deduplication order and can
-  shift, producing churn and occasional cross-reference type errors. Introduce a stable sort of
-  emitted declarations. `(plugins) packages/plugin-ts/src/generators/typeGenerator.tsx`,
-  `printers/printerTs.ts`.
-- **Global type name collisions**: generated types named `File`, `Blob`, `Date`, etc. silently
-  shadow/conflict with TS globals. Add collision detection/renaming in the ts resolver.
-  `(plugins) packages/plugin-ts/src/resolvers/`.
-- **`isolatedDeclarations` support**: emit output compatible with TS `isolatedDeclarations`
-  (explicit return/types, no inference-dependent exports). New option on plugin-ts.
+### 3a. Stable / deterministic ordering
+**Current.** Declaration order follows discovery/deduplication order in
+`(plugins) packages/plugin-ts/src/generators/typeGenerator.tsx`, so unrelated spec edits reorder
+output and occasionally break forward references.
+**Fix.** Sort emitted declarations by a deterministic key before printing; two runs over the same
+spec must produce byte-identical files.
 
-**Examples.**
-
-Global collision — schema named `File`:
+### 3b. Global type-name collisions
+**Current.** A schema named `File`, `Blob`, `Date`, etc. emits `export type File = ...`, shadowing
+the TS global and breaking later uses of the real global.
+**Fix.** Detect collisions with global lib types in the ts resolver
+(`(plugins) packages/plugin-ts/src/resolvers/`) and rename with a configurable suffix.
 ```ts
-// current (shadows global, breaks Blob/File usage elsewhere):
-export type File = { id: string }
-// expected (resolver renames + keeps a reference):
-export type FileModel = { id: string }   // or configurable suffix
+// current:  export type File = { id: string }
+// expected: export type FileModel = { id: string }
 ```
 
-isolatedDeclarations — exported helper inferring its type:
+### 3c. `isolatedDeclarations` support
+**Current.** Exported helpers that rely on type inference fail under TS `isolatedDeclarations`
+(error TS9007).
+**Fix.** Add a plugin-ts option that emits explicit type annotations on exported values.
 ```ts
-// current (fails isolatedDeclarations: error TS9007):
-export const petKeys = makeKeys('pet')
-// expected (explicit type annotation emitted):
-export const petKeys: PetKeys = makeKeys('pet')
+// current:  export const petKeys = makeKeys('pet')
+// expected: export const petKeys: PetKeys = makeKeys('pet')
 ```
 
-Stable ordering: two runs over the same spec must produce byte-identical files (sort
-declarations by a deterministic key, not discovery order).
-
-**Outcome.** Output compiles under stricter tsconfig settings and avoids global shadowing.
+**Acceptance criteria.** Snapshot stability test; a fixture with a `File`/`Blob` schema; a
+type-check pass with `isolatedDeclarations: true` enabled on the generated output.
 
 ---
 
 ## Theme 4 — Reference & discriminator handling (P1)
 
-- **`$ref` names with `/` or `~`** (P0): JSON Pointer escaping (`~0`→`~`, `~1`→`/`) must be applied
-  on both encode and decode; today only `decodeURIComponent` is used.
-  `packages/adapter-oas/src/refs.ts`.
-- **Non-string discriminator tags** (P1): discriminator currently assumes string tags
-  (filters to string/number/boolean defaulting to string). Support numeric/boolean discriminants
-  faithfully. `packages/adapter-oas/src/discriminator.ts`.
-- **Discriminator `mapping` across multiple files** (P1): mapping values referencing external
-  documents are ignored; resolve them via the bundler before discriminator inference.
-- **`$dynamicRef` / `$dynamicAnchor`** (P2): JSON Schema 2020-12 anchors are unsupported. Scope a
-  resolution strategy in `packages/adapter-oas/src/` (refs/parser). Larger effort.
-
-**Examples.**
-
-`$ref` with escaped chars — `#/components/schemas/Foo~1Bar` (= `Foo/Bar`):
-```ts
-// current (decodes URI only, mishandles ~1): resolves to wrong/undefined schema
-// expected (JSON Pointer unescape ~1→/, ~0→~): resolves to schema "Foo/Bar"
+### 4a. `$ref` names containing `/` or `~` (P0)
+**Current.** `packages/adapter-oas/src/refs.ts` only applies `decodeURIComponent`, so JSON Pointer
+escape sequences are mishandled and the ref resolves to the wrong schema or none.
+**Fix.** Apply JSON Pointer unescaping (`~1` → `/`, `~0` → `~`) on decode and the inverse on
+encode.
+```
+// #/components/schemas/Foo~1Bar  ==  schema "Foo/Bar"
 ```
 
-Non-string discriminator — `discriminator: { propertyName: version }`, `version: { type: integer }`:
+### 4b. Non-string discriminator tags (P1)
+**Current.** `packages/adapter-oas/src/discriminator.ts` coerces discriminant values to strings.
+**Fix.** Preserve the underlying type (integer/boolean) of the discriminator property.
 ```ts
-// current (coerced to string literal): version: "1"
-// expected:
-type Shape = ({ version: 1 } & V1) | ({ version: 2 } & V2)
+// discriminator on integer `version`
+// current:  { version: "1" }
+// expected: type Shape = ({ version: 1 } & V1) | ({ version: 2 } & V2)
 ```
 
-**Outcome.** Specs using special-char ref names, non-string discriminants, cross-file mappings,
-and (eventually) dynamic anchors generate correctly.
+### 4c. Discriminator `mapping` across multiple files (P1)
+**Current.** `mapping` entries that reference external documents are ignored.
+**Fix.** Resolve external mapping targets via the bundler before discriminator inference.
+
+### 4d. `$dynamicRef` / `$dynamicAnchor` (P2, larger)
+**Current.** JSON Schema 2020-12 dynamic anchors are unsupported.
+**Fix.** Scope a resolution strategy in `packages/adapter-oas/src/` (refs + parser); likely a
+multi-pass resolve that records dynamic anchors and binds them at use sites.
+
+**Acceptance criteria.** Fixtures for escaped ref names, numeric/boolean discriminants, and a
+multi-file mapping; correct resolution verified by snapshot + type-check.
 
 ---
 
-## Theme 5 — Config & DX (P2)
+## Theme 5 — Configuration & DX (P2)
 
-- **Plugin option validation / conflict warnings**: options are typed but never validated at
-  runtime; conflicting plugin keys fail silently. Add a validation pass + warnings in
-  `packages/core/src/createKubb.ts` / `definePlugin.ts`.
-- **Surface post-process/format errors**: formatting/lint errors in the
-  `kubb:format:start`/`kubb:format:end` hooks should not be swallowed. `createKubb.ts`.
-- **Presets API**: ship reusable config bundles (e.g. "react-query + zod + client") so users
-  don't hand-wire every plugin. New concept in `packages/core`.
-- **Bulk spec/schema/operation transforms**: today only an AST `transformer` (visitor) exists.
-  Add ergonomic bulk hooks (rename schema keys, patch operations, patch whole spec) earlier in
-  the pipeline. `packages/core/src/defineMiddleware.ts` + adapter parse stage.
-- **CLI niceties**: flag to hide the ASCII logo; "compact comments" output mode.
-  `packages/cli`, plugin printers.
+- **Option validation / conflict warnings.** Plugin options are typed but never validated at
+  runtime; conflicting options fail silently. Add a validation pass in
+  `packages/core/src/createKubb.ts` / `definePlugin.ts` that emits actionable warnings, e.g.:
+  ```
+  ⚠ plugin-zod: `mini` and `inferred` both set — `inferred` is ignored in mini mode.
+  ```
+- **Surface post-process / format errors.** Errors thrown inside the `kubb:format:start` /
+  `kubb:format:end` hooks are currently swallowed; propagate them (with the offending file) so a
+  failed format/lint step fails the run instead of silently producing unformatted output.
+  `packages/core/src/createKubb.ts`.
+- **Presets API.** Ship reusable config bundles so users don't hand-wire every plugin. New concept
+  in `packages/core`:
+  ```ts
+  export default defineConfig({
+    input: { path: 'openapi.yaml' },
+    presets: [reactQueryPreset({ client: 'fetch' })], // expands to plugin-ts + plugin-zod + plugin-client + plugin-react-query
+  })
+  ```
+- **Bulk spec/schema/operation transforms.** Today only an AST `transformer` (visitor) exists. Add
+  ergonomic hooks that run earlier in the pipeline:
+  ```ts
+  transforms: {
+    schemas: { name: (n) => n.replace(/Dto$/, '') },   // rename schema keys
+    operations: (op) => ({ ...op, operationId: camel(op.operationId) }),
+  }
+  ```
+  `packages/core/src/defineMiddleware.ts` + the adapter parse stage.
+- **CLI niceties.** A flag to hide the ASCII logo, and a "compact comments" output mode.
+  `packages/cli` + plugin printers.
 
-**Examples.**
-
-Conflict warning:
-```
-⚠ plugin-zod: option `mini` and `inferred` both set — `inferred` is ignored in mini mode.
-```
-
-Presets — instead of hand-wiring plugins:
-```ts
-export default defineConfig({
-  input: { path: 'openapi.yaml' },
-  presets: [reactQueryPreset({ client: 'fetch' })], // expands to plugin-ts + plugin-zod + plugin-client + plugin-react-query
-})
-```
-
-Bulk transform:
-```ts
-transforms: {
-  schemas: { name: (n) => n.replace(/Dto$/, '') },   // rename schema keys
-  operations: (op) => ({ ...op, operationId: camel(op.operationId) }),
-}
-```
-
-**Outcome.** Fewer silent misconfigurations, reusable presets, and richer pre-generation
-spec patching.
+**Acceptance criteria.** Each item has a focused unit test (warning emitted, error propagated,
+preset expands to the expected plugin set, transform applied before generation, CLI flag honored).
 
 ---
 
 ## Theme 6 — New generators (P2, larger initiatives)
 
-These are recurring feature requests with no current kubb equivalent. Each is a new package under
-`(plugins) packages/` following the existing plugin pattern
+Net-new packages under `(plugins) packages/`, following the existing plugin layout
 (`plugin.ts` + `types.ts` + `resolvers/` + `generators/*.tsx` + `printers/`):
 
-- **Valibot plugin** (`@kubb/plugin-valibot`) — validation-schema alternative to zod; mirror the
-  zod plugin's structure and config surface.
-- **TanStack Start plugin** — server/client integration on top of the shared tanstack-query
+- **`@kubb/plugin-valibot`** — a validation-schema generator alternative to zod, mirroring the zod
+  plugin's structure, naming resolver, and config surface:
+  ```ts
+  import * as v from 'valibot'
+  export const petSchema = v.object({ id: v.string() })
+  export type Pet = v.InferOutput<typeof petSchema>
+  ```
+- **TanStack Start plugin** — server/client integration built on the shared tanstack-query
   internals (`(plugins) internals/tanstack-query`).
-- **RTK Query plugin** — Redux Toolkit Query endpoints/hooks.
+- **RTK Query plugin** — Redux Toolkit Query endpoints and hooks.
 
-**Example** (valibot, mirroring the zod output for `{ type: object, properties: { id: { type: string } } }`):
-```ts
-import * as v from 'valibot'
-export const petSchema = v.object({ id: v.string() })
-export type Pet = v.InferOutput<typeof petSchema>
-```
-
-**Outcome.** Broader ecosystem coverage matching common user stacks.
+**Acceptance criteria.** Each new plugin ships with examples under `(plugins) examples/`, a test
+suite under `(plugins) tests/3.0.x/`, and parity coverage with the closest existing plugin.
 
 ---
 
 ## Suggested sequencing
 
-1. **P0 correctness first**: Theme 1 (param styles), Theme 2 enum/default + nullable, Theme 4
-   `$ref` escaping. These fix wrong output on common specs.
+1. **P0 correctness first**: Theme 1 (param styles), Theme 2a/2b (enum default + nullable),
+   Theme 4a (`$ref` escaping). These fix wrong output on common specs.
 2. **P1 robustness**: rest of Theme 2/3/4 (unions, regex, stable ordering, global collisions,
    discriminators).
 3. **P2 DX**: Theme 5 (validation/warnings, presets, transforms, CLI).
 4. **P2 initiatives**: Theme 6 new plugins, and `$dynamicRef` support.
 
-## Verification approach (per item, when implemented)
+## Verification approach (per item)
 
-- Add a minimal OpenAPI fixture under `(plugins) schemas/` reproducing the bad/missing output,
+- Add a minimal OpenAPI fixture under `(plugins) schemas/` reproducing the bad or missing output,
   plus a snapshot test in `(plugins) tests/3.0.x/` (and a 3.1 fixture where the feature is
   3.1-specific).
-- Run `pnpm test` (vitest snapshots), `pnpm typecheck` (proves generated output compiles),
-  and `pnpm build`.
-- For client serialization (Theme 1), assert the emitted request URL/body in a unit test, not
-  just the snapshot.
+- Run `pnpm test` (vitest snapshots), `pnpm typecheck` (proves generated output compiles), and
+  `pnpm build`.
+- For client serialization (Theme 1), assert the emitted request URL/body in a unit test, not only
+  the snapshot.
