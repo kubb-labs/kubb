@@ -30,4 +30,19 @@ describe('schemaSignature', () => {
 
     expect(isSchemaEqual(base, renamed)).toBe(false)
   })
+
+  it('returns a stable signature for the same node across repeated calls', () => {
+    const node = createSchema({ type: 'object', properties: [createProperty({ name: 'id', required: true, schema: stringEnum(['a', 'b']) })] })
+
+    expect(schemaSignature(node)).toBe(schemaSignature(node))
+  })
+
+  it('compares distinct nodes by content, not identity', () => {
+    const a = stringEnum(['a', 'b'])
+    const b = stringEnum(['a', 'b'])
+
+    // Hash each independently first so both are cached, then assert content equality still holds.
+    expect(schemaSignature(a)).toBe(schemaSignature(b))
+    expect(schemaSignature(stringEnum(['a', 'c']))).not.toBe(schemaSignature(a))
+  })
 })
