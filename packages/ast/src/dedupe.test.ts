@@ -90,7 +90,7 @@ describe('buildDedupePlan', () => {
     expect(plan.canonicalBySignature.get(objectSignature)).toEqual({ name: 'Cat', ref: '#/components/schemas/Cat' })
   })
 
-  it('respects skip', () => {
+  it('ignores nodes the candidate predicate rejects', () => {
     const pet = createSchema({
       type: 'object',
       name: 'Pet',
@@ -102,9 +102,12 @@ describe('buildDedupePlan', () => {
       properties: [createProperty({ name: 'state', schema: stringEnum(['a', 'b'], { name: 'OrderState' }) })],
     })
 
-    const plan = buildDedupePlan([pet, order], { isCandidate, nameFor, refFor, skip: (node) => node.type === 'enum' })
+    // Only objects are candidates here, so the duplicated enum is left alone — and the two
+    // objects have distinct shapes, so nothing is deduplicated.
+    const plan = buildDedupePlan([pet, order], { isCandidate: (node) => node.type === 'object', nameFor, refFor })
 
     expect(plan.hoisted).toHaveLength(0)
+    expect(plan.canonicalBySignature.size).toBe(0)
   })
 
   it('honors minOccurrences', () => {

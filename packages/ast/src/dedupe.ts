@@ -42,7 +42,9 @@ export type DedupePlan = {
  */
 export type BuildDedupePlanOptions = {
   /**
-   * Returns `true` when a node is eligible to be deduplicated (for example enums and objects).
+   * Returns `true` when a node should be deduplicated. This is the only gate, so it must
+   * reject both ineligible kinds (return `false` for anything other than, say, enums and
+   * objects) and unsafe shapes (e.g. nodes that reference a circular schema).
    */
   isCandidate: (node: SchemaNode) => boolean
   /**
@@ -60,10 +62,6 @@ export type BuildDedupePlanOptions = {
    * @default 2
    */
   minOccurrences?: number
-  /**
-   * Returns `true` to exclude a node from deduplication (for example circular shapes).
-   */
-  skip?: (node: SchemaNode) => boolean
 }
 
 /**
@@ -278,7 +276,7 @@ function cleanDefinition(node: SchemaNode, name: string): SchemaNode {
  * ```
  */
 export function buildDedupePlan(roots: ReadonlyArray<Node>, options: BuildDedupePlanOptions): DedupePlan {
-  const { isCandidate, nameFor, refFor, minOccurrences = 2, skip } = options
+  const { isCandidate, nameFor, refFor, minOccurrences = 2 } = options
 
   const signatures = new Map<SchemaNode, string>()
   const topLevelNodes = new Set<SchemaNode>()
@@ -292,7 +290,7 @@ export function buildDedupePlan(roots: ReadonlyArray<Node>, options: BuildDedupe
 
   function record(schemaNode: SchemaNode): void {
     const signature = signatureOf(schemaNode, signatures)
-    if (!isCandidate(schemaNode) || skip?.(schemaNode)) return
+    if (!isCandidate(schemaNode)) return
 
     const isTopLevel = topLevelNodes.has(schemaNode) && !!schemaNode.name
     const group = groups.get(signature)
