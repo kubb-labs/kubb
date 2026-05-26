@@ -120,7 +120,7 @@ function serializeShapeField(field: ShapeField, node: SchemaNode, record: Record
       return `${field.prefix}:${child ? signatureOf(child, signatures) : ''}`
     }
     case 'children': {
-      const children = (record[field.key] as SchemaNode[] | undefined) ?? []
+      const children = (record[field.key] as Array<SchemaNode> | undefined) ?? []
       return `${field.prefix}[${children.map((c) => signatureOf(c, signatures)).join(',')}]`
     }
     case 'objectProps': {
@@ -171,7 +171,7 @@ function describeShape(node: SchemaNode, signatures: Map<SchemaNode, string>): s
   if (!fields) return `${node.type}|${flags}`
 
   const record = node as unknown as Record<string, unknown>
-  const parts: string[] = [`${node.type}|${flags}`]
+  const parts: Array<string> = [`${node.type}|${flags}`]
   for (const field of fields) {
     parts.push(serializeShapeField(field, node, record, signatures))
   }
