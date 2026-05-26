@@ -4,9 +4,10 @@
 
 This roadmap is a prioritized backlog of correctness fixes and feature work for kubb. Each item
 describes a real OpenAPI shape that kubb handles wrongly, incompletely, or not at all today, plus
-recurring feature gaps. Items are grouped by theme and include the current behavior, the proposed
-approach, the affected code, a before/after example, and acceptance criteria so each can be picked
-up independently.
+recurring feature gaps. The backlog is informed by a year of real-world OpenAPI → TypeScript
+generation pain points, each one verified against kubb's current code before inclusion. Items are
+grouped by theme and include the current behavior, the proposed approach, the affected code, a
+before/after example, and acceptance criteria so each can be picked up independently.
 
 Paths prefixed `(plugins)` live in the `kubb-labs/plugins` repo; all other paths are in this repo
 (`kubb-labs/kubb`). Generation flows OpenAPI → `@kubb/adapter-oas` (parse to AST) →
@@ -108,6 +109,16 @@ invalid result.
 // expected: z.string().regex(/\p{L}+/u)
 ```
 
+### 2e. Format/pattern escaping and constraint chains (P1)
+**Current.** Patterns with regex wildcards/anchors are not always escaped correctly, and chained
+constraints from combined keywords (e.g. `maxLength` + `enum`, `pattern` + string-format,
+`minimum` + `multipleOf`) can emit modifier chains that do not type-check.
+**Fix.** Normalize pattern escaping and emit constraint modifiers in a valid, deduplicated order.
+```ts
+// spec: { type: string, format: email, pattern: "^.+@.+$" }
+// expected: z.string().email().regex(/^.+@.+$/)   // both kept, valid chain
+```
+
 **Acceptance criteria.** A fixture per sub-item; generated schemas type-check and validate the
 intended inputs/outputs; snapshots updated.
 
@@ -141,8 +152,20 @@ the TS global and breaking later uses of the real global.
 // expected: export const petKeys: PetKeys = makeKeys('pet')
 ```
 
+### 3d. Combined-type grouping and union de-duplication (P1)
+**Current.** Intersections combined with arrays can drop parentheses (`A & B[]` instead of the
+intended `(A & B)[]`), and union de-duplication can corrupt inline (anonymous) member types or
+produce duplicate type names for `prefixItems`/`items` tuples.
+**Fix.** Group composite types with parentheses when wrapping in arrays; de-duplicate unions by
+structural identity, not name, and keep inline members intact.
+```ts
+// current:  type Pets = Pet & Tagged[]
+// expected: type Pets = (Pet & Tagged)[]
+```
+
 **Acceptance criteria.** Snapshot stability test; a fixture with a `File`/`Blob` schema; a
-type-check pass with `isolatedDeclarations: true` enabled on the generated output.
+type-check pass with `isolatedDeclarations: true` enabled on the generated output; fixtures for
+intersection-array and de-duplication of an inline union.
 
 ---
 
@@ -175,8 +198,33 @@ encode.
 **Fix.** Scope a resolution strategy in `packages/adapter-oas/src/` (refs + parser); likely a
 multi-pass resolve that records dynamic anchors and binds them at use sites.
 
-**Acceptance criteria.** Fixtures for escaped ref names, numeric/boolean discriminants, and a
-multi-file mapping; correct resolution verified by snapshot + type-check.
+### 4e. `allOf` merging and `required` propagation (P1)
+**Current.** `allOf` is flattened only for keyword-only fragments; when it combines a `$ref` with
+an inline object that adds `required: [...]`, the parser builds an intersection and synthesizes the
+required members separately rather than applying `required` to the referenced properties
+(`packages/adapter-oas/src/parser.ts` `convertAllOf`, `resolvers.ts` `flattenSchema`). Edge cases
+(e.g. `discriminatedUnion` over `allOf` inheritance) can produce unusable or circular output.
+**Fix.** When all `allOf` members resolve to objects, deep-merge properties and unify `required`
+onto the merged shape; only fall back to an intersection when members are non-objects.
+```ts
+// spec: allOf: [ { $ref: Base }, { required: [id] } ]   where Base has optional `id`
+// expected: id becomes required on the merged type/schema (not a synthetic extra member)
+```
+
+### 4f. `propertyNames` constraint (P1)
+**Current.** JSON Schema `propertyNames` is ignored entirely; `additionalProperties` maps to an
+index signature / `.catchall()` with `string` keys regardless. (`patternProperties` *is* handled.)
+**Fix.** When `propertyNames` constrains keys to an enum/const, emit a keyed `Record`
+(`Record<'a' | 'b', V>`) in plugin-ts and the matching zod shape.
+```ts
+// spec: { type: object, propertyNames: { enum: [a, b] }, additionalProperties: { type: number } }
+// current:  { [key: string]: number }
+// expected: Record<'a' | 'b', number>
+```
+
+**Acceptance criteria.** Fixtures for escaped ref names, numeric/boolean discriminants, a multi-file
+mapping, an `allOf`+`required` merge, and a `propertyNames` enum; correct resolution verified by
+snapshot + type-check.
 
 ---
 
@@ -209,6 +257,14 @@ multi-file mapping; correct resolution verified by snapshot + type-check.
   }
   ```
   `packages/core/src/defineMiddleware.ts` + the adapter parse stage.
+- **Acronym casing preservation.** Casing normalization (`internals/utils/src/casing.ts`,
+  `toCamelOrPascal`) only preserves standalone all-uppercase runs; acronyms embedded in mixed-case
+  identifiers (`HTTPCode`, `userID`) get re-cased. Add an option to preserve known acronyms when
+  deriving operation/type/schema names.
+  ```ts
+  // current:  HttpCode / UserId
+  // expected (preserve mode): HTTPCode / UserID
+  ```
 - **CLI niceties.** A flag to hide the ASCII logo, and a "compact comments" output mode.
   `packages/cli` + plugin printers.
 
@@ -238,14 +294,119 @@ suite under `(plugins) tests/3.0.x/`, and parity coverage with the closest exist
 
 ---
 
+## Theme 7 — Request/response bodies & content types (P1)
+
+### 7a. Binary content-type detection beyond the happy path
+**Current.** Binary detection (`packages/adapter-oas/src/dialect.ts` `isBinary`) recognizes
+`format: binary` and 3.1 `contentMediaType: 'application/octet-stream'` on string schemas, but not
+`application/octet-stream` without `contentMediaType`, `*/*`, `application/zip`/other binary media
+types, or `format: binary` reached through a `$ref`.
+**Fix.** Treat the response/request as binary (`Blob`/`File`/`ReadableStream`) when the media type
+is a known binary type or `*/*`, and resolve `format: binary` through refs.
+```ts
+// response content: { "application/octet-stream": { schema: { $ref: FileRef } } }
+// current:  parsed as JSON object
+// expected: Blob
+```
+
+### 7b. multipart/form-data correctness
+**Current.** FormData building in `(plugins) packages/plugin-client/src/utils.ts` mishandles some
+shapes — nested JSON objects can be coerced to `Blob`, arrays of objects may not serialize, and
+readonly/enums in the multipart schema can leak in.
+**Fix.** Serialize each part by its schema (append objects as JSON blobs or repeated fields per
+`style`), keep array items as repeated parts, and strip readOnly props from request parts.
+
+### 7c. Empty / non-JSON bodies
+**Current.** Empty response bodies, `text/plain`, and empty arrays are not always handled; a
+no-content (204) or empty body can lead to parse errors downstream, and empty JSON arrays may be
+dropped from request payloads.
+**Fix.** Emit `void`/`undefined` response types for no-content statuses, respect `text/plain` as a
+string body, and always send an explicitly-provided empty array.
+
+### 7d. SSE / streaming responses
+**Current.** `text/event-stream` is unsupported — `getMediaType('text/event-stream')` returns
+`null`, so SSE/streaming endpoints are treated as plain text
+(`packages/adapter-oas/src/resolvers.ts`, media-type union in `packages/ast/src/signature.ts`).
+**Fix.** Recognize `text/event-stream` (and chunked/streaming bodies) as a media type, model it on
+the response node, and generate a streaming-aware client return type
+(`ReadableStream` / async iterator of typed events). Larger effort; coordinate with the query
+plugins so hooks expose the stream rather than a single payload.
+
+**Acceptance criteria.** Fixtures for octet-stream-via-ref, `*/*`, a multipart upload with
+object+array parts, a 204/empty/text-plain response, and an SSE endpoint; client request/response
+assertions (not only snapshots).
+
+---
+
+## Theme 8 — Mock data (faker) constraint coverage (P1)
+
+**Current.** `(plugins) packages/plugin-faker/src/printers/printerFaker.ts` honors `min`/`max` and
+`uniqueItems`, but ignores `multipleOf`, `exclusiveMinimum`/`exclusiveMaximum`, and
+`minLength`/`maxLength` as independent constraints, so generated mock data can violate the schema
+(and then fail the very zod schemas kubb also generates).
+**Fix.** Map the full numeric/string/array constraint set onto the faker calls.
+```ts
+// spec: { type: integer, minimum: 0, exclusiveMaximum: 100, multipleOf: 5 }
+// current:  faker.number.int({ min: 0, max: 100 })
+// expected: faker.number.int({ min: 0, max: 95, multipleOf: 5 })
+```
+
+**Acceptance criteria.** A fixture per constraint; generated mock values validate against the
+corresponding generated zod schema in a round-trip test.
+
+---
+
+## Theme 9 — Query-plugin depth (P2)
+
+Enhancements to the react-query / vue-query / swr plugins (`(plugins) packages/plugin-react-query`,
+`plugin-vue-query`, `plugin-swr`, shared in `(plugins) internals/tanstack-query`):
+
+- **Infinite query options**: generate correct `infiniteQueryOptions` including page-param wiring
+  and a stable `queryKey` that is not mutated between pages.
+- **queryKey correctness**: include path + query params (and operationId) deterministically so keys
+  are unique and invalidation-friendly.
+- **Invalidation helpers**: emit per-operation key factories / invalidate helpers.
+- **Optimistic updates & cancellation**: scaffolding/option hooks for `onMutate`/rollback and
+  request cancellation.
+- **Framework reactivity**: vue-query should accept `MaybeRefOrGetter` inputs and avoid
+  double-unwrapping reactive refs; keep up with TanStack v5 option-type drift.
+
+**Acceptance criteria.** Per-feature fixtures + type-check against the targeted TanStack/SWR
+versions; queryKey snapshot stability.
+
+---
+
+## Theme 10 — Robustness & error reporting on malformed specs (P1)
+
+**Current.** Validation is non-fatal by default and ref-resolution failures are swallowed
+(`packages/adapter-oas/src/factory.ts` `validateDocument`, `parser.ts` `convertRef` bare `catch`),
+so a bad `$ref` or a property with no `type` silently yields `any`/`null` or an opaque crash with
+no pointer to the offending location. Generic crash reports are the single highest-volume issue
+class for tools in this space.
+**Fix.** Add a structured diagnostics path: collect parse-time problems with their JSON-pointer
+location and a clear message, surface them (warn or fail per a `strict` option) instead of throwing
+raw stack traces, and never silently emit `any` for an unresolved ref without a diagnostic.
+```
+✖ adapter-oas: unresolved $ref "#/components/schemas/Animal" at paths./pets.get.responses.200
+  (no schema with that name was found)
+```
+
+**Acceptance criteria.** Fixtures with an unresolved ref, a property with no `type`, and an invalid
+document each produce an actionable diagnostic (and fail under `strict`) rather than a raw crash;
+no unhandled exception escapes the adapter.
+
+---
+
 ## Suggested sequencing
 
 1. **P0 correctness first**: Theme 1 (param styles), Theme 2a/2b (enum default + nullable),
    Theme 4a (`$ref` escaping). These fix wrong output on common specs.
-2. **P1 robustness**: rest of Theme 2/3/4 (unions, regex, stable ordering, global collisions,
-   discriminators).
-3. **P2 DX**: Theme 5 (validation/warnings, presets, transforms, CLI).
-4. **P2 initiatives**: Theme 6 new plugins, and `$dynamicRef` support.
+2. **P1 robustness**: rest of Theme 2/3/4 (unions, regex/format chains, stable ordering, combined
+   types, global collisions, discriminators, `allOf` merge, `propertyNames`), Theme 7 (bodies &
+   content types), Theme 8 (faker constraints), and Theme 10 (diagnostics on malformed specs).
+3. **P2 DX**: Theme 5 (validation/warnings, presets, transforms, acronym casing, CLI) and Theme 9
+   (query-plugin depth).
+4. **P2 initiatives**: Theme 6 new plugins, Theme 7d SSE/streaming, and `$dynamicRef` support.
 
 ## Verification approach (per item)
 
