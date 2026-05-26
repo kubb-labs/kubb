@@ -148,6 +148,7 @@
     "replace-unrun-with-jiti",
     "requestbody-content-array",
     "rich-zebras-end",
+    "shape-keys-refactor",
     "show-hooks-cli-progress",
     "simplify-core-cli-ast-dispatch",
     "some-dodos-search",

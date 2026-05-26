@@ -1,5 +1,23 @@
 # Changelog
 
+## v5.0.0-beta.32 — May 26, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- refactor(ast): replace describeShape switch with SHAPE_KEYS registry
+  
+  Internal refactor only — no public API changes. Replaces the 12-case switch
+  statement in `describeShape` with a declarative `SHAPE_KEYS` registry (same
+  pattern as `VISITOR_KEYS` in visitor.ts). Output is byte-for-byte identical. ([#3392](https://github.com/kubb-labs/kubb/pull/3392), [`3fe64a8`](https://github.com/kubb-labs/kubb/commit/3fe64a83bbc82ed340adfae760e9014c08f3fd49))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.31 — May 26, 2026
 
 ### @kubb/adapter-oas
