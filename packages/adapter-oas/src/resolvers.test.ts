@@ -125,18 +125,20 @@ describe('buildSchemaNode', () => {
     }
     const node = buildSchemaNode(schema, 'myName', true, 'defaultVal')
 
-    expect(node).toEqual({
-      name: 'myName',
-      nullable: true,
-      title: 'My Schema',
-      description: 'A description',
-      deprecated: true,
-      readOnly: true,
-      writeOnly: false,
-      default: 'defaultVal',
-      example: 42,
-      format: 'email',
-    })
+    expect(node).toMatchInlineSnapshot(`
+      {
+        "default": "defaultVal",
+        "deprecated": true,
+        "description": "A description",
+        "example": 42,
+        "format": "email",
+        "name": "myName",
+        "nullable": true,
+        "readOnly": true,
+        "title": "My Schema",
+        "writeOnly": false,
+      }
+    `)
   })
 
   it('passes through undefined fields as undefined', () => {
