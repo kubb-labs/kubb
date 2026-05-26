@@ -73,6 +73,7 @@
     "monorepo",
     "APIV",
     "dedupe",
+    "Merkle",
     "Oxlint",
     "Oxfmt",
     "whatwg",

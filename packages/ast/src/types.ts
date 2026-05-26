@@ -1,4 +1,5 @@
 export type { VisitorDepth } from './constants.ts'
+export type { BuildDedupePlanOptions, DedupeCanonical, DedupePlan } from './dedupe.ts'
 export type { SchemaDialect } from './dialect.ts'
 export type { DispatchRule } from './dispatch.ts'
 export type { DistributiveOmit } from './factory.ts'

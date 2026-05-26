@@ -1,5 +1,6 @@
 import { ast } from '@kubb/core'
 import type BaseOas from 'oas'
+import { SCHEMA_REF_PREFIX } from './constants.ts'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
 import type { SchemaParser } from './parser.ts'
 import { resolveServerUrl } from './resolvers.ts'
@@ -11,6 +12,53 @@ export type PreScanResult = {
   enumNames: Array<string>
   circularNames: Array<string>
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
+  dedupePlan: ast.DedupePlan | null
+}
+
+/**
+ * Builds the deduplication plan from the already-parsed top-level schema nodes plus a
+ * single extra parse pass over operations (so duplicates in request/response bodies are seen).
+ *
+ * Only enums and objects are candidates, and object shapes that reference a circular schema are
+ * rejected to avoid hoisting recursive structures. Inline shapes reuse their context-derived
+ * name (collision-resolved against existing component names); shapes without a name stay inline.
+ */
+function createDedupePlan({
+  schemaNodes,
+  operationNodes,
+  schemaNames,
+  circularNames,
+}: {
+  schemaNodes: Array<ast.SchemaNode>
+  operationNodes: Array<ast.OperationNode>
+  schemaNames: Array<string>
+  circularNames: Array<string>
+}): ast.DedupePlan {
+  const circularSchemas = new Set(circularNames)
+  const usedNames = new Set(schemaNames)
+
+  return ast.buildDedupePlan([...schemaNodes, ...operationNodes], {
+    isCandidate: (node) => {
+      if (node.type === 'enum') return true
+      if (node.type !== 'object') return false
+      // Skip object shapes that are part of a circular chain — hoisting them would break the cycle.
+      if (node.name && circularSchemas.has(node.name)) return false
+      return !ast.containsCircularRef(node, { circularSchemas })
+    },
+    nameFor: (node) => {
+      const base = node.name
+      if (!base) return null
+
+      let name = base
+      let counter = 2
+      while (usedNames.has(name)) {
+        name = `${base}${counter++}`
+      }
+      usedNames.add(name)
+      return name
+    },
+    refFor: (name) => `${SCHEMA_REF_PREFIX}${name}`,
+  })
 }
 
 /**
@@ -66,13 +114,19 @@ export function resolveBaseUrl({
 export function preScan({
   schemas,
   parseSchema,
+  parseOperation,
+  baseOas,
   parserOptions,
   discriminator,
+  dedupe,
 }: {
   schemas: Record<string, SchemaObject>
   parseSchema: (entry: { schema: SchemaObject; name: string }, options: ast.ParserOptions) => ast.SchemaNode
+  parseOperation: SchemaParser['parseOperation']
+  baseOas: BaseOas
   parserOptions: ast.ParserOptions
   discriminator: AdapterOas['options']['discriminator']
+  dedupe: boolean
 }): PreScanResult {
   const allNodes: Array<ast.SchemaNode> = []
   const refAliasMap = new Map<string, ast.SchemaNode>()
@@ -96,7 +150,27 @@ export function preScan({
   const circularNames = [...ast.findCircularSchemas(allNodes)]
   const discriminatorChildMap = discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 
-  return { refAliasMap, enumNames, circularNames, discriminatorChildMap }
+  let dedupePlan: ast.DedupePlan | null = null
+  if (dedupe) {
+    // One extra parse pass over operations so duplicates in request/response bodies are seen.
+    // Reuses the already-parsed `allNodes` for schemas — no second schema parse.
+    const operationNodes: Array<ast.OperationNode> = []
+    for (const methods of Object.values(baseOas.getPaths())) {
+      for (const operation of Object.values(methods)) {
+        if (!operation) continue
+        const operationNode = parseOperation(parserOptions, operation)
+        if (operationNode) operationNodes.push(operationNode)
+      }
+    }
+
+    dedupePlan = createDedupePlan({ schemaNodes: allNodes, operationNodes, schemaNames: Object.keys(schemas), circularNames })
+
+    for (const definition of dedupePlan.hoisted) {
+      if (definition.type === 'enum' && definition.name) enumNames.push(definition.name)
+    }
+  }
+
+  return { refAliasMap, enumNames, circularNames, discriminatorChildMap, dedupePlan }
 }
 
 /**
@@ -125,6 +199,7 @@ export function createInputStream({
   parserOptions,
   refAliasMap,
   discriminatorChildMap,
+  dedupePlan,
   meta,
 }: {
   schemas: Record<string, SchemaObject>
@@ -134,24 +209,50 @@ export function createInputStream({
   parserOptions: ast.ParserOptions
   refAliasMap: Map<string, ast.SchemaNode>
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
+  dedupePlan: ast.DedupePlan | null
   meta: ast.InputMeta
 }): ast.InputStreamNode {
+  // Rewrites a top-level schema against the dedupe plan: a structurally identical sibling
+  // becomes a `ref` alias to the canonical one (keeping its own name); otherwise nested
+  // duplicates are collapsed while the schema's own root is preserved.
+  const rewriteTopLevelSchema = (node: ast.SchemaNode): ast.SchemaNode => {
+    if (!dedupePlan) return node
+
+    const canonical = dedupePlan.canonicalBySignature.get(ast.schemaSignature(node))
+    if (canonical && canonical.name !== node.name) {
+      return ast.createSchema({
+        type: 'ref',
+        name: node.name ?? null,
+        ref: canonical.ref,
+        description: node.description,
+        deprecated: node.deprecated,
+      })
+    }
+
+    return ast.applyDedupe(node, dedupePlan.canonicalBySignature, true)
+  }
+
   const schemasIterable: AsyncIterable<ast.SchemaNode> = {
     [Symbol.asyncIterator]() {
       return (async function* () {
+        // Hoisted canonical definitions are emitted first so the schema list owns the shared shapes.
+        if (dedupePlan) {
+          for (const definition of dedupePlan.hoisted) yield definition
+        }
+
         for (const [name, schema] of Object.entries(schemas)) {
           // Inline ref aliases: replace the alias entry with its target's parsed node
           // (keeping the alias name). Skip the first parse entirely for alias entries
           // since that result is never used.
           const alias = refAliasMap.get(name)
           if (alias?.name && schemas[alias.name]) {
-            yield { ...parseSchema({ schema: schemas[alias.name]!, name: alias.name }, parserOptions), name }
+            yield rewriteTopLevelSchema({ ...parseSchema({ schema: schemas[alias.name]!, name: alias.name }, parserOptions), name })
             continue
           }
 
           const parsed = parseSchema({ schema, name }, parserOptions)
           const node = discriminatorChildMap?.get(name) ? patchDiscriminatorNode(parsed, discriminatorChildMap.get(name)!) : parsed
-          yield node
+          yield rewriteTopLevelSchema(node)
         }
       })()
     },
@@ -164,7 +265,7 @@ export function createInputStream({
           for (const operation of Object.values(methods)) {
             if (!operation) continue
             const node = parseOperation(parserOptions, operation)
-            if (node) yield node
+            if (node) yield dedupePlan ? ast.applyDedupe(node, dedupePlan.canonicalBySignature) : node
           }
         }
       })()
