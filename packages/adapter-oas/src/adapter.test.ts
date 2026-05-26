@@ -38,8 +38,12 @@ describe('adapterOas.stream', () => {
       schemas.push(schema)
     }
 
-    expect(schemas.length).toBe(2)
-    expect(schemas.map((s) => s.name)).toEqual(expect.arrayContaining(['Pet', 'Category']))
+    expect(schemas.map((s) => s.name)).toMatchInlineSnapshot(`
+      [
+        "Pet",
+        "Category",
+      ]
+    `)
   })
 
   it('each for await on schemas creates a fresh independent pass', async () => {
@@ -52,7 +56,12 @@ describe('adapterOas.stream', () => {
     const second: Array<ast.SchemaNode> = []
     for await (const schema of node.schemas) second.push(schema)
 
-    expect(second.length).toBe(first.length)
+    expect(first.map((s) => s.name)).toMatchInlineSnapshot(`
+      [
+        "Pet",
+        "Category",
+      ]
+    `)
     expect(second.map((s) => s.name)).toEqual(first.map((s) => s.name))
   })
 
@@ -65,16 +74,27 @@ describe('adapterOas.stream', () => {
       operations.push(op)
     }
 
-    expect(operations.length).toBe(1)
-    expect(operations[0]?.operationId).toBe('listPets')
+    expect(operations.map((operation) => operation.operationId)).toMatchInlineSnapshot(`
+      [
+        "listPets",
+      ]
+    `)
   })
 
   it('exposes meta before the first yield', async () => {
     const adapter = adapterOas({ validate: false })
     const node = await adapter.stream!({ type: 'data', data: minimalSpec })
 
-    expect(node.meta?.title).toBe('Test API')
-    expect(node.meta?.version).toBe('1.0.0')
+    expect(node.meta).toMatchInlineSnapshot(`
+      {
+        "baseURL": null,
+        "circularNames": [],
+        "description": undefined,
+        "enumNames": [],
+        "title": "Test API",
+        "version": "1.0.0",
+      }
+    `)
   })
 })
 
@@ -113,8 +133,17 @@ describe('adapterOas.getImports', () => {
       }),
     )
 
-    expect(imports).toHaveLength(1)
-    expect(imports[0]).toMatchObject({ name: ['PetType'], path: './pet.ts' })
+    expect(imports).toMatchInlineSnapshot(`
+      [
+        {
+          "kind": "Import",
+          "name": [
+            "PetType",
+          ],
+          "path": "./pet.ts",
+        },
+      ]
+    `)
   })
 })
 
@@ -169,7 +198,14 @@ describe('adapterOas dedupe', () => {
     const adapter = adapterOas({ validate: false, dedupe: false })
     const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: dedupeSpec }))
 
-    expect(schemas.map((schema) => schema.name)).toEqual(['Pet', 'Order', 'Cat', 'Dog'])
+    expect(schemas.map((schema) => schema.name)).toMatchInlineSnapshot(`
+      [
+        "Pet",
+        "Order",
+        "Cat",
+        "Dog",
+      ]
+    `)
     expect(
       propertySchema(
         schemas.find((schema) => schema.name === 'Pet'),
@@ -266,6 +302,10 @@ describe('adapterOas dedupe', () => {
       },
     })
 
-    expect(refNames.length).toBeGreaterThan(0)
+    expect(refNames).toMatchInlineSnapshot(`
+      [
+        "PetStatusEnum",
+      ]
+    `)
   })
 })

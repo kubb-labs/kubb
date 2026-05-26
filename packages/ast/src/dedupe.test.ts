@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { applyDedupe, buildDedupePlan, isSchemaEqual, schemaSignature } from './dedupe.ts'
+import { applyDedupe, buildDedupePlan } from './dedupe.ts'
 import { createProperty, createSchema } from './factory.ts'
 import { narrowSchema } from './guards.ts'
 import type { SchemaNode } from './nodes/schema.ts'
+import { schemaSignature } from './signature.ts'
 
 function stringEnum(values: Array<string>, extra: Partial<Parameters<typeof createSchema>[0]> = {}): SchemaNode {
   return createSchema({ type: 'enum', primitive: 'string', enumValues: values, ...extra } as Parameters<typeof createSchema>[0])
@@ -11,31 +12,6 @@ function stringEnum(values: Array<string>, extra: Partial<Parameters<typeof crea
 const isCandidate = (node: SchemaNode) => node.type === 'enum' || node.type === 'object'
 const nameFor = (node: SchemaNode) => node.name ?? null
 const refFor = (name: string) => `#/components/schemas/${name}`
-
-describe('schemaSignature', () => {
-  it('ignores documentation and usage-slot fields', () => {
-    const a = stringEnum(['a', 'b'], { description: 'one', example: 'a', deprecated: true, optional: true })
-    const b = stringEnum(['a', 'b'], { title: 'two' })
-
-    expect(schemaSignature(a)).toBe(schemaSignature(b))
-    expect(isSchemaEqual(a, b)).toBe(true)
-  })
-
-  it('distinguishes by enum values', () => {
-    expect(isSchemaEqual(stringEnum(['a', 'b']), stringEnum(['a', 'c']))).toBe(false)
-  })
-
-  it('distinguishes by nullable', () => {
-    expect(isSchemaEqual(stringEnum(['a']), stringEnum(['a'], { nullable: true }))).toBe(false)
-  })
-
-  it('distinguishes objects by property name and required', () => {
-    const base = createSchema({ type: 'object', properties: [createProperty({ name: 'id', required: true, schema: createSchema({ type: 'string' }) })] })
-    const renamed = createSchema({ type: 'object', properties: [createProperty({ name: 'key', required: true, schema: createSchema({ type: 'string' }) })] })
-
-    expect(isSchemaEqual(base, renamed)).toBe(false)
-  })
-})
 
 describe('buildDedupePlan', () => {
   it('hoists an inline shape duplicated across schemas', () => {
