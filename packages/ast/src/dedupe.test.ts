@@ -59,11 +59,28 @@ describe('buildDedupePlan', () => {
     const plan = buildDedupePlan([pet, order], { isCandidate, nameFor, refFor })
 
     expect(plan.hoisted).toHaveLength(1)
-    expect(plan.hoisted[0]!.name).toBe('PetStatus')
-    expect(plan.hoisted[0]!.type).toBe('enum')
+    expect(plan.hoisted[0]).toMatchInlineSnapshot(`
+      {
+        "enumValues": [
+          "active",
+          "inactive",
+        ],
+        "kind": "Schema",
+        "name": "PetStatus",
+        "nullish": undefined,
+        "optional": undefined,
+        "primitive": "string",
+        "type": "enum",
+      }
+    `)
 
     const enumSignature = schemaSignature(stringEnum(['active', 'inactive']))
-    expect(plan.canonicalBySignature.get(enumSignature)).toEqual({ name: 'PetStatus', ref: '#/components/schemas/PetStatus' })
+    expect(plan.canonicalBySignature.get(enumSignature)).toMatchInlineSnapshot(`
+      {
+        "name": "PetStatus",
+        "ref": "#/components/schemas/PetStatus",
+      }
+    `)
   })
 
   it('leaves singletons untouched', () => {
@@ -145,10 +162,24 @@ describe('applyDedupe', () => {
 
     const result = narrowSchema(applyDedupe(order, canonicalBySignature), 'object')!
     const stateSchema = result.properties.find((prop) => prop.name === 'state')!.schema
-    const ref = narrowSchema(stateSchema, 'ref')
 
-    expect(ref?.name).toBe('PetStatus')
-    expect(ref?.ref).toBe('#/components/schemas/PetStatus')
+    expect(narrowSchema(stateSchema, 'ref')).toMatchInlineSnapshot(`
+      {
+        "default": undefined,
+        "deprecated": undefined,
+        "description": undefined,
+        "example": undefined,
+        "kind": "Schema",
+        "name": "PetStatus",
+        "nullish": undefined,
+        "optional": true,
+        "primitive": undefined,
+        "readOnly": undefined,
+        "ref": "#/components/schemas/PetStatus",
+        "type": "ref",
+        "writeOnly": undefined,
+      }
+    `)
   })
 
   it('keeps the root when skipRootMatch is set', () => {

@@ -183,7 +183,15 @@ describe('adapterOas dedupe', () => {
     const adapter = adapterOas({ validate: false })
     const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: dedupeSpec }))
 
-    expect(schemas.filter((schema) => schema.type === 'enum')).toHaveLength(1)
+    expect(schemas.map((schema) => schema.name)).toMatchInlineSnapshot(`
+      [
+        "PetStatusEnum",
+        "Pet",
+        "Order",
+        "Cat",
+        "Dog",
+      ]
+    `)
     expect(schemas.find((schema) => schema.name === 'Dog')?.type).toBe('ref')
   })
 
@@ -195,7 +203,16 @@ describe('adapterOas dedupe', () => {
     const enums = schemas.filter((schema) => schema.type === 'enum')
     expect(enums).toHaveLength(1)
     const sharedEnum = ast.narrowSchema(enums[0], 'enum')!
-    expect(sharedEnum.enumValues).toEqual(['active', 'inactive'])
+    expect({ name: sharedEnum.name, primitive: sharedEnum.primitive, enumValues: sharedEnum.enumValues }).toMatchInlineSnapshot(`
+      {
+        "enumValues": [
+          "active",
+          "inactive",
+        ],
+        "name": "PetStatusEnum",
+        "primitive": "string",
+      }
+    `)
     expect(node.meta?.enumNames).toContain(sharedEnum.name)
 
     const petStatus = ast.narrowSchema(
@@ -227,8 +244,13 @@ describe('adapterOas dedupe', () => {
     )
 
     expect(cat?.type).toBe('object')
-    expect(dog?.type).toBe('ref')
-    expect(dog?.ref).toBe('#/components/schemas/Cat')
+    expect({ name: dog?.name, type: dog?.type, ref: dog?.ref }).toMatchInlineSnapshot(`
+      {
+        "name": "Dog",
+        "ref": "#/components/schemas/Cat",
+        "type": "ref",
+      }
+    `)
   })
 
   it('rewrites duplicated inline shapes inside operations', async () => {
