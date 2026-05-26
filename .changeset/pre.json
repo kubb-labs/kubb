@@ -18,8 +18,10 @@
     "@kubb/parser-md": "5.0.0-beta.24"
   },
   "changesets": [
+    "adapter-oas-drf-null-enum",
     "adapter-oas-integer-type-bigint-default",
     "adapter-oas-schema-dialect",
+    "adapter-oas-schema-enum-dedupe",
     "add-adapter-document-field",
     "add-ast-dispatch-helper",
     "add-code-ast-nodes",
