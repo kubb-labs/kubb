@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.31 — May 26, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Treat an enum whose only value is `null` (drf-spectacular's `NullEnum`, `{ enum: [null] }`) as a `null` schema instead of an empty enum.
+  
+  Previously the `null` value was stripped, leaving an enum with no values that rendered as `never` (`@kubb/plugin-ts`) or an invalid `z.enum([])` (`@kubb/plugin-zod`), silently dropping nullability. The common drf-spectacular `oneOf: [StatusEnum, BlankEnum, NullEnum]` pattern now generates valid output (e.g. `Status | "" | null`). ([#3384](https://github.com/kubb-labs/kubb/pull/3384), [`cf72a72`](https://github.com/kubb-labs/kubb/commit/cf72a723c883be0b94b75055440c4d62c4a7fa0c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.30 — May 25, 2026
 
 ### @kubb/adapter-oas
