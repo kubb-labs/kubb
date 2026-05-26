@@ -21,35 +21,41 @@ function refTargetName(node: Extract<SchemaNode, { type: 'ref' }>): string {
 // (Babel-style, same concept as VISITOR_KEYS in visitor.ts)
 // ---------------------------------------------------------------------------
 
-type ScalarField          = { kind: 'scalar';           key: string; prefix: string }
-type BoolField            = { kind: 'bool';             key: string; prefix: string }
-type ChildField           = { kind: 'child';            key: string; prefix: string }
-type ChildrenField        = { kind: 'children';         key: string; prefix: string }
-type ObjectPropsField     = { kind: 'objectProps' }
+type ScalarField = { kind: 'scalar'; key: string; prefix: string }
+type BoolField = { kind: 'bool'; key: string; prefix: string }
+type ChildField = { kind: 'child'; key: string; prefix: string }
+type ChildrenField = { kind: 'children'; key: string; prefix: string }
+type ObjectPropsField = { kind: 'objectProps' }
 type AdditionalPropsField = { kind: 'additionalProps' }
-type PatternPropsField    = { kind: 'patternProps' }
-type EnumValuesField      = { kind: 'enumValues' }
-type RefTargetField       = { kind: 'refTarget' }
+type PatternPropsField = { kind: 'patternProps' }
+type EnumValuesField = { kind: 'enumValues' }
+type RefTargetField = { kind: 'refTarget' }
 
 type ShapeField =
-  | ScalarField | BoolField | ChildField | ChildrenField
-  | ObjectPropsField | AdditionalPropsField | PatternPropsField
-  | EnumValuesField | RefTargetField
+  | ScalarField
+  | BoolField
+  | ChildField
+  | ChildrenField
+  | ObjectPropsField
+  | AdditionalPropsField
+  | PatternPropsField
+  | EnumValuesField
+  | RefTargetField
 
 const arrayTupleFields: ReadonlyArray<ShapeField> = [
-  { kind: 'children', key: 'items',  prefix: 'i' },
-  { kind: 'child',    key: 'rest',   prefix: 'r' },
-  { kind: 'scalar',   key: 'min',    prefix: 'mn' },
-  { kind: 'scalar',   key: 'max',    prefix: 'mx' },
-  { kind: 'bool',     key: 'unique', prefix: 'u' },
+  { kind: 'children', key: 'items', prefix: 'i' },
+  { kind: 'child', key: 'rest', prefix: 'r' },
+  { kind: 'scalar', key: 'min', prefix: 'mn' },
+  { kind: 'scalar', key: 'max', prefix: 'mx' },
+  { kind: 'bool', key: 'unique', prefix: 'u' },
 ]
 
 const numericFields: ReadonlyArray<ShapeField> = [
-  { kind: 'scalar', key: 'min',              prefix: 'mn' },
-  { kind: 'scalar', key: 'max',              prefix: 'mx' },
+  { kind: 'scalar', key: 'min', prefix: 'mn' },
+  { kind: 'scalar', key: 'max', prefix: 'mx' },
   { kind: 'scalar', key: 'exclusiveMinimum', prefix: 'emn' },
   { kind: 'scalar', key: 'exclusiveMaximum', prefix: 'emx' },
-  { kind: 'scalar', key: 'multipleOf',       prefix: 'mo' },
+  { kind: 'scalar', key: 'multipleOf', prefix: 'mo' },
 ]
 
 const rangeFields: ReadonlyArray<ShapeField> = [
@@ -70,40 +76,34 @@ const SHAPE_KEYS: Partial<Record<SchemaNode['type'], ReadonlyArray<ShapeField>>>
     { kind: 'scalar', key: 'minProperties', prefix: 'mn' },
     { kind: 'scalar', key: 'maxProperties', prefix: 'mx' },
   ],
-  array:        arrayTupleFields,
-  tuple:        arrayTupleFields,
+  array: arrayTupleFields,
+  tuple: arrayTupleFields,
   union: [
-    { kind: 'scalar',   key: 'strategy',                  prefix: 's' },
-    { kind: 'scalar',   key: 'discriminatorPropertyName',  prefix: 'd' },
-    { kind: 'children', key: 'members',                    prefix: 'm' },
-  ],
-  intersection: [
+    { kind: 'scalar', key: 'strategy', prefix: 's' },
+    { kind: 'scalar', key: 'discriminatorPropertyName', prefix: 'd' },
     { kind: 'children', key: 'members', prefix: 'm' },
   ],
-  enum: [
-    { kind: 'enumValues' },
-  ],
-  ref: [
-    { kind: 'refTarget' },
-  ],
+  intersection: [{ kind: 'children', key: 'members', prefix: 'm' }],
+  enum: [{ kind: 'enumValues' }],
+  ref: [{ kind: 'refTarget' }],
   string: [
-    { kind: 'scalar', key: 'min',     prefix: 'mn' },
-    { kind: 'scalar', key: 'max',     prefix: 'mx' },
+    { kind: 'scalar', key: 'min', prefix: 'mn' },
+    { kind: 'scalar', key: 'max', prefix: 'mx' },
     { kind: 'scalar', key: 'pattern', prefix: 'pt' },
   ],
-  number:  numericFields,
+  number: numericFields,
   integer: numericFields,
-  bigint:  numericFields,
+  bigint: numericFields,
   url: [
     { kind: 'scalar', key: 'path', prefix: 'path' },
-    { kind: 'scalar', key: 'min',  prefix: 'mn' },
-    { kind: 'scalar', key: 'max',  prefix: 'mx' },
+    { kind: 'scalar', key: 'min', prefix: 'mn' },
+    { kind: 'scalar', key: 'max', prefix: 'mx' },
   ],
-  uuid:  rangeFields,
+  uuid: rangeFields,
   email: rangeFields,
   datetime: [
     { kind: 'bool', key: 'offset', prefix: 'o' },
-    { kind: 'bool', key: 'local',  prefix: 'l' },
+    { kind: 'bool', key: 'local', prefix: 'l' },
   ],
   date: [{ kind: 'scalar', key: 'representation', prefix: 'rep' }],
   time: [{ kind: 'scalar', key: 'representation', prefix: 'rep' }],
