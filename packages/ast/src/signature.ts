@@ -104,7 +104,7 @@ const SHAPE_KEYS: Partial<Record<SchemaNode['type'], ReadonlyArray<ShapeField>>>
   time: [{ kind: 'scalar', key: 'representation', prefix: 'rep' }],
 }
 
-function serializeShapeField(field: ShapeField, node: SchemaNode, record: Record<string, unknown>, signatures: Map<SchemaNode, string>): string {
+function serializeShapeField(field: ShapeField, node: SchemaNode, record: Record<string, unknown>): string {
   switch (field.kind) {
     case 'scalar':
       return `${field.prefix}:${record[field.key] ?? ''}`
@@ -112,21 +112,21 @@ function serializeShapeField(field: ShapeField, node: SchemaNode, record: Record
       return `${field.prefix}:${record[field.key] ? 1 : 0}`
     case 'child': {
       const child = record[field.key] as SchemaNode | undefined
-      return `${field.prefix}:${child ? signatureOf(child, signatures) : ''}`
+      return `${field.prefix}:${child ? signatureOf(child) : ''}`
     }
     case 'children': {
       const children = (record[field.key] as Array<SchemaNode> | undefined) ?? []
-      return `${field.prefix}[${children.map((c) => signatureOf(c, signatures)).join(',')}]`
+      return `${field.prefix}[${children.map((c) => signatureOf(c)).join(',')}]`
     }
     case 'objectProps': {
       const obj = node as Extract<SchemaNode, { type: 'object' }>
-      const props = (obj.properties ?? []).map((prop) => `${prop.name}${prop.required ? '!' : '?'}${signatureOf(prop.schema, signatures)}`).join(',')
+      const props = (obj.properties ?? []).map((prop) => `${prop.name}${prop.required ? '!' : '?'}${signatureOf(prop.schema)}`).join(',')
       return `p[${props}]`
     }
     case 'additionalProps': {
       const obj = node as Extract<SchemaNode, { type: 'object' }>
       if (typeof obj.additionalProperties === 'boolean') return `ab:${obj.additionalProperties}`
-      if (obj.additionalProperties) return `as:${signatureOf(obj.additionalProperties, signatures)}`
+      if (obj.additionalProperties) return `as:${signatureOf(obj.additionalProperties)}`
       return ''
     }
     case 'patternProps': {
@@ -134,7 +134,7 @@ function serializeShapeField(field: ShapeField, node: SchemaNode, record: Record
       const pattern = obj.patternProperties
         ? Object.keys(obj.patternProperties)
             .sort()
-            .map((key) => `${key}=${signatureOf(obj.patternProperties![key]!, signatures)}`)
+            .map((key) => `${key}=${signatureOf(obj.patternProperties![key]!)}`)
             .join(',')
         : ''
       return `pp[${pattern}]`
@@ -160,7 +160,7 @@ function serializeShapeField(field: ShapeField, node: SchemaNode, record: Record
  * children's signatures. {@link signatureOf} hashes this string; children contribute their
  * fixed-length signature rather than their own full descriptor, which keeps the result bounded.
  */
-function describeShape(node: SchemaNode, signatures: Map<SchemaNode, string>): string {
+function describeShape(node: SchemaNode): string {
   const flags = flagsDescriptor(node)
   const fields = SHAPE_KEYS[node.type]
   if (!fields) return `${node.type}|${flags}`
@@ -168,10 +168,21 @@ function describeShape(node: SchemaNode, signatures: Map<SchemaNode, string>): s
   const record = node as unknown as Record<string, unknown>
   const parts: Array<string> = [`${node.type}|${flags}`]
   for (const field of fields) {
-    parts.push(serializeShapeField(field, node, record, signatures))
+    parts.push(serializeShapeField(field, node, record))
   }
   return parts.join('|')
 }
+
+/**
+ * Persistent hash-consing cache: `SchemaNode` → signature digest, keyed by node identity.
+ *
+ * A `WeakMap` so entries are released once the node is garbage-collected, and so a node hashed
+ * during dedupe planning is not re-hashed when the same tree is rewritten during streaming
+ * (where `schemaSignature` and `applyDedupe` would otherwise each walk it from scratch). Reuse
+ * across calls is sound because a signature depends only on a node's content, and schema nodes
+ * are immutable once created — transforms allocate new objects rather than mutating in place.
+ */
+const signatureCache = new WeakMap<SchemaNode, string>()
 
 /**
  * Hash-consing: each node's signature is a fixed-length digest of its local shape plus its
@@ -179,13 +190,13 @@ function describeShape(node: SchemaNode, signatures: Map<SchemaNode, string>): s
  * full nested descriptor, so a signature stays bounded regardless of subtree depth, and the
  * digest is identical across calls because it depends only on content — never on traversal
  * order. This keeps the keys built during planning consistent with the ones recomputed later
- * during streaming. `signatures` memoizes node → digest within a single computation.
+ * during streaming. {@link signatureCache} memoizes node → digest across every computation.
  */
-export function signatureOf(node: SchemaNode, signatures: Map<SchemaNode, string>): string {
-  const cached = signatures.get(node)
+export function signatureOf(node: SchemaNode): string {
+  const cached = signatureCache.get(node)
   if (cached !== undefined) return cached
-  const signature = createHash('sha256').update(describeShape(node, signatures)).digest('hex')
-  signatures.set(node, signature)
+  const signature = createHash('sha256').update(describeShape(node)).digest('hex')
+  signatureCache.set(node, signature)
   return signature
 }
 
@@ -205,7 +216,7 @@ export function signatureOf(node: SchemaNode, signatures: Map<SchemaNode, string
  * ```
  */
 export function schemaSignature(node: SchemaNode): string {
-  return signatureOf(node, new Map())
+  return signatureOf(node)
 }
 
 /**

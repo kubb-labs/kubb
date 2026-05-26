@@ -101,12 +101,11 @@ export function applyDedupe(node: OperationNode, canonicalBySignature: ReadonlyM
 export function applyDedupe(node: Node, canonicalBySignature: ReadonlyMap<string, DedupeCanonical>, skipRootMatch = false): Node {
   if (canonicalBySignature.size === 0) return node
 
-  const signatures = new Map<SchemaNode, string>()
   const root = node
 
   return transform(node, {
     schema(schemaNode) {
-      const signature = signatureOf(schemaNode, signatures)
+      const signature = signatureOf(schemaNode)
       if (skipRootMatch && schemaNode === root) return undefined
 
       const canonical = canonicalBySignature.get(signature)
@@ -145,7 +144,6 @@ function cleanDefinition(node: SchemaNode, name: string): SchemaNode {
 export function buildDedupePlan(roots: ReadonlyArray<Node>, options: BuildDedupePlanOptions): DedupePlan {
   const { isCandidate, nameFor, refFor, minOccurrences = 2 } = options
 
-  const signatures = new Map<SchemaNode, string>()
   const topLevelNodes = new Set<SchemaNode>()
 
   type Group = {
@@ -156,7 +154,7 @@ export function buildDedupePlan(roots: ReadonlyArray<Node>, options: BuildDedupe
   const groups = new Map<string, Group>()
 
   function record(schemaNode: SchemaNode): void {
-    const signature = signatureOf(schemaNode, signatures)
+    const signature = signatureOf(schemaNode)
     if (!isCandidate(schemaNode)) return
 
     const isTopLevel = topLevelNodes.has(schemaNode) && !!schemaNode.name
