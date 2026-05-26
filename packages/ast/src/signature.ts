@@ -16,11 +16,6 @@ function refTargetName(node: Extract<SchemaNode, { type: 'ref' }>): string {
   return node.name ?? ''
 }
 
-// ---------------------------------------------------------------------------
-// SHAPE_KEYS — declarative registry of shape-contributing fields per node type
-// (Babel-style, same concept as VISITOR_KEYS in visitor.ts)
-// ---------------------------------------------------------------------------
-
 type ScalarField = { kind: 'scalar'; key: string; prefix: string }
 type BoolField = { kind: 'bool'; key: string; prefix: string }
 type ChildField = { kind: 'child'; key: string; prefix: string }
