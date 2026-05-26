@@ -14,7 +14,7 @@ locations so each item can be picked up independently.
 
 Paths prefixed `(plugins)` live in the `kubb-labs/plugins` repo; all other paths are in this repo.
 
-Severity legend: **P0** correctness bug (emits wrong/uncompilable code) · **P1** notable gap ·
+Severity legend: **P0** correctness bug (emits wrong or non-compiling code) · **P1** notable gap ·
 **P2** DX/feature enhancement.
 
 ---
@@ -25,7 +25,7 @@ Severity legend: **P0** correctness bug (emits wrong/uncompilable code) · **P1*
 `spaceDelimited`, `pipeDelimited`, `simple`) are parsed but dropped — `ParameterNode` stores
 only `name`, `in`, `schema`, `required`. Clients serialize every param as a plain query string,
 so `deepObject` object params and array-style params generate wrong request URLs. Dot-notation /
-nested query params also misgenerate.
+nested query params are also generated incorrectly.
 
 **Where.**
 - `packages/ast/src/nodes/parameter.ts` — add `style` / `explode` to the node.
@@ -111,7 +111,7 @@ union-with-empty-object, and unicode patterns.
 
 ## Theme 3 — TypeScript output robustness (P1)
 
-- **Stable / deterministic ordering**: output ordering currently follows spec/dedup order and can
+- **Stable / deterministic ordering**: output ordering currently follows spec/deduplication order and can
   shift, producing churn and occasional cross-reference type errors. Introduce a stable sort of
   emitted declarations. `(plugins) packages/plugin-ts/src/generators/typeGenerator.tsx`,
   `printers/printerTs.ts`.
@@ -142,7 +142,7 @@ export const petKeys: PetKeys = makeKeys('pet')
 Stable ordering: two runs over the same spec must produce byte-identical files (sort
 declarations by a deterministic key, not discovery order).
 
-**Outcome.** Output typechecks under stricter tsconfig settings and avoids global shadowing.
+**Outcome.** Output compiles under stricter tsconfig settings and avoids global shadowing.
 
 ---
 
