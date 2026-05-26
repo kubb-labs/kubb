@@ -125,8 +125,8 @@
     "esbuild": "^0.28.0",
     "rolldown": "1.0.0-rc.16",
     "rollup": "^4.60.4",
-    "vite": "^8.0.13",
-    "webpack": "^5.106.2"
+    "vite": "^8.0.14",
+    "webpack": "^5.107.1"
   },
   "peerDependencies": {
     "@farmfe/core": "^1.7.0",

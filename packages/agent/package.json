@@ -57,7 +57,7 @@
     "remeda": "catalog:",
     "tinyexec": "catalog:",
     "unstorage": "^1.17.5",
-    "ws": "^8.20.1"
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
@@ -67,7 +67,7 @@
     "@types/ws": "^8.18.1",
     "msw": "^2.14.6",
     "nitropack": "^2.13.4",
-    "vite": "^8.0.13"
+    "vite": "^8.0.14"
   },
   "engines": {
     "node": ">=22"
