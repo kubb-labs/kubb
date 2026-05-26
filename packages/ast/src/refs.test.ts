@@ -64,71 +64,115 @@ describe('refMapToObject', () => {
 
     expect(Object.keys(obj).sort()).toEqual(['Error', 'FullPet', 'NewPet', 'Pet', 'PetList', 'PetOrError'])
 
-    expect(obj['Pet']).toEqual({
-      kind: 'Schema',
-      name: 'Pet',
-      type: 'object',
-      primitive: 'object',
-      properties: [
-        {
-          kind: 'Property',
-          name: 'id',
-          required: true,
-          schema: { kind: 'Schema', type: 'integer', primitive: 'integer' },
-        },
-        {
-          kind: 'Property',
-          name: 'name',
-          required: true,
-          schema: { kind: 'Schema', type: 'string', primitive: 'string' },
-        },
-      ],
-    })
-
-    expect(obj['PetList']).toEqual({
-      kind: 'Schema',
-      name: 'PetList',
-      type: 'array',
-      primitive: 'array',
-      items: [{ kind: 'Schema', type: 'ref', ref: 'Pet' }],
-    })
-
-    expect(obj['PetOrError']).toEqual({
-      kind: 'Schema',
-      name: 'PetOrError',
-      type: 'union',
-      members: [
-        { kind: 'Schema', type: 'ref', ref: 'Pet' },
-        { kind: 'Schema', type: 'ref', ref: 'Error' },
-      ],
-    })
-
-    expect(obj['FullPet']).toEqual({
-      kind: 'Schema',
-      name: 'FullPet',
-      type: 'intersection',
-      members: [
-        { kind: 'Schema', type: 'ref', ref: 'Pet' },
-        {
-          kind: 'Schema',
-          type: 'object',
-          primitive: 'object',
-          properties: [
-            {
-              kind: 'Property',
-              name: 'createdAt',
-              required: false,
-              schema: {
-                kind: 'Schema',
-                type: 'datetime',
-                primitive: 'string',
-                optional: true,
-                nullish: undefined,
-              },
+    expect(obj['Pet']).toMatchInlineSnapshot(`
+      {
+        "kind": "Schema",
+        "name": "Pet",
+        "primitive": "object",
+        "properties": [
+          {
+            "kind": "Property",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "kind": "Schema",
+              "nullish": undefined,
+              "optional": undefined,
+              "primitive": "integer",
+              "type": "integer",
             },
-          ],
-        },
-      ],
-    })
+          },
+          {
+            "kind": "Property",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "kind": "Schema",
+              "nullish": undefined,
+              "optional": undefined,
+              "primitive": "string",
+              "type": "string",
+            },
+          },
+        ],
+        "type": "object",
+      }
+    `)
+
+    expect(obj['PetList']).toMatchInlineSnapshot(`
+      {
+        "items": [
+          {
+            "kind": "Schema",
+            "primitive": undefined,
+            "ref": "Pet",
+            "type": "ref",
+          },
+        ],
+        "kind": "Schema",
+        "name": "PetList",
+        "primitive": "array",
+        "type": "array",
+      }
+    `)
+
+    expect(obj['PetOrError']).toMatchInlineSnapshot(`
+      {
+        "kind": "Schema",
+        "members": [
+          {
+            "kind": "Schema",
+            "primitive": undefined,
+            "ref": "Pet",
+            "type": "ref",
+          },
+          {
+            "kind": "Schema",
+            "primitive": undefined,
+            "ref": "Error",
+            "type": "ref",
+          },
+        ],
+        "name": "PetOrError",
+        "primitive": undefined,
+        "type": "union",
+      }
+    `)
+
+    expect(obj['FullPet']).toMatchInlineSnapshot(`
+      {
+        "kind": "Schema",
+        "members": [
+          {
+            "kind": "Schema",
+            "primitive": undefined,
+            "ref": "Pet",
+            "type": "ref",
+          },
+          {
+            "kind": "Schema",
+            "primitive": "object",
+            "properties": [
+              {
+                "kind": "Property",
+                "name": "createdAt",
+                "required": false,
+                "schema": {
+                  "kind": "Schema",
+                  "nullish": undefined,
+                  "optional": true,
+                  "primitive": "string",
+                  "type": "datetime",
+                },
+              },
+            ],
+            "type": "object",
+          },
+        ],
+        "name": "FullPet",
+        "primitive": undefined,
+        "type": "intersection",
+      }
+    `)
   })
 })
