@@ -16,6 +16,150 @@ function refTargetName(node: Extract<SchemaNode, { type: 'ref' }>): string {
   return node.name ?? ''
 }
 
+// ---------------------------------------------------------------------------
+// SHAPE_KEYS — declarative registry of shape-contributing fields per node type
+// (Babel-style, same concept as VISITOR_KEYS in visitor.ts)
+// ---------------------------------------------------------------------------
+
+type ScalarField          = { kind: 'scalar';           key: string; prefix: string }
+type BoolField            = { kind: 'bool';             key: string; prefix: string }
+type ChildField           = { kind: 'child';            key: string; prefix: string }
+type ChildrenField        = { kind: 'children';         key: string; prefix: string }
+type ObjectPropsField     = { kind: 'objectProps' }
+type AdditionalPropsField = { kind: 'additionalProps' }
+type PatternPropsField    = { kind: 'patternProps' }
+type EnumValuesField      = { kind: 'enumValues' }
+type RefTargetField       = { kind: 'refTarget' }
+
+type ShapeField =
+  | ScalarField | BoolField | ChildField | ChildrenField
+  | ObjectPropsField | AdditionalPropsField | PatternPropsField
+  | EnumValuesField | RefTargetField
+
+const arrayTupleFields: ReadonlyArray<ShapeField> = [
+  { kind: 'children', key: 'items',  prefix: 'i' },
+  { kind: 'child',    key: 'rest',   prefix: 'r' },
+  { kind: 'scalar',   key: 'min',    prefix: 'mn' },
+  { kind: 'scalar',   key: 'max',    prefix: 'mx' },
+  { kind: 'bool',     key: 'unique', prefix: 'u' },
+]
+
+const numericFields: ReadonlyArray<ShapeField> = [
+  { kind: 'scalar', key: 'min',              prefix: 'mn' },
+  { kind: 'scalar', key: 'max',              prefix: 'mx' },
+  { kind: 'scalar', key: 'exclusiveMinimum', prefix: 'emn' },
+  { kind: 'scalar', key: 'exclusiveMaximum', prefix: 'emx' },
+  { kind: 'scalar', key: 'multipleOf',       prefix: 'mo' },
+]
+
+const rangeFields: ReadonlyArray<ShapeField> = [
+  { kind: 'scalar', key: 'min', prefix: 'mn' },
+  { kind: 'scalar', key: 'max', prefix: 'mx' },
+]
+
+/**
+ * Maps each schema node `type` to the ordered list of shape-contributing fields.
+ * Node types absent from this map (scalar types like boolean, null, any, etc.) fall
+ * back to `${type}|${flags}` with no additional fields.
+ */
+const SHAPE_KEYS: Partial<Record<SchemaNode['type'], ReadonlyArray<ShapeField>>> = {
+  object: [
+    { kind: 'objectProps' },
+    { kind: 'additionalProps' },
+    { kind: 'patternProps' },
+    { kind: 'scalar', key: 'minProperties', prefix: 'mn' },
+    { kind: 'scalar', key: 'maxProperties', prefix: 'mx' },
+  ],
+  array:        arrayTupleFields,
+  tuple:        arrayTupleFields,
+  union: [
+    { kind: 'scalar',   key: 'strategy',                  prefix: 's' },
+    { kind: 'scalar',   key: 'discriminatorPropertyName',  prefix: 'd' },
+    { kind: 'children', key: 'members',                    prefix: 'm' },
+  ],
+  intersection: [
+    { kind: 'children', key: 'members', prefix: 'm' },
+  ],
+  enum: [
+    { kind: 'enumValues' },
+  ],
+  ref: [
+    { kind: 'refTarget' },
+  ],
+  string: [
+    { kind: 'scalar', key: 'min',     prefix: 'mn' },
+    { kind: 'scalar', key: 'max',     prefix: 'mx' },
+    { kind: 'scalar', key: 'pattern', prefix: 'pt' },
+  ],
+  number:  numericFields,
+  integer: numericFields,
+  bigint:  numericFields,
+  url: [
+    { kind: 'scalar', key: 'path', prefix: 'path' },
+    { kind: 'scalar', key: 'min',  prefix: 'mn' },
+    { kind: 'scalar', key: 'max',  prefix: 'mx' },
+  ],
+  uuid:  rangeFields,
+  email: rangeFields,
+  datetime: [
+    { kind: 'bool', key: 'offset', prefix: 'o' },
+    { kind: 'bool', key: 'local',  prefix: 'l' },
+  ],
+  date: [{ kind: 'scalar', key: 'representation', prefix: 'rep' }],
+  time: [{ kind: 'scalar', key: 'representation', prefix: 'rep' }],
+}
+
+function serializeShapeField(field: ShapeField, node: SchemaNode, record: Record<string, unknown>, signatures: Map<SchemaNode, string>): string {
+  switch (field.kind) {
+    case 'scalar':
+      return `${field.prefix}:${record[field.key] ?? ''}`
+    case 'bool':
+      return `${field.prefix}:${record[field.key] ? 1 : 0}`
+    case 'child': {
+      const child = record[field.key] as SchemaNode | undefined
+      return `${field.prefix}:${child ? signatureOf(child, signatures) : ''}`
+    }
+    case 'children': {
+      const children = (record[field.key] as SchemaNode[] | undefined) ?? []
+      return `${field.prefix}[${children.map((c) => signatureOf(c, signatures)).join(',')}]`
+    }
+    case 'objectProps': {
+      const obj = node as Extract<SchemaNode, { type: 'object' }>
+      const props = (obj.properties ?? []).map((prop) => `${prop.name}${prop.required ? '!' : '?'}${signatureOf(prop.schema, signatures)}`).join(',')
+      return `p[${props}]`
+    }
+    case 'additionalProps': {
+      const obj = node as Extract<SchemaNode, { type: 'object' }>
+      if (typeof obj.additionalProperties === 'boolean') return `ab:${obj.additionalProperties}`
+      if (obj.additionalProperties) return `as:${signatureOf(obj.additionalProperties, signatures)}`
+      return ''
+    }
+    case 'patternProps': {
+      const obj = node as Extract<SchemaNode, { type: 'object' }>
+      const pattern = obj.patternProperties
+        ? Object.keys(obj.patternProperties)
+            .sort()
+            .map((key) => `${key}=${signatureOf(obj.patternProperties![key]!, signatures)}`)
+            .join(',')
+        : ''
+      return `pp[${pattern}]`
+    }
+    case 'enumValues': {
+      const en = node as Extract<SchemaNode, { type: 'enum' }>
+      let values = ''
+      if (en.namedEnumValues?.length) {
+        values = en.namedEnumValues.map((entry) => `${entry.name}=${entry.primitive}:${String(entry.value)}`).join(',')
+      } else if (en.enumValues?.length) {
+        values = en.enumValues.map((value) => `${value === null ? 'null' : typeof value}:${String(value)}`).join(',')
+      }
+      return `v[${values}]`
+    }
+    case 'refTarget': {
+      return `->${refTargetName(node as Extract<SchemaNode, { type: 'ref' }>)}`
+    }
+  }
+}
+
 /**
  * Builds the local, shape-only descriptor for a node: its kind, flags, constraints, and its
  * children's signatures. {@link signatureOf} hashes this string; children contribute their
@@ -23,68 +167,15 @@ function refTargetName(node: Extract<SchemaNode, { type: 'ref' }>): string {
  */
 function describeShape(node: SchemaNode, signatures: Map<SchemaNode, string>): string {
   const flags = flagsDescriptor(node)
+  const fields = SHAPE_KEYS[node.type]
+  if (!fields) return `${node.type}|${flags}`
 
-  switch (node.type) {
-    case 'object': {
-      const props = (node.properties ?? []).map((prop) => `${prop.name}${prop.required ? '!' : '?'}${signatureOf(prop.schema, signatures)}`).join(',')
-      let additional = ''
-      if (typeof node.additionalProperties === 'boolean') {
-        additional = `ab:${node.additionalProperties}`
-      } else if (node.additionalProperties) {
-        additional = `as:${signatureOf(node.additionalProperties, signatures)}`
-      }
-      const pattern = node.patternProperties
-        ? Object.keys(node.patternProperties)
-            .sort()
-            .map((key) => `${key}=${signatureOf(node.patternProperties![key]!, signatures)}`)
-            .join(',')
-        : ''
-      return `object|${flags}|p[${props}]|${additional}|pp[${pattern}]|mn:${node.minProperties ?? ''}|mx:${node.maxProperties ?? ''}`
-    }
-    case 'array':
-    case 'tuple': {
-      const items = (node.items ?? []).map((item) => signatureOf(item, signatures)).join(',')
-      const rest = node.rest ? signatureOf(node.rest, signatures) : ''
-      return `${node.type}|${flags}|i[${items}]|r:${rest}|mn:${node.min ?? ''}|mx:${node.max ?? ''}|u:${node.unique ? 1 : 0}`
-    }
-    case 'union': {
-      const members = (node.members ?? []).map((member) => signatureOf(member, signatures)).join(',')
-      return `union|${flags}|s:${node.strategy ?? ''}|d:${node.discriminatorPropertyName ?? ''}|m[${members}]`
-    }
-    case 'intersection': {
-      const members = (node.members ?? []).map((member) => signatureOf(member, signatures)).join(',')
-      return `intersection|${flags}|m[${members}]`
-    }
-    case 'enum': {
-      let values = ''
-      if (node.namedEnumValues?.length) {
-        values = node.namedEnumValues.map((entry) => `${entry.name}=${entry.primitive}:${String(entry.value)}`).join(',')
-      } else if (node.enumValues?.length) {
-        values = node.enumValues.map((value) => `${value === null ? 'null' : typeof value}:${String(value)}`).join(',')
-      }
-      return `enum|${flags}|v[${values}]`
-    }
-    case 'ref':
-      return `ref|${flags}|->${refTargetName(node)}`
-    case 'string':
-      return `string|${flags}|mn:${node.min ?? ''}|mx:${node.max ?? ''}|pt:${node.pattern ?? ''}`
-    case 'number':
-    case 'integer':
-    case 'bigint':
-      return `${node.type}|${flags}|mn:${node.min ?? ''}|mx:${node.max ?? ''}|emn:${node.exclusiveMinimum ?? ''}|emx:${node.exclusiveMaximum ?? ''}|mo:${node.multipleOf ?? ''}`
-    case 'url':
-      return `url|${flags}|path:${node.path ?? ''}|mn:${node.min ?? ''}|mx:${node.max ?? ''}`
-    case 'uuid':
-    case 'email':
-      return `${node.type}|${flags}|mn:${node.min ?? ''}|mx:${node.max ?? ''}`
-    case 'datetime':
-      return `datetime|${flags}|o:${node.offset ? 1 : 0}|l:${node.local ? 1 : 0}`
-    case 'date':
-    case 'time':
-      return `${node.type}|${flags}|rep:${node.representation}`
-    default:
-      return `${node.type}|${flags}`
+  const record = node as unknown as Record<string, unknown>
+  const parts: string[] = [`${node.type}|${flags}`]
+  for (const field of fields) {
+    parts.push(serializeShapeField(field, node, record, signatures))
   }
+  return parts.join('|')
 }
 
 /**
