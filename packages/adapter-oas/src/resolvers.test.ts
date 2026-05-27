@@ -68,17 +68,21 @@ describe('getDateType', () => {
   })
 
   it('resolves date-time with dateType string to datetime without offset', () => {
-    expect(getDateType({ ...base, dateType: 'string' }, 'date-time')).toEqual({
-      type: 'datetime',
-      offset: false,
-    })
+    expect(getDateType({ ...base, dateType: 'string' }, 'date-time')).toMatchInlineSnapshot(`
+      {
+        "offset": false,
+        "type": "datetime",
+      }
+    `)
   })
 
   it('resolves date-time with dateType date', () => {
-    expect(getDateType({ ...base, dateType: 'date' }, 'date-time')).toEqual({
-      type: 'date',
-      representation: 'date',
-    })
+    expect(getDateType({ ...base, dateType: 'date' }, 'date-time')).toMatchInlineSnapshot(`
+      {
+        "representation": "date",
+        "type": "date",
+      }
+    `)
   })
 
   it('resolves date-time with dateType stringOffset', () => {
@@ -90,25 +94,33 @@ describe('getDateType', () => {
   })
 
   it('resolves date format', () => {
-    expect(getDateType({ ...base, dateType: 'string' }, 'date')).toEqual({
-      type: 'date',
-      representation: 'string',
-    })
-    expect(getDateType({ ...base, dateType: 'date' }, 'date')).toEqual({
-      type: 'date',
-      representation: 'date',
-    })
+    expect(getDateType({ ...base, dateType: 'string' }, 'date')).toMatchInlineSnapshot(`
+      {
+        "representation": "string",
+        "type": "date",
+      }
+    `)
+    expect(getDateType({ ...base, dateType: 'date' }, 'date')).toMatchInlineSnapshot(`
+      {
+        "representation": "date",
+        "type": "date",
+      }
+    `)
   })
 
   it('resolves time format', () => {
-    expect(getDateType({ ...base, dateType: 'string' }, 'time')).toEqual({
-      type: 'time',
-      representation: 'string',
-    })
-    expect(getDateType({ ...base, dateType: 'date' }, 'time')).toEqual({
-      type: 'time',
-      representation: 'date',
-    })
+    expect(getDateType({ ...base, dateType: 'string' }, 'time')).toMatchInlineSnapshot(`
+      {
+        "representation": "string",
+        "type": "time",
+      }
+    `)
+    expect(getDateType({ ...base, dateType: 'date' }, 'time')).toMatchInlineSnapshot(`
+      {
+        "representation": "date",
+        "type": "time",
+      }
+    `)
   })
 })
 
