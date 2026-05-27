@@ -60,7 +60,7 @@ describe('collectFiles', () => {
     assert(result)
     const node = result.sources[0]
     assert(node?.nodes)
-    expect(node.nodes.map((n) => n.kind)).toEqual(children.map(([, kind]) => kind))
+    expect(node.nodes.map((n) => n.kind)).toStrictEqual(children.map(([, kind]) => kind))
   })
 
   it('should add Break node for br children', () => {
@@ -194,7 +194,7 @@ describe('collectFiles', () => {
     const [result] = collectFiles(root)
     expect(result?.baseName).toBe('pet.ts')
     expect(result?.path).toBe('src/models/pet.ts')
-    expect(result?.meta).toEqual({ tag: 'pet' })
+    expect(result?.meta).toStrictEqual({ tag: 'pet' })
     expect(result?.banner).toBe('// banner')
     expect(result?.footer).toBe('// footer')
     expect(result?.sources[0]?.name).toBe('Pet')
@@ -211,7 +211,7 @@ describe('collectFiles', () => {
     setAttribute(noPath, 'baseName', 'b.ts')
     appendChildNode(root, noPath)
 
-    expect(collectFiles(root)).toEqual([])
+    expect(collectFiles(root)).toStrictEqual([])
   })
 
   it('should traverse nested non-file elements to find files', () => {

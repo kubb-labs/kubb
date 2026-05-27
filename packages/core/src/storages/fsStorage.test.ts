@@ -89,12 +89,12 @@ describe('fsStorage', () => {
 
     const keys = await storage.getKeys(dir)
 
-    expect(keys.sort()).toEqual(['a.ts', 'b.ts', 'sub/c.ts'])
+    expect(keys.sort()).toStrictEqual(['a.ts', 'b.ts', 'sub/c.ts'])
   })
 
   it('getKeys returns empty array for a missing directory', async () => {
     const keys = await fsStorage().getKeys(join(dir, 'missing'))
-    expect(keys).toEqual([])
+    expect(keys).toStrictEqual([])
   })
 
   it('clear removes all files under a base directory', async () => {

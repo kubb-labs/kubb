@@ -10,7 +10,7 @@ describe('defineCommand', () => {
       subCommands: [sub],
     })
     expect(cmd.run).toBeUndefined()
-    expect(cmd.subCommands).toEqual([sub])
+    expect(cmd.subCommands).toStrictEqual([sub])
   })
 
   it('forwards values to the run callback', async () => {

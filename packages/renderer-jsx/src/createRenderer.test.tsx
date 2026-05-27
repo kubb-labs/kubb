@@ -128,7 +128,7 @@ describe('jsxRendererSync', () => {
     await reactRenderer.render(element)
     reactRenderer.unmount()
 
-    expect(syncRenderer.files).toEqual(reactRenderer.files)
+    expect(syncRenderer.files).toStrictEqual(reactRenderer.files)
   })
 
   it('should propagate render errors', async () => {
@@ -172,7 +172,7 @@ describe('jsxRendererSync', () => {
       order.push(file.baseName as string)
     }
 
-    expect(order).toEqual(['first.ts', 'second.ts'])
+    expect(order).toStrictEqual(['first.ts', 'second.ts'])
   })
 
   it('should yield the first file before evaluating the second component', () => {
@@ -215,12 +215,12 @@ describe('jsxRendererSync', () => {
     const result1 = gen.next()
     expect(result1.done).toBe(false)
     expect((result1.value as FileNode).baseName).toBe('first.ts')
-    expect(callOrder).toEqual(['First called'])
+    expect(callOrder).toStrictEqual(['First called'])
 
     const result2 = gen.next()
     expect(result2.done).toBe(false)
     expect((result2.value as FileNode).baseName).toBe('second.ts')
-    expect(callOrder).toEqual(['First called', 'Second called'])
+    expect(callOrder).toStrictEqual(['First called', 'Second called'])
 
     expect(gen.next().done).toBe(true)
   })
@@ -256,7 +256,7 @@ describe('jsxRendererSync', () => {
     const batchRenderer = jsxRendererSync()
     await batchRenderer.render(element)
 
-    expect(streamed).toEqual(batchRenderer.files)
+    expect(streamed).toStrictEqual(batchRenderer.files)
   })
 
   it('should propagate errors thrown during stream', () => {

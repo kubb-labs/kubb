@@ -7,7 +7,7 @@ describe('buildTree', () => {
 
     expect(tree.path).toBe('/src/gen/types')
     expect(tree.isFile).toBe(false)
-    expect(tree.children).toEqual([])
+    expect(tree.children).toStrictEqual([])
   })
 
   it('creates a direct child for a file at root level', () => {

@@ -90,8 +90,8 @@ describe('FileProcessor', () => {
 
       await processor.run(files)
 
-      expect(updates[0]).toEqual({ processed: 1, percentage: 50, total: 2 })
-      expect(updates[1]).toEqual({ processed: 2, percentage: 100, total: 2 })
+      expect(updates[0]).toStrictEqual({ processed: 1, percentage: 50, total: 2 })
+      expect(updates[1]).toStrictEqual({ processed: 2, percentage: 100, total: 2 })
     })
 
     it('returns the original files array', async () => {
@@ -112,7 +112,7 @@ describe('FileProcessor', () => {
 
       await processor.run(files)
 
-      expect(order).toEqual(['/src/a.ts', '/src/b.ts'])
+      expect(order).toStrictEqual(['/src/a.ts', '/src/b.ts'])
     })
 
     it('runs without errors', async () => {
@@ -142,7 +142,7 @@ describe('FileProcessor', () => {
       expect(onStart).toHaveBeenCalledWith([])
       expect(onEnd).toHaveBeenCalledWith([])
       expect(onUpdate).not.toHaveBeenCalled()
-      expect(result).toEqual([])
+      expect(result).toStrictEqual([])
     })
   })
 })

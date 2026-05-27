@@ -61,7 +61,7 @@ describe('setDiscriminatorEnum', () => {
     const typeProp = objectNode?.properties?.find((prop) => prop.name === 'type')
     const enumNode = typeProp?.schema.type === 'enum' ? typeProp.schema : undefined
 
-    expect(enumNode?.enumValues).toEqual(['dog'])
+    expect(enumNode?.enumValues).toStrictEqual(['dog'])
     expect(enumNode?.name).toBeUndefined()
   })
 
@@ -76,7 +76,7 @@ describe('setDiscriminatorEnum', () => {
     const typeProp = objectNode?.properties?.find((prop) => prop.name === 'type')
     const enumNode = typeProp?.schema.type === 'enum' ? typeProp.schema : undefined
 
-    expect(enumNode?.enumValues).toEqual(['dog', 'cat'])
+    expect(enumNode?.enumValues).toStrictEqual(['dog', 'cat'])
     expect(enumNode?.name).toBe('PetTypeEnum')
   })
 
@@ -338,7 +338,7 @@ describe('simplifyUnion()', () => {
       }),
     ]
 
-    expect(simplifyUnion(members)).toEqual(members)
+    expect(simplifyUnion(members)).toStrictEqual(members)
   })
 
   it('removes a string enum when a broader string scalar is present', () => {
@@ -351,7 +351,7 @@ describe('simplifyUnion()', () => {
       createSchema({ type: 'string' }),
     ]
 
-    expect(simplifyUnion(members)).toEqual([members[1]])
+    expect(simplifyUnion(members)).toStrictEqual([members[1]])
   })
 
   it('keeps a const-derived string enum when a broader string scalar is present', () => {
@@ -364,7 +364,7 @@ describe('simplifyUnion()', () => {
       createSchema({ type: 'string' }),
     ]
 
-    expect(simplifyUnion(members)).toEqual(members)
+    expect(simplifyUnion(members)).toStrictEqual(members)
   })
 
   it('keeps a string enum when no broader string scalar is present', () => {
@@ -376,7 +376,7 @@ describe('simplifyUnion()', () => {
       }),
     ]
 
-    expect(simplifyUnion(members)).toEqual(members)
+    expect(simplifyUnion(members)).toStrictEqual(members)
   })
 
   it('removes a number enum when a broader number scalar is present', () => {
@@ -389,7 +389,7 @@ describe('simplifyUnion()', () => {
       createSchema({ type: 'number' }),
     ]
 
-    expect(simplifyUnion(members)).toEqual([members[1]])
+    expect(simplifyUnion(members)).toStrictEqual([members[1]])
   })
 
   it('preserves ref members while simplifying scalar enum members', () => {
@@ -408,7 +408,7 @@ describe('simplifyUnion()', () => {
     ]
     const result = simplifyUnion(members)
 
-    expect(result).toEqual([members[1], members[2]])
+    expect(result).toStrictEqual([members[1], members[2]])
   })
 })
 

@@ -62,7 +62,7 @@ describe('refMapToObject', () => {
     const map = buildRefMap(buildFixture())
     const obj = refMapToObject(map)
 
-    expect(Object.keys(obj).sort()).toEqual(['Error', 'FullPet', 'NewPet', 'Pet', 'PetList', 'PetOrError'])
+    expect(Object.keys(obj).sort()).toStrictEqual(['Error', 'FullPet', 'NewPet', 'Pet', 'PetList', 'PetOrError'])
 
     expect(obj['Pet']).toMatchInlineSnapshot(`
       {

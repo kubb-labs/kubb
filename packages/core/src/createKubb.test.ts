@@ -85,7 +85,7 @@ describe('createKubb', () => {
     await kubb.setup()
 
     expect(kubb.config?.root).toBe(process.cwd())
-    expect(kubb.config?.parsers).toEqual([])
+    expect(kubb.config?.parsers).toStrictEqual([])
   })
 
   test('if build with one plugin is running the different hooks in the correct order', async () => {
@@ -257,8 +257,8 @@ describe('createKubb', () => {
 
     // In the always-stream path all plugins fan-out together: both files are
     // produced in the same batch and flushed as a single event.
-    expect(batches).toEqual([2])
-    expect(files.map((file) => file.path)).toEqual(['/workspace/src/gen/one.ts', '/workspace/src/gen/two.ts'])
+    expect(batches).toStrictEqual([2])
+    expect(files.map((file) => file.path)).toStrictEqual(['/workspace/src/gen/one.ts', '/workspace/src/gen/two.ts'])
   })
 
   it('cleans up hook-style plugin listeners between builds on shared hooks', async () => {
@@ -356,7 +356,7 @@ describe('createKubb', () => {
 
       expect(files).toHaveLength(count)
       expect(generatedPaths).toHaveLength(count)
-      expect(generatedPaths).toEqual(schemas.map((s) => `/gen/${s.name}.ts`))
+      expect(generatedPaths).toStrictEqual(schemas.map((s) => `/gen/${s.name}.ts`))
     })
 
     it('preserves operation insertion order for collectedOperations across batches', async () => {
@@ -398,7 +398,7 @@ describe('createKubb', () => {
         { hooks: new AsyncEventEmitter<KubbHooks>() },
       ).build()
 
-      expect(receivedOrder).toEqual(operations.map((o) => o.operationId))
+      expect(receivedOrder).toStrictEqual(operations.map((o) => o.operationId))
     })
 
     it('processes schemas from adapter.stream() across batches', async () => {

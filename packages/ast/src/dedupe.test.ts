@@ -80,7 +80,7 @@ describe('buildDedupePlan', () => {
 
     expect(plan.hoisted).toHaveLength(0)
     const objectSignature = schemaSignature(cat)
-    expect(plan.canonicalBySignature.get(objectSignature)).toEqual({ name: 'Cat', ref: '#/components/schemas/Cat' })
+    expect(plan.canonicalBySignature.get(objectSignature)).toStrictEqual({ name: 'Cat', ref: '#/components/schemas/Cat' })
   })
 
   it('ignores nodes the candidate predicate rejects', () => {

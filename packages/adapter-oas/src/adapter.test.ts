@@ -62,7 +62,7 @@ describe('adapterOas.stream', () => {
         "Category",
       ]
     `)
-    expect(second.map((s) => s.name)).toEqual(first.map((s) => s.name))
+    expect(second.map((s) => s.name)).toStrictEqual(first.map((s) => s.name))
   })
 
   it('yields operations lazily via for await', async () => {

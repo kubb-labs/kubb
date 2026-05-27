@@ -71,7 +71,7 @@ describe('forBatches', () => {
         { concurrency: 2 },
       )
 
-      expect(batches).toEqual([[1, 2], [3, 4], [5]])
+      expect(batches).toStrictEqual([[1, 2], [3, 4], [5]])
     })
 
     it('passes all items when count is less than concurrency', async () => {
@@ -84,7 +84,7 @@ describe('forBatches', () => {
         { concurrency: 10 },
       )
 
-      expect(batches).toEqual([[1, 2]])
+      expect(batches).toStrictEqual([[1, 2]])
     })
 
     it('does nothing for an empty array', async () => {
@@ -110,7 +110,7 @@ describe('forBatches', () => {
         },
       )
 
-      expect(flushed).toEqual([3, 6, 9, 12])
+      expect(flushed).toStrictEqual([3, 6, 9, 12])
     })
 
     it('does not call flush when source is empty', async () => {
@@ -136,7 +136,7 @@ describe('forBatches', () => {
         { concurrency: 2 },
       )
 
-      expect(batches).toEqual([[1, 2], [3, 4], [5]])
+      expect(batches).toStrictEqual([[1, 2], [3, 4], [5]])
     })
 
     it('passes all items when count is less than concurrency', async () => {
@@ -149,7 +149,7 @@ describe('forBatches', () => {
         { concurrency: 10 },
       )
 
-      expect(batches).toEqual([[1, 2]])
+      expect(batches).toStrictEqual([[1, 2]])
     })
 
     it('does nothing for an empty async iterable', async () => {
@@ -175,7 +175,7 @@ describe('forBatches', () => {
         },
       )
 
-      expect(flushed).toEqual([5, 10, 12])
+      expect(flushed).toStrictEqual([5, 10, 12])
     })
 
     it('does not call flush when source is empty', async () => {
@@ -200,7 +200,7 @@ describe('withDrain', () => {
       calls.push('work-end')
     }, flush)
 
-    expect(calls).toEqual(['work-start', 'flush', 'work-end', 'flush'])
+    expect(calls).toStrictEqual(['work-start', 'flush', 'work-end', 'flush'])
   })
 
   it('calls flush even when work never calls it', async () => {
