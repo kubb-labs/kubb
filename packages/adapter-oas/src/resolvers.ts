@@ -1,5 +1,5 @@
 import { pascalCase } from '@internals/utils'
-import { ast } from '@kubb/core'
+import type { ast } from '@kubb/core'
 import type { ParameterObject, ServerObject } from 'oas/types'
 import { isRef } from 'oas/types'
 import { matchesMimeType } from 'oas/utils'
@@ -61,13 +61,6 @@ export function getPrimitiveType(type: string | undefined): ast.PrimitiveSchemaT
   if (type === 'boolean') return 'boolean'
 
   return 'string'
-}
-
-/**
- * Narrows a content-type string to the `MediaType` union Kubb recognizes, or returns `null`.
- */
-export function getMediaType(contentType: string): ast.MediaType | null {
-  return Object.values(ast.mediaTypes).includes(contentType as ast.MediaType) ? (contentType as ast.MediaType) : null
 }
 
 export type OperationsOptions = {

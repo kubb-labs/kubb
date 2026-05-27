@@ -6,7 +6,6 @@ import {
   extractSchemaFromContent,
   flattenSchema,
   getDateType,
-  getMediaType,
   getPrimitiveType,
   getSchemas,
   getSchemaType,
@@ -44,19 +43,6 @@ describe('getPrimitiveType', () => {
     expect(getPrimitiveType('string')).toBe('string')
     expect(getPrimitiveType('object')).toBe('string')
     expect(getPrimitiveType(undefined)).toBe('string')
-  })
-})
-
-describe('getMediaType', () => {
-  it('returns the media type for known content-types', () => {
-    expect(getMediaType('application/json')).toBe('application/json')
-    expect(getMediaType('application/xml')).toBe('application/xml')
-  })
-
-  it('returns null for unknown content-types', () => {
-    expect(getMediaType('application/x-unknown')).toBeNull()
-    expect(getMediaType('application/msgpack')).toBeNull()
-    expect(getMediaType('text/event-stream')).toBeNull()
   })
 })
 

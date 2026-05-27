@@ -1,19 +1,4 @@
-import type {
-  FunctionParameterNode,
-  FunctionParametersNode,
-  HttpOperationNode,
-  InputNode,
-  Node,
-  NodeKind,
-  OperationNode,
-  OutputNode,
-  ParameterGroupNode,
-  ParameterNode,
-  PropertyNode,
-  ResponseNode,
-  SchemaNode,
-  SchemaNodeByType,
-} from './nodes/index.ts'
+import type { HttpOperationNode, InputNode, Node, NodeKind, OperationNode, OutputNode, SchemaNode, SchemaNodeByType } from './nodes/index.ts'
 
 /**
  * Narrows a `SchemaNode` to the variant that matches `type`.
@@ -93,33 +78,3 @@ export function isHttpOperationNode(node: OperationNode): node is HttpOperationN
  * ```
  */
 export const isSchemaNode = isKind<SchemaNode>('Schema')
-
-/**
- * Returns `true` when the input is a `PropertyNode`.
- */
-export const isPropertyNode = isKind<PropertyNode>('Property')
-
-/**
- * Returns `true` when the input is a `ParameterNode`.
- */
-export const isParameterNode = isKind<ParameterNode>('Parameter')
-
-/**
- * Returns `true` when the input is a `ResponseNode`.
- */
-export const isResponseNode = isKind<ResponseNode>('Response')
-
-/**
- * Returns `true` when the input is a `FunctionParameterNode`.
- */
-export const isFunctionParameterNode = isKind<FunctionParameterNode>('FunctionParameter')
-
-/**
- * Returns `true` when the input is a `ParameterGroupNode`.
- */
-export const isParameterGroupNode = isKind<ParameterGroupNode>('ParameterGroup')
-
-/**
- * Returns `true` when the input is a `FunctionParametersNode`.
- */
-export const isFunctionParametersNode = isKind<FunctionParametersNode>('FunctionParameters')
