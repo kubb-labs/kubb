@@ -25,6 +25,19 @@ pnpm test                 # Run all tests
 pnpm test "<test name>"  # Run a specific test
 ```
 
+## Assertion style
+
+Prefer `toStrictEqual` (or `toEqual`) with an explicit literal for whole-value
+assertions. It states the expected result inline, catches extra or `undefined`
+keys, and never drifts silently when someone runs `vitest -u`.
+
+- Use `toStrictEqual(literal)` to assert a complete returned object/array.
+- Use focused matchers (`toBe`, `toHaveLength`, `toContain`, single-field
+  `toEqual`) for specific behavioral checks — don't snapshot those.
+- Reserve `toMatchInlineSnapshot` / `toMatchFileSnapshot` for large generated
+  output (e.g. generated source files) where hand-maintaining a literal is
+  impractical — not for small/medium structured values.
+
 ## Pre-merge Requirements (Agent should remind)
 
 - All tests must pass
