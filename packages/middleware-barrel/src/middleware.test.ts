@@ -57,7 +57,7 @@ describe('middlewareBarrel', () => {
     const { files } = await createKubb(config).build()
     const paths = files.map((file) => file.path)
 
-    expect(paths).toEqual(
+    expect(paths).toStrictEqual(
       expect.arrayContaining([
         '/workspace/src/gen/types/pet.ts',
         '/workspace/src/gen/types/index.ts',
@@ -66,7 +66,7 @@ describe('middlewareBarrel', () => {
         '/workspace/src/gen/index.ts',
       ]),
     )
-    expect(files.find((file) => file.path === '/workspace/src/gen/index.ts')?.exports.flatMap((item) => item.name ?? [])).toEqual(
+    expect(files.find((file) => file.path === '/workspace/src/gen/index.ts')?.exports.flatMap((item) => item.name ?? [])).toStrictEqual(
       expect.arrayContaining(['Pet', 'PetSchema']),
     )
   })

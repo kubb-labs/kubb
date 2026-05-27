@@ -14,7 +14,7 @@ describe('definePrinter', () => {
     const printer = zodPrinter({ strict: false })
 
     expect(printer.name).toBe('zod')
-    expect(printer.options).toEqual({ strict: false })
+    expect(printer.options).toStrictEqual({ strict: false })
   })
 
   it('returns undefined when no node handler matches', () => {

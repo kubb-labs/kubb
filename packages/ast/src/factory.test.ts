@@ -28,8 +28,8 @@ describe('createInput', () => {
     const node = createInput()
 
     expect(node.kind).toBe('Input')
-    expect(node.schemas).toEqual([])
-    expect(node.operations).toEqual([])
+    expect(node.schemas).toStrictEqual([])
+    expect(node.operations).toStrictEqual([])
   })
 
   it('accepts overrides', () => {
@@ -37,7 +37,7 @@ describe('createInput', () => {
     const node = createInput({ schemas: [schema] })
 
     expect(node.schemas).toHaveLength(1)
-    expect(node.operations).toEqual([])
+    expect(node.operations).toStrictEqual([])
   })
 
   it('always sets kind to Input', () => {
@@ -61,9 +61,9 @@ describe('createOperation', () => {
     expect(node.method).toBe('GET')
     expect(node.path).toBe('/pets')
     expect(node.protocol).toBe('http')
-    expect(node.tags).toEqual([])
-    expect(node.parameters).toEqual([])
-    expect(node.responses).toEqual([])
+    expect(node.tags).toStrictEqual([])
+    expect(node.parameters).toStrictEqual([])
+    expect(node.responses).toStrictEqual([])
 
     expectTypeOf(node.method).toEqualTypeOf<'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE'>()
     expectTypeOf(node.path).toEqualTypeOf<string>()
@@ -81,7 +81,7 @@ describe('createOperation', () => {
 
     expect(node.summary).toBe('Create a pet')
     expect(node.deprecated).toBe(true)
-    expect(node.tags).toEqual(['pets'])
+    expect(node.tags).toStrictEqual(['pets'])
   })
 
   it('builds a generic operation without HTTP method/path', () => {
@@ -290,7 +290,7 @@ describe('createParameterGroup', () => {
     const node = createParameterGroup({ properties: props })
 
     expect(node.kind).toBe('ParameterGroup')
-    expect(node.properties).toEqual(props)
+    expect(node.properties).toStrictEqual(props)
   })
 
   it('accepts inline and default options', () => {
@@ -315,7 +315,7 @@ describe('createFunctionParameters', () => {
     const node = createFunctionParameters()
 
     expect(node.kind).toBe('FunctionParameters')
-    expect(node.params).toEqual([])
+    expect(node.params).toStrictEqual([])
   })
 
   it('accepts params override', () => {
@@ -327,7 +327,7 @@ describe('createFunctionParameters', () => {
     ]
     const node = createFunctionParameters({ params })
 
-    expect(node.params).toEqual(params)
+    expect(node.params).toStrictEqual(params)
   })
 })
 
@@ -336,7 +336,7 @@ describe('createImport', () => {
     const node = createImport({ name: ['useState'], path: 'react' })
 
     expect(node.kind).toBe('Import')
-    expect(node.name).toEqual(['useState'])
+    expect(node.name).toStrictEqual(['useState'])
     expect(node.path).toBe('react')
   })
 
@@ -364,7 +364,7 @@ describe('createImport', () => {
       isTypeOnly: false,
     })
 
-    expect(node.name).toEqual(['*'])
+    expect(node.name).toStrictEqual(['*'])
   })
 
   it('always sets kind to Import', () => {
@@ -380,7 +380,7 @@ describe('createExport', () => {
     const node = createExport({ name: ['Pet'], path: './Pet' })
 
     expect(node.kind).toBe('Export')
-    expect(node.name).toEqual(['Pet'])
+    expect(node.name).toStrictEqual(['Pet'])
     expect(node.path).toBe('./Pet')
   })
 
@@ -551,7 +551,7 @@ describe('createFile', () => {
       footer: '// end',
     })
 
-    expect(file.meta).toEqual({ tag: 'pets' })
+    expect(file.meta).toStrictEqual({ tag: 'pets' })
     expect(file.banner).toBe('// generated')
     expect(file.footer).toBe('// end')
   })
@@ -613,7 +613,7 @@ describe('createConst', () => {
       JSDoc: { comments: ['@description A pet resource'] },
     })
 
-    expect(node.JSDoc?.comments).toEqual(['@description A pet resource'])
+    expect(node.JSDoc?.comments).toStrictEqual(['@description A pet resource'])
   })
 
   it('accepts child nodes', () => {
@@ -656,7 +656,7 @@ describe('createType', () => {
     })
 
     expect(node.export).toBe(true)
-    expect(node.JSDoc?.comments).toEqual(['@description Status of a pet'])
+    expect(node.JSDoc?.comments).toStrictEqual(['@description Status of a pet'])
   })
 
   it('accepts child nodes', () => {
@@ -709,7 +709,7 @@ describe('createFunction', () => {
     expect(node.async).toBe(true)
     expect(node.params).toBe('id: string')
     expect(node.returnType).toBe('Pet')
-    expect(node.generics).toEqual(['T'])
+    expect(node.generics).toStrictEqual(['T'])
   })
 
   it('accepts default export flag', () => {
@@ -729,7 +729,7 @@ describe('createFunction', () => {
       nodes: [createConst({ name: 'url' })],
     })
 
-    expect(node.JSDoc?.comments).toEqual(['@description Fetch a pet'])
+    expect(node.JSDoc?.comments).toStrictEqual(['@description Fetch a pet'])
     expect(node.nodes).toHaveLength(1)
   })
 
@@ -787,7 +787,7 @@ describe('createArrowFunction', () => {
       nodes: [createConst({ name: 'url' })],
     })
 
-    expect(node.JSDoc?.comments).toEqual(['@description Fetch a pet'])
+    expect(node.JSDoc?.comments).toStrictEqual(['@description Fetch a pet'])
     expect(node.nodes).toHaveLength(1)
   })
 

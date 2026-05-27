@@ -9,7 +9,7 @@ describe('getPrimaryPackage', () => {
         '@kubb/middleware-barrel': 'patch',
         'unplugin-kubb': 'patch',
       }),
-    ).toEqual(['@kubb/middleware-barrel', 'patch'])
+    ).toStrictEqual(['@kubb/middleware-barrel', 'patch'])
   })
 
   it('returns undefined when the changeset has no packages', () => {

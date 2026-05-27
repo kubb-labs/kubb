@@ -39,7 +39,7 @@ describe('getBarrelFiles', () => {
 
     expect(barrels).toHaveLength(1)
     expect(barrels[0]!.path).toBe(`${ROOT}/index.ts`)
-    expect(barrels[0]!.exports.map((e) => e.path)).toEqual(expect.arrayContaining(['./pet.ts', './user.ts']))
+    expect(barrels[0]!.exports.map((e) => e.path)).toStrictEqual(expect.arrayContaining(['./pet.ts', './user.ts']))
   })
 
   it('generates named exports with barrelType named', () => {
@@ -47,21 +47,21 @@ describe('getBarrelFiles', () => {
     const barrels = [...getBarrelFiles({ outputPath: ROOT, files, barrelType: 'named' })]
 
     expect(barrels).toHaveLength(1)
-    expect(barrels[0]!.exports[0]?.name).toEqual(expect.arrayContaining(['Pet', 'createPet']))
+    expect(barrels[0]!.exports[0]?.name).toStrictEqual(expect.arrayContaining(['Pet', 'createPet']))
   })
 
   it('generates hierarchical barrels when nested is true', () => {
     const files = [makeFile(`${ROOT}/pets/listPets.ts`), makeFile(`${ROOT}/users/getUser.ts`)]
     const barrels = [...getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all', nested: true })]
 
-    expect(barrels.map((b) => b.path)).toEqual(expect.arrayContaining([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/users/index.ts`]))
+    expect(barrels.map((b) => b.path)).toStrictEqual(expect.arrayContaining([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/users/index.ts`]))
   })
 
   it('generates per-subdirectory barrels when recursive is true', () => {
     const files = [makeFile(`${ROOT}/pets/listPets.ts`), makeFile(`${ROOT}/users/getUser.ts`)]
     const barrels = [...getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all', recursive: true })]
 
-    expect(barrels.map((b) => b.path)).toEqual(expect.arrayContaining([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/users/index.ts`]))
+    expect(barrels.map((b) => b.path)).toStrictEqual(expect.arrayContaining([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/users/index.ts`]))
   })
 })
 

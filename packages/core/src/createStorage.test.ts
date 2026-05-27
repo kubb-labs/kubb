@@ -77,12 +77,12 @@ describe('createStorage', () => {
 
     expect(await storage.hasItem('a')).toBe(true)
     expect(await storage.getItem('a')).toBe('1')
-    expect(await storage.getKeys()).toEqual(['a', 'b'])
+    expect(await storage.getKeys()).toStrictEqual(['a', 'b'])
 
     await storage.removeItem('a')
     expect(await storage.hasItem('a')).toBe(false)
 
     await storage.clear()
-    expect(await storage.getKeys()).toEqual([])
+    expect(await storage.getKeys()).toStrictEqual([])
   })
 })

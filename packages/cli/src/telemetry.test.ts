@@ -66,7 +66,7 @@ describe('buildTelemetryEvent', () => {
 
     expect(event.command).toBe('generate')
     expect(event.kubbVersion).toBe('4.0.0')
-    expect(event.plugins).toEqual(plugins)
+    expect(event.plugins).toStrictEqual(plugins)
     expect(event.filesCreated).toBe(10)
     expect(event.status).toBe('success')
     expect(typeof event.duration).toBe('number')
@@ -188,7 +188,7 @@ describe('buildOtlpPayload', () => {
     expect(typeof span!.startTimeUnixNano).toBe('string')
     expect(typeof span!.endTimeUnixNano).toBe('string')
     const attr = span!.attributes?.find((a) => a.key === 'kubb.status')
-    expect(attr?.value).toEqual({ stringValue: 'success' })
+    expect(attr?.value).toStrictEqual({ stringValue: 'success' })
   })
 
   it('should set status code 2 for failed status', () => {

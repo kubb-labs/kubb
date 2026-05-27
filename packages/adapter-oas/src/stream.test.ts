@@ -211,7 +211,7 @@ describe('createInputStream', () => {
     const second: Array<string> = []
     for await (const s of node.schemas) second.push(s.name ?? '')
 
-    expect(second).toEqual(first)
+    expect(second).toStrictEqual(first)
     expect(first).toMatchInlineSnapshot(`
       [
         "Pet",

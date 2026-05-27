@@ -55,7 +55,7 @@ describe('memoryStorage', () => {
     await storage.setItem('src/gen/b.ts', '2')
     await storage.setItem('other/c.ts', '3')
 
-    expect((await storage.getKeys()).sort()).toEqual(['other/c.ts', 'src/gen/a.ts', 'src/gen/b.ts'])
+    expect((await storage.getKeys()).sort()).toStrictEqual(['other/c.ts', 'src/gen/a.ts', 'src/gen/b.ts'])
   })
 
   it('getKeys filters by base prefix', async () => {
@@ -65,7 +65,7 @@ describe('memoryStorage', () => {
     await storage.setItem('src/gen/b.ts', '2')
     await storage.setItem('other/c.ts', '3')
 
-    expect((await storage.getKeys('src/gen')).sort()).toEqual(['src/gen/a.ts', 'src/gen/b.ts'])
+    expect((await storage.getKeys('src/gen')).sort()).toStrictEqual(['src/gen/a.ts', 'src/gen/b.ts'])
   })
 
   it('clear with no base removes all keys', async () => {
@@ -75,7 +75,7 @@ describe('memoryStorage', () => {
     await storage.setItem('b', '2')
     await storage.clear()
 
-    expect(await storage.getKeys()).toEqual([])
+    expect(await storage.getKeys()).toStrictEqual([])
   })
 
   it('clear with base removes only matching keys', async () => {
@@ -87,6 +87,6 @@ describe('memoryStorage', () => {
 
     await storage.clear('src/gen')
 
-    expect(await storage.getKeys()).toEqual(['other/c.ts'])
+    expect(await storage.getKeys()).toStrictEqual(['other/c.ts'])
   })
 })

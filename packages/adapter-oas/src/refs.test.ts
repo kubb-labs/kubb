@@ -51,7 +51,7 @@ describe('resolveRef', () => {
 
     const result = resolveRef<SchemaObject>(docWithEncoded, '#/components/schemas/Pet%20List')
 
-    expect(result).toEqual({ type: 'array', items: { type: 'string' } })
+    expect(result).toStrictEqual({ type: 'array', items: { type: 'string' } })
   })
 })
 

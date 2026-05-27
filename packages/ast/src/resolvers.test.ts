@@ -74,7 +74,7 @@ describe('collectImports()', () => {
       resolve: () => ({ name: 'Foo', path: './foo.ts' }),
     })
 
-    expect(result).toEqual([])
+    expect(result).toStrictEqual([])
   })
 
   it('returns an import entry for ref nodes when resolve() returns a value', () => {
@@ -111,7 +111,7 @@ describe('collectImports()', () => {
       resolve: () => undefined,
     })
 
-    expect(result).toEqual([])
+    expect(result).toStrictEqual([])
   })
 
   it('collects nested ref imports', () => {

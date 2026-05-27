@@ -62,7 +62,7 @@ describe('walk', () => {
       },
     })
 
-    expect(ids).toEqual(['getPetById'])
+    expect(ids).toStrictEqual(['getPetById'])
   })
 
   it('does not mutate the original tree', async () => {

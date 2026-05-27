@@ -39,7 +39,7 @@ describe('definePlugin', () => {
     }))({ tag: 'pets' })
 
     expect(plugin.name).toBe('my-hook-plugin')
-    expect(plugin.options).toEqual({ tag: 'pets' })
+    expect(plugin.options).toStrictEqual({ tag: 'pets' })
     expect(typeof plugin.hooks['kubb:plugin:setup']).toBe('function')
   })
 
@@ -50,7 +50,7 @@ describe('definePlugin', () => {
       hooks: {},
     }))
     const plugin = factory()
-    expect(plugin.options).toEqual({})
+    expect(plugin.options).toStrictEqual({})
   })
 })
 
@@ -161,7 +161,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
 
     await events.emit('kubb:plugin:setup', createSetupCtxStub(makeConfig([])))
 
-    expect(capturedOptions[0]).toEqual({ tag: 'pets' })
+    expect(capturedOptions[0]).toStrictEqual({ tag: 'pets' })
   })
 
   it('setResolver() merges partial resolver overrides with framework defaults', async () => {
@@ -265,7 +265,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     const opts = plugin.options as Record<string, unknown>
     expect(opts.enumType).toBe('asConst')
     expect(opts.syntaxType).toBe('type')
-    expect(opts.output).toEqual({ path: 'types' })
+    expect(opts.output).toStrictEqual({ path: 'types' })
   })
 
   it('external listeners receive kubb:plugin:setup context', async () => {

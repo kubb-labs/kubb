@@ -193,9 +193,9 @@ describe('defaultResolveFile', () => {
 
     expect(file.baseName).toBe('pet.ts')
     expect(file.path).toBe('/root/types/pet.ts')
-    expect(file.sources).toEqual([])
-    expect(file.imports).toEqual([])
-    expect(file.exports).toEqual([])
+    expect(file.sources).toStrictEqual([])
+    expect(file.imports).toStrictEqual([])
+    expect(file.exports).toStrictEqual([])
   })
 
   it('uses PascalCase file name via resolver.default', () => {
