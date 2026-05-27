@@ -248,11 +248,13 @@ describe('createFunctionParameter', () => {
 
     expect(node.kind).toBe('FunctionParameter')
     expect(node.name).toBe('petId')
-    expect(node.type).toEqual({
-      kind: 'ParamsType',
-      variant: 'reference',
-      name: 'string',
-    })
+    expect(node.type).toMatchInlineSnapshot(`
+      {
+        "kind": "ParamsType",
+        "name": "string",
+        "variant": "reference",
+      }
+    `)
     expect(node.optional).toBe(false)
   })
 
@@ -429,10 +431,12 @@ describe('createSource', () => {
 
     expect(node.kind).toBe('Source')
     expect(node.name).toBe('Pet')
-    expect(node.nodes?.[0]).toEqual({
-      kind: 'Text',
-      value: 'export type Pet = { id: number }',
-    })
+    expect(node.nodes?.[0]).toMatchInlineSnapshot(`
+      {
+        "kind": "Text",
+        "value": "export type Pet = { id: number }",
+      }
+    `)
   })
 
   it('supports isExportable flag', () => {
