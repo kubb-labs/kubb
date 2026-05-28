@@ -3,7 +3,7 @@ export type { BuildDedupePlanOptions, DedupeCanonical, DedupePlan } from './dedu
 export type { SchemaDialect } from './dialect.ts'
 export type { DispatchRule } from './dispatch.ts'
 export type { DistributiveOmit } from './factory.ts'
-export type { InferSchema, InferSchemaNode, ParserOptions } from './infer.ts'
+export type { InferSchemaNode, ParserOptions } from './infer.ts'
 export type {
   ArraySchemaNode,
   ArrowFunctionNode,
@@ -70,7 +70,6 @@ export type {
   UnionSchemaNode,
   UrlSchemaNode,
 } from './nodes/index.ts'
-export type { RefMap } from './refs.ts'
 export type { AsyncVisitor, CollectOptions, CollectVisitor, ParentOf, TransformOptions, Visitor, VisitorContext, WalkOptions } from './visitor.ts'
 export type { Printer, PrinterFactoryOptions, PrinterPartial } from './printer.ts'
 export type { ScalarPrimitive } from './constants.ts'

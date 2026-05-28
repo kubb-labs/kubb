@@ -120,10 +120,9 @@ function process(node: Node) {
 ### Refs
 
 ```ts
-import { buildRefMap, resolveRef } from '@kubb/ast'
+import { extractRefName } from '@kubb/ast'
 
-const refMap = buildRefMap(root)
-const pet = resolveRef(refMap, 'Pet')
+extractRefName('#/components/schemas/Pet') // 'Pet'
 ```
 
 ## Supporting Kubb

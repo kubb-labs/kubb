@@ -1,4 +1,4 @@
-export { httpMethods, isScalarPrimitive, mediaTypes, nodeKinds, schemaTypes } from './constants.ts'
+export { httpMethods, isScalarPrimitive, schemaTypes } from './constants.ts'
 export { applyDedupe, buildDedupePlan } from './dedupe.ts'
 export { defineSchemaDialect } from './dialect.ts'
 export { dispatch } from './dispatch.ts'
@@ -6,7 +6,6 @@ export {
   createArrowFunction,
   createBreak,
   createConst,
-  createContent,
   createExport,
   createFile,
   createFunction,
@@ -22,7 +21,6 @@ export {
   createParameterGroup,
   createParamsType,
   createProperty,
-  createRequestBody,
   createResponse,
   createSchema,
   createSource,
@@ -51,4 +49,4 @@ export {
   resolveRefName,
   syncSchemaRef,
 } from './utils.ts'
-export { collect, collectLazy, transform, walk } from './visitor.ts'
+export { collect, transform, walk } from './visitor.ts'
