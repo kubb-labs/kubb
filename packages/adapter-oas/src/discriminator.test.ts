@@ -1,338 +1,128 @@
 import { ast } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { toSnapshot } from '#mocks'
-import { applyDiscriminatorInheritance } from './discriminator.ts'
-import { parseDocument } from './factory.ts'
-import { parseOas } from './parser.ts'
+import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
 
-describe('applyDiscriminatorInheritance', () => {
-  it('returns the same root when no discriminators are present', async () => {
-    const oas = await parseDocument({
-      openapi: '3.0.3',
-      info: { title: 'NoDis', version: '1.0.0' },
-      paths: {},
-      components: {
-        schemas: {
-          Pet: { type: 'object', properties: { name: { type: 'string' } } },
-        },
-      },
-    })
+function refSchema(name: string) {
+  return ast.createSchema({ type: 'ref', name, ref: `#/components/schemas/${name}` })
+}
 
-    const root = parseOas(oas).root
-    const result = applyDiscriminatorInheritance(root)
+function enumSchema(values: Array<string>) {
+  return ast.createSchema({ type: 'enum', primitive: 'string', enumValues: values })
+}
 
-    expect(result).toBe(root)
+function objectSchema(props: Array<{ name: string; schema: ast.SchemaNode }>) {
+  return ast.createSchema({
+    type: 'object',
+    properties: props.map((p) => ast.createProperty({ name: p.name, required: true, schema: p.schema })),
+  })
+}
+
+describe('buildDiscriminatorChildMap', () => {
+  it('returns an empty map when no schemas carry a discriminator', () => {
+    const map = buildDiscriminatorChildMap([])
+    expect(map.size).toBe(0)
   })
 
-  it('injects the discriminator enum into child object schemas', async () => {
-    const oas = await parseDocument({
-      openapi: '3.0.3',
-      info: { title: 'Inject', version: '1.0.0' },
-      paths: {},
-      components: {
-        schemas: {
-          Animal: {
-            oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
-            discriminator: {
-              propertyName: 'type',
-              mapping: {
-                dog: '#/components/schemas/Dog',
-                cat: '#/components/schemas/Cat',
-              },
-            },
-          },
-          Dog: { type: 'object', properties: { name: { type: 'string' } } },
-          Cat: { type: 'object', properties: { lives: { type: 'integer' } } },
-        },
-      },
-    })
-
-    const root = applyDiscriminatorInheritance(parseOas(oas).root)
-
-    const dog = root.schemas.find((s) => s.name === 'Dog')
-    expect(toSnapshot(ast.narrowSchema(dog, 'object'))).toMatchInlineSnapshot(`
-      {
-        "kind": "Schema",
-        "name": "Dog",
-        "primitive": "object",
-        "properties": [
-          {
-            "kind": "Property",
-            "name": "name",
-            "required": false,
-            "schema": {
-              "kind": "Schema",
-              "name": "DogName",
-              "optional": true,
-              "primitive": "string",
-              "type": "string",
-            },
-          },
-          {
-            "kind": "Property",
-            "name": "type",
-            "required": true,
-            "schema": {
-              "enumValues": [
-                "dog",
-              ],
-              "kind": "Schema",
-              "type": "enum",
-            },
-          },
-        ],
-        "type": "object",
-      }
-    `)
-
-    const cat = root.schemas.find((s) => s.name === 'Cat')
-    expect(toSnapshot(ast.narrowSchema(cat, 'object'))).toMatchInlineSnapshot(`
-      {
-        "kind": "Schema",
-        "name": "Cat",
-        "primitive": "object",
-        "properties": [
-          {
-            "kind": "Property",
-            "name": "lives",
-            "required": false,
-            "schema": {
-              "kind": "Schema",
-              "name": "CatLives",
-              "optional": true,
-              "primitive": "integer",
-              "type": "integer",
-            },
-          },
-          {
-            "kind": "Property",
-            "name": "type",
-            "required": true,
-            "schema": {
-              "enumValues": [
-                "cat",
-              ],
-              "kind": "Schema",
-              "type": "enum",
-            },
-          },
-        ],
-        "type": "object",
-      }
-    `)
+  it('skips union schemas without a discriminatorPropertyName', () => {
+    const union = ast.createSchema({ type: 'union', members: [refSchema('Cat'), refSchema('Dog')] })
+    const map = buildDiscriminatorChildMap([union])
+    expect(map.size).toBe(0)
   })
 
-  it('replaces an existing discriminator property instead of duplicating it', async () => {
-    const oas = await parseDocument({
-      openapi: '3.0.3',
-      info: { title: 'Replace', version: '1.0.0' },
-      paths: {},
-      components: {
-        schemas: {
-          Animal: {
-            oneOf: [{ $ref: '#/components/schemas/Dog' }],
-            discriminator: {
-              propertyName: 'type',
-              mapping: { dog: '#/components/schemas/Dog' },
-            },
-          },
-          Dog: {
-            type: 'object',
-            required: ['type'],
-            properties: { type: { type: 'string' }, name: { type: 'string' } },
-          },
-        },
-      },
+  it('builds child entries from a top-level discriminated union (Case 1)', () => {
+    const member = ast.createSchema({
+      type: 'intersection',
+      members: [refSchema('Cat'), objectSchema([{ name: 'kind', schema: enumSchema(['cat']) }])],
+    })
+    const union = ast.createSchema({
+      type: 'union',
+      members: [member],
+      discriminatorPropertyName: 'kind',
     })
 
-    const root = applyDiscriminatorInheritance(parseOas(oas).root)
-
-    const dog = root.schemas.find((s) => s.name === 'Dog')
-    expect(toSnapshot(ast.narrowSchema(dog, 'object'))).toMatchInlineSnapshot(`
-      {
-        "kind": "Schema",
-        "name": "Dog",
-        "primitive": "object",
-        "properties": [
-          {
-            "kind": "Property",
-            "name": "type",
-            "required": true,
-            "schema": {
-              "enumValues": [
-                "dog",
-              ],
-              "kind": "Schema",
-              "type": "enum",
-            },
-          },
-          {
-            "kind": "Property",
-            "name": "name",
-            "required": false,
-            "schema": {
-              "kind": "Schema",
-              "name": "DogName",
-              "optional": true,
-              "primitive": "string",
-              "type": "string",
-            },
-          },
-        ],
-        "type": "object",
-      }
-    `)
+    const map = buildDiscriminatorChildMap([union])
+    expect(map.get('Cat')).toStrictEqual({ propertyName: 'kind', enumValues: ['cat'] })
   })
 
-  it('handles intersection-wrapped union (union with shared properties)', async () => {
-    const oas = await parseDocument({
-      openapi: '3.0.3',
-      info: { title: 'SharedProps', version: '1.0.0' },
-      paths: {},
-      components: {
-        schemas: {
-          Animal: {
-            oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
-            discriminator: {
-              propertyName: 'type',
-              mapping: {
-                dog: '#/components/schemas/Dog',
-                cat: '#/components/schemas/Cat',
-              },
-            },
-            properties: { name: { type: 'string' } },
-          },
-          Dog: {
-            type: 'object',
-            properties: { barkVolume: { type: 'integer' } },
-          },
-          Cat: { type: 'object', properties: { lives: { type: 'integer' } } },
-        },
-      },
+  it('unwraps an intersection wrapping a discriminated union (Case 2)', () => {
+    const innerMember = ast.createSchema({
+      type: 'intersection',
+      members: [refSchema('Dog'), objectSchema([{ name: 'kind', schema: enumSchema(['dog']) }])],
     })
+    const innerUnion = ast.createSchema({
+      type: 'union',
+      members: [innerMember],
+      discriminatorPropertyName: 'kind',
+    })
+    const outerIntersection = ast.createSchema({ type: 'intersection', members: [innerUnion] })
 
-    const root = applyDiscriminatorInheritance(parseOas(oas).root)
-
-    const dog = root.schemas.find((s) => s.name === 'Dog')
-    expect(toSnapshot(ast.narrowSchema(dog, 'object'))).toMatchInlineSnapshot(`
-      {
-        "kind": "Schema",
-        "name": "Dog",
-        "primitive": "object",
-        "properties": [
-          {
-            "kind": "Property",
-            "name": "barkVolume",
-            "required": false,
-            "schema": {
-              "kind": "Schema",
-              "name": "DogBarkVolume",
-              "optional": true,
-              "primitive": "integer",
-              "type": "integer",
-            },
-          },
-          {
-            "kind": "Property",
-            "name": "type",
-            "required": true,
-            "schema": {
-              "enumValues": [
-                "dog",
-              ],
-              "kind": "Schema",
-              "type": "enum",
-            },
-          },
-        ],
-        "type": "object",
-      }
-    `)
-
-    const cat = root.schemas.find((s) => s.name === 'Cat')
-    expect(toSnapshot(ast.narrowSchema(cat, 'object'))).toMatchInlineSnapshot(`
-      {
-        "kind": "Schema",
-        "name": "Cat",
-        "primitive": "object",
-        "properties": [
-          {
-            "kind": "Property",
-            "name": "lives",
-            "required": false,
-            "schema": {
-              "kind": "Schema",
-              "name": "CatLives",
-              "optional": true,
-              "primitive": "integer",
-              "type": "integer",
-            },
-          },
-          {
-            "kind": "Property",
-            "name": "type",
-            "required": true,
-            "schema": {
-              "enumValues": [
-                "cat",
-              ],
-              "kind": "Schema",
-              "type": "enum",
-            },
-          },
-        ],
-        "type": "object",
-      }
-    `)
+    const map = buildDiscriminatorChildMap([outerIntersection])
+    expect(map.get('Dog')).toStrictEqual({ propertyName: 'kind', enumValues: ['dog'] })
   })
 
-  it('leaves child schemas not in the discriminator mapping untouched', async () => {
-    const oas = await parseDocument({
-      openapi: '3.0.3',
-      info: { title: 'Untouched', version: '1.0.0' },
-      paths: {},
-      components: {
-        schemas: {
-          Animal: {
-            oneOf: [{ $ref: '#/components/schemas/Dog' }],
-            discriminator: {
-              propertyName: 'type',
-              mapping: { dog: '#/components/schemas/Dog' },
-            },
-          },
-          Dog: { type: 'object', properties: { name: { type: 'string' } } },
-          UnrelatedSchema: {
-            type: 'object',
-            properties: { id: { type: 'integer' } },
-          },
-        },
-      },
+  it('merges enum values when the same child appears in multiple parents', () => {
+    const memberA = ast.createSchema({
+      type: 'intersection',
+      members: [refSchema('Pet'), objectSchema([{ name: 'kind', schema: enumSchema(['cat']) }])],
     })
+    const memberB = ast.createSchema({
+      type: 'intersection',
+      members: [refSchema('Pet'), objectSchema([{ name: 'kind', schema: enumSchema(['kitten']) }])],
+    })
+    const unionA = ast.createSchema({ type: 'union', members: [memberA], discriminatorPropertyName: 'kind' })
+    const unionB = ast.createSchema({ type: 'union', members: [memberB], discriminatorPropertyName: 'kind' })
 
-    const root = applyDiscriminatorInheritance(parseOas(oas).root)
+    const map = buildDiscriminatorChildMap([unionA, unionB])
+    expect(map.get('Pet')).toStrictEqual({ propertyName: 'kind', enumValues: ['cat', 'kitten'] })
+  })
 
-    const unrelated = root.schemas.find((s) => s.name === 'UnrelatedSchema')
-    expect(toSnapshot(ast.narrowSchema(unrelated, 'object'))).toMatchInlineSnapshot(`
-      {
-        "kind": "Schema",
-        "name": "UnrelatedSchema",
-        "primitive": "object",
-        "properties": [
-          {
-            "kind": "Property",
-            "name": "id",
-            "required": false,
-            "schema": {
-              "kind": "Schema",
-              "name": "UnrelatedSchemaId",
-              "optional": true,
-              "primitive": "integer",
-              "type": "integer",
-            },
-          },
-        ],
-        "type": "object",
-      }
-    `)
+  it('skips members that are not intersections', () => {
+    const union = ast.createSchema({
+      type: 'union',
+      members: [refSchema('Cat')],
+      discriminatorPropertyName: 'kind',
+    })
+    const map = buildDiscriminatorChildMap([union])
+    expect(map.size).toBe(0)
+  })
+
+  it('skips members missing the discriminant property', () => {
+    const member = ast.createSchema({
+      type: 'intersection',
+      members: [refSchema('Cat'), objectSchema([{ name: 'other', schema: enumSchema(['x']) }])],
+    })
+    const union = ast.createSchema({ type: 'union', members: [member], discriminatorPropertyName: 'kind' })
+
+    const map = buildDiscriminatorChildMap([union])
+    expect(map.size).toBe(0)
+  })
+})
+
+describe('patchDiscriminatorNode', () => {
+  it('returns the node unchanged when it is not an object schema', () => {
+    const node = ast.createSchema({ type: 'string' })
+    const result = patchDiscriminatorNode(node, { propertyName: 'kind', enumValues: ['cat'] })
+    expect(result).toBe(node)
+  })
+
+  it('adds the discriminant property when absent', () => {
+    const node = objectSchema([{ name: 'id', schema: ast.createSchema({ type: 'integer' }) }])
+    const result = patchDiscriminatorNode(node, { propertyName: 'kind', enumValues: ['cat'] })
+
+    const obj = ast.narrowSchema(result, 'object')
+    expect(obj?.properties.map((p) => p.name)).toStrictEqual(['id', 'kind'])
+    const kind = obj?.properties.find((p) => p.name === 'kind')
+    expect(ast.narrowSchema(kind!.schema, 'enum')?.enumValues).toStrictEqual(['cat'])
+  })
+
+  it('replaces an existing property with the same name', () => {
+    const node = objectSchema([{ name: 'kind', schema: ast.createSchema({ type: 'string' }) }])
+    const result = patchDiscriminatorNode(node, { propertyName: 'kind', enumValues: ['cat'] })
+
+    const obj = ast.narrowSchema(result, 'object')
+    expect(obj?.properties).toHaveLength(1)
+    const kind = obj?.properties[0]
+    expect(kind?.name).toBe('kind')
+    expect(ast.narrowSchema(kind!.schema, 'enum')?.enumValues).toStrictEqual(['cat'])
   })
 })

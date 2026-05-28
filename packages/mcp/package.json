@@ -68,7 +68,7 @@
     "@tmcp/transport-stdio": "^0.4.3",
     "jiti": "^2.7.0",
     "tmcp": "^1.19.4",
-    "valibot": "^1.4.0"
+    "valibot": "^1.4.1"
   },
   "devDependencies": {
     "@internals/shared": "workspace:*",

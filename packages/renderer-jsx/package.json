@@ -109,7 +109,7 @@
     "node": ">=22"
   },
   "inlinedDependencies": {
-    "react": "19.2.5",
+    "react": "19.2.6",
     "react-reconciler": "0.33.0",
     "scheduler": "0.27.0"
   }

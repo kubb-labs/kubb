@@ -10,9 +10,8 @@ export type DiscriminatorTarget = {
  * Builds a map of child schema names → discriminator patch data by scanning the given
  * top-level AST schema nodes for union schemas that carry a `discriminatorPropertyName`.
  *
- * Extracted from `applyDiscriminatorInheritance` so the streaming path can call it on a
- * small pre-parsed subset of schemas (only the discriminator parents) rather than on all
- * schemas at once.
+ * The streaming path calls this on a small pre-parsed subset of schemas (only the
+ * discriminator parents) rather than on all schemas at once.
  */
 export function buildDiscriminatorChildMap(schemas: Array<ast.SchemaNode>): Map<string, DiscriminatorTarget> {
   const childMap = new Map<string, DiscriminatorTarget>()
@@ -90,36 +89,4 @@ export function patchDiscriminatorNode(node: ast.SchemaNode, entry: { propertyNa
   const newProperties = existingIdx >= 0 ? objectNode.properties.map((p, i) => (i === existingIdx ? newProp : p)) : [...objectNode.properties, newProp]
 
   return { ...objectNode, properties: newProperties }
-}
-
-/**
- * Injects discriminator enum values into child schemas so they know which value identifies them.
- *
- * Finds every union schema in `input.schemas` that has a `discriminatorPropertyName`, collects the
- * enum value each union member is mapped to, then adds (or replaces) that property on the matching
- * child object schema.
- *
- * Returns a new `InputNode` — the original is never mutated.
- *
- * @example
- * ```ts
- * const { root } = parseOas(document, options)
- * const next = applyDiscriminatorInheritance(root)
- * ```
- */
-export function applyDiscriminatorInheritance(root: ast.InputNode): ast.InputNode {
-  const childMap = buildDiscriminatorChildMap(root.schemas)
-
-  if (childMap.size === 0) return root
-
-  return ast.transform(root, {
-    schema(node, { parent }) {
-      if (parent?.kind !== 'Input' || !node.name) return
-
-      const entry = childMap.get(node.name)
-      if (!entry) return
-
-      return patchDiscriminatorNode(node, entry)
-    },
-  })
 }

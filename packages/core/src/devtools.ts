@@ -1,5 +1,5 @@
 import type { InputNode } from '@kubb/ast'
-import { deflateSync, inflateSync } from 'fflate'
+import { deflateSync } from 'fflate'
 import { x } from 'tinyexec'
 
 export type DevtoolsOptions = {
@@ -16,22 +16,10 @@ export type DevtoolsOptions = {
  * The JSON representation is deflate-compressed with {@link deflateSync} before
  * base64url encoding, which typically reduces payload size by 70–80 % and
  * keeps URLs well within browser and server path-length limits.
- *
- * Use {@link decodeAst} to reverse.
  */
 export function encodeAst(input: InputNode): string {
   const compressed = deflateSync(new TextEncoder().encode(JSON.stringify(input)))
   return Buffer.from(compressed).toString('base64url')
-}
-
-/**
- * Decodes an `InputNode` from a string produced by {@link encodeAst}.
- *
- * Works in both Node.js and the browser — no streaming APIs required.
- */
-export function decodeAst(encoded: string): InputNode {
-  const bytes = Buffer.from(encoded, 'base64url')
-  return JSON.parse(new TextDecoder().decode(inflateSync(bytes))) as InputNode
 }
 
 /**

@@ -108,18 +108,6 @@ export function isPromise<T>(result: PossiblePromise<T>): result is Promise<T> {
   return result !== null && result !== undefined && typeof (result as Record<string, unknown>)['then'] === 'function'
 }
 
-/** Returns `true` when `result` is a fulfilled `Promise.allSettled` result.
- *
- * @example
- * ```ts
- * const results = await Promise.allSettled([p1, p2])
- * results.filter(isPromiseFulfilledResult).map((r) => r.value)
- * ```
- */
-export function isPromiseFulfilledResult<T = unknown>(result: PromiseSettledResult<unknown>): result is PromiseFulfilledResult<T> {
-  return result.status === 'fulfilled'
-}
-
 /** Returns `true` when `result` is a rejected `Promise.allSettled` result with a typed `reason`.
  *
  * @example
