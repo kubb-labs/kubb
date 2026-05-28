@@ -16,8 +16,8 @@ describe('getCommandSchema', () => {
 
   it('returns empty options and subCommands by default', () => {
     const [schema] = getCommandSchema([{ name: 'build', description: 'Build' }])
-    expect(schema?.options).toEqual([])
-    expect(schema?.subCommands).toEqual([])
+    expect(schema?.options).toStrictEqual([])
+    expect(schema?.subCommands).toStrictEqual([])
   })
 
   describe('option flags', () => {
@@ -86,7 +86,7 @@ describe('getCommandSchema', () => {
         expected: true,
       },
     ])('includes $field when set', ({ option, field, expected }) => {
-      expect(schemaOpt(option)?.[field as keyof ReturnType<typeof schemaOpt>]).toEqual(expected)
+      expect(schemaOpt(option)?.[field as keyof ReturnType<typeof schemaOpt>]).toStrictEqual(expected)
     })
 
     it('omits default when not set', () => {
@@ -96,7 +96,7 @@ describe('getCommandSchema', () => {
 
   it('includes examples when provided', () => {
     const [schema] = getCommandSchema([{ name: 'build', description: 'Build', examples: ['kubb generate', 'kubb generate --watch'] }])
-    expect(schema?.examples).toEqual(['kubb generate', 'kubb generate --watch'])
+    expect(schema?.examples).toStrictEqual(['kubb generate', 'kubb generate --watch'])
   })
 
   it('omits examples when not provided', () => {

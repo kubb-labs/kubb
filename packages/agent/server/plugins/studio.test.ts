@@ -29,7 +29,7 @@ describe('Studio Plugin - Message Handling', () => {
       expect(isCommandMessage(message)).toBe(false)
 
       const event = isDataMessage(message, 'kubb:info') ? message : undefined
-      expect(event.payload.type).toEqual('kubb:info')
+      expect(event.payload.type).toStrictEqual('kubb:info')
     })
 
     it('should identify disconnect message with reason "expired"', () => {
@@ -64,11 +64,11 @@ describe('Studio Plugin - Message Handling', () => {
       const expired: AgentMessage = { type: 'disconnect', reason: 'expired' }
       const revoked: AgentMessage = { type: 'disconnect', reason: 'revoked' }
 
-      expect(JSON.parse(JSON.stringify(expired))).toEqual({
+      expect(JSON.parse(JSON.stringify(expired))).toStrictEqual({
         type: 'disconnect',
         reason: 'expired',
       })
-      expect(JSON.parse(JSON.stringify(revoked))).toEqual({
+      expect(JSON.parse(JSON.stringify(revoked))).toStrictEqual({
         type: 'disconnect',
         reason: 'revoked',
       })

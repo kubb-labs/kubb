@@ -90,7 +90,7 @@ describe('defineConfig', () => {
     } as UserConfig)
     const resolved = config as UserConfig
 
-    expect(resolved.output.barrel).toEqual({ type: 'named' })
+    expect(resolved.output.barrel).toStrictEqual({ type: 'named' })
   })
 
   test('preserves explicit output.barrel (including false)', () => {
@@ -105,7 +105,7 @@ describe('defineConfig', () => {
       output: { path: './gen', barrel: false },
     } as UserConfig) as UserConfig
 
-    expect(named.output.barrel).toEqual({ type: 'all' })
+    expect(named.output.barrel).toStrictEqual({ type: 'all' })
     expect(disabled.output.barrel).toBe(false)
   })
 
@@ -146,7 +146,7 @@ describe('defineConfig', () => {
     } as UserConfig)
     const resolved = config as UserConfig
 
-    expect(resolved.output.barrel).toEqual({ type: 'named' })
+    expect(resolved.output.barrel).toStrictEqual({ type: 'named' })
   })
 
   test('preserves existing adapter', () => {
@@ -268,7 +268,7 @@ describe('defineConfig', () => {
     const typedDataConfig: UserConfig<{ data: { openapi: string } }> = dataConfig
 
     expect(typedPathConfig.input!.path).toBe('spec.yaml')
-    expect(typedDataConfig.input!.data).toEqual({ openapi: '3.1.0' })
+    expect(typedDataConfig.input!.data).toStrictEqual({ openapi: '3.1.0' })
   })
 
   test('accepts named configs with hooks', () => {

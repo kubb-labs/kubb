@@ -40,8 +40,8 @@ describe('Agent cache', () => {
 
       const [, written] = mockStorage.setItem.mock.calls[0]
       expect(written).toHaveLength(2)
-      expect(written[0].config).toEqual(first)
-      expect(written[1].config).toEqual(second)
+      expect(written[0].config).toStrictEqual(first)
+      expect(written[1].config).toStrictEqual(second)
     })
   })
 
@@ -78,7 +78,7 @@ describe('Agent cache', () => {
         sessionId: 'session-123',
       })
 
-      expect(result).toEqual(second)
+      expect(result).toStrictEqual(second)
     })
 
     it('reads from the correct session-scoped key', async () => {

@@ -21,16 +21,10 @@ describe('resolveRef', () => {
   it('resolves a local $ref to its schema', () => {
     const result = resolveRef<SchemaObject>(document, '#/components/schemas/Pet')
 
-    expect(result).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "name": {
-            "type": "string",
-          },
-        },
-        "type": "object",
-      }
-    `)
+    expect(result).toStrictEqual({
+      type: 'object',
+      properties: { name: { type: 'string' } },
+    })
   })
 
   it('returns null for an empty ref', () => {
@@ -57,7 +51,7 @@ describe('resolveRef', () => {
 
     const result = resolveRef<SchemaObject>(docWithEncoded, '#/components/schemas/Pet%20List')
 
-    expect(result).toEqual({ type: 'array', items: { type: 'string' } })
+    expect(result).toStrictEqual({ type: 'array', items: { type: 'string' } })
   })
 })
 

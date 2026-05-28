@@ -54,59 +54,47 @@ describe('getDateType', () => {
   })
 
   it('resolves date-time with dateType string to datetime without offset', () => {
-    expect(getDateType({ ...base, dateType: 'string' }, 'date-time')).toMatchInlineSnapshot(`
-      {
-        "offset": false,
-        "type": "datetime",
-      }
-    `)
+    expect(getDateType({ ...base, dateType: 'string' }, 'date-time')).toStrictEqual({
+      type: 'datetime',
+      offset: false,
+    })
   })
 
   it('resolves date-time with dateType date', () => {
-    expect(getDateType({ ...base, dateType: 'date' }, 'date-time')).toMatchInlineSnapshot(`
-      {
-        "representation": "date",
-        "type": "date",
-      }
-    `)
+    expect(getDateType({ ...base, dateType: 'date' }, 'date-time')).toStrictEqual({
+      type: 'date',
+      representation: 'date',
+    })
   })
 
   it('resolves date-time with dateType stringOffset', () => {
-    expect(getDateType({ ...base, dateType: 'stringOffset' }, 'date-time')).toEqual({ type: 'datetime', offset: true })
+    expect(getDateType({ ...base, dateType: 'stringOffset' }, 'date-time')).toStrictEqual({ type: 'datetime', offset: true })
   })
 
   it('resolves date-time with dateType stringLocal', () => {
-    expect(getDateType({ ...base, dateType: 'stringLocal' }, 'date-time')).toEqual({ type: 'datetime', local: true })
+    expect(getDateType({ ...base, dateType: 'stringLocal' }, 'date-time')).toStrictEqual({ type: 'datetime', local: true })
   })
 
   it('resolves date format', () => {
-    expect(getDateType({ ...base, dateType: 'string' }, 'date')).toMatchInlineSnapshot(`
-      {
-        "representation": "string",
-        "type": "date",
-      }
-    `)
-    expect(getDateType({ ...base, dateType: 'date' }, 'date')).toMatchInlineSnapshot(`
-      {
-        "representation": "date",
-        "type": "date",
-      }
-    `)
+    expect(getDateType({ ...base, dateType: 'string' }, 'date')).toStrictEqual({
+      type: 'date',
+      representation: 'string',
+    })
+    expect(getDateType({ ...base, dateType: 'date' }, 'date')).toStrictEqual({
+      type: 'date',
+      representation: 'date',
+    })
   })
 
   it('resolves time format', () => {
-    expect(getDateType({ ...base, dateType: 'string' }, 'time')).toMatchInlineSnapshot(`
-      {
-        "representation": "string",
-        "type": "time",
-      }
-    `)
-    expect(getDateType({ ...base, dateType: 'date' }, 'time')).toMatchInlineSnapshot(`
-      {
-        "representation": "date",
-        "type": "time",
-      }
-    `)
+    expect(getDateType({ ...base, dateType: 'string' }, 'time')).toStrictEqual({
+      type: 'time',
+      representation: 'string',
+    })
+    expect(getDateType({ ...base, dateType: 'date' }, 'time')).toStrictEqual({
+      type: 'time',
+      representation: 'date',
+    })
   })
 })
 
@@ -259,7 +247,7 @@ describe('extractSchemaFromContent', () => {
 
 describe('sortSchemas', () => {
   it('returns an empty object for empty input', () => {
-    expect(sortSchemas({})).toEqual({})
+    expect(sortSchemas({})).toStrictEqual({})
   })
 
   it('preserves order when there are no dependencies', () => {
@@ -269,7 +257,7 @@ describe('sortSchemas', () => {
     }
     const result = sortSchemas(schemas)
 
-    expect(Object.keys(result)).toEqual(['A', 'B'])
+    expect(Object.keys(result)).toStrictEqual(['A', 'B'])
   })
 
   it('places referenced schemas before their dependents', () => {
@@ -378,7 +366,7 @@ describe('getSchemas', () => {
 
   it('returns empty schemas when components is absent', () => {
     const { schemas, nameMapping } = getSchemas(base, {})
-    expect(schemas).toEqual({})
+    expect(schemas).toStrictEqual({})
     expect(nameMapping.size).toBe(0)
   })
 
@@ -493,7 +481,7 @@ describe('getSchemas', () => {
     const { schemas, nameMapping } = getSchemas(document, {})
 
     // first entry keeps original name, second gets numeric suffix
-    expect(Object.keys(schemas).sort()).toEqual(['Pet2', 'pet'])
+    expect(Object.keys(schemas).sort()).toStrictEqual(['Pet2', 'pet'])
     expect(nameMapping.get('#/components/schemas/pet')).toBe('pet')
     expect(nameMapping.get('#/components/schemas/Pet')).toBe('Pet2')
   })
@@ -523,7 +511,7 @@ describe('getSchemas', () => {
 
     const { schemas, nameMapping } = getSchemas(document, {})
 
-    expect(Object.keys(schemas).sort()).toEqual(['PetResponse', 'PetSchema'])
+    expect(Object.keys(schemas).sort()).toStrictEqual(['PetResponse', 'PetSchema'])
     expect(nameMapping.get('#/components/schemas/Pet')).toBe('PetSchema')
     expect(nameMapping.get('#/components/responses/Pet')).toBe('PetResponse')
   })
@@ -565,7 +553,7 @@ describe('getSchemas', () => {
 
     const { schemas, nameMapping } = getSchemas(document, {})
 
-    expect(Object.keys(schemas).sort()).toEqual(['PetRequest', 'PetResponse', 'PetSchema'])
+    expect(Object.keys(schemas).sort()).toStrictEqual(['PetRequest', 'PetResponse', 'PetSchema'])
     expect(nameMapping.get('#/components/schemas/Pet')).toBe('PetSchema')
     expect(nameMapping.get('#/components/responses/Pet')).toBe('PetResponse')
     expect(nameMapping.get('#/components/requestBodies/Pet')).toBe('PetRequest')

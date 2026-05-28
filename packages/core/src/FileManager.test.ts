@@ -16,7 +16,7 @@ function makeFile(path: string, sourceValue?: string, extra?: Partial<Parameters
 describe('FileManager', () => {
   it('starts with an empty file list', () => {
     const manager = new FileManager()
-    expect(manager.files).toEqual([])
+    expect(manager.files).toStrictEqual([])
   })
 
   describe('add', () => {

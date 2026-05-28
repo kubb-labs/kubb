@@ -31,6 +31,6 @@ describe('tokenize', () => {
     // path with spaces in quotes
     ['node "/path/to my/script.js"', ['node', '/path/to my/script.js']],
   ])('tokenize(%s)', (input, expected) => {
-    expect(tokenize(input)).toEqual(expected)
+    expect(tokenize(input)).toStrictEqual(expected)
   })
 })

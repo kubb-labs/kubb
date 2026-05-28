@@ -40,7 +40,7 @@ describe('buildAst', () => {
       )
 
       expect(pet?.type).toBe('object')
-      expect(pet?.properties?.map((p) => p.name)).toEqual(expect.arrayContaining(['id', 'name', 'tag']))
+      expect(pet?.properties?.map((p) => p.name)).toStrictEqual(expect.arrayContaining(['id', 'name', 'tag']))
     })
 
     it('marks required properties', async () => {
@@ -79,7 +79,7 @@ describe('buildAst', () => {
       )
 
       expect(status?.type).toBe('enum')
-      expect(status?.enumValues).toEqual(['active', 'inactive', 'pending'])
+      expect(status?.enumValues).toStrictEqual(['active', 'inactive', 'pending'])
     })
 
     it('converts oneOf to union', async () => {
@@ -1151,21 +1151,21 @@ describe('parseSchema const (OAS 3.1)', () => {
     const node = parseSchema(ctx, { schema: { const: 'active' } })
 
     expect(node.type).toBe('enum')
-    expect(ast.narrowSchema(node, 'enum')?.enumValues).toEqual(['active'])
+    expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual(['active'])
   })
 
   it('maps const number to a single-value enum', () => {
     const node = parseSchema(ctx, { schema: { const: 42 } })
 
     expect(node.type).toBe('enum')
-    expect(ast.narrowSchema(node, 'enum')?.enumValues).toEqual([42])
+    expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual([42])
   })
 
   it('maps const boolean to a single-value enum', () => {
     const node = parseSchema(ctx, { schema: { const: true } })
 
     expect(node.type).toBe('enum')
-    expect(ast.narrowSchema(node, 'enum')?.enumValues).toEqual([true])
+    expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual([true])
   })
 
   it('maps const: null to a null scalar', () => {
@@ -1224,7 +1224,7 @@ describe('parseSchema const (OAS 3.1)', () => {
     const isHappyEnum = ast.narrowSchema(isHappyProp?.schema, 'enum')
 
     expect(isHappyEnum?.name).toBeNull()
-    expect(isHappyEnum?.enumValues).toEqual([false])
+    expect(isHappyEnum?.enumValues).toStrictEqual([false])
   })
 })
 
@@ -1744,7 +1744,7 @@ describe('parseSchema object discriminator', () => {
     const petTypeProp = narrowed?.properties?.find((p) => p.name === 'petType')
     const petTypeSchema = ast.narrowSchema(petTypeProp?.schema, 'enum')
     expect(petTypeSchema?.type).toBe('enum')
-    expect(petTypeSchema?.enumValues).toEqual(['Cat', 'Dog'])
+    expect(petTypeSchema?.enumValues).toStrictEqual(['Cat', 'Dog'])
   })
 
   it('leaves other properties unchanged when discriminator is present', () => {
@@ -2053,7 +2053,7 @@ describe('parseSchema nullable', () => {
     const node = parseSchema(ctx, { schema: { enum: ['a', 'b', null] } })
     const narrowed = ast.narrowSchema(node, 'enum')
 
-    expect(narrowed?.enumValues).toEqual(['a', 'b'])
+    expect(narrowed?.enumValues).toStrictEqual(['a', 'b'])
   })
 
   it('does not set nullable when not specified', () => {
@@ -2162,14 +2162,14 @@ describe('parseSchema enum', () => {
     const node = parseSchema(ctx, { schema: { enum: ['foo', 'bar', 'baz'] } })
     const narrowed = ast.narrowSchema(node, 'enum')
 
-    expect(narrowed?.enumValues).toEqual(['foo', 'bar', 'baz'])
+    expect(narrowed?.enumValues).toStrictEqual(['foo', 'bar', 'baz'])
   })
 
   it('deduplicates enum values', () => {
     const node = parseSchema(ctx, { schema: { enum: ['a', 'a', 'b'] } })
     const narrowed = ast.narrowSchema(node, 'enum')
 
-    expect(narrowed?.enumValues).toEqual(['a', 'b'])
+    expect(narrowed?.enumValues).toStrictEqual(['a', 'b'])
   })
 
   it('strips null from enumValues and sets nullable', () => {
@@ -2177,7 +2177,7 @@ describe('parseSchema enum', () => {
     const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(node.nullable).toBe(true)
-    expect(narrowed?.enumValues).toEqual(['a', 'b'])
+    expect(narrowed?.enumValues).toStrictEqual(['a', 'b'])
   })
 
   // drf-spectacular splits blank/null choices into `BlankEnum` ({ enum: [''] }) and
@@ -2193,14 +2193,14 @@ describe('parseSchema enum', () => {
   it('keeps a blank-only enum (BlankEnum) as a single "" member', () => {
     const node = parseSchema(ctx, { schema: { enum: [''] } })
 
-    expect(ast.narrowSchema(node, 'enum')?.enumValues).toEqual([''])
+    expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual([''])
   })
 
   it('keeps blank and null together as a nullable "" enum', () => {
     const node = parseSchema(ctx, { schema: { enum: ['', null] } })
 
     expect(node.nullable).toBe(true)
-    expect(ast.narrowSchema(node, 'enum')?.enumValues).toEqual([''])
+    expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual([''])
   })
 
   it('parses the oneOf [enum, BlankEnum, NullEnum] pattern into a valid union', () => {
@@ -2208,7 +2208,7 @@ describe('parseSchema enum', () => {
       schema: { oneOf: [{ type: 'string', enum: ['active', 'inactive'] }, { enum: [''] }, { enum: [null] }] },
     })
 
-    expect(ast.narrowSchema(node, 'union')?.members?.map((m) => m.type)).toEqual(['enum', 'enum', 'null'])
+    expect(ast.narrowSchema(node, 'union')?.members?.map((m) => m.type)).toStrictEqual(['enum', 'enum', 'null'])
   })
 
   it('sets enumNullable from schema nullable combined with null in enum', () => {
@@ -2218,7 +2218,7 @@ describe('parseSchema enum', () => {
     const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(node.nullable).toBe(true)
-    expect(narrowed?.enumValues).toEqual(['a'])
+    expect(narrowed?.enumValues).toStrictEqual(['a'])
   })
 
   it('clears default when default is null and enum is nullable', () => {
@@ -2247,7 +2247,7 @@ describe('parseSchema enum', () => {
     expect(node.type).toBe('enum')
     expect(node.primitive).toBe('number')
     const values = narrowed?.namedEnumValues
-    expect(values?.map((v) => v.value)).toEqual([1, 2, 3])
+    expect(values?.map((v) => v.value)).toStrictEqual([1, 2, 3])
     expect(values?.every((v) => v.primitive === 'number')).toBe(true)
   })
 
@@ -2258,7 +2258,7 @@ describe('parseSchema enum', () => {
     const narrowed = ast.narrowSchema(node, 'enum')
 
     expect(node.primitive).toBe('number')
-    expect(narrowed?.namedEnumValues?.map((v) => v.value)).toEqual([0.5, 1.5])
+    expect(narrowed?.namedEnumValues?.map((v) => v.value)).toStrictEqual([0.5, 1.5])
   })
 
   it('uses stringified value as name for numeric enum values', () => {
@@ -2274,7 +2274,7 @@ describe('parseSchema enum', () => {
     })
     const narrowed = ast.narrowSchema(node, 'enum')
 
-    expect(narrowed?.namedEnumValues?.map((v) => v.value)).toEqual([1, 2])
+    expect(narrowed?.namedEnumValues?.map((v) => v.value)).toStrictEqual([1, 2])
   })
 
   // Boolean enum
@@ -2286,7 +2286,7 @@ describe('parseSchema enum', () => {
 
     expect(node.primitive).toBe('boolean')
     const values = narrowed?.namedEnumValues
-    expect(values?.map((v) => v.value)).toEqual([true, false])
+    expect(values?.map((v) => v.value)).toStrictEqual([true, false])
     expect(values?.every((v) => v.primitive === 'boolean')).toBe(true)
   })
 
@@ -2302,8 +2302,8 @@ describe('parseSchema enum', () => {
     const narrowed = ast.narrowSchema(node, 'enum')
 
     const values = narrowed?.namedEnumValues
-    expect(values?.map((v) => v.name)).toEqual(['One', 'Two', 'Three'])
-    expect(values?.map((v) => v.value)).toEqual([1, 2, 3])
+    expect(values?.map((v) => v.name)).toStrictEqual(['One', 'Two', 'Three'])
+    expect(values?.map((v) => v.value)).toStrictEqual([1, 2, 3])
   })
 
   it('uses x-enum-varnames labels as namedEnumValues names', () => {
@@ -2316,8 +2316,8 @@ describe('parseSchema enum', () => {
     const narrowed = ast.narrowSchema(node, 'enum')
 
     const values = narrowed?.namedEnumValues
-    expect(values?.map((v) => v.name)).toEqual(['Active', 'Inactive'])
-    expect(values?.map((v) => v.value)).toEqual(['active', 'inactive'])
+    expect(values?.map((v) => v.name)).toStrictEqual(['Active', 'Inactive'])
+    expect(values?.map((v) => v.value)).toStrictEqual(['active', 'inactive'])
   })
 
   it('x-enumNames deduplicates names', () => {
@@ -2330,7 +2330,7 @@ describe('parseSchema enum', () => {
     const narrowed = ast.narrowSchema(node, 'enum')
 
     const values = narrowed?.namedEnumValues
-    expect(values?.map((v) => v.name)).toEqual(['A', 'B'])
+    expect(values?.map((v) => v.name)).toStrictEqual(['A', 'B'])
   })
 
   it('x-enumNames sets primitive number for integer type', () => {
@@ -2368,8 +2368,8 @@ describe('parseSchema enum', () => {
 
     const values = narrowed?.namedEnumValues
     // After deduping values to [1, 2], names are looked up by position in the deduped array
-    expect(values?.map((v) => v.name)).toEqual(['First', 'Duplicate'])
-    expect(values?.map((v) => v.value)).toEqual([1, 2])
+    expect(values?.map((v) => v.name)).toStrictEqual(['First', 'Duplicate'])
+    expect(values?.map((v) => v.value)).toStrictEqual([1, 2])
   })
 
   it('x-enumNames falls back to stringified value when fewer names than values', () => {
@@ -2383,8 +2383,8 @@ describe('parseSchema enum', () => {
     const narrowed = ast.narrowSchema(node, 'enum')
 
     const values = narrowed?.namedEnumValues
-    expect(values?.map((v) => v.name)).toEqual(['Ten', '20', '30'])
-    expect(values?.map((v) => v.value)).toEqual([10, 20, 30])
+    expect(values?.map((v) => v.name)).toStrictEqual(['Ten', '20', '30'])
+    expect(values?.map((v) => v.value)).toStrictEqual([10, 20, 30])
   })
 
   it('deduplicates numeric enum values and names without extension key', () => {
@@ -2397,8 +2397,8 @@ describe('parseSchema enum', () => {
     const narrowed = ast.narrowSchema(node, 'enum')
 
     const values = narrowed?.namedEnumValues
-    expect(values?.map((v) => v.name)).toEqual(['5', '10'])
-    expect(values?.map((v) => v.value)).toEqual([5, 10])
+    expect(values?.map((v) => v.name)).toStrictEqual(['5', '10'])
+    expect(values?.map((v) => v.value)).toStrictEqual([5, 10])
   })
 
   // Array + enum normalization
@@ -2411,7 +2411,7 @@ describe('parseSchema enum', () => {
     expect(node.type).toBe('array')
     const itemNode = ast.narrowSchema(narrowed?.items?.[0], 'enum')
     expect(itemNode?.type).toBe('enum')
-    expect(itemNode?.enumValues).toEqual(['x', 'y'])
+    expect(itemNode?.enumValues).toStrictEqual(['x', 'y'])
   })
 
   it('merges existing items schema when normalizing array+enum', () => {
@@ -2423,7 +2423,7 @@ describe('parseSchema enum', () => {
     expect(node.type).toBe('array')
     const itemNode = ast.narrowSchema(narrowed?.items?.[0], 'enum')
     expect(itemNode?.type).toBe('enum')
-    expect(itemNode?.enumValues).toEqual(['x', 'y'])
+    expect(itemNode?.enumValues).toStrictEqual(['x', 'y'])
   })
 })
 
@@ -2797,8 +2797,8 @@ describe('parseSchema array', () => {
 
     expect(array?.type).toBe('array')
     expect(object?.type).toBe('object')
-    expect(object?.properties?.map((p) => p.name)).toEqual(['id', 'type', 'value'])
-    expect(ast.narrowSchema(object?.properties?.find((p) => p.name === 'type')?.schema, 'enum')?.enumValues).toEqual(['area', 'density', 'length'])
+    expect(object?.properties?.map((p) => p.name)).toStrictEqual(['id', 'type', 'value'])
+    expect(ast.narrowSchema(object?.properties?.find((p) => p.name === 'type')?.schema, 'enum')?.enumValues).toStrictEqual(['area', 'density', 'length'])
   })
 
   it('qualifies inline enums inside single-member allOf with the parent name', () => {
@@ -2948,7 +2948,7 @@ describe('parseSchema array', () => {
     expect(responseEnums).toContain('GetMaintenanceStatus200DataStatusEnum')
 
     // The core #3364 guarantee: no enum identifier is emitted by both file owners.
-    expect(componentEnums.filter((name) => responseEnums.includes(name))).toEqual([])
+    expect(componentEnums.filter((name) => responseEnums.includes(name))).toStrictEqual([])
   })
 
   it('preserves nullable on array', () => {
@@ -3552,7 +3552,7 @@ describe('parseSchema discriminator on union (oneOf/anyOf)', () => {
     const sharedPropertiesNode = ast.narrowSchema(topIntersection.members?.[1], 'object')
     const sharedTypeProp = sharedPropertiesNode?.properties?.find((p) => p.name === 'type')
 
-    expect(ast.narrowSchema(sharedTypeProp?.schema, 'enum')?.enumValues).toEqual(['dog', 'cat'])
+    expect(ast.narrowSchema(sharedTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['dog', 'cat'])
 
     const { members } = unionNode
 
@@ -3561,14 +3561,14 @@ describe('parseSchema discriminator on union (oneOf/anyOf)', () => {
     const dogDiscNode = ast.narrowSchema(dogIntersection!.members![1], 'object')
     const dogTypeProp = dogDiscNode?.properties?.find((p) => p.name === 'type')
     expect(dogTypeProp?.schema.readOnly).toBe(true)
-    expect(ast.narrowSchema(dogTypeProp?.schema, 'enum')?.enumValues).toEqual(['dog'])
+    expect(ast.narrowSchema(dogTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['dog'])
 
     // Cat member: intersection of Cat ref + synthetic discriminant object { type: 'cat' }
     const catIntersection = ast.narrowSchema(members![1], 'intersection')
     const catDiscNode = ast.narrowSchema(catIntersection!.members![1], 'object')
     const catTypeProp = catDiscNode?.properties?.find((p) => p.name === 'type')
     expect(catTypeProp?.schema.readOnly).toBe(true)
-    expect(ast.narrowSchema(catTypeProp?.schema, 'enum')?.enumValues).toEqual(['cat'])
+    expect(ast.narrowSchema(catTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['cat'])
   })
 
   it('gives enum sibling properties a name derived from the union schema name', () => {
@@ -3625,14 +3625,14 @@ describe('parseSchema discriminator on union without sibling properties', () => 
     expect(dogIntersection).toBeDefined()
     const dogDiscNode = ast.narrowSchema(dogIntersection!.members![1], 'object')
     const dogTypeProp = dogDiscNode?.properties?.find((p) => p.name === 'type')
-    expect(ast.narrowSchema(dogTypeProp?.schema, 'enum')?.enumValues).toEqual(['dog'])
+    expect(ast.narrowSchema(dogTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['dog'])
 
     // Cat member: intersection of Cat ref + { type: 'cat' }
     const catIntersection = ast.narrowSchema(members![1], 'intersection')
     expect(catIntersection).toBeDefined()
     const catDiscNode = ast.narrowSchema(catIntersection!.members![1], 'object')
     const catTypeProp = catDiscNode?.properties?.find((p) => p.name === 'type')
-    expect(ast.narrowSchema(catTypeProp?.schema, 'enum')?.enumValues).toEqual(['cat'])
+    expect(ast.narrowSchema(catTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['cat'])
   })
 
   it('leaves members without a mapping entry as plain refs', () => {
@@ -4068,7 +4068,7 @@ describe('parameter enum naming', () => {
     const enumNode = ast.narrowSchema(statusParam?.schema, 'enum')
 
     expect(enumNode?.name).toBe('ListPetsStatus')
-    expect(enumNode?.enumValues).toEqual(['available', 'pending', 'sold'])
+    expect(enumNode?.enumValues).toStrictEqual(['available', 'pending', 'sold'])
     expect(enumNode?.default).toBe('available')
   })
 })

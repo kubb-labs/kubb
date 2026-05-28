@@ -9,7 +9,7 @@ describe('dom utilities', () => {
 
       expect(node.nodeName).toBe('kubb-file')
       expect(node.attributes).toBeTypeOf('object')
-      expect(node.childNodes).toEqual([])
+      expect(node.childNodes).toStrictEqual([])
       expect(node.parentNode).toBeNull()
     })
   })

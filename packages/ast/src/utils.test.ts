@@ -34,19 +34,19 @@ describe('caseParams', () => {
   it('camelCases snake_case names', () => {
     const result = caseParams([param('pet_id'), param('order_status')], 'camelcase')
 
-    expect(result.map((p) => p.name)).toEqual(['petId', 'orderStatus'])
+    expect(result.map((p) => p.name)).toStrictEqual(['petId', 'orderStatus'])
   })
 
   it('camelCases kebab-case names', () => {
     const result = caseParams([param('some-param'), param('another-one')], 'camelcase')
 
-    expect(result.map((p) => p.name)).toEqual(['someParam', 'anotherOne'])
+    expect(result.map((p) => p.name)).toStrictEqual(['someParam', 'anotherOne'])
   })
 
   it('leaves already-camelCased names unchanged', () => {
     const result = caseParams([param('petId'), param('limit')], 'camelcase')
 
-    expect(result.map((p) => p.name)).toEqual(['petId', 'limit'])
+    expect(result.map((p) => p.name)).toStrictEqual(['petId', 'limit'])
   })
 
   it('does not mutate the original params', () => {
@@ -70,7 +70,7 @@ describe('caseParams', () => {
   })
 
   it('handles an empty params array', () => {
-    expect(caseParams([], 'camelcase')).toEqual([])
+    expect(caseParams([], 'camelcase')).toStrictEqual([])
   })
 })
 
@@ -146,7 +146,7 @@ describe('createDiscriminantNode', () => {
     if (node.type !== 'object') return
     const enumNode = node.properties?.[0]?.schema
     if (!enumNode || enumNode.type !== 'enum') return
-    expect(enumNode.enumValues).toEqual(['dog'])
+    expect(enumNode.enumValues).toStrictEqual(['dog'])
   })
 })
 
@@ -664,7 +664,7 @@ describe('createOperationParams', () => {
 
       const pathGroup = params.params[0]
       if (pathGroup && pathGroup.kind === 'ParameterGroup') {
-        expect(pathGroup.properties[0]?.type).toEqual({
+        expect(pathGroup.properties[0]?.type).toStrictEqual({
           kind: 'ParamsType',
           variant: 'reference',
           name: 'string',
@@ -1113,7 +1113,7 @@ describe('createOperationParams', () => {
       const pathGroup = params.params[0]
       expect(pathGroup).toBeDefined()
       if (pathGroup && pathGroup.kind === 'ParameterGroup') {
-        expect(pathGroup.properties.map((p) => p.name)).toEqual(['petId', 'storeName'])
+        expect(pathGroup.properties.map((p) => p.name)).toStrictEqual(['petId', 'storeName'])
       }
     })
   })
@@ -1300,7 +1300,7 @@ describe('createOperationParams', () => {
         expect(pathGroup.properties[0]?.name).toBe('petId')
       }
       const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
-      expect(queryParam?.type).toEqual({
+      expect(queryParam?.type).toStrictEqual({
         kind: 'ParamsType',
         variant: 'reference',
         name: 'ListPetsQueryParams',
@@ -1324,7 +1324,7 @@ describe('typeWrapper option', () => {
 
     const group = params.params[0]
     if (group?.kind === 'ParameterGroup') {
-      expect(group.properties[0]?.type).toEqual({
+      expect(group.properties[0]?.type).toStrictEqual({
         kind: 'ParamsType',
         variant: 'reference',
         name: 'MaybeRefOrGetter<string>',
@@ -1345,7 +1345,7 @@ describe('typeWrapper option', () => {
     })
 
     const bodyParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'data')
-    expect(bodyParam?.type).toEqual({
+    expect(bodyParam?.type).toStrictEqual({
       kind: 'ParamsType',
       variant: 'reference',
       name: 'MaybeRefOrGetter<CreatePetRequest>',
@@ -1367,7 +1367,7 @@ describe('typeWrapper option', () => {
     })
 
     const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
-    expect(queryParam?.type).toEqual({
+    expect(queryParam?.type).toStrictEqual({
       kind: 'ParamsType',
       variant: 'reference',
       name: 'MaybeRefOrGetter<ListPetsQueryParams>',
@@ -1387,7 +1387,7 @@ describe('typeWrapper option', () => {
 
     const group = params.params[0]
     if (group?.kind === 'ParameterGroup') {
-      expect(group.properties[0]?.type).toEqual({
+      expect(group.properties[0]?.type).toStrictEqual({
         kind: 'ParamsType',
         variant: 'reference',
         name: 'string',
@@ -1416,7 +1416,7 @@ describe('pathParamsType: inlineSpread', () => {
     if (restParam?.kind === 'FunctionParameter') {
       expect(restParam.rest).toBe(true)
       expect(restParam.name).toBe('pathParams')
-      expect(restParam.type).toEqual({
+      expect(restParam.type).toStrictEqual({
         kind: 'ParamsType',
         variant: 'reference',
         name: 'GetPetByIdPathParams',
@@ -1460,7 +1460,7 @@ describe('pathParamsType: inlineSpread', () => {
 
     const restParam = params.params[0]
     if (restParam?.kind === 'FunctionParameter') {
-      expect(restParam.type).toEqual({
+      expect(restParam.type).toStrictEqual({
         kind: 'ParamsType',
         variant: 'reference',
         name: 'MaybeRefOrGetter<GetPetByIdPathParams>',
@@ -1561,7 +1561,7 @@ describe('combineSources', () => {
   })
 
   it('returns empty array for empty input', () => {
-    expect(combineSources([])).toEqual([])
+    expect(combineSources([])).toStrictEqual([])
   })
 })
 
@@ -1571,7 +1571,7 @@ describe('combineExports', () => {
     const result = combineExports([exp, exp])
 
     expect(result).toHaveLength(1)
-    expect(result[0]!.name).toEqual(['Pet'])
+    expect(result[0]!.name).toStrictEqual(['Pet'])
   })
 
   it('merges named exports from the same path into one entry', () => {
@@ -1635,7 +1635,7 @@ describe('combineExports', () => {
     const b = createExport({ path: './b' })
     const result = combineExports([c, a, b])
 
-    expect(result.map((e) => e.path)).toEqual(['./a', './b', './c'])
+    expect(result.map((e) => e.path)).toStrictEqual(['./a', './b', './c'])
   })
 
   it('deduplicates namespace alias exports', () => {
@@ -1653,7 +1653,7 @@ describe('combineExports', () => {
   })
 
   it('returns empty array for empty input', () => {
-    expect(combineExports([])).toEqual([])
+    expect(combineExports([])).toStrictEqual([])
   })
 })
 
@@ -1737,7 +1737,7 @@ describe('combineImports', () => {
     const b = createImport({ name: ['b'], path: './b' })
     const result = combineImports([c, a, b], [], 'a b c')
 
-    expect(result.map((i) => i.path)).toEqual(['./a', './b', './c'])
+    expect(result.map((i) => i.path)).toStrictEqual(['./a', './b', './c'])
   })
 
   it('skips an import when path equals root', () => {
@@ -1752,7 +1752,7 @@ describe('combineImports', () => {
   })
 
   it('returns empty array for empty input', () => {
-    expect(combineImports([], [], '')).toEqual([])
+    expect(combineImports([], [], '')).toStrictEqual([])
   })
 
   it('keeps aliased named import when the local alias appears in the source', () => {
@@ -1809,7 +1809,7 @@ describe('findCircularSchemas', () => {
       ],
     })
 
-    expect(findCircularSchemas([Category, Pet])).toEqual(new Set())
+    expect(findCircularSchemas([Category, Pet])).toStrictEqual(new Set())
   })
 
   it('detects direct self-reference (TreeNode → TreeNode)', () => {
@@ -1821,7 +1821,7 @@ describe('findCircularSchemas', () => {
       ],
     })
 
-    expect(findCircularSchemas([TreeNode])).toEqual(new Set(['TreeNode']))
+    expect(findCircularSchemas([TreeNode])).toStrictEqual(new Set(['TreeNode']))
   })
 
   it('detects indirect cycle (Pet → Cat → Pet)', () => {
@@ -1842,7 +1842,7 @@ describe('findCircularSchemas', () => {
       ],
     })
 
-    expect(findCircularSchemas([Pet, Cat])).toEqual(new Set(['Pet', 'Cat']))
+    expect(findCircularSchemas([Pet, Cat])).toStrictEqual(new Set(['Pet', 'Cat']))
   })
 
   it('detects refs nested inside unions and arrays', () => {
@@ -1861,7 +1861,7 @@ describe('findCircularSchemas', () => {
       ],
     })
 
-    expect(findCircularSchemas([A])).toEqual(new Set(['A']))
+    expect(findCircularSchemas([A])).toStrictEqual(new Set(['A']))
   })
 
   it('does not flag schemas that only reference cyclic schemas without participating', () => {
@@ -1884,7 +1884,7 @@ describe('findCircularSchemas', () => {
 
   it('skips unnamed schemas', () => {
     const anon = createSchema({ type: 'object' })
-    expect(findCircularSchemas([anon])).toEqual(new Set())
+    expect(findCircularSchemas([anon])).toStrictEqual(new Set())
   })
 })
 
@@ -1930,11 +1930,11 @@ describe('collectReferencedSchemaNames', () => {
       ],
     })
 
-    expect(collectReferencedSchemaNames(schema)).toEqual(new Set(['Category', 'Tag', 'User']))
+    expect(collectReferencedSchemaNames(schema)).toStrictEqual(new Set(['Category', 'Tag', 'User']))
   })
 
   it('returns an empty set for schemas without refs', () => {
-    expect(collectReferencedSchemaNames(createSchema({ type: 'string' }))).toEqual(new Set())
+    expect(collectReferencedSchemaNames(createSchema({ type: 'string' }))).toStrictEqual(new Set())
   })
 })
 
@@ -2021,7 +2021,7 @@ describe('collectUsedSchemaNames', () => {
   it('collects schema names referenced by parameters and responses, and excludes unreachable schemas', () => {
     const result = collectUsedSchemaNames([getItemsOp], schemas)
 
-    expect(result).toEqual(new Set(['ItemStatus', 'ItemsResponse']))
+    expect(result).toStrictEqual(new Set(['ItemStatus', 'ItemsResponse']))
     expect(result.has('OrderStatus')).toBe(false)
     expect(result.has('OrdersResponse')).toBe(false)
   })
@@ -2029,11 +2029,11 @@ describe('collectUsedSchemaNames', () => {
   it('collects schema names from multiple operations', () => {
     const result = collectUsedSchemaNames([getItemsOp, getOrdersOp], schemas)
 
-    expect(result).toEqual(new Set(['ItemStatus', 'ItemsResponse', 'OrderStatus', 'OrdersResponse']))
+    expect(result).toStrictEqual(new Set(['ItemStatus', 'ItemsResponse', 'OrderStatus', 'OrdersResponse']))
   })
 
   it('returns an empty set when the operations list is empty', () => {
-    expect(collectUsedSchemaNames([], schemas)).toEqual(new Set())
+    expect(collectUsedSchemaNames([], schemas)).toStrictEqual(new Set())
   })
 
   it('follows transitive schema references', () => {
@@ -2059,7 +2059,7 @@ describe('collectUsedSchemaNames', () => {
 
     const result = collectUsedSchemaNames([detailOp], [tagSchema, itemSchema, responseSchema])
 
-    expect(result).toEqual(new Set(['ItemDetail', 'Item', 'Tag']))
+    expect(result).toStrictEqual(new Set(['ItemDetail', 'Item', 'Tag']))
   })
 
   it('collects schemas referenced in request body content', () => {
@@ -2081,6 +2081,6 @@ describe('collectUsedSchemaNames', () => {
 
     const result = collectUsedSchemaNames([createItemOp], [bodySchema])
 
-    expect(result).toEqual(new Set(['CreateItemBody']))
+    expect(result).toStrictEqual(new Set(['CreateItemBody']))
   })
 })
