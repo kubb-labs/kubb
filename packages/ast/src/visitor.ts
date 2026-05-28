@@ -401,10 +401,14 @@ export async function walk(node: Node, options: WalkOptions): Promise<void> {
 async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit: LimitFn, parent: Node | undefined): Promise<void> {
   await limit(() => applyVisitor(node, visitor, parent))
 
-  const children = getChildren(node, recurse)
-  for (const child of children) {
-    await _walk(child, visitor, recurse, limit, node)
-  }
+  // Visit siblings concurrently and let the shared `limit` cap how many callbacks
+  // run at once. Awaiting each child sequentially here would serialize the whole
+  // traversal and make `concurrency` inert — every visitor callback would run one
+  // at a time regardless of the limit.
+  const children = Array.from(getChildren(node, recurse))
+  if (children.length === 0) return
+
+  await Promise.all(children.map((child) => _walk(child, visitor, recurse, limit, node)))
 }
 
 /**
