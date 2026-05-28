@@ -43,8 +43,8 @@ catalogs:
       specifier: ^12.1.0
       version: 12.1.0
     tinyexec:
-      specifier: ^1.2.2
-      version: 1.2.2
+      specifier: ~1.1.2
+      version: 1.1.2
     tsdown:
       specifier: ^0.22.0
       version: 0.22.0
@@ -176,7 +176,7 @@ importers:
         version: 2.34.1
       tinyexec:
         specifier: 'catalog:'
-        version: 1.2.2
+        version: 1.1.2
       unstorage:
         specifier: ^1.17.5
         version: 1.17.5(db0@0.3.4)(ioredis@5.10.1)
@@ -243,7 +243,7 @@ importers:
         version: 2.7.0
       tinyexec:
         specifier: 'catalog:'
-        version: 1.2.2
+        version: 1.1.2
     devDependencies:
       '@internals/shared':
         specifier: workspace:*
@@ -265,7 +265,7 @@ importers:
         version: 0.8.3
       tinyexec:
         specifier: 'catalog:'
-        version: 1.2.2
+        version: 1.1.2
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
@@ -4775,6 +4775,10 @@ packages:
   tinyclip@0.1.12:
     resolution: {integrity: sha512-Ae3OVUqifDw0wBriIBS7yVaW44Dp6eSHQcyq4Igc7eN2TJH/2YsicswaW+J/OuMvhpDPOKEgpAZCjkb4hpoyeA==}
     engines: {node: ^16.14.0 || >= 17.3.0}
+
+  tinyexec@1.1.2:
+    resolution: {integrity: sha512-dAqSqE/RabpBKI8+h26GfLq6Vb3JVXs30XYQjdMjaj/c2tS8IYYMbIzP599KtRj7c57/wYApb3QjgRgXmrCukA==}
+    engines: {node: '>=18'}
 
   tinyexec@1.2.2:
     resolution: {integrity: sha512-M/Q0B2cp4K7kynaT/vnED1j8TlLY+Pp7C6Wl2bl/7u/F0mUVwdyOpwomQb8JpYLitHUssAJRmLZdMCGsrx7i+g==}
@@ -9550,6 +9554,8 @@ snapshots:
   tinybench@2.9.0: {}
 
   tinyclip@0.1.12: {}
+
+  tinyexec@1.1.2: {}
 
   tinyexec@1.2.2: {}
 
