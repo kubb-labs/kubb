@@ -1,4 +1,4 @@
-export { httpMethods, isScalarPrimitive, schemaTypes } from './constants.ts'
+export { httpMethods, schemaTypes } from './constants.ts'
 export { applyDedupe, buildDedupePlan } from './dedupe.ts'
 export { defineSchemaDialect } from './dialect.ts'
 export { dispatch } from './dispatch.ts'
@@ -29,16 +29,15 @@ export {
   syncOptionality,
   update,
 } from './factory.ts'
-export { isHttpOperationNode, isInputNode, isOperationNode, isOutputNode, isSchemaNode, narrowSchema } from './guards.ts'
+export { isHttpOperationNode, isOperationNode, isSchemaNode, narrowSchema } from './guards.ts'
 export { createPrinterFactory, definePrinter } from './printer.ts'
 export { extractRefName } from './refs.ts'
 export { childName, collectImports, enumPropName, findDiscriminator } from './resolvers.ts'
-export { isSchemaEqual, schemaSignature } from './signature.ts'
-export { mergeAdjacentObjects, mergeAdjacentObjectsLazy, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
+export { schemaSignature } from './signature.ts'
+export { mergeAdjacentObjectsLazy, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
 export type * from './types.ts'
 export {
   caseParams,
-  collectReferencedSchemaNames,
   collectUsedSchemaNames,
   containsCircularRef,
   createDiscriminantNode,
@@ -46,7 +45,6 @@ export {
   extractStringsFromNodes,
   findCircularSchemas,
   isStringType,
-  resolveRefName,
   syncSchemaRef,
 } from './utils.ts'
 export { collect, transform, walk } from './visitor.ts'
