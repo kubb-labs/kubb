@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { createProperty, createSchema } from './factory.ts'
+import { createInput, createProperty, createSchema } from './factory.ts'
 import { buildSampleTree } from './mocks.ts'
 import type { ContentNode } from './nodes/content.ts'
 import type { OperationNode } from './nodes/operation.ts'
@@ -96,6 +96,35 @@ describe('walk', () => {
 
     expect(maxConcurrent).toBeLessThanOrEqual(2)
     expect(order.length).toBeGreaterThan(0)
+  })
+
+  it('actually runs sibling visitors concurrently up to the limit', async () => {
+    // Five sibling schemas under the root — with concurrency 3 the limiter should
+    // keep exactly three callbacks in flight at once, never one (serial) or five.
+    const root = createInput({
+      schemas: [
+        createSchema({ type: 'string' }),
+        createSchema({ type: 'number' }),
+        createSchema({ type: 'boolean' }),
+        createSchema({ type: 'integer' }),
+        createSchema({ type: 'null' }),
+      ],
+    })
+
+    let maxConcurrent = 0
+    let current = 0
+
+    await walk(root, {
+      concurrency: 3,
+      async schema() {
+        current++
+        if (current > maxConcurrent) maxConcurrent = current
+        await new Promise((r) => setTimeout(r, 5))
+        current--
+      },
+    })
+
+    expect(maxConcurrent).toBe(3)
   })
 
   it('does not recurse into schema properties/items/members when depth: shallow', async () => {

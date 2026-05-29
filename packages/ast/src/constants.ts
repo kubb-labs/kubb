@@ -1,5 +1,3 @@
-import type { NodeKind } from './nodes/base.ts'
-import type { MediaType } from './nodes/http.ts'
 import type { HttpMethod } from './nodes/operation.ts'
 import type { SchemaType } from './nodes/schema.ts'
 
@@ -15,26 +13,6 @@ export const visitorDepths = {
   shallow: 'shallow',
   deep: 'deep',
 } as const satisfies Record<VisitorDepth, VisitorDepth>
-
-export const nodeKinds = {
-  input: 'Input',
-  output: 'Output',
-  operation: 'Operation',
-  schema: 'Schema',
-  property: 'Property',
-  parameter: 'Parameter',
-  response: 'Response',
-  functionParameter: 'FunctionParameter',
-  parameterGroup: 'ParameterGroup',
-  functionParameters: 'FunctionParameters',
-  type: 'Type',
-  file: 'File',
-  import: 'Import',
-  export: 'Export',
-  source: 'Source',
-  text: 'Text',
-  break: 'Break',
-} as const satisfies Record<string, NodeKind>
 
 /**
  * Schema type discriminators used by all AST schema nodes.
@@ -198,31 +176,3 @@ export const httpMethods = {
  * ```
  */
 export const WALK_CONCURRENCY = 30
-
-/**
- * Common MIME types used in request/response content negotiation.
- *
- * Covers JSON, XML, form data, PDFs, images, audio, and video formats.
- * Use these as keys when serializing request/response bodies.
- */
-export const mediaTypes = {
-  applicationJson: 'application/json',
-  applicationXml: 'application/xml',
-  applicationFormUrlEncoded: 'application/x-www-form-urlencoded',
-  applicationOctetStream: 'application/octet-stream',
-  applicationPdf: 'application/pdf',
-  applicationZip: 'application/zip',
-  applicationGraphql: 'application/graphql',
-  multipartFormData: 'multipart/form-data',
-  textPlain: 'text/plain',
-  textHtml: 'text/html',
-  textCsv: 'text/csv',
-  textXml: 'text/xml',
-  imagePng: 'image/png',
-  imageJpeg: 'image/jpeg',
-  imageGif: 'image/gif',
-  imageWebp: 'image/webp',
-  imageSvgXml: 'image/svg+xml',
-  audioMpeg: 'audio/mpeg',
-  videoMp4: 'video/mp4',
-} as const satisfies Record<string, MediaType>

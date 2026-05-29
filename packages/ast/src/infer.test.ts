@@ -1,5 +1,5 @@
 import { describe, expectTypeOf, it } from 'vitest'
-import type { InferSchema } from './infer.ts'
+import type { InferSchemaNode } from './infer.ts'
 import type {
   ArraySchemaNode,
   DateSchemaNode,
@@ -18,13 +18,13 @@ import type {
 
 describe('InferSchemaNode', () => {
   it('infers SchemaNode for single-member allOf flattening', () => {
-    type Node = InferSchema<{ allOf: [{ type: 'string' }] }>
+    type Node = InferSchemaNode<{ allOf: [{ type: 'string' }] }>
 
     expectTypeOf<Node>().toEqualTypeOf<SchemaNode>()
   })
 
   it('infers IntersectionSchemaNode for multi-member allOf', () => {
-    type Node = InferSchema<{
+    type Node = InferSchemaNode<{
       allOf: [{ type: 'string' }, { type: 'number' }]
     }>
 
@@ -32,32 +32,32 @@ describe('InferSchemaNode', () => {
   })
 
   it('infers UnionSchemaNode for oneOf and anyOf', () => {
-    type OneOfNode = InferSchema<{ oneOf: [{ type: 'string' }] }>
-    type AnyOfNode = InferSchema<{ anyOf: [{ type: 'string' }] }>
+    type OneOfNode = InferSchemaNode<{ oneOf: [{ type: 'string' }] }>
+    type AnyOfNode = InferSchemaNode<{ anyOf: [{ type: 'string' }] }>
 
     expectTypeOf<OneOfNode>().toEqualTypeOf<UnionSchemaNode>()
     expectTypeOf<AnyOfNode>().toEqualTypeOf<UnionSchemaNode>()
   })
 
   it('infers RefSchemaNode from $ref', () => {
-    type Node = InferSchema<{ $ref: '#/components/schemas/Pet' }>
+    type Node = InferSchemaNode<{ $ref: '#/components/schemas/Pet' }>
 
     expectTypeOf<Node>().toEqualTypeOf<RefSchemaNode>()
   })
 
   it('infers EnumSchemaNode from enum and const', () => {
-    type EnumNode = InferSchema<{ enum: ['a', 'b'] }>
-    type ConstNode = InferSchema<{ const: 'a' }>
+    type EnumNode = InferSchemaNode<{ enum: ['a', 'b'] }>
+    type ConstNode = InferSchemaNode<{ const: 'a' }>
 
     expectTypeOf<EnumNode>().toEqualTypeOf<EnumSchemaNode>()
     expectTypeOf<ConstNode>().toEqualTypeOf<EnumSchemaNode>()
   })
 
   it('infers ObjectSchemaNode and ArraySchemaNode from structural hints', () => {
-    type ObjectNode = InferSchema<{ type: 'object' }>
-    type AdditionalPropsNode = InferSchema<{ additionalProperties: true }>
-    type ArrayNode = InferSchema<{ type: 'array' }>
-    type PrefixItemsNode = InferSchema<{ prefixItems: [{ type: 'string' }] }>
+    type ObjectNode = InferSchemaNode<{ type: 'object' }>
+    type AdditionalPropsNode = InferSchemaNode<{ additionalProperties: true }>
+    type ArrayNode = InferSchemaNode<{ type: 'array' }>
+    type PrefixItemsNode = InferSchemaNode<{ prefixItems: [{ type: 'string' }] }>
 
     expectTypeOf<ObjectNode>().toEqualTypeOf<ObjectSchemaNode>()
     expectTypeOf<AdditionalPropsNode>().toEqualTypeOf<ObjectSchemaNode>()
@@ -66,10 +66,10 @@ describe('InferSchemaNode', () => {
   })
 
   it('infers date/time variants', () => {
-    type DateNode = InferSchema<{ format: 'date' }>
-    type TimeNode = InferSchema<{ format: 'time' }>
-    type DateTimeStringNode = InferSchema<{ format: 'date-time' }>
-    type DateTimeDateNode = InferSchema<{ format: 'date-time' }, 'date'>
+    type DateNode = InferSchemaNode<{ format: 'date' }>
+    type TimeNode = InferSchemaNode<{ format: 'time' }>
+    type DateTimeStringNode = InferSchemaNode<{ format: 'date-time' }>
+    type DateTimeDateNode = InferSchemaNode<{ format: 'date-time' }, 'date'>
 
     expectTypeOf<DateNode>().toEqualTypeOf<DateSchemaNode>()
     expectTypeOf<TimeNode>().toEqualTypeOf<TimeSchemaNode>()
@@ -78,23 +78,23 @@ describe('InferSchemaNode', () => {
   })
 
   it('infers scalar nodes', () => {
-    type StringNode = InferSchema<{ type: 'string' }>
-    type NumberNode = InferSchema<{ type: 'number' }>
+    type StringNode = InferSchemaNode<{ type: 'string' }>
+    type NumberNode = InferSchemaNode<{ type: 'number' }>
 
     expectTypeOf<StringNode>().toEqualTypeOf<StringSchemaNode>()
     expectTypeOf<NumberNode>().toEqualTypeOf<NumberSchemaNode>()
   })
 
   it('infers AST-native schema variants', () => {
-    type EnumNode = InferSchema<{ type: 'enum' }>
-    type UnionNode = InferSchema<{ type: 'union' }>
-    type IntersectionNode = InferSchema<{ type: 'intersection' }>
-    type TupleNode = InferSchema<{ type: 'tuple' }>
-    type RefNode = InferSchema<{ type: 'ref' }>
-    type DatetimeNode = InferSchema<{ type: 'datetime' }>
-    type DateNode = InferSchema<{ type: 'date' }>
-    type TimeNode = InferSchema<{ type: 'time' }>
-    type UrlNode = InferSchema<{ type: 'url' }>
+    type EnumNode = InferSchemaNode<{ type: 'enum' }>
+    type UnionNode = InferSchemaNode<{ type: 'union' }>
+    type IntersectionNode = InferSchemaNode<{ type: 'intersection' }>
+    type TupleNode = InferSchemaNode<{ type: 'tuple' }>
+    type RefNode = InferSchemaNode<{ type: 'ref' }>
+    type DatetimeNode = InferSchemaNode<{ type: 'datetime' }>
+    type DateNode = InferSchemaNode<{ type: 'date' }>
+    type TimeNode = InferSchemaNode<{ type: 'time' }>
+    type UrlNode = InferSchemaNode<{ type: 'url' }>
 
     expectTypeOf<EnumNode>().toEqualTypeOf<EnumSchemaNode>()
     expectTypeOf<UnionNode>().toEqualTypeOf<UnionSchemaNode>()

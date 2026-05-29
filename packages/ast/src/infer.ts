@@ -130,12 +130,3 @@ export type InferSchemaNode<
     ? TEntry[1]
     : InferSchemaNode<TSchema, TDateType, TRest>
   : SchemaNode
-
-/**
- * Backward-compatible alias for `InferSchemaNode`.
- */
-export type InferSchema<
-  TSchema extends object,
-  TDateType extends ParserOptions['dateType'] = 'string',
-  TEntries extends ReadonlyArray<[object, SchemaNode]> = SchemaNodeMap<TDateType>,
-> = InferSchemaNode<TSchema, TDateType, TEntries>

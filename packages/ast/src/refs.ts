@@ -1,10 +1,3 @@
-import type { SchemaNode } from './nodes/schema.ts'
-
-/**
- * Lookup map from schema name to `SchemaNode`.
- */
-export type RefMap = Map<string, SchemaNode>
-
 /**
  * Returns the last path segment of a reference string.
  *
