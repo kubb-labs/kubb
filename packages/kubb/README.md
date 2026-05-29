@@ -60,7 +60,6 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 - Choose your HTTP client: use the axios or fetch presets, or point at a custom client module so generated requests run through your own wrapper.
 - Control the generated tree: group files by tag, emit barrel exports, and include or exclude operations to keep the output focused.
 - Build your own output with custom plugins, composable middleware, and the JSX-based renderer (`@kubb/renderer-jsx`) for full control over what lands on disk.
-- Run it your way from the CLI: `kubb init` walks you through setup, runs show a progress bar and detailed logs, and `--watch` regenerates when the spec changes.
 - Hook into your bundler with `unplugin-kubb`, which runs generation inside Vite, Nuxt, Astro, webpack, and other build tools.
 - Drive generation from AI tools through the built-in Model Context Protocol (MCP) server, which works with [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible assistants.
 
