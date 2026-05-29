@@ -67,6 +67,11 @@ Pick plugins by what the consumer needs, then install `kubb` plus each package.
 | MCP server from the spec | MCP | `@kubb/plugin-mcp` | `pluginMcp` |
 | ReDoc documentation | ReDoc | `@kubb/plugin-redoc` | `pluginRedoc` |
 
+For the exact options of an installed plugin, read its `extension.yaml` from the install
+(`node_modules/@kubb/plugin-<name>/extension.yaml`). It ships with the package, so it matches the
+installed version and lists the full `options` schema with defaults, the plugin `dependencies`, and
+the default `output.path`. Use it as the source of truth instead of guessing an option name.
+
 Common combinations:
 
 - Types only: `pluginTs()`.
