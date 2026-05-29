@@ -3,7 +3,7 @@
   "name": "kubb",
   "displayName": "Kubb",
   "version": "0.1.0",
-  "description": "Generate TypeScript types, clients, framework hooks, Zod schemas and mocks from an OpenAPI spec with Kubb. Bundles the Kubb MCP server so Claude can scaffold, validate and run codegen for you.",
+  "description": "Kubb is a meta framework for code generation. Generate TypeScript types, Zod schemas, Axios and fetch clients, React Query and Vue Query hooks, Faker mocks and more from an OpenAPI spec. This plugin bundles the Kubb MCP server so Claude can scaffold, validate and run code generation for you.",
   "author": {
     "name": "stijnvanhulle",
     "url": "https://github.com/kubb-labs"

@@ -5,14 +5,14 @@
     "name": "kubb-labs",
     "url": "https://github.com/kubb-labs"
   },
-  "description": "Claude Code plugin for generating TypeScript from OpenAPI with Kubb.",
+  "description": "Kubb, a meta framework for code generation, as a Claude Code plugin.",
   "plugins": [
     {
       "name": "kubb",
       "source": "./claude-plugin",
-      "description": "Scaffold, configure, validate and run Kubb codegen from your OpenAPI spec, with the Kubb MCP server wired in.",
+      "description": "Meta framework for code generation. Turn an OpenAPI spec into TypeScript types, Zod schemas, Axios clients, React Query hooks and more, with the Kubb MCP server wired in.",
       "category": "development",
-      "keywords": ["kubb", "openapi", "swagger", "codegen", "typescript", "mcp"]
+      "keywords": ["kubb", "openapi", "swagger", "codegen", "typescript", "zod", "axios", "react-query", "mcp"]
     }
   ]
 }

@@ -1,7 +1,8 @@
 # Kubb — Claude Code plugin
 
-Generate TypeScript types, clients, framework hooks, Zod schemas and mocks from an OpenAPI
-spec, without leaving Claude Code. The plugin bundles the [Kubb MCP server](https://www.npmjs.com/package/@kubb/mcp)
+Kubb is a meta framework for code generation. It turns an OpenAPI spec into TypeScript types,
+Zod schemas, Axios and fetch clients, React Query and Vue Query hooks, Faker mocks and more,
+without leaving Claude Code. The plugin bundles the [Kubb MCP server](https://www.npmjs.com/package/@kubb/mcp)
 so Claude can scaffold, validate and run code generation for you.
 
 ## What you get
