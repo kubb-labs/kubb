@@ -1,5 +1,5 @@
 ---
-argument-hint: <path-or-url-to-openapi-spec>
+argument-hint: "<path-or-url-to-openapi-spec>"
 description: Validate an OpenAPI/Swagger spec with the kubb validate CLI before generating from it.
 ---
 

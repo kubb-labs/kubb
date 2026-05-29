@@ -1,5 +1,5 @@
 ---
-argument-hint: [input-spec]
+argument-hint: "[input-spec]"
 description: Run Kubb code generation with the kubb generate CLI and report what changed.
 ---
 

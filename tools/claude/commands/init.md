@@ -1,5 +1,5 @@
 ---
-argument-hint: [input-spec] [output-dir] [plugins]
+argument-hint: "[input-spec] [output-dir] [plugins]"
 description: Scaffold a kubb.config.ts and install plugins by running the kubb init CLI.
 ---
 
