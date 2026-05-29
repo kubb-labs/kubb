@@ -35,8 +35,7 @@ export default defineConfig({
 
 Rules that matter:
 
-- There is no `pluginOas()`. `defineConfig` applies the OpenAPI adapter automatically, so do not
-  put it in `plugins`. Set adapter options only when you need them, through a top-level
+- Set adapter options only when you need them, through a top-level
   `adapter: adapterOas({ ... })` from `@kubb/adapter-oas` (for `validate`, `serverIndex`,
   `serverVariables`, `discriminator` or `contentType`).
 - `pluginTs` is the base. `pluginClient`, the framework plugins (`pluginReactQuery`,
