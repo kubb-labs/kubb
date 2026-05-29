@@ -20,7 +20,7 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
  *
  * - `root` defaults to `process.cwd()`
  * - `adapter` defaults to `adapterOas()`
- * - `parsers` defaults to `[parserTs, parserTsx]`
+ * - `parsers` defaults to `[parserTs, parserTsx, parserMd]`
  * - `middleware` defaults to `[middlewareBarrel()]`
  * - `output.barrel` defaults to `{ type: 'named' }` **only when `middlewareBarrel` is part of `middleware`**.
  *   When the user provides a custom middleware list without `middlewareBarrel`, `barrel` is left untouched.
@@ -66,7 +66,7 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  *
  * Defaults applied when omitted:
  * - `adapter` → `adapterOas()` (OpenAPI 2.0/3.0/3.1).
- * - `parsers` → `[parserTs, parserTsx]`.
+ * - `parsers` → `[parserTs, parserTsx, parserMd]`.
  * - `middleware` → `[middlewareBarrel()]`.
  * - `output.barrel` → `{ type: 'named' }` only when `middlewareBarrel` is
  *   in the middleware list.

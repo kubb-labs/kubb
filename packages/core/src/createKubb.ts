@@ -100,7 +100,7 @@ export type Config<TInput = Input> = {
    * set of file extensions; a fallback parser handles anything else.
    *
    * Already resolved on the `Config` instance — see `UserConfig` for the
-   * optional form that defaults to `[parserTs, parserTsx]`.
+   * optional form that defaults to `[parserTs, parserTsx, parserMd]`.
    *
    * @example
    * ```ts
@@ -395,7 +395,7 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
   root?: string
   /**
    * Custom parsers that convert generated AST nodes to strings (TypeScript, JSON, markdown, etc.).
-   * @default [parserTs]  // from `@kubb/parser-ts`
+   * @default [parserTs, parserTsx, parserMd]  // applied by `defineConfig` from the `kubb` package
    */
   parsers?: Array<Parser>
   /**
