@@ -37,7 +37,7 @@ npm install -D kubb @kubb/mcp
 To try it locally before publishing:
 
 ```bash
-claude --plugin-dir ./claude-plugin
+claude --plugin-dir ./tools/claude
 ```
 
 ## Usage

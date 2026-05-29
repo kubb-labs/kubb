@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "kubb",
-      "source": "./claude-plugin",
+      "source": "./tools/claude",
       "description": "Meta framework for code generation. Turn an OpenAPI spec into TypeScript types, Zod schemas, Axios clients, React Query hooks and more, with the Kubb MCP server wired in.",
       "category": "development",
       "keywords": ["kubb", "openapi", "swagger", "codegen", "typescript", "zod", "axios", "react-query", "mcp"]
