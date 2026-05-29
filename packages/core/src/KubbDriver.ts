@@ -418,7 +418,7 @@ export class KubbDriver {
         )
       }
 
-      const generatorPlugins: Array<{ plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }> = []
+      const generatorPlugins: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options'>; hrStart: ReturnType<typeof process.hrtime> }> = []
 
       for (const plugin of this.plugins.values()) {
         const context = this.getContext(plugin)
@@ -502,14 +502,14 @@ export class KubbDriver {
   }
 
   async #runGenerators(
-    entries: Array<{ plugin: NormalizedPlugin; context: GeneratorContext; hrStart: ReturnType<typeof process.hrtime> }>,
+    entries: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options'>; hrStart: ReturnType<typeof process.hrtime> }>,
     flushPending: () => Promise<void>,
   ): Promise<{ timings: Map<string, number>; failed: Set<{ plugin: Plugin; error: Error }> }> {
     const timings = new Map<string, number>()
     const failed = new Set<{ plugin: Plugin; error: Error }>()
     type PluginState = {
       plugin: NormalizedPlugin
-      generatorContext: GeneratorContext
+      generatorContext: Omit<GeneratorContext, 'options'>
       generators: Array<Generator>
       hrStart: ReturnType<typeof process.hrtime>
       failed: boolean
@@ -635,7 +635,7 @@ export class KubbDriver {
     // Saves an N-sized allocation that lives until the build ends, on the common
     // path where plugins only define per-node `gen.operation`.
     const needsCollectedOperations = this.hooks.listenerCount('kubb:generate:operations') > 0 || states.some((s) => s.generators.some((g) => !!g.operations))
-    const collectedOperations: Array<OperationNode> = needsCollectedOperations ? [] : (undefined as never)
+    const collectedOperations: Array<OperationNode> | undefined = needsCollectedOperations ? [] : undefined
 
     // Run schemas before operations: the two passes share `flushPending` and the
     // FileProcessor's event emitter, so running them concurrently would interleave
@@ -648,7 +648,7 @@ export class KubbDriver {
     await forBatches(
       operations,
       (nodes) => {
-        if (needsCollectedOperations) collectedOperations.push(...nodes)
+        if (needsCollectedOperations) collectedOperations?.push(...nodes)
         return Promise.all(nodes.flatMap((n) => states.map((state) => dispatchNode(state, n, operationDispatch))))
       },
       { concurrency: SCHEMA_PARALLEL, flush: flushPending },
@@ -663,9 +663,10 @@ export class KubbDriver {
           // excludes/includes/overrides that resolve to null in dispatchOperation must also
           // be hidden from the batched gen.operations() hook, otherwise grouped/barrel
           // generators emit references to operation files that the per-op hook intentionally skipped.
+          const ops = collectedOperations ?? []
           const pluginOperations = state.optionsAreStatic
-            ? collectedOperations
-            : collectedOperations.filter((node) => {
+            ? ops
+            : ops.filter((node) => {
                 const transformed = plugin.transformer ? transform(node, plugin.transformer) : node
                 const { exclude, include, override } = plugin.options
 
@@ -775,7 +776,7 @@ export class KubbDriver {
     return this.#resolvers.get(pluginName) ?? this.plugins.get(pluginName)?.resolver ?? this.#getDefaultResolver(pluginName)
   }
 
-  getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): GeneratorContext<TOptions> & Record<string, unknown> {
+  getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
     const driver = this
 
     return {
@@ -801,8 +802,10 @@ export class KubbDriver {
       get meta(): InputMeta {
         return driver.inputNode?.meta ?? { circularNames: [], enumNames: [] }
       },
-      get adapter(): Adapter | null {
-        return driver.adapter
+      get adapter(): Adapter {
+        // Generators only read `adapter` during AST hooks, which run after the
+        // adapter is set, so it is guaranteed defined at read time.
+        return driver.adapter!
       },
       get resolver() {
         return driver.getResolver(plugin.name)
@@ -840,7 +843,7 @@ export class KubbDriver {
 
         return openInStudioFn(inputNode, studioUrl, options)
       },
-    } as unknown as GeneratorContext<TOptions>
+    }
   }
 
   getPlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined

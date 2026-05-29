@@ -945,7 +945,7 @@ function resolveConfig(userConfig: UserConfig): Config {
           ...(typeof userConfig.devtools === 'boolean' ? {} : userConfig.devtools),
         }
       : undefined,
-    plugins: (userConfig.plugins ?? []) as unknown as Config['plugins'],
+    plugins: userConfig.plugins ?? [],
   }
 }
 
