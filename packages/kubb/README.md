@@ -73,6 +73,10 @@ Kubb is an open source project with its ongoing development made possible entire
   </a>
 </p>
 
+## Contributing
+
+See [CONTRIBUTING.md](https://github.com/kubb-labs/kubb/blob/main/CONTRIBUTING.md) for the project structure, local setup, and commands.
+
 ## Contributors [![Contributors][contributors-src]][contributors-href]
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
