@@ -76,6 +76,12 @@ Kubb is an open source project, and its development is funded entirely by sponso
 
 ## Contributing
 
+We welcome contributions that help improve Kubb. A few ways to get involved:
+
+- Found a bug? File it in the [issue tracker](https://github.com/kubb-labs/kubb/issues).
+- Have an idea to improve Kubb? [Open an issue](https://github.com/kubb-labs/kubb/issues/new) to share it.
+- Need help? Ask the community on [Discord](https://discord.gg/4dQjA6vrWX).
+
 See [CONTRIBUTING.md](https://github.com/kubb-labs/kubb/blob/main/CONTRIBUTING.md) for the project structure, local setup, and commands.
 
 ## Contributors [![Contributors][contributors-src]][contributors-href]
