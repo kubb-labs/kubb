@@ -9,7 +9,7 @@ types, clients, framework hooks, Zod schemas and mocks. You are not working on t
 monorepo itself. You generate code for the user's project.
 
 Always prefer the Kubb MCP server tools (`validate`, `init`, `generate`) over reimplementing
-their behaviour. Read the `config` skill for the config shape and the plugin catalogue.
+their behavior. Read the `config` skill for the config shape and the plugin catalog.
 
 Approach:
 
