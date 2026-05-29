@@ -24,3 +24,9 @@ part of writing the file, not only when asked.
 
 `docs/changelog.md` follows the `changelog` skill's emoji-prefixed section format
 (`### ✨ Features`, `🐛 Bug Fixes`, `🚀 Breaking Changes`, `📦 Dependencies`).
+
+## Before committing
+
+Run the `humanizer` skill over any user-facing markdown you write or edit (READMEs, docs,
+changesets, plugin copy) and fix the tells it surfaces in that same pass. Do this by default as
+part of writing the file, not only when asked.
