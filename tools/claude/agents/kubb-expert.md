@@ -31,6 +31,6 @@ Guardrails:
 
 - Generated output is overwritten on every run. Fix the spec or the config, then regenerate.
   Do not hand-edit generated files.
-- Use `logLevel: 'verbose'` to diagnose missing or malformed output.
+- Use `kubb generate --verbose` to diagnose missing or malformed output.
 - Report what was generated and how to use it. Do not guess at API shapes the spec does not
   define.
