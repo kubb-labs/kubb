@@ -1,7 +1,6 @@
 <div align="center">
-  <h1>@kubb/renderer-jsx</h1>
   <a href="https://kubb.dev" target="_blank" rel="noopener noreferrer">
-    <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
+    <img src="https://kubb.dev/og.png" alt="Kubb banner">
   </a>
 
 [![npm version][npm-version-src]][npm-version-href]
@@ -11,7 +10,7 @@
 [![Sponsors][sponsors-src]][sponsors-href]
 
 <h4>
-<a href="https://kubb.dev/" target="_blank">Documentation</a>
+<a href="https://kubb.dev" target="_blank">Documentation</a>
 <span> · </span>
 <a href="https://github.com/kubb-labs/kubb/issues/" target="_blank">Report Bug</a>
 <span> · </span>
@@ -19,7 +18,13 @@
 </h4>
 </div>
 
-JSX-based renderer for Kubb. Provides a custom React runtime, reconciler, and built-in components (`File`, `Function`, `Type`, `Const`) for component-based, type-safe code generation inside Kubb plugins.
+<br />
+
+# @kubb/renderer-jsx
+
+### JSX-based renderer for Kubb
+
+Provides a custom React runtime, reconciler, and built-in components (`File`, `Function`, `Type`, `Const`) for component-based, type-safe code generation inside Kubb plugins.
 
 ## Installation
 
@@ -100,7 +105,7 @@ Pre-built renderer instance for use directly in Kubb plugins as the `jsxRenderer
 
 ## Supporting Kubb
 
-Kubb is an open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
+Kubb is an open source project, and its development is funded entirely by sponsors. If you would like to become a sponsor, please consider:
 
 - [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
 
@@ -109,6 +114,10 @@ Kubb is an open source project with its ongoing development made possible entire
     <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
   </a>
 </p>
+
+## License
+
+[MIT](https://github.com/kubb-labs/kubb/blob/main/licenses/LICENSE-MIT)
 
 <!-- Badges -->
 

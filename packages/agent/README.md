@@ -1,7 +1,6 @@
 <div align="center">
-  <h1>@kubb/agent</h1>
   <a href="https://kubb.dev" target="_blank" rel="noopener noreferrer">
-    <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
+    <img src="https://kubb.dev/og.png" alt="Kubb banner">
   </a>
 
 [![npm version][npm-version-src]][npm-version-href]
@@ -11,7 +10,7 @@
 [![Sponsors][sponsors-src]][sponsors-href]
 
 <h4>
-<a href="https://kubb.dev/" target="_blank">Documentation</a>
+<a href="https://kubb.dev" target="_blank">Documentation</a>
 <span> · </span>
 <a href="https://github.com/kubb-labs/kubb/issues/" target="_blank">Report Bug</a>
 <span> · </span>
@@ -19,7 +18,13 @@
 </h4>
 </div>
 
-HTTP agent server for Kubb, built on [Nitro](https://nitro.build). It exposes REST endpoints for triggering code generation, a health check, and a bidirectional WebSocket connection to Kubb Studio. Machine tokens are derived from the machine's network identity so they survive restarts. Sessions are cached locally to speed up reconnects.
+<br />
+
+# @kubb/agent
+
+### HTTP agent server for Kubb
+
+Built on [Nitro](https://nitro.build), it exposes REST endpoints for triggering code generation, a health check, and a bidirectional WebSocket connection to Kubb Studio. Machine tokens are derived from the machine's network identity so they survive restarts. Sessions are cached locally to speed up reconnects.
 
 ## Installation
 
@@ -337,7 +342,7 @@ You'll receive a stream of events as the code generation progresses.
 
 ## Supporting Kubb
 
-Kubb is an open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
+Kubb is an open source project, and its development is funded entirely by sponsors. If you would like to become a sponsor, please consider:
 
 - [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
 
@@ -346,6 +351,10 @@ Kubb is an open source project with its ongoing development made possible entire
     <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
   </a>
 </p>
+
+## License
+
+[AGPL-3.0-or-later](https://github.com/kubb-labs/kubb/blob/main/licenses/LICENSE-AGPL-3.0)
 
 <!-- Badges -->
 
