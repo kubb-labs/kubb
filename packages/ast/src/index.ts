@@ -29,7 +29,7 @@ export {
   syncOptionality,
   update,
 } from './factory.ts'
-export { isHttpOperationNode, isOperationNode, isSchemaNode, narrowSchema } from './guards.ts'
+export { isHttpOperationNode, isInputNode, isOperationNode, isOutputNode, isSchemaNode, narrowSchema } from './guards.ts'
 export { createPrinterFactory, definePrinter } from './printer.ts'
 export { extractRefName } from './refs.ts'
 export { childName, collectImports, enumPropName, findDiscriminator } from './resolvers.ts'
