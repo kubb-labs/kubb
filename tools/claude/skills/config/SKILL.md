@@ -60,12 +60,12 @@ Pick plugins by what the consumer needs, then install `kubb` plus each package.
 
 Common combinations:
 
-- **Types only**: `pluginOas()`, `pluginTs()`.
-- **Typed data fetching**: add `pluginClient()`, or a framework plugin
-  (`pluginReactQuery` / `pluginVueQuery` / `pluginSwr`) which pulls in client generation.
-- **Runtime validation**: add `pluginZod()` and point the client at it for typed, validated
+- Types only: `pluginOas()` and `pluginTs()`.
+- Typed data fetching: add `pluginClient()`, or a framework plugin (`pluginReactQuery`,
+  `pluginVueQuery` or `pluginSwr`) which pulls in client generation.
+- Runtime validation: add `pluginZod()` and point the client at it for typed, validated
   responses.
-- **Testing/mocks**: add `pluginFaker()` and `pluginMsw()`.
+- Testing and mocks: add `pluginFaker()` and `pluginMsw()`.
 
 ## Workflow
 

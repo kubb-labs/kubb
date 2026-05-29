@@ -15,7 +15,7 @@ Parsed from **$ARGUMENTS** (ask only for what is missing):
    Default to `plugin-ts` if the user is unsure.
 2. **Scaffold** with the `init` tool, passing `input`, `output`, and the comma-separated
    `plugins`. The tool writes `kubb.config.ts` and does not install packages. If a config
-   already exists it will refuse — edit the existing config instead of overwriting it.
+   already exists it will refuse, so edit the existing config instead of overwriting it.
 3. **Install** `kubb` and each selected `@kubb/plugin-*` package as dev dependencies with the
    project's package manager (detect it from the lockfile). This matches what `kubb init` does
    after scaffolding.

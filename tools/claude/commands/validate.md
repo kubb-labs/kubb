@@ -11,4 +11,4 @@ Validate the OpenAPI/Swagger spec at **$ARGUMENTS** using the Kubb MCP server's 
 3. On failure, report the validation errors clearly and, where possible, point at the offending
    part of the spec and suggest a fix.
 
-The `validate` tool requires `@kubb/adapter-oas`; if it is missing, tell the user to install it.
+The `validate` tool requires `@kubb/adapter-oas`. If it is missing, tell the user to install it.

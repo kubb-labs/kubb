@@ -1,4 +1,4 @@
-# Kubb — Claude Code plugin
+# Kubb Claude Code plugin
 
 Kubb is a meta framework for code generation. It turns an OpenAPI spec into TypeScript types,
 Zod schemas, Axios and fetch clients, React Query and Vue Query hooks, Faker mocks and more,
@@ -7,15 +7,16 @@ so Claude can scaffold, validate and run code generation for you.
 
 ## What you get
 
-- **MCP server** — runs `kubb mcp`, exposing the `init`, `generate` and `validate` tools to
-  Claude.
-- **Commands** — mirror the Kubb CLI / MCP tools (`init`, `generate`, `validate`)
-  - `/kubb:init [input] [output] [plugins]` — scaffold `kubb.config.ts` and install plugins.
-  - `/kubb:generate [config]` — run code generation and report what changed.
-  - `/kubb:validate <spec>` — validate an OpenAPI/Swagger spec.
-- **Skill** — `config`: how to author `kubb.config.ts` and pick the right `@kubb/plugin-*`
-  packages.
-- **Agent** — `kubb-expert`: end-to-end "add Kubb to my project" tasks.
+The plugin runs the Kubb MCP server (`kubb mcp`), which gives Claude the `init`, `generate` and
+`validate` tools. On top of that it adds slash commands that mirror the Kubb CLI:
+
+- `/kubb:init [input] [output] [plugins]` scaffolds `kubb.config.ts` and installs plugins.
+- `/kubb:generate [config]` runs code generation and reports what changed.
+- `/kubb:validate <spec>` validates an OpenAPI or Swagger spec.
+
+A `config` skill teaches Claude how to write `kubb.config.ts` and pick the right
+`@kubb/plugin-*` packages. A `kubb-expert` agent handles whole "add Kubb to my project" tasks
+from spec to generated code.
 
 ## Requirements
 

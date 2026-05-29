@@ -13,5 +13,5 @@ empty). Use the Kubb MCP server's `generate` tool.
 4. If the user mentions an input or output that differs from the config, pass `input` / `output`
    as overrides rather than editing the config.
 
-Do not hand-edit files under the generated output directory — they are overwritten on every run.
-Change the spec or the config instead, then regenerate.
+Do not hand-edit files under the generated output directory, since they are overwritten on
+every run. Change the spec or the config instead, then regenerate.
