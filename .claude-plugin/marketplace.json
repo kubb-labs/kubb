@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "kubb",
+  "owner": {
+    "name": "kubb-labs",
+    "url": "https://github.com/kubb-labs"
+  },
+  "description": "Kubb, a meta framework for code generation, as a Claude Code plugin.",
+  "plugins": [
+    {
+      "name": "kubb",
+      "source": "./tools/claude",
+      "description": "Meta framework for code generation. Turn an OpenAPI spec into TypeScript types, Zod schemas, Axios clients, React Query hooks and more, with the Kubb MCP server wired in.",
+      "category": "development",
+      "keywords": ["kubb", "openapi", "swagger", "codegen", "typescript", "zod", "axios", "react-query", "mcp"]
+    }
+  ]
+}

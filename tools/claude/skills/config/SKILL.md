@@ -1,0 +1,90 @@
+---
+name: config
+description: How to author a kubb.config.ts and pick the right @kubb/plugin-* packages when generating TypeScript from an OpenAPI/Swagger spec. Use whenever setting up Kubb, adding a generator, or debugging codegen output.
+---
+
+# Kubb config
+
+Kubb turns an OpenAPI/Swagger spec into TypeScript. A project is driven by a single
+`kubb.config.ts` at its root. Generation runs through the `kubb` CLI (`kubb generate`), and the
+same build also powers the bundled MCP server.
+
+## Shape of a config
+
+```ts
+import { defineConfig } from 'kubb'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginClient } from '@kubb/plugin-client'
+
+export default defineConfig({
+  root: '.',
+  input: {
+    path: './petstore.yaml', // local file path or a remote URL
+  },
+  output: {
+    path: './src/gen',
+    clean: true, // wipe the output dir before each run
+    barrel: { type: 'named' }, // generate index.ts barrels with named exports
+  },
+  plugins: [
+    pluginTs({ output: { path: 'models' } }),
+    pluginClient({ output: { path: 'clients' } }),
+  ],
+})
+```
+
+Rules that matter:
+
+- Set adapter options only when you need them, through a top-level
+  `adapter: adapterOas({ ... })` from `@kubb/adapter-oas` (for `validate`, `serverIndex`,
+  `serverVariables`, `discriminator` or `contentType`).
+- `pluginTs` is the base. `pluginClient`, the framework plugins (`pluginReactQuery`,
+  `pluginVueQuery`, `pluginSwr`) and `pluginMsw` each need `pluginTs` in the same config.
+- Each generator plugin takes its own `output.path`, resolved relative to the top-level
+  `output.path`. Keep generated kinds in separate folders (`models`, `clients`, `hooks`, ...).
+- `input` accepts `{ path }` for a file or URL. Validate untrusted specs with `kubb validate`
+  before generating.
+- Generation is destructive when `output.clean` is `true`. Never point `output.path` at
+  hand-written source.
+- Set `output.format` or `output.lint` to `'auto'` to format and lint generated files with
+  whatever tool the project already has (oxfmt, Biome, Prettier, oxlint or ESLint).
+
+## Available generator plugins
+
+Pick plugins by what the consumer needs, then install `kubb` plus each package.
+
+| Need | Plugin | Package | Import |
+| --- | --- | --- | --- |
+| TypeScript types (recommended base) | TypeScript | `@kubb/plugin-ts` | `pluginTs` |
+| Fetch/Axios client | Client | `@kubb/plugin-client` | `pluginClient` |
+| TanStack React Query hooks | React Query | `@kubb/plugin-react-query` | `pluginReactQuery` |
+| Vue Query hooks | Vue Query | `@kubb/plugin-vue-query` | `pluginVueQuery` |
+| SWR hooks | SWR | `@kubb/plugin-swr` | `pluginSwr` |
+| Zod schemas | Zod | `@kubb/plugin-zod` | `pluginZod` |
+| Faker.js mock factories | Faker | `@kubb/plugin-faker` | `pluginFaker` |
+| MSW request handlers | MSW | `@kubb/plugin-msw` | `pluginMsw` |
+| Cypress fixtures | Cypress | `@kubb/plugin-cypress` | `pluginCypress` |
+| MCP server from the spec | MCP | `@kubb/plugin-mcp` | `pluginMcp` |
+| ReDoc documentation | ReDoc | `@kubb/plugin-redoc` | `pluginRedoc` |
+
+Common combinations:
+
+- Types only: `pluginTs()`.
+- Typed data fetching: add `pluginClient()`, or a framework plugin (`pluginReactQuery`,
+  `pluginVueQuery` or `pluginSwr`) which pulls in client generation.
+- Runtime validation: add `pluginZod()` and point the client at it for typed, validated
+  responses.
+- Testing and mocks: add `pluginFaker()` and `pluginMsw()`.
+
+## Workflow
+
+The commands wrap the `kubb` CLI, so the same steps work from a terminal.
+
+1. Validate the spec with `kubb validate --input <spec>` before anything else.
+2. Scaffold and install with `kubb init`. Pass `--input`, `--output` and `--plugins` to skip
+   the prompts, or write `kubb.config.ts` by hand using the shape above.
+3. Generate with `kubb generate`. Pass `--verbose` when diagnosing why a file is missing or
+   malformed, and `--watch` to regenerate on spec changes.
+4. Typecheck the generated output and wire it into the app.
+
+See the `init`, `generate` and `validate` commands for the step-by-step flows.
