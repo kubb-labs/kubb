@@ -61,6 +61,8 @@
     "ast-helper-reorganization",
     "ast-multi-spec-vocabulary",
     "ast-structural-sharing-transform",
+    "ast-trim-public-api",
+    "ast-types-subpath-and-walk-concurrency",
     "auto-infer-primitive-field",
     "backend-refactor-dedupe",
     "banner-per-file-context",

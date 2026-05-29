@@ -1,5 +1,39 @@
 # Changelog
 
+## v5.0.0-beta.33 — May 29, 2026
+
+### @kubb/ast
+
+#### Breaking Changes
+
+- Trim the `@kubb/ast` public API to shrink the maintained surface.
+  
+  Removed exports that were unused across both the core monorepo and the plugins, and that duplicated or backed a public counterpart:
+  
+  - **Deleted (dead code):** `nodeKinds` and `mediaTypes` constants (no references anywhere), the `RefMap` type, and the `InferSchema` type alias (use `InferSchemaNode`).
+  - **No longer exported (now internal):**
+    - `collectLazy` — use the eager `collect`
+    - `createContent` / `createRequestBody` — content is normalized for you by `createResponse` / `createOperation`
+    - `mergeAdjacentObjects` — use `mergeAdjacentObjectsLazy` (`[...mergeAdjacentObjectsLazy(members)]`)
+    - `isSchemaEqual` — compare `schemaSignature(a) === schemaSignature(b)`
+    - `isScalarPrimitive`, `resolveRefName`, `collectReferencedSchemaNames`, `isInputNode`, `isOutputNode`
+  
+  The README's `Refs` example also referenced helpers that never existed (`buildRefMap`, `resolveRef`); it now documents the real `extractRefName`. ([#3402](https://github.com/kubb-labs/kubb/pull/3402), [`ecbde80`](https://github.com/kubb-labs/kubb/commit/ecbde801a1774a89703efbdfd939d431c1956935))
+
+#### Bug Fixes
+
+- Ship the documented `@kubb/ast/types` subpath and make `walk()` traverse concurrently.
+  
+  `@kubb/ast/types` is now a real export, so the README's `import type { Node } from '@kubb/ast/types'` resolves instead of failing — consumers can pull in node interfaces and visitor types without loading any runtime.
+  
+  `walk()` now visits sibling nodes concurrently up to its `concurrency` limit. Previously each child was awaited one at a time, so the documented `concurrency` option had no effect and async visitor callbacks always ran serially. ([#3402](https://github.com/kubb-labs/kubb/pull/3402), [`09563b4`](https://github.com/kubb-labs/kubb/commit/09563b49b6f1ff584fc35a910ecc47ab1c9669d7))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.32 — May 28, 2026
 
 ### @kubb/adapter-oas
