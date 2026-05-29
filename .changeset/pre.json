@@ -24,6 +24,7 @@
     "adapter-oas-schema-enum-dedupe",
     "add-adapter-document-field",
     "add-ast-dispatch-helper",
+    "add-claude-code-plugin",
     "add-code-ast-nodes",
     "add-collect-lazy-generator",
     "add-collision-detection-option",
