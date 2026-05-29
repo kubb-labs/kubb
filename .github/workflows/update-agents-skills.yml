@@ -1,39 +1,43 @@
 name: Sync AGENTS.md from Skills
 
+# Runs only on default-branch pushes and manual dispatch — never on PRs
+# from forks. Restricting the trigger surface prevents untrusted code from
+# being processed by skills-to-agents before maintainer review.
 on:
   push:
+    branches: [main]
     paths:
-      - '.skills/**'
-  pull_request:
-    paths:
-      - '.skills/**'
+      - '.agents/skills/**'
   workflow_dispatch:
 
 permissions: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-agents-md:
     runs-on: ubuntu-latest
-    # Skip fork PRs: they cannot push the resulting PR anyway, and we don't want
-    # to run a third-party action against fork-controlled .skills content.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     permissions:
       contents: write
       pull-requests: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
       - name: Generate skills block
         id: build
         uses: dave1010/skills-to-agents@12f69f287941dfafb2fcf761455e73a5c6361469 # v2
         with:
           repo-root: .
-          skills-dir: .skills
+          skills-dir: .agents/skills
           agents-path: AGENTS.md
       - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         if: steps.build.outputs.changed == 'true'
         with:
-          base: ${{ github.head_ref || github.ref_name }}
-          branch: chore/update-agents-${{ github.event.number }}
+          base: ${{ github.ref_name }}
+          branch: chore/update-agents-${{ github.run_id }}
           delete-branch: true
           title: 'Update AGENTS.md'
           commit-message: 'chore(agents): update AGENTS.md'

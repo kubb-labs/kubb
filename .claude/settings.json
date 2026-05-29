@@ -1,4 +1,9 @@
 {
+  "outputStyle": "house",
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
     "allow": [
       "Bash(pnpm typecheck *)",
@@ -14,9 +19,71 @@
       "Bash(pnpm generate *)",
       "Bash(pnpm clean *)",
       "Bash(pnpm graph *)",
+      "Bash(pnpm install*)",
+      "Bash(pnpm build*)",
+      "Bash(pnpm changeset*)",
+      "Bash(pnpm exec *)",
+      "Bash(turbo *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
-      "Bash(npm run typecheck *)"
+      "Bash(npm run typecheck *)",
+      "Bash(git status*)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git fetch *)",
+      "Bash(git add *)",
+      "Bash(git branch*)",
+      "Bash(git stash*)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git push --force-with-lease*)",
+      "Bash(git reset --hard *)",
+      "Bash(git clean -f*)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./**/.env)",
+      "Read(./**/.env.*)",
+      "Read(./secrets/**)"
+    ],
+    "ask": [
+      "Bash(git push *)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/guard-edit.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/format-lint.sh"
+          }
+        ]
+      }
     ]
   }
 }
