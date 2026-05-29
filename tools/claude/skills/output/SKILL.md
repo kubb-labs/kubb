@@ -23,7 +23,7 @@ spec.
 ## Where output lands
 
 Kubb writes generated code under the `output.path` from `kubb.config.ts` (for example `./src/gen`),
-organized into the folders each plugin sets through its own `output.path` (for example `models`,
+organized into the folders each plugin sets through its own `output.path` (for example `types`,
 `clients`, `hooks`). Generated files carry a `Do not edit manually` banner and are rewritten on
 every `kubb generate`, so change them by editing the spec or config and regenerating.
 

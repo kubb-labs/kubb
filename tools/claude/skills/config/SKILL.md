@@ -40,7 +40,7 @@ export default defineConfig({
     barrel: { type: 'named' }, // generate index.ts barrels with named exports
   },
   plugins: [
-    pluginTs({ output: { path: 'models' } }),
+    pluginTs({ output: { path: 'types' } }),
     pluginClient({ output: { path: 'clients' } }),
   ],
 })
@@ -51,10 +51,11 @@ Rules that matter:
 - Set adapter options only when you need them, through a top-level
   `adapter: adapterOas({ ... })` from `@kubb/adapter-oas` (for `validate`, `serverIndex`,
   `serverVariables`, `discriminator` or `contentType`).
-- `pluginTs` is the base. `pluginClient`, the framework plugins (`pluginReactQuery`,
-  `pluginVueQuery`, `pluginSwr`) and `pluginMsw` each need `pluginTs` in the same config.
+- `pluginTs` is the base. `pluginClient` needs it, the framework plugins (`pluginReactQuery`,
+  `pluginVueQuery`, `pluginSwr`) need `pluginTs` and `pluginClient`, and `pluginMsw` needs
+  `pluginTs` and `pluginFaker`. Check a plugin's `extension.yaml` `dependencies` for the full list.
 - Each generator plugin takes its own `output.path`, resolved relative to the top-level
-  `output.path`. Keep generated kinds in separate folders (`models`, `clients`, `hooks`, ...).
+  `output.path`. Keep generated kinds in separate folders (`types`, `clients`, `hooks`, ...).
 - `input` accepts `{ path }` for a file or URL. Validate untrusted specs with `kubb validate`
   before generating.
 - Generation is destructive when `output.clean` is `true`. Never point `output.path` at
