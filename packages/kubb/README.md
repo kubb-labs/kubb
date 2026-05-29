@@ -62,6 +62,7 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 - Build your own output with custom plugins, composable middleware, and the JSX-based renderer (`@kubb/renderer-jsx`) for full control over what lands on disk.
 - Hook into your bundler with `unplugin-kubb`, which runs generation inside [Vite](https://github.com/vitejs/vite), [Nuxt](https://github.com/nuxt/nuxt), [Astro](https://github.com/withastro/astro), [webpack](https://github.com/webpack/webpack), and other build tools.
 - Drive generation from AI tools through the built-in Model Context Protocol (MCP) server, which works with [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible assistants.
+- Generate from inside [Claude Code](https://kubb.dev/docs/5.x/ai/claude) with the Kubb plugin, which adds slash commands, a config skill, and an agent that run the Kubb CLI.
 
 ## Supporting Kubb
 
