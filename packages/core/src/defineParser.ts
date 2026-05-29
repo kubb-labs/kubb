@@ -9,7 +9,7 @@ type PrintOptions = {
  * written to disk. Kubb ships with TypeScript and TSX parsers; add your own
  * for new file types (JSON, Markdown, ...).
  */
-export type Parser<TMeta extends object = any, TNode = unknown> = {
+export type Parser<TMeta extends object = object, TNode = unknown> = {
   /**
    * Display name used in diagnostics and the parser registry.
    */
