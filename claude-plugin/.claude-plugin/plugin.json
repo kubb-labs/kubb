@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "kubb",
+  "displayName": "Kubb",
+  "version": "0.1.0",
+  "description": "Generate TypeScript types, clients, framework hooks, Zod schemas and mocks from an OpenAPI spec with Kubb. Bundles the Kubb MCP server so Claude can scaffold, validate and run codegen for you.",
+  "author": {
+    "name": "stijnvanhulle",
+    "url": "https://github.com/kubb-labs"
+  },
+  "homepage": "https://kubb.dev",
+  "repository": "https://github.com/kubb-labs/kubb",
+  "license": "MIT",
+  "keywords": ["kubb", "openapi", "swagger", "codegen", "typescript", "mcp"],
+  "mcpServers": "./.mcp.json"
+}

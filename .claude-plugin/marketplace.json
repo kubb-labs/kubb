@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "kubb",
+  "owner": {
+    "name": "kubb-labs",
+    "url": "https://github.com/kubb-labs"
+  },
+  "description": "Claude Code plugin for generating TypeScript from OpenAPI with Kubb.",
+  "plugins": [
+    {
+      "name": "kubb",
+      "source": "./claude-plugin",
+      "description": "Scaffold, configure, validate and run Kubb codegen from your OpenAPI spec, with the Kubb MCP server wired in.",
+      "category": "development",
+      "keywords": ["kubb", "openapi", "swagger", "codegen", "typescript", "mcp"]
+    }
+  ]
+}
