@@ -21,6 +21,7 @@
     "docs/guide/base-url.md",
     "docs/ecosystem.md",
     "docs/about.md",
+    "companies-using-kubb-outreach.md",
     "getParams.test.ts",
     "paramsCasing.test.ts",
     "paramsCasing.ts"
