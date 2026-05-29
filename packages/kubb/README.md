@@ -54,13 +54,13 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 
 ## Features
 
-- Works with Node.js 22+ and TypeScript 6.
-- Converts Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 into TypeScript types, API clients, and more via the [plugin ecosystem](https://github.com/kubb-labs/kubb-plugins).
-- Extensible plugin and middleware system that you can compose for custom code generation pipelines.
-- CLI with interactive setup, progress bar, and detailed logs.
-- Model Context Protocol (MCP) server for AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible tools.
-- JSX-based renderer (`@kubb/renderer-jsx`) for building custom plugin output.
-- Barrel file generation via `@kubb/middleware-barrel`.
+- Generate from a spec: point Kubb at an OpenAPI document and it produces TypeScript types, API clients, TanStack Query hooks, Zod validators, Faker mocks, and MSW handlers.
+- Pick what you generate from the [plugin ecosystem](https://github.com/kubb-labs/kubb-plugins): `plugin-ts`, `plugin-client`, `plugin-react-query`, `plugin-vue-query`, `plugin-zod`, `plugin-faker`, `plugin-msw`, `plugin-cypress`, `plugin-redoc`, and `plugin-mcp`. Enable only the ones a project needs.
+- Build your own output with custom plugins, composable middleware, and the JSX-based renderer (`@kubb/renderer-jsx`) for full control over what lands on disk.
+- Drive generation from AI tools through the built-in Model Context Protocol (MCP) server, which works with [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible assistants.
+- Start fast with the CLI: `kubb init` walks you through setup, and runs show a progress bar and detailed logs.
+- Hook into your bundler with `unplugin-kubb`, which runs generation inside Vite, Nuxt, Astro, webpack, and other build tools.
+- Read Swagger 2.0, OpenAPI 3.0, and 3.1, with TypeScript-first output on both Node.js and Bun.
 
 ## Supporting Kubb
 
