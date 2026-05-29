@@ -13,12 +13,15 @@ Slash commands that run the Kubb CLI:
 - `/kubb:validate <spec>` validates an OpenAPI or Swagger spec.
 
 A `config` skill teaches Claude how to write `kubb.config.ts` and pick the right
-`@kubb/plugin-*` packages. A `kubb-expert` agent handles whole "add Kubb to my project" tasks
-from spec to generated code. The plugin also wires in the
+`@kubb/plugin-*` packages, and an `output` skill teaches it how to import and use the generated
+types, clients, hooks, schemas and mocks. A `kubb-expert` agent handles whole "add Kubb to my
+project" tasks from spec to generated code. The plugin also wires in the
 [Kubb MCP server](https://www.npmjs.com/package/@kubb/mcp) (`kubb mcp`) for conversational
 generation when you would rather chat than run a command.
 
 ## Requirements
+
+The plugin requires Kubb v5 or higher, since it targets the v5 CLI and the built-in MCP server.
 
 The commands run `npx kubb`, so install Kubb yourself, in the project or globally:
 

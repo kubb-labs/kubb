@@ -18,9 +18,10 @@ Approach:
    `kubb validate --input <spec>` before doing anything destructive.
 2. Decide which `@kubb/plugin-*` packages match what the user wants generated. Keep `plugin-ts`
    as the base, since the client, framework and MSW plugins need it. Add a client or framework
-   plugin for data fetching, `plugin-zod` for runtime validation, and `plugin-faker` or
-   `plugin-msw` for tests. There is no `pluginOas`, since the OpenAPI adapter is applied
-   automatically.
+   plugin for data fetching (the framework plugins also pull in `plugin-client`), `plugin-zod` for
+   runtime validation, and `plugin-faker` with `plugin-msw` for tests (MSW needs faker). Check a
+   plugin's `extension.yaml` `dependencies` for the full list. There is no `pluginOas`, since the
+   OpenAPI adapter is applied automatically.
 3. Scaffold with `kubb init --input <spec> --output <dir> --plugins <list>`, which writes
    `kubb.config.ts` and installs `kubb` plus the chosen packages. If a config already exists,
    edit it by hand instead. Keep each generated kind in its own output folder, and never point

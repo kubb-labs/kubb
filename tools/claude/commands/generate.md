@@ -3,8 +3,8 @@ argument-hint: "[input-spec]"
 description: Run Kubb code generation with the kubb generate CLI and report what changed.
 ---
 
-Generate code by running the `kubb generate` CLI in the terminal. The optional **$ARGUMENTS** is
-an input spec that overrides the config's input.
+Run the `kubb generate` CLI. The optional **$ARGUMENTS** is an input spec that overrides the
+config's input.
 
 1. Confirm a `kubb.config.ts` exists. If not, suggest `/kubb:init` and stop.
 2. Run generation:
