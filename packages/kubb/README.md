@@ -1,5 +1,4 @@
 <div align="center">
-  <h1>kubb</h1>
   <a href="https://kubb.dev" target="_blank" rel="noopener noreferrer">
     <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
   </a>
@@ -9,10 +8,6 @@
 [![Coverage][coverage-src]][coverage-href]
 [![License][license-src]][license-href]
 [![Sponsors][sponsors-src]][sponsors-href]
-
-### The meta framework for code generation
-
-Point Kubb at an OpenAPI spec and it generates types, clients, hooks, validators, mocks, and more.
 
 <h4>
 <a href="https://kubb.dev" target="_blank">Documentation</a>
@@ -24,6 +19,12 @@ Point Kubb at an OpenAPI spec and it generates types, clients, hooks, validators
 </div>
 
 <br />
+
+# kubb
+
+### The meta framework for code generation
+
+Point Kubb at an OpenAPI spec and it generates types, clients, hooks, validators, mocks, and more.
 
 ## Installation
 
