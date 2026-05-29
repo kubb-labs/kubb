@@ -40,7 +40,7 @@ export default defineConfig({
     barrel: { type: 'named' }, // generate index.ts barrels with named exports
   },
   plugins: [
-    pluginTs({ output: { path: 'types' } }),
+    pluginTs({ output: { path: 'models' } }),
     pluginClient({ output: { path: 'clients' } }),
   ],
 })
@@ -55,7 +55,7 @@ Rules that matter:
   `pluginVueQuery`, `pluginSwr`) need `pluginTs` and `pluginClient`, and `pluginMsw` needs
   `pluginTs` and `pluginFaker`. Check a plugin's `extension.yaml` `dependencies` for the full list.
 - Each generator plugin takes its own `output.path`, resolved relative to the top-level
-  `output.path`. Keep generated kinds in separate folders (`types`, `clients`, `hooks`, ...).
+  `output.path`. Keep generated kinds in separate folders (`models`, `clients`, `hooks`, ...).
 - `input` accepts `{ path }` for a file or URL. Validate untrusted specs with `kubb validate`
   before generating.
 - Generation is destructive when `output.clean` is `true`. Never point `output.path` at

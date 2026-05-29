@@ -21,6 +21,8 @@ generation when you would rather chat than run a command.
 
 ## Requirements
 
+The plugin requires Kubb v5 or higher, since it targets the v5 CLI and the built-in MCP server.
+
 The commands run `npx kubb`, so install Kubb yourself, in the project or globally:
 
 ```bash
