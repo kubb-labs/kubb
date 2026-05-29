@@ -1,7 +1,6 @@
 <div align="center">
-  <h1>kubb</h1>
   <a href="https://kubb.dev" target="_blank" rel="noopener noreferrer">
-    <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
+    <img src="https://kubb.dev/og.png" alt="Kubb banner">
   </a>
 
 [![npm version][npm-version-src]][npm-version-href]
@@ -9,10 +8,6 @@
 [![Coverage][coverage-src]][coverage-href]
 [![License][license-src]][license-href]
 [![Sponsors][sponsors-src]][sponsors-href]
-
-### The meta framework for code generation
-
-Point Kubb at an OpenAPI spec and it generates types, clients, hooks, validators, mocks, and more.
 
 <h4>
 <a href="https://kubb.dev" target="_blank">Documentation</a>
@@ -24,6 +19,12 @@ Point Kubb at an OpenAPI spec and it generates types, clients, hooks, validators
 </div>
 
 <br />
+
+# kubb
+
+### The meta framework for code generation
+
+Point Kubb at an OpenAPI spec and it generates types, clients, hooks, validators, mocks, and more.
 
 ## Installation
 
@@ -53,17 +54,18 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 
 ## Features
 
-- Works with Node.js 22+ and TypeScript 6.
-- Converts Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 into TypeScript types, API clients, and more via the [plugin ecosystem](https://github.com/kubb-labs/kubb-plugins).
-- Extensible plugin and middleware system that you can compose for custom code generation pipelines.
-- CLI with interactive setup, progress bar, and detailed logs.
-- Model Context Protocol (MCP) server for AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible tools.
-- JSX-based renderer (`@kubb/renderer-jsx`) for building custom plugin output.
-- Barrel file generation via `@kubb/middleware-barrel`.
+- Generate from a spec: point Kubb at an OpenAPI document and it produces TypeScript types, type-safe API clients, [TanStack Query](https://github.com/TanStack/query) hooks for React and Vue, [SWR](https://github.com/vercel/swr) hooks, [Zod](https://github.com/colinhacks/zod) validators, [Faker](https://github.com/faker-js/faker) mocks, and [MSW](https://github.com/mswjs/msw) handlers.
+- Read Swagger 2.0, OpenAPI 3.0, and 3.1, with TypeScript-first output that runs on Node.js and Bun.
+- Pick what you generate from the [plugin ecosystem](https://github.com/kubb-labs/kubb-plugins): `plugin-ts`, `plugin-client`, `plugin-react-query`, `plugin-vue-query`, `plugin-swr`, `plugin-zod`, `plugin-faker`, `plugin-msw`, `plugin-cypress`, `plugin-redoc`, and `plugin-mcp`. Enable only the ones a project needs.
+- Choose your HTTP client: use the axios or fetch presets, or point at a custom client module so generated requests run through your own wrapper.
+- Control the generated tree: group files by tag, emit barrel exports, and include or exclude operations to keep the output focused.
+- Build your own output with custom plugins, composable middleware, and the JSX-based renderer (`@kubb/renderer-jsx`) for full control over what lands on disk.
+- Hook into your bundler with `unplugin-kubb`, which runs generation inside [Vite](https://github.com/vitejs/vite), [Nuxt](https://github.com/nuxt/nuxt), [Astro](https://github.com/withastro/astro), [webpack](https://github.com/webpack/webpack), and other build tools.
+- Drive generation from AI tools through the built-in Model Context Protocol (MCP) server, which works with [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible assistants.
 
 ## Supporting Kubb
 
-Kubb is an open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
+Kubb is an open source project, and its development is funded entirely by sponsors. If you would like to become a sponsor, please consider:
 
 - [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
 
@@ -72,6 +74,16 @@ Kubb is an open source project with its ongoing development made possible entire
     <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
   </a>
 </p>
+
+## Contributing
+
+We welcome contributions that help improve Kubb. A few ways to get involved:
+
+- Found a bug? File it in the [issue tracker](https://github.com/kubb-labs/kubb/issues).
+- Have an idea to improve Kubb? [Open an issue](https://github.com/kubb-labs/kubb/issues/new) to share it.
+- Need help? Ask the community on [Discord](https://discord.gg/4dQjA6vrWX).
+
+See [CONTRIBUTING.md](https://github.com/kubb-labs/kubb/blob/main/CONTRIBUTING.md) for the project structure, local setup, and commands.
 
 ## Contributors [![Contributors][contributors-src]][contributors-href]
 
@@ -160,15 +172,11 @@ Kubb is an open source project with its ongoing development made possible entire
 
 ## License
 
-Most of this repository is licensed under the [MIT License](./licenses/LICENSE-MIT), Copyright © 2025 [Stijn Van Hulle](https://stijnvanhulle.be). Some components are licensed
-under AGPL-3.0-or-later.
-
-- **Most packages** — [MIT](./licenses/LICENSE-MIT)
-- **`@kubb/agent`** — [AGPL-3.0-or-later](./licenses/LICENSE-AGPL-3.0)
+Most of this repository is licensed under the [MIT License](./licenses/LICENSE-MIT), Copyright © 2025 [Stijn Van Hulle](https://stijnvanhulle.be). Most packages use [MIT](./licenses/LICENSE-MIT), and `@kubb/agent` uses [AGPL-3.0-or-later](./licenses/LICENSE-AGPL-3.0).
 
 See [LICENSE](./LICENSE) for details.
 
-## Star History
+## Star history
 
 <a href="https://star-history.com/#kubb-labs/kubb&Date">
   <picture>

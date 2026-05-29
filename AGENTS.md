@@ -2,7 +2,7 @@
 
 Kubb is a code-generation toolkit for generating TypeScript, React-Query, Zod, Faker.js, MSW and more from OpenAPI specifications. It uses a plugin-based architecture with an Abstract Syntax Tree (AST) layer.
 
-## High-Level Architecture
+## High-level architecture
 
 Kubb is built from:
 - Core engine (`@kubb/core`) runs the plugin system and orchestrates code generation
@@ -11,65 +11,12 @@ Kubb is built from:
 - CLI and HTTP interfaces are the entry points for code generation
 - MCP server adds Model Context Protocol integration for AI assistants
 
-## Folder Structure
+## Project structure and commands
 
-### Root Directories
+The full folder structure, repository setup, and commands live in
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
-```
-kubb/
-├── packages/                # Npm packages and core modules
-├── schemas/                 # YAML schemas for configuration
-├── internals/               # Build tools and internal utilities
-├── docs/                    # Documentation and architecture guides
-├── configs/                 # Shared build and test configurations
-└── .agents/skills/          # Cross-provider agent skills
-```
-
-### Packages
-
-```
-packages/
-├── ast/                     # Spec-agnostic AST layer defining nodes, visitors, and factories
-├── core/                    # Core plugin system and code generation orchestration
-├── adapter-oas/             # OpenAPI/Swagger adapter (OAS → AST)
-├── kubb/                    # Main package, exports all public APIs
-├── cli/                     # Command-line interface
-├── agent/                   # Agent server for HTTP-based code generation
-├── mcp/                     # Model Context Protocol (MCP) server for AI assistants
-├── parser-ts/               # TypeScript parser for AST manipulation
-├── renderer-jsx/            # JSX renderer for component-based code generation
-├── middleware-barrel/       # Middleware for barrel export generation
-└── unplugin-kubb/           # Unplugin integration for build tools
-```
-
-### Schemas
-
-```
-schemas/
-└── extension.json           # Unified schema for all extension kinds (plugin/adapter/middleware/parser)
-```
-
-### Internals
-
-```
-internals/
-├── changelog/               # Changelog generation utilities
-├── shared/                  # Kubb-specific shared logic (plugin catalogue, config generation)
-└── utils/                   # Domain-agnostic shared utilities (fs, string, async helpers)
-```
-
-### Documentation
-
-```
-docs/
-└── architecture/            # Architecture documentation and guides
-```
-
-## Plugin Ecosystem
-
-Plugins are maintained in a separate monorepo at [kubb-project/kubb-plugins](https://github.com/kubb-project/kubb-plugins). Each plugin package ships an `extension.yaml` file describing its kind, options, and metadata.
-
-## Repository Setup
+## Repository setup
 
 | Aspect | Choice |
 | --- | --- |
@@ -79,27 +26,14 @@ Plugins are maintained in a separate monorepo at [kubb-project/kubb-plugins](htt
 | Package manager | pnpm 11+ |
 | Linter | oxlint |
 | Formatter | oxfmt |
+| Bundler | tsdown |
 | Tests | Vitest |
 | Versioning | Changesets |
 | CI/CD | GitHub Actions |
 
-## Commands
+## Plugin ecosystem
 
-```bash
-pnpm install                 # Install dependencies
-pnpm clean                   # Clean build artifacts
-pnpm build                   # Build all packages
-pnpm generate                # Generate code from OpenAPI specs
-pnpm perf                    # Run performance tests
-pnpm test                    # Run tests
-pnpm typecheck               # Type check all packages
-pnpm typecheck:examples      # Type check examples
-pnpm format                  # Format code
-pnpm lint                    # Lint code
-pnpm lint:fix                # Lint and fix issues
-pnpm changeset               # Create changelog entry
-pnpm run upgrade && pnpm i   # Upgrade dependencies
-```
+Plugins are maintained in a separate monorepo at [kubb-project/kubb-plugins](https://github.com/kubb-project/kubb-plugins). Each plugin package ships an `extension.yaml` file describing its kind, options, and metadata.
 
 ## Token optimized CLI (rtk)
 
