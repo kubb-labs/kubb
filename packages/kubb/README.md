@@ -20,7 +20,7 @@
 
 <br />
 
-# kubb
+# Kubb
 
 ### The meta framework for code generation
 
