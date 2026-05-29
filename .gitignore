@@ -57,6 +57,7 @@ hello
 .log
 .mcp.json
 !**/__snapshots__/**/.mcp.json
+!tools/claude/.mcp.json
 examples/**/.mcp
 */mocks/hellowWorld.js
 #docs/api/**
