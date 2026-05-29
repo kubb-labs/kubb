@@ -74,6 +74,7 @@ All OpenAPI types (`Document`, `Operation`, `SchemaObject`, `HttpMethod`, etc.) 
 Kubb is an open source project, and its development is funded entirely by sponsors. If you would like to become a sponsor, please consider:
 
 - [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
+- [See sponsorship tiers and our sponsors](https://kubb.dev/sponsors)
 
 <p align="center">
   <a href="https://github.com/sponsors/stijnvanhulle">

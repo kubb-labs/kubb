@@ -108,6 +108,7 @@ Pre-built renderer instance for use directly in Kubb plugins as the `jsxRenderer
 Kubb is an open source project, and its development is funded entirely by sponsors. If you would like to become a sponsor, please consider:
 
 - [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
+- [See sponsorship tiers and our sponsors](https://kubb.dev/sponsors)
 
 <p align="center">
   <a href="https://github.com/sponsors/stijnvanhulle">
