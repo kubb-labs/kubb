@@ -7,7 +7,7 @@ Validate the OpenAPI/Swagger spec at **$ARGUMENTS** using the Kubb MCP server's 
 (ask for the path or URL if empty).
 
 1. Call the `validate` tool with the spec as `input`.
-2. On success, confirm the spec is valid and offer to run `/kubb:generate` or `/kubb:setup`.
+2. On success, confirm the spec is valid and offer to run `/kubb:init` or `/kubb:generate`.
 3. On failure, report the validation errors clearly and, where possible, point at the offending
    part of the spec and suggest a fix.
 

@@ -77,4 +77,4 @@ Common combinations:
    when diagnosing why a file is missing or malformed.
 5. **Typecheck** the generated output and wire it into the app.
 
-See the `setup`, `generate` and `validate` commands for the step-by-step flows.
+See the `init`, `generate` and `validate` commands for the step-by-step flows.

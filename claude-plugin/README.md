@@ -8,8 +8,8 @@ so Claude can scaffold, validate and run code generation for you.
 
 - **MCP server** — runs `kubb mcp`, exposing the `init`, `generate` and `validate` tools to
   Claude.
-- **Commands**
-  - `/kubb:setup [spec]` — validate a spec, write `kubb.config.ts`, install packages, generate.
+- **Commands** — mirror the Kubb CLI / MCP tools (`init`, `generate`, `validate`)
+  - `/kubb:init [input] [output] [plugins]` — scaffold `kubb.config.ts` and install plugins.
   - `/kubb:generate [config]` — run code generation and report what changed.
   - `/kubb:validate <spec>` — validate an OpenAPI/Swagger spec.
 - **Skill** — `config`: how to author `kubb.config.ts` and pick the right `@kubb/plugin-*`
@@ -42,11 +42,11 @@ claude --plugin-dir ./claude-plugin
 ## Usage
 
 ```text
-/kubb:setup ./petstore.yaml
+/kubb:init ./petstore.yaml
 ```
 
-Claude validates the spec, asks which outputs you want, writes `kubb.config.ts`, installs the
-packages, and runs the first generation. From there, `/kubb:generate` re-runs codegen whenever
-the spec changes.
+Claude asks which outputs you want, scaffolds `kubb.config.ts`, and installs the packages. Run
+`/kubb:validate` first to check the spec, then `/kubb:generate` to re-run codegen whenever the
+spec changes.
 
 Learn more at [kubb.dev](https://kubb.dev).
