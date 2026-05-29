@@ -2,30 +2,32 @@
 
 Kubb is a meta framework for code generation. It turns an OpenAPI spec into TypeScript types,
 Zod schemas, Axios and fetch clients, React Query and Vue Query hooks, Faker mocks and more,
-without leaving Claude Code. The plugin bundles the [Kubb MCP server](https://www.npmjs.com/package/@kubb/mcp)
-so Claude can scaffold, validate and run code generation for you.
+without leaving Claude Code.
 
 ## What you get
 
-The plugin runs the Kubb MCP server (`kubb mcp`), which gives Claude the `init`, `generate` and
-`validate` tools. On top of that it adds slash commands that mirror the Kubb CLI:
+Slash commands that run the Kubb CLI:
 
 - `/kubb:init [input] [output] [plugins]` scaffolds `kubb.config.ts` and installs plugins.
-- `/kubb:generate [config]` runs code generation and reports what changed.
+- `/kubb:generate [input]` runs code generation and reports what changed.
 - `/kubb:validate <spec>` validates an OpenAPI or Swagger spec.
 
 A `config` skill teaches Claude how to write `kubb.config.ts` and pick the right
 `@kubb/plugin-*` packages. A `kubb-expert` agent handles whole "add Kubb to my project" tasks
-from spec to generated code.
+from spec to generated code. The plugin also wires in the
+[Kubb MCP server](https://www.npmjs.com/package/@kubb/mcp) (`kubb mcp`) for conversational
+generation when you would rather chat than run a command.
 
 ## Requirements
 
-The MCP server runs `npx kubb mcp`, so the consuming project needs Kubb installed:
+The commands run `npx kubb`, so the consuming project needs Kubb installed:
 
 ```bash
-npm install -D kubb @kubb/mcp
-# add @kubb/adapter-oas if you want the validate tool
+npm install -D kubb
+# add @kubb/adapter-oas if you want kubb validate
 ```
+
+`kubb init` installs the `@kubb/plugin-*` packages you select.
 
 ## Install
 
