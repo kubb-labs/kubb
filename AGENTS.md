@@ -16,10 +16,6 @@ Kubb is built from:
 The full folder structure, repository setup, and commands live in
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Plugin ecosystem
-
-Plugins are maintained in a separate monorepo at [kubb-project/kubb-plugins](https://github.com/kubb-project/kubb-plugins). Each plugin package ships an `extension.yaml` file describing its kind, options, and metadata.
-
 ## Repository setup
 
 | Aspect | Choice |
@@ -34,6 +30,10 @@ Plugins are maintained in a separate monorepo at [kubb-project/kubb-plugins](htt
 | Tests | Vitest |
 | Versioning | Changesets |
 | CI/CD | GitHub Actions |
+
+## Plugin ecosystem
+
+Plugins are maintained in a separate monorepo at [kubb-project/kubb-plugins](https://github.com/kubb-project/kubb-plugins). Each plugin package ships an `extension.yaml` file describing its kind, options, and metadata.
 
 ## Token optimized CLI (rtk)
 
