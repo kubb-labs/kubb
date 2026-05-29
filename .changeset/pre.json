@@ -76,6 +76,7 @@
     "cli-runners-per-folder-refactor",
     "cool-jokes-pump",
     "core-getmode-static-cleanup",
+    "core-type-safety-escape-hatches",
     "create-kubb-user-config-signature",
     "ctx-param-in-define-resolver",
     "define-config-defaults-jsdoc",

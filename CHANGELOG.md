@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.35 — May 29, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Tighten internal type safety by removing `any` and unnecessary casts. The `Parser` type now defaults `TMeta` to `object` instead of `any`, `getContext` returns an honest `Omit<GeneratorContext, 'options'>` rather than laundering a missing field through `as unknown as`, and a couple of `as never` casts are replaced with proper optional types. No runtime behavior or public API change. ([#3420](https://github.com/kubb-labs/kubb/pull/3420), [`e74cb57`](https://github.com/kubb-labs/kubb/commit/e74cb577a7b70bfa9f5a9fbc6400f83c5b88f800))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.34 — May 29, 2026
 
 ### @kubb/ast
