@@ -23,7 +23,7 @@ Please read and follow our [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 ## Getting Started
 
-**Requirements:** Node.js `>=22`, pnpm `>=10`
+**Requirements:** Node.js `>=22`, pnpm `>=11`
 
 ```bash
 gh repo fork kubb-labs/kubb --clone
@@ -44,6 +44,46 @@ pnpm format         # Format code
 pnpm typecheck      # Type-check all packages
 pnpm lint:spell     # Spell check
 pnpm changeset      # Create a changeset
+```
+
+## Project structure
+
+### Root directories
+
+```
+kubb/
+├── packages/                # Npm packages and core modules
+├── schemas/                 # YAML schemas for configuration
+├── internals/               # Build tools and internal utilities
+├── docs/                    # Documentation and architecture guides
+├── configs/                 # Shared build and test configurations
+└── .agents/skills/          # Cross-provider agent skills
+```
+
+### Packages
+
+```
+packages/
+├── ast/                     # Spec-agnostic AST layer defining nodes, visitors, and factories
+├── core/                    # Core plugin system and code generation orchestration
+├── adapter-oas/             # OpenAPI/Swagger adapter (OAS → AST)
+├── kubb/                    # Main package, exports all public APIs
+├── cli/                     # Command-line interface
+├── agent/                   # Agent server for HTTP-based code generation
+├── mcp/                     # Model Context Protocol (MCP) server for AI assistants
+├── parser-ts/               # TypeScript parser for AST manipulation
+├── renderer-jsx/            # JSX renderer for component-based code generation
+├── middleware-barrel/       # Middleware for barrel export generation
+└── unplugin-kubb/           # Unplugin integration for build tools
+```
+
+### Internals
+
+```
+internals/
+├── changelog/               # Changelog generation utilities
+├── shared/                  # Kubb-specific shared logic (plugin catalogue, config generation)
+└── utils/                   # Domain-agnostic shared utilities (fs, string, async helpers)
 ```
 
 ## Submitting Changes
