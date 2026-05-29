@@ -2,7 +2,7 @@
 
 Kubb is a code-generation toolkit for generating TypeScript, React-Query, Zod, Faker.js, MSW and more from OpenAPI specifications. It uses a plugin-based architecture with an Abstract Syntax Tree (AST) layer.
 
-## High-Level Architecture
+## High-level architecture
 
 Kubb is built from:
 - Core engine (`@kubb/core`) runs the plugin system and orchestrates code generation
@@ -11,9 +11,9 @@ Kubb is built from:
 - CLI and HTTP interfaces are the entry points for code generation
 - MCP server adds Model Context Protocol integration for AI assistants
 
-## Folder Structure
+## Folder structure
 
-### Root Directories
+### Root directories
 
 ```
 kubb/
@@ -65,11 +65,11 @@ docs/
 └── architecture/            # Architecture documentation and guides
 ```
 
-## Plugin Ecosystem
+## Plugin ecosystem
 
 Plugins are maintained in a separate monorepo at [kubb-project/kubb-plugins](https://github.com/kubb-project/kubb-plugins). Each plugin package ships an `extension.yaml` file describing its kind, options, and metadata.
 
-## Repository Setup
+## Repository setup
 
 | Aspect | Choice |
 | --- | --- |
@@ -79,6 +79,7 @@ Plugins are maintained in a separate monorepo at [kubb-project/kubb-plugins](htt
 | Package manager | pnpm 11+ |
 | Linter | oxlint |
 | Formatter | oxfmt |
+| Bundler | tsdown |
 | Tests | Vitest |
 | Versioning | Changesets |
 | CI/CD | GitHub Actions |
