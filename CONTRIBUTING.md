@@ -1,16 +1,22 @@
 # Contributing to Kubb
 
+We welcome contributions that help improve Kubb. A few ways to get involved:
+
+- Found a bug? File it in the [issue tracker](https://github.com/kubb-labs/kubb/issues).
+- Have an idea to improve Kubb? [Open an issue](https://github.com/kubb-labs/kubb/issues/new) to share it.
+- Need help? Ask the community on [Discord](https://discord.gg/4dQjA6vrWX).
+
 Please read and follow our [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 * Be respectful and open-minded.
 * Search the [issue tracker](https://github.com/kubb-labs/kubb/issues) before opening a PR.
 * For opinion-driven changes, [open an issue](https://github.com/kubb-labs/kubb/issues/new) first.
 
-## Tech Stack
+## Tech stack
 
 | Tool | Purpose |
 |---|---|
-| [TypeScript](https://www.typescriptlang.org/) | Primary language — strict, ESM only |
+| [TypeScript](https://www.typescriptlang.org/) | Primary language (strict, ESM only) |
 | [pnpm](https://pnpm.io/) | Package manager with workspaces |
 | [Turborepo](https://turbo.build/) | Monorepo task runner |
 | [tsdown](https://github.com/sxzz/tsdown) | Bundler and `.d.ts` generation |
@@ -21,7 +27,7 @@ Please read and follow our [Code of Conduct](./CODE_OF_CONDUCT.md).
 | [Changesets](https://github.com/changesets/changesets) | Versioning and changelogs |
 | [GitHub Actions](https://github.com/features/actions) | CI/CD |
 
-## Getting Started
+## Getting started
 
 **Requirements:** Node.js `>=22`, pnpm `>=11`
 
@@ -86,7 +92,7 @@ internals/
 └── utils/                   # Domain-agnostic shared utilities (fs, string, async helpers)
 ```
 
-## Submitting Changes
+## Submitting changes
 
 1. Run `pnpm format && pnpm lint && pnpm typecheck && pnpm test` locally.
 2. Use [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`, `perf:`.

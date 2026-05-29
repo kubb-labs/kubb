@@ -64,7 +64,7 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 
 ## Supporting Kubb
 
-Kubb is an open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
+Kubb is an open source project, and its development is funded entirely by sponsors. If you would like to become a sponsor, please consider:
 
 - [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
 
@@ -165,15 +165,11 @@ See [CONTRIBUTING.md](https://github.com/kubb-labs/kubb/blob/main/CONTRIBUTING.m
 
 ## License
 
-Most of this repository is licensed under the [MIT License](./licenses/LICENSE-MIT), Copyright © 2025 [Stijn Van Hulle](https://stijnvanhulle.be). Some components are licensed
-under AGPL-3.0-or-later.
-
-- **Most packages** — [MIT](./licenses/LICENSE-MIT)
-- **`@kubb/agent`** — [AGPL-3.0-or-later](./licenses/LICENSE-AGPL-3.0)
+Most of this repository is licensed under the [MIT License](./licenses/LICENSE-MIT), Copyright © 2025 [Stijn Van Hulle](https://stijnvanhulle.be). Most packages use [MIT](./licenses/LICENSE-MIT), and `@kubb/agent` uses [AGPL-3.0-or-later](./licenses/LICENSE-AGPL-3.0).
 
 See [LICENSE](./LICENSE) for details.
 
-## Star History
+## Star history
 
 <a href="https://star-history.com/#kubb-labs/kubb&Date">
   <picture>
