@@ -20,11 +20,17 @@ generation when you would rather chat than run a command.
 
 ## Requirements
 
-The plugin installs Kubb for you. A `SessionStart` hook runs `npm install -g kubb@latest` the
-first time it finds no `kubb` on your `PATH`, so the commands work without a manual install.
-Later sessions skip the install once `kubb` is present.
+The commands run `npx kubb`, so install Kubb yourself, in the project or globally:
 
-Add `@kubb/adapter-oas` to the project if you want `kubb validate`, and `kubb init` installs the
+```bash
+npm install -D kubb   # in the project
+npm install -g kubb   # or globally
+```
+
+A `SessionStart` hook checks for `kubb` when a session starts and warns you when it is missing, so
+you can install it before running a command. It never installs anything for you.
+
+Add `@kubb/adapter-oas` if you want `kubb validate`, and `kubb init` installs the
 `@kubb/plugin-*` packages you select.
 
 ## Install

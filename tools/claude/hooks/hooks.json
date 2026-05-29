@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "command -v kubb >/dev/null 2>&1 || npm install -g kubb@latest"
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/check-kubb.sh\""
           }
         ]
       }
