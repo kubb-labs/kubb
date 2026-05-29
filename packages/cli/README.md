@@ -1,7 +1,6 @@
 <div align="center">
-  <h1>@kubb/cli</h1>
   <a href="https://kubb.dev" target="_blank" rel="noopener noreferrer">
-    <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
+    <img src="https://kubb.dev/og.png" alt="Kubb banner">
   </a>
 
 [![npm version][npm-version-src]][npm-version-href]
@@ -11,15 +10,19 @@
 [![Sponsors][sponsors-src]][sponsors-href]
 
 <h4>
-    <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/main//examples/typescript" target="_blank">View Demo</a>
-    <span> · </span>
-      <a href="https://kubb.dev/" target="_blank">Documentation</a>
-    <span> · </span>
-      <a href="https://github.com/kubb-labs/kubb/issues/" target="_blank">Report Bug</a>
-    <span> · </span>
-      <a href="https://github.com/kubb-labs/kubb/issues/" target="_blank">Request Feature</a>
-  </h4>
+<a href="https://kubb.dev" target="_blank">Documentation</a>
+<span> · </span>
+<a href="https://github.com/kubb-labs/kubb/issues/" target="_blank">Report Bug</a>
+<span> · </span>
+<a href="https://github.com/kubb-labs/kubb/issues/" target="_blank">Request Feature</a>
+</h4>
 </div>
+
+<br />
+
+# @kubb/cli
+
+### The command-line interface for Kubb
 
 Official CLI for Kubb. Run `kubb generate` to transform OpenAPI/Swagger specs into TypeScript types, API clients, hooks, validators, and mocks. Includes interactive project setup (`kubb init`), spec validation, watch mode, MCP server, and agent server commands.
 
@@ -238,7 +241,7 @@ See the [`@kubb/agent` README](../agent/README.md) for full environment variable
 
 ## Supporting Kubb
 
-Kubb uses an MIT-licensed open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
+Kubb is an open source project, and its development is funded entirely by sponsors. If you would like to become a sponsor, please consider:
 
 - [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
 
@@ -247,6 +250,10 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
     <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
   </a>
 </p>
+
+## License
+
+[MIT](https://github.com/kubb-labs/kubb/blob/main/licenses/LICENSE-MIT)
 
 <!-- Badges -->
 

@@ -1,7 +1,6 @@
 <div align="center">
-  <h1>@kubb/adapter-oas</h1>
   <a href="https://kubb.dev" target="_blank" rel="noopener noreferrer">
-    <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
+    <img src="https://kubb.dev/og.png" alt="Kubb banner">
   </a>
 
 [![npm version][npm-version-src]][npm-version-href]
@@ -11,7 +10,7 @@
 [![Sponsors][sponsors-src]][sponsors-href]
 
 <h4>
-<a href="https://kubb.dev/" target="_blank">Documentation</a>
+<a href="https://kubb.dev" target="_blank">Documentation</a>
 <span> · </span>
 <a href="https://github.com/kubb-labs/kubb/issues/" target="_blank">Report Bug</a>
 <span> · </span>
@@ -19,7 +18,13 @@
 </h4>
 </div>
 
-OpenAPI and Swagger adapter for Kubb. Parses and validates Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 specifications and transforms them into a `@kubb/ast` `RootNode` for downstream code generation plugins.
+<br />
+
+# @kubb/adapter-oas
+
+### OpenAPI and Swagger adapter for Kubb
+
+Parses and validates Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 specifications and transforms them into a `@kubb/ast` `RootNode` for downstream code generation plugins.
 
 ## Installation
 
@@ -50,14 +55,6 @@ export default defineConfig({
 })
 ```
 
-## Features
-
-- Supports Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1
-- Validates and dereferences `$ref` pointers
-- Merges multi-document specs
-- Outputs a `@kubb/ast` `RootNode` that every Kubb plugin reads from
-- Re-exports typed helpers for operations, schemas, parameters, and responses
-
 ## API
 
 ### `adapterOas(options?)`
@@ -74,7 +71,7 @@ All OpenAPI types (`Document`, `Operation`, `SchemaObject`, `HttpMethod`, etc.) 
 
 ## Supporting Kubb
 
-Kubb is an open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
+Kubb is an open source project, and its development is funded entirely by sponsors. If you would like to become a sponsor, please consider:
 
 - [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
 
@@ -83,6 +80,10 @@ Kubb is an open source project with its ongoing development made possible entire
     <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
   </a>
 </p>
+
+## License
+
+[MIT](https://github.com/kubb-labs/kubb/blob/main/licenses/LICENSE-MIT)
 
 <!-- Badges -->
 

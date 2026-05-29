@@ -1,7 +1,6 @@
 <div align="center">
-  <h1>@kubb/mcp</h1>
   <a href="https://kubb.dev" target="_blank" rel="noopener noreferrer">
-    <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
+    <img src="https://kubb.dev/og.png" alt="Kubb banner">
   </a>
 
 [![npm version][npm-version-src]][npm-version-href]
@@ -11,13 +10,19 @@
 [![Sponsors][sponsors-src]][sponsors-href]
 
 <h4>
-<a href="https://kubb.dev/" target="_blank">Documentation</a>
+<a href="https://kubb.dev" target="_blank">Documentation</a>
 <span> · </span>
 <a href="https://github.com/kubb-labs/kubb/issues/" target="_blank">Report Bug</a>
 <span> · </span>
 <a href="https://github.com/kubb-labs/kubb/issues/" target="_blank">Request Feature</a>
 </h4>
 </div>
+
+<br />
+
+# @kubb/mcp
+
+### Model Context Protocol server for Kubb
 
 MCP server for Kubb. Exposes code generation as a tool over the [Model Context Protocol](https://modelcontextprotocol.io) so AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible clients can generate TypeScript types, API clients, and more from OpenAPI specs using natural language.
 
@@ -167,7 +172,7 @@ export default defineConfig({
 
 ## Supporting Kubb
 
-Kubb is an open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
+Kubb is an open source project, and its development is funded entirely by sponsors. If you would like to become a sponsor, please consider:
 
 - [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
 
@@ -176,6 +181,10 @@ Kubb is an open source project with its ongoing development made possible entire
     <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
   </a>
 </p>
+
+## License
+
+[MIT](https://github.com/kubb-labs/kubb/blob/main/licenses/LICENSE-MIT)
 
 <!-- Badges -->
 
