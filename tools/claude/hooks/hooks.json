@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-hooks.json",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v kubb >/dev/null 2>&1 || npm install -g kubb@latest"
+          }
+        ]
+      }
+    ]
+  }
+}
