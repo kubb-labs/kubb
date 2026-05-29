@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://kubb.dev" target="_blank" rel="noopener noreferrer">
-    <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
+    <img src="https://kubb.dev/og.png" alt="Kubb banner">
   </a>
 
 [![npm version][npm-version-src]][npm-version-href]
