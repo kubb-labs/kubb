@@ -1,0 +1,45 @@
+name: Released
+on:
+  release:
+    types: [published]
+
+permissions: {}
+
+jobs:
+  notify:
+    name: Send Discord Notification
+    if: github.repository_owner == 'kubb-labs'
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Send a discord notification
+        uses: actions/github-script@373c709c69115d41ff229c7e5df9f8788daa9553 # v9
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const tag = process.env.RELEASE_TAG || '';
+            // Tags look like "@kubb/core@5.0.0-beta.35" or "v5.0.0-beta.35"; grab the semver.
+            const versionMatch = tag.match(/\d+\.\d+\.\d+[\w.-]*/);
+            const version = versionMatch ? versionMatch[0] : '';
+            const versionSlug = version.replace(/\./g, '-');
+            const docsUrl = version
+              ? `https://www.kubb.dev/kubb/changelog#_${versionSlug}`
+              : 'https://www.kubb.dev/kubb/changelog';
+
+            fetch(process.env.DISCORD_WEBHOOK_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                content: `A new release is available 🎉. \n [Read the changelog](${process.env.RELEASE_URL}) \n [View docs changelog](${docsUrl})`,
+              }),
+            })
+              .then((res) => {
+                console.log('Sent discord notification', res.status);
+              })
+              .catch((err) => {
+                console.error('Error sending discord notification', err);
+              });
