@@ -35,6 +35,9 @@ jobs:
       packages: write
       pull-requests: write
       issues: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      staged: ${{ steps.changesets.outputs.published }}
     steps:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -79,3 +82,42 @@ jobs:
           git checkout main
           pnpm version:canary
           pnpm release:stage --tag "$RELEASE_TAG"
+
+      - name: Read @kubb/core version
+        id: version
+        run: echo "version=$(jq -r .version packages/core/package.json)" >> "$GITHUB_OUTPUT"
+
+  notify:
+    name: Send Discord Notification
+    needs: [release]
+    if: needs.release.outputs.staged == 'true'
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Send a discord notification
+        uses: actions/github-script@373c709c69115d41ff229c7e5df9f8788daa9553 # v9
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          VERSION: ${{ needs.release.outputs.version }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const version = process.env.VERSION || '';
+            const versionSlug = version.replace(/\./g, '-');
+            const docsUrl = version
+              ? `https://www.kubb.dev/kubb/changelog#_${versionSlug}`
+              : 'https://www.kubb.dev/kubb/changelog';
+
+            fetch(process.env.DISCORD_WEBHOOK_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                content: `A new release is available 🎉. \n [Read the changelog](https://github.com/kubb-labs/kubb/releases) \n [View docs changelog](${docsUrl})`,
+              }),
+            })
+              .then((res) => {
+                console.log('Sent discord notification', res.status);
+              })
+              .catch((err) => {
+                console.error('Error sending discord notification', err);
+              });
