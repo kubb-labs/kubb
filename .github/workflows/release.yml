@@ -64,7 +64,7 @@ jobs:
         uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
         if: ${{ github.event.inputs.tag == '' }}
         with:
-          publish: pnpm release
+          publish: pnpm release:stage
           commit: 'ci(changesets): version packages'
           setupGitUser: false
         env:
@@ -81,7 +81,7 @@ jobs:
         run: |
           git checkout main
           pnpm version:canary
-          pnpm release:canary --tag "$RELEASE_TAG"
+          pnpm release:stage --tag "$RELEASE_TAG"
 
   get-version:
     name: Get Published Version

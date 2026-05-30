@@ -27,6 +27,7 @@
     "lint:spell": "cspell \"**/*.{ts,md}\" --config ./cspell.json --no-progress",
     "release": "changeset publish",
     "release:canary": "changeset publish --no-git-tag",
+    "release:stage": "turbo run release:stage --filter=./packages/* --concurrency=1 --",
     "start": "turbo run start --filter=./packages/*",
     "test": "vitest run --config ./configs/vitest.config.ts",
     "test:bench": "NODE_OPTIONS='--max_old_space_size=4096' vitest bench --config ./configs/vitest.bench.config.ts",
