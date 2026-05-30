@@ -81,6 +81,7 @@
     "lint:fix": "oxlint --fix .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check -tag canary",
+    "release:stage": "pnpm stage publish --no-git-check",
     "start": "tsdown --watch ./src",
     "start:devtools": "npx react-devtools",
     "test": "vitest --passWithNoTests",
