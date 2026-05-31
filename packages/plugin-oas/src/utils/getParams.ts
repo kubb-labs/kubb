@@ -20,7 +20,7 @@ export function getASTParams(
     override?: (data: FunctionParamsAST) => FunctionParamsAST
   } = {},
 ): FunctionParamsAST[] {
-  if (!operationSchema || !operationSchema.schema.properties || !operationSchema.name) {
+  if (!operationSchema?.schema.properties || !operationSchema.name) {
     return []
   }
 
@@ -82,7 +82,7 @@ export function getParamsMapping(
     casing?: 'camelcase'
   } = {},
 ): Record<string, string> | undefined {
-  if (!operationSchema || !operationSchema.schema.properties) {
+  if (!operationSchema?.schema.properties) {
     return undefined
   }
 

@@ -78,10 +78,10 @@
     "@kubb/ast": "workspace:*",
     "@kubb/fabric-core": "catalog:",
     "@kubb/react-fabric": "catalog:",
-    "empathic": "^2.0.0",
-    "fflate": "^0.8.2",
+    "empathic": "^2.0.1",
+    "fflate": "^0.8.3",
     "remeda": "catalog:",
-    "semver": "^7.7.4",
+    "semver": "^7.8.1",
     "tinyexec": "catalog:"
   },
   "devDependencies": {

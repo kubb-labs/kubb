@@ -12,7 +12,7 @@ export const typeKeywordMapper = {
   integer: () => factory.keywordTypeNodes.number,
   bigint: () => factory.keywordTypeNodes.bigint,
   object: (nodes?: ts.TypeElement[]) => {
-    if (!nodes || !nodes.length) {
+    if (!nodes?.length) {
       return factory.keywordTypeNodes.object
     }
 

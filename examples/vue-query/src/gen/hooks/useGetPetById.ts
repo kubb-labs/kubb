@@ -38,7 +38,7 @@ export function getPetByIdQueryOptions(
 ) {
   const queryKey = getPetByIdQueryKey({ petId })
   return queryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryResponse, typeof queryKey>({
-    enabled: !!petId,
+    enabled: () => !!toValue(petId),
     queryKey,
     queryFn: async ({ signal }) => {
       return getPetById(toValue({ petId: toValue(petId)! }), { ...config, signal: config.signal ?? signal })

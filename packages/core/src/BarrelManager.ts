@@ -11,7 +11,7 @@ export class BarrelManager {
     const cachedFiles = new Map<KubbFile.Path, KubbFile.File>()
 
     TreeNode.build(generatedFiles, root)?.forEach((treeNode) => {
-      if (!treeNode || !treeNode.children || !treeNode.parent?.data.path) {
+      if (!treeNode?.children || !treeNode.parent?.data.path) {
         return
       }
 
