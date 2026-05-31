@@ -7,6 +7,10 @@ on:
         type: choice
         options: [staged, publish]
         default: publish
+      dry-run:
+        description: 'Validate without publishing to npm'
+        type: boolean
+        default: false
   push:
     branches: ['main', 'alpha', 'beta', 'rc']
     paths:
@@ -33,6 +37,7 @@ jobs:
       mode: ${{ inputs.mode || 'publish' }}
       owner: 'kubb-labs'
       tag: beta
+      dry-run: ${{ inputs.dry-run || false }}
       publish: 'pnpm release'
       stage: 'pnpm release:stage:ci'
       build: 'pnpm run build'
