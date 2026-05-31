@@ -66,16 +66,40 @@ jobs:
           # `release:stage:ci` chains three steps: `release:stage` stages every
           # package on npm (no publish to `latest`), `changeset tag` creates the
           # local git tags and prints the `New tag:` lines the action parses to
-          # push tags and create a GitHub Release per package, and the final echo
-          # records that staging ran. It must be a single script: the action
-          # splits `publish` on whitespace and spawns it directly (no shell), so
-          # `&&` and `>>` only work when wrapped in a script pnpm runs via a shell.
+          # push the tags, and the final echo records that staging ran. It must
+          # be a single script: the action splits `publish` on whitespace and
+          # spawns it directly (no shell), so `&&` and `>>` only work when
+          # wrapped in a script pnpm runs via a shell.
           publish: pnpm release:stage:ci
           commit: 'ci(changesets): version packages'
           setupGitUser: false
+          # Skip changeset's per-package GitHub Releases. The "Create GitHub
+          # release" step below publishes a single release per version instead,
+          # mirroring the consolidated root CHANGELOG.md.
+          createGithubReleases: false
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub release
+        if: steps.changesets.outputs.staged == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # The fixed-group `kubb@<version>` tag is pushed by the step above and
+        # carries the canonical version used for the root CHANGELOG.md. Reuse it
+        # as the single release, with the latest changelog section as the body.
+        run: |
+          VERSION="$(node -p "require('./packages/kubb/package.json').version")"
+          node internals/changelog/latest.mjs > release-notes.md
+          PRERELEASE=()
+          case "$VERSION" in
+            *-*) PRERELEASE=(--prerelease) ;;
+          esac
+          gh release create "kubb@${VERSION}" \
+            --title "v${VERSION}" \
+            --notes-file release-notes.md \
+            --verify-tag \
+            "${PRERELEASE[@]}"
 
       - name: Publish ${{ inputs.tag || 'canary' }}
         id: canary
