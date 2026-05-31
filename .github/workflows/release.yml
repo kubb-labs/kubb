@@ -63,24 +63,32 @@ jobs:
         uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
         if: ${{ github.event.inputs.tag == '' }}
         with:
-          publish: pnpm release:stage && echo "staged=true" >> "$GITHUB_OUTPUT"
+          # `changeset tag` prints the same `New tag:` lines as changeset
+          # publish and creates the local git tags. The action parses those
+          # lines, pushes the tags, and creates a GitHub Release per package
+          # with the CHANGELOG section as the body (changeset's own logic).
+          # `stage publish` only stages on npm, so it has to run too.
+          publish: pnpm release:stage && pnpm exec changeset tag && echo "staged=true" >> "$GITHUB_OUTPUT"
           commit: 'ci(changesets): version packages'
           setupGitUser: false
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Stage publish ${{ inputs.tag || 'canary' }}
+      - name: Publish ${{ inputs.tag || 'canary' }}
         id: canary
         if: steps.changesets.outputs.staged != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
           RELEASE_TAG: ${{ inputs.tag || 'canary' }}
+        # Canaries auto-publish straight to npm under their dist-tag via OIDC,
+        # no stage + 2FA approval. They never land on `latest`, so the staging
+        # gate isn't needed and a canary you'd have to approve by hand is useless.
         run: |
           git checkout main
           pnpm version:canary
-          pnpm release:stage --tag "$RELEASE_TAG"
+          pnpm release:canary --tag "$RELEASE_TAG"
 
   notify:
     name: Send Discord Notification
