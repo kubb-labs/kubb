@@ -27,7 +27,7 @@
     "lint:spell": "cspell \"**/*.{ts,md}\" --config ./cspell.json --no-progress",
     "release": "changeset publish",
     "release:canary": "changeset publish --no-git-tag",
-    "release:stage": "turbo run release:stage --filter=./packages/* --concurrency=1 --",
+    "release:stage": "turbo run release:stage --filter=./packages/* --continue --concurrency=1 --",
     "release:stage:ci": "pnpm release:stage && pnpm exec changeset tag && echo \"staged=true\" >> \"${GITHUB_OUTPUT:-/dev/null}\"",
     "start": "turbo run start --filter=./packages/*",
     "test": "vitest run --config ./configs/vitest.config.ts",
