@@ -2,19 +2,17 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      tag:
-        description: 'Optional: Custom tag for canary release'
-        required: false
-        type: string
+      mode:
+        description: 'Release mode'
+        type: choice
+        options: [staged, publish]
+        default: staged
   push:
     branches: ['main', 'alpha', 'beta', 'rc']
     paths:
       - '.changeset/**'
       - 'packages/**'
 
-# Deny all permissions at workflow level; each job declares only what it needs.
-# id-token: write is intentionally restricted to the publish job so that
-# build/test steps never have access to an OIDC token that could publish to npm.
 permissions: {}
 
 concurrency:
@@ -23,99 +21,16 @@ concurrency:
 
 jobs:
   release:
-    name: Release
-    if: github.repository_owner == 'kubb-labs'
-    timeout-minutes: 15
-    runs-on: ubuntu-latest
-    # id-token: write is scoped to this job only, which runs after tests pass.
-    # The fresh install below avoids restoring a potentially poisoned pnpm cache.
     permissions:
       contents: write
       id-token: write
       packages: write
       pull-requests: write
       issues: write
-    outputs:
-      staged: ${{ steps.changesets.outputs.staged }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          fetch-depth: 0
-
-      - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
-        with:
-          node-version: '22'
-          cache: 'false'
-
-      - name: Reinstall dependencies (release hardening)
-        # Defense-in-depth: re-install so the release build does not implicitly
-        # trust a pnpm store restored from cache by the composite Setup Tools
-        # step. Lockfile integrity hashes still gate content.
-        run: pnpm install --frozen-lockfile --force
-
-      - name: Build
-        run: pnpm run build
-
-      - name: Stage publish
-        id: changesets
-        uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
-        if: ${{ github.event.inputs.tag == '' }}
-        with:
-          # `release:stage:ci` chains three steps: `release:stage` stages every
-          # package on npm (no publish to `latest`), `changeset tag` creates the
-          # local git tags and prints the `New tag:` lines the action parses to
-          # push tags and create a GitHub Release per package, and the final echo
-          # records that staging ran. It must be a single script: the action
-          # splits `publish` on whitespace and spawns it directly (no shell), so
-          # `&&` and `>>` only work when wrapped in a script pnpm runs via a shell.
-          publish: pnpm release:stage:ci
-          commit: 'ci(changesets): version packages'
-          setupGitUser: false
-        env:
-          NPM_CONFIG_PROVENANCE: true
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish ${{ inputs.tag || 'canary' }}
-        id: canary
-        if: steps.changesets.outputs.staged != 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
-          RELEASE_TAG: ${{ inputs.tag || 'canary' }}
-        # Canaries auto-publish straight to npm under their dist-tag via OIDC,
-        # no stage + 2FA approval. They never land on `latest`, so the staging
-        # gate isn't needed and a canary you'd have to approve by hand is useless.
-        run: |
-          git checkout main
-          pnpm version:canary
-          pnpm release:canary --tag "$RELEASE_TAG"
-
-  notify:
-    name: Send Discord Notification
-    needs: [release]
-    if: needs.release.outputs.staged == 'true'
-    runs-on: ubuntu-latest
-    permissions: {}
-    steps:
-      - name: Send a discord notification
-        uses: actions/github-script@373c709c69115d41ff229c7e5df9f8788daa9553 # v9
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            fetch(process.env.DISCORD_WEBHOOK_URL, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                content: `A new release is available 🎉. \n [Read the changelog](https://github.com/kubb-labs/kubb/releases) \n [View docs changelog](https://kubb.dev/docs/5.x/changelog)`,
-              }),
-            })
-              .then((res) => {
-                console.log('Sent discord notification', res.status);
-              })
-              .catch((err) => {
-                console.error('Error sending discord notification', err);
-              });
+    uses: kubb-labs/config/.github/workflows/release.yml@main
+    with:
+      mode: ${{ inputs.mode || 'staged' }}
+      owner: 'kubb-labs'
+      notify: true
+    secrets:
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
