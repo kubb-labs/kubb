@@ -23,7 +23,7 @@ catalog:
   'size-limit': ^12.1.0
   # tinyexec 1.2.x lost npm `trusted-with-provenance` status; stay on 1.1.x until restored.
   'tinyexec': ~1.1.2
-  tsdown: ^0.22.0
+  tsdown: ^0.22.1
   typescript: ^6.0.3
   vitest: ^4.1.7
   yaml: ^2.9.0
