@@ -63,12 +63,14 @@ jobs:
         uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
         if: ${{ github.event.inputs.tag == '' }}
         with:
-          # `changeset tag` prints the same `New tag:` lines as changeset
-          # publish and creates the local git tags. The action parses those
-          # lines, pushes the tags, and creates a GitHub Release per package
-          # with the CHANGELOG section as the body (changeset's own logic).
-          # `stage publish` only stages on npm, so it has to run too.
-          publish: pnpm release:stage && pnpm exec changeset tag && echo "staged=true" >> "$GITHUB_OUTPUT"
+          # `release:stage:ci` chains three steps: `release:stage` stages every
+          # package on npm (no publish to `latest`), `changeset tag` creates the
+          # local git tags and prints the `New tag:` lines the action parses to
+          # push tags and create a GitHub Release per package, and the final echo
+          # records that staging ran. It must be a single script: the action
+          # splits `publish` on whitespace and spawns it directly (no shell), so
+          # `&&` and `>>` only work when wrapped in a script pnpm runs via a shell.
+          publish: pnpm release:stage:ci
           commit: 'ci(changesets): version packages'
           setupGitUser: false
         env:
