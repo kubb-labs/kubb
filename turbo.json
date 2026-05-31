@@ -108,7 +108,15 @@
         "build"
       ],
       "outputs": [],
-      "cache": false
+      "cache": false,
+      "passThroughEnv": [
+        "ACTIONS_ID_TOKEN_REQUEST_URL",
+        "ACTIONS_ID_TOKEN_REQUEST_TOKEN",
+        "NPM_CONFIG_PROVENANCE",
+        "GITHUB_*",
+        "RUNNER_*",
+        "SIGSTORE_*"
+      ]
     }
   }
 }
