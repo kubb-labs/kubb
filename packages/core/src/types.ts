@@ -1,4 +1,4 @@
-import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
+import type { AsyncEventEmitter } from '@internals/utils'
 import type { RootNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric/types'
@@ -8,6 +8,9 @@ import type { KubbEvents } from './Kubb.ts'
 import type { PluginManager } from './PluginManager.ts'
 
 export type { Printer, PrinterFactoryOptions } from '@kubb/ast/types'
+
+/** A value that may already be resolved or still pending. */
+export type PossiblePromise<T> = Promise<T> | T
 
 declare global {
   namespace Kubb {
