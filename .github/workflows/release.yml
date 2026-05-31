@@ -6,7 +6,7 @@ on:
         description: 'Release mode'
         type: choice
         options: [staged, publish]
-        default: staged
+        default: publish
   push:
     branches: ['main', 'alpha', 'beta', 'rc']
     paths:
@@ -29,8 +29,10 @@ jobs:
       issues: write
     uses: kubb-labs/config/.github/workflows/release.yml@main
     with:
-      mode: ${{ inputs.mode || 'staged' }}
+      # Beta phase: publish to the npm `beta` dist-tag instead of `latest`.
+      mode: ${{ inputs.mode || 'publish' }}
       owner: 'kubb-labs'
+      tag: beta
       notify: true
     secrets:
       DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
