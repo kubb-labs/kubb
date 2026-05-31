@@ -1,5 +1,17 @@
 # kubb
 
+## 3.0.263
+
+### Patch Changes
+
+- [`f4cb90d`](https://github.com/kubb-labs/kubb/commit/f4cb90d5fe912df4f0dfd11ab87e6391876a3c58) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update dependencies
+
+- Updated dependencies [[`f4cb90d`](https://github.com/kubb-labs/kubb/commit/f4cb90d5fe912df4f0dfd11ab87e6391876a3c58)]:
+  - @kubb/agent@4.37.9
+  - @kubb/core@4.37.9
+  - @kubb/cli@4.37.9
+  - @kubb/mcp@4.37.9
+
 ## 3.0.262
 
 ### Patch Changes
