@@ -33,6 +33,9 @@ jobs:
       mode: ${{ inputs.mode || 'publish' }}
       owner: 'kubb-labs'
       tag: beta
+      publish: 'pnpm release'
+      stage: 'pnpm release:stage:ci'
+      build: 'pnpm run build'
       notify: true
     secrets:
       DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
