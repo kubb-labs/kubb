@@ -67,7 +67,7 @@
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react-fabric": "catalog:",
-    "handlebars": "^4.7.8"
+    "handlebars": "^4.7.9"
   },
   "peerDependencies": {
     "@kubb/fabric-core": "0.14.0",

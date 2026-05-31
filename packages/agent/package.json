@@ -66,15 +66,15 @@
     "jiti": "2.5.1",
     "remeda": "catalog:",
     "tinyexec": "catalog:",
-    "unstorage": "^1.17.4",
-    "ws": "^8.19.0"
+    "unstorage": "^1.17.5",
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "@types/ws": "^8.18.1",
-    "msw": "^2.12.13",
-    "nitropack": "^2.13.2",
-    "vite": "^7.3.1"
+    "msw": "^2.14.6",
+    "nitropack": "^2.13.4",
+    "vite": "^7.3.3"
   },
   "engines": {
     "node": ">=20"
