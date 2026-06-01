@@ -131,6 +131,19 @@ function hookRowOf(hook: HookEntry, index: number, selected: number, spinner: st
   }
 }
 
+function allRowOf(plugins: Array<PluginEntry>, hooks: Array<HookEntry>, selected: number): Row {
+  const totalCount = plugins.length + hooks.length
+  return {
+    key: 'all-row',
+    marker: 0 === selected,
+    glyph: { char: '≡', color: 'cyan' },
+    name: 'all tasks'.padEnd(NAME_WIDTH),
+    bar: { filled: 0, empty: BAR_WIDTH, color: '#444' },
+    right: { text: totalCount > 0 ? `${totalCount}` : '·', color: '#888' },
+    selected: 0 === selected,
+  }
+}
+
 function RowView({ row }: { row: Row }) {
   const markerColor = row.selected ? 'cyan' : '#666'
   const nameAttr = row.selected ? attrs.bold : row.nameColor ? attrs.dim : attrs.none
@@ -156,7 +169,8 @@ export function TaskList({ plugins, hooks, files, filesActive, filesDone, select
   const title = total === 0 ? 'Tasks' : `Tasks  ${completed}/${total}${failed > 0 ? `  (${failed} failed)` : ''}`
 
   const showFilesRow = plugins.length > 0 || hooks.length > 0
-  const filesIndex = plugins.length
+  // Row 0 is always the virtual "all" row; plugins/files/hooks start at 1.
+  const filesIndex = 1 + plugins.length
 
   return (
     <box
@@ -172,6 +186,13 @@ export function TaskList({ plugins, hooks, files, filesActive, filesDone, select
       paddingBottom={1}
       width={PANE_WIDTH}
     >
+      <RowView row={allRowOf(plugins, hooks, selectedIndex)} />
+      <text>
+        <span fg="#444" attributes={attrs.dim}>
+          ──────────
+        </span>
+      </text>
+
       {plugins.length === 0 ? (
         <text>
           <span fg="#888" attributes={attrs.dim}>
@@ -179,7 +200,7 @@ export function TaskList({ plugins, hooks, files, filesActive, filesDone, select
           </span>
         </text>
       ) : (
-        plugins.map((plugin, index) => <RowView key={`p-${plugin.name}`} row={pluginRow(plugin, index, selectedIndex, spinnerFrame)} />)
+        plugins.map((plugin, index) => <RowView key={`p-${plugin.name}`} row={pluginRow(plugin, index + 1, selectedIndex, spinnerFrame)} />)
       )}
 
       {showFilesRow ? <RowView row={filesRowOf(files, filesActive, filesDone, filesIndex, selectedIndex, spinnerFrame)} /> : null}
@@ -192,7 +213,7 @@ export function TaskList({ plugins, hooks, files, filesActive, filesDone, select
             </span>
           </text>
           {hooks.map((hook, hookOffset) => {
-            const index = plugins.length + 1 + hookOffset
+            const index = 1 + plugins.length + 1 + hookOffset
             return <RowView key={`h-${hook.id}`} row={hookRowOf(hook, index, selectedIndex, spinnerFrame)} />
           })}
         </>

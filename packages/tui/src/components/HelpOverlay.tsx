@@ -9,7 +9,7 @@ const BINDINGS: Array<Binding> = [
   { keys: '↑ / ↓  ·  k / j', description: 'select task in the left pane' },
   { keys: 'enter', description: 'expand the selected task to full screen' },
   { keys: 'esc', description: 'leave the expanded / help view' },
-  { keys: 'a  ·  esc', description: 'clear selection and show all logs' },
+  { keys: 'a  ·  esc', description: 'jump back to the All-tasks row (all logs)' },
   { keys: 'r', description: 'restart the last generation' },
   { keys: 'c', description: 'clear the log pane' },
   { keys: '?', description: 'toggle this help overlay' },

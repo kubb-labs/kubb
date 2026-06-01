@@ -125,9 +125,12 @@ export const tuiLogger = defineLogger<LoggerOptions, HookSinkFactory | null>({
     })
 
     context.on('kubb:files:processing:update', ({ files }) => {
+      if (files.length === 0) return
       const last = files[files.length - 1]
-      if (!last) return
-      dispatch({ type: 'files:update', processed: last.processed, current: last.file.path })
+      // Each event delivers a chunk of newly processed files in this batch.
+      // Counting the chunk size keeps the reducer cumulative across the
+      // multiple `files:processing:start` batches Kubb emits per generation.
+      dispatch({ type: 'files:update', delta: files.length, current: last?.file.path })
     })
 
     context.on('kubb:files:processing:end', () => {

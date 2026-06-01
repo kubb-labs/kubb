@@ -17,8 +17,8 @@ describe('reducer', () => {
     expect(started.status).toBe('running')
     expect(started.plugins).toHaveLength(2)
     expect(started.plugins.every((p) => p.status === 'queued')).toBe(true)
-    // Selection defaults to -1 so the right pane shows all logs.
-    expect(started.selectedTaskIndex).toBe(-1)
+    // Row 0 is the virtual "All tasks" entry — selecting it shows every log.
+    expect(started.selectedTaskIndex).toBe(0)
   })
 
   it('tracks plugin lifecycle from queued → running → done with duration', () => {
@@ -40,11 +40,25 @@ describe('reducer', () => {
     expect(state.plugins[0]?.status).toBe('failed')
   })
 
-  it('updates file processing counters', () => {
+  it('accumulates file counters across multiple write batches', () => {
     let state = reducer(createInitialState(), { type: 'files:start', total: 5 })
     expect(state.files).toEqual({ total: 5, processed: 0 })
-    state = reducer(state, { type: 'files:update', processed: 3, current: 'src/gen/pet.ts' })
+
+    state = reducer(state, { type: 'files:update', delta: 3, current: 'src/gen/pet.ts' })
     expect(state.files).toEqual({ total: 5, processed: 3, current: 'src/gen/pet.ts' })
+
+    state = reducer(state, { type: 'files:update', delta: 2, current: 'src/gen/store.ts' })
+    expect(state.files.processed).toBe(5)
+
+    // Kubb fires a second `files:processing:start` for late additions —
+    // both the batch total and the processed counter must accumulate.
+    state = reducer(state, { type: 'files:start', total: 4 })
+    expect(state.files.total).toBe(9)
+    expect(state.files.processed).toBe(5)
+
+    state = reducer(state, { type: 'files:update', delta: 4, current: 'src/gen/extra.ts' })
+    expect(state.files.processed).toBe(9)
+
     state = reducer(state, { type: 'files:end' })
     expect(state.files.current).toBeUndefined()
   })
@@ -86,15 +100,15 @@ describe('reducer', () => {
 
   it('moves the task selection cursor within bounds', () => {
     let state = reducer(createInitialState(), { type: 'generation:start', pluginNames: ['a', 'b', 'c'], at: 1 })
-    // Start unselected (showing all logs). First arrow press lands on row 0.
-    expect(state.selectedTaskIndex).toBe(-1)
-
-    state = reducer(state, { type: 'ui:select', delta: 1 })
+    // Row 0 is the "All tasks" entry by default.
     expect(state.selectedTaskIndex).toBe(0)
 
-    // Three plugins + the virtual `files` row = 4 selectable rows (0..3).
-    state = reducer(state, { type: 'ui:select', delta: 5 })
-    expect(state.selectedTaskIndex).toBe(3)
+    state = reducer(state, { type: 'ui:select', delta: 1 })
+    expect(state.selectedTaskIndex).toBe(1)
+
+    // 1 (all) + 3 plugins + 1 (files) = 5 selectable rows (0..4).
+    state = reducer(state, { type: 'ui:select', delta: 10 })
+    expect(state.selectedTaskIndex).toBe(4)
 
     state = reducer(state, { type: 'ui:select', delta: -10 })
     expect(state.selectedTaskIndex).toBe(0)

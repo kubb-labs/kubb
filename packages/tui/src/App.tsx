@@ -62,7 +62,7 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
         dispatch({ type: 'ui:set-mode', mode: 'normal' })
         return
       }
-      dispatch({ type: 'ui:select:exact', index: -1 })
+      dispatch({ type: 'ui:select:exact', index: 0 })
       return
     }
 
@@ -74,7 +74,7 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
     }
 
     if (event.name === 'a') {
-      dispatch({ type: 'ui:select:exact', index: -1 })
+      dispatch({ type: 'ui:select:exact', index: 0 })
       return
     }
 

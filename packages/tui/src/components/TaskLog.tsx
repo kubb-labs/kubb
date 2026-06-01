@@ -196,6 +196,8 @@ function renderBody(
       return renderHook(resolved.hook, spinner)
     case 'files':
       return renderFiles(files, filesActive, filesDone, spinner)
+    case 'all':
+      return renderAll(logs)
     default:
       return renderAll(logs)
   }
@@ -205,7 +207,7 @@ function paneTitle(resolved: ReturnType<typeof resolveSelection>): string {
   if (resolved.kind === 'plugin') return `Log · ${resolved.plugin.name}`
   if (resolved.kind === 'hook') return `Log · ${resolved.hook.command}`
   if (resolved.kind === 'files') return 'Log · files'
-  return 'Log · all'
+  return 'Log · all tasks'
 }
 
 export function TaskLog({ plugins, hooks, files, filesActive, filesDone, logs, selectedIndex, spinnerFrame }: Props) {

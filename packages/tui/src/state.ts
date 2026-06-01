@@ -106,7 +106,7 @@ export type TuiAction =
   | { type: 'plugin:start'; name: string }
   | { type: 'plugin:end'; name: string; success: boolean; duration: number }
   | { type: 'files:start'; total: number }
-  | { type: 'files:update'; processed: number; current?: string }
+  | { type: 'files:update'; delta: number; current?: string }
   | { type: 'files:end' }
   | { type: 'hook:start'; id: string; command: string; at: number }
   | { type: 'hook:line'; id: string; line: string }
@@ -134,42 +134,44 @@ export function createInitialState(): TuiState {
 }
 
 /**
- * The selection list always includes a virtual `Files` row between the
- * plugins and the hooks once at least one plugin is queued. This keeps the
- * file-write phase visible as a task even though it isn't a real
- * `kubb:plugin:*` entry.
+ * Row 0 is always the virtual `all` row that shows every log entry in the
+ * right pane. Plugins, the file-write phase, and hooks follow in order.
  */
+function hasFilesRow(plugins: Array<PluginEntry>, hooks: Array<HookEntry>): boolean {
+  return plugins.length > 0 || hooks.length > 0
+}
+
 function totalTaskCount(plugins: Array<PluginEntry>, hooks: Array<HookEntry>): number {
-  if (plugins.length === 0 && hooks.length === 0) return 0
-  return plugins.length + 1 + hooks.length
+  return 1 + plugins.length + (hasFilesRow(plugins, hooks) ? 1 : 0) + hooks.length
 }
 
 function clampSelection(index: number, plugins: Array<PluginEntry>, hooks: Array<HookEntry>): number {
   const total = totalTaskCount(plugins, hooks)
-  if (total === 0) return -1
   if (index < 0) return 0
   if (index >= total) return total - 1
   return index
 }
 
 /**
- * Maps a flat selection index to one of the three task buckets. Callers use
- * this in both the list and the detail pane so they agree on which row maps
- * to what.
+ * Maps a flat selection index to one of four task buckets. Callers use this
+ * in both the list and the detail pane so they agree on which row maps to
+ * what.
  */
 export function resolveSelection(
   index: number,
   plugins: Array<PluginEntry>,
   hooks: Array<HookEntry>,
-): { kind: 'plugin'; plugin: PluginEntry } | { kind: 'files' } | { kind: 'hook'; hook: HookEntry } | { kind: 'none' } {
-  if (index < 0) return { kind: 'none' }
-  if (index < plugins.length) {
-    const plugin = plugins[index]
+): { kind: 'all' } | { kind: 'plugin'; plugin: PluginEntry } | { kind: 'files' } | { kind: 'hook'; hook: HookEntry } | { kind: 'none' } {
+  if (index <= 0) return { kind: 'all' }
+  const afterAll = index - 1
+  if (afterAll < plugins.length) {
+    const plugin = plugins[afterAll]
     return plugin ? { kind: 'plugin', plugin } : { kind: 'none' }
   }
-  if (plugins.length + hooks.length === 0) return { kind: 'none' }
-  if (index === plugins.length) return { kind: 'files' }
-  const hook = hooks[index - plugins.length - 1]
+  const afterPlugins = afterAll - plugins.length
+  if (hasFilesRow(plugins, hooks) && afterPlugins === 0) return { kind: 'files' }
+  const hookIndex = hasFilesRow(plugins, hooks) ? afterPlugins - 1 : afterPlugins
+  const hook = hooks[hookIndex]
   return hook ? { kind: 'hook', hook } : { kind: 'none' }
 }
 
@@ -220,17 +222,17 @@ export function reducer(state: TuiState, action: TuiAction): TuiState {
         plugins: action.pluginNames.map((name) => ({ name, status: 'queued', events: [] })),
         files: { total: 0, processed: 0 },
         hooks: [],
-        // Stay on -1 so the right pane defaults to "all logs"; the user
-        // arrows in when they want per-task detail.
-        selectedTaskIndex: -1,
+        // Land on row 0 (the virtual "All" row) so the right pane defaults
+        // to the full log; ↑/↓ navigates down to the individual tasks.
+        selectedTaskIndex: 0,
         currentPluginName: undefined,
       }
     case 'generation:end':
       return { ...state, status: action.status, finishedAt: action.at }
     case 'ui:select': {
-      if (totalTaskCount(state.plugins, state.hooks) === 0) return state
-      // From the "all" view (-1) the first arrow press lands on row 0, not 1.
-      const base = state.selectedTaskIndex < 0 ? -action.delta : state.selectedTaskIndex
+      const total = totalTaskCount(state.plugins, state.hooks)
+      if (total === 0) return state
+      const base = state.selectedTaskIndex < 0 ? 0 : state.selectedTaskIndex
       const next = clampSelection(base + action.delta, state.plugins, state.hooks)
       return { ...state, selectedTaskIndex: next }
     }
@@ -256,11 +258,14 @@ export function reducer(state: TuiState, action: TuiAction): TuiState {
         currentPluginName: state.currentPluginName === action.name ? undefined : state.currentPluginName,
       }
     case 'files:start':
-      return { ...state, files: { total: action.total, processed: 0 } }
+      // Kubb fires `files:processing:start` per write phase (one for the main
+      // generation, another for late additions). Accumulate the batch totals
+      // so the row reflects the full run, not just the latest batch.
+      return { ...state, files: { ...state.files, total: state.files.total + action.total } }
     case 'files:update':
       return {
         ...state,
-        files: { ...state.files, processed: action.processed, current: action.current },
+        files: { ...state.files, processed: state.files.processed + action.delta, current: action.current },
       }
     case 'files:end':
       return { ...state, files: { ...state.files, current: undefined } }
