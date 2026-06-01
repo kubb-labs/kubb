@@ -16,6 +16,7 @@ on:
     paths:
       - '.changeset/**'
       - 'packages/**'
+      - '.github/workflows/release.yml'
 
 permissions: {}
 
