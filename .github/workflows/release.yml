@@ -85,14 +85,17 @@ jobs:
       - name: Resolve release command
         id: cmd
         shell: bash
-        # In publish mode, append `-- --tag beta` so the dist-tag flows through
-        # pnpm to `changeset publish --tag beta`. Inputs are read from env to
-        # avoid script injection. Defaults to `publish` on push events.
+        # In publish mode, run the dedicated `release:beta` script, which bakes
+        # `--tag beta` into the changeset publish call. Forwarding flags via
+        # `pnpm release -- --tag beta` is unreliable: pnpm 11 passes the `--`
+        # through, and changesets rejects the extra positional argument.
+        # Inputs are read from env to avoid script injection. Defaults to
+        # `publish` on push events.
         env:
           MODE: ${{ inputs.mode || 'publish' }}
         run: |
           if [ "$MODE" = 'publish' ]; then
-            echo "publish=pnpm release -- --tag beta" >> "$GITHUB_OUTPUT"
+            echo "publish=pnpm release:beta" >> "$GITHUB_OUTPUT"
           else
             echo "publish=pnpm release:stage:ci" >> "$GITHUB_OUTPUT"
           fi
@@ -154,9 +157,12 @@ jobs:
 
       - name: Publish canary
         shell: bash
+        # Invoke the changesets CLI directly. `pnpm release -- --tag canary`
+        # leaks the `--` through to changesets on pnpm 11 and fails with
+        # "Too many arguments passed to changesets".
         env:
           NPM_CONFIG_PROVENANCE: true
-        run: pnpm release -- --tag canary
+        run: pnpm exec changeset publish --tag canary
 
   notify:
     name: Send Discord Notification
