@@ -1,7 +1,7 @@
 # Research, core package improvements
 
 > Phase 1 research for reducing complexity, improving performance, and lowering the cost of
-> onboarding new maintainers in the Kubb core packages (`@kubb/core` and its close neighbours
+> onboarding new maintainers in the Kubb core packages (`@kubb/core` and its close neighbors
 > `@kubb/ast`, `@kubb/cli`, `@kubb/kubb`). This is a research report, not a committed plan. Every
 > finding points at the code it describes so a maintainer can jump straight to it.
 
@@ -21,7 +21,7 @@ then close with a suggested order.
 
 ## Complexity
 
-C1. Break up `KubbDriver.ts`. It owns plugin normalisation, hook registration, the generator
+C1. Break up `KubbDriver.ts`. It owns plugin normalization, hook registration, the generator
 pipeline, and file flushing in one class. The generator pipeline alone (`#runGenerators`, roughly
 `KubbDriver.ts:504-700`) holds the schema pre-scan, the per-node `dispatchNode` closure
 (`KubbDriver.ts:577`), and `flushPending` (`KubbDriver.ts:385`). Pulling these into their own
@@ -61,7 +61,7 @@ the peak is real. This is the one item worth profiling on a big OpenAPI document
 whether a two-pass or lazy-reachability design earns its complexity. Treat it as an investigation
 with a measurement gate, not a change to make blind.
 
-P2. `memoryStorage.getKeys(base)` materialises every key before filtering
+P2. `memoryStorage.getKeys(base)` materializes every key before filtering
 (`storages/memoryStorage.ts:39-42`). Iterating the map and yielding matches avoids the full copy.
 The win is small but the change is a few lines and removes an allocation from a hot path in
 dry-run and test scenarios.
@@ -78,7 +78,7 @@ invalidation story.
 
 P5. `stringPatternCache` is a module-level map (`defineResolver.ts:253`) that lives for the
 process, not the build. In a long-running host that runs many builds with varied filter patterns
-it grows without bound. A per-build cache or a bounded LRU keeps the behaviour while capping the
+it grows without bound. A per-build cache or a bounded LRU keeps the behavior while capping the
 footprint. The WeakMap option cache and the lazy sorted-files cache do not have this problem and
 should stay as they are.
 
@@ -97,7 +97,7 @@ factories, so the tests are cheap to write and they pin down the contracts plugi
 
 M3. Give errors a shape. Validation paths throw a generic `Error`, while plugin failures use
 `BuildError` from `@internals/utils`. There is no shared Kubb error type or code, so the CLI
-cannot categorise what it shows. A small hierarchy or a set of codes, plus a note on which errors
+cannot categorize what it shows. A small hierarchy or a set of codes, plus a note on which errors
 are recoverable, lets the CLI surface clearer messages and lets programmatic callers branch on
 cause.
 
@@ -134,7 +134,7 @@ because its design depends on what the profile shows.
 - ESM only, Node 22, and the public API stays stable through the `exports` map and `typesVersions`.
 - `@kubb/core` must stay under the 510 KiB gzip `size-limit`.
 - The test suite stays green, and any file move is followed by `pnpm lint && pnpm typecheck`.
-- No behaviour change is in scope for this report. It records findings, it does not touch source.
+- No behavior change is in scope for this report. It records findings, it does not touch source.
 
 ## What this means for a follow-up plan
 
