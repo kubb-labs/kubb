@@ -73,7 +73,8 @@
     "@kubb/middleware-barrel": "workspace:*",
     "@kubb/parser-md": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
-    "@kubb/renderer-jsx": "workspace:*"
+    "@kubb/renderer-jsx": "workspace:*",
+    "@kubb/tui": "workspace:*"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",

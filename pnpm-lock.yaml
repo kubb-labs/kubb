@@ -306,6 +306,9 @@ importers:
       '@kubb/renderer-jsx':
         specifier: workspace:*
         version: link:../renderer-jsx
+      '@kubb/tui':
+        specifier: workspace:*
+        version: link:../tui
     devDependencies:
       '@internals/utils':
         specifier: workspace:*

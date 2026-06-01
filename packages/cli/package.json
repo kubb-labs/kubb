@@ -61,6 +61,7 @@
   "dependencies": {
     "@clack/prompts": "^1.5.0",
     "@kubb/core": "workspace:*",
+    "@kubb/tui": "workspace:*",
     "chokidar": "^5.0.0",
     "cosmiconfig": "^9.0.1",
     "jiti": "^2.7.0",
@@ -74,8 +75,7 @@
   "peerDependencies": {
     "@kubb/adapter-oas": "workspace:*",
     "@kubb/agent": "workspace:*",
-    "@kubb/mcp": "workspace:*",
-    "@kubb/tui": "workspace:*"
+    "@kubb/mcp": "workspace:*"
   },
   "peerDependenciesMeta": {
     "@kubb/adapter-oas": {
@@ -85,9 +85,6 @@
       "optional": true
     },
     "@kubb/mcp": {
-      "optional": true
-    },
-    "@kubb/tui": {
       "optional": true
     }
   },
