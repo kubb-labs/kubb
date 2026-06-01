@@ -6,7 +6,8 @@ type Binding = {
 }
 
 const BINDINGS: Array<Binding> = [
-  { keys: '↑ / ↓  ·  k / j', description: 'select task in the left pane' },
+  { keys: '↑ / ↓  ·  k / j', description: 'select task (or scroll the detail view)' },
+  { keys: 'pgup / pgdn', description: 'scroll a page at a time in detail view' },
   { keys: 'space', description: 'expand the selected task to full screen' },
   { keys: 'esc', description: 'leave the expanded / help view' },
   { keys: 'a  ·  esc', description: 'jump back to the All-tasks row (all logs)' },

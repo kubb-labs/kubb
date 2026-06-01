@@ -1,9 +1,9 @@
-import { useEffect, useReducer, useState } from 'react'
+import { useEffect, useReducer, useRef, useState } from 'react'
 import { useKeyboard } from '@opentui/react'
 import { createInitialState, reducer, type TuiAction, type TuiState } from './state.ts'
 import { KubbLogo } from './components/KubbLogo.tsx'
 import { TaskList } from './components/TaskList.tsx'
-import { TaskLog } from './components/TaskLog.tsx'
+import { TaskLog, type ScrollHandle } from './components/TaskLog.tsx'
 import { StatusBar } from './components/StatusBar.tsx'
 import { HelpOverlay } from './components/HelpOverlay.tsx'
 
@@ -34,6 +34,7 @@ const SPINNER_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', 
 export function App({ subscribe, onQuit, onRestart, initial }: Props) {
   const [state, dispatch] = useReducer(reducer, { ...createInitialState(), ...initial })
   const [tick, setTick] = useState(0)
+  const detailScrollRef = useRef<ScrollHandle | null>(null)
 
   useEffect(() => subscribe(dispatch), [subscribe])
 
@@ -91,12 +92,26 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
     }
 
     if (event.name === 'up' || event.name === 'k') {
-      dispatch({ type: 'ui:select', delta: -1 })
+      if (state.ui.mode === 'detail') {
+        detailScrollRef.current?.scrollBy({ x: 0, y: -1 }, 'step')
+      } else {
+        dispatch({ type: 'ui:select', delta: -1 })
+      }
       return
     }
 
     if (event.name === 'down' || event.name === 'j') {
-      dispatch({ type: 'ui:select', delta: 1 })
+      if (state.ui.mode === 'detail') {
+        detailScrollRef.current?.scrollBy({ x: 0, y: 1 }, 'step')
+      } else {
+        dispatch({ type: 'ui:select', delta: 1 })
+      }
+      return
+    }
+
+    if (state.ui.mode === 'detail' && (event.name === 'pageup' || event.name === 'pagedown')) {
+      const dir = event.name === 'pageup' ? -1 : 1
+      detailScrollRef.current?.scrollBy({ x: 0, y: dir }, 'viewport')
       return
     }
   })
@@ -129,6 +144,7 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
           logs={state.logs}
           selectedIndex={state.selectedTaskIndex}
           spinnerFrame={spinnerFrame}
+          scrollRef={detailScrollRef}
         />
         <StatusBar state={state} />
       </box>

@@ -1,6 +1,14 @@
+import type { Ref } from 'react'
+import type { ScrollBoxRenderable } from '@opentui/core'
 import type { HookEntry, LogEntry, PluginEntry, TuiState } from '../state.ts'
 import { resolveSelection } from '../state.ts'
 import { attrs, formatMs, truncateLeft } from '../format.ts'
+
+/**
+ * Re-exported under a friendlier name so App.tsx can hold a ref without
+ * importing `@opentui/core` directly.
+ */
+export type ScrollHandle = ScrollBoxRenderable
 
 type Props = {
   plugins: Array<PluginEntry>
@@ -11,6 +19,7 @@ type Props = {
   logs: Array<LogEntry>
   selectedIndex: number
   spinnerFrame: string
+  scrollRef?: Ref<ScrollHandle>
 }
 
 function levelColor(level: LogEntry['level']): string {
@@ -210,12 +219,13 @@ function paneTitle(resolved: ReturnType<typeof resolveSelection>): string {
   return 'Log · all tasks'
 }
 
-export function TaskLog({ plugins, hooks, files, filesActive, filesDone, logs, selectedIndex, spinnerFrame }: Props) {
+export function TaskLog({ plugins, hooks, files, filesActive, filesDone, logs, selectedIndex, spinnerFrame, scrollRef }: Props) {
   const resolved = resolveSelection(selectedIndex, plugins, hooks)
   const body = renderBody(resolved, files, filesActive, filesDone, logs, spinnerFrame)
 
   return (
     <scrollbox
+      ref={scrollRef}
       title={paneTitle(resolved)}
       titleAlignment="left"
       stickyScroll
