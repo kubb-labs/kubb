@@ -56,7 +56,7 @@ jobs:
           MODE: ${{ inputs.mode || 'publish' }}
         run: |
           case "$MODE" in
-            publish) echo "publish=pnpm exec changeset publish --tag beta" >> "$GITHUB_OUTPUT" ;;
+            publish) echo "publish=pnpm exec changeset publish" >> "$GITHUB_OUTPUT" ;;
             staged) echo "publish=pnpm release:stage:ci" >> "$GITHUB_OUTPUT" ;;
             version) echo "publish=" >> "$GITHUB_OUTPUT" ;;
             *) echo "Unknown mode: $MODE" >&2; exit 1 ;;
