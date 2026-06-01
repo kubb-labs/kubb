@@ -57,7 +57,7 @@ jobs:
         run: |
           case "$MODE" in
             publish) echo "publish=pnpm exec changeset publish" >> "$GITHUB_OUTPUT" ;;
-            staged) echo "publish=pnpm release:stage:ci" >> "$GITHUB_OUTPUT" ;;
+            staged) echo "publish=pnpm release:stage" >> "$GITHUB_OUTPUT" ;;
             version) echo "publish=" >> "$GITHUB_OUTPUT" ;;
             *) echo "Unknown mode: $MODE" >&2; exit 1 ;;
           esac
