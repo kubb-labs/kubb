@@ -40,7 +40,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@974cda923f9fdbdaf70f63d09e7670d71f90f3b2 # main
+        uses: kubb-labs/config/.github/setup@61cdd3211cf116b44033357a5baff45dc28f0ca5 # main
         with:
           node-version: '22'
           cache: 'false'
@@ -77,7 +77,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@974cda923f9fdbdaf70f63d09e7670d71f90f3b2 # main
+        uses: kubb-labs/config/.github/setup@61cdd3211cf116b44033357a5baff45dc28f0ca5 # main
         with:
           node-version: '22'
           cache: 'false'
@@ -151,7 +151,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@974cda923f9fdbdaf70f63d09e7670d71f90f3b2 # main
+        uses: kubb-labs/config/.github/setup@61cdd3211cf116b44033357a5baff45dc28f0ca5 # main
         with:
           node-version: '22'
           cache: 'false'
