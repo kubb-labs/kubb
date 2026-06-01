@@ -24,7 +24,7 @@
     "graph": "npx nx graph ",
     "lint": "oxlint -c oxlint.config.ts ./packages",
     "lint:fix": "oxlint -c oxlint.config.ts --fix ./packages",
-    "release:stage": "node scripts/release-stage.mjs",
+    "release": "node scripts/release-stage.mjs",
     "start": "turbo run start --filter=./packages/*",
     "test": "vitest run --config ./configs/vitest.config.ts",
     "test:bench": "NODE_OPTIONS='--max_old_space_size=4096' vitest bench --config ./configs/vitest.bench.config.ts",

@@ -47,13 +47,13 @@ jobs:
 
       # When pending changesets exist, changesets/action opens the Version
       # Packages PR. When versions are already bumped, it runs the publish
-      # command, which stages the workspace via `pnpm release:stage`.
+      # command, which stages the workspace via `pnpm release`.
       - name: Release
         id: changesets
         uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
         with:
           version: pnpm exec changeset version
-          publish: pnpm release:stage
+          publish: pnpm release
           commit: 'ci(changesets): version packages'
           title: 'ci(changesets): version packages'
           setupGitUser: false
