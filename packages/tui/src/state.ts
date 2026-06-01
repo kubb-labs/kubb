@@ -251,11 +251,7 @@ export function reducer(state: TuiState, action: TuiAction): TuiState {
       const next: TuiState = { ...state, logs: appendCapped(state.logs, action.entry, LOG_BUFFER_LIMIT) }
       if (state.currentPluginName) {
         next.plugins = updatePlugin(state.plugins, state.currentPluginName, {
-          events: appendCapped(
-            state.plugins.find((p) => p.name === state.currentPluginName)?.events ?? [],
-            action.entry,
-            PLUGIN_EVENT_LIMIT,
-          ),
+          events: appendCapped(state.plugins.find((p) => p.name === state.currentPluginName)?.events ?? [], action.entry, PLUGIN_EVENT_LIMIT),
         })
       }
       return next

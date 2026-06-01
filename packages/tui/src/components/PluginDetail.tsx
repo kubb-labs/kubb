@@ -44,28 +44,30 @@ function renderPlugin(plugin: PluginEntry, spinner: string) {
     <>
       <box flexDirection="row" paddingBottom={1}>
         <text>
-          <span fg={badge.fg} bg={badge.bg} attributes={attrs.bold}>{badge.text}</span>
+          <span fg={badge.fg} bg={badge.bg} attributes={attrs.bold}>
+            {badge.text}
+          </span>
           <span fg="white" attributes={attrs.bold}>{`  ${plugin.name}`}</span>
-          {plugin.duration !== undefined ? (
-            <span fg="#888" attributes={attrs.dim}>{`  ·  ${formatMs(plugin.duration)}`}</span>
-          ) : null}
+          {plugin.duration !== undefined ? <span fg="#888" attributes={attrs.dim}>{`  ·  ${formatMs(plugin.duration)}`}</span> : null}
         </text>
       </box>
       <text>
-        <span fg="#444" attributes={attrs.dim}>─────────── events ───────────</span>
+        <span fg="#444" attributes={attrs.dim}>
+          ─────────── events ───────────
+        </span>
       </text>
       {events.length === 0 ? (
         <text>
-          <span fg="#666" attributes={attrs.dim}>nothing yet — events appear here while this plugin is running</span>
+          <span fg="#666" attributes={attrs.dim}>
+            nothing yet — events appear here while this plugin is running
+          </span>
         </text>
       ) : (
         events.map((entry) => (
           <text key={`${entry.at}-${entry.level}-${entry.message}`}>
             <span fg={levelColor(entry.level)}>{`${levelGlyph(entry.level)} `}</span>
             <span fg="#cccccc">{entry.message}</span>
-            {entry.info ? (
-              <span fg="#666" attributes={attrs.dim}>{` ${entry.info}`}</span>
-            ) : null}
+            {entry.info ? <span fg="#666" attributes={attrs.dim}>{` ${entry.info}`}</span> : null}
           </text>
         ))
       )}
@@ -80,17 +82,23 @@ function renderHook(hook: HookEntry, spinner: string) {
     <>
       <box flexDirection="row" paddingBottom={1}>
         <text>
-          <span fg={badge.fg} bg={badge.bg} attributes={attrs.bold}>{badge.text}</span>
+          <span fg={badge.fg} bg={badge.bg} attributes={attrs.bold}>
+            {badge.text}
+          </span>
           <span fg="white" attributes={attrs.bold}>{`  ${hook.command}`}</span>
           <span fg="#888" attributes={attrs.dim}>{`  ·  ${elapsed}`}</span>
         </text>
       </box>
       <text>
-        <span fg="#444" attributes={attrs.dim}>───── stdout / stderr ─────</span>
+        <span fg="#444" attributes={attrs.dim}>
+          ───── stdout / stderr ─────
+        </span>
       </text>
       {hook.lines.length === 0 ? (
         <text>
-          <span fg="#666" attributes={attrs.dim}>no output yet</span>
+          <span fg="#666" attributes={attrs.dim}>
+            no output yet
+          </span>
         </text>
       ) : (
         hook.lines.slice(-20).map((line) => (
@@ -108,7 +116,9 @@ export function PluginDetail({ plugins, hooks, selectedIndex, spinnerFrame }: Pr
   if (selectedIndex < 0 || selectedIndex >= plugins.length + hooks.length) {
     body = (
       <text>
-        <span fg="#888" attributes={attrs.dim}>use ↑/↓ to select a task</span>
+        <span fg="#888" attributes={attrs.dim}>
+          use ↑/↓ to select a task
+        </span>
       </text>
     )
   } else if (selectedIndex < plugins.length) {

@@ -60,7 +60,9 @@ export function KubbLogo({ version, configName, status }: Props) {
         <span fg={BROWN}>{S2}</span>
         <span fg={EYE}>{'▀▀▀'}</span>
         <span fg={BROWN}>{' █'}</span>
-        <span fg="#888" attributes={attrs.dim}>{S2}</span>
+        <span fg="#888" attributes={attrs.dim}>
+          {S2}
+        </span>
         <span fg="yellow">{'➜ '}</span>
         <span fg={sub.color}>{sub.text}</span>
       </text>
