@@ -3,10 +3,10 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Release mode'
+        description: 'Release mode (version = open the Version Packages PR only, no npm publish)'
         type: choice
-        options: [staged, publish]
-        default: publish
+        options: [version, staged, publish]
+        default: version
       dry-run:
         description: 'Validate without publishing to npm'
         type: boolean
@@ -54,6 +54,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release:
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.mode != 'version' }}
     permissions:
       contents: write
       id-token: write
