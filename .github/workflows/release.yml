@@ -24,11 +24,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Opens/updates the "Version Packages" PR: `changeset version` bumps package
-  # versions and regenerates changelogs from the queued changesets. This is the
-  # PR-creation half of the changesets flow; the reusable `release` job below
-  # only stages/publishes, so without this job no version/changelog PR is ever
-  # opened. Runs on push only — manual publish dispatches must not open a PR.
   version:
     name: Version Packages
     if: github.repository_owner == 'kubb-labs' && github.event_name == 'push'
