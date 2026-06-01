@@ -3,10 +3,10 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Release mode'
+        description: 'Release mode (version = open the Version Packages PR only, no npm publish)'
         type: choice
-        options: [staged, publish]
-        default: publish
+        options: [version, staged, publish]
+        default: version
       dry-run:
         description: 'Validate without publishing to npm'
         type: boolean
@@ -24,7 +24,37 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  version:
+    name: Version Packages
+    if: github.repository_owner == 'kubb-labs' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run != 'true'))
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
+        with:
+          node-version: '22'
+          cache: 'false'
+
+      - name: Create Version Packages PR
+        uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
+        with:
+          version: pnpm version
+          commit: 'ci(changesets): version packages'
+          title: 'ci(changesets): version packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   release:
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.mode != 'version' }}
     permissions:
       contents: write
       id-token: write
@@ -33,7 +63,6 @@ jobs:
       issues: write
     uses: kubb-labs/config/.github/workflows/release.yml@main
     with:
-      # Beta phase: publish to the npm `beta` dist-tag instead of `latest`.
       mode: ${{ inputs.mode || 'publish' }}
       owner: 'kubb-labs'
       tag: beta
