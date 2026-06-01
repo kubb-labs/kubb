@@ -76,29 +76,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Harden runner
-        if: runner.os == 'Linux'
-        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
-        with:
-          egress-policy: audit
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
         with:
           node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
-          cache: 'pnpm'
+          cache: 'false'
 
-      - name: Setup Git User
-        shell: bash
-        run: |
-          git config --global user.email "stijn@stijnvanhulle.be"
-          git config --global user.name "Stijn Van Hulle"
-
-      - name: Install dependencies (release hardening)
+      - name: Reinstall dependencies (release hardening)
         run: pnpm install --frozen-lockfile --force
 
       - name: Build
@@ -168,29 +152,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Harden runner
-        if: runner.os == 'Linux'
-        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
-        with:
-          egress-policy: audit
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
         with:
           node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
-          cache: 'pnpm'
+          cache: 'false'
 
-      - name: Setup Git User
-        shell: bash
-        run: |
-          git config --global user.email "stijn@stijnvanhulle.be"
-          git config --global user.name "Stijn Van Hulle"
-
-      - name: Install dependencies (release hardening)
+      - name: Reinstall dependencies (release hardening)
         run: pnpm install --frozen-lockfile --force
 
       - name: Stamp canary versions
