@@ -67,16 +67,13 @@ jobs:
         shell: bash
         env:
           NPM_CONFIG_PROVENANCE: true
-        # Stamp each package to a unique canary version so it can't collide
-        # with the `latest` tag, then rebuild and publish.
+        # Every main push publishes 0.0.0-<UTC timestamp> under the `canary`
+        # dist-tag. The 0.0.0 base guarantees canaries sort below any real
+        # release and never collide with the `latest` tag.
         run: |
-          pnpm -r exec bash -c '
-            npm --no-git-tag-version version minor || true
-            version=$(node -p "require(\"./package.json\").version")
-            canary_version="${version}-canary.$(date +%Y%m%dT%H%M%S)"
-            echo "Version that will be published: ${canary_version}"
-            npm --no-git-tag-version version "${canary_version}" || true
-          '
+          canary_version="0.0.0-$(date -u +%Y%m%dT%H%M%SZ)"
+          echo "Canary version: ${canary_version}"
+          pnpm -r exec npm --no-git-tag-version version "${canary_version}"
           pnpm run build
           pnpm exec changeset publish --tag canary
 
