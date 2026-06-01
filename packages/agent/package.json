@@ -44,7 +44,6 @@
     "prepare": "nitro prepare",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "release:stage": "pnpm stage publish --no-git-check",
     "start": "node .output/server/index.mjs",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
