@@ -51,9 +51,6 @@ export async function mount(): Promise<Mount> {
     for (const listener of listeners) listener(action)
   }
 
-  root.render(<App subscribe={subscribe} />)
-  renderer.start()
-
   let torn = false
   function teardown(): void {
     if (torn) return
@@ -75,15 +72,17 @@ export async function mount(): Promise<Mount> {
     }
   }
 
+  function quit(code = 0): void {
+    teardown()
+    process.exit(code)
+  }
+
+  root.render(<App subscribe={subscribe} onQuit={() => quit(0)} />)
+  renderer.start()
+
   process.once('exit', teardown)
-  process.once('SIGINT', () => {
-    teardown()
-    process.exit(130)
-  })
-  process.once('SIGTERM', () => {
-    teardown()
-    process.exit(143)
-  })
+  process.once('SIGINT', () => quit(130))
+  process.once('SIGTERM', () => quit(143))
 
   return { dispatch, teardown }
 }

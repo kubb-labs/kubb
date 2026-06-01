@@ -1,6 +1,12 @@
+import process from 'node:process'
 import { defineLogger, type LoggerOptions, logLevel as logLevelMap } from '@kubb/core'
 import { getTuiUnavailableReason } from './runtime.ts'
 import type { Mount } from './mount.tsx'
+
+function formatElapsedMs(ms: number): string {
+  if (ms >= 1000) return `${(ms / 1000).toFixed(2)}s`
+  return `${Math.round(ms)}ms`
+}
 
 /**
  * Output sink for a hook subprocess. Mirrors the contract `@kubb/cli`'s
@@ -64,16 +70,18 @@ export const tuiLogger = defineLogger<LoggerOptions, HookSinkFactory | null>({
       return null
     }
 
-    const { dispatch, teardown } = mounted
+    const { dispatch } = mounted
     const logLevel = options?.logLevel ?? logLevelMap.info
 
     context.on('kubb:lifecycle:start', ({ version }) => {
       dispatch({ type: 'lifecycle:start', version })
     })
 
+    // Deliberately no teardown on lifecycle:end — the TUI stays mounted after
+    // generation so the user can scroll through results. They quit explicitly
+    // with `q` or Ctrl+C, which mount.tsx handles via the onQuit callback.
     context.on('kubb:lifecycle:end', () => {
       dispatch({ type: 'lifecycle:end' })
-      teardown()
     })
 
     context.on('kubb:version:new', ({ currentVersion, latestVersion }) => {
@@ -89,8 +97,18 @@ export const tuiLogger = defineLogger<LoggerOptions, HookSinkFactory | null>({
       })
     })
 
-    context.on('kubb:generation:summary', ({ status }) => {
+    context.on('kubb:generation:summary', ({ status, filesCreated, failedPlugins, config, hrStart }) => {
       dispatch({ type: 'generation:end', status, at: Date.now() })
+      const elapsedMs = process.hrtime(hrStart as [number, number])
+      const elapsed = elapsedMs[0] * 1000 + elapsedMs[1] / 1e6
+      const totalPlugins = config.plugins?.length ?? 0
+      const succeeded = totalPlugins - failedPlugins.size
+      const message =
+        status === 'success'
+          ? `Generated ${filesCreated} files across ${succeeded}/${totalPlugins} plugins in ${formatElapsedMs(elapsed)}`
+          : `Generation failed (${succeeded}/${totalPlugins} plugins ok, ${failedPlugins.size} failed) in ${formatElapsedMs(elapsed)}`
+      dispatch({ type: 'log', entry: { level: status === 'success' ? 'success' : 'error', message, at: Date.now() } })
+      dispatch({ type: 'log', entry: { level: 'info', message: 'Press q to quit.', at: Date.now() } })
     })
 
     context.on('kubb:plugin:start', ({ plugin }) => {

@@ -37,6 +37,8 @@ export type HookEntry = {
 
 export type RunStatus = 'idle' | 'running' | 'success' | 'failed'
 
+export type UiMode = 'normal' | 'detail' | 'help'
+
 export type TuiState = {
   version: string
   configName?: string
@@ -48,6 +50,17 @@ export type TuiState = {
   logs: Array<LogEntry>
   hooks: Array<HookEntry>
   updateAvailable?: { currentVersion: string; latestVersion: string }
+  /**
+   * Index of the highlighted row in the task list. -1 when nothing is
+   * selected yet. Resets to 0 when a new generation begins so the focus lands
+   * on the first plugin.
+   */
+  selectedTaskIndex: number
+  /**
+   * Current UI mode. `normal` is the default split view. `detail` expands the
+   * selected task to fill the main area. `help` shows the keybinding overlay.
+   */
+  ui: { mode: UiMode }
 }
 
 export type TuiAction =
@@ -65,6 +78,10 @@ export type TuiAction =
   | { type: 'hook:end'; id: string; success: boolean; at: number }
   | { type: 'log'; entry: LogEntry }
   | { type: 'version:new'; currentVersion: string; latestVersion: string }
+  | { type: 'ui:select'; delta: number }
+  | { type: 'ui:select:exact'; index: number }
+  | { type: 'ui:set-mode'; mode: UiMode }
+  | { type: 'ui:clear-logs' }
 
 export function createInitialState(): TuiState {
   return {
@@ -74,7 +91,17 @@ export function createInitialState(): TuiState {
     files: { total: 0, processed: 0 },
     logs: [],
     hooks: [],
+    selectedTaskIndex: -1,
+    ui: { mode: 'normal' },
   }
+}
+
+function clampSelection(index: number, plugins: Array<PluginEntry>, hooks: Array<HookEntry>): number {
+  const total = plugins.length + hooks.length
+  if (total === 0) return -1
+  if (index < 0) return 0
+  if (index >= total) return total - 1
+  return index
 }
 
 function appendCapped<T>(list: Array<T>, item: T, limit: number): Array<T> {
@@ -124,9 +151,21 @@ export function reducer(state: TuiState, action: TuiAction): TuiState {
         plugins: action.pluginNames.map((name) => ({ name, status: 'queued' })),
         files: { total: 0, processed: 0 },
         hooks: [],
+        selectedTaskIndex: action.pluginNames.length > 0 ? 0 : -1,
       }
     case 'generation:end':
       return { ...state, status: action.status, finishedAt: action.at }
+    case 'ui:select': {
+      if (state.plugins.length + state.hooks.length === 0) return state
+      const next = clampSelection((state.selectedTaskIndex < 0 ? 0 : state.selectedTaskIndex) + action.delta, state.plugins, state.hooks)
+      return { ...state, selectedTaskIndex: next }
+    }
+    case 'ui:select:exact':
+      return { ...state, selectedTaskIndex: clampSelection(action.index, state.plugins, state.hooks) }
+    case 'ui:set-mode':
+      return { ...state, ui: { ...state.ui, mode: action.mode } }
+    case 'ui:clear-logs':
+      return { ...state, logs: [] }
     case 'plugin:start':
       return { ...state, plugins: updatePlugin(state.plugins, action.name, { status: 'running' }) }
     case 'plugin:end':

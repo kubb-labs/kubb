@@ -81,4 +81,36 @@ describe('reducer', () => {
     const state = reducer(createInitialState(), { type: 'version:new', currentVersion: '5.0.0', latestVersion: '5.1.0' })
     expect(state.updateAvailable).toEqual({ currentVersion: '5.0.0', latestVersion: '5.1.0' })
   })
+
+  it('moves the task selection cursor within bounds', () => {
+    let state = reducer(createInitialState(), { type: 'generation:start', pluginNames: ['a', 'b', 'c'], at: 1 })
+    expect(state.selectedTaskIndex).toBe(0)
+
+    state = reducer(state, { type: 'ui:select', delta: 1 })
+    expect(state.selectedTaskIndex).toBe(1)
+
+    state = reducer(state, { type: 'ui:select', delta: 5 })
+    expect(state.selectedTaskIndex).toBe(2)
+
+    state = reducer(state, { type: 'ui:select', delta: -10 })
+    expect(state.selectedTaskIndex).toBe(0)
+  })
+
+  it('toggles UI modes', () => {
+    let state = createInitialState()
+    expect(state.ui.mode).toBe('normal')
+
+    state = reducer(state, { type: 'ui:set-mode', mode: 'help' })
+    expect(state.ui.mode).toBe('help')
+
+    state = reducer(state, { type: 'ui:set-mode', mode: 'detail' })
+    expect(state.ui.mode).toBe('detail')
+  })
+
+  it('clears the log buffer', () => {
+    let state = reducer(createInitialState(), { type: 'log', entry: { level: 'info', message: 'hi', at: 1 } })
+    expect(state.logs).toHaveLength(1)
+    state = reducer(state, { type: 'ui:clear-logs' })
+    expect(state.logs).toHaveLength(0)
+  })
 })

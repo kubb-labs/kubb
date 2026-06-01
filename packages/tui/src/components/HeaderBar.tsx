@@ -26,6 +26,8 @@ function statusLabel(status: TuiState['status']): string {
 export function HeaderBar({ state, tick: _tick }: Props) {
   const elapsed = formatElapsed(state.startedAt, state.finishedAt)
   const title = state.configName ? `Kubb v${state.version} · ${state.configName}` : `Kubb v${state.version}`
+  const warnCount = state.logs.filter((l) => l.level === 'warn').length
+  const errorCount = state.logs.filter((l) => l.level === 'error').length
 
   return (
     <box
@@ -43,12 +45,24 @@ export function HeaderBar({ state, tick: _tick }: Props) {
         <span fg={statusColor(state.status)} attributes={attrs.bold}>
           {statusLabel(state.status)}
         </span>
-        {state.updateAvailable ? <span fg="yellow" attributes={attrs.dim}>{`  update → v${state.updateAvailable.latestVersion}`}</span> : null}
+        {errorCount > 0 ? (
+          <>
+            <span fg="#888" attributes={attrs.dim}>{'   '}</span>
+            <span fg="black" bg="red" attributes={attrs.bold}>{` ✗ ${errorCount} `}</span>
+          </>
+        ) : null}
+        {warnCount > 0 ? (
+          <>
+            <span fg="#888" attributes={attrs.dim}>{' '}</span>
+            <span fg="black" bg="yellow" attributes={attrs.bold}>{` ⚠ ${warnCount} `}</span>
+          </>
+        ) : null}
+        {state.updateAvailable ? (
+          <span fg="yellow" attributes={attrs.dim}>{`  update → v${state.updateAvailable.latestVersion}`}</span>
+        ) : null}
       </text>
       <text>
-        <span fg="#888" attributes={attrs.dim}>
-          elapsed{' '}
-        </span>
+        <span fg="#888" attributes={attrs.dim}>elapsed </span>
         <span fg="green">{elapsed}</span>
       </text>
     </box>
