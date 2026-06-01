@@ -26,7 +26,6 @@
     "lint:fix": "oxlint -c oxlint.config.ts --fix ./packages",
     "lint:spell": "cspell \"**/*.{ts,md}\" --config ./cspell.json --no-progress",
     "release": "changeset publish",
-    "release:canary": "changeset publish --no-git-tag",
     "release:stage": "turbo run release:stage --filter=./packages/* --continue --concurrency=1 --",
     "release:stage:ci": "pnpm release:stage && pnpm exec changeset tag && echo \"staged=true\" >> \"${GITHUB_OUTPUT:-/dev/null}\"",
     "start": "turbo run start --filter=./packages/*",
@@ -34,9 +33,7 @@
     "test:bench": "NODE_OPTIONS='--max_old_space_size=4096' vitest bench --config ./configs/vitest.bench.config.ts",
     "test:watch": "vitest --config ./configs/vitest.config.ts",
     "typecheck": "turbo run typecheck --continue --filter='./packages/*'",
-    "upgrade": "npx taze -r -w --exclude pnpm --maturity-period 3",
-    "version": "changeset version",
-    "version:canary": "changeset version --snapshot canary"
+    "upgrade": "npx taze -r -w --exclude pnpm --maturity-period 3"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",
