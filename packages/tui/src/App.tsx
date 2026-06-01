@@ -141,7 +141,7 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
         <KubbLogo version={state.version} configName={state.configName} status={state.status} />
         <HeaderBar state={state} tick={tick} />
       </box>
-      <box flexDirection="row" flexGrow={1} gap={1}>
+      <box flexDirection="row" flexGrow={2} gap={1}>
         <TaskList
           plugins={state.plugins}
           hooks={state.hooks}

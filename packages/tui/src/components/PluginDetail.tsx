@@ -190,8 +190,10 @@ export function PluginDetail({ plugins, hooks, files, filesActive, filesDone, se
       borderStyle="rounded"
       borderColor="#444"
       flexDirection="column"
-      paddingLeft={1}
-      paddingRight={1}
+      paddingLeft={2}
+      paddingRight={2}
+      paddingTop={1}
+      paddingBottom={1}
       flexGrow={1}
     >
       {body}

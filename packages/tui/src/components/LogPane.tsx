@@ -24,8 +24,11 @@ export function LogPane({ logs }: Props) {
       borderStyle="rounded"
       borderColor="#444"
       flexGrow={1}
-      paddingLeft={1}
-      paddingRight={1}
+      flexShrink={1}
+      paddingLeft={2}
+      paddingRight={2}
+      paddingTop={1}
+      paddingBottom={1}
       flexDirection="column"
     >
       {logs.length === 0 ? (

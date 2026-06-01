@@ -87,8 +87,10 @@ export function TaskList({ plugins, hooks, files, filesActive, filesDone, select
       borderStyle="rounded"
       borderColor="#444"
       flexDirection="column"
-      paddingLeft={1}
-      paddingRight={1}
+      paddingLeft={2}
+      paddingRight={2}
+      paddingTop={1}
+      paddingBottom={1}
       width={PANE_WIDTH}
     >
       {plugins.length === 0 ? (
