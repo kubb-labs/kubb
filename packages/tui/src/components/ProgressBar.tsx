@@ -30,7 +30,9 @@ export function ProgressBar({ value, width = 20, color = 'green', trackColor = '
   return (
     <text>
       <span fg={color}>{FILLED.repeat(filled)}</span>
-      <span fg={trackColor} attributes={attrs.dim}>{EMPTY.repeat(empty)}</span>
+      <span fg={trackColor} attributes={attrs.dim}>
+        {EMPTY.repeat(empty)}
+      </span>
     </text>
   )
 }

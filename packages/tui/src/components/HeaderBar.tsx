@@ -40,11 +40,15 @@ export function HeaderBar({ state, tick: _tick }: Props) {
       paddingRight={1}
     >
       <text>
-        <span fg={statusColor(state.status)} attributes={attrs.bold}>{statusLabel(state.status)}</span>
+        <span fg={statusColor(state.status)} attributes={attrs.bold}>
+          {statusLabel(state.status)}
+        </span>
         {state.updateAvailable ? <span fg="yellow" attributes={attrs.dim}>{`  update → v${state.updateAvailable.latestVersion}`}</span> : null}
       </text>
       <text>
-        <span fg="#888" attributes={attrs.dim}>elapsed </span>
+        <span fg="#888" attributes={attrs.dim}>
+          elapsed{' '}
+        </span>
         <span fg="green">{elapsed}</span>
       </text>
     </box>

@@ -30,7 +30,9 @@ export function LogPane({ logs }: Props) {
     >
       {logs.length === 0 ? (
         <text>
-          <span fg="#888" attributes={attrs.dim}>no events yet</span>
+          <span fg="#888" attributes={attrs.dim}>
+            no events yet
+          </span>
         </text>
       ) : (
         logs.map((entry) => {

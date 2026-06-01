@@ -19,7 +19,9 @@ export function FilesPane({ files }: Props) {
         </text>
       </box>
       <text>
-        <span fg="#888" attributes={attrs.dim}>{files.current ? truncateLeft(files.current, 80) : 'idle'}</span>
+        <span fg="#888" attributes={attrs.dim}>
+          {files.current ? truncateLeft(files.current, 80) : 'idle'}
+        </span>
       </text>
     </box>
   )

@@ -40,7 +40,9 @@ export function App({ subscribe, initial }: Props) {
       <LogPane logs={state.logs} />
       <box paddingLeft={1} paddingRight={1}>
         <text>
-          <span fg="#888" attributes={attrs.dim}>↑/↓ scroll · q quit</span>
+          <span fg="#888" attributes={attrs.dim}>
+            ↑/↓ scroll · q quit
+          </span>
         </text>
       </box>
     </box>

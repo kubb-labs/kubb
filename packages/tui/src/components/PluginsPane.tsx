@@ -38,7 +38,9 @@ export function PluginsPane({ plugins }: Props) {
     <box title={title} titleAlignment="left" border borderStyle="rounded" borderColor="#444" flexDirection="column" paddingLeft={1} paddingRight={1}>
       {plugins.length === 0 ? (
         <text>
-          <span fg="#888" attributes={attrs.dim}>waiting for generation to start…</span>
+          <span fg="#888" attributes={attrs.dim}>
+            waiting for generation to start…
+          </span>
         </text>
       ) : (
         plugins.map((plugin) => {
