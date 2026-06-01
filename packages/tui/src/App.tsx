@@ -1,11 +1,9 @@
 import { useEffect, useReducer, useState } from 'react'
 import { useKeyboard } from '@opentui/react'
 import { createInitialState, reducer, type TuiAction, type TuiState } from './state.ts'
-import { HeaderBar } from './components/HeaderBar.tsx'
 import { KubbLogo } from './components/KubbLogo.tsx'
 import { TaskList } from './components/TaskList.tsx'
-import { PluginDetail } from './components/PluginDetail.tsx'
-import { LogPane } from './components/LogPane.tsx'
+import { TaskLog } from './components/TaskLog.tsx'
 import { StatusBar } from './components/StatusBar.tsx'
 import { HelpOverlay } from './components/HelpOverlay.tsx'
 
@@ -21,9 +19,7 @@ type Props = {
    */
   onQuit?: () => void
   /**
-   * Called when the user presses `r` to restart the current generation. The
-   * caller decides what re-runs (typically the last config that ran). When
-   * omitted, the `r` key is a no-op and the help overlay hides it.
+   * Called when the user presses `r` to restart the current generation.
    */
   onRestart?: () => void
   /**
@@ -61,9 +57,12 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
     }
 
     if (event.name === 'escape') {
+      // Esc clears any expanded mode AND drops the selection back to "all logs".
       if (state.ui.mode !== 'normal') {
         dispatch({ type: 'ui:set-mode', mode: 'normal' })
+        return
       }
+      dispatch({ type: 'ui:select:exact', index: -1 })
       return
     }
 
@@ -71,6 +70,11 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
 
     if (event.name === 'return') {
       dispatch({ type: 'ui:set-mode', mode: state.ui.mode === 'detail' ? 'normal' : 'detail' })
+      return
+    }
+
+    if (event.name === 'a') {
+      dispatch({ type: 'ui:select:exact', index: -1 })
       return
     }
 
@@ -98,13 +102,13 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
 
   const spinnerFrame = SPINNER_FRAMES[tick % SPINNER_FRAMES.length] ?? '⠋'
 
+  const filesActive = state.files.total > 0 && state.files.processed < state.files.total
+  const filesDone = state.files.total > 0 && state.files.processed >= state.files.total
+
   if (state.ui.mode === 'help') {
     return (
       <box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={2} paddingRight={2} gap={1}>
-        <box flexDirection="row" gap={1}>
-          <KubbLogo version={state.version} configName={state.configName} status={state.status} />
-          <HeaderBar state={state} tick={tick} />
-        </box>
+        <KubbLogo version={state.version} configName={state.configName} status={state.status} />
         <HelpOverlay />
         <StatusBar state={state} />
       </box>
@@ -114,16 +118,14 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
   if (state.ui.mode === 'detail') {
     return (
       <box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={2} paddingRight={2} gap={1}>
-        <box flexDirection="row" gap={1}>
-          <KubbLogo version={state.version} configName={state.configName} status={state.status} />
-          <HeaderBar state={state} tick={tick} />
-        </box>
-        <PluginDetail
+        <KubbLogo version={state.version} configName={state.configName} status={state.status} />
+        <TaskLog
           plugins={state.plugins}
           hooks={state.hooks}
           files={state.files}
-          filesActive={state.files.total > 0 && state.files.processed < state.files.total}
-          filesDone={state.files.total > 0 && state.files.processed >= state.files.total}
+          filesActive={filesActive}
+          filesDone={filesDone}
+          logs={state.logs}
           selectedIndex={state.selectedTaskIndex}
           spinnerFrame={spinnerFrame}
         />
@@ -132,16 +134,10 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
     )
   }
 
-  const filesActive = state.files.total > 0 && state.files.processed < state.files.total
-  const filesDone = state.files.total > 0 && state.files.processed >= state.files.total
-
   return (
     <box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={2} paddingRight={2} gap={1}>
-      <box flexDirection="row" gap={1}>
-        <KubbLogo version={state.version} configName={state.configName} status={state.status} />
-        <HeaderBar state={state} tick={tick} />
-      </box>
-      <box flexDirection="row" flexGrow={2} gap={1}>
+      <KubbLogo version={state.version} configName={state.configName} status={state.status} />
+      <box flexDirection="row" flexGrow={1} gap={1}>
         <TaskList
           plugins={state.plugins}
           hooks={state.hooks}
@@ -151,17 +147,17 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
           selectedIndex={state.selectedTaskIndex}
           spinnerFrame={spinnerFrame}
         />
-        <PluginDetail
+        <TaskLog
           plugins={state.plugins}
           hooks={state.hooks}
           files={state.files}
           filesActive={filesActive}
           filesDone={filesDone}
+          logs={state.logs}
           selectedIndex={state.selectedTaskIndex}
           spinnerFrame={spinnerFrame}
         />
       </box>
-      <LogPane logs={state.logs} />
       <StatusBar state={state} />
     </box>
   )

@@ -11,9 +11,13 @@ type Props = {
   spinnerFrame: string
 }
 
-const NAME_WIDTH = 20
-const RIGHT_WIDTH = 10
-const PANE_WIDTH = NAME_WIDTH + RIGHT_WIDTH + 12
+const NAME_WIDTH = 18
+const BAR_WIDTH = 10
+const RIGHT_WIDTH = 8
+const PANE_WIDTH = NAME_WIDTH + BAR_WIDTH + RIGHT_WIDTH + 14
+
+const FILLED = '▰'
+const EMPTY = '▱'
 
 function pluginGlyph(status: PluginEntry['status'], spinner: string): { char: string; color: string } {
   if (status === 'done') return { char: '✓', color: 'green' }
@@ -31,42 +35,120 @@ function hookGlyph(status: HookEntry['status'], spinner: string): { char: string
 function pluginRight(plugin: PluginEntry): { text: string; color: string } {
   if (plugin.status === 'done') return { text: formatMs(plugin.duration ?? 0), color: 'green' }
   if (plugin.status === 'failed') return { text: formatMs(plugin.duration ?? 0), color: 'red' }
-  if (plugin.status === 'running') return { text: 'running…', color: 'cyan' }
-  return { text: 'queued', color: '#666' }
+  if (plugin.status === 'running') return { text: '…', color: 'cyan' }
+  return { text: '·', color: '#666' }
 }
 
 function hookRight(hook: HookEntry): { text: string; color: string } {
   if (hook.status === 'done') return { text: formatMs((hook.finishedAt ?? Date.now()) - hook.startedAt), color: 'green' }
-  if (hook.status === 'failed') return { text: 'failed', color: 'red' }
-  return { text: 'running…', color: 'cyan' }
+  if (hook.status === 'failed') return { text: 'fail', color: 'red' }
+  return { text: '…', color: 'cyan' }
 }
 
-type FilesRow = {
+function statusRatio(status: PluginEntry['status'] | HookEntry['status']): number {
+  if (status === 'done') return 1
+  if (status === 'failed') return 1
+  if (status === 'running') return 0.5
+  return 0
+}
+
+function barColor(status: PluginEntry['status'] | HookEntry['status']): string {
+  if (status === 'failed') return 'red'
+  if (status === 'done') return 'green'
+  if (status === 'running') return 'cyan'
+  return '#444'
+}
+
+type BarPieces = {
+  filled: number
+  empty: number
+  color: string
+}
+
+function bar(ratio: number, status: PluginEntry['status'] | HookEntry['status']): BarPieces {
+  const clamped = Math.max(0, Math.min(1, ratio))
+  const filled = Math.round(clamped * BAR_WIDTH)
+  return { filled, empty: BAR_WIDTH - filled, color: barColor(status) }
+}
+
+type Row = {
+  key: string
+  marker: boolean
   glyph: { char: string; color: string }
+  name: string
+  bar: BarPieces
   right: { text: string; color: string }
-  label: string
+  nameColor?: string
+  selected: boolean
 }
 
-function filesRow(files: TuiState['files'], filesActive: boolean, filesDone: boolean, spinner: string): FilesRow {
-  if (filesActive) {
-    return {
-      glyph: { char: spinner, color: 'cyan' },
-      right: { text: `${files.processed}/${files.total}`, color: 'cyan' },
-      label: 'files',
-    }
-  }
-  if (filesDone) {
-    return {
-      glyph: { char: '✓', color: 'green' },
-      right: { text: `${files.processed}`, color: 'green' },
-      label: 'files',
-    }
-  }
+function pluginRow(plugin: PluginEntry, index: number, selected: number, spinner: string): Row {
   return {
-    glyph: { char: '○', color: '#888' },
-    right: { text: 'queued', color: '#666' },
-    label: 'files',
+    key: `p-${plugin.name}`,
+    marker: index === selected,
+    glyph: pluginGlyph(plugin.status, spinner),
+    name: truncateRight(plugin.name, NAME_WIDTH).padEnd(NAME_WIDTH),
+    bar: bar(statusRatio(plugin.status), plugin.status),
+    right: pluginRight(plugin),
+    selected: index === selected,
   }
+}
+
+function filesRowOf(files: TuiState['files'], active: boolean, done: boolean, index: number, selected: number, spinner: string): Row {
+  let status: PluginEntry['status']
+  if (done) status = 'done'
+  else if (active) status = 'running'
+  else status = 'queued'
+  const ratio = files.total === 0 ? 0 : Math.min(1, files.processed / files.total)
+  const glyph = done
+    ? { char: '✓', color: 'green' }
+    : active
+      ? { char: spinner, color: 'cyan' }
+      : { char: '○', color: '#888' }
+  const right = done
+    ? { text: `${files.processed}`, color: 'green' }
+    : active
+      ? { text: `${files.processed}/${files.total}`, color: 'cyan' }
+      : { text: '·', color: '#666' }
+  return {
+    key: 'files-row',
+    marker: index === selected,
+    glyph,
+    name: 'files'.padEnd(NAME_WIDTH),
+    bar: bar(active || done ? ratio : 0, status),
+    right,
+    nameColor: '#aaa',
+    selected: index === selected,
+  }
+}
+
+function hookRowOf(hook: HookEntry, index: number, selected: number, spinner: string): Row {
+  return {
+    key: `h-${hook.id}`,
+    marker: index === selected,
+    glyph: hookGlyph(hook.status, spinner),
+    name: truncateRight(hook.command, NAME_WIDTH).padEnd(NAME_WIDTH),
+    bar: bar(statusRatio(hook.status), hook.status),
+    right: hookRight(hook),
+    nameColor: '#aaa',
+    selected: index === selected,
+  }
+}
+
+function RowView({ row }: { row: Row }) {
+  const markerColor = row.selected ? 'cyan' : '#666'
+  const nameAttr = row.selected ? attrs.bold : row.nameColor ? attrs.dim : attrs.none
+  const nameFg = row.selected ? 'white' : row.nameColor
+  return (
+    <text key={row.key}>
+      <span fg={markerColor}>{`${row.marker ? '▸' : ' '} `}</span>
+      <span fg={row.glyph.color}>{row.glyph.char}</span>
+      <span fg={nameFg} attributes={nameAttr}>{` ${row.name}`}</span>
+      <span fg={row.bar.color}>{` ${FILLED.repeat(row.bar.filled)}`}</span>
+      <span fg="#444" attributes={attrs.dim}>{EMPTY.repeat(row.bar.empty)}</span>
+      <span fg={row.right.color}>{` ${row.right.text.padStart(RIGHT_WIDTH)}`}</span>
+    </text>
+  )
 }
 
 export function TaskList({ plugins, hooks, files, filesActive, filesDone, selectedIndex, spinnerFrame }: Props) {
@@ -77,7 +159,6 @@ export function TaskList({ plugins, hooks, files, filesActive, filesDone, select
 
   const showFilesRow = plugins.length > 0 || hooks.length > 0
   const filesIndex = plugins.length
-  const fr = filesRow(files, filesActive, filesDone, spinnerFrame)
 
   return (
     <box
@@ -100,35 +181,10 @@ export function TaskList({ plugins, hooks, files, filesActive, filesDone, select
           </span>
         </text>
       ) : (
-        plugins.map((plugin, index) => {
-          const g = pluginGlyph(plugin.status, spinnerFrame)
-          const r = pluginRight(plugin)
-          const isSelected = index === selectedIndex
-          const marker = isSelected ? '▸' : ' '
-          const name = truncateRight(plugin.name, NAME_WIDTH).padEnd(NAME_WIDTH)
-          return (
-            <text key={`p-${plugin.name}`}>
-              <span fg={isSelected ? 'cyan' : '#666'}>{`${marker} `}</span>
-              <span fg={g.color}>{g.char}</span>
-              <span fg={isSelected ? 'white' : undefined} attributes={isSelected ? attrs.bold : attrs.none}>
-                {` ${name}`}
-              </span>
-              <span fg={r.color}>{` ${r.text.padStart(RIGHT_WIDTH)}`}</span>
-            </text>
-          )
-        })
+        plugins.map((plugin, index) => <RowView key={`p-${plugin.name}`} row={pluginRow(plugin, index, selectedIndex, spinnerFrame)} />)
       )}
 
-      {showFilesRow ? (
-        <text key="files-row">
-          <span fg={filesIndex === selectedIndex ? 'cyan' : '#666'}>{`${filesIndex === selectedIndex ? '▸' : ' '} `}</span>
-          <span fg={fr.glyph.color}>{fr.glyph.char}</span>
-          <span fg={filesIndex === selectedIndex ? 'white' : '#aaa'} attributes={filesIndex === selectedIndex ? attrs.bold : attrs.dim}>
-            {` ${truncateRight(fr.label, NAME_WIDTH).padEnd(NAME_WIDTH)}`}
-          </span>
-          <span fg={fr.right.color}>{` ${fr.right.text.padStart(RIGHT_WIDTH)}`}</span>
-        </text>
-      ) : null}
+      {showFilesRow ? <RowView row={filesRowOf(files, filesActive, filesDone, filesIndex, selectedIndex, spinnerFrame)} /> : null}
 
       {hooks.length > 0 ? (
         <>
@@ -139,21 +195,7 @@ export function TaskList({ plugins, hooks, files, filesActive, filesDone, select
           </text>
           {hooks.map((hook, hookOffset) => {
             const index = plugins.length + 1 + hookOffset
-            const g = hookGlyph(hook.status, spinnerFrame)
-            const r = hookRight(hook)
-            const isSelected = index === selectedIndex
-            const marker = isSelected ? '▸' : ' '
-            const name = truncateRight(hook.command, NAME_WIDTH).padEnd(NAME_WIDTH)
-            return (
-              <text key={`h-${hook.id}`}>
-                <span fg={isSelected ? 'cyan' : '#666'}>{`${marker} `}</span>
-                <span fg={g.color}>{g.char}</span>
-                <span fg={isSelected ? 'white' : '#aaa'} attributes={isSelected ? attrs.bold : attrs.dim}>
-                  {` ${name}`}
-                </span>
-                <span fg={r.color}>{` ${r.text.padStart(RIGHT_WIDTH)}`}</span>
-              </text>
-            )
+            return <RowView key={`h-${hook.id}`} row={hookRowOf(hook, index, selectedIndex, spinnerFrame)} />
           })}
         </>
       ) : null}

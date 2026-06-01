@@ -220,14 +220,18 @@ export function reducer(state: TuiState, action: TuiAction): TuiState {
         plugins: action.pluginNames.map((name) => ({ name, status: 'queued', events: [] })),
         files: { total: 0, processed: 0 },
         hooks: [],
-        selectedTaskIndex: action.pluginNames.length > 0 ? 0 : -1,
+        // Stay on -1 so the right pane defaults to "all logs"; the user
+        // arrows in when they want per-task detail.
+        selectedTaskIndex: -1,
         currentPluginName: undefined,
       }
     case 'generation:end':
       return { ...state, status: action.status, finishedAt: action.at }
     case 'ui:select': {
       if (totalTaskCount(state.plugins, state.hooks) === 0) return state
-      const next = clampSelection((state.selectedTaskIndex < 0 ? 0 : state.selectedTaskIndex) + action.delta, state.plugins, state.hooks)
+      // From the "all" view (-1) the first arrow press lands on row 0, not 1.
+      const base = state.selectedTaskIndex < 0 ? -action.delta : state.selectedTaskIndex
+      const next = clampSelection(base + action.delta, state.plugins, state.hooks)
       return { ...state, selectedTaskIndex: next }
     }
     case 'ui:select:exact':

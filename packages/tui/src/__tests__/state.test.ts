@@ -17,6 +17,8 @@ describe('reducer', () => {
     expect(started.status).toBe('running')
     expect(started.plugins).toHaveLength(2)
     expect(started.plugins.every((p) => p.status === 'queued')).toBe(true)
+    // Selection defaults to -1 so the right pane shows all logs.
+    expect(started.selectedTaskIndex).toBe(-1)
   })
 
   it('tracks plugin lifecycle from queued → running → done with duration', () => {
@@ -84,10 +86,11 @@ describe('reducer', () => {
 
   it('moves the task selection cursor within bounds', () => {
     let state = reducer(createInitialState(), { type: 'generation:start', pluginNames: ['a', 'b', 'c'], at: 1 })
-    expect(state.selectedTaskIndex).toBe(0)
+    // Start unselected (showing all logs). First arrow press lands on row 0.
+    expect(state.selectedTaskIndex).toBe(-1)
 
     state = reducer(state, { type: 'ui:select', delta: 1 })
-    expect(state.selectedTaskIndex).toBe(1)
+    expect(state.selectedTaskIndex).toBe(0)
 
     // Three plugins + the virtual `files` row = 4 selectable rows (0..3).
     state = reducer(state, { type: 'ui:select', delta: 5 })
