@@ -66,11 +66,11 @@ jobs:
         shell: bash
         env:
           NPM_CONFIG_PROVENANCE: true
-        # Every main push publishes 0.0.0-<UTC timestamp> under the `canary`
-        # dist-tag. The 0.0.0 base guarantees canaries sort below any real
-        # release and never collide with the `latest` tag.
+        # Every main push publishes 0.0.0-canary-<UTC timestamp> under the
+        # `canary` dist-tag. The 0.0.0 base guarantees canaries sort below any
+        # real release and never collide with the `latest` tag.
         run: |
-          canary_version="0.0.0-$(date -u +%Y%m%dT%H%M%SZ)"
+          canary_version="0.0.0-canary-$(date -u +%Y%m%d%H%M%S)"
           echo "Canary version: ${canary_version}"
           pnpm -r exec npm --no-git-tag-version version "${canary_version}"
           pnpm run build
