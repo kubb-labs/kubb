@@ -32,11 +32,7 @@ type CliRenderer = {
 }
 
 type OpenTuiCore = {
-  createCliRenderer: (config?: {
-    exitOnCtrlC?: boolean
-    targetFps?: number
-    useMouse?: boolean
-  }) => Promise<CliRenderer>
+  createCliRenderer: (config?: { exitOnCtrlC?: boolean; targetFps?: number; useMouse?: boolean }) => Promise<CliRenderer>
 }
 
 type OpenTuiReact = {
