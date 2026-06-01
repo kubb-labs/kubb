@@ -145,6 +145,7 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
           files={state.files}
           filesActive={filesActive}
           filesDone={filesDone}
+          runStatus={state.status}
           selectedIndex={state.selectedTaskIndex}
           spinnerFrame={spinnerFrame}
         />

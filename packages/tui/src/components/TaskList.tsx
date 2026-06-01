@@ -1,4 +1,4 @@
-import type { HookEntry, PluginEntry, TuiState } from '../state.ts'
+import type { HookEntry, PluginEntry, RunStatus, TuiState } from '../state.ts'
 import { attrs, formatMs, truncateRight } from '../format.ts'
 
 type Props = {
@@ -7,6 +7,7 @@ type Props = {
   files: TuiState['files']
   filesActive: boolean
   filesDone: boolean
+  runStatus: RunStatus
   selectedIndex: number
   spinnerFrame: string
 }
@@ -131,15 +132,26 @@ function hookRowOf(hook: HookEntry, index: number, selected: number, spinner: st
   }
 }
 
-function allRowOf(plugins: Array<PluginEntry>, hooks: Array<HookEntry>, selected: number): Row {
-  const totalCount = plugins.length + hooks.length
+function allRowOf(plugins: Array<PluginEntry>, hooks: Array<HookEntry>, filesDone: boolean, runStatus: RunStatus, selected: number): Row {
+  const totalUnits = plugins.length + (plugins.length > 0 || hooks.length > 0 ? 1 : 0) + hooks.length
+  const doneUnits =
+    plugins.filter((p) => p.status === 'done' || p.status === 'failed').length +
+    (filesDone ? 1 : 0) +
+    hooks.filter((h) => h.status === 'done' || h.status === 'failed').length
+  const ratio = totalUnits === 0 ? 0 : doneUnits / totalUnits
+  const isFailed = runStatus === 'failed' || plugins.some((p) => p.status === 'failed') || hooks.some((h) => h.status === 'failed')
+  const isSuccess = runStatus === 'success'
+  const color = isFailed ? 'red' : isSuccess ? 'green' : runStatus === 'running' ? 'cyan' : '#444'
+  // Force a fully-filled bar on terminal success so the user gets a clean
+  // visual confirmation regardless of rounding.
+  const filled = isSuccess ? BAR_WIDTH : Math.round(Math.max(0, Math.min(1, ratio)) * BAR_WIDTH)
   return {
     key: 'all-row',
     marker: 0 === selected,
-    glyph: { char: '≡', color: 'cyan' },
+    glyph: { char: '≡', color: isSuccess ? 'green' : isFailed ? 'red' : 'cyan' },
     name: 'all tasks'.padEnd(NAME_WIDTH),
-    bar: { filled: 0, empty: BAR_WIDTH, color: '#444' },
-    right: { text: totalCount > 0 ? `${totalCount}` : '·', color: '#888' },
+    bar: { filled, empty: BAR_WIDTH - filled, color },
+    right: { text: totalUnits > 0 ? `${doneUnits}/${totalUnits}` : '·', color: isSuccess ? 'green' : isFailed ? 'red' : '#888' },
     selected: 0 === selected,
   }
 }
@@ -162,7 +174,7 @@ function RowView({ row }: { row: Row }) {
   )
 }
 
-export function TaskList({ plugins, hooks, files, filesActive, filesDone, selectedIndex, spinnerFrame }: Props) {
+export function TaskList({ plugins, hooks, files, filesActive, filesDone, runStatus, selectedIndex, spinnerFrame }: Props) {
   const total = plugins.length
   const completed = plugins.filter((p) => p.status === 'done').length
   const failed = plugins.filter((p) => p.status === 'failed').length
@@ -186,7 +198,7 @@ export function TaskList({ plugins, hooks, files, filesActive, filesDone, select
       paddingBottom={1}
       width={PANE_WIDTH}
     >
-      <RowView row={allRowOf(plugins, hooks, selectedIndex)} />
+      <RowView row={allRowOf(plugins, hooks, filesDone, runStatus, selectedIndex)} />
       <text>
         <span fg="#444" attributes={attrs.dim}>
           ──────────
