@@ -42,7 +42,7 @@ export function StatusBar({ state }: Props) {
       </text>
       <text>
         <span fg="#666" attributes={attrs.dim}>
-          ↑/↓ select · enter expand · c clear · ? help · q quit
+          ↑/↓ select · enter expand · r restart · c clear · ? help · q quit
         </span>
       </text>
     </box>

@@ -218,6 +218,11 @@ type DetectOptions = {
    * adapter and emits a `kubb:warn`.
    */
   tui?: boolean
+  /**
+   * Forwarded to the TUI logger so its `r` keybinding can re-run the active
+   * generation. Other adapters ignore it.
+   */
+  onRestart?: () => void | Promise<void>
 }
 
 function detectLogger({ tui }: DetectOptions = {}): LoggerType {
@@ -261,7 +266,7 @@ async function loadTuiLogger(): Promise<{ logger: CLILogger | null; error: Error
 
 export type SetupLoggerOptions = LoggerOptions & DetectOptions
 
-export async function setupLogger(context: LoggerContext, { logLevel, tui }: SetupLoggerOptions): Promise<HookSinkFactory | null> {
+export async function setupLogger(context: LoggerContext, { logLevel, tui, onRestart }: SetupLoggerOptions): Promise<HookSinkFactory | null> {
   let type = detectLogger({ tui })
 
   let logger: CLILogger | null = null
@@ -287,7 +292,7 @@ export async function setupLogger(context: LoggerContext, { logLevel, tui }: Set
     throw new Error(`Unknown adapter type: ${type}`)
   }
 
-  const makeSink = await logger.install(context, { logLevel })
+  const makeSink = await logger.install(context, { logLevel, onRestart })
 
   if (type === 'tui' && makeSink == null) {
     const fallbackType = detectLogger()

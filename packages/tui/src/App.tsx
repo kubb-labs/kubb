@@ -22,6 +22,12 @@ type Props = {
    */
   onQuit?: () => void
   /**
+   * Called when the user presses `r` to restart the current generation. The
+   * caller decides what re-runs (typically the last config that ran). When
+   * omitted, the `r` key is a no-op and the help overlay hides it.
+   */
+  onRestart?: () => void
+  /**
    * Initial state seed (lets the logger preload the Kubb version before mount).
    */
   initial?: Partial<TuiState>
@@ -30,7 +36,7 @@ type Props = {
 const HEADER_TICK_MS = 100
 const SPINNER_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
 
-export function App({ subscribe, onQuit, initial }: Props) {
+export function App({ subscribe, onQuit, onRestart, initial }: Props) {
   const [state, dispatch] = useReducer(reducer, { ...createInitialState(), ...initial })
   const [tick, setTick] = useState(0)
 
@@ -74,6 +80,12 @@ export function App({ subscribe, onQuit, initial }: Props) {
       return
     }
 
+    if (event.name === 'r') {
+      if (state.status === 'running') return
+      onRestart?.()
+      return
+    }
+
     if (event.name === 'up' || event.name === 'k') {
       dispatch({ type: 'ui:select', delta: -1 })
       return
@@ -91,7 +103,7 @@ export function App({ subscribe, onQuit, initial }: Props) {
     return (
       <box flexDirection="column" flexGrow={1}>
         <box flexDirection="row">
-          <KubbLogo version={state.version} configName={state.configName} />
+          <KubbLogo version={state.version} configName={state.configName} status={state.status} />
           <HeaderBar state={state} tick={tick} />
         </box>
         <HelpOverlay />
@@ -104,7 +116,7 @@ export function App({ subscribe, onQuit, initial }: Props) {
     return (
       <box flexDirection="column" flexGrow={1}>
         <box flexDirection="row">
-          <KubbLogo version={state.version} configName={state.configName} />
+          <KubbLogo version={state.version} configName={state.configName} status={state.status} />
           <HeaderBar state={state} tick={tick} />
         </box>
         <DebugStream entries={state.debug} />
@@ -116,7 +128,7 @@ export function App({ subscribe, onQuit, initial }: Props) {
   return (
     <box flexDirection="column" flexGrow={1}>
       <box flexDirection="row">
-        <KubbLogo version={state.version} configName={state.configName} />
+        <KubbLogo version={state.version} configName={state.configName} status={state.status} />
         <HeaderBar state={state} tick={tick} />
       </box>
       <box flexDirection="row" flexGrow={1}>

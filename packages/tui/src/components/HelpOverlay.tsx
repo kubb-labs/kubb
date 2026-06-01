@@ -9,6 +9,7 @@ const BINDINGS: Array<Binding> = [
   { keys: '↑ / ↓  ·  k / j', description: 'select task in the left pane' },
   { keys: 'enter', description: 'expand the selected task to full screen' },
   { keys: 'esc', description: 'leave the expanded / help view' },
+  { keys: 'r', description: 'restart the last generation' },
   { keys: 'c', description: 'clear the log pane' },
   { keys: '?', description: 'toggle this help overlay' },
   { keys: 'q  ·  ctrl+c', description: 'quit kubb' },

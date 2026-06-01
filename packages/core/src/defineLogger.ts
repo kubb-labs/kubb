@@ -11,6 +11,13 @@ export type LoggerOptions = {
    * (`silent`, `error`, `warn`, `info`, `verbose`, `debug`).
    */
   logLevel: (typeof logLevel)[keyof typeof logLevel]
+  /**
+   * Optional callback invoked when the logger surface offers a "restart"
+   * affordance (for example, the TUI's `r` key). The CLI's generate runner
+   * passes a closure that re-runs the active config. Loggers that don't
+   * expose such an affordance ignore this field.
+   */
+  onRestart?: () => void | Promise<void>
 }
 
 /**

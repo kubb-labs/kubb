@@ -8,8 +8,12 @@ type Props = {
   spinnerFrame: string
 }
 
-const NAME_WIDTH = 22
+const NAME_WIDTH = 24
 const RIGHT_WIDTH = 10
+// marker(1) + space(1) + glyph(1) + space(1) + name + space(1) + duration
+// + paddingLeft(1) + paddingRight(1) + border(2) — a few cells of slack on
+// top to absorb full-width unicode glyphs and avoid mid-row wrapping.
+const PANE_WIDTH = NAME_WIDTH + RIGHT_WIDTH + 12
 
 function pluginGlyph(status: PluginEntry['status'], spinner: string): { char: string; color: string } {
   if (status === 'done') return { char: '✓', color: 'green' }
@@ -53,7 +57,7 @@ export function TaskList({ plugins, hooks, selectedIndex, spinnerFrame }: Props)
       flexDirection="column"
       paddingLeft={1}
       paddingRight={1}
-      width={NAME_WIDTH + RIGHT_WIDTH + 8}
+      width={PANE_WIDTH}
     >
       {plugins.length === 0 ? (
         <text>

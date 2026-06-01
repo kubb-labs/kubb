@@ -64,7 +64,7 @@ export const tuiLogger = defineLogger<LoggerOptions, HookSinkFactory | null>({
 
     let mounted: Mount
     try {
-      mounted = await mountFn()
+      mounted = await mountFn({ onRestart: options?.onRestart })
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
       console.error(`[kubb] opentui failed to start: ${message}`)
