@@ -73,3 +73,19 @@ jobs:
       notify: true
     secrets:
       DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+  canary:
+    name: Canary
+    needs: [release]
+    if: ${{ github.repository_owner == 'kubb-labs' && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.release.outputs.released != 'true' }}
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    uses: kubb-labs/config/.github/workflows/release.yml@main
+    with:
+      mode: canary
+      owner: 'kubb-labs'
+      publish: 'pnpm release'
+      stage: 'pnpm release:stage:ci'
+      build: 'pnpm run build'
