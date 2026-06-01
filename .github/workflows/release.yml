@@ -47,8 +47,6 @@ jobs:
       - name: Create Version Packages PR
         uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
         with:
-          # Version-only: bump versions + regenerate changelogs into a PR. No
-          # `publish` here — staging/publishing stays with the reusable job.
           version: pnpm version
           commit: 'ci(changesets): version packages'
           title: 'ci(changesets): version packages'
@@ -64,7 +62,6 @@ jobs:
       issues: write
     uses: kubb-labs/config/.github/workflows/release.yml@main
     with:
-      # Beta phase: publish to the npm `beta` dist-tag instead of `latest`.
       mode: ${{ inputs.mode || 'publish' }}
       owner: 'kubb-labs'
       tag: beta
