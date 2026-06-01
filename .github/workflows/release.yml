@@ -21,43 +21,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  version:
-    name: Version Packages
+  release:
+    name: Release
     if: github.repository_owner == 'kubb-labs' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     timeout-minutes: 15
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          fetch-depth: 0
-
-      - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@61cdd3211cf116b44033357a5baff45dc28f0ca5 # main
-        with:
-          node-version: '22'
-          cache: 'false'
-
-      - name: Create Version Packages PR
-        uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
-        with:
-          version: pnpm exec changeset version
-          commit: 'ci(changesets): version packages'
-          title: 'ci(changesets): version packages'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  release:
-    name: Release
-    if: ${{ github.repository_owner == 'kubb-labs' && (github.event_name != 'workflow_dispatch' || inputs.mode != 'version') }}
-    timeout-minutes: 15
-    runs-on: ubuntu-latest
-    # id-token: write is scoped to this job, which runs after the build.
-    # Publishing uses npm OIDC trusted publishing with provenance, so no
-    # NPM_TOKEN secret is required.
+    # id-token: write is scoped to this job. Publishing uses npm OIDC trusted
+    # publishing with provenance, so no NPM_TOKEN secret is required.
     permissions:
       contents: write
       id-token: write
@@ -79,70 +49,65 @@ jobs:
           cache: 'false'
           force-install: 'true'
 
-      - name: Build
-        run: pnpm run build
-
       - name: Resolve release command
         id: cmd
         shell: bash
-        # In publish mode, run the dedicated `release:beta` script, which bakes
-        # `--tag beta` into the changeset publish call. Forwarding flags via
-        # `pnpm release -- --tag beta` is unreliable: pnpm 11 passes the `--`
-        # through, and changesets rejects the extra positional argument.
+        # `changesets/action` reacts to the inputs it receives:
+        #   - if unconsumed changesets exist, it opens (or updates) the
+        #     Version Packages PR using the `version` command;
+        #   - otherwise, if `publish` is set, it publishes the bumped
+        #     packages.
+        # In `version` mode we leave `publish` empty so only the PR step
+        # runs. In `publish` mode we call the changesets CLI inline with
+        # `--tag beta`; forwarding flags via `pnpm release -- --tag beta`
+        # is unreliable on pnpm 11 (it leaks the `--` to changesets).
         # Inputs are read from env to avoid script injection. Defaults to
         # `publish` on push events.
         env:
           MODE: ${{ inputs.mode || 'publish' }}
         run: |
-          if [ "$MODE" = 'publish' ]; then
-            echo "publish=pnpm release:beta" >> "$GITHUB_OUTPUT"
-          else
-            echo "publish=pnpm release:stage:ci" >> "$GITHUB_OUTPUT"
-          fi
+          case "$MODE" in
+            publish) echo "publish=pnpm exec changeset publish --tag beta" >> "$GITHUB_OUTPUT" ;;
+            staged) echo "publish=pnpm release:stage:ci" >> "$GITHUB_OUTPUT" ;;
+            version) echo "publish=" >> "$GITHUB_OUTPUT" ;;
+            *) echo "Unknown mode: $MODE" >&2; exit 1 ;;
+          esac
+
+      - name: Build
+        if: ${{ steps.cmd.outputs.publish != '' }}
+        run: pnpm run build
 
       - name: Release
         id: changesets
         uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
         with:
-          # The staged command (`pnpm release:stage:ci`) chains steps in a single
-          # script: it stages every package on npm (no publish to `latest`),
-          # creates the local git tags, and prints the `New tag:` lines the action
-          # parses to push tags and create a GitHub Release per package. The
-          # publish command (`pnpm release`) promotes to the `beta` dist-tag.
+          version: pnpm exec changeset version
+          # When publish is empty, the action skips publishing and only
+          # opens/updates the Version Packages PR. The staged command
+          # (`pnpm release:stage:ci`) chains steps in a single script: it
+          # stages every package on npm (no publish to `latest`), creates
+          # the local git tags, and prints the `New tag:` lines the action
+          # parses to push tags and create a GitHub Release per package.
+          # The publish command promotes to the `beta` dist-tag.
           publish: ${{ steps.cmd.outputs.publish }}
           commit: 'ci(changesets): version packages'
+          title: 'ci(changesets): version packages'
           setupGitUser: false
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  canary:
-    name: Canary
-    needs: [release]
-    if: ${{ github.repository_owner == 'kubb-labs' && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.release.outputs.released != 'true' }}
-    timeout-minutes: 15
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-      packages: write
-    steps:
-      - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          fetch-depth: 0
-
-      - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@61cdd3211cf116b44033357a5baff45dc28f0ca5 # main
-        with:
-          node-version: '22'
-          cache: 'false'
-          force-install: 'true'
-
-      - name: Stamp canary versions
+      - name: Publish canary
+        # Falls back to canary on main when nothing was published —
+        # either because the action opened the Version Packages PR
+        # instead, or because publish had no work to do.
+        if: ${{ steps.changesets.outputs.published != 'true' && steps.changesets.outputs.staged != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         shell: bash
-        # Bump each package to a unique <next-minor>-canary.<timestamp> version so
-        # nothing collides with the `latest` tag.
+        env:
+          NPM_CONFIG_PROVENANCE: true
+        # Stamp each package to a unique <next-minor>-canary.<timestamp>
+        # version so nothing collides with the `latest` tag, rebuild
+        # against the new versions, then publish with the canary dist-tag.
         run: |
           pnpm -r exec bash -c '
             npm --no-git-tag-version version minor || true
@@ -151,18 +116,8 @@ jobs:
             echo "Version that will be published: ${canary_version}"
             npm --no-git-tag-version version "${canary_version}" || true
           '
-
-      - name: Build
-        run: pnpm run build
-
-      - name: Publish canary
-        shell: bash
-        # Invoke the changesets CLI directly. `pnpm release -- --tag canary`
-        # leaks the `--` through to changesets on pnpm 11 and fails with
-        # "Too many arguments passed to changesets".
-        env:
-          NPM_CONFIG_PROVENANCE: true
-        run: pnpm exec changeset publish --tag canary
+          pnpm run build
+          pnpm exec changeset publish --tag canary
 
   notify:
     name: Send Discord Notification
