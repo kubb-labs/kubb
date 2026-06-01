@@ -26,8 +26,7 @@ jobs:
     if: github.repository_owner == 'kubb-labs' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     timeout-minutes: 15
     runs-on: ubuntu-latest
-    # id-token: write is scoped to this job. Publishing uses npm OIDC trusted
-    # publishing with provenance, so no NPM_TOKEN secret is required.
+    # id-token: write enables npm OIDC trusted publishing — no NPM_TOKEN needed.
     permissions:
       contents: write
       id-token: write
@@ -52,17 +51,7 @@ jobs:
       - name: Resolve release command
         id: cmd
         shell: bash
-        # `changesets/action` reacts to the inputs it receives:
-        #   - if unconsumed changesets exist, it opens (or updates) the
-        #     Version Packages PR using the `version` command;
-        #   - otherwise, if `publish` is set, it publishes the bumped
-        #     packages.
-        # In `version` mode we leave `publish` empty so only the PR step
-        # runs. In `publish` mode we call the changesets CLI inline with
-        # `--tag beta`; forwarding flags via `pnpm release -- --tag beta`
-        # is unreliable on pnpm 11 (it leaks the `--` to changesets).
-        # Inputs are read from env to avoid script injection. Defaults to
-        # `publish` on push events.
+        # MODE comes from env to avoid script injection from workflow inputs.
         env:
           MODE: ${{ inputs.mode || 'publish' }}
         run: |
@@ -82,13 +71,6 @@ jobs:
         uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
         with:
           version: pnpm exec changeset version
-          # When publish is empty, the action skips publishing and only
-          # opens/updates the Version Packages PR. The staged command
-          # (`pnpm release:stage:ci`) chains steps in a single script: it
-          # stages every package on npm (no publish to `latest`), creates
-          # the local git tags, and prints the `New tag:` lines the action
-          # parses to push tags and create a GitHub Release per package.
-          # The publish command promotes to the `beta` dist-tag.
           publish: ${{ steps.cmd.outputs.publish }}
           commit: 'ci(changesets): version packages'
           title: 'ci(changesets): version packages'
@@ -98,16 +80,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish canary
-        # Falls back to canary on main when nothing was published —
-        # either because the action opened the Version Packages PR
-        # instead, or because publish had no work to do.
         if: ${{ steps.changesets.outputs.published != 'true' && steps.changesets.outputs.staged != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         shell: bash
         env:
           NPM_CONFIG_PROVENANCE: true
-        # Stamp each package to a unique <next-minor>-canary.<timestamp>
-        # version so nothing collides with the `latest` tag, rebuild
-        # against the new versions, then publish with the canary dist-tag.
+        # Stamp each package to a unique canary version so it can't collide
+        # with the `latest` tag, then rebuild and publish.
         run: |
           pnpm -r exec bash -c '
             npm --no-git-tag-version version minor || true
@@ -133,9 +111,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            // Skips cleanly when DISCORD_WEBHOOK_URL is not configured.
-            // The secrets context is not available in step `if:` conditions,
-            // so the guard lives here instead.
+            // Guard lives here because the secrets context is unavailable in step `if:`.
             if (!process.env.DISCORD_WEBHOOK_URL) {
               console.log('DISCORD_WEBHOOK_URL not set, skipping notification');
               return;
