@@ -116,6 +116,7 @@
     "fix-url-input-resolution",
     "fix-workspace-renderer-jsx-deps",
     "get-resolver-typed-by-plugin-name",
+    "goofy-canyons-teach",
     "hide-adapter-oas-internal-methods",
     "improve-kubb-driver",
     "input-meta-circular-enum-names",
