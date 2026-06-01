@@ -107,10 +107,22 @@ describe('reducer', () => {
     expect(state.ui.mode).toBe('detail')
   })
 
-  it('clears the log buffer', () => {
+  it('clears both log buffers', () => {
     let state = reducer(createInitialState(), { type: 'log', entry: { level: 'info', message: 'hi', at: 1 } })
+    state = reducer(state, { type: 'debug', entry: { message: 'd', at: 2 } })
     expect(state.logs).toHaveLength(1)
+    expect(state.debug).toHaveLength(1)
     state = reducer(state, { type: 'ui:clear-logs' })
     expect(state.logs).toHaveLength(0)
+    expect(state.debug).toHaveLength(0)
+  })
+
+  it('caps the debug stream', () => {
+    let state = createInitialState()
+    for (let i = 0; i < 600; i++) {
+      state = reducer(state, { type: 'debug', entry: { message: `d${i}`, at: i } })
+    }
+    expect(state.debug).toHaveLength(500)
+    expect(state.debug[0]?.message).toBe('d100')
   })
 })

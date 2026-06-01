@@ -41,3 +41,23 @@ export function truncateLeft(value: string, max: number): string {
   if (value.length <= max) return value
   return `…${value.slice(value.length - max + 1)}`
 }
+
+/**
+ * Truncate a string from the right with an ellipsis. Useful for plugin names
+ * and other left-anchored identifiers shown in narrow columns.
+ */
+export function truncateRight(value: string, max: number): string {
+  if (value.length <= max) return value
+  return `${value.slice(0, max - 1)}…`
+}
+
+const ANSI_RE = /\[[0-9;]*m/g
+
+/**
+ * Strip ANSI SGR escape sequences from a string. Kubb's hook payloads contain
+ * `styleText('bold', …)` output meant for clack; opentui doesn't parse ANSI
+ * so we plain-text the input before storing it in state.
+ */
+export function stripAnsi(value: string): string {
+  return value.replace(ANSI_RE, '')
+}

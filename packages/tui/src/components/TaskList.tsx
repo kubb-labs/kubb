@@ -1,5 +1,5 @@
 import type { HookEntry, PluginEntry } from '../state.ts'
-import { attrs, formatMs } from '../format.ts'
+import { attrs, formatMs, truncateRight } from '../format.ts'
 
 type Props = {
   plugins: Array<PluginEntry>
@@ -7,6 +7,9 @@ type Props = {
   selectedIndex: number
   spinnerFrame: string
 }
+
+const NAME_WIDTH = 22
+const RIGHT_WIDTH = 10
 
 function pluginGlyph(status: PluginEntry['status'], spinner: string): { char: string; color: string } {
   if (status === 'done') return { char: '✓', color: 'green' }
@@ -40,8 +43,6 @@ export function TaskList({ plugins, hooks, selectedIndex, spinnerFrame }: Props)
   const failed = plugins.filter((p) => p.status === 'failed').length
   const title = total === 0 ? 'Tasks' : `Tasks  ${completed}/${total}${failed > 0 ? `  (${failed} failed)` : ''}`
 
-  const maxNameWidth = Math.max(...plugins.map((p) => p.name.length), ...hooks.map((h) => h.command.length), 0)
-
   return (
     <box
       title={title}
@@ -52,7 +53,7 @@ export function TaskList({ plugins, hooks, selectedIndex, spinnerFrame }: Props)
       flexDirection="column"
       paddingLeft={1}
       paddingRight={1}
-      flexGrow={1}
+      width={NAME_WIDTH + RIGHT_WIDTH + 8}
     >
       {plugins.length === 0 ? (
         <text>
@@ -66,14 +67,15 @@ export function TaskList({ plugins, hooks, selectedIndex, spinnerFrame }: Props)
           const r = pluginRight(plugin)
           const isSelected = index === selectedIndex
           const marker = isSelected ? '▸' : ' '
+          const name = truncateRight(plugin.name, NAME_WIDTH).padEnd(NAME_WIDTH)
           return (
             <text key={`p-${plugin.name}`}>
               <span fg={isSelected ? 'cyan' : '#666'}>{marker} </span>
               <span fg={g.color}>{g.char}</span>
               <span fg={isSelected ? 'white' : undefined} attributes={isSelected ? attrs.bold : attrs.none}>
-                {` ${plugin.name.padEnd(maxNameWidth + 2)}`}
+                {` ${name}`}
               </span>
-              <span fg={r.color}>{r.text}</span>
+              <span fg={r.color}>{` ${r.text.padStart(RIGHT_WIDTH)}`}</span>
             </text>
           )
         })
@@ -91,14 +93,15 @@ export function TaskList({ plugins, hooks, selectedIndex, spinnerFrame }: Props)
             const r = hookRight(hook)
             const isSelected = index === selectedIndex
             const marker = isSelected ? '▸' : ' '
+            const name = truncateRight(hook.command, NAME_WIDTH).padEnd(NAME_WIDTH)
             return (
               <text key={`h-${hook.id}`}>
                 <span fg={isSelected ? 'cyan' : '#666'}>{marker} </span>
                 <span fg={g.color}>{g.char}</span>
                 <span fg={isSelected ? 'white' : '#aaa'} attributes={isSelected ? attrs.bold : attrs.dim}>
-                  {` ${hook.command.padEnd(maxNameWidth + 2)}`}
+                  {` ${name}`}
                 </span>
-                <span fg={r.color}>{r.text}</span>
+                <span fg={r.color}>{` ${r.text.padStart(RIGHT_WIDTH)}`}</span>
               </text>
             )
           })}

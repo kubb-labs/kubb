@@ -1,5 +1,6 @@
 import process from 'node:process'
 import { defineLogger, type LoggerOptions, logLevel as logLevelMap } from '@kubb/core'
+import { stripAnsi } from './format.ts'
 import { getTuiUnavailableReason } from './runtime.ts'
 import type { Mount } from './mount.tsx'
 
@@ -145,29 +146,40 @@ export const tuiLogger = defineLogger<LoggerOptions, HookSinkFactory | null>({
     })
 
     context.on('kubb:info', ({ message, info }) => {
-      dispatch({ type: 'log', entry: { level: 'info', message, info, at: Date.now() } })
+      dispatch({ type: 'log', entry: { level: 'info', message: stripAnsi(message), info: info ? stripAnsi(info) : undefined, at: Date.now() } })
     })
 
     context.on('kubb:success', ({ message, info }) => {
-      dispatch({ type: 'log', entry: { level: 'success', message, info, at: Date.now() } })
+      dispatch({ type: 'log', entry: { level: 'success', message: stripAnsi(message), info: info ? stripAnsi(info) : undefined, at: Date.now() } })
     })
 
     context.on('kubb:warn', ({ message, info }) => {
       if (logLevel < logLevelMap.warn) return
-      dispatch({ type: 'log', entry: { level: 'warn', message, info, at: Date.now() } })
+      dispatch({ type: 'log', entry: { level: 'warn', message: stripAnsi(message), info: info ? stripAnsi(info) : undefined, at: Date.now() } })
     })
 
     context.on('kubb:error', ({ error }) => {
-      dispatch({ type: 'log', entry: { level: 'error', message: error.message, at: Date.now() } })
+      dispatch({ type: 'log', entry: { level: 'error', message: stripAnsi(error.message), at: Date.now() } })
     })
 
-    if (logLevel >= logLevelMap.debug) {
-      context.on('kubb:debug', ({ logs }) => {
-        for (const line of logs) {
-          dispatch({ type: 'log', entry: { level: 'debug', message: line, at: Date.now() } })
+    // Always subscribe to debug events so the debug stream pane has something
+    // to show. The reducer keeps them separate from the main log buffer and
+    // they're never written to the LogPane unless logLevel >= debug.
+    context.on('kubb:debug', ({ logs }) => {
+      for (const line of logs) {
+        dispatch({ type: 'debug', entry: { message: stripAnsi(line), at: Date.now() } })
+        if (logLevel >= logLevelMap.debug) {
+          dispatch({ type: 'log', entry: { level: 'debug', message: stripAnsi(line), at: Date.now() } })
         }
-      })
-    }
+      }
+    })
+
+    // Plain `kubb:info` events flow through to the debug stream too — they're
+    // the closest thing Kubb has to a live trace and the right pane wants to
+    // show that without the user passing --log-level debug.
+    context.on('kubb:info', ({ message, info }) => {
+      dispatch({ type: 'debug', entry: { message: stripAnsi(message), info: info ? stripAnsi(info) : undefined, at: Date.now() } })
+    })
 
     const sink: HookSinkFactory = (_commandWithArgs, hookId) => ({
       stream: true,

@@ -40,6 +40,7 @@ export function HeaderBar({ state, tick: _tick }: Props) {
       justifyContent="space-between"
       paddingLeft={1}
       paddingRight={1}
+      flexGrow={1}
     >
       <text>
         <span fg={statusColor(state.status)} attributes={attrs.bold}>

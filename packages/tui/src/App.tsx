@@ -2,8 +2,9 @@ import { useEffect, useReducer, useState } from 'react'
 import { useKeyboard } from '@opentui/react'
 import { createInitialState, reducer, type TuiAction, type TuiState } from './state.ts'
 import { HeaderBar } from './components/HeaderBar.tsx'
+import { KubbLogo } from './components/KubbLogo.tsx'
 import { TaskList } from './components/TaskList.tsx'
-import { TaskDetail } from './components/TaskDetail.tsx'
+import { DebugStream } from './components/DebugStream.tsx'
 import { FilesPane } from './components/FilesPane.tsx'
 import { LogPane } from './components/LogPane.tsx'
 import { StatusBar } from './components/StatusBar.tsx'
@@ -89,7 +90,10 @@ export function App({ subscribe, onQuit, initial }: Props) {
   if (state.ui.mode === 'help') {
     return (
       <box flexDirection="column" flexGrow={1}>
-        <HeaderBar state={state} tick={tick} />
+        <box flexDirection="row">
+          <KubbLogo version={state.version} configName={state.configName} />
+          <HeaderBar state={state} tick={tick} />
+        </box>
         <HelpOverlay />
         <StatusBar state={state} />
       </box>
@@ -99,8 +103,11 @@ export function App({ subscribe, onQuit, initial }: Props) {
   if (state.ui.mode === 'detail') {
     return (
       <box flexDirection="column" flexGrow={1}>
-        <HeaderBar state={state} tick={tick} />
-        <TaskDetail plugins={state.plugins} hooks={state.hooks} logs={state.logs} selectedIndex={state.selectedTaskIndex} />
+        <box flexDirection="row">
+          <KubbLogo version={state.version} configName={state.configName} />
+          <HeaderBar state={state} tick={tick} />
+        </box>
+        <DebugStream entries={state.debug} />
         <StatusBar state={state} />
       </box>
     )
@@ -108,10 +115,13 @@ export function App({ subscribe, onQuit, initial }: Props) {
 
   return (
     <box flexDirection="column" flexGrow={1}>
-      <HeaderBar state={state} tick={tick} />
+      <box flexDirection="row">
+        <KubbLogo version={state.version} configName={state.configName} />
+        <HeaderBar state={state} tick={tick} />
+      </box>
       <box flexDirection="row" flexGrow={1}>
         <TaskList plugins={state.plugins} hooks={state.hooks} selectedIndex={state.selectedTaskIndex} spinnerFrame={spinnerFrame} />
-        <TaskDetail plugins={state.plugins} hooks={state.hooks} logs={state.logs} selectedIndex={state.selectedTaskIndex} />
+        <DebugStream entries={state.debug} />
       </box>
       <FilesPane files={state.files} />
       <LogPane logs={state.logs} />

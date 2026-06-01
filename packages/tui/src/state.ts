@@ -5,6 +5,12 @@
 export const LOG_BUFFER_LIMIT = 1000
 
 /**
+ * The maximum number of debug entries retained for the live debug stream.
+ * Kept tighter than the log buffer so the right-pane render stays cheap.
+ */
+export const DEBUG_BUFFER_LIMIT = 500
+
+/**
  * The maximum number of subprocess output lines kept per hook.
  */
 export const HOOK_LINE_LIMIT = 200
@@ -15,6 +21,12 @@ export type LogLevel = 'info' | 'warn' | 'error' | 'success' | 'debug'
 
 export type LogEntry = {
   level: LogLevel
+  message: string
+  info?: string
+  at: number
+}
+
+export type DebugEntry = {
   message: string
   info?: string
   at: number
@@ -48,6 +60,11 @@ export type TuiState = {
   plugins: Array<PluginEntry>
   files: { total: number; processed: number; current?: string }
   logs: Array<LogEntry>
+  /**
+   * Rolling stream of `kubb:info` and `kubb:debug` events, used to populate
+   * the right-side detail pane. Capped at {@link DEBUG_BUFFER_LIMIT}.
+   */
+  debug: Array<DebugEntry>
   hooks: Array<HookEntry>
   updateAvailable?: { currentVersion: string; latestVersion: string }
   /**
@@ -77,6 +94,7 @@ export type TuiAction =
   | { type: 'hook:line'; id: string; line: string }
   | { type: 'hook:end'; id: string; success: boolean; at: number }
   | { type: 'log'; entry: LogEntry }
+  | { type: 'debug'; entry: DebugEntry }
   | { type: 'version:new'; currentVersion: string; latestVersion: string }
   | { type: 'ui:select'; delta: number }
   | { type: 'ui:select:exact'; index: number }
@@ -90,6 +108,7 @@ export function createInitialState(): TuiState {
     plugins: [],
     files: { total: 0, processed: 0 },
     logs: [],
+    debug: [],
     hooks: [],
     selectedTaskIndex: -1,
     ui: { mode: 'normal' },
@@ -165,7 +184,7 @@ export function reducer(state: TuiState, action: TuiAction): TuiState {
     case 'ui:set-mode':
       return { ...state, ui: { ...state.ui, mode: action.mode } }
     case 'ui:clear-logs':
-      return { ...state, logs: [] }
+      return { ...state, logs: [], debug: [] }
     case 'plugin:start':
       return { ...state, plugins: updatePlugin(state.plugins, action.name, { status: 'running' }) }
     case 'plugin:end':
@@ -206,6 +225,8 @@ export function reducer(state: TuiState, action: TuiAction): TuiState {
       }
     case 'log':
       return { ...state, logs: appendCapped(state.logs, action.entry, LOG_BUFFER_LIMIT) }
+    case 'debug':
+      return { ...state, debug: appendCapped(state.debug, action.entry, DEBUG_BUFFER_LIMIT) }
     case 'version:new':
       return { ...state, updateAvailable: { currentVersion: action.currentVersion, latestVersion: action.latestVersion } }
     default:
