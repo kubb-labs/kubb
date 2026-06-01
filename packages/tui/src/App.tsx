@@ -85,6 +85,7 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
 
     if (event.name === 'r') {
       if (state.status === 'running') return
+      dispatch({ type: 'ui:clear-logs' })
       onRestart?.()
       return
     }
