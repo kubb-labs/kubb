@@ -21,12 +21,16 @@ export function StatusBar({ state }: Props) {
   return (
     <box border borderStyle="rounded" borderColor="#333" flexDirection="row" justifyContent="space-between" paddingLeft={1} paddingRight={1}>
       <text>
-        <span fg="black" bg={b.color} attributes={attrs.bold}>{b.text}</span>
+        <span fg="black" bg={b.color} attributes={attrs.bold}>
+          {b.text}
+        </span>
         <span fg="#888" attributes={attrs.dim}>{`  plugins `}</span>
         <span fg="green">{completed.toString()}</span>
         {failed > 0 ? (
           <>
-            <span fg="#888" attributes={attrs.dim}>/</span>
+            <span fg="#888" attributes={attrs.dim}>
+              /
+            </span>
             <span fg="red">{failed.toString()}</span>
           </>
         ) : null}
@@ -37,7 +41,9 @@ export function StatusBar({ state }: Props) {
         <span fg="green">{elapsed}</span>
       </text>
       <text>
-        <span fg="#666" attributes={attrs.dim}>↑/↓ select · enter expand · c clear · ? help · q quit</span>
+        <span fg="#666" attributes={attrs.dim}>
+          ↑/↓ select · enter expand · c clear · ? help · q quit
+        </span>
       </text>
     </box>
   )

@@ -47,22 +47,26 @@ export function HeaderBar({ state, tick: _tick }: Props) {
         </span>
         {errorCount > 0 ? (
           <>
-            <span fg="#888" attributes={attrs.dim}>{'   '}</span>
+            <span fg="#888" attributes={attrs.dim}>
+              {'   '}
+            </span>
             <span fg="black" bg="red" attributes={attrs.bold}>{` ✗ ${errorCount} `}</span>
           </>
         ) : null}
         {warnCount > 0 ? (
           <>
-            <span fg="#888" attributes={attrs.dim}>{' '}</span>
+            <span fg="#888" attributes={attrs.dim}>
+              {' '}
+            </span>
             <span fg="black" bg="yellow" attributes={attrs.bold}>{` ⚠ ${warnCount} `}</span>
           </>
         ) : null}
-        {state.updateAvailable ? (
-          <span fg="yellow" attributes={attrs.dim}>{`  update → v${state.updateAvailable.latestVersion}`}</span>
-        ) : null}
+        {state.updateAvailable ? <span fg="yellow" attributes={attrs.dim}>{`  update → v${state.updateAvailable.latestVersion}`}</span> : null}
       </text>
       <text>
-        <span fg="#888" attributes={attrs.dim}>elapsed </span>
+        <span fg="#888" attributes={attrs.dim}>
+          elapsed{' '}
+        </span>
         <span fg="green">{elapsed}</span>
       </text>
     </box>

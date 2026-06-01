@@ -43,7 +43,17 @@ export function TaskList({ plugins, hooks, selectedIndex, spinnerFrame }: Props)
   const maxNameWidth = Math.max(...plugins.map((p) => p.name.length), ...hooks.map((h) => h.command.length), 0)
 
   return (
-    <box title={title} titleAlignment="left" border borderStyle="rounded" borderColor="#444" flexDirection="column" paddingLeft={1} paddingRight={1} flexGrow={1}>
+    <box
+      title={title}
+      titleAlignment="left"
+      border
+      borderStyle="rounded"
+      borderColor="#444"
+      flexDirection="column"
+      paddingLeft={1}
+      paddingRight={1}
+      flexGrow={1}
+    >
       {plugins.length === 0 ? (
         <text>
           <span fg="#888" attributes={attrs.dim}>

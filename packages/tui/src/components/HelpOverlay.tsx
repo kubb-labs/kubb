@@ -17,12 +17,28 @@ const BINDINGS: Array<Binding> = [
 export function HelpOverlay() {
   const maxKey = Math.max(...BINDINGS.map((b) => b.keys.length))
   return (
-    <box title="Help" titleAlignment="left" border borderStyle="rounded" borderColor="cyan" flexDirection="column" paddingLeft={2} paddingRight={2} paddingTop={1} paddingBottom={1} flexGrow={1}>
+    <box
+      title="Help"
+      titleAlignment="left"
+      border
+      borderStyle="rounded"
+      borderColor="cyan"
+      flexDirection="column"
+      paddingLeft={2}
+      paddingRight={2}
+      paddingTop={1}
+      paddingBottom={1}
+      flexGrow={1}
+    >
       <text>
-        <span fg="white" attributes={attrs.bold}>Keybindings</span>
+        <span fg="white" attributes={attrs.bold}>
+          Keybindings
+        </span>
       </text>
       <text>
-        <span fg="#444" attributes={attrs.dim}>───────────────────────────────────</span>
+        <span fg="#444" attributes={attrs.dim}>
+          ───────────────────────────────────
+        </span>
       </text>
       {BINDINGS.map((b) => (
         <text key={b.keys}>
@@ -31,17 +47,29 @@ export function HelpOverlay() {
         </text>
       ))}
       <text>
-        <span fg="#444" attributes={attrs.dim}>───────────────────────────────────</span>
+        <span fg="#444" attributes={attrs.dim}>
+          ───────────────────────────────────
+        </span>
       </text>
       <text>
-        <span fg="#666" attributes={attrs.dim}>The TUI stays open after generation finishes, so you can scroll through results.</span>
+        <span fg="#666" attributes={attrs.dim}>
+          The TUI stays open after generation finishes, so you can scroll through results.
+        </span>
       </text>
       <text>
-        <span fg="#666" attributes={attrs.dim}>Press </span>
+        <span fg="#666" attributes={attrs.dim}>
+          Press{' '}
+        </span>
         <span fg="cyan">?</span>
-        <span fg="#666" attributes={attrs.dim}> or </span>
+        <span fg="#666" attributes={attrs.dim}>
+          {' '}
+          or{' '}
+        </span>
         <span fg="cyan">esc</span>
-        <span fg="#666" attributes={attrs.dim}> to close this overlay.</span>
+        <span fg="#666" attributes={attrs.dim}>
+          {' '}
+          to close this overlay.
+        </span>
       </text>
     </box>
   )

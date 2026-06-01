@@ -30,22 +30,30 @@ function renderPlugin(plugin: PluginEntry, logs: Array<LogEntry>) {
   return (
     <>
       <text>
-        <span fg="#666" attributes={attrs.dim}>plugin </span>
-        <span fg="white" attributes={attrs.bold}>{plugin.name}</span>
+        <span fg="#666" attributes={attrs.dim}>
+          plugin{' '}
+        </span>
+        <span fg="white" attributes={attrs.bold}>
+          {plugin.name}
+        </span>
       </text>
       <text>
-        <span fg="#666" attributes={attrs.dim}>status </span>
+        <span fg="#666" attributes={attrs.dim}>
+          status{' '}
+        </span>
         <span fg={statusFg}>{plugin.status}</span>
-        {plugin.duration !== undefined ? (
-          <span fg="#666" attributes={attrs.dim}>{`  ·  ${formatMs(plugin.duration)}`}</span>
-        ) : null}
+        {plugin.duration !== undefined ? <span fg="#666" attributes={attrs.dim}>{`  ·  ${formatMs(plugin.duration)}`}</span> : null}
       </text>
       <text>
-        <span fg="#444" attributes={attrs.dim}>───── recent events ─────</span>
+        <span fg="#444" attributes={attrs.dim}>
+          ───── recent events ─────
+        </span>
       </text>
       {recent.length === 0 ? (
         <text>
-          <span fg="#666" attributes={attrs.dim}>nothing yet</span>
+          <span fg="#666" attributes={attrs.dim}>
+            nothing yet
+          </span>
         </text>
       ) : (
         recent.map((entry, i) => renderEntry(entry, `${entry.at}-${i}`))
@@ -60,20 +68,30 @@ function renderHook(hook: HookEntry) {
   return (
     <>
       <text>
-        <span fg="#666" attributes={attrs.dim}>hook </span>
-        <span fg="white" attributes={attrs.bold}>{hook.command}</span>
+        <span fg="#666" attributes={attrs.dim}>
+          hook{' '}
+        </span>
+        <span fg="white" attributes={attrs.bold}>
+          {hook.command}
+        </span>
       </text>
       <text>
-        <span fg="#666" attributes={attrs.dim}>status </span>
+        <span fg="#666" attributes={attrs.dim}>
+          status{' '}
+        </span>
         <span fg={statusFg}>{hook.status}</span>
         <span fg="#666" attributes={attrs.dim}>{`  ·  ${elapsed}`}</span>
       </text>
       <text>
-        <span fg="#444" attributes={attrs.dim}>───── stdout / stderr ─────</span>
+        <span fg="#444" attributes={attrs.dim}>
+          ───── stdout / stderr ─────
+        </span>
       </text>
       {hook.lines.length === 0 ? (
         <text>
-          <span fg="#666" attributes={attrs.dim}>no output yet</span>
+          <span fg="#666" attributes={attrs.dim}>
+            no output yet
+          </span>
         </text>
       ) : (
         hook.lines.slice(-20).map((line) => (
@@ -91,7 +109,9 @@ export function TaskDetail({ plugins, hooks, logs, selectedIndex }: Props) {
   if (selectedIndex < 0 || selectedIndex >= plugins.length + hooks.length) {
     body = (
       <text>
-        <span fg="#888" attributes={attrs.dim}>select a task with ↑/↓ to see its detail</span>
+        <span fg="#888" attributes={attrs.dim}>
+          select a task with ↑/↓ to see its detail
+        </span>
       </text>
     )
   } else if (selectedIndex < plugins.length) {
@@ -103,7 +123,17 @@ export function TaskDetail({ plugins, hooks, logs, selectedIndex }: Props) {
   }
 
   return (
-    <box title="Detail" titleAlignment="left" border borderStyle="rounded" borderColor="#444" flexDirection="column" paddingLeft={1} paddingRight={1} flexGrow={2}>
+    <box
+      title="Detail"
+      titleAlignment="left"
+      border
+      borderStyle="rounded"
+      borderColor="#444"
+      flexDirection="column"
+      paddingLeft={1}
+      paddingRight={1}
+      flexGrow={2}
+    >
       {body}
     </box>
   )
