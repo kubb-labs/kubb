@@ -5,7 +5,6 @@ import { HeaderBar } from './components/HeaderBar.tsx'
 import { KubbLogo } from './components/KubbLogo.tsx'
 import { TaskList } from './components/TaskList.tsx'
 import { PluginDetail } from './components/PluginDetail.tsx'
-import { FilesPane } from './components/FilesPane.tsx'
 import { LogPane } from './components/LogPane.tsx'
 import { StatusBar } from './components/StatusBar.tsx'
 import { HelpOverlay } from './components/HelpOverlay.tsx'
@@ -119,23 +118,49 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
           <KubbLogo version={state.version} configName={state.configName} status={state.status} />
           <HeaderBar state={state} tick={tick} />
         </box>
-        <PluginDetail plugins={state.plugins} hooks={state.hooks} selectedIndex={state.selectedTaskIndex} spinnerFrame={spinnerFrame} />
+        <PluginDetail
+          plugins={state.plugins}
+          hooks={state.hooks}
+          files={state.files}
+          filesActive={state.files.total > 0 && state.files.processed < state.files.total}
+          filesDone={state.files.total > 0 && state.files.processed >= state.files.total}
+          selectedIndex={state.selectedTaskIndex}
+          spinnerFrame={spinnerFrame}
+        />
         <StatusBar state={state} />
       </box>
     )
   }
 
+  const filesActive = state.files.total > 0 && state.files.processed < state.files.total
+  const filesDone = state.files.total > 0 && state.files.processed >= state.files.total
+
   return (
-    <box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={1} paddingRight={1}>
-      <box flexDirection="row">
+    <box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={2} paddingRight={2} gap={1}>
+      <box flexDirection="row" gap={1}>
         <KubbLogo version={state.version} configName={state.configName} status={state.status} />
         <HeaderBar state={state} tick={tick} />
       </box>
       <box flexDirection="row" flexGrow={1} gap={1}>
-        <TaskList plugins={state.plugins} hooks={state.hooks} selectedIndex={state.selectedTaskIndex} spinnerFrame={spinnerFrame} />
-        <PluginDetail plugins={state.plugins} hooks={state.hooks} selectedIndex={state.selectedTaskIndex} spinnerFrame={spinnerFrame} />
+        <TaskList
+          plugins={state.plugins}
+          hooks={state.hooks}
+          files={state.files}
+          filesActive={filesActive}
+          filesDone={filesDone}
+          selectedIndex={state.selectedTaskIndex}
+          spinnerFrame={spinnerFrame}
+        />
+        <PluginDetail
+          plugins={state.plugins}
+          hooks={state.hooks}
+          files={state.files}
+          filesActive={filesActive}
+          filesDone={filesDone}
+          selectedIndex={state.selectedTaskIndex}
+          spinnerFrame={spinnerFrame}
+        />
       </box>
-      <FilesPane files={state.files} />
       <LogPane logs={state.logs} />
       <StatusBar state={state} />
     </box>

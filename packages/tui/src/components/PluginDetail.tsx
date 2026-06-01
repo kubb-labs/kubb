@@ -1,9 +1,14 @@
-import type { HookEntry, LogEntry, PluginEntry } from '../state.ts'
-import { attrs, formatMs } from '../format.ts'
+import type { HookEntry, LogEntry, PluginEntry, TuiState } from '../state.ts'
+import { resolveSelection } from '../state.ts'
+import { attrs, formatMs, truncateLeft } from '../format.ts'
+import { ProgressBar } from './ProgressBar.tsx'
 
 type Props = {
   plugins: Array<PluginEntry>
   hooks: Array<HookEntry>
+  files: TuiState['files']
+  filesActive: boolean
+  filesDone: boolean
   selectedIndex: number
   spinnerFrame: string
 }
@@ -111,23 +116,63 @@ function renderHook(hook: HookEntry, spinner: string) {
   )
 }
 
-export function PluginDetail({ plugins, hooks, selectedIndex, spinnerFrame }: Props) {
-  let body: React.ReactNode
-  if (selectedIndex < 0 || selectedIndex >= plugins.length + hooks.length) {
-    body = (
+function filesBadge(active: boolean, done: boolean, spinner: string): { text: string; bg: string; fg: string } {
+  if (done) return { text: ' DONE ', bg: 'green', fg: 'black' }
+  if (active) return { text: ` ${spinner} RUN `, bg: 'cyan', fg: 'black' }
+  return { text: ' WAIT ', bg: '#444', fg: '#aaa' }
+}
+
+function renderFiles(files: TuiState['files'], active: boolean, done: boolean, spinner: string) {
+  const ratio = files.total === 0 ? 0 : Math.min(1, files.processed / files.total)
+  const badge = filesBadge(active, done, spinner)
+  return (
+    <>
+      <box flexDirection="row" paddingBottom={1}>
+        <text>
+          <span fg={badge.fg} bg={badge.bg} attributes={attrs.bold}>{badge.text}</span>
+          <span fg="white" attributes={attrs.bold}>{'  files'}</span>
+          <span fg="#888" attributes={attrs.dim}>{`  ·  ${files.processed}/${files.total || '—'}`}</span>
+        </text>
+      </box>
+      <box flexDirection="row" gap={1}>
+        <ProgressBar value={ratio} width={32} color={done ? 'green' : 'cyan'} />
+        <text>
+          <span fg="#888">{`${Math.round(ratio * 100)}%`}</span>
+        </text>
+      </box>
       <text>
-        <span fg="#888" attributes={attrs.dim}>
-          use ↑/↓ to select a task
-        </span>
+        <span fg="#666" attributes={attrs.dim}>{files.current ? truncateLeft(files.current, 80) : 'idle'}</span>
       </text>
-    )
-  } else if (selectedIndex < plugins.length) {
-    const plugin = plugins[selectedIndex]
-    body = plugin ? renderPlugin(plugin, spinnerFrame) : null
-  } else {
-    const hook = hooks[selectedIndex - plugins.length]
-    body = hook ? renderHook(hook, spinnerFrame) : null
+    </>
+  )
+}
+
+function renderBody(
+  resolved: ReturnType<typeof resolveSelection>,
+  files: TuiState['files'],
+  filesActive: boolean,
+  filesDone: boolean,
+  spinner: string,
+): React.ReactNode {
+  switch (resolved.kind) {
+    case 'plugin':
+      return renderPlugin(resolved.plugin, spinner)
+    case 'hook':
+      return renderHook(resolved.hook, spinner)
+    case 'files':
+      return renderFiles(files, filesActive, filesDone, spinner)
+    default:
+      return (
+        <text>
+          <span fg="#888" attributes={attrs.dim}>use ↑/↓ to select a task</span>
+        </text>
+      )
   }
+}
+
+export function PluginDetail({ plugins, hooks, files, filesActive, filesDone, selectedIndex, spinnerFrame }: Props) {
+  const resolved = resolveSelection(selectedIndex, plugins, hooks)
+  const body = renderBody(resolved, files, filesActive, filesDone, spinnerFrame)
 
   return (
     <box

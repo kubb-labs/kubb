@@ -133,12 +133,48 @@ export function createInitialState(): TuiState {
   }
 }
 
+/**
+ * The selection list always includes a virtual `Files` row between the
+ * plugins and the hooks once at least one plugin is queued. This keeps the
+ * file-write phase visible as a task even though it isn't a real
+ * `kubb:plugin:*` entry.
+ */
+function totalTaskCount(plugins: Array<PluginEntry>, hooks: Array<HookEntry>): number {
+  if (plugins.length === 0 && hooks.length === 0) return 0
+  return plugins.length + 1 + hooks.length
+}
+
 function clampSelection(index: number, plugins: Array<PluginEntry>, hooks: Array<HookEntry>): number {
-  const total = plugins.length + hooks.length
+  const total = totalTaskCount(plugins, hooks)
   if (total === 0) return -1
   if (index < 0) return 0
   if (index >= total) return total - 1
   return index
+}
+
+/**
+ * Maps a flat selection index to one of the three task buckets. Callers use
+ * this in both the list and the detail pane so they agree on which row maps
+ * to what.
+ */
+export function resolveSelection(
+  index: number,
+  plugins: Array<PluginEntry>,
+  hooks: Array<HookEntry>,
+):
+  | { kind: 'plugin'; plugin: PluginEntry }
+  | { kind: 'files' }
+  | { kind: 'hook'; hook: HookEntry }
+  | { kind: 'none' } {
+  if (index < 0) return { kind: 'none' }
+  if (index < plugins.length) {
+    const plugin = plugins[index]
+    return plugin ? { kind: 'plugin', plugin } : { kind: 'none' }
+  }
+  if (plugins.length + hooks.length === 0) return { kind: 'none' }
+  if (index === plugins.length) return { kind: 'files' }
+  const hook = hooks[index - plugins.length - 1]
+  return hook ? { kind: 'hook', hook } : { kind: 'none' }
 }
 
 function appendCapped<T>(list: Array<T>, item: T, limit: number): Array<T> {
@@ -194,7 +230,7 @@ export function reducer(state: TuiState, action: TuiAction): TuiState {
     case 'generation:end':
       return { ...state, status: action.status, finishedAt: action.at }
     case 'ui:select': {
-      if (state.plugins.length + state.hooks.length === 0) return state
+      if (totalTaskCount(state.plugins, state.hooks) === 0) return state
       const next = clampSelection((state.selectedTaskIndex < 0 ? 0 : state.selectedTaskIndex) + action.delta, state.plugins, state.hooks)
       return { ...state, selectedTaskIndex: next }
     }

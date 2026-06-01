@@ -89,8 +89,9 @@ describe('reducer', () => {
     state = reducer(state, { type: 'ui:select', delta: 1 })
     expect(state.selectedTaskIndex).toBe(1)
 
+    // Three plugins + the virtual `files` row = 4 selectable rows (0..3).
     state = reducer(state, { type: 'ui:select', delta: 5 })
-    expect(state.selectedTaskIndex).toBe(2)
+    expect(state.selectedTaskIndex).toBe(3)
 
     state = reducer(state, { type: 'ui:select', delta: -10 })
     expect(state.selectedTaskIndex).toBe(0)
