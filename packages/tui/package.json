@@ -1,31 +1,27 @@
 {
-  "name": "@kubb/cli",
+  "name": "@kubb/tui",
   "version": "5.0.0-beta.36",
-  "description": "Official CLI for Kubb. Run kubb generate, kubb init, kubb validate, kubb mcp, and kubb agent to manage the full code generation lifecycle from OpenAPI/Swagger specs.",
+  "description": "Full-screen terminal UI for Kubb generation. Live plugin progress, file-write progress, and a scrollable log pane, rendered with opentui and React. Opt-in via the CLI `--tui` flag.",
   "keywords": [
     "cli",
-    "code-generator",
     "codegen",
     "kubb",
     "openapi",
-    "sdk-generator",
-    "swagger",
-    "typescript"
+    "opentui",
+    "react",
+    "terminal",
+    "tui"
   ],
   "license": "MIT",
   "author": "stijnvanhulle",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/cli"
-  },
-  "bin": {
-    "kubb": "bin/kubb.js"
+    "directory": "packages/tui"
   },
   "files": [
     "src",
     "dist",
-    "bin",
     "!/**/**.test.**",
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
@@ -47,7 +43,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "tsdown && size-limit",
+    "build": "tsdown",
     "clean": "npx rimraf ./dist",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
@@ -59,47 +55,17 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@clack/prompts": "^1.5.0",
     "@kubb/core": "workspace:*",
-    "chokidar": "^5.0.0",
-    "cosmiconfig": "^9.0.1",
-    "jiti": "^2.7.0",
-    "tinyexec": "catalog:"
+    "@opentui/core": "^0.1.0",
+    "@opentui/react": "^0.1.0",
+    "react": "catalog:"
   },
   "devDependencies": {
-    "@internals/shared": "workspace:*",
     "@internals/utils": "workspace:*",
-    "@kubb/adapter-oas": "workspace:*"
+    "@types/react": "catalog:",
+    "vitest": "catalog:"
   },
-  "peerDependencies": {
-    "@kubb/adapter-oas": "workspace:*",
-    "@kubb/agent": "workspace:*",
-    "@kubb/mcp": "workspace:*",
-    "@kubb/tui": "workspace:*"
-  },
-  "peerDependenciesMeta": {
-    "@kubb/adapter-oas": {
-      "optional": true
-    },
-    "@kubb/agent": {
-      "optional": true
-    },
-    "@kubb/mcp": {
-      "optional": true
-    },
-    "@kubb/tui": {
-      "optional": true
-    }
-  },
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
-    }
-  ],
-  "preferGlobal": true,
   "engines": {
-    "node": ">=22"
+    "bun": ">=1.1"
   }
 }

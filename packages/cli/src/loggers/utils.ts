@@ -210,7 +210,20 @@ export function formatCommandWithArgs(command: string, args?: ReadonlyArray<stri
   return args?.length ? `${command} ${args.join(' ')}` : command
 }
 
-function detectLogger(): LoggerType {
+type DetectOptions = {
+  /**
+   * Set when the user explicitly opted into the full-screen opentui dashboard
+   * via `--tui` or `KUBB_TUI=1`. When the runtime cannot support it (Node,
+   * non-TTY, missing peer dep), `setupLogger` falls back to the next-best
+   * adapter and emits a `kubb:warn`.
+   */
+  tui?: boolean
+}
+
+function detectLogger({ tui }: DetectOptions = {}): LoggerType {
+  if (tui) {
+    return 'tui'
+  }
   if (isGitHubActions()) {
     return 'github-actions'
   }
@@ -220,22 +233,64 @@ function detectLogger(): LoggerType {
   return 'plain'
 }
 
-const logMapper: Record<LoggerType, CLILogger> = {
+const logMapper: Record<Exclude<LoggerType, 'tui'>, CLILogger> = {
   clack: clackLogger,
   plain: plainLogger,
   'github-actions': githubActionsLogger,
 }
 
-export async function setupLogger(context: LoggerContext, { logLevel }: LoggerOptions): Promise<HookSinkFactory | null> {
-  const type = detectLogger()
+/**
+ * Dynamically loads the opt-in opentui logger. Kept out of the static
+ * dependency graph so users who never pass `--tui` don't pay the install cost
+ * of `@opentui/core`'s native module.
+ */
+async function loadTuiLogger(): Promise<CLILogger | null> {
+  try {
+    // `@kubb/tui` is an optional peer dependency; it isn't resolvable from the
+    // typechecker's path mappings, so the indirection through a runtime string
+    // keeps the import opaque to TS while still working at runtime.
+    const specifier = '@kubb/tui' as string
+    const mod = (await import(specifier)) as { tuiLogger?: CLILogger }
+    return mod.tuiLogger ?? null
+  } catch {
+    return null
+  }
+}
 
-  const logger = logMapper[type]
+export type SetupLoggerOptions = LoggerOptions & DetectOptions
+
+export async function setupLogger(context: LoggerContext, { logLevel, tui }: SetupLoggerOptions): Promise<HookSinkFactory | null> {
+  let type = detectLogger({ tui })
+
+  let logger: CLILogger | null = null
+  if (type === 'tui') {
+    logger = await loadTuiLogger()
+    if (!logger) {
+      // Install path missing — fall back to the auto-detected non-TUI logger.
+      type = detectLogger()
+      logger = logMapper[type as Exclude<LoggerType, 'tui'>]
+    }
+  } else {
+    logger = logMapper[type as Exclude<LoggerType, 'tui'>]
+  }
 
   if (!logger) {
     throw new Error(`Unknown adapter type: ${type}`)
   }
 
   const makeSink = await logger.install(context, { logLevel })
+
+  if (type === 'tui' && makeSink == null) {
+    // The TUI logger declined to mount (non-Bun runtime or non-TTY). Fall back
+    // to the next-best non-TUI logger so the run still produces output.
+    const fallbackType = detectLogger()
+    const fallbackLogger = logMapper[fallbackType as Exclude<LoggerType, 'tui'>]
+    const fallbackSink = await fallbackLogger.install(context, { logLevel })
+    if (logLevel >= logLevelMap.debug) {
+      await fileSystemLogger.install(context, { logLevel })
+    }
+    return typeof fallbackSink === 'function' ? fallbackSink : null
+  }
 
   if (logLevel >= logLevelMap.debug) {
     await fileSystemLogger.install(context, { logLevel })

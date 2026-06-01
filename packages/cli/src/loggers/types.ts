@@ -3,5 +3,6 @@
  * - `'clack'`: TTY-aware output with spinners and progress bars.
  * - `'github-actions'`: CI output using `::group::` annotations.
  * - `'plain'`: Plain `console.log` output for non-TTY environments.
+ * - `'tui'`: Full-screen opentui dashboard, opt-in via `--tui` flag (Bun only).
  */
-export type LoggerType = 'clack' | 'github-actions' | 'plain'
+export type LoggerType = 'clack' | 'github-actions' | 'plain' | 'tui'
