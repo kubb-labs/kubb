@@ -244,16 +244,18 @@ const logMapper: Record<Exclude<LoggerType, 'tui'>, CLILogger> = {
  * dependency graph so users who never pass `--tui` don't pay the install cost
  * of `@opentui/core`'s native module.
  */
-async function loadTuiLogger(): Promise<CLILogger | null> {
+async function loadTuiLogger(): Promise<{ logger: CLILogger | null; error: Error | null }> {
   try {
-    // `@kubb/tui` is an optional peer dependency; it isn't resolvable from the
-    // typechecker's path mappings, so the indirection through a runtime string
-    // keeps the import opaque to TS while still working at runtime.
+    // Runtime string indirection keeps the import opaque to the typechecker,
+    // so the CLI's JSX namespace doesn't collide with opentui's.
     const specifier = '@kubb/tui' as string
     const mod = (await import(specifier)) as { tuiLogger?: CLILogger }
-    return mod.tuiLogger ?? null
-  } catch {
-    return null
+    if (!mod.tuiLogger) {
+      return { logger: null, error: new Error('@kubb/tui resolved but did not export `tuiLogger`. Build may be stale; run `pnpm --filter @kubb/tui build`.') }
+    }
+    return { logger: mod.tuiLogger, error: null }
+  } catch (error) {
+    return { logger: null, error: error instanceof Error ? error : new Error(String(error)) }
   }
 }
 
@@ -265,11 +267,17 @@ export async function setupLogger(context: LoggerContext, { logLevel, tui }: Set
   let logger: CLILogger | null = null
   let tuiLoadFailure: string | null = null
   if (type === 'tui') {
-    logger = await loadTuiLogger()
-    if (!logger) {
-      tuiLoadFailure = 'Could not load @kubb/tui. Install it as a peer dep, or omit --tui.'
+    const result = await loadTuiLogger()
+    if (!result.logger) {
+      const err = result.error
+      const detail = err ? `${err.message}${err.stack ? `\n${err.stack.split('\n').slice(1, 4).join('\n')}` : ''}` : 'unknown error'
+      // Stderr first so the user sees the root cause even before any logger subscribes.
+      console.error(`[kubb] Failed to load @kubb/tui:\n${detail}`)
+      tuiLoadFailure = `Could not load @kubb/tui: ${err?.message ?? 'unknown error'}`
       type = detectLogger()
       logger = logMapper[type as Exclude<LoggerType, 'tui'>]
+    } else {
+      logger = result.logger
     }
   } else {
     logger = logMapper[type as Exclude<LoggerType, 'tui'>]
