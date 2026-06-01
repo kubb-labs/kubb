@@ -135,6 +135,17 @@
     "serialised",
     "Visualisation",
     "deserialise",
-    "materialisation"
+    "materialisation",
+    "mypy",
+    "Turbopack",
+    "pytest",
+    "pluggy",
+    "miette",
+    "codespan",
+    "goroutines",
+    "hookwrapper",
+    "tryfirst",
+    "trylast",
+    "firstresult"
   ]
 }

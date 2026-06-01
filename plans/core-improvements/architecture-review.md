@@ -1,0 +1,164 @@
+# Research, architecture review against established projects
+
+> A second research note for PR #3444. The first report (`research.md`) stays inside the current
+> design and cleans it up. This one steps back and asks what Kubb's core could borrow from larger
+> code-processing projects: TypeScript, Vite, Vue, esbuild, oxc/oxlint, TanStack Query, and the
+> plugin and tooling ideas from Rust and Python. Each section names what the reference does, what
+> Kubb does today with a file reference, the change worth making, and the tradeoff. Nothing here is
+> committed work, and the bigger items are flagged as such.
+
+## How Kubb maps to these projects today
+
+Kubb is already shaped like the good examples in this space. It splits a framework-agnostic core
+from adapters and renderers the way TanStack keeps `query-core` separate from `react-query`. It
+streams schemas and operations as async iterables instead of buffering, which is the pull model
+esbuild and Rollup favour. It orders plugins with `enforce` like Vite, and it cleans up resources
+with `using` and `dispose`. So the gaps below are about maturity in four areas the big projects
+have invested in heavily: incremental work, a typed plugin protocol, a real diagnostics model, and
+CPU parallelism.
+
+| Borrow from | Idea | Kubb gap |
+| --- | --- | --- |
+| tsc, Vite, mypy, Turbopack | Incremental build cache and a dependency graph | Watch mode re-runs the whole build |
+| Rollup, Vite, pytest pluggy | Typed hook protocol with declared hook kinds | String-keyed event emitter with erased argument types |
+| Vue compiler, Babel, SWC | Explicit parse, transform, generate phases | Transform logic lives inside the driver loop |
+| tsc, Rust ariadne, oxc miette | Structured diagnostics with codes and source spans | `throw new Error('[kubb] ...')` |
+| esbuild, oxc, SWC | Parallelism across CPU cores | Single event loop, concurrency 8 |
+| oxc atoms and arena, V8 | String interning and flatter AST | A node allocated per schema and operation |
+
+## Incremental generation and a real dependency graph
+
+TypeScript writes a `.tsbuildinfo` so a rebuild only touches what changed. Vite caches pre-bundled
+dependencies under `node_modules/.vite` and keys them by a hash of lockfile and config. mypy and
+Turbopack do the same with content hashes. The shared idea is to remember what produced what, then
+skip inputs whose hash has not moved.
+
+Kubb regenerates everything on every run. Watch mode calls the full `generate()` on any file change
+(`packages/cli/src/runners/generate/run.ts:288-300`), and the `createHash` already in the CLI is
+only used to dedupe post-generate hook commands, not to skip unchanged output. On a large spec in a
+dev loop this is the single biggest cost.
+
+The change is a build manifest that maps a hash of each operation or schema, plus the resolved
+plugin options and the Kubb version, to the output paths it produced. On the next run, inputs whose
+hash is unchanged skip their generators, and the manifest tells the cleaner which stale files to
+remove. This pairs with the pre-scan finding from `research.md` (P1): instead of draining all
+schemas into memory to compute reachability, build an explicit graph of schema to dependent
+operation to output file once, then reuse it for both pruning and incremental skips. This is the
+largest item here and deserves its own spec before any code, because cache invalidation is where
+these systems get subtle.
+
+## A typed hook protocol
+
+Rollup and Vite give plugins a typed context object and a fixed set of hooks with declared kinds:
+some run in sequence, some in parallel, and some stop at the first non-null result. pytest's pluggy
+goes further with hook specifications and implementations marked `tryfirst`, `trylast`, and
+`hookwrapper`, plus `firstresult` hooks. The point is that the hook surface is a typed contract,
+not a bag of events.
+
+Kubb runs on a raw `AsyncEventEmitter` with string-keyed event names, and the listener type is
+erased to `(...args: Array<never>)` at every registration site
+(`packages/core/src/KubbDriver.ts:318`, `:329`, `:340`). That works, but a plugin author gets no
+type help about what a hook receives or returns, and the two listener-tracking structures noted in
+`research.md` (C1) exist because the emitter has no model of hook kinds.
+
+The change is a small typed hook registry that declares each hook's argument and return types and
+its kind: sequential, parallel, or first-result. Ordering still comes from `enforce`, which Kubb
+already has. This removes the `Array<never>` casts, makes the generate hooks discoverable in an
+editor, and gives middleware a defined place in the order rather than relying on registration
+sequence. It is mostly an internal change behind the same public `definePlugin` surface.
+
+## Parse, transform, generate as explicit phases
+
+Vue's compiler is three named stages: `baseParse` produces an AST, `transform` runs an ordered list
+of node transforms and directive transforms, and `generate` prints code. Babel and SWC use the same
+visitor-over-phases shape. Keeping the stages separate is what lets each be tested and extended on
+its own.
+
+In Kubb the transform step is folded into the driver. `#runGenerators` applies the per-plugin
+transformer inline while it walks and dispatches nodes
+(`packages/core/src/KubbDriver.ts:577` onward), so orchestration and transformation are tangled in
+the same method. A plugin author reasoning about how to rewrite a node before generation has to
+read the driver to find out.
+
+The change is to lift transform into a first-class stage: an ordered pipeline of node transforms
+that runs between the adapter's AST and the generators, registered the way Vue registers node
+transforms. The driver then orchestrates three clear phases instead of one large loop, which also
+shrinks the `#runGenerators` hot path from `research.md` (C1).
+
+## A diagnostics model instead of thrown errors
+
+TypeScript reports problems as structured diagnostics: a stable code, a category, a message, a
+source span, and related information. Rust's compiler and libraries like ariadne and codespan, and
+oxc through miette, render those spans as annotated source frames. The value is that a failure
+points at the exact place in the input and can be collected rather than thrown on the first
+problem.
+
+Kubb throws generic errors with a `[kubb]` prefix and wraps plugin failures in `BuildError` from
+`@internals/utils`, with no code, no category, and no pointer back into the OpenAPI document. This
+is the M3 item from `research.md`, and the reference projects show what the target looks like.
+
+The change is a `Diagnostic` type carrying a code, a severity, a message, and a source location
+expressed as a JSON pointer into the spec, collected into the build result and rendered by the CLI
+as an annotated frame. Generators and resolvers emit diagnostics instead of throwing, so one bad
+operation no longer has to abort the run and the user sees where the problem is.
+
+## Parallelism across cores, with honest limits
+
+esbuild owes much of its speed to Go goroutines processing files in parallel, and oxc and SWC use
+Rust threads through rayon. Kubb runs on a single event loop and gets concurrency from async
+batching at width 8 (`SCHEMA_PARALLEL` in `packages/core/src/constants.ts`). That overlaps IO well,
+but the JSX render and TypeScript print for each file are CPU-bound and still run on one thread.
+
+A `worker_threads` pool, through something like piscina, could shard rendering across cores for
+large specs. The honest caveat is that JavaScript is not Go or Rust here: passing nodes to workers
+costs serialization, so this only pays off past a size threshold and the single-threaded path should
+stay the default. Worth prototyping and measuring on a big spec before committing, not adopting on
+faith.
+
+## String interning and a flatter AST
+
+oxc interns identifiers as atoms and allocates AST nodes in an arena, which cuts both memory and the
+pointer chasing that hurts cache locality. V8 does its own string deduplication for similar reasons.
+Kubb allocates a node per schema and per operation, and repeated identifiers like schema names and
+`$ref` targets are fresh strings each time.
+
+Interning identifiers and sharing immutable nodes would lower memory and GC pressure on very large
+specs. In a JavaScript codebase the win is smaller than in Rust, so this ranks below the items
+above and is mainly worth it once the dependency graph from the incremental work already gives a
+natural place to hold interned names.
+
+## A versioned core protocol for external plugins
+
+TanStack keeps a small `query-core` that adapters target, and Vite's Environment API formalized the
+contract between core and its consumers. Kubb already splits core, adapters, renderers, and plugins
+cleanly, and the plugins live in their own monorepo. What is missing is a written, versioned
+description of the contract those external plugins target: the hook surface, the node shapes, and
+the resolver interface. Publishing that protocol as a documented and versioned surface lets plugin
+authors track breaking changes deliberately. This is low effort and high onboarding value, and it
+builds directly on the architecture document proposed in `research.md` (M1).
+
+## Suggested order
+
+Start with the diagnostics model and the typed hook protocol, since both are mostly internal, lift
+type safety and error quality immediately, and make the later work easier to reason about. Do the
+transform-phase extraction next, because it cleans up the same driver hot path the first report
+flagged. Treat incremental generation as its own spec with a measurement gate, since it is the
+highest payoff and the highest risk. Hold the worker pool and AST interning until a profile on a
+large spec shows they earn their complexity. The core-protocol document can run in parallel with any
+of these.
+
+## Open questions
+
+1. Is the dev-loop rebuild cost large enough on real specs to justify an incremental cache and the
+   invalidation complexity it brings, or is watch-mode full rebuild acceptable for now?
+2. Should the typed hook protocol replace `AsyncEventEmitter` outright, or wrap it so the public
+   surface and external plugins stay untouched?
+3. Where does the `Diagnostic` type live, core or `@internals/utils`, given the same question is
+   open for the error model in `research.md`?
+
+## Operating constraints
+
+The same limits from `research.md` apply: ESM only, Node 22, a stable public API through the
+`exports` map, the core size-limit, and a green suite. Anything that adds a worker pool or a cache
+must keep the current single-threaded, no-cache path working as the default so behavior does not
+change for existing users.
