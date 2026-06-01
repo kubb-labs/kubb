@@ -7,10 +7,6 @@ on:
         type: choice
         options: [version, staged, publish]
         default: version
-      dry-run:
-        description: 'Validate without publishing to npm'
-        type: boolean
-        default: false
   push:
     branches: ['main', 'alpha', 'beta', 'rc']
     paths:
@@ -27,7 +23,7 @@ concurrency:
 jobs:
   version:
     name: Version Packages
-    if: github.repository_owner == 'kubb-labs' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run != 'true'))
+    if: github.repository_owner == 'kubb-labs' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     timeout-minutes: 15
     runs-on: ubuntu-latest
     permissions:
@@ -103,7 +99,6 @@ jobs:
 
       - name: Release
         id: changesets
-        if: ${{ !inputs.dry-run }}
         uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
         with:
           # The staged command (`pnpm release:stage:ci`) chains steps in a single
@@ -117,22 +112,6 @@ jobs:
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Dry run (no publish)
-        if: ${{ inputs.dry-run }}
-        shell: bash
-        # Exercises the full pipeline without touching npm: prints the command
-        # that would run, shows the Changesets release plan, and packs every
-        # publishable package with `pnpm publish --dry-run`. `latest` and other
-        # dist-tags are never moved.
-        env:
-          CMD: ${{ steps.cmd.outputs.publish }}
-        run: |
-          echo "::notice::DRY RUN — would run: $CMD"
-          echo "== Changeset status =="
-          pnpm exec changeset status --verbose || true
-          echo "== pnpm publish --dry-run (tag: beta) =="
-          pnpm -r publish --dry-run --no-git-checks --tag beta
 
   canary:
     name: Canary
