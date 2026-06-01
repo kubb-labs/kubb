@@ -62,7 +62,7 @@ jobs:
       packages: write
       pull-requests: write
       issues: write
-    uses: kubb-labs/config/.github/workflows/release.yml@main
+    uses: kubb-labs/config/.github/workflows/release.yml@8317759d6fc145d791f4ceb971e68b05b1c9aa88 # main
     with:
       mode: ${{ inputs.mode || 'publish' }}
       owner: 'kubb-labs'
@@ -83,7 +83,7 @@ jobs:
       contents: read
       id-token: write
       packages: write
-    uses: kubb-labs/config/.github/workflows/release.yml@main
+    uses: kubb-labs/config/.github/workflows/release.yml@8317759d6fc145d791f4ceb971e68b05b1c9aa88 # main
     with:
       mode: canary
       owner: 'kubb-labs'
