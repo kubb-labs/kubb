@@ -55,40 +55,197 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release:
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.mode != 'version' }}
+    name: Release
+    if: ${{ github.repository_owner == 'kubb-labs' && (github.event_name != 'workflow_dispatch' || inputs.mode != 'version') }}
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    # id-token: write is scoped to this job, which runs after the build.
+    # Publishing uses npm OIDC trusted publishing with provenance, so no
+    # NPM_TOKEN secret is required.
     permissions:
       contents: write
       id-token: write
       packages: write
       pull-requests: write
       issues: write
-    uses: kubb-labs/config/.github/workflows/release.yml@8317759d6fc145d791f4ceb971e68b05b1c9aa88 # main
-    with:
-      mode: ${{ inputs.mode || 'publish' }}
-      owner: 'kubb-labs'
-      tag: beta
-      dry-run: ${{ inputs.dry-run || false }}
-      publish: 'pnpm release'
-      stage: 'pnpm release:stage:ci'
-      build: 'pnpm run build'
-      notify: true
-    secrets:
-      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+    outputs:
+      released: ${{ steps.changesets.outputs.staged == 'true' || steps.changesets.outputs.published == 'true' }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Harden runner
+        if: runner.os == 'Linux'
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
+
+      - name: Setup Git User
+        shell: bash
+        run: |
+          git config --global user.email "stijn@stijnvanhulle.be"
+          git config --global user.name "Stijn Van Hulle"
+
+      - name: Install dependencies (release hardening)
+        run: pnpm install --frozen-lockfile --force
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Resolve release command
+        id: cmd
+        shell: bash
+        # In publish mode, append `-- --tag beta` so the dist-tag flows through
+        # pnpm to `changeset publish --tag beta`. Inputs are read from env to
+        # avoid script injection. Defaults to `publish` on push events.
+        env:
+          MODE: ${{ inputs.mode || 'publish' }}
+        run: |
+          if [ "$MODE" = 'publish' ]; then
+            echo "publish=pnpm release -- --tag beta" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=pnpm release:stage:ci" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Release
+        id: changesets
+        if: ${{ !inputs.dry-run }}
+        uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
+        with:
+          # The staged command (`pnpm release:stage:ci`) chains steps in a single
+          # script: it stages every package on npm (no publish to `latest`),
+          # creates the local git tags, and prints the `New tag:` lines the action
+          # parses to push tags and create a GitHub Release per package. The
+          # publish command (`pnpm release`) promotes to the `beta` dist-tag.
+          publish: ${{ steps.cmd.outputs.publish }}
+          commit: 'ci(changesets): version packages'
+          setupGitUser: false
+        env:
+          NPM_CONFIG_PROVENANCE: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Dry run (no publish)
+        if: ${{ inputs.dry-run }}
+        shell: bash
+        # Exercises the full pipeline without touching npm: prints the command
+        # that would run, shows the Changesets release plan, and packs every
+        # publishable package with `pnpm publish --dry-run`. `latest` and other
+        # dist-tags are never moved.
+        env:
+          CMD: ${{ steps.cmd.outputs.publish }}
+        run: |
+          echo "::notice::DRY RUN — would run: $CMD"
+          echo "== Changeset status =="
+          pnpm exec changeset status --verbose || true
+          echo "== pnpm publish --dry-run (tag: beta) =="
+          pnpm -r publish --dry-run --no-git-checks --tag beta
 
   canary:
     name: Canary
     needs: [release]
     if: ${{ github.repository_owner == 'kubb-labs' && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.release.outputs.released != 'true' }}
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       id-token: write
       packages: write
-      pull-requests: write
-      issues: write
-    uses: kubb-labs/config/.github/workflows/release.yml@8317759d6fc145d791f4ceb971e68b05b1c9aa88 # main
-    with:
-      mode: canary
-      owner: 'kubb-labs'
-      publish: 'pnpm release'
-      stage: 'pnpm release:stage:ci'
-      build: 'pnpm run build'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Harden runner
+        if: runner.os == 'Linux'
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
+
+      - name: Setup Git User
+        shell: bash
+        run: |
+          git config --global user.email "stijn@stijnvanhulle.be"
+          git config --global user.name "Stijn Van Hulle"
+
+      - name: Install dependencies (release hardening)
+        run: pnpm install --frozen-lockfile --force
+
+      - name: Stamp canary versions
+        shell: bash
+        # Bump each package to a unique <next-minor>-canary.<timestamp> version so
+        # nothing collides with the `latest` tag.
+        run: |
+          pnpm -r exec bash -c '
+            npm --no-git-tag-version version minor || true
+            version=$(node -p "require(\"./package.json\").version")
+            canary_version="${version}-canary.$(date +%Y%m%dT%H%M%S)"
+            echo "Version that will be published: ${canary_version}"
+            npm --no-git-tag-version version "${canary_version}" || true
+          '
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Publish canary
+        shell: bash
+        env:
+          NPM_CONFIG_PROVENANCE: true
+        run: pnpm release -- --tag canary
+
+  notify:
+    name: Send Discord Notification
+    needs: [release]
+    if: ${{ needs.release.outputs.released == 'true' }}
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Send a discord notification
+        uses: actions/github-script@373c709c69115d41ff229c7e5df9f8788daa9553 # v9
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Skips cleanly when DISCORD_WEBHOOK_URL is not configured.
+            // The secrets context is not available in step `if:` conditions,
+            // so the guard lives here instead.
+            if (!process.env.DISCORD_WEBHOOK_URL) {
+              console.log('DISCORD_WEBHOOK_URL not set, skipping notification');
+              return;
+            }
+            fetch(process.env.DISCORD_WEBHOOK_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                content: `A new release is available 🎉. \n [Read the changelog](https://github.com/${context.repo.owner}/${context.repo.repo}/releases)`,
+              }),
+            })
+              .then((res) => {
+                console.log('Sent discord notification', res.status);
+              })
+              .catch((err) => {
+                console.error('Error sending discord notification', err);
+              });
