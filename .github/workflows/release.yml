@@ -24,6 +24,42 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Opens/updates the "Version Packages" PR: `changeset version` bumps package
+  # versions and regenerates changelogs from the queued changesets. This is the
+  # PR-creation half of the changesets flow; the reusable `release` job below
+  # only stages/publishes, so without this job no version/changelog PR is ever
+  # opened. Runs on push only — manual publish dispatches must not open a PR.
+  version:
+    name: Version Packages
+    if: github.repository_owner == 'kubb-labs' && github.event_name == 'push'
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
+        with:
+          node-version: '22'
+          cache: 'false'
+
+      - name: Create Version Packages PR
+        uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
+        with:
+          # Version-only: bump versions + regenerate changelogs into a PR. No
+          # `publish` here — staging/publishing stays with the reusable job.
+          version: pnpm version
+          commit: 'ci(changesets): version packages'
+          title: 'ci(changesets): version packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   release:
     permissions:
       contents: write
