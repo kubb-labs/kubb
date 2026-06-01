@@ -90,18 +90,6 @@
       ],
       "outputs": [],
       "cache": false
-    },
-    "release": {
-      "dependsOn": [
-        "build"
-      ],
-      "outputs": []
-    },
-    "release:canary": {
-      "dependsOn": [
-        "build"
-      ],
-      "outputs": []
     }
   }
 }
