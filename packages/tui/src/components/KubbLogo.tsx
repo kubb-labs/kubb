@@ -25,7 +25,7 @@ export function KubbLogo({ version, configName }: Props) {
       <text>
         <span fg={BROWN}>█ </span>
         <span fg={HIGHLIGHT}> ▄▄</span>
-        <span fg={BROWN}>     </span>
+        <span fg={BROWN}> </span>
         <span fg={HIGHLIGHT}>▄▄ </span>
         <span fg={BROWN}>█</span>
         <span fg={ORANGE} attributes={attrs.bold}>{`  KUBB v${version}`}</span>
@@ -33,7 +33,7 @@ export function KubbLogo({ version, configName }: Props) {
       <text>
         <span fg={BROWN}>█ </span>
         <span fg={EYE}>█▀█</span>
-        <span fg={BROWN}>     </span>
+        <span fg={BROWN}> </span>
         <span fg={EYE}>█▀█</span>
         <span fg={BROWN}> █</span>
         <span fg="#888" attributes={attrs.dim}>{`  ${configName ?? 'kubb.config.ts'}`}</span>
@@ -41,12 +41,14 @@ export function KubbLogo({ version, configName }: Props) {
       <text>
         <span fg={BROWN}>█ </span>
         <span fg={EYE}>▀▀▀</span>
-        <span fg={BROWN}>  </span>
+        <span fg={BROWN}> </span>
         <span fg={BLUSH}>◡</span>
-        <span fg={BROWN}>  </span>
+        <span fg={BROWN}> </span>
         <span fg={EYE}>▀▀▀</span>
         <span fg={BROWN}> █</span>
-        <span fg="#888" attributes={attrs.dim}>{'  '}</span>
+        <span fg="#888" attributes={attrs.dim}>
+          {'  '}
+        </span>
         <span fg="yellow">{'➜ '}</span>
         <span fg="white">Ready to generate</span>
       </text>

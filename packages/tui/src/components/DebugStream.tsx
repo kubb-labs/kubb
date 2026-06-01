@@ -34,9 +34,7 @@ export function DebugStream({ entries }: Props) {
               ›{' '}
             </span>
             <span fg="#cccccc">{entry.message}</span>
-            {entry.info ? (
-              <span fg="#666" attributes={attrs.dim}>{` ${entry.info}`}</span>
-            ) : null}
+            {entry.info ? <span fg="#666" attributes={attrs.dim}>{` ${entry.info}`}</span> : null}
           </text>
         ))
       )}
