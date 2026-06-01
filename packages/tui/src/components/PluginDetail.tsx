@@ -129,8 +129,12 @@ function renderFiles(files: TuiState['files'], active: boolean, done: boolean, s
     <>
       <box flexDirection="row" paddingBottom={1}>
         <text>
-          <span fg={badge.fg} bg={badge.bg} attributes={attrs.bold}>{badge.text}</span>
-          <span fg="white" attributes={attrs.bold}>{'  files'}</span>
+          <span fg={badge.fg} bg={badge.bg} attributes={attrs.bold}>
+            {badge.text}
+          </span>
+          <span fg="white" attributes={attrs.bold}>
+            {'  files'}
+          </span>
           <span fg="#888" attributes={attrs.dim}>{`  ·  ${files.processed}/${files.total || '—'}`}</span>
         </text>
       </box>
@@ -141,7 +145,9 @@ function renderFiles(files: TuiState['files'], active: boolean, done: boolean, s
         </text>
       </box>
       <text>
-        <span fg="#666" attributes={attrs.dim}>{files.current ? truncateLeft(files.current, 80) : 'idle'}</span>
+        <span fg="#666" attributes={attrs.dim}>
+          {files.current ? truncateLeft(files.current, 80) : 'idle'}
+        </span>
       </text>
     </>
   )
@@ -164,7 +170,9 @@ function renderBody(
     default:
       return (
         <text>
-          <span fg="#888" attributes={attrs.dim}>use ↑/↓ to select a task</span>
+          <span fg="#888" attributes={attrs.dim}>
+            use ↑/↓ to select a task
+          </span>
         </text>
       )
   }

@@ -161,11 +161,7 @@ export function resolveSelection(
   index: number,
   plugins: Array<PluginEntry>,
   hooks: Array<HookEntry>,
-):
-  | { kind: 'plugin'; plugin: PluginEntry }
-  | { kind: 'files' }
-  | { kind: 'hook'; hook: HookEntry }
-  | { kind: 'none' } {
+): { kind: 'plugin'; plugin: PluginEntry } | { kind: 'files' } | { kind: 'hook'; hook: HookEntry } | { kind: 'none' } {
   if (index < 0) return { kind: 'none' }
   if (index < plugins.length) {
     const plugin = plugins[index]

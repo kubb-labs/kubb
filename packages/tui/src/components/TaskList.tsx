@@ -93,7 +93,9 @@ export function TaskList({ plugins, hooks, files, filesActive, filesDone, select
     >
       {plugins.length === 0 ? (
         <text>
-          <span fg="#888" attributes={attrs.dim}>waiting for generation to start…</span>
+          <span fg="#888" attributes={attrs.dim}>
+            waiting for generation to start…
+          </span>
         </text>
       ) : (
         plugins.map((plugin, index) => {
@@ -129,7 +131,9 @@ export function TaskList({ plugins, hooks, files, filesActive, filesDone, select
       {hooks.length > 0 ? (
         <>
           <text>
-            <span fg="#444" attributes={attrs.dim}>──────────</span>
+            <span fg="#444" attributes={attrs.dim}>
+              ──────────
+            </span>
           </text>
           {hooks.map((hook, hookOffset) => {
             const index = plugins.length + 1 + hookOffset
