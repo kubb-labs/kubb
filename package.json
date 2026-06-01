@@ -25,7 +25,6 @@
     "lint": "oxlint -c oxlint.config.ts ./packages",
     "lint:fix": "oxlint -c oxlint.config.ts --fix ./packages",
     "lint:spell": "cspell \"**/*.{ts,md}\" --config ./cspell.json --no-progress",
-    "release": "node scripts/release.mjs",
     "start": "turbo run start --filter=./packages/*",
     "test": "vitest run --config ./configs/vitest.config.ts",
     "test:bench": "NODE_OPTIONS='--max_old_space_size=4096' vitest bench --config ./configs/vitest.bench.config.ts",
