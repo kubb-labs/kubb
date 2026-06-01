@@ -19,31 +19,38 @@ export function StatusBar({ state }: Props) {
   const elapsed = formatElapsed(state.startedAt, state.finishedAt)
 
   return (
-    <box border borderStyle="rounded" borderColor="#333" flexDirection="row" justifyContent="space-between" paddingLeft={1} paddingRight={1}>
+    <box flexDirection="row" justifyContent="space-between" paddingLeft={2} paddingRight={2}>
       <text>
-        <span fg="black" bg={b.color} attributes={attrs.bold}>
-          {b.text}
-        </span>
-        <span fg="#888" attributes={attrs.dim}>{`  plugins `}</span>
+        <span fg="black" bg={b.color} attributes={attrs.bold}>{b.text}</span>
+        <span fg="#666" attributes={attrs.dim}>{' · '}</span>
+        <span fg="#888" attributes={attrs.dim}>plugins </span>
         <span fg="green">{completed.toString()}</span>
         {failed > 0 ? (
           <>
-            <span fg="#888" attributes={attrs.dim}>
-              /
-            </span>
+            <span fg="#666" attributes={attrs.dim}>/</span>
             <span fg="red">{failed.toString()}</span>
           </>
         ) : null}
-        <span fg="#888" attributes={attrs.dim}>{`  files `}</span>
+        <span fg="#666" attributes={attrs.dim}>{' · '}</span>
+        <span fg="#888" attributes={attrs.dim}>files </span>
         <span fg="green">{state.files.processed.toString()}</span>
-        <span fg="#888" attributes={attrs.dim}>{`/${state.files.total}`}</span>
-        <span fg="#888" attributes={attrs.dim}>{`  elapsed `}</span>
+        <span fg="#666" attributes={attrs.dim}>{`/${state.files.total}`}</span>
+        <span fg="#666" attributes={attrs.dim}>{' · '}</span>
+        <span fg="#888" attributes={attrs.dim}>elapsed </span>
         <span fg="green">{elapsed}</span>
       </text>
       <text>
-        <span fg="#666" attributes={attrs.dim}>
-          ↑/↓ select · space expand · r restart · c clear · ? help · q quit
-        </span>
+        <span fg="#666" attributes={attrs.dim}>↑/↓ select</span>
+        <span fg="#444" attributes={attrs.dim}>{' · '}</span>
+        <span fg="#666" attributes={attrs.dim}>space expand</span>
+        <span fg="#444" attributes={attrs.dim}>{' · '}</span>
+        <span fg="#666" attributes={attrs.dim}>r restart</span>
+        <span fg="#444" attributes={attrs.dim}>{' · '}</span>
+        <span fg="#666" attributes={attrs.dim}>c clear</span>
+        <span fg="#444" attributes={attrs.dim}>{' · '}</span>
+        <span fg="#666" attributes={attrs.dim}>? help</span>
+        <span fg="#444" attributes={attrs.dim}>{' · '}</span>
+        <span fg="#666" attributes={attrs.dim}>q quit</span>
       </text>
     </box>
   )
