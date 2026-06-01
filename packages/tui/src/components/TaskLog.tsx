@@ -239,6 +239,10 @@ export function TaskLog({ plugins, hooks, files, filesActive, filesDone, logs, s
       paddingTop={1}
       paddingBottom={1}
       flexGrow={1}
+      verticalScrollbarOptions={{
+        showArrows: false,
+        trackOptions: { backgroundColor: '#2a2a2a', foregroundColor: 'cyan' },
+      }}
     >
       {body}
     </scrollbox>
