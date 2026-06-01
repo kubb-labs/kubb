@@ -80,9 +80,11 @@ jobs:
     needs: [release]
     if: ${{ github.repository_owner == 'kubb-labs' && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.release.outputs.released != 'true' }}
     permissions:
-      contents: read
+      contents: write
       id-token: write
       packages: write
+      pull-requests: write
+      issues: write
     uses: kubb-labs/config/.github/workflows/release.yml@8317759d6fc145d791f4ceb971e68b05b1c9aa88 # main
     with:
       mode: canary
