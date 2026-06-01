@@ -40,7 +40,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
+        uses: kubb-labs/config/.github/setup@974cda923f9fdbdaf70f63d09e7670d71f90f3b2 # main
         with:
           node-version: '22'
           cache: 'false'
@@ -77,13 +77,11 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
+        uses: kubb-labs/config/.github/setup@974cda923f9fdbdaf70f63d09e7670d71f90f3b2 # main
         with:
           node-version: '22'
           cache: 'false'
-
-      - name: Reinstall dependencies (release hardening)
-        run: pnpm install --frozen-lockfile --force
+          force-install: 'true'
 
       - name: Build
         run: pnpm run build
@@ -153,13 +151,11 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
+        uses: kubb-labs/config/.github/setup@974cda923f9fdbdaf70f63d09e7670d71f90f3b2 # main
         with:
           node-version: '22'
           cache: 'false'
-
-      - name: Reinstall dependencies (release hardening)
-        run: pnpm install --frozen-lockfile --force
+          force-install: 'true'
 
       - name: Stamp canary versions
         shell: bash
