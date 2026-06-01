@@ -7,7 +7,7 @@ type Binding = {
 
 const BINDINGS: Array<Binding> = [
   { keys: '↑ / ↓  ·  k / j', description: 'select task in the left pane' },
-  { keys: 'enter', description: 'expand the selected task to full screen' },
+  { keys: 'space', description: 'expand the selected task to full screen' },
   { keys: 'esc', description: 'leave the expanded / help view' },
   { keys: 'a  ·  esc', description: 'jump back to the All-tasks row (all logs)' },
   { keys: 'r', description: 'restart the last generation' },

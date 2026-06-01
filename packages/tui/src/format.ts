@@ -51,7 +51,7 @@ export function truncateRight(value: string, max: number): string {
   return `${value.slice(0, max - 1)}…`
 }
 
-const ANSI_RE = /\[[0-9;]*m/g
+const ANSI_RE = /\[[\d;?]*[a-zA-Z]/g
 
 /**
  * Strip ANSI SGR escape sequences from a string. Kubb's hook payloads contain

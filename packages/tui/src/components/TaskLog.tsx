@@ -215,9 +215,11 @@ export function TaskLog({ plugins, hooks, files, filesActive, filesDone, logs, s
   const body = renderBody(resolved, files, filesActive, filesDone, logs, spinnerFrame)
 
   return (
-    <box
+    <scrollbox
       title={paneTitle(resolved)}
       titleAlignment="left"
+      stickyScroll
+      stickyStart="bottom"
       border
       borderStyle="rounded"
       borderColor="#444"
@@ -229,6 +231,6 @@ export function TaskLog({ plugins, hooks, files, filesActive, filesDone, logs, s
       flexGrow={1}
     >
       {body}
-    </box>
+    </scrollbox>
   )
 }

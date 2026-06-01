@@ -68,7 +68,7 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
 
     if (state.ui.mode === 'help') return
 
-    if (event.name === 'return') {
+    if (event.name === 'space') {
       dispatch({ type: 'ui:set-mode', mode: state.ui.mode === 'detail' ? 'normal' : 'detail' })
       return
     }
