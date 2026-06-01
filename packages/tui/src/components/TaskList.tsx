@@ -100,11 +100,7 @@ function filesRowOf(files: TuiState['files'], active: boolean, done: boolean, in
   else if (active) status = 'running'
   else status = 'queued'
   const ratio = files.total === 0 ? 0 : Math.min(1, files.processed / files.total)
-  const glyph = done
-    ? { char: '✓', color: 'green' }
-    : active
-      ? { char: spinner, color: 'cyan' }
-      : { char: '○', color: '#888' }
+  const glyph = done ? { char: '✓', color: 'green' } : active ? { char: spinner, color: 'cyan' } : { char: '○', color: '#888' }
   const right = done
     ? { text: `${files.processed}`, color: 'green' }
     : active
@@ -145,7 +141,9 @@ function RowView({ row }: { row: Row }) {
       <span fg={row.glyph.color}>{row.glyph.char}</span>
       <span fg={nameFg} attributes={nameAttr}>{` ${row.name}`}</span>
       <span fg={row.bar.color}>{` ${FILLED.repeat(row.bar.filled)}`}</span>
-      <span fg="#444" attributes={attrs.dim}>{EMPTY.repeat(row.bar.empty)}</span>
+      <span fg="#444" attributes={attrs.dim}>
+        {EMPTY.repeat(row.bar.empty)}
+      </span>
       <span fg={row.right.color}>{` ${row.right.text.padStart(RIGHT_WIDTH)}`}</span>
     </text>
   )

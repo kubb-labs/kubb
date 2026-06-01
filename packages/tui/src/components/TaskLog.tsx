@@ -53,7 +53,9 @@ type Heading = { badge: { text: string; bg: string; fg: string }; title: string;
 function renderHeading(h: Heading) {
   return (
     <text>
-      <span fg={h.badge.fg} bg={h.badge.bg} attributes={attrs.bold}>{h.badge.text}</span>
+      <span fg={h.badge.fg} bg={h.badge.bg} attributes={attrs.bold}>
+        {h.badge.text}
+      </span>
       <span fg="white" attributes={attrs.bold}>{`  ${h.title}`}</span>
       {h.meta ? <span fg="#888" attributes={attrs.dim}>{`  ·  ${h.meta}`}</span> : null}
     </text>
@@ -80,11 +82,15 @@ function renderPlugin(plugin: PluginEntry, spinner: string) {
         meta: plugin.duration !== undefined ? formatMs(plugin.duration) : undefined,
       })}
       <text>
-        <span fg="#444" attributes={attrs.dim}>──────────────── events ────────────────</span>
+        <span fg="#444" attributes={attrs.dim}>
+          ──────────────── events ────────────────
+        </span>
       </text>
       {events.length === 0 ? (
         <text>
-          <span fg="#666" attributes={attrs.dim}>nothing emitted while this plugin ran</span>
+          <span fg="#666" attributes={attrs.dim}>
+            nothing emitted while this plugin ran
+          </span>
         </text>
       ) : (
         renderEntries(events)
@@ -99,11 +105,15 @@ function renderHook(hook: HookEntry, spinner: string) {
     <>
       {renderHeading({ badge: hookBadge(hook.status, spinner), title: hook.command, meta: elapsed })}
       <text>
-        <span fg="#444" attributes={attrs.dim}>──────────────── stdout / stderr ────────────────</span>
+        <span fg="#444" attributes={attrs.dim}>
+          ──────────────── stdout / stderr ────────────────
+        </span>
       </text>
       {hook.lines.length === 0 ? (
         <text>
-          <span fg="#666" attributes={attrs.dim}>no output yet</span>
+          <span fg="#666" attributes={attrs.dim}>
+            no output yet
+          </span>
         </text>
       ) : (
         hook.lines.slice(-30).map((line) => (
@@ -125,7 +135,9 @@ function renderFiles(files: TuiState['files'], active: boolean, done: boolean, s
         meta: `${files.processed}/${files.total || '—'}`,
       })}
       <text>
-        <span fg="#444" attributes={attrs.dim}>──────────────── current ────────────────</span>
+        <span fg="#444" attributes={attrs.dim}>
+          ──────────────── current ────────────────
+        </span>
       </text>
       <text>
         <span fg="#cccccc">{files.current ? truncateLeft(files.current, 90) : 'idle'}</span>
@@ -139,22 +151,30 @@ function renderAll(logs: Array<LogEntry>) {
   return (
     <>
       <text>
-        <span fg="white" attributes={attrs.bold}>All events</span>
+        <span fg="white" attributes={attrs.bold}>
+          All events
+        </span>
         <span fg="#888" attributes={attrs.dim}>{`  (${logs.length})`}</span>
       </text>
       <text>
-        <span fg="#444" attributes={attrs.dim}>──────────────────────────────</span>
+        <span fg="#444" attributes={attrs.dim}>
+          ──────────────────────────────
+        </span>
       </text>
       {recent.length === 0 ? (
         <text>
-          <span fg="#666" attributes={attrs.dim}>no events yet</span>
+          <span fg="#666" attributes={attrs.dim}>
+            no events yet
+          </span>
         </text>
       ) : (
         renderEntries(recent)
       )}
       {logs.length === 0 ? null : (
         <text>
-          <span fg="#666" attributes={attrs.dim}>↑/↓ pick a task to filter</span>
+          <span fg="#666" attributes={attrs.dim}>
+            ↑/↓ pick a task to filter
+          </span>
         </text>
       )}
     </>
