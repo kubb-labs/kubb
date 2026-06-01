@@ -108,7 +108,7 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
 
   if (state.ui.mode === 'help') {
     return (
-      <box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={2} paddingRight={2} gap={1}>
+      <box flexDirection="column" flexGrow={1} paddingTop={1} paddingBottom={1} paddingLeft={2} paddingRight={2} gap={1}>
         <KubbLogo version={state.version} configName={state.configName} status={state.status} />
         <HelpOverlay />
         <StatusBar state={state} />
@@ -118,7 +118,7 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
 
   if (state.ui.mode === 'detail') {
     return (
-      <box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={2} paddingRight={2} gap={1}>
+      <box flexDirection="column" flexGrow={1} paddingTop={1} paddingBottom={1} paddingLeft={2} paddingRight={2} gap={1}>
         <KubbLogo version={state.version} configName={state.configName} status={state.status} />
         <TaskLog
           plugins={state.plugins}
@@ -136,7 +136,7 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
   }
 
   return (
-    <box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={2} paddingRight={2} gap={1}>
+    <box flexDirection="column" flexGrow={1} paddingTop={1} paddingBottom={1} paddingLeft={2} paddingRight={2} gap={1}>
       <KubbLogo version={state.version} configName={state.configName} status={state.status} />
       <box flexDirection="row" flexGrow={1} gap={1}>
         <TaskList
