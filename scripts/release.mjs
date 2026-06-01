@@ -61,6 +61,9 @@ for (const pkg of staged) {
 run('pnpm', ['exec', 'changeset', 'tag'])
 run('git', ['push', '--tags'])
 
-if (process.env.GITHUB_OUTPUT) {
+// Only signal a stage to the workflow if pnpm actually published something.
+// When everything was skipped (versions already on npm), let the canary step
+// fire instead — that's the intent for ordinary main pushes.
+if (staged.length > 0 && process.env.GITHUB_OUTPUT) {
   appendFileSync(process.env.GITHUB_OUTPUT, 'staged=true\n')
 }
