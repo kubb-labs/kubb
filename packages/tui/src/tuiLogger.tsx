@@ -20,16 +20,33 @@ type HookSinkOptions = {
 
 type HookSinkFactory = (commandWithArgs: string, hookId: string) => HookSinkOptions | null
 
-/**
- * Render handle returned by `@opentui/react.render`. We only need to call
- * `unmount` when the run finishes or the process exits.
- */
-type RenderHandle = { unmount: () => void } | void
+type ReactRoot = {
+  render: (node: React.ReactNode) => void
+  unmount: () => void
+}
 
-async function loadRenderer(): Promise<((node: React.ReactNode) => RenderHandle) | null> {
+type CliRenderer = {
+  start: () => void
+  stop: () => void
+  destroy: () => void
+}
+
+type OpenTuiCore = {
+  createCliRenderer: (config?: {
+    exitOnCtrlC?: boolean
+    targetFps?: number
+    useMouse?: boolean
+  }) => Promise<CliRenderer>
+}
+
+type OpenTuiReact = {
+  createRoot: (renderer: CliRenderer) => ReactRoot
+}
+
+async function loadOpenTui(): Promise<{ core: OpenTuiCore; react: OpenTuiReact } | null> {
   try {
-    const mod = (await import('@opentui/react')) as { render?: (node: React.ReactNode) => RenderHandle }
-    return mod.render ?? null
+    const [core, react] = await Promise.all([import('@opentui/core'), import('@opentui/react')])
+    return { core: core as unknown as OpenTuiCore, react: react as unknown as OpenTuiReact }
   } catch {
     return null
   }
@@ -56,15 +73,21 @@ export const tuiLogger = defineLogger<LoggerOptions, HookSinkFactory | null>({
   async install(context, options) {
     const reason = getTuiUnavailableReason()
     if (reason) {
-      await context.emit('kubb:warn', { message: reason })
+      // No logger has subscribed yet when install runs, so route the message
+      // straight to stderr to make sure the user sees it before the fallback
+      // logger takes over.
+      console.error(`[kubb] ${reason}`)
       return null
     }
 
-    const render = await loadRenderer()
-    if (!render) {
-      await context.emit('kubb:warn', { message: 'Could not load @opentui/react. Install @kubb/tui peer dependencies or omit --tui.' })
+    const opentui = await loadOpenTui()
+    if (!opentui) {
+      console.error('[kubb] Could not load @opentui/core or @opentui/react. Install @kubb/tui peer dependencies or omit --tui.')
       return null
     }
+
+    const renderer = await opentui.core.createCliRenderer({ exitOnCtrlC: false, useMouse: false, targetFps: 60 })
+    const root = opentui.react.createRoot(renderer)
 
     const logLevel = options?.logLevel ?? logLevelMap.info
     const listeners = new Set<(action: TuiAction) => void>()
@@ -80,25 +103,37 @@ export const tuiLogger = defineLogger<LoggerOptions, HookSinkFactory | null>({
       }
     }
 
-    const handle = render(<App subscribe={subscribe} />)
+    root.render(<App subscribe={subscribe} />)
+    renderer.start()
 
-    function unmount(): void {
-      if (handle && typeof handle.unmount === 'function') {
-        try {
-          handle.unmount()
-        } catch {
-          // ignore — terminal restore is best-effort
-        }
+    let torn = false
+    function teardown(): void {
+      if (torn) return
+      torn = true
+      try {
+        root.unmount()
+      } catch {
+        // ignore
+      }
+      try {
+        renderer.stop()
+      } catch {
+        // ignore
+      }
+      try {
+        renderer.destroy()
+      } catch {
+        // ignore
       }
     }
 
-    process.once('exit', unmount)
+    process.once('exit', teardown)
     process.once('SIGINT', () => {
-      unmount()
+      teardown()
       process.exit(130)
     })
     process.once('SIGTERM', () => {
-      unmount()
+      teardown()
       process.exit(143)
     })
 
@@ -108,7 +143,7 @@ export const tuiLogger = defineLogger<LoggerOptions, HookSinkFactory | null>({
 
     context.on('kubb:lifecycle:end', () => {
       dispatch({ type: 'lifecycle:end' })
-      unmount()
+      teardown()
     })
 
     context.on('kubb:version:new', ({ currentVersion, latestVersion }) => {

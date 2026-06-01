@@ -263,10 +263,11 @@ export async function setupLogger(context: LoggerContext, { logLevel, tui }: Set
   let type = detectLogger({ tui })
 
   let logger: CLILogger | null = null
+  let tuiLoadFailure: string | null = null
   if (type === 'tui') {
     logger = await loadTuiLogger()
     if (!logger) {
-      // Install path missing — fall back to the auto-detected non-TUI logger.
+      tuiLoadFailure = 'Could not load @kubb/tui. Install it as a peer dep, or omit --tui.'
       type = detectLogger()
       logger = logMapper[type as Exclude<LoggerType, 'tui'>]
     }
@@ -281,15 +282,18 @@ export async function setupLogger(context: LoggerContext, { logLevel, tui }: Set
   const makeSink = await logger.install(context, { logLevel })
 
   if (type === 'tui' && makeSink == null) {
-    // The TUI logger declined to mount (non-Bun runtime or non-TTY). Fall back
-    // to the next-best non-TUI logger so the run still produces output.
     const fallbackType = detectLogger()
     const fallbackLogger = logMapper[fallbackType as Exclude<LoggerType, 'tui'>]
     const fallbackSink = await fallbackLogger.install(context, { logLevel })
+    await context.emit('kubb:warn', { message: 'TUI declined to mount (non-Bun, non-TTY, or missing peer). Falling back to default output.' })
     if (logLevel >= logLevelMap.debug) {
       await fileSystemLogger.install(context, { logLevel })
     }
     return typeof fallbackSink === 'function' ? fallbackSink : null
+  }
+
+  if (tuiLoadFailure) {
+    await context.emit('kubb:warn', { message: tuiLoadFailure })
   }
 
   if (logLevel >= logLevelMap.debug) {
