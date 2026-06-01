@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.36 — Jun 1, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Update @clack/prompts ([`6e39543`](https://github.com/kubb-labs/kubb/commit/6e395434be640bb786cdd4842b31fd81ffd003ca))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.35 — May 30, 2026
 
 ### @kubb/core
