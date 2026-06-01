@@ -117,6 +117,19 @@ describe('reducer', () => {
     expect(state.debug).toHaveLength(0)
   })
 
+  it('attributes log entries to the running plugin', () => {
+    let state = reducer(createInitialState(), { type: 'generation:start', pluginNames: ['ts', 'zod'], at: 1 })
+    state = reducer(state, { type: 'plugin:start', name: 'ts' })
+    state = reducer(state, { type: 'log', entry: { level: 'info', message: 'parsed Pet', at: 2 } })
+    state = reducer(state, { type: 'log', entry: { level: 'warn', message: 'missing tag', at: 3 } })
+    state = reducer(state, { type: 'plugin:end', name: 'ts', success: true, duration: 12 })
+    state = reducer(state, { type: 'log', entry: { level: 'info', message: 'orphan', at: 4 } })
+
+    expect(state.plugins[0]?.events.map((e) => e.message)).toEqual(['parsed Pet', 'missing tag'])
+    expect(state.plugins[1]?.events).toEqual([])
+    expect(state.currentPluginName).toBeUndefined()
+  })
+
   it('caps the debug stream', () => {
     let state = createInitialState()
     for (let i = 0; i < 600; i++) {

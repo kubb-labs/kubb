@@ -36,7 +36,19 @@ export type PluginEntry = {
   name: string
   status: PluginStatus
   duration?: number
+  /**
+   * Events attributed to this plugin while it was the active runner.
+   * Capped at {@link PLUGIN_EVENT_LIMIT} entries.
+   */
+  events: Array<LogEntry>
 }
+
+/**
+ * Maximum number of events retained per plugin for the detail pane. Older
+ * entries fall off the front so a long-running plugin doesn't drag down
+ * reconciler perf.
+ */
+export const PLUGIN_EVENT_LIMIT = 50
 
 export type HookEntry = {
   id: string
@@ -73,6 +85,12 @@ export type TuiState = {
    * on the first plugin.
    */
   selectedTaskIndex: number
+  /**
+   * Name of the plugin that's currently running (between `plugin:start` and
+   * `plugin:end`). Used to attribute incoming log entries to the right
+   * plugin so the detail pane can show real per-plugin context.
+   */
+  currentPluginName?: string
   /**
    * Current UI mode. `normal` is the default split view. `detail` expands the
    * selected task to fill the main area. `help` shows the keybinding overlay.
@@ -133,12 +151,12 @@ function appendCapped<T>(list: Array<T>, item: T, limit: number): Array<T> {
 function updatePlugin(plugins: Array<PluginEntry>, name: string, patch: Partial<PluginEntry>): Array<PluginEntry> {
   const index = plugins.findIndex((p) => p.name === name)
   if (index === -1) {
-    return [...plugins, { name, status: 'queued', ...patch }]
+    return [...plugins, { name, status: 'queued', events: [], ...patch }]
   }
   const existing = plugins[index]
   if (!existing) return plugins
   const next = plugins.slice()
-  next[index] = { ...existing, ...patch, name: existing.name, status: patch.status ?? existing.status }
+  next[index] = { ...existing, ...patch, name: existing.name, status: patch.status ?? existing.status, events: patch.events ?? existing.events }
   return next
 }
 
@@ -167,10 +185,11 @@ export function reducer(state: TuiState, action: TuiAction): TuiState {
         startedAt: action.at,
         finishedAt: undefined,
         configName: action.configName,
-        plugins: action.pluginNames.map((name) => ({ name, status: 'queued' })),
+        plugins: action.pluginNames.map((name) => ({ name, status: 'queued', events: [] })),
         files: { total: 0, processed: 0 },
         hooks: [],
         selectedTaskIndex: action.pluginNames.length > 0 ? 0 : -1,
+        currentPluginName: undefined,
       }
     case 'generation:end':
       return { ...state, status: action.status, finishedAt: action.at }
@@ -186,7 +205,11 @@ export function reducer(state: TuiState, action: TuiAction): TuiState {
     case 'ui:clear-logs':
       return { ...state, logs: [], debug: [] }
     case 'plugin:start':
-      return { ...state, plugins: updatePlugin(state.plugins, action.name, { status: 'running' }) }
+      return {
+        ...state,
+        plugins: updatePlugin(state.plugins, action.name, { status: 'running' }),
+        currentPluginName: action.name,
+      }
     case 'plugin:end':
       return {
         ...state,
@@ -194,6 +217,7 @@ export function reducer(state: TuiState, action: TuiAction): TuiState {
           status: action.success ? 'done' : 'failed',
           duration: action.duration,
         }),
+        currentPluginName: state.currentPluginName === action.name ? undefined : state.currentPluginName,
       }
     case 'files:start':
       return { ...state, files: { total: action.total, processed: 0 } }
@@ -223,8 +247,19 @@ export function reducer(state: TuiState, action: TuiAction): TuiState {
           finishedAt: action.at,
         })),
       }
-    case 'log':
-      return { ...state, logs: appendCapped(state.logs, action.entry, LOG_BUFFER_LIMIT) }
+    case 'log': {
+      const next: TuiState = { ...state, logs: appendCapped(state.logs, action.entry, LOG_BUFFER_LIMIT) }
+      if (state.currentPluginName) {
+        next.plugins = updatePlugin(state.plugins, state.currentPluginName, {
+          events: appendCapped(
+            state.plugins.find((p) => p.name === state.currentPluginName)?.events ?? [],
+            action.entry,
+            PLUGIN_EVENT_LIMIT,
+          ),
+        })
+      }
+      return next
+    }
     case 'debug':
       return { ...state, debug: appendCapped(state.debug, action.entry, DEBUG_BUFFER_LIMIT) }
     case 'version:new':

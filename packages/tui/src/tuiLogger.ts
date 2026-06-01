@@ -162,24 +162,13 @@ export const tuiLogger = defineLogger<LoggerOptions, HookSinkFactory | null>({
       dispatch({ type: 'log', entry: { level: 'error', message: stripAnsi(error.message), at: Date.now() } })
     })
 
-    // Always subscribe to debug events so the debug stream pane has something
-    // to show. The reducer keeps them separate from the main log buffer and
-    // they're never written to the LogPane unless logLevel >= debug.
-    context.on('kubb:debug', ({ logs }) => {
-      for (const line of logs) {
-        dispatch({ type: 'debug', entry: { message: stripAnsi(line), at: Date.now() } })
-        if (logLevel >= logLevelMap.debug) {
+    if (logLevel >= logLevelMap.debug) {
+      context.on('kubb:debug', ({ logs }) => {
+        for (const line of logs) {
           dispatch({ type: 'log', entry: { level: 'debug', message: stripAnsi(line), at: Date.now() } })
         }
-      }
-    })
-
-    // Plain `kubb:info` events flow through to the debug stream too — they're
-    // the closest thing Kubb has to a live trace and the right pane wants to
-    // show that without the user passing --log-level debug.
-    context.on('kubb:info', ({ message, info }) => {
-      dispatch({ type: 'debug', entry: { message: stripAnsi(message), info: info ? stripAnsi(info) : undefined, at: Date.now() } })
-    })
+      })
+    }
 
     const sink: HookSinkFactory = (_commandWithArgs, hookId) => ({
       stream: true,
