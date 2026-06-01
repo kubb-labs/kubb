@@ -30,6 +30,8 @@
     "rtk",
     "taze",
     "codegen",
+    "opentui",
+    "scrollbox",
     "frontmatter",
     "licence",
     "nominalizations",
