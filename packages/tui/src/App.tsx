@@ -101,8 +101,8 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
 
   if (state.ui.mode === 'help') {
     return (
-      <box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={1} paddingRight={1}>
-        <box flexDirection="row">
+      <box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={2} paddingRight={2} gap={1}>
+        <box flexDirection="row" gap={1}>
           <KubbLogo version={state.version} configName={state.configName} status={state.status} />
           <HeaderBar state={state} tick={tick} />
         </box>
@@ -114,8 +114,8 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
 
   if (state.ui.mode === 'detail') {
     return (
-      <box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={1} paddingRight={1}>
-        <box flexDirection="row">
+      <box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={2} paddingRight={2} gap={1}>
+        <box flexDirection="row" gap={1}>
           <KubbLogo version={state.version} configName={state.configName} status={state.status} />
           <HeaderBar state={state} tick={tick} />
         </box>
@@ -131,7 +131,7 @@ export function App({ subscribe, onQuit, onRestart, initial }: Props) {
         <KubbLogo version={state.version} configName={state.configName} status={state.status} />
         <HeaderBar state={state} tick={tick} />
       </box>
-      <box flexDirection="row" flexGrow={1}>
+      <box flexDirection="row" flexGrow={1} gap={1}>
         <TaskList plugins={state.plugins} hooks={state.hooks} selectedIndex={state.selectedTaskIndex} spinnerFrame={spinnerFrame} />
         <PluginDetail plugins={state.plugins} hooks={state.hooks} selectedIndex={state.selectedTaskIndex} spinnerFrame={spinnerFrame} />
       </box>

@@ -8,11 +8,11 @@ type Props = {
   spinnerFrame: string
 }
 
-const NAME_WIDTH = 24
-const RIGHT_WIDTH = 10
+const NAME_WIDTH = 20
+const RIGHT_WIDTH = 8
 // marker(1) + space(1) + glyph(1) + space(1) + name + space(1) + duration
-// + paddingLeft(1) + paddingRight(1) + border(2) — a few cells of slack on
-// top to absorb full-width unicode glyphs and avoid mid-row wrapping.
+// + paddingLeft(1) + paddingRight(1) + border(2) — extra slack absorbs
+// full-width unicode glyphs and avoids mid-row wrapping.
 const PANE_WIDTH = NAME_WIDTH + RIGHT_WIDTH + 12
 
 function pluginGlyph(status: PluginEntry['status'], spinner: string): { char: string; color: string } {

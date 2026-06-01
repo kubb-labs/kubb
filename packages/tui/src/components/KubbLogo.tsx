@@ -15,7 +15,7 @@ const BLUSH = '#FF6B6B'
 // 17-cell robot face + right column for version / config / subtitle.
 // Pinned width keeps opentui from reflowing when the logo shares a row with
 // the flex-sized HeaderBar.
-const LOGO_WIDTH = 48
+const LOGO_WIDTH = 42
 
 // Spaces stored as constants so the formatter never collapses them, which
 // otherwise breaks the robot's horizontal alignment.
