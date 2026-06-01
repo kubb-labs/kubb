@@ -17,16 +17,20 @@ with `using` and `dispose`. So the gaps below are about maturity in four areas t
 have invested in heavily: incremental work, a typed plugin protocol, a real diagnostics model, and
 CPU parallelism.
 
-| Borrow from | Idea | Kubb gap |
-| --- | --- | --- |
-| tsc, Vite, mypy, Turbopack | Incremental build cache and a dependency graph | Watch mode re-runs the whole build |
-| Rollup, Vite, pytest pluggy | Typed hook protocol with declared hook kinds | String-keyed event emitter with erased argument types |
-| Vue compiler, Babel, SWC | Explicit parse, transform, generate phases | Transform logic lives inside the driver loop |
-| tsc, Rust ariadne, oxc miette | Structured diagnostics with codes and source spans | `throw new Error('[kubb] ...')` |
-| esbuild, oxc, SWC | Parallelism across CPU cores | Single event loop, concurrency 8 |
-| oxc atoms and arena, V8 | String interning and flatter AST | A node allocated per schema and operation |
+Each row links to the section that explains it, with the same impact, effort, and risk shorthand
+as `research.md`. The Kubb gap each one closes is described in its section below.
 
-## Incremental generation and a real dependency graph
+| ID | Idea | Borrow from | Impact | Effort | Risk |
+| --- | --- | --- | --- | --- | --- |
+| A1 | Incremental build cache and a dependency graph | tsc, Vite, mypy, Turbopack | High | High | Medium |
+| A2 | Typed hook protocol with declared hook kinds | Rollup, Vite, pytest pluggy | High | Medium | Low |
+| A3 | Explicit parse, transform, generate phases | Vue, Babel, SWC | Medium | Medium | Low |
+| A4 | Structured diagnostics with codes and source spans | tsc, ariadne, codespan, miette | High | Medium | Low |
+| A5 | Parallel rendering across CPU cores | esbuild, oxc, SWC | Medium | High | Medium |
+| A6 | String interning and a flatter AST | oxc, V8 | Low | High | Medium |
+| A7 | A versioned core protocol for plugins | TanStack Query, Vite | Medium | Low | Low |
+
+## A1. Incremental generation and a real dependency graph
 
 TypeScript writes a `.tsbuildinfo` so a rebuild only touches what changed. Vite caches pre-bundled
 dependencies under `node_modules/.vite` and keys them by a hash of lockfile and config. mypy and
@@ -47,7 +51,7 @@ operation to output file once, then reuse it for both pruning and incremental sk
 largest item here and deserves its own spec before any code, because cache invalidation is where
 these systems get subtle.
 
-## A typed hook protocol
+## A2. A typed hook protocol
 
 Rollup and Vite give plugins a typed context object and a fixed set of hooks with declared kinds:
 some run in sequence, some in parallel, and some stop at the first non-null result. pytest's pluggy
@@ -67,7 +71,7 @@ already has. This removes the `Array<never>` casts, makes the generate hooks dis
 editor, and gives middleware a defined place in the order rather than relying on registration
 sequence. It is mostly an internal change behind the same public `definePlugin` surface.
 
-## Parse, transform, generate as explicit phases
+## A3. Parse, transform, generate as explicit phases
 
 Vue's compiler is three named stages: `baseParse` produces an AST, `transform` runs an ordered list
 of node transforms and directive transforms, and `generate` prints code. Babel and SWC use the same
@@ -85,7 +89,7 @@ that runs between the adapter's AST and the generators, registered the way Vue r
 transforms. The driver then orchestrates three clear phases instead of one large loop, which also
 shrinks the `#runGenerators` hot path from `research.md` (C1).
 
-## A diagnostics model instead of thrown errors
+## A4. A diagnostics model instead of thrown errors
 
 TypeScript reports problems as structured diagnostics: a stable code, a category, a message, a
 source span, and related information. Rust's compiler and libraries like ariadne and codespan, and
@@ -102,7 +106,7 @@ expressed as a JSON pointer into the spec, collected into the build result and r
 as an annotated frame. Generators and resolvers emit diagnostics instead of throwing, so one bad
 operation no longer has to abort the run and the user sees where the problem is.
 
-## Parallelism across cores, with honest limits
+## A5. Parallelism across cores, with honest limits
 
 esbuild owes much of its speed to Go goroutines processing files in parallel, and oxc and SWC use
 Rust threads through rayon. Kubb runs on a single event loop and gets concurrency from async
@@ -115,7 +119,7 @@ costs serialization, so this only pays off past a size threshold and the single-
 stay the default. Worth prototyping and measuring on a big spec before committing, not adopting on
 faith.
 
-## String interning and a flatter AST
+## A6. String interning and a flatter AST
 
 oxc interns identifiers as atoms and allocates AST nodes in an arena, which cuts both memory and the
 pointer chasing that hurts cache locality. V8 does its own string deduplication for similar reasons.
@@ -127,7 +131,7 @@ specs. In a JavaScript codebase the win is smaller than in Rust, so this ranks b
 above and is mainly worth it once the dependency graph from the incremental work already gives a
 natural place to hold interned names.
 
-## A versioned core protocol for external plugins
+## A7. A versioned core protocol for external plugins
 
 TanStack keeps a small `query-core` that adapters target, and Vite's Environment API formalized the
 contract between core and its consumers. Kubb already splits core, adapters, renderers, and plugins
@@ -139,13 +143,13 @@ builds directly on the architecture document proposed in `research.md` (M1).
 
 ## Suggested order
 
-Start with the diagnostics model and the typed hook protocol, since both are mostly internal, lift
+Start with diagnostics (A4) and the typed hook protocol (A2), since both are mostly internal, lift
 type safety and error quality immediately, and make the later work easier to reason about. Do the
-transform-phase extraction next, because it cleans up the same driver hot path the first report
-flagged. Treat incremental generation as its own spec with a measurement gate, since it is the
-highest payoff and the highest risk. Hold the worker pool and AST interning until a profile on a
-large spec shows they earn their complexity. The core-protocol document can run in parallel with any
-of these.
+transform-phase extraction (A3) next, because it cleans up the same driver hot path the first report
+flagged. Treat incremental generation (A1) as its own spec with a measurement gate, since it is the
+highest payoff and the highest risk. Hold the worker pool (A5) and AST interning (A6) until a
+profile on a large spec shows they earn their complexity. The core-protocol document (A7) can run in
+parallel with any of these.
 
 ## Open questions
 
@@ -162,3 +166,47 @@ The same limits from `research.md` apply: ESM only, Node 22, a stable public API
 `exports` map, the core size-limit, and a green suite. Anything that adds a worker pool or a cache
 must keep the current single-threaded, no-cache path working as the default so behavior does not
 change for existing users.
+
+## Libraries and projects referenced
+
+Every external project named across both reports, with the idea Kubb would borrow and the items it
+informs.
+
+| Project | Borrowed idea | Items |
+| --- | --- | --- |
+| TypeScript (tsc) | Incremental `.tsbuildinfo` rebuilds, structured diagnostics | A1, A4 |
+| Vite | Pre-bundle cache keyed by hash, `enforce` ordering, Environment API, `defineConfig` | A1, A2, A7 |
+| Rollup | Typed plugin context and a fixed hook surface | A2 |
+| Vue compiler | The parse, transform, generate phase split and ordered node transforms | A3 |
+| Babel | Visitor-over-phases and the preset and plugin model | A3 |
+| SWC | Rust visitors and rayon parallelism | A3, A5 |
+| esbuild | Go goroutine parallelism and the pull-based model | A5 |
+| oxc and oxlint | Interned atoms, arena allocation, and miette diagnostics | A4, A6 |
+| TanStack Query | A framework-agnostic `query-core` with thin adapters | A7 |
+| pytest and pluggy | Hook specs with `tryfirst`, `trylast`, `hookwrapper`, and `firstresult` | A2 |
+| mypy | An incremental type-check cache | A1 |
+| Turbopack | Content-hash caching | A1 |
+
+Supporting libraries and runtimes named for the proposed changes.
+
+| Library or runtime | Role in the proposals |
+| --- | --- |
+| Rust ariadne | Annotated diagnostic frames (A4) |
+| Rust codespan | Diagnostic source spans (A4) |
+| miette | Diagnostic rendering used by oxc (A4) |
+| rayon | Data parallelism in the Rust tools (A5) |
+| Go goroutines | The parallelism model behind esbuild (A5) |
+| V8 | Runtime string deduplication (A6) |
+| Node `worker_threads` | The thread-pool primitive (A5) |
+| piscina | A worker pool built on `worker_threads` (A5) |
+| `node:crypto` `createHash` | Hashing for the build manifest (A1), already used in the CLI |
+
+Kubb packages and tooling these proposals touch.
+
+| Kubb package or tool | Where it appears |
+| --- | --- |
+| `@kubb/core`, `@kubb/ast`, `@kubb/cli`, `@kubb/kubb` | The core packages under review |
+| `@internals/utils` | `BuildError`, `AsyncEventEmitter`, `URLPath` (A2, A4, and M3, M5 in `research.md`) |
+| `@kubb/renderer-jsx` | The JSX renderer behind the CPU-bound printing (A5) |
+| chokidar | The CLI file watcher behind watch mode (A1) |
+| `size-limit` | The bundle budget on `@kubb/core` (M6 in `research.md`) |

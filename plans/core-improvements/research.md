@@ -19,6 +19,34 @@ cognitive load: `createKubb.ts` (1135 lines), `KubbDriver.ts` (933 lines), and `
 (719 lines). The recommendations group into complexity, performance, and maintainer onboarding,
 then close with a suggested order.
 
+## At a glance
+
+Each row links to the section that explains it. Impact, effort, and risk are rough calls to help
+sequence the work, not estimates.
+
+| ID | Change | Impact | Effort | Risk | Key file |
+| --- | --- | --- | --- | --- | --- |
+| C1 | Split the driver and unify listener tracking | High | High | Medium | `KubbDriver.ts` |
+| C2 | Move the config types out of `createKubb.ts` | Medium | Medium | Low | `createKubb.ts` |
+| C3 | Split the resolver by concern | Medium | Medium | Low | `defineResolver.ts` |
+| C4 | Collapse the three generator registrations | Low | Low | Low | `KubbDriver.ts:304` |
+| C5 | Merge the two pattern matchers | Low | Low | Low | `defineResolver.ts:271` |
+| P1 | Graph-based reachability for the pre-scan | High | High | Medium | `KubbDriver.ts:552` |
+| P2 | Early-exit `memoryStorage.getKeys` | Low | Low | Low | `memoryStorage.ts:39` |
+| P3 | Set-based plugin dependency sort | Low | Low | Low | `KubbDriver.ts:114` |
+| P4 | Record the transformer memoization tradeoff | Low | Medium | Medium | `KubbDriver.ts:577` |
+| P5 | Bound the pattern cache per build | Low | Low | Low | `defineResolver.ts:253` |
+| M1 | Write the core architecture doc | High | Low | Low | new doc |
+| M2 | Test the factory helpers | Medium | Low | Low | `createAdapter.ts` |
+| M3 | Give errors a shared shape | High | Medium | Low | new type |
+| M4 | Add JSDoc and resolve the two open TODOs | Low | Low | Low | `definePlugin.ts:115` |
+| M5 | Document the `@internals/utils` boundary | Low | Low | Low | `index.ts` |
+| M6 | Extend `size-limit` to more packages | Low | Low | Low | `package.json` |
+
+The fastest path to value is the high-impact, low-effort row group: M1, M3, and the small
+complexity and performance cleanups. The structural splits and the pre-scan rework are where the
+effort and risk concentrate.
+
 ## Complexity
 
 C1. Break up `KubbDriver.ts`. It owns plugin normalization, hook registration, the generator
