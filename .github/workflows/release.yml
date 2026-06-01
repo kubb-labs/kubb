@@ -1,12 +1,6 @@
 name: Release
 on:
   workflow_dispatch:
-    inputs:
-      mode:
-        description: 'Release mode (version = open the Version Packages PR only, no npm publish; staged = npm stage publish for review; publish = publish to the registry)'
-        type: choice
-        options: [version, staged, publish]
-        default: version
   push:
     branches: ['main', 'alpha', 'beta', 'rc']
     paths:
@@ -33,11 +27,8 @@ jobs:
       packages: write
       pull-requests: write
       issues: write
-    env:
-      # push events fall through to the regular publish flow; workflow_dispatch uses the chosen mode.
-      MODE: ${{ inputs.mode || 'publish' }}
     outputs:
-      released: ${{ steps.changesets.outputs.published == 'true' || steps.stage.outputs.staged == 'true' }}
+      released: ${{ steps.changesets.outputs.staged == 'true' }}
     steps:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -52,16 +43,17 @@ jobs:
           force-install: 'true'
 
       - name: Build
-        if: ${{ env.MODE != 'version' }}
         run: pnpm run build
 
+      # When pending changesets exist, changesets/action opens the Version
+      # Packages PR. When versions are already bumped, it runs the publish
+      # command, which stages the workspace via `pnpm release:stage`.
       - name: Release
         id: changesets
-        if: ${{ env.MODE != 'staged' }}
         uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
         with:
           version: pnpm exec changeset version
-          publish: ${{ env.MODE == 'publish' && 'pnpm exec changeset publish' || '' }}
+          publish: pnpm release:stage
           commit: 'ci(changesets): version packages'
           title: 'ci(changesets): version packages'
           setupGitUser: false
@@ -69,16 +61,8 @@ jobs:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Stage publish
-        id: stage
-        if: ${{ env.MODE == 'staged' }}
-        shell: bash
-        env:
-          NPM_CONFIG_PROVENANCE: true
-        run: pnpm release:stage
-
       - name: Publish canary
-        if: ${{ steps.changesets.outputs.published != 'true' && steps.stage.outputs.staged != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        if: ${{ steps.changesets.outputs.staged != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         continue-on-error: true
         shell: bash
         env:
