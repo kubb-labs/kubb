@@ -9,15 +9,6 @@ import { type DiagnosticCode, diagnosticCode } from './constants.ts'
 const docsMajor = version.split('.')[0] ?? '5'
 
 /**
- * Builds the kubb.dev docs URL for a diagnostic code, e.g.
- * `KUBB_REF_NOT_FOUND` → `https://kubb.dev/docs/5.x/diagnostics/kubb-ref-not-found`.
- */
-export function diagnosticDocsUrl(code: string): string {
-  const slug = code.toLowerCase().replaceAll('_', '-')
-  return `https://kubb.dev/docs/${docsMajor}.x/diagnostics/${slug}`
-}
-
-/**
  * How serious a diagnostic is. `error` fails the build, `warning` and `info`
  * are reported but do not.
  */
@@ -280,6 +271,15 @@ export class Diagnostics {
   }
 
   /**
+   * Builds the kubb.dev docs URL for a diagnostic code, e.g.
+   * `KUBB_REF_NOT_FOUND` → `https://kubb.dev/docs/5.x/diagnostics/kubb-ref-not-found`.
+   */
+  static docsUrl(code: string): string {
+    const slug = code.toLowerCase().replaceAll('_', '-')
+    return `https://kubb.dev/docs/${docsMajor}.x/diagnostics/${slug}`
+  }
+
+  /**
    * Reduces a diagnostic to its JSON-safe fields plus a `docsUrl`, for machine-readable
    * consumers. The `cause`, `kind`, and `duration` are dropped, and absent optional
    * fields are omitted rather than set to `undefined`.
@@ -292,7 +292,7 @@ export class Diagnostics {
       ...(diagnostic.location ? { location: diagnostic.location } : {}),
       ...(diagnostic.help ? { help: diagnostic.help } : {}),
       ...(diagnostic.plugin ? { plugin: diagnostic.plugin } : {}),
-      ...(diagnostic.code === diagnosticCode.unknown ? {} : { docsUrl: diagnosticDocsUrl(diagnostic.code) }),
+      ...(diagnostic.code === diagnosticCode.unknown ? {} : { docsUrl: Diagnostics.docsUrl(diagnostic.code) }),
     }
   }
 }

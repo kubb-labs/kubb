@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { type Diagnostic, DiagnosticError, diagnosticDocsUrl, Diagnostics } from './diagnostics.ts'
+import { type Diagnostic, DiagnosticError, Diagnostics } from './diagnostics.ts'
 
 const problem = (over: Partial<Diagnostic> = {}): Diagnostic => ({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', ...over })
 
-describe('diagnosticDocsUrl', () => {
+describe('Diagnostics.docsUrl', () => {
   it('slugifies the code into a kubb.dev docs link', () => {
-    expect(diagnosticDocsUrl('KUBB_REF_NOT_FOUND')).toMatch(/^https:\/\/kubb\.dev\/docs\/\d+\.x\/diagnostics\/kubb-ref-not-found$/)
+    expect(Diagnostics.docsUrl('KUBB_REF_NOT_FOUND')).toMatch(/^https:\/\/kubb\.dev\/docs\/\d+\.x\/diagnostics\/kubb-ref-not-found$/)
   })
 })
 
@@ -22,7 +22,7 @@ describe('Diagnostics.serialize', () => {
       help: 'fix it',
       plugin: '@kubb/plugin-zod',
       location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
-      docsUrl: diagnosticDocsUrl('KUBB_REF_NOT_FOUND'),
+      docsUrl: Diagnostics.docsUrl('KUBB_REF_NOT_FOUND'),
     })
   })
 

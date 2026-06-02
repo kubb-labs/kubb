@@ -1,7 +1,5 @@
 import { styleText } from 'node:util'
-import { type Diagnostic, diagnosticCode, diagnosticDocsUrl, type DiagnosticSeverity } from '@kubb/core'
-
-export { diagnosticDocsUrl }
+import { type Diagnostic, diagnosticCode, Diagnostics, type DiagnosticSeverity } from '@kubb/core'
 
 /**
  * Glyph and accent color per severity, matching the miette/oxlint convention
@@ -52,7 +50,7 @@ export function diagnosticDetails(diagnostic: Diagnostic): Array<string> {
   }
 
   if (code !== diagnosticCode.unknown) {
-    lines.push(`  ${styleText('dim', 'docs:')} ${styleText('cyan', diagnosticDocsUrl(code))}`)
+    lines.push(`  ${styleText('dim', 'docs:')} ${styleText('cyan', Diagnostics.docsUrl(code))}`)
   }
 
   return lines
