@@ -171,7 +171,7 @@ export class KubbDriver {
   }
 
   /**
-   * Phase 1 of the pipeline. Idempotent — returns immediately when `inputNode` is already set,
+   * Phase 1 of the pipeline. Idempotent: returns immediately when `inputNode` is already set,
    * so repeated calls from `run()` or the studio path do not re-parse the source.
    */
   async #parsePhase(): Promise<void> {

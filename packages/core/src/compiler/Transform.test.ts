@@ -29,7 +29,7 @@ describe('Transform — applyTo', () => {
     expect(result.name).toBe('PetRenamed')
   })
 
-  it('keeps plugins isolated — plugin A does not see plugin B output', () => {
+  it('keeps plugins isolated so plugin A does not see plugin B output', () => {
     const transforms = new Transform()
     transforms.register('a', { schema: (node) => ({ ...node, name: `${node.name}-A` }) })
     transforms.register('b', { schema: (node) => ({ ...node, name: `${node.name}-B` }) })

@@ -54,24 +54,22 @@ async function applyAsyncRender<TElement>({ renderer, result, driver }: { render
 }
 
 /**
- * Phase 3 of the pipeline. Streams schemas and operations through every plugin's generators,
- * applying each plugin's registered transformer (via `transforms`) on the way in. The hot
- * path stays per-node — no buffering — and per-plugin isolation is preserved by routing
- * through `transforms.applyTo(name, node)`.
- *
- * Exposes `run` (the streaming pipeline) and `apply` (the renderer-or-file-array dispatch
- * called from generator handlers and the `kubb:generate:*` hooks).
+ * Phase 3 of the pipeline. Streams schemas and operations through every plugin's generators
+ * and applies each plugin's registered transformer (via `transforms`) on the way in. The hot
+ * path stays per-node, with no buffering, and per-plugin isolation comes from routing through
+ * `transforms.applyTo(name, node)`.
  */
 export class Generate {
   /**
-   * Handles the return value of a plugin AST hook or generator method.
+   * Routes the return value of a generator method or `kubb:generate:*` hook to the right sink.
    *
-   * - Renderer output → rendered via the provided `rendererFactory` (e.g. JSX), files stored
-   *   in `driver.fileManager`.
-   * - `Array<FileNode>` → added directly into `driver.fileManager`.
-   * - `void` / `null` / `undefined` → no-op (the plugin handled it via `this.upsertFile`).
+   * - A `Array<FileNode>` is upserted into `driver.fileManager` directly.
+   * - A renderer element is rendered through `rendererFactory` (for example, the JSX renderer)
+   *   and the produced files are upserted into `driver.fileManager`.
+   * - `null`, `undefined`, or any other false-y value is treated as a no-op. The generator is
+   *   expected to have written files itself via `ctx.upsertFile`.
    *
-   * Pass a `rendererFactory` when the result may be a renderer element. Generators that only
+   * Pass `rendererFactory` when the result may be a renderer element. Generators that only
    * return `Array<FileNode>` do not need one.
    */
   static apply<TElement = unknown>({ result, driver, rendererFactory }: GenerateApplyParams<TElement>): void | Promise<void> {
@@ -97,6 +95,13 @@ export class Generate {
     return applyAsyncRender({ renderer, result, driver })
   }
 
+  /**
+   * Drives the generate phase for every plugin in `entries`. Schemas run before operations so
+   * the two passes do not race on the shared `flushPending` queue and the FileProcessor's
+   * event emitter. Each plugin's generators see the transformed view of every node, filtered
+   * by its own `include` / `exclude` / `override`. Errors from a single plugin are captured
+   * into `failed` so the rest of the build continues.
+   */
   static async run({ driver, transforms, entries, flushPending, emitPluginEnd }: GenerateRunParams): Promise<GenerateRunResult> {
     const timings = new Map<string, number>()
     const failed = new Set<{ plugin: Plugin; error: Error }>()
