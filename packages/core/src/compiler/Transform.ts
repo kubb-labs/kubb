@@ -46,6 +46,7 @@ export class Transform {
   applyTo<TNode extends SchemaNode | OperationNode>(pluginName: string, node: TNode): TNode {
     const visitor = this.#visitors.get(pluginName)
     if (!visitor) return node
+
     return transform(node, visitor) as TNode
   }
 
