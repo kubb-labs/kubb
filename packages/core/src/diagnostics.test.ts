@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { diagnosticCode } from './constants.ts'
 import { type Diagnostic, DiagnosticError, Diagnostics } from './diagnostics.ts'
 
 const problem = (over: Partial<Diagnostic> = {}): Diagnostic => ({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', ...over })
@@ -6,6 +7,17 @@ const problem = (over: Partial<Diagnostic> = {}): Diagnostic => ({ code: 'KUBB_R
 describe('Diagnostics.docsUrl', () => {
   it('slugifies the code into a kubb.dev docs link', () => {
     expect(Diagnostics.docsUrl('KUBB_REF_NOT_FOUND')).toMatch(/^https:\/\/kubb\.dev\/docs\/\d+\.x\/diagnostics\/kubb-ref-not-found$/)
+  })
+})
+
+describe('Diagnostics.explain', () => {
+  it('documents every code with a title, cause, and fix', () => {
+    for (const code of Object.values(diagnosticCode)) {
+      const doc = Diagnostics.explain(code)
+      expect(doc.title).toBeTruthy()
+      expect(doc.cause).toBeTruthy()
+      expect(doc.fix).toBeTruthy()
+    }
   })
 })
 
