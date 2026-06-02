@@ -12,6 +12,7 @@ import { defineResolver } from './defineResolver.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
 import { FileProcessor } from './FileProcessor.ts'
+import { type HookListener, HookRegistry } from './HookRegistry.ts'
 import type { Renderer, RendererFactory } from './createRenderer.ts'
 
 import type {
@@ -76,13 +77,6 @@ export class KubbDriver {
     inputNode: null,
   }
 
-  // Register middleware hooks after all plugin hooks are registered.
-  // Because AsyncEventEmitter calls listeners in registration order,
-  // middleware hooks for any event fire after all plugin hooks for that event.
-  // Handlers are tracked so they can be removed after each build (disposeMiddleware),
-  // preventing accumulation when multiple configs share the same hooks instance.
-  #middlewareListeners: Array<[keyof KubbHooks & string, (...args: Array<never>) => void | Promise<void>]> = []
-
   /**
    * Central file store for all generated files.
    * Plugins should use `this.addFile()` / `this.upsertFile()` (via their context) to
@@ -100,12 +94,19 @@ export class KubbDriver {
   readonly #eventGeneratorPlugins = new Set<string>()
   readonly #resolvers = new Map<string, Resolver>()
   readonly #defaultResolvers = new Map<string, Resolver>()
-  readonly #hookListeners = new Map<keyof KubbHooks, Set<(...args: Array<never>) => void | Promise<void>>>()
+
+  /**
+   * Tracks every listener the driver added (plugin, middleware, generator) so `dispose()` can
+   * remove them in one pass. Middleware registers after plugins, so it fires last via `Set`
+   * insertion order. External `hooks.on(...)` listeners are not tracked.
+   */
+  readonly #registry: HookRegistry<KubbHooks>
 
   constructor(config: Config, options: Options) {
     this.config = config
     this.options = options
     this.adapter = config.adapter ?? null
+    this.#registry = new HookRegistry({ emitter: options.hooks })
   }
 
   async setup() {
@@ -198,8 +199,7 @@ export class KubbDriver {
       return
     }
 
-    this.hooks.on(event, handler)
-    this.#middlewareListeners.push([event, handler as (...args: Array<never>) => void | Promise<void>])
+    this.#registry.register({ event, handler, source: 'middleware' })
   }
 
   /**
@@ -252,16 +252,20 @@ export class KubbDriver {
         return hooks['kubb:plugin:setup']!(pluginCtx)
       }
 
-      this.hooks.on('kubb:plugin:setup', setupHandler)
-      this.#trackHookListener('kubb:plugin:setup', setupHandler as (...args: Array<never>) => void | Promise<void>)
+      this.#registry.register({ event: 'kubb:plugin:setup', handler: setupHandler, source: 'plugin' })
     }
 
     // All other hooks are registered as direct pass-through listeners on the shared emitter.
-    for (const [event, handler] of Object.entries(hooks) as Array<[keyof KubbHooks, ((...args: Array<never>) => void | Promise<void>) | undefined]>) {
-      if (event === 'kubb:plugin:setup' || !handler) continue
+    for (const event of Object.keys(hooks) as Array<keyof KubbHooks & string>) {
+      if (event === 'kubb:plugin:setup') continue
+      const handler = hooks[event]
+      if (!handler) continue
 
-      this.hooks.on(event, handler as never)
-      this.#trackHookListener(event, handler as (...args: Array<never>) => void | Promise<void>)
+      this.#registry.register({
+        event,
+        handler: handler as HookListener<KubbHooks[typeof event], unknown>,
+        source: 'plugin',
+      })
     }
   }
 
@@ -314,8 +318,7 @@ export class KubbDriver {
         await applyHookResult({ result, driver: this, rendererFactory: resolveRenderer() })
       }
 
-      this.hooks.on('kubb:generate:schema', schemaHandler)
-      this.#trackHookListener('kubb:generate:schema', schemaHandler as (...args: Array<never>) => void | Promise<void>)
+      this.#registry.register({ event: 'kubb:generate:schema', handler: schemaHandler, source: 'driver' })
     }
 
     if (gen.operation) {
@@ -325,8 +328,7 @@ export class KubbDriver {
         await applyHookResult({ result, driver: this, rendererFactory: resolveRenderer() })
       }
 
-      this.hooks.on('kubb:generate:operation', operationHandler)
-      this.#trackHookListener('kubb:generate:operation', operationHandler as (...args: Array<never>) => void | Promise<void>)
+      this.#registry.register({ event: 'kubb:generate:operation', handler: operationHandler, source: 'driver' })
     }
 
     if (gen.operations) {
@@ -336,8 +338,7 @@ export class KubbDriver {
         await applyHookResult({ result, driver: this, rendererFactory: resolveRenderer() })
       }
 
-      this.hooks.on('kubb:generate:operations', operationsHandler)
-      this.#trackHookListener('kubb:generate:operations', operationsHandler as (...args: Array<never>) => void | Promise<void>)
+      this.#registry.register({ event: 'kubb:generate:operations', handler: operationsHandler, source: 'driver' })
     }
 
     this.#eventGeneratorPlugins.add(pluginName)
@@ -700,19 +701,13 @@ export class KubbDriver {
   }
 
   /**
-   * Unregisters all plugin lifecycle listeners from the shared event emitter.
-   * Called at the end of a build to prevent listener leaks across repeated builds.
+   * Removes every listener the driver added; listeners attached directly to `hooks` from outside
+   * the driver survive. Called at the end of a build to prevent leaks across repeated builds.
    *
    * @internal
    */
   dispose(): void {
-    for (const [event, handlers] of this.#hookListeners) {
-      for (const handler of handlers) {
-        this.hooks.off(event, handler as never)
-      }
-    }
-
-    this.#hookListeners.clear()
+    this.#registry.dispose()
     this.#eventGeneratorPlugins.clear()
     // Release resolver closures — the driver is rebuilt for each build() call
     // so there is no value in retaining these maps after disposal.
@@ -725,23 +720,10 @@ export class KubbDriver {
     this.#fileProcessor.dispose()
     this.inputNode = null
     this.#studio = { source: null, isOpen: false, inputNode: null }
-
-    for (const [event, handler] of this.#middlewareListeners) {
-      this.hooks.off(event, handler as never)
-    }
   }
 
   [Symbol.dispose](): void {
     this.dispose()
-  }
-
-  #trackHookListener(event: keyof KubbHooks, handler: (...args: Array<never>) => void | Promise<void>): void {
-    let handlers = this.#hookListeners.get(event)
-    if (!handlers) {
-      handlers = new Set()
-      this.#hookListeners.set(event, handlers)
-    }
-    handlers.add(handler)
   }
 
   #getDefaultResolver = memoize(
