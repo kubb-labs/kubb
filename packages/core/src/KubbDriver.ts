@@ -13,7 +13,6 @@ import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
 import { FileProcessor } from './FileProcessor.ts'
 import { type HookListener, HookRegistry } from './HookRegistry.ts'
-import { kubbHookKinds, type KubbHookKinds } from './hookKinds.ts'
 import type { Renderer, RendererFactory } from './createRenderer.ts'
 
 import type {
@@ -103,13 +102,13 @@ export class KubbDriver {
    * last" ordering through `Set` insertion order). Listeners attached directly via
    * `hooks.on(...)` from outside the driver are not tracked and survive `dispose()`.
    */
-  readonly #registry: HookRegistry<KubbHooks, KubbHookKinds>
+  readonly #registry: HookRegistry<KubbHooks>
 
   constructor(config: Config, options: Options) {
     this.config = config
     this.options = options
     this.adapter = config.adapter ?? null
-    this.#registry = new HookRegistry({ emitter: options.hooks, kinds: kubbHookKinds })
+    this.#registry = new HookRegistry({ emitter: options.hooks })
   }
 
   async setup() {
