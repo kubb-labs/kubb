@@ -323,8 +323,8 @@ export function getSummary({ diagnostics, filesCreated, status, hrStart, config,
     summaryLines.push(`${labels.failed.padEnd(maxLength + 2)} ${meta.pluginsFailed}`)
   }
 
-  // Reflect problems that aren't tied to a failed plugin (e.g. adapter parse errors),
-  // so the box agrees with the run's pass/fail and the `Found N errors` headline.
+  // The only place problem counts surface: parse-time errors that aren't tied to a
+  // failed plugin still show here, so the box agrees with the run's pass/fail.
   const { errors, warnings } = Diagnostics.count(diagnostics)
   if (errors > 0 || warnings > 0) {
     const issues = [

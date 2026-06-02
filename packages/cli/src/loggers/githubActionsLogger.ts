@@ -1,7 +1,7 @@
 import { styleText } from 'node:util'
 import { formatHrtime, formatMs, formatMsWithColor, toCause } from '@internals/utils'
 import { type Config, defineLogger, diagnosticCode, Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { diagnosticDocsUrl, formatProblemSummary } from './diagnostics.ts'
+import { diagnosticDocsUrl } from './diagnostics.ts'
 import {
   buildProgressLine,
   createHookTimer,
@@ -370,11 +370,6 @@ export const githubActionsLogger = defineLogger({
 
       if (state.currentConfigs.length > 1) {
         console.log(' ')
-      }
-
-      const problemSummary = formatProblemSummary(diagnostics)
-      if (problemSummary) {
-        console.log(problemSummary)
       }
 
       console.log(

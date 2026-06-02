@@ -1,5 +1,5 @@
 import { styleText } from 'node:util'
-import { type Diagnostic, diagnosticCode, Diagnostics, type DiagnosticSeverity } from '@kubb/core'
+import { type Diagnostic, diagnosticCode, type DiagnosticSeverity } from '@kubb/core'
 import { version } from '../../package.json'
 
 /**
@@ -85,27 +85,4 @@ export function diagnosticDetails(diagnostic: Diagnostic): Array<string> {
  */
 export function formatDiagnostic(diagnostic: Diagnostic): Array<string> {
   return [`${diagnosticSymbol(diagnostic.severity)} ${diagnosticHeadline(diagnostic)}`, ...diagnosticDetails(diagnostic)]
-}
-
-/**
- * The oxlint/tsc-style aggregate line, e.g. `× Found 3 errors, 1 warning`. Returns
- * `null` when there are no problems. The glyph is `×` when any error is present,
- * otherwise `⚠`.
- */
-export function formatProblemSummary(diagnostics: ReadonlyArray<Diagnostic>): string | null {
-  const { errors, warnings } = Diagnostics.count(diagnostics)
-  if (errors === 0 && warnings === 0) {
-    return null
-  }
-
-  const parts: Array<string> = []
-  if (errors > 0) {
-    parts.push(`${errors} ${errors === 1 ? 'error' : 'errors'}`)
-  }
-  if (warnings > 0) {
-    parts.push(`${warnings} ${warnings === 1 ? 'warning' : 'warnings'}`)
-  }
-
-  const severity: DiagnosticSeverity = errors > 0 ? 'error' : 'warning'
-  return `${diagnosticSymbol(severity)} ${styleText('bold', `Found ${parts.join(', ')}`)}`
 }
