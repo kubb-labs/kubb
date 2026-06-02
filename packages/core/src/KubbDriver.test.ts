@@ -156,13 +156,13 @@ function makeDriver(): KubbDriver {
   )
 }
 
-describe('KubbDriver#applyResult', () => {
+describe('KubbDriver#dispatch', () => {
   it('does nothing on null or undefined', () => {
     const driver = makeDriver()
     const upsert = vi.spyOn(driver.fileManager, 'upsert')
 
-    driver.applyResult({ result: null })
-    driver.applyResult({ result: undefined })
+    driver.dispatch({ result: null })
+    driver.dispatch({ result: undefined })
 
     expect(upsert).not.toHaveBeenCalled()
   })
@@ -171,7 +171,7 @@ describe('KubbDriver#applyResult', () => {
     const driver = makeDriver()
     const files = [file('a'), file('b')]
 
-    driver.applyResult({ result: files })
+    driver.dispatch({ result: files })
 
     expect(driver.fileManager.files.map((f) => f.name)).toStrictEqual(['a', 'b'])
   })
@@ -180,7 +180,7 @@ describe('KubbDriver#applyResult', () => {
     const driver = makeDriver()
     const upsert = vi.spyOn(driver.fileManager, 'upsert')
 
-    driver.applyResult({ result: { kind: 'element' } })
+    driver.dispatch({ result: { kind: 'element' } })
 
     expect(upsert).not.toHaveBeenCalled()
   })
@@ -195,7 +195,7 @@ describe('KubbDriver#applyResult', () => {
       [Symbol.dispose]: () => {},
     }))
 
-    driver.applyResult({ result: { kind: 'element' }, rendererFactory: rendererFactory as never })
+    driver.dispatch({ result: { kind: 'element' }, rendererFactory: rendererFactory as never })
 
     expect(rendererFactory).toHaveBeenCalledOnce()
     expect(driver.fileManager.files.map((f) => f.name)).toStrictEqual(['rendered-1', 'rendered-2'])
@@ -210,7 +210,7 @@ describe('KubbDriver#applyResult', () => {
     }
     const rendererFactory = vi.fn(() => renderer)
 
-    const result = driver.applyResult({ result: { kind: 'element' }, rendererFactory: rendererFactory as never })
+    const result = driver.dispatch({ result: { kind: 'element' }, rendererFactory: rendererFactory as never })
     await result
 
     expect(renderer.render).toHaveBeenCalledOnce()

@@ -324,7 +324,7 @@ export class KubbDriver {
       const schemaHandler = async (node: SchemaNode, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.schema!(node, ctx)
-        await this.applyResult({ result, rendererFactory: resolveRenderer() })
+        await this.dispatch({ result, rendererFactory: resolveRenderer() })
       }
 
       this.#registry.register({ event: 'kubb:generate:schema', handler: schemaHandler, source: 'driver' })
@@ -334,7 +334,7 @@ export class KubbDriver {
       const operationHandler = async (node: OperationNode, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operation!(node, ctx)
-        await this.applyResult({ result, rendererFactory: resolveRenderer() })
+        await this.dispatch({ result, rendererFactory: resolveRenderer() })
       }
 
       this.#registry.register({ event: 'kubb:generate:operation', handler: operationHandler, source: 'driver' })
@@ -344,7 +344,7 @@ export class KubbDriver {
       const operationsHandler = async (nodes: Array<OperationNode>, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operations!(nodes, ctx)
-        await this.applyResult({ result, rendererFactory: resolveRenderer() })
+        await this.dispatch({ result, rendererFactory: resolveRenderer() })
       }
 
       this.#registry.register({ event: 'kubb:generate:operations', handler: operationsHandler, source: 'driver' })
@@ -651,7 +651,7 @@ export class KubbDriver {
           if (!run) continue
           const raw = run(transformedNode, ctx)
           const result = isPromise(raw) ? await raw : raw
-          const applied = this.applyResult({ result, rendererFactory: resolveRendererFor(gen, state) })
+          const applied = this.dispatch({ result, rendererFactory: resolveRendererFor(gen, state) })
           if (isPromise(applied)) await applied
         }
         if (dispatch.emit) await dispatch.emit(transformedNode, ctx)
@@ -710,7 +710,7 @@ export class KubbDriver {
           for (const gen of generators) {
             if (!gen.operations) continue
             const result = await gen.operations(pluginOperations, ctx)
-            await this.applyResult({ result, rendererFactory: resolveRendererFor(gen, state) })
+            await this.dispatch({ result, rendererFactory: resolveRendererFor(gen, state) })
           }
           await this.hooks.emit('kubb:generate:operations', pluginOperations, ctx)
         } catch (caughtError) {
@@ -746,7 +746,7 @@ export class KubbDriver {
    * Pass `rendererFactory` when the result may be a renderer element. Generators that only
    * return `Array<FileNode>` do not need one.
    */
-  applyResult<TElement = unknown>({
+  dispatch<TElement = unknown>({
     result,
     rendererFactory,
   }: {
