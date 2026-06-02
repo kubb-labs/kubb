@@ -50,6 +50,7 @@ type GenerateApplyParams<TElement> = {
 async function applyAsyncRender<TElement>({ renderer, result, driver }: { renderer: Renderer<TElement>; result: TElement; driver: KubbDriver }): Promise<void> {
   using r = renderer
   await r.render(result)
+
   driver.fileManager.upsert(...r.files)
 }
 

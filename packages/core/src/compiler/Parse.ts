@@ -28,11 +28,13 @@ export class Parse {
   static async input({ adapter, source }: { adapter: Adapter; source: AdapterSource }): Promise<ParseResult> {
     if (adapter.stream) {
       const inputNode = await adapter.stream(source)
+
       return { inputNode, mode: 'stream', schemaCount: null, operationCount: null }
     }
 
     const parsed = await adapter.parse(source)
     const inputNode = createStreamInput(arrayToAsyncIterable(parsed.schemas), arrayToAsyncIterable(parsed.operations), parsed.meta)
+
     return { inputNode, mode: 'parse', schemaCount: parsed.schemas.length, operationCount: parsed.operations.length }
   }
 

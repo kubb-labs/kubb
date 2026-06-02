@@ -181,20 +181,23 @@ export class KubbDriver {
     this.inputNode = result.inputNode
 
     if (result.mode === 'stream') {
-      await this.hooks.emit('kubb:debug', {
+      this.hooks.emit('kubb:debug', {
         date: new Date(),
         logs: [`✓ Adapter '${this.adapter.name}' producing input stream`],
       })
-    } else {
-      await this.hooks.emit('kubb:debug', {
-        date: new Date(),
-        logs: [
-          `✓ Adapter '${this.adapter.name}' resolved InputNode (wrapped as stream)`,
-          `  • Schemas: ${result.schemaCount}`,
-          `  • Operations: ${result.operationCount}`,
-        ],
-      })
+
+      return
     }
+
+    await this.hooks.emit('kubb:debug', {
+      date: new Date(),
+      logs: [
+        `✓ Adapter '${this.adapter.name}' resolved InputNode (wrapped as stream)`,
+        `  • Schemas: ${result.schemaCount}`,
+        `  • Operations: ${result.operationCount}`,
+      ],
+    })
+
   }
 
   #registerMiddleware<K extends keyof KubbHooks & string>(event: K, middlewareHooks: Middleware['hooks']) {
@@ -370,8 +373,7 @@ export class KubbDriver {
     pluginTimings: Map<string, number>
     error?: Error
   }> {
-    const hooks = this.hooks
-    const config = this.config
+    const { hooks, config } = this
     const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
     const pluginTimings = new Map<string, number>()
     const parsersMap = new Map<FileNode['extname'], Parser>()
@@ -442,18 +444,23 @@ export class KubbDriver {
           const error = caughtError as Error
           const duration = getElapsedMs(hrStart)
           pluginTimings.set(plugin.name, duration)
+
           await this.#emitPluginEnd({ plugin, duration, success: false, error })
+
           failedPlugins.add({ plugin, error })
+
           continue
         }
 
-        if (plugin.generators?.length || this.hasEventGenerators(plugin.name)) {
+        if (this.hasEventGenerators(plugin.name)) {
           generatorPlugins.push({ plugin, context, hrStart })
+
           continue
         }
 
         const duration = getElapsedMs(hrStart)
         pluginTimings.set(plugin.name, duration)
+
         await this.#emitPluginEnd({ plugin, duration, success: true })
         await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ Plugin started successfully (${formatMs(duration)})`] })
       }
@@ -470,6 +477,7 @@ export class KubbDriver {
           })
           // Drain any files written after the last batch's flush.
           await flushPending()
+
           for (const [name, duration] of timings) pluginTimings.set(name, duration)
           for (const entry of failed) failedPlugins.add(entry)
         } else {
@@ -504,6 +512,7 @@ export class KubbDriver {
   // spread would eagerly invoke the getter and freeze a stale snapshot into the payload.
   #filesPayload(): { readonly files: Array<FileNode>; upsertFile: (...files: Array<FileNode>) => Array<FileNode> } {
     const driver = this
+
     return {
       get files() {
         return driver.fileManager.files
