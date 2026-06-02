@@ -124,6 +124,25 @@ export class DiagnosticError extends Error {
 }
 
 /**
+ * Structural check for a {@link DiagnosticError}, including one thrown from a duplicated
+ * `@kubb/core` copy where `instanceof` fails. Matches on the `name` and a `diagnostic`
+ * that carries a `code`.
+ */
+function isDiagnosticError(error: unknown): error is DiagnosticError {
+  if (error instanceof DiagnosticError) {
+    return true
+  }
+  return (
+    error instanceof Error &&
+    error.name === 'DiagnosticError' &&
+    'diagnostic' in error &&
+    typeof (error as { diagnostic?: unknown }).diagnostic === 'object' &&
+    (error as { diagnostic?: Diagnostic }).diagnostic !== null &&
+    typeof (error as { diagnostic?: { code?: unknown } }).diagnostic?.code === 'string'
+  )
+}
+
+/**
  * Static helpers for working with {@link Diagnostic}s, plus the run-scoped sink
  * that lets deep code report a diagnostic without threading a callback.
  *
@@ -169,7 +188,10 @@ export class Diagnostics {
     let current: unknown = error
     let root: Error | undefined
     while (current instanceof Error && !seen.has(current)) {
-      if (current instanceof DiagnosticError) {
+      // Match structurally, not just by `instanceof`: a `DiagnosticError` thrown from a
+      // duplicated `@kubb/core` copy (bundled into an adapter or plugin) is a different
+      // class, but still carries the same `diagnostic`, so its code must survive.
+      if (isDiagnosticError(current)) {
         return current.diagnostic
       }
       seen.add(current)

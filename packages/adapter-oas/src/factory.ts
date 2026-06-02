@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { mergeDeep, URLPath } from '@internals/utils'
+import { exists, mergeDeep, URLPath } from '@internals/utils'
 import { diagnosticCode, DiagnosticError } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { bundle, loadConfig } from '@redocly/openapi-core'
@@ -116,7 +116,7 @@ export async function mergeDocuments(pathOrApi: Array<string | Document>): Promi
  * const document = await parseFromConfig({ type: 'data', data: '{"openapi":"3.0.0",...}' })
  * ```
  */
-export function parseFromConfig(source: AdapterSource): Promise<Document> {
+export async function parseFromConfig(source: AdapterSource): Promise<Document> {
   if (source.type === 'data') {
     if (typeof source.data === 'object') {
       return parseDocument(structuredClone(source.data) as Document)
@@ -134,7 +134,20 @@ export function parseFromConfig(source: AdapterSource): Promise<Document> {
     return parseDocument(source.path)
   }
 
-  return parseDocument(path.resolve(path.dirname(source.path), source.path))
+  const resolved = path.resolve(path.dirname(source.path), source.path)
+  // A missing file is reported as a coded diagnostic; a malformed but readable file
+  // falls through to `parseDocument`, which surfaces the parse error instead.
+  if (!(await exists(resolved))) {
+    throw new DiagnosticError({
+      code: diagnosticCode.inputNotFound,
+      severity: 'error',
+      message: `Cannot read the file set in \`input.path\` (or via \`kubb generate PATH\`): ${source.path}`,
+      help: 'Check that the path exists and is readable, then set it in `input.path` or pass it as `kubb generate PATH`.',
+      location: { kind: 'config' },
+    })
+  }
+
+  return parseDocument(resolved)
 }
 
 /**

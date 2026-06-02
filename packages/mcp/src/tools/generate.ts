@@ -1,4 +1,4 @@
-import { AsyncEventEmitter, toError } from '@internals/utils'
+import { AsyncEventEmitter } from '@internals/utils'
 import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
@@ -140,8 +140,8 @@ export const generateTool = defineTool(
 
       return tool.text(`Build completed successfully!\n\nGenerated ${files.length} files\n\n${messages.join('\n')}`)
     } catch (caughtError) {
-      const error = toError(caughtError)
-      return tool.error(`Build error: ${error.message}\n${error.stack ?? ''}`)
+      const serialized = Diagnostics.serialize(Diagnostics.from(caughtError))
+      return tool.error(`Build error:\n${formatDiagnostics([serialized])}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\``)
     }
   },
 )

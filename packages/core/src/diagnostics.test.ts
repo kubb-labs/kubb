@@ -51,6 +51,17 @@ describe('Diagnostics.from', () => {
     expect(Diagnostics.from(wrapped).code).toBe('KUBB_REF_NOT_FOUND')
   })
 
+  it('recognizes a DiagnosticError from a duplicated core copy structurally', () => {
+    // A different `@kubb/core` copy produces a DiagnosticError that fails `instanceof` but
+    // still carries its `diagnostic`. Simulate one with a plain Error of the same shape.
+    const foreign = Object.assign(new Error('missing'), {
+      name: 'DiagnosticError',
+      diagnostic: { code: 'KUBB_INPUT_NOT_FOUND', severity: 'error', message: 'missing' },
+    })
+
+    expect(Diagnostics.from(foreign).code).toBe('KUBB_INPUT_NOT_FOUND')
+  })
+
   it('should fall back to KUBB_UNKNOWN for a plain error', () => {
     expect(Diagnostics.from(new Error('boom'))).toMatchObject({ code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom' })
   })
