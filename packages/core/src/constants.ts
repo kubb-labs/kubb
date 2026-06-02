@@ -1,19 +1,7 @@
-import type { FileNode } from '@kubb/ast'
-
 /**
  * Base URL for the Kubb Studio web app.
  */
 export const DEFAULT_STUDIO_URL = 'https://kubb.studio' as const
-
-/**
- * Default banner style written at the top of every generated file.
- */
-export const DEFAULT_BANNER = 'simple' as const
-
-/**
- * Default file-extension mapping used when no explicit mapping is configured.
- */
-export const DEFAULT_EXTENSION: Record<FileNode['extname'], FileNode['extname'] | ''> = { '.ts': '.ts' }
 
 /**
  * Number of file writes to batch in parallel during `flushPendingFiles`.

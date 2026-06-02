@@ -35,9 +35,9 @@ export type ParsedFile = {
 
 type FileProcessorOptions = {
   /**
-   * Storage destination for queued writes. Required for queue mode.
+   * Storage destination for queued writes.
    */
-  storage?: Storage
+  storage: Storage
   /**
    * Parsers indexed by file extension.
    */
@@ -70,20 +70,20 @@ function joinSources(file: FileNode): string {
  * `flush` or `drain` picks the in-flight batch up. `drain` blocks until everything has been
  * written and is meant for the end of a build.
  *
- * Queue mode needs `storage` in the constructor. To surface build-level hook signals
- * (`kubb:files:processing:*` and friends) subscribe to `hooks` and re-emit on the kubb bus.
+ * To surface build-level hook signals (`kubb:files:processing:*` and friends) subscribe to
+ * `hooks` and re-emit on the kubb bus.
  */
 export class FileProcessor {
   readonly hooks = new AsyncEventEmitter<FileProcessorHooks>()
   readonly #parsers: Map<FileNode['extname'], Parser> | null
-  readonly #storage: Storage | null
+  readonly #storage: Storage
   readonly #extension: Record<FileNode['extname'], FileNode['extname'] | ''> | null
   readonly #pending = new Map<string, FileNode>()
-  #inFlight: Promise<void> | null = null
+  #runningFlush: Promise<void> | null = null
 
-  constructor(options: FileProcessorOptions = {}) {
+  constructor(options: FileProcessorOptions) {
     this.#parsers = options.parsers ?? null
-    this.#storage = options.storage ?? null
+    this.#storage = options.storage
     this.#extension = options.extension ?? null
   }
 
@@ -151,15 +151,14 @@ export class FileProcessor {
    * `flush` or `drain` picks up the in-flight task.
    */
   async flush(): Promise<void> {
-    this.#assertQueueMode()
-    if (this.#inFlight) await this.#inFlight
+    if (this.#runningFlush) await this.#runningFlush
     if (this.#pending.size === 0) return
 
     const batch = [...this.#pending.values()]
     this.#pending.clear()
 
-    this.#inFlight = this.#processAndWrite(batch).finally(() => {
-      this.#inFlight = null
+    this.#runningFlush = this.#processAndWrite(batch).finally(() => {
+      this.#runningFlush = null
     })
   }
 
@@ -168,8 +167,7 @@ export class FileProcessor {
    * when both are done.
    */
   async drain(): Promise<void> {
-    this.#assertQueueMode()
-    if (this.#inFlight) await this.#inFlight
+    if (this.#runningFlush) await this.#runningFlush
 
     if (this.#pending.size > 0) {
       const batch = [...this.#pending.values()]
@@ -180,14 +178,8 @@ export class FileProcessor {
     await this.hooks.emit('drain')
   }
 
-  #assertQueueMode(): void {
-    if (!this.#storage) {
-      throw new Error('FileProcessor was constructed without storage. Queue mode (enqueue / flush / drain) is unavailable.')
-    }
-  }
-
   async #processAndWrite(files: Array<FileNode>): Promise<void> {
-    const storage = this.#storage!
+    const storage = this.#storage
 
     await this.hooks.emit('start', files)
 

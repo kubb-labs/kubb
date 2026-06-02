@@ -4,7 +4,7 @@ import type { PossiblePromise } from '@internals/utils'
 import { AsyncEventEmitter, BuildError, exists, URLPath } from '@internals/utils'
 import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
-import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
+import { DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import { createStorage, type Storage } from './createStorage.ts'
@@ -934,8 +934,8 @@ function resolveConfig(userConfig: UserConfig): Config {
     output: {
       format: false,
       lint: false,
-      extension: DEFAULT_EXTENSION,
-      defaultBanner: DEFAULT_BANNER,
+      extension: { '.ts': '.ts' },
+      defaultBanner: 'simple',
       ...userConfig.output,
     },
     storage: userConfig.storage ?? fsStorage(),

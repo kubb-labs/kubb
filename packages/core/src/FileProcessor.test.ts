@@ -16,14 +16,14 @@ function makeFile(path: string, sources: Array<string> = []) {
 describe('FileProcessor', () => {
   describe('parse', () => {
     it('joins source values when no parsers are provided', async () => {
-      const processor = new FileProcessor()
+      const processor = new FileProcessor({ storage: memoryStorage() })
       const file = makeFile('/src/foo.ts', ['const a = 1', 'const b = 2'])
       const result = await processor.parse(file)
       expect(result).toBe('const a = 1\n\nconst b = 2')
     })
 
     it('joins source values when no matching parser is registered', async () => {
-      const processor = new FileProcessor({ parsers: new Map() })
+      const processor = new FileProcessor({ storage: memoryStorage(), parsers: new Map() })
       const file = makeFile('/src/foo.ts', ['const a = 1'])
       const result = await processor.parse(file)
       expect(result).toBe('const a = 1')
@@ -41,7 +41,7 @@ describe('FileProcessor', () => {
         print: vi.fn().mockReturnValue(''),
       }
       const parsers = new Map([['.ts' as const, parser]])
-      const processor = new FileProcessor({ parsers })
+      const processor = new FileProcessor({ storage: memoryStorage(), parsers })
       const result = await processor.parse(file)
       expect(mockParse).toHaveBeenCalledWith(file, { extname: undefined })
       expect(result).toBe('// formatted\nconst a = 1')
@@ -50,7 +50,7 @@ describe('FileProcessor', () => {
 
   describe('run', () => {
     it('emits start and end events with the full files list', async () => {
-      const processor = new FileProcessor()
+      const processor = new FileProcessor({ storage: memoryStorage() })
       const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
       const onStart = vi.fn()
       const onEnd = vi.fn()
@@ -65,7 +65,7 @@ describe('FileProcessor', () => {
     })
 
     it('emits update event once per file', async () => {
-      const processor = new FileProcessor()
+      const processor = new FileProcessor({ storage: memoryStorage() })
       const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
       const onUpdate = vi.fn()
 
@@ -77,7 +77,7 @@ describe('FileProcessor', () => {
     })
 
     it('passes correct percentage and processed count via update event', async () => {
-      const processor = new FileProcessor()
+      const processor = new FileProcessor({ storage: memoryStorage() })
       const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
       const updates: Array<{
         processed: number
@@ -96,14 +96,14 @@ describe('FileProcessor', () => {
     })
 
     it('returns the original files array', async () => {
-      const processor = new FileProcessor()
+      const processor = new FileProcessor({ storage: memoryStorage() })
       const files = [makeFile('/src/a.ts')]
       const result = await processor.run(files)
       expect(result).toBe(files)
     })
 
     it('processes files sequentially by default', async () => {
-      const processor = new FileProcessor()
+      const processor = new FileProcessor({ storage: memoryStorage() })
       const order: Array<string> = []
       const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
 
@@ -117,7 +117,7 @@ describe('FileProcessor', () => {
     })
 
     it('runs without errors', async () => {
-      const processor = new FileProcessor()
+      const processor = new FileProcessor({ storage: memoryStorage() })
       const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
       const onUpdate = vi.fn()
 
@@ -129,7 +129,7 @@ describe('FileProcessor', () => {
     })
 
     it('handles an empty files array', async () => {
-      const processor = new FileProcessor()
+      const processor = new FileProcessor({ storage: memoryStorage() })
       const onStart = vi.fn()
       const onEnd = vi.fn()
       const onUpdate = vi.fn()
@@ -280,21 +280,5 @@ describe('FileProcessor — queue: drain', () => {
     await processor.drain()
 
     expect(onDrain).toHaveBeenCalledOnce()
-  })
-})
-
-describe('FileProcessor — queue: errors', () => {
-  it('throws synchronously when flush is called without storage', async () => {
-    const processor = new FileProcessor()
-    processor.enqueue(makeFile('a.ts'))
-
-    await expect(processor.flush()).rejects.toThrow(/storage/)
-  })
-
-  it('throws synchronously when drain is called without storage', async () => {
-    const processor = new FileProcessor()
-    processor.enqueue(makeFile('a.ts'))
-
-    await expect(processor.drain()).rejects.toThrow(/storage/)
   })
 })

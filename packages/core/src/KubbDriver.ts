@@ -473,9 +473,7 @@ export class KubbDriver {
       // Plugins-end listeners (barrel middleware etc.) may have queued more files.
       await processor.drain()
 
-      const files = this.fileManager.files
-
-      await hooks.emit('kubb:build:end', { files, config, outputDir: resolve(config.root, config.output.path) })
+      await hooks.emit('kubb:build:end', { files: this.fileManager.files, config, outputDir: resolve(config.root, config.output.path) })
 
       return { failedPlugins, pluginTimings }
     } catch (caughtError) {
