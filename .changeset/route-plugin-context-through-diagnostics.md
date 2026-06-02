@@ -9,4 +9,4 @@ Until now these methods only emitted `kubb:warn`/`kubb:error`/`kubb:info` events
 - `ctx.error` reports an `error` diagnostic (`KUBB_PLUGIN_FAILED`), which now **fails the build**. When passed an `Error`, it is kept as the diagnostic `cause`.
 - `ctx.warn` reports a `warning` (`KUBB_PLUGIN_WARNING`); `ctx.info` reports an `info` (`KUBB_PLUGIN_INFO`). Neither fails the build.
 
-Adds `ctx.report(diagnostic)` for the structured path: pass a stable `code`, `severity`, and an optional source `location`/`help` to point a diagnostic at a `$ref` or operation instead of logging a bare string. The `Diagnostic`, `DiagnosticSeverity`, `DiagnosticLocation`, and `DiagnosticKind` types are now exported.
+For a structured diagnostic with a stable `code` and a source `location`, call `Diagnostics.report(...)` or throw a `DiagnosticError` directly. The `Diagnostic`, `DiagnosticSeverity`, `DiagnosticLocation`, and `DiagnosticKind` types are now exported so you can build one.

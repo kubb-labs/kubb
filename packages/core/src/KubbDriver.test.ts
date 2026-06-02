@@ -282,21 +282,6 @@ describe('GeneratorContext diagnostics', () => {
     expect(diagnostics).toMatchObject([{ code: diagnosticCode.pluginInfo, severity: 'info', message: 'heads up', plugin: 'pluginA' }])
   })
 
-  it('preserves code and location on the structured ctx.report path', () => {
-    const diagnostics = collect((ctx) =>
-      ctx.report({
-        code: diagnosticCode.refNotFound,
-        severity: 'error',
-        message: 'missing ref',
-        location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
-      }),
-    )
-
-    expect(diagnostics).toMatchObject([
-      { code: diagnosticCode.refNotFound, severity: 'error', plugin: 'pluginA', location: { kind: 'schema', pointer: '#/components/schemas/Pet' } },
-    ])
-  })
-
   it('still emits the matching hook event so loggers keep firing', () => {
     const onError = vi.fn()
     driver.hooks.on('kubb:error', onError)
