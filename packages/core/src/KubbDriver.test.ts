@@ -248,7 +248,10 @@ describe('GeneratorContext diagnostics', () => {
 
   function collect(fn: (ctx: ReturnType<typeof context>) => void): Array<Diagnostic> {
     const diagnostics: Array<Diagnostic> = []
-    Diagnostics.scope((diagnostic) => diagnostics.push(diagnostic), () => fn(context()))
+    Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => fn(context()),
+    )
     return diagnostics
   }
 
@@ -281,7 +284,12 @@ describe('GeneratorContext diagnostics', () => {
 
   it('preserves code and location on the structured ctx.report path', () => {
     const diagnostics = collect((ctx) =>
-      ctx.report({ code: diagnosticCode.refNotFound, severity: 'error', message: 'missing ref', location: { kind: 'schema', pointer: '#/components/schemas/Pet' } }),
+      ctx.report({
+        code: diagnosticCode.refNotFound,
+        severity: 'error',
+        message: 'missing ref',
+        location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
+      }),
     )
 
     expect(diagnostics).toMatchObject([
