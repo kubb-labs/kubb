@@ -1,6 +1,7 @@
 import { styleText } from 'node:util'
 import { formatHrtime, formatMs, formatMsWithColor, toCause } from '@internals/utils'
-import { type Config, defineLogger, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { type Config, defineLogger, diagnosticCode, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { diagnosticDocsUrl } from './diagnostics.ts'
 import {
   buildProgressLine,
   createHookTimer,
@@ -149,6 +150,29 @@ export const githubActionsLogger = defineLogger({
           }
         }
       }
+    })
+
+    context.on('kubb:diagnostic', ({ diagnostic }) => {
+      closeAllGroups()
+
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+
+      const parts = [`${diagnostic.code} ${diagnostic.message}`]
+      if (diagnostic.location && 'pointer' in diagnostic.location) {
+        parts.push(`(at ${diagnostic.location.pointer})`)
+      }
+      if (diagnostic.plugin) {
+        parts.push(`[plugin: ${diagnostic.plugin}]`)
+      }
+      if (diagnostic.help) {
+        parts.push(`help: ${diagnostic.help}`)
+      }
+      if (diagnostic.code !== diagnosticCode.unknown) {
+        parts.push(`docs: ${diagnosticDocsUrl(diagnostic.code)}`)
+      }
+      console.error(`::error::${parts.join(' ')}`)
     })
 
     context.on('kubb:lifecycle:start', ({ version }) => {

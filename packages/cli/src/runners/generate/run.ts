@@ -5,7 +5,7 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { AsyncEventEmitter as AsyncEventEmitterClass, detectFormatter, detectLinter, executeIfOnline, formatters, linters, toError } from '@internals/utils'
-import { type CLIOptions, type Config, createKubb, isInputPath, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { type CLIOptions, type Config, createKubb, diagnosticCode, isInputPath, type KubbHooks, logLevel as logLevelMap, toDiagnostic } from '@kubb/core'
 import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../../constants.ts'
 import { setupLogger, type HookSinkFactory } from '../../loggers/utils.ts'
@@ -118,7 +118,7 @@ async function runToolPass({
         command: toolConfig.command,
         args: hookArgs,
         commandWithArgs,
-        context: hooks,
+        hooks,
         stream,
         sink: { onLine, onStdout, onStderr },
       }).catch(() => {})
@@ -169,10 +169,18 @@ async function generate(options: GenerateProps): Promise<boolean> {
     sendTelemetry(buildTelemetryEvent({ command: 'generate', kubbVersion: version, plugins: telemetryPlugins, hrStart, filesCreated: files.length, status }))
 
   if (failedPlugins.size > 0 || error) {
-    const allErrors = [error, ...Array.from(failedPlugins, (it) => it.error)].filter(Boolean) as Array<Error>
+    const failures: Array<{ error: Error; plugin?: string }> = [
+      ...(error ? [{ error }] : []),
+      ...Array.from(failedPlugins, (it) => ({ error: it.error, plugin: it.plugin.name })),
+    ]
 
-    for (const err of allErrors) {
-      await hooks.emit('kubb:error', { error: err })
+    for (const { error: err, plugin } of failures) {
+      const diagnostic = toDiagnostic(err)
+      if (diagnostic.code === diagnosticCode.unknown) {
+        await hooks.emit('kubb:error', { error: err })
+      } else {
+        await hooks.emit('kubb:diagnostic', { diagnostic: plugin ? { ...diagnostic, plugin } : diagnostic })
+      }
     }
 
     await hooks.emit('kubb:generation:end', { config, storage: kubb.storage })

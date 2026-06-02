@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
-import { SCHEMA_PARALLEL, STREAM_FLUSH_EVERY } from './constants.ts'
+import { HOOK_LISTENERS_PER_PLUGIN, SCHEMA_PARALLEL, STREAM_FLUSH_EVERY } from './constants.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 
@@ -88,6 +88,23 @@ describe('createKubb', () => {
     expect(kubb.config?.parsers).toStrictEqual([])
   })
 
+  test('keeps the hooks ceiling at 10 for a single plugin', async () => {
+    const kubb = createKubb(config, { hooks: new AsyncEventEmitter<KubbHooks>() })
+
+    await kubb.setup()
+
+    expect(kubb.hooks.getMaxListeners()).toBe(10)
+  })
+
+  test('scales the hooks ceiling with the plugin count during setup', async () => {
+    const plugins = ['a', 'b', 'c', 'd'].map((name) => definePlugin(() => ({ name, hooks: {} }))())
+    const kubb = createKubb({ ...config, plugins: plugins as unknown as Array<Plugin> }, { hooks: new AsyncEventEmitter<KubbHooks>() })
+
+    await kubb.setup()
+
+    expect(kubb.hooks.getMaxListeners()).toBe(plugins.length * HOOK_LISTENERS_PER_PLUGIN)
+  })
+
   test('if build with one plugin is running the different hooks in the correct order', async () => {
     const { files } = await createKubb(config, {
       hooks: new AsyncEventEmitter<KubbHooks>(),
@@ -156,12 +173,35 @@ describe('createKubb', () => {
     expect(originalError?.message).toContain('Installation failed')
   })
 
-  it('should emit debug events during build process', async () => {
+  it('should collect a failed plugin as a diagnostic with the plugin name', async () => {
+    const errorPlugin = definePlugin(() => ({
+      name: 'errorPlugin',
+      hooks: {
+        'kubb:plugin:start'() {
+          throw new Error('Installation failed')
+        },
+      },
+    }))()
+
+    const { diagnostics } = await createKubb(
+      { ...config, plugins: [errorPlugin] as unknown as Array<Plugin> },
+      { hooks: new AsyncEventEmitter<KubbHooks>() },
+    ).safeBuild()
+
+    expect(diagnostics).toHaveLength(1)
+    expect(diagnostics[0]).toMatchObject({ plugin: 'errorPlugin' })
+  })
+
+  it('should emit namespaced debug events during build process', async () => {
     const hooks = new AsyncEventEmitter<KubbHooks>()
     const debugSpy = vi.fn()
     hooks.on('kubb:debug', debugSpy)
 
     await createKubb(config, { hooks }).build()
+
+    expect(debugSpy).toHaveBeenCalled()
+    const [ctx] = debugSpy.mock.calls[0] ?? []
+    expect(ctx).toMatchObject({ namespace: expect.stringMatching(/^kubb:/), logs: expect.any(Array) })
   })
 
   test('safeBuild should return error instead of throwing', async () => {

@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { canUseTTY, formatHrtime, getElapsedMs, isGitHubActions, randomCliColor } from '@internals/utils'
 import type { Config, Logger, LoggerContext, LoggerOptions, Plugin } from '@kubb/core'
-import { logLevel as logLevelMap } from '@kubb/core'
+import { getDiagnosticInfo, logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
 import { clackLogger } from './clackLogger.ts'
 import { fileSystemLogger } from './fileSystemLogger.ts'
@@ -325,6 +325,20 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
   }
 
   summaryLines.push(`${labels.output.padEnd(maxLength + 2)} ${meta.output}`)
+
+  if (status === 'failed') {
+    const env = getDiagnosticInfo()
+    const rows: Array<[string, string]> = [
+      ['node', env.nodeVersion],
+      ['kubb', env.KubbVersion],
+      ['platform', `${env.platform} ${env.arch}`],
+      ['cwd', env.cwd],
+    ]
+    summaryLines.push(styleText('dim', 'Environment:'))
+    for (const [name, value] of rows) {
+      summaryLines.push(styleText('dim', `• ${name.padEnd(maxLength)} ${value}`))
+    }
+  }
 
   return summaryLines
 }

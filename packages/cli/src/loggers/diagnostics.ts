@@ -1,0 +1,59 @@
+import { styleText } from 'node:util'
+import { type Diagnostic, diagnosticCode, type DiagnosticSeverity } from '@kubb/core'
+import { version } from '../../package.json'
+
+/**
+ * Glyph and accent color per severity, matching the miette/oxlint convention
+ * (`×` error, `⚠` warning, `ℹ` advice).
+ */
+const severityStyle: Record<DiagnosticSeverity, { glyph: string; color: 'red' | 'yellow' | 'blue' }> = {
+  error: { glyph: '×', color: 'red' },
+  warning: { glyph: '⚠', color: 'yellow' },
+  info: { glyph: 'ℹ', color: 'blue' },
+}
+
+/**
+ * Docs major, derived from the CLI version so the link tracks the published major.
+ */
+const docsMajor = version.split('.')[0] ?? '5'
+
+/**
+ * Builds the kubb.dev docs URL for a diagnostic code, e.g.
+ * `KUBB_REF_NOT_FOUND` → `https://kubb.dev/docs/5.x/diagnostics/kubb-ref-not-found`.
+ */
+export function diagnosticDocsUrl(code: string): string {
+  const slug = code.toLowerCase().replaceAll('_', '-')
+  return `https://kubb.dev/docs/${docsMajor}.x/diagnostics/${slug}`
+}
+
+/**
+ * Renders a {@link Diagnostic} in the oxlint style: a `× plugin(CODE): message`
+ * header, then optional `at <pointer>`, `help:`, and `docs:` lines. OpenAPI has no
+ * line/column, so the location is shown as the JSON pointer the adapter built.
+ *
+ * @example
+ * ```ts
+ * formatDiagnostic({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'Could not find Pet', help: 'Add Pet under components.schemas.', plugin: '@kubb/plugin-zod', location: { kind: 'schema', pointer: '#/components/schemas/Pet' } })
+ * ```
+ */
+export function formatDiagnostic(diagnostic: Diagnostic): Array<string> {
+  const { code, severity, message, location, plugin, help } = diagnostic
+  const { glyph, color } = severityStyle[severity]
+
+  const rule = styleText(color, styleText('bold', plugin ? `${plugin}(${code})` : code))
+  const lines = [`${styleText(color, styleText('bold', glyph))} ${rule}: ${message}`]
+
+  if (location && 'pointer' in location) {
+    lines.push(`  ${styleText('dim', 'at')} ${styleText('cyan', location.pointer)}`)
+  }
+
+  if (help) {
+    lines.push(`  ${styleText('cyan', 'help:')} ${help}`)
+  }
+
+  if (code !== diagnosticCode.unknown) {
+    lines.push(`  ${styleText('dim', 'docs:')} ${styleText('cyan', diagnosticDocsUrl(code))}`)
+  }
+
+  return lines
+}

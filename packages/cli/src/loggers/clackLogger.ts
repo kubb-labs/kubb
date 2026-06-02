@@ -2,8 +2,9 @@ import { relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { formatMs, formatMsWithColor, getElapsedMs, getIntro, toCause } from '@internals/utils'
+import { formatMsWithColor, getElapsedMs, getIntro, toCause } from '@internals/utils'
 import { defineLogger, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { formatDiagnostic } from './diagnostics.ts'
 import { getSummary } from './utils.ts'
 import { buildProgressLine, createProgressCounters, formatCommandWithArgs, formatMessage, recordPluginResult, resetProgressCounters } from './utils.ts'
 
@@ -18,6 +19,7 @@ export const clackLogger = defineLogger({
       ...createProgressCounters(),
       spinner: clack.spinner(),
       isSpinning: false,
+      runningPlugins: new Set<string>(),
       activeProgress: new Map<string, { interval?: NodeJS.Timeout; progressBar: clack.ProgressResult }>(),
       activeHookLogs: new Map<string, { taskLog: ReturnType<typeof clack.taskLog>; hrStart: [number, number] }>(),
     }
@@ -33,8 +35,15 @@ export const clackLogger = defineLogger({
       resetProgressCounters(state)
       state.spinner = clack.spinner()
       state.isSpinning = false
+      state.runningPlugins.clear()
       state.activeProgress.clear()
       state.activeHookLogs.clear()
+    }
+
+    // Label for the shared plugin bar, listing the plugins currently generating.
+    function pluginProgressText(): string {
+      const running = [...state.runningPlugins].map((name) => styleText('bold', name))
+      return getMessage(running.length > 0 ? `Generating ${running.join(', ')}` : 'Generating plugins')
     }
 
     function showProgressStep() {
@@ -80,7 +89,7 @@ export const clackLogger = defineLogger({
         return
       }
 
-      const text = getMessage([styleText('blue', 'ℹ'), message, styleText('dim', info)].join(' '))
+      const text = getMessage([styleText('blue', 'ℹ'), message, info ? styleText('dim', info) : undefined].filter(Boolean).join(' '))
 
       if (state.isSpinning) {
         state.spinner.message(text)
@@ -144,6 +153,23 @@ export const clackLogger = defineLogger({
       }
     })
 
+    context.on('kubb:diagnostic', ({ diagnostic }) => {
+      stopSpinner()
+
+      // Stop any lingering spinner/progress UI so the multi-line block renders cleanly.
+      for (const [, active] of state.activeProgress) {
+        if (active.interval) {
+          clearInterval(active.interval)
+        }
+        active.progressBar?.stop()
+      }
+      state.activeProgress.clear()
+
+      // The block carries its own severity glyph and colors, so render it as a plain
+      // message (no extra `■` marker, no timestamp prefix) and let clack add the gutter.
+      clack.log.message(formatDiagnostic(diagnostic).join('\n'))
+    })
+
     context.on('kubb:version:new', ({ currentVersion, latestVersion }) => {
       if (logLevel <= logLevelMap.silent) {
         return
@@ -170,7 +196,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('kubb:lifecycle:start', async ({ version }) => {
-      console.log(`\n${getIntro({ title: 'The ultimate toolkit for working with APIs', description: 'Ready to start', version, areEyesOpen: true })}\n`)
+      console.log(`\n${getIntro({ title: 'The meta framework for code generation', description: 'Ready to start', version, areEyesOpen: true })}\n`)
 
       reset()
     })
@@ -211,6 +237,8 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.intro(text)
     })
 
+    // Plugins run concurrently, so they share a single progress bar. A bar per plugin
+    // would make clack render them side by side and pile up keypress listeners.
     context.on('kubb:plugin:start', ({ plugin }) => {
       if (logLevel <= logLevelMap.silent) {
         return
@@ -218,46 +246,44 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       stopSpinner()
 
+      state.runningPlugins.add(plugin.name)
+
+      const active = state.activeProgress.get('plugins')
+      if (active) {
+        active.progressBar.advance(0, pluginProgressText())
+        return
+      }
+
       const progressBar = clack.progress({
         style: 'block',
-        max: 100,
+        max: Math.max(state.totalPlugins, 1),
         size: 30,
       })
-      const text = getMessage(`Generating ${styleText('bold', plugin.name)}`)
-      progressBar.start(text)
-
-      const interval = setInterval(() => {
-        progressBar.advance()
-      }, 100)
-
-      state.activeProgress.set(plugin.name, { progressBar, interval })
+      progressBar.start(pluginProgressText())
+      // Catch up to plugins already finished before this bar opened.
+      progressBar.advance(state.completedPlugins + state.failedPlugins, pluginProgressText())
+      state.activeProgress.set('plugins', { progressBar })
     })
 
-    context.on('kubb:plugin:end', ({ plugin, duration, success }) => {
+    context.on('kubb:plugin:end', ({ plugin, success }) => {
       stopSpinner()
 
-      const active = state.activeProgress.get(plugin.name)
+      const active = state.activeProgress.get('plugins')
 
       if (!active || logLevel === logLevelMap.silent) {
         return
       }
 
-      clearInterval(active.interval)
-
+      state.runningPlugins.delete(plugin.name)
       recordPluginResult(state, success)
+      active.progressBar.advance(1, pluginProgressText())
 
-      const durationStr = formatMsWithColor(duration)
-      const text = getMessage(
-        success
-          ? `${styleText('bold', plugin.name)} completed in ${durationStr}`
-          : `${styleText('bold', plugin.name)} failed in ${styleText('red', formatMs(duration))}`,
-      )
-
-      active.progressBar.stop(text)
-      state.activeProgress.delete(plugin.name)
-
-      // Show progress step after each plugin
-      showProgressStep()
+      // Close the bar once nothing is generating, then print the progress step.
+      if (state.runningPlugins.size === 0) {
+        active.progressBar.stop(getMessage('Plugins generated'))
+        state.activeProgress.delete('plugins')
+        showProgressStep()
+      }
     })
 
     context.on('kubb:files:processing:start', ({ files }) => {

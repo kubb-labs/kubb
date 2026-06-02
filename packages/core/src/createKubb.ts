@@ -4,8 +4,10 @@ import type { PossiblePromise } from '@internals/utils'
 import { AsyncEventEmitter, BuildError, exists, URLPath } from '@internals/utils'
 import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
-import { DEFAULT_STUDIO_URL } from './constants.ts'
+import { DEFAULT_STUDIO_URL, HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
+import { type Diagnostic, toDiagnostic } from './diagnostics.ts'
+import { createDebugger } from './createDebugger.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import type { Middleware } from './defineMiddleware.ts'
@@ -500,6 +502,7 @@ export interface KubbHooks {
   'kubb:success': [ctx: KubbSuccessContext]
   'kubb:warn': [ctx: KubbWarnContext]
   'kubb:debug': [ctx: KubbDebugContext]
+  'kubb:diagnostic': [ctx: KubbDiagnosticContext]
   'kubb:files:processing:start': [ctx: KubbFilesProcessingStartContext]
   'kubb:files:processing:update': [ctx: KubbFilesProcessingUpdateContext]
   'kubb:files:processing:end': [ctx: KubbFilesProcessingEndContext]
@@ -704,6 +707,10 @@ export type KubbDebugContext = {
    */
   date: Date
   /**
+   * Namespace the entry was emitted under, e.g. `kubb:core`.
+   */
+  namespace: string
+  /**
    * One or more log lines to emit.
    */
   logs: Array<string>
@@ -711,6 +718,13 @@ export type KubbDebugContext = {
    * Optional source file name associated with this entry.
    */
   fileName?: string
+}
+
+export type KubbDiagnosticContext = {
+  /**
+   * The structured problem to report, with its code, severity, and source location.
+   */
+  diagnostic: Diagnostic
 }
 
 export type KubbFilesProcessingStartContext = {
@@ -840,6 +854,11 @@ export type BuildOutput = {
    * Plugins that threw during generation, paired with their errors.
    */
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
+  /**
+   * Structured diagnostics collected during the build, one per failure, each with
+   * a code, severity, and (where known) a JSON-pointer location into the source.
+   */
+  diagnostics: Array<Diagnostic>
   /**
    * All files generated during this build.
    */
@@ -1010,32 +1029,32 @@ export class Kubb {
     const driver = new KubbDriver(config, { hooks: this.hooks })
     const storage = createSourcesView(config.storage)
 
+    // Each generator a plugin registers adds a listener to the shared hooks emitter, so size the
+    // ceiling to the plugin count. Without this, a multi-generator plugin set trips Node's
+    // EventEmitter leak warning at the default 10.
+    this.hooks.setMaxListeners(Math.max(10, config.plugins.length * HOOK_LISTENERS_PER_PLUGIN))
+
     const userConfig = this.#userConfig
-    const diagnostics = getDiagnosticInfo()
-    await this.hooks.emit('kubb:debug', {
-      date: new Date(),
-      logs: [
-        'Configuration:',
-        `  • Name: ${userConfig.name || 'unnamed'}`,
-        `  • Root: ${userConfig.root || process.cwd()}`,
-        `  • Output: ${userConfig.output?.path || 'not specified'}`,
-        `  • Plugins: ${userConfig.plugins?.length || 0}`,
-        'Output Settings:',
-        `  • Storage: ${config.storage.name}`,
-        `  • Formatter: ${userConfig.output?.format || 'none'}`,
-        `  • Linter: ${userConfig.output?.lint || 'none'}`,
-        `Running adapter: ${config.adapter?.name || 'none'}`,
-        'Environment:',
-        Object.entries(diagnostics)
-          .map(([key, value]) => `  • ${key}: ${value}`)
-          .join('\n'),
-      ],
+    const debug = createDebugger('kubb:core', { hooks: this.hooks })
+
+    debug('configuration %O', {
+      name: userConfig.name || 'unnamed',
+      root: userConfig.root || process.cwd(),
+      output: userConfig.output?.path || 'not specified',
+      plugins: userConfig.plugins?.length || 0,
     })
+    debug('output %O', {
+      storage: config.storage.name,
+      formatter: userConfig.output?.format || 'none',
+      linter: userConfig.output?.lint || 'none',
+      adapter: config.adapter?.name || 'none',
+    })
+    debug('environment %O', getDiagnosticInfo())
 
     if (isInputPath(this.#userConfig) && !new URLPath(this.#userConfig.input.path).isURL) {
       try {
         await exists(this.#userConfig.input.path)
-        await this.hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ Input file validated: ${this.#userConfig.input.path}`] })
+        debug('input file validated: %s', this.#userConfig.input.path)
       } catch (caughtError) {
         throw new Error(
           `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${this.#userConfig.input.path}`,
@@ -1045,7 +1064,7 @@ export class Kubb {
     }
 
     if (config.output.clean) {
-      await this.hooks.emit('kubb:debug', { date: new Date(), logs: ['Cleaning output directories', `  • Output: ${config.output.path}`] })
+      debug('cleaning output directory %s', config.output.path)
       await config.storage.clear(resolve(config.root, config.output.path))
     }
 
@@ -1080,7 +1099,12 @@ export class Kubb {
     const driver = cleanup.driver
     const storage = cleanup.storage
     const { failedPlugins, pluginTimings, error } = await driver.run({ storage })
-    return { failedPlugins, files: driver.fileManager.files, driver, pluginTimings, storage, ...(error ? { error } : {}) }
+    const diagnostics: Array<Diagnostic> = [
+      ...(error ? [toDiagnostic(error)] : []),
+      ...[...failedPlugins].map(({ plugin, error }) => ({ ...toDiagnostic(error), plugin: plugin.name })),
+    ]
+
+    return { failedPlugins, diagnostics, files: driver.fileManager.files, driver, pluginTimings, storage, ...(error ? { error } : {}) }
   }
 
   dispose(): void {

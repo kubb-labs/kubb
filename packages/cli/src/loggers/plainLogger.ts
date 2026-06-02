@@ -2,6 +2,7 @@ import { relative } from 'node:path'
 import { formatMs, toCause } from '@internals/utils'
 import { defineLogger, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_SEPARATOR } from '../constants.ts'
+import { formatDiagnostic } from './diagnostics.ts'
 import { getSummary } from './utils.ts'
 import { createHookTimer, formatCommandWithArgs, formatMessage } from './utils.ts'
 
@@ -81,6 +82,10 @@ export const plainLogger = defineLogger({
           }
         }
       }
+    })
+
+    context.on('kubb:diagnostic', ({ diagnostic }) => {
+      console.log(getMessage(formatDiagnostic(diagnostic).join('\n')))
     })
 
     context.on('kubb:lifecycle:start', ({ version }) => {

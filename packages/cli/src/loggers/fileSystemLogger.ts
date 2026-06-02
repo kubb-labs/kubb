@@ -94,11 +94,12 @@ export const fileSystemLogger = defineLogger({
       })
     })
 
-    context.on('kubb:debug', ({ date, fileName, logs }) => {
+    context.on('kubb:debug', ({ date, fileName, logs, namespace }) => {
+      const [first, ...rest] = logs
       state.cachedLogs.add({
         date,
         fileName,
-        logs,
+        logs: first !== undefined ? [`${namespace} ${first}`, ...rest] : logs,
       })
     })
 

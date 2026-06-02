@@ -1,4 +1,5 @@
 import { pascalCase } from '@internals/utils'
+import { diagnosticCode, DiagnosticError } from '@kubb/core'
 import type { ast } from '@kubb/core'
 import type { ParameterObject, ServerObject } from 'oas/types'
 import { isRef } from 'oas/types'
@@ -35,7 +36,13 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
     }
 
     if (variable.enum?.length && !variable.enum.some((e) => String(e) === value)) {
-      throw new Error(`Invalid server variable value '${value}' for '${key}' when resolving ${server.url}. Valid values are: ${variable.enum.join(', ')}.`)
+      throw new DiagnosticError({
+        code: diagnosticCode.invalidServerVariable,
+        severity: 'error',
+        message: `Invalid server variable value '${value}' for '${key}' when resolving ${server.url}. Valid values are: ${variable.enum.join(', ')}.`,
+        help: `Use one of the allowed enum values, or drop the enum on the '${key}' server variable.`,
+        location: { kind: 'document', pointer: '#/servers' },
+      })
     }
 
     url = url.replaceAll(`{${key}}`, value)

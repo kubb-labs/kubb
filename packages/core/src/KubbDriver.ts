@@ -1,8 +1,10 @@
 import { resolve } from 'node:path'
-import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, formatMs, getElapsedMs, isPromise, memoize, URLPath } from '@internals/utils'
+import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs, isPromise, memoize, URLPath } from '@internals/utils'
 import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast'
 import type { FileNode, InputMeta, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
-import { DEFAULT_STUDIO_URL, OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
+import { DEFAULT_STUDIO_URL, diagnosticCode, OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
+import { createDebugger, type Debugger } from './createDebugger.ts'
+import { DiagnosticError } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -147,6 +149,20 @@ export class KubbDriver {
     return this.options.hooks
   }
 
+  readonly #debuggers = new Map<string, Debugger>()
+
+  /**
+   * Returns a memoized namespaced debugger so per-namespace `+Nms` timings persist across calls.
+   */
+  #debug(namespace: string): Debugger {
+    let debug = this.#debuggers.get(namespace)
+    if (!debug) {
+      debug = createDebugger(namespace, { hooks: this.hooks })
+      this.#debuggers.set(namespace, debug)
+    }
+    return debug
+  }
+
   /**
    * Creates an `NormalizedPlugin` from a hook-style plugin and registers
    * its lifecycle handlers on the `AsyncEventEmitter`.
@@ -179,26 +195,18 @@ export class KubbDriver {
     const adapter = this.adapter
     const source = this.#studio.source
 
+    const debug = this.#debug('kubb:adapter')
+
     if (adapter.stream) {
       this.inputNode = await adapter.stream(source)
-      this.hooks.emit('kubb:debug', {
-        date: new Date(),
-        logs: [`✓ Adapter '${adapter.name}' producing input stream`],
-      })
+      debug('adapter %s producing input stream', adapter.name)
       return
     }
 
     const parsed = await adapter.parse(source)
     this.inputNode = createStreamInput(arrayToAsyncIterable(parsed.schemas), arrayToAsyncIterable(parsed.operations), parsed.meta)
 
-    await this.hooks.emit('kubb:debug', {
-      date: new Date(),
-      logs: [
-        `✓ Adapter '${adapter.name}' resolved InputNode (wrapped as stream)`,
-        `  • Schemas: ${parsed.schemas.length}`,
-        `  • Operations: ${parsed.operations.length}`,
-      ],
-    })
+    debug('adapter %s resolved input %O', adapter.name, { schemas: parsed.schemas.length, operations: parsed.operations.length })
   }
 
   #registerMiddleware<K extends keyof KubbHooks & string>(event: K, middlewareHooks: Middleware['hooks']) {
@@ -379,9 +387,8 @@ export class KubbDriver {
 
     const processor = new FileProcessor({ parsers: parsersMap, storage, extension: config.output.extension })
     // Bridge processor lifecycle to the user-facing kubb hooks so existing listeners on
-    // kubb:files:processing:* and kubb:debug keep firing.
+    // kubb:files:processing:* keep firing.
     processor.hooks.on('start', async (files) => {
-      await hooks.emit('kubb:debug', { date: new Date(), logs: [`Writing ${files.length} files...`] })
       await hooks.emit('kubb:files:processing:start', { files })
     })
     const updateBuffer: Array<{ file: FileNode; source?: string; processed: number; total: number; percentage: number }> = []
@@ -394,7 +401,6 @@ export class KubbDriver {
       })
       updateBuffer.length = 0
       await hooks.emit('kubb:files:processing:end', { files })
-      await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ File write process completed for ${files.length} files`] })
     })
     const onFileUpsert = (file: FileNode): void => {
       processor.enqueue(file)
@@ -424,7 +430,6 @@ export class KubbDriver {
 
         try {
           await hooks.emit('kubb:plugin:start', { plugin })
-          await hooks.emit('kubb:debug', { date: new Date(), logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`] })
         } catch (caughtError) {
           const error = caughtError as Error
           const duration = getElapsedMs(hrStart)
@@ -447,7 +452,6 @@ export class KubbDriver {
         pluginTimings.set(plugin.name, duration)
 
         await this.#emitPluginEnd({ plugin, duration, success: true })
-        await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ Plugin started successfully (${formatMs(duration)})`] })
       }
 
       // Stream every node through the transform registry and into each plugin's generators.
@@ -712,11 +716,6 @@ export class KubbDriver {
       await this.#emitPluginEnd({ plugin: state.plugin, duration, success: !state.failed, error: state.failed && state.error ? state.error : undefined })
 
       if (state.failed && state.error) failed.add({ plugin: state.plugin, error: state.error })
-
-      await this.hooks.emit('kubb:debug', {
-        date: new Date(),
-        logs: [state.failed ? '✗ Plugin start failed' : `✓ Plugin started successfully (${formatMs(duration)})`],
-      })
     }
 
     return { timings, failed }
@@ -906,7 +905,13 @@ export class KubbDriver {
   requirePlugin(pluginName: string): Plugin {
     const plugin = this.plugins.get(pluginName)
     if (!plugin) {
-      throw new Error(`[kubb] Plugin "${pluginName}" is required but not found. Make sure it is included in your Kubb config.`)
+      throw new DiagnosticError({
+        code: diagnosticCode.pluginNotFound,
+        severity: 'error',
+        message: `Plugin "${pluginName}" is required but not found. Make sure it is included in your Kubb config.`,
+        help: `Add "${pluginName}" to the \`plugins\` array in kubb.config.ts, or remove the dependency on it.`,
+        location: { kind: 'config' },
+      })
     }
     return plugin
   }

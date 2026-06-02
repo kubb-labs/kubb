@@ -14,6 +14,13 @@ export const STREAM_FLUSH_EVERY = 50
 export const SCHEMA_PARALLEL = 8
 
 /**
+ * Upper bound of hook listeners a single plugin can add to one event (its schema, operation,
+ * and operations generators, plus lifecycle hooks). Used to size the hooks emitter's
+ * max-listener ceiling so a multi-generator plugin set does not trip Node's leak warning.
+ */
+export const HOOK_LISTENERS_PER_PLUGIN = 4
+
+/**
  * Plugin `include` filter types that select operations directly. When one of these is set
  * without a `schemaName` include, the generate phase pre-scans operations to compute the set
  * of schemas they reach, so unreachable schemas can be pruned for that plugin.
@@ -33,3 +40,44 @@ export const logLevel = {
   verbose: 4,
   debug: 5,
 } as const
+
+/**
+ * Stable codes Kubb attaches to a `Diagnostic`. Each maps to a known failure mode
+ * and stays stable so it can be referenced in tooling and (later) docs. Reference
+ * these instead of inlining the string at a throw site.
+ */
+export const diagnosticCode = {
+  /**
+   * Fallback for an unstructured error with no specific code.
+   */
+  unknown: 'KUBB_UNKNOWN',
+  /**
+   * The `input.path` file or URL could not be read.
+   */
+  inputNotFound: 'KUBB_INPUT_NOT_FOUND',
+  /**
+   * An adapter was configured without an `input`.
+   */
+  inputRequired: 'KUBB_INPUT_REQUIRED',
+  /**
+   * A `$ref` (or equivalent reference) could not be resolved in the source document.
+   */
+  refNotFound: 'KUBB_REF_NOT_FOUND',
+  /**
+   * A server variable value is not allowed by its `enum`.
+   */
+  invalidServerVariable: 'KUBB_INVALID_SERVER_VARIABLE',
+  /**
+   * A required plugin is missing from the config.
+   */
+  pluginNotFound: 'KUBB_PLUGIN_NOT_FOUND',
+  /**
+   * A plugin threw while generating.
+   */
+  pluginFailed: 'KUBB_PLUGIN_FAILED',
+} as const
+
+/**
+ * Union of the stable {@link diagnosticCode} values.
+ */
+export type DiagnosticCode = (typeof diagnosticCode)[keyof typeof diagnosticCode]
