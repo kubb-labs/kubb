@@ -2,6 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 import { getErrorMessage } from '@internals/utils'
 import { version } from '../package.json'
 import { type DiagnosticCode, diagnosticCode } from './constants.ts'
+import { diagnosticCatalog, type DiagnosticDoc } from './diagnosticCatalog.ts'
 
 /**
  * Docs major, derived from the package version so the link tracks the published major.
@@ -330,6 +331,14 @@ export class Diagnostics {
   static docsUrl(code: string): string {
     const slug = code.toLowerCase().replaceAll('_', '-')
     return `https://kubb.dev/docs/${docsMajor}.x/diagnostics/${slug}`
+  }
+
+  /**
+   * The catalog entry for a code: its title, cause, and fix. Mirrors the kubb.dev
+   * `/diagnostics/<slug>` page.
+   */
+  static explain(code: DiagnosticCode): DiagnosticDoc {
+    return diagnosticCatalog[code]
   }
 
   /**
