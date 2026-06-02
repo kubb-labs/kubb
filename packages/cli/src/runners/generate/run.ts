@@ -1,13 +1,34 @@
 import { createHash } from 'node:crypto'
+import { writeFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { AsyncEventEmitter } from '@internals/utils'
-import { AsyncEventEmitter as AsyncEventEmitterClass, detectFormatter, detectLinter, executeIfOnline, formatters, linters, toError } from '@internals/utils'
-import { type CLIOptions, type Config, createKubb, diagnosticCode, hasBuildError, isInputPath, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import {
+  AsyncEventEmitter as AsyncEventEmitterClass,
+  detectFormatter,
+  detectLinter,
+  executeIfOnline,
+  formatters,
+  getElapsedMs,
+  linters,
+  toError,
+} from '@internals/utils'
+import {
+  type CLIOptions,
+  type Config,
+  createKubb,
+  type Diagnostic,
+  diagnosticCode,
+  Diagnostics,
+  isInputPath,
+  type KubbHooks,
+  logLevel as logLevelMap,
+} from '@kubb/core'
 import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../../constants.ts'
+import { buildJsonReport } from '../../reporters/jsonReporter.ts'
 import { setupLogger, type HookSinkFactory } from '../../loggers/utils.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../../telemetry.ts'
 import { executeHooks, getConfigs, runHook, startWatcher } from './utils.ts'
@@ -182,7 +203,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
   }
 
   // Only an error-severity diagnostic fails the run; warnings and info do not.
-  if (hasBuildError(diagnostics)) {
+  if (Diagnostics.hasError(diagnostics)) {
     await hooks.emit('kubb:generation:end', { config, storage: kubb.storage })
     await hooks.emit('kubb:generation:summary', { config, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
 
@@ -239,6 +260,8 @@ type GenerateCommandOptions = {
   configPath?: string
   logLevel: string
   watch: boolean
+  reporter?: 'human' | 'json'
+  report?: string
 }
 
 async function checkForUpdate(hooks: AsyncEventEmitter<KubbHooks>): Promise<void> {
@@ -259,11 +282,22 @@ async function checkForUpdate(hooks: AsyncEventEmitter<KubbHooks>): Promise<void
  * Runs the full Kubb generation lifecycle for the given CLI options.
  * Sets up the logger, checks for a newer version, loads configs, and calls `generate` for each config entry.
  */
-export async function run({ input, configPath, logLevel: logLevelKey, watch }: GenerateCommandOptions): Promise<void> {
+export async function run({ input, configPath, logLevel: logLevelKey, watch, reporter = 'human', report }: GenerateCommandOptions): Promise<void> {
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const hooks = new AsyncEventEmitterClass<KubbHooks>()
+  const runStart = process.hrtime()
 
-  const makeSink = await setupLogger(hooks, { logLevel })
+  const makeSink = await setupLogger(hooks, { logLevel, reporter })
+
+  // Accumulate diagnostics and file counts across every config for the json reporter.
+  const wantsJson = reporter === 'json' || !!report
+  const collected: { diagnostics: Array<Diagnostic>; files: number } = { diagnostics: [], files: 0 }
+  if (wantsJson) {
+    hooks.on('kubb:generation:summary', ({ diagnostics, filesCreated }) => {
+      collected.diagnostics.push(...diagnostics)
+      collected.files += filesCreated
+    })
+  }
 
   await hooks.emit('kubb:lifecycle:start', { version })
 
@@ -311,6 +345,17 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch }: G
     }
 
     await hooks.emit('kubb:lifecycle:end')
+
+    if (wantsJson) {
+      const jsonReport = buildJsonReport({ diagnostics: collected.diagnostics, files: collected.files, durationMs: getElapsedMs(runStart) })
+      const json = JSON.stringify(jsonReport, null, 2)
+      if (report) {
+        writeFileSync(path.resolve(process.cwd(), report), json)
+      }
+      if (reporter === 'json') {
+        process.stdout.write(`${json}\n`)
+      }
+    }
 
     if (anyFailed) {
       process.exit(1)

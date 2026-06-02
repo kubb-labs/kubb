@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { AsyncEventEmitter } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, createKubb, getFailedPluginNames, hasBuildError, type KubbHooks } from '@kubb/core'
+import { type Config, createKubb, Diagnostics, type KubbHooks } from '@kubb/core'
 import { middlewareBarrel, middlewareBarrelName } from '@kubb/middleware-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import type { UnpluginFactory } from 'unplugin'
@@ -56,7 +56,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
   })
 
   hooks.on('kubb:generation:summary', ({ config, status, diagnostics }) => {
-    const failedCount = getFailedPluginNames(diagnostics).length
+    const failedCount = Diagnostics.failedPlugins(diagnostics).length
     const pluginsCount = config.plugins.length
     const successCount = pluginsCount - failedCount
 
@@ -108,7 +108,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
     const { diagnostics, files, storage } = await kubb.safeBuild()
 
-    const hasFailures = hasBuildError(diagnostics)
+    const hasFailures = Diagnostics.hasError(diagnostics)
 
     // Surface every problem by severity; unplugin has no diagnostic renderer, so route
     // errors/warnings/info to the channels it does listen on. `timing` diagnostics are summary-only.
@@ -137,7 +137,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     await hooks.emit('kubb:lifecycle:end')
 
     if (hasFailures) {
-      const failedCount = getFailedPluginNames(diagnostics).length
+      const failedCount = Diagnostics.failedPlugins(diagnostics).length
       const firstError = diagnostics.find((diagnostic) => diagnostic.severity === 'error')
       const message = failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed')
       if (ctx.error) {

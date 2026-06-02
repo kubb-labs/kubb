@@ -44,6 +44,18 @@ export const command = defineCommand({
       short: 's',
       default: false,
     },
+    reporter: {
+      type: 'string',
+      description: 'Output format for diagnostics',
+      default: 'human',
+      hint: 'human|json',
+      enum: ['human', 'json'],
+    },
+    report: {
+      type: 'string',
+      description: 'Write the JSON diagnostics report to this file',
+      hint: 'path',
+    },
   },
   async run({ values, positionals }) {
     const logLevel = values.debug ? 'debug' : values.verbose ? 'verbose' : values.silent ? 'silent' : values.logLevel
@@ -54,6 +66,8 @@ export const command = defineCommand({
       configPath: values.config,
       logLevel,
       watch: values.watch,
+      reporter: values.reporter as 'human' | 'json',
+      report: values.report,
     })
   },
 })

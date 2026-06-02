@@ -6,7 +6,7 @@ import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
 import { DEFAULT_STUDIO_URL, HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
-import { type Diagnostic, DiagnosticError, hasBuildError } from './diagnostics.ts'
+import { type Diagnostic, DiagnosticError, Diagnostics } from './diagnostics.ts'
 import { createDebugger } from './createDebugger.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
@@ -852,7 +852,7 @@ export type BuildOutput = {
    * Structured diagnostics collected during the build: error/warning/info problems
    * (each with a code, severity, and where known a JSON-pointer location) plus a
    * `timing` diagnostic per plugin. Includes a top-level diagnostic when the build
-   * threw before completing. Use {@link hasBuildError} to test for failure.
+   * threw before completing. Use {@link Diagnostics.hasError} to test for failure.
    */
   diagnostics: Array<Diagnostic>
   /**
@@ -1069,7 +1069,7 @@ export class Kubb {
    */
   async build(): Promise<BuildOutput> {
     const out = await this.safeBuild()
-    if (hasBuildError(out.diagnostics)) {
+    if (Diagnostics.hasError(out.diagnostics)) {
       const errors = out.diagnostics
         .filter((diagnostic) => diagnostic.severity === 'error')
         .map((diagnostic) => diagnostic.cause ?? new DiagnosticError(diagnostic))

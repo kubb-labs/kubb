@@ -4,7 +4,7 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { formatMsWithColor, getElapsedMs, getIntro, toCause } from '@internals/utils'
 import { defineLogger, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { diagnosticDetails, diagnosticHeadline, diagnosticSymbol } from './diagnostics.ts'
+import { diagnosticDetails, diagnosticHeadline, diagnosticSymbol, formatProblemSummary } from './diagnostics.ts'
 import { getSummary } from './utils.ts'
 import { buildProgressLine, createProgressCounters, formatCommandWithArgs, formatMessage, recordPluginResult, resetProgressCounters } from './utils.ts'
 
@@ -408,6 +408,11 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       summary.unshift('\n')
       summary.push('\n')
+
+      const problemSummary = formatProblemSummary(diagnostics)
+      if (problemSummary) {
+        clack.log.message(problemSummary)
+      }
 
       const borderColor = status === 'success' ? 'green' : 'red'
       try {

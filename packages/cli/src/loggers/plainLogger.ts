@@ -2,7 +2,7 @@ import { relative } from 'node:path'
 import { formatMs, toCause } from '@internals/utils'
 import { defineLogger, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_SEPARATOR } from '../constants.ts'
-import { formatDiagnostic } from './diagnostics.ts'
+import { formatDiagnostic, formatProblemSummary } from './diagnostics.ts'
 import { getSummary } from './utils.ts'
 import { createHookTimer, formatCommandWithArgs, formatMessage } from './utils.ts'
 
@@ -212,6 +212,11 @@ export const plainLogger = defineLogger({
         hrStart,
         showTimings: logLevel >= logLevelMap.verbose,
       })
+
+      const problemSummary = formatProblemSummary(diagnostics)
+      if (problemSummary) {
+        console.log(problemSummary)
+      }
 
       console.log(SUMMARY_SEPARATOR)
       console.log(summary.join('\n'))

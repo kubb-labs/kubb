@@ -76,6 +76,16 @@ export const diagnosticCode = {
    */
   pluginFailed: 'KUBB_PLUGIN_FAILED',
   /**
+   * A schema uses a `format` Kubb does not map to a specific type. Reserved for
+   * adapters to emit as a `warning`.
+   */
+  unsupportedFormat: 'KUBB_UNSUPPORTED_FORMAT',
+  /**
+   * A referenced schema or operation is marked `deprecated`. Reserved for adapters
+   * to emit as an `info`.
+   */
+  deprecated: 'KUBB_DEPRECATED',
+  /**
    * Not a failure. Carries a plugin's elapsed time on a `timing` diagnostic, used
    * to build the run summary.
    */

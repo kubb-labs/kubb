@@ -1,7 +1,7 @@
 import { styleText } from 'node:util'
 import { formatHrtime, formatMs, formatMsWithColor, toCause } from '@internals/utils'
-import { type Config, defineLogger, diagnosticCode, getFailedPluginNames, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { diagnosticDocsUrl } from './diagnostics.ts'
+import { type Config, defineLogger, diagnosticCode, Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { diagnosticDocsUrl, formatProblemSummary } from './diagnostics.ts'
 import {
   buildProgressLine,
   createHookTimer,
@@ -363,13 +363,18 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('kubb:generation:summary', ({ config, status, hrStart, diagnostics }) => {
-      const failedCount = getFailedPluginNames(diagnostics).length
+      const failedCount = Diagnostics.failedPlugins(diagnostics).length
       const pluginsCount = config.plugins?.length ?? 0
       const successCount = pluginsCount - failedCount
       const duration = formatHrtime(hrStart)
 
       if (state.currentConfigs.length > 1) {
         console.log(' ')
+      }
+
+      const problemSummary = formatProblemSummary(diagnostics)
+      if (problemSummary) {
+        console.log(problemSummary)
       }
 
       console.log(

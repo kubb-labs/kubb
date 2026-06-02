@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { canUseTTY, formatHrtime, getElapsedMs, isGitHubActions, randomCliColor } from '@internals/utils'
 import type { Config, Diagnostic, Logger, LoggerContext, LoggerOptions } from '@kubb/core'
-import { getDiagnosticInfo, getFailedPluginNames, logLevel as logLevelMap } from '@kubb/core'
+import { Diagnostics, getDiagnosticInfo, logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
 import { clackLogger } from './clackLogger.ts'
 import { fileSystemLogger } from './fileSystemLogger.ts'
@@ -226,7 +226,18 @@ const logMapper: Record<LoggerType, CLILogger> = {
   'github-actions': githubActionsLogger,
 }
 
-export async function setupLogger(context: LoggerContext, { logLevel }: LoggerOptions): Promise<HookSinkFactory | null> {
+export async function setupLogger(
+  context: LoggerContext,
+  { logLevel, reporter = 'human' }: LoggerOptions & { reporter?: 'human' | 'json' },
+): Promise<HookSinkFactory | null> {
+  // The json reporter owns stdout; don't install a human logger that would pollute it.
+  if (reporter === 'json') {
+    if (logLevel >= logLevelMap.debug) {
+      await fileSystemLogger.install(context, { logLevel })
+    }
+    return null
+  }
+
   const type = detectLogger()
 
   const logger = logMapper[type]
@@ -279,7 +290,7 @@ type SummaryProps = {
 export function getSummary({ diagnostics, filesCreated, status, hrStart, config, showTimings }: SummaryProps): Array<string> {
   const duration = formatHrtime(hrStart)
 
-  const failedPluginNames = getFailedPluginNames(diagnostics)
+  const failedPluginNames = Diagnostics.failedPlugins(diagnostics)
   const pluginsCount = config.plugins?.length ?? 0
   const successCount = pluginsCount - failedPluginNames.length
   const timings = showTimings ? diagnostics.filter((diagnostic) => diagnostic.kind === 'timing' && diagnostic.plugin && diagnostic.duration !== undefined) : []
@@ -298,6 +309,7 @@ export function getSummary({ diagnostics, filesCreated, status, hrStart, config,
   const labels = {
     plugins: 'Plugins:',
     failed: 'Failed:',
+    issues: 'Issues:',
     generated: 'Generated:',
     pluginTimings: 'Plugin Timings:',
     output: 'Output:',
@@ -309,6 +321,19 @@ export function getSummary({ diagnostics, filesCreated, status, hrStart, config,
 
   if (meta.pluginsFailed) {
     summaryLines.push(`${labels.failed.padEnd(maxLength + 2)} ${meta.pluginsFailed}`)
+  }
+
+  // Reflect problems that aren't tied to a failed plugin (e.g. adapter parse errors),
+  // so the box agrees with the run's pass/fail and the `Found N errors` headline.
+  const { errors, warnings } = Diagnostics.count(diagnostics)
+  if (errors > 0 || warnings > 0) {
+    const issues = [
+      errors > 0 ? styleText('red', `${errors} ${errors === 1 ? 'error' : 'errors'}`) : undefined,
+      warnings > 0 ? styleText('yellow', `${warnings} ${warnings === 1 ? 'warning' : 'warnings'}`) : undefined,
+    ]
+      .filter(Boolean)
+      .join(', ')
+    summaryLines.push(`${labels.issues.padEnd(maxLength + 2)} ${issues}`)
   }
 
   summaryLines.push(`${labels.generated.padEnd(maxLength + 2)} ${meta.filesCreated} files in ${meta.time}`)

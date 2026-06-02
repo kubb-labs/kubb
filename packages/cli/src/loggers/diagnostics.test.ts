@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { diagnosticDocsUrl, formatDiagnostic } from './diagnostics.ts'
+import { diagnosticDocsUrl, formatDiagnostic, formatProblemSummary } from './diagnostics.ts'
 
 // styleText respects NO_COLOR/non-TTY, so assert on the plain text the lines contain.
 describe('formatDiagnostic', () => {
@@ -41,5 +41,28 @@ describe('formatDiagnostic', () => {
 describe('diagnosticDocsUrl', () => {
   it('slugifies the code into a kubb.dev reference URL', () => {
     expect(diagnosticDocsUrl('KUBB_REF_NOT_FOUND')).toMatch(/^https:\/\/kubb\.dev\/docs\/\d+\.x\/diagnostics\/kubb-ref-not-found$/)
+  })
+})
+
+describe('formatProblemSummary', () => {
+  it('returns null when there are no problems', () => {
+    expect(formatProblemSummary([])).toBeNull()
+  })
+
+  it('counts errors and warnings and pluralizes', () => {
+    const line = formatProblemSummary([
+      { code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'a' },
+      { code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'b' },
+      { code: 'KUBB_UNSUPPORTED_FORMAT', severity: 'warning', message: 'c' },
+    ])
+
+    expect(line).toContain('Found 2 errors, 1 warning')
+  })
+
+  it('omits a severity with zero count', () => {
+    const line = formatProblemSummary([{ code: 'KUBB_UNSUPPORTED_FORMAT', severity: 'warning', message: 'c' }])
+
+    expect(line).toContain('Found 1 warning')
+    expect(line).not.toContain('error')
   })
 })

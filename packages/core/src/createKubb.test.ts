@@ -3,7 +3,7 @@ import { createFile, createOperation, createSchema, createSource, createStreamIn
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
-import { hasBuildError } from './diagnostics.ts'
+import { Diagnostics } from './diagnostics.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
 import { HOOK_LISTENERS_PER_PLUGIN, SCHEMA_PARALLEL, STREAM_FLUSH_EVERY } from './constants.ts'
@@ -225,7 +225,7 @@ describe('createKubb', () => {
       hooks: new AsyncEventEmitter<KubbHooks>(),
     }).safeBuild()
 
-    expect(hasBuildError(result.diagnostics)).toBe(true)
+    expect(Diagnostics.hasError(result.diagnostics)).toBe(true)
   })
 
   it('should track plugin timings as diagnostics', async () => {
