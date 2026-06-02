@@ -2,7 +2,6 @@ import { createFile, createSource, createText } from '@kubb/ast'
 import { describe, expect, it, vi } from 'vitest'
 import { FileProcessor } from './FileProcessor.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
-import type { Config } from './types.ts'
 
 function makeFile(path: string, sources: Array<string> = []) {
   return createFile({
@@ -24,14 +23,13 @@ describe('FileProcessor', () => {
     })
 
     it('joins source values when no matching parser is registered', async () => {
-      const processor = new FileProcessor()
+      const processor = new FileProcessor({ parsers: new Map() })
       const file = makeFile('/src/foo.ts', ['const a = 1'])
-      const result = await processor.parse(file, { parsers: new Map() })
+      const result = await processor.parse(file)
       expect(result).toBe('const a = 1')
     })
 
     it('calls the registered parser for a matching extension', async () => {
-      const processor = new FileProcessor()
       const file = makeFile('/src/foo.ts', ['const a = 1'])
       const mockParse = vi.fn().mockResolvedValue('// formatted\nconst a = 1')
       const parser = {
@@ -43,7 +41,8 @@ describe('FileProcessor', () => {
         print: vi.fn().mockReturnValue(''),
       }
       const parsers = new Map([['.ts' as const, parser]])
-      const result = await processor.parse(file, { parsers })
+      const processor = new FileProcessor({ parsers })
+      const result = await processor.parse(file)
       expect(mockParse).toHaveBeenCalledWith(file, { extname: undefined })
       expect(result).toBe('// formatted\nconst a = 1')
     })
@@ -151,10 +150,7 @@ describe('FileProcessor', () => {
 
 function makeQueueProcessor(overrides: { storage?: ReturnType<typeof memoryStorage> } = {}) {
   const storage = overrides.storage ?? memoryStorage()
-  const processor = new FileProcessor({
-    storage,
-    config: { root: '.', output: { path: './gen' } } as unknown as Config,
-  })
+  const processor = new FileProcessor({ storage })
   return { processor, storage }
 }
 
@@ -288,17 +284,17 @@ describe('FileProcessor — queue: drain', () => {
 })
 
 describe('FileProcessor — queue: errors', () => {
-  it('throws synchronously when flush is called without storage or config', async () => {
+  it('throws synchronously when flush is called without storage', async () => {
     const processor = new FileProcessor()
     processor.enqueue(makeFile('a.ts'))
 
-    await expect(processor.flush()).rejects.toThrow(/storage or config/)
+    await expect(processor.flush()).rejects.toThrow(/storage/)
   })
 
-  it('throws synchronously when drain is called without storage or config', async () => {
+  it('throws synchronously when drain is called without storage', async () => {
     const processor = new FileProcessor()
     processor.enqueue(makeFile('a.ts'))
 
-    await expect(processor.drain()).rejects.toThrow(/storage or config/)
+    await expect(processor.drain()).rejects.toThrow(/storage/)
   })
 })

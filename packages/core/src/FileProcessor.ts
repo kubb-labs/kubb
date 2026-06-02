@@ -2,23 +2,17 @@ import { AsyncEventEmitter } from '@internals/utils'
 import type { CodeNode, FileNode } from '@kubb/ast'
 import { extractStringsFromNodes } from '@kubb/ast'
 import { STREAM_FLUSH_EVERY } from './constants.ts'
-import type { Config } from './createKubb.ts'
 import type { Storage } from './createStorage.ts'
 import type { Parser } from './defineParser.ts'
 
-type ParseOptions = {
-  parsers?: Map<FileNode['extname'], Parser>
-  extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
-}
-
 /**
- * Events fired by a `FileProcessor` instance.
+ * Events fired by a `FileProcessor`.
  *
- * - `start` opens a batch (via `run` or a flush from the queue).
- * - `update` fires once per file as it is converted to a source string.
+ * - `start` opens a batch, from `run` or a queue flush.
+ * - `update` fires once per file as it is converted.
  * - `end` closes a batch.
- * - `enqueue` fires once per `enqueue` call when the queue is in use.
- * - `drain` fires when `drain()` returns to an empty queue with no in-flight batch.
+ * - `enqueue` fires for every `enqueue` call.
+ * - `drain` fires when `drain()` empties the queue with no in-flight batch left.
  */
 export type FileProcessorEvents = {
   start: [files: Array<FileNode>]
@@ -28,6 +22,9 @@ export type FileProcessorEvents = {
   drain: []
 }
 
+/**
+ * Per-file progress record yielded by `stream` and surfaced through the `update` event.
+ */
 export type ParsedFile = {
   file: FileNode
   source: string
@@ -38,19 +35,17 @@ export type ParsedFile = {
 
 type FileProcessorOptions = {
   /**
-   * Storage destination for queued writes. Required if `enqueue` / `flush` / `drain` are used.
+   * Storage destination for queued writes. Required for queue mode.
    */
   storage?: Storage
   /**
-   * Active build config. Required if `enqueue` / `flush` / `drain` are used: the queue reads
-   * `config.output.extension` when converting files. External callers that want a build-level
-   * hook signal should listen on `events`.
-   */
-  config?: Config
-  /**
-   * Parsers indexed by file extension, applied during conversion.
+   * Parsers indexed by file extension.
    */
   parsers?: Map<FileNode['extname'], Parser>
+  /**
+   * Output extname per source extname, applied during conversion.
+   */
+  extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
 }
 
 function joinSources(file: FileNode): string {
@@ -65,53 +60,49 @@ function joinSources(file: FileNode): string {
 }
 
 /**
- * Owns the path between `FileNode` and the destination storage.
+ * Turns `FileNode`s into source strings and writes them to storage.
  *
- * In stateless mode (`parse`, `stream`, `run`) the processor converts files to source strings
- * via the registered parsers. In queue mode (`enqueue`, `flush`, `drain`) it also buffers files
- * deduped by path, then processes each batch through the parsers and writes the resulting
- * source to the configured storage with up to `STREAM_FLUSH_EVERY` requests in flight.
+ * Two modes share the same instance. Stateless mode (`parse`, `stream`, `run`) just runs the
+ * conversion. Queue mode (`enqueue`, `flush`, `drain`) buffers files deduped by path and
+ * writes each batch through storage with up to `STREAM_FLUSH_EVERY` requests in flight.
  *
- * `flush` is non-blocking after the first batch. It awaits any previous flush still running
- * but returns immediately after kicking off the new one, so the next round of generator
- * dispatch overlaps with the previous round's source rendering and storage IO. `drain` blocks
- * until everything has been written and is meant for the end of a build.
+ * `flush` does not wait for its batch to finish, so dispatch can overlap with IO. The next
+ * `flush` or `drain` picks the in-flight batch up. `drain` blocks until everything has been
+ * written and is meant for the end of a build.
  *
- * Queue mode requires `storage` and `config` in the constructor. Callers that want build-level
- * hook signals (such as `kubb:files:processing:*`) should subscribe to `events` and re-emit
- * them on their own hook bus. Calling `enqueue` / `flush` / `drain` without `storage` and
- * `config` throws.
+ * Queue mode needs `storage` in the constructor. To surface build-level hook signals
+ * (`kubb:files:processing:*` and friends) subscribe to `events` and re-emit on the hook bus.
  */
 export class FileProcessor {
   readonly events = new AsyncEventEmitter<FileProcessorEvents>()
   readonly #parsers: Map<FileNode['extname'], Parser> | null
   readonly #storage: Storage | null
-  readonly #config: Config | null
+  readonly #extension: Record<FileNode['extname'], FileNode['extname'] | ''> | null
   readonly #pending = new Map<string, FileNode>()
   #inFlight: Promise<void> | null = null
 
   constructor(options: FileProcessorOptions = {}) {
     this.#parsers = options.parsers ?? null
     this.#storage = options.storage ?? null
-    this.#config = options.config ?? null
+    this.#extension = options.extension ?? null
   }
 
   /**
-   * Number of files currently waiting to be processed and written.
+   * Files waiting in the queue.
    */
   get size(): number {
     return this.#pending.size
   }
 
-  parse(file: FileNode, { parsers, extension }: ParseOptions = {}): string {
-    const effectiveParsers = parsers ?? this.#parsers ?? undefined
-    const parseExtName = extension?.[file.extname] || undefined
+  parse(file: FileNode): string {
+    const parsers = this.#parsers
+    const parseExtName = this.#extension?.[file.extname] || undefined
 
-    if (!effectiveParsers || !file.extname) {
+    if (!parsers || !file.extname) {
       return joinSources(file)
     }
 
-    const parser = effectiveParsers.get(file.extname)
+    const parser = parsers.get(file.extname)
 
     if (!parser) {
       return joinSources(file)
@@ -120,23 +111,23 @@ export class FileProcessor {
     return parser.parse(file, { extname: parseExtName })
   }
 
-  *stream(files: ReadonlyArray<FileNode>, options: ParseOptions = {}): Generator<ParsedFile> {
+  *stream(files: ReadonlyArray<FileNode>): Generator<ParsedFile> {
     const total = files.length
     if (total === 0) return
 
     let processed = 0
     for (const file of files) {
-      const source = this.parse(file, options)
+      const source = this.parse(file)
       processed++
 
       yield { file, source, processed, total, percentage: (processed / total) * 100 }
     }
   }
 
-  async run(files: Array<FileNode>, options: ParseOptions = {}): Promise<Array<FileNode>> {
+  async run(files: Array<FileNode>): Promise<Array<FileNode>> {
     await this.events.emit('start', files)
 
-    for (const { file, source, processed, total, percentage } of this.stream(files, options)) {
+    for (const { file, source, processed, total, percentage } of this.stream(files)) {
       await this.events.emit('update', { file, source, processed, percentage, total })
     }
 
@@ -146,8 +137,8 @@ export class FileProcessor {
   }
 
   /**
-   * Queues a file for the next flush. Repeated calls for the same path replace the previous
-   * entry, matching `FileManager.upsert` semantics. Fires the `enqueue` event.
+   * Adds a file to the next flush. A later `enqueue` for the same path replaces the previous
+   * entry, matching `FileManager.upsert`. Fires the `enqueue` event.
    */
   enqueue(file: FileNode): void {
     this.#pending.set(file.path, file)
@@ -155,10 +146,9 @@ export class FileProcessor {
   }
 
   /**
-   * Kicks off processing for the currently-pending files. Waits for any previous in-flight
-   * flush to finish first (so two batches are never being processed concurrently), then
-   * returns without waiting for the new batch. The next call to `flush` or `drain` picks up
-   * that in-flight task.
+   * Starts processing the queued files. Waits for any previous flush to finish (so two
+   * batches never run together) and then returns without waiting for the new one. The next
+   * `flush` or `drain` picks up the in-flight task.
    */
   async flush(): Promise<void> {
     this.#assertQueueMode()
@@ -174,8 +164,8 @@ export class FileProcessor {
   }
 
   /**
-   * Waits for any in-flight flush and then processes and writes any remaining queued files.
-   * Fires the `drain` event when both the in-flight and pending batches are done.
+   * Waits for the in-flight flush and writes any files still queued. Fires the `drain` event
+   * when both are done.
    */
   async drain(): Promise<void> {
     this.#assertQueueMode()
@@ -191,18 +181,17 @@ export class FileProcessor {
   }
 
   #assertQueueMode(): void {
-    if (!this.#storage || !this.#config) {
-      throw new Error('FileProcessor was constructed without storage or config. Queue mode (enqueue / flush / drain) is unavailable.')
+    if (!this.#storage) {
+      throw new Error('FileProcessor was constructed without storage. Queue mode (enqueue / flush / drain) is unavailable.')
     }
   }
 
   async #processAndWrite(files: Array<FileNode>): Promise<void> {
     const storage = this.#storage!
-    const config = this.#config!
 
     await this.events.emit('start', files)
 
-    const items = [...this.stream(files, { parsers: this.#parsers ?? undefined, extension: config.output.extension })]
+    const items = [...this.stream(files)]
     for (const item of items) {
       await this.events.emit('update', item)
     }
@@ -220,7 +209,7 @@ export class FileProcessor {
   }
 
   /**
-   * Clears all registered event listeners and the pending queue.
+   * Clears every listener and the pending queue.
    */
   dispose(): void {
     this.events.removeAll()

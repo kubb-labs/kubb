@@ -168,11 +168,10 @@ export class KubbDriver {
   }
 
   /**
-   * Runs the adapter over the configured source and stashes the streaming `InputNode` on
-   * `this.inputNode`. Idempotent: returns immediately when `inputNode` is already set, so
-   * repeated calls (run, studio) do not re-parse. Adapters with `stream()` are used directly.
-   * Adapters that only expose `parse()` are wrapped via `createStreamInput` so the dispatch
-   * loop stays stream-only.
+   * Parses the adapter source into `this.inputNode`. Idempotent, so repeated calls from
+   * `run` or the studio path do not re-parse. Adapters with `stream()` are used directly.
+   * Adapters with only `parse()` are wrapped via `createStreamInput` so the dispatch loop
+   * stays stream-only.
    */
   async #parseInput(): Promise<void> {
     if (this.inputNode || !this.adapter || !this.#studio.source) return
@@ -386,7 +385,7 @@ export class KubbDriver {
       }
     }
 
-    const processor = new FileProcessor({ parsers: parsersMap, storage, config })
+    const processor = new FileProcessor({ parsers: parsersMap, storage, extension: config.output.extension })
     // Bridge processor lifecycle to the user-facing kubb hooks so existing listeners on
     // kubb:files:processing:* and kubb:debug keep firing.
     processor.events.on('start', async (files) => {
@@ -505,15 +504,14 @@ export class KubbDriver {
   }
 
   /**
-   * Streams schemas and operations through every plugin's generators and applies each plugin's
-   * registered transformer (via `this.#transforms`) on the way in. The hot path stays per-node
-   * with no buffering, and per-plugin isolation comes from routing through
-   * `transforms.applyTo(name, node)`. Schemas run before operations so the two passes do not
-   * race on the shared `flushPending` queue and the FileProcessor's event emitter. Errors from
-   * a single plugin are captured into `failed` so the rest of the build continues.
+   * Streams schemas and operations through every plugin's generators. Each node is run
+   * through the plugin's transformer (from `this.#transforms`) before the generator sees it,
+   * so plugins stay isolated and the hot path stays per-node. Schemas run before operations
+   * because the two passes share `flushPending` and the FileProcessor's event emitter.
+   * Errors from a single plugin land in `failed` so the rest of the build continues.
    *
-   * When `entries` is empty, or `this.inputNode` is `null`, every entry is closed out with
-   * `kubb:plugin:end` so middleware listeners such as the barrel writer still complete.
+   * When `entries` is empty or `this.inputNode` is `null`, every entry still gets a
+   * `kubb:plugin:end` so middleware listeners (the barrel writer and friends) complete.
    */
   async #runGenerators(
     entries: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options'>; hrStart: ReturnType<typeof process.hrtime> }>,
@@ -568,9 +566,9 @@ export class KubbDriver {
     const emitsOperationHook = this.hooks.listenerCount('kubb:generate:operation') > 0
 
     // Pre-scan: plugins with operation-based includes (but no schemaName include) need
-    // the reachable schema set. This requires the full schema graph in memory at once.
-    // Transitive reachability can't be derived from a single node. `allSchemas` is
-    // released as soon as the pre-scan returns; the main passes get fresh iterators.
+    // the reachable schema set. This requires the full schema graph in memory at once,
+    // since transitive reachability can't be derived from a single node. `allSchemas` is
+    // released as soon as the pre-scan returns, so the main passes get fresh iterators.
     const pruningStates = states.filter(({ plugin }) => {
       const { include } = plugin.options
       return (include?.some(({ type }) => OPERATION_FILTER_TYPES.has(type)) ?? false) && !(include?.some(({ type }) => type === 'schemaName') ?? false)
@@ -734,13 +732,13 @@ export class KubbDriver {
   }
 
   /**
-   * Routes the return value of a generator method or `kubb:generate:*` hook to the right sink.
+   * Stores whatever a generator method or `kubb:generate:*` hook returned.
    *
    * - An `Array<FileNode>` goes straight into `fileManager` via `upsert`.
-   * - A renderer element is rendered through `rendererFactory` (for example, the JSX renderer)
-   *   and the produced files are passed to `fileManager.upsert`.
-   * - `null`, `undefined`, or any other false-y value is treated as a no-op. The generator is
-   *   expected to have written files itself via `ctx.upsertFile`.
+   * - A renderer element runs through `rendererFactory` (the JSX renderer, for example) and
+   *   the produced files go to `fileManager.upsert`.
+   * - A falsy result is treated as a no-op. The generator wrote files itself via
+   *   `ctx.upsertFile`.
    *
    * Pass `rendererFactory` when the result may be a renderer element. Generators that only
    * return `Array<FileNode>` do not need one.
