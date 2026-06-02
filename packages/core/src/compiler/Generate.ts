@@ -64,9 +64,9 @@ export class Generate {
   /**
    * Routes the return value of a generator method or `kubb:generate:*` hook to the right sink.
    *
-   * - A `Array<FileNode>` is upserted into `driver.fileManager` directly.
+   * - An `Array<FileNode>` goes straight into `driver.fileManager` via `upsert`.
    * - A renderer element is rendered through `rendererFactory` (for example, the JSX renderer)
-   *   and the produced files are upserted into `driver.fileManager`.
+   *   and the produced files are passed to `driver.fileManager.upsert`.
    * - `null`, `undefined`, or any other false-y value is treated as a no-op. The generator is
    *   expected to have written files itself via `ctx.upsertFile`.
    *
