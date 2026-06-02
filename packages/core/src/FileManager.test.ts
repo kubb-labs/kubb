@@ -169,11 +169,11 @@ describe('FileManager', () => {
     })
   })
 
-  describe('onUpsert', () => {
+  describe('hooks.upsert', () => {
     it('fires once per file resolved through upsert', () => {
       const manager = new FileManager()
       const listener = vi.fn()
-      manager.onUpsert(listener)
+      manager.hooks.on('upsert', listener)
 
       manager.upsert(makeFile('/src/a.ts'), makeFile('/src/b.ts'))
 
@@ -185,7 +185,7 @@ describe('FileManager', () => {
     it('fires when files land through add', () => {
       const manager = new FileManager()
       const listener = vi.fn()
-      manager.onUpsert(listener)
+      manager.hooks.on('upsert', listener)
 
       manager.add(makeFile('/src/a.ts'))
 
@@ -193,22 +193,11 @@ describe('FileManager', () => {
       expect(listener.mock.calls[0]?.[0].path).toBe('/src/a.ts')
     })
 
-    it('supports multiple subscribers, called in registration order', () => {
-      const manager = new FileManager()
-      const order: Array<string> = []
-      manager.onUpsert(() => order.push('first'))
-      manager.onUpsert(() => order.push('second'))
-
-      manager.upsert(makeFile('/src/a.ts'))
-
-      expect(order).toStrictEqual(['first', 'second'])
-    })
-
-    it('returns an unsubscribe function that detaches the listener', () => {
+    it('stops firing after off detaches the listener', () => {
       const manager = new FileManager()
       const listener = vi.fn()
-      const unsubscribe = manager.onUpsert(listener)
-      unsubscribe()
+      manager.hooks.on('upsert', listener)
+      manager.hooks.off('upsert', listener)
 
       manager.upsert(makeFile('/src/a.ts'))
 
@@ -218,7 +207,7 @@ describe('FileManager', () => {
     it('clears every listener on dispose', () => {
       const manager = new FileManager()
       const listener = vi.fn()
-      manager.onUpsert(listener)
+      manager.hooks.on('upsert', listener)
       manager.dispose()
 
       manager.upsert(makeFile('/src/a.ts'))

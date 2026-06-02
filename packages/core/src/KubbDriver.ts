@@ -324,7 +324,7 @@ export class KubbDriver {
       const schemaHandler = async (node: SchemaNode, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.schema!(node, ctx)
-        await KubbDriver.applyResult({ result, fileManager: this.fileManager, rendererFactory: resolveRenderer() })
+        await this.applyResult({ result, rendererFactory: resolveRenderer() })
       }
 
       this.#registry.register({ event: 'kubb:generate:schema', handler: schemaHandler, source: 'driver' })
@@ -334,7 +334,7 @@ export class KubbDriver {
       const operationHandler = async (node: OperationNode, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operation!(node, ctx)
-        await KubbDriver.applyResult({ result, fileManager: this.fileManager, rendererFactory: resolveRenderer() })
+        await this.applyResult({ result, rendererFactory: resolveRenderer() })
       }
 
       this.#registry.register({ event: 'kubb:generate:operation', handler: operationHandler, source: 'driver' })
@@ -344,7 +344,7 @@ export class KubbDriver {
       const operationsHandler = async (nodes: Array<OperationNode>, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operations!(nodes, ctx)
-        await KubbDriver.applyResult({ result, fileManager: this.fileManager, rendererFactory: resolveRenderer() })
+        await this.applyResult({ result, rendererFactory: resolveRenderer() })
       }
 
       this.#registry.register({ event: 'kubb:generate:operations', handler: operationsHandler, source: 'driver' })
@@ -388,15 +388,15 @@ export class KubbDriver {
     const processor = new FileProcessor({ parsers: parsersMap, storage, extension: config.output.extension })
     // Bridge processor lifecycle to the user-facing kubb hooks so existing listeners on
     // kubb:files:processing:* and kubb:debug keep firing.
-    processor.events.on('start', async (files) => {
+    processor.hooks.on('start', async (files) => {
       await hooks.emit('kubb:debug', { date: new Date(), logs: [`Writing ${files.length} files...`] })
       await hooks.emit('kubb:files:processing:start', { files })
     })
     const updateBuffer: Array<{ file: FileNode; source?: string; processed: number; total: number; percentage: number }> = []
-    processor.events.on('update', (item) => {
+    processor.hooks.on('update', (item) => {
       updateBuffer.push(item)
     })
-    processor.events.on('end', async (files) => {
+    processor.hooks.on('end', async (files) => {
       await hooks.emit('kubb:files:processing:update', {
         files: updateBuffer.map((item) => ({ ...item, config })),
       })
@@ -404,7 +404,10 @@ export class KubbDriver {
       await hooks.emit('kubb:files:processing:end', { files })
       await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ File write process completed for ${files.length} files`] })
     })
-    const unsubscribeUpsert = this.fileManager.onUpsert((file) => processor.enqueue(file))
+    const onFileUpsert = (file: FileNode): void => {
+      processor.enqueue(file)
+    }
+    this.fileManager.hooks.on('upsert', onFileUpsert)
 
     try {
       // Parse the adapter source into the streaming `InputNode`.
@@ -478,7 +481,7 @@ export class KubbDriver {
     } catch (caughtError) {
       return { failedPlugins, pluginTimings, error: caughtError as Error }
     } finally {
-      unsubscribeUpsert()
+      this.fileManager.hooks.off('upsert', onFileUpsert)
     }
   }
 
@@ -648,7 +651,7 @@ export class KubbDriver {
           if (!run) continue
           const raw = run(transformedNode, ctx)
           const result = isPromise(raw) ? await raw : raw
-          const applied = KubbDriver.applyResult({ result, fileManager: this.fileManager, rendererFactory: resolveRendererFor(gen, state) })
+          const applied = this.applyResult({ result, rendererFactory: resolveRendererFor(gen, state) })
           if (isPromise(applied)) await applied
         }
         if (dispatch.emit) await dispatch.emit(transformedNode, ctx)
@@ -707,7 +710,7 @@ export class KubbDriver {
           for (const gen of generators) {
             if (!gen.operations) continue
             const result = await gen.operations(pluginOperations, ctx)
-            await KubbDriver.applyResult({ result, fileManager: this.fileManager, rendererFactory: resolveRendererFor(gen, state) })
+            await this.applyResult({ result, rendererFactory: resolveRendererFor(gen, state) })
           }
           await this.hooks.emit('kubb:generate:operations', pluginOperations, ctx)
         } catch (caughtError) {
@@ -743,19 +746,17 @@ export class KubbDriver {
    * Pass `rendererFactory` when the result may be a renderer element. Generators that only
    * return `Array<FileNode>` do not need one.
    */
-  static applyResult<TElement = unknown>({
+  applyResult<TElement = unknown>({
     result,
-    fileManager,
     rendererFactory,
   }: {
     result: TElement | Array<FileNode> | undefined | null
-    fileManager: FileManager
     rendererFactory?: RendererFactory<TElement> | null
   }): void | Promise<void> {
     if (!result) return
 
     if (Array.isArray(result)) {
-      fileManager.upsert(...(result as Array<FileNode>))
+      this.fileManager.upsert(...(result as Array<FileNode>))
       return
     }
 
@@ -767,25 +768,17 @@ export class KubbDriver {
     if (renderer.stream) {
       using r = renderer
       for (const file of r.stream!(result)) {
-        fileManager.upsert(file)
+        this.fileManager.upsert(file)
       }
       return
     }
-    return KubbDriver.#applyAsyncRender({ renderer, result, fileManager })
+    return this.#applyAsyncRender({ renderer, result })
   }
 
-  static async #applyAsyncRender<TElement>({
-    renderer,
-    result,
-    fileManager,
-  }: {
-    renderer: Renderer<TElement>
-    result: TElement
-    fileManager: FileManager
-  }): Promise<void> {
+  async #applyAsyncRender<TElement>({ renderer, result }: { renderer: Renderer<TElement>; result: TElement }): Promise<void> {
     using r = renderer
     await r.render(result)
-    fileManager.upsert(...r.files)
+    this.fileManager.upsert(...r.files)
   }
 
   /**

@@ -1,7 +1,15 @@
+import { AsyncEventEmitter } from '@internals/utils'
 import type { FileNode } from '@kubb/ast'
 import { createFile } from '@kubb/ast'
 
-type UpsertListener = (file: FileNode) => void
+/**
+ * Hooks fired by a `FileManager`.
+ *
+ * - `upsert` fires once per resolved file added through `add` or `upsert`.
+ */
+export type FileManagerHooks = {
+  upsert: [file: FileNode]
+}
 
 function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNode<TMeta>): FileNode<TMeta> {
   return {
@@ -45,25 +53,17 @@ function compareFiles(a: FileNode, b: FileNode): number {
  * ```
  */
 export class FileManager {
+  /**
+   * Subscribe to file-store changes. Listeners on `upsert` see each resolved file as it lands
+   * through `add` or `upsert`.
+   */
+  readonly hooks = new AsyncEventEmitter<FileManagerHooks>()
   readonly #cache = new Map<string, FileNode>()
-  readonly #upsertListeners = new Set<UpsertListener>()
   // Cached sorted view; null means stale and rebuilt lazily on next `files` read.
   // Nulled (not mutated) on every write so callers holding a prior reference
   // keep their snapshot — `dispose()` must not silently empty an array the
   // consumer already holds.
   #sorted: Array<FileNode> | null = null
-
-  /**
-   * Subscribes to every resolved file that lands through `add` or `upsert`. Returns an
-   * unsubscribe function the caller invokes when done. Multiple subscribers are supported.
-   * Listeners run synchronously in registration order.
-   */
-  onUpsert(listener: UpsertListener): () => void {
-    this.#upsertListeners.add(listener)
-    return () => {
-      this.#upsertListeners.delete(listener)
-    }
-  }
 
   add(...files: Array<FileNode>): Array<FileNode> {
     return this.#store(files, false)
@@ -82,7 +82,7 @@ export class FileManager {
       const merged = existing && mergeExisting ? createFile(mergeFile(existing, file)) : createFile(file)
       this.#cache.set(merged.path, merged)
       resolved.push(merged)
-      for (const listener of this.#upsertListeners) listener(merged)
+      this.hooks.emit('upsert', merged)
     }
 
     if (resolved.length > 0) this.#sorted = null
@@ -115,12 +115,12 @@ export class FileManager {
   }
 
   /**
-   * Releases all stored files and drops every upsert listener. Called by the core after
+   * Releases all stored files and clears every `hooks` listener. Called by the core after
    * `kubb:build:end`.
    */
   dispose(): void {
     this.clear()
-    this.#upsertListeners.clear()
+    this.hooks.removeAll()
   }
 
   [Symbol.dispose](): void {

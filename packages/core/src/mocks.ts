@@ -123,7 +123,7 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
     ...context,
     options: opts.options,
   })
-  await KubbDriver.applyResult({ result, fileManager: opts.driver.fileManager, rendererFactory: generator.renderer })
+  await opts.driver.applyResult({ result, rendererFactory: generator.renderer })
 }
 
 /**
@@ -147,7 +147,7 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
     ...context,
     options: opts.options,
   })
-  await KubbDriver.applyResult({ result, fileManager: opts.driver.fileManager, rendererFactory: generator.renderer })
+  await opts.driver.applyResult({ result, rendererFactory: generator.renderer })
 }
 
 /**
@@ -171,5 +171,5 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
     ...context,
     options: opts.options,
   })
-  await KubbDriver.applyResult({ result, fileManager: opts.driver.fileManager, rendererFactory: generator.renderer })
+  await opts.driver.applyResult({ result, rendererFactory: generator.renderer })
 }

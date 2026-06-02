@@ -55,8 +55,8 @@ describe('FileProcessor', () => {
       const onStart = vi.fn()
       const onEnd = vi.fn()
 
-      processor.events.on('start', onStart)
-      processor.events.on('end', onEnd)
+      processor.hooks.on('start', onStart)
+      processor.hooks.on('end', onEnd)
 
       await processor.run(files)
 
@@ -69,7 +69,7 @@ describe('FileProcessor', () => {
       const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
       const onUpdate = vi.fn()
 
-      processor.events.on('update', onUpdate)
+      processor.hooks.on('update', onUpdate)
 
       await processor.run(files)
 
@@ -85,7 +85,7 @@ describe('FileProcessor', () => {
         total: number
       }> = []
 
-      processor.events.on('update', ({ processed, percentage, total }) => {
+      processor.hooks.on('update', ({ processed, percentage, total }) => {
         updates.push({ processed, percentage, total })
       })
 
@@ -107,7 +107,7 @@ describe('FileProcessor', () => {
       const order: Array<string> = []
       const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
 
-      processor.events.on('update', ({ file }) => {
+      processor.hooks.on('update', ({ file }) => {
         order.push(file.path)
       })
 
@@ -121,7 +121,7 @@ describe('FileProcessor', () => {
       const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
       const onUpdate = vi.fn()
 
-      processor.events.on('update', onUpdate)
+      processor.hooks.on('update', onUpdate)
 
       await processor.run(files)
 
@@ -134,9 +134,9 @@ describe('FileProcessor', () => {
       const onEnd = vi.fn()
       const onUpdate = vi.fn()
 
-      processor.events.on('start', onStart)
-      processor.events.on('end', onEnd)
-      processor.events.on('update', onUpdate)
+      processor.hooks.on('start', onStart)
+      processor.hooks.on('end', onEnd)
+      processor.hooks.on('update', onUpdate)
 
       const result = await processor.run([])
 
@@ -168,7 +168,7 @@ describe('FileProcessor — queue: enqueue', () => {
   it('fires the enqueue event for every call', () => {
     const { processor } = makeQueueProcessor()
     const onEnqueue = vi.fn()
-    processor.events.on('enqueue', onEnqueue)
+    processor.hooks.on('enqueue', onEnqueue)
 
     processor.enqueue(makeFile('a.ts'))
     processor.enqueue(makeFile('a.ts'))
@@ -274,7 +274,7 @@ describe('FileProcessor — queue: drain', () => {
   it('fires the drain event once everything is written', async () => {
     const { processor } = makeQueueProcessor()
     const onDrain = vi.fn()
-    processor.events.on('drain', onDrain)
+    processor.hooks.on('drain', onDrain)
 
     processor.enqueue(makeFile('a.ts', ['/* a */']))
     await processor.drain()

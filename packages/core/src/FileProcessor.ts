@@ -6,7 +6,7 @@ import type { Storage } from './createStorage.ts'
 import type { Parser } from './defineParser.ts'
 
 /**
- * Events fired by a `FileProcessor`.
+ * Hooks fired by a `FileProcessor`.
  *
  * - `start` opens a batch, from `run` or a queue flush.
  * - `update` fires once per file as it is converted.
@@ -14,7 +14,7 @@ import type { Parser } from './defineParser.ts'
  * - `enqueue` fires for every `enqueue` call.
  * - `drain` fires when `drain()` empties the queue with no in-flight batch left.
  */
-export type FileProcessorEvents = {
+export type FileProcessorHooks = {
   start: [files: Array<FileNode>]
   update: [params: { file: FileNode; source?: string; processed: number; total: number; percentage: number }]
   end: [files: Array<FileNode>]
@@ -71,10 +71,10 @@ function joinSources(file: FileNode): string {
  * written and is meant for the end of a build.
  *
  * Queue mode needs `storage` in the constructor. To surface build-level hook signals
- * (`kubb:files:processing:*` and friends) subscribe to `events` and re-emit on the hook bus.
+ * (`kubb:files:processing:*` and friends) subscribe to `hooks` and re-emit on the kubb bus.
  */
 export class FileProcessor {
-  readonly events = new AsyncEventEmitter<FileProcessorEvents>()
+  readonly hooks = new AsyncEventEmitter<FileProcessorHooks>()
   readonly #parsers: Map<FileNode['extname'], Parser> | null
   readonly #storage: Storage | null
   readonly #extension: Record<FileNode['extname'], FileNode['extname'] | ''> | null
@@ -125,13 +125,13 @@ export class FileProcessor {
   }
 
   async run(files: Array<FileNode>): Promise<Array<FileNode>> {
-    await this.events.emit('start', files)
+    await this.hooks.emit('start', files)
 
     for (const { file, source, processed, total, percentage } of this.stream(files)) {
-      await this.events.emit('update', { file, source, processed, percentage, total })
+      await this.hooks.emit('update', { file, source, processed, percentage, total })
     }
 
-    await this.events.emit('end', files)
+    await this.hooks.emit('end', files)
 
     return files
   }
@@ -142,7 +142,7 @@ export class FileProcessor {
    */
   enqueue(file: FileNode): void {
     this.#pending.set(file.path, file)
-    this.events.emit('enqueue', file)
+    this.hooks.emit('enqueue', file)
   }
 
   /**
@@ -177,7 +177,7 @@ export class FileProcessor {
       await this.#processAndWrite(batch)
     }
 
-    await this.events.emit('drain')
+    await this.hooks.emit('drain')
   }
 
   #assertQueueMode(): void {
@@ -189,11 +189,11 @@ export class FileProcessor {
   async #processAndWrite(files: Array<FileNode>): Promise<void> {
     const storage = this.#storage!
 
-    await this.events.emit('start', files)
+    await this.hooks.emit('start', files)
 
     const items = [...this.stream(files)]
     for (const item of items) {
-      await this.events.emit('update', item)
+      await this.hooks.emit('update', item)
     }
 
     const queue: Array<Promise<void>> = []
@@ -205,14 +205,14 @@ export class FileProcessor {
     }
     await Promise.all(queue)
 
-    await this.events.emit('end', files)
+    await this.hooks.emit('end', files)
   }
 
   /**
    * Clears every listener and the pending queue.
    */
   dispose(): void {
-    this.events.removeAll()
+    this.hooks.removeAll()
     this.#pending.clear()
   }
 

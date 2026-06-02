@@ -3,7 +3,6 @@ import { createFile } from '@kubb/ast'
 import type { FileNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
-import { FileManager } from './FileManager.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, KubbHooks, Middleware, Plugin } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -142,37 +141,52 @@ function file(name: string): FileNode {
   return createFile({ baseName: `${name}.ts`, path: `${name}.ts` })
 }
 
-describe('KubbDriver.applyResult', () => {
-  it('does nothing on null or undefined', () => {
-    const fileManager = new FileManager()
-    const upsert = vi.spyOn(fileManager, 'upsert')
+function makeDriver(): KubbDriver {
+  return new KubbDriver(
+    {
+      root: '.',
+      input: { path: './petStore.yaml' },
+      output: { path: './gen', clean: true },
+      parsers: [],
+      adapter: createMockedAdapter(),
+      plugins: [],
+      storage: fsStorage(),
+    } satisfies Config,
+    { hooks: new AsyncEventEmitter<KubbHooks>() },
+  )
+}
 
-    KubbDriver.applyResult({ result: null, fileManager })
-    KubbDriver.applyResult({ result: undefined, fileManager })
+describe('KubbDriver#applyResult', () => {
+  it('does nothing on null or undefined', () => {
+    const driver = makeDriver()
+    const upsert = vi.spyOn(driver.fileManager, 'upsert')
+
+    driver.applyResult({ result: null })
+    driver.applyResult({ result: undefined })
 
     expect(upsert).not.toHaveBeenCalled()
   })
 
   it('upserts every file when the result is an Array<FileNode>', () => {
-    const fileManager = new FileManager()
+    const driver = makeDriver()
     const files = [file('a'), file('b')]
 
-    KubbDriver.applyResult({ result: files, fileManager })
+    driver.applyResult({ result: files })
 
-    expect(fileManager.files.map((f) => f.name)).toStrictEqual(['a', 'b'])
+    expect(driver.fileManager.files.map((f) => f.name)).toStrictEqual(['a', 'b'])
   })
 
   it('ignores non-array results when no rendererFactory is provided', () => {
-    const fileManager = new FileManager()
-    const upsert = vi.spyOn(fileManager, 'upsert')
+    const driver = makeDriver()
+    const upsert = vi.spyOn(driver.fileManager, 'upsert')
 
-    KubbDriver.applyResult({ result: { kind: 'element' }, fileManager })
+    driver.applyResult({ result: { kind: 'element' } })
 
     expect(upsert).not.toHaveBeenCalled()
   })
 
   it('routes element results through the rendererFactory stream when present', () => {
-    const fileManager = new FileManager()
+    const driver = makeDriver()
     const rendered = [file('rendered-1'), file('rendered-2')]
     const rendererFactory = vi.fn(() => ({
       stream: vi.fn(function* () {
@@ -181,14 +195,14 @@ describe('KubbDriver.applyResult', () => {
       [Symbol.dispose]: () => {},
     }))
 
-    KubbDriver.applyResult({ result: { kind: 'element' }, fileManager, rendererFactory: rendererFactory as never })
+    driver.applyResult({ result: { kind: 'element' }, rendererFactory: rendererFactory as never })
 
     expect(rendererFactory).toHaveBeenCalledOnce()
-    expect(fileManager.files.map((f) => f.name)).toStrictEqual(['rendered-1', 'rendered-2'])
+    expect(driver.fileManager.files.map((f) => f.name)).toStrictEqual(['rendered-1', 'rendered-2'])
   })
 
   it('routes element results through the async render path when no stream is exposed', async () => {
-    const fileManager = new FileManager()
+    const driver = makeDriver()
     const renderer = {
       render: vi.fn(async () => {}),
       files: [file('async-1')],
@@ -196,10 +210,10 @@ describe('KubbDriver.applyResult', () => {
     }
     const rendererFactory = vi.fn(() => renderer)
 
-    const result = KubbDriver.applyResult({ result: { kind: 'element' }, fileManager, rendererFactory: rendererFactory as never })
+    const result = driver.applyResult({ result: { kind: 'element' }, rendererFactory: rendererFactory as never })
     await result
 
     expect(renderer.render).toHaveBeenCalledOnce()
-    expect(fileManager.files.map((f) => f.name)).toStrictEqual(['async-1'])
+    expect(driver.fileManager.files.map((f) => f.name)).toStrictEqual(['async-1'])
   })
 })
