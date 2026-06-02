@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import { type AsyncEventEmitter, formatMs, getElapsedMs, memoize, URLPath } from '@internals/utils'
 import { createFile } from '@kubb/ast'
 import type { FileNode, InputMeta, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
-import { DEFAULT_STUDIO_URL, STREAM_FLUSH_EVERY } from './constants.ts'
+import { DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
@@ -12,6 +12,7 @@ import { defineResolver } from './defineResolver.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
 import { FileProcessor } from './FileProcessor.ts'
+import { FileWriteQueue } from './FileWriteQueue.ts'
 import { Generate } from './compiler/Generate.ts'
 import { Parse } from './compiler/Parse.ts'
 import { Transform } from './compiler/Transform.ts'
@@ -383,39 +384,16 @@ export class KubbDriver {
       }
     }
 
-    const pendingFiles = new Map<string, FileNode>()
-    this.fileManager.setOnUpsert((file) => {
-      pendingFiles.set(file.path, file)
+    const writeQueue = new FileWriteQueue({
+      processor: this.#fileProcessor,
+      parsers: parsersMap,
+      storage,
+      hooks,
+      config,
     })
+    this.fileManager.setOnUpsert((file) => writeQueue.enqueue(file))
 
     try {
-      const flushPending = async (): Promise<void> => {
-        if (pendingFiles.size === 0) return
-        const files = [...pendingFiles.values()]
-        pendingFiles.clear()
-
-        await hooks.emit('kubb:debug', { date: new Date(), logs: [`Writing ${files.length} files...`] })
-        await hooks.emit('kubb:files:processing:start', { files })
-
-        const items = [...this.#fileProcessor.stream(files, { parsers: parsersMap, extension: config.output.extension })]
-
-        await hooks.emit('kubb:files:processing:update', {
-          files: items.map(({ file, source, processed, total, percentage }) => ({ file, source, processed, total, percentage, config })),
-        })
-
-        const queue: Array<Promise<void>> = []
-        for (const { file, source } of items) {
-          if (source) {
-            queue.push(storage.setItem(file.path, source))
-            if (queue.length >= STREAM_FLUSH_EVERY) await Promise.all(queue.splice(0))
-          }
-        }
-        await Promise.all(queue)
-
-        await hooks.emit('kubb:files:processing:end', { files })
-        await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ File write process completed for ${files.length} files`] })
-      }
-
       // Parse the adapter source into the streaming `InputNode`.
       await this.#parseInput()
       // Emit `kubb:plugin:setup` so plugins can register transformers via `setTransformer`.
@@ -471,18 +449,19 @@ export class KubbDriver {
         host: this,
         transforms: this.#transforms,
         entries: generatorPlugins,
-        flushPending,
+        flushPending: () => writeQueue.flush(),
         emitPluginEnd: this.#emitPluginEnd.bind(this),
       })
-      // Drain any files written after the last batch's flush.
-      await flushPending()
+      // Wait for the last in-flight batch and write anything still pending.
+      await writeQueue.drain()
 
       for (const [name, duration] of timings) pluginTimings.set(name, duration)
       for (const entry of failed) failedPlugins.add(entry)
 
       await hooks.emit('kubb:plugins:end', Object.assign({ config }, this.#filesPayload()))
 
-      await flushPending()
+      // Plugins-end listeners (barrel middleware etc.) may have queued more files.
+      await writeQueue.drain()
 
       const files = this.fileManager.files
 
