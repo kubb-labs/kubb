@@ -96,11 +96,9 @@ export class KubbDriver {
   readonly #defaultResolvers = new Map<string, Resolver>()
 
   /**
-   * Typed registry that wraps `options.hooks` and tracks every listener the driver added.
-   * Plugins, middleware, and generator handlers register through it so a single `dispose()` pass
-   * clears them. Middleware registers after plugins (preserving the existing "middleware fires
-   * last" ordering through `Set` insertion order). Listeners attached directly via
-   * `hooks.on(...)` from outside the driver are not tracked and survive `dispose()`.
+   * Tracks every listener the driver added (plugin, middleware, generator) so `dispose()` can
+   * remove them in one pass. Middleware registers after plugins, so it fires last via `Set`
+   * insertion order. External `hooks.on(...)` listeners are not tracked.
    */
   readonly #registry: HookRegistry<KubbHooks>
 
@@ -703,9 +701,8 @@ export class KubbDriver {
   }
 
   /**
-   * Unregisters every listener the driver added — plugins, middleware, and generator handlers —
-   * from the shared event emitter. Listeners attached directly to `hooks` from outside the driver
-   * survive disposal. Called at the end of a build to prevent leaks across repeated builds.
+   * Removes every listener the driver added; listeners attached directly to `hooks` from outside
+   * the driver survive. Called at the end of a build to prevent leaks across repeated builds.
    *
    * @internal
    */
