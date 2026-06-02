@@ -248,9 +248,6 @@ export class KubbDriver {
           setTransformer: (visitor) => {
             this.#transforms.register(plugin.name, visitor)
           },
-          setRenderer: (renderer) => {
-            plugin.renderer = renderer
-          },
           setOptions: (opts) => {
             plugin.options = { ...plugin.options, ...opts }
           },
@@ -293,7 +290,6 @@ export class KubbDriver {
       addGenerator: noop,
       setResolver: noop,
       setTransformer: noop,
-      setRenderer: noop,
       setOptions: noop,
       injectFile: noop,
       updateConfig: noop,
@@ -308,17 +304,13 @@ export class KubbDriver {
    * respectively. Each listener is scoped to the owning plugin via a `ctx.plugin.name` check
    * so that generators from different plugins do not cross-fire.
    *
-   * The renderer resolution chain is: `generator.renderer → plugin.renderer → config.renderer`.
-   * Set `generator.renderer = null` to explicitly opt out of rendering even when the plugin
-   * declares a renderer.
+   * The renderer comes from `generator.renderer`. Set `generator.renderer = null` (or leave it
+   * unset) to opt out of rendering.
    *
    * Call this method inside `addGenerator()` (in `kubb:plugin:setup`) to wire up a generator.
    */
   registerGenerator(pluginName: string, gen: Generator): void {
-    const resolveRenderer = () => {
-      const plugin = this.plugins.get(pluginName)
-      return gen.renderer === null ? undefined : (gen.renderer ?? plugin?.renderer ?? this.config.renderer)
-    }
+    const resolveRenderer = () => gen.renderer ?? undefined
 
     if (gen.schema) {
       const schemaHandler = async (node: SchemaNode, ctx: GeneratorContext) => {
@@ -594,8 +586,7 @@ export class KubbDriver {
       }
     }
 
-    const resolveRendererFor = (gen: Generator, state: PluginState): RendererFactory | undefined =>
-      gen.renderer === null ? undefined : (gen.renderer ?? state.plugin.renderer ?? state.generatorContext.config.renderer)
+    const resolveRendererFor = (gen: Generator): RendererFactory | undefined => gen.renderer ?? undefined
 
     // Apply the plugin's transformer, then resolve options (skipping the resolver when
     // optionsAreStatic). Returns null when include/exclude/override rules out the node.
@@ -649,7 +640,7 @@ export class KubbDriver {
           if (!run) continue
           const raw = run(transformedNode, ctx)
           const result = isPromise(raw) ? await raw : raw
-          const applied = this.dispatch({ result, rendererFactory: resolveRendererFor(gen, state) })
+          const applied = this.dispatch({ result, rendererFactory: resolveRendererFor(gen) })
           if (isPromise(applied)) await applied
         }
         if (dispatch.emit) await dispatch.emit(transformedNode, ctx)
@@ -708,7 +699,7 @@ export class KubbDriver {
           for (const gen of generators) {
             if (!gen.operations) continue
             const result = await gen.operations(pluginOperations, ctx)
-            await this.dispatch({ result, rendererFactory: resolveRendererFor(gen, state) })
+            await this.dispatch({ result, rendererFactory: resolveRendererFor(gen) })
           }
           await this.hooks.emit('kubb:generate:operations', pluginOperations, ctx)
         } catch (caughtError) {
