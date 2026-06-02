@@ -1010,7 +1010,27 @@ export class Kubb {
     const driver = new KubbDriver(config, { hooks: this.hooks })
     const storage = createSourcesView(config.storage)
 
-    await this.hooks.emit('kubb:debug', { date: new Date(), logs: this.#configLogs(config) })
+    const userConfig = this.#userConfig
+    const diagnostics = getDiagnosticInfo()
+    await this.hooks.emit('kubb:debug', {
+      date: new Date(),
+      logs: [
+        'Configuration:',
+        `  • Name: ${userConfig.name || 'unnamed'}`,
+        `  • Root: ${userConfig.root || process.cwd()}`,
+        `  • Output: ${userConfig.output?.path || 'not specified'}`,
+        `  • Plugins: ${userConfig.plugins?.length || 0}`,
+        'Output Settings:',
+        `  • Storage: ${config.storage.name}`,
+        `  • Formatter: ${userConfig.output?.format || 'none'}`,
+        `  • Linter: ${userConfig.output?.lint || 'none'}`,
+        `Running adapter: ${config.adapter?.name || 'none'}`,
+        'Environment:',
+        Object.entries(diagnostics)
+          .map(([key, value]) => `  • ${key}: ${value}`)
+          .join('\n'),
+      ],
+    })
 
     if (isInputPath(this.#userConfig) && !new URLPath(this.#userConfig.input.path).isURL) {
       try {
@@ -1069,27 +1089,6 @@ export class Kubb {
 
   [Symbol.dispose](): void {
     this.dispose()
-  }
-
-  #configLogs(config: Config): Array<string> {
-    const u = this.#userConfig
-    const diag = getDiagnosticInfo()
-    return [
-      'Configuration:',
-      `  • Name: ${u.name || 'unnamed'}`,
-      `  • Root: ${u.root || process.cwd()}`,
-      `  • Output: ${u.output?.path || 'not specified'}`,
-      `  • Plugins: ${u.plugins?.length || 0}`,
-      'Output Settings:',
-      `  • Storage: ${config.storage.name}`,
-      `  • Formatter: ${u.output?.format || 'none'}`,
-      `  • Linter: ${u.output?.lint || 'none'}`,
-      `Running adapter: ${config.adapter?.name || 'none'}`,
-      'Environment:',
-      Object.entries(diag)
-        .map(([key, value]) => `  • ${key}: ${value}`)
-        .join('\n'),
-    ]
   }
 }
 

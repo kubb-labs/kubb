@@ -3,7 +3,7 @@ import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, formatMs, get
 import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast'
 import type { FileNode, InputMeta, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { DEFAULT_STUDIO_URL, OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
-import type { Renderer, RendererFactory } from './createRenderer.ts'
+import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
@@ -215,8 +215,8 @@ export class KubbDriver {
    * Registers a hook-style plugin's lifecycle handlers on the shared `AsyncEventEmitter`.
    *
    * For `kubb:plugin:setup`, the registered listener wraps the globally emitted context with a
-   * plugin-specific one so that `addGenerator`, `setResolver`, `setTransformer`, and
-   * `setRenderer` all target the correct `normalizedPlugin` entry in the plugins map.
+   * plugin-specific one so that `addGenerator`, `setResolver`, and `setTransformer` all target
+   * the correct `normalizedPlugin` entry in the plugins map.
    *
    * All other hooks are iterated and registered directly as pass-through listeners.
    * Any event key present in the global `KubbHooks` interface can be subscribed to.
@@ -310,7 +310,6 @@ export class KubbDriver {
    * Call this method inside `addGenerator()` (in `kubb:plugin:setup`) to wire up a generator.
    */
   registerGenerator(pluginName: string, generator: Generator): void {
-
     if (generator.schema) {
       const schemaHandler = async (node: SchemaNode, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
@@ -572,7 +571,7 @@ export class KubbDriver {
       const allSchemas: Array<SchemaNode> = []
       for await (const schema of schemas) allSchemas.push(schema)
 
-      const includedOpsByState = new Map<PluginState, Array<OperationNode>>(pruningStates.map((s) => [s, []]))
+      const includedOpsByState = new Map<PluginState, Array<OperationNode>>(pruningStates.map((state) => [state, []]))
       for await (const operation of operations) {
         for (const state of pruningStates) {
           const { exclude, include, override } = state.plugin.options
@@ -586,8 +585,6 @@ export class KubbDriver {
         includedOpsByState.delete(state)
       }
     }
-
-    const resolveRendererFor = (gen: Generator): RendererFactory | undefined => gen.renderer ?? undefined
 
     // Apply the plugin's transformer, then resolve options (skipping the resolver when
     // optionsAreStatic). Returns null when include/exclude/override rules out the node.
@@ -641,7 +638,7 @@ export class KubbDriver {
           if (!run) continue
           const raw = run(transformedNode, ctx)
           const result = isPromise(raw) ? await raw : raw
-          const applied = this.dispatch({ result, renderer: resolveRendererFor(gen) })
+          const applied = this.dispatch({ result, renderer: gen.renderer })
           if (isPromise(applied)) await applied
         }
         if (dispatch.emit) await dispatch.emit(transformedNode, ctx)
@@ -664,13 +661,14 @@ export class KubbDriver {
 
     // Skip building the aggregated operations array when nothing consumes it. Saves an
     // N-sized allocation on the common path where plugins only define per-node `gen.operation`.
-    const needsCollectedOperations = this.hooks.listenerCount('kubb:generate:operations') > 0 || states.some((s) => s.generators.some((g) => !!g.operations))
+    const needsCollectedOperations =
+      this.hooks.listenerCount('kubb:generate:operations') > 0 || states.some((state) => state.generators.some((gen) => !!gen.operations))
     const collectedOperations: Array<OperationNode> | undefined = needsCollectedOperations ? [] : undefined
 
     // Run schemas before operations: the two passes share `flushPending` and the
     // FileProcessor's event emitter, so running them concurrently would interleave
     // `kubb:files:processing:start|end` events and race on the shared dirty list.
-    await forBatches(schemas, (nodes) => Promise.all(nodes.flatMap((n) => states.map((state) => dispatchNode(state, n, schemaDispatch)))), {
+    await forBatches(schemas, (nodes) => Promise.all(nodes.flatMap((node) => states.map((state) => dispatchNode(state, node, schemaDispatch)))), {
       concurrency: SCHEMA_PARALLEL,
       flush: flushPending,
     })
@@ -679,7 +677,7 @@ export class KubbDriver {
       operations,
       (nodes) => {
         if (needsCollectedOperations) collectedOperations?.push(...nodes)
-        return Promise.all(nodes.flatMap((n) => states.map((state) => dispatchNode(state, n, operationDispatch))))
+        return Promise.all(nodes.flatMap((node) => states.map((state) => dispatchNode(state, node, operationDispatch))))
       },
       { concurrency: SCHEMA_PARALLEL, flush: flushPending },
     )
@@ -700,7 +698,7 @@ export class KubbDriver {
           for (const gen of generators) {
             if (!gen.operations) continue
             const result = await gen.operations(pluginOperations, ctx)
-            await this.dispatch({ result, renderer: resolveRendererFor(gen) })
+            await this.dispatch({ result, renderer: gen.renderer })
           }
           await this.hooks.emit('kubb:generate:operations', pluginOperations, ctx)
         } catch (caughtError) {
@@ -736,13 +734,13 @@ export class KubbDriver {
    * Pass `renderer` when the result may be a renderer element. Generators that only return
    * `Array<FileNode>` do not need one.
    */
-  dispatch<TElement = unknown>({
+  async dispatch<TElement = unknown>({
     result,
     renderer,
   }: {
     result: TElement | Array<FileNode> | undefined | null
     renderer?: RendererFactory<TElement> | null
-  }): void | Promise<void> {
+  }): Promise<void> {
     if (!result) return
 
     if (Array.isArray(result)) {
@@ -754,21 +752,16 @@ export class KubbDriver {
       return
     }
 
-    const instance = renderer()
+    using instance = renderer()
     if (instance.stream) {
-      using r = instance
-      for (const file of r.stream!(result)) {
+      for (const file of instance.stream(result)) {
         this.fileManager.upsert(file)
       }
       return
     }
-    return this.#applyAsyncRender({ renderer: instance, result })
-  }
 
-  async #applyAsyncRender<TElement>({ renderer, result }: { renderer: Renderer<TElement>; result: TElement }): Promise<void> {
-    using r = renderer
-    await r.render(result)
-    this.fileManager.upsert(...r.files)
+    await instance.render(result)
+    this.fileManager.upsert(...instance.files)
   }
 
   /**

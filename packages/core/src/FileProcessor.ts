@@ -53,8 +53,8 @@ function joinSources(file: FileNode): string {
   if (sources.length === 0) return ''
   const parts: Array<string> = []
   for (const source of sources) {
-    const s = extractStringsFromNodes(source.nodes as Array<CodeNode>)
-    if (s) parts.push(s)
+    const text = extractStringsFromNodes(source.nodes as Array<CodeNode>)
+    if (text) parts.push(text)
   }
   return parts.join('\n\n')
 }
