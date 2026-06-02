@@ -238,6 +238,12 @@ type GenerateCommandOptions = {
   configPath?: string
   logLevel: string
   watch: boolean
+  /**
+   * When `true`, opts into the full-screen opentui dashboard. Silently falls
+   * back to the auto-detected logger (clack / plain / github-actions) when the
+   * runtime cannot host opentui (non-Bun, non-TTY, missing peer dep).
+   */
+  tui?: boolean
 }
 
 async function checkForUpdate(hooks: AsyncEventEmitter<KubbHooks>): Promise<void> {
@@ -258,11 +264,30 @@ async function checkForUpdate(hooks: AsyncEventEmitter<KubbHooks>): Promise<void
  * Runs the full Kubb generation lifecycle for the given CLI options.
  * Sets up the logger, checks for a newer version, loads configs, and calls `generate` for each config entry.
  */
-export async function run({ input, configPath, logLevel: logLevelKey, watch }: GenerateCommandOptions): Promise<void> {
+export async function run({ input, configPath, logLevel: logLevelKey, watch, tui }: GenerateCommandOptions): Promise<void> {
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const hooks = new AsyncEventEmitterClass<KubbHooks>()
 
-  const makeSink = await setupLogger(hooks, { logLevel })
+  // Captured by the restart callback so the TUI can re-run the most recently
+  // executed config without re-loading from disk. `null` until the first
+  // generate call kicks off.
+  let lastRunConfig: Config | null = null
+  let restartInFlight = false
+  let makeSink: HookSinkFactory | null = null
+
+  const restart = async () => {
+    if (restartInFlight || !lastRunConfig) return
+    restartInFlight = true
+    try {
+      await generate({ input, config: lastRunConfig, logLevel, hooks, makeSink })
+    } catch (error) {
+      await hooks.emit('kubb:error', { error: toError(error) })
+    } finally {
+      restartInFlight = false
+    }
+  }
+
+  makeSink = await setupLogger(hooks, { logLevel, tui, onRestart: restart })
 
   await hooks.emit('kubb:lifecycle:start', { version })
 
@@ -293,6 +318,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch }: G
             // Plugin and middleware listeners are already disposed by safeBuild's
             // setupResult.dispose() in its finally block, so re-running generate()
             // on the same hooks emitter is safe.
+            lastRunConfig = config
             await generate({ input, config, logLevel, hooks, makeSink })
             clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
           },
@@ -300,6 +326,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch }: G
         )
       } else {
         try {
+          lastRunConfig = config
           const succeeded = await generate({ input, config, logLevel, hooks, makeSink })
           if (!succeeded) anyFailed = true
         } catch (configError) {

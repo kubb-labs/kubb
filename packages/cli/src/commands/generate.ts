@@ -1,3 +1,4 @@
+import process from 'node:process'
 import { defineCommand } from '@internals/utils'
 
 export const command = defineCommand({
@@ -44,6 +45,11 @@ export const command = defineCommand({
       short: 's',
       default: false,
     },
+    tui: {
+      type: 'boolean',
+      description: 'Render the full-screen opentui dashboard (Bun + TTY only)',
+      default: false,
+    },
   },
   async run({ values, positionals }) {
     const logLevel = values.debug ? 'debug' : values.verbose ? 'verbose' : values.silent ? 'silent' : values.logLevel
@@ -54,6 +60,7 @@ export const command = defineCommand({
       configPath: values.config,
       logLevel,
       watch: values.watch,
+      tui: values.tui || process.env.KUBB_TUI === '1',
     })
   },
 })

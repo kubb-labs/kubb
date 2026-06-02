@@ -1,38 +1,27 @@
 {
-  "name": "kubb",
+  "name": "@kubb/tui",
   "version": "5.0.0-beta.36",
-  "description": "Meta-package and entry point for Kubb — a plugin-based code generation framework for OpenAPI. Includes defineConfig, all public APIs, and serves as the gateway to the entire Kubb ecosystem.",
+  "description": "Full-screen terminal UI for Kubb generation. Live plugin progress, file-write progress, and a scrollable log pane, rendered with opentui and React. Opt-in via the CLI `--tui` flag.",
   "keywords": [
-    "api-client",
-    "code-generator",
+    "cli",
     "codegen",
-    "faker",
     "kubb",
-    "meta-framework",
-    "msw",
     "openapi",
-    "plugin-system",
-    "react-query",
-    "sdk-generator",
-    "swagger",
-    "tanstack-query",
-    "typescript",
-    "zod"
+    "opentui",
+    "react",
+    "terminal",
+    "tui"
   ],
   "license": "MIT",
   "author": "stijnvanhulle",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/kubb"
-  },
-  "bin": {
-    "kubb": "bin/kubb.js"
+    "directory": "packages/tui"
   },
   "files": [
     "src",
     "dist",
-    "bin",
     "!/**/**.test.**",
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
@@ -66,37 +55,17 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/adapter-oas": "workspace:*",
-    "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/mcp": "workspace:*",
-    "@kubb/middleware-barrel": "workspace:*",
-    "@kubb/parser-md": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
-    "@kubb/renderer-jsx": "workspace:*",
-    "@kubb/tui": "workspace:*"
+    "@opentui/core": "^0.1.0",
+    "@opentui/react": "^0.1.0",
+    "react": "catalog:"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
-    "typescript": "catalog:"
+    "@types/react": "catalog:",
+    "vitest": "catalog:"
   },
-  "peerDependencies": {
-    "@kubb/agent": "workspace:*"
-  },
-  "peerDependenciesMeta": {
-    "@kubb/agent": {
-      "optional": true
-    }
-  },
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
-    }
-  ],
-  "preferGlobal": true,
   "engines": {
-    "node": ">=22"
+    "bun": ">=1.1"
   }
 }

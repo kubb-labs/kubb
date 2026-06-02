@@ -210,7 +210,25 @@ export function formatCommandWithArgs(command: string, args?: ReadonlyArray<stri
   return args?.length ? `${command} ${args.join(' ')}` : command
 }
 
-function detectLogger(): LoggerType {
+type DetectOptions = {
+  /**
+   * Set when the user explicitly opted into the full-screen opentui dashboard
+   * via `--tui` or `KUBB_TUI=1`. When the runtime cannot support it (Node,
+   * non-TTY, missing peer dep), `setupLogger` falls back to the next-best
+   * adapter and emits a `kubb:warn`.
+   */
+  tui?: boolean
+  /**
+   * Forwarded to the TUI logger so its `r` keybinding can re-run the active
+   * generation. Other adapters ignore it.
+   */
+  onRestart?: () => void | Promise<void>
+}
+
+function detectLogger({ tui }: DetectOptions = {}): LoggerType {
+  if (tui) {
+    return 'tui'
+  }
   if (isGitHubActions()) {
     return 'github-actions'
   }
@@ -220,22 +238,76 @@ function detectLogger(): LoggerType {
   return 'plain'
 }
 
-const logMapper: Record<LoggerType, CLILogger> = {
+const logMapper: Record<Exclude<LoggerType, 'tui'>, CLILogger> = {
   clack: clackLogger,
   plain: plainLogger,
   'github-actions': githubActionsLogger,
 }
 
-export async function setupLogger(context: LoggerContext, { logLevel }: LoggerOptions): Promise<HookSinkFactory | null> {
-  const type = detectLogger()
+/**
+ * Dynamically loads the opt-in opentui logger. Kept out of the static
+ * dependency graph so users who never pass `--tui` don't pay the install cost
+ * of `@opentui/core`'s native module.
+ */
+async function loadTuiLogger(): Promise<{ logger: CLILogger | null; error: Error | null }> {
+  try {
+    // Runtime string indirection keeps the import opaque to the typechecker,
+    // so the CLI's JSX namespace doesn't collide with opentui's.
+    const specifier = '@kubb/tui' as string
+    const mod = (await import(specifier)) as { tuiLogger?: CLILogger }
+    if (!mod.tuiLogger) {
+      return { logger: null, error: new Error('@kubb/tui resolved but did not export `tuiLogger`. Build may be stale; run `pnpm --filter @kubb/tui build`.') }
+    }
+    return { logger: mod.tuiLogger, error: null }
+  } catch (error) {
+    return { logger: null, error: error instanceof Error ? error : new Error(String(error)) }
+  }
+}
 
-  const logger = logMapper[type]
+export type SetupLoggerOptions = LoggerOptions & DetectOptions
+
+export async function setupLogger(context: LoggerContext, { logLevel, tui, onRestart }: SetupLoggerOptions): Promise<HookSinkFactory | null> {
+  let type = detectLogger({ tui })
+
+  let logger: CLILogger | null = null
+  let tuiLoadFailure: string | null = null
+  if (type === 'tui') {
+    const result = await loadTuiLogger()
+    if (!result.logger) {
+      const err = result.error
+      const detail = err ? `${err.message}${err.stack ? `\n${err.stack.split('\n').slice(1, 4).join('\n')}` : ''}` : 'unknown error'
+      // Stderr first so the user sees the root cause even before any logger subscribes.
+      console.error(`[kubb] Failed to load @kubb/tui:\n${detail}`)
+      tuiLoadFailure = `Could not load @kubb/tui: ${err?.message ?? 'unknown error'}`
+      type = detectLogger()
+      logger = logMapper[type as Exclude<LoggerType, 'tui'>]
+    } else {
+      logger = result.logger
+    }
+  } else {
+    logger = logMapper[type as Exclude<LoggerType, 'tui'>]
+  }
 
   if (!logger) {
     throw new Error(`Unknown adapter type: ${type}`)
   }
 
-  const makeSink = await logger.install(context, { logLevel })
+  const makeSink = await logger.install(context, { logLevel, onRestart })
+
+  if (type === 'tui' && makeSink == null) {
+    const fallbackType = detectLogger()
+    const fallbackLogger = logMapper[fallbackType as Exclude<LoggerType, 'tui'>]
+    const fallbackSink = await fallbackLogger.install(context, { logLevel })
+    await context.emit('kubb:warn', { message: 'TUI declined to mount (non-Bun, non-TTY, or missing peer). Falling back to default output.' })
+    if (logLevel >= logLevelMap.debug) {
+      await fileSystemLogger.install(context, { logLevel })
+    }
+    return typeof fallbackSink === 'function' ? fallbackSink : null
+  }
+
+  if (tuiLoadFailure) {
+    await context.emit('kubb:warn', { message: tuiLoadFailure })
+  }
 
   if (logLevel >= logLevelMap.debug) {
     await fileSystemLogger.install(context, { logLevel })
