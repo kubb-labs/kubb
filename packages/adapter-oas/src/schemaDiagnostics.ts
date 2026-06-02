@@ -12,7 +12,7 @@ const handledFormats = new Set<string>([...Object.keys(formatMap), 'int64', 'dat
 /**
  * Reports the opt-in advisory diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`)
  * for a single top-level schema. It reuses the node the parser already produced during
- * the prescan and walks it with the shared AST visitor, so it never re-implements the
+ * `preScan` and walks it with the shared AST visitor, so it never re-implements the
  * OpenAPI traversal (refs, `allOf`/`oneOf`, items) the parser resolved. Reports land in
  * the active build run; outside a build `Diagnostics.report` is a no-op and repeats are
  * collapsed by the build's deduplication.
