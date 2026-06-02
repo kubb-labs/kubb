@@ -174,7 +174,7 @@ export class KubbDriver {
    * Idempotent: returns immediately when `inputNode` is already set, so repeated calls from
    * `run()` or the studio path do not re-parse the source.
    */
-  async #parsePhase(): Promise<void> {
+  async #parseInput(): Promise<void> {
     if (this.inputNode || !this.adapter || !this.#studio.source) return
 
     const result = await Parse.input({ adapter: this.adapter, source: this.#studio.source })
@@ -417,7 +417,7 @@ export class KubbDriver {
       }
 
       // Parse the adapter source into the streaming `InputNode`.
-      await this.#parsePhase()
+      await this.#parseInput()
       // Emit `kubb:plugin:setup` so plugins can register transformers via `setTransformer`.
       // Each call writes into `this.#transforms`, which `Generate.run` later reads through
       // `transforms.applyTo`.
