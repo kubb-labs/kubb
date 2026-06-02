@@ -1,5 +1,5 @@
 import { createFile, createImport, createSource, createText } from '@kubb/ast'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { FileManager } from './FileManager.ts'
 
 function makeFile(path: string, sourceValue?: string, extra?: Partial<Parameters<typeof createFile>[0]>) {
@@ -166,6 +166,64 @@ describe('FileManager', () => {
       const paths = manager.files.map((f) => f.path)
       expect(paths[0]).toBe('/src/types.ts')
       expect(paths[1]).toBe('/src/index.ts')
+    })
+  })
+
+  describe('onUpsert', () => {
+    it('fires once per file resolved through upsert', () => {
+      const manager = new FileManager()
+      const listener = vi.fn()
+      manager.onUpsert(listener)
+
+      manager.upsert(makeFile('/src/a.ts'), makeFile('/src/b.ts'))
+
+      expect(listener).toHaveBeenCalledTimes(2)
+      expect(listener.mock.calls[0]?.[0].path).toBe('/src/a.ts')
+      expect(listener.mock.calls[1]?.[0].path).toBe('/src/b.ts')
+    })
+
+    it('fires when files land through add', () => {
+      const manager = new FileManager()
+      const listener = vi.fn()
+      manager.onUpsert(listener)
+
+      manager.add(makeFile('/src/a.ts'))
+
+      expect(listener).toHaveBeenCalledOnce()
+      expect(listener.mock.calls[0]?.[0].path).toBe('/src/a.ts')
+    })
+
+    it('supports multiple subscribers, called in registration order', () => {
+      const manager = new FileManager()
+      const order: Array<string> = []
+      manager.onUpsert(() => order.push('first'))
+      manager.onUpsert(() => order.push('second'))
+
+      manager.upsert(makeFile('/src/a.ts'))
+
+      expect(order).toStrictEqual(['first', 'second'])
+    })
+
+    it('returns an unsubscribe function that detaches the listener', () => {
+      const manager = new FileManager()
+      const listener = vi.fn()
+      const unsubscribe = manager.onUpsert(listener)
+      unsubscribe()
+
+      manager.upsert(makeFile('/src/a.ts'))
+
+      expect(listener).not.toHaveBeenCalled()
+    })
+
+    it('clears every listener on dispose', () => {
+      const manager = new FileManager()
+      const listener = vi.fn()
+      manager.onUpsert(listener)
+      manager.dispose()
+
+      manager.upsert(makeFile('/src/a.ts'))
+
+      expect(listener).not.toHaveBeenCalled()
     })
   })
 })

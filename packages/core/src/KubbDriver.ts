@@ -404,7 +404,7 @@ export class KubbDriver {
       await hooks.emit('kubb:files:processing:end', { files })
       await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ File write process completed for ${files.length} files`] })
     })
-    this.fileManager.setOnUpsert((file) => processor.enqueue(file))
+    const unsubscribeUpsert = this.fileManager.onUpsert((file) => processor.enqueue(file))
 
     try {
       // Parse the adapter source into the streaming `InputNode`.
@@ -478,7 +478,7 @@ export class KubbDriver {
     } catch (caughtError) {
       return { failedPlugins, pluginTimings, error: caughtError as Error }
     } finally {
-      this.fileManager.setOnUpsert(null)
+      unsubscribeUpsert()
     }
   }
 
