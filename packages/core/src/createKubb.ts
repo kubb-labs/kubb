@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 import { version as nodeVersion } from 'node:process'
 import type { PossiblePromise } from '@internals/utils'
-import { AsyncEventEmitter, BuildError, exists, URLPath } from '@internals/utils'
+import { AsyncEventEmitter, BuildError } from '@internals/utils'
 import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
 import { DEFAULT_STUDIO_URL, HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
@@ -1038,18 +1038,6 @@ export class Kubb {
       adapter: config.adapter?.name || 'none',
     })
     debug('environment %O', getDiagnosticInfo())
-
-    if (isInputPath(this.#userConfig) && !new URLPath(this.#userConfig.input.path).isURL) {
-      try {
-        await exists(this.#userConfig.input.path)
-        debug('input file validated: %s', this.#userConfig.input.path)
-      } catch (caughtError) {
-        throw new Error(
-          `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${this.#userConfig.input.path}`,
-          { cause: caughtError as Error },
-        )
-      }
-    }
 
     if (config.output.clean) {
       debug('cleaning output directory %s', config.output.path)

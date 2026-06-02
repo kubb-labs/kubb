@@ -1,7 +1,6 @@
 import { styleText } from 'node:util'
 import { formatHrtime, formatMs, formatMsWithColor, toCause } from '@internals/utils'
 import { type Config, defineLogger, diagnosticCode, Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { diagnosticDocsUrl } from './diagnostics.ts'
 import {
   buildProgressLine,
   createHookTimer,
@@ -170,7 +169,7 @@ export const githubActionsLogger = defineLogger({
         parts.push(`help: ${diagnostic.help}`)
       }
       if (diagnostic.code !== diagnosticCode.unknown) {
-        parts.push(`docs: ${diagnosticDocsUrl(diagnostic.code)}`)
+        parts.push(`docs: ${Diagnostics.docsUrl(diagnostic.code)}`)
       }
       console.error(`::error::${parts.join(' ')}`)
     })

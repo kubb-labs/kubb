@@ -1,9 +1,10 @@
-import { AsyncEventEmitter, toError } from '@internals/utils'
-import { type Config, createKubb, type KubbHooks } from '@kubb/core'
+import { AsyncEventEmitter } from '@internals/utils'
+import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import type * as v from 'valibot'
 import { generateSchema } from '../schemas/generateSchema.ts'
+import { formatDiagnostics } from '../utils/formatDiagnostics.ts'
 import { NotifyTypes } from '../types.ts'
 import { loadUserConfig } from '../utils/loadUserConfig.ts'
 import { resolveCwd } from '../utils/resolveCwd.ts'
@@ -22,8 +23,8 @@ export const generateTool = defineTool(
       const hooks = new AsyncEventEmitter<KubbHooks>()
       const messages: Array<string> = []
 
-      const notify = async (type: string, message: string, _data?: Record<string, unknown>) => {
-        messages.push(`${type}: ${message}`)
+      const notify = async (type: string, message: string, data?: Record<string, unknown>) => {
+        messages.push(data ? `${type}: ${message} ${JSON.stringify(data)}` : `${type}: ${message}`)
       }
 
       hooks.on('kubb:info', async ({ message }: { message: string }) => {
@@ -40,6 +41,10 @@ export const generateTool = defineTool(
 
       hooks.on('kubb:warn', async ({ message }: { message: string }) => {
         await notify(NotifyTypes.WARN, message)
+      })
+
+      hooks.on('kubb:diagnostic', async ({ diagnostic }: { diagnostic: Diagnostic }) => {
+        await notify(NotifyTypes.DIAGNOSTIC, diagnostic.message, Diagnostics.serialize(diagnostic))
       })
 
       hooks.on('kubb:plugin:start', async ({ plugin }) => {
@@ -122,19 +127,21 @@ export const generateTool = defineTool(
       const { files, diagnostics } = await kubb.safeBuild()
       await notify(NotifyTypes.BUILD_END, `Build complete - Generated ${files.length} files`)
 
-      const errors = diagnostics.filter((diagnostic) => diagnostic.severity === 'error')
+      const problems = diagnostics.filter((diagnostic) => diagnostic.kind !== 'timing')
+      const errors = problems.filter((diagnostic) => diagnostic.severity === 'error')
       if (errors.length > 0) {
         await notify(NotifyTypes.BUILD_FAILED, `Build failed with ${errors.length} diagnostic(s)`)
 
-        return tool.error(`Build failed:\n${errors.map((diagnostic) => diagnostic.message).join('\n')}\n\n${messages.join('\n')}`)
+        const serialized = problems.map((diagnostic) => Diagnostics.serialize(diagnostic))
+        return tool.error(`Build failed:\n${formatDiagnostics(serialized)}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\``)
       }
 
       await notify(NotifyTypes.BUILD_SUCCESS, `Build completed successfully - Generated ${files.length} files`)
 
       return tool.text(`Build completed successfully!\n\nGenerated ${files.length} files\n\n${messages.join('\n')}`)
     } catch (caughtError) {
-      const error = toError(caughtError)
-      return tool.error(`Build error: ${error.message}\n${error.stack ?? ''}`)
+      const serialized = Diagnostics.serialize(Diagnostics.from(caughtError))
+      return tool.error(`Build error:\n${formatDiagnostics([serialized])}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\``)
     }
   },
 )

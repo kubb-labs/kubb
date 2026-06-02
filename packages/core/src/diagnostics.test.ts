@@ -3,6 +3,34 @@ import { type Diagnostic, DiagnosticError, Diagnostics } from './diagnostics.ts'
 
 const problem = (over: Partial<Diagnostic> = {}): Diagnostic => ({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', ...over })
 
+describe('Diagnostics.docsUrl', () => {
+  it('slugifies the code into a kubb.dev docs link', () => {
+    expect(Diagnostics.docsUrl('KUBB_REF_NOT_FOUND')).toMatch(/^https:\/\/kubb\.dev\/docs\/\d+\.x\/diagnostics\/kubb-ref-not-found$/)
+  })
+})
+
+describe('Diagnostics.serialize', () => {
+  it('keeps the JSON-safe fields and adds a docsUrl, dropping the cause', () => {
+    const serialized = Diagnostics.serialize(
+      problem({ help: 'fix it', plugin: '@kubb/plugin-zod', location: { kind: 'schema', pointer: '#/components/schemas/Pet' }, cause: new Error('root') }),
+    )
+
+    expect(serialized).toStrictEqual({
+      code: 'KUBB_REF_NOT_FOUND',
+      severity: 'error',
+      message: 'boom',
+      help: 'fix it',
+      plugin: '@kubb/plugin-zod',
+      location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
+      docsUrl: Diagnostics.docsUrl('KUBB_REF_NOT_FOUND'),
+    })
+  })
+
+  it('omits the docsUrl for the unknown fallback code', () => {
+    expect(Diagnostics.serialize(problem({ code: 'KUBB_UNKNOWN' })).docsUrl).toBeUndefined()
+  })
+})
+
 describe('Diagnostics.from', () => {
   it('should return the structured diagnostic from a DiagnosticError', () => {
     const error = new DiagnosticError({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing' })
@@ -21,6 +49,17 @@ describe('Diagnostics.from', () => {
     const wrapped = new Error('listener failed', { cause: inner })
 
     expect(Diagnostics.from(wrapped).code).toBe('KUBB_REF_NOT_FOUND')
+  })
+
+  it('recognizes a DiagnosticError from a duplicated core copy structurally', () => {
+    // A different `@kubb/core` copy produces a DiagnosticError that fails `instanceof` but
+    // still carries its `diagnostic`. Simulate one with a plain Error of the same shape.
+    const foreign = Object.assign(new Error('missing'), {
+      name: 'DiagnosticError',
+      diagnostic: { code: 'KUBB_INPUT_NOT_FOUND', severity: 'error', message: 'missing' },
+    })
+
+    expect(Diagnostics.from(foreign).code).toBe('KUBB_INPUT_NOT_FOUND')
   })
 
   it('should fall back to KUBB_UNKNOWN for a plain error', () => {

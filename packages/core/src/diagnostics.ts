@@ -1,6 +1,12 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { getErrorMessage } from '@internals/utils'
+import { version } from '../package.json'
 import { type DiagnosticCode, diagnosticCode } from './constants.ts'
+
+/**
+ * Docs major, derived from the package version so the link tracks the published major.
+ */
+const docsMajor = version.split('.')[0] ?? '5'
 
 /**
  * How serious a diagnostic is. `error` fails the build, `warning` and `info`
@@ -81,6 +87,24 @@ export type Diagnostic = {
 }
 
 /**
+ * A {@link Diagnostic} reduced to its JSON-safe fields plus a `docsUrl`, for
+ * machine-readable output (the `--reporter json` report, the MCP tools). Drops the
+ * non-serializable `cause` and the `timing`/`duration` bookkeeping.
+ */
+export type SerializedDiagnostic = {
+  code: DiagnosticCode
+  severity: DiagnosticSeverity
+  message: string
+  location?: DiagnosticLocation
+  help?: string
+  plugin?: string
+  /**
+   * The kubb.dev docs link for the code, omitted for the unknown fallback.
+   */
+  docsUrl?: string
+}
+
+/**
  * An `Error` that carries a {@link Diagnostic}, so structured problems can flow
  * through the existing throw/catch paths while keeping their code and location.
  *
@@ -97,6 +121,25 @@ export class DiagnosticError extends Error {
     this.name = 'DiagnosticError'
     this.diagnostic = diagnostic
   }
+}
+
+/**
+ * Structural check for a {@link DiagnosticError}, including one thrown from a duplicated
+ * `@kubb/core` copy where `instanceof` fails. Matches on the `name` and a `diagnostic`
+ * that carries a `code`.
+ */
+function isDiagnosticError(error: unknown): error is DiagnosticError {
+  if (error instanceof DiagnosticError) {
+    return true
+  }
+  return (
+    error instanceof Error &&
+    error.name === 'DiagnosticError' &&
+    'diagnostic' in error &&
+    typeof (error as { diagnostic?: unknown }).diagnostic === 'object' &&
+    (error as { diagnostic?: Diagnostic }).diagnostic !== null &&
+    typeof (error as { diagnostic?: { code?: unknown } }).diagnostic?.code === 'string'
+  )
 }
 
 /**
@@ -145,7 +188,10 @@ export class Diagnostics {
     let current: unknown = error
     let root: Error | undefined
     while (current instanceof Error && !seen.has(current)) {
-      if (current instanceof DiagnosticError) {
+      // Match structurally, not just by `instanceof`: a `DiagnosticError` thrown from a
+      // duplicated `@kubb/core` copy (bundled into an adapter or plugin) is a different
+      // class, but still carries the same `diagnostic`, so its code must survive.
+      if (isDiagnosticError(current)) {
         return current.diagnostic
       }
       seen.add(current)
@@ -244,5 +290,31 @@ export class Diagnostics {
       result.push(diagnostic)
     }
     return result
+  }
+
+  /**
+   * Builds the kubb.dev docs URL for a diagnostic code, e.g.
+   * `KUBB_REF_NOT_FOUND` → `https://kubb.dev/docs/5.x/diagnostics/kubb-ref-not-found`.
+   */
+  static docsUrl(code: string): string {
+    const slug = code.toLowerCase().replaceAll('_', '-')
+    return `https://kubb.dev/docs/${docsMajor}.x/diagnostics/${slug}`
+  }
+
+  /**
+   * Reduces a diagnostic to its JSON-safe fields plus a `docsUrl`, for machine-readable
+   * consumers. The `cause`, `kind`, and `duration` are dropped, and absent optional
+   * fields are omitted rather than set to `undefined`.
+   */
+  static serialize(diagnostic: Diagnostic): SerializedDiagnostic {
+    return {
+      code: diagnostic.code,
+      severity: diagnostic.severity,
+      message: diagnostic.message,
+      ...(diagnostic.location ? { location: diagnostic.location } : {}),
+      ...(diagnostic.help ? { help: diagnostic.help } : {}),
+      ...(diagnostic.plugin ? { plugin: diagnostic.plugin } : {}),
+      ...(diagnostic.code === diagnosticCode.unknown ? {} : { docsUrl: Diagnostics.docsUrl(diagnostic.code) }),
+    }
   }
 }

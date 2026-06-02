@@ -76,6 +76,14 @@ export const diagnosticCode = {
    */
   pluginFailed: 'KUBB_PLUGIN_FAILED',
   /**
+   * A plugin reported a non-fatal warning through `ctx.warn`.
+   */
+  pluginWarning: 'KUBB_PLUGIN_WARNING',
+  /**
+   * A plugin reported an informational message through `ctx.info`.
+   */
+  pluginInfo: 'KUBB_PLUGIN_INFO',
+  /**
    * A schema uses a `format` Kubb does not map to a specific type. Reserved for
    * adapters to emit as a `warning`.
    */

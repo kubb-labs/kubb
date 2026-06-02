@@ -64,15 +64,20 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    */
   transformer: Visitor | undefined
   /**
-   * Emit a warning.
+   * Report a warning. Collected as a `warning` diagnostic attributed to the current
+   * plugin; it surfaces in the run summary but does not fail the build. For a structured
+   * diagnostic with a code and source location, use `Diagnostics.report` or throw a
+   * `DiagnosticError` directly.
    */
   warn: (message: string) => void
   /**
-   * Emit an error.
+   * Report an error. Collected as an `error` diagnostic attributed to the current
+   * plugin, which fails the build.
    */
   error: (error: string | Error) => void
   /**
-   * Emit an info message.
+   * Report an informational message. Collected as an `info` diagnostic attributed to
+   * the current plugin.
    */
   info: (message: string) => void
   /**

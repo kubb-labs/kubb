@@ -827,6 +827,19 @@ export class KubbDriver {
   getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
     const driver = this
 
+    const report = (diagnostic: Omit<Diagnostic, 'plugin'>): void => {
+      Diagnostics.report({ ...diagnostic, plugin: plugin.name })
+      if (diagnostic.severity === 'error') {
+        driver.hooks.emit('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+        return
+      }
+      if (diagnostic.severity === 'warning') {
+        driver.hooks.emit('kubb:warn', { message: diagnostic.message })
+        return
+      }
+      driver.hooks.emit('kubb:info', { message: diagnostic.message })
+    }
+
     return {
       config: driver.config,
       get root(): string {
@@ -862,13 +875,14 @@ export class KubbDriver {
         return driver.#transforms.get(plugin.name)
       },
       warn(message: string) {
-        driver.hooks.emit('kubb:warn', { message })
+        report({ code: diagnosticCode.pluginWarning, severity: 'warning', message })
       },
       error(error: string | Error) {
-        driver.hooks.emit('kubb:error', { error: typeof error === 'string' ? new Error(error) : error })
+        const cause = typeof error === 'string' ? undefined : error
+        report({ code: diagnosticCode.pluginFailed, severity: 'error', message: typeof error === 'string' ? error : error.message, cause })
       },
       info(message: string) {
-        driver.hooks.emit('kubb:info', { message })
+        report({ code: diagnosticCode.pluginInfo, severity: 'info', message })
       },
       async openInStudio(options?: DevtoolsOptions) {
         if (!driver.config.devtools || driver.#studio.isOpen) {
@@ -923,7 +937,13 @@ export class KubbDriver {
 function inputToAdapterSource(config: Config): AdapterSource {
   const input = config.input
   if (!input) {
-    throw new Error('[kubb] input is required when using an adapter. Provide input.path or input.data in your config.')
+    throw new DiagnosticError({
+      code: diagnosticCode.inputRequired,
+      severity: 'error',
+      message: 'An adapter is configured without an input.',
+      help: 'Provide `input.path` (a file or URL) or `input.data` (an inline spec) in your Kubb config.',
+      location: { kind: 'config' },
+    })
   }
 
   if ('data' in input) {
