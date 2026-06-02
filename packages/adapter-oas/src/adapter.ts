@@ -3,7 +3,6 @@ import { ast, createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { reportDocumentDiagnostics } from './documentDiagnostics.ts'
 import { parseDocument, parseFromConfig, validateDocument } from './factory.ts'
 import { createSchemaParser } from './parser.ts'
 import { getSchemas } from './resolvers.ts'
@@ -94,12 +93,11 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       parseSchema: ReturnType<typeof ensureSchemaParser>['parseSchema'],
       parseOperation: ReturnType<typeof ensureSchemaParser>['parseOperation'],
       baseOas: ReturnType<typeof ensureBaseOas>,
-    ) => preScan({ schemas, parseSchema, parseOperation, baseOas, parserOptions, discriminator, dedupe }),
+    ) => preScan({ schemas, parseSchema, parseOperation, baseOas, parserOptions, discriminator, dedupe, diagnostics: diagnosticsOptions }),
   )
 
   async function createStream(source: AdapterSource): Promise<ast.InputStreamNode> {
     const document = await ensureDocument(source)
-    reportDocumentDiagnostics({ document, options: diagnosticsOptions })
     const schemas = await ensureSchemas(document)
     const { parseSchema, parseOperation } = ensureSchemaParser(document)
     const baseOas = ensureBaseOas(document)
