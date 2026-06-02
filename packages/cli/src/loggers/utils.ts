@@ -2,8 +2,8 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { canUseTTY, formatHrtime, getElapsedMs, isGitHubActions, randomCliColor } from '@internals/utils'
-import type { Config, Logger, LoggerContext, LoggerOptions, Plugin } from '@kubb/core'
-import { getDiagnosticInfo, logLevel as logLevelMap } from '@kubb/core'
+import type { Config, Diagnostic, Logger, LoggerContext, LoggerOptions } from '@kubb/core'
+import { getDiagnosticInfo, getFailedPluginNames, logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
 import { clackLogger } from './clackLogger.ts'
 import { fileSystemLogger } from './fileSystemLogger.ts'
@@ -246,9 +246,10 @@ export async function setupLogger(context: LoggerContext, { logLevel }: LoggerOp
 
 type SummaryProps = {
   /**
-   * Set of plugins that failed during this generation run, each with its error.
+   * Diagnostics collected during the run. Failed plugin names and per-plugin timings
+   * are derived from these.
    */
-  failedPlugins: Set<{ plugin: Plugin; error: Error }>
+  diagnostics: Array<Diagnostic>
   /**
    * Overall generation status used to choose success or failure formatting.
    */
@@ -266,27 +267,29 @@ type SummaryProps = {
    */
   config: Config
   /**
-   * Per-plugin timing map (plugin name → duration in ms). When provided, a timing bar chart is appended.
+   * When true, append a per-plugin timing bar chart built from the `timing` diagnostics.
    */
-  pluginTimings?: Map<string, number>
+  showTimings?: boolean
 }
 
 /**
  * Builds the generation summary lines rendered in the end-of-run box.
  * Returns an array of styled strings, one per summary row.
  */
-export function getSummary({ failedPlugins, filesCreated, status, hrStart, config, pluginTimings }: SummaryProps): Array<string> {
+export function getSummary({ diagnostics, filesCreated, status, hrStart, config, showTimings }: SummaryProps): Array<string> {
   const duration = formatHrtime(hrStart)
 
+  const failedPluginNames = getFailedPluginNames(diagnostics)
   const pluginsCount = config.plugins?.length ?? 0
-  const successCount = pluginsCount - failedPlugins.size
+  const successCount = pluginsCount - failedPluginNames.length
+  const timings = showTimings ? diagnostics.filter((diagnostic) => diagnostic.kind === 'timing' && diagnostic.plugin && diagnostic.duration !== undefined) : []
 
   const meta = {
     plugins:
       status === 'success'
         ? `${styleText('green', `${successCount} successful`)}, ${pluginsCount} total`
-        : `${styleText('green', `${successCount} successful`)}, ${styleText('red', `${failedPlugins.size} failed`)}, ${pluginsCount} total`,
-    pluginsFailed: status === 'failed' ? [...failedPlugins].map(({ plugin }) => randomCliColor(plugin.name)).join(', ') : undefined,
+        : `${styleText('green', `${successCount} successful`)}, ${styleText('red', `${failedPluginNames.length} failed`)}, ${pluginsCount} total`,
+    pluginsFailed: status === 'failed' ? failedPluginNames.map((name) => randomCliColor(name)).join(', ') : undefined,
     filesCreated,
     time: styleText('green', duration),
     output: path.resolve(config.root, config.output.path),
@@ -299,7 +302,7 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
     pluginTimings: 'Plugin Timings:',
     output: 'Output:',
   }
-  const maxLength = Math.max(0, ...[...Object.values(labels), ...(pluginTimings ? Array.from(pluginTimings.keys()) : [])].map((s) => s.length))
+  const maxLength = Math.max(0, ...[...Object.values(labels), ...timings.map((diagnostic) => diagnostic.plugin ?? '')].map((s) => s.length))
 
   const summaryLines: Array<string> = []
   summaryLines.push(`${labels.plugins.padEnd(maxLength + 2)} ${meta.plugins}`)
@@ -310,12 +313,14 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
 
   summaryLines.push(`${labels.generated.padEnd(maxLength + 2)} ${meta.filesCreated} files in ${meta.time}`)
 
-  if (pluginTimings && pluginTimings.size > 0) {
-    const sortedTimings = Array.from(pluginTimings.entries()).sort((a, b) => b[1] - a[1])
+  if (timings.length > 0) {
+    const sortedTimings = [...timings].sort((a, b) => (b.duration ?? 0) - (a.duration ?? 0))
 
     summaryLines.push(`${labels.pluginTimings}`)
 
-    sortedTimings.forEach(([name, time]) => {
+    sortedTimings.forEach((diagnostic) => {
+      const time = diagnostic.duration ?? 0
+      const name = diagnostic.plugin ?? ''
       const timeStr = time >= 1000 ? `${(time / 1000).toFixed(2)}s` : `${Math.round(time)}ms`
       const barLength = Math.min(Math.ceil(time / SUMMARY_TIME_SCALE_DIVISOR), SUMMARY_MAX_BAR_LENGTH)
       const bar = styleText('dim', '█'.repeat(barLength))

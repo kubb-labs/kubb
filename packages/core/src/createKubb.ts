@@ -6,7 +6,7 @@ import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
 import { DEFAULT_STUDIO_URL, HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
-import { type Diagnostic, toDiagnostic } from './diagnostics.ts'
+import { type Diagnostic, DiagnosticError, hasBuildError } from './diagnostics.ts'
 import { createDebugger } from './createDebugger.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
@@ -625,9 +625,11 @@ export type KubbGenerationSummaryContext = {
    */
   config: Config
   /**
-   * Plugins that threw during generation, paired with their errors.
+   * Diagnostics collected during the build: error/warning/info problems plus a
+   * `timing` diagnostic per plugin. Failure counts and per-plugin timings for the
+   * summary are derived from these.
    */
-  failedPlugins: Set<{ plugin: Plugin; error: Error }>
+  diagnostics: Array<Diagnostic>
   /**
    * `'success'` when all plugins completed without errors, `'failed'` otherwise.
    */
@@ -640,10 +642,6 @@ export type KubbGenerationSummaryContext = {
    * Total number of files created during this run.
    */
   filesCreated: number
-  /**
-   * Elapsed milliseconds per plugin, keyed by plugin name.
-   */
-  pluginTimings?: Map<Plugin['name'], number>
 }
 
 export type KubbVersionNewContext = {
@@ -851,12 +849,10 @@ export type PossibleConfig<TCliOptions = undefined> =
  */
 export type BuildOutput = {
   /**
-   * Plugins that threw during generation, paired with their errors.
-   */
-  failedPlugins: Set<{ plugin: Plugin; error: Error }>
-  /**
-   * Structured diagnostics collected during the build, one per failure, each with
-   * a code, severity, and (where known) a JSON-pointer location into the source.
+   * Structured diagnostics collected during the build: error/warning/info problems
+   * (each with a code, severity, and where known a JSON-pointer location) plus a
+   * `timing` diagnostic per plugin. Includes a top-level diagnostic when the build
+   * threw before completing. Use {@link hasBuildError} to test for failure.
    */
   diagnostics: Array<Diagnostic>
   /**
@@ -867,14 +863,6 @@ export type BuildOutput = {
    * The plugin driver that orchestrated this build.
    */
   driver: KubbDriver
-  /**
-   * Elapsed milliseconds per plugin, keyed by plugin name.
-   */
-  pluginTimings: Map<string, number>
-  /**
-   * Top-level error when the build threw before completing, otherwise `undefined`.
-   */
-  error?: Error
   /**
    * Read-only view of every file written during this build.
    * Reads go straight to `config.storage` — nothing extra is held in memory.
@@ -991,7 +979,7 @@ type CreateKubbOptions = {
  * ```ts
  * const kubb = createKubb(userConfig)
  * kubb.hooks.on('kubb:plugin:end', ({ plugin, duration }) => console.log(plugin.name, duration))
- * const { files, failedPlugins } = await kubb.safeBuild()
+ * const { files, diagnostics } = await kubb.safeBuild()
  * ```
  */
 export class Kubb {
@@ -1081,10 +1069,11 @@ export class Kubb {
    */
   async build(): Promise<BuildOutput> {
     const out = await this.safeBuild()
-    if (out.error) throw out.error
-    if (out.failedPlugins.size > 0) {
-      const errors = [...out.failedPlugins].map(({ error }) => error)
-      throw new BuildError(`Build Error with ${out.failedPlugins.size} failed plugins`, { errors })
+    if (hasBuildError(out.diagnostics)) {
+      const errors = out.diagnostics
+        .filter((diagnostic) => diagnostic.severity === 'error')
+        .map((diagnostic) => diagnostic.cause ?? new DiagnosticError(diagnostic))
+      throw new BuildError(`Build Error with ${errors.length} failed plugins`, { errors })
     }
     return out
   }
@@ -1098,13 +1087,9 @@ export class Kubb {
     using cleanup = this
     const driver = cleanup.driver
     const storage = cleanup.storage
-    const { failedPlugins, pluginTimings, error } = await driver.run({ storage })
-    const diagnostics: Array<Diagnostic> = [
-      ...(error ? [toDiagnostic(error)] : []),
-      ...[...failedPlugins].map(({ plugin, error }) => ({ ...toDiagnostic(error), plugin: plugin.name })),
-    ]
+    const { diagnostics } = await driver.run({ storage })
 
-    return { failedPlugins, diagnostics, files: driver.fileManager.files, driver, pluginTimings, storage, ...(error ? { error } : {}) }
+    return { diagnostics, files: driver.fileManager.files, driver, storage }
   }
 
   dispose(): void {

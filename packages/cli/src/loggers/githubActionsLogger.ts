@@ -1,6 +1,6 @@
 import { styleText } from 'node:util'
 import { formatHrtime, formatMs, formatMsWithColor, toCause } from '@internals/utils'
-import { type Config, defineLogger, diagnosticCode, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { type Config, defineLogger, diagnosticCode, getFailedPluginNames, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { diagnosticDocsUrl } from './diagnostics.ts'
 import {
   buildProgressLine,
@@ -362,9 +362,10 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('kubb:generation:summary', ({ config, status, hrStart, failedPlugins }) => {
+    context.on('kubb:generation:summary', ({ config, status, hrStart, diagnostics }) => {
+      const failedCount = getFailedPluginNames(diagnostics).length
       const pluginsCount = config.plugins?.length ?? 0
-      const successCount = pluginsCount - failedPlugins.size
+      const successCount = pluginsCount - failedCount
       const duration = formatHrtime(hrStart)
 
       if (state.currentConfigs.length > 1) {
@@ -374,7 +375,7 @@ export const githubActionsLogger = defineLogger({
       console.log(
         status === 'success'
           ? `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ${pluginsCount} total, ${styleText('green', duration)}`
-          : `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total, ${styleText('green', duration)}`,
+          : `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ✗ ${`${failedCount} failed`}, ${pluginsCount} total, ${styleText('green', duration)}`,
       )
 
       if (state.currentConfigs.length > 1) {

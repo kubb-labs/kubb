@@ -203,14 +203,14 @@ export const plainLogger = defineLogger({
       }
     })
 
-    context.on('kubb:generation:summary', ({ config, pluginTimings, status, hrStart, failedPlugins, filesCreated }) => {
+    context.on('kubb:generation:summary', ({ config, diagnostics, status, hrStart, filesCreated }) => {
       const summary = getSummary({
-        failedPlugins,
+        diagnostics,
         filesCreated,
         config,
         status,
         hrStart,
-        pluginTimings: logLevel >= logLevelMap.verbose ? pluginTimings : undefined,
+        showTimings: logLevel >= logLevelMap.verbose,
       })
 
       console.log(SUMMARY_SEPARATOR)

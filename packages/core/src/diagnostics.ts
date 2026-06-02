@@ -37,12 +37,23 @@ export type DiagnosticLocation =
     }
 
 /**
- * A structured problem found during a build: a stable {@link DiagnosticCode}, a
- * `severity`, a `message`, and an optional `location` pointing into the source
- * document. Collected into the build result instead of aborting on the first
- * failure.
+ * What a diagnostic carries. `problem` is a build issue shown to the user;
+ * `timing` records a plugin's elapsed time for the run summary and is not
+ * rendered as a problem.
+ */
+export type DiagnosticKind = 'problem' | 'timing'
+
+/**
+ * A structured record collected during a build, gathered into the build result
+ * instead of aborting on the first failure. A `problem` carries a stable
+ * {@link DiagnosticCode}, a `severity`, a `message`, and an optional `location`
+ * into the source document. A `timing` carries a plugin's `duration`.
  */
 export type Diagnostic = {
+  /**
+   * @default 'problem'
+   */
+  kind?: DiagnosticKind
   /**
    * Stable identifier for the problem, from the {@link diagnosticCode} catalog.
    */
@@ -62,6 +73,10 @@ export type Diagnostic = {
    * The underlying error, when the diagnostic wraps a thrown one.
    */
   cause?: Error
+  /**
+   * Elapsed milliseconds, set on `timing` diagnostics.
+   */
+  duration?: number
 }
 
 /**
@@ -111,4 +126,42 @@ export function toDiagnostic(error: unknown): Diagnostic {
     message: getErrorMessage(error),
     cause: error instanceof Error ? toCause(error) : undefined,
   }
+}
+
+/**
+ * Builds a `timing` diagnostic recording how long a plugin took. Collected into
+ * the build result so the run summary can report per-plugin timings without a
+ * separate channel.
+ */
+export function createTimingDiagnostic({ plugin, duration }: { plugin: string; duration: number }): Diagnostic {
+  return {
+    kind: 'timing',
+    code: diagnosticCode.timing,
+    severity: 'info',
+    message: `${plugin} generated in ${Math.round(duration)}ms`,
+    plugin,
+    duration,
+  }
+}
+
+/**
+ * True when any diagnostic is an error, the severity that fails a build. Timing
+ * and other non-error diagnostics are ignored.
+ */
+export function hasBuildError(diagnostics: ReadonlyArray<Diagnostic>): boolean {
+  return diagnostics.some((diagnostic) => diagnostic.severity === 'error')
+}
+
+/**
+ * Names of the plugins that failed, deduped, derived from the error diagnostics
+ * that carry a `plugin`.
+ */
+export function getFailedPluginNames(diagnostics: ReadonlyArray<Diagnostic>): Array<string> {
+  const names = new Set<string>()
+  for (const diagnostic of diagnostics) {
+    if (diagnostic.severity === 'error' && diagnostic.plugin) {
+      names.add(diagnostic.plugin)
+    }
+  }
+  return [...names]
 }

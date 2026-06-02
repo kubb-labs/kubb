@@ -119,20 +119,14 @@ export const generateTool = defineTool(
       await notify(NotifyTypes.SETUP_END, 'Kubb setup complete')
 
       await notify(NotifyTypes.BUILD_START, 'Starting build')
-      const { files, failedPlugins, error } = await kubb.safeBuild()
+      const { files, diagnostics } = await kubb.safeBuild()
       await notify(NotifyTypes.BUILD_END, `Build complete - Generated ${files.length} files`)
 
-      if (error || failedPlugins.size > 0) {
-        const allErrors: Array<Error> = [
-          error,
-          ...Array.from(failedPlugins)
-            .filter((it) => it.error)
-            .map((it) => it.error),
-        ].filter(Boolean)
+      const errors = diagnostics.filter((diagnostic) => diagnostic.severity === 'error')
+      if (errors.length > 0) {
+        await notify(NotifyTypes.BUILD_FAILED, `Build failed with ${errors.length} diagnostic(s)`)
 
-        await notify(NotifyTypes.BUILD_FAILED, `Build failed with ${allErrors.length} error(s)`)
-
-        return tool.error(`Build failed:\n${allErrors.map((err) => err.message).join('\n')}\n\n${messages.join('\n')}`)
+        return tool.error(`Build failed:\n${errors.map((diagnostic) => diagnostic.message).join('\n')}\n\n${messages.join('\n')}`)
       }
 
       await notify(NotifyTypes.BUILD_SUCCESS, `Build completed successfully - Generated ${files.length} files`)

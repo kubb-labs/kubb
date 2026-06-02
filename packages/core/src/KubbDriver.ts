@@ -4,7 +4,7 @@ import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast
 import type { FileNode, InputMeta, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { DEFAULT_STUDIO_URL, diagnosticCode, OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
 import { createDebugger, type Debugger } from './createDebugger.ts'
-import { DiagnosticError } from './diagnostics.ts'
+import { createTimingDiagnostic, type Diagnostic, DiagnosticError, toDiagnostic } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -365,18 +365,14 @@ export class KubbDriver {
   }
 
   /**
-   * Runs the full plugin pipeline. Returns timings/failures collected so far even
+   * Runs the full plugin pipeline. Returns the diagnostics collected so far even
    * when an outer hook throws — the orchestrator preserves partial state by capturing
-   * the error into `error` instead of propagating.
+   * the failure as a {@link Diagnostic} instead of propagating. Each plugin also
+   * contributes a `timing` diagnostic for the run summary.
    */
-  async run({ storage }: { storage: Storage }): Promise<{
-    failedPlugins: Set<{ plugin: Plugin; error: Error }>
-    pluginTimings: Map<string, number>
-    error?: Error
-  }> {
+  async run({ storage }: { storage: Storage }): Promise<{ diagnostics: Array<Diagnostic> }> {
     const { hooks, config } = this
-    const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
-    const pluginTimings = new Map<string, number>()
+    const diagnostics: Array<Diagnostic> = []
     const parsersMap = new Map<FileNode['extname'], Parser>()
 
     for (const parser of config.parsers) {
@@ -433,11 +429,10 @@ export class KubbDriver {
         } catch (caughtError) {
           const error = caughtError as Error
           const duration = getElapsedMs(hrStart)
-          pluginTimings.set(plugin.name, duration)
 
           await this.#emitPluginEnd({ plugin, duration, success: false, error })
 
-          failedPlugins.add({ plugin, error })
+          diagnostics.push({ ...toDiagnostic(error), plugin: plugin.name }, createTimingDiagnostic({ plugin: plugin.name, duration }))
 
           continue
         }
@@ -449,7 +444,7 @@ export class KubbDriver {
         }
 
         const duration = getElapsedMs(hrStart)
-        pluginTimings.set(plugin.name, duration)
+        diagnostics.push(createTimingDiagnostic({ plugin: plugin.name, duration }))
 
         await this.#emitPluginEnd({ plugin, duration, success: true })
       }
@@ -457,12 +452,9 @@ export class KubbDriver {
       // Stream every node through the transform registry and into each plugin's generators.
       // Handles the empty-entries and missing-`inputNode` cases by closing out each entry's
       // `kubb:plugin:end` directly.
-      const { timings, failed } = await this.#runGenerators(generatorPlugins, () => processor.flush())
+      diagnostics.push(...(await this.#runGenerators(generatorPlugins, () => processor.flush())))
       // Wait for the last in-flight batch and write anything still pending.
       await processor.drain()
-
-      for (const [name, duration] of timings) pluginTimings.set(name, duration)
-      for (const entry of failed) failedPlugins.add(entry)
 
       await hooks.emit('kubb:plugins:end', Object.assign({ config }, this.#filesPayload()))
 
@@ -471,9 +463,10 @@ export class KubbDriver {
 
       await hooks.emit('kubb:build:end', { files: this.fileManager.files, config, outputDir: resolve(config.root, config.output.path) })
 
-      return { failedPlugins, pluginTimings }
+      return { diagnostics }
     } catch (caughtError) {
-      return { failedPlugins, pluginTimings, error: caughtError as Error }
+      diagnostics.push(toDiagnostic(caughtError))
+      return { diagnostics }
     } finally {
       this.fileManager.hooks.off('upsert', onFileUpsert)
     }
@@ -505,7 +498,8 @@ export class KubbDriver {
    * through the plugin's transformer (from `this.#transforms`) before the generator sees it,
    * so plugins stay isolated and the hot path stays per-node. Schemas run before operations
    * because the two passes share `flushPending` and the FileProcessor's event emitter.
-   * Errors from a single plugin land in `failed` so the rest of the build continues.
+   * A failing plugin contributes an error diagnostic so the rest of the build continues.
+   * Every plugin also contributes a `timing` diagnostic.
    *
    * When `entries` is empty or `this.inputNode` is `null`, every entry still gets a
    * `kubb:plugin:end` so middleware listeners (the barrel writer and friends) complete.
@@ -513,19 +507,18 @@ export class KubbDriver {
   async #runGenerators(
     entries: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options'>; hrStart: ReturnType<typeof process.hrtime> }>,
     flushPending: () => Promise<void>,
-  ): Promise<{ timings: Map<string, number>; failed: Set<{ plugin: Plugin; error: Error }> }> {
-    const timings = new Map<string, number>()
-    const failed = new Set<{ plugin: Plugin; error: Error }>()
+  ): Promise<Array<Diagnostic>> {
+    const diagnostics: Array<Diagnostic> = []
 
-    if (entries.length === 0) return { timings, failed }
+    if (entries.length === 0) return diagnostics
 
     if (!this.inputNode) {
       for (const { plugin, hrStart } of entries) {
         const duration = getElapsedMs(hrStart)
-        timings.set(plugin.name, duration)
+        diagnostics.push(createTimingDiagnostic({ plugin: plugin.name, duration }))
         await this.#emitPluginEnd({ plugin, duration, success: true })
       }
-      return { timings, failed }
+      return diagnostics
     }
 
     const transforms = this.#transforms
@@ -712,13 +705,15 @@ export class KubbDriver {
       }
 
       const duration = getElapsedMs(state.hrStart)
-      timings.set(state.plugin.name, duration)
       await this.#emitPluginEnd({ plugin: state.plugin, duration, success: !state.failed, error: state.failed && state.error ? state.error : undefined })
 
-      if (state.failed && state.error) failed.add({ plugin: state.plugin, error: state.error })
+      if (state.failed && state.error) {
+        diagnostics.push({ ...toDiagnostic(state.error), plugin: state.plugin.name })
+      }
+      diagnostics.push(createTimingDiagnostic({ plugin: state.plugin.name, duration }))
     }
 
-    return { timings, failed }
+    return diagnostics
   }
 
   /**

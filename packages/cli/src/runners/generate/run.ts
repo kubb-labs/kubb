@@ -5,7 +5,7 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { AsyncEventEmitter as AsyncEventEmitterClass, detectFormatter, detectLinter, executeIfOnline, formatters, linters, toError } from '@internals/utils'
-import { type CLIOptions, type Config, createKubb, diagnosticCode, isInputPath, type KubbHooks, logLevel as logLevelMap, toDiagnostic } from '@kubb/core'
+import { type CLIOptions, type Config, createKubb, diagnosticCode, hasBuildError, isInputPath, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../../constants.ts'
 import { setupLogger, type HookSinkFactory } from '../../loggers/utils.ts'
@@ -159,7 +159,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
 
   await hooks.emit('kubb:info', { message: config.name ? `Build generation ${styleText('bold', config.name)}` : 'Build generation', info: inputPath })
 
-  const { files, failedPlugins, pluginTimings, error, driver } = await kubb.safeBuild()
+  const { files, diagnostics, driver } = await kubb.safeBuild()
 
   await hooks.emit('kubb:info', { message: 'Load summary' })
 
@@ -168,30 +168,21 @@ async function generate(options: GenerateProps): Promise<boolean> {
   const reportTelemetry = (status: 'success' | 'failed') =>
     sendTelemetry(buildTelemetryEvent({ command: 'generate', kubbVersion: version, plugins: telemetryPlugins, hrStart, filesCreated: files.length, status }))
 
-  if (failedPlugins.size > 0 || error) {
-    const failures: Array<{ error: Error; plugin?: string }> = [
-      ...(error ? [{ error }] : []),
-      ...Array.from(failedPlugins, (it) => ({ error: it.error, plugin: it.plugin.name })),
-    ]
-
-    for (const { error: err, plugin } of failures) {
-      const diagnostic = toDiagnostic(err)
+  if (hasBuildError(diagnostics)) {
+    // Render problems only; `timing` diagnostics feed the summary, not the error log.
+    for (const diagnostic of diagnostics) {
+      if (diagnostic.kind === 'timing') {
+        continue
+      }
       if (diagnostic.code === diagnosticCode.unknown) {
-        await hooks.emit('kubb:error', { error: err })
+        await hooks.emit('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
       } else {
-        await hooks.emit('kubb:diagnostic', { diagnostic: plugin ? { ...diagnostic, plugin } : diagnostic })
+        await hooks.emit('kubb:diagnostic', { diagnostic })
       }
     }
 
     await hooks.emit('kubb:generation:end', { config, storage: kubb.storage })
-    await hooks.emit('kubb:generation:summary', {
-      config,
-      failedPlugins,
-      filesCreated: files.length,
-      status: 'failed',
-      hrStart,
-      pluginTimings: logLevel >= logLevelMap.verbose ? pluginTimings : undefined,
-    })
+    await hooks.emit('kubb:generation:summary', { config, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
 
     await reportTelemetry('failed')
     return false
@@ -235,7 +226,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
     await hooks.emit('kubb:hooks:end')
   }
 
-  await hooks.emit('kubb:generation:summary', { config, failedPlugins, filesCreated: files.length, status: 'success', hrStart, pluginTimings })
+  await hooks.emit('kubb:generation:summary', { config, diagnostics, filesCreated: files.length, status: 'success', hrStart })
 
   await reportTelemetry('success')
   return true

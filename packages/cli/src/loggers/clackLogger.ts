@@ -392,14 +392,14 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
     })
 
-    context.on('kubb:generation:summary', ({ config, pluginTimings, failedPlugins, filesCreated, status, hrStart }) => {
+    context.on('kubb:generation:summary', ({ config, diagnostics, filesCreated, status, hrStart }) => {
       const summary = getSummary({
-        failedPlugins,
+        diagnostics,
         filesCreated,
         config,
         status,
         hrStart,
-        pluginTimings: logLevel >= logLevelMap.verbose ? pluginTimings : undefined,
+        showTimings: logLevel >= logLevelMap.verbose,
       })
       const title = config.name || ''
 

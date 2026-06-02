@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { AsyncEventEmitter } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, createKubb, type KubbHooks } from '@kubb/core'
+import { type Config, createKubb, getFailedPluginNames, hasBuildError, type KubbHooks } from '@kubb/core'
 import { middlewareBarrel, middlewareBarrelName } from '@kubb/middleware-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import type { UnpluginFactory } from 'unplugin'
@@ -55,14 +55,15 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     console.log(config.name ? `✓ Generation completed for ${config.name}` : '✓ Generation completed')
   })
 
-  hooks.on('kubb:generation:summary', ({ config, status, failedPlugins }) => {
+  hooks.on('kubb:generation:summary', ({ config, status, diagnostics }) => {
+    const failedCount = getFailedPluginNames(diagnostics).length
     const pluginsCount = config.plugins.length
-    const successCount = pluginsCount - failedPlugins.size
+    const successCount = pluginsCount - failedCount
 
     console.log(
       status === 'success'
         ? `Kubb Summary: ✓ ${`${successCount} successful`}, ${pluginsCount} total`
-        : `Kubb Summary: ✓ ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total`,
+        : `Kubb Summary: ✓ ${`${successCount} successful`}, ✗ ${`${failedCount} failed`}, ${pluginsCount} total`,
     )
   })
 
@@ -105,43 +106,39 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
     await hooks.emit('kubb:generation:start', { config: resolvedConfig })
 
-    const { error, failedPlugins, pluginTimings, files, storage } = await kubb.safeBuild()
+    const { diagnostics, files, storage } = await kubb.safeBuild()
 
-    const hasFailures = failedPlugins.size > 0 || error
+    const hasFailures = hasBuildError(diagnostics)
     if (hasFailures) {
-      // Collect all errors from failed plugins and general error
-      const allErrors: Array<Error> = [
-        error,
-        ...Array.from(failedPlugins)
-          .filter((it) => it.error)
-          .map((it) => it.error),
-      ].filter(Boolean)
-
-      allErrors.forEach((err) => {
-        hooks.emit('kubb:error', { error: err })
-      })
+      for (const diagnostic of diagnostics) {
+        if (diagnostic.severity !== 'error') {
+          continue
+        }
+        hooks.emit('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+      }
     }
 
     await hooks.emit('kubb:generation:end', { config: resolvedConfig, storage })
     await hooks.emit('kubb:generation:summary', {
       config: resolvedConfig,
-      failedPlugins,
+      diagnostics,
       filesCreated: files.length,
-      status: failedPlugins.size > 0 || error ? 'failed' : 'success',
+      status: hasFailures ? 'failed' : 'success',
       hrStart,
-      pluginTimings,
     })
 
     await hooks.emit('kubb:lifecycle:end')
 
     if (hasFailures) {
-      const message = error?.message ?? `Build Error with ${failedPlugins.size} failed plugins`
+      const failedCount = getFailedPluginNames(diagnostics).length
+      const firstError = diagnostics.find((diagnostic) => diagnostic.severity === 'error')
+      const message = failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed')
       if (ctx.error) {
         ctx.error(`[${name}] ${message}`)
         return
       }
 
-      throw new Error(`[${name}] ${message}`, { cause: error })
+      throw new Error(`[${name}] ${message}`, { cause: firstError?.cause })
     }
   }
 

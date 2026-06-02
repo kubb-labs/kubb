@@ -1,7 +1,7 @@
 export type { DevtoolsOptions } from './devtools.ts'
 export type { Adapter, AdapterFactoryOptions, AdapterSource } from './createAdapter.ts'
 export type { Debugger } from './createDebugger.ts'
-export type { Diagnostic, DiagnosticSeverity } from './diagnostics.ts'
+export type { Diagnostic, DiagnosticKind, DiagnosticLocation, DiagnosticSeverity } from './diagnostics.ts'
 export type {
   BuildOutput,
   CLIOptions,

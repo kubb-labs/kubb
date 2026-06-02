@@ -75,6 +75,11 @@ export const diagnosticCode = {
    * A plugin threw while generating.
    */
   pluginFailed: 'KUBB_PLUGIN_FAILED',
+  /**
+   * Not a failure. Carries a plugin's elapsed time on a `timing` diagnostic, used
+   * to build the run summary.
+   */
+  timing: 'KUBB_TIMING',
 } as const
 
 /**
