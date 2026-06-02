@@ -9,6 +9,7 @@ import { createMockedAdapter } from '../mocks.ts'
 import { memoryStorage } from '../storages/memoryStorage.ts'
 import type { Config, KubbHooks, Plugin } from '../types.ts'
 import { Generate } from './Generate.ts'
+import { Transform } from './Transform.ts'
 
 function driverWithFileManager(): { driver: KubbDriver; fileManager: FileManager } {
   const fileManager = new FileManager()
@@ -149,5 +150,42 @@ describe('Generate.run — pipeline wiring', () => {
 
     expect(received).toHaveLength(1)
     expect(received[0]?.name).toBe('Pet')
+  })
+
+  it('returns empty timings and closes no plugin ends when entries is empty', async () => {
+    const emitPluginEnd = vi.fn()
+    const driver = { hooks: { listenerCount: () => 0, emit: vi.fn() }, fileManager: new FileManager() } as unknown as KubbDriver
+
+    const result = await Generate.run({
+      driver,
+      transforms: new Transform(),
+      entries: [],
+      flushPending: async () => {},
+      emitPluginEnd,
+    })
+
+    expect(emitPluginEnd).not.toHaveBeenCalled()
+    expect(result.timings.size).toBe(0)
+    expect(result.failed.size).toBe(0)
+  })
+
+  it('closes out every entry with kubb:plugin:end when driver.inputNode is null', async () => {
+    const emitPluginEnd = vi.fn()
+    const driver = { hooks: { listenerCount: () => 0, emit: vi.fn() }, fileManager: new FileManager(), inputNode: null } as unknown as KubbDriver
+    const plugin = { name: 'no-input', options: {} } as unknown as Plugin
+    const entries = [{ plugin: plugin as never, context: {} as never, hrStart: process.hrtime() }]
+
+    const result = await Generate.run({
+      driver,
+      transforms: new Transform(),
+      entries,
+      flushPending: async () => {},
+      emitPluginEnd,
+    })
+
+    expect(emitPluginEnd).toHaveBeenCalledOnce()
+    expect(emitPluginEnd).toHaveBeenCalledWith(expect.objectContaining({ plugin, success: true }))
+    expect(result.timings.get('no-input')).toBeGreaterThanOrEqual(0)
+    expect(result.failed.size).toBe(0)
   })
 })

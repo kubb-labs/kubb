@@ -464,31 +464,21 @@ export class KubbDriver {
         await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ Plugin started successfully (${formatMs(duration)})`] })
       }
 
-      if (generatorPlugins.length > 0) {
-        if (this.inputNode) {
-          // Stream every node through the transform registry and into each plugin's generators.
-          const { timings, failed } = await Generate.run({
-            driver: this,
-            transforms: this.#transforms,
-            entries: generatorPlugins,
-            flushPending,
-            emitPluginEnd: this.#emitPluginEnd.bind(this),
-          })
-          // Drain any files written after the last batch's flush.
-          await flushPending()
+      // Stream every node through the transform registry and into each plugin's generators.
+      // `Generate.run` also handles the empty-entries and missing-`inputNode` cases by closing
+      // out each entry's `kubb:plugin:end` directly.
+      const { timings, failed } = await Generate.run({
+        driver: this,
+        transforms: this.#transforms,
+        entries: generatorPlugins,
+        flushPending,
+        emitPluginEnd: this.#emitPluginEnd.bind(this),
+      })
+      // Drain any files written after the last batch's flush.
+      await flushPending()
 
-          for (const [name, duration] of timings) pluginTimings.set(name, duration)
-          for (const entry of failed) failedPlugins.add(entry)
-        } else {
-          // No adapter input: generator-plugins have nothing to dispatch, but still
-          // need their `kubb:plugin:end` so middleware (e.g. barrel) completes.
-          for (const { plugin, hrStart } of generatorPlugins) {
-            const duration = getElapsedMs(hrStart)
-            pluginTimings.set(plugin.name, duration)
-            await this.#emitPluginEnd({ plugin, duration, success: true })
-          }
-        }
-      }
+      for (const [name, duration] of timings) pluginTimings.set(name, duration)
+      for (const entry of failed) failedPlugins.add(entry)
 
       await hooks.emit('kubb:plugins:end', Object.assign({ config }, this.#filesPayload()))
 

@@ -122,11 +122,27 @@ export class Generate {
    * event emitter. Each plugin's generators see the transformed view of every node, filtered
    * by its own `include` / `exclude` / `override`. Errors from a single plugin are captured
    * into `failed` so the rest of the build continues.
+   *
+   * When `entries` is empty, or `driver.inputNode` is `null` (the build has no adapter
+   * source), every entry is closed out with `kubb:plugin:end` so middleware listeners such as
+   * the barrel writer still complete. No dispatch happens in that case.
    */
   static async run({ driver, transforms, entries, flushPending, emitPluginEnd }: GenerateRunParams): Promise<GenerateRunResult> {
     const timings = new Map<string, number>()
     const failed = new Set<{ plugin: Plugin; error: Error }>()
-    const { schemas, operations } = driver.inputNode!
+
+    if (entries.length === 0) return { timings, failed }
+
+    if (!driver.inputNode) {
+      for (const { plugin, hrStart } of entries) {
+        const duration = getElapsedMs(hrStart)
+        timings.set(plugin.name, duration)
+        await emitPluginEnd({ plugin, duration, success: true })
+      }
+      return { timings, failed }
+    }
+
+    const { schemas, operations } = driver.inputNode
 
     const states: Array<PluginState> = entries.map(({ plugin, context, hrStart }) => {
       const { exclude, include, override } = plugin.options
