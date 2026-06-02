@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.37 — Jun 2, 2026
+
+### @kubb/core
+
+#### Features
+
+- Collapse the driver's two listener trackers (`#hookListeners` and `#middlewareListeners`) into one typed `HookRegistry` that wraps `AsyncEventEmitter`. Listeners attached directly via `kubb.hooks.on(...)` survive `dispose()`; only listeners the driver itself registered are removed. Internal refactor: every `(...args: Array<never>)` cast inside `KubbDriver` is gone, and the public `definePlugin`, `KubbHooks`, and `kubb.hooks` surfaces are unchanged. ([#3445](https://github.com/kubb-labs/kubb/pull/3445), [`bd7e026`](https://github.com/kubb-labs/kubb/commit/bd7e0265a3086c095cf59bc0c4b155ea38446b3e))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.36 — Jun 1, 2026
 
 ### @kubb/cli
