@@ -309,34 +309,35 @@ export class KubbDriver {
    *
    * Call this method inside `addGenerator()` (in `kubb:plugin:setup`) to wire up a generator.
    */
-  registerGenerator(pluginName: string, gen: Generator): void {
-    const resolveRenderer = () => gen.renderer ?? undefined
+  registerGenerator(pluginName: string, generator: Generator): void {
 
-    if (gen.schema) {
+    if (generator.schema) {
       const schemaHandler = async (node: SchemaNode, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
-        const result = await gen.schema!(node, ctx)
-        await this.dispatch({ result, rendererFactory: resolveRenderer() })
+        const result = await generator.schema!(node, ctx)
+
+        await this.dispatch({ result, renderer: generator.renderer })
       }
 
       this.#registry.register({ event: 'kubb:generate:schema', handler: schemaHandler, source: 'driver' })
     }
 
-    if (gen.operation) {
+    if (generator.operation) {
       const operationHandler = async (node: OperationNode, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
-        const result = await gen.operation!(node, ctx)
-        await this.dispatch({ result, rendererFactory: resolveRenderer() })
+
+        const result = await generator.operation!(node, ctx)
+        await this.dispatch({ result, renderer: generator.renderer })
       }
 
       this.#registry.register({ event: 'kubb:generate:operation', handler: operationHandler, source: 'driver' })
     }
 
-    if (gen.operations) {
+    if (generator.operations) {
       const operationsHandler = async (nodes: Array<OperationNode>, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
-        const result = await gen.operations!(nodes, ctx)
-        await this.dispatch({ result, rendererFactory: resolveRenderer() })
+        const result = await generator.operations!(nodes, ctx)
+        await this.dispatch({ result, renderer: generator.renderer })
       }
 
       this.#registry.register({ event: 'kubb:generate:operations', handler: operationsHandler, source: 'driver' })
@@ -640,7 +641,7 @@ export class KubbDriver {
           if (!run) continue
           const raw = run(transformedNode, ctx)
           const result = isPromise(raw) ? await raw : raw
-          const applied = this.dispatch({ result, rendererFactory: resolveRendererFor(gen) })
+          const applied = this.dispatch({ result, renderer: resolveRendererFor(gen) })
           if (isPromise(applied)) await applied
         }
         if (dispatch.emit) await dispatch.emit(transformedNode, ctx)
@@ -699,7 +700,7 @@ export class KubbDriver {
           for (const gen of generators) {
             if (!gen.operations) continue
             const result = await gen.operations(pluginOperations, ctx)
-            await this.dispatch({ result, rendererFactory: resolveRendererFor(gen) })
+            await this.dispatch({ result, renderer: resolveRendererFor(gen) })
           }
           await this.hooks.emit('kubb:generate:operations', pluginOperations, ctx)
         } catch (caughtError) {
@@ -727,20 +728,20 @@ export class KubbDriver {
    * Stores whatever a generator method or `kubb:generate:*` hook returned.
    *
    * - An `Array<FileNode>` goes straight into `fileManager` via `upsert`.
-   * - A renderer element runs through `rendererFactory` (the JSX renderer, for example) and
-   *   the produced files go to `fileManager.upsert`.
+   * - A renderer element runs through `renderer` (the renderer factory, e.g. JSX) and the
+   *   produced files go to `fileManager.upsert`.
    * - A falsy result is treated as a no-op. The generator wrote files itself via
    *   `ctx.upsertFile`.
    *
-   * Pass `rendererFactory` when the result may be a renderer element. Generators that only
-   * return `Array<FileNode>` do not need one.
+   * Pass `renderer` when the result may be a renderer element. Generators that only return
+   * `Array<FileNode>` do not need one.
    */
   dispatch<TElement = unknown>({
     result,
-    rendererFactory,
+    renderer,
   }: {
     result: TElement | Array<FileNode> | undefined | null
-    rendererFactory?: RendererFactory<TElement> | null
+    renderer?: RendererFactory<TElement> | null
   }): void | Promise<void> {
     if (!result) return
 
@@ -749,19 +750,19 @@ export class KubbDriver {
       return
     }
 
-    if (!rendererFactory) {
+    if (!renderer) {
       return
     }
 
-    const renderer = rendererFactory()
-    if (renderer.stream) {
-      using r = renderer
+    const instance = renderer()
+    if (instance.stream) {
+      using r = instance
       for (const file of r.stream!(result)) {
         this.fileManager.upsert(file)
       }
       return
     }
-    return this.#applyAsyncRender({ renderer, result })
+    return this.#applyAsyncRender({ renderer: instance, result })
   }
 
   async #applyAsyncRender<TElement>({ renderer, result }: { renderer: Renderer<TElement>; result: TElement }): Promise<void> {

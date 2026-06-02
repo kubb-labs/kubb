@@ -176,7 +176,7 @@ describe('KubbDriver#dispatch', () => {
     expect(driver.fileManager.files.map((f) => f.name)).toStrictEqual(['a', 'b'])
   })
 
-  it('ignores non-array results when no rendererFactory is provided', () => {
+  it('ignores non-array results when no renderer is provided', () => {
     const driver = makeDriver()
     const upsert = vi.spyOn(driver.fileManager, 'upsert')
 
@@ -185,19 +185,19 @@ describe('KubbDriver#dispatch', () => {
     expect(upsert).not.toHaveBeenCalled()
   })
 
-  it('routes element results through the rendererFactory stream when present', () => {
+  it('routes element results through the renderer stream when present', () => {
     const driver = makeDriver()
     const rendered = [file('rendered-1'), file('rendered-2')]
-    const rendererFactory = vi.fn(() => ({
+    const renderer = vi.fn(() => ({
       stream: vi.fn(function* () {
         yield* rendered
       }),
       [Symbol.dispose]: () => {},
     }))
 
-    driver.dispatch({ result: { kind: 'element' }, rendererFactory: rendererFactory as never })
+    driver.dispatch({ result: { kind: 'element' }, renderer: renderer as never })
 
-    expect(rendererFactory).toHaveBeenCalledOnce()
+    expect(renderer).toHaveBeenCalledOnce()
     expect(driver.fileManager.files.map((f) => f.name)).toStrictEqual(['rendered-1', 'rendered-2'])
   })
 
@@ -208,9 +208,9 @@ describe('KubbDriver#dispatch', () => {
       files: [file('async-1')],
       [Symbol.dispose]: () => {},
     }
-    const rendererFactory = vi.fn(() => renderer)
+    const factory = vi.fn(() => renderer)
 
-    const result = driver.dispatch({ result: { kind: 'element' }, rendererFactory: rendererFactory as never })
+    const result = driver.dispatch({ result: { kind: 'element' }, renderer: factory as never })
     await result
 
     expect(renderer.render).toHaveBeenCalledOnce()
