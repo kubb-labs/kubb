@@ -23,6 +23,7 @@ describe('buildJsonReport', () => {
     expect(report.summary).toStrictEqual({ errors: 1, warnings: 1, files: 4, durationMs: 100 })
     expect(report.diagnostics).toHaveLength(2)
     expect(report.diagnostics[0]).toMatchObject({ code: 'KUBB_REF_NOT_FOUND', plugin: '@kubb/plugin-zod', location: { pointer: '#/components/schemas/Pet' } })
+    expect(report.diagnostics[0]?.docsUrl).toMatch(/\/diagnostics\/kubb-ref-not-found$/)
   })
 
   it('is success with no errors and serializes to stable JSON', () => {

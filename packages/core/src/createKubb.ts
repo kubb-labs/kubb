@@ -4,7 +4,7 @@ import type { PossiblePromise } from '@internals/utils'
 import { AsyncEventEmitter, BuildError, exists, URLPath } from '@internals/utils'
 import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
-import { DEFAULT_STUDIO_URL, HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
+import { DEFAULT_STUDIO_URL, diagnosticCode, HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
 import { type Diagnostic, DiagnosticError, Diagnostics } from './diagnostics.ts'
 import { createDebugger } from './createDebugger.ts'
@@ -1044,10 +1044,14 @@ export class Kubb {
         await exists(this.#userConfig.input.path)
         debug('input file validated: %s', this.#userConfig.input.path)
       } catch (caughtError) {
-        throw new Error(
-          `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${this.#userConfig.input.path}`,
-          { cause: caughtError as Error },
-        )
+        throw new DiagnosticError({
+          code: diagnosticCode.inputNotFound,
+          severity: 'error',
+          message: `Cannot read the file or URL set in \`input.path\` (or via \`kubb generate PATH\`): ${this.#userConfig.input.path}`,
+          help: 'Check that the path or URL exists and is readable, then set it in `input.path` or pass it as `kubb generate PATH`.',
+          location: { kind: 'config' },
+          cause: caughtError as Error,
+        })
       }
     }
 

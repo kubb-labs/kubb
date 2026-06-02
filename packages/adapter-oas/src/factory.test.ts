@@ -53,8 +53,11 @@ describe('mergeDocuments', () => {
     expect(merged.components?.schemas?.['Order']).toBeDefined()
   })
 
-  it('throws when given an empty array', async () => {
-    await expect(mergeDocuments([])).rejects.toThrow('No OAS documents provided for merging.')
+  it('throws a coded diagnostic when given an empty array', async () => {
+    await expect(mergeDocuments([])).rejects.toMatchObject({
+      name: 'DiagnosticError',
+      diagnostic: { code: 'KUBB_INPUT_REQUIRED', severity: 'error' },
+    })
   })
 
   it('returns a single document unchanged when only one is provided', async () => {

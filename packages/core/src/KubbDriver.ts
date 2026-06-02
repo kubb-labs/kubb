@@ -937,7 +937,13 @@ export class KubbDriver {
 function inputToAdapterSource(config: Config): AdapterSource {
   const input = config.input
   if (!input) {
-    throw new Error('[kubb] input is required when using an adapter. Provide input.path or input.data in your config.')
+    throw new DiagnosticError({
+      code: diagnosticCode.inputRequired,
+      severity: 'error',
+      message: 'An adapter is configured without an input.',
+      help: 'Provide `input.path` (a file or URL) or `input.data` (an inline spec) in your Kubb config.',
+      location: { kind: 'config' },
+    })
   }
 
   if ('data' in input) {

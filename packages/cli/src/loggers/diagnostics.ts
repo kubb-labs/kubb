@@ -1,6 +1,7 @@
 import { styleText } from 'node:util'
-import { type Diagnostic, diagnosticCode, type DiagnosticSeverity } from '@kubb/core'
-import { version } from '../../package.json'
+import { type Diagnostic, diagnosticCode, diagnosticDocsUrl, type DiagnosticSeverity } from '@kubb/core'
+
+export { diagnosticDocsUrl }
 
 /**
  * Glyph and accent color per severity, matching the miette/oxlint convention
@@ -10,20 +11,6 @@ const severityStyle: Record<DiagnosticSeverity, { glyph: string; color: 'red' | 
   error: { glyph: '×', color: 'red' },
   warning: { glyph: '⚠', color: 'yellow' },
   info: { glyph: 'ℹ', color: 'blue' },
-}
-
-/**
- * Docs major, derived from the CLI version so the link tracks the published major.
- */
-const docsMajor = version.split('.')[0] ?? '5'
-
-/**
- * Builds the kubb.dev docs URL for a diagnostic code, e.g.
- * `KUBB_REF_NOT_FOUND` → `https://kubb.dev/docs/5.x/diagnostics/kubb-ref-not-found`.
- */
-export function diagnosticDocsUrl(code: string): string {
-  const slug = code.toLowerCase().replaceAll('_', '-')
-  return `https://kubb.dev/docs/${docsMajor}.x/diagnostics/${slug}`
 }
 
 /**

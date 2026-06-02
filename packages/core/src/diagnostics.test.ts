@@ -1,7 +1,35 @@
 import { describe, expect, it } from 'vitest'
-import { type Diagnostic, DiagnosticError, Diagnostics } from './diagnostics.ts'
+import { type Diagnostic, DiagnosticError, diagnosticDocsUrl, Diagnostics } from './diagnostics.ts'
 
 const problem = (over: Partial<Diagnostic> = {}): Diagnostic => ({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', ...over })
+
+describe('diagnosticDocsUrl', () => {
+  it('slugifies the code into a kubb.dev docs link', () => {
+    expect(diagnosticDocsUrl('KUBB_REF_NOT_FOUND')).toMatch(/^https:\/\/kubb\.dev\/docs\/\d+\.x\/diagnostics\/kubb-ref-not-found$/)
+  })
+})
+
+describe('Diagnostics.serialize', () => {
+  it('keeps the JSON-safe fields and adds a docsUrl, dropping the cause', () => {
+    const serialized = Diagnostics.serialize(
+      problem({ help: 'fix it', plugin: '@kubb/plugin-zod', location: { kind: 'schema', pointer: '#/components/schemas/Pet' }, cause: new Error('root') }),
+    )
+
+    expect(serialized).toStrictEqual({
+      code: 'KUBB_REF_NOT_FOUND',
+      severity: 'error',
+      message: 'boom',
+      help: 'fix it',
+      plugin: '@kubb/plugin-zod',
+      location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
+      docsUrl: diagnosticDocsUrl('KUBB_REF_NOT_FOUND'),
+    })
+  })
+
+  it('omits the docsUrl for the unknown fallback code', () => {
+    expect(Diagnostics.serialize(problem({ code: 'KUBB_UNKNOWN' })).docsUrl).toBeUndefined()
+  })
+})
 
 describe('Diagnostics.from', () => {
   it('should return the structured diagnostic from a DiagnosticError', () => {
