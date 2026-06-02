@@ -1,8 +1,8 @@
 import { AsyncEventEmitter } from '@internals/utils'
 import { createMockedAdapter } from '@kubb/core/mocks'
-import { afterEach, beforeEach, describe, expect, test } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { KubbDriver } from './KubbDriver.ts'
-import type { Config, KubbHooks, Plugin } from './types.ts'
+import type { Config, KubbHooks, Middleware, Plugin } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 
 describe('PluginDriver', () => {
@@ -80,5 +80,57 @@ describe('PluginDriver', () => {
 
     const driver = new KubbDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })
     await expect(driver.setup()).resolves.not.toThrow()
+  })
+
+  test('plugin and middleware listeners fire in order, and dispose drops both for the next build', async () => {
+    const calls: Array<string> = []
+    const pluginHook = vi.fn(() => void calls.push('plugin'))
+    const middlewareHook = vi.fn(() => void calls.push('middleware'))
+
+    const plugin = { name: 'order-plugin', hooks: { 'kubb:plugin:start': pluginHook } } as unknown as Plugin
+    const middleware: Middleware = {
+      name: 'order-middleware',
+      hooks: { 'kubb:plugin:start': middlewareHook },
+    }
+
+    const cfg = {
+      ...config,
+      plugins: [plugin],
+      middleware: [middleware],
+    } satisfies Config
+
+    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const driver = new KubbDriver(cfg, { hooks })
+    await driver.setup()
+    await hooks.emit('kubb:plugin:start', { plugin: plugin as never })
+
+    expect(calls).toStrictEqual(['plugin', 'middleware'])
+    expect(hooks.listenerCount('kubb:plugin:start')).toBe(2)
+
+    driver.dispose()
+
+    expect(hooks.listenerCount('kubb:plugin:start')).toBe(0)
+
+    await hooks.emit('kubb:plugin:start', { plugin: plugin as never })
+
+    expect(pluginHook).toHaveBeenCalledTimes(1)
+    expect(middlewareHook).toHaveBeenCalledTimes(1)
+  })
+
+  test('listeners attached directly to hooks survive dispose', async () => {
+    const external = vi.fn()
+    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const driver = new KubbDriver(config, { hooks })
+    await driver.setup()
+
+    hooks.on('kubb:build:end', external)
+    driver.dispose()
+    await hooks.emit('kubb:build:end', {
+      files: [],
+      config,
+      outputDir: '/tmp',
+    })
+
+    expect(external).toHaveBeenCalledTimes(1)
   })
 })
