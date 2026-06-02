@@ -1,4 +1,4 @@
-import { mkdtemp, writeFile } from 'node:fs/promises'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
@@ -22,7 +22,7 @@ async function run(input: string) {
 }
 
 afterAll(async () => {
-  await import('node:fs/promises').then((fs) => fs.rm(dir, { recursive: true, force: true }))
+  await rm(dir, { recursive: true, force: true })
 })
 
 describe('validate tool', () => {
