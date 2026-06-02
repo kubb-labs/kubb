@@ -1,6 +1,8 @@
 import { createFile, createSource, createText } from '@kubb/ast'
 import { describe, expect, it, vi } from 'vitest'
 import { FileProcessor } from './FileProcessor.ts'
+import { memoryStorage } from './storages/memoryStorage.ts'
+import type { Config } from './types.ts'
 
 function makeFile(path: string, sources: Array<string> = []) {
   return createFile({
@@ -144,5 +146,159 @@ describe('FileProcessor', () => {
       expect(onUpdate).not.toHaveBeenCalled()
       expect(result).toStrictEqual([])
     })
+  })
+})
+
+function makeQueueProcessor(overrides: { storage?: ReturnType<typeof memoryStorage> } = {}) {
+  const storage = overrides.storage ?? memoryStorage()
+  const processor = new FileProcessor({
+    storage,
+    config: { root: '.', output: { path: './gen' } } as unknown as Config,
+  })
+  return { processor, storage }
+}
+
+describe('FileProcessor — queue: enqueue', () => {
+  it('dedupes files by path so a second enqueue replaces the first', () => {
+    const { processor } = makeQueueProcessor()
+
+    processor.enqueue(makeFile('a.ts'))
+    processor.enqueue(makeFile('a.ts'))
+    processor.enqueue(makeFile('b.ts'))
+
+    expect(processor.size).toBe(2)
+  })
+
+  it('fires the enqueue event for every call', () => {
+    const { processor } = makeQueueProcessor()
+    const onEnqueue = vi.fn()
+    processor.events.on('enqueue', onEnqueue)
+
+    processor.enqueue(makeFile('a.ts'))
+    processor.enqueue(makeFile('a.ts'))
+
+    expect(onEnqueue).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('FileProcessor — queue: flush', () => {
+  it('is a no-op when nothing is queued', async () => {
+    const { processor, storage } = makeQueueProcessor()
+    const setItem = vi.spyOn(storage, 'setItem')
+
+    await processor.flush()
+
+    expect(setItem).not.toHaveBeenCalled()
+  })
+
+  it('clears pending and writes every file in the batch', async () => {
+    const { processor, storage } = makeQueueProcessor()
+    processor.enqueue(makeFile('a.ts', ['/* a.ts */']))
+    processor.enqueue(makeFile('b.ts', ['/* b.ts */']))
+
+    await processor.flush()
+    await processor.drain()
+
+    expect(processor.size).toBe(0)
+    expect(await storage.getItem('a.ts')).toContain('/* a.ts */')
+    expect(await storage.getItem('b.ts')).toContain('/* b.ts */')
+  })
+
+  it('returns before the in-flight batch finishes so the caller can pipeline', async () => {
+    let resolveFirstWrite!: () => void
+    const firstWriteBlocker = new Promise<void>((resolve) => {
+      resolveFirstWrite = resolve
+    })
+    const storage = memoryStorage()
+    const realSetItem = storage.setItem.bind(storage)
+    storage.setItem = async (path: string, source: string) => {
+      if (path === 'a.ts') await firstWriteBlocker
+      await realSetItem(path, source)
+    }
+    const { processor } = makeQueueProcessor({ storage })
+
+    processor.enqueue(makeFile('a.ts', ['/* a.ts */']))
+    await processor.flush()
+
+    expect(processor.size).toBe(0)
+    expect(await storage.getItem('a.ts')).toBeNull()
+
+    resolveFirstWrite()
+    await processor.drain()
+    expect(await storage.getItem('a.ts')).toContain('/* a.ts */')
+  })
+
+  it('runs in-flight batches one at a time: a second flush waits for the first', async () => {
+    const order: Array<string> = []
+    let resolveFirst!: () => void
+    const firstBlocker = new Promise<void>((resolve) => {
+      resolveFirst = resolve
+    })
+    const storage = memoryStorage()
+    const realSetItem = storage.setItem.bind(storage)
+    storage.setItem = async (path: string, source: string) => {
+      order.push(`set:${path}`)
+      if (path === 'first.ts') await firstBlocker
+      await realSetItem(path, source)
+      order.push(`done:${path}`)
+    }
+    const { processor } = makeQueueProcessor({ storage })
+
+    processor.enqueue(makeFile('first.ts', ['/* first */']))
+    await processor.flush()
+
+    processor.enqueue(makeFile('second.ts', ['/* second */']))
+    const secondFlush = processor.flush()
+
+    await new Promise((resolve) => setTimeout(resolve, 5))
+    expect(order).toStrictEqual(['set:first.ts'])
+
+    resolveFirst()
+    await secondFlush
+    await processor.drain()
+
+    expect(order).toStrictEqual(['set:first.ts', 'done:first.ts', 'set:second.ts', 'done:second.ts'])
+  })
+})
+
+describe('FileProcessor — queue: drain', () => {
+  it('writes everything still pending and waits for the in-flight batch', async () => {
+    const { processor, storage } = makeQueueProcessor()
+    processor.enqueue(makeFile('a.ts', ['/* a */']))
+    await processor.flush()
+    processor.enqueue(makeFile('b.ts', ['/* b */']))
+
+    await processor.drain()
+
+    expect(processor.size).toBe(0)
+    expect(await storage.getItem('a.ts')).toContain('/* a */')
+    expect(await storage.getItem('b.ts')).toContain('/* b */')
+  })
+
+  it('fires the drain event once everything is written', async () => {
+    const { processor } = makeQueueProcessor()
+    const onDrain = vi.fn()
+    processor.events.on('drain', onDrain)
+
+    processor.enqueue(makeFile('a.ts', ['/* a */']))
+    await processor.drain()
+
+    expect(onDrain).toHaveBeenCalledOnce()
+  })
+})
+
+describe('FileProcessor — queue: errors', () => {
+  it('throws synchronously when flush is called without storage or config', async () => {
+    const processor = new FileProcessor()
+    processor.enqueue(makeFile('a.ts'))
+
+    await expect(processor.flush()).rejects.toThrow(/storage or config/)
+  })
+
+  it('throws synchronously when drain is called without storage or config', async () => {
+    const processor = new FileProcessor()
+    processor.enqueue(makeFile('a.ts'))
+
+    await expect(processor.drain()).rejects.toThrow(/storage or config/)
   })
 })

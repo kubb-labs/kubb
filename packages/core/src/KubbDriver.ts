@@ -13,7 +13,6 @@ import { defineResolver } from './defineResolver.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
 import { FileProcessor } from './FileProcessor.ts'
-import { FileWriteQueue } from './FileWriteQueue.ts'
 import { type HookListener, HookRegistry } from './HookRegistry.ts'
 import { Transform } from './Transform.ts'
 
@@ -83,8 +82,6 @@ export class KubbDriver {
    * add files; this property gives direct read/write access when needed.
    */
   readonly fileManager = new FileManager()
-  readonly #fileProcessor = new FileProcessor()
-
   readonly plugins = new Map<string, NormalizedPlugin>()
 
   /**
@@ -389,14 +386,26 @@ export class KubbDriver {
       }
     }
 
-    const writeQueue = new FileWriteQueue({
-      processor: this.#fileProcessor,
-      parsers: parsersMap,
-      storage,
-      hooks,
-      config,
+    const processor = new FileProcessor({ parsers: parsersMap, storage, config })
+    // Bridge processor lifecycle to the user-facing kubb hooks so existing listeners on
+    // kubb:files:processing:* and kubb:debug keep firing.
+    processor.events.on('start', async (files) => {
+      await hooks.emit('kubb:debug', { date: new Date(), logs: [`Writing ${files.length} files...`] })
+      await hooks.emit('kubb:files:processing:start', { files })
     })
-    this.fileManager.setOnUpsert((file) => writeQueue.enqueue(file))
+    const updateBuffer: Array<{ file: FileNode; source?: string; processed: number; total: number; percentage: number }> = []
+    processor.events.on('update', (item) => {
+      updateBuffer.push(item)
+    })
+    processor.events.on('end', async (files) => {
+      await hooks.emit('kubb:files:processing:update', {
+        files: updateBuffer.map((item) => ({ ...item, config })),
+      })
+      updateBuffer.length = 0
+      await hooks.emit('kubb:files:processing:end', { files })
+      await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ File write process completed for ${files.length} files`] })
+    })
+    this.fileManager.setOnUpsert((file) => processor.enqueue(file))
 
     try {
       // Parse the adapter source into the streaming `InputNode`.
@@ -450,9 +459,9 @@ export class KubbDriver {
       // Stream every node through the transform registry and into each plugin's generators.
       // Handles the empty-entries and missing-`inputNode` cases by closing out each entry's
       // `kubb:plugin:end` directly.
-      const { timings, failed } = await this.#runGenerators(generatorPlugins, () => writeQueue.flush())
+      const { timings, failed } = await this.#runGenerators(generatorPlugins, () => processor.flush())
       // Wait for the last in-flight batch and write anything still pending.
-      await writeQueue.drain()
+      await processor.drain()
 
       for (const [name, duration] of timings) pluginTimings.set(name, duration)
       for (const entry of failed) failedPlugins.add(entry)
@@ -460,7 +469,7 @@ export class KubbDriver {
       await hooks.emit('kubb:plugins:end', Object.assign({ config }, this.#filesPayload()))
 
       // Plugins-end listeners (barrel middleware etc.) may have queued more files.
-      await writeQueue.drain()
+      await processor.drain()
 
       const files = this.fileManager.files
 
@@ -799,7 +808,6 @@ export class KubbDriver {
     // memory is reclaimed between builds. The returned `BuildOutput.files`
     // array still references any FileNodes the caller needs to inspect.
     this.fileManager.dispose()
-    this.#fileProcessor.dispose()
     this.inputNode = null
     this.#studio = { source: null, isOpen: false, inputNode: null }
   }
