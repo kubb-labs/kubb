@@ -1,15 +1,13 @@
 import { forBatches, formatMs, getElapsedMs, isPromise } from '@internals/utils'
 import { collectUsedSchemaNames } from '@kubb/ast'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
-import { SCHEMA_PARALLEL } from '../constants.ts'
+import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from '../constants.ts'
 import type { Renderer, RendererFactory } from '../createRenderer.ts'
 import type { Generator } from '../defineGenerator.ts'
 import type { Plugin } from '../definePlugin.ts'
 import type { KubbDriver } from '../KubbDriver.ts'
 import type { GeneratorContext, NormalizedPlugin } from '../types.ts'
 import type { Transform } from './Transform.ts'
-
-const OPERATION_FILTER_TYPES = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
 
 type PluginEntry = {
   plugin: NormalizedPlugin
@@ -52,6 +50,28 @@ async function applyAsyncRender<TElement>({ renderer, result, driver }: { render
   await r.render(result)
 
   driver.fileManager.upsert(...r.files)
+}
+
+type Resolved<TNode> = { transformedNode: TNode; options: NormalizedPlugin['options'] }
+
+/**
+ * Combines the two steps that every plugin runs against every node: apply the plugin's
+ * transformer, then resolve options (respecting `optionsAreStatic` to skip the resolver call
+ * on the hot path). Returns `null` when the plugin's `include` / `exclude` / `override` rule
+ * out the node. The per-node dispatch and the collected-operations tail both go through this
+ * so the two paths agree on what a plugin sees.
+ */
+function resolveForPlugin<TNode extends SchemaNode | OperationNode>(state: PluginState, transforms: Transform, node: TNode): Resolved<TNode> | null {
+  const { plugin, generatorContext } = state
+  const transformedNode = transforms.applyTo(plugin.name, node)
+
+  if (state.optionsAreStatic) return { transformedNode, options: plugin.options }
+
+  const { exclude, include, override } = plugin.options
+  const options = generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
+  if (options === null) return null
+
+  return { transformedNode, options }
 }
 
 /**
@@ -173,9 +193,10 @@ export class Generate {
     ): Promise<void> => {
       if (state.failed) return
       try {
-        const { plugin, generatorContext, generators } = state
-        const transformedNode = transforms.applyTo(plugin.name, node)
+        const resolved = resolveForPlugin(state, transforms, node)
+        if (!resolved) return
 
+        const { transformedNode, options } = resolved
         if (
           dispatch.checkAllowedNames &&
           state.allowedSchemaNames !== null &&
@@ -186,14 +207,8 @@ export class Generate {
           return
         }
 
-        const { exclude, include, override } = plugin.options
-        const options = state.optionsAreStatic
-          ? plugin.options
-          : generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
-        if (options === null) return
-
-        const ctx = { ...generatorContext, options }
-        for (const gen of generators) {
+        const ctx = { ...state.generatorContext, options }
+        for (const gen of state.generators) {
           const run = gen[dispatch.method] as ((node: TNode, ctx: GeneratorContext) => unknown) | undefined
           if (!run) continue
           const raw = run(transformedNode, ctx)
@@ -248,17 +263,14 @@ export class Generate {
           const { plugin, generatorContext, generators } = state
           const ctx = { ...generatorContext, options: plugin.options }
           // Match what the per-node dispatch passes to gen.operation(): the transformed node,
-          // already filtered by excludes/includes/overrides. Without the transform step the
-          // batched gen.operations() hook would see a different shape than gen.operation()
-          // for the same operation, which broke grouped/barrel generators that compare names.
+          // already filtered by excludes/includes/overrides. Goes through the same
+          // `resolveForPlugin` so the aggregated callback agrees with the per-node hook.
           const ops = collectedOperations ?? []
-          const transformedOps = ops.map((node) => transforms.applyTo(plugin.name, node))
-          const pluginOperations = state.optionsAreStatic
-            ? transformedOps
-            : transformedOps.filter((node) => {
-                const { exclude, include, override } = plugin.options
-                return generatorContext.resolver.resolveOptions(node, { options: plugin.options, exclude, include, override }) !== null
-              })
+          const pluginOperations = ops.reduce<Array<OperationNode>>((acc, node) => {
+            const resolved = resolveForPlugin(state, transforms, node)
+            if (resolved) acc.push(resolved.transformedNode)
+            return acc
+          }, [])
           for (const gen of generators) {
             if (!gen.operations) continue
             const result = await gen.operations(pluginOperations, ctx)

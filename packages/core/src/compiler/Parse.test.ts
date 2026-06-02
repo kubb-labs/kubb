@@ -18,10 +18,7 @@ describe('Parse.input', () => {
     const result = await Parse.input({ adapter, source: { type: 'data', data: '' } })
 
     expect(stream).toHaveBeenCalledOnce()
-    expect(result.mode).toBe('stream')
-    expect(result.schemaCount).toBeNull()
-    expect(result.operationCount).toBeNull()
-    expect(result.inputNode).toBe(streamed)
+    expect(result).toStrictEqual({ mode: 'stream', inputNode: streamed })
   })
 
   it('falls back to adapter.parse and wraps it as a stream when stream is absent', async () => {
@@ -32,9 +29,7 @@ describe('Parse.input', () => {
     const result = await Parse.input({ adapter, source: { type: 'data', data: '' } })
 
     expect(parse).toHaveBeenCalledOnce()
-    expect(result.mode).toBe('parse')
-    expect(result.schemaCount).toBe(1)
-    expect(result.operationCount).toBe(0)
+    expect(result).toMatchObject({ mode: 'parse', schemaCount: 1, operationCount: 0 })
 
     const collected: Array<string> = []
     for await (const schema of result.inputNode.schemas) collected.push(schema.name ?? '')

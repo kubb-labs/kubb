@@ -26,6 +26,13 @@ export const STREAM_FLUSH_EVERY = 50
 export const SCHEMA_PARALLEL = 8
 
 /**
+ * Plugin `include` filter types that select operations directly. When one of these is set
+ * without a `schemaName` include, the generate phase pre-scans operations to compute the set
+ * of schemas they reach, so unreachable schemas can be pruned for that plugin.
+ */
+export const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
+
+/**
  * Numeric log-level thresholds used internally to compare verbosity.
  *
  * Higher numbers are more verbose.
