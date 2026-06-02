@@ -9,7 +9,7 @@ cmds = [
 dependsOn = ["setup"]
 
 [phases.build]
-cmds = ["cd docs && pnpm run build"]
+cmds = ["pnpm run build"]
 dependsOn = ["install"]
 
 [variables]
