@@ -12,3 +12,5 @@ Three failures that used to throw a plain `Error` now throw a `DiagnosticError` 
 `@kubb/core` exports `diagnosticDocsUrl(code)` and `Diagnostics.serialize(diagnostic)`, the JSON-safe shape (now including a `docsUrl`) shared by the JSON reporter and the MCP tools. The CLI's `diagnosticDocsUrl` is re-exported from core so both track the same major.
 
 The MCP `generate` and `validate` tools now return structured diagnostics, each with its code, source pointer, help, and docs link, as a readable block plus a JSON payload, so an assistant can act on the exact problem rather than parsing a message string.
+
+`@kubb/adapter-oas` gains an opt-in `diagnostics` option that walks the named component schemas and reports two advisory diagnostics against their JSON pointers: `KUBB_UNSUPPORTED_FORMAT` (a warning when a schema's `format` falls back to the base type) and `KUBB_DEPRECATED` (info for a schema marked `deprecated`). Both default to off, so existing output is unchanged unless you set `adapterOas({ diagnostics: { unsupportedFormat: true, deprecated: true } })`.
