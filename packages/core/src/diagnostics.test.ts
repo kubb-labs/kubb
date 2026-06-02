@@ -128,33 +128,6 @@ describe('Diagnostics.dedupe', () => {
   })
 })
 
-describe('Diagnostics.applyLevels', () => {
-  it('returns the input unchanged when no levels are given', () => {
-    const input = [problem()]
-    expect(Diagnostics.applyLevels(input, undefined)).toStrictEqual(input)
-  })
-
-  it('re-levels a code and drops one mapped to off, keeping timing', () => {
-    const result = Diagnostics.applyLevels(
-      [
-        problem({ code: 'KUBB_DEPRECATED', severity: 'info' }),
-        problem({ code: 'KUBB_UNSUPPORTED_FORMAT', severity: 'warning' }),
-        Diagnostics.timing({ plugin: 'a', duration: 1 }),
-      ],
-      { KUBB_DEPRECATED: 'error', KUBB_UNSUPPORTED_FORMAT: 'off' },
-    )
-
-    expect(result).toHaveLength(2)
-    expect(result[0]).toMatchObject({ code: 'KUBB_DEPRECATED', severity: 'error' })
-    expect(result[1]?.kind).toBe('timing')
-  })
-
-  it('leaves a code without an override untouched', () => {
-    const result = Diagnostics.applyLevels([problem({ code: 'KUBB_REF_NOT_FOUND', severity: 'error' })], { KUBB_DEPRECATED: 'off' })
-    expect(result).toStrictEqual([problem({ code: 'KUBB_REF_NOT_FOUND', severity: 'error' })])
-  })
-})
-
 describe('Diagnostics.scope / Diagnostics.report', () => {
   it('routes reported diagnostics to the active sink and returns true', () => {
     const collected: Array<Diagnostic> = []

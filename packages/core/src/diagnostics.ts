@@ -15,13 +15,6 @@ const docsMajor = version.split('.')[0] ?? '5'
 export type DiagnosticSeverity = 'error' | 'warning' | 'info'
 
 /**
- * Per-code severity overrides from `config.diagnostics.levels`. A code mapped to a
- * {@link DiagnosticSeverity} is re-leveled; a code mapped to `'off'` is dropped.
- * `timing` diagnostics are never affected.
- */
-export type DiagnosticLevels = Partial<Record<DiagnosticCode, DiagnosticSeverity | 'off'>>
-
-/**
  * A human-readable explanation of a diagnostic code: a short title, what triggers it, and how
  * to resolve it. This is the single source of truth the kubb.dev `/diagnostics/<slug>` pages
  * mirror, so every code stays documented in one place. Typed as a total record over
@@ -413,30 +406,6 @@ export class Diagnostics {
       }
       seen.add(key)
       result.push(diagnostic)
-    }
-    return result
-  }
-
-  /**
-   * Applies per-code severity overrides from `config.diagnostics.levels`. A code mapped to
-   * a severity re-levels the diagnostic; a code mapped to `'off'` drops it. `timing`
-   * diagnostics pass through untouched.
-   */
-  static applyLevels(diagnostics: ReadonlyArray<Diagnostic>, levels: DiagnosticLevels | undefined): Array<Diagnostic> {
-    if (!levels) {
-      return [...diagnostics]
-    }
-    const result: Array<Diagnostic> = []
-    for (const diagnostic of diagnostics) {
-      if (diagnostic.kind === 'timing') {
-        result.push(diagnostic)
-        continue
-      }
-      const level = levels[diagnostic.code]
-      if (level === 'off') {
-        continue
-      }
-      result.push(level ? { ...diagnostic, severity: level } : diagnostic)
     }
     return result
   }

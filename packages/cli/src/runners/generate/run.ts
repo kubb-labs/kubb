@@ -273,9 +273,8 @@ async function generate(options: GenerateProps): Promise<boolean> {
     await hooks.emit('kubb:hooks:end')
   }
 
-  const leveledOutput = Diagnostics.applyLevels(outputDiagnostics, config.diagnostics?.levels)
-  const finalDiagnostics = [...diagnostics, ...leveledOutput]
-  const failed = Diagnostics.hasError(leveledOutput)
+  const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
+  const failed = Diagnostics.hasError(outputDiagnostics)
 
   if (!failed) {
     await hooks.emit('kubb:success', { message: 'Generation succeeded', info: inputPath })

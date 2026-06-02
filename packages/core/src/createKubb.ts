@@ -6,7 +6,7 @@ import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
 import { DEFAULT_STUDIO_URL, HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
-import { type Diagnostic, DiagnosticError, type DiagnosticLevels, Diagnostics } from './diagnostics.ts'
+import { type Diagnostic, DiagnosticError, Diagnostics } from './diagnostics.ts'
 import { createDebugger } from './createDebugger.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
@@ -138,19 +138,6 @@ export type Config<TInput = Input> = {
    * Required when an adapter is configured; omit when running in plugin-only mode.
    */
   input?: TInput
-  /**
-   * Tune how diagnostics are reported. `levels` re-levels or silences a diagnostic by
-   * its stable code: map a code to `'error'`, `'warning'`, or `'info'` to change its
-   * severity, or to `'off'` to drop it. `timing` diagnostics are never affected.
-   *
-   * @example
-   * ```ts
-   * diagnostics: { levels: { KUBB_DEPRECATED: 'error', KUBB_UNSUPPORTED_FORMAT: 'off' } }
-   * ```
-   */
-  diagnostics?: {
-    levels?: DiagnosticLevels
-  }
   output: {
     /**
      * Output directory for generated files, absolute or relative to `root`.

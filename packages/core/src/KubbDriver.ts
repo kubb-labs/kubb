@@ -469,10 +469,10 @@ export class KubbDriver {
 
           await hooks.emit('kubb:build:end', { files: this.fileManager.files, config, outputDir: resolve(config.root, config.output.path) })
 
-          return { diagnostics: Diagnostics.dedupe(Diagnostics.applyLevels(diagnostics, this.config.diagnostics?.levels)) }
+          return { diagnostics: Diagnostics.dedupe(diagnostics) }
         } catch (caughtError) {
           diagnostics.push(Diagnostics.from(caughtError))
-          return { diagnostics: Diagnostics.dedupe(Diagnostics.applyLevels(diagnostics, this.config.diagnostics?.levels)) }
+          return { diagnostics: Diagnostics.dedupe(diagnostics) }
         } finally {
           this.fileManager.hooks.off('upsert', onFileUpsert)
         }

@@ -5,7 +5,7 @@
 '@kubb/mcp': minor
 ---
 
-Extend diagnostics so more failures are coded, configurable, and visible.
+Extend diagnostics so more failures are coded and visible.
 
 Coded errors that used to surface as `KUBB_UNKNOWN`: a missing Studio adapter
 (`KUBB_ADAPTER_REQUIRED`), a non-object `devtools` config (`KUBB_DEVTOOLS_INVALID`), and a
@@ -18,7 +18,5 @@ The formatter, linter, and post-generate hooks now report failures as diagnostic
 and `kubb generate --reporter json`, and a failure marks the run as failed instead of being
 swallowed.
 
-Adds `config.diagnostics.levels` to re-level or silence diagnostics by code: map a code to
-`'error'`, `'warning'`, or `'info'` to change its severity, or to `'off'` to drop it. `timing`
-diagnostics are never affected. `@kubb/core` exposes `Diagnostics.applyLevels` and the
-`DiagnosticLevels` type.
+`@kubb/core` adds `diagnosticCatalog` (a title, cause, and fix for every code) and
+`Diagnostics.explain(code)`, the source the kubb.dev diagnostics pages mirror.
