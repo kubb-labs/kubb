@@ -131,8 +131,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    *
    * Generators that only return `Array<FileNode>` or `void` do not need to set this.
    *
-   * Set `renderer: null` to explicitly opt out of rendering even when the parent plugin
-   * declares a `renderer` (overrides the plugin-level fallback).
+   * Leave it unset or set `renderer: null` to opt out of rendering.
    *
    * @example
    * ```ts

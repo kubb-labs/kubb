@@ -4,9 +4,8 @@ import type { PossiblePromise } from '@internals/utils'
 import { AsyncEventEmitter, BuildError, exists, URLPath } from '@internals/utils'
 import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
-import { DEFAULT_BANNER, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
+import { DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
-import type { RendererFactory } from './createRenderer.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import type { Middleware } from './defineMiddleware.ts'
@@ -72,7 +71,7 @@ type Input = InputPath | InputData
  * - What to generate from (adapter + input)
  * - Where to output generated code (output)
  * - How to generate (plugins + middleware)
- * - Runtime details (parsers, storage, renderer)
+ * - Runtime details (parsers, storage)
  *
  * See `UserConfig` for a relaxed version with sensible defaults.
  *
@@ -301,22 +300,6 @@ export type Config<TInput = Input> = {
    */
   middleware?: Array<Middleware>
   /**
-   * Renderer that converts generated AST nodes to code strings.
-   *
-   * By default, Kubb uses the JSX renderer (`rendererJsx`). Pass a custom renderer to support
-   * different output formats (template engines, code generation DSLs, etc.).
-   *
-   * @default rendererJsx()  // from @kubb/renderer-jsx
-   * @example
-   * ```ts
-   * import { rendererJsx } from '@kubb/renderer-jsx'
-   * renderer: rendererJsx()
-   * ```
-   *
-   * @see {@link Renderer} to implement a custom renderer.
-   */
-  renderer?: RendererFactory
-  /**
    * Kubb Studio cloud integration settings.
    *
    * Kubb Studio (https://kubb.studio) is a web-based IDE for managing API specs and generated code.
@@ -376,7 +359,7 @@ export type Config<TInput = Input> = {
  *
  * `UserConfig` is what you pass to `defineConfig()`. It has optional `root`, `plugins`, `parsers`, and `adapter`
  * fields (which fall back to sensible defaults). All other Config options are available, including `output`, `input`,
- * `storage`, `middleware`, `renderer`, `devtools`, and `hooks`.
+ * `storage`, `middleware`, `devtools`, and `hooks`.
  *
  * @example
  * ```ts
@@ -934,8 +917,8 @@ function resolveConfig(userConfig: UserConfig): Config {
     output: {
       format: false,
       lint: false,
-      extension: DEFAULT_EXTENSION,
-      defaultBanner: DEFAULT_BANNER,
+      extension: { '.ts': '.ts' },
+      defaultBanner: 'simple',
       ...userConfig.output,
     },
     storage: userConfig.storage ?? fsStorage(),
@@ -1027,7 +1010,27 @@ export class Kubb {
     const driver = new KubbDriver(config, { hooks: this.hooks })
     const storage = createSourcesView(config.storage)
 
-    await this.hooks.emit('kubb:debug', { date: new Date(), logs: this.#configLogs(config) })
+    const userConfig = this.#userConfig
+    const diagnostics = getDiagnosticInfo()
+    await this.hooks.emit('kubb:debug', {
+      date: new Date(),
+      logs: [
+        'Configuration:',
+        `  • Name: ${userConfig.name || 'unnamed'}`,
+        `  • Root: ${userConfig.root || process.cwd()}`,
+        `  • Output: ${userConfig.output?.path || 'not specified'}`,
+        `  • Plugins: ${userConfig.plugins?.length || 0}`,
+        'Output Settings:',
+        `  • Storage: ${config.storage.name}`,
+        `  • Formatter: ${userConfig.output?.format || 'none'}`,
+        `  • Linter: ${userConfig.output?.lint || 'none'}`,
+        `Running adapter: ${config.adapter?.name || 'none'}`,
+        'Environment:',
+        Object.entries(diagnostics)
+          .map(([key, value]) => `  • ${key}: ${value}`)
+          .join('\n'),
+      ],
+    })
 
     if (isInputPath(this.#userConfig) && !new URLPath(this.#userConfig.input.path).isURL) {
       try {
@@ -1086,27 +1089,6 @@ export class Kubb {
 
   [Symbol.dispose](): void {
     this.dispose()
-  }
-
-  #configLogs(config: Config): Array<string> {
-    const u = this.#userConfig
-    const diag = getDiagnosticInfo()
-    return [
-      'Configuration:',
-      `  • Name: ${u.name || 'unnamed'}`,
-      `  • Root: ${u.root || process.cwd()}`,
-      `  • Output: ${u.output?.path || 'not specified'}`,
-      `  • Plugins: ${u.plugins?.length || 0}`,
-      'Output Settings:',
-      `  • Storage: ${config.storage.name}`,
-      `  • Formatter: ${u.output?.format || 'none'}`,
-      `  • Linter: ${u.output?.lint || 'none'}`,
-      `Running adapter: ${config.adapter?.name || 'none'}`,
-      'Environment:',
-      Object.entries(diag)
-        .map(([key, value]) => `  • ${key}: ${value}`)
-        .join('\n'),
-    ]
   }
 }
 

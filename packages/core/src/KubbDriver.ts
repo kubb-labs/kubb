@@ -1,8 +1,9 @@
 import { resolve } from 'node:path'
 import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, formatMs, getElapsedMs, isPromise, memoize, URLPath } from '@internals/utils'
-import { collectUsedSchemaNames, createFile, createStreamInput, transform } from '@kubb/ast'
+import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast'
 import type { FileNode, InputMeta, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
-import { DEFAULT_STUDIO_URL, SCHEMA_PARALLEL, STREAM_FLUSH_EVERY } from './constants.ts'
+import { DEFAULT_STUDIO_URL, OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
+import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
@@ -13,7 +14,7 @@ import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
 import { FileProcessor } from './FileProcessor.ts'
 import { type HookListener, HookRegistry } from './HookRegistry.ts'
-import type { Renderer, RendererFactory } from './createRenderer.ts'
+import { Transform } from './Transform.ts'
 
 import type {
   Adapter,
@@ -36,8 +37,6 @@ type Options = {
 function enforceOrder(enforce: 'pre' | 'post' | undefined): number {
   return enforce === 'pre' ? -1 : enforce === 'post' ? 1 : 0
 }
-
-const OPERATION_FILTER_TYPES = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
 
 export class KubbDriver {
   readonly config: Config
@@ -83,8 +82,6 @@ export class KubbDriver {
    * add files; this property gives direct read/write access when needed.
    */
   readonly fileManager = new FileManager()
-  readonly #fileProcessor = new FileProcessor()
-
   readonly plugins = new Map<string, NormalizedPlugin>()
 
   /**
@@ -101,6 +98,12 @@ export class KubbDriver {
    * insertion order. External `hooks.on(...)` listeners are not tracked.
    */
   readonly #registry: HookRegistry<KubbHooks>
+
+  /**
+   * Transform registry. Plugins populate it during `kubb:plugin:setup` via `setTransformer`,
+   * and `#runGenerators` reads it once per `(plugin, node)` pair through `applyTo`.
+   */
+  readonly #transforms = new Transform()
 
   constructor(config: Config, options: Options) {
     this.config = config
@@ -136,7 +139,7 @@ export class KubbDriver {
       }
     }
     if (this.config.adapter) {
-      await this.#registerAdapter(this.config.adapter)
+      this.#studio.source = inputToAdapterSource(this.config)
     }
   }
 
@@ -164,32 +167,38 @@ export class KubbDriver {
     return normalized
   }
 
-  async #registerAdapter(adapter: Adapter) {
-    const source = inputToAdapterSource(this.config)
-    this.#studio.source = source
+  /**
+   * Parses the adapter source into `this.inputNode`. Idempotent, so repeated calls from
+   * `run` or the studio path do not re-parse. Adapters with `stream()` are used directly.
+   * Adapters with only `parse()` are wrapped via `createStreamInput` so the dispatch loop
+   * stays stream-only.
+   */
+  async #parseInput(): Promise<void> {
+    if (this.inputNode || !this.adapter || !this.#studio.source) return
+
+    const adapter = this.adapter
+    const source = this.#studio.source
 
     if (adapter.stream) {
       this.inputNode = await adapter.stream(source)
-
-      await this.hooks.emit('kubb:debug', {
+      this.hooks.emit('kubb:debug', {
         date: new Date(),
         logs: [`✓ Adapter '${adapter.name}' producing input stream`],
       })
-    } else {
-      // Adapter does not implement stream() — eagerly parse and wrap in a
-      // reusable AsyncIterable so the rest of the pipeline stays stream-only.
-      const inputNode = await adapter.parse(source)
-      this.inputNode = createStreamInput(arrayToAsyncIterable(inputNode.schemas), arrayToAsyncIterable(inputNode.operations), inputNode.meta)
-
-      await this.hooks.emit('kubb:debug', {
-        date: new Date(),
-        logs: [
-          `✓ Adapter '${adapter.name}' resolved InputNode (wrapped as stream)`,
-          `  • Schemas: ${inputNode.schemas.length}`,
-          `  • Operations: ${inputNode.operations.length}`,
-        ],
-      })
+      return
     }
+
+    const parsed = await adapter.parse(source)
+    this.inputNode = createStreamInput(arrayToAsyncIterable(parsed.schemas), arrayToAsyncIterable(parsed.operations), parsed.meta)
+
+    await this.hooks.emit('kubb:debug', {
+      date: new Date(),
+      logs: [
+        `✓ Adapter '${adapter.name}' resolved InputNode (wrapped as stream)`,
+        `  • Schemas: ${parsed.schemas.length}`,
+        `  • Operations: ${parsed.operations.length}`,
+      ],
+    })
   }
 
   #registerMiddleware<K extends keyof KubbHooks & string>(event: K, middlewareHooks: Middleware['hooks']) {
@@ -206,8 +215,8 @@ export class KubbDriver {
    * Registers a hook-style plugin's lifecycle handlers on the shared `AsyncEventEmitter`.
    *
    * For `kubb:plugin:setup`, the registered listener wraps the globally emitted context with a
-   * plugin-specific one so that `addGenerator`, `setResolver`, `setTransformer`, and
-   * `setRenderer` all target the correct `normalizedPlugin` entry in the plugins map.
+   * plugin-specific one so that `addGenerator`, `setResolver`, and `setTransformer` all target
+   * the correct `normalizedPlugin` entry in the plugins map.
    *
    * All other hooks are iterated and registered directly as pass-through listeners.
    * Any event key present in the global `KubbHooks` interface can be subscribed to.
@@ -237,10 +246,7 @@ export class KubbDriver {
             this.setPluginResolver(plugin.name, resolver)
           },
           setTransformer: (visitor) => {
-            plugin.transformer = visitor
-          },
-          setRenderer: (renderer) => {
-            plugin.renderer = renderer
+            this.#transforms.register(plugin.name, visitor)
           },
           setOptions: (opts) => {
             plugin.options = { ...plugin.options, ...opts }
@@ -284,7 +290,6 @@ export class KubbDriver {
       addGenerator: noop,
       setResolver: noop,
       setTransformer: noop,
-      setRenderer: noop,
       setOptions: noop,
       injectFile: noop,
       updateConfig: noop,
@@ -299,43 +304,39 @@ export class KubbDriver {
    * respectively. Each listener is scoped to the owning plugin via a `ctx.plugin.name` check
    * so that generators from different plugins do not cross-fire.
    *
-   * The renderer resolution chain is: `generator.renderer → plugin.renderer → config.renderer`.
-   * Set `generator.renderer = null` to explicitly opt out of rendering even when the plugin
-   * declares a renderer.
+   * The renderer comes from `generator.renderer`. Set `generator.renderer = null` (or leave it
+   * unset) to opt out of rendering.
    *
    * Call this method inside `addGenerator()` (in `kubb:plugin:setup`) to wire up a generator.
    */
-  registerGenerator(pluginName: string, gen: Generator): void {
-    const resolveRenderer = () => {
-      const plugin = this.plugins.get(pluginName)
-      return gen.renderer === null ? undefined : (gen.renderer ?? plugin?.renderer ?? this.config.renderer)
-    }
-
-    if (gen.schema) {
+  registerGenerator(pluginName: string, generator: Generator): void {
+    if (generator.schema) {
       const schemaHandler = async (node: SchemaNode, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
-        const result = await gen.schema!(node, ctx)
-        await applyHookResult({ result, driver: this, rendererFactory: resolveRenderer() })
+        const result = await generator.schema!(node, ctx)
+
+        await this.dispatch({ result, renderer: generator.renderer })
       }
 
       this.#registry.register({ event: 'kubb:generate:schema', handler: schemaHandler, source: 'driver' })
     }
 
-    if (gen.operation) {
+    if (generator.operation) {
       const operationHandler = async (node: OperationNode, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
-        const result = await gen.operation!(node, ctx)
-        await applyHookResult({ result, driver: this, rendererFactory: resolveRenderer() })
+
+        const result = await generator.operation!(node, ctx)
+        await this.dispatch({ result, renderer: generator.renderer })
       }
 
       this.#registry.register({ event: 'kubb:generate:operation', handler: operationHandler, source: 'driver' })
     }
 
-    if (gen.operations) {
+    if (generator.operations) {
       const operationsHandler = async (nodes: Array<OperationNode>, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
-        const result = await gen.operations!(nodes, ctx)
-        await applyHookResult({ result, driver: this, rendererFactory: resolveRenderer() })
+        const result = await generator.operations!(nodes, ctx)
+        await this.dispatch({ result, renderer: generator.renderer })
       }
 
       this.#registry.register({ event: 'kubb:generate:operations', handler: operationsHandler, source: 'driver' })
@@ -365,8 +366,7 @@ export class KubbDriver {
     pluginTimings: Map<string, number>
     error?: Error
   }> {
-    const hooks = this.hooks
-    const config = this.config
+    const { hooks, config } = this
     const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
     const pluginTimings = new Map<string, number>()
     const parsersMap = new Map<FileNode['extname'], Parser>()
@@ -377,39 +377,36 @@ export class KubbDriver {
       }
     }
 
-    const pendingFiles = new Map<string, FileNode>()
-    this.fileManager.setOnUpsert((file) => {
-      pendingFiles.set(file.path, file)
+    const processor = new FileProcessor({ parsers: parsersMap, storage, extension: config.output.extension })
+    // Bridge processor lifecycle to the user-facing kubb hooks so existing listeners on
+    // kubb:files:processing:* and kubb:debug keep firing.
+    processor.hooks.on('start', async (files) => {
+      await hooks.emit('kubb:debug', { date: new Date(), logs: [`Writing ${files.length} files...`] })
+      await hooks.emit('kubb:files:processing:start', { files })
     })
+    const updateBuffer: Array<{ file: FileNode; source?: string; processed: number; total: number; percentage: number }> = []
+    processor.hooks.on('update', (item) => {
+      updateBuffer.push(item)
+    })
+    processor.hooks.on('end', async (files) => {
+      await hooks.emit('kubb:files:processing:update', {
+        files: updateBuffer.map((item) => ({ ...item, config })),
+      })
+      updateBuffer.length = 0
+      await hooks.emit('kubb:files:processing:end', { files })
+      await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ File write process completed for ${files.length} files`] })
+    })
+    const onFileUpsert = (file: FileNode): void => {
+      processor.enqueue(file)
+    }
+    this.fileManager.hooks.on('upsert', onFileUpsert)
 
     try {
-      const flushPending = async (): Promise<void> => {
-        if (pendingFiles.size === 0) return
-        const files = [...pendingFiles.values()]
-        pendingFiles.clear()
-
-        await hooks.emit('kubb:debug', { date: new Date(), logs: [`Writing ${files.length} files...`] })
-        await hooks.emit('kubb:files:processing:start', { files })
-
-        const items = [...this.#fileProcessor.stream(files, { parsers: parsersMap, extension: config.output.extension })]
-
-        await hooks.emit('kubb:files:processing:update', {
-          files: items.map(({ file, source, processed, total, percentage }) => ({ file, source, processed, total, percentage, config })),
-        })
-
-        const queue: Array<Promise<void>> = []
-        for (const { file, source } of items) {
-          if (source) {
-            queue.push(storage.setItem(file.path, source))
-            if (queue.length >= STREAM_FLUSH_EVERY) await Promise.all(queue.splice(0))
-          }
-        }
-        await Promise.all(queue)
-
-        await hooks.emit('kubb:files:processing:end', { files })
-        await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ File write process completed for ${files.length} files`] })
-      }
-
+      // Parse the adapter source into the streaming `InputNode`.
+      await this.#parseInput()
+      // Emit `kubb:plugin:setup` so plugins can register transformers via `setTransformer`.
+      // Each call writes into `this.#transforms`, which `#runGenerators` later reads through
+      // `transforms.applyTo`.
       await this.emitSetupHooks()
 
       if (this.adapter && this.inputNode) {
@@ -432,53 +429,49 @@ export class KubbDriver {
           const error = caughtError as Error
           const duration = getElapsedMs(hrStart)
           pluginTimings.set(plugin.name, duration)
+
           await this.#emitPluginEnd({ plugin, duration, success: false, error })
+
           failedPlugins.add({ plugin, error })
+
           continue
         }
 
-        if (plugin.generators?.length || this.hasEventGenerators(plugin.name)) {
+        if (this.hasEventGenerators(plugin.name)) {
           generatorPlugins.push({ plugin, context, hrStart })
+
           continue
         }
 
         const duration = getElapsedMs(hrStart)
         pluginTimings.set(plugin.name, duration)
+
         await this.#emitPluginEnd({ plugin, duration, success: true })
         await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ Plugin started successfully (${formatMs(duration)})`] })
       }
 
-      if (generatorPlugins.length > 0) {
-        if (this.inputNode) {
-          const { timings, failed } = await this.#runGenerators(generatorPlugins, flushPending)
-          // Drain any files written after the last batch's flush.
-          await flushPending()
-          for (const [name, duration] of timings) pluginTimings.set(name, duration)
-          for (const entry of failed) failedPlugins.add(entry)
-        } else {
-          // No adapter input: generator-plugins have nothing to dispatch, but still
-          // need their `kubb:plugin:end` so middleware (e.g. barrel) completes.
-          for (const { plugin, hrStart } of generatorPlugins) {
-            const duration = getElapsedMs(hrStart)
-            pluginTimings.set(plugin.name, duration)
-            await this.#emitPluginEnd({ plugin, duration, success: true })
-          }
-        }
-      }
+      // Stream every node through the transform registry and into each plugin's generators.
+      // Handles the empty-entries and missing-`inputNode` cases by closing out each entry's
+      // `kubb:plugin:end` directly.
+      const { timings, failed } = await this.#runGenerators(generatorPlugins, () => processor.flush())
+      // Wait for the last in-flight batch and write anything still pending.
+      await processor.drain()
+
+      for (const [name, duration] of timings) pluginTimings.set(name, duration)
+      for (const entry of failed) failedPlugins.add(entry)
 
       await hooks.emit('kubb:plugins:end', Object.assign({ config }, this.#filesPayload()))
 
-      await flushPending()
+      // Plugins-end listeners (barrel middleware etc.) may have queued more files.
+      await processor.drain()
 
-      const files = this.fileManager.files
-
-      await hooks.emit('kubb:build:end', { files, config, outputDir: resolve(config.root, config.output.path) })
+      await hooks.emit('kubb:build:end', { files: this.fileManager.files, config, outputDir: resolve(config.root, config.output.path) })
 
       return { failedPlugins, pluginTimings }
     } catch (caughtError) {
       return { failedPlugins, pluginTimings, error: caughtError as Error }
     } finally {
-      this.fileManager.setOnUpsert(null)
+      this.fileManager.hooks.off('upsert', onFileUpsert)
     }
   }
 
@@ -487,6 +480,7 @@ export class KubbDriver {
   // spread would eagerly invoke the getter and freeze a stale snapshot into the payload.
   #filesPayload(): { readonly files: Array<FileNode>; upsertFile: (...files: Array<FileNode>) => Array<FileNode> } {
     const driver = this
+
     return {
       get files() {
         return driver.fileManager.files
@@ -502,12 +496,37 @@ export class KubbDriver {
     )
   }
 
+  /**
+   * Streams schemas and operations through every plugin's generators. Each node is run
+   * through the plugin's transformer (from `this.#transforms`) before the generator sees it,
+   * so plugins stay isolated and the hot path stays per-node. Schemas run before operations
+   * because the two passes share `flushPending` and the FileProcessor's event emitter.
+   * Errors from a single plugin land in `failed` so the rest of the build continues.
+   *
+   * When `entries` is empty or `this.inputNode` is `null`, every entry still gets a
+   * `kubb:plugin:end` so middleware listeners (the barrel writer and friends) complete.
+   */
   async #runGenerators(
     entries: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options'>; hrStart: ReturnType<typeof process.hrtime> }>,
     flushPending: () => Promise<void>,
   ): Promise<{ timings: Map<string, number>; failed: Set<{ plugin: Plugin; error: Error }> }> {
     const timings = new Map<string, number>()
     const failed = new Set<{ plugin: Plugin; error: Error }>()
+
+    if (entries.length === 0) return { timings, failed }
+
+    if (!this.inputNode) {
+      for (const { plugin, hrStart } of entries) {
+        const duration = getElapsedMs(hrStart)
+        timings.set(plugin.name, duration)
+        await this.#emitPluginEnd({ plugin, duration, success: true })
+      }
+      return { timings, failed }
+    }
+
+    const transforms = this.#transforms
+    const { schemas, operations } = this.inputNode
+
     type PluginState = {
       plugin: NormalizedPlugin
       generatorContext: Omit<GeneratorContext, 'options'>
@@ -519,8 +538,6 @@ export class KubbDriver {
       allowedSchemaNames: Set<string> | null
     }
 
-    const driver = this
-    const { schemas, operations } = this.inputNode!
     const states: Array<PluginState> = entries.map(({ plugin, context, hrStart }) => {
       const { exclude, include, override } = plugin.options
       const hasExclude = Array.isArray(exclude) && exclude.length > 0
@@ -542,9 +559,9 @@ export class KubbDriver {
     const emitsOperationHook = this.hooks.listenerCount('kubb:generate:operation') > 0
 
     // Pre-scan: plugins with operation-based includes (but no schemaName include) need
-    // the reachable schema set. This requires the full schema graph in memory at once —
-    // transitive reachability can't be derived from a single node. `allSchemas` is
-    // released as soon as the pre-scan returns; the main passes get fresh iterators.
+    // the reachable schema set. This requires the full schema graph in memory at once,
+    // since transitive reachability can't be derived from a single node. `allSchemas` is
+    // released as soon as the pre-scan returns, so the main passes get fresh iterators.
     const pruningStates = states.filter(({ plugin }) => {
       const { include } = plugin.options
       return (include?.some(({ type }) => OPERATION_FILTER_TYPES.has(type)) ?? false) && !(include?.some(({ type }) => type === 'schemaName') ?? false)
@@ -554,7 +571,7 @@ export class KubbDriver {
       const allSchemas: Array<SchemaNode> = []
       for await (const schema of schemas) allSchemas.push(schema)
 
-      const includedOpsByState = new Map<PluginState, Array<OperationNode>>(pruningStates.map((s) => [s, []]))
+      const includedOpsByState = new Map<PluginState, Array<OperationNode>>(pruningStates.map((state) => [state, []]))
       for await (const operation of operations) {
         for (const state of pruningStates) {
           const { exclude, include, override } = state.plugin.options
@@ -569,12 +586,27 @@ export class KubbDriver {
       }
     }
 
-    const resolveRendererFor = (gen: Generator, state: PluginState): RendererFactory | undefined =>
-      gen.renderer === null ? undefined : (gen.renderer ?? state.plugin.renderer ?? state.generatorContext.config.renderer)
+    // Apply the plugin's transformer, then resolve options (skipping the resolver when
+    // optionsAreStatic). Returns null when include/exclude/override rules out the node.
+    // The per-node dispatch and the collected-operations tail both go through this so
+    // they agree on what a plugin sees.
+    const resolveForPlugin = <TNode extends SchemaNode | OperationNode>(
+      state: PluginState,
+      node: TNode,
+    ): { transformedNode: TNode; options: NormalizedPlugin['options'] } | null => {
+      const { plugin, generatorContext } = state
+      const transformedNode = transforms.applyTo(plugin.name, node)
+      if (state.optionsAreStatic) return { transformedNode, options: plugin.options }
 
-    // Schema and operation passes share this body. They differ only in which
-    // generator method runs, which hook is emitted, and the schema-only
-    // `allowedSchemaNames` prune (operations don't carry that constraint).
+      const { exclude, include, override } = plugin.options
+      const options = generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
+      if (options === null) return null
+      return { transformedNode, options }
+    }
+
+    // Schema and operation passes share this body. They differ only in which generator
+    // method runs, which hook is emitted, and the schema-only `allowedSchemaNames` prune
+    // (operations don't carry that constraint).
     const dispatchNode = async <TNode extends SchemaNode | OperationNode>(
       state: PluginState,
       node: TNode,
@@ -586,9 +618,10 @@ export class KubbDriver {
     ): Promise<void> => {
       if (state.failed) return
       try {
-        const { plugin, generatorContext, generators } = state
-        const transformedNode: TNode = plugin.transformer ? (transform(node, plugin.transformer) as TNode) : node
+        const resolved = resolveForPlugin(state, node)
+        if (!resolved) return
 
+        const { transformedNode, options } = resolved
         if (
           dispatch.checkAllowedNames &&
           state.allowedSchemaNames !== null &&
@@ -599,19 +632,13 @@ export class KubbDriver {
           return
         }
 
-        const { exclude, include, override } = plugin.options
-        const options = state.optionsAreStatic
-          ? plugin.options
-          : generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
-        if (options === null) return
-
-        const ctx = { ...generatorContext, options }
-        for (const gen of generators) {
-          const generate = gen[dispatch.method] as ((node: TNode, ctx: GeneratorContext) => unknown) | undefined
-          if (!generate) continue
-          const raw = generate(transformedNode, ctx)
+        const ctx = { ...state.generatorContext, options }
+        for (const gen of state.generators) {
+          const run = gen[dispatch.method] as ((node: TNode, ctx: GeneratorContext) => unknown) | undefined
+          if (!run) continue
+          const raw = run(transformedNode, ctx)
           const result = isPromise(raw) ? await raw : raw
-          const applied = applyHookResult({ result, driver, rendererFactory: resolveRendererFor(gen, state) })
+          const applied = this.dispatch({ result, renderer: gen.renderer })
           if (isPromise(applied)) await applied
         }
         if (dispatch.emit) await dispatch.emit(transformedNode, ctx)
@@ -632,16 +659,16 @@ export class KubbDriver {
       emit: emitsOperationHook ? (node: OperationNode, ctx: GeneratorContext) => this.hooks.emit('kubb:generate:operation', node, ctx) : null,
     } as const
 
-    // Skip building the aggregated operations array when nothing consumes it.
-    // Saves an N-sized allocation that lives until the build ends, on the common
-    // path where plugins only define per-node `gen.operation`.
-    const needsCollectedOperations = this.hooks.listenerCount('kubb:generate:operations') > 0 || states.some((s) => s.generators.some((g) => !!g.operations))
+    // Skip building the aggregated operations array when nothing consumes it. Saves an
+    // N-sized allocation on the common path where plugins only define per-node `gen.operation`.
+    const needsCollectedOperations =
+      this.hooks.listenerCount('kubb:generate:operations') > 0 || states.some((state) => state.generators.some((gen) => !!gen.operations))
     const collectedOperations: Array<OperationNode> | undefined = needsCollectedOperations ? [] : undefined
 
     // Run schemas before operations: the two passes share `flushPending` and the
     // FileProcessor's event emitter, so running them concurrently would interleave
     // `kubb:files:processing:start|end` events and race on the shared dirty list.
-    await forBatches(schemas, (nodes) => Promise.all(nodes.flatMap((n) => states.map((state) => dispatchNode(state, n, schemaDispatch)))), {
+    await forBatches(schemas, (nodes) => Promise.all(nodes.flatMap((node) => states.map((state) => dispatchNode(state, node, schemaDispatch)))), {
       concurrency: SCHEMA_PARALLEL,
       flush: flushPending,
     })
@@ -650,7 +677,7 @@ export class KubbDriver {
       operations,
       (nodes) => {
         if (needsCollectedOperations) collectedOperations?.push(...nodes)
-        return Promise.all(nodes.flatMap((n) => states.map((state) => dispatchNode(state, n, operationDispatch))))
+        return Promise.all(nodes.flatMap((node) => states.map((state) => dispatchNode(state, node, operationDispatch))))
       },
       { concurrency: SCHEMA_PARALLEL, flush: flushPending },
     )
@@ -660,23 +687,18 @@ export class KubbDriver {
         try {
           const { plugin, generatorContext, generators } = state
           const ctx = { ...generatorContext, options: plugin.options }
-          // Filter to operations this plugin would have dispatched to gen.operation():
-          // excludes/includes/overrides that resolve to null in dispatchOperation must also
-          // be hidden from the batched gen.operations() hook, otherwise grouped/barrel
-          // generators emit references to operation files that the per-op hook intentionally skipped.
+          // Match what the per-node dispatch passes to gen.operation(): the transformed node,
+          // already filtered by excludes/includes/overrides.
           const ops = collectedOperations ?? []
-          const pluginOperations = state.optionsAreStatic
-            ? ops
-            : ops.filter((node) => {
-                const transformed = plugin.transformer ? transform(node, plugin.transformer) : node
-                const { exclude, include, override } = plugin.options
-
-                return generatorContext.resolver.resolveOptions(transformed, { options: plugin.options, exclude, include, override }) !== null
-              })
+          const pluginOperations = ops.reduce<Array<OperationNode>>((acc, node) => {
+            const resolved = resolveForPlugin(state, node)
+            if (resolved) acc.push(resolved.transformedNode)
+            return acc
+          }, [])
           for (const gen of generators) {
             if (!gen.operations) continue
             const result = await gen.operations(pluginOperations, ctx)
-            await applyHookResult({ result, driver, rendererFactory: resolveRendererFor(gen, state) })
+            await this.dispatch({ result, renderer: gen.renderer })
           }
           await this.hooks.emit('kubb:generate:operations', pluginOperations, ctx)
         } catch (caughtError) {
@@ -701,6 +723,48 @@ export class KubbDriver {
   }
 
   /**
+   * Stores whatever a generator method or `kubb:generate:*` hook returned.
+   *
+   * - An `Array<FileNode>` goes straight into `fileManager` via `upsert`.
+   * - A renderer element runs through `renderer` (the renderer factory, e.g. JSX) and the
+   *   produced files go to `fileManager.upsert`.
+   * - A falsy result is treated as a no-op. The generator wrote files itself via
+   *   `ctx.upsertFile`.
+   *
+   * Pass `renderer` when the result may be a renderer element. Generators that only return
+   * `Array<FileNode>` do not need one.
+   */
+  async dispatch<TElement = unknown>({
+    result,
+    renderer,
+  }: {
+    result: TElement | Array<FileNode> | undefined | null
+    renderer?: RendererFactory<TElement> | null
+  }): Promise<void> {
+    if (!result) return
+
+    if (Array.isArray(result)) {
+      this.fileManager.upsert(...(result as Array<FileNode>))
+      return
+    }
+
+    if (!renderer) {
+      return
+    }
+
+    using instance = renderer()
+    if (instance.stream) {
+      for (const file of instance.stream(result)) {
+        this.fileManager.upsert(file)
+      }
+      return
+    }
+
+    await instance.render(result)
+    this.fileManager.upsert(...instance.files)
+  }
+
+  /**
    * Removes every listener the driver added; listeners attached directly to `hooks` from outside
    * the driver survive. Called at the end of a build to prevent leaks across repeated builds.
    *
@@ -709,6 +773,7 @@ export class KubbDriver {
   dispose(): void {
     this.#registry.dispose()
     this.#eventGeneratorPlugins.clear()
+    this.#transforms.dispose()
     // Release resolver closures — the driver is rebuilt for each build() call
     // so there is no value in retaining these maps after disposal.
     this.#resolvers.clear()
@@ -717,7 +782,6 @@ export class KubbDriver {
     // memory is reclaimed between builds. The returned `BuildOutput.files`
     // array still references any FileNodes the caller needs to inspect.
     this.fileManager.dispose()
-    this.#fileProcessor.dispose()
     this.inputNode = null
     this.#studio = { source: null, isOpen: false, inputNode: null }
   }
@@ -793,7 +857,7 @@ export class KubbDriver {
         return driver.getResolver(plugin.name)
       },
       get transformer() {
-        return plugin.transformer
+        return driver.#transforms.get(plugin.name)
       },
       warn(message: string) {
         driver.hooks.emit('kubb:warn', { message })
@@ -846,53 +910,6 @@ export class KubbDriver {
     }
     return plugin
   }
-}
-
-/**
- * Handles the return value of a plugin AST hook or generator method.
- *
- * - Renderer output → rendered via the provided `rendererFactory` (e.g. JSX), files stored in `driver.fileManager`
- * - `Array<FileNode>` → added directly into `driver.fileManager`
- * - `void` / `null` / `undefined` → no-op (plugin handled it via `this.upsertFile`)
- *
- * Pass a `rendererFactory` (e.g. `jsxRenderer` from `@kubb/renderer-jsx`) when the result
- * may be a renderer element. Generators that only return `Array<FileNode>` do not need one.
- */
-export function applyHookResult<TElement = unknown>({
-  result,
-  driver,
-  rendererFactory,
-}: {
-  result: TElement | Array<FileNode> | undefined | null
-  driver: KubbDriver
-  rendererFactory?: RendererFactory<TElement> | null
-}): void | Promise<void> {
-  if (!result) return
-
-  if (Array.isArray(result)) {
-    driver.fileManager.upsert(...(result as Array<FileNode>))
-    return
-  }
-
-  if (!rendererFactory) {
-    return
-  }
-
-  const renderer = rendererFactory()
-  if (renderer.stream) {
-    using r = renderer
-    for (const file of r.stream!(result)) {
-      driver.fileManager.upsert(file)
-    }
-    return
-  }
-  return applyAsyncRender({ renderer, result, driver })
-}
-
-async function applyAsyncRender<TElement>({ renderer, result, driver }: { renderer: Renderer<TElement>; result: TElement; driver: KubbDriver }): Promise<void> {
-  using r = renderer
-  await r.render(result)
-  driver.fileManager.upsert(...r.files)
 }
 
 function inputToAdapterSource(config: Config): AdapterSource {

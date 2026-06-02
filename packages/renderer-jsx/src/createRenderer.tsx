@@ -33,6 +33,7 @@ import type { KubbReactElement } from './types.ts'
  */
 export const jsxRenderer = () => {
   const runtime = new Runtime()
+
   return {
     async render(element: KubbReactElement) {
       await runtime.render(element)

@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import type { FileNode, InputMeta, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
 import { transform } from '@kubb/ast'
 import { FileManager } from './FileManager.ts'
-import { applyHookResult, KubbDriver } from './KubbDriver.ts'
+import { KubbDriver } from './KubbDriver.ts'
 import type { Adapter, AdapterFactoryOptions, Config, Generator, GeneratorContext, NormalizedPlugin, PluginFactoryOptions } from './types.ts'
 
 /**
@@ -123,7 +123,7 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
     ...context,
     options: opts.options,
   })
-  await applyHookResult({ result, driver: opts.driver, rendererFactory: generator.renderer })
+  await opts.driver.dispatch({ result, renderer: generator.renderer })
 }
 
 /**
@@ -147,7 +147,7 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
     ...context,
     options: opts.options,
   })
-  await applyHookResult({ result, driver: opts.driver, rendererFactory: generator.renderer })
+  await opts.driver.dispatch({ result, renderer: generator.renderer })
 }
 
 /**
@@ -171,5 +171,5 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
     ...context,
     options: opts.options,
   })
-  await applyHookResult({ result, driver: opts.driver, rendererFactory: generator.renderer })
+  await opts.driver.dispatch({ result, renderer: generator.renderer })
 }

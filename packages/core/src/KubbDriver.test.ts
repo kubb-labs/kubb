@@ -1,6 +1,8 @@
 import { AsyncEventEmitter } from '@internals/utils'
+import { createFile } from '@kubb/ast'
+import type { FileNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, KubbHooks, Middleware, Plugin } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -132,5 +134,86 @@ describe('PluginDriver', () => {
     })
 
     expect(external).toHaveBeenCalledTimes(1)
+  })
+})
+
+function file(name: string): FileNode {
+  return createFile({ baseName: `${name}.ts`, path: `${name}.ts` })
+}
+
+function makeDriver(): KubbDriver {
+  return new KubbDriver(
+    {
+      root: '.',
+      input: { path: './petStore.yaml' },
+      output: { path: './gen', clean: true },
+      parsers: [],
+      adapter: createMockedAdapter(),
+      plugins: [],
+      storage: fsStorage(),
+    } satisfies Config,
+    { hooks: new AsyncEventEmitter<KubbHooks>() },
+  )
+}
+
+describe('KubbDriver#dispatch', () => {
+  it('does nothing on null or undefined', () => {
+    const driver = makeDriver()
+    const upsert = vi.spyOn(driver.fileManager, 'upsert')
+
+    driver.dispatch({ result: null })
+    driver.dispatch({ result: undefined })
+
+    expect(upsert).not.toHaveBeenCalled()
+  })
+
+  it('upserts every file when the result is an Array<FileNode>', () => {
+    const driver = makeDriver()
+    const files = [file('a'), file('b')]
+
+    driver.dispatch({ result: files })
+
+    expect(driver.fileManager.files.map((f) => f.name)).toStrictEqual(['a', 'b'])
+  })
+
+  it('ignores non-array results when no renderer is provided', () => {
+    const driver = makeDriver()
+    const upsert = vi.spyOn(driver.fileManager, 'upsert')
+
+    driver.dispatch({ result: { kind: 'element' } })
+
+    expect(upsert).not.toHaveBeenCalled()
+  })
+
+  it('routes element results through the renderer stream when present', () => {
+    const driver = makeDriver()
+    const rendered = [file('rendered-1'), file('rendered-2')]
+    const renderer = vi.fn(() => ({
+      stream: vi.fn(function* () {
+        yield* rendered
+      }),
+      [Symbol.dispose]: () => {},
+    }))
+
+    driver.dispatch({ result: { kind: 'element' }, renderer: renderer as never })
+
+    expect(renderer).toHaveBeenCalledOnce()
+    expect(driver.fileManager.files.map((f) => f.name)).toStrictEqual(['rendered-1', 'rendered-2'])
+  })
+
+  it('routes element results through the async render path when no stream is exposed', async () => {
+    const driver = makeDriver()
+    const renderer = {
+      render: vi.fn(async () => {}),
+      files: [file('async-1')],
+      [Symbol.dispose]: () => {},
+    }
+    const factory = vi.fn(() => renderer)
+
+    const result = driver.dispatch({ result: { kind: 'element' }, renderer: factory as never })
+    await result
+
+    expect(renderer.render).toHaveBeenCalledOnce()
+    expect(driver.fileManager.files.map((f) => f.name)).toStrictEqual(['async-1'])
   })
 })

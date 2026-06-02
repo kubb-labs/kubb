@@ -345,7 +345,7 @@ function computeOptions<TOptions>(
     if (exclude.some(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)) return null
     if (include) {
       const results = include.map(({ type, pattern }) => matchesSchemaPattern(node, type, pattern))
-      const applicable = results.filter((r) => r !== null)
+      const applicable = results.filter((result) => result !== null)
 
       if (applicable.length > 0 && !applicable.includes(true)) return null
     }
@@ -433,12 +433,12 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
       const groupValue = group.type === 'path' ? groupPath! : tag!
       const defaultName =
         group.type === 'tag'
-          ? ({ group: g }: { group: string }) => `${camelCase(g)}Controller`
-          : ({ group: g }: { group: string }) => {
+          ? ({ group: groupName }: { group: string }) => `${camelCase(groupName)}Controller`
+          : ({ group: groupName }: { group: string }) => {
               // Strip traversal components (empty, '.', '..') before taking the first meaningful segment.
               // When every segment is a traversal component (e.g. '../../') we fall back to '' so the
               // file is placed directly in the output root — the boundary check below ensures safety.
-              const segment = g.split('/').filter((s) => s !== '' && s !== '.' && s !== '..')[0]
+              const segment = groupName.split('/').filter((part) => part !== '' && part !== '.' && part !== '..')[0]
               return segment ? camelCase(segment) : ''
             }
       const resolveName = group.name ?? defaultName

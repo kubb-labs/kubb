@@ -1,19 +1,7 @@
-import type { FileNode } from '@kubb/ast'
-
 /**
  * Base URL for the Kubb Studio web app.
  */
 export const DEFAULT_STUDIO_URL = 'https://kubb.studio' as const
-
-/**
- * Default banner style written at the top of every generated file.
- */
-export const DEFAULT_BANNER = 'simple' as const
-
-/**
- * Default file-extension mapping used when no explicit mapping is configured.
- */
-export const DEFAULT_EXTENSION: Record<FileNode['extname'], FileNode['extname'] | ''> = { '.ts': '.ts' }
 
 /**
  * Number of file writes to batch in parallel during `flushPendingFiles`.
@@ -24,6 +12,13 @@ export const STREAM_FLUSH_EVERY = 50
  * Number of schema/operation nodes to dispatch concurrently during generation.
  */
 export const SCHEMA_PARALLEL = 8
+
+/**
+ * Plugin `include` filter types that select operations directly. When one of these is set
+ * without a `schemaName` include, the generate phase pre-scans operations to compute the set
+ * of schemas they reach, so unreachable schemas can be pruned for that plugin.
+ */
+export const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
 
 /**
  * Numeric log-level thresholds used internally to compare verbosity.

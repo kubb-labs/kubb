@@ -1,6 +1,5 @@
 import { extname } from 'node:path'
 import type { FileNode, HttpMethod, UserFileNode, Visitor } from '@kubb/ast'
-import type { RendererFactory } from './createRenderer.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { BannerMeta, Resolver } from './defineResolver.ts'
 import type { Config, KubbHooks } from './types.ts'
@@ -112,11 +111,6 @@ type ByMethod = {
    */
   pattern: HttpMethod | RegExp
 }
-// TODO implement as alternative for ByMethod
-// type ByMethods = {
-//   type: 'methods'
-//   pattern: Array<HttpMethod>
-// }
 
 type BySchemaName = {
   /**
@@ -194,8 +188,7 @@ export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType 
  * ```
  */
 export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName | ByContentType) & {
-  //TODO should be options: Omit<Partial<TOptions>, 'override'>
-  options: Partial<TOptions>
+  options: Omit<Partial<TOptions>, 'override'>
 }
 
 export type PluginFactoryOptions<
@@ -242,10 +235,6 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
    * Set the AST transformer to pre-process nodes before they reach generators.
    */
   setTransformer(visitor: Visitor): void
-  /**
-   * Set the renderer factory to process JSX elements from generators.
-   */
-  setRenderer(renderer: RendererFactory): void
   /**
    * Set resolved options merged into the normalized plugin's `options`.
    * Call this in `kubb:plugin:setup` to provide options generators need.
@@ -326,7 +315,6 @@ export type NormalizedPlugin<TOptions extends PluginFactoryOptions = PluginFacto
   }
   resolver: TOptions['resolver']
   transformer?: Visitor
-  renderer?: RendererFactory
   generators?: Array<Generator>
   apply?: (config: Config) => boolean
   version?: string
