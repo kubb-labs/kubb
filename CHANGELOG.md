@@ -1,5 +1,32 @@
 # Changelog
 
+## v5.0.0-beta.37 — Jun 2, 2026
+
+### @kubb/core
+
+#### Features
+
+- Resolve the renderer from the generator only. The `renderer` resolution chain dropped the plugin and config fallbacks, so `generator.renderer` is now the single source.
+  
+  Removed the `renderer` option from `defineConfig`, the `renderer` field from the normalized plugin, and the `setRenderer` method from the plugin setup context. Set `renderer` on each generator instead (`renderer: jsxRenderer`), or leave it unset / `renderer: null` to opt out of rendering. ([#3447](https://github.com/kubb-labs/kubb/pull/3447), [`61ca887`](https://github.com/kubb-labs/kubb/commit/61ca8876281afe919e5e76ef8b8b50cc0af64cc9))
+- Collapse the driver's two listener trackers (`#hookListeners` and `#middlewareListeners`) into one typed `HookRegistry` that wraps `AsyncEventEmitter`. Listeners attached directly via `kubb.hooks.on(...)` survive `dispose()`; only listeners the driver itself registered are removed. Internal refactor: every `(...args: Array<never>)` cast inside `KubbDriver` is gone, and the public `definePlugin`, `KubbHooks`, and `kubb.hooks` surfaces are unchanged. ([#3445](https://github.com/kubb-labs/kubb/pull/3445), [`bd7e026`](https://github.com/kubb-labs/kubb/commit/bd7e0265a3086c095cf59bc0c4b155ea38446b3e))
+
+#### Bug Fixes
+
+- Lift the per-plugin transform step into a `Transform` registry that the driver consults during dispatch, so transforms have one home and one contract instead of being inlined in `KubbDriver.#runGenerators`. The driver keeps the parse and generate logic as private methods (`#parseInput`, `#runGenerators`) and exposes the renderer-or-file dispatch as a `KubbDriver.applyResult` static so both the registered generators and `@kubb/core/mocks` route through one entry point.
+  
+  Bug fix: `gen.operations(nodes, ctx)` and the `kubb:generate:operations` hook now receive the transformed nodes, matching what `gen.operation(node, ctx)` already received per-node. Before this fix the aggregated callback saw the original adapter nodes, so a renaming-transformer would feed grouped or barrel generators a different shape than the per-operation hook saw.
+  
+  The flush-after-batch logic that used to live as a closure inside `KubbDriver.run` moved into a new `FileWriteQueue` class. The class also makes the flush non-blocking: the next round of generator dispatch can run while the previous round's source rendering and storage writes are still in flight. For large specs (Stripe-sized OpenAPI documents, thousands of generated files) the pipelined flush keeps peak heap roughly the same and lets CPU work overlap with IO instead of running behind it.
+  
+  The public surface (`setTransformer`, `KubbHooks`, the `KubbDriver` class, the `@kubb/core/mocks` entry) is unchanged. ([#3447](https://github.com/kubb-labs/kubb/pull/3447), [`61ca887`](https://github.com/kubb-labs/kubb/commit/61ca8876281afe919e5e76ef8b8b50cc0af64cc9))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.36 — Jun 1, 2026
 
 ### @kubb/cli
