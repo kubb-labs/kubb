@@ -827,6 +827,19 @@ export class KubbDriver {
   getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
     const driver = this
 
+    const report = (diagnostic: Omit<Diagnostic, 'plugin'>): void => {
+      Diagnostics.report({ ...diagnostic, plugin: plugin.name })
+      if (diagnostic.severity === 'error') {
+        driver.hooks.emit('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+        return
+      }
+      if (diagnostic.severity === 'warning') {
+        driver.hooks.emit('kubb:warn', { message: diagnostic.message })
+        return
+      }
+      driver.hooks.emit('kubb:info', { message: diagnostic.message })
+    }
+
     return {
       config: driver.config,
       get root(): string {
@@ -861,14 +874,16 @@ export class KubbDriver {
       get transformer() {
         return driver.#transforms.get(plugin.name)
       },
+      report,
       warn(message: string) {
-        driver.hooks.emit('kubb:warn', { message })
+        report({ code: diagnosticCode.pluginWarning, severity: 'warning', message })
       },
       error(error: string | Error) {
-        driver.hooks.emit('kubb:error', { error: typeof error === 'string' ? new Error(error) : error })
+        const cause = typeof error === 'string' ? undefined : error
+        report({ code: diagnosticCode.pluginFailed, severity: 'error', message: typeof error === 'string' ? error : error.message, cause })
       },
       info(message: string) {
-        driver.hooks.emit('kubb:info', { message })
+        report({ code: diagnosticCode.pluginInfo, severity: 'info', message })
       },
       async openInStudio(options?: DevtoolsOptions) {
         if (!driver.config.devtools || driver.#studio.isOpen) {

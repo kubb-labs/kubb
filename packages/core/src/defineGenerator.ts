@@ -1,6 +1,7 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
 import type { FileNode, InputMeta, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
 import type { Adapter } from './createAdapter.ts'
+import type { Diagnostic } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { KubbHooks } from './types.ts'
 import type { KubbDriver } from './KubbDriver.ts'
@@ -64,15 +65,31 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    */
   transformer: Visitor | undefined
   /**
-   * Emit a warning.
+   * Report a structured diagnostic into the build. The active plugin is attached
+   * automatically, so collectors can attribute the problem. Carries a stable `code`,
+   * `severity`, and an optional source `location` and `help`. An `error` severity fails
+   * the build. Prefer this over `warn`/`error`/`info` when you can point at a source
+   * location or attach a code.
+   *
+   * @example
+   * ```ts
+   * ctx.report({ code: diagnosticCode.refNotFound, severity: 'error', message: `Could not find ${ref}`, location: { kind: 'schema', pointer: ref, ref } })
+   * ```
+   */
+  report: (diagnostic: Omit<Diagnostic, 'plugin'>) => void
+  /**
+   * Report a warning. Collected as a `warning` diagnostic attributed to the current
+   * plugin; it surfaces in the run summary but does not fail the build.
    */
   warn: (message: string) => void
   /**
-   * Emit an error.
+   * Report an error. Collected as an `error` diagnostic attributed to the current
+   * plugin, which fails the build.
    */
   error: (error: string | Error) => void
   /**
-   * Emit an info message.
+   * Report an informational message. Collected as an `info` diagnostic attributed to
+   * the current plugin.
    */
   info: (message: string) => void
   /**
