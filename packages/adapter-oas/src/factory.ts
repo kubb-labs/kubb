@@ -135,19 +135,28 @@ export async function parseFromConfig(source: AdapterSource): Promise<Document> 
   }
 
   const resolved = path.resolve(path.dirname(source.path), source.path)
-  // A missing file is reported as a coded diagnostic; a malformed but readable file
-  // falls through to `parseDocument`, which surfaces the parse error instead.
-  if (!(await exists(resolved))) {
+  await assertInputExists(resolved)
+  return parseDocument(resolved)
+}
+
+/**
+ * Throws a coded `KUBB_INPUT_NOT_FOUND` diagnostic when a local input path does not exist.
+ * URLs are skipped, and a malformed but readable file is left for `parseDocument` to surface
+ * its parse error instead.
+ */
+export async function assertInputExists(input: string): Promise<void> {
+  if (new URLPath(input).isURL) {
+    return
+  }
+  if (!(await exists(input))) {
     throw new DiagnosticError({
       code: diagnosticCode.inputNotFound,
       severity: 'error',
-      message: `Cannot read the file set in \`input.path\` (or via \`kubb generate PATH\`): ${source.path}`,
+      message: `Cannot read the file set in \`input.path\` (or via \`kubb generate PATH\`): ${input}`,
       help: 'Check that the path exists and is readable, then set it in `input.path` or pass it as `kubb generate PATH`.',
       location: { kind: 'config' },
     })
   }
-
-  return parseDocument(resolved)
 }
 
 /**

@@ -36,13 +36,17 @@ describe('validate tool', () => {
     expect(text).toContain('Validation successful')
   })
 
-  it('returns a structured diagnostic for an unreadable spec', async () => {
+  it('returns a coded diagnostic for a missing spec file', async () => {
     const { isError, text } = await run(join(dir, 'does-not-exist.yaml'))
 
     expect(isError).toBe(true)
-    expect(text).toContain('Validation failed')
+    expect(text).toContain('KUBB_INPUT_NOT_FOUND')
     // The serialized diagnostic is included as a JSON payload the assistant can parse.
     const json = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1))
-    expect(json).toMatchObject({ code: expect.stringMatching(/^KUBB_/), severity: 'error', message: expect.any(String) })
+    expect(json).toMatchObject({
+      code: 'KUBB_INPUT_NOT_FOUND',
+      severity: 'error',
+      docsUrl: expect.stringContaining('/diagnostics/kubb-input-not-found'),
+    })
   })
 })

@@ -469,10 +469,10 @@ export class KubbDriver {
 
           await hooks.emit('kubb:build:end', { files: this.fileManager.files, config, outputDir: resolve(config.root, config.output.path) })
 
-          return { diagnostics: Diagnostics.dedupe(diagnostics) }
+          return { diagnostics: Diagnostics.dedupe(Diagnostics.applyLevels(diagnostics, this.config.diagnostics?.levels)) }
         } catch (caughtError) {
           diagnostics.push(Diagnostics.from(caughtError))
-          return { diagnostics: Diagnostics.dedupe(diagnostics) }
+          return { diagnostics: Diagnostics.dedupe(Diagnostics.applyLevels(diagnostics, this.config.diagnostics?.levels)) }
         } finally {
           this.fileManager.hooks.off('upsert', onFileUpsert)
         }
@@ -890,11 +890,23 @@ export class KubbDriver {
         }
 
         if (typeof driver.config.devtools !== 'object') {
-          throw new Error('Devtools must be an object')
+          throw new DiagnosticError({
+            code: diagnosticCode.devtoolsInvalid,
+            severity: 'error',
+            message: 'The `devtools` config must be an object.',
+            help: 'Set `devtools` to an options object, or remove it to disable Kubb Studio.',
+            location: { kind: 'config' },
+          })
         }
 
         if (!driver.adapter || !driver.#studio.source) {
-          throw new Error('adapter is not defined, make sure you have set the parser in kubb.config.ts')
+          throw new DiagnosticError({
+            code: diagnosticCode.adapterRequired,
+            severity: 'error',
+            message: 'An adapter is required to open Kubb Studio, but none is configured.',
+            help: 'Set `adapter` in kubb.config.ts (for example `adapterOas()`).',
+            location: { kind: 'config' },
+          })
         }
 
         driver.#studio.isOpen = true
