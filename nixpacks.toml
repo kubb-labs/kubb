@@ -12,5 +12,8 @@ dependsOn = ["setup"]
 cmds = ["cd docs && pnpm run build"]
 dependsOn = ["install"]
 
+[start]
+cmd = "nginx -c /app/nginx.conf -g 'daemon off;'"
+
 [variables]
 NODE_OPTIONS = "--max-old-space-size=4096"
