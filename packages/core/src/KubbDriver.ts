@@ -322,7 +322,7 @@ export class KubbDriver {
       const schemaHandler = async (node: SchemaNode, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.schema!(node, ctx)
-        await Generate.apply({ result, driver: this, rendererFactory: resolveRenderer() })
+        await Generate.apply({ result, fileManager: this.fileManager, rendererFactory: resolveRenderer() })
       }
 
       this.#registry.register({ event: 'kubb:generate:schema', handler: schemaHandler, source: 'driver' })
@@ -332,7 +332,7 @@ export class KubbDriver {
       const operationHandler = async (node: OperationNode, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operation!(node, ctx)
-        await Generate.apply({ result, driver: this, rendererFactory: resolveRenderer() })
+        await Generate.apply({ result, fileManager: this.fileManager, rendererFactory: resolveRenderer() })
       }
 
       this.#registry.register({ event: 'kubb:generate:operation', handler: operationHandler, source: 'driver' })
@@ -342,7 +342,7 @@ export class KubbDriver {
       const operationsHandler = async (nodes: Array<OperationNode>, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await gen.operations!(nodes, ctx)
-        await Generate.apply({ result, driver: this, rendererFactory: resolveRenderer() })
+        await Generate.apply({ result, fileManager: this.fileManager, rendererFactory: resolveRenderer() })
       }
 
       this.#registry.register({ event: 'kubb:generate:operations', handler: operationsHandler, source: 'driver' })
@@ -468,7 +468,7 @@ export class KubbDriver {
       // `Generate.run` also handles the empty-entries and missing-`inputNode` cases by closing
       // out each entry's `kubb:plugin:end` directly.
       const { timings, failed } = await Generate.run({
-        driver: this,
+        host: this,
         transforms: this.#transforms,
         entries: generatorPlugins,
         flushPending,

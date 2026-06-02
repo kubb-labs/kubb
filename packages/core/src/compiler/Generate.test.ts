@@ -8,14 +8,8 @@ import { KubbDriver } from '../KubbDriver.ts'
 import { createMockedAdapter } from '../mocks.ts'
 import { memoryStorage } from '../storages/memoryStorage.ts'
 import type { Config, KubbHooks, Plugin } from '../types.ts'
-import { Generate } from './Generate.ts'
+import { Generate, type GenerateHost } from './Generate.ts'
 import { Transform } from './Transform.ts'
-
-function driverWithFileManager(): { driver: KubbDriver; fileManager: FileManager } {
-  const fileManager = new FileManager()
-  const driver = { fileManager } as unknown as KubbDriver
-  return { driver, fileManager }
-}
 
 function file(name: string): FileNode {
   return createFile({ baseName: `${name}.ts`, path: `${name}.ts` })
@@ -23,36 +17,36 @@ function file(name: string): FileNode {
 
 describe('Generate.apply', () => {
   it('does nothing on null, undefined, or false-y results', () => {
-    const { driver, fileManager } = driverWithFileManager()
+    const fileManager = new FileManager()
     const upsert = vi.spyOn(fileManager, 'upsert')
 
-    Generate.apply({ result: null, driver })
-    Generate.apply({ result: undefined, driver })
+    Generate.apply({ result: null, fileManager })
+    Generate.apply({ result: undefined, fileManager })
 
     expect(upsert).not.toHaveBeenCalled()
   })
 
   it('upserts every file when the result is an Array<FileNode>', () => {
-    const { driver, fileManager } = driverWithFileManager()
+    const fileManager = new FileManager()
     const files = [file('a'), file('b')]
 
-    Generate.apply({ result: files, driver })
+    Generate.apply({ result: files, fileManager })
 
     expect(fileManager.files).toHaveLength(2)
     expect(fileManager.files.map((f) => f.name)).toStrictEqual(['a', 'b'])
   })
 
   it('ignores non-array results when no rendererFactory is provided', () => {
-    const { driver, fileManager } = driverWithFileManager()
+    const fileManager = new FileManager()
     const upsert = vi.spyOn(fileManager, 'upsert')
 
-    Generate.apply({ result: { kind: 'element' }, driver })
+    Generate.apply({ result: { kind: 'element' }, fileManager })
 
     expect(upsert).not.toHaveBeenCalled()
   })
 
   it('routes element results through the rendererFactory stream when present', () => {
-    const { driver, fileManager } = driverWithFileManager()
+    const fileManager = new FileManager()
     const rendered = [file('rendered-1'), file('rendered-2')]
     const rendererFactory = vi.fn(() => ({
       stream: vi.fn(function* () {
@@ -61,14 +55,14 @@ describe('Generate.apply', () => {
       [Symbol.dispose]: () => {},
     }))
 
-    Generate.apply({ result: { kind: 'element' }, driver, rendererFactory: rendererFactory as never })
+    Generate.apply({ result: { kind: 'element' }, fileManager, rendererFactory: rendererFactory as never })
 
     expect(rendererFactory).toHaveBeenCalledOnce()
     expect(fileManager.files.map((f) => f.name)).toStrictEqual(['rendered-1', 'rendered-2'])
   })
 
   it('routes element results through the async render path when no stream is exposed', async () => {
-    const { driver, fileManager } = driverWithFileManager()
+    const fileManager = new FileManager()
     const renderer = {
       render: vi.fn(async () => {}),
       files: [file('async-1')],
@@ -76,7 +70,7 @@ describe('Generate.apply', () => {
     }
     const rendererFactory = vi.fn(() => renderer)
 
-    const result = Generate.apply({ result: { kind: 'element' }, driver, rendererFactory: rendererFactory as never })
+    const result = Generate.apply({ result: { kind: 'element' }, fileManager, rendererFactory: rendererFactory as never })
     await result
 
     expect(renderer.render).toHaveBeenCalledOnce()
@@ -154,10 +148,15 @@ describe('Generate.run — pipeline wiring', () => {
 
   it('returns empty timings and closes no plugin ends when entries is empty', async () => {
     const emitPluginEnd = vi.fn()
-    const driver = { hooks: { listenerCount: () => 0, emit: vi.fn() }, fileManager: new FileManager() } as unknown as KubbDriver
+    const host = {
+      hooks: { listenerCount: () => 0, emit: vi.fn() },
+      fileManager: new FileManager(),
+      inputNode: null,
+      getResolver: () => ({}) as never,
+    } as unknown as GenerateHost
 
     const result = await Generate.run({
-      driver,
+      host,
       transforms: new Transform(),
       entries: [],
       flushPending: async () => {},
@@ -169,14 +168,19 @@ describe('Generate.run — pipeline wiring', () => {
     expect(result.failed.size).toBe(0)
   })
 
-  it('closes out every entry with kubb:plugin:end when driver.inputNode is null', async () => {
+  it('closes out every entry with kubb:plugin:end when host.inputNode is null', async () => {
     const emitPluginEnd = vi.fn()
-    const driver = { hooks: { listenerCount: () => 0, emit: vi.fn() }, fileManager: new FileManager(), inputNode: null } as unknown as KubbDriver
+    const host = {
+      hooks: { listenerCount: () => 0, emit: vi.fn() },
+      fileManager: new FileManager(),
+      inputNode: null,
+      getResolver: () => ({}) as never,
+    } as unknown as GenerateHost
     const plugin = { name: 'no-input', options: {} } as unknown as Plugin
     const entries = [{ plugin: plugin as never, context: {} as never, hrStart: process.hrtime() }]
 
     const result = await Generate.run({
-      driver,
+      host,
       transforms: new Transform(),
       entries,
       flushPending: async () => {},

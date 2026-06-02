@@ -124,7 +124,7 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
     ...context,
     options: opts.options,
   })
-  await Generate.apply({ result, driver: opts.driver, rendererFactory: generator.renderer })
+  await Generate.apply({ result, fileManager: opts.driver.fileManager, rendererFactory: generator.renderer })
 }
 
 /**
@@ -148,7 +148,7 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
     ...context,
     options: opts.options,
   })
-  await Generate.apply({ result, driver: opts.driver, rendererFactory: generator.renderer })
+  await Generate.apply({ result, fileManager: opts.driver.fileManager, rendererFactory: generator.renderer })
 }
 
 /**
@@ -172,5 +172,5 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
     ...context,
     options: opts.options,
   })
-  await Generate.apply({ result, driver: opts.driver, rendererFactory: generator.renderer })
+  await Generate.apply({ result, fileManager: opts.driver.fileManager, rendererFactory: generator.renderer })
 }
