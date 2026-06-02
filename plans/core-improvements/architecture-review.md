@@ -59,17 +59,24 @@ goes further with hook specifications and implementations marked `tryfirst`, `tr
 `hookwrapper`, plus `firstresult` hooks. The point is that the hook surface is a typed contract,
 not a bag of events.
 
-Kubb runs on a raw `AsyncEventEmitter` with string-keyed event names, and the listener type is
-erased to `(...args: Array<never>)` at every registration site
-(`packages/core/src/KubbDriver.ts:318`, `:329`, `:340`). That works, but a plugin author gets no
-type help about what a hook receives or returns, and the two listener-tracking structures noted in
-`research.md` (C1) exist because the emitter has no model of hook kinds.
+Kubb ran on a raw `AsyncEventEmitter` with string-keyed event names, and the listener type was
+erased to `(...args: Array<never>)` at every registration site. The two listener-tracking
+structures noted in `research.md` (C1) existed because the emitter had no typed registry.
 
-The change is a small typed hook registry that declares each hook's argument and return types and
-its kind: sequential, parallel, or first-result. Ordering still comes from `enforce`, which Kubb
-already has. This removes the `Array<never>` casts, makes the generate hooks discoverable in an
-editor, and gives middleware a defined place in the order rather than relying on registration
-sequence. It is mostly an internal change behind the same public `definePlugin` surface.
+PR #3445 shipped the typed-tracker half of this idea. A `HookRegistry` wraps the existing
+`AsyncEventEmitter` (`packages/core/src/HookRegistry.ts`), tracks each listener with a `HookSource`
+tag (`'plugin' | 'middleware' | 'driver'`), and gives the driver one typed `register()` /
+`dispose()` surface. The `#hookListeners` and `#middlewareListeners` structures in `KubbDriver` are
+gone, every `(...args: Array<never>)` cast in the driver is removed, and external listeners
+attached directly via `kubb.hooks.on(...)` survive `dispose()`. The public `definePlugin`,
+`KubbHooks`, and `kubb.hooks` surfaces are unchanged.
+
+What is deliberately not in #3445: the declared hook-kind table. Every current `KubbHooks` event
+is sequential and the driver still dispatches through `hooks.emit(...)`, so a `HookKind` enum, a
+`kubbHookKinds` table, and a `registry.invoke(...)` router would all be dead infrastructure
+today. The kind machinery comes back the day a hook actually needs `firstResult` (Rollup-style
+short-circuit on the first non-nullish return) — at that point the change is one row in the kind
+table and one call site that uses `invoke` instead of `emit`.
 
 ## A3. Parse, transform, generate as explicit phases
 
@@ -143,20 +150,23 @@ builds directly on the architecture document proposed in `research.md` (M1).
 
 ## Suggested order
 
-Start with diagnostics (A4) and the typed hook protocol (A2), since both are mostly internal, lift
-type safety and error quality immediately, and make the later work easier to reason about. Do the
-transform-phase extraction (A3) next, because it cleans up the same driver hot path the first report
-flagged. Treat incremental generation (A1) as its own spec with a measurement gate, since it is the
-highest payoff and the highest risk. Hold the worker pool (A5) and AST interning (A6) until a
-profile on a large spec shows they earn their complexity. The core-protocol document (A7) can run in
-parallel with any of these.
+A2's typed-tracker half shipped in #3445; the hook-kind table is parked until a `firstResult`
+consumer arrives. Take diagnostics (A4) next, since it is also mostly internal, lifts error
+quality immediately, and makes the later work easier to reason about. Do the transform-phase
+extraction (A3) after that, because it cleans up the same driver hot path the first report
+flagged. Treat incremental generation (A1) as its own spec with a measurement gate, since it is
+the highest payoff and the highest risk. Hold the worker pool (A5) and AST interning (A6) until a
+profile on a large spec shows they earn their complexity. The core-protocol document (A7) can run
+in parallel with any of these.
 
 ## Open questions
 
 1. Is the dev-loop rebuild cost large enough on real specs to justify an incremental cache and the
    invalidation complexity it brings, or is watch-mode full rebuild acceptable for now?
-2. Should the typed hook protocol replace `AsyncEventEmitter` outright, or wrap it so the public
-   surface and external plugins stay untouched?
+2. ~~Should the typed hook protocol replace `AsyncEventEmitter` outright, or wrap it so the public
+   surface and external plugins stay untouched?~~ Resolved in #3445: wrap. `HookRegistry` owns
+   listener tracking, `AsyncEventEmitter` stays the dispatch layer, and `kubb.hooks` keeps its
+   public type.
 3. Where does the `Diagnostic` type live, core or `@internals/utils`, given the same question is
    open for the error model in `research.md`?
 
