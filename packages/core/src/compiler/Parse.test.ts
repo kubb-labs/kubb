@@ -1,7 +1,7 @@
 import { createInput, createSchema, createStreamInput } from '@kubb/ast'
 import type { InputStreamNode } from '@kubb/ast'
 import { describe, expect, it, vi } from 'vitest'
-import { createMockedAdapter } from './mocks.ts'
+import { createMockedAdapter } from '../mocks.ts'
 import { Parse } from './Parse.ts'
 
 async function* asyncFrom<T>(items: Array<T>): AsyncGenerator<T> {

@@ -1,9 +1,9 @@
 import { createFile } from '@kubb/ast'
 import type { FileNode } from '@kubb/ast'
 import { describe, expect, it, vi } from 'vitest'
-import { FileManager } from './FileManager.ts'
+import { FileManager } from '../FileManager.ts'
 import { Generate } from './Generate.ts'
-import type { KubbDriver } from './KubbDriver.ts'
+import type { KubbDriver } from '../KubbDriver.ts'
 
 function driverWithFileManager(): { driver: KubbDriver; fileManager: FileManager } {
   const fileManager = new FileManager()

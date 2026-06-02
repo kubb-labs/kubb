@@ -1,13 +1,13 @@
 import { forBatches, formatMs, getElapsedMs, isPromise } from '@internals/utils'
 import { collectUsedSchemaNames } from '@kubb/ast'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
-import { SCHEMA_PARALLEL } from './constants.ts'
-import type { Generator } from './defineGenerator.ts'
-import type { Plugin } from './definePlugin.ts'
-import type { KubbDriver } from './KubbDriver.ts'
+import { SCHEMA_PARALLEL } from '../constants.ts'
+import type { Renderer, RendererFactory } from '../createRenderer.ts'
+import type { Generator } from '../defineGenerator.ts'
+import type { Plugin } from '../definePlugin.ts'
+import type { KubbDriver } from '../KubbDriver.ts'
+import type { GeneratorContext, NormalizedPlugin } from '../types.ts'
 import type { Transform } from './Transform.ts'
-import type { GeneratorContext, NormalizedPlugin } from './types.ts'
-import type { Renderer, RendererFactory } from './createRenderer.ts'
 
 const OPERATION_FILTER_TYPES = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
 

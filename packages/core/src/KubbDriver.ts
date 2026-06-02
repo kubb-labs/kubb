@@ -12,10 +12,10 @@ import { defineResolver } from './defineResolver.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
 import { FileProcessor } from './FileProcessor.ts'
-import { Generate } from './Generate.ts'
+import { Generate } from './compiler/Generate.ts'
+import { Parse } from './compiler/Parse.ts'
+import { Transform } from './compiler/Transform.ts'
 import { type HookListener, HookRegistry } from './HookRegistry.ts'
-import { Parse } from './Parse.ts'
-import { Transform } from './Transform.ts'
 
 import type {
   Adapter,

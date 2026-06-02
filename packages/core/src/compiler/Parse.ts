@@ -1,7 +1,7 @@
 import { arrayToAsyncIterable } from '@internals/utils'
 import type { InputNode, InputStreamNode } from '@kubb/ast'
 import { createStreamInput } from '@kubb/ast'
-import type { Adapter, AdapterSource } from './createAdapter.ts'
+import type { Adapter, AdapterSource } from '../createAdapter.ts'
 
 /**
  * Result of `Parse.input`. `mode` distinguishes a native streaming adapter from an eager

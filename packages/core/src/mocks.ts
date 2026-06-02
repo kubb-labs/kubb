@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import type { FileNode, InputMeta, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
 import { transform } from '@kubb/ast'
 import { FileManager } from './FileManager.ts'
-import { Generate } from './Generate.ts'
+import { Generate } from './compiler/Generate.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Adapter, AdapterFactoryOptions, Config, Generator, GeneratorContext, NormalizedPlugin, PluginFactoryOptions } from './types.ts'
 
