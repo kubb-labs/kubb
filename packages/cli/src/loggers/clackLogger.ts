@@ -4,7 +4,7 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { formatMsWithColor, getElapsedMs, getIntro, toCause } from '@internals/utils'
 import { defineLogger, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { formatDiagnostic } from './diagnostics.ts'
+import { diagnosticDetails, diagnosticHeadline, diagnosticSymbol } from './diagnostics.ts'
 import { getSummary } from './utils.ts'
 import { buildProgressLine, createProgressCounters, formatCommandWithArgs, formatMessage, recordPluginResult, resetProgressCounters } from './utils.ts'
 
@@ -165,9 +165,12 @@ export const clackLogger = defineLogger({
       }
       state.activeProgress.clear()
 
-      // The block carries its own severity glyph and colors, so render it as a plain
-      // message (no extra `■` marker, no timestamp prefix) and let clack add the gutter.
-      clack.log.message(formatDiagnostic(diagnostic).join('\n'))
+      // Hand the severity glyph to clack as the gutter `symbol`, then let it draw the
+      // bar on each detail line via the default `secondarySymbol`. The headline and
+      // details carry their own colors, so clack only owns the gutter.
+      clack.log.message([diagnosticHeadline(diagnostic), ...diagnosticDetails(diagnostic)], {
+        symbol: diagnosticSymbol(diagnostic.severity),
+      })
     })
 
     context.on('kubb:version:new', ({ currentVersion, latestVersion }) => {

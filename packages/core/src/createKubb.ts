@@ -1073,7 +1073,7 @@ export class Kubb {
       const errors = out.diagnostics
         .filter((diagnostic) => diagnostic.severity === 'error')
         .map((diagnostic) => diagnostic.cause ?? new DiagnosticError(diagnostic))
-      throw new BuildError(`Build Error with ${errors.length} failed plugins`, { errors })
+      throw new BuildError(`Build failed with ${errors.length} ${errors.length === 1 ? 'error' : 'errors'}`, { errors })
     }
     return out
   }

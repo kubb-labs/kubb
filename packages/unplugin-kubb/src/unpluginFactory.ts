@@ -109,12 +109,19 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     const { diagnostics, files, storage } = await kubb.safeBuild()
 
     const hasFailures = hasBuildError(diagnostics)
-    if (hasFailures) {
-      for (const diagnostic of diagnostics) {
-        if (diagnostic.severity !== 'error') {
-          continue
-        }
+
+    // Surface every problem by severity; unplugin has no diagnostic renderer, so route
+    // errors/warnings/info to the channels it does listen on. `timing` diagnostics are summary-only.
+    for (const diagnostic of diagnostics) {
+      if (diagnostic.kind === 'timing') {
+        continue
+      }
+      if (diagnostic.severity === 'error') {
         hooks.emit('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+      } else if (diagnostic.severity === 'warning') {
+        hooks.emit('kubb:warn', { message: diagnostic.message })
+      } else {
+        hooks.emit('kubb:info', { message: diagnostic.message })
       }
     }
 

@@ -168,19 +168,21 @@ async function generate(options: GenerateProps): Promise<boolean> {
   const reportTelemetry = (status: 'success' | 'failed') =>
     sendTelemetry(buildTelemetryEvent({ command: 'generate', kubbVersion: version, plugins: telemetryPlugins, hrStart, filesCreated: files.length, status }))
 
-  if (hasBuildError(diagnostics)) {
-    // Render problems only; `timing` diagnostics feed the summary, not the error log.
-    for (const diagnostic of diagnostics) {
-      if (diagnostic.kind === 'timing') {
-        continue
-      }
-      if (diagnostic.code === diagnosticCode.unknown) {
-        await hooks.emit('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
-      } else {
-        await hooks.emit('kubb:diagnostic', { diagnostic })
-      }
+  // Render every problem, not just on failure, so warnings and info surface too.
+  // `timing` diagnostics feed the summary, not the log.
+  for (const diagnostic of diagnostics) {
+    if (diagnostic.kind === 'timing') {
+      continue
     }
+    if (diagnostic.code === diagnosticCode.unknown) {
+      await hooks.emit('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+    } else {
+      await hooks.emit('kubb:diagnostic', { diagnostic })
+    }
+  }
 
+  // Only an error-severity diagnostic fails the run; warnings and info do not.
+  if (hasBuildError(diagnostics)) {
     await hooks.emit('kubb:generation:end', { config, storage: kubb.storage })
     await hooks.emit('kubb:generation:summary', { config, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
 

@@ -25,6 +25,19 @@ describe('toDiagnostic', () => {
     expect(toDiagnostic(new Error('boom'))).toMatchObject({ code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom' })
   })
 
+  it('should surface the root cause message, not the wrapper, for a wrapped unknown error', () => {
+    const root = new Error('plugin blew up')
+    const wrapped = new Error('Error in async listener for "kubb:plugin:start"', { cause: root })
+
+    const diagnostic = toDiagnostic(wrapped)
+    expect(diagnostic).toMatchObject({ code: 'KUBB_UNKNOWN', message: 'plugin blew up' })
+    expect(diagnostic.cause).toBe(root)
+  })
+
+  it('should coerce a non-error thrown value', () => {
+    expect(toDiagnostic('oops')).toMatchObject({ code: 'KUBB_UNKNOWN', severity: 'error', message: 'oops' })
+  })
+
   it('should not loop on a self-referencing cause', () => {
     const error = new Error('boom') as Error & { cause: unknown }
     error.cause = error

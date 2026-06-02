@@ -1,4 +1,4 @@
-import { getErrorMessage, toCause } from '@internals/utils'
+import { getErrorMessage } from '@internals/utils'
 import { type DiagnosticCode, diagnosticCode } from './constants.ts'
 
 /**
@@ -108,23 +108,26 @@ export class DiagnosticError extends Error {
  * ```
  */
 export function toDiagnostic(error: unknown): Diagnostic {
-  // The event emitter and BuildError wrap the original, so walk the cause chain
-  // to recover a DiagnosticError thrown deeper down.
+  // The event emitter and BuildError wrap the original, so walk the cause chain to
+  // recover a DiagnosticError thrown deeper down. `root` tracks the deepest error so
+  // the unknown diagnostic reports the original message and stack, not the wrapper's.
   const seen = new Set<unknown>()
   let current: unknown = error
+  let root: Error | undefined
   while (current instanceof Error && !seen.has(current)) {
     if (current instanceof DiagnosticError) {
       return current.diagnostic
     }
     seen.add(current)
+    root = current
     current = current.cause
   }
 
   return {
     code: diagnosticCode.unknown,
     severity: 'error',
-    message: getErrorMessage(error),
-    cause: error instanceof Error ? toCause(error) : undefined,
+    message: root ? root.message : getErrorMessage(error),
+    cause: root,
   }
 }
 
