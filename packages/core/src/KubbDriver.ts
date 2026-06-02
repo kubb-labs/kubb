@@ -197,7 +197,6 @@ export class KubbDriver {
         `  • Operations: ${result.operationCount}`,
       ],
     })
-
   }
 
   #registerMiddleware<K extends keyof KubbHooks & string>(event: K, middlewareHooks: Middleware['hooks']) {
