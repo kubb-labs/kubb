@@ -194,8 +194,7 @@ export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType 
  * ```
  */
 export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName | ByContentType) & {
-  //TODO should be options: Omit<Partial<TOptions>, 'override'>
-  options: Partial<TOptions>
+  options: Omit<Partial<TOptions>, 'override'>
 }
 
 export type PluginFactoryOptions<
