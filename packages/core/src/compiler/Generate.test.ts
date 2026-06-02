@@ -1,9 +1,14 @@
-import { createFile } from '@kubb/ast'
-import type { FileNode } from '@kubb/ast'
+import { AsyncEventEmitter } from '@internals/utils'
+import { createFile, createInput, createSchema } from '@kubb/ast'
+import type { FileNode, SchemaNode } from '@kubb/ast'
 import { describe, expect, it, vi } from 'vitest'
+import { definePlugin } from '../definePlugin.ts'
 import { FileManager } from '../FileManager.ts'
+import { KubbDriver } from '../KubbDriver.ts'
+import { createMockedAdapter } from '../mocks.ts'
+import { memoryStorage } from '../storages/memoryStorage.ts'
+import type { Config, KubbHooks, Plugin } from '../types.ts'
 import { Generate } from './Generate.ts'
-import type { KubbDriver } from '../KubbDriver.ts'
 
 function driverWithFileManager(): { driver: KubbDriver; fileManager: FileManager } {
   const fileManager = new FileManager()
@@ -75,5 +80,74 @@ describe('Generate.apply', () => {
 
     expect(renderer.render).toHaveBeenCalledOnce()
     expect(fileManager.files.map((f) => f.name)).toStrictEqual(['async-1'])
+  })
+})
+
+describe('Generate.run — pipeline wiring', () => {
+  function makeConfig(plugin: Plugin): Config {
+    return {
+      root: '.',
+      input: { path: './petStore.yaml' },
+      output: { path: './src/gen', clean: true },
+      parsers: [],
+      adapter: createMockedAdapter({
+        parse: async () => createInput({ schemas: [createSchema({ type: 'string', name: 'Pet' })] }),
+      }),
+      storage: memoryStorage(),
+      plugins: [plugin],
+    } satisfies Config
+  }
+
+  it('routes nodes through the registered transformer before the generator sees them', async () => {
+    const received: Array<SchemaNode> = []
+    const plugin = definePlugin(() => ({
+      name: 'capture',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.setTransformer({
+            schema: (node) => (node.name === 'Pet' ? { ...node, name: 'PetTransformed' } : undefined),
+          })
+          ctx.addGenerator({
+            name: 'cap',
+            schema: (node) => {
+              received.push(node)
+              return undefined
+            },
+          })
+        },
+      },
+    }))() as unknown as Plugin
+
+    const driver = new KubbDriver(makeConfig(plugin), { hooks: new AsyncEventEmitter<KubbHooks>() })
+    await driver.setup()
+    await driver.run({ storage: memoryStorage() })
+
+    expect(received).toHaveLength(1)
+    expect(received[0]?.name).toBe('PetTransformed')
+  })
+
+  it('leaves the node untouched when no transformer is registered', async () => {
+    const received: Array<SchemaNode> = []
+    const plugin = definePlugin(() => ({
+      name: 'capture',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.addGenerator({
+            name: 'cap',
+            schema: (node) => {
+              received.push(node)
+              return undefined
+            },
+          })
+        },
+      },
+    }))() as unknown as Plugin
+
+    const driver = new KubbDriver(makeConfig(plugin), { hooks: new AsyncEventEmitter<KubbHooks>() })
+    await driver.setup()
+    await driver.run({ storage: memoryStorage() })
+
+    expect(received).toHaveLength(1)
+    expect(received[0]?.name).toBe('Pet')
   })
 })

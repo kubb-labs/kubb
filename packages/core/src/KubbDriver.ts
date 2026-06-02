@@ -142,7 +142,7 @@ export class KubbDriver {
       }
     }
     if (this.config.adapter) {
-      await this.#registerAdapter(this.config.adapter)
+      this.#studio.source = inputToAdapterSource(this.config)
     }
   }
 
@@ -170,23 +170,26 @@ export class KubbDriver {
     return normalized
   }
 
-  async #registerAdapter(adapter: Adapter) {
-    const source = inputToAdapterSource(this.config)
-    this.#studio.source = source
+  /**
+   * Phase 1 of the pipeline. Idempotent — returns immediately when `inputNode` is already set,
+   * so repeated calls from `run()` or the studio path do not re-parse the source.
+   */
+  async #parsePhase(): Promise<void> {
+    if (this.inputNode || !this.adapter || !this.#studio.source) return
 
-    const result = await Parse.input({ adapter, source })
+    const result = await Parse.input({ adapter: this.adapter, source: this.#studio.source })
     this.inputNode = result.inputNode
 
     if (result.mode === 'stream') {
       await this.hooks.emit('kubb:debug', {
         date: new Date(),
-        logs: [`✓ Adapter '${adapter.name}' producing input stream`],
+        logs: [`✓ Adapter '${this.adapter.name}' producing input stream`],
       })
     } else {
       await this.hooks.emit('kubb:debug', {
         date: new Date(),
         logs: [
-          `✓ Adapter '${adapter.name}' resolved InputNode (wrapped as stream)`,
+          `✓ Adapter '${this.adapter.name}' resolved InputNode (wrapped as stream)`,
           `  • Schemas: ${result.schemaCount}`,
           `  • Operations: ${result.operationCount}`,
         ],
@@ -239,7 +242,6 @@ export class KubbDriver {
             this.setPluginResolver(plugin.name, resolver)
           },
           setTransformer: (visitor) => {
-            plugin.transformer = visitor
             this.#transforms.register(plugin.name, visitor)
           },
           setRenderer: (renderer) => {
@@ -413,10 +415,11 @@ export class KubbDriver {
         await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ File write process completed for ${files.length} files`] })
       }
 
-      // Phase 1 (Parse) already ran during `setup()` via `Parse.input` — the streamed
-      // `InputNode` is on `this.inputNode`. Phase 2 (Transform) registrations happen
-      // inside `emitSetupHooks` when plugins call `setTransformer`. Phase 3 (Generate)
-      // runs below, via `Generate.run`.
+      // Phase 1: Parse the adapter source into the streaming `InputNode`.
+      await this.#parsePhase()
+      // Phase 2: emit `kubb:plugin:setup` so plugins can register transformers via
+      // `setTransformer`. Each call writes into `this.#transforms`, which the
+      // Generate phase reads through `transforms.applyTo`.
       await this.emitSetupHooks()
 
       if (this.adapter && this.inputNode) {
@@ -457,6 +460,7 @@ export class KubbDriver {
 
       if (generatorPlugins.length > 0) {
         if (this.inputNode) {
+          // Phase 3: stream every node through the transform registry and into each plugin's generators.
           const { timings, failed } = await Generate.run({
             driver: this,
             transforms: this.#transforms,
@@ -609,7 +613,7 @@ export class KubbDriver {
         return driver.getResolver(plugin.name)
       },
       get transformer() {
-        return plugin.transformer
+        return driver.#transforms.get(plugin.name)
       },
       warn(message: string) {
         driver.hooks.emit('kubb:warn', { message })

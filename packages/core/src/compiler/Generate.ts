@@ -241,18 +241,17 @@ export class Generate {
         try {
           const { plugin, generatorContext, generators } = state
           const ctx = { ...generatorContext, options: plugin.options }
-          // Filter to operations this plugin would have dispatched to gen.operation():
-          // excludes/includes/overrides that resolve to null in dispatchOperation must also
-          // be hidden from the batched gen.operations() hook, otherwise grouped/barrel
-          // generators emit references to operation files that the per-op hook intentionally skipped.
+          // Match what the per-node dispatch passes to gen.operation(): the transformed node,
+          // already filtered by excludes/includes/overrides. Without the transform step the
+          // batched gen.operations() hook would see a different shape than gen.operation()
+          // for the same operation, which broke grouped/barrel generators that compare names.
           const ops = collectedOperations ?? []
+          const transformedOps = ops.map((node) => transforms.applyTo(plugin.name, node))
           const pluginOperations = state.optionsAreStatic
-            ? ops
-            : ops.filter((node) => {
-                const transformed = transforms.applyTo(plugin.name, node)
+            ? transformedOps
+            : transformedOps.filter((node) => {
                 const { exclude, include, override } = plugin.options
-
-                return generatorContext.resolver.resolveOptions(transformed, { options: plugin.options, exclude, include, override }) !== null
+                return generatorContext.resolver.resolveOptions(node, { options: plugin.options, exclude, include, override }) !== null
               })
           for (const gen of generators) {
             if (!gen.operations) continue

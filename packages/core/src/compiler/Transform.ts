@@ -28,14 +28,8 @@ export class Transform {
   }
 
   /**
-   * Returns `true` when a transformer is registered for `pluginName`.
-   */
-  has(pluginName: string): boolean {
-    return this.#visitors.has(pluginName)
-  }
-
-  /**
    * Returns the transformer registered for `pluginName`, or `undefined` when none is.
+   * Used by the generator context so plugins can introspect their own visitor.
    */
   get(pluginName: string): Visitor | undefined {
     return this.#visitors.get(pluginName)

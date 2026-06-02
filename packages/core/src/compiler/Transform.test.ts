@@ -54,18 +54,16 @@ describe('Transform — applyTo', () => {
 })
 
 describe('Transform — registry', () => {
-  it('tracks size and exposes has/get', () => {
+  it('tracks size and exposes get', () => {
     const transforms = new Transform()
     const visitor: Visitor = { schema: () => undefined }
 
     expect(transforms.size).toBe(0)
-    expect(transforms.has('a')).toBe(false)
     expect(transforms.get('a')).toBeUndefined()
 
     transforms.register('a', visitor)
 
     expect(transforms.size).toBe(1)
-    expect(transforms.has('a')).toBe(true)
     expect(transforms.get('a')).toBe(visitor)
   })
 
@@ -88,7 +86,7 @@ describe('Transform — registry', () => {
     transforms.dispose()
 
     expect(transforms.size).toBe(0)
-    expect(transforms.has('a')).toBe(false)
+    expect(transforms.get('a')).toBeUndefined()
     expect(transforms.applyTo('a', namedSchema('Pet')).name).toBe('Pet')
   })
 })
