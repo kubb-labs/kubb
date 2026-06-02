@@ -55,10 +55,10 @@ async function applyAsyncRender<TElement>({ renderer, result, driver }: { render
 }
 
 /**
- * Phase 3 of the pipeline. Streams schemas and operations through every plugin's generators
- * and applies each plugin's registered transformer (via `transforms`) on the way in. The hot
- * path stays per-node, with no buffering, and per-plugin isolation comes from routing through
- * `transforms.applyTo(name, node)`.
+ * Streams schemas and operations through every plugin's generators and applies each plugin's
+ * registered transformer (via `transforms`) on the way in. The hot path stays per-node, with
+ * no buffering, and per-plugin isolation comes from routing through `transforms.applyTo(name,
+ * node)`.
  */
 export class Generate {
   /**

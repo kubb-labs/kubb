@@ -103,8 +103,8 @@ export class KubbDriver {
   readonly #registry: HookRegistry<KubbHooks>
 
   /**
-   * Phase-2 registry. Plugins populate it during `kubb:plugin:setup` via `setTransformer`,
-   * and the Generate phase reads it once per `(plugin, node)` pair through `applyTo`.
+   * Transform registry. Plugins populate it during `kubb:plugin:setup` via `setTransformer`,
+   * and `Generate.run` reads it once per `(plugin, node)` pair through `applyTo`.
    */
   readonly #transforms = new Transform()
 
@@ -171,8 +171,8 @@ export class KubbDriver {
   }
 
   /**
-   * Phase 1 of the pipeline. Idempotent: returns immediately when `inputNode` is already set,
-   * so repeated calls from `run()` or the studio path do not re-parse the source.
+   * Idempotent: returns immediately when `inputNode` is already set, so repeated calls from
+   * `run()` or the studio path do not re-parse the source.
    */
   async #parsePhase(): Promise<void> {
     if (this.inputNode || !this.adapter || !this.#studio.source) return
@@ -416,11 +416,11 @@ export class KubbDriver {
         await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ File write process completed for ${files.length} files`] })
       }
 
-      // Phase 1: Parse the adapter source into the streaming `InputNode`.
+      // Parse the adapter source into the streaming `InputNode`.
       await this.#parsePhase()
-      // Phase 2: emit `kubb:plugin:setup` so plugins can register transformers via
-      // `setTransformer`. Each call writes into `this.#transforms`, which the
-      // Generate phase reads through `transforms.applyTo`.
+      // Emit `kubb:plugin:setup` so plugins can register transformers via `setTransformer`.
+      // Each call writes into `this.#transforms`, which `Generate.run` later reads through
+      // `transforms.applyTo`.
       await this.emitSetupHooks()
 
       if (this.adapter && this.inputNode) {
@@ -466,7 +466,7 @@ export class KubbDriver {
 
       if (generatorPlugins.length > 0) {
         if (this.inputNode) {
-          // Phase 3: stream every node through the transform registry and into each plugin's generators.
+          // Stream every node through the transform registry and into each plugin's generators.
           const { timings, failed } = await Generate.run({
             driver: this,
             transforms: this.#transforms,

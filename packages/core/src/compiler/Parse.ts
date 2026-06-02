@@ -29,10 +29,9 @@ export type ParseResult = {
 }
 
 /**
- * Phase 1 of the pipeline. Runs the adapter over the configured source and returns an
- * `InputStreamNode` ready for the transform and generate phases. Adapters with `stream()` are
- * used directly. Adapters that only expose `parse()` are wrapped so the downstream pipeline
- * stays stream-only.
+ * Runs the adapter over the configured source and returns an `InputStreamNode` ready for the
+ * transform and generate steps. Adapters with `stream()` are used directly. Adapters that only
+ * expose `parse()` are wrapped so the downstream pipeline stays stream-only.
  */
 export class Parse {
   /**
