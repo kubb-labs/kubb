@@ -16,8 +16,6 @@ export { defineMiddleware } from './defineMiddleware.ts'
 export { defineParser } from './defineParser.ts'
 export { definePlugin } from './definePlugin.ts'
 export { defineResolver } from './defineResolver.ts'
-// TODO remove
-export { FileProcessor } from './FileProcessor.ts'
 export { KubbDriver } from './KubbDriver.ts'
 export { fsStorage } from './storages/fsStorage.ts'
 export { memoryStorage } from './storages/memoryStorage.ts'
