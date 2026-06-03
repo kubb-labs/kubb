@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { canUseTTY, formatHrtime, getElapsedMs, isGitHubActions, randomCliColor } from '@internals/utils'
 import type { Config, Diagnostic, Logger, LoggerContext, LoggerOptions, Reporter, ReporterName } from '@kubb/core'
-import { Diagnostics, getDiagnosticInfo, isPerformanceDiagnostic, logLevel as logLevelMap } from '@kubb/core'
+import { Diagnostics, isPerformanceDiagnostic, logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
 import { fileReporter } from '../reporters/fileReporter.ts'
 import { jsonReporter } from '../reporters/jsonReporter.ts'
@@ -381,20 +381,6 @@ export function getSummary({ diagnostics, filesCreated, status, hrStart, config,
   }
 
   summaryLines.push(`${labels.output.padEnd(maxLength + 2)} ${meta.output}`)
-
-  if (status === 'failed') {
-    const env = getDiagnosticInfo()
-    const rows: Array<[string, string]> = [
-      ['node', env.nodeVersion],
-      ['kubb', env.KubbVersion],
-      ['platform', `${env.platform} ${env.arch}`],
-      ['cwd', env.cwd],
-    ]
-    summaryLines.push(styleText('dim', 'Environment:'))
-    for (const [name, value] of rows) {
-      summaryLines.push(styleText('dim', `• ${name.padEnd(maxLength)} ${value}`))
-    }
-  }
 
   return summaryLines
 }

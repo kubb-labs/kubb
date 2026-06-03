@@ -114,8 +114,8 @@ export type ProblemDiagnostic = {
 /**
  * A per-plugin performance record. It carries the `plugin` and its elapsed `duration`,
  * uses the `performance` kind so it stays out of the problem list, and the `KUBB_PERFORMANCE`
- * code. Feeds the per-plugin timing bars, and {@link Diagnostics.duration} sums these into
- * the run total. Build it with {@link Diagnostics.performance}.
+ * code. Feeds the per-plugin timing bars, and reporters sum these into the run total. Build it
+ * with {@link Diagnostics.performance}.
  */
 export type PerformanceDiagnostic = {
   kind: 'performance'
@@ -461,8 +461,7 @@ export class Diagnostics {
   }
 
   /**
-   * Builds a per-plugin performance record. {@link Diagnostics.duration} sums these
-   * into the run total.
+   * Builds a per-plugin performance record. Reporters sum these into the run total.
    */
   static performance({ plugin, duration }: { plugin: string; duration: number }): PerformanceDiagnostic {
     return {

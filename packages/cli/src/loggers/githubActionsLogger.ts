@@ -1,6 +1,6 @@
 import { styleText } from 'node:util'
 import { formatHrtime, formatMs, formatMsWithColor, toCause } from '@internals/utils'
-import { type Config, defineLogger, diagnosticCode, Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { type Config, defineLogger, diagnosticCode, Diagnostics, isProblemDiagnostic, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import {
   buildProgressLine,
   createHookTimer,
@@ -155,6 +155,11 @@ export const githubActionsLogger = defineLogger({
       closeAllGroups()
 
       if (logLevel <= logLevelMap.silent) {
+        return
+      }
+
+      if (!isProblemDiagnostic(diagnostic)) {
+        console.log(`::notice::${diagnostic.message}`)
         return
       }
 

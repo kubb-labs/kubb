@@ -85,6 +85,9 @@ export const plainLogger = defineLogger({
     })
 
     context.on('kubb:diagnostic', ({ diagnostic }) => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
       console.log(getMessage(formatDiagnostic(diagnostic).join('\n')))
     })
 

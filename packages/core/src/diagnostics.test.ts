@@ -158,18 +158,6 @@ describe('Diagnostics.update', () => {
   })
 })
 
-describe('Diagnostics.duration', () => {
-  it('sums every performance duration and ignores problems', () => {
-    const diagnostics = [problem(), Diagnostics.performance({ plugin: 'a', duration: 5 }), Diagnostics.performance({ plugin: 'b', duration: 120 })]
-
-    expect(Diagnostics.duration(diagnostics)).toBe(125)
-  })
-
-  it('returns 0 when no performance records are present', () => {
-    expect(Diagnostics.duration([problem()])).toBe(0)
-  })
-})
-
 describe('Diagnostics.dedupe', () => {
   it('drops problems sharing code + pointer + plugin, keeps every performance record', () => {
     const loc = { kind: 'schema', pointer: '#/components/schemas/Pet' } as const
