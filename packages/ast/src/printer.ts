@@ -46,7 +46,7 @@ export type PrinterHandler<TOutput, TOptions extends object, T extends SchemaTyp
  * Partial map of per-node-type handler overrides for a printer.
  *
  * Each key is a `SchemaType` string (e.g. `'date'`, `'string'`).
- * Supply only the handlers you want to replace; the printer's built-in
+ * Supply only the handlers you want to replace. The printer's built-in
  * defaults fill in the rest.
  *
  * @example
@@ -69,10 +69,10 @@ export type PrinterPartial<TOutput, TOptions extends object> = Partial<{
 /**
  * Generic shape used by `definePrinter`.
  *
- * - `TName`        — unique string identifier (e.g. `'zod'`, `'ts'`)
- * - `TOptions`     — options passed to and stored on the printer instance
- * - `TOutput`      — the type emitted by node handlers
- * - `TPrintOutput` — type returned by public `print` (defaults to `TOutput`)
+ * - `TName` unique string identifier (e.g. `'zod'`, `'ts'`)
+ * - `TOptions` options passed to and stored on the printer instance
+ * - `TOutput` the type emitted by node handlers
+ * - `TPrintOutput` type returned by public `print` (defaults to `TOutput`)
  *
  * @example
  * ```ts
@@ -104,8 +104,8 @@ export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
    */
   options: T['options']
   /**
-   * Node-level dispatcher — converts a `SchemaNode` directly to `TOutput` using the `nodes` handlers.
-   * Always dispatches through the `nodes` map; never calls the `print` override.
+   * Node-level dispatcher, converts a `SchemaNode` directly to `TOutput` using the `nodes` handlers.
+   * Always dispatches through the `nodes` map. Never calls the `print` override.
    * Use this when you need the raw output (e.g. `ts.TypeNode`) without declaration wrapping.
    */
   transform: (node: SchemaNode) => T['output'] | null
@@ -143,7 +143,7 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
   /**
    * Optional root-level print override. When provided, becomes the public `printer.print`.
    * Use `this.transform(node)` inside this function to dispatch to the node-level handlers (`nodes`),
-   * not the override itself — so recursion is safe.
+   * not the override itself, so recursion is safe.
    */
   print?: (this: PrinterHandlerContext<T['output'], T['options']>, node: SchemaNode) => T['printOutput'] | null
 }
@@ -155,11 +155,11 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  *
  * The builder receives resolved options and returns:
  *
- * - `name` — unique identifier for the printer.
- * - `options` — stored on the returned printer instance.
- * - `nodes` — map of `SchemaType` → handler. Handlers return the rendered
+ * - `name` unique identifier for the printer.
+ * - `options` stored on the returned printer instance.
+ * - `nodes` map of `SchemaType` → handler. Handlers return the rendered
  *   output (a string, a TypeScript AST node, ...) for that schema type.
- * - `print` (optional) — top-level override exposed as `printer.print`.
+ * - `print` (optional), top-level override exposed as `printer.print`.
  *   Use `this.transform(node)` inside it to dispatch to `nodes` recursively.
  *
  * Without a `print` override, `printer.print` falls back to `printer.transform`

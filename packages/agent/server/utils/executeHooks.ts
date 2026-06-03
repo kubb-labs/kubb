@@ -9,7 +9,7 @@ type ExecutingHooksProps = {
 
 /**
  * Execute the `hooks.done` commands defined in the Kubb config sequentially.
- * Each command is emitted as a `hook:start` event; the plugin layer is responsible
+ * Each command is emitted as a `hook:start` event. The plugin layer is responsible
  * for actually spawning the process and emitting `hook:end`.
  *
  */

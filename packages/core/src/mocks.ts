@@ -27,7 +27,7 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
 
 /**
  * Creates a minimal `Adapter` mock for unit tests.
- * `parse` returns an empty `InputNode` by default; override via `options.parse`.
+ * `parse` returns an empty `InputNode` by default. Override via `options.parse`.
  * `getImports` returns `[]` by default.
  */
 export function createMockedAdapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptions>(

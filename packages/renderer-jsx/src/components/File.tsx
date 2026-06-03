@@ -25,7 +25,7 @@ type BasePropsWithoutBaseName = {
   baseName?: never
   /**
    * Fully qualified path to the generated file.
-   * Optional when `baseName` is omitted — the component renders its children inline.
+   * Optional when `baseName` is omitted, the component renders its children inline.
    */
   path?: string | null
 }

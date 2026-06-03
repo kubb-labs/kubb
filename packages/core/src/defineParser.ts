@@ -6,7 +6,7 @@ type PrintOptions = {
 
 /**
  * Converts a resolved {@link FileNode} into the final source string that gets
- * written to disk. Kubb ships with TypeScript and TSX parsers; add your own
+ * written to disk. Kubb ships with TypeScript and TSX parsers. Add your own
  * for new file types (JSON, Markdown, ...).
  */
 export type Parser<TMeta extends object = object, TNode = unknown> = {

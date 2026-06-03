@@ -83,7 +83,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('kubb:diagnostic', ({ diagnostic }) => {
-      // Silent still surfaces errors so failures stay visible; it drops warnings and info.
+      // Silent still surfaces errors so failures stay visible. It drops warnings and info.
       if (logLevel <= logLevelMap.silent && diagnostic.severity !== 'error') {
         return
       }

@@ -64,7 +64,7 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
   }
 
   try {
-    // Check/create package.json — detect package manager once after the block
+    // Check/create package.json, detect package manager once after the block
     if (!hasPackageJson(cwd)) {
       if (!yes) {
         const shouldInit = await clack.confirm({

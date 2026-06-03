@@ -3,22 +3,22 @@
  * document's schemas into Kubb AST nodes.
  *
  * Everything else in an adapter's schema pipeline is generic JSON Schema shared
- * across specs; the dialect is the one seam where a spec differs — the
+ * across specs. The dialect is the one seam where a spec differs, the
  * "dialect layer" analogue of a database driver targeting Postgres vs MySQL.
  * Pair it with {@link dispatch}: the rule table decides *which* converter runs,
  * the dialect answers the spec-specific questions inside them.
  *
  * The guard methods (`isReference`, `isDiscriminator`) are type predicates so
- * converters narrow the schema after a check; the type parameters carry those
+ * converters narrow the schema after a check. The type parameters carry those
  * narrowed types through.
  *
- * Scope: this is the seam for the **JSON Schema family** — OpenAPI, AsyncAPI, and
+ * Scope: this is the seam for the **JSON Schema family**, OpenAPI, AsyncAPI, and
  * plain JSON Schema all share `$ref`, `allOf`/`oneOf`, `enum`, and `format`, and
  * differ only in these few decisions. A spec built on a different type system
  * (e.g. GraphQL, with non-null wrappers, interfaces, and named-type references
- * instead of `$ref`) does not implement a `SchemaDialect`; it reuses the universal
- * layer directly — the `Adapter` port, the AST factories, and {@link dispatch}
- * with its own rule table — to emit the same nodes.
+ * instead of `$ref`) does not implement a `SchemaDialect`. It reuses the universal
+ * layer directly, the `Adapter` port, the AST factories, and {@link dispatch}
+ * with its own rule table, to emit the same nodes.
  *
  * @typeParam TSchema - The adapter's schema object type (e.g. an OpenAPI `SchemaObject`).
  * @typeParam TRef - The narrowed `$ref` pointer type `isReference` proves.
@@ -42,7 +42,7 @@ export type SchemaDialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TS
 
 /**
  * Identity helper that types a {@link SchemaDialect} for an adapter. Like
- * `defineParser`, it adds no runtime behavior — it pins the dialect's type for
+ * `defineParser`, it adds no runtime behavior, it pins the dialect's type for
  * inference and gives adapter authors a discoverable anchor.
  *
  * @example

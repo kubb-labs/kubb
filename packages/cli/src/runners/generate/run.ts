@@ -196,7 +196,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
     }
   }
 
-  // Only an error-severity diagnostic fails the run; warnings and info do not.
+  // Only an error-severity diagnostic fails the run. Warnings and info do not.
   if (Diagnostics.hasError(diagnostics)) {
     await hooks.emit('kubb:generation:end', { config, storage: kubb.storage, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
 
@@ -206,7 +206,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
 
   const outputPath = path.resolve(config.root, config.output.path)
 
-  // The build succeeded; the formatter, linter, and post-generate hooks run after it. Their
+  // The build succeeded. The formatter, linter, and post-generate hooks run after it. Their
   // failures used to only emit `kubb:error`, so they never reached the summary, the json report,
   // or the exit code. Collect them as coded diagnostics here.
   const outputDiagnostics: Array<Diagnostic> = []
@@ -353,7 +353,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     process.exit(1)
   }
 
-  // CLI `--reporter` wins; otherwise the first config's `reporters`; otherwise the default.
+  // CLI `--reporter` wins. Otherwise the first config's `reporters`. Otherwise the default.
   const reporters: Array<ReporterName> = cliReporters?.length ? cliReporters : (configs[0]?.reporters ?? ['cli'])
   const makeSink = await setupReporters(hooks, { logLevel, reporters })
 

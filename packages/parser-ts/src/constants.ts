@@ -31,7 +31,7 @@ export const CARRIAGE_RETURN_PATTERN = /\r/g
 export const CRLF_PATTERN = /\r\n/g
 
 /**
- * Matches an identifier that starts with a digit — JavaScript disallows this
+ * Matches an identifier that starts with a digit. JavaScript disallows this,
  * so the printer prefixes such names with `_`.
  */
 export const LEADING_DIGIT_PATTERN = /^\d/

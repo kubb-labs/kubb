@@ -11,7 +11,7 @@ import type { FileNode } from '@kubb/ast'
 export type Renderer<TElement = unknown> = {
   /**
    * Renders `element` and populates {@link files} with the resulting {@link FileNode} objects.
-   * Called once per render cycle; must resolve before {@link files} is read.
+   * Called once per render cycle. Must resolve before {@link files} is read.
    */
   render(element: TElement): Promise<void>
   /**
@@ -52,7 +52,7 @@ export type RendererFactory<TElement = unknown> = () => Renderer<TElement>
  * (JSX, a template string, a tree of any shape) into `FileNode`s that get
  * written to disk.
  *
- * Use this to support output formats beyond JSX — for instance, a Handlebars
+ * Use this to support output formats beyond JSX, for instance, a Handlebars
  * renderer, a string-template renderer, or a renderer that writes binary
  * files. Plugins and generators pick the renderer to use via the `renderer`
  * field on `defineGenerator`.

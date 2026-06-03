@@ -60,7 +60,7 @@ type SchemaContext = {
 }
 
 /**
- * One entry in this adapter's schema-dispatch table — a {@link ast.DispatchRule} specialized
+ * One entry in this adapter's schema-dispatch table, a {@link ast.DispatchRule} specialized
  * to OAS schema context and Kubb `SchemaNode` output. See {@link ast.dispatch} for the contract
  * a future adapter (e.g. AsyncAPI) follows: define a context type and an ordered rules table.
  */
@@ -97,7 +97,7 @@ function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
 export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = oasDialect) {
   const document = ctx.document
 
-  // Branch handlers — each converts one OAS schema pattern to a SchemaNode.
+  // Branch handlers, each converts one OAS schema pattern to a SchemaNode.
 
   /**
    * Tracks `$ref` paths that are currently being resolved to prevent infinite
@@ -111,7 +111,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
    * Without this, the same referenced schema (e.g. `customer`) is fully re-expanded
    * every time it appears as a `$ref` in a different parent schema. In heavily
    * cross-referenced specs like Stripe (~1 400 schemas), this causes exponential
-   * blowup — `customer` alone may be referenced from dozens of top-level schemas,
+   * blowup, `customer` alone may be referenced from dozens of top-level schemas,
    * each triggering a fresh recursive expansion of its entire sub-tree.
    *
    * Memoizing by `$ref` path reduces the overall work from O(2^depth) to O(N)
@@ -253,7 +253,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
 
     if (schema.properties) {
       const { allOf: _allOf, ...schemaWithoutAllOf } = schema
-      // Don't pass `name` here — the result must stay anonymous so it can be merged with the
+      // Don't pass `name` here, the result must stay anonymous so it can be merged with the
       // adjacent synthetic object in `mergeAdjacentObjectsLazy`. Nested enum qualification
       // happens upstream via `convertObject`'s `setEnumName` propagation.
       allOfMembers.push(parseSchema({ schema: schemaWithoutAllOf }, rawOptions))
@@ -495,7 +495,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     const nullInEnum = schema.enum!.includes(null)
     const filteredValues = (nullInEnum ? schema.enum!.filter((v) => v !== null) : schema.enum!) as Array<string | number | boolean>
 
-    // drf-spectacular `NullEnum` ({ enum: [null] }) is just `null`; an empty enum node would
+    // drf-spectacular `NullEnum` ({ enum: [null] }) is just `null`. An empty enum node would
     // render as `never` (plugin-ts) / invalid `z.enum([])` (plugin-zod). Mirror the `const: null`
     // branch so it renders as a clean `null` (not `z.null().nullable()`).
     if (nullInEnum && filteredValues.length === 0) {
@@ -777,7 +777,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
   /**
    * Ordered schema-dispatch table. Order is significant: composition keywords (`$ref`, `allOf`,
    * `oneOf`/`anyOf`) take precedence over `const`/`format`, which take precedence over the plain
-   * `type`. The first matching rule that produces a node wins; see {@link SchemaRule} for the
+   * `type`. The first matching rule that produces a node wins. See {@link SchemaRule} for the
    * match/convert/fall-through contract.
    */
   const schemaRules: Array<SchemaRule> = [
@@ -1058,8 +1058,7 @@ export function parseSchema(
  * Parses an OpenAPI specification into Kubb's universal `InputNode` AST.
  *
  * This is the main entry point for `@kubb/adapter-oas`. It converts OpenAPI/Swagger specs into a spec-agnostic tree
- * that downstream plugins (`plugin-ts`, `plugin-zod`, etc.) consume for code generation. No code is generated here —
- * the tree is a pure data structure representing all schemas and operations.
+ * that downstream plugins (`plugin-ts`, `plugin-zod`, etc.) consume for code generation. No code is generated here,  * the tree is a pure data structure representing all schemas and operations.
  *
  * Returns the AST root and a `nameMapping` for resolving schema references.
  *

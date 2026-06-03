@@ -178,7 +178,7 @@ export type ObjectSchemaNode = SchemaNodeBase & {
    */
   type: 'object'
   /**
-   * Primitive type — always `'object'` for object schemas.
+   * Primitive type, always `'object'` for object schemas.
    */
   primitive: 'object'
   /**

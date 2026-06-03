@@ -37,7 +37,7 @@ export type DedupePlan = {
 
 /**
  * Options that inject the naming and candidate policy into {@link buildDedupePlan}.
- * The mechanics (grouping, counting, rewriting) live here; the policy lives in the caller.
+ * The mechanics (grouping, counting, rewriting) live here. The policy lives in the caller.
  */
 export type BuildDedupePlanOptions = {
   /**
@@ -89,7 +89,7 @@ function createRefNode(node: SchemaNode, canonical: DedupeCanonical): SchemaNode
  * so nested duplicates inside a replaced shape are not visited again.
  *
  * Pass `skipRootMatch` when rewriting a canonical definition so its own root is not
- * turned into a reference to itself; nested duplicates are still collapsed.
+ * turned into a reference to itself. Nested duplicates are still collapsed.
  *
  * @example
  * ```ts
@@ -129,7 +129,7 @@ function cleanDefinition(node: SchemaNode, name: string): SchemaNode {
  *
  * A shape that occurs at least `minOccurrences` times is deduplicated: if any occurrence
  * is a named top-level schema, that name becomes the canonical (so other top-level duplicates
- * and inline copies turn into references to it); otherwise a new definition is hoisted using
+ * and inline copies turn into references to it). Otherwise a new definition is hoisted using
  * `nameFor`. The plan is then applied per node with {@link applyDedupe}.
  *
  * @example

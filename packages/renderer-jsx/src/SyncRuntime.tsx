@@ -22,7 +22,7 @@ type OnHost = (type: string, props: Record<string, unknown>) => void
  * Walks `element`, resolving arrays, Fragments, and function components
  * transparently, then calls `onText` for primitive values and `onHost` for
  * every host element encountered. Pure function components are called
- * synchronously; hooks and class components are not supported.
+ * synchronously. Hooks and class components are not supported.
  */
 function walkElement(element: unknown, onText: OnText, onHost: OnHost): void {
   if (element == null || typeof element === 'boolean') return
@@ -270,9 +270,9 @@ function* walkFiles(element: unknown): Generator<FileNode> {
  * producing {@link FileNode} objects directly without an intermediate virtual
  * DOM. No React fiber, scheduler, or work loop is involved.
  *
- * All components must be pure functions; hooks and class components are not
+ * All components must be pure functions. Hooks and class components are not
  * supported. Produces identical output to the React-backed {@link Runtime} at
- * approximately 2–4× the speed and a fraction of the allocations.
+ * approximately 2, 4× the speed and a fraction of the allocations.
  */
 export class SyncRuntime {
   /**

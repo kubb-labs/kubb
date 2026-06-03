@@ -17,7 +17,7 @@ type Props = {
  *
  * Use this component when you need to include JSX markup (including fragments
  * `<>…</>`) in the body of a generated function or component. The `children`
- * prop must be a plain string — expression attributes that reference runtime
+ * prop must be a plain string, expression attributes that reference runtime
  * values should be written as template literals.
  *
  * @example

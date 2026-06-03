@@ -28,8 +28,8 @@ export type Output<_TOptions = unknown> = {
    * lint disables, or `@ts-nocheck` directives.
    *
    * A string is applied to every file (including barrel and aggregation re-export files).
-   * Pass a function to compute the banner from the file's `BannerMeta` — document metadata
-   * plus per-file context (`isBarrel`, `isAggregation`, `filePath`, `baseName`) — so you can
+   * Pass a function to compute the banner from the file's `BannerMeta` document metadata
+   * plus per-file context (`isBarrel`, `isAggregation`, `filePath`, `baseName`), so you can
    * skip the banner on specific files.
    *
    * @example Add a directive to source files but not re-export files
@@ -57,8 +57,8 @@ export type Output<_TOptions = unknown> = {
 export type Group = {
   /**
    * Property used to assign each operation to a group.
-   * - `'tag'` — uses the first tag (`operation.getTags().at(0)?.name`).
-   * - `'path'` — uses the first segment of the operation's URL.
+   * - `'tag'` uses the first tag (`operation.getTags().at(0)?.name`).
+   * - `'path'` uses the first segment of the operation's URL.
    */
   type: 'tag' | 'path'
   /**
@@ -169,7 +169,7 @@ export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType 
  * options are merged on top of the plugin defaults for that operation only.
  * Useful for "this one tag goes to a different folder" rules.
  *
- * Entries are evaluated top to bottom; the first matching entry wins.
+ * Entries are evaluated top to bottom. The first matching entry wins.
  *
  * @example
  * ```ts
@@ -278,9 +278,9 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
   /**
    * Controls the execution order of this plugin relative to others.
    *
-   * - `'pre'`  — runs before all normal plugins.
-   * - `'post'` — runs after all normal plugins.
-   * - `undefined` (default) — runs in declaration order among normal plugins.
+   * - `'pre'` runs before all normal plugins.
+   * - `'post'` runs after all normal plugins.
+   * - `undefined` (default), runs in declaration order among normal plugins.
    *
    * Dependency constraints always take precedence over `enforce`.
    */
@@ -302,7 +302,7 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
 
 /**
  * Normalized plugin after setup, with runtime fields populated.
- * For internal use only — plugins use the public `Plugin` type externally.
+ * For internal use only, plugins use the public `Plugin` type externally.
  *
  * @internal
  */

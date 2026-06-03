@@ -105,7 +105,7 @@ export type TelemetryPlugin = {
    */
   name: string
   /**
-   * anonymized plugin options snapshot — values are included but cannot be traced back to the user.
+   * anonymized plugin options snapshot, values are included but cannot be traced back to the user.
    */
   options: Record<string, unknown>
 }
@@ -246,7 +246,7 @@ export async function sendTelemetry(event: TelemetryEvent): Promise<void> {
         signal: AbortSignal.timeout(5_000),
       })
     } catch (_e) {
-      // Fail silently – telemetry must never break the CLI
+      // Fail silently, telemetry must never break the CLI
     }
   })
 }

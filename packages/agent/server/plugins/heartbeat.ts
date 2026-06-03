@@ -9,7 +9,7 @@ const HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000
  * every 5 minutes to signal the agent is still alive.
  *
  * This is intended for use with uptime-monitoring services such as
- * Healthchecks.io, BetterUptime or UptimeRobot — set `KUBB_AGENT_HEARTBEAT_URL`
+ * Healthchecks.io, BetterUptime or UptimeRobot. Set `KUBB_AGENT_HEARTBEAT_URL`
  * to the ping URL provided by your monitoring service.
  *
  * The timer is cleared when the Nitro server closes.

@@ -110,7 +110,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
     const hasFailures = Diagnostics.hasError(diagnostics)
 
-    // Surface every problem by severity; unplugin has no diagnostic renderer, so route
+    // Surface every problem by severity. Unplugin has no diagnostic renderer, so route
     // errors/warnings/info to the channels it does listen on. Non-problem diagnostics are skipped.
     for (const diagnostic of diagnostics) {
       if (!isProblemDiagnostic(diagnostic)) {
