@@ -43,6 +43,7 @@ describe('createKubb', () => {
       clean: true,
     },
     parsers: [],
+    reporters: [],
     adapter: createMockedAdapter(),
     plugins: [plugin] as unknown as Array<Plugin>,
     storage: fsStorage(),

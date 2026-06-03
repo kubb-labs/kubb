@@ -863,6 +863,7 @@ function resolveConfig(userConfig: UserConfig): Config {
       ...userConfig.output,
     },
     storage: userConfig.storage ?? fsStorage(),
+    reporters: userConfig.reporters ?? [],
     plugins: userConfig.plugins ?? [],
   }
 }
