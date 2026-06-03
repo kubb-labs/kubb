@@ -7,7 +7,7 @@
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![Stars][stars-src]][stars-href]
 [![License][license-src]][license-href]
-[![Sponsors][sponsors-src]][sponsors-href]
+[![Node][node-src]][node-href]
 
 <h4>
 <a href="https://kubb.dev" target="_blank">Documentation</a>
@@ -105,7 +105,7 @@ Kubb is an open source project, and its development is funded entirely by sponso
 [npm-downloads-href]: https://npmjs.com/package/@kubb/parser-ts
 [stars-src]: https://shieldcn.dev/github/stars/kubb-labs/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
 [stars-href]: https://github.com/kubb-labs/kubb
-[license-src]: https://shieldcn.dev/npm/l/@kubb/parser-ts.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[license-src]: https://shieldcn.dev/npm/license/@kubb/parser-ts.svg?variant=ghost&size=xs&theme=zinc&mode=dark
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
-[sponsors-src]: https://shieldcn.dev/badge/sponsors-stijnvanhulle-EA4AAA.svg?variant=branded&size=xs&theme=zinc&mode=dark
-[sponsors-href]: https://github.com/sponsors/stijnvanhulle
+[node-src]: https://shieldcn.dev/npm/node/@kubb/parser-ts.svg?variant=outline&size=xs&theme=zinc&mode=dark
+[node-href]: https://npmjs.com/package/@kubb/parser-ts
