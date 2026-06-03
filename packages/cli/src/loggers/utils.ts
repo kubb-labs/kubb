@@ -1,15 +1,13 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { canUseTTY, formatHrtime, getElapsedMs, isGitHubActions } from '@internals/utils'
-import type { Logger, LoggerContext, LoggerOptions, Reporter, ReporterContext, ReporterName } from '@kubb/core'
+import { getElapsedMs, isGitHubActions } from '@internals/utils'
+import type { LoggerContext, LoggerOptions, Reporter, ReporterContext, ReporterName } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
 import { cliReporter } from '../reporters/cliReporter.ts'
 import { fileReporter } from '../reporters/fileReporter.ts'
 import { jsonReporter } from '../reporters/jsonReporter.ts'
-import { clackLogger } from './clackLogger.ts'
-import { githubActionsLogger } from './githubActionsLogger.ts'
-import { plainLogger } from './plainLogger.ts'
-import type { LoggerType } from './types.ts'
+import { installGitHubAnnotations } from './githubAnnotations.ts'
+import { logger } from './logger.ts'
 
 /**
  * Output sink for a hook subprocess, controlling how streamed lines and exit output are forwarded.
@@ -43,22 +41,15 @@ export type HookSinkOptions = HookOutputSink & {
 
 /**
  * Factory called once per hook command to build the output sink and streaming flag.
- * The function should set up any logger UI (e.g., spinner) and return callbacks that forward subprocess output to it.
+ * The function should set up any logger UI and return callbacks that forward subprocess output to it.
  *
  * `hookId` is the same id passed to `kubb:hook:start` / `kubb:hook:end`, letting the logger
- * correlate streamed output with the active UI element (e.g., a clack `taskLog`) it created in the start handler.
+ * correlate streamed output with any active UI element it created in the start handler.
  */
 export type HookSinkFactory = (commandWithArgs: string, hookId: string) => HookSinkOptions | null
 
 /**
- * Logger variant that may return a {@link HookSinkFactory} from `install`.
- * The factory is forwarded to hook execution so the logger controls subprocess output routing.
- */
-type CLILogger = Logger<LoggerOptions, HookSinkFactory | undefined | null>
-
-/**
  * Optionally prefix a message with a [HH:MM:SS] timestamp when logLevel >= verbose.
- * Shared across all logger adapters to avoid duplication.
  */
 export function formatMessage(message: string, logLevel: number): string {
   if (logLevel >= logLevelMap.verbose) {
@@ -73,101 +64,8 @@ export function formatMessage(message: string, logLevel: number): string {
   return message
 }
 
-type ProgressState = {
-  /**
-   * Total number of plugins scheduled for this generation run.
-   */
-  totalPlugins: number
-  /**
-   * Number of plugins that have finished without error.
-   */
-  completedPlugins: number
-  /**
-   * Number of plugins that exited with an error.
-   */
-  failedPlugins: number
-  /**
-   * Total number of files expected to be written.
-   */
-  totalFiles: number
-  /**
-   * Number of files written so far.
-   */
-  processedFiles: number
-  /**
-   * `process.hrtime()` snapshot taken at the start of generation, used to compute elapsed time.
-   */
-  hrStart: [number, number]
-}
-
-/**
- * Build the progress summary line shared by clack and GitHub Actions loggers.
- * Returns null when there is nothing to display.
- */
-export function buildProgressLine(state: ProgressState): string | null {
-  const parts: Array<string> = []
-  const duration = formatHrtime(state.hrStart)
-
-  if (state.totalPlugins > 0) {
-    const pluginStr =
-      state.failedPlugins > 0
-        ? `Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins} ${styleText('red', `(${state.failedPlugins} failed)`)}`
-        : `Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins}`
-    parts.push(pluginStr)
-  }
-
-  if (state.totalFiles > 0) {
-    parts.push(`Files ${styleText('green', state.processedFiles.toString())}/${state.totalFiles}`)
-  }
-
-  if (parts.length === 0) {
-    return null
-  }
-
-  parts.push(`${styleText('green', duration)} elapsed`)
-  return parts.join(styleText('dim', ' | '))
-}
-
-/**
- * Creates the per-run progress counters shared by the clack and GitHub Actions loggers.
- */
-export function createProgressCounters(): ProgressState {
-  return {
-    totalPlugins: 0,
-    completedPlugins: 0,
-    failedPlugins: 0,
-    totalFiles: 0,
-    processedFiles: 0,
-    hrStart: process.hrtime(),
-  }
-}
-
-/**
- * Resets the progress counters in place at the start/end of a generation run.
- */
-export function resetProgressCounters(state: ProgressState): void {
-  state.totalPlugins = 0
-  state.completedPlugins = 0
-  state.failedPlugins = 0
-  state.totalFiles = 0
-  state.processedFiles = 0
-  state.hrStart = process.hrtime()
-}
-
-/**
- * Records a finished plugin against the progress counters.
- */
-export function recordPluginResult(state: ProgressState, success: boolean): void {
-  if (success) {
-    state.completedPlugins++
-  } else {
-    state.failedPlugins++
-  }
-}
-
 /**
  * Tracks per-hook start times so a logger can report a hook's elapsed duration.
- * Used by the loggers that key timing by hook `id` (GitHub Actions, plain).
  */
 export type HookTimer = {
   start(id: string): void
@@ -190,9 +88,7 @@ export function createHookTimer(): HookTimer {
     },
     end(id: string): number | undefined {
       const hrStart = starts.get(id)
-      if (!hrStart) {
-        return undefined
-      }
+      if (!hrStart) return undefined
       starts.delete(id)
       return getElapsedMs(hrStart)
     },
@@ -210,22 +106,6 @@ export function formatCommandWithArgs(command: string, args?: ReadonlyArray<stri
   return args?.length ? `${command} ${args.join(' ')}` : command
 }
 
-function detectLogger(): LoggerType {
-  if (isGitHubActions()) {
-    return 'github-actions'
-  }
-  if (canUseTTY()) {
-    return 'clack'
-  }
-  return 'plain'
-}
-
-const logMapper: Record<LoggerType, CLILogger> = {
-  clack: clackLogger,
-  plain: plainLogger,
-  'github-actions': githubActionsLogger,
-}
-
 /**
  * Bridges a {@link Reporter} onto the run's event emitter: calls `report` with each config's
  * {@link GenerationResult} on `kubb:generation:end`. The reporter never touches the emitter.
@@ -237,12 +117,10 @@ export function installReporter(context: LoggerContext, reporter: Reporter, ctx:
 }
 
 /**
- * Installs the live logger (the TUI view) and the selected reporters (the output), returning the
- * terminal logger's hook sink when one was installed. Loggers and reporters are independent: the
- * `cli` selection activates the env logger plus the {@link cliReporter} summary.
- *
- * The `json` reporter owns stdout, so the terminal logger and `cli` summary are suppressed whenever
- * `json` is selected, even if `cli` is also listed.
+ * Installs the unified consola-backed logger and the selected reporters, returning its hook sink
+ * factory. The GitHub Actions annotation decorator is installed before the logger when the runtime
+ * is detected, so `::group::` and friends wrap each section. The `json` reporter owns stdout, so
+ * the logger and `cli` summary are suppressed whenever `json` is selected, even if `cli` is also listed.
  */
 export async function setupReporters(
   context: LoggerContext,
@@ -255,10 +133,8 @@ export async function setupReporters(
   let makeSink: HookSinkFactory | null = null
 
   if (unique.has('cli') && !hasJson) {
-    const type = detectLogger()
-    const logger = logMapper[type]
-    if (!logger) {
-      throw new Error(`Unknown adapter type: ${type}`)
+    if (isGitHubActions()) {
+      installGitHubAnnotations(context, { logLevel })
     }
     const sink = await logger.install(context, { logLevel })
     makeSink = typeof sink === 'function' ? sink : null

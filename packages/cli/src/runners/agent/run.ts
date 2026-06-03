@@ -2,8 +2,8 @@ import { createRequire } from 'node:module'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import * as clack from '@clack/prompts'
 import { spawnAsync, getErrorMessage } from '@internals/utils'
+import { consola } from 'consola'
 import { agentDefaults } from '../../constants.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../../telemetry.ts'
 import { isPortAvailable, resolveAgentStartEnvironment } from './utils.ts'
@@ -84,16 +84,16 @@ export async function run({ port, host, configPath, allowWrite, allowAll, versio
       throw new Error(`Invalid port "${resolvedEnv.port}". Provide a positive integer with --port or PORT.`)
     }
 
-    clack.log.step(styleText('cyan', 'Starting agent server...'))
-    clack.log.info(styleText('dim', `Config: ${resolvedEnv.agentConfigPath}`))
-    clack.log.info(styleText('dim', `Host: ${resolvedEnv.host}`))
-    clack.log.info(styleText('dim', `Port: ${resolvedEnv.port}`))
+    consola.start(styleText('cyan', 'Starting agent server...'))
+    consola.info(styleText('dim', `Config: ${resolvedEnv.agentConfigPath}`))
+    consola.info(styleText('dim', `Host: ${resolvedEnv.host}`))
+    consola.info(styleText('dim', `Port: ${resolvedEnv.port}`))
     if (!resolvedEnv.allowWrite && !resolvedEnv.allowAll) {
-      clack.log.warn(styleText('yellow', 'Filesystem writes disabled. Use --allow-write or --allow-all to enable.'))
+      consola.warn(styleText('yellow', 'Filesystem writes disabled. Use --allow-write or --allow-all to enable.'))
     }
 
     if (!(await isPortAvailable(numericPort, resolvedEnv.host))) {
-      clack.log.error(styleText('red', `Port ${resolvedEnv.port} is already in use. Stop the existing process or choose a different port with --port.`))
+      consola.error(styleText('red', `Port ${resolvedEnv.port} is already in use. Stop the existing process or choose a different port with --port.`))
       process.exit(1)
     }
 
@@ -106,8 +106,8 @@ export async function run({ port, host, configPath, allowWrite, allowAll, versio
     await report('success')
   } catch (error) {
     await report('failed')
-    clack.log.error(styleText('red', 'Failed to start agent server'))
-    clack.log.error(getErrorMessage(error))
+    consola.error(styleText('red', 'Failed to start agent server'))
+    consola.error(getErrorMessage(error))
     process.exit(1)
   }
 }

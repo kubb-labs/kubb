@@ -1,0 +1,116 @@
+import process from 'node:process'
+import { AsyncEventEmitter } from '@internals/utils'
+import { type Config, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { installGitHubAnnotations } from './githubAnnotations.ts'
+
+const singleConfig = [{ name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config]
+type PluginStart = KubbHooks['kubb:plugin:start'][0]
+type PluginEnd = KubbHooks['kubb:plugin:end'][0]
+
+describe('installGitHubAnnotations', () => {
+  let stdout: Array<string>
+  let stderr: Array<string>
+
+  beforeEach(() => {
+    stdout = []
+    stderr = []
+    vi.spyOn(process.stdout, 'write').mockImplementation((chunk) => {
+      stdout.push(String(chunk))
+      return true
+    })
+    vi.spyOn(process.stderr, 'write').mockImplementation((chunk) => {
+      stderr.push(String(chunk))
+      return true
+    })
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('wraps Configuration in ::group:: / ::endgroup::', async () => {
+    const context = new AsyncEventEmitter<KubbHooks>()
+    installGitHubAnnotations(context, { logLevel: logLevelMap.info })
+
+    await context.emit('kubb:config:start')
+    await context.emit('kubb:config:end', { configs: singleConfig })
+
+    expect(stdout).toContain('::group::Configuration\n')
+    expect(stdout).toContain('::endgroup::\n')
+  })
+
+  it('groups per-plugin when there is exactly one config', async () => {
+    const context = new AsyncEventEmitter<KubbHooks>()
+    installGitHubAnnotations(context, { logLevel: logLevelMap.info })
+
+    await context.emit('kubb:config:end', { configs: singleConfig })
+    await context.emit('kubb:plugin:start', { plugin: { name: '@kubb/plugin-zod' } } as unknown as PluginStart)
+    await context.emit('kubb:plugin:end', { plugin: { name: '@kubb/plugin-zod' }, duration: 1, success: true } as unknown as PluginEnd)
+
+    expect(stdout.some((line) => line === '::group::Plugin: @kubb/plugin-zod\n')).toBe(true)
+    expect(stdout.filter((line) => line === '::endgroup::\n').length).toBeGreaterThan(0)
+  })
+
+  it('emits ::warning:: for kubb:warn', async () => {
+    const context = new AsyncEventEmitter<KubbHooks>()
+    installGitHubAnnotations(context, { logLevel: logLevelMap.info })
+
+    await context.emit('kubb:warn', { message: 'careful' })
+
+    expect(stdout).toContain('::warning::careful\n')
+  })
+
+  it('emits ::error:: for kubb:error and force-closes open groups', async () => {
+    const context = new AsyncEventEmitter<KubbHooks>()
+    installGitHubAnnotations(context, { logLevel: logLevelMap.info })
+
+    await context.emit('kubb:config:start')
+    await context.emit('kubb:error', { error: new Error('boom') })
+
+    expect(stdout).toContain('::group::Configuration\n')
+    expect(stdout).toContain('::endgroup::\n')
+    expect(stderr).toContain('::error::boom\n')
+  })
+
+  it('emits ::error:: for a problem diagnostic with severity=error', async () => {
+    const context = new AsyncEventEmitter<KubbHooks>()
+    installGitHubAnnotations(context, { logLevel: logLevelMap.info })
+
+    await context.emit('kubb:diagnostic', {
+      diagnostic: {
+        code: 'KUBB_REF_NOT_FOUND',
+        severity: 'error',
+        message: 'missing Pet',
+        plugin: '@kubb/plugin-zod',
+      },
+    })
+
+    const errors = stderr.filter((line) => line.startsWith('::error::'))
+    expect(errors).toHaveLength(1)
+    expect(errors[0]).toContain('KUBB_REF_NOT_FOUND')
+    expect(errors[0]).toContain('missing Pet')
+    expect(errors[0]).toContain('[plugin: @kubb/plugin-zod]')
+  })
+
+  it('closes all open groups on lifecycle end', async () => {
+    const context = new AsyncEventEmitter<KubbHooks>()
+    installGitHubAnnotations(context, { logLevel: logLevelMap.info })
+
+    await context.emit('kubb:config:start')
+    await context.emit('kubb:lifecycle:end')
+
+    expect(stdout).toContain('::endgroup::\n')
+  })
+
+  it('does not group per-plugin when more than one config exists', async () => {
+    const context = new AsyncEventEmitter<KubbHooks>()
+    installGitHubAnnotations(context, { logLevel: logLevelMap.info })
+
+    const twoConfigs = [singleConfig[0], singleConfig[0]] as Array<Config>
+    await context.emit('kubb:config:end', { configs: twoConfigs })
+    await context.emit('kubb:plugin:start', { plugin: { name: '@kubb/plugin-zod' } } as unknown as PluginStart)
+
+    expect(stdout.some((line) => line.startsWith('::group::Plugin:'))).toBe(false)
+  })
+})

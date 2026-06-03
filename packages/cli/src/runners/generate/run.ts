@@ -2,8 +2,8 @@ import { createHash } from 'node:crypto'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import * as clack from '@clack/prompts'
 import type { AsyncEventEmitter } from '@internals/utils'
+import { consola } from 'consola'
 import { AsyncEventEmitter as AsyncEventEmitterClass, detectFormatter, detectLinter, executeIfOnline, formatters, linters, toError } from '@internals/utils'
 import {
   type CLIOptions,
@@ -380,9 +380,9 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
             // setupResult.dispose() in its finally block, so re-running generate()
             // on the same hooks emitter is safe.
             await generate({ input, config, logLevel, hooks, makeSink })
-            clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
+            consola.log(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
           },
-          { info: (msg) => clack.log.info(msg), error: (msg) => clack.log.error(msg) },
+          { info: (msg) => consola.info(msg), error: (msg) => consola.error(msg) },
         )
       } else {
         try {

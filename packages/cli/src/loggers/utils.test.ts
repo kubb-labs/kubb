@@ -1,59 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createHookTimer, createProgressCounters, recordPluginResult, resetProgressCounters } from './utils.ts'
-
-describe('createProgressCounters', () => {
-  it('starts every counter at zero with an hrtime snapshot', () => {
-    const state = createProgressCounters()
-
-    expect(state.totalPlugins).toBe(0)
-    expect(state.completedPlugins).toBe(0)
-    expect(state.failedPlugins).toBe(0)
-    expect(state.totalFiles).toBe(0)
-    expect(state.processedFiles).toBe(0)
-    expect(Array.isArray(state.hrStart)).toBe(true)
-    expect(state.hrStart).toHaveLength(2)
-  })
-})
-
-describe('resetProgressCounters', () => {
-  it('resets counters back to zero in place', () => {
-    const state = createProgressCounters()
-    state.totalPlugins = 5
-    state.completedPlugins = 3
-    state.failedPlugins = 2
-    state.totalFiles = 10
-    state.processedFiles = 7
-
-    resetProgressCounters(state)
-
-    expect(state.totalPlugins).toBe(0)
-    expect(state.completedPlugins).toBe(0)
-    expect(state.failedPlugins).toBe(0)
-    expect(state.totalFiles).toBe(0)
-    expect(state.processedFiles).toBe(0)
-  })
-})
-
-describe('recordPluginResult', () => {
-  it('increments completedPlugins on success', () => {
-    const state = createProgressCounters()
-
-    recordPluginResult(state, true)
-    recordPluginResult(state, true)
-
-    expect(state.completedPlugins).toBe(2)
-    expect(state.failedPlugins).toBe(0)
-  })
-
-  it('increments failedPlugins on failure', () => {
-    const state = createProgressCounters()
-
-    recordPluginResult(state, false)
-
-    expect(state.completedPlugins).toBe(0)
-    expect(state.failedPlugins).toBe(1)
-  })
-})
+import { createHookTimer, formatCommandWithArgs } from './utils.ts'
 
 describe('createHookTimer', () => {
   it('returns elapsed milliseconds between start and end', () => {
@@ -88,5 +34,19 @@ describe('createHookTimer', () => {
     timer.clear()
 
     expect(timer.end('a')).toBeUndefined()
+  })
+})
+
+describe('formatCommandWithArgs', () => {
+  it('returns the command alone when there are no args', () => {
+    expect(formatCommandWithArgs('prettier')).toBe('prettier')
+  })
+
+  it('joins the command and its args with spaces', () => {
+    expect(formatCommandWithArgs('prettier', ['--write', '.'])).toBe('prettier --write .')
+  })
+
+  it('treats an empty args list as no args', () => {
+    expect(formatCommandWithArgs('prettier', [])).toBe('prettier')
   })
 })
