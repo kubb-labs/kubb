@@ -368,8 +368,26 @@ Run \`npm install -g @kubb/cli\` to update`,
       state.activeHookLogs.set(id, { taskLog, hrStart: process.hrtime() })
     })
 
-    context.on('kubb:hook:end', ({ id, command, args, success, error }) => {
-      if (logLevel <= logLevelMap.silent || !id) {
+    // Registered only when not silent, so its presence is what tells the runner to stream
+    // (`kubb:hook:line` listenerCount). At silent level the listener is absent, so no streaming happens.
+    if (logLevel > logLevelMap.silent) {
+      context.on('kubb:hook:line', ({ id, line }) => {
+        const active = state.activeHookLogs.get(id)
+        active?.taskLog.message(styleText('dim', line))
+      })
+    }
+
+    context.on('kubb:hook:end', ({ id, command, args, success, error, stdout, stderr }) => {
+      if (!id) {
+        return
+      }
+
+      if (logLevel <= logLevelMap.silent) {
+        // Even when silent, surface a failed hook's captured output.
+        if (!success) {
+          if (stdout) console.log(stdout)
+          if (stderr) console.error(stderr)
+        }
         return
       }
 
@@ -385,6 +403,8 @@ Run \`npm install -g @kubb/cli\` to update`,
       if (success) {
         active.taskLog.success(getMessage(`${styleText('dim', commandWithArgs)} completed in ${duration}`))
       } else {
+        // The hook's output already reached the taskLog live via `kubb:hook:line`, so `showLog`
+        // replays it here; `kubb:hook:end` carries no captured output on the streaming path.
         const reason = error?.message ? ` (${error.message})` : ''
         active.taskLog.error(getMessage(`${styleText('dim', commandWithArgs)} failed${reason}`), { showLog: true })
       }
@@ -393,28 +413,5 @@ Run \`npm install -g @kubb/cli\` to update`,
     context.on('kubb:lifecycle:end', () => {
       reset()
     })
-
-    return (_commandWithArgs: string, hookId: string) => {
-      if (logLevel <= logLevelMap.silent) {
-        return {
-          onStdout: (s: string) => console.log(s),
-          onStderr: (s: string) => console.error(s),
-        }
-      }
-
-      const active = state.activeHookLogs.get(hookId)
-      if (!active) {
-        return null
-      }
-
-      const { taskLog } = active
-
-      return {
-        stream: true,
-        onLine: (line: string) => taskLog.message(styleText('dim', line)),
-        onStdout: (s: string) => taskLog.message(s),
-        onStderr: (s: string) => taskLog.message(styleText('red', s)),
-      }
-    }
   },
 })

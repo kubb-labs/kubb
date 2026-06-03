@@ -178,7 +178,7 @@ export const plainLogger = defineLogger({
       console.log(getMessage(`Hook ${commandWithArgs} started`))
     })
 
-    context.on('kubb:hook:end', ({ id, command, args, success, error }) => {
+    context.on('kubb:hook:end', ({ id, command, args, success, error, stdout, stderr }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -191,14 +191,11 @@ export const plainLogger = defineLogger({
       if (success) {
         console.log(getMessage(`✓ Hook ${commandWithArgs} completed${durationStr}`))
       } else {
+        if (stdout) console.log(stdout)
+        if (stderr) console.error(stderr)
         const reason = error?.message ? ` (${error.message})` : ''
         console.log(getMessage(`✗ Hook ${commandWithArgs} failed${durationStr}${reason}`))
       }
-    })
-
-    return (_commandWithArgs: string, _hookId: string) => ({
-      onStdout: logLevel > logLevelMap.silent ? (s: string) => console.log(s) : undefined,
-      onStderr: logLevel > logLevelMap.silent ? (s: string) => console.error(s) : undefined,
     })
   },
 })

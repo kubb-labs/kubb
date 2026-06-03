@@ -6,7 +6,6 @@ import type { CLIOptions, Config, KubbHooks, PossibleConfig } from '@kubb/core'
 import { cosmiconfig } from 'cosmiconfig'
 import { createJiti } from 'jiti'
 import { NonZeroExitError, x } from 'tinyexec'
-import type { HookSinkFactory, HookSinkOptions } from '../../loggers/utils.ts'
 import { WATCHER_IGNORED_PATHS } from '../../constants.ts'
 
 type CosmiconfigResult = {
@@ -116,13 +115,12 @@ export async function getConfigs({ configPath, input, watch, logLevel }: GetConf
 type ExecuteHooksOptions = {
   configHooks: NonNullable<Config['hooks']>
   hooks: AsyncEventEmitter<KubbHooks>
-  makeSink?: HookSinkFactory | null
 }
 
 /**
  * Runs the `done` hooks defined in a Kubb config in sequence.
  */
-export async function executeHooks({ configHooks, hooks, makeSink }: ExecuteHooksOptions): Promise<void> {
+export async function executeHooks({ configHooks, hooks }: ExecuteHooksOptions): Promise<void> {
   const commands = Array.isArray(configHooks.done) ? configHooks.done : [configHooks.done].filter(Boolean)
 
   for (const command of commands) {
@@ -133,9 +131,7 @@ export async function executeHooks({ configHooks, hooks, makeSink }: ExecuteHook
     const commandWithArgs = [cmd, ...args].join(' ')
 
     await hooks.emit('kubb:hook:start', { id: hookId, command: cmd, args })
-
-    const { stream = false, onLine, onStdout, onStderr } = makeSink?.(commandWithArgs, hookId) ?? {}
-    await runHook({ id: hookId, command: cmd, args, commandWithArgs, hooks, stream, sink: { onLine, onStdout, onStderr } })
+    await runHook({ id: hookId, command: cmd, args, commandWithArgs, hooks })
   }
 }
 
@@ -145,12 +141,15 @@ type RunHookOptions = {
   args?: ReadonlyArray<string>
   commandWithArgs: string
   hooks: AsyncEventEmitter<KubbHooks>
-  stream?: boolean
-  sink?: HookSinkOptions
 }
 
-export async function runHook({ id, command, args, commandWithArgs, hooks, stream = false, sink }: RunHookOptions): Promise<void> {
-  const emitEnd = (success: boolean, error: Error | null) => hooks.emit('kubb:hook:end', { command, args, id, success, error })
+export async function runHook({ id, command, args, commandWithArgs, hooks }: RunHookOptions): Promise<void> {
+  const emitEnd = (success: boolean, error: Error | null, output?: { stdout?: string; stderr?: string }) =>
+    hooks.emit('kubb:hook:end', { command, args, id, success, error, ...output })
+
+  // Only stream line-by-line when a logger is listening, so the non-streaming plain
+  // logger doesn't pay to iterate the subprocess output.
+  const stream = hooks.listenerCount('kubb:hook:line') > 0
 
   try {
     const proc = x(command, [...(args ?? [])], {
@@ -158,9 +157,9 @@ export async function runHook({ id, command, args, commandWithArgs, hooks, strea
       throwOnError: true,
     })
 
-    if (stream && sink?.onLine) {
+    if (stream) {
       for await (const line of proc) {
-        sink.onLine(line)
+        await hooks.emit('kubb:hook:line', { id, line })
       }
     }
 
@@ -177,13 +176,11 @@ export async function runHook({ id, command, args, commandWithArgs, hooks, strea
     const stderr = err.output?.stderr ?? ''
     const stdout = err.output?.stdout ?? ''
 
-    if (stderr) sink?.onStderr?.(stderr)
-    if (stdout) sink?.onStdout?.(stdout)
-
     const error = new Error(`Hook execute failed: ${commandWithArgs}`)
-    // Signal the failure via `kubb:hook:end` only. The caller turns it into a coded diagnostic and
-    // emits that through `Diagnostics.emit`, so emitting `kubb:error` here would render it twice.
-    await emitEnd(false, error)
+    // Signal the failure via `kubb:hook:end` only, carrying the captured output so the logger can
+    // render it. The caller turns this into a coded diagnostic and emits that through
+    // `Diagnostics.emit`, so emitting `kubb:error` here would render it twice.
+    await emitEnd(false, error, { stdout, stderr })
   }
 }
 

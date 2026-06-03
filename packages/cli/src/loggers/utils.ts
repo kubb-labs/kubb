@@ -8,51 +8,6 @@ import { plainLogger } from './plainLogger.ts'
 import type { LoggerType } from './types.ts'
 
 /**
- * Output sink for a hook subprocess, controlling how streamed lines and exit output are forwarded.
- */
-type HookOutputSink = {
-  /**
-   * Called for each streamed stdout line while the hook runs.
-   */
-  onLine?: (line: string) => void
-  /**
-   * Called with stderr content after the hook exits with a non-zero code.
-   */
-  onStderr?: (text: string) => void
-  /**
-   * Called with stdout content after the hook exits with a non-zero code.
-   */
-  onStdout?: (text: string) => void
-}
-
-/**
- * Output sink combined with stream control for a hook subprocess.
- */
-export type HookSinkOptions = HookOutputSink & {
-  /**
-   * When `true`, streams process output line-by-line via `onLine`.
-   *
-   * @default false
-   */
-  stream?: boolean
-}
-
-/**
- * Factory called once per hook command to build the output sink and streaming flag.
- * The function should set up any logger UI (e.g., spinner) and return callbacks that forward subprocess output to it.
- *
- * `hookId` is the same id passed to `kubb:hook:start` / `kubb:hook:end`, letting the logger
- * correlate streamed output with the active UI element (e.g., a clack `taskLog`) it created in the start handler.
- */
-export type HookSinkFactory = (commandWithArgs: string, hookId: string) => HookSinkOptions | null
-
-/**
- * Logger variant that may return a {@link HookSinkFactory} from `install`.
- * The factory is forwarded to hook execution so the logger controls subprocess output routing.
- */
-type CLILogger = Logger<LoggerOptions, HookSinkFactory | undefined | null>
-
-/**
  * Optionally prefix a message with a [HH:MM:SS] timestamp when logLevel >= verbose.
  * Shared across all logger adapters to avoid duplication.
  */
@@ -213,7 +168,7 @@ function detectLogger(): LoggerType {
   return 'plain'
 }
 
-const logMapper: Record<LoggerType, CLILogger> = {
+const logMapper: Record<LoggerType, Logger> = {
   clack: clackLogger,
   plain: plainLogger,
 }
@@ -233,22 +188,18 @@ export function installReporter(context: LoggerContext, reporter: Reporter, ctx:
 }
 
 /**
- * Installs the live logger (the TUI view) and the given reporters (the output), returning the
- * terminal logger's hook sink when one was installed. The reporters are already selected by the
- * caller (the CLI maps `--reporter` to names via `selectReporters`); this only wires them.
+ * Installs the live logger (the TUI view) and the given reporters (the output). The reporters are
+ * already selected by the caller (the CLI maps `--reporter` to names via `selectReporters`); this
+ * only wires them. Loggers receive hook subprocess output through `kubb:hook:line` and the
+ * `stdout`/`stderr` on `kubb:hook:end`, so nothing is returned here.
  *
  * Loggers and reporters are independent: the `cli` reporter also activates the env logger summary.
  * The `json` reporter owns stdout, so the live logger and the `cli` summary are suppressed whenever
  * `json` is among the reporters, even if `cli` is also listed.
  */
-async function setupReporters(
-  context: LoggerContext,
-  { logLevel, reporters }: LoggerOptions & { reporters: ReadonlyArray<Reporter> },
-): Promise<HookSinkFactory | null> {
+async function setupReporters(context: LoggerContext, { logLevel, reporters }: LoggerOptions & { reporters: ReadonlyArray<Reporter> }): Promise<void> {
   const hasJson = reporters.some((reporter) => reporter.name === 'json')
   const ctx: ReporterContext = { logLevel }
-
-  let makeSink: HookSinkFactory | null = null
 
   for (const reporter of reporters) {
     if (reporter.name === 'cli') {
@@ -260,14 +211,11 @@ async function setupReporters(
       if (!logger) {
         throw new Error(`Unknown adapter type: ${type}`)
       }
-      const sink = await logger.install(context, { logLevel })
-      makeSink = typeof sink === 'function' ? sink : null
+      await logger.install(context, { logLevel })
     }
 
     installReporter(context, reporter, ctx)
   }
-
-  return makeSink
 }
 
 export default setupReporters

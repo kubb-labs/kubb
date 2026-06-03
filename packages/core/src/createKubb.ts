@@ -464,6 +464,7 @@ export interface KubbHooks {
   'kubb:hooks:start': []
   'kubb:hooks:end': []
   'kubb:hook:start': [ctx: KubbHookStartContext]
+  'kubb:hook:line': [ctx: KubbHookLineContext]
   'kubb:hook:end': [ctx: KubbHookEndContext]
   'kubb:info': [ctx: KubbInfoContext]
   'kubb:error': [ctx: KubbErrorContext]
@@ -718,6 +719,21 @@ export type KubbHookStartContext = {
   args?: ReadonlyArray<string>
 }
 
+/**
+ * Emitted for each line streamed from a hook's stdout while it runs.
+ * A logger correlates the line to its active UI element via `id`.
+ */
+export type KubbHookLineContext = {
+  /**
+   * Identifier matching the corresponding `kubb:hook:start` event.
+   */
+  id: string
+  /**
+   * A single streamed stdout line, without its trailing newline.
+   */
+  line: string
+}
+
 export type KubbHookEndContext = {
   /**
    * Optional identifier matching the corresponding `kubb:hook:start` event.
@@ -739,6 +755,14 @@ export type KubbHookEndContext = {
    * Error thrown by the command, or `null` on success.
    */
   error: Error | null
+  /**
+   * Captured stdout from the process, populated when it exits non-zero.
+   */
+  stdout?: string
+  /**
+   * Captured stderr from the process, populated when it exits non-zero.
+   */
+  stderr?: string
 }
 
 /**
