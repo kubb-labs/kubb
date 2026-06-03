@@ -7,6 +7,7 @@
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![Stars][stars-src]][stars-href]
 [![License][license-src]][license-href]
+[![Coverage][coverage-src]][coverage-href]
 [![Node][node-src]][node-href]
 
 <h4>
@@ -202,3 +203,5 @@ See [LICENSE](./LICENSE) for details.
 [node-href]: https://npmx.dev/package/kubb
 [contributors-src]: https://shieldcn.dev/github/contributors/kubb-labs/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
 [contributors-href]: #contributors-
+[coverage-src]: https://shieldcn.dev/codecov/github/kubb-labs/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[coverage-href]: https://app.codecov.io/gh/kubb-labs/kubb
