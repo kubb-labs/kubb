@@ -114,6 +114,10 @@ export function installReporter(context: LoggerContext, reporter: Reporter, ctx:
   context.on('kubb:generation:end', async ({ config, diagnostics = [], filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
     await reporter.report({ config, diagnostics, filesCreated, status, hrStart }, ctx)
   })
+
+  if (reporter.flush) {
+    context.on('kubb:lifecycle:end', () => reporter.flush?.(ctx))
+  }
 }
 
 /**
@@ -142,6 +146,8 @@ export async function setupReporters(
   }
 
   if (hasJson) {
+    // json aggregates across configs: report buffers each result and flush writes one array on
+    // lifecycle end, rather than printing per config (which would concatenate documents and break `jq .`).
     installReporter(context, jsonReporter, ctx)
   }
 

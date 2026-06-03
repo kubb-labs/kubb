@@ -1,4 +1,4 @@
-import { type Diagnostic, diagnosticCode, Diagnostics } from '@kubb/core'
+import { type Diagnostic, diagnosticCode, DiagnosticError, Diagnostics } from '@kubb/core'
 import { isReference } from './guards.ts'
 import type { Document } from './types.ts'
 
@@ -48,8 +48,11 @@ export function resolveRef<T = unknown>(document: Document, $ref: string): T | n
       location: { kind: 'schema', pointer: origRef, ref: origRef },
     }
     // Report the unresolved ref into the active build and resolve to null, like any
-    // other unresolvable ref. The build collects it and keeps going.
-    Diagnostics.report(diagnostic)
+    // other unresolvable ref. The build collects it and keeps going. Outside a build there is no
+    // sink, so throw rather than silently returning null.
+    if (!Diagnostics.report(diagnostic)) {
+      throw new DiagnosticError(diagnostic)
+    }
     return null
   }
 

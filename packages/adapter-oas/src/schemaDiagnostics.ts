@@ -11,7 +11,15 @@ import { isHandledFormat } from './resolvers.ts'
  * no-op outside one, and repeats are deduped by the build.
  */
 export function reportSchemaDiagnostics({ node, name }: { node: ast.SchemaNode; name: string }): void {
-  visit(node, `#/components/schemas/${name}`)
+  visit(node, `#/components/schemas/${escapePointerToken(name)}`)
+}
+
+/**
+ * Escapes a single JSON pointer reference token per RFC 6901 (`~` → `~0`, `/` → `~1`), so a
+ * property name with those characters maps to a distinct pointer instead of colliding in the dedupe.
+ */
+function escapePointerToken(token: string): string {
+  return token.replace(/~/g, '~0').replace(/\//g, '~1')
 }
 
 function visit(node: ast.SchemaNode, pointer: string): void {
@@ -36,7 +44,7 @@ function visit(node: ast.SchemaNode, pointer: string): void {
 
   if (node.type === 'object') {
     for (const property of node.properties) {
-      visit(property.schema, `${pointer}/properties/${property.name}`)
+      visit(property.schema, `${pointer}/properties/${escapePointerToken(property.name)}`)
     }
     if (node.additionalProperties && typeof node.additionalProperties === 'object') {
       visit(node.additionalProperties, `${pointer}/additionalProperties`)
@@ -44,16 +52,25 @@ function visit(node: ast.SchemaNode, pointer: string): void {
     return
   }
 
-  if (node.type === 'array' || node.type === 'tuple') {
+  if (node.type === 'array') {
     for (const item of node.items ?? []) {
       visit(item, `${pointer}/items`)
     }
     return
   }
 
+  if (node.type === 'tuple') {
+    // Each tuple position has its own pointer, so index them. A shared `/items` would collapse
+    // distinct diagnostics in the dedupe.
+    for (const [index, item] of (node.items ?? []).entries()) {
+      visit(item, `${pointer}/items/${index}`)
+    }
+    return
+  }
+
   if (node.type === 'union' || node.type === 'intersection') {
-    for (const member of node.members ?? []) {
-      visit(member, pointer)
+    for (const [index, member] of (node.members ?? []).entries()) {
+      visit(member, `${pointer}/members/${index}`)
     }
   }
 }

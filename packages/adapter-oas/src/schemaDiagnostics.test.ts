@@ -79,6 +79,28 @@ describe('schema diagnostics during parse', () => {
     expect(formatWarnings[0]).toMatchObject({ location: { pointer: '#/components/schemas/Pet/properties/owner/properties/badge' } })
   })
 
+  it('reports each union member at its own indexed pointer', async () => {
+    const union = {
+      openapi: '3.0.3',
+      info: { title: 'Pets', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Pet: {
+            oneOf: [
+              { type: 'string', format: 'snowflake' },
+              { type: 'string', format: 'discord' },
+            ],
+          },
+        },
+      },
+    }
+    const diagnostics = await collect(union)
+    const pointers = diagnostics.filter((diagnostic) => diagnostic.code === 'KUBB_UNSUPPORTED_FORMAT').map((diagnostic) => diagnostic.location?.pointer)
+
+    expect(pointers).toStrictEqual(['#/components/schemas/Pet/members/0', '#/components/schemas/Pet/members/1'])
+  })
+
   it('does not warn on any format the parser handles', async () => {
     const handled = [...Object.keys(formatMap), ...specialCasedFormats]
     const properties = Object.fromEntries(handled.map((format, index) => [`field${index}`, { type: 'string', format }]))

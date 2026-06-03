@@ -3,13 +3,15 @@ import type { FileNode, InputMeta, OperationNode, SchemaNode, Visitor } from '@k
 import { transform } from '@kubb/ast'
 import { FileManager } from './FileManager.ts'
 import { KubbDriver } from './KubbDriver.ts'
-import type { Adapter, AdapterFactoryOptions, Config, Generator, GeneratorContext, NormalizedPlugin, PluginFactoryOptions } from './types.ts'
+import type { Adapter, AdapterFactoryOptions, Config, Generator, GeneratorContext, NormalizedPlugin, PluginFactoryOptions, RendererFactory } from './types.ts'
 
 /**
 
  * Creates a minimal `PluginDriver` mock for unit tests.
  */
 export function createMockedPluginDriver(options: { name?: string; plugin?: NormalizedPlugin; config?: Config } = {}): KubbDriver {
+  const fileManager = new FileManager()
+
   return {
     config: options?.config ?? {
       root: '.',
@@ -21,7 +23,26 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
       return options?.plugin
     },
     getResolver: (_pluginName: string) => options?.plugin?.resolver,
-    fileManager: new FileManager(),
+    fileManager,
+    async dispatch({ result, renderer }: { result: unknown; renderer?: RendererFactory | null }): Promise<void> {
+      if (!result) return
+
+      if (Array.isArray(result)) {
+        fileManager.upsert(...(result as Array<FileNode>))
+        return
+      }
+
+      if (!renderer) return
+
+      using instance = renderer()
+      if (instance.stream) {
+        for (const file of instance.stream(result)) fileManager.upsert(file)
+        return
+      }
+
+      await instance.render(result)
+      fileManager.upsert(...instance.files)
+    },
   } as unknown as KubbDriver
 }
 

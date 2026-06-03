@@ -68,6 +68,10 @@ describe('resolveRef', () => {
 
     expect(result).toStrictEqual({ type: 'array', items: { type: 'string' } })
   })
+
+  it('throws when the pointer cannot be resolved outside a build scope', () => {
+    expect(() => resolveRef(document, '#/components/schemas/Missing')).toThrow('Could not find a definition for #/components/schemas/Missing.')
+  })
 })
 
 describe('dereferenceWithRef', () => {
