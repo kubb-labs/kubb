@@ -275,7 +275,7 @@ export async function setupReporters(
   }
 
   if (unique.has('file')) {
-    await fileReporter.install(context, { logLevel })
+    installReporter(context, fileReporter)
   }
 
   return makeSink

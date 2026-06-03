@@ -41,13 +41,12 @@ describe('setupReporters', () => {
     expect(context.listenerCount('kubb:lifecycle:end')).toBeGreaterThan(0)
   })
 
-  it('wires the file reporter to lifecycle, diagnostic, and plugin events', async () => {
+  it('wires the file reporter to the generation and lifecycle events', async () => {
     const context = new AsyncEventEmitter<KubbHooks>()
 
     await setupReporters(context, { logLevel: logLevel.info, reporters: ['file'] })
 
-    expect(context.listenerCount('kubb:diagnostic')).toBeGreaterThan(0)
-    expect(context.listenerCount('kubb:plugin:start')).toBeGreaterThan(0)
     expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
+    expect(context.listenerCount('kubb:lifecycle:end')).toBeGreaterThan(0)
   })
 })

@@ -1,12 +1,5 @@
 import process from 'node:process'
-import {
-  createReporter,
-  type Diagnostic,
-  Diagnostics,
-  isPerformanceDiagnostic,
-  isProblemDiagnostic,
-  type SerializedDiagnostic
-} from '@kubb/core'
+import { createReporter, type Diagnostic, Diagnostics, isPerformanceDiagnostic, isProblemDiagnostic, type SerializedDiagnostic } from '@kubb/core'
 
 /**
  * A single problem in the machine-readable report: a {@link SerializedDiagnostic}
