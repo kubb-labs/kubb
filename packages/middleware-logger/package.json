@@ -1,6 +1,6 @@
 {
   "name": "@kubb/middleware-logger",
-  "version": "5.0.0-beta.37",
+  "version": "5.0.0-beta.38",
   "description": "Logger middleware for Kubb. One consola-backed logger that inlines GitHub Actions workflow command annotations when the runtime is detected, for use by the CLI and other hosts.",
   "keywords": [
     "codegen",
