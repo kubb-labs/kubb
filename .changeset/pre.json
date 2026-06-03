@@ -129,6 +129,7 @@
     "hooks-max-listeners",
     "improve-kubb-driver",
     "input-meta-circular-enum-names",
+    "itchy-wombats-change",
     "knip-remove-dead-code",
     "kubb-driver-streaming-cleanup",
     "make-adapter-and-input-optional",

@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.40 — Jun 3, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- add urlpath back ([`68638b7`](https://github.com/kubb-labs/kubb/commit/68638b7227d2db1a65746e0d6e7189571f79dc1d))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.39 — Jun 3, 2026
 
 ### @kubb/core
