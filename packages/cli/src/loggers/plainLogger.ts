@@ -92,14 +92,6 @@ export const plainLogger = defineLogger({
       console.log(`Kubb CLI v${version}`)
     })
 
-    context.on('kubb:version:new', ({ currentVersion, latestVersion }) => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      console.log(getMessage(`Update available: v${currentVersion} → v${latestVersion}. Run \`npm install -g @kubb/cli\` to update.`))
-    })
-
     onStep('kubb:config:start', 'Configuration started')
     onStep('kubb:config:end', 'Configuration completed')
 

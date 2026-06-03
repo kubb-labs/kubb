@@ -14,10 +14,11 @@ describe('buildJsonReport', () => {
     },
     { code: 'KUBB_UNSUPPORTED_FORMAT', severity: 'warning', message: 'unknown format' },
     Diagnostics.timing({ plugin: '@kubb/plugin-ts', duration: 12 }),
+    Diagnostics.summary({ duration: 100, files: 4 }),
   ]
 
   it('drops timing diagnostics and reports problem counts', () => {
-    const report = buildJsonReport({ diagnostics, files: 4, durationMs: 100 })
+    const report = buildJsonReport({ diagnostics })
 
     expect(report.status).toBe('failed')
     expect(report.summary).toStrictEqual({ errors: 1, warnings: 1, files: 4, durationMs: 100 })
@@ -27,7 +28,7 @@ describe('buildJsonReport', () => {
   })
 
   it('is success with no errors and serializes to stable JSON', () => {
-    const report = buildJsonReport({ diagnostics: [{ code: 'KUBB_UNSUPPORTED_FORMAT', severity: 'warning', message: 'x' }], files: 1, durationMs: 5 })
+    const report = buildJsonReport({ diagnostics: [{ code: 'KUBB_UNSUPPORTED_FORMAT', severity: 'warning', message: 'x' }] })
 
     expect(report.status).toBe('success')
     expect(() => JSON.stringify(report)).not.toThrow()

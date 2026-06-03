@@ -188,7 +188,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
     if (diagnostic.code === diagnosticCode.unknown) {
       await hooks.emit('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
     } else {
-      await hooks.emit('kubb:diagnostic', { diagnostic })
+      await Diagnostics.emit(hooks, diagnostic)
     }
   }
 
@@ -309,7 +309,7 @@ async function checkForUpdate(hooks: AsyncEventEmitter<KubbHooks>): Promise<void
       const res = await fetch(KUBB_NPM_PACKAGE_URL)
       const data = (await res.json()) as { version: string }
       if (data.version && version < data.version) {
-        await hooks.emit('kubb:version:new', { currentVersion: version, latestVersion: data.version })
+        await Diagnostics.emit(hooks, Diagnostics.update({ currentVersion: version, latestVersion: data.version }))
       }
     } catch {
       // Ignore network errors

@@ -1,10 +1,10 @@
 import { AsyncEventEmitter } from '@internals/utils'
 import { type Config, type KubbHooks, logLevel, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
-import { setupReporters } from '../loggers/utils.ts'
-import { installJsonReporter } from './jsonReporter.ts'
+import { installReporter, setupReporters } from '../loggers/utils.ts'
+import { jsonReporter } from './jsonReporter.ts'
 
-describe('installJsonReporter', () => {
+describe('jsonReporter', () => {
   it('writes the accumulated report to stdout on lifecycle:end', async () => {
     const context = new AsyncEventEmitter<KubbHooks>()
     const writes: Array<string> = []
@@ -13,7 +13,7 @@ describe('installJsonReporter', () => {
       return true
     })
 
-    installJsonReporter(context)
+    installReporter(context, jsonReporter)
 
     await context.emit('kubb:generation:end', {
       config: {} as Config,

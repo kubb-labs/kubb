@@ -123,6 +123,15 @@ export const diagnosticCode = {
    * to build the run summary.
    */
   timing: 'KUBB_TIMING',
+  /**
+   * Not a failure. Carries the run total time and file count on the run summary
+   * diagnostic, used to build the end-of-run report.
+   */
+  summary: 'KUBB_SUMMARY',
+  /**
+   * Not a failure. A newer Kubb version is available on npm.
+   */
+  updateAvailable: 'KUBB_UPDATE_AVAILABLE',
 } as const
 
 /**

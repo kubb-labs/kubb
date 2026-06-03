@@ -179,10 +179,6 @@ export const githubActionsLogger = defineLogger({
       reset()
     })
 
-    context.on('kubb:version:new', ({ currentVersion, latestVersion }) => {
-      console.log(`::notice::Update available for Kubb: v${currentVersion} → v${latestVersion}. Run \`npm install -g @kubb/cli\` to update.`)
-    })
-
     context.on('kubb:config:start', () => {
       if (logLevel <= logLevelMap.silent) {
         return

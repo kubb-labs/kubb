@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { diagnosticCode } from './constants.ts'
-import { type Diagnostic, DiagnosticError, Diagnostics } from './diagnostics.ts'
+import { type Diagnostic, DiagnosticError, Diagnostics, narrowDiagnostic } from './diagnostics.ts'
 
 const problem = (over: Partial<Diagnostic> = {}): Diagnostic => ({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', ...over })
 
@@ -109,6 +109,47 @@ describe('Diagnostics.count', () => {
     ])
 
     expect(counts).toStrictEqual({ errors: 1, warnings: 1, infos: 1 })
+  })
+})
+
+describe('narrowDiagnostic', () => {
+  it('returns the variant for a matching kind and null otherwise', () => {
+    const update = Diagnostics.update({ currentVersion: '5.0.0', latestVersion: '5.1.0' })
+
+    expect(narrowDiagnostic(update, 'update')).toBe(update)
+    expect(narrowDiagnostic(update, 'problem')).toBeNull()
+  })
+
+  it('treats a diagnostic with no kind as a problem', () => {
+    const diagnostic = problem()
+
+    expect(narrowDiagnostic(diagnostic, 'problem')).toBe(diagnostic)
+    expect(narrowDiagnostic(diagnostic, 'timing')).toBeNull()
+  })
+})
+
+describe('Diagnostics.update', () => {
+  it('builds an info update notice carrying both versions', () => {
+    const diagnostic = Diagnostics.update({ currentVersion: '5.0.0', latestVersion: '5.1.0' })
+
+    expect(diagnostic).toMatchObject({ kind: 'update', code: 'KUBB_UPDATE_AVAILABLE', severity: 'info', currentVersion: '5.0.0', latestVersion: '5.1.0' })
+    expect(diagnostic.message).toContain('v5.0.0 → v5.1.0')
+  })
+})
+
+describe('Diagnostics.summary', () => {
+  it('reads duration and file count from the run summary and ignores per-plugin timings', () => {
+    const diagnostics = [problem(), Diagnostics.timing({ plugin: 'a', duration: 5 }), Diagnostics.summary({ duration: 120, files: 7 })]
+
+    expect(Diagnostics.duration(diagnostics)).toBe(120)
+    expect(Diagnostics.fileCount(diagnostics)).toBe(7)
+  })
+
+  it('returns 0 when no run summary is present', () => {
+    const diagnostics = [problem(), Diagnostics.timing({ plugin: 'a', duration: 5 })]
+
+    expect(Diagnostics.duration(diagnostics)).toBe(0)
+    expect(Diagnostics.fileCount(diagnostics)).toBe(0)
   })
 })
 

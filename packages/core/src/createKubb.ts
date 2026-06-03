@@ -6,13 +6,13 @@ import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
 import { DEFAULT_STUDIO_URL, HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
-import { type Diagnostic, DiagnosticError, Diagnostics } from './diagnostics.ts'
+import { type Diagnostic, DiagnosticError, Diagnostics, type ProblemDiagnostic, type UpdateDiagnostic } from './diagnostics.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import type { Middleware } from './defineMiddleware.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, Plugin } from './definePlugin.ts'
-import type { ReporterName } from './reporters.ts'
+import type { ReporterName } from './createReporter.ts'
 
 import { KubbDriver } from './KubbDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -511,7 +511,6 @@ export interface KubbHooks {
   'kubb:hooks:end': []
   'kubb:hook:start': [ctx: KubbHookStartContext]
   'kubb:hook:end': [ctx: KubbHookEndContext]
-  'kubb:version:new': [ctx: KubbVersionNewContext]
   'kubb:info': [ctx: KubbInfoContext]
   'kubb:error': [ctx: KubbErrorContext]
   'kubb:success': [ctx: KubbSuccessContext]
@@ -651,17 +650,6 @@ export type KubbGenerationEndContext = {
   filesCreated?: number
 }
 
-export type KubbVersionNewContext = {
-  /**
-   * The installed Kubb version.
-   */
-  currentVersion: string
-  /**
-   * The newest available version on npm.
-   */
-  latestVersion: string
-}
-
 export type KubbInfoContext = {
   /**
    * Human-readable info message.
@@ -708,9 +696,9 @@ export type KubbWarnContext = {
 
 export type KubbDiagnosticContext = {
   /**
-   * The structured problem to report, with its code, severity, and source location.
+   * The structured diagnostic to render: a build problem or a version-update notice.
    */
-  diagnostic: Diagnostic
+  diagnostic: ProblemDiagnostic | UpdateDiagnostic
 }
 
 export type KubbFilesProcessingStartContext = {

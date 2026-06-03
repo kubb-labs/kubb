@@ -1,7 +1,9 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
+import type { AsyncEventEmitter } from '@internals/utils'
 import { getErrorMessage } from '@internals/utils'
 import { version } from '../package.json'
 import { type DiagnosticCode, diagnosticCode } from './constants.ts'
+import type { KubbHooks } from './createKubb.ts'
 
 /**
  * Docs major, derived from the package version so the link tracks the published major.
@@ -66,26 +68,31 @@ export type DiagnosticLocation =
 
 /**
  * What a diagnostic carries. `problem` is a build issue shown to the user;
- * `timing` records a plugin's elapsed time for the run summary and is not
- * rendered as a problem.
+ * `timing` records elapsed time for the run summary and is not rendered as a problem.
  */
 export type DiagnosticKind = 'problem' | 'timing'
 
 /**
- * A structured record collected during a build, gathered into the build result
- * instead of aborting on the first failure. A `problem` carries a stable
- * {@link DiagnosticCode}, a `severity`, a `message`, and an optional `location`
- * into the source document. A `timing` carries a plugin's `duration`.
+ * Codes that describe a build problem: every {@link DiagnosticCode} except the
+ * `timing` and `summary` bookkeeping codes, which only ride on a {@link TimingDiagnostic}.
  */
-export type Diagnostic = {
+export type ProblemCode = Exclude<DiagnosticCode, typeof diagnosticCode.timing | typeof diagnosticCode.summary>
+
+/**
+ * A build problem collected during a run, gathered into the result instead of
+ * aborting on the first failure. It carries a stable {@link ProblemCode}, a
+ * `severity`, a `message`, and optionally a `location` into the source document,
+ * a `help`, the `plugin` that produced it, and the `cause` it wraps.
+ */
+export type ProblemDiagnostic = {
   /**
    * @default 'problem'
    */
-  kind?: DiagnosticKind
+  kind?: 'problem'
   /**
    * Stable identifier for the problem, from the {@link diagnosticCode} catalog.
    */
-  code: DiagnosticCode
+  code: ProblemCode
   severity: DiagnosticSeverity
   message: string
   location?: DiagnosticLocation
@@ -101,10 +108,100 @@ export type Diagnostic = {
    * The underlying error, when the diagnostic wraps a thrown one.
    */
   cause?: Error
+}
+
+/**
+ * A per-plugin timing. It carries the `plugin` and its elapsed `duration`, uses the
+ * `timing` kind so it stays out of the problem list, and the `KUBB_TIMING` code. Feeds
+ * the per-plugin timing bars in the run summary.
+ */
+export type TimingDiagnostic = {
+  kind: 'timing'
+  code: typeof diagnosticCode.timing
+  severity: 'info'
+  message: string
   /**
-   * Elapsed milliseconds, set on `timing` diagnostics.
+   * The plugin this timing belongs to.
    */
-  duration?: number
+  plugin: string
+  /**
+   * Elapsed milliseconds.
+   */
+  duration: number
+}
+
+/**
+ * The run summary. It carries the run's total `duration` and `files` count, uses the
+ * `timing` kind so it stays out of the problem list, and the `KUBB_SUMMARY` code. There
+ * is one per run; read its totals with {@link Diagnostics.duration} and {@link Diagnostics.fileCount}.
+ */
+export type SummaryDiagnostic = {
+  kind: 'timing'
+  code: typeof diagnosticCode.summary
+  severity: 'info'
+  message: string
+  /**
+   * Total elapsed milliseconds for the run.
+   */
+  duration: number
+  /**
+   * Number of files written in the run.
+   */
+  files: number
+}
+
+/**
+ * A notice that a newer Kubb version is available on npm. Not a problem and not a
+ * timing; it carries the running and latest versions and renders like any info
+ * diagnostic. Build it with {@link Diagnostics.update}.
+ */
+export type UpdateDiagnostic = {
+  kind: 'update'
+  code: typeof diagnosticCode.updateAvailable
+  severity: 'info'
+  message: string
+  /**
+   * The running Kubb version.
+   */
+  currentVersion: string
+  /**
+   * The newest version published on npm.
+   */
+  latestVersion: string
+}
+
+/**
+ * A structured record collected during a build, discriminated on `kind`, then on `code`:
+ * a {@link ProblemDiagnostic} for an issue, a {@link TimingDiagnostic} for a per-plugin
+ * timing, a {@link SummaryDiagnostic} for the run total, or an {@link UpdateDiagnostic}
+ * for a version notice.
+ */
+export type Diagnostic = ProblemDiagnostic | TimingDiagnostic | SummaryDiagnostic | UpdateDiagnostic
+
+/**
+ * Maps each {@link Diagnostic} `kind` to the variant it selects, for {@link narrowDiagnostic}.
+ * `timing` covers both the per-plugin {@link TimingDiagnostic} and the {@link SummaryDiagnostic}.
+ */
+export type DiagnosticByKind = {
+  problem: ProblemDiagnostic
+  timing: TimingDiagnostic | SummaryDiagnostic
+  update: UpdateDiagnostic
+}
+
+/**
+ * Narrows a {@link Diagnostic} to the variant for `kind`, or `null` when it does not match.
+ * A diagnostic with no `kind` is treated as a `problem`.
+ *
+ * @example
+ * ```ts
+ * const update = narrowDiagnostic(diagnostic, 'update')
+ * if (update) {
+ *   console.log(update.latestVersion)
+ * }
+ * ```
+ */
+export function narrowDiagnostic<K extends keyof DiagnosticByKind>(diagnostic: Diagnostic, kind: K): DiagnosticByKind[K] | null {
+  return (diagnostic.kind ?? 'problem') === kind ? (diagnostic as DiagnosticByKind[K]) : null
 }
 
 /**
@@ -135,9 +232,9 @@ export type SerializedDiagnostic = {
  * ```
  */
 export class DiagnosticError extends Error {
-  diagnostic: Diagnostic
+  diagnostic: ProblemDiagnostic
 
-  constructor(diagnostic: Diagnostic) {
+  constructor(diagnostic: ProblemDiagnostic) {
     super(diagnostic.message, { cause: diagnostic.cause })
     this.name = 'DiagnosticError'
     this.diagnostic = diagnostic
@@ -258,6 +355,16 @@ export const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
     cause: 'Not a failure. Records a plugin’s elapsed time for the run summary.',
     fix: 'No action. This is an informational metric.',
   },
+  [diagnosticCode.summary]: {
+    title: 'Run summary',
+    cause: 'Not a failure. Records the run total time and file count for the end-of-run report.',
+    fix: 'No action. This is an informational metric.',
+  },
+  [diagnosticCode.updateAvailable]: {
+    title: 'Update available',
+    cause: 'A newer Kubb version is published on npm than the one running.',
+    fix: 'Update the `@kubb/*` packages, for example `npm install -g @kubb/cli`, to get the latest fixes.',
+  },
 }
 
 /**
@@ -281,9 +388,10 @@ export class Diagnostics {
   }
 
   /**
-   * Reports a diagnostic into the active run without throwing. Returns `true` when
-   * a run consumed it, `false` when called outside a run (so callers can fall back
-   * to throwing). Use a `warning`/`info` severity for non-fatal issues.
+   * Collects a diagnostic into the active build via the run-scoped sink, without throwing.
+   * Returns `true` when a run consumed it, `false` when called outside a {@link Diagnostics.scope}
+   * (so callers can fall back to throwing). Use a `warning`/`info` severity for non-fatal issues.
+   * For rendering a diagnostic live on the hook bus, use {@link Diagnostics.emit} instead.
    */
   static report(diagnostic: Diagnostic): boolean {
     const sink = Diagnostics.#reporterStorage.getStore()
@@ -295,10 +403,21 @@ export class Diagnostics {
   }
 
   /**
-   * Coerces any thrown value into a {@link Diagnostic}. A {@link DiagnosticError}
+   * Emits a diagnostic on the run's `kubb:diagnostic` event so the loggers render it live.
+   * Use it instead of calling `hooks.emit('kubb:diagnostic', ...)` directly. To collect a
+   * diagnostic into the build result from deep in a run, use {@link Diagnostics.report} instead.
+   */
+  static async emit(hooks: AsyncEventEmitter<KubbHooks>, diagnostic: ProblemDiagnostic | UpdateDiagnostic): Promise<void> {
+    await hooks.emit('kubb:diagnostic', { diagnostic })
+
+    return
+  }
+
+  /**
+   * Coerces any thrown value into a {@link ProblemDiagnostic}. A {@link DiagnosticError}
    * keeps its structured data; anything else becomes a `KUBB_UNKNOWN` error.
    */
-  static from(error: unknown): Diagnostic {
+  static from(error: unknown): ProblemDiagnostic {
     // The event emitter and BuildError wrap the original, so walk the cause chain to
     // recover a DiagnosticError thrown deeper down. `root` tracks the deepest error so
     // the unknown diagnostic reports the original message and stack, not the wrapper's.
@@ -326,9 +445,8 @@ export class Diagnostics {
   }
 
   /**
-   * Builds a `timing` diagnostic recording how long a plugin took. Collected into
-   * the build result so the run summary can report per-plugin timings without a
-   * separate channel.
+   * Builds a `timing` diagnostic recording how long a plugin took, feeding the
+   * per-plugin timing bars in the run summary.
    */
   static timing({ plugin, duration }: { plugin: string; duration: number }): Diagnostic {
     return {
@@ -339,6 +457,60 @@ export class Diagnostics {
       plugin,
       duration,
     }
+  }
+
+  /**
+   * Builds the run-level summary diagnostic carrying the total elapsed time and file
+   * count. It uses the `timing` kind so it stays out of the problem list, and has no
+   * `plugin` so the per-plugin bars ignore it. Read it back with {@link Diagnostics.duration}
+   * and {@link Diagnostics.fileCount}.
+   */
+  static summary({ duration, files }: { duration: number; files: number }): Diagnostic {
+    return {
+      kind: 'timing',
+      code: diagnosticCode.summary,
+      severity: 'info',
+      message: `Run completed in ${Math.round(duration)}ms`,
+      duration,
+      files,
+    }
+  }
+
+  /**
+   * Builds the version-update notice shown when a newer Kubb is published on npm.
+   */
+  static update({ currentVersion, latestVersion }: { currentVersion: string; latestVersion: string }): UpdateDiagnostic {
+    return {
+      kind: 'update',
+      code: diagnosticCode.updateAvailable,
+      severity: 'info',
+      message: `Update available: v${currentVersion} → v${latestVersion}. Run \`npm install -g @kubb/cli\` to update.`,
+      currentVersion,
+      latestVersion,
+    }
+  }
+
+  /**
+   * Total run duration in milliseconds, read from the run summary diagnostic (the
+   * `timing` diagnostic with the `KUBB_SUMMARY` code). Returns 0 when absent.
+   */
+  static duration(diagnostics: ReadonlyArray<Diagnostic>): number {
+    return Diagnostics.#runSummary(diagnostics)?.duration ?? 0
+  }
+
+  /**
+   * Number of files written in the run, read from the run summary diagnostic. Returns
+   * 0 when absent.
+   */
+  static fileCount(diagnostics: ReadonlyArray<Diagnostic>): number {
+    return Diagnostics.#runSummary(diagnostics)?.files ?? 0
+  }
+
+  /**
+   * The run summary diagnostic, identified by its `KUBB_SUMMARY` code.
+   */
+  static #runSummary(diagnostics: ReadonlyArray<Diagnostic>): SummaryDiagnostic | undefined {
+    return diagnostics.find((diagnostic): diagnostic is SummaryDiagnostic => diagnostic.code === diagnosticCode.summary)
   }
 
   /**
@@ -372,12 +544,13 @@ export class Diagnostics {
     let warnings = 0
     let infos = 0
     for (const diagnostic of diagnostics) {
-      if (diagnostic.kind === 'timing') {
+      const problem = narrowDiagnostic(diagnostic, 'problem')
+      if (!problem) {
         continue
       }
-      if (diagnostic.severity === 'error') {
+      if (problem.severity === 'error') {
         errors += 1
-      } else if (diagnostic.severity === 'warning') {
+      } else if (problem.severity === 'warning') {
         warnings += 1
       } else {
         infos += 1
@@ -395,17 +568,18 @@ export class Diagnostics {
     const seen = new Set<string>()
     const result: Array<Diagnostic> = []
     for (const diagnostic of diagnostics) {
-      if (diagnostic.kind === 'timing') {
+      const problem = narrowDiagnostic(diagnostic, 'problem')
+      if (!problem) {
         result.push(diagnostic)
         continue
       }
-      const pointer = diagnostic.location && 'pointer' in diagnostic.location ? diagnostic.location.pointer : ''
-      const key = `${diagnostic.code} ${pointer} ${diagnostic.plugin ?? ''}`
+      const pointer = problem.location && 'pointer' in problem.location ? problem.location.pointer : ''
+      const key = `${problem.code} ${pointer} ${problem.plugin ?? ''}`
       if (seen.has(key)) {
         continue
       }
       seen.add(key)
-      result.push(diagnostic)
+      result.push(problem)
     }
     return result
   }
@@ -433,13 +607,14 @@ export class Diagnostics {
    * fields are omitted rather than set to `undefined`.
    */
   static serialize(diagnostic: Diagnostic): SerializedDiagnostic {
+    const problem = narrowDiagnostic(diagnostic, 'problem')
     return {
       code: diagnostic.code,
       severity: diagnostic.severity,
       message: diagnostic.message,
-      ...(diagnostic.location ? { location: diagnostic.location } : {}),
-      ...(diagnostic.help ? { help: diagnostic.help } : {}),
-      ...(diagnostic.plugin ? { plugin: diagnostic.plugin } : {}),
+      ...(problem?.location ? { location: problem.location } : {}),
+      ...(problem?.help ? { help: problem.help } : {}),
+      ...(problem?.plugin ? { plugin: problem.plugin } : {}),
       ...(diagnostic.code === diagnosticCode.unknown ? {} : { docsUrl: Diagnostics.docsUrl(diagnostic.code) }),
     }
   }

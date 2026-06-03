@@ -1,3 +1,4 @@
+import { Diagnostics } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { formatDiagnostic } from './diagnostics.ts'
 
@@ -35,5 +36,13 @@ describe('formatDiagnostic', () => {
 
     const unknown = formatDiagnostic({ code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom' })
     expect(unknown.some((line) => line.includes('docs:'))).toBe(false)
+  })
+
+  it('renders an update notice as an info line with the version message', () => {
+    const [header] = formatDiagnostic(Diagnostics.update({ currentVersion: '5.0.0', latestVersion: '5.1.0' }))
+
+    expect(header).toContain('ℹ')
+    expect(header).toContain('KUBB_UPDATE_AVAILABLE')
+    expect(header).toContain('v5.0.0 → v5.1.0')
   })
 })

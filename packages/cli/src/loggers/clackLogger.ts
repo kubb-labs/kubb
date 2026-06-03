@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { formatMsWithColor, getElapsedMs, getIntro, toCause } from '@internals/utils'
-import { defineLogger, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { defineLogger, type KubbHooks, logLevel as logLevelMap, narrowDiagnostic } from '@kubb/core'
 import { diagnosticDetails, diagnosticHeadline, diagnosticSymbol } from './diagnostics.ts'
 import { getSummary } from './utils.ts'
 import { buildProgressLine, createProgressCounters, formatCommandWithArgs, formatMessage, recordPluginResult, resetProgressCounters } from './utils.ts'
@@ -24,19 +24,24 @@ export const clackLogger = defineLogger({
       activeHookLogs: new Map<string, { taskLog: ReturnType<typeof clack.taskLog>; hrStart: [number, number] }>(),
     }
 
-    function reset() {
-      for (const [_key, active] of state.activeProgress) {
+    // Clear every active progress bar's interval, stop it, and drop the map.
+    function stopActiveProgress() {
+      for (const [, active] of state.activeProgress) {
         if (active.interval) {
           clearInterval(active.interval)
         }
         active.progressBar?.stop()
       }
+      state.activeProgress.clear()
+    }
+
+    function reset() {
+      stopActiveProgress()
 
       resetProgressCounters(state)
       state.spinner = clack.spinner()
       state.isSpinning = false
       state.runningPlugins.clear()
-      state.activeProgress.clear()
       state.activeHookLogs.clear()
     }
 
@@ -156,31 +161,18 @@ export const clackLogger = defineLogger({
     context.on('kubb:diagnostic', ({ diagnostic }) => {
       stopSpinner()
 
-      // Stop any lingering spinner/progress UI so the multi-line block renders cleanly.
-      for (const [, active] of state.activeProgress) {
-        if (active.interval) {
-          clearInterval(active.interval)
+      // Stop any lingering progress UI so the multi-line block renders cleanly.
+      stopActiveProgress()
+
+      // The version-update notice keeps its own framed box instead of the diagnostic gutter.
+      const update = narrowDiagnostic(diagnostic, 'update')
+      if (update) {
+        if (logLevel <= logLevelMap.silent) {
+          return
         }
-        active.progressBar?.stop()
-      }
-      state.activeProgress.clear()
 
-      // Hand the severity glyph to clack as the gutter `symbol`, then let it draw the
-      // bar on each detail line via the default `secondarySymbol`. The headline and
-      // details carry their own colors, so clack only owns the gutter.
-      clack.log.message([diagnosticHeadline(diagnostic), ...diagnosticDetails(diagnostic)], {
-        symbol: diagnosticSymbol(diagnostic.severity),
-      })
-    })
-
-    context.on('kubb:version:new', ({ currentVersion, latestVersion }) => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      try {
         clack.box(
-          `\`v${currentVersion}\` → \`v${latestVersion}\`
+          `\`v${update.currentVersion}\` → \`v${update.latestVersion}\`
 Run \`npm install -g @kubb/cli\` to update`,
           'Update available for `Kubb`',
           {
@@ -192,10 +184,16 @@ Run \`npm install -g @kubb/cli\` to update`,
             titleAlign: 'center',
           },
         )
-      } catch {
-        console.log(`Update available for Kubb: v${currentVersion} → v${latestVersion}`)
-        console.log('Run `npm install -g @kubb/cli` to update')
+
+        return
       }
+
+      // Hand the severity glyph to clack as the gutter `symbol`, then let it draw the
+      // bar on each detail line via the default `secondarySymbol`. The headline and
+      // details carry their own colors, so clack only owns the gutter.
+      clack.log.message([diagnosticHeadline(diagnostic), ...diagnosticDetails(diagnostic)], {
+        symbol: diagnosticSymbol(diagnostic.severity),
+      })
     })
 
     context.on('kubb:lifecycle:start', async ({ version }) => {

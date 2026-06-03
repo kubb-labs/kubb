@@ -1,6 +1,5 @@
 import process from 'node:process'
-import { getElapsedMs } from '@internals/utils'
-import { type Diagnostic, Diagnostics, type LoggerContext, type SerializedDiagnostic } from '@kubb/core'
+import { createReporter, type Diagnostic, Diagnostics, type SerializedDiagnostic } from '@kubb/core'
 
 /**
  * A single problem in the machine-readable report: a {@link SerializedDiagnostic}
@@ -23,10 +22,13 @@ export type JsonReport = {
 }
 
 /**
- * Builds the machine-readable report from the run's diagnostics. `timing`
- * diagnostics are dropped; the build is `failed` when any error is present.
+ * Builds the machine-readable report from the run's diagnostics. The file count and
+ * duration are read from the run summary diagnostic; `timing` diagnostics are then
+ * dropped. The build is `failed` when any error is present.
  */
-export function buildJsonReport({ diagnostics, files, durationMs }: { diagnostics: ReadonlyArray<Diagnostic>; files: number; durationMs: number }): JsonReport {
+export function buildJsonReport({ diagnostics }: { diagnostics: ReadonlyArray<Diagnostic> }): JsonReport {
+  const durationMs = Diagnostics.duration(diagnostics)
+  const files = Diagnostics.fileCount(diagnostics)
   const problems = diagnostics.filter((diagnostic) => diagnostic.kind !== 'timing')
   const { errors, warnings } = Diagnostics.count(problems)
 
@@ -38,21 +40,14 @@ export function buildJsonReport({ diagnostics, files, durationMs }: { diagnostic
 }
 
 /**
- * Installs the `json` reporter. Accumulates diagnostics and file counts across every
- * config in the run, then writes the {@link JsonReport} to stdout on `kubb:lifecycle:end`.
- * The terminal reporter is suppressed while this is active so stdout stays valid JSON.
+ * The `json` reporter. Receives the run's collected diagnostics and file count, then writes
+ * the {@link JsonReport} to stdout. The terminal reporter is suppressed while this is active
+ * so stdout stays valid JSON.
  */
-export function installJsonReporter(context: LoggerContext): void {
-  const start = process.hrtime()
-  const collected: { diagnostics: Array<Diagnostic>; files: number } = { diagnostics: [], files: 0 }
-
-  context.on('kubb:generation:end', ({ diagnostics, filesCreated }) => {
-    if (diagnostics) collected.diagnostics.push(...diagnostics)
-    if (filesCreated !== undefined) collected.files += filesCreated
-  })
-
-  context.on('kubb:lifecycle:end', () => {
-    const report = buildJsonReport({ diagnostics: collected.diagnostics, files: collected.files, durationMs: getElapsedMs(start) })
+export const jsonReporter = createReporter({
+  name: 'json',
+  report(diagnostics) {
+    const report = buildJsonReport({ diagnostics })
     process.stdout.write(`${JSON.stringify(report, null, 2)}\n`)
-  })
-}
+  },
+})
