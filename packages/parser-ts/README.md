@@ -105,7 +105,7 @@ Kubb is an open source project, and its development is funded entirely by sponso
 [npm-downloads-href]: https://npmjs.com/package/@kubb/parser-ts
 [stars-src]: https://shieldcn.dev/github/stars/kubb-labs/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
 [stars-href]: https://github.com/kubb-labs/kubb
-[license-src]: https://shieldcn.dev/npm/license/@kubb/parser-ts.svg?variant=ghost&size=xs&theme=zinc&mode=dark
+[license-src]: https://shieldcn.dev/npm/license/@kubb/parser-ts.svg?variant=branded&size=xs&theme=zinc&mode=dark
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
-[node-src]: https://shieldcn.dev/npm/node/@kubb/parser-ts.svg?variant=outline&size=xs&theme=zinc&mode=dark
+[node-src]: https://shieldcn.dev/npm/node/@kubb/parser-ts.svg?variant=branded&size=xs&theme=zinc&mode=dark
 [node-href]: https://npmjs.com/package/@kubb/parser-ts

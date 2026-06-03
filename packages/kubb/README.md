@@ -196,9 +196,9 @@ See [LICENSE](./LICENSE) for details.
 [npm-downloads-href]: https://npmjs.com/package/kubb
 [stars-src]: https://shieldcn.dev/github/stars/kubb-labs/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
 [stars-href]: https://github.com/kubb-labs/kubb
-[license-src]: https://shieldcn.dev/npm/license/kubb.svg?variant=ghost&size=xs&theme=zinc&mode=dark
+[license-src]: https://shieldcn.dev/npm/license/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
-[node-src]: https://shieldcn.dev/npm/node/kubb.svg?variant=outline&size=xs&theme=zinc&mode=dark
+[node-src]: https://shieldcn.dev/npm/node/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
 [node-href]: https://npmjs.com/package/kubb
 [contributors-src]: https://shieldcn.dev/github/contributors/kubb-labs/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
 [contributors-href]: #contributors-
