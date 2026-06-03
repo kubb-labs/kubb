@@ -17,11 +17,15 @@ describe('buildJsonReport', () => {
     Diagnostics.performance({ plugin: '@kubb/plugin-zod', duration: 88 }),
   ]
 
-  it('drops performance diagnostics and reports problem counts', () => {
+  it('reports per-plugin timings and problem counts', () => {
     const report = buildJsonReport({ diagnostics })
 
     expect(report.status).toBe('failed')
     expect(report.summary).toStrictEqual({ errors: 1, warnings: 1, durationMs: 100 })
+    expect(report.timings).toStrictEqual([
+      { plugin: '@kubb/plugin-zod', durationMs: 88 },
+      { plugin: '@kubb/plugin-ts', durationMs: 12 },
+    ])
     expect(report.diagnostics).toHaveLength(2)
     expect(report.diagnostics[0]).toMatchObject({ code: 'KUBB_REF_NOT_FOUND', plugin: '@kubb/plugin-zod', location: { pointer: '#/components/schemas/Pet' } })
     expect(report.diagnostics[0]?.docsUrl).toMatch(/\/diagnostics\/kubb-ref-not-found$/)
