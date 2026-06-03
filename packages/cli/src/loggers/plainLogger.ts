@@ -1,9 +1,7 @@
 import { relative } from 'node:path'
 import { formatMs, toCause } from '@internals/utils'
 import { defineLogger, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { SUMMARY_SEPARATOR } from '../constants.ts'
 import { formatDiagnostic } from './diagnostics.ts'
-import { getSummary } from './utils.ts'
 import { createHookTimer, formatCommandWithArgs, formatMessage } from './utils.ts'
 
 /**
@@ -85,7 +83,8 @@ export const plainLogger = defineLogger({
     })
 
     context.on('kubb:diagnostic', ({ diagnostic }) => {
-      if (logLevel <= logLevelMap.silent) {
+      // Silent still surfaces errors so failures stay visible; it drops warnings and info.
+      if (logLevel <= logLevelMap.silent && diagnostic.severity !== 'error') {
         return
       }
       console.log(getMessage(formatDiagnostic(diagnostic).join('\n')))
@@ -154,25 +153,10 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:generation:end', ({ config, diagnostics, filesCreated, status, hrStart }) => {
+    context.on('kubb:generation:end', ({ config }) => {
       const text = getMessage(config.name ? `Generation completed for ${config.name}` : 'Generation completed')
 
       console.log(text)
-
-      if (diagnostics && status && hrStart && filesCreated !== undefined) {
-        const summary = getSummary({
-          diagnostics,
-          filesCreated,
-          config,
-          status,
-          hrStart,
-          showTimings: logLevel >= logLevelMap.verbose,
-        })
-
-        console.log(SUMMARY_SEPARATOR)
-        console.log(summary.join('\n'))
-        console.log(SUMMARY_SEPARATOR)
-      }
     })
 
     onStep('kubb:format:start', 'Format started')

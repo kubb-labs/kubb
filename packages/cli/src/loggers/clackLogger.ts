@@ -5,7 +5,6 @@ import * as clack from '@clack/prompts'
 import { formatMsWithColor, getElapsedMs, getIntro, toCause } from '@internals/utils'
 import { defineLogger, isUpdateDiagnostic, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { diagnosticDetails, diagnosticHeadline, diagnosticSymbol } from './diagnostics.ts'
-import { getSummary } from './utils.ts'
 import { buildProgressLine, createProgressCounters, formatCommandWithArgs, formatMessage, recordPluginResult, resetProgressCounters } from './utils.ts'
 
 /**
@@ -159,7 +158,8 @@ export const clackLogger = defineLogger({
     })
 
     context.on('kubb:diagnostic', ({ diagnostic }) => {
-      if (logLevel <= logLevelMap.silent) {
+      // Silent still surfaces errors so failures stay visible; it drops warnings and info.
+      if (logLevel <= logLevelMap.silent && diagnostic.severity !== 'error') {
         return
       }
 
@@ -344,36 +344,8 @@ Run \`npm install -g @kubb/cli\` to update`,
       showProgressStep()
     })
 
-    context.on('kubb:generation:end', ({ config, diagnostics, filesCreated, status, hrStart }) => {
+    context.on('kubb:generation:end', ({ config }) => {
       stopSpinner()
-
-      if (diagnostics && status && hrStart && filesCreated !== undefined) {
-        const summary = getSummary({
-          diagnostics,
-          filesCreated,
-          config,
-          status,
-          hrStart,
-          showTimings: logLevel >= logLevelMap.verbose,
-        })
-
-        summary.unshift('\n')
-        summary.push('\n')
-
-        const borderColor = status === 'success' ? 'green' : 'red'
-        try {
-          clack.box(summary.join('\n'), getMessage(config.name || ''), {
-            width: 'auto',
-            formatBorder: (s: string) => styleText(borderColor, s),
-            rounded: true,
-            withGuide: false,
-            contentAlign: 'left',
-            titleAlign: 'center',
-          })
-        } catch {
-          console.log(summary.join('\n'))
-        }
-      }
 
       const text = getMessage(config.name ? `Generation completed for ${styleText('dim', config.name)}` : 'Generation completed')
 

@@ -38,14 +38,13 @@ export function buildJsonReport({ diagnostics }: { diagnostics: ReadonlyArray<Di
 }
 
 /**
- * The `json` reporter. Receives the run's collected diagnostics, then writes the
- * {@link JsonReport} to stdout. The terminal reporter is suppressed while this is active
- * so stdout stays valid JSON.
+ * The `json` reporter. Writes the {@link JsonReport} for the whole run to stdout. The terminal
+ * reporter is suppressed while this is active so stdout stays valid JSON.
  */
 export const jsonReporter = createReporter({
   name: 'json',
-  report(diagnostics) {
-    const report = buildJsonReport({ diagnostics })
+  report(result) {
+    const report = buildJsonReport({ diagnostics: result.diagnostics })
     process.stdout.write(`${JSON.stringify(report, null, 2)}\n`)
   },
 })

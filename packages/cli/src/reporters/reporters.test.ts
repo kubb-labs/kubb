@@ -2,10 +2,11 @@ import { AsyncEventEmitter } from '@internals/utils'
 import { type Config, type KubbHooks, logLevel, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import { installReporter, setupReporters } from '../loggers/utils.ts'
+import { cliReporter } from './cliReporter.ts'
 import { jsonReporter } from './jsonReporter.ts'
 
 describe('jsonReporter', () => {
-  it('writes the accumulated report to stdout on lifecycle:end', async () => {
+  it('writes a report to stdout per config', async () => {
     const context = new AsyncEventEmitter<KubbHooks>()
     const writes: Array<string> = []
     using _ = vi.spyOn(process.stdout, 'write').mockImplementation((chunk) => {
@@ -13,7 +14,7 @@ describe('jsonReporter', () => {
       return true
     })
 
-    installReporter(context, jsonReporter)
+    installReporter(context, jsonReporter, { logLevel: logLevel.info })
 
     await context.emit('kubb:generation:end', {
       config: {} as Config,
@@ -23,11 +24,57 @@ describe('jsonReporter', () => {
       status: 'failed',
       hrStart: process.hrtime(),
     })
-    await context.emit('kubb:lifecycle:end')
 
     const report = JSON.parse(writes.join(''))
     expect(report.status).toBe('failed')
     expect(report.summary).toMatchObject({ errors: 1 })
+  })
+})
+
+describe('cliReporter', () => {
+  it('renders the summary per config', async () => {
+    const context = new AsyncEventEmitter<KubbHooks>()
+    const logs: Array<string> = []
+    using _ = vi.spyOn(console, 'log').mockImplementation((...args) => {
+      logs.push(args.join(' '))
+    })
+
+    installReporter(context, cliReporter, { logLevel: logLevel.info })
+
+    await context.emit('kubb:generation:end', {
+      config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}, {}] } as unknown as Config,
+      storage: {} as Storage,
+      diagnostics: [],
+      filesCreated: 12,
+      status: 'success',
+      hrStart: process.hrtime(),
+    })
+
+    const output = logs.join('\n')
+    expect(output).toContain('petstore')
+    expect(output).toContain('2 passed (2)')
+    expect(output).toContain('12 generated')
+  })
+
+  it('renders nothing at silent', async () => {
+    const context = new AsyncEventEmitter<KubbHooks>()
+    const logs: Array<string> = []
+    using _ = vi.spyOn(console, 'log').mockImplementation((...args) => {
+      logs.push(args.join(' '))
+    })
+
+    installReporter(context, cliReporter, { logLevel: logLevel.silent })
+
+    await context.emit('kubb:generation:end', {
+      config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config,
+      storage: {} as Storage,
+      diagnostics: [],
+      filesCreated: 1,
+      status: 'success',
+      hrStart: process.hrtime(),
+    })
+
+    expect(logs).toHaveLength(0)
   })
 })
 
@@ -38,15 +85,14 @@ describe('setupReporters', () => {
     const sink = await setupReporters(context, { logLevel: logLevel.info, reporters: ['json'] })
 
     expect(sink).toBeNull()
-    expect(context.listenerCount('kubb:lifecycle:end')).toBeGreaterThan(0)
+    expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
   })
 
-  it('wires the file reporter to the generation and lifecycle events', async () => {
+  it('wires the file reporter to the generation event', async () => {
     const context = new AsyncEventEmitter<KubbHooks>()
 
     await setupReporters(context, { logLevel: logLevel.info, reporters: ['file'] })
 
     expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
-    expect(context.listenerCount('kubb:lifecycle:end')).toBeGreaterThan(0)
   })
 })

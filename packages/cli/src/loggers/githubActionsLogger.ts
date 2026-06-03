@@ -1,5 +1,5 @@
 import { styleText } from 'node:util'
-import { formatHrtime, formatMs, formatMsWithColor, toCause } from '@internals/utils'
+import { formatMs, formatMsWithColor, toCause } from '@internals/utils'
 import { type Config, defineLogger, diagnosticCode, Diagnostics, isProblemDiagnostic, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import {
   buildProgressLine,
@@ -127,9 +127,7 @@ export const githubActionsLogger = defineLogger({
       // (e.g., when getConfigs or kubb.setup throws) doesn't leak an open section.
       closeAllGroups()
 
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
+      // Errors are always surfaced, even at silent, so failures stay visible.
       const message = error.message || String(error)
       console.error(`::error::${message}`)
 
@@ -154,7 +152,8 @@ export const githubActionsLogger = defineLogger({
     context.on('kubb:diagnostic', ({ diagnostic }) => {
       closeAllGroups()
 
-      if (logLevel <= logLevelMap.silent) {
+      // Silent still surfaces errors so failures stay visible; it drops warnings and info.
+      if (logLevel <= logLevelMap.silent && diagnostic.severity !== 'error') {
         return
       }
 
@@ -307,32 +306,15 @@ export const githubActionsLogger = defineLogger({
       state.processedFiles += files.length
     })
 
-    context.on('kubb:generation:end', ({ config, diagnostics, status, hrStart }) => {
+    context.on('kubb:generation:end', ({ config }) => {
       const text = getMessage(
         config.name ? `${styleText('blue', '✓')} Generation completed for ${styleText('dim', config.name)}` : `${styleText('blue', '✓')} Generation completed`,
       )
 
       console.log(text)
 
-      if (diagnostics && status && hrStart) {
-        const failedCount = Diagnostics.failedPlugins(diagnostics).length
-        const pluginsCount = config.plugins?.length ?? 0
-        const successCount = pluginsCount - failedCount
-        const duration = formatHrtime(hrStart)
-
-        if (state.currentConfigs.length > 1) {
-          console.log(' ')
-        }
-
-        console.log(
-          status === 'success'
-            ? `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ${pluginsCount} total, ${styleText('green', duration)}`
-            : `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ✗ ${`${failedCount} failed`}, ${pluginsCount} total, ${styleText('green', duration)}`,
-        )
-
-        if (state.currentConfigs.length > 1) {
-          closeGroup(config.name ? `Generation for ${styleText('bold', config.name)}` : 'Generation')
-        }
+      if (state.currentConfigs.length > 1) {
+        closeGroup(config.name ? `Generation for ${styleText('bold', config.name)}` : 'Generation')
       }
     })
 

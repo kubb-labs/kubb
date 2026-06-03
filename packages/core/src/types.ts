@@ -42,7 +42,7 @@ export type {
   PossibleConfig,
   UserConfig,
 } from './createKubb.ts'
-export type { Reporter, ReporterName, UserReporter } from './createReporter.ts'
+export type { GenerationResult, Reporter, ReporterContext, ReporterName, UserReporter } from './createReporter.ts'
 export type { Renderer, RendererFactory } from './createRenderer.ts'
 export type { Storage } from './createStorage.ts'
 export type { FileProcessorHooks, ParsedFile } from './FileProcessor.ts'
