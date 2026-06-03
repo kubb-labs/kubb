@@ -20,6 +20,46 @@ export type LoggerOptions = {
 export type LoggerContext = AsyncEventEmitter<KubbHooks>
 
 /**
+ * Output sink for a hook subprocess, controlling how streamed lines and exit output are forwarded.
+ */
+type HookOutputSink = {
+  /**
+   * Called for each streamed stdout line while the hook runs.
+   */
+  onLine?: (line: string) => void
+  /**
+   * Called with stderr content after the hook exits with a non-zero code.
+   */
+  onStderr?: (text: string) => void
+  /**
+   * Called with stdout content after the hook exits with a non-zero code.
+   */
+  onStdout?: (text: string) => void
+}
+
+/**
+ * Output sink combined with stream control for a hook subprocess.
+ */
+export type HookSinkOptions = HookOutputSink & {
+  /**
+   * When `true`, streams process output line-by-line via `onLine`.
+   *
+   * @default false
+   */
+  stream?: boolean
+}
+
+/**
+ * Factory a logger may return from `install` to control how each hook subprocess's output is
+ * captured and displayed. Called once per hook command. The function should set up any logger UI
+ * and return callbacks that forward subprocess output to it.
+ *
+ * `hookId` is the same id passed to `kubb:hook:start` / `kubb:hook:end`, letting the logger
+ * correlate streamed output with any active UI element it created in the start handler.
+ */
+export type HookSinkFactory = (commandWithArgs: string, hookId: string) => HookSinkOptions | null
+
+/**
  * Logger contract. A logger receives the build's event emitter and subscribes
  * to whichever lifecycle events it wants to forward to its destination
  * (console, file, remote sink).
@@ -59,10 +99,9 @@ export type UserLogger<TOptions extends LoggerOptions = LoggerOptions, TInstallR
  *
  * @example Logger that returns a hook sink factory
  * ```ts
- * import { defineLogger, type LoggerOptions } from '@kubb/core'
- * import type { HookSinkFactory } from './sinks'
+ * import { defineLogger, type HookSinkFactory } from '@kubb/core'
  *
- * export const myLogger = defineLogger<LoggerOptions, HookSinkFactory>({
+ * export const myLogger = defineLogger<{ logLevel: number }, HookSinkFactory>({
  *   name: 'my-logger',
  *   install(context) {
  *     // … register event handlers …

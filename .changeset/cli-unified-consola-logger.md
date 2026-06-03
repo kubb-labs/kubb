@@ -1,13 +1,26 @@
 ---
 '@kubb/middleware-logger': minor
 '@kubb/cli': minor
-'@kubb/core': patch
+'@kubb/core': minor
 ---
 
-Extract the CLI logger into a new `@kubb/middleware-logger` package. A single consola-backed logger now handles every output environment, and when the runtime is GitHub Actions the same handlers inline workflow command annotations (`::group::`, `::endgroup::`, `::warning::`, `::error::`, `::notice::`) so the CI annotations panel highlights problems and sections collapse per config, plugin, and hook.
+Make the live CLI logger configurable through `kubb.config.ts`, the same way `middleware` opts into `@kubb/middleware-barrel`. `@kubb/core` adds a `logger?: Logger` field on `UserConfig`. The CLI no longer hardcodes a logger: it reads `config.logger` and falls back to a tiny inline plain-console logger when nothing is set, so `@kubb/cli` does not depend on `@kubb/middleware-logger` at all.
 
-The package exports `createLogger(options)` as the factory and a default `middlewareLogger` instance, plus the diagnostic and formatting helpers (`formatDiagnostic`, `diagnosticSymbol`, `diagnosticHeadline`, `diagnosticDetails`, `formatMessage`, `formatCommandWithArgs`, `createHookTimer`) and the `HookSinkFactory` / `HookSinkOptions` types so other hosts can reuse them.
+To opt into the consola-backed logger with inline GitHub Actions workflow command annotations, install `@kubb/middleware-logger` and set it in your config:
 
-`@clack/prompts` is fully removed from `@kubb/cli`. The init wizard, agent runner, and generate watcher now go through consola for prompts and live output.
+```ts
+import { defineConfig } from 'kubb'
+import { middlewareLogger } from '@kubb/middleware-logger'
 
-`@kubb/core` patches a type bug in `createReporter<T>`'s no-`flush` branch so the returned `Reporter.report` correctly discards the `T` value rather than mistyping the callback.
+export default defineConfig({
+  input: { path: './openapi.yaml' },
+  output: { path: './src/gen' },
+  logger: middlewareLogger,
+})
+```
+
+`createLogger(options)` is also exported for custom instances. `HookSinkOptions` and `HookSinkFactory` move to `@kubb/core` so any logger can declare them without depending on the middleware package.
+
+`@clack/prompts` is removed from `@kubb/cli`. The init wizard, agent runner, and generate watcher use consola for prompts and live output.
+
+`@kubb/core` patches a type bug in `createReporter<T>`'s no-`flush` branch so the returned `Reporter.report` discards the `T` value rather than mistyping the callback.

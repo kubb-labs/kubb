@@ -2,9 +2,39 @@ import { relative, resolve } from 'node:path'
 import process from 'node:process'
 import { stripVTControlCharacters } from 'node:util'
 import { formatMs, write } from '@internals/utils'
-import { createReporter, type Diagnostic, isProblemDiagnostic } from '@kubb/core'
-import { formatDiagnostic } from '@kubb/middleware-logger'
+import { createReporter, type Diagnostic, diagnosticCode, Diagnostics, isProblemDiagnostic } from '@kubb/core'
 import { buildReport, type Report } from './report.ts'
+
+const SEVERITY_GLYPH: Record<string, string> = {
+  error: '×',
+  warning: '⚠',
+  info: 'ℹ',
+}
+
+/**
+ * Renders a problem diagnostic as a self-contained block: a `glyph code: message` header followed
+ * by optional `at <pointer>`, `help:`, and `docs:` lines. Kept inline so the CLI does not pull in
+ * `@kubb/middleware-logger` just for the file reporter.
+ */
+function formatDiagnostic(diagnostic: Diagnostic): Array<string> {
+  if (!isProblemDiagnostic(diagnostic)) {
+    return [`${SEVERITY_GLYPH[diagnostic.severity] ?? 'ℹ'} ${diagnostic.code}: ${diagnostic.message}`]
+  }
+  const lines: Array<string> = []
+  const glyph = SEVERITY_GLYPH[diagnostic.severity] ?? 'ℹ'
+  const rule = diagnostic.plugin ? `${diagnostic.plugin}(${diagnostic.code})` : diagnostic.code
+  lines.push(`${glyph} ${rule}: ${diagnostic.message}`)
+  if (diagnostic.location && 'pointer' in diagnostic.location) {
+    lines.push(`  at ${diagnostic.location.pointer}`)
+  }
+  if (diagnostic.help) {
+    lines.push(`  help: ${diagnostic.help}`)
+  }
+  if (diagnostic.code !== diagnosticCode.unknown) {
+    lines.push(`  docs: ${Diagnostics.docsUrl(diagnostic.code)}`)
+  }
+  return lines
+}
 
 /**
  * Builds the `## Summary` section: the same counts the cli and json reporters expose, as a list of

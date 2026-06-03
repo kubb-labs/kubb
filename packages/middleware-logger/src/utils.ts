@@ -3,44 +3,7 @@ import { styleText } from 'node:util'
 import { getElapsedMs } from '@internals/utils'
 import { logLevel as logLevelMap } from '@kubb/core'
 
-/**
- * Output sink for a hook subprocess, controlling how streamed lines and exit output are forwarded.
- */
-type HookOutputSink = {
-  /**
-   * Called for each streamed stdout line while the hook runs.
-   */
-  onLine?: (line: string) => void
-  /**
-   * Called with stderr content after the hook exits with a non-zero code.
-   */
-  onStderr?: (text: string) => void
-  /**
-   * Called with stdout content after the hook exits with a non-zero code.
-   */
-  onStdout?: (text: string) => void
-}
-
-/**
- * Output sink combined with stream control for a hook subprocess.
- */
-export type HookSinkOptions = HookOutputSink & {
-  /**
-   * When `true`, streams process output line-by-line via `onLine`.
-   *
-   * @default false
-   */
-  stream?: boolean
-}
-
-/**
- * Factory called once per hook command to build the output sink and streaming flag.
- * The function should set up any logger UI and return callbacks that forward subprocess output to it.
- *
- * `hookId` is the same id passed to `kubb:hook:start` / `kubb:hook:end`, letting the logger
- * correlate streamed output with any active UI element it created in the start handler.
- */
-export type HookSinkFactory = (commandWithArgs: string, hookId: string) => HookSinkOptions | null
+export type { HookSinkFactory, HookSinkOptions } from '@kubb/core'
 
 /**
  * Optionally prefix a message with a [HH:MM:SS] timestamp when logLevel >= verbose.

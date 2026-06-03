@@ -229,9 +229,6 @@ importers:
       '@kubb/mcp':
         specifier: workspace:*
         version: link:../mcp
-      '@kubb/middleware-logger':
-        specifier: workspace:*
-        version: link:../middleware-logger
       chokidar:
         specifier: ^5.0.0
         version: 5.0.0

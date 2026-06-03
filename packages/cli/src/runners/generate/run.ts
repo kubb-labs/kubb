@@ -12,6 +12,7 @@ import {
   type Diagnostic,
   diagnosticCode,
   Diagnostics,
+  type HookSinkFactory,
   isInputPath,
   isProblemDiagnostic,
   type KubbHooks,
@@ -22,7 +23,6 @@ import {
 } from '@kubb/core'
 import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../../constants.ts'
-import type { HookSinkFactory } from '@kubb/middleware-logger'
 import { setupReporters } from '../../loggers/utils.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../../telemetry.ts'
 import { executeHooks, getConfigs, runHook, startWatcher } from './utils.ts'
@@ -356,7 +356,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
   // CLI `--reporter` wins. Otherwise the first config's `reporters`. Otherwise the default.
   const reporters: Array<ReporterName> = cliReporters?.length ? cliReporters : (configs[0]?.reporters ?? ['cli'])
-  const makeSink = await setupReporters(hooks, { logLevel, reporters })
+  const makeSink = await setupReporters(hooks, { logLevel, reporters, logger: configs[0]?.logger })
 
   await hooks.emit('kubb:lifecycle:start', { version })
 
