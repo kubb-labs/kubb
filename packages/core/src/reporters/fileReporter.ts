@@ -2,8 +2,9 @@ import { relative, resolve } from 'node:path'
 import process from 'node:process'
 import { stripVTControlCharacters } from 'node:util'
 import { formatMs, write } from '@internals/utils'
-import { createReporter, type Diagnostic, isProblemDiagnostic } from '@kubb/core'
-import { formatDiagnostic } from '../loggers/diagnostics.ts'
+import { createReporter } from '../createReporter.ts'
+import { type Diagnostic, Diagnostics } from '../diagnostics.ts'
+import { formatDiagnostic } from '../formatDiagnostic.ts'
 import { buildReport, type Report } from './report.ts'
 
 /**
@@ -42,7 +43,7 @@ function buildSummarySection(report: Report): Array<string> {
  * can drop the heading.
  */
 function buildProblemSection(diagnostics: ReadonlyArray<Diagnostic>): Array<string> {
-  const problems = diagnostics.filter(isProblemDiagnostic)
+  const problems = diagnostics.filter(Diagnostics.isProblem)
   if (problems.length === 0) {
     return []
   }

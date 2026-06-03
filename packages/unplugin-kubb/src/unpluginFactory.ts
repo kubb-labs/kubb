@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { AsyncEventEmitter } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, createKubb, Diagnostics, isProblemDiagnostic, type KubbHooks } from '@kubb/core'
+import { type Config, createKubb, Diagnostics, type KubbHooks } from '@kubb/core'
 import { middlewareBarrel, middlewareBarrelName } from '@kubb/middleware-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import type { UnpluginFactory } from 'unplugin'
@@ -113,7 +113,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     // Surface every problem by severity. Unplugin has no diagnostic renderer, so route
     // errors/warnings/info to the channels it does listen on. Non-problem diagnostics are skipped.
     for (const diagnostic of diagnostics) {
-      if (!isProblemDiagnostic(diagnostic)) {
+      if (!Diagnostics.isProblem(diagnostic)) {
         continue
       }
       if (diagnostic.severity === 'error') {
@@ -138,7 +138,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
     if (hasFailures) {
       const failedCount = Diagnostics.failedPlugins(diagnostics).length
-      const firstError = diagnostics.filter(isProblemDiagnostic).find((diagnostic) => diagnostic.severity === 'error')
+      const firstError = diagnostics.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
       const message = failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed')
       if (ctx.error) {
         ctx.error(`[${name}] ${message}`)

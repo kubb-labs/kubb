@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { buildOtlpPayload, buildTelemetryEvent, isCi, isTelemetryDisabled, sendTelemetry, type TelemetryPlugin } from './telemetry.ts'
+import { Telemetry, type TelemetryPlugin } from './Telemetry.ts'
 
 vi.mock('@internals/utils', async (importActual) => ({
   ...(await importActual<typeof import('@internals/utils')>()),
@@ -13,49 +13,49 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('isTelemetryDisabled', () => {
+describe('Telemetry.isDisabled', () => {
   it('should return false when DO_NOT_TRACK is not set', () => {
     delete process.env['DO_NOT_TRACK']
     delete process.env['KUBB_DISABLE_TELEMETRY']
-    expect(isTelemetryDisabled()).toBe(false)
+    expect(Telemetry.isDisabled()).toBe(false)
   })
 
   it('should return true when DO_NOT_TRACK=1', () => {
     process.env['DO_NOT_TRACK'] = '1'
-    expect(isTelemetryDisabled()).toBe(true)
+    expect(Telemetry.isDisabled()).toBe(true)
   })
 
   it('should return true when DO_NOT_TRACK=true', () => {
     process.env['DO_NOT_TRACK'] = 'true'
-    expect(isTelemetryDisabled()).toBe(true)
+    expect(Telemetry.isDisabled()).toBe(true)
   })
 
   it('should return true when KUBB_DISABLE_TELEMETRY=1', () => {
     delete process.env['DO_NOT_TRACK']
     process.env['KUBB_DISABLE_TELEMETRY'] = '1'
-    expect(isTelemetryDisabled()).toBe(true)
+    expect(Telemetry.isDisabled()).toBe(true)
   })
 
   it('should return true when KUBB_DISABLE_TELEMETRY=true', () => {
     delete process.env['DO_NOT_TRACK']
     process.env['KUBB_DISABLE_TELEMETRY'] = 'true'
-    expect(isTelemetryDisabled()).toBe(true)
+    expect(Telemetry.isDisabled()).toBe(true)
   })
 
   it('should return false when DO_NOT_TRACK is set to a different value', () => {
     process.env['DO_NOT_TRACK'] = '0'
-    expect(isTelemetryDisabled()).toBe(false)
+    expect(Telemetry.isDisabled()).toBe(false)
   })
 })
 
-describe('buildTelemetryEvent', () => {
+describe('Telemetry.build', () => {
   it('should build a telemetry event with safe anonymous data only', () => {
     const hrStart = process.hrtime()
     const plugins: Array<TelemetryPlugin> = [
       { name: 'plugin-ts', options: { output: { path: 'types' } } },
       { name: 'plugin-client', options: { output: { path: 'clients' } } },
     ]
-    const event = buildTelemetryEvent({
+    const event = Telemetry.build({
       command: 'generate',
       kubbVersion: '4.0.0',
       plugins,
@@ -75,90 +75,11 @@ describe('buildTelemetryEvent', () => {
     expect(typeof event.platform).toBe('string')
     expect(typeof event.ci).toBe('boolean')
   })
-
-  it('should detect CI environment via generic CI var', () => {
-    process.env['CI'] = 'true'
-    const event = buildTelemetryEvent({
-      command: 'generate',
-      kubbVersion: '4.0.0',
-      plugins: [],
-      hrStart: process.hrtime(),
-      filesCreated: 0,
-      status: 'failed',
-    })
-    expect(event.ci).toBe(true)
-    delete process.env['CI']
-  })
-
-  it.each([
-    ['GITHUB_ACTIONS', 'true'],
-    ['GITLAB_CI', 'true'],
-    ['BITBUCKET_BUILD_NUMBER', '42'],
-    ['JENKINS_URL', 'http://jenkins.example.com'],
-    ['CIRCLECI', 'true'],
-    ['TRAVIS', 'true'],
-    ['TEAMCITY_VERSION', '2023.1'],
-    ['BUILDKITE', 'true'],
-    ['TF_BUILD', 'True'],
-  ])('should delegate CI detection to isCi() for %s', (key, value) => {
-    process.env[key] = value
-    const event = buildTelemetryEvent({
-      command: 'generate',
-      kubbVersion: '4.0.0',
-      plugins: [],
-      hrStart: process.hrtime(),
-      filesCreated: 0,
-      status: 'success',
-    })
-    expect(event.ci).toBe(true)
-    delete process.env[key]
-  })
 })
 
-describe('isCi', () => {
-  it('should return false when no CI env vars are set', () => {
-    const ciVars = [
-      'CI',
-      'GITHUB_ACTIONS',
-      'GITLAB_CI',
-      'BITBUCKET_BUILD_NUMBER',
-      'JENKINS_URL',
-      'CIRCLECI',
-      'TRAVIS',
-      'TEAMCITY_VERSION',
-      'BUILDKITE',
-      'TF_BUILD',
-    ]
-    for (const key of ciVars) delete process.env[key]
-    expect(isCi()).toBe(false)
-  })
-
-  it('should return true for generic CI var', () => {
-    process.env['CI'] = 'true'
-    expect(isCi()).toBe(true)
-    delete process.env['CI']
-  })
-
-  it.each([
-    ['GITHUB_ACTIONS', 'true'],
-    ['GITLAB_CI', 'true'],
-    ['BITBUCKET_BUILD_NUMBER', '42'],
-    ['JENKINS_URL', 'http://jenkins.example.com'],
-    ['CIRCLECI', 'true'],
-    ['TRAVIS', 'true'],
-    ['TEAMCITY_VERSION', '2023.1'],
-    ['BUILDKITE', 'true'],
-    ['TF_BUILD', 'True'],
-  ])('should return true when %s is set', (key, value) => {
-    process.env[key] = value
-    expect(isCi()).toBe(true)
-    delete process.env[key]
-  })
-})
-
-describe('buildOtlpPayload', () => {
+describe('Telemetry.buildOtlpPayload', () => {
   it('should build a valid OTLP trace payload', () => {
-    const event: ReturnType<typeof buildTelemetryEvent> = {
+    const event: ReturnType<typeof Telemetry.build> = {
       command: 'generate',
       kubbVersion: '4.0.0',
       nodeVersion: '20',
@@ -170,12 +91,12 @@ describe('buildOtlpPayload', () => {
       status: 'success',
     }
 
-    const payload = buildOtlpPayload(event)
+    const payload = Telemetry.buildOtlpPayload(event)
     expect(payload).toHaveProperty('resourceSpans')
     const [resourceSpan] = payload.resourceSpans
     expect(resourceSpan!.resource.attributes).toContainEqual({
       key: 'service.name',
-      value: { stringValue: 'kubb-cli' },
+      value: { stringValue: 'kubb-core' },
     })
     const [scopeSpan] = resourceSpan!.scopeSpans
     const [span] = scopeSpan!.spans
@@ -192,7 +113,7 @@ describe('buildOtlpPayload', () => {
   })
 
   it('should set status code 2 for failed status', () => {
-    const event: ReturnType<typeof buildTelemetryEvent> = {
+    const event: ReturnType<typeof Telemetry.build> = {
       command: 'generate',
       kubbVersion: '4.0.0',
       nodeVersion: '20',
@@ -204,13 +125,13 @@ describe('buildOtlpPayload', () => {
       status: 'failed',
     }
 
-    const payload = buildOtlpPayload(event)
+    const payload = Telemetry.buildOtlpPayload(event)
     const span = payload?.resourceSpans[0]?.scopeSpans[0]?.spans[0]
     expect(span?.status?.code).toBe(2)
   })
 })
 
-describe('sendTelemetry', () => {
+describe('Telemetry.send', () => {
   beforeEach(() => {
     delete process.env['DO_NOT_TRACK']
     delete process.env['KUBB_DISABLE_TELEMETRY']
@@ -220,7 +141,7 @@ describe('sendTelemetry', () => {
     process.env['DO_NOT_TRACK'] = '1'
     const fetchSpy = vi.spyOn(globalThis, 'fetch')
 
-    await sendTelemetry({
+    await Telemetry.send({
       command: 'generate',
       kubbVersion: '4.0.0',
       nodeVersion: '20',
@@ -238,7 +159,7 @@ describe('sendTelemetry', () => {
   it('should send when telemetry is enabled', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 200 }))
 
-    await sendTelemetry({
+    await Telemetry.send({
       command: 'generate',
       kubbVersion: '4.0.0',
       nodeVersion: '20',
@@ -265,7 +186,7 @@ describe('sendTelemetry', () => {
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Network error'))
 
     await expect(
-      sendTelemetry({
+      Telemetry.send({
         command: 'generate',
         kubbVersion: '4.0.0',
         nodeVersion: '20',

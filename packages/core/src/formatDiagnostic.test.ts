@@ -1,6 +1,6 @@
-import { Diagnostics } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { formatDiagnostic } from './diagnostics.ts'
+import { Diagnostics } from './diagnostics.ts'
+import { formatDiagnostic } from './formatDiagnostic.ts'
 
 // styleText respects NO_COLOR/non-TTY, so assert on the plain text the lines contain.
 describe('formatDiagnostic', () => {

@@ -3,8 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { formatMsWithColor, getElapsedMs, getIntro, toCause } from '@internals/utils'
-import { defineLogger, isUpdateDiagnostic, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { diagnosticDetails, diagnosticHeadline, diagnosticSymbol } from './diagnostics.ts'
+import { defineLogger, Diagnostics, diagnosticDetails, diagnosticHeadline, diagnosticSymbol, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { buildProgressLine, createProgressCounters, formatCommandWithArgs, formatMessage, recordPluginResult, resetProgressCounters } from './utils.ts'
 
 /**
@@ -169,7 +168,7 @@ export const clackLogger = defineLogger({
       stopActiveProgress()
 
       // The version-update notice keeps its own framed box instead of the diagnostic gutter.
-      if (isUpdateDiagnostic(diagnostic)) {
+      if (Diagnostics.isUpdate(diagnostic)) {
         clack.box(
           `\`v${diagnostic.currentVersion}\` → \`v${diagnostic.latestVersion}\`
 Run \`npm install -g @kubb/cli\` to update`,

@@ -1,4 +1,4 @@
-import type { logLevel } from './constants.ts'
+import type { logLevel } from './defineLogger.ts'
 import type { Config } from './createKubb.ts'
 import type { Diagnostic } from './diagnostics.ts'
 
@@ -45,7 +45,7 @@ export type ReporterContext = {
 
 /**
  * Host-facing reporter, as installed onto a run. Unlike a Logger (the live TUI view), a reporter
- * never sees the event emitter. `report` runs once per config; `flush`, when present, runs once
+ * never sees the event emitter. `report` runs once per config; `drain`, when present, runs once
  * after the last config.
  */
 export type Reporter = {
@@ -61,23 +61,23 @@ export type Reporter = {
    * Optional finalizer called once after the run's last config. The host wires it to
    * `kubb:lifecycle:end`. {@link createReporter} closes it over the reports `report` returned.
    */
-  flush?: (context: ReporterContext) => void | Promise<void>
+  drain?: (context: ReporterContext) => void | Promise<void>
 }
 
 /**
  * Reporter definition passed to {@link createReporter}. `report` returns the value to collect for
- * this config (e.g. a built report), and the optional `flush` receives the collected reports to
+ * this config (e.g. a built report), and the optional `drain` receives the collected reports to
  * emit as one document. `T` is inferred from `report`'s return type.
  */
 export type UserReporter<T = void> = {
   name: string
   report: (result: GenerationResult, context: ReporterContext) => T | Promise<T>
-  flush?: (context: ReporterContext, reports: Array<T>) => void | Promise<void>
+  drain?: (context: ReporterContext, reports: Array<T>) => void | Promise<void>
 }
 
 /**
- * Defines a reporter. When the definition has a `flush`, the returned reporter buffers each value
- * `report` returns and hands the array to `flush` once, then clears it. Without a `flush`, nothing
+ * Defines a reporter. When the definition has a `drain`, the returned reporter buffers each value
+ * `report` returns and hands the array to `drain` once, then clears it. Without a `drain`, nothing
  * is buffered. Wiring the reporter onto the run's events is the host's job, so the reporter only
  * ever deals with a {@link GenerationResult}.
  *
@@ -90,16 +90,21 @@ export type UserReporter<T = void> = {
  *   report(result) {
  *     return { status: Diagnostics.hasError(result.diagnostics) ? 'failed' : 'success', diagnostics: result.diagnostics }
  *   },
- *   flush(context, reports) {
+ *   drain(context, reports) {
  *     process.stdout.write(`${JSON.stringify(reports, null, 2)}\n`)
  *   },
  * })
  * ```
  */
 export function createReporter<T = void>(reporter: UserReporter<T>): Reporter {
-  const flush = reporter.flush
-  if (!flush) {
-    return { name: reporter.name, report: reporter.report }
+  const drain = reporter.drain
+  if (!drain) {
+    return {
+      name: reporter.name,
+      async report(result, context) {
+        await reporter.report(result, context)
+      },
+    }
   }
 
   const reports: Array<T> = []
@@ -109,9 +114,34 @@ export function createReporter<T = void>(reporter: UserReporter<T>): Reporter {
     async report(result, context) {
       reports.push(await reporter.report(result, context))
     },
-    async flush(context) {
-      await flush(context, reports)
+    async drain(context) {
+      await drain(context, reports)
       reports.length = 0
     },
   }
+}
+
+/**
+ * Picks the reporters whose `name` matches one of `names`, in the order the names are given.
+ * The config carries every available reporter, and the host selects which to activate by name
+ * (the CLI maps `--reporter` to this). Duplicate names and names without a matching reporter are
+ * skipped.
+ */
+export function selectReporters(reporters: ReadonlyArray<Reporter>, names: ReadonlyArray<string>): Array<Reporter> {
+  const seen = new Set<string>()
+  const selected: Array<Reporter> = []
+
+  for (const name of names) {
+    if (seen.has(name)) {
+      continue
+    }
+    seen.add(name)
+
+    const reporter = reporters.find((candidate) => candidate.name === name)
+    if (reporter) {
+      selected.push(reporter)
+    }
+  }
+
+  return selected
 }

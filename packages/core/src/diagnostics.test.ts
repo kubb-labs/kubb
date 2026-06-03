@@ -1,15 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { diagnosticCode } from './constants.ts'
-import {
-  type Diagnostic,
-  DiagnosticError,
-  Diagnostics,
-  isPerformanceDiagnostic,
-  isProblemDiagnostic,
-  isUpdateDiagnostic,
-  narrowDiagnostic,
-  type ProblemDiagnostic,
-} from './diagnostics.ts'
+import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
 
 const problem = (over: Partial<ProblemDiagnostic> = {}): ProblemDiagnostic => ({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', ...over })
 
@@ -21,7 +11,7 @@ describe('Diagnostics.docsUrl', () => {
 
 describe('Diagnostics.explain', () => {
   it('documents every code with a title, cause, and fix', () => {
-    for (const code of Object.values(diagnosticCode)) {
+    for (const code of Object.values(Diagnostics.code)) {
       const doc = Diagnostics.explain(code)
       expect(doc.title).toBeTruthy()
       expect(doc.cause).toBeTruthy()
@@ -54,19 +44,19 @@ describe('Diagnostics.serialize', () => {
 
 describe('Diagnostics.from', () => {
   it('should return the structured diagnostic from a DiagnosticError', () => {
-    const error = new DiagnosticError({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing' })
+    const error = new Diagnostics.Error({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing' })
 
     expect(Diagnostics.from(error)).toMatchObject({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing' })
   })
 
   it('should carry help and plugin through a DiagnosticError', () => {
-    const error = new DiagnosticError({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing', help: 'fix the ref', plugin: '@kubb/plugin-zod' })
+    const error = new Diagnostics.Error({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing', help: 'fix the ref', plugin: '@kubb/plugin-zod' })
 
     expect(Diagnostics.from(error)).toMatchObject({ help: 'fix the ref', plugin: '@kubb/plugin-zod' })
   })
 
   it('should unwrap a DiagnosticError nested in the cause chain', () => {
-    const inner = new DiagnosticError({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing' })
+    const inner = new Diagnostics.Error({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing' })
     const wrapped = new Error('listener failed', { cause: inner })
 
     expect(Diagnostics.from(wrapped).code).toBe('KUBB_REF_NOT_FOUND')
@@ -121,19 +111,19 @@ describe('Diagnostics.count', () => {
   })
 })
 
-describe('narrowDiagnostic', () => {
+describe('Diagnostics.narrow', () => {
   it('returns the variant for a matching code and null otherwise', () => {
     const update = Diagnostics.update({ currentVersion: '5.0.0', latestVersion: '5.1.0' })
 
-    expect(narrowDiagnostic(update, diagnosticCode.updateAvailable)).toBe(update)
-    expect(narrowDiagnostic(update, diagnosticCode.refNotFound)).toBeNull()
+    expect(Diagnostics.narrow(update, Diagnostics.code.updateAvailable)).toBe(update)
+    expect(Diagnostics.narrow(update, Diagnostics.code.refNotFound)).toBeNull()
   })
 
   it('narrows a problem by its specific code', () => {
     const diagnostic = problem()
 
-    expect(narrowDiagnostic(diagnostic, diagnosticCode.refNotFound)).toBe(diagnostic)
-    expect(narrowDiagnostic(diagnostic, diagnosticCode.performance)).toBeNull()
+    expect(Diagnostics.narrow(diagnostic, Diagnostics.code.refNotFound)).toBe(diagnostic)
+    expect(Diagnostics.narrow(diagnostic, Diagnostics.code.performance)).toBeNull()
   })
 })
 
@@ -142,11 +132,11 @@ describe('diagnostic kind guards', () => {
     const performance = Diagnostics.performance({ plugin: 'a', duration: 5 })
     const update = Diagnostics.update({ currentVersion: '5.0.0', latestVersion: '5.1.0' })
 
-    expect(isProblemDiagnostic(problem())).toBe(true)
-    expect(isProblemDiagnostic(performance)).toBe(false)
-    expect(isPerformanceDiagnostic(performance)).toBe(true)
-    expect(isUpdateDiagnostic(update)).toBe(true)
-    expect(isUpdateDiagnostic(performance)).toBe(false)
+    expect(Diagnostics.isProblem(problem())).toBe(true)
+    expect(Diagnostics.isProblem(performance)).toBe(false)
+    expect(Diagnostics.isPerformance(performance)).toBe(true)
+    expect(Diagnostics.isUpdate(update)).toBe(true)
+    expect(Diagnostics.isUpdate(performance)).toBe(false)
   })
 })
 

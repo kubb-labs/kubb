@@ -1,4 +1,4 @@
-import { diagnosticCode, Diagnostics } from '@kubb/core'
+import { Diagnostics } from '@kubb/core'
 import type { ast } from '@kubb/core'
 import { isHandledFormat } from './resolvers.ts'
 
@@ -25,7 +25,7 @@ function escapePointerToken(token: string): string {
 function visit(node: ast.SchemaNode, pointer: string): void {
   if (node.deprecated) {
     Diagnostics.report({
-      code: diagnosticCode.deprecated,
+      code: Diagnostics.code.deprecated,
       severity: 'info',
       message: 'This schema is marked as deprecated.',
       location: { kind: 'schema', pointer },
@@ -34,7 +34,7 @@ function visit(node: ast.SchemaNode, pointer: string): void {
 
   if (typeof node.format === 'string' && !isHandledFormat(node.format)) {
     Diagnostics.report({
-      code: diagnosticCode.unsupportedFormat,
+      code: Diagnostics.code.unsupportedFormat,
       severity: 'warning',
       message: `Kubb does not map the format "${node.format}" to a specific type, so it falls back to the base type.`,
       help: `Use a format Kubb supports, or handle "${node.format}" with a custom parser or plugin.`,

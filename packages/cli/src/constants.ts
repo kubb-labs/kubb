@@ -6,24 +6,9 @@ import { KUBB_CONFIG_FILENAME } from '@internals/shared'
 export const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
 
 /**
- * OpenTelemetry ingestion endpoint for anonymous usage telemetry.
- */
-export const OTLP_ENDPOINT = 'https://otlp.kubb.dev' as const
-
-/**
  * Horizontal rule rendered above/below the plain-logger generation summary.
  */
 export const SUMMARY_SEPARATOR = '─'.repeat(27)
-
-/**
- * Maximum number of █ characters in a plugin timing bar.
- */
-export const SUMMARY_MAX_BAR_LENGTH = 10 as const
-
-/**
- * Divides elapsed milliseconds into bar-length units (1 block per 100 ms).
- */
-export const SUMMARY_TIME_SCALE_DIVISOR = 100 as const
 
 /**
  * Glob pattern for paths the file watcher ignores.

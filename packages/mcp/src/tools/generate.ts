@@ -1,5 +1,5 @@
 import { AsyncEventEmitter } from '@internals/utils'
-import { type Config, createKubb, type Diagnostic, Diagnostics, isProblemDiagnostic, type KubbHooks } from '@kubb/core'
+import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import type * as v from 'valibot'
@@ -127,7 +127,7 @@ export const generateTool = defineTool(
       const { files, diagnostics } = await kubb.safeBuild()
       await notify(NotifyTypes.BUILD_END, `Build complete - Generated ${files.length} files`)
 
-      const problems = diagnostics.filter(isProblemDiagnostic)
+      const problems = diagnostics.filter(Diagnostics.isProblem)
       const errors = problems.filter((diagnostic) => diagnostic.severity === 'error')
       if (errors.length > 0) {
         await notify(NotifyTypes.BUILD_FAILED, `Build failed with ${errors.length} diagnostic(s)`)

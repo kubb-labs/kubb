@@ -1,8 +1,7 @@
 import { AsyncEventEmitter } from '@internals/utils'
-import { type Config, type KubbHooks, logLevel, type Storage } from '@kubb/core'
+import { cliReporter, type Config, fileReporter, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
-import { installReporter, setupReporters } from '../loggers/utils.ts'
-import { cliReporter } from './cliReporter.ts'
+import setupReporters, { installReporter } from './utils.ts'
 
 describe('jsonReporter', () => {
   it('writes one JSON array for every config on lifecycle end', async () => {
@@ -13,7 +12,7 @@ describe('jsonReporter', () => {
       return true
     })
 
-    await setupReporters(context, { logLevel: logLevel.info, reporters: ['json'] })
+    await setupReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
 
     await context.emit('kubb:generation:end', {
       config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config,
@@ -91,7 +90,7 @@ describe('setupReporters', () => {
   it('returns no terminal sink and lets json own stdout when json is selected', async () => {
     const context = new AsyncEventEmitter<KubbHooks>()
 
-    const sink = await setupReporters(context, { logLevel: logLevel.info, reporters: ['json'] })
+    const sink = await setupReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
 
     expect(sink).toBeNull()
     expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
@@ -100,7 +99,7 @@ describe('setupReporters', () => {
   it('wires the file reporter to the generation event', async () => {
     const context = new AsyncEventEmitter<KubbHooks>()
 
-    await setupReporters(context, { logLevel: logLevel.info, reporters: ['file'] })
+    await setupReporters(context, { logLevel: logLevel.info, reporters: [fileReporter] })
 
     expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
   })

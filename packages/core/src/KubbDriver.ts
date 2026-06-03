@@ -2,8 +2,8 @@ import { resolve } from 'node:path'
 import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs, isPromise, memoize, URLPath } from '@internals/utils'
 import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast'
 import type { FileNode, InputMeta, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
-import { diagnosticCode, OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
-import { type Diagnostic, DiagnosticError, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
+import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
+import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -833,14 +833,14 @@ export class KubbDriver {
         return driver.#transforms.get(plugin.name)
       },
       warn(message: string) {
-        report({ code: diagnosticCode.pluginWarning, severity: 'warning', message })
+        report({ code: Diagnostics.code.pluginWarning, severity: 'warning', message })
       },
       error(error: string | Error) {
         const cause = typeof error === 'string' ? undefined : error
-        report({ code: diagnosticCode.pluginFailed, severity: 'error', message: typeof error === 'string' ? error : error.message, cause })
+        report({ code: Diagnostics.code.pluginFailed, severity: 'error', message: typeof error === 'string' ? error : error.message, cause })
       },
       info(message: string) {
-        report({ code: diagnosticCode.pluginInfo, severity: 'info', message })
+        report({ code: Diagnostics.code.pluginInfo, severity: 'info', message })
       },
     }
   }
@@ -859,8 +859,8 @@ export class KubbDriver {
   requirePlugin(pluginName: string): Plugin {
     const plugin = this.plugins.get(pluginName)
     if (!plugin) {
-      throw new DiagnosticError({
-        code: diagnosticCode.pluginNotFound,
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.pluginNotFound,
         severity: 'error',
         message: `Plugin "${pluginName}" is required but not found. Make sure it is included in your Kubb config.`,
         help: `Add "${pluginName}" to the \`plugins\` array in kubb.config.ts, or remove the dependency on it.`,
@@ -874,8 +874,8 @@ export class KubbDriver {
 function inputToAdapterSource(config: Config): AdapterSource {
   const input = config.input
   if (!input) {
-    throw new DiagnosticError({
-      code: diagnosticCode.inputRequired,
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.inputRequired,
       severity: 'error',
       message: 'An adapter is configured without an input.',
       help: 'Provide `input.path` (a file or URL) or `input.data` (an inline spec) in your Kubb config.',

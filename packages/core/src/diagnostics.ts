@@ -159,7 +159,7 @@ export type UpdateDiagnostic = {
 export type Diagnostic = ProblemDiagnostic | PerformanceDiagnostic | UpdateDiagnostic
 
 /**
- * Maps each {@link DiagnosticCode} to the variant it selects, for {@link narrowDiagnostic}.
+ * Maps each {@link DiagnosticCode} to the variant it selects, for {@link narrow}.
  * Every {@link ProblemCode} selects a {@link ProblemDiagnostic}, and the two bookkeeping codes
  * select their own variant.
  */
@@ -172,13 +172,13 @@ export type DiagnosticByCode = Record<ProblemCode, ProblemDiagnostic> &
  *
  * @example
  * ```ts
- * const update = narrowDiagnostic(diagnostic, diagnosticCode.updateAvailable)
+ * const update = narrow(diagnostic, diagnosticCode.updateAvailable)
  * if (update) {
  *   console.log(update.latestVersion)
  * }
  * ```
  */
-export function narrowDiagnostic<C extends DiagnosticCode>(diagnostic: Diagnostic, code: C): DiagnosticByCode[C] | null {
+function narrow<C extends DiagnosticCode>(diagnostic: Diagnostic, code: C): DiagnosticByCode[C] | null {
   return diagnostic.code === code ? (diagnostic as DiagnosticByCode[C]) : null
 }
 
@@ -195,34 +195,34 @@ function isKind<T extends Diagnostic>(kind: DiagnosticKind) {
  *
  * @example
  * ```ts
- * if (isProblemDiagnostic(diagnostic)) {
+ * if (isProblem(diagnostic)) {
  *   console.log(diagnostic.location)
  * }
  * ```
  */
-export const isProblemDiagnostic = isKind<ProblemDiagnostic>('problem')
+const isProblem = isKind<ProblemDiagnostic>('problem')
 
 /**
  * Returns `true` when the diagnostic is a per-plugin {@link PerformanceDiagnostic}.
  *
  * @example
  * ```ts
- * const timings = diagnostics.filter(isPerformanceDiagnostic)
+ * const timings = diagnostics.filter(isPerformance)
  * ```
  */
-export const isPerformanceDiagnostic = isKind<PerformanceDiagnostic>('performance')
+const isPerformance = isKind<PerformanceDiagnostic>('performance')
 
 /**
  * Returns `true` when the diagnostic is a version-update {@link UpdateDiagnostic}.
  *
  * @example
  * ```ts
- * if (isUpdateDiagnostic(diagnostic)) {
+ * if (isUpdate(diagnostic)) {
  *   console.log(diagnostic.latestVersion)
  * }
  * ```
  */
-export const isUpdateDiagnostic = isKind<UpdateDiagnostic>('update')
+const isUpdate = isKind<UpdateDiagnostic>('update')
 
 /**
  * A {@link Diagnostic} reduced to its JSON-safe fields plus a `docsUrl`, for
@@ -243,48 +243,10 @@ export type SerializedDiagnostic = {
 }
 
 /**
- * An `Error` that carries a {@link Diagnostic}, so structured problems can flow
- * through the existing throw/catch paths while keeping their code and location.
- *
- * @example
- * ```ts
- * throw new DiagnosticError({ code: diagnosticCode.refNotFound, severity: 'error', message: `Could not find ${ref}`, location: { kind: 'schema', pointer: ref, ref } })
- * ```
- */
-export class DiagnosticError extends Error {
-  diagnostic: ProblemDiagnostic
-
-  constructor(diagnostic: ProblemDiagnostic) {
-    super(diagnostic.message, { cause: diagnostic.cause })
-    this.name = 'DiagnosticError'
-    this.diagnostic = diagnostic
-  }
-}
-
-/**
- * Structural check for a {@link DiagnosticError}, including one thrown from a duplicated
- * `@kubb/core` copy where `instanceof` fails. Matches on the `name` and a `diagnostic`
- * that carries a `code`.
- */
-function isDiagnosticError(error: unknown): error is DiagnosticError {
-  if (error instanceof DiagnosticError) {
-    return true
-  }
-  return (
-    error instanceof Error &&
-    error.name === 'DiagnosticError' &&
-    'diagnostic' in error &&
-    typeof (error as { diagnostic?: unknown }).diagnostic === 'object' &&
-    (error as { diagnostic?: Diagnostic }).diagnostic !== null &&
-    typeof (error as { diagnostic?: { code?: unknown } }).diagnostic?.code === 'string'
-  )
-}
-
-/**
  * Explanation for every {@link diagnosticCode}. Use {@link Diagnostics.explain} to look one up
  * and `Diagnostics.docsUrl` for the matching kubb.dev page.
  */
-export const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
+const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
   [diagnosticCode.unknown]: {
     title: 'Unknown error',
     cause: 'An error was thrown without a stable Kubb code, so it is reported as-is.',
@@ -390,6 +352,69 @@ export class Diagnostics {
   static #reporterStorage = new AsyncLocalStorage<(diagnostic: Diagnostic) => void>()
 
   /**
+   * The diagnostic code catalog, exposed as `Diagnostics.code` (e.g. `Diagnostics.code.refNotFound`).
+   */
+  static code = diagnosticCode
+
+  /**
+   * Type guard for a build {@link ProblemDiagnostic}.
+   */
+  static isProblem = isProblem
+
+  /**
+   * Type guard for a version-update {@link UpdateDiagnostic}.
+   */
+  static isUpdate = isUpdate
+
+  /**
+   * Type guard for a per-plugin {@link PerformanceDiagnostic}.
+   */
+  static isPerformance = isPerformance
+
+  /**
+   * Narrows a {@link Diagnostic} to the variant for `code`, or `null` when it does not match.
+   */
+  static narrow = narrow
+
+  /**
+   * An `Error` that carries a {@link Diagnostic}, so structured problems can flow
+   * through the existing throw/catch paths while keeping their code and location.
+   *
+   * @example
+   * ```ts
+   * throw new Diagnostics.Error({ code: diagnosticCode.refNotFound, severity: 'error', message: `Could not find ${ref}`, location: { kind: 'schema', pointer: ref, ref } })
+   * ```
+   */
+  static Error = class DiagnosticError extends Error {
+    diagnostic: ProblemDiagnostic
+
+    constructor(diagnostic: ProblemDiagnostic) {
+      super(diagnostic.message, { cause: diagnostic.cause })
+      this.name = 'DiagnosticError'
+      this.diagnostic = diagnostic
+    }
+  }
+
+  /**
+   * Structural check for a {@link Diagnostics.Error}, including one thrown from a duplicated
+   * `@kubb/core` copy where `instanceof` fails. Matches on the `name` and a `diagnostic`
+   * that carries a `code`.
+   */
+  static isError(error: unknown): error is InstanceType<typeof Diagnostics.Error> {
+    if (error instanceof Diagnostics.Error) {
+      return true
+    }
+    return (
+      error instanceof Error &&
+      error.name === 'DiagnosticError' &&
+      'diagnostic' in error &&
+      typeof (error as { diagnostic?: unknown }).diagnostic === 'object' &&
+      (error as { diagnostic?: Diagnostic }).diagnostic !== null &&
+      typeof (error as { diagnostic?: { code?: unknown } }).diagnostic?.code === 'string'
+    )
+  }
+
+  /**
    * Runs `fn` with `sink` as the active diagnostic sink for the whole async
    * subtree, so {@link Diagnostics.report} reaches it from anywhere inside.
    */
@@ -422,21 +447,21 @@ export class Diagnostics {
   }
 
   /**
-   * Coerces any thrown value into a {@link ProblemDiagnostic}. A {@link DiagnosticError}
+   * Coerces any thrown value into a {@link ProblemDiagnostic}. A {@link Diagnostics.Error}
    * keeps its structured data, and anything else becomes a `KUBB_UNKNOWN` error.
    */
   static from(error: unknown): ProblemDiagnostic {
     // The event emitter and BuildError wrap the original, so walk the cause chain to
-    // recover a DiagnosticError thrown deeper down. `root` tracks the deepest error so
+    // recover a Diagnostics.Error thrown deeper down. `root` tracks the deepest error so
     // the unknown diagnostic reports the original message and stack, not the wrapper's.
     const seen = new Set<unknown>()
     let current: unknown = error
     let root: Error | undefined
     while (current instanceof Error && !seen.has(current)) {
-      // Match structurally, not just by `instanceof`: a `DiagnosticError` thrown from a
+      // Match structurally, not just by `instanceof`: a `Diagnostics.Error` thrown from a
       // duplicated `@kubb/core` copy (bundled into an adapter or plugin) is a different
       // class, but still carries the same `diagnostic`, so its code must survive.
-      if (isDiagnosticError(current)) {
+      if (Diagnostics.isError(current)) {
         return current.diagnostic
       }
       seen.add(current)
@@ -511,7 +536,7 @@ export class Diagnostics {
     let warnings = 0
     let infos = 0
     for (const diagnostic of diagnostics) {
-      if (!isProblemDiagnostic(diagnostic)) {
+      if (!isProblem(diagnostic)) {
         continue
       }
       if (diagnostic.severity === 'error') {
@@ -534,7 +559,7 @@ export class Diagnostics {
     const seen = new Set<string>()
     const result: Array<Diagnostic> = []
     for (const diagnostic of diagnostics) {
-      if (!isProblemDiagnostic(diagnostic)) {
+      if (!isProblem(diagnostic)) {
         result.push(diagnostic)
         continue
       }
@@ -572,7 +597,7 @@ export class Diagnostics {
    * fields are omitted rather than set to `undefined`.
    */
   static serialize(diagnostic: Diagnostic): SerializedDiagnostic {
-    const problem = isProblemDiagnostic(diagnostic) ? diagnostic : undefined
+    const problem = isProblem(diagnostic) ? diagnostic : undefined
     return {
       code: diagnostic.code,
       severity: diagnostic.severity,

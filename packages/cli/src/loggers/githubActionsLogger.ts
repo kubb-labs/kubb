@@ -1,6 +1,6 @@
 import { styleText } from 'node:util'
 import { formatMs, formatMsWithColor, toCause } from '@internals/utils'
-import { type Config, defineLogger, diagnosticCode, Diagnostics, isProblemDiagnostic, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { type Config, defineLogger, Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import {
   buildProgressLine,
   createHookTimer,
@@ -157,7 +157,7 @@ export const githubActionsLogger = defineLogger({
         return
       }
 
-      if (!isProblemDiagnostic(diagnostic)) {
+      if (!Diagnostics.isProblem(diagnostic)) {
         console.log(`::notice::${diagnostic.message}`)
         return
       }
@@ -172,7 +172,7 @@ export const githubActionsLogger = defineLogger({
       if (diagnostic.help) {
         parts.push(`help: ${diagnostic.help}`)
       }
-      if (diagnostic.code !== diagnosticCode.unknown) {
+      if (diagnostic.code !== Diagnostics.code.unknown) {
         parts.push(`docs: ${Diagnostics.docsUrl(diagnostic.code)}`)
       }
       console.error(`::error::${parts.join(' ')}`)

@@ -5,9 +5,11 @@ vi.mock('@internals/utils', () => ({
   getErrorMessage: vi.fn((error: unknown) => (error instanceof Error ? error.message : String(error))),
 }))
 
-vi.mock('../../telemetry.ts', () => ({
-  buildTelemetryEvent: vi.fn((payload: object) => payload),
-  sendTelemetry: vi.fn(async () => undefined),
+vi.mock('@kubb/core', () => ({
+  Telemetry: {
+    build: vi.fn((payload: object) => payload),
+    send: vi.fn(async () => undefined),
+  },
 }))
 
 describe('runValidate', () => {

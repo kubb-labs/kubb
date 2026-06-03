@@ -3,8 +3,7 @@ import { createFile } from '@kubb/ast'
 import type { FileNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
-import { diagnosticCode } from './constants.ts'
-import { type Diagnostic, Diagnostics, isProblemDiagnostic } from './diagnostics.ts'
+import { type Diagnostic, Diagnostics } from './diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, KubbHooks, Middleware, Plugin } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -35,6 +34,7 @@ describe('PluginDriver', () => {
       clean: true,
     },
     parsers: [],
+    reporters: [],
     adapter: createMockedAdapter(),
     plugins: [pluginA, pluginB, pluginC] as unknown as Array<Plugin>,
     storage: fsStorage(),
@@ -150,6 +150,7 @@ function makeDriver(): KubbDriver {
       input: { path: './petStore.yaml' },
       output: { path: './gen', clean: true },
       parsers: [],
+      reporters: [],
       adapter: createMockedAdapter(),
       plugins: [],
       storage: fsStorage(),
@@ -226,6 +227,7 @@ describe('GeneratorContext diagnostics', () => {
     input: { path: './petStore.yaml' },
     output: { path: './src/gen', clean: true },
     parsers: [],
+    reporters: [],
     adapter: createMockedAdapter(),
     plugins: [{ name: 'pluginA', hooks: {} }] as unknown as Array<Plugin>,
     storage: fsStorage(),
@@ -258,7 +260,7 @@ describe('GeneratorContext diagnostics', () => {
   it('reports ctx.error as an error diagnostic that fails the build, attributed to the plugin', () => {
     const diagnostics = collect((ctx) => ctx.error('boom'))
 
-    expect(diagnostics).toMatchObject([{ code: diagnosticCode.pluginFailed, severity: 'error', message: 'boom', plugin: 'pluginA' }])
+    expect(diagnostics).toMatchObject([{ code: Diagnostics.code.pluginFailed, severity: 'error', message: 'boom', plugin: 'pluginA' }])
     expect(Diagnostics.hasError(diagnostics)).toBe(true)
   })
 
@@ -267,20 +269,20 @@ describe('GeneratorContext diagnostics', () => {
     const diagnostics = collect((ctx) => ctx.error(cause))
 
     const [diagnostic] = diagnostics
-    expect(diagnostic && isProblemDiagnostic(diagnostic) ? diagnostic.cause : undefined).toBe(cause)
+    expect(diagnostic && Diagnostics.isProblem(diagnostic) ? diagnostic.cause : undefined).toBe(cause)
   })
 
   it('reports ctx.warn as a warning diagnostic that does not fail the build', () => {
     const diagnostics = collect((ctx) => ctx.warn('careful'))
 
-    expect(diagnostics).toMatchObject([{ code: diagnosticCode.pluginWarning, severity: 'warning', message: 'careful', plugin: 'pluginA' }])
+    expect(diagnostics).toMatchObject([{ code: Diagnostics.code.pluginWarning, severity: 'warning', message: 'careful', plugin: 'pluginA' }])
     expect(Diagnostics.hasError(diagnostics)).toBe(false)
   })
 
   it('reports ctx.info as an info diagnostic', () => {
     const diagnostics = collect((ctx) => ctx.info('heads up'))
 
-    expect(diagnostics).toMatchObject([{ code: diagnosticCode.pluginInfo, severity: 'info', message: 'heads up', plugin: 'pluginA' }])
+    expect(diagnostics).toMatchObject([{ code: Diagnostics.code.pluginInfo, severity: 'info', message: 'heads up', plugin: 'pluginA' }])
   })
 
   it('collects the diagnostic only and does not emit a live hook event', () => {
