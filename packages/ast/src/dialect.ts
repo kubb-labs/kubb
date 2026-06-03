@@ -1,24 +1,18 @@
 /**
- * The spec-specific decisions a schema parser makes while converting a source
- * document's schemas into Kubb AST nodes.
+ * The spec-specific decisions a schema parser makes when converting a source document's schemas
+ * into Kubb AST nodes. Everything else in an adapter's schema pipeline is generic JSON Schema,
+ * shared across specs, so the dialect is the one seam where specs differ, like a database driver
+ * targeting Postgres vs MySQL. Pair it with {@link dispatch}: the rule table picks which converter
+ * runs, the dialect answers the spec-specific questions inside it.
  *
- * Everything else in an adapter's schema pipeline is generic JSON Schema shared
- * across specs. The dialect is the one seam where a spec differs, the
- * "dialect layer" analogue of a database driver targeting Postgres vs MySQL.
- * Pair it with {@link dispatch}: the rule table decides *which* converter runs,
- * the dialect answers the spec-specific questions inside them.
+ * The guards (`isReference`, `isDiscriminator`) are type predicates, so converters narrow the
+ * schema after a check and the type parameters carry the narrowed types through.
  *
- * The guard methods (`isReference`, `isDiscriminator`) are type predicates so
- * converters narrow the schema after a check. The type parameters carry those
- * narrowed types through.
- *
- * Scope: this is the seam for the **JSON Schema family**, OpenAPI, AsyncAPI, and
- * plain JSON Schema all share `$ref`, `allOf`/`oneOf`, `enum`, and `format`, and
- * differ only in these few decisions. A spec built on a different type system
- * (e.g. GraphQL, with non-null wrappers, interfaces, and named-type references
- * instead of `$ref`) does not implement a `SchemaDialect`. It reuses the universal
- * layer directly, the `Adapter` port, the AST factories, and {@link dispatch}
- * with its own rule table, to emit the same nodes.
+ * This is the seam for the JSON Schema family: OpenAPI, AsyncAPI, and plain JSON Schema share
+ * `$ref`, `allOf`/`oneOf`, `enum`, and `format` and differ only in these few decisions. A spec on
+ * a different type system (GraphQL, with non-null wrappers and named-type references instead of
+ * `$ref`) skips `SchemaDialect` and reuses the universal layer directly: the `Adapter` port, the
+ * AST factories, and {@link dispatch} with its own rule table.
  *
  * @typeParam TSchema - The adapter's schema object type (e.g. an OpenAPI `SchemaObject`).
  * @typeParam TRef - The narrowed `$ref` pointer type `isReference` proves.

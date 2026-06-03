@@ -106,16 +106,12 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
   const resolvingRefs = new Set<string>()
 
   /**
-   * Cache of already-resolved `$ref` schemas within this parser instance.
+   * Cache of `$ref` schemas already resolved in this parser instance, keyed by ref path.
    *
-   * Without this, the same referenced schema (e.g. `customer`) is fully re-expanded
-   * every time it appears as a `$ref` in a different parent schema. In heavily
-   * cross-referenced specs like Stripe (~1 400 schemas), this causes exponential
-   * blowup, `customer` alone may be referenced from dozens of top-level schemas,
-   * each triggering a fresh recursive expansion of its entire sub-tree.
-   *
-   * Memoizing by `$ref` path reduces the overall work from O(2^depth) to O(N)
-   * where N is the number of unique schema names.
+   * Without it, a shared schema (e.g. `customer`) is re-expanded for every `$ref` that points at
+   * it. In cross-referenced specs like Stripe (~1400 schemas) that becomes exponential blowup,
+   * since one schema can be referenced from dozens of parents, each re-walking its whole subtree.
+   * Memoizing by ref path drops the work from O(2^depth) to O(N) unique schema names.
    */
   const resolvedRefCache = new Map<string, ast.SchemaNode | null>()
 

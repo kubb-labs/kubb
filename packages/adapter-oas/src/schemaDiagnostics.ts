@@ -3,13 +3,12 @@ import type { ast } from '@kubb/core'
 import { isHandledFormat } from './resolvers.ts'
 
 /**
- * Reports the advisory diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`) for a
- * single top-level schema. It walks the node the parser already produced during `preScan`,
- * threading the RFC 6901 pointer as it descends, so a nested field reports against its full
- * path (`#/components/schemas/Pet/properties/owner/properties/name`) rather than its immediate
- * parent. Refs are not followed: the resolved schema is reported under its own top-level walk.
- * Reports land in the active build run. Outside a build `Diagnostics.report` is a no-op, and
- * repeats are collapsed by the build's deduplication.
+ * Reports the advisory diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`) for one
+ * top-level schema. Walks the node the parser produced during `preScan`, threading the RFC 6901
+ * pointer as it descends so a nested field reports against its full path
+ * (`#/components/schemas/Pet/properties/owner/properties/name`). Refs are not followed, so the
+ * resolved schema is reported under its own walk. Reports land in the active build run, are a
+ * no-op outside one, and repeats are deduped by the build.
  */
 export function reportSchemaDiagnostics({ node, name }: { node: ast.SchemaNode; name: string }): void {
   visit(node, `#/components/schemas/${name}`)

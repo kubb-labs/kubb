@@ -25,10 +25,8 @@ import { fsStorage } from './storages/fsStorage.ts'
 type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {}
 
 /**
- * Reference to an input file to generate code from.
- *
- * Specify an absolute path or a path relative to the config file location.
- * The adapter will parse this file (e.g., OpenAPI YAML or JSON) into the universal AST.
+ * Path to an input file to generate from, absolute or relative to the config file. The adapter
+ * parses it (e.g. an OpenAPI YAML or JSON spec) into the universal AST.
  */
 export type InputPath = {
   /**
@@ -44,10 +42,8 @@ export type InputPath = {
 }
 
 /**
- * Inline input data to generate code from.
- *
- * Useful when you want to pass the specification directly instead of from a file.
- * Can be a string (YAML/JSON) or a parsed object.
+ * Inline spec to generate from, passed directly instead of read from a file. A string
+ * (YAML/JSON) or a parsed object.
  */
 export type InputData = {
   /**
@@ -65,15 +61,9 @@ export type InputData = {
 type Input = InputPath | InputData
 
 /**
- * Build configuration for Kubb code generation.
- *
- * The Config is the main entry point for customizing how Kubb generates code. It specifies:
- * - What to generate from (adapter + input)
- * - Where to output generated code (output)
- * - How to generate (plugins + middleware)
- * - Runtime details (parsers, storage)
- *
- * See `UserConfig` for a relaxed version with sensible defaults.
+ * Resolved build configuration for a Kubb run: what to generate from (adapter, input), where to
+ * write it (output), how (plugins, middleware), and the runtime pieces (parsers, storage). See
+ * `UserConfig` for the relaxed form with defaults applied.
  *
  * @private
  */
@@ -138,10 +128,8 @@ export type Config<TInput = Input> = {
   input?: TInput
   output: {
     /**
-     * Output directory for generated files, absolute or relative to `root`.
-     *
-     * All generated files will be written under this directory. Subdirectories can be created
-     * by plugins based on grouping strategy (by tag, path, etc.).
+     * Output directory for generated files, absolute or relative to `root`. Plugins can nest
+     * subdirectories under it by grouping strategy (tag, path).
      *
      * @example
      * ```ts
@@ -152,10 +140,8 @@ export type Config<TInput = Input> = {
      */
     path: string
     /**
-     * Remove all files from the output directory before starting the build.
-     *
-     * Useful to ensure old generated files aren't mixed with new ones.
-     * Set to `true` for fresh builds, `false` to preserve manual edits in output dir.
+     * Remove every file in the output directory before the build, so stale output isn't mixed
+     * with new files. Leave `false` to preserve manual edits in the output directory.
      *
      * @default false
      * @example
@@ -165,10 +151,8 @@ export type Config<TInput = Input> = {
      */
     clean?: boolean
     /**
-     * Auto-format generated files after code generation completes.
-     *
-     * Applies a code formatter to all generated files. Use `'auto'` to detect which formatter
-     * is available on your system. Pass `false` to skip formatting (useful for CI or specific workflows).
+     * Format the generated files after generation. `'auto'` runs the first formatter it finds
+     * (oxfmt, biome, or prettier), a named tool forces that one, and `false` skips formatting.
      *
      * @default false
      * @example
@@ -180,10 +164,8 @@ export type Config<TInput = Input> = {
      */
     format?: 'auto' | 'prettier' | 'biome' | 'oxfmt' | false
     /**
-     * Auto-lint generated files after code generation completes.
-     *
-     * Analyzes all generated files for style/correctness issues. Use `'auto'` to detect which linter
-     * is available on your system. Pass `false` to skip linting.
+     * Lint the generated files after generation. `'auto'` runs the first linter it finds
+     * (oxlint, biome, or eslint), a named tool forces that one, and `false` skips linting.
      *
      * @default false
      * @example
@@ -195,10 +177,8 @@ export type Config<TInput = Input> = {
      */
     lint?: 'auto' | 'eslint' | 'biome' | 'oxlint' | false
     /**
-     * Map file extensions to different output extensions.
-     *
-     * Useful when you want generated `.ts` imports to reference `.js` files or vice versa (e.g., for ESM dual packages).
-     * Keys are the original extension, values are the output extension. Use empty string `''` to omit extension.
+     * Rewrite import extensions in generated files, e.g. emit `.js` imports from `.ts` sources for
+     * ESM dual packages. Keys are the source extension, values the output, and `''` drops it.
      *
      * @default { '.ts': '.ts' }
      * @example
@@ -209,10 +189,8 @@ export type Config<TInput = Input> = {
      */
     extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
     /**
-     * Banner text prepended to every generated file.
-     *
-     * Useful for auto-generation notices or license headers. Choose a preset or write custom text.
-     * Use `'simple'` for a basic Kubb banner, `'full'` for detailed metadata, or `false` to omit.
+     * Banner prepended to every generated file. `'simple'` is the basic Kubb notice, `'full'` adds
+     * source, title, description, and API version, and `false` omits it.
      *
      * @default 'simple'
      * @example
@@ -224,10 +202,8 @@ export type Config<TInput = Input> = {
      */
     defaultBanner?: 'simple' | 'full' | false
     /**
-     * When `true`, overwrites existing files. When `false`, skips generated files that already exist.
-     *
-     * Individual plugins can override this setting. This is useful for preventing accidental data loss
-     * when re-generating while you have local edits in the output folder.
+     * Overwrite existing files when `true`, skip files that already exist when `false`. Individual
+     * plugins can override it. Keep `false` to avoid clobbering local edits in the output folder.
      *
      * @default false
      * @example
@@ -239,10 +215,8 @@ export type Config<TInput = Input> = {
     override?: boolean
   } & ExtractRegistryKey<Kubb.ConfigOptionsRegistry, 'output'>
   /**
-   * Storage backend that controls where and how generated files are persisted.
-   *
-   * Defaults to `fsStorage()` which writes to the file system. Pass `memoryStorage()` to keep files in RAM,
-   * or implement a custom `Storage` interface to write to cloud storage, databases, or other backends.
+   * Where generated files are persisted. Defaults to `fsStorage()` (disk). Pass `memoryStorage()`
+   * to keep files in RAM, or implement `Storage` for a custom backend such as cloud or a database.
    *
    * @default fsStorage()
    * @example
@@ -260,13 +234,9 @@ export type Config<TInput = Input> = {
    */
   storage: Storage
   /**
-   * Plugins that execute during the build to generate code and transform the AST.
-   *
-   * Each plugin processes the AST produced by the adapter and can emit files for different
-   * programming languages or formats (TypeScript, Zod schemas, Faker data, etc.).
-   * Dependencies are enforced, so an error is thrown if a plugin requires another plugin that isn't registered.
-   *
-   * Plugins can declare their own options via `PluginFactoryOptions`. See plugin documentation for details.
+   * Plugins that run during the build to generate code and transform the AST. Each one processes
+   * the adapter's AST and can emit files for a different target (TypeScript, Zod, Faker). A plugin
+   * that depends on another throws when that plugin isn't registered.
    *
    * @example
    * ```ts

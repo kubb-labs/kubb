@@ -202,15 +202,10 @@ export class KubbDriver {
   /**
    * Registers a hook-style plugin's lifecycle handlers on the shared `AsyncEventEmitter`.
    *
-   * For `kubb:plugin:setup`, the registered listener wraps the globally emitted context with a
-   * plugin-specific one so that `addGenerator`, `setResolver`, and `setTransformer` all target
-   * the correct `normalizedPlugin` entry in the plugins map.
-   *
-   * All other hooks are iterated and registered directly as pass-through listeners.
-   * Any event key present in the global `KubbHooks` interface can be subscribed to.
-   *
-   * External tooling can subscribe to any of these events via `hooks.on(...)` to observe
-   * the plugin lifecycle without modifying plugin behavior.
+   * The `kubb:plugin:setup` listener wraps the global context in a plugin-specific one so
+   * `addGenerator`, `setResolver`, and `setTransformer` target the right `normalizedPlugin`.
+   * Every other `KubbHooks` event registers as a pass-through listener that external tooling
+   * can observe via `hooks.on(...)`.
    *
    * @internal
    */
