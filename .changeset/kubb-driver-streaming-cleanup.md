@@ -9,4 +9,4 @@
 - `runAstPlugin` is removed from `createKubb`. `runPlugins` is the only plugin runner now.
 - Plugin lifecycle events (`kubb:plugin:start`, `kubb:plugin:end`) fire for every plugin, including those without an adapter configured.
 - `middlewareListeners`, `#eventGeneratorPlugins`, and `hasEventGenerators` replace the previous public `middlewareListeners`, `#pluginsWithEventGenerators`, and `hasRegisteredGenerators` for naming consistency.
-- `forBatches` no longer accepts a `flushInterval` option. The `flush` callback now runs after every batch; callers that need coalescing should do so inside their own `flush` implementation.
+- `forBatches` no longer accepts a `flushInterval` option. The `flush` callback now runs after every batch. Callers that need coalescing should do so inside their own `flush` implementation.

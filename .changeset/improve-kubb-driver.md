@@ -32,9 +32,9 @@ hooks.on('kubb:files:processing:update', ({ files }) => {
 ## Performance improvements
 
 - `FileManager` sorts lazily: the sorted view is rebuilt from `#cache` only when `files` is read, not on every `add`/`upsert`. Upserts are now O(1) with a single `null` assignment to mark the view stale.
-- `FileManager.#store` fast-paths single-file calls (the common case) — skips the intermediate deduplication `Map`.
-- `mergeFile` avoids unnecessary array allocations when one side's `sources`/`imports`/`exports` is empty — returns the non-empty reference directly.
+- `FileManager.#store` fast-paths single-file calls (the common case), skipping the intermediate deduplication `Map`.
+- `mergeFile` avoids array allocations when one side's `sources`/`imports`/`exports` is empty, returning the non-empty reference directly.
 - `createFile` (SHA-256 + import/export combining) is skipped for new files that don't require merging with an existing cache entry.
-- `kubb:generate:schema` and `kubb:generate:operation` are gated on `listenerCount` — for builds with no listeners on these channels the per-node emit overhead is eliminated entirely.
+- `kubb:generate:schema` and `kubb:generate:operation` are gated on `listenerCount`, so builds with no listeners on these channels drop the per-node emit overhead entirely.
 - `FileProcessor` is a long-lived class field on `KubbDriver` rather than a per-`run()` scoped resource.
 - `dispose()` methods added to `FileProcessor`, `Kubb`, and `Renderer` implementations, with `[Symbol.dispose]()` delegating to them consistently across the codebase.

@@ -12,7 +12,7 @@ Render build diagnostics in the oxlint style and add a suggested fix.
 × @kubb/plugin-zod(KUBB_REF_NOT_FOUND): Could not find a definition for Pet.
   at #/components/schemas/Pet
   help: Add the schema under components.schemas, or fix the $ref.
-  docs: https://kubb.dev/docs/5.x/diagnostics/kubb-ref-not-found
+  docs: https://kubb.dev/docs/5.x/reference/diagnostics/kubb-ref-not-found
 ```
 
 The `docs:` link is derived from the code and points at the diagnostics reference on kubb.dev. A failed run also prints an `Environment:` row (Node version, Kubb version, platform, cwd) in the summary box. `getDiagnosticInfo` is exported from `@kubb/core`.

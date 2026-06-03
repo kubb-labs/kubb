@@ -6,5 +6,5 @@
 - Operation response schemas now use `Status<code>` (matching plugin-ts's `resolveResponseStatusName` convention) so qualified enum names don't collide with top-level component schemas named `<operation><statusCode>` (e.g. `GetMaintenance200`).
 - Two test expectations updated to reflect the new contracts:
   - Parameter top-level enums now carry a parser-level name (qualified with operation + param name) so plugin-generated downstream identifiers stay collision-free.
-  - The synthetic injected-required-key member inside an `allOf` is now named so its nested enums qualify correctly; it consequently shows up as a separate intersection member instead of being adjacent-merged.
+  - The synthetic injected-required-key member inside an `allOf` is now named so its nested enums qualify correctly. It consequently shows up as a separate intersection member instead of being adjacent-merged.
 

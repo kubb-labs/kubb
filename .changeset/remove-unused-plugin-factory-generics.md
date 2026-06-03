@@ -4,14 +4,14 @@
 
 Remove unused `TContext` and `TResolvePathOptions` generics from `PluginFactoryOptions`.
 
-`PluginFactoryOptions` previously had six generics — `TName`, `TOptions`, `TResolvedOptions`, `TContext`, `TResolvePathOptions`, and `TResolver`. The `TContext` and `TResolvePathOptions` parameters were never accessed via `TOptions['context']` or `TOptions['resolvePathOptions']` anywhere in the codebase, and every plugin passed `never` / `object` as their values.
+`PluginFactoryOptions` previously had six generics: `TName`, `TOptions`, `TResolvedOptions`, `TContext`, `TResolvePathOptions`, and `TResolver`. The `TContext` and `TResolvePathOptions` parameters were never accessed via `TOptions['context']` or `TOptions['resolvePathOptions']` anywhere in the codebase, and every plugin passed `never` / `object` as their values.
 
-**Before**
+Before:
 ```ts
 type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, object, ResolverZod>
 ```
 
-**After**
+After:
 ```ts
 type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, ResolverZod>
 ```
