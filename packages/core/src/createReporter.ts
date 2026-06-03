@@ -99,7 +99,12 @@ export type UserReporter<T = void> = {
 export function createReporter<T = void>(reporter: UserReporter<T>): Reporter {
   const flush = reporter.flush
   if (!flush) {
-    return { name: reporter.name, report: reporter.report }
+    return {
+      name: reporter.name,
+      async report(result, context) {
+        await reporter.report(result, context)
+      },
+    }
   }
 
   const reports: Array<T> = []

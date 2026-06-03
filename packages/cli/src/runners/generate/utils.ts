@@ -6,7 +6,7 @@ import type { CLIOptions, Config, KubbHooks, PossibleConfig } from '@kubb/core'
 import { cosmiconfig } from 'cosmiconfig'
 import { createJiti } from 'jiti'
 import { NonZeroExitError, x } from 'tinyexec'
-import type { HookSinkFactory, HookSinkOptions } from '../../loggers/utils.ts'
+import type { HookSinkFactory, HookSinkOptions } from '@kubb/middleware-logger'
 import { WATCHER_IGNORED_PATHS } from '../../constants.ts'
 
 type CosmiconfigResult = {

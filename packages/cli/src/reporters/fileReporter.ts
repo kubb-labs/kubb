@@ -3,7 +3,7 @@ import process from 'node:process'
 import { stripVTControlCharacters } from 'node:util'
 import { formatMs, write } from '@internals/utils'
 import { createReporter, type Diagnostic, isProblemDiagnostic } from '@kubb/core'
-import { formatDiagnostic } from '../loggers/diagnostics.ts'
+import { formatDiagnostic } from '@kubb/middleware-logger'
 import { buildReport, type Report } from './report.ts'
 
 /**

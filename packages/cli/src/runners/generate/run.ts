@@ -22,7 +22,8 @@ import {
 } from '@kubb/core'
 import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../../constants.ts'
-import { setupReporters, type HookSinkFactory } from '../../loggers/utils.ts'
+import type { HookSinkFactory } from '@kubb/middleware-logger'
+import { setupReporters } from '../../loggers/utils.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../../telemetry.ts'
 import { executeHooks, getConfigs, runHook, startWatcher } from './utils.ts'
 

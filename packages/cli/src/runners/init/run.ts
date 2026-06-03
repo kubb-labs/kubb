@@ -2,14 +2,19 @@ import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import * as clack from '@clack/prompts'
-import { detectPackageManager } from '@internals/utils'
 import { availablePlugins, generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, type PluginOption } from '@internals/shared'
+import { detectPackageManager } from '@internals/utils'
+import { consola } from 'consola'
 import { hasPackageJson, initPackageJson, installPackages } from './utils.ts'
 
 function cancelAndExit(message = 'Operation cancelled.'): never {
-  clack.cancel(message)
+  consola.warn(message)
   process.exit(0)
+}
+
+function unwrap<T>(value: T): Exclude<T, symbol> {
+  if (typeof value === 'symbol') cancelAndExit()
+  return value as Exclude<T, symbol>
 }
 
 type InitOptions = {
@@ -43,77 +48,66 @@ type InitOptions = {
 export async function run({ yes, version, input: inputFlag, output: outputFlag, plugins: pluginsFlag }: InitOptions): Promise<void> {
   const cwd = process.cwd()
 
-  clack.intro(styleText('bgCyan', styleText('black', ' Kubb Init ')))
+  consola.box(styleText('bgCyan', styleText('black', ' Kubb Init ')))
 
-  /**
-   * Returns `flag` when provided, the `defaultValue` when `yes` is set,
-   * or calls `prompt()` for interactive input. Exits on cancellation.
-   */
-  async function resolveOrPrompt<T>(flag: T | undefined, defaultValue: T, logLabel: string, prompt: () => Promise<T | symbol>): Promise<T> {
+  async function resolveOrPrompt<T>(flag: T | undefined, defaultValue: T, logLabel: string, prompt: () => Promise<T>): Promise<T> {
     if (flag !== undefined) {
-      clack.log.info(`${logLabel}: ${styleText('cyan', String(flag))}`)
+      consola.info(`${logLabel}: ${styleText('cyan', String(flag))}`)
       return flag
     }
     if (yes) {
-      clack.log.info(`${logLabel}: ${styleText('cyan', String(defaultValue))}`)
+      consola.info(`${logLabel}: ${styleText('cyan', String(defaultValue))}`)
       return defaultValue
     }
-    const result = await prompt()
-    if (clack.isCancel(result)) cancelAndExit()
-    return result as T
+    return prompt()
+  }
+
+  async function promptRequiredText(message: string, fallback: string, missingMessage: string): Promise<string> {
+    while (true) {
+      const raw = await consola.prompt(message, {
+        type: 'text',
+        placeholder: fallback,
+        default: fallback,
+        cancel: 'symbol',
+      })
+      const value = unwrap(raw)
+      if (value) return value
+      consola.warn(missingMessage)
+    }
   }
 
   try {
-    // Check/create package.json, detect package manager once after the block
     if (!hasPackageJson(cwd)) {
       if (!yes) {
-        const shouldInit = await clack.confirm({
-          message: 'No package.json found. Would you like to create one?',
-          initialValue: true,
-        })
-
-        if (clack.isCancel(shouldInit) || !shouldInit) {
-          cancelAndExit()
-        }
+        const shouldInit = unwrap(
+          await consola.prompt('No package.json found. Would you like to create one?', {
+            type: 'confirm',
+            initial: true,
+            cancel: 'symbol',
+          }),
+        )
+        if (!shouldInit) cancelAndExit()
       }
 
       const packageManager = detectPackageManager(cwd)
-      const spinner = clack.spinner()
-      spinner.start(`Initializing package.json with ${packageManager.name}`)
+      consola.start(`Initializing package.json with ${packageManager.name}`)
       await initPackageJson(cwd, packageManager)
-      spinner.stop(`Created package.json with ${packageManager.name}`)
+      consola.success(`Created package.json with ${packageManager.name}`)
     }
 
     const packageManager = detectPackageManager(cwd)
     if (hasPackageJson(cwd)) {
-      clack.log.info(`Detected package manager: ${styleText('cyan', packageManager.name)}`)
+      consola.info(`Detected package manager: ${styleText('cyan', packageManager.name)}`)
     }
 
-    // Prompt for OpenAPI spec path
     const inputPath = await resolveOrPrompt(inputFlag, initDefaults.inputPath, 'Using input path', () =>
-      clack.text({
-        message: 'Where is your OpenAPI specification located?',
-        placeholder: initDefaults.inputPath,
-        defaultValue: initDefaults.inputPath,
-        validate: (value) => {
-          if (!value) return 'Input path is required'
-        },
-      }),
+      promptRequiredText('Where is your OpenAPI specification located?', initDefaults.inputPath, 'Input path is required'),
     )
 
-    // Prompt for output directory
     const outputPath = await resolveOrPrompt(outputFlag, initDefaults.outputPath, 'Using output path', () =>
-      clack.text({
-        message: 'Where should the generated files be output?',
-        placeholder: initDefaults.outputPath,
-        defaultValue: initDefaults.outputPath,
-        validate: (value) => {
-          if (!value) return 'Output path is required'
-        },
-      }),
+      promptRequiredText('Where should the generated files be output?', initDefaults.outputPath, 'Output path is required'),
     )
 
-    // Plugin selection
     const defaultPlugins = availablePlugins.filter((p) => (initDefaults.plugins as ReadonlyArray<string>).includes(p.value))
     const pluginLabel = (plugins: Array<PluginOption>) => styleText('cyan', plugins.map((p) => p.label).join(', '))
 
@@ -125,87 +119,84 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
           .filter(Boolean)
         const plugins = availablePlugins.filter((p) => requested.includes(p.value))
         if (plugins.length === 0) {
-          clack.log.warn(`No valid plugins found in --plugins value; falling back to default: ${pluginLabel(defaultPlugins)}`)
+          consola.warn(`No valid plugins found in --plugins value; falling back to default: ${pluginLabel(defaultPlugins)}`)
           return defaultPlugins
         }
-        clack.log.info(`Using plugins: ${pluginLabel(plugins)}`)
+        consola.info(`Using plugins: ${pluginLabel(plugins)}`)
         return plugins
       }
       if (yes) {
-        clack.log.info(`Using plugins: ${pluginLabel(defaultPlugins)}`)
+        consola.info(`Using plugins: ${pluginLabel(defaultPlugins)}`)
         return defaultPlugins
       }
-      const values = await clack.multiselect({
-        message: 'Select plugins to use:',
+      const raw = await consola.prompt('Select plugins to use:', {
+        type: 'multiselect',
         options: availablePlugins.map(({ value, label, hint }) => ({ value, label, hint })),
-        initialValues: [...initDefaults.plugins],
+        initial: [...initDefaults.plugins],
         required: true,
+        cancel: 'symbol',
       })
-      if (clack.isCancel(values)) cancelAndExit()
-      return availablePlugins.filter((p) => (values as Array<string>).includes(p.value))
+      const values = unwrap(raw) as unknown as Array<string>
+      return availablePlugins.filter((p) => values.includes(p.value))
     })()
 
-    // Install packages
     const packagesToInstall = ['kubb', ...selectedPlugins.map((p) => p.packageName)]
 
-    const spinner = clack.spinner()
-    spinner.start(`Installing ${packagesToInstall.length} packages with ${packageManager.name}`)
-
+    consola.start(`Installing ${packagesToInstall.length} packages with ${packageManager.name}`)
     try {
       await installPackages(packagesToInstall, packageManager, cwd)
-      spinner.stop(`Installed ${packagesToInstall.length} packages`)
+      consola.success(`Installed ${packagesToInstall.length} packages`)
     } catch (error) {
-      spinner.stop('Installation failed')
+      consola.fail('Installation failed')
       throw error
     }
 
-    // Generate config file
-    const configSpinner = clack.spinner()
-    configSpinner.start(`Creating ${KUBB_CONFIG_FILENAME}`)
+    consola.start(`Creating ${KUBB_CONFIG_FILENAME}`)
 
     const configContent = generateConfigFile({ selectedPlugins, inputPath, outputPath })
     const configPath = path.join(cwd, KUBB_CONFIG_FILENAME)
 
     if (fs.existsSync(configPath)) {
-      configSpinner.stop(`${KUBB_CONFIG_FILENAME} already exists`)
+      consola.info(`${KUBB_CONFIG_FILENAME} already exists`)
 
       if (!yes) {
-        const shouldOverwrite = await clack.confirm({
-          message: `${KUBB_CONFIG_FILENAME} already exists. Overwrite?`,
-          initialValue: false,
-        })
+        const shouldOverwrite = unwrap(
+          await consola.prompt(`${KUBB_CONFIG_FILENAME} already exists. Overwrite?`, {
+            type: 'confirm',
+            initial: false,
+            cancel: 'symbol',
+          }),
+        )
 
-        if (clack.isCancel(shouldOverwrite) || !shouldOverwrite) {
+        if (!shouldOverwrite) {
           cancelAndExit('Keeping existing configuration. Packages have been installed.')
         }
       }
 
-      configSpinner.start(`Overwriting ${KUBB_CONFIG_FILENAME}`)
+      consola.start(`Overwriting ${KUBB_CONFIG_FILENAME}`)
     }
 
     await fs.promises.writeFile(configPath, configContent, 'utf-8')
 
-    configSpinner.stop(`Created ${KUBB_CONFIG_FILENAME}`)
+    consola.success(`Created ${KUBB_CONFIG_FILENAME}`)
 
-    clack.outro(
-      styleText('green', '✓ All set!') +
-        '\n\n' +
-        styleText('dim', 'Next steps:') +
-        '\n' +
-        styleText('cyan', `  1. Make sure your OpenAPI spec is at: ${inputPath}`) +
-        '\n' +
-        styleText('cyan', '  2. Generate code with: npx kubb generate') +
-        '\n' +
-        styleText('cyan', '     Or start a stream server with: npx kubb agent start') +
-        '\n' +
-        styleText('cyan', `  3. Find generated files in: ${outputPath}`) +
-        '\n\n' +
+    consola.box(
+      [
+        styleText('green', '✓ All set!'),
+        '',
+        styleText('dim', 'Next steps:'),
+        styleText('cyan', `  1. Make sure your OpenAPI spec is at: ${inputPath}`),
+        styleText('cyan', '  2. Generate code with: npx kubb generate'),
+        styleText('cyan', '     Or start a stream server with: npx kubb agent start'),
+        styleText('cyan', `  3. Find generated files in: ${outputPath}`),
+        '',
         styleText('dim', `Using ${packageManager.name} • Kubb v${version}`),
+      ].join('\n'),
     )
   } catch (error) {
-    clack.log.error(styleText('red', 'An error occurred during initialization'))
+    consola.error(styleText('red', 'An error occurred during initialization'))
     if (error instanceof Error) {
-      clack.log.error(error.message)
+      consola.error(error.message)
     }
     process.exit(1)
   }
