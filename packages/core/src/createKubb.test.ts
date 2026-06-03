@@ -241,7 +241,7 @@ describe('createKubb', () => {
     expect(endSpy).toHaveBeenCalled()
   })
 
-  it('flushes generated files after each schema batch across all active plugins', async () => {
+  it('flushes generated files per plugin so kubb:plugin:end fires progressively', async () => {
     const hooks = new AsyncEventEmitter<KubbHooks>()
     const batches: Array<number> = []
     hooks.on('kubb:files:processing:start', ({ files }) => {
@@ -285,11 +285,18 @@ describe('createKubb', () => {
       plugins: [makePlugin('plugin-one', '/workspace/src/gen/one.ts'), makePlugin('plugin-two', '/workspace/src/gen/two.ts')] as unknown as Array<Plugin>,
     } satisfies Config
 
+    const endOrder: Array<string> = []
+    hooks.on('kubb:plugin:end', ({ plugin }) => {
+      endOrder.push(plugin.name)
+    })
+
     const { files } = await createKubb(streamingConfig, { hooks }).build()
 
-    // In the always-stream path all plugins fan-out together: both files are
-    // produced in the same batch and flushed as a single event.
-    expect(batches).toStrictEqual([2])
+    // Each plugin runs its generator pass sequentially, so its file batch flushes
+    // before the next plugin starts. Two plugins, two single-file flushes — and the
+    // `plugin:end` order matches that progression, which drives the CLI counter.
+    expect(batches).toStrictEqual([1, 1])
+    expect(endOrder).toStrictEqual(['plugin-one', 'plugin-two'])
     expect(files.map((file) => file.path)).toStrictEqual(['/workspace/src/gen/one.ts', '/workspace/src/gen/two.ts'])
   })
 
