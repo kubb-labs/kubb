@@ -1,5 +1,28 @@
 # Changelog
 
+## v5.0.0-beta.41 — Jun 3, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Remove the GitHub Actions logger. The CLI now picks the clack or plain logger based on whether a TTY is available, regardless of the CI environment. ([#3463](https://github.com/kubb-labs/kubb/pull/3463), [`7798632`](https://github.com/kubb-labs/kubb/commit/77986325d9f543482b955120c12af32e2d506bb2))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Restore progressive `Plugins N/M` progress in the CLI. The driver now runs each plugin's
+  generator pass sequentially, so `kubb:plugin:end` fires as each plugin finishes instead of
+  once the whole batch pass is over. The CLI counter advances 2/9, 3/9, ..., 9/9 again rather
+  than jumping from 1/9 straight to 9/9 at the end of the run. ([#3465](https://github.com/kubb-labs/kubb/pull/3465), [`be22e6d`](https://github.com/kubb-labs/kubb/commit/be22e6d70129e8e938853f38e29f01661ede3f63))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.40 — Jun 3, 2026
 
 ### @kubb/core
