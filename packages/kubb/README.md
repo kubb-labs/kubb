@@ -3,11 +3,9 @@
     <img src="https://kubb.dev/og.png" alt="Kubb banner">
   </a>
 
-[![npm version][npm-version-src]][npm-version-href]
-[![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![Coverage][coverage-src]][coverage-href]
-[![License][license-src]][license-href]
-[![Sponsors][sponsors-src]][sponsors-href]
+<a href="https://npmjs.com/package/kubb" target="_blank">
+  <img alt="kubb badges" src="https://shieldcn.dev/group/npm/v/kubb+npm/dm/kubb+github/stars/kubb-labs/kubb+codecov/c/github/kubb-labs/kubb+github/license/kubb-labs/kubb+github/sponsors/stijnvanhulle.svg?variant=branded&size=xs&theme=zinc&mode=dark">
+</a>
 
 <h4>
 <a href="https://kubb.dev" target="_blank">Documentation</a>
@@ -190,19 +188,5 @@ See [LICENSE](./LICENSE) for details.
 
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/@kubb/core?flat&colorA=18181B&colorB=f58517
-[npm-version-href]: https://npmx.dev/package/@kubb/core
-[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/core?flat&colorA=18181B&colorB=f58517
-[npm-downloads-href]: https://npmjs.com/package/@kubb/core
-[license-src]: https://img.shields.io/npm/l/%40kubb%2Fcore?flat&colorA=18181B&colorB=f58517
-[license-href]: https://github.com/kubb-labs/kubb/blob/main/licenses/LICENSE-MIT
-[build-src]: https://img.shields.io/github/actions/workflow/status/kubb-labs/kubb/ci.yaml?style=flat&colorA=18181B&colorB=f58517
-[build-href]: https://www.npmjs.com/package/@kubb/core
-[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/core?style=flat&colorA=18181B&colorB=f58517
-[minified-href]: https://www.npmjs.com/package/@kubb/core
-[coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517
-[coverage-href]: https://www.npmjs.com/package/@kubb/core
 [contributors-src]: https://img.shields.io/github/contributors/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517&label=%20
 [contributors-href]: #contributors-
-[sponsors-src]: https://img.shields.io/github/sponsors/stijnvanhulle?style=flat&colorA=18181B&colorB=f58517
-[sponsors-href]: https://github.com/sponsors/stijnvanhulle/

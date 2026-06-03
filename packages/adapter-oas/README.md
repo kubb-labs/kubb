@@ -3,11 +3,9 @@
     <img src="https://kubb.dev/og.png" alt="Kubb banner">
   </a>
 
-[![npm version][npm-version-src]][npm-version-href]
-[![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![Coverage][coverage-src]][coverage-href]
-[![License][license-src]][license-href]
-[![Sponsors][sponsors-src]][sponsors-href]
+<a href="https://npmjs.com/package/@kubb/adapter-oas" target="_blank">
+  <img alt="@kubb/adapter-oas badges" src="https://shieldcn.dev/group/npm/v/@kubb/adapter-oas+npm/dm/@kubb/adapter-oas+github/stars/kubb-labs/kubb+codecov/c/github/kubb-labs/kubb+github/license/kubb-labs/kubb+github/sponsors/stijnvanhulle.svg?variant=branded&size=xs&theme=zinc&mode=dark">
+</a>
 
 <h4>
 <a href="https://kubb.dev" target="_blank">Documentation</a>
@@ -85,16 +83,3 @@ Kubb is an open source project, and its development is funded entirely by sponso
 ## License
 
 [MIT](https://github.com/kubb-labs/kubb/blob/main/licenses/LICENSE-MIT)
-
-<!-- Badges -->
-
-[npm-version-src]: https://img.shields.io/npm/v/@kubb/adapter-oas?flat&colorA=18181B&colorB=f58517
-[npm-version-href]: https://npmjs.com/package/@kubb/adapter-oas
-[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/adapter-oas?flat&colorA=18181B&colorB=f58517
-[npm-downloads-href]: https://npmjs.com/package/@kubb/adapter-oas
-[license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=18181B&colorB=f58517
-[license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
-[coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517
-[coverage-href]: https://www.npmjs.com/package/@kubb/adapter-oas
-[sponsors-src]: https://img.shields.io/github/sponsors/stijnvanhulle?style=flat&colorA=18181B&colorB=f58517
-[sponsors-href]: https://github.com/sponsors/stijnvanhulle/
