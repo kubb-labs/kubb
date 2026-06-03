@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.41 — Jun 3, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Remove the GitHub Actions logger. The CLI now picks the clack or plain logger based on whether a TTY is available, regardless of the CI environment. ([#3463](https://github.com/kubb-labs/kubb/pull/3463), [`7798632`](https://github.com/kubb-labs/kubb/commit/77986325d9f543482b955120c12af32e2d506bb2))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.40 — Jun 3, 2026
 
 ### @kubb/core
