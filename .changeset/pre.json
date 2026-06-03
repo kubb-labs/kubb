@@ -99,6 +99,7 @@
     "fix-combine-imports-object-name-dedup",
     "fix-define-config-root-default",
     "fix-defineconfig-entrypoint",
+    "fix-diagnostic-reporting-review",
     "fix-discriminator-union-types",
     "fix-faker-import-alias-treeshake",
     "fix-grouped-default-import-drop",
