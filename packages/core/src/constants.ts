@@ -38,7 +38,6 @@ export const logLevel = {
   warn: 1,
   info: 3,
   verbose: 4,
-  debug: 5,
 } as const
 
 /**

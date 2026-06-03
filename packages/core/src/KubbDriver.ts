@@ -3,7 +3,6 @@ import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs,
 import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast'
 import type { FileNode, InputMeta, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { DEFAULT_STUDIO_URL, diagnosticCode, OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
-import { createDebugger, type Debugger } from './createDebugger.ts'
 import { type Diagnostic, DiagnosticError, Diagnostics } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
@@ -149,20 +148,6 @@ export class KubbDriver {
     return this.options.hooks
   }
 
-  readonly #debuggers = new Map<string, Debugger>()
-
-  /**
-   * Returns a memoized namespaced debugger so per-namespace `+Nms` timings persist across calls.
-   */
-  #debug(namespace: string): Debugger {
-    let debug = this.#debuggers.get(namespace)
-    if (!debug) {
-      debug = createDebugger(namespace, { hooks: this.hooks })
-      this.#debuggers.set(namespace, debug)
-    }
-    return debug
-  }
-
   /**
    * Creates an `NormalizedPlugin` from a hook-style plugin and registers
    * its lifecycle handlers on the `AsyncEventEmitter`.
@@ -195,18 +180,13 @@ export class KubbDriver {
     const adapter = this.adapter
     const source = this.#studio.source
 
-    const debug = this.#debug('kubb:adapter')
-
     if (adapter.stream) {
       this.inputNode = await adapter.stream(source)
-      debug('adapter %s producing input stream', adapter.name)
       return
     }
 
     const parsed = await adapter.parse(source)
     this.inputNode = createStreamInput(arrayToAsyncIterable(parsed.schemas), arrayToAsyncIterable(parsed.operations), parsed.meta)
-
-    debug('adapter %s resolved input %O', adapter.name, { schemas: parsed.schemas.length, operations: parsed.operations.length })
   }
 
   #registerMiddleware<K extends keyof KubbHooks & string>(event: K, middlewareHooks: Middleware['hooks']) {

@@ -49,7 +49,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     serverVariables,
     discriminator = 'strict',
     dedupe = true,
-    diagnostics: diagnosticsOptions,
     dateType = DEFAULT_PARSER_OPTIONS.dateType,
     integerType = DEFAULT_PARSER_OPTIONS.integerType,
     unknownType = DEFAULT_PARSER_OPTIONS.unknownType,
@@ -93,7 +92,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       parseSchema: ReturnType<typeof ensureSchemaParser>['parseSchema'],
       parseOperation: ReturnType<typeof ensureSchemaParser>['parseOperation'],
       baseOas: ReturnType<typeof ensureBaseOas>,
-    ) => preScan({ schemas, parseSchema, parseOperation, baseOas, parserOptions, discriminator, dedupe, diagnostics: diagnosticsOptions }),
+    ) => preScan({ schemas, parseSchema, parseOperation, baseOas, parserOptions, discriminator, dedupe }),
   )
 
   async function createStream(source: AdapterSource): Promise<ast.InputStreamNode> {

@@ -2,6 +2,7 @@ import { relative, resolve } from 'node:path'
 import process from 'node:process'
 import { formatMs, write } from '@internals/utils'
 import { defineLogger } from '@kubb/core'
+import { formatDiagnostic } from '../loggers/diagnostics.ts'
 
 type CachedEvent = {
   /**
@@ -12,19 +13,17 @@ type CachedEvent = {
    * Accumulated log lines for this event.
    */
   logs: Array<string>
-  /**
-   * Optional override for the output filename inside `.kubb/`. When omitted, the filename is derived from `date`.
-   */
-  fileName?: string
 }
 
 /**
- * FileSystem logger that captures debug events and writes them to `.kubb` directory files.
+ * The `file` reporter. Captures lifecycle, problem, and `debug` diagnostics and writes
+ * them to `.kubb/<name>-<timestamp>.log`. Selected with `--reporter file` (or
+ * `reporters: ['file']`), replacing the old `--debug` flag.
  *
- * @note Logs are written on `kubb:lifecycle:end` or process exit. Cached logs may be lost if the process crashes before either event.
+ * @note Logs are written on `kubb:generation:end` or process exit. Cached logs may be lost if the process crashes before either event.
  */
-export const fileSystemLogger = defineLogger({
-  name: 'filesystem',
+export const fileReporter = defineLogger({
+  name: 'file',
   install(context) {
     const state = {
       cachedLogs: new Set<CachedEvent>(),
@@ -41,29 +40,23 @@ export const fileSystemLogger = defineLogger({
         return []
       }
 
-      const files: Record<string, Array<string>> = {}
+      const baseName = `${['kubb', name, state.startDate].filter(Boolean).join('-')}.log`
+      const pathName = resolve(process.cwd(), '.kubb', baseName)
 
+      const lines: Array<string> = []
       for (const log of state.cachedLogs) {
-        const baseName = log.fileName || `${['kubb', name, state.startDate].filter(Boolean).join('-')}.log`
-        const pathName = resolve(process.cwd(), '.kubb', baseName)
-
-        if (!files[pathName]) {
-          files[pathName] = []
+        if (log.logs.length === 0) {
+          continue
         }
-
-        if (log.logs.length > 0) {
-          const prefix = `[${log.date.toLocaleString()}] `
-          const indent = ' '.repeat(prefix.length)
-          const [first, ...rest] = log.logs
-          files[pathName].push([prefix + first, ...rest.map((line) => indent + line)].join('\n'))
-        }
+        const prefix = `[${log.date.toLocaleString()}] `
+        const indent = ' '.repeat(prefix.length)
+        const [first, ...rest] = log.logs
+        lines.push([prefix + first, ...rest.map((line) => indent + line)].join('\n'))
       }
 
-      for (const [fileName, logs] of Object.entries(files)) {
-        await write(fileName, logs.join('\n'))
-      }
+      await write(pathName, lines.join('\n'))
 
-      return Object.keys(files)
+      return [pathName]
     }
 
     context.on('kubb:info', ({ message, info }) => {
@@ -94,12 +87,10 @@ export const fileSystemLogger = defineLogger({
       })
     })
 
-    context.on('kubb:debug', ({ date, fileName, logs, namespace }) => {
-      const [first, ...rest] = logs
+    context.on('kubb:diagnostic', ({ diagnostic }) => {
       state.cachedLogs.add({
-        date,
-        fileName,
-        logs: first !== undefined ? [`${namespace} ${first}`, ...rest] : logs,
+        date: new Date(),
+        logs: formatDiagnostic(diagnostic),
       })
     })
 

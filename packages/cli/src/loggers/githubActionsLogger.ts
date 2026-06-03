@@ -133,8 +133,8 @@ export const githubActionsLogger = defineLogger({
       const message = error.message || String(error)
       console.error(`::error::${message}`)
 
-      // Show stack trace in debug mode (first 3 frames)
-      if (logLevel >= logLevelMap.debug && error.stack) {
+      // Show stack trace in verbose mode (first 3 frames)
+      if (logLevel >= logLevelMap.verbose && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
         for (const frame of frames) {
           console.log(getMessage(styleText('dim', frame.trim())))

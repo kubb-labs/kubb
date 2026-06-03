@@ -66,8 +66,8 @@ export const plainLogger = defineLogger({
 
       console.log(text)
 
-      // Show stack trace in debug mode (first 3 frames)
-      if (logLevel >= logLevelMap.debug && error.stack) {
+      // Show stack trace in verbose mode (first 3 frames)
+      if (logLevel >= logLevelMap.verbose && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
         for (const frame of frames) {
           console.log(getMessage(frame.trim()))

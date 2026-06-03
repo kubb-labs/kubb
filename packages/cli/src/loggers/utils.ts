@@ -2,11 +2,12 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { canUseTTY, formatHrtime, getElapsedMs, isGitHubActions, randomCliColor } from '@internals/utils'
-import type { Config, Diagnostic, Logger, LoggerContext, LoggerOptions } from '@kubb/core'
+import type { Config, Diagnostic, Logger, LoggerContext, LoggerOptions, ReporterName } from '@kubb/core'
 import { Diagnostics, getDiagnosticInfo, logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
+import { fileReporter } from '../reporters/fileReporter.ts'
+import { installJsonReporter } from '../reporters/jsonReporter.ts'
 import { clackLogger } from './clackLogger.ts'
-import { fileSystemLogger } from './fileSystemLogger.ts'
 import { githubActionsLogger } from './githubActionsLogger.ts'
 import { plainLogger } from './plainLogger.ts'
 import type { LoggerType } from './types.ts'
@@ -226,33 +227,41 @@ const logMapper: Record<LoggerType, CLILogger> = {
   'github-actions': githubActionsLogger,
 }
 
-export async function setupLogger(
+/**
+ * Installs the selected reporters and returns the terminal logger's hook sink, when one
+ * was installed.
+ *
+ * The `json` reporter owns stdout, so the terminal (`cli`) reporter is suppressed whenever
+ * `json` is selected, even if `cli` is also listed.
+ */
+export async function setupReporters(
   context: LoggerContext,
-  { logLevel, reporter = 'human' }: LoggerOptions & { reporter?: 'human' | 'json' },
+  { logLevel, reporters }: LoggerOptions & { reporters: ReadonlyArray<ReporterName> },
 ): Promise<HookSinkFactory | null> {
-  // The json reporter owns stdout; don't install a human logger that would pollute it.
-  if (reporter === 'json') {
-    if (logLevel >= logLevelMap.debug) {
-      await fileSystemLogger.install(context, { logLevel })
+  const unique = new Set<ReporterName>(reporters.length ? reporters : ['cli'])
+  const hasJson = unique.has('json')
+
+  let makeSink: HookSinkFactory | null = null
+
+  if (unique.has('cli') && !hasJson) {
+    const type = detectLogger()
+    const logger = logMapper[type]
+    if (!logger) {
+      throw new Error(`Unknown adapter type: ${type}`)
     }
-    return null
+    const sink = await logger.install(context, { logLevel })
+    makeSink = typeof sink === 'function' ? sink : null
   }
 
-  const type = detectLogger()
-
-  const logger = logMapper[type]
-
-  if (!logger) {
-    throw new Error(`Unknown adapter type: ${type}`)
+  if (hasJson) {
+    installJsonReporter(context)
   }
 
-  const makeSink = await logger.install(context, { logLevel })
-
-  if (logLevel >= logLevelMap.debug) {
-    await fileSystemLogger.install(context, { logLevel })
+  if (unique.has('file')) {
+    await fileReporter.install(context, { logLevel })
   }
 
-  return typeof makeSink === 'function' ? makeSink : null
+  return makeSink
 }
 
 type SummaryProps = {

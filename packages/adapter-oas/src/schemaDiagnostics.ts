@@ -1,6 +1,5 @@
 import { ast, diagnosticCode, Diagnostics } from '@kubb/core'
 import { formatMap } from './constants.ts'
-import type { AdapterOasDiagnosticsOptions } from './types.ts'
 
 /**
  * Formats Kubb maps to a specific AST type. A `format` outside this set falls through to
@@ -10,26 +9,14 @@ import type { AdapterOasDiagnosticsOptions } from './types.ts'
 const handledFormats = new Set<string>([...Object.keys(formatMap), 'int64', 'date-time', 'date', 'time'])
 
 /**
- * Reports the opt-in advisory diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`)
- * for a single top-level schema. It reuses the node the parser already produced during
- * `preScan` and walks it with the shared AST visitor, so it never re-implements the
- * OpenAPI traversal (refs, `allOf`/`oneOf`, items) the parser resolved. Reports land in
- * the active build run; outside a build `Diagnostics.report` is a no-op and repeats are
- * collapsed by the build's deduplication.
+ * Reports the advisory diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`) for a
+ * single top-level schema. It reuses the node the parser already produced during `preScan`
+ * and walks it with the shared AST visitor, so it never re-implements the OpenAPI traversal
+ * (refs, `allOf`/`oneOf`, items) the parser resolved. Reports land in the active build run;
+ * outside a build `Diagnostics.report` is a no-op and repeats are collapsed by the build's
+ * deduplication.
  */
-export function reportSchemaDiagnostics({
-  node,
-  name,
-  options,
-}: {
-  node: ast.SchemaNode
-  name: string
-  options: AdapterOasDiagnosticsOptions | undefined
-}): void {
-  if (!options || (!options.unsupportedFormat && !options.deprecated)) {
-    return
-  }
-
+export function reportSchemaDiagnostics({ node, name }: { node: ast.SchemaNode; name: string }): void {
   const base = `#/components/schemas/${name}`
 
   ast.collect<unknown>(node, {
@@ -37,7 +24,7 @@ export function reportSchemaDiagnostics({
       const parent = context.parent
       const pointer = parent?.kind === 'Property' && parent.name ? `${base}/properties/${parent.name}` : base
 
-      if (options.deprecated && schemaNode.deprecated) {
+      if (schemaNode.deprecated) {
         Diagnostics.report({
           code: diagnosticCode.deprecated,
           severity: 'info',
@@ -46,7 +33,7 @@ export function reportSchemaDiagnostics({
         })
       }
 
-      if (options.unsupportedFormat && typeof schemaNode.format === 'string' && !handledFormats.has(schemaNode.format)) {
+      if (typeof schemaNode.format === 'string' && !handledFormats.has(schemaNode.format)) {
         Diagnostics.report({
           code: diagnosticCode.unsupportedFormat,
           severity: 'warning',

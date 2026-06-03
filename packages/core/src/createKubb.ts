@@ -7,12 +7,12 @@ import { version as KubbVersion } from '../package.json'
 import { DEFAULT_STUDIO_URL, HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
 import { type Diagnostic, DiagnosticError, Diagnostics } from './diagnostics.ts'
-import { createDebugger } from './createDebugger.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import type { Middleware } from './defineMiddleware.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, Plugin } from './definePlugin.ts'
+import type { ReporterName } from './reporters.ts'
 
 import { KubbDriver } from './KubbDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -354,6 +354,22 @@ export type Config<TInput = Input> = {
      */
     done?: string | Array<string>
   }
+  /**
+   * Reporters that render the run's output, like Vitest. List one or more by name;
+   * the CLI `--reporter` flag overrides this when set.
+   *
+   * - `cli` writes the end-of-run summary to the terminal.
+   * - `json` writes a machine-readable report to stdout, for CI.
+   * - `file` writes a debug log to `.kubb/<name>-<timestamp>.log`.
+   *
+   * @default ['cli']
+   *
+   * @example
+   * ```ts
+   * reporters: ['cli', 'file']
+   * ```
+   */
+  reporters?: Array<ReporterName>
 }
 
 /**
@@ -501,7 +517,6 @@ export interface KubbHooks {
   'kubb:error': [ctx: KubbErrorContext]
   'kubb:success': [ctx: KubbSuccessContext]
   'kubb:warn': [ctx: KubbWarnContext]
-  'kubb:debug': [ctx: KubbDebugContext]
   'kubb:diagnostic': [ctx: KubbDiagnosticContext]
   'kubb:files:processing:start': [ctx: KubbFilesProcessingStartContext]
   'kubb:files:processing:update': [ctx: KubbFilesProcessingUpdateContext]
@@ -699,25 +714,6 @@ export type KubbWarnContext = {
   info?: string
 }
 
-export type KubbDebugContext = {
-  /**
-   * Timestamp when the debug entry was created.
-   */
-  date: Date
-  /**
-   * Namespace the entry was emitted under, e.g. `kubb:core`.
-   */
-  namespace: string
-  /**
-   * One or more log lines to emit.
-   */
-  logs: Array<string>
-  /**
-   * Optional source file name associated with this entry.
-   */
-  fileName?: string
-}
-
 export type KubbDiagnosticContext = {
   /**
    * The structured problem to report, with its code, severity, and source location.
@@ -833,7 +829,11 @@ export type CLIOptions = {
    *
    * @default 'info'
    */
-  logLevel?: 'silent' | 'info' | 'verbose' | 'debug'
+  logLevel?: 'silent' | 'info' | 'verbose'
+  /**
+   * Reporters selected on the CLI via `--reporter`, overriding `config.reporters`.
+   */
+  reporters?: Array<ReporterName>
 }
 
 /**
@@ -1022,25 +1022,7 @@ export class Kubb {
     // EventEmitter leak warning at the default 10.
     this.hooks.setMaxListeners(Math.max(10, config.plugins.length * HOOK_LISTENERS_PER_PLUGIN))
 
-    const userConfig = this.#userConfig
-    const debug = createDebugger('kubb:core', { hooks: this.hooks })
-
-    debug('configuration %O', {
-      name: userConfig.name || 'unnamed',
-      root: userConfig.root || process.cwd(),
-      output: userConfig.output?.path || 'not specified',
-      plugins: userConfig.plugins?.length || 0,
-    })
-    debug('output %O', {
-      storage: config.storage.name,
-      formatter: userConfig.output?.format || 'none',
-      linter: userConfig.output?.lint || 'none',
-      adapter: config.adapter?.name || 'none',
-    })
-    debug('environment %O', getDiagnosticInfo())
-
     if (config.output.clean) {
-      debug('cleaning output directory %s', config.output.path)
       await config.storage.clear(resolve(config.root, config.output.path))
     }
 

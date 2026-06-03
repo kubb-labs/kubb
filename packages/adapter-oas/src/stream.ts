@@ -6,7 +6,7 @@ import type { SchemaParser } from './parser.ts'
 import { resolveServerUrl } from './resolvers.ts'
 import { reportSchemaDiagnostics } from './schemaDiagnostics.ts'
 import type { DiscriminatorTarget } from './discriminator.ts'
-import type { AdapterOas, AdapterOasDiagnosticsOptions, Document, SchemaObject } from './types.ts'
+import type { AdapterOas, Document, SchemaObject } from './types.ts'
 
 export type PreScanResult = {
   refAliasMap: Map<string, ast.SchemaNode>
@@ -120,7 +120,6 @@ export function preScan({
   parserOptions,
   discriminator,
   dedupe,
-  diagnostics,
 }: {
   schemas: Record<string, SchemaObject>
   parseSchema: (entry: { schema: SchemaObject; name: string }, options: ast.ParserOptions) => ast.SchemaNode
@@ -129,7 +128,6 @@ export function preScan({
   parserOptions: ast.ParserOptions
   discriminator: AdapterOas['options']['discriminator']
   dedupe: boolean
-  diagnostics?: AdapterOasDiagnosticsOptions
 }): PreScanResult {
   const allNodes: Array<ast.SchemaNode> = []
   const refAliasMap = new Map<string, ast.SchemaNode>()
@@ -139,7 +137,7 @@ export function preScan({
   for (const [name, schema] of Object.entries(schemas)) {
     const node = parseSchema({ schema, name }, parserOptions)
     allNodes.push(node)
-    reportSchemaDiagnostics({ node, name, options: diagnostics })
+    reportSchemaDiagnostics({ node, name })
     if (node.type === 'ref' && node.name && node.name !== name) {
       refAliasMap.set(name, node)
     }
