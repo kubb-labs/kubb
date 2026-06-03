@@ -3,9 +3,11 @@
     <img src="https://kubb.dev/og.png" alt="Kubb banner">
   </a>
 
-<a href="https://npmjs.com/package/@kubb/agent" target="_blank">
-  <img alt="@kubb/agent badges" src="https://shieldcn.dev/group/npm/v/@kubb/agent+npm/dm/@kubb/agent+github/stars/kubb-labs/kubb+npm/l/@kubb/agent+badge/sponsors-stijnvanhulle-EA4AAA.svg?variant=branded&size=xs&theme=zinc&mode=dark">
-</a>
+[![npm version][npm-version-src]][npm-version-href]
+[![npm downloads][npm-downloads-src]][npm-downloads-href]
+[![Stars][stars-src]][stars-href]
+[![License][license-src]][license-href]
+[![Sponsors][sponsors-src]][sponsors-href]
 
 <h4>
 <a href="https://kubb.dev" target="_blank">Documentation</a>
@@ -354,3 +356,16 @@ Kubb is an open source project, and its development is funded entirely by sponso
 ## License
 
 [AGPL-3.0-or-later](https://github.com/kubb-labs/kubb/blob/main/licenses/LICENSE-AGPL-3.0)
+
+<!-- Badges -->
+
+[npm-version-src]: https://shieldcn.dev/npm/v/@kubb/agent.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[npm-version-href]: https://npmjs.com/package/@kubb/agent
+[npm-downloads-src]: https://shieldcn.dev/npm/dm/@kubb/agent.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[npm-downloads-href]: https://npmjs.com/package/@kubb/agent
+[stars-src]: https://shieldcn.dev/github/stars/kubb-labs/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[stars-href]: https://github.com/kubb-labs/kubb
+[license-src]: https://shieldcn.dev/npm/l/@kubb/agent.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
+[sponsors-src]: https://shieldcn.dev/badge/sponsors-stijnvanhulle-EA4AAA.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[sponsors-href]: https://github.com/sponsors/stijnvanhulle
