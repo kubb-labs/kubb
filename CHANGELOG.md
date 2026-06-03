@@ -1,5 +1,34 @@
 # Changelog
 
+## v5.0.0-beta.41 — Jun 3, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Remove the GitHub Actions logger. The CLI now picks the clack or plain logger based on whether a TTY is available, regardless of the CI environment. ([#3463](https://github.com/kubb-labs/kubb/pull/3463), [`7798632`](https://github.com/kubb-labs/kubb/commit/77986325d9f543482b955120c12af32e2d506bb2))
+
+### @kubb/core
+
+#### Features
+
+- Route hook subprocess output through events instead of a sink-factory callback.
+  
+  Hook output (formatter, linter, and `done` hooks) now reaches loggers over the event emitter: a new `kubb:hook:line` event carries each streamed stdout line while a hook runs, and `kubb:hook:end` gained optional `stdout`/`stderr` fields holding a failed hook's captured output. The CLI's `makeSink`/`HookSinkFactory` channel and its threading are removed, so loggers are pure event subscribers and the runner decides whether to stream from the `kubb:hook:line` listener count. Behavior is unchanged: clack still streams live dimmed lines, the plain logger still prints failure output, and a failed hook's output still surfaces at the silent log level. ([#3467](https://github.com/kubb-labs/kubb/pull/3467), [`333aea7`](https://github.com/kubb-labs/kubb/commit/333aea7b8000b43a37dddc6b6226563f7a41fd2f))
+
+#### Bug Fixes
+
+- Restore progressive `Plugins N/M` progress in the CLI. The driver now runs each plugin's
+  generator pass sequentially, so `kubb:plugin:end` fires as each plugin finishes instead of
+  once the whole batch pass is over. The CLI counter advances 2/9, 3/9, ..., 9/9 again rather
+  than jumping from 1/9 straight to 9/9 at the end of the run. ([#3465](https://github.com/kubb-labs/kubb/pull/3465), [`be22e6d`](https://github.com/kubb-labs/kubb/commit/be22e6d70129e8e938853f38e29f01661ede3f63))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.40 — Jun 3, 2026
 
 ### @kubb/core
