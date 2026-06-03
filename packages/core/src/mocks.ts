@@ -1,15 +1,22 @@
-import { resolve } from 'node:path'
+import path, { resolve } from 'node:path'
+import { camelCase } from '@internals/utils'
 import type { FileNode, InputMeta, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
 import { transform } from '@kubb/ast'
+import { expect } from 'vitest'
+import type { Parser } from './defineParser.ts'
 import { FileManager } from './FileManager.ts'
-import { applyHookResult, KubbDriver } from './KubbDriver.ts'
-import type { Adapter, AdapterFactoryOptions, Config, Generator, GeneratorContext, NormalizedPlugin, PluginFactoryOptions } from './types.ts'
+import { FileProcessor } from './FileProcessor.ts'
+import { KubbDriver } from './KubbDriver.ts'
+import { memoryStorage } from './storages/memoryStorage.ts'
+import type { Adapter, AdapterFactoryOptions, Config, Generator, GeneratorContext, NormalizedPlugin, PluginFactoryOptions, RendererFactory } from './types.ts'
 
 /**
 
  * Creates a minimal `PluginDriver` mock for unit tests.
  */
 export function createMockedPluginDriver(options: { name?: string; plugin?: NormalizedPlugin; config?: Config } = {}): KubbDriver {
+  const fileManager = new FileManager()
+
   return {
     config: options?.config ?? {
       root: '.',
@@ -21,13 +28,32 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
       return options?.plugin
     },
     getResolver: (_pluginName: string) => options?.plugin?.resolver,
-    fileManager: new FileManager(),
+    fileManager,
+    async dispatch({ result, renderer }: { result: unknown; renderer?: RendererFactory | null }): Promise<void> {
+      if (!result) return
+
+      if (Array.isArray(result)) {
+        fileManager.upsert(...(result as Array<FileNode>))
+        return
+      }
+
+      if (!renderer) return
+
+      using instance = renderer()
+      if (instance.stream) {
+        for (const file of instance.stream(result)) fileManager.upsert(file)
+        return
+      }
+
+      await instance.render(result)
+      fileManager.upsert(...instance.files)
+    },
   } as unknown as KubbDriver
 }
 
 /**
  * Creates a minimal `Adapter` mock for unit tests.
- * `parse` returns an empty `InputNode` by default; override via `options.parse`.
+ * `parse` returns an empty `InputNode` by default. Override via `options.parse`.
  * `getImports` returns `[]` by default.
  */
 export function createMockedAdapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptions>(
@@ -98,7 +124,6 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     warn: (msg: string) => console.warn(msg),
     error: (msg: string) => console.error(msg),
     info: (msg: string) => console.info(msg),
-    openInStudio: async () => {},
   } as unknown as Omit<GeneratorContext<TOptions>, 'options'>
 }
 
@@ -123,7 +148,7 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
     ...context,
     options: opts.options,
   })
-  await applyHookResult({ result, driver: opts.driver, rendererFactory: generator.renderer })
+  await opts.driver.dispatch({ result, renderer: generator.renderer })
 }
 
 /**
@@ -147,7 +172,7 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
     ...context,
     options: opts.options,
   })
-  await applyHookResult({ result, driver: opts.driver, rendererFactory: generator.renderer })
+  await opts.driver.dispatch({ result, renderer: generator.renderer })
 }
 
 /**
@@ -171,5 +196,56 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
     ...context,
     options: opts.options,
   })
-  await applyHookResult({ result, driver: opts.driver, rendererFactory: generator.renderer })
+  await opts.driver.dispatch({ result, renderer: generator.renderer })
+}
+
+type MatchFilesOptions = {
+  /**
+   * Parsers indexed by file extension, used to render each `FileNode` to source.
+   * Without a matching parser the file's raw content is used.
+   */
+  parsers?: Map<FileNode['extname'], Parser>
+  /**
+   * Formatter applied to non-JSON output before snapshotting, e.g. prettier. When
+   * omitted the parsed source is snapshotted as-is.
+   */
+  format?: (source?: string) => string | Promise<string>
+  /**
+   * Subfolder under `__snapshots__`, camelCased. Useful to keep variant snapshots apart.
+   */
+  pre?: string
+}
+
+/**
+ * Renders the driver's collected `FileNode`s to source and asserts each against a file snapshot.
+ * Pair it with the `renderGenerator*` helpers to snapshot a generator's output.
+ *
+ * @example
+ * ```ts
+ * await renderGeneratorSchema(typeGenerator, node, { config, adapter, driver, plugin, options, resolver })
+ * await matchFiles(driver.fileManager.files, { parsers, format })
+ * ```
+ */
+export async function matchFiles(files: Array<FileNode> | undefined, options: MatchFilesOptions = {}): Promise<Map<string, string> | undefined> {
+  if (!files?.length) return
+
+  const { parsers = new Map(), format, pre } = options
+  const fileProcessor = new FileProcessor({ storage: memoryStorage(), parsers })
+  const processed = new Map<string, string>()
+
+  for (const file of files) {
+    if (!file?.path || processed.has(file.path)) {
+      continue
+    }
+
+    const parsed = fileProcessor.parse(file)
+    const code = file.baseName.endsWith('.json') || !format ? parsed : await format(parsed)
+
+    processed.set(file.path, code)
+
+    const snapshotPath = path.join('__snapshots__', ...(pre ? [camelCase(pre)] : []), file.baseName)
+    await expect(code).toMatchFileSnapshot(snapshotPath)
+  }
+
+  return processed
 }

@@ -4,9 +4,9 @@ import type { BaseNode } from './base.ts'
  * AST node representing a language-agnostic type expression used as a function parameter
  * type annotation. Each language printer renders the variant into its own syntax.
  *
- * - `struct` — an inline anonymous type grouping named fields.
+ * - `struct` an inline anonymous type grouping named fields.
  *   TypeScript renders as `{ petId: string; name?: string }`.
- * - `member` — a single named field accessed from a named group type.
+ * - `member` a single named field accessed from a named group type.
  *   TypeScript renders as `PathParams['petId']`.
  *
  * @example Reference variant
@@ -35,7 +35,7 @@ export type ParamsTypeNode = BaseNode & {
 } & (
     | {
         /**
-         * Reference variant — a plain type name or identifier.
+         * Reference variant, a plain type name or identifier.
          * TypeScript renders as-is, e.g. `string`, `QueryParams`, `Partial<Config>`.
          */
         variant: 'reference'
@@ -46,7 +46,7 @@ export type ParamsTypeNode = BaseNode & {
       }
     | {
         /**
-         * Struct variant — an inline anonymous type grouping named fields.
+         * Struct variant, an inline anonymous type grouping named fields.
          * TypeScript renders as `{ key: Type; other?: OtherType }`.
          */
         variant: 'struct'
@@ -61,7 +61,7 @@ export type ParamsTypeNode = BaseNode & {
       }
     | {
         /**
-         * Member variant — a single named field accessed from a group type.
+         * Member variant, a single named field accessed from a group type.
          * TypeScript renders as `Base['key']`.
          */
         variant: 'member'
@@ -122,7 +122,7 @@ export type FunctionParameterNode = BaseNode & {
    */
   rest?: boolean
 } /**
- * Optional parameter — rendered with `?` and may be omitted by the caller.
+ * Optional parameter, rendered with `?` and may be omitted by the caller.
  * Cannot be combined with `default` because a defaulted parameter is already optional.
  */ & (
     | { optional: true; default?: never }
@@ -196,10 +196,10 @@ export type ParameterGroupNode = BaseNode & {
  * Nodes are plain immutable data.
  *
  * Renders differently depending on the output mode:
- * - `declaration` → `(id: string, config: Config = {})` — function declaration parameters
- * - `call`        → `(id, { method, url })` — function call arguments
- * - `keys`        → `{ id, config }` — key names only (for destructuring)
- * - `values`      → `{ id: id, config: config }` — key → value pairs
+ * - `declaration` → `(id: string, config: Config = {})` function declaration parameters
+ * - `call`        → `(id, { method, url })` function call arguments
+ * - `keys`        → `{ id, config }` key names only (for destructuring)
+ * - `values`      → `{ id: id, config: config }` key → value pairs
  */
 export type FunctionParametersNode = BaseNode & {
   /**
@@ -218,6 +218,6 @@ export type FunctionParametersNode = BaseNode & {
 export type FunctionParamNode = FunctionParameterNode | ParameterGroupNode | FunctionParametersNode | ParamsTypeNode
 
 /**
- * Handler map keys — one per `FunctionParamNode` kind.
+ * Handler map keys, one per `FunctionParamNode` kind.
  */
 export type FunctionNodeType = 'functionParameter' | 'parameterGroup' | 'functionParameters' | 'paramsType'

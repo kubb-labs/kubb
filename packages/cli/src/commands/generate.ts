@@ -1,4 +1,5 @@
 import { defineCommand } from '@internals/utils'
+import type { ReporterName } from '@kubb/core'
 
 export const command = defineCommand({
   name: 'generate',
@@ -14,22 +15,16 @@ export const command = defineCommand({
     },
     logLevel: {
       type: 'string',
-      description: 'Info, silent, verbose or debug',
+      description: 'Info, silent or verbose',
       short: 'l',
       default: 'info',
-      hint: 'silent|info|verbose|debug',
-      enum: ['silent', 'info', 'verbose', 'debug'],
+      hint: 'silent|info|verbose',
+      enum: ['silent', 'info', 'verbose'],
     },
     watch: {
       type: 'boolean',
       description: 'Watch mode based on the input file',
       short: 'w',
-      default: false,
-    },
-    debug: {
-      type: 'boolean',
-      description: 'Override logLevel to debug',
-      short: 'd',
       default: false,
     },
     verbose: {
@@ -44,9 +39,19 @@ export const command = defineCommand({
       short: 's',
       default: false,
     },
+    reporter: {
+      type: 'string',
+      description: 'Reporters that render the run, comma-separated. Overrides config.reporters',
+      hint: 'cli|json|file',
+      enum: ['cli', 'json', 'file'],
+    },
   },
   async run({ values, positionals }) {
-    const logLevel = values.debug ? 'debug' : values.verbose ? 'verbose' : values.silent ? 'silent' : values.logLevel
+    const logLevel = values.verbose ? 'verbose' : values.silent ? 'silent' : values.logLevel
+    const reporters = values.reporter
+      ?.split(',')
+      .map((name) => name.trim())
+      .filter(Boolean) as Array<ReporterName> | undefined
     const { run } = await import('../runners/generate/run.ts')
 
     await run({
@@ -54,6 +59,7 @@ export const command = defineCommand({
       configPath: values.config,
       logLevel,
       watch: values.watch,
+      reporters,
     })
   },
 })

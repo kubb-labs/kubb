@@ -5,7 +5,7 @@ import { resolvePlugins } from './resolvePlugins.ts'
 
 /**
  * Merges studio plugin options with disk config plugins.
- * Studio options take priority; disk plugins without a studio counterpart are kept as-is.
+ * Studio options take priority. Disk plugins without a studio counterpart are kept as-is.
  * Studio plugins not present on disk are appended.
  *
  * For plugins present in both configs, the plugin is re-instantiated with merged options

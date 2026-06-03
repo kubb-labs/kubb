@@ -2,9 +2,8 @@ import { relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { formatMs, formatMsWithColor, getElapsedMs, getIntro, toCause } from '@internals/utils'
-import { defineLogger, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { getSummary } from './utils.ts'
+import { formatMsWithColor, getElapsedMs, getIntro, toCause } from '@internals/utils'
+import { defineLogger, Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { buildProgressLine, createProgressCounters, formatCommandWithArgs, formatMessage, recordPluginResult, resetProgressCounters } from './utils.ts'
 
 /**
@@ -18,23 +17,36 @@ export const clackLogger = defineLogger({
       ...createProgressCounters(),
       spinner: clack.spinner(),
       isSpinning: false,
+      runningPlugins: new Set<string>(),
       activeProgress: new Map<string, { interval?: NodeJS.Timeout; progressBar: clack.ProgressResult }>(),
       activeHookLogs: new Map<string, { taskLog: ReturnType<typeof clack.taskLog>; hrStart: [number, number] }>(),
     }
 
-    function reset() {
-      for (const [_key, active] of state.activeProgress) {
+    // Clear every active progress bar's interval, stop it, and drop the map.
+    function stopActiveProgress() {
+      for (const [, active] of state.activeProgress) {
         if (active.interval) {
           clearInterval(active.interval)
         }
         active.progressBar?.stop()
       }
+      state.activeProgress.clear()
+    }
+
+    function reset() {
+      stopActiveProgress()
 
       resetProgressCounters(state)
       state.spinner = clack.spinner()
       state.isSpinning = false
-      state.activeProgress.clear()
+      state.runningPlugins.clear()
       state.activeHookLogs.clear()
+    }
+
+    // Label for the shared plugin bar, listing the plugins currently generating.
+    function pluginProgressText(): string {
+      const running = [...state.runningPlugins].map((name) => styleText('bold', name))
+      return getMessage(running.length > 0 ? `Generating ${running.join(', ')}` : 'Generating plugins')
     }
 
     function showProgressStep() {
@@ -80,7 +92,7 @@ export const clackLogger = defineLogger({
         return
       }
 
-      const text = getMessage([styleText('blue', 'ℹ'), message, styleText('dim', info)].join(' '))
+      const text = getMessage([styleText('blue', 'ℹ'), message, info ? styleText('dim', info) : undefined].filter(Boolean).join(' '))
 
       if (state.isSpinning) {
         state.spinner.message(text)
@@ -126,8 +138,8 @@ export const clackLogger = defineLogger({
       }
       clack.log.error(getMessage(text))
 
-      // Show stack trace in debug mode (first 3 frames)
-      if (logLevel >= logLevelMap.debug && error.stack) {
+      // Show stack trace in verbose mode (first 3 frames)
+      if (logLevel >= logLevelMap.verbose && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
         for (const frame of frames) {
           clack.log.message(getMessage(styleText('dim', frame.trim())))
@@ -144,14 +156,21 @@ export const clackLogger = defineLogger({
       }
     })
 
-    context.on('kubb:version:new', ({ currentVersion, latestVersion }) => {
-      if (logLevel <= logLevelMap.silent) {
+    context.on('kubb:diagnostic', ({ diagnostic }) => {
+      // Silent still surfaces errors so failures stay visible. It drops warnings and info.
+      if (logLevel <= logLevelMap.silent && diagnostic.severity !== 'error') {
         return
       }
 
-      try {
+      stopSpinner()
+
+      // Stop any lingering progress UI so the multi-line block renders cleanly.
+      stopActiveProgress()
+
+      // The version-update notice keeps its own framed box instead of the diagnostic gutter.
+      if (Diagnostics.isUpdate(diagnostic)) {
         clack.box(
-          `\`v${currentVersion}\` → \`v${latestVersion}\`
+          `\`v${diagnostic.currentVersion}\` → \`v${diagnostic.latestVersion}\`
 Run \`npm install -g @kubb/cli\` to update`,
           'Update available for `Kubb`',
           {
@@ -163,14 +182,19 @@ Run \`npm install -g @kubb/cli\` to update`,
             titleAlign: 'center',
           },
         )
-      } catch {
-        console.log(`Update available for Kubb: v${currentVersion} → v${latestVersion}`)
-        console.log('Run `npm install -g @kubb/cli` to update')
+
+        return
       }
+
+      // Hand the severity glyph to clack as the gutter `symbol`, then let it draw the
+      // bar on each detail line via the default `secondarySymbol`. The headline and
+      // details carry their own colors, so clack only owns the gutter.
+      const { symbol, headline, details } = Diagnostics.format(diagnostic)
+      clack.log.message([headline, ...details], { symbol })
     })
 
     context.on('kubb:lifecycle:start', async ({ version }) => {
-      console.log(`\n${getIntro({ title: 'The ultimate toolkit for working with APIs', description: 'Ready to start', version, areEyesOpen: true })}\n`)
+      console.log(`\n${getIntro({ title: 'The meta framework for code generation', description: 'Ready to start', version, areEyesOpen: true })}\n`)
 
       reset()
     })
@@ -211,6 +235,8 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.intro(text)
     })
 
+    // Plugins run concurrently, so they share a single progress bar. A bar per plugin
+    // would make clack render them side by side and pile up keypress listeners.
     context.on('kubb:plugin:start', ({ plugin }) => {
       if (logLevel <= logLevelMap.silent) {
         return
@@ -218,46 +244,44 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       stopSpinner()
 
+      state.runningPlugins.add(plugin.name)
+
+      const active = state.activeProgress.get('plugins')
+      if (active) {
+        active.progressBar.advance(0, pluginProgressText())
+        return
+      }
+
       const progressBar = clack.progress({
         style: 'block',
-        max: 100,
+        max: Math.max(state.totalPlugins, 1),
         size: 30,
       })
-      const text = getMessage(`Generating ${styleText('bold', plugin.name)}`)
-      progressBar.start(text)
-
-      const interval = setInterval(() => {
-        progressBar.advance()
-      }, 100)
-
-      state.activeProgress.set(plugin.name, { progressBar, interval })
+      progressBar.start(pluginProgressText())
+      // Catch up to plugins already finished before this bar opened.
+      progressBar.advance(state.completedPlugins + state.failedPlugins, pluginProgressText())
+      state.activeProgress.set('plugins', { progressBar })
     })
 
-    context.on('kubb:plugin:end', ({ plugin, duration, success }) => {
+    context.on('kubb:plugin:end', ({ plugin, success }) => {
       stopSpinner()
 
-      const active = state.activeProgress.get(plugin.name)
+      const active = state.activeProgress.get('plugins')
 
       if (!active || logLevel === logLevelMap.silent) {
         return
       }
 
-      clearInterval(active.interval)
-
+      state.runningPlugins.delete(plugin.name)
       recordPluginResult(state, success)
+      active.progressBar.advance(1, pluginProgressText())
 
-      const durationStr = formatMsWithColor(duration)
-      const text = getMessage(
-        success
-          ? `${styleText('bold', plugin.name)} completed in ${durationStr}`
-          : `${styleText('bold', plugin.name)} failed in ${styleText('red', formatMs(duration))}`,
-      )
-
-      active.progressBar.stop(text)
-      state.activeProgress.delete(plugin.name)
-
-      // Show progress step after each plugin
-      showProgressStep()
+      // Close the bar once nothing is generating, then print the progress step.
+      if (state.runningPlugins.size === 0) {
+        active.progressBar.stop(getMessage('Plugins generated'))
+        state.activeProgress.delete('plugins')
+        showProgressStep()
+      }
     })
 
     context.on('kubb:files:processing:start', ({ files }) => {
@@ -363,35 +387,6 @@ Run \`npm install -g @kubb/cli\` to update`,
       } else {
         const reason = error?.message ? ` (${error.message})` : ''
         active.taskLog.error(getMessage(`${styleText('dim', commandWithArgs)} failed${reason}`), { showLog: true })
-      }
-    })
-
-    context.on('kubb:generation:summary', ({ config, pluginTimings, failedPlugins, filesCreated, status, hrStart }) => {
-      const summary = getSummary({
-        failedPlugins,
-        filesCreated,
-        config,
-        status,
-        hrStart,
-        pluginTimings: logLevel >= logLevelMap.verbose ? pluginTimings : undefined,
-      })
-      const title = config.name || ''
-
-      summary.unshift('\n')
-      summary.push('\n')
-
-      const borderColor = status === 'success' ? 'green' : 'red'
-      try {
-        clack.box(summary.join('\n'), getMessage(title), {
-          width: 'auto',
-          formatBorder: (s: string) => styleText(borderColor, s),
-          rounded: true,
-          withGuide: false,
-          contentAlign: 'left',
-          titleAlign: 'center',
-        })
-      } catch {
-        console.log(summary.join('\n'))
       }
     })
 

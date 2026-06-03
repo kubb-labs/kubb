@@ -172,11 +172,13 @@ describe('defaultResolvePath', () => {
           group: { type: 'path', name: () => '../../secrets' },
         },
       ),
-    ).toThrow('[Kubb]')
+    ).toThrow('outside the output directory')
   })
 
   it('throws when baseName contains a traversal sequence', () => {
-    expect(() => defaultResolvePath({ baseName: '../../etc/passwd' }, { root: '/root', output: { path: 'types' }, group: undefined })).toThrow('[Kubb]')
+    expect(() => defaultResolvePath({ baseName: '../../etc/passwd' }, { root: '/root', output: { path: 'types' }, group: undefined })).toThrow(
+      'outside the output directory',
+    )
   })
 })
 

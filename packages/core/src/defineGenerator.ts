@@ -6,7 +6,7 @@ import type { KubbHooks } from './types.ts'
 import type { KubbDriver } from './KubbDriver.ts'
 import type { Plugin, PluginFactoryOptions } from './definePlugin.ts'
 import type { Resolver } from './defineResolver.ts'
-import type { Config, DevtoolsOptions } from './types.ts'
+import type { Config } from './types.ts'
 
 /**
  * Context object passed to generator `schema`, `operation`, and `operations` methods.
@@ -64,27 +64,28 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    */
   transformer: Visitor | undefined
   /**
-   * Emit a warning.
+   * Report a warning. Collected as a `warning` diagnostic attributed to the current
+   * plugin. It surfaces in the run summary but does not fail the build. For a structured
+   * diagnostic with a code and source location, use `Diagnostics.report` or throw a
+   * `Diagnostics.Error` directly.
    */
   warn: (message: string) => void
   /**
-   * Emit an error.
+   * Report an error. Collected as an `error` diagnostic attributed to the current
+   * plugin, which fails the build.
    */
   error: (error: string | Error) => void
   /**
-   * Emit an info message.
+   * Report an informational message. Collected as an `info` diagnostic attributed to
+   * the current plugin.
    */
   info: (message: string) => void
-  /**
-   * Open the current input node in Kubb Studio.
-   */
-  openInStudio: (options?: DevtoolsOptions) => Promise<void>
   /**
    * The configured adapter instance.
    */
   adapter: Adapter
   /**
-   * Document metadata from the adapter — title, version, base URL, and pre-computed
+   * Document metadata from the adapter: title, version, base URL, and pre-computed
    * schema index fields (`circularNames`, `enumNames`).
    */
   meta: InputMeta
@@ -131,8 +132,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    *
    * Generators that only return `Array<FileNode>` or `void` do not need to set this.
    *
-   * Set `renderer: null` to explicitly opt out of rendering even when the parent plugin
-   * declares a `renderer` (overrides the plugin-level fallback).
+   * Leave it unset or set `renderer: null` to opt out of rendering.
    *
    * @example
    * ```ts
@@ -172,7 +172,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
  * The returned object is the input as-is, but with `this` types preserved so
  * `schema`/`operation`/`operations` methods are correctly typed against the
  * plugin's `PluginFactoryOptions`. Renderer elements and `FileNode[]` returns
- * are both handled by the runtime — pick whichever style fits.
+ * are both handled by the runtime, so pick whichever style fits.
  *
  * @example JSX-based schema generator
  * ```tsx

@@ -1,9 +1,8 @@
-import { once } from '@internals/utils'
 import { ast, createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { parseDocument, parseFromConfig, validateDocument } from './factory.ts'
+import { assertInputExists, parseDocument, parseFromConfig, validateDocument } from './factory.ts'
 import { createSchemaParser } from './parser.ts'
 import { getSchemas } from './resolvers.ts'
 import { createInputStream, preScan, resolveBaseUrl } from './stream.ts'
@@ -68,39 +67,83 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   let nameMapping = new Map<string, string>()
   let parsedDocument: Document | null = null
 
-  // `once` collapses concurrent callers (e.g. a build's `stream()` racing with `openInStudio()`'s `parse()`) onto one in-flight promise.
-  const ensureDocument = once(async (source: AdapterSource): Promise<Document> => {
-    const fresh = await parseFromConfig(source)
-    if (validate) await validateDocument(fresh)
-    parsedDocument = fresh
-    return fresh
-  })
+  // Cache per source and per document so one adapter instance reused across a `defineConfig` array
+  // parses each config's spec instead of replaying the first one. Keying the document by its source
+  // object still collapses a config's concurrent `stream()` (build) and `parse()` (studio) calls,
+  // which share one source object, onto a single parse. The document-derived caches key off the
+  // resulting document, so distinct configs (distinct documents) stay isolated.
+  const documentCache = new WeakMap<AdapterSource, Promise<Document>>()
+  const schemasCache = new WeakMap<Document, Promise<ReturnType<typeof getSchemas>['schemas']>>()
+  const baseOasCache = new WeakMap<Document, BaseOas>()
+  const schemaParserCache = new WeakMap<Document, ReturnType<typeof createSchemaParser>>()
+  const preScanCache = new WeakMap<Document, ReturnType<typeof preScan>>()
 
-  const ensureSchemas = once(async (document: Document) => {
-    const result = getSchemas(document, { contentType })
-    nameMapping = result.nameMapping
-    return result.schemas
-  })
+  function ensureDocument(source: AdapterSource): Promise<Document> {
+    const cached = documentCache.get(source)
+    if (cached) return cached
 
-  const ensureBaseOas = once((document: Document) => new BaseOas(document))
+    const promise = (async () => {
+      const fresh = await parseFromConfig(source)
+      if (validate) await validateDocument(fresh)
+      parsedDocument = fresh
+      return fresh
+    })()
+    documentCache.set(source, promise)
+    return promise
+  }
 
-  const ensureSchemaParser = once((document: Document) => createSchemaParser({ document, contentType }))
+  function ensureSchemas(document: Document): Promise<ReturnType<typeof getSchemas>['schemas']> {
+    const cached = schemasCache.get(document)
+    if (cached) return cached
 
-  const ensurePreScan = once(
-    (
-      schemas: Awaited<ReturnType<typeof ensureSchemas>>,
-      parseSchema: ReturnType<typeof ensureSchemaParser>['parseSchema'],
-      parseOperation: ReturnType<typeof ensureSchemaParser>['parseOperation'],
-      baseOas: ReturnType<typeof ensureBaseOas>,
-    ) => preScan({ schemas, parseSchema, parseOperation, baseOas, parserOptions, discriminator, dedupe }),
-  )
+    const promise = Promise.resolve().then(() => {
+      const result = getSchemas(document, { contentType })
+      nameMapping = result.nameMapping
+      return result.schemas
+    })
+    schemasCache.set(document, promise)
+    return promise
+  }
+
+  function ensureBaseOas(document: Document): BaseOas {
+    const cached = baseOasCache.get(document)
+    if (cached) return cached
+
+    const baseOas = new BaseOas(document)
+    baseOasCache.set(document, baseOas)
+    return baseOas
+  }
+
+  function ensureSchemaParser(document: Document): ReturnType<typeof createSchemaParser> {
+    const cached = schemaParserCache.get(document)
+    if (cached) return cached
+
+    const parser = createSchemaParser({ document, contentType })
+    schemaParserCache.set(document, parser)
+    return parser
+  }
+
+  function ensurePreScan(
+    document: Document,
+    schemas: ReturnType<typeof getSchemas>['schemas'],
+    parseSchema: ReturnType<typeof ensureSchemaParser>['parseSchema'],
+    parseOperation: ReturnType<typeof ensureSchemaParser>['parseOperation'],
+    baseOas: BaseOas,
+  ): ReturnType<typeof preScan> {
+    const cached = preScanCache.get(document)
+    if (cached) return cached
+
+    const result = preScan({ schemas, parseSchema, parseOperation, baseOas, parserOptions, discriminator, dedupe })
+    preScanCache.set(document, result)
+    return result
+  }
 
   async function createStream(source: AdapterSource): Promise<ast.InputStreamNode> {
     const document = await ensureDocument(source)
     const schemas = await ensureSchemas(document)
     const { parseSchema, parseOperation } = ensureSchemaParser(document)
     const baseOas = ensureBaseOas(document)
-    const { refAliasMap, enumNames, circularNames, discriminatorChildMap, dedupePlan } = ensurePreScan(schemas, parseSchema, parseOperation, baseOas)
+    const { refAliasMap, enumNames, circularNames, discriminatorChildMap, dedupePlan } = ensurePreScan(document, schemas, parseSchema, parseOperation, baseOas)
 
     return createInputStream({
       schemas,
@@ -144,6 +187,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       return parsedDocument
     },
     async validate(input, options) {
+      await assertInputExists(input)
       const document = await parseDocument(input)
       await validateDocument(document, options)
     },

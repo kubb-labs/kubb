@@ -121,6 +121,26 @@ export class AsyncEventEmitter<TEvents extends { [K in keyof TEvents]: unknown[]
   }
 
   /**
+   * Raises or lowers the per-event listener ceiling before Node warns about a memory leak.
+   * Set this above the expected listener count when many listeners attach by design.
+   *
+   * @example
+   * ```ts
+   * emitter.setMaxListeners(40)
+   * ```
+   */
+  setMaxListeners(max: number): void {
+    this.#emitter.setMaxListeners(max)
+  }
+
+  /**
+   * Returns the current per-event listener ceiling.
+   */
+  getMaxListeners(): number {
+    return this.#emitter.getMaxListeners()
+  }
+
+  /**
    * Removes all listeners from every event channel.
    *
    * @example

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/middleware-barrel",
-  "version": "5.0.0-beta.36",
+  "version": "5.0.0-beta.40",
   "description": "Barrel-file middleware for Kubb. Automatically generates index.ts re-export files per plugin output directory and an optional root barrel after all plugins complete.",
   "keywords": [
     "barrel",
@@ -52,7 +52,8 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/ast": "workspace:*"
+    "@kubb/ast": "workspace:*",
+    "@kubb/core": "workspace:*"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*"

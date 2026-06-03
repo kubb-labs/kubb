@@ -1,5 +1,174 @@
 # Changelog
 
+## v5.0.0-beta.40 — Jun 3, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- add urlpath back ([`68638b7`](https://github.com/kubb-labs/kubb/commit/68638b7227d2db1a65746e0d6e7189571f79dc1d))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.0-beta.39 — Jun 3, 2026
+
+### @kubb/core
+
+#### Features
+
+- Fold the diagnostic error helpers into the `Diagnostics` namespace: `DiagnosticError` is now `Diagnostics.Error` and the structural check is exposed as `Diagnostics.isError`.
+  
+  The standalone `DiagnosticError` export from `@kubb/core` is removed. Replace `new DiagnosticError(...)` with `new Diagnostics.Error(...)`, and import `Diagnostics` instead. The thrown error keeps its `name` of `'DiagnosticError'`, so structural checks across duplicated `@kubb/core` copies still match. ([#3458](https://github.com/kubb-labs/kubb/pull/3458), [`ec9a92c`](https://github.com/kubb-labs/kubb/commit/ec9a92c74fcddb38a9a70451f36e19d533d6c0b3))
+- Remove the public `FileProcessor` export from `@kubb/core` and move the `matchFiles` snapshot
+  helper into `@kubb/core/mocks`. `matchFiles(files, { parsers, format, pre })` takes its parsers and
+  formatter as options, so it renders generator output to file snapshots without `@kubb/core` pulling
+  in a parser or prettier. ([#3458](https://github.com/kubb-labs/kubb/pull/3458), [`1b19a0c`](https://github.com/kubb-labs/kubb/commit/1b19a0c1ceef844a08fb5383143f21cd2bb2742d))
+- Remove the exported `isInputPath` type guard from `@kubb/core`. It had a single internal caller,
+  where the check is now an inline `'path' in config.input` that narrows the `InputPath | InputData`
+  union on its own. ([#3458](https://github.com/kubb-labs/kubb/pull/3458), [`ec69a5c`](https://github.com/kubb-labs/kubb/commit/ec69a5c5bf6ed0402090a357b86e38ca51be0c34))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.0-beta.38 — Jun 3, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Fix diagnostic reporting regressions found in review.
+  
+  - `resolveRef` now throws a `DiagnosticError` when a `$ref` cannot be resolved outside a build scope, instead of silently returning `null`. Inside a build it still collects the diagnostic and keeps parsing.
+  - Plugin-reported problems (`ctx.error`/`ctx.warn`/`ctx.info`) and formatter/linter/`done`-hook failures no longer render twice. The generator context only collects diagnostics now, and the host renders each once after the build.
+  - `schemaDiagnostics` builds correct RFC 6901 pointers: property names are escaped (`~`→`~0`, `/`→`~1`), and tuple items and `oneOf`/`anyOf`/`allOf` members are indexed, so distinct advisory diagnostics are no longer dropped by the dedupe.
+  - `kubb generate --reporter json` emits one top-level JSON array for the whole run (aggregated on `kubb:lifecycle:end`), so multi-config runs stay valid JSON.
+  - `config.reporters` from `kubb.config.ts` is honored again: `--reporter` no longer defaults to `cli`, so it only overrides the config when passed.
+  - The agent forwards `diagnostics`, `status`, `hrStart`, and `filesCreated` on `kubb:generation:end`, so the generation summary reaches connected clients again.
+  - The OAS adapter caches its parsed document, schemas, and prescan per source and per document instead of once per instance. Reusing one `adapterOas()` instance across a `defineConfig` array (configs that spread a shared `baseConfig`) now parses each config's spec instead of replaying the first, so every config generates its own files and reports its own file count. ([`50d5f1e`](https://github.com/kubb-labs/kubb/commit/50d5f1ed8783517c6f549c0d50e6aa849dc82cc8))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.0-beta.37 — Jun 3, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Give every error a stable code, and hand structured diagnostics to the MCP tools.
+  
+  Failures that used to throw a plain `Error` now throw a `DiagnosticError` with a code, a `config` location, and a help line: a missing `input.path` reports `KUBB_INPUT_NOT_FOUND` (the OAS adapter checks the file before reading it), an adapter configured without input reports `KUBB_INPUT_REQUIRED`, and merging an empty set of OAS documents reports `KUBB_INPUT_REQUIRED`. They surface in the run summary and `--reporter json` instead of as an opaque `KUBB_UNKNOWN`. `Diagnostics.from` now recognizes a `DiagnosticError` structurally, so a code still survives when the error crosses a duplicated `@kubb/core` copy bundled into an adapter or plugin.
+  
+  `@kubb/core` exposes `Diagnostics.docsUrl(code)` and `Diagnostics.serialize(diagnostic)`, the JSON-safe shape (now including a `docsUrl`) shared by the JSON reporter and the MCP tools.
+  
+  The MCP `generate` and `validate` tools now return structured diagnostics, each with its code, source pointer, help, and docs link, as a readable block plus a JSON payload, so an assistant can act on the exact problem rather than parsing a message string.
+  
+  `@kubb/adapter-oas` gains an opt-in `diagnostics` option that reports two advisory diagnostics against their JSON pointers as it parses: `KUBB_UNSUPPORTED_FORMAT` (a warning when a schema's `format` falls back to the base type) and `KUBB_DEPRECATED` (info for a schema marked `deprecated`). The checks reuse the nodes the parser already produces, so they add no extra traversal of the document. Both default to off, so existing output is unchanged unless you set `adapterOas({ diagnostics: { unsupportedFormat: true, deprecated: true } })`. ([#3449](https://github.com/kubb-labs/kubb/pull/3449), [`b4f1e18`](https://github.com/kubb-labs/kubb/commit/b4f1e18fc722f82d01fb064f16cdee2060f84234))
+- Extend diagnostics so more failures are coded and visible.
+  
+  Coded errors that used to surface as `KUBB_UNKNOWN`: a missing Studio adapter
+  (`KUBB_ADAPTER_REQUIRED`), a non-object `devtools` config (`KUBB_DEVTOOLS_INVALID`), and a
+  resolved path escaping the output directory (`KUBB_PATH_TRAVERSAL`). The OAS adapter checks
+  the input file before reading it in both generation and `validate`, so a missing spec reports
+  `KUBB_INPUT_NOT_FOUND` (the MCP `validate` tool returns the coded diagnostic too).
+  
+  The formatter, linter, and post-generate hooks now report failures as diagnostics
+  (`KUBB_FORMAT_FAILED`, `KUBB_LINT_FAILED`, `KUBB_HOOK_FAILED`). They appear in the run summary
+  and `kubb generate --reporter json`, and a failure marks the run as failed instead of being
+  swallowed.
+  
+  `@kubb/core` adds `diagnosticCatalog` (a title, cause, and fix for every code) and
+  `Diagnostics.explain(code)`, the source the kubb.dev diagnostics pages mirror. ([#3449](https://github.com/kubb-labs/kubb/pull/3449), [`b4f1e18`](https://github.com/kubb-labs/kubb/commit/b4f1e18fc722f82d01fb064f16cdee2060f84234))
+- Replace the debug logger with selectable reporters.
+  
+  The `kubb:debug` hook, the `createDebugger` helper, the `debug` log level, and the `--debug` flag are gone. To write a log file you now pick the `file` reporter.
+  
+  Reporters work like Vitest. List them on the CLI with `--reporter` (comma separated, for example `--reporter cli,file`) or in the config with `reporters: ['cli', 'file']`, where the CLI flag overrides the config. Three are built in: `cli` writes the end-of-run summary to the terminal and is the default, `json` writes a machine-readable report to stdout for CI, and `file` writes a log to `.kubb/<name>-<timestamp>.log`. The `--reporter human` name and the `--report <file>` flag are removed, so use `--reporter json` for CI output.
+  
+  The OAS adapter's advisory diagnostics (`KUBB_UNSUPPORTED_FORMAT` and `KUBB_DEPRECATED`) always run now. The `adapterOas({ diagnostics })` option that gated them is removed.
+  
+  The `kubb:generation:summary` hook is removed. The end-of-run summary the `cli` reporter prints is now built from the run's diagnostics, carried on `kubb:generation:end` (which gains optional `diagnostics`, `status`, `hrStart`, and `filesCreated` fields). ([#3449](https://github.com/kubb-labs/kubb/pull/3449), [`b4f1e18`](https://github.com/kubb-labs/kubb/commit/b4f1e18fc722f82d01fb064f16cdee2060f84234))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Fix the clack logger rendering plugins side by side during generation.
+  
+  Plugins run concurrently, but the logger started a separate `clack.progress()` bar per plugin. clack renders one progress UI per line, so the bars collided onto a single line, printed blank gutter rows, and piled up `keypress` listeners until Node warned about an EventEmitter leak. The plugin phase now shares one progress bar that lists the plugins currently generating and advances as each finishes. The `kubb:info` line also no longer prints a trailing space when no extra info is attached. ([#3449](https://github.com/kubb-labs/kubb/pull/3449), [`b4f1e18`](https://github.com/kubb-labs/kubb/commit/b4f1e18fc722f82d01fb064f16cdee2060f84234))
+
+### @kubb/core
+
+#### Features
+
+- Add a structured diagnostics model.
+  
+  Build failures are collected as structured `Diagnostic`s instead of raw errors. Each has a stable `code`, a `severity`, an optional source `location` (a JSON pointer), and the `plugin` that produced it. `BuildOutput` now exposes a single `diagnostics` array (the former `error`, `failedPlugins`, and `pluginTimings` fields are gone), and the build emits each problem on the new `kubb:diagnostic` hook. Per-plugin timings are carried as `timing` diagnostics in the same array. `@kubb/core` exports `hasBuildError` and `getFailedPluginNames` to read them. Three throw sites carry codes: `KUBB_REF_NOT_FOUND`, `KUBB_INVALID_SERVER_VARIABLE`, and `KUBB_PLUGIN_NOT_FOUND`. ([#3449](https://github.com/kubb-labs/kubb/pull/3449), [`b4f1e18`](https://github.com/kubb-labs/kubb/commit/b4f1e18fc722f82d01fb064f16cdee2060f84234))
+- Round out diagnostic reporting toward tsc/oxlint/nx parity.
+  
+  Report without throwing. The diagnostics helpers are now a `Diagnostics` class. `Diagnostics.report(diagnostic)` collects into the active run instead of aborting, available on the generator context and, via a single `AsyncLocalStorage` in the core bundle, to deep code (adapter parse, lazily consumed streams). `Diagnostics.scope` activates a run, and `Diagnostics.dedupe` collapses repeats by code + pointer + plugin. (`Diagnostics.from`/`timing`/`hasError`/`failedPlugins`/`count` replace the former standalone functions.)
+  
+  Report every problem in one run. The OAS adapter now reports each unresolved `$ref` and keeps parsing, so a spec with several bad refs surfaces them all in a single `kubb generate` (it still throws when called outside a build).
+  
+  Aggregate count. The end-of-run summary box gains an `Issues: N errors, M warnings` row, so parse-time errors that aren't tied to a failed plugin still show.
+  
+  Machine-readable output. `kubb generate --reporter json` prints a stable report (`{ status, summary: { errors, warnings, files, durationMs }, diagnostics }`) to stdout. Exit code is unchanged (non-zero on any error).
+  
+  New codes `KUBB_UNSUPPORTED_FORMAT` (warning) and `KUBB_DEPRECATED` (info) are emitted by the OAS adapter. The renderer, counts, and json report handle every severity. ([#3449](https://github.com/kubb-labs/kubb/pull/3449), [`b4f1e18`](https://github.com/kubb-labs/kubb/commit/b4f1e18fc722f82d01fb064f16cdee2060f84234))
+- Render build diagnostics in the oxlint style and add a suggested fix.
+  
+  `Diagnostic` gains a `help` field with a suggested fix. The three converted throw sites set it, and the CLI renders a diagnostic as:
+  
+  ```
+  × @kubb/plugin-zod(KUBB_REF_NOT_FOUND): Could not find a definition for Pet.
+    at #/components/schemas/Pet
+    help: Add the schema under components.schemas, or fix the $ref.
+    docs: https://kubb.dev/docs/5.x/reference/diagnostics/kubb-ref-not-found
+  ```
+  
+  The `docs:` link is derived from the code and points at the diagnostics reference on kubb.dev. A failed run also prints an `Environment:` row (Node version, Kubb version, platform, cwd) in the summary box. `getDiagnosticInfo` is exported from `@kubb/core`. ([#3449](https://github.com/kubb-labs/kubb/pull/3449), [`b4f1e18`](https://github.com/kubb-labs/kubb/commit/b4f1e18fc722f82d01fb064f16cdee2060f84234))
+- Resolve the renderer from the generator only. The `renderer` resolution chain dropped the plugin and config fallbacks, so `generator.renderer` is now the single source.
+  
+  Removed the `renderer` option from `defineConfig`, the `renderer` field from the normalized plugin, and the `setRenderer` method from the plugin setup context. Set `renderer` on each generator instead (`renderer: jsxRenderer`), or leave it unset / `renderer: null` to opt out of rendering. ([#3447](https://github.com/kubb-labs/kubb/pull/3447), [`61ca887`](https://github.com/kubb-labs/kubb/commit/61ca8876281afe919e5e76ef8b8b50cc0af64cc9))
+- Route the generator context's `warn`/`error`/`info` through the diagnostics layer so plugin-reported problems are collected like every other diagnostic.
+  
+  Until now these methods only emitted `kubb:warn`/`kubb:error`/`kubb:info` events, so a plugin calling `ctx.error(...)` logged a line but the build still succeeded, and the message never reached the run summary or `--reporter json`. They now report into the active run via `Diagnostics.report` (attributed to the plugin) while still emitting their hook event:
+  
+  - `ctx.error` reports an `error` diagnostic (`KUBB_PLUGIN_FAILED`), which now fails the build. When passed an `Error`, it is kept as the diagnostic `cause`.
+  - `ctx.warn` reports a `warning` (`KUBB_PLUGIN_WARNING`), and `ctx.info` reports an `info` (`KUBB_PLUGIN_INFO`). Neither fails the build.
+  
+  For a structured diagnostic with a stable `code` and a source `location`, call `Diagnostics.report(...)` or throw a `DiagnosticError` directly. The `Diagnostic`, `DiagnosticSeverity`, `DiagnosticLocation`, and `DiagnosticKind` types are now exported so you can build one. ([#3449](https://github.com/kubb-labs/kubb/pull/3449), [`b4f1e18`](https://github.com/kubb-labs/kubb/commit/b4f1e18fc722f82d01fb064f16cdee2060f84234))
+- Collapse the driver's two listener trackers (`#hookListeners` and `#middlewareListeners`) into one typed `HookRegistry` that wraps `AsyncEventEmitter`. Listeners attached directly via `kubb.hooks.on(...)` survive `dispose()`. Only listeners the driver itself registered are removed. Internal refactor: every `(...args: Array<never>)` cast inside `KubbDriver` is gone, and the public `definePlugin`, `KubbHooks`, and `kubb.hooks` surfaces are unchanged. ([#3445](https://github.com/kubb-labs/kubb/pull/3445), [`bd7e026`](https://github.com/kubb-labs/kubb/commit/bd7e0265a3086c095cf59bc0c4b155ea38446b3e))
+
+#### Bug Fixes
+
+- Lift the per-plugin transform step into a `Transform` registry that the driver consults during dispatch, so transforms have one home and one contract instead of being inlined in `KubbDriver.#runGenerators`. The driver keeps the parse and generate logic as private methods (`#parseInput`, `#runGenerators`) and exposes the renderer-or-file dispatch as a `KubbDriver.applyResult` static so both the registered generators and `@kubb/core/mocks` route through one entry point.
+  
+  Bug fix: `gen.operations(nodes, ctx)` and the `kubb:generate:operations` hook now receive the transformed nodes, matching what `gen.operation(node, ctx)` already received per-node. Before this fix the aggregated callback saw the original adapter nodes, so a renaming-transformer would feed grouped or barrel generators a different shape than the per-operation hook saw.
+  
+  The flush-after-batch logic that used to live as a closure inside `KubbDriver.run` moved into a new `FileWriteQueue` class. The class also makes the flush non-blocking: the next round of generator dispatch can run while the previous round's source rendering and storage writes are still in flight. For large specs (Stripe-sized OpenAPI documents, thousands of generated files) the pipelined flush keeps peak heap roughly the same and lets CPU work overlap with IO instead of running behind it.
+  
+  The public surface (`setTransformer`, `KubbHooks`, the `KubbDriver` class, the `@kubb/core/mocks` entry) is unchanged. ([#3447](https://github.com/kubb-labs/kubb/pull/3447), [`61ca887`](https://github.com/kubb-labs/kubb/commit/61ca8876281afe919e5e76ef8b8b50cc0af64cc9))
+- Stop the hooks emitter from tripping Node's EventEmitter leak warning.
+  
+  Each generator a plugin registers adds a listener to the shared `kubb:generate:*` events, so a config with several multi-generator plugins pushed past the emitter's hardcoded ceiling of 10 and printed `MaxListenersExceededWarning: 11 kubb:generate:operation listeners added`. `Kubb.setup()` now sizes the ceiling to the plugin count (`max(10, plugins.length * 4)`), which keeps leak detection for genuine runaway listeners while leaving room for the generators a normal plugin set registers. ([#3449](https://github.com/kubb-labs/kubb/pull/3449), [`b4f1e18`](https://github.com/kubb-labs/kubb/commit/b4f1e18fc722f82d01fb064f16cdee2060f84234))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.36 — Jun 1, 2026
 
 ### @kubb/cli

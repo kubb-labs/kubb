@@ -1,8 +1,9 @@
 import { createHash } from 'node:crypto'
 import path from 'node:path'
+import process from 'node:process'
 import { styleText } from 'node:util'
 import { detectFormatter, detectLinter, formatters, linters } from '@internals/utils'
-import { type AsyncEventEmitter, type Config, createKubb, type KubbHooks } from '@kubb/core'
+import { type AsyncEventEmitter, type Config, createKubb, Diagnostics, type KubbHooks } from '@kubb/core'
 import { executeHooks } from './executeHooks.ts'
 
 type GenerateProps = {
@@ -20,6 +21,8 @@ type GenerateProps = {
  *
  */
 export async function generate({ config, hooks }: GenerateProps): Promise<void> {
+  const hrStart = process.hrtime()
+
   await hooks.emit('kubb:generation:start', { config })
 
   await hooks.emit('kubb:info', { message: config.name ? `Setup generation ${config.name}` : 'Setup generation' })
@@ -29,32 +32,31 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
 
   await hooks.emit('kubb:info', { message: config.name ? `Build generation ${config.name}` : 'Build generation' })
 
-  const { failedPlugins, error } = await kubb.safeBuild()
+  const { files, diagnostics } = await kubb.safeBuild()
 
   await hooks.emit('kubb:info', { message: 'Load summary' })
 
-  // Handle build failures (either from failed plugins or general errors)
-  const hasFailures = failedPlugins.size > 0 || error
-  if (hasFailures) {
-    // Collect all errors from failed plugins and general error
-    const allErrors: Array<Error> = [
-      error,
-      ...Array.from(failedPlugins)
-        .filter((it) => it.error)
-        .map((it) => it.error),
-    ].filter(Boolean)
+  // Core only collects diagnostics now, so render each problem once here. Without this, warnings
+  // and info reported through `ctx.warn`/`ctx.info` would never reach the client.
+  for (const diagnostic of diagnostics) {
+    if (!Diagnostics.isProblem(diagnostic)) continue
+    if (diagnostic.severity === 'error') {
+      await hooks.emit('kubb:error', { error: diagnostic.cause ?? new Diagnostics.Error(diagnostic) })
+    } else if (diagnostic.severity === 'warning') {
+      await hooks.emit('kubb:warn', { message: diagnostic.message })
+    } else {
+      await hooks.emit('kubb:info', { message: diagnostic.message })
+    }
+  }
 
-    allErrors.forEach((err) => {
-      hooks.emit('kubb:error', { error: err })
-    })
-
-    await hooks.emit('kubb:generation:end', { config, storage: kubb.storage })
+  if (Diagnostics.hasError(diagnostics)) {
+    await hooks.emit('kubb:generation:end', { config, storage: kubb.storage, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
 
     throw new Error('Generation failed')
   }
 
   await hooks.emit('kubb:success', { message: 'Generation successfully' })
-  await hooks.emit('kubb:generation:end', { config, storage: kubb.storage })
+  await hooks.emit('kubb:generation:end', { config, storage: kubb.storage, diagnostics, filesCreated: files.length, status: 'success', hrStart })
 
   // formatting
   if (config.output.format) {

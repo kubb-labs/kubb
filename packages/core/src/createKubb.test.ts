@@ -3,9 +3,10 @@ import { createFile, createOperation, createSchema, createSource, createStreamIn
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
+import { Diagnostics } from './diagnostics.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
-import { SCHEMA_PARALLEL, STREAM_FLUSH_EVERY } from './constants.ts'
+import { HOOK_LISTENERS_PER_PLUGIN, SCHEMA_PARALLEL, STREAM_FLUSH_EVERY } from './constants.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 
@@ -42,6 +43,7 @@ describe('createKubb', () => {
       clean: true,
     },
     parsers: [],
+    reporters: [],
     adapter: createMockedAdapter(),
     plugins: [plugin] as unknown as Array<Plugin>,
     storage: fsStorage(),
@@ -86,6 +88,23 @@ describe('createKubb', () => {
 
     expect(kubb.config?.root).toBe(process.cwd())
     expect(kubb.config?.parsers).toStrictEqual([])
+  })
+
+  test('keeps the hooks ceiling at 10 for a single plugin', async () => {
+    const kubb = createKubb(config, { hooks: new AsyncEventEmitter<KubbHooks>() })
+
+    await kubb.setup()
+
+    expect(kubb.hooks.getMaxListeners()).toBe(10)
+  })
+
+  test('scales the hooks ceiling with the plugin count during setup', async () => {
+    const plugins = ['a', 'b', 'c', 'd'].map((name) => definePlugin(() => ({ name, hooks: {} }))())
+    const kubb = createKubb({ ...config, plugins: plugins as unknown as Array<Plugin> }, { hooks: new AsyncEventEmitter<KubbHooks>() })
+
+    await kubb.setup()
+
+    expect(kubb.hooks.getMaxListeners()).toBe(plugins.length * HOOK_LISTENERS_PER_PLUGIN)
   })
 
   test('if build with one plugin is running the different hooks in the correct order', async () => {
@@ -144,24 +163,36 @@ describe('createKubb', () => {
       plugins: [errorPlugin] as unknown as Array<Plugin>,
     }
 
-    const { failedPlugins } = await createKubb(errorConfig, {
+    const { diagnostics } = await createKubb(errorConfig, {
       hooks: new AsyncEventEmitter<KubbHooks>(),
     }).safeBuild()
 
-    expect(failedPlugins.size).toBe(1)
-    const failedPlugin = Array.from(failedPlugins)[0]
-    expect(failedPlugin?.plugin.name).toBe('errorPlugin')
-    // AsyncEventEmitter wraps the error; the original is accessible via cause
-    const originalError = (failedPlugin?.error.cause ?? failedPlugin?.error) as Error | undefined
-    expect(originalError?.message).toContain('Installation failed')
+    const problems = diagnostics.filter(Diagnostics.isProblem)
+    expect(problems).toHaveLength(1)
+    const diagnostic = problems[0]
+    expect(diagnostic?.plugin).toBe('errorPlugin')
+    // AsyncEventEmitter wraps the error; the original message survives on the diagnostic or its cause
+    expect(`${diagnostic?.message} ${diagnostic?.cause?.message ?? ''}`).toContain('Installation failed')
   })
 
-  it('should emit debug events during build process', async () => {
-    const hooks = new AsyncEventEmitter<KubbHooks>()
-    const debugSpy = vi.fn()
-    hooks.on('kubb:debug', debugSpy)
+  it('should collect a failed plugin as a diagnostic with the plugin name', async () => {
+    const errorPlugin = definePlugin(() => ({
+      name: 'errorPlugin',
+      hooks: {
+        'kubb:plugin:start'() {
+          throw new Error('Installation failed')
+        },
+      },
+    }))()
 
-    await createKubb(config, { hooks }).build()
+    const { diagnostics } = await createKubb(
+      { ...config, plugins: [errorPlugin] as unknown as Array<Plugin> },
+      { hooks: new AsyncEventEmitter<KubbHooks>() },
+    ).safeBuild()
+
+    const problems = diagnostics.filter(Diagnostics.isProblem)
+    expect(problems).toHaveLength(1)
+    expect(problems[0]).toMatchObject({ plugin: 'errorPlugin', severity: 'error' })
   })
 
   test('safeBuild should return error instead of throwing', async () => {
@@ -183,16 +214,17 @@ describe('createKubb', () => {
       hooks: new AsyncEventEmitter<KubbHooks>(),
     }).safeBuild()
 
-    expect(result.failedPlugins.size).toBeGreaterThan(0)
+    expect(Diagnostics.hasError(result.diagnostics)).toBe(true)
   })
 
-  it('should track plugin timings', async () => {
-    const { pluginTimings } = await createKubb(config, {
+  it('should track plugin timings as performance diagnostics', async () => {
+    const { diagnostics } = await createKubb(config, {
       hooks: new AsyncEventEmitter<KubbHooks>(),
     }).build()
 
-    expect(pluginTimings).toBeDefined()
-    expect(pluginTimings.size).toBeGreaterThan(0)
+    const timings = diagnostics.filter(Diagnostics.isPerformance)
+    expect(timings.length).toBeGreaterThan(0)
+    expect(timings.every((diagnostic) => typeof diagnostic.duration === 'number')).toBe(true)
   })
 
   it('should emit plugin lifecycle events', async () => {

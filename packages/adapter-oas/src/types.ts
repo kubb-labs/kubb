@@ -172,9 +172,9 @@ export type AdapterOasOptions = {
   serverVariables?: Record<string, string>
   /**
    * How the `discriminator` field on `oneOf`/`anyOf` schemas is interpreted.
-   * - `'strict'` — child schemas stay exactly as written; the discriminator
+   * - `'strict'` child schemas stay exactly as written. The discriminator
    *   narrows types at the call site but child shapes are not modified.
-   * - `'inherit'` — Kubb propagates the discriminator property as a literal
+   * - `'inherit'` Kubb propagates the discriminator property as a literal
    *   value into each child schema, so each branch's discriminator field is
    *   precisely typed.
    *
@@ -185,9 +185,9 @@ export type AdapterOasOptions = {
    * Collapse structurally identical schemas and enums into a single shared definition.
    *
    * Duplicated inline shapes (especially enums repeated across many properties) are hoisted
-   * into one named schema; every other occurrence — and any structurally identical top-level
-   * component — becomes a `ref` to it. Equality is shape-only: documentation such as
-   * `description` and `example` is ignored. Enabled by default; set to `false` to keep every
+   * into one named schema. Every other occurrence, and any structurally identical top-level
+   * component, becomes a `ref` to it. Equality is shape-only: documentation such as
+   * `description` and `example` is ignored. Enabled by default. Set to `false` to keep every
    * occurrence inline and produce byte-for-byte identical output to earlier versions.
    *
    * @default true

@@ -117,12 +117,12 @@ const TS_PRINTER = ts.createPrinter({
 
 /**
  * Module-scoped source file used as the print target. `printList` only reads the source
- * file's compiler options / language version; it never mutates it.
+ * file's compiler options / language version. It never mutates it.
  */
 const PRINT_SOURCE_FILE = ts.createSourceFile('print.tsx', '', ts.ScriptTarget.ES2022, true, ts.ScriptKind.TSX)
 
 // Pre-warm the printer at module load. The first `printList` call lazily initializes
-// the printer's internal string-builder and identifier tables; doing it once at import
+// the printer's internal string-builder and identifier tables. Doing it once at import
 // time keeps that cost off the critical path for short-lived CLI builds.
 TS_PRINTER.printList(ts.ListFormat.MultiLine, factory.createNodeArray([]), PRINT_SOURCE_FILE)
 

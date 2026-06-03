@@ -74,7 +74,7 @@ export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omi
  * `changes` already equals (by reference) the current value, otherwise a new node
  * with the changes applied.
  *
- * Mirrors the TypeScript compiler's `factory.updateX` contract — pair it with the
+ * Mirrors the TypeScript compiler's `factory.updateX` contract, pair it with the
  * structural sharing in {@link transform} so a no-op rewrite doesn't allocate and
  * downstream passes can detect "nothing changed" by identity. Comparison is
  * shallow: a structurally-equal but newly-allocated array/object counts as a change.
@@ -251,7 +251,7 @@ export function createOperation(props: {
 
 /**
  * Maps schema `type` to its underlying `primitive`.
- * Primitive types map to themselves; special string formats map to `'string'`.
+ * Primitive types map to themselves. Special string formats map to `'string'`.
  * Complex types (`ref`, `enum`, `union`, `intersection`, `tuple`, `blob`) are left unset.
  */
 const TYPE_TO_PRIMITIVE: Partial<Record<SchemaNode['type'], PrimitiveSchemaType>> = {
@@ -455,7 +455,7 @@ export function createResponse(
  * // → params?: QueryParams
  * ```
  *
- * @example Param with default (implicitly optional; cannot combine with `optional: true`)
+ * @example Param with default (implicitly optional. Cannot combine with `optional: true`)
  * ```ts
  * createFunctionParameter({ name: 'config', type: createParamsType({ variant: 'reference', name: 'RequestConfig' }), default: '{}' })
  * // → config: RequestConfig = {}
@@ -525,7 +525,7 @@ export function createParamsType(
  * // call        → { id, name }
  * ```
  *
- * @example Inline (spread) — children emitted as individual top-level parameters
+ * @example Inline (spread), children emitted as individual top-level parameters
  * ```ts
  * createParameterGroup({
  *   properties: [createFunctionParameter({ name: 'petId', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false })],
@@ -628,9 +628,9 @@ export type UserFileNode<TMeta extends object = object> = Omit<FileNode<TMeta>, 
  * Creates a fully resolved `FileNode` from a file input descriptor.
  *
  * Computes:
- * - `id` — SHA256 hash of the file path
- * - `name` — `baseName` without extension
- * - `extname` — extension extracted from `baseName`
+ * - `id` SHA256 hash of the file path
+ * - `name` `baseName` without extension
+ * - `extname` extension extracted from `baseName`
  *
  * Deduplicates:
  * - `sources` via `combineSources`

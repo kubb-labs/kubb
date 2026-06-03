@@ -2,6 +2,7 @@ import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
 import type { FileNode, InputMeta, Node, OperationNode, SchemaNode } from '@kubb/ast'
 import { createFile, isOperationNode, isSchemaNode } from '@kubb/ast'
+import { Diagnostics } from './diagnostics.ts'
 import type { PluginFactoryOptions } from './definePlugin.ts'
 import { getMode } from './definePlugin.ts'
 import type { Config, Group, Output } from './types.ts'
@@ -37,7 +38,7 @@ export type ResolveOptionsContext<TOptions> = {
  * Base constraint for all plugin resolver objects.
  *
  * `default`, `resolveOptions`, `resolvePath`, `resolveFile`, `resolveBanner`, and `resolveFooter`
- * are injected automatically by `defineResolver` — extend this type to add custom resolution methods.
+ * are injected automatically by `defineResolver`. Extend this type to add custom resolution methods.
  *
  * @example
  * ```ts
@@ -143,7 +144,7 @@ export type ResolverFileParams = {
  * Per-file context describing the file a banner/footer is being resolved for.
  *
  * Supplied by the generator (or the barrel middleware) at resolve-time and merged
- * into `BannerMeta` so a `banner`/`footer` function can branch on the file kind —
+ * into `BannerMeta` so a `banner`/`footer` function can branch on the file kind,
  * e.g. omit a `'use server'` directive on re-export files.
  */
 export type ResolveBannerFile = {
@@ -196,7 +197,7 @@ export type BannerMeta = InputMeta & {
 /**
  * Context passed to `Resolver.resolveBanner` and `Resolver.resolveFooter`.
  *
- * `output` is optional — not every plugin configures a banner/footer.
+ * `output` is optional, since not every plugin configures a banner/footer.
  * `config` carries the global Kubb config, used to derive the default Kubb banner.
  * `file` carries per-file context forwarded to a `banner`/`footer` function.
  *
@@ -236,7 +237,7 @@ function buildBannerMeta({ meta, file }: { meta: InputMeta | undefined; file: Re
  * Builder type for the plugin-specific resolver fields.
  *
  * `default`, `resolveOptions`, `resolvePath`, `resolveFile`, `resolveBanner`, and `resolveFooter`
- * are optional — built-in fallbacks are injected when omitted.
+ * are optional, with built-in fallbacks injected when omitted.
  *
  * Methods in the returned object can call sibling resolver methods via `this`.
  */
@@ -249,7 +250,7 @@ type ResolverBuilder<T extends PluginFactoryOptions> = () => Omit<
     pluginName: T['name']
   } & ThisType<T['resolver']>
 
-// String patterns are compiled lazily and cached — the same filter is reused for every node.
+// String patterns are compiled lazily and cached, so the same filter is reused for every node.
 const stringPatternCache = new Map<string, RegExp>()
 
 function testPattern(value: string, pattern: string | RegExp): boolean {
@@ -301,7 +302,7 @@ function defaultResolver(name: string, type?: 'file' | 'function' | 'type' | 'co
 }
 
 /**
- * Default option resolver — applies include/exclude filters and merges matching override options.
+ * Default option resolver. Applies include/exclude filters and merges matching override options.
  *
  * Returns `null` when the node is filtered out by an `exclude` rule or not matched by any `include` rule.
  *
@@ -345,7 +346,7 @@ function computeOptions<TOptions>(
     if (exclude.some(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)) return null
     if (include) {
       const results = include.map(({ type, pattern }) => matchesSchemaPattern(node, type, pattern))
-      const applicable = results.filter((r) => r !== null)
+      const applicable = results.filter((result) => result !== null)
 
       if (applicable.length > 0 && !applicable.includes(true)) return null
     }
@@ -433,12 +434,12 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
       const groupValue = group.type === 'path' ? groupPath! : tag!
       const defaultName =
         group.type === 'tag'
-          ? ({ group: g }: { group: string }) => `${camelCase(g)}Controller`
-          : ({ group: g }: { group: string }) => {
+          ? ({ group: groupName }: { group: string }) => `${camelCase(groupName)}Controller`
+          : ({ group: groupName }: { group: string }) => {
               // Strip traversal components (empty, '.', '..') before taking the first meaningful segment.
               // When every segment is a traversal component (e.g. '../../') we fall back to '' so the
-              // file is placed directly in the output root — the boundary check below ensures safety.
-              const segment = g.split('/').filter((s) => s !== '' && s !== '.' && s !== '..')[0]
+              // file is placed directly in the output root, and the boundary check below ensures safety.
+              const segment = groupName.split('/').filter((part) => part !== '' && part !== '.' && part !== '..')[0]
               return segment ? camelCase(segment) : ''
             }
       const resolveName = group.name ?? defaultName
@@ -454,10 +455,13 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
   const outputDir = path.resolve(root, output.path)
   const outputDirWithSep = outputDir.endsWith(path.sep) ? outputDir : `${outputDir}${path.sep}`
   if (result !== outputDir && !result.startsWith(outputDirWithSep)) {
-    throw new Error(
-      `[Kubb] Resolved path "${result}" is outside the output directory "${outputDir}". ` +
-        'This may indicate a path traversal attempt in the OpenAPI specification or a misconfigured group.name function.',
-    )
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.pathTraversal,
+      severity: 'error',
+      message: `Resolved path "${result}" is outside the output directory "${outputDir}".`,
+      help: 'This can stem from a path traversal in the OpenAPI specification or a misconfigured `group.name` function. Keep generated paths within the output directory.',
+      location: { kind: 'config' },
+    })
   }
 
   return result
@@ -468,7 +472,7 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
  *
  * Resolves a `FileNode` by combining name resolution (`resolver.default`) with
  * path resolution (`resolver.resolvePath`). The resolved file always has empty
- * `sources`, `imports`, and `exports` arrays — consumers populate those separately.
+ * `sources`, `imports`, and `exports` arrays, which consumers populate separately.
  *
  * In `single` mode the name is omitted and the file sits directly in the output directory.
  *
@@ -568,7 +572,7 @@ export function buildDefaultBanner({
 }
 
 /**
- * Default banner resolver — returns the banner string for a generated file.
+ * Default banner resolver. Returns the banner string for a generated file.
  *
  * A user-supplied `output.banner` overrides the default Kubb "Generated by Kubb" notice.
  * When no `output.banner` is set, the Kubb notice is used (including `title` and `version`
@@ -597,7 +601,7 @@ export function buildDefaultBanner({
  * // → ''
  * ```
  *
- * @example No user banner — Kubb notice with OAS metadata
+ * @example No user banner, Kubb notice with OAS metadata
  * ```ts
  * defaultResolveBanner(meta, { config })
  * // → '/** Generated by Kubb ... Title: Pet Store ... *\/'
@@ -630,7 +634,7 @@ export function defaultResolveBanner(meta: InputMeta | undefined, { output, conf
 }
 
 /**
- * Default footer resolver — returns the footer string for a generated file.
+ * Default footer resolver. Returns the footer string for a generated file.
  *
  * - When `output.footer` is a function, calls it with the file's `BannerMeta` and returns the result.
  * - When `output.footer` is a string, returns it directly.
@@ -664,11 +668,11 @@ export function defaultResolveFooter(meta: InputMeta | undefined, { output, file
  * name casing, include/exclude/override filtering, output path computation,
  * and file construction. Supply your own to override any of them:
  *
- * - `default` — name casing strategy (camelCase / PascalCase).
- * - `resolveOptions` — include/exclude/override filtering.
- * - `resolvePath` — output path computation.
- * - `resolveFile` — full `FileNode` construction.
- * - `resolveBanner` / `resolveFooter` — top/bottom-of-file text.
+ * - `default` sets the name casing strategy (camelCase or PascalCase).
+ * - `resolveOptions` does include/exclude/override filtering.
+ * - `resolvePath` computes the output path.
+ * - `resolveFile` builds the full `FileNode`.
+ * - `resolveBanner` and `resolveFooter` produce the top and bottom of file text.
  *
  * Methods in the returned object can call sibling resolver methods via `this`,
  * which keeps custom rules small (`this.default(name, 'type')` to delegate).

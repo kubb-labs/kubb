@@ -30,7 +30,7 @@ export type JSONKubbConfig = {
    */
   input?: string
   /**
-   * Adapter-level overrides sent from Studio UI — treated as an opaque blob, same as plugin options.
+   * Adapter-level overrides sent from Studio UI, treated as an opaque blob, same as plugin options.
    * The agent forwards this unchanged to the adapter factory, which validates its own options.
    */
   adapter?: object

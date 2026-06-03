@@ -1,5 +1,5 @@
 import { createFile, createImport, createSource, createText } from '@kubb/ast'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { FileManager } from './FileManager.ts'
 
 function makeFile(path: string, sourceValue?: string, extra?: Partial<Parameters<typeof createFile>[0]>) {
@@ -166,6 +166,53 @@ describe('FileManager', () => {
       const paths = manager.files.map((f) => f.path)
       expect(paths[0]).toBe('/src/types.ts')
       expect(paths[1]).toBe('/src/index.ts')
+    })
+  })
+
+  describe('hooks.upsert', () => {
+    it('fires once per file resolved through upsert', () => {
+      const manager = new FileManager()
+      const listener = vi.fn()
+      manager.hooks.on('upsert', listener)
+
+      manager.upsert(makeFile('/src/a.ts'), makeFile('/src/b.ts'))
+
+      expect(listener).toHaveBeenCalledTimes(2)
+      expect(listener.mock.calls[0]?.[0].path).toBe('/src/a.ts')
+      expect(listener.mock.calls[1]?.[0].path).toBe('/src/b.ts')
+    })
+
+    it('fires when files land through add', () => {
+      const manager = new FileManager()
+      const listener = vi.fn()
+      manager.hooks.on('upsert', listener)
+
+      manager.add(makeFile('/src/a.ts'))
+
+      expect(listener).toHaveBeenCalledOnce()
+      expect(listener.mock.calls[0]?.[0].path).toBe('/src/a.ts')
+    })
+
+    it('stops firing after off detaches the listener', () => {
+      const manager = new FileManager()
+      const listener = vi.fn()
+      manager.hooks.on('upsert', listener)
+      manager.hooks.off('upsert', listener)
+
+      manager.upsert(makeFile('/src/a.ts'))
+
+      expect(listener).not.toHaveBeenCalled()
+    })
+
+    it('clears every listener on dispose', () => {
+      const manager = new FileManager()
+      const listener = vi.fn()
+      manager.hooks.on('upsert', listener)
+      manager.dispose()
+
+      manager.upsert(makeFile('/src/a.ts'))
+
+      expect(listener).not.toHaveBeenCalled()
     })
   })
 })

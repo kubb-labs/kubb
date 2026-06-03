@@ -10,4 +10,4 @@ reference and returned early. Operations whose `requestBody` was a `$ref` theref
 `requestBody: undefined`, and downstream plugins emitted `data?: never` instead of the
 expected typed parameter.
 
-Both guards are removed; only a `!body` check (missing body) remains.
+Both guards are removed. Only a `!body` check (missing body) remains.

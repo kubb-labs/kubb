@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
-import { buildTelemetryEvent, sendTelemetry } from '../../telemetry.ts'
+import { Telemetry } from '@kubb/core'
 
 type ValidateOptions = {
   /**
@@ -35,7 +35,7 @@ export function loadValidateModule(): Promise<ValidateModule> {
  */
 export async function run({ input, version }: ValidateOptions, dependencies: ValidateDependencies = { loadValidateModule }): Promise<void> {
   const hrStart = process.hrtime()
-  const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'validate', kubbVersion: version, hrStart, status }))
+  const report = (status: 'success' | 'failed') => Telemetry.send(Telemetry.build({ command: 'validate', kubbVersion: version, hrStart, status }))
   try {
     const { adapterOas } = await dependencies.loadValidateModule()
     const adapter = adapterOas()

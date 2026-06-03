@@ -284,8 +284,8 @@ export type CollectOptions<T> = CollectVisitor<T> & {
 /**
  * Child node fields per node kind, in traversal order (Babel's `VISITOR_KEYS`).
  *
- * Each listed property holds a child node, an array of child nodes, or — for
- * `additionalProperties` — a node or the literal `true` (skipped). Every value
+ * Each listed property holds a child node, an array of child nodes, or, for
+ * `additionalProperties` a node or the literal `true` (skipped). Every value
  * in a child slot is a node, so one table drives both `getChildren` and `transform`.
  */
 const VISITOR_KEYS = {
@@ -311,7 +311,7 @@ function isNode(value: unknown): value is Node {
 /**
  * Returns the immediate traversable children of `node` based on {@link VISITOR_KEYS}.
  *
- * `Schema` children are only included when `recurse` is `true`; shallow mode skips them.
+ * `Schema` children are only included when `recurse` is `true`. Shallow mode skips them.
  *
  * @example
  * ```ts
@@ -338,7 +338,7 @@ function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undef
 
 /**
  * Maps a node `kind` to the matching visitor callback name. Only the seven
- * traversable node kinds have an entry; every other kind resolves to
+ * traversable node kinds have an entry. Every other kind resolves to
  * `undefined` and is skipped.
  */
 const VISITOR_KEY_BY_KIND: Partial<Record<NodeKind, keyof Visitor>> = {
@@ -375,7 +375,7 @@ function applyVisitor<TResult>(node: Node, visitor: Visitor | AsyncVisitor | Col
  *
  * Sibling nodes at each depth run concurrently up to `options.concurrency`
  * (defaults to `WALK_CONCURRENCY`). Higher values overlap I/O-bound visitor
- * work; lower values reduce memory pressure.
+ * work. Lower values reduce memory pressure.
  *
  * @example Log every operation
  * ```ts
@@ -403,7 +403,7 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
 
   // Visit siblings concurrently and let the shared `limit` cap how many callbacks
   // run at once. Awaiting each child sequentially here would serialize the whole
-  // traversal and make `concurrency` inert — every visitor callback would run one
+  // traversal and make `concurrency` inert, every visitor callback would run one
   // at a time regardless of the limit.
   const children = Array.from(getChildren(node, recurse))
   if (children.length === 0) return
@@ -415,7 +415,7 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
  * Synchronous depth-first transform. Each visitor callback gets a chance to
  * return a replacement node; `undefined` keeps the original.
  *
- * The transform is immutable. The original tree is not mutated; a new tree
+ * The transform is immutable. The original tree is not mutated. A new tree
  * is returned. Use `depth: 'shallow'` to skip recursion into children.
  *
  * @example Prefix every operationId

@@ -36,7 +36,7 @@ type Node = {
 
 /**
  * Allowed attribute value types for DOM elements.
- * `null` signals intentionally empty — the prop was explicitly cleared.
+ * `null` signals intentionally empty, the prop was explicitly cleared.
  */
 export type DOMNodeAttribute = boolean | string | number | null | Record<string, unknown> | Array<unknown>
 
@@ -51,7 +51,7 @@ export type TextNode = {
 } & Node
 
 /**
- * Virtual DOM node — either a text node or a named element.
+ * Virtual DOM node, either a text node or a named element.
  */
 export type DOMNode<T = { nodeName: NodeNames }> = T extends {
   nodeName: infer U

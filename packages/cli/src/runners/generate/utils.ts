@@ -135,7 +135,7 @@ export async function executeHooks({ configHooks, hooks, makeSink }: ExecuteHook
     await hooks.emit('kubb:hook:start', { id: hookId, command: cmd, args })
 
     const { stream = false, onLine, onStdout, onStderr } = makeSink?.(commandWithArgs, hookId) ?? {}
-    await runHook({ id: hookId, command: cmd, args, commandWithArgs, context: hooks, stream, sink: { onLine, onStdout, onStderr } })
+    await runHook({ id: hookId, command: cmd, args, commandWithArgs, hooks, stream, sink: { onLine, onStdout, onStderr } })
   }
 }
 
@@ -144,13 +144,13 @@ type RunHookOptions = {
   command: string
   args?: ReadonlyArray<string>
   commandWithArgs: string
-  context: AsyncEventEmitter<KubbHooks>
+  hooks: AsyncEventEmitter<KubbHooks>
   stream?: boolean
   sink?: HookSinkOptions
 }
 
-export async function runHook({ id, command, args, commandWithArgs, context, stream = false, sink }: RunHookOptions): Promise<void> {
-  const emitEnd = (success: boolean, error: Error | null) => context.emit('kubb:hook:end', { command, args, id, success, error })
+export async function runHook({ id, command, args, commandWithArgs, hooks, stream = false, sink }: RunHookOptions): Promise<void> {
+  const emitEnd = (success: boolean, error: Error | null) => hooks.emit('kubb:hook:end', { command, args, id, success, error })
 
   try {
     const proc = x(command, [...(args ?? [])], {
@@ -164,29 +164,26 @@ export async function runHook({ id, command, args, commandWithArgs, context, str
       }
     }
 
-    const result = await proc
-    await context.emit('kubb:debug', { date: new Date(), logs: [result.stdout.trimEnd()] })
-    await context.emit('kubb:success', { message: `${styleText('dim', commandWithArgs)} successfully executed` })
+    await proc
+    await hooks.emit('kubb:success', { message: `${styleText('dim', commandWithArgs)} successfully executed` })
     await emitEnd(true, null)
   } catch (err) {
     if (!(err instanceof NonZeroExitError)) {
       const error = toError(err)
       await emitEnd(false, error)
-      await context.emit('kubb:error', { error })
       return
     }
 
     const stderr = err.output?.stderr ?? ''
     const stdout = err.output?.stdout ?? ''
 
-    await context.emit('kubb:debug', { date: new Date(), logs: [stdout, stderr].filter(Boolean) })
-
     if (stderr) sink?.onStderr?.(stderr)
     if (stdout) sink?.onStdout?.(stdout)
 
     const error = new Error(`Hook execute failed: ${commandWithArgs}`)
+    // Signal the failure via `kubb:hook:end` only. The caller turns it into a coded diagnostic and
+    // emits that through `Diagnostics.emit`, so emitting `kubb:error` here would render it twice.
     await emitEnd(false, error)
-    await context.emit('kubb:error', { error })
   }
 }
 

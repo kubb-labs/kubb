@@ -1,13 +1,13 @@
 import { styleText } from 'node:util'
 import { createCLI, isFlag } from '@internals/utils'
+import { Telemetry } from '@kubb/core'
 import { version } from '../package.json'
 import { QUIET_FLAGS } from './constants.ts'
-import { isTelemetryDisabled } from './telemetry.ts'
 
 const cli = createCLI()
 
 function shouldShowTelemetryNotice(argv: Array<string>): boolean {
-  if (isTelemetryDisabled()) {
+  if (Telemetry.isDisabled()) {
     return false
   }
 

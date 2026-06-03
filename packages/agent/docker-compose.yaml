@@ -10,10 +10,10 @@ x-healthcheck-node: &healthcheck-node
 services:
   agent:
     image: kubblabs/kubb-agent:latest
-    build:
-      context: .
-      args:
-        KUBB_PACKAGES: ${KUBB_PACKAGES}
+    #    build:
+    #      context: .
+    #      args:
+    #        KUBB_PACKAGES: ${KUBB_PACKAGES}
     container_name: kubb-agent
     env_file:
       - .env

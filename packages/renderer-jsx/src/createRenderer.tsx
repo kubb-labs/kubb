@@ -33,6 +33,7 @@ import type { KubbReactElement } from './types.ts'
  */
 export const jsxRenderer = () => {
   const runtime = new Runtime()
+
   return {
     async render(element: KubbReactElement) {
       await runtime.render(element)
@@ -53,9 +54,8 @@ export const jsxRenderer = () => {
 }
 
 /**
- * Lightweight renderer that walks the JSX tree in a single recursive pass —
- * no React reconciler, no scheduler. Drop-in replacement for
- * {@link jsxRenderer} at roughly 2–4× the throughput.
+ * Lightweight renderer that walks the JSX tree in a single recursive pass,  * no React reconciler, no scheduler. Drop-in replacement for
+ * {@link jsxRenderer} at roughly 2, 4× the throughput.
  *
  * Constraints: every component must be a pure function. Hooks, suspense, and
  * class components are not supported.

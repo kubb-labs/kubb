@@ -35,6 +35,7 @@
     "nominalizations",
     "rebranded",
     "scannability",
+    "slugifies",
     "typechecks",
     "unvalidated",
     "Arazzo",
@@ -135,6 +136,17 @@
     "serialised",
     "Visualisation",
     "deserialise",
-    "materialisation"
+    "materialisation",
+    "mypy",
+    "Turbopack",
+    "pytest",
+    "pluggy",
+    "miette",
+    "codespan",
+    "goroutines",
+    "hookwrapper",
+    "tryfirst",
+    "trylast",
+    "firstresult"
   ]
 }

@@ -5,7 +5,7 @@ import { extractRefName } from './refs.ts'
 /**
  * The shape-affecting flags shared by every node kind: base primitive, format, and `nullable`.
  * Documentation and usage-slot flags (`optional`/`nullish`/`readOnly`/`writeOnly`) are
- * intentionally excluded — they describe the property slot, not the type.
+ * intentionally excluded, they describe the property slot, not the type.
  */
 function flagsDescriptor(node: SchemaNode): string {
   return `${node.primitive ?? ''};${node.format ?? ''};${node.nullable ? 1 : 0}`
@@ -157,7 +157,7 @@ function serializeShapeField(field: ShapeField, node: SchemaNode, record: Record
 
 /**
  * Builds the local, shape-only descriptor for a node: its kind, flags, constraints, and its
- * children's signatures. {@link signatureOf} hashes this string; children contribute their
+ * children's signatures. {@link signatureOf} hashes this string. Children contribute their
  * fixed-length signature rather than their own full descriptor, which keeps the result bounded.
  */
 function describeShape(node: SchemaNode): string {
@@ -180,7 +180,7 @@ function describeShape(node: SchemaNode): string {
  * during dedupe planning is not re-hashed when the same tree is rewritten during streaming
  * (where `schemaSignature` and `applyDedupe` would otherwise each walk it from scratch). Reuse
  * across calls is sound because a signature depends only on a node's content, and schema nodes
- * are immutable once created — transforms allocate new objects rather than mutating in place.
+ * are immutable once created, transforms allocate new objects rather than mutating in place.
  */
 const signatureCache = new WeakMap<SchemaNode, string>()
 
@@ -188,7 +188,7 @@ const signatureCache = new WeakMap<SchemaNode, string>()
  * Hash-consing: each node's signature is a fixed-length digest of its local shape plus its
  * children's digests (a Merkle hash). Children contribute their 64-char hash instead of their
  * full nested descriptor, so a signature stays bounded regardless of subtree depth, and the
- * digest is identical across calls because it depends only on content — never on traversal
+ * digest is identical across calls because it depends only on content, never on traversal
  * order. This keeps the keys built during planning consistent with the ones recomputed later
  * during streaming. {@link signatureCache} memoizes node → digest across every computation.
  */

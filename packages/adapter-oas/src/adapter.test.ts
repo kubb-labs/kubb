@@ -81,6 +81,31 @@ describe('adapterOas.stream', () => {
     `)
   })
 
+  it('parses each source when one adapter instance is reused across configs', async () => {
+    const other = {
+      openapi: '3.0.0',
+      info: { title: 'Other API', version: '2.0.0' },
+      paths: {},
+      components: { schemas: { Order: { type: 'object', properties: { id: { type: 'string' } } } } },
+    } as const
+
+    // A `defineConfig` array shares one adapter instance across configs. Each source must produce
+    // its own document instead of replaying the first one.
+    const adapter = adapterOas({ validate: false })
+
+    const first = await adapter.stream!({ type: 'data', data: minimalSpec })
+    const firstNames: Array<string> = []
+    for await (const schema of first.schemas) if (schema.name) firstNames.push(schema.name)
+
+    const second = await adapter.stream!({ type: 'data', data: other })
+    const secondNames: Array<string> = []
+    for await (const schema of second.schemas) if (schema.name) secondNames.push(schema.name)
+
+    expect(firstNames).toStrictEqual(['Pet', 'Category'])
+    expect(secondNames).toStrictEqual(['Order'])
+    expect(second.meta?.title).toBe('Other API')
+  })
+
   it('exposes meta before the first yield', async () => {
     const adapter = adapterOas({ validate: false })
     const node = await adapter.stream!({ type: 'data', data: minimalSpec })

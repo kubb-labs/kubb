@@ -27,7 +27,7 @@ function toExportName(packageName: string): string {
  * Dynamically imports a plugin package and returns its factory function.
  *
  * Packages must be pre-installed in the Docker image at build time via the `KUBB_PACKAGES`
- * build ARG — no runtime installation is possible in the distroless container. Both
+ * build ARG, no runtime installation is possible in the distroless container. Both
  * `@kubb/*` scoped and third-party packages are supported as long as they are included in
  * the image.
  *
@@ -66,7 +66,7 @@ async function loadPluginFactory(packageName: string): Promise<Factory> {
  * calling its factory with the provided options.
  *
  * Both `@kubb/*` scoped and third-party packages are supported. Packages must be
- * pre-installed in the Docker image at build time — use the `KUBB_PACKAGES` build ARG
+ * pre-installed in the Docker image at build time, use the `KUBB_PACKAGES` build ARG
  * to control which ones are available at runtime.
  *
  * @example
@@ -90,7 +90,7 @@ export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugin
  * calling its factory with the provided options.
  *
  * Both `@kubb/*` scoped and third-party packages are supported. Packages must be
- * pre-installed in the Docker image at build time — use the `KUBB_PACKAGES` build ARG
+ * pre-installed in the Docker image at build time, use the `KUBB_PACKAGES` build ARG
  * to control which ones are available at runtime.
  *
  * @example

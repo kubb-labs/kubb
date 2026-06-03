@@ -120,29 +120,6 @@ export function isPromiseRejectedResult<T>(result: PromiseSettledResult<unknown>
   return result.status === 'rejected'
 }
 
-/**
- * Returns a wrapper that caches the result of the first invocation and replays
- * it for every subsequent call, ignoring later arguments.
- *
- * Works for sync and async factories — for async, the cached value is the
- * promise itself, so concurrent callers share one in-flight execution and
- * cannot race each other.
- *
- * @example
- * ```ts
- * const loadDocument = once(async (path: string) => parse(await readFile(path)))
- * const a = loadDocument('./a.yaml') // parses
- * const b = loadDocument('./b.yaml') // returns the cached promise from the first call
- * ```
- */
-export function once<TArgs extends unknown[], TReturn>(factory: (...args: TArgs) => TReturn): (...args: TArgs) => TReturn {
-  let cache: { value: TReturn } | undefined
-  return (...args: TArgs): TReturn => {
-    if (!cache) cache = { value: factory(...args) }
-    return cache.value
-  }
-}
-
 type Store<TKey, TValue> = {
   has(key: TKey): boolean
   get(key: TKey): TValue | undefined

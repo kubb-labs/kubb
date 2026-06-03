@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { AsyncEventEmitter } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, createKubb, type KubbHooks } from '@kubb/core'
+import { type Config, createKubb, Diagnostics, type KubbHooks } from '@kubb/core'
 import { middlewareBarrel, middlewareBarrelName } from '@kubb/middleware-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import type { UnpluginFactory } from 'unplugin'
@@ -51,18 +51,19 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     console.log(text)
   })
 
-  hooks.on('kubb:generation:end', ({ config }) => {
+  hooks.on('kubb:generation:end', ({ config, status, diagnostics }) => {
     console.log(config.name ? `✓ Generation completed for ${config.name}` : '✓ Generation completed')
-  })
 
-  hooks.on('kubb:generation:summary', ({ config, status, failedPlugins }) => {
+    if (!diagnostics || !status) return
+
+    const failedCount = Diagnostics.failedPlugins(diagnostics).length
     const pluginsCount = config.plugins.length
-    const successCount = pluginsCount - failedPlugins.size
+    const successCount = pluginsCount - failedCount
 
     console.log(
       status === 'success'
         ? `Kubb Summary: ✓ ${`${successCount} successful`}, ${pluginsCount} total`
-        : `Kubb Summary: ✓ ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total`,
+        : `Kubb Summary: ✓ ${`${successCount} successful`}, ✗ ${`${failedCount} failed`}, ${pluginsCount} total`,
     )
   })
 
@@ -105,43 +106,46 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
     await hooks.emit('kubb:generation:start', { config: resolvedConfig })
 
-    const { error, failedPlugins, pluginTimings, files, storage } = await kubb.safeBuild()
+    const { diagnostics, files, storage } = await kubb.safeBuild()
 
-    const hasFailures = failedPlugins.size > 0 || error
-    if (hasFailures) {
-      // Collect all errors from failed plugins and general error
-      const allErrors: Array<Error> = [
-        error,
-        ...Array.from(failedPlugins)
-          .filter((it) => it.error)
-          .map((it) => it.error),
-      ].filter(Boolean)
+    const hasFailures = Diagnostics.hasError(diagnostics)
 
-      allErrors.forEach((err) => {
-        hooks.emit('kubb:error', { error: err })
-      })
+    // Surface every problem by severity. Unplugin has no diagnostic renderer, so route
+    // errors/warnings/info to the channels it does listen on. Non-problem diagnostics are skipped.
+    for (const diagnostic of diagnostics) {
+      if (!Diagnostics.isProblem(diagnostic)) {
+        continue
+      }
+      if (diagnostic.severity === 'error') {
+        hooks.emit('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+      } else if (diagnostic.severity === 'warning') {
+        hooks.emit('kubb:warn', { message: diagnostic.message })
+      } else {
+        hooks.emit('kubb:info', { message: diagnostic.message })
+      }
     }
 
-    await hooks.emit('kubb:generation:end', { config: resolvedConfig, storage })
-    await hooks.emit('kubb:generation:summary', {
+    await hooks.emit('kubb:generation:end', {
       config: resolvedConfig,
-      failedPlugins,
+      storage,
+      diagnostics,
       filesCreated: files.length,
-      status: failedPlugins.size > 0 || error ? 'failed' : 'success',
+      status: hasFailures ? 'failed' : 'success',
       hrStart,
-      pluginTimings,
     })
 
     await hooks.emit('kubb:lifecycle:end')
 
     if (hasFailures) {
-      const message = error?.message ?? `Build Error with ${failedPlugins.size} failed plugins`
+      const failedCount = Diagnostics.failedPlugins(diagnostics).length
+      const firstError = diagnostics.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
+      const message = failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed')
       if (ctx.error) {
         ctx.error(`[${name}] ${message}`)
         return
       }
 
-      throw new Error(`[${name}] ${message}`, { cause: error })
+      throw new Error(`[${name}] ${message}`, { cause: firstError?.cause })
     }
   }
 
