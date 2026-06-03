@@ -171,7 +171,6 @@ export async function runHook({ id, command, args, commandWithArgs, hooks, strea
     if (!(err instanceof NonZeroExitError)) {
       const error = toError(err)
       await emitEnd(false, error)
-      await hooks.emit('kubb:error', { error })
       return
     }
 
@@ -182,8 +181,9 @@ export async function runHook({ id, command, args, commandWithArgs, hooks, strea
     if (stdout) sink?.onStdout?.(stdout)
 
     const error = new Error(`Hook execute failed: ${commandWithArgs}`)
+    // Signal the failure via `kubb:hook:end` only. The caller turns it into a coded diagnostic and
+    // emits that through `Diagnostics.emit`, so emitting `kubb:error` here would render it twice.
     await emitEnd(false, error)
-    await hooks.emit('kubb:error', { error })
   }
 }
 

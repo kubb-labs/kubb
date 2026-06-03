@@ -283,12 +283,12 @@ describe('GeneratorContext diagnostics', () => {
     expect(diagnostics).toMatchObject([{ code: diagnosticCode.pluginInfo, severity: 'info', message: 'heads up', plugin: 'pluginA' }])
   })
 
-  it('still emits the matching hook event so loggers keep firing', () => {
+  it('collects the diagnostic only and does not emit a live hook event', () => {
     const onError = vi.fn()
     driver.hooks.on('kubb:error', onError)
 
     collect((ctx) => ctx.error('boom'))
 
-    expect(onError).toHaveBeenCalledOnce()
+    expect(onError).not.toHaveBeenCalled()
   })
 })

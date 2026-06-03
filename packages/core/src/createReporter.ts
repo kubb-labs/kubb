@@ -44,9 +44,9 @@ export type ReporterContext = {
 }
 
 /**
- * Reporter contract. Unlike a Logger (the live TUI view), a reporter never sees the event
- * emitter. `report` is called once per config with its {@link GenerationResult} and produces
- * output (a terminal summary, a JSON report, a log file).
+ * Host-facing reporter, as installed onto a run. Unlike a Logger (the live TUI view), a reporter
+ * never sees the event emitter. `report` runs once per config; `flush`, when present, runs once
+ * after the last config.
  */
 export type Reporter = {
   /**
@@ -57,14 +57,29 @@ export type Reporter = {
    * Called once per config with that config's result and the render context.
    */
   report: (result: GenerationResult, context: ReporterContext) => void | Promise<void>
+  /**
+   * Optional finalizer called once after the run's last config. The host wires it to
+   * `kubb:lifecycle:end`. {@link createReporter} closes it over the reports `report` returned.
+   */
+  flush?: (context: ReporterContext) => void | Promise<void>
 }
 
-export type UserReporter = Reporter
+/**
+ * Reporter definition passed to {@link createReporter}. `report` returns the value to collect for
+ * this config (e.g. a built report), and the optional `flush` receives the collected reports to
+ * emit as one document. `T` is inferred from `report`'s return type.
+ */
+export type UserReporter<T = void> = {
+  name: string
+  report: (result: GenerationResult, context: ReporterContext) => T | Promise<T>
+  flush?: (context: ReporterContext, reports: Array<T>) => void | Promise<void>
+}
 
 /**
- * Defines a reporter. Returns the reporter unchanged at runtime. It exists for type inference and
- * to mark the value as a reporter, mirroring {@link defineLogger}. Wiring the reporter onto the
- * run's events is the host's job, so the reporter only ever deals with a {@link GenerationResult}.
+ * Defines a reporter. When the definition has a `flush`, the returned reporter buffers each value
+ * `report` returns and hands the array to `flush` once, then clears it. Without a `flush`, nothing
+ * is buffered. Wiring the reporter onto the run's events is the host's job, so the reporter only
+ * ever deals with a {@link GenerationResult}.
  *
  * @example
  * ```ts
@@ -73,12 +88,30 @@ export type UserReporter = Reporter
  * export const jsonReporter = createReporter({
  *   name: 'json',
  *   report(result) {
- *     const status = Diagnostics.hasError(result.diagnostics) ? 'failed' : 'success'
- *     process.stdout.write(`${JSON.stringify({ status, diagnostics: result.diagnostics }, null, 2)}\n`)
+ *     return { status: Diagnostics.hasError(result.diagnostics) ? 'failed' : 'success', diagnostics: result.diagnostics }
+ *   },
+ *   flush(context, reports) {
+ *     process.stdout.write(`${JSON.stringify(reports, null, 2)}\n`)
  *   },
  * })
  * ```
  */
-export function createReporter(reporter: UserReporter): Reporter {
-  return reporter
+export function createReporter<T = void>(reporter: UserReporter<T>): Reporter {
+  const flush = reporter.flush
+  if (!flush) {
+    return { name: reporter.name, report: reporter.report }
+  }
+
+  const reports: Array<T> = []
+
+  return {
+    name: reporter.name,
+    async report(result, context) {
+      reports.push(await reporter.report(result, context))
+    },
+    async flush(context) {
+      await flush(context, reports)
+      reports.length = 0
+    },
+  }
 }
