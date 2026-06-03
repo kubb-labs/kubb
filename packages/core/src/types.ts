@@ -31,6 +31,7 @@ export type {
   KubbGenerationEndContext,
   KubbGenerationStartContext,
   KubbHookEndContext,
+  KubbHookLineContext,
   KubbHookStartContext,
   KubbHooks,
   KubbInfoContext,

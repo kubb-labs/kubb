@@ -44,7 +44,7 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions, TInstallRetur
   /**
    * Called once per build with the shared event emitter. Subscribe to events
    * here. The return value (if any) is forwarded to whoever installed the
-   * logger, which is handy for sink factories.
+   * logger, which is handy for a cleanup callback.
    */
   install: (context: LoggerContext, options?: TOptions) => TInstallReturn | Promise<TInstallReturn>
 }
@@ -53,8 +53,8 @@ export type UserLogger<TOptions extends LoggerOptions = LoggerOptions, TInstallR
 
 /**
  * Defines a typed logger. Use the second type parameter to declare a return
- * value from `install`, which is handy when the logger exposes a sink factory
- * or cleanup callback to the caller.
+ * value from `install`, which is handy when the logger exposes a cleanup
+ * callback to the caller.
  *
  * @example Basic logger
  * ```ts
@@ -69,16 +69,16 @@ export type UserLogger<TOptions extends LoggerOptions = LoggerOptions, TInstallR
  * })
  * ```
  *
- * @example Logger that returns a hook sink factory
+ * @example Logger that returns a cleanup callback
  * ```ts
  * import { defineLogger, type LoggerOptions } from '@kubb/core'
- * import type { HookSinkFactory } from './sinks'
  *
- * export const myLogger = defineLogger<LoggerOptions, HookSinkFactory>({
+ * export const myLogger = defineLogger<LoggerOptions, () => void>({
  *   name: 'my-logger',
  *   install(context) {
- *     // … register event handlers …
- *     return () => ({ onStdout: console.log })
+ *     const handler = () => {}
+ *     context.on('kubb:lifecycle:end', handler)
+ *     return () => context.off('kubb:lifecycle:end', handler)
  *   },
  * })
  * ```

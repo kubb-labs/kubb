@@ -343,7 +343,7 @@ export const githubActionsLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:hook:end', ({ id, command, args, success, error }) => {
+    context.on('kubb:hook:end', ({ id, command, args, success, error, stdout, stderr }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -356,6 +356,8 @@ export const githubActionsLogger = defineLogger({
       if (success) {
         console.log(getMessage(`${styleText('green', '✓')} Hook ${styleText('dim', commandWithArgs)} completed${durationStr}`))
       } else {
+        if (stdout) console.log(stdout)
+        if (stderr) console.error(`::error::${stderr}`)
         const reason = error?.message ? ` (${error.message})` : ''
         console.log(`::error::Hook ${commandWithArgs} failed${durationStr}${reason}`)
       }
@@ -367,11 +369,6 @@ export const githubActionsLogger = defineLogger({
 
     context.on('kubb:lifecycle:end', () => {
       reset()
-    })
-
-    return (_commandWithArgs: string, _hookId: string) => ({
-      onStdout: logLevel > logLevelMap.silent ? (s: string) => console.log(s) : undefined,
-      onStderr: logLevel > logLevelMap.silent ? (s: string) => console.error(`::error::${s}`) : undefined,
     })
   },
 })
