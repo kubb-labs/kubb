@@ -473,6 +473,11 @@ export class KubbDriver {
    * A failing plugin contributes an error diagnostic so the rest of the build continues.
    * Every plugin also contributes a `timing` diagnostic.
    *
+   * Plugins run sequentially so `kubb:plugin:end` fires as each plugin completes, instead
+   * of all at once after every plugin has marched through the parallel batches together.
+   * That ordering is what drives the CLI's `Plugins N/M` counter; without it the bar would
+   * sit at the initial value until the very end of the run.
+   *
    * When `entries` is empty or `this.inputNode` is `null`, every entry still gets a
    * `kubb:plugin:end` so middleware listeners (the barrel writer and friends) complete.
    */
@@ -526,22 +531,27 @@ export class KubbDriver {
 
     const emitsSchemaHook = this.hooks.listenerCount('kubb:generate:schema') > 0
     const emitsOperationHook = this.hooks.listenerCount('kubb:generate:operation') > 0
+    const emitsOperationsHook = this.hooks.listenerCount('kubb:generate:operations') > 0
+
+    // Buffer the streaming adapter's nodes once. Each plugin reads the same buffer
+    // instead of re-parsing the document per pass, and the pruning pre-scan below
+    // shares it too (previously it iterated its own copies).
+    const schemasBuffer: Array<SchemaNode> = []
+    for await (const schema of schemas) schemasBuffer.push(schema)
+    const operationsBuffer: Array<OperationNode> = []
+    for await (const operation of operations) operationsBuffer.push(operation)
 
     // Pre-scan: plugins with operation-based includes (but no schemaName include) need
     // the reachable schema set. This requires the full schema graph in memory at once,
-    // since transitive reachability can't be derived from a single node. `allSchemas` is
-    // released as soon as the pre-scan returns, so the main passes get fresh iterators.
+    // since transitive reachability can't be derived from a single node.
     const pruningStates = states.filter(({ plugin }) => {
       const { include } = plugin.options
       return (include?.some(({ type }) => OPERATION_FILTER_TYPES.has(type)) ?? false) && !(include?.some(({ type }) => type === 'schemaName') ?? false)
     })
 
     if (pruningStates.length > 0) {
-      const allSchemas: Array<SchemaNode> = []
-      for await (const schema of schemas) allSchemas.push(schema)
-
       const includedOpsByState = new Map<PluginState, Array<OperationNode>>(pruningStates.map((state) => [state, []]))
-      for await (const operation of operations) {
+      for (const operation of operationsBuffer) {
         for (const state of pruningStates) {
           const { exclude, include, override } = state.plugin.options
           const options = state.generatorContext.resolver.resolveOptions(operation, { options: state.plugin.options, exclude, include, override })
@@ -550,7 +560,7 @@ export class KubbDriver {
       }
 
       for (const state of pruningStates) {
-        state.allowedSchemaNames = collectUsedSchemaNames(includedOpsByState.get(state) ?? [], allSchemas)
+        state.allowedSchemaNames = collectUsedSchemaNames(includedOpsByState.get(state) ?? [], schemasBuffer)
         includedOpsByState.delete(state)
       }
     }
@@ -628,30 +638,29 @@ export class KubbDriver {
       emit: emitsOperationHook ? (node: OperationNode, ctx: GeneratorContext) => this.hooks.emit('kubb:generate:operation', node, ctx) : null,
     } as const
 
-    // Skip building the aggregated operations array when nothing consumes it. Saves an
-    // N-sized allocation on the common path where plugins only define per-node `gen.operation`.
-    const needsCollectedOperations =
-      this.hooks.listenerCount('kubb:generate:operations') > 0 || states.some((state) => state.generators.some((gen) => !!gen.operations))
-    const collectedOperations: Array<OperationNode> | undefined = needsCollectedOperations ? [] : undefined
-
-    // Run schemas before operations: the two passes share `flushPending` and the
-    // FileProcessor's event emitter, so running them concurrently would interleave
-    // `kubb:files:processing:start|end` events and race on the shared dirty list.
-    await forBatches(schemas, (nodes) => Promise.all(nodes.flatMap((node) => states.map((state) => dispatchNode(state, node, schemaDispatch)))), {
-      concurrency: SCHEMA_PARALLEL,
-      flush: flushPending,
-    })
-
-    await forBatches(
-      operations,
-      (nodes) => {
-        if (needsCollectedOperations) collectedOperations?.push(...nodes)
-        return Promise.all(nodes.flatMap((node) => states.map((state) => dispatchNode(state, node, operationDispatch))))
-      },
-      { concurrency: SCHEMA_PARALLEL, flush: flushPending },
-    )
-
     for (const state of states) {
+      // Skip building the aggregated operations array when this plugin doesn't consume it.
+      // Saves an N-sized allocation when the plugin only defines per-node `gen.operation`.
+      const needsCollectedOperations = emitsOperationsHook || state.generators.some((gen) => !!gen.operations)
+      const collectedOperations: Array<OperationNode> | undefined = needsCollectedOperations ? [] : undefined
+
+      // Run schemas before operations: the two passes share `flushPending` and the
+      // FileProcessor's event emitter, so running them concurrently would interleave
+      // `kubb:files:processing:start|end` events and race on the shared dirty list.
+      await forBatches(schemasBuffer, (nodes) => Promise.all(nodes.map((node) => dispatchNode(state, node, schemaDispatch))), {
+        concurrency: SCHEMA_PARALLEL,
+        flush: flushPending,
+      })
+
+      await forBatches(
+        operationsBuffer,
+        (nodes) => {
+          if (needsCollectedOperations) collectedOperations?.push(...nodes)
+          return Promise.all(nodes.map((node) => dispatchNode(state, node, operationDispatch)))
+        },
+        { concurrency: SCHEMA_PARALLEL, flush: flushPending },
+      )
+
       if (!state.failed && needsCollectedOperations) {
         try {
           const { plugin, generatorContext, generators } = state
