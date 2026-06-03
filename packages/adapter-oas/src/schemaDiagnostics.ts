@@ -8,7 +8,7 @@ import { isHandledFormat } from './resolvers.ts'
  * threading the RFC 6901 pointer as it descends, so a nested field reports against its full
  * path (`#/components/schemas/Pet/properties/owner/properties/name`) rather than its immediate
  * parent. Refs are not followed: the resolved schema is reported under its own top-level walk.
- * Reports land in the active build run; outside a build `Diagnostics.report` is a no-op and
+ * Reports land in the active build run. Outside a build `Diagnostics.report` is a no-op, and
  * repeats are collapsed by the build's deduplication.
  */
 export function reportSchemaDiagnostics({ node, name }: { node: ast.SchemaNode; name: string }): void {

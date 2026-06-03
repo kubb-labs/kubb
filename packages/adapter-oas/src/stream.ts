@@ -42,7 +42,7 @@ function createDedupePlan({
     isCandidate: (node) => {
       if (node.type === 'enum') return true
       if (node.type !== 'object') return false
-      // Skip object shapes that are part of a circular chain — hoisting them would break the cycle.
+      // Skip object shapes that are part of a circular chain, hoisting them would break the cycle.
       if (node.name && circularSchemas.has(node.name)) return false
       return !ast.containsCircularRef(node, { circularSchemas })
     },
@@ -99,7 +99,7 @@ export function resolveBaseUrl({
  * After this call, only `refAliasMap` and `discriminatorChildMap` stay alive in the adapter closure.
  * Both are proportional to the number of aliases or discriminator parents, not total schema count.
  *
- * Each schema is parsed again during the streaming pass — this is intentional.
+ * Each schema is parsed again during the streaming pass. This is intentional.
  * Holding the parsed nodes in memory here would defeat the streaming memory benefit.
  *
  * @example
@@ -155,7 +155,7 @@ export function preScan({
   let dedupePlan: ast.DedupePlan | null = null
   if (dedupe) {
     // One extra parse pass over operations so duplicates in request/response bodies are seen.
-    // Reuses the already-parsed `allNodes` for schemas — no second schema parse.
+    // Reuses the already-parsed `allNodes` for schemas, no second schema parse.
     const operationNodes: Array<ast.OperationNode> = []
     for (const methods of Object.values(baseOas.getPaths())) {
       for (const operation of Object.values(methods)) {

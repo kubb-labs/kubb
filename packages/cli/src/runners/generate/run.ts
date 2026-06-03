@@ -375,7 +375,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         await startWatcher(
           [input || config.input.path],
           async (paths) => {
-            // Don't removeAll() — that would also drop logger and lifecycle listeners.
+            // Don't removeAll(), that would also drop logger and lifecycle listeners.
             // Plugin and middleware listeners are already disposed by safeBuild's
             // setupResult.dispose() in its finally block, so re-running generate()
             // on the same hooks emitter is safe.

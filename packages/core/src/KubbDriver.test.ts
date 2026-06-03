@@ -4,7 +4,7 @@ import type { FileNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
 import { diagnosticCode } from './constants.ts'
-import { type Diagnostic, Diagnostics } from './diagnostics.ts'
+import { type Diagnostic, Diagnostics, isProblemDiagnostic } from './diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, KubbHooks, Middleware, Plugin } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -266,7 +266,8 @@ describe('GeneratorContext diagnostics', () => {
     const cause = new Error('underlying')
     const diagnostics = collect((ctx) => ctx.error(cause))
 
-    expect(diagnostics[0]?.cause).toBe(cause)
+    const [diagnostic] = diagnostics
+    expect(diagnostic && isProblemDiagnostic(diagnostic) ? diagnostic.cause : undefined).toBe(cause)
   })
 
   it('reports ctx.warn as a warning diagnostic that does not fail the build', () => {

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import path from 'node:path'
 import { styleText } from 'node:util'
 import { detectFormatter, detectLinter, formatters, linters } from '@internals/utils'
-import { type AsyncEventEmitter, type Config, createKubb, DiagnosticError, Diagnostics, type KubbHooks } from '@kubb/core'
+import { type AsyncEventEmitter, type Config, createKubb, DiagnosticError, Diagnostics, isProblemDiagnostic, type KubbHooks } from '@kubb/core'
 import { executeHooks } from './executeHooks.ts'
 
 type GenerateProps = {
@@ -34,7 +34,10 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
   await hooks.emit('kubb:info', { message: 'Load summary' })
 
   if (Diagnostics.hasError(diagnostics)) {
-    const errors = diagnostics.filter((diagnostic) => diagnostic.severity === 'error').map((diagnostic) => diagnostic.cause ?? new DiagnosticError(diagnostic))
+    const errors = diagnostics
+      .filter(isProblemDiagnostic)
+      .filter((diagnostic) => diagnostic.severity === 'error')
+      .map((diagnostic) => diagnostic.cause ?? new DiagnosticError(diagnostic))
 
     errors.forEach((err) => {
       hooks.emit('kubb:error', { error: err })

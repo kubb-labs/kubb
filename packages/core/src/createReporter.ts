@@ -62,9 +62,9 @@ export type Reporter = {
 export type UserReporter = Reporter
 
 /**
- * Defines a reporter. Identity at runtime; it exists for type inference and to mark the value
- * as a reporter, mirroring {@link defineLogger}. Wiring the reporter onto the run's events is
- * the host's job, so the reporter only ever deals with a {@link GenerationResult}.
+ * Defines a reporter. Returns the reporter unchanged at runtime. It exists for type inference and
+ * to mark the value as a reporter, mirroring {@link defineLogger}. Wiring the reporter onto the
+ * run's events is the host's job, so the reporter only ever deals with a {@link GenerationResult}.
  *
  * @example
  * ```ts

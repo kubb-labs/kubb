@@ -138,7 +138,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
     if (hasFailures) {
       const failedCount = Diagnostics.failedPlugins(diagnostics).length
-      const firstError = diagnostics.find((diagnostic) => diagnostic.severity === 'error')
+      const firstError = diagnostics.filter(isProblemDiagnostic).find((diagnostic) => diagnostic.severity === 'error')
       const message = failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed')
       if (ctx.error) {
         ctx.error(`[${name}] ${message}`)

@@ -1,12 +1,10 @@
 import { resolve } from 'node:path'
-import { version as nodeVersion } from 'node:process'
 import type { PossiblePromise } from '@internals/utils'
 import { AsyncEventEmitter, BuildError } from '@internals/utils'
 import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
-import { version as KubbVersion } from '../package.json'
 import { DEFAULT_STUDIO_URL, HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
-import { type Diagnostic, DiagnosticError, Diagnostics, type ProblemDiagnostic, type UpdateDiagnostic } from './diagnostics.ts'
+import { type Diagnostic, DiagnosticError, Diagnostics, isProblemDiagnostic, type ProblemDiagnostic, type UpdateDiagnostic } from './diagnostics.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import type { Middleware } from './defineMiddleware.ts'
@@ -92,16 +90,16 @@ export type Config<TInput = Input> = {
   name?: string
   /**
    * Project root directory, absolute or relative to the config file. Already
-   * resolved on the `Config` instance — see `UserConfig` for the optional
-   * form that defaults to `process.cwd()`.
+   * resolved on the `Config` instance (see `UserConfig` for the optional
+   * form that defaults to `process.cwd()`).
    */
   root: string
   /**
    * Parsers that convert generated files into strings. Each parser handles a
-   * set of file extensions; a fallback parser handles anything else.
+   * set of file extensions, and a fallback parser handles anything else.
    *
-   * Already resolved on the `Config` instance — see `UserConfig` for the
-   * optional form that defaults to `[parserTs, parserTsx, parserMd]`.
+   * Already resolved on the `Config` instance (see `UserConfig` for the
+   * optional form that defaults to `[parserTs, parserTsx, parserMd]`).
    *
    * @example
    * ```ts
@@ -135,7 +133,7 @@ export type Config<TInput = Input> = {
   /**
    * Source file or data to generate code from.
    * Use `input.path` for a file path or `input.data` for inline data.
-   * Required when an adapter is configured; omit when running in plugin-only mode.
+   * Required when an adapter is configured. Omit it when running in plugin-only mode.
    */
   input?: TInput
   output: {
@@ -266,7 +264,7 @@ export type Config<TInput = Input> = {
    *
    * Each plugin processes the AST produced by the adapter and can emit files for different
    * programming languages or formats (TypeScript, Zod schemas, Faker data, etc.).
-   * Dependencies are enforced — an error is thrown if a plugin requires another plugin that isn't registered.
+   * Dependencies are enforced, so an error is thrown if a plugin requires another plugin that isn't registered.
    *
    * Plugins can declare their own options via `PluginFactoryOptions`. See plugin documentation for details.
    *
@@ -617,7 +615,7 @@ export type KubbGenerationEndContext = {
   config: Config
   /**
    * Read-only view of the files written during this build.
-   * Reads go directly to `config.storage` — nothing extra is held in memory.
+   * Reads go directly to `config.storage`, nothing extra is held in memory.
    *
    * @example Read a generated file
    * `const code = await storage.getItem('/src/gen/pet.ts')`
@@ -633,7 +631,7 @@ export type KubbGenerationEndContext = {
   /**
    * Diagnostics collected during the build: error/warning/info problems plus a
    * `timing` diagnostic per plugin. The end-of-run summary derives its failure counts
-   * and per-plugin timings from these. Set by the CLI runner; omitted by other callers.
+   * and per-plugin timings from these. Set by the CLI runner, omitted by other callers.
    */
   diagnostics?: Array<Diagnostic>
   /**
@@ -718,7 +716,7 @@ export type KubbFileProcessingUpdate = {
    */
   total: number
   /**
-   * Completion percentage (`0`–`100`).
+   * Completion percentage, `0` to `100`.
    */
   percentage: number
   /**
@@ -845,7 +843,7 @@ export type BuildOutput = {
   driver: KubbDriver
   /**
    * Read-only view of every file written during this build.
-   * Reads go straight to `config.storage` — nothing extra is held in memory.
+   * Reads go straight to `config.storage`, nothing extra is held in memory.
    *
    * @example Read a generated file
    * `const code = await buildOutput.storage.getItem('/src/gen/pet.ts')`
@@ -859,7 +857,7 @@ export type BuildOutput = {
 /**
  * Builds a `Storage` view scoped to the file paths produced by the current build.
  * Reads delegate to the underlying `storage` so source bytes stay where they were
- * written; writes register the key so subsequent reads and `getKeys` are scoped
+ * written. Writes register the key so subsequent reads and `getKeys` are scoped
  * to this build's output.
  */
 function createSourcesView(storage: Storage): Storage {
@@ -917,22 +915,6 @@ function resolveConfig(userConfig: UserConfig): Config {
       : undefined,
     plugins: userConfig.plugins ?? [],
   }
-}
-
-/**
- * Returns a snapshot of the current runtime environment.
- *
- * Useful for attaching context to debug logs and error reports so that
- * issues can be reproduced without manual information gathering.
- */
-export function getDiagnosticInfo() {
-  return {
-    nodeVersion,
-    KubbVersion,
-    platform: process.platform,
-    arch: process.arch,
-    cwd: process.cwd(),
-  } as const
 }
 
 /**
@@ -1021,6 +1003,7 @@ export class Kubb {
     const out = await this.safeBuild()
     if (Diagnostics.hasError(out.diagnostics)) {
       const errors = out.diagnostics
+        .filter(isProblemDiagnostic)
         .filter((diagnostic) => diagnostic.severity === 'error')
         .map((diagnostic) => diagnostic.cause ?? new DiagnosticError(diagnostic))
       throw new BuildError(`Build failed with ${errors.length} ${errors.length === 1 ? 'error' : 'errors'}`, { errors })

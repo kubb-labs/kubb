@@ -65,7 +65,7 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
   transformer: Visitor | undefined
   /**
    * Report a warning. Collected as a `warning` diagnostic attributed to the current
-   * plugin; it surfaces in the run summary but does not fail the build. For a structured
+   * plugin. It surfaces in the run summary but does not fail the build. For a structured
    * diagnostic with a code and source location, use `Diagnostics.report` or throw a
    * `DiagnosticError` directly.
    */
@@ -89,7 +89,7 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    */
   adapter: Adapter
   /**
-   * Document metadata from the adapter — title, version, base URL, and pre-computed
+   * Document metadata from the adapter: title, version, base URL, and pre-computed
    * schema index fields (`circularNames`, `enumNames`).
    */
   meta: InputMeta
@@ -176,7 +176,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
  * The returned object is the input as-is, but with `this` types preserved so
  * `schema`/`operation`/`operations` methods are correctly typed against the
  * plugin's `PluginFactoryOptions`. Renderer elements and `FileNode[]` returns
- * are both handled by the runtime — pick whichever style fits.
+ * are both handled by the runtime, so pick whichever style fits.
  *
  * @example JSX-based schema generator
  * ```tsx

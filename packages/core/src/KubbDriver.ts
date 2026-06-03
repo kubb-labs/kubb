@@ -3,7 +3,7 @@ import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs,
 import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast'
 import type { FileNode, InputMeta, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { DEFAULT_STUDIO_URL, diagnosticCode, OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
-import { type Diagnostic, DiagnosticError, Diagnostics } from './diagnostics.ts'
+import { type Diagnostic, DiagnosticError, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -58,7 +58,7 @@ export class KubbDriver {
 
   /**
    * The streaming `InputStreamNode` produced by the adapter.
-   * Always set after adapter setup — parse-only adapters are wrapped automatically.
+   * Always set after adapter setup, parse-only adapters are wrapped automatically.
    */
   inputNode: InputStreamNode | null = null
   adapter: Adapter | null = null
@@ -66,7 +66,7 @@ export class KubbDriver {
    * Studio session state, kept together so `dispose()` can reset it atomically.
    *
    * - `source` holds the raw adapter source so `adapter.parse()` can be called lazily.
-   *   Intentionally outlives the build; cleared by `dispose()`.
+   *   Intentionally outlives the build, cleared by `dispose()`.
    * - `isOpen` prevents opening the studio more than once per build.
    * - `inputNode` caches the parse promise so `adapter.parse()` is called at most once
    *   per studio session, even when `openInStudio()` is called multiple times.
@@ -80,7 +80,7 @@ export class KubbDriver {
   /**
    * Central file store for all generated files.
    * Plugins should use `this.addFile()` / `this.upsertFile()` (via their context) to
-   * add files; this property gives direct read/write access when needed.
+   * add files. This property gives direct read/write access when needed.
    */
   readonly fileManager = new FileManager()
   readonly plugins = new Map<string, NormalizedPlugin>()
@@ -346,7 +346,7 @@ export class KubbDriver {
 
   /**
    * Runs the full plugin pipeline. Returns the diagnostics collected so far even
-   * when an outer hook throws — the orchestrator preserves partial state by capturing
+   * when an outer hook throws, since the orchestrator preserves partial state by capturing
    * the failure as a {@link Diagnostic} instead of propagating. Each plugin also
    * contributes a `timing` diagnostic for the run summary.
    */
@@ -461,8 +461,8 @@ export class KubbDriver {
   }
 
   // Returns a fresh object with a lazy `files` getter and a bound `upsertFile`.
-  // Caller must use `Object.assign(extra, this.#filesPayload())`, not object spread —
-  // spread would eagerly invoke the getter and freeze a stale snapshot into the payload.
+  // Caller must use `Object.assign(extra, this.#filesPayload())`, not object spread.
+  // Spread would eagerly invoke the getter and freeze a stale snapshot into the payload.
   #filesPayload(): { readonly files: Array<FileNode>; upsertFile: (...files: Array<FileNode>) => Array<FileNode> } {
     const driver = this
 
@@ -747,7 +747,7 @@ export class KubbDriver {
   }
 
   /**
-   * Removes every listener the driver added; listeners attached directly to `hooks` from outside
+   * Removes every listener the driver added. Listeners attached directly to `hooks` from outside
    * the driver survive. Called at the end of a build to prevent leaks across repeated builds.
    *
    * @internal
@@ -756,7 +756,7 @@ export class KubbDriver {
     this.#registry.dispose()
     this.#eventGeneratorPlugins.clear()
     this.#transforms.dispose()
-    // Release resolver closures — the driver is rebuilt for each build() call
+    // Release resolver closures. The driver is rebuilt for each build() call
     // so there is no value in retaining these maps after disposal.
     this.#resolvers.clear()
     this.#defaultResolvers.clear()
@@ -807,7 +807,7 @@ export class KubbDriver {
   getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
     const driver = this
 
-    const report = (diagnostic: Omit<Diagnostic, 'plugin'>): void => {
+    const report = (diagnostic: Omit<ProblemDiagnostic, 'plugin'>): void => {
       Diagnostics.report({ ...diagnostic, plugin: plugin.name })
       if (diagnostic.severity === 'error') {
         driver.hooks.emit('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })

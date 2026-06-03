@@ -8,9 +8,10 @@ import {
   isProblemDiagnostic,
   isUpdateDiagnostic,
   narrowDiagnostic,
+  type ProblemDiagnostic,
 } from './diagnostics.ts'
 
-const problem = (over: Partial<Diagnostic> = {}): Diagnostic => ({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', ...over })
+const problem = (over: Partial<ProblemDiagnostic> = {}): ProblemDiagnostic => ({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', ...over })
 
 describe('Diagnostics.docsUrl', () => {
   it('slugifies the code into a kubb.dev docs link', () => {

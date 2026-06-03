@@ -67,9 +67,10 @@ export type DiagnosticLocation =
     }
 
 /**
- * What a diagnostic carries. `problem` is a build issue shown to the user; `performance`
- * records a plugin's elapsed time; `update` is a version notice. Only `problem` is rendered
- * as a problem.
+ * What a diagnostic carries.
+ * - `problem` is a build issue shown to the user, and the only kind rendered as a problem.
+ * - `performance` records a plugin's elapsed time.
+ * - `update` is a version notice.
  */
 export type DiagnosticKind = 'problem' | 'performance' | 'update'
 
@@ -112,10 +113,9 @@ export type ProblemDiagnostic = {
 }
 
 /**
- * A per-plugin performance record. It carries the `plugin` and its elapsed `duration`,
- * uses the `performance` kind so it stays out of the problem list, and the `KUBB_PERFORMANCE`
- * code. Feeds the per-plugin timing bars, and reporters sum these into the run total. Build it
- * with {@link Diagnostics.performance}.
+ * A per-plugin performance record, built with {@link Diagnostics.performance}. It carries the
+ * `plugin` and its elapsed `duration`, and the `performance` kind keeps it out of the problem
+ * list. It feeds the per-plugin timing bars, and reporters sum these into the run total.
  */
 export type PerformanceDiagnostic = {
   kind: 'performance'
@@ -133,9 +133,8 @@ export type PerformanceDiagnostic = {
 }
 
 /**
- * A notice that a newer Kubb version is available on npm. Not a problem and not a
- * performance record; it carries the running and latest versions and renders like any
- * info diagnostic. Build it with {@link Diagnostics.update}.
+ * A notice that a newer Kubb version is available on npm, built with {@link Diagnostics.update}.
+ * It carries the running and latest versions and renders like any info diagnostic.
  */
 export type UpdateDiagnostic = {
   kind: 'update'
@@ -161,7 +160,7 @@ export type Diagnostic = ProblemDiagnostic | PerformanceDiagnostic | UpdateDiagn
 
 /**
  * Maps each {@link DiagnosticCode} to the variant it selects, for {@link narrowDiagnostic}.
- * Every {@link ProblemCode} selects a {@link ProblemDiagnostic}; the two bookkeeping codes
+ * Every {@link ProblemCode} selects a {@link ProblemDiagnostic}, and the two bookkeeping codes
  * select their own variant.
  */
 export type DiagnosticByCode = Record<ProblemCode, ProblemDiagnostic> &
@@ -388,9 +387,9 @@ export const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
  * that lets deep code report a diagnostic without threading a callback.
  *
  * The sink lives in a single `AsyncLocalStorage` in the `@kubb/core` bundle.
- * `Diagnostics.scope` activates it for a run; anything inside that run — the
- * adapter parse, a lazily consumed stream, a generator — reports through
- * `Diagnostics.report`, and every report lands in the same run.
+ * `Diagnostics.scope` activates it for a run, so anything inside that run (the
+ * adapter parse, a lazily consumed stream, a generator) reports through
+ * `Diagnostics.report` and lands in the same run.
  */
 export class Diagnostics {
   static #reporterStorage = new AsyncLocalStorage<(diagnostic: Diagnostic) => void>()
@@ -429,7 +428,7 @@ export class Diagnostics {
 
   /**
    * Coerces any thrown value into a {@link ProblemDiagnostic}. A {@link DiagnosticError}
-   * keeps its structured data; anything else becomes a `KUBB_UNKNOWN` error.
+   * keeps its structured data, and anything else becomes a `KUBB_UNKNOWN` error.
    */
   static from(error: unknown): ProblemDiagnostic {
     // The event emitter and BuildError wrap the original, so walk the cause chain to

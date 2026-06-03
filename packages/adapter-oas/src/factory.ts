@@ -106,9 +106,9 @@ export async function mergeDocuments(pathOrApi: Array<string | Document>): Promi
  * Creates a `Document` from an `AdapterSource`.
  *
  * Handles all three source types:
- * - `{ type: 'path' }` — resolves and bundles a local file path or remote URL.
- * - `{ type: 'paths' }` — merges multiple file paths into a single document.
- * - `{ type: 'data' }` — parses an inline string (YAML/JSON) or raw object.
+ * - `{ type: 'path' }` resolves and bundles a local file path or remote URL.
+ * - `{ type: 'paths' }` merges multiple file paths into a single document.
+ * - `{ type: 'data' }` parses an inline string (YAML/JSON) or raw object.
  *
  * @example
  * ```ts
@@ -186,6 +186,6 @@ export async function validateDocument(document: Document, { throwOnError = fals
       throw error
     }
 
-    // Validation failures are non-fatal — mirror plugin-oas behavior
+    // Validation failures are non-fatal, mirror plugin-oas behavior
   }
 }
