@@ -194,14 +194,11 @@ async function generate(options: GenerateProps): Promise<boolean> {
 
   // Only an error-severity diagnostic fails the run; warnings and info do not.
   if (Diagnostics.hasError(diagnostics)) {
-    await hooks.emit('kubb:generation:end', { config, storage: kubb.storage })
-    await hooks.emit('kubb:generation:summary', { config, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
+    await hooks.emit('kubb:generation:end', { config, storage: kubb.storage, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
 
     await reportTelemetry('failed')
     return false
   }
-
-  await hooks.emit('kubb:generation:end', { config, storage: kubb.storage })
 
   const outputPath = path.resolve(config.root, config.output.path)
 
@@ -270,8 +267,9 @@ async function generate(options: GenerateProps): Promise<boolean> {
     await hooks.emit('kubb:success', { message: 'Generation succeeded', info: inputPath })
   }
 
-  await hooks.emit('kubb:generation:summary', {
+  await hooks.emit('kubb:generation:end', {
     config,
+    storage: kubb.storage,
     diagnostics: finalDiagnostics,
     filesCreated: files.length,
     status: failed ? 'failed' : 'success',

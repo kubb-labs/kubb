@@ -347,8 +347,36 @@ Run \`npm install -g @kubb/cli\` to update`,
       showProgressStep()
     })
 
-    context.on('kubb:generation:end', ({ config }) => {
+    context.on('kubb:generation:end', ({ config, diagnostics, filesCreated, status, hrStart }) => {
       stopSpinner()
+
+      if (diagnostics && status && hrStart && filesCreated !== undefined) {
+        const summary = getSummary({
+          diagnostics,
+          filesCreated,
+          config,
+          status,
+          hrStart,
+          showTimings: logLevel >= logLevelMap.verbose,
+        })
+
+        summary.unshift('\n')
+        summary.push('\n')
+
+        const borderColor = status === 'success' ? 'green' : 'red'
+        try {
+          clack.box(summary.join('\n'), getMessage(config.name || ''), {
+            width: 'auto',
+            formatBorder: (s: string) => styleText(borderColor, s),
+            rounded: true,
+            withGuide: false,
+            contentAlign: 'left',
+            titleAlign: 'center',
+          })
+        } catch {
+          console.log(summary.join('\n'))
+        }
+      }
 
       const text = getMessage(config.name ? `Generation completed for ${styleText('dim', config.name)}` : 'Generation completed')
 
@@ -392,35 +420,6 @@ Run \`npm install -g @kubb/cli\` to update`,
       } else {
         const reason = error?.message ? ` (${error.message})` : ''
         active.taskLog.error(getMessage(`${styleText('dim', commandWithArgs)} failed${reason}`), { showLog: true })
-      }
-    })
-
-    context.on('kubb:generation:summary', ({ config, diagnostics, filesCreated, status, hrStart }) => {
-      const summary = getSummary({
-        diagnostics,
-        filesCreated,
-        config,
-        status,
-        hrStart,
-        showTimings: logLevel >= logLevelMap.verbose,
-      })
-      const title = config.name || ''
-
-      summary.unshift('\n')
-      summary.push('\n')
-
-      const borderColor = status === 'success' ? 'green' : 'red'
-      try {
-        clack.box(summary.join('\n'), getMessage(title), {
-          width: 'auto',
-          formatBorder: (s: string) => styleText(borderColor, s),
-          rounded: true,
-          withGuide: false,
-          contentAlign: 'left',
-          titleAlign: 'center',
-        })
-      } catch {
-        console.log(summary.join('\n'))
       }
     })
 

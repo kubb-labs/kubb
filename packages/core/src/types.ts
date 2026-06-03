@@ -19,7 +19,6 @@ export type {
   KubbFilesProcessingUpdateContext,
   KubbGenerationEndContext,
   KubbGenerationStartContext,
-  KubbGenerationSummaryContext,
   KubbHookEndContext,
   KubbHookStartContext,
   KubbHooks,

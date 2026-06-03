@@ -1,5 +1,5 @@
 import { AsyncEventEmitter } from '@internals/utils'
-import { type Config, type KubbHooks, logLevel } from '@kubb/core'
+import { type Config, type KubbHooks, logLevel, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import { setupReporters } from '../loggers/utils.ts'
 import { installJsonReporter } from './jsonReporter.ts'
@@ -15,8 +15,9 @@ describe('installJsonReporter', () => {
 
     installJsonReporter(context)
 
-    await context.emit('kubb:generation:summary', {
+    await context.emit('kubb:generation:end', {
       config: {} as Config,
+      storage: {} as Storage,
       diagnostics: [{ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing Pet' }],
       filesCreated: 3,
       status: 'failed',

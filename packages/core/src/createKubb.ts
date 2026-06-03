@@ -503,7 +503,6 @@ export interface KubbHooks {
   'kubb:config:end': [ctx: KubbConfigEndContext]
   'kubb:generation:start': [ctx: KubbGenerationStartContext]
   'kubb:generation:end': [ctx: KubbGenerationEndContext]
-  'kubb:generation:summary': [ctx: KubbGenerationSummaryContext]
   'kubb:format:start': []
   'kubb:format:end': []
   'kubb:lint:start': []
@@ -632,31 +631,24 @@ export type KubbGenerationEndContext = {
    * ```
    */
   storage: Storage
-}
-
-export type KubbGenerationSummaryContext = {
-  /**
-   * Resolved configuration for this generation run.
-   */
-  config: Config
   /**
    * Diagnostics collected during the build: error/warning/info problems plus a
-   * `timing` diagnostic per plugin. Failure counts and per-plugin timings for the
-   * summary are derived from these.
+   * `timing` diagnostic per plugin. The end-of-run summary derives its failure counts
+   * and per-plugin timings from these. Set by the CLI runner; omitted by other callers.
    */
-  diagnostics: Array<Diagnostic>
+  diagnostics?: Array<Diagnostic>
   /**
    * `'success'` when all plugins completed without errors, `'failed'` otherwise.
    */
-  status: 'success' | 'failed'
+  status?: 'success' | 'failed'
   /**
-   * High-resolution start time from `process.hrtime()`.
+   * High-resolution start time from `process.hrtime()`, used to compute the elapsed time.
    */
-  hrStart: [number, number]
+  hrStart?: [number, number]
   /**
    * Total number of files created during this run.
    */
-  filesCreated: number
+  filesCreated?: number
 }
 
 export type KubbVersionNewContext = {

@@ -46,9 +46,9 @@ export function installJsonReporter(context: LoggerContext): void {
   const start = process.hrtime()
   const collected: { diagnostics: Array<Diagnostic>; files: number } = { diagnostics: [], files: 0 }
 
-  context.on('kubb:generation:summary', ({ diagnostics, filesCreated }) => {
-    collected.diagnostics.push(...diagnostics)
-    collected.files += filesCreated
+  context.on('kubb:generation:end', ({ diagnostics, filesCreated }) => {
+    if (diagnostics) collected.diagnostics.push(...diagnostics)
+    if (filesCreated !== undefined) collected.files += filesCreated
   })
 
   context.on('kubb:lifecycle:end', () => {
