@@ -13,8 +13,7 @@ export type ReporterName = 'cli' | 'json' | 'file'
  * Reporter contract. Unlike a Logger, a reporter never sees the event emitter. It
  * receives the run's collected diagnostics through `report`, called once the run ends.
  * Everything about the run lives in the diagnostics: derive the status with
- * {@link Diagnostics.hasError}, the file count with {@link Diagnostics.fileCount}, and
- * the duration with {@link Diagnostics.duration}.
+ * {@link Diagnostics.hasError} and the duration with {@link Diagnostics.duration}.
  */
 export type Reporter = {
   /**
@@ -22,8 +21,8 @@ export type Reporter = {
    */
   name: string
   /**
-   * Called once per run with every collected diagnostic, including the run summary.
-   * Use it to write the report to its destination (stdout, a file, a remote sink).
+   * Called once per run with every collected diagnostic. Use it to write the report
+   * to its destination (stdout, a file, a remote sink).
    */
   report: (diagnostics: ReadonlyArray<Diagnostic>) => void | Promise<void>
 }
@@ -43,9 +42,8 @@ export type UserReporter = Reporter
  *   name: 'json',
  *   report(diagnostics) {
  *     const status = Diagnostics.hasError(diagnostics) ? 'failed' : 'success'
- *     const files = Diagnostics.fileCount(diagnostics)
  *     const durationMs = Diagnostics.duration(diagnostics)
- *     process.stdout.write(`${JSON.stringify({ status, files, durationMs, diagnostics }, null, 2)}\n`)
+ *     process.stdout.write(`${JSON.stringify({ status, durationMs, diagnostics }, null, 2)}\n`)
  *   },
  * })
  * ```

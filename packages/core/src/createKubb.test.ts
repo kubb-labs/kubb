@@ -3,7 +3,7 @@ import { createFile, createOperation, createSchema, createSource, createStreamIn
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
-import { Diagnostics } from './diagnostics.ts'
+import { Diagnostics, isPerformanceDiagnostic, isProblemDiagnostic } from './diagnostics.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
 import { HOOK_LISTENERS_PER_PLUGIN, SCHEMA_PARALLEL, STREAM_FLUSH_EVERY } from './constants.ts'
@@ -166,7 +166,7 @@ describe('createKubb', () => {
       hooks: new AsyncEventEmitter<KubbHooks>(),
     }).safeBuild()
 
-    const problems = diagnostics.filter((diagnostic) => diagnostic.kind !== 'timing')
+    const problems = diagnostics.filter(isProblemDiagnostic)
     expect(problems).toHaveLength(1)
     const diagnostic = problems[0]
     expect(diagnostic?.plugin).toBe('errorPlugin')
@@ -189,7 +189,7 @@ describe('createKubb', () => {
       { hooks: new AsyncEventEmitter<KubbHooks>() },
     ).safeBuild()
 
-    const problems = diagnostics.filter((diagnostic) => diagnostic.kind !== 'timing')
+    const problems = diagnostics.filter(isProblemDiagnostic)
     expect(problems).toHaveLength(1)
     expect(problems[0]).toMatchObject({ plugin: 'errorPlugin', severity: 'error' })
   })
@@ -216,12 +216,12 @@ describe('createKubb', () => {
     expect(Diagnostics.hasError(result.diagnostics)).toBe(true)
   })
 
-  it('should track plugin timings as diagnostics', async () => {
+  it('should track plugin timings as performance diagnostics', async () => {
     const { diagnostics } = await createKubb(config, {
       hooks: new AsyncEventEmitter<KubbHooks>(),
     }).build()
 
-    const timings = diagnostics.filter((diagnostic) => diagnostic.kind === 'timing')
+    const timings = diagnostics.filter(isPerformanceDiagnostic)
     expect(timings.length).toBeGreaterThan(0)
     expect(timings.every((diagnostic) => typeof diagnostic.duration === 'number')).toBe(true)
   })

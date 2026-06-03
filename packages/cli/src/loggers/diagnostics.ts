@@ -1,5 +1,5 @@
 import { styleText } from 'node:util'
-import { type Diagnostic, diagnosticCode, Diagnostics, type DiagnosticSeverity, narrowDiagnostic } from '@kubb/core'
+import { type Diagnostic, diagnosticCode, Diagnostics, type DiagnosticSeverity, isProblemDiagnostic } from '@kubb/core'
 
 /**
  * Glyph and accent color per severity, matching the miette/oxlint convention
@@ -26,7 +26,7 @@ export function diagnosticSymbol(severity: DiagnosticSeverity): string {
  */
 export function diagnosticHeadline(diagnostic: Diagnostic): string {
   const { code, severity, message } = diagnostic
-  const plugin = narrowDiagnostic(diagnostic, 'problem')?.plugin
+  const plugin = isProblemDiagnostic(diagnostic) ? diagnostic.plugin : undefined
   const { color } = severityStyle[severity]
 
   const rule = styleText(color, styleText('bold', plugin ? `${plugin}(${code})` : code))
@@ -40,7 +40,7 @@ export function diagnosticHeadline(diagnostic: Diagnostic): string {
  */
 export function diagnosticDetails(diagnostic: Diagnostic): Array<string> {
   const { code } = diagnostic
-  const problem = narrowDiagnostic(diagnostic, 'problem')
+  const problem = isProblemDiagnostic(diagnostic) ? diagnostic : undefined
   const location = problem?.location
   const help = problem?.help
   const lines: Array<string> = []

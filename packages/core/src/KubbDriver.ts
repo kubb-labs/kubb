@@ -418,7 +418,7 @@ export class KubbDriver {
 
               await this.#emitPluginEnd({ plugin, duration, success: false, error })
 
-              diagnostics.push({ ...Diagnostics.from(error), plugin: plugin.name }, Diagnostics.timing({ plugin: plugin.name, duration }))
+              diagnostics.push({ ...Diagnostics.from(error), plugin: plugin.name }, Diagnostics.performance({ plugin: plugin.name, duration }))
 
               continue
             }
@@ -430,7 +430,7 @@ export class KubbDriver {
             }
 
             const duration = getElapsedMs(hrStart)
-            diagnostics.push(Diagnostics.timing({ plugin: plugin.name, duration }))
+            diagnostics.push(Diagnostics.performance({ plugin: plugin.name, duration }))
 
             await this.#emitPluginEnd({ plugin, duration, success: true })
           }
@@ -503,7 +503,7 @@ export class KubbDriver {
     if (!this.inputNode) {
       for (const { plugin, hrStart } of entries) {
         const duration = getElapsedMs(hrStart)
-        diagnostics.push(Diagnostics.timing({ plugin: plugin.name, duration }))
+        diagnostics.push(Diagnostics.performance({ plugin: plugin.name, duration }))
         await this.#emitPluginEnd({ plugin, duration, success: true })
       }
       return diagnostics
@@ -698,7 +698,7 @@ export class KubbDriver {
       if (state.failed && state.error) {
         diagnostics.push({ ...Diagnostics.from(state.error), plugin: state.plugin.name })
       }
-      diagnostics.push(Diagnostics.timing({ plugin: state.plugin.name, duration }))
+      diagnostics.push(Diagnostics.performance({ plugin: state.plugin.name, duration }))
     }
 
     return diagnostics

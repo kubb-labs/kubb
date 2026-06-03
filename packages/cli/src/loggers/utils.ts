@@ -2,8 +2,8 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { canUseTTY, formatHrtime, getElapsedMs, isGitHubActions, randomCliColor } from '@internals/utils'
-import type { Config, Diagnostic, Logger, LoggerContext, LoggerOptions, Reporter, ReporterName, TimingDiagnostic } from '@kubb/core'
-import { diagnosticCode, Diagnostics, getDiagnosticInfo, logLevel as logLevelMap } from '@kubb/core'
+import type { Config, Diagnostic, Logger, LoggerContext, LoggerOptions, Reporter, ReporterName } from '@kubb/core'
+import { Diagnostics, getDiagnosticInfo, isPerformanceDiagnostic, logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
 import { fileReporter } from '../reporters/fileReporter.ts'
 import { jsonReporter } from '../reporters/jsonReporter.ts'
@@ -228,23 +228,19 @@ const logMapper: Record<LoggerType, CLILogger> = {
 }
 
 /**
- * Bridges a {@link Reporter} onto the run's event emitter: accumulates diagnostics and file
- * counts across every config, then calls `report` once on `kubb:lifecycle:end` with the
- * collected diagnostics plus a run summary (duration and file count). The reporter never
- * touches the emitter.
+ * Bridges a {@link Reporter} onto the run's event emitter: accumulates diagnostics across
+ * every config, then calls `report` once on `kubb:lifecycle:end`. The reporter never touches
+ * the emitter.
  */
 export function installReporter(context: LoggerContext, reporter: Reporter): void {
-  const start = process.hrtime()
   const collected: Array<Diagnostic> = []
-  let files = 0
 
-  context.on('kubb:generation:end', ({ diagnostics, filesCreated }) => {
+  context.on('kubb:generation:end', ({ diagnostics }) => {
     if (diagnostics) collected.push(...diagnostics)
-    if (filesCreated !== undefined) files += filesCreated
   })
 
   context.on('kubb:lifecycle:end', async () => {
-    await reporter.report([...collected, Diagnostics.summary({ duration: getElapsedMs(start), files })])
+    await reporter.report(collected)
   })
 }
 
@@ -308,7 +304,7 @@ type SummaryProps = {
    */
   config: Config
   /**
-   * When true, append a per-plugin timing bar chart built from the `timing` diagnostics.
+   * When true, append a per-plugin timing bar chart built from the `performance` diagnostics.
    */
   showTimings?: boolean
 }
@@ -323,7 +319,7 @@ export function getSummary({ diagnostics, filesCreated, status, hrStart, config,
   const failedPluginNames = Diagnostics.failedPlugins(diagnostics)
   const pluginsCount = config.plugins?.length ?? 0
   const successCount = pluginsCount - failedPluginNames.length
-  const timings = showTimings ? diagnostics.filter((diagnostic): diagnostic is TimingDiagnostic => diagnostic.code === diagnosticCode.timing) : []
+  const timings = showTimings ? diagnostics.filter(isPerformanceDiagnostic) : []
 
   const meta = {
     plugins:

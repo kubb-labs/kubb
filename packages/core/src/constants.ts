@@ -119,15 +119,9 @@ export const diagnosticCode = {
    */
   lintFailed: 'KUBB_LINT_FAILED',
   /**
-   * Not a failure. Carries a plugin's elapsed time on a `timing` diagnostic, used
-   * to build the run summary.
+   * Not a failure. Carries a plugin's elapsed time, summed into the run total.
    */
-  timing: 'KUBB_TIMING',
-  /**
-   * Not a failure. Carries the run total time and file count on the run summary
-   * diagnostic, used to build the end-of-run report.
-   */
-  summary: 'KUBB_SUMMARY',
+  performance: 'KUBB_PERFORMANCE',
   /**
    * Not a failure. A newer Kubb version is available on npm.
    */

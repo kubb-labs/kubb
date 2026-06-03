@@ -13,8 +13,10 @@ import {
   diagnosticCode,
   Diagnostics,
   isInputPath,
+  isProblemDiagnostic,
   type KubbHooks,
   logLevel as logLevelMap,
+  narrowDiagnostic,
   type ReporterName,
 } from '@kubb/core'
 import { version } from '../../../package.json'
@@ -180,13 +182,14 @@ async function generate(options: GenerateProps): Promise<boolean> {
     sendTelemetry(buildTelemetryEvent({ command: 'generate', kubbVersion: version, plugins: telemetryPlugins, hrStart, filesCreated: files.length, status }))
 
   // Render every problem, not just on failure, so warnings and info surface too.
-  // `timing` diagnostics feed the summary, not the log.
+  // `performance` diagnostics feed the summary, not the log.
   for (const diagnostic of diagnostics) {
-    if (diagnostic.kind === 'timing') {
+    if (!isProblemDiagnostic(diagnostic)) {
       continue
     }
-    if (diagnostic.code === diagnosticCode.unknown) {
-      await hooks.emit('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+    const unknown = narrowDiagnostic(diagnostic, diagnosticCode.unknown)
+    if (unknown) {
+      await hooks.emit('kubb:error', { error: unknown.cause ?? new Error(unknown.message) })
     } else {
       await Diagnostics.emit(hooks, diagnostic)
     }

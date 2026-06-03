@@ -67,16 +67,17 @@ export type DiagnosticLocation =
     }
 
 /**
- * What a diagnostic carries. `problem` is a build issue shown to the user;
- * `timing` records elapsed time for the run summary and is not rendered as a problem.
+ * What a diagnostic carries. `problem` is a build issue shown to the user; `performance`
+ * records a plugin's elapsed time; `update` is a version notice. Only `problem` is rendered
+ * as a problem.
  */
-export type DiagnosticKind = 'problem' | 'timing'
+export type DiagnosticKind = 'problem' | 'performance' | 'update'
 
 /**
  * Codes that describe a build problem: every {@link DiagnosticCode} except the
- * `timing` and `summary` bookkeeping codes, which only ride on a {@link TimingDiagnostic}.
+ * `performance` and `updateAvailable` codes, which ride on their own variants.
  */
-export type ProblemCode = Exclude<DiagnosticCode, typeof diagnosticCode.timing | typeof diagnosticCode.summary>
+export type ProblemCode = Exclude<DiagnosticCode, typeof diagnosticCode.performance | typeof diagnosticCode.updateAvailable>
 
 /**
  * A build problem collected during a run, gathered into the result instead of
@@ -111,17 +112,18 @@ export type ProblemDiagnostic = {
 }
 
 /**
- * A per-plugin timing. It carries the `plugin` and its elapsed `duration`, uses the
- * `timing` kind so it stays out of the problem list, and the `KUBB_TIMING` code. Feeds
- * the per-plugin timing bars in the run summary.
+ * A per-plugin performance record. It carries the `plugin` and its elapsed `duration`,
+ * uses the `performance` kind so it stays out of the problem list, and the `KUBB_PERFORMANCE`
+ * code. Feeds the per-plugin timing bars, and {@link Diagnostics.duration} sums these into
+ * the run total. Build it with {@link Diagnostics.performance}.
  */
-export type TimingDiagnostic = {
-  kind: 'timing'
-  code: typeof diagnosticCode.timing
+export type PerformanceDiagnostic = {
+  kind: 'performance'
+  code: typeof diagnosticCode.performance
   severity: 'info'
   message: string
   /**
-   * The plugin this timing belongs to.
+   * The plugin this measurement belongs to.
    */
   plugin: string
   /**
@@ -131,29 +133,9 @@ export type TimingDiagnostic = {
 }
 
 /**
- * The run summary. It carries the run's total `duration` and `files` count, uses the
- * `timing` kind so it stays out of the problem list, and the `KUBB_SUMMARY` code. There
- * is one per run; read its totals with {@link Diagnostics.duration} and {@link Diagnostics.fileCount}.
- */
-export type SummaryDiagnostic = {
-  kind: 'timing'
-  code: typeof diagnosticCode.summary
-  severity: 'info'
-  message: string
-  /**
-   * Total elapsed milliseconds for the run.
-   */
-  duration: number
-  /**
-   * Number of files written in the run.
-   */
-  files: number
-}
-
-/**
  * A notice that a newer Kubb version is available on npm. Not a problem and not a
- * timing; it carries the running and latest versions and renders like any info
- * diagnostic. Build it with {@link Diagnostics.update}.
+ * performance record; it carries the running and latest versions and renders like any
+ * info diagnostic. Build it with {@link Diagnostics.update}.
  */
 export type UpdateDiagnostic = {
   kind: 'update'
@@ -171,38 +153,77 @@ export type UpdateDiagnostic = {
 }
 
 /**
- * A structured record collected during a build, discriminated on `kind`, then on `code`:
- * a {@link ProblemDiagnostic} for an issue, a {@link TimingDiagnostic} for a per-plugin
- * timing, a {@link SummaryDiagnostic} for the run total, or an {@link UpdateDiagnostic}
- * for a version notice.
+ * A structured record collected during a build, discriminated on `kind`: a
+ * {@link ProblemDiagnostic} for an issue, a {@link PerformanceDiagnostic} for a per-plugin
+ * timing, or an {@link UpdateDiagnostic} for a version notice.
  */
-export type Diagnostic = ProblemDiagnostic | TimingDiagnostic | SummaryDiagnostic | UpdateDiagnostic
+export type Diagnostic = ProblemDiagnostic | PerformanceDiagnostic | UpdateDiagnostic
 
 /**
- * Maps each {@link Diagnostic} `kind` to the variant it selects, for {@link narrowDiagnostic}.
- * `timing` covers both the per-plugin {@link TimingDiagnostic} and the {@link SummaryDiagnostic}.
+ * Maps each {@link DiagnosticCode} to the variant it selects, for {@link narrowDiagnostic}.
+ * Every {@link ProblemCode} selects a {@link ProblemDiagnostic}; the two bookkeeping codes
+ * select their own variant.
  */
-export type DiagnosticByKind = {
-  problem: ProblemDiagnostic
-  timing: TimingDiagnostic | SummaryDiagnostic
-  update: UpdateDiagnostic
-}
+export type DiagnosticByCode = Record<ProblemCode, ProblemDiagnostic> &
+  Record<typeof diagnosticCode.performance, PerformanceDiagnostic> &
+  Record<typeof diagnosticCode.updateAvailable, UpdateDiagnostic>
 
 /**
- * Narrows a {@link Diagnostic} to the variant for `kind`, or `null` when it does not match.
- * A diagnostic with no `kind` is treated as a `problem`.
+ * Narrows a {@link Diagnostic} to the variant for `code`, or `null` when it does not match.
  *
  * @example
  * ```ts
- * const update = narrowDiagnostic(diagnostic, 'update')
+ * const update = narrowDiagnostic(diagnostic, diagnosticCode.updateAvailable)
  * if (update) {
  *   console.log(update.latestVersion)
  * }
  * ```
  */
-export function narrowDiagnostic<K extends keyof DiagnosticByKind>(diagnostic: Diagnostic, kind: K): DiagnosticByKind[K] | null {
-  return (diagnostic.kind ?? 'problem') === kind ? (diagnostic as DiagnosticByKind[K]) : null
+export function narrowDiagnostic<C extends DiagnosticCode>(diagnostic: Diagnostic, code: C): DiagnosticByCode[C] | null {
+  return diagnostic.code === code ? (diagnostic as DiagnosticByCode[C]) : null
 }
+
+/**
+ * Builds a type guard that narrows a {@link Diagnostic} to the variant for `kind`. A diagnostic
+ * with no `kind` is treated as a `problem`.
+ */
+function isKind<T extends Diagnostic>(kind: DiagnosticKind) {
+  return (diagnostic: Diagnostic): diagnostic is T => (diagnostic.kind ?? 'problem') === kind
+}
+
+/**
+ * Returns `true` when the diagnostic is a build {@link ProblemDiagnostic}.
+ *
+ * @example
+ * ```ts
+ * if (isProblemDiagnostic(diagnostic)) {
+ *   console.log(diagnostic.location)
+ * }
+ * ```
+ */
+export const isProblemDiagnostic = isKind<ProblemDiagnostic>('problem')
+
+/**
+ * Returns `true` when the diagnostic is a per-plugin {@link PerformanceDiagnostic}.
+ *
+ * @example
+ * ```ts
+ * const timings = diagnostics.filter(isPerformanceDiagnostic)
+ * ```
+ */
+export const isPerformanceDiagnostic = isKind<PerformanceDiagnostic>('performance')
+
+/**
+ * Returns `true` when the diagnostic is a version-update {@link UpdateDiagnostic}.
+ *
+ * @example
+ * ```ts
+ * if (isUpdateDiagnostic(diagnostic)) {
+ *   console.log(diagnostic.latestVersion)
+ * }
+ * ```
+ */
+export const isUpdateDiagnostic = isKind<UpdateDiagnostic>('update')
 
 /**
  * A {@link Diagnostic} reduced to its JSON-safe fields plus a `docsUrl`, for
@@ -350,14 +371,9 @@ export const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
     cause: 'The linter pass over the generated files failed.',
     fix: 'Check the linter (oxlint, biome, or eslint) is installed and its config is valid, then run it manually on the output.',
   },
-  [diagnosticCode.timing]: {
-    title: 'Timing',
-    cause: 'Not a failure. Records a plugin’s elapsed time for the run summary.',
-    fix: 'No action. This is an informational metric.',
-  },
-  [diagnosticCode.summary]: {
-    title: 'Run summary',
-    cause: 'Not a failure. Records the run total time and file count for the end-of-run report.',
+  [diagnosticCode.performance]: {
+    title: 'Performance',
+    cause: 'Not a failure. Records a plugin’s elapsed time, summed into the run total.',
     fix: 'No action. This is an informational metric.',
   },
   [diagnosticCode.updateAvailable]: {
@@ -445,34 +461,17 @@ export class Diagnostics {
   }
 
   /**
-   * Builds a `timing` diagnostic recording how long a plugin took, feeding the
-   * per-plugin timing bars in the run summary.
+   * Builds a per-plugin performance record. {@link Diagnostics.duration} sums these
+   * into the run total.
    */
-  static timing({ plugin, duration }: { plugin: string; duration: number }): Diagnostic {
+  static performance({ plugin, duration }: { plugin: string; duration: number }): PerformanceDiagnostic {
     return {
-      kind: 'timing',
-      code: diagnosticCode.timing,
+      kind: 'performance',
+      code: diagnosticCode.performance,
       severity: 'info',
       message: `${plugin} generated in ${Math.round(duration)}ms`,
       plugin,
       duration,
-    }
-  }
-
-  /**
-   * Builds the run-level summary diagnostic carrying the total elapsed time and file
-   * count. It uses the `timing` kind so it stays out of the problem list, and has no
-   * `plugin` so the per-plugin bars ignore it. Read it back with {@link Diagnostics.duration}
-   * and {@link Diagnostics.fileCount}.
-   */
-  static summary({ duration, files }: { duration: number; files: number }): Diagnostic {
-    return {
-      kind: 'timing',
-      code: diagnosticCode.summary,
-      severity: 'info',
-      message: `Run completed in ${Math.round(duration)}ms`,
-      duration,
-      files,
     }
   }
 
@@ -491,31 +490,8 @@ export class Diagnostics {
   }
 
   /**
-   * Total run duration in milliseconds, read from the run summary diagnostic (the
-   * `timing` diagnostic with the `KUBB_SUMMARY` code). Returns 0 when absent.
-   */
-  static duration(diagnostics: ReadonlyArray<Diagnostic>): number {
-    return Diagnostics.#runSummary(diagnostics)?.duration ?? 0
-  }
-
-  /**
-   * Number of files written in the run, read from the run summary diagnostic. Returns
-   * 0 when absent.
-   */
-  static fileCount(diagnostics: ReadonlyArray<Diagnostic>): number {
-    return Diagnostics.#runSummary(diagnostics)?.files ?? 0
-  }
-
-  /**
-   * The run summary diagnostic, identified by its `KUBB_SUMMARY` code.
-   */
-  static #runSummary(diagnostics: ReadonlyArray<Diagnostic>): SummaryDiagnostic | undefined {
-    return diagnostics.find((diagnostic): diagnostic is SummaryDiagnostic => diagnostic.code === diagnosticCode.summary)
-  }
-
-  /**
-   * True when any diagnostic is an error, the severity that fails a build. Timing
-   * and other non-error diagnostics are ignored.
+   * True when any diagnostic is an error, the severity that fails a build. Non-error
+   * diagnostics are ignored.
    */
   static hasError(diagnostics: ReadonlyArray<Diagnostic>): boolean {
     return diagnostics.some((diagnostic) => diagnostic.severity === 'error')
@@ -544,13 +520,12 @@ export class Diagnostics {
     let warnings = 0
     let infos = 0
     for (const diagnostic of diagnostics) {
-      const problem = narrowDiagnostic(diagnostic, 'problem')
-      if (!problem) {
+      if (!isProblemDiagnostic(diagnostic)) {
         continue
       }
-      if (problem.severity === 'error') {
+      if (diagnostic.severity === 'error') {
         errors += 1
-      } else if (problem.severity === 'warning') {
+      } else if (diagnostic.severity === 'warning') {
         warnings += 1
       } else {
         infos += 1
@@ -561,25 +536,24 @@ export class Diagnostics {
 
   /**
    * Drops duplicate `problem` diagnostics that share a code, location pointer, and
-   * plugin, so the same issue reported across several passes is shown once. `timing`
+   * plugin, so the same issue reported across several passes is shown once. Non-problem
    * diagnostics are always kept.
    */
   static dedupe(diagnostics: ReadonlyArray<Diagnostic>): Array<Diagnostic> {
     const seen = new Set<string>()
     const result: Array<Diagnostic> = []
     for (const diagnostic of diagnostics) {
-      const problem = narrowDiagnostic(diagnostic, 'problem')
-      if (!problem) {
+      if (!isProblemDiagnostic(diagnostic)) {
         result.push(diagnostic)
         continue
       }
-      const pointer = problem.location && 'pointer' in problem.location ? problem.location.pointer : ''
-      const key = `${problem.code} ${pointer} ${problem.plugin ?? ''}`
+      const pointer = diagnostic.location && 'pointer' in diagnostic.location ? diagnostic.location.pointer : ''
+      const key = `${diagnostic.code} ${pointer} ${diagnostic.plugin ?? ''}`
       if (seen.has(key)) {
         continue
       }
       seen.add(key)
-      result.push(problem)
+      result.push(diagnostic)
     }
     return result
   }
@@ -607,7 +581,7 @@ export class Diagnostics {
    * fields are omitted rather than set to `undefined`.
    */
   static serialize(diagnostic: Diagnostic): SerializedDiagnostic {
-    const problem = narrowDiagnostic(diagnostic, 'problem')
+    const problem = isProblemDiagnostic(diagnostic) ? diagnostic : undefined
     return {
       code: diagnostic.code,
       severity: diagnostic.severity,

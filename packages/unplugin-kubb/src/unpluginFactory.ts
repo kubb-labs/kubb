@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { AsyncEventEmitter } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, createKubb, Diagnostics, type KubbHooks } from '@kubb/core'
+import { type Config, createKubb, Diagnostics, isProblemDiagnostic, type KubbHooks } from '@kubb/core'
 import { middlewareBarrel, middlewareBarrelName } from '@kubb/middleware-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import type { UnpluginFactory } from 'unplugin'
@@ -111,9 +111,9 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     const hasFailures = Diagnostics.hasError(diagnostics)
 
     // Surface every problem by severity; unplugin has no diagnostic renderer, so route
-    // errors/warnings/info to the channels it does listen on. `timing` diagnostics are summary-only.
+    // errors/warnings/info to the channels it does listen on. Non-problem diagnostics are skipped.
     for (const diagnostic of diagnostics) {
-      if (diagnostic.kind === 'timing') {
+      if (!isProblemDiagnostic(diagnostic)) {
         continue
       }
       if (diagnostic.severity === 'error') {

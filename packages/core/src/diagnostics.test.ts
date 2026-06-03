@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { diagnosticCode } from './constants.ts'
-import { type Diagnostic, DiagnosticError, Diagnostics, narrowDiagnostic } from './diagnostics.ts'
+import {
+  type Diagnostic,
+  DiagnosticError,
+  Diagnostics,
+  isPerformanceDiagnostic,
+  isProblemDiagnostic,
+  isUpdateDiagnostic,
+  narrowDiagnostic,
+} from './diagnostics.ts'
 
 const problem = (over: Partial<Diagnostic> = {}): Diagnostic => ({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', ...over })
 
@@ -100,12 +108,12 @@ describe('Diagnostics.from', () => {
 })
 
 describe('Diagnostics.count', () => {
-  it('counts problems by severity and ignores timing', () => {
+  it('counts problems by severity and ignores performance', () => {
     const counts = Diagnostics.count([
       problem(),
       problem({ severity: 'warning' }),
       problem({ severity: 'info' }),
-      Diagnostics.timing({ plugin: 'a', duration: 5 }),
+      Diagnostics.performance({ plugin: 'a', duration: 5 }),
     ])
 
     expect(counts).toStrictEqual({ errors: 1, warnings: 1, infos: 1 })
@@ -113,18 +121,31 @@ describe('Diagnostics.count', () => {
 })
 
 describe('narrowDiagnostic', () => {
-  it('returns the variant for a matching kind and null otherwise', () => {
+  it('returns the variant for a matching code and null otherwise', () => {
     const update = Diagnostics.update({ currentVersion: '5.0.0', latestVersion: '5.1.0' })
 
-    expect(narrowDiagnostic(update, 'update')).toBe(update)
-    expect(narrowDiagnostic(update, 'problem')).toBeNull()
+    expect(narrowDiagnostic(update, diagnosticCode.updateAvailable)).toBe(update)
+    expect(narrowDiagnostic(update, diagnosticCode.refNotFound)).toBeNull()
   })
 
-  it('treats a diagnostic with no kind as a problem', () => {
+  it('narrows a problem by its specific code', () => {
     const diagnostic = problem()
 
-    expect(narrowDiagnostic(diagnostic, 'problem')).toBe(diagnostic)
-    expect(narrowDiagnostic(diagnostic, 'timing')).toBeNull()
+    expect(narrowDiagnostic(diagnostic, diagnosticCode.refNotFound)).toBe(diagnostic)
+    expect(narrowDiagnostic(diagnostic, diagnosticCode.performance)).toBeNull()
+  })
+})
+
+describe('diagnostic kind guards', () => {
+  it('narrows by kind, treating a missing kind as a problem', () => {
+    const performance = Diagnostics.performance({ plugin: 'a', duration: 5 })
+    const update = Diagnostics.update({ currentVersion: '5.0.0', latestVersion: '5.1.0' })
+
+    expect(isProblemDiagnostic(problem())).toBe(true)
+    expect(isProblemDiagnostic(performance)).toBe(false)
+    expect(isPerformanceDiagnostic(performance)).toBe(true)
+    expect(isUpdateDiagnostic(update)).toBe(true)
+    expect(isUpdateDiagnostic(performance)).toBe(false)
   })
 })
 
@@ -137,34 +158,30 @@ describe('Diagnostics.update', () => {
   })
 })
 
-describe('Diagnostics.summary', () => {
-  it('reads duration and file count from the run summary and ignores per-plugin timings', () => {
-    const diagnostics = [problem(), Diagnostics.timing({ plugin: 'a', duration: 5 }), Diagnostics.summary({ duration: 120, files: 7 })]
+describe('Diagnostics.duration', () => {
+  it('sums every performance duration and ignores problems', () => {
+    const diagnostics = [problem(), Diagnostics.performance({ plugin: 'a', duration: 5 }), Diagnostics.performance({ plugin: 'b', duration: 120 })]
 
-    expect(Diagnostics.duration(diagnostics)).toBe(120)
-    expect(Diagnostics.fileCount(diagnostics)).toBe(7)
+    expect(Diagnostics.duration(diagnostics)).toBe(125)
   })
 
-  it('returns 0 when no run summary is present', () => {
-    const diagnostics = [problem(), Diagnostics.timing({ plugin: 'a', duration: 5 })]
-
-    expect(Diagnostics.duration(diagnostics)).toBe(0)
-    expect(Diagnostics.fileCount(diagnostics)).toBe(0)
+  it('returns 0 when no performance records are present', () => {
+    expect(Diagnostics.duration([problem()])).toBe(0)
   })
 })
 
 describe('Diagnostics.dedupe', () => {
-  it('drops problems sharing code + pointer + plugin, keeps every timing', () => {
+  it('drops problems sharing code + pointer + plugin, keeps every performance record', () => {
     const loc = { kind: 'schema', pointer: '#/components/schemas/Pet' } as const
     const result = Diagnostics.dedupe([
       problem({ location: loc, plugin: 'a' }),
       problem({ location: loc, plugin: 'a' }),
       problem({ location: loc, plugin: 'b' }),
-      Diagnostics.timing({ plugin: 'a', duration: 1 }),
-      Diagnostics.timing({ plugin: 'a', duration: 2 }),
+      Diagnostics.performance({ plugin: 'a', duration: 1 }),
+      Diagnostics.performance({ plugin: 'a', duration: 2 }),
     ])
 
-    // one per (a) and (b), plus both timings
+    // one per (a) and (b), plus both performance records
     expect(result).toHaveLength(4)
   })
 })

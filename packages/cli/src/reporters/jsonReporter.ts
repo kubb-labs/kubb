@@ -1,9 +1,16 @@
 import process from 'node:process'
-import { createReporter, type Diagnostic, Diagnostics, type SerializedDiagnostic } from '@kubb/core'
+import {
+  createReporter,
+  type Diagnostic,
+  Diagnostics,
+  isPerformanceDiagnostic,
+  isProblemDiagnostic,
+  type SerializedDiagnostic
+} from '@kubb/core'
 
 /**
  * A single problem in the machine-readable report: a {@link SerializedDiagnostic}
- * (JSON-safe fields plus the `docsUrl`), without the `timing` records.
+ * (JSON-safe fields plus the `docsUrl`), without the `performance` records.
  */
 export type JsonReportDiagnostic = SerializedDiagnostic
 
@@ -15,33 +22,31 @@ export type JsonReport = {
   summary: {
     errors: number
     warnings: number
-    files: number
     durationMs: number
   }
   diagnostics: Array<JsonReportDiagnostic>
 }
 
 /**
- * Builds the machine-readable report from the run's diagnostics. The file count and
- * duration are read from the run summary diagnostic; `timing` diagnostics are then
- * dropped. The build is `failed` when any error is present.
+ * Builds the machine-readable report from the run's diagnostics. The duration is the sum of
+ * the `performance` records, which are then dropped from the output. The build is `failed`
+ * when any error is present.
  */
 export function buildJsonReport({ diagnostics }: { diagnostics: ReadonlyArray<Diagnostic> }): JsonReport {
-  const durationMs = Diagnostics.duration(diagnostics)
-  const files = Diagnostics.fileCount(diagnostics)
-  const problems = diagnostics.filter((diagnostic) => diagnostic.kind !== 'timing')
+  const durationMs = diagnostics.reduce((total, diagnostic) => total + (isPerformanceDiagnostic(diagnostic) ? diagnostic.duration : 0), 0)
+  const problems = diagnostics.filter(isProblemDiagnostic)
   const { errors, warnings } = Diagnostics.count(problems)
 
   return {
     status: errors > 0 ? 'failed' : 'success',
-    summary: { errors, warnings, files, durationMs },
+    summary: { errors, warnings, durationMs },
     diagnostics: problems.map((diagnostic) => Diagnostics.serialize(diagnostic)),
   }
 }
 
 /**
- * The `json` reporter. Receives the run's collected diagnostics and file count, then writes
- * the {@link JsonReport} to stdout. The terminal reporter is suppressed while this is active
+ * The `json` reporter. Receives the run's collected diagnostics, then writes the
+ * {@link JsonReport} to stdout. The terminal reporter is suppressed while this is active
  * so stdout stays valid JSON.
  */
 export const jsonReporter = createReporter({

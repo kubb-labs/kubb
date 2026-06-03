@@ -27,7 +27,7 @@ describe('jsonReporter', () => {
 
     const report = JSON.parse(writes.join(''))
     expect(report.status).toBe('failed')
-    expect(report.summary).toMatchObject({ errors: 1, files: 3 })
+    expect(report.summary).toMatchObject({ errors: 1 })
   })
 })
 

@@ -13,15 +13,15 @@ describe('buildJsonReport', () => {
       location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
     },
     { code: 'KUBB_UNSUPPORTED_FORMAT', severity: 'warning', message: 'unknown format' },
-    Diagnostics.timing({ plugin: '@kubb/plugin-ts', duration: 12 }),
-    Diagnostics.summary({ duration: 100, files: 4 }),
+    Diagnostics.performance({ plugin: '@kubb/plugin-ts', duration: 12 }),
+    Diagnostics.performance({ plugin: '@kubb/plugin-zod', duration: 88 }),
   ]
 
-  it('drops timing diagnostics and reports problem counts', () => {
+  it('drops performance diagnostics and reports problem counts', () => {
     const report = buildJsonReport({ diagnostics })
 
     expect(report.status).toBe('failed')
-    expect(report.summary).toStrictEqual({ errors: 1, warnings: 1, files: 4, durationMs: 100 })
+    expect(report.summary).toStrictEqual({ errors: 1, warnings: 1, durationMs: 100 })
     expect(report.diagnostics).toHaveLength(2)
     expect(report.diagnostics[0]).toMatchObject({ code: 'KUBB_REF_NOT_FOUND', plugin: '@kubb/plugin-zod', location: { pointer: '#/components/schemas/Pet' } })
     expect(report.diagnostics[0]?.docsUrl).toMatch(/\/diagnostics\/kubb-ref-not-found$/)
