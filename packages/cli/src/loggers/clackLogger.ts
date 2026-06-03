@@ -369,7 +369,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     // Registered only when not silent, so its presence is what tells the runner to stream
-    // (`kubb:hook:line` listenerCount). At silent level no streaming happens, matching the old sink.
+    // (`kubb:hook:line` listenerCount). At silent level the listener is absent, so no streaming happens.
     if (logLevel > logLevelMap.silent) {
       context.on('kubb:hook:line', ({ id, line }) => {
         const active = state.activeHookLogs.get(id)

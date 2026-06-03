@@ -34,7 +34,7 @@ export type LoggerContext = AsyncEventEmitter<KubbHooks>
 /**
  * Logger contract. A logger receives the build's event emitter and subscribes
  * to whichever lifecycle events it wants to forward to its destination
- * (console, file, remote sink).
+ * (console, file, remote service).
  */
 export type Logger<TOptions extends LoggerOptions = LoggerOptions, TInstallReturn = void> = {
   /**
