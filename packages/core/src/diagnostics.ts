@@ -342,13 +342,8 @@ export const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
   },
   [diagnosticCode.adapterRequired]: {
     title: 'Adapter required',
-    cause: 'An action needs an adapter (for example opening Kubb Studio) but none is configured.',
+    cause: 'An action needs an adapter but none is configured.',
     fix: 'Set `adapter` in kubb.config.ts, for example `adapterOas()`.',
-  },
-  [diagnosticCode.devtoolsInvalid]: {
-    title: 'Invalid devtools config',
-    cause: 'The `devtools` config is set to something other than an object.',
-    fix: 'Set `devtools` to an options object, or remove it to disable Kubb Studio.',
   },
   [diagnosticCode.pathTraversal]: {
     title: 'Path traversal',

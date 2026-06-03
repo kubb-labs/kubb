@@ -1,9 +1,4 @@
 /**
- * Base URL for the Kubb Studio web app.
- */
-export const DEFAULT_STUDIO_URL = 'https://kubb.studio' as const
-
-/**
  * Number of file writes to batch in parallel during `flushPendingFiles`.
  */
 export const STREAM_FLUSH_EVERY = 50
@@ -97,10 +92,6 @@ export const diagnosticCode = {
    * without one.
    */
   adapterRequired: 'KUBB_ADAPTER_REQUIRED',
-  /**
-   * The `devtools` config is set to something other than an object.
-   */
-  devtoolsInvalid: 'KUBB_DEVTOOLS_INVALID',
   /**
    * A resolved output path escapes the output directory, which can stem from a path
    * traversal in the spec or a misconfigured `group.name`.

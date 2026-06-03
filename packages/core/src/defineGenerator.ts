@@ -6,7 +6,7 @@ import type { KubbHooks } from './types.ts'
 import type { KubbDriver } from './KubbDriver.ts'
 import type { Plugin, PluginFactoryOptions } from './definePlugin.ts'
 import type { Resolver } from './defineResolver.ts'
-import type { Config, DevtoolsOptions } from './types.ts'
+import type { Config } from './types.ts'
 
 /**
  * Context object passed to generator `schema`, `operation`, and `operations` methods.
@@ -80,10 +80,6 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    * the current plugin.
    */
   info: (message: string) => void
-  /**
-   * Open the current input node in Kubb Studio.
-   */
-  openInStudio: (options?: DevtoolsOptions) => Promise<void>
   /**
    * The configured adapter instance.
    */

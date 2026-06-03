@@ -119,7 +119,6 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     warn: (msg: string) => console.warn(msg),
     error: (msg: string) => console.error(msg),
     info: (msg: string) => console.info(msg),
-    openInStudio: async () => {},
   } as unknown as Omit<GeneratorContext<TOptions>, 'options'>
 }
 

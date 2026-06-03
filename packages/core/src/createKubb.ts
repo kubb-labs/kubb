@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import type { PossiblePromise } from '@internals/utils'
 import { AsyncEventEmitter, BuildError } from '@internals/utils'
 import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
-import { DEFAULT_STUDIO_URL, HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
+import { HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
 import { type Diagnostic, DiagnosticError, Diagnostics, isProblemDiagnostic, type ProblemDiagnostic, type UpdateDiagnostic } from './diagnostics.ts'
 import { createStorage, type Storage } from './createStorage.ts'
@@ -270,28 +270,6 @@ export type Config<TInput = Input> = {
    */
   middleware?: Array<Middleware>
   /**
-   * Kubb Studio cloud integration settings.
-   *
-   * Kubb Studio (https://kubb.studio) is a web-based IDE for managing API specs and generated code.
-   * Set to `true` to enable with default settings, or pass an object to customize the Studio URL.
-   *
-   * @default false  // disabled by default
-   * @example
-   * ```ts
-   * devtools: true                                   // use default Kubb Studio
-   * devtools: { studioUrl: 'https://my-studio.dev' } // custom Studio instance
-   * ```
-   */
-  devtools?:
-    | true
-    | {
-        /**
-         * Override the Kubb Studio base URL.
-         * @default 'https://kubb.studio'
-         */
-        studioUrl?: typeof DEFAULT_STUDIO_URL | (string & {})
-      }
-  /**
    * Lifecycle hooks that execute during or after the build process.
    *
    * Hooks allow you to run external tools (prettier, eslint, custom scripts) based on build events.
@@ -345,7 +323,7 @@ export type Config<TInput = Input> = {
  *
  * `UserConfig` is what you pass to `defineConfig()`. It has optional `root`, `plugins`, `parsers`, and `adapter`
  * fields (which fall back to sensible defaults). All other Config options are available, including `output`, `input`,
- * `storage`, `middleware`, `devtools`, and `hooks`.
+ * `storage`, `middleware`, and `hooks`.
  *
  * @example
  * ```ts
@@ -877,12 +855,6 @@ function resolveConfig(userConfig: UserConfig): Config {
       ...userConfig.output,
     },
     storage: userConfig.storage ?? fsStorage(),
-    devtools: userConfig.devtools
-      ? {
-          studioUrl: DEFAULT_STUDIO_URL,
-          ...(typeof userConfig.devtools === 'boolean' ? {} : userConfig.devtools),
-        }
-      : undefined,
     plugins: userConfig.plugins ?? [],
   }
 }

@@ -1,8 +1,8 @@
 import { resolve } from 'node:path'
 import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs, isPromise, memoize, URLPath } from '@internals/utils'
 import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast'
-import type { FileNode, InputMeta, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
-import { DEFAULT_STUDIO_URL, diagnosticCode, OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
+import type { FileNode, InputMeta, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
+import { diagnosticCode, OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
 import { type Diagnostic, DiagnosticError, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
@@ -11,7 +11,6 @@ import type { Parser } from './defineParser.ts'
 import type { Plugin } from './definePlugin.ts'
 import { getMode } from './definePlugin.ts'
 import { defineResolver } from './defineResolver.ts'
-import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
 import { FileProcessor } from './FileProcessor.ts'
 import { type HookListener, HookRegistry } from './HookRegistry.ts'
@@ -21,7 +20,6 @@ import type {
   Adapter,
   AdapterSource,
   Config,
-  DevtoolsOptions,
   GeneratorContext,
   KubbHooks,
   KubbPluginSetupContext,
@@ -63,19 +61,10 @@ export class KubbDriver {
   inputNode: InputStreamNode | null = null
   adapter: Adapter | null = null
   /**
-   * Studio session state, kept together so `dispose()` can reset it atomically.
-   *
-   * - `source` holds the raw adapter source so `adapter.parse()` can be called lazily.
-   *   Intentionally outlives the build, cleared by `dispose()`.
-   * - `isOpen` prevents opening the studio more than once per build.
-   * - `inputNode` caches the parse promise so `adapter.parse()` is called at most once
-   *   per studio session, even when `openInStudio()` is called multiple times.
+   * Raw adapter source so `adapter.parse()` / `adapter.stream()` can run lazily.
+   * Intentionally outlives the build, cleared by `dispose()`.
    */
-  #studio: { source: AdapterSource | null; isOpen: boolean; inputNode: Promise<InputNode> | null } = {
-    source: null,
-    isOpen: false,
-    inputNode: null,
-  }
+  #adapterSource: AdapterSource | null = null
 
   /**
    * Central file store for all generated files.
@@ -140,7 +129,7 @@ export class KubbDriver {
       }
     }
     if (this.config.adapter) {
-      this.#studio.source = inputToAdapterSource(this.config)
+      this.#adapterSource = inputToAdapterSource(this.config)
     }
   }
 
@@ -170,15 +159,15 @@ export class KubbDriver {
 
   /**
    * Parses the adapter source into `this.inputNode`. Idempotent, so repeated calls from
-   * `run` or the studio path do not re-parse. Adapters with `stream()` are used directly.
+   * `run` do not re-parse. Adapters with `stream()` are used directly.
    * Adapters with only `parse()` are wrapped via `createStreamInput` so the dispatch loop
    * stays stream-only.
    */
   async #parseInput(): Promise<void> {
-    if (this.inputNode || !this.adapter || !this.#studio.source) return
+    if (this.inputNode || !this.adapter || !this.#adapterSource) return
 
     const adapter = this.adapter
-    const source = this.#studio.source
+    const source = this.#adapterSource
 
     if (adapter.stream) {
       this.inputNode = await adapter.stream(source)
@@ -755,12 +744,12 @@ export class KubbDriver {
     // so there is no value in retaining these maps after disposal.
     this.#resolvers.clear()
     this.#defaultResolvers.clear()
-    // Release the FileNode cache, parsed adapter graph, and studio state so
-    // memory is reclaimed between builds. The returned `BuildOutput.files`
-    // array still references any FileNodes the caller needs to inspect.
+    // Release the FileNode cache and parsed adapter graph so memory is reclaimed
+    // between builds. The returned `BuildOutput.files` array still references any
+    // FileNodes the caller needs to inspect.
     this.fileManager.dispose()
     this.inputNode = null
-    this.#studio = { source: null, isOpen: false, inputNode: null }
+    this.#adapterSource = null
   }
 
   [Symbol.dispose](): void {
@@ -852,39 +841,6 @@ export class KubbDriver {
       },
       info(message: string) {
         report({ code: diagnosticCode.pluginInfo, severity: 'info', message })
-      },
-      async openInStudio(options?: DevtoolsOptions) {
-        if (!driver.config.devtools || driver.#studio.isOpen) {
-          return
-        }
-
-        if (typeof driver.config.devtools !== 'object') {
-          throw new DiagnosticError({
-            code: diagnosticCode.devtoolsInvalid,
-            severity: 'error',
-            message: 'The `devtools` config must be an object.',
-            help: 'Set `devtools` to an options object, or remove it to disable Kubb Studio.',
-            location: { kind: 'config' },
-          })
-        }
-
-        if (!driver.adapter || !driver.#studio.source) {
-          throw new DiagnosticError({
-            code: diagnosticCode.adapterRequired,
-            severity: 'error',
-            message: 'An adapter is required to open Kubb Studio, but none is configured.',
-            help: 'Set `adapter` in kubb.config.ts (for example `adapterOas()`).',
-            location: { kind: 'config' },
-          })
-        }
-
-        driver.#studio.isOpen = true
-
-        const studioUrl = driver.config.devtools?.studioUrl ?? DEFAULT_STUDIO_URL
-        driver.#studio.inputNode ??= Promise.resolve(driver.adapter.parse(driver.#studio.source))
-        const inputNode = await driver.#studio.inputNode
-
-        return openInStudioFn(inputNode, studioUrl, options)
       },
     }
   }

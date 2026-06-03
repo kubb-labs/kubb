@@ -1,4 +1,3 @@
-export type { DevtoolsOptions } from './devtools.ts'
 export type { Adapter, AdapterFactoryOptions, AdapterSource } from './createAdapter.ts'
 export type {
   Diagnostic,
