@@ -95,15 +95,15 @@ describe('adapterOas.stream', () => {
 
     const first = await adapter.stream!({ type: 'data', data: minimalSpec })
     const firstNames: Array<string> = []
-    for await (const schema of first.schemas) firstNames.push(schema.name)
+    for await (const schema of first.schemas) if (schema.name) firstNames.push(schema.name)
 
     const second = await adapter.stream!({ type: 'data', data: other })
     const secondNames: Array<string> = []
-    for await (const schema of second.schemas) secondNames.push(schema.name)
+    for await (const schema of second.schemas) if (schema.name) secondNames.push(schema.name)
 
     expect(firstNames).toStrictEqual(['Pet', 'Category'])
     expect(secondNames).toStrictEqual(['Order'])
-    expect(second.meta.title).toBe('Other API')
+    expect(second.meta?.title).toBe('Other API')
   })
 
   it('exposes meta before the first yield', async () => {

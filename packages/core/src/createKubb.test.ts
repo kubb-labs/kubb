@@ -3,7 +3,7 @@ import { createFile, createOperation, createSchema, createSource, createStreamIn
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
-import { Diagnostics, isPerformanceDiagnostic, isProblemDiagnostic } from './diagnostics.ts'
+import { Diagnostics } from './diagnostics.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
 import { HOOK_LISTENERS_PER_PLUGIN, SCHEMA_PARALLEL, STREAM_FLUSH_EVERY } from './constants.ts'
@@ -43,6 +43,7 @@ describe('createKubb', () => {
       clean: true,
     },
     parsers: [],
+    reporters: [],
     adapter: createMockedAdapter(),
     plugins: [plugin] as unknown as Array<Plugin>,
     storage: fsStorage(),
@@ -166,7 +167,7 @@ describe('createKubb', () => {
       hooks: new AsyncEventEmitter<KubbHooks>(),
     }).safeBuild()
 
-    const problems = diagnostics.filter(isProblemDiagnostic)
+    const problems = diagnostics.filter(Diagnostics.isProblem)
     expect(problems).toHaveLength(1)
     const diagnostic = problems[0]
     expect(diagnostic?.plugin).toBe('errorPlugin')
@@ -189,7 +190,7 @@ describe('createKubb', () => {
       { hooks: new AsyncEventEmitter<KubbHooks>() },
     ).safeBuild()
 
-    const problems = diagnostics.filter(isProblemDiagnostic)
+    const problems = diagnostics.filter(Diagnostics.isProblem)
     expect(problems).toHaveLength(1)
     expect(problems[0]).toMatchObject({ plugin: 'errorPlugin', severity: 'error' })
   })
@@ -221,7 +222,7 @@ describe('createKubb', () => {
       hooks: new AsyncEventEmitter<KubbHooks>(),
     }).build()
 
-    const timings = diagnostics.filter(isPerformanceDiagnostic)
+    const timings = diagnostics.filter(Diagnostics.isPerformance)
     expect(timings.length).toBeGreaterThan(0)
     expect(timings.every((diagnostic) => typeof diagnostic.duration === 'number')).toBe(true)
   })

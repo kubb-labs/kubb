@@ -70,6 +70,30 @@ describe('defineConfig', () => {
     expect(resolved.parsers?.length).toBeGreaterThan(0)
   })
 
+  test('registers the built-in reporters when not set', () => {
+    const config = defineConfig({
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+    } as UserConfig)
+    const resolved = config as UserConfig
+
+    expect(resolved.reporters?.map((reporter) => reporter.name)).toStrictEqual(['cli', 'json', 'file'])
+  })
+
+  test('preserves existing reporters when non-empty', () => {
+    const reporters = [{ name: 'custom' } as any]
+    const config = defineConfig({
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+      reporters,
+    } as UserConfig)
+    const resolved = config as UserConfig
+
+    expect(resolved.reporters).toBe(reporters)
+  })
+
   test('applies default middleware (middlewareBarrel) when not set', () => {
     const config = defineConfig({
       root: '.',

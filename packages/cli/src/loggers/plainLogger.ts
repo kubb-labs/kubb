@@ -1,7 +1,6 @@
 import { relative } from 'node:path'
 import { formatMs, toCause } from '@internals/utils'
-import { defineLogger, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { formatDiagnostic } from './diagnostics.ts'
+import { defineLogger, Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { createHookTimer, formatCommandWithArgs, formatMessage } from './utils.ts'
 
 /**
@@ -87,7 +86,7 @@ export const plainLogger = defineLogger({
       if (logLevel <= logLevelMap.silent && diagnostic.severity !== 'error') {
         return
       }
-      console.log(getMessage(formatDiagnostic(diagnostic).join('\n')))
+      console.log(getMessage(Diagnostics.formatLines(diagnostic).join('\n')))
     })
 
     context.on('kubb:lifecycle:start', ({ version }) => {

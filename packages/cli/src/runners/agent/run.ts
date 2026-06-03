@@ -4,8 +4,8 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { spawnAsync, getErrorMessage } from '@internals/utils'
+import { Telemetry } from '@kubb/core'
 import { agentDefaults } from '../../constants.ts'
-import { buildTelemetryEvent, sendTelemetry } from '../../telemetry.ts'
 import { isPortAvailable, resolveAgentStartEnvironment } from './utils.ts'
 
 type AgentStartOptions = {
@@ -43,7 +43,7 @@ type AgentStartOptions = {
  */
 export async function run({ port, host, configPath, allowWrite, allowAll, version }: AgentStartOptions): Promise<void> {
   const hrStart = process.hrtime()
-  const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status }))
+  const report = (status: 'success' | 'failed') => Telemetry.send(Telemetry.build({ command: 'agent', kubbVersion: version, hrStart, status }))
 
   try {
     // Load .env file into process.env using Node.js built-in (v20.12.0+)

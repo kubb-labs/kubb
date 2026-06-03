@@ -1,6 +1,18 @@
 import type { AsyncEventEmitter } from '@internals/utils'
-import type { logLevel } from './constants.ts'
 import type { KubbHooks } from './types.ts'
+
+/**
+ * Numeric log-level thresholds used internally to compare verbosity.
+ *
+ * Higher numbers are more verbose.
+ */
+export const logLevel = {
+  silent: Number.NEGATIVE_INFINITY,
+  error: 0,
+  warn: 1,
+  info: 3,
+  verbose: 4,
+} as const
 
 /**
  * Options accepted by a logger's `install` callback.

@@ -3,7 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { detectFormatter, detectLinter, formatters, linters } from '@internals/utils'
-import { type AsyncEventEmitter, type Config, createKubb, DiagnosticError, Diagnostics, isProblemDiagnostic, type KubbHooks } from '@kubb/core'
+import { type AsyncEventEmitter, type Config, createKubb, Diagnostics, type KubbHooks } from '@kubb/core'
 import { executeHooks } from './executeHooks.ts'
 
 type GenerateProps = {
@@ -39,9 +39,9 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
   // Core only collects diagnostics now, so render each problem once here. Without this, warnings
   // and info reported through `ctx.warn`/`ctx.info` would never reach the client.
   for (const diagnostic of diagnostics) {
-    if (!isProblemDiagnostic(diagnostic)) continue
+    if (!Diagnostics.isProblem(diagnostic)) continue
     if (diagnostic.severity === 'error') {
-      await hooks.emit('kubb:error', { error: diagnostic.cause ?? new DiagnosticError(diagnostic) })
+      await hooks.emit('kubb:error', { error: diagnostic.cause ?? new Diagnostics.Error(diagnostic) })
     } else if (diagnostic.severity === 'warning') {
       await hooks.emit('kubb:warn', { message: diagnostic.message })
     } else {

@@ -4,13 +4,13 @@ import { AsyncEventEmitter, BuildError } from '@internals/utils'
 import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import { HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
-import { type Diagnostic, DiagnosticError, Diagnostics, isProblemDiagnostic, type ProblemDiagnostic, type UpdateDiagnostic } from './diagnostics.ts'
+import { type Diagnostic, Diagnostics, type ProblemDiagnostic, type UpdateDiagnostic } from './diagnostics.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import type { Middleware } from './defineMiddleware.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, Plugin } from './definePlugin.ts'
-import type { ReporterName } from './createReporter.ts'
+import type { Reporter, ReporterName } from './createReporter.ts'
 
 import { KubbDriver } from './KubbDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -301,21 +301,23 @@ export type Config<TInput = Input> = {
     done?: string | Array<string>
   }
   /**
-   * Reporters that render the run's output, like Vitest. List one or more by name;
-   * the CLI `--reporter` flag overrides this when set.
+   * The reporters available to the run, registered as instances. The host
+   * (the CLI via `--reporter`) selects which ones to trigger by `name` with {@link selectReporters}.
+   * `defineConfig` from the `kubb` package registers the built-in `cli`, `json`, and `file`
+   * reporters by default.
    *
    * - `cli` writes the end-of-run summary to the terminal.
    * - `json` writes a machine-readable report to stdout, for CI.
    * - `file` writes a debug log to `.kubb/<name>-<timestamp>.log`.
    *
-   * @default ['cli']
-   *
    * @example
    * ```ts
-   * reporters: ['cli', 'file']
+   * import { cliReporter, jsonReporter } from '@kubb/core'
+   *
+   * reporters: [cliReporter, jsonReporter, myReporter]
    * ```
    */
-  reporters?: Array<ReporterName>
+  reporters: Array<Reporter>
 }
 
 /**
@@ -334,7 +336,7 @@ export type Config<TInput = Input> = {
  * })
  * ```
  */
-export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins' | 'parsers' | 'adapter' | 'storage'> & {
+export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins' | 'parsers' | 'adapter' | 'storage' | 'reporters'> & {
   /**
    * Project root directory, absolute or relative to the config file location.
    * @default process.cwd()
@@ -360,6 +362,12 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
    * @default fsStorage()
    */
   storage?: Storage
+  /**
+   * Reporters available to the run. `defineConfig` registers the built-in `cli`, `json`, and
+   * `file` reporters when omitted.
+   * @default [cliReporter, jsonReporter, fileReporter]  // applied by `defineConfig` from the `kubb` package
+   */
+  reporters?: Array<Reporter>
 }
 
 declare global {
@@ -855,17 +863,9 @@ function resolveConfig(userConfig: UserConfig): Config {
       ...userConfig.output,
     },
     storage: userConfig.storage ?? fsStorage(),
+    reporters: userConfig.reporters ?? [],
     plugins: userConfig.plugins ?? [],
   }
-}
-
-/**
- * Type guard to check if a given config has an `input.path`.
- */
-export function isInputPath(config: UserConfig | undefined): config is UserConfig<InputPath> & { input: InputPath }
-export function isInputPath(config: Config | undefined): config is Config<InputPath> & { input: InputPath }
-export function isInputPath(config: Config | UserConfig | undefined): config is (Config<InputPath> | UserConfig<InputPath>) & { input: InputPath } {
-  return typeof config?.input === 'object' && config.input !== null && 'path' in config.input
 }
 
 type CreateKubbOptions = {
@@ -945,9 +945,9 @@ export class Kubb {
     const out = await this.safeBuild()
     if (Diagnostics.hasError(out.diagnostics)) {
       const errors = out.diagnostics
-        .filter(isProblemDiagnostic)
+        .filter(Diagnostics.isProblem)
         .filter((diagnostic) => diagnostic.severity === 'error')
-        .map((diagnostic) => diagnostic.cause ?? new DiagnosticError(diagnostic))
+        .map((diagnostic) => diagnostic.cause ?? new Diagnostics.Error(diagnostic))
       throw new BuildError(`Build failed with ${errors.length} ${errors.length === 1 ? 'error' : 'errors'}`, { errors })
     }
     return out

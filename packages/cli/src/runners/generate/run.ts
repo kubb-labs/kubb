@@ -8,23 +8,21 @@ import type { AsyncEventEmitter } from '@internals/utils'
 import { AsyncEventEmitter as AsyncEventEmitterClass, detectFormatter, detectLinter, executeIfOnline, formatters, linters, toError } from '@internals/utils'
 import {
   type CLIOptions,
+  cliReporter,
   type Config,
   createKubb,
   type Diagnostic,
-  diagnosticCode,
   Diagnostics,
-  isInputPath,
-  isProblemDiagnostic,
   type KubbHooks,
   logLevel as logLevelMap,
-  narrowDiagnostic,
   type ProblemDiagnostic,
   type ReporterName,
+  selectReporters,
+  Telemetry,
 } from '@kubb/core'
 import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../../constants.ts'
-import { setupReporters, type HookSinkFactory } from '../../loggers/utils.ts'
-import { buildTelemetryEvent, sendTelemetry } from '../../telemetry.ts'
+import setupReporters, { type HookSinkFactory } from '../../loggers/utils.ts'
 import { executeHooks, getConfigs, runHook, startWatcher } from './utils.ts'
 
 type GenerateProps = {
@@ -183,15 +181,15 @@ async function generate(options: GenerateProps): Promise<boolean> {
   const telemetryPlugins = Array.from(driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> }))
 
   const reportTelemetry = (status: 'success' | 'failed') =>
-    sendTelemetry(buildTelemetryEvent({ command: 'generate', kubbVersion: version, plugins: telemetryPlugins, hrStart, filesCreated: files.length, status }))
+    Telemetry.send(Telemetry.build({ command: 'generate', kubbVersion: version, plugins: telemetryPlugins, hrStart, filesCreated: files.length, status }))
 
   // Render every problem, not just on failure, so warnings and info surface too.
   // `performance` diagnostics feed the summary, not the log.
   for (const diagnostic of diagnostics) {
-    if (!isProblemDiagnostic(diagnostic)) {
+    if (!Diagnostics.isProblem(diagnostic)) {
       continue
     }
-    const unknown = narrowDiagnostic(diagnostic, diagnosticCode.unknown)
+    const unknown = Diagnostics.narrow(diagnostic, Diagnostics.code.unknown)
     if (unknown) {
       await hooks.emit('kubb:error', { error: unknown.cause ?? new Error(unknown.message) })
     } else {
@@ -216,7 +214,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
 
   const toolPasses = [
     config.output.format && {
-      code: diagnosticCode.formatFailed,
+      code: Diagnostics.code.formatFailed,
       toolValue: config.output.format,
       detect: detectFormatter,
       toolMap: formatters,
@@ -227,7 +225,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
       onEnd: () => hooks.emit('kubb:format:end'),
     },
     config.output.lint && {
-      code: diagnosticCode.lintFailed,
+      code: Diagnostics.code.lintFailed,
       toolValue: config.output.lint,
       detect: detectLinter,
       toolMap: linters,
@@ -264,7 +262,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
       hooks.off('kubb:hook:end', onHookEnd)
     }
     for (const error of hookFailures) {
-      const diagnostic = outputDiagnostic(diagnosticCode.hookFailed, 'Post-generate hook', error)
+      const diagnostic = outputDiagnostic(Diagnostics.code.hookFailed, 'Post-generate hook', error)
       outputDiagnostics.push(diagnostic)
       await Diagnostics.emit(hooks, diagnostic)
     }
@@ -351,13 +349,16 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     configs = loaded.configs
     resolvedConfigPath = loaded.configPath
   } catch (error) {
-    await setupReporters(hooks, { logLevel, reporters: ['cli'] })
+    await setupReporters(hooks, { logLevel, reporters: [cliReporter] })
     await hooks.emit('kubb:error', { error: toError(error) })
     process.exit(1)
   }
 
-  // CLI `--reporter` wins. Otherwise the first config's `reporters`. Otherwise the default.
-  const reporters: Array<ReporterName> = cliReporters?.length ? cliReporters : (configs[0]?.reporters ?? ['cli'])
+  // CLI `--reporter` selects which reporters to trigger by name, defaulting to `cli`. The config
+  // always carries the available reporters (defineConfig registers the built-ins).
+  const requestedNames: Array<ReporterName> = cliReporters?.length ? cliReporters : ['cli']
+  const available = configs[0]?.reporters ?? []
+  const reporters = selectReporters(available, requestedNames)
   const makeSink = await setupReporters(hooks, { logLevel, reporters })
 
   await hooks.emit('kubb:lifecycle:start', { version })
@@ -374,7 +375,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
     let anyFailed = false
     for (const config of configs) {
-      if (isInputPath(config) && watch) {
+      if (config.input && 'path' in config.input && watch) {
         await startWatcher(
           [input || config.input.path],
           async (paths) => {

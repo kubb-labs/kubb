@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 import { getElapsedMs } from '@internals/utils'
-import { Diagnostics, type GenerationResult, isPerformanceDiagnostic, isProblemDiagnostic, type SerializedDiagnostic } from '@kubb/core'
+import type { GenerationResult } from '../createReporter.ts'
+import { Diagnostics, type SerializedDiagnostic } from '../diagnostics.ts'
 
 /**
  * One plugin's elapsed time, derived from a `performance` diagnostic.
@@ -64,9 +65,9 @@ export function buildReport(result: GenerationResult): Report {
   const failed = Diagnostics.failedPlugins(diagnostics)
   const total = config.plugins?.length ?? 0
   const counts = Diagnostics.count(diagnostics)
-  const problems = diagnostics.filter(isProblemDiagnostic)
+  const problems = diagnostics.filter(Diagnostics.isProblem)
   const timings = diagnostics
-    .filter(isPerformanceDiagnostic)
+    .filter(Diagnostics.isPerformance)
     .sort((a, b) => b.duration - a.duration)
     .map((diagnostic) => ({ plugin: diagnostic.plugin, durationMs: diagnostic.duration }))
 

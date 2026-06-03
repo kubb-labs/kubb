@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { exists, mergeDeep, URLPath } from '@internals/utils'
-import { diagnosticCode, DiagnosticError } from '@kubb/core'
+import { Diagnostics } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { bundle, loadConfig } from '@redocly/openapi-core'
 import OASNormalize from 'oas-normalize'
@@ -78,8 +78,8 @@ export async function mergeDocuments(pathOrApi: Array<string | Document>): Promi
   const documents = await Promise.all(pathOrApi.map((p) => parseDocument(p, { enablePaths: false, canBundle: false })))
 
   if (documents.length === 0) {
-    throw new DiagnosticError({
-      code: diagnosticCode.inputRequired,
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.inputRequired,
       severity: 'error',
       message: 'No OAS documents were provided for merging.',
       help: 'Pass at least one path or document to `input.path`.',
@@ -149,8 +149,8 @@ export async function assertInputExists(input: string): Promise<void> {
     return
   }
   if (!(await exists(input))) {
-    throw new DiagnosticError({
-      code: diagnosticCode.inputNotFound,
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.inputNotFound,
       severity: 'error',
       message: `Cannot read the file set in \`input.path\` (or via \`kubb generate PATH\`): ${input}`,
       help: 'Check that the path exists and is readable, then set it in `input.path` or pass it as `kubb generate PATH`.',

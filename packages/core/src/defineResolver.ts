@@ -2,8 +2,7 @@ import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
 import type { FileNode, InputMeta, Node, OperationNode, SchemaNode } from '@kubb/ast'
 import { createFile, isOperationNode, isSchemaNode } from '@kubb/ast'
-import { diagnosticCode } from './constants.ts'
-import { DiagnosticError } from './diagnostics.ts'
+import { Diagnostics } from './diagnostics.ts'
 import type { PluginFactoryOptions } from './definePlugin.ts'
 import { getMode } from './definePlugin.ts'
 import type { Config, Group, Output } from './types.ts'
@@ -456,8 +455,8 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
   const outputDir = path.resolve(root, output.path)
   const outputDirWithSep = outputDir.endsWith(path.sep) ? outputDir : `${outputDir}${path.sep}`
   if (result !== outputDir && !result.startsWith(outputDirWithSep)) {
-    throw new DiagnosticError({
-      code: diagnosticCode.pathTraversal,
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.pathTraversal,
       severity: 'error',
       message: `Resolved path "${result}" is outside the output directory "${outputDir}".`,
       help: 'This can stem from a path traversal in the OpenAPI specification or a misconfigured `group.name` function. Keep generated paths within the output directory.',

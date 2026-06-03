@@ -1,6 +1,8 @@
 import * as utils from '@internals/utils'
-import { type Config, Diagnostics, logLevel } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
+import { logLevel } from '../defineLogger.ts'
+import { Diagnostics } from '../diagnostics.ts'
+import type { Config } from '../types.ts'
 import { fileReporter } from './fileReporter.ts'
 
 describe('fileReporter', () => {

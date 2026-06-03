@@ -1,5 +1,7 @@
-import { type Config, Diagnostics, type GenerationResult } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
+import type { GenerationResult } from '../createReporter.ts'
+import { Diagnostics } from '../diagnostics.ts'
+import type { Config } from '../types.ts'
 import { buildReport } from './report.ts'
 
 describe('buildReport', () => {

@@ -67,7 +67,7 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    * Report a warning. Collected as a `warning` diagnostic attributed to the current
    * plugin. It surfaces in the run summary but does not fail the build. For a structured
    * diagnostic with a code and source location, use `Diagnostics.report` or throw a
-   * `DiagnosticError` directly.
+   * `Diagnostics.Error` directly.
    */
   warn: (message: string) => void
   /**

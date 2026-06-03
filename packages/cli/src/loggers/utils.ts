@@ -1,11 +1,8 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { canUseTTY, formatHrtime, getElapsedMs, isGitHubActions } from '@internals/utils'
-import type { Logger, LoggerContext, LoggerOptions, Reporter, ReporterContext, ReporterName } from '@kubb/core'
+import type { Logger, LoggerContext, LoggerOptions, Reporter, ReporterContext } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
-import { cliReporter } from '../reporters/cliReporter.ts'
-import { fileReporter } from '../reporters/fileReporter.ts'
-import { jsonReporter } from '../reporters/jsonReporter.ts'
 import { clackLogger } from './clackLogger.ts'
 import { githubActionsLogger } from './githubActionsLogger.ts'
 import { plainLogger } from './plainLogger.ts'
@@ -235,49 +232,47 @@ export function installReporter(context: LoggerContext, reporter: Reporter, ctx:
     await reporter.report({ config, diagnostics, filesCreated, status, hrStart }, ctx)
   })
 
-  if (reporter.flush) {
-    context.on('kubb:lifecycle:end', () => reporter.flush?.(ctx))
+  if (reporter.drain) {
+    context.on('kubb:lifecycle:end', () => reporter.drain?.(ctx))
   }
 }
 
 /**
- * Installs the live logger (the TUI view) and the selected reporters (the output), returning the
- * terminal logger's hook sink when one was installed. Loggers and reporters are independent: the
- * `cli` selection activates the env logger plus the {@link cliReporter} summary.
+ * Installs the live logger (the TUI view) and the given reporters (the output), returning the
+ * terminal logger's hook sink when one was installed. The reporters are already selected by the
+ * caller (the CLI maps `--reporter` to names via `selectReporters`); this only wires them.
  *
- * The `json` reporter owns stdout, so the terminal logger and `cli` summary are suppressed whenever
- * `json` is selected, even if `cli` is also listed.
+ * Loggers and reporters are independent: the `cli` reporter also activates the env logger summary.
+ * The `json` reporter owns stdout, so the live logger and the `cli` summary are suppressed whenever
+ * `json` is among the reporters, even if `cli` is also listed.
  */
-export async function setupReporters(
+async function setupReporters(
   context: LoggerContext,
-  { logLevel, reporters }: LoggerOptions & { reporters: ReadonlyArray<ReporterName> },
+  { logLevel, reporters }: LoggerOptions & { reporters: ReadonlyArray<Reporter> },
 ): Promise<HookSinkFactory | null> {
-  const unique = new Set<ReporterName>(reporters.length ? reporters : ['cli'])
-  const hasJson = unique.has('json')
+  const hasJson = reporters.some((reporter) => reporter.name === 'json')
   const ctx: ReporterContext = { logLevel }
 
   let makeSink: HookSinkFactory | null = null
 
-  if (unique.has('cli') && !hasJson) {
-    const type = detectLogger()
-    const logger = logMapper[type]
-    if (!logger) {
-      throw new Error(`Unknown adapter type: ${type}`)
+  for (const reporter of reporters) {
+    if (reporter.name === 'cli') {
+      if (hasJson) {
+        continue
+      }
+      const type = detectLogger()
+      const logger = logMapper[type]
+      if (!logger) {
+        throw new Error(`Unknown adapter type: ${type}`)
+      }
+      const sink = await logger.install(context, { logLevel })
+      makeSink = typeof sink === 'function' ? sink : null
     }
-    const sink = await logger.install(context, { logLevel })
-    makeSink = typeof sink === 'function' ? sink : null
-    installReporter(context, cliReporter, ctx)
-  }
 
-  if (hasJson) {
-    // json aggregates across configs: report buffers each result and flush writes one array on
-    // lifecycle end, rather than printing per config (which would concatenate documents and break `jq .`).
-    installReporter(context, jsonReporter, ctx)
-  }
-
-  if (unique.has('file')) {
-    installReporter(context, fileReporter, ctx)
+    installReporter(context, reporter, ctx)
   }
 
   return makeSink
 }
+
+export default setupReporters

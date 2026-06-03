@@ -96,7 +96,10 @@ describe('schema diagnostics during parse', () => {
       },
     }
     const diagnostics = await collect(union)
-    const pointers = diagnostics.filter((diagnostic) => diagnostic.code === 'KUBB_UNSUPPORTED_FORMAT').map((diagnostic) => diagnostic.location?.pointer)
+    const pointers = diagnostics
+      .filter(Diagnostics.isProblem)
+      .filter((diagnostic) => diagnostic.code === 'KUBB_UNSUPPORTED_FORMAT')
+      .map((diagnostic) => (diagnostic.location && 'pointer' in diagnostic.location ? diagnostic.location.pointer : undefined))
 
     expect(pointers).toStrictEqual(['#/components/schemas/Pet/members/0', '#/components/schemas/Pet/members/1'])
   })

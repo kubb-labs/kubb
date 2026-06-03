@@ -1,4 +1,4 @@
-import { type Diagnostic, diagnosticCode, DiagnosticError, Diagnostics } from '@kubb/core'
+import { type Diagnostic, Diagnostics } from '@kubb/core'
 import { isReference } from './guards.ts'
 import type { Document } from './types.ts'
 
@@ -41,7 +41,7 @@ export function resolveRef<T = unknown>(document: Document, $ref: string): T | n
 
   if (!current) {
     const diagnostic: Diagnostic = {
-      code: diagnosticCode.refNotFound,
+      code: Diagnostics.code.refNotFound,
       severity: 'error',
       message: `Could not find a definition for ${origRef}.`,
       help: 'Add the schema under `components.schemas`, or fix the `$ref`. Run `kubb validate` to check the spec.',
@@ -51,7 +51,7 @@ export function resolveRef<T = unknown>(document: Document, $ref: string): T | n
     // other unresolvable ref. The build collects it and keeps going. Outside a build there is no
     // sink, so throw rather than silently returning null.
     if (!Diagnostics.report(diagnostic)) {
-      throw new DiagnosticError(diagnostic)
+      throw new Diagnostics.Error(diagnostic)
     }
     return null
   }

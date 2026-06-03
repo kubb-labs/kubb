@@ -4,6 +4,21 @@
 export const STREAM_FLUSH_EVERY = 50
 
 /**
+ * OpenTelemetry ingestion endpoint for anonymous usage telemetry.
+ */
+export const OTLP_ENDPOINT = 'https://otlp.kubb.dev' as const
+
+/**
+ * Maximum number of █ characters in a plugin timing bar.
+ */
+export const SUMMARY_MAX_BAR_LENGTH = 10 as const
+
+/**
+ * Divides elapsed milliseconds into bar-length units (1 block per 100 ms).
+ */
+export const SUMMARY_TIME_SCALE_DIVISOR = 100 as const
+
+/**
  * Number of schema/operation nodes to dispatch concurrently during generation.
  */
 export const SCHEMA_PARALLEL = 8
@@ -21,19 +36,6 @@ export const HOOK_LISTENERS_PER_PLUGIN = 4
  * of schemas they reach, so unreachable schemas can be pruned for that plugin.
  */
 export const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
-
-/**
- * Numeric log-level thresholds used internally to compare verbosity.
- *
- * Higher numbers are more verbose.
- */
-export const logLevel = {
-  silent: Number.NEGATIVE_INFINITY,
-  error: 0,
-  warn: 1,
-  info: 3,
-  verbose: 4,
-} as const
 
 /**
  * Stable codes Kubb attaches to a `Diagnostic`. Each maps to a known failure mode

@@ -1,8 +1,13 @@
-import { resolve } from 'node:path'
+import path, { resolve } from 'node:path'
+import { camelCase } from '@internals/utils'
 import type { FileNode, InputMeta, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
 import { transform } from '@kubb/ast'
+import { expect } from 'vitest'
+import type { Parser } from './defineParser.ts'
 import { FileManager } from './FileManager.ts'
+import { FileProcessor } from './FileProcessor.ts'
 import { KubbDriver } from './KubbDriver.ts'
+import { memoryStorage } from './storages/memoryStorage.ts'
 import type { Adapter, AdapterFactoryOptions, Config, Generator, GeneratorContext, NormalizedPlugin, PluginFactoryOptions, RendererFactory } from './types.ts'
 
 /**
@@ -192,4 +197,55 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
     options: opts.options,
   })
   await opts.driver.dispatch({ result, renderer: generator.renderer })
+}
+
+type MatchFilesOptions = {
+  /**
+   * Parsers indexed by file extension, used to render each `FileNode` to source.
+   * Without a matching parser the file's raw content is used.
+   */
+  parsers?: Map<FileNode['extname'], Parser>
+  /**
+   * Formatter applied to non-JSON output before snapshotting, e.g. prettier. When
+   * omitted the parsed source is snapshotted as-is.
+   */
+  format?: (source?: string) => string | Promise<string>
+  /**
+   * Subfolder under `__snapshots__`, camelCased. Useful to keep variant snapshots apart.
+   */
+  pre?: string
+}
+
+/**
+ * Renders the driver's collected `FileNode`s to source and asserts each against a file snapshot.
+ * Pair it with the `renderGenerator*` helpers to snapshot a generator's output.
+ *
+ * @example
+ * ```ts
+ * await renderGeneratorSchema(typeGenerator, node, { config, adapter, driver, plugin, options, resolver })
+ * await matchFiles(driver.fileManager.files, { parsers, format })
+ * ```
+ */
+export async function matchFiles(files: Array<FileNode> | undefined, options: MatchFilesOptions = {}): Promise<Map<string, string> | undefined> {
+  if (!files?.length) return
+
+  const { parsers = new Map(), format, pre } = options
+  const fileProcessor = new FileProcessor({ storage: memoryStorage(), parsers })
+  const processed = new Map<string, string>()
+
+  for (const file of files) {
+    if (!file?.path || processed.has(file.path)) {
+      continue
+    }
+
+    const parsed = fileProcessor.parse(file)
+    const code = file.baseName.endsWith('.json') || !format ? parsed : await format(parsed)
+
+    processed.set(file.path, code)
+
+    const snapshotPath = path.join('__snapshots__', ...(pre ? [camelCase(pre)] : []), file.baseName)
+    await expect(code).toMatchFileSnapshot(snapshotPath)
+  }
+
+  return processed
 }
