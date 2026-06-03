@@ -7,7 +7,7 @@ export const middlewareLoggerName = 'middleware-logger'
 
 /**
  * Default logger instance: a consola-backed middleware that auto-detects GitHub Actions and
- * inlines workflow command annotations on top of the human-readable output.
+ * emits inline workflow command annotations on top of the human-readable output.
  *
  * @example
  * ```ts
