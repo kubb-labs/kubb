@@ -255,7 +255,7 @@ export type TextNode = BaseNode & {
  * AST node representing a line break in the source output.
  *
  * Corresponds to `<br/>` in JSX components. When printed, produces an empty
- * string that — joined with `\n` by `printNodes` — creates a blank line
+ * string that, joined with `\n` by `printNodes` creates a blank line
  * between surrounding code nodes.
  *
  * @example

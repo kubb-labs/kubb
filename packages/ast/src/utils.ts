@@ -249,7 +249,7 @@ export type CreateOperationParamsOptions = {
    * Applies a uniform transformation to every resolved type name before it is used
    * in a parameter node. Use this for framework-level type wrappers.
    *
-   * @example Vue Query — wrap every parameter type with `MaybeRefOrGetter`
+   * @example Vue Query, wrap every parameter type with `MaybeRefOrGetter`
    * `typeWrapper: (t) => \`MaybeRefOrGetter<${t}>\``
    */
   typeWrapper?: (type: string) => string
@@ -315,7 +315,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
       variant: 'reference',
       name: typeWrapper ? typeWrapper(type) : type,
     })
-  // Only reference-variant TypeNodes are wrapped — they hold a plain type name string that needs casing applied.
+  // Only reference-variant TypeNodes are wrapped, they hold a plain type name string that needs casing applied.
   // Member and struct TypeNodes are pre-resolved structured expressions and are passed through unchanged.
   const wrapTypeNode = (type: ParamsTypeNode): ParamsTypeNode => (type.kind === 'ParamsType' && type.variant === 'reference' ? wrapType(type.name) : type)
 
@@ -570,7 +570,7 @@ function importKey(path: string, name: string | null | undefined, isTypeOnly: bo
 
 /**
  * Computes a multi-level sort key for exports and imports:
- * non-array names first (wildcards/namespace aliases); type-only before value; alphabetical path; unnamed before named.
+ * non-array names first (wildcards/namespace aliases). Type-only before value. Alphabetical path. Unnamed before named.
  */
 function sortKey(node: { name?: string | Array<unknown> | null; isTypeOnly?: boolean | null; path: string }): string {
   const isArray = Array.isArray(node.name) ? '1' : '0'
@@ -618,7 +618,7 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
   // Deduplicates non-array exports by their exact identity
   const seen = new Set<string>()
 
-  // Precompute sort keys once — avoids recomputing per comparison.
+  // Precompute sort keys once, avoids recomputing per comparison.
   const keyed = exports.map((node) => ({ node, key: sortKey(node) }))
   keyed.sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
 
@@ -664,7 +664,7 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   const isUsed = (importName: string): boolean => !source || source.includes(importName) || exportedNames.has(importName)
 
   // Memoize object import names so the same logical (propertyName, name) pair always
-  // reuses the same object reference — Set-based deduplication then works correctly.
+  // reuses the same object reference. Set-based deduplication then works correctly.
   const importNameMemo = new Map<string, { propertyName: string; name?: string }>()
   const canonicalizeName = (n: string | { propertyName: string; name?: string }): string | { propertyName: string; name?: string } => {
     if (typeof n === 'string') return n
@@ -674,7 +674,7 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   }
 
   // Paths that keep at least one used named import. A default import from such a path is retained
-  // even when its binding can't be found in `source` — e.g. a generated `client` default import
+  // even when its binding can't be found in `source` e.g. a generated `client` default import
   // alongside `import type { Client } from <same path>`, where merged grouped output omits the body.
   const pathsWithUsedNamedImport = new Set<string>()
   for (const node of imports) {
@@ -690,7 +690,7 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   // Deduplicates non-array imports by their exact identity
   const seen = new Set<string>()
 
-  // Precompute sort keys once — avoids recomputing per comparison.
+  // Precompute sort keys once, avoids recomputing per comparison.
   const keyed = imports.map((node) => ({ node, key: sortKey(node) }))
   keyed.sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
 
@@ -783,7 +783,7 @@ export function resolveRefName(node: SchemaNode | undefined): string | null {
 /**
  * Collects every named schema referenced (transitively) from a node via ref edges.
  *
- * Refs are followed by name only — the resolved `node.schema` is not traversed inline.
+ * Refs are followed by name only, the resolved `node.schema` is not traversed inline.
  * Use this to determine schema dependencies, build reference graphs, or detect what schemas need to be emitted.
  *
  * @example Collect refs from a single schema
@@ -823,7 +823,7 @@ export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: 
  * Collects the names of all top-level schemas transitively used by a set of operations.
  *
  * An operation uses a schema when any of its parameters, request body content, or responses
- * reference it — directly or indirectly through other named schemas.
+ * reference it, directly or indirectly through other named schemas.
  * The walk is iterative and safe against reference cycles.
  *
  * Use this together with `include` filters to determine which schemas from `components/schemas`
@@ -934,7 +934,7 @@ export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<str
  * Use `excludeName` to ignore refs to specific schemas (useful when self-references are handled separately).
  * Commonly used with `findCircularSchemas()` to detect where lazy wrappers are needed in code generation.
  *
- * @note Returns `true` for the first matching circular ref found; use for fast dependency checks.
+ * @note Returns `true` for the first matching circular ref found. Use for fast dependency checks.
  */
 export function containsCircularRef(
   node: SchemaNode | undefined,

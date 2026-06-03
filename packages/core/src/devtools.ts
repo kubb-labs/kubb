@@ -14,7 +14,7 @@ export type DevtoolsOptions = {
  * Encodes an `InputNode` as a compressed, URL-safe string.
  *
  * The JSON representation is deflate-compressed with {@link deflateSync} before
- * base64url encoding, which typically reduces payload size by 70–80 % and
+ * base64url encoding, which typically reduces payload size by 70, 80 % and
  * keeps URLs well within browser and server path-length limits.
  */
 export function encodeAst(input: InputNode): string {
@@ -36,8 +36,7 @@ export function getStudioUrl(input: InputNode, studioUrl: string, options: Devto
 }
 
 /**
- * Opens the Kubb Studio URL for the given `InputNode` in the default browser —
- *
+ * Opens the Kubb Studio URL for the given `InputNode` in the default browser,  *
  * Falls back to printing the URL if the browser cannot be launched.
  */
 export async function openInStudio(input: InputNode, studioUrl: string, options: DevtoolsOptions = {}): Promise<void> {

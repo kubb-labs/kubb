@@ -1,4 +1,4 @@
-import type { AsyncEventEmitter, KubbHooks } from '@kubb/core'
+import { type AsyncEventEmitter, Diagnostics, type KubbHooks } from '@kubb/core'
 import WebSocket from 'ws'
 import type { AgentMessage, DataMessagePayload } from '~/types/agent.ts'
 import { websocketDefaults } from '../constants.ts'
@@ -177,13 +177,15 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
     })
   })
 
-  hooks.on('kubb:generation:summary', ({ failedPlugins, status, hrStart, filesCreated }) => {
+  hooks.on('kubb:generation:end', ({ diagnostics, status, hrStart, filesCreated }) => {
+    if (!diagnostics || !status || !hrStart || filesCreated === undefined) return
+
     const [seconds, nanoseconds] = process.hrtime(hrStart)
     const duration = Math.round(seconds * 1000 + nanoseconds / 1_000_000)
 
     sendDataMessage({
       type: 'kubb:generation:summary',
-      data: [{ duration, fileCount: filesCreated, failedPlugins: failedPlugins.size, status }],
+      data: [{ duration, fileCount: filesCreated, failedPlugins: Diagnostics.failedPlugins(diagnostics).length, status }],
       timestamp: Date.now(),
     })
   })

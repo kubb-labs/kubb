@@ -29,7 +29,7 @@ function isIndexPath(path: string): boolean {
   return path.endsWith('/index.ts') || path === 'index.ts'
 }
 
-// Sort order: shortest path first; within a length bucket, index.ts barrels last.
+// Sort order: shortest path first. Within a length bucket, index.ts barrels last.
 function compareFiles(a: FileNode, b: FileNode): number {
   const lenDiff = a.path.length - b.path.length
   if (lenDiff !== 0) return lenDiff
@@ -59,9 +59,9 @@ export class FileManager {
    */
   readonly hooks = new AsyncEventEmitter<FileManagerHooks>()
   readonly #cache = new Map<string, FileNode>()
-  // Cached sorted view; null means stale and rebuilt lazily on next `files` read.
+  // Cached sorted view. Null means stale and rebuilt lazily on next `files` read.
   // Nulled (not mutated) on every write so callers holding a prior reference
-  // keep their snapshot — `dispose()` must not silently empty an array the
+  // keep their snapshot, `dispose()` must not silently empty an array the
   // consumer already holds.
   #sorted: Array<FileNode> | null = null
 
@@ -129,7 +129,7 @@ export class FileManager {
 
   /**
    * All stored files in stable sort order (shortest path first, barrel files
-   * last within a length bucket). Returns a cached view — do not mutate.
+   * last within a length bucket). Returns a cached view, do not mutate.
    */
   get files(): Array<FileNode> {
     return (this.#sorted ??= [...this.#cache.values()].sort(compareFiles))

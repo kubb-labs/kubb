@@ -13,4 +13,4 @@
 'unplugin-kubb': patch
 ---
 
-Enforce `Array<T>` syntax (over `T[]`) via the oxlint `typescript/array-type` rule. Internal-only change; no runtime or API impact.
+Enforce `Array<T>` syntax (over `T[]`) via the oxlint `typescript/array-type` rule. Internal-only change, no runtime or API impact.

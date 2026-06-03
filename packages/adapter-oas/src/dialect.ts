@@ -4,13 +4,13 @@ import { resolveRef } from './refs.ts'
 import type { SchemaObject } from './types.ts'
 
 /**
- * The OpenAPI / Swagger dialect — the default used by `@kubb/adapter-oas`.
+ * The OpenAPI / Swagger dialect, the default used by `@kubb/adapter-oas`.
  *
  * Implements the spec-agnostic {@link ast.SchemaDialect} contract: it isolates the
  * decisions that differ between specs (nullability, `$ref`, discriminator, binary,
  * ref resolution) so the converter pipeline and dispatch rules stay shared. A
- * future adapter (e.g. AsyncAPI) ships its own dialect — `type: ['null', …]`
- * nullability, no discriminator object, binary via `contentEncoding` — and reuses
+ * future adapter (e.g. AsyncAPI) ships its own dialect, `type: ['null', …]`
+ * nullability, no discriminator object, binary via `contentEncoding` and reuses
  * the rest unchanged.
  *
  * Formats (`uuid`, `email`, dates, …) are intentionally NOT here: they are shared

@@ -178,7 +178,7 @@ export type ObjectSchemaNode = SchemaNodeBase & {
    */
   type: 'object'
   /**
-   * Primitive type — always `'object'` for object schemas.
+   * Primitive type, always `'object'` for object schemas.
    */
   primitive: 'object'
   /**
@@ -381,13 +381,10 @@ export type RefSchemaNode = SchemaNodeBase & {
    */
   pattern?: string
   /**
-   * The fully-parsed schema that this ref resolves to.
-   * Populated during OAS parsing when the referenced definition can be resolved.
-   * `null` when the ref cannot be resolved or is part of a circular chain.
-   * `undefined` when resolution has not been attempted.
-   *
-   * Useful for inspecting the referenced schema's structure (e.g. `primitive`, `properties`)
-   * without following the reference manually.
+   * The fully-parsed schema this ref resolves to, so its structure (`primitive`, `properties`)
+   * can be read without following the reference. Populated during OAS parsing when the
+   * definition resolves, `null` when it can't or the ref is circular, and `undefined` when
+   * resolution has not been attempted.
    */
   schema?: SchemaNode | null
 }

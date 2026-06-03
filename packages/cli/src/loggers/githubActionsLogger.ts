@@ -1,6 +1,6 @@
 import { styleText } from 'node:util'
-import { formatHrtime, formatMs, formatMsWithColor, toCause } from '@internals/utils'
-import { type Config, defineLogger, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { formatMs, formatMsWithColor, toCause } from '@internals/utils'
+import { type Config, defineLogger, diagnosticCode, Diagnostics, isProblemDiagnostic, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import {
   buildProgressLine,
   createHookTimer,
@@ -127,14 +127,12 @@ export const githubActionsLogger = defineLogger({
       // (e.g., when getConfigs or kubb.setup throws) doesn't leak an open section.
       closeAllGroups()
 
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
+      // Errors are always surfaced, even at silent, so failures stay visible.
       const message = error.message || String(error)
       console.error(`::error::${message}`)
 
-      // Show stack trace in debug mode (first 3 frames)
-      if (logLevel >= logLevelMap.debug && error.stack) {
+      // Show stack trace in verbose mode (first 3 frames)
+      if (logLevel >= logLevelMap.verbose && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
         for (const frame of frames) {
           console.log(getMessage(styleText('dim', frame.trim())))
@@ -151,13 +149,38 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
+    context.on('kubb:diagnostic', ({ diagnostic }) => {
+      closeAllGroups()
+
+      // Silent still surfaces errors so failures stay visible. It drops warnings and info.
+      if (logLevel <= logLevelMap.silent && diagnostic.severity !== 'error') {
+        return
+      }
+
+      if (!isProblemDiagnostic(diagnostic)) {
+        console.log(`::notice::${diagnostic.message}`)
+        return
+      }
+
+      const parts = [`${diagnostic.code} ${diagnostic.message}`]
+      if (diagnostic.location && 'pointer' in diagnostic.location) {
+        parts.push(`(at ${diagnostic.location.pointer})`)
+      }
+      if (diagnostic.plugin) {
+        parts.push(`[plugin: ${diagnostic.plugin}]`)
+      }
+      if (diagnostic.help) {
+        parts.push(`help: ${diagnostic.help}`)
+      }
+      if (diagnostic.code !== diagnosticCode.unknown) {
+        parts.push(`docs: ${Diagnostics.docsUrl(diagnostic.code)}`)
+      }
+      console.error(`::error::${parts.join(' ')}`)
+    })
+
     context.on('kubb:lifecycle:start', ({ version }) => {
       console.log(styleText('yellow', `Kubb ${version} 🧩`))
       reset()
-    })
-
-    context.on('kubb:version:new', ({ currentVersion, latestVersion }) => {
-      console.log(`::notice::Update available for Kubb: v${currentVersion} → v${latestVersion}. Run \`npm install -g @kubb/cli\` to update.`)
     })
 
     context.on('kubb:config:start', () => {
@@ -289,6 +312,10 @@ export const githubActionsLogger = defineLogger({
       )
 
       console.log(text)
+
+      if (state.currentConfigs.length > 1) {
+        closeGroup(config.name ? `Generation for ${styleText('bold', config.name)}` : 'Generation')
+      }
     })
 
     onGroupStart('kubb:format:start', 'Format started', 'Formatting')
@@ -335,26 +362,6 @@ export const githubActionsLogger = defineLogger({
 
       if (state.currentConfigs.length === 1) {
         closeGroup(`Hook ${commandWithArgs}`)
-      }
-    })
-
-    context.on('kubb:generation:summary', ({ config, status, hrStart, failedPlugins }) => {
-      const pluginsCount = config.plugins?.length ?? 0
-      const successCount = pluginsCount - failedPlugins.size
-      const duration = formatHrtime(hrStart)
-
-      if (state.currentConfigs.length > 1) {
-        console.log(' ')
-      }
-
-      console.log(
-        status === 'success'
-          ? `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ${pluginsCount} total, ${styleText('green', duration)}`
-          : `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total, ${styleText('green', duration)}`,
-      )
-
-      if (state.currentConfigs.length > 1) {
-        closeGroup(config.name ? `Generation for ${styleText('bold', config.name)}` : 'Generation')
       }
     })
 

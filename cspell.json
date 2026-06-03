@@ -35,6 +35,7 @@
     "nominalizations",
     "rebranded",
     "scannability",
+    "slugifies",
     "typechecks",
     "unvalidated",
     "Arazzo",

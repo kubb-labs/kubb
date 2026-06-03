@@ -43,7 +43,7 @@ export type Storage = {
 /**
  * Defines a custom storage backend. The builder receives user options and
  * returns a `Storage` implementation. Kubb ships with filesystem and
- * in-memory storages — reach for this when you need to write generated files
+ * in-memory storages, reach for this when you need to write generated files
  * elsewhere (cloud storage, a database, a remote API).
  *
  * @example In-memory storage (the built-in implementation)

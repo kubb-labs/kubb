@@ -4,8 +4,8 @@ import type { SchemaType } from './nodes/schema.ts'
 /**
  * Traversal depth for AST visitor utilities.
  *
- * - `'shallow'` — visits only the immediate node, skipping children.
- * - `'deep'` — recursively visits all descendant nodes.
+ * - `'shallow'` visits only the immediate node, skipping children.
+ * - `'deep'` recursively visits all descendant nodes.
  */
 export type VisitorDepth = 'shallow' | 'deep'
 

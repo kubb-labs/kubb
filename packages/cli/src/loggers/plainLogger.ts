@@ -1,8 +1,7 @@
 import { relative } from 'node:path'
 import { formatMs, toCause } from '@internals/utils'
 import { defineLogger, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { SUMMARY_SEPARATOR } from '../constants.ts'
-import { getSummary } from './utils.ts'
+import { formatDiagnostic } from './diagnostics.ts'
 import { createHookTimer, formatCommandWithArgs, formatMessage } from './utils.ts'
 
 /**
@@ -65,8 +64,8 @@ export const plainLogger = defineLogger({
 
       console.log(text)
 
-      // Show stack trace in debug mode (first 3 frames)
-      if (logLevel >= logLevelMap.debug && error.stack) {
+      // Show stack trace in verbose mode (first 3 frames)
+      if (logLevel >= logLevelMap.verbose && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
         for (const frame of frames) {
           console.log(getMessage(frame.trim()))
@@ -83,16 +82,16 @@ export const plainLogger = defineLogger({
       }
     })
 
-    context.on('kubb:lifecycle:start', ({ version }) => {
-      console.log(`Kubb CLI v${version}`)
-    })
-
-    context.on('kubb:version:new', ({ currentVersion, latestVersion }) => {
-      if (logLevel <= logLevelMap.silent) {
+    context.on('kubb:diagnostic', ({ diagnostic }) => {
+      // Silent still surfaces errors so failures stay visible. It drops warnings and info.
+      if (logLevel <= logLevelMap.silent && diagnostic.severity !== 'error') {
         return
       }
+      console.log(getMessage(formatDiagnostic(diagnostic).join('\n')))
+    })
 
-      console.log(getMessage(`Update available: v${currentVersion} → v${latestVersion}. Run \`npm install -g @kubb/cli\` to update.`))
+    context.on('kubb:lifecycle:start', ({ version }) => {
+      console.log(`Kubb CLI v${version}`)
     })
 
     onStep('kubb:config:start', 'Configuration started')
@@ -196,21 +195,6 @@ export const plainLogger = defineLogger({
         const reason = error?.message ? ` (${error.message})` : ''
         console.log(getMessage(`✗ Hook ${commandWithArgs} failed${durationStr}${reason}`))
       }
-    })
-
-    context.on('kubb:generation:summary', ({ config, pluginTimings, status, hrStart, failedPlugins, filesCreated }) => {
-      const summary = getSummary({
-        failedPlugins,
-        filesCreated,
-        config,
-        status,
-        hrStart,
-        pluginTimings: logLevel >= logLevelMap.verbose ? pluginTimings : undefined,
-      })
-
-      console.log(SUMMARY_SEPARATOR)
-      console.log(summary.join('\n'))
-      console.log(SUMMARY_SEPARATOR)
     })
 
     return (_commandWithArgs: string, _hookId: string) => ({

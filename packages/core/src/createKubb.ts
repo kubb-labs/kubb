@@ -1,16 +1,16 @@
 import { resolve } from 'node:path'
-import { version as nodeVersion } from 'node:process'
 import type { PossiblePromise } from '@internals/utils'
-import { AsyncEventEmitter, BuildError, exists, URLPath } from '@internals/utils'
+import { AsyncEventEmitter, BuildError } from '@internals/utils'
 import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
-import { version as KubbVersion } from '../package.json'
-import { DEFAULT_STUDIO_URL } from './constants.ts'
+import { DEFAULT_STUDIO_URL, HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
+import { type Diagnostic, DiagnosticError, Diagnostics, isProblemDiagnostic, type ProblemDiagnostic, type UpdateDiagnostic } from './diagnostics.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import type { Middleware } from './defineMiddleware.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, Plugin } from './definePlugin.ts'
+import type { ReporterName } from './createReporter.ts'
 
 import { KubbDriver } from './KubbDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -25,10 +25,8 @@ import { fsStorage } from './storages/fsStorage.ts'
 type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {}
 
 /**
- * Reference to an input file to generate code from.
- *
- * Specify an absolute path or a path relative to the config file location.
- * The adapter will parse this file (e.g., OpenAPI YAML or JSON) into the universal AST.
+ * Path to an input file to generate from, absolute or relative to the config file. The adapter
+ * parses it (e.g. an OpenAPI YAML or JSON spec) into the universal AST.
  */
 export type InputPath = {
   /**
@@ -44,10 +42,8 @@ export type InputPath = {
 }
 
 /**
- * Inline input data to generate code from.
- *
- * Useful when you want to pass the specification directly instead of from a file.
- * Can be a string (YAML/JSON) or a parsed object.
+ * Inline spec to generate from, passed directly instead of read from a file. A string
+ * (YAML/JSON) or a parsed object.
  */
 export type InputData = {
   /**
@@ -65,15 +61,9 @@ export type InputData = {
 type Input = InputPath | InputData
 
 /**
- * Build configuration for Kubb code generation.
- *
- * The Config is the main entry point for customizing how Kubb generates code. It specifies:
- * - What to generate from (adapter + input)
- * - Where to output generated code (output)
- * - How to generate (plugins + middleware)
- * - Runtime details (parsers, storage)
- *
- * See `UserConfig` for a relaxed version with sensible defaults.
+ * Resolved build configuration for a Kubb run: what to generate from (adapter, input), where to
+ * write it (output), how (plugins, middleware), and the runtime pieces (parsers, storage). See
+ * `UserConfig` for the relaxed form with defaults applied.
  *
  * @private
  */
@@ -90,16 +80,16 @@ export type Config<TInput = Input> = {
   name?: string
   /**
    * Project root directory, absolute or relative to the config file. Already
-   * resolved on the `Config` instance — see `UserConfig` for the optional
-   * form that defaults to `process.cwd()`.
+   * resolved on the `Config` instance (see `UserConfig` for the optional
+   * form that defaults to `process.cwd()`).
    */
   root: string
   /**
    * Parsers that convert generated files into strings. Each parser handles a
-   * set of file extensions; a fallback parser handles anything else.
+   * set of file extensions, and a fallback parser handles anything else.
    *
-   * Already resolved on the `Config` instance — see `UserConfig` for the
-   * optional form that defaults to `[parserTs, parserTsx, parserMd]`.
+   * Already resolved on the `Config` instance (see `UserConfig` for the
+   * optional form that defaults to `[parserTs, parserTsx, parserMd]`).
    *
    * @example
    * ```ts
@@ -133,15 +123,13 @@ export type Config<TInput = Input> = {
   /**
    * Source file or data to generate code from.
    * Use `input.path` for a file path or `input.data` for inline data.
-   * Required when an adapter is configured; omit when running in plugin-only mode.
+   * Required when an adapter is configured. Omit it when running in plugin-only mode.
    */
   input?: TInput
   output: {
     /**
-     * Output directory for generated files, absolute or relative to `root`.
-     *
-     * All generated files will be written under this directory. Subdirectories can be created
-     * by plugins based on grouping strategy (by tag, path, etc.).
+     * Output directory for generated files, absolute or relative to `root`. Plugins can nest
+     * subdirectories under it by grouping strategy (tag, path).
      *
      * @example
      * ```ts
@@ -152,10 +140,8 @@ export type Config<TInput = Input> = {
      */
     path: string
     /**
-     * Remove all files from the output directory before starting the build.
-     *
-     * Useful to ensure old generated files aren't mixed with new ones.
-     * Set to `true` for fresh builds, `false` to preserve manual edits in output dir.
+     * Remove every file in the output directory before the build, so stale output isn't mixed
+     * with new files. Leave `false` to preserve manual edits in the output directory.
      *
      * @default false
      * @example
@@ -165,10 +151,8 @@ export type Config<TInput = Input> = {
      */
     clean?: boolean
     /**
-     * Auto-format generated files after code generation completes.
-     *
-     * Applies a code formatter to all generated files. Use `'auto'` to detect which formatter
-     * is available on your system. Pass `false` to skip formatting (useful for CI or specific workflows).
+     * Format the generated files after generation. `'auto'` runs the first formatter it finds
+     * (oxfmt, biome, or prettier), a named tool forces that one, and `false` skips formatting.
      *
      * @default false
      * @example
@@ -180,10 +164,8 @@ export type Config<TInput = Input> = {
      */
     format?: 'auto' | 'prettier' | 'biome' | 'oxfmt' | false
     /**
-     * Auto-lint generated files after code generation completes.
-     *
-     * Analyzes all generated files for style/correctness issues. Use `'auto'` to detect which linter
-     * is available on your system. Pass `false` to skip linting.
+     * Lint the generated files after generation. `'auto'` runs the first linter it finds
+     * (oxlint, biome, or eslint), a named tool forces that one, and `false` skips linting.
      *
      * @default false
      * @example
@@ -195,10 +177,8 @@ export type Config<TInput = Input> = {
      */
     lint?: 'auto' | 'eslint' | 'biome' | 'oxlint' | false
     /**
-     * Map file extensions to different output extensions.
-     *
-     * Useful when you want generated `.ts` imports to reference `.js` files or vice versa (e.g., for ESM dual packages).
-     * Keys are the original extension, values are the output extension. Use empty string `''` to omit extension.
+     * Rewrite import extensions in generated files, e.g. emit `.js` imports from `.ts` sources for
+     * ESM dual packages. Keys are the source extension, values the output, and `''` drops it.
      *
      * @default { '.ts': '.ts' }
      * @example
@@ -209,10 +189,8 @@ export type Config<TInput = Input> = {
      */
     extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
     /**
-     * Banner text prepended to every generated file.
-     *
-     * Useful for auto-generation notices or license headers. Choose a preset or write custom text.
-     * Use `'simple'` for a basic Kubb banner, `'full'` for detailed metadata, or `false` to omit.
+     * Banner prepended to every generated file. `'simple'` is the basic Kubb notice, `'full'` adds
+     * source, title, description, and API version, and `false` omits it.
      *
      * @default 'simple'
      * @example
@@ -224,10 +202,8 @@ export type Config<TInput = Input> = {
      */
     defaultBanner?: 'simple' | 'full' | false
     /**
-     * When `true`, overwrites existing files. When `false`, skips generated files that already exist.
-     *
-     * Individual plugins can override this setting. This is useful for preventing accidental data loss
-     * when re-generating while you have local edits in the output folder.
+     * Overwrite existing files when `true`, skip files that already exist when `false`. Individual
+     * plugins can override it. Keep `false` to avoid clobbering local edits in the output folder.
      *
      * @default false
      * @example
@@ -239,10 +215,8 @@ export type Config<TInput = Input> = {
     override?: boolean
   } & ExtractRegistryKey<Kubb.ConfigOptionsRegistry, 'output'>
   /**
-   * Storage backend that controls where and how generated files are persisted.
-   *
-   * Defaults to `fsStorage()` which writes to the file system. Pass `memoryStorage()` to keep files in RAM,
-   * or implement a custom `Storage` interface to write to cloud storage, databases, or other backends.
+   * Where generated files are persisted. Defaults to `fsStorage()` (disk). Pass `memoryStorage()`
+   * to keep files in RAM, or implement `Storage` for a custom backend such as cloud or a database.
    *
    * @default fsStorage()
    * @example
@@ -260,13 +234,9 @@ export type Config<TInput = Input> = {
    */
   storage: Storage
   /**
-   * Plugins that execute during the build to generate code and transform the AST.
-   *
-   * Each plugin processes the AST produced by the adapter and can emit files for different
-   * programming languages or formats (TypeScript, Zod schemas, Faker data, etc.).
-   * Dependencies are enforced — an error is thrown if a plugin requires another plugin that isn't registered.
-   *
-   * Plugins can declare their own options via `PluginFactoryOptions`. See plugin documentation for details.
+   * Plugins that run during the build to generate code and transform the AST. Each one processes
+   * the adapter's AST and can emit files for a different target (TypeScript, Zod, Faker). A plugin
+   * that depends on another throws when that plugin isn't registered.
    *
    * @example
    * ```ts
@@ -352,6 +322,22 @@ export type Config<TInput = Input> = {
      */
     done?: string | Array<string>
   }
+  /**
+   * Reporters that render the run's output, like Vitest. List one or more by name;
+   * the CLI `--reporter` flag overrides this when set.
+   *
+   * - `cli` writes the end-of-run summary to the terminal.
+   * - `json` writes a machine-readable report to stdout, for CI.
+   * - `file` writes a debug log to `.kubb/<name>-<timestamp>.log`.
+   *
+   * @default ['cli']
+   *
+   * @example
+   * ```ts
+   * reporters: ['cli', 'file']
+   * ```
+   */
+  reporters?: Array<ReporterName>
 }
 
 /**
@@ -485,7 +471,6 @@ export interface KubbHooks {
   'kubb:config:end': [ctx: KubbConfigEndContext]
   'kubb:generation:start': [ctx: KubbGenerationStartContext]
   'kubb:generation:end': [ctx: KubbGenerationEndContext]
-  'kubb:generation:summary': [ctx: KubbGenerationSummaryContext]
   'kubb:format:start': []
   'kubb:format:end': []
   'kubb:lint:start': []
@@ -494,12 +479,11 @@ export interface KubbHooks {
   'kubb:hooks:end': []
   'kubb:hook:start': [ctx: KubbHookStartContext]
   'kubb:hook:end': [ctx: KubbHookEndContext]
-  'kubb:version:new': [ctx: KubbVersionNewContext]
   'kubb:info': [ctx: KubbInfoContext]
   'kubb:error': [ctx: KubbErrorContext]
   'kubb:success': [ctx: KubbSuccessContext]
   'kubb:warn': [ctx: KubbWarnContext]
-  'kubb:debug': [ctx: KubbDebugContext]
+  'kubb:diagnostic': [ctx: KubbDiagnosticContext]
   'kubb:files:processing:start': [ctx: KubbFilesProcessingStartContext]
   'kubb:files:processing:update': [ctx: KubbFilesProcessingUpdateContext]
   'kubb:files:processing:end': [ctx: KubbFilesProcessingEndContext]
@@ -601,7 +585,7 @@ export type KubbGenerationEndContext = {
   config: Config
   /**
    * Read-only view of the files written during this build.
-   * Reads go directly to `config.storage` — nothing extra is held in memory.
+   * Reads go directly to `config.storage`, nothing extra is held in memory.
    *
    * @example Read a generated file
    * `const code = await storage.getItem('/src/gen/pet.ts')`
@@ -614,44 +598,24 @@ export type KubbGenerationEndContext = {
    * ```
    */
   storage: Storage
-}
-
-export type KubbGenerationSummaryContext = {
   /**
-   * Resolved configuration for this generation run.
+   * Diagnostics collected during the build: error/warning/info problems plus a
+   * `timing` diagnostic per plugin. The end-of-run summary derives its failure counts
+   * and per-plugin timings from these. Set by the CLI runner, omitted by other callers.
    */
-  config: Config
-  /**
-   * Plugins that threw during generation, paired with their errors.
-   */
-  failedPlugins: Set<{ plugin: Plugin; error: Error }>
+  diagnostics?: Array<Diagnostic>
   /**
    * `'success'` when all plugins completed without errors, `'failed'` otherwise.
    */
-  status: 'success' | 'failed'
+  status?: 'success' | 'failed'
   /**
-   * High-resolution start time from `process.hrtime()`.
+   * High-resolution start time from `process.hrtime()`, used to compute the elapsed time.
    */
-  hrStart: [number, number]
+  hrStart?: [number, number]
   /**
    * Total number of files created during this run.
    */
-  filesCreated: number
-  /**
-   * Elapsed milliseconds per plugin, keyed by plugin name.
-   */
-  pluginTimings?: Map<Plugin['name'], number>
-}
-
-export type KubbVersionNewContext = {
-  /**
-   * The installed Kubb version.
-   */
-  currentVersion: string
-  /**
-   * The newest available version on npm.
-   */
-  latestVersion: string
+  filesCreated?: number
 }
 
 export type KubbInfoContext = {
@@ -698,19 +662,11 @@ export type KubbWarnContext = {
   info?: string
 }
 
-export type KubbDebugContext = {
+export type KubbDiagnosticContext = {
   /**
-   * Timestamp when the debug entry was created.
+   * The structured diagnostic to render: a build problem or a version-update notice.
    */
-  date: Date
-  /**
-   * One or more log lines to emit.
-   */
-  logs: Array<string>
-  /**
-   * Optional source file name associated with this entry.
-   */
-  fileName?: string
+  diagnostic: ProblemDiagnostic | UpdateDiagnostic
 }
 
 export type KubbFilesProcessingStartContext = {
@@ -730,7 +686,7 @@ export type KubbFileProcessingUpdate = {
    */
   total: number
   /**
-   * Completion percentage (`0`–`100`).
+   * Completion percentage, `0` to `100`.
    */
   percentage: number
   /**
@@ -821,7 +777,11 @@ export type CLIOptions = {
    *
    * @default 'info'
    */
-  logLevel?: 'silent' | 'info' | 'verbose' | 'debug'
+  logLevel?: 'silent' | 'info' | 'verbose'
+  /**
+   * Reporters selected on the CLI via `--reporter`, overriding `config.reporters`.
+   */
+  reporters?: Array<ReporterName>
 }
 
 /**
@@ -837,9 +797,12 @@ export type PossibleConfig<TCliOptions = undefined> =
  */
 export type BuildOutput = {
   /**
-   * Plugins that threw during generation, paired with their errors.
+   * Structured diagnostics collected during the build: error/warning/info problems
+   * (each with a code, severity, and where known a JSON-pointer location) plus a
+   * `timing` diagnostic per plugin. Includes a top-level diagnostic when the build
+   * threw before completing. Use {@link Diagnostics.hasError} to test for failure.
    */
-  failedPlugins: Set<{ plugin: Plugin; error: Error }>
+  diagnostics: Array<Diagnostic>
   /**
    * All files generated during this build.
    */
@@ -849,16 +812,8 @@ export type BuildOutput = {
    */
   driver: KubbDriver
   /**
-   * Elapsed milliseconds per plugin, keyed by plugin name.
-   */
-  pluginTimings: Map<string, number>
-  /**
-   * Top-level error when the build threw before completing, otherwise `undefined`.
-   */
-  error?: Error
-  /**
    * Read-only view of every file written during this build.
-   * Reads go straight to `config.storage` — nothing extra is held in memory.
+   * Reads go straight to `config.storage`, nothing extra is held in memory.
    *
    * @example Read a generated file
    * `const code = await buildOutput.storage.getItem('/src/gen/pet.ts')`
@@ -872,7 +827,7 @@ export type BuildOutput = {
 /**
  * Builds a `Storage` view scoped to the file paths produced by the current build.
  * Reads delegate to the underlying `storage` so source bytes stay where they were
- * written; writes register the key so subsequent reads and `getKeys` are scoped
+ * written. Writes register the key so subsequent reads and `getKeys` are scoped
  * to this build's output.
  */
 function createSourcesView(storage: Storage): Storage {
@@ -933,22 +888,6 @@ function resolveConfig(userConfig: UserConfig): Config {
 }
 
 /**
- * Returns a snapshot of the current runtime environment.
- *
- * Useful for attaching context to debug logs and error reports so that
- * issues can be reproduced without manual information gathering.
- */
-export function getDiagnosticInfo() {
-  return {
-    nodeVersion,
-    KubbVersion,
-    platform: process.platform,
-    arch: process.arch,
-    cwd: process.cwd(),
-  } as const
-}
-
-/**
  * Type guard to check if a given config has an `input.path`.
  */
 export function isInputPath(config: UserConfig | undefined): config is UserConfig<InputPath> & { input: InputPath }
@@ -972,7 +911,7 @@ type CreateKubbOptions = {
  * ```ts
  * const kubb = createKubb(userConfig)
  * kubb.hooks.on('kubb:plugin:end', ({ plugin, duration }) => console.log(plugin.name, duration))
- * const { files, failedPlugins } = await kubb.safeBuild()
+ * const { files, diagnostics } = await kubb.safeBuild()
  * ```
  */
 export class Kubb {
@@ -1010,42 +949,12 @@ export class Kubb {
     const driver = new KubbDriver(config, { hooks: this.hooks })
     const storage = createSourcesView(config.storage)
 
-    const userConfig = this.#userConfig
-    const diagnostics = getDiagnosticInfo()
-    await this.hooks.emit('kubb:debug', {
-      date: new Date(),
-      logs: [
-        'Configuration:',
-        `  • Name: ${userConfig.name || 'unnamed'}`,
-        `  • Root: ${userConfig.root || process.cwd()}`,
-        `  • Output: ${userConfig.output?.path || 'not specified'}`,
-        `  • Plugins: ${userConfig.plugins?.length || 0}`,
-        'Output Settings:',
-        `  • Storage: ${config.storage.name}`,
-        `  • Formatter: ${userConfig.output?.format || 'none'}`,
-        `  • Linter: ${userConfig.output?.lint || 'none'}`,
-        `Running adapter: ${config.adapter?.name || 'none'}`,
-        'Environment:',
-        Object.entries(diagnostics)
-          .map(([key, value]) => `  • ${key}: ${value}`)
-          .join('\n'),
-      ],
-    })
-
-    if (isInputPath(this.#userConfig) && !new URLPath(this.#userConfig.input.path).isURL) {
-      try {
-        await exists(this.#userConfig.input.path)
-        await this.hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ Input file validated: ${this.#userConfig.input.path}`] })
-      } catch (caughtError) {
-        throw new Error(
-          `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${this.#userConfig.input.path}`,
-          { cause: caughtError as Error },
-        )
-      }
-    }
+    // Each generator a plugin registers adds a listener to the shared hooks emitter, so size the
+    // ceiling to the plugin count. Without this, a multi-generator plugin set trips Node's
+    // EventEmitter leak warning at the default 10.
+    this.hooks.setMaxListeners(Math.max(10, config.plugins.length * HOOK_LISTENERS_PER_PLUGIN))
 
     if (config.output.clean) {
-      await this.hooks.emit('kubb:debug', { date: new Date(), logs: ['Cleaning output directories', `  • Output: ${config.output.path}`] })
       await config.storage.clear(resolve(config.root, config.output.path))
     }
 
@@ -1062,10 +971,12 @@ export class Kubb {
    */
   async build(): Promise<BuildOutput> {
     const out = await this.safeBuild()
-    if (out.error) throw out.error
-    if (out.failedPlugins.size > 0) {
-      const errors = [...out.failedPlugins].map(({ error }) => error)
-      throw new BuildError(`Build Error with ${out.failedPlugins.size} failed plugins`, { errors })
+    if (Diagnostics.hasError(out.diagnostics)) {
+      const errors = out.diagnostics
+        .filter(isProblemDiagnostic)
+        .filter((diagnostic) => diagnostic.severity === 'error')
+        .map((diagnostic) => diagnostic.cause ?? new DiagnosticError(diagnostic))
+      throw new BuildError(`Build failed with ${errors.length} ${errors.length === 1 ? 'error' : 'errors'}`, { errors })
     }
     return out
   }
@@ -1079,8 +990,9 @@ export class Kubb {
     using cleanup = this
     const driver = cleanup.driver
     const storage = cleanup.storage
-    const { failedPlugins, pluginTimings, error } = await driver.run({ storage })
-    return { failedPlugins, files: driver.fileManager.files, driver, pluginTimings, storage, ...(error ? { error } : {}) }
+    const { diagnostics } = await driver.run({ storage })
+
+    return { diagnostics, files: driver.fileManager.files, driver, storage }
   }
 
   dispose(): void {

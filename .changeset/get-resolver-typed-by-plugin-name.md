@@ -9,10 +9,10 @@
 Calling `getResolver` with a registered plugin name returns the plugin-specific resolver type instead of the generic `Resolver`:
 
 ```ts
-// before – always returned the base Resolver type
+// before: always returned the base Resolver type
 const resolver = driver.getResolver('@kubb/plugin-ts') // Resolver
 
-// after – returns the plugin's typed resolver
+// after: returns the plugin's typed resolver
 const resolver = driver.getResolver('@kubb/plugin-ts') // PluginTs['resolver']
 ```
 

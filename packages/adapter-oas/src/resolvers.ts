@@ -1,9 +1,10 @@
 import { pascalCase } from '@internals/utils'
+import { diagnosticCode, DiagnosticError } from '@kubb/core'
 import type { ast } from '@kubb/core'
 import type { ParameterObject, ServerObject } from 'oas/types'
 import { isRef } from 'oas/types'
 import { matchesMimeType } from 'oas/utils'
-import { formatMap, SCHEMA_REF_PREFIX, structuralKeys } from './constants.ts'
+import { formatMap, SCHEMA_REF_PREFIX, specialCasedFormats, structuralKeys } from './constants.ts'
 import { isReference } from './guards.ts'
 import { dereferenceWithRef, resolveRef } from './refs.ts'
 import type { ContentType, Document, MediaTypeObject, Operation, ResponseObject, SchemaObject } from './types.ts'
@@ -35,7 +36,13 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
     }
 
     if (variable.enum?.length && !variable.enum.some((e) => String(e) === value)) {
-      throw new Error(`Invalid server variable value '${value}' for '${key}' when resolving ${server.url}. Valid values are: ${variable.enum.join(', ')}.`)
+      throw new DiagnosticError({
+        code: diagnosticCode.invalidServerVariable,
+        severity: 'error',
+        message: `Invalid server variable value '${value}' for '${key}' when resolving ${server.url}. Valid values are: ${variable.enum.join(', ')}.`,
+        help: `Use one of the allowed enum values, or drop the enum on the '${key}' server variable.`,
+        location: { kind: 'document', pointer: '#/servers' },
+      })
     }
 
     url = url.replaceAll(`{${key}}`, value)
@@ -50,6 +57,16 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
  */
 export function getSchemaType(format: string): ast.SchemaType | null {
   return formatMap[format as keyof typeof formatMap] ?? null
+}
+
+/**
+ * Whether the parser maps `format` to a dedicated type. True for any `formatMap` entry and the
+ * `specialCasedFormats` `convertFormat` handles directly. False means the format falls back to the
+ * base type, which is what `KUBB_UNSUPPORTED_FORMAT` flags. Reading both sources keeps the
+ * diagnostic in step with the parser as `formatMap` grows.
+ */
+export function isHandledFormat(format: string): boolean {
+  return getSchemaType(format) !== null || specialCasedFormats.has(format)
 }
 
 /**
@@ -224,7 +241,7 @@ export type GetSchemasResult = {
 /**
  * Flattens a keyword-only `allOf` into its parent schema.
  *
- * Only flattens when every member is a plain fragment — no `$ref` and no structural keywords
+ * Only flattens when every member is a plain fragment, with no `$ref` and no structural keywords
  * (see `structuralKeys`). Outer schema values take precedence over fragment values.
  * Returns `null` for a `null` input, and the original schema unchanged when flattening is unsafe.
  *
@@ -234,7 +251,7 @@ export type GetSchemasResult = {
  * // { type: 'object', properties: {}, description: 'A pet' }
  *
  * flattenSchema({ allOf: [{ $ref: '#/components/schemas/Pet' }] })
- * // returned unchanged — contains a $ref
+ * // returned unchanged, contains a $ref
  * ```
  */
 /**
@@ -274,7 +291,7 @@ export function flattenSchema(schema: SchemaObject | null): SchemaObject | null 
 /**
  * Extracts the inline schema from a media-type `content` map.
  *
- * Prefers `preferredContentType` when given; otherwise uses the first key in the map.
+ * Prefers `preferredContentType` when given, otherwise uses the first key in the map.
  * Returns `null` when `content` is absent, the schema is missing, or the schema is a `$ref`.
  *
  * @example
@@ -512,9 +529,9 @@ export function buildSchemaNode(schema: SchemaObject, name: string | null | unde
 /**
  * Returns all request body content type keys for an operation.
  *
- * The requestBody is dereferenced **in-place** when it is a `$ref` — the same mutation
- * that `getRequestSchema` already performs — so that the returned list accurately reflects
- * the available content types even for referenced bodies.
+ * The requestBody is dereferenced in place when it is a `$ref` (the same mutation that
+ * `getRequestSchema` already performs), so the returned list accurately reflects the
+ * available content types even for referenced bodies.
  *
  * @example
  * ```ts
@@ -531,14 +548,14 @@ export function getRequestBodyContentTypes(document: Document, operation: Operat
   if (!body) return []
 
   // dereferenceWithRef keeps $ref but spreads all resolved fields (including `content`).
-  // Do not bail out on isReference — the content is already present on the merged object.
+  // Do not bail out on isReference, the content is already present on the merged object.
   return body.content ? Object.keys(body.content) : []
 }
 
 /**
  * Returns all response content type keys for an operation at a given status code.
  *
- * Response `$ref`s are resolved in-place first — the same mutation `getResponseSchema` performs —
+ * Response `$ref`s are resolved in place first (the same mutation `getResponseSchema` performs),
  * so the returned list reflects the available content types even for referenced responses.
  *
  * @example

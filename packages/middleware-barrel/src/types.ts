@@ -1,8 +1,8 @@
 /**
  * Barrel export strategy.
  *
- * - `'all'` — generates `export * from '...'` for every file
- * - `'named'` — generates `export { name1, name2 } from '...'` using each file's named exports
+ * - `'all'` generates `export * from '...'` for every file
+ * - `'named'` generates `export { name1, name2 } from '...'` using each file's named exports
  */
 export type BarrelType = 'all' | 'named'
 
@@ -19,8 +19,8 @@ export type BarrelType = 'all' | 'named'
 export type BarrelConfig = {
   /**
    * Export strategy for the root barrel file.
-   * - `'all'` — wildcard exports: `export * from './file'`
-   * - `'named'` — explicit exports: `export { x, y } from './file'`
+   * - `'all'` wildcard exports: `export * from './file'`
+   * - `'named'` explicit exports: `export { x, y } from './file'`
    */
   type: BarrelType
 }
@@ -40,8 +40,8 @@ export type BarrelConfig = {
 export type PluginBarrelConfig = {
   /**
    * Export strategy for the plugin's barrel files.
-   * - `'all'` — wildcard exports: `export * from './file'`
-   * - `'named'` — explicit exports: `export { x, y } from './file'`
+   * - `'all'` wildcard exports: `export * from './file'`
+   * - `'named'` explicit exports: `export { x, y } from './file'`
    */
   type: BarrelType
   /**

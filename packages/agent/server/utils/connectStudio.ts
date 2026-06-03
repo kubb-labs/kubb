@@ -55,7 +55,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
   async function reconnect() {
     logger.info(`Retrying connection in ${formatMs(retryInterval)} to Kubb Studio ...`)
 
-    // On reconnect, don't reuse the initial session — always create a fresh one
+    // On reconnect, don't reuse the initial session, always create a fresh one
     setTimeout(() => connectToStudio({ ...options, initialSession: undefined }), retryInterval)
   }
 
@@ -180,7 +180,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             // In sandbox mode the caller may supply raw OpenAPI / Swagger spec
             // content inline (YAML or JSON string) via `payload.input`.
             // Outside of sandbox mode the input is always taken from the config
-            // file on disk — ignoring any payload-supplied input for security.
+            // file on disk, ignoring any payload-supplied input for security.
             const inputOverride = isSandbox ? { data: patch?.input ?? '' } : undefined
 
             if (allowWrite && isSandbox) {
@@ -215,7 +215,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 },
                 plugins,
                 middleware,
-                // Studio may send an opaque adapter options blob; forward it unchanged to createKubb.
+                // Studio may send an opaque adapter options blob. Forward it unchanged to createKubb.
                 // The adapter factory is responsible for validating and merging its own options.
                 ...(patch?.adapter != null && { adapter: patch.adapter as typeof config.adapter }),
               },

@@ -9,7 +9,7 @@ const _require = createRequire(import.meta.url)
  *
  * Background: @redocly/openapi-core declares `"ajv": "npm:@redocly/ajv"`, so esbuild
  * (via the `alias` option below) bundles @redocly/ajv instead of real ajv. Nitro's
- * module tracer sees the alias and only copies `ajv/package.json` to the output — not
+ * module tracer sees the alias and only copies `ajv/package.json` to the output, not
  * the JS files. `ajv-formats` is kept as an external CJS module and calls
  * `require('ajv')` at runtime, which hits that incomplete stub and fails.
  *
@@ -53,7 +53,7 @@ export default defineNitroConfig({
     // The `ajv` alias above replaces the entry-point import in the bundle, so Nitro's
     // module tracer only traces sub-path imports (e.g. `ajv/dist/compile`)
     // and never copies the full package. However, `ajv-formats` is kept as an external
-    // CJS module and does `require('ajv')` at runtime — which resolves via the
+    // CJS module and does `require('ajv')` at runtime, which resolves via the
     // filesystem and fails because the package is incomplete. Copy the full package
     // from the real `ajv` installation after the build to fix that.
     //

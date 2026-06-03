@@ -1,8 +1,9 @@
 import { resolve } from 'node:path'
-import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, formatMs, getElapsedMs, isPromise, memoize, URLPath } from '@internals/utils'
+import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs, isPromise, memoize, URLPath } from '@internals/utils'
 import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast'
 import type { FileNode, InputMeta, InputNode, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
-import { DEFAULT_STUDIO_URL, OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
+import { DEFAULT_STUDIO_URL, diagnosticCode, OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
+import { type Diagnostic, DiagnosticError, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -57,7 +58,7 @@ export class KubbDriver {
 
   /**
    * The streaming `InputStreamNode` produced by the adapter.
-   * Always set after adapter setup — parse-only adapters are wrapped automatically.
+   * Always set after adapter setup, parse-only adapters are wrapped automatically.
    */
   inputNode: InputStreamNode | null = null
   adapter: Adapter | null = null
@@ -65,7 +66,7 @@ export class KubbDriver {
    * Studio session state, kept together so `dispose()` can reset it atomically.
    *
    * - `source` holds the raw adapter source so `adapter.parse()` can be called lazily.
-   *   Intentionally outlives the build; cleared by `dispose()`.
+   *   Intentionally outlives the build, cleared by `dispose()`.
    * - `isOpen` prevents opening the studio more than once per build.
    * - `inputNode` caches the parse promise so `adapter.parse()` is called at most once
    *   per studio session, even when `openInStudio()` is called multiple times.
@@ -79,7 +80,7 @@ export class KubbDriver {
   /**
    * Central file store for all generated files.
    * Plugins should use `this.addFile()` / `this.upsertFile()` (via their context) to
-   * add files; this property gives direct read/write access when needed.
+   * add files. This property gives direct read/write access when needed.
    */
   readonly fileManager = new FileManager()
   readonly plugins = new Map<string, NormalizedPlugin>()
@@ -181,24 +182,11 @@ export class KubbDriver {
 
     if (adapter.stream) {
       this.inputNode = await adapter.stream(source)
-      this.hooks.emit('kubb:debug', {
-        date: new Date(),
-        logs: [`✓ Adapter '${adapter.name}' producing input stream`],
-      })
       return
     }
 
     const parsed = await adapter.parse(source)
     this.inputNode = createStreamInput(arrayToAsyncIterable(parsed.schemas), arrayToAsyncIterable(parsed.operations), parsed.meta)
-
-    await this.hooks.emit('kubb:debug', {
-      date: new Date(),
-      logs: [
-        `✓ Adapter '${adapter.name}' resolved InputNode (wrapped as stream)`,
-        `  • Schemas: ${parsed.schemas.length}`,
-        `  • Operations: ${parsed.operations.length}`,
-      ],
-    })
   }
 
   #registerMiddleware<K extends keyof KubbHooks & string>(event: K, middlewareHooks: Middleware['hooks']) {
@@ -214,15 +202,10 @@ export class KubbDriver {
   /**
    * Registers a hook-style plugin's lifecycle handlers on the shared `AsyncEventEmitter`.
    *
-   * For `kubb:plugin:setup`, the registered listener wraps the globally emitted context with a
-   * plugin-specific one so that `addGenerator`, `setResolver`, and `setTransformer` all target
-   * the correct `normalizedPlugin` entry in the plugins map.
-   *
-   * All other hooks are iterated and registered directly as pass-through listeners.
-   * Any event key present in the global `KubbHooks` interface can be subscribed to.
-   *
-   * External tooling can subscribe to any of these events via `hooks.on(...)` to observe
-   * the plugin lifecycle without modifying plugin behavior.
+   * The `kubb:plugin:setup` listener wraps the global context in a plugin-specific one so
+   * `addGenerator`, `setResolver`, and `setTransformer` target the right `normalizedPlugin`.
+   * Every other `KubbHooks` event registers as a pass-through listener that external tooling
+   * can observe via `hooks.on(...)`.
    *
    * @internal
    */
@@ -357,18 +340,14 @@ export class KubbDriver {
   }
 
   /**
-   * Runs the full plugin pipeline. Returns timings/failures collected so far even
-   * when an outer hook throws — the orchestrator preserves partial state by capturing
-   * the error into `error` instead of propagating.
+   * Runs the full plugin pipeline. Returns the diagnostics collected so far even
+   * when an outer hook throws, since the orchestrator preserves partial state by capturing
+   * the failure as a {@link Diagnostic} instead of propagating. Each plugin also
+   * contributes a `timing` diagnostic for the run summary.
    */
-  async run({ storage }: { storage: Storage }): Promise<{
-    failedPlugins: Set<{ plugin: Plugin; error: Error }>
-    pluginTimings: Map<string, number>
-    error?: Error
-  }> {
+  async run({ storage }: { storage: Storage }): Promise<{ diagnostics: Array<Diagnostic> }> {
     const { hooks, config } = this
-    const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
-    const pluginTimings = new Map<string, number>()
+    const diagnostics: Array<Diagnostic> = []
     const parsersMap = new Map<FileNode['extname'], Parser>()
 
     for (const parser of config.parsers) {
@@ -379,9 +358,8 @@ export class KubbDriver {
 
     const processor = new FileProcessor({ parsers: parsersMap, storage, extension: config.output.extension })
     // Bridge processor lifecycle to the user-facing kubb hooks so existing listeners on
-    // kubb:files:processing:* and kubb:debug keep firing.
+    // kubb:files:processing:* keep firing.
     processor.hooks.on('start', async (files) => {
-      await hooks.emit('kubb:debug', { date: new Date(), logs: [`Writing ${files.length} files...`] })
       await hooks.emit('kubb:files:processing:start', { files })
     })
     const updateBuffer: Array<{ file: FileNode; source?: string; processed: number; total: number; percentage: number }> = []
@@ -394,90 +372,92 @@ export class KubbDriver {
       })
       updateBuffer.length = 0
       await hooks.emit('kubb:files:processing:end', { files })
-      await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ File write process completed for ${files.length} files`] })
     })
     const onFileUpsert = (file: FileNode): void => {
       processor.enqueue(file)
     }
     this.fileManager.hooks.on('upsert', onFileUpsert)
 
-    try {
-      // Parse the adapter source into the streaming `InputNode`.
-      await this.#parseInput()
-      // Emit `kubb:plugin:setup` so plugins can register transformers via `setTransformer`.
-      // Each call writes into `this.#transforms`, which `#runGenerators` later reads through
-      // `transforms.applyTo`.
-      await this.emitSetupHooks()
-
-      if (this.adapter && this.inputNode) {
-        await hooks.emit(
-          'kubb:build:start',
-          Object.assign({ config, adapter: this.adapter, meta: this.inputNode.meta, getPlugin: this.getPlugin.bind(this) }, this.#filesPayload()),
-        )
-      }
-
-      const generatorPlugins: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options'>; hrStart: ReturnType<typeof process.hrtime> }> = []
-
-      for (const plugin of this.plugins.values()) {
-        const context = this.getContext(plugin)
-        const hrStart = process.hrtime()
-
+    // Make `diagnostics` the active sink so deep code (adapter parse, lazily consumed
+    // streams, generators) can report into this run via `Diagnostics.report`.
+    return Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      async () => {
         try {
-          await hooks.emit('kubb:plugin:start', { plugin })
-          await hooks.emit('kubb:debug', { date: new Date(), logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`] })
+          // Parse the adapter source into the streaming `InputNode`.
+          await this.#parseInput()
+          // Emit `kubb:plugin:setup` so plugins can register transformers via `setTransformer`.
+          // Each call writes into `this.#transforms`, which `#runGenerators` later reads through
+          // `transforms.applyTo`.
+          await this.emitSetupHooks()
+
+          if (this.adapter && this.inputNode) {
+            await hooks.emit(
+              'kubb:build:start',
+              Object.assign({ config, adapter: this.adapter, meta: this.inputNode.meta, getPlugin: this.getPlugin.bind(this) }, this.#filesPayload()),
+            )
+          }
+
+          const generatorPlugins: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options'>; hrStart: ReturnType<typeof process.hrtime> }> =
+            []
+
+          for (const plugin of this.plugins.values()) {
+            const context = this.getContext(plugin)
+            const hrStart = process.hrtime()
+
+            try {
+              await hooks.emit('kubb:plugin:start', { plugin })
+            } catch (caughtError) {
+              const error = caughtError as Error
+              const duration = getElapsedMs(hrStart)
+
+              await this.#emitPluginEnd({ plugin, duration, success: false, error })
+
+              diagnostics.push({ ...Diagnostics.from(error), plugin: plugin.name }, Diagnostics.performance({ plugin: plugin.name, duration }))
+
+              continue
+            }
+
+            if (this.hasEventGenerators(plugin.name)) {
+              generatorPlugins.push({ plugin, context, hrStart })
+
+              continue
+            }
+
+            const duration = getElapsedMs(hrStart)
+            diagnostics.push(Diagnostics.performance({ plugin: plugin.name, duration }))
+
+            await this.#emitPluginEnd({ plugin, duration, success: true })
+          }
+
+          // Stream every node through the transform registry and into each plugin's generators.
+          // Handles the empty-entries and missing-`inputNode` cases by closing out each entry's
+          // `kubb:plugin:end` directly.
+          diagnostics.push(...(await this.#runGenerators(generatorPlugins, () => processor.flush())))
+          // Wait for the last in-flight batch and write anything still pending.
+          await processor.drain()
+
+          await hooks.emit('kubb:plugins:end', Object.assign({ config }, this.#filesPayload()))
+
+          // Plugins-end listeners (barrel middleware etc.) may have queued more files.
+          await processor.drain()
+
+          await hooks.emit('kubb:build:end', { files: this.fileManager.files, config, outputDir: resolve(config.root, config.output.path) })
+
+          return { diagnostics: Diagnostics.dedupe(diagnostics) }
         } catch (caughtError) {
-          const error = caughtError as Error
-          const duration = getElapsedMs(hrStart)
-          pluginTimings.set(plugin.name, duration)
-
-          await this.#emitPluginEnd({ plugin, duration, success: false, error })
-
-          failedPlugins.add({ plugin, error })
-
-          continue
+          diagnostics.push(Diagnostics.from(caughtError))
+          return { diagnostics: Diagnostics.dedupe(diagnostics) }
+        } finally {
+          this.fileManager.hooks.off('upsert', onFileUpsert)
         }
-
-        if (this.hasEventGenerators(plugin.name)) {
-          generatorPlugins.push({ plugin, context, hrStart })
-
-          continue
-        }
-
-        const duration = getElapsedMs(hrStart)
-        pluginTimings.set(plugin.name, duration)
-
-        await this.#emitPluginEnd({ plugin, duration, success: true })
-        await hooks.emit('kubb:debug', { date: new Date(), logs: [`✓ Plugin started successfully (${formatMs(duration)})`] })
-      }
-
-      // Stream every node through the transform registry and into each plugin's generators.
-      // Handles the empty-entries and missing-`inputNode` cases by closing out each entry's
-      // `kubb:plugin:end` directly.
-      const { timings, failed } = await this.#runGenerators(generatorPlugins, () => processor.flush())
-      // Wait for the last in-flight batch and write anything still pending.
-      await processor.drain()
-
-      for (const [name, duration] of timings) pluginTimings.set(name, duration)
-      for (const entry of failed) failedPlugins.add(entry)
-
-      await hooks.emit('kubb:plugins:end', Object.assign({ config }, this.#filesPayload()))
-
-      // Plugins-end listeners (barrel middleware etc.) may have queued more files.
-      await processor.drain()
-
-      await hooks.emit('kubb:build:end', { files: this.fileManager.files, config, outputDir: resolve(config.root, config.output.path) })
-
-      return { failedPlugins, pluginTimings }
-    } catch (caughtError) {
-      return { failedPlugins, pluginTimings, error: caughtError as Error }
-    } finally {
-      this.fileManager.hooks.off('upsert', onFileUpsert)
-    }
+      },
+    )
   }
 
   // Returns a fresh object with a lazy `files` getter and a bound `upsertFile`.
-  // Caller must use `Object.assign(extra, this.#filesPayload())`, not object spread —
-  // spread would eagerly invoke the getter and freeze a stale snapshot into the payload.
+  // Caller must use `Object.assign(extra, this.#filesPayload())`, not object spread.
+  // Spread would eagerly invoke the getter and freeze a stale snapshot into the payload.
   #filesPayload(): { readonly files: Array<FileNode>; upsertFile: (...files: Array<FileNode>) => Array<FileNode> } {
     const driver = this
 
@@ -501,7 +481,8 @@ export class KubbDriver {
    * through the plugin's transformer (from `this.#transforms`) before the generator sees it,
    * so plugins stay isolated and the hot path stays per-node. Schemas run before operations
    * because the two passes share `flushPending` and the FileProcessor's event emitter.
-   * Errors from a single plugin land in `failed` so the rest of the build continues.
+   * A failing plugin contributes an error diagnostic so the rest of the build continues.
+   * Every plugin also contributes a `timing` diagnostic.
    *
    * When `entries` is empty or `this.inputNode` is `null`, every entry still gets a
    * `kubb:plugin:end` so middleware listeners (the barrel writer and friends) complete.
@@ -509,19 +490,18 @@ export class KubbDriver {
   async #runGenerators(
     entries: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options'>; hrStart: ReturnType<typeof process.hrtime> }>,
     flushPending: () => Promise<void>,
-  ): Promise<{ timings: Map<string, number>; failed: Set<{ plugin: Plugin; error: Error }> }> {
-    const timings = new Map<string, number>()
-    const failed = new Set<{ plugin: Plugin; error: Error }>()
+  ): Promise<Array<Diagnostic>> {
+    const diagnostics: Array<Diagnostic> = []
 
-    if (entries.length === 0) return { timings, failed }
+    if (entries.length === 0) return diagnostics
 
     if (!this.inputNode) {
       for (const { plugin, hrStart } of entries) {
         const duration = getElapsedMs(hrStart)
-        timings.set(plugin.name, duration)
+        diagnostics.push(Diagnostics.performance({ plugin: plugin.name, duration }))
         await this.#emitPluginEnd({ plugin, duration, success: true })
       }
-      return { timings, failed }
+      return diagnostics
     }
 
     const transforms = this.#transforms
@@ -708,18 +688,15 @@ export class KubbDriver {
       }
 
       const duration = getElapsedMs(state.hrStart)
-      timings.set(state.plugin.name, duration)
       await this.#emitPluginEnd({ plugin: state.plugin, duration, success: !state.failed, error: state.failed && state.error ? state.error : undefined })
 
-      if (state.failed && state.error) failed.add({ plugin: state.plugin, error: state.error })
-
-      await this.hooks.emit('kubb:debug', {
-        date: new Date(),
-        logs: [state.failed ? '✗ Plugin start failed' : `✓ Plugin started successfully (${formatMs(duration)})`],
-      })
+      if (state.failed && state.error) {
+        diagnostics.push({ ...Diagnostics.from(state.error), plugin: state.plugin.name })
+      }
+      diagnostics.push(Diagnostics.performance({ plugin: state.plugin.name, duration }))
     }
 
-    return { timings, failed }
+    return diagnostics
   }
 
   /**
@@ -765,7 +742,7 @@ export class KubbDriver {
   }
 
   /**
-   * Removes every listener the driver added; listeners attached directly to `hooks` from outside
+   * Removes every listener the driver added. Listeners attached directly to `hooks` from outside
    * the driver survive. Called at the end of a build to prevent leaks across repeated builds.
    *
    * @internal
@@ -774,7 +751,7 @@ export class KubbDriver {
     this.#registry.dispose()
     this.#eventGeneratorPlugins.clear()
     this.#transforms.dispose()
-    // Release resolver closures — the driver is rebuilt for each build() call
+    // Release resolver closures. The driver is rebuilt for each build() call
     // so there is no value in retaining these maps after disposal.
     this.#resolvers.clear()
     this.#defaultResolvers.clear()
@@ -825,6 +802,19 @@ export class KubbDriver {
   getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
     const driver = this
 
+    const report = (diagnostic: Omit<ProblemDiagnostic, 'plugin'>): void => {
+      Diagnostics.report({ ...diagnostic, plugin: plugin.name })
+      if (diagnostic.severity === 'error') {
+        driver.hooks.emit('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+        return
+      }
+      if (diagnostic.severity === 'warning') {
+        driver.hooks.emit('kubb:warn', { message: diagnostic.message })
+        return
+      }
+      driver.hooks.emit('kubb:info', { message: diagnostic.message })
+    }
+
     return {
       config: driver.config,
       get root(): string {
@@ -860,13 +850,14 @@ export class KubbDriver {
         return driver.#transforms.get(plugin.name)
       },
       warn(message: string) {
-        driver.hooks.emit('kubb:warn', { message })
+        report({ code: diagnosticCode.pluginWarning, severity: 'warning', message })
       },
       error(error: string | Error) {
-        driver.hooks.emit('kubb:error', { error: typeof error === 'string' ? new Error(error) : error })
+        const cause = typeof error === 'string' ? undefined : error
+        report({ code: diagnosticCode.pluginFailed, severity: 'error', message: typeof error === 'string' ? error : error.message, cause })
       },
       info(message: string) {
-        driver.hooks.emit('kubb:info', { message })
+        report({ code: diagnosticCode.pluginInfo, severity: 'info', message })
       },
       async openInStudio(options?: DevtoolsOptions) {
         if (!driver.config.devtools || driver.#studio.isOpen) {
@@ -874,11 +865,23 @@ export class KubbDriver {
         }
 
         if (typeof driver.config.devtools !== 'object') {
-          throw new Error('Devtools must be an object')
+          throw new DiagnosticError({
+            code: diagnosticCode.devtoolsInvalid,
+            severity: 'error',
+            message: 'The `devtools` config must be an object.',
+            help: 'Set `devtools` to an options object, or remove it to disable Kubb Studio.',
+            location: { kind: 'config' },
+          })
         }
 
         if (!driver.adapter || !driver.#studio.source) {
-          throw new Error('adapter is not defined, make sure you have set the parser in kubb.config.ts')
+          throw new DiagnosticError({
+            code: diagnosticCode.adapterRequired,
+            severity: 'error',
+            message: 'An adapter is required to open Kubb Studio, but none is configured.',
+            help: 'Set `adapter` in kubb.config.ts (for example `adapterOas()`).',
+            location: { kind: 'config' },
+          })
         }
 
         driver.#studio.isOpen = true
@@ -906,7 +909,13 @@ export class KubbDriver {
   requirePlugin(pluginName: string): Plugin {
     const plugin = this.plugins.get(pluginName)
     if (!plugin) {
-      throw new Error(`[kubb] Plugin "${pluginName}" is required but not found. Make sure it is included in your Kubb config.`)
+      throw new DiagnosticError({
+        code: diagnosticCode.pluginNotFound,
+        severity: 'error',
+        message: `Plugin "${pluginName}" is required but not found. Make sure it is included in your Kubb config.`,
+        help: `Add "${pluginName}" to the \`plugins\` array in kubb.config.ts, or remove the dependency on it.`,
+        location: { kind: 'config' },
+      })
     }
     return plugin
   }
@@ -915,7 +924,13 @@ export class KubbDriver {
 function inputToAdapterSource(config: Config): AdapterSource {
   const input = config.input
   if (!input) {
-    throw new Error('[kubb] input is required when using an adapter. Provide input.path or input.data in your config.')
+    throw new DiagnosticError({
+      code: diagnosticCode.inputRequired,
+      severity: 'error',
+      message: 'An adapter is configured without an input.',
+      help: 'Provide `input.path` (a file or URL) or `input.data` (an inline spec) in your Kubb config.',
+      location: { kind: 'config' },
+    })
   }
 
   if ('data' in input) {

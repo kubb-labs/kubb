@@ -1,8 +1,18 @@
 export { AsyncEventEmitter, URLPath } from '@internals/utils'
 export * as ast from '@kubb/ast'
-export { logLevel } from './constants.ts'
+export { diagnosticCode, logLevel } from './constants.ts'
 export { createAdapter } from './createAdapter.ts'
+export {
+  diagnosticCatalog,
+  DiagnosticError,
+  Diagnostics,
+  isPerformanceDiagnostic,
+  isProblemDiagnostic,
+  isUpdateDiagnostic,
+  narrowDiagnostic,
+} from './diagnostics.ts'
 export { createKubb } from './createKubb.ts'
+export { createReporter } from './createReporter.ts'
 export { createRenderer } from './createRenderer.ts'
 export { createStorage } from './createStorage.ts'
 export { defineGenerator } from './defineGenerator.ts'

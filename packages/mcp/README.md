@@ -116,7 +116,7 @@ Generate code from OpenAPI/Swagger specifications using Kubb configuration.
 - `config` (string, optional): Path to kubb.config.ts file. If not provided, looks for kubb.config.ts in current directory
 - `input` (string, optional): Path to OpenAPI/Swagger spec file (overrides config file setting)
 - `output` (string, optional): Output directory path (overrides config file setting)
-- `logLevel` (enum, optional): Control logging verbosity - `'silent'`, `'error'`, `'warn'`, `'info'`, `'verbose'`, `'debug'` (default: 'info')
+- `logLevel` (enum, optional): Control logging verbosity, one of `'silent'`, `'info'`, `'verbose'` (default: 'info')
 
 **Examples:**
 

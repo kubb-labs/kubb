@@ -10,9 +10,9 @@ Iterate with `for...of` or spread into an array to preserve existing behaviour:
 // before
 const files = getBarrelFiles({ ... })
 
-// after — iterate incrementally
+// after: iterate incrementally
 for (const file of getBarrelFiles({ ... })) { ... }
 
-// after — spread to get an array
+// after: spread to get an array
 const files = [...getBarrelFiles({ ... })]
 ```

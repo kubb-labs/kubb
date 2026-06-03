@@ -50,10 +50,10 @@ export async function run({ port, host, configPath, allowWrite, allowAll, versio
     try {
       process.loadEnvFile()
     } catch {
-      // .env file may not exist; ignore
+      // .env file may not exist. Ignore
     }
 
-    // Resolve the @kubb/agent package path — createRequire is CJS/ESM compatible (import.meta.resolve is ESM-only)
+    // Resolve the @kubb/agent package path, createRequire is CJS/ESM compatible (import.meta.resolve is ESM-only)
     const require = createRequire(import.meta.url)
     let agentPkgPath: string
     try {

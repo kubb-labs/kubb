@@ -12,7 +12,7 @@ type AnyEntry = {
 
 /**
  * Listener bookkeeping around an `AsyncEventEmitter`. Listeners attached through `register`
- * stay on the emitter but are tracked so `dispose()` removes only them — listeners attached
+ * stay on the emitter but are tracked so `dispose()` removes only them, listeners attached
  * directly via `emitter.on(...)` survive.
  */
 export class HookRegistry<TEvents extends { [K in keyof TEvents]: Array<unknown> }> {

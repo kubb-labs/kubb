@@ -1,7 +1,7 @@
 import { stringify } from 'yaml'
 
 /**
- * Markdown `print` input — either a markdown text fragment (passed through
+ * Markdown `print` input, either a markdown text fragment (passed through
  * verbatim) or a plain object that is serialised as a YAML frontmatter envelope.
  */
 export type PrintInput = string | Record<string, unknown>

@@ -102,15 +102,15 @@ npx kubb generate
 
 #### Options
 
-| Flag                 | Short | Type    | Default | Description                                              |
-| -------------------- | ----- | ------- | ------- | -------------------------------------------------------- |
-| `[input]`            |       | string  |         | OpenAPI file path — overrides `input.path` in the config |
-| `--config <path>`    | `-c`  | string  |         | Path to the Kubb config file                             |
-| `--logLevel <level>` | `-l`  | string  | `info`  | Log level: `silent`, `info`, `verbose`, or `debug`       |
-| `--watch`            | `-w`  | boolean | `false` | Re-generate whenever the input file changes              |
-| `--debug`            | `-d`  | boolean | `false` | Override log level to `debug`                            |
-| `--verbose`          | `-v`  | boolean | `false` | Override log level to `verbose`                          |
-| `--silent`           | `-s`  | boolean | `false` | Override log level to `silent`                           |
+| Flag                 | Short | Type    | Default | Description                                                                                         |
+| -------------------- | ----- | ------- | ------- | --------------------------------------------------------------------------------------------------- |
+| `[input]`            |       | string  |         | OpenAPI file path — overrides `input.path` in the config                                            |
+| `--config <path>`    | `-c`  | string  |         | Path to the Kubb config file                                                                        |
+| `--logLevel <level>` | `-l`  | string  | `info`  | Log level: `silent`, `info`, or `verbose`                                                           |
+| `--watch`            | `-w`  | boolean | `false` | Re-generate whenever the input file changes                                                         |
+| `--verbose`          | `-v`  | boolean | `false` | Override log level to `verbose`                                                                     |
+| `--silent`           | `-s`  | boolean | `false` | Override log level to `silent`                                                                      |
+| `--reporter <names>` |       | string  | `cli`   | Reporters that render the run, comma-separated: `cli`, `json`, `file`. Overrides `config.reporters` |
 
 #### Examples
 
@@ -127,8 +127,11 @@ npx kubb generate --config ./configs/kubb.config.ts
 # Watch for changes and regenerate automatically
 npx kubb generate --watch
 
-# Debug output
-npx kubb generate --debug
+# Verbose output
+npx kubb generate --verbose
+
+# Write a JSON run report alongside the CLI output
+npx kubb generate --reporter cli,json
 ```
 
 ---

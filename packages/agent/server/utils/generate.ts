@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import path from 'node:path'
 import { styleText } from 'node:util'
 import { detectFormatter, detectLinter, formatters, linters } from '@internals/utils'
-import { type AsyncEventEmitter, type Config, createKubb, type KubbHooks } from '@kubb/core'
+import { type AsyncEventEmitter, type Config, createKubb, DiagnosticError, Diagnostics, isProblemDiagnostic, type KubbHooks } from '@kubb/core'
 import { executeHooks } from './executeHooks.ts'
 
 type GenerateProps = {
@@ -29,22 +29,17 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
 
   await hooks.emit('kubb:info', { message: config.name ? `Build generation ${config.name}` : 'Build generation' })
 
-  const { failedPlugins, error } = await kubb.safeBuild()
+  const { diagnostics } = await kubb.safeBuild()
 
   await hooks.emit('kubb:info', { message: 'Load summary' })
 
-  // Handle build failures (either from failed plugins or general errors)
-  const hasFailures = failedPlugins.size > 0 || error
-  if (hasFailures) {
-    // Collect all errors from failed plugins and general error
-    const allErrors: Array<Error> = [
-      error,
-      ...Array.from(failedPlugins)
-        .filter((it) => it.error)
-        .map((it) => it.error),
-    ].filter(Boolean)
+  if (Diagnostics.hasError(diagnostics)) {
+    const errors = diagnostics
+      .filter(isProblemDiagnostic)
+      .filter((diagnostic) => diagnostic.severity === 'error')
+      .map((diagnostic) => diagnostic.cause ?? new DiagnosticError(diagnostic))
 
-    allErrors.forEach((err) => {
+    errors.forEach((err) => {
       hooks.emit('kubb:error', { error: err })
     })
 

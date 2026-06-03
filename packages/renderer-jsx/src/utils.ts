@@ -33,7 +33,7 @@ function toBool(val: unknown): boolean {
 /**
  * Collect the text and nested AST-node children of a single kubb-* element.
  *
- * `#text` children become raw text nodes; nested `kubb-function`, `kubb-const`,
+ * `#text` children become raw text nodes. Nested `kubb-function`, `kubb-const`,
  * `kubb-type`, and similar elements are converted into their respective {@link CodeNode}s.
  * Any unrecognized element names are silently skipped.
  */

@@ -1,6 +1,19 @@
 export type { DevtoolsOptions } from './devtools.ts'
 export type { Adapter, AdapterFactoryOptions, AdapterSource } from './createAdapter.ts'
 export type {
+  Diagnostic,
+  DiagnosticByCode,
+  DiagnosticDoc,
+  DiagnosticKind,
+  DiagnosticLocation,
+  DiagnosticSeverity,
+  PerformanceDiagnostic,
+  ProblemCode,
+  ProblemDiagnostic,
+  SerializedDiagnostic,
+  UpdateDiagnostic,
+} from './diagnostics.ts'
+export type {
   BuildOutput,
   CLIOptions,
   Config,
@@ -10,7 +23,7 @@ export type {
   KubbBuildEndContext,
   KubbBuildStartContext,
   KubbConfigEndContext,
-  KubbDebugContext,
+  KubbDiagnosticContext,
   KubbErrorContext,
   KubbFileProcessingUpdate,
   KubbFilesProcessingEndContext,
@@ -18,7 +31,6 @@ export type {
   KubbFilesProcessingUpdateContext,
   KubbGenerationEndContext,
   KubbGenerationStartContext,
-  KubbGenerationSummaryContext,
   KubbHookEndContext,
   KubbHookStartContext,
   KubbHooks,
@@ -26,11 +38,11 @@ export type {
   KubbLifecycleStartContext,
   KubbPluginsEndContext,
   KubbSuccessContext,
-  KubbVersionNewContext,
   KubbWarnContext,
   PossibleConfig,
   UserConfig,
 } from './createKubb.ts'
+export type { GenerationResult, Reporter, ReporterContext, ReporterName, UserReporter } from './createReporter.ts'
 export type { Renderer, RendererFactory } from './createRenderer.ts'
 export type { Storage } from './createStorage.ts'
 export type { FileProcessorHooks, ParsedFile } from './FileProcessor.ts'

@@ -19,7 +19,7 @@ export default defineConfig({
   plugins: [],
 })
 
-// after — adapter and parsers applied automatically
+// after: adapter and parsers applied automatically
 export default defineConfig({
   input: { path: './petStore.yaml' },
   output: { path: './src/gen' },

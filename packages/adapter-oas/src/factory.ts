@@ -1,5 +1,6 @@
 import path from 'node:path'
-import { mergeDeep, URLPath } from '@internals/utils'
+import { exists, mergeDeep, URLPath } from '@internals/utils'
+import { diagnosticCode, DiagnosticError } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { bundle, loadConfig } from '@redocly/openapi-core'
 import OASNormalize from 'oas-normalize'
@@ -77,7 +78,13 @@ export async function mergeDocuments(pathOrApi: Array<string | Document>): Promi
   const documents = await Promise.all(pathOrApi.map((p) => parseDocument(p, { enablePaths: false, canBundle: false })))
 
   if (documents.length === 0) {
-    throw new Error('No OAS documents provided for merging.')
+    throw new DiagnosticError({
+      code: diagnosticCode.inputRequired,
+      severity: 'error',
+      message: 'No OAS documents were provided for merging.',
+      help: 'Pass at least one path or document to `input.path`.',
+      location: { kind: 'config' },
+    })
   }
 
   const seed: Document = {
@@ -99,9 +106,9 @@ export async function mergeDocuments(pathOrApi: Array<string | Document>): Promi
  * Creates a `Document` from an `AdapterSource`.
  *
  * Handles all three source types:
- * - `{ type: 'path' }` — resolves and bundles a local file path or remote URL.
- * - `{ type: 'paths' }` — merges multiple file paths into a single document.
- * - `{ type: 'data' }` — parses an inline string (YAML/JSON) or raw object.
+ * - `{ type: 'path' }` resolves and bundles a local file path or remote URL.
+ * - `{ type: 'paths' }` merges multiple file paths into a single document.
+ * - `{ type: 'data' }` parses an inline string (YAML/JSON) or raw object.
  *
  * @example
  * ```ts
@@ -109,7 +116,7 @@ export async function mergeDocuments(pathOrApi: Array<string | Document>): Promi
  * const document = await parseFromConfig({ type: 'data', data: '{"openapi":"3.0.0",...}' })
  * ```
  */
-export function parseFromConfig(source: AdapterSource): Promise<Document> {
+export async function parseFromConfig(source: AdapterSource): Promise<Document> {
   if (source.type === 'data') {
     if (typeof source.data === 'object') {
       return parseDocument(structuredClone(source.data) as Document)
@@ -127,7 +134,29 @@ export function parseFromConfig(source: AdapterSource): Promise<Document> {
     return parseDocument(source.path)
   }
 
-  return parseDocument(path.resolve(path.dirname(source.path), source.path))
+  const resolved = path.resolve(path.dirname(source.path), source.path)
+  await assertInputExists(resolved)
+  return parseDocument(resolved)
+}
+
+/**
+ * Throws a coded `KUBB_INPUT_NOT_FOUND` diagnostic when a local input path does not exist.
+ * URLs are skipped, and a malformed but readable file is left for `parseDocument` to surface
+ * its parse error instead.
+ */
+export async function assertInputExists(input: string): Promise<void> {
+  if (new URLPath(input).isURL) {
+    return
+  }
+  if (!(await exists(input))) {
+    throw new DiagnosticError({
+      code: diagnosticCode.inputNotFound,
+      severity: 'error',
+      message: `Cannot read the file set in \`input.path\` (or via \`kubb generate PATH\`): ${input}`,
+      help: 'Check that the path exists and is readable, then set it in `input.path` or pass it as `kubb generate PATH`.',
+      location: { kind: 'config' },
+    })
+  }
 }
 
 /**
@@ -157,6 +186,6 @@ export async function validateDocument(document: Document, { throwOnError = fals
       throw error
     }
 
-    // Validation failures are non-fatal — mirror plugin-oas behavior
+    // Validation failures are non-fatal, mirror plugin-oas behavior
   }
 }

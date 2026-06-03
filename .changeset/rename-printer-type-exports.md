@@ -15,6 +15,6 @@ Printer type exports now follow `Printer{Suffix}` convention:
 
 ### `@kubb/core`
 
-- Replace `mergeResolvers` with single `resolver` partial override pattern using `withFallback`
-- Replace `transformers: Array<Visitor>` with single `transformer?: Visitor`
-- `getPreset` accepts `resolver?: Partial<TResolver>` — use `this.default(...)` to call preset implementation
+- Replace `mergeResolvers` with a single `resolver` partial override pattern using `withFallback`
+- Replace `transformers: Array<Visitor>` with a single `transformer?: Visitor`
+- `getPreset` accepts `resolver?: Partial<TResolver>`. Use `this.default(...)` to call the preset implementation

@@ -31,7 +31,7 @@ type TypeProps = {
 /**
  * Generates a TypeScript type alias declaration.
  *
- * Throws if `name` does not start with an uppercase letter — TypeScript type aliases
+ * Throws if `name` does not start with an uppercase letter. TypeScript type aliases
  * should follow PascalCase naming conventions.
  *
  * @example Simple exported type alias

@@ -15,7 +15,7 @@ export type DispatchRule<TContext, TNode> = {
    * Produces a node for the context, or `null` to fall through to the next rule.
    *
    * Returning `null` lets a broad `match` defer: e.g. "has a `format`" matches many schemas,
-   * but only some formats are convertible — the rest fall through to plain `type` handling.
+   * but only some formats are convertible, the rest fall through to plain `type` handling.
    */
   convert: (context: TContext) => TNode | null
 }
@@ -30,7 +30,7 @@ export type DispatchRule<TContext, TNode> = {
  *
  * An adapter derives a context from a source spec node, then declares an ordered table of
  * rules mapping spec shapes onto Kubb AST nodes. To add support for a new spec, write a new
- * context type and a new rules table — the traversal here is reused unchanged.
+ * context type and a new rules table, the traversal here is reused unchanged.
  *
  * Order is significant: earlier rules win, so list higher-precedence or more specific shapes
  * first (e.g. composition keywords before plain `type`). A rule whose `match` returns `true`

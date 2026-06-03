@@ -1,12 +1,12 @@
-import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { canUseTTY, formatHrtime, getElapsedMs, isGitHubActions, randomCliColor } from '@internals/utils'
-import type { Config, Logger, LoggerContext, LoggerOptions, Plugin } from '@kubb/core'
+import { canUseTTY, formatHrtime, getElapsedMs, isGitHubActions } from '@internals/utils'
+import type { Logger, LoggerContext, LoggerOptions, Reporter, ReporterContext, ReporterName } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
-import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
+import { cliReporter } from '../reporters/cliReporter.ts'
+import { fileReporter } from '../reporters/fileReporter.ts'
+import { jsonReporter } from '../reporters/jsonReporter.ts'
 import { clackLogger } from './clackLogger.ts'
-import { fileSystemLogger } from './fileSystemLogger.ts'
 import { githubActionsLogger } from './githubActionsLogger.ts'
 import { plainLogger } from './plainLogger.ts'
 import type { LoggerType } from './types.ts'
@@ -226,105 +226,52 @@ const logMapper: Record<LoggerType, CLILogger> = {
   'github-actions': githubActionsLogger,
 }
 
-export async function setupLogger(context: LoggerContext, { logLevel }: LoggerOptions): Promise<HookSinkFactory | null> {
-  const type = detectLogger()
-
-  const logger = logMapper[type]
-
-  if (!logger) {
-    throw new Error(`Unknown adapter type: ${type}`)
-  }
-
-  const makeSink = await logger.install(context, { logLevel })
-
-  if (logLevel >= logLevelMap.debug) {
-    await fileSystemLogger.install(context, { logLevel })
-  }
-
-  return typeof makeSink === 'function' ? makeSink : null
-}
-
-type SummaryProps = {
-  /**
-   * Set of plugins that failed during this generation run, each with its error.
-   */
-  failedPlugins: Set<{ plugin: Plugin; error: Error }>
-  /**
-   * Overall generation status used to choose success or failure formatting.
-   */
-  status: 'success' | 'failed'
-  /**
-   * `process.hrtime()` snapshot taken at the start of generation, used to compute elapsed time.
-   */
-  hrStart: [number, number]
-  /**
-   * Total number of files written during this generation run.
-   */
-  filesCreated: number
-  /**
-   * Resolved Kubb config for this generation entry, used to read plugin count and output path.
-   */
-  config: Config
-  /**
-   * Per-plugin timing map (plugin name → duration in ms). When provided, a timing bar chart is appended.
-   */
-  pluginTimings?: Map<string, number>
+/**
+ * Bridges a {@link Reporter} onto the run's event emitter: calls `report` with each config's
+ * {@link GenerationResult} on `kubb:generation:end`. The reporter never touches the emitter.
+ */
+export function installReporter(context: LoggerContext, reporter: Reporter, ctx: ReporterContext): void {
+  context.on('kubb:generation:end', async ({ config, diagnostics = [], filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
+    await reporter.report({ config, diagnostics, filesCreated, status, hrStart }, ctx)
+  })
 }
 
 /**
- * Builds the generation summary lines rendered in the end-of-run box.
- * Returns an array of styled strings, one per summary row.
+ * Installs the live logger (the TUI view) and the selected reporters (the output), returning the
+ * terminal logger's hook sink when one was installed. Loggers and reporters are independent: the
+ * `cli` selection activates the env logger plus the {@link cliReporter} summary.
+ *
+ * The `json` reporter owns stdout, so the terminal logger and `cli` summary are suppressed whenever
+ * `json` is selected, even if `cli` is also listed.
  */
-export function getSummary({ failedPlugins, filesCreated, status, hrStart, config, pluginTimings }: SummaryProps): Array<string> {
-  const duration = formatHrtime(hrStart)
+export async function setupReporters(
+  context: LoggerContext,
+  { logLevel, reporters }: LoggerOptions & { reporters: ReadonlyArray<ReporterName> },
+): Promise<HookSinkFactory | null> {
+  const unique = new Set<ReporterName>(reporters.length ? reporters : ['cli'])
+  const hasJson = unique.has('json')
+  const ctx: ReporterContext = { logLevel }
 
-  const pluginsCount = config.plugins?.length ?? 0
-  const successCount = pluginsCount - failedPlugins.size
+  let makeSink: HookSinkFactory | null = null
 
-  const meta = {
-    plugins:
-      status === 'success'
-        ? `${styleText('green', `${successCount} successful`)}, ${pluginsCount} total`
-        : `${styleText('green', `${successCount} successful`)}, ${styleText('red', `${failedPlugins.size} failed`)}, ${pluginsCount} total`,
-    pluginsFailed: status === 'failed' ? [...failedPlugins].map(({ plugin }) => randomCliColor(plugin.name)).join(', ') : undefined,
-    filesCreated,
-    time: styleText('green', duration),
-    output: path.resolve(config.root, config.output.path),
-  } as const
-
-  const labels = {
-    plugins: 'Plugins:',
-    failed: 'Failed:',
-    generated: 'Generated:',
-    pluginTimings: 'Plugin Timings:',
-    output: 'Output:',
-  }
-  const maxLength = Math.max(0, ...[...Object.values(labels), ...(pluginTimings ? Array.from(pluginTimings.keys()) : [])].map((s) => s.length))
-
-  const summaryLines: Array<string> = []
-  summaryLines.push(`${labels.plugins.padEnd(maxLength + 2)} ${meta.plugins}`)
-
-  if (meta.pluginsFailed) {
-    summaryLines.push(`${labels.failed.padEnd(maxLength + 2)} ${meta.pluginsFailed}`)
+  if (unique.has('cli') && !hasJson) {
+    const type = detectLogger()
+    const logger = logMapper[type]
+    if (!logger) {
+      throw new Error(`Unknown adapter type: ${type}`)
+    }
+    const sink = await logger.install(context, { logLevel })
+    makeSink = typeof sink === 'function' ? sink : null
+    installReporter(context, cliReporter, ctx)
   }
 
-  summaryLines.push(`${labels.generated.padEnd(maxLength + 2)} ${meta.filesCreated} files in ${meta.time}`)
-
-  if (pluginTimings && pluginTimings.size > 0) {
-    const sortedTimings = Array.from(pluginTimings.entries()).sort((a, b) => b[1] - a[1])
-
-    summaryLines.push(`${labels.pluginTimings}`)
-
-    sortedTimings.forEach(([name, time]) => {
-      const timeStr = time >= 1000 ? `${(time / 1000).toFixed(2)}s` : `${Math.round(time)}ms`
-      const barLength = Math.min(Math.ceil(time / SUMMARY_TIME_SCALE_DIVISOR), SUMMARY_MAX_BAR_LENGTH)
-      const bar = styleText('dim', '█'.repeat(barLength))
-
-      summaryLines.push(`${styleText('dim', '•')} ${name.padEnd(maxLength + 1)}${bar} ${timeStr}`)
-    })
+  if (hasJson) {
+    installReporter(context, jsonReporter, ctx)
   }
 
-  summaryLines.push(`${labels.output.padEnd(maxLength + 2)} ${meta.output}`)
+  if (unique.has('file')) {
+    installReporter(context, fileReporter, ctx)
+  }
 
-  return summaryLines
+  return makeSink
 }

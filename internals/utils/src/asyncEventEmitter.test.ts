@@ -92,7 +92,31 @@ describe('AsyncEventEmitter', () => {
 
   it('should accept max listeners parameter in constructor', () => {
     const emitter = new AsyncEventEmitter<TestEvents>(200)
-    expect(emitter).toBeDefined()
+    expect(emitter.getMaxListeners()).toBe(200)
+  })
+
+  it('should default the max listeners ceiling to 10', () => {
+    const emitter = new AsyncEventEmitter<TestEvents>()
+    expect(emitter.getMaxListeners()).toBe(10)
+  })
+
+  it('should raise the max listeners ceiling with setMaxListeners', () => {
+    const emitter = new AsyncEventEmitter<TestEvents>()
+    emitter.setMaxListeners(40)
+    expect(emitter.getMaxListeners()).toBe(40)
+  })
+
+  it('should not warn when registering more listeners than the default after raising the ceiling', () => {
+    using warn = vi.spyOn(process, 'emitWarning').mockImplementation(() => {})
+    const emitter = new AsyncEventEmitter<TestEvents>()
+
+    emitter.setMaxListeners(40)
+    for (let i = 0; i < 11; i++) {
+      emitter.on('test', vi.fn())
+    }
+
+    expect(emitter.listenerCount('test')).toBe(11)
+    expect(warn).not.toHaveBeenCalled()
   })
 
   it('should handle events with no arguments', async () => {
