@@ -1,6 +1,7 @@
 import { type Diagnostic, Diagnostics } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { adapterOas } from './adapter.ts'
+import { formatMap, specialCasedFormats } from './constants.ts'
 
 const spec = {
   openapi: '3.0.3',
@@ -20,12 +21,12 @@ const spec = {
   },
 } as const
 
-async function collect(): Promise<Array<Diagnostic>> {
+async function collect(data: unknown = spec): Promise<Array<Diagnostic>> {
   const adapter = adapterOas({ validate: false })
   const reported: Array<Diagnostic> = []
   await Diagnostics.scope(
     (diagnostic) => reported.push(diagnostic),
-    () => adapter.parse({ type: 'data', data: spec }),
+    () => adapter.parse({ type: 'data', data }),
   )
   return reported
 }
@@ -48,5 +49,47 @@ describe('schema diagnostics during parse', () => {
 
     expect(formatWarnings).toHaveLength(1)
     expect(formatWarnings[0]).toMatchObject({ severity: 'warning', location: { pointer: '#/components/schemas/Pet/properties/id' } })
+  })
+
+  it('points at the full nested path, not the immediate parent', async () => {
+    const nested = {
+      openapi: '3.0.3',
+      info: { title: 'Pets', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Pet: {
+            type: 'object',
+            properties: {
+              owner: {
+                type: 'object',
+                properties: {
+                  badge: { type: 'string', format: 'snowflake' },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    const diagnostics = await collect(nested)
+    const formatWarnings = diagnostics.filter((diagnostic) => diagnostic.code === 'KUBB_UNSUPPORTED_FORMAT')
+
+    expect(formatWarnings).toHaveLength(1)
+    expect(formatWarnings[0]).toMatchObject({ location: { pointer: '#/components/schemas/Pet/properties/owner/properties/badge' } })
+  })
+
+  it('does not warn on any format the parser handles', async () => {
+    const handled = [...Object.keys(formatMap), ...specialCasedFormats]
+    const properties = Object.fromEntries(handled.map((format, index) => [`field${index}`, { type: 'string', format }]))
+    const allFormats = {
+      openapi: '3.0.3',
+      info: { title: 'Pets', version: '1.0.0' },
+      paths: {},
+      components: { schemas: { Pet: { type: 'object', properties } } },
+    }
+    const diagnostics = await collect(allFormats)
+
+    expect(diagnostics.filter((diagnostic) => diagnostic.code === 'KUBB_UNSUPPORTED_FORMAT')).toHaveLength(0)
   })
 })

@@ -1,3 +1,4 @@
+import { type Diagnostic, Diagnostics } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { dereferenceWithRef, resolveRef } from './refs.ts'
 import type { Document, SchemaObject } from './types.ts'
@@ -35,8 +36,22 @@ describe('resolveRef', () => {
     expect(resolveRef(document, 'https://example.com/schemas/Pet')).toBeNull()
   })
 
-  it('throws when the pointer cannot be resolved', () => {
-    expect(() => resolveRef(document, '#/components/schemas/Missing')).toThrow('Could not find a definition for #/components/schemas/Missing')
+  it('reports a refNotFound diagnostic and resolves to null when the pointer cannot be resolved', () => {
+    const reported: Array<Diagnostic> = []
+    const result = Diagnostics.scope(
+      (diagnostic) => reported.push(diagnostic),
+      () => resolveRef(document, '#/components/schemas/Missing'),
+    )
+
+    expect(result).toBeNull()
+    expect(reported).toContainEqual(
+      expect.objectContaining({
+        code: 'KUBB_REF_NOT_FOUND',
+        severity: 'error',
+        message: 'Could not find a definition for #/components/schemas/Missing.',
+        location: { kind: 'schema', pointer: '#/components/schemas/Missing', ref: '#/components/schemas/Missing' },
+      }),
+    )
   })
 
   it('handles URL-encoded pointers', () => {

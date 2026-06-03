@@ -17,6 +17,7 @@ import {
   type KubbHooks,
   logLevel as logLevelMap,
   narrowDiagnostic,
+  type ProblemDiagnostic,
   type ReporterName,
 } from '@kubb/core'
 import { version } from '../../../package.json'
@@ -138,9 +139,9 @@ async function runToolPass({
 
       await hookEndPromise
     } catch (caughtError) {
-      const err = toError(caughtError)
-      await hooks.emit('kubb:error', { error: err })
-      toolError = err
+      // Don't render here. The caller turns this into a coded diagnostic and emits it through
+      // `Diagnostics.emit`, so format/lint/hook failures render like every other diagnostic.
+      toolError = toError(caughtError)
     }
   }
 
@@ -233,13 +234,15 @@ async function generate(options: GenerateProps): Promise<boolean> {
       onStart: () => hooks.emit('kubb:lint:start'),
       onEnd: () => hooks.emit('kubb:lint:end'),
     },
-  ].filter(Boolean) as Array<{ code: Diagnostic['code'] } & Omit<RunToolPassOptions, 'configName' | 'outputPath' | 'logLevel' | 'hooks'>>
+  ].filter(Boolean) as Array<{ code: ProblemDiagnostic['code'] } & Omit<RunToolPassOptions, 'configName' | 'outputPath' | 'logLevel' | 'hooks'>>
 
   for (const { code, ...pass } of toolPasses) {
     try {
       await runToolPass({ ...pass, configName: config.name, outputPath, logLevel, hooks, makeSink })
     } catch (caughtError) {
-      outputDiagnostics.push(outputDiagnostic(code, pass.toolLabel, caughtError))
+      const diagnostic = outputDiagnostic(code, pass.toolLabel, caughtError)
+      outputDiagnostics.push(diagnostic)
+      await Diagnostics.emit(hooks, diagnostic)
     }
   }
 
@@ -258,7 +261,9 @@ async function generate(options: GenerateProps): Promise<boolean> {
       hooks.off('kubb:hook:end', onHookEnd)
     }
     for (const error of hookFailures) {
-      outputDiagnostics.push(outputDiagnostic(diagnosticCode.hookFailed, 'Post-generate hook', error))
+      const diagnostic = outputDiagnostic(diagnosticCode.hookFailed, 'Post-generate hook', error)
+      outputDiagnostics.push(diagnostic)
+      await Diagnostics.emit(hooks, diagnostic)
     }
     await hooks.emit('kubb:hooks:end')
   }
@@ -286,7 +291,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
 /**
  * Builds a coded diagnostic for an output-phase failure (formatter, linter, or `done` hook).
  */
-function outputDiagnostic(code: Diagnostic['code'], label: string, caughtError: unknown): Diagnostic {
+function outputDiagnostic(code: ProblemDiagnostic['code'], label: string, caughtError: unknown): ProblemDiagnostic {
   const error = toError(caughtError)
   return {
     code,

@@ -1,49 +1,60 @@
-import { ast, diagnosticCode, Diagnostics } from '@kubb/core'
-import { formatMap } from './constants.ts'
-
-/**
- * Formats Kubb maps to a specific AST type. A `format` outside this set falls through to
- * the base type, which is what `KUBB_UNSUPPORTED_FORMAT` flags. Kept in sync with the
- * parser: `formatMap` plus the formats `convertFormat` special-cases.
- */
-const handledFormats = new Set<string>([...Object.keys(formatMap), 'int64', 'date-time', 'date', 'time'])
+import { diagnosticCode, Diagnostics } from '@kubb/core'
+import type { ast } from '@kubb/core'
+import { isHandledFormat } from './resolvers.ts'
 
 /**
  * Reports the advisory diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`) for a
- * single top-level schema. It reuses the node the parser already produced during `preScan`
- * and walks it with the shared AST visitor, so it never re-implements the OpenAPI traversal
- * (refs, `allOf`/`oneOf`, items) the parser resolved. Reports land in the active build run;
- * outside a build `Diagnostics.report` is a no-op and repeats are collapsed by the build's
- * deduplication.
+ * single top-level schema. It walks the node the parser already produced during `preScan`,
+ * threading the RFC 6901 pointer as it descends, so a nested field reports against its full
+ * path (`#/components/schemas/Pet/properties/owner/properties/name`) rather than its immediate
+ * parent. Refs are not followed: the resolved schema is reported under its own top-level walk.
+ * Reports land in the active build run; outside a build `Diagnostics.report` is a no-op and
+ * repeats are collapsed by the build's deduplication.
  */
 export function reportSchemaDiagnostics({ node, name }: { node: ast.SchemaNode; name: string }): void {
-  const base = `#/components/schemas/${name}`
+  visit(node, `#/components/schemas/${name}`)
+}
 
-  ast.collect<unknown>(node, {
-    schema(schemaNode, context) {
-      const parent = context.parent
-      const pointer = parent?.kind === 'Property' && parent.name ? `${base}/properties/${parent.name}` : base
+function visit(node: ast.SchemaNode, pointer: string): void {
+  if (node.deprecated) {
+    Diagnostics.report({
+      code: diagnosticCode.deprecated,
+      severity: 'info',
+      message: 'This schema is marked as deprecated.',
+      location: { kind: 'schema', pointer },
+    })
+  }
 
-      if (schemaNode.deprecated) {
-        Diagnostics.report({
-          code: diagnosticCode.deprecated,
-          severity: 'info',
-          message: 'This schema is marked as deprecated.',
-          location: { kind: 'schema', pointer },
-        })
-      }
+  if (typeof node.format === 'string' && !isHandledFormat(node.format)) {
+    Diagnostics.report({
+      code: diagnosticCode.unsupportedFormat,
+      severity: 'warning',
+      message: `Kubb does not map the format "${node.format}" to a specific type, so it falls back to the base type.`,
+      help: `Use a format Kubb supports, or handle "${node.format}" with a custom parser or plugin.`,
+      location: { kind: 'schema', pointer },
+    })
+  }
 
-      if (typeof schemaNode.format === 'string' && !handledFormats.has(schemaNode.format)) {
-        Diagnostics.report({
-          code: diagnosticCode.unsupportedFormat,
-          severity: 'warning',
-          message: `Kubb does not map the format "${schemaNode.format}" to a specific type, so it falls back to the base type.`,
-          help: `Use a format Kubb supports, or handle "${schemaNode.format}" with a custom parser or plugin.`,
-          location: { kind: 'schema', pointer },
-        })
-      }
+  if (node.type === 'object') {
+    for (const property of node.properties) {
+      visit(property.schema, `${pointer}/properties/${property.name}`)
+    }
+    if (node.additionalProperties && typeof node.additionalProperties === 'object') {
+      visit(node.additionalProperties, `${pointer}/additionalProperties`)
+    }
+    return
+  }
 
-      return undefined
-    },
-  })
+  if (node.type === 'array' || node.type === 'tuple') {
+    for (const item of node.items ?? []) {
+      visit(item, `${pointer}/items`)
+    }
+    return
+  }
+
+  if (node.type === 'union' || node.type === 'intersection') {
+    for (const member of node.members ?? []) {
+      visit(member, pointer)
+    }
+  }
 }

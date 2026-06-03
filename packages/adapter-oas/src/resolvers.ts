@@ -4,7 +4,7 @@ import type { ast } from '@kubb/core'
 import type { ParameterObject, ServerObject } from 'oas/types'
 import { isRef } from 'oas/types'
 import { matchesMimeType } from 'oas/utils'
-import { formatMap, SCHEMA_REF_PREFIX, structuralKeys } from './constants.ts'
+import { formatMap, SCHEMA_REF_PREFIX, specialCasedFormats, structuralKeys } from './constants.ts'
 import { isReference } from './guards.ts'
 import { dereferenceWithRef, resolveRef } from './refs.ts'
 import type { ContentType, Document, MediaTypeObject, Operation, ResponseObject, SchemaObject } from './types.ts'
@@ -57,6 +57,16 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
  */
 export function getSchemaType(format: string): ast.SchemaType | null {
   return formatMap[format as keyof typeof formatMap] ?? null
+}
+
+/**
+ * Whether the parser maps `format` to a dedicated type. True for any `formatMap` entry and the
+ * `specialCasedFormats` `convertFormat` handles directly; false means the format falls back to the
+ * base type, which is what `KUBB_UNSUPPORTED_FORMAT` flags. Reading both sources keeps the
+ * diagnostic in step with the parser as `formatMap` grows.
+ */
+export function isHandledFormat(format: string): boolean {
+  return getSchemaType(format) !== null || specialCasedFormats.has(format)
 }
 
 /**

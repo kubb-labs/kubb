@@ -1,4 +1,4 @@
-import { type Diagnostic, diagnosticCode, DiagnosticError, Diagnostics } from '@kubb/core'
+import { type Diagnostic, diagnosticCode, Diagnostics } from '@kubb/core'
 import { isReference } from './guards.ts'
 import type { Document } from './types.ts'
 
@@ -47,11 +47,10 @@ export function resolveRef<T = unknown>(document: Document, $ref: string): T | n
       help: 'Add the schema under `components.schemas`, or fix the `$ref`. Run `kubb validate` to check the spec.',
       location: { kind: 'schema', pointer: origRef, ref: origRef },
     }
-    // Inside a build, collect every unresolved ref and continue; otherwise throw.
-    if (Diagnostics.report(diagnostic)) {
-      return null
-    }
-    throw new DiagnosticError(diagnostic)
+    // Report the unresolved ref into the active build and resolve to null, like any
+    // other unresolvable ref. The build collects it and keeps going.
+    Diagnostics.report(diagnostic)
+    return null
   }
 
   docCache.set($ref, current)

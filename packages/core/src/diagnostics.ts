@@ -425,8 +425,6 @@ export class Diagnostics {
    */
   static async emit(hooks: AsyncEventEmitter<KubbHooks>, diagnostic: ProblemDiagnostic | UpdateDiagnostic): Promise<void> {
     await hooks.emit('kubb:diagnostic', { diagnostic })
-
-    return
   }
 
   /**
