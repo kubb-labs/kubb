@@ -4,7 +4,7 @@
   </a>
 
 <a href="https://npmjs.com/package/@kubb/cli" target="_blank">
-  <img alt="@kubb/cli badges" src="https://shieldcn.dev/group/npm/v/@kubb/cli+npm/dm/@kubb/cli+github/stars/kubb-labs/kubb+codecov/c/github/kubb-labs/kubb+github/license/kubb-labs/kubb+github/sponsors/stijnvanhulle.svg?variant=branded&size=xs&theme=zinc&mode=dark">
+  <img alt="@kubb/cli badges" src="https://shieldcn.dev/group/npm/v/@kubb/cli+npm/dm/@kubb/cli+github/stars/kubb-labs/kubb+npm/l/@kubb/cli+badge/sponsors-stijnvanhulle-EA4AAA.svg?variant=branded&size=xs&theme=zinc&mode=dark">
 </a>
 
 <h4>

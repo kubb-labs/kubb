@@ -4,7 +4,7 @@
   </a>
 
 <a href="https://npmjs.com/package/@kubb/adapter-oas" target="_blank">
-  <img alt="@kubb/adapter-oas badges" src="https://shieldcn.dev/group/npm/v/@kubb/adapter-oas+npm/dm/@kubb/adapter-oas+github/stars/kubb-labs/kubb+codecov/c/github/kubb-labs/kubb+github/license/kubb-labs/kubb+github/sponsors/stijnvanhulle.svg?variant=branded&size=xs&theme=zinc&mode=dark">
+  <img alt="@kubb/adapter-oas badges" src="https://shieldcn.dev/group/npm/v/@kubb/adapter-oas+npm/dm/@kubb/adapter-oas+github/stars/kubb-labs/kubb+npm/l/@kubb/adapter-oas+badge/sponsors-stijnvanhulle-EA4AAA.svg?variant=branded&size=xs&theme=zinc&mode=dark">
 </a>
 
 <h4>

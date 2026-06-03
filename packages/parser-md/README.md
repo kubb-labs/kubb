@@ -4,7 +4,7 @@
   </a>
 
 <a href="https://npmjs.com/package/@kubb/parser-md" target="_blank">
-  <img alt="@kubb/parser-md badges" src="https://shieldcn.dev/group/npm/v/@kubb/parser-md+npm/dm/@kubb/parser-md+github/stars/kubb-labs/kubb+codecov/c/github/kubb-labs/kubb+github/license/kubb-labs/kubb+github/sponsors/stijnvanhulle.svg?variant=branded&size=xs&theme=zinc&mode=dark">
+  <img alt="@kubb/parser-md badges" src="https://shieldcn.dev/group/npm/v/@kubb/parser-md+npm/dm/@kubb/parser-md+github/stars/kubb-labs/kubb+npm/l/@kubb/parser-md+badge/sponsors-stijnvanhulle-EA4AAA.svg?variant=branded&size=xs&theme=zinc&mode=dark">
 </a>
 
 <h4>
