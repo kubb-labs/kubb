@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
+import { styleText } from 'node:util'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { getErrorMessage } from '@internals/utils'
 import { version } from '../package.json'
@@ -223,6 +224,16 @@ const isPerformance = isKind<PerformanceDiagnostic>('performance')
  * ```
  */
 const isUpdate = isKind<UpdateDiagnostic>('update')
+
+/**
+ * Glyph and accent color per severity, matching the miette/oxlint convention
+ * (`×` error, `⚠` warning, `ℹ` advice).
+ */
+const severityStyle: Record<DiagnosticSeverity, { glyph: string; color: 'red' | 'yellow' | 'blue' }> = {
+  error: { glyph: '×', color: 'red' },
+  warning: { glyph: '⚠', color: 'yellow' },
+  info: { glyph: 'ℹ', color: 'blue' },
+}
 
 /**
  * A {@link Diagnostic} reduced to its JSON-safe fields plus a `docsUrl`, for
@@ -607,5 +618,43 @@ export class Diagnostics {
       ...(problem?.plugin ? { plugin: problem.plugin } : {}),
       ...(diagnostic.code === diagnosticCode.unknown ? {} : { docsUrl: Diagnostics.docsUrl(diagnostic.code) }),
     }
+  }
+
+  /**
+   * Renders a {@link Diagnostic} for terminal output as its parts: the colored severity `symbol`
+   * (the gutter glyph), the `plugin(CODE): message` `headline`, and the `details` lines (optional
+   * `at <pointer>`, `help:`, and `docs:`).
+   *
+   * Hosts compose these to fit their gutter: a clack logger passes `symbol` as its own gutter and
+   * `[headline, ...details]` as the message, while plain text outputs use {@link Diagnostics.formatLines}.
+   */
+  static format(diagnostic: Diagnostic): { symbol: string; headline: string; details: Array<string> } {
+    const { code, severity, message } = diagnostic
+    const { glyph, color } = severityStyle[severity]
+    const problem = isProblem(diagnostic) ? diagnostic : undefined
+
+    const rule = styleText(color, styleText('bold', problem?.plugin ? `${problem.plugin}(${code})` : code))
+    const details: Array<string> = []
+
+    if (problem?.location && 'pointer' in problem.location) {
+      details.push(`  ${styleText('dim', 'at')} ${styleText('cyan', problem.location.pointer)}`)
+    }
+    if (problem?.help) {
+      details.push(`  ${styleText('cyan', 'help:')} ${problem.help}`)
+    }
+    if (code !== diagnosticCode.unknown) {
+      details.push(`  ${styleText('dim', 'docs:')} ${styleText('cyan', Diagnostics.docsUrl(code))}`)
+    }
+
+    return { symbol: styleText(color, styleText('bold', glyph)), headline: `${rule}: ${message}`, details }
+  }
+
+  /**
+   * The self-contained block form of {@link Diagnostics.format}: `${symbol} ${headline}` followed by
+   * the detail lines. Used where there is no gutter to own the symbol (plain and file output).
+   */
+  static formatLines(diagnostic: Diagnostic): Array<string> {
+    const { symbol, headline, details } = Diagnostics.format(diagnostic)
+    return [`${symbol} ${headline}`, ...details]
   }
 }

@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { formatMsWithColor, getElapsedMs, getIntro, toCause } from '@internals/utils'
-import { defineLogger, Diagnostics, diagnosticDetails, diagnosticHeadline, diagnosticSymbol, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { defineLogger, Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { buildProgressLine, createProgressCounters, formatCommandWithArgs, formatMessage, recordPluginResult, resetProgressCounters } from './utils.ts'
 
 /**
@@ -189,9 +189,8 @@ Run \`npm install -g @kubb/cli\` to update`,
       // Hand the severity glyph to clack as the gutter `symbol`, then let it draw the
       // bar on each detail line via the default `secondarySymbol`. The headline and
       // details carry their own colors, so clack only owns the gutter.
-      clack.log.message([diagnosticHeadline(diagnostic), ...diagnosticDetails(diagnostic)], {
-        symbol: diagnosticSymbol(diagnostic.severity),
-      })
+      const { symbol, headline, details } = Diagnostics.format(diagnostic)
+      clack.log.message([headline, ...details], { symbol })
     })
 
     context.on('kubb:lifecycle:start', async ({ version }) => {

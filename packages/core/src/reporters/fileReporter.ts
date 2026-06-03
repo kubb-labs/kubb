@@ -4,7 +4,6 @@ import { stripVTControlCharacters } from 'node:util'
 import { formatMs, write } from '@internals/utils'
 import { createReporter } from '../createReporter.ts'
 import { type Diagnostic, Diagnostics } from '../diagnostics.ts'
-import { formatDiagnostic } from '../formatDiagnostic.ts'
 import { buildReport, type Report } from './report.ts'
 
 /**
@@ -48,7 +47,7 @@ function buildProblemSection(diagnostics: ReadonlyArray<Diagnostic>): Array<stri
     return []
   }
 
-  const blocks = problems.map((diagnostic) => formatDiagnostic(diagnostic).join('\n'))
+  const blocks = problems.map((diagnostic) => Diagnostics.formatLines(diagnostic).join('\n'))
   return ['## Problems', '', blocks.join('\n\n')]
 }
 

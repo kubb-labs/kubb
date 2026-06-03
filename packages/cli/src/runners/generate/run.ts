@@ -13,7 +13,6 @@ import {
   createKubb,
   type Diagnostic,
   Diagnostics,
-  isInputPath,
   type KubbHooks,
   logLevel as logLevelMap,
   type ProblemDiagnostic,
@@ -376,7 +375,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
     let anyFailed = false
     for (const config of configs) {
-      if (isInputPath(config) && watch) {
+      if (config.input && 'path' in config.input && watch) {
         await startWatcher(
           [input || config.input.path],
           async (paths) => {

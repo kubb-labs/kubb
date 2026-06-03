@@ -46,6 +46,7 @@ describe('middlewareBarrel', () => {
       root: '/workspace',
       output: { path: 'src/gen', barrel: { type: 'named' } },
       parsers: [],
+      reporters: [],
       plugins: [
         makePlugin({ name: 'plugin-types', outputPath: 'types', filePath: '/workspace/src/gen/types/pet.ts', exportName: 'Pet' }),
         makePlugin({ name: 'plugin-schemas', outputPath: 'schemas', filePath: '/workspace/src/gen/schemas/petSchema.ts', exportName: 'PetSchema' }),
@@ -77,6 +78,7 @@ describe('middlewareBarrel', () => {
       root: '/workspace',
       output: { path: 'src/gen', barrel: { type: 'named' } },
       parsers: [],
+      reporters: [],
       plugins: [
         makePlugin({ name: 'plugin-types', outputPath: 'types', filePath: '/workspace/src/gen/types/pet.ts', exportName: 'Pet' }),
       ] as unknown as Array<Plugin>,
@@ -97,6 +99,7 @@ describe('middlewareBarrel', () => {
       root: '/workspace',
       output: { path: 'src/gen', barrel: { type: 'named' } },
       parsers: [],
+      reporters: [],
       plugins: [
         makePlugin({
           name: 'plugin-types',
@@ -123,6 +126,7 @@ describe('middlewareBarrel', () => {
       root: '/workspace',
       output: { path: 'src/gen', barrel: { type: 'named' } },
       parsers: [],
+      reporters: [],
       plugins: [
         makePlugin({
           name: 'plugin-types',
