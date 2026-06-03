@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
@@ -106,7 +107,9 @@ async function runToolPass({
 
   let toolError: Error | undefined
 
-  if (resolvedTool && resolvedTool !== 'auto' && resolvedTool in toolMap) {
+  // Nothing to lint or format when the output dir was never written. Skip so the tool
+  // (e.g. oxlint with --no-ignore) doesn't fail with "No files found to lint".
+  if (resolvedTool && resolvedTool !== 'auto' && resolvedTool in toolMap && existsSync(outputPath)) {
     const toolConfig = toolMap[resolvedTool as keyof ToolMap]
     const hookId = createHash('sha256').update([configName, resolvedTool].filter(Boolean).join('-')).digest('hex')
 
