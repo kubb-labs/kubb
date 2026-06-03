@@ -20,8 +20,11 @@ export const linters = {
   },
   oxlint: {
     command: 'oxlint',
-    // --no-ignore so oxlint lints the folder even when it's gitignored (generated output dirs usually are).
-    args: (outputPath: string) => ['--fix', '--no-ignore', outputPath],
+    // Oxlint still honors `.gitignore` during directory traversal even with `--no-ignore` (which
+    // only disables `.eslintignore`), so a gitignored output dir resolves to no files.
+    // `--no-error-on-unmatched-pattern` keeps that from failing the run with "No files found to
+    // lint"; such a dir is simply skipped rather than linted.
+    args: (outputPath: string) => ['--fix', '--no-ignore', '--no-error-on-unmatched-pattern', outputPath],
     errorMessage: 'Oxlint not found',
   },
 } as const

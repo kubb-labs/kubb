@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { detectLinter } from './linters.ts'
+import { detectLinter, linters } from './linters.ts'
 
 vi.mock('node:child_process', () => ({
   spawn: vi.fn(),
@@ -55,5 +55,14 @@ describe('detectLinter', () => {
 
     const result = await detectLinter()
     expect(result).toBeNull()
+  })
+})
+
+describe('linters.oxlint.args', () => {
+  // Oxlint honors `.gitignore` during directory traversal even with `--no-ignore`, so a gitignored
+  // output dir resolves to no files. `--no-error-on-unmatched-pattern` keeps that from failing the
+  // run with "No files found to lint".
+  it('lints the output directory without erroring on a gitignored (empty) match', () => {
+    expect(linters.oxlint.args('./gen')).toStrictEqual(['--fix', '--no-ignore', '--no-error-on-unmatched-pattern', './gen'])
   })
 })
