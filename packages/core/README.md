@@ -26,7 +26,7 @@
 
 Core engine for Kubb's plugin-based code generation system. Provides the plugin driver, file manager, `defineConfig`, `definePlugin`, `defineMiddleware`, and the build orchestration layer used by every Kubb plugin.
 
-> **Note:** Most users should install the [`kubb`](https://npmjs.com/package/kubb) meta-package instead of `@kubb/core` directly. Install `@kubb/core` only when building custom plugins or extending the Kubb internals.
+> **Note:** Most users should install the [`kubb`](https://npmx.dev/package/kubb) meta-package instead of `@kubb/core` directly. Install `@kubb/core` only when building custom plugins or extending the Kubb internals.
 
 ## Installation
 
@@ -58,12 +58,12 @@ Kubb is an open source project, and its development is funded entirely by sponso
 <!-- Badges -->
 
 [npm-version-src]: https://shieldcn.dev/npm/v/@kubb/core.svg?variant=branded&size=xs&theme=zinc&mode=dark
-[npm-version-href]: https://npmjs.com/package/@kubb/core
+[npm-version-href]: https://npmx.dev/package/@kubb/core
 [npm-downloads-src]: https://shieldcn.dev/npm/dm/@kubb/core.svg?variant=branded&size=xs&theme=zinc&mode=dark
-[npm-downloads-href]: https://npmjs.com/package/@kubb/core
+[npm-downloads-href]: https://npmx.dev/package/@kubb/core
 [stars-src]: https://shieldcn.dev/github/stars/kubb-labs/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
 [stars-href]: https://github.com/kubb-labs/kubb
 [license-src]: https://shieldcn.dev/npm/license/@kubb/core.svg?variant=branded&size=xs&theme=zinc&mode=dark
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
 [node-src]: https://shieldcn.dev/npm/node/@kubb/core.svg?variant=branded&size=xs&theme=zinc&mode=dark
-[node-href]: https://npmjs.com/package/@kubb/core
+[node-href]: https://npmx.dev/package/@kubb/core
