@@ -17,9 +17,9 @@ describe('jsonReporter', () => {
     installReporter(context, jsonReporter, { logLevel: logLevel.info })
 
     await context.emit('kubb:generation:end', {
-      config: {} as Config,
+      config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config,
       storage: {} as Storage,
-      diagnostics: [{ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing Pet' }],
+      diagnostics: [{ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing Pet', plugin: '@kubb/plugin-zod' }],
       filesCreated: 3,
       status: 'failed',
       hrStart: process.hrtime(),
@@ -27,7 +27,7 @@ describe('jsonReporter', () => {
 
     const report = JSON.parse(writes.join(''))
     expect(report.status).toBe('failed')
-    expect(report.summary).toMatchObject({ errors: 1 })
+    expect(report.counts).toMatchObject({ errors: 1 })
   })
 })
 

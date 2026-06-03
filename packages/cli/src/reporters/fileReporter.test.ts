@@ -14,7 +14,7 @@ describe('fileReporter', () => {
 
     await fileReporter.report(
       {
-        config: { name: 'petstore' } as Config,
+        config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}, {}] } as unknown as Config,
         diagnostics: [
           {
             code: 'KUBB_DEPRECATED',
@@ -36,6 +36,9 @@ describe('fileReporter', () => {
     // No ANSI escape codes leak into the file.
     expect(written).not.toMatch(/\[/)
     expect(written).toContain('# petstore — ')
+    expect(written).toContain('## Summary')
+    expect(written).toContain('Plugins   2 passed (2)')
+    expect(written).toContain('Files     1 generated')
     expect(written).toContain('## Problems')
     expect(written).toContain('KUBB_DEPRECATED: This schema is marked as deprecated.')
     expect(written).toContain('at #/components/schemas/Tag')
@@ -49,7 +52,7 @@ describe('fileReporter', () => {
 
     await fileReporter.report(
       {
-        config: { name: 'petstore' } as Config,
+        config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}, {}] } as unknown as Config,
         diagnostics: [],
         filesCreated: 0,
         status: 'success',
