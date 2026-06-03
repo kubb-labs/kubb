@@ -559,11 +559,11 @@ export class Diagnostics {
 
   /**
    * Builds the kubb.dev docs URL for a diagnostic code, e.g.
-   * `KUBB_REF_NOT_FOUND` → `https://kubb.dev/docs/5.x/diagnostics/kubb-ref-not-found`.
+   * `KUBB_REF_NOT_FOUND` → `https://kubb.dev/docs/5.x/reference/diagnostics/kubb-ref-not-found`.
    */
   static docsUrl(code: string): string {
     const slug = code.toLowerCase().replaceAll('_', '-')
-    return `https://kubb.dev/docs/${docsMajor}.x/diagnostics/${slug}`
+    return `https://kubb.dev/docs/${docsMajor}.x/reference/diagnostics/${slug}`
   }
 
   /**

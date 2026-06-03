@@ -14,7 +14,7 @@ const problem = (over: Partial<Diagnostic> = {}): Diagnostic => ({ code: 'KUBB_R
 
 describe('Diagnostics.docsUrl', () => {
   it('slugifies the code into a kubb.dev docs link', () => {
-    expect(Diagnostics.docsUrl('KUBB_REF_NOT_FOUND')).toMatch(/^https:\/\/kubb\.dev\/docs\/\d+\.x\/diagnostics\/kubb-ref-not-found$/)
+    expect(Diagnostics.docsUrl('KUBB_REF_NOT_FOUND')).toMatch(/^https:\/\/kubb\.dev\/docs\/\d+\.x\/reference\/diagnostics\/kubb-ref-not-found$/)
   })
 })
 
