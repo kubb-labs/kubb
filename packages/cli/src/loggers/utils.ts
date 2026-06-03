@@ -1,10 +1,9 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { canUseTTY, formatHrtime, getElapsedMs, isGitHubActions } from '@internals/utils'
+import { canUseTTY, formatHrtime, getElapsedMs } from '@internals/utils'
 import type { Logger, LoggerContext, LoggerOptions, Reporter, ReporterContext } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
 import { clackLogger } from './clackLogger.ts'
-import { githubActionsLogger } from './githubActionsLogger.ts'
 import { plainLogger } from './plainLogger.ts'
 import type { LoggerType } from './types.ts'
 
@@ -53,7 +52,7 @@ type ProgressState = {
 }
 
 /**
- * Build the progress summary line shared by clack and GitHub Actions loggers.
+ * Build the progress summary line shown by the clack logger.
  * Returns null when there is nothing to display.
  */
 export function buildProgressLine(state: ProgressState): string | null {
@@ -81,7 +80,7 @@ export function buildProgressLine(state: ProgressState): string | null {
 }
 
 /**
- * Creates the per-run progress counters shared by the clack and GitHub Actions loggers.
+ * Creates the per-run progress counters used by the clack logger.
  */
 export function createProgressCounters(): ProgressState {
   return {
@@ -119,7 +118,7 @@ export function recordPluginResult(state: ProgressState, success: boolean): void
 
 /**
  * Tracks per-hook start times so a logger can report a hook's elapsed duration.
- * Used by the loggers that key timing by hook `id` (GitHub Actions, plain).
+ * Used by the plain logger, which keys timing by hook `id`.
  */
 export type HookTimer = {
   start(id: string): void
@@ -163,9 +162,6 @@ export function formatCommandWithArgs(command: string, args?: ReadonlyArray<stri
 }
 
 function detectLogger(): LoggerType {
-  if (isGitHubActions()) {
-    return 'github-actions'
-  }
   if (canUseTTY()) {
     return 'clack'
   }
@@ -175,7 +171,6 @@ function detectLogger(): LoggerType {
 const logMapper: Record<LoggerType, Logger> = {
   clack: clackLogger,
   plain: plainLogger,
-  'github-actions': githubActionsLogger,
 }
 
 /**

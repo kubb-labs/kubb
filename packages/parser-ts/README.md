@@ -5,9 +5,9 @@
 
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![Coverage][coverage-src]][coverage-href]
+[![Stars][stars-src]][stars-href]
 [![License][license-src]][license-href]
-[![Sponsors][sponsors-src]][sponsors-href]
+[![Node][node-src]][node-href]
 
 <h4>
 <a href="https://kubb.dev" target="_blank">Documentation</a>
@@ -99,13 +99,13 @@ Kubb is an open source project, and its development is funded entirely by sponso
 
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/@kubb/parser-ts?flat&colorA=18181B&colorB=f58517
-[npm-version-href]: https://npmjs.com/package/@kubb/parser-ts
-[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/parser-ts?flat&colorA=18181B&colorB=f58517
-[npm-downloads-href]: https://npmjs.com/package/@kubb/parser-ts
-[license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=18181B&colorB=f58517
+[npm-version-src]: https://shieldcn.dev/npm/v/@kubb/parser-ts.svg?variant=secondary&size=xs&theme=zinc&mode=dark
+[npm-version-href]: https://npmx.dev/package/@kubb/parser-ts
+[npm-downloads-src]: https://shieldcn.dev/npm/dm/@kubb/parser-ts.svg?variant=secondary&size=xs&theme=zinc&mode=dark
+[npm-downloads-href]: https://npmx.dev/package/@kubb/parser-ts
+[stars-src]: https://shieldcn.dev/github/stars/kubb-labs/kubb.svg?variant=secondary&size=xs&theme=zinc&mode=dark
+[stars-href]: https://github.com/kubb-labs/kubb
+[license-src]: https://shieldcn.dev/npm/license/@kubb/parser-ts.svg?variant=secondary&size=xs&theme=zinc
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
-[coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517
-[coverage-href]: https://www.npmjs.com/package/@kubb/parser-ts
-[sponsors-src]: https://img.shields.io/github/sponsors/stijnvanhulle?style=flat&colorA=18181B&colorB=f58517
-[sponsors-href]: https://github.com/sponsors/stijnvanhulle/
+[node-src]: https://shieldcn.dev/npm/node/@kubb/parser-ts.svg?variant=secondary&size=xs&theme=zinc&mode=dark
+[node-href]: https://npmx.dev/package/@kubb/parser-ts

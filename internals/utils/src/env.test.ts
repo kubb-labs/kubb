@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { canUseTTY, isCIEnvironment, isGitHubActions } from './env.ts'
+import { canUseTTY, isCIEnvironment } from './env.ts'
 
 const originalIsTTY = process.stdout.isTTY
 const originalColumns = process.stdout.columns
@@ -15,16 +15,6 @@ afterEach(() => {
     value: originalColumns,
     writable: true,
     configurable: true,
-  })
-})
-
-describe('isGitHubActions', () => {
-  it.each([
-    { value: 'true', expected: true },
-    { value: '', expected: false },
-  ])('returns $expected when GITHUB_ACTIONS="$value"', ({ value, expected }) => {
-    vi.stubEnv('GITHUB_ACTIONS', value)
-    expect(isGitHubActions()).toBe(expected)
   })
 })
 

@@ -1,5 +1,42 @@
 # Changelog
 
+## v5.0.0-beta.40 — Jun 3, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- add urlpath back ([`68638b7`](https://github.com/kubb-labs/kubb/commit/68638b7227d2db1a65746e0d6e7189571f79dc1d))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.0-beta.39 — Jun 3, 2026
+
+### @kubb/core
+
+#### Features
+
+- Fold the diagnostic error helpers into the `Diagnostics` namespace: `DiagnosticError` is now `Diagnostics.Error` and the structural check is exposed as `Diagnostics.isError`.
+  
+  The standalone `DiagnosticError` export from `@kubb/core` is removed. Replace `new DiagnosticError(...)` with `new Diagnostics.Error(...)`, and import `Diagnostics` instead. The thrown error keeps its `name` of `'DiagnosticError'`, so structural checks across duplicated `@kubb/core` copies still match. ([#3458](https://github.com/kubb-labs/kubb/pull/3458), [`ec9a92c`](https://github.com/kubb-labs/kubb/commit/ec9a92c74fcddb38a9a70451f36e19d533d6c0b3))
+- Remove the public `FileProcessor` export from `@kubb/core` and move the `matchFiles` snapshot
+  helper into `@kubb/core/mocks`. `matchFiles(files, { parsers, format, pre })` takes its parsers and
+  formatter as options, so it renders generator output to file snapshots without `@kubb/core` pulling
+  in a parser or prettier. ([#3458](https://github.com/kubb-labs/kubb/pull/3458), [`1b19a0c`](https://github.com/kubb-labs/kubb/commit/1b19a0c1ceef844a08fb5383143f21cd2bb2742d))
+- Remove the exported `isInputPath` type guard from `@kubb/core`. It had a single internal caller,
+  where the check is now an inline `'path' in config.input` that narrows the `InputPath | InputData`
+  union on its own. ([#3458](https://github.com/kubb-labs/kubb/pull/3458), [`ec69a5c`](https://github.com/kubb-labs/kubb/commit/ec69a5c5bf6ed0402090a357b86e38ca51be0c34))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.38 — Jun 3, 2026
 
 ### @kubb/core

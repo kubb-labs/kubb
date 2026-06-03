@@ -147,8 +147,8 @@ export async function runHook({ id, command, args, commandWithArgs, hooks }: Run
   const emitEnd = (success: boolean, error: Error | null, output?: { stdout?: string; stderr?: string }) =>
     hooks.emit('kubb:hook:end', { command, args, id, success, error, ...output })
 
-  // Only stream line-by-line when a logger is listening, so non-streaming loggers
-  // (plain, github-actions) don't pay to iterate the subprocess output.
+  // Only stream line-by-line when a logger is listening, so the non-streaming plain
+  // logger doesn't pay to iterate the subprocess output.
   const stream = hooks.listenerCount('kubb:hook:line') > 0
 
   try {

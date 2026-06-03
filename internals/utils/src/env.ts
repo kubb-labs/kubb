@@ -1,18 +1,4 @@
 /**
- * Returns `true` when running inside a GitHub Actions workflow.
- *
- * @example
- * ```ts
- * if (isGitHubActions()) {
- *   core.setOutput('result', 'ok')
- * }
- * ```
- */
-export function isGitHubActions(): boolean {
-  return !!process.env.GITHUB_ACTIONS
-}
-
-/**
  * Returns `true` when the process is running in a CI environment.
  * Covers GitHub Actions, GitLab CI, CircleCI, Travis CI, Jenkins, Bitbucket,
  * TeamCity, Buildkite, and Azure Pipelines.
