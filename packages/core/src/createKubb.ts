@@ -7,7 +7,7 @@ import type { Adapter } from './createAdapter.ts'
 import { type Diagnostic, DiagnosticError, Diagnostics, isProblemDiagnostic, type ProblemDiagnostic, type UpdateDiagnostic } from './diagnostics.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
-import type { Logger } from './defineLogger.ts'
+import type { Logger, LoggerOptions } from './defineLogger.ts'
 import type { Middleware } from './defineMiddleware.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, Plugin } from './definePlugin.ts'
@@ -341,17 +341,9 @@ export type Config<TInput = Input> = {
   reporters?: Array<ReporterName>
   /**
    * Logger that renders the run's live event stream. When omitted, the CLI installs a tiny
-   * plain-console fallback. Use `@kubb/middleware-logger` (or any custom `Logger`) to opt into
-   * richer output, the same way `middleware` opts into `@kubb/middleware-barrel`.
-   *
-   * @example Opt into the consola + GitHub Actions logger
-   * ```ts
-   * import { middlewareLogger } from '@kubb/middleware-logger'
-   *
-   * logger: middlewareLogger
-   * ```
+   * plain-console fallback. See `@kubb/middleware-logger` for the recommended default.
    */
-  logger?: Logger
+  logger?: Logger<LoggerOptions, unknown>
 }
 
 /**
@@ -460,6 +452,25 @@ declare global {
      * ```
      */
     interface PluginOptionsRegistry {}
+
+    /**
+     * Registry of installed loggers, keyed by canonical logger name. Logger packages augment
+     * this with `interface LoggerRegistry { 'my-logger': true }` so the rest of the toolchain
+     * can detect their presence without importing them.
+     *
+     * @example
+     * ```ts
+     * // packages/middleware-logger/src/middlewareLogger.ts
+     * declare global {
+     *   namespace Kubb {
+     *     interface LoggerRegistry {
+     *       'middleware-logger': true
+     *     }
+     *   }
+     * }
+     * ```
+     */
+    interface LoggerRegistry {}
   }
 }
 

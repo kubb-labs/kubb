@@ -2,6 +2,7 @@ import { isPromise, type PossiblePromise } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
 import type { CLIOptions, UserConfig } from '@kubb/core'
 import { middlewareBarrel, middlewareBarrelName } from '@kubb/middleware-barrel'
+import { middlewareLogger } from '@kubb/middleware-logger'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import { parserMd } from '@kubb/parser-md'
 
@@ -16,12 +17,13 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
     : NormalizeConfig<TConfig>
 
 /**
- * Applies default `root`, adapter, parsers, middleware, `output.barrel`, `output.format`, and `output.lint` to a single user config when not set.
+ * Applies default `root`, adapter, parsers, middleware, logger, `output.barrel`, `output.format`, and `output.lint` to a single user config when not set.
  *
  * - `root` defaults to `process.cwd()`
  * - `adapter` defaults to `adapterOas()`
  * - `parsers` defaults to `[parserTs, parserTsx, parserMd]`
  * - `middleware` defaults to `[middlewareBarrel()]`
+ * - `logger` defaults to `middlewareLogger`
  * - `output.barrel` defaults to `{ type: 'named' }` **only when `middlewareBarrel` is part of `middleware`**.
  *   When the user provides a custom middleware list without `middlewareBarrel`, `barrel` is left untouched.
  * - `output.format` defaults to `false`
@@ -48,6 +50,7 @@ function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
     adapter: config.adapter ?? adapterOas(),
     parsers: config.parsers?.length ? config.parsers : [parserTs, parserTsx, parserMd],
     middleware,
+    logger: config.logger ?? middlewareLogger,
     output,
   }
 }

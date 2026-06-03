@@ -26,7 +26,7 @@ type SetupReportersOptions = LoggerOptions & {
    * console fallback so users still see live progress without adding a dependency on
    * `@kubb/middleware-logger`.
    */
-  logger?: Logger
+  logger?: Logger<LoggerOptions, unknown>
 }
 
 /**

@@ -71,6 +71,7 @@
     "@kubb/core": "workspace:*",
     "@kubb/mcp": "workspace:*",
     "@kubb/middleware-barrel": "workspace:*",
+    "@kubb/middleware-logger": "workspace:*",
     "@kubb/parser-md": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@kubb/renderer-jsx": "workspace:*"
