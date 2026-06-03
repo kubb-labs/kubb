@@ -46,6 +46,29 @@ describe('runHook', () => {
     expect(end?.stderr).toContain('boom')
   })
 
+  it('streams output as kubb:hook:line and still ends with success=false when a streamed hook fails', async () => {
+    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const lines: Array<string> = []
+    let end: { success: boolean } | undefined
+    hooks.on('kubb:hook:line', ({ line }) => {
+      lines.push(line)
+    })
+    hooks.on('kubb:hook:end', (ctx) => {
+      end = ctx
+    })
+
+    await runHook({
+      id: 'd',
+      command: node,
+      args: ['-e', 'console.log("streamed"); process.exit(1)'],
+      commandWithArgs: 'node',
+      hooks,
+    })
+
+    expect(lines).toContain('streamed')
+    expect(end?.success).toBe(false)
+  })
+
   it('completes without streaming when no kubb:hook:line listener is attached', async () => {
     const hooks = new AsyncEventEmitter<KubbHooks>()
     let succeeded = false

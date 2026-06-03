@@ -403,8 +403,8 @@ Run \`npm install -g @kubb/cli\` to update`,
       if (success) {
         active.taskLog.success(getMessage(`${styleText('dim', commandWithArgs)} completed in ${duration}`))
       } else {
-        if (stdout) active.taskLog.message(stdout)
-        if (stderr) active.taskLog.message(styleText('red', stderr))
+        // The hook's output already reached the taskLog live via `kubb:hook:line`, so `showLog`
+        // replays it here; `kubb:hook:end` carries no captured output on the streaming path.
         const reason = error?.message ? ` (${error.message})` : ''
         active.taskLog.error(getMessage(`${styleText('dim', commandWithArgs)} failed${reason}`), { showLog: true })
       }
