@@ -2,11 +2,12 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { canUseTTY, formatHrtime, getElapsedMs, isGitHubActions, randomCliColor } from '@internals/utils'
-import type { Config, Diagnostic, Logger, LoggerContext, LoggerOptions } from '@kubb/core'
-import { getDiagnosticInfo, getFailedPluginNames, logLevel as logLevelMap } from '@kubb/core'
+import type { Config, Diagnostic, Logger, LoggerContext, LoggerOptions, Reporter, ReporterName } from '@kubb/core'
+import { Diagnostics, getDiagnosticInfo, isPerformanceDiagnostic, logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
+import { fileReporter } from '../reporters/fileReporter.ts'
+import { jsonReporter } from '../reporters/jsonReporter.ts'
 import { clackLogger } from './clackLogger.ts'
-import { fileSystemLogger } from './fileSystemLogger.ts'
 import { githubActionsLogger } from './githubActionsLogger.ts'
 import { plainLogger } from './plainLogger.ts'
 import type { LoggerType } from './types.ts'
@@ -226,22 +227,58 @@ const logMapper: Record<LoggerType, CLILogger> = {
   'github-actions': githubActionsLogger,
 }
 
-export async function setupLogger(context: LoggerContext, { logLevel }: LoggerOptions): Promise<HookSinkFactory | null> {
-  const type = detectLogger()
+/**
+ * Bridges a {@link Reporter} onto the run's event emitter: accumulates diagnostics across
+ * every config, then calls `report` once on `kubb:lifecycle:end`. The reporter never touches
+ * the emitter.
+ */
+export function installReporter(context: LoggerContext, reporter: Reporter): void {
+  const collected: Array<Diagnostic> = []
 
-  const logger = logMapper[type]
+  context.on('kubb:generation:end', ({ diagnostics }) => {
+    if (diagnostics) collected.push(...diagnostics)
+  })
 
-  if (!logger) {
-    throw new Error(`Unknown adapter type: ${type}`)
+  context.on('kubb:lifecycle:end', async () => {
+    await reporter.report(collected)
+  })
+}
+
+/**
+ * Installs the selected reporters and returns the terminal logger's hook sink, when one
+ * was installed.
+ *
+ * The `json` reporter owns stdout, so the terminal (`cli`) reporter is suppressed whenever
+ * `json` is selected, even if `cli` is also listed.
+ */
+export async function setupReporters(
+  context: LoggerContext,
+  { logLevel, reporters }: LoggerOptions & { reporters: ReadonlyArray<ReporterName> },
+): Promise<HookSinkFactory | null> {
+  const unique = new Set<ReporterName>(reporters.length ? reporters : ['cli'])
+  const hasJson = unique.has('json')
+
+  let makeSink: HookSinkFactory | null = null
+
+  if (unique.has('cli') && !hasJson) {
+    const type = detectLogger()
+    const logger = logMapper[type]
+    if (!logger) {
+      throw new Error(`Unknown adapter type: ${type}`)
+    }
+    const sink = await logger.install(context, { logLevel })
+    makeSink = typeof sink === 'function' ? sink : null
   }
 
-  const makeSink = await logger.install(context, { logLevel })
-
-  if (logLevel >= logLevelMap.debug) {
-    await fileSystemLogger.install(context, { logLevel })
+  if (hasJson) {
+    installReporter(context, jsonReporter)
   }
 
-  return typeof makeSink === 'function' ? makeSink : null
+  if (unique.has('file')) {
+    installReporter(context, fileReporter)
+  }
+
+  return makeSink
 }
 
 type SummaryProps = {
@@ -267,7 +304,7 @@ type SummaryProps = {
    */
   config: Config
   /**
-   * When true, append a per-plugin timing bar chart built from the `timing` diagnostics.
+   * When true, append a per-plugin timing bar chart built from the `performance` diagnostics.
    */
   showTimings?: boolean
 }
@@ -279,10 +316,10 @@ type SummaryProps = {
 export function getSummary({ diagnostics, filesCreated, status, hrStart, config, showTimings }: SummaryProps): Array<string> {
   const duration = formatHrtime(hrStart)
 
-  const failedPluginNames = getFailedPluginNames(diagnostics)
+  const failedPluginNames = Diagnostics.failedPlugins(diagnostics)
   const pluginsCount = config.plugins?.length ?? 0
   const successCount = pluginsCount - failedPluginNames.length
-  const timings = showTimings ? diagnostics.filter((diagnostic) => diagnostic.kind === 'timing' && diagnostic.plugin && diagnostic.duration !== undefined) : []
+  const timings = showTimings ? diagnostics.filter(isPerformanceDiagnostic) : []
 
   const meta = {
     plugins:
@@ -298,6 +335,7 @@ export function getSummary({ diagnostics, filesCreated, status, hrStart, config,
   const labels = {
     plugins: 'Plugins:',
     failed: 'Failed:',
+    issues: 'Issues:',
     generated: 'Generated:',
     pluginTimings: 'Plugin Timings:',
     output: 'Output:',
@@ -309,6 +347,19 @@ export function getSummary({ diagnostics, filesCreated, status, hrStart, config,
 
   if (meta.pluginsFailed) {
     summaryLines.push(`${labels.failed.padEnd(maxLength + 2)} ${meta.pluginsFailed}`)
+  }
+
+  // The only place problem counts surface: parse-time errors that aren't tied to a
+  // failed plugin still show here, so the box agrees with the run's pass/fail.
+  const { errors, warnings } = Diagnostics.count(diagnostics)
+  if (errors > 0 || warnings > 0) {
+    const issues = [
+      errors > 0 ? styleText('red', `${errors} ${errors === 1 ? 'error' : 'errors'}`) : undefined,
+      warnings > 0 ? styleText('yellow', `${warnings} ${warnings === 1 ? 'warning' : 'warnings'}`) : undefined,
+    ]
+      .filter(Boolean)
+      .join(', ')
+    summaryLines.push(`${labels.issues.padEnd(maxLength + 2)} ${issues}`)
   }
 
   summaryLines.push(`${labels.generated.padEnd(maxLength + 2)} ${meta.filesCreated} files in ${meta.time}`)

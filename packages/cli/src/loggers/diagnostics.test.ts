@@ -1,5 +1,6 @@
+import { Diagnostics } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { diagnosticDocsUrl, formatDiagnostic } from './diagnostics.ts'
+import { formatDiagnostic } from './diagnostics.ts'
 
 // styleText respects NO_COLOR/non-TTY, so assert on the plain text the lines contain.
 describe('formatDiagnostic', () => {
@@ -36,10 +37,12 @@ describe('formatDiagnostic', () => {
     const unknown = formatDiagnostic({ code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom' })
     expect(unknown.some((line) => line.includes('docs:'))).toBe(false)
   })
-})
 
-describe('diagnosticDocsUrl', () => {
-  it('slugifies the code into a kubb.dev reference URL', () => {
-    expect(diagnosticDocsUrl('KUBB_REF_NOT_FOUND')).toMatch(/^https:\/\/kubb\.dev\/docs\/\d+\.x\/diagnostics\/kubb-ref-not-found$/)
+  it('renders an update notice as an info line with the version message', () => {
+    const [header] = formatDiagnostic(Diagnostics.update({ currentVersion: '5.0.0', latestVersion: '5.1.0' }))
+
+    expect(header).toContain('ℹ')
+    expect(header).toContain('KUBB_UPDATE_AVAILABLE')
+    expect(header).toContain('v5.0.0 → v5.1.0')
   })
 })

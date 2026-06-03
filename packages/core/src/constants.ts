@@ -38,7 +38,6 @@ export const logLevel = {
   warn: 1,
   info: 3,
   verbose: 4,
-  debug: 5,
 } as const
 
 /**
@@ -76,10 +75,57 @@ export const diagnosticCode = {
    */
   pluginFailed: 'KUBB_PLUGIN_FAILED',
   /**
-   * Not a failure. Carries a plugin's elapsed time on a `timing` diagnostic, used
-   * to build the run summary.
+   * A plugin reported a non-fatal warning through `ctx.warn`.
    */
-  timing: 'KUBB_TIMING',
+  pluginWarning: 'KUBB_PLUGIN_WARNING',
+  /**
+   * A plugin reported an informational message through `ctx.info`.
+   */
+  pluginInfo: 'KUBB_PLUGIN_INFO',
+  /**
+   * A schema uses a `format` Kubb does not map to a specific type. Reserved for
+   * adapters to emit as a `warning`.
+   */
+  unsupportedFormat: 'KUBB_UNSUPPORTED_FORMAT',
+  /**
+   * A referenced schema or operation is marked `deprecated`. Reserved for adapters
+   * to emit as an `info`.
+   */
+  deprecated: 'KUBB_DEPRECATED',
+  /**
+   * An adapter is required but the config has none. The build cannot read the input
+   * without one.
+   */
+  adapterRequired: 'KUBB_ADAPTER_REQUIRED',
+  /**
+   * The `devtools` config is set to something other than an object.
+   */
+  devtoolsInvalid: 'KUBB_DEVTOOLS_INVALID',
+  /**
+   * A resolved output path escapes the output directory, which can stem from a path
+   * traversal in the spec or a misconfigured `group.name`.
+   */
+  pathTraversal: 'KUBB_PATH_TRAVERSAL',
+  /**
+   * A post-generate shell hook (`hooks.done`) exited with a failure.
+   */
+  hookFailed: 'KUBB_HOOK_FAILED',
+  /**
+   * The formatter pass over the generated files failed.
+   */
+  formatFailed: 'KUBB_FORMAT_FAILED',
+  /**
+   * The linter pass over the generated files failed.
+   */
+  lintFailed: 'KUBB_LINT_FAILED',
+  /**
+   * Not a failure. Carries a plugin's elapsed time, summed into the run total.
+   */
+  performance: 'KUBB_PERFORMANCE',
+  /**
+   * Not a failure. A newer Kubb version is available on npm.
+   */
+  updateAvailable: 'KUBB_UPDATE_AVAILABLE',
 } as const
 
 /**

@@ -1,4 +1,4 @@
-import { diagnosticCode, DiagnosticError } from '@kubb/core'
+import { type Diagnostic, diagnosticCode, DiagnosticError, Diagnostics } from '@kubb/core'
 import { isReference } from './guards.ts'
 import type { Document } from './types.ts'
 
@@ -40,13 +40,18 @@ export function resolveRef<T = unknown>(document: Document, $ref: string): T | n
     .reduce((obj: unknown, key: string) => (obj as Record<string, unknown>)?.[key], document as unknown)
 
   if (!current) {
-    throw new DiagnosticError({
+    const diagnostic: Diagnostic = {
       code: diagnosticCode.refNotFound,
       severity: 'error',
       message: `Could not find a definition for ${origRef}.`,
       help: 'Add the schema under `components.schemas`, or fix the `$ref`. Run `kubb validate` to check the spec.',
       location: { kind: 'schema', pointer: origRef, ref: origRef },
-    })
+    }
+    // Inside a build, collect every unresolved ref and continue; otherwise throw.
+    if (Diagnostics.report(diagnostic)) {
+      return null
+    }
+    throw new DiagnosticError(diagnostic)
   }
 
   docCache.set($ref, current)

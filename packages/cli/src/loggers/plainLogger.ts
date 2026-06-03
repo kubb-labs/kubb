@@ -66,8 +66,8 @@ export const plainLogger = defineLogger({
 
       console.log(text)
 
-      // Show stack trace in debug mode (first 3 frames)
-      if (logLevel >= logLevelMap.debug && error.stack) {
+      // Show stack trace in verbose mode (first 3 frames)
+      if (logLevel >= logLevelMap.verbose && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
         for (const frame of frames) {
           console.log(getMessage(frame.trim()))
@@ -90,14 +90,6 @@ export const plainLogger = defineLogger({
 
     context.on('kubb:lifecycle:start', ({ version }) => {
       console.log(`Kubb CLI v${version}`)
-    })
-
-    context.on('kubb:version:new', ({ currentVersion, latestVersion }) => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      console.log(getMessage(`Update available: v${currentVersion} → v${latestVersion}. Run \`npm install -g @kubb/cli\` to update.`))
     })
 
     onStep('kubb:config:start', 'Configuration started')
@@ -159,10 +151,25 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:generation:end', ({ config }) => {
+    context.on('kubb:generation:end', ({ config, diagnostics, filesCreated, status, hrStart }) => {
       const text = getMessage(config.name ? `Generation completed for ${config.name}` : 'Generation completed')
 
       console.log(text)
+
+      if (diagnostics && status && hrStart && filesCreated !== undefined) {
+        const summary = getSummary({
+          diagnostics,
+          filesCreated,
+          config,
+          status,
+          hrStart,
+          showTimings: logLevel >= logLevelMap.verbose,
+        })
+
+        console.log(SUMMARY_SEPARATOR)
+        console.log(summary.join('\n'))
+        console.log(SUMMARY_SEPARATOR)
+      }
     })
 
     onStep('kubb:format:start', 'Format started')
@@ -201,21 +208,6 @@ export const plainLogger = defineLogger({
         const reason = error?.message ? ` (${error.message})` : ''
         console.log(getMessage(`✗ Hook ${commandWithArgs} failed${durationStr}${reason}`))
       }
-    })
-
-    context.on('kubb:generation:summary', ({ config, diagnostics, status, hrStart, filesCreated }) => {
-      const summary = getSummary({
-        diagnostics,
-        filesCreated,
-        config,
-        status,
-        hrStart,
-        showTimings: logLevel >= logLevelMap.verbose,
-      })
-
-      console.log(SUMMARY_SEPARATOR)
-      console.log(summary.join('\n'))
-      console.log(SUMMARY_SEPARATOR)
     })
 
     return (_commandWithArgs: string, _hookId: string) => ({

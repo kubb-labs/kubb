@@ -5,10 +5,23 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { AsyncEventEmitter as AsyncEventEmitterClass, detectFormatter, detectLinter, executeIfOnline, formatters, linters, toError } from '@internals/utils'
-import { type CLIOptions, type Config, createKubb, diagnosticCode, hasBuildError, isInputPath, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import {
+  type CLIOptions,
+  type Config,
+  createKubb,
+  type Diagnostic,
+  diagnosticCode,
+  Diagnostics,
+  isInputPath,
+  isProblemDiagnostic,
+  type KubbHooks,
+  logLevel as logLevelMap,
+  narrowDiagnostic,
+  type ReporterName,
+} from '@kubb/core'
 import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../../constants.ts'
-import { setupLogger, type HookSinkFactory } from '../../loggers/utils.ts'
+import { setupReporters, type HookSinkFactory } from '../../loggers/utils.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../../telemetry.ts'
 import { executeHooks, getConfigs, runHook, startWatcher } from './utils.ts'
 
@@ -169,34 +182,37 @@ async function generate(options: GenerateProps): Promise<boolean> {
     sendTelemetry(buildTelemetryEvent({ command: 'generate', kubbVersion: version, plugins: telemetryPlugins, hrStart, filesCreated: files.length, status }))
 
   // Render every problem, not just on failure, so warnings and info surface too.
-  // `timing` diagnostics feed the summary, not the log.
+  // `performance` diagnostics feed the summary, not the log.
   for (const diagnostic of diagnostics) {
-    if (diagnostic.kind === 'timing') {
+    if (!isProblemDiagnostic(diagnostic)) {
       continue
     }
-    if (diagnostic.code === diagnosticCode.unknown) {
-      await hooks.emit('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+    const unknown = narrowDiagnostic(diagnostic, diagnosticCode.unknown)
+    if (unknown) {
+      await hooks.emit('kubb:error', { error: unknown.cause ?? new Error(unknown.message) })
     } else {
-      await hooks.emit('kubb:diagnostic', { diagnostic })
+      await Diagnostics.emit(hooks, diagnostic)
     }
   }
 
   // Only an error-severity diagnostic fails the run; warnings and info do not.
-  if (hasBuildError(diagnostics)) {
-    await hooks.emit('kubb:generation:end', { config, storage: kubb.storage })
-    await hooks.emit('kubb:generation:summary', { config, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
+  if (Diagnostics.hasError(diagnostics)) {
+    await hooks.emit('kubb:generation:end', { config, storage: kubb.storage, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
 
     await reportTelemetry('failed')
     return false
   }
 
-  await hooks.emit('kubb:success', { message: 'Generation succeeded', info: inputPath })
-  await hooks.emit('kubb:generation:end', { config, storage: kubb.storage })
-
   const outputPath = path.resolve(config.root, config.output.path)
+
+  // The build succeeded; the formatter, linter, and post-generate hooks run after it. Their
+  // failures used to only emit `kubb:error`, so they never reached the summary, the json report,
+  // or the exit code. Collect them as coded diagnostics here.
+  const outputDiagnostics: Array<Diagnostic> = []
 
   const toolPasses = [
     config.output.format && {
+      code: diagnosticCode.formatFailed,
       toolValue: config.output.format,
       detect: detectFormatter,
       toolMap: formatters,
@@ -207,6 +223,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
       onEnd: () => hooks.emit('kubb:format:end'),
     },
     config.output.lint && {
+      code: diagnosticCode.lintFailed,
       toolValue: config.output.lint,
       detect: detectLinter,
       toolMap: linters,
@@ -216,22 +233,69 @@ async function generate(options: GenerateProps): Promise<boolean> {
       onStart: () => hooks.emit('kubb:lint:start'),
       onEnd: () => hooks.emit('kubb:lint:end'),
     },
-  ].filter(Boolean) as Array<Omit<RunToolPassOptions, 'configName' | 'outputPath' | 'logLevel' | 'hooks'>>
+  ].filter(Boolean) as Array<{ code: Diagnostic['code'] } & Omit<RunToolPassOptions, 'configName' | 'outputPath' | 'logLevel' | 'hooks'>>
 
-  for (const pass of toolPasses) {
-    await runToolPass({ ...pass, configName: config.name, outputPath, logLevel, hooks, makeSink })
+  for (const { code, ...pass } of toolPasses) {
+    try {
+      await runToolPass({ ...pass, configName: config.name, outputPath, logLevel, hooks, makeSink })
+    } catch (caughtError) {
+      outputDiagnostics.push(outputDiagnostic(code, pass.toolLabel, caughtError))
+    }
   }
 
   if (config.hooks) {
     await hooks.emit('kubb:hooks:start')
-    await executeHooks({ configHooks: config.hooks, hooks, makeSink })
+    // `runHook` reports a failed `done` hook via `kubb:hook:end` rather than throwing, so listen
+    // for it across this pass and collect each failure.
+    const hookFailures: Array<Error> = []
+    const onHookEnd = (ctx: { success: boolean; error: Error | null }) => {
+      if (!ctx.success) hookFailures.push(ctx.error ?? new Error('Post-generate hook failed'))
+    }
+    hooks.on('kubb:hook:end', onHookEnd)
+    try {
+      await executeHooks({ configHooks: config.hooks, hooks, makeSink })
+    } finally {
+      hooks.off('kubb:hook:end', onHookEnd)
+    }
+    for (const error of hookFailures) {
+      outputDiagnostics.push(outputDiagnostic(diagnosticCode.hookFailed, 'Post-generate hook', error))
+    }
     await hooks.emit('kubb:hooks:end')
   }
 
-  await hooks.emit('kubb:generation:summary', { config, diagnostics, filesCreated: files.length, status: 'success', hrStart })
+  const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
+  const failed = Diagnostics.hasError(outputDiagnostics)
 
-  await reportTelemetry('success')
-  return true
+  if (!failed) {
+    await hooks.emit('kubb:success', { message: 'Generation succeeded', info: inputPath })
+  }
+
+  await hooks.emit('kubb:generation:end', {
+    config,
+    storage: kubb.storage,
+    diagnostics: finalDiagnostics,
+    filesCreated: files.length,
+    status: failed ? 'failed' : 'success',
+    hrStart,
+  })
+
+  await reportTelemetry(failed ? 'failed' : 'success')
+  return !failed
+}
+
+/**
+ * Builds a coded diagnostic for an output-phase failure (formatter, linter, or `done` hook).
+ */
+function outputDiagnostic(code: Diagnostic['code'], label: string, caughtError: unknown): Diagnostic {
+  const error = toError(caughtError)
+  return {
+    code,
+    severity: 'error',
+    message: `${label} failed: ${error.message}`,
+    help: 'Check that the tool is installed and that the command and its config are correct.',
+    location: { kind: 'config' },
+    cause: error,
+  }
 }
 
 type GenerateCommandOptions = {
@@ -239,6 +303,7 @@ type GenerateCommandOptions = {
   configPath?: string
   logLevel: string
   watch: boolean
+  reporters?: Array<ReporterName>
 }
 
 async function checkForUpdate(hooks: AsyncEventEmitter<KubbHooks>): Promise<void> {
@@ -247,7 +312,7 @@ async function checkForUpdate(hooks: AsyncEventEmitter<KubbHooks>): Promise<void
       const res = await fetch(KUBB_NPM_PACKAGE_URL)
       const data = (await res.json()) as { version: string }
       if (data.version && version < data.version) {
-        await hooks.emit('kubb:version:new', { currentVersion: version, latestVersion: data.version })
+        await Diagnostics.emit(hooks, Diagnostics.update({ currentVersion: version, latestVersion: data.version }))
       }
     } catch {
       // Ignore network errors
@@ -257,29 +322,44 @@ async function checkForUpdate(hooks: AsyncEventEmitter<KubbHooks>): Promise<void
 
 /**
  * Runs the full Kubb generation lifecycle for the given CLI options.
- * Sets up the logger, checks for a newer version, loads configs, and calls `generate` for each config entry.
+ * Loads configs, sets up the selected reporters (CLI `--reporter` overrides `config.reporters`),
+ * checks for a newer version, and calls `generate` for each config entry.
  */
-export async function run({ input, configPath, logLevel: logLevelKey, watch }: GenerateCommandOptions): Promise<void> {
+export async function run({ input, configPath, logLevel: logLevelKey, watch, reporters: cliReporters }: GenerateCommandOptions): Promise<void> {
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const hooks = new AsyncEventEmitterClass<KubbHooks>()
 
-  const makeSink = await setupLogger(hooks, { logLevel })
+  // Load the config first so `config.reporters` can pick the reporters. A failure here has no
+  // reporter installed yet, so fall back to the default `cli` reporter to surface it.
+  let configs: Array<Config>
+  let resolvedConfigPath: string
+  try {
+    const loaded = await getConfigs({
+      configPath,
+      input,
+      watch,
+      logLevel: logLevelKey as CLIOptions['logLevel'],
+    })
+    configs = loaded.configs
+    resolvedConfigPath = loaded.configPath
+  } catch (error) {
+    await setupReporters(hooks, { logLevel, reporters: ['cli'] })
+    await hooks.emit('kubb:error', { error: toError(error) })
+    process.exit(1)
+  }
+
+  // CLI `--reporter` wins; otherwise the first config's `reporters`; otherwise the default.
+  const reporters: Array<ReporterName> = cliReporters?.length ? cliReporters : (configs[0]?.reporters ?? ['cli'])
+  const makeSink = await setupReporters(hooks, { logLevel, reporters })
 
   await hooks.emit('kubb:lifecycle:start', { version })
 
   await checkForUpdate(hooks)
 
   try {
-    await hooks.emit('kubb:config:start')
-
-    const { configs, configPath: resolvedConfigPath } = await getConfigs({
-      configPath,
-      input,
-      watch,
-      logLevel: logLevelKey as CLIOptions['logLevel'],
-    })
     const relativeConfigPath = path.relative(process.cwd(), resolvedConfigPath)
 
+    await hooks.emit('kubb:config:start')
     await hooks.emit('kubb:info', { message: 'Config loaded', info: relativeConfigPath })
     await hooks.emit('kubb:success', { message: 'Config loaded successfully', info: relativeConfigPath })
     await hooks.emit('kubb:config:end', { configs })

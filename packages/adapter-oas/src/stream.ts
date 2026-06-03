@@ -4,6 +4,7 @@ import { SCHEMA_REF_PREFIX } from './constants.ts'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
 import type { SchemaParser } from './parser.ts'
 import { resolveServerUrl } from './resolvers.ts'
+import { reportSchemaDiagnostics } from './schemaDiagnostics.ts'
 import type { DiscriminatorTarget } from './discriminator.ts'
 import type { AdapterOas, Document, SchemaObject } from './types.ts'
 
@@ -136,6 +137,7 @@ export function preScan({
   for (const [name, schema] of Object.entries(schemas)) {
     const node = parseSchema({ schema, name }, parserOptions)
     allNodes.push(node)
+    reportSchemaDiagnostics({ node, name })
     if (node.type === 'ref' && node.name && node.name !== name) {
       refAliasMap.set(name, node)
     }

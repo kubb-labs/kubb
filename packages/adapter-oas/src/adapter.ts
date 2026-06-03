@@ -3,7 +3,7 @@ import { ast, createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { parseDocument, parseFromConfig, validateDocument } from './factory.ts'
+import { assertInputExists, parseDocument, parseFromConfig, validateDocument } from './factory.ts'
 import { createSchemaParser } from './parser.ts'
 import { getSchemas } from './resolvers.ts'
 import { createInputStream, preScan, resolveBaseUrl } from './stream.ts'
@@ -144,6 +144,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       return parsedDocument
     },
     async validate(input, options) {
+      await assertInputExists(input)
       const document = await parseDocument(input)
       await validateDocument(document, options)
     },

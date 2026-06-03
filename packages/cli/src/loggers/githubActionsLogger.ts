@@ -1,7 +1,6 @@
 import { styleText } from 'node:util'
 import { formatHrtime, formatMs, formatMsWithColor, toCause } from '@internals/utils'
-import { type Config, defineLogger, diagnosticCode, getFailedPluginNames, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { diagnosticDocsUrl } from './diagnostics.ts'
+import { type Config, defineLogger, diagnosticCode, Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import {
   buildProgressLine,
   createHookTimer,
@@ -134,8 +133,8 @@ export const githubActionsLogger = defineLogger({
       const message = error.message || String(error)
       console.error(`::error::${message}`)
 
-      // Show stack trace in debug mode (first 3 frames)
-      if (logLevel >= logLevelMap.debug && error.stack) {
+      // Show stack trace in verbose mode (first 3 frames)
+      if (logLevel >= logLevelMap.verbose && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
         for (const frame of frames) {
           console.log(getMessage(styleText('dim', frame.trim())))
@@ -170,7 +169,7 @@ export const githubActionsLogger = defineLogger({
         parts.push(`help: ${diagnostic.help}`)
       }
       if (diagnostic.code !== diagnosticCode.unknown) {
-        parts.push(`docs: ${diagnosticDocsUrl(diagnostic.code)}`)
+        parts.push(`docs: ${Diagnostics.docsUrl(diagnostic.code)}`)
       }
       console.error(`::error::${parts.join(' ')}`)
     })
@@ -178,10 +177,6 @@ export const githubActionsLogger = defineLogger({
     context.on('kubb:lifecycle:start', ({ version }) => {
       console.log(styleText('yellow', `Kubb ${version} 🧩`))
       reset()
-    })
-
-    context.on('kubb:version:new', ({ currentVersion, latestVersion }) => {
-      console.log(`::notice::Update available for Kubb: v${currentVersion} → v${latestVersion}. Run \`npm install -g @kubb/cli\` to update.`)
     })
 
     context.on('kubb:config:start', () => {
@@ -307,12 +302,33 @@ export const githubActionsLogger = defineLogger({
       state.processedFiles += files.length
     })
 
-    context.on('kubb:generation:end', ({ config }) => {
+    context.on('kubb:generation:end', ({ config, diagnostics, status, hrStart }) => {
       const text = getMessage(
         config.name ? `${styleText('blue', '✓')} Generation completed for ${styleText('dim', config.name)}` : `${styleText('blue', '✓')} Generation completed`,
       )
 
       console.log(text)
+
+      if (diagnostics && status && hrStart) {
+        const failedCount = Diagnostics.failedPlugins(diagnostics).length
+        const pluginsCount = config.plugins?.length ?? 0
+        const successCount = pluginsCount - failedCount
+        const duration = formatHrtime(hrStart)
+
+        if (state.currentConfigs.length > 1) {
+          console.log(' ')
+        }
+
+        console.log(
+          status === 'success'
+            ? `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ${pluginsCount} total, ${styleText('green', duration)}`
+            : `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ✗ ${`${failedCount} failed`}, ${pluginsCount} total, ${styleText('green', duration)}`,
+        )
+
+        if (state.currentConfigs.length > 1) {
+          closeGroup(config.name ? `Generation for ${styleText('bold', config.name)}` : 'Generation')
+        }
+      }
     })
 
     onGroupStart('kubb:format:start', 'Format started', 'Formatting')
@@ -359,27 +375,6 @@ export const githubActionsLogger = defineLogger({
 
       if (state.currentConfigs.length === 1) {
         closeGroup(`Hook ${commandWithArgs}`)
-      }
-    })
-
-    context.on('kubb:generation:summary', ({ config, status, hrStart, diagnostics }) => {
-      const failedCount = getFailedPluginNames(diagnostics).length
-      const pluginsCount = config.plugins?.length ?? 0
-      const successCount = pluginsCount - failedCount
-      const duration = formatHrtime(hrStart)
-
-      if (state.currentConfigs.length > 1) {
-        console.log(' ')
-      }
-
-      console.log(
-        status === 'success'
-          ? `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ${pluginsCount} total, ${styleText('green', duration)}`
-          : `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ✗ ${`${failedCount} failed`}, ${pluginsCount} total, ${styleText('green', duration)}`,
-      )
-
-      if (state.currentConfigs.length > 1) {
-        closeGroup(config.name ? `Generation for ${styleText('bold', config.name)}` : 'Generation')
       }
     })
 

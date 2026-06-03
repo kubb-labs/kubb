@@ -42,7 +42,7 @@
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
     "bun-types": "^1.3.14",
-    "cspell": "^10.0.0",
+    "cspell": "^10.0.1",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "size-limit": "catalog:",

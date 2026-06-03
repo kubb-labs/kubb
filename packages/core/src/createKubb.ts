@@ -1,18 +1,18 @@
 import { resolve } from 'node:path'
 import { version as nodeVersion } from 'node:process'
 import type { PossiblePromise } from '@internals/utils'
-import { AsyncEventEmitter, BuildError, exists, URLPath } from '@internals/utils'
+import { AsyncEventEmitter, BuildError } from '@internals/utils'
 import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import { version as KubbVersion } from '../package.json'
 import { DEFAULT_STUDIO_URL, HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
-import { type Diagnostic, DiagnosticError, hasBuildError } from './diagnostics.ts'
-import { createDebugger } from './createDebugger.ts'
+import { type Diagnostic, DiagnosticError, Diagnostics, type ProblemDiagnostic, type UpdateDiagnostic } from './diagnostics.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import type { Middleware } from './defineMiddleware.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, Plugin } from './definePlugin.ts'
+import type { ReporterName } from './createReporter.ts'
 
 import { KubbDriver } from './KubbDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -354,6 +354,22 @@ export type Config<TInput = Input> = {
      */
     done?: string | Array<string>
   }
+  /**
+   * Reporters that render the run's output, like Vitest. List one or more by name;
+   * the CLI `--reporter` flag overrides this when set.
+   *
+   * - `cli` writes the end-of-run summary to the terminal.
+   * - `json` writes a machine-readable report to stdout, for CI.
+   * - `file` writes a debug log to `.kubb/<name>-<timestamp>.log`.
+   *
+   * @default ['cli']
+   *
+   * @example
+   * ```ts
+   * reporters: ['cli', 'file']
+   * ```
+   */
+  reporters?: Array<ReporterName>
 }
 
 /**
@@ -487,7 +503,6 @@ export interface KubbHooks {
   'kubb:config:end': [ctx: KubbConfigEndContext]
   'kubb:generation:start': [ctx: KubbGenerationStartContext]
   'kubb:generation:end': [ctx: KubbGenerationEndContext]
-  'kubb:generation:summary': [ctx: KubbGenerationSummaryContext]
   'kubb:format:start': []
   'kubb:format:end': []
   'kubb:lint:start': []
@@ -496,12 +511,10 @@ export interface KubbHooks {
   'kubb:hooks:end': []
   'kubb:hook:start': [ctx: KubbHookStartContext]
   'kubb:hook:end': [ctx: KubbHookEndContext]
-  'kubb:version:new': [ctx: KubbVersionNewContext]
   'kubb:info': [ctx: KubbInfoContext]
   'kubb:error': [ctx: KubbErrorContext]
   'kubb:success': [ctx: KubbSuccessContext]
   'kubb:warn': [ctx: KubbWarnContext]
-  'kubb:debug': [ctx: KubbDebugContext]
   'kubb:diagnostic': [ctx: KubbDiagnosticContext]
   'kubb:files:processing:start': [ctx: KubbFilesProcessingStartContext]
   'kubb:files:processing:update': [ctx: KubbFilesProcessingUpdateContext]
@@ -617,42 +630,24 @@ export type KubbGenerationEndContext = {
    * ```
    */
   storage: Storage
-}
-
-export type KubbGenerationSummaryContext = {
-  /**
-   * Resolved configuration for this generation run.
-   */
-  config: Config
   /**
    * Diagnostics collected during the build: error/warning/info problems plus a
-   * `timing` diagnostic per plugin. Failure counts and per-plugin timings for the
-   * summary are derived from these.
+   * `timing` diagnostic per plugin. The end-of-run summary derives its failure counts
+   * and per-plugin timings from these. Set by the CLI runner; omitted by other callers.
    */
-  diagnostics: Array<Diagnostic>
+  diagnostics?: Array<Diagnostic>
   /**
    * `'success'` when all plugins completed without errors, `'failed'` otherwise.
    */
-  status: 'success' | 'failed'
+  status?: 'success' | 'failed'
   /**
-   * High-resolution start time from `process.hrtime()`.
+   * High-resolution start time from `process.hrtime()`, used to compute the elapsed time.
    */
-  hrStart: [number, number]
+  hrStart?: [number, number]
   /**
    * Total number of files created during this run.
    */
-  filesCreated: number
-}
-
-export type KubbVersionNewContext = {
-  /**
-   * The installed Kubb version.
-   */
-  currentVersion: string
-  /**
-   * The newest available version on npm.
-   */
-  latestVersion: string
+  filesCreated?: number
 }
 
 export type KubbInfoContext = {
@@ -699,30 +694,11 @@ export type KubbWarnContext = {
   info?: string
 }
 
-export type KubbDebugContext = {
-  /**
-   * Timestamp when the debug entry was created.
-   */
-  date: Date
-  /**
-   * Namespace the entry was emitted under, e.g. `kubb:core`.
-   */
-  namespace: string
-  /**
-   * One or more log lines to emit.
-   */
-  logs: Array<string>
-  /**
-   * Optional source file name associated with this entry.
-   */
-  fileName?: string
-}
-
 export type KubbDiagnosticContext = {
   /**
-   * The structured problem to report, with its code, severity, and source location.
+   * The structured diagnostic to render: a build problem or a version-update notice.
    */
-  diagnostic: Diagnostic
+  diagnostic: ProblemDiagnostic | UpdateDiagnostic
 }
 
 export type KubbFilesProcessingStartContext = {
@@ -833,7 +809,11 @@ export type CLIOptions = {
    *
    * @default 'info'
    */
-  logLevel?: 'silent' | 'info' | 'verbose' | 'debug'
+  logLevel?: 'silent' | 'info' | 'verbose'
+  /**
+   * Reporters selected on the CLI via `--reporter`, overriding `config.reporters`.
+   */
+  reporters?: Array<ReporterName>
 }
 
 /**
@@ -852,7 +832,7 @@ export type BuildOutput = {
    * Structured diagnostics collected during the build: error/warning/info problems
    * (each with a code, severity, and where known a JSON-pointer location) plus a
    * `timing` diagnostic per plugin. Includes a top-level diagnostic when the build
-   * threw before completing. Use {@link hasBuildError} to test for failure.
+   * threw before completing. Use {@link Diagnostics.hasError} to test for failure.
    */
   diagnostics: Array<Diagnostic>
   /**
@@ -1022,37 +1002,7 @@ export class Kubb {
     // EventEmitter leak warning at the default 10.
     this.hooks.setMaxListeners(Math.max(10, config.plugins.length * HOOK_LISTENERS_PER_PLUGIN))
 
-    const userConfig = this.#userConfig
-    const debug = createDebugger('kubb:core', { hooks: this.hooks })
-
-    debug('configuration %O', {
-      name: userConfig.name || 'unnamed',
-      root: userConfig.root || process.cwd(),
-      output: userConfig.output?.path || 'not specified',
-      plugins: userConfig.plugins?.length || 0,
-    })
-    debug('output %O', {
-      storage: config.storage.name,
-      formatter: userConfig.output?.format || 'none',
-      linter: userConfig.output?.lint || 'none',
-      adapter: config.adapter?.name || 'none',
-    })
-    debug('environment %O', getDiagnosticInfo())
-
-    if (isInputPath(this.#userConfig) && !new URLPath(this.#userConfig.input.path).isURL) {
-      try {
-        await exists(this.#userConfig.input.path)
-        debug('input file validated: %s', this.#userConfig.input.path)
-      } catch (caughtError) {
-        throw new Error(
-          `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${this.#userConfig.input.path}`,
-          { cause: caughtError as Error },
-        )
-      }
-    }
-
     if (config.output.clean) {
-      debug('cleaning output directory %s', config.output.path)
       await config.storage.clear(resolve(config.root, config.output.path))
     }
 
@@ -1069,7 +1019,7 @@ export class Kubb {
    */
   async build(): Promise<BuildOutput> {
     const out = await this.safeBuild()
-    if (hasBuildError(out.diagnostics)) {
+    if (Diagnostics.hasError(out.diagnostics)) {
       const errors = out.diagnostics
         .filter((diagnostic) => diagnostic.severity === 'error')
         .map((diagnostic) => diagnostic.cause ?? new DiagnosticError(diagnostic))

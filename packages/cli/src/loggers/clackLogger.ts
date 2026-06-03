@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { formatMsWithColor, getElapsedMs, getIntro, toCause } from '@internals/utils'
-import { defineLogger, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { defineLogger, type KubbHooks, logLevel as logLevelMap, narrowDiagnostic } from '@kubb/core'
 import { diagnosticDetails, diagnosticHeadline, diagnosticSymbol } from './diagnostics.ts'
 import { getSummary } from './utils.ts'
 import { buildProgressLine, createProgressCounters, formatCommandWithArgs, formatMessage, recordPluginResult, resetProgressCounters } from './utils.ts'
@@ -24,19 +24,24 @@ export const clackLogger = defineLogger({
       activeHookLogs: new Map<string, { taskLog: ReturnType<typeof clack.taskLog>; hrStart: [number, number] }>(),
     }
 
-    function reset() {
-      for (const [_key, active] of state.activeProgress) {
+    // Clear every active progress bar's interval, stop it, and drop the map.
+    function stopActiveProgress() {
+      for (const [, active] of state.activeProgress) {
         if (active.interval) {
           clearInterval(active.interval)
         }
         active.progressBar?.stop()
       }
+      state.activeProgress.clear()
+    }
+
+    function reset() {
+      stopActiveProgress()
 
       resetProgressCounters(state)
       state.spinner = clack.spinner()
       state.isSpinning = false
       state.runningPlugins.clear()
-      state.activeProgress.clear()
       state.activeHookLogs.clear()
     }
 
@@ -135,8 +140,8 @@ export const clackLogger = defineLogger({
       }
       clack.log.error(getMessage(text))
 
-      // Show stack trace in debug mode (first 3 frames)
-      if (logLevel >= logLevelMap.debug && error.stack) {
+      // Show stack trace in verbose mode (first 3 frames)
+      if (logLevel >= logLevelMap.verbose && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
         for (const frame of frames) {
           clack.log.message(getMessage(styleText('dim', frame.trim())))
@@ -156,31 +161,18 @@ export const clackLogger = defineLogger({
     context.on('kubb:diagnostic', ({ diagnostic }) => {
       stopSpinner()
 
-      // Stop any lingering spinner/progress UI so the multi-line block renders cleanly.
-      for (const [, active] of state.activeProgress) {
-        if (active.interval) {
-          clearInterval(active.interval)
+      // Stop any lingering progress UI so the multi-line block renders cleanly.
+      stopActiveProgress()
+
+      // The version-update notice keeps its own framed box instead of the diagnostic gutter.
+      const update = narrowDiagnostic(diagnostic, 'update')
+      if (update) {
+        if (logLevel <= logLevelMap.silent) {
+          return
         }
-        active.progressBar?.stop()
-      }
-      state.activeProgress.clear()
 
-      // Hand the severity glyph to clack as the gutter `symbol`, then let it draw the
-      // bar on each detail line via the default `secondarySymbol`. The headline and
-      // details carry their own colors, so clack only owns the gutter.
-      clack.log.message([diagnosticHeadline(diagnostic), ...diagnosticDetails(diagnostic)], {
-        symbol: diagnosticSymbol(diagnostic.severity),
-      })
-    })
-
-    context.on('kubb:version:new', ({ currentVersion, latestVersion }) => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      try {
         clack.box(
-          `\`v${currentVersion}\` → \`v${latestVersion}\`
+          `\`v${update.currentVersion}\` → \`v${update.latestVersion}\`
 Run \`npm install -g @kubb/cli\` to update`,
           'Update available for `Kubb`',
           {
@@ -192,10 +184,16 @@ Run \`npm install -g @kubb/cli\` to update`,
             titleAlign: 'center',
           },
         )
-      } catch {
-        console.log(`Update available for Kubb: v${currentVersion} → v${latestVersion}`)
-        console.log('Run `npm install -g @kubb/cli` to update')
+
+        return
       }
+
+      // Hand the severity glyph to clack as the gutter `symbol`, then let it draw the
+      // bar on each detail line via the default `secondarySymbol`. The headline and
+      // details carry their own colors, so clack only owns the gutter.
+      clack.log.message([diagnosticHeadline(diagnostic), ...diagnosticDetails(diagnostic)], {
+        symbol: diagnosticSymbol(diagnostic.severity),
+      })
     })
 
     context.on('kubb:lifecycle:start', async ({ version }) => {
@@ -347,8 +345,36 @@ Run \`npm install -g @kubb/cli\` to update`,
       showProgressStep()
     })
 
-    context.on('kubb:generation:end', ({ config }) => {
+    context.on('kubb:generation:end', ({ config, diagnostics, filesCreated, status, hrStart }) => {
       stopSpinner()
+
+      if (diagnostics && status && hrStart && filesCreated !== undefined) {
+        const summary = getSummary({
+          diagnostics,
+          filesCreated,
+          config,
+          status,
+          hrStart,
+          showTimings: logLevel >= logLevelMap.verbose,
+        })
+
+        summary.unshift('\n')
+        summary.push('\n')
+
+        const borderColor = status === 'success' ? 'green' : 'red'
+        try {
+          clack.box(summary.join('\n'), getMessage(config.name || ''), {
+            width: 'auto',
+            formatBorder: (s: string) => styleText(borderColor, s),
+            rounded: true,
+            withGuide: false,
+            contentAlign: 'left',
+            titleAlign: 'center',
+          })
+        } catch {
+          console.log(summary.join('\n'))
+        }
+      }
 
       const text = getMessage(config.name ? `Generation completed for ${styleText('dim', config.name)}` : 'Generation completed')
 
@@ -392,35 +418,6 @@ Run \`npm install -g @kubb/cli\` to update`,
       } else {
         const reason = error?.message ? ` (${error.message})` : ''
         active.taskLog.error(getMessage(`${styleText('dim', commandWithArgs)} failed${reason}`), { showLog: true })
-      }
-    })
-
-    context.on('kubb:generation:summary', ({ config, diagnostics, filesCreated, status, hrStart }) => {
-      const summary = getSummary({
-        diagnostics,
-        filesCreated,
-        config,
-        status,
-        hrStart,
-        showTimings: logLevel >= logLevelMap.verbose,
-      })
-      const title = config.name || ''
-
-      summary.unshift('\n')
-      summary.push('\n')
-
-      const borderColor = status === 'success' ? 'green' : 'red'
-      try {
-        clack.box(summary.join('\n'), getMessage(title), {
-          width: 'auto',
-          formatBorder: (s: string) => styleText(borderColor, s),
-          rounded: true,
-          withGuide: false,
-          contentAlign: 'left',
-          titleAlign: 'center',
-        })
-      } catch {
-        console.log(summary.join('\n'))
       }
     })
 

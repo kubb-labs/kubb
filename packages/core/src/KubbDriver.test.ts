@@ -3,6 +3,8 @@ import { createFile } from '@kubb/ast'
 import type { FileNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
+import { diagnosticCode } from './constants.ts'
+import { type Diagnostic, Diagnostics } from './diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, KubbHooks, Middleware, Plugin } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -215,5 +217,77 @@ describe('KubbDriver#dispatch', () => {
 
     expect(renderer.render).toHaveBeenCalledOnce()
     expect(driver.fileManager.files.map((f) => f.name)).toStrictEqual(['async-1'])
+  })
+})
+
+describe('GeneratorContext diagnostics', () => {
+  const config = {
+    root: '.',
+    input: { path: './petStore.yaml' },
+    output: { path: './src/gen', clean: true },
+    parsers: [],
+    adapter: createMockedAdapter(),
+    plugins: [{ name: 'pluginA', hooks: {} }] as unknown as Array<Plugin>,
+    storage: fsStorage(),
+  } satisfies Config
+
+  let driver: KubbDriver
+
+  beforeEach(async () => {
+    driver = new KubbDriver(config, { hooks: new AsyncEventEmitter<KubbHooks>() })
+    await driver.setup()
+  })
+
+  afterEach(() => {
+    driver.hooks.removeAll()
+  })
+
+  function context() {
+    return driver.getContext(driver.plugins.get('pluginA')!)
+  }
+
+  function collect(fn: (ctx: ReturnType<typeof context>) => void): Array<Diagnostic> {
+    const diagnostics: Array<Diagnostic> = []
+    Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => fn(context()),
+    )
+    return diagnostics
+  }
+
+  it('reports ctx.error as an error diagnostic that fails the build, attributed to the plugin', () => {
+    const diagnostics = collect((ctx) => ctx.error('boom'))
+
+    expect(diagnostics).toMatchObject([{ code: diagnosticCode.pluginFailed, severity: 'error', message: 'boom', plugin: 'pluginA' }])
+    expect(Diagnostics.hasError(diagnostics)).toBe(true)
+  })
+
+  it('keeps the original Error as the cause when ctx.error is passed an Error', () => {
+    const cause = new Error('underlying')
+    const diagnostics = collect((ctx) => ctx.error(cause))
+
+    expect(diagnostics[0]?.cause).toBe(cause)
+  })
+
+  it('reports ctx.warn as a warning diagnostic that does not fail the build', () => {
+    const diagnostics = collect((ctx) => ctx.warn('careful'))
+
+    expect(diagnostics).toMatchObject([{ code: diagnosticCode.pluginWarning, severity: 'warning', message: 'careful', plugin: 'pluginA' }])
+    expect(Diagnostics.hasError(diagnostics)).toBe(false)
+  })
+
+  it('reports ctx.info as an info diagnostic', () => {
+    const diagnostics = collect((ctx) => ctx.info('heads up'))
+
+    expect(diagnostics).toMatchObject([{ code: diagnosticCode.pluginInfo, severity: 'info', message: 'heads up', plugin: 'pluginA' }])
+  })
+
+  it('still emits the matching hook event so loggers keep firing', () => {
+    const onError = vi.fn()
+    driver.hooks.on('kubb:error', onError)
+
+    collect((ctx) => ctx.error('boom'))
+
+    expect(onError).toHaveBeenCalledOnce()
   })
 })

@@ -2,7 +2,6 @@ import { createHash } from 'node:crypto'
 import { styleText } from 'node:util'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { toError, tokenize } from '@internals/utils'
-import { createDebugger } from '@kubb/core'
 import type { CLIOptions, Config, KubbHooks, PossibleConfig } from '@kubb/core'
 import { cosmiconfig } from 'cosmiconfig'
 import { createJiti } from 'jiti'
@@ -152,7 +151,6 @@ type RunHookOptions = {
 
 export async function runHook({ id, command, args, commandWithArgs, hooks, stream = false, sink }: RunHookOptions): Promise<void> {
   const emitEnd = (success: boolean, error: Error | null) => hooks.emit('kubb:hook:end', { command, args, id, success, error })
-  const debug = createDebugger('kubb:hook', { hooks })
 
   try {
     const proc = x(command, [...(args ?? [])], {
@@ -166,8 +164,7 @@ export async function runHook({ id, command, args, commandWithArgs, hooks, strea
       }
     }
 
-    const result = await proc
-    debug('%s', result.stdout.trimEnd())
+    await proc
     await hooks.emit('kubb:success', { message: `${styleText('dim', commandWithArgs)} successfully executed` })
     await emitEnd(true, null)
   } catch (err) {
@@ -180,8 +177,6 @@ export async function runHook({ id, command, args, commandWithArgs, hooks, strea
 
     const stderr = err.output?.stderr ?? ''
     const stdout = err.output?.stdout ?? ''
-
-    debug('%s', [stdout, stderr].filter(Boolean).join('\n'))
 
     if (stderr) sink?.onStderr?.(stderr)
     if (stdout) sink?.onStdout?.(stdout)

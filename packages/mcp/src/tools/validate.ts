@@ -1,6 +1,8 @@
+import { Diagnostics } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import { validateSchema } from '../schemas/validateSchema.ts'
+import { formatDiagnostics } from '../utils/formatDiagnostics.ts'
 
 export const validateTool = defineTool(
   {
@@ -19,7 +21,8 @@ export const validateTool = defineTool(
       await mod.adapterOas().validate(input, { throwOnError: true })
       return tool.text(`Validation successful: ${input}`)
     } catch (err) {
-      return tool.error(`Validation failed:\n${err instanceof Error ? err.message : String(err)}`)
+      const serialized = Diagnostics.serialize(Diagnostics.from(err))
+      return tool.error(`Validation failed:\n${formatDiagnostics([serialized])}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\``)
     }
   },
 )
