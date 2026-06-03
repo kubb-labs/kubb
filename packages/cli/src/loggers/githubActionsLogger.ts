@@ -133,8 +133,8 @@ export const githubActionsLogger = defineLogger({
       const message = error.message || String(error)
       console.error(`::error::${message}`)
 
-      // Show stack trace in debug mode (first 3 frames)
-      if (logLevel >= logLevelMap.debug && error.stack) {
+      // Show stack trace in verbose mode (first 3 frames)
+      if (logLevel >= logLevelMap.verbose && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
         for (const frame of frames) {
           console.log(getMessage(styleText('dim', frame.trim())))
@@ -306,12 +306,33 @@ export const githubActionsLogger = defineLogger({
       state.processedFiles += files.length
     })
 
-    context.on('kubb:generation:end', ({ config }) => {
+    context.on('kubb:generation:end', ({ config, diagnostics, status, hrStart }) => {
       const text = getMessage(
         config.name ? `${styleText('blue', '✓')} Generation completed for ${styleText('dim', config.name)}` : `${styleText('blue', '✓')} Generation completed`,
       )
 
       console.log(text)
+
+      if (diagnostics && status && hrStart) {
+        const failedCount = Diagnostics.failedPlugins(diagnostics).length
+        const pluginsCount = config.plugins?.length ?? 0
+        const successCount = pluginsCount - failedCount
+        const duration = formatHrtime(hrStart)
+
+        if (state.currentConfigs.length > 1) {
+          console.log(' ')
+        }
+
+        console.log(
+          status === 'success'
+            ? `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ${pluginsCount} total, ${styleText('green', duration)}`
+            : `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ✗ ${`${failedCount} failed`}, ${pluginsCount} total, ${styleText('green', duration)}`,
+        )
+
+        if (state.currentConfigs.length > 1) {
+          closeGroup(config.name ? `Generation for ${styleText('bold', config.name)}` : 'Generation')
+        }
+      }
     })
 
     onGroupStart('kubb:format:start', 'Format started', 'Formatting')
@@ -358,27 +379,6 @@ export const githubActionsLogger = defineLogger({
 
       if (state.currentConfigs.length === 1) {
         closeGroup(`Hook ${commandWithArgs}`)
-      }
-    })
-
-    context.on('kubb:generation:summary', ({ config, status, hrStart, diagnostics }) => {
-      const failedCount = Diagnostics.failedPlugins(diagnostics).length
-      const pluginsCount = config.plugins?.length ?? 0
-      const successCount = pluginsCount - failedCount
-      const duration = formatHrtime(hrStart)
-
-      if (state.currentConfigs.length > 1) {
-        console.log(' ')
-      }
-
-      console.log(
-        status === 'success'
-          ? `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ${pluginsCount} total, ${styleText('green', duration)}`
-          : `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ✗ ${`${failedCount} failed`}, ${pluginsCount} total, ${styleText('green', duration)}`,
-      )
-
-      if (state.currentConfigs.length > 1) {
-        closeGroup(config.name ? `Generation for ${styleText('bold', config.name)}` : 'Generation')
       }
     })
 

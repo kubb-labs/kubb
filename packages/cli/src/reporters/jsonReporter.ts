@@ -1,4 +1,6 @@
-import { type Diagnostic, Diagnostics, type SerializedDiagnostic } from '@kubb/core'
+import process from 'node:process'
+import { getElapsedMs } from '@internals/utils'
+import { type Diagnostic, Diagnostics, type LoggerContext, type SerializedDiagnostic } from '@kubb/core'
 
 /**
  * A single problem in the machine-readable report: a {@link SerializedDiagnostic}
@@ -33,4 +35,24 @@ export function buildJsonReport({ diagnostics, files, durationMs }: { diagnostic
     summary: { errors, warnings, files, durationMs },
     diagnostics: problems.map((diagnostic) => Diagnostics.serialize(diagnostic)),
   }
+}
+
+/**
+ * Installs the `json` reporter. Accumulates diagnostics and file counts across every
+ * config in the run, then writes the {@link JsonReport} to stdout on `kubb:lifecycle:end`.
+ * The terminal reporter is suppressed while this is active so stdout stays valid JSON.
+ */
+export function installJsonReporter(context: LoggerContext): void {
+  const start = process.hrtime()
+  const collected: { diagnostics: Array<Diagnostic>; files: number } = { diagnostics: [], files: 0 }
+
+  context.on('kubb:generation:end', ({ diagnostics, filesCreated }) => {
+    if (diagnostics) collected.diagnostics.push(...diagnostics)
+    if (filesCreated !== undefined) collected.files += filesCreated
+  })
+
+  context.on('kubb:lifecycle:end', () => {
+    const report = buildJsonReport({ diagnostics: collected.diagnostics, files: collected.files, durationMs: getElapsedMs(start) })
+    process.stdout.write(`${JSON.stringify(report, null, 2)}\n`)
+  })
 }

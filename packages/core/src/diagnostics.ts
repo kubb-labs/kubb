@@ -216,12 +216,12 @@ export const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
   [diagnosticCode.unsupportedFormat]: {
     title: 'Unsupported format',
     cause: 'A schema uses a `format` Kubb does not map to a specific type, so it falls back to the base type.',
-    fix: 'Use a format Kubb supports, or handle the custom format with a parser or plugin. Enable it with `adapterOas({ diagnostics: { unsupportedFormat: true } })`.',
+    fix: 'Use a format Kubb supports, or handle the custom format with a parser or plugin.',
   },
   [diagnosticCode.deprecated]: {
     title: 'Deprecated',
     cause: 'A referenced schema or operation is marked `deprecated`.',
-    fix: 'Migrate off the deprecated definition, or silence it with `diagnostics.levels`. Enable it with `adapterOas({ diagnostics: { deprecated: true } })`.',
+    fix: 'Migrate off the deprecated definition if the warning is unwanted.',
   },
   [diagnosticCode.adapterRequired]: {
     title: 'Adapter required',

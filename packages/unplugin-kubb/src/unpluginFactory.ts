@@ -51,11 +51,11 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     console.log(text)
   })
 
-  hooks.on('kubb:generation:end', ({ config }) => {
+  hooks.on('kubb:generation:end', ({ config, status, diagnostics }) => {
     console.log(config.name ? `✓ Generation completed for ${config.name}` : '✓ Generation completed')
-  })
 
-  hooks.on('kubb:generation:summary', ({ config, status, diagnostics }) => {
+    if (!diagnostics || !status) return
+
     const failedCount = Diagnostics.failedPlugins(diagnostics).length
     const pluginsCount = config.plugins.length
     const successCount = pluginsCount - failedCount
@@ -125,9 +125,9 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       }
     }
 
-    await hooks.emit('kubb:generation:end', { config: resolvedConfig, storage })
-    await hooks.emit('kubb:generation:summary', {
+    await hooks.emit('kubb:generation:end', {
       config: resolvedConfig,
+      storage,
       diagnostics,
       filesCreated: files.length,
       status: hasFailures ? 'failed' : 'success',

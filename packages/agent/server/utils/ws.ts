@@ -177,7 +177,9 @@ export function setupEventsStream(ws: WebSocket, hooks: AsyncEventEmitter<KubbHo
     })
   })
 
-  hooks.on('kubb:generation:summary', ({ diagnostics, status, hrStart, filesCreated }) => {
+  hooks.on('kubb:generation:end', ({ diagnostics, status, hrStart, filesCreated }) => {
+    if (!diagnostics || !status || !hrStart || filesCreated === undefined) return
+
     const [seconds, nanoseconds] = process.hrtime(hrStart)
     const duration = Math.round(seconds * 1000 + nanoseconds / 1_000_000)
 

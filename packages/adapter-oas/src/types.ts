@@ -193,33 +193,7 @@ export type AdapterOasOptions = {
    * @default true
    */
   dedupe?: boolean
-  /**
-   * Opt in to advisory diagnostics emitted while walking the named component schemas.
-   * Both default to off. They are non-fatal, carry the schema's JSON pointer, and are
-   * deduplicated per build.
-   *
-   * @example
-   * ```ts
-   * adapterOas({ diagnostics: { unsupportedFormat: true, deprecated: true } })
-   * ```
-   */
-  diagnostics?: AdapterOasDiagnosticsOptions
 } & Partial<ast.ParserOptions>
-
-/**
- * Toggles for the adapter's advisory diagnostics.
- */
-export type AdapterOasDiagnosticsOptions = {
-  /**
-   * Warn (`KUBB_UNSUPPORTED_FORMAT`) when a schema's `format` is not one Kubb maps to a
-   * specific type, so it falls back to the base type.
-   */
-  unsupportedFormat?: boolean
-  /**
-   * Report (`KUBB_DEPRECATED`, info) a schema marked `deprecated`.
-   */
-  deprecated?: boolean
-}
 
 /**
  * Adapter options after defaults have been applied and schema name collisions resolved.

@@ -194,18 +194,6 @@ describe('createKubb', () => {
     expect(problems[0]).toMatchObject({ plugin: 'errorPlugin', severity: 'error' })
   })
 
-  it('should emit namespaced debug events during build process', async () => {
-    const hooks = new AsyncEventEmitter<KubbHooks>()
-    const debugSpy = vi.fn()
-    hooks.on('kubb:debug', debugSpy)
-
-    await createKubb(config, { hooks }).build()
-
-    expect(debugSpy).toHaveBeenCalled()
-    const [ctx] = debugSpy.mock.calls[0] ?? []
-    expect(ctx).toMatchObject({ namespace: expect.stringMatching(/^kubb:/), logs: expect.any(Array) })
-  })
-
   test('safeBuild should return error instead of throwing', async () => {
     const throwingPlugin = definePlugin(() => ({
       name: 'throwingPlugin',
