@@ -36,27 +36,25 @@ export type LoggerContext = AsyncEventEmitter<KubbHooks>
  * to whichever lifecycle events it wants to forward to its destination
  * (console, file, remote service).
  */
-export type Logger<TOptions extends LoggerOptions = LoggerOptions, TInstallReturn = void> = {
+export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
   /**
    * Display name used in diagnostics.
    */
   name: string
   /**
-   * Called once per build with the shared event emitter. Subscribe to events
-   * here. The return value (if any) is forwarded to whoever installed the
-   * logger, which is handy for a cleanup callback.
+   * Called once per build with the shared event emitter. Subscribe to the
+   * lifecycle events the logger wants to forward to its destination.
    */
-  install: (context: LoggerContext, options?: TOptions) => TInstallReturn | Promise<TInstallReturn>
+  install: (context: LoggerContext, options?: TOptions) => void | Promise<void>
 }
 
-export type UserLogger<TOptions extends LoggerOptions = LoggerOptions, TInstallReturn = void> = Logger<TOptions, TInstallReturn>
+export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Logger<TOptions>
 
 /**
- * Defines a typed logger. Use the second type parameter to declare a return
- * value from `install`, which is handy when the logger exposes a cleanup
- * callback to the caller.
+ * Defines a typed logger. The `install` method subscribes to lifecycle events
+ * on the shared emitter and forwards them to the logger's destination.
  *
- * @example Basic logger
+ * @example
  * ```ts
  * import { defineLogger } from '@kubb/core'
  *
@@ -68,23 +66,7 @@ export type UserLogger<TOptions extends LoggerOptions = LoggerOptions, TInstallR
  *   },
  * })
  * ```
- *
- * @example Logger that returns a cleanup callback
- * ```ts
- * import { defineLogger, type LoggerOptions } from '@kubb/core'
- *
- * export const myLogger = defineLogger<LoggerOptions, () => void>({
- *   name: 'my-logger',
- *   install(context) {
- *     const handler = () => {}
- *     context.on('kubb:lifecycle:end', handler)
- *     return () => context.off('kubb:lifecycle:end', handler)
- *   },
- * })
- * ```
  */
-export function defineLogger<Options extends LoggerOptions = LoggerOptions, TInstallReturn = void>(
-  logger: UserLogger<Options, TInstallReturn>,
-): Logger<Options, TInstallReturn> {
+export function defineLogger<Options extends LoggerOptions = LoggerOptions>(logger: UserLogger<Options>): Logger<Options> {
   return logger
 }
