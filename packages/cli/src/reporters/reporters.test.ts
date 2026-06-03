@@ -3,10 +3,9 @@ import { type Config, type KubbHooks, logLevel, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import { installReporter, setupReporters } from '../loggers/utils.ts'
 import { cliReporter } from './cliReporter.ts'
-import { jsonReporter } from './jsonReporter.ts'
 
 describe('jsonReporter', () => {
-  it('writes a report to stdout per config', async () => {
+  it('writes one JSON array for every config on lifecycle end', async () => {
     const context = new AsyncEventEmitter<KubbHooks>()
     const writes: Array<string> = []
     using _ = vi.spyOn(process.stdout, 'write').mockImplementation((chunk) => {
@@ -14,7 +13,7 @@ describe('jsonReporter', () => {
       return true
     })
 
-    installReporter(context, jsonReporter, { logLevel: logLevel.info })
+    await setupReporters(context, { logLevel: logLevel.info, reporters: ['json'] })
 
     await context.emit('kubb:generation:end', {
       config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config,
@@ -24,10 +23,20 @@ describe('jsonReporter', () => {
       status: 'failed',
       hrStart: process.hrtime(),
     })
+    await context.emit('kubb:generation:end', {
+      config: { name: 'orders', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config,
+      storage: {} as Storage,
+      diagnostics: [],
+      filesCreated: 5,
+      status: 'success',
+      hrStart: process.hrtime(),
+    })
+    await context.emit('kubb:lifecycle:end')
 
-    const report = JSON.parse(writes.join(''))
-    expect(report.status).toBe('failed')
-    expect(report.counts).toMatchObject({ errors: 1 })
+    const reports = JSON.parse(writes.join(''))
+    expect(reports).toHaveLength(2)
+    expect(reports[0]).toMatchObject({ name: 'petstore', status: 'failed', counts: { errors: 1 } })
+    expect(reports[1]).toMatchObject({ name: 'orders', status: 'success' })
   })
 })
 

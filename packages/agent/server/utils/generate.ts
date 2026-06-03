@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import path from 'node:path'
+import process from 'node:process'
 import { styleText } from 'node:util'
 import { detectFormatter, detectLinter, formatters, linters } from '@internals/utils'
 import { type AsyncEventEmitter, type Config, createKubb, DiagnosticError, Diagnostics, isProblemDiagnostic, type KubbHooks } from '@kubb/core'
@@ -20,6 +21,8 @@ type GenerateProps = {
  *
  */
 export async function generate({ config, hooks }: GenerateProps): Promise<void> {
+  const hrStart = process.hrtime()
+
   await hooks.emit('kubb:generation:start', { config })
 
   await hooks.emit('kubb:info', { message: config.name ? `Setup generation ${config.name}` : 'Setup generation' })
@@ -29,27 +32,31 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
 
   await hooks.emit('kubb:info', { message: config.name ? `Build generation ${config.name}` : 'Build generation' })
 
-  const { diagnostics } = await kubb.safeBuild()
+  const { files, diagnostics } = await kubb.safeBuild()
 
   await hooks.emit('kubb:info', { message: 'Load summary' })
 
+  // Core only collects diagnostics now, so render each problem once here. Without this, warnings
+  // and info reported through `ctx.warn`/`ctx.info` would never reach the client.
+  for (const diagnostic of diagnostics) {
+    if (!isProblemDiagnostic(diagnostic)) continue
+    if (diagnostic.severity === 'error') {
+      await hooks.emit('kubb:error', { error: diagnostic.cause ?? new DiagnosticError(diagnostic) })
+    } else if (diagnostic.severity === 'warning') {
+      await hooks.emit('kubb:warn', { message: diagnostic.message })
+    } else {
+      await hooks.emit('kubb:info', { message: diagnostic.message })
+    }
+  }
+
   if (Diagnostics.hasError(diagnostics)) {
-    const errors = diagnostics
-      .filter(isProblemDiagnostic)
-      .filter((diagnostic) => diagnostic.severity === 'error')
-      .map((diagnostic) => diagnostic.cause ?? new DiagnosticError(diagnostic))
-
-    errors.forEach((err) => {
-      hooks.emit('kubb:error', { error: err })
-    })
-
-    await hooks.emit('kubb:generation:end', { config, storage: kubb.storage })
+    await hooks.emit('kubb:generation:end', { config, storage: kubb.storage, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
 
     throw new Error('Generation failed')
   }
 
   await hooks.emit('kubb:success', { message: 'Generation successfully' })
-  await hooks.emit('kubb:generation:end', { config, storage: kubb.storage })
+  await hooks.emit('kubb:generation:end', { config, storage: kubb.storage, diagnostics, filesCreated: files.length, status: 'success', hrStart })
 
   // formatting
   if (config.output.format) {

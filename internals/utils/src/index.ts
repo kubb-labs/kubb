@@ -18,7 +18,7 @@ export type { PackageManagerInfo, PackageManagerName } from './packageManager.ts
 export { detectPackageManager } from './packageManager.ts'
 export { toPosixPath } from './path.ts'
 export type { ForBatchesOptions, PossiblePromise } from './promise.ts'
-export { arrayToAsyncIterable, forBatches, isPromise, isPromiseRejectedResult, memoize, once, withDrain } from './promise.ts'
+export { arrayToAsyncIterable, forBatches, isPromise, isPromiseRejectedResult, memoize, withDrain } from './promise.ts'
 export { isValidVarName, transformReservedWord } from './reserved.ts'
 export { spawnAsync, tokenize } from './shell.ts'
 export { maskString, trimExtName } from './string.ts'

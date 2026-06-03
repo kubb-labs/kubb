@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { forBatches, isPromise, isPromiseRejectedResult, memoize, once, withDrain } from './promise.ts'
+import { forBatches, isPromise, isPromiseRejectedResult, memoize, withDrain } from './promise.ts'
 
 describe('promise utilities', () => {
   describe('isPromise', () => {
@@ -247,45 +247,5 @@ describe('memoize', () => {
 
     expect(outerFactory).toHaveBeenCalledTimes(1)
     expect(innerFactory).toHaveBeenCalledTimes(2)
-  })
-})
-
-describe('once', () => {
-  it('invokes the factory only on the first call and caches the result', () => {
-    const factory = vi.fn((n: number) => n * 2)
-    const fn = once(factory)
-
-    expect(fn(1)).toBe(2)
-    expect(fn(99)).toBe(2)
-    expect(fn(123)).toBe(2)
-    expect(factory).toHaveBeenCalledTimes(1)
-    expect(factory).toHaveBeenCalledWith(1)
-  })
-
-  it('shares one in-flight promise between concurrent async callers', async () => {
-    let resolved = 0
-    const factory = vi.fn(async () => {
-      await Promise.resolve()
-      return ++resolved
-    })
-    const fn = once(factory)
-
-    const [a, b, c] = await Promise.all([fn(), fn(), fn()])
-    expect(a).toBe(1)
-    expect(b).toBe(1)
-    expect(c).toBe(1)
-    expect(factory).toHaveBeenCalledTimes(1)
-  })
-
-  it('caches a rejected promise so subsequent callers receive the same error', async () => {
-    const error = new Error('boom')
-    const factory = vi.fn(async () => {
-      throw error
-    })
-    const fn = once(factory)
-
-    await expect(fn()).rejects.toBe(error)
-    await expect(fn()).rejects.toBe(error)
-    expect(factory).toHaveBeenCalledTimes(1)
   })
 })

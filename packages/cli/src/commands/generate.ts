@@ -42,7 +42,6 @@ export const command = defineCommand({
     reporter: {
       type: 'string',
       description: 'Reporters that render the run, comma-separated. Overrides config.reporters',
-      default: 'cli',
       hint: 'cli|json|file',
       enum: ['cli', 'json', 'file'],
     },
@@ -50,9 +49,9 @@ export const command = defineCommand({
   async run({ values, positionals }) {
     const logLevel = values.verbose ? 'verbose' : values.silent ? 'silent' : values.logLevel
     const reporters = values.reporter
-      .split(',')
+      ?.split(',')
       .map((name) => name.trim())
-      .filter(Boolean) as Array<ReporterName>
+      .filter(Boolean) as Array<ReporterName> | undefined
     const { run } = await import('../runners/generate/run.ts')
 
     await run({

@@ -802,17 +802,11 @@ export class KubbDriver {
   getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
     const driver = this
 
+    // Collect into the active build only. The host renders each collected diagnostic once after the
+    // build (the CLI via `Diagnostics.emit`, the agent via its post-build loop), so emitting a live
+    // `kubb:error`/`kubb:warn`/`kubb:info` here would render it twice.
     const report = (diagnostic: Omit<ProblemDiagnostic, 'plugin'>): void => {
       Diagnostics.report({ ...diagnostic, plugin: plugin.name })
-      if (diagnostic.severity === 'error') {
-        driver.hooks.emit('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
-        return
-      }
-      if (diagnostic.severity === 'warning') {
-        driver.hooks.emit('kubb:warn', { message: diagnostic.message })
-        return
-      }
-      driver.hooks.emit('kubb:info', { message: diagnostic.message })
     }
 
     return {

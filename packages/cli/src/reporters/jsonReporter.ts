@@ -3,13 +3,18 @@ import { createReporter } from '@kubb/core'
 import { buildReport } from './report.ts'
 
 /**
- * The `json` reporter. Writes the {@link Report} for each config to stdout as JSON, for CI tooling.
- * The terminal reporter is suppressed while this is active so stdout stays valid JSON.
+ * The `json` reporter. `report` returns one config's {@link Report}, which {@link createReporter}
+ * buffers, and `flush` writes them as a single pretty-printed JSON array on `kubb:lifecycle:end`.
+ * Buffering keeps a multi-config run one valid JSON document on stdout instead of concatenated
+ * objects that would break `jq .`. The terminal reporter is suppressed while `json` is active so
+ * stdout stays valid JSON.
  */
 export const jsonReporter = createReporter({
   name: 'json',
   report(result) {
-    const report = buildReport(result)
-    process.stdout.write(`${JSON.stringify(report, null, 2)}\n`)
+    return buildReport(result)
+  },
+  flush(_context, reports) {
+    process.stdout.write(`${JSON.stringify(reports, null, 2)}\n`)
   },
 })
