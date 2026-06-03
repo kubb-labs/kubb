@@ -90,13 +90,13 @@ Kubb is an open source project, and its development is funded entirely by sponso
 
 <!-- Badges -->
 
-[npm-version-src]: https://shieldcn.dev/npm/v/@kubb/parser-md.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[npm-version-src]: https://shieldcn.dev/npm/v/@kubb/parser-md.svg?variant=secondary&size=sm&theme=zinc&mode=dark
 [npm-version-href]: https://npmx.dev/package/@kubb/parser-md
-[npm-downloads-src]: https://shieldcn.dev/npm/dm/@kubb/parser-md.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[npm-downloads-src]: https://shieldcn.dev/npm/dm/@kubb/parser-md.svg?variant=secondary&size=sm&theme=zinc&mode=dark
 [npm-downloads-href]: https://npmx.dev/package/@kubb/parser-md
-[stars-src]: https://shieldcn.dev/github/stars/kubb-labs/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[stars-src]: https://shieldcn.dev/github/stars/kubb-labs/kubb.svg?variant=secondary&size=sm&theme=zinc&mode=dark
 [stars-href]: https://github.com/kubb-labs/kubb
-[license-src]: https://shieldcn.dev/npm/license/@kubb/parser-md.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[license-src]: https://shieldcn.dev/npm/license/@kubb/parser-md.svg?variant=secondary&size=sm&theme=zinc&mode=dark
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
-[node-src]: https://shieldcn.dev/npm/node/@kubb/parser-md.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[node-src]: https://shieldcn.dev/npm/node/@kubb/parser-md.svg?variant=secondary&size=sm&theme=zinc&mode=dark
 [node-href]: https://npmx.dev/package/@kubb/parser-md

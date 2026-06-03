@@ -191,17 +191,17 @@ See [LICENSE](./LICENSE) for details.
 
 <!-- Badges -->
 
-[npm-version-src]: https://shieldcn.dev/npm/v/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[npm-version-src]: https://shieldcn.dev/npm/v/kubb.svg?variant=secondary&size=sm&theme=zinc&mode=dark
 [npm-version-href]: https://npmx.dev/package/kubb
-[npm-downloads-src]: https://shieldcn.dev/npm/dm/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[npm-downloads-src]: https://shieldcn.dev/npm/dm/kubb.svg?variant=secondary&size=sm&theme=zinc&mode=dark
 [npm-downloads-href]: https://npmx.dev/package/kubb
-[stars-src]: https://shieldcn.dev/github/stars/kubb-labs/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[stars-src]: https://shieldcn.dev/github/stars/kubb-labs/kubb.svg?variant=secondary&size=sm&theme=zinc&mode=dark
 [stars-href]: https://github.com/kubb-labs/kubb
-[license-src]: https://shieldcn.dev/npm/license/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[license-src]: https://shieldcn.dev/npm/license/kubb.svg?variant=secondary&size=sm&theme=zinc&mode=dark
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
-[node-src]: https://shieldcn.dev/npm/node/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[node-src]: https://shieldcn.dev/npm/node/kubb.svg?variant=secondary&size=sm&theme=zinc&mode=dark
 [node-href]: https://npmx.dev/package/kubb
-[contributors-src]: https://shieldcn.dev/github/contributors/kubb-labs/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[contributors-src]: https://shieldcn.dev/github/contributors/kubb-labs/kubb.svg?variant=secondary&size=sm&theme=zinc&mode=dark
 [contributors-href]: #contributors-
-[coverage-src]: https://shieldcn.dev/codecov/github/kubb-labs/kubb.svg?variant=branded&size=xs&theme=zinc&mode=dark
+[coverage-src]: https://shieldcn.dev/codecov/github/kubb-labs/kubb.svg?variant=secondary&size=sm&theme=zinc&mode=dark
 [coverage-href]: https://app.codecov.io/gh/kubb-labs/kubb
