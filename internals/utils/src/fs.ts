@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, join, posix, resolve } from 'node:path'
+import { isBun } from './runtime.ts'
 
 /**
  * Walks up the directory tree from `cwd` (defaults to `process.cwd()`) and
@@ -64,7 +65,7 @@ export function getRelativePath(rootDir?: string | null, filePath?: string | nul
  * ```
  */
 export async function exists(path: string): Promise<boolean> {
-  if (typeof Bun !== 'undefined') {
+  if (isBun()) {
     return Bun.file(path).exists()
   }
   return access(path).then(
@@ -83,7 +84,7 @@ export async function exists(path: string): Promise<boolean> {
  * ```
  */
 export async function read(path: string): Promise<string> {
-  if (typeof Bun !== 'undefined') {
+  if (isBun()) {
     return Bun.file(path).text()
   }
   return readFile(path, { encoding: 'utf8' })
@@ -128,7 +129,7 @@ export async function write(path: string, data: string, options: WriteOptions = 
 
   const resolved = resolve(path)
 
-  if (typeof Bun !== 'undefined') {
+  if (isBun()) {
     const file = Bun.file(resolved)
     const oldContent = (await file.exists()) ? await file.text() : null
     if (oldContent === trimmed) return null

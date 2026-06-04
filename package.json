@@ -17,7 +17,7 @@
     ]
   },
   "scripts": {
-    "build": "turbo run build --filter=./packages/*",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' turbo run build --filter=./packages/*",
     "changeset": "changeset",
     "clean": "turbo run clean",
     "format": "oxfmt -c oxfmt.config.ts packages internals configs",

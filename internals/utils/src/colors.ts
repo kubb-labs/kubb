@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto'
+import { hash } from 'node:crypto'
 import { styleText } from 'node:util'
 import { formatMs } from './time.ts'
 
@@ -136,7 +136,7 @@ const randomColors = ['black', 'red', 'green', 'yellow', 'blue', 'white', 'magen
  */
 export function randomCliColor(text?: string): string {
   if (!text) return ''
-  const index = createHash('sha256').update(text).digest().readUInt32BE(0) % randomColors.length
+  const index = hash('sha256', text, 'buffer').readUInt32BE(0) % randomColors.length
   const color = randomColors[index] ?? 'white'
   return styleText(color, text)
 }

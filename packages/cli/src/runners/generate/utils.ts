@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto'
+import { hash } from 'node:crypto'
 import { styleText } from 'node:util'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { toError, tokenize } from '@internals/utils'
@@ -127,7 +127,7 @@ export async function executeHooks({ configHooks, hooks }: ExecuteHooksOptions):
     const [cmd, ...args] = tokenize(command)
     if (!cmd) continue
 
-    const hookId = createHash('sha256').update(command).digest('hex')
+    const hookId = hash('sha256', command, 'hex')
     const commandWithArgs = [cmd, ...args].join(' ')
 
     await hooks.emit('kubb:hook:start', { id: hookId, command: cmd, args })

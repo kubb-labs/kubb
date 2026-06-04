@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
-import { executeIfOnline, isCIEnvironment } from '@internals/utils'
+import { executeIfOnline, getRuntimeName, getRuntimeVersion, isCIEnvironment, type RuntimeName } from '@internals/utils'
 import { OTLP_ENDPOINT } from './constants.ts'
 
 // OpenTelemetry OTLP JSON types
@@ -114,6 +114,14 @@ export type TelemetryEvent = {
   command: string
   kubbVersion: string
   nodeVersion: string
+  /**
+   * Name of the JavaScript runtime that executed the run, `'bun'`, `'deno'`, or `'node'`.
+   */
+  runtime: RuntimeName
+  /**
+   * Major version of the active runtime, e.g. `'1'` under Bun or `'22'` under Node.
+   */
+  runtimeVersion: string
   platform: string
   ci: boolean
   plugins: Array<TelemetryPlugin>
@@ -158,6 +166,8 @@ export class Telemetry {
       command: options.command,
       kubbVersion: options.kubbVersion,
       nodeVersion: process.versions.node.split('.')[0] as string,
+      runtime: getRuntimeName(),
+      runtimeVersion: getRuntimeVersion().split('.')[0] as string,
       platform: os.platform(),
       ci: isCIEnvironment(),
       plugins: options.plugins ?? [],
@@ -181,6 +191,8 @@ export class Telemetry {
       { key: 'kubb.command', value: { stringValue: event.command } },
       { key: 'kubb.version', value: { stringValue: event.kubbVersion } },
       { key: 'kubb.node_version', value: { stringValue: event.nodeVersion } },
+      { key: 'kubb.runtime', value: { stringValue: event.runtime } },
+      { key: 'kubb.runtime_version', value: { stringValue: event.runtimeVersion } },
       { key: 'kubb.platform', value: { stringValue: event.platform } },
       { key: 'kubb.ci', value: { boolValue: event.ci } },
       { key: 'kubb.files_created', value: { intValue: event.filesCreated } },

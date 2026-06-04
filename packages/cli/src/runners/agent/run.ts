@@ -98,7 +98,9 @@ export async function run({ port, host, configPath, allowWrite, allowAll, versio
     }
 
     // Spawns the server as a detached background process so the CLI can exit independently.
-    await spawnAsync('node', [serverPath], {
+    // Reuse the runtime that launched the CLI (Bun or Node) via process.execPath so the
+    // agent stays on the same runtime instead of forcing a `node` binary that may be absent.
+    await spawnAsync(process.execPath, [serverPath], {
       env: resolvedEnv.env,
       cwd: process.cwd(),
     })

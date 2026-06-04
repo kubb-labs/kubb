@@ -576,7 +576,7 @@ function sortKey(node: { name?: string | Array<unknown> | null; isTypeOnly?: boo
   const isArray = Array.isArray(node.name) ? '1' : '0'
   const typeOnly = node.isTypeOnly ? '0' : '1'
   const hasName = node.name != null ? '1' : '0'
-  const name = Array.isArray(node.name) ? [...node.name].sort().join('\0') : (node.name ?? '')
+  const name = Array.isArray(node.name) ? node.name.toSorted().join('\0') : (node.name ?? '')
   return `${isArray}:${typeOnly}:${node.path}:${hasName}:${name}`
 }
 
