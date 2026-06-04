@@ -22,7 +22,6 @@
     "clean": "turbo run clean",
     "format": "oxfmt -c oxfmt.config.ts packages internals configs",
     "graph": "npx nx graph ",
-    "kubb:gen": "bun packages/cli/bin/kubb.js",
     "lint": "oxlint -c oxlint.config.ts ./packages",
     "lint:fix": "oxlint -c oxlint.config.ts --fix ./packages",
     "lint:spell": "cspell \"**/*.{ts,md}\" --config ./cspell.json --no-progress",

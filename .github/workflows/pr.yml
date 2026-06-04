@@ -237,4 +237,4 @@ jobs:
         run: pnpm run build
 
       - name: Run the CLI under Bun
-        run: pnpm kubb:gen --version
+        run: bun packages/cli/bin/kubb.js --version
