@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { serializeArtifact } from './artifact.ts'
+import { Artifact } from '../artifact.ts'
 import { turboCache } from './turboCache.ts'
 
 type FetchFn = (url: string | URL | Request, init?: RequestInit) => Promise<Response>
@@ -13,7 +13,7 @@ afterEach(() => {
 describe('turboCache', () => {
   it('downloads and deserializes an artifact on a hit', async () => {
     const snapshot = { files: { 'pet.ts': 'export type Pet = {}' } }
-    const fetchMock = vi.fn<FetchFn>(async () => new Response(new Blob([serializeArtifact(snapshot)]), { status: 200 }))
+    const fetchMock = vi.fn<FetchFn>(async () => new Response(new Blob([Artifact.serialize(snapshot)]), { status: 200 }))
     vi.stubGlobal('fetch', fetchMock)
 
     const cache = turboCache({ url: 'https://cache.example.com', token: 'secret', teamId: 'team_1' })

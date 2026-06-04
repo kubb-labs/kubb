@@ -1,6 +1,6 @@
 import { createHmac } from 'node:crypto'
 import { type Cache, createCache } from '@kubb/core'
-import { deserializeArtifact, serializeArtifact } from './artifact.ts'
+import { Artifact } from '../artifact.ts'
 
 /**
  * Options for {@link turboCache}. Every field falls back to the standard Turborepo
@@ -83,7 +83,7 @@ export const turboCache: (options?: TurboCacheOptions) => Cache = createCache((o
         if (!response.ok) {
           return null
         }
-        return deserializeArtifact(new Uint8Array(await response.arrayBuffer()))
+        return Artifact.deserialize(new Uint8Array(await response.arrayBuffer()))
       } catch {
         return null
       }
@@ -92,7 +92,7 @@ export const turboCache: (options?: TurboCacheOptions) => Cache = createCache((o
       if (!url) {
         return
       }
-      const body = serializeArtifact(snapshot)
+      const body = Artifact.serialize(snapshot)
       try {
         const response = await fetch(artifactUrl(url, key, teamId), {
           method: 'PUT',

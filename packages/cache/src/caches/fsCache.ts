@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { mkdir, readFile, rm } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { type Cache, type CachedSnapshot, createCache } from '@kubb/core'
-import { prune, readManifest, writeFileAtomic, writeManifest } from './manifest.ts'
+import { Manifest } from '../manifest.ts'
 
 /**
  * Options for {@link fsCache}.
@@ -58,7 +58,7 @@ export const fsCache: (options?: FsCacheOptions) => Cache = createCache((options
   return {
     name: 'fs',
     async restore({ key }) {
-      const manifest = await readManifest(dir)
+      const manifest = await Manifest.read(dir)
       const entry = manifest.entries[key]
       if (!entry) {
         return null
@@ -72,7 +72,7 @@ export const fsCache: (options?: FsCacheOptions) => Cache = createCache((options
         }
 
         entry.lastAccess = Date.now()
-        await writeManifest(dir, manifest).catch(() => {})
+        await Manifest.write(dir, manifest).catch(() => {})
 
         return { files }
       } catch {
@@ -86,18 +86,18 @@ export const fsCache: (options?: FsCacheOptions) => Cache = createCache((options
       const index: IndexFile = []
       for (const [path, source] of Object.entries(snapshot.files)) {
         const blob = blobName(path)
-        await writeFileAtomic(join(entryDir, blob), source)
+        await Manifest.writeFileAtomic(join(entryDir, blob), source)
         index.push({ path, blob })
       }
-      await writeFileAtomic(join(entryDir, 'index.json'), JSON.stringify(index))
+      await Manifest.writeFileAtomic(join(entryDir, 'index.json'), JSON.stringify(index))
 
-      const manifest = await readManifest(dir)
+      const manifest = await Manifest.read(dir)
       const now = Date.now()
       manifest.entries[key] = { files: index.map((item) => item.path), createdAt: now, lastAccess: now }
 
-      const pruned = prune(manifest, { maxEntries, ttlDays, now })
+      const pruned = Manifest.prune(manifest, { maxEntries, ttlDays, now })
       await Promise.all(pruned.removed.map((removedKey) => rm(join(blobsDir, removedKey), { recursive: true, force: true })))
-      await writeManifest(dir, pruned.manifest)
+      await Manifest.write(dir, pruned.manifest)
     },
   }
 })

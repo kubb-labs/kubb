@@ -4,7 +4,7 @@ import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast
 import type { FileNode, InputMeta, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { version as coreVersion } from '../package.json'
 import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
-import { computeFingerprint } from './fingerprint.ts'
+import { Fingerprint } from './fingerprint.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
@@ -388,7 +388,7 @@ export class KubbDriver {
 
           const cache = config.cache
           const outputRoot = resolve(config.root, config.output.path)
-          const cacheKey = cache ? await computeFingerprint({ config, adapterSource: this.#adapterSource, version: coreVersion }) : null
+          const cacheKey = cache ? await Fingerprint.compute({ config, adapterSource: this.#adapterSource, version: coreVersion }) : null
 
           if (cache && cacheKey) {
             const snapshot = await cache.restore({ key: cacheKey })
