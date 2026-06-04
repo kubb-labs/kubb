@@ -1,7 +1,7 @@
 import type { Dirent } from 'node:fs'
 import { access, readdir, readFile, rm } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
-import { clean, write } from '@internals/utils'
+import { clean, isBun, write } from '@internals/utils'
 import { createStorage } from '../createStorage.ts'
 
 /**
@@ -54,6 +54,15 @@ export const fsStorage = createStorage(() => ({
   },
   async getKeys(base?: string) {
     const resolvedBase = resolve(base ?? process.cwd())
+
+    if (isBun()) {
+      const keys: Array<string> = []
+      const glob = new Bun.Glob('**/*')
+      for await (const key of glob.scan({ cwd: resolvedBase, onlyFiles: true, dot: true })) {
+        keys.push(key)
+      }
+      return keys
+    }
 
     async function* walk(dir: string, prefix: string): AsyncGenerator<string, void, undefined> {
       let entries: Array<Dirent>
