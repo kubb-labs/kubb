@@ -1,11 +1,19 @@
-import { createHash } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { AsyncEventEmitter } from '@internals/utils'
-import { AsyncEventEmitter as AsyncEventEmitterClass, detectFormatter, detectLinter, executeIfOnline, formatters, linters, toError } from '@internals/utils'
+import {
+  AsyncEventEmitter as AsyncEventEmitterClass,
+  detectFormatter,
+  detectLinter,
+  executeIfOnline,
+  formatters,
+  linters,
+  sha256,
+  toError,
+} from '@internals/utils'
 import {
   type CLIOptions,
   cliReporter,
@@ -106,7 +114,7 @@ async function runToolPass({
   // (e.g. oxlint with --no-ignore) doesn't fail with "No files found to lint".
   if (resolvedTool && resolvedTool !== 'auto' && resolvedTool in toolMap && existsSync(outputPath)) {
     const toolConfig = toolMap[resolvedTool as keyof ToolMap]
-    const hookId = createHash('sha256').update([configName, resolvedTool].filter(Boolean).join('-')).digest('hex')
+    const hookId = sha256([configName, resolvedTool].filter(Boolean).join('-'))
 
     const successMessage = [
       `${successPrefix} with ${styleText('dim', resolvedTool)}`,

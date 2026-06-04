@@ -1,6 +1,5 @@
-import { createHash } from 'node:crypto'
 import path from 'node:path'
-import { trimExtName } from '@internals/utils'
+import { sha256, trimExtName } from '@internals/utils'
 import type { InferSchemaNode } from './infer.ts'
 import type {
   ArrowFunctionNode,
@@ -673,7 +672,7 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
   return {
     kind: 'File',
     ...input,
-    id: createHash('sha256').update(input.path).digest('hex'),
+    id: sha256(input.path),
     name: trimExtName(input.baseName),
     extname,
     imports: resolvedImports,

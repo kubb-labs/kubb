@@ -206,13 +206,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     async parse(source) {
       const streamNode = await createStream(source)
 
-      const collect = async <T>(iter: AsyncIterable<T>): Promise<Array<T>> => {
-        const out: Array<T> = []
-        for await (const item of iter) out.push(item)
-        return out
-      }
-
-      const [schemas, operations] = await Promise.all([collect(streamNode.schemas), collect(streamNode.operations)])
+      const [schemas, operations] = await Promise.all([Array.fromAsync(streamNode.schemas), Array.fromAsync(streamNode.operations)])
 
       return ast.createInput({ schemas, operations, meta: streamNode.meta })
     },

@@ -54,16 +54,12 @@ export const fsStorage = createStorage(() => ({
   async getKeys(base?: string) {
     const resolvedBase = resolve(base ?? process.cwd())
 
-    const keys: Array<string> = []
-
     if (isBun()) {
       const bunGlob = new Bun.Glob('**/*')
-      for await (const key of bunGlob.scan({ cwd: resolvedBase, onlyFiles: true, dot: true })) {
-        keys.push(key)
-      }
-      return keys
+      return Array.fromAsync(bunGlob.scan({ cwd: resolvedBase, onlyFiles: true, dot: true }))
     }
 
+    const keys: Array<string> = []
     try {
       for await (const entry of glob('**/*', { cwd: resolvedBase, withFileTypes: true })) {
         if (entry.isFile()) {

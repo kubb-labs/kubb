@@ -1,7 +1,6 @@
-import { createHash } from 'node:crypto'
 import { styleText } from 'node:util'
 import type { AsyncEventEmitter } from '@internals/utils'
-import { toError, tokenize } from '@internals/utils'
+import { sha256, toError, tokenize } from '@internals/utils'
 import type { CLIOptions, Config, KubbHooks, PossibleConfig } from '@kubb/core'
 import { cosmiconfig } from 'cosmiconfig'
 import { createJiti } from 'jiti'
@@ -127,7 +126,7 @@ export async function executeHooks({ configHooks, hooks }: ExecuteHooksOptions):
     const [cmd, ...args] = tokenize(command)
     if (!cmd) continue
 
-    const hookId = createHash('sha256').update(command).digest('hex')
+    const hookId = sha256(command)
     const commandWithArgs = [cmd, ...args].join(' ')
 
     await hooks.emit('kubb:hook:start', { id: hookId, command: cmd, args })

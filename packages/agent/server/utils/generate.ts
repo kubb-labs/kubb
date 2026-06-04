@@ -1,8 +1,7 @@
-import { createHash } from 'node:crypto'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { detectFormatter, detectLinter, formatters, linters } from '@internals/utils'
+import { detectFormatter, detectLinter, formatters, linters, sha256 } from '@internals/utils'
 import { type AsyncEventEmitter, type Config, createKubb, Diagnostics, type KubbHooks } from '@kubb/core'
 import { executeHooks } from './executeHooks.ts'
 
@@ -79,7 +78,7 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
       const outputPath = path.isAbsolute(config.output.path) ? config.output.path : path.resolve(process.cwd(), config.root, config.output.path)
 
       try {
-        const hookId = createHash('sha256').update([config.name, formatter].filter(Boolean).join('-')).digest('hex')
+        const hookId = sha256([config.name, formatter].filter(Boolean).join('-'))
         await hooks.emit('kubb:hook:start', {
           id: hookId,
           command: formatterConfig.command,
@@ -124,7 +123,7 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
       const outputPath = path.isAbsolute(config.output.path) ? config.output.path : path.resolve(process.cwd(), config.root, config.output.path)
 
       try {
-        const hookId = createHash('sha256').update([config.name, linter].filter(Boolean).join('-')).digest('hex')
+        const hookId = sha256([config.name, linter].filter(Boolean).join('-'))
         await hooks.emit('kubb:hook:start', {
           id: hookId,
           command: linterConfig.command,

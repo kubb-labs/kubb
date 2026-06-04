@@ -8,6 +8,7 @@ export { type Context, createContext, inject, provide, unprovide } from './conte
 export { canUseTTY, isCIEnvironment } from './env.ts'
 export { BuildError, getErrorMessage, toCause, toError } from './errors.ts'
 export { detectFormatter, formatters } from './formatters.ts'
+export { sha256 } from './hash.ts'
 export { clean, exists, findPackageJSON, getRelativePath, read, readSync, write } from './fs.ts'
 export { detectLinter, linters } from './linters.ts'
 export { executeIfOnline } from './network.ts'

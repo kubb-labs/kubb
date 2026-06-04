@@ -1,4 +1,5 @@
-import { createHash, randomBytes } from 'node:crypto'
+import { randomBytes } from 'node:crypto'
+import { sha256 } from './hash.ts'
 
 /** Generates a cryptographically random 32-byte token encoded as a hex string.
  *
@@ -19,5 +20,5 @@ export function generateToken(): string {
  * ```
  */
 export function hashToken(input: string): string {
-  return createHash('sha256').update(input).digest('hex')
+  return sha256(input)
 }
