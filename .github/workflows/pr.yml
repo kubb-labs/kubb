@@ -208,3 +208,33 @@ jobs:
         with:
           duplicate-threshold: 5
           size-threshold: -1
+
+  bun:
+    name: Bun runtime
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    if: github.actor != 'github-actions[bot]'
+    needs: build
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
+        with:
+          node-version: '22'
+
+      - name: Setup Bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Run the CLI under Bun
+        run: bun packages/cli/bin/kubb.js --version
