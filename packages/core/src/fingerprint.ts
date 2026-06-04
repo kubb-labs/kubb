@@ -8,8 +8,8 @@ import type { Config } from './createKubb.ts'
 /**
  * Computes the machine-portable cache key for an incremental build. All methods are static, so
  * call them as `Fingerprint.compute(...)` and `Fingerprint.stableStringify(...)`. The key never
- * contains absolute paths or mtimes, so a snapshot persisted on one machine (or in CI) restores
- * on another with a different checkout root.
+ * contains absolute paths or modification times, so a snapshot persisted on one machine (or in CI)
+ * restores on another with a different checkout root.
  */
 export class Fingerprint {
   /**
