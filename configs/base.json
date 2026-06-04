@@ -5,7 +5,8 @@
     /* Base Options: */
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "ES2022",
+    "target": "ES2024",
+    "lib": ["es2024", "ES2025.Collection", "ES2025.Iterator", "ESNext.Array", "DOM", "DOM.Iterable"],
     "verbatimModuleSyntax": true,
     "allowJs": true,
     "resolveJsonModule": true,
