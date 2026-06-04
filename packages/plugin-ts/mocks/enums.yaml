@@ -70,6 +70,22 @@ components:
           - "SE"
         description: Wind direction
 
+    enum.ArrayOfObject:
+      type: array
+      items:
+        type: object
+        required:
+          - id
+          - status
+        properties:
+          id:
+            type: integer
+          status:
+            type: string
+            enum:
+              - active
+              - inactive
+
     enum.Items:
       type: array
       minItems: 1

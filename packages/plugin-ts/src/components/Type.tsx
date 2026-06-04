@@ -68,7 +68,11 @@ export function Type({
 
   // Add a configurable suffix to avoid collisions where necessary
   if (['asConst', 'asPascalConst'].includes(enumType) && enumSchemas.length > 0) {
-    const isDirectEnum = schema.type === 'array' && schema.items !== undefined
+    // Only treat this as a direct enum array when the array's *items* are themselves an
+    // enum. Previously any array with items qualified, so an array of objects that merely
+    // contained an enum property had its object type replaced by the (first) nested enum.
+    const isDirectEnum =
+      schema.type === 'array' && typeof schema.items === 'object' && schema.items !== null && !Array.isArray(schema.items) && 'enum' in schema.items
     const isEnumOnly = 'enum' in schema && schema.enum
 
     if (isDirectEnum || isEnumOnly) {
