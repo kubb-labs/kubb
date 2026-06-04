@@ -237,7 +237,8 @@ export type Config<TInput = Input> = {
   /**
    * Incremental build cache. Kubb fingerprints the inputs (spec content, config, plugin options,
    * versions) and, on an unchanged "hot" run, restores the previously generated output instead of
-   * regenerating it. Same idea as Nx's computation cache.
+   * regenerating it. When only part of the spec changes, it regenerates just the affected schemas
+   * and operations. Same idea as Nx's computation cache.
    *
    * `defineConfig` enables `fsCache()` (local disk under `node_modules/.cache/kubb`) by default.
    * Pass another backend to change where snapshots live, or `false` to turn caching off. A bare
