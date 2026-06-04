@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
-import { mkdir, readFile, rm } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
+import { clean, read, write } from '@internals/utils'
 import { type CachedSnapshot, createCache } from '../createCache.ts'
 import { Manifest } from '../Manifest.ts'
 
@@ -66,14 +66,14 @@ export const fsCache = createCache((options: FsCacheOptions = {}) => {
       }
 
       try {
-        const index = JSON.parse(await readFile(join(blobsDir, key, 'index.json'), 'utf8')) as IndexFile
+        const index = JSON.parse(await read(join(blobsDir, key, 'index.json'))) as IndexFile
         const files: Record<string, string> = {}
         for (const { path, blob } of index) {
-          files[path] = await readFile(join(blobsDir, key, blob), 'utf8')
+          files[path] = await read(join(blobsDir, key, blob))
         }
 
         entry.lastAccess = Date.now()
-        await Manifest.write(manifestPath, JSON.stringify(manifest)).catch(() => {})
+        await write(manifestPath, JSON.stringify(manifest)).catch(() => {})
 
         return { files }
       } catch {
@@ -82,23 +82,22 @@ export const fsCache = createCache((options: FsCacheOptions = {}) => {
     },
     async persist({ key, snapshot }: { key: string; snapshot: CachedSnapshot }) {
       const entryDir = join(blobsDir, key)
-      await mkdir(entryDir, { recursive: true })
 
       const index: IndexFile = []
       for (const [path, source] of Object.entries(snapshot.files)) {
         const blob = blobName(path)
-        await Manifest.write(join(entryDir, blob), source)
+        await write(join(entryDir, blob), source)
         index.push({ path, blob })
       }
-      await Manifest.write(join(entryDir, 'index.json'), JSON.stringify(index))
+      await write(join(entryDir, 'index.json'), JSON.stringify(index))
 
       const manifest = await Manifest.read(dir)
       const now = Date.now()
       manifest.entries[key] = { files: index.map((item) => item.path), createdAt: now, lastAccess: now }
 
       const pruned = Manifest.prune(manifest, { maxEntries, ttlDays, now })
-      await Promise.all(pruned.removed.map((removedKey) => rm(join(blobsDir, removedKey), { recursive: true, force: true })))
-      await Manifest.write(manifestPath, JSON.stringify(pruned.manifest))
+      await Promise.all(pruned.removed.map((removedKey) => clean(join(blobsDir, removedKey))))
+      await write(manifestPath, JSON.stringify(pruned.manifest))
     },
   }
 })

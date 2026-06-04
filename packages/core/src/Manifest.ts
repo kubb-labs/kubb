@@ -1,6 +1,5 @@
-import { randomBytes } from 'node:crypto'
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
+import { join } from 'node:path'
+import { read } from '@internals/utils'
 
 /**
  * Bookkeeping for one cached build: the relative paths it covers and timestamps used by the pruner.
@@ -20,9 +19,9 @@ export type ManifestData = {
 }
 
 /**
- * Reads, writes, and prunes the local cache manifest. All methods are static, so call them as
- * `Manifest.read(dir)`, `Manifest.write(file, data)`, and `Manifest.prune(data, ...)`. A damaged
- * manifest reads as empty so the cache degrades to misses instead of throwing.
+ * Reads and prunes the local cache manifest. All methods are static, so call them as
+ * `Manifest.read(dir)` and `Manifest.prune(data, ...)`. A damaged manifest reads as empty so the
+ * cache degrades to misses instead of throwing. Writing goes through `write` from `@internals/utils`.
  */
 export class Manifest {
   /**
@@ -37,7 +36,7 @@ export class Manifest {
    */
   static async read(dir: string): Promise<ManifestData> {
     try {
-      const parsed = JSON.parse(await readFile(join(dir, 'manifest.json'), 'utf8')) as ManifestData
+      const parsed = JSON.parse(await read(join(dir, 'manifest.json'))) as ManifestData
       if (parsed.version !== Manifest.version || typeof parsed.entries !== 'object') {
         return Manifest.#empty()
       }
@@ -45,17 +44,6 @@ export class Manifest {
     } catch {
       return Manifest.#empty()
     }
-  }
-
-  /**
-   * Writes `file` atomically: contents go to a unique temp file in the same directory, then a
-   * rename swaps it into place so a concurrent reader never sees a half-written file.
-   */
-  static async write(file: string, data: string | Uint8Array): Promise<void> {
-    await mkdir(dirname(file), { recursive: true })
-    const tmp = `${file}.${randomBytes(6).toString('hex')}.tmp`
-    await writeFile(tmp, data)
-    await rename(tmp, file)
   }
 
   /**
