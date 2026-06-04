@@ -2,7 +2,7 @@ import path from 'node:path'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { ast, definePlugin, type Storage, type UserConfig } from '@kubb/core'
 import { describe, expect, test, vi } from 'vitest'
-import type { UnpluginBuildContext } from 'unplugin'
+import type { UnpluginBuildContext, UnpluginContext } from 'unplugin'
 import nuxtModule from './nuxt.ts'
 import { unpluginFactory } from './unpluginFactory.ts'
 import vite from './vite.ts'
@@ -18,12 +18,16 @@ function getPluginOptions(options: KubbUnpluginOptions) {
   return options
 }
 
-function createBuildContext(): UnpluginBuildContext {
+function createBuildContext(): UnpluginBuildContext & UnpluginContext {
   return {
     addWatchFile: vi.fn(),
     emitFile: vi.fn(),
     getWatchFiles: vi.fn(() => []),
     parse: vi.fn(),
+    error: vi.fn((reason) => {
+      throw typeof reason === 'string' ? new Error(reason) : reason
+    }),
+    warn: vi.fn(),
   }
 }
 
@@ -124,6 +128,57 @@ describe('unpluginFactory', () => {
     await pluginOptions.buildStart?.call(createBuildContext())
 
     expect(clear).toHaveBeenCalledWith(path.resolve(root, './gen'))
+  })
+
+  test('serves generated files as kubb: virtual modules', async () => {
+    const file = ast.createFile({
+      path: 'gen/component.tsx',
+      baseName: 'component.tsx',
+      imports: [ast.createImport({ name: ['jsx'], path: 'react/jsx-runtime' })],
+      sources: [ast.createSource({ nodes: [ast.createText('export const Component = jsx("div", {})')] })],
+    })
+    const plugin = definePlugin(() => ({
+      name: 'plugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.injectFile(file)
+        },
+      },
+    }))()
+    const config = {
+      input: { path: 'https://example.com/openapi.json' },
+      output: { path: './gen' },
+      adapter: createMockedAdapter(),
+      plugins: [plugin],
+    } satisfies UserConfig
+    const pluginOptions = getPluginOptions(unpluginFactory({ config, virtual: true }, { framework: 'vite' }))
+
+    await pluginOptions.buildStart?.call(createBuildContext())
+
+    const resolveId = pluginOptions.resolveId
+    const load = pluginOptions.load
+    const resolved = typeof resolveId === 'function' ? await resolveId.call(createBuildContext(), 'kubb:component.tsx', undefined, { isEntry: false }) : null
+    expect(resolved).toBe('\0kubb:component.tsx')
+
+    const loaded = typeof load === 'function' && typeof resolved === 'string' ? await load.call(createBuildContext(), resolved) : null
+    expect(loaded).toMatchObject({ code: expect.stringContaining('react/jsx-runtime') })
+  })
+
+  test('does not resolve virtual modules when virtual mode is off', async () => {
+    const { storage } = createMemoryStorage()
+    const config = {
+      input: { path: 'https://example.com/openapi.json' },
+      output: { path: './gen' },
+      adapter: createMockedAdapter(),
+      storage,
+    } satisfies UserConfig
+    const pluginOptions = getPluginOptions(unpluginFactory({ config }, { framework: 'vite' }))
+
+    await pluginOptions.buildStart?.call(createBuildContext())
+
+    const resolveId = pluginOptions.resolveId
+    const resolved = typeof resolveId === 'function' ? await resolveId.call(createBuildContext(), 'kubb:component.tsx', undefined, { isEntry: false }) : 'not-a-function'
+    expect(resolved).toBeNull()
   })
 
   test('fails the host build when generation fails', async () => {

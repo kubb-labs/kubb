@@ -101,8 +101,44 @@ Define the options for Kubb.
 
 ```typescript [Options]
 type Options = {
-  config: UserConfig
+  config?: UserConfig
+  virtual?: boolean
 }
+```
+
+### virtual
+
+Serve the generated code as in-memory `kubb:` virtual modules instead of writing it to disk, and hot-reload it when the input spec changes. Generation runs into memory, so the output directory stays empty and your source tree keeps no generated files. Defaults to `false`.
+
+```typescript
+import kubb from 'unplugin-kubb/vite'
+
+export default defineConfig({
+  plugins: [
+    kubb({
+      virtual: true,
+      config: {
+        input: { path: './petstore.yaml' },
+        output: { path: './gen' },
+      },
+    }),
+  ],
+})
+```
+
+Import the root barrel from `kubb`, or a single file with `kubb:<path>` relative to the output path:
+
+```typescript
+import { getPets } from 'kubb'
+import { getPetById } from 'kubb:client/getPetById.ts'
+```
+
+Editing the input spec triggers a Vite HMR update for the modules that changed, with no page reload. Other bundlers still resolve the virtual modules but do not hot-reload them.
+
+Because nothing is written to disk, there is no file to type against and the modules are typed loosely as `any`. Reference the ambient declarations once so the editor stops flagging the imports:
+
+```typescript
+/// <reference types="unplugin-kubb/virtual" />
 ```
 
 ## Supporting Kubb

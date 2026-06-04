@@ -27,6 +27,7 @@
   "files": [
     "src",
     "dist",
+    "virtual.d.ts",
     "!/**/**.test.**",
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
@@ -93,7 +94,10 @@
       "import": "./dist/webpack.js",
       "require": "./dist/webpack.cjs"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./virtual": {
+      "types": "./virtual.d.ts"
+    }
   },
   "publishConfig": {
     "access": "public",
