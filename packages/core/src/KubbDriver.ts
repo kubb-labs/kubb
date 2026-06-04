@@ -108,9 +108,11 @@ export class KubbDriver {
   async setup() {
     const normalized: Array<NormalizedPlugin> = this.config.plugins.map((rawPlugin) => this.#normalizePlugin(rawPlugin as Plugin))
 
+    const dependenciesByName = new Map(normalized.map((plugin) => [plugin.name, new Set(plugin.dependencies ?? [])]))
+
     normalized.sort((a, b) => {
-      if (b.dependencies?.includes(a.name)) return -1
-      if (a.dependencies?.includes(b.name)) return 1
+      if (dependenciesByName.get(b.name)?.has(a.name)) return -1
+      if (dependenciesByName.get(a.name)?.has(b.name)) return 1
 
       return enforceOrder(a.enforce) - enforceOrder(b.enforce)
     })

@@ -1,6 +1,5 @@
 import path from 'node:path'
 import { existsSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
 import { bench, describe } from 'vitest'
 import { adapterOas } from './adapter.ts'
 import { parseDocument } from './factory.ts'
@@ -8,10 +7,7 @@ import { parseOas } from './parser.ts'
 import type { Document } from './types.ts'
 import type { AdapterSource } from '@kubb/core'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
-const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
+const petStorePath = path.resolve(import.meta.dirname, '../mocks/petStore.yaml')
 const stripeSpecPath = '/tmp/kubb-stripe-spec3.json'
 const hasStripe = existsSync(stripeSpecPath)
 
