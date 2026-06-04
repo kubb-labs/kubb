@@ -104,7 +104,7 @@ export class NodeFingerprint {
   // unique value so the node is simply regenerated.
   static #structural(node: OperationNode): string {
     try {
-      return Fingerprint.stableStringify(node)
+      return Fingerprint.stringify(node)
     } catch {
       return `uncacheable:${createHash('sha256').update(`${Math.random()}`).digest('hex')}`
     }
@@ -112,6 +112,6 @@ export class NodeFingerprint {
 
   static #hash({ pluginName, nodeId, resolvedOptions, content }: { pluginName: string; nodeId: string; resolvedOptions: unknown; content: unknown }): string {
     const input = { nodeVersion: NodeFingerprint.version, coreVersion, pluginName, nodeId, resolvedOptions, content }
-    return createHash('sha256').update(Fingerprint.stableStringify(input)).digest('hex')
+    return createHash('sha256').update(Fingerprint.stringify(input)).digest('hex')
   }
 }

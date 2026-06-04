@@ -7,7 +7,7 @@ import type { Config } from './createKubb.ts'
 
 /**
  * Computes the cache key for an incremental build. All methods are static, so call them as
- * `Fingerprint.compute(...)` and `Fingerprint.stableStringify(...)`. The key holds no absolute
+ * `Fingerprint.compute(...)` and `Fingerprint.stringify(...)`. The key holds no absolute
  * paths or modification times, so it never depends on where the project lives on disk.
  */
 export class Fingerprint {
@@ -22,7 +22,7 @@ export class Fingerprint {
    * `undefined` values and functions are dropped. Two structurally equal configs produce the same
    * string regardless of key order, which keeps the fingerprint stable across machines.
    */
-  static stableStringify(value: unknown): string {
+  static stringify(value: unknown): string {
     return JSON.stringify(Fingerprint.#normalize(value))
   }
 
@@ -43,7 +43,7 @@ export class Fingerprint {
     }
 
     return createHash('sha256')
-      .update(Fingerprint.stableStringify({ ...Fingerprint.#configInputs({ config, version }), spec }))
+      .update(Fingerprint.stringify({ ...Fingerprint.#configInputs({ config, version }), spec }))
       .digest('hex')
   }
 
@@ -55,7 +55,7 @@ export class Fingerprint {
    */
   static computeConfigKey({ config, version }: { config: Config; version: string }): string {
     return createHash('sha256')
-      .update(Fingerprint.stableStringify(Fingerprint.#configInputs({ config, version })))
+      .update(Fingerprint.stringify(Fingerprint.#configInputs({ config, version })))
       .digest('hex')
   }
 
@@ -97,7 +97,7 @@ export class Fingerprint {
    */
   static async #readSpec(source: AdapterSource, root: string): Promise<unknown> {
     if (source.type === 'data') {
-      return { kind: 'data', data: typeof source.data === 'string' ? source.data : Fingerprint.stableStringify(source.data) }
+      return { kind: 'data', data: typeof source.data === 'string' ? source.data : Fingerprint.stringify(source.data) }
     }
     const paths = source.type === 'paths' ? source.paths : [source.path]
     if (paths.some((path) => new URLPath(path).isURL)) {

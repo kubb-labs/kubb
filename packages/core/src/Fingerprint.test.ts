@@ -20,13 +20,13 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
 
 const dataSource: AdapterSource = { type: 'data', data: { openapi: '3.1.0', paths: {} } }
 
-describe('Fingerprint.stableStringify', () => {
+describe('Fingerprint.stringify', () => {
   it('is independent of object key order', () => {
-    expect(Fingerprint.stableStringify({ a: 1, b: 2 })).toBe(Fingerprint.stableStringify({ b: 2, a: 1 }))
+    expect(Fingerprint.stringify({ a: 1, b: 2 })).toBe(Fingerprint.stringify({ b: 2, a: 1 }))
   })
 
   it('drops functions', () => {
-    expect(Fingerprint.stableStringify({ a: 1, fn: () => 0 })).toBe(Fingerprint.stableStringify({ a: 1 }))
+    expect(Fingerprint.stringify({ a: 1, fn: () => 0 })).toBe(Fingerprint.stringify({ a: 1 }))
   })
 })
 
