@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { join, resolve } from 'node:path'
 import { clean, read, write } from '@internals/utils'
-import { type CachedSnapshot, createCache } from '../createCache.ts'
+import { createCache } from '../createCache.ts'
 import { Manifest } from '../Manifest.ts'
 
 /**
@@ -80,7 +80,7 @@ export const fsCache = createCache((options: FsCacheOptions = {}) => {
         return null
       }
     },
-    async persist({ key, snapshot }: { key: string; snapshot: CachedSnapshot }) {
+    async persist({ key, snapshot }) {
       const entryDir = join(blobsDir, key)
 
       const index: IndexFile = []
