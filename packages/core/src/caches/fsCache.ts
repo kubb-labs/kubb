@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { mkdir, readFile, rm } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
-import { type CachedSnapshot, createCache } from '@kubb/core'
+import { type CachedSnapshot, createCache } from '../createCache.ts'
 import { Manifest } from '../Manifest.ts'
 
 /**
@@ -42,7 +42,7 @@ function blobName(relativePath: string): string {
  *
  * @example
  * ```ts
- * import { fsCache } from '@kubb/cache'
+ * import { fsCache } from '@kubb/core'
  *
  * export default defineConfig({
  *   cache: fsCache(),

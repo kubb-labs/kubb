@@ -239,11 +239,11 @@ export type Config<TInput = Input> = {
    * options, versions) and, on an unchanged "hot" run, restores the previously generated output
    * instead of regenerating it — like Nx's computation cache.
    *
-   * Off by default. Opt in with `fsCache()` (local disk) from `@kubb/cache`.
+   * Off by default. Opt in with `fsCache()` (local disk) from `@kubb/core`.
    *
    * @example
    * ```ts
-   * import { fsCache } from '@kubb/cache'
+   * import { fsCache } from '@kubb/core'
    *
    * cache: fsCache()
    * ```

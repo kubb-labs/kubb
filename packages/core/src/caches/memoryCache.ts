@@ -1,4 +1,4 @@
-import { type CachedSnapshot, createCache } from '@kubb/core'
+import { type CachedSnapshot, createCache } from '../createCache.ts'
 
 /**
  * In-memory cache backed by a `Map`. Snapshots live only for the lifetime of the
@@ -7,7 +7,7 @@ import { type CachedSnapshot, createCache } from '@kubb/core'
  *
  * @example
  * ```ts
- * import { memoryCache } from '@kubb/cache'
+ * import { memoryCache } from '@kubb/core'
  *
  * export default defineConfig({
  *   cache: memoryCache(),
