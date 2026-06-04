@@ -1,5 +1,5 @@
 /**
- * Ambient declarations for the `kubb:` virtual modules that `unplugin-kubb` serves when
+ * Ambient declarations for the `kubb:gen` virtual modules that `unplugin-kubb` serves when
  * `virtual: true` is set. Generation runs in memory, so there is no file on disk to type against
  * and the modules are typed loosely as `any`. Import the generated symbols by the names Kubb emits.
  *
@@ -18,11 +18,11 @@
  *
  * @example
  * ```ts
- * import { getPets } from 'kubb'
- * import { getPetById } from 'kubb:client/getPetById.ts'
+ * import { getPets } from 'kubb:gen'
+ * import { getPetById } from 'kubb:gen/client/getPetById.ts'
  * ```
  */
 
-declare module 'kubb'
+declare module 'kubb:gen'
 
-declare module 'kubb:*'
+declare module 'kubb:gen/*'

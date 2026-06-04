@@ -108,7 +108,7 @@ type Options = {
 
 ### virtual
 
-Serve the generated code as in-memory `kubb:` virtual modules instead of writing it to disk, and hot-reload it when the input spec changes. Generation runs into memory, so the output directory stays empty and your source tree keeps no generated files. Defaults to `false`.
+Serve the generated code as in-memory `kubb:gen` virtual modules instead of writing it to disk, and hot-reload it when the input spec changes. Generation runs into memory, so the output directory stays empty and your source tree keeps no generated files. The `kubb:gen` namespace keeps these imports separate from the real `kubb` package. Defaults to `false`.
 
 ```typescript
 import kubb from 'unplugin-kubb/vite'
@@ -126,11 +126,11 @@ export default defineConfig({
 })
 ```
 
-Import the root barrel from `kubb`, or a single file with `kubb:<path>` relative to the output path:
+Import the root barrel from `kubb:gen`, or a single file with `kubb:gen/<path>` relative to the output path:
 
 ```typescript
-import { getPets } from 'kubb'
-import { getPetById } from 'kubb:client/getPetById.ts'
+import { getPets } from 'kubb:gen'
+import { getPetById } from 'kubb:gen/client/getPetById.ts'
 ```
 
 Editing the input spec triggers a Vite HMR update for the modules that changed, with no page reload. Other bundlers still resolve the virtual modules but do not hot-reload them.

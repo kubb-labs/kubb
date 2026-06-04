@@ -130,7 +130,7 @@ describe('unpluginFactory', () => {
     expect(clear).toHaveBeenCalledWith(path.resolve(root, './gen'))
   })
 
-  test('serves generated files as kubb: virtual modules', async () => {
+  test('serves generated files as kubb:gen virtual modules', async () => {
     const file = ast.createFile({
       path: 'gen/component.tsx',
       baseName: 'component.tsx',
@@ -157,8 +157,9 @@ describe('unpluginFactory', () => {
 
     const resolveId = pluginOptions.resolveId
     const load = pluginOptions.load
-    const resolved = typeof resolveId === 'function' ? await resolveId.call(createBuildContext(), 'kubb:component.tsx', undefined, { isEntry: false }) : null
-    expect(resolved).toBe('\0kubb:component.tsx')
+    const resolved =
+      typeof resolveId === 'function' ? await resolveId.call(createBuildContext(), 'kubb:gen/component.tsx', undefined, { isEntry: false }) : null
+    expect(resolved).toBe('\0kubb:gen/component.tsx')
 
     const loaded = typeof load === 'function' && typeof resolved === 'string' ? await load.call(createBuildContext(), resolved) : null
     expect(loaded).toMatchObject({ code: expect.stringContaining('react/jsx-runtime') })
@@ -178,7 +179,7 @@ describe('unpluginFactory', () => {
 
     const resolveId = pluginOptions.resolveId
     const resolved =
-      typeof resolveId === 'function' ? await resolveId.call(createBuildContext(), 'kubb:component.tsx', undefined, { isEntry: false }) : 'not-a-function'
+      typeof resolveId === 'function' ? await resolveId.call(createBuildContext(), 'kubb:gen/component.tsx', undefined, { isEntry: false }) : 'not-a-function'
     expect(resolved).toBeNull()
   })
 

@@ -70,16 +70,16 @@ describe('resolveVirtual', () => {
     'client/getPet.ts': 'getPet',
   })
 
-  test('maps the bare entry to the root barrel', () => {
-    expect(resolveVirtual({ id: 'kubb', importer: undefined, store })).toBe(toResolvedId('index.ts'))
+  test('maps the kubb:gen entry to the root barrel', () => {
+    expect(resolveVirtual({ id: 'kubb:gen', importer: undefined, store })).toBe(toResolvedId('index.ts'))
   })
 
-  test('returns null for the bare entry when no barrel exists', () => {
-    expect(resolveVirtual({ id: 'kubb', importer: undefined, store: makeStore({ 'models/Pet.ts': 'pet' }, null) })).toBeNull()
+  test('returns null for the kubb:gen entry when no barrel exists', () => {
+    expect(resolveVirtual({ id: 'kubb:gen', importer: undefined, store: makeStore({ 'models/Pet.ts': 'pet' }, null) })).toBeNull()
   })
 
-  test('resolves an explicit kubb: file id', () => {
-    expect(resolveVirtual({ id: 'kubb:models/Pet.ts', importer: undefined, store })).toBe(toResolvedId('models/Pet.ts'))
+  test('resolves an explicit kubb:gen file id', () => {
+    expect(resolveVirtual({ id: 'kubb:gen/models/Pet.ts', importer: undefined, store })).toBe(toResolvedId('models/Pet.ts'))
   })
 
   test('resolves a relative import between two virtual modules', () => {
@@ -97,7 +97,7 @@ describe('resolveVirtual', () => {
   })
 
   test('returns null for an unknown virtual file', () => {
-    expect(resolveVirtual({ id: 'kubb:does/not/exist.ts', importer: undefined, store })).toBeNull()
+    expect(resolveVirtual({ id: 'kubb:gen/does/not/exist.ts', importer: undefined, store })).toBeNull()
   })
 })
 
@@ -119,23 +119,23 @@ describe('loadVirtual', () => {
 })
 
 describe('diffStores', () => {
-  test('reports every file as changed when there is no previous store', () => {
+  test('reports every file as affected when there is no previous store', () => {
     const next = makeStore({ 'a.ts': '1', 'b.ts': '2' })
 
-    expect(diffStores(null, next)).toStrictEqual({ changed: ['a.ts', 'b.ts'], removed: [] })
+    expect(diffStores(null, next)).toStrictEqual(new Set(['a.ts', 'b.ts']))
   })
 
   test('reports only files whose content changed', () => {
     const prev = makeStore({ 'a.ts': '1', 'b.ts': '2' })
     const next = makeStore({ 'a.ts': '1', 'b.ts': '2-updated' })
 
-    expect(diffStores(prev, next)).toStrictEqual({ changed: ['b.ts'], removed: [] })
+    expect(diffStores(prev, next)).toStrictEqual(new Set(['b.ts']))
   })
 
-  test('reports files that vanished as removed', () => {
+  test('reports files that vanished as affected', () => {
     const prev = makeStore({ 'a.ts': '1', 'b.ts': '2' })
     const next = makeStore({ 'a.ts': '1' })
 
-    expect(diffStores(prev, next)).toStrictEqual({ changed: [], removed: ['b.ts'] })
+    expect(diffStores(prev, next)).toStrictEqual(new Set(['b.ts']))
   })
 })

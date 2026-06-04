@@ -2,16 +2,16 @@ import { posix, relative } from 'node:path'
 import type { Storage } from '@kubb/core'
 import { toPosixPath } from '@internals/utils'
 
-/** Bare entry import, mapping to the root barrel. */
-export const VIRTUAL_ENTRY = 'kubb'
-/** Prefix for importing a specific generated file, e.g. `kubb:client/usePets.ts`. */
-export const VIRTUAL_PREFIX = 'kubb:'
+/** Entry import, mapping to the root barrel. Namespaced so it never collides with the real `kubb` package. */
+export const VIRTUAL_ENTRY = 'kubb:gen'
+/** Prefix for importing a specific generated file, e.g. `kubb:gen/client/usePets.ts`. */
+export const VIRTUAL_PREFIX = 'kubb:gen/'
 /** Resolved id prefix. The leading null byte marks it virtual so other plugins ignore it. */
-export const RESOLVED_PREFIX = '\0kubb:'
+export const RESOLVED_PREFIX = '\0kubb:gen/'
 
 /**
  * The in-memory generated output served as virtual modules. `map` is keyed by path relative to the
- * output root (POSIX). `barrelRelPath` is the root barrel that the bare `kubb` import maps to, or
+ * output root (POSIX). `barrelRelPath` is the root barrel that the `kubb:gen` import maps to, or
  * `null` when no barrel was generated.
  */
 export type VirtualStore = {
@@ -52,9 +52,9 @@ function resolveKey(relativePath: string, store: VirtualStore): string | null {
 }
 
 /**
- * Maps an import specifier to a resolved virtual id, or `null` when it isn't ours. Handles the bare
- * `kubb` entry, explicit `kubb:<file>` ids, and relative imports between already-virtual modules
- * (how Kubb's generated files reference each other).
+ * Maps an import specifier to a resolved virtual id, or `null` when it isn't ours. Handles the
+ * `kubb:gen` entry, explicit `kubb:gen/<file>` ids, and relative imports between already-virtual
+ * modules (how Kubb's generated files reference each other).
  */
 export function resolveVirtual({ id, importer, store }: { id: string; importer: string | undefined; store: VirtualStore }): string | null {
   if (id === VIRTUAL_ENTRY) {
@@ -78,17 +78,12 @@ export function loadVirtual({ id, store }: { id: string; store: VirtualStore }):
   return store.map.get(relativePath) ?? null
 }
 
-/** Relative paths whose content changed or vanished between two stores, for targeted HMR. */
-export function diffStores(prev: VirtualStore | null, next: VirtualStore): { changed: Array<string>; removed: Array<string> } {
-  const changed: Array<string> = []
-  const removed: Array<string> = []
-  for (const [relativePath, source] of next.map) {
-    if (!prev || prev.map.get(relativePath) !== source) changed.push(relativePath)
+/** Relative paths whose content changed, appeared, or vanished between two stores, for targeted HMR. */
+export function diffStores(prev: VirtualStore | null, next: VirtualStore): Set<string> {
+  const affected = new Set<string>()
+  const keys = new Set([...(prev?.map.keys() ?? []), ...next.map.keys()])
+  for (const key of keys) {
+    if (prev?.map.get(key) !== next.map.get(key)) affected.add(key)
   }
-  if (prev) {
-    for (const relativePath of prev.map.keys()) {
-      if (!next.map.has(relativePath)) removed.push(relativePath)
-    }
-  }
-  return { changed, removed }
+  return affected
 }

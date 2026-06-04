@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import process from 'node:process'
 import { AsyncEventEmitter, URLPath } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, createKubb, Diagnostics, fsCache, type KubbHooks, memoryStorage } from '@kubb/core'
+import { type Config, createKubb, Diagnostics, fsCache, type KubbHooks, memoryStorage, type ProblemDiagnostic } from '@kubb/core'
 import { middlewareBarrel, middlewareBarrelName } from '@kubb/middleware-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import type { UnpluginFactory } from 'unplugin'
@@ -156,7 +156,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
     if (hasFailures) {
       const failedCount = Diagnostics.failedPlugins(diagnostics).length
-      const firstError = diagnostics.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
+      const firstError = diagnostics.find((diagnostic): diagnostic is ProblemDiagnostic => Diagnostics.isProblem(diagnostic) && diagnostic.severity === 'error')
       const message = failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed')
       return { ok: false, nextStore: null, message, cause: firstError?.cause }
     }
@@ -173,10 +173,10 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       try {
         const result = await generate()
         if (!result.nextStore) return
-        const { changed, removed } = diffStores(store, result.nextStore)
+        const affected = diffStores(store, result.nextStore)
         store = result.nextStore
         if (!server) return
-        for (const relativePath of [...changed, ...removed]) {
+        for (const relativePath of affected) {
           const mod = server.moduleGraph?.getModuleById?.(toResolvedId(relativePath))
           if (mod) server.reloadModule?.(mod)
         }
