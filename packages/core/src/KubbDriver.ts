@@ -393,9 +393,9 @@ export class KubbDriver {
           if (cache && cacheKey) {
             const snapshot = await cache.restore({ key: cacheKey })
             if (snapshot) {
-              // Hit: write cached sources straight to storage, skipping the generator loop and the
-              // FileProcessor AST->source pass. Only `kubb:build:end` is emitted — reporters key off
-              // it, and not re-running plugins/middleware is the whole point of the cache.
+              // Cache hit: write the cached sources straight to storage and skip both the generator
+              // loop and the FileProcessor render pass. Only `kubb:build:end` fires, which is what
+              // reporters listen for. Skipping the plugins is the whole point.
               for (const [relativePath, source] of Object.entries(snapshot.files)) {
                 const absolutePath = join(outputRoot, relativePath)
                 this.fileManager.upsert(createFile({ path: absolutePath, baseName: basename(relativePath) as `${string}.${string}` }))

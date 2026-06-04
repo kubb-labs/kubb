@@ -2,8 +2,8 @@ import { type CachedSnapshot, createCache } from '../createCache.ts'
 
 /**
  * In-memory cache backed by a `Map`. Snapshots live only for the lifetime of the
- * process, so it never speeds up a real cold start — it exists for tests and for
- * reusing snapshots within a single long-running watch session.
+ * process, so it never speeds up a real cold start. It exists for tests and for
+ * reusing snapshots within a single watch session.
  *
  * @example
  * ```ts

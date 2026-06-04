@@ -3,8 +3,8 @@
  * file, keyed by its path relative to the output root. Restoring a snapshot writes
  * those sources straight to storage, skipping generation entirely.
  *
- * Paths are relative (not absolute) so a snapshot persisted on one machine — or in
- * CI — restores correctly on another with a different checkout root.
+ * Paths are relative, not absolute, so the snapshot never depends on where the
+ * project lives on disk.
  */
 export type CachedSnapshot = {
   /**
@@ -28,8 +28,8 @@ export type Cache = {
    */
   readonly name: string
   /**
-   * Returns the snapshot stored under `key`, or `null` on a miss. A backend must
-   * never throw on a miss or a transient failure — return `null` so the build falls
+   * Returns the snapshot stored under `key`, or `null` on a miss. A backend never
+   * throws on a miss or a transient failure. It returns `null` so the build falls
    * through to regeneration.
    */
   restore(params: { key: string }): Promise<CachedSnapshot | null>
@@ -47,7 +47,7 @@ export type Cache = {
 
 /**
  * Defines a custom cache backend. The builder receives user options and returns a
- * {@link Cache}. Reach for this when the filesystem backend doesn't fit — for
+ * {@link Cache}. Reach for this when the filesystem backend doesn't fit, for
  * example to store snapshots in Redis or a database.
  *
  * @example In-memory cache (the built-in implementation)

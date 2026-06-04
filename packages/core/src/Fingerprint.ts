@@ -6,10 +6,9 @@ import type { AdapterSource } from './createAdapter.ts'
 import type { Config } from './createKubb.ts'
 
 /**
- * Computes the machine-portable cache key for an incremental build. All methods are static, so
- * call them as `Fingerprint.compute(...)` and `Fingerprint.stableStringify(...)`. The key never
- * contains absolute paths or modification times, so a snapshot persisted on one machine (or in CI)
- * restores on another with a different checkout root.
+ * Computes the cache key for an incremental build. All methods are static, so call them as
+ * `Fingerprint.compute(...)` and `Fingerprint.stableStringify(...)`. The key holds no absolute
+ * paths or modification times, so it never depends on where the project lives on disk.
  */
 export class Fingerprint {
   /**
@@ -77,8 +76,8 @@ export class Fingerprint {
   }
 
   /**
-   * Reads the spec content that feeds the fingerprint. Returns `null` when any source is a remote
-   * URL, since hashing remote content would require fetching it, so those inputs disable caching.
+   * Reads the spec content that feeds the fingerprint. Returns `null` for a remote URL source.
+   * Hashing remote content would mean fetching it on every run, so URL inputs skip the cache.
    */
   static async #readSpec(source: AdapterSource, root: string): Promise<unknown> {
     if (source.type === 'data') {

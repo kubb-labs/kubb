@@ -36,8 +36,8 @@ function blobName(relativePath: string): string {
 }
 
 /**
- * Local filesystem cache. Stores each build snapshot as a set of content blobs plus
- * an index, tracked by a manifest under `node_modules/.cache/kubb/` (the Nx/Vitest
+ * Local filesystem cache. Stores each build snapshot as content blobs plus an index,
+ * tracked by a manifest under `node_modules/.cache/kubb/` (the Nx and Vitest
  * convention). Least-recently-used and expired entries are pruned on every persist.
  *
  * @example

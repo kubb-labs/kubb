@@ -237,7 +237,7 @@ export type Config<TInput = Input> = {
   /**
    * Incremental build cache. When set, Kubb fingerprints the inputs (spec content, config, plugin
    * options, versions) and, on an unchanged "hot" run, restores the previously generated output
-   * instead of regenerating it — like Nx's computation cache.
+   * instead of regenerating it, the same idea behind Nx's computation cache.
    *
    * Off by default. Opt in with `fsCache()` (local disk) from `@kubb/core`.
    *
