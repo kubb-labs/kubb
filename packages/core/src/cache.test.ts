@@ -2,8 +2,7 @@ import type { SchemaNode } from '@kubb/ast'
 import { createFile, createSchema, createSource, createText } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, type Mock, vi } from 'vitest'
-import { memoryCache as partialMemoryCache } from './caches/memoryCache.ts'
-import type { Cache, CachedSnapshot } from './createCache.ts'
+import type { Cache, CachedSnapshot, NodeManifest } from './createCache.ts'
 import { createKubb } from './createKubb.ts'
 import { definePlugin } from './definePlugin.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
@@ -17,6 +16,27 @@ function memoryCache(): Cache {
     persist: vi.fn(async ({ key, snapshot }: { key: string; snapshot: CachedSnapshot }) => {
       store.set(key, snapshot)
     }),
+  }
+}
+
+// A memory cache that also keeps the per-node manifest, so partial rebuilds engage.
+function partialMemoryCache(): Cache {
+  const store = new Map<string, CachedSnapshot>()
+  const manifests = new Map<string, NodeManifest>()
+  return {
+    name: 'test',
+    async restore({ key }) {
+      return store.get(key) ?? null
+    },
+    async persist({ key, snapshot }) {
+      store.set(key, snapshot)
+    },
+    async restoreManifest({ configKey }) {
+      return manifests.get(configKey) ?? null
+    },
+    async persistManifest({ configKey, manifest }) {
+      manifests.set(configKey, manifest)
+    },
   }
 }
 

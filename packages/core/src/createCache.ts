@@ -56,8 +56,8 @@ export type NodeManifest = {
 /**
  * Backend that stores build snapshots for incremental ("hot") rebuilds. When the
  * input fingerprint matches a stored key, Kubb restores the snapshot instead of
- * regenerating. Kubb ships with `fsCache` (local disk) and `memoryCache`. Implement
- * this interface to back the cache with any other store.
+ * regenerating. Kubb ships with `fsCache` (local disk). Implement this interface to
+ * back the cache with any other store.
  *
  * @see {@link createCache} to build a custom backend.
  */

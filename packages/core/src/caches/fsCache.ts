@@ -55,6 +55,7 @@ export const fsCache = createCache((options: FsCacheOptions = {}) => {
   const ttlDays = options.ttlDays ?? 7
   const blobsDir = join(dir, 'blobs')
   const manifestsDir = join(dir, 'manifests')
+  const manifestPath = join(dir, 'manifest.json')
 
   return {
     name: 'fs',
@@ -73,7 +74,7 @@ export const fsCache = createCache((options: FsCacheOptions = {}) => {
         }
 
         entry.lastAccess = Date.now()
-        await Manifest.write(dir, manifest).catch(() => {})
+        await Manifest.write(manifestPath, JSON.stringify(manifest)).catch(() => {})
 
         return { files }
       } catch {
@@ -87,10 +88,10 @@ export const fsCache = createCache((options: FsCacheOptions = {}) => {
       const index: IndexFile = []
       for (const [path, source] of Object.entries(snapshot.files)) {
         const blob = blobName(path)
-        await Manifest.writeFileAtomic(join(entryDir, blob), source)
+        await Manifest.write(join(entryDir, blob), source)
         index.push({ path, blob })
       }
-      await Manifest.writeFileAtomic(join(entryDir, 'index.json'), JSON.stringify(index))
+      await Manifest.write(join(entryDir, 'index.json'), JSON.stringify(index))
 
       const manifest = await Manifest.read(dir)
       const now = Date.now()
@@ -98,7 +99,7 @@ export const fsCache = createCache((options: FsCacheOptions = {}) => {
 
       const pruned = Manifest.prune(manifest, { maxEntries, ttlDays, now })
       await Promise.all(pruned.removed.map((removedKey) => rm(join(blobsDir, removedKey), { recursive: true, force: true })))
-      await Manifest.write(dir, pruned.manifest)
+      await Manifest.write(manifestPath, JSON.stringify(pruned.manifest))
     },
     async restoreManifest({ configKey }: { configKey: string }): Promise<NodeManifest | null> {
       try {
@@ -108,7 +109,7 @@ export const fsCache = createCache((options: FsCacheOptions = {}) => {
       }
     },
     async persistManifest({ configKey, manifest }: { configKey: string; manifest: NodeManifest }) {
-      await Manifest.writeFileAtomic(join(manifestsDir, `${configKey}.json`), JSON.stringify(manifest))
+      await Manifest.write(join(manifestsDir, `${configKey}.json`), JSON.stringify(manifest))
     },
   }
 })

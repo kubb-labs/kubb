@@ -21,7 +21,7 @@ export type ManifestData = {
 
 /**
  * Reads, writes, and prunes the local cache manifest. All methods are static, so call them as
- * `Manifest.read(dir)`, `Manifest.write(dir, data)`, and `Manifest.prune(data, ...)`. A damaged
+ * `Manifest.read(dir)`, `Manifest.write(file, data)`, and `Manifest.prune(data, ...)`. A damaged
  * manifest reads as empty so the cache degrades to misses instead of throwing.
  */
 export class Manifest {
@@ -48,17 +48,10 @@ export class Manifest {
   }
 
   /**
-   * Persists the manifest to `dir/manifest.json` atomically.
-   */
-  static async write(dir: string, manifest: ManifestData): Promise<void> {
-    await Manifest.writeFileAtomic(join(dir, 'manifest.json'), JSON.stringify(manifest))
-  }
-
-  /**
    * Writes `file` atomically: contents go to a unique temp file in the same directory, then a
    * rename swaps it into place so a concurrent reader never sees a half-written file.
    */
-  static async writeFileAtomic(file: string, data: string | Uint8Array): Promise<void> {
+  static async write(file: string, data: string | Uint8Array): Promise<void> {
     await mkdir(dirname(file), { recursive: true })
     const tmp = `${file}.${randomBytes(6).toString('hex')}.tmp`
     await writeFile(tmp, data)
