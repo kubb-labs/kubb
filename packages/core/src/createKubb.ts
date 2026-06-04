@@ -237,20 +237,15 @@ export type Config<TInput = Input> = {
   /**
    * Incremental build cache. When set, Kubb fingerprints the inputs (spec content, config, plugin
    * options, versions) and, on an unchanged "hot" run, restores the previously generated output
-   * instead of regenerating it — like Nx's computation cache or Turborepo's remote cache.
+   * instead of regenerating it — like Nx's computation cache.
    *
-   * Off by default. Opt in with `fsCache()` (local disk), `turboCache()` (Turborepo Remote Cache),
-   * or `tieredCache([...])` (local + remote) from `@kubb/cache`.
+   * Off by default. Opt in with `fsCache()` (local disk) from `@kubb/cache`.
    *
    * @example
    * ```ts
-   * import { fsCache, turboCache, tieredCache } from '@kubb/cache'
+   * import { fsCache } from '@kubb/cache'
    *
-   * // Local-only
    * cache: fsCache()
-   *
-   * // Shared local + remote (fast local hits, shared remote hits)
-   * cache: tieredCache([fsCache(), turboCache()])
    * ```
    *
    * @see {@link Cache} interface for implementing custom backends.

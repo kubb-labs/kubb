@@ -17,15 +17,14 @@ export type CachedSnapshot = {
 /**
  * Backend that stores build snapshots for incremental ("hot") rebuilds. When the
  * input fingerprint matches a stored key, Kubb restores the snapshot instead of
- * regenerating. Kubb ships with `fsCache` (local disk), `turboCache` (Turborepo
- * Remote Cache), `tieredCache` (local + remote), and `memoryCache`. Implement this
- * interface to back the cache with any other store.
+ * regenerating. Kubb ships with `fsCache` (local disk) and `memoryCache`. Implement
+ * this interface to back the cache with any other store.
  *
  * @see {@link createCache} to build a custom backend.
  */
 export type Cache = {
   /**
-   * Identifier used in logs and diagnostics (`'fs'`, `'turbo'`, `'memory'`).
+   * Identifier used in logs and diagnostics (`'fs'`, `'memory'`).
    */
   readonly name: string
   /**
@@ -48,8 +47,8 @@ export type Cache = {
 
 /**
  * Defines a custom cache backend. The builder receives user options and returns a
- * {@link Cache}. Reach for this when neither the filesystem nor the Turborepo
- * backend fits — for example to store snapshots in Redis or a database.
+ * {@link Cache}. Reach for this when the filesystem backend doesn't fit — for
+ * example to store snapshots in Redis or a database.
  *
  * @example In-memory cache (the built-in implementation)
  * ```ts

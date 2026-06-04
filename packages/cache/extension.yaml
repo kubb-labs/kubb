@@ -2,7 +2,7 @@ $schema: https://kubb.dev/schemas/extension.json
 kind: cache
 id: cache
 name: Cache
-description: Incremental build cache for Kubb. Skips regeneration on unchanged inputs by fingerprinting the spec, config, and plugin options, with local, Turborepo Remote Cache, and tiered backends.
+description: Incremental build cache for Kubb. Skips regeneration on unchanged inputs by fingerprinting the spec, config, and plugin options, storing each build's output on local disk.
 category: build
 type: official
 npmPackage: '@kubb/cache'
@@ -17,7 +17,6 @@ compatibility:
 tags:
   - cache
   - incremental
-  - turborepo
   - performance
 resources:
   documentation: https://kubb.dev/cache
@@ -28,7 +27,7 @@ intro: |-
   `@kubb/cache` makes a second ("hot") run near-instant when nothing changed. It fingerprints the
   inputs that shape generated code — the spec content, the resolved config, every plugin's options,
   and the running Kubb version — and on a match restores the previous output instead of regenerating
-  it, the same idea behind Nx's computation cache and Turborepo's remote cache.
+  it, the same idea behind Nx's computation cache.
 
   Set it through the `cache` option in `defineConfig`. It is opt-in: without a `cache` backend Kubb
   always regenerates. The fingerprint covers the spec and config only — plugins that read files or
@@ -42,22 +41,6 @@ options:
       Local filesystem cache. Stores each build snapshot as content blobs plus an index under a
       manifest in `node_modules/.cache/kubb`. Least-recently-used and expired entries are pruned on
       every persist.
-  - name: turboCache
-    type: '(options?: { url?: string; token?: string; teamId?: string; signatureKey?: string }) => Cache'
-    required: false
-    default: 'reads TURBO_API, TURBO_TOKEN, TURBO_TEAM, TURBO_REMOTE_CACHE_SIGNATURE_KEY'
-    description: |-
-      Remote cache that speaks the Turborepo Remote Cache HTTP API, so self-hosted Turborepo cache
-      servers and Vercel Remote Cache work as-is. Credentials default to the standard `TURBO_*`
-      environment variables and are never inlined. Network failures degrade to a miss (download) or a
-      warning (upload) and never fail the build.
-  - name: tieredCache
-    type: '(caches: Array<Cache>) => Cache'
-    required: false
-    description: |-
-      Combines caches fastest-to-slowest, e.g. `[fsCache(), turboCache()]`. Reads return the first
-      hit and back-fill the faster tiers; writes go to every tier. A failing tier never breaks the
-      build.
   - name: memoryCache
     type: '() => Cache'
     required: false
@@ -80,27 +63,7 @@ examples:
             cache: fsCache(),
             plugins: [],
           })
-  - name: Shared local + remote cache
-    files:
-      - name: kubb.config.ts
-        lang: typescript
-        twoslash: false
-        code: |-
-          import { defineConfig } from 'kubb'
-          import { fsCache, tieredCache, turboCache } from '@kubb/cache'
-
-          // TURBO_API / TURBO_TOKEN / TURBO_TEAM come from the environment.
-          export default defineConfig({
-            input: { path: './petStore.yaml' },
-            output: { path: './src/gen' },
-            cache: tieredCache([fsCache(), turboCache()]),
-            plugins: [],
-          })
 notes:
-  - type: tip
-    body: |-
-      Combine `fsCache` and `turboCache` with `tieredCache` so local runs hit the fast on-disk cache
-      while CI shares results through the remote cache.
   - type: note
     body: |-
       Caching is disabled automatically for remote URL inputs, since hashing remote content would

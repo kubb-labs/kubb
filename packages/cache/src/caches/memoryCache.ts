@@ -3,8 +3,7 @@ import { type Cache, type CachedSnapshot, createCache } from '@kubb/core'
 /**
  * In-memory cache backed by a `Map`. Snapshots live only for the lifetime of the
  * process, so it never speeds up a real cold start — it exists for tests and for
- * composing into {@link tieredCache} as a fast first tier during a long-running
- * watch session.
+ * reusing snapshots within a single long-running watch session.
  *
  * @example
  * ```ts

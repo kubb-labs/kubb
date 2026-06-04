@@ -4,7 +4,7 @@ import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast
 import type { FileNode, InputMeta, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { version as coreVersion } from '../package.json'
 import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
-import { Fingerprint } from './fingerprint.ts'
+import { Fingerprint } from './Fingerprint.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'

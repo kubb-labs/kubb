@@ -24,7 +24,7 @@
 
 ### Incremental build cache for Kubb
 
-Makes a second run near-instant when nothing changed. Kubb fingerprints the inputs that shape generated code, and on a match restores the previous output instead of regenerating it, the same idea behind Nx's computation cache and Turborepo's remote cache.
+Makes a second run near-instant when nothing changed. Kubb fingerprints the inputs that shape generated code, and on a match restores the previous output instead of regenerating it, the same idea behind Nx's computation cache.
 
 ## Installation
 
@@ -57,33 +57,16 @@ export default defineConfig({
 
 ## Backends
 
-| Backend       | Where snapshots live                                   |
-| ------------- | ------------------------------------------------------ |
-| `fsCache`     | Local disk under `node_modules/.cache/kubb`            |
-| `turboCache`  | A Turborepo Remote Cache server or Vercel Remote Cache |
-| `tieredCache` | A list of backends, fastest first                      |
-| `memoryCache` | The current process only (tests and watch sessions)    |
+| Backend       | Where snapshots live                                |
+| ------------- | --------------------------------------------------- |
+| `fsCache`     | Local disk under `node_modules/.cache/kubb`         |
+| `memoryCache` | The current process only (tests and watch sessions) |
 
-### Shared local and remote cache
-
-`tieredCache` reads the fastest backend first and falls back to the next, back-filling the faster ones on a remote hit. Writes go to every backend. Local runs hit the on-disk cache while CI shares results through the remote one.
-
-```typescript
-import { defineConfig } from 'kubb'
-import { fsCache, tieredCache, turboCache } from '@kubb/cache'
-
-export default defineConfig({
-  input: { path: './openapi.yaml' },
-  output: { path: './src/gen' },
-  cache: tieredCache([fsCache(), turboCache()]),
-})
-```
-
-`turboCache` speaks the Turborepo Remote Cache HTTP API, so a self-hosted Turborepo cache server or Vercel Remote Cache works without changes. It reads its credentials from `TURBO_API`, `TURBO_TOKEN`, `TURBO_TEAM`, and `TURBO_REMOTE_CACHE_SIGNATURE_KEY`, so no secrets live in the config. A failed download is treated as a miss and a failed upload logs a warning, so a flaky remote never fails the build.
+`fsCache` stores each build snapshot as content blobs plus an index, tracked by a manifest. Least-recently-used and expired entries are pruned on every persist, with `maxEntries` (default 50) and `ttlDays` (default 7) options.
 
 ## How it works
 
-The cache key is a SHA-256 hash of everything that affects the output: the spec content, the resolved config, every plugin's name and options, the running Kubb version, and a cache-format version. Paths in the key and the stored snapshot are relative, so a snapshot persisted in CI restores on a developer machine with a different checkout root.
+The cache key is a SHA-256 hash of everything that affects the output: the spec content, the resolved config, every plugin's name and options, the running Kubb version, and a cache-format version. Paths in the key and the stored snapshot are relative, so the cache never depends on where the project lives on disk.
 
 On a hit, Kubb writes the cached sources straight to the output and skips generation entirely. On a miss it builds as usual and stores the result for next time. Only successful builds are stored.
 

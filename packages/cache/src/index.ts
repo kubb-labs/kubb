@@ -1,5 +1,2 @@
-export { Artifact } from './artifact.ts'
 export { type FsCacheOptions, fsCache } from './caches/fsCache.ts'
 export { memoryCache } from './caches/memoryCache.ts'
-export { tieredCache } from './caches/tieredCache.ts'
-export { type TurboCacheOptions, turboCache } from './caches/turboCache.ts'

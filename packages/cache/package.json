@@ -1,13 +1,12 @@
 {
   "name": "@kubb/cache",
   "version": "5.0.0-beta.41",
-  "description": "Incremental build cache for Kubb. Skips regeneration on unchanged inputs by fingerprinting the spec, config, and plugin options — with local (fsCache), Turborepo Remote Cache (turboCache), and tiered backends.",
+  "description": "Incremental build cache for Kubb. Skips regeneration on unchanged inputs by fingerprinting the spec, config, and plugin options, storing each build's output on local disk.",
   "keywords": [
     "cache",
     "codegen",
     "incremental",
     "kubb",
-    "turborepo",
     "typescript"
   ],
   "license": "MIT",

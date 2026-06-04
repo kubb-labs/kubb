@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { mkdir, readFile, rm } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { type Cache, type CachedSnapshot, createCache } from '@kubb/core'
-import { Manifest } from '../manifest.ts'
+import { Manifest } from '../Manifest.ts'
 
 /**
  * Options for {@link fsCache}.
