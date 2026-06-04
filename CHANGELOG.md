@@ -1,5 +1,40 @@
 # Changelog
 
+## v5.0.0-beta.42 — Jun 4, 2026
+
+### @kubb/core
+
+#### Features
+
+- Add an opt-in incremental build cache.
+  
+  Kubb now fingerprints the inputs that shape generated code (the spec content, the resolved config, every plugin's options, and the running version) and, when nothing changed, restores the previous output instead of regenerating it. A second run becomes near-instant, the same idea behind Nx's computation cache.
+  
+  `defineConfig` turns this on by default with `fsCache()` (local disk under `node_modules/.cache/kubb`). Set `cache: false` to turn it off, or pass another backend through the new `cache` option, which mirrors the existing `storage` option. `@kubb/core` ships the `fsCache()` backend, plus the `Cache` type and `createCache` factory for custom ones. A bare `createKubb` leaves caching off unless a cache is passed.
+  
+  ```ts
+  import { defineConfig } from 'kubb'
+  
+  export default defineConfig({
+    input: { path: './petStore.yaml' },
+    output: { path: './src/gen' },
+    // cache: fsCache() is applied by default; set `cache: false` to turn it off.
+  })
+  ``` ([#3469](https://github.com/kubb-labs/kubb/pull/3469), [`eeab54b`](https://github.com/kubb-labs/kubb/commit/eeab54b2823a5e591c9ec2b05cb31abf32f37cb2))
+- Run Kubb natively on Bun while keeping full Node support.
+  
+  Runtime detection is now centralized, so the filesystem helpers reach for `Bun.file` and `Bun.write` under Bun and fall back to `node:fs` everywhere else. The default `fsStorage` scans the output directory with `Bun.Glob` under Bun instead of a recursive `readdir` walk. The `kubb agent` command launches its server with the same runtime that started the CLI (via `process.execPath`) instead of always shelling out to `node`, so a Bun-only environment no longer needs a `node` binary on the PATH. Anonymous telemetry also records which runtime ran the generation (`bun`, `deno`, or `node`) alongside its version. ([#3470](https://github.com/kubb-labs/kubb/pull/3470), [`1ca92f6`](https://github.com/kubb-labs/kubb/commit/1ca92f64a3cd32d62d5f5d88940402488705fd48))
+
+#### Bug Fixes
+
+- Adopt native Node 22 / ES2024 features: order plugins through `Set`-based dependency lookups in `KubbDriver`, and replace `Promise` resolver boilerplate with `Promise.withResolvers()`. The shared TypeScript config moves to an ES2024 target with the ES2025 collection and iterator libraries to match the Node 22 baseline. ([#3473](https://github.com/kubb-labs/kubb/pull/3473), [`50615f4`](https://github.com/kubb-labs/kubb/commit/50615f4f0f745191e1505938345dac765dce7b0b))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.41 — Jun 3, 2026
 
 ### @kubb/cli
