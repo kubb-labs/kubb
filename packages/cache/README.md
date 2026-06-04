@@ -57,12 +57,12 @@ export default defineConfig({
 
 ## Backends
 
-| Backend        | Where snapshots live                                      |
-| -------------- | --------------------------------------------------------- |
-| `fsCache`      | Local disk under `node_modules/.cache/kubb`               |
-| `turboCache`   | A Turborepo Remote Cache server or Vercel Remote Cache    |
-| `tieredCache`  | A list of backends, fastest first                         |
-| `memoryCache`  | The current process only (tests and watch sessions)       |
+| Backend       | Where snapshots live                                   |
+| ------------- | ------------------------------------------------------ |
+| `fsCache`     | Local disk under `node_modules/.cache/kubb`            |
+| `turboCache`  | A Turborepo Remote Cache server or Vercel Remote Cache |
+| `tieredCache` | A list of backends, fastest first                      |
+| `memoryCache` | The current process only (tests and watch sessions)    |
 
 ### Shared local and remote cache
 

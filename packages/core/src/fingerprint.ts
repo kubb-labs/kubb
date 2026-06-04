@@ -52,9 +52,7 @@ async function readSpec(source: AdapterSource, root: string): Promise<unknown> {
   if (paths.some((path) => new URLPath(path).isURL)) {
     return null
   }
-  const contents = await Promise.all(
-    paths.map(async (path) => ({ path: relative(root, path), content: await readFile(path, 'utf8') })),
-  )
+  const contents = await Promise.all(paths.map(async (path) => ({ path: relative(root, path), content: await readFile(path, 'utf8') })))
   return { kind: 'path', contents }
 }
 

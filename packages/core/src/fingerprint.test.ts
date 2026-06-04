@@ -40,8 +40,16 @@ describe('computeFingerprint', () => {
   })
 
   it('changes when plugin options change', async () => {
-    const a = await computeFingerprint({ config: makeConfig({ plugins: [{ name: 'p', options: { x: 1 } }] as unknown as Config['plugins'] }), adapterSource: dataSource, version })
-    const b = await computeFingerprint({ config: makeConfig({ plugins: [{ name: 'p', options: { x: 2 } }] as unknown as Config['plugins'] }), adapterSource: dataSource, version })
+    const a = await computeFingerprint({
+      config: makeConfig({ plugins: [{ name: 'p', options: { x: 1 } }] as unknown as Config['plugins'] }),
+      adapterSource: dataSource,
+      version,
+    })
+    const b = await computeFingerprint({
+      config: makeConfig({ plugins: [{ name: 'p', options: { x: 2 } }] as unknown as Config['plugins'] }),
+      adapterSource: dataSource,
+      version,
+    })
     expect(a).not.toBe(b)
   })
 
@@ -59,8 +67,16 @@ describe('computeFingerprint', () => {
   })
 
   it('changes when parser names change', async () => {
-    const a = await computeFingerprint({ config: makeConfig({ parsers: [{ name: 'ts' }] as unknown as Config['parsers'] }), adapterSource: dataSource, version })
-    const b = await computeFingerprint({ config: makeConfig({ parsers: [{ name: 'md' }] as unknown as Config['parsers'] }), adapterSource: dataSource, version })
+    const a = await computeFingerprint({
+      config: makeConfig({ parsers: [{ name: 'ts' }] as unknown as Config['parsers'] }),
+      adapterSource: dataSource,
+      version,
+    })
+    const b = await computeFingerprint({
+      config: makeConfig({ parsers: [{ name: 'md' }] as unknown as Config['parsers'] }),
+      adapterSource: dataSource,
+      version,
+    })
     expect(a).not.toBe(b)
   })
 

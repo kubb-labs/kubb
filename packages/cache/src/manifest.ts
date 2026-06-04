@@ -66,7 +66,10 @@ export async function writeManifest(dir: string, manifest: Manifest): Promise<vo
  * Returns the surviving manifest plus the evicted keys (the caller deletes their blobs).
  * Pure — does no IO.
  */
-export function prune(manifest: Manifest, { maxEntries, ttlDays, now }: { maxEntries: number; ttlDays: number; now: number }): {
+export function prune(
+  manifest: Manifest,
+  { maxEntries, ttlDays, now }: { maxEntries: number; ttlDays: number; now: number },
+): {
   manifest: Manifest
   removed: Array<string>
 } {

@@ -25,7 +25,10 @@ describe('turboCache', () => {
   })
 
   it('treats a 404 as a miss', async () => {
-    vi.stubGlobal('fetch', vi.fn<FetchFn>(async () => new Response(null, { status: 404 })))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn<FetchFn>(async () => new Response(null, { status: 404 })),
+    )
     expect(await turboCache({ url: 'https://cache.example.com' }).restore({ key: 'x' })).toBeNull()
   })
 

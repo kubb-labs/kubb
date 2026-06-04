@@ -4,8 +4,8 @@
   "description": "Incremental build cache for Kubb. Skips regeneration on unchanged inputs by fingerprinting the spec, config, and plugin options — with local (fsCache), Turborepo Remote Cache (turboCache), and tiered backends.",
   "keywords": [
     "cache",
-    "incremental",
     "codegen",
+    "incremental",
     "kubb",
     "turborepo",
     "typescript"

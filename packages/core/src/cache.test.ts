@@ -57,7 +57,12 @@ function makeConfig({ storage, cache, schemaSpy }: { storage: Storage; cache: Ca
     parsers: [],
     reporters: [],
     adapter: createMockedAdapter({
-      parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [], enumNames: [] }, schemas: [createSchema({ name: 'Pet', type: 'string' })], operations: [] }),
+      parse: async () => ({
+        kind: 'Input' as const,
+        meta: { circularNames: [], enumNames: [] },
+        schemas: [createSchema({ name: 'Pet', type: 'string' })],
+        operations: [],
+      }),
     }),
     plugins: [plugin] as unknown as Array<Plugin>,
     storage,
@@ -122,7 +127,12 @@ describe('incremental build cache', () => {
       parsers: [],
       reporters: [],
       adapter: createMockedAdapter({
-        parse: async () => ({ kind: 'Input' as const, meta: { circularNames: [], enumNames: [] }, schemas: [createSchema({ name: 'Pet', type: 'string' })], operations: [] }),
+        parse: async () => ({
+          kind: 'Input' as const,
+          meta: { circularNames: [], enumNames: [] },
+          schemas: [createSchema({ name: 'Pet', type: 'string' })],
+          operations: [],
+        }),
       }),
       plugins: [plugin] as unknown as Array<Plugin>,
       storage: memoryStorage(),
