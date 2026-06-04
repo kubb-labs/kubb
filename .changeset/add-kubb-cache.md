@@ -18,3 +18,5 @@ export default defineConfig({
   cache: fsCache(),
 })
 ```
+
+When the spec changes, the cache also rebuilds incrementally: it fingerprints each schema and operation, then regenerates only the ones that changed (and their dependents) while replaying the rest from the previous run. This applies when a node maps to its own file; single-file and grouped output fall back to a full rebuild.
