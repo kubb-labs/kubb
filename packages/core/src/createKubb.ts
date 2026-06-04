@@ -5,6 +5,7 @@ import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import { HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic, type UpdateDiagnostic } from './diagnostics.ts'
+import type { Cache } from './createCache.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import type { Middleware } from './defineMiddleware.ts'
@@ -233,6 +234,28 @@ export type Config<TInput = Input> = {
    * @see {@link Storage} interface for implementing custom backends.
    */
   storage: Storage
+  /**
+   * Incremental build cache. When set, Kubb fingerprints the inputs (spec content, config, plugin
+   * options, versions) and, on an unchanged "hot" run, restores the previously generated output
+   * instead of regenerating it — like Nx's computation cache or Turborepo's remote cache.
+   *
+   * Off by default. Opt in with `fsCache()` (local disk), `turboCache()` (Turborepo Remote Cache),
+   * or `tieredCache([...])` (local + remote) from `@kubb/cache`.
+   *
+   * @example
+   * ```ts
+   * import { fsCache, turboCache, tieredCache } from '@kubb/cache'
+   *
+   * // Local-only
+   * cache: fsCache()
+   *
+   * // Shared local + remote (fast local hits, shared remote hits)
+   * cache: tieredCache([fsCache(), turboCache()])
+   * ```
+   *
+   * @see {@link Cache} interface for implementing custom backends.
+   */
+  cache?: Cache
   /**
    * Plugins that run during the build to generate code and transform the AST. Each one processes
    * the adapter's AST and can emit files for a different target (TypeScript, Zod, Faker). A plugin

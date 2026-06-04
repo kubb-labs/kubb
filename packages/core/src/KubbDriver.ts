@@ -1,8 +1,10 @@
-import { resolve } from 'node:path'
+import { basename, join, relative, resolve } from 'node:path'
 import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs, isPromise, memoize, URLPath } from '@internals/utils'
 import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast'
 import type { FileNode, InputMeta, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
+import { version as coreVersion } from '../package.json'
 import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
+import { computeFingerprint } from './fingerprint.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
@@ -352,8 +354,12 @@ export class KubbDriver {
       await hooks.emit('kubb:files:processing:start', { files })
     })
     const updateBuffer: Array<{ file: FileNode; source?: string; processed: number; total: number; percentage: number }> = []
+    // Final rendered source per output path, captured for the cache snapshot on a miss. Barrel
+    // files flow through here too, after the second `drain()`.
+    const snapshotSources = new Map<string, string>()
     processor.hooks.on('update', (item) => {
       updateBuffer.push(item)
+      if (item.source !== undefined) snapshotSources.set(item.file.path, item.source)
     })
     processor.hooks.on('end', async (files) => {
       await hooks.emit('kubb:files:processing:update', {
@@ -379,6 +385,26 @@ export class KubbDriver {
           // Each call writes into `this.#transforms`, which `#runGenerators` later reads through
           // `transforms.applyTo`.
           await this.emitSetupHooks()
+
+          const cache = config.cache
+          const outputRoot = resolve(config.root, config.output.path)
+          const cacheKey = cache ? await computeFingerprint({ config, adapterSource: this.#adapterSource, version: coreVersion }) : null
+
+          if (cache && cacheKey) {
+            const snapshot = await cache.restore({ key: cacheKey })
+            if (snapshot) {
+              // Hit: write cached sources straight to storage, skipping the generator loop and the
+              // FileProcessor AST->source pass. Only `kubb:build:end` is emitted — reporters key off
+              // it, and not re-running plugins/middleware is the whole point of the cache.
+              for (const [relativePath, source] of Object.entries(snapshot.files)) {
+                const absolutePath = join(outputRoot, relativePath)
+                this.fileManager.upsert(createFile({ path: absolutePath, baseName: basename(relativePath) as `${string}.${string}` }))
+                await storage.setItem(absolutePath, source)
+              }
+              await hooks.emit('kubb:build:end', { files: this.fileManager.files, config, outputDir: outputRoot })
+              return { diagnostics: Diagnostics.dedupe(diagnostics) }
+            }
+          }
 
           if (this.adapter && this.inputNode) {
             await hooks.emit(
@@ -431,7 +457,15 @@ export class KubbDriver {
           // Plugins-end listeners (barrel middleware etc.) may have queued more files.
           await processor.drain()
 
-          await hooks.emit('kubb:build:end', { files: this.fileManager.files, config, outputDir: resolve(config.root, config.output.path) })
+          await hooks.emit('kubb:build:end', { files: this.fileManager.files, config, outputDir: outputRoot })
+
+          if (cache && cacheKey && !Diagnostics.hasError(diagnostics)) {
+            const files: Record<string, string> = {}
+            for (const [absolutePath, source] of snapshotSources) {
+              files[relative(outputRoot, absolutePath)] = source
+            }
+            await cache.persist({ key: cacheKey, snapshot: { files } })
+          }
 
           return { diagnostics: Diagnostics.dedupe(diagnostics) }
         } catch (caughtError) {
