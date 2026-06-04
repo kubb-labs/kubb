@@ -177,7 +177,8 @@ describe('unpluginFactory', () => {
     await pluginOptions.buildStart?.call(createBuildContext())
 
     const resolveId = pluginOptions.resolveId
-    const resolved = typeof resolveId === 'function' ? await resolveId.call(createBuildContext(), 'kubb:component.tsx', undefined, { isEntry: false }) : 'not-a-function'
+    const resolved =
+      typeof resolveId === 'function' ? await resolveId.call(createBuildContext(), 'kubb:component.tsx', undefined, { isEntry: false }) : 'not-a-function'
     expect(resolved).toBeNull()
   })
 
