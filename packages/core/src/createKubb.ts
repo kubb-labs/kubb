@@ -235,17 +235,21 @@ export type Config<TInput = Input> = {
    */
   storage: Storage
   /**
-   * Incremental build cache. When set, Kubb fingerprints the inputs (spec content, config, plugin
-   * options, versions) and, on an unchanged "hot" run, restores the previously generated output
-   * instead of regenerating it, the same idea behind Nx's computation cache.
+   * Incremental build cache. Kubb fingerprints the inputs (spec content, config, plugin options,
+   * versions) and, on an unchanged "hot" run, restores the previously generated output instead of
+   * regenerating it. When only part of the spec changes, it regenerates just the affected schemas
+   * and operations. Same idea as Nx's computation cache.
    *
-   * Off by default. Opt in with `fsCache()` (local disk) from `@kubb/core`.
+   * `defineConfig` enables `fsCache()` (local disk under `node_modules/.cache/kubb`) by default.
+   * Pass another backend to change where snapshots live, or `false` to turn caching off. A bare
+   * `createKubb` leaves it off unless a cache is provided.
    *
    * @example
    * ```ts
    * import { fsCache } from '@kubb/core'
    *
-   * cache: fsCache()
+   * cache: fsCache({ dir: '.kubb-cache' })
+   * cache: false
    * ```
    *
    * @see {@link Cache} interface for implementing custom backends.
@@ -354,7 +358,12 @@ export type Config<TInput = Input> = {
  * })
  * ```
  */
-export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins' | 'parsers' | 'adapter' | 'storage' | 'reporters'> & {
+export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins' | 'parsers' | 'adapter' | 'storage' | 'reporters' | 'cache'> & {
+  /**
+   * Incremental build cache. Defaults to `fsCache()` (local disk). Pass another {@link Cache}
+   * backend, or `false` to turn caching off.
+   */
+  cache?: Cache | false
   /**
    * Project root directory, absolute or relative to the config file location.
    * @default process.cwd()
@@ -905,6 +914,9 @@ function resolveConfig(userConfig: UserConfig): Config {
       ...userConfig.output,
     },
     storage: userConfig.storage ?? fsStorage(),
+    // Resolve `false` to "no cache". The default `fsCache()` is applied by `defineConfig`, not here,
+    // so a raw `createKubb` stays deterministic (no surprise on-disk cache) unless a cache is passed.
+    cache: userConfig.cache === false ? undefined : userConfig.cache,
     reporters: userConfig.reporters ?? [],
     plugins: userConfig.plugins ?? [],
   }

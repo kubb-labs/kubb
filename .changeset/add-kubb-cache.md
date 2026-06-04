@@ -6,16 +6,15 @@ Add an opt-in incremental build cache.
 
 Kubb now fingerprints the inputs that shape generated code (the spec content, the resolved config, every plugin's options, and the running version) and, when nothing changed, restores the previous output instead of regenerating it. A second run becomes near-instant, the same idea behind Nx's computation cache.
 
-Enable it through the new `cache` option in `defineConfig`, which mirrors the existing `storage` option. `@kubb/core` ships the `fsCache()` (local disk) and `memoryCache()` backends, plus the `Cache` type and `createCache` factory for custom ones.
+`defineConfig` turns this on by default with `fsCache()` (local disk under `node_modules/.cache/kubb`). Set `cache: false` to turn it off, or pass another backend through the new `cache` option, which mirrors the existing `storage` option. `@kubb/core` ships the `fsCache()` and `memoryCache()` backends, plus the `Cache` type and `createCache` factory for custom ones. A bare `createKubb` leaves caching off unless a cache is passed.
 
 ```ts
 import { defineConfig } from 'kubb'
-import { fsCache } from '@kubb/core'
 
 export default defineConfig({
   input: { path: './petStore.yaml' },
   output: { path: './src/gen' },
-  cache: fsCache(),
+  // cache: fsCache() is applied by default; set `cache: false` to turn it off.
 })
 ```
 

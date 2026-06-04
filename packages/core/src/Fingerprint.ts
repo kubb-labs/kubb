@@ -91,8 +91,9 @@ export class Fingerprint {
   }
 
   /**
-   * Reads the spec content that feeds the fingerprint. Returns `null` for a remote URL source.
-   * Hashing remote content would mean fetching it on every run, so URL inputs skip the cache.
+   * Reads the spec content that feeds the fingerprint. Returns `null` for a remote URL source
+   * (hashing remote content would mean fetching it on every run) or when a file can't be read, so a
+   * missing or virtual spec disables caching instead of failing the build.
    */
   static async #readSpec(source: AdapterSource, root: string): Promise<unknown> {
     if (source.type === 'data') {
@@ -102,7 +103,11 @@ export class Fingerprint {
     if (paths.some((path) => new URLPath(path).isURL)) {
       return null
     }
-    const contents = await Promise.all(paths.map(async (path) => ({ path: relative(root, path), content: await readFile(path, 'utf8') })))
-    return { kind: 'path', contents }
+    try {
+      const contents = await Promise.all(paths.map(async (path) => ({ path: relative(root, path), content: await readFile(path, 'utf8') })))
+      return { kind: 'path', contents }
+    } catch {
+      return null
+    }
   }
 }
