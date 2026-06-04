@@ -1,4 +1,4 @@
-import { type Cache, type CachedSnapshot, createCache } from '@kubb/core'
+import { type CachedSnapshot, createCache } from '@kubb/core'
 
 /**
  * In-memory cache backed by a `Map`. Snapshots live only for the lifetime of the
@@ -14,7 +14,7 @@ import { type Cache, type CachedSnapshot, createCache } from '@kubb/core'
  * })
  * ```
  */
-export const memoryCache: () => Cache = createCache(() => {
+export const memoryCache = createCache(() => {
   const store = new Map<string, CachedSnapshot>()
 
   return {

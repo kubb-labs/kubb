@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { mkdir, readFile, rm } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
-import { type Cache, type CachedSnapshot, createCache } from '@kubb/core'
+import { type CachedSnapshot, createCache } from '@kubb/core'
 import { Manifest } from '../Manifest.ts'
 
 /**
@@ -49,7 +49,7 @@ function blobName(relativePath: string): string {
  * })
  * ```
  */
-export const fsCache: (options?: FsCacheOptions) => Cache = createCache((options: FsCacheOptions = {}) => {
+export const fsCache = createCache((options: FsCacheOptions = {}) => {
   const dir = resolve(options.dir ?? join('node_modules', '.cache', 'kubb'))
   const maxEntries = options.maxEntries ?? 50
   const ttlDays = options.ttlDays ?? 7
