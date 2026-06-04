@@ -38,7 +38,6 @@ export { mergeAdjacentObjectsLazy, setDiscriminatorEnum, setEnumName, simplifyUn
 export type * from './types.ts'
 export {
   caseParams,
-  collectReferencedSchemaNames,
   collectUsedSchemaNames,
   containsCircularRef,
   createDiscriminantNode,

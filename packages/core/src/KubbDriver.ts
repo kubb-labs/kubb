@@ -1,14 +1,11 @@
 import { basename, join, relative, resolve } from 'node:path'
 import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs, isPromise, memoize, URLPath } from '@internals/utils'
-import { collectUsedSchemaNames, createFile, createSource, createStreamInput } from '@kubb/ast'
+import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast'
 import type { FileNode, InputMeta, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { version as coreVersion } from '../package.json'
 import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
 import { Fingerprint } from './Fingerprint.ts'
-import { NodeFingerprint } from './NodeFingerprint.ts'
-import { PartialCache } from './PartialCache.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
-import type { NodeManifestEntry } from './createCache.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -99,19 +96,6 @@ export class KubbDriver {
    * and `#runGenerators` reads it once per `(plugin, node)` pair through `applyTo`.
    */
   readonly #transforms = new Transform()
-
-  /**
-   * Placeholder FileNodes upserted when a node's output is replayed from the per-node cache. Their
-   * source is written to storage directly, so the FileProcessor must skip them (see `onFileUpsert`).
-   */
-  readonly #replayedPlaceholders = new WeakSet<FileNode>()
-
-  /**
-   * Per-node capture bridge for the partial cache. Keyed by the generator `ctx` object (unique per
-   * node, so it is concurrency-safe), it collects the files an event generator upserts so they can
-   * be attributed to the node that produced them.
-   */
-  readonly #captureByCtx = new WeakMap<object, Array<FileNode>>()
 
   constructor(config: Config, options: Options) {
     this.config = config
@@ -305,7 +289,7 @@ export class KubbDriver {
         if (ctx.plugin.name !== pluginName) return
         const result = await generator.schema!(node, ctx)
 
-        this.#capture(ctx, await this.dispatch({ result, renderer: generator.renderer }))
+        await this.dispatch({ result, renderer: generator.renderer })
       }
 
       this.#registry.register({ event: 'kubb:generate:schema', handler: schemaHandler, source: 'driver' })
@@ -316,7 +300,7 @@ export class KubbDriver {
         if (ctx.plugin.name !== pluginName) return
 
         const result = await generator.operation!(node, ctx)
-        this.#capture(ctx, await this.dispatch({ result, renderer: generator.renderer }))
+        await this.dispatch({ result, renderer: generator.renderer })
       }
 
       this.#registry.register({ event: 'kubb:generate:operation', handler: operationHandler, source: 'driver' })
@@ -326,7 +310,7 @@ export class KubbDriver {
       const operationsHandler = async (nodes: Array<OperationNode>, ctx: GeneratorContext) => {
         if (ctx.plugin.name !== pluginName) return
         const result = await generator.operations!(nodes, ctx)
-        this.#capture(ctx, await this.dispatch({ result, renderer: generator.renderer }))
+        await this.dispatch({ result, renderer: generator.renderer })
       }
 
       this.#registry.register({ event: 'kubb:generate:operations', handler: operationsHandler, source: 'driver' })
@@ -344,12 +328,6 @@ export class KubbDriver {
    */
   hasEventGenerators(pluginName: string): boolean {
     return this.#eventGeneratorPlugins.has(pluginName)
-  }
-
-  // Pushes the files an event generator upserted into the active per-node sink, if one is set.
-  #capture(ctx: object, files: Array<FileNode>): void {
-    if (files.length === 0) return
-    this.#captureByCtx.get(ctx)?.push(...files)
   }
 
   /**
@@ -391,9 +369,6 @@ export class KubbDriver {
       await hooks.emit('kubb:files:processing:end', { files })
     })
     const onFileUpsert = (file: FileNode): void => {
-      // Replayed placeholders carry no source nodes; their content is written to storage directly,
-      // so enqueueing them would render an empty file over the cached one.
-      if (this.#replayedPlaceholders.has(file)) return
       processor.enqueue(file)
     }
     this.fileManager.hooks.on('upsert', onFileUpsert)
@@ -407,7 +382,6 @@ export class KubbDriver {
           const cache = config.cache
           const outputRoot = resolve(config.root, config.output.path)
           const cacheKey = cache ? await Fingerprint.compute({ config, adapterSource: this.#adapterSource, version: coreVersion }) : null
-          const configKey = cache?.restoreManifest && cache?.persistManifest ? Fingerprint.computeConfigKey({ config, version: coreVersion }) : null
 
           if (cache && cacheKey) {
             const snapshot = await cache.restore({ key: cacheKey })
@@ -471,18 +445,10 @@ export class KubbDriver {
             await this.#emitPluginEnd({ plugin, duration, success: true })
           }
 
-          // Fetch the previous run's per-node manifest so unchanged schemas/operations can be
-          // replayed from cache instead of regenerated.
-          let partial: PartialCache | undefined
-          if (cache && configKey && cache.restoreManifest) {
-            const prev = await cache.restoreManifest({ configKey })
-            partial = new PartialCache({ prev: prev && prev.version === NodeFingerprint.version ? prev : null, outputRoot })
-          }
-
           // Stream every node through the transform registry and into each plugin's generators.
           // Handles the empty-entries and missing-`inputNode` cases by closing out each entry's
           // `kubb:plugin:end` directly.
-          diagnostics.push(...(await this.#runGenerators(generatorPlugins, () => processor.flush(), storage, partial)))
+          diagnostics.push(...(await this.#runGenerators(generatorPlugins, () => processor.flush())))
           // Wait for the last in-flight batch and write anything still pending.
           await processor.drain()
 
@@ -493,23 +459,12 @@ export class KubbDriver {
 
           await hooks.emit('kubb:build:end', { files: this.fileManager.files, config, outputDir: outputRoot })
 
-          // Replayed files don't pass through the FileProcessor, so fold their sources in to keep the
-          // whole-build snapshot complete for a later full hit.
-          if (partial) {
-            for (const [absolutePath, source] of partial.replayedSources()) snapshotSources.set(absolutePath, source)
-          }
-
           if (cache && cacheKey && !Diagnostics.hasError(diagnostics)) {
             const files: Record<string, string> = {}
             for (const [absolutePath, source] of snapshotSources) {
               files[relative(outputRoot, absolutePath)] = source
             }
             await cache.persist({ key: cacheKey, snapshot: { files } })
-          }
-
-          if (cache && configKey && cache.persistManifest && partial && !Diagnostics.hasError(diagnostics)) {
-            const manifest = partial.toManifest((relativePath) => snapshotSources.get(join(outputRoot, relativePath)))
-            await cache.persistManifest({ configKey, manifest })
           }
 
           return { diagnostics: Diagnostics.dedupe(diagnostics) }
@@ -563,8 +518,6 @@ export class KubbDriver {
   async #runGenerators(
     entries: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options'>; hrStart: ReturnType<typeof process.hrtime> }>,
     flushPending: () => Promise<void>,
-    storage: Storage,
-    partial?: PartialCache,
   ): Promise<Array<Diagnostic>> {
     const diagnostics: Array<Diagnostic> = []
 
@@ -622,9 +575,6 @@ export class KubbDriver {
     const operationsBuffer: Array<OperationNode> = []
     for await (const operation of operations) operationsBuffer.push(operation)
 
-    // Index named schemas so the per-node fingerprint can hash a node's transitive references.
-    partial?.indexSchemas(schemasBuffer)
-
     // Pre-scan: plugins with operation-based includes (but no schemaName include) need
     // the reachable schema set. This requires the full schema graph in memory at once,
     // since transitive reachability can't be derived from a single node.
@@ -678,12 +628,11 @@ export class KubbDriver {
         checkAllowedNames: boolean
         emit: ((node: TNode, ctx: GeneratorContext) => Promise<void> | void) | null
       },
-    ): Promise<Array<FileNode>> => {
-      if (state.failed) return []
-      const produced: Array<FileNode> = []
+    ): Promise<void> => {
+      if (state.failed) return
       try {
         const resolved = resolveForPlugin(state, node)
-        if (!resolved) return produced
+        if (!resolved) return
 
         const { transformedNode, options } = resolved
         if (
@@ -693,30 +642,23 @@ export class KubbDriver {
           transformedNode.name &&
           !state.allowedSchemaNames.has(transformedNode.name)
         ) {
-          return produced
+          return
         }
 
         const ctx = { ...state.generatorContext, options }
-        // Collect files from event generators (which run inside the `kubb:generate:*` handlers) for
-        // this node only; the ctx object is unique per node, so concurrent batches don't mix.
-        if (partial) this.#captureByCtx.set(ctx, produced)
-        try {
-          for (const gen of state.generators) {
-            const run = gen[dispatch.method] as ((node: TNode, ctx: GeneratorContext) => unknown) | undefined
-            if (!run) continue
-            const raw = run(transformedNode, ctx)
-            const result = isPromise(raw) ? await raw : raw
-            produced.push(...(await this.dispatch({ result, renderer: gen.renderer })))
-          }
-          if (dispatch.emit) await dispatch.emit(transformedNode, ctx)
-        } finally {
-          if (partial) this.#captureByCtx.delete(ctx)
+        for (const gen of state.generators) {
+          const run = gen[dispatch.method] as ((node: TNode, ctx: GeneratorContext) => unknown) | undefined
+          if (!run) continue
+          const raw = run(transformedNode, ctx)
+          const result = isPromise(raw) ? await raw : raw
+          const applied = this.dispatch({ result, renderer: gen.renderer })
+          if (isPromise(applied)) await applied
         }
+        if (dispatch.emit) await dispatch.emit(transformedNode, ctx)
       } catch (caughtError) {
         state.failed = true
         state.error = caughtError as Error
       }
-      return produced
     }
 
     const schemaDispatch = {
@@ -730,133 +672,47 @@ export class KubbDriver {
       emit: emitsOperationHook ? (node: OperationNode, ctx: GeneratorContext) => this.hooks.emit('kubb:generate:operation', node, ctx) : null,
     } as const
 
-    // Writes a reused node's cached files straight to storage and upserts barrel-only placeholders
-    // (no source nodes) so middleware still sees them. The placeholders are flagged so the
-    // FileProcessor skips them, leaving the directly-written source intact.
-    const replay = async (nodeId: string, entry: NodeManifestEntry): Promise<void> => {
-      for (const file of entry.files) {
-        const absolutePath = join(partial!.outputRoot, file.relPath)
-        await storage.setItem(absolutePath, file.source)
-        const placeholder = createFile({
-          path: absolutePath,
-          baseName: basename(file.relPath) as `${string}.${string}`,
-          sources: file.exports.map((source) => createSource({ name: source.name, isIndexable: source.isIndexable, isTypeOnly: source.isTypeOnly, nodes: [] })),
-        })
-        this.#replayedPlaceholders.add(placeholder)
-        this.fileManager.upsert(placeholder)
-      }
-      partial!.recordReused({ nodeId, entry })
-    }
-
-    const keyFor = (
-      state: PluginState,
-      kind: 'schema' | 'operation',
-      resolved: { transformedNode: SchemaNode | OperationNode; options: NormalizedPlugin['options'] },
-    ) => partial!.key({ pluginName: state.plugin.name, kind, node: resolved.transformedNode, options: resolved.options })
-
-    // Run one kind (schemas or operations) for a plugin. Without a cache this is the plain batched
-    // dispatch. With a cache it splits into reusable (replay) and changed (regenerate) nodes,
-    // regenerates first so their paths are recorded, then replays the still-exclusive ones.
-    const runKind = async <TNode extends SchemaNode | OperationNode>(
-      state: PluginState,
-      nodes: Array<TNode>,
-      dispatch: { method: 'schema' | 'operation'; checkAllowedNames: boolean; emit: ((node: TNode, ctx: GeneratorContext) => Promise<void> | void) | null },
-      kind: 'schema' | 'operation',
-    ): Promise<void> => {
-      if (!partial) {
-        await forBatches(nodes, (batch) => Promise.all(batch.map((node) => dispatchNode(state, node, dispatch))), {
-          concurrency: SCHEMA_PARALLEL,
-          flush: flushPending,
-        })
-        return
-      }
-
-      const reuse: Array<{ node: TNode; nodeId: string; entry: NodeManifestEntry }> = []
-      const regen: Array<{ node: TNode; nodeId: string | null; nodeKey: string | null }> = []
-      for (const node of nodes) {
-        const resolved = resolveForPlugin(state, node)
-        if (!resolved) continue
-        if (
-          kind === 'schema' &&
-          state.allowedSchemaNames !== null &&
-          'name' in resolved.transformedNode &&
-          resolved.transformedNode.name &&
-          !state.allowedSchemaNames.has(resolved.transformedNode.name)
-        ) {
-          continue
-        }
-        const { nodeId, nodeKey } = keyFor(state, kind, resolved)
-        const entry = partial.reusableEntry({ nodeId, nodeKey })
-        if (entry) {
-          reuse.push({ node, nodeId: nodeId!, entry })
-        } else {
-          regen.push({ node, nodeId, nodeKey })
-        }
-      }
-
-      await forBatches(
-        regen,
-        (batch) =>
-          Promise.all(
-            batch.map(async ({ node, nodeId, nodeKey }) => {
-              const files = await dispatchNode(state, node, dispatch)
-              partial.recordRegenerated({ pluginName: state.plugin.name, nodeId, nodeKey, files })
-            }),
-          ),
-        { concurrency: SCHEMA_PARALLEL, flush: flushPending },
-      )
-
-      for (const { node, nodeId, entry } of reuse) {
-        if (state.failed) break
-        if (partial.collides(entry)) {
-          const resolved = resolveForPlugin(state, node)
-          const nodeKey = resolved ? keyFor(state, kind, resolved).nodeKey : null
-          partial.recordRegenerated({ pluginName: state.plugin.name, nodeId, nodeKey, files: await dispatchNode(state, node, dispatch) })
-          continue
-        }
-        await replay(nodeId, entry)
-      }
-    }
-
     for (const state of states) {
       // Skip building the aggregated operations array when this plugin doesn't consume it.
       // Saves an N-sized allocation when the plugin only defines per-node `gen.operation`.
       const needsCollectedOperations = emitsOperationsHook || state.generators.some((gen) => !!gen.operations)
+      const collectedOperations: Array<OperationNode> | undefined = needsCollectedOperations ? [] : undefined
 
       // Run schemas before operations: the two passes share `flushPending` and the
       // FileProcessor's event emitter, so running them concurrently would interleave
       // `kubb:files:processing:start|end` events and race on the shared dirty list.
-      await runKind(state, schemasBuffer, schemaDispatch, 'schema')
+      await forBatches(schemasBuffer, (nodes) => Promise.all(nodes.map((node) => dispatchNode(state, node, schemaDispatch))), {
+        concurrency: SCHEMA_PARALLEL,
+        flush: flushPending,
+      })
 
-      await runKind(state, operationsBuffer, operationDispatch, 'operation')
+      await forBatches(
+        operationsBuffer,
+        (nodes) => {
+          if (needsCollectedOperations) collectedOperations?.push(...nodes)
+          return Promise.all(nodes.map((node) => dispatchNode(state, node, operationDispatch)))
+        },
+        { concurrency: SCHEMA_PARALLEL, flush: flushPending },
+      )
 
       if (!state.failed && needsCollectedOperations) {
         try {
           const { plugin, generatorContext, generators } = state
           const ctx = { ...generatorContext, options: plugin.options }
           // Match what the per-node dispatch passes to gen.operation(): the transformed node,
-          // already filtered by excludes/includes/overrides. The aggregate sees every operation,
-          // reused or regenerated, and its output is always treated as shared (never per-node cached).
-          const pluginOperations = operationsBuffer.reduce<Array<OperationNode>>((acc, node) => {
+          // already filtered by excludes/includes/overrides.
+          const ops = collectedOperations ?? []
+          const pluginOperations = ops.reduce<Array<OperationNode>>((acc, node) => {
             const resolved = resolveForPlugin(state, node)
             if (resolved) acc.push(resolved.transformedNode)
             return acc
           }, [])
-          // The aggregate's files (static or event-driven) span many operations, so mark every path
-          // it touches as shared: it is never replayed from a single node.
-          const aggregateProduced: Array<FileNode> = []
-          if (partial) this.#captureByCtx.set(ctx, aggregateProduced)
-          try {
-            for (const gen of generators) {
-              if (!gen.operations) continue
-              const result = await gen.operations(pluginOperations, ctx)
-              aggregateProduced.push(...(await this.dispatch({ result, renderer: gen.renderer })))
-            }
-            await this.hooks.emit('kubb:generate:operations', pluginOperations, ctx)
-          } finally {
-            if (partial) this.#captureByCtx.delete(ctx)
+          for (const gen of generators) {
+            if (!gen.operations) continue
+            const result = await gen.operations(pluginOperations, ctx)
+            await this.dispatch({ result, renderer: gen.renderer })
           }
-          partial?.recordAggregate(aggregateProduced)
+          await this.hooks.emit('kubb:generate:operations', pluginOperations, ctx)
         } catch (caughtError) {
           state.failed = true
           state.error = caughtError as Error
@@ -870,13 +726,6 @@ export class KubbDriver {
         diagnostics.push({ ...Diagnostics.from(state.error), plugin: state.plugin.name })
       }
       diagnostics.push(Diagnostics.performance({ plugin: state.plugin.name, duration }))
-    }
-
-    // Remove files of nodes that existed last run but are gone now (removed or renamed).
-    if (partial && !Diagnostics.hasError(diagnostics)) {
-      for (const relativePath of partial.staleFiles()) {
-        await storage.removeItem(join(partial.outputRoot, relativePath))
-      }
     }
 
     return diagnostics
@@ -900,28 +749,28 @@ export class KubbDriver {
   }: {
     result: TElement | Array<FileNode> | undefined | null
     renderer?: RendererFactory<TElement> | null
-  }): Promise<Array<FileNode>> {
-    if (!result) return []
+  }): Promise<void> {
+    if (!result) return
 
     if (Array.isArray(result)) {
-      return this.fileManager.upsert(...(result as Array<FileNode>))
+      this.fileManager.upsert(...(result as Array<FileNode>))
+      return
     }
 
     if (!renderer) {
-      return []
+      return
     }
 
     using instance = renderer()
     if (instance.stream) {
-      const upserted: Array<FileNode> = []
       for (const file of instance.stream(result)) {
-        upserted.push(...this.fileManager.upsert(file))
+        this.fileManager.upsert(file)
       }
-      return upserted
+      return
     }
 
     await instance.render(result)
-    return this.fileManager.upsert(...instance.files)
+    this.fileManager.upsert(...instance.files)
   }
 
   /**

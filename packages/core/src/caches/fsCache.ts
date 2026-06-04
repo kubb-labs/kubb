@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { mkdir, readFile, rm } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
-import { type CachedSnapshot, createCache, type NodeManifest } from '../createCache.ts'
+import { type CachedSnapshot, createCache } from '../createCache.ts'
 import { Manifest } from '../Manifest.ts'
 
 /**
@@ -54,7 +54,6 @@ export const fsCache = createCache((options: FsCacheOptions = {}) => {
   const maxEntries = options.maxEntries ?? 50
   const ttlDays = options.ttlDays ?? 7
   const blobsDir = join(dir, 'blobs')
-  const manifestsDir = join(dir, 'manifests')
   const manifestPath = join(dir, 'manifest.json')
 
   return {
@@ -100,16 +99,6 @@ export const fsCache = createCache((options: FsCacheOptions = {}) => {
       const pruned = Manifest.prune(manifest, { maxEntries, ttlDays, now })
       await Promise.all(pruned.removed.map((removedKey) => rm(join(blobsDir, removedKey), { recursive: true, force: true })))
       await Manifest.write(manifestPath, JSON.stringify(pruned.manifest))
-    },
-    async restoreManifest({ configKey }: { configKey: string }): Promise<NodeManifest | null> {
-      try {
-        return JSON.parse(await readFile(join(manifestsDir, `${configKey}.json`), 'utf8')) as NodeManifest
-      } catch {
-        return null
-      }
-    },
-    async persistManifest({ configKey, manifest }: { configKey: string; manifest: NodeManifest }) {
-      await Manifest.write(join(manifestsDir, `${configKey}.json`), JSON.stringify(manifest))
     },
   }
 })

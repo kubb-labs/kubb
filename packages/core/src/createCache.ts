@@ -15,45 +15,6 @@ export type CachedSnapshot = {
 }
 
 /**
- * The barrel-relevant metadata of one source in a generated file. A replayed file carries these so
- * `@kubb/middleware-barrel` reconstructs the same `export { ... }` without re-running generation.
- */
-export type NodeManifestExport = {
-  name: string | null
-  isIndexable: boolean
-  isTypeOnly: boolean
-}
-
-/**
- * One file produced by a single input node: its path relative to the output root, the rendered
- * source, and the export metadata barrels need.
- */
-export type NodeManifestFile = {
-  relPath: string
-  source: string
-  exports: Array<NodeManifestExport>
-}
-
-/**
- * What one schema or operation produced last run: its content key and the files it owns.
- */
-export type NodeManifestEntry = {
-  nodeKey: string
-  files: Array<NodeManifestFile>
-}
-
-/**
- * Per-node record of the previous build, used for partial ("only rerun what changed") rebuilds.
- * Keyed by a stable node id. `shared` lists paths produced by more than one node (single-file mode,
- * grouping, aggregate or plugin-level output), which are never replayed from a single node.
- */
-export type NodeManifest = {
-  version: number
-  nodes: Record<string, NodeManifestEntry>
-  shared: Array<string>
-}
-
-/**
  * Backend that stores build snapshots for incremental ("hot") rebuilds. When the
  * input fingerprint matches a stored key, Kubb restores the snapshot instead of
  * regenerating. Kubb ships with `fsCache` (local disk). Implement this interface to
@@ -77,16 +38,6 @@ export type Cache = {
    * error diagnostics.
    */
   persist(params: { key: string; snapshot: CachedSnapshot }): Promise<void>
-  /**
-   * Returns the per-node manifest stored for `configKey`, or `null` when absent. A backend that
-   * implements this (and `persistManifest`) enables partial rebuilds: only the schemas and
-   * operations whose content changed are regenerated. Omit both to support whole-build caching only.
-   */
-  restoreManifest?(params: { configKey: string }): Promise<NodeManifest | null>
-  /**
-   * Stores the per-node `manifest` for `configKey`. Only called after a successful build.
-   */
-  persistManifest?(params: { configKey: string; manifest: NodeManifest }): Promise<void>
   /**
    * Optional teardown called after the build. Use to flush buffers or close
    * connections.
