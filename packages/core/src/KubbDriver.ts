@@ -379,13 +379,6 @@ export class KubbDriver {
       (diagnostic) => diagnostics.push(diagnostic),
       async () => {
         try {
-          // Parse the adapter source into the streaming `InputNode`.
-          await this.#parseInput()
-          // Emit `kubb:plugin:setup` so plugins can register transformers via `setTransformer`.
-          // Each call writes into `this.#transforms`, which `#runGenerators` later reads through
-          // `transforms.applyTo`.
-          await this.emitSetupHooks()
-
           const cache = config.cache
           const outputRoot = resolve(config.root, config.output.path)
           const cacheKey = cache ? await Fingerprint.compute({ config, adapterSource: this.#adapterSource, version: coreVersion }) : null
@@ -393,9 +386,9 @@ export class KubbDriver {
           if (cache && cacheKey) {
             const snapshot = await cache.restore({ key: cacheKey })
             if (snapshot) {
-              // Cache hit: write the cached sources straight to storage and skip both the generator
-              // loop and the FileProcessor render pass. Only `kubb:build:end` fires, which is what
-              // reporters listen for. Skipping the plugins is the whole point.
+              // Cache hit: write the cached sources straight to storage and skip parsing, plugin
+              // setup, the generator loop, and the FileProcessor render pass. Only `kubb:build:end`
+              // fires, which is what reporters listen for. Skipping all of that is the whole point.
               for (const [relativePath, source] of Object.entries(snapshot.files)) {
                 const absolutePath = join(outputRoot, relativePath)
                 this.fileManager.upsert(createFile({ path: absolutePath, baseName: basename(relativePath) as `${string}.${string}` }))
@@ -405,6 +398,13 @@ export class KubbDriver {
               return { diagnostics: Diagnostics.dedupe(diagnostics) }
             }
           }
+
+          // Parse the adapter source into the streaming `InputNode`.
+          await this.#parseInput()
+          // Emit `kubb:plugin:setup` so plugins can register transformers via `setTransformer`.
+          // Each call writes into `this.#transforms`, which `#runGenerators` later reads through
+          // `transforms.applyTo`.
+          await this.emitSetupHooks()
 
           if (this.adapter && this.inputNode) {
             await hooks.emit(
