@@ -1,4 +1,4 @@
-import { type CachedSnapshot, createCache, type NodeManifest } from '../createCache.ts'
+import { type CachedSnapshot, createCache } from '../createCache.ts'
 
 /**
  * In-memory cache backed by a `Map`. Snapshots live only for the lifetime of the
@@ -16,7 +16,6 @@ import { type CachedSnapshot, createCache, type NodeManifest } from '../createCa
  */
 export const memoryCache = createCache(() => {
   const store = new Map<string, CachedSnapshot>()
-  const manifests = new Map<string, NodeManifest>()
 
   return {
     name: 'memory',
@@ -25,12 +24,6 @@ export const memoryCache = createCache(() => {
     },
     async persist({ key, snapshot }) {
       store.set(key, snapshot)
-    },
-    async restoreManifest({ configKey }) {
-      return manifests.get(configKey) ?? null
-    },
-    async persistManifest({ configKey, manifest }) {
-      manifests.set(configKey, manifest)
     },
   }
 })

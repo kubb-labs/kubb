@@ -42,27 +42,10 @@ export class Fingerprint {
       return null
     }
 
-    return createHash('sha256')
-      .update(Fingerprint.stringify({ ...Fingerprint.#configInputs({ config, version }), spec }))
-      .digest('hex')
-  }
-
-  /**
-   * Computes a key from everything that shapes output except the spec content: the output config,
-   * plugin names and options, middleware names, adapter, parsers, and the version. The per-node
-   * manifest is keyed by this so it survives spec edits (which change `compute`'s key but not the
-   * config), letting a partial rebuild diff the new spec against the previous run.
-   */
-  static computeConfigKey({ config, version }: { config: Config; version: string }): string {
-    return createHash('sha256')
-      .update(Fingerprint.stringify(Fingerprint.#configInputs({ config, version })))
-      .digest('hex')
-  }
-
-  static #configInputs({ config, version }: { config: Config; version: string }) {
-    return {
+    const input = {
       cacheVersion: Fingerprint.version,
       version,
+      spec,
       name: config.name,
       output: config.output,
       adapter: config.adapter?.name,
@@ -70,6 +53,8 @@ export class Fingerprint {
       plugins: config.plugins.map((plugin) => ({ name: plugin.name, options: plugin.options })),
       middleware: (config.middleware ?? []).map((middleware) => middleware.name),
     }
+
+    return createHash('sha256').update(Fingerprint.stringify(input)).digest('hex')
   }
 
   static #normalize(value: unknown): unknown {

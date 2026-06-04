@@ -147,10 +147,6 @@
     "hookwrapper",
     "tryfirst",
     "trylast",
-    "firstresult",
-    "upserted",
-    "regen",
-    "inlines",
-    "uncacheable"
+    "firstresult"
   ]
 }
