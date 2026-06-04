@@ -536,10 +536,8 @@ export class KubbDriver {
     // Buffer the streaming adapter's nodes once. Each plugin reads the same buffer
     // instead of re-parsing the document per pass, and the pruning pre-scan below
     // shares it too (previously it iterated its own copies).
-    const schemasBuffer: Array<SchemaNode> = []
-    for await (const schema of schemas) schemasBuffer.push(schema)
-    const operationsBuffer: Array<OperationNode> = []
-    for await (const operation of operations) operationsBuffer.push(operation)
+    const schemasBuffer: Array<SchemaNode> = await Array.fromAsync(schemas)
+    const operationsBuffer: Array<OperationNode> = await Array.fromAsync(operations)
 
     // Pre-scan: plugins with operation-based includes (but no schemaName include) need
     // the reachable schema set. This requires the full schema graph in memory at once,
