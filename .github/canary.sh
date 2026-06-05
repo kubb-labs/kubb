@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 npm --no-git-tag-version version minor || true
 
 version=$(node -p "require('./package.json').version")
