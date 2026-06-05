@@ -83,7 +83,6 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
 
           {imports}
           <Server
-            name={name}
             serverName={oas.api.info?.title}
             serverVersion={oas.getVersion()}
             paramsCasing={options.paramsCasing}

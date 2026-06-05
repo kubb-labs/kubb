@@ -7,7 +7,6 @@ import { File, FunctionParams } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 
 type Props = {
-  name: string
   serverName: string
   serverVersion: string
   paramsCasing?: 'camelcase'
@@ -121,7 +120,7 @@ function getParams({ schemas, paramsCasing }: GetParamsProps) {
   })
 }
 
-export function Server({ name, serverName, serverVersion, paramsCasing, operations }: Props): FabricReactNode {
+export function Server({ serverName, serverVersion, paramsCasing, operations }: Props): FabricReactNode {
   const registrations = operations
     .map(({ tool, mcp, zod }) => {
       const paramsClient = getParams({ schemas: zod.schemas, paramsCasing })
