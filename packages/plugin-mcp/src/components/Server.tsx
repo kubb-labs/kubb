@@ -3,7 +3,7 @@ import type { KubbFile } from '@kubb/fabric-core/types'
 import type { SchemaObject } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { isOptional } from '@kubb/plugin-oas/utils'
-import { Const, File, FunctionParams } from '@kubb/react-fabric'
+import { File, FunctionParams } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 
 type Props = {
@@ -122,32 +122,21 @@ function getParams({ schemas, paramsCasing }: GetParamsProps) {
 }
 
 export function Server({ name, serverName, serverVersion, paramsCasing, operations }: Props): FabricReactNode {
-  return (
-    <File.Source name={name} isExportable isIndexable>
-      <Const name={'server'} export>
-        {`
-          new McpServer({
-  name: '${serverName}',
-  version: '${serverVersion}',
-})
-          `}
-      </Const>
+  const registrations = operations
+    .map(({ tool, mcp, zod }) => {
+      const paramsClient = getParams({ schemas: zod.schemas, paramsCasing })
+      const outputSchema = zod.schemas.response?.name
 
-      {operations
-        .map(({ tool, mcp, zod }) => {
-          const paramsClient = getParams({ schemas: zod.schemas, paramsCasing })
-          const outputSchema = zod.schemas.response?.name
+      const config = [
+        tool.title ? `title: ${JSON.stringify(tool.title)}` : null,
+        `description: ${JSON.stringify(tool.description)}`,
+        outputSchema ? `outputSchema: { data: ${outputSchema} }` : null,
+      ]
+        .filter(Boolean)
+        .join(',\n  ')
 
-          const config = [
-            tool.title ? `title: ${JSON.stringify(tool.title)}` : null,
-            `description: ${JSON.stringify(tool.description)}`,
-            outputSchema ? `outputSchema: { data: ${outputSchema} }` : null,
-          ]
-            .filter(Boolean)
-            .join(',\n  ')
-
-          if (zod.schemas.request?.name || zod.schemas.headerParams?.name || zod.schemas.queryParams?.name || zod.schemas.pathParams?.name) {
-            return `
+      if (zod.schemas.request?.name || zod.schemas.headerParams?.name || zod.schemas.queryParams?.name || zod.schemas.pathParams?.name) {
+        return `
 server.registerTool(${JSON.stringify(tool.name)}, {
   ${config},
   inputSchema: ${paramsClient.toObjectValue()},
@@ -155,21 +144,39 @@ server.registerTool(${JSON.stringify(tool.name)}, {
   return ${mcp.name}(${paramsClient.toObject()})
 })
           `
-          }
+      }
 
-          return `
+      return `
 server.registerTool(${JSON.stringify(tool.name)}, {
   ${config},
 }, async () => {
   return ${mcp.name}(${paramsClient.toObject()})
 })
           `
-        })
-        .filter(Boolean)}
+    })
+    .filter(Boolean)
+    .join('\n')
 
-      {`
+  return (
+    <>
+      <File.Source name="getServer" isExportable isIndexable>
+        {`
+export function getServer() {
+  const server = new McpServer({
+    name: '${serverName}',
+    version: '${serverVersion}',
+  })
+${registrations}
+  return server
+}
+`}
+      </File.Source>
+
+      <File.Source name="startServer" isExportable isIndexable>
+        {`
 export async function startServer() {
   try {
+    const server = getServer()
     const transport = new StdioServerTransport()
     await server.connect(transport)
 
@@ -179,6 +186,7 @@ export async function startServer() {
   }
 }
 `}
-    </File.Source>
+      </File.Source>
+    </>
   )
 }

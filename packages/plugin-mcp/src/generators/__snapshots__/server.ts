@@ -16,53 +16,58 @@ import {
 } from './showPetById'
 import { z } from 'zod'
 
-export const server = new McpServer({
-  name: 'Swagger PetStore',
-  version: '3.0.0',
-})
+export function getServer() {
+  const server = new McpServer({
+    name: 'Swagger PetStore',
+    version: '3.0.0',
+  })
 
-server.registerTool(
-  'listPets',
-  {
-    title: 'List all pets',
-    description: 'Returns all `pets` from the system \\n that the user has access to',
-    outputSchema: { data: listPetsQueryResponse },
-    inputSchema: { params: listPetsQueryParams },
-  },
-  async ({ params }) => {
-    return listPetsHandler({ params })
-  },
-)
+  server.registerTool(
+    'listPets',
+    {
+      title: 'List all pets',
+      description: 'Returns all `pets` from the system \\n that the user has access to',
+      outputSchema: { data: listPetsQueryResponse },
+      inputSchema: { params: listPetsQueryParams },
+    },
+    async ({ params }) => {
+      return listPetsHandler({ params })
+    },
+  )
 
-server.registerTool(
-  'createPets',
-  {
-    title: 'Create a pet',
-    description:
-      'Creates a pet in the store.\nThis is an arbitrary description with lots of `strange` but likely formatting from the real world.\n- We like to make lists - And we need to escape: some, type, of `things`\n',
-    outputSchema: { data: createPetsMutationResponse },
-    inputSchema: { data: createPetsMutationRequest },
-  },
-  async ({ data }) => {
-    return createPetsHandler({ data })
-  },
-)
+  server.registerTool(
+    'createPets',
+    {
+      title: 'Create a pet',
+      description:
+        'Creates a pet in the store.\nThis is an arbitrary description with lots of `strange` but likely formatting from the real world.\n- We like to make lists - And we need to escape: some, type, of `things`\n',
+      outputSchema: { data: createPetsMutationResponse },
+      inputSchema: { data: createPetsMutationRequest },
+    },
+    async ({ data }) => {
+      return createPetsHandler({ data })
+    },
+  )
 
-server.registerTool(
-  'showPetById',
-  {
-    title: 'Info for a specific pet',
-    description: 'Make a GET request to /pets/{petId}',
-    outputSchema: { data: showPetByIdQueryResponse },
-    inputSchema: { petId: z.string(), testId: z.string() },
-  },
-  async ({ petId, testId }) => {
-    return showPetByIdHandler({ petId, testId })
-  },
-)
+  server.registerTool(
+    'showPetById',
+    {
+      title: 'Info for a specific pet',
+      description: 'Make a GET request to /pets/{petId}',
+      outputSchema: { data: showPetByIdQueryResponse },
+      inputSchema: { petId: z.string(), testId: z.string() },
+    },
+    async ({ petId, testId }) => {
+      return showPetByIdHandler({ petId, testId })
+    },
+  )
+
+  return server
+}
 
 export async function startServer() {
   try {
+    const server = getServer()
     const transport = new StdioServerTransport()
     await server.connect(transport)
   } catch (error) {
