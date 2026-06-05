@@ -68,8 +68,8 @@ const source = parserMd.print({ title: 'Pets', layout: 'doc' })
 
 Parser instance for `.md` and `.markdown` files. Pass to `defineConfig({ parsers: [...] })` to emit Markdown source files.
 
-- `parserMd.parse(file)` — serialise a `FileNode` to Markdown source. When `file.meta.frontmatter` is set, the parser prepends the corresponding YAML envelope.
-- `parserMd.print(...parts)` — join markdown fragments separated by blank lines. Plain objects are serialised as YAML frontmatter; strings pass through unchanged.
+- `parserMd.parse(file)` — serialize a `FileNode` to Markdown source. When `file.meta.frontmatter` is set, the parser prepends the corresponding YAML envelope.
+- `parserMd.print(...parts)` — join markdown fragments separated by blank lines. Plain objects are serialized as YAML frontmatter; strings pass through unchanged.
 
 ## Supporting Kubb
 
