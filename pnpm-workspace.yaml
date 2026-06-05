@@ -12,10 +12,10 @@ catalog:
   '@types/node': ^22.19.19
   '@types/react': ^19.2.16
   '@types/react-reconciler': 0.33.0
-  '@vitest/coverage-v8': ^4.1.7
-  '@vitest/ui': ^4.1.7
+  '@vitest/coverage-v8': ^4.1.8
+  '@vitest/ui': ^4.1.8
   oxfmt: ^0.51.0
-  oxlint: ^1.67.0
+  oxlint: ^1.68.0
   p-limit: ^7.3.0
   react: 19.2.6
   react-reconciler: 0.33.0
@@ -25,7 +25,7 @@ catalog:
   'tinyexec': ~1.1.2
   tsdown: ^0.22.1
   typescript: ^6.0.3
-  vitest: ^4.1.7
+  vitest: ^4.1.8
   yaml: ^2.9.0
 minimumReleaseAge: 4320 # 72 hours, matches .npmrc min-package-age
 # Native platform bindings are always co-published with their parent package in the same release.
