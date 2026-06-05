@@ -191,7 +191,7 @@ See [LICENSE](./LICENSE) for details.
 
 <!-- Badges -->
 
-[npm-version-src]: https://shieldcn.dev/npm/v/kubb.svg?variant=secondary&size=xs&theme=zinc&mode=dark
+[npm-version-src]: https://shieldcn.dev/npm/v/@kubb/core.svg?variant=secondary&size=xs&theme=zinc&mode=dark
 [npm-version-href]: https://npmx.dev/package/kubb
 [npm-downloads-src]: https://shieldcn.dev/npm/dm/@kubb/core.svg?variant=secondary&size=xs&theme=zinc&mode=dark
 [npm-downloads-href]: https://npmx.dev/package/kubb
