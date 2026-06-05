@@ -171,11 +171,16 @@ ${registrations}
 `}
       </File.Source>
 
+      <File.Source name="server" isExportable isIndexable>
+        {`
+export const server = getServer()
+`}
+      </File.Source>
+
       <File.Source name="startServer" isExportable isIndexable>
         {`
 export async function startServer() {
   try {
-    const server = getServer()
     const transport = new StdioServerTransport()
     await server.connect(transport)
 
