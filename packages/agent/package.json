@@ -1,6 +1,6 @@
 {
   "name": "@kubb/agent",
-  "version": "5.0.0-beta.41",
+  "version": "5.0.0-beta.42",
   "description": "HTTP agent server for Kubb. Exposes code generation via REST API and WebSocket with real-time Kubb Studio integration, machine binding, and Docker support.",
   "keywords": [
     "agent",
