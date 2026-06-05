@@ -129,7 +129,7 @@
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
-    "axios": "^1.16.1"
+    "axios": "^1.17.0"
   },
   "peerDependencies": {
     "@kubb/fabric-core": "0.14.0",

@@ -81,7 +81,7 @@
     "empathic": "^2.0.1",
     "fflate": "^0.8.3",
     "remeda": "catalog:",
-    "semver": "^7.8.1",
+    "semver": "^7.8.2",
     "tinyexec": "catalog:"
   },
   "devDependencies": {
