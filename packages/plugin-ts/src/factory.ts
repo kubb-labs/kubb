@@ -31,6 +31,11 @@ function isValidIdentifier(str: string): boolean {
   if (!str.length || str.trim() !== str) {
     return false
   }
+  // `#`-prefixed names parse as private identifiers, which are only valid inside a class
+  // body. As an object/property key they must be quoted, so treat them as non-identifiers.
+  if (str.startsWith('#')) {
+    return false
+  }
   const node = ts.parseIsolatedEntityName(str, ts.ScriptTarget.Latest)
 
   return !!node && node.kind === ts.SyntaxKind.Identifier && ts.identifierToKeywordKind(node.kind as unknown as ts.Identifier) === undefined

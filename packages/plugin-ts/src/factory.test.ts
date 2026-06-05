@@ -431,6 +431,28 @@ describe('Code Generation', () => {
       ),
     ).toMatchSnapshot()
   })
+
+  it('should quote enum keys that parse as private identifiers (#-prefixed)', async () => {
+    // A `#`-prefixed name (e.g. a hex colour like `#ccff9a`) parses as a TypeScript
+    // private identifier, which is only valid inside a class body. As an object key it
+    // must be quoted, otherwise the generated `as const` map is a syntax error (TS18016).
+    const output = await formatTS(
+      createEnumDeclaration({
+        type: 'asConst',
+        name: 'labelsColor',
+        typeName: 'LabelsColor',
+        enums: [
+          ['#0099ff', '#0099ff'],
+          ['#ccff9a', '#ccff9a'],
+        ],
+      }),
+    )
+
+    expect(output).toContain("'#0099ff': '#0099ff'")
+    expect(output).toContain("'#ccff9a': '#ccff9a'")
+    // Must not emit a bare `#ccff9a:` key (invalid outside a class body).
+    expect(output).not.toMatch(/(^|[^'])#ccff9a:/)
+  })
 })
 
 describe('Import/Export Sorting Consistency', () => {
