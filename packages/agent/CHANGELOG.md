@@ -1,5 +1,26 @@
 # @kubb/agent
 
+## 4.37.10
+
+### Patch Changes
+
+- Updated dependencies [[`396d8bf`](https://github.com/kubb-labs/kubb/commit/396d8bf22033acdeafb31622dc0ff03d424135ce), [`5e10e26`](https://github.com/kubb-labs/kubb/commit/5e10e267417be2f0a657bc0fb0bca6fd74a0c19d)]:
+  - @kubb/plugin-ts@4.37.10
+  - @kubb/plugin-client@4.37.10
+  - @kubb/plugin-cypress@4.37.10
+  - @kubb/plugin-faker@4.37.10
+  - @kubb/plugin-mcp@4.37.10
+  - @kubb/plugin-msw@4.37.10
+  - @kubb/plugin-react-query@4.37.10
+  - @kubb/plugin-solid-query@4.37.10
+  - @kubb/plugin-svelte-query@4.37.10
+  - @kubb/plugin-swr@4.37.10
+  - @kubb/plugin-vue-query@4.37.10
+  - @kubb/plugin-zod@4.37.10
+  - @kubb/core@4.37.10
+  - @kubb/plugin-oas@4.37.10
+  - @kubb/plugin-redoc@4.37.10
+
 ## 4.37.9
 
 ### Patch Changes

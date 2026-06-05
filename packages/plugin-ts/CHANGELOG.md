@@ -1,5 +1,34 @@
 # @kubb/plugin-ts
 
+## 4.37.10
+
+### Patch Changes
+
+- [#3475](https://github.com/kubb-labs/kubb/pull/3475) [`396d8bf`](https://github.com/kubb-labs/kubb/commit/396d8bf22033acdeafb31622dc0ff03d424135ce) Thanks [@joaomlneto](https://github.com/joaomlneto)! - Fix `enumType: 'asConst'`/`'asPascalConst'` collapsing an array of objects into a bare enum array when the array's object items contain an enum property.
+
+  `isDirectEnum` previously matched _any_ array that had `items`, so a schema like:
+
+  ```yaml
+  type: array
+  items:
+    type: object
+    properties:
+      id: { type: integer }
+      status: { type: string, enum: [active, inactive] }
+  ```
+
+  was emitted as `StatusEnumKey[]` — the object shape (`id`, `status`) was discarded in favour of the first nested enum. It is now only treated as a direct enum array when the array's `items` are themselves an enum, so the object type is preserved (`{ id: number; status: StatusEnumKey }[]`).
+
+- [#3476](https://github.com/kubb-labs/kubb/pull/3476) [`5e10e26`](https://github.com/kubb-labs/kubb/commit/5e10e267417be2f0a657bc0fb0bca6fd74a0c19d) Thanks [@joaomlneto](https://github.com/joaomlneto)! - Fix `asConst`/`asPascalConst` enums emitting `#`-prefixed values (e.g. hex colours like `#ccff9a`) as unquoted object keys.
+
+  `isValidIdentifier` accepted `#`-prefixed names because `ts.parseIsolatedEntityName` parses them as private identifiers. Private identifiers are only valid inside a class body, so using one as an object/property key produced invalid output (`TS18016: Private identifiers are not allowed outside class bodies`). `#`-prefixed names are now treated as non-identifiers and quoted.
+
+- Updated dependencies []:
+  - @kubb/ast@4.37.10
+  - @kubb/core@4.37.10
+  - @kubb/oas@4.37.10
+  - @kubb/plugin-oas@4.37.10
+
 ## 4.37.9
 
 ### Patch Changes
