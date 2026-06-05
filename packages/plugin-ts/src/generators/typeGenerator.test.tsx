@@ -274,6 +274,16 @@ describe('typeGenerator schema', async () => {
       },
     },
     {
+      // An array whose items are an *object* containing an enum property must keep its
+      // object shape instead of collapsing to the (first) nested enum as an array.
+      name: 'EnumArrayOfObject',
+      input: '../../mocks/enums.yaml',
+      path: 'enum.ArrayOfObject',
+      options: {
+        enumType: 'asConst',
+      },
+    },
+    {
       name: 'EnumArray_2.0',
       input: '../../mocks/enums_2.0.yaml',
       path: 'enum.Array',
