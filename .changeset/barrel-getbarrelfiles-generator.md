@@ -4,7 +4,7 @@
 
 `getBarrelFiles` now returns a `Generator<FileNode>` instead of `Array<FileNode>`.
 
-Iterate with `for...of` or spread into an array to preserve existing behaviour:
+Iterate with `for...of` or spread into an array to preserve existing behavior:
 
 ```ts
 // before

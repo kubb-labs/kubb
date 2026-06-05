@@ -684,7 +684,7 @@ export type KubbDiagnosticContext = {
 
 export type KubbFilesProcessingStartContext = {
   /**
-   * Files about to be serialised and written.
+   * Files about to be serialized and written.
    */
   files: Array<FileNode>
 }
@@ -703,7 +703,7 @@ export type KubbFileProcessingUpdate = {
    */
   percentage: number
   /**
-   * Serialised file content, or `undefined` when the file produced no output.
+   * Serialized file content, or `undefined` when the file produced no output.
    */
   source?: string
   /**
@@ -725,7 +725,7 @@ export type KubbFilesProcessingUpdateContext = {
 
 export type KubbFilesProcessingEndContext = {
   /**
-   * All files that were serialised in this batch.
+   * All files that were serialized in this batch.
    */
   files: Array<FileNode>
 }

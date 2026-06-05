@@ -23,7 +23,7 @@ export type Parser<TMeta extends object = object, TNode = unknown> = {
    */
   extNames: Array<FileNode['extname']> | undefined
   /**
-   * Serialise the file's AST into source code.
+   * Serialize the file's AST into source code.
    */
   parse(file: FileNode<TMeta>, options?: PrintOptions): string
   /**

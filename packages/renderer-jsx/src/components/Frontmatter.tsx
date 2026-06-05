@@ -4,7 +4,7 @@ import type { Key, KubbReactElement } from '../types.ts'
 type Props = {
   key?: Key
   /**
-   * Plain object serialised as YAML between `---` fences.
+   * Plain object serialized as YAML between `---` fences.
    *
    * @example
    * `data: { title: 'Pets', layout: 'doc' }`

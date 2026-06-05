@@ -73,7 +73,7 @@ const source = parserTs.print(
 
 Parser instance for `.ts` and `.js` files. Pass to `defineConfig({ parsers: [...] })` to emit TypeScript source files.
 
-- `parserTs.parse(file, options?)` — serialise a `FileNode` to TypeScript source.
+- `parserTs.parse(file, options?)` — serialize a `FileNode` to TypeScript source.
 - `parserTs.print(...nodes)` — convert TypeScript compiler `Node` instances to a formatted source string.
 
 ### `parserTsx`
