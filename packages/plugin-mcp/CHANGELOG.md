@@ -1,5 +1,19 @@
 # @kubb/plugin-mcp
 
+## 4.37.11
+
+### Patch Changes
+
+- [#3483](https://github.com/kubb-labs/kubb/pull/3483) [`3e88493`](https://github.com/kubb-labs/kubb/commit/3e88493ce9502c76ad7be5a9f29bdf4cee19706a) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Generated MCP `server.ts` now exports `getServer()` and `startServer()` factories that build a fresh `McpServer` per call. The previous singleton was unusable for HTTP transports, where each session needs its own server instance ([#3481](https://github.com/kubb-labs/kubb/issues/3481)).
+
+- Updated dependencies []:
+  - @kubb/core@4.37.11
+  - @kubb/oas@4.37.11
+  - @kubb/plugin-client@4.37.11
+  - @kubb/plugin-oas@4.37.11
+  - @kubb/plugin-ts@4.37.11
+  - @kubb/plugin-zod@4.37.11
+
 ## 4.37.10
 
 ### Patch Changes
