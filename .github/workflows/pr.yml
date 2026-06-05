@@ -111,32 +111,6 @@ jobs:
           NODE_OPTIONS: '--max_old_space_size=4096'
         run: pnpm run lint
 
-  spellcheck:
-    name: Spell Check
-    timeout-minutes: 15
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    if: github.actor != 'github-actions[bot]'
-    steps:
-      - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          fetch-depth: 0
-
-      - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
-        with:
-          node-version: '22'
-
-      - name: Spell Check
-        uses: streetsidesoftware/cspell-action@9c7145a5e625e30cb68f6932b379e17eb024d974 # v8
-        with:
-          files: |
-            **/*.{ts,md}
-          suggestions: 'true'
-          config: 'cspell.json'
-
   prerelease:
     name: Prerelease
     timeout-minutes: 15
