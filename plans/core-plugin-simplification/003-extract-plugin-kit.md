@@ -1,4 +1,4 @@
-# 004, extract the shared plugin kit
+# 003, extract the shared plugin kit
 
 ## Context
 
@@ -10,14 +10,14 @@ The react-query, vue-query, and swr plugins import their shared operation, param
 
 ## Prerequisites
 
-Slice 003.
+Slice 002.
 
 ## Steps
 
-1. Inventory the shared helpers across `internals/shared`, `internals/tanstack-query`, and `internals/utils`, and the three framework plugins.
+1. Inventory the shared helpers across `internals/shared`, `internals/tanstack-query`, and `internals/utils`, and the three framework plugins. Record the non-test source lines per framework plugin as the starting point.
 2. Resolve open question 2 and record it in `research.md`: publish as `@kubb/plugin-kit` if third-party authors should use it, or keep it in `internals/` with a documented surface.
 3. Move the shared helpers into the kit, re-point the three plugins at it, and delete the duplicates.
-4. Measure non-test source lines per framework plugin before and after, and record the drop.
+4. Measure non-test source lines per framework plugin again, and record the drop.
 5. Run the snapshots for the three plugins and the wider suite.
 
 ## Files touched
@@ -30,8 +30,7 @@ Slice 003.
 ## Verification
 
 1. `pnpm --filter @kubb/plugin-react-query --filter @kubb/plugin-vue-query --filter @kubb/plugin-swr test` passes unchanged.
-2. `pnpm boundaries` stays green, with the kit at its allowed layer.
-3. The line-count report shows the reduction per plugin.
+2. The line-count report shows the reduction per plugin.
 
 ## Done criteria
 

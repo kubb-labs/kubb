@@ -1,4 +1,4 @@
-# 005, plugin conformance kit
+# 004, plugin conformance kit
 
 ## Context
 
@@ -10,7 +10,7 @@ One shared conformance test runs against every plugin and passes, and breaking a
 
 ## Prerequisites
 
-Slice 001. Benefits from slice 004, since the kit is a natural home for the helper.
+None. Benefits from slice 003, since the kit is a natural home for the helper.
 
 ## Steps
 

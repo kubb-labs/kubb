@@ -1,4 +1,4 @@
-# 003, remove the React reconciler
+# 002, remove the React reconciler
 
 ## Context
 
@@ -6,19 +6,20 @@
 
 ## Goal (demonstrable outcome)
 
-`@kubb/renderer-jsx` builds and every plugin snapshot passes with `react-reconciler` and `scheduler` absent from the dependency tree and the size budget reduced below the slice 001 baseline.
+`@kubb/renderer-jsx` builds and every plugin snapshot passes with `react-reconciler` and `scheduler` absent from the dependency tree and the size budget reduced below the figure recorded at the start of this slice.
 
 ## Prerequisites
 
-Slice 002.
+Slice 001.
 
 ## Steps
 
-1. Audit every plugin and example for `jsxRenderer` versus `jsxRendererSync`, and confirm no component relies on React hooks or suspense. Migrate any holdout to the sync path or the builder API first.
-2. Delete `Runtime.tsx` and the react-reconciler `Renderer.ts`, and drop the `react-reconciler` and `scheduler` dependencies. Keep `SyncRuntime`, the components, the jsx-runtime, and `dom.ts` only where still used.
-3. Decide on element creation: keep `react/jsx-runtime` for now, or point `jsxImportSource` at the package's own `jsx-runtime.ts` to drop React entirely. Record the larger of the two as an optional follow-up if it adds risk.
-4. Lower the size-limit budget to the new figure and update the exports map if `Runtime` was public.
-5. Run the full plugin and example suite.
+1. Record the starting point: the current `inlinedDependencies` (`react`, `react-reconciler`, `scheduler`) and the `size-limit` budget in `packages/renderer-jsx/package.json`.
+2. Audit every plugin and example for `jsxRenderer` versus `jsxRendererSync`, and confirm no component relies on React hooks or suspense. Migrate any holdout to the sync path or the builder API first.
+3. Delete `Runtime.tsx` and the react-reconciler `Renderer.ts`, and drop the `react-reconciler` and `scheduler` dependencies. Keep `SyncRuntime`, the components, the jsx-runtime, and `dom.ts` only where still used.
+4. Decide on element creation: keep `react/jsx-runtime` for now, or point `jsxImportSource` at the package's own `jsx-runtime.ts` to drop React entirely. Record the larger of the two as an optional follow-up if it adds risk.
+5. Lower the size-limit budget to the new figure and update the exports map if `Runtime` was public.
+6. Run the full plugin and example suite.
 
 ## Files touched
 
@@ -38,6 +39,6 @@ Slice 002.
 ## Done criteria
 
 - [ ] `react-reconciler` and `scheduler` are gone from `@kubb/renderer-jsx`
-- [ ] The size budget is below the recorded baseline
+- [ ] The size budget is below the figure recorded in step 1
 - [ ] All generated output is unchanged
 - [ ] A changeset is added
