@@ -1,6 +1,4 @@
 import type { ArrowFunctionNode, ConstNode, ExportNode, FileNode, FunctionNode, ImportNode, SourceNode, TypeNode } from '@kubb/ast'
-import type React from 'react'
-import type { JSX, ReactNode } from 'react'
 
 /**
  * Unique identifier for a React element in lists or conditional renders.
@@ -90,14 +88,21 @@ export type DOMElement = {
 type NodeNames = ElementNames | TextName
 
 /**
- * React node type for Kubb JSX components.
+ * Element produced by a Kubb JSX component. It carries the host or component
+ * `type`, its `props`, and an optional list `key`. The renderer walks these at
+ * runtime, so the fields stay opaque to type-checking.
  */
-export type KubbReactNode = ReactNode
+export type KubbReactElement = {
+  type: unknown
+  props: unknown
+  key: Key | null
+}
 
 /**
- * React element type returned by Kubb JSX components.
+ * Anything a Kubb JSX component accepts as children: an element, a primitive
+ * rendered as text, a nullish value that is skipped, or an iterable of nodes.
  */
-export type KubbReactElement = JSX.Element
+export type KubbReactNode = KubbReactElement | string | number | bigint | boolean | null | undefined | Iterable<KubbReactNode>
 
 /**
  * Props for the `<kubb-jsx>` element.
@@ -181,9 +186,10 @@ export type KubbTypeProps = Omit<TypeNode, 'kind'> & {
 }
 
 /**
- * Props for the HTML `<br>` element.
+ * Props for the `<br>` element. It emits a single line break and takes no
+ * attributes of its own.
  */
-export type LineBreakProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLBRElement>, HTMLBRElement>
+export type LineBreakProps = {}
 
 /**
  * JSDoc comment block to attach to a generated declaration.

@@ -17,10 +17,6 @@ const shared: Partial<UserConfig> = {
     keepNames: true,
   },
   deps: {
-    // `react` is type-only here (`@types/react` powers the JSX namespace) and never
-    // ships in the runtime bundle. Keep it external so declaration generation leaves
-    // the `import type … from 'react'` references alone instead of inlining `@types/react`.
-    neverBundle: ['react'],
     onlyBundle: false,
   },
 }

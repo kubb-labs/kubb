@@ -93,8 +93,7 @@
     "yaml": "catalog:"
   },
   "devDependencies": {
-    "@internals/utils": "workspace:*",
-    "@types/react": "catalog:"
+    "@internals/utils": "workspace:*"
   },
   "engines": {
     "node": ">=22"
