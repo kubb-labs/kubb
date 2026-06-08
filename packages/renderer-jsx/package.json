@@ -1,13 +1,12 @@
 {
   "name": "@kubb/renderer-jsx",
   "version": "5.0.0-beta.42",
-  "description": "JSX-based renderer for Kubb. Provides a custom React runtime, reconciler, and built-in components (File, Function, Type, Const) for component-based, type-safe code generation.",
+  "description": "Self-contained synchronous JSX renderer for Kubb. Turns JSX into FileNodes with built-in components (File, Function, Type, Const) for component-based, type-safe code generation. No React dependency.",
   "keywords": [
     "codegen",
     "jsx",
     "jsx-runtime",
     "kubb",
-    "react",
     "typescript"
   ],
   "license": "MIT",
@@ -83,9 +82,7 @@
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check -tag canary",
     "release:stage": "pnpm stage publish --no-git-check",
     "start": "tsdown --watch ./src",
-    "start:devtools": "npx react-devtools",
     "test": "vitest --passWithNoTests",
-    "test:devtools": "node ./dist/runner.cjs",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
@@ -93,18 +90,9 @@
     "yaml": "catalog:"
   },
   "devDependencies": {
-    "@internals/utils": "workspace:*",
-    "@types/react": "catalog:",
-    "@types/react-reconciler": "catalog:",
-    "react": "catalog:",
-    "react-reconciler": "catalog:"
+    "@internals/utils": "workspace:*"
   },
   "engines": {
     "node": ">=22"
-  },
-  "inlinedDependencies": {
-    "react": "19.2.6",
-    "react-reconciler": "0.33.0",
-    "scheduler": "0.27.0"
   }
 }

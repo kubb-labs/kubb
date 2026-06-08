@@ -20,6 +20,5 @@ describe('Frontmatter', () => {
         - b
       ---"
     `)
-    renderer.unmount()
   })
 })

@@ -15,15 +15,6 @@ export type Renderer<TElement = unknown> = {
    */
   render(element: TElement): Promise<void>
   /**
-   * Tears down the renderer and releases any held resources.
-   * Pass an `Error` to signal a failure, a number for an exit code, or omit for a clean shutdown.
-   */
-  unmount(error?: Error | number | null): void
-  /**
-   * Releases any held resources. `[Symbol.dispose]` delegates here.
-   */
-  dispose(): void
-  /**
    * Accumulated {@link FileNode} results produced by the last {@link render} call.
    * Not populated when {@link stream} is implemented.
    */
@@ -35,7 +26,7 @@ export type Renderer<TElement = unknown> = {
   stream?(element: TElement): Iterable<FileNode>
   /**
    * Disposer hook so renderers participate in `using` blocks: `using r = rendererFactory()`
-   * guarantees {@link dispose} runs on every exit path, including thrown errors.
+   * runs cleanup on every exit path, including thrown errors.
    */
   [Symbol.dispose](): void
 }
@@ -70,14 +61,8 @@ export type RendererFactory<TElement = unknown> = () => Renderer<TElement>
  *     get files() {
  *       return runtime.files
  *     },
- *     dispose() {
- *       runtime.dispose()
- *     },
- *     unmount(error) {
- *       runtime.dispose(error)
- *     },
  *     [Symbol.dispose]() {
- *       this.dispose()
+ *       runtime.dispose()
  *     },
  *   }
  * })

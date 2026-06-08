@@ -13,6 +13,5 @@ describe('Heading', () => {
     )
 
     expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`"## Installation"`)
-    renderer.unmount()
   })
 })

@@ -28,7 +28,6 @@ describe('File.Source', () => {
         ],
       }
     `)
-    renderer.unmount()
   })
 })
 
@@ -54,7 +53,6 @@ describe('File.Import', () => {
         "root": "/src",
       }
     `)
-    renderer.unmount()
   })
 })
 
@@ -79,6 +77,5 @@ describe('File.Export', () => {
         "path": "./models/pet",
       }
     `)
-    renderer.unmount()
   })
 })

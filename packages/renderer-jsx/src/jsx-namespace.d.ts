@@ -1,5 +1,3 @@
-import type React from 'react'
-
 import type {
   KubbArrowFunctionProps,
   KubbConstProps,
@@ -11,29 +9,42 @@ import type {
   KubbReactElement,
   KubbReactNode,
   KubbSourceProps,
-  KubbTextProps,
   KubbTypeProps,
+  Key,
   LineBreakProps,
 } from './types'
 
+/**
+ * JSX contract for `@kubb/renderer-jsx`, resolved through `jsxImportSource`.
+ *
+ * It is self-contained and does not extend `React.JSX`: the renderer only emits
+ * the custom `kubb-*` hosts plus `br`, `indent`, and `dedent`, and supports
+ * pure function components, so the HTML element and class-component machinery
+ * from `@types/react` is not needed.
+ */
 export namespace JSX {
-  type ElementType = React.JSX.ElementType
+  type ElementType = string | ((props: any) => KubbReactNode)
   type Element = KubbReactElement
 
-  interface ElementClass extends React.JSX.ElementClass {
+  interface ElementClass {
     render(): KubbReactNode
   }
   interface ElementAttributesProperty {
     props: {}
   }
-
   interface ElementChildrenAttribute {
     children: {}
   }
 
-  interface IntrinsicElements extends React.JSX.IntrinsicElements {
+  interface IntrinsicAttributes {
+    key?: Key | null
+  }
+  interface IntrinsicClassAttributes<T> {
+    key?: Key | null
+  }
+
+  interface IntrinsicElements {
     'kubb-jsx': KubbJsxProps
-    'kubb-text': KubbTextProps
     'kubb-file': KubbFileProps
     'kubb-source': KubbSourceProps
     'kubb-import': KubbImportProps
@@ -43,10 +54,7 @@ export namespace JSX {
     'kubb-const': KubbConstProps
     'kubb-type': KubbTypeProps
     br: LineBreakProps
-    indent: {}
-    dedent: {}
   }
-  type LibraryManagedAttributes<C, P> = React.JSX.LibraryManagedAttributes<C, P>
-  interface IntrinsicClassAttributes<T> extends React.JSX.IntrinsicClassAttributes<T> {}
-  interface IntrinsicElements extends React.JSX.IntrinsicElements {}
+
+  type LibraryManagedAttributes<C, P> = P
 }
