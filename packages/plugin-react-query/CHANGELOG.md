@@ -1,5 +1,29 @@
 # @kubb/plugin-react-query
 
+## 4.37.12
+
+### Patch Changes
+
+- [#3487](https://github.com/kubb-labs/kubb/pull/3487) [`aa2d00c`](https://github.com/kubb-labs/kubb/commit/aa2d00cfe17e09563b64fa6791e2a5c31c20a29d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Keep generated suspense hooks free of `enabled` guards and optional path params.
+
+  `useSuspenseQuery`/`useSuspenseInfiniteQuery` always run, and TanStack Query types `UseSuspenseQueryOptions` as `Omit<UseQueryOptions, 'enabled' | ...>`, so an `enabled` option is invalid for suspense hooks. The suspense generators reused the regular query-options logic, so `<op>SuspenseQueryOptions`/`<op>SuspenseInfiniteQueryOptions` and the hooks themselves widened required path params to `| undefined`, emitted an `enabled: !!(petId)` guard, and called the client with a non-null assertion (`petId!`).
+
+  Suspense options and hooks now keep required path params required, omit `enabled`, and drop the `!` assertion. Regular `useQuery`/`useInfiniteQuery` output is unchanged.
+
+  ```ts
+  // before: petId was widened to `| undefined`, forcing a non-null assertion at every call site
+  // after: petId stays required and the hook type-checks as-is
+  useGetPetByIdSuspense(petId);
+  ```
+
+- Updated dependencies []:
+  - @kubb/core@4.37.12
+  - @kubb/oas@4.37.12
+  - @kubb/plugin-client@4.37.12
+  - @kubb/plugin-oas@4.37.12
+  - @kubb/plugin-ts@4.37.12
+  - @kubb/plugin-zod@4.37.12
+
 ## 4.37.11
 
 ### Patch Changes
