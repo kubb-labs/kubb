@@ -39,9 +39,9 @@ Result: PASS. 90 plugin-client and 8 msw tests pass, no snapshot changes.
 
 Covers **AC-2**.
 
-`react-reconciler`, `scheduler`, and the `react` runtime are out of `@kubb/renderer-jsx`. The built bundle has no real `react` import.
+`react-reconciler`, `scheduler`, and the `react` runtime are out of `@kubb/renderer-jsx`. The built bundle has no real `react` import. With the async runtime gone, `jsxRendererSync` and `jsxRenderer` were one function behind two names, so they collapse to a single `jsxRenderer` export, and the plugins and the docs pipeline move off the `jsxRendererSync` name.
 
-Result: PASS. `pnpm why react-reconciler` is empty, size-limit reports about 7.5 kB against a 10 KiB budget, down from 510 KiB.
+Result: PASS. `pnpm why react-reconciler` is empty, size-limit reports about 7.4 kB against a 10 KiB budget, down from 510 KiB. 55 renderer-jsx tests pass, and 709 plugin tests pass after the rename.
 
 ### A.3 Framework plugins are thinned
 
