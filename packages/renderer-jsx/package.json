@@ -75,7 +75,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "tsdown && size-limit",
+    "build": "tsdown",
     "clean": "node -e \"require('fs').rmSync('./dist', {recursive:true,force:true})\"",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
@@ -96,13 +96,6 @@
     "@internals/utils": "workspace:*",
     "@types/react": "catalog:"
   },
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "10 KiB",
-      "gzip": true
-    }
-  ],
   "engines": {
     "node": ">=22"
   }

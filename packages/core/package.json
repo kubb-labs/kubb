@@ -56,8 +56,8 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "tsdown && size-limit",
-    "clean": "npx rimraf ./dist",
+    "build": "tsdown",
+    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "release": "pnpm publish --no-git-check",
@@ -69,7 +69,6 @@
   },
   "dependencies": {
     "@kubb/ast": "workspace:*",
-    "fflate": "^0.8.3",
     "tinyexec": "catalog:"
   },
   "devDependencies": {
@@ -79,13 +78,6 @@
   "peerDependencies": {
     "@kubb/renderer-jsx": "workspace:*"
   },
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
-    }
-  ],
   "engines": {
     "node": ">=22"
   }

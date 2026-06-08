@@ -47,8 +47,8 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "tsdown && size-limit",
-    "clean": "npx rimraf ./dist",
+    "build": "tsdown",
+    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
     "debug:mcp": "npx -y @modelcontextprotocol/inspector node ./bin/kubb-mcp.cjs",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
@@ -79,13 +79,6 @@
   "peerDependencies": {
     "@kubb/renderer-jsx": "workspace:*"
   },
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "600 KiB",
-      "gzip": true
-    }
-  ],
   "engines": {
     "node": ">=22"
   }

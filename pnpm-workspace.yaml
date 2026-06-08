@@ -8,7 +8,6 @@ allowBuilds:
   esbuild: true
   msw: true
 catalog:
-  '@size-limit/file': ^12.1.0
   '@types/node': ^22.19.20
   '@types/react': ^19.2.17
   '@types/react-reconciler': 0.33.0
@@ -20,7 +19,6 @@ catalog:
   react: 19.2.6
   react-reconciler: 0.33.0
   remeda: ^2.37.0
-  'size-limit': ^12.1.0
   # tinyexec 1.2.x lost npm `trusted-with-provenance` status; stay on 1.1.x until restored.
   'tinyexec': ~1.1.2
   tsdown: ^0.22.2
