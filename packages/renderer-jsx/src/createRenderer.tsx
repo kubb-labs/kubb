@@ -15,11 +15,11 @@ import type { KubbReactElement } from './types.ts'
  * @example Wire up a JSX generator
  * ```tsx
  * import { defineGenerator } from '@kubb/core'
- * import { jsxRendererSync } from '@kubb/renderer-jsx'
+ * import { jsxRenderer } from '@kubb/renderer-jsx'
  *
  * export const myGenerator = defineGenerator<PluginTs>({
  *   name: 'types',
- *   renderer: jsxRendererSync,
+ *   renderer: jsxRenderer,
  *   schema(node, ctx) {
  *     return (
  *       <File baseName="output.ts" path={`${ctx.root}/output.ts`}>
@@ -32,13 +32,13 @@ import type { KubbReactElement } from './types.ts'
  *
  * @example Stream files as they are produced
  * ```tsx
- * const renderer = jsxRendererSync()
+ * const renderer = jsxRenderer()
  * for (const file of renderer.stream(element)) {
  *   await writeFile(file.path, file.sources[0])
  * }
  * ```
  */
-export const jsxRendererSync = () => {
+export const jsxRenderer = () => {
   const runtime = new SyncRuntime()
 
   return {
@@ -58,12 +58,3 @@ export const jsxRendererSync = () => {
     },
   }
 }
-
-/**
- * Renderer factory for JSX generators.
- *
- * @deprecated The async fiber runtime (react-reconciler) was removed. This is
- * now an alias of {@link jsxRendererSync}, which renders synchronously and does
- * not support hooks or suspense. Point your generators at `jsxRendererSync`.
- */
-export const jsxRenderer = jsxRendererSync

@@ -2,7 +2,7 @@
 
 ## Open questions
 
-1. Do any official plugins or examples rely on the async fiber `Runtime` (React hooks or suspense in a component) rather than `jsxRendererSync`? The removal in slice 002 depends on the answer, so slice 002 starts with an audit.
+1. Do any official plugins or examples rely on the async fiber `Runtime` (React hooks or suspense in a component) rather than `jsxRenderer`? The removal in slice 002 depends on the answer, so slice 002 starts with an audit.
 2. Which home for the shared plugin kit: a published `@kubb/plugin-kit` that third-party authors can use, or the existing unpublished `internals/*`? Resolved inside slice 003 and recorded here.
 3. Does the builder API cover everything the JSX components express today, including conditional sources and fragments? Confirmed in slice 001 before any runtime is removed.
 
@@ -11,7 +11,7 @@
 | Question | Decision | Why |
 | -------- | -------- | --- |
 | Primary emit path | Make the structured `create*` builders the primary path and keep JSX as opt-in sugar that lowers to the same nodes | The code nodes already exist (`ConstNode`, `TypeNode`, `FunctionNode`), the sync renderer already lowers JSX to them, and hey-api shows React is not required to render. Fewer representation conversions and fewer dependencies. |
-| react-reconciler | Remove the async fiber runtime once the audit confirms the sync path covers the official plugins | The official plugins already default to `jsxRendererSync`. The fiber runtime, react-reconciler, and scheduler are weight on a path nothing uses by default. |
+| react-reconciler | Remove the async fiber runtime once the audit confirms the sync path covers the official plugins | The official plugins already use `jsxRenderer`. The fiber runtime, react-reconciler, and scheduler are weight on a path nothing uses by default. |
 | Home for shared logic | Promote the shared operation, parameter, import, and group helpers into one kit consumed by every plugin | TanStack Query keeps one framework-agnostic core with thin adapters. The same shape makes the framework plugins mapping-only and gives third-party authors the same helpers. |
 | Contract testing | Build plugin conformance tests on the existing `@kubb/core/mocks` subpath | The mocks were added for this purpose. A shared kit turns the implicit contract into an executable one that fails fast on drift. |
 | Output stability | Treat byte-identical generated output as a release gate for every slice | The whole feature is a refactor. Snapshots and examples are the safety net, so each slice re-runs them. |

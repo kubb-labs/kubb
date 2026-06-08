@@ -41,7 +41,7 @@ Slices 001 through 004.
 
 Shipped (commits `be6dbcd` and `8473301`, platform #133).
 
-- The creating-plugins guide was already builder-first, every example uses `create*` from `@kubb/ast` with no `jsxRenderer`, so the change adds an "Emit roles" section naming the printer, the renderer (optional, via `jsxRendererSync`), and the parser as the serializer.
+- The creating-plugins guide was already builder-first, every example uses `create*` from `@kubb/ast` with no `jsxRenderer`, so the change adds an "Emit roles" section naming the printer, the renderer (optional, via `jsxRenderer`), and the parser as the serializer.
 - `concepts/plugins.md` now links the same roles from its generators section.
 - The additions are prose with no twoslash blocks, so they cannot break the docs type-check. The kubb.dev Dokploy preview deployed successfully, which validates the docs build.
 - The humanizer pass was applied while writing.
