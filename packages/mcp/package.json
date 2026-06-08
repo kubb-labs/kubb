@@ -47,7 +47,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "tsdown && size-limit",
+    "build": "tsdown",
     "clean": "npx rimraf ./dist",
     "debug:mcp": "npx -y @modelcontextprotocol/inspector node ./bin/kubb-mcp.cjs",
     "lint": "oxlint .",
@@ -79,13 +79,6 @@
   "peerDependencies": {
     "@kubb/renderer-jsx": "workspace:*"
   },
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "600 KiB",
-      "gzip": true
-    }
-  ],
   "engines": {
     "node": ">=22"
   }
