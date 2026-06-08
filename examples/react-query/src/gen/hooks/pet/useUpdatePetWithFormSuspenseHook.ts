@@ -41,16 +41,15 @@ export async function updatePetWithFormSuspenseHook(
 }
 
 export function updatePetWithFormSuspenseQueryOptionsHook(
-  pet_id: UpdatePetWithFormPathParams['pet_id'] | undefined,
+  pet_id: UpdatePetWithFormPathParams['pet_id'],
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = updatePetWithFormSuspenseQueryKey(pet_id, params)
   return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
-    enabled: !!pet_id,
     queryKey,
     queryFn: async ({ signal }) => {
-      return updatePetWithFormSuspenseHook(pet_id!, params, {
+      return updatePetWithFormSuspenseHook(pet_id, params, {
         ...config,
         signal: config.signal ?? signal,
       })
@@ -63,7 +62,7 @@ export function updatePetWithFormSuspenseQueryOptionsHook(
  * {@link /pet/:pet_id}
  */
 export function useUpdatePetWithFormSuspenseHook<TData = UpdatePetWithFormMutationResponse, TQueryKey extends QueryKey = UpdatePetWithFormSuspenseQueryKey>(
-  pet_id: UpdatePetWithFormPathParams['pet_id'] | undefined,
+  pet_id: UpdatePetWithFormPathParams['pet_id'],
   params?: UpdatePetWithFormQueryParams,
   options: {
     query?: Partial<UseSuspenseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryKey>> & {

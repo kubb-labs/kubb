@@ -34,15 +34,14 @@ export async function getUserByNameSuspenseHook(
 }
 
 export function getUserByNameSuspenseQueryOptionsHook(
-  { username }: { username: GetUserByNamePathParams['username'] | undefined },
+  { username }: { username: GetUserByNamePathParams['username'] },
   config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = getUserByNameSuspenseQueryKey({ username })
   return queryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryResponse, typeof queryKey>({
-    enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getUserByNameSuspenseHook({ username: username! }, { ...config, signal: config.signal ?? signal })
+      return getUserByNameSuspenseHook({ username: username }, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -52,7 +51,7 @@ export function getUserByNameSuspenseQueryOptionsHook(
  * {@link /user/:username}
  */
 export function useGetUserByNameSuspenseHook<TData = GetUserByNameQueryResponse, TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey>(
-  { username }: { username: GetUserByNamePathParams['username'] | undefined },
+  { username }: { username: GetUserByNamePathParams['username'] },
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryKey>> & {
       client?: QueryClient
