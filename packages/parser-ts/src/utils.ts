@@ -109,7 +109,7 @@ export function dedent(text: string): string {
   const trimmed = lines.slice(start, end)
   if (trimmed.length === 0) return ''
 
-  const indents = trimmed.filter((line) => line.trim() !== '').map((line) => (line.match(/^\s*/)?.[0].length ?? 0))
+  const indents = trimmed.filter((line) => line.trim() !== '').map((line) => line.match(/^\s*/)?.[0].length ?? 0)
   const min = indents.length ? Math.min(...indents) : 0
 
   return trimmed.map((line) => (line.trim() === '' ? '' : line.slice(min))).join('\n')
