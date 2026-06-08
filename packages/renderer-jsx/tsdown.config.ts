@@ -13,13 +13,14 @@ const shared: Partial<UserConfig> = {
   shims: true,
   exports: true,
   fixedExtension: false,
-  // `react` is no longer a runtime dependency, only `@types/react` for JSX types.
-  // Keep it external so the dts bundler leaves `import type … from 'react'` alone.
-  external: ['react'],
   outputOptions: {
     keepNames: true,
   },
   deps: {
+    // `react` is type-only here (`@types/react` powers the JSX namespace) and never
+    // ships in the runtime bundle. Keep it external so declaration generation leaves
+    // the `import type … from 'react'` references alone instead of inlining `@types/react`.
+    neverBundle: ['react'],
     onlyBundle: false,
   },
 }
