@@ -1,6 +1,6 @@
 {
   "name": "kubb",
-  "version": "5.0.0-beta.40",
+  "version": "5.0.0-beta.42",
   "description": "Meta-package and entry point for Kubb — a plugin-based code generation framework for OpenAPI. Includes defineConfig, all public APIs, and serves as the gateway to the entire Kubb ecosystem.",
   "keywords": [
     "api-client",
@@ -84,13 +84,6 @@
       "optional": true
     }
   },
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
-    }
-  ],
   "preferGlobal": true,
   "engines": {
     "node": ">=22"

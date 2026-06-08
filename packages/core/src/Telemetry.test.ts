@@ -72,6 +72,8 @@ describe('Telemetry.build', () => {
     expect(typeof event.duration).toBe('number')
     expect(event.duration).toBeGreaterThanOrEqual(0)
     expect(typeof event.nodeVersion).toBe('string')
+    expect(['bun', 'deno', 'node']).toContain(event.runtime)
+    expect(typeof event.runtimeVersion).toBe('string')
     expect(typeof event.platform).toBe('string')
     expect(typeof event.ci).toBe('boolean')
   })
@@ -83,6 +85,8 @@ describe('Telemetry.buildOtlpPayload', () => {
       command: 'generate',
       kubbVersion: '4.0.0',
       nodeVersion: '20',
+      runtime: 'node',
+      runtimeVersion: '20',
       platform: 'linux',
       ci: false,
       plugins: [{ name: 'plugin-ts', options: { output: { path: 'types' } } }],
@@ -117,6 +121,8 @@ describe('Telemetry.buildOtlpPayload', () => {
       command: 'generate',
       kubbVersion: '4.0.0',
       nodeVersion: '20',
+      runtime: 'node',
+      runtimeVersion: '20',
       platform: 'linux',
       ci: false,
       plugins: [],
@@ -145,6 +151,8 @@ describe('Telemetry.send', () => {
       command: 'generate',
       kubbVersion: '4.0.0',
       nodeVersion: '20',
+      runtime: 'node',
+      runtimeVersion: '20',
       platform: 'linux',
       ci: false,
       plugins: [{ name: 'plugin-ts', options: {} }],
@@ -163,6 +171,8 @@ describe('Telemetry.send', () => {
       command: 'generate',
       kubbVersion: '4.0.0',
       nodeVersion: '20',
+      runtime: 'node',
+      runtimeVersion: '20',
       platform: 'linux',
       ci: false,
       plugins: [{ name: 'plugin-ts', options: { output: { path: 'types' } } }],
@@ -190,6 +200,8 @@ describe('Telemetry.send', () => {
         command: 'generate',
         kubbVersion: '4.0.0',
         nodeVersion: '20',
+        runtime: 'node',
+        runtimeVersion: '20',
         platform: 'linux',
         ci: false,
         plugins: [],

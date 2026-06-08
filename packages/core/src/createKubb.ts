@@ -5,6 +5,7 @@ import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import { HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import type { Adapter } from './createAdapter.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic, type UpdateDiagnostic } from './diagnostics.ts'
+import type { Cache } from './createCache.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import type { Middleware } from './defineMiddleware.ts'
@@ -234,6 +235,26 @@ export type Config<TInput = Input> = {
    */
   storage: Storage
   /**
+   * Incremental build cache. Kubb fingerprints the inputs (spec content, config, plugin options,
+   * versions) and, on an unchanged "hot" run, restores the previously generated output instead of
+   * regenerating it. Same idea as Nx's computation cache.
+   *
+   * `defineConfig` enables `fsCache()` (local disk under `node_modules/.cache/kubb`) by default.
+   * Pass another backend to change where snapshots live, or `false` to turn caching off. A bare
+   * `createKubb` leaves it off unless a cache is provided.
+   *
+   * @example
+   * ```ts
+   * import { fsCache } from '@kubb/core'
+   *
+   * cache: fsCache({ dir: '.kubb-cache' })
+   * cache: false
+   * ```
+   *
+   * @see {@link Cache} interface for implementing custom backends.
+   */
+  cache?: Cache
+  /**
    * Plugins that run during the build to generate code and transform the AST. Each one processes
    * the adapter's AST and can emit files for a different target (TypeScript, Zod, Faker). A plugin
    * that depends on another throws when that plugin isn't registered.
@@ -336,7 +357,12 @@ export type Config<TInput = Input> = {
  * })
  * ```
  */
-export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins' | 'parsers' | 'adapter' | 'storage' | 'reporters'> & {
+export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins' | 'parsers' | 'adapter' | 'storage' | 'reporters' | 'cache'> & {
+  /**
+   * Incremental build cache. Defaults to `fsCache()` (local disk). Pass another {@link Cache}
+   * backend, or `false` to turn caching off.
+   */
+  cache?: Cache | false
   /**
    * Project root directory, absolute or relative to the config file location.
    * @default process.cwd()
@@ -464,6 +490,7 @@ export interface KubbHooks {
   'kubb:hooks:start': []
   'kubb:hooks:end': []
   'kubb:hook:start': [ctx: KubbHookStartContext]
+  'kubb:hook:line': [ctx: KubbHookLineContext]
   'kubb:hook:end': [ctx: KubbHookEndContext]
   'kubb:info': [ctx: KubbInfoContext]
   'kubb:error': [ctx: KubbErrorContext]
@@ -657,7 +684,7 @@ export type KubbDiagnosticContext = {
 
 export type KubbFilesProcessingStartContext = {
   /**
-   * Files about to be serialised and written.
+   * Files about to be serialized and written.
    */
   files: Array<FileNode>
 }
@@ -676,7 +703,7 @@ export type KubbFileProcessingUpdate = {
    */
   percentage: number
   /**
-   * Serialised file content, or `undefined` when the file produced no output.
+   * Serialized file content, or `undefined` when the file produced no output.
    */
   source?: string
   /**
@@ -698,7 +725,7 @@ export type KubbFilesProcessingUpdateContext = {
 
 export type KubbFilesProcessingEndContext = {
   /**
-   * All files that were serialised in this batch.
+   * All files that were serialized in this batch.
    */
   files: Array<FileNode>
 }
@@ -716,6 +743,21 @@ export type KubbHookStartContext = {
    * Parsed argument list, when available.
    */
   args?: ReadonlyArray<string>
+}
+
+/**
+ * Emitted for each line streamed from a hook's stdout while it runs.
+ * A logger correlates the line to its active UI element via `id`.
+ */
+export type KubbHookLineContext = {
+  /**
+   * Identifier matching the corresponding `kubb:hook:start` event.
+   */
+  id: string
+  /**
+   * A single streamed stdout line, without its trailing newline.
+   */
+  line: string
 }
 
 export type KubbHookEndContext = {
@@ -739,6 +781,14 @@ export type KubbHookEndContext = {
    * Error thrown by the command, or `null` on success.
    */
   error: Error | null
+  /**
+   * Captured stdout from the process, populated when it exits non-zero.
+   */
+  stdout?: string
+  /**
+   * Captured stderr from the process, populated when it exits non-zero.
+   */
+  stderr?: string
 }
 
 /**
@@ -863,6 +913,9 @@ function resolveConfig(userConfig: UserConfig): Config {
       ...userConfig.output,
     },
     storage: userConfig.storage ?? fsStorage(),
+    // Resolve `false` to "no cache". The default `fsCache()` is applied by `defineConfig`, not here,
+    // so a raw `createKubb` stays deterministic (no surprise on-disk cache) unless a cache is passed.
+    cache: userConfig.cache === false ? undefined : userConfig.cache,
     reporters: userConfig.reporters ?? [],
     plugins: userConfig.plugins ?? [],
   }

@@ -1,5 +1,69 @@
 # Changelog
 
+## v5.0.0-beta.42 — Jun 5, 2026
+
+### @kubb/core
+
+#### Features
+
+- Add an opt-in incremental build cache.
+  
+  Kubb now fingerprints the inputs that shape generated code (the spec content, the resolved config, every plugin's options, and the running version) and, when nothing changed, restores the previous output instead of regenerating it. A second run becomes near-instant, the same idea behind Nx's computation cache.
+  
+  `defineConfig` turns this on by default with `fsCache()` (local disk under `node_modules/.cache/kubb`). Set `cache: false` to turn it off, or pass another backend through the new `cache` option, which mirrors the existing `storage` option. `@kubb/core` ships the `fsCache()` backend, plus the `Cache` type and `createCache` factory for custom ones. A bare `createKubb` leaves caching off unless a cache is passed.
+  
+  ```ts
+  import { defineConfig } from 'kubb'
+  
+  export default defineConfig({
+    input: { path: './petStore.yaml' },
+    output: { path: './src/gen' },
+    // cache: fsCache() is applied by default; set `cache: false` to turn it off.
+  })
+  ``` ([#3469](https://github.com/kubb-labs/kubb/pull/3469), [`eeab54b`](https://github.com/kubb-labs/kubb/commit/eeab54b2823a5e591c9ec2b05cb31abf32f37cb2))
+- Run Kubb natively on Bun while keeping full Node support.
+  
+  Runtime detection is now centralized, so the filesystem helpers reach for `Bun.file` and `Bun.write` under Bun and fall back to `node:fs` everywhere else. The default `fsStorage` scans the output directory with `Bun.Glob` under Bun instead of a recursive `readdir` walk. The `kubb agent` command launches its server with the same runtime that started the CLI (via `process.execPath`) instead of always shelling out to `node`, so a Bun-only environment no longer needs a `node` binary on the PATH. Anonymous telemetry also records which runtime ran the generation (`bun`, `deno`, or `node`) alongside its version. ([#3470](https://github.com/kubb-labs/kubb/pull/3470), [`1ca92f6`](https://github.com/kubb-labs/kubb/commit/1ca92f64a3cd32d62d5f5d88940402488705fd48))
+
+#### Bug Fixes
+
+- Adopt native Node 22 / ES2024 features: order plugins through `Set`-based dependency lookups in `KubbDriver`, and replace `Promise` resolver boilerplate with `Promise.withResolvers()`. The shared TypeScript config moves to an ES2024 target with the ES2025 collection and iterator libraries to match the Node 22 baseline. ([#3473](https://github.com/kubb-labs/kubb/pull/3473), [`50615f4`](https://github.com/kubb-labs/kubb/commit/50615f4f0f745191e1505938345dac765dce7b0b))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.0-beta.41 — Jun 3, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Remove the GitHub Actions logger. The CLI now picks the clack or plain logger based on whether a TTY is available, regardless of the CI environment. ([#3463](https://github.com/kubb-labs/kubb/pull/3463), [`7798632`](https://github.com/kubb-labs/kubb/commit/77986325d9f543482b955120c12af32e2d506bb2))
+
+### @kubb/core
+
+#### Features
+
+- Route hook subprocess output through events instead of a sink-factory callback.
+  
+  Hook output (formatter, linter, and `done` hooks) now reaches loggers over the event emitter: a new `kubb:hook:line` event carries each streamed stdout line while a hook runs, and `kubb:hook:end` gained optional `stdout`/`stderr` fields holding a failed hook's captured output. The CLI's `makeSink`/`HookSinkFactory` channel and its threading are removed, so loggers are pure event subscribers and the runner decides whether to stream from the `kubb:hook:line` listener count. Behavior is unchanged: clack still streams live dimmed lines, the plain logger still prints failure output, and a failed hook's output still surfaces at the silent log level. ([#3467](https://github.com/kubb-labs/kubb/pull/3467), [`333aea7`](https://github.com/kubb-labs/kubb/commit/333aea7b8000b43a37dddc6b6226563f7a41fd2f))
+
+#### Bug Fixes
+
+- Restore progressive `Plugins N/M` progress in the CLI. The driver now runs each plugin's
+  generator pass sequentially, so `kubb:plugin:end` fires as each plugin finishes instead of
+  once the whole batch pass is over. The CLI counter advances 2/9, 3/9, ..., 9/9 again rather
+  than jumping from 1/9 straight to 9/9 at the end of the run. ([#3465](https://github.com/kubb-labs/kubb/pull/3465), [`be22e6d`](https://github.com/kubb-labs/kubb/commit/be22e6d70129e8e938853f38e29f01661ede3f63))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.40 — Jun 3, 2026
 
 ### @kubb/core

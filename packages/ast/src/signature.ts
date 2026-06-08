@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto'
+import { hash } from 'node:crypto'
 import type { SchemaNode } from './nodes/index.ts'
 import { extractRefName } from './refs.ts'
 
@@ -195,7 +195,7 @@ const signatureCache = new WeakMap<SchemaNode, string>()
 export function signatureOf(node: SchemaNode): string {
   const cached = signatureCache.get(node)
   if (cached !== undefined) return cached
-  const signature = createHash('sha256').update(describeShape(node)).digest('hex')
+  const signature = hash('sha256', describeShape(node), 'hex')
   signatureCache.set(node, signature)
   return signature
 }

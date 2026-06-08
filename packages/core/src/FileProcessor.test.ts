@@ -201,10 +201,7 @@ describe('FileProcessor — queue: flush', () => {
   })
 
   it('returns before the in-flight batch finishes so the caller can pipeline', async () => {
-    let resolveFirstWrite!: () => void
-    const firstWriteBlocker = new Promise<void>((resolve) => {
-      resolveFirstWrite = resolve
-    })
+    const { promise: firstWriteBlocker, resolve: resolveFirstWrite } = Promise.withResolvers<void>()
     const storage = memoryStorage()
     const realSetItem = storage.setItem.bind(storage)
     storage.setItem = async (path: string, source: string) => {
@@ -226,10 +223,7 @@ describe('FileProcessor — queue: flush', () => {
 
   it('runs in-flight batches one at a time: a second flush waits for the first', async () => {
     const order: Array<string> = []
-    let resolveFirst!: () => void
-    const firstBlocker = new Promise<void>((resolve) => {
-      resolveFirst = resolve
-    })
+    const { promise: firstBlocker, resolve: resolveFirst } = Promise.withResolvers<void>()
     const storage = memoryStorage()
     const realSetItem = storage.setItem.bind(storage)
     storage.setItem = async (path: string, source: string) => {

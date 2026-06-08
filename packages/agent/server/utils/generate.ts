@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto'
+import { hash } from 'node:crypto'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
@@ -79,7 +79,7 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
       const outputPath = path.isAbsolute(config.output.path) ? config.output.path : path.resolve(process.cwd(), config.root, config.output.path)
 
       try {
-        const hookId = createHash('sha256').update([config.name, formatter].filter(Boolean).join('-')).digest('hex')
+        const hookId = hash('sha256', [config.name, formatter].filter(Boolean).join('-'), 'hex')
         await hooks.emit('kubb:hook:start', {
           id: hookId,
           command: formatterConfig.command,
@@ -124,7 +124,7 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
       const outputPath = path.isAbsolute(config.output.path) ? config.output.path : path.resolve(process.cwd(), config.root, config.output.path)
 
       try {
-        const hookId = createHash('sha256').update([config.name, linter].filter(Boolean).join('-')).digest('hex')
+        const hookId = hash('sha256', [config.name, linter].filter(Boolean).join('-'), 'hex')
         await hooks.emit('kubb:hook:start', {
           id: hookId,
           command: linterConfig.command,

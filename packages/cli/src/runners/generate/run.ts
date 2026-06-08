@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto'
+import { hash } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -22,7 +22,7 @@ import {
 } from '@kubb/core'
 import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../../constants.ts'
-import setupReporters, { type HookSinkFactory } from '../../loggers/utils.ts'
+import setupReporters from '../../loggers/utils.ts'
 import { executeHooks, getConfigs, runHook, startWatcher } from './utils.ts'
 
 type GenerateProps = {
@@ -30,7 +30,6 @@ type GenerateProps = {
   config: Config
   hooks: AsyncEventEmitter<KubbHooks>
   logLevel: number
-  makeSink?: HookSinkFactory | null
 }
 
 type ToolMap = typeof formatters | typeof linters
@@ -46,7 +45,6 @@ type RunToolPassOptions = {
   outputPath: string
   logLevel: number
   hooks: AsyncEventEmitter<KubbHooks>
-  makeSink?: HookSinkFactory | null
   onStart: () => Promise<void>
   onEnd: () => Promise<void>
 }
@@ -86,7 +84,6 @@ async function runToolPass({
   outputPath,
   logLevel,
   hooks,
-  makeSink,
   onStart,
   onEnd,
 }: RunToolPassOptions) {
@@ -109,7 +106,7 @@ async function runToolPass({
   // (e.g. oxlint with --no-ignore) doesn't fail with "No files found to lint".
   if (resolvedTool && resolvedTool !== 'auto' && resolvedTool in toolMap && existsSync(outputPath)) {
     const toolConfig = toolMap[resolvedTool as keyof ToolMap]
-    const hookId = createHash('sha256').update([configName, resolvedTool].filter(Boolean).join('-')).digest('hex')
+    const hookId = hash('sha256', [configName, resolvedTool].filter(Boolean).join('-'), 'hex')
 
     const successMessage = [
       `${successPrefix} with ${styleText('dim', resolvedTool)}`,
@@ -126,16 +123,12 @@ async function runToolPass({
 
       await hooks.emit('kubb:hook:start', { id: hookId, command: toolConfig.command, args: hookArgs })
 
-      const { stream = false, onLine, onStdout, onStderr } = makeSink?.(commandWithArgs, hookId) ?? {}
-
       runHook({
         id: hookId,
         command: toolConfig.command,
         args: hookArgs,
         commandWithArgs,
         hooks,
-        stream,
-        sink: { onLine, onStdout, onStderr },
       }).catch(() => {})
 
       await hookEndPromise
@@ -154,7 +147,7 @@ async function runToolPass({
 }
 
 async function generate(options: GenerateProps): Promise<boolean> {
-  const { input, hooks, logLevel, makeSink } = options
+  const { input, hooks, logLevel } = options
 
   const hrStart = process.hrtime()
   const inputPath = input ?? (options.config.input && 'path' in options.config.input ? options.config.input.path : undefined)
@@ -239,7 +232,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
 
   for (const { code, ...pass } of toolPasses) {
     try {
-      await runToolPass({ ...pass, configName: config.name, outputPath, logLevel, hooks, makeSink })
+      await runToolPass({ ...pass, configName: config.name, outputPath, logLevel, hooks })
     } catch (caughtError) {
       const diagnostic = outputDiagnostic(code, pass.toolLabel, caughtError)
       outputDiagnostics.push(diagnostic)
@@ -257,7 +250,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
     }
     hooks.on('kubb:hook:end', onHookEnd)
     try {
-      await executeHooks({ configHooks: config.hooks, hooks, makeSink })
+      await executeHooks({ configHooks: config.hooks, hooks })
     } finally {
       hooks.off('kubb:hook:end', onHookEnd)
     }
@@ -359,7 +352,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   const requestedNames: Array<ReporterName> = cliReporters?.length ? cliReporters : ['cli']
   const available = configs[0]?.reporters ?? []
   const reporters = selectReporters(available, requestedNames)
-  const makeSink = await setupReporters(hooks, { logLevel, reporters })
+  await setupReporters(hooks, { logLevel, reporters })
 
   await hooks.emit('kubb:lifecycle:start', { version })
 
@@ -383,14 +376,14 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
             // Plugin and middleware listeners are already disposed by safeBuild's
             // setupResult.dispose() in its finally block, so re-running generate()
             // on the same hooks emitter is safe.
-            await generate({ input, config, logLevel, hooks, makeSink })
+            await generate({ input, config, logLevel, hooks })
             clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
           },
           { info: (msg) => clack.log.info(msg), error: (msg) => clack.log.error(msg) },
         )
       } else {
         try {
-          const succeeded = await generate({ input, config, logLevel, hooks, makeSink })
+          const succeeded = await generate({ input, config, logLevel, hooks })
           if (!succeeded) anyFailed = true
         } catch (configError) {
           await hooks.emit('kubb:error', { error: toError(configError) })

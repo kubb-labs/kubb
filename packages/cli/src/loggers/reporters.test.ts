@@ -87,12 +87,12 @@ describe('cliReporter', () => {
 })
 
 describe('setupReporters', () => {
-  it('returns no terminal sink and lets json own stdout when json is selected', async () => {
+  it('lets json own stdout without installing the live logger when json is selected', async () => {
     const context = new AsyncEventEmitter<KubbHooks>()
 
-    const sink = await setupReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
+    await setupReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
 
-    expect(sink).toBeNull()
+    expect(context.listenerCount('kubb:hook:line')).toBe(0)
     expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
   })
 

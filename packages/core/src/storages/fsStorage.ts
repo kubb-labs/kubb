@@ -1,7 +1,6 @@
-import type { Dirent } from 'node:fs'
-import { access, readdir, readFile, rm } from 'node:fs/promises'
-import { join, resolve } from 'node:path'
-import { clean, write } from '@internals/utils'
+import { access, glob, readFile, rm } from 'node:fs/promises'
+import { join, relative, resolve } from 'node:path'
+import { clean, isBun, toPosixPath, write } from '@internals/utils'
 import { createStorage } from '../createStorage.ts'
 
 /**
@@ -55,29 +54,22 @@ export const fsStorage = createStorage(() => ({
   async getKeys(base?: string) {
     const resolvedBase = resolve(base ?? process.cwd())
 
-    async function* walk(dir: string, prefix: string): AsyncGenerator<string, void, undefined> {
-      let entries: Array<Dirent>
-      try {
-        entries = (await readdir(dir, {
-          withFileTypes: true,
-        })) as Array<Dirent>
-      } catch (_error) {
-        return
-      }
-      for (const entry of entries) {
-        const rel = prefix ? `${prefix}/${entry.name}` : entry.name
-        if (entry.isDirectory()) {
-          yield* walk(join(dir, entry.name), rel)
-        } else {
-          yield rel
-        }
-      }
+    if (isBun()) {
+      const bunGlob = new Bun.Glob('**/*')
+      return Array.fromAsync(bunGlob.scan({ cwd: resolvedBase, onlyFiles: true, dot: true }))
     }
 
     const keys: Array<string> = []
-    for await (const key of walk(resolvedBase, '')) {
-      keys.push(key)
+    try {
+      for await (const entry of glob('**/*', { cwd: resolvedBase, withFileTypes: true })) {
+        if (entry.isFile()) {
+          keys.push(toPosixPath(relative(resolvedBase, join(entry.parentPath, entry.name))))
+        }
+      }
+    } catch (_error) {
+      // base directory does not exist yet
     }
+
     return keys
   },
   async clear(base?: string) {

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/renderer-jsx",
-  "version": "5.0.0-beta.40",
+  "version": "5.0.0-beta.42",
   "description": "JSX-based renderer for Kubb. Provides a custom React runtime, reconciler, and built-in components (File, Function, Type, Const) for component-based, type-safe code generation.",
   "keywords": [
     "codegen",
@@ -75,7 +75,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "tsdown && size-limit",
+    "build": "tsdown",
     "clean": "node -e \"require('fs').rmSync('./dist', {recursive:true,force:true})\"",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
@@ -96,13 +96,6 @@
     "react": "catalog:",
     "react-reconciler": "catalog:"
   },
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
-    }
-  ],
   "engines": {
     "node": ">=22"
   },

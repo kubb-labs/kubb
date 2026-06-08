@@ -60,7 +60,7 @@ rtk proxy <cmd>       # Run raw without filtering but still track usage
 `AGENTS.md` is the canonical instruction file. `CLAUDE.md`, `GEMINI.md`, and
 `.github/copilot-instructions.md` symlink to it. Skills live in `.agents/skills/` (open
 `SKILL.md` format, cross-provider). Always-on conventions live in `.claude/rules/`
-(`code-style`, `jsdoc`, `markdown`, `testing`, `security`), and `.claude/` also holds commands,
+(`code-style`, `jsdoc`, `markdown`, `testing`, `security`, `usa-english`), and `.claude/` also holds commands,
 subagents, output styles, and hooks.
 
 <skills>

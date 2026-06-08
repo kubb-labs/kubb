@@ -59,6 +59,30 @@ describe('defineConfig', () => {
     expect(resolved.adapter?.name).toBe('oas')
   })
 
+  test('enables fsCache by default when not set', () => {
+    const config = defineConfig({
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+    } as UserConfig)
+    const resolved = config as UserConfig
+
+    expect(resolved.cache).toBeDefined()
+    expect((resolved.cache as { name: string }).name).toBe('fs')
+  })
+
+  test('keeps cache false so caching can be turned off', () => {
+    const config = defineConfig({
+      root: '.',
+      input: { path: 'spec.yaml' },
+      output: { path: './gen' },
+      cache: false,
+    } as UserConfig)
+    const resolved = config as UserConfig
+
+    expect(resolved.cache).toBe(false)
+  })
+
   test('applies default parsers when not set', () => {
     const config = defineConfig({
       root: '.',

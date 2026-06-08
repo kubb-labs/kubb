@@ -192,7 +192,7 @@ examples:
 notes:
   - type: tip
     body: |-
-      `middleware-barrel` ships with Kubb and is enabled automatically when no `middleware` option is provided. Install it explicitly only when customising barrel behaviour alongside other middlewares.
+      `middleware-barrel` ships with Kubb and is enabled automatically when no `middleware` option is provided. Install it explicitly only when customizing barrel behavior alongside other middlewares.
   - type: note
     body: |-
       `output.barrel` is auto-defaulted to `{ type: 'named' }` only when `middlewareBarrel` is part of `config.middleware`. With a custom middleware list that omits it, set `output.barrel` yourself if you still want a barrel.

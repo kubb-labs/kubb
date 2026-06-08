@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto'
+import { hash } from 'node:crypto'
 import { tokenize } from '@internals/utils'
 import type { AsyncEventEmitter, Config, KubbHooks } from '@kubb/core'
 
@@ -23,7 +23,7 @@ export async function executeHooks({ configHooks, hooks }: ExecutingHooksProps):
       continue
     }
 
-    const hookId = createHash('sha256').update(command).digest('hex')
+    const hookId = hash('sha256', command, 'hex')
     await hooks.emit('kubb:hook:start', { id: hookId, command: cmd, args })
 
     await hooks.onOnce('kubb:hook:end', async (ctx) => {
