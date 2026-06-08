@@ -180,6 +180,7 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
           paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
           dataReturnType={options.client.dataReturnType}
+          suspense
         />
         {options.suspense && (
           <>
