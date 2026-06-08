@@ -94,20 +94,16 @@
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
-    "@types/react": "catalog:",
-    "react": "catalog:"
+    "@types/react": "catalog:"
   },
   "size-limit": [
     {
       "path": "./dist/*.js",
-      "limit": "30 KiB",
+      "limit": "10 KiB",
       "gzip": true
     }
   ],
   "engines": {
     "node": ">=22"
-  },
-  "inlinedDependencies": {
-    "react": "19.2.6"
   }
 }

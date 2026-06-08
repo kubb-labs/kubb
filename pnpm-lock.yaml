@@ -27,9 +27,6 @@ catalogs:
     oxlint:
       specifier: ^1.68.0
       version: 1.68.0
-    react:
-      specifier: 19.2.6
-      version: 19.2.6
     remeda:
       specifier: ^2.37.0
       version: 2.37.0
@@ -399,9 +396,6 @@ importers:
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.17
-      react:
-        specifier: 'catalog:'
-        version: 19.2.6
 
   packages/unplugin-kubb:
     dependencies:
@@ -4222,10 +4216,6 @@ packages:
 
   rc9@3.0.1:
     resolution: {integrity: sha512-gMDyleLWVE+i6Sgtc0QbbY6pEKqYs97NGi6isHQPqYlLemPoO8dxQ3uGi0f4NiP98c+jMW6cG1Kx9dDwfvqARQ==}
-
-  react@19.2.6:
-    resolution: {integrity: sha512-sfWGGfavi0xr8Pg0sVsyHMAOziVYKgPLNrS7ig+ivMNb3wbCBw3KxtflsGBAwD3gYQlE/AEZsTLgToRrSCjb0Q==}
-    engines: {node: '>=0.10.0'}
 
   read-yaml-file@1.1.0:
     resolution: {integrity: sha512-VIMnQi/Z4HT2Fxuwg5KrY174U1VdUIASQVWXXyqtNRtxSr9IYkn1rsI6Tb6HsrHCmB7gVpNwX6JxPTHcH6IoTA==}
@@ -8860,8 +8850,6 @@ snapshots:
     dependencies:
       defu: 6.1.7
       destr: 2.0.5
-
-  react@19.2.6: {}
 
   read-yaml-file@1.1.0:
     dependencies:
