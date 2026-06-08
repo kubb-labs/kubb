@@ -54,6 +54,25 @@ describe('suspenseQueryGenerator operation', async () => {
         suspense: {},
       },
     },
+    {
+      name: 'getSuspensePetById',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{pet_id}',
+      method: 'get',
+      options: {
+        suspense: {},
+      },
+    },
+    {
+      name: 'getSuspensePetByIdObject',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{pet_id}',
+      method: 'get',
+      options: {
+        paramsType: 'object',
+        suspense: {},
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string

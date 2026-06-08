@@ -82,6 +82,19 @@ describe('suspenseInfiniteQueryGenerator operation', async () => {
         },
       },
     },
+    {
+      name: 'getSuspenseInfinitePetById',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{pet_id}',
+      method: 'get',
+      options: {
+        suspense: {},
+        infinite: {
+          queryParam: 'pageSize',
+          initialPageParam: 0,
+        },
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string

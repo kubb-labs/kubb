@@ -16,6 +16,11 @@ type Props = {
   paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
+  /**
+   * Render the options for a suspense hook, which always runs and therefore
+   * keeps its params required and omits the `enabled` guard.
+   */
+  suspense?: boolean
 }
 
 type GetParamsProps = {
@@ -23,14 +28,15 @@ type GetParamsProps = {
   paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
+  suspense?: boolean
 }
 
-function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, suspense }: GetParamsProps) {
   if (paramsType === 'object') {
     const pathParams = getPathParams(typeSchemas.pathParams, {
       typed: true,
       casing: paramsCasing,
-      override: (item) => ({ ...item, type: `${item.type} | undefined` }),
+      override: suspense ? undefined : (item) => ({ ...item, type: `${item.type} | undefined` }),
     })
 
     const children = {
@@ -80,7 +86,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
           children: getPathParams(typeSchemas.pathParams, {
             typed: true,
             casing: paramsCasing,
-            override: (item) => ({ ...item, type: `${item.type} | undefined` }),
+            override: suspense ? undefined : (item) => ({ ...item, type: `${item.type} | undefined` }),
           }),
           default: isAllOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
         }
@@ -121,12 +127,14 @@ export function QueryOptions({
   paramsType,
   pathParamsType,
   queryKeyName,
+  suspense,
 }: Props): FabricReactNode {
   const params = getParams({
     paramsType,
     paramsCasing,
     pathParamsType,
     typeSchemas,
+    suspense,
   })
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'
@@ -146,7 +154,8 @@ export function QueryOptions({
 
   // Only add enabled check for required (non-optional) parameters
   // Optional parameters with defaults should not prevent query execution
-  const enabledPathParams = getPathParams(typeSchemas.pathParams, { casing: paramsCasing })
+  // Suspense hooks always run, so they never get an enabled guard or non-null assertions
+  const enabledPathParams = suspense ? {} : getPathParams(typeSchemas.pathParams, { casing: paramsCasing })
   const enabledParamNames = new Set(
     Object.entries(enabledPathParams)
       // Only include if the parameter exists and is NOT optional
