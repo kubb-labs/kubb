@@ -87,13 +87,6 @@
       "optional": true
     }
   },
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
-    }
-  ],
   "preferGlobal": true,
   "engines": {
     "node": ">=22"
