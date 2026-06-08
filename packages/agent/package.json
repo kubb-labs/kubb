@@ -37,7 +37,7 @@
   },
   "scripts": {
     "build": "nitro build",
-    "clean": "npx rimraf ./dist .output",
+    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true});require('node:fs').rmSync('.output', {recursive:true,force:true})\"",
     "dev": "nitro dev",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
