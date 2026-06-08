@@ -241,7 +241,12 @@ describe('printConst', () => {
       export: true,
       nodes: [createText('\n    {\n      foo: 1,\n      bar: 2,\n    }\n  ')],
     })
-    expect(printConst(node)).toBe('export const pet = {\n  foo: 1,\n  bar: 2,\n}')
+    expect(printConst(node)).toMatchInlineSnapshot(`
+      "export const pet = {
+        foo: 1,
+        bar: 2,
+      }"
+    `)
   })
 
   it('preserves a correctly authored multi-line value', () => {
@@ -250,7 +255,12 @@ describe('printConst', () => {
       export: true,
       nodes: [createText('{\n  foo: 1,\n  bar: 2,\n}')],
     })
-    expect(printConst(node)).toBe('export const pet = {\n  foo: 1,\n  bar: 2,\n}')
+    expect(printConst(node)).toMatchInlineSnapshot(`
+      "export const pet = {
+        foo: 1,
+        bar: 2,
+      }"
+    `)
   })
 })
 
@@ -293,7 +303,12 @@ describe('printType', () => {
       export: true,
       nodes: [createText('\n    {\n      id: number\n      name: string\n    }\n  ')],
     })
-    expect(printType(node)).toBe('export type Pet = {\n  id: number\n  name: string\n}')
+    expect(printType(node)).toMatchInlineSnapshot(`
+      "export type Pet = {
+        id: number
+        name: string
+      }"
+    `)
   })
 })
 
@@ -362,7 +377,11 @@ describe('printFunction', () => {
       name: 'getPet',
       nodes: [createText('return fetch("/pets")')],
     })
-    expect(printFunction(node)).toBe('function getPet() {\n  return fetch("/pets")\n}')
+    expect(printFunction(node)).toMatchInlineSnapshot(`
+      "function getPet() {
+        return fetch("/pets")
+      }"
+    `)
   })
 
   it('includes JSDoc when provided', () => {
@@ -378,13 +397,24 @@ describe('printFunction', () => {
       name: 'getPet',
       nodes: [createText('      const a = 1\n      const b = 2')],
     })
-    expect(printFunction(node)).toBe('function getPet() {\n  const a = 1\n  const b = 2\n}')
+    expect(printFunction(node)).toMatchInlineSnapshot(`
+      "function getPet() {
+        const a = 1
+        const b = 2
+      }"
+    `)
   })
 
   it('indents a nested function cumulatively', () => {
     const inner = createFunction({ name: 'inner', nodes: [createText('return 1')] })
     const node = createFunction({ name: 'outer', nodes: [inner] })
-    expect(printFunction(node)).toBe('function outer() {\n  function inner() {\n    return 1\n  }\n}')
+    expect(printFunction(node)).toMatchInlineSnapshot(`
+      "function outer() {
+        function inner() {
+          return 1
+        }
+      }"
+    `)
   })
 })
 
@@ -424,7 +454,11 @@ describe('printArrowFunction', () => {
       name: 'getPet',
       nodes: [createText('return fetch("/pets")')],
     })
-    expect(printArrowFunction(node)).toBe('const getPet = () => {\n  return fetch("/pets")\n}')
+    expect(printArrowFunction(node)).toMatchInlineSnapshot(`
+      "const getPet = () => {
+        return fetch("/pets")
+      }"
+    `)
   })
 
   it('generates an arrow function with generics', () => {
@@ -463,7 +497,12 @@ describe('printArrowFunction', () => {
       name: 'getPet',
       nodes: [createText('      const a = 1\n      const b = 2')],
     })
-    expect(printArrowFunction(node)).toBe('const getPet = () => {\n  const a = 1\n  const b = 2\n}')
+    expect(printArrowFunction(node)).toMatchInlineSnapshot(`
+      "const getPet = () => {
+        const a = 1
+        const b = 2
+      }"
+    `)
   })
 })
 
@@ -509,7 +548,11 @@ describe('printSource', () => {
     const node = createSource({
       nodes: [createConst({ name: 'x', nodes: [createText('1')] }), createType({ name: 'Pet', nodes: [createText('{ id: number }')] })],
     })
-    expect(printSource(node)).toBe('const x = 1\n\ntype Pet = { id: number }')
+    expect(printSource(node)).toMatchInlineSnapshot(`
+      "const x = 1
+
+      type Pet = { id: number }"
+    `)
   })
 
   it('preserves DOM order when JSX elements and text nodes are interleaved', () => {
@@ -520,7 +563,13 @@ describe('printSource', () => {
         createConst({ name: 'x', nodes: [createText('1')] }),
       ],
     })
-    expect(printSource(node)).toBe('const server = new McpServer()\n\nserver.registerTool("foo", {})\n\nconst x = 1')
+    expect(printSource(node)).toMatchInlineSnapshot(`
+      "const server = new McpServer()
+
+      server.registerTool("foo", {})
+
+      const x = 1"
+    `)
   })
 
   it('normalizes a top-level text node with baked-in indentation to column zero', () => {
@@ -532,7 +581,11 @@ describe('printSource', () => {
     const node = createSource({
       nodes: [createConst({ name: 'x', nodes: [createText('1')] }), createBreak(), createConst({ name: 'y', nodes: [createText('2')] })],
     })
-    expect(printSource(node)).toBe('const x = 1\n\nconst y = 2')
+    expect(printSource(node)).toMatchInlineSnapshot(`
+      "const x = 1
+
+      const y = 2"
+    `)
   })
 
   it('returns empty string when source has no nodes', () => {
