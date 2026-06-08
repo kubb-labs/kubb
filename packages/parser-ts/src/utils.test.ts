@@ -1,6 +1,7 @@
-import { createArrowFunction, createConst, createFunction, createSource, createText, createType } from '@kubb/ast'
+import { createArrowFunction, createBreak, createConst, createFunction, createSource, createText, createType } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import {
+  dedent,
   formatGenerics,
   formatReturnType,
   getRelativePath,
@@ -82,6 +83,40 @@ describe('indentLines', () => {
 
   it('returns empty string for empty input', () => {
     expect(indentLines('')).toBe('')
+  })
+})
+
+describe('dedent', () => {
+  it('strips the common leading whitespace shared by every line', () => {
+    expect(dedent('    foo\n      bar')).toBe('foo\n  bar')
+  })
+
+  it('trims leading and trailing blank lines', () => {
+    expect(dedent('\n\n  foo\n  bar\n\n')).toBe('foo\nbar')
+  })
+
+  it('outdents a single line', () => {
+    expect(dedent('   x')).toBe('x')
+  })
+
+  it('leaves already-baselined content unchanged', () => {
+    expect(dedent('foo\n  bar')).toBe('foo\n  bar')
+  })
+
+  it('keeps interior blank lines empty', () => {
+    expect(dedent('  foo\n\n  bar')).toBe('foo\n\nbar')
+  })
+
+  it('returns empty string for empty input', () => {
+    expect(dedent('')).toBe('')
+  })
+
+  it('returns empty string for whitespace-only input', () => {
+    expect(dedent('   \n  ')).toBe('')
+  })
+
+  it('counts a tab as a single indent unit', () => {
+    expect(dedent('\t\tfoo\n\t\t\tbar')).toBe('foo\n\tbar')
   })
 })
 
@@ -199,6 +234,24 @@ describe('printConst', () => {
     })
     expect(printConst(node)).toBe('/**\n * @description A pet\n */\nconst pet = {}')
   })
+
+  it('normalizes a multi-line value authored with baked-in indentation', () => {
+    const node = createConst({
+      name: 'pet',
+      export: true,
+      nodes: [createText('\n    {\n      foo: 1,\n      bar: 2,\n    }\n  ')],
+    })
+    expect(printConst(node)).toBe('export const pet = {\n  foo: 1,\n  bar: 2,\n}')
+  })
+
+  it('preserves a correctly authored multi-line value', () => {
+    const node = createConst({
+      name: 'pet',
+      export: true,
+      nodes: [createText('{\n  foo: 1,\n  bar: 2,\n}')],
+    })
+    expect(printConst(node)).toBe('export const pet = {\n  foo: 1,\n  bar: 2,\n}')
+  })
 })
 
 describe('printType', () => {
@@ -232,6 +285,15 @@ describe('printType', () => {
   it('handles empty nodes', () => {
     const node = createType({ name: 'Pet' })
     expect(printType(node)).toBe('type Pet = ')
+  })
+
+  it('normalizes a multi-line object type authored with baked-in indentation', () => {
+    const node = createType({
+      name: 'Pet',
+      export: true,
+      nodes: [createText('\n    {\n      id: number\n      name: string\n    }\n  ')],
+    })
+    expect(printType(node)).toBe('export type Pet = {\n  id: number\n  name: string\n}')
   })
 })
 
@@ -310,6 +372,20 @@ describe('printFunction', () => {
     })
     expect(printFunction(node)).toBe('/**\n * @description Fetch a pet\n */\nfunction getPet() {}')
   })
+
+  it('normalizes a body authored with baked-in indentation to a single level', () => {
+    const node = createFunction({
+      name: 'getPet',
+      nodes: [createText('      const a = 1\n      const b = 2')],
+    })
+    expect(printFunction(node)).toBe('function getPet() {\n  const a = 1\n  const b = 2\n}')
+  })
+
+  it('indents a nested function cumulatively', () => {
+    const inner = createFunction({ name: 'inner', nodes: [createText('return 1')] })
+    const node = createFunction({ name: 'outer', nodes: [inner] })
+    expect(printFunction(node)).toBe('function outer() {\n  function inner() {\n    return 1\n  }\n}')
+  })
 })
 
 describe('printArrowFunction', () => {
@@ -381,6 +457,14 @@ describe('printArrowFunction', () => {
     })
     expect(printArrowFunction(node)).toBe('/**\n * @description Fetch a pet\n */\nconst getPet = () => {}')
   })
+
+  it('normalizes a body authored with baked-in indentation to a single level', () => {
+    const node = createArrowFunction({
+      name: 'getPet',
+      nodes: [createText('      const a = 1\n      const b = 2')],
+    })
+    expect(printArrowFunction(node)).toBe('const getPet = () => {\n  const a = 1\n  const b = 2\n}')
+  })
 })
 
 describe('printCodeNode', () => {
@@ -421,11 +505,11 @@ describe('printSource', () => {
     expect(printSource(node)).toBe('const x = 1')
   })
 
-  it('converts multiple nodes joining with newline', () => {
+  it('separates multiple top-level declarations with a blank line', () => {
     const node = createSource({
       nodes: [createConst({ name: 'x', nodes: [createText('1')] }), createType({ name: 'Pet', nodes: [createText('{ id: number }')] })],
     })
-    expect(printSource(node)).toBe('const x = 1\ntype Pet = { id: number }')
+    expect(printSource(node)).toBe('const x = 1\n\ntype Pet = { id: number }')
   })
 
   it('preserves DOM order when JSX elements and text nodes are interleaved', () => {
@@ -436,7 +520,19 @@ describe('printSource', () => {
         createConst({ name: 'x', nodes: [createText('1')] }),
       ],
     })
-    expect(printSource(node)).toBe('const server = new McpServer()\nserver.registerTool("foo", {})\nconst x = 1')
+    expect(printSource(node)).toBe('const server = new McpServer()\n\nserver.registerTool("foo", {})\n\nconst x = 1')
+  })
+
+  it('normalizes a top-level text node with baked-in indentation to column zero', () => {
+    const node = createSource({ nodes: [createText('    const x = 1')] })
+    expect(printSource(node)).toBe('const x = 1')
+  })
+
+  it('does not add an extra blank line for an explicit break', () => {
+    const node = createSource({
+      nodes: [createConst({ name: 'x', nodes: [createText('1')] }), createBreak(), createConst({ name: 'y', nodes: [createText('2')] })],
+    })
+    expect(printSource(node)).toBe('const x = 1\n\nconst y = 2')
   })
 
   it('returns empty string when source has no nodes', () => {

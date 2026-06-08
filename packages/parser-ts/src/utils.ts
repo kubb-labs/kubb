@@ -85,6 +85,37 @@ export function indentLines(text: string, spaces: number = INDENT_SIZE): string 
 }
 
 /**
+ * Removes the common leading whitespace shared by every non-blank line and trims
+ * surrounding blank lines, normalizing multi-line content authored inside an
+ * indented template literal back to a column-zero baseline. Leading whitespace is
+ * counted by character, so N tabs and N spaces are treated as the same depth.
+ *
+ * @example
+ * ```ts
+ * dedent('\n    foo\n      bar\n    ')
+ * // 'foo\n  bar'
+ * ```
+ */
+export function dedent(text: string): string {
+  if (!text) return ''
+
+  const lines = text.split('\n')
+
+  let start = 0
+  let end = lines.length
+  while (start < end && lines[start]!.trim() === '') start++
+  while (end > start && lines[end - 1]!.trim() === '') end--
+
+  const trimmed = lines.slice(start, end)
+  if (trimmed.length === 0) return ''
+
+  const indents = trimmed.filter((line) => line.trim() !== '').map((line) => (line.match(/^\s*/)?.[0].length ?? 0))
+  const min = indents.length ? Math.min(...indents) : 0
+
+  return trimmed.map((line) => (line.trim() === '' ? '' : line.slice(min))).join('\n')
+}
+
+/**
  * Renders the generic clause (`<T, U>`) shared by function and arrow-function nodes.
  * Accepts either a raw string (rendered verbatim) or an array of type-parameter names.
  */
@@ -326,8 +357,8 @@ export function printArrowFunction(node: ArrowFunctionNode): string {
  */
 export function printCodeNode(node: CodeNode): string {
   if (node.kind === 'Break') return ''
-  if (node.kind === 'Text') return (node as TextNode).value
-  if (node.kind === 'Jsx') return (node as JsxNode).value
+  if (node.kind === 'Text') return dedent((node as TextNode).value)
+  if (node.kind === 'Jsx') return dedent((node as JsxNode).value)
   if (node.kind === 'Const') return printConst(node)
   if (node.kind === 'Type') return printType(node)
   if (node.kind === 'Function') return printFunction(node)
@@ -341,23 +372,24 @@ export function printCodeNode(node: CodeNode): string {
  * Iterates `nodes` in DOM order, rendering each {@link CodeNode} via
  * {@link printCodeNode}.
  *
+ * Top-level declarations are separated by a blank line so the source reads
+ * cleanly without an external formatter.
+ *
  * @example From nodes
  * ```ts
  * printSource({ kind: 'Source', nodes: [createConst({ name: 'x', nodes: [createText('1')] }), createText('x.toString()')] })
- * // 'const x = 1\nx.toString()'
+ * // 'const x = 1\n\nx.toString()'
  * ```
  */
 export function printSource(node: SourceNode): string {
   const nodes = node.nodes
 
   if (!nodes || nodes.length === 0) return ''
-  const parts: Array<string> = []
 
-  for (const child of nodes) {
-    parts.push(printCodeNode(child as CodeNode))
-  }
-
-  return parts.join('\n')
+  return nodes
+    .map((child) => printCodeNode(child as CodeNode))
+    .filter(Boolean)
+    .join('\n\n')
 }
 
 export function createImport({
