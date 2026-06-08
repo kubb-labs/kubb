@@ -30,7 +30,6 @@ describe('Type', () => {
         ],
       }
     `)
-    renderer.unmount()
   })
 
   it('should throw when name does not start with an uppercase letter', () => {
@@ -44,7 +43,6 @@ describe('Type', () => {
         </File.Source>
       </File>,
     )
-    renderer.unmount()
     return expect(renderPromise).rejects.toThrow('Name should start with a capital letter')
   })
 })

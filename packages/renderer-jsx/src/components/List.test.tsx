@@ -16,7 +16,6 @@ describe('List', () => {
       "- Add the parser
       - Render the page"
     `)
-    renderer.unmount()
   })
 
   it('renders a numbered list when `ordered` is set', async () => {
@@ -31,6 +30,5 @@ describe('List', () => {
       "1. First
       2. Second"
     `)
-    renderer.unmount()
   })
 })

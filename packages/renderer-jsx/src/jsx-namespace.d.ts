@@ -9,7 +9,6 @@ import type {
   KubbReactElement,
   KubbReactNode,
   KubbSourceProps,
-  KubbTextProps,
   KubbTypeProps,
   Key,
   LineBreakProps,
@@ -46,7 +45,6 @@ export namespace JSX {
 
   interface IntrinsicElements {
     'kubb-jsx': KubbJsxProps
-    'kubb-text': KubbTextProps
     'kubb-file': KubbFileProps
     'kubb-source': KubbSourceProps
     'kubb-import': KubbImportProps
@@ -56,8 +54,6 @@ export namespace JSX {
     'kubb-const': KubbConstProps
     'kubb-type': KubbTypeProps
     br: LineBreakProps
-    indent: {}
-    dedent: {}
   }
 
   type LibraryManagedAttributes<C, P> = P

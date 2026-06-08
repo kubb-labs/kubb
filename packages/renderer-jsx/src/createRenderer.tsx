@@ -51,10 +51,6 @@ export const jsxRenderer = () => {
     stream(element: KubbReactElement): Generator<FileNode> {
       return runtime.stream(element)
     },
-    dispose() {},
-    unmount(_error?: Error | number | null) {},
-    [Symbol.dispose]() {
-      this.dispose()
-    },
+    [Symbol.dispose]() {},
   }
 }

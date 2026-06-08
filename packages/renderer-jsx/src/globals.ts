@@ -9,7 +9,6 @@ import type {
   KubbReactElement,
   KubbReactNode,
   KubbSourceProps,
-  KubbTextProps,
   KubbTypeProps,
   Key,
   LineBreakProps,
@@ -29,7 +28,6 @@ declare global {
 
     interface IntrinsicElements {
       'kubb-jsx': KubbJsxProps
-      'kubb-text': KubbTextProps
       'kubb-file': KubbFileProps
       'kubb-source': KubbSourceProps
       'kubb-import': KubbImportProps
@@ -39,8 +37,6 @@ declare global {
       'kubb-const': KubbConstProps
       'kubb-type': KubbTypeProps
       br: LineBreakProps
-      indent: {}
-      dedent: {}
     }
   }
 }

@@ -45,8 +45,6 @@ describe('jsxRenderer', () => {
     const client = renderer.files.find((f) => f.baseName === 'client.ts')
     expect(client?.sources[0]?.nodes?.[0]?.kind).toBe('Const')
     expect(client?.sources[1]?.nodes?.[0]?.kind).toBe('Function')
-
-    renderer.unmount()
   })
 
   it('should propagate render errors', async () => {
@@ -61,7 +59,6 @@ describe('jsxRenderer', () => {
         </File>,
       ),
     ).rejects.toThrow('render error')
-    renderer.unmount()
   })
 
   it('should stream files one at a time', async () => {

@@ -1,91 +1,9 @@
 import type { ArrowFunctionNode, ConstNode, ExportNode, FileNode, FunctionNode, ImportNode, SourceNode, TypeNode } from '@kubb/ast'
 
 /**
- * Unique identifier for a React element in lists or conditional renders.
+ * Unique key for a Kubb JSX element in lists or conditional renders.
  */
 export type Key = string | number | bigint
-
-/**
- * Custom element names recognized by the Kubb JSX renderer.
- * Each name maps to a corresponding AST node type in the generated code.
- */
-export type ElementNames =
-  | 'br'
-  | 'div'
-  | 'indent'
-  | 'dedent'
-  | 'kubb-jsx'
-  | 'kubb-text'
-  | 'kubb-file'
-  | 'kubb-source'
-  | 'kubb-import'
-  | 'kubb-export'
-  | 'kubb-function'
-  | 'kubb-arrow-function'
-  | 'kubb-const'
-  | 'kubb-type'
-  | 'kubb-root'
-  | 'kubb-app'
-
-type Node = {
-  parentNode: DOMElement | null
-  internal_static?: boolean
-}
-
-/**
- * Allowed attribute value types for DOM elements.
- * `null` signals intentionally empty, the prop was explicitly cleared.
- */
-export type DOMNodeAttribute = boolean | string | number | null | Record<string, unknown> | Array<unknown>
-
-type TextName = '#text'
-
-/**
- * Leaf DOM node containing raw text.
- */
-export type TextNode = {
-  nodeName: TextName
-  nodeValue: string
-} & Node
-
-/**
- * Virtual DOM node, either a text node or a named element.
- */
-export type DOMNode<T = { nodeName: NodeNames }> = T extends {
-  nodeName: infer U
-}
-  ? U extends '#text'
-    ? TextNode
-    : DOMElement
-  : never
-
-type OutputTransformer = (s: string, index: number) => string
-
-/**
- * Named element in the Kubb virtual DOM tree.
- * Stores attributes, child nodes, and lifecycle callbacks for rendering.
- */
-export type DOMElement = {
-  nodeName: ElementNames
-  /**
-   * Key/value attributes passed as JSX props to this element.
-   */
-  attributes: Record<string, DOMNodeAttribute>
-  /**
-   * Ordered list of child nodes attached to this element.
-   */
-  childNodes: Array<DOMNode>
-  internal_transform?: OutputTransformer
-
-  // Internal properties
-  isStaticDirty?: boolean
-  staticNode?: DOMElement
-  onComputeLayout?: () => void
-  onRender?: () => void
-  onImmediateRender?: () => void
-} & Node
-
-type NodeNames = ElementNames | TextName
 
 /**
  * Element produced by a Kubb JSX component. It carries the host or component
@@ -110,14 +28,6 @@ export type KubbReactNode = KubbReactElement | string | number | bigint | boolea
  */
 export type KubbJsxProps = {
   children?: string
-}
-
-/**
- * Props for the `<kubb-text>` element.
- * Wraps React children as plain text in the output.
- */
-export type KubbTextProps = {
-  children?: KubbReactNode
 }
 
 /**

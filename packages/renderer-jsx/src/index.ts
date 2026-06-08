@@ -1,6 +1,4 @@
-export { createContext, inject, provide, unprovide } from '@internals/utils'
 export { Callout } from './components/Callout.tsx'
-export { CodeBlock } from './components/CodeBlock.tsx'
 export { Const } from './components/Const.tsx'
 export { File } from './components/File.tsx'
 export { Frontmatter } from './components/Frontmatter.tsx'
