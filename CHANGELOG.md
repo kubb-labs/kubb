@@ -1,5 +1,27 @@
 # Changelog
 
+## v5.0.0-beta.43 — Jun 8, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Trim the `Renderer` contract to what the build driver actually uses. The `unmount` and `dispose` methods were never called, since the driver disposes through `using instance = renderer()`, which runs `[Symbol.dispose]`. Both are removed from the `Renderer` type, so a custom renderer now implements `render`, `files`, an optional `stream`, and `[Symbol.dispose]` only. ([#3488](https://github.com/kubb-labs/kubb/pull/3488), [`626b261`](https://github.com/kubb-labs/kubb/commit/626b261f3ef76ed45000dd5b3b5d53496d18c491))
+
+### @kubb/renderer-jsx
+
+#### Breaking Changes
+
+- Remove React entirely, runtime and types, while keeping JSX as the authoring style. The async fiber runtime, `react-reconciler`, `scheduler`, and the `react` dependency are all gone. Rendering runs through the synchronous walker over a tiny built-in JSX runtime (`@kubb/renderer-jsx/jsx-runtime`). The JSX namespace is now self-contained and declares only the `kubb-*` code hosts plus `br`, so `@types/react` is dropped as well and consumers no longer need it for type support. The gzipped bundle drops from a 510 KiB budget to ~8 KiB.
+  
+  There is now one renderer, exported as `jsxRenderer`. The separate `jsxRendererSync` name is gone, and so is the unused `Root` error-boundary component. This release also clears the scaffolding left from the virtual-DOM era: the internal DOM module with its `DOMElement` and `DOMNode` types, the unused `CodeBlock` component, the `createContext`, `inject`, `provide`, and `unprovide` re-exports, and the renderer's no-op `dispose` and `unmount` methods. ([#3488](https://github.com/kubb-labs/kubb/pull/3488), [`2bd32fd`](https://github.com/kubb-labs/kubb/commit/2bd32fddd6e628d04e4e59ae06ff7d52982a8a6f))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.42 — Jun 5, 2026
 
 ### @kubb/core
