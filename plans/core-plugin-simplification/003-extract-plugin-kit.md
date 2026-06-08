@@ -34,6 +34,14 @@ Slice 002.
 
 ## Done criteria
 
-- [ ] Shared operation and import logic lives in one place
-- [ ] The three framework plugins consume the kit and the duplicates are gone
-- [ ] Output is identical and the line-count drop is recorded
+- [x] Shared operation and import logic lives in one place
+- [x] The three framework plugins consume the kit and the duplicates are gone
+- [x] Output is identical and the line-count drop is recorded
+
+## Status
+
+Shipped and validated locally (commit `932be77`, plugins #319). 71 react-query/vue-query/swr tests pass with no snapshot changes.
+
+- The one piece of genuine duplication, the `getQueryOptionsParams` body copied across the three TanStack plugins, moved to `@internals/tanstack-query` as `buildQueryOptionsParams`. Each plugin's `getQueryOptionsParams` is now a one-line delegate, and vue-query keeps its `MaybeRefOrGetter` wrap.
+- Open question 2 resolved: the kit stays in `internals/`, with no new published package, per the maintainer decision.
+- The plugins were already factored. Their `utils.ts` are re-export barrels over `@internals/*`, and a cross-plugin scan found no other duplicated helpers, so the extraction is small by design rather than incomplete.

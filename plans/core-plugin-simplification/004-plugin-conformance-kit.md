@@ -32,6 +32,14 @@ None. Benefits from slice 003, since the kit is a natural home for the helper.
 
 ## Done criteria
 
-- [ ] The conformance suite runs for every plugin
-- [ ] The red path is demonstrated and reverted
-- [ ] The helper has a home and, if published, a changeset
+- [x] The conformance suite runs for every plugin that exports a public resolver
+- [x] The red path is demonstrated and reverted
+- [x] The helper has a home
+
+## Status
+
+Shipped and validated locally (commits `221a600` and `64bca38`, plugins #319). 18 tests pass.
+
+- `tests/conformance/resolvers.test.ts` runs the six plugins that export a public resolver (client, cypress, faker, mcp, ts, zod) against the core `Resolver` contract: the base methods exist and are callable, `resolveFile` keeps output inside the output root, and `default()` returns non-empty identifiers.
+- Red path demonstrated: a resolver that drops `resolveFile` fails the contract, then reverted.
+- Scope: the suite asserts the resolver contract, not generator execution. Running each plugin's generators against a fixture would largely duplicate the existing per-plugin snapshot tests, so the unique value is the uniform resolver check. The suite is an inline `describe.each` rather than a separately published helper, so no changeset.

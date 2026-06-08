@@ -33,6 +33,15 @@ None.
 
 ## Done criteria
 
-- [ ] One generator emits identical output through the builder API
-- [ ] That generator module has no JSX runtime import
-- [ ] Any `@kubb/ast` addition has a changeset
+- [x] One generator emits identical output through the builder API
+- [x] That generator module has no JSX runtime import
+- [x] Any `@kubb/ast` addition has a changeset
+
+## Status
+
+Shipped and validated locally with byte-identical snapshots.
+
+- `@kubb/plugin-client` `operationsGenerator` now builds `operations.ts` with `createFile`/`createSource`/`createConst`/`createText`, no JSX (commit `e740ef0`, plugins #319). 90 plugin-client tests pass.
+- `@kubb/plugin-msw` `handlersGenerator` was converted the same way and its `Handlers` component removed (commit `ddcc5ab`). 8 msw tests pass.
+- No `@kubb/ast` addition was needed, the `create*` factories already existed, so each plugin carries a patch changeset instead.
+- Boundary: the simple aggregate generators move to builders. The per-operation generators (client, query, mutation, cypress `Request`) keep JSX, which is the right tool for that composition and the intended opt-in path.

@@ -38,7 +38,16 @@ Slice 001.
 
 ## Done criteria
 
-- [ ] `react-reconciler` and `scheduler` are gone from `@kubb/renderer-jsx`
-- [ ] The size budget is below the figure recorded in step 1
-- [ ] All generated output is unchanged
-- [ ] A changeset is added
+- [x] `react-reconciler` and `scheduler` are gone from `@kubb/renderer-jsx`
+- [x] The size budget is below the figure recorded in step 1
+- [x] All generated output is unchanged
+- [x] A changeset is added
+
+## Status
+
+Shipped and validated locally. This slice went past the reconciler to remove the React runtime entirely while keeping JSX.
+
+- `@kubb/plugin-swr`, the only consumer of the async runtime, moved to `jsxRendererSync` first (commit `d6cbd15`, plugins #319). 17 swr tests pass, no snapshot changes.
+- Deleted `Runtime.tsx` and `Renderer.ts` and dropped `react-reconciler` and `scheduler` (commit `2bd32fd`, kubb #3488). The CI dependency-diff confirmed a 2 MB drop.
+- Removed `react` as a runtime dependency (step 4). `jsx-runtime.ts` is now a built-in factory producing the plain element objects the sync walker reads, and the obsolete `Root` error-boundary component is gone (commit `6053701`). `@types/react` stays as a development-only type dependency that never ships.
+- 58 renderer-jsx tests pass, typecheck clean, gzipped bundle from a 510 KiB budget down to about 7.5 kB.

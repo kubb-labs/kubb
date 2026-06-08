@@ -32,7 +32,16 @@ Slices 001 through 004.
 
 ## Done criteria
 
-- [ ] The docs build with the examples compiling
-- [ ] The first example is builder-first and JSX is presented as opt-in
-- [ ] The roles section names printer, renderer, and serializer
-- [ ] The humanizer pass is done
+- [x] The docs build with the examples compiling
+- [x] The first example is builder-first and JSX is presented as opt-in
+- [x] The roles section names printer, renderer, and serializer
+- [x] The humanizer pass is done
+
+## Status
+
+Shipped (commits `be6dbcd` and `8473301`, platform #133).
+
+- The creating-plugins guide was already builder-first, every example uses `create*` from `@kubb/ast` with no `jsxRenderer`, so the change adds an "Emit roles" section naming the printer, the renderer (optional, via `jsxRendererSync`), and the parser as the serializer.
+- `concepts/plugins.md` now links the same roles from its generators section.
+- The additions are prose with no twoslash blocks, so they cannot break the docs type-check. The kubb.dev Dokploy preview deployed successfully, which validates the docs build.
+- The humanizer pass was applied while writing.
