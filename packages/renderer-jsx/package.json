@@ -95,14 +95,12 @@
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "@types/react": "catalog:",
-    "@types/react-reconciler": "catalog:",
-    "react": "catalog:",
-    "react-reconciler": "catalog:"
+    "react": "catalog:"
   },
   "size-limit": [
     {
       "path": "./dist/*.js",
-      "limit": "510 KiB",
+      "limit": "30 KiB",
       "gzip": true
     }
   ],
@@ -110,8 +108,6 @@
     "node": ">=22"
   },
   "inlinedDependencies": {
-    "react": "19.2.6",
-    "react-reconciler": "0.33.0",
-    "scheduler": "0.27.0"
+    "react": "19.2.6"
   }
 }
