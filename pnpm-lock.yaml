@@ -257,9 +257,6 @@ importers:
       '@kubb/ast':
         specifier: workspace:*
         version: link:../ast
-      fflate:
-        specifier: ^0.8.3
-        version: 0.8.3
       tinyexec:
         specifier: 'catalog:'
         version: 1.1.2
