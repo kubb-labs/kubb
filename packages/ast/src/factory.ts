@@ -35,7 +35,7 @@ import type {
   TextNode,
   TypeNode,
 } from './nodes/index.ts'
-import { combineExports, combineImports, combineSources, extractStringsFromNodes } from './utils.ts'
+import { combineExports, combineImports, combineSources, extractStringsFromNodes } from './utils/ast.ts'
 
 /**
  * Updates a schema's `optional` and `nullish` flags from a parent's `required`

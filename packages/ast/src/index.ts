@@ -49,5 +49,5 @@ export {
   isStringType,
   objectKey,
   syncSchemaRef,
-} from './utils.ts'
+} from './utils/ast.ts'
 export { collect, transform, walk } from './visitor.ts'
