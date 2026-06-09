@@ -488,3 +488,81 @@ export function createExport({
     undefined,
   )
 }
+
+/**
+ * Renders an import declaration string in the repo style (single quotes, no semicolons), mirroring
+ * the shapes that {@link createImport} builds: default, namespace (`* as`), and named imports with
+ * `{ a as b }` aliases, each optionally `type`-only. `path` is used verbatim, so resolve it first.
+ *
+ * @example
+ * ```ts
+ * printImport({ name: ['z'], path: './zod.ts' })
+ * // "import { z } from './zod.ts'"
+ * ```
+ */
+export function printImport({
+  name,
+  path,
+  isTypeOnly = false,
+  isNameSpace = false,
+}: {
+  name: string | Array<string | { propertyName: string; name?: string }>
+  path: string
+  isTypeOnly?: boolean | null
+  isNameSpace?: boolean | null
+}): string {
+  const typePrefix = isTypeOnly ? 'type ' : ''
+  const from = `'${path}'`
+
+  if (!Array.isArray(name)) {
+    if (isNameSpace) return `import ${typePrefix}* as ${name} from ${from}`
+    return `import ${typePrefix}${name} from ${from}`
+  }
+
+  const specifiers = name.map((item) => {
+    if (typeof item === 'object') {
+      return item.name ? `${item.propertyName} as ${item.name}` : item.propertyName
+    }
+    return item
+  })
+
+  return `import ${typePrefix}{ ${specifiers.join(', ')} } from ${from}`
+}
+
+/**
+ * Renders an export declaration string in the repo style (single quotes, no semicolons), mirroring
+ * the shapes that {@link createExport} builds: named re-exports, namespace alias (`* as name`), and
+ * wildcard, each optionally `type`-only. `path` is used verbatim, so resolve it first.
+ *
+ * @example
+ * ```ts
+ * printExport({ name: ['Pet', 'Order'], path: './models.ts' })
+ * // "export { Pet, Order } from './models.ts'"
+ * ```
+ */
+export function printExport({
+  path,
+  name,
+  isTypeOnly = false,
+  asAlias = false,
+}: {
+  path: string
+  name?: string | Array<ts.Identifier | string> | null
+  isTypeOnly?: boolean | null
+  asAlias?: boolean | null
+}): string {
+  const typePrefix = isTypeOnly ? 'type ' : ''
+  const from = `'${path}'`
+
+  if (Array.isArray(name)) {
+    const specifiers = name.map((item) => (typeof item === 'string' ? item : item.text))
+    return `export ${typePrefix}{ ${specifiers.join(', ')} } from ${from}`
+  }
+
+  if (asAlias && name) {
+    const parsedName = LEADING_DIGIT_PATTERN.test(name) ? `_${name.slice(1)}` : name
+    return `export ${typePrefix}* as ${parsedName} from ${from}`
+  }
+
+  return `export ${typePrefix}* from ${from}`
+}

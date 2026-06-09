@@ -3,6 +3,7 @@ import { createFunctionParameter, createOperation, createParameter, createParams
 import type { OperationNode, ParameterNode } from './types.ts'
 import type { OperationParamsResolver } from './utils.ts'
 import {
+  buildObject,
   caseParams,
   collectReferencedSchemaNames,
   collectUsedSchemaNames,
@@ -10,7 +11,10 @@ import {
   createDiscriminantNode,
   createOperationParams,
   findCircularSchemas,
+  indentLines,
   isStringType,
+  isValidIdentifier,
+  objectKey,
   resolveRefName,
   syncSchemaRef,
 } from './utils.ts'
@@ -2082,5 +2086,77 @@ describe('collectUsedSchemaNames', () => {
     const result = collectUsedSchemaNames([createItemOp], [bodySchema])
 
     expect(result).toStrictEqual(new Set(['CreateItemBody']))
+  })
+})
+
+describe('indentLines', () => {
+  it('indents each non-empty line by two spaces', () => {
+    expect(indentLines('foo\nbar')).toMatchInlineSnapshot(`
+      "  foo
+        bar"
+    `)
+  })
+
+  it('leaves blank lines empty', () => {
+    expect(indentLines('foo\n\nbar')).toMatchInlineSnapshot(`
+      "  foo
+
+        bar"
+    `)
+  })
+
+  it('repeats a space when given a number', () => {
+    expect(indentLines('foo', 4)).toMatchInlineSnapshot(`"    foo"`)
+  })
+})
+
+describe('isValidIdentifier', () => {
+  it('accepts identifier-safe names', () => {
+    expect(isValidIdentifier('id')).toMatchInlineSnapshot(`true`)
+    expect(isValidIdentifier('_private$1')).toMatchInlineSnapshot(`true`)
+  })
+
+  it('rejects names that need quoting', () => {
+    expect(isValidIdentifier('x-total')).toMatchInlineSnapshot(`false`)
+    expect(isValidIdentifier('1abc')).toMatchInlineSnapshot(`false`)
+    expect(isValidIdentifier('with space')).toMatchInlineSnapshot(`false`)
+  })
+})
+
+describe('objectKey', () => {
+  it('leaves valid identifiers unquoted', () => {
+    expect(objectKey('id')).toMatchInlineSnapshot(`"id"`)
+  })
+
+  it('quotes keys that are not valid identifiers', () => {
+    expect(objectKey('x-total')).toMatchInlineSnapshot(`""x-total""`)
+    expect(objectKey('200')).toMatchInlineSnapshot(`""200""`)
+  })
+})
+
+describe('buildObject', () => {
+  it('returns an empty object literal for no entries', () => {
+    expect(buildObject([])).toMatchInlineSnapshot(`"{}"`)
+  })
+
+  it('indents entries and adds a trailing comma', () => {
+    expect(buildObject(['id: z.number()', 'name: z.string()'])).toMatchInlineSnapshot(`
+      "{
+        id: z.number(),
+        name: z.string(),
+      }"
+    `)
+  })
+
+  it('indents a nested object cumulatively', () => {
+    const address = `address: ${buildObject(['street: z.string()'])}`
+    expect(buildObject(['id: z.number()', address])).toMatchInlineSnapshot(`
+      "{
+        id: z.number(),
+        address: {
+          street: z.string(),
+        },
+      }"
+    `)
   })
 })

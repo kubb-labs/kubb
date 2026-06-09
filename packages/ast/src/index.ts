@@ -37,6 +37,7 @@ export { schemaSignature } from './signature.ts'
 export { mergeAdjacentObjectsLazy, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
 export type * from './types.ts'
 export {
+  buildObject,
   caseParams,
   collectUsedSchemaNames,
   containsCircularRef,
@@ -44,7 +45,10 @@ export {
   createOperationParams,
   extractStringsFromNodes,
   findCircularSchemas,
+  indentLines,
   isStringType,
+  isValidIdentifier,
+  objectKey,
   syncSchemaRef,
 } from './utils.ts'
 export { collect, transform, walk } from './visitor.ts'

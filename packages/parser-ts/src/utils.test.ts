@@ -9,7 +9,9 @@ import {
   printArrowFunction,
   printCodeNode,
   printConst,
+  printExport,
   printFunction,
+  printImport,
   printJSDoc,
   printNodes,
   printSource,
@@ -607,5 +609,53 @@ describe('printSource', () => {
   it('returns empty string when source has no nodes', () => {
     const node = createSource({})
     expect(printSource(node)).toBe('')
+  })
+})
+
+describe('printImport', () => {
+  it('renders a named import with single quotes and no semicolon', () => {
+    expect(printImport({ name: ['z'], path: './zod.ts' })).toMatchInlineSnapshot(`"import { z } from './zod.ts'"`)
+  })
+
+  it('renders multiple named imports', () => {
+    expect(printImport({ name: ['a', 'b'], path: './x.ts' })).toMatchInlineSnapshot(`"import { a, b } from './x.ts'"`)
+  })
+
+  it('renders an aliased named import', () => {
+    expect(printImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' })).toMatchInlineSnapshot(`"import { fakerDE as faker } from '@faker-js/faker'"`)
+  })
+
+  it('renders a default import', () => {
+    expect(printImport({ name: 'client', path: '@kubb/plugin-client/clients/axios' })).toMatchInlineSnapshot(`"import client from '@kubb/plugin-client/clients/axios'"`)
+  })
+
+  it('renders a namespace import', () => {
+    expect(printImport({ name: 'z', path: 'zod', isNameSpace: true })).toMatchInlineSnapshot(`"import * as z from 'zod'"`)
+  })
+
+  it('renders a type-only named import', () => {
+    expect(printImport({ name: ['Pet'], path: './Pet.ts', isTypeOnly: true })).toMatchInlineSnapshot(`"import type { Pet } from './Pet.ts'"`)
+  })
+})
+
+describe('printExport', () => {
+  it('renders a named re-export', () => {
+    expect(printExport({ name: ['Pet', 'Order'], path: './models.ts' })).toMatchInlineSnapshot(`"export { Pet, Order } from './models.ts'"`)
+  })
+
+  it('renders a wildcard export', () => {
+    expect(printExport({ path: './utils.ts' })).toMatchInlineSnapshot(`"export * from './utils.ts'"`)
+  })
+
+  it('renders a namespace alias export', () => {
+    expect(printExport({ name: 'utils', path: './utils.ts', asAlias: true })).toMatchInlineSnapshot(`"export * as utils from './utils.ts'"`)
+  })
+
+  it('prefixes a leading-digit alias with an underscore', () => {
+    expect(printExport({ name: '1default', path: './default.ts', asAlias: true })).toMatchInlineSnapshot(`"export * as _default from './default.ts'"`)
+  })
+
+  it('renders a type-only named re-export', () => {
+    expect(printExport({ name: ['Pet'], path: './Pet.ts', isTypeOnly: true })).toMatchInlineSnapshot(`"export type { Pet } from './Pet.ts'"`)
   })
 })

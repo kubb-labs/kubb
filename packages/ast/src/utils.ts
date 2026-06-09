@@ -762,6 +762,62 @@ export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): str
 }
 
 /**
+ * One indentation level used when assembling multi-line code as strings.
+ */
+const INDENT = '  '
+
+/**
+ * Indents every non-empty line of `text` by one indent unit. Pass a number to repeat a space that
+ * many times, or a string to use as the indent verbatim.
+ */
+export function indentLines(text: string, indent: number | string = INDENT): string {
+  if (!text) return ''
+  const pad = typeof indent === 'string' ? indent : ' '.repeat(indent)
+  return text
+    .split('\n')
+    .map((line) => (line.trim() ? `${pad}${line}` : ''))
+    .join('\n')
+}
+
+/**
+ * Tells whether `name` can be written as a bare object key without quotes.
+ */
+export function isValidIdentifier(name: string): boolean {
+  return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name)
+}
+
+/**
+ * Renders an object key, quoting it only when it is not a valid identifier.
+ *
+ * @example
+ * ```ts
+ * objectKey('id')      // 'id'
+ * objectKey('x-total') // '"x-total"'
+ * ```
+ */
+export function objectKey(name: string): string {
+  return isValidIdentifier(name) ? name : JSON.stringify(name)
+}
+
+/**
+ * Assembles a multi-line object literal from already-rendered `entries`, indenting each entry one
+ * level and closing the brace at column zero. Nested objects built the same way indent cumulatively,
+ * so callers never re-parse the generated code. A trailing comma is added per entry to match the
+ * formatter's multi-line style.
+ *
+ * @example
+ * ```ts
+ * buildObject(['id: z.number()', 'name: z.string()'])
+ * // '{\n  id: z.number(),\n  name: z.string(),\n}'
+ * ```
+ */
+export function buildObject(entries: Array<string>): string {
+  if (entries.length === 0) return '{}'
+  const body = entries.map((entry) => `${indentLines(entry)},`).join('\n')
+  return `{\n${body}\n}`
+}
+
+/**
  * Resolves the schema name of a ref node, falling back through `ref` → `name` → nested `schema.name`.
  *
  * Returns `null` for non-ref nodes or when no name can be resolved. Use this to get a schema's
