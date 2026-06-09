@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildJSDoc, getNestedAccessor, jsStringEscape, stringify, stringifyObject, toRegExpString, trimQuotes } from './string.ts'
+import { buildJSDoc, getNestedAccessor, jsStringEscape, stringify, stringifyObject, toRegExpString, trimQuotes } from './index.ts'
 
 describe('trimQuotes', () => {
   it('strips a balanced double-quote pair', () => {

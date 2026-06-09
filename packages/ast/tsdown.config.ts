@@ -7,7 +7,7 @@ const entry = {
   types: 'src/types.ts',
   // Spec-agnostic codegen string and identifier helpers (`@kubb/ast/utils`). Kept off the
   // main barrel so plugins can share them without depending on the AST node tree.
-  utils: 'src/string.ts',
+  utils: 'src/utils/index.ts',
 }
 
 const shared: Partial<UserConfig> = {
