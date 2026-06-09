@@ -1,5 +1,34 @@
 # Changelog
 
+## v5.0.0-beta.43 — Jun 9, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Trim the `Renderer` contract to what the build driver actually uses. The `unmount` and `dispose` methods were never called, since the driver disposes through `using instance = renderer()`, which runs `[Symbol.dispose]`. Both are removed from the `Renderer` type, so a custom renderer now implements `render`, `files`, an optional `stream`, and `[Symbol.dispose]` only. ([#3488](https://github.com/kubb-labs/kubb/pull/3488), [`626b261`](https://github.com/kubb-labs/kubb/commit/626b261f3ef76ed45000dd5b3b5d53496d18c491))
+
+### @kubb/parser-ts
+
+#### Features
+
+- Normalize the indentation of generated declarations so the output reads cleanly before any formatter runs. Raw text and JSX nodes are now dedented to a column-zero baseline when printed, which removes the source indentation that template literals bake into multi-line `const`, `type`, `function`, and arrow-function bodies and stops it from compounding under the structural indent. Top-level declarations in a source are separated by a blank line, and an explicit `<br/>` no longer doubles that gap. A `dedent` helper sits next to `indentLines` for this. ([#3494](https://github.com/kubb-labs/kubb/pull/3494), [`04e75af`](https://github.com/kubb-labs/kubb/commit/04e75afcc22ed6f76790055a6f268e6c8ced05e0))
+- Emit imports and exports in the repo style so generated files read cleanly before any formatter runs. `@kubb/parser-ts` now prints `import`/`export` statements with single quotes and no semicolons through new `printImport`/`printExport` builders instead of the TypeScript compiler printer. `@kubb/ast` gains shared string builders (`buildObject`, `buildList`, `objectKey`) so plugins can assemble multi-line object and array literals with correct, cumulative indentation, a closing bracket at column zero, and trailing commas. ([#3496](https://github.com/kubb-labs/kubb/pull/3496), [`8ea4500`](https://github.com/kubb-labs/kubb/commit/8ea4500848f91687596c06bd111476296f765ede))
+
+### @kubb/renderer-jsx
+
+#### Breaking Changes
+
+- Remove React entirely, runtime and types, while keeping JSX as the authoring style. The async fiber runtime, `react-reconciler`, `scheduler`, and the `react` dependency are all gone. Rendering runs through the synchronous walker over a tiny built-in JSX runtime (`@kubb/renderer-jsx/jsx-runtime`). The JSX namespace is now self-contained and declares only the `kubb-*` code hosts plus `br`, so `@types/react` is dropped as well and consumers no longer need it for type support. The gzipped bundle drops from a 510 KiB budget to ~8 KiB.
+  
+  There is now one renderer, exported as `jsxRenderer`. The separate `jsxRendererSync` name is gone, and so is the unused `Root` error-boundary component. This release also clears the scaffolding left from the virtual-DOM era: the internal DOM module with its `DOMElement` and `DOMNode` types, the unused `CodeBlock` component, the `createContext`, `inject`, `provide`, and `unprovide` re-exports, and the renderer's no-op `dispose` and `unmount` methods. ([#3488](https://github.com/kubb-labs/kubb/pull/3488), [`2bd32fd`](https://github.com/kubb-labs/kubb/commit/2bd32fddd6e628d04e4e59ae06ff7d52982a8a6f))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.42 — Jun 5, 2026
 
 ### @kubb/core
