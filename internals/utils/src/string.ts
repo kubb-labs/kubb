@@ -11,6 +11,22 @@ export function maskString(value: string, start = 8, end = 4): string {
 }
 
 /**
+ * Wraps a value in single quotes for emitting a single-quoted JavaScript string literal, escaping
+ * any backslash or single quote in the content.
+ *
+ * @example
+ * ```ts
+ * singleQuote('foo')      // "'foo'"
+ * singleQuote("o'clock")  // "'o\\'clock'"
+ * ```
+ */
+export function singleQuote(value: string | number | boolean | undefined | null): string {
+  if (value === undefined || value === null) return "''"
+  const escaped = String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+  return `'${escaped}'`
+}
+
+/**
  * Strips the file extension from a path or file name.
  * Only removes the last `.ext` segment when the dot is not part of a directory name.
  *

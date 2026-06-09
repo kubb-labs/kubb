@@ -1,6 +1,6 @@
 import { hash } from 'node:crypto'
 import type { SchemaNode } from './nodes/index.ts'
-import { extractRefName } from './refs.ts'
+import { extractRefName } from './utils/index.ts'
 
 /**
  * The shape-affecting flags shared by every node kind: base primitive, format, and `nullable`.

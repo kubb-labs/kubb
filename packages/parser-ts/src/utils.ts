@@ -55,22 +55,34 @@ export function resolveOutputPath(path: string, options: { extname?: string } | 
 }
 
 /**
- * Serializes the body / value content from a `nodes` array.
- *
- * Each element is either a raw string or a structured {@link CodeNode}
- * (recursively converted via {@link printCodeNode}).
- * Elements are joined with `\n`.
+ * Serializes a `nodes` array into source text. Each entry is rendered via {@link printCodeNode}
+ * and joined with a single newline; a `Break` node (`<br/>`) inserts one blank line between
+ * statements. Consecutive breaks, and breaks at the very start or end, are folded into the
+ * separator, so a double `<br/>` never emits more than one blank line.
  */
 export function printNodes(nodes: Array<CodeNode> | undefined): string {
   if (!nodes || nodes.length === 0) return ''
 
-  const parts: Array<string> = []
+  let result = ''
+  let hasContent = false
+  let pendingBreak = false
 
   for (const node of nodes) {
-    parts.push(printCodeNode(node))
+    if (node.kind === 'Break') {
+      if (hasContent) pendingBreak = true
+      continue
+    }
+
+    const text = printCodeNode(node)
+    if (!text) continue
+
+    if (hasContent) result += pendingBreak ? '\n\n' : '\n'
+    result += text
+    hasContent = true
+    pendingBreak = false
   }
 
-  return parts.join('\n')
+  return result
 }
 
 /**

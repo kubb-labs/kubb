@@ -179,6 +179,21 @@ describe('printNodes', () => {
     const nodes = [createText('const x = 1'), createText('const y = 2')]
     expect(printNodes(nodes)).toBe('const x = 1\nconst y = 2')
   })
+
+  it('inserts a single blank line for a break', () => {
+    const nodes = [createText('const x = 1'), createBreak(), createText('const y = 2')]
+    expect(printNodes(nodes)).toBe('const x = 1\n\nconst y = 2')
+  })
+
+  it('folds consecutive breaks into one blank line', () => {
+    const nodes = [createText('const x = 1'), createBreak(), createBreak(), createText('const y = 2')]
+    expect(printNodes(nodes)).toBe('const x = 1\n\nconst y = 2')
+  })
+
+  it('ignores leading and trailing breaks', () => {
+    const nodes = [createBreak(), createText('const x = 1'), createBreak()]
+    expect(printNodes(nodes)).toBe('const x = 1')
+  })
 })
 
 describe('printJSDoc', () => {

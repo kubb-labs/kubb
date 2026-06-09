@@ -1,10 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { createFunctionParameter, createOperation, createParameter, createParamsType, createProperty, createResponse, createSchema } from './factory.ts'
-import type { OperationNode, ParameterNode } from './types.ts'
-import type { OperationParamsResolver } from './utils.ts'
+import { createFunctionParameter, createOperation, createParameter, createParamsType, createProperty, createResponse, createSchema } from '../factory.ts'
+import type { OperationNode, ParameterNode } from '../types.ts'
+import type { OperationParamsResolver } from './ast.ts'
 import {
-  buildList,
-  buildObject,
   caseParams,
   collectReferencedSchemaNames,
   collectUsedSchemaNames,
@@ -13,10 +11,9 @@ import {
   createOperationParams,
   findCircularSchemas,
   isStringType,
-  objectKey,
   resolveRefName,
   syncSchemaRef,
-} from './utils.ts'
+} from './ast.ts'
 
 const param = (name: string) =>
   createParameter({
@@ -1487,8 +1484,8 @@ describe('pathParamsType: inlineSpread', () => {
   })
 })
 
-import { createExport, createImport, createSource, createText } from './factory.ts'
-import { combineExports, combineImports, combineSources } from './utils.ts'
+import { createExport, createImport, createSource, createText } from '../factory.ts'
+import { combineExports, combineImports, combineSources } from './ast.ts'
 
 describe('combineSources', () => {
   it('deduplicates sources with the same name', () => {
@@ -2085,69 +2082,5 @@ describe('collectUsedSchemaNames', () => {
     const result = collectUsedSchemaNames([createItemOp], [bodySchema])
 
     expect(result).toStrictEqual(new Set(['CreateItemBody']))
-  })
-})
-
-describe('buildList', () => {
-  it('returns an empty list for no items', () => {
-    expect(buildList([])).toMatchInlineSnapshot(`"[]"`)
-  })
-
-  it('keeps single-line items inline', () => {
-    expect(buildList(['z.string()', 'z.number()'])).toMatchInlineSnapshot(`"[z.string(), z.number()]"`)
-  })
-
-  it('wraps and indents when an item spans multiple lines', () => {
-    const member = buildObject(['id: z.number()'])
-    expect(buildList([`z.object(${member})`, 'z.string()'])).toMatchInlineSnapshot(`
-      "[
-        z.object({
-          id: z.number(),
-        }),
-        z.string(),
-      ]"
-    `)
-  })
-
-  it('uses custom brackets', () => {
-    expect(buildList(['a', 'b'], ['(', ')'])).toMatchInlineSnapshot(`"(a, b)"`)
-  })
-})
-
-describe('objectKey', () => {
-  it('leaves valid identifiers unquoted', () => {
-    expect(objectKey('id')).toMatchInlineSnapshot(`"id"`)
-  })
-
-  it('quotes keys that are not valid identifiers', () => {
-    expect(objectKey('x-total')).toMatchInlineSnapshot(`""x-total""`)
-    expect(objectKey('200')).toMatchInlineSnapshot(`""200""`)
-  })
-})
-
-describe('buildObject', () => {
-  it('returns an empty object literal for no entries', () => {
-    expect(buildObject([])).toMatchInlineSnapshot(`"{}"`)
-  })
-
-  it('indents entries and adds a trailing comma', () => {
-    expect(buildObject(['id: z.number()', 'name: z.string()'])).toMatchInlineSnapshot(`
-      "{
-        id: z.number(),
-        name: z.string(),
-      }"
-    `)
-  })
-
-  it('indents a nested object cumulatively', () => {
-    const address = `address: ${buildObject(['street: z.string()'])}`
-    expect(buildObject(['id: z.number()', address])).toMatchInlineSnapshot(`
-      "{
-        id: z.number(),
-        address: {
-          street: z.string(),
-        },
-      }"
-    `)
   })
 })
