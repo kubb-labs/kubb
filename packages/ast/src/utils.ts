@@ -762,9 +762,14 @@ export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): str
 }
 
 /**
+ * Number of spaces in one indentation level. Set to 2, 3, … to change the indent width.
+ */
+const INDENT_SIZE = 2
+
+/**
  * One indentation level used when assembling multi-line code as strings.
  */
-const INDENT = '  '
+const INDENT = Array.from({ length: INDENT_SIZE }, () => ' ').join('')
 
 /**
  * Indents every non-empty line of `text` by one indent level, leaving blank lines empty.
