@@ -3,6 +3,7 @@ import { createFunctionParameter, createOperation, createParameter, createParams
 import type { OperationNode, ParameterNode } from './types.ts'
 import type { OperationParamsResolver } from './utils.ts'
 import {
+  buildList,
   buildObject,
   caseParams,
   collectReferencedSchemaNames,
@@ -11,7 +12,6 @@ import {
   createDiscriminantNode,
   createOperationParams,
   findCircularSchemas,
-  indentLines,
   isStringType,
   isValidIdentifier,
   objectKey,
@@ -2089,24 +2089,29 @@ describe('collectUsedSchemaNames', () => {
   })
 })
 
-describe('indentLines', () => {
-  it('indents each non-empty line by two spaces', () => {
-    expect(indentLines('foo\nbar')).toMatchInlineSnapshot(`
-      "  foo
-        bar"
+describe('buildList', () => {
+  it('returns an empty list for no items', () => {
+    expect(buildList([])).toMatchInlineSnapshot(`"[]"`)
+  })
+
+  it('keeps single-line items inline', () => {
+    expect(buildList(['z.string()', 'z.number()'])).toMatchInlineSnapshot(`"[z.string(), z.number()]"`)
+  })
+
+  it('wraps and indents when an item spans multiple lines', () => {
+    const member = buildObject(['id: z.number()'])
+    expect(buildList([`z.object(${member})`, 'z.string()'])).toMatchInlineSnapshot(`
+      "[
+        z.object({
+          id: z.number(),
+        }),
+        z.string(),
+      ]"
     `)
   })
 
-  it('leaves blank lines empty', () => {
-    expect(indentLines('foo\n\nbar')).toMatchInlineSnapshot(`
-      "  foo
-
-        bar"
-    `)
-  })
-
-  it('repeats a space when given a number', () => {
-    expect(indentLines('foo', 4)).toMatchInlineSnapshot(`"    foo"`)
+  it('uses custom brackets', () => {
+    expect(buildList(['a', 'b'], ['(', ')'])).toMatchInlineSnapshot(`"(a, b)"`)
   })
 })
 

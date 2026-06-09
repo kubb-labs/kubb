@@ -770,7 +770,7 @@ const INDENT = '  '
  * Indents every non-empty line of `text` by one indent unit. Pass a number to repeat a space that
  * many times, or a string to use as the indent verbatim.
  */
-export function indentLines(text: string, indent: number | string = INDENT): string {
+function indentLines(text: string, indent: number | string = INDENT): string {
   if (!text) return ''
   const pad = typeof indent === 'string' ? indent : ' '.repeat(indent)
   return text
@@ -815,6 +815,26 @@ export function buildObject(entries: Array<string>): string {
   if (entries.length === 0) return '{}'
   const body = entries.map((entry) => `${indentLines(entry)},`).join('\n')
   return `{\n${body}\n}`
+}
+
+/**
+ * Assembles a bracketed list (array by default) from already-rendered `items`. Keeps everything on
+ * one line when no item spans multiple lines, and otherwise puts each item on its own line, indented
+ * one level with a trailing comma and the closing bracket at column zero. Use it for `z.union([…])`,
+ * `z.array([…])`, and similar member lists so objects inside them nest correctly.
+ *
+ * @example
+ * ```ts
+ * buildList(['z.string()', 'z.number()'])
+ * // '[z.string(), z.number()]'
+ * ```
+ */
+export function buildList(items: Array<string>, brackets: [open: string, close: string] = ['[', ']']): string {
+  const [open, close] = brackets
+  if (items.length === 0) return `${open}${close}`
+  if (!items.some((item) => item.includes('\n'))) return `${open}${items.join(', ')}${close}`
+  const body = items.map((item) => `${indentLines(item)},`).join('\n')
+  return `${open}\n${body}\n${close}`
 }
 
 /**
