@@ -1,3 +1,5 @@
+export { ensureValidVarName, isValidVarName } from '@internals/utils'
+
 /**
  * Strips a single matching pair of `"..."`, `'...'`, or `` `...` `` from both ends of `text`.
  * Returns the string unchanged when no balanced quote pair is found.

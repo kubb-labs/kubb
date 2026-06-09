@@ -1,4 +1,3 @@
-export { ensureValidVarName, isValidVarName } from '@internals/utils'
 export { httpMethods, schemaTypes } from './constants.ts'
 export { applyDedupe, buildDedupePlan } from './dedupe.ts'
 export { defineSchemaDialect } from './dialect.ts'
@@ -35,7 +34,6 @@ export { createPrinterFactory, definePrinter } from './printer.ts'
 export { extractRefName } from './refs.ts'
 export { childName, collectImports, enumPropName, findDiscriminator } from './resolvers.ts'
 export { schemaSignature } from './signature.ts'
-export { buildJSDoc, getNestedAccessor, jsStringEscape, stringify, stringifyObject, toRegExpString, trimQuotes } from './string.ts'
 export { mergeAdjacentObjectsLazy, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
 export type * from './types.ts'
 export {
