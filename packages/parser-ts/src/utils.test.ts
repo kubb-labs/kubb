@@ -88,35 +88,51 @@ describe('indentLines', () => {
 
 describe('dedent', () => {
   it('strips the common leading whitespace shared by every line', () => {
-    expect(dedent('    foo\n      bar')).toBe('foo\n  bar')
+    expect(dedent('    foo\n      bar')).toMatchInlineSnapshot(`
+      "foo
+        bar"
+    `)
   })
 
   it('trims leading and trailing blank lines', () => {
-    expect(dedent('\n\n  foo\n  bar\n\n')).toBe('foo\nbar')
+    expect(dedent('\n\n  foo\n  bar\n\n')).toMatchInlineSnapshot(`
+      "foo
+      bar"
+    `)
   })
 
   it('outdents a single line', () => {
-    expect(dedent('   x')).toBe('x')
+    expect(dedent('   x')).toMatchInlineSnapshot(`"x"`)
   })
 
   it('leaves already-baselined content unchanged', () => {
-    expect(dedent('foo\n  bar')).toBe('foo\n  bar')
+    expect(dedent('foo\n  bar')).toMatchInlineSnapshot(`
+      "foo
+        bar"
+    `)
   })
 
   it('keeps interior blank lines empty', () => {
-    expect(dedent('  foo\n\n  bar')).toBe('foo\n\nbar')
+    expect(dedent('  foo\n\n  bar')).toMatchInlineSnapshot(`
+      "foo
+
+      bar"
+    `)
   })
 
   it('returns empty string for empty input', () => {
-    expect(dedent('')).toBe('')
+    expect(dedent('')).toMatchInlineSnapshot(`""`)
   })
 
   it('returns empty string for whitespace-only input', () => {
-    expect(dedent('   \n  ')).toBe('')
+    expect(dedent('   \n  ')).toMatchInlineSnapshot(`""`)
   })
 
   it('counts a tab as a single indent unit', () => {
-    expect(dedent('\t\tfoo\n\t\t\tbar')).toBe('foo\n\tbar')
+    expect(dedent('\t\tfoo\n\t\t\tbar')).toMatchInlineSnapshot(`
+      "foo
+      	bar"
+    `)
   })
 })
 
@@ -574,7 +590,7 @@ describe('printSource', () => {
 
   it('normalizes a top-level text node with baked-in indentation to column zero', () => {
     const node = createSource({ nodes: [createText('    const x = 1')] })
-    expect(printSource(node)).toBe('const x = 1')
+    expect(printSource(node)).toMatchInlineSnapshot(`"const x = 1"`)
   })
 
   it('does not add an extra blank line for an explicit break', () => {
