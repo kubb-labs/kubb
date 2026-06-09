@@ -1,5 +1,4 @@
-export type { VisitorDepth } from './constants.ts'
-export type { BuildDedupePlanOptions, DedupeCanonical, DedupePlan } from './dedupe.ts'
+export type { DedupePlan } from './dedupe.ts'
 export type { SchemaDialect } from './dialect.ts'
 export type { DispatchRule } from './dispatch.ts'
 export type { DistributiveOmit } from './factory.ts'
@@ -7,44 +6,32 @@ export type { InferSchemaNode, ParserOptions } from './infer.ts'
 export type {
   ArraySchemaNode,
   ArrowFunctionNode,
-  BaseNode,
-  BreakNode,
   CodeNode,
-  ComplexSchemaType,
   ConstNode,
   DateSchemaNode,
   DatetimeSchemaNode,
   EnumSchemaNode,
-  EnumValueNode,
   ExportNode,
   FileNode,
-  FormatStringSchemaNode,
   FunctionNode,
   FunctionNodeType,
   FunctionParameterNode,
   FunctionParametersNode,
   FunctionParamNode,
-  GenericOperationNode,
   HttpMethod,
   HttpOperationNode,
-  HttpStatusCode,
   ImportNode,
   InputMeta,
   InputNode,
   InputStreamNode,
   IntersectionSchemaNode,
-  Ipv4SchemaNode,
-  Ipv6SchemaNode,
   JSDocNode,
   JsxNode,
-  MediaType,
   Node,
   NodeKind,
   NumberSchemaNode,
   ObjectSchemaNode,
   OperationNode,
-  OperationNodeBase,
-  OperationProtocol,
   OutputNode,
   ParameterGroupNode,
   ParameterLocation,
@@ -54,24 +41,20 @@ export type {
   PropertyNode,
   RefSchemaNode,
   ResponseNode,
-  ScalarSchemaNode,
   ScalarSchemaType,
   SchemaNode,
   SchemaNodeByType,
   SchemaType,
   SourceNode,
-  SpecialSchemaType,
   StatusCode,
   StringSchemaNode,
   TextNode,
   TimeSchemaNode,
-  TypeDeclarationNode,
   TypeNode,
   UnionSchemaNode,
   UrlSchemaNode,
 } from './nodes/index.ts'
-export type { AsyncVisitor, CollectOptions, CollectVisitor, ParentOf, TransformOptions, Visitor, VisitorContext, WalkOptions } from './visitor.ts'
+export type { ParentOf, Visitor, VisitorContext } from './visitor.ts'
 export type { Printer, PrinterFactoryOptions, PrinterPartial } from './printer.ts'
-export type { ScalarPrimitive } from './constants.ts'
 export type { OperationParamsResolver } from './utils/ast.ts'
 export type { UserFileNode } from './factory.ts'

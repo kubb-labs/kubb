@@ -118,7 +118,7 @@ export function createDiscriminantNode({ propertyName, value }: { propertyName: 
 /**
  * Named type for a group of parameters (query or header) emitted as a single typed parameter.
  */
-export type ParamGroupType = {
+type ParamGroupType = {
   /**
    * TypeNode for the group type.
    */

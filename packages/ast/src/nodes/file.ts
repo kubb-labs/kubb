@@ -4,7 +4,7 @@ import type { CodeNode } from './code.ts'
 /**
  * Supported file extensions.
  */
-export type Extname = '.ts' | '.js' | '.tsx' | '.json' | `.${string}`
+type Extname = '.ts' | '.js' | '.tsx' | '.json' | `.${string}`
 
 type ImportName = string | Array<string | { propertyName: string; name?: string }>
 
