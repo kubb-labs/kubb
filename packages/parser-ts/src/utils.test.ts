@@ -622,11 +622,15 @@ describe('printImport', () => {
   })
 
   it('renders an aliased named import', () => {
-    expect(printImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' })).toMatchInlineSnapshot(`"import { fakerDE as faker } from '@faker-js/faker'"`)
+    expect(printImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' })).toMatchInlineSnapshot(
+      `"import { fakerDE as faker } from '@faker-js/faker'"`,
+    )
   })
 
   it('renders a default import', () => {
-    expect(printImport({ name: 'client', path: '@kubb/plugin-client/clients/axios' })).toMatchInlineSnapshot(`"import client from '@kubb/plugin-client/clients/axios'"`)
+    expect(printImport({ name: 'client', path: '@kubb/plugin-client/clients/axios' })).toMatchInlineSnapshot(
+      `"import client from '@kubb/plugin-client/clients/axios'"`,
+    )
   })
 
   it('renders a namespace import', () => {

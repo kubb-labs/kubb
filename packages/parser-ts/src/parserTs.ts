@@ -70,9 +70,7 @@ export const parserTs = defineParser({
 
     const importExportBlock = [...importLines, ...exportLines].join('\n')
 
-    const parts = [file.banner, importExportBlock, source, file.footer]
-      .filter((segment): segment is string => Boolean(segment))
-      .map((s) => s.trimEnd())
+    const parts = [file.banner, importExportBlock, source, file.footer].filter((segment): segment is string => Boolean(segment)).map((s) => s.trimEnd())
     return parts.join('\n\n')
   },
 })
