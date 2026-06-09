@@ -1,6 +1,6 @@
 {
   "name": "@kubb/middleware-barrel",
-  "version": "5.0.0-beta.42",
+  "version": "5.0.0-beta.44",
   "description": "Barrel-file middleware for Kubb. Automatically generates index.ts re-export files per plugin output directory and an optional root barrel after all plugins complete.",
   "keywords": [
     "barrel",
@@ -44,7 +44,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "clean": "npx rimraf ./dist",
+    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "start": "tsdown --watch",

@@ -1,6 +1,7 @@
-import { createArrowFunction, createConst, createFunction, createSource, createText, createType } from '@kubb/ast'
+import { createArrowFunction, createBreak, createConst, createFunction, createSource, createText, createType } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import {
+  dedent,
   formatGenerics,
   formatReturnType,
   getRelativePath,
@@ -8,7 +9,9 @@ import {
   printArrowFunction,
   printCodeNode,
   printConst,
+  printExport,
   printFunction,
+  printImport,
   printJSDoc,
   printNodes,
   printSource,
@@ -85,6 +88,56 @@ describe('indentLines', () => {
   })
 })
 
+describe('dedent', () => {
+  it('strips the common leading whitespace shared by every line', () => {
+    expect(dedent('    foo\n      bar')).toMatchInlineSnapshot(`
+      "foo
+        bar"
+    `)
+  })
+
+  it('trims leading and trailing blank lines', () => {
+    expect(dedent('\n\n  foo\n  bar\n\n')).toMatchInlineSnapshot(`
+      "foo
+      bar"
+    `)
+  })
+
+  it('outdents a single line', () => {
+    expect(dedent('   x')).toMatchInlineSnapshot(`"x"`)
+  })
+
+  it('leaves already-baselined content unchanged', () => {
+    expect(dedent('foo\n  bar')).toMatchInlineSnapshot(`
+      "foo
+        bar"
+    `)
+  })
+
+  it('keeps interior blank lines empty', () => {
+    expect(dedent('  foo\n\n  bar')).toMatchInlineSnapshot(`
+      "foo
+
+      bar"
+    `)
+  })
+
+  it('returns empty string for empty input', () => {
+    expect(dedent('')).toMatchInlineSnapshot(`""`)
+  })
+
+  it('returns empty string for whitespace-only input', () => {
+    expect(dedent('   \n  ')).toMatchInlineSnapshot(`""`)
+  })
+
+  it('counts a tab as a single indent unit', () => {
+    expect(dedent('\t\tfoo\n\t\t\tbar')).toMatchInlineSnapshot(`
+      "foo
+      	bar"
+    `)
+  })
+})
+
 describe('formatGenerics', () => {
   it('returns empty string when no generics', () => {
     expect(formatGenerics(undefined)).toBe('')
@@ -125,6 +178,21 @@ describe('printNodes', () => {
   it('joins multiple nodes with newline', () => {
     const nodes = [createText('const x = 1'), createText('const y = 2')]
     expect(printNodes(nodes)).toBe('const x = 1\nconst y = 2')
+  })
+
+  it('inserts a single blank line for a break', () => {
+    const nodes = [createText('const x = 1'), createBreak(), createText('const y = 2')]
+    expect(printNodes(nodes)).toBe('const x = 1\n\nconst y = 2')
+  })
+
+  it('folds consecutive breaks into one blank line', () => {
+    const nodes = [createText('const x = 1'), createBreak(), createBreak(), createText('const y = 2')]
+    expect(printNodes(nodes)).toBe('const x = 1\n\nconst y = 2')
+  })
+
+  it('ignores leading and trailing breaks', () => {
+    const nodes = [createBreak(), createText('const x = 1'), createBreak()]
+    expect(printNodes(nodes)).toBe('const x = 1')
   })
 })
 
@@ -199,6 +267,34 @@ describe('printConst', () => {
     })
     expect(printConst(node)).toBe('/**\n * @description A pet\n */\nconst pet = {}')
   })
+
+  it('normalizes a multi-line value authored with baked-in indentation', () => {
+    const node = createConst({
+      name: 'pet',
+      export: true,
+      nodes: [createText('\n    {\n      foo: 1,\n      bar: 2,\n    }\n  ')],
+    })
+    expect(printConst(node)).toMatchInlineSnapshot(`
+      "export const pet = {
+        foo: 1,
+        bar: 2,
+      }"
+    `)
+  })
+
+  it('preserves a correctly authored multi-line value', () => {
+    const node = createConst({
+      name: 'pet',
+      export: true,
+      nodes: [createText('{\n  foo: 1,\n  bar: 2,\n}')],
+    })
+    expect(printConst(node)).toMatchInlineSnapshot(`
+      "export const pet = {
+        foo: 1,
+        bar: 2,
+      }"
+    `)
+  })
 })
 
 describe('printType', () => {
@@ -232,6 +328,20 @@ describe('printType', () => {
   it('handles empty nodes', () => {
     const node = createType({ name: 'Pet' })
     expect(printType(node)).toBe('type Pet = ')
+  })
+
+  it('normalizes a multi-line object type authored with baked-in indentation', () => {
+    const node = createType({
+      name: 'Pet',
+      export: true,
+      nodes: [createText('\n    {\n      id: number\n      name: string\n    }\n  ')],
+    })
+    expect(printType(node)).toMatchInlineSnapshot(`
+      "export type Pet = {
+        id: number
+        name: string
+      }"
+    `)
   })
 })
 
@@ -300,7 +410,11 @@ describe('printFunction', () => {
       name: 'getPet',
       nodes: [createText('return fetch("/pets")')],
     })
-    expect(printFunction(node)).toBe('function getPet() {\n  return fetch("/pets")\n}')
+    expect(printFunction(node)).toMatchInlineSnapshot(`
+      "function getPet() {
+        return fetch("/pets")
+      }"
+    `)
   })
 
   it('includes JSDoc when provided', () => {
@@ -309,6 +423,31 @@ describe('printFunction', () => {
       JSDoc: { comments: ['@description Fetch a pet'] },
     })
     expect(printFunction(node)).toBe('/**\n * @description Fetch a pet\n */\nfunction getPet() {}')
+  })
+
+  it('normalizes a body authored with baked-in indentation to a single level', () => {
+    const node = createFunction({
+      name: 'getPet',
+      nodes: [createText('      const a = 1\n      const b = 2')],
+    })
+    expect(printFunction(node)).toMatchInlineSnapshot(`
+      "function getPet() {
+        const a = 1
+        const b = 2
+      }"
+    `)
+  })
+
+  it('indents a nested function cumulatively', () => {
+    const inner = createFunction({ name: 'inner', nodes: [createText('return 1')] })
+    const node = createFunction({ name: 'outer', nodes: [inner] })
+    expect(printFunction(node)).toMatchInlineSnapshot(`
+      "function outer() {
+        function inner() {
+          return 1
+        }
+      }"
+    `)
   })
 })
 
@@ -348,7 +487,11 @@ describe('printArrowFunction', () => {
       name: 'getPet',
       nodes: [createText('return fetch("/pets")')],
     })
-    expect(printArrowFunction(node)).toBe('const getPet = () => {\n  return fetch("/pets")\n}')
+    expect(printArrowFunction(node)).toMatchInlineSnapshot(`
+      "const getPet = () => {
+        return fetch("/pets")
+      }"
+    `)
   })
 
   it('generates an arrow function with generics', () => {
@@ -380,6 +523,19 @@ describe('printArrowFunction', () => {
       JSDoc: { comments: ['@description Fetch a pet'] },
     })
     expect(printArrowFunction(node)).toBe('/**\n * @description Fetch a pet\n */\nconst getPet = () => {}')
+  })
+
+  it('normalizes a body authored with baked-in indentation to a single level', () => {
+    const node = createArrowFunction({
+      name: 'getPet',
+      nodes: [createText('      const a = 1\n      const b = 2')],
+    })
+    expect(printArrowFunction(node)).toMatchInlineSnapshot(`
+      "const getPet = () => {
+        const a = 1
+        const b = 2
+      }"
+    `)
   })
 })
 
@@ -421,11 +577,15 @@ describe('printSource', () => {
     expect(printSource(node)).toBe('const x = 1')
   })
 
-  it('converts multiple nodes joining with newline', () => {
+  it('separates multiple top-level declarations with a blank line', () => {
     const node = createSource({
       nodes: [createConst({ name: 'x', nodes: [createText('1')] }), createType({ name: 'Pet', nodes: [createText('{ id: number }')] })],
     })
-    expect(printSource(node)).toBe('const x = 1\ntype Pet = { id: number }')
+    expect(printSource(node)).toMatchInlineSnapshot(`
+      "const x = 1
+
+      type Pet = { id: number }"
+    `)
   })
 
   it('preserves DOM order when JSX elements and text nodes are interleaved', () => {
@@ -436,11 +596,89 @@ describe('printSource', () => {
         createConst({ name: 'x', nodes: [createText('1')] }),
       ],
     })
-    expect(printSource(node)).toBe('const server = new McpServer()\nserver.registerTool("foo", {})\nconst x = 1')
+    expect(printSource(node)).toMatchInlineSnapshot(`
+      "const server = new McpServer()
+
+      server.registerTool("foo", {})
+
+      const x = 1"
+    `)
+  })
+
+  it('normalizes a top-level text node with baked-in indentation to column zero', () => {
+    const node = createSource({ nodes: [createText('    const x = 1')] })
+    expect(printSource(node)).toMatchInlineSnapshot(`"const x = 1"`)
+  })
+
+  it('does not add an extra blank line for an explicit break', () => {
+    const node = createSource({
+      nodes: [createConst({ name: 'x', nodes: [createText('1')] }), createBreak(), createConst({ name: 'y', nodes: [createText('2')] })],
+    })
+    expect(printSource(node)).toMatchInlineSnapshot(`
+      "const x = 1
+
+      const y = 2"
+    `)
   })
 
   it('returns empty string when source has no nodes', () => {
     const node = createSource({})
     expect(printSource(node)).toBe('')
+  })
+})
+
+describe('printImport', () => {
+  it('renders a named import with single quotes and no semicolon', () => {
+    expect(printImport({ name: ['z'], path: './zod.ts' })).toMatchInlineSnapshot(`"import { z } from './zod.ts'"`)
+  })
+
+  it('renders multiple named imports', () => {
+    expect(printImport({ name: ['a', 'b'], path: './x.ts' })).toMatchInlineSnapshot(`"import { a, b } from './x.ts'"`)
+  })
+
+  it('renders an aliased named import', () => {
+    expect(printImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' })).toMatchInlineSnapshot(
+      `"import { fakerDE as faker } from '@faker-js/faker'"`,
+    )
+  })
+
+  it('renders a default import', () => {
+    expect(printImport({ name: 'client', path: '@kubb/plugin-client/clients/axios' })).toMatchInlineSnapshot(
+      `"import client from '@kubb/plugin-client/clients/axios'"`,
+    )
+  })
+
+  it('renders a namespace import', () => {
+    expect(printImport({ name: 'z', path: 'zod', isNameSpace: true })).toMatchInlineSnapshot(`"import * as z from 'zod'"`)
+  })
+
+  it('renders a type-only named import', () => {
+    expect(printImport({ name: ['Pet'], path: './Pet.ts', isTypeOnly: true })).toMatchInlineSnapshot(`"import type { Pet } from './Pet.ts'"`)
+  })
+
+  it('escapes a quote in the module path', () => {
+    expect(printImport({ name: ['z'], path: "./o'clock.ts" })).toMatchInlineSnapshot(`"import { z } from './o\\'clock.ts'"`)
+  })
+})
+
+describe('printExport', () => {
+  it('renders a named re-export', () => {
+    expect(printExport({ name: ['Pet', 'Order'], path: './models.ts' })).toMatchInlineSnapshot(`"export { Pet, Order } from './models.ts'"`)
+  })
+
+  it('renders a wildcard export', () => {
+    expect(printExport({ path: './utils.ts' })).toMatchInlineSnapshot(`"export * from './utils.ts'"`)
+  })
+
+  it('renders a namespace alias export', () => {
+    expect(printExport({ name: 'utils', path: './utils.ts', asAlias: true })).toMatchInlineSnapshot(`"export * as utils from './utils.ts'"`)
+  })
+
+  it('prefixes a leading-digit alias with an underscore', () => {
+    expect(printExport({ name: '1default', path: './default.ts', asAlias: true })).toMatchInlineSnapshot(`"export * as _default from './default.ts'"`)
+  })
+
+  it('renders a type-only named re-export', () => {
+    expect(printExport({ name: ['Pet'], path: './Pet.ts', isTypeOnly: true })).toMatchInlineSnapshot(`"export type { Pet } from './Pet.ts'"`)
   })
 })

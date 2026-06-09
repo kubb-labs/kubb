@@ -118,5 +118,41 @@ export function isValidVarName(name: string): boolean {
   if (!name || reservedWords.has(name as 'valueOf')) {
     return false
   }
+  return isIdentifier(name)
+}
+
+/**
+ * Returns `name` when it is already a valid JavaScript variable name, otherwise prefixes it with `_`
+ * so the result can be used as an identifier. Useful for sanitizing schema names or operation IDs
+ * that start with a digit (`409`, `504AccountCancel`) or collide with a reserved word.
+ *
+ * @example
+ * ```ts
+ * ensureValidVarName('409')   // '_409'
+ * ensureValidVarName('Pet')   // 'Pet'
+ * ensureValidVarName('class') // '_class'
+ * ```
+ */
+export function ensureValidVarName(name: string): string {
+  if (!name || isValidVarName(name)) {
+    return name
+  }
+  return `_${name}`
+}
+
+/**
+ * Returns `true` when `name` is syntactically a valid identifier, ignoring reserved words.
+ *
+ * Reserved words and globals (`class`, `name`, `Date`, …) are valid as bare object-literal keys
+ * even though they are not valid variable names, so use this (not {@link isValidVarName}) when
+ * deciding whether an object key needs quoting.
+ *
+ * @example
+ * ```ts
+ * isIdentifier('name')   // true
+ * isIdentifier('x-total')// false
+ * ```
+ */
+export function isIdentifier(name: string): boolean {
   return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(name)
 }

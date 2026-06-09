@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "5.0.0-beta.42",
+  "version": "5.0.0-beta.44",
   "description": "Core engine for Kubb's plugin-based code generation system. Provides the plugin driver, file manager, defineConfig, and build orchestration used by every Kubb plugin.",
   "keywords": [
     "code-generator",
@@ -57,7 +57,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "clean": "npx rimraf ./dist",
+    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "start": "tsdown --watch",
@@ -66,7 +66,6 @@
   },
   "dependencies": {
     "@kubb/ast": "workspace:*",
-    "fflate": "^0.8.3",
     "tinyexec": "catalog:"
   },
   "devDependencies": {

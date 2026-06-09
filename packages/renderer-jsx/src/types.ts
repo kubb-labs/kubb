@@ -1,103 +1,26 @@
 import type { ArrowFunctionNode, ConstNode, ExportNode, FileNode, FunctionNode, ImportNode, SourceNode, TypeNode } from '@kubb/ast'
-import type React from 'react'
-import type { JSX, ReactNode } from 'react'
 
 /**
- * Unique identifier for a React element in lists or conditional renders.
+ * Unique key for a Kubb JSX element in lists or conditional renders.
  */
 export type Key = string | number | bigint
 
 /**
- * Custom element names recognized by the Kubb JSX renderer.
- * Each name maps to a corresponding AST node type in the generated code.
+ * Element produced by a Kubb JSX component. It carries the host or component
+ * `type`, its `props`, and an optional list `key`. The renderer walks these at
+ * runtime, so the fields stay opaque to type-checking.
  */
-export type ElementNames =
-  | 'br'
-  | 'div'
-  | 'indent'
-  | 'dedent'
-  | 'kubb-jsx'
-  | 'kubb-text'
-  | 'kubb-file'
-  | 'kubb-source'
-  | 'kubb-import'
-  | 'kubb-export'
-  | 'kubb-function'
-  | 'kubb-arrow-function'
-  | 'kubb-const'
-  | 'kubb-type'
-  | 'kubb-root'
-  | 'kubb-app'
-
-type Node = {
-  parentNode: DOMElement | null
-  internal_static?: boolean
+export type KubbReactElement = {
+  type: unknown
+  props: unknown
+  key: Key | null
 }
 
 /**
- * Allowed attribute value types for DOM elements.
- * `null` signals intentionally empty, the prop was explicitly cleared.
+ * Anything a Kubb JSX component accepts as children: an element, a primitive
+ * rendered as text, a nullish value that is skipped, or an iterable of nodes.
  */
-export type DOMNodeAttribute = boolean | string | number | null | Record<string, unknown> | Array<unknown>
-
-type TextName = '#text'
-
-/**
- * Leaf DOM node containing raw text.
- */
-export type TextNode = {
-  nodeName: TextName
-  nodeValue: string
-} & Node
-
-/**
- * Virtual DOM node, either a text node or a named element.
- */
-export type DOMNode<T = { nodeName: NodeNames }> = T extends {
-  nodeName: infer U
-}
-  ? U extends '#text'
-    ? TextNode
-    : DOMElement
-  : never
-
-type OutputTransformer = (s: string, index: number) => string
-
-/**
- * Named element in the Kubb virtual DOM tree.
- * Stores attributes, child nodes, and lifecycle callbacks for rendering.
- */
-export type DOMElement = {
-  nodeName: ElementNames
-  /**
-   * Key/value attributes passed as JSX props to this element.
-   */
-  attributes: Record<string, DOMNodeAttribute>
-  /**
-   * Ordered list of child nodes attached to this element.
-   */
-  childNodes: Array<DOMNode>
-  internal_transform?: OutputTransformer
-
-  // Internal properties
-  isStaticDirty?: boolean
-  staticNode?: DOMElement
-  onComputeLayout?: () => void
-  onRender?: () => void
-  onImmediateRender?: () => void
-} & Node
-
-type NodeNames = ElementNames | TextName
-
-/**
- * React node type for Kubb JSX components.
- */
-export type KubbReactNode = ReactNode
-
-/**
- * React element type returned by Kubb JSX components.
- */
-export type KubbReactElement = JSX.Element
+export type KubbReactNode = KubbReactElement | string | number | bigint | boolean | null | undefined | Iterable<KubbReactNode>
 
 /**
  * Props for the `<kubb-jsx>` element.
@@ -105,14 +28,6 @@ export type KubbReactElement = JSX.Element
  */
 export type KubbJsxProps = {
   children?: string
-}
-
-/**
- * Props for the `<kubb-text>` element.
- * Wraps React children as plain text in the output.
- */
-export type KubbTextProps = {
-  children?: KubbReactNode
 }
 
 /**
@@ -181,9 +96,10 @@ export type KubbTypeProps = Omit<TypeNode, 'kind'> & {
 }
 
 /**
- * Props for the HTML `<br>` element.
+ * Props for the `<br>` element. It emits a single line break and takes no
+ * attributes of its own.
  */
-export type LineBreakProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLBRElement>, HTMLBRElement>
+export type LineBreakProps = {}
 
 /**
  * JSDoc comment block to attach to a generated declaration.

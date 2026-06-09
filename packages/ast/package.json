@@ -1,6 +1,6 @@
 {
   "name": "@kubb/ast",
-  "version": "5.0.0-beta.42",
+  "version": "5.0.0-beta.44",
   "description": "Spec-agnostic AST layer for Kubb. Defines the node tree, visitor pattern, factory functions, and type guards used across all code generation plugins.",
   "keywords": [
     "ast",
@@ -36,6 +36,10 @@
       "import": "./dist/types.js",
       "require": "./dist/types.cjs"
     },
+    "./utils": {
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -44,7 +48,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "clean": "npx rimraf ./dist",
+    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "start": "tsdown --watch",

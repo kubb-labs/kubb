@@ -1,6 +1,6 @@
 {
   "name": "kubb",
-  "version": "5.0.0-beta.42",
+  "version": "5.0.0-beta.44",
   "description": "Meta-package and entry point for Kubb — a plugin-based code generation framework for OpenAPI. Includes defineConfig, all public APIs, and serves as the gateway to the entire Kubb ecosystem.",
   "keywords": [
     "api-client",
@@ -55,7 +55,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "clean": "npx rimraf ./dist",
+    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "start": "tsdown --watch",

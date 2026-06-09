@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { createFunctionParameter, createOperation, createParameter, createParamsType, createProperty, createResponse, createSchema } from './factory.ts'
-import type { OperationNode, ParameterNode } from './types.ts'
-import type { OperationParamsResolver } from './utils.ts'
+import { createFunctionParameter, createOperation, createParameter, createParamsType, createProperty, createResponse, createSchema } from '../factory.ts'
+import type { OperationNode, ParameterNode } from '../types.ts'
+import type { OperationParamsResolver } from './ast.ts'
 import {
   caseParams,
   collectReferencedSchemaNames,
@@ -13,7 +13,7 @@ import {
   isStringType,
   resolveRefName,
   syncSchemaRef,
-} from './utils.ts'
+} from './ast.ts'
 
 const param = (name: string) =>
   createParameter({
@@ -1484,8 +1484,8 @@ describe('pathParamsType: inlineSpread', () => {
   })
 })
 
-import { createExport, createImport, createSource, createText } from './factory.ts'
-import { combineExports, combineImports, combineSources } from './utils.ts'
+import { createExport, createImport, createSource, createText } from '../factory.ts'
+import { combineExports, combineImports, combineSources } from './ast.ts'
 
 describe('combineSources', () => {
   it('deduplicates sources with the same name', () => {

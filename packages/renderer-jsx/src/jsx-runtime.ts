@@ -1,10 +1,26 @@
-import * as React from 'react/jsx-runtime'
-import type { KubbReactElement, KubbReactNode } from './types.ts'
+import type { Key, KubbReactElement, KubbReactNode } from './types.ts'
 
-export const Fragment = React.Fragment
-export const jsx = React.jsx
-export const jsxDEV = React.jsx
-export const jsxs = React.jsxs
+const KUBB_ELEMENT = Symbol.for('kubb.element')
+
+/**
+ * Fragment marker. A `<>…</>` compiles to `jsx(Fragment, …)`, and the renderer
+ * unwraps it while walking the tree.
+ */
+export const Fragment = Symbol.for('kubb.fragment')
+
+/**
+ * Create a Kubb JSX element. The automatic JSX runtime calls this for every tag,
+ * so the renderer never depends on React at runtime. The element carries a
+ * `$$typeof` marker, its `type` (a host string, a function component, or
+ * `Fragment`), and its `props`, with children included.
+ */
+function createElement(type: unknown, props: Record<string, unknown> | null, key?: Key | null): KubbReactElement {
+  return { $$typeof: KUBB_ELEMENT, type, key: key ?? null, props: props ?? {} } as unknown as KubbReactElement
+}
+
+export const jsx = createElement
+export const jsxs = createElement
+export const jsxDEV = createElement
 
 export type * from './jsx-namespace.d.ts'
 

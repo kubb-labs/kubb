@@ -1,7 +1,7 @@
 import { camelCase, isValidVarName, memoize } from '@internals/utils'
 
-import { createFunctionParameter, createFunctionParameters, createParameterGroup, createParamsType, createProperty, createSchema } from './factory.ts'
-import { narrowSchema } from './guards.ts'
+import { createFunctionParameter, createFunctionParameters, createParameterGroup, createParamsType, createProperty, createSchema } from '../factory.ts'
+import { narrowSchema } from '../guards.ts'
 import type {
   CodeNode,
   ExportNode,
@@ -14,10 +14,10 @@ import type {
   ParamsTypeNode,
   SchemaNode,
   SourceNode,
-} from './nodes/index.ts'
-import type { SchemaType } from './nodes/schema.ts'
-import { extractRefName } from './refs.ts'
-import { collect, collectLazy } from './visitor.ts'
+} from '../nodes/index.ts'
+import type { SchemaType } from '../nodes/schema.ts'
+import { extractRefName } from './index.ts'
+import { collect, collectLazy } from '../visitor.ts'
 
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
 

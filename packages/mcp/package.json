@@ -1,6 +1,6 @@
 {
   "name": "@kubb/mcp",
-  "version": "5.0.0-beta.42",
+  "version": "5.0.0-beta.44",
   "description": "MCP server for Kubb. Exposes code generation as a tool over the Model Context Protocol so AI assistants like Claude, Cursor, and other MCP-compatible clients can generate TypeScript types, clients, and more from OpenAPI specs.",
   "keywords": [
     "ai",
@@ -48,7 +48,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "clean": "npx rimraf ./dist",
+    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
     "debug:mcp": "npx -y @modelcontextprotocol/inspector node ./bin/kubb-mcp.cjs",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",

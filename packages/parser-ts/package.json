@@ -1,6 +1,6 @@
 {
   "name": "@kubb/parser-ts",
-  "version": "5.0.0-beta.42",
+  "version": "5.0.0-beta.44",
   "description": "TypeScript and TSX source file parser for Kubb. Converts AST nodes and raw TypeScript code into formatted source strings using the TypeScript compiler API.",
   "keywords": [
     "codegen",
@@ -42,7 +42,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "clean": "npx rimraf ./dist",
+    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "start": "tsdown --watch",

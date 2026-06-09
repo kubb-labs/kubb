@@ -16,7 +16,6 @@ describe('Callout', () => {
       "> [!TIP]
       > Run \`kubb start --watch\` to keep the generator hot."
     `)
-    renderer.unmount()
   })
 
   it('renders a warning callout with a title and multi-line body', async () => {
@@ -34,7 +33,6 @@ describe('Callout', () => {
       > body line 1
       > line 2"
     `)
-    renderer.unmount()
   })
 
   it('quotes blank lines as a bare `>`', async () => {
@@ -51,7 +49,6 @@ describe('Callout', () => {
       >
       > second paragraph"
     `)
-    renderer.unmount()
   })
 
   it('uses the TIP label for type tip', async () => {
@@ -66,7 +63,6 @@ describe('Callout', () => {
       "> [!TIP]
       > body"
     `)
-    renderer.unmount()
   })
 
   it('uses the NOTE label for type note', async () => {
@@ -81,7 +77,6 @@ describe('Callout', () => {
       "> [!NOTE]
       > body"
     `)
-    renderer.unmount()
   })
 
   it('uses the IMPORTANT label for type important', async () => {
@@ -96,7 +91,6 @@ describe('Callout', () => {
       "> [!IMPORTANT]
       > body"
     `)
-    renderer.unmount()
   })
 
   it('uses the WARNING label for type warning', async () => {
@@ -111,7 +105,6 @@ describe('Callout', () => {
       "> [!WARNING]
       > body"
     `)
-    renderer.unmount()
   })
 
   it('uses the CAUTION label for type caution', async () => {
@@ -126,6 +119,5 @@ describe('Callout', () => {
       "> [!CAUTION]
       > body"
     `)
-    renderer.unmount()
   })
 })

@@ -3,7 +3,7 @@ import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs,
 import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast'
 import type { FileNode, InputMeta, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { version as coreVersion } from '../package.json'
-import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
+import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL, STREAM_FLUSH_EVERY } from './constants.ts'
 import { Fingerprint } from './Fingerprint.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
 import type { Cache } from './createCache.ts'
@@ -34,6 +34,14 @@ import type {
 
 type Options = {
   hooks: AsyncEventEmitter<KubbHooks>
+}
+
+type RequirePluginContext = {
+  /**
+   * Name of the plugin that declared the dependency, included in the error so users can
+   * trace which plugin needs the missing one.
+   */
+  requiredBy?: string
 }
 
 function enforceOrder(enforce: 'pre' | 'post' | undefined): number {
@@ -358,11 +366,13 @@ export class KubbDriver {
     })
     const updateBuffer: Array<{ file: FileNode; source?: string; processed: number; total: number; percentage: number }> = []
     // Final rendered source per output path, captured for the cache snapshot on a miss. Barrel
-    // files flow through here too, after the second `drain()`.
+    // files flow through here too, after the second `drain()`. Only collected when caching is
+    // enabled, otherwise the Map would retain every rendered source for the whole build.
+    const cacheEnabled = Boolean(config.cache)
     const snapshotSources = new Map<string, string>()
     processor.hooks.on('update', (item) => {
       updateBuffer.push(item)
-      if (item.source !== undefined) snapshotSources.set(item.file.path, item.source)
+      if (cacheEnabled && item.source !== undefined) snapshotSources.set(item.file.path, item.source)
     })
     processor.hooks.on('end', async (files) => {
       await hooks.emit('kubb:files:processing:update', {
@@ -475,11 +485,14 @@ export class KubbDriver {
     const snapshot = await cache.restore({ key: cacheKey })
     if (!snapshot) return false
 
+    const queue: Array<Promise<void>> = []
     for (const [relativePath, source] of Object.entries(snapshot.files)) {
       const absolutePath = join(outputRoot, relativePath)
       this.fileManager.upsert(createFile({ path: absolutePath, baseName: basename(relativePath) as `${string}.${string}` }))
-      await storage.setItem(absolutePath, source)
+      queue.push(storage.setItem(absolutePath, source))
+      if (queue.length >= STREAM_FLUSH_EVERY) await Promise.all(queue.splice(0))
     }
+    await Promise.all(queue)
     await this.hooks.emit('kubb:build:end', { files: this.fileManager.files, config: this.config, outputDir: outputRoot })
     return true
   }
@@ -878,7 +891,8 @@ export class KubbDriver {
       hooks: driver.hooks,
       plugin,
       getPlugin: driver.getPlugin.bind(driver),
-      requirePlugin: driver.requirePlugin.bind(driver),
+      // Close over the owning plugin so a missing dependency error names who required it.
+      requirePlugin: ((name: string) => driver.requirePlugin(name, { requiredBy: plugin.name })) as GeneratorContext<TOptions>['requirePlugin'],
       getResolver: driver.getResolver.bind(driver),
       driver,
       addFile: async (...files: Array<FileNode>) => {
@@ -923,16 +937,21 @@ export class KubbDriver {
   /**
    * Like `getPlugin` but throws a descriptive error when the plugin is not found.
    */
-  requirePlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Plugin<Kubb.PluginRegistry[TName]>
-  requirePlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string): Plugin<TOptions>
-  requirePlugin(pluginName: string): Plugin {
+  requirePlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName, context?: RequirePluginContext): Plugin<Kubb.PluginRegistry[TName]>
+  requirePlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string, context?: RequirePluginContext): Plugin<TOptions>
+  requirePlugin(pluginName: string, context?: RequirePluginContext): Plugin {
     const plugin = this.plugins.get(pluginName)
     if (!plugin) {
+      const requiredBy = context?.requiredBy
       throw new Diagnostics.Error({
         code: Diagnostics.code.pluginNotFound,
         severity: 'error',
-        message: `Plugin "${pluginName}" is required but not found. Make sure it is included in your Kubb config.`,
-        help: `Add "${pluginName}" to the \`plugins\` array in kubb.config.ts, or remove the dependency on it.`,
+        message: requiredBy
+          ? `Plugin "${pluginName}" is required by "${requiredBy}" but not found. Make sure it is included in your Kubb config.`
+          : `Plugin "${pluginName}" is required but not found. Make sure it is included in your Kubb config.`,
+        help: requiredBy
+          ? `Add "${pluginName}" to the \`plugins\` array in kubb.config.ts (required by "${requiredBy}"), or remove the dependency on it.`
+          : `Add "${pluginName}" to the \`plugins\` array in kubb.config.ts, or remove the dependency on it.`,
         location: { kind: 'config' },
       })
     }

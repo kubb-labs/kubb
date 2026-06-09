@@ -1,21 +1,7 @@
-import { pascalCase } from '@internals/utils'
 import { narrowSchema } from './guards.ts'
 import type { SchemaNode } from './nodes/schema.ts'
-import { extractRefName } from './refs.ts'
 import { collect } from './visitor.ts'
-
-export function findDiscriminator(mapping: Record<string, string> | undefined, ref: string | undefined): string | null {
-  if (!mapping || !ref) return null
-  return Object.entries(mapping).find(([, value]) => value === ref)?.[0] ?? null
-}
-
-export function childName(parentName: string | null | undefined, propName: string): string | null {
-  return parentName ? pascalCase([parentName, propName].join(' ')) : null
-}
-
-export function enumPropName(parentName: string | null | undefined, propName: string, enumSuffix: string): string {
-  return pascalCase([parentName, propName, enumSuffix].filter(Boolean).join(' '))
-}
+import { extractRefName } from './utils/index.ts'
 
 /**
  * Collects import entries for all `ref` schema nodes in `node`.

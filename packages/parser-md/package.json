@@ -1,6 +1,6 @@
 {
   "name": "@kubb/parser-md",
-  "version": "5.0.0-beta.42",
+  "version": "5.0.0-beta.44",
   "description": "Markdown source file parser for Kubb. Converts the universal AST to `.md` source and renders YAML frontmatter via the `print` helper.",
   "keywords": [
     "codegen",
@@ -43,7 +43,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "clean": "npx rimraf ./dist",
+    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "start": "tsdown --watch",

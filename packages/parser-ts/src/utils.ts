@@ -6,7 +6,8 @@ import {
   CRLF_PATTERN,
   CURRENT_DIRECTORY_PREFIX,
   FILE_EXTENSION_PATTERN,
-  INDENT_SIZE,
+  INDENT,
+  INDENT_CHAR,
   JSDOC_TERMINATOR_PATTERN,
   LEADING_DIGIT_PATTERN,
   PARENT_DIRECTORY_PREFIX,
@@ -54,34 +55,76 @@ export function resolveOutputPath(path: string, options: { extname?: string } | 
 }
 
 /**
- * Serializes the body / value content from a `nodes` array.
- *
- * Each element is either a raw string or a structured {@link CodeNode}
- * (recursively converted via {@link printCodeNode}).
- * Elements are joined with `\n`.
+ * Serializes a `nodes` array into source text. Each entry is rendered via {@link printCodeNode}
+ * and joined with a single newline; a `Break` node (`<br/>`) inserts one blank line between
+ * statements. Consecutive breaks, and breaks at the very start or end, are folded into the
+ * separator, so a double `<br/>` never emits more than one blank line.
  */
 export function printNodes(nodes: Array<CodeNode> | undefined): string {
   if (!nodes || nodes.length === 0) return ''
 
-  const parts: Array<string> = []
+  let result = ''
+  let hasContent = false
+  let pendingBreak = false
 
   for (const node of nodes) {
-    parts.push(printCodeNode(node))
+    if (node.kind === 'Break') {
+      if (hasContent) pendingBreak = true
+      continue
+    }
+
+    const text = printCodeNode(node)
+    if (!text) continue
+
+    if (hasContent) result += pendingBreak ? '\n\n' : '\n'
+    result += text
+    hasContent = true
+    pendingBreak = false
   }
 
-  return parts.join('\n')
+  return result
 }
 
 /**
- * Indents every non-empty line of `text` by `spaces` spaces.
+ * Indents every non-empty line of `text` by one indent unit. Pass a number to repeat
+ * {@link INDENT_CHAR} that many times, or a string to use as the indent verbatim.
  */
-export function indentLines(text: string, spaces: number = INDENT_SIZE): string {
+export function indentLines(text: string, indent: number | string = INDENT): string {
   if (!text) return ''
-  const pad = ' '.repeat(spaces)
+  const pad = typeof indent === 'string' ? indent : INDENT_CHAR.repeat(indent)
   return text
     .split('\n')
     .map((line) => (line.trim() ? `${pad}${line}` : ''))
     .join('\n')
+}
+
+/**
+ * Removes the common leading whitespace shared by every non-blank line and trims
+ * surrounding blank lines, normalizing multi-line content authored inside an
+ * indented template literal back to a column-zero baseline. Leading whitespace is
+ * counted by character, so N tabs and N spaces are treated as the same depth.
+ *
+ * @example
+ * ```ts
+ * dedent('\n    foo\n      bar\n    ')
+ * // 'foo\n  bar'
+ * ```
+ */
+export function dedent(text: string): string {
+  if (!text) return ''
+
+  const lines = text.split('\n')
+  const isBlank = (line: string) => line.trim() === ''
+
+  const start = lines.findIndex((line) => !isBlank(line))
+  if (start === -1) return ''
+  const end = lines.findLastIndex((line) => !isBlank(line))
+
+  const trimmed = lines.slice(start, end + 1)
+  const indents = trimmed.filter((line) => !isBlank(line)).map((line) => line.match(/^\s*/)?.[0].length ?? 0)
+  const min = indents.length ? Math.min(...indents) : 0
+
+  return trimmed.map((line) => (isBlank(line) ? '' : line.slice(min))).join('\n')
 }
 
 /**
@@ -326,8 +369,8 @@ export function printArrowFunction(node: ArrowFunctionNode): string {
  */
 export function printCodeNode(node: CodeNode): string {
   if (node.kind === 'Break') return ''
-  if (node.kind === 'Text') return (node as TextNode).value
-  if (node.kind === 'Jsx') return (node as JsxNode).value
+  if (node.kind === 'Text') return dedent((node as TextNode).value)
+  if (node.kind === 'Jsx') return dedent((node as JsxNode).value)
   if (node.kind === 'Const') return printConst(node)
   if (node.kind === 'Type') return printType(node)
   if (node.kind === 'Function') return printFunction(node)
@@ -341,23 +384,24 @@ export function printCodeNode(node: CodeNode): string {
  * Iterates `nodes` in DOM order, rendering each {@link CodeNode} via
  * {@link printCodeNode}.
  *
+ * Top-level declarations are separated by a blank line so the source reads
+ * cleanly without an external formatter.
+ *
  * @example From nodes
  * ```ts
  * printSource({ kind: 'Source', nodes: [createConst({ name: 'x', nodes: [createText('1')] }), createText('x.toString()')] })
- * // 'const x = 1\nx.toString()'
+ * // 'const x = 1\n\nx.toString()'
  * ```
  */
 export function printSource(node: SourceNode): string {
   const nodes = node.nodes
 
   if (!nodes || nodes.length === 0) return ''
-  const parts: Array<string> = []
 
-  for (const child of nodes) {
-    parts.push(printCodeNode(child as CodeNode))
-  }
-
-  return parts.join('\n')
+  return nodes
+    .map((child) => printCodeNode(child as CodeNode))
+    .filter(Boolean)
+    .join('\n\n')
 }
 
 export function createImport({
@@ -455,4 +499,94 @@ export function createExport({
     factory.createStringLiteral(path),
     undefined,
   )
+}
+
+/**
+ * Wraps a module specifier in single quotes, escaping any embedded backslash or quote so the emitted
+ * statement stays valid even for unusual paths.
+ */
+function quoteModulePath(path: string): string {
+  return `'${path.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+}
+
+/**
+ * Renders an import declaration string in the repo style (single quotes, no semicolons), mirroring
+ * the shapes that {@link createImport} builds: default, namespace (`* as`), and named imports with
+ * `{ a as b }` aliases, each optionally `type`-only. `path` is used verbatim, so resolve it first.
+ *
+ * @example
+ * ```ts
+ * printImport({ name: ['z'], path: './zod.ts' })
+ * // "import { z } from './zod.ts'"
+ * ```
+ */
+export function printImport({
+  name,
+  path,
+  isTypeOnly = false,
+  isNameSpace = false,
+}: {
+  name: string | Array<string | { propertyName: string; name?: string }>
+  path: string
+  isTypeOnly?: boolean | null
+  isNameSpace?: boolean | null
+}): string {
+  const typePrefix = isTypeOnly ? 'type ' : ''
+  const from = quoteModulePath(path)
+
+  if (!Array.isArray(name)) {
+    if (isNameSpace) return `import ${typePrefix}* as ${name} from ${from}`
+    return `import ${typePrefix}${name} from ${from}`
+  }
+
+  const specifiers = name.map((item) => {
+    if (typeof item === 'object') {
+      return item.name ? `${item.propertyName} as ${item.name}` : item.propertyName
+    }
+    return item
+  })
+
+  return `import ${typePrefix}{ ${specifiers.join(', ')} } from ${from}`
+}
+
+/**
+ * Renders an export declaration string in the repo style (single quotes, no semicolons), mirroring
+ * the shapes that {@link createExport} builds: named re-exports, namespace alias (`* as name`), and
+ * wildcard, each optionally `type`-only. `path` is used verbatim, so resolve it first.
+ *
+ * @example
+ * ```ts
+ * printExport({ name: ['Pet', 'Order'], path: './models.ts' })
+ * // "export { Pet, Order } from './models.ts'"
+ * ```
+ */
+export function printExport({
+  path,
+  name,
+  isTypeOnly = false,
+  asAlias = false,
+}: {
+  path: string
+  name?: string | Array<ts.Identifier | string> | null
+  isTypeOnly?: boolean | null
+  asAlias?: boolean | null
+}): string {
+  const typePrefix = isTypeOnly ? 'type ' : ''
+  const from = quoteModulePath(path)
+
+  if (Array.isArray(name)) {
+    const specifiers = name.map((item) => (typeof item === 'string' ? item : item.text))
+    return `export ${typePrefix}{ ${specifiers.join(', ')} } from ${from}`
+  }
+
+  if (asAlias && name) {
+    const parsedName = LEADING_DIGIT_PATTERN.test(name) ? `_${name.slice(1)}` : name
+    return `export ${typePrefix}* as ${parsedName} from ${from}`
+  }
+
+  if (name) {
+    console.warn(`When using name as string, asAlias should be true: ${name}`)
+  }
+
+  return `export ${typePrefix}* from ${from}`
 }

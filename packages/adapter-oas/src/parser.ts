@@ -1,4 +1,5 @@
 import { pascalCase, URLPath } from '@internals/utils'
+import { childName, enumPropName, extractRefName, findDiscriminator } from '@kubb/ast/utils'
 import { ast } from '@kubb/core'
 import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, SCHEMA_REF_PREFIX, typeOptionMap } from './constants.ts'
@@ -146,7 +147,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     return ast.createSchema({
       ...buildSchemaNode(schema, name, nullable, defaultValue),
       type: 'ref',
-      name: ast.extractRefName(schema.$ref!),
+      name: extractRefName(schema.$ref!),
       ref: schema.$ref,
       schema: resolvedSchema,
     })
@@ -199,7 +200,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
         const inOneOf = parentUnion.some((oneOfItem) => dialect.isReference(oneOfItem) && oneOfItem.$ref === childRef)
         const inMapping = Object.values(deref.discriminator.mapping ?? {}).some((v) => v === childRef)
         if (inOneOf || inMapping) {
-          const discriminatorValue = ast.findDiscriminator(deref.discriminator.mapping, childRef)
+          const discriminatorValue = findDiscriminator(deref.discriminator.mapping, childRef)
           if (discriminatorValue) {
             filteredDiscriminantValues.push({
               propertyName: deref.discriminator.propertyName,
@@ -306,7 +307,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     if (sharedPropertiesNode || discriminator?.mapping) {
       const members = unionMembers.map((s) => {
         const ref = dialect.isReference(s) ? s.$ref : undefined
-        const discriminatorValue = ast.findDiscriminator(discriminator?.mapping, ref)
+        const discriminatorValue = findDiscriminator(discriminator?.mapping, ref)
         const memberNode = parseSchema({ schema: s as SchemaObject, name }, rawOptions)
 
         if (!discriminatorValue || !discriminator) {
@@ -568,7 +569,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
           const resolvedPropSchema = propSchema as SchemaObject
           const propNullable = dialect.isNullable(resolvedPropSchema)
 
-          const resolvedChildName = ast.childName(name, propName)
+          const resolvedChildName = childName(name, propName)
           const propNode = parseSchema({ schema: resolvedPropSchema, name: resolvedChildName }, rawOptions)
           const schemaNode = (() => {
             const node = ast.setEnumName(propNode, name, propName, options.enumSuffix)
@@ -633,7 +634,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     if (dialect.isDiscriminator(schema) && schema.discriminator.mapping) {
       const discPropName = schema.discriminator.propertyName
       const values = Object.keys(schema.discriminator.mapping)
-      const enumName = name ? ast.enumPropName(name, discPropName, options.enumSuffix) : undefined
+      const enumName = name ? enumPropName(name, discPropName, options.enumSuffix) : undefined
       return ast.setDiscriminatorEnum({
         node: objectNode,
         propertyName: discPropName,
@@ -668,7 +669,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
    */
   function convertArray({ schema, name, nullable, defaultValue, rawOptions, options }: SchemaContext): ast.SchemaNode {
     const rawItems = schema.items as SchemaObject | undefined
-    const itemName = rawItems?.enum?.length && name ? ast.enumPropName(null, name, options.enumSuffix) : name
+    const itemName = rawItems?.enum?.length && name ? enumPropName(null, name, options.enumSuffix) : name
     const items = rawItems ? [parseSchema({ schema: rawItems, name: itemName }, rawOptions)] : []
 
     return ast.createSchema({
