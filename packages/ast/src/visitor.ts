@@ -182,7 +182,7 @@ type MaybePromise<T> = T | Promise<T>
  * }
  * ```
  */
-export type AsyncVisitor = {
+type AsyncVisitor = {
   input?(node: InputNode, context: VisitorContext<InputNode>): MaybePromise<undefined | null | InputNode>
   output?(node: OutputNode, context: VisitorContext<OutputNode>): MaybePromise<undefined | null | OutputNode>
   operation?(node: OperationNode, context: VisitorContext<OperationNode>): MaybePromise<undefined | null | OperationNode>
@@ -204,7 +204,7 @@ export type AsyncVisitor = {
  * }
  * ```
  */
-export type CollectVisitor<T> = {
+type CollectVisitor<T> = {
   input?(node: InputNode, context: VisitorContext<InputNode>): T | null | undefined
   output?(node: OutputNode, context: VisitorContext<OutputNode>): T | null | undefined
   operation?(node: OperationNode, context: VisitorContext<OperationNode>): T | null | undefined

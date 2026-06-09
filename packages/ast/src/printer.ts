@@ -13,7 +13,7 @@ import type { SchemaNode, SchemaNodeByType, SchemaType } from './nodes/index.ts'
  * }
  * ```
  */
-export type PrinterHandlerContext<TOutput, TOptions extends object> = {
+type PrinterHandlerContext<TOutput, TOptions extends object> = {
   /**
    * Recursively transform a nested `SchemaNode` to `TOutput` using the node-level handlers.
    * Use `this.transform` inside `nodes` handlers and inside the `print` override.
@@ -37,7 +37,7 @@ export type PrinterHandlerContext<TOutput, TOptions extends object> = {
  * }
  * ```
  */
-export type PrinterHandler<TOutput, TOptions extends object, T extends SchemaType = SchemaType> = (
+type PrinterHandler<TOutput, TOptions extends object, T extends SchemaType = SchemaType> = (
   this: PrinterHandlerContext<TOutput, TOptions>,
   node: SchemaNodeByType[T],
 ) => TOutput | null

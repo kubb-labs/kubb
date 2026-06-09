@@ -2,7 +2,7 @@
  * All supported HTTP status code literals as strings, as used in API specs
  * (for example, `"200"` and `"404"`).
  */
-export type HttpStatusCode =
+type HttpStatusCode =
   // 1xx Informational
   | '100'
   | '101'
@@ -83,37 +83,3 @@ export type HttpStatusCode =
  * ```
  */
 export type StatusCode = HttpStatusCode | 'default'
-
-/**
- * Supported media type strings used in request and response bodies.
- *
- * @example
- * ```ts
- * const mediaType: MediaType = 'application/json'
- * ```
- */
-export type MediaType =
-  // Application
-  | 'application/json'
-  | 'application/xml'
-  | 'application/x-www-form-urlencoded'
-  | 'application/octet-stream'
-  | 'application/pdf'
-  | 'application/zip'
-  | 'application/graphql'
-  // Multipart
-  | 'multipart/form-data'
-  // Text
-  | 'text/plain'
-  | 'text/html'
-  | 'text/csv'
-  | 'text/xml'
-  // Image
-  | 'image/png'
-  | 'image/jpeg'
-  | 'image/gif'
-  | 'image/webp'
-  | 'image/svg+xml'
-  // Audio / Video
-  | 'audio/mpeg'
-  | 'video/mp4'

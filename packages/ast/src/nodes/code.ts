@@ -96,12 +96,6 @@ export type TypeNode = BaseNode & {
 }
 
 /**
- * Convenience alias for {@link TypeNode}.
- * @deprecated Use `TypeNode` directly.
- */
-export type TypeDeclarationNode = TypeNode
-
-/**
  * AST node representing a TypeScript `function` declaration.
  *
  * Mirrors the props of the `Function` component from `@kubb/renderer-jsx`.

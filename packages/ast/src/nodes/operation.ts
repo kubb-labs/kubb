@@ -8,7 +8,7 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 
 /**
  * Transport an operation belongs to.
  */
-export type OperationProtocol = 'http'
+type OperationProtocol = 'http'
 
 /**
  * AST node representing an operation request body.
@@ -53,7 +53,7 @@ export type RequestBodyNode = BaseNode & {
 /**
  * Fields shared by every operation, regardless of transport.
  */
-export type OperationNodeBase = BaseNode & {
+type OperationNodeBase = BaseNode & {
   /**
    * Node kind.
    */

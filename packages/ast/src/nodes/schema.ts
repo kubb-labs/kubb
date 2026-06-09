@@ -58,12 +58,12 @@ export type PrimitiveSchemaType =
 /**
  * Composite schema types.
  */
-export type ComplexSchemaType = 'tuple' | 'union' | 'intersection' | 'enum'
+type ComplexSchemaType = 'tuple' | 'union' | 'intersection' | 'enum'
 
 /**
  * Schema types that need special handling in generators.
  */
-export type SpecialSchemaType = 'ref' | 'datetime' | 'time' | 'uuid' | 'email' | 'url' | 'ipv4' | 'ipv6' | 'blob'
+type SpecialSchemaType = 'ref' | 'datetime' | 'time' | 'uuid' | 'email' | 'url' | 'ipv4' | 'ipv6' | 'blob'
 
 /**
  * All schema type strings.
@@ -306,7 +306,7 @@ export type IntersectionSchemaNode = CompositeSchemaNodeBase & {
 /**
  * One named enum item.
  */
-export type EnumValueNode = {
+type EnumValueNode = {
   /**
    * Enum item name.
    */
@@ -559,7 +559,7 @@ export type UrlSchemaNode = SchemaNodeBase & {
  * const uuidSchema: FormatStringSchemaNode = { kind: 'Schema', type: 'uuid', min: 36, max: 36 }
  * ```
  */
-export type FormatStringSchemaNode = SchemaNodeBase & {
+type FormatStringSchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
@@ -582,7 +582,7 @@ export type FormatStringSchemaNode = SchemaNodeBase & {
  * const ipv4Schema: Ipv4SchemaNode = { kind: 'Schema', type: 'ipv4' }
  * ```
  */
-export type Ipv4SchemaNode = SchemaNodeBase & {
+type Ipv4SchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
@@ -597,7 +597,7 @@ export type Ipv4SchemaNode = SchemaNodeBase & {
  * const ipv6Schema: Ipv6SchemaNode = { kind: 'Schema', type: 'ipv6' }
  * ```
  */
-export type Ipv6SchemaNode = SchemaNodeBase & {
+type Ipv6SchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */

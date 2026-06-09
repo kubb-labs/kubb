@@ -10,13 +10,13 @@ import type { ResponseNode } from './response.ts'
 import type { InputNode } from './root.ts'
 import type { SchemaNode } from './schema.ts'
 
-export type { BaseNode, NodeKind } from './base.ts'
-export type { ArrowFunctionNode, BreakNode, CodeNode, ConstNode, FunctionNode, JSDocNode, JsxNode, TextNode, TypeDeclarationNode, TypeNode } from './code.ts'
+export type { NodeKind } from './base.ts'
+export type { ArrowFunctionNode, BreakNode, CodeNode, ConstNode, FunctionNode, JSDocNode, JsxNode, TextNode, TypeNode } from './code.ts'
 export type { ContentNode } from './content.ts'
 export type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
 export type { FunctionNodeType, FunctionParameterNode, FunctionParametersNode, FunctionParamNode, ParameterGroupNode, ParamsTypeNode } from './function.ts'
-export type { HttpStatusCode, MediaType, StatusCode } from './http.ts'
-export type { GenericOperationNode, HttpMethod, HttpOperationNode, OperationNode, OperationNodeBase, OperationProtocol, RequestBodyNode } from './operation.ts'
+export type { StatusCode } from './http.ts'
+export type { GenericOperationNode, HttpMethod, HttpOperationNode, OperationNode, RequestBodyNode } from './operation.ts'
 export type { OutputNode } from './output.ts'
 export type { ParameterLocation, ParameterNode } from './parameter.ts'
 export type { PropertyNode } from './property.ts'
@@ -24,15 +24,10 @@ export type { ResponseNode } from './response.ts'
 export type { InputMeta, InputNode, InputStreamNode } from './root.ts'
 export type {
   ArraySchemaNode,
-  ComplexSchemaType,
   DateSchemaNode,
   DatetimeSchemaNode,
   EnumSchemaNode,
-  EnumValueNode,
-  FormatStringSchemaNode,
   IntersectionSchemaNode,
-  Ipv4SchemaNode,
-  Ipv6SchemaNode,
   NumberSchemaNode,
   ObjectSchemaNode,
   PrimitiveSchemaType,
@@ -42,7 +37,6 @@ export type {
   SchemaNode,
   SchemaNodeByType,
   SchemaType,
-  SpecialSchemaType,
   StringSchemaNode,
   TimeSchemaNode,
   UnionSchemaNode,
