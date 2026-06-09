@@ -1,5 +1,6 @@
 import { camelCase, isValidVarName, memoize } from '@internals/utils'
 
+import { INDENT } from './constants.ts'
 import { createFunctionParameter, createFunctionParameters, createParameterGroup, createParamsType, createProperty, createSchema } from './factory.ts'
 import { narrowSchema } from './guards.ts'
 import type {
@@ -760,16 +761,6 @@ export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): str
     .filter(Boolean)
     .join('\n')
 }
-
-/**
- * Number of spaces in one indentation level. Set to 2, 3, … to change the indent width.
- */
-const INDENT_SIZE = 2
-
-/**
- * One indentation level used when assembling multi-line code as strings.
- */
-const INDENT = Array.from({ length: INDENT_SIZE }, () => ' ').join('')
 
 /**
  * Indents every non-empty line of `text` by one indent level, leaving blank lines empty.
