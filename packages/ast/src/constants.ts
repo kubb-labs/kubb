@@ -176,3 +176,14 @@ export const httpMethods = {
  * ```
  */
 export const WALK_CONCURRENCY = 30
+
+/**
+ * Number of spaces in one indentation level when assembling multi-line code as strings.
+ * Set to 2, 3, … to change the indent width used by `buildObject`/`buildList`.
+ */
+export const INDENT_SIZE = 2
+
+/**
+ * One indentation level, derived from {@link INDENT_SIZE}.
+ */
+export const INDENT = Array.from({ length: INDENT_SIZE }, () => ' ').join('')

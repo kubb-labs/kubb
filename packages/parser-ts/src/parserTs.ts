@@ -1,7 +1,7 @@
 import type { FileNode, SourceNode } from '@kubb/ast'
 import { defineParser } from '@kubb/core'
 import type * as ts from 'typescript'
-import { createExport, createImport, getRelativePath, print, printSource, resolveOutputPath } from './utils.ts'
+import { getRelativePath, print, printExport, printImport, printSource, resolveOutputPath } from './utils.ts'
 
 /**
  * Default Kubb parser for `.ts` and `.js` files. Takes the universal AST
@@ -43,11 +43,11 @@ export const parserTs = defineParser({
     }
     const source = sourceParts.join('\n\n')
 
-    const importNodes: Array<ts.ImportDeclaration> = []
+    const importLines: Array<string> = []
     for (const item of (file as FileNode).imports) {
       const importPath = item.root ? getRelativePath(item.root, item.path) : item.path
-      importNodes.push(
-        createImport({
+      importLines.push(
+        printImport({
           name: item.name as string | Array<string | { propertyName: string; name?: string }>,
           path: resolveOutputPath(importPath, options, Boolean(item.root)),
           isTypeOnly: item.isTypeOnly,
@@ -56,10 +56,10 @@ export const parserTs = defineParser({
       )
     }
 
-    const exportNodes: Array<ts.ExportDeclaration> = []
+    const exportLines: Array<string> = []
     for (const item of (file as FileNode).exports) {
-      exportNodes.push(
-        createExport({
+      exportLines.push(
+        printExport({
           name: item.name as string | Array<ts.Identifier | string> | null | undefined,
           path: resolveOutputPath(item.path, options, true),
           isTypeOnly: item.isTypeOnly,
@@ -68,9 +68,9 @@ export const parserTs = defineParser({
       )
     }
 
-    const parts = [file.banner, print(...importNodes, ...exportNodes), source, file.footer]
-      .filter((segment): segment is string => Boolean(segment))
-      .map((s) => s.trimEnd())
+    const importExportBlock = [...importLines, ...exportLines].join('\n')
+
+    const parts = [file.banner, importExportBlock, source, file.footer].filter((segment): segment is string => Boolean(segment)).map((s) => s.trimEnd())
     return parts.join('\n\n')
   },
 })
