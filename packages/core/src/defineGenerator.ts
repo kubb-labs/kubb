@@ -16,6 +16,10 @@ import type { Config } from './types.ts'
  * filtering for individual schema/operation calls, or plugin-level options for operations.
  */
 export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
+  /**
+   * The resolved Kubb config for this build, including `root`, `input`, `output`, and the
+   * full plugin list.
+   */
   config: Config
   /**
    * Absolute path to the current plugin's output directory.
@@ -26,6 +30,10 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    * Returns `'single'` when `output.path` is a file, `'split'` for a directory.
    */
   getMode: (output: { path: string }) => 'single' | 'split'
+  /**
+   * The driver running this build. Most generators never need it. Prefer the scoped helpers
+   * on this context (`getPlugin`, `getResolver`, `upsertFile`) over reaching into the driver.
+   */
   driver: KubbDriver
   /**
    * Get a plugin by name, typed via `Kubb.PluginRegistry` when registered.
@@ -50,23 +58,32 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    * Merge sources into the same output file.
    */
   upsertFile: (...file: Array<FileNode>) => Promise<void>
+  /**
+   * The build's event bus. Emit or listen to any `KubbHooks` event, for example to react to
+   * `kubb:build:end` from inside a generator.
+   */
   hooks: AsyncEventEmitter<KubbHooks>
   /**
    * The current plugin instance.
    */
   plugin: Plugin<TOptions>
   /**
-   * The current plugin's resolver, the object that decides what every generated symbol and
-   * file path is called. Resolved from a `setResolver` registration first, then the plugin's
-   * static `resolver`, then the built-in default. Use it inside a generator to compute names
-   * (`ctx.resolver.default(name, 'type')`) and output paths (`ctx.resolver.resolveFile(...)`).
+   * The current plugin's resolver. It decides what every generated symbol and file path is
+   * called. Kubb picks a `setResolver` registration first, then the plugin's static
+   * `resolver`, then the built-in default.
+   *
+   * @example Resolve a type name
+   * `ctx.resolver.default('pet', 'type') // 'Pet'`
+   *
+   * @example Resolve an output file
+   * `ctx.resolver.resolveFile({ name: 'pet', extname: '.ts' }, { root, output })`
    */
   resolver: TOptions['resolver']
   /**
-   * The AST visitor the current plugin registered through `setTransformer` during
-   * `kubb:plugin:setup`, or `undefined` when the plugin has none. The driver already applies
-   * it to every schema and operation node before the generator sees it, so reading it here is
-   * only needed to re-run or inspect the transformation.
+   * The AST visitor this plugin registered through `setTransformer` during
+   * `kubb:plugin:setup`, or `undefined` when it never registered one. The driver already
+   * applies the visitor to every schema and operation node before a generator sees it, so
+   * read it here only to inspect or re-run the transformation.
    */
   transformer: Visitor | undefined
   /**
