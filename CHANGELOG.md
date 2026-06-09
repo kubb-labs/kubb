@@ -1,5 +1,43 @@
 # Changelog
 
+## v5.0.0-beta.44 — Jun 9, 2026
+
+### @kubb/ast
+
+#### Breaking Changes
+
+- Add a `@kubb/ast/utils` subpath for spec-agnostic helpers that produce or format generated source,
+  so the main `@kubb/ast` barrel stays focused on the AST node tree and every adapter can share one
+  implementation. The subpath exports `stringify`, `trimQuotes`, `jsStringEscape`, `toRegExpString`,
+  `stringifyObject`, `getNestedAccessor`, `buildJSDoc`, `isValidVarName`, and a new `ensureValidVarName`.
+  
+  It also moves the pure (non-node) helpers `objectKey`, `buildObject`, `buildList`, `childName`,
+  `enumPropName`, `extractRefName`, and `findDiscriminator` from the main barrel to `@kubb/ast/utils`.
+  This is breaking: import them from `@kubb/ast/utils` instead of `@kubb/ast` (they are also no longer
+  part of the `ast` namespace re-exported by `@kubb/core`). ([#3498](https://github.com/kubb-labs/kubb/pull/3498), [`8ba18f7`](https://github.com/kubb-labs/kubb/commit/8ba18f7a88410a1f7dd99de2207bcd113aaf312e))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Cut memory use and duplicated work in the build hot path, and name the requiring plugin in missing-dependency errors.
+  
+  Rendered sources are no longer retained in memory for the whole build when caching is disabled, and the file write pipeline streams each file to storage as soon as it is parsed instead of materializing the entire batch first. Cache-hit restores now write files in parallel batches instead of one at a time. Per-node transformer results are memoized per plugin, so a plugin with a batch `operations()` generator no longer transforms and re-resolves every operation twice.
+  
+  `requirePlugin` errors raised from a generator context now say which plugin declared the missing dependency, e.g. `Plugin "plugin-zod" is required by "plugin-ts" but not found`. ([#3499](https://github.com/kubb-labs/kubb/pull/3499), [`8b611cb`](https://github.com/kubb-labs/kubb/commit/8b611cbca6f7f261a91b639bb085073c61b28a67))
+
+### @kubb/parser-ts
+
+#### Features
+
+- Tighten generated-output formatting so it reads cleanly without a formatter. `objectKey` now quotes a key only when it is not valid identifier syntax (reserved words and globals like `name` and `class` stay bare) and uses single quotes when it must quote. `@kubb/parser-ts` treats a `<br/>` break as a blank-line separator between statements, so consecutive or edge breaks fold into a single blank line instead of stacking. A shared `singleQuote` helper backs the single-quote output. ([#3498](https://github.com/kubb-labs/kubb/pull/3498), [`8ba18f7`](https://github.com/kubb-labs/kubb/commit/8ba18f7a88410a1f7dd99de2207bcd113aaf312e))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.43 — Jun 9, 2026
 
 ### @kubb/core
