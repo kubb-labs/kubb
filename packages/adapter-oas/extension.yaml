@@ -295,14 +295,14 @@ options:
   - name: integerType
     type: "'number' | 'bigint'"
     required: false
-    default: "'number'"
+    default: "'bigint'"
     description: |
       How `type: integer` (and `format: int64`) maps to TypeScript.
 
-      - `'number'` (default) — fits most JSON APIs; loses precision above `Number.MAX_SAFE_INTEGER`.
-      - `'bigint'` — exact for 64-bit IDs, but `JSON.stringify`/`JSON.parse` cannot round-trip it. Use only when you also handle bigint serialization explicitly.
+      - `'bigint'` (default) — exact for 64-bit IDs, but `JSON.stringify`/`JSON.parse` cannot round-trip it. Use only when you also handle bigint serialization explicitly.
+      - `'number'` — fits most JSON APIs; loses precision above `Number.MAX_SAFE_INTEGER`.
     examples:
-      - name: "'number' (default)"
+      - name: "'number'"
         files:
           - lang: typescript
             twoslash: false
@@ -310,7 +310,7 @@ options:
               type Pet = {
                 id: number
               }
-      - name: "'bigint'"
+      - name: "'bigint' (default)"
         files:
           - lang: typescript
             twoslash: false

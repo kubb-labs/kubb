@@ -30,10 +30,10 @@ export type ParserOptions = {
   dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
   /**
    * How `type: 'integer'` (and `format: 'int64'`) maps to TypeScript.
-   * - `'number'` fits most JSON APIs. Loses precision above `Number.MAX_SAFE_INTEGER`.
    * - `'bigint'` is exact for 64-bit IDs, but does not round-trip through JSON.
+   * - `'number'` fits most JSON APIs. Loses precision above `Number.MAX_SAFE_INTEGER`.
    *
-   * @default 'number'
+   * @default 'bigint'
    */
   integerType?: 'number' | 'bigint'
   /**
