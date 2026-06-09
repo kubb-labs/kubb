@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.45 — Jun 9, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Trim type exports that no package in the kubb or plugins ecosystem consumes. The public barrel no
+  longer re-exports node and helper types that were never imported, two unused node aliases are
+  removed, and several internal-only types drop their `export`. Runtime behavior is unchanged. ([#3502](https://github.com/kubb-labs/kubb/pull/3502), [`a83c3ea`](https://github.com/kubb-labs/kubb/commit/a83c3ea5c154cbc76d5c8c3675d8597b902e9811))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.44 — Jun 9, 2026
 
 ### @kubb/ast
