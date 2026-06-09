@@ -478,7 +478,7 @@ describe('createKubb', () => {
     })
   })
 
-  describe('generator context and transform reuse', () => {
+  describe('per-node options and transform reuse', () => {
     function makeAdapter({ schemas = [], operations = [] }: { schemas?: Array<SchemaNode>; operations?: Array<OperationNode> }) {
       return createMockedAdapter({
         parse: async () => ({
@@ -490,37 +490,7 @@ describe('createKubb', () => {
       })
     }
 
-    it('reuses one generator ctx across nodes when plugin options are static', async () => {
-      const ctxs: Array<unknown> = []
-      const capturePlugin = definePlugin(() => ({
-        name: 'capture-plugin',
-        hooks: {
-          'kubb:plugin:setup'(ctx) {
-            ctx.addGenerator({
-              name: 'capture-gen',
-              schema(_node, generatorCtx) {
-                ctxs.push(generatorCtx)
-              },
-            })
-          },
-        },
-      }))()
-
-      await createKubb(
-        {
-          ...config,
-          storage: memoryStorage(),
-          adapter: makeAdapter({ schemas: [createSchema({ name: 'A', type: 'string' }), createSchema({ name: 'B', type: 'string' })] }),
-          plugins: [capturePlugin as unknown as Plugin],
-        },
-        { hooks: new AsyncEventEmitter<KubbHooks>() },
-      ).build()
-
-      expect(ctxs).toHaveLength(2)
-      expect(ctxs[1]).toBe(ctxs[0])
-    })
-
-    it('still resolves per-node options when an override matches', async () => {
+    it('resolves per-node options when an override matches', async () => {
       const seen: Array<{ name: string | null | undefined; options: { marker?: string } }> = []
       const overridePlugin = definePlugin(() => ({
         name: 'override-plugin',

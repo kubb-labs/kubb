@@ -584,7 +584,6 @@ export class KubbDriver {
       failed: boolean
       error: Error | null
       optionsAreStatic: boolean
-      staticContext: GeneratorContext | null
       allowedSchemaNames: Set<string> | null
     }
 
@@ -593,18 +592,14 @@ export class KubbDriver {
       const hasExclude = Array.isArray(exclude) && exclude.length > 0
       const hasInclude = Array.isArray(include) && include.length > 0
       const hasOverride = Array.isArray(override) && override.length > 0
-      const optionsAreStatic = !hasExclude && !hasInclude && !hasOverride
-      const generatorContext = { ...context, resolver: this.getResolver(plugin.name) }
       return {
         plugin,
-        generatorContext,
+        generatorContext: { ...context, resolver: this.getResolver(plugin.name) },
         generators: plugin.generators ?? [],
         hrStart,
         failed: false,
         error: null,
-        optionsAreStatic,
-        // When options never vary per node, one shared ctx replaces a spread per node.
-        staticContext: optionsAreStatic ? { ...generatorContext, options: plugin.options } : null,
+        optionsAreStatic: !hasExclude && !hasInclude && !hasOverride,
         allowedSchemaNames: null,
       }
     })
@@ -689,7 +684,7 @@ export class KubbDriver {
           return
         }
 
-        const ctx = state.staticContext ?? { ...state.generatorContext, options }
+        const ctx = { ...state.generatorContext, options }
         for (const gen of state.generators) {
           const run = gen[dispatch.method] as ((node: TNode, ctx: GeneratorContext) => unknown) | undefined
           if (!run) continue
@@ -742,7 +737,7 @@ export class KubbDriver {
       if (!state.failed && needsCollectedOperations) {
         try {
           const { plugin, generatorContext, generators } = state
-          const ctx = state.staticContext ?? { ...generatorContext, options: plugin.options }
+          const ctx = { ...generatorContext, options: plugin.options }
           // Match what the per-node dispatch passes to gen.operation(): the transformed node,
           // already filtered by excludes/includes/overrides.
           const ops = collectedOperations ?? []
