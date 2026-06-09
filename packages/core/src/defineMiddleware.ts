@@ -12,8 +12,13 @@ export type Middleware = {
    */
   name: string
   /**
-   * Lifecycle event handlers. Any event from the global `KubbHooks` map can be
-   * subscribed to here. Handlers run after all plugin handlers for that event.
+   * Lifecycle event handlers. Subscribe to any event from the global `KubbHooks`
+   * map. Handlers run after all plugin handlers for that event.
+   *
+   * The driver finishes every `kubb:generate:schema` event for a plugin before
+   * it fires that plugin's first `kubb:generate:operation` or
+   * `kubb:generate:operations` event, so an operation handler can count on the
+   * plugin's schemas being done.
    */
   hooks: {
     [K in keyof KubbHooks]?: (...args: KubbHooks[K]) => void | Promise<void>

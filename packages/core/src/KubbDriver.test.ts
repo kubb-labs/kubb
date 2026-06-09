@@ -293,4 +293,16 @@ describe('GeneratorContext diagnostics', () => {
 
     expect(onError).not.toHaveBeenCalled()
   })
+
+  it('names the requiring plugin when ctx.requirePlugin misses', () => {
+    expect(() => context().requirePlugin('missing')).toThrowError(/Plugin "missing" is required by "pluginA" but not found/)
+  })
+
+  it('keeps the plain message for a direct driver.requirePlugin call', () => {
+    expect(() => driver.requirePlugin('missing')).toThrowError(/Plugin "missing" is required but not found/)
+  })
+
+  it('returns the plugin from ctx.requirePlugin when it exists', () => {
+    expect(context().requirePlugin('pluginA').name).toBe('pluginA')
+  })
 })

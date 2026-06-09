@@ -1,4 +1,5 @@
 import { AsyncEventEmitter } from '@internals/utils'
+import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createFile, createOperation, createSchema, createSource, createStreamInput, createText } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
@@ -474,6 +475,94 @@ describe('createKubb', () => {
 
       expect(files).toHaveLength(count)
       expect(generatedPaths).toHaveLength(count)
+    })
+  })
+
+  describe('per-node options and transform reuse', () => {
+    function makeAdapter({ schemas = [], operations = [] }: { schemas?: Array<SchemaNode>; operations?: Array<OperationNode> }) {
+      return createMockedAdapter({
+        parse: async () => ({
+          kind: 'Input' as const,
+          meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
+          schemas,
+          operations,
+        }),
+      })
+    }
+
+    it('resolves per-node options when an override matches', async () => {
+      const seen: Array<{ name: string | null | undefined; options: { marker?: string } }> = []
+      const overridePlugin = definePlugin(() => ({
+        name: 'override-plugin',
+        options: {
+          output: { path: '.' },
+          exclude: [],
+          override: [{ type: 'schemaName' as const, pattern: 'B', options: { marker: 'overridden' } }],
+        },
+        hooks: {
+          'kubb:plugin:setup'(ctx) {
+            ctx.addGenerator({
+              name: 'override-gen',
+              schema(node, generatorCtx) {
+                seen.push({ name: node.name, options: generatorCtx.options as { marker?: string } })
+              },
+            })
+          },
+        },
+      }))()
+
+      await createKubb(
+        {
+          ...config,
+          storage: memoryStorage(),
+          adapter: makeAdapter({ schemas: [createSchema({ name: 'A', type: 'string' }), createSchema({ name: 'B', type: 'string' })] }),
+          plugins: [overridePlugin as unknown as Plugin],
+        },
+        { hooks: new AsyncEventEmitter<KubbHooks>() },
+      ).build()
+
+      expect(seen).toHaveLength(2)
+      expect(seen.find((entry) => entry.name === 'A')?.options.marker).toBeUndefined()
+      expect(seen.find((entry) => entry.name === 'B')?.options.marker).toBe('overridden')
+    })
+
+    it('passes the same transformed node to operation and operations generators', async () => {
+      const perNode: Array<OperationNode> = []
+      let batch: Array<OperationNode> = []
+      const transformPlugin = definePlugin(() => ({
+        name: 'transform-plugin',
+        hooks: {
+          'kubb:plugin:setup'(ctx) {
+            ctx.setTransformer({ operation: (node) => ({ ...node, operationId: `${node.operationId}X` }) })
+            ctx.addGenerator({
+              name: 'transform-gen',
+              operation(node) {
+                perNode.push(node)
+              },
+              operations(nodes) {
+                batch = nodes
+              },
+            })
+          },
+        },
+      }))()
+
+      await createKubb(
+        {
+          ...config,
+          storage: memoryStorage(),
+          adapter: makeAdapter({
+            operations: [createOperation({ operationId: 'getPet', method: 'GET', path: '/pet', parameters: [], responses: [], tags: [] })],
+          }),
+          plugins: [transformPlugin as unknown as Plugin],
+        },
+        { hooks: new AsyncEventEmitter<KubbHooks>() },
+      ).build()
+
+      expect(perNode).toHaveLength(1)
+      expect(batch).toHaveLength(1)
+      expect(perNode[0]?.operationId).toBe('getPetX')
+      expect(batch[0]).toBe(perNode[0])
     })
   })
 

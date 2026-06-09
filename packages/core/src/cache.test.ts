@@ -26,7 +26,7 @@ async function dump(storage: Storage): Promise<Record<string, string>> {
   return out
 }
 
-function makeConfig({ storage, cache, schemaSpy }: { storage: Storage; cache: Cache; schemaSpy: Mock<() => void> }): Config {
+function makeConfig({ storage, cache, schemaSpy, fileCount = 1 }: { storage: Storage; cache: Cache; schemaSpy: Mock<() => void>; fileCount?: number }): Config {
   const plugin = definePlugin(() => ({
     name: 'plugin',
     hooks: {
@@ -35,15 +35,15 @@ function makeConfig({ storage, cache, schemaSpy }: { storage: Storage; cache: Ca
           name: 'gen',
           schema() {
             schemaSpy()
-            return [
+            return Array.from({ length: fileCount }, (_, index) =>
               createFile({
-                path: '/gen/pet.ts',
-                baseName: 'pet.ts',
-                sources: [createSource({ nodes: [createText('export type Pet = { id: number }')] })],
+                path: `/gen/pet${index}.ts`,
+                baseName: `pet${index}.ts`,
+                sources: [createSource({ nodes: [createText(`export type Pet${index} = { id: number }`)] })],
                 imports: [],
                 exports: [],
               }),
-            ]
+            )
           },
         })
       },
@@ -88,6 +88,35 @@ describe('incremental build cache', () => {
     // The generator never ran on the second build — the snapshot was restored instead.
     expect(schemaSpy).toHaveBeenCalledTimes(1)
     expect(cache.restore).toHaveBeenCalled()
+    expect(await dump(storage2)).toStrictEqual(cold)
+  })
+
+  it('persists the rendered sources in the snapshot', async () => {
+    const cache = memoryCache()
+    const schemaSpy = vi.fn<() => void>()
+
+    await createKubb(makeConfig({ storage: memoryStorage(), cache, schemaSpy })).build()
+
+    const persist = cache.persist as Mock
+    const call = persist.mock.calls[0]?.[0] as { snapshot: CachedSnapshot } | undefined
+    expect(call?.snapshot.files['pet0.ts']).toContain('export type Pet0 = { id: number }')
+  })
+
+  it('restores a snapshot larger than one write batch and skips generation', async () => {
+    const cache = memoryCache()
+    const schemaSpy = vi.fn<() => void>()
+    const fileCount = 55
+
+    const storage1 = memoryStorage()
+    await createKubb(makeConfig({ storage: storage1, cache, schemaSpy, fileCount })).build()
+    const cold = await dump(storage1)
+
+    expect(Object.keys(cold)).toHaveLength(fileCount)
+
+    const storage2 = memoryStorage()
+    await createKubb(makeConfig({ storage: storage2, cache, schemaSpy, fileCount })).build()
+
+    expect(schemaSpy).toHaveBeenCalledTimes(1)
     expect(await dump(storage2)).toStrictEqual(cold)
   })
 
