@@ -1,7 +1,17 @@
 /**
- * Number of spaces used to indent a nested block when pretty-printing.
+ * Character used for a single indent step. Set to `'\t'` to emit tab-indented output.
+ */
+export const INDENT_CHAR = ' '
+
+/**
+ * Number of {@link INDENT_CHAR} repeats that make up one nesting level.
  */
 export const INDENT_SIZE = 2 as const
+
+/**
+ * Indentation unit prepended once per nesting level when pretty-printing.
+ */
+export const INDENT = INDENT_CHAR.repeat(INDENT_SIZE)
 
 /**
  * Matches the trailing `.<ext>` segment of a path (keeps segments like `foo.bar.ts`

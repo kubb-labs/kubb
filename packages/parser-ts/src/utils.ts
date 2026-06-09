@@ -6,7 +6,8 @@ import {
   CRLF_PATTERN,
   CURRENT_DIRECTORY_PREFIX,
   FILE_EXTENSION_PATTERN,
-  INDENT_SIZE,
+  INDENT,
+  INDENT_CHAR,
   JSDOC_TERMINATOR_PATTERN,
   LEADING_DIGIT_PATTERN,
   PARENT_DIRECTORY_PREFIX,
@@ -73,15 +74,45 @@ export function printNodes(nodes: Array<CodeNode> | undefined): string {
 }
 
 /**
- * Indents every non-empty line of `text` by `spaces` spaces.
+ * Indents every non-empty line of `text` by one indent unit. Pass a number to repeat
+ * {@link INDENT_CHAR} that many times, or a string to use as the indent verbatim.
  */
-export function indentLines(text: string, spaces: number = INDENT_SIZE): string {
+export function indentLines(text: string, indent: number | string = INDENT): string {
   if (!text) return ''
-  const pad = ' '.repeat(spaces)
+  const pad = typeof indent === 'string' ? indent : INDENT_CHAR.repeat(indent)
   return text
     .split('\n')
     .map((line) => (line.trim() ? `${pad}${line}` : ''))
     .join('\n')
+}
+
+/**
+ * Removes the common leading whitespace shared by every non-blank line and trims
+ * surrounding blank lines, normalizing multi-line content authored inside an
+ * indented template literal back to a column-zero baseline. Leading whitespace is
+ * counted by character, so N tabs and N spaces are treated as the same depth.
+ *
+ * @example
+ * ```ts
+ * dedent('\n    foo\n      bar\n    ')
+ * // 'foo\n  bar'
+ * ```
+ */
+export function dedent(text: string): string {
+  if (!text) return ''
+
+  const lines = text.split('\n')
+  const isBlank = (line: string) => line.trim() === ''
+
+  const start = lines.findIndex((line) => !isBlank(line))
+  if (start === -1) return ''
+  const end = lines.findLastIndex((line) => !isBlank(line))
+
+  const trimmed = lines.slice(start, end + 1)
+  const indents = trimmed.filter((line) => !isBlank(line)).map((line) => line.match(/^\s*/)?.[0].length ?? 0)
+  const min = indents.length ? Math.min(...indents) : 0
+
+  return trimmed.map((line) => (isBlank(line) ? '' : line.slice(min))).join('\n')
 }
 
 /**
@@ -326,8 +357,8 @@ export function printArrowFunction(node: ArrowFunctionNode): string {
  */
 export function printCodeNode(node: CodeNode): string {
   if (node.kind === 'Break') return ''
-  if (node.kind === 'Text') return (node as TextNode).value
-  if (node.kind === 'Jsx') return (node as JsxNode).value
+  if (node.kind === 'Text') return dedent((node as TextNode).value)
+  if (node.kind === 'Jsx') return dedent((node as JsxNode).value)
   if (node.kind === 'Const') return printConst(node)
   if (node.kind === 'Type') return printType(node)
   if (node.kind === 'Function') return printFunction(node)
@@ -341,23 +372,24 @@ export function printCodeNode(node: CodeNode): string {
  * Iterates `nodes` in DOM order, rendering each {@link CodeNode} via
  * {@link printCodeNode}.
  *
+ * Top-level declarations are separated by a blank line so the source reads
+ * cleanly without an external formatter.
+ *
  * @example From nodes
  * ```ts
  * printSource({ kind: 'Source', nodes: [createConst({ name: 'x', nodes: [createText('1')] }), createText('x.toString()')] })
- * // 'const x = 1\nx.toString()'
+ * // 'const x = 1\n\nx.toString()'
  * ```
  */
 export function printSource(node: SourceNode): string {
   const nodes = node.nodes
 
   if (!nodes || nodes.length === 0) return ''
-  const parts: Array<string> = []
 
-  for (const child of nodes) {
-    parts.push(printCodeNode(child as CodeNode))
-  }
-
-  return parts.join('\n')
+  return nodes
+    .map((child) => printCodeNode(child as CodeNode))
+    .filter(Boolean)
+    .join('\n\n')
 }
 
 export function createImport({
