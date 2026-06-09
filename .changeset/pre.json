@@ -79,6 +79,7 @@
     "cool-jokes-pump",
     "core-compiler-phases",
     "core-getmode-static-cleanup",
+    "core-hot-path-perf",
     "core-renderer-contract-trim",
     "core-type-safety-escape-hatches",
     "create-kubb-user-config-signature",
