@@ -6,7 +6,8 @@ import {
   CRLF_PATTERN,
   CURRENT_DIRECTORY_PREFIX,
   FILE_EXTENSION_PATTERN,
-  INDENT_SIZE,
+  INDENT,
+  INDENT_CHAR,
   JSDOC_TERMINATOR_PATTERN,
   LEADING_DIGIT_PATTERN,
   PARENT_DIRECTORY_PREFIX,
@@ -73,11 +74,12 @@ export function printNodes(nodes: Array<CodeNode> | undefined): string {
 }
 
 /**
- * Indents every non-empty line of `text` by `spaces` spaces.
+ * Indents every non-empty line of `text` by one indent unit. Pass a number to repeat
+ * {@link INDENT_CHAR} that many times, or a string to use as the indent verbatim.
  */
-export function indentLines(text: string, spaces: number = INDENT_SIZE): string {
+export function indentLines(text: string, indent: number | string = INDENT): string {
   if (!text) return ''
-  const pad = ' '.repeat(spaces)
+  const pad = typeof indent === 'string' ? indent : INDENT_CHAR.repeat(indent)
   return text
     .split('\n')
     .map((line) => (line.trim() ? `${pad}${line}` : ''))
