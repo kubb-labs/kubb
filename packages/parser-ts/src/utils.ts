@@ -102,19 +102,17 @@ export function dedent(text: string): string {
   if (!text) return ''
 
   const lines = text.split('\n')
+  const isBlank = (line: string) => line.trim() === ''
 
-  let start = 0
-  let end = lines.length
-  while (start < end && lines[start]!.trim() === '') start++
-  while (end > start && lines[end - 1]!.trim() === '') end--
+  const start = lines.findIndex((line) => !isBlank(line))
+  if (start === -1) return ''
+  const end = lines.findLastIndex((line) => !isBlank(line))
 
-  const trimmed = lines.slice(start, end)
-  if (trimmed.length === 0) return ''
-
-  const indents = trimmed.filter((line) => line.trim() !== '').map((line) => line.match(/^\s*/)?.[0].length ?? 0)
+  const trimmed = lines.slice(start, end + 1)
+  const indents = trimmed.filter((line) => !isBlank(line)).map((line) => line.match(/^\s*/)?.[0].length ?? 0)
   const min = indents.length ? Math.min(...indents) : 0
 
-  return trimmed.map((line) => (line.trim() === '' ? '' : line.slice(min))).join('\n')
+  return trimmed.map((line) => (isBlank(line) ? '' : line.slice(min))).join('\n')
 }
 
 /**
