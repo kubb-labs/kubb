@@ -1,3 +1,4 @@
+import type { FileNode } from '@kubb/ast'
 import { createFile, createSource, createText } from '@kubb/ast'
 import { describe, expect, it, vi } from 'vitest'
 import { FileProcessor } from './FileProcessor.ts'
@@ -248,6 +249,62 @@ describe('FileProcessor — queue: flush', () => {
     await processor.drain()
 
     expect(order).toStrictEqual(['set:first.ts', 'done:first.ts', 'set:second.ts', 'done:second.ts'])
+  })
+})
+
+describe('FileProcessor — queue: streaming writes', () => {
+  it('starts writing a file before parsing the next one', async () => {
+    const order: Array<string> = []
+    const storage = memoryStorage()
+    const realSetItem = storage.setItem.bind(storage)
+    storage.setItem = async (path: string, source: string) => {
+      order.push(`set:${path}`)
+      await realSetItem(path, source)
+    }
+    const parser = {
+      name: 'ts',
+      type: 'parser' as const,
+      extNames: ['.ts' as const],
+      install: vi.fn(),
+      parse: vi.fn((file: FileNode) => {
+        order.push(`parse:${file.path}`)
+        return `/* ${file.path} */`
+      }),
+      print: vi.fn().mockReturnValue(''),
+    }
+    const processor = new FileProcessor({ storage, parsers: new Map([['.ts' as const, parser]]) })
+
+    processor.enqueue(makeFile('a.ts', ['/* a */']))
+    processor.enqueue(makeFile('b.ts', ['/* b */']))
+    await processor.drain()
+
+    expect(order).toStrictEqual(['parse:a.ts', 'set:a.ts', 'parse:b.ts', 'set:b.ts'])
+  })
+
+  it('fires end only after the last write has finished', async () => {
+    const events: Array<string> = []
+    const { promise: blocker, resolve: unblock } = Promise.withResolvers<void>()
+    const storage = memoryStorage()
+    const realSetItem = storage.setItem.bind(storage)
+    storage.setItem = async (path: string, source: string) => {
+      await blocker
+      await realSetItem(path, source)
+      events.push(`done:${path}`)
+    }
+    const { processor } = makeQueueProcessor({ storage })
+    processor.hooks.on('end', () => {
+      events.push('end')
+    })
+
+    processor.enqueue(makeFile('a.ts', ['/* a */']))
+    const draining = processor.drain()
+    await new Promise((resolve) => setTimeout(resolve, 5))
+    expect(events).toStrictEqual([])
+
+    unblock()
+    await draining
+
+    expect(events).toStrictEqual(['done:a.ts', 'end'])
   })
 })
 

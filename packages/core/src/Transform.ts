@@ -13,6 +13,10 @@ import { transform } from '@kubb/ast'
  */
 export class Transform {
   readonly #visitors = new Map<string, Visitor>()
+  // Memoized results per plugin. Repeated `applyTo` calls return the same node identity, so
+  // downstream WeakMap caches keyed by node (the resolver's resolveOptions memo) hit when the
+  // driver resolves a node a second time, and a stateful visitor runs once per node.
+  readonly #memo = new Map<string, WeakMap<SchemaNode | OperationNode, SchemaNode | OperationNode>>()
 
   /**
    * Number of plugins with a registered transformer.
@@ -27,6 +31,7 @@ export class Transform {
    */
   register(pluginName: string, visitor: Visitor): void {
     this.#visitors.set(pluginName, visitor)
+    this.#memo.delete(pluginName)
   }
 
   /**
@@ -45,7 +50,18 @@ export class Transform {
     const visitor = this.#visitors.get(pluginName)
     if (!visitor) return node
 
-    return transform(node, visitor) as TNode
+    let memo = this.#memo.get(pluginName)
+    if (!memo) {
+      memo = new WeakMap()
+      this.#memo.set(pluginName, memo)
+    }
+
+    const cached = memo.get(node)
+    if (cached) return cached as TNode
+
+    const result = transform(node, visitor) as TNode
+    memo.set(node, result)
+    return result
   }
 
   /**
@@ -54,5 +70,6 @@ export class Transform {
    */
   dispose(): void {
     this.#visitors.clear()
+    this.#memo.clear()
   }
 }

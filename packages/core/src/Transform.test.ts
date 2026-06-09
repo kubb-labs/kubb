@@ -53,6 +53,64 @@ describe('Transform — applyTo', () => {
   })
 })
 
+describe('Transform — memoization', () => {
+  it('returns the identical transformed reference for repeated applyTo calls', () => {
+    const transforms = new Transform()
+    transforms.register('a', { schema: (node) => (node.name === 'Pet' ? { ...node, name: 'PetRenamed' } : undefined) })
+
+    const node = namedSchema('Pet')
+    const first = transforms.applyTo('a', node)
+    const second = transforms.applyTo('a', node)
+
+    expect(first.name).toBe('PetRenamed')
+    expect(second).toBe(first)
+  })
+
+  it('runs the visitor once per node even when applied twice', () => {
+    const transforms = new Transform()
+    let calls = 0
+    transforms.register('a', {
+      schema: (node) => {
+        calls++
+        return node.name === 'Pet' ? { ...node, name: 'PetRenamed' } : undefined
+      },
+    })
+
+    const node = namedSchema('Pet')
+    transforms.applyTo('a', node)
+    const callsAfterFirst = calls
+    transforms.applyTo('a', node)
+
+    expect(calls).toBe(callsAfterFirst)
+  })
+
+  it('invalidates memoized results when a new visitor is registered for the plugin', () => {
+    const transforms = new Transform()
+    const node = namedSchema('Pet')
+    transforms.register('a', { schema: (n) => ({ ...n, name: 'first' }) })
+
+    expect(transforms.applyTo('a', node).name).toBe('first')
+
+    transforms.register('a', { schema: (n) => ({ ...n, name: 'second' }) })
+
+    expect(transforms.applyTo('a', node).name).toBe('second')
+  })
+
+  it('dispose clears memoized results along with the registry', () => {
+    const transforms = new Transform()
+    const node = namedSchema('Pet')
+    transforms.register('a', { schema: (n) => ({ ...n, name: 'changed' }) })
+    const before = transforms.applyTo('a', node)
+
+    transforms.dispose()
+    transforms.register('a', { schema: (n) => ({ ...n, name: 'changed' }) })
+    const after = transforms.applyTo('a', node)
+
+    expect(after.name).toBe('changed')
+    expect(after).not.toBe(before)
+  })
+})
+
 describe('Transform — registry', () => {
   it('tracks size and exposes get', () => {
     const transforms = new Transform()

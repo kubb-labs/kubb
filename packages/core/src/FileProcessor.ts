@@ -183,15 +183,13 @@ export class FileProcessor {
 
     await this.hooks.emit('start', files)
 
-    const items = [...this.stream(files)]
-    for (const item of items) {
-      await this.hooks.emit('update', item)
-    }
-
+    // Single pass: each file's write starts right after its `update` fires, so IO overlaps
+    // parsing and the batch never holds every rendered source in memory at once.
     const queue: Array<Promise<void>> = []
-    for (const { file, source } of items) {
-      if (source) {
-        queue.push(storage.setItem(file.path, source))
+    for (const item of this.stream(files)) {
+      await this.hooks.emit('update', item)
+      if (item.source) {
+        queue.push(storage.setItem(item.file.path, item.source))
         if (queue.length >= STREAM_FLUSH_EVERY) await Promise.all(queue.splice(0))
       }
     }

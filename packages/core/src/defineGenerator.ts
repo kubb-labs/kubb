@@ -56,11 +56,17 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    */
   plugin: Plugin<TOptions>
   /**
-   * The current plugin's resolver.
+   * The current plugin's resolver, the object that decides what every generated symbol and
+   * file path is called. Resolved from a `setResolver` registration first, then the plugin's
+   * static `resolver`, then the built-in default. Use it inside a generator to compute names
+   * (`ctx.resolver.default(name, 'type')`) and output paths (`ctx.resolver.resolveFile(...)`).
    */
   resolver: TOptions['resolver']
   /**
-   * The current plugin's transformer.
+   * The AST visitor the current plugin registered through `setTransformer` during
+   * `kubb:plugin:setup`, or `undefined` when the plugin has none. The driver already applies
+   * it to every schema and operation node before the generator sees it, so reading it here is
+   * only needed to re-run or inspect the transformation.
    */
   transformer: Visitor | undefined
   /**
