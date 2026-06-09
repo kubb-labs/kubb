@@ -1,4 +1,4 @@
-import { camelCase, isValidVarName, memoize } from '@internals/utils'
+import { camelCase, isIdentifier, isValidVarName, memoize, singleQuote } from '@internals/utils'
 
 import { INDENT } from './constants.ts'
 import { createFunctionParameter, createFunctionParameters, createParameterGroup, createParamsType, createProperty, createSchema } from './factory.ts'
@@ -774,16 +774,17 @@ function indentLines(text: string): string {
 }
 
 /**
- * Renders an object key, quoting it only when it is not a valid variable name.
+ * Renders an object key, quoting it with single quotes only when it is not a valid identifier.
+ * Reserved words and globals (`name`, `class`, …) are valid bare keys and stay unquoted.
  *
  * @example
  * ```ts
- * objectKey('id')      // 'id'
- * objectKey('x-total') // '"x-total"'
+ * objectKey('name')    // 'name'
+ * objectKey('x-total') // "'x-total'"
  * ```
  */
 export function objectKey(name: string): string {
-  return isValidVarName(name) ? name : JSON.stringify(name)
+  return isIdentifier(name) ? name : singleQuote(name)
 }
 
 /**

@@ -61,6 +61,14 @@ export function resolveOutputPath(path: string, options: { extname?: string } | 
  * (recursively converted via {@link printCodeNode}).
  * Elements are joined with `\n`.
  */
+/**
+ * Collapses any run of three or more newlines down to a single blank line, so two consecutive
+ * `<br/>` breaks never produce more than one blank line between statements.
+ */
+export function collapseBlankLines(text: string): string {
+  return text.replace(/\n{3,}/g, '\n\n')
+}
+
 export function printNodes(nodes: Array<CodeNode> | undefined): string {
   if (!nodes || nodes.length === 0) return ''
 
@@ -70,7 +78,7 @@ export function printNodes(nodes: Array<CodeNode> | undefined): string {
     parts.push(printCodeNode(node))
   }
 
-  return parts.join('\n')
+  return collapseBlankLines(parts.join('\n'))
 }
 
 /**

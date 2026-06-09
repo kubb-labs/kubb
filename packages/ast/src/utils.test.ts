@@ -2119,9 +2119,14 @@ describe('objectKey', () => {
     expect(objectKey('id')).toMatchInlineSnapshot(`"id"`)
   })
 
-  it('quotes keys that are not valid identifiers', () => {
-    expect(objectKey('x-total')).toMatchInlineSnapshot(`""x-total""`)
-    expect(objectKey('200')).toMatchInlineSnapshot(`""200""`)
+  it('leaves reserved words and globals unquoted', () => {
+    expect(objectKey('name')).toMatchInlineSnapshot(`"name"`)
+    expect(objectKey('class')).toMatchInlineSnapshot(`"class"`)
+  })
+
+  it('single-quotes keys that are not valid identifiers', () => {
+    expect(objectKey('x-total')).toMatchInlineSnapshot(`"'x-total'"`)
+    expect(objectKey('200')).toMatchInlineSnapshot(`"'200'"`)
   })
 })
 

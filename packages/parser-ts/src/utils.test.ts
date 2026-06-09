@@ -1,6 +1,7 @@
 import { createArrowFunction, createBreak, createConst, createFunction, createSource, createText, createType } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import {
+  collapseBlankLines,
   dedent,
   formatGenerics,
   formatReturnType,
@@ -85,6 +86,20 @@ describe('indentLines', () => {
 
   it('returns empty string for empty input', () => {
     expect(indentLines('')).toBe('')
+  })
+})
+
+describe('collapseBlankLines', () => {
+  it('collapses two blank lines (from double <br/>) to one', () => {
+    expect(collapseBlankLines('a\n\n\nb')).toBe('a\n\nb')
+  })
+
+  it('keeps a single blank line', () => {
+    expect(collapseBlankLines('a\n\nb')).toBe('a\n\nb')
+  })
+
+  it('keeps adjacent lines untouched', () => {
+    expect(collapseBlankLines('a\nb')).toBe('a\nb')
   })
 })
 
