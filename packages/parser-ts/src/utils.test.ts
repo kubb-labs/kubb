@@ -640,6 +640,10 @@ describe('printImport', () => {
   it('renders a type-only named import', () => {
     expect(printImport({ name: ['Pet'], path: './Pet.ts', isTypeOnly: true })).toMatchInlineSnapshot(`"import type { Pet } from './Pet.ts'"`)
   })
+
+  it('escapes a quote in the module path', () => {
+    expect(printImport({ name: ['z'], path: "./o'clock.ts" })).toMatchInlineSnapshot(`"import { z } from './o\\'clock.ts'"`)
+  })
 })
 
 describe('printExport', () => {

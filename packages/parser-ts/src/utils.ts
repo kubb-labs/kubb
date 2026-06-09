@@ -490,6 +490,14 @@ export function createExport({
 }
 
 /**
+ * Wraps a module specifier in single quotes, escaping any embedded backslash or quote so the emitted
+ * statement stays valid even for unusual paths.
+ */
+function quoteModulePath(path: string): string {
+  return `'${path.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+}
+
+/**
  * Renders an import declaration string in the repo style (single quotes, no semicolons), mirroring
  * the shapes that {@link createImport} builds: default, namespace (`* as`), and named imports with
  * `{ a as b }` aliases, each optionally `type`-only. `path` is used verbatim, so resolve it first.
@@ -512,7 +520,7 @@ export function printImport({
   isNameSpace?: boolean | null
 }): string {
   const typePrefix = isTypeOnly ? 'type ' : ''
-  const from = `'${path}'`
+  const from = quoteModulePath(path)
 
   if (!Array.isArray(name)) {
     if (isNameSpace) return `import ${typePrefix}* as ${name} from ${from}`
@@ -552,7 +560,7 @@ export function printExport({
   asAlias?: boolean | null
 }): string {
   const typePrefix = isTypeOnly ? 'type ' : ''
-  const from = `'${path}'`
+  const from = quoteModulePath(path)
 
   if (Array.isArray(name)) {
     const specifiers = name.map((item) => (typeof item === 'string' ? item : item.text))
@@ -562,6 +570,10 @@ export function printExport({
   if (asAlias && name) {
     const parsedName = LEADING_DIGIT_PATTERN.test(name) ? `_${name.slice(1)}` : name
     return `export ${typePrefix}* as ${parsedName} from ${from}`
+  }
+
+  if (name) {
+    console.warn(`When using name as string, asAlias should be true: ${name}`)
   }
 
   return `export ${typePrefix}* from ${from}`

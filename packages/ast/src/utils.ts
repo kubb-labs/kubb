@@ -767,15 +767,13 @@ export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): str
 const INDENT = '  '
 
 /**
- * Indents every non-empty line of `text` by one indent unit. Pass a number to repeat a space that
- * many times, or a string to use as the indent verbatim.
+ * Indents every non-empty line of `text` by one indent level, leaving blank lines empty.
  */
-function indentLines(text: string, indent: number | string = INDENT): string {
+function indentLines(text: string): string {
   if (!text) return ''
-  const pad = typeof indent === 'string' ? indent : ' '.repeat(indent)
   return text
     .split('\n')
-    .map((line) => (line.trim() ? `${pad}${line}` : ''))
+    .map((line) => (line.trim() ? `${INDENT}${line}` : ''))
     .join('\n')
 }
 
