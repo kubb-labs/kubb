@@ -2,7 +2,7 @@ import { isScalarPrimitive } from './constants.ts'
 import { createProperty, createSchema } from './factory.ts'
 import { narrowSchema } from './guards.ts'
 import type { SchemaNode } from './nodes/schema.ts'
-import { enumPropName } from './resolvers.ts'
+import { enumPropName } from './utils/index.ts'
 
 /**
  * Replaces a discriminator property's schema with a string enum of allowed values.

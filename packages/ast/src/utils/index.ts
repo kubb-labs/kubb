@@ -1,3 +1,6 @@
+import { isIdentifier, pascalCase, singleQuote } from '@internals/utils'
+import { INDENT } from '../constants.ts'
+
 export { ensureValidVarName, isValidVarName } from '@internals/utils'
 
 /**
@@ -174,4 +177,119 @@ export function buildJSDoc(
   if (comments.length === 0) return fallback
 
   return `/**\n${comments.map((c) => `${indent}${c}`).join('\n')}\n   */${suffix}`
+}
+
+/**
+ * Indents every non-empty line of `text` by one indent level, leaving blank lines empty.
+ */
+function indentLines(text: string): string {
+  if (!text) return ''
+  return text
+    .split('\n')
+    .map((line) => (line.trim() ? `${INDENT}${line}` : ''))
+    .join('\n')
+}
+
+/**
+ * Renders an object key, quoting it with single quotes only when it is not a valid identifier.
+ * Reserved words and globals (`name`, `class`, …) are valid bare keys and stay unquoted.
+ *
+ * @example
+ * ```ts
+ * objectKey('name')    // 'name'
+ * objectKey('x-total') // "'x-total'"
+ * ```
+ */
+export function objectKey(name: string): string {
+  return isIdentifier(name) ? name : singleQuote(name)
+}
+
+/**
+ * Assembles a multi-line object literal from already-rendered `entries`, indenting each entry one
+ * level and closing the brace at column zero. Nested objects built the same way indent cumulatively,
+ * so callers never re-parse the generated code. A trailing comma is added per entry to match the
+ * formatter's multi-line style.
+ *
+ * @example
+ * ```ts
+ * buildObject(['id: z.number()', 'name: z.string()'])
+ * // '{\n  id: z.number(),\n  name: z.string(),\n}'
+ * ```
+ */
+export function buildObject(entries: Array<string>): string {
+  if (entries.length === 0) return '{}'
+  const body = entries.map((entry) => `${indentLines(entry)},`).join('\n')
+  return `{\n${body}\n}`
+}
+
+/**
+ * Assembles a bracketed list (array by default) from already-rendered `items`. Keeps everything on
+ * one line when no item spans multiple lines, and otherwise puts each item on its own line, indented
+ * one level with a trailing comma and the closing bracket at column zero. Use it for `z.union([…])`,
+ * `z.array([…])`, and similar member lists so objects inside them nest correctly.
+ *
+ * @example
+ * ```ts
+ * buildList(['z.string()', 'z.number()'])
+ * // '[z.string(), z.number()]'
+ * ```
+ */
+export function buildList(items: Array<string>, brackets: [open: string, close: string] = ['[', ']']): string {
+  const [open, close] = brackets
+  if (items.length === 0) return `${open}${close}`
+  if (!items.some((item) => item.includes('\n'))) return `${open}${items.join(', ')}${close}`
+  const body = items.map((item) => `${indentLines(item)},`).join('\n')
+  return `${open}\n${body}\n${close}`
+}
+
+/**
+ * Returns the last path segment of a reference string.
+ *
+ * @example
+ * ```ts
+ * extractRefName('#/components/schemas/Pet') // 'Pet'
+ * ```
+ */
+export function extractRefName(ref: string): string {
+  return ref.split('/').at(-1) ?? ref
+}
+
+/**
+ * Builds a PascalCase child schema name by joining a parent name and property name.
+ * Returns `null` when there is no parent to nest under.
+ *
+ * @example
+ * ```ts
+ * childName('Order', 'shipping_address') // 'OrderShippingAddress'
+ * childName(undefined, 'params')         // null
+ * ```
+ */
+export function childName(parentName: string | null | undefined, propName: string): string | null {
+  return parentName ? pascalCase([parentName, propName].join(' ')) : null
+}
+
+/**
+ * Builds a PascalCase enum name from the parent name, property name, and a suffix, skipping any
+ * empty parts.
+ *
+ * @example
+ * ```ts
+ * enumPropName('Order', 'status', 'enum') // 'OrderStatusEnum'
+ * ```
+ */
+export function enumPropName(parentName: string | null | undefined, propName: string, enumSuffix: string): string {
+  return pascalCase([parentName, propName, enumSuffix].filter(Boolean).join(' '))
+}
+
+/**
+ * Returns the discriminator key whose mapping value matches `ref`, or `null` when there is no match.
+ *
+ * @example
+ * ```ts
+ * findDiscriminator({ dog: '#/components/schemas/Dog' }, '#/components/schemas/Dog') // 'dog'
+ * ```
+ */
+export function findDiscriminator(mapping: Record<string, string> | undefined, ref: string | undefined): string | null {
+  if (!mapping || !ref) return null
+  return Object.entries(mapping).find(([, value]) => value === ref)?.[0] ?? null
 }
