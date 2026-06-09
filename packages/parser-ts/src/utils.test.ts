@@ -1,7 +1,6 @@
 import { createArrowFunction, createBreak, createConst, createFunction, createSource, createText, createType } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import {
-  collapseBlankLines,
   dedent,
   formatGenerics,
   formatReturnType,
@@ -86,20 +85,6 @@ describe('indentLines', () => {
 
   it('returns empty string for empty input', () => {
     expect(indentLines('')).toBe('')
-  })
-})
-
-describe('collapseBlankLines', () => {
-  it('collapses two blank lines (from double <br/>) to one', () => {
-    expect(collapseBlankLines('a\n\n\nb')).toBe('a\n\nb')
-  })
-
-  it('keeps a single blank line', () => {
-    expect(collapseBlankLines('a\n\nb')).toBe('a\n\nb')
-  })
-
-  it('keeps adjacent lines untouched', () => {
-    expect(collapseBlankLines('a\nb')).toBe('a\nb')
   })
 })
 
@@ -193,6 +178,21 @@ describe('printNodes', () => {
   it('joins multiple nodes with newline', () => {
     const nodes = [createText('const x = 1'), createText('const y = 2')]
     expect(printNodes(nodes)).toBe('const x = 1\nconst y = 2')
+  })
+
+  it('inserts a single blank line for a break', () => {
+    const nodes = [createText('const x = 1'), createBreak(), createText('const y = 2')]
+    expect(printNodes(nodes)).toBe('const x = 1\n\nconst y = 2')
+  })
+
+  it('folds consecutive breaks into one blank line', () => {
+    const nodes = [createText('const x = 1'), createBreak(), createBreak(), createText('const y = 2')]
+    expect(printNodes(nodes)).toBe('const x = 1\n\nconst y = 2')
+  })
+
+  it('ignores leading and trailing breaks', () => {
+    const nodes = [createBreak(), createText('const x = 1'), createBreak()]
+    expect(printNodes(nodes)).toBe('const x = 1')
   })
 })
 
