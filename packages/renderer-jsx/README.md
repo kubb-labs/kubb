@@ -24,7 +24,7 @@
 
 ### JSX-based renderer for Kubb
 
-Provides a custom React runtime, reconciler, and built-in components (`File`, `Function`, `Type`, `Const`) for component-based, type-safe code generation inside Kubb plugins.
+Provides a React-free JSX runtime and built-in components (`File`, `Function`, `Type`, `Const`) for component-based, type-safe code generation inside Kubb plugins.
 
 ## Installation
 
@@ -41,10 +41,10 @@ npm install @kubb/renderer-jsx
 Use the built-in components inside a Kubb plugin to emit generated files:
 
 ```tsx
-import { createRenderer } from '@kubb/renderer-jsx'
+import { jsxRenderer } from '@kubb/renderer-jsx'
 import { File, Function, Type } from '@kubb/renderer-jsx'
 
-const renderer = createRenderer()
+const renderer = jsxRenderer()
 
 await renderer.render(
   <File baseName="petStore.ts" path="src/gen/petStore.ts">
@@ -58,7 +58,6 @@ await renderer.render(
 )
 
 const files = renderer.files
-renderer.unmount()
 ```
 
 ## Built-in Components
@@ -71,24 +70,25 @@ renderer.unmount()
 | `<Type>`        | Generates a TypeScript type alias                                           |
 | `<Const>`       | Generates a `const` variable declaration                                    |
 | `<Jsx>`         | Renders JSX expressions inside generated output                             |
-| `<Root>`        | Root container for the renderer tree                                        |
+| `<Callout>`     | Generates a callout block in markdown output                                |
+| `<Frontmatter>` | Generates a frontmatter block in markdown output                            |
+| `<Heading>`     | Generates a heading in markdown output                                      |
+| `<List>`        | Generates a list in markdown output                                         |
+| `<Paragraph>`   | Generates a paragraph in markdown output                                    |
 
 ## API
 
-### `createRenderer(options?)`
+### `jsxRenderer()`
 
-Creates a new renderer instance.
+Creates a renderer instance with `render`, `files`, and `stream`:
 
 ```typescript
-const renderer = createRenderer({ debug: false })
+const renderer = jsxRenderer()
 await renderer.render(<MyComponent />)
 const files = renderer.files  // FileNode[]
-renderer.unmount()
 ```
 
-### `jsxRenderer`
-
-Pre-built renderer instance for use directly in Kubb plugins as the `jsxRenderer` plugin option.
+Use `stream(element)` instead of `render` to consume files one at a time as they are produced.
 
 ## JSX Runtime
 

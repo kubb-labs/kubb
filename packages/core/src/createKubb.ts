@@ -613,7 +613,7 @@ export type KubbGenerationEndContext = {
   storage: Storage
   /**
    * Diagnostics collected during the build: error/warning/info problems plus a
-   * `timing` diagnostic per plugin. The end-of-run summary derives its failure counts
+   * `performance` diagnostic per plugin. The end-of-run summary derives its failure counts
    * and per-plugin timings from these. Set by the CLI runner, omitted by other callers.
    */
   diagnostics?: Array<Diagnostic>
@@ -835,7 +835,7 @@ export type BuildOutput = {
   /**
    * Structured diagnostics collected during the build: error/warning/info problems
    * (each with a code, severity, and where known a JSON-pointer location) plus a
-   * `timing` diagnostic per plugin. Includes a top-level diagnostic when the build
+   * `performance` diagnostic per plugin. Includes a top-level diagnostic when the build
    * threw before completing. Use {@link Diagnostics.hasError} to test for failure.
    */
   diagnostics: Array<Diagnostic>
