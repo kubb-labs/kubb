@@ -774,14 +774,7 @@ function indentLines(text: string): string {
 }
 
 /**
- * Tells whether `name` can be written as a bare object key without quotes.
- */
-export function isValidIdentifier(name: string): boolean {
-  return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name)
-}
-
-/**
- * Renders an object key, quoting it only when it is not a valid identifier.
+ * Renders an object key, quoting it only when it is not a valid variable name.
  *
  * @example
  * ```ts
@@ -790,7 +783,7 @@ export function isValidIdentifier(name: string): boolean {
  * ```
  */
 export function objectKey(name: string): string {
-  return isValidIdentifier(name) ? name : JSON.stringify(name)
+  return isValidVarName(name) ? name : JSON.stringify(name)
 }
 
 /**

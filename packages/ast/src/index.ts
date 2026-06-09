@@ -47,7 +47,6 @@ export {
   extractStringsFromNodes,
   findCircularSchemas,
   isStringType,
-  isValidIdentifier,
   objectKey,
   syncSchemaRef,
 } from './utils.ts'

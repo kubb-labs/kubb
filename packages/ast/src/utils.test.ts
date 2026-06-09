@@ -13,7 +13,6 @@ import {
   createOperationParams,
   findCircularSchemas,
   isStringType,
-  isValidIdentifier,
   objectKey,
   resolveRefName,
   syncSchemaRef,
@@ -2112,19 +2111,6 @@ describe('buildList', () => {
 
   it('uses custom brackets', () => {
     expect(buildList(['a', 'b'], ['(', ')'])).toMatchInlineSnapshot(`"(a, b)"`)
-  })
-})
-
-describe('isValidIdentifier', () => {
-  it('accepts identifier-safe names', () => {
-    expect(isValidIdentifier('id')).toMatchInlineSnapshot(`true`)
-    expect(isValidIdentifier('_private$1')).toMatchInlineSnapshot(`true`)
-  })
-
-  it('rejects names that need quoting', () => {
-    expect(isValidIdentifier('x-total')).toMatchInlineSnapshot(`false`)
-    expect(isValidIdentifier('1abc')).toMatchInlineSnapshot(`false`)
-    expect(isValidIdentifier('with space')).toMatchInlineSnapshot(`false`)
   })
 })
 
