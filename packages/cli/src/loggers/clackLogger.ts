@@ -199,27 +199,6 @@ Run \`npm install -g @kubb/cli\` to update`,
       reset()
     })
 
-    context.on('kubb:config:start', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      const text = getMessage('Configuration started')
-
-      clack.intro(text)
-      startSpinner(getMessage('Configuration loading'))
-    })
-
-    context.on('kubb:config:end', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      const text = getMessage('Configuration completed')
-
-      clack.outro(text)
-    })
-
     context.on('kubb:generation:start', ({ config }) => {
       reset()
 
