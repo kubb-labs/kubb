@@ -111,6 +111,7 @@ npx kubb generate
 | `--verbose`          | `-v`  | boolean | `false` | Override log level to `verbose`                                                                     |
 | `--silent`           | `-s`  | boolean | `false` | Override log level to `silent`                                                                      |
 | `--reporter <names>` |       | string  | `cli`   | Reporters that render the run, comma-separated: `cli`, `json`, `file`. Overrides `config.reporters` |
+| `--no-cache`         |       | boolean | `false` | Disable the incremental build cache and regenerate everything                                       |
 
 #### Examples
 

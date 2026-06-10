@@ -818,6 +818,11 @@ export type CLIOptions = {
    * Reporters selected on the CLI via `--reporter`, overriding `config.reporters`.
    */
   reporters?: Array<ReporterName>
+  /**
+   * Turns off the incremental build cache for this run, forcing a full regeneration.
+   * Set by the `--no-cache` flag.
+   */
+  noCache?: boolean
 }
 
 /**

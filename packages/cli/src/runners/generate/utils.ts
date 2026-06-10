@@ -83,6 +83,10 @@ type GetConfigsOptions = {
    * Log level forwarded to the user's `defineConfig` function.
    */
   logLevel?: CLIOptions['logLevel']
+  /**
+   * When set, turns off the incremental build cache for this run, forcing a full regeneration.
+   */
+  noCache?: boolean
 }
 
 type GetConfigsResult = {
@@ -100,15 +104,20 @@ type GetConfigsResult = {
  * Discovers the Kubb config via cosmiconfig and resolves it into a normalized array of configs.
  * Every config in the result is guaranteed to have a `plugins` array.
  */
-export async function getConfigs({ configPath, input, watch, logLevel }: GetConfigsOptions): Promise<GetConfigsResult> {
+export async function getConfigs({ configPath, input, watch, logLevel, noCache }: GetConfigsOptions): Promise<GetConfigsResult> {
   const result = await getCosmiConfig(configPath)
-  const cli: CLIOptions = { config: configPath, input, watch, logLevel }
+  const cli: CLIOptions = { config: configPath, input, watch, logLevel, noCache }
   const resolved = await (typeof result.config === 'function' ? result.config(cli) : result.config)
   const userConfigs = Array.isArray(resolved) ? resolved : [resolved]
 
   return {
     configPath: result.filepath,
-    configs: userConfigs.map((item) => ({ ...item, plugins: item.plugins ?? [] }) as Config),
+    configs: userConfigs.map((item) => {
+      const config = { ...item, plugins: item.plugins ?? [] } as Config
+      // `--no-cache` overrides whatever cache the config resolved to (fsCache by default), so the
+      // run regenerates everything instead of restoring a snapshot.
+      return noCache ? { ...config, cache: undefined } : config
+    }),
   }
 }
 
