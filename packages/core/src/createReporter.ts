@@ -132,4 +132,3 @@ export function createReporter<T = void>(reporter: UserReporter<T>): Reporter {
     },
   }
 }
-
