@@ -173,6 +173,7 @@
     "refactor-middleware-barrel",
     "remove-deprecated-plugin-checks",
     "remove-github-actions-logger",
+    "remove-group-output-mode",
     "remove-is-input-path",
     "remove-legacy-plugin-types",
     "remove-oas-package",
