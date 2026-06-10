@@ -1,7 +1,9 @@
 name: Cleanup Old Tags
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - claude/remove-old-git-tags-5gdgv4
 
 permissions:
   contents: write
