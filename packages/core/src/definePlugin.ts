@@ -88,10 +88,14 @@ export type Group = {
 }
 
 /**
- * Couples `output.mode` with the plugin's `group` option so `mode: 'group'` statically
- * requires `group`. Intersect it into a plugin's `Options` type instead of declaring
- * `output` and `group` directly, since `mode` lives inside `output` while `group` is its
- * sibling. The generic keeps a plugin's extended `Output` shape intact.
+ * Couples `output.mode` with the plugin's `group` option at the type level.
+ * - `mode: 'group'` requires `group`.
+ * - `mode: 'file'` forbids `group` (a single file has nothing to group).
+ * - `mode: 'directory'` (or no mode) allows an optional `group`.
+ *
+ * Intersect into a plugin's `Options` type instead of declaring `output` and
+ * `group` directly — `mode` lives inside `output` while `group` is its sibling.
+ * The generic keeps a plugin's extended `Output` shape intact.
  *
  * @example
  * ```ts
@@ -102,8 +106,12 @@ export type Group = {
  */
 export type OutputOptions<TOutput extends Output = Output> =
   | {
-      output?: TOutput & { mode?: 'directory' | 'file' }
+      output?: TOutput & { mode?: 'directory' }
       group?: Group
+    }
+  | {
+      output: TOutput & { mode: 'file' }
+      group?: never
     }
   | {
       output: TOutput & { mode: 'group' }
