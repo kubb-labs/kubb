@@ -2,7 +2,8 @@ import { AsyncEventEmitter } from '@internals/utils'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
-import { definePlugin } from './definePlugin.ts'
+import { definePlugin, normalizeOutput } from './definePlugin.ts'
+import { Diagnostics } from './diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, GeneratorContext, KubbHooks, KubbPluginSetupContext, Plugin, PluginFactoryOptions } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -266,7 +267,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     const opts = plugin.options as Record<string, unknown>
     expect(opts.enumType).toBe('asConst')
     expect(opts.syntaxType).toBe('type')
-    expect(opts.output).toStrictEqual({ path: 'types' })
+    expect(opts.output).toStrictEqual({ path: 'types', mode: 'directory' })
   })
 
   it('external listeners receive kubb:plugin:setup context', async () => {
@@ -496,5 +497,47 @@ describe('PluginDriver — generator event dispatch', () => {
 
     expect(schemaMock).toHaveBeenCalledOnce()
     expect(capturedResolverResult).toHaveBeenCalledWith('ResolvedFromSetup')
+  })
+})
+
+describe('normalizeOutput', () => {
+  it('defaults mode to directory', () => {
+    const result = normalizeOutput({ output: { path: 'types' }, pluginName: 'plugin-ts' })
+
+    expect(result).toStrictEqual({ path: 'types', mode: 'directory' })
+  })
+
+  it('keeps an explicit directory mode', () => {
+    const result = normalizeOutput({ output: { path: 'types', mode: 'directory' }, pluginName: 'plugin-ts' })
+
+    expect(result.mode).toBe('directory')
+  })
+
+  it('keeps an explicit file mode with its path as-is', () => {
+    const result = normalizeOutput({ output: { path: 'models.ts', mode: 'file' }, pluginName: 'plugin-ts' })
+
+    expect(result).toStrictEqual({ path: 'models.ts', mode: 'file' })
+  })
+
+  it('passes through group mode when a group is configured', () => {
+    const result = normalizeOutput({ output: { path: 'clients', mode: 'group' }, group: { type: 'tag' }, pluginName: 'plugin-client' })
+
+    expect(result).toStrictEqual({ path: 'clients', mode: 'group' })
+  })
+
+  it('throws KUBB_INVALID_PLUGIN_OPTIONS for group mode without a group', () => {
+    expect(() => normalizeOutput({ output: { path: 'clients', mode: 'group' }, pluginName: 'plugin-client' })).toThrowError(/output\.mode: 'group'/)
+  })
+
+  it('throws when group is null in group mode', () => {
+    let thrown: unknown
+    try {
+      normalizeOutput({ output: { path: 'clients', mode: 'group' }, group: null, pluginName: 'plugin-client' })
+    } catch (error) {
+      thrown = error
+    }
+
+    expect(Diagnostics.isError(thrown)).toBe(true)
+    expect((thrown as InstanceType<typeof Diagnostics.Error>).diagnostic.code).toBe('KUBB_INVALID_PLUGIN_OPTIONS')
   })
 })

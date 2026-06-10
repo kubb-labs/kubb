@@ -4,7 +4,6 @@ import type { FileNode, InputMeta, Node, OperationNode, SchemaNode } from '@kubb
 import { createFile, isOperationNode, isSchemaNode } from '@kubb/ast'
 import { Diagnostics } from './diagnostics.ts'
 import type { PluginFactoryOptions } from './definePlugin.ts'
-import { getMode } from './definePlugin.ts'
 import type { Config, Group, Output } from './types.ts'
 
 /**
@@ -76,7 +75,6 @@ export type Resolver = {
  */
 export type ResolverPathParams = {
   baseName: FileNode['baseName']
-  pathMode?: 'single' | 'split'
   /**
    * Tag value used when `group.type === 'tag'`.
    */
@@ -381,9 +379,10 @@ export function defaultResolveOptions<TOptions>(
 /**
  * Default path resolver used by `defineResolver`.
  *
- * - Returns the output directory in `single` mode.
- * - Resolves into a tag- or path-based subdirectory when `group` and a `tag`/`path` value are provided.
- * - Falls back to a flat `output/baseName` path otherwise.
+ * - `mode: 'file'` — resolves directly to `output.path` (the full file path, extension included).
+ * - `mode: 'group'` with a tag or path — resolves to `output.path/{groupName}{ext}`.
+ * - `mode: 'directory'` (default) — resolves to `output.path/{baseName}`, or into a
+ *   subdirectory when `group` and a `tag`/`path` value are provided.
  *
  * A custom `group.name` function overrides the default subdirectory naming.
  * For `tag` groups the default is the camelCased tag.
@@ -413,19 +412,28 @@ export function defaultResolveOptions<TOptions>(
  * // → '/src/types/pets/petTypes.ts'
  * ```
  *
- * @example Single-file mode
+ * @example Single file (`mode: 'file'`)
  * ```ts
  * defaultResolvePath(
- *   { baseName: 'petTypes.ts', pathMode: 'single' },
- *   { root: '/src', output: { path: 'types' } },
+ *   { baseName: 'petTypes.ts' },
+ *   { root: '/src', output: { path: 'types.ts', mode: 'file' } },
  * )
- * // → '/src/types'
+ * // → '/src/types.ts'
+ * ```
+ *
+ * @example One file per group (`mode: 'group'`)
+ * ```ts
+ * defaultResolvePath(
+ *   { baseName: 'listPets.ts', tag: 'pets' },
+ *   { root: '/src', output: { path: 'clients', mode: 'group' }, group: { type: 'tag' } },
+ * )
+ * // → '/src/clients/pets.ts'
  * ```
  */
-export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }: ResolverPathParams, { root, output, group }: ResolverContext): string {
-  const mode = pathMode ?? getMode(path.resolve(root, output.path))
+export function defaultResolvePath({ baseName, tag, path: groupPath }: ResolverPathParams, { root, output, group }: ResolverContext): string {
+  const mode = output.mode ?? 'directory'
 
-  if (mode === 'single') {
+  if (mode === 'file') {
     return path.resolve(root, output.path)
   }
 
@@ -443,15 +451,22 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
               return segment ? camelCase(segment) : ''
             }
       const resolveName = group.name ?? defaultName
-      return path.resolve(root, output.path, resolveName({ group: groupValue }), baseName)
+      const groupName = resolveName({ group: groupValue })
+
+      // `mode: 'group'` consolidates every operation in a group into one file named after the group,
+      // while the default places each file inside a per-group subdirectory.
+      if (mode === 'group') {
+        return path.resolve(root, output.path, `${groupName}${path.extname(baseName) || '.ts'}`)
+      }
+      return path.resolve(root, output.path, groupName, baseName)
     }
     return path.resolve(root, output.path, baseName)
   })()
 
   // Ensure the resolved path stays within the configured output directory.
   // This prevents path traversal from malicious OpenAPI specs or custom group.name functions.
-  // `result === outputDir` is intentionally permitted: it matches single-file mode paths and
-  // edge cases where baseName resolves to the output directory itself.
+  // `result === outputDir` is intentionally permitted: it matches edge cases where baseName
+  // resolves to the output directory itself.
   const outputDir = path.resolve(root, output.path)
   const outputDirWithSep = outputDir.endsWith(path.sep) ? outputDir : `${outputDir}${path.sep}`
   if (result !== outputDir && !result.startsWith(outputDirWithSep)) {
@@ -474,7 +489,7 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
  * path resolution (`resolver.resolvePath`). The resolved file always has empty
  * `sources`, `imports`, and `exports` arrays, which consumers populate separately.
  *
- * In `single` mode the name is omitted and the file sits directly in the output directory.
+ * In `mode: 'file'` the name is omitted and the file sits directly at the output path.
  *
  * @example Resolve a schema file
  * ```ts
@@ -497,10 +512,10 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
  * ```
  */
 export function defaultResolveFile(this: Resolver, { name, extname, tag, path: groupPath }: ResolverFileParams, context: ResolverContext): FileNode {
-  const pathMode = getMode(path.resolve(context.root, context.output.path))
-  const resolvedName = pathMode === 'single' ? '' : this.default(name, 'file')
+  const mode = context.output.mode ?? 'directory'
+  const resolvedName = mode === 'file' ? '' : this.default(name, 'file')
   const baseName = `${resolvedName}${extname}` as FileNode['baseName']
-  const filePath = this.resolvePath({ baseName, pathMode, tag, path: groupPath }, context)
+  const filePath = this.resolvePath({ baseName, tag, path: groupPath }, context)
 
   return createFile({
     path: filePath,

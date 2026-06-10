@@ -542,6 +542,26 @@ describe('createFile', () => {
     expect(file.imports.map((i) => i.path)).not.toContain('lodash')
   })
 
+  it('drops imports that resolve to the containing file (self-imports)', () => {
+    const selfImport = createImport({ name: ['Pet'], path: 'src/pets.ts' })
+    const crossFileImport = createImport({ name: ['Order'], path: 'src/orders.ts' })
+    const bareImport = createImport({ name: ['z'], path: 'zod' })
+    const src = createSource({
+      nodes: [createText('const value: Pet & Order = z.parse()')],
+    })
+    const file = createFile({
+      baseName: 'pets.ts',
+      path: 'src/pets.ts',
+      sources: [src],
+      imports: [selfImport, crossFileImport, bareImport],
+    })
+
+    const paths = file.imports.map((i) => i.path)
+    expect(paths).not.toContain('src/pets.ts')
+    expect(paths).toContain('src/orders.ts')
+    expect(paths).toContain('zod')
+  })
+
   it('carries through meta, banner and footer', () => {
     const file = createFile({
       baseName: 'pet.ts',

@@ -12,7 +12,7 @@ import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { Plugin } from './definePlugin.ts'
-import { getMode } from './definePlugin.ts'
+import { normalizeOutput } from './definePlugin.ts'
 import { defineResolver } from './defineResolver.ts'
 import { FileManager } from './FileManager.ts'
 import { FileProcessor } from './FileProcessor.ts'
@@ -24,6 +24,7 @@ import type {
   AdapterSource,
   Config,
   GeneratorContext,
+  Group,
   KubbHooks,
   KubbPluginSetupContext,
   Middleware,
@@ -51,19 +52,6 @@ function enforceOrder(enforce: 'pre' | 'post' | undefined): number {
 export class KubbDriver {
   readonly config: Config
   readonly options: Options
-
-  /**
-   * Returns `'single'` when `fileOrFolder` has a file extension, `'split'` otherwise.
-   *
-   * @example
-   * ```ts
-   * KubbDriver.getMode('src/gen/types.ts')  // 'single'
-   * KubbDriver.getMode('src/gen/types')     // 'split'
-   * ```
-   */
-  static getMode(fileOrFolder: string | undefined | null): 'single' | 'split' {
-    return getMode(fileOrFolder)
-  }
 
   /**
    * The streaming `InputStreamNode` produced by the adapter.
@@ -160,7 +148,7 @@ export class KubbDriver {
       dependencies: plugin.dependencies,
       enforce: plugin.enforce,
       hooks: plugin.hooks,
-      options: plugin.options ?? { output: { path: '.' }, exclude: [], override: [] },
+      options: plugin.options ?? { output: { path: '.', mode: 'directory' }, exclude: [], override: [] },
     } as NormalizedPlugin
 
     if ('apply' in plugin && typeof plugin.apply === 'function') {
@@ -235,6 +223,10 @@ export class KubbDriver {
           },
           setOptions: (opts) => {
             plugin.options = { ...plugin.options, ...opts }
+            if (plugin.options.output) {
+              const group = 'group' in plugin.options ? (plugin.options.group as Group | null | undefined) : undefined
+              plugin.options.output = normalizeOutput({ output: plugin.options.output, group, pluginName: plugin.name })
+            }
           },
           injectFile: (userFileNode) => {
             this.fileManager.add(createFile(userFileNode))
@@ -884,9 +876,6 @@ export class KubbDriver {
       config: driver.config,
       get root(): string {
         return resolve(driver.config.root, driver.config.output.path)
-      },
-      getMode(output: { path: string }): 'single' | 'split' {
-        return KubbDriver.getMode(resolve(driver.config.root, driver.config.output.path, output.path))
       },
       hooks: driver.hooks,
       plugin,

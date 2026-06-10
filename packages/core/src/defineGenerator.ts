@@ -26,11 +26,6 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    */
   root: string
   /**
-   * Determine output mode based on the output config.
-   * Returns `'single'` when `output.path` is a file, `'split'` for a directory.
-   */
-  getMode: (output: { path: string }) => 'single' | 'split'
-  /**
    * The driver running this build. Most generators never need it. Prefer the scoped helpers
    * on this context (`getPlugin`, `getResolver`, `upsertFile`) over reaching into the driver.
    */

@@ -145,4 +145,62 @@ describe('middlewareBarrel', () => {
 
     expect(barrel?.banner).toBe('')
   })
+
+  it("skips the per-plugin barrel for output.mode 'file' and re-exports the single file from the root barrel", async () => {
+    const storage = memoryStorage()
+    const config = {
+      root: '/workspace',
+      output: { path: 'src/gen', barrel: { type: 'named' } },
+      parsers: [],
+      reporters: [],
+      plugins: [
+        makePlugin({
+          name: 'plugin-types',
+          outputPath: 'types.ts',
+          filePath: '/workspace/src/gen/types.ts',
+          exportName: 'Pet',
+          output: { mode: 'file' },
+        }),
+      ] as unknown as Array<Plugin>,
+      middleware: [middlewareBarrel()],
+      storage,
+    } satisfies Config
+
+    const { files } = await createKubb(config).build()
+    const paths = files.map((file) => file.path)
+
+    expect(paths).not.toContain('/workspace/src/gen/types.ts/index.ts')
+    expect(paths).toContain('/workspace/src/gen/types.ts')
+    const rootBarrel = files.find((file) => file.path === '/workspace/src/gen/index.ts')
+    expect(rootBarrel?.exports.flatMap((item) => item.name ?? [])).toContain('Pet')
+  })
+
+  it('excludes a barrel:false file-mode plugin from the root barrel', async () => {
+    const storage = memoryStorage()
+    const config = {
+      root: '/workspace',
+      output: { path: 'src/gen', barrel: { type: 'named' } },
+      parsers: [],
+      reporters: [],
+      plugins: [
+        makePlugin({
+          name: 'plugin-types',
+          outputPath: 'types.ts',
+          filePath: '/workspace/src/gen/types.ts',
+          exportName: 'Pet',
+          output: { mode: 'file', barrel: false },
+        }),
+        makePlugin({ name: 'plugin-schemas', outputPath: 'schemas', filePath: '/workspace/src/gen/schemas/petSchema.ts', exportName: 'PetSchema' }),
+      ] as unknown as Array<Plugin>,
+      middleware: [middlewareBarrel()],
+      storage,
+    } satisfies Config
+
+    const { files } = await createKubb(config).build()
+    const rootBarrel = files.find((file) => file.path === '/workspace/src/gen/index.ts')
+    const exportedNames = rootBarrel?.exports.flatMap((item) => item.name ?? [])
+
+    expect(exportedNames).not.toContain('Pet')
+    expect(exportedNames).toContain('PetSchema')
+  })
 })

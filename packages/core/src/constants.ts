@@ -100,6 +100,10 @@ export const diagnosticCode = {
    */
   pathTraversal: 'KUBB_PATH_TRAVERSAL',
   /**
+   * A plugin's options are invalid, for example `output.mode: 'group'` without a `group` option.
+   */
+  invalidPluginOptions: 'KUBB_INVALID_PLUGIN_OPTIONS',
+  /**
    * A post-generate shell hook (`hooks.done`) exited with a failure.
    */
   hookFailed: 'KUBB_HOOK_FAILED',
