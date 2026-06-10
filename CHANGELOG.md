@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.50 — Jun 10, 2026
+
+### @kubb/cli
+
+#### Features
+
+- Remove the `kubb agent` command and drop `@kubb/agent` as a peer dependency of `@kubb/cli` and `kubb`. The HTTP agent server has moved out of this repository and is now deployed as the `kubblabs/kubb-agent` Docker image. To run the agent, use the published Docker image instead of the CLI. ([#3524](https://github.com/kubb-labs/kubb/pull/3524), [`94ac5b8`](https://github.com/kubb-labs/kubb/commit/94ac5b801d4e2c415441dd08cc87089b0d296390))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.49 — Jun 10, 2026
 
 ### @kubb/cli
