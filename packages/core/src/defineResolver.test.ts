@@ -78,22 +78,17 @@ describe('defaultResolvePath', () => {
     expect(result).toBe('/root/types')
   })
 
-  it('groups by tag when group.type is tag', () => {
+  it('groups by tag using the plain camelCased tag by default', () => {
     const result = defaultResolvePath(
-      { baseName: 'petTypes.ts', tag: 'pets' },
+      { baseName: 'petTypes.ts', tag: 'pet store' },
       {
         root: '/root',
         output: { path: 'types' },
-        group: {
-          type: 'tag',
-          name: (ctx: { group: string }) => {
-            return `${camelCase(ctx.group)}Controller`
-          },
-        },
+        group: { type: 'tag' },
       },
     )
 
-    expect(result).toBe('/root/types/petsController/petTypes.ts')
+    expect(result).toBe('/root/types/petStore/petTypes.ts')
   })
 
   it('groups by path when group.type is path', () => {
@@ -230,16 +225,11 @@ describe('defaultResolveFile', () => {
       {
         root: '/root',
         output: { path: 'types' },
-        group: {
-          type: 'tag',
-          name: (ctx: { group: string }) => {
-            return `${camelCase(ctx.group)}Controller`
-          },
-        },
+        group: { type: 'tag' },
       },
     )
 
-    expect(file.path).toBe('/root/types/petsController/pet.ts')
+    expect(file.path).toBe('/root/types/pets/pet.ts')
   })
 })
 

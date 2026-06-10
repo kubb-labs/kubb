@@ -71,7 +71,7 @@ export type Resolver = {
  *   { baseName: 'petTypes.ts', tag: 'pets' },
  *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
  * )
- * // → '/src/types/petsController/petTypes.ts'
+ * // → '/src/types/pets/petTypes.ts'
  * ```
  */
 export type ResolverPathParams = {
@@ -124,7 +124,7 @@ export type ResolverContext = {
  *   { name: 'listPets', extname: '.ts', tag: 'pets' },
  *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
  * )
- * // → { baseName: 'listPets.ts', path: '/src/types/petsController/listPets.ts', ... }
+ * // → { baseName: 'listPets.ts', path: '/src/types/pets/listPets.ts', ... }
  * ```
  */
 export type ResolverFileParams = {
@@ -386,7 +386,7 @@ export function defaultResolveOptions<TOptions>(
  * - Falls back to a flat `output/baseName` path otherwise.
  *
  * A custom `group.name` function overrides the default subdirectory naming.
- * For `tag` groups the default is `${camelCase(tag)}Controller`.
+ * For `tag` groups the default is the camelCased tag.
  * For `path` groups the default is the first path segment after `/`.
  *
  * @example Flat output
@@ -401,7 +401,7 @@ export function defaultResolveOptions<TOptions>(
  *   { baseName: 'petTypes.ts', tag: 'pets' },
  *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
  * )
- * // → '/src/types/petsController/petTypes.ts'
+ * // → '/src/types/pets/petTypes.ts'
  * ```
  *
  * @example Path-based grouping
@@ -434,7 +434,7 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
       const groupValue = group.type === 'path' ? groupPath! : tag!
       const defaultName =
         group.type === 'tag'
-          ? ({ group: groupName }: { group: string }) => `${camelCase(groupName)}Controller`
+          ? ({ group: groupName }: { group: string }) => camelCase(groupName)
           : ({ group: groupName }: { group: string }) => {
               // Strip traversal components (empty, '.', '..') before taking the first meaningful segment.
               // When every segment is a traversal component (e.g. '../../') we fall back to '' so the
@@ -493,7 +493,7 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
  *   { name: 'listPets', extname: '.ts', tag: 'pets' },
  *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
  * )
- * // → { baseName: 'listPets.ts', path: '/src/types/petsController/listPets.ts', ... }
+ * // → { baseName: 'listPets.ts', path: '/src/types/pets/listPets.ts', ... }
  * ```
  */
 export function defaultResolveFile(this: Resolver, { name, extname, tag, path: groupPath }: ResolverFileParams, context: ResolverContext): FileNode {
