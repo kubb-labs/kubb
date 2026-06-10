@@ -1,6 +1,6 @@
 {
   "name": "@kubb/mcp",
-  "version": "5.0.0-beta.45",
+  "version": "5.0.0-beta.46",
   "description": "MCP server for Kubb. Exposes code generation as a tool over the Model Context Protocol so AI assistants like Claude, Cursor, and other MCP-compatible clients can generate TypeScript types, clients, and more from OpenAPI specs.",
   "keywords": [
     "ai",

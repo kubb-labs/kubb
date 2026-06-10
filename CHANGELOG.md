@@ -1,5 +1,41 @@
 # Changelog
 
+## v5.0.0-beta.46 — Jun 10, 2026
+
+### @kubb/ast
+
+#### Breaking Changes
+
+- Strip self-imports in `createFile`. An import whose resolved path equals the containing file is now dropped, so consolidated output (`output.mode: 'group'` and `output.mode: 'file'`) no longer emits an import that points at the file itself. Bare module specifiers and genuine cross-file imports are unaffected. ([#3513](https://github.com/kubb-labs/kubb/pull/3513), [`d90c0ea`](https://github.com/kubb-labs/kubb/commit/d90c0ea26faa7504ddc27daf0fa671c28f77b902))
+
+### @kubb/core
+
+#### Breaking Changes
+
+- Add an explicit `output.mode` option and remove the implicit single-file detection.
+  
+  A plugin's `output` now takes `mode: 'directory' | 'group' | 'file'`:
+  
+  - `'directory'` (default) writes one file per operation or schema, the previous default behavior.
+  - `'group'` writes one file per resolved group and requires the plugin's `group` option.
+  - `'file'` writes everything into a single file. When `path` has no extension the default `.ts` is appended (`'types'` becomes `'types.ts'`).
+  
+  Kubb no longer guesses the mode from the `output.path` extension. Set `output.mode: 'file'` to get a single file where you previously relied on a `path` ending in `.ts`.
+  
+  Removed `getMode`, the `KubbDriver.getMode` static, the generator context `ctx.getMode`, and the `pathMode` field on `ResolverPathParams`. Added the `OutputMode` and `OutputOptions` types, where `OutputOptions` couples `output.mode: 'group'` with a required `group` option at the type level. A plugin configured with `output.mode: 'group'` but no `group` now fails the build with a `KUBB_INVALID_PLUGIN_OPTIONS` diagnostic. ([#3513](https://github.com/kubb-labs/kubb/pull/3513), [`d90c0ea`](https://github.com/kubb-labs/kubb/commit/d90c0ea26faa7504ddc27daf0fa671c28f77b902))
+
+### @kubb/middleware-barrel
+
+#### Breaking Changes
+
+- Make barrel generation aware of `output.mode`. A plugin with `output.mode: 'file'` gets no per-plugin barrel, since its output is a single file, and the root barrel re-exports that file directly. A plugin with `output.mode: 'group'` writes one file per group, which the per-plugin barrel re-exports like any other flat layout. ([#3513](https://github.com/kubb-labs/kubb/pull/3513), [`d90c0ea`](https://github.com/kubb-labs/kubb/commit/d90c0ea26faa7504ddc27daf0fa671c28f77b902))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.45 — Jun 10, 2026
 
 ### @kubb/adapter-oas
