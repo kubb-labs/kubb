@@ -77,6 +77,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Build
+        run: pnpm run build
+
       - name: Test
         run: pnpm run test
 
