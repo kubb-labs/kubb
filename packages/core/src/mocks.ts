@@ -6,7 +6,7 @@ import { expect } from 'vitest'
 import type { Parser } from './defineParser.ts'
 import { FileManager } from './FileManager.ts'
 import { FileProcessor } from './FileProcessor.ts'
-import { KubbDriver } from './KubbDriver.ts'
+import type { KubbDriver } from './KubbDriver.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import type { Adapter, AdapterFactoryOptions, Config, Generator, GeneratorContext, NormalizedPlugin, PluginFactoryOptions, RendererFactory } from './types.ts'
 
@@ -111,7 +111,6 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
   return {
     config: opts.config,
     root,
-    getMode: (output: { path: string }) => KubbDriver.getMode(resolve(root, output.path)),
     adapter: opts.adapter,
     resolver: opts.resolver,
     plugin: opts.plugin,

@@ -323,6 +323,11 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
     cause: 'A resolved output path escaped the output directory, which can stem from a path traversal in the spec or a misconfigured `group.name`.',
     fix: 'Keep generated paths within the output directory. Review the `group.name` function and the names coming from the spec.',
   },
+  [diagnosticCode.invalidPluginOptions]: {
+    title: 'Invalid plugin options',
+    cause: "A plugin was configured with options that cannot be honored, for example `output.mode: 'group'` without a `group` option.",
+    fix: "Fix the plugin options. For `output.mode: 'group'`, add a `group` option; otherwise use `output.mode: 'directory'` or `'file'`.",
+  },
   [diagnosticCode.hookFailed]: {
     title: 'Hook failed',
     cause: 'A post-generate shell hook (`hooks.done`) exited with a non-zero status.',

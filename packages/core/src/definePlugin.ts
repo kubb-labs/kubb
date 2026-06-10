@@ -1,7 +1,9 @@
 import { extname } from 'node:path'
 import type { FileNode, HttpMethod, UserFileNode, Visitor } from '@kubb/ast'
+import { diagnosticCode } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { BannerMeta, Resolver } from './defineResolver.ts'
+import { Diagnostics } from './diagnostics.ts'
 import type { Config, KubbHooks } from './types.ts'
 
 /**
@@ -14,15 +16,34 @@ import type { Config, KubbHooks } from './types.ts'
 type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {}
 
 /**
+ * How a plugin consolidates its generated code into files.
+ * - `'directory'` writes one file per operation or schema under `path`.
+ * - `'group'` writes one file per resolved group, and requires the plugin's `group` option.
+ * - `'file'` writes everything into a single file.
+ */
+export type OutputMode = 'directory' | 'group' | 'file'
+
+/**
  * Output configuration shared by every plugin. Each plugin extends this with
  * its own keys via the `Kubb.PluginOptionsRegistry.output` interface merge.
  */
 export type Output<_TOptions = unknown> = {
   /**
-   * Folder (or single file) where the plugin writes its generated code.
-   * Resolved against the global `output.path` set on `defineConfig`.
+   * Folder where the plugin writes its generated code, resolved against the global
+   * `output.path` set on `defineConfig`. With `mode: 'file'` this is the file itself,
+   * and a `.ts` extension is appended when the path has none (`'types'` becomes `'types.ts'`).
    */
   path: string
+  /**
+   * How generated code is consolidated into files.
+   * - `'directory'` writes one file per operation or schema under `path`.
+   * - `'group'` writes one file per resolved group, and requires the plugin's `group` option.
+   * - `'file'` writes everything into a single file. When `path` has no extension the
+   *   default `.ts` is appended (`'types'` becomes `'types.ts'`).
+   *
+   * @default 'directory'
+   */
+  mode?: OutputMode
   /**
    * Text prepended to every generated file. Useful for license headers,
    * lint disables, or `@ts-nocheck` directives.
@@ -66,6 +87,60 @@ export type Group = {
    * camelCased tag for `tag` groups, or the first path segment for `path` groups.
    */
   name?: (context: { group: string }) => string
+}
+
+/**
+ * Couples `output.mode` with the plugin's `group` option so `mode: 'group'` statically
+ * requires `group`. Intersect it into a plugin's `Options` type instead of declaring
+ * `output` and `group` directly, since `mode` lives inside `output` while `group` is its
+ * sibling. The generic keeps a plugin's extended `Output` shape intact.
+ *
+ * @example
+ * ```ts
+ * export type Options = OutputOptions & {
+ *   exclude?: Array<Exclude>
+ * }
+ * ```
+ */
+export type OutputOptions<TOutput extends Output = Output> =
+  | {
+      output?: TOutput & { mode?: 'directory' | 'file' }
+      group?: Group
+    }
+  | {
+      output: TOutput & { mode: 'group' }
+      group: Group
+    }
+
+/**
+ * Default file extension appended to a `mode: 'file'` output path that has none.
+ */
+const DEFAULT_FILE_EXTNAME = '.ts'
+
+/**
+ * Applies the `output.mode` default and normalizes `output.path` for `'file'` mode.
+ * Throws a config diagnostic when `mode: 'group'` is set without a `group` option, so
+ * the misconfiguration fails the build at plugin setup instead of producing wrong files.
+ */
+export function normalizeOutput({ output, group, pluginName }: { output: Output; group?: Group | null; pluginName: string }): Output {
+  const mode = output.mode ?? 'directory'
+
+  if (mode === 'group' && !group) {
+    throw new Diagnostics.Error({
+      code: diagnosticCode.invalidPluginOptions,
+      severity: 'error',
+      message: `Plugin "${pluginName}" sets \`output.mode: 'group'\` but has no \`group\` option configured.`,
+      help: "Add `group: { type: 'tag' }` (or `{ type: 'path' }`) to the plugin options, or use `output.mode: 'directory'` or `'file'`.",
+      location: { kind: 'config' },
+      plugin: pluginName,
+    })
+  }
+
+  if (mode === 'file' && !extname(output.path)) {
+    return { ...output, mode, path: `${output.path}${DEFAULT_FILE_EXTNAME}` }
+  }
+
+  return { ...output, mode }
 }
 
 type ByTag = {
@@ -368,19 +443,4 @@ export function definePlugin<TFactory extends PluginFactoryOptions = PluginFacto
   factory: (options: TFactory['options']) => Plugin<TFactory>,
 ): (options?: TFactory['options']) => Plugin<TFactory> {
   return (options) => factory(options ?? ({} as TFactory['options']))
-}
-
-/**
- * Detects whether an output path points at a single file (`'single'`) or a
- * directory (`'split'`). Decided purely from the presence of a file extension.
- *
- * @example Directory
- * `getMode('./types') // 'split'`
- *
- * @example Single file
- * `getMode('./api.ts') // 'single'`
- */
-export function getMode(fileOrFolder: string | undefined | null): 'single' | 'split' {
-  if (!fileOrFolder) return 'split'
-  return extname(fileOrFolder) ? 'single' : 'split'
 }

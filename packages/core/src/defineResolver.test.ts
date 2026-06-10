@@ -66,16 +66,55 @@ describe('defineResolver', () => {
 })
 
 describe('defaultResolvePath', () => {
-  it('resolves flat path (split mode)', () => {
+  it('resolves flat path (directory mode)', () => {
     const result = defaultResolvePath({ baseName: 'petTypes.ts' }, { root: '/root', output: { path: 'types' }, group: undefined })
 
     expect(result).toBe('/root/types/petTypes.ts')
   })
 
-  it('returns output dir in single mode', () => {
-    const result = defaultResolvePath({ baseName: 'petTypes.ts', pathMode: 'single' }, { root: '/root', output: { path: 'types' }, group: undefined })
+  it('returns the output file as-is in file mode', () => {
+    const result = defaultResolvePath({ baseName: 'petTypes.ts' }, { root: '/root', output: { path: 'types.ts', mode: 'file' }, group: undefined })
 
-    expect(result).toBe('/root/types')
+    expect(result).toBe('/root/types.ts')
+  })
+
+  it('appends an extension in file mode when the output path has none', () => {
+    const result = defaultResolvePath({ baseName: 'petTypes.ts' }, { root: '/root', output: { path: 'types', mode: 'file' }, group: undefined })
+
+    expect(result).toBe('/root/types.ts')
+  })
+
+  it('consolidates a tag group into one file in group mode', () => {
+    const result = defaultResolvePath(
+      { baseName: 'listPets.ts', tag: 'pet store' },
+      { root: '/root', output: { path: 'clients', mode: 'group' }, group: { type: 'tag' } },
+    )
+
+    expect(result).toBe('/root/clients/petStore.ts')
+  })
+
+  it('consolidates a path group into one file in group mode', () => {
+    const result = defaultResolvePath(
+      { baseName: 'listPets.ts', path: '/pets/list' },
+      { root: '/root', output: { path: 'clients', mode: 'group' }, group: { type: 'path' } },
+    )
+
+    expect(result).toBe('/root/clients/pets.ts')
+  })
+
+  it('uses custom group.name for the file name in group mode', () => {
+    const result = defaultResolvePath(
+      { baseName: 'listPets.ts', tag: 'pets' },
+      { root: '/root', output: { path: 'clients', mode: 'group' }, group: { type: 'tag', name: ({ group }) => `custom_${group}` } },
+    )
+
+    expect(result).toBe('/root/clients/custom_pets.ts')
+  })
+
+  it('falls back to one file per schema in group mode when no tag or path is given', () => {
+    const result = defaultResolvePath({ baseName: 'Pet.ts' }, { root: '/root', output: { path: 'types', mode: 'group' }, group: { type: 'tag' } })
+
+    expect(result).toBe('/root/types/Pet.ts')
   })
 
   it('groups by tag using the plain camelCased tag by default', () => {
@@ -201,7 +240,7 @@ describe('defaultResolveFile', () => {
     expect(file.baseName).toBe('listPets.ts')
   })
 
-  it('returns output dir path in single mode', () => {
+  it('omits the file name and writes to the output file in file mode', () => {
     const file = defaultResolveFile.call(
       resolver,
       { name: 'pet', extname: '.ts' },
@@ -209,13 +248,14 @@ describe('defaultResolveFile', () => {
         ...context,
         output: {
           ...context.output,
-          path: 'types' as const,
+          path: 'types.ts' as const,
+          mode: 'file' as const,
         },
       },
     )
 
-    expect(file.path).toBe('/root/types/pet.ts')
-    expect(file.baseName).toBe('pet.ts')
+    expect(file.path).toBe('/root/types.ts')
+    expect(file.baseName).toBe('types.ts')
   })
 
   it('groups by tag when resolver is tag-grouped', () => {
@@ -230,6 +270,21 @@ describe('defaultResolveFile', () => {
     )
 
     expect(file.path).toBe('/root/types/pets/pet.ts')
+  })
+
+  it('consolidates operations into one file per group in group mode', () => {
+    const file = defaultResolveFile.call(
+      resolver,
+      { name: 'list pets', extname: '.ts', tag: 'pets' },
+      {
+        root: '/root',
+        output: { path: 'clients', mode: 'group' },
+        group: { type: 'tag' },
+      },
+    )
+
+    expect(file.path).toBe('/root/clients/pets.ts')
+    expect(file.baseName).toBe('pets.ts')
   })
 })
 

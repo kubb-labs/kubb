@@ -76,6 +76,11 @@ export const middlewareBarrelName = 'middleware-barrel' satisfies Middleware['na
  * defaults to `{ type: 'named' }`). Set `barrel: false` on a plugin to skip
  * its barrel and also exclude its files from the root barrel.
  *
+ * A plugin with `output.mode: 'file'` gets no per-plugin barrel, since its output
+ * is a single file. The root barrel re-exports that file directly. A plugin with
+ * `output.mode: 'group'` writes one file per group, which the per-plugin barrel
+ * re-exports like any other flat layout.
+ *
  * @example
  * ```ts
  * import { defineConfig } from '@kubb/core'
@@ -114,6 +119,12 @@ export const middlewareBarrel = defineMiddleware(() => {
 
         if (barrelConfig === false) {
           excludedPrefixes.add(getPluginOutputPrefix(plugin, config))
+          return
+        }
+
+        // `mode: 'file'` writes a single file, so there is no directory to barrel. The root barrel
+        // re-exports that file as a direct leaf of `config.output.path`.
+        if (plugin.options.output.mode === 'file') {
           return
         }
 

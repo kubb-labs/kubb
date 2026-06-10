@@ -52,7 +52,7 @@ export type { Generator, GeneratorContext } from './defineGenerator.ts'
 export type { Logger, LoggerContext, LoggerOptions, UserLogger } from './defineLogger.ts'
 export type { Middleware } from './defineMiddleware.ts'
 export type { Parser } from './defineParser.ts'
-export type { Exclude, Group, Include, Output, Override } from './definePlugin.ts'
+export type { Exclude, Group, Include, Output, OutputMode, OutputOptions, Override } from './definePlugin.ts'
 export type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, NormalizedPlugin, Plugin, PluginFactoryOptions } from './definePlugin.ts'
 export type {
   BannerMeta,

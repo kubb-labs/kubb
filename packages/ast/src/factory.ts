@@ -667,7 +667,11 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
     .filter(Boolean)
     .join('\n\n')
   const resolvedExports = input.exports?.length ? combineExports(input.exports) : []
-  const resolvedImports = input.imports?.length ? combineImports(input.imports, resolvedExports, source || undefined) : []
+  const combinedImports = input.imports?.length ? combineImports(input.imports, resolvedExports, source || undefined) : []
+  // Drop imports that resolve to the containing file itself. Consolidated output
+  // (`mode: 'group'` and `mode: 'file'`) turns former cross-file imports into self-imports.
+  // Bare module specifiers (`'zod'`, `'@faker-js/faker'`) never equal an absolute file path.
+  const resolvedImports = combinedImports.filter((imp) => imp.path !== input.path)
   const resolvedSources = input.sources?.length ? combineSources(input.sources) : []
 
   return {
