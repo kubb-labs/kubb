@@ -45,6 +45,11 @@ export const command = defineCommand({
       hint: 'cli|json|file',
       enum: ['cli', 'json', 'file'],
     },
+    'no-cache': {
+      type: 'boolean',
+      description: 'Disable the incremental build cache and force a full regeneration',
+      default: false,
+    },
   },
   async run({ values, positionals }) {
     const logLevel = values.verbose ? 'verbose' : values.silent ? 'silent' : values.logLevel
@@ -60,6 +65,7 @@ export const command = defineCommand({
       logLevel,
       watch: values.watch,
       reporters,
+      noCache: values['no-cache'],
     })
   },
 })
