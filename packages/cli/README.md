@@ -24,7 +24,7 @@
 
 ### The command-line interface for Kubb
 
-Official CLI for Kubb. Run `kubb generate` to transform OpenAPI/Swagger specs into TypeScript types, API clients, hooks, validators, and mocks. Includes interactive project setup (`kubb init`), spec validation, watch mode, MCP server, and agent server commands.
+Official CLI for Kubb. Run `kubb generate` to transform OpenAPI/Swagger specs into TypeScript types, API clients, hooks, validators, and mocks. Includes interactive project setup (`kubb init`), spec validation, watch mode, and an MCP server.
 
 ## Installation
 
@@ -42,7 +42,6 @@ npm install -D @kubb/cli
 - [`kubb generate`](#kubb-generate) — run code generation
 - [`kubb validate`](#kubb-validate) — validate an OpenAPI spec
 - [`kubb mcp`](#kubb-mcp) — start the MCP server for AI assistants
-- [`kubb agent start`](#kubb-agent-start) — start the HTTP agent server
 
 ---
 
@@ -204,44 +203,6 @@ Add the following to your MCP client config (e.g. Claude Desktop's `claude_deskt
   }
 }
 ```
-
----
-
-### `kubb agent start`
-
-Start the Kubb Agent HTTP server. Exposes a REST API that accepts a `kubb.config.ts` patch and returns generated code as a stream. Use `--allow-write` to also write files to disk.
-
-```bash
-npx kubb agent start
-```
-
-#### Options
-
-| Flag                | Short | Type    | Default   | Description                                                       |
-| ------------------- | ----- | ------- | --------- | ----------------------------------------------------------------- |
-| `--config <path>`   | `-c`  | string  |           | Path to the Kubb config file                                      |
-| `--port <number>`   | `-p`  | string  | `3000`    | Port the HTTP server listens on                                   |
-| `--host <hostname>` |       | string  | `0.0.0.0` | Hostname the HTTP server binds to                                 |
-| `--allow-write`     |       | boolean | `false`   | Write generated files to disk (otherwise output is streamed only) |
-| `--allow-all`       |       | boolean | `false`   | Grant all permissions (implies `--allow-write`)                   |
-
-#### Examples
-
-```bash
-# Start with defaults
-npx kubb agent start
-
-# Custom port
-npx kubb agent start --port 4000
-
-# Allow writing files to disk
-npx kubb agent start --allow-write
-
-# Full permissions with custom config
-npx kubb agent start --config ./kubb.config.ts --allow-all
-```
-
-See the [`@kubb/agent` README](../agent/README.md) for full environment variable reference, Docker setup, WebSocket API, and Studio integration.
 
 ## Supporting Kubb
 

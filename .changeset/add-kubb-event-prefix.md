@@ -2,7 +2,6 @@
 '@kubb/core': minor
 '@kubb/cli': patch
 'unplugin-kubb': patch
-'@kubb/agent': patch
 '@kubb/mcp': patch
 ---
 

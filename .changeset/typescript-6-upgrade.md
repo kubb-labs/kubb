@@ -1,6 +1,5 @@
 ---
 "@kubb/adapter-oas": minor
-"@kubb/agent": minor
 "@kubb/core": minor
 "kubb": minor
 "@kubb/ast": minor

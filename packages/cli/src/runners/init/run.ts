@@ -196,8 +196,6 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
         '\n' +
         styleText('cyan', '  2. Generate code with: npx kubb generate') +
         '\n' +
-        styleText('cyan', '     Or start a stream server with: npx kubb agent start') +
-        '\n' +
         styleText('cyan', `  3. Find generated files in: ${outputPath}`) +
         '\n\n' +
         styleText('dim', `Using ${packageManager.name} • Kubb v${version}`),

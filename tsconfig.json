@@ -11,7 +11,6 @@
       "@internals/shared": ["./internals/shared/src/index.ts"],
       "@kubb/ast": ["./packages/ast/src/index.ts"],
       "@kubb/core": ["./packages/core/src/index.ts"],
-      "@kubb/agent": ["./packages/agent/src/index.ts"],
       "@kubb/mcp": ["./packages/mcp/src/index.ts"],
       "@kubb/renderer-jsx": ["./packages/renderer-jsx/src/index.ts"],
       "@kubb/renderer-jsx/jsx-runtime": ["./packages/renderer-jsx/src/jsx-runtime.ts"],

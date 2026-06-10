@@ -2,7 +2,6 @@
 '@kubb/core': patch
 '@kubb/cli': patch
 '@kubb/adapter-oas': patch
-'@kubb/agent': patch
 ---
 
 Fix diagnostic reporting regressions found in review.

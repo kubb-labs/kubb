@@ -1,6 +1,5 @@
 ---
 "@kubb/adapter-oas": patch
-"@kubb/agent": patch
 "@kubb/ast": patch
 "@kubb/cli": patch
 "@kubb/core": patch
