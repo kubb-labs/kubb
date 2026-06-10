@@ -232,7 +232,6 @@ describe('defaultResolveFile', () => {
 
     expect(file.path).toBe('/root/types/pets/pet.ts')
   })
-
 })
 
 const mockConfig = {
