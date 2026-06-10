@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.47 — Jun 10, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Drop self-imports of locally-defined symbols in consolidated output (`mode: 'group'`/`mode: 'file'`).
+  
+  A grouped file that defines a type (e.g. `Pet`) no longer also imports that same type. In group mode the import for a referenced schema resolves to the per-schema path while the file lives at the group path, so the existing path-based filter could not match. `createFile` now also drops any import whose binding is defined locally by one of the file's own sources. The local definition stays in place. ([#3515](https://github.com/kubb-labs/kubb/pull/3515), [`ebb0921`](https://github.com/kubb-labs/kubb/commit/ebb0921d34171337c2882c0bb1d7bc3c6b8d7a67))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.46 — Jun 10, 2026
 
 ### @kubb/ast
