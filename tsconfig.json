@@ -14,7 +14,6 @@
       "@kubb/ast/types": ["packages/ast/src/types.ts"],
       "@kubb/core": ["packages/core/src/index.ts"],
       "@kubb/cypress": ["packages/cypress/src/index.ts"],
-      "@kubb/agent": ["packages/agent/src/index.ts"],
       "@kubb/mcp": ["packages/mcp/src/index.ts"],
       "@kubb/types": ["packages/types/src/index.ts"],
       "@kubb/plugin-oas/hooks": ["packages/plugin-oas/src/hooks/index.ts"],

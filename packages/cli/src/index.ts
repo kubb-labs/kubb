@@ -28,16 +28,14 @@ export async function run(argv: string[] = process.argv): Promise<void> {
     )
   }
 
-  const [{ command: generateCommand }, { command: validateCommand }, { command: mcpCommand }, { command: agentCommand }, { command: initCommand }] =
-    await Promise.all([
-      import('./commands/generate.ts'),
-      import('./commands/validate.ts'),
-      import('./commands/mcp.ts'),
-      import('./commands/agent.ts'),
-      import('./commands/init.ts'),
-    ])
+  const [{ command: generateCommand }, { command: validateCommand }, { command: mcpCommand }, { command: initCommand }] = await Promise.all([
+    import('./commands/generate.ts'),
+    import('./commands/validate.ts'),
+    import('./commands/mcp.ts'),
+    import('./commands/init.ts'),
+  ])
 
-  await cli.run([generateCommand, validateCommand, mcpCommand, agentCommand, initCommand], argv, {
+  await cli.run([generateCommand, validateCommand, mcpCommand, initCommand], argv, {
     programName: 'kubb',
     defaultCommandName: 'generate',
     version,
