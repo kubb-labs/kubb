@@ -325,8 +325,8 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
   },
   [diagnosticCode.invalidPluginOptions]: {
     title: 'Invalid plugin options',
-    cause: "A plugin was configured with options that cannot be honored, for example `output.mode: 'group'` without a `group` option.",
-    fix: "Fix the plugin options. For `output.mode: 'group'`, add a `group` option; otherwise use `output.mode: 'directory'` or `'file'`.",
+    cause: "A plugin was configured with options that cannot be honored, for example `output.mode: 'file'` paired with a `group` option.",
+    fix: "Fix the plugin options. A single-file output has nothing to group, so remove the `group` option or use `output.mode: 'directory'`.",
   },
   [diagnosticCode.hookFailed]: {
     title: 'Hook failed',

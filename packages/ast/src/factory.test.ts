@@ -562,8 +562,8 @@ describe('createFile', () => {
     expect(paths).toContain('zod')
   })
 
-  it('drops imports of names defined locally even when the path differs (group mode)', () => {
-    // In `mode: 'group'` the grouped file lives at the tag path while the import for `Pet`
+  it('drops imports of names defined locally even when the path differs', () => {
+    // When output is consolidated the file can live at one path while the import for `Pet`
     // resolves to the per-schema path, so the strings differ and the path filter cannot match.
     const selfNamedImport = createImport({ name: ['Pet'], path: 'src/models/Pet.ts' })
     const crossFileImport = createImport({ name: ['Order'], path: 'src/models/Order.ts' })

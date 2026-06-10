@@ -17,10 +17,9 @@ type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {
 /**
  * How a plugin consolidates its generated code into files.
  * - `'directory'` writes one file per operation or schema under `path`.
- * - `'group'` writes one file per resolved group, and requires the plugin's `group` option.
  * - `'file'` writes everything into a single file.
  */
-export type OutputMode = 'directory' | 'group' | 'file'
+export type OutputMode = 'directory' | 'file'
 
 /**
  * Output configuration shared by every plugin. Each plugin extends this with
@@ -36,7 +35,6 @@ export type Output<_TOptions = unknown> = {
   /**
    * How generated code is consolidated into files.
    * - `'directory'` writes one file per operation or schema under `path`.
-   * - `'group'` writes one file per resolved group, and requires the plugin's `group` option.
    * - `'file'` writes everything into a single file. The `path` must include the file extension.
    *
    * @default 'directory'
@@ -89,9 +87,9 @@ export type Group = {
 
 /**
  * Couples `output.mode` with the plugin's `group` option at the type level.
- * - `mode: 'group'` requires `group`.
  * - `mode: 'file'` forbids `group` (a single file has nothing to group).
- * - `mode: 'directory'` (or no mode) allows an optional `group`.
+ * - `mode: 'directory'` (or no mode) allows an optional `group` to organize
+ *   files into per-group subdirectories.
  *
  * Intersect into a plugin's `Options` type instead of declaring `output` and
  * `group` directly — `mode` lives inside `output` while `group` is its sibling.
@@ -113,25 +111,21 @@ export type OutputOptions<TOutput extends Output = Output> =
       output: TOutput & { mode: 'file' }
       group?: never
     }
-  | {
-      output: TOutput & { mode: 'group' }
-      group: Group
-    }
 
 /**
  * Merges the `output.mode` default into the output config and validates the combination.
- * Throws `KUBB_INVALID_PLUGIN_OPTIONS` when `mode: 'group'` is set without a `group` option,
- * failing the build at setup time instead of silently producing wrong files.
+ * Throws `KUBB_INVALID_PLUGIN_OPTIONS` when `mode: 'file'` is paired with a `group` option,
+ * since a single-file output has nothing to group.
  */
 export function normalizeOutput({ output, group, pluginName }: { output: Output; group?: Group | null; pluginName: string }): Output {
   const mode = output.mode ?? 'directory'
 
-  if (mode === 'group' && !group) {
+  if (mode === 'file' && group) {
     throw new Diagnostics.Error({
       code: diagnosticCode.invalidPluginOptions,
       severity: 'error',
-      message: `Plugin "${pluginName}" sets \`output.mode: 'group'\` but has no \`group\` option configured.`,
-      help: "Add `group: { type: 'tag' }` (or `{ type: 'path' }`) to the plugin options, or use `output.mode: 'directory'` or `'file'`.",
+      message: `Plugin "${pluginName}" sets \`output.mode: 'file'\` but also configures a \`group\` option.`,
+      help: "A single-file output has nothing to group. Remove the `group` option, or use `output.mode: 'directory'` to organize files into subdirectories.",
       location: { kind: 'config' },
       plugin: pluginName,
     })
