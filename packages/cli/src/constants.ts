@@ -4,6 +4,11 @@
 export const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
 
 /**
+ * OpenTelemetry ingestion endpoint for anonymous usage telemetry.
+ */
+export const OTLP_ENDPOINT = 'https://otlp.kubb.dev' as const
+
+/**
  * Horizontal rule rendered above/below the plain-logger generation summary.
  */
 export const SUMMARY_SEPARATOR = '─'.repeat(27)

@@ -3,7 +3,8 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { formatMsWithColor, getElapsedMs, getIntro, toCause } from '@internals/utils'
-import { defineLogger, Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { defineLogger } from './defineLogger.ts'
 import { buildProgressLine, createProgressCounters, formatCommandWithArgs, formatMessage, recordPluginResult, resetProgressCounters } from './utils.ts'
 
 /**

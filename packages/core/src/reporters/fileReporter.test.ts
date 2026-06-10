@@ -1,6 +1,6 @@
 import * as utils from '@internals/utils'
 import { describe, expect, it, vi } from 'vitest'
-import { logLevel } from '../defineLogger.ts'
+import { logLevel } from '../createReporter.ts'
 import { Diagnostics } from '../diagnostics.ts'
 import type { Config } from '../types.ts'
 import { fileReporter } from './fileReporter.ts'

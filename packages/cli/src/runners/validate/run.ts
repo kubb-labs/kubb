@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
-import { Telemetry } from '@kubb/core'
+import { Telemetry } from '../../Telemetry.ts'
 
 type ValidateOptions = {
   /**
