@@ -1,12 +1,6 @@
 name: Release
 on:
   workflow_dispatch:
-    inputs:
-      mode:
-        description: 'Release mode (version = open the Version Packages PR only, no npm publish)'
-        type: choice
-        options: [version, staged, publish]
-        default: version
   push:
     branches: ['main', 'alpha', 'beta', 'rc']
     paths:
@@ -34,7 +28,7 @@ jobs:
       pull-requests: write
       issues: write
     outputs:
-      released: ${{ steps.changesets.outputs.staged == 'true' || steps.changesets.outputs.published == 'true' }}
+      released: ${{ steps.changesets.outputs.staged == 'true' }}
     steps:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -48,30 +42,18 @@ jobs:
           cache: 'false'
           force-install: 'true'
 
-      - name: Resolve release command
-        id: cmd
-        shell: bash
-        # MODE comes from env to avoid script injection from workflow inputs.
-        env:
-          MODE: ${{ inputs.mode || 'publish' }}
-        run: |
-          case "$MODE" in
-            publish) echo "publish=pnpm exec changeset publish" >> "$GITHUB_OUTPUT" ;;
-            staged) echo "publish=pnpm release:stage:ci" >> "$GITHUB_OUTPUT" ;;
-            version) echo "publish=" >> "$GITHUB_OUTPUT" ;;
-            *) echo "Unknown mode: $MODE" >&2; exit 1 ;;
-          esac
-
       - name: Build
-        if: ${{ steps.cmd.outputs.publish != '' }}
         run: pnpm run build
 
+      # When pending changesets exist, changesets/action opens the Version
+      # Packages PR. When versions are already bumped, it runs the publish
+      # command, which stages the workspace via `scripts/release.mjs`.
       - name: Release
         id: changesets
         uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
         with:
           version: pnpm exec changeset version
-          publish: ${{ steps.cmd.outputs.publish }}
+          publish: node scripts/release.mjs
           commit: 'ci(changesets): version packages'
           title: 'ci(changesets): version packages'
           setupGitUser: false
@@ -80,20 +62,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish canary
-        if: ${{ steps.changesets.outputs.published != 'true' && steps.changesets.outputs.staged != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        if: ${{ steps.changesets.outputs.staged != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         shell: bash
         env:
           NPM_CONFIG_PROVENANCE: true
-        # Stamp each package to a unique canary version so it can't collide
-        # with the `latest` tag, then rebuild and publish.
+        # Every main push publishes 0.0.0-canary-<UTC timestamp> under the
+        # `canary` dist-tag. The 0.0.0 base guarantees canaries sort below any
+        # real release and never collide with the `latest` tag.
         run: |
-          pnpm -r exec bash -c '
-            npm --no-git-tag-version version minor || true
-            version=$(node -p "require(\"./package.json\").version")
-            canary_version="${version}-canary.$(date +%Y%m%dT%H%M%S)"
-            echo "Version that will be published: ${canary_version}"
-            npm --no-git-tag-version version "${canary_version}" || true
-          '
+          canary_version="0.0.0-canary-$(date -u +%Y%m%d%H%M%S)"
+          echo "Canary version: ${canary_version}"
+          pnpm -r exec npm --no-git-tag-version version "${canary_version}"
           pnpm run build
           pnpm exec changeset publish --tag canary
 
