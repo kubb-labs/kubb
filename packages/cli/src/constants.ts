@@ -16,17 +16,6 @@ export const SUMMARY_TIME_SCALE_DIVISOR = 100 as const
 /** Glob pattern for paths the file watcher ignores. */
 export const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
 
-/** Default runtime values for the `agent start` command. */
-export const agentDefaults = {
-  port: '3000',
-  host: 'localhost',
-  configFile: 'kubb.config.ts',
-  retryTimeout: '30000',
-  studioUrl: 'https://studio.kubb.dev',
-  /** Relative path from the @kubb/agent package root to the server entry. */
-  serverEntryPath: '.output/server/index.mjs',
-} as const
-
 /** Default values used during interactive `init` scaffolding. */
 export const initDefaults = {
   inputPath: './openapi.yaml',

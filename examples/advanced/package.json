@@ -18,7 +18,6 @@
     "mcp": "kubb mcp",
     "generate:watch": "kubb generate --watch",
     "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
-    "agent": "kubb agent start --port 4002",
     "init": "kubb init -y",
     "generate:ts": "kubb generate --config configs/kubb.config.ts",
     "test": "vitest",
@@ -56,7 +55,6 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@kubb/agent": "workspace:*",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",

@@ -160,11 +160,7 @@ Kubb is an open source project with its ongoing development made possible entire
 
 ## License
 
-Most of this repository is licensed under the [MIT License](./licenses/LICENSE-MIT), Copyright © 2025 [Stijn Van Hulle](https://stijnvanhulle.be). Some components are licensed
-under AGPL-3.0-or-later.
-
-- **Most packages** — [MIT](./licenses/LICENSE-MIT)
-- **`@kubb/agent`** — [AGPL-3.0-or-later](./licenses/LICENSE-AGPL-3.0)
+This repository is licensed under the [MIT License](./LICENSE), Copyright © 2025 [Stijn Van Hulle](https://stijnvanhulle.be).
 
 See [LICENSE](./LICENSE) for details.
 

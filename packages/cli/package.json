@@ -73,7 +73,6 @@
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
-    "@kubb/agent": "workspace:*",
     "@kubb/mcp": "workspace:*",
     "@kubb/oas": "workspace:*",
     "source-map-support": "^0.5.21"
