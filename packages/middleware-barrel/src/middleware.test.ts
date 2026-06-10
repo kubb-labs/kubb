@@ -175,7 +175,7 @@ describe('middlewareBarrel', () => {
     expect(rootBarrel?.exports.flatMap((item) => item.name ?? [])).toContain('Pet')
   })
 
-  it("excludes a barrel:false file-mode plugin from the root barrel", async () => {
+  it('excludes a barrel:false file-mode plugin from the root barrel', async () => {
     const storage = memoryStorage()
     const config = {
       root: '/workspace',
