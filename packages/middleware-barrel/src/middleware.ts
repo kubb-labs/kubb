@@ -77,9 +77,7 @@ export const middlewareBarrelName = 'middleware-barrel' satisfies Middleware['na
  * its barrel and also exclude its files from the root barrel.
  *
  * A plugin with `output.mode: 'file'` gets no per-plugin barrel, since its output
- * is a single file. The root barrel re-exports that file directly. A plugin with
- * `output.mode: 'group'` writes one file per group, which the per-plugin barrel
- * re-exports like any other flat layout.
+ * is a single file. The root barrel re-exports that file directly.
  *
  * @example
  * ```ts

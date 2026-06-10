@@ -78,39 +78,6 @@ describe('defaultResolvePath', () => {
     expect(result).toBe('/root/types.ts')
   })
 
-  it('consolidates a tag group into one file in group mode', () => {
-    const result = defaultResolvePath(
-      { baseName: 'listPets.ts', tag: 'pet store' },
-      { root: '/root', output: { path: 'clients', mode: 'group' }, group: { type: 'tag' } },
-    )
-
-    expect(result).toBe('/root/clients/petStore.ts')
-  })
-
-  it('consolidates a path group into one file in group mode', () => {
-    const result = defaultResolvePath(
-      { baseName: 'listPets.ts', path: '/pets/list' },
-      { root: '/root', output: { path: 'clients', mode: 'group' }, group: { type: 'path' } },
-    )
-
-    expect(result).toBe('/root/clients/pets.ts')
-  })
-
-  it('uses custom group.name for the file name in group mode', () => {
-    const result = defaultResolvePath(
-      { baseName: 'listPets.ts', tag: 'pets' },
-      { root: '/root', output: { path: 'clients', mode: 'group' }, group: { type: 'tag', name: ({ group }) => `custom_${group}` } },
-    )
-
-    expect(result).toBe('/root/clients/custom_pets.ts')
-  })
-
-  it('falls back to one file per schema in group mode when no tag or path is given', () => {
-    const result = defaultResolvePath({ baseName: 'Pet.ts' }, { root: '/root', output: { path: 'types', mode: 'group' }, group: { type: 'tag' } })
-
-    expect(result).toBe('/root/types/Pet.ts')
-  })
-
   it('groups by tag using the plain camelCased tag by default', () => {
     const result = defaultResolvePath(
       { baseName: 'petTypes.ts', tag: 'pet store' },
@@ -266,20 +233,6 @@ describe('defaultResolveFile', () => {
     expect(file.path).toBe('/root/types/pets/pet.ts')
   })
 
-  it('consolidates operations into one file per group in group mode', () => {
-    const file = defaultResolveFile.call(
-      resolver,
-      { name: 'list pets', extname: '.ts', tag: 'pets' },
-      {
-        root: '/root',
-        output: { path: 'clients', mode: 'group' },
-        group: { type: 'tag' },
-      },
-    )
-
-    expect(file.path).toBe('/root/clients/pets.ts')
-    expect(file.baseName).toBe('pets.ts')
-  })
 })
 
 const mockConfig = {

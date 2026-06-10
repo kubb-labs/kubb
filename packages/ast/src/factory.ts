@@ -670,10 +670,10 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
   const combinedImports = input.imports?.length ? combineImports(input.imports, resolvedExports, source || undefined) : []
   const localNames = new Set((input.sources ?? []).map((item) => item.name).filter((name): name is string => Boolean(name)))
   const nameOf = (item: string | { propertyName: string; name?: string }): string => (typeof item === 'string' ? item : (item.name ?? item.propertyName))
-  // Drop self-imports. Consolidating output (`mode: 'group'`/`mode: 'file'`) can place a symbol's
+  // Drop self-imports. Consolidating output (`mode: 'file'`) can place a symbol's
   // definition and a cross-file import of it in the same file. The first pass catches imports that
   // resolve to this file's own path. The second drops imports of names the file already defines,
-  // the case `mode: 'group'` produces when the import path no longer matches `input.path`. Sources
+  // the case consolidation produces when the import path no longer matches `input.path`. Sources
   // stay intact, so the local definition remains. Bare specifiers like `'zod'` never match a path.
   const resolvedImports = combinedImports
     .filter((imp) => imp.path !== input.path)

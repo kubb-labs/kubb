@@ -380,7 +380,6 @@ export function defaultResolveOptions<TOptions>(
  * Default path resolver used by `defineResolver`.
  *
  * - `mode: 'file'` — resolves directly to `output.path` (the full file path, extension included).
- * - `mode: 'group'` with a tag or path — resolves to `output.path/{groupName}{ext}`.
  * - `mode: 'directory'` (default) — resolves to `output.path/{baseName}`, or into a
  *   subdirectory when `group` and a `tag`/`path` value are provided.
  *
@@ -420,15 +419,6 @@ export function defaultResolveOptions<TOptions>(
  * )
  * // → '/src/types.ts'
  * ```
- *
- * @example One file per group (`mode: 'group'`)
- * ```ts
- * defaultResolvePath(
- *   { baseName: 'listPets.ts', tag: 'pets' },
- *   { root: '/src', output: { path: 'clients', mode: 'group' }, group: { type: 'tag' } },
- * )
- * // → '/src/clients/pets.ts'
- * ```
  */
 export function defaultResolvePath({ baseName, tag, path: groupPath }: ResolverPathParams, { root, output, group }: ResolverContext): string {
   const mode = output.mode ?? 'directory'
@@ -453,11 +443,6 @@ export function defaultResolvePath({ baseName, tag, path: groupPath }: ResolverP
       const resolveName = group.name ?? defaultName
       const groupName = resolveName({ group: groupValue })
 
-      // `mode: 'group'` consolidates every operation in a group into one file named after the group,
-      // while the default places each file inside a per-group subdirectory.
-      if (mode === 'group') {
-        return path.resolve(root, output.path, `${groupName}${path.extname(baseName) || '.ts'}`)
-      }
       return path.resolve(root, output.path, groupName, baseName)
     }
     return path.resolve(root, output.path, baseName)

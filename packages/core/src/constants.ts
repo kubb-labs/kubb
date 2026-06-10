@@ -100,7 +100,7 @@ export const diagnosticCode = {
    */
   pathTraversal: 'KUBB_PATH_TRAVERSAL',
   /**
-   * A plugin's options are invalid, for example `output.mode: 'group'` without a `group` option.
+   * A plugin's options are invalid, for example `output.mode: 'file'` paired with a `group` option.
    */
   invalidPluginOptions: 'KUBB_INVALID_PLUGIN_OPTIONS',
   /**

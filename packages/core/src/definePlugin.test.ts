@@ -519,20 +519,22 @@ describe('normalizeOutput', () => {
     expect(result).toStrictEqual({ path: 'models.ts', mode: 'file' })
   })
 
-  it('passes through group mode when a group is configured', () => {
-    const result = normalizeOutput({ output: { path: 'clients', mode: 'group' }, group: { type: 'tag' }, pluginName: 'plugin-client' })
+  it('passes through directory mode when a group is configured', () => {
+    const result = normalizeOutput({ output: { path: 'clients', mode: 'directory' }, group: { type: 'tag' }, pluginName: 'plugin-client' })
 
-    expect(result).toStrictEqual({ path: 'clients', mode: 'group' })
+    expect(result).toStrictEqual({ path: 'clients', mode: 'directory' })
   })
 
-  it('throws KUBB_INVALID_PLUGIN_OPTIONS for group mode without a group', () => {
-    expect(() => normalizeOutput({ output: { path: 'clients', mode: 'group' }, pluginName: 'plugin-client' })).toThrowError(/output\.mode: 'group'/)
+  it('throws KUBB_INVALID_PLUGIN_OPTIONS for file mode paired with a group', () => {
+    expect(() => normalizeOutput({ output: { path: 'models.ts', mode: 'file' }, group: { type: 'tag' }, pluginName: 'plugin-ts' })).toThrowError(
+      /output\.mode: 'file'/,
+    )
   })
 
-  it('throws when group is null in group mode', () => {
+  it('throws a Diagnostics error when file mode is paired with a group', () => {
     let thrown: unknown
     try {
-      normalizeOutput({ output: { path: 'clients', mode: 'group' }, group: null, pluginName: 'plugin-client' })
+      normalizeOutput({ output: { path: 'models.ts', mode: 'file' }, group: { type: 'tag' }, pluginName: 'plugin-ts' })
     } catch (error) {
       thrown = error
     }
