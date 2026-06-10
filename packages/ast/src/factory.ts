@@ -668,15 +668,13 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
     .join('\n\n')
   const resolvedExports = input.exports?.length ? combineExports(input.exports) : []
   const combinedImports = input.imports?.length ? combineImports(input.imports, resolvedExports, source || undefined) : []
-  // Names this file defines locally. Consolidated output (`mode: 'group'`/`mode: 'file'`) can land a
-  // symbol's own definition and a cross-file import of it in the same file; in group mode the import
-  // path no longer matches `input.path`, so also drop imports whose binding is defined here. Sources
-  // are left intact, so the local definition stays.
   const localNames = new Set((input.sources ?? []).map((item) => item.name).filter((name): name is string => Boolean(name)))
   const nameOf = (item: string | { propertyName: string; name?: string }): string => (typeof item === 'string' ? item : (item.name ?? item.propertyName))
-  // Drop imports that resolve to the containing file itself. Consolidated output
-  // (`mode: 'group'` and `mode: 'file'`) turns former cross-file imports into self-imports.
-  // Bare module specifiers (`'zod'`, `'@faker-js/faker'`) never equal an absolute file path.
+  // Drop self-imports. Consolidating output (`mode: 'group'`/`mode: 'file'`) can place a symbol's
+  // definition and a cross-file import of it in the same file. The first pass catches imports that
+  // resolve to this file's own path. The second drops imports of names the file already defines,
+  // the case `mode: 'group'` produces when the import path no longer matches `input.path`. Sources
+  // stay intact, so the local definition remains. Bare specifiers like `'zod'` never match a path.
   const resolvedImports = combinedImports
     .filter((imp) => imp.path !== input.path)
     .flatMap((imp) => {
