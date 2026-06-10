@@ -62,8 +62,8 @@ export type Group = {
    */
   type: 'tag' | 'path'
   /**
-   * Returns the subdirectory name from the group key. Defaults to
-   * `${camelCase(group)}Controller` for tags, or the first path segment.
+   * Returns the subdirectory name from the group key. Defaults to the
+   * camelCased tag for `tag` groups, or the first path segment for `path` groups.
    */
   name?: (context: { group: string }) => string
 }
