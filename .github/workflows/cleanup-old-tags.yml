@@ -1,0 +1,61 @@
+name: Cleanup Old Tags
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup-tags:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
+
+      - name: Delete tags older than 6 months
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { execSync } = require('child_process');
+
+            const cutoff = '2025-12-10';
+            const output = execSync(
+              'git for-each-ref --format="%(creatordate:iso8601)|%(refname:short)" --sort=creatordate refs/tags',
+              { encoding: 'utf8' }
+            );
+
+            const oldTags = [];
+            for (const line of output.trim().split('\n')) {
+              if (!line) continue;
+              const pipeIdx = line.indexOf('|');
+              const date = line.substring(0, 10);
+              const tag = line.substring(pipeIdx + 1);
+              if (date < cutoff) {
+                oldTags.push(tag);
+              }
+            }
+
+            console.log(`Found ${oldTags.length} tags to delete (created before ${cutoff})`);
+
+            let deleted = 0;
+            let failed = 0;
+            for (const tag of oldTags) {
+              try {
+                await github.rest.git.deleteRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `tags/${tag}`
+                });
+                deleted++;
+                if (deleted % 50 === 0) console.log(`Progress: ${deleted}/${oldTags.length}`);
+              } catch (e) {
+                console.error(`Failed to delete ${tag}: ${e.message}`);
+                failed++;
+              }
+            }
+
+            console.log(`Completed: ${deleted} deleted, ${failed} failed`);
