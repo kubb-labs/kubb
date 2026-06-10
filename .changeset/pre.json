@@ -77,6 +77,7 @@
     "clack-plugin-progress-bar",
     "clever-cases-deny",
     "cli-esm-bin-multi-runtime",
+    "cli-generate-no-cache",
     "cli-options-passed-to-define-config",
     "cli-runners-per-folder-refactor",
     "coded-errors-and-mcp-diagnostics",

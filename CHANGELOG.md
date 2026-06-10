@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.49 — Jun 10, 2026
+
+### @kubb/cli
+
+#### Features
+
+- Add a `--no-cache` flag to `kubb generate` that turns off the incremental build cache for a single run, forcing a full regeneration without editing the config.
+  
+  The flag overrides whatever cache the config resolved to (`fsCache()` by default), so it works for every config shape. `CLIOptions` now carries `noCache`, letting a `defineConfig` function read it too. ([#3520](https://github.com/kubb-labs/kubb/pull/3520), [`e6987cb`](https://github.com/kubb-labs/kubb/commit/e6987cba1ba6a10890cd41b9728d7f4eec5fff7c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.48 — Jun 10, 2026
 
 ### @kubb/core
