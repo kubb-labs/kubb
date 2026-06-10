@@ -8,7 +8,7 @@ Kubb is built from:
 - Core engine (`@kubb/core`) runs the plugin system and orchestrates code generation
 - Adapters (`@kubb/adapter-oas`) transform OpenAPI specs into an AST
 - Renderers and utilities turn the AST into code
-- CLI and HTTP interfaces are the entry points for code generation
+- The CLI is the entry point for code generation
 - MCP server adds Model Context Protocol integration for AI assistants
 
 ## Project structure and commands

@@ -1,7 +1,6 @@
 ---
 "unplugin-kubb": major
 "@kubb/adapter-oas": major
-"@kubb/agent": major
 "@kubb/core": major
 "kubb": major
 "@kubb/ast": major

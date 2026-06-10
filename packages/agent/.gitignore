@@ -1,6 +1,0 @@
-node_modules
-.output
-dist
-.env.local
-.env.*.local
-.kubb/cache

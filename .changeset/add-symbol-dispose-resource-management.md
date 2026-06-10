@@ -1,7 +1,6 @@
 ---
 '@kubb/core': patch
 '@kubb/cli': patch
-'@kubb/agent': patch
 '@kubb/mcp': patch
 ---
 

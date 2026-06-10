@@ -1,7 +1,6 @@
 ---
 '@kubb/core': minor
 '@kubb/cli': minor
-'@kubb/agent': minor
 '@kubb/mcp': minor
 ---
 

@@ -48,7 +48,6 @@ kubb/
 │   ├── unplugin-kubb/       # Bundler integration (Vite, Nuxt, Astro, webpack)
 │   ├── cli/                 # Command-line interface (kubb init, kubb generate)
 │   ├── mcp/                 # Model Context Protocol server for AI assistants
-│   ├── agent/               # Agent server for HTTP-based code generation
 │   └── kubb/                # Main package, re-exports the public APIs
 ├── internals/               # Non-published helpers (changelog, shared logic, utils)
 ├── schemas/                 # JSON/YAML schemas for configuration

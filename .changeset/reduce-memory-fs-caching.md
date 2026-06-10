@@ -1,7 +1,6 @@
 ---
 '@kubb/ast': minor
 '@kubb/core': minor
-'@kubb/agent': minor
 ---
 
 Reduce peak memory by leaning on the existing `Storage` abstraction.

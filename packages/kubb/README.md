@@ -175,7 +175,7 @@ See [CONTRIBUTING.md](https://github.com/kubb-labs/kubb/blob/main/CONTRIBUTING.m
 
 ## License
 
-Most of this repository is licensed under the [MIT License](./licenses/LICENSE-MIT), Copyright © 2025 [Stijn Van Hulle](https://stijnvanhulle.be). Most packages use [MIT](./licenses/LICENSE-MIT), and `@kubb/agent` uses [AGPL-3.0-or-later](./licenses/LICENSE-AGPL-3.0).
+This repository is licensed under the [MIT License](./licenses/LICENSE-MIT), Copyright © 2025 [Stijn Van Hulle](https://stijnvanhulle.be).
 
 See [LICENSE](./LICENSE) for details.
 

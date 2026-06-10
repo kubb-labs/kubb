@@ -3,7 +3,6 @@
   "tag": "beta",
   "initialVersions": {
     "@kubb/adapter-oas": "5.0.0-alpha.74",
-    "@kubb/agent": "5.0.0-alpha.74",
     "@kubb/ast": "5.0.0-alpha.74",
     "@kubb/cli": "5.0.0-alpha.74",
     "@kubb/core": "5.0.0-alpha.74",

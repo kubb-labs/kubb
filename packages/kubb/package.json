@@ -79,14 +79,6 @@
     "@internals/utils": "workspace:*",
     "typescript": "catalog:"
   },
-  "peerDependencies": {
-    "@kubb/agent": "workspace:*"
-  },
-  "peerDependenciesMeta": {
-    "@kubb/agent": {
-      "optional": true
-    }
-  },
   "preferGlobal": true,
   "engines": {
     "node": ">=22"
