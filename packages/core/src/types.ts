@@ -23,7 +23,6 @@ export type {
   Kubb,
   KubbBuildEndContext,
   KubbBuildStartContext,
-  KubbConfigEndContext,
   KubbDiagnosticContext,
   KubbErrorContext,
   KubbFileProcessingUpdate,

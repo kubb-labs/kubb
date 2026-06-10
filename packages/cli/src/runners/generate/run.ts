@@ -363,10 +363,8 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   try {
     const relativeConfigPath = path.relative(process.cwd(), resolvedConfigPath)
 
-    await hooks.emit('kubb:config:start')
     await hooks.emit('kubb:info', { message: 'Config loaded', info: relativeConfigPath })
     await hooks.emit('kubb:success', { message: 'Config loaded successfully', info: relativeConfigPath })
-    await hooks.emit('kubb:config:end', { configs })
 
     let anyFailed = false
     for (const config of configs) {

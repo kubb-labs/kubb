@@ -479,8 +479,6 @@ declare global {
 export interface KubbHooks {
   'kubb:lifecycle:start': [ctx: KubbLifecycleStartContext]
   'kubb:lifecycle:end': []
-  'kubb:config:start': []
-  'kubb:config:end': [ctx: KubbConfigEndContext]
   'kubb:generation:start': [ctx: KubbGenerationStartContext]
   'kubb:generation:end': [ctx: KubbGenerationEndContext]
   'kubb:format:start': []
@@ -575,13 +573,6 @@ export type KubbLifecycleStartContext = {
    * Current Kubb version string.
    */
   version: string
-}
-
-export type KubbConfigEndContext = {
-  /**
-   * All resolved configs after defaults are applied.
-   */
-  configs: Array<Config>
 }
 
 export type KubbGenerationStartContext = {

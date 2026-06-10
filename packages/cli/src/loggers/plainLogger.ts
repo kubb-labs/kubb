@@ -93,9 +93,6 @@ export const plainLogger = defineLogger({
       console.log(`Kubb CLI v${version}`)
     })
 
-    onStep('kubb:config:start', 'Configuration started')
-    onStep('kubb:config:end', 'Configuration completed')
-
     context.on('kubb:generation:start', () => {
       const text = getMessage('Generation started')
 

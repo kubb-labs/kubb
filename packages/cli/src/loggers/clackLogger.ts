@@ -74,11 +74,6 @@ export const clackLogger = defineLogger({
       })
     }
 
-    function startSpinner(text?: string) {
-      state.spinner.start(text)
-      state.isSpinning = true
-    }
-
     function stopSpinner(text?: string) {
       if (!state.isSpinning) {
         return
@@ -197,27 +192,6 @@ Run \`npm install -g @kubb/cli\` to update`,
       console.log(`\n${getIntro({ title: 'The meta framework for code generation', description: 'Ready to start', version, areEyesOpen: true })}\n`)
 
       reset()
-    })
-
-    context.on('kubb:config:start', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      const text = getMessage('Configuration started')
-
-      clack.intro(text)
-      startSpinner(getMessage('Configuration loading'))
-    })
-
-    context.on('kubb:config:end', () => {
-      if (logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      const text = getMessage('Configuration completed')
-
-      clack.outro(text)
     })
 
     context.on('kubb:generation:start', ({ config }) => {
