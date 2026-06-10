@@ -74,11 +74,6 @@ export const clackLogger = defineLogger({
       })
     }
 
-    function startSpinner(text?: string) {
-      state.spinner.start(text)
-      state.isSpinning = true
-    }
-
     function stopSpinner(text?: string) {
       if (!state.isSpinning) {
         return
