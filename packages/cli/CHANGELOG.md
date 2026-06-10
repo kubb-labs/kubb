@@ -1,5 +1,16 @@
 # @kubb/cli
 
+## 4.38.0
+
+### Minor Changes
+
+- [#3522](https://github.com/kubb-labs/kubb/pull/3522) [`eca5422`](https://github.com/kubb-labs/kubb/commit/eca5422d670c896d21a57c268f996bafe3363729) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Remove `@kubb/agent` package and `kubb agent` CLI commands. The project is now MIT-only.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.38.0
+
 ## 4.37.12
 
 ### Patch Changes
