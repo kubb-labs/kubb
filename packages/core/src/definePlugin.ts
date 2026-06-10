@@ -1,4 +1,3 @@
-import { extname } from 'node:path'
 import type { FileNode, HttpMethod, UserFileNode, Visitor } from '@kubb/ast'
 import { diagnosticCode } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -29,17 +28,16 @@ export type OutputMode = 'directory' | 'group' | 'file'
  */
 export type Output<_TOptions = unknown> = {
   /**
-   * Folder where the plugin writes its generated code, resolved against the global
-   * `output.path` set on `defineConfig`. With `mode: 'file'` this is the file itself,
-   * and a `.ts` extension is appended when the path has none (`'types'` becomes `'types.ts'`).
+   * Directory where the plugin writes its generated code, resolved against the global
+   * `output.path` set on `defineConfig`. With `mode: 'file'`, this is the full output file
+   * path and must include the extension (e.g. `'types.ts'`, `'models.py'`).
    */
   path: string
   /**
    * How generated code is consolidated into files.
    * - `'directory'` writes one file per operation or schema under `path`.
    * - `'group'` writes one file per resolved group, and requires the plugin's `group` option.
-   * - `'file'` writes everything into a single file. When `path` has no extension the
-   *   default `.ts` is appended (`'types'` becomes `'types.ts'`).
+   * - `'file'` writes everything into a single file. The `path` must include the file extension.
    *
    * @default 'directory'
    */
@@ -113,14 +111,9 @@ export type OutputOptions<TOutput extends Output = Output> =
     }
 
 /**
- * Default file extension appended to a `mode: 'file'` output path that has none.
- */
-const DEFAULT_FILE_EXTNAME = '.ts'
-
-/**
- * Applies the `output.mode` default and normalizes `output.path` for `'file'` mode.
- * Throws a config diagnostic when `mode: 'group'` is set without a `group` option, so
- * the misconfiguration fails the build at plugin setup instead of producing wrong files.
+ * Merges the `output.mode` default into the output config and validates the combination.
+ * Throws `KUBB_INVALID_PLUGIN_OPTIONS` when `mode: 'group'` is set without a `group` option,
+ * failing the build at setup time instead of silently producing wrong files.
  */
 export function normalizeOutput({ output, group, pluginName }: { output: Output; group?: Group | null; pluginName: string }): Output {
   const mode = output.mode ?? 'directory'
@@ -134,10 +127,6 @@ export function normalizeOutput({ output, group, pluginName }: { output: Output;
       location: { kind: 'config' },
       plugin: pluginName,
     })
-  }
-
-  if (mode === 'file' && !extname(output.path)) {
-    return { ...output, mode, path: `${output.path}${DEFAULT_FILE_EXTNAME}` }
   }
 
   return { ...output, mode }

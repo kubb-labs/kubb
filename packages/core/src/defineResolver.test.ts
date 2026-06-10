@@ -78,12 +78,6 @@ describe('defaultResolvePath', () => {
     expect(result).toBe('/root/types.ts')
   })
 
-  it('appends an extension in file mode when the output path has none', () => {
-    const result = defaultResolvePath({ baseName: 'petTypes.ts' }, { root: '/root', output: { path: 'types', mode: 'file' }, group: undefined })
-
-    expect(result).toBe('/root/types.ts')
-  })
-
   it('consolidates a tag group into one file in group mode', () => {
     const result = defaultResolvePath(
       { baseName: 'listPets.ts', tag: 'pet store' },

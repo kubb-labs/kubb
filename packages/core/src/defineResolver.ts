@@ -379,9 +379,10 @@ export function defaultResolveOptions<TOptions>(
 /**
  * Default path resolver used by `defineResolver`.
  *
- * - Returns the output directory in `single` mode.
- * - Resolves into a tag- or path-based subdirectory when `group` and a `tag`/`path` value are provided.
- * - Falls back to a flat `output/baseName` path otherwise.
+ * - `mode: 'file'` — resolves directly to `output.path` (the full file path, extension included).
+ * - `mode: 'group'` with a tag or path — resolves to `output.path/{groupName}{ext}`.
+ * - `mode: 'directory'` (default) — resolves to `output.path/{baseName}`, or into a
+ *   subdirectory when `group` and a `tag`/`path` value are provided.
  *
  * A custom `group.name` function overrides the default subdirectory naming.
  * For `tag` groups the default is the camelCased tag.
@@ -433,8 +434,7 @@ export function defaultResolvePath({ baseName, tag, path: groupPath }: ResolverP
   const mode = output.mode ?? 'directory'
 
   if (mode === 'file') {
-    const resolved = path.resolve(root, output.path)
-    return path.extname(resolved) ? resolved : `${resolved}${path.extname(baseName) || '.ts'}`
+    return path.resolve(root, output.path)
   }
 
   const result: string = (() => {

@@ -513,23 +513,10 @@ describe('normalizeOutput', () => {
     expect(result.mode).toBe('directory')
   })
 
-  it('appends a .ts extension in file mode when the path has none', () => {
-    const result = normalizeOutput({ output: { path: 'types', mode: 'file' }, pluginName: 'plugin-ts' })
-
-    expect(result).toStrictEqual({ path: 'types.ts', mode: 'file' })
-  })
-
-  it('leaves a file-mode path that already has an extension untouched', () => {
+  it('keeps an explicit file mode with its path as-is', () => {
     const result = normalizeOutput({ output: { path: 'models.ts', mode: 'file' }, pluginName: 'plugin-ts' })
 
-    expect(result.path).toBe('models.ts')
-  })
-
-  it('is idempotent for file mode', () => {
-    const once = normalizeOutput({ output: { path: 'types', mode: 'file' }, pluginName: 'plugin-ts' })
-    const twice = normalizeOutput({ output: once, pluginName: 'plugin-ts' })
-
-    expect(twice).toStrictEqual({ path: 'types.ts', mode: 'file' })
+    expect(result).toStrictEqual({ path: 'models.ts', mode: 'file' })
   })
 
   it('passes through group mode when a group is configured', () => {
