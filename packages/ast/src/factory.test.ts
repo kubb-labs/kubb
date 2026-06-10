@@ -562,6 +562,40 @@ describe('createFile', () => {
     expect(paths).toContain('zod')
   })
 
+  it('drops imports of names defined locally even when the path differs (group mode)', () => {
+    // In `mode: 'group'` the grouped file lives at the tag path while the import for `Pet`
+    // resolves to the per-schema path, so the strings differ and the path filter cannot match.
+    const selfNamedImport = createImport({ name: ['Pet'], path: 'src/models/Pet.ts' })
+    const crossFileImport = createImport({ name: ['Order'], path: 'src/models/Order.ts' })
+    const petSource = createSource({ name: 'Pet', nodes: [createText('export type Pet = { order: Order }')], isExportable: true })
+    const file = createFile({
+      baseName: 'pet.ts',
+      path: 'src/models/pet.ts',
+      sources: [petSource],
+      imports: [selfNamedImport, crossFileImport],
+    })
+
+    const names = file.imports.flatMap((i) => (Array.isArray(i.name) ? i.name : [i.name]))
+    expect(names).not.toContain('Pet')
+    expect(names).toContain('Order')
+    expect(file.sources.some((s) => s.name === 'Pet')).toBe(true)
+  })
+
+  it('keeps non-local names when a grouped import mixes local and cross-file bindings', () => {
+    const mixedImport = createImport({ name: ['Pet', 'Order'], path: 'src/models/Pet.ts' })
+    const petSource = createSource({ name: 'Pet', nodes: [createText('export type Pet = { order: Order }')], isExportable: true })
+    const file = createFile({
+      baseName: 'pet.ts',
+      path: 'src/models/pet.ts',
+      sources: [petSource],
+      imports: [mixedImport],
+    })
+
+    const names = file.imports.flatMap((i) => (Array.isArray(i.name) ? i.name : [i.name]))
+    expect(names).not.toContain('Pet')
+    expect(names).toContain('Order')
+  })
+
   it('carries through meta, banner and footer', () => {
     const file = createFile({
       baseName: 'pet.ts',
