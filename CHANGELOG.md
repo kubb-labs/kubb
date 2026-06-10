@@ -1,5 +1,35 @@
 # Changelog
 
+## v5.0.0-beta.45 — Jun 10, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Sync option docs with the actual v5 defaults and APIs. The `integerType` docs in `@kubb/adapter-oas` (extension.yaml) and `@kubb/ast` (JSDoc) now state the real default `'bigint'` instead of `'number'`. The `@kubb/core` JSDoc for build diagnostics names the per-plugin timing kind `performance` instead of the removed `timing`. The `@kubb/renderer-jsx` README drops the removed `createRenderer` and `renderer.unmount()` APIs in favor of `jsxRenderer()` with `render`, `files`, and `stream`, and lists the markdown components (`Callout`, `Frontmatter`, `Heading`, `List`, `Paragraph`). ([#3504](https://github.com/kubb-labs/kubb/pull/3504), [`84326c1`](https://github.com/kubb-labs/kubb/commit/84326c19807c05ee9a71e2e535618a2c8aeffa31))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Trim type exports that no package in the kubb or plugins ecosystem consumes. The public barrel no
+  longer re-exports node and helper types that were never imported, two unused node aliases are
+  removed, and several internal-only types drop their `export`. Runtime behavior is unchanged. ([#3502](https://github.com/kubb-labs/kubb/pull/3502), [`a83c3ea`](https://github.com/kubb-labs/kubb/commit/a83c3ea5c154cbc76d5c8c3675d8597b902e9811))
+
+### @kubb/core
+
+#### Features
+
+- Default the `tag` group folder name to the plain camelCased tag instead of `${tag}Controller`.
+  
+  With `group: { type: 'tag' }`, files now land in `pet/` rather than `petController/`. The `Controller` suffix was a leftover convention nothing else in the output referenced. To keep the old layout, set `group: { type: 'tag', name: ({ group }) => \`${group}Controller\` }`. ([#3509](https://github.com/kubb-labs/kubb/pull/3509), [`d63c266`](https://github.com/kubb-labs/kubb/commit/d63c266777c107ae9732f6f63e82bae50d27bbff))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.44 — Jun 9, 2026
 
 ### @kubb/ast
