@@ -59,6 +59,7 @@
     "always-use-collision-safe-naming",
     "ast-babel-style-traversal",
     "ast-define-dialect",
+    "ast-drop-grouped-self-import",
     "ast-helper-reorganization",
     "ast-multi-spec-vocabulary",
     "ast-stringify-helpers",
