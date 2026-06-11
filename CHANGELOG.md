@@ -1,5 +1,26 @@
 # Changelog
 
+## v5.0.0-beta.52 — Jun 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Remove more unused code flagged by knip. None of the removed symbols are part of any package's `exports`, and all were unused across the kubb and plugins repos. Runtime behavior is unchanged.
+  
+  - `@kubb/parser-ts`: delete the dead `createImport` and `createExport` AST builders, superseded by the string-based `printImport`/`printExport`.
+  - `@kubb/adapter-oas`: drop the unused `HttpMethods` lookup and the redundant `openapi-types` re-export.
+  - `@kubb/ast`: drop the unused `buildFixture` mock helper.
+  - `@kubb/cli`: drop the unused `SUMMARY_SEPARATOR` constant.
+  - `@kubb/core`: drop the orphaned `mocks/noop` fixtures.
+  - Several internal-only symbols (`createContent`, `createRequestBody`, `SCALAR_PRIMITIVE_TYPES`, `INDENT_SIZE`, `defaultResolveOptions`, `buildDefaultBanner`, `ReportTiming`, `printFrontmatter`, `SchemaWithMetadata`) drop their redundant `export`. ([#3544](https://github.com/kubb-labs/kubb/pull/3544), [`5ce2414`](https://github.com/kubb-labs/kubb/commit/5ce2414e94750603d60b857f1b84ac17c4e29bdf))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.51 — Jun 11, 2026
 
 ### @kubb/adapter-oas
