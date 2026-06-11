@@ -1,2 +1,2 @@
-export type { BarrelType } from '@kubb/middleware-barrel'
+export type { BarrelType } from '@kubb/plugin-barrel'
 export { defineConfig } from './defineConfig.ts'

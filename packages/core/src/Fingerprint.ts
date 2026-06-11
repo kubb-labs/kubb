@@ -28,7 +28,7 @@ export class Fingerprint {
 
   /**
    * Computes a cache key from everything that affects the generated output: the spec content, the
-   * output-shaping config, each plugin's name and options, the middleware names, the running
+   * output-shaping config, each plugin's name and options, the running
    * `@kubb/core` version, and the cache format version. Returns `null` when the input can't be
    * fingerprinted (remote URL or no adapter source), which disables caching for that build.
    */
@@ -51,7 +51,6 @@ export class Fingerprint {
       adapter: config.adapter?.name,
       parsers: config.parsers.map((parser) => parser.name),
       plugins: config.plugins.map((plugin) => ({ name: plugin.name, options: plugin.options })),
-      middleware: (config.middleware ?? []).map((middleware) => middleware.name),
     }
 
     return createHash('sha256').update(Fingerprint.stringify(input)).digest('hex')

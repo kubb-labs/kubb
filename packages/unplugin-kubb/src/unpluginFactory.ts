@@ -2,7 +2,7 @@ import process from 'node:process'
 import { AsyncEventEmitter } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
 import { type Config, createKubb, Diagnostics, type KubbHooks } from '@kubb/core'
-import { middlewareBarrel, middlewareBarrelName } from '@kubb/middleware-barrel'
+import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import type { UnpluginFactory } from 'unplugin'
 import { version as unpluginVersion } from '../package.json'
@@ -73,10 +73,11 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       return
     }
 
-    const middleware = options.config.middleware?.length ? options.config.middleware : [middlewareBarrel()]
-    const hasBarrelMiddleware = middleware.some((m) => m.name === middlewareBarrelName)
+    const alreadyHasBarrel = options.config.plugins?.some((p) => p.name === pluginBarrelName)
+    const plugins = alreadyHasBarrel ? (options.config.plugins ?? []) : [...(options.config.plugins ?? []), pluginBarrel()]
+    const hasBarrelPlugin = plugins.some((p) => p.name === pluginBarrelName)
     const output = { ...options.config.output }
-    if (hasBarrelMiddleware && output.barrel === undefined) {
+    if (hasBarrelPlugin && output.barrel === undefined) {
       output.barrel = { type: 'named' }
     }
     if (output.format === undefined) {
@@ -90,7 +91,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       ...options.config,
       adapter: options.config.adapter ?? adapterOas(),
       parsers: options.config.parsers?.length ? options.config.parsers : [parserTs, parserTsx],
-      middleware,
+      plugins,
       output,
     }
     const hrStart = process.hrtime()

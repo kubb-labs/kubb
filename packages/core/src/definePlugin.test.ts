@@ -1,12 +1,39 @@
 import { AsyncEventEmitter } from '@internals/utils'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, expectTypeOf, it, vi } from 'vitest'
+import { createKubb } from './createKubb.ts'
 import { definePlugin, normalizeOutput } from './definePlugin.ts'
 import { Diagnostics } from './diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
-import type { Config, GeneratorContext, KubbHooks, KubbPluginSetupContext, Plugin, PluginFactoryOptions } from './types.ts'
+import type { Config, GeneratorContext, KubbHooks, KubbPluginSetupContext, Output, Plugin, PluginFactoryOptions } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
+
+// ---------------------------------------------------------------------------
+// Module-level declare global augmentations used by the type tests below.
+// ---------------------------------------------------------------------------
+declare global {
+  namespace Kubb {
+    interface ConfigOptionsRegistry {
+      output: {
+        /**
+         * Test-only field: verifies that `ConfigOptionsRegistry` augmentation
+         * propagates to `Config['output']`.
+         */
+        _testConfigField?: string
+      }
+    }
+    interface PluginOptionsRegistry {
+      output: {
+        /**
+         * Test-only field: verifies that `PluginOptionsRegistry` augmentation
+         * propagates to the per-plugin `Output` type.
+         */
+        _testPluginField?: number
+      }
+    }
+  }
+}
 
 type TestPluginOptions = PluginFactoryOptions<string, { tag: string }>
 type TestPluginOptionalOptions = PluginFactoryOptions<string, { tag?: string }>
@@ -541,5 +568,78 @@ describe('normalizeOutput', () => {
 
     expect(Diagnostics.isError(thrown)).toBe(true)
     expect((thrown as InstanceType<typeof Diagnostics.Error>).diagnostic.code).toBe('KUBB_INVALID_PLUGIN_OPTIONS')
+  })
+})
+
+describe('enforce: post — plugin ordering', () => {
+  function makeConfig(overrides: Partial<Config> = {}): Config {
+    return {
+      root: '.',
+      input: { path: './petStore.yaml' },
+      output: { path: './src/gen', clean: true },
+      parsers: [],
+      reporters: [],
+      adapter: createMockedAdapter(),
+      plugins: [],
+      ...overrides,
+    } as Config
+  }
+
+  it('enforce: post plugin fires after normal plugins for the same event', async () => {
+    const callOrder: Array<string> = []
+
+    const normalPlugin = definePlugin(() => ({
+      name: 'ordering-plugin',
+      hooks: {
+        'kubb:plugin:setup'() {
+          callOrder.push('plugin')
+        },
+      },
+    }))()
+
+    const postPlugin = definePlugin(() => ({
+      name: 'ordering-post-plugin',
+      enforce: 'post' as const,
+      hooks: {
+        'kubb:plugin:setup'() {
+          callOrder.push('post-plugin')
+        },
+      },
+    }))()
+
+    await createKubb(
+      makeConfig({
+        plugins: [normalPlugin, postPlugin] as unknown as Array<Plugin>,
+      }),
+      { hooks: new AsyncEventEmitter<KubbHooks>() },
+    ).build()
+
+    const pluginIdx = callOrder.indexOf('plugin')
+    const postPluginIdx = callOrder.indexOf('post-plugin')
+    expect(pluginIdx).toBeGreaterThanOrEqual(0)
+    expect(postPluginIdx).toBeGreaterThanOrEqual(0)
+    expect(postPluginIdx).toBeGreaterThan(pluginIdx)
+  })
+})
+
+describe('declare global augmentation', () => {
+  it('ConfigOptionsRegistry: augmented output field is present on Config["output"]', () => {
+    expectTypeOf<Config['output']>().toHaveProperty('_testConfigField')
+    expectTypeOf<Config['output']['_testConfigField']>().toEqualTypeOf<string | undefined>()
+
+    const output = { path: './src/gen' } satisfies Config['output']
+    const withField = { path: './src/gen', _testConfigField: 'hello' } satisfies Config['output']
+
+    expect(output).toBeDefined()
+    expect(withField._testConfigField).toBe('hello')
+  })
+
+  it('PluginOptionsRegistry: augmented output field is present on per-plugin Output', () => {
+    expectTypeOf<Output>().toHaveProperty('_testPluginField')
+    expectTypeOf<Output['_testPluginField']>().toEqualTypeOf<number | undefined>()
+
+    const pluginOutput = { path: './src/gen', _testPluginField: 42 } satisfies Output
+
+    expect(pluginOutput._testPluginField).toBe(42)
   })
 })

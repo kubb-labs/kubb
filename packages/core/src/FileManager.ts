@@ -15,7 +15,7 @@ function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNod
   return {
     ...a,
     // Incoming file (b) takes precedence for banner/footer so a barrel file (whose
-    // banner/footer the barrel middleware resolves last) wins over a plugin-generated
+    // banner/footer the barrel plugin resolves last) wins over a plugin-generated
     // file at the same path.
     banner: b.banner,
     footer: b.footer,

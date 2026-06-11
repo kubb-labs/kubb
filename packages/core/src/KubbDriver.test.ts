@@ -5,7 +5,7 @@ import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
 import { type Diagnostic, Diagnostics } from './diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
-import type { Config, KubbHooks, Middleware, Plugin } from './types.ts'
+import type { Config, KubbHooks, Plugin } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 
 describe('PluginDriver', () => {
@@ -86,21 +86,17 @@ describe('PluginDriver', () => {
     await expect(driver.setup()).resolves.not.toThrow()
   })
 
-  test('plugin and middleware listeners fire in order, and dispose drops both for the next build', async () => {
+  test('plugin and post-plugin listeners fire in order, and dispose drops both for the next build', async () => {
     const calls: Array<string> = []
     const pluginHook = vi.fn(() => void calls.push('plugin'))
-    const middlewareHook = vi.fn(() => void calls.push('middleware'))
+    const postPluginHook = vi.fn(() => void calls.push('post-plugin'))
 
     const plugin = { name: 'order-plugin', hooks: { 'kubb:plugin:start': pluginHook } } as unknown as Plugin
-    const middleware: Middleware = {
-      name: 'order-middleware',
-      hooks: { 'kubb:plugin:start': middlewareHook },
-    }
+    const postPlugin = { name: 'order-post-plugin', enforce: 'post' as const, hooks: { 'kubb:plugin:start': postPluginHook } } as unknown as Plugin
 
     const cfg = {
       ...config,
-      plugins: [plugin],
-      middleware: [middleware],
+      plugins: [plugin, postPlugin],
     } satisfies Config
 
     const hooks = new AsyncEventEmitter<KubbHooks>()
@@ -108,7 +104,7 @@ describe('PluginDriver', () => {
     await driver.setup()
     await hooks.emit('kubb:plugin:start', { plugin: plugin as never })
 
-    expect(calls).toStrictEqual(['plugin', 'middleware'])
+    expect(calls).toStrictEqual(['plugin', 'post-plugin'])
     expect(hooks.listenerCount('kubb:plugin:start')).toBe(2)
 
     driver.dispose()
@@ -118,7 +114,7 @@ describe('PluginDriver', () => {
     await hooks.emit('kubb:plugin:start', { plugin: plugin as never })
 
     expect(pluginHook).toHaveBeenCalledTimes(1)
-    expect(middlewareHook).toHaveBeenCalledTimes(1)
+    expect(postPluginHook).toHaveBeenCalledTimes(1)
   })
 
   test('listeners attached directly to hooks survive dispose', async () => {

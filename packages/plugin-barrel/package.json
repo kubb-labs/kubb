@@ -1,38 +1,27 @@
 {
-  "name": "kubb",
+  "name": "@kubb/plugin-barrel",
   "version": "5.0.0-beta.50",
-  "description": "Meta-package and entry point for Kubb — a plugin-based code generation framework for OpenAPI. Includes defineConfig, all public APIs, and serves as the gateway to the entire Kubb ecosystem.",
+  "description": "Barrel-file plugin for Kubb. Automatically generates index.ts re-export files per plugin output directory and an optional root barrel after all plugins complete.",
   "keywords": [
-    "api-client",
-    "code-generator",
+    "barrel",
     "codegen",
-    "faker",
     "kubb",
-    "meta-framework",
-    "msw",
-    "openapi",
-    "plugin-system",
-    "react-query",
-    "sdk-generator",
-    "swagger",
-    "tanstack-query",
-    "typescript",
-    "zod"
+    "plugin",
+    "typescript"
   ],
   "license": "MIT",
   "author": "stijnvanhulle",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/kubb"
-  },
-  "bin": {
-    "kubb": "bin/kubb.js"
+    "directory": "packages/plugin-barrel"
   },
   "files": [
     "src",
     "dist",
-    "bin",
+    "extension.yaml",
+    "*.d.ts",
+    "*.d.cts",
     "!/**/**.test.**",
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
@@ -59,27 +48,21 @@
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "release": "pnpm publish --no-git-check",
-    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
     "release:stage": "pnpm stage publish --no-git-check",
     "start": "tsdown --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/adapter-oas": "workspace:*",
-    "@kubb/cli": "workspace:*",
-    "@kubb/core": "workspace:*",
-    "@kubb/mcp": "workspace:*",
-    "@kubb/plugin-barrel": "workspace:*",
-    "@kubb/parser-md": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
-    "@kubb/renderer-jsx": "workspace:*"
+    "@kubb/ast": "workspace:*",
+    "@kubb/core": "workspace:*"
   },
   "devDependencies": {
-    "@internals/utils": "workspace:*",
-    "typescript": "catalog:"
+    "@internals/utils": "workspace:*"
   },
-  "preferGlobal": true,
+  "peerDependencies": {
+    "@kubb/core": "workspace:*"
+  },
   "engines": {
     "node": ">=22"
   }
