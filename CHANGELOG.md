@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.53 — Jun 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Stop shipping `extension.yaml` in the npm packages and drop the `schemas/extension.json` schema. Extension metadata now lives in the platform repo (`kubb-labs/platform`, `apps/kubb.dev/extensions/`) and the options are documented on each extension's kubb.dev page. ([#3547](https://github.com/kubb-labs/kubb/pull/3547), [`2944481`](https://github.com/kubb-labs/kubb/commit/29444811eb29d87fe2a909635402dcd7170b14f7))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.52 — Jun 11, 2026
 
 ### @kubb/adapter-oas

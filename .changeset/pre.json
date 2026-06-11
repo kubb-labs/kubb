@@ -163,6 +163,7 @@
     "remove-agent-package",
     "remove-config-lifecycle-events",
     "remove-deprecated-plugin-checks",
+    "remove-extension-yaml-manifests",
     "remove-github-actions-logger",
     "remove-group-output-mode",
     "remove-is-input-path",
