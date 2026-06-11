@@ -1,6 +1,10 @@
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { mergeDocuments, parseDocument, parseFromConfig, validateDocument } from './factory.ts'
 import type { Document } from './types.ts'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const petSchema: Document = {
   openapi: '3.0.3',
@@ -42,6 +46,16 @@ describe('parseDocument', () => {
     const doc = await parseDocument(swagger2)
 
     expect(doc.openapi).toMatch(/^3\./)
+  })
+
+  it('resolves external file $refs when given a file path', async () => {
+    const docPath = path.resolve(__dirname, '../mocks/withExternalFileRef.yaml')
+    const doc = await parseDocument(docPath)
+
+    expect(doc.openapi).toMatch(/^3\./)
+    const pet = doc.components?.schemas?.['Pet'] as Document
+    expect(pet).toBeDefined()
+    expect(pet).toMatchObject({ type: 'object', properties: { name: { type: 'string' } } })
   })
 })
 

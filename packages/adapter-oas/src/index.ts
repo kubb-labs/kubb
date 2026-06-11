@@ -1,6 +1,4 @@
 export { adapterOas, adapterOasName } from './adapter.ts'
-export type { ValidateDocumentOptions } from './factory.ts'
-export { mergeDocuments } from './factory.ts'
 export type {
   AdapterOas,
   AdapterOasOptions,
@@ -15,4 +13,3 @@ export type {
   ResponseObject,
   SchemaObject,
 } from './types.ts'
-export { HttpMethods } from './types.ts'

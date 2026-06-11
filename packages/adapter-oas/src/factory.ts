@@ -2,9 +2,7 @@ import path from 'node:path'
 import { exists, mergeDeep, URLPath } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
-import { bundle, loadConfig } from '@redocly/openapi-core'
 import OASNormalize from 'oas-normalize'
-import swagger2openapi from 'swagger2openapi'
 import { MERGE_DEFAULT_TITLE, MERGE_DEFAULT_VERSION, MERGE_OPENAPI_VERSION } from './constants.ts'
 import { isOpenApiV2Document } from './guards.ts'
 import type { Document } from './types.ts'
@@ -22,8 +20,8 @@ export type ValidateDocumentOptions = {
  * Loads and dereferences an OpenAPI document, returning the raw `Document`.
  *
  * Accepts a file path string or an already-parsed document object. File paths are bundled via
- * Redocly to resolve external `$ref`s. Swagger 2.0 documents are automatically up-converted
- * to OpenAPI 3.0 via `swagger2openapi`.
+ * `@apidevtools/json-schema-ref-parser` to resolve external `$ref`s. Swagger 2.0 documents are
+ * automatically up-converted to OpenAPI 3.0 via `swagger2openapi`.
  *
  * @example
  * ```ts
@@ -33,17 +31,10 @@ export type ValidateDocumentOptions = {
  */
 export async function parseDocument(pathOrApi: string | Document, { canBundle = true, enablePaths = true }: ParseOptions = {}): Promise<Document> {
   if (typeof pathOrApi === 'string' && canBundle) {
-    const config = await loadConfig()
-    const bundleResults = await bundle({
-      ref: pathOrApi,
-      config,
-      base: pathOrApi,
-    })
+    const { $RefParser } = await import('@apidevtools/json-schema-ref-parser')
+    const bundled = await $RefParser.bundle(pathOrApi)
 
-    return parseDocument(bundleResults.bundle.parsed as string, {
-      canBundle,
-      enablePaths,
-    })
+    return parseDocument(bundled as Document, { canBundle: false, enablePaths })
   }
 
   const oasNormalize = new OASNormalize(pathOrApi, {
@@ -53,6 +44,7 @@ export async function parseDocument(pathOrApi: string | Document, { canBundle = 
   const document = (await oasNormalize.load()) as Document
 
   if (isOpenApiV2Document(document)) {
+    const { default: swagger2openapi } = await import('swagger2openapi')
     const { openapi } = await swagger2openapi.convertObj(document, {
       anchors: true,
     })
