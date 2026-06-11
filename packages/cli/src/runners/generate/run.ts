@@ -17,12 +17,11 @@ import {
   logLevel as logLevelMap,
   type ProblemDiagnostic,
   type ReporterName,
-  selectReporters,
-  Telemetry,
 } from '@kubb/core'
 import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../../constants.ts'
-import setupReporters from '../../loggers/utils.ts'
+import { Telemetry } from '../../Telemetry.ts'
+import setupReporters, { selectReporters } from '../../loggers/utils.ts'
 import { executeHooks, getConfigs, runHook, startWatcher } from './utils.ts'
 
 type GenerateProps = {

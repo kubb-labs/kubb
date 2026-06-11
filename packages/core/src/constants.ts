@@ -4,11 +4,6 @@
 export const STREAM_FLUSH_EVERY = 50
 
 /**
- * OpenTelemetry ingestion endpoint for anonymous usage telemetry.
- */
-export const OTLP_ENDPOINT = 'https://otlp.kubb.dev' as const
-
-/**
  * Maximum number of █ characters in a plugin timing bar.
  */
 export const SUMMARY_MAX_BAR_LENGTH = 10 as const

@@ -1,6 +1,7 @@
 import { relative } from 'node:path'
 import { formatMs, toCause } from '@internals/utils'
-import { defineLogger, Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { defineLogger } from './defineLogger.ts'
 import { createHookTimer, formatCommandWithArgs, formatMessage } from './utils.ts'
 
 /**

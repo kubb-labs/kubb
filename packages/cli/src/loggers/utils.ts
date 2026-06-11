@@ -1,8 +1,9 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { canUseTTY, formatHrtime, getElapsedMs } from '@internals/utils'
-import type { Logger, LoggerContext, LoggerOptions, Reporter, ReporterContext } from '@kubb/core'
+import type { Reporter, ReporterContext } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
+import type { Logger, LoggerContext, LoggerOptions } from './defineLogger.ts'
 import { clackLogger } from './clackLogger.ts'
 import { plainLogger } from './plainLogger.ts'
 import type { LoggerType } from './types.ts'
@@ -219,3 +220,28 @@ async function setupReporters(context: LoggerContext, { logLevel, reporters }: L
 }
 
 export default setupReporters
+
+/**
+ * Picks the reporters whose `name` matches one of `names`, in the order the names are given.
+ * The config carries every available reporter, and the host selects which to activate by name
+ * (the CLI maps `--reporter` to this). Duplicate names and names without a matching reporter are
+ * skipped.
+ */
+export function selectReporters(reporters: ReadonlyArray<Reporter>, names: ReadonlyArray<string>): Array<Reporter> {
+  const seen = new Set<string>()
+  const selected: Array<Reporter> = []
+
+  for (const name of names) {
+    if (seen.has(name)) {
+      continue
+    }
+    seen.add(name)
+
+    const reporter = reporters.find((candidate) => candidate.name === name)
+    if (reporter) {
+      selected.push(reporter)
+    }
+  }
+
+  return selected
+}

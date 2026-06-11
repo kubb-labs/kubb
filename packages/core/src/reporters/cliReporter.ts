@@ -1,8 +1,7 @@
 import { styleText } from 'node:util'
 import { formatMs, randomCliColor } from '@internals/utils'
 import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
-import { logLevel as logLevelMap } from '../defineLogger.ts'
-import { createReporter } from '../createReporter.ts'
+import { createReporter, logLevel as logLevelMap } from '../createReporter.ts'
 import { buildReport, type Report } from './report.ts'
 
 /**

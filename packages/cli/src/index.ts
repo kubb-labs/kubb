@@ -1,6 +1,6 @@
 import { styleText } from 'node:util'
 import { createCLI, isFlag } from '@internals/utils'
-import { Telemetry } from '@kubb/core'
+import { Telemetry } from './Telemetry.ts'
 import { version } from '../package.json'
 import { QUIET_FLAGS } from './constants.ts'
 
