@@ -56,9 +56,9 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@apidevtools/json-schema-ref-parser": "^14.2.1",
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@redocly/openapi-core": "^2.31.6",
     "oas": "^32.1.18",
     "oas-normalize": "^16.0.5",
     "swagger2openapi": "^7.0.8"
