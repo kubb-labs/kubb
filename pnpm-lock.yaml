@@ -262,12 +262,9 @@ importers:
 
   packages/middleware-barrel:
     dependencies:
-      '@kubb/ast':
+      '@kubb/plugin-barrel':
         specifier: workspace:*
-        version: link:../ast
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../core
+        version: link:../plugin-barrel
     devDependencies:
       '@internals/utils':
         specifier: workspace:*

@@ -54,14 +54,13 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/ast": "workspace:*",
-    "@kubb/core": "workspace:*"
+    "@kubb/plugin-barrel": "workspace:*"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*"
   },
   "peerDependencies": {
-    "@kubb/core": "workspace:*"
+    "@kubb/plugin-barrel": "workspace:*"
   },
   "engines": {
     "node": ">=22"
