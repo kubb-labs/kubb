@@ -20,29 +20,39 @@
 
 <br />
 
+> [!WARNING]
+> `@kubb/middleware-barrel` is deprecated. Use [`@kubb/plugin-barrel`](../plugin-barrel) instead.
+>
+> ```typescript
+> // Before
+> import { middlewareBarrel } from '@kubb/middleware-barrel'
+> defineConfig({ middleware: [middlewareBarrel()] })
+>
+> // After
+> import { pluginBarrel } from '@kubb/plugin-barrel'
+> defineConfig({ plugins: [pluginBarrel()] })
+> ```
+
 # @kubb/middleware-barrel
 
-### Barrel-file middleware for Kubb
+### Barrel-file plugin for Kubb (deprecated)
 
-Automatically generates `index.ts` re-export files for each plugin output directory and an optional root barrel after all plugins have run.
+This package re-exports `pluginBarrel` from `@kubb/plugin-barrel` under the old `middlewareBarrel` name for backward compatibility. Migrate to `@kubb/plugin-barrel`.
 
-## Installation
+## Migration
+
+Replace `@kubb/middleware-barrel` with `@kubb/plugin-barrel`:
 
 ```bash
-bun add @kubb/middleware-barrel
-# or
-pnpm add @kubb/middleware-barrel
-# or
-npm install @kubb/middleware-barrel
+pnpm remove @kubb/middleware-barrel
+pnpm add @kubb/plugin-barrel
 ```
 
-## Usage
-
-Add `middlewareBarrel` to the `middleware` array in your `kubb.config.ts`:
+Update your config:
 
 ```typescript
 import { defineConfig } from 'kubb'
-import { middlewareBarrel } from '@kubb/middleware-barrel'
+import { pluginBarrel } from '@kubb/plugin-barrel'
 
 export default defineConfig({
   input: {
@@ -51,31 +61,15 @@ export default defineConfig({
   output: {
     path: './src/gen',
   },
-  middleware: [
-    middlewareBarrel({
+  plugins: [
+    pluginBarrel({
       type: 'named',
     }),
   ],
 })
 ```
 
-## Options
-
-| Option | Type                              | Default   | Description                                 |
-| ------ | --------------------------------- | --------- | ------------------------------------------- |
-| `type` | `'all' \| 'named' \| 'propagate'` | `'named'` | Export style for the generated barrel files |
-
-### Export types
-
-| Value         | Output                                                                          |
-| ------------- | ------------------------------------------------------------------------------- |
-| `'all'`       | `export * from './...'` — wildcard re-exports                                   |
-| `'named'`     | `export { ... } from './...'` — named re-exports, tree-shaking friendly         |
-| `'propagate'` | `export * from './...'` on index files only, propagating up through directories |
-
-## How it works
-
-After every plugin finishes generating files, `@kubb/middleware-barrel` walks the output tree and creates an `index.ts` in each directory, re-exporting everything inside. It then creates a root `index.ts` at the top of the output path that re-exports from all plugin directories.
+See [`@kubb/plugin-barrel`](../plugin-barrel) for the full option reference.
 
 ## Supporting Kubb
 
