@@ -103,9 +103,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     const kubb = createKubb(userConfig, { hooks })
     await kubb.setup()
 
-    const resolvedConfig = kubb.config ?? userConfig
-
-    await hooks.emit('kubb:generation:start', { config: resolvedConfig })
+    await hooks.emit('kubb:generation:start', { config: kubb.config })
 
     const { diagnostics, files, storage } = await kubb.safeBuild()
 
@@ -127,7 +125,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     }
 
     await hooks.emit('kubb:generation:end', {
-      config: resolvedConfig,
+      config: kubb.config,
       storage,
       diagnostics,
       filesCreated: files.length,
