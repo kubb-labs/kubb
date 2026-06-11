@@ -1,4 +1,4 @@
-import type { Config } from './createKubb.ts'
+import type { Config } from './types.ts'
 import type { Diagnostic } from './diagnostics.ts'
 
 /**

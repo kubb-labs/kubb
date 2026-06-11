@@ -68,8 +68,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/ast": "workspace:*",
-    "tinyexec": "catalog:"
+    "@kubb/ast": "workspace:*"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
