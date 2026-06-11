@@ -33,7 +33,7 @@ The full folder structure, repository setup, and commands live in
 
 ## Plugin ecosystem
 
-Plugins are maintained in a separate monorepo at [kubb-project/kubb-plugins](https://github.com/kubb-project/kubb-plugins). Each plugin package ships an `extension.yaml` file describing its kind, options, and metadata.
+Plugins are maintained in a separate monorepo at [kubb-labs/plugins](https://github.com/kubb-labs/plugins). Extension metadata and the docs pages live in the platform repo ([kubb-labs/platform](https://github.com/kubb-labs/platform), `apps/kubb.dev/extensions/` and `apps/kubb.dev/plugins/`), published on [kubb.dev](https://kubb.dev). When an extension's options change here, update its kubb.dev docs page there.
 
 ## Token optimized CLI (rtk)
 

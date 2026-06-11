@@ -19,7 +19,7 @@ build powers the bundled MCP server.
 
 - Shows the shape of a `kubb.config.ts`
 - Lists the generator plugins and how to combine them
-- Points at each plugin's `extension.yaml` for authoritative options
+- Points at each plugin's `Options` type and kubb.dev docs page for authoritative options
 - Describes the validate, init and generate workflow
 
 ## Shape of a config
@@ -53,7 +53,8 @@ Rules that matter:
   `serverVariables`, `discriminator` or `contentType`).
 - `pluginTs` is the base. `pluginClient` needs it, the framework plugins (`pluginReactQuery`,
   `pluginVueQuery`, `pluginSwr`) need `pluginTs` and `pluginClient`, and `pluginMsw` needs
-  `pluginTs` and `pluginFaker`. Check a plugin's `extension.yaml` `dependencies` for the full list.
+  `pluginTs` and `pluginFaker`. Check the plugin's docs page on kubb.dev
+  (`https://kubb.dev/plugins/plugin-<name>`) for the full dependency list.
 - Each generator plugin takes its own `output.path`, resolved relative to the top-level
   `output.path`. Keep generated kinds in separate folders (`models`, `clients`, `hooks`, ...).
 - `input` accepts `{ path }` for a file or URL. Validate untrusted specs with `kubb validate`
@@ -81,10 +82,11 @@ Pick plugins by what the consumer needs, then install `kubb` plus each package.
 | MCP server from the spec | `@kubb/plugin-mcp` | `pluginMcp` |
 | ReDoc documentation | `@kubb/plugin-redoc` | `pluginRedoc` |
 
-For an installed plugin's exact options, read its `extension.yaml`
-(`node_modules/@kubb/plugin-<name>/extension.yaml`). It ships with the package and lists the
-`options` schema with defaults, the plugin `dependencies`, and the default `output.path`. Use it as
-the source of truth instead of guessing an option name.
+For an installed plugin's exact options, read its `Options` type from the installed package
+(`node_modules/@kubb/plugin-<name>/src/types.ts` or the published type declarations) and the
+plugin's docs page (`https://kubb.dev/plugins/plugin-<name>`), which lists every option with
+defaults, the plugin dependencies, and the default `output.path`. Use those as the source of
+truth instead of guessing an option name.
 
 Common combinations:
 

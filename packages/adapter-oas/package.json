@@ -21,7 +21,6 @@
   "files": [
     "src",
     "dist",
-    "extension.yaml",
     "!/**/**.test.**",
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
