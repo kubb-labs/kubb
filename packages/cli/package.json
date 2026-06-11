@@ -62,7 +62,7 @@
     "@clack/prompts": "^1.5.1",
     "@kubb/core": "workspace:*",
     "chokidar": "^5.0.0",
-    "cosmiconfig": "^9.0.1",
+    "cosmiconfig": "^9.0.2",
     "jiti": "^2.7.0",
     "tinyexec": "catalog:"
   },
