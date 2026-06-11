@@ -223,7 +223,7 @@ type SchemaSourceMode = 'schemas' | 'responses' | 'requestBodies'
 /**
  * A schema annotated with its component section source and original name. Used by `resolveNameCollisions` for cross-source collision resolution.
  */
-export type SchemaWithMetadata = {
+type SchemaWithMetadata = {
   schema: SchemaObject
   source: SchemaSourceMode
   originalName: string

@@ -43,7 +43,6 @@
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "taze": "^19.14.1",
-    "ts-node": "^10.9.2",
     "tsdown": "catalog:",
     "turbo": "^2.9.16",
     "typescript": "catalog:",

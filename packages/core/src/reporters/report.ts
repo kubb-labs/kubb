@@ -6,7 +6,7 @@ import { Diagnostics, type SerializedDiagnostic } from '../diagnostics.ts'
 /**
  * One plugin's elapsed time, derived from a `performance` diagnostic.
  */
-export type ReportTiming = {
+type ReportTiming = {
   plugin: string
   durationMs: number
 }

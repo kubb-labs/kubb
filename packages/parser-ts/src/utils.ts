@@ -404,103 +404,6 @@ export function printSource(node: SourceNode): string {
     .join('\n\n')
 }
 
-export function createImport({
-  name,
-  path,
-  root,
-  isTypeOnly: isTypeOnlyRaw = false,
-  isNameSpace: isNameSpaceRaw = false,
-}: {
-  name: string | Array<string | { propertyName: string; name?: string }>
-  path: string
-  root?: string | null
-  /** @default false */
-  isTypeOnly?: boolean | null
-  /** @default false */
-  isNameSpace?: boolean | null
-}): ts.ImportDeclaration {
-  const isTypeOnly = isTypeOnlyRaw ?? false
-  const isNameSpace = isNameSpaceRaw ?? false
-  const resolvePath = root ? getRelativePath(root, path) : path
-
-  if (!Array.isArray(name)) {
-    if (isNameSpace) {
-      return factory.createImportDeclaration(
-        undefined,
-        factory.createImportClause(isTypeOnly, undefined, factory.createNamespaceImport(factory.createIdentifier(name))),
-        factory.createStringLiteral(resolvePath),
-        undefined,
-      )
-    }
-
-    return factory.createImportDeclaration(
-      undefined,
-      factory.createImportClause(isTypeOnly, factory.createIdentifier(name), undefined),
-      factory.createStringLiteral(resolvePath),
-      undefined,
-    )
-  }
-
-  const specifiers = name.map((item) => {
-    if (typeof item === 'object') {
-      const { propertyName, name: alias } = item
-      return factory.createImportSpecifier(false, alias ? factory.createIdentifier(propertyName) : undefined, factory.createIdentifier(alias ?? propertyName))
-    }
-    return factory.createImportSpecifier(false, undefined, factory.createIdentifier(item))
-  })
-
-  return factory.createImportDeclaration(
-    undefined,
-    factory.createImportClause(isTypeOnly, undefined, factory.createNamedImports(specifiers)),
-    factory.createStringLiteral(resolvePath),
-    undefined,
-  )
-}
-
-export function createExport({
-  path,
-  asAlias: asAliasRaw,
-  isTypeOnly: isTypeOnlyRaw = false,
-  name,
-}: {
-  path: string
-  /** @default false */
-  asAlias?: boolean | null
-  /** @default false */
-  isTypeOnly?: boolean | null
-  name?: string | Array<ts.Identifier | string> | null
-}): ts.ExportDeclaration {
-  const asAlias = asAliasRaw ?? false
-  const isTypeOnly = isTypeOnlyRaw ?? false
-  if (name && !Array.isArray(name) && !asAlias) {
-    console.warn(`When using name as string, asAlias should be true: ${name}`)
-  }
-
-  if (!Array.isArray(name)) {
-    const parsedName = name && LEADING_DIGIT_PATTERN.test(name) ? `_${name.slice(1)}` : name
-
-    return factory.createExportDeclaration(
-      undefined,
-      isTypeOnly,
-      asAlias && parsedName ? factory.createNamespaceExport(factory.createIdentifier(parsedName)) : undefined,
-      factory.createStringLiteral(path),
-      undefined,
-    )
-  }
-
-  return factory.createExportDeclaration(
-    undefined,
-    isTypeOnly,
-    factory.createNamedExports(
-      name.map((propertyName) =>
-        factory.createExportSpecifier(false, undefined, typeof propertyName === 'string' ? factory.createIdentifier(propertyName) : propertyName),
-      ),
-    ),
-    factory.createStringLiteral(path),
-    undefined,
-  )
-}
-
 /**
  * Wraps a module specifier in single quotes, escaping any embedded backslash or quote so the emitted
  * statement stays valid even for unusual paths.
@@ -510,9 +413,9 @@ function quoteModulePath(path: string): string {
 }
 
 /**
- * Renders an import declaration string in the repo style (single quotes, no semicolons), mirroring
- * the shapes that {@link createImport} builds: default, namespace (`* as`), and named imports with
- * `{ a as b }` aliases, each optionally `type`-only. `path` is used verbatim, so resolve it first.
+ * Renders an import declaration string in the repo style (single quotes, no semicolons), covering
+ * default, namespace (`* as`), and named imports with `{ a as b }` aliases, each optionally
+ * `type`-only. `path` is used verbatim, so resolve it first.
  *
  * @example
  * ```ts
@@ -550,9 +453,9 @@ export function printImport({
 }
 
 /**
- * Renders an export declaration string in the repo style (single quotes, no semicolons), mirroring
- * the shapes that {@link createExport} builds: named re-exports, namespace alias (`* as name`), and
- * wildcard, each optionally `type`-only. `path` is used verbatim, so resolve it first.
+ * Renders an export declaration string in the repo style (single quotes, no semicolons), covering
+ * named re-exports, namespace alias (`* as name`), and wildcard, each optionally `type`-only.
+ * `path` is used verbatim, so resolve it first.
  *
  * @example
  * ```ts

@@ -1,7 +1,7 @@
 // external packages
 
 import type { AdapterFactoryOptions } from '@kubb/core'
-import { ast } from '@kubb/core'
+import type { ast } from '@kubb/core'
 import type { Operation as OASOperation } from 'oas/operation'
 import type {
   DiscriminatorObject as OASDiscriminatorObject,
@@ -11,11 +11,6 @@ import type {
   SchemaObject as OASSchemaObject,
 } from 'oas/types'
 import type { OpenAPIV3 } from 'openapi-types'
-
-/**
- * Re-exports of `openapi-types` for use by adapter consumers.
- */
-export type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 
 /**
  * Content-type string for selecting request/response schemas from an OpenAPI spec.
@@ -72,20 +67,6 @@ export type SchemaObject = OASSchemaObject & {
    */
   enum?: Array<string | number | boolean | null>
 }
-
-/**
- * Maps uppercase HTTP method names to lowercase for backwards compatibility.
- *
- * @example
- * ```ts
- * HttpMethods['GET'] // 'get'
- * HttpMethods['POST'] // 'post'
- * ```
- */
-export const HttpMethods = Object.fromEntries(Object.entries(ast.httpMethods).map(([lower, upper]) => [upper, lower])) as Record<
-  Uppercase<ast.HttpMethod>,
-  Lowercase<ast.HttpMethod>
->
 
 /**
  * HTTP method as a lowercase string (`'get' | 'post' | ...`).

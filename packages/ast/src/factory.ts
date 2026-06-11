@@ -191,7 +191,7 @@ type UserContent = Omit<ContentNode, 'kind'>
 /**
  * Creates a `ContentNode` for a single request-body or response content type.
  */
-export function createContent(props: UserContent): ContentNode {
+function createContent(props: UserContent): ContentNode {
   return {
     ...props,
     kind: 'Content',
@@ -208,7 +208,7 @@ type UserRequestBody = Omit<RequestBodyNode, 'kind' | 'content'> & {
 /**
  * Creates a `RequestBodyNode`, normalizing each content entry into a `ContentNode`.
  */
-export function createRequestBody(props: UserRequestBody): RequestBodyNode {
+function createRequestBody(props: UserRequestBody): RequestBodyNode {
   return {
     ...props,
     kind: 'RequestBody',
