@@ -12,8 +12,8 @@ type BaseOption = {
   enum?: string[]
 }
 
-export type StringOption = BaseOption & { type: 'string'; default?: string }
-export type BooleanOption = BaseOption & { type: 'boolean'; default?: boolean }
+type StringOption = BaseOption & { type: 'string'; default?: string }
+type BooleanOption = BaseOption & { type: 'boolean'; default?: boolean }
 
 /**
  * A single CLI option — either a string value or a boolean flag.

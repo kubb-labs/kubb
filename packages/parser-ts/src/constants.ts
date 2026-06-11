@@ -6,7 +6,7 @@ export const INDENT_CHAR = ' '
 /**
  * Number of {@link INDENT_CHAR} repeats that make up one nesting level.
  */
-export const INDENT_SIZE = 2 as const
+const INDENT_SIZE = 2 as const
 
 /**
  * Indentation unit prepended once per nesting level when pretty-printing.
