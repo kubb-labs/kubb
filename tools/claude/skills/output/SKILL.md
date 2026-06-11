@@ -37,9 +37,10 @@ Inspect the real output instead of guessing:
 
 1. Read `kubb.config.ts` for the top-level `output.path` and each plugin's `output.path`.
 2. List the output directory for the actual file and export names.
-3. Read an installed plugin's `extension.yaml` (`node_modules/@kubb/plugin-<name>/extension.yaml`)
-   for its options, defaults and dependencies. It ships with the package, so it matches the
-   installed version. Use it as the source of truth rather than assuming an option name.
+3. Read an installed plugin's `Options` type (`node_modules/@kubb/plugin-<name>/src/types.ts`
+   or the published type declarations) for its options and defaults, and the plugin's docs page
+   (`https://kubb.dev/plugins/plugin-<name>`) for dependencies. Use those as the source of truth
+   rather than assuming an option name.
 
 Import from a folder's `index.ts` when `output.barrel` is set, otherwise import the file directly.
 
