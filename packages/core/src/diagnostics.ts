@@ -4,7 +4,7 @@ import type { AsyncEventEmitter } from '@internals/utils'
 import { getErrorMessage } from '@internals/utils'
 import { version } from '../package.json'
 import { type DiagnosticCode, diagnosticCode } from './constants.ts'
-import type { KubbHooks } from './createKubb.ts'
+import type { KubbHooks } from './types.ts'
 
 /**
  * Docs major, derived from the package version so the link tracks the published major.

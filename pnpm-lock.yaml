@@ -175,9 +175,6 @@ importers:
       '@kubb/ast':
         specifier: workspace:*
         version: link:../ast
-      tinyexec:
-        specifier: 'catalog:'
-        version: 1.1.2
     devDependencies:
       '@internals/utils':
         specifier: workspace:*

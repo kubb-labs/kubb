@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { relative } from 'node:path'
 import { URLPath } from '@internals/utils'
 import type { AdapterSource } from './createAdapter.ts'
-import type { Config } from './createKubb.ts'
+import type { Config } from './types.ts'
 
 /**
  * Computes the cache key for an incremental build. All methods are static, so call them as

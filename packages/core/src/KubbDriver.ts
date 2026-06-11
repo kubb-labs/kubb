@@ -16,7 +16,6 @@ import { normalizeOutput } from './definePlugin.ts'
 import { defineResolver } from './defineResolver.ts'
 import { FileManager } from './FileManager.ts'
 import { FileProcessor } from './FileProcessor.ts'
-import { type HookListener, HookRegistry } from './HookRegistry.ts'
 import { Transform } from './Transform.ts'
 
 import type {
@@ -35,6 +34,10 @@ import type {
 type Options = {
   hooks: AsyncEventEmitter<KubbHooks>
 }
+
+type HookListener<TArgs extends Array<unknown>, TResult = void> = (...args: TArgs) => TResult | Promise<TResult>
+
+type ListenerEntry = [event: keyof KubbHooks & string, handler: HookListener<Array<unknown>, unknown>]
 
 type RequirePluginContext = {
   /**
@@ -84,7 +87,7 @@ export class KubbDriver {
    * Tracks every listener the driver added (plugin, generator) so `dispose()` can remove them
    * in one pass. External `hooks.on(...)` listeners are not tracked.
    */
-  readonly #registry: HookRegistry<KubbHooks>
+  readonly #listeners: Array<ListenerEntry> = []
 
   /**
    * Transform registry. Plugins populate it during `kubb:plugin:setup` via `setTransformer`,
@@ -96,7 +99,15 @@ export class KubbDriver {
     this.config = config
     this.options = options
     this.adapter = config.adapter ?? null
-    this.#registry = new HookRegistry({ emitter: options.hooks })
+  }
+
+  /**
+   * Attaches a listener to the shared emitter and tracks it so `dispose()` can remove it later.
+   * Listeners attached directly via `hooks.on(...)` are not tracked and survive disposal.
+   */
+  #trackListener<K extends keyof KubbHooks & string>(event: K, handler: HookListener<KubbHooks[K], unknown>): void {
+    this.hooks.on(event, handler as HookListener<KubbHooks[K]>)
+    this.#listeners.push([event, handler as HookListener<Array<unknown>, unknown>])
   }
 
   async setup() {
@@ -216,7 +227,7 @@ export class KubbDriver {
         return hooks['kubb:plugin:setup']!(pluginCtx)
       }
 
-      this.#registry.register({ event: 'kubb:plugin:setup', handler: setupHandler, source: 'plugin' })
+      this.#trackListener('kubb:plugin:setup', setupHandler)
     }
 
     // All other hooks are registered as direct pass-through listeners on the shared emitter.
@@ -225,11 +236,7 @@ export class KubbDriver {
       const handler = hooks[event]
       if (!handler) continue
 
-      this.#registry.register({
-        event,
-        handler: handler as HookListener<KubbHooks[typeof event], unknown>,
-        source: 'plugin',
-      })
+      this.#trackListener(event, handler as HookListener<KubbHooks[typeof event], unknown>)
     }
   }
 
@@ -276,7 +283,7 @@ export class KubbDriver {
         await this.dispatch({ result, renderer: generator.renderer })
       }
 
-      this.#registry.register({ event: 'kubb:generate:schema', handler: schemaHandler, source: 'driver' })
+      this.#trackListener('kubb:generate:schema', schemaHandler)
     }
 
     if (generator.operation) {
@@ -287,7 +294,7 @@ export class KubbDriver {
         await this.dispatch({ result, renderer: generator.renderer })
       }
 
-      this.#registry.register({ event: 'kubb:generate:operation', handler: operationHandler, source: 'driver' })
+      this.#trackListener('kubb:generate:operation', operationHandler)
     }
 
     if (generator.operations) {
@@ -297,7 +304,7 @@ export class KubbDriver {
         await this.dispatch({ result, renderer: generator.renderer })
       }
 
-      this.#registry.register({ event: 'kubb:generate:operations', handler: operationsHandler, source: 'driver' })
+      this.#trackListener('kubb:generate:operations', operationsHandler)
     }
 
     this.#eventGeneratorPlugins.add(pluginName)
@@ -792,7 +799,10 @@ export class KubbDriver {
    * @internal
    */
   dispose(): void {
-    this.#registry.dispose()
+    for (const [event, handler] of this.#listeners) {
+      this.hooks.off(event, handler as HookListener<KubbHooks[typeof event]>)
+    }
+    this.#listeners.length = 0
     this.#eventGeneratorPlugins.clear()
     this.#transforms.dispose()
     // Release resolver closures. The driver is rebuilt for each build() call
