@@ -1,10 +1,7 @@
 ---
-"@kubb/middleware-barrel": patch
 "@kubb/core": patch
 ---
 
-Fix barrel file generation in `@kubb/middleware-barrel`.
+Add a `kubb:plugins:end` lifecycle hook for barrel generation.
 
-Bug 1, wrong per-plugin output path: `generatePerPluginBarrel` was resolving the plugin output directory as `resolve(config.root, plugin.output.path)`, but plugin paths are relative to `config.output.path`. Fixed to `resolve(config.root, config.output.path, plugin.output.path)`.
-
-Bug 2, root barrel generated after file writing: the root barrel was generated inside `kubb:build:end`, which fires after `fileProcessor.run()` has already written files to disk, so the barrel was never persisted. A new `kubb:plugins:end` lifecycle hook now fires after all plugins have run but before files are written, and the root barrel is generated there.
+The root barrel was generated inside `kubb:build:end`, which fires after `fileProcessor.run()` has already written files to disk, so the barrel was never persisted. A new `kubb:plugins:end` lifecycle hook now fires after all plugins have run but before files are written, giving post-enforced plugins a place to emit aggregate files like the root barrel.

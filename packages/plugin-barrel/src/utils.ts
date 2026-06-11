@@ -23,7 +23,7 @@ function makeBarrel(dirPath: string, exports: Array<ExportNode>): FileNode {
     exports,
     sources: [],
     imports: [],
-    // Default to no banner/footer. The middleware resolves a configured plugin
+    // Default to no banner/footer. The barrel plugin resolves a configured plugin
     // banner/footer (with isBarrel: true) afterwards, so a `banner` function can
     // decide per file whether a barrel should carry a directive like "use server".
     banner: undefined,

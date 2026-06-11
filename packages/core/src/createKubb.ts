@@ -8,7 +8,6 @@ import { type Diagnostic, Diagnostics, type ProblemDiagnostic, type UpdateDiagno
 import type { Cache } from './createCache.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
-import type { Middleware } from './defineMiddleware.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, Plugin } from './definePlugin.ts'
 import type { Reporter, ReporterName } from './createReporter.ts'
@@ -63,7 +62,7 @@ type Input = InputPath | InputData
 
 /**
  * Resolved build configuration for a Kubb run: what to generate from (adapter, input), where to
- * write it (output), how (plugins, middleware), and the runtime pieces (parsers, storage). See
+ * write it (output), how (plugins), and the runtime pieces (parsers, storage). See
  * `UserConfig` for the relaxed form with defaults applied.
  *
  * @private
@@ -272,29 +271,10 @@ export type Config<TInput = Input> = {
    */
   plugins: Array<Plugin>
   /**
-   * Middleware instances that observe build events and post-process generated code.
-   *
-   * Middleware fires AFTER all plugins for each event. Perfect for tasks like:
-   * - Auditing what was generated
-   * - Adding barrel/index files
-   * - Validating output
-   * - Running custom transformations
-   *
-   * @example
-   * ```ts
-   * import { middlewareBarrel } from '@kubb/middleware-barrel'
-   *
-   * middleware: [middlewareBarrel()]
-   * ```
-   *
-   * @see {@link defineMiddleware} to create custom middleware.
-   */
-  middleware?: Array<Middleware>
-  /**
    * Lifecycle hooks that execute during or after the build process.
    *
    * Hooks allow you to run external tools (prettier, eslint, custom scripts) based on build events.
-   * Currently supports the `done` hook which fires after all plugins and middleware complete.
+   * Currently supports the `done` hook which fires after all plugins complete.
    *
    * @example
    * ```ts
@@ -307,7 +287,7 @@ export type Config<TInput = Input> = {
    */
   hooks?: {
     /**
-     * Command(s) to run after all plugins and middleware complete generation.
+     * Command(s) to run after all plugins complete generation.
      *
      * Useful for post-processing: formatting, linting, copying files, or custom validation.
      * Pass a single command string or array of command strings to run sequentially.
@@ -346,7 +326,7 @@ export type Config<TInput = Input> = {
  *
  * `UserConfig` is what you pass to `defineConfig()`. It has optional `root`, `plugins`, `parsers`, and `adapter`
  * fields (which fall back to sensible defaults). All other Config options are available, including `output`, `input`,
- * `storage`, `middleware`, and `hooks`.
+ * `storage`, and `hooks`.
  *
  * @example
  * ```ts
@@ -419,12 +399,12 @@ declare global {
 
     /**
      * Extension point for root `Config['output']` options.
-     * Augment the `output` key in middleware or plugin packages to add extra fields
+     * Augment the `output` key in plugin packages to add extra fields
      * to the global output configuration without touching core types.
      *
      * @example
      * ```ts
-     * // packages/middleware-barrel/src/types.ts
+     * // packages/plugin-barrel/src/plugin.ts
      * declare global {
      *   namespace Kubb {
      *     interface ConfigOptionsRegistry {
@@ -440,12 +420,12 @@ declare global {
 
     /**
      * Extension point for per-plugin `Output` options.
-     * Augment the `output` key in middleware or plugin packages to add extra fields
+     * Augment the `output` key in plugin packages to add extra fields
      * to the per-plugin output configuration without touching core types.
      *
      * @example
      * ```ts
-     * // packages/middleware-barrel/src/types.ts
+     * // packages/plugin-barrel/src/plugin.ts
      * declare global {
      *   namespace Kubb {
      *     interface PluginOptionsRegistry {

@@ -1,8 +1,8 @@
 import path from 'node:path'
 import { resolve } from 'node:path'
 import type { FileNode } from '@kubb/ast'
-import { defineMiddleware } from '@kubb/core'
-import type { Config, Middleware, NormalizedPlugin } from '@kubb/core'
+import { definePlugin } from '@kubb/core'
+import type { Config, NormalizedPlugin, Plugin } from '@kubb/core'
 import type { BarrelConfig, PluginBarrelConfig } from './types.ts'
 import { getBarrelFiles, getPluginOutputPrefix, isExcludedPath } from './utils.ts'
 
@@ -62,10 +62,10 @@ declare global {
 }
 
 /**
- * Canonical middleware name for `@kubb/middleware-barrel`. Used for driver
- * lookups.
+ * Canonical plugin name for `@kubb/plugin-barrel`. Used for driver lookups
+ * and to guard the `kubb:plugin:end` handler against reacting to its own lifecycle event.
  */
-export const middlewareBarrelName = 'middleware-barrel' satisfies Middleware['name']
+export const pluginBarrelName = 'plugin-barrel' satisfies Plugin['name']
 
 /**
  * Generates an `index.ts` for every plugin output directory and one root
@@ -82,7 +82,7 @@ export const middlewareBarrelName = 'middleware-barrel' satisfies Middleware['na
  * @example
  * ```ts
  * import { defineConfig } from '@kubb/core'
- * import { middlewareBarrel } from '@kubb/middleware-barrel'
+ * import { pluginBarrel } from '@kubb/plugin-barrel'
  * import { pluginTs } from '@kubb/plugin-ts'
  * import { pluginZod } from '@kubb/plugin-zod'
  *
@@ -92,25 +92,29 @@ export const middlewareBarrelName = 'middleware-barrel' satisfies Middleware['na
  *   plugins: [
  *     pluginTs({ output: { path: 'types', barrel: { type: 'all' } } }),
  *     pluginZod({ output: { path: 'schemas' } }),
+ *     pluginBarrel(),
  *   ],
- *   middleware: [middlewareBarrel()],
  * })
  * ```
  */
-export const middlewareBarrel = defineMiddleware(() => {
+export const pluginBarrel = definePlugin(() => {
   const excludedPrefixes = new Set<string>()
 
   return {
-    name: middlewareBarrelName,
+    name: pluginBarrelName,
+    enforce: 'post' as const,
     hooks: {
       'kubb:plugin:end'({ plugin, config, files, upsertFile }) {
-        const pluginBarrel = plugin.options.output?.barrel
+        // Skip reactions to the barrel plugin's own lifecycle event
+        if (plugin.name === pluginBarrelName) return
+
+        const pluginBarrelOpt = plugin.options.output?.barrel
         const configBarrel = config.output.barrel
         const defaultBarrel = { type: 'named' } as const
 
         // Root config barrel doesn't have nested, so we add it
         const barrelConfig: PluginBarrelConfig | false = (() => {
-          if (pluginBarrel !== undefined) return pluginBarrel
+          if (pluginBarrelOpt !== undefined) return pluginBarrelOpt
           if (configBarrel !== undefined) return configBarrel === false ? false : { ...configBarrel, nested: false }
           return defaultBarrel
         })()

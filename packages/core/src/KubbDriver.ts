@@ -27,7 +27,6 @@ import type {
   Group,
   KubbHooks,
   KubbPluginSetupContext,
-  Middleware,
   NormalizedPlugin,
   PluginFactoryOptions,
   Resolver,
@@ -82,9 +81,8 @@ export class KubbDriver {
   readonly #defaultResolvers = new Map<string, Resolver>()
 
   /**
-   * Tracks every listener the driver added (plugin, middleware, generator) so `dispose()` can
-   * remove them in one pass. Middleware registers after plugins, so it fires last via `Set`
-   * insertion order. External `hooks.on(...)` listeners are not tracked.
+   * Tracks every listener the driver added (plugin, generator) so `dispose()` can remove them
+   * in one pass. External `hooks.on(...)` listeners are not tracked.
    */
   readonly #registry: HookRegistry<KubbHooks>
 
@@ -122,13 +120,6 @@ export class KubbDriver {
       this.plugins.set(plugin.name, plugin)
     }
 
-    if (this.config.middleware) {
-      for (const middleware of this.config.middleware) {
-        for (const event of Object.keys(middleware.hooks) as Array<keyof KubbHooks & string>) {
-          this.#registerMiddleware(event, middleware.hooks)
-        }
-      }
-    }
     if (this.config.adapter) {
       this.#adapterSource = inputToAdapterSource(this.config)
     }
@@ -177,16 +168,6 @@ export class KubbDriver {
 
     const parsed = await adapter.parse(source)
     this.inputNode = createStreamInput(arrayToAsyncIterable(parsed.schemas), arrayToAsyncIterable(parsed.operations), parsed.meta)
-  }
-
-  #registerMiddleware<K extends keyof KubbHooks & string>(event: K, middlewareHooks: Middleware['hooks']) {
-    const handler = middlewareHooks[event]
-
-    if (!handler) {
-      return
-    }
-
-    this.#registry.register({ event, handler, source: 'middleware' })
   }
 
   /**
@@ -449,7 +430,7 @@ export class KubbDriver {
 
           await hooks.emit('kubb:plugins:end', Object.assign({ config }, this.#filesPayload()))
 
-          // Plugins-end listeners (barrel middleware etc.) may have queued more files.
+          // Plugins-end listeners (barrel plugin etc.) may have queued more files.
           await processor.drain()
 
           await hooks.emit('kubb:build:end', { files: this.fileManager.files, config, outputDir: outputRoot })
@@ -546,7 +527,7 @@ export class KubbDriver {
    * sit at the initial value until the very end of the run.
    *
    * When `entries` is empty or `this.inputNode` is `null`, every entry still gets a
-   * `kubb:plugin:end` so middleware listeners (the barrel writer and friends) complete.
+   * `kubb:plugin:end` so post-plugin listeners (the barrel writer and friends) complete.
    */
   async #runGenerators(
     entries: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options'>; hrStart: ReturnType<typeof process.hrtime> }>,

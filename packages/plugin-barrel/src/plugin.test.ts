@@ -2,7 +2,7 @@ import { createFile, createSource, createText } from '@kubb/ast'
 import { createKubb, definePlugin, memoryStorage } from '@kubb/core'
 import type { Config, Plugin } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { middlewareBarrel } from './middleware.ts'
+import { pluginBarrel } from './plugin.ts'
 
 function makeFile(filePath: string, name: string) {
   return createFile({
@@ -39,7 +39,7 @@ function makePlugin({
   }))()
 }
 
-describe('middlewareBarrel', () => {
+describe('pluginBarrel', () => {
   it('generates plugin and root barrels from streamed file batches', async () => {
     const storage = memoryStorage()
     const config = {
@@ -50,8 +50,8 @@ describe('middlewareBarrel', () => {
       plugins: [
         makePlugin({ name: 'plugin-types', outputPath: 'types', filePath: '/workspace/src/gen/types/pet.ts', exportName: 'Pet' }),
         makePlugin({ name: 'plugin-schemas', outputPath: 'schemas', filePath: '/workspace/src/gen/schemas/petSchema.ts', exportName: 'PetSchema' }),
+        pluginBarrel(),
       ] as unknown as Array<Plugin>,
-      middleware: [middlewareBarrel()],
       storage,
     } satisfies Config
 
@@ -81,8 +81,8 @@ describe('middlewareBarrel', () => {
       reporters: [],
       plugins: [
         makePlugin({ name: 'plugin-types', outputPath: 'types', filePath: '/workspace/src/gen/types/pet.ts', exportName: 'Pet' }),
+        pluginBarrel(),
       ] as unknown as Array<Plugin>,
-      middleware: [middlewareBarrel()],
       storage,
     } satisfies Config
 
@@ -108,8 +108,8 @@ describe('middlewareBarrel', () => {
           exportName: 'Pet',
           output: { banner: '// header', footer: '// footer' },
         }),
+        pluginBarrel(),
       ] as unknown as Array<Plugin>,
-      middleware: [middlewareBarrel()],
       storage,
     } satisfies Config
 
@@ -135,8 +135,8 @@ describe('middlewareBarrel', () => {
           exportName: 'Pet',
           output: { banner: (meta: { isBarrel: boolean }) => (meta.isBarrel ? '' : "'use server'") },
         }),
+        pluginBarrel(),
       ] as unknown as Array<Plugin>,
-      middleware: [middlewareBarrel()],
       storage,
     } satisfies Config
 
@@ -161,8 +161,8 @@ describe('middlewareBarrel', () => {
           exportName: 'Pet',
           output: { mode: 'file' },
         }),
+        pluginBarrel(),
       ] as unknown as Array<Plugin>,
-      middleware: [middlewareBarrel()],
       storage,
     } satisfies Config
 
@@ -191,8 +191,8 @@ describe('middlewareBarrel', () => {
           output: { mode: 'file', barrel: false },
         }),
         makePlugin({ name: 'plugin-schemas', outputPath: 'schemas', filePath: '/workspace/src/gen/schemas/petSchema.ts', exportName: 'PetSchema' }),
+        pluginBarrel(),
       ] as unknown as Array<Plugin>,
-      middleware: [middlewareBarrel()],
       storage,
     } satisfies Config
 

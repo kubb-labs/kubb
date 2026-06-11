@@ -1,2 +1,2 @@
-export { middlewareBarrel, middlewareBarrelName } from './middleware.ts'
+export { pluginBarrel, pluginBarrelName } from './plugin.ts'
 export type { BarrelType, BarrelConfig, PluginBarrelConfig } from './types.ts'

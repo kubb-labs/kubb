@@ -1,7 +1,7 @@
 import { isPromise, type PossiblePromise } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
 import { cliReporter, type CLIOptions, fileReporter, fsCache, jsonReporter, type UserConfig } from '@kubb/core'
-import { middlewareBarrel, middlewareBarrelName } from '@kubb/middleware-barrel'
+import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import { parserMd } from '@kubb/parser-md'
 
@@ -16,25 +16,26 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
     : NormalizeConfig<TConfig>
 
 /**
- * Applies default `root`, adapter, parsers, middleware, `output.barrel`, `output.format`, and `output.lint` to a single user config when not set.
+ * Applies default `root`, adapter, parsers, plugins, `output.barrel`, `output.format`, and `output.lint` to a single user config when not set.
  *
  * - `root` defaults to `process.cwd()`
  * - `adapter` defaults to `adapterOas()`
  * - `parsers` defaults to `[parserTs, parserTsx, parserMd]`
  * - `reporters` defaults to `[cliReporter, jsonReporter, fileReporter]`
- * - `middleware` defaults to `[middlewareBarrel()]`
- * - `output.barrel` defaults to `{ type: 'named' }` **only when `middlewareBarrel` is part of `middleware`**.
- *   When the user provides a custom middleware list without `middlewareBarrel`, `barrel` is left untouched.
+ * - `plugins` gets `pluginBarrel()` appended when none is already present
+ * - `output.barrel` defaults to `{ type: 'named' }` **only when `pluginBarrel` is part of `plugins`**.
+ *   When the user provides a plugins list without `pluginBarrel`, `barrel` is left untouched.
  * - `output.format` defaults to `false`
  * - `output.lint` defaults to `false`
  * - `cache` defaults to `fsCache()`; pass `false` to turn caching off
  */
 function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
-  const middleware = config.middleware?.length ? config.middleware : [middlewareBarrel()]
-  const hasBarrelMiddleware = middleware.some((m) => m.name === middlewareBarrelName)
+  const alreadyHasBarrel = config.plugins?.some((p) => p.name === pluginBarrelName)
+  const plugins = alreadyHasBarrel ? (config.plugins ?? []) : [...(config.plugins ?? []), pluginBarrel()]
+  const hasBarrelPlugin = plugins.some((p) => p.name === pluginBarrelName)
 
   const output = { ...config.output }
-  if (hasBarrelMiddleware && output.barrel === undefined) {
+  if (hasBarrelPlugin && output.barrel === undefined) {
     output.barrel = { type: 'named' }
   }
   if (output.format === undefined) {
@@ -50,7 +51,7 @@ function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
     adapter: config.adapter ?? adapterOas(),
     parsers: config.parsers?.length ? config.parsers : [parserTs, parserTsx, parserMd],
     reporters: config.reporters?.length ? config.reporters : [cliReporter, jsonReporter, fileReporter],
-    middleware,
+    plugins,
     output,
     cache: config.cache === undefined ? fsCache() : config.cache,
   }
@@ -72,9 +73,9 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  * - `adapter` → `adapterOas()` (OpenAPI 2.0/3.0/3.1).
  * - `parsers` → `[parserTs, parserTsx, parserMd]`.
  * - `reporters` → `[cliReporter, jsonReporter, fileReporter]`.
- * - `middleware` → `[middlewareBarrel()]`.
- * - `output.barrel` → `{ type: 'named' }` only when `middlewareBarrel` is
- *   in the middleware list.
+ * - `plugins` → `pluginBarrel()` is appended when not already present.
+ * - `output.barrel` → `{ type: 'named' }` only when `pluginBarrel` is
+ *   in the plugins list.
  * - `output.format` and `output.lint` → `false`.
  * - `cache` → `fsCache()` (local disk); pass `false` to turn caching off.
  *

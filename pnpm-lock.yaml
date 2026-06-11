@@ -200,15 +200,15 @@ importers:
       '@kubb/mcp':
         specifier: workspace:*
         version: link:../mcp
-      '@kubb/middleware-barrel':
-        specifier: workspace:*
-        version: link:../middleware-barrel
       '@kubb/parser-md':
         specifier: workspace:*
         version: link:../parser-md
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts
+      '@kubb/plugin-barrel':
+        specifier: workspace:*
+        version: link:../plugin-barrel
       '@kubb/renderer-jsx':
         specifier: workspace:*
         version: link:../renderer-jsx
@@ -260,19 +260,6 @@ importers:
         specifier: workspace:*
         version: link:../renderer-jsx
 
-  packages/middleware-barrel:
-    dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../core
-    devDependencies:
-      '@internals/utils':
-        specifier: workspace:*
-        version: link:../../internals/utils
-
   packages/parser-md:
     dependencies:
       '@kubb/core':
@@ -302,6 +289,19 @@ importers:
         specifier: workspace:*
         version: link:../ast
 
+  packages/plugin-barrel:
+    dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@internals/utils':
+        specifier: workspace:*
+        version: link:../../internals/utils
+
   packages/renderer-jsx:
     dependencies:
       '@kubb/ast':
@@ -323,12 +323,12 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/middleware-barrel':
-        specifier: workspace:*
-        version: link:../middleware-barrel
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts
+      '@kubb/plugin-barrel':
+        specifier: workspace:*
+        version: link:../plugin-barrel
       unplugin:
         specifier: ^3.0.0
         version: 3.0.0

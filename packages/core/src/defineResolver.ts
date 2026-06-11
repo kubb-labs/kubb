@@ -141,7 +141,7 @@ export type ResolverFileParams = {
 /**
  * Per-file context describing the file a banner/footer is being resolved for.
  *
- * Supplied by the generator (or the barrel middleware) at resolve-time and merged
+ * Supplied by the generator (or the barrel plugin) at resolve-time and merged
  * into `BannerMeta` so a `banner`/`footer` function can branch on the file kind,
  * e.g. omit a `'use server'` directive on re-export files.
  */
@@ -214,7 +214,7 @@ export type ResolveBannerContext = {
 /**
  * Merges document `meta` with per-file `file` context into the `BannerMeta` passed to a
  * `banner`/`footer` function. Missing fields default to empty/`false` so the object shape
- * is stable even when a caller (e.g. the barrel middleware) has no document metadata.
+ * is stable even when a caller (e.g. the barrel plugin) has no document metadata.
  */
 function buildBannerMeta({ meta, file }: { meta: InputMeta | undefined; file: ResolveBannerFile | undefined }): BannerMeta {
   return {

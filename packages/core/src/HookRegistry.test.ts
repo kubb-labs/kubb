@@ -18,24 +18,24 @@ describe('HookRegistry — dispatch through the emitter', () => {
     const calls: Array<string> = []
 
     registry.register({ event: 'seq', handler: async (v) => void calls.push(`a:${v}`), source: 'plugin' })
-    registry.register({ event: 'seq', handler: async (v) => void calls.push(`b:${v}`), source: 'middleware' })
+    registry.register({ event: 'seq', handler: async (v) => void calls.push(`b:${v}`), source: 'plugin' })
 
     await emitter.emit('seq', 'x')
 
     expect(calls).toStrictEqual(['a:x', 'b:x'])
   })
 
-  it('preserves plugin-then-middleware ordering through registration source', async () => {
+  it('preserves plugin ordering through registration source', async () => {
     const { emitter, registry } = makeRegistry()
     const calls: Array<string> = []
 
     registry.register({ event: 'seq', handler: () => void calls.push('plugin-1'), source: 'plugin' })
     registry.register({ event: 'seq', handler: () => void calls.push('plugin-2'), source: 'plugin' })
-    registry.register({ event: 'seq', handler: () => void calls.push('middleware'), source: 'middleware' })
+    registry.register({ event: 'seq', handler: () => void calls.push('post-plugin'), source: 'plugin' })
 
     await emitter.emit('seq', 'x')
 
-    expect(calls).toStrictEqual(['plugin-1', 'plugin-2', 'middleware'])
+    expect(calls).toStrictEqual(['plugin-1', 'plugin-2', 'post-plugin'])
   })
 })
 
@@ -43,10 +43,10 @@ describe('HookRegistry — dispose', () => {
   it('removes every tracked listener from the underlying emitter', async () => {
     const { emitter, registry } = makeRegistry()
     const pluginHandler = vi.fn()
-    const middlewareHandler = vi.fn()
+    const postPluginHandler = vi.fn()
 
     registry.register({ event: 'seq', handler: pluginHandler, source: 'plugin' })
-    registry.register({ event: 'seq', handler: middlewareHandler, source: 'middleware' })
+    registry.register({ event: 'seq', handler: postPluginHandler, source: 'plugin' })
 
     expect(registry.size).toBe(2)
     expect(emitter.listenerCount('seq')).toBe(2)
@@ -59,7 +59,7 @@ describe('HookRegistry — dispose', () => {
     await emitter.emit('seq', 'x')
 
     expect(pluginHandler).not.toHaveBeenCalled()
-    expect(middlewareHandler).not.toHaveBeenCalled()
+    expect(postPluginHandler).not.toHaveBeenCalled()
   })
 
   it('leaves listeners attached directly via emitter.on intact', async () => {

@@ -70,9 +70,9 @@
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/mcp": "workspace:*",
-    "@kubb/middleware-barrel": "workspace:*",
     "@kubb/parser-md": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
+    "@kubb/plugin-barrel": "workspace:*",
     "@kubb/renderer-jsx": "workspace:*"
   },
   "devDependencies": {

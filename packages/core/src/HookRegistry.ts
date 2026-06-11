@@ -1,6 +1,6 @@
 import type { AsyncEventEmitter } from '@internals/utils'
 
-export type HookSource = 'plugin' | 'middleware' | 'driver'
+export type HookSource = 'plugin' | 'driver'
 
 export type HookListener<TArgs extends Array<unknown>, TResult = void> = (...args: TArgs) => TResult | Promise<TResult>
 

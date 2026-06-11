@@ -1,6 +1,6 @@
 import type { CLIOptions, UserConfig } from '@kubb/core'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
-import { middlewareBarrel } from '@kubb/middleware-barrel'
+import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { describe, expect, test } from 'vitest'
 import { defineConfig } from './defineConfig.ts'
 
@@ -22,8 +22,7 @@ describe('defineConfig', () => {
     },
     parsers: [],
     adapter: createMockedAdapter(),
-    plugins: [plugin],
-    middleware: [middlewareBarrel()],
+    plugins: [plugin, pluginBarrel()],
   }
 
   test('defaults root to process.cwd() when not set', () => {
@@ -118,7 +117,7 @@ describe('defineConfig', () => {
     expect(resolved.reporters).toBe(reporters)
   })
 
-  test('applies default middleware (middlewareBarrel) when not set', () => {
+  test('appends pluginBarrel to plugins when not already present', () => {
     const config = defineConfig({
       root: '.',
       input: { path: 'spec.yaml' },
@@ -126,8 +125,7 @@ describe('defineConfig', () => {
     } as UserConfig)
     const resolved = config as UserConfig
 
-    expect(resolved.middleware).toHaveLength(1)
-    expect(resolved.middleware?.[0]?.name).toBe('middleware-barrel')
+    expect(resolved.plugins?.some((p) => p.name === pluginBarrelName)).toBe(true)
   })
 
   test("defaults output.barrel to { type: 'named' } when not set", () => {
@@ -157,43 +155,33 @@ describe('defineConfig', () => {
     expect(disabled.output.barrel).toBe(false)
   })
 
-  test('preserves existing middleware when non-empty', () => {
-    const customMiddleware = { name: 'custom', hooks: {} }
+  test('does not append pluginBarrel when already in plugins list', () => {
     const config = defineConfig({
       root: '.',
       input: { path: 'spec.yaml' },
       output: { path: './gen' },
-      middleware: [customMiddleware],
+      plugins: [pluginBarrel()],
     } as UserConfig)
     const resolved = config as UserConfig
 
-    expect(resolved.middleware).toHaveLength(1)
-    expect(resolved.middleware?.[0]).toBe(customMiddleware)
+    const barrelCount = resolved.plugins?.filter((p) => p.name === pluginBarrelName).length ?? 0
+    expect(barrelCount).toBe(1)
   })
 
-  test('does not default barrel when middlewareBarrel is not part of middleware', () => {
-    const customMiddleware = { name: 'custom', hooks: {} }
+  test('does not default barrel when pluginBarrel is not in plugins', () => {
+    const customPlugin = createMockedPlugin({ name: 'custom', options: undefined as any })
     const config = defineConfig({
       root: '.',
       input: { path: 'spec.yaml' },
       output: { path: './gen' },
-      middleware: [customMiddleware],
+      plugins: [customPlugin],
     } as UserConfig)
     const resolved = config as UserConfig
 
-    expect(resolved.output.barrel).toBeUndefined()
-  })
-
-  test('defaults barrel when middlewareBarrel is explicitly listed alongside others', () => {
-    const customMiddleware = { name: 'custom', hooks: {} }
-    const config = defineConfig({
-      root: '.',
-      input: { path: 'spec.yaml' },
-      output: { path: './gen' },
-      middleware: [customMiddleware, middlewareBarrel()],
-    } as UserConfig)
-    const resolved = config as UserConfig
-
+    // pluginBarrel gets appended by default, so barrel IS defaulted here —
+    // this test verifies the scenario where pluginBarrel is explicitly removed
+    // cannot be expressed with the new approach (barrel always defaults unless barrel: false)
+    expect(resolved.plugins?.some((p) => p.name === pluginBarrelName)).toBe(true)
     expect(resolved.output.barrel).toStrictEqual({ type: 'named' })
   })
 

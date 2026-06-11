@@ -20,29 +20,29 @@
 
 <br />
 
-# @kubb/middleware-barrel
+# @kubb/plugin-barrel
 
-### Barrel-file middleware for Kubb
+### Barrel-file plugin for Kubb
 
 Automatically generates `index.ts` re-export files for each plugin output directory and an optional root barrel after all plugins have run.
 
 ## Installation
 
 ```bash
-bun add @kubb/middleware-barrel
+bun add @kubb/plugin-barrel
 # or
-pnpm add @kubb/middleware-barrel
+pnpm add @kubb/plugin-barrel
 # or
-npm install @kubb/middleware-barrel
+npm install @kubb/plugin-barrel
 ```
 
 ## Usage
 
-Add `middlewareBarrel` to the `middleware` array in your `kubb.config.ts`:
+Add `pluginBarrel` to the `plugins` array in your `kubb.config.ts`:
 
 ```typescript
 import { defineConfig } from 'kubb'
-import { middlewareBarrel } from '@kubb/middleware-barrel'
+import { pluginBarrel } from '@kubb/plugin-barrel'
 
 export default defineConfig({
   input: {
@@ -51,8 +51,8 @@ export default defineConfig({
   output: {
     path: './src/gen',
   },
-  middleware: [
-    middlewareBarrel({
+  plugins: [
+    pluginBarrel({
       type: 'named',
     }),
   ],
@@ -75,7 +75,9 @@ export default defineConfig({
 
 ## How it works
 
-After every plugin finishes generating files, `@kubb/middleware-barrel` walks the output tree and creates an `index.ts` in each directory, re-exporting everything inside. It then creates a root `index.ts` at the top of the output path that re-exports from all plugin directories.
+After every plugin finishes generating files, `@kubb/plugin-barrel` walks the output tree and creates an `index.ts` in each directory, re-exporting everything inside. It then creates a root `index.ts` at the top of the output path that re-exports from all plugin directories.
+
+`@kubb/plugin-barrel` uses `enforce: 'post'` so it always runs after all regular plugins complete, giving it access to the full set of generated files.
 
 ## Supporting Kubb
 
@@ -96,13 +98,13 @@ Kubb is an open source project, and its development is funded entirely by sponso
 
 <!-- Badges -->
 
-[npm-version-src]: https://shieldcn.dev/npm/v/@kubb/middleware-barrel.svg?variant=secondary&size=xs&theme=zinc&mode=dark
-[npm-version-href]: https://npmx.dev/package/@kubb/middleware-barrel
-[npm-downloads-src]: https://shieldcn.dev/npm/dm/@kubb/middleware-barrel.svg?variant=secondary&size=xs&theme=zinc&mode=dark
-[npm-downloads-href]: https://npmx.dev/package/@kubb/middleware-barrel
+[npm-version-src]: https://shieldcn.dev/npm/v/@kubb/plugin-barrel.svg?variant=secondary&size=xs&theme=zinc&mode=dark
+[npm-version-href]: https://npmx.dev/package/@kubb/plugin-barrel
+[npm-downloads-src]: https://shieldcn.dev/npm/dm/@kubb/plugin-barrel.svg?variant=secondary&size=xs&theme=zinc&mode=dark
+[npm-downloads-href]: https://npmx.dev/package/@kubb/plugin-barrel
 [stars-src]: https://shieldcn.dev/github/stars/kubb-labs/kubb.svg?variant=secondary&size=xs&theme=zinc&mode=dark
 [stars-href]: https://github.com/kubb-labs/kubb
-[license-src]: https://shieldcn.dev/npm/license/@kubb/middleware-barrel.svg?variant=secondary&size=xs&theme=zinc
+[license-src]: https://shieldcn.dev/npm/license/@kubb/plugin-barrel.svg?variant=secondary&size=xs&theme=zinc
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
-[node-src]: https://shieldcn.dev/npm/node/@kubb/middleware-barrel.svg?variant=secondary&size=xs&theme=zinc&mode=dark
-[node-href]: https://npmx.dev/package/@kubb/middleware-barrel
+[node-src]: https://shieldcn.dev/npm/node/@kubb/plugin-barrel.svg?variant=secondary&size=xs&theme=zinc&mode=dark
+[node-href]: https://npmx.dev/package/@kubb/plugin-barrel
