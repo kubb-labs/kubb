@@ -44,7 +44,7 @@ kubb/
 │   ├── adapter-oas/         # OpenAPI/Swagger adapter (OAS to AST)
 │   ├── parser-ts/           # TypeScript parser for AST manipulation
 │   ├── renderer-jsx/        # JSX renderer for component-based output
-│   ├── middleware-barrel/   # Barrel export generation
+│   ├── plugin-barrel/       # Barrel export generation (enforce: 'post' plugin)
 │   ├── unplugin-kubb/       # Bundler integration (Vite, Nuxt, Astro, webpack)
 │   ├── cli/                 # Command-line interface (kubb init, kubb generate)
 │   ├── mcp/                 # Model Context Protocol server for AI assistants

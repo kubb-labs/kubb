@@ -6,10 +6,10 @@ describe('getPrimaryPackage', () => {
   it('keeps only the first package for a multi-package changeset', () => {
     expect(
       getPrimaryPackage({
-        '@kubb/middleware-barrel': 'patch',
+        '@kubb/plugin-barrel': 'patch',
         'unplugin-kubb': 'patch',
       }),
-    ).toStrictEqual(['@kubb/middleware-barrel', 'patch'])
+    ).toStrictEqual(['@kubb/plugin-barrel', 'patch'])
   })
 
   it('returns undefined when the changeset has no packages', () => {

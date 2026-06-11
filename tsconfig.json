@@ -19,7 +19,6 @@
       "@kubb/adapter-oas": ["./packages/adapter-oas/src/index.ts"],
       "@kubb/parser-md": ["./packages/parser-md/src/index.ts"],
       "unplugin-kubb": ["./packages/unplugin/src/index.ts"],
-      "@kubb/middleware-barrel": ["./packages/middleware-barrel/src/index.ts"],
       "@kubb/plugin-barrel": ["./packages/plugin-barrel/src/index.ts"]
     }
   },

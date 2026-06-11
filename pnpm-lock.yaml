@@ -260,16 +260,6 @@ importers:
         specifier: workspace:*
         version: link:../renderer-jsx
 
-  packages/middleware-barrel:
-    dependencies:
-      '@kubb/plugin-barrel':
-        specifier: workspace:*
-        version: link:../plugin-barrel
-    devDependencies:
-      '@internals/utils':
-        specifier: workspace:*
-        version: link:../../internals/utils
-
   packages/parser-md:
     dependencies:
       '@kubb/core':

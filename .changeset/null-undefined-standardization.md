@@ -3,7 +3,6 @@
 '@kubb/core': minor
 '@kubb/adapter-oas': minor
 '@kubb/cli': patch
-'@kubb/middleware-barrel': patch
 '@kubb/renderer-jsx': patch
 ---
 

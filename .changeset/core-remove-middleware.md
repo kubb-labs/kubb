@@ -1,9 +1,8 @@
 ---
 '@kubb/core': major
-'@kubb/middleware-barrel': major
 '@kubb/plugin-barrel': minor
 'kubb': major
-'@kubb/unplugin-kubb': patch
+'unplugin-kubb': patch
 ---
 
 Replace `middleware` with post-enforced plugins.
@@ -12,4 +11,4 @@ Replace `middleware` with post-enforced plugins.
 
 `Config.middleware` and `UserConfig.middleware` are removed. Barrel generation now runs through the new `@kubb/plugin-barrel` package, which is a standard plugin with `enforce: 'post'`. It is added to `plugins` automatically by `defineConfig` when no barrel plugin is already present.
 
-`@kubb/middleware-barrel` is deprecated. Migrate to `@kubb/plugin-barrel`.
+`@kubb/middleware-barrel` is removed. Migrate to `@kubb/plugin-barrel`.
