@@ -69,7 +69,7 @@ describe('createKubb', () => {
     expect(files.some((f) => f.baseName === file.baseName)).toBe(true)
   })
 
-  test('accepts a user config and resolves defaults during setup', async () => {
+  test('resolves config defaults in the constructor, before setup', () => {
     const userConfig = {
       input: {
         path: 'https://petstore3.swagger.io/api/v3/openapi.json',
@@ -85,10 +85,8 @@ describe('createKubb', () => {
       hooks: new AsyncEventEmitter<KubbHooks>(),
     })
 
-    await kubb.setup()
-
-    expect(kubb.config?.root).toBe(process.cwd())
-    expect(kubb.config?.parsers).toStrictEqual([])
+    expect(kubb.config.root).toBe(process.cwd())
+    expect(kubb.config.parsers).toStrictEqual([])
   })
 
   test('keeps the hooks ceiling at 10 for a single plugin', async () => {

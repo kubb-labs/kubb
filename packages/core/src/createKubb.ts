@@ -903,8 +903,12 @@ type CreateKubbOptions = {
 
 /**
  * Kubb code-generation instance bound to a single config entry. Resolves the user
- * config during `setup()` and shares `hooks`, `storage`, `driver`, and `config` across
- * the `setup → build` lifecycle.
+ * config in the constructor, so `config` is available right away, and shares `hooks`,
+ * `storage`, and `driver` across the `setup → build` lifecycle.
+ *
+ * `createKubb` takes a plain, serializable config object (the shape `defineConfig`
+ * produces), not a fluent builder. Config stays plain data so it can be cache
+ * fingerprinted and validated against the shipped JSON schema.
  *
  * Attach event listeners to `.hooks` before calling `setup()` or `build()`.
  *
@@ -917,13 +921,12 @@ type CreateKubbOptions = {
  */
 export class Kubb {
   readonly hooks: AsyncEventEmitter<KubbHooks>
-  readonly #userConfig: UserConfig
-  #config: Config | null = null
+  readonly config: Config
   #driver: KubbDriver | null = null
   #storage: Storage | null = null
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
-    this.#userConfig = userConfig
+    this.config = resolveConfig(userConfig)
     this.hooks = options.hooks ?? new AsyncEventEmitter<KubbHooks>()
   }
 
@@ -937,16 +940,11 @@ export class Kubb {
     return this.#driver
   }
 
-  get config(): Config {
-    if (!this.#config) throw new Error('[kubb] setup() must be called before accessing config')
-    return this.#config
-  }
-
   /**
-   * Resolves config and initializes the driver. `build()` calls this automatically.
+   * Initializes the driver and storage. `build()` calls this automatically.
    */
   async setup(): Promise<void> {
-    const config = resolveConfig(this.#userConfig)
+    const config = this.config
     const driver = new KubbDriver(config, { hooks: this.hooks })
     const storage = createSourcesView(config.storage)
 
@@ -961,7 +959,6 @@ export class Kubb {
 
     await driver.setup()
 
-    this.#config = config
     this.#driver = driver
     this.#storage = storage
   }
@@ -984,7 +981,8 @@ export class Kubb {
 
   /**
    * Runs the full pipeline and captures errors in `BuildOutput` instead of throwing.
-   * Automatically calls `setup()` if needed.
+   * Automatically calls `setup()` if needed. This is the canonical call: it never throws on
+   * plugin errors, so callers stay in control of how failures surface.
    */
   async safeBuild(): Promise<BuildOutput> {
     if (!this.#driver) await this.setup()
