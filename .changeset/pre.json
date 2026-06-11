@@ -13,7 +13,8 @@
     "unplugin-kubb": "5.0.0-alpha.74",
     "@internals/shared": "0.0.0",
     "@internals/utils": "0.0.0",
-    "@kubb/parser-md": "5.0.0-beta.24"
+    "@kubb/parser-md": "5.0.0-beta.24",
+    "@kubb/plugin-barrel": "5.0.0-beta.50"
   },
   "changesets": [
     "adapter-oas-drf-null-enum",
@@ -75,6 +76,7 @@
     "core-compiler-phases",
     "core-getmode-static-cleanup",
     "core-hot-path-perf",
+    "core-remove-middleware",
     "core-renderer-contract-trim",
     "core-type-safety-escape-hatches",
     "create-kubb-user-config-signature",
@@ -135,6 +137,7 @@
     "modernize-node-22-natives",
     "move-match-files-to-mocks",
     "move-plugins-to-own-repo",
+    "move-telemetry-definelogger-to-cli",
     "multi-content-type-response",
     "node-22-minimum",
     "null-undefined-standardization",
@@ -155,6 +158,7 @@
     "reduce-memory-fs-caching",
     "reduce-memory-snapshot-cache",
     "remove-agent-package",
+    "remove-config-lifecycle-events",
     "remove-deprecated-plugin-checks",
     "remove-github-actions-logger",
     "remove-group-output-mode",

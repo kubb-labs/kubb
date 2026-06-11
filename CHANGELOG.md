@@ -1,5 +1,33 @@
 # Changelog
 
+## v5.0.0-beta.51 — Jun 11, 2026
+
+### @kubb/core
+
+#### Breaking Changes
+
+- Replace `middleware` with post-enforced plugins.
+  
+  `defineMiddleware` and the `Middleware` type are removed from `@kubb/core`. Use `definePlugin` with `enforce: 'post'` instead — a post-enforced plugin registers after all normal plugins and fires in that order, giving the same guarantee.
+  
+  `Config.middleware` and `UserConfig.middleware` are removed. Barrel generation now runs through the new `@kubb/plugin-barrel` package, which is a standard plugin with `enforce: 'post'`. It is added to `plugins` automatically by `defineConfig` when no barrel plugin is already present.
+  
+  `@kubb/middleware-barrel` is removed. Migrate to `@kubb/plugin-barrel`. ([#3537](https://github.com/kubb-labs/kubb/pull/3537), [`af0c0cf`](https://github.com/kubb-labs/kubb/commit/af0c0cfbbd3f6c9ea89a01c074c89fb38d140790))
+
+#### Features
+
+- Move `Telemetry`, `defineLogger`, Logger types (`Logger`, `LoggerContext`, `LoggerOptions`, `UserLogger`), and `selectReporters` from `@kubb/core` to `@kubb/cli`. These exports were only ever used by the CLI. `logLevel` remains exported from `@kubb/core`. Programmatic users of `createKubb` are unaffected. ([#3536](https://github.com/kubb-labs/kubb/pull/3536), [`d3c29bd`](https://github.com/kubb-labs/kubb/commit/d3c29bd4333507a5c8a49684294b77a8cc953810))
+
+#### Bug Fixes
+
+- Remove the unused `kubb:config:start` and `kubb:config:end` lifecycle events from `KubbHooks` and delete the `KubbConfigEndContext` type. The CLI already emits `kubb:info` and `kubb:success` "Config loaded" messages for the same output, so nothing visible changes. ([#3534](https://github.com/kubb-labs/kubb/pull/3534), [`e388248`](https://github.com/kubb-labs/kubb/commit/e388248ab76ef0f1341d8d60de8b06a493433422))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.50 — Jun 10, 2026
 
 ### @kubb/cli
