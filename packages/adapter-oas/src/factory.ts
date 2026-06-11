@@ -3,6 +3,7 @@ import { exists, mergeDeep, URLPath } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import OASNormalize from 'oas-normalize'
+import { bundleDocument } from './bundler.ts'
 import { MERGE_DEFAULT_TITLE, MERGE_DEFAULT_VERSION, MERGE_OPENAPI_VERSION } from './constants.ts'
 import { isOpenApiV2Document } from './guards.ts'
 import type { Document } from './types.ts'
@@ -19,8 +20,9 @@ export type ValidateDocumentOptions = {
 /**
  * Loads and dereferences an OpenAPI document, returning the raw `Document`.
  *
- * Accepts a file path string or an already-parsed document object. File paths are bundled via
- * `@apidevtools/json-schema-ref-parser` to resolve external `$ref`s. Swagger 2.0 documents are
+ * Accepts a file path string or an already-parsed document object. File paths and URLs are
+ * bundled via `api-ref-bundler`, hoisting external file schemas into named `components.schemas`
+ * entries so generators can emit named types and imports. Swagger 2.0 documents are
  * automatically up-converted to OpenAPI 3.0 via `swagger2openapi`.
  *
  * @example
@@ -31,10 +33,9 @@ export type ValidateDocumentOptions = {
  */
 export async function parseDocument(pathOrApi: string | Document, { canBundle = true, enablePaths = true }: ParseOptions = {}): Promise<Document> {
   if (typeof pathOrApi === 'string' && canBundle) {
-    const { $RefParser } = await import('@apidevtools/json-schema-ref-parser')
-    const bundled = await $RefParser.bundle(pathOrApi)
+    const bundled = await bundleDocument(pathOrApi)
 
-    return parseDocument(bundled as Document, { canBundle: false, enablePaths })
+    return parseDocument(bundled, { canBundle: false, enablePaths })
   }
 
   const oasNormalize = new OASNormalize(pathOrApi, {
