@@ -130,7 +130,7 @@ jobs:
                 console.error('Error sending discord notification', err);
               });
 
-  notify-platform:
+  deploy-platform:
     name: Dispatch content-updated to platform
     needs: [release]
     if: ${{ needs.release.outputs.released == 'true' }}
