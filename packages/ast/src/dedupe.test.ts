@@ -83,6 +83,16 @@ describe('buildDedupePlan', () => {
     expect(plan.canonicalBySignature.get(objectSignature)).toStrictEqual({ name: 'Cat', ref: '#/components/schemas/Cat' })
   })
 
+  it('records later top-level names with the same content as aliases of the first', () => {
+    const cat = createSchema({ type: 'object', name: 'Cat', properties: [createProperty({ name: 'sound', schema: createSchema({ type: 'string' }) })] })
+    const dog = createSchema({ type: 'object', name: 'Dog', properties: [createProperty({ name: 'sound', schema: createSchema({ type: 'string' }) })] })
+
+    const plan = buildDedupePlan([cat, dog], { isCandidate, nameFor, refFor })
+
+    expect(plan.aliasNames.get('Dog')).toStrictEqual({ name: 'Cat', ref: '#/components/schemas/Cat' })
+    expect(plan.aliasNames.has('Cat')).toBe(false)
+  })
+
   it('ignores nodes the candidate predicate rejects', () => {
     const pet = createSchema({
       type: 'object',
@@ -124,7 +134,10 @@ describe('buildDedupePlan', () => {
 describe('applyDedupe', () => {
   const enumNode = stringEnum(['active', 'inactive'], { name: 'PetStatus' })
   const enumSignature = schemaSignature(enumNode)
-  const canonicalBySignature = new Map([[enumSignature, { name: 'PetStatus', ref: '#/components/schemas/PetStatus' }]])
+  const lookups = {
+    canonicalBySignature: new Map([[enumSignature, { name: 'PetStatus', ref: '#/components/schemas/PetStatus' }]]),
+    aliasNames: new Map<string, { name: string; ref: string }>(),
+  }
 
   it('replaces a duplicated occurrence with a ref and prunes', () => {
     const order = createSchema({
@@ -136,7 +149,7 @@ describe('applyDedupe', () => {
       ],
     })
 
-    const result = narrowSchema(applyDedupe(order, canonicalBySignature), 'object')!
+    const result = narrowSchema(applyDedupe(order, lookups), 'object')!
     const stateSchema = result.properties.find((prop) => prop.name === 'state')!.schema
 
     expect(narrowSchema(stateSchema, 'ref')).toMatchInlineSnapshot(`
@@ -159,15 +172,42 @@ describe('applyDedupe', () => {
   })
 
   it('keeps the root when skipRootMatch is set', () => {
-    const result = applyDedupe(enumNode, canonicalBySignature, true)
+    const result = applyDedupe(enumNode, lookups, true)
     expect(result.type).toBe('enum')
 
-    const reffed = applyDedupe(enumNode, canonicalBySignature)
+    const reffed = applyDedupe(enumNode, lookups)
     expect(reffed.type).toBe('ref')
   })
 
   it('returns the same reference when nothing matches', () => {
     const node = createSchema({ type: 'object', properties: [createProperty({ name: 'id', schema: createSchema({ type: 'string' }) })] })
-    expect(applyDedupe(node, canonicalBySignature)).toBe(node)
+    expect(applyDedupe(node, lookups)).toBe(node)
+  })
+
+  it('repoints a ref to a duplicate top-level schema at the canonical one', () => {
+    const order = createSchema({
+      type: 'object',
+      name: 'Order',
+      properties: [createProperty({ name: 'pet', schema: createSchema({ type: 'ref', name: 'Dog', ref: '#/components/schemas/Dog' }) })],
+    })
+    const aliased = {
+      canonicalBySignature: new Map<string, { name: string; ref: string }>(),
+      aliasNames: new Map([['Dog', { name: 'Cat', ref: '#/components/schemas/Cat' }]]),
+    }
+
+    const result = narrowSchema(applyDedupe(order, aliased), 'object')!
+    const petSchema = narrowSchema(result.properties.find((prop) => prop.name === 'pet')?.schema, 'ref')
+
+    expect({ name: petSchema?.name, ref: petSchema?.ref }).toStrictEqual({ name: 'Cat', ref: '#/components/schemas/Cat' })
+  })
+
+  it('leaves a ref to the canonical schema untouched', () => {
+    const ref = createSchema({ type: 'ref', name: 'Cat', ref: '#/components/schemas/Cat' })
+    const aliased = {
+      canonicalBySignature: new Map<string, { name: string; ref: string }>(),
+      aliasNames: new Map([['Dog', { name: 'Cat', ref: '#/components/schemas/Cat' }]]),
+    }
+
+    expect(applyDedupe(ref, aliased)).toBe(ref)
   })
 })
