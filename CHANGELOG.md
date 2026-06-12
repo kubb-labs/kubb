@@ -1,5 +1,23 @@
 # Changelog
 
+## v5.0.0-beta.54 — Jun 12, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Repoint refs at duplicate top-level schemas to the first schema with the same content.
+  
+  When a spec defines a schema and also references an external copy of it (for example `$ref: 'https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/Category'` next to a local `Category`), the ref bundler hoists the copy under a numeric suffix (`Category1`) and rewrites the ref sites to it, so generators typed properties against `Category1` instead of `Category`.
+  
+  `buildDedupePlan` now records every later top-level schema whose content matches an earlier one in a new `aliasNames` map, `applyDedupe` repoints any ref targeting such a duplicate at the first schema with that content, and the adapter stream no longer emits the duplicate at all. The decision is purely content-based (structural signature), not name-based: `Pet.category` is typed `Category` again, no dead `Category1` model is generated, and a schema with a different shape keeps its own type. This also applies to hand-written schemas that share one content (a `Dog` identical to `Cat` collapses into `Cat`). `applyDedupe` now takes the plan lookups (`{ canonicalBySignature, aliasNames }`) instead of the bare signature map, and `@kubb/ast` exports the `DedupeCanonical` and `DedupeLookups` types. ([#3551](https://github.com/kubb-labs/kubb/pull/3551), [`d8d1aef`](https://github.com/kubb-labs/kubb/commit/d8d1aefc6a5b58ff293ddd227b821a210bd07e2d))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.53 — Jun 12, 2026
 
 ### @kubb/adapter-oas
