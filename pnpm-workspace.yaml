@@ -18,7 +18,7 @@ catalog:
   p-limit: ^7.3.0
   react: 19.2.6
   react-reconciler: 0.33.0
-  remeda: ^2.38.0
+  remeda: ^2.39.0
   # tinyexec 1.2.x lost npm `trusted-with-provenance` status; stay on 1.1.x until restored.
   'tinyexec': ~1.1.2
   tsdown: ^0.22.2
