@@ -18,39 +18,32 @@ export type PreScanResult = {
   collapsedNames: Map<string, ast.DedupeCanonical>
 }
 
-/**
- * Detects the name pattern the ref bundler uses for collisions: the colliding schema plus a
- * numeric suffix (`Category` hoisted next to an existing `Category` becomes `Category1`).
- */
-function isCollisionSuffix({ name, base }: { name: string; base: string }): boolean {
-  return name.length > base.length && name.startsWith(base) && /^\d+$/.test(name.slice(base.length))
-}
+const trailingDigitsRegExp = /\d+$/
 
 /**
- * Finds top-level schemas that are bundling artifacts: structurally identical to their dedupe
- * canonical and named like a bundler collision (`Category1` next to `Category`). These entries
- * exist only because bundling hoisted an external copy of a schema the document already has, so
- * they are dropped from the stream and every ref to them is pointed back at the canonical name.
+ * Finds top-level schemas that are bundling artifacts: the ref bundler hoists an external copy
+ * of a schema the document already has under a trailing-digit name (`Category` becomes
+ * `Category1`). A schema whose name strips back to its dedupe canonical's name is such a copy,
+ * so it is dropped from the stream and every ref to it is pointed back at the canonical name.
  *
  * Identical schemas with unrelated names (`Dog` next to `Cat`) are not collapsed. They stay
  * named alias types, since both names are part of the document's intended surface.
  */
-function findCollapsedNames({
-  namedNodes,
-  dedupePlan,
-}: {
-  namedNodes: Array<{ name: string; node: ast.SchemaNode }>
-  dedupePlan: ast.DedupePlan | null
-}): Map<string, ast.DedupeCanonical> {
+function findCollapsedNames({ nodes, dedupePlan }: { nodes: Array<ast.SchemaNode>; dedupePlan: ast.DedupePlan | null }): Map<string, ast.DedupeCanonical> {
   const collapsedNames = new Map<string, ast.DedupeCanonical>()
   if (!dedupePlan) {
     return collapsedNames
   }
 
-  for (const { name, node } of namedNodes) {
+  for (const node of nodes) {
+    const base = node.name?.replace(trailingDigitsRegExp, '')
+    if (!node.name || !base || base === node.name) {
+      continue
+    }
+
     const canonical = dedupePlan.canonicalBySignature.get(ast.schemaSignature(node))
-    if (canonical && canonical.name !== name && isCollisionSuffix({ name, base: canonical.name })) {
-      collapsedNames.set(name, canonical)
+    if (canonical?.name === base) {
+      collapsedNames.set(node.name, canonical)
     }
   }
 
@@ -171,7 +164,6 @@ export function preScan({
   dedupe: boolean
 }): PreScanResult {
   const allNodes: Array<ast.SchemaNode> = []
-  const namedNodes: Array<{ name: string; node: ast.SchemaNode }> = []
   const refAliasMap = new Map<string, ast.SchemaNode>()
   const enumNames: Array<string> = []
   const discriminatorParentNodes: Array<ast.SchemaNode> = []
@@ -179,7 +171,6 @@ export function preScan({
   for (const [name, schema] of Object.entries(schemas)) {
     const node = parseSchema({ schema, name }, parserOptions)
     allNodes.push(node)
-    namedNodes.push({ name, node })
     reportSchemaDiagnostics({ node, name })
     if (node.type === 'ref' && node.name && node.name !== name) {
       refAliasMap.set(name, node)
@@ -215,7 +206,7 @@ export function preScan({
     }
   }
 
-  const collapsedNames = findCollapsedNames({ namedNodes, dedupePlan })
+  const collapsedNames = findCollapsedNames({ nodes: allNodes, dedupePlan })
 
   return {
     refAliasMap,
