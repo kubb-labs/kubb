@@ -57,6 +57,56 @@ describe('parseDocument', () => {
     expect(pet).toBeDefined()
     expect(pet).toMatchObject({ type: 'object', properties: { name: { type: 'string' } } })
   })
+
+  it('hoists external file schemas into named components.schemas entries', async () => {
+    const docPath = path.resolve(__dirname, '../mocks/phantom/main.yaml')
+    const doc = await parseDocument(docPath)
+
+    expect(doc.components?.schemas?.['User']).toMatchObject({
+      type: 'object',
+      properties: { id: { type: 'string' }, email: { type: 'string' }, name: { type: 'string' } },
+    })
+    expect(doc.components?.schemas?.['Employer']).toMatchObject({
+      type: 'object',
+      properties: { id: { type: 'string' }, name: { type: 'string' }, industry: { type: 'string' } },
+    })
+
+    expect(doc.components?.schemas?.['AppState']).toStrictEqual({
+      type: 'object',
+      properties: {
+        currentUser: { $ref: '#/components/schemas/User' },
+        employers: { type: 'array', items: { $ref: '#/components/schemas/Employer' } },
+      },
+    })
+  })
+
+  it('rewrites operation refs to the same named schema as components.schemas', async () => {
+    const docPath = path.resolve(__dirname, '../mocks/phantom/main.yaml')
+    const doc = await parseDocument(docPath)
+
+    const mePath = doc.paths?.['/me'] as Record<string, Record<string, unknown>>
+    expect(mePath?.['get']?.['operationId']).toBe('getMe')
+    expect(mePath?.['get']?.['responses']).toMatchObject({
+      '200': {
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } },
+      },
+    })
+
+    const employersPath = doc.paths?.['/employers'] as Record<string, Record<string, unknown>>
+    expect(employersPath?.['get']?.['responses']).toMatchObject({
+      '200': {
+        content: {
+          'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/Employer' } } },
+        },
+      },
+    })
+  })
+
+  it('throws when the input file does not exist', async () => {
+    const docPath = path.resolve(__dirname, '../mocks/doesNotExist.yaml')
+
+    await expect(parseDocument(docPath)).rejects.toThrow()
+  })
 })
 
 describe('mergeDocuments', () => {

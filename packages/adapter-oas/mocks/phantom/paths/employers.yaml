@@ -1,0 +1,14 @@
+get:
+  operationId: getEmployers
+  summary: List employers
+  tags:
+    - employers
+  responses:
+    '200':
+      description: List of employers
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../components/schemas/Employer.yaml'

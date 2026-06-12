@@ -55,15 +55,17 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@apidevtools/json-schema-ref-parser": "^14.2.1",
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
+    "api-ref-bundler": "0.5.1",
+    "js-yaml": "^4.2.0",
     "oas": "^32.1.18",
     "oas-normalize": "^16.0.5",
     "swagger2openapi": "^7.0.8"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
+    "@types/js-yaml": "^4.0.9",
     "@types/swagger2openapi": "^7.0.4",
     "openapi-types": "^12.1.3"
   },
