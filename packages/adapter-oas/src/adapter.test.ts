@@ -250,10 +250,9 @@ describe('adapterOas dedupe', () => {
         "Pet",
         "Order",
         "Cat",
-        "Dog",
       ]
     `)
-    expect(schemas.find((schema) => schema.name === 'Dog')?.type).toBe('ref')
+    expect(schemas.find((schema) => schema.name === 'Dog')).toBeUndefined()
   })
 
   it('hoists a duplicated enum into one shared schema and refs every occurrence', async () => {
@@ -294,24 +293,12 @@ describe('adapterOas dedupe', () => {
     expect(orderState?.name).toBe(sharedEnum.name)
   })
 
-  it('aliases a structurally identical top-level schema to the canonical one', async () => {
+  it('drops a structurally identical top-level schema and keeps the first one', async () => {
     const adapter = adapterOas({ validate: false, dedupe: true })
     const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: dedupeSpec }))
 
-    const cat = schemas.find((schema) => schema.name === 'Cat')
-    const dog = ast.narrowSchema(
-      schemas.find((schema) => schema.name === 'Dog'),
-      'ref',
-    )
-
-    expect(cat?.type).toBe('object')
-    expect({ name: dog?.name, type: dog?.type, ref: dog?.ref }).toMatchInlineSnapshot(`
-      {
-        "name": "Dog",
-        "ref": "#/components/schemas/Cat",
-        "type": "ref",
-      }
-    `)
+    expect(schemas.find((schema) => schema.name === 'Cat')?.type).toBe('object')
+    expect(schemas.find((schema) => schema.name === 'Dog')).toBeUndefined()
   })
 
   it('rewrites duplicated inline shapes inside operations', async () => {
@@ -386,18 +373,12 @@ describe('adapterOas duplicate top-level schemas', () => {
     return schemas
   }
 
-  it('aliases a duplicate schema to the first one with the same content', async () => {
+  it('drops a duplicate schema and keeps the first one with the same content', async () => {
     const adapter = adapterOas({ validate: false, dedupe: true })
     const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: bundledSpec }))
 
-    expect(schemas.map((schema) => schema.name)).toStrictEqual(['Category', 'Category1', 'Category2', 'Pet'])
+    expect(schemas.map((schema) => schema.name)).toStrictEqual(['Category', 'Category2', 'Pet'])
     expect(schemas.find((schema) => schema.name === 'Category')?.type).toBe('object')
-
-    const duplicate = ast.narrowSchema(
-      schemas.find((schema) => schema.name === 'Category1'),
-      'ref',
-    )
-    expect(duplicate?.ref).toBe('#/components/schemas/Category')
   })
 
   it('repoints schema refs from the duplicate name to the canonical one', async () => {

@@ -172,7 +172,12 @@ export function preScan({
     }
   }
 
-  return { refAliasMap, enumNames, circularNames, discriminatorChildMap, dedupePlan }
+  // Enum names that duplicate an earlier schema's content are never emitted, so they are not
+  // advertised to plugins either.
+  const aliasNames = dedupePlan?.aliasNames
+  const emittedEnumNames = aliasNames && aliasNames.size > 0 ? enumNames.filter((name) => !aliasNames.has(name)) : enumNames
+
+  return { refAliasMap, enumNames: emittedEnumNames, circularNames, discriminatorChildMap, dedupePlan }
 }
 
 /**
@@ -243,6 +248,11 @@ export function createInputStream({
         }
 
         for (const [name, schema] of Object.entries(schemas)) {
+          // A top-level schema whose content duplicates an earlier one is not emitted: every
+          // ref to it is repointed at the first schema with that content, so its model would
+          // be dead code.
+          if (dedupePlan?.aliasNames.has(name)) continue
+
           // Inline ref aliases: replace the alias entry with its target's parsed node
           // (keeping the alias name). Skip the first parse entirely for alias entries
           // since that result is never used.
