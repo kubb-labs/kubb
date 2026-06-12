@@ -1,0 +1,20 @@
+name: Notify Platform
+
+on:
+  release:
+    types: [published]
+
+permissions: {}
+
+jobs:
+  notify:
+    name: Dispatch content-updated to platform
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - uses: peter-evans/repository-dispatch@v3 # pin SHA before merging
+        with:
+          token: ${{ secrets.PLATFORM_DISPATCH_TOKEN }}
+          repository: kubb-labs/platform
+          event-type: content-updated
+          client-payload: '{"source": "kubb", "tag": "${{ github.ref_name }}"}'
