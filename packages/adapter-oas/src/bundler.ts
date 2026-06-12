@@ -35,15 +35,16 @@ async function resolveSource(sourcePath: string): Promise<object | string> {
 /**
  * Bundles a multi-file OpenAPI document into a single document via `api-ref-bundler`.
  *
- * External file schemas are hoisted into named `components.schemas` entries
- * (`./schemas/User.yaml` becomes `#/components/schemas/User`) so downstream generators can emit
- * named types and imports instead of inlining. Local YAML and JSON files and HTTP(S) URLs are
- * supported as sources.
+ * External file schemas are hoisted into named `components.schemas` entries, so a property
+ * pointing at `./schemas/User.yaml` ends up referencing `#/components/schemas/User`. Generators
+ * can then emit a named type with an import instead of inlining the shape. Sources are read with
+ * the Bun-aware `read` util for local YAML and JSON files, and with `fetch` for HTTP(S) URLs.
  *
- * @example
- * ```ts
- * const document = await bundleDocument('./openapi.yaml')
- * ```
+ * @example Local file
+ * `const document = await bundleDocument('./openapi.yaml')`
+ *
+ * @example Remote URL
+ * `const document = await bundleDocument('https://example.com/openapi.yaml')`
  */
 export async function bundleDocument(pathOrUrl: string): Promise<Document> {
   const cache = new Map<string, Promise<object | string>>()
