@@ -1,4 +1,4 @@
-import fs from 'node:fs/promises'
+import { read } from '@internals/utils'
 import { bundle } from 'api-ref-bundler'
 import yaml from 'js-yaml'
 import type { Document } from './types.ts'
@@ -19,7 +19,7 @@ async function readSource(sourcePath: string): Promise<string> {
     return response.text()
   }
 
-  return fs.readFile(sourcePath, 'utf8')
+  return read(sourcePath)
 }
 
 async function resolveSource(sourcePath: string): Promise<object | string> {
