@@ -6,6 +6,9 @@ settings:
 
 catalogs:
   default:
+    '@kubb/plugin-barrel':
+      specifier: 5.0.0-beta.53
+      version: 5.0.0-beta.53
     '@types/node':
       specifier: ^22.19.21
       version: 22.19.21
@@ -207,8 +210,8 @@ importers:
         specifier: workspace:*
         version: link:../parser-ts
       '@kubb/plugin-barrel':
-        specifier: workspace:*
-        version: link:../plugin-barrel
+        specifier: 'catalog:'
+        version: 5.0.0-beta.53(@kubb/core@packages+core)
       '@kubb/renderer-jsx':
         specifier: workspace:*
         version: link:../renderer-jsx
@@ -289,19 +292,6 @@ importers:
         specifier: workspace:*
         version: link:../ast
 
-  packages/plugin-barrel:
-    dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../core
-    devDependencies:
-      '@internals/utils':
-        specifier: workspace:*
-        version: link:../../internals/utils
-
   packages/renderer-jsx:
     dependencies:
       '@kubb/ast':
@@ -327,8 +317,8 @@ importers:
         specifier: workspace:*
         version: link:../parser-ts
       '@kubb/plugin-barrel':
-        specifier: workspace:*
-        version: link:../plugin-barrel
+        specifier: 'catalog:'
+        version: 5.0.0-beta.53(@kubb/core@packages+core)
       unplugin:
         specifier: ^3.0.0
         version: 3.0.0
@@ -786,6 +776,16 @@ packages:
   '@koa/cors@5.0.0':
     resolution: {integrity: sha512-x/iUDjcS90W69PryLDIMgFyV21YLTnG9zOpPXS7Bkt2b8AsY3zZsIpOLBkYr9fBcF3HbkKaER5hOBZLfpLgYNw==}
     engines: {node: '>= 14.0.0'}
+
+  '@kubb/ast@5.0.0-beta.53':
+    resolution: {integrity: sha512-+MxhcTN+7eYOVJ31b0YMLT+N5O5PW3sCqaN03Cyu+stNcnqMYi94lQWjqETYNVjne4SPbSVbA1doj0VmjjKTxA==}
+    engines: {node: '>=22'}
+
+  '@kubb/plugin-barrel@5.0.0-beta.53':
+    resolution: {integrity: sha512-21M2hcU3gNm1mIIGD+CT0Sy6FXOlVvtH7okZ/D2vTcTjCrLXG03g8qmoZCax3pzqwqcUUq8wrpkAwjz+ETMCQg==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      '@kubb/core': 5.0.0-beta.53
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -4243,6 +4243,13 @@ snapshots:
   '@koa/cors@5.0.0':
     dependencies:
       vary: 1.1.2
+
+  '@kubb/ast@5.0.0-beta.53': {}
+
+  '@kubb/plugin-barrel@5.0.0-beta.53(@kubb/core@packages+core)':
+    dependencies:
+      '@kubb/ast': 5.0.0-beta.53
+      '@kubb/core': link:packages/core
 
   '@manypkg/find-root@1.1.0':
     dependencies:
