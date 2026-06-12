@@ -178,6 +178,7 @@ describe('createInputStream', () => {
       refAliasMap: new Map(),
       discriminatorChildMap: null,
       dedupePlan: null,
+      collapsedNames: new Map(),
       meta: { circularNames: [], enumNames: [] },
     })
 
@@ -202,6 +203,7 @@ describe('createInputStream', () => {
       refAliasMap: new Map(),
       discriminatorChildMap: null,
       dedupePlan: null,
+      collapsedNames: new Map(),
       meta: { circularNames: [], enumNames: [] },
     })
 
@@ -241,6 +243,7 @@ describe('createInputStream', () => {
       refAliasMap,
       discriminatorChildMap: null,
       dedupePlan: null,
+      collapsedNames: new Map(),
       meta: { circularNames: [], enumNames: [] },
     })
 
@@ -264,6 +267,7 @@ describe('createInputStream', () => {
       refAliasMap: new Map(),
       discriminatorChildMap: null,
       dedupePlan: null,
+      collapsedNames: new Map(),
       meta: { circularNames: [], enumNames: [] },
     })
 
@@ -288,6 +292,7 @@ describe('createInputStream', () => {
       refAliasMap: new Map(),
       discriminatorChildMap: null,
       dedupePlan: null,
+      collapsedNames: new Map(),
       meta,
     })
 

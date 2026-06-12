@@ -334,3 +334,109 @@ describe('adapterOas dedupe', () => {
     `)
   })
 })
+
+describe('adapterOas collapsed bundling artifacts', () => {
+  // Mirrors a bundled document where the ref bundler hoisted an external copy of `Category`
+  // next to the local one as `Category1` and rewrote the ref sites to it.
+  const bundledSpec = {
+    openapi: '3.0.0',
+    info: { title: 'Bundled API', version: '1.0.0' },
+    paths: {
+      '/pets': {
+        get: {
+          operationId: 'listPets',
+          responses: {
+            '200': {
+              description: 'ok',
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/Category1' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    components: {
+      schemas: {
+        Category: {
+          type: 'object',
+          properties: { id: { type: 'integer' }, name: { type: 'string' } },
+        },
+        Category1: {
+          type: 'object',
+          properties: { id: { type: 'integer' }, name: { type: 'string' } },
+        },
+        Category2: {
+          type: 'object',
+          properties: { label: { type: 'string' } },
+        },
+        Pet: {
+          type: 'object',
+          properties: { category: { $ref: '#/components/schemas/Category1' } },
+        },
+      },
+    },
+  } as const
+
+  async function collectSchemas(node: ast.InputStreamNode): Promise<Array<ast.SchemaNode>> {
+    const schemas: Array<ast.SchemaNode> = []
+    for await (const schema of node.schemas) schemas.push(schema)
+    return schemas
+  }
+
+  it('drops a suffixed schema that is identical to the schema it collided with', async () => {
+    const adapter = adapterOas({ validate: false, dedupe: true })
+    const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: bundledSpec }))
+
+    expect(schemas.map((schema) => schema.name)).toStrictEqual(['Category', 'Category2', 'Pet'])
+    expect(schemas.find((schema) => schema.name === 'Category')?.type).toBe('object')
+  })
+
+  it('repoints schema refs from the collapsed name to the canonical one', async () => {
+    const adapter = adapterOas({ validate: false, dedupe: true })
+    const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: bundledSpec }))
+
+    const pet = ast.narrowSchema(
+      schemas.find((schema) => schema.name === 'Pet'),
+      'object',
+    )
+    const category = ast.narrowSchema(pet?.properties.find((prop) => prop.name === 'category')?.schema, 'ref')
+
+    expect({ name: category?.name, ref: category?.ref }).toStrictEqual({
+      name: 'Category',
+      ref: '#/components/schemas/Category',
+    })
+  })
+
+  it('repoints operation refs from the collapsed name to the canonical one', async () => {
+    const adapter = adapterOas({ validate: false, dedupe: true })
+    const node = await adapter.stream!({ type: 'data', data: bundledSpec })
+
+    const operations: Array<ast.OperationNode> = []
+    for await (const operation of node.operations) operations.push(operation)
+
+    const refNames = ast.collect<string>(operations[0]!, {
+      schema(schema) {
+        return ast.narrowSchema(schema, 'ref')?.name ?? null
+      },
+    })
+
+    expect(refNames).toStrictEqual(['Category'])
+  })
+
+  it('keeps a suffixed schema whose shape differs from the base name', async () => {
+    const adapter = adapterOas({ validate: false, dedupe: true })
+    const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: bundledSpec }))
+
+    expect(schemas.find((schema) => schema.name === 'Category2')?.type).toBe('object')
+  })
+
+  it('keeps the suffixed schema when dedupe is disabled', async () => {
+    const adapter = adapterOas({ validate: false, dedupe: false })
+    const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: bundledSpec }))
+
+    expect(schemas.map((schema) => schema.name)).toStrictEqual(['Category', 'Category1', 'Category2', 'Pet'])
+  })
+})

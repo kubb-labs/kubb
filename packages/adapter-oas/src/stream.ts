@@ -1,3 +1,4 @@
+import { extractRefName } from '@kubb/ast/utils'
 import { ast } from '@kubb/core'
 import type BaseOas from 'oas'
 import { SCHEMA_REF_PREFIX } from './constants.ts'
@@ -14,6 +15,46 @@ export type PreScanResult = {
   circularNames: Array<string>
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
   dedupePlan: ast.DedupePlan | null
+  collapsedNames: Map<string, ast.DedupeCanonical>
+}
+
+/**
+ * Detects the name pattern the ref bundler uses for collisions: the colliding schema plus a
+ * numeric suffix (`Category` hoisted next to an existing `Category` becomes `Category1`).
+ */
+function isCollisionSuffix({ name, base }: { name: string; base: string }): boolean {
+  return name.length > base.length && name.startsWith(base) && /^\d+$/.test(name.slice(base.length))
+}
+
+/**
+ * Finds top-level schemas that are bundling artifacts: structurally identical to their dedupe
+ * canonical and named like a bundler collision (`Category1` next to `Category`). These entries
+ * exist only because bundling hoisted an external copy of a schema the document already has, so
+ * they are dropped from the stream and every ref to them is pointed back at the canonical name.
+ *
+ * Identical schemas with unrelated names (`Dog` next to `Cat`) are not collapsed. They stay
+ * named alias types, since both names are part of the document's intended surface.
+ */
+function findCollapsedNames({
+  namedNodes,
+  dedupePlan,
+}: {
+  namedNodes: Array<{ name: string; node: ast.SchemaNode }>
+  dedupePlan: ast.DedupePlan | null
+}): Map<string, ast.DedupeCanonical> {
+  const collapsedNames = new Map<string, ast.DedupeCanonical>()
+  if (!dedupePlan) {
+    return collapsedNames
+  }
+
+  for (const { name, node } of namedNodes) {
+    const canonical = dedupePlan.canonicalBySignature.get(ast.schemaSignature(node))
+    if (canonical && canonical.name !== name && isCollisionSuffix({ name, base: canonical.name })) {
+      collapsedNames.set(name, canonical)
+    }
+  }
+
+  return collapsedNames
 }
 
 /**
@@ -130,6 +171,7 @@ export function preScan({
   dedupe: boolean
 }): PreScanResult {
   const allNodes: Array<ast.SchemaNode> = []
+  const namedNodes: Array<{ name: string; node: ast.SchemaNode }> = []
   const refAliasMap = new Map<string, ast.SchemaNode>()
   const enumNames: Array<string> = []
   const discriminatorParentNodes: Array<ast.SchemaNode> = []
@@ -137,6 +179,7 @@ export function preScan({
   for (const [name, schema] of Object.entries(schemas)) {
     const node = parseSchema({ schema, name }, parserOptions)
     allNodes.push(node)
+    namedNodes.push({ name, node })
     reportSchemaDiagnostics({ node, name })
     if (node.type === 'ref' && node.name && node.name !== name) {
       refAliasMap.set(name, node)
@@ -172,7 +215,16 @@ export function preScan({
     }
   }
 
-  return { refAliasMap, enumNames, circularNames, discriminatorChildMap, dedupePlan }
+  const collapsedNames = findCollapsedNames({ namedNodes, dedupePlan })
+
+  return {
+    refAliasMap,
+    enumNames: collapsedNames.size > 0 ? enumNames.filter((name) => !collapsedNames.has(name)) : enumNames,
+    circularNames,
+    discriminatorChildMap,
+    dedupePlan,
+    collapsedNames,
+  }
 }
 
 /**
@@ -202,6 +254,7 @@ export function createInputStream({
   refAliasMap,
   discriminatorChildMap,
   dedupePlan,
+  collapsedNames,
   meta,
 }: {
   schemas: Record<string, SchemaObject>
@@ -212,8 +265,27 @@ export function createInputStream({
   refAliasMap: Map<string, ast.SchemaNode>
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
   dedupePlan: ast.DedupePlan | null
+  collapsedNames: Map<string, ast.DedupeCanonical>
   meta: ast.InputMeta
 }): ast.InputStreamNode {
+  // Repoints refs at collapsed bundling artifacts (`Category1`) to the canonical schema, since
+  // the collapsed entries are never emitted.
+  const rewriteCollapsedRefs = <TNode extends ast.SchemaNode | ast.OperationNode>(node: TNode): TNode => {
+    if (collapsedNames.size === 0) return node
+
+    return ast.transform(node, {
+      schema(schemaNode) {
+        const refNode = ast.narrowSchema(schemaNode, 'ref')
+        if (!refNode?.ref) return undefined
+
+        const canonical = collapsedNames.get(extractRefName(refNode.ref))
+        if (!canonical) return undefined
+
+        return { ...refNode, name: canonical.name, ref: canonical.ref }
+      },
+    }) as TNode
+  }
+
   // Rewrites a top-level schema against the dedupe plan: a structurally identical sibling
   // becomes a `ref` alias to the canonical one (keeping its own name); otherwise nested
   // duplicates are collapsed while the schema's own root is preserved.
@@ -231,7 +303,7 @@ export function createInputStream({
       })
     }
 
-    return ast.applyDedupe(node, dedupePlan.canonicalBySignature, true)
+    return rewriteCollapsedRefs(ast.applyDedupe(node, dedupePlan.canonicalBySignature, true))
   }
 
   const schemasIterable: AsyncIterable<ast.SchemaNode> = {
@@ -243,6 +315,10 @@ export function createInputStream({
         }
 
         for (const [name, schema] of Object.entries(schemas)) {
+          // Collapsed bundling artifacts are dropped: refs to them are rewritten to the
+          // canonical schema, so emitting them would only produce duplicate models.
+          if (collapsedNames.has(name)) continue
+
           // Inline ref aliases: replace the alias entry with its target's parsed node
           // (keeping the alias name). Skip the first parse entirely for alias entries
           // since that result is never used.
@@ -267,7 +343,7 @@ export function createInputStream({
           for (const operation of Object.values(methods)) {
             if (!operation) continue
             const node = parseOperation(parserOptions, operation)
-            if (node) yield dedupePlan ? ast.applyDedupe(node, dedupePlan.canonicalBySignature) : node
+            if (node) yield rewriteCollapsedRefs(dedupePlan ? ast.applyDedupe(node, dedupePlan.canonicalBySignature) : node)
           }
         }
       })()
