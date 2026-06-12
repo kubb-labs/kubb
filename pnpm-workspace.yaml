@@ -8,6 +8,7 @@ allowBuilds:
   esbuild: true
   msw: true
 catalog:
+  '@kubb/plugin-barrel': 5.0.0-beta.54
   '@types/node': ^22.19.21
   '@types/react': ^19.2.17
   '@types/react-reconciler': 0.33.0

@@ -115,7 +115,7 @@
     "@kubb/adapter-oas": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
-    "@kubb/plugin-barrel": "workspace:*",
+    "@kubb/plugin-barrel": "catalog:",
     "unplugin": "^3.0.0"
   },
   "devDependencies": {

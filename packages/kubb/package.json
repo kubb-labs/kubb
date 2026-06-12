@@ -72,7 +72,7 @@
     "@kubb/mcp": "workspace:*",
     "@kubb/parser-md": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
-    "@kubb/plugin-barrel": "workspace:*",
+    "@kubb/plugin-barrel": "catalog:",
     "@kubb/renderer-jsx": "workspace:*"
   },
   "devDependencies": {
