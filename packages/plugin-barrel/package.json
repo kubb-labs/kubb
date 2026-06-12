@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-barrel",
-  "version": "5.0.0-beta.53",
+  "version": "5.0.0-beta.54",
   "description": "Barrel-file plugin for Kubb. Automatically generates index.ts re-export files per plugin output directory and an optional root barrel after all plugins complete.",
   "keywords": [
     "barrel",
