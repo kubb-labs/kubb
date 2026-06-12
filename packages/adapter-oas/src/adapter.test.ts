@@ -335,7 +335,7 @@ describe('adapterOas dedupe', () => {
   })
 })
 
-describe('adapterOas collapsed bundling artifacts', () => {
+describe('adapterOas duplicate top-level schemas', () => {
   // Mirrors a bundled document where the ref bundler hoisted an external copy of `Category`
   // next to the local one as `Category1` and rewrote the ref sites to it.
   const bundledSpec = {
@@ -386,15 +386,21 @@ describe('adapterOas collapsed bundling artifacts', () => {
     return schemas
   }
 
-  it('drops a suffixed schema that is identical to the schema it collided with', async () => {
+  it('aliases a duplicate schema to the first one with the same content', async () => {
     const adapter = adapterOas({ validate: false, dedupe: true })
     const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: bundledSpec }))
 
-    expect(schemas.map((schema) => schema.name)).toStrictEqual(['Category', 'Category2', 'Pet'])
+    expect(schemas.map((schema) => schema.name)).toStrictEqual(['Category', 'Category1', 'Category2', 'Pet'])
     expect(schemas.find((schema) => schema.name === 'Category')?.type).toBe('object')
+
+    const duplicate = ast.narrowSchema(
+      schemas.find((schema) => schema.name === 'Category1'),
+      'ref',
+    )
+    expect(duplicate?.ref).toBe('#/components/schemas/Category')
   })
 
-  it('repoints schema refs from the collapsed name to the canonical one', async () => {
+  it('repoints schema refs from the duplicate name to the canonical one', async () => {
     const adapter = adapterOas({ validate: false, dedupe: true })
     const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: bundledSpec }))
 
@@ -410,7 +416,7 @@ describe('adapterOas collapsed bundling artifacts', () => {
     })
   })
 
-  it('repoints operation refs from the collapsed name to the canonical one', async () => {
+  it('repoints operation refs from the duplicate name to the canonical one', async () => {
     const adapter = adapterOas({ validate: false, dedupe: true })
     const node = await adapter.stream!({ type: 'data', data: bundledSpec })
 

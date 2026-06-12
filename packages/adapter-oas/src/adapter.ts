@@ -143,13 +143,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     const schemas = await ensureSchemas(document)
     const { parseSchema, parseOperation } = ensureSchemaParser(document)
     const baseOas = ensureBaseOas(document)
-    const { refAliasMap, enumNames, circularNames, discriminatorChildMap, dedupePlan, collapsedNames } = ensurePreScan(
-      document,
-      schemas,
-      parseSchema,
-      parseOperation,
-      baseOas,
-    )
+    const { refAliasMap, enumNames, circularNames, discriminatorChildMap, dedupePlan } = ensurePreScan(document, schemas, parseSchema, parseOperation, baseOas)
 
     return createInputStream({
       schemas,
@@ -160,7 +154,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       refAliasMap,
       discriminatorChildMap,
       dedupePlan,
-      collapsedNames,
       meta: {
         title: document.info?.title,
         description: document.info?.description,

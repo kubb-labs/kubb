@@ -1,6 +1,7 @@
 import { createSchema } from './factory.ts'
 import type { Node, OperationNode, SchemaNode } from './nodes/index.ts'
 import { signatureOf } from './signature.ts'
+import { extractRefName } from './utils/index.ts'
 import { collectLazy, transform } from './visitor.ts'
 
 /**
@@ -29,11 +30,21 @@ export type DedupePlan = {
    */
   canonicalBySignature: Map<string, DedupeCanonical>
   /**
+   * Maps the name of a top-level schema that duplicates a canonical one to that canonical, so
+   * references to the duplicate can be repointed at the first schema with the same content.
+   */
+  aliasNames: Map<string, DedupeCanonical>
+  /**
    * New top-level schema definitions created for inline shapes that had no existing
    * named component. Nested duplicates inside each definition are already collapsed.
    */
   hoisted: Array<SchemaNode>
 }
+
+/**
+ * The lookups {@link applyDedupe} needs from a {@link DedupePlan}.
+ */
+export type DedupeLookups = Pick<DedupePlan, 'canonicalBySignature' | 'aliasNames'>
 
 /**
  * Options that inject the naming and candidate policy into {@link buildDedupePlan}.
@@ -86,25 +97,35 @@ function createRefNode(node: SchemaNode, canonical: DedupeCanonical): SchemaNode
 /**
  * Rewrites a node, replacing every candidate sub-schema whose signature has a canonical
  * target with a `ref` to that target. Replacing a node with a `ref` prunes its subtree,
- * so nested duplicates inside a replaced shape are not visited again.
+ * so nested duplicates inside a replaced shape are not visited again. A `ref` that points
+ * at a duplicate top-level schema (see `aliasNames`) is repointed at the first schema with
+ * the same content.
  *
  * Pass `skipRootMatch` when rewriting a canonical definition so its own root is not
  * turned into a reference to itself. Nested duplicates are still collapsed.
  *
  * @example
  * ```ts
- * const next = applyDedupe(operationNode, plan.canonicalBySignature)
+ * const next = applyDedupe(operationNode, plan)
  * ```
  */
-export function applyDedupe(node: SchemaNode, canonicalBySignature: ReadonlyMap<string, DedupeCanonical>, skipRootMatch?: boolean): SchemaNode
-export function applyDedupe(node: OperationNode, canonicalBySignature: ReadonlyMap<string, DedupeCanonical>, skipRootMatch?: boolean): OperationNode
-export function applyDedupe(node: Node, canonicalBySignature: ReadonlyMap<string, DedupeCanonical>, skipRootMatch = false): Node {
-  if (canonicalBySignature.size === 0) return node
+export function applyDedupe(node: SchemaNode, plan: DedupeLookups, skipRootMatch?: boolean): SchemaNode
+export function applyDedupe(node: OperationNode, plan: DedupeLookups, skipRootMatch?: boolean): OperationNode
+export function applyDedupe(node: Node, plan: DedupeLookups, skipRootMatch = false): Node {
+  const { canonicalBySignature, aliasNames } = plan
+  if (canonicalBySignature.size === 0 && aliasNames.size === 0) return node
 
   const root = node
 
   return transform(node, {
     schema(schemaNode) {
+      if (schemaNode.type === 'ref') {
+        const target = schemaNode.ref ? extractRefName(schemaNode.ref) : schemaNode.name
+        const canonical = target ? aliasNames.get(target) : undefined
+
+        return canonical ? { ...schemaNode, name: canonical.name, ref: canonical.ref } : undefined
+      }
+
       const signature = signatureOf(schemaNode)
       if (skipRootMatch && schemaNode === root) return undefined
 
@@ -128,9 +149,11 @@ function cleanDefinition(node: SchemaNode, name: string): SchemaNode {
  * Scans a forest of schema and operation nodes and produces a {@link DedupePlan}.
  *
  * A shape that occurs at least `minOccurrences` times is deduplicated: if any occurrence
- * is a named top-level schema, that name becomes the canonical (so other top-level duplicates
- * and inline copies turn into references to it). Otherwise a new definition is hoisted using
- * `nameFor`. The plan is then applied per node with {@link applyDedupe}.
+ * is a named top-level schema, the first one becomes the canonical (so other top-level
+ * duplicates and inline copies turn into references to it). Every other top-level name with
+ * the same content is recorded in `aliasNames`, so refs to it can be repointed at the
+ * canonical. Otherwise a new definition is hoisted using `nameFor`. The plan is then applied
+ * per node with {@link applyDedupe}.
  *
  * @example
  * ```ts
@@ -149,7 +172,7 @@ export function buildDedupePlan(roots: ReadonlyArray<Node>, options: BuildDedupe
   type Group = {
     count: number
     representative: SchemaNode
-    topLevelName?: string
+    topLevelNames: Array<string>
   }
   const groups = new Map<string, Group>()
 
@@ -161,9 +184,9 @@ export function buildDedupePlan(roots: ReadonlyArray<Node>, options: BuildDedupe
     const group = groups.get(signature)
     if (group) {
       group.count++
-      if (isTopLevel && !group.topLevelName) group.topLevelName = schemaNode.name!
+      if (isTopLevel) group.topLevelNames.push(schemaNode.name!)
     } else {
-      groups.set(signature, { count: 1, representative: schemaNode, topLevelName: isTopLevel ? schemaNode.name! : undefined })
+      groups.set(signature, { count: 1, representative: schemaNode, topLevelNames: isTopLevel ? [schemaNode.name!] : [] })
     }
   }
 
@@ -175,13 +198,19 @@ export function buildDedupePlan(roots: ReadonlyArray<Node>, options: BuildDedupe
   }
 
   const canonicalBySignature = new Map<string, DedupeCanonical>()
+  const aliasNames = new Map<string, DedupeCanonical>()
   const pendingHoists: Array<{ name: string; representative: SchemaNode }> = []
 
   for (const [signature, group] of groups) {
     if (group.count < minOccurrences) continue
 
-    if (group.topLevelName) {
-      canonicalBySignature.set(signature, { name: group.topLevelName, ref: refFor(group.topLevelName) })
+    const [firstName, ...duplicateNames] = group.topLevelNames
+    if (firstName) {
+      const canonical: DedupeCanonical = { name: firstName, ref: refFor(firstName) }
+      canonicalBySignature.set(signature, canonical)
+      for (const duplicate of duplicateNames) {
+        aliasNames.set(duplicate, canonical)
+      }
       continue
     }
 
@@ -194,7 +223,9 @@ export function buildDedupePlan(roots: ReadonlyArray<Node>, options: BuildDedupe
 
   // Build hoisted definitions only after every canonical name is known, so nested
   // duplicates inside a definition also resolve to refs.
-  const hoisted = pendingHoists.map(({ name, representative }) => cleanDefinition(applyDedupe(representative, canonicalBySignature, true), name))
+  const hoisted = pendingHoists.map(({ name, representative }) =>
+    cleanDefinition(applyDedupe(representative, { canonicalBySignature, aliasNames }, true), name),
+  )
 
-  return { canonicalBySignature, hoisted }
+  return { canonicalBySignature, aliasNames, hoisted }
 }

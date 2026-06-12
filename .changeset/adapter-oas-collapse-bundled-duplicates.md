@@ -3,8 +3,8 @@
 '@kubb/ast': patch
 ---
 
-Drop bundling artifacts like `Category1` from the schema stream instead of emitting alias models.
+Repoint refs at duplicate top-level schemas to the first schema with the same content.
 
-When a spec defines a schema and also references an external copy of it with the same name (for example `$ref: 'https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/Category'` next to a local `Category`), the ref bundler hoists the copy under a numeric suffix (`Category1`). The dedupe pass used to keep that entry as a named alias, so generators produced a junk `export type Category1 = Category` model and properties typed against `Category1`.
+When a spec defines a schema and also references an external copy of it (for example `$ref: 'https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/Category'` next to a local `Category`), the ref bundler hoists the copy under a numeric suffix (`Category1`) and rewrites the ref sites to it, so generators typed properties against `Category1` instead of `Category`.
 
-The dedupe pass now recognizes a suffixed top-level schema that is structurally identical to the schema it collided with, drops it from the stream, and points every ref back at the original name, so generated code uses `Category` directly again. Hand-named identical schemas (`Dog` next to `Cat`) still become named alias types, and a suffixed schema with a different shape is kept as its own type. `@kubb/ast` now exports the `DedupeCanonical` type alongside `DedupePlan`.
+`buildDedupePlan` now records every later top-level schema whose content matches an earlier one in a new `aliasNames` map, and `applyDedupe` repoints any ref targeting such a duplicate at the first schema with that content. The decision is purely content-based (structural signature), not name-based: `Pet.category` is typed `Category` again, the duplicate itself stays available as a named alias type (`export type Category1 = Category`), and a suffixed schema with a different shape keeps its own type. `applyDedupe` now takes the plan lookups (`{ canonicalBySignature, aliasNames }`) instead of the bare signature map, and `@kubb/ast` exports the `DedupeCanonical` and `DedupeLookups` types.
