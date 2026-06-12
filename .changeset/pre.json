@@ -17,6 +17,7 @@
     "@kubb/plugin-barrel": "5.0.0-beta.50"
   },
   "changesets": [
+    "adapter-oas-bundle-named-components",
     "adapter-oas-drf-null-enum",
     "adapter-oas-integer-type-bigint-default",
     "adapter-oas-lazy-load-heavy-deps",
@@ -163,6 +164,7 @@
     "remove-agent-package",
     "remove-config-lifecycle-events",
     "remove-deprecated-plugin-checks",
+    "remove-extension-yaml-manifests",
     "remove-github-actions-logger",
     "remove-group-output-mode",
     "remove-is-input-path",
