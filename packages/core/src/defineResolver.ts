@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { camelCase, pascalCase } from '@internals/utils'
+import { camelCase, pascalCase, toFilePath } from '@internals/utils'
 import type { FileNode, InputMeta, Node, OperationNode, SchemaNode } from '@kubb/ast'
 import { createFile, isOperationNode, isSchemaNode } from '@kubb/ast'
 import { Diagnostics } from './diagnostics.ts'
@@ -294,16 +294,7 @@ function matchesSchemaPattern(node: SchemaNode, type: string, pattern: string | 
  * - `camelCase` for `function` and everything else.
  */
 function defaultResolver(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
-  if (type === 'file') {
-    // Dotted names map to nested files: split on dots before a letter (so version numbers like
-    // `v2025.0` stay intact), camelCase each segment, and join with `/`. Empty segments are dropped
-    // so a leading dot can't yield an absolute `/path`; `resolvePath` enforces the output boundary.
-    return name
-      .split(/\.(?=[a-zA-Z])/)
-      .map((part) => camelCase(part))
-      .filter(Boolean)
-      .join('/')
-  }
+  if (type === 'file') return toFilePath(name)
   if (type === 'type') return pascalCase(name)
   return camelCase(name)
 }

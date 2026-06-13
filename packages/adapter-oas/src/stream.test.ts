@@ -49,19 +49,19 @@ describe('resolveBaseUrl', () => {
   it('returns the server URL at the given index', async () => {
     const document = await parseFromConfig({ type: 'data', data: minimalSpec })
     const url = resolveBaseUrl({ document, serverIndex: 0 })
-    expect(url).toMatchInlineSnapshot(`"https://api.example.com/v1"`)
+    expect(url).toBe('https://api.example.com/v1')
   })
 
   it('returns null when no serverIndex is provided', async () => {
     const document = await parseFromConfig({ type: 'data', data: minimalSpec })
     const url = resolveBaseUrl({ document })
-    expect(url).toMatchInlineSnapshot(`null`)
+    expect(url).toBeNull()
   })
 
   it('returns null when serverIndex is out of range', async () => {
     const document = await parseFromConfig({ type: 'data', data: minimalSpec })
     const url = resolveBaseUrl({ document, serverIndex: 99 })
-    expect(url).toMatchInlineSnapshot(`null`)
+    expect(url).toBeNull()
   })
 })
 
@@ -99,11 +99,7 @@ describe('preScan', () => {
       discriminator: 'strict',
       dedupe: false,
     })
-    expect(enumNames).toMatchInlineSnapshot(`
-      [
-        "Status",
-      ]
-    `)
+    expect(enumNames).toStrictEqual(['Status'])
   })
 
   it('builds refAliasMap for pure $ref alias schemas only', () => {
@@ -116,11 +112,7 @@ describe('preScan', () => {
       discriminator: 'strict',
       dedupe: false,
     })
-    expect([...refAliasMap.keys()]).toMatchInlineSnapshot(`
-      [
-        "PetAlias",
-      ]
-    `)
+    expect([...refAliasMap.keys()]).toStrictEqual(['PetAlias'])
   })
 
   it('detects circular schema names', async () => {
@@ -141,12 +133,7 @@ describe('preScan', () => {
       discriminator: 'strict',
       dedupe: false,
     })
-    expect(circularNames).toMatchInlineSnapshot(`
-      [
-        "Cat",
-        "Dog",
-      ]
-    `)
+    expect(circularNames).toStrictEqual(['Cat', 'Dog'])
   })
 
   it('returns null discriminatorChildMap when discriminator is strict', () => {
@@ -159,7 +146,7 @@ describe('preScan', () => {
       discriminator: 'strict',
       dedupe: false,
     })
-    expect(discriminatorChildMap).toMatchInlineSnapshot(`null`)
+    expect(discriminatorChildMap).toBeNull()
   })
 })
 
@@ -185,7 +172,7 @@ describe('createInputStream', () => {
     for await (const schema of node.schemas) collected.push(schema)
 
     expect(collected).toHaveLength(1)
-    expect(collected[0]?.name).toMatchInlineSnapshot(`"Pet"`)
+    expect(collected[0]?.name).toBe('Pet')
   })
 
   it('each for await creates an independent pass', async () => {
@@ -212,12 +199,7 @@ describe('createInputStream', () => {
     for await (const s of node.schemas) second.push(s.name ?? '')
 
     expect(second).toStrictEqual(first)
-    expect(first).toMatchInlineSnapshot(`
-      [
-        "Pet",
-        "Category",
-      ]
-    `)
+    expect(first).toStrictEqual(['Pet', 'Category'])
   })
 
   it('resolves $ref alias schemas using refAliasMap', async () => {
@@ -248,7 +230,7 @@ describe('createInputStream', () => {
     for await (const s of node.schemas) collected.push(s)
 
     const alias = collected.find((s) => s.name === 'PetAlias')
-    expect(alias?.type).toMatchInlineSnapshot(`"object"`)
+    expect(alias?.type).toBe('object')
   })
 
   it('yields operations', async () => {
@@ -271,7 +253,7 @@ describe('createInputStream', () => {
     for await (const op of node.operations) operations.push(op)
 
     expect(operations).toHaveLength(1)
-    expect(operations[0]?.operationId).toMatchInlineSnapshot(`"listPets"`)
+    expect(operations[0]?.operationId).toBe('listPets')
   })
 
   it('carries meta through to the returned node', async () => {
@@ -291,17 +273,11 @@ describe('createInputStream', () => {
       meta,
     })
 
-    expect(node.meta).toMatchInlineSnapshot(`
-      {
-        "circularNames": [
-          "Cat",
-        ],
-        "enumNames": [
-          "Status",
-        ],
-        "title": "My API",
-        "version": "2.0.0",
-      }
-    `)
+    expect(node.meta).toMatchObject({
+      circularNames: ['Cat'],
+      enumNames: ['Status'],
+      title: 'My API',
+      version: '2.0.0',
+    })
   })
 })

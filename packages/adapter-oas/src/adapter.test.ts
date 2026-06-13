@@ -38,12 +38,7 @@ describe('adapterOas.stream', () => {
       schemas.push(schema)
     }
 
-    expect(schemas.map((s) => s.name)).toMatchInlineSnapshot(`
-      [
-        "Pet",
-        "Category",
-      ]
-    `)
+    expect(schemas.map((s) => s.name)).toStrictEqual(['Pet', 'Category'])
   })
 
   it('each for await on schemas creates a fresh independent pass', async () => {
@@ -56,12 +51,7 @@ describe('adapterOas.stream', () => {
     const second: Array<ast.SchemaNode> = []
     for await (const schema of node.schemas) second.push(schema)
 
-    expect(first.map((s) => s.name)).toMatchInlineSnapshot(`
-      [
-        "Pet",
-        "Category",
-      ]
-    `)
+    expect(first.map((s) => s.name)).toStrictEqual(['Pet', 'Category'])
     expect(second.map((s) => s.name)).toStrictEqual(first.map((s) => s.name))
   })
 
@@ -74,11 +64,7 @@ describe('adapterOas.stream', () => {
       operations.push(op)
     }
 
-    expect(operations.map((operation) => operation.operationId)).toMatchInlineSnapshot(`
-      [
-        "listPets",
-      ]
-    `)
+    expect(operations.map((operation) => operation.operationId)).toStrictEqual(['listPets'])
   })
 
   it('parses each source when one adapter instance is reused across configs', async () => {
@@ -110,16 +96,13 @@ describe('adapterOas.stream', () => {
     const adapter = adapterOas({ validate: false })
     const node = await adapter.stream!({ type: 'data', data: minimalSpec })
 
-    expect(node.meta).toMatchInlineSnapshot(`
-      {
-        "baseURL": null,
-        "circularNames": [],
-        "description": undefined,
-        "enumNames": [],
-        "title": "Test API",
-        "version": "1.0.0",
-      }
-    `)
+    expect(node.meta).toMatchObject({
+      baseURL: null,
+      circularNames: [],
+      enumNames: [],
+      title: 'Test API',
+      version: '1.0.0',
+    })
   })
 })
 
@@ -158,17 +141,7 @@ describe('adapterOas.getImports', () => {
       }),
     )
 
-    expect(imports).toMatchInlineSnapshot(`
-      [
-        {
-          "kind": "Import",
-          "name": [
-            "PetType",
-          ],
-          "path": "./pet.ts",
-        },
-      ]
-    `)
+    expect(imports).toMatchObject([{ kind: 'Import', name: ['PetType'], path: './pet.ts' }])
   })
 })
 
@@ -223,14 +196,7 @@ describe('adapterOas dedupe', () => {
     const adapter = adapterOas({ validate: false, dedupe: false })
     const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: dedupeSpec }))
 
-    expect(schemas.map((schema) => schema.name)).toMatchInlineSnapshot(`
-      [
-        "Pet",
-        "Order",
-        "Cat",
-        "Dog",
-      ]
-    `)
+    expect(schemas.map((schema) => schema.name)).toStrictEqual(['Pet', 'Order', 'Cat', 'Dog'])
     expect(
       propertySchema(
         schemas.find((schema) => schema.name === 'Pet'),
@@ -244,14 +210,7 @@ describe('adapterOas dedupe', () => {
     const adapter = adapterOas({ validate: false })
     const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: dedupeSpec }))
 
-    expect(schemas.map((schema) => schema.name)).toMatchInlineSnapshot(`
-      [
-        "PetStatusEnum",
-        "Pet",
-        "Order",
-        "Cat",
-      ]
-    `)
+    expect(schemas.map((schema) => schema.name)).toStrictEqual(['PetStatusEnum', 'Pet', 'Order', 'Cat'])
     expect(schemas.find((schema) => schema.name === 'Dog')).toBeUndefined()
   })
 
@@ -263,16 +222,11 @@ describe('adapterOas dedupe', () => {
     const enums = schemas.filter((schema) => schema.type === 'enum')
     expect(enums).toHaveLength(1)
     const sharedEnum = ast.narrowSchema(enums[0], 'enum')!
-    expect({ name: sharedEnum.name, primitive: sharedEnum.primitive, enumValues: sharedEnum.enumValues }).toMatchInlineSnapshot(`
-      {
-        "enumValues": [
-          "active",
-          "inactive",
-        ],
-        "name": "PetStatusEnum",
-        "primitive": "string",
-      }
-    `)
+    expect({ name: sharedEnum.name, primitive: sharedEnum.primitive, enumValues: sharedEnum.enumValues }).toMatchObject({
+      enumValues: ['active', 'inactive'],
+      name: 'PetStatusEnum',
+      primitive: 'string',
+    })
     expect(node.meta?.enumNames).toContain(sharedEnum.name)
 
     const petStatus = ast.narrowSchema(
@@ -314,11 +268,7 @@ describe('adapterOas dedupe', () => {
       },
     })
 
-    expect(refNames).toMatchInlineSnapshot(`
-      [
-        "PetStatusEnum",
-      ]
-    `)
+    expect(refNames).toStrictEqual(['PetStatusEnum'])
   })
 })
 

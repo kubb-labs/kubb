@@ -36,9 +36,11 @@ function toCamelOrPascal(text: string, pascal: boolean): string {
 /**
  * Converts `text` to camelCase.
  *
- * @example
- * camelCase('hello-world')                // 'helloWorld'
- * camelCase('tag', { prefix: 'create' })  // 'createTag'
+ * @example Word boundaries
+ * `camelCase('hello-world') // 'helloWorld'`
+ *
+ * @example With a prefix
+ * `camelCase('tag', { prefix: 'create' }) // 'createTag'`
  */
 export function camelCase(text: string, { prefix = '', suffix = '' }: Options = {}): string {
   return toCamelOrPascal(`${prefix} ${text} ${suffix}`, false)
@@ -47,9 +49,11 @@ export function camelCase(text: string, { prefix = '', suffix = '' }: Options = 
 /**
  * Converts `text` to PascalCase.
  *
- * @example
- * pascalCase('hello-world')               // 'HelloWorld'
- * pascalCase('tag', { suffix: 'schema' }) // 'TagSchema'
+ * @example Word boundaries
+ * `pascalCase('hello-world') // 'HelloWorld'`
+ *
+ * @example With a suffix
+ * `pascalCase('tag', { suffix: 'schema' }) // 'TagSchema'`
  */
 export function pascalCase(text: string, { prefix = '', suffix = '' }: Options = {}): string {
   return toCamelOrPascal(`${prefix} ${text} ${suffix}`, true)

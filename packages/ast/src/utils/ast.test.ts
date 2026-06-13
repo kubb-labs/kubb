@@ -213,30 +213,27 @@ describe('createOperationParams', () => {
         }),
       })
 
-      expect(params).toMatchInlineSnapshot(`
-        {
-          "kind": "FunctionParameters",
-          "params": [
-            {
-              "default": undefined,
-              "inline": true,
-              "kind": "ParameterGroup",
-              "properties": [
-                {
-                  "kind": "FunctionParameter",
-                  "name": "petId",
-                  "optional": false,
-                  "type": {
-                    "kind": "ParamsType",
-                    "name": "GetPetById["petId"]",
-                    "variant": "reference",
-                  },
+      expect(params).toMatchObject({
+        kind: 'FunctionParameters',
+        params: [
+          {
+            inline: true,
+            kind: 'ParameterGroup',
+            properties: [
+              {
+                kind: 'FunctionParameter',
+                name: 'petId',
+                optional: false,
+                type: {
+                  kind: 'ParamsType',
+                  name: 'GetPetById["petId"]',
+                  variant: 'reference',
                 },
-              ],
-            },
-          ],
-        }
-      `)
+              },
+            ],
+          },
+        ],
+      })
     })
 
     it('produces inline path params + data + query + headers + extra', () => {
@@ -267,88 +264,85 @@ describe('createOperationParams', () => {
         ],
       })
 
-      expect(params.params).toMatchInlineSnapshot(`
-        [
-          {
-            "default": undefined,
-            "inline": true,
-            "kind": "ParameterGroup",
-            "properties": [
+      expect(params.params).toMatchObject([
+        {
+          inline: true,
+          kind: 'ParameterGroup',
+          properties: [
+            {
+              kind: 'FunctionParameter',
+              name: 'petId',
+              optional: false,
+              type: {
+                kind: 'ParamsType',
+                name: 'Types["petId"]',
+                variant: 'reference',
+              },
+            },
+          ],
+        },
+        {
+          kind: 'FunctionParameter',
+          name: 'data',
+          optional: false,
+          type: {
+            kind: 'ParamsType',
+            name: 'CreatePetRequest',
+            variant: 'reference',
+          },
+        },
+        {
+          kind: 'FunctionParameter',
+          name: 'params',
+          optional: true,
+          type: {
+            kind: 'ParamsType',
+            properties: [
               {
-                "kind": "FunctionParameter",
-                "name": "petId",
-                "optional": false,
-                "type": {
-                  "kind": "ParamsType",
-                  "name": "Types["petId"]",
-                  "variant": "reference",
+                name: 'filter',
+                optional: true,
+                type: {
+                  kind: 'ParamsType',
+                  name: 'Types["filter"]',
+                  variant: 'reference',
                 },
               },
             ],
+            variant: 'struct',
           },
-          {
-            "kind": "FunctionParameter",
-            "name": "data",
-            "optional": false,
-            "type": {
-              "kind": "ParamsType",
-              "name": "CreatePetRequest",
-              "variant": "reference",
-            },
-          },
-          {
-            "kind": "FunctionParameter",
-            "name": "params",
-            "optional": true,
-            "type": {
-              "kind": "ParamsType",
-              "properties": [
-                {
-                  "name": "filter",
-                  "optional": true,
-                  "type": {
-                    "kind": "ParamsType",
-                    "name": "Types["filter"]",
-                    "variant": "reference",
-                  },
+        },
+        {
+          kind: 'FunctionParameter',
+          name: 'headers',
+          optional: true,
+          type: {
+            kind: 'ParamsType',
+            properties: [
+              {
+                name: 'x-api-key',
+                optional: true,
+                type: {
+                  kind: 'ParamsType',
+                  name: 'Types["x-api-key"]',
+                  variant: 'reference',
                 },
-              ],
-              "variant": "struct",
-            },
+              },
+            ],
+            variant: 'struct',
           },
-          {
-            "kind": "FunctionParameter",
-            "name": "headers",
-            "optional": true,
-            "type": {
-              "kind": "ParamsType",
-              "properties": [
-                {
-                  "name": "x-api-key",
-                  "optional": true,
-                  "type": {
-                    "kind": "ParamsType",
-                    "name": "Types["x-api-key"]",
-                    "variant": "reference",
-                  },
-                },
-              ],
-              "variant": "struct",
-            },
+        },
+        {
+          default: '{}',
+          kind: 'FunctionParameter',
+          name: 'options',
+          optional: false,
+          type: {
+            kind: 'ParamsType',
+            name: 'Partial<Cypress.RequestOptions>',
+            variant: 'reference',
           },
-          {
-            "default": "{}",
-            "kind": "FunctionParameter",
-            "name": "options",
-            "optional": false,
-            "type": {
-              "kind": "ParamsType",
-              "name": "Partial<Cypress.RequestOptions>",
-              "variant": "reference",
-            },
-          },
-        ]
-      `)
+        },
+      ])
     })
 
     it('handles optional path params with default', () => {
@@ -362,30 +356,28 @@ describe('createOperationParams', () => {
         resolver: makeResolver({ resolveParamName: () => 'string' }),
       })
 
-      expect(params).toMatchInlineSnapshot(`
-        {
-          "kind": "FunctionParameters",
-          "params": [
-            {
-              "default": "{}",
-              "inline": true,
-              "kind": "ParameterGroup",
-              "properties": [
-                {
-                  "kind": "FunctionParameter",
-                  "name": "petId",
-                  "optional": true,
-                  "type": {
-                    "kind": "ParamsType",
-                    "name": "string",
-                    "variant": "reference",
-                  },
+      expect(params).toMatchObject({
+        kind: 'FunctionParameters',
+        params: [
+          {
+            default: '{}',
+            inline: true,
+            kind: 'ParameterGroup',
+            properties: [
+              {
+                kind: 'FunctionParameter',
+                name: 'petId',
+                optional: true,
+                type: {
+                  kind: 'ParamsType',
+                  name: 'string',
+                  variant: 'reference',
                 },
-              ],
-            },
-          ],
-        }
-      `)
+              },
+            ],
+          },
+        ],
+      })
     })
   })
 
@@ -401,40 +393,37 @@ describe('createOperationParams', () => {
         resolver: makeResolver({ resolveParamName: () => 'string' }),
       })
 
-      expect(params).toMatchInlineSnapshot(`
-        {
-          "kind": "FunctionParameters",
-          "params": [
-            {
-              "default": undefined,
-              "inline": false,
-              "kind": "ParameterGroup",
-              "properties": [
-                {
-                  "kind": "FunctionParameter",
-                  "name": "petId",
-                  "optional": false,
-                  "type": {
-                    "kind": "ParamsType",
-                    "name": "string",
-                    "variant": "reference",
-                  },
+      expect(params).toMatchObject({
+        kind: 'FunctionParameters',
+        params: [
+          {
+            inline: false,
+            kind: 'ParameterGroup',
+            properties: [
+              {
+                kind: 'FunctionParameter',
+                name: 'petId',
+                optional: false,
+                type: {
+                  kind: 'ParamsType',
+                  name: 'string',
+                  variant: 'reference',
                 },
-                {
-                  "kind": "FunctionParameter",
-                  "name": "storeId",
-                  "optional": false,
-                  "type": {
-                    "kind": "ParamsType",
-                    "name": "string",
-                    "variant": "reference",
-                  },
+              },
+              {
+                kind: 'FunctionParameter',
+                name: 'storeId',
+                optional: false,
+                type: {
+                  kind: 'ParamsType',
+                  name: 'string',
+                  variant: 'reference',
                 },
-              ],
-            },
-          ],
-        }
-      `)
+              },
+            ],
+          },
+        ],
+      })
     })
   })
 
@@ -464,70 +453,67 @@ describe('createOperationParams', () => {
         ],
       })
 
-      expect(params).toMatchInlineSnapshot(`
-        {
-          "kind": "FunctionParameters",
-          "params": [
-            {
-              "default": undefined,
-              "kind": "ParameterGroup",
-              "properties": [
-                {
-                  "kind": "FunctionParameter",
-                  "name": "petId",
-                  "optional": false,
-                  "type": {
-                    "kind": "ParamsType",
-                    "name": "Types["petId"]",
-                    "variant": "reference",
-                  },
+      expect(params).toMatchObject({
+        kind: 'FunctionParameters',
+        params: [
+          {
+            kind: 'ParameterGroup',
+            properties: [
+              {
+                kind: 'FunctionParameter',
+                name: 'petId',
+                optional: false,
+                type: {
+                  kind: 'ParamsType',
+                  name: 'Types["petId"]',
+                  variant: 'reference',
                 },
-                {
-                  "kind": "FunctionParameter",
-                  "name": "data",
-                  "optional": true,
-                  "type": {
-                    "kind": "ParamsType",
-                    "name": "UpdatePetBody",
-                    "variant": "reference",
-                  },
-                },
-                {
-                  "kind": "FunctionParameter",
-                  "name": "params",
-                  "optional": false,
-                  "type": {
-                    "kind": "ParamsType",
-                    "properties": [
-                      {
-                        "name": "status",
-                        "optional": false,
-                        "type": {
-                          "kind": "ParamsType",
-                          "name": "Types["status"]",
-                          "variant": "reference",
-                        },
-                      },
-                    ],
-                    "variant": "struct",
-                  },
-                },
-              ],
-            },
-            {
-              "default": "{}",
-              "kind": "FunctionParameter",
-              "name": "options",
-              "optional": false,
-              "type": {
-                "kind": "ParamsType",
-                "name": "Options",
-                "variant": "reference",
               },
+              {
+                kind: 'FunctionParameter',
+                name: 'data',
+                optional: true,
+                type: {
+                  kind: 'ParamsType',
+                  name: 'UpdatePetBody',
+                  variant: 'reference',
+                },
+              },
+              {
+                kind: 'FunctionParameter',
+                name: 'params',
+                optional: false,
+                type: {
+                  kind: 'ParamsType',
+                  properties: [
+                    {
+                      name: 'status',
+                      optional: false,
+                      type: {
+                        kind: 'ParamsType',
+                        name: 'Types["status"]',
+                        variant: 'reference',
+                      },
+                    },
+                  ],
+                  variant: 'struct',
+                },
+              },
+            ],
+          },
+          {
+            default: '{}',
+            kind: 'FunctionParameter',
+            name: 'options',
+            optional: false,
+            type: {
+              kind: 'ParamsType',
+              name: 'Options',
+              variant: 'reference',
             },
-          ],
-        }
-      `)
+          },
+        ],
+      })
     })
 
     it('adds default {} when all children are optional', () => {
@@ -541,39 +527,37 @@ describe('createOperationParams', () => {
         resolver: makeResolver({ resolveParamName: () => 'string' }),
       })
 
-      expect(params).toMatchInlineSnapshot(`
-        {
-          "kind": "FunctionParameters",
-          "params": [
-            {
-              "default": "{}",
-              "kind": "ParameterGroup",
-              "properties": [
-                {
-                  "kind": "FunctionParameter",
-                  "name": "params",
-                  "optional": true,
-                  "type": {
-                    "kind": "ParamsType",
-                    "properties": [
-                      {
-                        "name": "filter",
-                        "optional": true,
-                        "type": {
-                          "kind": "ParamsType",
-                          "name": "string",
-                          "variant": "reference",
-                        },
+      expect(params).toMatchObject({
+        kind: 'FunctionParameters',
+        params: [
+          {
+            default: '{}',
+            kind: 'ParameterGroup',
+            properties: [
+              {
+                kind: 'FunctionParameter',
+                name: 'params',
+                optional: true,
+                type: {
+                  kind: 'ParamsType',
+                  properties: [
+                    {
+                      name: 'filter',
+                      optional: true,
+                      type: {
+                        kind: 'ParamsType',
+                        name: 'string',
+                        variant: 'reference',
                       },
-                    ],
-                    "variant": "struct",
-                  },
+                    },
+                  ],
+                  variant: 'struct',
                 },
-              ],
-            },
-          ],
-        }
-      `)
+              },
+            ],
+          },
+        ],
+      })
     })
   })
 
@@ -607,12 +591,10 @@ describe('createOperationParams', () => {
         pathParamsType: 'inline',
       })
 
-      expect(params).toMatchInlineSnapshot(`
-        {
-          "kind": "FunctionParameters",
-          "params": [],
-        }
-      `)
+      expect(params).toMatchObject({
+        kind: 'FunctionParameters',
+        params: [],
+      })
     })
 
     it('returns only extraParams when operation has no parameters', () => {
@@ -630,24 +612,22 @@ describe('createOperationParams', () => {
         ],
       })
 
-      expect(params).toMatchInlineSnapshot(`
-        {
-          "kind": "FunctionParameters",
-          "params": [
-            {
-              "default": "{}",
-              "kind": "FunctionParameter",
-              "name": "options",
-              "optional": false,
-              "type": {
-                "kind": "ParamsType",
-                "name": "Options",
-                "variant": "reference",
-              },
+      expect(params).toMatchObject({
+        kind: 'FunctionParameters',
+        params: [
+          {
+            default: '{}',
+            kind: 'FunctionParameter',
+            name: 'options',
+            optional: false,
+            type: {
+              kind: 'ParamsType',
+              name: 'Options',
+              variant: 'reference',
             },
-          ],
-        }
-      `)
+          },
+        ],
+      })
     })
   })
 
@@ -691,23 +671,21 @@ describe('createOperationParams', () => {
         }),
       })
 
-      expect(params).toMatchInlineSnapshot(`
-        {
-          "kind": "FunctionParameters",
-          "params": [
-            {
-              "kind": "FunctionParameter",
-              "name": "data",
-              "optional": false,
-              "type": {
-                "kind": "ParamsType",
-                "name": "CreatePetRequest",
-                "variant": "reference",
-              },
+      expect(params).toMatchObject({
+        kind: 'FunctionParameters',
+        params: [
+          {
+            kind: 'FunctionParameter',
+            name: 'data',
+            optional: false,
+            type: {
+              kind: 'ParamsType',
+              name: 'CreatePetRequest',
+              variant: 'reference',
             },
-          ],
-        }
-      `)
+          },
+        ],
+      })
     })
 
     it('produces optional data param when requestBody is not required', () => {
@@ -727,23 +705,21 @@ describe('createOperationParams', () => {
         }),
       })
 
-      expect(params).toMatchInlineSnapshot(`
-        {
-          "kind": "FunctionParameters",
-          "params": [
-            {
-              "kind": "FunctionParameter",
-              "name": "data",
-              "optional": true,
-              "type": {
-                "kind": "ParamsType",
-                "name": "UpdatePetRequest",
-                "variant": "reference",
-              },
+      expect(params).toMatchObject({
+        kind: 'FunctionParameters',
+        params: [
+          {
+            kind: 'FunctionParameter',
+            name: 'data',
+            optional: true,
+            type: {
+              kind: 'ParamsType',
+              name: 'UpdatePetRequest',
+              variant: 'reference',
             },
-          ],
-        }
-      `)
+          },
+        ],
+      })
     })
   })
 
@@ -763,18 +739,16 @@ describe('createOperationParams', () => {
       })
 
       const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
-      expect(queryParam).toMatchInlineSnapshot(`
-        {
-          "kind": "FunctionParameter",
-          "name": "params",
-          "optional": true,
-          "type": {
-            "kind": "ParamsType",
-            "name": "FindPetsQueryParams",
-            "variant": "reference",
-          },
-        }
-      `)
+      expect(queryParam).toMatchObject({
+        kind: 'FunctionParameter',
+        name: 'params',
+        optional: true,
+        type: {
+          kind: 'ParamsType',
+          name: 'FindPetsQueryParams',
+          variant: 'reference',
+        },
+      })
     })
 
     it('uses resolveQueryParamsName for query params in object mode', () => {
@@ -794,18 +768,16 @@ describe('createOperationParams', () => {
       const objParam = params.params[0]
       if (objParam && objParam.kind === 'ParameterGroup') {
         const queryChild = objParam.properties.find((p) => p.name === 'params')
-        expect(queryChild).toMatchInlineSnapshot(`
-          {
-            "kind": "FunctionParameter",
-            "name": "params",
-            "optional": false,
-            "type": {
-              "kind": "ParamsType",
-              "name": "FindPetsQueryParams",
-              "variant": "reference",
-            },
-          }
-        `)
+        expect(queryChild).toMatchObject({
+          kind: 'FunctionParameter',
+          name: 'params',
+          optional: false,
+          type: {
+            kind: 'ParamsType',
+            name: 'FindPetsQueryParams',
+            variant: 'reference',
+          },
+        })
       }
     })
 
@@ -844,23 +816,21 @@ describe('createOperationParams', () => {
         }),
       })
 
-      expect(params).toMatchInlineSnapshot(`
-        {
-          "kind": "FunctionParameters",
-          "params": [
-            {
-              "kind": "FunctionParameter",
-              "name": "headers",
-              "optional": false,
-              "type": {
-                "kind": "ParamsType",
-                "name": "FindPetsHeaderParams",
-                "variant": "reference",
-              },
+      expect(params).toMatchObject({
+        kind: 'FunctionParameters',
+        params: [
+          {
+            kind: 'FunctionParameter',
+            name: 'headers',
+            optional: false,
+            type: {
+              kind: 'ParamsType',
+              name: 'FindPetsHeaderParams',
+              variant: 'reference',
             },
-          ],
-        }
-      `)
+          },
+        ],
+      })
     })
 
     it('uses resolveHeaderParamsName for headers in object mode', () => {
@@ -880,18 +850,16 @@ describe('createOperationParams', () => {
       const objParam = params.params[0]
       if (objParam && objParam.kind === 'ParameterGroup') {
         const headerChild = objParam.properties.find((p) => p.name === 'headers')
-        expect(headerChild).toMatchInlineSnapshot(`
-          {
-            "kind": "FunctionParameter",
-            "name": "headers",
-            "optional": true,
-            "type": {
-              "kind": "ParamsType",
-              "name": "HeaderParams",
-              "variant": "reference",
-            },
-          }
-        `)
+        expect(headerChild).toMatchObject({
+          kind: 'FunctionParameter',
+          name: 'headers',
+          optional: true,
+          type: {
+            kind: 'ParamsType',
+            name: 'HeaderParams',
+            variant: 'reference',
+          },
+        })
       }
     })
 
@@ -911,32 +879,30 @@ describe('createOperationParams', () => {
 
       const pathGroup = params.params[0]
       if (pathGroup && pathGroup.kind === 'ParameterGroup') {
-        expect(pathGroup.properties).toMatchInlineSnapshot(`
-          [
-            {
-              "kind": "FunctionParameter",
-              "name": "petId",
-              "optional": false,
-              "type": {
-                "base": "DeletePetPathParams",
-                "key": "petId",
-                "kind": "ParamsType",
-                "variant": "member",
-              },
+        expect(pathGroup.properties).toMatchObject([
+          {
+            kind: 'FunctionParameter',
+            name: 'petId',
+            optional: false,
+            type: {
+              base: 'DeletePetPathParams',
+              key: 'petId',
+              kind: 'ParamsType',
+              variant: 'member',
             },
-            {
-              "kind": "FunctionParameter",
-              "name": "name",
-              "optional": true,
-              "type": {
-                "base": "DeletePetPathParams",
-                "key": "name",
-                "kind": "ParamsType",
-                "variant": "member",
-              },
+          },
+          {
+            kind: 'FunctionParameter',
+            name: 'name',
+            optional: true,
+            type: {
+              base: 'DeletePetPathParams',
+              key: 'name',
+              kind: 'ParamsType',
+              variant: 'member',
             },
-          ]
-        `)
+          },
+        ])
       }
     })
   })
@@ -1001,47 +967,44 @@ describe('createOperationParams', () => {
         }),
       })
 
-      expect(params.params).toMatchInlineSnapshot(`
-        [
-          {
-            "default": undefined,
-            "inline": true,
-            "kind": "ParameterGroup",
-            "properties": [
-              {
-                "kind": "FunctionParameter",
-                "name": "petId",
-                "optional": false,
-                "type": {
-                  "kind": "ParamsType",
-                  "name": "MaybeRefOrGetter<Types["petId"]>",
-                  "variant": "reference",
-                },
+      expect(params.params).toMatchObject([
+        {
+          inline: true,
+          kind: 'ParameterGroup',
+          properties: [
+            {
+              kind: 'FunctionParameter',
+              name: 'petId',
+              optional: false,
+              type: {
+                kind: 'ParamsType',
+                name: 'MaybeRefOrGetter<Types["petId"]>',
+                variant: 'reference',
               },
-            ],
-          },
-          {
-            "kind": "FunctionParameter",
-            "name": "data",
-            "optional": true,
-            "type": {
-              "kind": "ParamsType",
-              "name": "MaybeRefOrGetter<CreatePetRequest>",
-              "variant": "reference",
             },
+          ],
+        },
+        {
+          kind: 'FunctionParameter',
+          name: 'data',
+          optional: true,
+          type: {
+            kind: 'ParamsType',
+            name: 'MaybeRefOrGetter<CreatePetRequest>',
+            variant: 'reference',
           },
-          {
-            "kind": "FunctionParameter",
-            "name": "params",
-            "optional": true,
-            "type": {
-              "kind": "ParamsType",
-              "name": "MaybeRefOrGetter<FindPetsQueryParams>",
-              "variant": "reference",
-            },
+        },
+        {
+          kind: 'FunctionParameter',
+          name: 'params',
+          optional: true,
+          type: {
+            kind: 'ParamsType',
+            name: 'MaybeRefOrGetter<FindPetsQueryParams>',
+            variant: 'reference',
           },
-        ]
-      `)
+        },
+      ])
     })
   })
 
@@ -1060,42 +1023,40 @@ describe('createOperationParams', () => {
         }),
       })
 
-      expect(params).toMatchInlineSnapshot(`
-        {
-          "kind": "FunctionParameters",
-          "params": [
-            {
-              "kind": "FunctionParameter",
-              "name": "params",
-              "optional": true,
-              "type": {
-                "kind": "ParamsType",
-                "properties": [
-                  {
-                    "name": "orderStatus",
-                    "optional": true,
-                    "type": {
-                      "kind": "ParamsType",
-                      "name": "Types["orderStatus"]",
-                      "variant": "reference",
-                    },
+      expect(params).toMatchObject({
+        kind: 'FunctionParameters',
+        params: [
+          {
+            kind: 'FunctionParameter',
+            name: 'params',
+            optional: true,
+            type: {
+              kind: 'ParamsType',
+              properties: [
+                {
+                  name: 'orderStatus',
+                  optional: true,
+                  type: {
+                    kind: 'ParamsType',
+                    name: 'Types["orderStatus"]',
+                    variant: 'reference',
                   },
-                  {
-                    "name": "petCategory",
-                    "optional": true,
-                    "type": {
-                      "kind": "ParamsType",
-                      "name": "Types["petCategory"]",
-                      "variant": "reference",
-                    },
+                },
+                {
+                  name: 'petCategory',
+                  optional: true,
+                  type: {
+                    kind: 'ParamsType',
+                    name: 'Types["petCategory"]',
+                    variant: 'reference',
                   },
-                ],
-                "variant": "struct",
-              },
+                },
+              ],
+              variant: 'struct',
             },
-          ],
-        }
-      `)
+          },
+        ],
+      })
     })
 
     it('applies camelCase to path params with object path params type', () => {
@@ -1139,60 +1100,57 @@ describe('createOperationParams', () => {
         }),
       })
 
-      expect(params).toMatchInlineSnapshot(`
-        {
-          "kind": "FunctionParameters",
-          "params": [
-            {
-              "default": undefined,
-              "inline": true,
-              "kind": "ParameterGroup",
-              "properties": [
-                {
-                  "kind": "FunctionParameter",
-                  "name": "petId",
-                  "optional": false,
-                  "type": {
-                    "kind": "ParamsType",
-                    "name": "Types["petId"]",
-                    "variant": "reference",
-                  },
+      expect(params).toMatchObject({
+        kind: 'FunctionParameters',
+        params: [
+          {
+            inline: true,
+            kind: 'ParameterGroup',
+            properties: [
+              {
+                kind: 'FunctionParameter',
+                name: 'petId',
+                optional: false,
+                type: {
+                  kind: 'ParamsType',
+                  name: 'Types["petId"]',
+                  variant: 'reference',
                 },
-              ],
-            },
-            {
-              "kind": "FunctionParameter",
-              "name": "data",
-              "optional": false,
-              "type": {
-                "kind": "ParamsType",
-                "name": "CreatePetRequest",
-                "variant": "reference",
               },
+            ],
+          },
+          {
+            kind: 'FunctionParameter',
+            name: 'data',
+            optional: false,
+            type: {
+              kind: 'ParamsType',
+              name: 'CreatePetRequest',
+              variant: 'reference',
             },
-            {
-              "kind": "FunctionParameter",
-              "name": "params",
-              "optional": true,
-              "type": {
-                "kind": "ParamsType",
-                "name": "GetPetQueryParams",
-                "variant": "reference",
-              },
+          },
+          {
+            kind: 'FunctionParameter',
+            name: 'params',
+            optional: true,
+            type: {
+              kind: 'ParamsType',
+              name: 'GetPetQueryParams',
+              variant: 'reference',
             },
-            {
-              "kind": "FunctionParameter",
-              "name": "headers",
-              "optional": true,
-              "type": {
-                "kind": "ParamsType",
-                "name": "GetPetHeaderParams",
-                "variant": "reference",
-              },
+          },
+          {
+            kind: 'FunctionParameter',
+            name: 'headers',
+            optional: true,
+            type: {
+              kind: 'ParamsType',
+              name: 'GetPetHeaderParams',
+              variant: 'reference',
             },
-          ],
-        }
-      `)
+          },
+        ],
+      })
     })
 
     it('covers object paramsType with all param types: path + query + header + body', () => {
@@ -1243,41 +1201,38 @@ describe('createOperationParams', () => {
         }),
       })
 
-      expect(params).toMatchInlineSnapshot(`
-        {
-          "kind": "FunctionParameters",
-          "params": [
-            {
-              "default": undefined,
-              "inline": false,
-              "kind": "ParameterGroup",
-              "properties": [
-                {
-                  "kind": "FunctionParameter",
-                  "name": "petId",
-                  "optional": false,
-                  "type": {
-                    "base": "GetPetByIdPathParams",
-                    "key": "petId",
-                    "kind": "ParamsType",
-                    "variant": "member",
-                  },
+      expect(params).toMatchObject({
+        kind: 'FunctionParameters',
+        params: [
+          {
+            inline: false,
+            kind: 'ParameterGroup',
+            properties: [
+              {
+                kind: 'FunctionParameter',
+                name: 'petId',
+                optional: false,
+                type: {
+                  base: 'GetPetByIdPathParams',
+                  key: 'petId',
+                  kind: 'ParamsType',
+                  variant: 'member',
                 },
-              ],
-            },
-            {
-              "kind": "FunctionParameter",
-              "name": "params",
-              "optional": true,
-              "type": {
-                "kind": "ParamsType",
-                "name": "GetPetByIdQueryParams",
-                "variant": "reference",
               },
+            ],
+          },
+          {
+            kind: 'FunctionParameter',
+            name: 'params',
+            optional: true,
+            type: {
+              kind: 'ParamsType',
+              name: 'GetPetByIdQueryParams',
+              variant: 'reference',
             },
-          ],
-        }
-      `)
+          },
+        ],
+      })
     })
 
     it('inline paramsType with paramsCasing and named query group', () => {

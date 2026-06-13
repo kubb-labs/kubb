@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, join, posix, resolve } from 'node:path'
-import { isBun } from './runtime.ts'
+import { runtime } from './runtime.ts'
 
 /**
  * Walks up the directory tree from `cwd` (defaults to `process.cwd()`) and
@@ -66,7 +66,7 @@ export function getRelativePath(rootDir?: string | null, filePath?: string | nul
  * ```
  */
 export async function exists(path: string): Promise<boolean> {
-  if (isBun()) {
+  if (runtime.isBun) {
     return Bun.file(path).exists()
   }
   return access(path).then(
@@ -85,7 +85,7 @@ export async function exists(path: string): Promise<boolean> {
  * ```
  */
 export async function read(path: string): Promise<string> {
-  if (isBun()) {
+  if (runtime.isBun) {
     return Bun.file(path).text()
   }
   return readFile(path, { encoding: 'utf8' })
@@ -130,7 +130,7 @@ export async function write(path: string, data: string, options: WriteOptions = 
 
   const resolved = resolve(path)
 
-  if (isBun()) {
+  if (runtime.isBun) {
     const file = Bun.file(resolved)
     const oldContent = (await file.exists()) ? await file.text() : null
     if (oldContent === trimmed) return null
@@ -187,4 +187,22 @@ export async function clean(path: string): Promise<void> {
  */
 export function toPosixPath(filePath: string): string {
   return filePath.replaceAll('\\', '/')
+}
+
+/**
+ * Strips the file extension from a path or file name.
+ * Only removes the last `.ext` segment when the dot is not part of a directory name.
+ *
+ * @example
+ * trimExtName('petStore.ts')             // 'petStore'
+ * trimExtName('/src/models/pet.ts')      // '/src/models/pet'
+ * trimExtName('/project.v2/gen/pet.ts')  // '/project.v2/gen/pet'
+ * trimExtName('noExtension')             // 'noExtension'
+ */
+export function trimExtName(text: string): string {
+  const dotIndex = text.lastIndexOf('.')
+  if (dotIndex > 0 && !text.includes('/', dotIndex)) {
+    return text.slice(0, dotIndex)
+  }
+  return text
 }

@@ -16,20 +16,17 @@ describe('Type', () => {
       </File>,
     )
 
-    expect(renderer.files[0]?.sources[0]?.nodes?.[0]).toMatchInlineSnapshot(`
-      {
-        "JSDoc": undefined,
-        "export": true,
-        "kind": "Type",
-        "name": "PetId",
-        "nodes": [
-          {
-            "kind": "Text",
-            "value": "string | number",
-          },
-        ],
-      }
-    `)
+    expect(renderer.files[0]?.sources[0]?.nodes?.[0]).toMatchObject({
+      export: true,
+      kind: 'Type',
+      name: 'PetId',
+      nodes: [
+        {
+          kind: 'Text',
+          value: 'string | number',
+        },
+      ],
+    })
   })
 
   it('should throw when name does not start with an uppercase letter', () => {

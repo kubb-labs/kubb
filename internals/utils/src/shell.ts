@@ -7,7 +7,7 @@ import { spawn } from 'node:child_process'
  * tokenize('git commit -m "initial commit"')
  * // → ['git', 'commit', '-m', 'initial commit']
  */
-export function tokenize(command: string): string[] {
+export function tokenize(command: string): Array<string> {
   return (command.match(/[^\s"']+|"([^"]*)"|'([^']*)'/g) ?? []).map((token) => token.replace(/^["']|["']$/g, ''))
 }
 
@@ -42,7 +42,7 @@ type SpawnOptions = {
  * await spawnAsync('node', ['server.js'], { detached: true }) // fire-and-forget
  * ```
  */
-export function spawnAsync(cmd: string, args: string[], options: SpawnOptions = {}): Promise<void> {
+export function spawnAsync(cmd: string, args: Array<string>, options: SpawnOptions = {}): Promise<void> {
   const { cwd = process.cwd(), env, detached = false } = options
 
   return new Promise((resolve, reject) => {

@@ -1,4 +1,4 @@
-function* chunks<T>(arr: readonly T[], size: number): Generator<T[]> {
+function* chunks<T>(arr: ReadonlyArray<T>, size: number): Generator<Array<T>> {
   for (let i = 0; i < arr.length; i += size) {
     yield arr.slice(i, i + size)
   }
@@ -38,8 +38,8 @@ export type ForBatchesOptions = {
  * ```
  */
 export async function forBatches<T>(
-  source: readonly T[] | AsyncIterable<T>,
-  process: (batch: T[]) => Promise<unknown>,
+  source: ReadonlyArray<T> | AsyncIterable<T>,
+  process: (batch: Array<T>) => Promise<unknown>,
   options: ForBatchesOptions,
 ): Promise<void> {
   const { concurrency, flush } = options
@@ -52,7 +52,7 @@ export async function forBatches<T>(
     return
   }
 
-  const batch: T[] = []
+  const batch: Array<T> = []
   for await (const item of source) {
     batch.push(item)
     if (batch.length >= concurrency) {
@@ -66,23 +66,6 @@ export async function forBatches<T>(
 
     if (flush) await flush()
   }
-}
-
-/**
- * Runs `work`, passing `flush` as its periodic-flush callback, then calls
- * `flush` once more to drain any items that did not cross a flush boundary.
- *
- * @example
- * ```ts
- * await withDrain(
- *   (flush) => processItems(items, { flush }),
- *   () => writeRemainingFiles(),
- * )
- * ```
- */
-export async function withDrain(work: (flush: () => Promise<void>) => Promise<void>, flush: () => Promise<void>): Promise<void> {
-  await work(flush)
-  await flush()
 }
 
 /** A value that may already be resolved or still pending.
@@ -176,7 +159,7 @@ export function memoize<TKey, TValue>(store: Store<TKey, TValue>, factory: (key:
  * for await (const n of stream) console.log(n) // 1, 2, 3
  * ```
  */
-export function arrayToAsyncIterable<T>(arr: readonly T[]): AsyncIterable<T> {
+export function arrayToAsyncIterable<T>(arr: ReadonlyArray<T>): AsyncIterable<T> {
   return {
     [Symbol.asyncIterator]() {
       return (async function* () {

@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
-import { getRuntimeName, getRuntimeVersion, isCIEnvironment, type RuntimeName } from '@internals/utils'
+import { isCIEnvironment, type RuntimeName, runtime } from '@internals/utils'
 import { OTLP_ENDPOINT } from './constants.ts'
 
 // OpenTelemetry OTLP JSON types
@@ -166,8 +166,8 @@ export class Telemetry {
       command: options.command,
       kubbVersion: options.kubbVersion,
       nodeVersion: process.versions.node.split('.')[0] as string,
-      runtime: getRuntimeName(),
-      runtimeVersion: getRuntimeVersion().split('.')[0] as string,
+      runtime: runtime.name,
+      runtimeVersion: runtime.version.split('.')[0] as string,
       platform: os.platform(),
       ci: isCIEnvironment(),
       plugins: options.plugins ?? [],
