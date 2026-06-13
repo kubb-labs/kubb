@@ -9,3 +9,5 @@ Each node is now defined once in its `nodes/*.ts` file with `defineNode`, which 
 This is non-breaking: every existing export keeps its shape and behavior, and the generated output is unchanged. It also adds an `is*` guard for every node kind (24 in total), so `isContentNode`, `isPropertyNode`, `isFileNode`, `isTextNode`, and the rest are now available alongside the existing guards.
 
 The per-node definitions (`schemaDef`, `propertyDef`, …) and `defineNode` are now exported. The standalone `is*` guards are deprecated in favor of each node's `<node>Def.is` (for example `schemaDef.is` over `isSchemaNode`), which keeps the guard next to the node it belongs to.
+
+The param and type helpers that Phase 1 (#3563) reshapes are marked `@deprecated` with their migration paths: `createParamsType` (pass the type name as a plain string), `createParameterGroup` (use `createFunctionParameter({ properties: [...] })`), and the `ParamsTypeNode`/`ParameterGroupNode` types.

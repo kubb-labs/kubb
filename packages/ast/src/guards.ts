@@ -98,7 +98,7 @@ export const isFunctionParameterNode = functionParameterDef.is
 /**
  * Returns `true` when the input is a `ParameterGroupNode`.
  *
- * @deprecated Use `parameterGroupDef.is` instead.
+ * @deprecated Removed in Phase 1 (#3563).
  */
 export const isParameterGroupNode = parameterGroupDef.is
 
@@ -112,7 +112,7 @@ export const isFunctionParametersNode = functionParametersDef.is
 /**
  * Returns `true` when the input is a `ParamsTypeNode`.
  *
- * @deprecated Use `paramsTypeDef.is` instead.
+ * @deprecated Removed in Phase 1 (#3563).
  */
 export const isParamsTypeNode = paramsTypeDef.is
 

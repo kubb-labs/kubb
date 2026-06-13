@@ -27,6 +27,8 @@ import type { BaseNode } from './base.ts'
  * createParamsType({ variant: 'member', base: 'PathParams', key: 'petId' })
  * // PathParams['petId']
  * ```
+ *
+ * @deprecated Removed in Phase 1 (#3563): a parameter type becomes a plain `string`.
  */
 export type ParamsTypeNode = BaseNode & {
   /**
@@ -155,6 +157,8 @@ export type FunctionParameterNode = BaseNode & {
  *
  * @example Inline (spread as individual parameters)
  * `id: string, name: string`
+ *
+ * @deprecated Removed in Phase 1 (#3563): use `createFunctionParameter({ properties: [...] })`.
  */
 export type ParameterGroupNode = BaseNode & {
   /**
@@ -230,6 +234,8 @@ type ParamsTypeInput =
 
 /**
  * Definition for the {@link ParamsTypeNode}.
+ *
+ * @deprecated Removed in Phase 1 (#3563).
  */
 export const paramsTypeDef = defineNode<ParamsTypeNode, ParamsTypeInput>({ kind: 'ParamsType' })
 
@@ -245,6 +251,8 @@ export const paramsTypeDef = defineNode<ParamsTypeNode, ParamsTypeInput>({ kind:
  * ```ts
  * createParamsType({ variant: 'member', base: 'DeletePetPathParams', key: 'petId' })
  * ```
+ *
+ * @deprecated Removed in Phase 1 (#3563): pass the type name as a plain string, e.g. `createFunctionParameter({ name, type: 'string' })`.
  */
 export const createParamsType = paramsTypeDef.create
 
@@ -276,6 +284,8 @@ type ParameterGroupInput = Pick<ParameterGroupNode, 'properties'> & Partial<Omit
 
 /**
  * Definition for the {@link ParameterGroupNode}.
+ *
+ * @deprecated Removed in Phase 1 (#3563).
  */
 export const parameterGroupDef = defineNode<ParameterGroupNode, ParameterGroupInput>({ kind: 'ParameterGroup' })
 
@@ -293,6 +303,8 @@ export const parameterGroupDef = defineNode<ParameterGroupNode, ParameterGroupIn
  * })
  * // declaration → { id, name? }: { id: string; name?: string } = {}
  * ```
+ *
+ * @deprecated Removed in Phase 1 (#3563): use `createFunctionParameter({ properties: [...] })`.
  */
 export const createParameterGroup = parameterGroupDef.create
 
