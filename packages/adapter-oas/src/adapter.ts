@@ -6,6 +6,8 @@ import { createSchemaParser } from './parser.ts'
 import { getSchemas } from './resolvers.ts'
 import { createInputStream, preScan, resolveBaseUrl } from './stream.ts'
 import type { AdapterOas, Document } from './types.ts'
+import { collect, narrowSchema } from '@kubb/ast'
+import { extractRefName } from '@kubb/ast/utils'
 
 /**
  * Canonical adapter name for `@kubb/adapter-oas`. Used for driver lookups.
@@ -126,7 +128,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     return result
   }
 
-  async function createStream(source: AdapterSource): Promise<ast.InputStreamNode> {
+  async function createStream(source: AdapterSource): Promise<ast.InputNode<true>> {
     const document = await ensureDocument(source)
     const schemas = await ensureSchemas(document)
     const { parseSchema, parseOperation } = ensureSchemaParser(document)
@@ -179,10 +181,13 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       await validateDocument(document, options)
     },
     getImports(node, resolve) {
-      return ast.collectImports({
-        node,
-        nameMapping,
-        resolve: (schemaName) => {
+      return collect(node, {
+        schema(schemaNode) {
+          const schemaRef = narrowSchema(schemaNode, 'ref')
+          if (!schemaRef?.ref) return null
+
+          const rawName = extractRefName(schemaRef.ref)
+          const schemaName = nameMapping.get(rawName) ?? rawName
           const result = resolve(schemaName)
           if (!result) return null
 

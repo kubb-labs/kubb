@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs, isPromise, memoize, Url } from '@internals/utils'
 import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast'
-import type { FileNode, InputMeta, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
+import type { FileNode, InputMeta, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
@@ -53,10 +53,9 @@ export class KubbDriver {
   readonly options: Options
 
   /**
-   * The streaming `InputStreamNode` produced by the adapter.
-   * Always set after adapter setup, parse-only adapters are wrapped automatically.
+   * The streaming `InputNode<true>` produced by the adapter.   * Always set after adapter setup, parse-only adapters are wrapped automatically.
    */
-  inputNode: InputStreamNode | null = null
+  inputNode: InputNode<true> | null = null
   adapter: Adapter | null = null
   /**
    * Raw adapter source so `adapter.parse()` / `adapter.stream()` can run lazily.

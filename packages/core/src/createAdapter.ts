@@ -1,5 +1,5 @@
 import type { PossiblePromise } from '@internals/utils'
-import type { ImportNode, InputNode, InputStreamNode, SchemaNode } from '@kubb/ast'
+import type { ImportNode, InputNode, SchemaNode } from '@kubb/ast'
 
 /**
  * Source data handed to an adapter's `parse` function. Mirrors the config
@@ -84,11 +84,11 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
   /**
    * Memory-efficient streaming variant of `parse()`.
    *
-   * Returns an `InputStreamNode` whose `schemas` and `operations` are `AsyncIterable`.
+   * Returns an `InputNode<true>` whose `schemas` and `operations` are `AsyncIterable`.
    * Each `for await` loop creates a fresh parse pass over the cached in-memory document.
    * No pre-built arrays are held in memory.
    */
-  stream?: (source: AdapterSource) => Promise<InputStreamNode>
+  stream?: (source: AdapterSource) => Promise<InputNode<true>>
 }
 
 type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) => Adapter<T>

@@ -219,6 +219,7 @@ export function objectKey(name: string): string {
 export function buildObject(entries: Array<string>): string {
   if (entries.length === 0) return '{}'
   const body = entries.map((entry) => `${indentLines(entry)},`).join('\n')
+
   return `{\n${body}\n}`
 }
 
@@ -239,6 +240,7 @@ export function buildList(items: Array<string>, brackets: [open: string, close: 
   if (items.length === 0) return `${open}${close}`
   if (!items.some((item) => item.includes('\n'))) return `${open}${items.join(', ')}${close}`
   const body = items.map((item) => `${indentLines(item)},`).join('\n')
+
   return `${open}\n${body}\n${close}`
 }
 

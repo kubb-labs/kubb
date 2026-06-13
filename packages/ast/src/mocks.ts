@@ -1,5 +1,5 @@
 import { createInput, createOperation, createParameter, createProperty, createResponse, createSchema } from './factory.ts'
-import type { InputNode } from './nodes/root.ts'
+import type { InputNode } from './nodes/input.ts'
 
 /**
  * Builds a minimal sample AST with one `Pet` schema and one `getPetById` operation.

@@ -149,6 +149,21 @@ export function memoize<TKey, TValue>(store: Store<TKey, TValue>, factory: (key:
 }
 
 /**
+ * Container that switches between an eager `Array<T>` and a lazy `AsyncIterable<T>`.
+ *
+ * `Array<T>` by default. With `Stream` set to `true` it becomes `AsyncIterable<T>`, so large
+ * collections can be produced lazily without holding every item in memory. Pairs with
+ * {@link arrayToAsyncIterable}, which lifts a plain array into the streaming form.
+ *
+ * @example
+ * ```ts
+ * type Eager = Streamable<number> // Array<number>
+ * type Lazy = Streamable<number, true> // AsyncIterable<number>
+ * ```
+ */
+export type Streamable<T, Stream extends boolean = false> = Stream extends true ? AsyncIterable<T> : Array<T>
+
+/**
  * Wraps a plain array in a reusable `AsyncIterable`.
  * Each `[Symbol.asyncIterator]()` call returns a fresh generator so the
  * iterable can be consumed multiple times (e.g. once per plugin pre-scan).

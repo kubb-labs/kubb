@@ -23,7 +23,6 @@ export type {
   ImportNode,
   InputMeta,
   InputNode,
-  InputStreamNode,
   IntersectionSchemaNode,
   JSDocNode,
   JsxNode,

@@ -1,3 +1,4 @@
+import type { Streamable } from '@internals/utils'
 import type { BaseNode } from './base.ts'
 import type { OperationNode } from './operation.ts'
 import type { SchemaNode } from './schema.ts'
@@ -65,16 +66,28 @@ export type InputMeta = {
  * Input AST node that contains all schemas and operations for one API document.
  * Produced by the adapter and consumed by all Kubb plugins.
  *
+ * `Stream` switches `schemas` and `operations` between eager `Array`s (the default) and lazy
+ * `AsyncIterable`s. The streaming variant `InputNode<true>` yields nodes one at a time and makes
+ * `meta` optional, since the adapter can emit metadata before the first node is parsed.
+ *
  * @example
  * ```ts
  * const input: InputNode = {
  *   kind: 'Input',
  *   schemas: [],
  *   operations: [],
+ *   meta: { circularNames: [], enumNames: [] },
+ * }
+ * ```
+ *
+ * @example Streaming variant for large specs
+ * ```ts
+ * for await (const schema of inputNode.schemas) {
+ *   // only this one SchemaNode is live here. Previous ones are GC-eligible
  * }
  * ```
  */
-export type InputNode = BaseNode & {
+export type InputNode<Stream extends boolean = false> = BaseNode & {
   /**
    * Node kind.
    */
@@ -82,45 +95,9 @@ export type InputNode = BaseNode & {
   /**
    * All schema nodes in the document.
    */
-  schemas: Array<SchemaNode>
+  schemas: Streamable<SchemaNode, Stream>
   /**
    * All operation nodes in the document.
    */
-  operations: Array<OperationNode>
-  /**
-   * Document metadata populated by the adapter.
-   */
-  meta: InputMeta
-}
-
-/**
- * Streaming variant of `InputNode` for memory-efficient processing of large API specs.
- *
- * `schemas` and `operations` are `AsyncIterable` rather than arrays, each `for await`
- * loop creates a fresh parse pass from the cached in-memory document, so multiple
- * consumers (plugins) can iterate independently without keeping all nodes in memory.
- *
- * @example
- * ```ts
- * for await (const schema of inputStreamNode.schemas) {
- *   // only this one SchemaNode is live here. Previous ones are GC-eligible
- * }
- * ```
- */
-export type InputStreamNode = {
-  kind: 'Input'
-  /**
-   * Lazily parsed schema nodes. Each `for await` creates a fresh parse pass, so
-   * multiple plugins can iterate independently without sharing state.
-   */
-  schemas: AsyncIterable<SchemaNode>
-  /**
-   * Lazily parsed operation nodes. Each `for await` creates a fresh parse pass, so
-   * multiple plugins can iterate independently without sharing state.
-   */
-  operations: AsyncIterable<OperationNode>
-  /**
-   * Document metadata available immediately, before the first yielded node.
-   */
-  meta?: InputMeta
-}
+  operations: Streamable<OperationNode, Stream>
+} & (Stream extends true ? { meta?: InputMeta } : { meta: InputMeta })
