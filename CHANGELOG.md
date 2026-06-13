@@ -1,5 +1,29 @@
 # Changelog
 
+## v5.0.0-beta.55 — Jun 13, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Drop the `oas` and `oas-normalize` dependencies in favor of built-in logic.
+  
+  Operation iteration (paths, methods, `operationId`, tags, request/response bodies, content type) now runs through a small internal `Operation` wrapper instead of the `oas` package, and the OpenAPI type aliases come straight from `openapi-types` and `@types/json-schema`. Document loading parses inline YAML/JSON with the `yaml` package, and `kubb validate` validates with `@readme/openapi-parser` directly. Generated output and validation behavior are unchanged, while the dependency tree is considerably smaller. ([#3557](https://github.com/kubb-labs/kubb/pull/3557), [`330ea5b`](https://github.com/kubb-labs/kubb/commit/330ea5ba46d4806bd77742da9cceb9e0e4e3dcd9))
+
+### @kubb/core
+
+#### Breaking Changes
+
+- Remove the incremental build cache.
+  
+  The `cache` config option, the `createCache` factory, the `fsCache` backend, and the `Cache`, `CachedSnapshot`, and `FsCacheOptions` types are gone from `@kubb/core`. `defineConfig` no longer enables `fsCache()` by default, and the `kubb generate --no-cache` flag is removed from the CLI. Every run now regenerates straight from the spec. ([#3558](https://github.com/kubb-labs/kubb/pull/3558), [`b504cf0`](https://github.com/kubb-labs/kubb/commit/b504cf0a91bd317e2ec1d450e447548560c657e8))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.54 — Jun 12, 2026
 
 ### @kubb/adapter-oas
