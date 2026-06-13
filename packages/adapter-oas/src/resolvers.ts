@@ -1,13 +1,12 @@
 import { pascalCase } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 import type { ast } from '@kubb/core'
-import type { ParameterObject, ServerObject } from 'oas/types'
-import { isRef } from 'oas/types'
-import { matchesMimeType } from 'oas/utils'
 import { formatMap, SCHEMA_REF_PREFIX, specialCasedFormats, structuralKeys } from './constants.ts'
 import { isReference } from './guards.ts'
+import { isJsonMimeType } from './mime.ts'
+import { getRequestContent, getResponseByStatusCode } from './operation.ts'
 import { dereferenceWithRef, resolveRef } from './refs.ts'
-import type { ContentType, Document, MediaTypeObject, Operation, ResponseObject, SchemaObject } from './types.ts'
+import type { ContentType, Document, MediaTypeObject, Operation, ParameterObject, ResponseObject, SchemaObject, ServerObject } from './types.ts'
 
 /**
  * Replaces `{variable}` placeholders in an OpenAPI server URL with provided values.
@@ -133,7 +132,7 @@ function getResponseBody(responseBody: boolean | ResponseObject, contentType?: s
   let availableContentType: string | undefined
   const contentTypes = Object.keys(body.content)
   for (const mt of contentTypes) {
-    if (matchesMimeType.json(mt)) {
+    if (isJsonMimeType(mt)) {
       availableContentType = mt
       break
     }
@@ -172,7 +171,7 @@ export function getResponseSchema(document: Document, operation: Operation, stat
     }
   }
 
-  const responseBody = getResponseBody(operation.getResponseByStatusCode(statusCode), options.contentType)
+  const responseBody = getResponseBody(getResponseByStatusCode({ document, operation, statusCode }), options.contentType)
 
   if (responseBody === false) {
     return {}
@@ -200,7 +199,7 @@ export function getRequestSchema(document: Document, operation: Operation, optio
     operation.schema.requestBody = dereferenceWithRef(document, operation.schema.requestBody)
   }
 
-  const requestBody = operation.getRequestBody(options.contentType)
+  const requestBody = getRequestContent({ document, operation, mediaType: options.contentType })
 
   if (requestBody === false) {
     return null
@@ -271,7 +270,7 @@ export function flattenSchema(schema: SchemaObject | null): SchemaObject | null 
   if (!schema?.allOf || schema.allOf.length === 0) return schema ?? null
 
   const allOfFragments = schema.allOf as Array<SchemaObject>
-  if (allOfFragments.some((item) => isRef(item))) return schema
+  if (allOfFragments.some((item) => isReference(item))) return schema
   if (allOfFragments.some(hasStructuralKeywords)) return schema
 
   const merged: SchemaObject = { ...schema }
@@ -575,7 +574,7 @@ export function getResponseBodyContentTypes(document: Document, operation: Opera
     }
   }
 
-  const responseObj = operation.getResponseByStatusCode(statusCode)
+  const responseObj = getResponseByStatusCode({ document, operation, statusCode })
   if (!responseObj || typeof responseObj !== 'object' || isReference(responseObj)) return []
 
   const body = responseObj as { content?: Record<string, unknown> }

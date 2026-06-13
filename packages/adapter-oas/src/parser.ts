@@ -1,9 +1,9 @@
 import { pascalCase } from '@internals/utils'
 import { childName, enumPropName, extractRefName, findDiscriminator } from '@kubb/ast/utils'
 import { ast } from '@kubb/core'
-import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, SCHEMA_REF_PREFIX, typeOptionMap } from './constants.ts'
 import { oasDialect, type OasDialect } from './dialect.ts'
+import { getOperationId, getOperations, getRequestContentType, getResponseByStatusCode, getResponseStatusCodes } from './operation.ts'
 import {
   buildSchemaNode,
   flattenSchema,
@@ -937,7 +937,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
    * Converts an OAS `Operation` into an `OperationNode`.
    */
   function parseOperation(options: ast.ParserOptions, operation: Operation): ast.OperationNode {
-    const operationId = operation.getOperationId()
+    const operationId = getOperationId(operation)
     const operationName = operationId ? pascalCase(operationId) : undefined
     const parameters: Array<ast.ParameterNode> = getParameters(document, operation).map((param) =>
       parseParameter(options, param as unknown as Record<string, unknown>, operationName),
@@ -972,8 +972,8 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
           }
         : undefined
 
-    const responses: Array<ast.ResponseNode> = operation.getResponseStatusCodes().map((statusCode) => {
-      const responseObj = operation.getResponseByStatusCode(statusCode)
+    const responses: Array<ast.ResponseNode> = getResponseStatusCodes(operation).map((statusCode) => {
+      const responseObj = getResponseByStatusCode({ document, operation, statusCode })
 
       // Use `Status<code>` (matching plugin-ts's resolveResponseStatusName convention) so the
       // qualified names for nested enums don't collide with top-level component schemas that
@@ -998,7 +998,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       // Body-less responses keep a single fallback entry so the response still resolves to a
       // (void/any) schema, matching how `requestBody` only carries schemas inside `content`.
       if (content.length === 0) {
-        content.push({ contentType: operation.contentType || 'application/json', ...parseEntrySchema(ctx.contentType) })
+        content.push({ contentType: getRequestContentType({ document, operation }) || 'application/json', ...parseEntrySchema(ctx.contentType) })
       }
 
       return ast.createResponse({
@@ -1008,15 +1008,24 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       })
     })
 
+    const pathItem = document.paths?.[operation.path]
+    const pathItemDoc = pathItem && !dialect.isReference(pathItem) ? (pathItem as { summary?: unknown; description?: unknown }) : undefined
+    const pickDoc = (key: 'summary' | 'description'): string | undefined => {
+      const own = operation.schema[key]
+      if (typeof own === 'string') return own
+      const fallback = pathItemDoc?.[key]
+      return typeof fallback === 'string' ? fallback : undefined
+    }
+
     return ast.createOperation({
       operationId,
       protocol: 'http',
       method: operation.method.toUpperCase() as ast.HttpMethod,
       path: operation.path,
-      tags: operation.getTags().map((tag) => tag.name),
-      summary: operation.getSummary() || undefined,
-      description: operation.getDescription() || undefined,
-      deprecated: operation.isDeprecated() || undefined,
+      tags: Array.isArray(operation.schema.tags) ? operation.schema.tags.map(String) : [],
+      summary: pickDoc('summary') || undefined,
+      description: pickDoc('description') || undefined,
+      deprecated: operation.schema.deprecated || undefined,
       parameters,
       requestBody,
       responses,
@@ -1082,14 +1091,9 @@ export function parseOas(
 
   const schemas: Array<ast.SchemaNode> = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, mergedOptions))
 
-  const baseOas = new BaseOas(document)
-  const paths = baseOas.getPaths()
-
-  const operations: Array<ast.OperationNode> = Object.entries(paths).flatMap(([, methods]) =>
-    Object.entries(methods)
-      .map(([, operation]) => (operation ? _parseOperation(mergedOptions, operation) : null))
-      .filter((op): op is ast.OperationNode => op !== null),
-  )
+  const operations: Array<ast.OperationNode> = getOperations(document)
+    .map((operation) => _parseOperation(mergedOptions, operation))
+    .filter((op): op is ast.OperationNode => op !== null)
 
   const root = ast.createInput({ schemas, operations })
 

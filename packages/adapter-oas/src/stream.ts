@@ -1,7 +1,7 @@
 import { ast } from '@kubb/core'
-import type BaseOas from 'oas'
 import { SCHEMA_REF_PREFIX } from './constants.ts'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
+import { getOperations } from './operation.ts'
 import type { SchemaParser } from './parser.ts'
 import { resolveServerUrl } from './resolvers.ts'
 import { reportSchemaDiagnostics } from './schemaDiagnostics.ts'
@@ -116,7 +116,7 @@ export function preScan({
   schemas,
   parseSchema,
   parseOperation,
-  baseOas,
+  document,
   parserOptions,
   discriminator,
   dedupe,
@@ -124,7 +124,7 @@ export function preScan({
   schemas: Record<string, SchemaObject>
   parseSchema: (entry: { schema: SchemaObject; name: string }, options: ast.ParserOptions) => ast.SchemaNode
   parseOperation: SchemaParser['parseOperation']
-  baseOas: BaseOas
+  document: Document
   parserOptions: ast.ParserOptions
   discriminator: AdapterOas['options']['discriminator']
   dedupe: boolean
@@ -157,12 +157,9 @@ export function preScan({
     // One extra parse pass over operations so duplicates in request/response bodies are seen.
     // Reuses the already-parsed `allNodes` for schemas, no second schema parse.
     const operationNodes: Array<ast.OperationNode> = []
-    for (const methods of Object.values(baseOas.getPaths())) {
-      for (const operation of Object.values(methods)) {
-        if (!operation) continue
-        const operationNode = parseOperation(parserOptions, operation)
-        if (operationNode) operationNodes.push(operationNode)
-      }
+    for (const operation of getOperations(document)) {
+      const operationNode = parseOperation(parserOptions, operation)
+      if (operationNode) operationNodes.push(operationNode)
     }
 
     dedupePlan = createDedupePlan({ schemaNodes: allNodes, operationNodes, schemaNames: Object.keys(schemas), circularNames })
@@ -192,7 +189,7 @@ export function preScan({
  *
  * @example
  * ```ts
- * const streamNode = createInputStream({ schemas, parseSchema, parseOperation, baseOas, parserOptions, refAliasMap, discriminatorChildMap, meta })
+ * const streamNode = createInputStream({ schemas, parseSchema, parseOperation, document, parserOptions, refAliasMap, discriminatorChildMap, meta })
  * for await (const schema of streamNode.schemas) {
  *   // each call to for-await restarts from the first schema
  * }
@@ -202,7 +199,7 @@ export function createInputStream({
   schemas,
   parseSchema,
   parseOperation,
-  baseOas,
+  document,
   parserOptions,
   refAliasMap,
   discriminatorChildMap,
@@ -212,7 +209,7 @@ export function createInputStream({
   schemas: Record<string, SchemaObject>
   parseSchema: SchemaParser['parseSchema']
   parseOperation: SchemaParser['parseOperation']
-  baseOas: BaseOas
+  document: Document
   parserOptions: ast.ParserOptions
   refAliasMap: Map<string, ast.SchemaNode>
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
@@ -273,12 +270,9 @@ export function createInputStream({
   const operationsIterable: AsyncIterable<ast.OperationNode> = {
     [Symbol.asyncIterator]() {
       return (async function* () {
-        for (const methods of Object.values(baseOas.getPaths())) {
-          for (const operation of Object.values(methods)) {
-            if (!operation) continue
-            const node = parseOperation(parserOptions, operation)
-            if (node) yield dedupePlan ? ast.applyDedupe(node, dedupePlan) : node
-          }
+        for (const operation of getOperations(document)) {
+          const node = parseOperation(parserOptions, operation)
+          if (node) yield dedupePlan ? ast.applyDedupe(node, dedupePlan) : node
         }
       })()
     },

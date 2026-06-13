@@ -1,6 +1,5 @@
 import { ast, createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
-import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { assertInputExists, parseDocument, parseFromConfig, validateDocument } from './factory.ts'
 import { createSchemaParser } from './parser.ts'
@@ -76,7 +75,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   // resulting document, so distinct configs (distinct documents) stay isolated.
   const documentCache = new WeakMap<AdapterSource, Promise<Document>>()
   const schemasCache = new WeakMap<Document, Promise<ReturnType<typeof getSchemas>['schemas']>>()
-  const baseOasCache = new WeakMap<Document, BaseOas>()
   const schemaParserCache = new WeakMap<Document, ReturnType<typeof createSchemaParser>>()
   const preScanCache = new WeakMap<Document, ReturnType<typeof preScan>>()
 
@@ -107,15 +105,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     return promise
   }
 
-  function ensureBaseOas(document: Document): BaseOas {
-    const cached = baseOasCache.get(document)
-    if (cached) return cached
-
-    const baseOas = new BaseOas(document)
-    baseOasCache.set(document, baseOas)
-    return baseOas
-  }
-
   function ensureSchemaParser(document: Document): ReturnType<typeof createSchemaParser> {
     const cached = schemaParserCache.get(document)
     if (cached) return cached
@@ -130,12 +119,11 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     schemas: ReturnType<typeof getSchemas>['schemas'],
     parseSchema: ReturnType<typeof ensureSchemaParser>['parseSchema'],
     parseOperation: ReturnType<typeof ensureSchemaParser>['parseOperation'],
-    baseOas: BaseOas,
   ): ReturnType<typeof preScan> {
     const cached = preScanCache.get(document)
     if (cached) return cached
 
-    const result = preScan({ schemas, parseSchema, parseOperation, baseOas, parserOptions, discriminator, dedupe })
+    const result = preScan({ schemas, parseSchema, parseOperation, document, parserOptions, discriminator, dedupe })
     preScanCache.set(document, result)
     return result
   }
@@ -144,14 +132,13 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     const document = await ensureDocument(source)
     const schemas = await ensureSchemas(document)
     const { parseSchema, parseOperation } = ensureSchemaParser(document)
-    const baseOas = ensureBaseOas(document)
-    const { refAliasMap, enumNames, circularNames, discriminatorChildMap, dedupePlan } = ensurePreScan(document, schemas, parseSchema, parseOperation, baseOas)
+    const { refAliasMap, enumNames, circularNames, discriminatorChildMap, dedupePlan } = ensurePreScan(document, schemas, parseSchema, parseOperation)
 
     return createInputStream({
       schemas,
       parseSchema,
       parseOperation,
-      baseOas,
+      document,
       parserOptions,
       refAliasMap,
       discriminatorChildMap,

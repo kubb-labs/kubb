@@ -2,7 +2,8 @@ import path from 'node:path'
 import { exists, mergeDeep, Url } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
-import OASNormalize from 'oas-normalize'
+import { compileErrors, validate } from '@readme/openapi-parser'
+import { parse } from 'yaml'
 import { bundleDocument } from './bundler.ts'
 import { MERGE_DEFAULT_TITLE, MERGE_DEFAULT_VERSION, MERGE_OPENAPI_VERSION } from './constants.ts'
 import { isOpenApiV2Document } from './guards.ts'
@@ -10,7 +11,6 @@ import type { Document } from './types.ts'
 
 export type ParseOptions = {
   canBundle?: boolean
-  enablePaths?: boolean
 }
 
 export type ValidateDocumentOptions = {
@@ -31,18 +31,16 @@ export type ValidateDocumentOptions = {
  * const document = await parse(rawDocumentObject, { canBundle: false })
  * ```
  */
-export async function parseDocument(pathOrApi: string | Document, { canBundle = true, enablePaths = true }: ParseOptions = {}): Promise<Document> {
+export async function parseDocument(pathOrApi: string | Document, { canBundle = true }: ParseOptions = {}): Promise<Document> {
   if (typeof pathOrApi === 'string' && canBundle) {
     const bundled = await bundleDocument(pathOrApi)
 
-    return parseDocument(bundled, { canBundle: false, enablePaths })
+    return parseDocument(bundled, { canBundle: false })
   }
 
-  const oasNormalize = new OASNormalize(pathOrApi, {
-    enablePaths,
-    colorizeErrors: true,
-  })
-  const document = (await oasNormalize.load()) as Document
+  // A string here is always inline YAML/JSON content: file paths and URLs are read and parsed by
+  // `bundleDocument` first. `yaml.parse` also parses JSON, since JSON is a subset of YAML.
+  const document = (typeof pathOrApi === 'string' ? parse(pathOrApi) : pathOrApi) as Document
 
   if (isOpenApiV2Document(document)) {
     const { default: swagger2openapi } = await import('swagger2openapi')
@@ -68,7 +66,7 @@ export async function parseDocument(pathOrApi: string | Document, { canBundle = 
  * ```
  */
 export async function mergeDocuments(pathOrApi: Array<string | Document>): Promise<Document> {
-  const documents = await Promise.all(pathOrApi.map((p) => parseDocument(p, { enablePaths: false, canBundle: false })))
+  const documents = await Promise.all(pathOrApi.map((p) => parseDocument(p, { canBundle: false })))
 
   if (documents.length === 0) {
     throw new Diagnostics.Error({
@@ -153,7 +151,7 @@ export async function assertInputExists(input: string): Promise<void> {
 }
 
 /**
- * Validates an OpenAPI document using `oas-normalize` with colorized error output.
+ * Validates an OpenAPI document using `@readme/openapi-parser` with colorized error output.
  *
  * @example
  * ```ts
@@ -162,18 +160,16 @@ export async function assertInputExists(input: string): Promise<void> {
  */
 export async function validateDocument(document: Document, { throwOnError = false }: ValidateDocumentOptions = {}): Promise<void> {
   try {
-    const oasNormalize = new OASNormalize(document, {
-      enablePaths: true,
-      colorizeErrors: true,
-    })
-
-    await oasNormalize.validate({
-      parser: {
-        validate: {
-          errors: { colorize: true },
-        },
+    // `validate` dereferences its input in place, so clone to keep the cached document intact.
+    const result = await validate(structuredClone(document), {
+      validate: {
+        errors: { colorize: true },
       },
     })
+
+    if (!result.valid) {
+      throw new Error(compileErrors(result))
+    }
   } catch (error) {
     if (throwOnError) {
       throw error
