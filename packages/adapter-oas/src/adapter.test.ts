@@ -182,7 +182,7 @@ describe('adapterOas dedupe', () => {
     },
   } as const
 
-  async function collectSchemas(node: ast.InputStreamNode): Promise<Array<ast.SchemaNode>> {
+  async function collectSchemas(node: ast.InputNode<true>): Promise<Array<ast.SchemaNode>> {
     const schemas: Array<ast.SchemaNode> = []
     for await (const schema of node.schemas) schemas.push(schema)
     return schemas
@@ -317,7 +317,7 @@ describe('adapterOas duplicate top-level schemas', () => {
     },
   } as const
 
-  async function collectSchemas(node: ast.InputStreamNode): Promise<Array<ast.SchemaNode>> {
+  async function collectSchemas(node: ast.InputNode<true>): Promise<Array<ast.SchemaNode>> {
     const schemas: Array<ast.SchemaNode> = []
     for await (const schema of node.schemas) schemas.push(schema)
     return schemas

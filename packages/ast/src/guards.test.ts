@@ -2,8 +2,8 @@ import { describe, expect, expectTypeOf, it } from 'vitest'
 import { createInput, createOperation, createSchema } from './factory.ts'
 import { isHttpOperationNode, isInputNode, isOperationNode, isSchemaNode, narrowSchema } from './guards.ts'
 import type { Node } from './nodes/index.ts'
+import type { InputNode } from './nodes/input.ts'
 import type { HttpMethod, OperationNode } from './nodes/operation.ts'
-import type { InputNode } from './nodes/root.ts'
 import type { ObjectSchemaNode, SchemaNode, StringSchemaNode, UnionSchemaNode } from './nodes/schema.ts'
 
 describe('isInputNode', () => {

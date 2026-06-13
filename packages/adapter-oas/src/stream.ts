@@ -181,7 +181,7 @@ export function preScan({
 }
 
 /**
- * Creates a lazy `InputStreamNode` from already-resolved adapter state.
+ * Creates a lazy `InputNode<true>` from already-resolved adapter state.
  *
  * The schema and operation iterables each start a fresh parse pass on every
  * `[Symbol.asyncIterator]()` call. This lets multiple plugins consume the same
@@ -218,7 +218,7 @@ export function createInputStream({
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
   dedupePlan: ast.DedupePlan | null
   meta: ast.InputMeta
-}): ast.InputStreamNode {
+}): ast.InputNode<true> {
   // Rewrites a top-level schema against the dedupe plan: a structurally identical sibling
   // becomes a `ref` alias to the canonical one (keeping its own name); otherwise nested
   // duplicates are collapsed while the schema's own root is preserved.

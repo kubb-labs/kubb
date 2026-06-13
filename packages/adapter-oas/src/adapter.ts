@@ -138,7 +138,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     return result
   }
 
-  async function createStream(source: AdapterSource): Promise<ast.InputStreamNode> {
+  async function createStream(source: AdapterSource): Promise<ast.InputNode<true>> {
     const document = await ensureDocument(source)
     const schemas = await ensureSchemas(document)
     const { parseSchema, parseOperation } = ensureSchemaParser(document)
