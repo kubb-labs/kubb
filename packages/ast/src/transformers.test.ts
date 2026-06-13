@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { createProperty, createSchema } from './factory.ts'
-import type { SchemaNode } from './nodes/schema.ts'
+import { createProperty } from './nodes/property.ts'
+import { createSchema, type SchemaNode } from './nodes/schema.ts'
 import { mergeAdjacentObjects, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
 
 describe('setDiscriminatorEnum', () => {

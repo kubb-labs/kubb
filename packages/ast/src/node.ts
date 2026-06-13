@@ -1,5 +1,5 @@
 import type { BaseNode, NodeKind } from './nodes/base.ts'
-import type { Node, SchemaNode } from './nodes/index.ts'
+import type { SchemaNode } from './nodes/index.ts'
 
 /**
  * Visitor callback names, one per traversable node kind. Kept in sync with the
@@ -73,9 +73,10 @@ export type NodeDef<TNode extends BaseNode = BaseNode, TInput = never> = {
    */
   visitorKey?: VisitorKey
   /**
-   * Builder rerun after children are rebuilt. Feeds `nodeFinalizers`.
+   * When `true`, `create` is rerun after children are rebuilt so computed fields
+   * stay in sync. Feeds `nodeFinalizers`.
    */
-  finalize?: (node: Node) => Node
+  finalize?: boolean
 }
 
 type DefineNodeConfig<TNode extends BaseNode, TInput, TBuilt extends object> = {
@@ -84,7 +85,7 @@ type DefineNodeConfig<TNode extends BaseNode, TInput, TBuilt extends object> = {
   build?: (input: TInput) => TBuilt
   children?: ReadonlyArray<string>
   visitorKey?: VisitorKey
-  finalize?: (node: Node) => Node
+  finalize?: boolean
 }
 
 /**
@@ -92,19 +93,24 @@ type DefineNodeConfig<TNode extends BaseNode, TInput, TBuilt extends object> = {
  * metadata. `create` merges `defaults`, the `build` hook (or the raw input), and the
  * `kind`, so node construction lives in one place without scattered `as` casts.
  *
+ * Set `finalize: true` when the `build` hook computes fields from children (so the
+ * node must be rebuilt after a transform rewrites them); the registry reuses `create`
+ * as the finalizer, no separate function needed.
+ *
  * @example Simple node
  * ```ts
  * const importDef = defineNode<ImportNode>({ kind: 'Import' })
  * const createImport = importDef.create
  * ```
  *
- * @example Node with a build hook and traversal metadata
+ * @example Node with a build hook that is rerun on transform
  * ```ts
  * const propertyDef = defineNode<PropertyNode, UserPropertyNode>({
  *   kind: 'Property',
  *   build: (props) => ({ ...props, required: props.required ?? false }),
  *   children: ['schema'],
  *   visitorKey: 'property',
+ *   finalize: true,
  * })
  * ```
  */

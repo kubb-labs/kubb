@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { createProperty, createSchema } from './factory.ts'
-import type { SchemaNode } from './nodes/schema.ts'
+import { createProperty } from './nodes/property.ts'
+import { createSchema, type SchemaNode } from './nodes/schema.ts'
 import { isSchemaEqual, signatureOf } from './signature.ts'
 
 function stringEnum(values: Array<string>, extra: Partial<Parameters<typeof createSchema>[0]> = {}): SchemaNode {

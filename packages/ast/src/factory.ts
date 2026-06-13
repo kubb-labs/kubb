@@ -4,19 +4,6 @@ import { trimExtName } from '@internals/utils'
 import type { FileNode, Node } from './nodes/index.ts'
 import { combineExports, combineImports, combineSources, extractStringsFromNodes } from './utils/ast.ts'
 
-export { createArrowFunction, createBreak, createConst, createFunction, createJsx, createText, createType } from './nodes/code.ts'
-export { createExport, createImport, createSource } from './nodes/file.ts'
-export { createFunctionParameter, createFunctionParameters, createParameterGroup, createParamsType } from './nodes/function.ts'
-export { createInput, createStreamInput } from './nodes/input.ts'
-export { createOperation } from './nodes/operation.ts'
-export { createOutput } from './nodes/output.ts'
-export { createParameter } from './nodes/parameter.ts'
-export { createProperty } from './nodes/property.ts'
-export { createResponse } from './nodes/response.ts'
-export { createSchema } from './nodes/schema.ts'
-export type { DistributiveOmit } from './node.ts'
-export { syncOptionality } from './node.ts'
-
 /**
  * Identity-preserving node update: returns `node` unchanged when every field in
  * `changes` already equals (by reference) the current value, otherwise a new node

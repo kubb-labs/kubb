@@ -64,6 +64,6 @@ export const VISITOR_KEY_BY_KIND = Object.fromEntries(nodeDefs.flatMap((def) => 
  * Per-kind builders rerun after children are rebuilt. Derived from each
  * definition's `finalize`.
  */
-export const nodeFinalizers = Object.fromEntries(nodeDefs.flatMap((def) => (def.finalize ? [[def.kind, def.finalize] as const] : []))) as Partial<
-  Record<NodeKind, (node: Node) => Node>
->
+export const nodeFinalizers = Object.fromEntries(
+  nodeDefs.flatMap((def) => (def.finalize ? [[def.kind, def.create as unknown as (node: Node) => Node] as const] : [])),
+) as Partial<Record<NodeKind, (node: Node) => Node>>

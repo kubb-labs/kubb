@@ -1,5 +1,7 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { createInput, createOperation, createSchema } from './factory.ts'
+import { createInput } from './nodes/input.ts'
+import { createOperation } from './nodes/operation.ts'
+import { createSchema } from './nodes/schema.ts'
 import {
   isArrowFunctionNode,
   isBreakNode,

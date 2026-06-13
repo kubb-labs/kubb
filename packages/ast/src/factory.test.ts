@@ -1,26 +1,15 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import {
-  createArrowFunction,
-  createConst,
-  createExport,
-  createFile,
-  createFunction,
-  createFunctionParameter,
-  createFunctionParameters,
-  createImport,
-  createInput,
-  createOperation,
-  createParameter,
-  createParameterGroup,
-  createParamsType,
-  createProperty,
-  createResponse,
-  createSchema,
-  createSource,
-  createText,
-  createType,
-} from './factory.ts'
+import { createFile } from './factory.ts'
 import { isHttpOperationNode } from './guards.ts'
+import { createArrowFunction, createConst, createFunction, createText, createType } from './nodes/code.ts'
+import { createExport, createImport, createSource } from './nodes/file.ts'
+import { createFunctionParameter, createFunctionParameters, createParameterGroup, createParamsType } from './nodes/function.ts'
+import { createInput } from './nodes/input.ts'
+import { createOperation } from './nodes/operation.ts'
+import { createParameter } from './nodes/parameter.ts'
+import { createProperty } from './nodes/property.ts'
+import { createResponse } from './nodes/response.ts'
+import { createSchema } from './nodes/schema.ts'
 import type { ArrowFunctionNode, ConstNode, FileNode, FunctionNode, ObjectSchemaNode, OperationNode, StringSchemaNode, TypeNode } from './nodes/index.ts'
 
 describe('createInput', () => {

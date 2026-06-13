@@ -1,4 +1,4 @@
-import { defineNode, type NodeDef, syncOptionality } from '../node.ts'
+import { defineNode, syncOptionality } from '../node.ts'
 import type { BaseNode } from './base.ts'
 import type { SchemaNode } from './schema.ts'
 
@@ -43,7 +43,7 @@ export type UserPropertyNode = Pick<PropertyNode, 'name' | 'schema'> & Partial<O
  * Definition for the {@link PropertyNode}. `required` defaults to `false` and the
  * schema's `optional`/`nullish` flags are kept in sync with it.
  */
-export const propertyDef: NodeDef<PropertyNode, UserPropertyNode> = defineNode<PropertyNode, UserPropertyNode>({
+export const propertyDef = defineNode<PropertyNode, UserPropertyNode>({
   kind: 'Property',
   build: (props) => {
     const required = props.required ?? false
@@ -51,7 +51,7 @@ export const propertyDef: NodeDef<PropertyNode, UserPropertyNode> = defineNode<P
   },
   children: ['schema'],
   visitorKey: 'property',
-  finalize: (node) => propertyDef.create(node as PropertyNode),
+  finalize: true,
 })
 
 /**
