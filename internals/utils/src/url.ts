@@ -1,7 +1,7 @@
 import { camelCase } from './casing.ts'
 import { isValidVarName } from './reserved.ts'
 
-export type URLObject = {
+type URLObject = {
   /**
    * The resolved URL string (Express-style or template literal, depending on context).
    */
@@ -15,7 +15,7 @@ export type URLObject = {
 /**
  * Supported identifier casing strategies for path parameters.
  */
-export type PathCasing = 'camelcase'
+type PathCasing = 'camelcase'
 
 type TemplateOptions = {
   /**
