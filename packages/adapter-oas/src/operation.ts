@@ -107,7 +107,11 @@ function getRequestBodyContent({ document, operation }: OperationContext): Recor
  * Otherwise picks the first JSON-like media type, then the first declared one, as a
  * `[mediaType, object]` tuple.
  */
-export function getRequestContent({ document, operation, mediaType }: OperationContext & { mediaType?: string }): MediaTypeObject | false | [string, MediaTypeObject] {
+export function getRequestContent({
+  document,
+  operation,
+  mediaType,
+}: OperationContext & { mediaType?: string }): MediaTypeObject | false | [string, MediaTypeObject] {
   const content = getRequestBodyContent({ document, operation })
   if (!content) {
     return false
