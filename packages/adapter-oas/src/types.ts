@@ -30,11 +30,7 @@ export type ContentType = 'application/json' | (string & {})
  * }
  * ```
  */
-/**
- * Base schema shape shared by OpenAPI 3.0 and 3.1, carrying the documentation and vendor fields
- * Kubb reads off a schema regardless of which spec version it came from.
- */
-type SchemaObjectBase = {
+export type SchemaObject = {
   externalDocs?: unknown
   xml?: unknown
   $schema?: string
@@ -46,9 +42,6 @@ type SchemaObjectBase = {
   writeOnly?: boolean
   discriminator?: DiscriminatorObject
   'x-readme-ref-name'?: string
-} & (OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject | JSONSchema4 | JSONSchema6 | JSONSchema7)
-
-export type SchemaObject = SchemaObjectBase & {
   /**
    * OAS 3.0 vendor extension: marks a schema as nullable without using `type: ['null', ...]`.
    */
@@ -78,7 +71,7 @@ export type SchemaObject = SchemaObjectBase & {
    * Enum values for this schema (narrowed from `unknown[]`).
    */
   enum?: Array<string | number | boolean | null>
-}
+} & (OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject | JSONSchema4 | JSONSchema6 | JSONSchema7)
 
 /**
  * HTTP method as a lowercase string (`'get' | 'post' | ...`).

@@ -161,7 +161,7 @@ export async function assertInputExists(input: string): Promise<void> {
 export async function validateDocument(document: Document, { throwOnError = false }: ValidateDocumentOptions = {}): Promise<void> {
   try {
     // `validate` dereferences its input in place, so clone to keep the cached document intact.
-    const result = await validate(structuredClone(document) as never, {
+    const result = await validate(structuredClone(document), {
       validate: {
         errors: { colorize: true },
       },

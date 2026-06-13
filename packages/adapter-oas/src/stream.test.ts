@@ -4,9 +4,9 @@ import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { parseFromConfig } from './factory.ts'
 import { createSchemaParser } from './parser.ts'
 import { createInputStream, preScan, resolveBaseUrl } from './stream.ts'
-import type { SchemaObject } from './types.ts'
+import type { Document, SchemaObject } from './types.ts'
 
-const minimalSpec = {
+const minimalSpec: Document = {
   openapi: '3.0.0',
   info: { title: 'Test API', version: '1.0.0' },
   servers: [{ url: 'https://api.example.com/v1' }],
@@ -35,7 +35,7 @@ const minimalSpec = {
       },
     },
   },
-} as const
+}
 
 const parserOptions = { ...DEFAULT_PARSER_OPTIONS }
 
@@ -92,7 +92,7 @@ describe('preScan', () => {
       schemas,
       parseSchema: makeParseSchema(),
       parseOperation: noopParseOperation,
-      document: minimalSpec as never,
+      document: minimalSpec,
       parserOptions,
       discriminator: 'strict',
       dedupe: false,
@@ -105,7 +105,7 @@ describe('preScan', () => {
       schemas,
       parseSchema: makeParseSchema(),
       parseOperation: noopParseOperation,
-      document: minimalSpec as never,
+      document: minimalSpec,
       parserOptions,
       discriminator: 'strict',
       dedupe: false,
@@ -139,7 +139,7 @@ describe('preScan', () => {
       schemas,
       parseSchema: makeParseSchema(),
       parseOperation: noopParseOperation,
-      document: minimalSpec as never,
+      document: minimalSpec,
       parserOptions,
       discriminator: 'strict',
       dedupe: false,
