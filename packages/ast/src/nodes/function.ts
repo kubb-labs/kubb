@@ -248,7 +248,10 @@ export const paramsTypeDef = defineNode<ParamsTypeNode, ParamsTypeInput>({ kind:
  */
 export const createParamsType = paramsTypeDef.create
 
-type FunctionParameterInput = { name: string; type?: ParamsTypeNode; rest?: boolean } & ({ optional: true; default?: never } | { optional?: false; default?: string })
+type FunctionParameterInput = { name: string; type?: ParamsTypeNode; rest?: boolean } & (
+  | { optional: true; default?: never }
+  | { optional?: false; default?: string }
+)
 
 /**
  * Definition for the {@link FunctionParameterNode}.

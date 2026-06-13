@@ -48,22 +48,22 @@ export const nodeDefs = [
  * Child node fields per node kind, in traversal order (Babel's `VISITOR_KEYS`).
  * Derived from each definition's `children`.
  */
-export const VISITOR_KEYS = Object.fromEntries(
-  nodeDefs.flatMap((def) => (def.children ? [[def.kind, def.children] as const] : [])),
-) as Partial<Record<NodeKind, ReadonlyArray<string>>>
+export const VISITOR_KEYS = Object.fromEntries(nodeDefs.flatMap((def) => (def.children ? [[def.kind, def.children] as const] : []))) as Partial<
+  Record<NodeKind, ReadonlyArray<string>>
+>
 
 /**
  * Maps a node kind to the matching visitor callback name. Derived from each
  * definition's `visitorKey`.
  */
-export const VISITOR_KEY_BY_KIND = Object.fromEntries(
-  nodeDefs.flatMap((def) => (def.visitorKey ? [[def.kind, def.visitorKey] as const] : [])),
-) as Partial<Record<NodeKind, NonNullable<NodeDef['visitorKey']>>>
+export const VISITOR_KEY_BY_KIND = Object.fromEntries(nodeDefs.flatMap((def) => (def.visitorKey ? [[def.kind, def.visitorKey] as const] : []))) as Partial<
+  Record<NodeKind, NonNullable<NodeDef['visitorKey']>>
+>
 
 /**
  * Per-kind builders rerun after children are rebuilt. Derived from each
  * definition's `finalize`.
  */
-export const nodeFinalizers = Object.fromEntries(
-  nodeDefs.flatMap((def) => (def.finalize ? [[def.kind, def.finalize] as const] : [])),
-) as Partial<Record<NodeKind, (node: Node) => Node>>
+export const nodeFinalizers = Object.fromEntries(nodeDefs.flatMap((def) => (def.finalize ? [[def.kind, def.finalize] as const] : []))) as Partial<
+  Record<NodeKind, (node: Node) => Node>
+>
