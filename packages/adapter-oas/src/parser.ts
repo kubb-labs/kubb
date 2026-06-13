@@ -973,7 +973,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
         : undefined
 
     const responses: Array<ast.ResponseNode> = getResponseStatusCodes(operation).map((statusCode) => {
-      const responseObj = getResponseByStatusCode(document, operation, statusCode)
+      const responseObj = getResponseByStatusCode({ document, operation, statusCode })
 
       // Use `Status<code>` (matching plugin-ts's resolveResponseStatusName convention) so the
       // qualified names for nested enums don't collide with top-level component schemas that
@@ -998,7 +998,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       // Body-less responses keep a single fallback entry so the response still resolves to a
       // (void/any) schema, matching how `requestBody` only carries schemas inside `content`.
       if (content.length === 0) {
-        content.push({ contentType: getRequestContentType(document, operation) || 'application/json', ...parseEntrySchema(ctx.contentType) })
+        content.push({ contentType: getRequestContentType({ document, operation }) || 'application/json', ...parseEntrySchema(ctx.contentType) })
       }
 
       return ast.createResponse({

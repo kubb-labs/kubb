@@ -171,7 +171,7 @@ export function getResponseSchema(document: Document, operation: Operation, stat
     }
   }
 
-  const responseBody = getResponseBody(getResponseByStatusCode(document, operation, statusCode), options.contentType)
+  const responseBody = getResponseBody(getResponseByStatusCode({ document, operation, statusCode }), options.contentType)
 
   if (responseBody === false) {
     return {}
@@ -199,7 +199,7 @@ export function getRequestSchema(document: Document, operation: Operation, optio
     operation.schema.requestBody = dereferenceWithRef(document, operation.schema.requestBody)
   }
 
-  const requestBody = getRequestContent(document, operation, options.contentType)
+  const requestBody = getRequestContent({ document, operation, mediaType: options.contentType })
 
   if (requestBody === false) {
     return null
@@ -574,7 +574,7 @@ export function getResponseBodyContentTypes(document: Document, operation: Opera
     }
   }
 
-  const responseObj = getResponseByStatusCode(document, operation, statusCode)
+  const responseObj = getResponseByStatusCode({ document, operation, statusCode })
   if (!responseObj || typeof responseObj !== 'object' || isReference(responseObj)) return []
 
   const body = responseObj as { content?: Record<string, unknown> }

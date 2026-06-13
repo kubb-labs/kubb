@@ -17,6 +17,15 @@ export type Operation = {
 }
 
 /**
+ * The document plus the operation being read. Shared by the request/response accessors so they can
+ * resolve `$ref`s against the document.
+ */
+type OperationContext = {
+  document: Document
+  operation: Operation
+}
+
+/**
  * Slugifies a path for the `operationId` fallback: non-alphanumerics collapse to single dashes,
  * with no leading or trailing dash.
  */
@@ -52,8 +61,8 @@ export function getResponseStatusCodes({ schema }: Operation): Array<string> {
 /**
  * Returns the response object for a status code, resolving a `$ref` in place. `false` when absent.
  */
-export function getResponseByStatusCode(document: Document, { schema }: Operation, statusCode: string | number): ResponseObject | false {
-  const responses = schema.responses as Record<string, ResponseObject | ReferenceObject> | undefined
+export function getResponseByStatusCode({ document, operation, statusCode }: OperationContext & { statusCode: string | number }): ResponseObject | false {
+  const responses = operation.schema.responses as Record<string, ResponseObject | ReferenceObject> | undefined
   if (!responses || isReference(responses)) {
     return false
   }
@@ -76,7 +85,8 @@ export function getResponseByStatusCode(document: Document, { schema }: Operatio
  * Resolves the request body (dereferencing a `$ref` in place) and returns its content map, or
  * `undefined` when the operation has no request body.
  */
-function getRequestBodyContent(document: Document, { schema }: Operation): Record<string, MediaTypeObject> | undefined {
+function getRequestBodyContent({ document, operation }: OperationContext): Record<string, MediaTypeObject> | undefined {
+  const { schema } = operation
   let requestBody = schema.requestBody as RequestBodyObject | ReferenceObject | undefined
   if (!requestBody) {
     return undefined
@@ -97,8 +107,8 @@ function getRequestBodyContent(document: Document, { schema }: Operation): Recor
  * Otherwise picks the first JSON-like media type, then the first declared one, as a
  * `[mediaType, object]` tuple.
  */
-export function getRequestContent(document: Document, operation: Operation, mediaType?: string): MediaTypeObject | false | [string, MediaTypeObject] {
-  const content = getRequestBodyContent(document, operation)
+export function getRequestContent({ document, operation, mediaType }: OperationContext & { mediaType?: string }): MediaTypeObject | false | [string, MediaTypeObject] {
+  const content = getRequestBodyContent({ document, operation })
   if (!content) {
     return false
   }
@@ -114,8 +124,8 @@ export function getRequestContent(document: Document, operation: Operation, medi
  * Returns the primary request content type. Prefers a JSON-like media type (the last one wins,
  * matching the previous behavior), then the first declared one, defaulting to `'application/json'`.
  */
-export function getRequestContentType(document: Document, operation: Operation): string {
-  const content = getRequestBodyContent(document, operation)
+export function getRequestContentType({ document, operation }: OperationContext): string {
+  const content = getRequestBodyContent({ document, operation })
   const mediaTypes = content ? Object.keys(content) : []
 
   let result = mediaTypes[0] ?? 'application/json'
