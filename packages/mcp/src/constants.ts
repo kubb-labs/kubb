@@ -22,5 +22,4 @@ export const NotifyTypes = {
   BUILD_END: 'BUILD_END',
   BUILD_FAILED: 'BUILD_FAILED',
   BUILD_SUCCESS: 'BUILD_SUCCESS',
-  FATAL_ERROR: 'FATAL_ERROR',
 } as const
