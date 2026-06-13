@@ -1,11 +1,10 @@
 import type { VisitorDepth } from './constants.ts'
 import { visitorDepths, WALK_CONCURRENCY } from './constants.ts'
-import { createParameter, createProperty } from './factory.ts'
+import { nodeFinalizers, VISITOR_KEY_BY_KIND, VISITOR_KEYS } from './registry.ts'
 import type {
   ContentNode,
   InputNode,
   Node,
-  NodeKind,
   OperationNode,
   OutputNode,
   ParameterNode,
@@ -281,24 +280,6 @@ export type CollectOptions<T> = CollectVisitor<T> & {
   parent?: Node
 }
 
-/**
- * Child node fields per node kind, in traversal order (Babel's `VISITOR_KEYS`).
- *
- * Each listed property holds a child node, an array of child nodes, or, for
- * `additionalProperties` a node or the literal `true` (skipped). Every value
- * in a child slot is a node, so one table drives both `getChildren` and `transform`.
- */
-const VISITOR_KEYS = {
-  Input: ['schemas', 'operations'],
-  Operation: ['parameters', 'requestBody', 'responses'],
-  RequestBody: ['content'],
-  Content: ['schema'],
-  Response: ['content'],
-  Schema: ['properties', 'items', 'members', 'additionalProperties'],
-  Property: ['schema'],
-  Parameter: ['schema'],
-} as const satisfies Partial<Record<NodeKind, ReadonlyArray<string>>>
-
 const visitorKeysByKind = VISITOR_KEYS as Record<string, ReadonlyArray<string> | undefined>
 
 /**
@@ -334,21 +315,6 @@ function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undef
       yield value
     }
   }
-}
-
-/**
- * Maps a node `kind` to the matching visitor callback name. Only the seven
- * traversable node kinds have an entry. Every other kind resolves to
- * `undefined` and is skipped.
- */
-const VISITOR_KEY_BY_KIND: Partial<Record<NodeKind, keyof Visitor>> = {
-  Input: 'input',
-  Output: 'output',
-  Operation: 'operation',
-  Schema: 'schema',
-  Property: 'property',
-  Parameter: 'parameter',
-  Response: 'response',
 }
 
 /**
@@ -457,16 +423,6 @@ export function transform(node: Node, options: TransformOptions): Node {
 
   const finalize = nodeFinalizers[rebuilt.kind]
   return finalize ? finalize(rebuilt) : rebuilt
-}
-
-/**
- * Per-kind builders rerun after children are rebuilt. `Property`/`Parameter`
- * resync schema optionality against their `required` flag once the schema may
- * have changed.
- */
-const nodeFinalizers: Partial<Record<NodeKind, (node: Node) => Node>> = {
-  Property: (node) => createProperty(node as PropertyNode),
-  Parameter: (node) => createParameter(node as ParameterNode),
 }
 
 /**

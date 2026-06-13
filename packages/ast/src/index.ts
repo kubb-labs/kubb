@@ -28,7 +28,34 @@ export {
   syncOptionality,
   update,
 } from './factory.ts'
-export { isHttpOperationNode, isInputNode, isOperationNode, isOutputNode, isSchemaNode, narrowSchema } from './guards.ts'
+export {
+  isArrowFunctionNode,
+  isBreakNode,
+  isConstNode,
+  isContentNode,
+  isExportNode,
+  isFileNode,
+  isFunctionNode,
+  isFunctionParameterNode,
+  isFunctionParametersNode,
+  isHttpOperationNode,
+  isImportNode,
+  isInputNode,
+  isJsxNode,
+  isOperationNode,
+  isOutputNode,
+  isParameterGroupNode,
+  isParameterNode,
+  isParamsTypeNode,
+  isPropertyNode,
+  isRequestBodyNode,
+  isResponseNode,
+  isSchemaNode,
+  isSourceNode,
+  isTextNode,
+  isTypeNode,
+  narrowSchema,
+} from './guards.ts'
 export { createPrinterFactory, definePrinter } from './printer.ts'
 export { signatureOf } from './signature.ts'
 export { mergeAdjacentObjectsLazy, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'

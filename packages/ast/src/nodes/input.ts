@@ -1,4 +1,5 @@
 import type { Streamable } from '@internals/utils'
+import { defineNode } from '../node.ts'
 import type { BaseNode } from './base.ts'
 import type { OperationNode } from './operation.ts'
 import type { SchemaNode } from './schema.ts'
@@ -101,3 +102,38 @@ export type InputNode<Stream extends boolean = false> = BaseNode & {
    */
   operations: Streamable<OperationNode, Stream>
 } & (Stream extends true ? { meta?: InputMeta } : { meta: InputMeta })
+
+/**
+ * Definition for the {@link InputNode}.
+ */
+export const inputDef = defineNode<InputNode, Partial<Omit<InputNode, 'kind'>>>({
+  kind: 'Input',
+  defaults: { schemas: [], operations: [], meta: { circularNames: [], enumNames: [] } },
+  children: ['schemas', 'operations'],
+  visitorKey: 'input',
+})
+
+/**
+ * Creates an `InputNode` with stable defaults for `schemas` and `operations`.
+ *
+ * @example
+ * ```ts
+ * const input = createInput()
+ * // { kind: 'Input', schemas: [], operations: [] }
+ * ```
+ */
+export function createInput(overrides: Partial<Omit<InputNode, 'kind'>> = {}): InputNode {
+  return inputDef.create(overrides)
+}
+
+/**
+ * Creates a streaming `InputNode<true>` from pre-built `AsyncIterable` sources.
+ *
+ * @example
+ * ```ts
+ * const node = createStreamInput(schemasIterable, operationsIterable, { title: 'My API' })
+ * ```
+ */
+export function createStreamInput(schemas: AsyncIterable<SchemaNode>, operations: AsyncIterable<OperationNode>, meta?: InputMeta): InputNode<true> {
+  return { kind: 'Input', schemas, operations, meta }
+}

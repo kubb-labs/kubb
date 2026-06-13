@@ -1,3 +1,4 @@
+import { defineNode } from '../node.ts'
 import type { BaseNode } from './base.ts'
 import type { FileNode } from './file.ts'
 
@@ -23,4 +24,26 @@ export type OutputNode = BaseNode & {
    * Generated file nodes.
    */
   files: Array<FileNode>
+}
+
+/**
+ * Definition for the {@link OutputNode}.
+ */
+export const outputDef = defineNode<OutputNode, Partial<Omit<OutputNode, 'kind'>>>({
+  kind: 'Output',
+  defaults: { files: [] },
+  visitorKey: 'output',
+})
+
+/**
+ * Creates an `OutputNode` with a stable default for `files`.
+ *
+ * @example
+ * ```ts
+ * const output = createOutput()
+ * // { kind: 'Output', files: [] }
+ * ```
+ */
+export function createOutput(overrides: Partial<Omit<OutputNode, 'kind'>> = {}): OutputNode {
+  return outputDef.create(overrides)
 }
