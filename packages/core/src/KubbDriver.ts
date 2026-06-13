@@ -1,12 +1,9 @@
-import { basename, join, relative, resolve } from 'node:path'
+import { resolve } from 'node:path'
 import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs, isPromise, memoize, Url } from '@internals/utils'
 import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast'
 import type { FileNode, InputMeta, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
-import { version as coreVersion } from '../package.json'
-import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL, STREAM_FLUSH_EVERY } from './constants.ts'
-import { Fingerprint } from './Fingerprint.ts'
+import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
-import type { Cache } from './createCache.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -56,8 +53,7 @@ export class KubbDriver {
   readonly options: Options
 
   /**
-   * The streaming `InputNode<true>` produced by the adapter.
-   * Always set after adapter setup, parse-only adapters are wrapped automatically.
+   * The streaming `InputNode<true>` produced by the adapter.   * Always set after adapter setup, parse-only adapters are wrapped automatically.
    */
   inputNode: InputNode<true> | null = null
   adapter: Adapter | null = null
@@ -345,14 +341,8 @@ export class KubbDriver {
       await hooks.emit('kubb:files:processing:start', { files })
     })
     const updateBuffer: Array<{ file: FileNode; source?: string; processed: number; total: number; percentage: number }> = []
-    // Final rendered source per output path, captured for the cache snapshot on a miss. Barrel
-    // files flow through here too, after the second `drain()`. Only collected when caching is
-    // enabled, otherwise the Map would retain every rendered source for the whole build.
-    const cacheEnabled = Boolean(config.cache)
-    const snapshotSources = new Map<string, string>()
     processor.hooks.on('update', (item) => {
       updateBuffer.push(item)
-      if (cacheEnabled && item.source !== undefined) snapshotSources.set(item.file.path, item.source)
     })
     processor.hooks.on('end', async (files) => {
       await hooks.emit('kubb:files:processing:update', {
@@ -372,15 +362,7 @@ export class KubbDriver {
       (diagnostic) => diagnostics.push(diagnostic),
       async () => {
         try {
-          const cache = config.cache
           const outputRoot = resolve(config.root, config.output.path)
-          const cacheKey = cache ? await Fingerprint.compute({ config, adapterSource: this.#adapterSource, version: coreVersion }) : null
-
-          // On a cache hit, restore the snapshot and skip everything below. Skipping the work is the
-          // whole point, so the only event emitted is `kubb:build:end`, which reporters key off.
-          if (cache && cacheKey && (await this.#restoreSnapshot({ cache, cacheKey, outputRoot, storage }))) {
-            return { diagnostics: Diagnostics.dedupe(diagnostics) }
-          }
 
           // Parse the adapter source into the streaming `InputNode`.
           await this.#parseInput()
@@ -442,10 +424,6 @@ export class KubbDriver {
 
           await hooks.emit('kubb:build:end', { files: this.fileManager.files, config, outputDir: outputRoot })
 
-          if (cache && cacheKey && !Diagnostics.hasError(diagnostics)) {
-            await this.#persistSnapshot({ cache, cacheKey, outputRoot, sources: snapshotSources })
-          }
-
           return { diagnostics: Diagnostics.dedupe(diagnostics) }
         } catch (caughtError) {
           diagnostics.push(Diagnostics.from(caughtError))
@@ -455,48 +433,6 @@ export class KubbDriver {
         }
       },
     )
-  }
-
-  /**
-   * Writes a restored snapshot straight to storage and emits `kubb:build:end`. Returns `true` on a
-   * hit (the build is done), `false` on a miss so the caller falls through to a full build.
-   */
-  async #restoreSnapshot({ cache, cacheKey, outputRoot, storage }: { cache: Cache; cacheKey: string; outputRoot: string; storage: Storage }): Promise<boolean> {
-    const snapshot = await cache.restore({ key: cacheKey })
-    if (!snapshot) return false
-
-    const queue: Array<Promise<void>> = []
-    for (const [relativePath, source] of Object.entries(snapshot.files)) {
-      const absolutePath = join(outputRoot, relativePath)
-      this.fileManager.upsert(createFile({ path: absolutePath, baseName: basename(relativePath) as `${string}.${string}` }))
-      queue.push(storage.setItem(absolutePath, source))
-      if (queue.length >= STREAM_FLUSH_EVERY) await Promise.all(queue.splice(0))
-    }
-    await Promise.all(queue)
-    await this.hooks.emit('kubb:build:end', { files: this.fileManager.files, config: this.config, outputDir: outputRoot })
-    return true
-  }
-
-  /**
-   * Stores this run's rendered output, keyed by the input fingerprint, so the next unchanged build
-   * restores it instead of regenerating. `sources` is keyed by absolute path and relativized here.
-   */
-  async #persistSnapshot({
-    cache,
-    cacheKey,
-    outputRoot,
-    sources,
-  }: {
-    cache: Cache
-    cacheKey: string
-    outputRoot: string
-    sources: ReadonlyMap<string, string>
-  }): Promise<void> {
-    const files: Record<string, string> = {}
-    for (const [absolutePath, source] of sources) {
-      files[relative(outputRoot, absolutePath)] = source
-    }
-    await cache.persist({ key: cacheKey, snapshot: { files } })
   }
 
   // Returns a fresh object with a lazy `files` getter and a bound `upsertFile`.

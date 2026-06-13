@@ -302,7 +302,6 @@ type GenerateCommandOptions = {
   logLevel: string
   watch: boolean
   reporters?: Array<ReporterName>
-  noCache?: boolean
 }
 
 async function checkForUpdate(hooks: AsyncEventEmitter<KubbHooks>): Promise<void> {
@@ -322,7 +321,7 @@ async function checkForUpdate(hooks: AsyncEventEmitter<KubbHooks>): Promise<void
  * Loads configs, sets up the selected reporters (CLI `--reporter` overrides `config.reporters`),
  * checks for a newer version, and calls `generate` for each config entry.
  */
-export async function run({ input, configPath, logLevel: logLevelKey, watch, reporters: cliReporters, noCache }: GenerateCommandOptions): Promise<void> {
+export async function run({ input, configPath, logLevel: logLevelKey, watch, reporters: cliReporters }: GenerateCommandOptions): Promise<void> {
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const hooks = new AsyncEventEmitterClass<KubbHooks>()
 
@@ -336,7 +335,6 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
       input,
       watch,
       logLevel: logLevelKey as CLIOptions['logLevel'],
-      noCache,
     })
     configs = loaded.configs
     resolvedConfigPath = loaded.configPath

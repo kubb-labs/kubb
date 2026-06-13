@@ -1,6 +1,6 @@
 import { isPromise, type PossiblePromise } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
-import { cliReporter, type CLIOptions, fileReporter, fsCache, jsonReporter, type UserConfig } from '@kubb/core'
+import { cliReporter, type CLIOptions, fileReporter, jsonReporter, type UserConfig } from '@kubb/core'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import { parserMd } from '@kubb/parser-md'
@@ -27,7 +27,6 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
  *   When the user provides a plugins list without `pluginBarrel`, `barrel` is left untouched.
  * - `output.format` defaults to `false`
  * - `output.lint` defaults to `false`
- * - `cache` defaults to `fsCache()`; pass `false` to turn caching off
  */
 function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
   const alreadyHasBarrel = config.plugins?.some((p) => p.name === pluginBarrelName)
@@ -53,7 +52,6 @@ function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
     reporters: config.reporters?.length ? config.reporters : [cliReporter, jsonReporter, fileReporter],
     plugins,
     output,
-    cache: config.cache === undefined ? fsCache() : config.cache,
   }
 }
 
@@ -77,7 +75,6 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  * - `output.barrel` → `{ type: 'named' }` only when `pluginBarrel` is
  *   in the plugins list.
  * - `output.format` and `output.lint` → `false`.
- * - `cache` → `fsCache()` (local disk); pass `false` to turn caching off.
  *
  * Accepts a config object, an array of configs, a Promise resolving to one,
  * or a function that receives the parsed CLI options and returns any of the
