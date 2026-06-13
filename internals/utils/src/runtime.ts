@@ -1,7 +1,7 @@
 /**
  * Name of the JavaScript runtime executing the current process.
  */
-export type RuntimeName = 'bun' | 'deno' | 'node'
+type RuntimeName = 'bun' | 'deno' | 'node'
 
 /**
  * Detects the JavaScript runtime executing the current process and exposes its name and version.
@@ -54,6 +54,7 @@ class Runtime {
   get name(): RuntimeName {
     if (this.isBun) return 'bun'
     if (this.isDeno) return 'deno'
+
     return 'node'
   }
 
@@ -68,6 +69,7 @@ class Runtime {
   get version(): string {
     if (this.isBun) return process.versions.bun ?? ''
     if (this.isDeno) return (globalThis as { Deno?: { version?: { deno?: string } } }).Deno?.version?.deno ?? ''
+
     return process.versions?.node ?? ''
   }
 }

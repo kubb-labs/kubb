@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
-import { isCIEnvironment, type RuntimeName, runtime } from '@internals/utils'
+import { isCIEnvironment, runtime } from '@internals/utils'
 import { OTLP_ENDPOINT } from './constants.ts'
 
 // OpenTelemetry OTLP JSON types
@@ -117,7 +117,7 @@ export type TelemetryEvent = {
   /**
    * Name of the JavaScript runtime that executed the run, `'bun'`, `'deno'`, or `'node'`.
    */
-  runtime: RuntimeName
+  runtime: string
   /**
    * Major version of the active runtime, e.g. `'1'` under Bun or `'22'` under Node.
    */

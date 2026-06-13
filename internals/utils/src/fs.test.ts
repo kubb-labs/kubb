@@ -2,7 +2,8 @@ import { mkdir, rm } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it, test } from 'vitest'
-import { clean, exists, getRelativePath, read, readSync, toPosixPath, trimExtName, write } from './fs.ts'
+import { camelCase, pascalCase } from './casing.ts'
+import { clean, exists, getRelativePath, read, toFilePath, toPosixPath, trimExtName, write } from './fs.ts'
 
 const existsTestDir = path.join(os.tmpdir(), 'kubb-test-exists')
 const existsTestFile = path.join(existsTestDir, 'test.txt')
@@ -47,13 +48,6 @@ describe('read / write', () => {
     await write(rwFilePath, text)
 
     expect(await read(rwFilePath)).toBe(text)
-  })
-
-  test('readSync reads file synchronously', async () => {
-    const text = `export const hallo = 'world sync'`
-    await write(rwFilePath, text)
-
-    expect(readSync(rwFilePath)).toBe(text)
   })
 
   test('write does not rewrite when content is identical', async () => {
@@ -177,5 +171,34 @@ describe('trimExtName', () => {
 
   test('strips double extension (.d.ts)', () => {
     expect(trimExtName('types.d.ts')).toBe('types.d')
+  })
+})
+
+describe('toFilePath', () => {
+  test.each([
+    // version numbers (dot before a digit) stay in one segment
+    ['get_enterprise_configurations_id_v2025.0', 'getEnterpriseConfigurationsIdV20250'],
+    ['some_operation_v3.14', 'someOperationV314'],
+    ['version.1.2.3', 'version123'],
+    // dots before a letter split into nested path segments
+    ['pet.petId', 'pet/petId'],
+    ['pet.Pet', 'pet/pet'],
+    ['api.v2', 'api/v2'],
+    // Security: leading dots must NOT produce a leading slash (path traversal guard)
+    ['..Schema', 'schema'],
+    ['...Schema', 'schema'],
+    ['.Internal', 'internal'],
+  ])('toFilePath(%s) -> %s (camelCase segments)', (input, expected) => {
+    expect(toFilePath(input)).toBe(expected)
+  })
+
+  test('cases the last segment with the provided caser', () => {
+    expect(toFilePath('pet.petId', pascalCase)).toBe('pet/PetId')
+    expect(toFilePath('pet.Pet', pascalCase)).toBe('pet/Pet')
+  })
+
+  test('applies prefix and suffix to the last segment only', () => {
+    expect(toFilePath('create tag.tag', (part) => camelCase(part, { prefix: 'create' }))).toBe('createTag/createTag')
+    expect(toFilePath('tag.tag', (part) => camelCase(part, { suffix: 'schema' }))).toBe('tag/tagSchema')
   })
 })
