@@ -1,7 +1,6 @@
 import type { PossiblePromise } from '@internals/utils'
 import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import type { Adapter } from './createAdapter.ts'
-import type { Cache } from './createCache.ts'
 import type { Reporter, ReporterName } from './createReporter.ts'
 import type { Storage } from './createStorage.ts'
 import type { Diagnostic, ProblemDiagnostic, UpdateDiagnostic } from './diagnostics.ts'
@@ -229,26 +228,6 @@ export type Config<TInput = Input> = {
    */
   storage: Storage
   /**
-   * Incremental build cache. Kubb fingerprints the inputs (spec content, config, plugin options,
-   * versions) and, on an unchanged "hot" run, restores the previously generated output instead of
-   * regenerating it. Same idea as Nx's computation cache.
-   *
-   * `defineConfig` enables `fsCache()` (local disk under `node_modules/.cache/kubb`) by default.
-   * Pass another backend to change where snapshots live, or `false` to turn caching off. A bare
-   * `createKubb` leaves it off unless a cache is provided.
-   *
-   * @example
-   * ```ts
-   * import { fsCache } from '@kubb/core'
-   *
-   * cache: fsCache({ dir: '.kubb-cache' })
-   * cache: false
-   * ```
-   *
-   * @see {@link Cache} interface for implementing custom backends.
-   */
-  cache?: Cache
-  /**
    * Plugins that run during the build to generate code and transform the AST. Each one processes
    * the adapter's AST and can emit files for a different target (TypeScript, Zod, Faker). A plugin
    * that depends on another throws when that plugin isn't registered.
@@ -332,12 +311,7 @@ export type Config<TInput = Input> = {
  * })
  * ```
  */
-export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins' | 'parsers' | 'adapter' | 'storage' | 'reporters' | 'cache'> & {
-  /**
-   * Incremental build cache. Defaults to `fsCache()` (local disk). Pass another {@link Cache}
-   * backend, or `false` to turn caching off.
-   */
-  cache?: Cache | false
+export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins' | 'parsers' | 'adapter' | 'storage' | 'reporters'> & {
   /**
    * Project root directory, absolute or relative to the config file location.
    * @default process.cwd()
@@ -784,11 +758,6 @@ export type CLIOptions = {
    * Reporters selected on the CLI via `--reporter`, overriding `config.reporters`.
    */
   reporters?: Array<ReporterName>
-  /**
-   * Turns off the incremental build cache for this run, forcing a full regeneration.
-   * Set by the `--no-cache` flag.
-   */
-  noCache?: boolean
 }
 
 /**
@@ -832,8 +801,6 @@ export type BuildOutput = {
 }
 
 export type { Adapter, AdapterFactoryOptions, AdapterSource } from './createAdapter.ts'
-export type { Cache, CachedSnapshot } from './createCache.ts'
-export type { FsCacheOptions } from './caches/fsCache.ts'
 export type {
   Diagnostic,
   DiagnosticByCode,
