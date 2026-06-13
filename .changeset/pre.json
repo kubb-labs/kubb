@@ -123,6 +123,7 @@
     "fix-url-input-resolution",
     "fix-workspace-renderer-jsx-deps",
     "get-resolver-typed-by-plugin-name",
+    "good-tools-argue",
     "goofy-canyons-teach",
     "group-tag-default-plain-tag",
     "hide-adapter-oas-internal-methods",

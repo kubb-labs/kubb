@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.56 — Jun 13, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Expose Url ([`f333037`](https://github.com/kubb-labs/kubb/commit/f3330377a6068d36033eb00120fc0e64fd4b9b02))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.55 — Jun 13, 2026
 
 ### @kubb/adapter-oas
