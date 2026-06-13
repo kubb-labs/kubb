@@ -10,11 +10,11 @@ import { createStorage } from '../createStorage.ts'
  * Keys are resolved against `process.cwd()`, so root-relative paths such as
  * `src/gen/api/getPets.ts` are written to the correct location without extra configuration.
  *
- * Internally uses the `write` utility from `@internals/utils`, which:
- * - trims leading/trailing whitespace before writing
- * - skips the write when file content is already identical (deduplication)
- * - creates missing parent directories automatically
- * - supports Bun's native file API when running under Bun
+ * Writes are deduplicated and directory-safe:
+ * - leading and trailing whitespace is trimmed before writing
+ * - the write is skipped when the file content is already identical
+ * - missing parent directories are created automatically
+ * - Bun's native file API is used when running under Bun
  *
  * @example
  * ```ts
