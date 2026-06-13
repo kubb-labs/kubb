@@ -4,6 +4,7 @@ import type { ast } from '@kubb/core'
 import { formatMap, SCHEMA_REF_PREFIX, specialCasedFormats, structuralKeys } from './constants.ts'
 import { isReference } from './guards.ts'
 import { isJsonMimeType } from './mime.ts'
+import { getRequestContent, getResponseByStatusCode } from './operation.ts'
 import { dereferenceWithRef, resolveRef } from './refs.ts'
 import type { ContentType, Document, MediaTypeObject, Operation, ParameterObject, ResponseObject, SchemaObject, ServerObject } from './types.ts'
 
@@ -170,7 +171,7 @@ export function getResponseSchema(document: Document, operation: Operation, stat
     }
   }
 
-  const responseBody = getResponseBody(operation.getResponseByStatusCode(statusCode), options.contentType)
+  const responseBody = getResponseBody(getResponseByStatusCode(document, operation, statusCode), options.contentType)
 
   if (responseBody === false) {
     return {}
@@ -198,7 +199,7 @@ export function getRequestSchema(document: Document, operation: Operation, optio
     operation.schema.requestBody = dereferenceWithRef(document, operation.schema.requestBody)
   }
 
-  const requestBody = operation.getRequestBody(options.contentType)
+  const requestBody = getRequestContent(document, operation, options.contentType)
 
   if (requestBody === false) {
     return null
@@ -573,7 +574,7 @@ export function getResponseBodyContentTypes(document: Document, operation: Opera
     }
   }
 
-  const responseObj = operation.getResponseByStatusCode(statusCode)
+  const responseObj = getResponseByStatusCode(document, operation, statusCode)
   if (!responseObj || typeof responseObj !== 'object' || isReference(responseObj)) return []
 
   const body = responseObj as { content?: Record<string, unknown> }
