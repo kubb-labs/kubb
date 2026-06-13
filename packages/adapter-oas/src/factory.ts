@@ -1,9 +1,9 @@
 import path from 'node:path'
-import { exists, mergeDeep, URLPath } from '@internals/utils'
+import { exists, mergeDeep, Url } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { compileErrors, validate } from '@readme/openapi-parser'
-import yaml from 'js-yaml'
+import { parse } from 'yaml'
 import { bundleDocument } from './bundler.ts'
 import { MERGE_DEFAULT_TITLE, MERGE_DEFAULT_VERSION, MERGE_OPENAPI_VERSION } from './constants.ts'
 import { isOpenApiV2Document } from './guards.ts'
@@ -39,8 +39,8 @@ export async function parseDocument(pathOrApi: string | Document, { canBundle = 
   }
 
   // A string here is always inline YAML/JSON content: file paths and URLs are read and parsed by
-  // `bundleDocument` first. `js-yaml` also parses JSON, since JSON is a subset of YAML.
-  const document = (typeof pathOrApi === 'string' ? yaml.load(pathOrApi) : pathOrApi) as Document
+  // `bundleDocument` first. `yaml.parse` also parses JSON, since JSON is a subset of YAML.
+  const document = (typeof pathOrApi === 'string' ? parse(pathOrApi) : pathOrApi) as Document
 
   if (isOpenApiV2Document(document)) {
     const { default: swagger2openapi } = await import('swagger2openapi')
@@ -121,7 +121,7 @@ export async function parseFromConfig(source: AdapterSource): Promise<Document> 
   }
 
   // type === 'path'
-  if (new URLPath(source.path).isURL) {
+  if (Url.canParse(source.path)) {
     return parseDocument(source.path)
   }
 
@@ -136,7 +136,7 @@ export async function parseFromConfig(source: AdapterSource): Promise<Document> 
  * its parse error instead.
  */
 export async function assertInputExists(input: string): Promise<void> {
-  if (new URLPath(input).isURL) {
+  if (Url.canParse(input)) {
     return
   }
   if (!(await exists(input))) {

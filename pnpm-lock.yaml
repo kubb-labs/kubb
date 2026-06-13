@@ -107,19 +107,16 @@ importers:
       api-ref-bundler:
         specifier: 0.5.1
         version: 0.5.1
-      js-yaml:
-        specifier: ^4.2.0
-        version: 4.2.0
       swagger2openapi:
         specifier: ^7.0.8
         version: 7.0.8
+      yaml:
+        specifier: 'catalog:'
+        version: 2.9.0
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
       '@types/json-schema':
         specifier: ^7.0.15
         version: 7.0.15
@@ -1491,9 +1488,6 @@ packages:
 
   '@types/http-proxy@1.17.17':
     resolution: {integrity: sha512-ED6LB+Z1AVylNTu7hdzuBqOgMnvG/ld6wGCG8wFnAzKX5uyW2K3WD52v0gnLCTK/VLpXtKckgWuyScYK6cSPaw==}
-
-  '@types/js-yaml@4.0.9':
-    resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
 
   '@types/jsesc@2.5.1':
     resolution: {integrity: sha512-9VN+6yxLOPLOav+7PwjZbxiID2bVaeq0ED4qSQmdQTdjnXJSaCVKTR58t15oqH1H5t8Ng2ZX1SabJVoN9Q34bw==}
@@ -4548,8 +4542,6 @@ snapshots:
   '@types/http-proxy@1.17.17':
     dependencies:
       '@types/node': 25.9.1
-
-  '@types/js-yaml@4.0.9': {}
 
   '@types/jsesc@2.5.1': {}
 

@@ -25,7 +25,7 @@ function hex(color: string): (text: string) => string {
   return (text: string) => `\x1b[38;2;${r};${g};${b}m${text}\x1b[0m`
 }
 
-function gradient(colorStops: string[], text: string): string {
+function gradient(colorStops: Array<string>, text: string): string {
   const chars = text.split('')
   return chars
     .map((char, i) => {

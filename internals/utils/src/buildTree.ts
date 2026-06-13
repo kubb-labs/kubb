@@ -1,4 +1,4 @@
-import { toPosixPath } from './path.ts'
+import { toPosixPath } from './fs.ts'
 
 /**
  * A node in the directory tree used to compute barrel file exports.

@@ -1,6 +1,6 @@
 import type { SerializedDiagnostic } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { formatDiagnostics } from './formatDiagnostics.ts'
+import { formatDiagnostics } from './utils.ts'
 
 describe('formatDiagnostics', () => {
   it('renders code, pointer, help, and docs for an agent without ANSI styling', () => {

@@ -201,6 +201,20 @@ describe('defaultResolveFile', () => {
     expect(file.baseName).toBe('listPets.ts')
   })
 
+  it.each([
+    // dots before a letter split into nested directories
+    ['pet.petId', '/root/types/pet/petId.ts'],
+    ['api.v2', '/root/types/api/v2.ts'],
+    // version numbers (dot before a digit) stay in one segment
+    ['some_operation_v3.14', '/root/types/someOperationV314.ts'],
+    // leading dots must not escape the output directory
+    ['..Schema', '/root/types/schema.ts'],
+  ])('nests dotted file name %s into %s', (name, expected) => {
+    const file = defaultResolveFile.call(resolver, { name, extname: '.ts' }, context)
+
+    expect(file.path).toBe(expected)
+  })
+
   it('omits the file name and writes to the output file in file mode', () => {
     const file = defaultResolveFile.call(
       resolver,

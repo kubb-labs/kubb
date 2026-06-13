@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { forBatches, isPromise, isPromiseRejectedResult, memoize, withDrain } from './promise.ts'
+import { forBatches, isPromise, isPromiseRejectedResult, memoize } from './promise.ts'
 
 describe('promise utilities', () => {
   describe('isPromise', () => {
@@ -44,7 +44,7 @@ describe('promise utilities', () => {
 describe('forBatches', () => {
   describe('array source', () => {
     it('calls process with batches of the requested concurrency', async () => {
-      const batches: number[][] = []
+      const batches: Array<Array<number>> = []
       await forBatches(
         [1, 2, 3, 4, 5],
         async (batch) => {
@@ -57,7 +57,7 @@ describe('forBatches', () => {
     })
 
     it('passes all items when count is less than concurrency', async () => {
-      const batches: number[][] = []
+      const batches: Array<Array<number>> = []
       await forBatches(
         [1, 2],
         async (batch) => {
@@ -77,7 +77,7 @@ describe('forBatches', () => {
     })
 
     it('calls flush after every batch', async () => {
-      const flushed: number[] = []
+      const flushed: Array<number> = []
       let processed = 0
       await forBatches(
         Array.from({ length: 12 }, (_, i) => i),
@@ -104,12 +104,12 @@ describe('forBatches', () => {
   })
 
   describe('async iterable source', () => {
-    async function* generate<T>(items: T[]) {
+    async function* generate<T>(items: Array<T>) {
       for (const item of items) yield item
     }
 
     it('calls process with batches of the requested concurrency', async () => {
-      const batches: number[][] = []
+      const batches: Array<Array<number>> = []
       await forBatches(
         generate([1, 2, 3, 4, 5]),
         async (batch) => {
@@ -122,7 +122,7 @@ describe('forBatches', () => {
     })
 
     it('passes all items when count is less than concurrency', async () => {
-      const batches: number[][] = []
+      const batches: Array<Array<number>> = []
       await forBatches(
         generate([1, 2]),
         async (batch) => {
@@ -142,7 +142,7 @@ describe('forBatches', () => {
     })
 
     it('calls flush after every batch (including the trailing partial batch)', async () => {
-      const flushed: number[] = []
+      const flushed: Array<number> = []
       let processed = 0
       await forBatches(
         generate(Array.from({ length: 12 }, (_, i) => i)),
@@ -166,37 +166,6 @@ describe('forBatches', () => {
 
       expect(flush).not.toHaveBeenCalled()
     })
-  })
-})
-
-describe('withDrain', () => {
-  it('passes flush to work and calls it again after work completes', async () => {
-    const calls: string[] = []
-    const flush = async () => {
-      calls.push('flush')
-    }
-
-    await withDrain(async (f) => {
-      calls.push('work-start')
-      await f()
-      calls.push('work-end')
-    }, flush)
-
-    expect(calls).toStrictEqual(['work-start', 'flush', 'work-end', 'flush'])
-  })
-
-  it('calls flush even when work never calls it', async () => {
-    const flush = vi.fn()
-    await withDrain(async () => {}, flush)
-    expect(flush).toHaveBeenCalledTimes(1)
-  })
-
-  it('calls flush exactly once after work when work calls it zero times', async () => {
-    const flush = vi.fn()
-    await withDrain(async (_f) => {
-      /* work does not flush */
-    }, flush)
-    expect(flush).toHaveBeenCalledTimes(1)
   })
 })
 

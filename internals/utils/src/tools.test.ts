@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { detectFormatter } from './formatters.ts'
+import { detectTool } from './tools.ts'
 
 vi.mock('node:child_process', () => ({
   spawn: vi.fn(),
@@ -18,42 +18,38 @@ function makeChild(exitCode: number | null) {
   return child
 }
 
-describe('detectFormatter', () => {
+describe('detectTool', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('should detect oxfmt when available', async () => {
+  it('returns the first candidate when available', async () => {
     vi.mocked(spawn).mockImplementation((command: string) => {
       return makeChild(command === 'oxfmt' ? 0 : 1)
     })
 
-    const result = await detectFormatter()
-    expect(result).toBe('oxfmt')
+    expect(await detectTool(['oxfmt', 'biome', 'prettier'])).toBe('oxfmt')
   })
 
-  it('should detect biome when oxfmt is not available', async () => {
+  it('skips missing candidates and returns the first available one', async () => {
     vi.mocked(spawn).mockImplementation((command: string) => {
       return makeChild(command === 'biome' ? 0 : 1)
     })
 
-    const result = await detectFormatter()
-    expect(result).toBe('biome')
+    expect(await detectTool(['oxfmt', 'biome', 'prettier'])).toBe('biome')
   })
 
-  it('should detect prettier when oxfmt and biome are not available', async () => {
+  it('returns the last candidate when only it is available', async () => {
     vi.mocked(spawn).mockImplementation((command: string) => {
-      return makeChild(command === 'prettier' ? 0 : 1)
+      return makeChild(command === 'eslint' ? 0 : 1)
     })
 
-    const result = await detectFormatter()
-    expect(result).toBe('prettier')
+    expect(await detectTool(['oxlint', 'biome', 'eslint'])).toBe('eslint')
   })
 
-  it('should return null when no formatter is available', async () => {
+  it('returns null when no candidate is available', async () => {
     vi.mocked(spawn).mockImplementation(() => makeChild(null))
 
-    const result = await detectFormatter()
-    expect(result).toBeNull()
+    expect(await detectTool(['oxlint', 'biome', 'eslint'])).toBeNull()
   })
 })

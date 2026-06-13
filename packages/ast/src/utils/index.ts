@@ -1,7 +1,7 @@
 import { isIdentifier, pascalCase, singleQuote } from '@internals/utils'
 import { INDENT } from '../constants.ts'
 
-export { ensureValidVarName, isValidVarName } from '@internals/utils'
+export { isValidVarName } from '@internals/utils'
 
 /**
  * Strips a single matching pair of `"..."`, `'...'`, or `` `...` `` from both ends of `text`.

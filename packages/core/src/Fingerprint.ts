@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { relative } from 'node:path'
-import { URLPath } from '@internals/utils'
+import { Url } from '@internals/utils'
 import type { AdapterSource } from './createAdapter.ts'
 import type { Config } from './types.ts'
 
@@ -84,7 +84,7 @@ export class Fingerprint {
       return { kind: 'data', data: typeof source.data === 'string' ? source.data : Fingerprint.stringify(source.data) }
     }
     const paths = source.type === 'paths' ? source.paths : [source.path]
-    if (paths.some((path) => new URLPath(path).isURL)) {
+    if (paths.some((path) => Url.canParse(path))) {
       return null
     }
     try {

@@ -1,4 +1,4 @@
-import { pascalCase, URLPath } from '@internals/utils'
+import { pascalCase } from '@internals/utils'
 import { childName, enumPropName, extractRefName, findDiscriminator } from '@kubb/ast/utils'
 import { ast } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, SCHEMA_REF_PREFIX, typeOptionMap } from './constants.ts'
@@ -1008,13 +1008,11 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       })
     })
 
-    const urlPath = new URLPath(operation.path)
-
     return ast.createOperation({
       operationId,
       protocol: 'http',
       method: operation.method.toUpperCase() as ast.HttpMethod,
-      path: urlPath.path,
+      path: operation.path,
       tags: operation.getTags().map((tag) => tag.name),
       summary: operation.getSummary() || undefined,
       description: operation.getDescription() || undefined,

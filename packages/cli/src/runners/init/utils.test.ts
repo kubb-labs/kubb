@@ -1,7 +1,6 @@
-import { spawn } from 'node:child_process'
-import { EventEmitter } from 'node:events'
 import fs from 'node:fs'
 import type { PackageManagerInfo } from '@internals/utils'
+import { x } from 'tinyexec'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { hasPackageJson, initPackageJson, installPackages } from './utils.ts'
 
@@ -9,21 +8,9 @@ vi.mock('node:fs', () => ({
   default: { existsSync: vi.fn() },
 }))
 
-vi.mock('node:child_process', () => ({
-  spawn: vi.fn(),
+vi.mock('tinyexec', () => ({
+  x: vi.fn(),
 }))
-
-function makeChildProcess(closeCode: number | null = 0) {
-  const child = new EventEmitter()
-  setTimeout(() => child.emit('close', closeCode), 0)
-  return child
-}
-
-function makeErrorChildProcess(error: Error) {
-  const child = new EventEmitter()
-  setTimeout(() => child.emit('error', error), 0)
-  return child
-}
 
 describe('packageManager', () => {
   beforeEach(() => vi.clearAllMocks())
@@ -72,63 +59,57 @@ describe('packageManager', () => {
         expectedArgs: ['init', '-y'],
       },
     ])('runs $pm.name $expectedArgs', async ({ pm, expectedArgs }) => {
-      vi.mocked(spawn).mockReturnValue(makeChildProcess(0) as ReturnType<typeof spawn>)
+      vi.mocked(x).mockReturnValue(Promise.resolve() as never)
       await initPackageJson('/tmp/project', pm)
-      expect(spawn).toHaveBeenCalledWith(pm.name, expectedArgs, expect.objectContaining({ cwd: '/tmp/project' }))
+      expect(x).toHaveBeenCalledWith(pm.name, expectedArgs, expect.objectContaining({ nodeOptions: expect.objectContaining({ cwd: '/tmp/project' }) }))
     })
 
-    it('rejects when the process exits with non-zero code', async () => {
-      vi.mocked(spawn).mockReturnValue(makeChildProcess(1) as ReturnType<typeof spawn>)
+    it('rejects when the command fails', async () => {
+      vi.mocked(x).mockImplementation(() => Promise.reject(new Error('Process exited with non-zero status (1)')) as never)
       const pm: PackageManagerInfo = {
         name: 'npm',
         lockFile: 'package-lock.json',
         installCommand: ['install'],
       }
-      await expect(initPackageJson('/tmp/project', pm)).rejects.toThrow('"npm init -y" was terminated by signal undefined')
-    })
-
-    it('rejects when spawn emits an error', async () => {
-      vi.mocked(spawn).mockReturnValue(makeErrorChildProcess(new Error('spawn ENOENT')) as ReturnType<typeof spawn>)
-      const pm: PackageManagerInfo = {
-        name: 'npm',
-        lockFile: 'package-lock.json',
-        installCommand: ['install'],
-      }
-      await expect(initPackageJson('/tmp/project', pm)).rejects.toThrow('spawn ENOENT')
+      await expect(initPackageJson('/tmp/project', pm)).rejects.toThrow('Process exited with non-zero status')
     })
   })
 
   describe('installPackages', () => {
     it('runs the install command with package names', async () => {
-      vi.mocked(spawn).mockReturnValue(makeChildProcess(0) as ReturnType<typeof spawn>)
+      vi.mocked(x).mockReturnValue(Promise.resolve() as never)
       const pm: PackageManagerInfo = {
         name: 'pnpm',
         lockFile: 'pnpm-lock.yaml',
         installCommand: ['add'],
       }
       await installPackages(['kubb', '@kubb/plugin-ts'], pm, '/tmp/project')
-      expect(spawn).toHaveBeenCalledWith('pnpm', ['add', 'kubb', '@kubb/plugin-ts'], expect.objectContaining({ cwd: '/tmp/project' }))
+      expect(x).toHaveBeenCalledWith(
+        'pnpm',
+        ['add', 'kubb', '@kubb/plugin-ts'],
+        expect.objectContaining({ nodeOptions: expect.objectContaining({ cwd: '/tmp/project' }) }),
+      )
     })
 
     it('uses process.cwd() as default cwd', async () => {
-      vi.mocked(spawn).mockReturnValue(makeChildProcess(0) as ReturnType<typeof spawn>)
+      vi.mocked(x).mockReturnValue(Promise.resolve() as never)
       const pm: PackageManagerInfo = {
         name: 'npm',
         lockFile: 'package-lock.json',
         installCommand: ['install'],
       }
       await installPackages(['kubb'], pm)
-      expect(spawn).toHaveBeenCalledWith('npm', ['install', 'kubb'], expect.objectContaining({ cwd: process.cwd() }))
+      expect(x).toHaveBeenCalledWith('npm', ['install', 'kubb'], expect.objectContaining({ nodeOptions: expect.objectContaining({ cwd: process.cwd() }) }))
     })
 
-    it('rejects when the process exits with non-zero code', async () => {
-      vi.mocked(spawn).mockReturnValue(makeChildProcess(2) as ReturnType<typeof spawn>)
+    it('rejects when the command fails', async () => {
+      vi.mocked(x).mockImplementation(() => Promise.reject(new Error('Process exited with non-zero status (2)')) as never)
       const pm: PackageManagerInfo = {
         name: 'pnpm',
         lockFile: 'pnpm-lock.yaml',
         installCommand: ['add'],
       }
-      await expect(installPackages(['kubb'], pm)).rejects.toThrow('"pnpm add kubb" was terminated by signal undefined')
+      await expect(installPackages(['kubb'], pm)).rejects.toThrow('Process exited with non-zero status')
     })
   })
 })

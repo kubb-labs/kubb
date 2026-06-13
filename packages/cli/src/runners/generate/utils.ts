@@ -1,7 +1,7 @@
 import { hash } from 'node:crypto'
 import { styleText } from 'node:util'
 import type { AsyncEventEmitter } from '@internals/utils'
-import { toError, tokenize } from '@internals/utils'
+import { toError } from '@internals/utils'
 import type { CLIOptions, Config, KubbHooks, PossibleConfig } from '@kubb/core'
 import { cosmiconfig } from 'cosmiconfig'
 import { createJiti } from 'jiti'
@@ -124,6 +124,17 @@ export async function getConfigs({ configPath, input, watch, logLevel, noCache }
 type ExecuteHooksOptions = {
   configHooks: NonNullable<Config['hooks']>
   hooks: AsyncEventEmitter<KubbHooks>
+}
+
+/**
+ * Tokenizes a shell command string, respecting single and double quotes.
+ *
+ * @example
+ * tokenize('git commit -m "initial commit"')
+ * // → ['git', 'commit', '-m', 'initial commit']
+ */
+function tokenize(command: string): Array<string> {
+  return (command.match(/[^\s"']+|"([^"]*)"|'([^']*)'/g) ?? []).map((token) => token.replace(/^["']|["']$/g, ''))
 }
 
 /**

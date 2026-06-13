@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { camelCase, pascalCase } from '@internals/utils'
+import { camelCase, pascalCase, toFilePath } from '@internals/utils'
 import type { FileNode, InputMeta, Node, OperationNode, SchemaNode } from '@kubb/ast'
 import { createFile, isOperationNode, isSchemaNode } from '@kubb/ast'
 import { Diagnostics } from './diagnostics.ts'
@@ -289,12 +289,12 @@ function matchesSchemaPattern(node: SchemaNode, type: string, pattern: string | 
 /**
  * Default name resolver used by `defineResolver`.
  *
- * - `camelCase` for `function` and `file` types.
+ * - `camelCase` for `file`, with dotted names split into `/`-joined nested paths.
  * - `PascalCase` for `type`.
- * - `camelCase` for everything else.
+ * - `camelCase` for `function` and everything else.
  */
 function defaultResolver(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
-  if (type === 'file' || type === 'function') return camelCase(name, { isFile: type === 'file' })
+  if (type === 'file') return toFilePath(name)
   if (type === 'type') return pascalCase(name)
   return camelCase(name)
 }

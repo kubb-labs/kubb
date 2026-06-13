@@ -5,7 +5,7 @@ import { generateConfigFile } from './init.ts'
 describe('generateConfigFile', () => {
   it('generates a config with a single plugin', () => {
     const [pluginTs] = availablePlugins
-    const result = generateConfigFile({ selectedPlugins: [pluginTs], inputPath: './openapi.yaml', outputPath: './src/gen' })
+    const result = generateConfigFile({ selectedPlugins: [pluginTs!], inputPath: './openapi.yaml', outputPath: './src/gen' })
     expect(result).toMatchInlineSnapshot(`
       "import { defineConfig } from 'kubb'
       import { pluginTs } from '@kubb/plugin-ts'
@@ -20,9 +20,7 @@ describe('generateConfigFile', () => {
           clean: true,
         },
         plugins: [
-          pluginTs({
-            output: { path: 'models' },
-          }),
+          pluginTs(),
         ],
       })
       "
@@ -47,12 +45,8 @@ describe('generateConfigFile', () => {
           clean: true,
         },
         plugins: [
-          pluginTs({
-            output: { path: 'models' },
-          }),
-          pluginZod({
-            output: { path: 'zod' },
-          }),
+          pluginTs(),
+          pluginZod(),
         ],
       })
       "
@@ -91,7 +85,7 @@ describe('generateConfigFile', () => {
 
   it('produces a valid ESM default export', () => {
     const [pluginTs] = availablePlugins
-    const result = generateConfigFile({ selectedPlugins: [pluginTs], inputPath: './api.yaml', outputPath: './gen' })
+    const result = generateConfigFile({ selectedPlugins: [pluginTs!], inputPath: './api.yaml', outputPath: './gen' })
     expect(result).toMatchInlineSnapshot(`
       "import { defineConfig } from 'kubb'
       import { pluginTs } from '@kubb/plugin-ts'
@@ -106,9 +100,7 @@ describe('generateConfigFile', () => {
           clean: true,
         },
         plugins: [
-          pluginTs({
-            output: { path: 'models' },
-          }),
+          pluginTs(),
         ],
       })
       "
