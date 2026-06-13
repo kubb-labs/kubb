@@ -16,4 +16,4 @@ export const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
 /**
  * Flags that short-circuit execution (help/version), no telemetry notice is shown.
  */
-export const QUIET_FLAGS = new Set(['--help', '-h', '--version', '-v'] as const)
+export const QUIET_FLAGS = new Set<string>(['--help', '-h', '--version', '-v'])

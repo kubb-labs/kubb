@@ -1,5 +1,4 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { toSnapshot } from '#mocks'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import {
   buildSchemaNode,
@@ -381,18 +380,12 @@ describe('getSchemas', () => {
     }
 
     const { schemas, nameMapping } = getSchemas(document, {})
-    expect(toSnapshot(schemas)).toMatchInlineSnapshot(`
-      {
-        "Pet": {
-          "properties": {
-            "name": {
-              "type": "string",
-            },
-          },
-          "type": "object",
-        },
-      }
-    `)
+    expect(schemas).toMatchObject({
+      Pet: {
+        type: 'object',
+        properties: { name: { type: 'string' } },
+      },
+    })
     expect(nameMapping.get('#/components/schemas/Pet')).toBe('Pet')
   })
 
@@ -417,18 +410,12 @@ describe('getSchemas', () => {
     }
 
     const { schemas, nameMapping } = getSchemas(document, {})
-    expect(toSnapshot(schemas)).toMatchInlineSnapshot(`
-      {
-        "PetResponse": {
-          "properties": {
-            "id": {
-              "type": "integer",
-            },
-          },
-          "type": "object",
-        },
-      }
-    `)
+    expect(schemas).toMatchObject({
+      PetResponse: {
+        type: 'object',
+        properties: { id: { type: 'integer' } },
+      },
+    })
     expect(nameMapping.get('#/components/responses/PetResponse')).toBe('PetResponse')
   })
 
@@ -452,18 +439,12 @@ describe('getSchemas', () => {
     }
 
     const { schemas, nameMapping } = getSchemas(document, {})
-    expect(toSnapshot(schemas)).toMatchInlineSnapshot(`
-      {
-        "CreatePet": {
-          "properties": {
-            "name": {
-              "type": "string",
-            },
-          },
-          "type": "object",
-        },
-      }
-    `)
+    expect(schemas).toMatchObject({
+      CreatePet: {
+        type: 'object',
+        properties: { name: { type: 'string' } },
+      },
+    })
     expect(nameMapping.get('#/components/requestBodies/CreatePet')).toBe('CreatePet')
   })
 
@@ -679,17 +660,11 @@ describe('getSchemas', () => {
     const { schemas } = getSchemas(document, {
       contentType: 'application/xml',
     })
-    expect(toSnapshot(schemas)).toMatchInlineSnapshot(`
-      {
-        "PetResponse": {
-          "properties": {
-            "xml": {
-              "type": "string",
-            },
-          },
-          "type": "object",
-        },
-      }
-    `)
+    expect(schemas).toMatchObject({
+      PetResponse: {
+        type: 'object',
+        properties: { xml: { type: 'string' } },
+      },
+    })
   })
 })

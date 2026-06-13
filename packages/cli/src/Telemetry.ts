@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
-import { executeIfOnline, getRuntimeName, getRuntimeVersion, isCIEnvironment, type RuntimeName } from '@internals/utils'
+import { getRuntimeName, getRuntimeVersion, isCIEnvironment, type RuntimeName } from '@internals/utils'
 import { OTLP_ENDPOINT } from './constants.ts'
 
 // OpenTelemetry OTLP JSON types
@@ -139,7 +139,7 @@ export class Telemetry {
   /**
    * Returns `true` when telemetry is disabled via `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY`.
    */
-  static isDisabled(): boolean {
+  static get isDisabled(): boolean {
     return (
       process.env['DO_NOT_TRACK'] === '1' ||
       process.env['DO_NOT_TRACK'] === 'true' ||
@@ -266,25 +266,23 @@ export class Telemetry {
    * `KUBB_DISABLE_TELEMETRY`, and fails silently so telemetry never interrupts a run.
    */
   static async send(event: TelemetryEvent): Promise<void> {
-    if (Telemetry.isDisabled()) {
+    if (Telemetry.isDisabled) {
       return
     }
 
-    await executeIfOnline(async () => {
-      try {
-        await fetch(`${OTLP_ENDPOINT}/v1/traces`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Kubb-Telemetry-Version': '1',
-            'Kubb-Telemetry-Source': 'kubb-core',
-          },
-          body: JSON.stringify(Telemetry.buildOtlpPayload(event)),
-          signal: AbortSignal.timeout(5_000),
-        })
-      } catch (_e) {
-        // Fail silently, telemetry must never break the run
-      }
-    })
+    try {
+      await fetch(`${OTLP_ENDPOINT}/v1/traces`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Kubb-Telemetry-Version': '1',
+          'Kubb-Telemetry-Source': 'kubb-core',
+        },
+        body: JSON.stringify(Telemetry.buildOtlpPayload(event)),
+        signal: AbortSignal.timeout(5_000),
+      })
+    } catch (_e) {
+      // Fail silently, telemetry must never break the run
+    }
   }
 }

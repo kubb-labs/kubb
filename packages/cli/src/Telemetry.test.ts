@@ -17,34 +17,39 @@ describe('Telemetry.isDisabled', () => {
   it('should return false when DO_NOT_TRACK is not set', () => {
     delete process.env['DO_NOT_TRACK']
     delete process.env['KUBB_DISABLE_TELEMETRY']
-    expect(Telemetry.isDisabled()).toBe(false)
+    expect(Telemetry.isDisabled).toBe(false)
   })
 
   it('should return true when DO_NOT_TRACK=1', () => {
     process.env['DO_NOT_TRACK'] = '1'
-    expect(Telemetry.isDisabled()).toBe(true)
+
+    expect(Telemetry.isDisabled).toBe(true)
   })
 
   it('should return true when DO_NOT_TRACK=true', () => {
     process.env['DO_NOT_TRACK'] = 'true'
-    expect(Telemetry.isDisabled()).toBe(true)
+
+    expect(Telemetry.isDisabled).toBe(true)
   })
 
   it('should return true when KUBB_DISABLE_TELEMETRY=1', () => {
     delete process.env['DO_NOT_TRACK']
     process.env['KUBB_DISABLE_TELEMETRY'] = '1'
-    expect(Telemetry.isDisabled()).toBe(true)
+
+    expect(Telemetry.isDisabled).toBe(true)
   })
 
   it('should return true when KUBB_DISABLE_TELEMETRY=true', () => {
     delete process.env['DO_NOT_TRACK']
     process.env['KUBB_DISABLE_TELEMETRY'] = 'true'
-    expect(Telemetry.isDisabled()).toBe(true)
+
+    expect(Telemetry.isDisabled).toBe(true)
   })
 
   it('should return false when DO_NOT_TRACK is set to a different value', () => {
     process.env['DO_NOT_TRACK'] = '0'
-    expect(Telemetry.isDisabled()).toBe(false)
+
+    expect(Telemetry.isDisabled).toBe(false)
   })
 })
 

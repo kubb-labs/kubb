@@ -2,7 +2,7 @@ import { mkdir, rm } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it, test } from 'vitest'
-import { clean, exists, getRelativePath, read, readSync, write } from './fs.ts'
+import { clean, exists, getRelativePath, read, readSync, toPosixPath, write } from './fs.ts'
 
 const existsTestDir = path.join(os.tmpdir(), 'kubb-test-exists')
 const existsTestFile = path.join(existsTestDir, 'test.txt')
@@ -133,5 +133,23 @@ describe('getRelativePath', () => {
 
   test('throws when arguments are missing', () => {
     expect(() => getRelativePath(null, null)).toThrow()
+  })
+})
+
+describe('toPosixPath', () => {
+  it('returns POSIX paths unchanged', () => {
+    expect(toPosixPath('/repo/src/gen/types/pet.ts')).toBe('/repo/src/gen/types/pet.ts')
+  })
+
+  it('converts backslash separators to forward slashes', () => {
+    expect(toPosixPath('C:\\repo\\src\\gen\\types\\pet.ts')).toBe('C:/repo/src/gen/types/pet.ts')
+  })
+
+  it('handles mixed separators', () => {
+    expect(toPosixPath('C:\\repo/src\\gen/types\\pet.ts')).toBe('C:/repo/src/gen/types/pet.ts')
+  })
+
+  it('returns the empty string unchanged', () => {
+    expect(toPosixPath('')).toBe('')
   })
 })

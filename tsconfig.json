@@ -5,7 +5,6 @@
     "rootDir": ".",
     "types": ["bun-types"],
     "paths": {
-      "#mocks": ["./internals/utils/src/mocks.ts"],
       "@kubb/core/mocks": ["./packages/core/src/mocks.ts"],
       "@internals/utils": ["./internals/utils/src/index.ts"],
       "@internals/shared": ["./internals/shared/src/index.ts"],
