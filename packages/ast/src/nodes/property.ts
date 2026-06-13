@@ -51,7 +51,7 @@ export const propertyDef = defineNode<PropertyNode, UserPropertyNode>({
   },
   children: ['schema'],
   visitorKey: 'property',
-  finalize: true,
+  rebuild: true,
 })
 
 /**

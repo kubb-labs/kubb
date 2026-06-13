@@ -1,6 +1,6 @@
 import type { VisitorDepth } from './constants.ts'
 import { visitorDepths, WALK_CONCURRENCY } from './constants.ts'
-import { nodeFinalizers, VISITOR_KEY_BY_KIND, VISITOR_KEYS } from './registry.ts'
+import { nodeRebuilders, VISITOR_KEY_BY_KIND, VISITOR_KEYS } from './registry.ts'
 import type {
   ContentNode,
   InputNode,
@@ -421,8 +421,8 @@ export function transform(node: Node, options: TransformOptions): Node {
   // changed" by identity and ancestors can avoid reallocating.
   if (rebuilt === node) return node
 
-  const finalize = nodeFinalizers[rebuilt.kind]
-  return finalize ? finalize(rebuilt) : rebuilt
+  const rebuild = nodeRebuilders[rebuilt.kind]
+  return rebuild ? rebuild(rebuilt) : rebuilt
 }
 
 /**

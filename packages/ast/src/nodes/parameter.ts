@@ -55,7 +55,7 @@ export const parameterDef = defineNode<ParameterNode, UserParameterNode>({
   },
   children: ['schema'],
   visitorKey: 'parameter',
-  finalize: true,
+  rebuild: true,
 })
 
 /**

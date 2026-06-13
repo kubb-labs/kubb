@@ -74,9 +74,9 @@ export type NodeDef<TNode extends BaseNode = BaseNode, TInput = never> = {
   visitorKey?: VisitorKey
   /**
    * When `true`, `create` is rerun after children are rebuilt so computed fields
-   * stay in sync. Feeds `nodeFinalizers`.
+   * stay in sync. Feeds `nodeRebuilders`.
    */
-  finalize?: boolean
+  rebuild?: boolean
 }
 
 type DefineNodeConfig<TNode extends BaseNode, TInput, TBuilt extends object> = {
@@ -85,7 +85,7 @@ type DefineNodeConfig<TNode extends BaseNode, TInput, TBuilt extends object> = {
   build?: (input: TInput) => TBuilt
   children?: ReadonlyArray<string>
   visitorKey?: VisitorKey
-  finalize?: boolean
+  rebuild?: boolean
 }
 
 /**
@@ -93,9 +93,9 @@ type DefineNodeConfig<TNode extends BaseNode, TInput, TBuilt extends object> = {
  * metadata. `create` merges `defaults`, the `build` hook (or the raw input), and the
  * `kind`, so node construction lives in one place without scattered `as` casts.
  *
- * Set `finalize: true` when the `build` hook computes fields from children (so the
- * node must be rebuilt after a transform rewrites them); the registry reuses `create`
- * as the finalizer, no separate function needed.
+ * Set `rebuild: true` when the `build` hook computes fields from children (so the
+ * node must be rebuilt after a transform rewrites them); the registry reuses `create`,
+ * no separate function needed.
  *
  * @example Simple node
  * ```ts
@@ -110,19 +110,19 @@ type DefineNodeConfig<TNode extends BaseNode, TInput, TBuilt extends object> = {
  *   build: (props) => ({ ...props, required: props.required ?? false }),
  *   children: ['schema'],
  *   visitorKey: 'property',
- *   finalize: true,
+ *   rebuild: true,
  * })
  * ```
  */
 export function defineNode<TNode extends BaseNode, TInput = Omit<TNode, 'kind'>, TBuilt extends object = Omit<TNode, 'kind'>>(
   config: DefineNodeConfig<TNode, TInput, TBuilt>,
 ): NodeDef<TNode, TInput> {
-  const { kind, defaults, build, children, visitorKey, finalize } = config
+  const { kind, defaults, build, children, visitorKey, rebuild } = config
 
   function create(input: TInput): TNode {
     const base = build ? build(input) : input
     return { ...defaults, ...(base as object), kind } as TNode
   }
 
-  return { kind, create, is: isKind<TNode>(kind), children, visitorKey, finalize }
+  return { kind, create, is: isKind<TNode>(kind), children, visitorKey, rebuild }
 }
