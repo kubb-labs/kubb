@@ -60,9 +60,6 @@ function resolveConfig(userConfig: UserConfig): Config {
       ...userConfig.output,
     },
     storage: userConfig.storage ?? fsStorage(),
-    // Resolve `false` to "no cache". The default `fsCache()` is applied by `defineConfig`, not here,
-    // so a raw `createKubb` stays deterministic (no surprise on-disk cache) unless a cache is passed.
-    cache: userConfig.cache === false ? undefined : userConfig.cache,
     reporters: userConfig.reporters ?? [],
     plugins: userConfig.plugins ?? [],
   }
