@@ -61,11 +61,18 @@ type SchemaContext = {
 }
 
 /**
- * One entry in this adapter's schema-dispatch table, a {@link ast.DispatchRule} specialized
- * to OAS schema context and Kubb `SchemaNode` output. See {@link ast.dispatch} for the contract
- * a future adapter (e.g. AsyncAPI) follows: define a context type and an ordered rules table.
+ * One entry in the ordered schema rule table: a predicate paired with a converter. A rule whose
+ * `match` returns `true` may still `convert` to `null` to defer to the next rule (e.g. a `format`
+ * that is not convertible falls through to plain `type` handling).
  */
-type SchemaRule = ast.DispatchRule<SchemaContext, ast.SchemaNode>
+type SchemaRule = {
+  /** Identifies the rule when reading the table or debugging which branch ran. */
+  name: string
+  /** Returns `true` when this rule is responsible for the given context. */
+  match: (context: SchemaContext) => boolean
+  /** Produces a node for the context, or `null` to fall through to the next rule. */
+  convert: (context: SchemaContext) => ast.SchemaNode | null
+}
 
 /**
  * Normalizes malformed `{ type: 'array', enum: [...] }` schemas by moving enum values into items.
@@ -772,7 +779,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
   }
 
   /**
-   * Ordered schema-dispatch table. Order is significant: composition keywords (`$ref`, `allOf`,
+   * Ordered schema rule table. Order is significant: composition keywords (`$ref`, `allOf`,
    * `oneOf`/`anyOf`) take precedence over `const`/`format`, which take precedence over the plain
    * `type`. The first matching rule that produces a node wins. See {@link SchemaRule} for the
    * match/convert/fall-through contract.
@@ -815,10 +822,10 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
   ]
 
   /**
-   * Central dispatcher that converts an OAS `SchemaObject` into a `SchemaNode`.
+   * Converts an OAS `SchemaObject` into a `SchemaNode`.
    *
-   * Builds the per-schema context, then runs it through the ordered {@link schemaRules} table
-   * via {@link ast.dispatch}. When no rule produces a node, falls back to the configured
+   * Builds the per-schema context, then walks the ordered {@link schemaRules} table and returns
+   * the first converter that produces a node. When none match, falls back to the configured
    * `emptySchemaType`.
    */
   function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }, rawOptions?: Partial<ast.ParserOptions>): ast.SchemaNode {
@@ -845,8 +852,11 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       options,
     }
 
-    const node = ast.dispatch(schemaRules, schemaCtx)
-    if (node) return node
+    for (const rule of schemaRules) {
+      if (!rule.match(schemaCtx)) continue
+      const node = rule.convert(schemaCtx)
+      if (node) return node
+    }
 
     const emptyType = typeOptionMap.get(options.emptySchemaType)!
     return ast.createSchema({

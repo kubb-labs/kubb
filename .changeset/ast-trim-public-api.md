@@ -8,6 +8,8 @@ Removed exports that were unused across both the core monorepo and the plugins, 
 
 Deleted (dead code): the `nodeKinds` and `mediaTypes` constants (no references anywhere), the `RefMap` type, and the `InferSchema` type alias (use `InferSchemaNode`).
 
+Also deleted: the `dispatch` helper and its `DispatchRule` type. The OAS adapter was the only consumer and now keeps its own local rule table and loop, so the generic helper is no longer part of the public API.
+
 No longer exported (now internal):
 
 - `collectLazy`, use the eager `collect`

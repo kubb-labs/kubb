@@ -1,50 +1,38 @@
 /**
- * The spec-specific decisions a schema parser makes when converting a source document's schemas
- * into Kubb AST nodes. Everything else in an adapter's schema pipeline is generic JSON Schema,
- * shared across specs, so the dialect is the one seam where specs differ, like a database driver
- * targeting Postgres vs MySQL. Pair it with {@link dispatch}: the rule table picks which converter
- * runs, the dialect answers the spec-specific questions inside it.
- *
- * The guards (`isReference`, `isDiscriminator`) are type predicates, so converters narrow the
- * schema after a check and the type parameters carry the narrowed types through.
- *
- * This is the seam for the JSON Schema family: OpenAPI, AsyncAPI, and plain JSON Schema share
- * `$ref`, `allOf`/`oneOf`, `enum`, and `format` and differ only in these few decisions. A spec on
- * a different type system (GraphQL, with non-null wrappers and named-type references instead of
- * `$ref`) skips `SchemaDialect` and reuses the universal layer directly: the `Adapter` port, the
- * AST factories, and {@link dispatch} with its own rule table.
+ * The spec-specific questions a schema parser answers while turning a source document into Kubb
+ * AST nodes. The rest of the pipeline is generic JSON Schema, so this is the one seam where
+ * OpenAPI, AsyncAPI, and plain JSON Schema differ.
  */
 export type SchemaDialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema, TDocument = unknown> = {
   /**
-   * Identifies the dialect in logs and while debugging dispatch.
+   * Identifies the dialect in logs and diagnostics.
    */
   name: string
   /**
-   * Whether a schema should be treated as nullable.
+   * Whether the schema is nullable.
    */
   isNullable: (schema?: TSchema) => boolean
   /**
-   * Whether a value is a `$ref` pointer object.
+   * Whether the value is a `$ref` pointer.
    */
   isReference: (value?: unknown) => value is TRef
   /**
-   * Whether a schema carries a structured discriminator (polymorphism).
+   * Whether the schema carries a discriminator for polymorphism.
    */
   isDiscriminator: (value?: unknown) => value is TDiscriminated
   /**
-   * Whether a schema represents binary data (converted to a `blob` node).
+   * Whether the schema is binary data, converted to a `blob` node.
    */
   isBinary: (schema: TSchema) => boolean
   /**
-   * Resolves a local `$ref` pointer against the document, or nullish when it cannot.
+   * Resolves a local `$ref` against the document, or nullish when it cannot.
    */
   resolveRef: <TResolved>(document: TDocument, ref: string) => TResolved | null | undefined
 }
 
 /**
- * Identity helper that types a {@link SchemaDialect} for an adapter. Like
- * `defineParser`, it adds no runtime behavior, it pins the dialect's type for
- * inference and gives adapter authors a discoverable anchor.
+ * Types a {@link SchemaDialect} for an adapter. Adds no runtime behavior and only pins the
+ * dialect's type for inference.
  *
  * @example
  * ```ts

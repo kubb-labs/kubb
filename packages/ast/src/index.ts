@@ -1,7 +1,6 @@
 export { httpMethods, schemaTypes } from './constants.ts'
 export { applyDedupe, buildDedupePlan } from './dedupe.ts'
 export { defineSchemaDialect } from './dialect.ts'
-export { dispatch } from './dispatch.ts'
 export {
   createArrowFunction,
   createBreak,
