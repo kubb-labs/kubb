@@ -21,7 +21,7 @@ type VisitorKey = 'input' | 'output' | 'operation' | 'schema' | 'property' | 'pa
 export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
 
 /**
- * Returns a type guard that matches nodes whose `kind` equals `kind`.
+ * Builds a type guard that matches nodes of the given `kind`.
  */
 export function isKind<T extends BaseNode>(kind: NodeKind) {
   return (node: unknown): node is T => (node as BaseNode).kind === kind
@@ -93,9 +93,9 @@ type DefineNodeConfig<TNode extends BaseNode, TInput, TBuilt extends object> = {
  * metadata. `create` merges `defaults`, the `build` hook (or the raw input), and the
  * `kind`, so node construction lives in one place without scattered `as` casts.
  *
- * Set `rebuild: true` when the `build` hook computes fields from children (so the
- * node must be rebuilt after a transform rewrites them); the registry reuses `create`,
- * no separate function needed.
+ * Set `rebuild: true` when the `build` hook derives fields from children. After a
+ * transform rewrites those children, the registry reruns `create` so the derived
+ * fields stay correct.
  *
  * @example Simple node
  * ```ts
