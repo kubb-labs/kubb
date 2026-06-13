@@ -5,7 +5,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { AsyncEventEmitter } from '@internals/utils'
-import { AsyncEventEmitter as AsyncEventEmitterClass, detectFormatter, detectLinter, executeIfOnline, formatters, linters, toError } from '@internals/utils'
+import { AsyncEventEmitter as AsyncEventEmitterClass, detectTool, formatters, linters, toError } from '@internals/utils'
 import {
   type CLIOptions,
   cliReporter,
@@ -208,7 +208,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
     config.output.format && {
       code: Diagnostics.code.formatFailed,
       toolValue: config.output.format,
-      detect: detectFormatter,
+      detect: () => detectTool(['oxfmt', 'biome', 'prettier'] as const),
       toolMap: formatters,
       toolLabel: 'formatter',
       successPrefix: 'Formatting',
@@ -219,7 +219,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
     config.output.lint && {
       code: Diagnostics.code.lintFailed,
       toolValue: config.output.lint,
-      detect: detectLinter,
+      detect: () => detectTool(['oxlint', 'biome', 'eslint'] as const),
       toolMap: linters,
       toolLabel: 'linter',
       successPrefix: 'Linting',
@@ -306,17 +306,15 @@ type GenerateCommandOptions = {
 }
 
 async function checkForUpdate(hooks: AsyncEventEmitter<KubbHooks>): Promise<void> {
-  await executeIfOnline(async () => {
-    try {
-      const res = await fetch(KUBB_NPM_PACKAGE_URL)
-      const data = (await res.json()) as { version: string }
-      if (data.version && version < data.version) {
-        await Diagnostics.emit(hooks, Diagnostics.update({ currentVersion: version, latestVersion: data.version }))
-      }
-    } catch {
-      // Ignore network errors
+  try {
+    const res = await fetch(KUBB_NPM_PACKAGE_URL)
+    const data = (await res.json()) as { version: string }
+    if (data.version && version < data.version) {
+      await Diagnostics.emit(hooks, Diagnostics.update({ currentVersion: version, latestVersion: data.version }))
     }
-  })
+  } catch {
+    // Ignore network errors
+  }
 }
 
 /**
