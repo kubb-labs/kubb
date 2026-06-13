@@ -18,7 +18,6 @@ import {
   printType,
   resolveOutputPath,
   slash,
-  trimExtName,
 } from './utils.ts'
 
 describe('slash', () => {
@@ -32,20 +31,6 @@ describe('slash', () => {
 
   it('strips a leading ../ segment', () => {
     expect(slash('../foo/bar')).toBe('foo/bar')
-  })
-})
-
-describe('trimExtName', () => {
-  it('removes a simple extension', () => {
-    expect(trimExtName('foo.ts')).toBe('foo')
-  })
-
-  it('removes only the last extension', () => {
-    expect(trimExtName('foo.bar.ts')).toBe('foo.bar')
-  })
-
-  it('returns the original when there is no extension', () => {
-    expect(trimExtName('foo')).toBe('foo')
   })
 })
 

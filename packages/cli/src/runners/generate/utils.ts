@@ -1,10 +1,10 @@
 import { hash } from 'node:crypto'
 import { styleText } from 'node:util'
+import { createModuleLoader } from '@internals/shared'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { toError } from '@internals/utils'
 import type { CLIOptions, Config, KubbHooks, PossibleConfig } from '@kubb/core'
 import { cosmiconfig } from 'cosmiconfig'
-import { createJiti } from 'jiti'
 import { NonZeroExitError, x } from 'tinyexec'
 import { WATCHER_IGNORED_PATHS } from '../../constants.ts'
 
@@ -14,12 +14,9 @@ type CosmiconfigResult = {
   config: PossibleConfig<CLIOptions>
 }
 
-const jiti = createJiti(import.meta.url, {
-  jsx: { runtime: 'automatic', importSource: '@kubb/renderer-jsx' },
-  moduleCache: false,
-})
+const loader = createModuleLoader()
 
-const tsLoader = (configFile: string) => jiti.import(configFile, { default: true })
+const tsLoader = (configFile: string) => loader.load(configFile, { default: true })
 
 const MODULE_NAME = 'kubb'
 

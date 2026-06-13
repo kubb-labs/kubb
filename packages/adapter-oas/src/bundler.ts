@@ -1,6 +1,6 @@
 import { read } from '@internals/utils'
 import { bundle } from 'api-ref-bundler'
-import yaml from 'js-yaml'
+import { parse } from 'yaml'
 import type { Document } from './types.ts'
 
 const urlRegExp = /^https?:\/+/i
@@ -29,7 +29,7 @@ async function resolveSource(sourcePath: string): Promise<object | string> {
     return data
   }
 
-  return yaml.load(data) as object
+  return parse(data) as object
 }
 
 /**

@@ -1,8 +1,8 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
+import { createModuleLoader } from '@internals/shared'
 import { isPromise } from '@internals/utils'
 import type { CLIOptions, Config, PossibleConfig, SerializedDiagnostic } from '@kubb/core'
-import { createJiti } from 'jiti'
 import { ALLOWED_CONFIG_EXTENSIONS, NotifyTypes } from './constants.ts'
 
 /**
@@ -35,13 +35,7 @@ function formatDiagnostic(diagnostic: SerializedDiagnostic): string {
 
 type NotifyFunction = (type: string, message: string, data?: Record<string, unknown>) => Promise<void>
 
-const jiti = createJiti(import.meta.url, {
-  jsx: {
-    runtime: 'automatic',
-    importSource: '@kubb/renderer-jsx',
-  },
-  moduleCache: false,
-})
+const loader = createModuleLoader()
 
 const loadedModules = new Map<string, unknown>()
 
@@ -53,7 +47,7 @@ async function loadModule(filePath: string): Promise<unknown> {
   if (loadedModules.has(filePath)) {
     return loadedModules.get(filePath)
   }
-  const mod = await jiti.import(filePath, { default: true })
+  const mod = await loader.load(filePath, { default: true })
   loadedModules.set(filePath, mod)
   return mod
 }
