@@ -225,7 +225,7 @@ export function createInputStream({
   const rewriteTopLevelSchema = (node: ast.SchemaNode): ast.SchemaNode => {
     if (!dedupePlan) return node
 
-    const canonical = dedupePlan.canonicalBySignature.get(ast.schemaSignature(node))
+    const canonical = dedupePlan.canonicalBySignature.get(ast.signatureOf(node))
     if (canonical && canonical.name !== node.name) {
       return ast.createSchema({
         type: 'ref',

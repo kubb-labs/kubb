@@ -3,8 +3,6 @@ import type { BaseNode } from './base.ts'
 import type { OperationNode } from './operation.ts'
 import type { SchemaNode } from './schema.ts'
 
-export type { Streamable }
-
 /**
  * Metadata for an API document, populated by the adapter and available to every generator.
  *
@@ -84,7 +82,7 @@ export type InputMeta = {
  *
  * @example Streaming variant for large specs
  * ```ts
- * for await (const schema of streamInput.schemas) {
+ * for await (const schema of inputNode.schemas) {
  *   // only this one SchemaNode is live here. Previous ones are GC-eligible
  * }
  * ```

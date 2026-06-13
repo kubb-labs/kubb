@@ -31,8 +31,7 @@ export {
 } from './factory.ts'
 export { isHttpOperationNode, isInputNode, isOperationNode, isOutputNode, isSchemaNode, narrowSchema } from './guards.ts'
 export { createPrinterFactory, definePrinter } from './printer.ts'
-export { collectImports } from './resolvers.ts'
-export { schemaSignature } from './signature.ts'
+export { signatureOf } from './signature.ts'
 export { mergeAdjacentObjectsLazy, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
 export type * from './types.ts'
 export {

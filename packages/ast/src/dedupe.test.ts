@@ -3,7 +3,7 @@ import { applyDedupe, buildDedupePlan } from './dedupe.ts'
 import { createProperty, createSchema } from './factory.ts'
 import { narrowSchema } from './guards.ts'
 import type { SchemaNode } from './nodes/schema.ts'
-import { schemaSignature } from './signature.ts'
+import { signatureOf } from './signature.ts'
 
 function stringEnum(values: Array<string>, extra: Partial<Parameters<typeof createSchema>[0]> = {}): SchemaNode {
   return createSchema({ type: 'enum', primitive: 'string', enumValues: values, ...extra } as Parameters<typeof createSchema>[0])
@@ -37,7 +37,7 @@ describe('buildDedupePlan', () => {
     expect(plan.hoisted).toHaveLength(1)
     expect(plan.hoisted[0]).toMatchObject({ enumValues: ['active', 'inactive'], kind: 'Schema', name: 'PetStatus', primitive: 'string', type: 'enum' })
 
-    const enumSignature = schemaSignature(stringEnum(['active', 'inactive']))
+    const enumSignature = signatureOf(stringEnum(['active', 'inactive']))
     expect(plan.canonicalBySignature.get(enumSignature)).toStrictEqual({ name: 'PetStatus', ref: '#/components/schemas/PetStatus' })
   })
 
@@ -61,7 +61,7 @@ describe('buildDedupePlan', () => {
     const plan = buildDedupePlan([cat, dog], { isCandidate, nameFor, refFor })
 
     expect(plan.hoisted).toHaveLength(0)
-    const objectSignature = schemaSignature(cat)
+    const objectSignature = signatureOf(cat)
     expect(plan.canonicalBySignature.get(objectSignature)).toStrictEqual({ name: 'Cat', ref: '#/components/schemas/Cat' })
   })
 
@@ -115,7 +115,7 @@ describe('buildDedupePlan', () => {
 
 describe('applyDedupe', () => {
   const enumNode = stringEnum(['active', 'inactive'], { name: 'PetStatus' })
-  const enumSignature = schemaSignature(enumNode)
+  const enumSignature = signatureOf(enumNode)
   const lookups = {
     canonicalBySignature: new Map([[enumSignature, { name: 'PetStatus', ref: '#/components/schemas/PetStatus' }]]),
     aliasNames: new Map<string, { name: string; ref: string }>(),

@@ -13,7 +13,7 @@ No longer exported (now internal):
 - `collectLazy`, use the eager `collect`
 - `createContent` / `createRequestBody`, content is normalized for you by `createResponse` / `createOperation`
 - `mergeAdjacentObjects`, use `mergeAdjacentObjectsLazy` (`[...mergeAdjacentObjectsLazy(members)]`)
-- `isSchemaEqual`, compare `schemaSignature(a) === schemaSignature(b)`
+- `isSchemaEqual`, compare `signatureOf(a) === signatureOf(b)`
 - `isScalarPrimitive`, `resolveRefName`, `collectReferencedSchemaNames`, `isInputNode`, `isOutputNode`
 
 The README's `Refs` example also referenced helpers that never existed (`buildRefMap`, `resolveRef`). It now documents the real `extractRefName`.

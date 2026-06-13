@@ -46,7 +46,6 @@ export type {
   SchemaType,
   SourceNode,
   StatusCode,
-  Streamable,
   StringSchemaNode,
   TextNode,
   TimeSchemaNode,

@@ -3,9 +3,7 @@ import type { SchemaNode } from './nodes/index.ts'
 import { extractRefName } from './utils/index.ts'
 
 /**
- * The shape-affecting flags shared by every node kind: base primitive, format, and `nullable`.
- * Documentation and usage-slot flags (`optional`/`nullish`/`readOnly`/`writeOnly`) are
- * intentionally excluded, they describe the property slot, not the type.
+ * The flags shared by every node kind that affect its type: `primitive`, `format`, `nullable`.
  */
 function flagsDescriptor(node: SchemaNode): string {
   return `${node.primitive ?? ''};${node.format ?? ''};${node.nullable ? 1 : 0}`
@@ -59,9 +57,8 @@ const rangeFields: ReadonlyArray<ShapeField> = [
 ]
 
 /**
- * Maps each schema node `type` to the ordered list of shape-contributing fields.
- * Node types absent from this map (scalar types like boolean, null, any, etc.) fall
- * back to `${type}|${flags}` with no additional fields.
+ * Maps each node `type` to its ordered shape-contributing fields. Types absent from the map
+ * (boolean, null, any, and other scalars) fall back to `${type}|${flags}`.
  */
 const SHAPE_KEYS: Partial<Record<SchemaNode['type'], ReadonlyArray<ShapeField>>> = {
   object: [
@@ -156,9 +153,8 @@ function serializeShapeField(field: ShapeField, node: SchemaNode, record: Record
 }
 
 /**
- * Builds the local, shape-only descriptor for a node: its kind, flags, constraints, and its
- * children's signatures. {@link signatureOf} hashes this string. Children contribute their
- * fixed-length signature rather than their own full descriptor, which keeps the result bounded.
+ * Builds the local shape descriptor that {@link signatureOf} hashes: the node's kind, flags,
+ * constraints, and its children's signatures.
  */
 function describeShape(node: SchemaNode): string {
   const flags = flagsDescriptor(node)
@@ -174,59 +170,38 @@ function describeShape(node: SchemaNode): string {
 }
 
 /**
- * Persistent hash-consing cache: `SchemaNode` → signature digest, keyed by node identity.
- *
- * A `WeakMap` so entries are released once the node is garbage-collected, and so a node hashed
- * during dedupe planning is not re-hashed when the same tree is rewritten during streaming
- * (where `schemaSignature` and `applyDedupe` would otherwise each walk it from scratch). Reuse
- * across calls is sound because a signature depends only on a node's content, and schema nodes
- * are immutable once created, transforms allocate new objects rather than mutating in place.
+ * Node → digest cache, keyed by identity. A `WeakMap` so entries die with the node, and so a tree
+ * hashed during dedupe planning is not walked again when it is rewritten during streaming. Reuse
+ * is safe because a signature depends only on content, and nodes are immutable once created.
  */
 const signatureCache = new WeakMap<SchemaNode, string>()
 
 /**
- * Hash-consing: each node's signature is a fixed-length digest of its local shape plus its
- * children's digests (a Merkle hash). Children contribute their 64-char hash instead of their
- * full nested descriptor, so a signature stays bounded regardless of subtree depth, and the
- * digest is identical across calls because it depends only on content, never on traversal
- * order. This keeps the keys built during planning consistent with the ones recomputed later
- * during streaming. {@link signatureCache} memoizes node → digest across every computation.
+ * Computes a deterministic, shape-only signature (a content hash) for a schema node. Two schemas
+ * share a signature when they are structurally identical, ignoring documentation (`name`, `title`,
+ * `description`, `example`, `default`, `deprecated`) and usage-slot flags (`optional`, `nullish`,
+ * `readOnly`, `writeOnly`). `nullable` is kept because it changes the produced type, and `ref`
+ * nodes compare by target name, which also terminates on circular shapes.
+ *
+ * @example Two enums with different descriptions share a signature
+ * ```ts
+ * signatureOf(createSchema({ type: 'enum', primitive: 'string', enumValues: ['a', 'b'], description: 'x' })) ===
+ *   signatureOf(createSchema({ type: 'enum', primitive: 'string', enumValues: ['a', 'b'] }))
+ * ```
  */
 export function signatureOf(node: SchemaNode): string {
   const cached = signatureCache.get(node)
   if (cached !== undefined) return cached
   const signature = hash('sha256', describeShape(node), 'hex')
   signatureCache.set(node, signature)
+
   return signature
 }
 
 /**
- * Computes a deterministic, shape-only signature (a fixed-length content hash) for a schema node.
- *
- * Two schemas share a signature when they are structurally identical, ignoring
- * documentation (`name`, `title`, `description`, `example`, `default`, `deprecated`)
- * and usage-slot flags (`optional`, `nullish`, `readOnly`, `writeOnly`). `nullable`
- * is kept because it changes the produced type. `ref` nodes compare by target name,
- * which also keeps the algorithm terminating on circular shapes.
- *
- * @example Two enums with different descriptions share a signature
- * ```ts
- * schemaSignature(createSchema({ type: 'enum', primitive: 'string', enumValues: ['a', 'b'], description: 'x' })) ===
- *   schemaSignature(createSchema({ type: 'enum', primitive: 'string', enumValues: ['a', 'b'] }))
- * ```
- */
-export function schemaSignature(node: SchemaNode): string {
-  return signatureOf(node)
-}
-
-/**
- * Returns `true` when two schema nodes are structurally identical under shape-only equality.
- *
- * @example
- * ```ts
- * isSchemaEqual(a, b) // a and b produce the same TypeScript type
- * ```
+ * Returns `true` when two schema nodes are structurally identical under shape-only equality,
+ * meaning they produce the same TypeScript type.
  */
 export function isSchemaEqual(a: SchemaNode, b: SchemaNode): boolean {
-  return schemaSignature(a) === schemaSignature(b)
+  return signatureOf(a) === signatureOf(b)
 }
