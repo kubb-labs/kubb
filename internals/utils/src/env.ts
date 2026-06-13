@@ -42,5 +42,5 @@ export function isCIEnvironment(): boolean {
  * ```
  */
 export function canUseTTY(): boolean {
-  return !!process.stdout.isTTY && (process.stdout.columns ?? 0) > 0 && !isCIEnvironment()
+  return process.stdout.isTTY && (process.stdout.columns ?? 0) > 0 && !isCIEnvironment()
 }

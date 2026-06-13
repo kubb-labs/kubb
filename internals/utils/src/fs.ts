@@ -30,6 +30,7 @@ export function findPackageJSON(cwd?: string): string | null {
  */
 function toSlash(p: string): string {
   if (p.startsWith('\\\\?\\')) return p
+
   return p.replaceAll('\\', '/')
 }
 

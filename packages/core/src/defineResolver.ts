@@ -289,12 +289,21 @@ function matchesSchemaPattern(node: SchemaNode, type: string, pattern: string | 
 /**
  * Default name resolver used by `defineResolver`.
  *
- * - `camelCase` for `function` and `file` types.
+ * - `camelCase` for `file`, with dotted names split into `/`-joined nested paths.
  * - `PascalCase` for `type`.
- * - `camelCase` for everything else.
+ * - `camelCase` for `function` and everything else.
  */
 function defaultResolver(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
-  if (type === 'file' || type === 'function') return camelCase(name, { isFile: type === 'file' })
+  if (type === 'file') {
+    // Dotted names map to nested files: split on dots before a letter (so version numbers like
+    // `v2025.0` stay intact), camelCase each segment, and join with `/`. Empty segments are dropped
+    // so a leading dot can't yield an absolute `/path`; `resolvePath` enforces the output boundary.
+    return name
+      .split(/\.(?=[a-zA-Z])/)
+      .map((part) => camelCase(part))
+      .filter(Boolean)
+      .join('/')
+  }
   if (type === 'type') return pascalCase(name)
   return camelCase(name)
 }
