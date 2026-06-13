@@ -23,7 +23,7 @@ type ManifestData = {
 /**
  * Reads and prunes the local cache manifest. All methods are static, so call them as
  * `Manifest.read(dir)` and `Manifest.prune(data, ...)`. A damaged manifest reads as empty so the
- * cache degrades to misses instead of throwing. Writing goes through `write` from `@internals/utils`.
+ * cache degrades to misses instead of throwing.
  */
 class Manifest {
   /**

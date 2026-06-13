@@ -1,4 +1,5 @@
 import { normalize, relative } from 'node:path'
+import { trimExtName } from '@internals/utils'
 import type { ArrowFunctionNode, CodeNode, ConstNode, FunctionNode, JSDocNode, JsxNode, SourceNode, TextNode, TypeNode } from '@kubb/ast'
 import ts from 'typescript'
 import {
@@ -31,14 +32,6 @@ export function getRelativePath(rootDir: string, filePath: string): string {
   const rel = relative(rootDir, filePath)
   const slashed = slash(rel)
   return slashed.startsWith(PARENT_DIRECTORY_PREFIX) ? slashed : `${CURRENT_DIRECTORY_PREFIX}${slashed}`
-}
-
-/**
- * Strips the trailing file extension (for example `.ts`) from a path.
- * Preserves intermediate dots like `foo.bar.ts` → `foo.bar`.
- */
-export function trimExtName(text: string): string {
-  return text.replace(FILE_EXTENSION_PATTERN, '')
 }
 
 /**
