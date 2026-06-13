@@ -1,9 +1,37 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import type { Config } from '@kubb/core'
+import { isPromise } from '@internals/utils'
+import type { CLIOptions, Config, PossibleConfig, SerializedDiagnostic } from '@kubb/core'
 import { createJiti } from 'jiti'
-import { ALLOWED_CONFIG_EXTENSIONS } from '../constants.ts'
-import { NotifyTypes } from '../types.ts'
+import { ALLOWED_CONFIG_EXTENSIONS, NotifyTypes } from './constants.ts'
+
+/**
+ * Renders serialized diagnostics as a plain-text block for an AI assistant. Each entry
+ * keeps the stable `code`, the source pointer, the suggested fix, and the docs link, so
+ * the agent can act on the problem rather than parsing a bare message. No ANSI styling,
+ * unlike the CLI renderer.
+ */
+export function formatDiagnostics(diagnostics: ReadonlyArray<SerializedDiagnostic>): string {
+  return diagnostics.map((diagnostic) => formatDiagnostic(diagnostic)).join('\n\n')
+}
+
+function formatDiagnostic(diagnostic: SerializedDiagnostic): string {
+  const { code, severity, message, location, help, plugin, docsUrl } = diagnostic
+  const rule = plugin ? `${plugin}(${code})` : code
+  const lines = [`${severity} ${rule}: ${message}`]
+
+  if (location && 'pointer' in location) {
+    lines.push(`  at ${location.pointer}`)
+  }
+  if (help) {
+    lines.push(`  help: ${help}`)
+  }
+  if (docsUrl) {
+    lines.push(`  docs: ${docsUrl}`)
+  }
+
+  return lines.join('\n')
+}
 
 type NotifyFunction = (type: string, message: string, data?: Record<string, unknown>) => Promise<void>
 
@@ -75,4 +103,33 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
 
   await notify(NotifyTypes.CONFIG_ERROR, 'No config file found')
   throw new Error(`No config file found. Please provide a config path or create one of: ${configFileNames.join(', ')}`)
+}
+
+/**
+ * Determine the root directory based on userConfig.root and resolvedConfigDir
+ * 1. If userConfig.root exists and is absolute, use it as-is
+ * 2. If userConfig.root exists and is relative, resolve it relative to config directory
+ * 3. Otherwise, use the config directory as root
+ */
+export function resolveCwd(userConfig: Config, cwd: string): string {
+  if (userConfig.root) {
+    if (path.isAbsolute(userConfig.root)) {
+      return userConfig.root
+    }
+
+    return path.resolve(cwd, userConfig.root)
+  }
+
+  return cwd
+}
+
+export type ResolveUserConfigOptions = {
+  configPath?: string
+  logLevel?: string
+}
+
+export async function resolveUserConfig(config: PossibleConfig<CLIOptions>, options: ResolveUserConfigOptions): Promise<Config> {
+  const result = typeof config === 'function' ? config({ logLevel: options.logLevel as CLIOptions['logLevel'], config: options.configPath }) : config
+  const resolved = isPromise(result) ? await result : result
+  return (Array.isArray(resolved) ? resolved[0] : resolved) as Config
 }

@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { exists, mergeDeep } from '@internals/utils'
+import { exists, mergeDeep, Url } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import OASNormalize from 'oas-normalize'
@@ -123,7 +123,7 @@ export async function parseFromConfig(source: AdapterSource): Promise<Document> 
   }
 
   // type === 'path'
-  if (URL.canParse(source.path)) {
+  if (Url.canParse(source.path)) {
     return parseDocument(source.path)
   }
 
@@ -138,7 +138,7 @@ export async function parseFromConfig(source: AdapterSource): Promise<Document> 
  * its parse error instead.
  */
 export async function assertInputExists(input: string): Promise<void> {
-  if (URL.canParse(input)) {
+  if (Url.canParse(input)) {
     return
   }
   if (!(await exists(input))) {

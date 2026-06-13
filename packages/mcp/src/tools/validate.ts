@@ -2,7 +2,7 @@ import { Diagnostics } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import { validateSchema } from '../schemas/validateSchema.ts'
-import { formatDiagnostics } from '../utils/formatDiagnostics.ts'
+import { formatDiagnostics } from '../utils.ts'
 
 export const validateTool = defineTool(
   {

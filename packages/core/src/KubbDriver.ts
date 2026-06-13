@@ -1,5 +1,5 @@
 import { basename, join, relative, resolve } from 'node:path'
-import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs, isPromise, memoize } from '@internals/utils'
+import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs, isPromise, memoize, Url } from '@internals/utils'
 import { collectUsedSchemaNames, createFile, createStreamInput } from '@kubb/ast'
 import type { FileNode, InputMeta, InputStreamNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { version as coreVersion } from '../package.json'
@@ -955,7 +955,7 @@ function inputToAdapterSource(config: Config): AdapterSource {
     return { type: 'data', data: input.data }
   }
 
-  if (URL.canParse(input.path)) {
+  if (Url.canParse(input.path)) {
     return { type: 'path', path: input.path }
   }
 

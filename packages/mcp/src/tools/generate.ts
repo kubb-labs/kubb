@@ -3,12 +3,9 @@ import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks }
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import type * as v from 'valibot'
+import { NotifyTypes } from '../constants.ts'
 import { generateSchema } from '../schemas/generateSchema.ts'
-import { formatDiagnostics } from '../utils/formatDiagnostics.ts'
-import { NotifyTypes } from '../types.ts'
-import { loadUserConfig } from '../utils/loadUserConfig.ts'
-import { resolveCwd } from '../utils/resolveCwd.ts'
-import { resolveUserConfig } from '../utils/resolveUserConfig.ts'
+import { formatDiagnostics, loadUserConfig, resolveCwd, resolveUserConfig } from '../utils.ts'
 
 export const generateTool = defineTool(
   {
