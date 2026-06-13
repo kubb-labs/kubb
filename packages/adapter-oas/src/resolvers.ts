@@ -1,13 +1,11 @@
 import { pascalCase } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 import type { ast } from '@kubb/core'
-import type { ParameterObject, ServerObject } from 'oas/types'
-import { isRef } from 'oas/types'
-import { matchesMimeType } from 'oas/utils'
 import { formatMap, SCHEMA_REF_PREFIX, specialCasedFormats, structuralKeys } from './constants.ts'
 import { isReference } from './guards.ts'
+import { isJsonMimeType } from './mime.ts'
 import { dereferenceWithRef, resolveRef } from './refs.ts'
-import type { ContentType, Document, MediaTypeObject, Operation, ResponseObject, SchemaObject } from './types.ts'
+import type { ContentType, Document, MediaTypeObject, Operation, ParameterObject, ResponseObject, SchemaObject, ServerObject } from './types.ts'
 
 /**
  * Replaces `{variable}` placeholders in an OpenAPI server URL with provided values.
@@ -133,7 +131,7 @@ function getResponseBody(responseBody: boolean | ResponseObject, contentType?: s
   let availableContentType: string | undefined
   const contentTypes = Object.keys(body.content)
   for (const mt of contentTypes) {
-    if (matchesMimeType.json(mt)) {
+    if (isJsonMimeType(mt)) {
       availableContentType = mt
       break
     }
@@ -271,7 +269,7 @@ export function flattenSchema(schema: SchemaObject | null): SchemaObject | null 
   if (!schema?.allOf || schema.allOf.length === 0) return schema ?? null
 
   const allOfFragments = schema.allOf as Array<SchemaObject>
-  if (allOfFragments.some((item) => isRef(item))) return schema
+  if (allOfFragments.some((item) => isReference(item))) return schema
   if (allOfFragments.some(hasStructuralKeywords)) return schema
 
   const merged: SchemaObject = { ...schema }

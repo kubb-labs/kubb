@@ -1,5 +1,4 @@
 import { ast } from '@kubb/core'
-import BaseOas from 'oas'
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { parseFromConfig } from './factory.ts'
@@ -72,8 +71,7 @@ describe('preScan', () => {
     PetAlias: { $ref: '#/components/schemas/Pet' },
   }
 
-  const baseOas = new BaseOas(minimalSpec as never)
-  // dedupe is off in these cases, so parseOperation is never invoked.
+  // dedupe is off in these cases, so parseOperation is never invoked and the document is unused.
   const noopParseOperation = (() => null) as unknown as Parameters<typeof preScan>[0]['parseOperation']
 
   // The real parser sets `name` to the referenced schema name (not the alias key).
@@ -94,7 +92,7 @@ describe('preScan', () => {
       schemas,
       parseSchema: makeParseSchema(),
       parseOperation: noopParseOperation,
-      baseOas,
+      document: minimalSpec as never,
       parserOptions,
       discriminator: 'strict',
       dedupe: false,
@@ -111,7 +109,7 @@ describe('preScan', () => {
       schemas,
       parseSchema: makeParseSchema(),
       parseOperation: noopParseOperation,
-      baseOas,
+      document: minimalSpec as never,
       parserOptions,
       discriminator: 'strict',
       dedupe: false,
@@ -136,7 +134,7 @@ describe('preScan', () => {
       schemas: circularSchemas,
       parseSchema,
       parseOperation: noopParseOperation,
-      baseOas,
+      document,
       parserOptions,
       discriminator: 'strict',
       dedupe: false,
@@ -154,7 +152,7 @@ describe('preScan', () => {
       schemas,
       parseSchema: makeParseSchema(),
       parseOperation: noopParseOperation,
-      baseOas,
+      document: minimalSpec as never,
       parserOptions,
       discriminator: 'strict',
       dedupe: false,
@@ -173,7 +171,7 @@ describe('createInputStream', () => {
       schemas,
       parseSchema,
       parseOperation,
-      baseOas: new BaseOas(minimalSpec as never),
+      document,
       parserOptions,
       refAliasMap: new Map(),
       discriminatorChildMap: null,
@@ -197,7 +195,7 @@ describe('createInputStream', () => {
       schemas,
       parseSchema,
       parseOperation,
-      baseOas: new BaseOas(minimalSpec as never),
+      document,
       parserOptions,
       refAliasMap: new Map(),
       discriminatorChildMap: null,
@@ -236,7 +234,7 @@ describe('createInputStream', () => {
       schemas,
       parseSchema,
       parseOperation,
-      baseOas: new BaseOas(minimalSpec as never),
+      document,
       parserOptions,
       refAliasMap,
       discriminatorChildMap: null,
@@ -259,7 +257,7 @@ describe('createInputStream', () => {
       schemas: {},
       parseSchema,
       parseOperation,
-      baseOas: new BaseOas(minimalSpec as never),
+      document,
       parserOptions,
       refAliasMap: new Map(),
       discriminatorChildMap: null,
@@ -283,7 +281,7 @@ describe('createInputStream', () => {
       schemas: {},
       parseSchema,
       parseOperation,
-      baseOas: new BaseOas(minimalSpec as never),
+      document,
       parserOptions,
       refAliasMap: new Map(),
       discriminatorChildMap: null,

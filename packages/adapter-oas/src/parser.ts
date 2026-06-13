@@ -1,9 +1,9 @@
 import { pascalCase, URLPath } from '@internals/utils'
 import { childName, enumPropName, extractRefName, findDiscriminator } from '@kubb/ast/utils'
 import { ast } from '@kubb/core'
-import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, SCHEMA_REF_PREFIX, typeOptionMap } from './constants.ts'
 import { oasDialect, type OasDialect } from './dialect.ts'
+import { getOperations } from './operation.ts'
 import {
   buildSchemaNode,
   flattenSchema,
@@ -1084,14 +1084,9 @@ export function parseOas(
 
   const schemas: Array<ast.SchemaNode> = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, mergedOptions))
 
-  const baseOas = new BaseOas(document)
-  const paths = baseOas.getPaths()
-
-  const operations: Array<ast.OperationNode> = Object.entries(paths).flatMap(([, methods]) =>
-    Object.entries(methods)
-      .map(([, operation]) => (operation ? _parseOperation(mergedOptions, operation) : null))
-      .filter((op): op is ast.OperationNode => op !== null),
-  )
+  const operations: Array<ast.OperationNode> = getOperations(document)
+    .map((operation) => _parseOperation(mergedOptions, operation))
+    .filter((op): op is ast.OperationNode => op !== null)
 
   const root = ast.createInput({ schemas, operations })
 

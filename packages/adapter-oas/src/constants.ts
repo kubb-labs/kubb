@@ -32,6 +32,12 @@ export const DEFAULT_PARSER_OPTIONS = {
 export const SCHEMA_REF_PREFIX = '#/components/schemas/' as const
 
 /**
+ * HTTP methods that count as operations on an OpenAPI path item. Other keys
+ * (`parameters`, `summary`, `$ref`, vendor extensions) are skipped when iterating operations.
+ */
+export const SUPPORTED_METHODS: ReadonlySet<string> = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
+
+/**
  * OpenAPI version string written into the stub document created during multi-spec merges.
  */
 export const MERGE_OPENAPI_VERSION = '3.0.0' as const

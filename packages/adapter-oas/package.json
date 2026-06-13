@@ -57,15 +57,15 @@
   "dependencies": {
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
+    "@readme/openapi-parser": "^6.1.3",
     "api-ref-bundler": "0.5.1",
     "js-yaml": "^4.2.0",
-    "oas": "^32.1.18",
-    "oas-normalize": "^16.0.5",
     "swagger2openapi": "^7.0.8"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "@types/js-yaml": "^4.0.9",
+    "@types/json-schema": "^7.0.15",
     "@types/swagger2openapi": "^7.0.4",
     "openapi-types": "^12.1.3"
   },
@@ -73,6 +73,7 @@
     "node": ">=22"
   },
   "inlinedDependencies": {
+    "@types/json-schema": "7.0.15",
     "openapi-types": "12.1.3"
   }
 }

@@ -1,16 +1,10 @@
-// external packages
-
 import type { AdapterFactoryOptions } from '@kubb/core'
 import type { ast } from '@kubb/core'
-import type { Operation as OASOperation } from 'oas/operation'
-import type {
-  DiscriminatorObject as OASDiscriminatorObject,
-  OASDocument,
-  MediaTypeObject as OASMediaTypeObject,
-  ResponseObject as OASResponseObject,
-  SchemaObject as OASSchemaObject,
-} from 'oas/types'
-import type { OpenAPIV3 } from 'openapi-types'
+import type { JSONSchema4, JSONSchema6, JSONSchema7 } from 'json-schema'
+import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
+import type { Operation } from './operation.ts'
+
+export type { Operation }
 
 /**
  * Content-type string for selecting request/response schemas from an OpenAPI spec.
@@ -36,7 +30,25 @@ export type ContentType = 'application/json' | (string & {})
  * }
  * ```
  */
-export type SchemaObject = OASSchemaObject & {
+/**
+ * Base schema shape shared by OpenAPI 3.0 and 3.1, carrying the documentation and vendor fields
+ * Kubb reads off a schema regardless of which spec version it came from.
+ */
+type SchemaObjectBase = {
+  externalDocs?: unknown
+  xml?: unknown
+  $schema?: string
+  deprecated?: boolean
+  example?: unknown
+  examples?: Array<unknown>
+  nullable?: boolean
+  readOnly?: boolean
+  writeOnly?: boolean
+  discriminator?: DiscriminatorObject
+  'x-readme-ref-name'?: string
+} & (OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject | JSONSchema4 | JSONSchema6 | JSONSchema7)
+
+export type SchemaObject = SchemaObjectBase & {
   /**
    * OAS 3.0 vendor extension: marks a schema as nullable without using `type: ['null', ...]`.
    */
@@ -76,17 +88,22 @@ export type HttpMethod = Lowercase<ast.HttpMethod>
 /**
  * Normalized OpenAPI document after parsing.
  */
-export type Document = OASDocument
+export type Document = (OpenAPIV3.Document | OpenAPIV3_1.Document) & Record<string, unknown>
 
 /**
- * API operation extracted from an OpenAPI document.
+ * Single operation object (the `get`/`post`/… entry on a path item) plus any vendor extensions.
  */
-export type Operation = OASOperation
+export type OperationObject = (OpenAPIV3.OperationObject | OpenAPIV3_1.OperationObject) & Record<string, unknown>
+
+/**
+ * Path item object holding the operations and shared parameters for a single URL path.
+ */
+export type PathItemObject = OpenAPIV3.PathItemObject | OpenAPIV3_1.PathItemObject
 
 /**
  * Discriminator object for `oneOf`/`anyOf` schemas in OpenAPI.
  */
-export type DiscriminatorObject = OASDiscriminatorObject
+export type DiscriminatorObject = OpenAPIV3.DiscriminatorObject | OpenAPIV3_1.DiscriminatorObject
 
 /**
  * OpenAPI reference object pointing to a schema definition via `$ref`.
@@ -96,12 +113,29 @@ export type ReferenceObject = OpenAPIV3.ReferenceObject
 /**
  * OpenAPI response object from a spec that contains schema, status code, and headers.
  */
-export type ResponseObject = OASResponseObject
+export type ResponseObject = OpenAPIV3.ResponseObject | OpenAPIV3_1.ResponseObject
+
+/**
+ * OpenAPI request body object that maps content types to their media type objects.
+ */
+export type RequestBodyObject = OpenAPIV3.RequestBodyObject | OpenAPIV3_1.RequestBodyObject
 
 /**
  * OpenAPI media type object that maps a content-type string to its schema.
  */
-export type MediaTypeObject = OASMediaTypeObject
+export type MediaTypeObject = OpenAPIV3.MediaTypeObject | OpenAPIV3_1.MediaTypeObject
+
+/**
+ * OpenAPI parameter object, narrowed so `in` is always one of the four valid locations.
+ */
+export type ParameterObject = {
+  in: 'cookie' | 'header' | 'path' | 'query'
+} & (OpenAPIV3.ParameterObject | OpenAPIV3_1.ParameterObject)
+
+/**
+ * OpenAPI server object describing a base URL and its `{variable}` substitutions.
+ */
+export type ServerObject = OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject
 
 /**
  * Configuration options for the OpenAPI adapter. Controls spec validation,
