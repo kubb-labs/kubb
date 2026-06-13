@@ -4,7 +4,7 @@ import { toError } from './errors.ts'
 /**
  * A function that can be registered as an event listener, synchronous or async.
  */
-type AsyncListener<TArgs extends unknown[]> = (...args: TArgs) => void | Promise<void>
+type AsyncListener<TArgs extends Array<unknown>> = (...args: TArgs) => void | Promise<void>
 
 /**
  * Typed `EventEmitter` that awaits all async listeners before resolving.
@@ -17,7 +17,7 @@ type AsyncListener<TArgs extends unknown[]> = (...args: TArgs) => void | Promise
  * await emitter.emit('build', 'petstore') // all listeners awaited
  * ```
  */
-export class AsyncEventEmitter<TEvents extends { [K in keyof TEvents]: unknown[] }> {
+export class AsyncEventEmitter<TEvents extends { [K in keyof TEvents]: Array<unknown> }> {
   /**
    * Maximum number of listeners per event before Node emits a memory-leak warning.
    * @default 10
@@ -76,7 +76,7 @@ export class AsyncEventEmitter<TEvents extends { [K in keyof TEvents]: unknown[]
    * ```
    */
   on<TEventName extends keyof TEvents & string>(eventName: TEventName, handler: AsyncListener<TEvents[TEventName]>): void {
-    this.#emitter.on(eventName, handler as AsyncListener<unknown[]>)
+    this.#emitter.on(eventName, handler as AsyncListener<Array<unknown>>)
   }
 
   /**
@@ -104,7 +104,7 @@ export class AsyncEventEmitter<TEvents extends { [K in keyof TEvents]: unknown[]
    * ```
    */
   off<TEventName extends keyof TEvents & string>(eventName: TEventName, handler: AsyncListener<TEvents[TEventName]>): void {
-    this.#emitter.off(eventName, handler as AsyncListener<unknown[]>)
+    this.#emitter.off(eventName, handler as AsyncListener<Array<unknown>>)
   }
 
   /**

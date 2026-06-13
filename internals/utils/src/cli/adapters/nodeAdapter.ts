@@ -26,7 +26,7 @@ function buildParseOptions(def: CommandDefinition): ParseOptions {
   return result
 }
 
-async function runCommand(def: CommandDefinition, argv: string[], parentName?: string): Promise<void> {
+async function runCommand(def: CommandDefinition, argv: Array<string>, parentName?: string): Promise<void> {
   const parseOptions = buildParseOptions(def)
 
   let parsed: ParsedArgs
@@ -74,7 +74,7 @@ async function runCommand(def: CommandDefinition, argv: string[], parentName?: s
   }
 }
 
-function printRootHelp(programName: string, version: string, defs: CommandDefinition[]): void {
+function printRootHelp(programName: string, version: string, defs: Array<CommandDefinition>): void {
   console.log(`\n${styleText('bold', 'Usage:')} ${programName} <command> [options]\n`)
   console.log(`  Kubb v${version} — Generate TypeScript types, API clients, React Query hooks,`)
   console.log(`  Zod schemas, and more from an OpenAPI specification.\n`)
@@ -99,7 +99,7 @@ export const nodeAdapter = defineCLIAdapter({
     renderHelp(def, parentName)
   },
 
-  async run(defs: CommandDefinition[], argv: string[], opts: RunOptions): Promise<void> {
+  async run(defs: Array<CommandDefinition>, argv: Array<string>, opts: RunOptions): Promise<void> {
     const { programName, defaultCommandName, version } = opts
 
     // Strip the leading executable + script entries when process.argv is passed directly.
@@ -132,7 +132,7 @@ export const nodeAdapter = defineCLIAdapter({
     const isKnownSubcommand = defs.some((d) => d.name === first)
 
     let def: CommandDefinition | undefined
-    let commandArgv: string[]
+    let commandArgv: Array<string>
     let parentName: string | undefined
 
     if (isKnownSubcommand) {

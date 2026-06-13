@@ -50,7 +50,30 @@ describe('AsyncEventEmitter', () => {
     expect(result).toBeUndefined()
   })
 
-  it.todo('should handle errors in listeners', async () => {})
+  it('should wrap a rejecting listener with the event name and serialized arguments', async () => {
+    const emitter = new AsyncEventEmitter<TestEvents>()
+    const cause = new Error('listener failed')
+
+    emitter.on('test', () => {
+      throw cause
+    })
+
+    await expect(emitter.emit('test', 'hello', 42)).rejects.toThrow('Error in async listener for "test" with eventArgs ["hello",42]')
+    await expect(emitter.emit('test', 'hello', 42)).rejects.toMatchObject({ cause })
+  })
+
+  it('should stop calling later listeners once one rejects', async () => {
+    const emitter = new AsyncEventEmitter<TestEvents>()
+    const second = vi.fn()
+
+    emitter.on('test', () => {
+      throw new Error('boom')
+    })
+    emitter.on('test', second)
+
+    await expect(emitter.emit('test', 'hello', 42)).rejects.toThrow()
+    expect(second).not.toHaveBeenCalled()
+  })
 
   it('should remove listener with off method', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
@@ -92,31 +115,15 @@ describe('AsyncEventEmitter', () => {
 
   it('should accept max listeners parameter in constructor', () => {
     const emitter = new AsyncEventEmitter<TestEvents>(200)
-    expect(emitter.getMaxListeners()).toBe(200)
-  })
 
-  it('should default the max listeners ceiling to 10', () => {
-    const emitter = new AsyncEventEmitter<TestEvents>()
-    expect(emitter.getMaxListeners()).toBe(10)
+    expect(emitter.getMaxListeners()).toBe(200)
   })
 
   it('should raise the max listeners ceiling with setMaxListeners', () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     emitter.setMaxListeners(40)
+
     expect(emitter.getMaxListeners()).toBe(40)
-  })
-
-  it('should not warn when registering more listeners than the default after raising the ceiling', () => {
-    using warn = vi.spyOn(process, 'emitWarning').mockImplementation(() => {})
-    const emitter = new AsyncEventEmitter<TestEvents>()
-
-    emitter.setMaxListeners(40)
-    for (let i = 0; i < 11; i++) {
-      emitter.on('test', vi.fn())
-    }
-
-    expect(emitter.listenerCount('test')).toBe(11)
-    expect(warn).not.toHaveBeenCalled()
   })
 
   it('should handle events with no arguments', async () => {

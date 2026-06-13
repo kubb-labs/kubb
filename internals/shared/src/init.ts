@@ -6,7 +6,7 @@ export function generateConfigFile({
   inputPath,
   outputPath,
 }: {
-  selectedPlugins: PluginOption[]
+  selectedPlugins: Array<PluginOption>
   inputPath: string
   outputPath: string
 }): string {

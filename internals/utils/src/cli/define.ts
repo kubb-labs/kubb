@@ -43,11 +43,11 @@ export function defineCLIAdapter(adapter: CLIAdapter): CLIAdapter {
 export function defineCommand<O extends Record<string, OptionDefinition>>(def: {
   name: string
   description: string
-  arguments?: string[]
-  examples?: string[]
+  arguments?: Array<string>
+  examples?: Array<string>
   options?: O
-  subCommands?: CommandDefinition[]
-  run?: (args: { values: InferValues<O>; positionals: string[] }) => Promise<void>
+  subCommands?: Array<CommandDefinition>
+  run?: (args: { values: InferValues<O>; positionals: Array<string> }) => Promise<void>
 }): CommandDefinition {
   const { run, ...rest } = def
   if (!run) return rest

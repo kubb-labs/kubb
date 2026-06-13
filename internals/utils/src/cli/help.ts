@@ -31,7 +31,7 @@ export function renderHelp(def: CommandDefinition, parentName?: string): void {
     console.log()
   }
 
-  const options: OptionSchema[] = [
+  const options: Array<OptionSchema> = [
     ...schema.options,
     {
       name: 'help',

@@ -10,7 +10,7 @@ import type { CommandDefinition, CommandSchema, OptionDefinition, OptionSchema }
  * // [{ name: 'generate', options: [...], subCommands: [] }, ...]
  * ```
  */
-export function getCommandSchema(defs: CommandDefinition[]): CommandSchema[] {
+export function getCommandSchema(defs: Array<CommandDefinition>): Array<CommandSchema> {
   return defs.map(serializeCommand)
 }
 
@@ -25,7 +25,7 @@ function serializeCommand(def: CommandDefinition): CommandSchema {
   }
 }
 
-function serializeOptions(options: Record<string, OptionDefinition>): OptionSchema[] {
+function serializeOptions(options: Record<string, OptionDefinition>): Array<OptionSchema> {
   return Object.entries(options).map(([name, opt]) => {
     const shortPart = opt.short ? `-${opt.short}, ` : ''
     const valuePart = opt.type === 'string' ? ` <${opt.hint ?? name}>` : ''

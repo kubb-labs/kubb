@@ -9,7 +9,7 @@ type BaseOption = {
   /**
    * Allowed values for string options. Used in help output and AI/MCP tool schemas.
    */
-  enum?: string[]
+  enum?: Array<string>
 }
 
 type StringOption = BaseOption & { type: 'string'; default?: string }
@@ -30,7 +30,7 @@ export type OptionType = OptionDefinition['type']
  */
 export type ParsedArgs = {
   values: Record<string, string | boolean | undefined>
-  positionals: string[]
+  positionals: Array<string>
 }
 
 /**
@@ -42,13 +42,13 @@ export type CommandDefinition = {
   /**
    * Positional argument labels shown in usage line, e.g. `['[input]']`.
    */
-  arguments?: string[]
+  arguments?: Array<string>
   /**
    * Usage examples shown in help output and exposed to AI/MCP tools.
    */
-  examples?: string[]
+  examples?: Array<string>
   options?: Record<string, OptionDefinition>
-  subCommands?: CommandDefinition[]
+  subCommands?: Array<CommandDefinition>
   run?: (args: ParsedArgs) => Promise<void>
 }
 
@@ -65,7 +65,7 @@ export type RunOptions = {
  * Interface a CLI adapter must implement to plug into `createCLI`.
  */
 export type CLIAdapter = {
-  run(commands: CommandDefinition[], argv: string[], opts: RunOptions): Promise<void>
+  run(commands: Array<CommandDefinition>, argv: Array<string>, opts: RunOptions): Promise<void>
   renderHelp(def: CommandDefinition, parentName?: string): void
 }
 
@@ -80,7 +80,7 @@ export type OptionSchema = {
   default?: string | boolean
   hint?: string
   required?: boolean
-  enum?: string[]
+  enum?: Array<string>
 }
 
 /**
@@ -89,8 +89,8 @@ export type OptionSchema = {
 export type CommandSchema = {
   name: string
   description: string
-  arguments?: string[]
-  examples?: string[]
-  options: OptionSchema[]
-  subCommands: CommandSchema[]
+  arguments?: Array<string>
+  examples?: Array<string>
+  options: Array<OptionSchema>
+  subCommands: Array<CommandSchema>
 }

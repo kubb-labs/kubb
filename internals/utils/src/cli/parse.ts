@@ -16,7 +16,7 @@ import type { CLIAdapter, CommandDefinition, RunOptions } from './types.ts'
  * ```
  */
 export function createCLI(options?: { adapter?: CLIAdapter }): {
-  run(commands: CommandDefinition[], argv: string[], opts: RunOptions): Promise<void>
+  run(commands: Array<CommandDefinition>, argv: Array<string>, opts: RunOptions): Promise<void>
 } {
   const adapter = options?.adapter ?? nodeAdapter
 

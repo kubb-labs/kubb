@@ -1,4 +1,4 @@
-const SIGNALS: NodeJS.Signals[] = ['SIGINT', 'SIGTERM', 'SIGHUP']
+const SIGNALS: Array<NodeJS.Signals> = ['SIGINT', 'SIGTERM', 'SIGHUP']
 
 /**
  * Register a callback to run when the process exits (via exit event or common signals).

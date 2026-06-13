@@ -8,7 +8,7 @@ export const initDefaults = {
   plugins: ['plugin-ts'],
 } as const
 
-export const availablePlugins: PluginOption[] = [
+export const availablePlugins: Array<PluginOption> = [
   {
     value: 'plugin-ts',
     label: 'TypeScript',
@@ -83,34 +83,14 @@ export const availablePlugins: PluginOption[] = [
 ]
 
 export const pluginDefaultConfigs = {
-  'plugin-ts': `pluginTs({
-      output: { path: 'models' },
-    })`,
-  'plugin-client': `pluginClient({
-      output: { path: 'clients' },
-    })`,
-  'plugin-react-query': `pluginReactQuery({
-      output: { path: 'hooks' },
-    })`,
-  'plugin-vue-query': `pluginVueQuery({
-      output: { path: 'hooks' },
-    })`,
-  'plugin-zod': `pluginZod({
-      output: { path: 'zod' },
-    })`,
-  'plugin-faker': `pluginFaker({
-      output: { path: 'mocks' },
-    })`,
-  'plugin-msw': `pluginMsw({
-      output: { path: 'msw' },
-    })`,
-  'plugin-cypress': `pluginCypress({
-      output: { path: 'cypress' },
-    })`,
-  'plugin-mcp': `pluginMcp({
-      output: { path: 'mcp' },
-    })`,
-  'plugin-redoc': `pluginRedoc({
-      output: { path: 'redoc' },
-    })`,
+  'plugin-ts': `pluginTs()`,
+  'plugin-client': `pluginClient()`,
+  'plugin-react-query': `pluginReactQuery()`,
+  'plugin-vue-query': `pluginVueQuery()`,
+  'plugin-zod': `pluginZod()`,
+  'plugin-faker': `pluginFaker()`,
+  'plugin-msw': `pluginMsw()`,
+  'plugin-cypress': `pluginCypress()`,
+  'plugin-mcp': `pluginMcp()`,
+  'plugin-redoc': `pluginRedoc()`,
 } as const satisfies Record<string, string>
