@@ -1,4 +1,5 @@
-import { ast } from '@kubb/core'
+import { extractStringsFromNodes } from '@kubb/ast/utils'
+import type { ast } from '@kubb/core'
 import { defineParser } from '@kubb/core'
 import { print, type PrintInput } from './utils.ts'
 
@@ -42,7 +43,7 @@ export const parserMd = defineParser({
   parse(file) {
     const sourceParts: Array<string> = []
     for (const source of file.sources) {
-      const text = ast.extractStringsFromNodes(source.nodes as Array<ast.CodeNode>)
+      const text = extractStringsFromNodes(source.nodes as Array<ast.CodeNode>)
       if (text) sourceParts.push(text.trimEnd())
     }
     const body = sourceParts.join('\n\n')

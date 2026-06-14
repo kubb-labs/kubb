@@ -5,7 +5,6 @@ import { createFunctionParameter, createFunctionParameters, createIndexedAccessT
 import { createProperty } from '../nodes/property.ts'
 import { createSchema } from '../nodes/schema.ts'
 import type {
-  CodeNode,
   ExportNode,
   FunctionParameterNode,
   FunctionParametersNode,
@@ -18,7 +17,7 @@ import type {
   TypeLiteralNode,
 } from '../nodes/index.ts'
 import type { SchemaType } from '../nodes/schema.ts'
-import { extractRefName } from './index.ts'
+import { extractRefName, extractStringsFromNodes, resolveGroupType } from './index.ts'
 import { collect, collectLazy } from '../visitor.ts'
 
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
@@ -422,35 +421,6 @@ export function buildGroupParam(args: BuildGroupArgs): Array<FunctionParameterNo
 }
 
 /**
- * Derives a {@link ParamGroupType} for a query or header group from the resolver.
- *
- * Returns `null` when there is no resolver, no params, or the group name equals the
- * individual param name (so there is no real group to emit).
- */
-export function resolveGroupType({
-  node,
-  params,
-  group,
-  resolver,
-}: {
-  node: OperationNode
-  params: Array<ParameterNode>
-  group: 'query' | 'header'
-  resolver: OperationParamsResolver | undefined
-}): ParamGroupType | null {
-  if (!resolver || !params.length) {
-    return null
-  }
-  const firstParam = params[0]!
-  const groupMethod = group === 'query' ? resolver.resolveQueryParamsName : resolver.resolveHeaderParamsName
-  const groupName = groupMethod.call(resolver, node, firstParam)
-  if (groupName === resolver.resolveParamName(node, firstParam)) {
-    return null
-  }
-  return { type: groupName, optional: params.every((p) => !p.required) }
-}
-
-/**
  * Builds a {@link TypeLiteralNode} for an inline anonymous type grouping named fields.
  *
  * Used when query or header parameters have no dedicated group type name.
@@ -649,39 +619,6 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   }
 
   return result
-}
-
-/**
- * Extracts all string content from a `CodeNode` tree recursively.
- *
- * Collects text node values, identifier references in string fields (`params`, `generics`, `returnType`, `type`),
- * and nested node content. Used internally to build the full source string for import filtering.
- */
-export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): string {
-  if (!nodes?.length) return ''
-  return nodes
-    .map((node) => {
-      // Backward-compat: compiled plugins may still pass bare strings at runtime
-      if (typeof node === 'string') return node as string
-      if (node.kind === 'Text') return node.value
-      if (node.kind === 'Break') return ''
-      if (node.kind === 'Jsx') return node.value
-
-      const parts: Array<string> = []
-
-      if ('params' in node && node.params) parts.push(node.params)
-      if ('generics' in node && node.generics) parts.push(Array.isArray(node.generics) ? node.generics.join(', ') : node.generics)
-      if ('returnType' in node && node.returnType) parts.push(node.returnType)
-      if ('type' in node && typeof node.type === 'string') parts.push(node.type)
-
-      const nested = extractStringsFromNodes(node.nodes)
-
-      if (nested) parts.push(nested)
-
-      return parts.join('\n')
-    })
-    .filter(Boolean)
-    .join('\n')
 }
 
 /**

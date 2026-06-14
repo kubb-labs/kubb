@@ -2,7 +2,8 @@ import { hash } from 'node:crypto'
 import path from 'node:path'
 import { trimExtName } from '@internals/utils'
 import type { FileNode, Node } from './nodes/index.ts'
-import { combineExports, combineImports, combineSources, extractStringsFromNodes } from './utils/ast.ts'
+import { combineExports, combineImports, combineSources } from './utils/ast.ts'
+import { extractStringsFromNodes } from './utils/index.ts'
 
 /**
  * Identity-preserving node update: returns `node` unchanged when every field in

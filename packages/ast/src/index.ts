@@ -56,10 +56,8 @@ export {
   containsCircularRef,
   createDiscriminantNode,
   createOperationParams,
-  extractStringsFromNodes,
   findCircularSchemas,
   isStringType,
-  resolveGroupType,
   resolveParamType,
   syncSchemaRef,
 } from './utils/ast.ts'
