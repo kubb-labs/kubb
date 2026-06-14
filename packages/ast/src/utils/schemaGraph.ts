@@ -4,10 +4,9 @@ import { collect, collectLazy } from '../visitor.ts'
 import { resolveRefName } from './refs.ts'
 
 /**
- * Collects every named schema referenced (transitively) from a node via ref edges.
+ * Collects every named schema referenced transitively from a node through its ref edges.
  *
- * Refs are followed by name only, the resolved `node.schema` is not traversed inline.
- * Use this to determine schema dependencies, build reference graphs, or detect what schemas need to be emitted.
+ * Refs are followed by name only, so the resolved `node.schema` is never traversed inline.
  *
  * @example Collect refs from a single schema
  * ```ts
@@ -45,29 +44,20 @@ export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: 
 /**
  * Collects the names of all top-level schemas transitively used by a set of operations.
  *
- * An operation uses a schema when any of its parameters, request body content, or responses
- * reference it, directly or indirectly through other named schemas.
- * The walk is iterative and safe against reference cycles.
+ * An operation uses a schema when its parameters, request body, or responses reference it, directly
+ * or through other named schemas. The walk is iterative, so reference cycles are safe.
  *
- * Use this together with `include` filters to determine which schemas from `components/schemas`
- * are reachable from the allowed operations, so that schemas used only by excluded operations
- * are not generated.
+ * Pair it with `include` filters so schemas reachable only from excluded operations stay ungenerated.
  *
  * @example Only generate schemas referenced by included operations
  * ```ts
- * const includedOps = operations.filter(op => resolver.resolveOptions(op, { options, include }) !== null)
+ * const includedOps = operations.filter((op) => resolver.resolveOptions(op, { options, include }) !== null)
  * const allowed = collectUsedSchemaNames(includedOps, schemas)
  *
  * for (const schema of schemas) {
  *   if (schema.name && !allowed.has(schema.name)) continue
  *   // … generate schema
  * }
- * ```
- *
- * @example Check whether a specific schema is needed
- * ```ts
- * const allowed = collectUsedSchemaNames(includedOps, schemas)
- * allowed.has('OrderStatus') // false when no included operation references OrderStatus
  * ```
  */
 const collectUsedSchemaNamesMemo = memoize(new WeakMap<ReadonlyArray<OperationNode>, (schemas: ReadonlyArray<SchemaNode>) => Set<string>>(), (ops) =>
@@ -138,13 +128,13 @@ const findCircularSchemasMemo = memoize(new WeakMap<ReadonlyArray<SchemaNode>, S
 })
 
 /**
- * Identifies all schemas that participate in circular dependency chains, including direct self-loops.
+ * Finds every schema that takes part in a circular dependency chain, including direct self-loops.
  *
- * Returns a Set of schema names with circular dependencies. Use this to wrap recursive schema positions
- * in deferred constructs (lazy getter, `z.lazy(() => …)`) to prevent infinite recursion when generated code runs.
- * Refs are followed by name only, keeping the algorithm linear in the schema graph size.
+ * Wrap the returned schema positions in a deferred construct (a lazy getter or `z.lazy(() => …)`) so
+ * the generated code does not recurse forever. Refs are followed by name only, so the walk stays
+ * linear in the size of the schema graph.
  *
- * @note Call this once on the full schema graph, then use `containsCircularRef()` to check individual schemas.
+ * @note Call this once on the full graph, then check individual schemas with `containsCircularRef()`.
  */
 export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<string> {
   if (schemas.length === 0) return EMPTY_CIRCULAR_SET
@@ -152,12 +142,12 @@ export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<str
 }
 
 /**
- * Type guard returning `true` when a schema or anything nested within it contains a ref to a circular schema.
+ * Returns `true` when a schema, or anything nested inside it, references a circular schema.
  *
- * Use `excludeName` to ignore refs to specific schemas (useful when self-references are handled separately).
- * Commonly used with `findCircularSchemas()` to detect where lazy wrappers are needed in code generation.
+ * Pass `excludeName` to skip refs to a specific schema, which helps when self-references are handled
+ * on their own. Pair it with `findCircularSchemas()` to decide where lazy wrappers go.
  *
- * @note Returns `true` for the first matching circular ref found. Use for fast dependency checks.
+ * @note Stops at the first matching circular ref.
  */
 export function containsCircularRef(
   node: SchemaNode | undefined,

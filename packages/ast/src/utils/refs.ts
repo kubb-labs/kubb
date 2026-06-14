@@ -22,8 +22,7 @@ export function extractRefName(ref: string): string {
 /**
  * Resolves the schema name of a ref node, falling back through `ref` → `name` → nested `schema.name`.
  *
- * Returns `null` for non-ref nodes or when no name can be resolved. Use this to get a schema's
- * identifier for type definitions or error messages.
+ * Returns `null` for non-ref nodes or when no name resolves.
  *
  * @example
  * ```ts

@@ -105,8 +105,6 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
  *
  * Retains imports that are referenced in `source` or re-exported. Imports with the same path and
  * `isTypeOnly` flag have their names merged. Returns a sorted, deduplicated, filtered array.
- *
- * @note Use this when combining imports from multiple files to avoid duplicate declarations.
  */
 export function combineImports(imports: Array<ImportNode>, exports: Array<ExportNode>, source?: string): Array<ImportNode> {
   // Build a lookup of all exported names to retain imports that are re-exported

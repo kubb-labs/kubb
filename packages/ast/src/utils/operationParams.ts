@@ -14,11 +14,11 @@ import { createSchema } from '../nodes/schema.ts'
 import { resolveGroupType } from './refs.ts'
 
 /**
- * Applies casing rules to parameter names and returns a new parameter array.
+ * Applies casing rules to parameter names and returns a new array without mutating the input.
  *
- * Use this before passing parameters to schema builders so output property keys match
- * the desired casing while preserving `OperationNode.parameters` for other consumers.
- * The input array is not mutated. When `casing` is not set, the original array is returned unchanged.
+ * Run it before handing parameters to schema builders so output property keys get the right casing
+ * while `OperationNode.parameters` stays intact for other consumers. When `casing` is unset, the
+ * original array is returned unchanged.
  */
 const caseParamsMemo = memoize(new WeakMap<Array<ParameterNode>, (casing: string) => Array<ParameterNode>>(), (params) =>
   memoize(new Map<string, Array<ParameterNode>>(), (casing: string) =>
@@ -201,8 +201,8 @@ export type CreateOperationParamsOptions = {
     path?: string
   }
   /**
-   * Applies a uniform transformation to every resolved type name before it is used
-   * in a parameter node. Use this for framework-level type wrappers.
+   * Transforms every resolved type name before it lands in a parameter node, for framework-level
+   * type wrappers.
    *
    * @example Vue Query, wrap every parameter type with `MaybeRefOrGetter`
    * `typeWrapper: (t) => \`MaybeRefOrGetter<${t}>\``
@@ -213,9 +213,9 @@ export type CreateOperationParamsOptions = {
 /**
  * Resolves the {@link TypeExpression} for an individual parameter.
  *
- * Without a resolver, falls back to the schema primitive (a plain type-name string).
- * When the parameter belongs to a named group, emits an {@link IndexedAccessTypeNode}
- * (`GroupParams['petId']`); otherwise the resolved individual name as a plain string.
+ * Without a resolver, it falls back to the schema primitive (a plain type-name string). When the
+ * parameter belongs to a named group, it emits an {@link IndexedAccessTypeNode} like
+ * `GroupParams['petId']`, otherwise the resolved individual name.
  */
 export function resolveParamType({
   node,

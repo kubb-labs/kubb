@@ -20,9 +20,10 @@ export function trimQuotes(text: string): string {
 }
 
 /**
- * Serializes a primitive value to a single-quoted string literal, stripping any surrounding quote
- * characters first. Escaping comes from `JSON.stringify`, then the quote style switches to single
- * quotes so generated code matches the repo style without a formatter.
+ * Serializes a primitive to a single-quoted string literal, stripping any surrounding quotes first.
+ *
+ * Escaping runs through `JSON.stringify`, then the result switches to single quotes so the generated
+ * code matches the repo style without a formatter.
  *
  * @example
  * ```ts
