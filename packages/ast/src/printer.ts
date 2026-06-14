@@ -192,7 +192,7 @@ export function definePrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
 
 /**
  * Generic printer-factory function used by `definePrinter` and `defineFunctionPrinter`.
- **
+ *
  * @example
  * ```ts
  * export const defineFunctionPrinter = createPrinterFactory<FunctionParamNode, FunctionParamKind, Partial<Record<FunctionParamKind, FunctionParamNode>>>(

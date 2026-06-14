@@ -1,5 +1,5 @@
 export { AsyncEventEmitter, Url } from '@internals/utils'
-// `@kubb/ast` re-exported as the `ast` namespace; node constructors are reached as `ast.factory.createX`.
+// `@kubb/ast` re-exported as the `ast` namespace. Node constructors are reached as `ast.factory.createX`.
 export * as ast from '@kubb/ast'
 export { createAdapter } from './createAdapter.ts'
 export { Diagnostics } from './diagnostics.ts'

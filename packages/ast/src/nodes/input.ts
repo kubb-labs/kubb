@@ -115,8 +115,8 @@ export const inputDef = defineNode<InputNode, Partial<Omit<InputNode, 'kind'>>>(
 
 /**
  * Creates an `InputNode`. Pass `stream: true` for the streaming variant whose `schemas` and
- * `operations` are `AsyncIterable` sources and whose `meta` is optional; otherwise the eager variant
- * with array `schemas`/`operations` and the defaulted `meta`.
+ * `operations` are `AsyncIterable` sources and whose `meta` is optional. Otherwise it builds the
+ * eager variant with array `schemas`/`operations` and the defaulted `meta`.
  *
  * @example Eager
  * ```ts
