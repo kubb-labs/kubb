@@ -124,7 +124,7 @@
     "@nuxt/kit": "^4.4.8",
     "@nuxt/schema": "^4.4.8",
     "esbuild": "^0.28.0",
-    "rolldown": "^1.1.0",
+    "rolldown": "^1.1.1",
     "rollup": "^4.61.1",
     "vite": "^8.0.16",
     "webpack": "^5.107.2"
