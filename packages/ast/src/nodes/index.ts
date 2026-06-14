@@ -22,7 +22,7 @@ export type {
   FunctionParamNode,
   IndexedAccessTypeNode,
   ObjectBindingPatternNode,
-  TypeExpr,
+  TypeExpression,
   TypeLiteralNode,
 } from './function.ts'
 export type { StatusCode } from './http.ts'

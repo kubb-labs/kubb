@@ -48,7 +48,7 @@ export type {
   StringSchemaNode,
   TextNode,
   TimeSchemaNode,
-  TypeExpr,
+  TypeExpression,
   TypeLiteralNode,
   TypeNode,
   UnionSchemaNode,

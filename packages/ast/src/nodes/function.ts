@@ -8,7 +8,7 @@ import type { BaseNode } from './base.ts'
  * - a {@link TypeLiteralNode} is an inline anonymous type, e.g. `{ petId: string; name?: string }`
  * - an {@link IndexedAccessTypeNode} is a single field accessed from a named type, e.g. `PathParams['petId']`
  */
-export type TypeExpr = string | TypeLiteralNode | IndexedAccessTypeNode
+export type TypeExpression = string | TypeLiteralNode | IndexedAccessTypeNode
 
 /**
  * AST node for an inline anonymous object type grouping named fields.
@@ -36,7 +36,7 @@ export type TypeLiteralNode = BaseNode & {
     /**
      * Member type expression.
      */
-    type: TypeExpr
+    type: TypeExpression
     /**
      * Whether the member is optional, rendered with `?`.
      */
@@ -130,9 +130,9 @@ export type FunctionParameterNode = BaseNode & {
    */
   name: string | ObjectBindingPatternNode
   /**
-   * Type annotation as a {@link TypeExpr}. Omit for untyped output.
+   * Type annotation as a {@link TypeExpression}. Omit for untyped output.
    */
-  type?: TypeExpr
+  type?: TypeExpression
   /**
    * Whether the parameter is optional, rendered with `?`.
    */
@@ -231,12 +231,12 @@ export const createObjectBindingPattern = objectBindingPatternDef.create
  */
 type FunctionParameterProperty = {
   name: string
-  type: TypeExpr
+  type: TypeExpression
   optional?: boolean
 }
 
 type FunctionParameterInput =
-  | { name: string; type?: TypeExpr; optional?: boolean; default?: string; rest?: boolean }
+  | { name: string; type?: TypeExpression; optional?: boolean; default?: string; rest?: boolean }
   | { properties: Array<FunctionParameterProperty>; optional?: boolean; default?: string }
 
 /**

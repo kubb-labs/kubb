@@ -14,7 +14,7 @@ import type {
   ParameterNode,
   SchemaNode,
   SourceNode,
-  TypeExpr,
+  TypeExpression,
   TypeLiteralNode,
 } from '../nodes/index.ts'
 import type { SchemaType } from '../nodes/schema.ts'
@@ -124,7 +124,7 @@ type ParamGroupType = {
   /**
    * Type expression for the group, a plain group-name reference.
    */
-  type: TypeExpr
+  type: TypeExpression
   /**
    * Whether the parameter group is optional.
    */
@@ -136,7 +136,7 @@ type ParamGroupType = {
  */
 type GroupProperty = {
   name: string
-  type: TypeExpr
+  type: TypeExpression
   optional?: boolean
 }
 
@@ -267,7 +267,7 @@ export type CreateOperationParamsOptions = {
 }
 
 /**
- * Resolves the {@link TypeExpr} for an individual parameter.
+ * Resolves the {@link TypeExpression} for an individual parameter.
  *
  * Without a resolver, falls back to the schema primitive (a plain type-name string).
  * When the parameter belongs to a named group, emits an {@link IndexedAccessTypeNode}
@@ -281,7 +281,7 @@ export function resolveParamType({
   node: OperationNode
   param: ParameterNode
   resolver: OperationParamsResolver | undefined
-}): TypeExpr {
+}): TypeExpression {
   if (!resolver) {
     return param.schema.primitive ?? 'unknown'
   }
@@ -324,7 +324,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
   const wrapType = (type: string): string => (typeWrapper ? typeWrapper(type) : type)
   // Only plain type-name references are wrapped, they need casing applied.
   // TypeLiteral and IndexedAccessType expressions are pre-resolved and pass through unchanged.
-  const wrapTypeExpr = (type: TypeExpr): TypeExpr => (typeof type === 'string' ? wrapType(type) : type)
+  const wrapTypeExpression = (type: TypeExpression): TypeExpression => (typeof type === 'string' ? wrapType(type) : type)
 
   const casedParams = caseParams(node.parameters, paramsCasing)
   const pathParams = casedParams.filter((p) => p.in === 'path')
@@ -357,7 +357,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
     const children: Array<GroupProperty> = [
       ...pathParams.map((p) => ({
         name: p.name,
-        type: wrapTypeExpr(resolveParamType({ node, param: p, resolver })),
+        type: wrapTypeExpression(resolveParamType({ node, param: p, resolver })),
         optional: !p.required,
       })),
       ...(bodyType
@@ -411,7 +411,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
           ...pathParams.map((p) =>
             createFunctionParameter({
               name: p.name,
-              type: wrapTypeExpr(resolveParamType({ node, param: p, resolver })),
+              type: wrapTypeExpression(resolveParamType({ node, param: p, resolver })),
               optional: !p.required,
             }),
           ),
@@ -419,7 +419,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
       } else {
         const pathChildren = pathParams.map((p) => ({
           name: p.name,
-          type: wrapTypeExpr(resolveParamType({ node, param: p, resolver })),
+          type: wrapTypeExpression(resolveParamType({ node, param: p, resolver })),
           optional: !p.required,
         }))
         params.push(
