@@ -4,9 +4,9 @@
 
 Reshape function parameter and type nodes onto the `ts.factory` model.
 
-A parameter type is now a plain `string` for a reference. The `ParamsType` node (with its `reference`, `struct`, and `member` variants) and the separate `ParameterGroup` node are gone. In their place are three focused nodes: `TypeLiteral` for an inline object type (`{ petId: string; name?: string }`), `IndexedAccessType` for a single field read from a named type (`PathParams['petId']`), and `ObjectBindingPattern` for a destructured binding (`{ id, name }`).
+A type reference is now a plain `string`. The `ParamsType` node (with its `reference`, `struct`, and `member` variants) and the separate `ParameterGroup` node are gone. Three new nodes replace them: `TypeLiteral` for an inline object type (`{ petId: string; name?: string }`), `IndexedAccessType` for a single field read from a named type (`PathParams['petId']`), and `ObjectBindingPattern` for a destructured binding (`{ id, name }`).
 
-`createFunctionParameter` now takes either a `name` or a flat `properties` list. Passing `properties` builds one destructured parameter: an `ObjectBindingPattern` name paired with a `TypeLiteral` type, so a whole group is a single parameter instead of a bespoke node.
+`createFunctionParameter` now takes either a `name` or a flat `properties` list. Passing `properties` builds one destructured parameter, an `ObjectBindingPattern` name paired with a `TypeLiteral` type, so a whole group is a single parameter instead of its own node type.
 
 Migration:
 
