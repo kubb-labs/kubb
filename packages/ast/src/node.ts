@@ -23,7 +23,7 @@ export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omi
 /**
  * Builds a type guard that matches nodes of the given `kind`.
  */
-export function isKind<T extends BaseNode>(kind: NodeKind) {
+function isKind<T extends BaseNode>(kind: NodeKind) {
   return (node: unknown): node is T => (node as BaseNode).kind === kind
 }
 
