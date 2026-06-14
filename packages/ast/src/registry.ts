@@ -2,7 +2,7 @@ import type { NodeDef } from './node.ts'
 import { arrowFunctionDef, breakDef, constDef, functionDef, jsxDef, textDef, typeDef } from './nodes/code.ts'
 import { contentDef } from './nodes/content.ts'
 import { exportDef, fileDef, importDef, sourceDef } from './nodes/file.ts'
-import { functionParameterDef, functionParametersDef, parameterGroupDef, paramsTypeDef } from './nodes/function.ts'
+import { functionParameterDef, functionParametersDef, indexedAccessTypeDef, objectBindingPatternDef, typeLiteralDef } from './nodes/function.ts'
 import type { Node, NodeKind } from './nodes/index.ts'
 import { inputDef } from './nodes/input.ts'
 import { operationDef } from './nodes/operation.ts'
@@ -28,9 +28,10 @@ export const nodeDefs = [
   propertyDef,
   parameterDef,
   functionParameterDef,
-  parameterGroupDef,
   functionParametersDef,
-  paramsTypeDef,
+  typeLiteralDef,
+  indexedAccessTypeDef,
+  objectBindingPatternDef,
   constDef,
   typeDef,
   functionDef,

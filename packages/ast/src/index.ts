@@ -2,34 +2,7 @@ export { httpMethods, schemaTypes } from './constants.ts'
 export { applyDedupe, buildDedupePlan } from './dedupe.ts'
 export { defineSchemaDialect } from './dialect.ts'
 export { createFile, update } from './factory.ts'
-export {
-  isArrowFunctionNode,
-  isBreakNode,
-  isConstNode,
-  isContentNode,
-  isExportNode,
-  isFileNode,
-  isFunctionNode,
-  isFunctionParameterNode,
-  isFunctionParametersNode,
-  isHttpOperationNode,
-  isImportNode,
-  isInputNode,
-  isJsxNode,
-  isOperationNode,
-  isOutputNode,
-  isParameterGroupNode,
-  isParameterNode,
-  isParamsTypeNode,
-  isPropertyNode,
-  isRequestBodyNode,
-  isResponseNode,
-  isSchemaNode,
-  isSourceNode,
-  isTextNode,
-  isTypeNode,
-  narrowSchema,
-} from './guards.ts'
+export { isHttpOperationNode, narrowSchema } from './guards.ts'
 export { defineNode } from './node.ts'
 export type { NodeDef } from './node.ts'
 export { syncOptionality } from './node.ts'
@@ -54,12 +27,14 @@ export { createExport, createImport, createSource, exportDef, fileDef, importDef
 export {
   createFunctionParameter,
   createFunctionParameters,
-  createParameterGroup,
-  createParamsType,
+  createIndexedAccessType,
+  createObjectBindingPattern,
+  createTypeLiteral,
   functionParameterDef,
   functionParametersDef,
-  parameterGroupDef,
-  paramsTypeDef,
+  indexedAccessTypeDef,
+  objectBindingPatternDef,
+  typeLiteralDef,
 } from './nodes/function.ts'
 export { createInput, createStreamInput, inputDef } from './nodes/input.ts'
 export { createOperation, operationDef } from './nodes/operation.ts'

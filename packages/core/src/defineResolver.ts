@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { camelCase, pascalCase, toFilePath } from '@internals/utils'
 import type { FileNode, InputMeta, Node, OperationNode, SchemaNode } from '@kubb/ast'
-import { createFile, isOperationNode, isSchemaNode } from '@kubb/ast'
+import { createFile, operationDef, schemaDef } from '@kubb/ast'
 import { Diagnostics } from './diagnostics.ts'
 import type { PluginFactoryOptions } from './definePlugin.ts'
 import type { Config, Group, Output } from './types.ts'
@@ -331,7 +331,7 @@ function computeOptions<TOptions>(
   include: Array<PatternFilter> | undefined,
   override: Array<PatternOverride<TOptions>>,
 ): TOptions | null {
-  if (isOperationNode(node)) {
+  if (operationDef.is(node)) {
     if (exclude.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))) return null
     if (include && !include.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))) return null
 
@@ -340,7 +340,7 @@ function computeOptions<TOptions>(
     return { ...options, ...overrideOptions }
   }
 
-  if (isSchemaNode(node)) {
+  if (schemaDef.is(node)) {
     if (exclude.some(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)) return null
     if (include) {
       const results = include.map(({ type, pattern }) => matchesSchemaPattern(node, type, pattern))

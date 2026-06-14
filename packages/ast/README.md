@@ -111,11 +111,11 @@ const types = collect<string>(root, {
 ### Guards
 
 ```ts
-import { isSchemaNode, narrowSchema } from '@kubb/ast'
+import { narrowSchema, schemaDef } from '@kubb/ast'
 import type { Node } from '@kubb/ast/types'
 
 function process(node: Node) {
-  if (isSchemaNode(node)) {
+  if (schemaDef.is(node)) {
     const obj = narrowSchema(node, 'object')
     obj?.properties?.forEach((p) => console.log(p.name))
   }

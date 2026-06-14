@@ -1,75 +1,10 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { createInput } from './nodes/input.ts'
+import { isHttpOperationNode, narrowSchema } from './guards.ts'
 import { createOperation } from './nodes/operation.ts'
 import { createSchema } from './nodes/schema.ts'
-import {
-  isArrowFunctionNode,
-  isBreakNode,
-  isConstNode,
-  isContentNode,
-  isExportNode,
-  isFileNode,
-  isFunctionNode,
-  isFunctionParameterNode,
-  isFunctionParametersNode,
-  isHttpOperationNode,
-  isImportNode,
-  isInputNode,
-  isJsxNode,
-  isOperationNode,
-  isOutputNode,
-  isParameterGroupNode,
-  isParameterNode,
-  isParamsTypeNode,
-  isPropertyNode,
-  isRequestBodyNode,
-  isResponseNode,
-  isSchemaNode,
-  isSourceNode,
-  isTextNode,
-  isTypeNode,
-  narrowSchema,
-} from './guards.ts'
-import type { NodeKind } from './nodes/base.ts'
-import type { Node } from './nodes/index.ts'
-import type { InputNode } from './nodes/input.ts'
 import type { HttpMethod, OperationNode } from './nodes/operation.ts'
-import type { ObjectSchemaNode, SchemaNode, StringSchemaNode, UnionSchemaNode } from './nodes/schema.ts'
-
-describe('isInputNode', () => {
-  it('returns true for InputNode', () => {
-    expect(isInputNode(createInput())).toBe(true)
-  })
-  it('returns false for other nodes', () => {
-    expect(isInputNode(createSchema({ type: 'string' }))).toBe(false)
-    expect(isInputNode(createOperation({ operationId: 'op', method: 'GET', path: '/' }))).toBe(false)
-  })
-  it('narrows to InputNode in a conditional', () => {
-    const node: Node = createInput()
-    if (isInputNode(node)) {
-      expectTypeOf(node).toEqualTypeOf<InputNode>()
-    }
-  })
-})
-
-describe('isOperationNode', () => {
-  it('returns true for OperationNode', () => {
-    expect(isOperationNode(createOperation({ operationId: 'op', method: 'GET', path: '/' }))).toBe(true)
-  })
-  it('returns false for other nodes', () => {
-    expect(isOperationNode(createInput())).toBe(false)
-  })
-  it('narrows to OperationNode in a conditional', () => {
-    const node: Node = createOperation({
-      operationId: 'op',
-      method: 'GET',
-      path: '/',
-    })
-    if (isOperationNode(node)) {
-      expectTypeOf(node).toMatchTypeOf<OperationNode>()
-    }
-  })
-})
+import type { ObjectSchemaNode, StringSchemaNode, UnionSchemaNode } from './nodes/schema.ts'
+import { nodeDefs } from './registry.ts'
 
 describe('isHttpOperationNode', () => {
   it('returns true for an HTTP operation', () => {
@@ -83,21 +18,6 @@ describe('isHttpOperationNode', () => {
     if (isHttpOperationNode(node)) {
       expectTypeOf(node.method).toEqualTypeOf<HttpMethod>()
       expectTypeOf(node.path).toEqualTypeOf<string>()
-    }
-  })
-})
-
-describe('isSchemaNode', () => {
-  it('returns true for SchemaNode', () => {
-    expect(isSchemaNode(createSchema({ type: 'string' }))).toBe(true)
-  })
-  it('returns false for other nodes', () => {
-    expect(isSchemaNode(createInput())).toBe(false)
-  })
-  it('narrows to SchemaNode in a conditional', () => {
-    const node: Node = createSchema({ type: 'string' })
-    if (isSchemaNode(node)) {
-      expectTypeOf(node).toMatchTypeOf<SchemaNode>()
     }
   })
 })
@@ -132,40 +52,14 @@ describe('narrowSchema', () => {
   })
 })
 
-describe('node kind guards', () => {
-  const guardsByKind: Array<[NodeKind, (node: unknown) => boolean]> = [
-    ['Input', isInputNode],
-    ['Output', isOutputNode],
-    ['Operation', isOperationNode],
-    ['RequestBody', isRequestBodyNode],
-    ['Content', isContentNode],
-    ['Response', isResponseNode],
-    ['Schema', isSchemaNode],
-    ['Property', isPropertyNode],
-    ['Parameter', isParameterNode],
-    ['FunctionParameter', isFunctionParameterNode],
-    ['ParameterGroup', isParameterGroupNode],
-    ['FunctionParameters', isFunctionParametersNode],
-    ['ParamsType', isParamsTypeNode],
-    ['Type', isTypeNode],
-    ['File', isFileNode],
-    ['Import', isImportNode],
-    ['Export', isExportNode],
-    ['Source', isSourceNode],
-    ['Const', isConstNode],
-    ['Function', isFunctionNode],
-    ['ArrowFunction', isArrowFunctionNode],
-    ['Text', isTextNode],
-    ['Break', isBreakNode],
-    ['Jsx', isJsxNode],
-  ]
-
+describe('node definition guards', () => {
   it('exposes a guard for every node kind', () => {
-    expect(guardsByKind).toHaveLength(24)
+    const kinds = new Set(nodeDefs.map((def) => def.kind))
+    expect(kinds.size).toBe(nodeDefs.length)
   })
 
-  it.each(guardsByKind)('matches only the %s kind', (kind, guard) => {
-    expect(guard({ kind })).toBe(true)
-    expect(guard({ kind: 'Other' })).toBe(false)
+  it.each(nodeDefs.map((def) => [def.kind, def] as const))('%s def.is matches only its own kind', (kind, def) => {
+    expect(def.is({ kind })).toBe(true)
+    expect(def.is({ kind: 'Other' })).toBe(false)
   })
 })
