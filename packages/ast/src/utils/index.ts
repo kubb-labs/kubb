@@ -4,6 +4,17 @@ import type { CodeNode, OperationNode, ParameterNode } from '../nodes/index.ts'
 import type { OperationParamsResolver, ParamGroupType } from './ast.ts'
 
 export { isValidVarName } from '@internals/utils'
+export {
+  buildGroupParam,
+  buildTypeLiteral,
+  caseParams,
+  collectUsedSchemaNames,
+  containsCircularRef,
+  findCircularSchemas,
+  isStringType,
+  resolveParamType,
+  syncSchemaRef,
+} from './ast.ts'
 export type { BuildGroupArgs, ParamGroupType } from './ast.ts'
 
 /**

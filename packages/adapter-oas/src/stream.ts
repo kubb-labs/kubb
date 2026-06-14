@@ -1,3 +1,4 @@
+import { containsCircularRef, findCircularSchemas } from '@kubb/ast/utils'
 import { ast } from '@kubb/core'
 import { SCHEMA_REF_PREFIX } from './constants.ts'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
@@ -44,7 +45,7 @@ function createDedupePlan({
       if (node.type !== 'object') return false
       // Skip object shapes that are part of a circular chain, hoisting them would break the cycle.
       if (node.name && circularSchemas.has(node.name)) return false
-      return !ast.containsCircularRef(node, { circularSchemas })
+      return !containsCircularRef(node, { circularSchemas })
     },
     nameFor: (node) => {
       const base = node.name
@@ -149,7 +150,7 @@ export function preScan({
     }
   }
 
-  const circularNames = [...ast.findCircularSchemas(allNodes)]
+  const circularNames = [...findCircularSchemas(allNodes)]
   const discriminatorChildMap = discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 
   let dedupePlan: ast.DedupePlan | null = null

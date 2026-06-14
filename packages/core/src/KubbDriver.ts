@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs, isPromise, memoize, Url } from '@internals/utils'
-import { collectUsedSchemaNames } from '@kubb/ast'
 import * as factory from '@kubb/ast/factory'
+import { collectUsedSchemaNames } from '@kubb/ast/utils'
 import type { FileNode, InputMeta, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'

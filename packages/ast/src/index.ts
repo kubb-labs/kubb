@@ -22,16 +22,6 @@ export { createPrinterFactory, definePrinter } from './printer.ts'
 export { signatureOf } from './signature.ts'
 export { mergeAdjacentObjectsLazy, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
 export type * from './types.ts'
-export {
-  buildGroupParam,
-  buildTypeLiteral,
-  caseParams,
-  collectUsedSchemaNames,
-  containsCircularRef,
-  findCircularSchemas,
-  isStringType,
-  resolveParamType,
-  syncSchemaRef,
-} from './utils/ast.ts'
+// The node/AST helpers in ./utils/ast.ts live on the `@kubb/ast/utils` subpath, not the root barrel.
 export { extractStringsFromNodes } from './utils/index.ts'
 export { collect, transform, walk } from './visitor.ts'

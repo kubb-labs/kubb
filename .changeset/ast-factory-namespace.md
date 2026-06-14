@@ -14,3 +14,5 @@ Migrate `createSchema(...)` and `ast.createSchema(...)` calls to `ast.factory.cr
 The function-parameter printer key type `FunctionNodeType` is renamed to `FunctionParamKind`, now derived from `FunctionParamNode['kind']` so its values match the PascalCase node `kind` discriminants.
 
 `extractStringsFromNodes` is now exported from the `@kubb/ast` root barrel as well, so it is reachable as `ast.extractStringsFromNodes` through `@kubb/core` without importing the `@kubb/ast/utils` subpath.
+
+The node and AST helpers `buildGroupParam`, `buildTypeLiteral`, `caseParams`, `collectUsedSchemaNames`, `containsCircularRef`, `findCircularSchemas`, `isStringType`, `resolveParamType`, and `syncSchemaRef` move off the `@kubb/ast` root barrel onto the `@kubb/ast/utils` subpath. Import them from `@kubb/ast/utils` instead of `@kubb/ast` (or `ast.fn` via `@kubb/core`).
