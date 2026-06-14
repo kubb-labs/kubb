@@ -5,8 +5,8 @@ import type { SchemaNode } from './schema.ts'
 /**
  * AST node representing one content-type entry of a request body or response.
  *
- * One entry per content type declared in the spec (e.g. `application/json`,
- * `multipart/form-data`), each carrying its own body schema.
+ * There is one entry per content type declared in the spec (e.g. `application/json`,
+ * `multipart/form-data`), and each entry holds its own body schema.
  *
  * @example
  * ```ts

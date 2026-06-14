@@ -76,8 +76,7 @@ type ParentNodeMap = [
 /**
  * Resolves the parent node type for a given AST node type.
  *
- * This is used by visitor context so `ctx.parent` is correctly typed
- * for each callback.
+ * Visitor context relies on this so `ctx.parent` is typed for each callback.
  *
  * @example
  * ```ts
@@ -133,8 +132,7 @@ export type VisitorContext<T extends Node = Node> = {
  * to leave it untouched.
  *
  * Plugins typically expose `transformer` so users can supply a `Visitor` that
- * rewrites operation IDs, drops descriptions, or otherwise tweaks the AST
- * before printing.
+ * rewrites the AST before printing.
  *
  * @example Prefix every operationId
  * ```ts
@@ -165,7 +163,7 @@ export type Visitor = {
 }
 
 /**
- * Utility type for values that can be returned directly or asynchronously.
+ * A visitor callback result that may be sync or async.
  */
 type MaybePromise<T> = T | Promise<T>
 
@@ -229,7 +227,7 @@ type CollectVisitor<T> = {
  */
 export type TransformOptions = Visitor & {
   /**
-   * Traversal depth (`'deep'` by default).
+   * Traversal depth.
    * @default 'deep'
    */
   depth?: VisitorDepth
@@ -249,7 +247,7 @@ export type TransformOptions = Visitor & {
  */
 export type WalkOptions = AsyncVisitor & {
   /**
-   * Traversal depth (`'deep'` by default).
+   * Traversal depth.
    * @default 'deep'
    */
   depth?: VisitorDepth
@@ -270,7 +268,7 @@ export type WalkOptions = AsyncVisitor & {
  */
 export type CollectOptions<T> = CollectVisitor<T> & {
   /**
-   * Traversal depth (`'deep'` by default).
+   * Traversal depth.
    * @default 'deep'
    */
   depth?: VisitorDepth
@@ -318,9 +316,9 @@ function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undef
 }
 
 /**
- * Invokes the visitor callback that matches `node.kind`, passing the traversal
- * context. Returns the callback's result (a replacement node, a collected
- * value, or `undefined` when no callback is registered for the kind).
+ * Runs the visitor callback that matches `node.kind` with the traversal
+ * context. The result is a replacement node, a collected value, or `undefined`
+ * when no callback is registered for the kind.
  *
  * Shared by `walk`, `transform`, and `collectLazy` so node-kind dispatch lives
  * in one place. `TResult` is the caller's expected return: the same node type
@@ -369,7 +367,7 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
 
   // Visit siblings concurrently and let the shared `limit` cap how many callbacks
   // run at once. Awaiting each child sequentially here would serialize the whole
-  // traversal and make `concurrency` inert, every visitor callback would run one
+  // traversal and make `concurrency` inert. Every visitor callback would run one
   // at a time regardless of the limit.
   const children = Array.from(getChildren(node, recurse))
   if (children.length === 0) return
@@ -378,11 +376,11 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
 }
 
 /**
- * Synchronous depth-first transform. Each visitor callback gets a chance to
- * return a replacement node; `undefined` keeps the original.
+ * Synchronous depth-first transform. Each visitor callback can return a
+ * replacement node. Returning `undefined` keeps the original.
  *
- * The transform is immutable. The original tree is not mutated. A new tree
- * is returned. Use `depth: 'shallow'` to skip recursion into children.
+ * The original tree is never mutated, a new tree is returned. Pass
+ * `depth: 'shallow'` to skip recursion into children.
  *
  * @example Prefix every operationId
  * ```ts
@@ -489,8 +487,8 @@ export function* collectLazy<T>(node: Node, options: CollectOptions<T>): Generat
 }
 
 /**
- * Eager depth-first collection pass. Returns an array of every non-null value
- * the visitor callbacks return.
+ * Eager depth-first collection pass. Gathers every non-null value the visitor
+ * callbacks return into an array.
  *
  * @example Collect every operationId
  * ```ts

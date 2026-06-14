@@ -36,27 +36,31 @@ export type ImportNode = BaseNode & {
   kind: 'Import'
   /**
    * Import name(s) to be used.
-   * @example ['useState']
-   * @example 'React'
+   *
+   * @example Named imports
+   * `['useState']`
+   *
+   * @example Default import
+   * `'React'`
    */
   name: ImportName
   /**
    * Path for the import.
-   * @example '@kubb/core'
+   *
+   * @example
+   * `'@kubb/core'`
    */
   path: string
   /**
-   * Add type-only import prefix.
+   * Add a type-only import prefix.
    * - `true` generates `import type { Type } from './path'`
    * - `false` generates `import { Type } from './path'`
-   * @default false
    */
   isTypeOnly?: boolean | null
   /**
-   * Import entire module as namespace.
+   * Import the entire module as a namespace.
    * - `true` generates `import * as Name from './path'`
-   * - `false` generates standard import
-   * @default false
+   * - `false` generates a standard import
    */
   isNameSpace?: boolean | null
   /**
@@ -92,27 +96,31 @@ export type ExportNode = BaseNode & {
   kind: 'Export'
   /**
    * Export name(s) to be used. When omitted, generates a wildcard export.
-   * @example ['useState']
-   * @example 'React'
+   *
+   * @example Named exports
+   * `['useState']`
+   *
+   * @example Single export
+   * `'React'`
    */
   name?: string | Array<string> | null
   /**
    * Path for the export.
-   * @example '@kubb/core'
+   *
+   * @example
+   * `'@kubb/core'`
    */
   path: string
   /**
-   * Add type-only export prefix.
+   * Add a type-only export prefix.
    * - `true` generates `export type { Type } from './path'`
    * - `false` generates `export { Type } from './path'`
-   * @default false
    */
   isTypeOnly?: boolean | null
   /**
    * Export as an aliased namespace.
    * - `true` generates `export * as aliasName from './path'`
    * - `false` generates a standard export
-   * @default false
    */
   asAlias?: boolean | null
 }
@@ -138,22 +146,19 @@ export type SourceNode = BaseNode & {
   name?: string | null
   /**
    * Mark this source as a type-only export.
-   * @default false
    */
   isTypeOnly?: boolean | null
   /**
-   * Include `export` keyword in the generated source.
-   * @default false
+   * Include the `export` keyword in the generated source.
    */
   isExportable?: boolean | null
   /**
    * Include this source in barrel/index file generation.
-   * @default false
    */
   isIndexable?: boolean | null
   /**
-   * Structured child nodes representing the content of this source fragment, in DOM order.
-   * Each entry is a {@link CodeNode}; use {@link TextNode} for raw string content.
+   * Child nodes that make up this source fragment, in DOM order.
+   * Use a {@link TextNode} for raw string content.
    */
   nodes?: Array<CodeNode>
 }
@@ -181,8 +186,8 @@ export type SourceNode = BaseNode & {
 export type FileNode<TMeta extends object = object> = BaseNode & {
   kind: 'File'
   /**
-   * Unique identifier derived from a SHA256 hash of the file path. Computed
-   * by `createFile`; callers do not need to provide it.
+   * Unique identifier derived from a SHA256 hash of the file path. `createFile`
+   * computes it, so callers do not need to provide it.
    */
   id: string
   /**
@@ -217,7 +222,7 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
    */
   exports: Array<ExportNode>
   /**
-   * Optional metadata attached to this file (used by plugins for barrel generation etc.).
+   * Optional metadata attached to this file, read by plugins during barrel generation.
    */
   meta?: TMeta
   /**

@@ -41,7 +41,7 @@ type OperationNodeBase = BaseNode & {
    */
   deprecated?: boolean
   /**
-   * Parameters that could be used, we have QueryParams, PathParams, HeaderParams and CookieParams
+   * Query, path, header, and cookie parameters for the operation.
    */
   parameters: Array<ParameterNode>
   /**

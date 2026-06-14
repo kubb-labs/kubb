@@ -19,9 +19,6 @@ export type ParameterLocation = 'path' | 'query' | 'header' | 'cookie'
  * ```
  */
 export type ParameterNode = BaseNode & {
-  /**
-   * Node kind.
-   */
   kind: 'Parameter'
   /**
    * Parameter name.

@@ -21,9 +21,6 @@ export type TypeExpression = string | TypeLiteralNode | IndexedAccessTypeNode
  * ```
  */
 export type TypeLiteralNode = BaseNode & {
-  /**
-   * Node kind.
-   */
   kind: 'TypeLiteral'
   /**
    * Members of the object type, rendered in order.
@@ -55,9 +52,6 @@ export type TypeLiteralNode = BaseNode & {
  * ```
  */
 export type IndexedAccessTypeNode = BaseNode & {
-  /**
-   * Node kind.
-   */
   kind: 'IndexedAccessType'
   /**
    * Name of the type being indexed, e.g. `'GetPetPathParams'`.
@@ -80,9 +74,6 @@ export type IndexedAccessTypeNode = BaseNode & {
  * ```
  */
 export type ObjectBindingPatternNode = BaseNode & {
-  /**
-   * Node kind.
-   */
   kind: 'ObjectBindingPattern'
   /**
    * Bound elements, rendered in order.
@@ -121,9 +112,6 @@ export type ObjectBindingPatternNode = BaseNode & {
  * `{ id, name? }: { id: string; name?: string } = {}`
  */
 export type FunctionParameterNode = BaseNode & {
-  /**
-   * Node kind.
-   */
   kind: 'FunctionParameter'
   /**
    * Parameter name, or an {@link ObjectBindingPatternNode} for a destructured group.
@@ -158,9 +146,6 @@ export type FunctionParameterNode = BaseNode & {
  * - `call`        → `(id, { method, url })` function call arguments
  */
 export type FunctionParametersNode = BaseNode & {
-  /**
-   * Node kind.
-   */
   kind: 'FunctionParameters'
   /**
    * Ordered parameter nodes.

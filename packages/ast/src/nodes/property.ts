@@ -16,9 +16,6 @@ import type { SchemaNode } from './schema.ts'
  * ```
  */
 export type PropertyNode = BaseNode & {
-  /**
-   * Node kind.
-   */
   kind: 'Property'
   /**
    * Property key.

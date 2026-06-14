@@ -18,12 +18,9 @@ import { type ContentNode, createContent, type UserContent } from './content.ts'
  * ```
  */
 export type RequestBodyNode = BaseNode & {
-  /**
-   * Node kind.
-   */
   kind: 'RequestBody'
   /**
-   * Human-readable request body description.
+   * Request body description carried over from the spec.
    */
   description?: string
   /**
@@ -32,11 +29,11 @@ export type RequestBodyNode = BaseNode & {
    */
   required?: boolean
   /**
-   * All available content type entries for this request body.
+   * Content type entries for this request body.
    *
    * When the adapter `contentType` option is set, this array contains exactly one entry for
    * that content type. Otherwise it contains one entry per content type declared in the spec,
-   * so that plugins can generate code for every variant (e.g. separate hooks for
+   * so plugins can generate code for every variant (for example, separate hooks for
    * `application/json` and `multipart/form-data`).
    */
   content?: Array<ContentNode>
