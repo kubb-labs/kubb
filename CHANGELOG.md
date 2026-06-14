@@ -1,5 +1,35 @@
 # Changelog
 
+## v5.0.0-beta.58 — Jun 14, 2026
+
+### @kubb/ast
+
+#### Breaking Changes
+
+- Reshape the `@kubb/ast` factory surface around an `ast.factory` namespace that mirrors `ts.factory.createX`.
+  
+  The flat `createX` node constructors leave the `@kubb/ast` root barrel. Reach them through the `factory` namespace as `ast.factory.createSchema(...)`, or import them from the new `@kubb/ast/factory` subpath. Migrate `createSchema(...)` and `ast.createSchema(...)` calls to `ast.factory.createSchema(...)`.
+  
+  The node and AST helpers `buildGroupParam`, `buildTypeLiteral`, `caseParams`, `collectUsedSchemaNames`, `containsCircularRef`, `findCircularSchemas`, `isStringType`, `resolveParamType`, and `syncSchemaRef` move off the root barrel onto the `@kubb/ast/utils` subpath. Import them from `@kubb/ast/utils` rather than `@kubb/ast` or the `ast` namespace.
+  
+  `createStreamInput` folds into `createInput`. Pass `stream: true` for the streaming variant: `createInput({ stream: true, schemas, operations, meta })` returns the streaming `InputNode<true>` with `AsyncIterable` sources, while `createInput({ schemas, operations })` still returns the eager `InputNode`.
+  
+  The function-parameter printer key type `FunctionNodeType` becomes `FunctionParamKind`, derived from `FunctionParamNode['kind']` so its values match the PascalCase node `kind` discriminants.
+  
+  `@kubb/core` re-exports `@kubb/ast` as the `ast` namespace, so `import { ast } from '@kubb/core'` reaches node definitions as `ast.schemaDef`, guards and helpers as `ast.narrowSchema`, and constructors as `ast.factory.createSchema(...)`. ([#3570](https://github.com/kubb-labs/kubb/pull/3570), [`3553f14`](https://github.com/kubb-labs/kubb/commit/3553f146288fd7e672c57dd0ba62caebb0b1dff0))
+
+#### Features
+
+- Split the operation-parameter helpers across `@kubb/ast` by what they return. The node builders `resolveParamType`, `buildGroupParam`, and `buildTypeLiteral` stay on the main `@kubb/ast` entry. The helpers that return plain values move to the `@kubb/ast/utils` subpath: `resolveGroupType` (a `ParamGroupType` descriptor) and `extractStringsFromNodes` (a string), along with the `ParamGroupType` and `BuildGroupArgs` types.
+  
+  `extractStringsFromNodes` is no longer re-exported from the main `@kubb/ast` barrel or the `ast` namespace re-exported by `@kubb/core`. Import it from `@kubb/ast/utils` instead. The plugins migration (Phase 2) builds query, header, and path parameter groups from these helpers instead of redefining them. ([#3570](https://github.com/kubb-labs/kubb/pull/3570), [`f213bed`](https://github.com/kubb-labs/kubb/commit/f213bed895a418f3685f8c9262947ee4ae333689))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.57 — Jun 14, 2026
 
 ### @kubb/ast

@@ -58,6 +58,8 @@
     "ast-define-dialect",
     "ast-define-node",
     "ast-drop-grouped-self-import",
+    "ast-export-param-helpers",
+    "ast-factory-namespace",
     "ast-helper-reorganization",
     "ast-multi-spec-vocabulary",
     "ast-reshape-param-type-nodes",
