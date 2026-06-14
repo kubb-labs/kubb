@@ -28,10 +28,12 @@ Defines the node tree, visitor pattern, factory functions, and type guards used 
 
 ## Imports
 
-| Path              | Contents                                                            |
-| ----------------- | ------------------------------------------------------------------- |
-| `@kubb/ast`       | Runtime: factory functions, guards, visitor, ref helpers, constants |
-| `@kubb/ast/types` | Types only: all node interfaces, type aliases, visitor types        |
+| Path                | Contents                                                                                 |
+| ------------------- | ---------------------------------------------------------------------------------------- |
+| `@kubb/ast`         | Runtime: node definitions, guards, visitor, transformers, constants                      |
+| `@kubb/ast/factory` | Node constructors (`createSchema`, `createFile`, and friends), the `ts.factory` analogue |
+| `@kubb/ast/types`   | Types only: all node interfaces, type aliases, visitor types                             |
+| `@kubb/ast/utils`   | Spec-agnostic string and identifier helpers, ref helpers                                 |
 
 ## Node tree
 
@@ -56,10 +58,12 @@ SchemaNode (discriminated union)
 
 ### Factory
 
-```ts
-import { createRoot, createOperation, createSchema, createProperty } from '@kubb/ast'
+Constructors live on the `@kubb/ast/factory` subpath, mirroring `ts.factory.createX`. Through `@kubb/core` the same set is reachable as `ast.factory.createSchema(...)`.
 
-const root = createRoot({
+```ts
+import { createInput, createSchema, createProperty } from '@kubb/ast/factory'
+
+const root = createInput({
   schemas: [
     createSchema({
       name: 'Pet',
@@ -125,7 +129,7 @@ function process(node: Node) {
 ### Refs
 
 ```ts
-import { extractRefName } from '@kubb/ast'
+import { extractRefName } from '@kubb/ast/utils'
 
 extractRefName('#/components/schemas/Pet') // 'Pet'
 ```
