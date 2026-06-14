@@ -265,9 +265,6 @@ importers:
 
   packages/parser-md:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core

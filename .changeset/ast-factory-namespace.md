@@ -12,3 +12,5 @@ Group node constructors under an `ast.factory` namespace, mirroring `ts.factory.
 Migrate `createSchema(...)` and `ast.createSchema(...)` calls to `ast.factory.createSchema(...)`, or import the constructor directly from `@kubb/ast/factory`.
 
 The function-parameter printer key type `FunctionNodeType` is renamed to `FunctionParamKind`, now derived from `FunctionParamNode['kind']` so its values match the PascalCase node `kind` discriminants.
+
+`extractStringsFromNodes` is now exported from the `@kubb/ast` root barrel as well, so it is reachable as `ast.extractStringsFromNodes` through `@kubb/core` without importing the `@kubb/ast/utils` subpath.

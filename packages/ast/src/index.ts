@@ -33,4 +33,5 @@ export {
   resolveParamType,
   syncSchemaRef,
 } from './utils/ast.ts'
+export { extractStringsFromNodes } from './utils/index.ts'
 export { collect, transform, walk } from './visitor.ts'
