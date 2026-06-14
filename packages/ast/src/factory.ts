@@ -20,7 +20,7 @@ export { createProperty } from './nodes/property.ts'
 export { createRequestBody } from './nodes/requestBody.ts'
 export { createResponse } from './nodes/response.ts'
 export { createSchema } from './nodes/schema.ts'
-export { createDiscriminantNode, createOperationParams } from './utils/ast.ts'
+export { createDiscriminantNode, createOperationParams } from './utils/operationParams.ts'
 
 /**
  * Identity-preserving node update: returns `node` unchanged when every field in

@@ -3,7 +3,7 @@ import { narrowSchema } from '../guards.ts'
 import type { OperationNode, ParameterNode, SchemaNode } from '../nodes/index.ts'
 import { createSchema } from '../nodes/schema.ts'
 import type { SchemaType } from '../nodes/schema.ts'
-import type { OperationParamsResolver, ParamGroupType } from './ast.ts'
+import type { OperationParamsResolver, ParamGroupType } from './operationParams.ts'
 
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
 
