@@ -25,7 +25,7 @@ function printFrontmatter(data: Record<string, unknown> | null | undefined): str
 
 /**
  * Joins a list of markdown fragments with blank lines. Plain objects are
- * rendered as YAML frontmatter via {@link printFrontmatter}; strings pass
+ * rendered as YAML frontmatter via {@link printFrontmatter}, and strings pass
  * through unchanged.
  *
  * @example

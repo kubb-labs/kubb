@@ -49,7 +49,7 @@ export function resolveOutputPath(path: string, options: { extname?: string } | 
 
 /**
  * Serializes a `nodes` array into source text. Each entry is rendered via {@link printCodeNode}
- * and joined with a single newline; a `Break` node (`<br/>`) inserts one blank line between
+ * and joined with a single newline. A `Break` node (`<br/>`) inserts one blank line between
  * statements. Consecutive breaks, and breaks at the very start or end, are folded into the
  * separator, so a double `<br/>` never emits more than one blank line.
  */
@@ -93,9 +93,9 @@ export function indentLines(text: string, indent: number | string = INDENT): str
 
 /**
  * Removes the common leading whitespace shared by every non-blank line and trims
- * surrounding blank lines, normalizing multi-line content authored inside an
- * indented template literal back to a column-zero baseline. Leading whitespace is
- * counted by character, so N tabs and N spaces are treated as the same depth.
+ * surrounding blank lines, so multi-line content authored inside an indented template
+ * literal lines up at a column-zero baseline. Leading whitespace is counted by
+ * character, so N tabs and N spaces are treated as the same depth.
  *
  * @example
  * ```ts

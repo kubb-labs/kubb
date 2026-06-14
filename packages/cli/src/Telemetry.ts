@@ -35,10 +35,17 @@ type OtlpInstrumentationScope = {
   droppedAttributesCount?: number
 }
 
-/** https://github.com/open-telemetry/opentelemetry-proto/blob/main/opentelemetry/proto/trace/v1/trace.proto#L103 */
+/**
+ * @see https://github.com/open-telemetry/opentelemetry-proto/blob/main/opentelemetry/proto/trace/v1/trace.proto#L103
+ */
 type OtlpSpanKind = 0 | 1 | 2 | 3 | 4 | 5
 
-/** 0 = STATUS_CODE_UNSET, 1 = STATUS_CODE_OK, 2 = STATUS_CODE_ERROR */
+/**
+ * Span status code.
+ * - `0` is unset
+ * - `1` is OK
+ * - `2` is error
+ */
 type OtlpStatusCode = 0 | 1 | 2
 
 type OtlpStatus = {
@@ -91,7 +98,9 @@ type OtlpResourceSpans = {
   schemaUrl?: string
 }
 
-/** Root payload sent to POST /v1/traces */
+/**
+ * Root payload sent to POST /v1/traces.
+ */
 type OtlpExportTraceServiceRequest = {
   resourceSpans: Array<OtlpResourceSpans>
 }
@@ -105,7 +114,7 @@ export type TelemetryPlugin = {
    */
   name: string
   /**
-   * anonymized plugin options snapshot, values are included but cannot be traced back to the user.
+   * Anonymized snapshot of the plugin options. Values are included but cannot be traced back to a user.
    */
   options: Record<string, unknown>
 }
@@ -131,9 +140,9 @@ export type TelemetryEvent = {
 }
 
 /**
- * Anonymous OTLP usage telemetry for the Kubb run. All methods are static, so call them as
- * `Telemetry.build(...)`, `Telemetry.send(...)`, and `Telemetry.isDisabled()`. No file paths,
- * OpenAPI specs, or secrets are ever included, and sending fails silently to never break a run.
+ * Anonymous OTLP usage telemetry for a Kubb run. The API is static, so call it as `Telemetry.build(...)`
+ * and `Telemetry.send(...)`. No file paths, OpenAPI specs, or secrets are sent, and sending fails
+ * silently so a failed request never breaks the run.
  */
 export class Telemetry {
   /**

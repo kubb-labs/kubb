@@ -7,7 +7,7 @@ import { type DiagnosticCode, diagnosticCode } from './constants.ts'
 import type { KubbHooks } from './types.ts'
 
 /**
- * Docs major, derived from the package version so the link tracks the published major.
+ * Docs major version, derived from the package version so the link tracks the published major.
  */
 const docsMajor = version.split('.')[0] ?? '5'
 
@@ -19,9 +19,8 @@ export type DiagnosticSeverity = 'error' | 'warning' | 'info'
 
 /**
  * A human-readable explanation of a diagnostic code: a short title, what triggers it, and how
- * to resolve it. This is the single source of truth the kubb.dev `/diagnostics/<slug>` pages
- * mirror, so every code stays documented in one place. Typed as a total record over
- * {@link DiagnosticCode}, so adding a code without documenting it fails the build.
+ * to resolve it. This is the source of truth the kubb.dev `/diagnostics/<slug>` pages mirror, so
+ * every code stays documented in one place. Adding a code without documenting it fails the build.
  */
 export type DiagnosticDoc = {
   /**
@@ -83,9 +82,7 @@ export type ProblemCode = Exclude<DiagnosticCode, typeof diagnosticCode.performa
 
 /**
  * A build problem collected during a run, gathered into the result instead of
- * aborting on the first failure. It carries a stable {@link ProblemCode}, a
- * `severity`, a `message`, and optionally a `location` into the source document,
- * a `help`, the `plugin` that produced it, and the `cause` it wraps.
+ * aborting on the first failure.
  */
 export type ProblemDiagnostic = {
   /**
@@ -114,9 +111,9 @@ export type ProblemDiagnostic = {
 }
 
 /**
- * A per-plugin performance record, built with {@link Diagnostics.performance}. It carries the
- * `plugin` and its elapsed `duration`, and the `performance` kind keeps it out of the problem
- * list. It feeds the per-plugin timing bars, and reporters sum these into the run total.
+ * A per-plugin performance record, built with {@link Diagnostics.performance}. The `performance`
+ * kind keeps it out of the problem list. It feeds the per-plugin timing bars, and reporters sum
+ * these into the run total.
  */
 export type PerformanceDiagnostic = {
   kind: 'performance'
@@ -135,7 +132,7 @@ export type PerformanceDiagnostic = {
 
 /**
  * A notice that a newer Kubb version is available on npm, built with {@link Diagnostics.update}.
- * It carries the running and latest versions and renders like any info diagnostic.
+ * It renders like any info diagnostic.
  */
 export type UpdateDiagnostic = {
   kind: 'update'

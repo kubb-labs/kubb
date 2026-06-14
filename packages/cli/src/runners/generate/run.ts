@@ -50,7 +50,7 @@ type RunToolPassOptions = {
 
 /**
  * Registers a one-shot `kubb:hook:end` listener for `hookId` BEFORE the caller emits `kubb:hook:start`,
- * avoiding the race where a synchronous emitter fires end before the listener is attached.
+ * so a synchronous emitter can't fire end before the listener is attached.
  */
 function waitForHookEnd(
   hooks: AsyncEventEmitter<KubbHooks>,

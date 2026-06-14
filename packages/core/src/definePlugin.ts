@@ -6,9 +6,9 @@ import { Diagnostics } from './diagnostics.ts'
 import type { Config, KubbHooks } from './types.ts'
 
 /**
- * Safely extracts a type from a registry, returning `{}` if the key doesn't exist.
- * Enables optional interface augmentation for `Kubb.ConfigOptionsRegistry` and `Kubb.PluginOptionsRegistry`
- * without requiring changes to core.
+ * Reads a type from a registry, falling back to `{}` when the key is absent. Lets
+ * `Kubb.ConfigOptionsRegistry` and `Kubb.PluginOptionsRegistry` be augmented without
+ * touching core.
  *
  * @internal
  */
@@ -92,7 +92,7 @@ export type Group = {
  *   files into per-group subdirectories.
  *
  * Intersect into a plugin's `Options` type instead of declaring `output` and
- * `group` directly — `mode` lives inside `output` while `group` is its sibling.
+ * `group` directly, since `mode` lives inside `output` while `group` is its sibling.
  * The generic keeps a plugin's extended `Output` shape intact.
  *
  * @example
@@ -201,9 +201,8 @@ type ByContentType = {
 }
 
 /**
- * Filter that skips matching operations or schemas during generation. Use it
- * to drop deprecated endpoints, internal-only schemas, or anything you do
- * not want code generated for.
+ * Filter that skips matching operations or schemas during generation, for example
+ * deprecated endpoints or internal-only schemas.
  *
  * @example
  * ```ts
@@ -283,8 +282,8 @@ export type PluginFactoryOptions<
 }
 
 /**
- * Context for hook-style plugin `kubb:plugin:setup` handler.
- * Provides methods to register generators, configure resolvers, transformers, and renderers.
+ * Context passed to a plugin's `kubb:plugin:setup` handler, where it registers generators and
+ * sets its resolver, transformer, and options.
  */
 export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
@@ -325,11 +324,8 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
 }
 
 /**
- * A plugin object produced by `definePlugin`.
- * Instead of flat lifecycle methods, it groups all handlers under a `hooks:` property
- * (matching Astro's integration naming convention).
- *
- * @template TFactory - The plugin's `PluginFactoryOptions` type.
+ * A plugin object produced by `definePlugin`. Its lifecycle handlers live under a single
+ * `hooks` property rather than flat methods.
  */
 export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
@@ -367,8 +363,8 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
 }
 
 /**
- * Normalized plugin after setup, with runtime fields populated.
- * For internal use only, plugins use the public `Plugin` type externally.
+ * Normalized plugin after setup, with runtime fields populated. Internal only. Plugins use the
+ * public `Plugin` type.
  *
  * @internal
  */
@@ -409,8 +405,7 @@ export type KubbPluginEndContext = {
 
 /**
  * Wraps a plugin factory and returns a function that accepts user options and
- * yields a fully typed `Plugin`. Lifecycle handlers go inside a single
- * `hooks` object (inspired by Astro integrations).
+ * yields a typed `Plugin`. Lifecycle handlers go inside a single `hooks` object.
  *
  * Pass a `PluginFactoryOptions` type parameter to get a typed `ctx` inside
  * `kubb:plugin:setup`. Plugin names should follow the `plugin-<feature>`

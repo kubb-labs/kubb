@@ -10,9 +10,9 @@ import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartConte
 import type { KubbDriver } from './KubbDriver.ts'
 
 /**
- * Safely extracts a type from a registry, returning `{}` if the key doesn't exist.
- * Enables optional interface augmentation for `Kubb.ConfigOptionsRegistry` and `Kubb.PluginOptionsRegistry`
- * without requiring changes to core.
+ * Extracts a type from a registry, falling back to `{}` when the key doesn't exist.
+ * Lets plugins augment `Kubb.ConfigOptionsRegistry` and `Kubb.PluginOptionsRegistry`
+ * without changing core.
  *
  * @internal
  */
@@ -137,7 +137,6 @@ export type Config<TInput = Input> = {
      * Remove every file in the output directory before the build, so stale output isn't mixed
      * with new files. Leave `false` to preserve manual edits in the output directory.
      *
-     * @default false
      * @example
      * ```ts
      * clean: true  // wipes ./src/gen/* before generating
@@ -148,7 +147,6 @@ export type Config<TInput = Input> = {
      * Format the generated files after generation. `'auto'` runs the first formatter it finds
      * (oxfmt, biome, or prettier), a named tool forces that one, and `false` skips formatting.
      *
-     * @default false
      * @example
      * ```ts
      * format: 'auto'        // auto-detect prettier, biome, or oxfmt
@@ -161,7 +159,6 @@ export type Config<TInput = Input> = {
      * Lint the generated files after generation. `'auto'` runs the first linter it finds
      * (oxlint, biome, or eslint), a named tool forces that one, and `false` skips linting.
      *
-     * @default false
      * @example
      * ```ts
      * lint: 'auto'      // auto-detect oxlint, biome, or eslint
@@ -199,7 +196,6 @@ export type Config<TInput = Input> = {
      * Overwrite existing files when `true`, skip files that already exist when `false`. Individual
      * plugins can override it. Keep `false` to avoid clobbering local edits in the output folder.
      *
-     * @default false
      * @example
      * ```ts
      * override: true   // regenerate everything, even existing files
@@ -245,10 +241,9 @@ export type Config<TInput = Input> = {
    */
   plugins: Array<Plugin>
   /**
-   * Lifecycle hooks that execute during or after the build process.
+   * Lifecycle hooks that run external tools (prettier, eslint, a custom script) on build events.
    *
-   * Hooks allow you to run external tools (prettier, eslint, custom scripts) based on build events.
-   * Currently supports the `done` hook which fires after all plugins complete.
+   * Currently supports the `done` hook, which fires after all plugins complete.
    *
    * @example
    * ```ts
@@ -261,11 +256,10 @@ export type Config<TInput = Input> = {
    */
   hooks?: {
     /**
-     * Command(s) to run after all plugins complete generation.
+     * Command(s) to run after all plugins finish generating, for post-processing the output.
      *
-     * Useful for post-processing: formatting, linting, copying files, or custom validation.
-     * Pass a single command string or array of command strings to run sequentially.
-     * Commands are executed relative to the `root` directory.
+     * Pass a single command string, or an array to run them in sequence.
+     * Commands run relative to the `root` directory.
      *
      * @example
      * ```ts
@@ -762,7 +756,7 @@ export type CLIOptions = {
 
 /**
  * All accepted forms of a Kubb configuration.
- * Accepts `Config`/`Config[]`/promise or a factory (optionally receiving `TCliOptions`.
+ * Accepts `Config`/`Config[]`/promise or a factory (optionally receiving `TCliOptions`).
  */
 export type PossibleConfig<TCliOptions = undefined> =
   | PossiblePromise<Config | Array<Config>>

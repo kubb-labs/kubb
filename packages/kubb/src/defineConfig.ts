@@ -23,7 +23,7 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
  * - `parsers` defaults to `[parserTs, parserTsx, parserMd]`
  * - `reporters` defaults to `[cliReporter, jsonReporter, fileReporter]`
  * - `plugins` gets `pluginBarrel()` appended when none is already present
- * - `output.barrel` defaults to `{ type: 'named' }` **only when `pluginBarrel` is part of `plugins`**.
+ * - `output.barrel` defaults to `{ type: 'named' }` only when `pluginBarrel` is part of `plugins`.
  *   When the user provides a plugins list without `pluginBarrel`, `barrel` is left untouched.
  * - `output.format` defaults to `false`
  * - `output.lint` defaults to `false`
@@ -64,8 +64,8 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
 }
 
 /**
- * Defines a Kubb build configuration and applies sensible defaults so the
- * minimal config stays small.
+ * Defines a Kubb build configuration and fills in defaults so a minimal config
+ * stays small.
  *
  * Defaults applied when omitted:
  * - `adapter` → `adapterOas()` (OpenAPI 2.0/3.0/3.1).

@@ -73,7 +73,7 @@ function renderSummary(lines: ReadonlyArray<string>, { title, status }: { title:
 
 /**
  * The default `cli` reporter. Renders the {@link Report} for each config as it finishes, independent
- * of the live logger view. Suppressed at `silent`; the `verbose` level adds the per-plugin timings.
+ * of the live logger view. Suppressed at `silent`. The `verbose` level adds the per-plugin timings.
  */
 export const cliReporter = createReporter({
   name: 'cli',

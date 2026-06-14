@@ -5,7 +5,7 @@ import { defineLogger } from './defineLogger.ts'
 import { createHookTimer, formatCommandWithArgs, formatMessage } from './utils.ts'
 
 /**
- * Plain console adapter for non-TTY environments with simple `console.log` output.
+ * Plain console adapter for non-TTY environments, built on `console.log`.
  */
 export const plainLogger = defineLogger({
   name: 'plain',

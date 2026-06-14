@@ -14,6 +14,6 @@ export const OTLP_ENDPOINT = 'https://otlp.kubb.dev' as const
 export const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
 
 /**
- * Flags that short-circuit execution (help/version), no telemetry notice is shown.
+ * Flags that short-circuit execution (help and version). The telemetry notice is suppressed for these.
  */
 export const QUIET_FLAGS = new Set<string>(['--help', '-h', '--version', '-v'])

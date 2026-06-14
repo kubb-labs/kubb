@@ -66,11 +66,17 @@ type SchemaContext = {
  * that is not convertible falls through to plain `type` handling).
  */
 type SchemaRule = {
-  /** Identifies the rule when reading the table or debugging which branch ran. */
+  /**
+   * Identifies the rule when reading the table or debugging which branch ran.
+   */
   name: string
-  /** Returns `true` when this rule is responsible for the given context. */
+  /**
+   * Returns `true` when this rule is responsible for the given context.
+   */
   match: (context: SchemaContext) => boolean
-  /** Produces a node for the context, or `null` to fall through to the next rule. */
+  /**
+   * Produces a node for the context, or `null` to fall through to the next rule.
+   */
   convert: (context: SchemaContext) => ast.SchemaNode | null
 }
 
@@ -78,9 +84,9 @@ type SchemaRule = {
  * Normalizes malformed `{ type: 'array', enum: [...] }` schemas by moving enum values into items.
  *
  * This pattern violates the OpenAPI spec but appears in real specs. The fix moves enum values
- * from the array to its items sub-schema, making them valid for downstream processing.
+ * from the array to its items sub-schema, so they are valid for downstream processing.
  *
- * @note This is a defensive measure for robustness with non-compliant specs.
+ * @note A defensive measure for non-compliant specs.
  */
 function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
   const isItemsObject = typeof schema.items === 'object' && !Array.isArray(schema.items)
@@ -98,7 +104,7 @@ function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
  *
  * Returns closures that share mutable state (`resolvingRefs` set for cycle detection).
  * Each converter branch (`convertRef`, `convertAllOf`, etc.) mutually recursively calls `parseSchema`,
- * made possible by hoisting of function declarations.
+ * which works because function declarations hoist.
  *
  * @internal
  */
@@ -1048,10 +1054,11 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
 /**
  * Parses a single OpenAPI `SchemaObject` into a `SchemaNode`.
  *
- * Use this for targeted schema parsing when you don't need the full spec.
- * For complete spec parsing, use `parseOas()` instead which handles operations and all schemas together.
+ * Reach for this when you only need one schema, not the whole spec. To parse a full spec
+ * with its operations and schemas, call `parseOas()`.
  *
- * @note Circular schema references are tracked via internal state and resolve appropriately.
+ * @note Internal state tracks `$ref` paths under resolution, so circular schemas stop
+ * recursing instead of looping.
  *
  * @example
  * ```ts
@@ -1072,7 +1079,8 @@ export function parseSchema(
  * Parses an OpenAPI specification into Kubb's universal `InputNode` AST.
  *
  * This is the main entry point for `@kubb/adapter-oas`. It converts OpenAPI/Swagger specs into a spec-agnostic tree
- * that downstream plugins (`plugin-ts`, `plugin-zod`, etc.) consume for code generation. No code is generated here,  * the tree is a pure data structure representing all schemas and operations.
+ * that downstream plugins (`plugin-ts`, `plugin-zod`, etc.) consume for code generation. No code is generated here.
+ * The tree is a pure data structure of all schemas and operations.
  *
  * Returns the AST root and a `nameMapping` for resolving schema references.
  *

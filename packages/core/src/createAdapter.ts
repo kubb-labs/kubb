@@ -35,8 +35,8 @@ export type AdapterFactoryOptions<
  * Converts input files or inline data into Kubb's universal AST `InputNode`.
  *
  * Adapters live between the spec format and the plugins. The built-in
- * `@kubb/adapter-oas` handles OpenAPI 2.0, 3.0, and 3.1; custom adapters can
- * support GraphQL, gRPC, AsyncAPI, or any domain-specific schema language.
+ * `@kubb/adapter-oas` handles OpenAPI 2.0, 3.0, and 3.1. A custom adapter can
+ * support GraphQL, gRPC, or another schema language.
  *
  * @example
  * ```ts
@@ -95,9 +95,8 @@ type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) =
 
 /**
  * Defines a custom adapter that translates a spec format into Kubb's universal
- * AST. Use this when you need to consume GraphQL, gRPC, AsyncAPI, or another
- * domain-specific schema. Built-in adapters: `@kubb/adapter-oas` for
- * OpenAPI/Swagger documents.
+ * AST, for example GraphQL, gRPC, or AsyncAPI. The built-in `@kubb/adapter-oas`
+ * handles OpenAPI/Swagger documents.
  *
  * Adapters must return an `InputNode` from `parse`. That node is what every
  * plugin in the build consumes.

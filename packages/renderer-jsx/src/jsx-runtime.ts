@@ -10,9 +10,9 @@ export const Fragment = Symbol.for('kubb.fragment')
 
 /**
  * Create a Kubb JSX element. The automatic JSX runtime calls this for every tag,
- * so the renderer never depends on React at runtime. The element carries a
- * `$$typeof` marker, its `type` (a host string, a function component, or
- * `Fragment`), and its `props`, with children included.
+ * so the renderer never depends on React at runtime. The `type` is a host
+ * string, a function component, or `Fragment`, and children are folded into
+ * `props`.
  */
 function createElement(type: unknown, props: Record<string, unknown> | null, key?: Key | null): KubbReactElement {
   return { $$typeof: KUBB_ELEMENT, type, key: key ?? null, props: props ?? {} } as unknown as KubbReactElement

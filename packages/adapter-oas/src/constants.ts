@@ -73,7 +73,7 @@ export const structuralKeys = new Set(['properties', 'items', 'additionalPropert
  *
  * Only formats whose AST type differs from the OAS `type` field appear here.
  * Formats that depend on runtime options (`int64`, `date-time`, `date`, `time`) are handled separately
- * in the parser. `ipv4` and `ipv6` map to their own dedicated schema types; `hostname` and
+ * in the parser. `ipv4` and `ipv6` map to their own dedicated schema types. `hostname` and
  * `idn-hostname` map to `'url'` as the closest generic string-format type.
  *
  * @example
@@ -126,8 +126,8 @@ export const formatMap = {
 export const enumExtensionKeys = ['x-enumNames', 'x-enum-varnames'] as const
 
 /**
- * Maps `'any' | 'unknown' | 'void'` option strings to their `ScalarSchemaType` constant.
- * Replaces a plain object lookup with a `Map` for explicit key membership testing via `.has()`.
+ * Maps the `unknownType`/`emptySchemaType` option string to its `ScalarSchemaType` constant.
+ * A `Map` (over a plain object) lets callers test key membership with `.has()`.
  */
 export const typeOptionMap = new Map<'any' | 'unknown' | 'void', ast.ScalarSchemaType>([
   ['any', ast.schemaTypes.any],

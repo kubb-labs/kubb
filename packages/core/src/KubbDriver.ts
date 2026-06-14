@@ -54,7 +54,8 @@ export class KubbDriver {
   readonly options: Options
 
   /**
-   * The streaming `InputNode<true>` produced by the adapter.   * Always set after adapter setup, parse-only adapters are wrapped automatically.
+   * The streaming `InputNode<true>` produced by the adapter. Set after adapter setup.
+   * Parse-only adapters are wrapped automatically.
    */
   inputNode: InputNode<true> | null = null
   adapter: Adapter | null = null
@@ -472,7 +473,7 @@ export class KubbDriver {
    *
    * Plugins run sequentially so `kubb:plugin:end` fires as each plugin completes, instead
    * of all at once after every plugin has marched through the parallel batches together.
-   * That ordering is what drives the CLI's `Plugins N/M` counter; without it the bar would
+   * That ordering is what drives the CLI's `Plugins N/M` counter. Without it the bar would
    * sit at the initial value until the very end of the run.
    *
    * When `entries` is empty or `this.inputNode` is `null`, every entry still gets a

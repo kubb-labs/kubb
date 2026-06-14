@@ -57,7 +57,7 @@ export type ReporterContext = {
 
 /**
  * Host-facing reporter, as installed onto a run. Unlike a Logger (the live TUI view), a reporter
- * never sees the event emitter. `report` runs once per config; `drain`, when present, runs once
+ * never sees the event emitter. `report` runs once per config. `drain`, when present, runs once
  * after the last config.
  */
 export type Reporter = {

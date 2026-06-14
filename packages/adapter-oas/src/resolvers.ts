@@ -470,7 +470,7 @@ export function getSchemas(document: Document, { contentType }: GetSchemasOption
 
 /**
  * Resolves the AST type descriptor for a date/time format, honoring the `dateType` option.
- * Returns `null` when `dateType: false`, signalling the format should fall through to `string`.
+ * Returns `null` when `dateType: false`, so the format falls through to `string`.
  */
 export function getDateType(
   options: ast.ParserOptions,

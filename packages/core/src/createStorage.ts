@@ -1,7 +1,7 @@
 /**
  * Backend that persists generated files. Kubb ships with `fsStorage` (writes
  * to disk) and `memoryStorage` (keeps everything in RAM). Implement this
- * interface to write to S3, a database, or any other target.
+ * interface to write somewhere else, such as S3 or a database.
  */
 export type Storage = {
   /**
@@ -42,9 +42,9 @@ export type Storage = {
 
 /**
  * Defines a custom storage backend. The builder receives user options and
- * returns a `Storage` implementation. Kubb ships with filesystem and
- * in-memory storages, reach for this when you need to write generated files
- * elsewhere (cloud storage, a database, a remote API).
+ * returns a `Storage` implementation. Kubb ships with filesystem and in-memory
+ * storages. A custom backend writes generated files elsewhere, such as cloud
+ * storage or a database.
  *
  * @example In-memory storage (the built-in implementation)
  * ```ts

@@ -23,7 +23,7 @@ export type PreScanResult = {
  *
  * Only enums and objects are candidates, and object shapes that reference a circular schema are
  * rejected to avoid hoisting recursive structures. Inline shapes reuse their context-derived
- * name (collision-resolved against existing component names); shapes without a name stay inline.
+ * name (collision-resolved against existing component names). Shapes without a name stay inline.
  */
 function createDedupePlan({
   schemaNodes,
@@ -218,7 +218,7 @@ export function createInputStream({
   meta: ast.InputMeta
 }): ast.InputNode<true> {
   // Rewrites a top-level schema against the dedupe plan: a structurally identical sibling
-  // becomes a `ref` alias to the canonical one (keeping its own name); otherwise nested
+  // becomes a `ref` alias to the canonical one (keeping its own name). Otherwise nested
   // duplicates are collapsed while the schema's own root is preserved.
   const rewriteTopLevelSchema = (node: ast.SchemaNode): ast.SchemaNode => {
     if (!dedupePlan) return node

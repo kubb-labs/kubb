@@ -192,15 +192,11 @@ type GetBarrelFilesParams = {
   /**
    * Generate an `index.ts` in every sub-directory, each re-exporting only what's directly inside it (hierarchical).
    * When false, uses flat generation strategy with optional recursive subdirectory barrels.
-   *
-   * @default false
    */
   nested?: boolean
   /**
    * Also generate a barrel for each sub-directory when nested is false.
    * No effect when nested is true (always generates hierarchical structure).
-   *
-   * @default false
    */
   recursive?: boolean
 }
