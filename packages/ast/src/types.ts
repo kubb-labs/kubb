@@ -56,5 +56,5 @@ export type {
 } from './nodes/index.ts'
 export type { ParentOf, Visitor, VisitorContext } from './visitor.ts'
 export type { Printer, PrinterFactoryOptions, PrinterPartial } from './printer.ts'
-export type { OperationParamsResolver } from './utils/ast.ts'
+export type { OperationParamsResolver } from './utils/operationParams.ts'
 export type { UserFileNode } from './factory.ts'

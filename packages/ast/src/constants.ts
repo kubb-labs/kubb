@@ -17,9 +17,8 @@ export const visitorDepths = {
 /**
  * Schema type discriminators used by all AST schema nodes.
  *
- * These values serve as stable discriminators across the AST (e.g., `schema.type === schemaTypes.object`).
- * Grouped by category: primitives (`string`, `number`, `boolean`), structural types (`object`, `array`, `union`),
- * and format-specific types (`date`, `uuid`, `email`). Use `isScalarPrimitive()` to check for scalar types.
+ * Each value is a stable discriminator across the AST (for example `schema.type === schemaTypes.object`).
+ * Call `isScalarPrimitive()` to check for the scalar types.
  */
 export const schemaTypes = {
   /**
@@ -39,7 +38,7 @@ export const schemaTypes = {
    */
   bigint: 'bigint',
   /**
-   * Boolean value
+   * Boolean value.
    */
   boolean: 'boolean',
   /**
@@ -132,15 +131,12 @@ export type ScalarPrimitive = 'string' | 'number' | 'integer' | 'bigint' | 'bool
 
 /**
  * Scalar primitive schema types used for union simplification and type narrowing.
- *
- * Use `isScalarPrimitive()` to safely check whether a type is a scalar primitive.
  */
 const SCALAR_PRIMITIVE_TYPES = new Set<ScalarPrimitive>(['string', 'number', 'integer', 'bigint', 'boolean'])
 
 /**
- * Type guard that returns `true` when `type` is a scalar primitive schema type.
- *
- * Use this to check if a schema type can be directly assigned without wrapping (e.g., `string | number | boolean`).
+ * Returns `true` when `type` is a scalar primitive that can be assigned without wrapping
+ * (for example `string | number | boolean`).
  */
 export function isScalarPrimitive(type: string): type is ScalarPrimitive {
   return SCALAR_PRIMITIVE_TYPES.has(type as ScalarPrimitive)
@@ -148,8 +144,6 @@ export function isScalarPrimitive(type: string): type is ScalarPrimitive {
 
 /**
  * HTTP method identifiers used by operation nodes.
- *
- * Includes all standard HTTP methods (GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE).
  */
 export const httpMethods = {
   get: 'GET',
@@ -163,10 +157,10 @@ export const httpMethods = {
 } as const satisfies Record<Lowercase<HttpMethod>, HttpMethod>
 
 /**
- * Default concurrency limit for `walk()` traversal utility.
+ * Default concurrency limit for the `walk()` traversal utility.
  *
- * Set to 30 to balance I/O-bound resolver parallelism against event loop pressure and memory usage during large spec traversals.
- * Use `WALK_CONCURRENCY` when calling `walk()` or override for different hardware constraints.
+ * Set to 30 to balance I/O-bound resolver parallelism against event-loop and memory pressure
+ * during large spec traversals. Override it for different hardware constraints.
  *
  * @example
  * ```ts

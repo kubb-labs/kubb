@@ -170,9 +170,9 @@ function describeShape(node: SchemaNode): string {
 }
 
 /**
- * Node → digest cache, keyed by identity. A `WeakMap` so entries die with the node, and so a tree
- * hashed during dedupe planning is not walked again when it is rewritten during streaming. Reuse
- * is safe because a signature depends only on content, and nodes are immutable once created.
+ * Caches the digest per node, keyed by identity. A `WeakMap` so entries die with the node, and so
+ * a tree hashed during dedupe planning is not walked again when it is rewritten during streaming.
+ * Reuse is safe because a signature depends only on content, and nodes are immutable once created.
  */
 const signatureCache = new WeakMap<SchemaNode, string>()
 

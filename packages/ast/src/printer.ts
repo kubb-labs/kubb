@@ -106,7 +106,7 @@ export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
   /**
    * Node-level dispatcher, converts a `SchemaNode` directly to `TOutput` using the `nodes` handlers.
    * Always dispatches through the `nodes` map. Never calls the `print` override.
-   * Use this when you need the raw output (e.g. `ts.TypeNode`) without declaration wrapping.
+   * Reach for it when you need the raw output (e.g. `ts.TypeNode`) without declaration wrapping.
    */
   transform: (node: SchemaNode) => T['output'] | null
   /**

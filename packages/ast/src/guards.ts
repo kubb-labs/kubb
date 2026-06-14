@@ -14,7 +14,7 @@ export function narrowSchema<T extends SchemaNode['type']>(node: SchemaNode | un
 }
 
 /**
- * Narrows an `OperationNode` to an `HttpOperationNode`, guaranteeing `method` and `path`.
+ * Narrows an `OperationNode` to an `HttpOperationNode` so `method` and `path` are present.
  *
  * @example
  * ```ts
