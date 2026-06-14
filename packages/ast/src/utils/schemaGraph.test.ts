@@ -4,7 +4,7 @@ import { createParameter } from '../nodes/parameter.ts'
 import { createProperty } from '../nodes/property.ts'
 import { createResponse } from '../nodes/response.ts'
 import { createSchema } from '../nodes/schema.ts'
-import { collectReferencedSchemaNames, collectUsedSchemaNames, containsCircularRef, findCircularSchemas } from './ast.ts'
+import { collectReferencedSchemaNames, collectUsedSchemaNames, containsCircularRef, findCircularSchemas } from './schemaGraph.ts'
 
 describe('findCircularSchemas', () => {
   it('returns empty set for acyclic schemas', () => {
