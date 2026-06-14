@@ -1,6 +1,5 @@
 import { camelCase, isValidVarName, memoize } from '@internals/utils'
 
-import { narrowSchema } from '../guards.ts'
 import { createFunctionParameter, createFunctionParameters, createIndexedAccessType, createTypeLiteral } from '../nodes/function.ts'
 import { createProperty } from '../nodes/property.ts'
 import { createSchema } from '../nodes/schema.ts'
@@ -13,57 +12,8 @@ import type {
   TypeExpression,
   TypeLiteralNode,
 } from '../nodes/index.ts'
-import type { SchemaType } from '../nodes/schema.ts'
-import { extractRefName, resolveGroupType } from './index.ts'
+import { resolveGroupType, resolveRefName } from './refs.ts'
 import { collect, collectLazy } from '../visitor.ts'
-
-const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
-
-/**
- * Merges a ref node with its resolved schema, giving usage-site fields precedence.
- *
- * Usage-site fields (`description`, `readOnly`, `nullable`, `deprecated`) on the ref node
- * override the same fields in the resolved `node.schema`. Non-ref nodes are returned unchanged.
- *
- * @example
- * ```ts
- * // Ref with description override
- * const ref = createSchema({ type: 'ref', ref: '#/components/schemas/Pet', description: 'A cute pet' })
- * const merged = syncSchemaRef(ref)  // merges with resolved Pet schema
- * ```
- */
-export function syncSchemaRef(node: SchemaNode): SchemaNode {
-  const ref = narrowSchema(node, 'ref')
-
-  if (!ref) return node
-  if (!ref.schema) return node
-
-  const { kind: _kind, type: _type, name: _name, ref: _ref, schema: _schema, ...overrides } = ref
-
-  // Filter out undefined override values so they don't shadow the resolved schema's fields.
-  const definedOverrides = Object.fromEntries(Object.entries(overrides).filter(([, v]) => v !== undefined))
-
-  return createSchema({ ...ref.schema, ...definedOverrides })
-}
-
-/**
- * Type guard that returns `true` when a schema emits as a plain `string` type.
- *
- * Covers `string`, `uuid`, `email`, `url`, and `datetime` types. For `date` and `time`
- * types, returns `true` only when `representation` is `'string'` rather than `'date'`.
- */
-export function isStringType(node: SchemaNode): boolean {
-  if (plainStringTypes.has(node.type)) {
-    return true
-  }
-
-  const temporal = narrowSchema(node, 'date') ?? narrowSchema(node, 'time')
-  if (temporal) {
-    return temporal.representation !== 'date'
-  }
-
-  return false
-}
 
 /**
  * Applies casing rules to parameter names and returns a new parameter array.
@@ -439,25 +389,6 @@ export function buildTypeLiteral({
       optional: !p.required,
     })),
   })
-}
-
-/**
- * Resolves the schema name of a ref node, falling back through `ref` → `name` → nested `schema.name`.
- *
- * Returns `null` for non-ref nodes or when no name can be resolved. Use this to get a schema's
- * identifier for type definitions or error messages.
- *
- * @example
- * ```ts
- * resolveRefName({ kind: 'Schema', type: 'ref', ref: '#/components/schemas/Pet' })
- * // => 'Pet'
- * ```
- */
-export function resolveRefName(node: SchemaNode | undefined): string | null {
-  if (!node || node.type !== 'ref') return null
-  if (node.ref) return extractRefName(node.ref) ?? node.name ?? node.schema?.name ?? null
-
-  return node.name ?? node.schema?.name ?? null
 }
 
 /**

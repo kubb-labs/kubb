@@ -15,9 +15,6 @@ import {
   createDiscriminantNode,
   createOperationParams,
   findCircularSchemas,
-  isStringType,
-  resolveRefName,
-  syncSchemaRef,
 } from './ast.ts'
 
 const param = (name: string) =>
@@ -76,60 +73,6 @@ describe('caseParams', () => {
 
   it('handles an empty params array', () => {
     expect(caseParams([], 'camelcase')).toStrictEqual([])
-  })
-})
-
-describe('isStringType', () => {
-  it('returns true for plain string-like schema types', () => {
-    expect(isStringType(createSchema({ type: 'string' }))).toBe(true)
-    expect(isStringType(createSchema({ type: 'uuid' }))).toBe(true)
-    expect(isStringType(createSchema({ type: 'email' }))).toBe(true)
-    expect(isStringType(createSchema({ type: 'url' }))).toBe(true)
-    expect(isStringType(createSchema({ type: 'datetime' }))).toBe(true)
-  })
-
-  it('returns true for date/time with string representation', () => {
-    expect(isStringType(createSchema({ type: 'date', representation: 'string' }))).toBe(true)
-    expect(isStringType(createSchema({ type: 'time', representation: 'string' }))).toBe(true)
-  })
-
-  it('returns false for date/time with date representation and non-string scalars', () => {
-    expect(isStringType(createSchema({ type: 'date', representation: 'date' }))).toBe(false)
-    expect(isStringType(createSchema({ type: 'time', representation: 'date' }))).toBe(false)
-    expect(isStringType(createSchema({ type: 'number' }))).toBe(false)
-  })
-})
-
-describe('syncSchemaRef', () => {
-  it('returns a merged schema for a ref node that has a resolved schema', () => {
-    const resolved = createSchema({ type: 'object' })
-    const ref = createSchema({
-      type: 'ref',
-      name: 'Pet',
-      ref: '#/components/schemas/Pet',
-      schema: resolved,
-    })
-
-    const merged = syncSchemaRef(ref)
-    expect(merged).not.toBeNull()
-    expect(merged?.type).toBe('object')
-  })
-
-  it('returns a merged schema with sibling overrides applied over the resolved schema', () => {
-    const resolved = createSchema({ type: 'object', description: 'Original' })
-    const ref = createSchema({
-      type: 'ref',
-      name: 'Pet',
-      ref: '#/components/schemas/Pet',
-      schema: resolved,
-      description: 'Override',
-      readOnly: true,
-    })
-
-    const merged = syncSchemaRef(ref)
-    expect(merged?.description).toBe('Override')
-    expect(merged?.readOnly).toBe(true)
-    expect(merged?.type).toBe('object')
   })
 })
 
@@ -1340,25 +1283,6 @@ describe('findCircularSchemas', () => {
   it('skips unnamed schemas', () => {
     const anon = createSchema({ type: 'object' })
     expect(findCircularSchemas([anon])).toStrictEqual(new Set())
-  })
-})
-
-describe('resolveRefName', () => {
-  it('extracts the name from a $ref pointer', () => {
-    const ref = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' })
-
-    expect(resolveRefName(ref)).toBe('Pet')
-  })
-
-  it('falls back to node.name when ref is missing', () => {
-    const ref = createSchema({ type: 'ref', name: 'Pet' })
-
-    expect(resolveRefName(ref)).toBe('Pet')
-  })
-
-  it('returns null for non-ref nodes', () => {
-    expect(resolveRefName(createSchema({ type: 'string' }))).toBeNull()
-    expect(resolveRefName(undefined)).toBeNull()
   })
 })
 
