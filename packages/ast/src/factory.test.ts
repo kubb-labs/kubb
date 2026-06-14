@@ -3,13 +3,7 @@ import { createFile } from './factory.ts'
 import { isHttpOperationNode } from './guards.ts'
 import { createArrowFunction, createConst, createFunction, createText, createType } from './nodes/code.ts'
 import { createExport, createImport, createSource } from './nodes/file.ts'
-import {
-  createFunctionParameter,
-  createFunctionParameters,
-  createIndexedAccessType,
-  createObjectBindingPattern,
-  createTypeLiteral,
-} from './nodes/function.ts'
+import { createFunctionParameter, createFunctionParameters, createIndexedAccessType, createObjectBindingPattern, createTypeLiteral } from './nodes/function.ts'
 import { createInput } from './nodes/input.ts'
 import { createOperation } from './nodes/operation.ts'
 import { createParameter } from './nodes/parameter.ts'
