@@ -2,85 +2,108 @@ import { defineNode } from '../node.ts'
 import type { BaseNode } from './base.ts'
 
 /**
- * AST node representing a language-agnostic type expression used as a function parameter
- * type annotation. Each language printer renders the variant into its own syntax.
+ * A language-agnostic type expression used as a function parameter type annotation.
  *
- * - `struct` an inline anonymous type grouping named fields.
- *   TypeScript renders as `{ petId: string; name?: string }`.
- * - `member` a single named field accessed from a named group type.
- *   TypeScript renders as `PathParams['petId']`.
+ * - a plain `string` is a type reference rendered as-is, e.g. `'string'`, `'QueryParams'`, `'Partial<Config>'`
+ * - a {@link TypeLiteralNode} is an inline anonymous type, e.g. `{ petId: string; name?: string }`
+ * - an {@link IndexedAccessTypeNode} is a single field accessed from a named type, e.g. `PathParams['petId']`
+ */
+export type TypeExpression = string | TypeLiteralNode | IndexedAccessTypeNode
+
+/**
+ * AST node for an inline anonymous object type grouping named fields.
+ * TypeScript renders as `{ key: Type; other?: OtherType }`.
  *
- * @example Reference variant
+ * @example
  * ```ts
- * createParamsType({ variant: 'reference', name: 'QueryParams' })
- * // QueryParams
- * ```
- *
- * @example Struct variant
- * ```ts
- * createParamsType({ variant: 'struct', properties: [{ name: 'petId', optional: false, type: createParamsType({ variant: 'reference', name: 'string' }) }] })
+ * createTypeLiteral({ members: [{ name: 'petId', type: 'string', optional: false }] })
  * // { petId: string }
  * ```
- *
- * @example Member variant
- * ```ts
- * createParamsType({ variant: 'member', base: 'PathParams', key: 'petId' })
- * // PathParams['petId']
- * ```
- *
- * @deprecated Removed in Phase 1 (#3563): a parameter type becomes a plain `string`.
  */
-export type ParamsTypeNode = BaseNode & {
+export type TypeLiteralNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'ParamsType'
-} & (
-    | {
-        /**
-         * Reference variant, a plain type name or identifier.
-         * TypeScript renders as-is, e.g. `string`, `QueryParams`, `Partial<Config>`.
-         */
-        variant: 'reference'
-        /**
-         * The full type name string, e.g. `'string'`, `'QueryParams'`, `'Partial<Config>'`.
-         */
-        name: string
-      }
-    | {
-        /**
-         * Struct variant, an inline anonymous type grouping named fields.
-         * TypeScript renders as `{ key: Type; other?: OtherType }`.
-         */
-        variant: 'struct'
-        /**
-         * Properties of the struct type.
-         */
-        properties: Array<{
-          name: string
-          optional: boolean
-          type: ParamsTypeNode
-        }>
-      }
-    | {
-        /**
-         * Member variant, a single named field accessed from a group type.
-         * TypeScript renders as `Base['key']`.
-         */
-        variant: 'member'
-        /**
-         * Base type name, e.g. `'DeletePetPathParams'`.
-         */
-        base: string
-        /**
-         * The field name to access, e.g. `'petId'`.
-         */
-        key: string
-      }
-  )
+  kind: 'TypeLiteral'
+  /**
+   * Members of the object type, rendered in order.
+   */
+  members: Array<{
+    /**
+     * Member key.
+     */
+    name: string
+    /**
+     * Member type expression.
+     */
+    type: TypeExpression
+    /**
+     * Whether the member is optional, rendered with `?`.
+     */
+    optional?: boolean
+  }>
+}
+
+/**
+ * AST node for a single field accessed from a named group type.
+ * TypeScript renders as `objectType['indexType']`.
+ *
+ * @example
+ * ```ts
+ * createIndexedAccessType({ objectType: 'GetPetPathParams', indexType: 'petId' })
+ * // GetPetPathParams['petId']
+ * ```
+ */
+export type IndexedAccessTypeNode = BaseNode & {
+  /**
+   * Node kind.
+   */
+  kind: 'IndexedAccessType'
+  /**
+   * Name of the type being indexed, e.g. `'GetPetPathParams'`.
+   */
+  objectType: string
+  /**
+   * Field key to access, e.g. `'petId'`.
+   */
+  indexType: string
+}
+
+/**
+ * AST node for an object destructuring binding, used as the name of a grouped function parameter.
+ * TypeScript renders as `{ id, name }` or `{ id: renamed }` when `propertyName` differs.
+ *
+ * @example
+ * ```ts
+ * createObjectBindingPattern({ elements: [{ name: 'id' }, { name: 'name' }] })
+ * // { id, name }
+ * ```
+ */
+export type ObjectBindingPatternNode = BaseNode & {
+  /**
+   * Node kind.
+   */
+  kind: 'ObjectBindingPattern'
+  /**
+   * Bound elements, rendered in order.
+   */
+  elements: Array<{
+    /**
+     * Local binding name.
+     */
+    name: string
+    /**
+     * Source key when it differs from the binding name, rendered as `propertyName: name`.
+     */
+    propertyName?: string
+  }>
+}
 
 /**
  * AST node for one function parameter.
+ *
+ * A simple parameter has a `string` name. A destructured group has an
+ * {@link ObjectBindingPatternNode} name paired with a {@link TypeLiteralNode} type.
  *
  * @example Required parameter
  * `name: Type`
@@ -93,6 +116,9 @@ export type ParamsTypeNode = BaseNode & {
  *
  * @example Rest parameter
  * `...name: Type[]`
+ *
+ * @example Destructured group
+ * `{ id, name? }: { id: string; name?: string } = {}`
  */
 export type FunctionParameterNode = BaseNode & {
   /**
@@ -100,98 +126,25 @@ export type FunctionParameterNode = BaseNode & {
    */
   kind: 'FunctionParameter'
   /**
-   * Parameter name in the generated signature.
+   * Parameter name, or an {@link ObjectBindingPatternNode} for a destructured group.
    */
-  name: string
+  name: string | ObjectBindingPatternNode
   /**
-   * Type annotation as a structured {@link ParamsTypeNode}.
-   * Omit for untyped output.
-   *
-   * @example Reference type node
-   * `{ kind: 'ParamsType', variant: 'reference', name: 'string' }` → `petId: string`
-   *
-   * @example Struct type node
-   * `{ kind: 'ParamsType', variant: 'struct', properties: [...] }` → `{ key: Type; other?: OtherType }`
-   *
-   * @example Member type node
-   * `{ kind: 'ParamsType', variant: 'member', base: 'PathParams', key: 'petId' }` → `PathParams['petId']`
+   * Type annotation as a {@link TypeExpression}. Omit for untyped output.
    */
-  type?: ParamsTypeNode
+  type?: TypeExpression
   /**
-   * When `true` the parameter is emitted as a rest parameter.
-   *
-   * @example Rest parameter
-   * `...name: Type[]`
-   */
-  rest?: boolean
-} /**
- * Optional parameter, rendered with `?` and may be omitted by the caller.
- * Cannot be combined with `default` because a defaulted parameter is already optional.
- */ & (
-    | { optional: true; default?: never }
-    /**
-     * Required parameter, or a parameter with a default value.
-     *
-     * @example Required
-     * `name: Type`
-     *
-     * @example With default
-     * `name: Type = default`
-     */
-    | { optional?: false; default?: string }
-  )
-
-/**
- * AST node for a group of related function parameters treated as a single unit.
- *
- * Each language printer decides how to render this group:
- * - TypeScript/JS: destructured object `{ key1, key2 }: { key1: Type1; key2: Type2 } = {}`
- * - Python: keyword-only args or a typed dict parameter
- * - C# / Kotlin: named record / data-class parameter
- *
- * When `inline` is `true`, the group is spread as individual top-level parameters
- * rather than wrapped in a single grouped construct.
- *
- * @example Grouped destructuring
- * `{ id, name }: { id: string; name: string } = {}`
- *
- * @example Inline (spread as individual parameters)
- * `id: string, name: string`
- *
- * @deprecated Removed in Phase 1 (#3563): use `createFunctionParameter({ properties: [...] })`.
- */
-export type ParameterGroupNode = BaseNode & {
-  /**
-   * Node kind.
-   */
-  kind: 'ParameterGroup'
-  /**
-   * The individual parameters that form the group.
-   * Rendered as a destructured object or spread inline when `inline` is `true`.
-   */
-  properties: Array<FunctionParameterNode>
-  /**
-   * Optional explicit type annotation for the whole group.
-   * When absent, printers auto-compute it from `properties`.
-   */
-  type?: ParamsTypeNode
-  /**
-   * When `true`, `properties` are emitted as individual top-level parameters instead of
-   * being wrapped in a single grouped construct.
-   *
-   * @default false
-   */
-  inline?: boolean
-  /**
-   * Whether the group as a whole is optional.
-   * If omitted, printers infer this from child properties.
+   * Whether the parameter is optional, rendered with `?`.
    */
   optional?: boolean
   /**
-   * Default value for the group, written verbatim after `=`.
-   * Commonly `'{}'` to allow omitting the argument entirely.
+   * Default value, written verbatim after `=`. Commonly `'{}'` for a destructured group.
    */
   default?: string
+  /**
+   * When `true` the parameter is emitted as a rest parameter, e.g. `...name: Type[]`.
+   */
+  rest?: boolean
 }
 
 /**
@@ -203,8 +156,6 @@ export type ParameterGroupNode = BaseNode & {
  * Renders differently depending on the output mode:
  * - `declaration` → `(id: string, config: Config = {})` function declaration parameters
  * - `call`        → `(id, { method, url })` function call arguments
- * - `keys`        → `{ id, config }` key names only (for destructuring)
- * - `values`      → `{ id: id, config: config }` key → value pairs
  */
 export type FunctionParametersNode = BaseNode & {
   /**
@@ -214,59 +165,98 @@ export type FunctionParametersNode = BaseNode & {
   /**
    * Ordered parameter nodes.
    */
-  params: ReadonlyArray<FunctionParameterNode | ParameterGroupNode>
+  params: ReadonlyArray<FunctionParameterNode>
 }
 
 /**
  * Union of all function-parameter AST node variants used by the function-parameter printer.
  */
-export type FunctionParamNode = FunctionParameterNode | ParameterGroupNode | FunctionParametersNode | ParamsTypeNode
+export type FunctionParamNode = FunctionParameterNode | FunctionParametersNode | TypeLiteralNode | IndexedAccessTypeNode | ObjectBindingPatternNode
 
 /**
  * Handler map keys, one per `FunctionParamNode` kind.
  */
-export type FunctionNodeType = 'functionParameter' | 'parameterGroup' | 'functionParameters' | 'paramsType'
-
-type ParamsTypeInput =
-  | { variant: 'reference'; name: string }
-  | { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: ParamsTypeNode }> }
-  | { variant: 'member'; base: string; key: string }
+export type FunctionNodeType = 'functionParameter' | 'functionParameters' | 'typeLiteral' | 'indexedAccessType' | 'objectBindingPattern'
 
 /**
- * Definition for the {@link ParamsTypeNode}.
- *
- * @deprecated Removed in Phase 1 (#3563).
+ * Definition for the {@link TypeLiteralNode}.
  */
-export const paramsTypeDef = defineNode<ParamsTypeNode, ParamsTypeInput>({ kind: 'ParamsType' })
+export const typeLiteralDef = defineNode<TypeLiteralNode, Pick<TypeLiteralNode, 'members'>>({ kind: 'TypeLiteral' })
 
 /**
- * Creates a {@link ParamsTypeNode} representing a language-agnostic structured type expression.
+ * Creates a {@link TypeLiteralNode} representing an inline anonymous object type.
  *
- * @example Reference type (TypeScript: `QueryParams`)
+ * @example
  * ```ts
- * createParamsType({ variant: 'reference', name: 'QueryParams' })
+ * createTypeLiteral({ members: [{ name: 'petId', type: 'string', optional: false }] })
+ * // { petId: string }
  * ```
- *
- * @example Member type (TypeScript: `DeletePetPathParams['petId']`)
- * ```ts
- * createParamsType({ variant: 'member', base: 'DeletePetPathParams', key: 'petId' })
- * ```
- *
- * @deprecated Removed in Phase 1 (#3563): pass the type name as a plain string, e.g. `createFunctionParameter({ name, type: 'string' })`.
  */
-export const createParamsType = paramsTypeDef.create
-
-type FunctionParameterInput = { name: string; type?: ParamsTypeNode; rest?: boolean } & (
-  | { optional: true; default?: never }
-  | { optional?: false; default?: string }
-)
+export const createTypeLiteral = typeLiteralDef.create
 
 /**
- * Definition for the {@link FunctionParameterNode}.
+ * Definition for the {@link IndexedAccessTypeNode}.
+ */
+export const indexedAccessTypeDef = defineNode<IndexedAccessTypeNode, Omit<IndexedAccessTypeNode, 'kind'>>({ kind: 'IndexedAccessType' })
+
+/**
+ * Creates an {@link IndexedAccessTypeNode} representing a single field accessed from a named type.
+ *
+ * @example
+ * ```ts
+ * createIndexedAccessType({ objectType: 'DeletePetPathParams', indexType: 'petId' })
+ * // DeletePetPathParams['petId']
+ * ```
+ */
+export const createIndexedAccessType = indexedAccessTypeDef.create
+
+/**
+ * Definition for the {@link ObjectBindingPatternNode}.
+ */
+export const objectBindingPatternDef = defineNode<ObjectBindingPatternNode, Pick<ObjectBindingPatternNode, 'elements'>>({ kind: 'ObjectBindingPattern' })
+
+/**
+ * Creates an {@link ObjectBindingPatternNode} for a destructured parameter binding.
+ *
+ * @example
+ * ```ts
+ * createObjectBindingPattern({ elements: [{ name: 'id' }, { name: 'name' }] })
+ * // { id, name }
+ * ```
+ */
+export const createObjectBindingPattern = objectBindingPatternDef.create
+
+/**
+ * Plain property descriptor for a destructured group built by {@link createFunctionParameter}.
+ */
+type FunctionParameterProperty = {
+  name: string
+  type: TypeExpression
+  optional?: boolean
+}
+
+type FunctionParameterInput =
+  | { name: string; type?: TypeExpression; optional?: boolean; default?: string; rest?: boolean }
+  | { properties: Array<FunctionParameterProperty>; optional?: boolean; default?: string }
+
+/**
+ * Definition for the {@link FunctionParameterNode}. `optional` defaults to `false`.
+ * Passing `properties` builds a destructured group: an {@link ObjectBindingPatternNode} name
+ * paired with a {@link TypeLiteralNode} type.
  */
 export const functionParameterDef = defineNode<FunctionParameterNode, FunctionParameterInput>({
   kind: 'FunctionParameter',
-  build: (props) => ({ optional: false, ...props }),
+  build: (input) => {
+    if ('properties' in input) {
+      return {
+        name: createObjectBindingPattern({ elements: input.properties.map((p) => ({ name: p.name })) }),
+        type: createTypeLiteral({ members: input.properties.map((p) => ({ name: p.name, type: p.type, optional: p.optional ?? false })) }),
+        optional: input.optional ?? false,
+        ...(input.default !== undefined ? { default: input.default } : {}),
+      }
+    }
+    return { optional: false, ...input }
+  },
 })
 
 /**
@@ -274,39 +264,17 @@ export const functionParameterDef = defineNode<FunctionParameterNode, FunctionPa
  *
  * @example Optional param
  * ```ts
- * createFunctionParameter({ name: 'params', type: createParamsType({ variant: 'reference', name: 'QueryParams' }), optional: true })
+ * createFunctionParameter({ name: 'params', type: 'QueryParams', optional: true })
  * // → params?: QueryParams
+ * ```
+ *
+ * @example Destructured group
+ * ```ts
+ * createFunctionParameter({ properties: [{ name: 'id', type: 'string' }, { name: 'name', type: 'string', optional: true }], default: '{}' })
+ * // → { id, name }: { id: string; name?: string } = {}
  * ```
  */
 export const createFunctionParameter = functionParameterDef.create
-
-type ParameterGroupInput = Pick<ParameterGroupNode, 'properties'> & Partial<Omit<ParameterGroupNode, 'kind' | 'properties'>>
-
-/**
- * Definition for the {@link ParameterGroupNode}.
- *
- * @deprecated Removed in Phase 1 (#3563).
- */
-export const parameterGroupDef = defineNode<ParameterGroupNode, ParameterGroupInput>({ kind: 'ParameterGroup' })
-
-/**
- * Creates a `ParameterGroupNode` representing a group of related parameters treated as a unit.
- *
- * @example Grouped param (TypeScript declaration)
- * ```ts
- * createParameterGroup({
- *   properties: [
- *     createFunctionParameter({ name: 'id', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
- *     createFunctionParameter({ name: 'name', type: createParamsType({ variant: 'reference', name: 'string' }), optional: true }),
- *   ],
- *   default: '{}',
- * })
- * // declaration → { id, name? }: { id: string; name?: string } = {}
- * ```
- *
- * @deprecated Removed in Phase 1 (#3563): use `createFunctionParameter({ properties: [...] })`.
- */
-export const createParameterGroup = parameterGroupDef.create
 
 /**
  * Definition for the {@link FunctionParametersNode}.

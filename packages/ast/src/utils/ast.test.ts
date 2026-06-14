@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createFunctionParameter, createParamsType } from '../nodes/function.ts'
+import { createFunctionParameter } from '../nodes/function.ts'
 import { createOperation } from '../nodes/operation.ts'
 import { createParameter } from '../nodes/parameter.ts'
 import { createProperty } from '../nodes/property.ts'
@@ -222,20 +222,10 @@ describe('createOperationParams', () => {
         kind: 'FunctionParameters',
         params: [
           {
-            inline: true,
-            kind: 'ParameterGroup',
-            properties: [
-              {
-                kind: 'FunctionParameter',
-                name: 'petId',
-                optional: false,
-                type: {
-                  kind: 'ParamsType',
-                  name: 'GetPetById["petId"]',
-                  variant: 'reference',
-                },
-              },
-            ],
+            kind: 'FunctionParameter',
+            name: 'petId',
+            optional: false,
+            type: 'GetPetById["petId"]',
           },
         ],
       })
@@ -260,10 +250,7 @@ describe('createOperationParams', () => {
         extraParams: [
           createFunctionParameter({
             name: 'options',
-            type: createParamsType({
-              variant: 'reference',
-              name: 'Partial<Cypress.RequestOptions>',
-            }),
+            type: 'Partial<Cypress.RequestOptions>',
             default: '{}',
           }),
         ],
@@ -271,49 +258,30 @@ describe('createOperationParams', () => {
 
       expect(params.params).toMatchObject([
         {
-          inline: true,
-          kind: 'ParameterGroup',
-          properties: [
-            {
-              kind: 'FunctionParameter',
-              name: 'petId',
-              optional: false,
-              type: {
-                kind: 'ParamsType',
-                name: 'Types["petId"]',
-                variant: 'reference',
-              },
-            },
-          ],
+          kind: 'FunctionParameter',
+          name: 'petId',
+          optional: false,
+          type: 'Types["petId"]',
         },
         {
           kind: 'FunctionParameter',
           name: 'data',
           optional: false,
-          type: {
-            kind: 'ParamsType',
-            name: 'CreatePetRequest',
-            variant: 'reference',
-          },
+          type: 'CreatePetRequest',
         },
         {
           kind: 'FunctionParameter',
           name: 'params',
           optional: true,
           type: {
-            kind: 'ParamsType',
-            properties: [
+            kind: 'TypeLiteral',
+            members: [
               {
                 name: 'filter',
                 optional: true,
-                type: {
-                  kind: 'ParamsType',
-                  name: 'Types["filter"]',
-                  variant: 'reference',
-                },
+                type: 'Types["filter"]',
               },
             ],
-            variant: 'struct',
           },
         },
         {
@@ -321,19 +289,14 @@ describe('createOperationParams', () => {
           name: 'headers',
           optional: true,
           type: {
-            kind: 'ParamsType',
-            properties: [
+            kind: 'TypeLiteral',
+            members: [
               {
                 name: 'x-api-key',
                 optional: true,
-                type: {
-                  kind: 'ParamsType',
-                  name: 'Types["x-api-key"]',
-                  variant: 'reference',
-                },
+                type: 'Types["x-api-key"]',
               },
             ],
-            variant: 'struct',
           },
         },
         {
@@ -341,11 +304,7 @@ describe('createOperationParams', () => {
           kind: 'FunctionParameter',
           name: 'options',
           optional: false,
-          type: {
-            kind: 'ParamsType',
-            name: 'Partial<Cypress.RequestOptions>',
-            variant: 'reference',
-          },
+          type: 'Partial<Cypress.RequestOptions>',
         },
       ])
     })
@@ -365,21 +324,10 @@ describe('createOperationParams', () => {
         kind: 'FunctionParameters',
         params: [
           {
-            default: '{}',
-            inline: true,
-            kind: 'ParameterGroup',
-            properties: [
-              {
-                kind: 'FunctionParameter',
-                name: 'petId',
-                optional: true,
-                type: {
-                  kind: 'ParamsType',
-                  name: 'string',
-                  variant: 'reference',
-                },
-              },
-            ],
+            kind: 'FunctionParameter',
+            name: 'petId',
+            optional: true,
+            type: 'string',
           },
         ],
       })
@@ -402,30 +350,27 @@ describe('createOperationParams', () => {
         kind: 'FunctionParameters',
         params: [
           {
-            inline: false,
-            kind: 'ParameterGroup',
-            properties: [
-              {
-                kind: 'FunctionParameter',
-                name: 'petId',
-                optional: false,
-                type: {
-                  kind: 'ParamsType',
-                  name: 'string',
-                  variant: 'reference',
+            kind: 'FunctionParameter',
+            name: {
+              kind: 'ObjectBindingPattern',
+              elements: [{ name: 'petId' }, { name: 'storeId' }],
+            },
+            optional: false,
+            type: {
+              kind: 'TypeLiteral',
+              members: [
+                {
+                  name: 'petId',
+                  optional: false,
+                  type: 'string',
                 },
-              },
-              {
-                kind: 'FunctionParameter',
-                name: 'storeId',
-                optional: false,
-                type: {
-                  kind: 'ParamsType',
-                  name: 'string',
-                  variant: 'reference',
+                {
+                  name: 'storeId',
+                  optional: false,
+                  type: 'string',
                 },
-              },
-            ],
+              ],
+            },
           },
         ],
       })
@@ -452,7 +397,7 @@ describe('createOperationParams', () => {
         extraParams: [
           createFunctionParameter({
             name: 'options',
-            type: createParamsType({ variant: 'reference', name: 'Options' }),
+            type: 'Options',
             default: '{}',
           }),
         ],
@@ -462,60 +407,48 @@ describe('createOperationParams', () => {
         kind: 'FunctionParameters',
         params: [
           {
-            kind: 'ParameterGroup',
-            properties: [
-              {
-                kind: 'FunctionParameter',
-                name: 'petId',
-                optional: false,
-                type: {
-                  kind: 'ParamsType',
-                  name: 'Types["petId"]',
-                  variant: 'reference',
+            kind: 'FunctionParameter',
+            name: {
+              kind: 'ObjectBindingPattern',
+              elements: [{ name: 'petId' }, { name: 'data' }, { name: 'params' }],
+            },
+            optional: false,
+            type: {
+              kind: 'TypeLiteral',
+              members: [
+                {
+                  name: 'petId',
+                  optional: false,
+                  type: 'Types["petId"]',
                 },
-              },
-              {
-                kind: 'FunctionParameter',
-                name: 'data',
-                optional: true,
-                type: {
-                  kind: 'ParamsType',
-                  name: 'UpdatePetBody',
-                  variant: 'reference',
+                {
+                  name: 'data',
+                  optional: true,
+                  type: 'UpdatePetBody',
                 },
-              },
-              {
-                kind: 'FunctionParameter',
-                name: 'params',
-                optional: false,
-                type: {
-                  kind: 'ParamsType',
-                  properties: [
-                    {
-                      name: 'status',
-                      optional: false,
-                      type: {
-                        kind: 'ParamsType',
-                        name: 'Types["status"]',
-                        variant: 'reference',
+                {
+                  name: 'params',
+                  optional: false,
+                  type: {
+                    kind: 'TypeLiteral',
+                    members: [
+                      {
+                        name: 'status',
+                        optional: false,
+                        type: 'Types["status"]',
                       },
-                    },
-                  ],
-                  variant: 'struct',
+                    ],
+                  },
                 },
-              },
-            ],
+              ],
+            },
           },
           {
             default: '{}',
             kind: 'FunctionParameter',
             name: 'options',
             optional: false,
-            type: {
-              kind: 'ParamsType',
-              name: 'Options',
-              variant: 'reference',
-            },
+            type: 'Options',
           },
         ],
       })
@@ -537,29 +470,31 @@ describe('createOperationParams', () => {
         params: [
           {
             default: '{}',
-            kind: 'ParameterGroup',
-            properties: [
-              {
-                kind: 'FunctionParameter',
-                name: 'params',
-                optional: true,
-                type: {
-                  kind: 'ParamsType',
-                  properties: [
-                    {
-                      name: 'filter',
-                      optional: true,
-                      type: {
-                        kind: 'ParamsType',
-                        name: 'string',
-                        variant: 'reference',
+            kind: 'FunctionParameter',
+            name: {
+              kind: 'ObjectBindingPattern',
+              elements: [{ name: 'params' }],
+            },
+            optional: false,
+            type: {
+              kind: 'TypeLiteral',
+              members: [
+                {
+                  name: 'params',
+                  optional: true,
+                  type: {
+                    kind: 'TypeLiteral',
+                    members: [
+                      {
+                        name: 'filter',
+                        optional: true,
+                        type: 'string',
                       },
-                    },
-                  ],
-                  variant: 'struct',
+                    ],
+                  },
                 },
-              },
-            ],
+              ],
+            },
           },
         ],
       })
@@ -581,9 +516,7 @@ describe('createOperationParams', () => {
 
       const pathParam = params.params[0]
       expect(pathParam).toBeDefined()
-      if (pathParam && pathParam.kind === 'ParameterGroup') {
-        expect(pathParam.properties[0]?.name).toBe('petId')
-      }
+      expect(pathParam?.name).toBe('petId')
     })
   })
 
@@ -611,7 +544,7 @@ describe('createOperationParams', () => {
         extraParams: [
           createFunctionParameter({
             name: 'options',
-            type: createParamsType({ variant: 'reference', name: 'Options' }),
+            type: 'Options',
             default: '{}',
           }),
         ],
@@ -625,11 +558,7 @@ describe('createOperationParams', () => {
             kind: 'FunctionParameter',
             name: 'options',
             optional: false,
-            type: {
-              kind: 'ParamsType',
-              name: 'Options',
-              variant: 'reference',
-            },
+            type: 'Options',
           },
         ],
       })
@@ -647,14 +576,8 @@ describe('createOperationParams', () => {
         pathParamsType: 'inline',
       })
 
-      const pathGroup = params.params[0]
-      if (pathGroup && pathGroup.kind === 'ParameterGroup') {
-        expect(pathGroup.properties[0]?.type).toStrictEqual({
-          kind: 'ParamsType',
-          variant: 'reference',
-          name: 'string',
-        })
-      }
+      const pathParam = params.params[0]
+      expect(pathParam?.type).toStrictEqual('string')
     })
   })
 
@@ -683,11 +606,7 @@ describe('createOperationParams', () => {
             kind: 'FunctionParameter',
             name: 'data',
             optional: false,
-            type: {
-              kind: 'ParamsType',
-              name: 'CreatePetRequest',
-              variant: 'reference',
-            },
+            type: 'CreatePetRequest',
           },
         ],
       })
@@ -717,11 +636,7 @@ describe('createOperationParams', () => {
             kind: 'FunctionParameter',
             name: 'data',
             optional: true,
-            type: {
-              kind: 'ParamsType',
-              name: 'UpdatePetRequest',
-              variant: 'reference',
-            },
+            type: 'UpdatePetRequest',
           },
         ],
       })
@@ -748,11 +663,7 @@ describe('createOperationParams', () => {
         kind: 'FunctionParameter',
         name: 'params',
         optional: true,
-        type: {
-          kind: 'ParamsType',
-          name: 'FindPetsQueryParams',
-          variant: 'reference',
-        },
+        type: 'FindPetsQueryParams',
       })
     })
 
@@ -771,17 +682,13 @@ describe('createOperationParams', () => {
       })
 
       const objParam = params.params[0]
-      if (objParam && objParam.kind === 'ParameterGroup') {
-        const queryChild = objParam.properties.find((p) => p.name === 'params')
+      expect(objParam?.type).toMatchObject({ kind: 'TypeLiteral' })
+      if (objParam?.type && typeof objParam.type === 'object' && objParam.type.kind === 'TypeLiteral') {
+        const queryChild = objParam.type.members.find((m) => m.name === 'params')
         expect(queryChild).toMatchObject({
-          kind: 'FunctionParameter',
           name: 'params',
           optional: false,
-          type: {
-            kind: 'ParamsType',
-            name: 'FindPetsQueryParams',
-            variant: 'reference',
-          },
+          type: 'FindPetsQueryParams',
         })
       }
     })
@@ -801,9 +708,8 @@ describe('createOperationParams', () => {
 
       const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
       expect(queryParam?.type).toMatchObject({
-        kind: 'ParamsType',
-        variant: 'struct',
-        properties: expect.arrayContaining([expect.objectContaining({ name: 'filter' })]),
+        kind: 'TypeLiteral',
+        members: expect.arrayContaining([expect.objectContaining({ name: 'filter' })]),
       })
     })
 
@@ -828,11 +734,7 @@ describe('createOperationParams', () => {
             kind: 'FunctionParameter',
             name: 'headers',
             optional: false,
-            type: {
-              kind: 'ParamsType',
-              name: 'FindPetsHeaderParams',
-              variant: 'reference',
-            },
+            type: 'FindPetsHeaderParams',
           },
         ],
       })
@@ -853,17 +755,13 @@ describe('createOperationParams', () => {
       })
 
       const objParam = params.params[0]
-      if (objParam && objParam.kind === 'ParameterGroup') {
-        const headerChild = objParam.properties.find((p) => p.name === 'headers')
+      expect(objParam?.type).toMatchObject({ kind: 'TypeLiteral' })
+      if (objParam?.type && typeof objParam.type === 'object' && objParam.type.kind === 'TypeLiteral') {
+        const headerChild = objParam.type.members.find((m) => m.name === 'headers')
         expect(headerChild).toMatchObject({
-          kind: 'FunctionParameter',
           name: 'headers',
           optional: true,
-          type: {
-            kind: 'ParamsType',
-            name: 'HeaderParams',
-            variant: 'reference',
-          },
+          type: 'HeaderParams',
         })
       }
     })
@@ -882,33 +780,28 @@ describe('createOperationParams', () => {
         }),
       })
 
-      const pathGroup = params.params[0]
-      if (pathGroup && pathGroup.kind === 'ParameterGroup') {
-        expect(pathGroup.properties).toMatchObject([
-          {
-            kind: 'FunctionParameter',
-            name: 'petId',
-            optional: false,
-            type: {
-              base: 'DeletePetPathParams',
-              key: 'petId',
-              kind: 'ParamsType',
-              variant: 'member',
-            },
+      expect(params.params).toMatchObject([
+        {
+          kind: 'FunctionParameter',
+          name: 'petId',
+          optional: false,
+          type: {
+            kind: 'IndexedAccessType',
+            objectType: 'DeletePetPathParams',
+            indexType: 'petId',
           },
-          {
-            kind: 'FunctionParameter',
-            name: 'name',
-            optional: true,
-            type: {
-              base: 'DeletePetPathParams',
-              key: 'name',
-              kind: 'ParamsType',
-              variant: 'member',
-            },
+        },
+        {
+          kind: 'FunctionParameter',
+          name: 'name',
+          optional: true,
+          type: {
+            kind: 'IndexedAccessType',
+            objectType: 'DeletePetPathParams',
+            indexType: 'name',
           },
-        ])
-      }
+        },
+      ])
     })
   })
 
@@ -927,9 +820,7 @@ describe('createOperationParams', () => {
 
       const pathGroup = params.params[0]
       expect(pathGroup).toBeDefined()
-      if (pathGroup && pathGroup.kind === 'ParameterGroup') {
-        expect(pathGroup.default).toBe('[]')
-      }
+      expect(pathGroup?.default).toBe('[]')
     })
 
     it('uses fallback default when pathParamsDefault is undefined', () => {
@@ -946,9 +837,7 @@ describe('createOperationParams', () => {
 
       const pathGroup = params.params[0]
       expect(pathGroup).toBeDefined()
-      if (pathGroup && pathGroup.kind === 'ParameterGroup') {
-        expect(pathGroup.default).toBe('{}')
-      }
+      expect(pathGroup?.default).toBe('{}')
     })
   })
 
@@ -974,40 +863,22 @@ describe('createOperationParams', () => {
 
       expect(params.params).toMatchObject([
         {
-          inline: true,
-          kind: 'ParameterGroup',
-          properties: [
-            {
-              kind: 'FunctionParameter',
-              name: 'petId',
-              optional: false,
-              type: {
-                kind: 'ParamsType',
-                name: 'MaybeRefOrGetter<Types["petId"]>',
-                variant: 'reference',
-              },
-            },
-          ],
+          kind: 'FunctionParameter',
+          name: 'petId',
+          optional: false,
+          type: 'MaybeRefOrGetter<Types["petId"]>',
         },
         {
           kind: 'FunctionParameter',
           name: 'data',
           optional: true,
-          type: {
-            kind: 'ParamsType',
-            name: 'MaybeRefOrGetter<CreatePetRequest>',
-            variant: 'reference',
-          },
+          type: 'MaybeRefOrGetter<CreatePetRequest>',
         },
         {
           kind: 'FunctionParameter',
           name: 'params',
           optional: true,
-          type: {
-            kind: 'ParamsType',
-            name: 'MaybeRefOrGetter<FindPetsQueryParams>',
-            variant: 'reference',
-          },
+          type: 'MaybeRefOrGetter<FindPetsQueryParams>',
         },
       ])
     })
@@ -1036,28 +907,19 @@ describe('createOperationParams', () => {
             name: 'params',
             optional: true,
             type: {
-              kind: 'ParamsType',
-              properties: [
+              kind: 'TypeLiteral',
+              members: [
                 {
                   name: 'orderStatus',
                   optional: true,
-                  type: {
-                    kind: 'ParamsType',
-                    name: 'Types["orderStatus"]',
-                    variant: 'reference',
-                  },
+                  type: 'Types["orderStatus"]',
                 },
                 {
                   name: 'petCategory',
                   optional: true,
-                  type: {
-                    kind: 'ParamsType',
-                    name: 'Types["petCategory"]',
-                    variant: 'reference',
-                  },
+                  type: 'Types["petCategory"]',
                 },
               ],
-              variant: 'struct',
             },
           },
         ],
@@ -1078,8 +940,9 @@ describe('createOperationParams', () => {
 
       const pathGroup = params.params[0]
       expect(pathGroup).toBeDefined()
-      if (pathGroup && pathGroup.kind === 'ParameterGroup') {
-        expect(pathGroup.properties.map((p) => p.name)).toStrictEqual(['petId', 'storeName'])
+      expect(pathGroup?.name).toMatchObject({ kind: 'ObjectBindingPattern' })
+      if (pathGroup?.name && typeof pathGroup.name === 'object' && pathGroup.name.kind === 'ObjectBindingPattern') {
+        expect(pathGroup.name.elements.map((e) => e.name)).toStrictEqual(['petId', 'storeName'])
       }
     })
   })
@@ -1109,50 +972,28 @@ describe('createOperationParams', () => {
         kind: 'FunctionParameters',
         params: [
           {
-            inline: true,
-            kind: 'ParameterGroup',
-            properties: [
-              {
-                kind: 'FunctionParameter',
-                name: 'petId',
-                optional: false,
-                type: {
-                  kind: 'ParamsType',
-                  name: 'Types["petId"]',
-                  variant: 'reference',
-                },
-              },
-            ],
+            kind: 'FunctionParameter',
+            name: 'petId',
+            optional: false,
+            type: 'Types["petId"]',
           },
           {
             kind: 'FunctionParameter',
             name: 'data',
             optional: false,
-            type: {
-              kind: 'ParamsType',
-              name: 'CreatePetRequest',
-              variant: 'reference',
-            },
+            type: 'CreatePetRequest',
           },
           {
             kind: 'FunctionParameter',
             name: 'params',
             optional: true,
-            type: {
-              kind: 'ParamsType',
-              name: 'GetPetQueryParams',
-              variant: 'reference',
-            },
+            type: 'GetPetQueryParams',
           },
           {
             kind: 'FunctionParameter',
             name: 'headers',
             optional: true,
-            type: {
-              kind: 'ParamsType',
-              name: 'GetPetHeaderParams',
-              variant: 'reference',
-            },
+            type: 'GetPetHeaderParams',
           },
         ],
       })
@@ -1179,9 +1020,10 @@ describe('createOperationParams', () => {
       })
 
       const objParam = params.params[0]
-      expect(objParam?.kind).toBe('ParameterGroup')
-      if (objParam && objParam.kind === 'ParameterGroup') {
-        const names = objParam.properties.map((p) => p.name)
+      expect(objParam?.kind).toBe('FunctionParameter')
+      expect(objParam?.type).toMatchObject({ kind: 'TypeLiteral' })
+      if (objParam?.type && typeof objParam.type === 'object' && objParam.type.kind === 'TypeLiteral') {
+        const names = objParam.type.members.map((m) => m.name)
         expect(names).toContain('petId')
         expect(names).toContain('data')
         expect(names).toContain('params')
@@ -1210,31 +1052,32 @@ describe('createOperationParams', () => {
         kind: 'FunctionParameters',
         params: [
           {
-            inline: false,
-            kind: 'ParameterGroup',
-            properties: [
-              {
-                kind: 'FunctionParameter',
-                name: 'petId',
-                optional: false,
-                type: {
-                  base: 'GetPetByIdPathParams',
-                  key: 'petId',
-                  kind: 'ParamsType',
-                  variant: 'member',
+            kind: 'FunctionParameter',
+            name: {
+              kind: 'ObjectBindingPattern',
+              elements: [{ name: 'petId' }],
+            },
+            optional: false,
+            type: {
+              kind: 'TypeLiteral',
+              members: [
+                {
+                  name: 'petId',
+                  optional: false,
+                  type: {
+                    kind: 'IndexedAccessType',
+                    objectType: 'GetPetByIdPathParams',
+                    indexType: 'petId',
+                  },
                 },
-              },
-            ],
+              ],
+            },
           },
           {
             kind: 'FunctionParameter',
             name: 'params',
             optional: true,
-            type: {
-              kind: 'ParamsType',
-              name: 'GetPetByIdQueryParams',
-              variant: 'reference',
-            },
+            type: 'GetPetByIdQueryParams',
           },
         ],
       })
@@ -1255,16 +1098,10 @@ describe('createOperationParams', () => {
         }),
       })
 
-      const pathGroup = params.params[0]
-      if (pathGroup && pathGroup.kind === 'ParameterGroup') {
-        expect(pathGroup.properties[0]?.name).toBe('petId')
-      }
+      const pathParam = params.params[0]
+      expect(pathParam?.name).toBe('petId')
       const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
-      expect(queryParam?.type).toStrictEqual({
-        kind: 'ParamsType',
-        variant: 'reference',
-        name: 'ListPetsQueryParams',
-      })
+      expect(queryParam?.type).toStrictEqual('ListPetsQueryParams')
     })
   })
 })
@@ -1282,14 +1119,8 @@ describe('typeWrapper option', () => {
       typeWrapper: (t) => `MaybeRefOrGetter<${t}>`,
     })
 
-    const group = params.params[0]
-    if (group?.kind === 'ParameterGroup') {
-      expect(group.properties[0]?.type).toStrictEqual({
-        kind: 'ParamsType',
-        variant: 'reference',
-        name: 'MaybeRefOrGetter<string>',
-      })
-    }
+    const pathParam = params.params[0]
+    expect(pathParam?.type).toStrictEqual('MaybeRefOrGetter<string>')
   })
 
   it('wraps body type with the provided function', () => {
@@ -1305,11 +1136,7 @@ describe('typeWrapper option', () => {
     })
 
     const bodyParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'data')
-    expect(bodyParam?.type).toStrictEqual({
-      kind: 'ParamsType',
-      variant: 'reference',
-      name: 'MaybeRefOrGetter<CreatePetRequest>',
-    })
+    expect(bodyParam?.type).toStrictEqual('MaybeRefOrGetter<CreatePetRequest>')
   })
 
   it('wraps query group type with the provided function', () => {
@@ -1327,11 +1154,7 @@ describe('typeWrapper option', () => {
     })
 
     const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
-    expect(queryParam?.type).toStrictEqual({
-      kind: 'ParamsType',
-      variant: 'reference',
-      name: 'MaybeRefOrGetter<ListPetsQueryParams>',
-    })
+    expect(queryParam?.type).toStrictEqual('MaybeRefOrGetter<ListPetsQueryParams>')
   })
 
   it('identity when typeWrapper is not provided', () => {
@@ -1345,14 +1168,8 @@ describe('typeWrapper option', () => {
       resolver: makeResolver({ resolveParamName: () => 'string' }),
     })
 
-    const group = params.params[0]
-    if (group?.kind === 'ParameterGroup') {
-      expect(group.properties[0]?.type).toStrictEqual({
-        kind: 'ParamsType',
-        variant: 'reference',
-        name: 'string',
-      })
-    }
+    const pathParam = params.params[0]
+    expect(pathParam?.type).toStrictEqual('string')
   })
 })
 
@@ -1376,11 +1193,7 @@ describe('pathParamsType: inlineSpread', () => {
     if (restParam?.kind === 'FunctionParameter') {
       expect(restParam.rest).toBe(true)
       expect(restParam.name).toBe('pathParams')
-      expect(restParam.type).toStrictEqual({
-        kind: 'ParamsType',
-        variant: 'reference',
-        name: 'GetPetByIdPathParams',
-      })
+      expect(restParam.type).toStrictEqual('GetPetByIdPathParams')
     }
   })
 
@@ -1420,11 +1233,7 @@ describe('pathParamsType: inlineSpread', () => {
 
     const restParam = params.params[0]
     if (restParam?.kind === 'FunctionParameter') {
-      expect(restParam.type).toStrictEqual({
-        kind: 'ParamsType',
-        variant: 'reference',
-        name: 'MaybeRefOrGetter<GetPetByIdPathParams>',
-      })
+      expect(restParam.type).toStrictEqual('MaybeRefOrGetter<GetPetByIdPathParams>')
     }
   })
 
