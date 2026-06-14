@@ -1,5 +1,44 @@
 # Changelog
 
+## v5.0.0-beta.57 — Jun 14, 2026
+
+### @kubb/ast
+
+#### Breaking Changes
+
+- Reshape function parameter and type nodes onto the `ts.factory` model.
+  
+  A type reference is now a plain `string`. The `ParamsType` node (with its `reference`, `struct`, and `member` variants) and the separate `ParameterGroup` node are gone. Three new nodes replace them: `TypeLiteral` for an inline object type (`{ petId: string; name?: string }`), `IndexedAccessType` for a single field read from a named type (`PathParams['petId']`), and `ObjectBindingPattern` for a destructured binding (`{ id, name }`).
+  
+  `createFunctionParameter` now takes either a `name` or a flat `properties` list. Passing `properties` builds one destructured parameter, an `ObjectBindingPattern` name paired with a `TypeLiteral` type, so a whole group is a single parameter instead of its own node type.
+  
+  Migration:
+  
+  - `createParamsType({ variant: 'reference', name: 'string' })` becomes the string `'string'`.
+  - `createParamsType({ variant: 'member', base, key })` becomes `createIndexedAccessType({ objectType: base, indexType: key })`.
+  - `createParamsType({ variant: 'struct', properties })` becomes `createTypeLiteral({ members })`.
+  - `createParameterGroup({ properties })` becomes `createFunctionParameter({ properties })`.
+  
+  The 24 standalone `isXxxNode` guards that were deprecated in the previous release are also removed. Use each node's `Def.is` instead, for example `schemaDef.is(node)` over `isSchemaNode(node)`. `narrowSchema` and `isHttpOperationNode` stay. ([#3569](https://github.com/kubb-labs/kubb/pull/3569), [`1388155`](https://github.com/kubb-labs/kubb/commit/1388155df8460c7e8be1ac322e7a9159f49089e5))
+
+#### Features
+
+- Introduce `defineNode` as the single source-of-truth for AST nodes.
+  
+  Each node is now defined once in its `nodes/*.ts` file with `defineNode`, which derives its `create` builder, its `is*` guard, and the visitor traversal tables (`VISITOR_KEYS`, `VISITOR_KEY_BY_KIND`, `nodeFinalizers`) from that one definition. The public API is re-exported from `index.ts` straight from each node file, the hand-maintained visitor tables moved to a generated `registry.ts`, and the node-shape `as` casts are gone. `factory.ts` now holds only `createFile` and `update`.
+  
+  This is non-breaking: every existing export keeps its shape and behavior, and the generated output is unchanged. It also adds an `is*` guard for every node kind (24 in total), so `isContentNode`, `isPropertyNode`, `isFileNode`, `isTextNode`, and the rest are now available alongside the existing guards.
+  
+  The per-node definitions (`schemaDef`, `propertyDef`, …) and `defineNode` are now exported. The standalone `is*` guards are deprecated in favor of each node's `<node>Def.is` (for example `schemaDef.is` over `isSchemaNode`), which keeps the guard next to the node it belongs to.
+  
+  The param and type helpers that Phase 1 ([#3563](https://github.com/kubb-labs/kubb/issues/3563)) reshapes are marked `@deprecated` with their migration paths: `createParamsType` (pass the type name as a plain string), `createParameterGroup` (use `createFunctionParameter({ properties: [...] })`), and the `ParamsTypeNode`/`ParameterGroupNode` types. ([#3567](https://github.com/kubb-labs/kubb/pull/3567), [`218b365`](https://github.com/kubb-labs/kubb/commit/218b3659947c77aee2564d100b701ad65603ec8b))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.56 — Jun 13, 2026
 
 ### @kubb/core
