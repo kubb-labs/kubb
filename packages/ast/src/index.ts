@@ -49,6 +49,8 @@ export { signatureOf } from './signature.ts'
 export { mergeAdjacentObjectsLazy, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
 export type * from './types.ts'
 export {
+  buildGroupParam,
+  buildTypeLiteral,
   caseParams,
   collectUsedSchemaNames,
   containsCircularRef,
@@ -57,6 +59,8 @@ export {
   extractStringsFromNodes,
   findCircularSchemas,
   isStringType,
+  resolveGroupType,
+  resolveParamType,
   syncSchemaRef,
 } from './utils/ast.ts'
 export { collect, transform, walk } from './visitor.ts'

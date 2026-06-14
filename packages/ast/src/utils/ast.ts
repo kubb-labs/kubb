@@ -120,7 +120,7 @@ export function createDiscriminantNode({ propertyName, value }: { propertyName: 
 /**
  * Named type for a group of parameters (query or header) emitted as a single typed parameter.
  */
-type ParamGroupType = {
+export type ParamGroupType = {
   /**
    * Type expression for the group, a plain group-name reference.
    */
@@ -383,7 +383,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
 /**
  * Shared arguments for building a query or header parameter group.
  */
-type BuildGroupArgs = {
+export type BuildGroupArgs = {
   name: string
   node: OperationNode
   params: Array<ParameterNode>
