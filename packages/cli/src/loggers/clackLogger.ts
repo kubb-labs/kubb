@@ -8,7 +8,7 @@ import { defineLogger } from './defineLogger.ts'
 import { buildProgressLine, createProgressCounters, formatCommandWithArgs, formatMessage, recordPluginResult, resetProgressCounters } from './utils.ts'
 
 /**
- * TTY logger with beautiful UI and progress indicators for local development.
+ * TTY logger for local development, with spinners and progress bars.
  */
 export const clackLogger = defineLogger({
   name: 'clack',
@@ -379,7 +379,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         active.taskLog.success(getMessage(`${styleText('dim', commandWithArgs)} completed in ${duration}`))
       } else {
         // The hook's output already reached the taskLog live via `kubb:hook:line`, so `showLog`
-        // replays it here; `kubb:hook:end` carries no captured output on the streaming path.
+        // replays it here. `kubb:hook:end` carries no captured output on the streaming path.
         const reason = error?.message ? ` (${error.message})` : ''
         active.taskLog.error(getMessage(`${styleText('dim', commandWithArgs)} failed${reason}`), { showLog: true })
       }

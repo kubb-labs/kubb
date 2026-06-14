@@ -118,8 +118,10 @@ type ExecuteHooksOptions = {
  * Tokenizes a shell command string, respecting single and double quotes.
  *
  * @example
+ * ```ts
  * tokenize('git commit -m "initial commit"')
  * // → ['git', 'commit', '-m', 'initial commit']
+ * ```
  */
 function tokenize(command: string): Array<string> {
   return (command.match(/[^\s"']+|"([^"]*)"|'([^']*)'/g) ?? []).map((token) => token.replace(/^["']|["']$/g, ''))

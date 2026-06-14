@@ -156,7 +156,9 @@ export function createHookTimer(): HookTimer {
 
 /**
  * Join a command and its optional args into a single display string.
- * e.g. ("prettier", ["--write", "."]) → "prettier --write ."
+ *
+ * @example
+ * `formatCommandWithArgs('prettier', ['--write', '.']) → 'prettier --write .'`
  */
 export function formatCommandWithArgs(command: string, args?: ReadonlyArray<string>): string {
   return args?.length ? `${command} ${args.join(' ')}` : command
@@ -190,7 +192,7 @@ export function installReporter(context: LoggerContext, reporter: Reporter, ctx:
 
 /**
  * Installs the live logger (the TUI view) and the given reporters (the output). The reporters are
- * already selected by the caller (the CLI maps `--reporter` to names via `selectReporters`); this
+ * already selected by the caller (the CLI maps `--reporter` to names via `selectReporters`). This
  * only wires them. Loggers receive hook subprocess output through `kubb:hook:line` and the
  * `stdout`/`stderr` on `kubb:hook:end`, so nothing is returned here.
  *

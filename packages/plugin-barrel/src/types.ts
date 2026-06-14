@@ -47,8 +47,6 @@ export type PluginBarrelConfig = {
   /**
    * Generate an `index.ts` in every sub-directory, each re-exporting only what's directly inside it.
    * Creates a hierarchical barrel structure instead of flat exports from the root.
-   *
-   * @default false
    */
   nested?: boolean
 }

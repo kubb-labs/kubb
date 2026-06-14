@@ -377,8 +377,8 @@ function defaultResolveOptions<TOptions>(node: Node, { options, exclude = [], in
 /**
  * Default path resolver used by `defineResolver`.
  *
- * - `mode: 'file'` — resolves directly to `output.path` (the full file path, extension included).
- * - `mode: 'directory'` (default) — resolves to `output.path/{baseName}`, or into a
+ * - `mode: 'file'` resolves directly to `output.path` (the full file path, extension included).
+ * - `mode: 'directory'` (default) resolves to `output.path/{baseName}`, or into a
  *   subdirectory when `group` and a `tag`/`path` value are provided.
  *
  * A custom `group.name` function overrides the default subdirectory naming.
@@ -662,8 +662,8 @@ export function defaultResolveFooter(meta: InputMeta | undefined, { output, file
  * - `resolveFile` builds the full `FileNode`.
  * - `resolveBanner` and `resolveFooter` produce the top and bottom of file text.
  *
- * Methods in the returned object can call sibling resolver methods via `this`,
- * which keeps custom rules small (`this.default(name, 'type')` to delegate).
+ * Methods in the returned object can call sibling resolver methods via `this`.
+ * A custom rule can delegate to a default, for example `this.default(name, 'type')`.
  *
  * @example Basic resolver with naming helpers
  * ```ts

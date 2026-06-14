@@ -43,10 +43,9 @@ export type RendererFactory<TElement = unknown> = () => Renderer<TElement>
  * (JSX, a template string, a tree of any shape) into `FileNode`s that get
  * written to disk.
  *
- * Use this to support output formats beyond JSX, for instance, a Handlebars
- * renderer, a string-template renderer, or a renderer that writes binary
- * files. Plugins and generators pick the renderer to use via the `renderer`
- * field on `defineGenerator`.
+ * A renderer can target output formats beyond JSX, for instance a Handlebars
+ * renderer or one that writes binary files. Plugins and generators pick the
+ * renderer to use via the `renderer` field on `defineGenerator`.
  *
  * @example A minimal renderer that wraps a custom runtime
  * ```ts

@@ -7,8 +7,7 @@ import type { Operation } from './operation.ts'
 export type { Operation }
 
 /**
- * Content-type string for selecting request/response schemas from an OpenAPI spec.
- * Supports `'application/json'` or any other media type.
+ * Media type used to pick a schema from an operation's request or response.
  *
  * @example
  * ```ts
@@ -68,13 +67,13 @@ export type SchemaObject = {
    */
   items?: SchemaObject | ReferenceObject
   /**
-   * Enum values for this schema (narrowed from `unknown[]`).
+   * Allowed values for this schema.
    */
   enum?: Array<string | number | boolean | null>
 } & (OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject | JSONSchema4 | JSONSchema6 | JSONSchema7)
 
 /**
- * HTTP method as a lowercase string (`'get' | 'post' | ...`).
+ * HTTP method in the lowercase form an OpenAPI path item uses for its keys.
  */
 export type HttpMethod = Lowercase<ast.HttpMethod>
 
@@ -104,7 +103,7 @@ export type DiscriminatorObject = OpenAPIV3.DiscriminatorObject | OpenAPIV3_1.Di
 export type ReferenceObject = OpenAPIV3.ReferenceObject
 
 /**
- * OpenAPI response object from a spec that contains schema, status code, and headers.
+ * OpenAPI response object holding the content and headers for one status code.
  */
 export type ResponseObject = OpenAPIV3.ResponseObject | OpenAPIV3_1.ResponseObject
 
@@ -131,9 +130,8 @@ export type ParameterObject = {
 export type ServerObject = OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject
 
 /**
- * Configuration options for the OpenAPI adapter. Controls spec validation,
- * content-type selection, server URL resolution, and how types are derived
- * from the spec.
+ * Configuration for the OpenAPI adapter: spec validation, content-type selection,
+ * server URL resolution, and how schema types are derived.
  *
  * @example
  * ```ts
@@ -194,9 +192,9 @@ export type AdapterOasOptions = {
    *
    * Duplicated inline shapes (especially enums repeated across many properties) are hoisted
    * into one named schema. Every other occurrence, and any structurally identical top-level
-   * component, becomes a `ref` to it. Equality is shape-only: documentation such as
-   * `description` and `example` is ignored. Enabled by default. Set to `false` to keep every
-   * occurrence inline and produce byte-for-byte identical output to earlier versions.
+   * component, becomes a `ref` to it. Equality is shape-only, so documentation such as
+   * `description` and `example` is ignored. Set to `false` to keep every occurrence inline
+   * and produce byte-for-byte identical output to earlier versions.
    *
    * @default true
    */

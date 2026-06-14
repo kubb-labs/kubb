@@ -6,9 +6,8 @@ import type { ArrowFunctionNode, ConstNode, ExportNode, FileNode, FunctionNode, 
 export type Key = string | number | bigint
 
 /**
- * Element produced by a Kubb JSX component. It carries the host or component
- * `type`, its `props`, and an optional list `key`. The renderer walks these at
- * runtime, so the fields stay opaque to type-checking.
+ * Element produced by a Kubb JSX component. The renderer walks these at runtime,
+ * so the fields stay opaque to type-checking.
  */
 export type KubbReactElement = {
   type: unknown
