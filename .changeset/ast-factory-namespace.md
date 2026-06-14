@@ -1,6 +1,6 @@
 ---
-'@kubb/ast': minor
-'@kubb/core': minor
+'@kubb/ast': major
+'@kubb/core': major
 ---
 
 Group node constructors under an `ast.factory` namespace, mirroring `ts.factory.createX`.
