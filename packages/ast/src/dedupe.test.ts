@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { applyDedupe, buildDedupePlan } from './dedupe.ts'
-import { createProperty, createSchema } from './factory.ts'
 import { narrowSchema } from './guards.ts'
-import type { SchemaNode } from './nodes/schema.ts'
+import { createProperty } from './nodes/property.ts'
+import { createSchema, type SchemaNode } from './nodes/schema.ts'
 import { signatureOf } from './signature.ts'
 
 function stringEnum(values: Array<string>, extra: Partial<Parameters<typeof createSchema>[0]> = {}): SchemaNode {

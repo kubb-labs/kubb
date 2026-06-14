@@ -1,4 +1,16 @@
-import type { HttpOperationNode, InputNode, Node, NodeKind, OperationNode, OutputNode, SchemaNode, SchemaNodeByType } from './nodes/index.ts'
+import { arrowFunctionDef, breakDef, constDef, functionDef, jsxDef, textDef, typeDef } from './nodes/code.ts'
+import { contentDef } from './nodes/content.ts'
+import { exportDef, fileDef, importDef, sourceDef } from './nodes/file.ts'
+import { functionParameterDef, functionParametersDef, parameterGroupDef, paramsTypeDef } from './nodes/function.ts'
+import type { HttpOperationNode, OperationNode, SchemaNode, SchemaNodeByType } from './nodes/index.ts'
+import { inputDef } from './nodes/input.ts'
+import { operationDef } from './nodes/operation.ts'
+import { outputDef } from './nodes/output.ts'
+import { parameterDef } from './nodes/parameter.ts'
+import { propertyDef } from './nodes/property.ts'
+import { requestBodyDef } from './nodes/requestBody.ts'
+import { responseDef } from './nodes/response.ts'
+import { schemaDef } from './nodes/schema.ts'
 
 /**
  * Narrows a `SchemaNode` to the variant that matches `type`.
@@ -13,45 +25,173 @@ export function narrowSchema<T extends SchemaNode['type']>(node: SchemaNode | un
   return node?.type === type ? (node as SchemaNodeByType[T]) : null
 }
 
-function isKind<T extends Node>(kind: NodeKind) {
-  return (node: unknown): node is T => (node as Node).kind === kind
-}
-
 /**
  * Returns `true` when the input is an `InputNode`.
  *
- * @example
- * ```ts
- * if (isInputNode(node)) {
- *   console.log(node.schemas.length)
- * }
- * ```
+ * @deprecated Use `inputDef.is` instead.
  */
-export const isInputNode = isKind<InputNode>('Input')
+export const isInputNode = inputDef.is
 
 /**
  * Returns `true` when the input is an `OutputNode`.
  *
- * @example
- * ```ts
- * if (isOutputNode(node)) {
- *   console.log(node.files.length)
- * }
- * ```
+ * @deprecated Use `outputDef.is` instead.
  */
-export const isOutputNode = isKind<OutputNode>('Output')
+export const isOutputNode = outputDef.is
 
 /**
  * Returns `true` when the input is an `OperationNode`.
  *
- * @example
- * ```ts
- * if (isOperationNode(node)) {
- *   console.log(node.operationId)
- * }
- * ```
+ * @deprecated Use `operationDef.is` instead.
  */
-export const isOperationNode = isKind<OperationNode>('Operation')
+export const isOperationNode = operationDef.is
+
+/**
+ * Returns `true` when the input is a `RequestBodyNode`.
+ *
+ * @deprecated Use `requestBodyDef.is` instead.
+ */
+export const isRequestBodyNode = requestBodyDef.is
+
+/**
+ * Returns `true` when the input is a `ContentNode`.
+ *
+ * @deprecated Use `contentDef.is` instead.
+ */
+export const isContentNode = contentDef.is
+
+/**
+ * Returns `true` when the input is a `ResponseNode`.
+ *
+ * @deprecated Use `responseDef.is` instead.
+ */
+export const isResponseNode = responseDef.is
+
+/**
+ * Returns `true` when the input is a `SchemaNode`.
+ *
+ * @deprecated Use `schemaDef.is` instead.
+ */
+export const isSchemaNode = schemaDef.is
+
+/**
+ * Returns `true` when the input is a `PropertyNode`.
+ *
+ * @deprecated Use `propertyDef.is` instead.
+ */
+export const isPropertyNode = propertyDef.is
+
+/**
+ * Returns `true` when the input is a `ParameterNode`.
+ *
+ * @deprecated Use `parameterDef.is` instead.
+ */
+export const isParameterNode = parameterDef.is
+
+/**
+ * Returns `true` when the input is a `FunctionParameterNode`.
+ *
+ * @deprecated Use `functionParameterDef.is` instead.
+ */
+export const isFunctionParameterNode = functionParameterDef.is
+
+/**
+ * Returns `true` when the input is a `ParameterGroupNode`.
+ *
+ * @deprecated Removed in Phase 1 (#3563).
+ */
+export const isParameterGroupNode = parameterGroupDef.is
+
+/**
+ * Returns `true` when the input is a `FunctionParametersNode`.
+ *
+ * @deprecated Use `functionParametersDef.is` instead.
+ */
+export const isFunctionParametersNode = functionParametersDef.is
+
+/**
+ * Returns `true` when the input is a `ParamsTypeNode`.
+ *
+ * @deprecated Removed in Phase 1 (#3563).
+ */
+export const isParamsTypeNode = paramsTypeDef.is
+
+/**
+ * Returns `true` when the input is a `ConstNode`.
+ *
+ * @deprecated Use `constDef.is` instead.
+ */
+export const isConstNode = constDef.is
+
+/**
+ * Returns `true` when the input is a `TypeNode`.
+ *
+ * @deprecated Use `typeDef.is` instead.
+ */
+export const isTypeNode = typeDef.is
+
+/**
+ * Returns `true` when the input is a `FunctionNode`.
+ *
+ * @deprecated Use `functionDef.is` instead.
+ */
+export const isFunctionNode = functionDef.is
+
+/**
+ * Returns `true` when the input is an `ArrowFunctionNode`.
+ *
+ * @deprecated Use `arrowFunctionDef.is` instead.
+ */
+export const isArrowFunctionNode = arrowFunctionDef.is
+
+/**
+ * Returns `true` when the input is a `TextNode`.
+ *
+ * @deprecated Use `textDef.is` instead.
+ */
+export const isTextNode = textDef.is
+
+/**
+ * Returns `true` when the input is a `BreakNode`.
+ *
+ * @deprecated Use `breakDef.is` instead.
+ */
+export const isBreakNode = breakDef.is
+
+/**
+ * Returns `true` when the input is a `JsxNode`.
+ *
+ * @deprecated Use `jsxDef.is` instead.
+ */
+export const isJsxNode = jsxDef.is
+
+/**
+ * Returns `true` when the input is a `FileNode`.
+ *
+ * @deprecated Use `fileDef.is` instead.
+ */
+export const isFileNode = fileDef.is
+
+/**
+ * Returns `true` when the input is an `ImportNode`.
+ *
+ * @deprecated Use `importDef.is` instead.
+ */
+export const isImportNode = importDef.is
+
+/**
+ * Returns `true` when the input is an `ExportNode`.
+ *
+ * @deprecated Use `exportDef.is` instead.
+ */
+export const isExportNode = exportDef.is
+
+/**
+ * Returns `true` when the input is a `SourceNode`.
+ *
+ * @deprecated Use `sourceDef.is` instead.
+ */
+export const isSourceNode = sourceDef.is
 
 /**
  * Narrows an `OperationNode` to an `HttpOperationNode`, guaranteeing `method` and `path`.
@@ -66,15 +206,3 @@ export const isOperationNode = isKind<OperationNode>('Operation')
 export function isHttpOperationNode(node: OperationNode): node is HttpOperationNode {
   return node.protocol === 'http' || (node.method !== undefined && node.path !== undefined)
 }
-
-/**
- * Returns `true` when the input is a `SchemaNode`.
- *
- * @example
- * ```ts
- * if (isSchemaNode(node)) {
- *   console.log(node.type)
- * }
- * ```
- */
-export const isSchemaNode = isKind<SchemaNode>('Schema')

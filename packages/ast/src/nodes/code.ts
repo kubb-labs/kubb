@@ -1,3 +1,4 @@
+import { defineNode } from '../node.ts'
 import type { BaseNode } from './base.ts'
 
 /**
@@ -296,3 +297,117 @@ export type JsxNode = BaseNode & {
  * structured children in {@link SourceNode.nodes}.
  */
 export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode | TextNode | BreakNode | JsxNode
+
+/**
+ * Definition for the {@link ConstNode}.
+ */
+export const constDef = defineNode<ConstNode>({ kind: 'Const' })
+
+/**
+ * Creates a `ConstNode` representing a TypeScript `const` declaration.
+ *
+ * @example Exported constant with type and `as const`
+ * ```ts
+ * createConst({ name: 'pets', export: true, type: 'Pet[]', asConst: true })
+ * // export const pets: Pet[] = ... as const
+ * ```
+ */
+export const createConst = constDef.create
+
+/**
+ * Definition for the {@link TypeNode}.
+ */
+export const typeDef = defineNode<TypeNode>({ kind: 'Type' })
+
+/**
+ * Creates a `TypeNode` representing a TypeScript `type` alias declaration.
+ *
+ * @example
+ * ```ts
+ * createType({ name: 'Pet', export: true })
+ * // export type Pet = ...
+ * ```
+ */
+export const createType = typeDef.create
+
+/**
+ * Definition for the {@link FunctionNode}.
+ */
+export const functionDef = defineNode<FunctionNode>({ kind: 'Function' })
+
+/**
+ * Creates a `FunctionNode` representing a TypeScript `function` declaration.
+ *
+ * @example
+ * ```ts
+ * createFunction({ name: 'fetchPet', export: true, async: true, returnType: 'Pet' })
+ * // export async function fetchPet(): Promise<Pet> { ... }
+ * ```
+ */
+export const createFunction = functionDef.create
+
+/**
+ * Definition for the {@link ArrowFunctionNode}.
+ */
+export const arrowFunctionDef = defineNode<ArrowFunctionNode>({ kind: 'ArrowFunction' })
+
+/**
+ * Creates an `ArrowFunctionNode` representing a TypeScript arrow function.
+ *
+ * @example
+ * ```ts
+ * createArrowFunction({ name: 'double', export: true, params: 'n: number', singleLine: true })
+ * // export const double = (n: number) => ...
+ * ```
+ */
+export const createArrowFunction = arrowFunctionDef.create
+
+/**
+ * Definition for the {@link TextNode}.
+ */
+export const textDef = defineNode<TextNode, string>({ kind: 'Text', build: (value) => ({ value }) })
+
+/**
+ * Creates a {@link TextNode} representing a raw string fragment in the source output.
+ *
+ * @example
+ * ```ts
+ * createText('return fetch(id)')
+ * // { kind: 'Text', value: 'return fetch(id)' }
+ * ```
+ */
+export const createText = textDef.create
+
+/**
+ * Definition for the {@link BreakNode}.
+ */
+export const breakDef = defineNode<BreakNode, void>({ kind: 'Break', build: () => ({}) })
+
+/**
+ * Creates a {@link BreakNode} representing a line break in the source output.
+ *
+ * @example
+ * ```ts
+ * createBreak()
+ * // { kind: 'Break' }
+ * ```
+ */
+export function createBreak(): BreakNode {
+  return breakDef.create()
+}
+
+/**
+ * Definition for the {@link JsxNode}.
+ */
+export const jsxDef = defineNode<JsxNode, string>({ kind: 'Jsx', build: (value) => ({ value }) })
+
+/**
+ * Creates a {@link JsxNode} representing a raw JSX fragment in the source output.
+ *
+ * @example
+ * ```ts
+ * createJsx('<>\n  <a href={href}>Open</a>\n</>')
+ * // { kind: 'Jsx', value: '<>\n  <a href={href}>Open</a>\n</>' }
+ * ```
+ */
+export const createJsx = jsxDef.create

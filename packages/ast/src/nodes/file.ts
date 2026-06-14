@@ -1,3 +1,4 @@
+import { defineNode } from '../node.ts'
 import type { BaseNode } from './base.ts'
 import type { CodeNode } from './code.ts'
 
@@ -230,3 +231,56 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
    */
   footer?: string | null
 }
+
+/**
+ * Definition for the {@link ImportNode}.
+ */
+export const importDef = defineNode<ImportNode>({ kind: 'Import' })
+
+/**
+ * Creates an `ImportNode` representing a language-agnostic import/dependency declaration.
+ *
+ * @example Named import
+ * ```ts
+ * createImport({ name: ['useState'], path: 'react' })
+ * // import { useState } from 'react'
+ * ```
+ */
+export const createImport = importDef.create
+
+/**
+ * Definition for the {@link ExportNode}.
+ */
+export const exportDef = defineNode<ExportNode>({ kind: 'Export' })
+
+/**
+ * Creates an `ExportNode` representing a language-agnostic export/public API declaration.
+ *
+ * @example Named export
+ * ```ts
+ * createExport({ name: ['Pet'], path: './Pet' })
+ * // export { Pet } from './Pet'
+ * ```
+ */
+export const createExport = exportDef.create
+
+/**
+ * Definition for the {@link SourceNode}.
+ */
+export const sourceDef = defineNode<SourceNode>({ kind: 'Source' })
+
+/**
+ * Creates a `SourceNode` representing a fragment of source code within a file.
+ *
+ * @example
+ * ```ts
+ * createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], isExportable: true })
+ * ```
+ */
+export const createSource = sourceDef.create
+
+/**
+ * Definition for the {@link FileNode}. The fully resolved builder lives in
+ * `createFile`, so this definition only supplies the guard.
+ */
+export const fileDef = defineNode<FileNode>({ kind: 'File' })

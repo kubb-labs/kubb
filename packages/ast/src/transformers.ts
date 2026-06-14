@@ -1,7 +1,7 @@
 import { isScalarPrimitive } from './constants.ts'
-import { createProperty, createSchema } from './factory.ts'
 import { narrowSchema } from './guards.ts'
-import type { SchemaNode } from './nodes/schema.ts'
+import { createProperty } from './nodes/property.ts'
+import { createSchema, type SchemaNode } from './nodes/schema.ts'
 import { enumPropName } from './utils/index.ts'
 
 /**

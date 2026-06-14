@@ -1,3 +1,4 @@
+import { defineNode } from '../node.ts'
 import type { BaseNode } from './base.ts'
 import type { SchemaNode } from './schema.ts'
 
@@ -35,3 +36,21 @@ export type ContentNode = BaseNode & {
    */
   keysToOmit?: Array<string> | null
 }
+
+/**
+ * Loosely-typed content entry accepted by the builders, normalized into a {@link ContentNode}.
+ */
+export type UserContent = Omit<ContentNode, 'kind'>
+
+/**
+ * Definition for the {@link ContentNode}.
+ */
+export const contentDef = defineNode<ContentNode, UserContent>({
+  kind: 'Content',
+  children: ['schema'],
+})
+
+/**
+ * Creates a `ContentNode` for a single request-body or response content type.
+ */
+export const createContent = contentDef.create

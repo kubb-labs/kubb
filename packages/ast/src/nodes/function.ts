@@ -1,3 +1,4 @@
+import { defineNode } from '../node.ts'
 import type { BaseNode } from './base.ts'
 
 /**
@@ -26,6 +27,8 @@ import type { BaseNode } from './base.ts'
  * createParamsType({ variant: 'member', base: 'PathParams', key: 'petId' })
  * // PathParams['petId']
  * ```
+ *
+ * @deprecated Removed in Phase 1 (#3563): a parameter type becomes a plain `string`.
  */
 export type ParamsTypeNode = BaseNode & {
   /**
@@ -154,6 +157,8 @@ export type FunctionParameterNode = BaseNode & {
  *
  * @example Inline (spread as individual parameters)
  * `id: string, name: string`
+ *
+ * @deprecated Removed in Phase 1 (#3563): use `createFunctionParameter({ properties: [...] })`.
  */
 export type ParameterGroupNode = BaseNode & {
   /**
@@ -221,3 +226,105 @@ export type FunctionParamNode = FunctionParameterNode | ParameterGroupNode | Fun
  * Handler map keys, one per `FunctionParamNode` kind.
  */
 export type FunctionNodeType = 'functionParameter' | 'parameterGroup' | 'functionParameters' | 'paramsType'
+
+type ParamsTypeInput =
+  | { variant: 'reference'; name: string }
+  | { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: ParamsTypeNode }> }
+  | { variant: 'member'; base: string; key: string }
+
+/**
+ * Definition for the {@link ParamsTypeNode}.
+ *
+ * @deprecated Removed in Phase 1 (#3563).
+ */
+export const paramsTypeDef = defineNode<ParamsTypeNode, ParamsTypeInput>({ kind: 'ParamsType' })
+
+/**
+ * Creates a {@link ParamsTypeNode} representing a language-agnostic structured type expression.
+ *
+ * @example Reference type (TypeScript: `QueryParams`)
+ * ```ts
+ * createParamsType({ variant: 'reference', name: 'QueryParams' })
+ * ```
+ *
+ * @example Member type (TypeScript: `DeletePetPathParams['petId']`)
+ * ```ts
+ * createParamsType({ variant: 'member', base: 'DeletePetPathParams', key: 'petId' })
+ * ```
+ *
+ * @deprecated Removed in Phase 1 (#3563): pass the type name as a plain string, e.g. `createFunctionParameter({ name, type: 'string' })`.
+ */
+export const createParamsType = paramsTypeDef.create
+
+type FunctionParameterInput = { name: string; type?: ParamsTypeNode; rest?: boolean } & (
+  | { optional: true; default?: never }
+  | { optional?: false; default?: string }
+)
+
+/**
+ * Definition for the {@link FunctionParameterNode}.
+ */
+export const functionParameterDef = defineNode<FunctionParameterNode, FunctionParameterInput>({
+  kind: 'FunctionParameter',
+  build: (props) => ({ optional: false, ...props }),
+})
+
+/**
+ * Creates a `FunctionParameterNode`. `optional` defaults to `false`.
+ *
+ * @example Optional param
+ * ```ts
+ * createFunctionParameter({ name: 'params', type: createParamsType({ variant: 'reference', name: 'QueryParams' }), optional: true })
+ * // → params?: QueryParams
+ * ```
+ */
+export const createFunctionParameter = functionParameterDef.create
+
+type ParameterGroupInput = Pick<ParameterGroupNode, 'properties'> & Partial<Omit<ParameterGroupNode, 'kind' | 'properties'>>
+
+/**
+ * Definition for the {@link ParameterGroupNode}.
+ *
+ * @deprecated Removed in Phase 1 (#3563).
+ */
+export const parameterGroupDef = defineNode<ParameterGroupNode, ParameterGroupInput>({ kind: 'ParameterGroup' })
+
+/**
+ * Creates a `ParameterGroupNode` representing a group of related parameters treated as a unit.
+ *
+ * @example Grouped param (TypeScript declaration)
+ * ```ts
+ * createParameterGroup({
+ *   properties: [
+ *     createFunctionParameter({ name: 'id', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
+ *     createFunctionParameter({ name: 'name', type: createParamsType({ variant: 'reference', name: 'string' }), optional: true }),
+ *   ],
+ *   default: '{}',
+ * })
+ * // declaration → { id, name? }: { id: string; name?: string } = {}
+ * ```
+ *
+ * @deprecated Removed in Phase 1 (#3563): use `createFunctionParameter({ properties: [...] })`.
+ */
+export const createParameterGroup = parameterGroupDef.create
+
+/**
+ * Definition for the {@link FunctionParametersNode}.
+ */
+export const functionParametersDef = defineNode<FunctionParametersNode, Partial<Omit<FunctionParametersNode, 'kind'>>>({
+  kind: 'FunctionParameters',
+  defaults: { params: [] },
+})
+
+/**
+ * Creates a `FunctionParametersNode` from an ordered list of parameters.
+ *
+ * @example
+ * ```ts
+ * const empty = createFunctionParameters()
+ * // { kind: 'FunctionParameters', params: [] }
+ * ```
+ */
+export function createFunctionParameters(props: Partial<Omit<FunctionParametersNode, 'kind'>> = {}): FunctionParametersNode {
+  return functionParametersDef.create(props)
+}

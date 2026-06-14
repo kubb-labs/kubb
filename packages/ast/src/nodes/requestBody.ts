@@ -1,5 +1,6 @@
+import { defineNode } from '../node.ts'
 import type { BaseNode } from './base.ts'
-import type { ContentNode } from './content.ts'
+import { type ContentNode, createContent, type UserContent } from './content.ts'
 
 /**
  * AST node representing an operation request body.
@@ -40,3 +41,24 @@ export type RequestBodyNode = BaseNode & {
    */
   content?: Array<ContentNode>
 }
+
+/**
+ * Loosely-typed request body accepted by `createOperation`, normalized into a {@link RequestBodyNode}.
+ */
+export type UserRequestBody = Omit<RequestBodyNode, 'kind' | 'content'> & {
+  content?: Array<UserContent>
+}
+
+/**
+ * Definition for the {@link RequestBodyNode}, normalizing each content entry into a `ContentNode`.
+ */
+export const requestBodyDef = defineNode<RequestBodyNode, UserRequestBody>({
+  kind: 'RequestBody',
+  build: (props) => ({ ...props, content: props.content?.map(createContent) }),
+  children: ['content'],
+})
+
+/**
+ * Creates a `RequestBodyNode`, normalizing each content entry into a `ContentNode`.
+ */
+export const createRequestBody = requestBodyDef.create

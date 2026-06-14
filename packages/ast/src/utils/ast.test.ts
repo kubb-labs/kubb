@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { createFunctionParameter, createOperation, createParameter, createParamsType, createProperty, createResponse, createSchema } from '../factory.ts'
+import { createFunctionParameter, createParamsType } from '../nodes/function.ts'
+import { createOperation } from '../nodes/operation.ts'
+import { createParameter } from '../nodes/parameter.ts'
+import { createProperty } from '../nodes/property.ts'
+import { createResponse } from '../nodes/response.ts'
+import { createSchema } from '../nodes/schema.ts'
 import type { OperationNode, ParameterNode } from '../types.ts'
 import type { OperationParamsResolver } from './ast.ts'
 import {
@@ -1439,7 +1444,8 @@ describe('pathParamsType: inlineSpread', () => {
   })
 })
 
-import { createExport, createImport, createSource, createText } from '../factory.ts'
+import { createText } from '../nodes/code.ts'
+import { createExport, createImport, createSource } from '../nodes/file.ts'
 import { combineExports, combineImports, combineSources } from './ast.ts'
 
 describe('combineSources', () => {

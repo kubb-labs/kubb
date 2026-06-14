@@ -1,7 +1,9 @@
 import { camelCase, isValidVarName, memoize } from '@internals/utils'
 
-import { createFunctionParameter, createFunctionParameters, createParameterGroup, createParamsType, createProperty, createSchema } from '../factory.ts'
 import { narrowSchema } from '../guards.ts'
+import { createFunctionParameter, createFunctionParameters, createParameterGroup, createParamsType } from '../nodes/function.ts'
+import { createProperty } from '../nodes/property.ts'
+import { createSchema } from '../nodes/schema.ts'
 import type {
   CodeNode,
   ExportNode,

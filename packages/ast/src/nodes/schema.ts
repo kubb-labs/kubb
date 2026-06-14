@@ -1,3 +1,5 @@
+import type { InferSchemaNode } from '../infer.ts'
+import { defineNode, type DistributiveOmit } from '../node.ts'
 import type { BaseNode } from './base.ts'
 import type { PropertyNode } from './property.ts'
 
@@ -657,3 +659,73 @@ export type SchemaNode =
   | Ipv4SchemaNode
   | Ipv6SchemaNode
   | ScalarSchemaNode
+
+type CreateSchemaObjectInput = Omit<ObjectSchemaNode, 'kind' | 'properties' | 'primitive'> & { properties?: Array<PropertyNode>; primitive?: 'object' }
+type CreateSchemaInput = CreateSchemaObjectInput | DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>
+type CreateSchemaOutput<T extends CreateSchemaInput> = InferSchemaNode<T> & {
+  kind: 'Schema'
+}
+
+/**
+ * Maps schema `type` to its underlying `primitive`.
+ * Primitive types map to themselves. Special string formats map to `'string'`.
+ * Complex types (`ref`, `enum`, `union`, `intersection`, `tuple`, `blob`) are left unset.
+ */
+const TYPE_TO_PRIMITIVE: Partial<Record<SchemaNode['type'], PrimitiveSchemaType>> = {
+  string: 'string',
+  number: 'number',
+  integer: 'integer',
+  bigint: 'bigint',
+  boolean: 'boolean',
+  null: 'null',
+  any: 'any',
+  unknown: 'unknown',
+  void: 'void',
+  never: 'never',
+  object: 'object',
+  array: 'array',
+  date: 'date',
+  uuid: 'string',
+  email: 'string',
+  url: 'string',
+  datetime: 'string',
+  time: 'string',
+}
+
+/**
+ * Definition for the {@link SchemaNode}. Object schemas default `properties` to an
+ * empty array, and `primitive` is inferred from `type` when not explicitly provided.
+ */
+export const schemaDef = defineNode<SchemaNode, CreateSchemaInput>({
+  kind: 'Schema',
+  build: (props) => {
+    if (props.type === 'object') {
+      return { properties: [], primitive: 'object' as const, ...props }
+    }
+
+    return { primitive: TYPE_TO_PRIMITIVE[props.type as keyof typeof TYPE_TO_PRIMITIVE], ...props }
+  },
+  children: ['properties', 'items', 'members', 'additionalProperties'],
+  visitorKey: 'schema',
+})
+
+/**
+ * Creates a `SchemaNode`, narrowed to the variant of `props.type`.
+ *
+ * @example
+ * ```ts
+ * const scalar = createSchema({ type: 'string' })
+ * // { kind: 'Schema', type: 'string', primitive: 'string' }
+ * ```
+ *
+ * @example
+ * ```ts
+ * const object = createSchema({ type: 'object' })
+ * // { kind: 'Schema', type: 'object', primitive: 'object', properties: [] }
+ * ```
+ */
+export function createSchema<T extends CreateSchemaInput>(props: T): CreateSchemaOutput<T>
+export function createSchema(props: CreateSchemaInput): SchemaNode
+export function createSchema(props: CreateSchemaInput): SchemaNode {
+  return schemaDef.create(props)
+}

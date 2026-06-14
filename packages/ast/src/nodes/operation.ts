@@ -1,6 +1,7 @@
+import { defineNode } from '../node.ts'
 import type { BaseNode } from './base.ts'
 import type { ParameterNode } from './parameter.ts'
-import type { RequestBodyNode } from './requestBody.ts'
+import { createRequestBody, type RequestBodyNode, type UserRequestBody } from './requestBody.ts'
 import type { ResponseNode } from './response.ts'
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE'
@@ -105,3 +106,60 @@ export type GenericOperationNode = OperationNodeBase & {
  * `isHttpOperationNode(node)` or `node.protocol === 'http'` before reading `method`/`path`.
  */
 export type OperationNode = HttpOperationNode | GenericOperationNode
+
+type OperationInput = {
+  operationId: string
+  method?: HttpOperationNode['method']
+  path?: HttpOperationNode['path']
+  requestBody?: UserRequestBody
+  [key: string]: unknown
+}
+
+/**
+ * Definition for the {@link OperationNode}. HTTP operations (those carrying both
+ * `method` and `path`) are tagged with `protocol: 'http'`, and the request body is
+ * normalized into a `RequestBodyNode`.
+ */
+export const operationDef = defineNode<OperationNode, OperationInput>({
+  kind: 'Operation',
+  build: (props) => {
+    const { requestBody, ...rest } = props
+    const isHttp = rest.method !== undefined && rest.path !== undefined
+
+    return {
+      tags: [],
+      parameters: [],
+      responses: [],
+      ...rest,
+      ...(isHttp ? { protocol: 'http' as const } : {}),
+      requestBody: requestBody ? createRequestBody(requestBody) : undefined,
+    }
+  },
+  children: ['parameters', 'requestBody', 'responses'],
+  visitorKey: 'operation',
+})
+
+/**
+ * Creates an `OperationNode` with default empty arrays for `tags`, `parameters`, and `responses`.
+ *
+ * @example
+ * ```ts
+ * const operation = createOperation({ operationId: 'getPetById', method: 'GET', path: '/pet/{petId}' })
+ * // tags, parameters, and responses are []
+ * ```
+ */
+export function createOperation(
+  props: Pick<HttpOperationNode, 'operationId' | 'method' | 'path'> &
+    Partial<Omit<HttpOperationNode, 'kind' | 'operationId' | 'method' | 'path' | 'requestBody'>> & {
+      requestBody?: UserRequestBody
+    },
+): HttpOperationNode
+export function createOperation(
+  props: Pick<GenericOperationNode, 'operationId'> &
+    Partial<Omit<GenericOperationNode, 'kind' | 'operationId' | 'requestBody'>> & {
+      requestBody?: UserRequestBody
+    },
+): GenericOperationNode
+export function createOperation(props: OperationInput): OperationNode {
+  return operationDef.create(props)
+}

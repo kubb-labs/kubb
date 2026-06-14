@@ -1,6 +1,36 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { createInput, createOperation, createSchema } from './factory.ts'
-import { isHttpOperationNode, isInputNode, isOperationNode, isSchemaNode, narrowSchema } from './guards.ts'
+import { createInput } from './nodes/input.ts'
+import { createOperation } from './nodes/operation.ts'
+import { createSchema } from './nodes/schema.ts'
+import {
+  isArrowFunctionNode,
+  isBreakNode,
+  isConstNode,
+  isContentNode,
+  isExportNode,
+  isFileNode,
+  isFunctionNode,
+  isFunctionParameterNode,
+  isFunctionParametersNode,
+  isHttpOperationNode,
+  isImportNode,
+  isInputNode,
+  isJsxNode,
+  isOperationNode,
+  isOutputNode,
+  isParameterGroupNode,
+  isParameterNode,
+  isParamsTypeNode,
+  isPropertyNode,
+  isRequestBodyNode,
+  isResponseNode,
+  isSchemaNode,
+  isSourceNode,
+  isTextNode,
+  isTypeNode,
+  narrowSchema,
+} from './guards.ts'
+import type { NodeKind } from './nodes/base.ts'
 import type { Node } from './nodes/index.ts'
 import type { InputNode } from './nodes/input.ts'
 import type { HttpMethod, OperationNode } from './nodes/operation.ts'
@@ -99,5 +129,43 @@ describe('narrowSchema', () => {
 
   it('narrows return type to UnionSchemaNode | null for "union"', () => {
     expectTypeOf(narrowSchema(createSchema({ type: 'union' }), 'union')).toEqualTypeOf<UnionSchemaNode | null>()
+  })
+})
+
+describe('node kind guards', () => {
+  const guardsByKind: Array<[NodeKind, (node: unknown) => boolean]> = [
+    ['Input', isInputNode],
+    ['Output', isOutputNode],
+    ['Operation', isOperationNode],
+    ['RequestBody', isRequestBodyNode],
+    ['Content', isContentNode],
+    ['Response', isResponseNode],
+    ['Schema', isSchemaNode],
+    ['Property', isPropertyNode],
+    ['Parameter', isParameterNode],
+    ['FunctionParameter', isFunctionParameterNode],
+    ['ParameterGroup', isParameterGroupNode],
+    ['FunctionParameters', isFunctionParametersNode],
+    ['ParamsType', isParamsTypeNode],
+    ['Type', isTypeNode],
+    ['File', isFileNode],
+    ['Import', isImportNode],
+    ['Export', isExportNode],
+    ['Source', isSourceNode],
+    ['Const', isConstNode],
+    ['Function', isFunctionNode],
+    ['ArrowFunction', isArrowFunctionNode],
+    ['Text', isTextNode],
+    ['Break', isBreakNode],
+    ['Jsx', isJsxNode],
+  ]
+
+  it('exposes a guard for every node kind', () => {
+    expect(guardsByKind).toHaveLength(24)
+  })
+
+  it.each(guardsByKind)('matches only the %s kind', (kind, guard) => {
+    expect(guard({ kind })).toBe(true)
+    expect(guard({ kind: 'Other' })).toBe(false)
   })
 })

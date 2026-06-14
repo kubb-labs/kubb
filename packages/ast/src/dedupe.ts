@@ -1,5 +1,5 @@
-import { createSchema } from './factory.ts'
 import type { Node, OperationNode, SchemaNode } from './nodes/index.ts'
+import { createSchema } from './nodes/schema.ts'
 import { signatureOf } from './signature.ts'
 import { extractRefName } from './utils/index.ts'
 import { collectLazy, transform } from './visitor.ts'
