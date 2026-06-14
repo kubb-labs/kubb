@@ -1,4 +1,4 @@
-import { factory } from '@kubb/ast'
+import * as factory from '@kubb/ast/factory'
 import type { SchemaNode, Visitor } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { Transform } from './Transform.ts'

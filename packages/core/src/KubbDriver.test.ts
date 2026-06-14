@@ -1,5 +1,5 @@
 import { AsyncEventEmitter } from '@internals/utils'
-import { factory } from '@kubb/ast'
+import * as factory from '@kubb/ast/factory'
 import type { FileNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'

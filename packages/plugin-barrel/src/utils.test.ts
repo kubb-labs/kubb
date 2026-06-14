@@ -1,4 +1,4 @@
-import { factory } from '@kubb/ast'
+import * as factory from '@kubb/ast/factory'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
 import type { Config } from '@kubb/core'
 import { describe, expect, it } from 'vitest'

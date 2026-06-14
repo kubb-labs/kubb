@@ -1,8 +1,9 @@
 /**
- * Re-exports the `@kubb/ast` surface so consumers reach it as a single `ast` namespace from
- * `@kubb/core`, the way the TypeScript compiler exposes its `ts` object. Node constructors live
- * under `ast.factory.createX`, mirroring how `ts.factory.createX` groups node creation, while node
- * definitions and helpers (`ast.schemaDef`, `ast.buildGroupParam`, ...) stay on the namespace root.
+ * Assembles the `@kubb/ast` surface into a single `ast` namespace for `@kubb/core`, the way the
+ * TypeScript compiler exposes its `ts` object. The `@kubb/ast` root supplies node definitions and
+ * helpers (`ast.schemaDef`, `ast.narrowSchema`, ...), and the `@kubb/ast/factory` subpath supplies
+ * the node constructors under `ast.factory.createX`, mirroring `ts.factory.createX`. The
+ * `@kubb/ast/utils` subpath stays out of this namespace, it targets specific plugin use cases.
  *
  * @example
  * ```ts
@@ -13,3 +14,4 @@
  * ```
  */
 export * from '@kubb/ast'
+export * as factory from '@kubb/ast/factory'

@@ -1,4 +1,4 @@
-import { factory } from '@kubb/ast'
+import * as factory from '@kubb/ast/factory'
 import { createKubb, definePlugin, memoryStorage } from '@kubb/core'
 import type { Config, Plugin } from '@kubb/core'
 import { describe, expect, it } from 'vitest'

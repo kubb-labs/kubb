@@ -1,6 +1,6 @@
 import { AsyncEventEmitter } from '@internals/utils'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
-import { factory } from '@kubb/ast'
+import * as factory from '@kubb/ast/factory'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'

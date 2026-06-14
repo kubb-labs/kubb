@@ -1,5 +1,5 @@
 import type { FileNode } from '@kubb/ast'
-import { factory } from '@kubb/ast'
+import * as factory from '@kubb/ast/factory'
 import { describe, expect, it, vi } from 'vitest'
 import { FileProcessor } from './FileProcessor.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'

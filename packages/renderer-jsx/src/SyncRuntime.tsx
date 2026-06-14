@@ -1,5 +1,5 @@
 import type { ArrowFunctionNode, CodeNode, ExportNode, FileNode, ImportNode, JSDocNode, SourceNode } from '@kubb/ast'
-import { factory } from '@kubb/ast'
+import * as factory from '@kubb/ast/factory'
 import { KUBB_ARROW_FUNCTION, KUBB_CONST, KUBB_EXPORT, KUBB_FILE, KUBB_FUNCTION, KUBB_IMPORT, KUBB_JSX, KUBB_SOURCE, KUBB_TYPE } from './constants.ts'
 import { Fragment } from './jsx-runtime.ts'
 import type { KubbReactElement } from './types.ts'

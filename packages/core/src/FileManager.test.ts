@@ -1,4 +1,4 @@
-import { factory } from '@kubb/ast'
+import * as factory from '@kubb/ast/factory'
 import { describe, expect, it, vi } from 'vitest'
 import { FileManager } from './FileManager.ts'
 

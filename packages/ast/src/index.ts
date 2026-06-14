@@ -1,8 +1,7 @@
 export { httpMethods, schemaTypes } from './constants.ts'
 export { applyDedupe, buildDedupePlan } from './dedupe.ts'
 export { defineSchemaDialect } from './dialect.ts'
-// Node constructors live under the `factory` namespace, mirroring `ts.factory.createX`.
-export * as factory from './factory.ts'
+// Node constructors live in the `@kubb/ast/factory` subpath, mirroring `ts.factory.createX`.
 export { isHttpOperationNode, narrowSchema } from './guards.ts'
 export { defineNode } from './node.ts'
 export type { NodeDef } from './node.ts'

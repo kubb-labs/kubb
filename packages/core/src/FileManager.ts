@@ -1,6 +1,6 @@
 import { AsyncEventEmitter } from '@internals/utils'
 import type { FileNode } from '@kubb/ast'
-import { factory } from '@kubb/ast'
+import * as factory from '@kubb/ast/factory'
 
 /**
  * Hooks fired by a `FileManager`.

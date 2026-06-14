@@ -5,8 +5,8 @@
 
 Group node constructors under an `ast.factory` namespace, mirroring `ts.factory.createX`.
 
-`@kubb/ast` no longer exports the `createX` node constructors at the top level. They move under a `factory` namespace, reached as `ast.factory.createSchema(...)`, `ast.factory.createFile(...)`, and so on, the same way the TypeScript compiler groups node creation under `ts.factory`. Node definitions (`schemaDef`, `operationDef`, ...) and the remaining helpers (`buildGroupParam`, `resolveParamType`, ...) stay on the namespace root.
+`@kubb/ast` no longer exports the `createX` node constructors from its root barrel. They move to a new `@kubb/ast/factory` subpath, the `ts.factory` analogue. The root keeps node definitions (`schemaDef`, `operationDef`, ...) and helpers (`narrowSchema`, `buildGroupParam`, ...); the `@kubb/ast/utils` subpath is unchanged.
 
-`@kubb/core` exposes the surface through a new `ast` module, so `import { ast } from '@kubb/core'` reaches both the namespace root and `ast.factory.createX`.
+`@kubb/core` assembles both into a single `ast` namespace, so `import { ast } from '@kubb/core'` reaches the root as `ast.schemaDef` and the constructors as `ast.factory.createSchema(...)`.
 
-Migrate `createSchema(...)` and `ast.createSchema(...)` calls to `ast.factory.createSchema(...)`.
+Migrate `createSchema(...)` and `ast.createSchema(...)` calls to `ast.factory.createSchema(...)`, or import the constructor directly from `@kubb/ast/factory`.

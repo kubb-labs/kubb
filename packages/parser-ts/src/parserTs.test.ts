@@ -1,4 +1,4 @@
-import { factory } from '@kubb/ast'
+import * as factory from '@kubb/ast/factory'
 import { describe, expect, it } from 'vitest'
 import { parserTs } from './parserTs.ts'
 

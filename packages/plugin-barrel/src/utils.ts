@@ -1,5 +1,5 @@
 import { extname, resolve } from 'node:path'
-import { factory } from '@kubb/ast'
+import * as factory from '@kubb/ast/factory'
 import type { ExportNode, FileNode, SourceNode } from '@kubb/ast'
 import type { Config, NormalizedPlugin } from '@kubb/core'
 import { type BuildTree, buildTree, toPosixPath } from '@internals/utils'
