@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createProperty } from './nodes/property.ts'
 import { createSchema, type SchemaNode } from './nodes/schema.ts'
-import { mergeAdjacentObjects, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
+import { mergeAdjacentObjects, setDiscriminatorEnum, setEnumName, simplifyUnion, syncSchemaRef } from './transformers.ts'
 
 describe('setDiscriminatorEnum', () => {
   function makeObjectNode(propNames: Array<string>, name?: string): SchemaNode {
@@ -441,5 +441,38 @@ describe('setEnumName()', () => {
     const result = setEnumName(node, 'Order', 'status', 'enum')
 
     expect(result).toBe(node)
+  })
+})
+
+describe('syncSchemaRef', () => {
+  it('returns a merged schema for a ref node that has a resolved schema', () => {
+    const resolved = createSchema({ type: 'object' })
+    const ref = createSchema({
+      type: 'ref',
+      name: 'Pet',
+      ref: '#/components/schemas/Pet',
+      schema: resolved,
+    })
+
+    const merged = syncSchemaRef(ref)
+    expect(merged).not.toBeNull()
+    expect(merged?.type).toBe('object')
+  })
+
+  it('returns a merged schema with sibling overrides applied over the resolved schema', () => {
+    const resolved = createSchema({ type: 'object', description: 'Original' })
+    const ref = createSchema({
+      type: 'ref',
+      name: 'Pet',
+      ref: '#/components/schemas/Pet',
+      schema: resolved,
+      description: 'Override',
+      readOnly: true,
+    })
+
+    const merged = syncSchemaRef(ref)
+    expect(merged?.description).toBe('Override')
+    expect(merged?.readOnly).toBe(true)
+    expect(merged?.type).toBe('object')
   })
 })

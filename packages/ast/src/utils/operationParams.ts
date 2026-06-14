@@ -1,16 +1,6 @@
 import { camelCase, isValidVarName, memoize } from '@internals/utils'
 import { createFunctionParameter, createFunctionParameters, createIndexedAccessType, createTypeLiteral } from '../nodes/function.ts'
-import type {
-  FunctionParameterNode,
-  FunctionParametersNode,
-  OperationNode,
-  ParameterNode,
-  SchemaNode,
-  TypeExpression,
-  TypeLiteralNode,
-} from '../nodes/index.ts'
-import { createProperty } from '../nodes/property.ts'
-import { createSchema } from '../nodes/schema.ts'
+import type { FunctionParameterNode, FunctionParametersNode, OperationNode, ParameterNode, TypeExpression, TypeLiteralNode } from '../nodes/index.ts'
 import { resolveGroupType } from './refs.ts'
 
 /**
@@ -32,33 +22,6 @@ const caseParamsMemo = memoize(new WeakMap<Array<ParameterNode>, (casing: string
 export function caseParams(params: Array<ParameterNode>, casing: 'camelcase' | undefined): Array<ParameterNode> {
   if (!casing) return params
   return caseParamsMemo(params)(casing)
-}
-
-/**
- * Creates a single-property object schema used as a discriminator literal.
- *
- * @example
- * ```ts
- * createDiscriminantNode({ propertyName: 'type', value: 'dog' })
- * // -> { type: 'object', properties: [{ name: 'type', required: true, schema: enum('dog') }] }
- * ```
- */
-export function createDiscriminantNode({ propertyName, value }: { propertyName: string; value: string }): SchemaNode {
-  return createSchema({
-    type: 'object',
-    primitive: 'object',
-    properties: [
-      createProperty({
-        name: propertyName,
-        schema: createSchema({
-          type: 'enum',
-          primitive: 'string',
-          enumValues: [value],
-        }),
-        required: true,
-      }),
-    ],
-  })
 }
 
 /**

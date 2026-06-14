@@ -5,7 +5,7 @@ import { createParameter } from '../nodes/parameter.ts'
 import { createSchema } from '../nodes/schema.ts'
 import type { OperationNode, ParameterNode } from '../types.ts'
 import type { OperationParamsResolver } from './operationParams.ts'
-import { caseParams, createDiscriminantNode, createOperationParams } from './operationParams.ts'
+import { caseParams, createOperationParams } from './operationParams.ts'
 
 const param = (name: string) =>
   createParameter({
@@ -63,28 +63,6 @@ describe('caseParams', () => {
 
   it('handles an empty params array', () => {
     expect(caseParams([], 'camelcase')).toStrictEqual([])
-  })
-})
-
-describe('createDiscriminantNode', () => {
-  it('creates an object with a single required enum property', () => {
-    const node = createDiscriminantNode({ propertyName: 'type', value: 'cat' })
-
-    expect(node.type).toBe('object')
-    if (node.type !== 'object') return
-    expect(node.properties).toHaveLength(1)
-    expect(node.properties?.[0]?.name).toBe('type')
-    expect(node.properties?.[0]?.required).toBe(true)
-    expect(node.properties?.[0]?.schema.type).toBe('enum')
-  })
-
-  it('enum has exactly one value matching the input', () => {
-    const node = createDiscriminantNode({ propertyName: 'kind', value: 'dog' })
-
-    if (node.type !== 'object') return
-    const enumNode = node.properties?.[0]?.schema
-    if (!enumNode || enumNode.type !== 'enum') return
-    expect(enumNode.enumValues).toStrictEqual(['dog'])
   })
 })
 

@@ -1,8 +1,9 @@
 import { pascalCase } from '@internals/utils'
-import { childName, enumPropName, extractRefName, findDiscriminator } from '@kubb/ast/utils'
+import { childName, enumPropName, extractRefName } from '@kubb/ast/utils'
 import { ast } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, SCHEMA_REF_PREFIX, typeOptionMap } from './constants.ts'
 import { oasDialect, type OasDialect } from './dialect.ts'
+import { createDiscriminantNode, findDiscriminator } from './discriminator.ts'
 import { getOperationId, getOperations, getRequestContentType, getResponseByStatusCode, getResponseStatusCodes } from './operation.ts'
 import {
   buildSchemaNode,
@@ -270,7 +271,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     }
 
     for (const { propertyName, value } of filteredDiscriminantValues) {
-      allOfMembers.push(ast.factory.createDiscriminantNode({ propertyName, value }))
+      allOfMembers.push(createDiscriminantNode({ propertyName, value }))
     }
 
     return ast.factory.createSchema({
@@ -343,7 +344,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
           members: [
             memberNode,
             narrowedDiscriminatorNode ??
-              ast.factory.createDiscriminantNode({
+              createDiscriminantNode({
                 propertyName: discriminator.propertyName,
                 value: discriminatorValue,
               }),
