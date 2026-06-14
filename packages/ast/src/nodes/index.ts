@@ -16,7 +16,7 @@ export type { ArrowFunctionNode, BreakNode, CodeNode, ConstNode, FunctionNode, J
 export type { ContentNode } from './content.ts'
 export type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
 export type {
-  FunctionNodeType,
+  FunctionParamKind,
   FunctionParameterNode,
   FunctionParametersNode,
   FunctionParamNode,

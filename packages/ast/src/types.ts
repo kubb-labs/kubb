@@ -13,7 +13,7 @@ export type {
   ExportNode,
   FileNode,
   FunctionNode,
-  FunctionNodeType,
+  FunctionParamKind,
   FunctionParameterNode,
   FunctionParametersNode,
   FunctionParamNode,

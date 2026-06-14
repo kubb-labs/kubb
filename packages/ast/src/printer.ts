@@ -195,8 +195,8 @@ export function definePrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
  **
  * @example
  * ```ts
- * export const defineFunctionPrinter = createPrinterFactory<FunctionNode, FunctionNodeType, FunctionNodeByType>(
- *   (node) => kindToHandlerKey[node.kind],
+ * export const defineFunctionPrinter = createPrinterFactory<FunctionParamNode, FunctionParamKind, Partial<Record<FunctionParamKind, FunctionParamNode>>>(
+ *   (node) => node.kind,
  * )
  * ```
  */
