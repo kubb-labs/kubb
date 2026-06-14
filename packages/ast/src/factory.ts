@@ -3,7 +3,7 @@ import path from 'node:path'
 import { trimExtName } from '@internals/utils'
 import type { FileNode, Node } from './nodes/index.ts'
 import { combineExports, combineImports, combineSources } from './utils/ast.ts'
-import { extractStringsFromNodes } from './utils/index.ts'
+import { extractStringsFromNodes } from './utils/extractStringsFromNodes.ts'
 
 // Node constructors, grouped under the `factory` namespace the way the TypeScript compiler exposes
 // `ts.factory.createX`. Aggregating them here lets `export * as factory from './factory.ts'` in the
