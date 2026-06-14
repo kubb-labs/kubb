@@ -32,6 +32,10 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./factory": {
+      "import": "./dist/factory.js",
+      "require": "./dist/factory.cjs"
+    },
     "./types": {
       "import": "./dist/types.js",
       "require": "./dist/types.cjs"

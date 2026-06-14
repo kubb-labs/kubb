@@ -81,11 +81,11 @@ describe('unpluginFactory', () => {
 
   test('uses the same generation defaults as defineConfig', async () => {
     const { storage, store } = createMemoryStorage()
-    const file = ast.createFile({
+    const file = ast.factory.createFile({
       path: 'gen/component.tsx',
       baseName: 'component.tsx',
-      imports: [ast.createImport({ name: ['jsx'], path: 'react/jsx-runtime' })],
-      sources: [ast.createSource({ nodes: [ast.createText('export const Component = jsx("div", {})')] })],
+      imports: [ast.factory.createImport({ name: ['jsx'], path: 'react/jsx-runtime' })],
+      sources: [ast.factory.createSource({ nodes: [ast.factory.createText('export const Component = jsx("div", {})')] })],
     })
     const plugin = definePlugin(() => ({
       name: 'plugin',

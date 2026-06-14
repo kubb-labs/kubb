@@ -1,5 +1,4 @@
-import { ast } from '@kubb/core'
-import { defineParser } from '@kubb/core'
+import { ast, defineParser } from '@kubb/core'
 import { print, type PrintInput } from './utils.ts'
 
 /**

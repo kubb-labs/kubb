@@ -174,9 +174,9 @@ export type FunctionParametersNode = BaseNode & {
 export type FunctionParamNode = FunctionParameterNode | FunctionParametersNode | TypeLiteralNode | IndexedAccessTypeNode | ObjectBindingPatternNode
 
 /**
- * Handler map keys, one per `FunctionParamNode` kind.
+ * Handler-map keys for the function-parameter printer, one per {@link FunctionParamNode} kind.
  */
-export type FunctionNodeType = 'functionParameter' | 'functionParameters' | 'typeLiteral' | 'indexedAccessType' | 'objectBindingPattern'
+export type FunctionParamKind = FunctionParamNode['kind']
 
 /**
  * Definition for the {@link TypeLiteralNode}.

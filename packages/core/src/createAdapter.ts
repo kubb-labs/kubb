@@ -114,7 +114,7 @@ type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) =
  *   document: null,
  *   async parse(_source) {
  *     // Convert `source` (path or inline data) into an InputNode.
- *     return ast.createInput()
+ *     return ast.factory.createInput()
  *   },
  *   getImports: () => [],
  *   async validate() {

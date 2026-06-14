@@ -1,62 +1,28 @@
 export { httpMethods, schemaTypes } from './constants.ts'
 export { applyDedupe, buildDedupePlan } from './dedupe.ts'
 export { defineSchemaDialect } from './dialect.ts'
-export { createFile, update } from './factory.ts'
+// Node constructors, also published as the `@kubb/ast/factory` subpath, mirroring `ts.factory.createX`.
+export * as factory from './factory.ts'
 export { isHttpOperationNode, narrowSchema } from './guards.ts'
 export { defineNode } from './node.ts'
 export type { NodeDef } from './node.ts'
 export { syncOptionality } from './node.ts'
-export {
-  arrowFunctionDef,
-  breakDef,
-  constDef,
-  createArrowFunction,
-  createBreak,
-  createConst,
-  createFunction,
-  createJsx,
-  createText,
-  createType,
-  functionDef,
-  jsxDef,
-  textDef,
-  typeDef,
-} from './nodes/code.ts'
+export { arrowFunctionDef, breakDef, constDef, functionDef, jsxDef, textDef, typeDef } from './nodes/code.ts'
 export { contentDef } from './nodes/content.ts'
-export { createExport, createImport, createSource, exportDef, fileDef, importDef, sourceDef } from './nodes/file.ts'
-export {
-  createFunctionParameter,
-  createFunctionParameters,
-  createIndexedAccessType,
-  createObjectBindingPattern,
-  createTypeLiteral,
-  functionParameterDef,
-  functionParametersDef,
-  indexedAccessTypeDef,
-  objectBindingPatternDef,
-  typeLiteralDef,
-} from './nodes/function.ts'
-export { createInput, createStreamInput, inputDef } from './nodes/input.ts'
-export { createOperation, operationDef } from './nodes/operation.ts'
-export { createOutput, outputDef } from './nodes/output.ts'
-export { createParameter, parameterDef } from './nodes/parameter.ts'
-export { createProperty, propertyDef } from './nodes/property.ts'
+export { exportDef, fileDef, importDef, sourceDef } from './nodes/file.ts'
+export { functionParameterDef, functionParametersDef, indexedAccessTypeDef, objectBindingPatternDef, typeLiteralDef } from './nodes/function.ts'
+export { inputDef } from './nodes/input.ts'
+export { operationDef } from './nodes/operation.ts'
+export { outputDef } from './nodes/output.ts'
+export { parameterDef } from './nodes/parameter.ts'
+export { propertyDef } from './nodes/property.ts'
 export { requestBodyDef } from './nodes/requestBody.ts'
-export { createResponse, responseDef } from './nodes/response.ts'
-export { createSchema, schemaDef } from './nodes/schema.ts'
+export { responseDef } from './nodes/response.ts'
+export { schemaDef } from './nodes/schema.ts'
 export { createPrinterFactory, definePrinter } from './printer.ts'
 export { signatureOf } from './signature.ts'
 export { mergeAdjacentObjectsLazy, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
 export type * from './types.ts'
-export {
-  caseParams,
-  collectUsedSchemaNames,
-  containsCircularRef,
-  createDiscriminantNode,
-  createOperationParams,
-  extractStringsFromNodes,
-  findCircularSchemas,
-  isStringType,
-  syncSchemaRef,
-} from './utils/ast.ts'
+// The node/AST helpers in ./utils/ast.ts live on the `@kubb/ast/utils` subpath, not the root barrel.
+export { extractStringsFromNodes } from './utils/extractStringsFromNodes.ts'
 export { collect, transform, walk } from './visitor.ts'

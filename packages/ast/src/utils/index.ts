@@ -1,7 +1,22 @@
 import { isIdentifier, pascalCase, singleQuote } from '@internals/utils'
 import { INDENT } from '../constants.ts'
+import type { OperationNode, ParameterNode } from '../nodes/index.ts'
+import type { OperationParamsResolver, ParamGroupType } from './ast.ts'
 
 export { isValidVarName } from '@internals/utils'
+export { extractStringsFromNodes } from './extractStringsFromNodes.ts'
+export {
+  buildGroupParam,
+  buildTypeLiteral,
+  caseParams,
+  collectUsedSchemaNames,
+  containsCircularRef,
+  findCircularSchemas,
+  isStringType,
+  resolveParamType,
+  syncSchemaRef,
+} from './ast.ts'
+export type { BuildGroupArgs, ParamGroupType } from './ast.ts'
 
 /**
  * Strips a single matching pair of `"..."`, `'...'`, or `` `...` `` from both ends of `text`.
@@ -294,4 +309,33 @@ export function enumPropName(parentName: string | null | undefined, propName: st
 export function findDiscriminator(mapping: Record<string, string> | undefined, ref: string | undefined): string | null {
   if (!mapping || !ref) return null
   return Object.entries(mapping).find(([, value]) => value === ref)?.[0] ?? null
+}
+
+/**
+ * Derives a {@link ParamGroupType} for a query or header group from the resolver.
+ *
+ * Returns `null` when there is no resolver, no params, or the group name equals the
+ * individual param name (so there is no real group to emit).
+ */
+export function resolveGroupType({
+  node,
+  params,
+  group,
+  resolver,
+}: {
+  node: OperationNode
+  params: Array<ParameterNode>
+  group: 'query' | 'header'
+  resolver: OperationParamsResolver | undefined
+}): ParamGroupType | null {
+  if (!resolver || !params.length) {
+    return null
+  }
+  const firstParam = params[0]!
+  const groupMethod = group === 'query' ? resolver.resolveQueryParamsName : resolver.resolveHeaderParamsName
+  const groupName = groupMethod.call(resolver, node, firstParam)
+  if (groupName === resolver.resolveParamName(node, firstParam)) {
+    return null
+  }
+  return { type: groupName, optional: params.every((p) => !p.required) }
 }

@@ -47,13 +47,3 @@ export type BaseNode = {
    */
   kind: NodeKind
 }
-
-/**
- * Minimal node type when only `kind` is needed.
- *
- * @example
- * ```ts
- * const node: Node = { kind: 'Operation' }
- * ```
- */
-export type Node = BaseNode

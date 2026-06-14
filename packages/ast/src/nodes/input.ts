@@ -114,26 +114,27 @@ export const inputDef = defineNode<InputNode, Partial<Omit<InputNode, 'kind'>>>(
 })
 
 /**
- * Creates an `InputNode` with stable defaults for `schemas` and `operations`.
+ * Creates an `InputNode`. Pass `stream: true` for the streaming variant whose `schemas` and
+ * `operations` are `AsyncIterable` sources and whose `meta` is optional. Otherwise it builds the
+ * eager variant with array `schemas`/`operations` and the defaulted `meta`.
  *
- * @example
+ * @example Eager
  * ```ts
  * const input = createInput()
  * // { kind: 'Input', schemas: [], operations: [] }
  * ```
- */
-export function createInput(overrides: Partial<Omit<InputNode, 'kind'>> = {}): InputNode {
-  return inputDef.create(overrides)
-}
-
-/**
- * Creates a streaming `InputNode<true>` from pre-built `AsyncIterable` sources.
  *
- * @example
+ * @example Streaming
  * ```ts
- * const node = createStreamInput(schemasIterable, operationsIterable, { title: 'My API' })
+ * const node = createInput({ stream: true, schemas: schemasIterable, operations: operationsIterable, meta: { title: 'My API' } })
  * ```
  */
-export function createStreamInput(schemas: AsyncIterable<SchemaNode>, operations: AsyncIterable<OperationNode>, meta?: InputMeta): InputNode<true> {
-  return { kind: 'Input', schemas, operations, meta }
+export function createInput<Stream extends boolean = false>(options: Partial<Omit<InputNode<Stream>, 'kind'>> & { stream?: Stream } = {}): InputNode<Stream> {
+  const { stream, ...overrides } = options
+  // Streaming inputs carry AsyncIterable sources, so skip the array/meta defaults that
+  // inputDef.create applies for the eager variant.
+  if (stream) {
+    return { kind: 'Input', ...overrides } as InputNode<Stream>
+  }
+  return inputDef.create(overrides as Partial<Omit<InputNode, 'kind'>>) as InputNode<Stream>
 }

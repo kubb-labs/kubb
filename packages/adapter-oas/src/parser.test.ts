@@ -1,3 +1,4 @@
+import { syncSchemaRef } from '@kubb/ast/utils'
 import { ast } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
@@ -1303,7 +1304,7 @@ describe('parseSchema readOnly / writeOnly', () => {
     const petRef = petList?.items?.find((item) => item.type === 'ref')
     if (!petRef) return
 
-    const merged = ast.syncSchemaRef(petRef)
+    const merged = syncSchemaRef(petRef)
     // Merged result has the resolved schema's type (object)
     expect(merged?.type).toBe('object')
   })

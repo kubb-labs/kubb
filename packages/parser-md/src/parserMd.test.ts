@@ -4,10 +4,13 @@ import { parserMd } from './parserMd.ts'
 
 describe('parserMd', () => {
   it('joins markdown source blocks separated by blank lines', () => {
-    const file = ast.createFile({
+    const file = ast.factory.createFile({
       baseName: 'post.md',
       path: '/post.md',
-      sources: [ast.createSource({ nodes: [ast.createText('# Hello')] }), ast.createSource({ nodes: [ast.createText('Body paragraph.')] })],
+      sources: [
+        ast.factory.createSource({ nodes: [ast.factory.createText('# Hello')] }),
+        ast.factory.createSource({ nodes: [ast.factory.createText('Body paragraph.')] }),
+      ],
       imports: [],
       exports: [],
     })
@@ -16,11 +19,11 @@ describe('parserMd', () => {
   })
 
   it('emits frontmatter from file meta', () => {
-    const file = ast.createFile<{ frontmatter?: Record<string, unknown> }>({
+    const file = ast.factory.createFile<{ frontmatter?: Record<string, unknown> }>({
       baseName: 'post.md',
       path: '/post.md',
       meta: { frontmatter: { title: 'Hi', tags: ['a', 'b'] } },
-      sources: [ast.createSource({ nodes: [ast.createText('Body.')] })],
+      sources: [ast.factory.createSource({ nodes: [ast.factory.createText('Body.')] })],
       imports: [],
       exports: [],
     })
@@ -29,10 +32,10 @@ describe('parserMd', () => {
   })
 
   it('omits frontmatter when meta is empty', () => {
-    const file = ast.createFile({
+    const file = ast.factory.createFile({
       baseName: 'post.md',
       path: '/post.md',
-      sources: [ast.createSource({ nodes: [ast.createText('Body only.')] })],
+      sources: [ast.factory.createSource({ nodes: [ast.factory.createText('Body only.')] })],
       imports: [],
       exports: [],
     })
@@ -41,12 +44,12 @@ describe('parserMd', () => {
   })
 
   it('respects banner and footer', () => {
-    const file = ast.createFile({
+    const file = ast.factory.createFile({
       baseName: 'post.md',
       path: '/post.md',
       banner: '<!-- generated -->',
       footer: '<!-- end -->',
-      sources: [ast.createSource({ nodes: [ast.createText('Body.')] })],
+      sources: [ast.factory.createSource({ nodes: [ast.factory.createText('Body.')] })],
       imports: [],
       exports: [],
     })
@@ -55,7 +58,7 @@ describe('parserMd', () => {
   })
 
   it('returns empty string when nothing to render', () => {
-    const file = ast.createFile({
+    const file = ast.factory.createFile({
       baseName: 'post.md',
       path: '/post.md',
       sources: [],
