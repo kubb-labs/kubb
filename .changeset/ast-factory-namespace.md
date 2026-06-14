@@ -16,3 +16,5 @@ The function-parameter printer key type `FunctionNodeType` is renamed to `Functi
 `extractStringsFromNodes` is now exported from the `@kubb/ast` root barrel as well, so it is reachable as `ast.extractStringsFromNodes` through `@kubb/core` without importing the `@kubb/ast/utils` subpath.
 
 The node and AST helpers `buildGroupParam`, `buildTypeLiteral`, `caseParams`, `collectUsedSchemaNames`, `containsCircularRef`, `findCircularSchemas`, `isStringType`, `resolveParamType`, and `syncSchemaRef` move off the `@kubb/ast` root barrel onto the `@kubb/ast/utils` subpath. Import them from `@kubb/ast/utils` instead of `@kubb/ast` (or `ast.fn` via `@kubb/core`).
+
+`createStreamInput` is removed and folded into `createInput`. `createInput` now takes a generic `stream` option: `createInput({ stream: true, schemas, operations, meta })` returns the streaming `InputNode<true>` (with `AsyncIterable` sources), while the existing `createInput({ schemas, operations })` keeps returning the eager `InputNode`.

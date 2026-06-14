@@ -12,7 +12,7 @@ export { createArrowFunction, createBreak, createConst, createFunction, createJs
 export { createContent } from './nodes/content.ts'
 export { createExport, createImport, createSource } from './nodes/file.ts'
 export { createFunctionParameter, createFunctionParameters, createIndexedAccessType, createObjectBindingPattern, createTypeLiteral } from './nodes/function.ts'
-export { createInput, createStreamInput } from './nodes/input.ts'
+export { createInput } from './nodes/input.ts'
 export { createOperation } from './nodes/operation.ts'
 export { createOutput } from './nodes/output.ts'
 export { createParameter } from './nodes/parameter.ts'

@@ -160,7 +160,7 @@ export class KubbDriver {
   /**
    * Parses the adapter source into `this.inputNode`. Idempotent, so repeated calls from
    * `run` do not re-parse. Adapters with `stream()` are used directly.
-   * Adapters with only `parse()` are wrapped via `factory.createStreamInput` so the dispatch loop
+   * Adapters with only `parse()` are wrapped via `factory.createInput({ stream: true })` so the dispatch loop
    * stays stream-only.
    */
   async #parseInput(): Promise<void> {
@@ -175,7 +175,12 @@ export class KubbDriver {
     }
 
     const parsed = await adapter.parse(source)
-    this.inputNode = factory.createStreamInput(arrayToAsyncIterable(parsed.schemas), arrayToAsyncIterable(parsed.operations), parsed.meta)
+    this.inputNode = factory.createInput({
+      stream: true,
+      schemas: arrayToAsyncIterable(parsed.schemas),
+      operations: arrayToAsyncIterable(parsed.operations),
+      meta: parsed.meta,
+    })
   }
 
   /**

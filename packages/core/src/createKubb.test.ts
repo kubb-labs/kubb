@@ -458,7 +458,7 @@ describe('createKubb', () => {
         }),
       })
       Object.assign(streamAdapter, {
-        stream: async () => factory.createStreamInput(asyncSchemas(), asyncOps()),
+        stream: async () => factory.createInput({ stream: true, schemas: asyncSchemas(), operations: asyncOps() }),
       })
 
       const { files } = await createKubb(

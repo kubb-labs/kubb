@@ -279,5 +279,5 @@ export function createInputStream({
     },
   }
 
-  return ast.factory.createStreamInput(schemasIterable, operationsIterable, meta)
+  return ast.factory.createInput({ stream: true, schemas: schemasIterable, operations: operationsIterable, meta })
 }
