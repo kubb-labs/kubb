@@ -82,8 +82,8 @@ export function patchDiscriminatorNode(node: ast.SchemaNode, entry: { propertyNa
   if (!objectNode) return node
 
   const { propertyName, enumValues } = entry
-  const enumSchema = ast.createSchema({ type: 'enum', enumValues })
-  const newProp = ast.createProperty({ name: propertyName, required: true, schema: enumSchema })
+  const enumSchema = ast.factory.createSchema({ type: 'enum', enumValues })
+  const newProp = ast.factory.createProperty({ name: propertyName, required: true, schema: enumSchema })
 
   const existingIdx = objectNode.properties.findIndex((p) => p.name === propertyName)
   const newProperties = existingIdx >= 0 ? objectNode.properties.map((p, i) => (i === existingIdx ? newProp : p)) : [...objectNode.properties, newProp]

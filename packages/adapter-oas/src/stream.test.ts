@@ -79,12 +79,12 @@ describe('preScan', () => {
   const makeParseSchema =
     () =>
     ({ name, schema }: { schema: SchemaObject; name: string }): ast.SchemaNode => {
-      if ('enum' in schema && schema.enum) return ast.createSchema({ type: 'enum', name, members: schema.enum.map(String) })
+      if ('enum' in schema && schema.enum) return ast.factory.createSchema({ type: 'enum', name, members: schema.enum.map(String) })
       if ('$ref' in schema) {
         const refName = (schema.$ref as string).split('/').pop() ?? name
-        return ast.createSchema({ type: 'ref', name: refName, ref: schema.$ref as string })
+        return ast.factory.createSchema({ type: 'ref', name: refName, ref: schema.$ref as string })
       }
-      return ast.createSchema({ type: 'object', name })
+      return ast.factory.createSchema({ type: 'object', name })
     }
 
   it('collects enum schema names', () => {
@@ -209,7 +209,7 @@ describe('createInputStream', () => {
       PetAlias: { $ref: '#/components/schemas/Pet' },
     }
 
-    const aliasNode = ast.createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' })
+    const aliasNode = ast.factory.createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' })
     const refAliasMap = new Map([['PetAlias', aliasNode]])
 
     const node = createInputStream({

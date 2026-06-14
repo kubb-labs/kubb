@@ -1,10 +1,10 @@
-import { createSchema } from '@kubb/ast'
+import { factory } from '@kubb/ast'
 import type { SchemaNode, Visitor } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { Transform } from './Transform.ts'
 
 function namedSchema(name: string): SchemaNode {
-  return createSchema({ type: 'string', name })
+  return factory.createSchema({ type: 'string', name })
 }
 
 describe('Transform — applyTo', () => {

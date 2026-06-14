@@ -207,13 +207,13 @@ export function printJSDoc(jsDoc: JSDocNode): string {
  *
  * @example
  * ```ts
- * printConst(createConst({ name: 'pet', export: true, nodes: ['{}'] }))
+ * printConst(factory.createConst({ name: 'pet', export: true, nodes: ['{}'] }))
  * // 'export const pet = {}'
  * ```
  *
  * @example With type and `as const`
  * ```ts
- * printConst(createConst({ name: 'pets', export: true, type: 'Pet[]', asConst: true, nodes: ['[]'] }))
+ * printConst(factory.createConst({ name: 'pets', export: true, type: 'Pet[]', asConst: true, nodes: ['[]'] }))
  * // 'export const pets: Pet[] = [] as const'
  * ```
  */
@@ -245,7 +245,7 @@ export function printConst(node: ConstNode): string {
  *
  * @example
  * ```ts
- * printType(createType({ name: 'Pet', export: true, nodes: ['{ id: number }'] }))
+ * printType(factory.createType({ name: 'Pet', export: true, nodes: ['{ id: number }'] }))
  * // 'export type Pet = { id: number }'
  * ```
  */
@@ -273,13 +273,13 @@ export function printType(node: TypeNode): string {
  *
  * @example
  * ```ts
- * printFunction(createFunction({ name: 'getPet', export: true, params: 'id: string', returnType: 'Pet', nodes: ['return fetch(id)'] }))
+ * printFunction(factory.createFunction({ name: 'getPet', export: true, params: 'id: string', returnType: 'Pet', nodes: ['return fetch(id)'] }))
  * // 'export function getPet(id: string): Pet {\n  return fetch(id)\n}'
  * ```
  *
  * @example Async with generics
  * ```ts
- * printFunction(createFunction({ name: 'fetchPet', export: true, async: true, generics: ['T'], params: 'id: string', returnType: 'T' }))
+ * printFunction(factory.createFunction({ name: 'fetchPet', export: true, async: true, generics: ['T'], params: 'id: string', returnType: 'T' }))
  * // 'export async function fetchPet<T>(id: string): Promise<T> {\n}'
  * ```
  */
@@ -316,13 +316,13 @@ export function printFunction(node: FunctionNode): string {
  *
  * @example Multi-line arrow function
  * ```ts
- * printArrowFunction(createArrowFunction({ name: 'getPet', export: true, params: 'id: string', nodes: ['return fetch(id)'] }))
+ * printArrowFunction(factory.createArrowFunction({ name: 'getPet', export: true, params: 'id: string', nodes: ['return fetch(id)'] }))
  * // 'export const getPet = (id: string) => {\n  return fetch(id)\n}'
  * ```
  *
  * @example Single-line arrow function
  * ```ts
- * printArrowFunction(createArrowFunction({ name: 'double', params: 'n: number', singleLine: true, nodes: ['n * 2'] }))
+ * printArrowFunction(factory.createArrowFunction({ name: 'double', params: 'n: number', singleLine: true, nodes: ['n * 2'] }))
  * // 'const double = (n: number) => n * 2'
  * ```
  */
@@ -356,7 +356,7 @@ export function printArrowFunction(node: ArrowFunctionNode): string {
  *
  * @example
  * ```ts
- * printCodeNode(createConst({ name: 'x', nodes: ['1'] }))
+ * printCodeNode(factory.createConst({ name: 'x', nodes: ['1'] }))
  * // 'const x = 1'
  * ```
  */
@@ -382,7 +382,7 @@ export function printCodeNode(node: CodeNode): string {
  *
  * @example From nodes
  * ```ts
- * printSource({ kind: 'Source', nodes: [createConst({ name: 'x', nodes: [createText('1')] }), createText('x.toString()')] })
+ * printSource({ kind: 'Source', nodes: [factory.createConst({ name: 'x', nodes: [factory.createText('1')] }), factory.createText('x.toString()')] })
  * // 'const x = 1\n\nx.toString()'
  * ```
  */

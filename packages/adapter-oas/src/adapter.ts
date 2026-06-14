@@ -191,7 +191,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
           const result = resolve(schemaName)
           if (!result) return null
 
-          return ast.createImport({ name: [result.name], path: result.path })
+          return ast.factory.createImport({ name: [result.name], path: result.path })
         },
       })
     },
@@ -200,7 +200,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
       const [schemas, operations] = await Promise.all([Array.fromAsync(streamNode.schemas), Array.fromAsync(streamNode.operations)])
 
-      return ast.createInput({ schemas, operations, meta: streamNode.meta })
+      return ast.factory.createInput({ schemas, operations, meta: streamNode.meta })
     },
     stream: createStream,
   }

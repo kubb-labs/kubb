@@ -1,4 +1,4 @@
-import { createFile, createSource, createText } from '@kubb/ast'
+import { factory } from '@kubb/ast'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
 import type { Config } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
@@ -16,10 +16,10 @@ function makeConfig(): Config {
 }
 
 function makeFile(filePath: string, names: Array<string> = []) {
-  return createFile({
+  return factory.createFile({
     path: filePath,
     baseName: filePath.split('/').pop() as `${string}.${string}`,
-    sources: names.map((name) => createSource({ name, isIndexable: true, nodes: [createText(`export const ${name} = null`)] })),
+    sources: names.map((name) => factory.createSource({ name, isIndexable: true, nodes: [factory.createText(`export const ${name} = null`)] })),
     imports: [],
     exports: [],
   })

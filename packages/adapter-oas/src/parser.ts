@@ -151,7 +151,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       resolvedSchema = resolvedRefCache.get(refPath) ?? null
     }
 
-    return ast.createSchema({
+    return ast.factory.createSchema({
       ...buildSchemaNode(schema, name, nullable, defaultValue),
       type: 'ref',
       name: extractRefName(schema.$ref!),
@@ -176,7 +176,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       const mergedNullable = nullable || memberNode.nullable || undefined
       const mergedDefault = schema.default === null && mergedNullable ? undefined : (schema.default ?? memberNode.default)
 
-      return ast.createSchema({
+      return ast.factory.createSchema({
         ...memberNodeProps,
         name,
         title: schema.title ?? memberNode.title,
@@ -264,10 +264,10 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     }
 
     for (const { propertyName, value } of filteredDiscriminantValues) {
-      allOfMembers.push(ast.createDiscriminantNode({ propertyName, value }))
+      allOfMembers.push(ast.factory.createDiscriminantNode({ propertyName, value }))
     }
 
-    return ast.createSchema({
+    return ast.factory.createSchema({
       type: 'intersection',
       members: [...ast.mergeAdjacentObjectsLazy(allOfMembers.slice(0, syntheticStart)), ...ast.mergeAdjacentObjectsLazy(allOfMembers.slice(syntheticStart))],
       ...buildSchemaNode(schema, name, nullable, defaultValue),
@@ -286,7 +286,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
         return null
       }
 
-      return ast.createSchema({
+      return ast.factory.createSchema({
         type: 'object',
         primitive: 'object',
         properties: [discriminatorProperty],
@@ -332,12 +332,12 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
             )
           : undefined
 
-        return ast.createSchema({
+        return ast.factory.createSchema({
           type: 'intersection',
           members: [
             memberNode,
             narrowedDiscriminatorNode ??
-              ast.createDiscriminantNode({
+              ast.factory.createDiscriminantNode({
                 propertyName: discriminator.propertyName,
                 value: discriminatorValue,
               }),
@@ -345,7 +345,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
         })
       })
 
-      const unionNode = ast.createSchema({
+      const unionNode = ast.factory.createSchema({
         type: 'union',
         ...unionBase,
         members,
@@ -355,14 +355,14 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
         return unionNode
       }
 
-      return ast.createSchema({
+      return ast.factory.createSchema({
         type: 'intersection',
         ...buildSchemaNode(schema, name, nullable, defaultValue),
         members: [unionNode, sharedPropertiesNode],
       })
     }
 
-    return ast.createSchema({
+    return ast.factory.createSchema({
       type: 'union',
       ...unionBase,
       members: ast.simplifyUnion(unionMembers.map((s) => parseSchema({ schema: s as SchemaObject, name }, rawOptions))),
@@ -376,7 +376,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     const constValue = schema.const
 
     if (constValue === null) {
-      return ast.createSchema({
+      return ast.factory.createSchema({
         type: 'null',
         primitive: 'null',
         name,
@@ -388,7 +388,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     }
 
     const constPrimitive = getPrimitiveType(typeof constValue === 'number' ? 'number' : typeof constValue === 'boolean' ? 'boolean' : 'string')
-    return ast.createSchema({
+    return ast.factory.createSchema({
       type: 'enum',
       primitive: constPrimitive,
       enumValues: [constValue as string | number | boolean],
@@ -404,7 +404,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     const base = buildSchemaNode(schema, name, nullable, defaultValue)
 
     if (schema.format === 'int64') {
-      return ast.createSchema({
+      return ast.factory.createSchema({
         type: options.integerType === 'bigint' ? 'bigint' : 'integer',
         primitive: 'integer',
         ...base,
@@ -420,7 +420,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       if (!dateType) return null
 
       if (dateType.type === 'datetime') {
-        return ast.createSchema({
+        return ast.factory.createSchema({
           ...base,
           primitive: 'string' as const,
           type: 'datetime',
@@ -428,7 +428,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
           local: dateType.local,
         })
       }
-      return ast.createSchema({
+      return ast.factory.createSchema({
         ...base,
         primitive: 'string' as const,
         type: dateType.type,
@@ -442,14 +442,14 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     const specialPrimitive: ast.PrimitiveSchemaType = specialType === 'number' || specialType === 'integer' || specialType === 'bigint' ? specialType : 'string'
 
     if (specialType === 'number' || specialType === 'integer' || specialType === 'bigint') {
-      return ast.createSchema({
+      return ast.factory.createSchema({
         ...base,
         primitive: specialPrimitive,
         type: specialType,
       })
     }
     if (specialType === 'url') {
-      return ast.createSchema({
+      return ast.factory.createSchema({
         ...base,
         primitive: 'string' as const,
         type: 'url',
@@ -458,21 +458,21 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       })
     }
     if (specialType === 'ipv4') {
-      return ast.createSchema({
+      return ast.factory.createSchema({
         ...base,
         primitive: 'string' as const,
         type: 'ipv4',
       })
     }
     if (specialType === 'ipv6') {
-      return ast.createSchema({
+      return ast.factory.createSchema({
         ...base,
         primitive: 'string' as const,
         type: 'ipv6',
       })
     }
     if (specialType === 'uuid' || specialType === 'email') {
-      return ast.createSchema({
+      return ast.factory.createSchema({
         ...base,
         primitive: 'string' as const,
         type: specialType,
@@ -481,7 +481,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       })
     }
 
-    return ast.createSchema({
+    return ast.factory.createSchema({
       ...base,
       primitive: specialPrimitive,
       type: specialType as ast.ScalarSchemaType,
@@ -503,7 +503,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     // render as `never` (plugin-ts) / invalid `z.enum([])` (plugin-zod). Mirror the `const: null`
     // branch so it renders as a clean `null` (not `z.null().nullable()`).
     if (nullInEnum && filteredValues.length === 0) {
-      return ast.createSchema({
+      return ast.factory.createSchema({
         type: 'null',
         primitive: 'null',
         name,
@@ -543,7 +543,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       const uniqueValues = [...new Set(filteredValues)]
       const seenNames = new Set<string>()
 
-      return ast.createSchema({
+      return ast.factory.createSchema({
         ...enumBase,
         primitive: enumPrimitiveType,
         namedEnumValues: uniqueValues
@@ -560,7 +560,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       })
     }
 
-    return ast.createSchema({
+    return ast.factory.createSchema({
       ...enumBase,
       enumValues: [...new Set(filteredValues)],
     })
@@ -590,7 +590,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
             return node
           })()
 
-          return ast.createProperty({
+          return ast.factory.createProperty({
             name: propName,
             schema: {
               ...schemaNode,
@@ -608,7 +608,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       if (additionalProperties && Object.keys(additionalProperties).length > 0) {
         return parseSchema({ schema: additionalProperties as SchemaObject }, rawOptions)
       }
-      if (additionalProperties) return ast.createSchema({ type: typeOptionMap.get(options.unknownType)! })
+      if (additionalProperties) return ast.factory.createSchema({ type: typeOptionMap.get(options.unknownType)! })
       return undefined
     })()
 
@@ -619,7 +619,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
           Object.entries(rawPatternProperties).map(([pattern, patternSchema]) => [
             pattern,
             patternSchema === true || (typeof patternSchema === 'object' && Object.keys(patternSchema).length === 0)
-              ? ast.createSchema({
+              ? ast.factory.createSchema({
                   type: typeOptionMap.get(options.unknownType)!,
                 })
               : parseSchema({ schema: patternSchema as SchemaObject }, rawOptions),
@@ -627,7 +627,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
         )
       : undefined
 
-    const objectNode: ast.SchemaNode = ast.createSchema({
+    const objectNode: ast.SchemaNode = ast.factory.createSchema({
       type: 'object',
       primitive: 'object',
       properties,
@@ -658,9 +658,9 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
    */
   function convertTuple({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): ast.SchemaNode {
     const tupleItems = (schema.prefixItems ?? []).map((item) => parseSchema({ schema: item as SchemaObject }, rawOptions))
-    const rest = schema.items ? parseSchema({ schema: schema.items as SchemaObject }, rawOptions) : ast.createSchema({ type: 'any' })
+    const rest = schema.items ? parseSchema({ schema: schema.items as SchemaObject }, rawOptions) : ast.factory.createSchema({ type: 'any' })
 
-    return ast.createSchema({
+    return ast.factory.createSchema({
       type: 'tuple',
       primitive: 'array',
       items: tupleItems,
@@ -679,7 +679,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     const itemName = rawItems?.enum?.length && name ? enumPropName(null, name, options.enumSuffix) : name
     const items = rawItems ? [parseSchema({ schema: rawItems, name: itemName }, rawOptions)] : []
 
-    return ast.createSchema({
+    return ast.factory.createSchema({
       type: 'array',
       primitive: 'array',
       items,
@@ -694,7 +694,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
    * Converts a `type: 'string'` schema into a `StringSchemaNode`.
    */
   function convertString({ schema, name, nullable, defaultValue }: SchemaContext): ast.SchemaNode {
-    return ast.createSchema({
+    return ast.factory.createSchema({
       type: 'string',
       primitive: 'string',
       min: schema.minLength,
@@ -708,7 +708,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
    * Converts a `type: 'number'` or `type: 'integer'` schema.
    */
   function convertNumeric({ schema, name, nullable, defaultValue }: SchemaContext, type: 'number' | 'integer'): ast.SchemaNode {
-    return ast.createSchema({
+    return ast.factory.createSchema({
       type,
       primitive: type,
       min: schema.minimum,
@@ -724,7 +724,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
    * Converts a `type: 'boolean'` schema.
    */
   function convertBoolean({ schema, name, nullable, defaultValue }: SchemaContext): ast.SchemaNode {
-    return ast.createSchema({
+    return ast.factory.createSchema({
       type: 'boolean',
       primitive: 'boolean',
       ...buildSchemaNode(schema, name, nullable, defaultValue),
@@ -735,7 +735,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
    * Converts an explicit `type: 'null'` schema.
    */
   function convertNull({ schema, name, nullable }: SchemaContext): ast.SchemaNode {
-    return ast.createSchema({
+    return ast.factory.createSchema({
       type: 'null',
       primitive: 'null',
       name,
@@ -752,7 +752,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
    * into a `blob` node.
    */
   function convertBlob({ schema, name, nullable, defaultValue }: SchemaContext): ast.SchemaNode {
-    return ast.createSchema({
+    return ast.factory.createSchema({
       type: 'blob',
       primitive: 'string',
       ...buildSchemaNode(schema, name, nullable, defaultValue),
@@ -771,7 +771,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     if (nonNullTypes.length <= 1) return null
 
     const arrayNullable = types.includes('null') || nullable || undefined
-    return ast.createSchema({
+    return ast.factory.createSchema({
       type: 'union',
       members: nonNullTypes.map((t) => parseSchema({ schema: { ...schema, type: t } as SchemaObject, name }, rawOptions)),
       ...buildSchemaNode(schema, name, arrayNullable, defaultValue),
@@ -859,7 +859,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     }
 
     const emptyType = typeOptionMap.get(options.emptySchemaType)!
-    return ast.createSchema({
+    return ast.factory.createSchema({
       type: emptyType as ast.ScalarSchemaType,
       name,
       title: schema.title,
@@ -878,9 +878,9 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
 
     const schema: ast.SchemaNode = param['schema']
       ? parseSchema({ schema: param['schema'] as SchemaObject, name: schemaName }, options)
-      : ast.createSchema({ type: typeOptionMap.get(options.unknownType)! })
+      : ast.factory.createSchema({ type: typeOptionMap.get(options.unknownType)! })
 
-    return ast.createParameter({
+    return ast.factory.createParameter({
       name: paramName,
       in: param['in'] as ast.ParameterLocation,
       schema: {
@@ -996,7 +996,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
         const node =
           raw && Object.keys(raw).length > 0
             ? parseSchema({ schema: raw, name: responseName }, options)
-            : ast.createSchema({ type: typeOptionMap.get(options.emptySchemaType)! })
+            : ast.factory.createSchema({ type: typeOptionMap.get(options.emptySchemaType)! })
         return { schema: node, keysToOmit: collectPropertyKeysByFlag(raw, 'writeOnly') }
       }
 
@@ -1011,7 +1011,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
         content.push({ contentType: getRequestContentType({ document, operation }) || 'application/json', ...parseEntrySchema(ctx.contentType) })
       }
 
-      return ast.createResponse({
+      return ast.factory.createResponse({
         statusCode: statusCode as ast.StatusCode,
         description,
         content,
@@ -1027,7 +1027,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       return typeof fallback === 'string' ? fallback : undefined
     }
 
-    return ast.createOperation({
+    return ast.factory.createOperation({
       operationId,
       protocol: 'http',
       method: operation.method.toUpperCase() as ast.HttpMethod,
@@ -1105,7 +1105,7 @@ export function parseOas(
     .map((operation) => _parseOperation(mergedOptions, operation))
     .filter((op): op is ast.OperationNode => op !== null)
 
-  const root = ast.createInput({ schemas, operations })
+  const root = ast.factory.createInput({ schemas, operations })
 
   return { root, nameMapping }
 }

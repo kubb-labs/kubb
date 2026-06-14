@@ -1,16 +1,5 @@
 import type { ArrowFunctionNode, CodeNode, ExportNode, FileNode, ImportNode, JSDocNode, SourceNode } from '@kubb/ast'
-import {
-  createArrowFunction,
-  createBreak,
-  createConst,
-  createExport,
-  createFunction,
-  createImport,
-  createJsx,
-  createSource,
-  createText,
-  createType,
-} from '@kubb/ast'
+import { factory } from '@kubb/ast'
 import { KUBB_ARROW_FUNCTION, KUBB_CONST, KUBB_EXPORT, KUBB_FILE, KUBB_FUNCTION, KUBB_IMPORT, KUBB_JSX, KUBB_SOURCE, KUBB_TYPE } from './constants.ts'
 import { Fragment } from './jsx-runtime.ts'
 import type { KubbReactElement } from './types.ts'
@@ -70,7 +59,7 @@ function collectCode(element: unknown, nodes: Array<CodeNode>): void {
   walkElement(
     element,
     (text) => {
-      if (text.trim()) nodes.push(createText(text))
+      if (text.trim()) nodes.push(factory.createText(text))
     },
     (type, props) => resolveCodeNode(type, props, nodes),
   )
@@ -78,7 +67,7 @@ function collectCode(element: unknown, nodes: Array<CodeNode>): void {
 
 function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Array<CodeNode>): void {
   if (type === 'br') {
-    nodes.push(createBreak())
+    nodes.push(factory.createBreak())
     return
   }
 
@@ -91,13 +80,13 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Ar
       },
       () => {},
     )
-    if (value) nodes.push(createJsx(value))
+    if (value) nodes.push(factory.createJsx(value))
     return
   }
 
   if (type === KUBB_FUNCTION) {
     nodes.push(
-      createFunction({
+      factory.createFunction({
         name: props['name'] as string,
         params: props['params'] as string | null | undefined,
         export: props['export'] as boolean | null | undefined,
@@ -114,7 +103,7 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Ar
 
   if (type === KUBB_ARROW_FUNCTION) {
     nodes.push(
-      createArrowFunction({
+      factory.createArrowFunction({
         name: props['name'] as string,
         params: props['params'] as string | null | undefined,
         export: props['export'] as boolean | null | undefined,
@@ -132,7 +121,7 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Ar
 
   if (type === KUBB_CONST) {
     nodes.push(
-      createConst({
+      factory.createConst({
         name: props['name'] as string,
         type: props['type'] as string | null | undefined,
         export: props['export'] as boolean | null | undefined,
@@ -146,7 +135,7 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Ar
 
   if (type === KUBB_TYPE) {
     nodes.push(
-      createType({
+      factory.createType({
         name: props['name'] as string,
         export: props['export'] as boolean | null | undefined,
         JSDoc: props['JSDoc'] as JSDocNode | null | undefined,
@@ -174,7 +163,7 @@ function collectFileChildren(element: unknown): FileChildren {
     (type, props) => {
       if (type === KUBB_SOURCE) {
         sources.push(
-          createSource({
+          factory.createSource({
             name: props['name']?.toString(),
             isTypeOnly: toBool(props['isTypeOnly']),
             isExportable: toBool(props['isExportable']),
@@ -187,7 +176,7 @@ function collectFileChildren(element: unknown): FileChildren {
 
       if (type === KUBB_EXPORT) {
         exports.push(
-          createExport({
+          factory.createExport({
             name: props['name'] as ExportNode['name'],
             path: props['path'] as string,
             isTypeOnly: toBool(props['isTypeOnly']),
@@ -199,7 +188,7 @@ function collectFileChildren(element: unknown): FileChildren {
 
       if (type === KUBB_IMPORT) {
         imports.push(
-          createImport({
+          factory.createImport({
             name: props['name'] as ImportNode['name'],
             path: props['path'] as string,
             root: props['root'] as string | null | undefined,

@@ -224,7 +224,7 @@ export function createInputStream({
 
     const canonical = dedupePlan.canonicalBySignature.get(ast.signatureOf(node))
     if (canonical && canonical.name !== node.name) {
-      return ast.createSchema({
+      return ast.factory.createSchema({
         type: 'ref',
         name: node.name ?? null,
         ref: canonical.ref,
@@ -278,5 +278,5 @@ export function createInputStream({
     },
   }
 
-  return ast.createStreamInput(schemasIterable, operationsIterable, meta)
+  return ast.factory.createStreamInput(schemasIterable, operationsIterable, meta)
 }

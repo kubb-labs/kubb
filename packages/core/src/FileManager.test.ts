@@ -1,12 +1,12 @@
-import { createFile, createImport, createSource, createText } from '@kubb/ast'
+import { factory } from '@kubb/ast'
 import { describe, expect, it, vi } from 'vitest'
 import { FileManager } from './FileManager.ts'
 
-function makeFile(path: string, sourceValue?: string, extra?: Partial<Parameters<typeof createFile>[0]>) {
-  return createFile({
+function makeFile(path: string, sourceValue?: string, extra?: Partial<Parameters<typeof factory.createFile>[0]>) {
+  return factory.createFile({
     path,
     baseName: path.split('/').pop() as `${string}.${string}`,
-    sources: sourceValue ? [createSource({ nodes: [createText(sourceValue)] })] : [],
+    sources: sourceValue ? [factory.createSource({ nodes: [factory.createText(sourceValue)] })] : [],
     imports: [],
     exports: [],
     ...extra,
@@ -42,8 +42,8 @@ describe('FileManager', () => {
       const make = (op: string) =>
         makeFile(`/src/clients/pet.ts`, `export declare function ${op}(): RequestConfig<Client>`, {
           imports: [
-            createImport({ name: 'client', path: clientPath }),
-            createImport({ name: ['Client', 'RequestConfig'], path: clientPath, isTypeOnly: true }),
+            factory.createImport({ name: 'client', path: clientPath }),
+            factory.createImport({ name: ['Client', 'RequestConfig'], path: clientPath, isTypeOnly: true }),
           ],
         })
       manager.add(make('getOrderById'), make('getPetById'))

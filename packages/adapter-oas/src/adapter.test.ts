@@ -130,7 +130,7 @@ describe('adapterOas.getImports', () => {
     })
 
     const imports = adapter.getImports(
-      ast.createSchema({
+      ast.factory.createSchema({
         type: 'ref',
         ref: '#/components/schemas/Pet',
         name: 'Pet',
