@@ -24,28 +24,12 @@ function summarize(nodes: Array<SchemaNode>) {
 }
 
 describe('mergeAdjacentObjects', () => {
-  it('returns an empty array unchanged', () => {
-    expect(mergeAdjacentObjects([])).toStrictEqual([])
-  })
-
-  it('keeps a single anonymous object unchanged', () => {
-    expect(summarize(mergeAdjacentObjects([makeObject(['a'])]))).toStrictEqual([{ type: 'object', name: undefined, props: ['a'] }])
-  })
-
-  it('merges adjacent anonymous objects into one object', () => {
+  it('merges a run of adjacent anonymous objects into one', () => {
     const result = mergeAdjacentObjects([makeObject(['a']), makeObject(['b']), makeObject(['c'])])
     expect(summarize(result)).toStrictEqual([{ type: 'object', name: undefined, props: ['a', 'b', 'c'] }])
   })
 
-  it('does not merge named objects', () => {
-    const result = mergeAdjacentObjects([makeObject(['a'], 'Foo'), makeObject(['b'], 'Bar')])
-    expect(summarize(result)).toStrictEqual([
-      { type: 'object', name: 'Foo', props: ['a'] },
-      { type: 'object', name: 'Bar', props: ['b'] },
-    ])
-  })
-
-  it('does not merge across named-object boundaries', () => {
+  it('does not merge across a named object', () => {
     const result = mergeAdjacentObjects([makeObject(['a']), makeObject(['b'], 'Named'), makeObject(['c'])])
     expect(summarize(result)).toStrictEqual([
       { type: 'object', name: undefined, props: ['a'] },

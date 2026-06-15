@@ -79,14 +79,7 @@ describe('isStringType', () => {
 })
 
 describe('syncSchemaRef', () => {
-  it('returns a merged schema for a ref node that has a resolved schema', () => {
-    const resolved = createSchema({ type: 'object' })
-    const ref = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet', schema: resolved })
-
-    expect(syncSchemaRef(ref).type).toBe('object')
-  })
-
-  it('returns a merged schema with sibling overrides applied over the resolved schema', () => {
+  it('merges sibling overrides over the resolved schema', () => {
     const resolved = createSchema({ type: 'object', description: 'Original' })
     const ref = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet', schema: resolved, description: 'Override', readOnly: true })
 

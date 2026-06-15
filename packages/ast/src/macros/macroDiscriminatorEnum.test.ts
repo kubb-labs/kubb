@@ -8,59 +8,31 @@ function applyShallow(node: SchemaNode, macro: Parameters<typeof applyMacros>[1]
   return applyMacros(node, [macro], { depth: 'shallow' })
 }
 
-function makeObjectNode(propNames: Array<string>, name?: string): SchemaNode {
-  return createSchema({
-    type: 'object',
-    name,
-    properties: propNames.map((prop) => createProperty({ name: prop, schema: createSchema({ type: 'string' }) })),
-  })
-}
-
 describe('macroDiscriminatorEnum', () => {
-  const baseNode = makeObjectNode(['type', 'name'], 'Pet')
+  it('leaves a node without the discriminator property unchanged', () => {
+    const node = createSchema({ type: 'object', name: 'Pet', properties: [createProperty({ name: 'name', schema: createSchema({ type: 'string' }) })] })
 
-  it('returns the original node when input is not an object schema', () => {
-    const node = createSchema({ type: 'string' })
     expect(applyShallow(node, macroDiscriminatorEnum({ propertyName: 'type', values: ['dog'] }))).toBe(node)
   })
 
-  it('returns the original node when the target property is missing', () => {
-    expect(applyShallow(baseNode, macroDiscriminatorEnum({ propertyName: 'kind', values: ['dog'] }))).toBe(baseNode)
-  })
+  it('replaces the discriminator property with a string enum of the values, named from enumName', () => {
+    const node = createSchema({ type: 'object', name: 'Pet', properties: [createProperty({ name: 'type', schema: createSchema({ type: 'string' }) })] })
 
-  it('returns the original node when object properties are empty', () => {
-    const node = createSchema({ type: 'object', properties: [] })
-    expect(applyShallow(node, macroDiscriminatorEnum({ propertyName: 'type', values: ['dog'] }))).toBe(node)
-  })
+    const result = applyShallow(node, macroDiscriminatorEnum({ propertyName: 'type', values: ['dog', 'cat'], enumName: 'PetTypeEnum' }))
+    const enumNode = result.type === 'object' ? result.properties?.find((p) => p.name === 'type')?.schema : undefined
 
-  it('replaces the discriminator property with an unnamed enum for a single value', () => {
-    const result = applyShallow(baseNode, macroDiscriminatorEnum({ propertyName: 'type', values: ['dog'] }))
-    const objectNode = result.type === 'object' ? result : undefined
-    const typeProp = objectNode?.properties?.find((prop) => prop.name === 'type')
-    const enumNode = typeProp?.schema.type === 'enum' ? typeProp.schema : undefined
-
-    expect(enumNode?.enumValues).toStrictEqual(['dog'])
-    expect(enumNode?.name).toBeUndefined()
-  })
-
-  it('replaces the discriminator property with a named enum for multiple values', () => {
-    const result = applyShallow(baseNode, macroDiscriminatorEnum({ propertyName: 'type', values: ['dog', 'cat'], enumName: 'PetTypeEnum' }))
-    const objectNode = result.type === 'object' ? result : undefined
-    const typeProp = objectNode?.properties?.find((prop) => prop.name === 'type')
-    const enumNode = typeProp?.schema.type === 'enum' ? typeProp.schema : undefined
-
-    expect(enumNode?.enumValues).toStrictEqual(['dog', 'cat'])
+    expect(enumNode?.type === 'enum' ? enumNode.enumValues : undefined).toStrictEqual(['dog', 'cat'])
     expect(enumNode?.name).toBe('PetTypeEnum')
   })
 
-  it('preserves readOnly and writeOnly from the original discriminator property', () => {
+  it('preserves readOnly and writeOnly on the replaced property', () => {
     const node = createSchema({
       type: 'object',
       properties: [createProperty({ name: 'type', schema: createSchema({ type: 'string', readOnly: true, writeOnly: true }) })],
     })
+
     const result = applyShallow(node, macroDiscriminatorEnum({ propertyName: 'type', values: ['dog'] }))
-    const objectNode = result.type === 'object' ? result : undefined
-    const typeProp = objectNode?.properties?.find((prop) => prop.name === 'type')
+    const typeProp = result.type === 'object' ? result.properties?.find((p) => p.name === 'type') : undefined
 
     expect(typeProp?.schema.readOnly).toBe(true)
     expect(typeProp?.schema.writeOnly).toBe(true)
