@@ -1,5 +1,6 @@
 import { pascalCase } from '@internals/utils'
-import { childName, enumPropName, extractRefName } from '@kubb/ast/utils'
+import { macroDiscriminatorEnum, macroEnumName, macroSimplifyUnion } from '@kubb/ast/macros'
+import { childName, enumPropName, extractRefName, mergeAdjacentObjectsLazy } from '@kubb/ast/utils'
 import { ast } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, SCHEMA_REF_PREFIX, typeOptionMap } from './constants.ts'
 import { oasDialect, type OasDialect } from './dialect.ts'
@@ -98,6 +99,23 @@ function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
   const { enum: _enum, ...schemaWithoutEnum } = schema
 
   return { ...schemaWithoutEnum, items: normalizedItems } as SchemaObject
+}
+
+/**
+ * Names the inline enums on a property's schema, and on each item when the property is a tuple, from
+ * the parent and property name. Wraps `macroEnumName` at the property construction site.
+ */
+function nameEnums(node: ast.SchemaNode, options: { parentName: string | null | undefined; propName: string; enumSuffix: string }): ast.SchemaNode {
+  const macro = macroEnumName(options)
+  const named = ast.applyMacros(node, [macro], { depth: 'shallow' })
+  const tupleNode = ast.narrowSchema(named, 'tuple')
+  if (tupleNode?.items) {
+    const namedItems = tupleNode.items.map((item) => ast.applyMacros(item, [macro], { depth: 'shallow' }))
+    if (namedItems.some((item, i) => item !== tupleNode.items![i])) {
+      return { ...tupleNode, items: namedItems }
+    }
+  }
+  return named
 }
 
 /**
@@ -276,7 +294,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
 
     return ast.factory.createSchema({
       type: 'intersection',
-      members: [...ast.mergeAdjacentObjectsLazy(allOfMembers.slice(0, syntheticStart)), ...ast.mergeAdjacentObjectsLazy(allOfMembers.slice(syntheticStart))],
+      members: [...mergeAdjacentObjectsLazy(allOfMembers.slice(0, syntheticStart)), ...mergeAdjacentObjectsLazy(allOfMembers.slice(syntheticStart))],
       ...buildSchemaNode(schema, name, nullable, defaultValue),
     })
   }
@@ -330,10 +348,8 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
 
         const narrowedDiscriminatorNode = sharedPropertiesNode
           ? pickDiscriminatorPropertyNode(
-              ast.setDiscriminatorEnum({
-                node: sharedPropertiesNode,
-                propertyName: discriminator.propertyName,
-                values: [discriminatorValue],
+              ast.applyMacros(sharedPropertiesNode, [macroDiscriminatorEnum({ propertyName: discriminator.propertyName, values: [discriminatorValue] })], {
+                depth: 'shallow',
               }),
               discriminator.propertyName,
             )
@@ -369,11 +385,13 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       })
     }
 
-    return ast.factory.createSchema({
+    const unionNode = ast.factory.createSchema({
       type: 'union',
       ...unionBase,
-      members: ast.simplifyUnion(unionMembers.map((s) => parseSchema({ schema: s as SchemaObject, name }, rawOptions))),
+      members: unionMembers.map((s) => parseSchema({ schema: s as SchemaObject, name }, rawOptions)),
     })
+
+    return ast.applyMacros(unionNode, [macroSimplifyUnion], { depth: 'shallow' })
   }
 
   /**
@@ -585,17 +603,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
 
           const resolvedChildName = childName(name, propName)
           const propNode = parseSchema({ schema: resolvedPropSchema, name: resolvedChildName }, rawOptions)
-          const schemaNode = (() => {
-            const node = ast.setEnumName(propNode, name, propName, options.enumSuffix)
-            const tupleNode = ast.narrowSchema(node, 'tuple')
-            if (tupleNode?.items) {
-              const namedItems = tupleNode.items.map((item) => ast.setEnumName(item, name, propName, options.enumSuffix))
-              if (namedItems.some((item, i) => item !== tupleNode.items![i])) {
-                return { ...tupleNode, items: namedItems }
-              }
-            }
-            return node
-          })()
+          const schemaNode = nameEnums(propNode, { parentName: name, propName, enumSuffix: options.enumSuffix })
 
           return ast.factory.createProperty({
             name: propName,
@@ -649,12 +657,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       const discPropName = schema.discriminator.propertyName
       const values = Object.keys(schema.discriminator.mapping)
       const enumName = name ? enumPropName(name, discPropName, options.enumSuffix) : undefined
-      return ast.setDiscriminatorEnum({
-        node: objectNode,
-        propertyName: discPropName,
-        values,
-        enumName,
-      })
+      return ast.applyMacros(objectNode, [macroDiscriminatorEnum({ propertyName: discPropName, values, enumName })], { depth: 'shallow' })
     }
 
     return objectNode

@@ -1,4 +1,4 @@
-import type { FileNode, HttpMethod, UserFileNode, Visitor } from '@kubb/ast'
+import type { FileNode, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
 import { diagnosticCode } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { BannerMeta, Resolver } from './defineResolver.ts'
@@ -297,9 +297,14 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
    */
   setResolver(resolver: Partial<TFactory['resolver']>): void
   /**
-   * Set the AST transformer to pre-process nodes before they reach generators.
+   * Add a macro that rewrites AST nodes before they reach generators. Macros run in the order they
+   * are added, after any macros from earlier `addMacro` calls.
    */
-  setTransformer(visitor: Visitor): void
+  addMacro(macro: Macro): void
+  /**
+   * Replace this plugin's macros with `macros`.
+   */
+  setMacros(macros: ReadonlyArray<Macro>): void
   /**
    * Set resolved options merged into the normalized plugin's `options`.
    * Call this in `kubb:plugin:setup` to provide options generators need.
@@ -376,7 +381,7 @@ export type NormalizedPlugin<TOptions extends PluginFactoryOptions = PluginFacto
     override: Array<Override<TOptions['resolvedOptions']>>
   }
   resolver: TOptions['resolver']
-  transformer?: Visitor
+  macros?: Array<Macro>
   generators?: Array<Generator>
   apply?: (config: Config) => boolean
   version?: string

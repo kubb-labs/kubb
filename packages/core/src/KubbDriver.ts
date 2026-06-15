@@ -88,7 +88,7 @@ export class KubbDriver {
   readonly #listeners: Array<ListenerEntry> = []
 
   /**
-   * Transform registry. Plugins populate it during `kubb:plugin:setup` via `setTransformer`,
+   * Transform registry. Plugins populate it during `kubb:plugin:setup` via `addMacro`/`setMacros`,
    * and `#runGenerators` reads it once per `(plugin, node)` pair through `applyTo`.
    */
   readonly #transforms = new Transform()
@@ -188,7 +188,7 @@ export class KubbDriver {
    * Registers a hook-style plugin's lifecycle handlers on the shared `AsyncEventEmitter`.
    *
    * The `kubb:plugin:setup` listener wraps the global context in a plugin-specific one so
-   * `addGenerator`, `setResolver`, and `setTransformer` target the right `normalizedPlugin`.
+   * `addGenerator`, `setResolver`, and `setMacros` target the right `normalizedPlugin`.
    * Every other `KubbHooks` event registers as a pass-through listener that external tooling
    * can observe via `hooks.on(...)`.
    *
@@ -213,8 +213,11 @@ export class KubbDriver {
           setResolver: (resolver) => {
             this.setPluginResolver(plugin.name, resolver)
           },
-          setTransformer: (visitor) => {
-            this.#transforms.register(plugin.name, visitor)
+          addMacro: (macro) => {
+            this.#transforms.add(plugin.name, macro)
+          },
+          setMacros: (macros) => {
+            this.#transforms.set(plugin.name, macros)
           },
           setOptions: (opts) => {
             plugin.options = { ...plugin.options, ...opts }
@@ -245,7 +248,7 @@ export class KubbDriver {
 
   /**
    * Emits the `kubb:plugin:setup` event so that all registered hook-style plugin listeners
-   * can configure generators, resolvers, transformers and renderers before `buildStart` runs.
+   * can configure generators, resolvers, macros and renderers before `buildStart` runs.
    *
    * Call this once from `safeBuild` before the plugin execution loop begins.
    */
@@ -257,7 +260,8 @@ export class KubbDriver {
       options: {},
       addGenerator: noop,
       setResolver: noop,
-      setTransformer: noop,
+      addMacro: noop,
+      setMacros: noop,
       setOptions: noop,
       injectFile: noop,
       updateConfig: noop,
@@ -373,7 +377,7 @@ export class KubbDriver {
 
           // Parse the adapter source into the streaming `InputNode`.
           await this.#parseInput()
-          // Emit `kubb:plugin:setup` so plugins can register transformers via `setTransformer`.
+          // Emit `kubb:plugin:setup` so plugins can register macros via `addMacro`/`setMacros`.
           // Each call writes into `this.#transforms`, which `#runGenerators` later reads through
           // `transforms.applyTo`.
           await this.emitSetupHooks()
@@ -465,7 +469,7 @@ export class KubbDriver {
 
   /**
    * Streams schemas and operations through every plugin's generators. Each node is run
-   * through the plugin's transformer (from `this.#transforms`) before the generator sees it,
+   * through the plugin's macros (from `this.#transforms`) before the generator sees it,
    * so plugins stay isolated and the hot path stays per-node. Schemas run before operations
    * because the two passes share `flushPending` and the FileProcessor's event emitter.
    * A failing plugin contributes an error diagnostic so the rest of the build continues.
@@ -561,7 +565,7 @@ export class KubbDriver {
       }
     }
 
-    // Apply the plugin's transformer, then resolve options (skipping the resolver when
+    // Apply the plugin's macros, then resolve options (skipping the resolver when
     // optionsAreStatic). Returns null when include/exclude/override rules out the node.
     // The per-node dispatch and the collected-operations tail both go through this so
     // they agree on what a plugin sees.
@@ -834,9 +838,6 @@ export class KubbDriver {
       },
       get resolver() {
         return driver.getResolver(plugin.name)
-      },
-      get transformer() {
-        return driver.#transforms.get(plugin.name)
       },
       warn(message: string) {
         report({ code: Diagnostics.code.pluginWarning, severity: 'warning', message })

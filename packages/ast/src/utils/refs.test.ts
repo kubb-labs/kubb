@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createSchema } from '../nodes/schema.ts'
-import { childName, enumPropName, extractRefName, isStringType, resolveRefName } from './refs.ts'
+import { childName, enumPropName, extractRefName, isStringType, resolveRefName, syncSchemaRef } from './refs.ts'
 
 describe('extractRefName', () => {
   it('extracts schema name from component schema refs', () => {
@@ -75,5 +75,22 @@ describe('isStringType', () => {
     expect(isStringType(createSchema({ type: 'date', representation: 'date' }))).toBe(false)
     expect(isStringType(createSchema({ type: 'time', representation: 'date' }))).toBe(false)
     expect(isStringType(createSchema({ type: 'number' }))).toBe(false)
+  })
+})
+
+describe('syncSchemaRef', () => {
+  it('merges sibling overrides over the resolved schema', () => {
+    const resolved = createSchema({ type: 'object', description: 'Original' })
+    const ref = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet', schema: resolved, description: 'Override', readOnly: true })
+
+    const merged = syncSchemaRef(ref)
+    expect(merged.description).toBe('Override')
+    expect(merged.readOnly).toBe(true)
+    expect(merged.type).toBe('object')
+  })
+
+  it('returns a non-ref node unchanged', () => {
+    const node = createSchema({ type: 'string' })
+    expect(syncSchemaRef(node)).toBe(node)
   })
 })

@@ -30,8 +30,9 @@ Defines the node tree, visitor pattern, factory functions, and type guards used 
 
 | Path                | Contents                                                                                 |
 | ------------------- | ---------------------------------------------------------------------------------------- |
-| `@kubb/ast`         | Runtime: node definitions, guards, visitor, transformers, constants                      |
+| `@kubb/ast`         | Runtime: node definitions, guards, visitor, macro engine, constants                      |
 | `@kubb/ast/factory` | Node constructors (`createSchema`, `createFile`, and friends), the `ts.factory` analogue |
+| `@kubb/ast/macros`  | Built-in macro presets: `macroDiscriminatorEnum`, `macroSimplifyUnion`, `macroEnumName`  |
 | `@kubb/ast/types`   | Types only: all node interfaces, type aliases, visitor types                             |
 | `@kubb/ast/utils`   | Spec-agnostic string and identifier helpers, ref helpers                                 |
 
