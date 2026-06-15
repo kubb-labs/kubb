@@ -1,10 +1,11 @@
 import type { VisitorDepth } from './constants.ts'
 import { visitorDepths, WALK_CONCURRENCY } from './constants.ts'
-import { nodeRebuilders, VISITOR_KEY_BY_KIND, VISITOR_KEYS } from './registry.ts'
+import type { NodeDef } from './node.ts'
 import type {
   ContentNode,
   InputNode,
   Node,
+  NodeKind,
   OperationNode,
   OutputNode,
   ParameterNode,
@@ -13,6 +14,31 @@ import type {
   ResponseNode,
   SchemaNode,
 } from './nodes/index.ts'
+import { nodeDefs } from './registry.ts'
+
+/**
+ * Child node fields per node kind, in traversal order (Babel's `VISITOR_KEYS`).
+ * Derived from each definition's `children`.
+ */
+const VISITOR_KEYS = Object.fromEntries(nodeDefs.flatMap((def) => (def.children ? [[def.kind, def.children] as const] : []))) as Partial<
+  Record<NodeKind, ReadonlyArray<string>>
+>
+
+/**
+ * Maps a node kind to the matching visitor callback name. Derived from each
+ * definition's `visitorKey`.
+ */
+const VISITOR_KEY_BY_KIND = Object.fromEntries(nodeDefs.flatMap((def) => (def.visitorKey ? [[def.kind, def.visitorKey] as const] : []))) as Partial<
+  Record<NodeKind, NonNullable<NodeDef['visitorKey']>>
+>
+
+/**
+ * Per-kind builders rerun after children are rebuilt. Derived from each
+ * definition's `rebuild` flag.
+ */
+const nodeRebuilders = Object.fromEntries(
+  nodeDefs.flatMap((def) => (def.rebuild ? [[def.kind, def.create as unknown as (node: Node) => Node] as const] : [])),
+) as Partial<Record<NodeKind, (node: Node) => Node>>
 
 /**
  * Creates a small async concurrency limiter.
