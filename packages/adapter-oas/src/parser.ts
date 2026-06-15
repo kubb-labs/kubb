@@ -102,6 +102,32 @@ function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
 }
 
 /**
+ * Applies a single macro to just the given node, without recursing into children. This is the
+ * granularity the parser needs: it already knows which node to rewrite, so a shallow pass keeps the
+ * macro from touching nested schemas that other rules own.
+ */
+function applyShallow(node: ast.SchemaNode, macro: ast.Macro): ast.SchemaNode {
+  return ast.applyMacros(node, [macro], { depth: 'shallow' })
+}
+
+/**
+ * Names the inline enums on a property's schema, and on each item when the property is a tuple, from
+ * the parent and property name. Wraps `macroEnumName` at the property construction site.
+ */
+function nameEnums(node: ast.SchemaNode, options: { parentName: string | null | undefined; propName: string; enumSuffix: string }): ast.SchemaNode {
+  const macro = macroEnumName(options)
+  const named = applyShallow(node, macro)
+  const tupleNode = ast.narrowSchema(named, 'tuple')
+  if (tupleNode?.items) {
+    const namedItems = tupleNode.items.map((item) => applyShallow(item, macro))
+    if (namedItems.some((item, i) => item !== tupleNode.items![i])) {
+      return { ...tupleNode, items: namedItems }
+    }
+  }
+  return named
+}
+
+/**
  * Factory function that creates schema and operation converters for a given OpenAPI context.
  *
  * Returns closures that share mutable state (`resolvingRefs` set for cycle detection).
@@ -331,9 +357,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
 
         const narrowedDiscriminatorNode = sharedPropertiesNode
           ? pickDiscriminatorPropertyNode(
-              ast.applyMacros(sharedPropertiesNode, [macroDiscriminatorEnum({ propertyName: discriminator.propertyName, values: [discriminatorValue] })], {
-                depth: 'shallow',
-              }),
+              applyShallow(sharedPropertiesNode, macroDiscriminatorEnum({ propertyName: discriminator.propertyName, values: [discriminatorValue] })),
               discriminator.propertyName,
             )
           : undefined
@@ -374,7 +398,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       members: unionMembers.map((s) => parseSchema({ schema: s as SchemaObject, name }, rawOptions)),
     })
 
-    return ast.applyMacros(unionNode, [macroSimplifyUnion], { depth: 'shallow' })
+    return applyShallow(unionNode, macroSimplifyUnion)
   }
 
   /**
@@ -586,18 +610,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
 
           const resolvedChildName = childName(name, propName)
           const propNode = parseSchema({ schema: resolvedPropSchema, name: resolvedChildName }, rawOptions)
-          const schemaNode = (() => {
-            const enumNameMacro = macroEnumName({ parentName: name, propName, enumSuffix: options.enumSuffix })
-            const node = ast.applyMacros(propNode, [enumNameMacro], { depth: 'shallow' })
-            const tupleNode = ast.narrowSchema(node, 'tuple')
-            if (tupleNode?.items) {
-              const namedItems = tupleNode.items.map((item) => ast.applyMacros(item, [enumNameMacro], { depth: 'shallow' }))
-              if (namedItems.some((item, i) => item !== tupleNode.items![i])) {
-                return { ...tupleNode, items: namedItems }
-              }
-            }
-            return node
-          })()
+          const schemaNode = nameEnums(propNode, { parentName: name, propName, enumSuffix: options.enumSuffix })
 
           return ast.factory.createProperty({
             name: propName,
@@ -651,7 +664,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       const discPropName = schema.discriminator.propertyName
       const values = Object.keys(schema.discriminator.mapping)
       const enumName = name ? enumPropName(name, discPropName, options.enumSuffix) : undefined
-      return ast.applyMacros(objectNode, [macroDiscriminatorEnum({ propertyName: discPropName, values, enumName })], { depth: 'shallow' })
+      return applyShallow(objectNode, macroDiscriminatorEnum({ propertyName: discPropName, values, enumName }))
     }
 
     return objectNode
