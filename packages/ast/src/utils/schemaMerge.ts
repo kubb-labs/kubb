@@ -36,10 +36,3 @@ export function* mergeAdjacentObjectsLazy(members: Iterable<SchemaNode>): Genera
 
   if (acc !== undefined) yield acc
 }
-
-/**
- * Eager form of {@link mergeAdjacentObjectsLazy}.
- */
-export function mergeAdjacentObjects(members: Array<SchemaNode>): Array<SchemaNode> {
-  return [...mergeAdjacentObjectsLazy(members)]
-}
