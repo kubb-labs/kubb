@@ -3,7 +3,7 @@ import { createInput } from './nodes/input.ts'
 import { createOperation } from './nodes/operation.ts'
 import { createProperty } from './nodes/property.ts'
 import { createSchema } from './nodes/schema.ts'
-import { applyMacros, composeMacros, defineMacro } from './macro.ts'
+import { applyMacros, composeMacros, defineMacro } from './defineMacro.ts'
 import { transform } from './visitor.ts'
 
 describe('defineMacro', () => {
