@@ -213,6 +213,12 @@ export class KubbDriver {
           setResolver: (resolver) => {
             this.setPluginResolver(plugin.name, resolver)
           },
+          addMacro: (macro) => {
+            this.#transforms.add(plugin.name, macro)
+          },
+          setMacros: (macros) => {
+            this.#transforms.set(plugin.name, macros)
+          },
           setTransformer: (visitor) => {
             this.#transforms.register(plugin.name, visitor)
           },
@@ -257,6 +263,8 @@ export class KubbDriver {
       options: {},
       addGenerator: noop,
       setResolver: noop,
+      addMacro: noop,
+      setMacros: noop,
       setTransformer: noop,
       setOptions: noop,
       injectFile: noop,

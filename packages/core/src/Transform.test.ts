@@ -122,7 +122,7 @@ describe('Transform — registry', () => {
     transforms.register('a', visitor)
 
     expect(transforms.size).toBe(1)
-    expect(transforms.get('a')).toBe(visitor)
+    expect(transforms.get('a')).toBeDefined()
   })
 
   it('overwrites a previous registration for the same plugin', () => {
@@ -146,5 +146,38 @@ describe('Transform — registry', () => {
     expect(transforms.size).toBe(0)
     expect(transforms.get('a')).toBeUndefined()
     expect(transforms.applyTo('a', namedSchema('Pet')).name).toBe('Pet')
+  })
+})
+
+describe('Transform — macros', () => {
+  it('runs added macros in order so a later macro sees the earlier output', () => {
+    const transforms = new Transform()
+    transforms.add('a', { name: 'first', schema: (node) => ({ ...node, name: `${node.name}-1` }) })
+    transforms.add('a', { name: 'second', schema: (node) => ({ ...node, name: `${node.name}-2` }) })
+
+    expect(transforms.applyTo('a', namedSchema('Pet')).name).toBe('Pet-1-2')
+  })
+
+  it('set replaces the whole macro list', () => {
+    const transforms = new Transform()
+    transforms.add('a', { name: 'first', schema: (node) => ({ ...node, name: 'first' }) })
+    transforms.set('a', [{ name: 'only', schema: (node) => ({ ...node, name: 'only' }) }])
+
+    expect(transforms.applyTo('a', namedSchema('Pet')).name).toBe('only')
+  })
+
+  it('orders macros within a plugin by enforce', () => {
+    const transforms = new Transform()
+    transforms.add('a', { name: 'post', enforce: 'post', schema: (node) => ({ ...node, name: `${node.name}-post` }) })
+    transforms.add('a', { name: 'pre', enforce: 'pre', schema: (node) => ({ ...node, name: `${node.name}-pre` }) })
+
+    expect(transforms.applyTo('a', namedSchema('Pet')).name).toBe('Pet-pre-post')
+  })
+
+  it('register keeps a bare visitor working as one macro', () => {
+    const transforms = new Transform()
+    transforms.register('a', { schema: (node) => (node.name === 'Pet' ? { ...node, name: 'PetRenamed' } : undefined) })
+
+    expect(transforms.applyTo('a', namedSchema('Pet')).name).toBe('PetRenamed')
   })
 })
