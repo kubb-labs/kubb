@@ -1,4 +1,4 @@
-import type { FileNode, HttpMethod, Macro, UserFileNode, Visitor } from '@kubb/ast'
+import type { FileNode, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
 import { diagnosticCode } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { BannerMeta, Resolver } from './defineResolver.ts'
@@ -381,7 +381,6 @@ export type NormalizedPlugin<TOptions extends PluginFactoryOptions = PluginFacto
     override: Array<Override<TOptions['resolvedOptions']>>
   }
   resolver: TOptions['resolver']
-  transformer?: Visitor
   macros?: Array<Macro>
   generators?: Array<Generator>
   apply?: (config: Config) => boolean

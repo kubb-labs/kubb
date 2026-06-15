@@ -1,7 +1,7 @@
 import path, { resolve } from 'node:path'
 import { camelCase } from '@internals/utils'
-import type { FileNode, InputMeta, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
-import { transform } from '@kubb/ast'
+import type { FileNode, InputMeta, Macro, OperationNode, SchemaNode } from '@kubb/ast'
+import { applyMacros } from '@kubb/ast'
 import { expect } from 'vitest'
 import type { Parser } from './defineParser.ts'
 import { FileManager } from './FileManager.ts'
@@ -81,14 +81,14 @@ export function createMockedPlugin<TOptions extends PluginFactoryOptions = Plugi
   name: TOptions['name']
   options: TOptions['resolvedOptions']
   resolver?: TOptions['resolver']
-  transformer?: Visitor
+  macros?: Array<Macro>
   dependencies?: Array<string>
 }): NormalizedPlugin<TOptions> {
   return {
     name: params.name,
     options: params.options,
     resolver: params.resolver,
-    transformer: params.transformer,
+    macros: params.macros,
     dependencies: params.dependencies,
     hooks: {},
   } as unknown as NormalizedPlugin<TOptions>
@@ -141,7 +141,7 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
 ): Promise<void> {
   if (!generator.schema) return
   const context = createMockedPluginContext(opts)
-  const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
+  const transformedNode = opts.plugin.macros?.length ? applyMacros(node, opts.plugin.macros) : node
   const result = await generator.schema(transformedNode, {
     ...context,
     options: opts.options,
@@ -165,7 +165,7 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
 ): Promise<void> {
   if (!generator.operation) return
   const context = createMockedPluginContext(opts)
-  const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
+  const transformedNode = opts.plugin.macros?.length ? applyMacros(node, opts.plugin.macros) : node
   const result = await generator.operation(transformedNode, {
     ...context,
     options: opts.options,
@@ -189,7 +189,7 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
 ): Promise<void> {
   if (!generator.operations) return
   const context = createMockedPluginContext(opts)
-  const transformedNodes = opts.plugin.transformer ? nodes.map((n) => transform(n, opts.plugin.transformer!)) : nodes
+  const transformedNodes = opts.plugin.macros?.length ? nodes.map((n) => applyMacros(n, opts.plugin.macros!)) : nodes
   const result = await generator.operations(transformedNodes, {
     ...context,
     options: opts.options,
