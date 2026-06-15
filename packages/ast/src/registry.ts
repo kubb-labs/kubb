@@ -3,7 +3,6 @@ import { arrowFunctionDef, breakDef, constDef, functionDef, jsxDef, textDef, typ
 import { contentDef } from './nodes/content.ts'
 import { exportDef, fileDef, importDef, sourceDef } from './nodes/file.ts'
 import { functionParameterDef, functionParametersDef, indexedAccessTypeDef, objectBindingPatternDef, typeLiteralDef } from './nodes/function.ts'
-import type { Node, NodeKind } from './nodes/index.ts'
 import { inputDef } from './nodes/input.ts'
 import { operationDef } from './nodes/operation.ts'
 import { outputDef } from './nodes/output.ts'
@@ -13,9 +12,39 @@ import { requestBodyDef } from './nodes/requestBody.ts'
 import { responseDef } from './nodes/response.ts'
 import { schemaDef } from './nodes/schema.ts'
 
+// Surface every def from one place so the package barrel re-exports them with `export * from './registry.ts'`.
+// Adding a node means adding its `defineNode` to a `nodes/*.ts` file and listing it in `nodeDefs` below, nothing else.
+export {
+  arrowFunctionDef,
+  breakDef,
+  constDef,
+  contentDef,
+  exportDef,
+  fileDef,
+  functionDef,
+  functionParameterDef,
+  functionParametersDef,
+  importDef,
+  indexedAccessTypeDef,
+  inputDef,
+  jsxDef,
+  objectBindingPatternDef,
+  operationDef,
+  outputDef,
+  parameterDef,
+  propertyDef,
+  requestBodyDef,
+  responseDef,
+  schemaDef,
+  sourceDef,
+  textDef,
+  typeDef,
+  typeLiteralDef,
+}
+
 /**
  * Every node definition. Adding a node means adding its `defineNode` to one
- * `nodes/*.ts` file and listing it here. The visitor tables below derive from it.
+ * `nodes/*.ts` file and listing it here. The visitor tables in `visitor.ts` derive from it.
  */
 export const nodeDefs = [
   inputDef,
@@ -44,27 +73,3 @@ export const nodeDefs = [
   sourceDef,
   fileDef,
 ] satisfies ReadonlyArray<NodeDef>
-
-/**
- * Child node fields per node kind, in traversal order (Babel's `VISITOR_KEYS`).
- * Derived from each definition's `children`.
- */
-export const VISITOR_KEYS = Object.fromEntries(nodeDefs.flatMap((def) => (def.children ? [[def.kind, def.children] as const] : []))) as Partial<
-  Record<NodeKind, ReadonlyArray<string>>
->
-
-/**
- * Maps a node kind to the matching visitor callback name. Derived from each
- * definition's `visitorKey`.
- */
-export const VISITOR_KEY_BY_KIND = Object.fromEntries(nodeDefs.flatMap((def) => (def.visitorKey ? [[def.kind, def.visitorKey] as const] : []))) as Partial<
-  Record<NodeKind, NonNullable<NodeDef['visitorKey']>>
->
-
-/**
- * Per-kind builders rerun after children are rebuilt. Derived from each
- * definition's `rebuild` flag.
- */
-export const nodeRebuilders = Object.fromEntries(
-  nodeDefs.flatMap((def) => (def.rebuild ? [[def.kind, def.create as unknown as (node: Node) => Node] as const] : [])),
-) as Partial<Record<NodeKind, (node: Node) => Node>>

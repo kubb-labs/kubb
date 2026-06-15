@@ -134,6 +134,16 @@ import { extractRefName } from '@kubb/ast/utils'
 extractRefName('#/components/schemas/Pet') // 'Pet'
 ```
 
+## Adding a node
+
+Adding a node touches three files. The barrels and visitor tables derive the rest.
+
+1. Define the node in its own `src/nodes/*.ts` file. Call `defineNode` and export the resulting `fooDef`, the `createFoo` constructor, and the node's type.
+2. Add `fooDef` to the `nodeDefs` array in `src/registry.ts`.
+3. Re-export `createFoo` from `src/factory.ts`.
+
+Everything else follows from there. `@kubb/ast/types` picks up the node type through `export type *`, the `@kubb/ast` barrel picks up `fooDef` through `export * from './registry.ts'`, and the visitor tables (`VISITOR_KEYS`, `VISITOR_KEY_BY_KIND`, `nodeRebuilders`) come from the def's `children`, `visitorKey`, and `rebuild` fields. `registry.test.ts` fails when a def has no matching `factory.create*`, so missing wiring is caught in CI.
+
 ## Supporting Kubb
 
 Kubb is an open source project, and its development is funded entirely by sponsors. If you would like to become a sponsor, please consider:
