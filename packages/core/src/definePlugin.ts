@@ -1,5 +1,4 @@
-import type { FileNode, HttpMethod, UserFileNode, Visitor } from '@kubb/ast'
-import type { Macro } from '@kubb/ast/macros'
+import type { FileNode, HttpMethod, Macro, UserFileNode, Visitor } from '@kubb/ast'
 import { diagnosticCode } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { BannerMeta, Resolver } from './defineResolver.ts'
