@@ -4,7 +4,7 @@ export { defineSchemaDialect } from './dialect.ts'
 // Node constructors, also published as the `@kubb/ast/factory` subpath, mirroring `ts.factory.createX`.
 export * as factory from './factory.ts'
 export { isHttpOperationNode, narrowSchema } from './guards.ts'
-export { applyMacros, composeMacros, defineMacro, enforceWeight } from './defineMacro.ts'
+export { applyMacros, composeMacros, defineMacro } from './defineMacro.ts'
 export type { Macro } from './defineMacro.ts'
 export { defineNode } from './node.ts'
 export type { NodeDef } from './node.ts'

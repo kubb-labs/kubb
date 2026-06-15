@@ -13,9 +13,9 @@ type MacroKey = (typeof macroKeys)[number]
 
 /**
  * Sort weight for an `enforce` hint. `pre` sorts before unmarked items and `post` after, so a plain
- * list keeps its authored order. Shared by macro composition and plugin ordering in `@kubb/core`.
+ * list keeps its authored order.
  */
-export function enforceWeight(enforce?: 'pre' | 'post'): number {
+function enforceWeight(enforce?: 'pre' | 'post'): number {
   if (enforce === 'pre') return 0
   if (enforce === 'post') return 2
   return 1
