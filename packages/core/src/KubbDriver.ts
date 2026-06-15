@@ -836,9 +836,6 @@ export class KubbDriver {
       get resolver() {
         return driver.getResolver(plugin.name)
       },
-      get transformer() {
-        return driver.#transforms.get(plugin.name)
-      },
       warn(message: string) {
         report({ code: Diagnostics.code.pluginWarning, severity: 'warning', message })
       },

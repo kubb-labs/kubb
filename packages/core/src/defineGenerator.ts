@@ -1,5 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { FileNode, InputMeta, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
+import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import type { Adapter } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { KubbHooks } from './types.ts'
@@ -74,12 +74,6 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    * `ctx.resolver.resolveFile({ name: 'pet', extname: '.ts' }, { root, output })`
    */
   resolver: TOptions['resolver']
-  /**
-   * This plugin's macros composed into a single visitor, or `undefined` when it registered none.
-   * The driver already applies them to every schema and operation node before a generator sees it,
-   * so read it here only to inspect or re-run the transformation.
-   */
-  transformer: Visitor | undefined
   /**
    * Report a warning. Collected as a `warning` diagnostic attributed to the current
    * plugin. It surfaces in the run summary but does not fail the build. For a structured

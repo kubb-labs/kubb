@@ -48,8 +48,7 @@ export class Transform {
   }
 
   /**
-   * Looks up the composed visitor for `pluginName`. The generator context exposes this so plugins
-   * can read their own macros applied as one visitor through `ctx.transformer`.
+   * Looks up the composed visitor for `pluginName`, or `undefined` when the plugin has no macros.
    */
   get(pluginName: string): Visitor | undefined {
     return this.#visitorFor(pluginName)
