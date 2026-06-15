@@ -1,5 +1,31 @@
 # Changelog
 
+## v5.0.0-beta.61 — Jun 15, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Consolidate the OAS parser's per-site macro calls behind `applyShallow` and a `nameEnums` helper. Output is unchanged; the parser test suite stays byte-identical. ([#3600](https://github.com/kubb-labs/kubb/pull/3600), [`ec32ab9`](https://github.com/kubb-labs/kubb/commit/ec32ab9dd7ede355c0b8f712c870cf27ae63e6c6))
+
+### @kubb/ast
+
+#### Breaking Changes
+
+- Add macros, a named and composable way to rewrite the AST, and make them the single transform layer.
+  
+  `defineMacro`, `composeMacros`, and `applyMacros` live on the `@kubb/ast` root and turn an anonymous transform into a named unit with an optional `enforce` order and a `when` gate. Macros follow the `macro<Name>` convention, mirroring plugins (`pluginTs`). The built-in presets live on the new `@kubb/ast/macros` subpath, one file per macro. Plugins register macros through the new `addMacro` and `setMacros` setup-context methods in `@kubb/core`, replacing the old `setTransformer`.
+  
+  The plugin `transformer?: Visitor` field is gone, and `createMockedPlugin` from `@kubb/core/mocks` takes `macros` instead of a `transformer` visitor.
+  
+  The schema rewriters are retired into macros. `setDiscriminatorEnum`, `simplifyUnion`, and `setEnumName` are removed from `@kubb/ast` and replaced by `macroDiscriminatorEnum`, `macroSimplifyUnion`, and `macroEnumName` on `@kubb/ast/macros`. `mergeAdjacentObjects` and `syncSchemaRef` move to the `@kubb/ast/utils` subpath. `@kubb/adapter-oas` normalizes through these macros. ([#3600](https://github.com/kubb-labs/kubb/pull/3600), [`f5b4db2`](https://github.com/kubb-labs/kubb/commit/f5b4db2efc073b6b33e613c1cbe075a264a83f03))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.60 — Jun 15, 2026
 
 ### @kubb/ast
