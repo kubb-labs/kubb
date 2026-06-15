@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.60 — Jun 15, 2026
+
+### @kubb/ast
+
+#### Features
+
+- Add shared schema-traversal helpers to `@kubb/ast/utils` for printers to build on. `mapSchemaProperties`, `mapSchemaMembers`, and `mapSchemaItems` walk an object's properties, a union or intersection's members, and an array or tuple's items, pairing each child with its transformed output. They are generic over the output type, so a printer can return `string` or `ts.TypeNode`. `lazyGetter` emits the `get key() { return body }` form for circular-ref positions, and `resolveRefName` is now exported from the subpath as the shared ref-name resolver. Pure addition, no behavior change. ([#3596](https://github.com/kubb-labs/kubb/pull/3596), [`67bb92c`](https://github.com/kubb-labs/kubb/commit/67bb92c8b1e4988742d9e94d4fde5aa3d2e3ba48))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.59 — Jun 15, 2026
 
 ### @kubb/adapter-oas

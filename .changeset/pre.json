@@ -65,6 +65,7 @@
     "ast-helper-reorganization",
     "ast-multi-spec-vocabulary",
     "ast-reshape-param-type-nodes",
+    "ast-schema-traversal-helpers",
     "ast-stringify-helpers",
     "ast-strip-self-imports",
     "ast-structural-sharing-transform",
