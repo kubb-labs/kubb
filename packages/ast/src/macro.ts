@@ -1,3 +1,4 @@
+import type { VisitorDepth } from './constants.ts'
 import type { Node } from './nodes/index.ts'
 import type { Visitor, VisitorContext } from './visitor.ts'
 import { transform } from './visitor.ts'
@@ -123,15 +124,21 @@ export function composeMacros(macros: ReadonlyArray<Macro>): Visitor {
 /**
  * Runs a list of macros over a node tree and returns the rewritten tree. A thin wrapper over
  * `transform(root, composeMacros(macros))` that keeps `transform`'s structural sharing: an empty or
- * no-op macro list returns the same reference.
+ * no-op macro list returns the same reference. Pass `depth: 'shallow'` to apply the macros to the
+ * root node only, which is what callers want when they already know the node to rewrite.
  *
  * @example
  * ```ts
  * const next = applyMacros(root, [macroIntegerToString])
  * ```
+ *
+ * @example Apply to the root node only
+ * ```ts
+ * const named = applyMacros(node, [macroEnumName({ parentName, propName, enumSuffix })], { depth: 'shallow' })
+ * ```
  */
-export function applyMacros<TNode extends Node>(root: TNode, macros: ReadonlyArray<Macro>): TNode {
+export function applyMacros<TNode extends Node>(root: TNode, macros: ReadonlyArray<Macro>, options?: { depth?: VisitorDepth }): TNode {
   if (macros.length === 0) return root
 
-  return transform(root, composeMacros(macros)) as TNode
+  return transform(root, { ...composeMacros(macros), depth: options?.depth }) as TNode
 }
