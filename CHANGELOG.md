@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.0.0-beta.60 — Jun 15, 2026
+
+### @kubb/ast
+
+#### Features
+
+- Add shared schema-traversal helpers to `@kubb/ast/utils` for printers to build on. `mapSchemaProperties`, `mapSchemaMembers`, and `mapSchemaItems` walk an object's properties, a union or intersection's members, and an array or tuple's items, pairing each child with its transformed output. They are generic over the output type, so a printer can return `string` or `ts.TypeNode`. `lazyGetter` emits the `get key() { return body }` form for circular-ref positions, and `resolveRefName` is now exported from the subpath as the shared ref-name resolver. Pure addition, no behavior change. ([#3596](https://github.com/kubb-labs/kubb/pull/3596), [`67bb92c`](https://github.com/kubb-labs/kubb/commit/67bb92c8b1e4988742d9e94d4fde5aa3d2e3ba48))
+
+#### Bug Fixes
+
+- Fix the CJS build dropping re-export-only `@kubb/ast/utils` helpers.
+  
+  With `"sideEffects": false`, rolldown tree-shook the modules that the `utils` subpath only re-exports (`schemaGraph`, `operationParams`, `codegen`, `strings`, and friends) out of the multi-entry CJS bundle, while still emitting their export getters. Requiring `@kubb/ast/utils` from a CommonJS context then threw `findCircularSchemas is not defined` (and the same for `createOperationParams`, `containsCircularRef`, `caseParams`, `buildJSDoc`, and the rest). The ESM build was unaffected, so this only surfaced for CJS consumers such as a `kubb.config.cjs`. Dropping the `sideEffects` declaration keeps those modules in the CJS output. ([#3598](https://github.com/kubb-labs/kubb/pull/3598), [`3c3f03d`](https://github.com/kubb-labs/kubb/commit/3c3f03d29c7697456c8a3ae5f087bf116fa0586d))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.59 — Jun 15, 2026
 
 ### @kubb/adapter-oas

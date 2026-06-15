@@ -1,6 +1,6 @@
 {
   "name": "@kubb/cli",
-  "version": "5.0.0-beta.59",
+  "version": "5.0.0-beta.60",
   "description": "Official CLI for Kubb. Run kubb generate, kubb init, kubb validate, and kubb mcp to manage the full code generation lifecycle from OpenAPI/Swagger specs.",
   "keywords": [
     "cli",
