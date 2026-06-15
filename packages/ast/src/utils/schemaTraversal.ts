@@ -2,10 +2,11 @@ import type { ArraySchemaNode, IntersectionSchemaNode, ObjectSchemaNode, Propert
 import { objectKey } from './codegen.ts'
 
 /**
- * Converts a child schema to printer output. Plugins instantiate it with their own output type,
- * `string` for the zod and faker printers, `ts.TypeNode` for the TypeScript printer.
+ * Converts a child schema to printer output. Plugins instantiate it with their own output type:
+ * `string` for the zod and faker printers, `ts.TypeNode` for the TypeScript printer. A printer's
+ * `this.transform` fits directly, so its `null` for an empty result carries through to `output`.
  */
-export type SchemaTransform<TOutput> = (schema: SchemaNode) => TOutput | undefined
+export type SchemaTransform<TOutput> = (schema: SchemaNode) => TOutput
 
 /**
  * A union or intersection member, or an array or tuple item, paired with its transformed output.
@@ -16,9 +17,9 @@ export type MappedSchema<TOutput> = {
    */
   schema: SchemaNode
   /**
-   * The child transformed to printer output, or `undefined` when the transform produced nothing.
+   * The child schema after being run through the transform.
    */
-  output: TOutput | undefined
+  output: TOutput
 }
 
 /**
@@ -34,9 +35,9 @@ export type MappedProperty<TOutput> = {
    */
   property: PropertyNode
   /**
-   * The property schema transformed to printer output, or `undefined` when nothing was produced.
+   * The property schema after being run through the transform.
    */
-  output: TOutput | undefined
+  output: TOutput
 }
 
 /**
