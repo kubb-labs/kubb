@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { applyMacros, composeMacros, defineMacro } from './macro.ts'
-import { createInput } from './nodes/input.ts'
-import { createOperation } from './nodes/operation.ts'
-import { createProperty } from './nodes/property.ts'
-import { createSchema } from './nodes/schema.ts'
-import { transform } from './visitor.ts'
+import { createInput } from '../nodes/input.ts'
+import { createOperation } from '../nodes/operation.ts'
+import { createProperty } from '../nodes/property.ts'
+import { createSchema } from '../nodes/schema.ts'
+import { transform } from '../visitor.ts'
+import { applyMacros, composeMacros, defineMacro } from './defineMacro.ts'
 
 describe('defineMacro', () => {
   it('returns the macro unchanged', () => {

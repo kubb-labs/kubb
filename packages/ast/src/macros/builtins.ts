@@ -1,9 +1,9 @@
-import { isScalarPrimitive } from './constants.ts'
-import { narrowSchema } from './guards.ts'
-import { defineMacro } from './macro.ts'
-import { createProperty } from './nodes/property.ts'
-import { createSchema, type SchemaNode } from './nodes/schema.ts'
-import { enumPropName } from './utils/refs.ts'
+import { isScalarPrimitive } from '../constants.ts'
+import { narrowSchema } from '../guards.ts'
+import { createProperty } from '../nodes/property.ts'
+import { createSchema, type SchemaNode } from '../nodes/schema.ts'
+import { enumPropName } from '../utils/refs.ts'
+import { defineMacro } from './defineMacro.ts'
 
 /**
  * Builds a macro that replaces a discriminator property's schema with a string enum of the allowed

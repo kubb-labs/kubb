@@ -1,7 +1,7 @@
-import type { VisitorDepth } from './constants.ts'
-import type { Node } from './nodes/index.ts'
-import type { Visitor, VisitorContext } from './visitor.ts'
-import { transform } from './visitor.ts'
+import type { VisitorDepth } from '../constants.ts'
+import type { Node } from '../nodes/index.ts'
+import type { Visitor, VisitorContext } from '../visitor.ts'
+import { transform } from '../visitor.ts'
 
 /**
  * Visitor callback names a macro can implement, one per traversable node kind.

@@ -35,6 +35,10 @@
       "import": "./dist/factory.js",
       "require": "./dist/factory.cjs"
     },
+    "./macros": {
+      "import": "./dist/macros.js",
+      "require": "./dist/macros.cjs"
+    },
     "./types": {
       "import": "./dist/types.js",
       "require": "./dist/types.cjs"

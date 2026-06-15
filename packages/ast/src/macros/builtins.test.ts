@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { applyMacros } from './macro.ts'
-import { macroDiscriminatorEnum, macroEnumName, macroSimplifyUnion } from './macros.ts'
-import { createProperty } from './nodes/property.ts'
-import { createSchema, type SchemaNode } from './nodes/schema.ts'
+import { createProperty } from '../nodes/property.ts'
+import { createSchema, type SchemaNode } from '../nodes/schema.ts'
+import { applyMacros } from './defineMacro.ts'
+import { macroDiscriminatorEnum, macroEnumName, macroSimplifyUnion } from './builtins.ts'
 
 function applyShallow(node: SchemaNode, macro: Parameters<typeof applyMacros>[1][number]): SchemaNode {
   return applyMacros(node, [macro], { depth: 'shallow' })

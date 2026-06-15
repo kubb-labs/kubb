@@ -5,6 +5,9 @@ const entry = {
   // Node constructors subpath (`@kubb/ast/factory`), the `ts.factory.createX` analogue. Kept off
   // the main barrel so `@kubb/core` can surface it as the `ast.factory` namespace on its own.
   factory: 'src/factory.ts',
+  // Macro engine and built-in macros (`@kubb/ast/macros`). Kept off the main barrel so plugins and
+  // adapters share the one transform layer through a single subpath.
+  macros: 'src/macros/index.ts',
   // Type-only subpath documented in the README (`@kubb/ast/types`). Lets consumers
   // import node interfaces and visitor types without pulling in any runtime.
   types: 'src/types.ts',

@@ -1,5 +1,7 @@
-import type { Macro, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
-import { composeMacros, defineMacro, transform } from '@kubb/ast'
+import type { OperationNode, SchemaNode, Visitor } from '@kubb/ast'
+import { transform } from '@kubb/ast'
+import type { Macro } from '@kubb/ast/macros'
+import { composeMacros, defineMacro } from '@kubb/ast/macros'
 
 /**
  * Holds an ordered list of macros per plugin, keyed by plugin name. Each plugin's macros run in
