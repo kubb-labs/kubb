@@ -102,9 +102,8 @@ function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
 }
 
 /**
- * Applies a single macro to just the given node, without recursing into children. This is the
- * granularity the parser needs: it already knows which node to rewrite, so a shallow pass keeps the
- * macro from touching nested schemas that other rules own.
+ * Applies a single macro to the given node only, without recursing into children. The parser knows
+ * which node to rewrite, so a deeper pass would let the macro touch nested schemas other rules own.
  */
 function applyShallow(node: ast.SchemaNode, macro: ast.Macro): ast.SchemaNode {
   return ast.applyMacros(node, [macro], { depth: 'shallow' })
