@@ -1,7 +1,6 @@
 import { pascalCase } from '@internals/utils'
 import { narrowSchema } from '../guards.ts'
 import type { OperationNode, ParameterNode, SchemaNode } from '../nodes/index.ts'
-import { createSchema } from '../nodes/schema.ts'
 import type { SchemaType } from '../nodes/schema.ts'
 import type { OperationParamsResolver, ParamGroupType } from './operationParams.ts'
 
@@ -65,19 +64,6 @@ export function enumPropName(parentName: string | null | undefined, propName: st
 }
 
 /**
- * Returns the discriminator key whose mapping value matches `ref`, or `null` when there is no match.
- *
- * @example
- * ```ts
- * findDiscriminator({ dog: '#/components/schemas/Dog' }, '#/components/schemas/Dog') // 'dog'
- * ```
- */
-export function findDiscriminator(mapping: Record<string, string> | undefined, ref: string | undefined): string | null {
-  if (!mapping || !ref) return null
-  return Object.entries(mapping).find(([, value]) => value === ref)?.[0] ?? null
-}
-
-/**
  * Type guard that returns `true` when a schema emits as a plain `string` type.
  *
  * Covers `string`, `uuid`, `email`, `url`, and `datetime` types. For `date` and `time`
@@ -94,33 +80,6 @@ export function isStringType(node: SchemaNode): boolean {
   }
 
   return false
-}
-
-/**
- * Merges a ref node with its resolved schema, giving usage-site fields precedence.
- *
- * Usage-site fields (`description`, `readOnly`, `nullable`, `deprecated`) on the ref node
- * override the same fields in the resolved `node.schema`. Non-ref nodes are returned unchanged.
- *
- * @example
- * ```ts
- * // Ref with description override
- * const ref = createSchema({ type: 'ref', ref: '#/components/schemas/Pet', description: 'A cute pet' })
- * const merged = syncSchemaRef(ref)  // merges with resolved Pet schema
- * ```
- */
-export function syncSchemaRef(node: SchemaNode): SchemaNode {
-  const ref = narrowSchema(node, 'ref')
-
-  if (!ref) return node
-  if (!ref.schema) return node
-
-  const { kind: _kind, type: _type, name: _name, ref: _ref, schema: _schema, ...overrides } = ref
-
-  // Filter out undefined override values so they don't shadow the resolved schema's fields.
-  const definedOverrides = Object.fromEntries(Object.entries(overrides).filter(([, v]) => v !== undefined))
-
-  return createSchema({ ...ref.schema, ...definedOverrides })
 }
 
 /**

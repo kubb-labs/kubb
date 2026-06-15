@@ -1,3 +1,11 @@
+/**
+ * Schema-shape deduplication. `buildDedupePlan` finds top-level and inline schemas that share a
+ * structural signature, picks one canonical definition, and `applyDedupe` repoints every duplicate
+ * at it. This works on `SchemaNode` content, not on files.
+ *
+ * For merging a file's imports, exports, and source nodes, see `utils/fileMerge.ts`. Same idea of
+ * collapsing duplicates, but a different domain.
+ */
 import type { Node, OperationNode, SchemaNode } from './nodes/index.ts'
 import { createSchema } from './nodes/schema.ts'
 import { signatureOf } from './signature.ts'

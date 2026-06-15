@@ -2,7 +2,7 @@ import { isScalarPrimitive } from './constants.ts'
 import { narrowSchema } from './guards.ts'
 import { createProperty } from './nodes/property.ts'
 import { createSchema, type SchemaNode } from './nodes/schema.ts'
-import { enumPropName } from './utils/index.ts'
+import { enumPropName } from './utils/refs.ts'
 
 /**
  * Replaces a discriminator property's schema with a string enum of allowed values.
@@ -161,4 +161,31 @@ export function setEnumName(propNode: SchemaNode, parentName: string | null | un
   }
 
   return propNode
+}
+
+/**
+ * Merges a ref node with its resolved schema, giving usage-site fields precedence.
+ *
+ * Usage-site fields (`description`, `readOnly`, `nullable`, `deprecated`) on the ref node override
+ * the same fields in the resolved `node.schema`. Non-ref nodes are returned unchanged.
+ *
+ * @example
+ * ```ts
+ * // Ref with description override
+ * const ref = createSchema({ type: 'ref', ref: '#/components/schemas/Pet', description: 'A cute pet' })
+ * const merged = syncSchemaRef(ref)  // merges with resolved Pet schema
+ * ```
+ */
+export function syncSchemaRef(node: SchemaNode): SchemaNode {
+  const ref = narrowSchema(node, 'ref')
+
+  if (!ref) return node
+  if (!ref.schema) return node
+
+  const { kind: _kind, type: _type, name: _name, ref: _ref, schema: _schema, ...overrides } = ref
+
+  // Filter out undefined override values so they don't shadow the resolved schema's fields.
+  const definedOverrides = Object.fromEntries(Object.entries(overrides).filter(([, v]) => v !== undefined))
+
+  return createSchema({ ...ref.schema, ...definedOverrides })
 }

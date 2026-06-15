@@ -90,3 +90,43 @@ export function patchDiscriminatorNode(node: ast.SchemaNode, entry: { propertyNa
 
   return { ...objectNode, properties: newProperties }
 }
+
+/**
+ * Creates a single-property object schema used as a discriminator literal.
+ *
+ * @example
+ * ```ts
+ * createDiscriminantNode({ propertyName: 'type', value: 'dog' })
+ * // -> { type: 'object', properties: [{ name: 'type', required: true, schema: enum('dog') }] }
+ * ```
+ */
+export function createDiscriminantNode({ propertyName, value }: { propertyName: string; value: string }): ast.SchemaNode {
+  return ast.factory.createSchema({
+    type: 'object',
+    primitive: 'object',
+    properties: [
+      ast.factory.createProperty({
+        name: propertyName,
+        schema: ast.factory.createSchema({
+          type: 'enum',
+          primitive: 'string',
+          enumValues: [value],
+        }),
+        required: true,
+      }),
+    ],
+  })
+}
+
+/**
+ * Returns the discriminator key whose mapping value matches `ref`, or `null` when there is no match.
+ *
+ * @example
+ * ```ts
+ * findDiscriminator({ dog: '#/components/schemas/Dog' }, '#/components/schemas/Dog') // 'dog'
+ * ```
+ */
+export function findDiscriminator(mapping: Record<string, string> | undefined, ref: string | undefined): string | null {
+  if (!mapping || !ref) return null
+  return Object.entries(mapping).find(([, value]) => value === ref)?.[0] ?? null
+}

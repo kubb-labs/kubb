@@ -1,3 +1,10 @@
+/**
+ * File-member merging. `combineImports`, `combineExports`, and `combineSources` deduplicate and sort
+ * the import, export, and source entries of one file, and drop imports nothing references. This works
+ * on a file's members, not on schema content.
+ *
+ * For collapsing duplicate schema shapes by structural signature, see `dedupe.ts`.
+ */
 import type { ExportNode, ImportNode, SourceNode } from '../nodes/index.ts'
 import { extractStringsFromNodes } from './extractStringsFromNodes.ts'
 
