@@ -75,10 +75,9 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    */
   resolver: TOptions['resolver']
   /**
-   * The AST visitor this plugin registered through `setTransformer` during
-   * `kubb:plugin:setup`, or `undefined` when it never registered one. The driver already
-   * applies the visitor to every schema and operation node before a generator sees it, so
-   * read it here only to inspect or re-run the transformation.
+   * This plugin's macros composed into a single visitor, or `undefined` when it registered none.
+   * The driver already applies them to every schema and operation node before a generator sees it,
+   * so read it here only to inspect or re-run the transformation.
    */
   transformer: Visitor | undefined
   /**

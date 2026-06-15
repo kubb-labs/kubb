@@ -8,7 +8,7 @@ function namedSchema(name: string): SchemaNode {
 }
 
 describe('Transform — applyTo', () => {
-  it('returns the original node reference when no transformer is registered', () => {
+  it('returns the original node reference when no macros are registered', () => {
     const transforms = new Transform()
     const node = namedSchema('Pet')
 
@@ -17,12 +17,12 @@ describe('Transform — applyTo', () => {
     expect(result).toBe(node)
   })
 
-  it('runs the registered visitor and returns its replacement', () => {
+  it('runs the registered macro and returns its replacement', () => {
     const transforms = new Transform()
     const visitor: Visitor = {
       schema: (node) => (node.name === 'Pet' ? { ...node, name: 'PetRenamed' } : undefined),
     }
-    transforms.register('@kubb/plugin-ts', visitor)
+    transforms.set('@kubb/plugin-ts', [{ name: 'rename', ...visitor }])
 
     const result = transforms.applyTo('@kubb/plugin-ts', namedSchema('Pet'))
 
@@ -31,8 +31,8 @@ describe('Transform — applyTo', () => {
 
   it('keeps plugins isolated so plugin A does not see plugin B output', () => {
     const transforms = new Transform()
-    transforms.register('a', { schema: (node) => ({ ...node, name: `${node.name}-A` }) })
-    transforms.register('b', { schema: (node) => ({ ...node, name: `${node.name}-B` }) })
+    transforms.set('a', [{ name: 'a', schema: (node) => ({ ...node, name: `${node.name}-A` }) }])
+    transforms.set('b', [{ name: 'b', schema: (node) => ({ ...node, name: `${node.name}-B` }) }])
 
     const source = namedSchema('Pet')
     const fromA = transforms.applyTo('a', source)
@@ -42,9 +42,9 @@ describe('Transform — applyTo', () => {
     expect(fromB.name).toBe('Pet-B')
   })
 
-  it('returns the original node when the registered visitor leaves it untouched', () => {
+  it('returns the original node when the registered macro leaves it untouched', () => {
     const transforms = new Transform()
-    transforms.register('noop', { schema: () => undefined })
+    transforms.set('noop', [{ name: 'noop', schema: () => undefined }])
 
     const node = namedSchema('Pet')
     const result = transforms.applyTo('noop', node)
@@ -56,7 +56,7 @@ describe('Transform — applyTo', () => {
 describe('Transform — memoization', () => {
   it('returns the identical transformed reference for repeated applyTo calls', () => {
     const transforms = new Transform()
-    transforms.register('a', { schema: (node) => (node.name === 'Pet' ? { ...node, name: 'PetRenamed' } : undefined) })
+    transforms.set('a', [{ name: 'a', schema: (node) => (node.name === 'Pet' ? { ...node, name: 'PetRenamed' } : undefined) }])
 
     const node = namedSchema('Pet')
     const first = transforms.applyTo('a', node)
@@ -66,15 +66,18 @@ describe('Transform — memoization', () => {
     expect(second).toBe(first)
   })
 
-  it('runs the visitor once per node even when applied twice', () => {
+  it('runs the macro once per node even when applied twice', () => {
     const transforms = new Transform()
     let calls = 0
-    transforms.register('a', {
-      schema: (node) => {
-        calls++
-        return node.name === 'Pet' ? { ...node, name: 'PetRenamed' } : undefined
+    transforms.set('a', [
+      {
+        name: 'a',
+        schema: (node) => {
+          calls++
+          return node.name === 'Pet' ? { ...node, name: 'PetRenamed' } : undefined
+        },
       },
-    })
+    ])
 
     const node = namedSchema('Pet')
     transforms.applyTo('a', node)
@@ -84,14 +87,14 @@ describe('Transform — memoization', () => {
     expect(calls).toBe(callsAfterFirst)
   })
 
-  it('invalidates memoized results when a new visitor is registered for the plugin', () => {
+  it('invalidates memoized results when a new macro list is set for the plugin', () => {
     const transforms = new Transform()
     const node = namedSchema('Pet')
-    transforms.register('a', { schema: (n) => ({ ...n, name: 'first' }) })
+    transforms.set('a', [{ name: 'a', schema: (n) => ({ ...n, name: 'first' }) }])
 
     expect(transforms.applyTo('a', node).name).toBe('first')
 
-    transforms.register('a', { schema: (n) => ({ ...n, name: 'second' }) })
+    transforms.set('a', [{ name: 'a', schema: (n) => ({ ...n, name: 'second' }) }])
 
     expect(transforms.applyTo('a', node).name).toBe('second')
   })
@@ -99,11 +102,11 @@ describe('Transform — memoization', () => {
   it('dispose clears memoized results along with the registry', () => {
     const transforms = new Transform()
     const node = namedSchema('Pet')
-    transforms.register('a', { schema: (n) => ({ ...n, name: 'changed' }) })
+    transforms.set('a', [{ name: 'a', schema: (n) => ({ ...n, name: 'changed' }) }])
     const before = transforms.applyTo('a', node)
 
     transforms.dispose()
-    transforms.register('a', { schema: (n) => ({ ...n, name: 'changed' }) })
+    transforms.set('a', [{ name: 'a', schema: (n) => ({ ...n, name: 'changed' }) }])
     const after = transforms.applyTo('a', node)
 
     expect(after.name).toBe('changed')
@@ -114,24 +117,21 @@ describe('Transform — memoization', () => {
 describe('Transform — registry', () => {
   it('tracks size and exposes get', () => {
     const transforms = new Transform()
-    const visitor: Visitor = { schema: () => undefined }
 
     expect(transforms.size).toBe(0)
     expect(transforms.get('a')).toBeUndefined()
 
-    transforms.register('a', visitor)
+    transforms.set('a', [{ name: 'a', schema: () => undefined }])
 
     expect(transforms.size).toBe(1)
     expect(transforms.get('a')).toBeDefined()
   })
 
-  it('overwrites a previous registration for the same plugin', () => {
+  it('overwrites a previous macro list for the same plugin', () => {
     const transforms = new Transform()
-    const first: Visitor = { schema: (node) => ({ ...node, name: 'first' }) }
-    const second: Visitor = { schema: (node) => ({ ...node, name: 'second' }) }
 
-    transforms.register('a', first)
-    transforms.register('a', second)
+    transforms.set('a', [{ name: 'first', schema: (node) => ({ ...node, name: 'first' }) }])
+    transforms.set('a', [{ name: 'second', schema: (node) => ({ ...node, name: 'second' }) }])
 
     expect(transforms.size).toBe(1)
     expect(transforms.applyTo('a', namedSchema('original')).name).toBe('second')
@@ -139,7 +139,7 @@ describe('Transform — registry', () => {
 
   it('dispose clears the registry', () => {
     const transforms = new Transform()
-    transforms.register('a', { schema: (node) => ({ ...node, name: 'changed' }) })
+    transforms.set('a', [{ name: 'a', schema: (node) => ({ ...node, name: 'changed' }) }])
 
     transforms.dispose()
 
@@ -172,12 +172,5 @@ describe('Transform — macros', () => {
     transforms.add('a', { name: 'pre', enforce: 'pre', schema: (node) => ({ ...node, name: `${node.name}-pre` }) })
 
     expect(transforms.applyTo('a', namedSchema('Pet')).name).toBe('Pet-pre-post')
-  })
-
-  it('register keeps a bare visitor working as one macro', () => {
-    const transforms = new Transform()
-    transforms.register('a', { schema: (node) => (node.name === 'Pet' ? { ...node, name: 'PetRenamed' } : undefined) })
-
-    expect(transforms.applyTo('a', namedSchema('Pet')).name).toBe('PetRenamed')
   })
 })

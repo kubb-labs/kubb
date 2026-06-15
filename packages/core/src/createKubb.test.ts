@@ -531,7 +531,7 @@ describe('createKubb', () => {
         name: 'transform-plugin',
         hooks: {
           'kubb:plugin:setup'(ctx) {
-            ctx.setTransformer({ operation: (node) => ({ ...node, operationId: `${node.operationId}X` }) })
+            ctx.setMacros([{ name: 'suffix-operation-id', operation: (node) => ({ ...node, operationId: `${node.operationId}X` }) }])
             ctx.addGenerator({
               name: 'transform-gen',
               operation(node) {

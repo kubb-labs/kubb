@@ -1,5 +1,5 @@
 import type { Macro, OperationNode, SchemaNode, Visitor } from '@kubb/ast'
-import { composeMacros, defineMacro, transform } from '@kubb/ast'
+import { composeMacros, transform } from '@kubb/ast'
 
 /**
  * Holds an ordered list of macros per plugin, keyed by plugin name. Each plugin's macros run in
@@ -45,15 +45,6 @@ export class Transform {
   set(pluginName: string, macros: ReadonlyArray<Macro>): void {
     this.#macros.set(pluginName, [...macros])
     this.#invalidate(pluginName)
-  }
-
-  /**
-   * Registers a bare `Visitor` as the plugin's single macro, replacing any prior registration.
-   *
-   * @deprecated Prefer `add`/`set` with named macros. Kept so `setTransformer` keeps working.
-   */
-  register(pluginName: string, visitor: Visitor): void {
-    this.set(pluginName, [defineMacro({ name: `${pluginName}:transformer`, ...visitor })])
   }
 
   /**

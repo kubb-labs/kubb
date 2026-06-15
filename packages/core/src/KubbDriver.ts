@@ -85,7 +85,7 @@ export class KubbDriver {
   readonly #listeners: Array<ListenerEntry> = []
 
   /**
-   * Transform registry. Plugins populate it during `kubb:plugin:setup` via `setTransformer`,
+   * Transform registry. Plugins populate it during `kubb:plugin:setup` via `addMacro`/`setMacros`,
    * and `#runGenerators` reads it once per `(plugin, node)` pair through `applyTo`.
    */
   readonly #transforms = new Transform()
@@ -185,7 +185,7 @@ export class KubbDriver {
    * Registers a hook-style plugin's lifecycle handlers on the shared `AsyncEventEmitter`.
    *
    * The `kubb:plugin:setup` listener wraps the global context in a plugin-specific one so
-   * `addGenerator`, `setResolver`, and `setTransformer` target the right `normalizedPlugin`.
+   * `addGenerator`, `setResolver`, and `setMacros` target the right `normalizedPlugin`.
    * Every other `KubbHooks` event registers as a pass-through listener that external tooling
    * can observe via `hooks.on(...)`.
    *
@@ -215,9 +215,6 @@ export class KubbDriver {
           },
           setMacros: (macros) => {
             this.#transforms.set(plugin.name, macros)
-          },
-          setTransformer: (visitor) => {
-            this.#transforms.register(plugin.name, visitor)
           },
           setOptions: (opts) => {
             plugin.options = { ...plugin.options, ...opts }
@@ -262,7 +259,6 @@ export class KubbDriver {
       setResolver: noop,
       addMacro: noop,
       setMacros: noop,
-      setTransformer: noop,
       setOptions: noop,
       injectFile: noop,
       updateConfig: noop,
@@ -378,7 +374,7 @@ export class KubbDriver {
 
           // Parse the adapter source into the streaming `InputNode`.
           await this.#parseInput()
-          // Emit `kubb:plugin:setup` so plugins can register transformers via `setTransformer`.
+          // Emit `kubb:plugin:setup` so plugins can register macros via `addMacro`/`setMacros`.
           // Each call writes into `this.#transforms`, which `#runGenerators` later reads through
           // `transforms.applyTo`.
           await this.emitSetupHooks()

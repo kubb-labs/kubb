@@ -306,12 +306,6 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
    */
   setMacros(macros: ReadonlyArray<Macro>): void
   /**
-   * Set the AST transformer to pre-process nodes before they reach generators.
-   *
-   * @deprecated Use `addMacro`/`setMacros` with named macros.
-   */
-  setTransformer(visitor: Visitor): void
-  /**
    * Set resolved options merged into the normalized plugin's `options`.
    * Call this in `kubb:plugin:setup` to provide options generators need.
    */
