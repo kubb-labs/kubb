@@ -248,7 +248,7 @@ export class KubbDriver {
 
   /**
    * Emits the `kubb:plugin:setup` event so that all registered hook-style plugin listeners
-   * can configure generators, resolvers, transformers and renderers before `buildStart` runs.
+   * can configure generators, resolvers, macros and renderers before `buildStart` runs.
    *
    * Call this once from `safeBuild` before the plugin execution loop begins.
    */
@@ -469,7 +469,7 @@ export class KubbDriver {
 
   /**
    * Streams schemas and operations through every plugin's generators. Each node is run
-   * through the plugin's transformer (from `this.#transforms`) before the generator sees it,
+   * through the plugin's macros (from `this.#transforms`) before the generator sees it,
    * so plugins stay isolated and the hot path stays per-node. Schemas run before operations
    * because the two passes share `flushPending` and the FileProcessor's event emitter.
    * A failing plugin contributes an error diagnostic so the rest of the build continues.
@@ -565,7 +565,7 @@ export class KubbDriver {
       }
     }
 
-    // Apply the plugin's transformer, then resolve options (skipping the resolver when
+    // Apply the plugin's macros, then resolve options (skipping the resolver when
     // optionsAreStatic). Returns null when include/exclude/override rules out the node.
     // The per-node dispatch and the collected-operations tail both go through this so
     // they agree on what a plugin sees.

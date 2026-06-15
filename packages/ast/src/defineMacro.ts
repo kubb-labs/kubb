@@ -22,25 +22,10 @@ function enforceWeight(enforce?: 'pre' | 'post'): number {
 }
 
 /**
- * A named, composable transform over the Kubb AST.
- *
- * A macro reads nodes and rewrites them before generators print code. It carries the same per-kind
- * callbacks as a {@link Visitor} (`schema`, `operation`, …), plus a `name` for diagnostics, an
- * optional `enforce` ordering hint, and an optional `when` gate. Compose a list of macros with
- * {@link composeMacros} or run them with {@link applyMacros}. Macros run on the shared AST, so the
- * same macro works across every input adapter and every output target.
- *
- * Macro exports follow the `macro<Name>` convention, mirroring plugins (`pluginTs`).
- *
- * @example Retype every integer schema to string
- * ```ts
- * const macroIntegerToString = defineMacro({
- *   name: 'integer-to-string',
- *   schema(node) {
- *     return node.type === 'integer' ? { ...node, type: 'string' } : undefined
- *   },
- * })
- * ```
+ * A named, composable transform over the Kubb AST. It carries the same per-kind callbacks as a
+ * {@link Visitor} (`schema`, `operation`, …), plus a `name`, an optional `enforce` order, and an
+ * optional `when` gate. Macros run on the shared AST, so the same macro works across every adapter
+ * and output target. Exports follow the `macro<Name>` convention, mirroring plugins (`pluginTs`).
  */
 export type Macro = Visitor & {
   /**
@@ -126,10 +111,9 @@ export function composeMacros(macros: ReadonlyArray<Macro>): Visitor {
 }
 
 /**
- * Runs a list of macros over a node tree and returns the rewritten tree. A thin wrapper over
- * `transform(root, composeMacros(macros))` that keeps `transform`'s structural sharing: an empty or
- * no-op macro list returns the same reference. Pass `depth: 'shallow'` to apply the macros to the
- * root node only, which is what callers want when they already know the node to rewrite.
+ * Runs a list of macros over a node tree and returns the rewritten tree. Keeps `transform`'s
+ * structural sharing, so an empty or no-op macro list returns the same reference. Pass
+ * `depth: 'shallow'` to rewrite the root node only.
  *
  * @example
  * ```ts

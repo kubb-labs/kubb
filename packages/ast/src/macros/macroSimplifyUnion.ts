@@ -4,8 +4,8 @@ import { narrowSchema } from '../guards.ts'
 import type { SchemaNode } from '../nodes/schema.ts'
 
 /**
- * Removes union members that a broader scalar primitive in the same union already covers, for
- * example dropping a single-value string enum when a plain `string` member is present.
+ * Removes union members a broader scalar primitive already covers, such as a multi-value string enum
+ * sitting next to a plain `string`. Single-value enums are kept.
  *
  * @example
  * ```ts

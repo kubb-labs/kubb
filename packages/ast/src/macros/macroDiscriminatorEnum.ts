@@ -4,9 +4,8 @@ import { createProperty } from '../nodes/property.ts'
 import { createSchema } from '../nodes/schema.ts'
 
 /**
- * Builds a macro that replaces a discriminator property's schema with a string enum of the allowed
- * values. Applied to the object schema that carries the property. When the node is not an object
- * schema, or the property is missing, the node is returned unchanged.
+ * Builds a macro that replaces a discriminator property's schema with a string enum of the given
+ * values. Object schemas that lack the property are returned unchanged.
  *
  * @example
  * ```ts

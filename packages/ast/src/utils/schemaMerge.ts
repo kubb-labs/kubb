@@ -2,13 +2,9 @@ import { narrowSchema } from '../guards.ts'
 import { createSchema, type SchemaNode } from '../nodes/schema.ts'
 
 /**
- * Merges adjacent anonymous object members into one. Used while building intersection members during
- * parsing, where neighboring inline object schemas collapse into a single object. Named members and
- * non-object members break a run, so they are yielded as-is.
- *
- * This stays a construction-time array helper rather than a macro: callers control the member
- * boundaries (for example, keeping synthetic discriminant objects out of a merge run), which a
- * whole-tree macro cannot express.
+ * Merges a run of adjacent anonymous object members into one. Named or non-object members break the
+ * run and pass through. Stays a construction-time helper, not a macro, so callers keep control of the
+ * member boundaries (such as keeping synthetic discriminant objects out of a run).
  *
  * @example
  * ```ts
