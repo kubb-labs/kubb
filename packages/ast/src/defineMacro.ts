@@ -12,10 +12,14 @@ const macroKeys = ['input', 'output', 'operation', 'schema', 'property', 'parame
 type MacroKey = (typeof macroKeys)[number]
 
 /**
- * Sort weight per `enforce` bucket. Macros without `enforce` land between the
- * `pre` and `post` groups, so a plain list keeps its authored order.
+ * Sort weight for an `enforce` hint. `pre` sorts before unmarked items and `post` after, so a plain
+ * list keeps its authored order. Shared by macro composition and plugin ordering in `@kubb/core`.
  */
-const enforceRank = { pre: 0, post: 2 } as const
+export function enforceWeight(enforce?: 'pre' | 'post'): number {
+  if (enforce === 'pre') return 0
+  if (enforce === 'post') return 2
+  return 1
+}
 
 /**
  * A named, composable transform over the Kubb AST.
@@ -108,7 +112,7 @@ function chain(macros: ReadonlyArray<Macro>, key: MacroKey, node: Node, context:
  * ```
  */
 export function composeMacros(macros: ReadonlyArray<Macro>): Visitor {
-  const ordered = [...macros].sort((a, b) => (a.enforce ? enforceRank[a.enforce] : 1) - (b.enforce ? enforceRank[b.enforce] : 1))
+  const ordered = [...macros].sort((a, b) => enforceWeight(a.enforce) - enforceWeight(b.enforce))
 
   const visitor: Visitor = {}
   for (const key of macroKeys) {

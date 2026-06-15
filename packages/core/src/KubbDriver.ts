@@ -3,6 +3,7 @@ import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs,
 import * as factory from '@kubb/ast/factory'
 import { collectUsedSchemaNames } from '@kubb/ast/utils'
 import type { FileNode, InputMeta, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
+import { enforceWeight } from '@kubb/ast'
 import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
@@ -43,10 +44,6 @@ type RequirePluginContext = {
    * trace which plugin needs the missing one.
    */
   requiredBy?: string
-}
-
-function enforceOrder(enforce: 'pre' | 'post' | undefined): number {
-  return enforce === 'pre' ? -1 : enforce === 'post' ? 1 : 0
 }
 
 export class KubbDriver {
@@ -117,7 +114,7 @@ export class KubbDriver {
       if (dependenciesByName.get(b.name)?.has(a.name)) return -1
       if (dependenciesByName.get(a.name)?.has(b.name)) return 1
 
-      return enforceOrder(a.enforce) - enforceOrder(b.enforce)
+      return enforceWeight(a.enforce) - enforceWeight(b.enforce)
     })
 
     for (const plugin of normalized) {
