@@ -1,5 +1,44 @@
 # Changelog
 
+## v5.0.0-beta.59 — Jun 15, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Tighten the JSDoc prose across the core packages so the published types read naturally. This cuts rule-of-three filler, `-ing`-participle clauses, clause-joining semicolons, marketing words, and sentences that only restate the TypeScript type. The change is comment-only, so no API or behavior changes. ([#3593](https://github.com/kubb-labs/kubb/pull/3593), [`1f71069`](https://github.com/kubb-labs/kubb/commit/1f7106995ed5d3eb6cd4cfc9fca711fe359e92d4))
+
+### @kubb/ast
+
+#### Features
+
+- Reduce the files you touch to add a node.
+  
+  `types.ts` now derives its node-type exports from the node barrel (`export type * from './nodes/index.ts'`) instead of a hand-maintained list, so adding a node no longer edits `types.ts`. This also surfaces five node types the old list had drifted from: `BreakNode`, `ContentNode`, `GenericOperationNode`, `RequestBodyNode`, and `ScalarSchemaNode`.
+  
+  The `@kubb/ast` barrel now sources its node defs from the registry (`export * from './registry.ts'`), so adding a node no longer edits the barrel either. This surfaces `nodeDefs` on the barrel. The visitor tables it derives stay internal to `visitor.ts`.
+  
+  A new test fails when a node def has no matching `factory.create*`, so missing wiring is caught in CI. The package README documents the remaining touch-points. ([#3595](https://github.com/kubb-labs/kubb/pull/3595), [`4dcfe98`](https://github.com/kubb-labs/kubb/commit/4dcfe98b0bc6b5c0ba393fa42a4e26b7ead471dd))
+- Clarify the `@kubb/ast` abstraction boundaries. No runtime behavior changes.
+  
+  `dedupe.ts` and `utils/fileMerge.ts` each gained a header that explains the split. `dedupe.ts` collapses duplicate schema shapes by structural signature, while `fileMerge.ts` merges one file's imports, exports, and sources.
+  
+  `syncSchemaRef` now lives in `transformers.ts` next to the other `SchemaNode` transforms. It is still exported from `@kubb/ast/utils`, so its import path is unchanged.
+  
+  `createOperationParams` is no longer surfaced through the `factory` namespace. It is a high-level builder, not a `ts.factory` primitive, so import it from `@kubb/ast/utils` instead of `ast.factory`.
+  
+  The OpenAPI discriminator helpers `createDiscriminantNode` and `findDiscriminator` moved out of `@kubb/ast` into `@kubb/adapter-oas`, since the OAS adapter was their only consumer. This keeps `@kubb/ast` spec-agnostic. ([#3594](https://github.com/kubb-labs/kubb/pull/3594), [`25b7936`](https://github.com/kubb-labs/kubb/commit/25b79363f8bd1829cafbbb9b33fa3b1393099776))
+
+#### Bug Fixes
+
+- Reorganize the `@kubb/ast` utils layer into concern-based modules. The grab-bag `utils/ast.ts` and `utils/index.ts` files now split into `strings.ts`, `codegen.ts`, `refs.ts`, `schemaGraph.ts`, `operationParams.ts`, and `fileMerge.ts`, each with its tests alongside it. `utils/index.ts` stays a thin barrel, so `@kubb/ast`, `@kubb/ast/factory`, `@kubb/ast/types`, and `@kubb/ast/utils` export the same names with the same behavior. No public API changes. ([#3591](https://github.com/kubb-labs/kubb/pull/3591), [`c069f04`](https://github.com/kubb-labs/kubb/commit/c069f0494ec0473f54cafd5cdeca2be3f4bf1313))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.58 — Jun 14, 2026
 
 ### @kubb/ast
