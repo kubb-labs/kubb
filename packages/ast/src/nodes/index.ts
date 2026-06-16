@@ -14,7 +14,7 @@ import type { SchemaNode } from './schema.ts'
 export type { NodeKind } from './base.ts'
 export type { ArrowFunctionNode, BreakNode, CodeNode, ConstNode, FunctionNode, JSDocNode, JsxNode, TextNode, TypeNode } from './code.ts'
 export type { ContentNode } from './content.ts'
-export type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
+export type { ExportNode, FileNode, ImportNode, SourceNode, UserFileNode } from './file.ts'
 export type {
   FunctionParamKind,
   FunctionParameterNode,
