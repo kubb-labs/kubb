@@ -331,7 +331,7 @@ describe('adapterOas duplicate top-level schemas', () => {
     expect(schemas.find((schema) => schema.name === 'Category')?.type).toBe('object')
   })
 
-  it('repoints schema refs from the duplicate name to the canonical one', async () => {
+  it('repoints schema refs from the duplicate name to the shared one', async () => {
     const adapter = adapterOas({ validate: false, dedupe: true })
     const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: bundledSpec }))
 
@@ -347,7 +347,7 @@ describe('adapterOas duplicate top-level schemas', () => {
     })
   })
 
-  it('repoints operation refs from the duplicate name to the canonical one', async () => {
+  it('repoints operation refs from the duplicate name to the shared one', async () => {
     const adapter = adapterOas({ validate: false, dedupe: true })
     const node = await adapter.stream!({ type: 'data', data: bundledSpec })
 

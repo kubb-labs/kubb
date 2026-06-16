@@ -1,5 +1,4 @@
 export { schemaTypes } from './constants.ts'
-export { applyDedupe, buildDedupePlan } from './dedupe.ts'
 export { defineDialect } from './dialect.ts'
 export { isHttpOperationNode, narrowSchema } from './guards.ts'
 export { applyMacros, composeMacros, defineMacro } from './defineMacro.ts'

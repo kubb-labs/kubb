@@ -1,4 +1,4 @@
-import type { SchemaNode } from './nodes/index.ts'
+import type { Node, SchemaNode } from './nodes/index.ts'
 
 /**
  * The spec-specific questions a schema parser answers while turning a source document into Kubb
@@ -36,10 +36,27 @@ export type SchemaDialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TS
 }
 
 /**
- * A spec adapter's dialect. `name` identifies it in logs and diagnostics; `schema` holds the
- * spec-specific schema questions the parser answers.
+ * The dedupe seam: how a dialect collapses structurally identical schemas into shared
+ * definitions. The contract is generic over the plan and context types, which the adapter
+ * supplies. The mechanics live in the adapter, not here, so `@kubb/ast` carries no dedupe logic.
  */
-export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema, TDocument = unknown> = {
+export type Dedupe<TPlan = unknown, TContext = unknown> = {
+  /**
+   * Scans a forest of nodes and produces a plan describing which shapes to share.
+   */
+  plan(roots: ReadonlyArray<Node>, context: TContext): TPlan
+  /**
+   * Rewrites a node against a plan, replacing duplicate sub-schemas with refs. Pass
+   * `skipRootMatch` when rewriting a canonical definition so its own root is preserved.
+   */
+  apply<T extends Node>(node: T, plan: TPlan, skipRootMatch?: boolean): T
+}
+
+/**
+ * A spec adapter's dialect. `name` identifies it in logs and diagnostics; `schema` holds the
+ * spec-specific schema questions the parser answers; `dedupe` is the schema-sharing seam.
+ */
+export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema, TDocument = unknown, TDedupe extends Dedupe = Dedupe> = {
   /**
    * Identifies the dialect in logs and diagnostics.
    */
@@ -48,6 +65,10 @@ export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema,
    * The spec-specific schema behavior. See {@link SchemaDialect}.
    */
   schema: SchemaDialect<TSchema, TRef, TDiscriminated, TDocument>
+  /**
+   * The schema-sharing behavior. See {@link Dedupe}.
+   */
+  dedupe: TDedupe
 }
 
 /**
@@ -66,11 +87,12 @@ export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema,
  *     resolveRef,
  *     optionality,
  *   },
+ *   dedupe: { plan, apply },
  * })
  * ```
  */
-export function defineDialect<TSchema, TRef, TDiscriminated, TDocument>(
-  dialect: Dialect<TSchema, TRef, TDiscriminated, TDocument>,
-): Dialect<TSchema, TRef, TDiscriminated, TDocument> {
+export function defineDialect<TSchema, TRef, TDiscriminated, TDocument, TDedupe extends Dedupe>(
+  dialect: Dialect<TSchema, TRef, TDiscriminated, TDocument, TDedupe>,
+): Dialect<TSchema, TRef, TDiscriminated, TDocument, TDedupe> {
   return dialect
 }

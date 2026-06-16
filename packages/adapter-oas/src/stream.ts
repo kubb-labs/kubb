@@ -1,6 +1,7 @@
-import { containsCircularRef, findCircularSchemas } from '@kubb/ast/utils'
+import { findCircularSchemas } from '@kubb/ast/utils'
 import { ast } from '@kubb/core'
-import { SCHEMA_REF_PREFIX } from './constants.ts'
+import type { DedupePlan } from './dedupe.ts'
+import { oasDialect } from './dialect.ts'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
 import { getOperations } from './operation.ts'
 import type { SchemaParser } from './parser.ts'
@@ -14,7 +15,7 @@ export type PreScanResult = {
   enumNames: Array<string>
   circularNames: Array<string>
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
-  dedupePlan: ast.DedupePlan | null
+  dedupePlan: DedupePlan | null
 }
 
 /**
@@ -107,7 +108,7 @@ export function preScan({
   const circularNames = [...findCircularSchemas(allNodes)]
   const discriminatorChildMap = discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 
-  let dedupePlan: ast.DedupePlan | null = null
+  let dedupePlan: DedupePlan | null = null
   if (dedupe) {
     // One extra parse pass over operations so duplicates in request/response bodies are seen.
     // Reuses the already-parsed `allNodes` for schemas, no second schema parse.
@@ -117,44 +118,20 @@ export function preScan({
       if (operationNode) operationNodes.push(operationNode)
     }
 
-    // Only enums and objects are candidates, and object shapes that reference a circular schema are
-    // rejected to avoid hoisting recursive structures. Inline shapes reuse their context-derived
-    // name (collision-resolved against existing component names). Shapes without a name stay inline.
     const circularSchemas = new Set(circularNames)
     const usedNames = new Set(Object.keys(schemas))
 
-    dedupePlan = ast.buildDedupePlan([...allNodes, ...operationNodes], {
-      isCandidate: (node) => {
-        if (node.type === 'enum') return true
-        if (node.type !== 'object') return false
-        // Skip object shapes that are part of a circular chain, hoisting them would break the cycle.
-        if (node.name && circularSchemas.has(node.name)) return false
-        return !containsCircularRef(node, { circularSchemas })
-      },
-      nameFor: (node) => {
-        const base = node.name
-        if (!base) return null
+    dedupePlan = oasDialect.dedupe.plan([...allNodes, ...operationNodes], { circularSchemas, usedNames })
 
-        let name = base
-        let counter = 2
-        while (usedNames.has(name)) {
-          name = `${base}${counter++}`
-        }
-        usedNames.add(name)
-        return name
-      },
-      refFor: (name) => `${SCHEMA_REF_PREFIX}${name}`,
-    })
-
-    for (const definition of dedupePlan.hoisted) {
+    for (const definition of dedupePlan.extracted) {
       if (definition.type === 'enum' && definition.name) enumNames.push(definition.name)
     }
   }
 
   // Enum names that duplicate an earlier schema's content are never emitted, so they are not
   // advertised to plugins either.
-  const aliasNames = dedupePlan?.aliasNames
-  const emittedEnumNames = aliasNames && aliasNames.size > 0 ? enumNames.filter((name) => !aliasNames.has(name)) : enumNames
+  const targetByName = dedupePlan?.targetByName
+  const emittedEnumNames = targetByName && targetByName.size > 0 ? enumNames.filter((name) => !targetByName.has(name)) : enumNames
 
   return { refAliasMap, enumNames: emittedEnumNames, circularNames, discriminatorChildMap, dedupePlan }
 }
@@ -195,42 +172,42 @@ export function createInputStream({
   parserOptions: ast.ParserOptions
   refAliasMap: Map<string, ast.SchemaNode>
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
-  dedupePlan: ast.DedupePlan | null
+  dedupePlan: DedupePlan | null
   meta: ast.InputMeta
 }): ast.InputNode<true> {
   // Rewrites a top-level schema against the dedupe plan: a structurally identical sibling
-  // becomes a `ref` alias to the canonical one (keeping its own name). Otherwise nested
+  // becomes a `ref` alias to the shared one (keeping its own name). Otherwise nested
   // duplicates are collapsed while the schema's own root is preserved.
   const rewriteTopLevelSchema = (node: ast.SchemaNode): ast.SchemaNode => {
     if (!dedupePlan) return node
 
-    const canonical = dedupePlan.canonicalBySignature.get(ast.signatureOf(node))
-    if (canonical && canonical.name !== node.name) {
+    const target = dedupePlan.targetBySignature.get(ast.signatureOf(node))
+    if (target && target.name !== node.name) {
       return ast.factory.createSchema({
         type: 'ref',
         name: node.name ?? null,
-        ref: canonical.ref,
+        ref: target.ref,
         description: node.description,
         deprecated: node.deprecated,
       })
     }
 
-    return ast.applyDedupe(node, dedupePlan, true)
+    return oasDialect.dedupe.apply(node, dedupePlan, true)
   }
 
   const schemasIterable: AsyncIterable<ast.SchemaNode> = {
     [Symbol.asyncIterator]() {
       return (async function* () {
-        // Hoisted canonical definitions are emitted first so the schema list owns the shared shapes.
+        // Extracted shared definitions are emitted first so the schema list owns the shared shapes.
         if (dedupePlan) {
-          for (const definition of dedupePlan.hoisted) yield definition
+          for (const definition of dedupePlan.extracted) yield definition
         }
 
         for (const [name, schema] of Object.entries(schemas)) {
           // A top-level schema whose content duplicates an earlier one is not emitted: every
           // ref to it is repointed at the first schema with that content, so its model would
           // be dead code.
-          if (dedupePlan?.aliasNames.has(name)) continue
+          if (dedupePlan?.targetByName.has(name)) continue
 
           // Inline ref aliases: replace the alias entry with its target's parsed node
           // (keeping the alias name). Skip the first parse entirely for alias entries
@@ -254,7 +231,7 @@ export function createInputStream({
       return (async function* () {
         for (const operation of getOperations(document)) {
           const node = parseOperation(parserOptions, operation)
-          if (node) yield dedupePlan ? ast.applyDedupe(node, dedupePlan) : node
+          if (node) yield dedupePlan ? oasDialect.dedupe.apply(node, dedupePlan) : node
         }
       })()
     },
