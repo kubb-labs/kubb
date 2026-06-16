@@ -8,6 +8,7 @@ import type { CodeNode } from '../nodes/code.ts'
  */
 export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): string {
   if (!nodes?.length) return ''
+
   return nodes
     .map((node) => {
       // Backward-compat: compiled plugins may still pass bare strings at runtime
