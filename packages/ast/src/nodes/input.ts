@@ -68,8 +68,7 @@ export type InputMeta = {
  * Produced by the adapter and consumed by all Kubb plugins.
  *
  * `Stream` switches `schemas` and `operations` between eager `Array`s (the default) and lazy
- * `AsyncIterable`s. The streaming variant `InputNode<true>` yields nodes one at a time and makes
- * `meta` optional, since the adapter can emit metadata before the first node is parsed.
+ * `AsyncIterable`s. The streaming variant `InputNode<true>` yields nodes one at a time.
  *
  * @example
  * ```ts
@@ -101,7 +100,11 @@ export type InputNode<Stream extends boolean = false> = BaseNode & {
    * All operation nodes in the document.
    */
   operations: Streamable<OperationNode, Stream>
-} & (Stream extends true ? { meta?: InputMeta } : { meta: InputMeta })
+  /**
+   * Document metadata populated by the adapter.
+   */
+  meta: InputMeta
+}
 
 /**
  * Definition for the {@link InputNode}.
@@ -115,8 +118,8 @@ export const inputDef = defineNode<InputNode, Partial<Omit<InputNode, 'kind'>>>(
 
 /**
  * Creates an `InputNode`. Pass `stream: true` for the streaming variant whose `schemas` and
- * `operations` are `AsyncIterable` sources and whose `meta` is optional. Otherwise it builds the
- * eager variant with array `schemas`/`operations` and the defaulted `meta`.
+ * `operations` are `AsyncIterable` sources. Otherwise it builds the eager variant with array
+ * `schemas`/`operations`. Both variants get the defaulted `meta`.
  *
  * @example Eager
  * ```ts
@@ -131,10 +134,11 @@ export const inputDef = defineNode<InputNode, Partial<Omit<InputNode, 'kind'>>>(
  */
 export function createInput<Stream extends boolean = false>(options: Partial<Omit<InputNode<Stream>, 'kind'>> & { stream?: Stream } = {}): InputNode<Stream> {
   const { stream, ...overrides } = options
-  // Streaming inputs carry AsyncIterable sources, so skip the array/meta defaults that
-  // inputDef.create applies for the eager variant.
+  // Streaming inputs carry AsyncIterable sources, so skip the array defaults that
+  // inputDef.create applies for the eager variant. Keep the meta default.
   if (stream) {
-    return { kind: 'Input', ...overrides } as InputNode<Stream>
+    return { kind: 'Input', meta: { circularNames: [], enumNames: [] }, ...overrides } as InputNode<Stream>
   }
+
   return inputDef.create(overrides as Partial<Omit<InputNode, 'kind'>>) as InputNode<Stream>
 }
