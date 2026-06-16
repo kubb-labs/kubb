@@ -223,13 +223,13 @@ const isPerformance = isKind<PerformanceDiagnostic>('performance')
 const isUpdate = isKind<UpdateDiagnostic>('update')
 
 /**
- * Glyph and accent color per severity, matching the miette/oxlint convention
- * (`×` error, `⚠` warning, `ℹ` advice).
+ * Accent color per severity. The color tints the `[CODE]` tag and the tree connectors
+ * (red error, yellow warning, blue info).
  */
-const severityStyle: Record<DiagnosticSeverity, { glyph: string; color: 'red' | 'yellow' | 'blue' }> = {
-  error: { glyph: '×', color: 'red' },
-  warning: { glyph: '⚠', color: 'yellow' },
-  info: { glyph: 'ℹ', color: 'blue' },
+const severityStyle: Record<DiagnosticSeverity, { color: 'red' | 'yellow' | 'blue' }> = {
+  error: { color: 'red' },
+  warning: { color: 'yellow' },
+  info: { color: 'blue' },
 }
 
 /**
@@ -623,40 +623,44 @@ export class Diagnostics {
   }
 
   /**
-   * Renders a {@link Diagnostic} for terminal output as its parts: the colored severity `symbol`
-   * (the gutter glyph), the `plugin(CODE): message` `headline`, and the `details` lines (optional
-   * `at <pointer>`, `help:`, and `docs:`).
+   * Renders a {@link Diagnostic} for terminal output as a box-drawing tree: the `headline`
+   * (`[CODE] plugin: message`, with the code in the severity color) and the `details` rows
+   * (`at:` pointer, `fix:` help, `see:` docs link), each prefixed with a `├▶` connector and the
+   * last with `╰▶`.
    *
-   * Hosts compose these to fit their gutter: a clack logger passes `symbol` as its own gutter and
-   * `[headline, ...details]` as the message, while plain text outputs use {@link Diagnostics.formatLines}.
+   * Hosts compose these to fit their gutter: a clack logger passes `[headline, ...details]` as the
+   * message with no gutter symbol, while plain text outputs use {@link Diagnostics.formatLines}.
    */
-  static format(diagnostic: Diagnostic): { symbol: string; headline: string; details: Array<string> } {
+  static format(diagnostic: Diagnostic): { headline: string; details: Array<string> } {
     const { code, severity, message } = diagnostic
-    const { glyph, color } = severityStyle[severity]
+    const { color } = severityStyle[severity]
     const problem = isProblem(diagnostic) ? diagnostic : undefined
 
-    const rule = styleText(color, styleText('bold', problem?.plugin ? `${problem.plugin}(${code})` : code))
-    const details: Array<string> = []
+    const tag = styleText(color, styleText('bold', `[${code}]`))
+    const headline = problem?.plugin ? `${tag} ${problem.plugin}: ${message}` : `${tag}: ${message}`
 
+    const rows: Array<string> = []
     if (problem?.location && 'pointer' in problem.location) {
-      details.push(`  ${styleText('dim', 'at')} ${styleText('cyan', problem.location.pointer)}`)
+      rows.push(`${styleText('dim', 'at:')} ${styleText('cyan', problem.location.pointer)}`)
     }
     if (problem?.help) {
-      details.push(`  ${styleText('cyan', 'help:')} ${problem.help}`)
+      rows.push(`${styleText('cyan', 'fix:')} ${problem.help}`)
     }
     if (code !== diagnosticCode.unknown) {
-      details.push(`  ${styleText('dim', 'docs:')} ${styleText('cyan', Diagnostics.docsUrl(code))}`)
+      rows.push(`${styleText('dim', 'see:')} ${styleText('cyan', Diagnostics.docsUrl(code))}`)
     }
 
-    return { symbol: styleText(color, styleText('bold', glyph)), headline: `${rule}: ${message}`, details }
+    const details = rows.map((row, index) => `${styleText(color, index === rows.length - 1 ? '╰▶' : '├▶')} ${row}`)
+
+    return { headline, details }
   }
 
   /**
-   * The self-contained block form of {@link Diagnostics.format}: `${symbol} ${headline}` followed by
-   * the detail lines. Used where there is no gutter to own the symbol (plain and file output).
+   * The self-contained block form of {@link Diagnostics.format}: the `headline` followed by the
+   * connector rows. Used where there is no gutter (plain and file output).
    */
   static formatLines(diagnostic: Diagnostic): Array<string> {
-    const { symbol, headline, details } = Diagnostics.format(diagnostic)
-    return [`${symbol} ${headline}`, ...details]
+    const { headline, details } = Diagnostics.format(diagnostic)
+    return [headline, ...details]
   }
 }

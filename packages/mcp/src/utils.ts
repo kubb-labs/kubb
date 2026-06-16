@@ -16,21 +16,22 @@ export function formatDiagnostics(diagnostics: ReadonlyArray<SerializedDiagnosti
 }
 
 function formatDiagnostic(diagnostic: SerializedDiagnostic): string {
-  const { code, severity, message, location, help, plugin, docsUrl } = diagnostic
-  const rule = plugin ? `${plugin}(${code})` : code
-  const lines = [`${severity} ${rule}: ${message}`]
+  const { code, message, location, help, plugin, docsUrl } = diagnostic
+  const headline = plugin ? `[${code}] ${plugin}: ${message}` : `[${code}]: ${message}`
 
+  const rows: Array<string> = []
   if (location && 'pointer' in location) {
-    lines.push(`  at ${location.pointer}`)
+    rows.push(`at: ${location.pointer}`)
   }
   if (help) {
-    lines.push(`  help: ${help}`)
+    rows.push(`fix: ${help}`)
   }
   if (docsUrl) {
-    lines.push(`  docs: ${docsUrl}`)
+    rows.push(`see: ${docsUrl}`)
   }
 
-  return lines.join('\n')
+  const details = rows.map((row, index) => `${index === rows.length - 1 ? '╰▶' : '├▶'} ${row}`)
+  return [headline, ...details].join('\n')
 }
 
 type NotifyFunction = (type: string, message: string, data?: Record<string, unknown>) => Promise<void>
