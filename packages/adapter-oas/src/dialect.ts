@@ -41,14 +41,16 @@ function optionality(schema: ast.SchemaNode, required: boolean): ast.SchemaNode 
  * const parser = createSchemaParser(context, oasDialect) // explicit
  * ```
  */
-export const oasDialect = ast.defineSchemaDialect({
+export const oasDialect = ast.defineDialect({
   name: 'oas',
-  isNullable,
-  isReference,
-  isDiscriminator,
-  isBinary: (schema: SchemaObject) => schema.type === 'string' && schema.contentMediaType === 'application/octet-stream',
-  resolveRef,
-  optionality,
+  schema: {
+    isNullable,
+    isReference,
+    isDiscriminator,
+    isBinary: (schema: SchemaObject) => schema.type === 'string' && schema.contentMediaType === 'application/octet-stream',
+    resolveRef,
+    optionality,
+  },
 })
 
 /**

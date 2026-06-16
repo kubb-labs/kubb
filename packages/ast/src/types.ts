@@ -1,5 +1,5 @@
 export type { DedupeCanonical, DedupeLookups, DedupePlan } from './dedupe.ts'
-export type { SchemaDialect } from './dialect.ts'
+export type { Dialect, SchemaDialect } from './dialect.ts'
 export type { DistributiveOmit, NodeDef } from './node.ts'
 export type { InferSchemaNode, ParserOptions } from './infer.ts'
 export type * from './nodes/index.ts'

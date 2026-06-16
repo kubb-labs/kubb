@@ -7,10 +7,6 @@ import type { SchemaNode } from './nodes/index.ts'
  */
 export type SchemaDialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema, TDocument = unknown> = {
   /**
-   * Identifies the dialect in logs and diagnostics.
-   */
-  name: string
-  /**
    * Whether the schema is nullable.
    */
   isNullable(schema?: TSchema): boolean
@@ -40,24 +36,41 @@ export type SchemaDialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TS
 }
 
 /**
- * Types a {@link SchemaDialect} for an adapter. Adds no runtime behavior and only pins the
+ * A spec adapter's dialect. `name` identifies it in logs and diagnostics; `schema` holds the
+ * spec-specific schema questions the parser answers.
+ */
+export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema, TDocument = unknown> = {
+  /**
+   * Identifies the dialect in logs and diagnostics.
+   */
+  name: string
+  /**
+   * The spec-specific schema behavior. See {@link SchemaDialect}.
+   */
+  schema: SchemaDialect<TSchema, TRef, TDiscriminated, TDocument>
+}
+
+/**
+ * Types a {@link Dialect} for an adapter. Adds no runtime behavior and only pins the
  * dialect's type for inference.
  *
  * @example
  * ```ts
- * export const oasDialect = defineSchemaDialect({
+ * export const oasDialect = defineDialect({
  *   name: 'oas',
- *   isNullable,
- *   isReference,
- *   isDiscriminator,
- *   isBinary: (schema) => schema.type === 'string' && schema.contentMediaType === 'application/octet-stream',
- *   resolveRef,
- *   optionality,
+ *   schema: {
+ *     isNullable,
+ *     isReference,
+ *     isDiscriminator,
+ *     isBinary: (schema) => schema.type === 'string' && schema.contentMediaType === 'application/octet-stream',
+ *     resolveRef,
+ *     optionality,
+ *   },
  * })
  * ```
  */
-export function defineSchemaDialect<TSchema, TRef, TDiscriminated, TDocument>(
-  dialect: SchemaDialect<TSchema, TRef, TDiscriminated, TDocument>,
-): SchemaDialect<TSchema, TRef, TDiscriminated, TDocument> {
+export function defineDialect<TSchema, TRef, TDiscriminated, TDocument>(
+  dialect: Dialect<TSchema, TRef, TDiscriminated, TDocument>,
+): Dialect<TSchema, TRef, TDiscriminated, TDocument> {
   return dialect
 }

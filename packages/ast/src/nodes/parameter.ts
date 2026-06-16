@@ -49,7 +49,7 @@ export const parameterDef = defineNode<ParameterNode, UserParameterNode>({
   kind: 'Parameter',
   build: (props, dialect) => {
     const required = props.required ?? false
-    return { ...props, required, schema: dialect ? dialect.optionality(props.schema, required) : props.schema }
+    return { ...props, required, schema: dialect ? dialect.schema.optionality(props.schema, required) : props.schema }
   },
   children: ['schema'],
   visitorKey: 'parameter',

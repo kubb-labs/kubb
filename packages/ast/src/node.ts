@@ -1,4 +1,4 @@
-import type { SchemaDialect } from './dialect.ts'
+import type { Dialect } from './dialect.ts'
 import type { BaseNode, NodeKind } from './nodes/base.ts'
 
 /**
@@ -45,9 +45,9 @@ export type NodeDef<TNode extends BaseNode = BaseNode, TInput = never> = {
   /**
    * Builds a node from its input, applying `defaults` and the optional `build` hook. An
    * optional `dialect` is forwarded to `build` so nodes can derive spec-specific fields
-   * (e.g. a schema's `optional`/`nullish`) through `dialect.optionality` when one is given.
+   * (e.g. a schema's `optional`/`nullish`) through `dialect.schema.optionality` when one is given.
    */
-  create: (input: TInput, dialect?: SchemaDialect) => TNode
+  create: (input: TInput, dialect?: Dialect) => TNode
   /**
    * Type guard matching this node kind.
    */
@@ -65,7 +65,7 @@ export type NodeDef<TNode extends BaseNode = BaseNode, TInput = never> = {
 type DefineNodeConfig<TNode extends BaseNode, TInput, TBuilt extends object> = {
   kind: TNode['kind']
   defaults?: Partial<TNode>
-  build?: (input: TInput, dialect?: SchemaDialect) => TBuilt
+  build?: (input: TInput, dialect?: Dialect) => TBuilt
   children?: ReadonlyArray<string>
   visitorKey?: VisitorKey
 }
@@ -96,7 +96,7 @@ export function defineNode<TNode extends BaseNode, TInput = Omit<TNode, 'kind'>,
 ): NodeDef<TNode, TInput> {
   const { kind, defaults, build, children, visitorKey } = config
 
-  function create(input: TInput, dialect?: SchemaDialect): TNode {
+  function create(input: TInput, dialect?: Dialect): TNode {
     const base = build ? build(input, dialect) : input
     return { ...defaults, ...(base as object), kind } as TNode
   }
