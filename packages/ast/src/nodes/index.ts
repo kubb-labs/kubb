@@ -25,7 +25,6 @@ export type {
   TypeExpression,
   TypeLiteralNode,
 } from './function.ts'
-export type { StatusCode } from './http.ts'
 export type { InputMeta, InputNode } from './input.ts'
 export type { GenericOperationNode, HttpMethod, HttpOperationNode, OperationNode } from './operation.ts'
 export type { OutputNode } from './output.ts'

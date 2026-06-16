@@ -1027,7 +1027,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       }
 
       return ast.factory.createResponse({
-        statusCode: statusCode as ast.StatusCode,
+        statusCode,
         description,
         content,
       })
