@@ -1,5 +1,5 @@
 import type { InferSchemaNode } from '../infer.ts'
-import { defineNode, type DistributiveOmit } from '../node.ts'
+import { defineNode, type DistributiveOmit } from '../defineNode.ts'
 import type { BaseNode } from './base.ts'
 import type { PropertyNode } from './property.ts'
 

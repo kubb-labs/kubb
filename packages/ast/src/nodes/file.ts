@@ -1,7 +1,7 @@
 import { hash } from 'node:crypto'
 import path from 'node:path'
 import { trimExtName } from '@internals/utils'
-import { defineNode } from '../node.ts'
+import { defineNode } from '../defineNode.ts'
 import { extractStringsFromNodes } from '../utils/extractStringsFromNodes.ts'
 import { combineExports, combineImports, combineSources } from '../utils/fileMerge.ts'
 import type { BaseNode } from './base.ts'

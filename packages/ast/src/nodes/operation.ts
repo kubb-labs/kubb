@@ -1,4 +1,4 @@
-import { defineNode } from '../node.ts'
+import { defineNode } from '../defineNode.ts'
 import type { BaseNode } from './base.ts'
 import type { ParameterNode } from './parameter.ts'
 import { createRequestBody, type RequestBodyNode } from './requestBody.ts'

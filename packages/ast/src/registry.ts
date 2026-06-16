@@ -1,4 +1,4 @@
-import type { NodeDef } from './node.ts'
+import type { NodeDef } from './defineNode.ts'
 import { arrowFunctionDef, breakDef, constDef, functionDef, jsxDef, textDef, typeDef } from './nodes/code.ts'
 import { contentDef } from './nodes/content.ts'
 import { exportDef, fileDef, importDef, sourceDef } from './nodes/file.ts'

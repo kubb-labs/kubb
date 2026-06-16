@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { createProperty } from './nodes/property.ts'
 import { createSchema } from './nodes/schema.ts'
-import type { PrinterFactoryOptions } from './printer.ts'
-import { definePrinter } from './printer.ts'
+import type { PrinterFactoryOptions } from './definePrinter.ts'
+import { definePrinter } from './definePrinter.ts'
 
 describe('definePrinter', () => {
   type P = PrinterFactoryOptions<'zod', { strict?: boolean }, string>

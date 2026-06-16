@@ -1,6 +1,6 @@
 import type { VisitorDepth } from './constants.ts'
 import { visitorDepths, WALK_CONCURRENCY } from './constants.ts'
-import type { NodeDef } from './node.ts'
+import type { NodeDef } from './defineNode.ts'
 import type {
   ContentNode,
   InputNode,

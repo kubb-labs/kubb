@@ -1,4 +1,4 @@
-import { defineNode } from '../node.ts'
+import { defineNode } from '../defineNode.ts'
 import type { BaseNode } from './base.ts'
 
 /**

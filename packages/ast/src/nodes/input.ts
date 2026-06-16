@@ -1,5 +1,5 @@
 import type { Streamable } from '@internals/utils'
-import { defineNode } from '../node.ts'
+import { defineNode } from '../defineNode.ts'
 import type { BaseNode } from './base.ts'
 import type { OperationNode } from './operation.ts'
 import type { SchemaNode } from './schema.ts'
