@@ -102,6 +102,22 @@ function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
 }
 
 /**
+ * Builds a `null` scalar node carrying the schema's documentation. Shared by the `const: null`
+ * and the drf-spectacular `NullEnum` (`{ enum: [null] }`) branches, which render identically.
+ */
+function createNullSchema(schema: SchemaObject, name: string | null | undefined): ast.SchemaNode {
+  return ast.factory.createSchema({
+    type: 'null',
+    primitive: 'null',
+    name,
+    title: schema.title,
+    description: schema.description,
+    deprecated: schema.deprecated,
+    format: schema.format,
+  })
+}
+
+/**
  * Names the inline enums on a property's schema, and on each item when the property is a tuple, from
  * the parent and property name. Wraps `macroEnumName` at the property construction site.
  */
@@ -401,15 +417,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     const constValue = schema.const
 
     if (constValue === null) {
-      return ast.factory.createSchema({
-        type: 'null',
-        primitive: 'null',
-        name,
-        title: schema.title,
-        description: schema.description,
-        deprecated: schema.deprecated,
-        format: schema.format,
-      })
+      return createNullSchema(schema, name)
     }
 
     const constPrimitive = getPrimitiveType(typeof constValue === 'number' ? 'number' : typeof constValue === 'boolean' ? 'boolean' : 'string')
@@ -528,15 +536,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     // render as `never` (plugin-ts) / invalid `z.enum([])` (plugin-zod). Mirror the `const: null`
     // branch so it renders as a clean `null` (not `z.null().nullable()`).
     if (nullInEnum && filteredValues.length === 0) {
-      return ast.factory.createSchema({
-        type: 'null',
-        primitive: 'null',
-        name,
-        title: schema.title,
-        description: schema.description,
-        deprecated: schema.deprecated,
-        format: schema.format,
-      })
+      return createNullSchema(schema, name)
     }
 
     const enumNullable = nullable || nullInEnum || undefined

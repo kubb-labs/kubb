@@ -11,6 +11,7 @@ describe('composeMacros', () => {
     const readTitle = defineMacro({ name: 'read-title', schema: (node) => (node.title === 'a' ? { ...node, description: 'saw-a' } : undefined) })
 
     const next = transform(root, composeMacros([setTitle, readTitle]))
+
     expect(next.description).toBe('saw-a')
   })
 
@@ -27,6 +28,7 @@ describe('composeMacros', () => {
       })
 
     transform(createSchema({ type: 'string' }), composeMacros([track('post', 'post'), track('plain'), track('pre', 'pre')]))
+
     expect(order).toEqual(['pre', 'plain', 'post'])
   })
 
@@ -55,6 +57,7 @@ describe('applyMacros', () => {
 
     const next = applyMacros(root, [macro])
     const prop = 'properties' in next ? next.properties[0] : undefined
+
     expect(prop?.schema.type).toBe('string')
   })
 })

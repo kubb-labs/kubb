@@ -1,4 +1,4 @@
-import type { ast} from '@kubb/core'
+import type { ast } from '@kubb/core'
 import { defineParser } from '@kubb/core'
 import { extractStringsFromNodes } from '@kubb/ast/utils'
 

@@ -18,52 +18,6 @@ export type PreScanResult = {
 }
 
 /**
- * Builds the deduplication plan from the already-parsed top-level schema nodes plus a
- * single extra parse pass over operations (so duplicates in request/response bodies are seen).
- *
- * Only enums and objects are candidates, and object shapes that reference a circular schema are
- * rejected to avoid hoisting recursive structures. Inline shapes reuse their context-derived
- * name (collision-resolved against existing component names). Shapes without a name stay inline.
- */
-function createDedupePlan({
-  schemaNodes,
-  operationNodes,
-  schemaNames,
-  circularNames,
-}: {
-  schemaNodes: Array<ast.SchemaNode>
-  operationNodes: Array<ast.OperationNode>
-  schemaNames: Array<string>
-  circularNames: Array<string>
-}): ast.DedupePlan {
-  const circularSchemas = new Set(circularNames)
-  const usedNames = new Set(schemaNames)
-
-  return ast.buildDedupePlan([...schemaNodes, ...operationNodes], {
-    isCandidate: (node) => {
-      if (node.type === 'enum') return true
-      if (node.type !== 'object') return false
-      // Skip object shapes that are part of a circular chain, hoisting them would break the cycle.
-      if (node.name && circularSchemas.has(node.name)) return false
-      return !containsCircularRef(node, { circularSchemas })
-    },
-    nameFor: (node) => {
-      const base = node.name
-      if (!base) return null
-
-      let name = base
-      let counter = 2
-      while (usedNames.has(name)) {
-        name = `${base}${counter++}`
-      }
-      usedNames.add(name)
-      return name
-    },
-    refFor: (name) => `${SCHEMA_REF_PREFIX}${name}`,
-  })
-}
-
-/**
  * Reads the server URL from the document's `servers` array at `serverIndex`,
  * interpolating any `serverVariables` into the URL template.
  *
@@ -163,7 +117,34 @@ export function preScan({
       if (operationNode) operationNodes.push(operationNode)
     }
 
-    dedupePlan = createDedupePlan({ schemaNodes: allNodes, operationNodes, schemaNames: Object.keys(schemas), circularNames })
+    // Only enums and objects are candidates, and object shapes that reference a circular schema are
+    // rejected to avoid hoisting recursive structures. Inline shapes reuse their context-derived
+    // name (collision-resolved against existing component names). Shapes without a name stay inline.
+    const circularSchemas = new Set(circularNames)
+    const usedNames = new Set(Object.keys(schemas))
+
+    dedupePlan = ast.buildDedupePlan([...allNodes, ...operationNodes], {
+      isCandidate: (node) => {
+        if (node.type === 'enum') return true
+        if (node.type !== 'object') return false
+        // Skip object shapes that are part of a circular chain, hoisting them would break the cycle.
+        if (node.name && circularSchemas.has(node.name)) return false
+        return !containsCircularRef(node, { circularSchemas })
+      },
+      nameFor: (node) => {
+        const base = node.name
+        if (!base) return null
+
+        let name = base
+        let counter = 2
+        while (usedNames.has(name)) {
+          name = `${base}${counter++}`
+        }
+        usedNames.add(name)
+        return name
+      },
+      refFor: (name) => `${SCHEMA_REF_PREFIX}${name}`,
+    })
 
     for (const definition of dedupePlan.hoisted) {
       if (definition.type === 'enum' && definition.name) enumNames.push(definition.name)

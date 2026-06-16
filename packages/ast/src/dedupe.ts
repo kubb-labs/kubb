@@ -185,8 +185,8 @@ export function buildDedupePlan(roots: ReadonlyArray<Node>, options: BuildDedupe
   const groups = new Map<string, Group>()
 
   function record(schemaNode: SchemaNode): void {
-    const signature = signatureOf(schemaNode)
     if (!isCandidate(schemaNode)) return
+    const signature = signatureOf(schemaNode)
 
     const isTopLevel = topLevelNodes.has(schemaNode) && !!schemaNode.name
     const group = groups.get(signature)

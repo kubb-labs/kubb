@@ -69,7 +69,7 @@ type MacroCallback = (node: Node, context: VisitorContext) => Node | null | unde
  * the previous macro's output. Returns `undefined` when nothing changed, so `transform` keeps the
  * original reference (structural sharing).
  */
-function chain(macros: ReadonlyArray<Macro>, key: MacroKey, node: Node, context: VisitorContext): Node | undefined {
+function chain({ macros, key, node, context }: { macros: ReadonlyArray<Macro>; key: MacroKey; node: Node; context: VisitorContext }): Node | undefined {
   let current = node
 
   for (const macro of macros) {
@@ -103,7 +103,7 @@ export function composeMacros(macros: ReadonlyArray<Macro>): Visitor {
   for (const key of macroKeys) {
     if (!ordered.some((macro) => typeof macro[key] === 'function')) continue
 
-    const callback = (node: Node, context: VisitorContext) => chain(ordered, key, node, context)
+    const callback = (node: Node, context: VisitorContext) => chain({ macros: ordered, key, node, context })
     ;(visitor as Record<MacroKey, MacroCallback>)[key] = callback
   }
 

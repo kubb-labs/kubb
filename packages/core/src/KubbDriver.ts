@@ -282,37 +282,21 @@ export class KubbDriver {
    * Call this method inside `addGenerator()` (in `kubb:plugin:setup`) to wire up a generator.
    */
   registerGenerator(pluginName: string, generator: Generator): void {
-    if (generator.schema) {
-      const schemaHandler = async (node: SchemaNode, ctx: GeneratorContext) => {
-        if (ctx.plugin.name !== pluginName) return
-        const result = await generator.schema!(node, ctx)
+    const register = <TNode>(event: keyof KubbHooks & string, method: ((node: TNode, ctx: GeneratorContext) => unknown) | undefined): void => {
+      if (!method) return
 
+      const handler = async (node: TNode, ctx: GeneratorContext) => {
+        if (ctx.plugin.name !== pluginName) return
+        const result = await method(node, ctx)
         await this.dispatch({ result, renderer: generator.renderer })
       }
 
-      this.#trackListener('kubb:generate:schema', schemaHandler)
+      this.#trackListener(event, handler as HookListener<KubbHooks[typeof event], unknown>)
     }
 
-    if (generator.operation) {
-      const operationHandler = async (node: OperationNode, ctx: GeneratorContext) => {
-        if (ctx.plugin.name !== pluginName) return
-
-        const result = await generator.operation!(node, ctx)
-        await this.dispatch({ result, renderer: generator.renderer })
-      }
-
-      this.#trackListener('kubb:generate:operation', operationHandler)
-    }
-
-    if (generator.operations) {
-      const operationsHandler = async (nodes: Array<OperationNode>, ctx: GeneratorContext) => {
-        if (ctx.plugin.name !== pluginName) return
-        const result = await generator.operations!(nodes, ctx)
-        await this.dispatch({ result, renderer: generator.renderer })
-      }
-
-      this.#trackListener('kubb:generate:operations', operationsHandler)
-    }
+    register('kubb:generate:schema', generator.schema)
+    register('kubb:generate:operation', generator.operation)
+    register('kubb:generate:operations', generator.operations)
 
     this.#eventGeneratorPlugins.add(pluginName)
   }
