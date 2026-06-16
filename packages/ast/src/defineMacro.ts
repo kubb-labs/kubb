@@ -1,15 +1,9 @@
 import type { VisitorDepth } from './constants.ts'
+import type { VisitorKey } from './node.ts'
+import { visitorKeys } from './node.ts'
 import type { Node } from './nodes/index.ts'
 import type { Visitor, VisitorContext } from './visitor.ts'
 import { transform } from './visitor.ts'
-
-/**
- * Visitor callback names a macro can implement, one per traversable node kind.
- * Mirrors the keys of {@link Visitor}.
- */
-const macroKeys = ['input', 'output', 'operation', 'schema', 'property', 'parameter', 'response'] as const
-
-type MacroKey = (typeof macroKeys)[number]
 
 /**
  * Sort weight for an `enforce` hint. `pre` sorts before unmarked items and `post` after, so a plain
@@ -64,12 +58,19 @@ export function defineMacro(macro: Macro): Macro {
 
 type MacroCallback = (node: Node, context: VisitorContext) => Node | null | undefined
 
+type ChainProps = {
+  macros: ReadonlyArray<Macro>
+  key: VisitorKey
+  node: Node
+  context: VisitorContext
+}
+
 /**
  * Runs every macro's callback for one node kind in order, chaining the result so each macro sees
  * the previous macro's output. Returns `undefined` when nothing changed, so `transform` keeps the
  * original reference (structural sharing).
  */
-function chain({ macros, key, node, context }: { macros: ReadonlyArray<Macro>; key: MacroKey; node: Node; context: VisitorContext }): Node | undefined {
+function chain({ macros, key, node, context }: ChainProps): Node | undefined {
   let current = node
 
   for (const macro of macros) {
@@ -100,11 +101,11 @@ export function composeMacros(macros: ReadonlyArray<Macro>): Visitor {
   const ordered = [...macros].sort((a, b) => enforceWeight(a.enforce) - enforceWeight(b.enforce))
 
   const visitor: Visitor = {}
-  for (const key of macroKeys) {
+  for (const key of visitorKeys) {
     if (!ordered.some((macro) => typeof macro[key] === 'function')) continue
 
     const callback = (node: Node, context: VisitorContext) => chain({ macros: ordered, key, node, context })
-    ;(visitor as Record<MacroKey, MacroCallback>)[key] = callback
+    ;(visitor as Record<VisitorKey, MacroCallback>)[key] = callback
   }
 
   return visitor

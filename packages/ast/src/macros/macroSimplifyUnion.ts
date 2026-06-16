@@ -9,7 +9,6 @@ type ScalarPrimitive = 'string' | 'number' | 'integer' | 'bigint' | 'boolean'
  */
 const SCALAR_PRIMITIVE_TYPES = new Set<ScalarPrimitive>(['string', 'number', 'integer', 'bigint', 'boolean'])
 
-
 function isScalarPrimitive(type: string): type is ScalarPrimitive {
   return SCALAR_PRIMITIVE_TYPES.has(type as ScalarPrimitive)
 }

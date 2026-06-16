@@ -2,10 +2,15 @@ import type { BaseNode, NodeKind } from './nodes/base.ts'
 import type { SchemaNode } from './nodes/index.ts'
 
 /**
- * Visitor callback names, one per traversable node kind. Kept in sync with the
- * keys of `Visitor` in `visitor.ts`.
+ * Visitor callback names, one per traversable node kind, in traversal order.
+ * Kept in sync with the keys of `Visitor` in `visitor.ts`.
  */
-type VisitorKey = 'input' | 'output' | 'operation' | 'schema' | 'property' | 'parameter' | 'response'
+export const visitorKeys = ['input', 'output', 'operation', 'schema', 'property', 'parameter', 'response'] as const
+
+/**
+ * One of the {@link visitorKeys} callback names.
+ */
+export type VisitorKey = (typeof visitorKeys)[number]
 
 /**
  * Distributive `Omit` that preserves each member of a union.
