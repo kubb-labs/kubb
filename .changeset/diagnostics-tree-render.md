@@ -4,6 +4,6 @@
 '@kubb/mcp': patch
 ---
 
-Render terminal diagnostics as a box-drawing tree instead of the oxlint glyph style.
+Lead terminal diagnostics with the code and rename the help/docs labels.
 
-A diagnostic now prints as `[CODE] plugin: message` with the code tinted by severity, followed by `├▶ at:`, `├▶ fix:`, and `╰▶ see:` rows (the last row uses `╰▶`). The `help:` and `docs:` labels are renamed to `fix:` and `see:`, matching the diagnostics docs pages. The `--reporter json` output and the `SerializedDiagnostic` fields (`help`, `docsUrl`) are unchanged.
+A diagnostic now prints as `[CODE] plugin: message` with the code tinted by severity, followed by indented `at:`, `fix:`, and `see:` rows. The `help:` and `docs:` labels are renamed to `fix:` and `see:`, matching the diagnostics docs pages, and the standalone `×`/`⚠`/`ℹ` glyph is dropped. The `--reporter json` output and the `SerializedDiagnostic` fields (`help`, `docsUrl`) are unchanged.

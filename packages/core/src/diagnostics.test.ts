@@ -165,7 +165,6 @@ describe('Diagnostics.format', () => {
     expect(details.some((line) => line.includes('at: #/components/schemas/Pet'))).toBe(true)
     expect(details.some((line) => line.includes('fix: fix the ref'))).toBe(true)
     expect(details.some((line) => line.includes('see: https://kubb.dev'))).toBe(true)
-    expect(details.at(-1)).toContain('╰▶')
   })
 
   it('puts the plugin after the code in the headline', () => {

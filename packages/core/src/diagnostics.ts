@@ -223,8 +223,8 @@ const isPerformance = isKind<PerformanceDiagnostic>('performance')
 const isUpdate = isKind<UpdateDiagnostic>('update')
 
 /**
- * Accent color per severity. The color tints the `[CODE]` tag and the tree connectors
- * (red error, yellow warning, blue info).
+ * Accent color per severity. The color tints the `[CODE]` tag (red error, yellow warning,
+ * blue info).
  */
 const severityStyle: Record<DiagnosticSeverity, { color: 'red' | 'yellow' | 'blue' }> = {
   error: { color: 'red' },
@@ -623,10 +623,9 @@ export class Diagnostics {
   }
 
   /**
-   * Renders a {@link Diagnostic} for terminal output as a box-drawing tree: the `headline`
-   * (`[CODE] plugin: message`, with the code in the severity color) and the `details` rows
-   * (`at:` pointer, `fix:` help, `see:` docs link), each prefixed with a `├▶` connector and the
-   * last with `╰▶`.
+   * Renders a {@link Diagnostic} for terminal output as its parts: the `headline`
+   * (`[CODE] plugin: message`, with the code in the severity color) and the indented `details`
+   * rows (`at:` pointer, `fix:` help, `see:` docs link).
    *
    * Hosts compose these to fit their gutter: a clack logger passes `[headline, ...details]` as the
    * message with no gutter symbol, while plain text outputs use {@link Diagnostics.formatLines}.
@@ -639,25 +638,23 @@ export class Diagnostics {
     const tag = styleText(color, styleText('bold', `[${code}]`))
     const headline = problem?.plugin ? `${tag} ${problem.plugin}: ${message}` : `${tag}: ${message}`
 
-    const rows: Array<string> = []
+    const details: Array<string> = []
     if (problem?.location && 'pointer' in problem.location) {
-      rows.push(`${styleText('dim', 'at:')} ${styleText('cyan', problem.location.pointer)}`)
+      details.push(`  ${styleText('dim', 'at:')} ${styleText('cyan', problem.location.pointer)}`)
     }
     if (problem?.help) {
-      rows.push(`${styleText('cyan', 'fix:')} ${problem.help}`)
+      details.push(`  ${styleText('cyan', 'fix:')} ${problem.help}`)
     }
     if (code !== diagnosticCode.unknown) {
-      rows.push(`${styleText('dim', 'see:')} ${styleText('cyan', Diagnostics.docsUrl(code))}`)
+      details.push(`  ${styleText('dim', 'see:')} ${styleText('cyan', Diagnostics.docsUrl(code))}`)
     }
-
-    const details = rows.map((row, index) => `${styleText(color, index === rows.length - 1 ? '╰▶' : '├▶')} ${row}`)
 
     return { headline, details }
   }
 
   /**
    * The self-contained block form of {@link Diagnostics.format}: the `headline` followed by the
-   * connector rows. Used where there is no gutter (plain and file output).
+   * indented detail rows. Used where there is no gutter (plain and file output).
    */
   static formatLines(diagnostic: Diagnostic): Array<string> {
     const { headline, details } = Diagnostics.format(diagnostic)

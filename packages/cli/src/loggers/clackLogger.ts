@@ -182,8 +182,8 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
-      // The diagnostic renders as its own box-drawing tree, so clear clack's gutter and
-      // bar (`symbol`/`secondarySymbol`) to keep the `├▶`/`╰▶` connectors flush.
+      // The diagnostic carries the code and its own indented detail rows, so clear clack's
+      // gutter and bar (`symbol`/`secondarySymbol`) and let the block stand on its own.
       const { headline, details } = Diagnostics.format(diagnostic)
       clack.log.message([headline, ...details], { symbol: '', secondarySymbol: '' })
     })
