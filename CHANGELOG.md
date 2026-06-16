@@ -1,5 +1,20 @@
 # Changelog
 
+## v5.0.0-beta.63 — Jun 16, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Consolidate the OAS dedupe pass behind a single `Plan` object. `plan()` now returns one object that owns its rewriting: `apply` for operations and nested schemas, `applyTopLevel` for top-level schemas, and `isAlias` to skip a duplicate top-level name. The internal `DedupePlan`, `DedupeLookups`, and `DedupeTarget` types and the standalone `apply` function are gone, and the `@kubb/ast` `Dedupe` seam drops its `apply` member because the plan carries that behavior. Generated output is unchanged. ([`39e4f79`](https://github.com/kubb-labs/kubb/commit/39e4f79088fde00a21ce33f09a85cae1396d84ac))
+- Review JSDoc and code comments across these packages so the shipped docs match the current code. The pass corrects stale claims (a `PluginDriver` reference that is now `KubbDriver`, a reversed formatter-detection order, a `--debug` flag that no longer exists, lowercase HTTP methods that are actually uppercase) and removes unverifiable assertions. Comments only, no code or generated output changes. ([`39e4f79`](https://github.com/kubb-labs/kubb/commit/39e4f79088fde00a21ce33f09a85cae1396d84ac))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.62 — Jun 16, 2026
 
 ### @kubb/ast
