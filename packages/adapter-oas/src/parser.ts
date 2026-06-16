@@ -975,11 +975,11 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       const schema = getRequestSchema(document, operation, { contentType: ct })
       if (!schema) return []
       return [
-        {
+        ast.factory.createContent({
           contentType: ct,
           schema: ast.syncOptionality(parseSchema({ schema, name: requestBodyName }, options), requestBodyMeta.required),
           keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
-        },
+        }),
       ]
     })
 
@@ -1013,12 +1013,17 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       // Build one entry per declared response content type so plugins can union the variants.
       // When a global contentType is configured, restrict to that single type (mirrors requestBody).
       const responseContentTypes = ctx.contentType ? [ctx.contentType] : getResponseBodyContentTypes(document, operation, statusCode)
-      const content = responseContentTypes.map((contentType) => ({ contentType, ...parseEntrySchema(contentType) }))
+      const content = responseContentTypes.map((contentType) => ast.factory.createContent({ contentType, ...parseEntrySchema(contentType) }))
 
       // Body-less responses keep a single fallback entry so the response still resolves to a
       // (void/any) schema, matching how `requestBody` only carries schemas inside `content`.
       if (content.length === 0) {
-        content.push({ contentType: getRequestContentType({ document, operation }) || 'application/json', ...parseEntrySchema(ctx.contentType) })
+        content.push(
+          ast.factory.createContent({
+            contentType: getRequestContentType({ document, operation }) || 'application/json',
+            ...parseEntrySchema(ctx.contentType),
+          }),
+        )
       }
 
       return ast.factory.createResponse({

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { createContent } from '../nodes/content.ts'
 import { createFunctionParameter } from '../nodes/function.ts'
 import { createOperation } from '../nodes/operation.ts'
 import { createParameter } from '../nodes/parameter.ts'
@@ -147,7 +148,7 @@ describe('createOperationParams', () => {
         parameters: [makePathParam('petId'), makeQueryParam('filter'), makeHeaderParam('x-api-key')],
         requestBody: {
           required: true,
-          content: [{ contentType: 'application/json', schema: createSchema({ type: 'object' }) }],
+          content: [createContent({ contentType: 'application/json', schema: createSchema({ type: 'object' }) })],
         },
       })
 
@@ -294,7 +295,7 @@ describe('createOperationParams', () => {
         parameters: [makePathParam('petId'), makeQueryParam('status', { required: true })],
         requestBody: {
           required: false,
-          content: [{ contentType: 'application/json', schema: createSchema({ type: 'object' }) }],
+          content: [createContent({ contentType: 'application/json', schema: createSchema({ type: 'object' }) })],
         },
       })
 
@@ -497,7 +498,7 @@ describe('createOperationParams', () => {
       const node = makeOperation({
         requestBody: {
           required: true,
-          content: [{ contentType: 'application/json', schema: createSchema({ type: 'object' }) }],
+          content: [createContent({ contentType: 'application/json', schema: createSchema({ type: 'object' }) })],
         },
       })
 
@@ -527,7 +528,7 @@ describe('createOperationParams', () => {
       const node = makeOperation({
         requestBody: {
           required: false,
-          content: [{ contentType: 'application/json', schema: createSchema({ type: 'object' }) }],
+          content: [createContent({ contentType: 'application/json', schema: createSchema({ type: 'object' }) })],
         },
       })
 
@@ -758,7 +759,7 @@ describe('createOperationParams', () => {
         parameters: [makePathParam('petId'), makeQueryParam('filter')],
         requestBody: {
           required: false,
-          content: [{ contentType: 'application/json', schema: createSchema({ type: 'object' }) }],
+          content: [createContent({ contentType: 'application/json', schema: createSchema({ type: 'object' }) })],
         },
       })
 
@@ -864,7 +865,7 @@ describe('createOperationParams', () => {
         parameters: [makePathParam('petId'), makeQueryParam('status'), makeHeaderParam('x-api-key')],
         requestBody: {
           required: true,
-          content: [{ contentType: 'application/json', schema: createSchema({ type: 'object' }) }],
+          content: [createContent({ contentType: 'application/json', schema: createSchema({ type: 'object' }) })],
         },
       })
 
@@ -915,7 +916,7 @@ describe('createOperationParams', () => {
         parameters: [makePathParam('petId'), makeQueryParam('status', { required: true }), makeHeaderParam('x-api-key', { required: true })],
         requestBody: {
           required: false,
-          content: [{ contentType: 'application/json', schema: createSchema({ type: 'object' }) }],
+          content: [createContent({ contentType: 'application/json', schema: createSchema({ type: 'object' }) })],
         },
       })
 
@@ -1036,7 +1037,7 @@ describe('typeWrapper option', () => {
 
   it('wraps body type with the provided function', () => {
     const node = makeOperation({
-      requestBody: { required: true, content: [{ contentType: 'application/json', schema: createSchema({ type: 'object' }) }] },
+      requestBody: { required: true, content: [createContent({ contentType: 'application/json', schema: createSchema({ type: 'object' }) })] },
     })
 
     const params = createOperationParams(node, {

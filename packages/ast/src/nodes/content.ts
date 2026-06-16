@@ -38,14 +38,9 @@ export type ContentNode = BaseNode & {
 }
 
 /**
- * Loosely-typed content entry accepted by the builders, normalized into a {@link ContentNode}.
- */
-export type UserContent = Omit<ContentNode, 'kind'>
-
-/**
  * Definition for the {@link ContentNode}.
  */
-export const contentDef = defineNode<ContentNode, UserContent>({
+export const contentDef = defineNode<ContentNode>({
   kind: 'Content',
   children: ['schema'],
 })

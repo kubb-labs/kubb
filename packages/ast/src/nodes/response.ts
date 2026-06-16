@@ -1,6 +1,6 @@
 import { defineNode } from '../node.ts'
 import type { BaseNode } from './base.ts'
-import { type ContentNode, createContent, type UserContent } from './content.ts'
+import { type ContentNode, createContent } from './content.ts'
 import type { StatusCode } from './http.ts'
 import type { SchemaNode } from './schema.ts'
 
@@ -16,7 +16,7 @@ import type { SchemaNode } from './schema.ts'
  * const response: ResponseNode = {
  *   kind: 'Response',
  *   statusCode: '200',
- *   content: [{ contentType: 'application/json', schema: createSchema({ type: 'string' }) }],
+ *   content: [{ kind: 'Content', contentType: 'application/json', schema: createSchema({ type: 'string' }) }],
  * }
  * ```
  */
@@ -53,7 +53,7 @@ export type ResponseNode = BaseNode & {
 
 type ResponseInput = Pick<ResponseNode, 'statusCode'> &
   Partial<Omit<ResponseNode, 'kind' | 'statusCode' | 'content'>> & {
-    content?: Array<UserContent>
+    content?: Array<ContentNode>
     schema?: SchemaNode
     mediaType?: string | null
     keysToOmit?: Array<string> | null
@@ -67,8 +67,8 @@ export const responseDef = defineNode<ResponseNode, ResponseInput>({
   kind: 'Response',
   build: (props) => {
     const { schema, mediaType, keysToOmit, content, ...rest } = props
-    const entries = content ?? (schema ? [{ contentType: mediaType ?? 'application/json', schema, keysToOmit: keysToOmit ?? null }] : undefined)
-    return { ...rest, content: entries?.map(createContent) }
+    const entries = content ?? (schema ? [createContent({ contentType: mediaType ?? 'application/json', schema, keysToOmit: keysToOmit ?? null })] : undefined)
+    return { ...rest, content: entries }
   },
   children: ['content'],
   visitorKey: 'response',
@@ -81,7 +81,7 @@ export const responseDef = defineNode<ResponseNode, ResponseInput>({
  * ```ts
  * const response = createResponse({
  *   statusCode: '200',
- *   content: [{ contentType: 'application/json', schema: createSchema({ type: 'object', properties: [] }) }],
+ *   content: [createContent({ contentType: 'application/json', schema: createSchema({ type: 'object', properties: [] }) })],
  * })
  * ```
  */

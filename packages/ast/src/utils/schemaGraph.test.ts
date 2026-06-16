@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { createContent } from '../nodes/content.ts'
 import { createOperation } from '../nodes/operation.ts'
 import { createParameter } from '../nodes/parameter.ts'
 import { createProperty } from '../nodes/property.ts'
@@ -262,7 +263,10 @@ describe('collectUsedSchemaNames', () => {
       requestBody: {
         required: true,
         content: [
-          { contentType: 'application/json', schema: createSchema({ type: 'ref', name: 'CreateItemBody', ref: '#/components/schemas/CreateItemBody' }) },
+          createContent({
+            contentType: 'application/json',
+            schema: createSchema({ type: 'ref', name: 'CreateItemBody', ref: '#/components/schemas/CreateItemBody' }),
+          }),
         ],
       },
       responses: [],

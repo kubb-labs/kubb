@@ -1,7 +1,7 @@
 import { defineNode } from '../node.ts'
 import type { BaseNode } from './base.ts'
 import type { ParameterNode } from './parameter.ts'
-import { createRequestBody, type RequestBodyNode, type UserRequestBody } from './requestBody.ts'
+import { createRequestBody, type RequestBodyNode } from './requestBody.ts'
 import type { ResponseNode } from './response.ts'
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE'
@@ -111,7 +111,7 @@ type OperationInput = {
   operationId: string
   method?: HttpOperationNode['method']
   path?: HttpOperationNode['path']
-  requestBody?: UserRequestBody
+  requestBody?: Omit<RequestBodyNode, 'kind'>
   [key: string]: unknown
 }
 
@@ -151,13 +151,13 @@ export const operationDef = defineNode<OperationNode, OperationInput>({
 export function createOperation(
   props: Pick<HttpOperationNode, 'operationId' | 'method' | 'path'> &
     Partial<Omit<HttpOperationNode, 'kind' | 'operationId' | 'method' | 'path' | 'requestBody'>> & {
-      requestBody?: UserRequestBody
+      requestBody?: Omit<RequestBodyNode, 'kind'>
     },
 ): HttpOperationNode
 export function createOperation(
   props: Pick<GenericOperationNode, 'operationId'> &
     Partial<Omit<GenericOperationNode, 'kind' | 'operationId' | 'requestBody'>> & {
-      requestBody?: UserRequestBody
+      requestBody?: Omit<RequestBodyNode, 'kind'>
     },
 ): GenericOperationNode
 export function createOperation(props: OperationInput): OperationNode {

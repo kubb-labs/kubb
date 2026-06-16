@@ -2,6 +2,7 @@ import { describe, expect, expectTypeOf, it } from 'vitest'
 import { createFile } from './factory.ts'
 import { isHttpOperationNode } from './guards.ts'
 import { createArrowFunction, createConst, createFunction, createText, createType } from './nodes/code.ts'
+import { createContent } from './nodes/content.ts'
 import { createExport, createImport, createSource } from './nodes/file.ts'
 import { createFunctionParameter, createFunctionParameters, createIndexedAccessType, createObjectBindingPattern, createTypeLiteral } from './nodes/function.ts'
 import { createInput } from './nodes/input.ts'
@@ -218,8 +219,8 @@ describe('createResponse', () => {
     const node = createResponse({
       statusCode: '200',
       content: [
-        { contentType: 'application/json', schema: createSchema({ type: 'object' }) },
-        { contentType: 'application/xml', schema: createSchema({ type: 'string' }) },
+        createContent({ contentType: 'application/json', schema: createSchema({ type: 'object' }) }),
+        createContent({ contentType: 'application/xml', schema: createSchema({ type: 'string' }) }),
       ],
     })
 
