@@ -1,4 +1,4 @@
-export { httpMethods, schemaTypes } from './constants.ts'
+export { schemaTypes } from './constants.ts'
 export { applyDedupe, buildDedupePlan } from './dedupe.ts'
 export { defineSchemaDialect } from './dialect.ts'
 export { isHttpOperationNode, narrowSchema } from './guards.ts'

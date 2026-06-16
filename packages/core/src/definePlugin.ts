@@ -1,4 +1,4 @@
-import type { FileNode, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
+import type { Enforce, FileNode, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
 import { diagnosticCode } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { BannerMeta, Resolver } from './defineResolver.ts'
@@ -351,7 +351,7 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
    *
    * Dependency constraints always take precedence over `enforce`.
    */
-  enforce?: 'pre' | 'post'
+  enforce?: Enforce
   /**
    * The options passed by the user when calling the plugin factory.
    */

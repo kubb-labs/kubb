@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs, isPromise, memoize, Url } from '@internals/utils'
 import * as factory from '@kubb/ast/factory'
 import { collectUsedSchemaNames } from '@kubb/ast/utils'
-import type { FileNode, InputMeta, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
+import type { Enforce, FileNode, InputMeta, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
@@ -45,7 +45,7 @@ type RequirePluginContext = {
   requiredBy?: string
 }
 
-function enforceOrder(enforce: 'pre' | 'post' | undefined): number {
+function enforceOrder(enforce: Enforce | undefined): number {
   return enforce === 'pre' ? -1 : enforce === 'post' ? 1 : 0
 }
 

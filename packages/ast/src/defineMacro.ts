@@ -6,10 +6,16 @@ import type { Visitor, VisitorContext } from './visitor.ts'
 import { transform } from './visitor.ts'
 
 /**
+ * Ordering hint shared by macros and plugins. `pre` runs before unmarked items, `post` after,
+ * and `undefined` keeps declaration order.
+ */
+export type Enforce = 'pre' | 'post'
+
+/**
  * Sort weight for an `enforce` hint. `pre` sorts before unmarked items and `post` after, so a plain
  * list keeps its authored order.
  */
-function enforceWeight(enforce?: 'pre' | 'post'): number {
+function enforceWeight(enforce?: Enforce): number {
   if (enforce === 'pre') return 0
   if (enforce === 'post') return 2
   return 1
@@ -30,7 +36,7 @@ export type Macro = Visitor & {
    * Ordering hint. `pre` macros run before unmarked macros, `post` macros run after.
    * Ordering within a bucket follows list order.
    */
-  enforce?: 'pre' | 'post'
+  enforce?: Enforce
   /**
    * Gate checked against the current node before any callback runs. When it returns `false`
    * the macro is skipped for that node.
