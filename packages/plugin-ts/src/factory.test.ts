@@ -430,6 +430,37 @@ describe('Code Generation', () => {
         }),
       ),
     ).toMatchSnapshot()
+
+    // empty string is a valid enum value and must not be dropped
+    expect(
+      await formatTS(
+        createEnumDeclaration({
+          type: 'asConst',
+          name: 'proxyHostALPN',
+          typeName: 'ProxyHostALPNKey',
+          enums: [
+            ['', ''],
+            ['h3', 'h3'],
+            ['h2', 'h2'],
+          ],
+        }),
+      ),
+    ).toMatchSnapshot()
+
+    expect(
+      await formatTS(
+        createEnumDeclaration({
+          type: 'literal',
+          name: 'proxyHostALPN',
+          typeName: 'ProxyHostALPN',
+          enums: [
+            ['', ''],
+            ['h3', 'h3'],
+            ['h2', 'h2'],
+          ],
+        }),
+      ),
+    ).toMatchSnapshot()
   })
 
   it('should quote enum keys that parse as private identifiers (#-prefixed)', async () => {
