@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.62 — Jun 16, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Colocate the node builders with their definitions. `createFile` now lives in `nodes/file.ts` alongside the other `createX` helpers, the per-node factory tests sit next to each node module, and the `node.ts`/`printer.ts` modules are renamed to `defineNode.ts`/`definePrinter.ts` to match their exports. Public API and generated output are unchanged. ([`73f6e86`](https://github.com/kubb-labs/kubb/commit/73f6e86aff80b48eb2cff5657b711c198ebeeeae))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.61 — Jun 15, 2026
 
 ### @kubb/adapter-oas
