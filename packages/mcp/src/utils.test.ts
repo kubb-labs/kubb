@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { formatDiagnostics } from './utils.ts'
 
 describe('formatDiagnostics', () => {
-  it('renders code, pointer, help, and docs for an agent without ANSI styling', () => {
+  it('renders code, pointer, fix, and see for an agent without ANSI styling', () => {
     const diagnostic: SerializedDiagnostic = {
       code: 'KUBB_REF_NOT_FOUND',
       severity: 'error',
@@ -18,15 +18,15 @@ describe('formatDiagnostics', () => {
 
     expect(output).toBe(
       [
-        'error @kubb/adapter-oas(KUBB_REF_NOT_FOUND): missing Pet',
-        '  at #/components/schemas/Pet',
-        '  help: add it',
-        '  docs: https://kubb.dev/docs/5.x/reference/diagnostics/kubb-ref-not-found',
+        '[KUBB_REF_NOT_FOUND] @kubb/adapter-oas: missing Pet',
+        '  at: #/components/schemas/Pet',
+        '  fix: add it',
+        '  see: https://kubb.dev/docs/5.x/reference/diagnostics/kubb-ref-not-found',
       ].join('\n'),
     )
   })
 
   it('drops absent fields and uses the bare code when no plugin is set', () => {
-    expect(formatDiagnostics([{ code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom' }])).toBe('error KUBB_UNKNOWN: boom')
+    expect(formatDiagnostics([{ code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom' }])).toBe('[KUBB_UNKNOWN]: boom')
   })
 })

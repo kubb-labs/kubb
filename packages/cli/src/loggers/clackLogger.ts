@@ -182,11 +182,10 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
-      // Hand the severity glyph to clack as the gutter `symbol`, then let it draw the
-      // bar on each detail line via the default `secondarySymbol`. The headline and
-      // details carry their own colors, so clack only owns the gutter.
-      const { symbol, headline, details } = Diagnostics.format(diagnostic)
-      clack.log.message([headline, ...details], { symbol })
+      // The diagnostic carries the code and its own indented detail rows, so clear clack's
+      // gutter and bar (`symbol`/`secondarySymbol`) and let the block stand on its own.
+      const { headline, details } = Diagnostics.format(diagnostic)
+      clack.log.message([headline, ...details], { symbol: '', secondarySymbol: '' })
     })
 
     context.on('kubb:lifecycle:start', async ({ version }) => {

@@ -16,18 +16,17 @@ export function formatDiagnostics(diagnostics: ReadonlyArray<SerializedDiagnosti
 }
 
 function formatDiagnostic(diagnostic: SerializedDiagnostic): string {
-  const { code, severity, message, location, help, plugin, docsUrl } = diagnostic
-  const rule = plugin ? `${plugin}(${code})` : code
-  const lines = [`${severity} ${rule}: ${message}`]
+  const { code, message, location, help, plugin, docsUrl } = diagnostic
+  const lines = [plugin ? `[${code}] ${plugin}: ${message}` : `[${code}]: ${message}`]
 
   if (location && 'pointer' in location) {
-    lines.push(`  at ${location.pointer}`)
+    lines.push(`  at: ${location.pointer}`)
   }
   if (help) {
-    lines.push(`  help: ${help}`)
+    lines.push(`  fix: ${help}`)
   }
   if (docsUrl) {
-    lines.push(`  docs: ${docsUrl}`)
+    lines.push(`  see: ${docsUrl}`)
   }
 
   return lines.join('\n')

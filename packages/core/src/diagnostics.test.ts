@@ -151,8 +151,8 @@ describe('Diagnostics.update', () => {
 
 // styleText respects NO_COLOR/non-TTY, so assert on the plain text the parts contain.
 describe('Diagnostics.format', () => {
-  it('splits a diagnostic into symbol, headline, and details parts', () => {
-    const { symbol, headline, details } = Diagnostics.format({
+  it('splits a diagnostic into a headline and tree details', () => {
+    const { headline, details } = Diagnostics.format({
       code: 'KUBB_REF_NOT_FOUND',
       severity: 'error',
       message: 'boom',
@@ -160,38 +160,35 @@ describe('Diagnostics.format', () => {
       location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
     })
 
-    expect(symbol).toContain('×')
-    expect(headline).toContain('KUBB_REF_NOT_FOUND')
+    expect(headline).toContain('[KUBB_REF_NOT_FOUND]')
     expect(headline).toContain('boom')
-    expect(details.some((line) => line.includes('at #/components/schemas/Pet'))).toBe(true)
-    expect(details.some((line) => line.includes('help: fix the ref'))).toBe(true)
-    expect(details.some((line) => line.includes('docs: https://kubb.dev'))).toBe(true)
+    expect(details.some((line) => line.includes('at: #/components/schemas/Pet'))).toBe(true)
+    expect(details.some((line) => line.includes('fix: fix the ref'))).toBe(true)
+    expect(details.some((line) => line.includes('see: https://kubb.dev'))).toBe(true)
   })
 
-  it('wraps the code in plugin(code) when a plugin is known', () => {
+  it('puts the plugin after the code in the headline', () => {
     expect(Diagnostics.format({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', plugin: '@kubb/plugin-zod' }).headline).toContain(
-      '@kubb/plugin-zod(',
+      '@kubb/plugin-zod:',
     )
   })
 
-  it('omits the docs line for KUBB_UNKNOWN', () => {
-    expect(Diagnostics.format({ code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom' }).details.some((line) => line.includes('docs:'))).toBe(false)
+  it('omits the see line for KUBB_UNKNOWN', () => {
+    expect(Diagnostics.format({ code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom' }).details.some((line) => line.includes('see:'))).toBe(false)
   })
 })
 
 describe('Diagnostics.formatLines', () => {
-  it('renders a self-contained miette-style block with the symbol on the header', () => {
+  it('renders a self-contained tree block with the code on the header', () => {
     const [header] = Diagnostics.formatLines({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'Could not find Pet' })
 
-    expect(header).toContain('×')
-    expect(header).toContain('KUBB_REF_NOT_FOUND')
+    expect(header).toContain('[KUBB_REF_NOT_FOUND]')
     expect(header).toContain('Could not find Pet')
   })
 
-  it('renders an update notice as an info line with the version message', () => {
+  it('renders an update notice as a line with the version message', () => {
     const [header] = Diagnostics.formatLines(Diagnostics.update({ currentVersion: '5.0.0', latestVersion: '5.1.0' }))
 
-    expect(header).toContain('ℹ')
     expect(header).toContain('KUBB_UPDATE_AVAILABLE')
     expect(header).toContain('v5.0.0 → v5.1.0')
   })

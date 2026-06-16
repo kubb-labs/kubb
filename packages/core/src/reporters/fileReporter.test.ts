@@ -42,8 +42,8 @@ describe('fileReporter', () => {
     expect(written).toContain('Plugins   2 passed (2)')
     expect(written).toContain('Files     1 generated')
     expect(written).toContain('## Problems')
-    expect(written).toContain('KUBB_DEPRECATED: This schema is marked as deprecated.')
-    expect(written).toContain('at #/components/schemas/Tag')
+    expect(written).toContain('[KUBB_DEPRECATED]: This schema is marked as deprecated.')
+    expect(written).toContain('at: #/components/schemas/Tag')
     expect(written).toContain('## Timings')
     // Slowest first.
     expect(written.indexOf('plugin-ts')).toBeLessThan(written.indexOf('plugin-redoc'))
