@@ -56,6 +56,7 @@
     "always-use-collision-safe-naming",
     "ast-babel-style-traversal",
     "ast-cjs-sideeffects-utils",
+    "ast-colocate-node-builders",
     "ast-define-dialect",
     "ast-define-node",
     "ast-derive-node-touchpoints",
