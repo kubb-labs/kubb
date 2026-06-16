@@ -169,47 +169,14 @@ export type FunctionParamKind = FunctionParamNode['kind']
 export const typeLiteralDef = defineNode<TypeLiteralNode, Pick<TypeLiteralNode, 'members'>>({ kind: 'TypeLiteral' })
 
 /**
- * Creates a {@link TypeLiteralNode} representing an inline anonymous object type.
- *
- * @example
- * ```ts
- * createTypeLiteral({ members: [{ name: 'petId', type: 'string', optional: false }] })
- * // { petId: string }
- * ```
- */
-export const createTypeLiteral = typeLiteralDef.create
-
-/**
  * Definition for the {@link IndexedAccessTypeNode}.
  */
 export const indexedAccessTypeDef = defineNode<IndexedAccessTypeNode, Omit<IndexedAccessTypeNode, 'kind'>>({ kind: 'IndexedAccessType' })
 
 /**
- * Creates an {@link IndexedAccessTypeNode} representing a single field accessed from a named type.
- *
- * @example
- * ```ts
- * createIndexedAccessType({ objectType: 'DeletePetPathParams', indexType: 'petId' })
- * // DeletePetPathParams['petId']
- * ```
- */
-export const createIndexedAccessType = indexedAccessTypeDef.create
-
-/**
  * Definition for the {@link ObjectBindingPatternNode}.
  */
 export const objectBindingPatternDef = defineNode<ObjectBindingPatternNode, Pick<ObjectBindingPatternNode, 'elements'>>({ kind: 'ObjectBindingPattern' })
-
-/**
- * Creates an {@link ObjectBindingPatternNode} for a destructured parameter binding.
- *
- * @example
- * ```ts
- * createObjectBindingPattern({ elements: [{ name: 'id' }, { name: 'name' }] })
- * // { id, name }
- * ```
- */
-export const createObjectBindingPattern = objectBindingPatternDef.create
 
 /**
  * Plain property descriptor for a destructured group built by {@link createFunctionParameter}.
@@ -245,6 +212,47 @@ export const functionParameterDef = defineNode<FunctionParameterNode, FunctionPa
 })
 
 /**
+ * Definition for the {@link FunctionParametersNode}.
+ */
+export const functionParametersDef = defineNode<FunctionParametersNode, Partial<Omit<FunctionParametersNode, 'kind'>>>({
+  kind: 'FunctionParameters',
+  defaults: { params: [] },
+})
+
+/**
+ * Creates a {@link TypeLiteralNode} representing an inline anonymous object type.
+ *
+ * @example
+ * ```ts
+ * createTypeLiteral({ members: [{ name: 'petId', type: 'string', optional: false }] })
+ * // { petId: string }
+ * ```
+ */
+export const createTypeLiteral = typeLiteralDef.create
+
+/**
+ * Creates an {@link IndexedAccessTypeNode} representing a single field accessed from a named type.
+ *
+ * @example
+ * ```ts
+ * createIndexedAccessType({ objectType: 'DeletePetPathParams', indexType: 'petId' })
+ * // DeletePetPathParams['petId']
+ * ```
+ */
+export const createIndexedAccessType = indexedAccessTypeDef.create
+
+/**
+ * Creates an {@link ObjectBindingPatternNode} for a destructured parameter binding.
+ *
+ * @example
+ * ```ts
+ * createObjectBindingPattern({ elements: [{ name: 'id' }, { name: 'name' }] })
+ * // { id, name }
+ * ```
+ */
+export const createObjectBindingPattern = objectBindingPatternDef.create
+
+/**
  * Creates a `FunctionParameterNode`. `optional` defaults to `false`.
  *
  * @example Optional param
@@ -260,14 +268,6 @@ export const functionParameterDef = defineNode<FunctionParameterNode, FunctionPa
  * ```
  */
 export const createFunctionParameter = functionParameterDef.create
-
-/**
- * Definition for the {@link FunctionParametersNode}.
- */
-export const functionParametersDef = defineNode<FunctionParametersNode, Partial<Omit<FunctionParametersNode, 'kind'>>>({
-  kind: 'FunctionParameters',
-  defaults: { params: [] },
-})
 
 /**
  * Creates a `FunctionParametersNode` from an ordered list of parameters.
