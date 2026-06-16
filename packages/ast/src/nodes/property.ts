@@ -1,4 +1,4 @@
-import { defineNode, syncOptionality } from '../node.ts'
+import { defineNode } from '../node.ts'
 import type { BaseNode } from './base.ts'
 import type { SchemaNode } from './schema.ts'
 
@@ -37,18 +37,18 @@ export type PropertyNode = BaseNode & {
 export type UserPropertyNode = Pick<PropertyNode, 'name' | 'schema'> & Partial<Omit<PropertyNode, 'kind' | 'name' | 'schema'>>
 
 /**
- * Definition for the {@link PropertyNode}. `required` defaults to `false` and the
- * schema's `optional`/`nullish` flags are kept in sync with it.
+ * Definition for the {@link PropertyNode}. `required` defaults to `false`. When a `dialect` is
+ * passed to `create`, the schema's `optional`/`nullish` flags are derived through its
+ * `optionality`; without one, the schema is left as-is.
  */
 export const propertyDef = defineNode<PropertyNode, UserPropertyNode>({
   kind: 'Property',
-  build: (props) => {
+  build: (props, dialect) => {
     const required = props.required ?? false
-    return { ...props, required, schema: syncOptionality(props.schema, required) }
+    return { ...props, required, schema: dialect ? dialect.optionality(props.schema, required) : props.schema }
   },
   children: ['schema'],
   visitorKey: 'property',
-  rebuild: true,
 })
 
 /**

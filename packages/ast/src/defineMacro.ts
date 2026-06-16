@@ -135,5 +135,5 @@ export function composeMacros(macros: ReadonlyArray<Macro>): Visitor {
 export function applyMacros<TNode extends Node>(root: TNode, macros: ReadonlyArray<Macro>, options?: { depth?: VisitorDepth }): TNode {
   if (macros.length === 0) return root
 
-  return transform(root, { ...composeMacros(macros), depth: options?.depth }) as TNode
+  return transform(root, { ...composeMacros(macros), ...options }) as TNode
 }

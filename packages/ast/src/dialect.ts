@@ -1,3 +1,5 @@
+import type { SchemaNode } from './nodes/index.ts'
+
 /**
  * The spec-specific questions a schema parser answers while turning a source document into Kubb
  * AST nodes. The rest of the pipeline is generic JSON Schema, so this is the one seam where
@@ -11,23 +13,30 @@ export type SchemaDialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TS
   /**
    * Whether the schema is nullable.
    */
-  isNullable: (schema?: TSchema) => boolean
+  isNullable(schema?: TSchema): boolean
   /**
    * Whether the value is a `$ref` pointer.
    */
-  isReference: (value?: unknown) => value is TRef
+  isReference(value?: unknown): value is TRef
   /**
    * Whether the schema carries a discriminator for polymorphism.
    */
-  isDiscriminator: (value?: unknown) => value is TDiscriminated
+  isDiscriminator(value?: unknown): value is TDiscriminated
   /**
    * Whether the schema is binary data, converted to a `blob` node.
    */
-  isBinary: (schema: TSchema) => boolean
+  isBinary(schema: TSchema): boolean
   /**
    * Resolves a local `$ref` against the document, or nullish when it cannot.
    */
-  resolveRef: <TResolved>(document: TDocument, ref: string) => TResolved | null | undefined
+  resolveRef<TResolved>(document: TDocument, ref: string): TResolved | null | undefined
+  /**
+   * Derives a schema's `optional`/`nullish` flags from a parent's `required` value and the
+   * schema's own `nullable`. How "required" and "nullable" combine is spec-specific, so the
+   * dialect owns it. Method syntax keeps a concrete dialect assignable to the base
+   * `SchemaDialect` (bivariant parameters).
+   */
+  optionality(schema: SchemaNode, required: boolean): SchemaNode
 }
 
 /**
@@ -43,6 +52,7 @@ export type SchemaDialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TS
  *   isDiscriminator,
  *   isBinary: (schema) => schema.type === 'string' && schema.contentMediaType === 'application/octet-stream',
  *   resolveRef,
+ *   optionality,
  * })
  * ```
  */

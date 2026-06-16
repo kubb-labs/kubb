@@ -137,7 +137,6 @@ describe('applyDedupe', () => {
     expect(narrowSchema(stateSchema, 'ref')).toMatchObject({
       kind: 'Schema',
       name: 'PetStatus',
-      optional: true,
       ref: '#/components/schemas/PetStatus',
       type: 'ref',
     })

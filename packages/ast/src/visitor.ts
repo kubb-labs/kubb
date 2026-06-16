@@ -33,14 +33,6 @@ const VISITOR_KEY_BY_KIND = Object.fromEntries(nodeDefs.flatMap((def) => (def.vi
 >
 
 /**
- * Per-kind builders rerun after children are rebuilt. Derived from each
- * definition's `rebuild` flag.
- */
-const nodeRebuilders = Object.fromEntries(
-  nodeDefs.flatMap((def) => (def.rebuild ? [[def.kind, def.create as unknown as (node: Node) => Node] as const] : [])),
-) as Partial<Record<NodeKind, (node: Node) => Node>>
-
-/**
  * Creates a small async concurrency limiter.
  *
  * At most `concurrency` tasks are in flight at once. Extra tasks are queued.
@@ -443,10 +435,7 @@ export function transform(node: Node, options: TransformOptions): Node {
   // Structural sharing: when the visitor and child rebuild both left this node
   // untouched, return the original reference so callers can detect "nothing
   // changed" by identity and ancestors can avoid reallocating.
-  if (rebuilt === node) return node
-
-  const rebuild = nodeRebuilders[rebuilt.kind]
-  return rebuild ? rebuild(rebuilt) : rebuilt
+  return rebuilt
 }
 
 /**

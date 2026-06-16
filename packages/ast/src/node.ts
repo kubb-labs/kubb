@@ -1,5 +1,5 @@
+import type { SchemaDialect } from './dialect.ts'
 import type { BaseNode, NodeKind } from './nodes/base.ts'
-import type { SchemaNode } from './nodes/index.ts'
 
 /**
  * Visitor callback names, one per traversable node kind, in traversal order.
@@ -33,25 +33,6 @@ function isKind<T extends BaseNode>(kind: NodeKind) {
 }
 
 /**
- * Updates a schema's `optional` and `nullish` flags from a parent's `required`
- * value and the schema's own `nullable`. Mirrors how OpenAPI parameters and
- * object properties combine "required" and "nullable" into a single AST.
- *
- * - Non-required + non-nullable → `optional: true`.
- * - Non-required + nullable → `nullish: true`.
- * - Required → both flags cleared.
- */
-export function syncOptionality(schema: SchemaNode, required: boolean): SchemaNode {
-  const nullable = schema.nullable ?? false
-
-  return {
-    ...schema,
-    optional: !required && !nullable ? true : undefined,
-    nullish: !required && nullable ? true : undefined,
-  }
-}
-
-/**
  * The single definition derived from one {@link defineNode} call: the node's
  * `create` builder, its `is` guard, and the traversal metadata the registry
  * collects into the visitor tables.
@@ -62,9 +43,11 @@ export type NodeDef<TNode extends BaseNode = BaseNode, TInput = never> = {
    */
   kind: NodeKind
   /**
-   * Builds a node from its input, applying `defaults` and the optional `build` hook.
+   * Builds a node from its input, applying `defaults` and the optional `build` hook. An
+   * optional `dialect` is forwarded to `build` so nodes can derive spec-specific fields
+   * (e.g. a schema's `optional`/`nullish`) through `dialect.optionality` when one is given.
    */
-  create: (input: TInput) => TNode
+  create: (input: TInput, dialect?: SchemaDialect) => TNode
   /**
    * Type guard matching this node kind.
    */
@@ -77,20 +60,14 @@ export type NodeDef<TNode extends BaseNode = BaseNode, TInput = never> = {
    * Visitor callback name. Feeds `VISITOR_KEY_BY_KIND`.
    */
   visitorKey?: VisitorKey
-  /**
-   * When `true`, `create` is rerun after children are rebuilt so computed fields
-   * stay in sync. Feeds `nodeRebuilders`.
-   */
-  rebuild?: boolean
 }
 
 type DefineNodeConfig<TNode extends BaseNode, TInput, TBuilt extends object> = {
   kind: TNode['kind']
   defaults?: Partial<TNode>
-  build?: (input: TInput) => TBuilt
+  build?: (input: TInput, dialect?: SchemaDialect) => TBuilt
   children?: ReadonlyArray<string>
   visitorKey?: VisitorKey
-  rebuild?: boolean
 }
 
 /**
@@ -98,36 +75,31 @@ type DefineNodeConfig<TNode extends BaseNode, TInput, TBuilt extends object> = {
  * metadata. `create` merges `defaults`, the `build` hook (or the raw input), and the
  * `kind`, so node construction lives in one place without scattered `as` casts.
  *
- * Set `rebuild: true` when the `build` hook derives fields from children. After a
- * transform rewrites those children, the registry reruns `create` so the derived
- * fields stay correct.
- *
  * @example Simple node
  * ```ts
  * const importDef = defineNode<ImportNode>({ kind: 'Import' })
  * const createImport = importDef.create
  * ```
  *
- * @example Node with a build hook that is rerun on transform
+ * @example Node with a build hook
  * ```ts
  * const propertyDef = defineNode<PropertyNode, UserPropertyNode>({
  *   kind: 'Property',
  *   build: (props) => ({ ...props, required: props.required ?? false }),
  *   children: ['schema'],
  *   visitorKey: 'property',
- *   rebuild: true,
  * })
  * ```
  */
 export function defineNode<TNode extends BaseNode, TInput = Omit<TNode, 'kind'>, TBuilt extends object = Omit<TNode, 'kind'>>(
   config: DefineNodeConfig<TNode, TInput, TBuilt>,
 ): NodeDef<TNode, TInput> {
-  const { kind, defaults, build, children, visitorKey, rebuild } = config
+  const { kind, defaults, build, children, visitorKey } = config
 
-  function create(input: TInput): TNode {
-    const base = build ? build(input) : input
+  function create(input: TInput, dialect?: SchemaDialect): TNode {
+    const base = build ? build(input, dialect) : input
     return { ...defaults, ...(base as object), kind } as TNode
   }
 
-  return { kind, create, is: isKind<TNode>(kind), children, visitorKey, rebuild }
+  return { kind, create, is: isKind<TNode>(kind), children, visitorKey }
 }

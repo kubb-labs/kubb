@@ -20,6 +20,7 @@ import {
   getSchemaType,
 } from './resolvers.ts'
 import type { ContentType, Document, Operation, ReferenceObject, SchemaObject } from './types.ts'
+import type { StatusCode } from '@kubb/ast'
 
 /**
  * Parser context holding the raw OpenAPI document and optional content-type override.
@@ -605,14 +606,17 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
           const propNode = parseSchema({ schema: resolvedPropSchema, name: resolvedChildName }, rawOptions)
           const schemaNode = nameEnums(propNode, { parentName: name, propName, enumSuffix: options.enumSuffix })
 
-          return ast.factory.createProperty({
-            name: propName,
-            schema: {
-              ...schemaNode,
-              nullable: schemaNode.type === 'null' ? undefined : propNullable || undefined,
+          return ast.factory.createProperty(
+            {
+              name: propName,
+              schema: {
+                ...schemaNode,
+                nullable: schemaNode.type === 'null' ? undefined : propNullable || undefined,
+              },
+              required,
             },
-            required,
-          })
+            dialect,
+          )
         })
       : []
 
@@ -890,15 +894,18 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       ? parseSchema({ schema: param['schema'] as SchemaObject, name: schemaName }, options)
       : ast.factory.createSchema({ type: typeOptionMap.get(options.unknownType)! })
 
-    return ast.factory.createParameter({
-      name: paramName,
-      in: param['in'] as ast.ParameterLocation,
-      schema: {
-        ...schema,
-        description: (param['description'] as string | undefined) ?? schema.description,
+    return ast.factory.createParameter(
+      {
+        name: paramName,
+        in: param['in'] as ast.ParameterLocation,
+        schema: {
+          ...schema,
+          description: (param['description'] as string | undefined) ?? schema.description,
+        },
+        required,
       },
-      required,
-    })
+      dialect,
+    )
   }
 
   /**
@@ -977,7 +984,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       return [
         ast.factory.createContent({
           contentType: ct,
-          schema: ast.syncOptionality(parseSchema({ schema, name: requestBodyName }, options), requestBodyMeta.required),
+          schema: dialect.optionality(parseSchema({ schema, name: requestBodyName }, options), requestBodyMeta.required),
           keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
         }),
       ]
@@ -1027,7 +1034,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       }
 
       return ast.factory.createResponse({
-        statusCode,
+        statusCode: statusCode as StatusCode,
         description,
         content,
       })

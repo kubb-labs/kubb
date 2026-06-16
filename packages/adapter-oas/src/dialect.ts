@@ -4,6 +4,25 @@ import { resolveRef } from './refs.ts'
 import type { SchemaObject } from './types.ts'
 
 /**
+ * Derives a schema's `optional`/`nullish` flags from a parent's `required` value and the
+ * schema's own `nullable`. How "required" and "nullable" combine is OpenAPI-specific, so it
+ * lives in the dialect.
+ *
+ * - Non-required + non-nullable → `optional: true`.
+ * - Non-required + nullable → `nullish: true`.
+ * - Required → both flags cleared.
+ */
+function optionality(schema: ast.SchemaNode, required: boolean): ast.SchemaNode {
+  const nullable = schema.nullable ?? false
+
+  return {
+    ...schema,
+    optional: !required && !nullable ? true : undefined,
+    nullish: !required && nullable ? true : undefined,
+  }
+}
+
+/**
  * The OpenAPI / Swagger dialect, the default used by `@kubb/adapter-oas`.
  *
  * Implements the spec-agnostic {@link ast.SchemaDialect} contract: it isolates the
@@ -29,6 +48,7 @@ export const oasDialect = ast.defineSchemaDialect({
   isDiscriminator,
   isBinary: (schema: SchemaObject) => schema.type === 'string' && schema.contentMediaType === 'application/octet-stream',
   resolveRef,
+  optionality,
 })
 
 /**

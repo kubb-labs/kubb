@@ -31,7 +31,7 @@ export type { OutputNode } from './output.ts'
 export type { ParameterLocation, ParameterNode } from './parameter.ts'
 export type { PropertyNode } from './property.ts'
 export type { RequestBodyNode } from './requestBody.ts'
-export type { ResponseNode } from './response.ts'
+export type { ResponseNode, StatusCode } from './response.ts'
 export type {
   ArraySchemaNode,
   DateSchemaNode,
