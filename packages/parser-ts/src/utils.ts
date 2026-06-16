@@ -139,10 +139,8 @@ export function formatReturnType(returnType: string | null | undefined, isAsync:
 }
 
 /**
- * Module-scoped TypeScript printer instance. `ts.createPrinter()` is stateless across calls
- * (it does not mutate the source file) so a single instance can be safely reused for every
- * `print()` call. Hoisting it out of `print()` avoids re-running the printer initialization
- * for each file's import/export section.
+ * Module-scoped TypeScript printer instance. A printer does not mutate the source file, so one
+ * instance is reused across every `print()` call instead of constructing a new printer each time.
  */
 const TS_PRINTER = ts.createPrinter({
   omitTrailingSemicolon: true,

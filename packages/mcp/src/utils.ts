@@ -52,6 +52,14 @@ async function loadModule(filePath: string): Promise<unknown> {
   return mod
 }
 
+/**
+ * Loads the user's Kubb config and returns it with the directory it was found in.
+ *
+ * When `configPath` is given it must use an allowed extension and resolve inside
+ * the current working directory, otherwise loading throws. When omitted, the
+ * known `kubb.config.*` file names are tried in the current directory. Every
+ * outcome is reported through `notify` before the function returns or throws.
+ */
 export async function loadUserConfig(configPath: string | undefined, { notify }: { notify: NotifyFunction }): Promise<{ userConfig: Config; cwd: string }> {
   if (configPath) {
     const ext = path.extname(configPath)
@@ -117,11 +125,26 @@ export function resolveCwd(userConfig: Config, cwd: string): string {
   return cwd
 }
 
+/**
+ * Inputs forwarded to a config when it is defined as a function.
+ */
 export type ResolveUserConfigOptions = {
+  /**
+   * Path of the loaded config, passed through to the config function as `config`.
+   */
   configPath?: string
+  /**
+   * Log level passed through to the config function.
+   */
   logLevel?: string
 }
 
+/**
+ * Normalizes a possible config into a single resolved `Config`.
+ *
+ * Calls the config when it is a function, awaits it when it is a promise, and
+ * picks the first entry when it resolves to an array.
+ */
 export async function resolveUserConfig(config: PossibleConfig<CLIOptions>, options: ResolveUserConfigOptions): Promise<Config> {
   const result = typeof config === 'function' ? config({ logLevel: options.logLevel as CLIOptions['logLevel'], config: options.configPath }) : config
   const resolved = isPromise(result) ? await result : result

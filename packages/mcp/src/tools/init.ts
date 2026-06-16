@@ -6,6 +6,10 @@ import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import { initSchema } from '../schemas/initSchema.ts'
 
+/**
+ * Resolves a comma-separated plugin flag into the matching known plugin options.
+ * Unrecognized names are dropped, and a missing flag yields an empty list.
+ */
 export function resolvePlugins(pluginsFlag: string | undefined): Array<PluginOption> {
   if (!pluginsFlag) {
     return []

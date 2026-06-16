@@ -79,8 +79,8 @@ export type Group = {
    */
   type: 'tag' | 'path'
   /**
-   * Returns the subdirectory name from the group key. Defaults to the
-   * camelCased tag for `tag` groups, or the first path segment for `path` groups.
+   * Returns the subdirectory name from the group key. Defaults to the camelCased tag for
+   * `tag` groups, or the camelCased first path segment for `path` groups.
    */
   name?: (context: { group: string }) => string
 }
@@ -169,11 +169,12 @@ type ByPath = {
 
 type ByMethod = {
   /**
-   * Filter by HTTP method: `'get'`, `'post'`, `'put'`, `'delete'`, `'patch'`, `'head'`, `'options'`.
+   * Filter by HTTP method: `'GET'`, `'POST'`, `'PUT'`, `'PATCH'`, `'DELETE'`, `'HEAD'`, `'OPTIONS'`, `'TRACE'`.
    */
   type: 'method'
   /**
-   * HTTP method to match (case-insensitive when using string, or regex for dynamic matching).
+   * HTTP method to match, as one of the `HttpMethod` values (`'GET'`, `'POST'`, `'PUT'`,
+   * `'PATCH'`, `'DELETE'`, `'HEAD'`, `'OPTIONS'`, `'TRACE'`) or a regex.
    */
   pattern: HttpMethod | RegExp
 }
@@ -347,7 +348,7 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
    *
    * - `'pre'` runs before all normal plugins.
    * - `'post'` runs after all normal plugins.
-   * - `undefined` (default), runs in declaration order among normal plugins.
+   * - `undefined` (default) runs in declaration order among normal plugins.
    *
    * Dependency constraints always take precedence over `enforce`.
    */

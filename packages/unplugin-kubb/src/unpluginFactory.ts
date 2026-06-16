@@ -14,6 +14,13 @@ type RollupContext = {
   error?: (message: string) => void
 }
 
+/**
+ * Builds the Kubb unplugin for any unplugin-supported bundler (Vite, Rollup, Webpack, esbuild).
+ *
+ * Registers hook handlers that log lifecycle, diagnostics, and a per-plugin summary, then runs
+ * the Kubb build during `buildStart`. When the config omits them, it fills in defaults: the OAS
+ * adapter, the TS and TSX parsers, and a barrel plugin. Under Vite it only applies during `build`.
+ */
 export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, meta) => {
   const name = 'unplugin-kubb' as const
   const hooks = new AsyncEventEmitter<KubbHooks>()

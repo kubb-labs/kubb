@@ -49,8 +49,8 @@ type RunToolPassOptions = {
 }
 
 /**
- * Registers a one-shot `kubb:hook:end` listener for `hookId` BEFORE the caller emits `kubb:hook:start`,
- * so a synchronous emitter can't fire end before the listener is attached.
+ * Registers a one-shot `kubb:hook:end` listener for `hookId` before the caller emits `kubb:hook:start`,
+ * so a synchronous emitter cannot fire end before the listener is attached.
  */
 function waitForHookEnd(
   hooks: AsyncEventEmitter<KubbHooks>,
@@ -318,7 +318,7 @@ async function checkForUpdate(hooks: AsyncEventEmitter<KubbHooks>): Promise<void
 
 /**
  * Runs the full Kubb generation lifecycle for the given CLI options.
- * Loads configs, sets up the selected reporters (CLI `--reporter` overrides `config.reporters`),
+ * Loads configs, sets up the reporters (CLI `--reporter` picks which of `config.reporters` to trigger),
  * checks for a newer version, and calls `generate` for each config entry.
  */
 export async function run({ input, configPath, logLevel: logLevelKey, watch, reporters: cliReporters }: GenerateCommandOptions): Promise<void> {

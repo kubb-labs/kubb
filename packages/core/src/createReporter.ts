@@ -44,13 +44,13 @@ export type GenerationResult = {
 }
 
 /**
- * Render context passed alongside the {@link GenerationResult}, carrying knobs a reporter needs
- * but that are not part of the run data (e.g. verbosity).
+ * Render settings passed alongside the {@link GenerationResult}. These are not part of the run
+ * data, such as the output verbosity.
  */
 export type ReporterContext = {
   /**
    * Output verbosity. Use the `logLevel` constants exported from `@kubb/core`
-   * (`silent`, `error`, `warn`, `info`, `verbose`, `debug`).
+   * (`silent`, `error`, `warn`, `info`, `verbose`).
    */
   logLevel: (typeof logLevel)[keyof typeof logLevel]
 }
@@ -71,7 +71,7 @@ export type Reporter = {
   report: (result: GenerationResult, context: ReporterContext) => void | Promise<void>
   /**
    * Optional finalizer called once after the run's last config. The host wires it to
-   * `kubb:lifecycle:end`. {@link createReporter} closes it over the reports `report` returned.
+   * `kubb:lifecycle:end`. {@link createReporter} closes it over the values that `report` returned.
    */
   drain?: (context: ReporterContext) => void | Promise<void>
 }

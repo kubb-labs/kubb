@@ -108,6 +108,12 @@ export class KubbDriver {
     this.#listeners.push([event, handler as HookListener<Array<unknown>, unknown>])
   }
 
+  /**
+   * Normalizes every configured plugin, orders them, and registers their lifecycle handlers.
+   * A plugin that another lists as a dependency runs first, then `enforce: 'pre'` before
+   * `'post'`. When the config has an adapter, the adapter source is resolved from the input
+   * so `run` can parse it later.
+   */
   async setup() {
     const normalized: Array<NormalizedPlugin> = this.config.plugins.map((rawPlugin) => this.#normalizePlugin(rawPlugin as Plugin))
 
@@ -139,8 +145,9 @@ export class KubbDriver {
   }
 
   /**
-   * Creates an `NormalizedPlugin` from a hook-style plugin and registers
-   * its lifecycle handlers on the `AsyncEventEmitter`.
+   * Builds a `NormalizedPlugin` from a hook-style plugin, filling in default
+   * options and copying `apply` when present. Registering its lifecycle handlers
+   * on the `AsyncEventEmitter` is done separately by `#registerPlugin`.
    */
   #normalizePlugin(plugin: Plugin): NormalizedPlugin {
     const normalized: NormalizedPlugin = {
@@ -250,7 +257,7 @@ export class KubbDriver {
    * Emits the `kubb:plugin:setup` event so that all registered hook-style plugin listeners
    * can configure generators, resolvers, macros and renderers before `buildStart` runs.
    *
-   * Call this once from `safeBuild` before the plugin execution loop begins.
+   * Called once from `run` before the plugin execution loop begins.
    */
   async emitSetupHooks(): Promise<void> {
     const noop = () => {}
@@ -406,8 +413,8 @@ export class KubbDriver {
           }
 
           // Stream every node through the transform registry and into each plugin's generators.
-          // Handles the empty-entries and missing-`inputNode` cases by closing out each entry's
-          // `kubb:plugin:end` directly.
+          // When there are no entries it returns early. When `inputNode` is missing it still
+          // closes out each entry's `kubb:plugin:end` directly.
           diagnostics.push(...(await this.#runGenerators(generatorPlugins, () => processor.flush())))
           // Wait for the last in-flight batch and write anything still pending.
           await processor.drain()
@@ -464,8 +471,8 @@ export class KubbDriver {
    * That ordering is what drives the CLI's `Plugins N/M` counter. Without it the bar would
    * sit at the initial value until the very end of the run.
    *
-   * When `entries` is empty or `this.inputNode` is `null`, every entry still gets a
-   * `kubb:plugin:end` so post-plugin listeners (the barrel writer and friends) complete.
+   * When `this.inputNode` is `null`, every entry still gets a `kubb:plugin:end` so
+   * post-plugin listeners (the barrel writer and friends) complete.
    */
   async #runGenerators(
     entries: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options'>; hrStart: ReturnType<typeof process.hrtime> }>,

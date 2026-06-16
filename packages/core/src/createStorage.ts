@@ -34,8 +34,8 @@ export type Storage = {
    */
   clear(base?: string): Promise<void>
   /**
-   * Optional teardown hook called after the build completes. Use to flush
-   * buffers, close connections, or release file locks.
+   * Optional teardown hook for a backend to flush buffers, close connections,
+   * or release file locks.
    */
   dispose?(): Promise<void>
 }

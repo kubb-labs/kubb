@@ -3,14 +3,14 @@ import { SyncRuntime } from './SyncRuntime.tsx'
 import type { KubbReactElement } from './types.ts'
 
 /**
- * Renderer that walks the JSX tree in a single recursive pass, with no React
- * reconciler or scheduler. Pass as the `renderer` property on
- * `defineGenerator`. Kubb core stays generic, with no hard dependency on
- * `@kubb/renderer-jsx`.
+ * Factory for a renderer that walks the JSX tree in a single recursive pass,
+ * with no React reconciler or scheduler. Pass it as the `renderer` property on
+ * `defineGenerator`. Kubb core calls the factory once per render cycle and stays
+ * generic, with no hard dependency on `@kubb/renderer-jsx`.
  *
  * Every component must be a pure function. Hooks, suspense, and class
- * components are not supported. It also exposes `stream()` for incremental
- * file emission.
+ * components are not supported. The returned renderer also exposes `stream()`
+ * for incremental file emission.
  *
  * @example Wire up a JSX generator
  * ```tsx

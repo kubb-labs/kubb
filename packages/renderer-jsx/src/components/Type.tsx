@@ -14,7 +14,6 @@ type TypeProps = {
    * Emit the `export` keyword before the type alias declaration.
    * - `true` generates `export type Name = …`
    * - `false` generates `type Name = …`
-   * @default false
    */
   export?: boolean | null
   /**

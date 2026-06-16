@@ -28,8 +28,7 @@ type Props = {
 }
 
 /**
- * Renders a GitHub-style alert callout, portable across GitHub, GitLab,
- * VitePress, Obsidian, and MDX.
+ * Renders a GitHub-style alert callout using the `> [!TYPE]` blockquote syntax.
  *
  * Emits a `<File.Source>` block containing `> [!TYPE] Title` followed by the
  * body with every line prefixed by `> `.

@@ -35,8 +35,7 @@ type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
 type Props<TMeta> = BaseProps & {
   key?: Key
   /**
-   * Arbitrary metadata attached to the file node.
-   * Used by plugins for barrel generation and custom post-processing.
+   * Arbitrary metadata attached to the file node for plugins to read.
    */
   meta?: TMeta | null
   /**
@@ -94,8 +93,8 @@ type FileSourceProps = Omit<SourceNode, 'kind' | 'value'> & {
 /**
  * Marks a block of source text to be associated with the enclosing {@link File}.
  *
- * Children are treated as the source string. When `isExportable` is `true` the
- * `name` is used for deduplication and barrel generation.
+ * Children are treated as the source string. `isExportable` prepends the `export` keyword,
+ * `isIndexable` includes the source in barrel/index generation, and `name` keys deduplication.
  *
  * @example Exportable, indexable source block
  * ```tsx

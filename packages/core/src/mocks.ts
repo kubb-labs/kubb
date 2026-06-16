@@ -11,7 +11,7 @@ import { memoryStorage } from './storages/memoryStorage.ts'
 import type { Adapter, AdapterFactoryOptions, Config, Generator, GeneratorContext, NormalizedPlugin, PluginFactoryOptions, RendererFactory } from './types.ts'
 
 /**
- * Creates a minimal `PluginDriver` mock for unit tests.
+ * Creates a minimal `KubbDriver` mock for unit tests.
  */
 export function createMockedPluginDriver(options: { name?: string; plugin?: NormalizedPlugin; config?: Config } = {}): KubbDriver {
   const fileManager = new FileManager()

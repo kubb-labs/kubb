@@ -119,9 +119,15 @@ export type TelemetryPlugin = {
   options: Record<string, unknown>
 }
 
+/**
+ * Anonymous snapshot of a single Kubb run, built by {@link Telemetry.build} and sent by {@link Telemetry.send}.
+ */
 export type TelemetryEvent = {
   command: string
   kubbVersion: string
+  /**
+   * Major version of Node that executed the run, e.g. `'22'`.
+   */
   nodeVersion: string
   /**
    * Name of the JavaScript runtime that executed the run, `'bun'`, `'deno'`, or `'node'`.
@@ -188,7 +194,8 @@ export class Telemetry {
 
   /**
    * Convert a {@link TelemetryEvent} into an OTLP-compatible JSON trace payload.
-   * See https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/
+   *
+   * @see https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/
    */
   static buildOtlpPayload(event: TelemetryEvent): OtlpExportTraceServiceRequest {
     const traceId = randomBytes(16).toString('hex')

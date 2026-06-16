@@ -13,7 +13,6 @@ type ConstProps = {
    * Emit the `export` keyword before the `const` declaration.
    * - `true` generates `export const name = …`
    * - `false` generates `const name = …`
-   * @default false
    */
   export?: boolean | null
   /**
@@ -29,14 +28,13 @@ type ConstProps = {
    */
   JSDoc?: JSDoc | null
   /**
-   * Append `as const` after the initialiser, enabling TypeScript const assertions.
+   * Append `as const` after the initializer, enabling TypeScript const assertions.
    * - `true` generates `const name = … as const`
    * - `false` generates `const name = …`
-   * @default false
    */
   asConst?: boolean | null
   /**
-   * Child nodes rendered as the initialiser expression of the constant.
+   * Child nodes rendered as the initializer expression of the constant.
    */
   children?: KubbReactNode
 }

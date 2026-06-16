@@ -112,12 +112,12 @@ type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) =
  *   options,
  *   document: null,
  *   async parse(_source) {
- *     // Convert `source` (path or inline data) into an InputNode.
+ *     // Convert the source (path or inline data) into an InputNode.
  *     return ast.factory.createInput()
  *   },
  *   getImports: () => [],
  *   async validate() {
- *     // Throw or call ctx.error here when the spec is invalid.
+ *     // Throw here when the spec is invalid.
  *   },
  * }))
  * ```

@@ -9,11 +9,11 @@ import type { Resolver } from './defineResolver.ts'
 import type { Config } from './types.ts'
 
 /**
- * Context object passed to generator `schema`, `operation`, and `operations` methods.
+ * Context passed to a generator's `schema`, `operation`, and `operations` methods.
  *
- * The adapter is always defined (guaranteed by `runPluginAstHooks`) so no runtime checks
- * are needed. `ctx.options` carries resolved per-node options after exclude/include/override
- * filtering for individual schema/operation calls, or plugin-level options for operations.
+ * The driver sets `adapter` on the context before it runs a generator, so methods can read it
+ * without a null check. `ctx.options` carries the per-node options after exclude/include/override
+ * filtering for `schema` and `operation`, or the plugin-level options for `operations`.
  */
 export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
@@ -109,9 +109,10 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
 /**
  * Declares a named generator unit that walks the AST and emits files.
  *
- * Each method (`schema`, `operation`, `operations`) is called for the matching node type.
- * JSX-based generators require a `renderer` factory. Return `Array<FileNode>` directly, or call
- * `ctx.upsertFile()` manually and return `null` to bypass rendering.
+ * `schema` runs for each schema node and `operation` for each operation node. `operations` runs
+ * once after every operation node is walked. JSX-based generators require a `renderer` factory.
+ * Return `Array<FileNode>` directly, or call `ctx.upsertFile()` manually and return `null` to
+ * bypass rendering.
  *
  * @note Generators are consumed by plugins and registered via `ctx.addGenerator()` in `kubb:plugin:setup`.
  *

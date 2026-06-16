@@ -21,6 +21,11 @@ type McpOptions = {
   host?: string
 }
 
+/**
+ * Starts the `@kubb/mcp` server and reports the outcome to telemetry.
+ *
+ * Runs over HTTP when `port` is set, otherwise over stdio.
+ */
 export async function run({ version, port, host }: McpOptions): Promise<void> {
   const { run: startMcpServer } = (await import('@kubb/mcp')) as typeof McpModule
   const hrStart = process.hrtime()

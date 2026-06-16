@@ -235,7 +235,7 @@ const severityStyle: Record<DiagnosticSeverity, { glyph: string; color: 'red' | 
 /**
  * A {@link Diagnostic} reduced to its JSON-safe fields plus a `docsUrl`, for
  * machine-readable output (the `--reporter json` report, the MCP tools). Drops the
- * non-serializable `cause` and the `timing`/`duration` bookkeeping.
+ * non-serializable `cause` and the `kind`/`duration` bookkeeping.
  */
 export type SerializedDiagnostic = {
   code: DiagnosticCode
@@ -541,8 +541,8 @@ export class Diagnostics {
   }
 
   /**
-   * Counts `problem` diagnostics by severity for the run summary. `timing`
-   * diagnostics are ignored.
+   * Counts `problem` diagnostics by severity for the run summary. `performance` and
+   * `update` diagnostics are ignored.
    */
   static count(diagnostics: ReadonlyArray<Diagnostic>): { errors: number; warnings: number; infos: number } {
     let errors = 0

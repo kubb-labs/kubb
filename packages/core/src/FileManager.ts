@@ -60,9 +60,9 @@ export class FileManager {
   readonly hooks = new AsyncEventEmitter<FileManagerHooks>()
   readonly #cache = new Map<string, FileNode>()
   // Cached sorted view. Null means stale and rebuilt lazily on next `files` read.
-  // Nulled (not mutated) on every write so callers holding a prior reference
-  // keep their snapshot, `dispose()` must not silently empty an array the
-  // consumer already holds.
+  // Nulled (not mutated) on every write so callers holding a prior reference keep
+  // their snapshot. `dispose()` must not silently empty an array the consumer
+  // already holds.
   #sorted: Array<FileNode> | null = null
 
   add(...files: Array<FileNode>): Array<FileNode> {

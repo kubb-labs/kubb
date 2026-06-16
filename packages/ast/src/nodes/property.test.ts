@@ -25,4 +25,24 @@ describe('createProperty', () => {
     expect(node.schema.nullable).toBeFalsy()
     expect(node.schema.nullish).toBeFalsy()
   })
+
+  it('marks a non-required schema optional without a dialect', () => {
+    const node = createProperty({
+      name: 'name',
+      schema: createSchema({ type: 'string' }),
+    })
+
+    expect(node.schema.optional).toBe(true)
+    expect(node.schema.nullish).toBeUndefined()
+  })
+
+  it('marks a non-required nullable schema nullish without a dialect', () => {
+    const node = createProperty({
+      name: 'name',
+      schema: createSchema({ type: 'string', nullable: true }),
+    })
+
+    expect(node.schema.nullish).toBe(true)
+    expect(node.schema.optional).toBeUndefined()
+  })
 })

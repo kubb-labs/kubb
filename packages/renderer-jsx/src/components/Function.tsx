@@ -12,7 +12,6 @@ type Props = {
   /**
    * Emit `default` after the `export` keyword, making this the module's default export.
    * Requires `export` to also be `true`.
-   * @default false
    */
   default?: boolean | null
   /**
@@ -26,14 +25,12 @@ type Props = {
    * Emit the `export` keyword before the function declaration.
    * - `true` generates `export function name(…) { … }`
    * - `false` generates `function name(…) { … }`
-   * @default false
    */
   export?: boolean | null
   /**
    * Emit the `async` keyword, making this an async function.
    * The return type is automatically wrapped in `Promise<returnType>` when both
    * `async` and `returnType` are set.
-   * @default false
    */
   async?: boolean | null
   /**
@@ -108,7 +105,6 @@ type ArrowFunctionProps = Props & {
    * Render the arrow function as a single-line expression (no braces around the body).
    * - `true` generates `const name = (…) => expression`
    * - `false` generates `const name = (…) => { … }`
-   * @default false
    */
   singleLine?: boolean | null
 }

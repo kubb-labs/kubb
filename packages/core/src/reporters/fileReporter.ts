@@ -74,12 +74,11 @@ function buildTimingSection(report: Report): Array<string> {
  * The `file` reporter. Writes a config's {@link Report} to `.kubb/kubb-<name>-<timestamp>.log` as a
  * plain-text document: a `# <name> — <timestamp>` header, a `## Summary` with the same counts the
  * cli and json reporters expose, a `## Problems` section in the miette block format, and a
- * `## Timings` section. Selected with `--reporter file` (or `reporters: ['file']`), replacing the
- * old `--debug` flag.
+ * `## Timings` section. Selected with `--reporter file` (or `reporters: ['file']`).
  *
- * @note Unlike the streaming logger it replaced, it captures the collected diagnostics once a
- * config finishes, not the live `kubb:info`/`kubb:plugin` event stream. Color is stripped so the
- * file stays plain text even when the run is attached to a TTY.
+ * @note It captures the collected diagnostics once a config finishes, not the live
+ * `kubb:info`/`kubb:plugin` event stream. Color is stripped so the file stays plain text even when
+ * the run is attached to a TTY.
  */
 export const fileReporter = createReporter({
   name: 'file',

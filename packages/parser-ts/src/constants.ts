@@ -14,8 +14,8 @@ const INDENT_SIZE = 2 as const
 export const INDENT = INDENT_CHAR.repeat(INDENT_SIZE)
 
 /**
- * Matches the trailing `.<ext>` segment of a path (keeps segments like `foo.bar.ts`
- * intact by only trimming the last run of non-`/`/`.` characters).
+ * Matches only the final `.<ext>` of a path, so a name like `foo.bar.ts` keeps
+ * `foo.bar` and loses just `.ts`.
  */
 export const FILE_EXTENSION_PATTERN = /\.[^/.]+$/
 
@@ -42,7 +42,7 @@ export const CRLF_PATTERN = /\r\n/g
 
 /**
  * Matches an identifier that starts with a digit. JavaScript disallows this,
- * so the printer prefixes such names with `_`.
+ * so the printer replaces the leading digit with `_`.
  */
 export const LEADING_DIGIT_PATTERN = /^\d/
 

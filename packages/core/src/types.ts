@@ -149,7 +149,7 @@ export type Config<TInput = Input> = {
      *
      * @example
      * ```ts
-     * format: 'auto'        // auto-detect prettier, biome, or oxfmt
+     * format: 'auto'        // auto-detect oxfmt, biome, or prettier
      * format: 'prettier'    // force prettier
      * format: false         // skip formatting
      * ```

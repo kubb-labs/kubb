@@ -18,9 +18,8 @@ import type {
  * JSX contract for `@kubb/renderer-jsx`, resolved through `jsxImportSource`.
  *
  * It is self-contained and does not extend `React.JSX`. The renderer only emits
- * the custom `kubb-*` hosts plus `br`, `indent`, and `dedent`, and supports
- * pure function components, so the HTML element and class-component machinery
- * from `@types/react` is not needed.
+ * the custom `kubb-*` hosts plus `br`, and supports pure function components, so
+ * the HTML element and class-component machinery from `@types/react` is not needed.
  */
 export namespace JSX {
   type ElementType = string | ((props: any) => KubbReactNode)

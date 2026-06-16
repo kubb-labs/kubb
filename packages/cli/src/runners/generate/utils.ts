@@ -153,6 +153,12 @@ type RunHookOptions = {
   hooks: AsyncEventEmitter<KubbHooks>
 }
 
+/**
+ * Spawns a hook command and reports its outcome through `kubb:hook:end`.
+ * A non-zero exit signals failure via `kubb:hook:end` rather than throwing, so the caller can turn
+ * it into a diagnostic. Other spawn errors do the same. Output is streamed through `kubb:hook:line`
+ * only while a listener is attached.
+ */
 export async function runHook({ id, command, args, commandWithArgs, hooks }: RunHookOptions): Promise<void> {
   const emitEnd = (success: boolean, error: Error | null, output?: { stdout?: string; stderr?: string }) =>
     hooks.emit('kubb:hook:end', { command, args, id, success, error, ...output })

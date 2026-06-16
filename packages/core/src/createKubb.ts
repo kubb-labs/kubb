@@ -74,9 +74,8 @@ type CreateKubbOptions = {
  * config in the constructor, so `config` is available right away, and shares `hooks`,
  * `storage`, and `driver` across the `setup → build` lifecycle.
  *
- * `createKubb` takes a plain, serializable config object (the shape `defineConfig`
- * produces), not a fluent builder. Config stays plain data so it can be cache
- * fingerprinted and validated against the shipped JSON schema.
+ * `createKubb` takes a plain config object (the shape `defineConfig` produces),
+ * not a fluent builder.
  *
  * Attach event listeners to `.hooks` before calling `setup()` or `build()`.
  *

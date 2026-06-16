@@ -10,7 +10,7 @@ import { composeMacros, transform } from '@kubb/ast'
  * leaves the tree untouched, so callers can detect a no-op by identity.
  *
  * Registration order matches the order setup hooks fire, which the driver has already sorted by
- * `enforce` and dependency edges. The registry preserves that order; macro `enforce` only reorders
+ * `enforce` and dependency edges. The registry preserves that order. Macro `enforce` only reorders
  * within a single plugin's list.
  */
 export class Transform {

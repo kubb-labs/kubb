@@ -5,8 +5,8 @@ import { extractStringsFromNodes } from '@kubb/ast/utils'
 import { print, type PrintInput } from './utils.ts'
 
 /**
- * Metadata accepted by `parserMd`. Set `frontmatter` on a `<File meta={…}>` to
- * have the parser prepend the corresponding YAML envelope.
+ * Metadata accepted by `parserMd`. Set `frontmatter` on a `<File meta={...}>` and
+ * the parser prepends those keys as a YAML frontmatter envelope.
  */
 export type MdMeta = {
   frontmatter?: Record<string, unknown> | null

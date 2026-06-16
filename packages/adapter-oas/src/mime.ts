@@ -1,9 +1,8 @@
 /**
  * MIME type fragments that mark a media type as JSON-like.
  *
- * Matches the substrings used by the `oas` library's `matchesMimeType.json`, so a content type is
- * JSON when it contains any of these. The `+json` entry catches structured-syntax suffixes such as
- * `application/vnd.api+json`.
+ * A content type is JSON when it contains any of these substrings. The `+json` entry catches
+ * structured-syntax suffixes such as `application/vnd.api+json`.
  */
 const jsonMimeFragments = ['application/json', 'application/x-json', 'text/json', 'text/x-json', '+json'] as const
 

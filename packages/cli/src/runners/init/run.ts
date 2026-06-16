@@ -18,7 +18,7 @@ type InitOptions = {
    */
   yes: boolean
   /**
-   * Current `@kubb/cli` version string, shown in the outro and used for package installation.
+   * Current `@kubb/cli` version string, shown in the closing outro.
    */
   version: string
   /**

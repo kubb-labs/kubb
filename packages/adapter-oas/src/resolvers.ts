@@ -243,6 +243,25 @@ export type GetSchemasResult = {
 }
 
 /**
+ * Flattens a keyword-only `allOf` into its parent schema.
+ *
+ * Only flattens when every member is a plain fragment, with no `$ref` and no structural keywords
+ * (see `structuralKeys`). Outer schema values take precedence over fragment values.
+ * Returns `null` for a `null` input, and the original schema unchanged when flattening is unsafe.
+ *
+ * @example
+ * ```ts
+ * flattenSchema({ allOf: [{ description: 'A pet' }], type: 'object', properties: {} })
+ * // { type: 'object', properties: {}, description: 'A pet' }
+ * ```
+ *
+ * @example
+ * ```ts
+ * flattenSchema({ allOf: [{ $ref: '#/components/schemas/Pet' }] })
+ * // returned unchanged, contains a $ref
+ * ```
+ */
+/**
  * Returns `true` when `fragment` carries any JSON Schema keyword that makes it
  * structurally significant on its own (see `structuralKeys`).
  *
@@ -255,22 +274,6 @@ function hasStructuralKeywords(fragment: SchemaObject): boolean {
   return false
 }
 
-/**
- * Flattens a keyword-only `allOf` into its parent schema.
- *
- * Only flattens when every member is a plain fragment, with no `$ref` and no structural keywords
- * (see `structuralKeys`). Outer schema values take precedence over fragment values.
- * Returns `null` for a `null` input, and the original schema unchanged when flattening is unsafe.
- *
- * @example
- * ```ts
- * flattenSchema({ allOf: [{ description: 'A pet' }], type: 'object', properties: {} })
- * // { type: 'object', properties: {}, description: 'A pet' }
- *
- * flattenSchema({ allOf: [{ $ref: '#/components/schemas/Pet' }] })
- * // returned unchanged, contains a $ref
- * ```
- */
 export function flattenSchema(schema: SchemaObject | null): SchemaObject | null {
   if (!schema?.allOf || schema.allOf.length === 0) return schema ?? null
 

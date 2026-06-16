@@ -1,4 +1,4 @@
-import type { Node, SchemaNode } from './nodes/index.ts'
+import type { Node } from './nodes/index.ts'
 
 /**
  * The spec-specific questions a schema parser answers while turning a source document into Kubb
@@ -26,30 +26,19 @@ export type SchemaDialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TS
    * Resolves a local `$ref` against the document, or nullish when it cannot.
    */
   resolveRef<TResolved>(document: TDocument, ref: string): TResolved | null | undefined
-  /**
-   * Derives a schema's `optional`/`nullish` flags from a parent's `required` value and the
-   * schema's own `nullable`. How "required" and "nullable" combine is spec-specific, so the
-   * dialect owns it. Method syntax keeps a concrete dialect assignable to the base
-   * `SchemaDialect` (bivariant parameters).
-   */
-  optionality(schema: SchemaNode, required: boolean): SchemaNode
 }
 
 /**
  * How a dialect collapses structurally identical schemas into shared definitions. The contract is
  * generic over the plan and context types, which the adapter supplies. The mechanics live in the
- * adapter, not here, so `@kubb/ast` carries no dedupe logic.
+ * adapter, not here, so `@kubb/ast` carries no dedupe logic. The returned plan owns the rewriting
+ * behavior, so callers interact with one object.
  */
 export type Dedupe<TPlan = unknown, TContext = unknown> = {
   /**
    * Scans a forest of nodes and produces a plan describing which shapes to share.
    */
   plan(roots: ReadonlyArray<Node>, context: TContext): TPlan
-  /**
-   * Rewrites a node against a plan, replacing duplicate sub-schemas with refs. Pass
-   * `skipRootMatch` when rewriting a canonical definition so its own root is preserved.
-   */
-  apply<T extends Node>(node: T, plan: TPlan, skipRootMatch?: boolean): T
 }
 
 /**
@@ -85,9 +74,8 @@ export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema,
  *     isDiscriminator,
  *     isBinary: (schema) => schema.type === 'string' && schema.contentMediaType === 'application/octet-stream',
  *     resolveRef,
- *     optionality,
  *   },
- *   dedupe: { plan, apply },
+ *   dedupe: { plan },
  * })
  * ```
  */

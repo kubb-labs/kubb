@@ -7,7 +7,7 @@ type Props = {
    * Plain object serialized as YAML between `---` fences.
    *
    * @example
-   * `data: { title: 'Pets', layout: 'doc' }`
+   * `{ title: 'Pets', layout: 'doc' }`
    */
   data: Record<string, unknown>
 }
@@ -17,8 +17,7 @@ type Props = {
  *
  * Renders a `<File.Source>` block containing `---\n<yaml>\n---`. Place it as
  * the first child of `<File>` so it appears at the top of the output. Pair with
- * `parserMd` to write `.md` files that downstream tooling (VitePress, MDX,
- * static-site generators) treats as frontmatter.
+ * `parserMd` to write `.md` files whose frontmatter downstream tooling can read.
  *
  * @example Page frontmatter at the top of a generated markdown file
  * ```tsx

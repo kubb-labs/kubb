@@ -157,8 +157,8 @@ export function createHookTimer(): HookTimer {
 /**
  * Join a command and its optional args into a single display string.
  *
- * @example
- * `formatCommandWithArgs('prettier', ['--write', '.']) → 'prettier --write .'`
+ * @example With args
+ * `formatCommandWithArgs('prettier', ['--write', '.'])` returns `'prettier --write .'`
  */
 export function formatCommandWithArgs(command: string, args?: ReadonlyArray<string>): string {
   return args?.length ? `${command} ${args.join(' ')}` : command
@@ -196,9 +196,10 @@ export function installReporter(context: LoggerContext, reporter: Reporter, ctx:
  * only wires them. Loggers receive hook subprocess output through `kubb:hook:line` and the
  * `stdout`/`stderr` on `kubb:hook:end`, so nothing is returned here.
  *
- * Loggers and reporters are independent: the `cli` reporter also activates the env logger summary.
- * The `json` reporter owns stdout, so the live logger and the `cli` summary are suppressed whenever
- * `json` is among the reporters, even if `cli` is also listed.
+ * Loggers and reporters are independent, except for `cli`: it both installs the live logger view
+ * here and registers as a reporter that prints the per-config summary. The `json` reporter owns
+ * stdout, so the whole `cli` reporter (live logger and summary) is skipped whenever `json` is
+ * among the reporters, even if `cli` is also listed.
  */
 async function setupReporters(context: LoggerContext, { logLevel, reporters }: LoggerOptions & { reporters: ReadonlyArray<Reporter> }): Promise<void> {
   const hasJson = reporters.some((reporter) => reporter.name === 'json')

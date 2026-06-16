@@ -15,8 +15,9 @@ export type Parser<TMeta extends object = object, TNode = unknown> = {
    */
   name: string
   /**
-   * File extensions this parser handles. Set to `undefined` to define a
-   * catch-all fallback used when no other parser claims the extension.
+   * File extensions this parser handles. The driver registers the parser for each
+   * extension in this list. A parser with `undefined` here is not registered, so
+   * files of an unclaimed extension fall back to joining their sources verbatim.
    *
    * @example
    * `['.ts', '.js']`

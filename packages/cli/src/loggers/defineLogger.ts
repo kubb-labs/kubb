@@ -7,14 +7,14 @@ import type { KubbHooks } from '@kubb/core'
 export type LoggerOptions = {
   /**
    * Output verbosity. Use the `logLevel` constants exported from `@kubb/core`
-   * (`silent`, `error`, `warn`, `info`, `verbose`, `debug`).
+   * (`silent`, `error`, `warn`, `info`, `verbose`).
    */
   logLevel: number
 }
 
 /**
- * Event emitter handed to `Logger.install`. Use `.on('kubb:info', ...)` and
- * friends to subscribe to build events.
+ * Event emitter handed to `Logger.install`. Use `.on('kubb:info', ...)` to
+ * subscribe to build events.
  */
 export type LoggerContext = AsyncEventEmitter<KubbHooks>
 

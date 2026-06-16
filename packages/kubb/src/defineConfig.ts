@@ -64,8 +64,7 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
 }
 
 /**
- * Defines a Kubb build configuration and fills in defaults so a minimal config
- * stays small.
+ * Defines a Kubb build configuration and fills in defaults for any omitted fields.
  *
  * Defaults applied when omitted:
  * - `adapter` → `adapterOas()` (OpenAPI 2.0/3.0/3.1).
