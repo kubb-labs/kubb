@@ -7,12 +7,13 @@ const _refCache = new WeakMap<Document, Map<string, unknown>>()
 /**
  * Resolves a local JSON pointer reference from a document.
  *
- * Accepts `#/...` refs. Returns `null` for empty or non-local refs.
- * Throws when the pointer cannot be resolved.
+ * Accepts `#/...` refs. Returns `null` for an empty or non-local ref. When the pointer cannot be
+ * resolved, reports a `refNotFound` diagnostic into the active build and returns `null`. Outside a
+ * build there is no sink to collect it, so it throws instead.
  *
  * @example
  * ```ts
- * resolveRef<SchemaObject>(document, '#/components/schemas/Pet') // SchemaObject | null
+ * resolveRef<SchemaObject>(document, '#/components/schemas/Pet')
  * ```
  */
 export function resolveRef<T = unknown>(document: Document, $ref: string): T | null {

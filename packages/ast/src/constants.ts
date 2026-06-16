@@ -17,7 +17,6 @@ export const visitorDepths = {
  * Schema type discriminators used by all AST schema nodes.
  *
  * Each value is a stable discriminator across the AST (for example `schema.type === schemaTypes.object`).
- * Call `isScalarPrimitive()` to check for the scalar types.
  */
 export const schemaTypes = {
   /**
@@ -127,16 +126,14 @@ export const schemaTypes = {
 } as const satisfies Record<SchemaType, SchemaType>
 
 /**
- * Default concurrency limit for the `walk()` traversal utility.
- *
- * Set to 30 to balance I/O-bound resolver parallelism against event-loop and memory pressure
- * during large spec traversals. Override it for different hardware constraints.
+ * Default sibling concurrency for `walk()`. Higher values overlap I/O-bound visitor work,
+ * lower values reduce memory pressure. Pass `concurrency` to `walk()` to override it.
  *
  * @example
  * ```ts
  * import { walk, WALK_CONCURRENCY } from '@kubb/ast'
  *
- * walk(root, { concurrency: WALK_CONCURRENCY, root: () => {} })
+ * walk(root, { concurrency: WALK_CONCURRENCY, operation: () => {} })
  * ```
  */
 export const WALK_CONCURRENCY = 30

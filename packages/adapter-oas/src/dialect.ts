@@ -1,5 +1,5 @@
 import { ast } from '@kubb/core'
-import { apply, plan } from './dedupe.ts'
+import { plan } from './dedupe.ts'
 import { isDiscriminator, isNullable, isReference } from './guards.ts'
 import { resolveRef } from './refs.ts'
 import type { SchemaObject } from './types.ts'
@@ -52,7 +52,7 @@ export const oasDialect = ast.defineDialect({
     resolveRef,
     optionality,
   },
-  dedupe: { plan, apply },
+  dedupe: { plan },
 })
 
 /**

@@ -1,9 +1,9 @@
 import { ast } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { apply, type DedupeContext, plan } from './dedupe.ts'
+import { type DedupeContext, plan } from './dedupe.ts'
 
 const { createProperty, createSchema } = ast.factory
-const { narrowSchema, signatureOf } = ast
+const { narrowSchema } = ast
 
 type SchemaNode = ast.SchemaNode
 
@@ -13,6 +13,35 @@ function stringEnum(values: Array<string>, extra: Partial<Parameters<typeof crea
 
 function context(extra: Partial<DedupeContext> = {}): DedupeContext {
   return { circularSchemas: new Set(), usedNames: new Set(), ...extra }
+}
+
+/**
+ * A plan whose only target is an inline `['active', 'inactive']` enum hoisted as `PetStatus`,
+ * duplicated across `Pet` and `Order`.
+ */
+function enumPlan() {
+  const pet = createSchema({
+    type: 'object',
+    name: 'Pet',
+    properties: [createProperty({ name: 'status', schema: stringEnum(['active', 'inactive'], { name: 'PetStatus' }) })],
+  })
+  const order = createSchema({
+    type: 'object',
+    name: 'Order',
+    properties: [createProperty({ name: 'state', schema: stringEnum(['active', 'inactive'], { name: 'OrderState' }) })],
+  })
+
+  return plan([pet, order], context())
+}
+
+/**
+ * A plan where `Dog` duplicates `Cat`, so `Cat` is the shared target and `Dog` an alias.
+ */
+function catDogPlan() {
+  const cat = createSchema({ type: 'object', name: 'Cat', properties: [createProperty({ name: 'sound', schema: createSchema({ type: 'string' }) })] })
+  const dog = createSchema({ type: 'object', name: 'Dog', properties: [createProperty({ name: 'sound', schema: createSchema({ type: 'string' }) })] })
+
+  return { cat, dog, dedupePlan: plan([cat, dog], context()) }
 }
 
 describe('plan', () => {
@@ -39,8 +68,10 @@ describe('plan', () => {
     expect(dedupePlan.extracted).toHaveLength(1)
     expect(dedupePlan.extracted[0]).toMatchObject({ enumValues: ['active', 'inactive'], kind: 'Schema', name: 'PetStatus', primitive: 'string', type: 'enum' })
 
-    const enumSignature = signatureOf(stringEnum(['active', 'inactive']))
-    expect(dedupePlan.targetBySignature.get(enumSignature)).toStrictEqual({ name: 'PetStatus', ref: '#/components/schemas/PetStatus' })
+    // The duplicated enum resolves to a ref at the hoisted PetStatus.
+    const applied = narrowSchema(dedupePlan.apply(order), 'object')!
+    const stateSchema = applied.properties.find((prop) => prop.name === 'state')!.schema
+    expect(narrowSchema(stateSchema, 'ref')).toMatchObject({ name: 'PetStatus', ref: '#/components/schemas/PetStatus', type: 'ref' })
   })
 
   it('leaves singletons untouched', () => {
@@ -53,28 +84,27 @@ describe('plan', () => {
     const dedupePlan = plan([pet], context())
 
     expect(dedupePlan.extracted).toHaveLength(0)
-    expect(dedupePlan.targetBySignature.size).toBe(0)
+    expect(dedupePlan.apply(pet)).toBe(pet)
   })
 
   it('reuses an existing top-level name instead of extracting', () => {
-    const cat = createSchema({ type: 'object', name: 'Cat', properties: [createProperty({ name: 'sound', schema: createSchema({ type: 'string' }) })] })
-    const dog = createSchema({ type: 'object', name: 'Dog', properties: [createProperty({ name: 'sound', schema: createSchema({ type: 'string' }) })] })
-
-    const dedupePlan = plan([cat, dog], context())
+    const { cat, dedupePlan } = catDogPlan()
 
     expect(dedupePlan.extracted).toHaveLength(0)
-    const objectSignature = signatureOf(cat)
-    expect(dedupePlan.targetBySignature.get(objectSignature)).toStrictEqual({ name: 'Cat', ref: '#/components/schemas/Cat' })
+    expect(dedupePlan.isAlias('Dog')).toBe(true)
+    // Cat is the shared target, so it keeps its own object root.
+    expect(dedupePlan.applyTopLevel(cat).type).toBe('object')
   })
 
   it('records later top-level names with the same content as aliases of the first', () => {
-    const cat = createSchema({ type: 'object', name: 'Cat', properties: [createProperty({ name: 'sound', schema: createSchema({ type: 'string' }) })] })
-    const dog = createSchema({ type: 'object', name: 'Dog', properties: [createProperty({ name: 'sound', schema: createSchema({ type: 'string' }) })] })
+    const { dog, dedupePlan } = catDogPlan()
 
-    const dedupePlan = plan([cat, dog], context())
+    expect(dedupePlan.isAlias('Dog')).toBe(true)
+    expect(dedupePlan.isAlias('Cat')).toBe(false)
 
-    expect(dedupePlan.targetByName.get('Dog')).toStrictEqual({ name: 'Cat', ref: '#/components/schemas/Cat' })
-    expect(dedupePlan.targetByName.has('Cat')).toBe(false)
+    // The duplicate top-level Dog becomes a ref alias to Cat, keeping its own name.
+    const aliased = narrowSchema(dedupePlan.applyTopLevel(dog), 'ref')
+    expect({ name: aliased?.name, ref: aliased?.ref }).toStrictEqual({ name: 'Dog', ref: '#/components/schemas/Cat' })
   })
 
   it('rejects object shapes that are part of a circular chain', () => {
@@ -92,8 +122,9 @@ describe('plan', () => {
 
     const dedupePlan = plan([node, other], context({ circularSchemas: new Set(['Tree']) }))
 
-    expect(dedupePlan.targetBySignature.size).toBe(0)
     expect(dedupePlan.extracted).toHaveLength(0)
+    expect(dedupePlan.isAlias('Tree')).toBe(false)
+    expect(dedupePlan.applyTopLevel(node)).toBe(node)
   })
 
   it('resolves a extracted name against usedNames', () => {
@@ -113,14 +144,8 @@ describe('plan', () => {
 })
 
 describe('apply', () => {
-  const enumNode = stringEnum(['active', 'inactive'], { name: 'PetStatus' })
-  const enumSignature = signatureOf(enumNode)
-  const lookups = {
-    targetBySignature: new Map([[enumSignature, { name: 'PetStatus', ref: '#/components/schemas/PetStatus' }]]),
-    targetByName: new Map<string, { name: string; ref: string }>(),
-  }
-
   it('replaces a duplicated occurrence with a ref and prunes', () => {
+    const dedupePlan = enumPlan()
     const order = createSchema({
       type: 'object',
       name: 'Order',
@@ -130,7 +155,7 @@ describe('apply', () => {
       ],
     })
 
-    const result = narrowSchema(apply(order, lookups), 'object')!
+    const result = narrowSchema(dedupePlan.apply(order), 'object')!
     const stateSchema = result.properties.find((prop) => prop.name === 'state')!.schema
 
     expect(narrowSchema(stateSchema, 'ref')).toMatchObject({
@@ -141,43 +166,39 @@ describe('apply', () => {
     })
   })
 
-  it('keeps the root when skipRootMatch is set', () => {
-    const result = apply(enumNode, lookups, true)
-    expect(result.type).toBe('enum')
+  it('keeps a shared definition root with applyTopLevel but reffs a bare duplicate', () => {
+    const dedupePlan = enumPlan()
+    const enumNode = stringEnum(['active', 'inactive'], { name: 'PetStatus' })
 
-    const reffed = apply(enumNode, lookups)
-    expect(reffed.type).toBe('ref')
+    expect(dedupePlan.applyTopLevel(enumNode).type).toBe('enum')
+    expect(dedupePlan.apply(enumNode).type).toBe('ref')
   })
 
   it('returns the same reference when nothing matches', () => {
+    const dedupePlan = enumPlan()
     const node = createSchema({ type: 'object', properties: [createProperty({ name: 'id', schema: createSchema({ type: 'string' }) })] })
-    expect(apply(node, lookups)).toBe(node)
+
+    expect(dedupePlan.apply(node)).toBe(node)
   })
 
   it('repoints a ref to a duplicate top-level schema at the shared one', () => {
+    const { dedupePlan } = catDogPlan()
     const order = createSchema({
       type: 'object',
       name: 'Order',
       properties: [createProperty({ name: 'pet', schema: createSchema({ type: 'ref', name: 'Dog', ref: '#/components/schemas/Dog' }) })],
     })
-    const aliased = {
-      targetBySignature: new Map<string, { name: string; ref: string }>(),
-      targetByName: new Map([['Dog', { name: 'Cat', ref: '#/components/schemas/Cat' }]]),
-    }
 
-    const result = narrowSchema(apply(order, aliased), 'object')!
+    const result = narrowSchema(dedupePlan.apply(order), 'object')!
     const petSchema = narrowSchema(result.properties.find((prop) => prop.name === 'pet')?.schema, 'ref')
 
     expect({ name: petSchema?.name, ref: petSchema?.ref }).toStrictEqual({ name: 'Cat', ref: '#/components/schemas/Cat' })
   })
 
   it('leaves a ref to the shared schema untouched', () => {
+    const { dedupePlan } = catDogPlan()
     const ref = createSchema({ type: 'ref', name: 'Cat', ref: '#/components/schemas/Cat' })
-    const aliased = {
-      targetBySignature: new Map<string, { name: string; ref: string }>(),
-      targetByName: new Map([['Dog', { name: 'Cat', ref: '#/components/schemas/Cat' }]]),
-    }
 
-    expect(apply(ref, aliased)).toBe(ref)
+    expect(dedupePlan.apply(ref)).toBe(ref)
   })
 })

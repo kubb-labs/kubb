@@ -18,7 +18,7 @@ export type ValidateDocumentOptions = {
 }
 
 /**
- * Loads and dereferences an OpenAPI document, returning the raw `Document`.
+ * Loads and bundles an OpenAPI document, returning the raw `Document`.
  *
  * Accepts a file path string or an already-parsed document object. File paths and URLs are
  * bundled via `api-ref-bundler`, hoisting external file schemas into named `components.schemas`

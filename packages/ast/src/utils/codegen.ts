@@ -2,8 +2,8 @@ import { isIdentifier, singleQuote } from '@internals/utils'
 import { INDENT } from '../constants.ts'
 
 /**
- * Builds a JSDoc comment block from an array of lines, returning `fallback` when there are no
- * comments so callers always get a usable string.
+ * Builds a JSDoc comment block from an array of lines. Returns `fallback` when there are no
+ * comments.
  *
  * @example
  * ```ts
@@ -65,9 +65,8 @@ export function objectKey(name: string): string {
 
 /**
  * Assembles a multi-line object literal from already-rendered `entries`, indenting each entry one
- * level and closing the brace at column zero. Nested objects built the same way indent cumulatively,
- * so callers never re-parse the generated code. A trailing comma is added per entry to match the
- * formatter's multi-line style.
+ * level and closing the brace at column zero. Entries that are themselves multi-line objects indent
+ * cumulatively. Each entry ends with a trailing comma to match the formatter's multi-line style.
  *
  * @example
  * ```ts
@@ -85,8 +84,8 @@ export function buildObject(entries: Array<string>): string {
 /**
  * Assembles a bracketed list (array by default) from already-rendered `items`. Keeps everything on
  * one line when no item spans multiple lines, and otherwise puts each item on its own line, indented
- * one level with a trailing comma and the closing bracket at column zero. Use it for `z.union([…])`,
- * `z.array([…])`, and similar member lists so objects inside them nest correctly.
+ * one level with a trailing comma and the closing bracket at column zero. Used for member lists such
+ * as `z.union([…])` and `z.array([…])`.
  *
  * @example
  * ```ts

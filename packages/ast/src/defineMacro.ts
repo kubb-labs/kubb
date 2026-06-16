@@ -29,7 +29,7 @@ function enforceWeight(enforce?: Enforce): number {
  */
 export type Macro = Visitor & {
   /**
-   * Macro identifier, surfaced in diagnostics. Follows the `macro<Name>` convention.
+   * Macro identifier used to tell macros apart, for example `'simplify-union'`.
    */
   name: string
   /**

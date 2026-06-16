@@ -3,13 +3,6 @@ import { createFunctionParameter, createFunctionParameters, createIndexedAccessT
 import type { FunctionParameterNode, FunctionParametersNode, OperationNode, ParameterNode, TypeExpression, TypeLiteralNode } from '../nodes/index.ts'
 import { resolveGroupType } from './refs.ts'
 
-/**
- * Applies casing rules to parameter names and returns a new array without mutating the input.
- *
- * Run it before handing parameters to schema builders so output property keys get the right casing
- * while `OperationNode.parameters` stays intact for other consumers. When `casing` is unset, the
- * original array is returned unchanged.
- */
 const caseParamsMemo = memoize(new WeakMap<Array<ParameterNode>, (casing: string) => Array<ParameterNode>>(), (params) =>
   memoize(new Map<string, Array<ParameterNode>>(), (casing: string) =>
     params.map((param) => {
@@ -19,6 +12,13 @@ const caseParamsMemo = memoize(new WeakMap<Array<ParameterNode>, (casing: string
   ),
 )
 
+/**
+ * Applies casing rules to parameter names and returns a new array without mutating the input.
+ *
+ * Run it before handing parameters to schema builders so output property keys get the right casing
+ * while `OperationNode.parameters` stays intact for other consumers. When `casing` is unset, the
+ * original array is returned unchanged.
+ */
 export function caseParams(params: Array<ParameterNode>, casing: 'camelcase' | undefined): Array<ParameterNode> {
   if (!casing) return params
   return caseParamsMemo(params)(casing)
@@ -229,7 +229,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
   const pathName = paramNames?.path ?? 'pathParams'
 
   const wrapType = (type: string): string => (typeWrapper ? typeWrapper(type) : type)
-  // Only plain type-name references are wrapped, they need casing applied.
+  // typeWrapper takes a type-name string, so only plain references are wrapped.
   // TypeLiteral and IndexedAccessType expressions are pre-resolved and pass through unchanged.
   const wrapTypeExpression = (type: TypeExpression): TypeExpression => (typeof type === 'string' ? wrapType(type) : type)
 

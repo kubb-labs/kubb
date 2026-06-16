@@ -22,10 +22,10 @@ export { createSchema } from './nodes/schema.ts'
  * `changes` already equals (by reference) the current value, otherwise a new node
  * with the changes applied.
  *
- * Mirrors the TypeScript compiler's `factory.updateX` contract, pair it with the
- * structural sharing in {@link transform} so a no-op rewrite doesn't allocate and
- * downstream passes can detect "nothing changed" by identity. Comparison is
- * shallow: a structurally-equal but newly-allocated array/object counts as a change.
+ * Mirrors the TypeScript compiler's `factory.updateX` contract. Pair it with the
+ * structural sharing in {@link transform} so a no-op rewrite does not allocate and
+ * downstream passes can detect "nothing changed" by identity. Comparison is shallow,
+ * so a structurally equal but newly allocated array or object counts as a change.
  *
  * @example
  * ```ts

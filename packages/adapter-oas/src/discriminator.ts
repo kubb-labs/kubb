@@ -7,7 +7,7 @@ export type DiscriminatorTarget = {
 }
 
 /**
- * Builds a map of child schema names → discriminator patch data by scanning the given
+ * Maps each child schema name to its discriminator patch data by scanning the given
  * top-level AST schema nodes for union schemas that carry a `discriminatorPropertyName`.
  *
  * The streaming path calls this on a small pre-parsed subset of schemas (only the

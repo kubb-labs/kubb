@@ -4,6 +4,9 @@ import type { ParameterNode } from './parameter.ts'
 import { createRequestBody, type RequestBodyNode } from './requestBody.ts'
 import type { ResponseNode } from './response.ts'
 
+/**
+ * HTTP method an operation responds to.
+ */
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE'
 
 /**

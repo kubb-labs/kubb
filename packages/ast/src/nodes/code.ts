@@ -116,7 +116,10 @@ export type FunctionNode = BaseNode & {
    */
   default?: boolean | null
   /**
-   * Function parameter list rendered as a string (e.g. from `FunctionParams.toConstructor()`).
+   * Function parameter list as a pre-rendered string, written verbatim between the parentheses.
+   *
+   * @example
+   * `'id: string, config: Config = {}'`
    */
   params?: string | null
   /**
@@ -193,16 +196,16 @@ export type TextNode = BaseNode & {
 }
 
 /**
- * AST node representing a line break in the source output.
+ * AST node representing a blank line in the source output.
  *
- * Corresponds to `<br/>` in JSX components. When printed it produces an empty string,
- * so joining nodes with `\n` in `printNodes` leaves a blank line between the surrounding code.
+ * Corresponds to `<br/>` in JSX components. `printNodes` turns a `Break` between two
+ * statements into one blank line. Consecutive breaks, and breaks at the start or end of
+ * the list, are folded away, so a `Break` never produces more than one blank line.
  *
  * @example
  * ```ts
  * createBreak()
  * // { kind: 'Break' }
- * // prints as '' → blank line when surrounded by other nodes
  * ```
  */
 export type BreakNode = BaseNode & {

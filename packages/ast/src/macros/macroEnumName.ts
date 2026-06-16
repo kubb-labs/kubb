@@ -10,7 +10,7 @@ type Props = {
 
 /**
  * Builds a macro that names an inline enum schema from its parent and property name. Boolean enums
- * are left anonymous; non-enum nodes are returned unchanged.
+ * are left anonymous. Non-enum nodes are returned unchanged.
  *
  * @example
  * ```ts

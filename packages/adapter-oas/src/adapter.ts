@@ -10,7 +10,7 @@ import { collect, narrowSchema } from '@kubb/ast'
 import { extractRefName } from '@kubb/ast/utils'
 
 /**
- * Canonical adapter name for `@kubb/adapter-oas`. Used for driver lookups.
+ * The `name` of `@kubb/adapter-oas`, used to identify this adapter in a Kubb config.
  */
 export const adapterOasName = 'oas' satisfies AdapterOas['name']
 

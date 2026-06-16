@@ -125,8 +125,8 @@ export function getRequestContent({
 }
 
 /**
- * Returns the primary request content type. Prefers a JSON-like media type (the last one wins,
- * matching the previous behavior), then the first declared one, defaulting to `'application/json'`.
+ * Returns the primary request content type. Prefers a JSON-like media type (the last one wins
+ * when several are declared), then the first declared one, defaulting to `'application/json'`.
  */
 export function getRequestContentType({ document, operation }: OperationContext): string {
   const content = getRequestBodyContent({ document, operation })

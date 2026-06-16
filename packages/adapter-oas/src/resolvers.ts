@@ -59,9 +59,9 @@ export function getSchemaType(format: string): ast.SchemaType | null {
 }
 
 /**
- * Whether the parser maps `format` to a dedicated type. True for any `formatMap` entry and the
- * `specialCasedFormats` `convertFormat` handles directly. False means the format falls back to the
- * base type, which is what `KUBB_UNSUPPORTED_FORMAT` flags. Reading both sources keeps the
+ * Whether the parser maps `format` to a dedicated type. True for any `formatMap` entry, plus the
+ * `specialCasedFormats` that `convertFormat` handles directly. False means the format falls back to
+ * the base type, which is what `KUBB_UNSUPPORTED_FORMAT` flags. Reading both sources keeps the
  * diagnostic in step with the parser as `formatMap` grows.
  */
 export function isHandledFormat(format: string): boolean {
@@ -86,7 +86,7 @@ export type OperationsOptions = {
 /**
  * Returns all parameters for an operation, merging path-level and operation-level entries.
  * Operation-level parameters override path-level ones with the same `in:name` key.
- * `$ref` parameters resolve via `dereferenceWithRef` for backward compatibility.
+ * Each `$ref` parameter is dereferenced via `dereferenceWithRef` before merging.
  *
  * @example
  * ```ts
@@ -220,7 +220,8 @@ export function getRequestSchema(document: Document, operation: Operation, optio
 type SchemaSourceMode = 'schemas' | 'responses' | 'requestBodies'
 
 /**
- * A schema annotated with its component section source and original name. Used by `resolveNameCollisions` for cross-source collision resolution.
+ * A schema annotated with its component section source and original name. `getSchemas` uses this
+ * to resolve name collisions across sources.
  */
 type SchemaWithMetadata = {
   schema: SchemaObject
@@ -234,7 +235,24 @@ export type GetSchemasOptions = {
 
 export type GetSchemasResult = {
   schemas: Record<string, SchemaObject>
+  /**
+   * Maps each original component pointer (`#/components/<source>/<name>`) to the
+   * collision-resolved unique name used as the key in `schemas`.
+   */
   nameMapping: Map<string, string>
+}
+
+/**
+ * Returns `true` when `fragment` carries any JSON Schema keyword that makes it
+ * structurally significant on its own (see `structuralKeys`).
+ *
+ * A fragment with a structural keyword can't be safely merged into a parent schema.
+ */
+function hasStructuralKeywords(fragment: SchemaObject): boolean {
+  for (const key in fragment) {
+    if (structuralKeys.has(key as 'properties')) return true
+  }
+  return false
 }
 
 /**
@@ -253,19 +271,6 @@ export type GetSchemasResult = {
  * // returned unchanged, contains a $ref
  * ```
  */
-/**
- * Returns `true` when `fragment` carries any JSON Schema keyword that makes it
- * structurally significant on its own (see `structuralKeys`).
- *
- * A fragment with a structural keyword can't be safely merged into a parent schema.
- */
-function hasStructuralKeywords(fragment: SchemaObject): boolean {
-  for (const key in fragment) {
-    if (structuralKeys.has(key as 'properties')) return true
-  }
-  return false
-}
-
 export function flattenSchema(schema: SchemaObject | null): SchemaObject | null {
   if (!schema?.allOf || schema.allOf.length === 0) return schema ?? null
 

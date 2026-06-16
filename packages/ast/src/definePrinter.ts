@@ -191,11 +191,13 @@ export function definePrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
 }
 
 /**
- * Generic printer-factory function used by `definePrinter` and `defineFunctionPrinter`.
+ * Generic printer factory behind `definePrinter`. Pass a `getKey` function that maps a node to its
+ * handler key, and it returns a `definePrinter`-style helper for that node and key type. `definePrinter`
+ * itself is this factory keyed by `node.type`.
  *
- * @example
+ * @example Key a printer by `node.kind` instead of `node.type`
  * ```ts
- * export const defineFunctionPrinter = createPrinterFactory<FunctionParamNode, FunctionParamKind, Partial<Record<FunctionParamKind, FunctionParamNode>>>(
+ * const defineFunctionPrinter = createPrinterFactory<FunctionParamNode, FunctionParamKind, Partial<Record<FunctionParamKind, FunctionParamNode>>>(
  *   (node) => node.kind,
  * )
  * ```

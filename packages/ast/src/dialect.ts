@@ -36,9 +36,9 @@ export type SchemaDialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TS
 }
 
 /**
- * The dedupe seam: how a dialect collapses structurally identical schemas into shared
- * definitions. The contract is generic over the plan and context types, which the adapter
- * supplies. The mechanics live in the adapter, not here, so `@kubb/ast` carries no dedupe logic.
+ * How a dialect collapses structurally identical schemas into shared definitions. The contract is
+ * generic over the plan and context types, which the adapter supplies. The mechanics live in the
+ * adapter, not here, so `@kubb/ast` carries no dedupe logic.
  */
 export type Dedupe<TPlan = unknown, TContext = unknown> = {
   /**
@@ -53,8 +53,8 @@ export type Dedupe<TPlan = unknown, TContext = unknown> = {
 }
 
 /**
- * A spec adapter's dialect. `name` identifies it in logs and diagnostics; `schema` holds the
- * spec-specific schema questions the parser answers; `dedupe` is the schema-sharing seam.
+ * A spec adapter's dialect. `name` identifies it in logs and diagnostics, `schema` holds the
+ * spec-specific schema questions the parser answers, and `dedupe` is the schema-sharing seam.
  */
 export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema, TDocument = unknown, TDedupe extends Dedupe = Dedupe> = {
   /**

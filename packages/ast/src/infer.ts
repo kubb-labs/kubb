@@ -16,7 +16,7 @@ import type {
 } from './nodes/index.ts'
 
 /**
- * Shared parser options used by OAS-to-AST inference and parser flows.
+ * Options that control how the adapter parser maps OpenAPI schemas to AST nodes.
  */
 export type ParserOptions = {
   /**

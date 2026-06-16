@@ -197,13 +197,14 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
   id: string
   /**
    * File name without extension, derived from `baseName`.
-   * @link https://nodejs.org/api/path.html#pathformatpathobject
+   *
+   * @see https://nodejs.org/api/path.html#pathformatpathobject
    */
   name: string
   /**
-   * File base name, including extension.
-   * Based on UNIX basename: `${name}${extname}`
-   * @link https://nodejs.org/api/path.html#pathbasenamepath-suffix
+   * File base name, including extension, shaped like `${name}${extname}`.
+   *
+   * @see https://nodejs.org/api/path.html#pathbasenamepath-suffix
    */
   baseName: `${string}.${string}`
   /**

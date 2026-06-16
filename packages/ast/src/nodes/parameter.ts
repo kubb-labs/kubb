@@ -43,7 +43,7 @@ type UserParameterNode = Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial
 /**
  * Definition for the {@link ParameterNode}. `required` defaults to `false`. When a `dialect` is
  * passed to `create`, the schema's `optional`/`nullish` flags are derived through its
- * `optionality`; without one, the schema is left as-is.
+ * `optionality`. Without one, the schema is left as-is.
  */
 export const parameterDef = defineNode<ParameterNode, UserParameterNode>({
   kind: 'Parameter',

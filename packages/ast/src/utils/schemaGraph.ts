@@ -4,23 +4,7 @@ import { collect, collectLazy } from '../visitor.ts'
 import { resolveRefName } from './refs.ts'
 
 /**
- * Collects every named schema referenced transitively from a node through its ref edges.
- *
- * Refs are followed by name only, so the resolved `node.schema` is never traversed inline.
- *
- * @example Collect refs from a single schema
- * ```ts
- * const names = collectReferencedSchemaNames(petSchema)
- * // → Set { 'Category', 'Tag' }
- * ```
- *
- * @example Accumulate refs from multiple schemas into one set
- * ```ts
- * const out = new Set<string>()
- * for (const schema of schemas) {
- *   collectReferencedSchemaNames(schema, out)
- * }
- * ```
+ * Memoized inner pass that walks a single node and returns the names of every schema it references.
  */
 const collectSchemaRefs = memoize(new WeakMap<SchemaNode, ReadonlySet<string>>(), (node: SchemaNode): ReadonlySet<string> => {
   const refs = new Set<string>()
@@ -35,6 +19,26 @@ const collectSchemaRefs = memoize(new WeakMap<SchemaNode, ReadonlySet<string>>()
   return refs
 })
 
+/**
+ * Collects the names of every ref found anywhere inside a node's own subtree.
+ *
+ * Each ref contributes its name only, so the schema it points to is never traversed here. Pass `out`
+ * to accumulate names from several nodes into one set.
+ *
+ * @example Collect refs from a single schema
+ * ```ts
+ * const names = collectReferencedSchemaNames(petSchema)
+ * // Set { 'Category', 'Tag' }
+ * ```
+ *
+ * @example Accumulate refs from multiple schemas into one set
+ * ```ts
+ * const out = new Set<string>()
+ * for (const schema of schemas) {
+ *   collectReferencedSchemaNames(schema, out)
+ * }
+ * ```
+ */
 export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: Set<string> = new Set()): Set<string> {
   if (!node) return out
   for (const name of collectSchemaRefs(node)) out.add(name)
@@ -42,23 +46,7 @@ export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: 
 }
 
 /**
- * Collects the names of all top-level schemas transitively used by a set of operations.
- *
- * An operation uses a schema when its parameters, request body, or responses reference it, directly
- * or through other named schemas. The walk is iterative, so reference cycles are safe.
- *
- * Pair it with `include` filters so schemas reachable only from excluded operations stay ungenerated.
- *
- * @example Only generate schemas referenced by included operations
- * ```ts
- * const includedOps = operations.filter((op) => resolver.resolveOptions(op, { options, include }) !== null)
- * const allowed = collectUsedSchemaNames(includedOps, schemas)
- *
- * for (const schema of schemas) {
- *   if (schema.name && !allowed.has(schema.name)) continue
- *   // … generate schema
- * }
- * ```
+ * Memoized two-level cache keyed first on the operations array, then on the schemas array.
  */
 const collectUsedSchemaNamesMemo = memoize(new WeakMap<ReadonlyArray<OperationNode>, (schemas: ReadonlyArray<SchemaNode>) => Set<string>>(), (ops) =>
   memoize(new WeakMap<ReadonlyArray<SchemaNode>, Set<string>>(), (schemas) => computeUsedSchemaNames(ops, schemas)),
@@ -92,6 +80,26 @@ function computeUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schema
   return result
 }
 
+/**
+ * Collects the names of all top-level schemas transitively used by a set of operations.
+ *
+ * An operation uses a schema when its parameters, request body, or responses reference it, directly
+ * or through other named schemas. Once a name is added to the result it is not revisited, so
+ * reference cycles terminate.
+ *
+ * Pair it with `include` filters so schemas reachable only from excluded operations stay ungenerated.
+ *
+ * @example Only generate schemas referenced by included operations
+ * ```ts
+ * const includedOps = operations.filter((op) => resolver.resolveOptions(op, { options, include }) !== null)
+ * const allowed = collectUsedSchemaNames(includedOps, schemas)
+ *
+ * for (const schema of schemas) {
+ *   if (schema.name && !allowed.has(schema.name)) continue
+ *   // generate schema
+ * }
+ * ```
+ */
 export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schemas: ReadonlyArray<SchemaNode>): Set<string> {
   return collectUsedSchemaNamesMemo(operations)(schemas)
 }

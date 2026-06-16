@@ -3,8 +3,8 @@ import { createSchema, type SchemaNode } from '../nodes/schema.ts'
 
 /**
  * Merges a run of adjacent anonymous object members into one. Named or non-object members break the
- * run and pass through. Stays a construction-time helper, not a macro, so callers keep control of the
- * member boundaries (such as keeping synthetic discriminant objects out of a run).
+ * run and pass through unchanged. The merge follows member order, so callers control which members
+ * combine by where they place them in the sequence.
  *
  * @example
  * ```ts

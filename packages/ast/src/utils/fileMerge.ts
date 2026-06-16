@@ -1,9 +1,8 @@
 /**
- * File-member merging. `combineImports`, `combineExports`, and `combineSources` deduplicate and sort
- * the import, export, and source entries of one file, and drop imports nothing references. This works
- * on a file's members, not on schema content.
- *
- * For collapsing duplicate schema shapes by structural signature, see `dedupe.ts`.
+ * File-member merging. `combineImports` and `combineExports` deduplicate and sort the import and
+ * export entries of one file, while `combineSources` deduplicates source entries in original order.
+ * `combineImports` also drops imports nothing references. This works on a file's members, not on
+ * schema content.
  */
 import type { ExportNode, ImportNode, SourceNode } from '../nodes/index.ts'
 import { extractStringsFromNodes } from './extractStringsFromNodes.ts'
@@ -38,9 +37,9 @@ function sortKey(node: { name?: string | Array<unknown> | null; isTypeOnly?: boo
 }
 
 /**
- * Deduplicates and merges `SourceNode` objects by `name + isExportable + isTypeOnly`.
- *
- * Unnamed sources are deduplicated by object reference. Returns a deduplicated array in original order.
+ * Deduplicates `SourceNode` objects by `name + isExportable + isTypeOnly`, keeping the first of each
+ * key. Unnamed sources fall back to their extracted node strings as the name part of the key. Returns
+ * the deduplicated array in original order.
  */
 export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
   const seen = new Map<string, SourceNode>()

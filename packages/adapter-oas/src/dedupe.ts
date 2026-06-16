@@ -6,42 +6,41 @@ import { SCHEMA_REF_PREFIX } from './constants.ts'
  * The destination a deduplicated shape points at: the shared schema name and the
  * synthetic `$ref` path stored on the generated `ref` nodes.
  */
-export type DedupeTarget = {
-  /**
-   * Shared schema name every duplicate occurrence refers to.
-   */
+type Target = {
   name: string
-  /**
-   * `$ref` path stored on the generated `ref` nodes (for example `#/components/schemas/Status`).
-   */
   ref: string
 }
 
 /**
- * The result of {@link plan}: a lookup from structural signature to its shared target,
- * plus the freshly extracted definitions that must be added to the schema list.
+ * The result of {@link plan}: the shared definitions to prepend to the schema list, plus the
+ * rewriting behavior that repoints duplicate shapes at their shared target. The lookup maps stay
+ * private to the closure, so callers interact with one object instead of three collections.
  */
-export type DedupePlan = {
+export type Plan = {
   /**
-   * Maps a structural signature to the shared schema that represents it.
-   */
-  targetBySignature: Map<string, DedupeTarget>
-  /**
-   * Maps the name of a top-level schema that duplicates a shared one to that target, so
-   * references to the duplicate can be repointed at the first schema with the same content.
-   */
-  targetByName: Map<string, DedupeTarget>
-  /**
-   * New top-level schema definitions created for inline shapes that had no existing
-   * named component. Nested duplicates inside each definition are already collapsed.
+   * New top-level schema definitions created for inline shapes that had no existing named
+   * component. Nested duplicates inside each definition are already collapsed.
    */
   extracted: Array<ast.SchemaNode>
+  /**
+   * Rewrites an operation or nested schema, replacing every duplicate sub-schema with a `ref` to
+   * its shared target. Replacing a node prunes its subtree, so nested duplicates inside a replaced
+   * shape are not visited again. A `ref` to a duplicate top-level schema is repointed at the first
+   * schema with the same content.
+   */
+  apply<T extends ast.Node>(node: T): T
+  /**
+   * Rewrites a top-level schema. A schema whose content duplicates a different shared one becomes a
+   * `ref` alias to it (keeping its own name and docs). Otherwise its nested duplicates collapse
+   * while its own root is preserved.
+   */
+  applyTopLevel(node: ast.SchemaNode): ast.SchemaNode
+  /**
+   * Whether a top-level name duplicates an earlier schema with the same content. Such a schema is
+   * never emitted, since every reference to it is repointed at the first schema with that content.
+   */
+  isAlias(name: string): boolean
 }
-
-/**
- * The lookups {@link apply} needs from a {@link DedupePlan}.
- */
-export type DedupeLookups = Pick<DedupePlan, 'targetBySignature' | 'targetByName'>
 
 /**
  * Runtime state {@link plan} reads from the current parse: schema names that take part in a
@@ -62,7 +61,7 @@ const MIN_OCCURRENCES = 2
  * Builds the shared `ref` replacement for a duplicate occurrence, carrying the
  * usage-slot and documentation fields that are not part of the shared type.
  */
-function createRefNode(node: ast.SchemaNode, target: DedupeTarget): ast.SchemaNode {
+function createRefNode(node: ast.SchemaNode, target: Target): ast.SchemaNode {
   return ast.factory.createSchema({
     type: 'ref',
     name: target.name,
@@ -76,47 +75,6 @@ function createRefNode(node: ast.SchemaNode, target: DedupeTarget): ast.SchemaNo
     default: node.default,
     example: node.example,
   })
-}
-
-/**
- * Rewrites a node, replacing every candidate sub-schema whose signature has a shared
- * target with a `ref` to that target. Replacing a node with a `ref` prunes its subtree,
- * so nested duplicates inside a replaced shape are not visited again. A `ref` that points
- * at a duplicate top-level schema (see `targetByName`) is repointed at the first schema with
- * the same content.
- *
- * Pass `skipRootMatch` when rewriting a shared definition so its own root is not
- * turned into a reference to itself. Nested duplicates are still collapsed.
- *
- * @example
- * ```ts
- * const next = apply(operationNode, plan)
- * ```
- */
-export function apply<T extends ast.Node>(node: T, plan: DedupeLookups, skipRootMatch = false): T {
-  const { targetBySignature, targetByName } = plan
-  if (targetBySignature.size === 0 && targetByName.size === 0) return node
-
-  const root = node
-
-  return ast.transform(node, {
-    schema(schemaNode) {
-      if (schemaNode.type === 'ref') {
-        const refName = schemaNode.ref ? extractRefName(schemaNode.ref) : schemaNode.name
-        const target = refName ? targetByName.get(refName) : undefined
-
-        return target ? { ...schemaNode, name: target.name, ref: target.ref } : undefined
-      }
-
-      const signature = ast.signatureOf(schemaNode)
-      if (skipRootMatch && schemaNode === root) return undefined
-
-      const target = targetBySignature.get(signature)
-      if (!target) return undefined
-
-      return createRefNode(schemaNode, target)
-    },
-  }) as T
 }
 
 /**
@@ -157,20 +115,20 @@ function nameFor(node: ast.SchemaNode, usedNames: Set<string>): string | null {
 }
 
 /**
- * Scans a forest of schema and operation nodes and produces a {@link DedupePlan}.
+ * Scans a forest of schema and operation nodes and produces a {@link Plan}.
  *
  * A shape that occurs at least {@link MIN_OCCURRENCES} times is deduplicated: if any occurrence is
  * a named top-level schema, the first one becomes the target (so other top-level duplicates and
- * inline copies turn into references to it). Every other top-level name with the same content is
- * recorded in `targetByName`, so refs to it can be repointed at the target. Otherwise a new
- * definition is extracted using {@link nameFor}. The plan is then applied per node with {@link apply}.
+ * inline copies turn into references to it). Other top-level names with the same content are
+ * recorded as aliases. Otherwise a new definition is extracted using {@link nameFor}. The returned
+ * plan rewrites nodes against those decisions.
  *
  * @example
  * ```ts
  * const dedupePlan = plan([...schemaNodes, ...operationNodes], { circularSchemas, usedNames })
  * ```
  */
-export function plan(roots: ReadonlyArray<ast.Node>, context: DedupeContext): DedupePlan {
+export function plan(roots: ReadonlyArray<ast.Node>, context: DedupeContext): Plan {
   const { circularSchemas, usedNames } = context
 
   const topLevelNodes = new Set<ast.SchemaNode>()
@@ -182,29 +140,25 @@ export function plan(roots: ReadonlyArray<ast.Node>, context: DedupeContext): De
   }
   const groups = new Map<string, Group>()
 
-  function record(schemaNode: ast.SchemaNode): void {
-    if (!isCandidate(schemaNode, circularSchemas)) return
-    const signature = ast.signatureOf(schemaNode)
-
-    const isTopLevel = topLevelNodes.has(schemaNode) && !!schemaNode.name
-    const group = groups.get(signature)
-    if (group) {
-      group.count++
-      if (isTopLevel) group.topLevelNames.push(schemaNode.name!)
-    } else {
-      groups.set(signature, { count: 1, representative: schemaNode, topLevelNames: isTopLevel ? [schemaNode.name!] : [] })
-    }
-  }
-
   for (const root of roots) {
     if (root.kind === 'Schema') topLevelNodes.add(root)
     for (const schemaNode of ast.collect<ast.SchemaNode>(root, { schema: (node) => node })) {
-      record(schemaNode)
+      if (!isCandidate(schemaNode, circularSchemas)) continue
+
+      const signature = ast.signatureOf(schemaNode)
+      const isTopLevel = topLevelNodes.has(schemaNode) && !!schemaNode.name
+      const group = groups.get(signature)
+      if (group) {
+        group.count++
+        if (isTopLevel) group.topLevelNames.push(schemaNode.name!)
+      } else {
+        groups.set(signature, { count: 1, representative: schemaNode, topLevelNames: isTopLevel ? [schemaNode.name!] : [] })
+      }
     }
   }
 
-  const targetBySignature = new Map<string, DedupeTarget>()
-  const targetByName = new Map<string, DedupeTarget>()
+  const bySignature = new Map<string, Target>()
+  const byName = new Map<string, Target>()
   const pendingExtractions: Array<{ name: string; representative: ast.SchemaNode }> = []
 
   for (const [signature, group] of groups) {
@@ -212,10 +166,10 @@ export function plan(roots: ReadonlyArray<ast.Node>, context: DedupeContext): De
 
     const [firstName, ...duplicateNames] = group.topLevelNames
     if (firstName) {
-      const target: DedupeTarget = { name: firstName, ref: `${SCHEMA_REF_PREFIX}${firstName}` }
-      targetBySignature.set(signature, target)
+      const target: Target = { name: firstName, ref: `${SCHEMA_REF_PREFIX}${firstName}` }
+      bySignature.set(signature, target)
       for (const duplicate of duplicateNames) {
-        targetByName.set(duplicate, target)
+        byName.set(duplicate, target)
       }
       continue
     }
@@ -223,15 +177,61 @@ export function plan(roots: ReadonlyArray<ast.Node>, context: DedupeContext): De
     const name = nameFor(group.representative, usedNames)
     if (!name) continue
 
-    targetBySignature.set(signature, { name, ref: `${SCHEMA_REF_PREFIX}${name}` })
+    bySignature.set(signature, { name, ref: `${SCHEMA_REF_PREFIX}${name}` })
     pendingExtractions.push({ name, representative: group.representative })
+  }
+
+  // Rewrites a node against the resolved targets. `skipRootMatch` keeps a definition's own root from
+  // turning into a reference to itself. Nested duplicates are still collapsed.
+  function rewrite<T extends ast.Node>(node: T, skipRootMatch: boolean): T {
+    if (bySignature.size === 0 && byName.size === 0) return node
+
+    const root = node
+
+    return ast.transform(node, {
+      schema(schemaNode) {
+        if (schemaNode.type === 'ref') {
+          const refName = schemaNode.ref ? extractRefName(schemaNode.ref) : schemaNode.name
+          const target = refName ? byName.get(refName) : undefined
+
+          return target ? { ...schemaNode, name: target.name, ref: target.ref } : undefined
+        }
+
+        if (skipRootMatch && schemaNode === root) return undefined
+
+        const target = bySignature.get(ast.signatureOf(schemaNode))
+        if (!target) return undefined
+
+        return createRefNode(schemaNode, target)
+      },
+    }) as T
   }
 
   // Build extracted definitions only after every target name is known, so nested
   // duplicates inside a definition also resolve to refs.
-  const extracted = pendingExtractions.map(({ name, representative }) =>
-    cleanDefinition(apply(representative, { targetBySignature, targetByName }, true), name),
-  )
+  const extracted = pendingExtractions.map(({ name, representative }) => cleanDefinition(rewrite(representative, true), name))
 
-  return { targetBySignature, targetByName, extracted }
+  return {
+    extracted,
+    apply<T extends ast.Node>(node: T): T {
+      return rewrite(node, false)
+    },
+    applyTopLevel(node: ast.SchemaNode): ast.SchemaNode {
+      const target = bySignature.get(ast.signatureOf(node))
+      if (target && target.name !== node.name) {
+        return ast.factory.createSchema({
+          type: 'ref',
+          name: node.name ?? null,
+          ref: target.ref,
+          description: node.description,
+          deprecated: node.deprecated,
+        })
+      }
+
+      return rewrite(node, true)
+    },
+    isAlias(name: string): boolean {
+      return byName.has(name)
+    },
+  }
 }

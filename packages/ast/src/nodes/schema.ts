@@ -107,7 +107,7 @@ type SchemaNodeBase = BaseNode & {
   /**
    * Schema name for named definitions (for example, `"Pet"`).
    * Inline schemas omit this field.
-   * `null` means kubb has processed this and determined there is no applicable name.
+   * `null` means Kubb has processed this and determined there is no applicable name.
    * `undefined` means the name has not been set yet.
    */
   name?: string | null
@@ -190,7 +190,7 @@ export type ObjectSchemaNode = SchemaNodeBase & {
   /**
    * Additional object properties behavior:
    * - `true`: allow any value
-   * - `false`: reject unknown properties (maps to `.strict()` in Zod)
+   * - `false`: reject unknown properties
    * - `SchemaNode`: allow values that match that schema
    * - `undefined`: no additional properties constraint (open object)
    */
@@ -669,8 +669,8 @@ type CreateSchemaOutput<T extends CreateSchemaInput> = InferSchemaNode<T> & {
 
 /**
  * Maps schema `type` to its underlying `primitive`.
- * Primitive types map to themselves. Special string formats map to `'string'`.
- * Complex types (`ref`, `enum`, `union`, `intersection`, `tuple`, `blob`) are left unset.
+ * Primitive types map to themselves and special string formats map to `'string'`.
+ * Any type not listed here (such as `ref`, `enum`, `union`, `intersection`, `tuple`, `ipv4`, `ipv6`, `blob`) has no `primitive`.
  */
 const TYPE_TO_PRIMITIVE: Partial<Record<SchemaNode['type'], PrimitiveSchemaType>> = {
   string: 'string',

@@ -5,10 +5,9 @@ import { ast } from '@kubb/core'
  *
  * @example
  * ```ts
- * import { DEFAULT_PARSER_OPTIONS } from '@kubb/adapter-oas'
+ * import { DEFAULT_PARSER_OPTIONS, parseOas } from '@kubb/adapter-oas'
  *
- * const parser = createOasParser(oas)
- * const root = parser.parse({ ...DEFAULT_PARSER_OPTIONS, dateType: 'date' })
+ * const { root } = parseOas(document, { ...DEFAULT_PARSER_OPTIONS, dateType: 'date' })
  * ```
  */
 export const DEFAULT_PARSER_OPTIONS = {
@@ -69,12 +68,20 @@ export const MERGE_DEFAULT_VERSION = '1.0.0' as const
 export const structuralKeys = new Set(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'] as const)
 
 /**
+ * Formats `convertFormat` maps to a dedicated type without going through `formatMap`:
+ * `int64` and the date/time family. Keep this in sync with the `convertFormat`
+ * special-cases in `parser.ts`. `isHandledFormat` reads it so the
+ * `KUBB_UNSUPPORTED_FORMAT` diagnostic and the parser agree on what is handled.
+ */
+export const specialCasedFormats: ReadonlySet<string> = new Set(['int64', 'date-time', 'date', 'time'])
+
+/**
  * Static map from OAS `format` strings to Kubb `SchemaType` values.
  *
  * Only formats whose AST type differs from the OAS `type` field appear here.
- * Formats that depend on runtime options (`int64`, `date-time`, `date`, `time`) are handled separately
- * in the parser. `ipv4` and `ipv6` map to their own dedicated schema types. `hostname` and
- * `idn-hostname` map to `'url'` as the closest generic string-format type.
+ * Formats that depend on runtime options (`int64`, `date-time`, `date`, `time`) are handled
+ * separately in the parser. `ipv4` and `ipv6` map to their own dedicated schema types. `hostname`
+ * and `idn-hostname` map to `'url'` as the closest generic string-format type.
  *
  * @example
  * ```ts
@@ -85,14 +92,6 @@ export const structuralKeys = new Set(['properties', 'items', 'additionalPropert
  * formatMap['float']  // 'number'
  * ```
  */
-/**
- * Formats `convertFormat` maps to a dedicated type without going through `formatMap`:
- * `int64` and the date/time family. Keep this in sync with the `convertFormat`
- * special-cases in `parser.ts`. `isHandledFormat` reads it so the
- * `KUBB_UNSUPPORTED_FORMAT` diagnostic and the parser agree on what is handled.
- */
-export const specialCasedFormats: ReadonlySet<string> = new Set(['int64', 'date-time', 'date', 'time'])
-
 export const formatMap = {
   uuid: 'uuid',
   email: 'email',

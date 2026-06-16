@@ -10,24 +10,20 @@ const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 
  * Returns the last path segment of a reference string.
  *
  * @example
- * ```ts
- * extractRefName('#/components/schemas/Pet') // 'Pet'
- * ```
+ * `extractRefName('#/components/schemas/Pet') // 'Pet'`
  */
 export function extractRefName(ref: string): string {
   return ref.split('/').at(-1) ?? ref
 }
 
 /**
- * Resolves the schema name of a ref node, falling back through `ref` → `name` → nested `schema.name`.
+ * Resolves the schema name of a ref node. Uses the last segment of `ref` when set, otherwise falls
+ * back to `name` then nested `schema.name`.
  *
  * Returns `null` for non-ref nodes or when no name resolves.
  *
  * @example
- * ```ts
- * resolveRefName({ kind: 'Schema', type: 'ref', ref: '#/components/schemas/Pet' })
- * // => 'Pet'
- * ```
+ * `resolveRefName({ kind: 'Schema', type: 'ref', ref: '#/components/schemas/Pet' }) // 'Pet'`
  */
 export function resolveRefName(node: SchemaNode | undefined): string | null {
   if (!node || node.type !== 'ref') return null
@@ -40,11 +36,11 @@ export function resolveRefName(node: SchemaNode | undefined): string | null {
  * Builds a PascalCase child schema name by joining a parent name and property name.
  * Returns `null` when there is no parent to nest under.
  *
- * @example
- * ```ts
- * childName('Order', 'shipping_address') // 'OrderShippingAddress'
- * childName(undefined, 'params')         // null
- * ```
+ * @example Nested under a parent
+ * `childName('Order', 'shipping_address') // 'OrderShippingAddress'`
+ *
+ * @example No parent
+ * `childName(undefined, 'params') // null`
  */
 export function childName(parentName: string | null | undefined, propName: string): string | null {
   return parentName ? pascalCase([parentName, propName].join(' ')) : null
@@ -55,9 +51,7 @@ export function childName(parentName: string | null | undefined, propName: strin
  * empty parts.
  *
  * @example
- * ```ts
- * enumPropName('Order', 'status', 'enum') // 'OrderStatusEnum'
- * ```
+ * `enumPropName('Order', 'status', 'enum') // 'OrderStatusEnum'`
  */
 export function enumPropName(parentName: string | null | undefined, propName: string, enumSuffix: string): string {
   return pascalCase([parentName, propName, enumSuffix].filter(Boolean).join(' '))
@@ -66,8 +60,10 @@ export function enumPropName(parentName: string | null | undefined, propName: st
 /**
  * Merges a ref node with its resolved schema, giving usage-site fields precedence.
  *
- * Usage-site fields (`description`, `readOnly`, `nullable`, `deprecated`) on the ref node override
- * the same fields in the resolved `node.schema`. Non-ref nodes are returned unchanged.
+ * Every field set on the ref node except `kind`, `type`, `name`, `ref`, and `schema` overrides the
+ * same field in the resolved `node.schema` (for example `description`, `nullable`, `readOnly`,
+ * `deprecated`). Fields left `undefined` on the ref do not shadow the resolved schema. Non-ref
+ * nodes and refs without a resolved `schema` are returned unchanged.
  *
  * @example
  * ```ts
